@@ -2318,6 +2318,7 @@ function prepare_body($item) {
 
 if(! function_exists('run_proc')) {
 function proc_run($cmd){
+	$a = get_app();
 	$args = func_get_args();
 	call_hooks("proc_run", $args);
 	
