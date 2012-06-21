@@ -234,6 +234,9 @@ a:focus, a:active, a:hover {
     margin: 0 auto 6px;
     width: 100%;
 }
+#access div {
+    margin: 0 7.6%;
+}
 #access ul {
     font-size: 13px;
     list-style: none outside none;
@@ -287,7 +290,7 @@ a:focus, a:active, a:hover {
 #access ul li:hover > ul {
     display: block;
 }
-#access .current-menu-item > a, #access .current-menu-ancestor > a, #access .current_page_item > a, #access .current_page_ancestor > a {
+.selected  > a, #access .current-menu-item > a, #access .current-menu-ancestor > a, #access .current_page_item > a, #access .current_page_ancestor > a {
     font-weight: bold;
 }
 #branding #searchform {
@@ -338,9 +341,86 @@ a:focus, a:active, a:hover {
 }
 #branding #site-location {
 	font-size: 0.7em;
-	color: #666666;
+	color: #BBBBBB;
 	position: absolute;
     right: 7.6%;
     text-align: right;
-    top: -1.4em;
+    top: 13.5em;
+}
+
+/* user bar */
+#tools {
+	background: -moz-linear-gradient(#444444, #222222) repeat scroll 0 0 transparent;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    clear: both;
+    display: block;
+    position: fixed;
+	top: 0px;
+	left: auto;
+    margin: 0 auto 6px;
+    width: 1000px;
+}
+#tools div {
+    margin: 0 7.6%;
+}
+#tools ul {
+    font-size: 10px;
+    list-style: none outside none;
+    margin: 0 0 0 -0.8125em;
+    padding-left: 0;
+}
+#tools li {
+    float: left;
+    position: relative;
+}
+#tools a {
+    color: #EEEEEE;
+    display: block;
+    line-height: 3.333em;
+    padding: 0 1.2125em;
+    text-decoration: none;
+}
+#tools ul ul {
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+    display: none;
+    float: left;
+    left: 0;
+    margin: 0;
+    position: absolute;
+    top: 3.333em;
+    width: 188px;
+    z-index: 99999;
+}
+#tools ul ul .sep {
+	border-top: 1px dotted #DDDDDD;
+}
+#tools ul ul ul {
+    left: 100%;
+    top: 0;
+}
+#tools ul ul a {
+    background: none repeat scroll 0 0 #F9F9F9;
+    border-bottom: 1px dotted #DDDDDD;
+    color: #444444;
+    font-size: 13px;
+    font-weight: normal;
+    height: auto;
+    line-height: 1.4em;
+    padding: 10px;
+    width: 168px;
+}
+#tools li:hover > a, #access ul ul *:hover > a, #access a:focus {
+    background: none repeat scroll 0 0 #EFEFEF;
+}
+#tools li:hover > a, #access a:focus {
+    background: -moz-linear-gradient(#F9F9F9, #E5E5E5) repeat scroll 0 0 transparent;
+    color: #373737;
+}
+#tools ul li:hover > ul {
+    display: block;
+}
+#tools img { 
+	width: 16px; 
+	margin-bottom: -5px;
+    margin-right: 5px;
 }
