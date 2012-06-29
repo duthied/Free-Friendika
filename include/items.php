@@ -306,6 +306,9 @@ function get_atom_elements($feed,$item) {
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
 
+	//$debugfile = tempnam("/home/ike/log", "item-res-");
+	//file_put_contents($debugfile, serialize($res));
+
 	if($res['plink'])
 		$base_url = implode('/', array_slice(explode('/',$res['plink']),0,3));
 	else
@@ -1644,7 +1647,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	
 				$item_id  = $item->get_id();
 				$datarray = get_atom_elements($feed,$item);
-
 
 				if((! x($datarray,'author-name')) && ($contact['network'] != NETWORK_DFRN))
 					$datarray['author-name'] = $contact['name'];
