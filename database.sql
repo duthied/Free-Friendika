@@ -254,6 +254,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   `edited` datetime NOT NULL,
   `start` datetime NOT NULL,
   `finish` datetime NOT NULL,
+  `summary` text NOT NULL,
   `desc` text NOT NULL,
   `location` text NOT NULL,
   `type` char(255) NOT NULL,
@@ -263,7 +264,14 @@ CREATE TABLE IF NOT EXISTS `event` (
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
   `deny_gid` mediumtext NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `uid` ( `uid` ),
+  KEY `cid` ( `cid` ),
+  KEY `uri` ( `uri` ),
+  KEY `type` ( `type` ),
+  KEY `start` ( `start` ),
+  KEY `finish` ( `finish` ),
+  KEY `adjust` ( `adjust` )
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -831,6 +839,8 @@ CREATE TABLE IF NOT EXISTS `profile` (
   `religion` char(255) NOT NULL,
   `pub_keywords` text NOT NULL,
   `prv_keywords` text NOT NULL,
+  `likes` text NOT NULL,
+  `dislikes` text NOT NULL,
   `about` text NOT NULL,
   `summary` char(255) NOT NULL,
   `music` text NOT NULL,

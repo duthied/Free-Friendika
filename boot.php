@@ -10,9 +10,9 @@ require_once('include/nav.php');
 require_once('include/cache.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1382' );
+define ( 'FRIENDICA_VERSION',      '3.0.1388' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1149      );
+define ( 'DB_UPDATE_VERSION',      1151      );
 
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
@@ -434,6 +434,8 @@ if(! class_exists('App')) {
 			$this->pager['page'] = ((x($_GET,'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
 			$this->pager['itemspage'] = 50;
 			$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
+			if($this->pager['start'] < 1)
+				$this->pager['start'] = 1;
 			$this->pager['total'] = 0;
 		}
 
@@ -1252,6 +1254,9 @@ if(! function_exists('get_birthdays')) {
 			'$event_reminders' => t('Birthday Reminders'),
 			'$event_title' => t('Birthdays this week:'),
 			'$events' => $r,
+			'$lbr' => '{',  // raw brackets mess up if/endif macro processing
+			'$rbr' => '}'
+
 		));
 	}
 }
@@ -1374,9 +1379,9 @@ if(! function_exists('proc_run')) {
 
 		if(count($args) && $args[0] === 'php')
 			$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
-		foreach ($args as $arg){
-			$arg = escapeshellarg($arg);
-		}
+		for($x = 0; $x < count($args); $x ++)
+			$args[$x] = escapeshellarg($args[$x]);
+
 		$cmdline = implode($args," ");
 		proc_close(proc_open($cmdline." &",array(),$foo));
 	}
