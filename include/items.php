@@ -280,6 +280,29 @@ function construct_activity_target($item) {
 	return '';
 } 
 
+function title_is_body($title, $body) {
+
+	$title = strip_tags($title);
+	$title = trim($title);
+	$title = str_replace(array("\n", "\r", "\t", " "), array("","","",""), $title);
+
+	$body = strip_tags($body);
+	$body = trim($body);
+	$body = str_replace(array("\n", "\r", "\t", " "), array("","","",""), $body);
+
+	if (strlen($title) < strlen($body))
+		$body = substr($body, 0, strlen($title));
+
+	if (($title != $body) and (substr($title, -3) == "...")) {
+		$pos = strrpos($title, "...");
+		if ($pos > 0) {
+			$title = substr($title, 0, $pos);
+			$body = substr($body, 0, $pos);
+		}
+	}
+
+	return($title == $body);
+}
 
 
 
@@ -306,8 +329,10 @@ function get_atom_elements($feed,$item) {
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
 
-	//$debugfile = tempnam("/home/ike/log", "item-res-");
-	//file_put_contents($debugfile, serialize($res));
+	// removing the content of the title if its identically to the body
+	// This helps with auto generated titles e.g. from tumblr
+	if (title_is_body($res["title"], $res["body"]))
+		$res['title'] = "";
 
 	if($res['plink'])
 		$base_url = implode('/', array_slice(explode('/',$res['plink']),0,3));
