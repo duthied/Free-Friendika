@@ -352,7 +352,7 @@ function get_atom_elements($feed,$item) {
 					$res['author-avatar'] = unxmlify($link['attribs']['']['href']);
 			}
 		}
-	}			
+	}
 
 	$rawactor = $item->get_item_tags(NAMESPACE_ACTIVITY, 'actor');
 
@@ -384,7 +384,7 @@ function get_atom_elements($feed,$item) {
 						$res['author-avatar'] = unxmlify($link['attribs']['']['href']);
 				}
 			}
-		}			
+		}
 
 		$rawactor = $feed->get_feed_tags(NAMESPACE_ACTIVITY, 'subject');
 
@@ -409,7 +409,7 @@ function get_atom_elements($feed,$item) {
 		$res['app'] = strip_tags(unxmlify($apps[0]['attribs']['']['source']));
 		if($res['app'] === 'web')
 			$res['app'] = 'OStatus';
-	}		   
+	}
 
 	// base64 encoded json structure representing Diaspora signature
 
@@ -553,7 +553,7 @@ function get_atom_elements($feed,$item) {
 
 		foreach($base as $link) {
 			if(!x($res, 'owner-avatar') || !$res['owner-avatar']) {
-				if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar')			
+				if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar')
 					$res['owner-avatar'] = unxmlify($link['attribs']['']['href']);
 			}
 		}
@@ -696,6 +696,11 @@ function get_atom_elements($feed,$item) {
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
+
+	//if (($res["title"] != "") or (strpos($res["body"], "RT @") > 0)) {
+	//	$debugfile = tempnam("/home/ike/log", "item-res2-");
+	//	file_put_contents($debugfile, serialize($res));
+	//}
 
 	return $res;
 }
@@ -1644,7 +1649,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 	// Now process the feed
 
-	if($feed->get_item_quantity()) {		
+	if($feed->get_item_quantity()) {
 
 		logger('consume_feed: feed item count = ' . $feed->get_item_quantity());
 
@@ -1657,7 +1662,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 		foreach($items as $item) {
 
-			$is_reply = false;		
+			$is_reply = false;
 			$item_id = $item->get_id();
 			$rawthread = $item->get_item_tags( NAMESPACE_THREAD,'in-reply-to');
 			if(isset($rawthread[0]['attribs']['']['ref'])) {
@@ -1671,7 +1676,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					continue;
 
 				// Have we seen it? If not, import it.
-	
+
 				$item_id  = $item->get_id();
 				$datarray = get_atom_elements($feed,$item);
 

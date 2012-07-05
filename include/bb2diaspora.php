@@ -112,7 +112,7 @@ function bb2diaspora($Text,$preserve_nl = false) {
 	// Note that to get nested lists to work for Diaspora, we would need
 	// to define the closing tag for the list elements. So nested lists
 	// are going to be flattened out in Diaspora for now
-	$endlessloop = 0;
+/*	$endlessloop = 0;
 	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
 	       ((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) || 
 	       ((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false))) && (++$endlessloop < 20)) {
@@ -125,7 +125,7 @@ function bb2diaspora($Text,$preserve_nl = false) {
 		$Text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/is", 'diaspora_ul', $Text);
 		$Text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/is", 'diaspora_ol', $Text);
 	}
-
+*/
 	// Convert it to HTML - don't try oembed
 	$Text = bbcode($Text, $preserve_nl, false);
 
