@@ -353,6 +353,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 		$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
 
 		$Text = str_replace('<br></li>','</li>', $Text);
+
+		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
 	}
 
 	call_hooks('bbcode',$Text);
