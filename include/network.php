@@ -795,6 +795,9 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 
 	$a = get_app();
 
+	// Picture addresses can contain special characters
+	$s = htmlspecialchars_decode($s);
+
 	$matches = null;
 	$c = preg_match_all('/\[img\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($c) {
