@@ -61,10 +61,10 @@ function diaspora_dispatch($importer,$msg) {
 		$ret = diaspora_request($importer,$xmlbase->request);
 	}
 	elseif($xmlbase->status_message) {
-		$ret = diaspora_post($importer,$xmlbase->status_message);
+		$ret = diaspora_post($importer,$xmlbase->status_message,$msg);
 	}
 	elseif($xmlbase->profile) {
-		$ret = diaspora_profile($importer,$xmlbase->profile);
+		$ret = diaspora_profile($importer,$xmlbase->profile,$msg);
 	}
 	elseif($xmlbase->comment) {
 		$ret = diaspora_comment($importer,$xmlbase->comment,$msg);
@@ -73,10 +73,10 @@ function diaspora_dispatch($importer,$msg) {
 		$ret = diaspora_like($importer,$xmlbase->like,$msg);
 	}
 	elseif($xmlbase->asphoto) {
-		$ret = diaspora_asphoto($importer,$xmlbase->asphoto);
+		$ret = diaspora_asphoto($importer,$xmlbase->asphoto,$msg);
 	}
 	elseif($xmlbase->reshare) {
-		$ret = diaspora_reshare($importer,$xmlbase->reshare);
+		$ret = diaspora_reshare($importer,$xmlbase->reshare,$msg);
 	}
 	elseif($xmlbase->retraction) {
 		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
@@ -721,11 +721,16 @@ function diaspora_post_allow($importer,$contact) {
 }
 
 
-function diaspora_post($importer,$xml) {
+function diaspora_post($importer,$xml,$msg) {
 
 	$a = get_app();
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -837,7 +842,7 @@ function diaspora_post($importer,$xml) {
 
 }
 
-function diaspora_reshare($importer,$xml) {
+function diaspora_reshare($importer,$xml,$msg) {
 
 	logger('diaspora_reshare: init: ' . print_r($xml,true));
 
@@ -845,6 +850,11 @@ function diaspora_reshare($importer,$xml) {
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
 
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -991,12 +1001,17 @@ function diaspora_reshare($importer,$xml) {
 }
 
 
-function diaspora_asphoto($importer,$xml) {
+function diaspora_asphoto($importer,$xml,$msg) {
 	logger('diaspora_asphoto called');
 
 	$a = get_app();
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -1990,10 +2005,16 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 	// NOTREACHED
 }
 
-function diaspora_profile($importer,$xml) {
+function diaspora_profile($importer,$xml,$msg) {
 
 	$a = get_app();
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
