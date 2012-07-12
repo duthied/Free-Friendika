@@ -341,6 +341,11 @@
   height: 16px;
   background-position: 0px 0px;
 }
+
+.sparkle {
+	cursor: url('icons/lock.cur'), pointer;
+}
+
 /* global */
 body {
   font-family: Liberation Sans, helvetica, arial, clean, sans-serif;
