@@ -1,4 +1,6 @@
 <?php
+require_once('include/Photo.php');
+
 if(!function_exists('deletenode')) {
 	function deletenode(&$doc, $node)
 	{
@@ -107,7 +109,6 @@ function parseurl_getsiteinfo($url) {
 	}
 
 	if ($siteinfo["image"] == "") {
-                require_once('include/Photo.php');
                 $list = $xpath->query("//img[@src]");
                 foreach ($list as $node) {
                         $attr = array();
@@ -121,10 +122,33 @@ function parseurl_getsiteinfo($url) {
                         $i = fetch_url($attr["src"]);
                         $ph = new Photo($i, $type);
 
-                        if(($ph->getWidth() > 200) and ($ph->getHeight() > 200))
-                                $siteinfo["image"] = $attr["src"];
+			if($ph->is_valid() and ($ph->getWidth() > 200) and ($ph->getHeight() > 200)) {
+				if ($siteinfo["image"] == "")
+	                                $siteinfo["image"] = $attr["src"];
+
+				if($ph->getWidth() > 300 || $ph->getHeight() > 300) {
+					$ph->scaleImage(300);
+	                                $siteinfo["images"][] = array("src"=>$attr["src"],
+									"width"=>$ph->getWidth(),
+									"height"=>$ph->getHeight());
+				} else
+	                                $siteinfo["images"][] = array("src"=>$attr["src"],
+									"width"=>$ph->getWidth(),
+									"height"=>$ph->getHeight());
+			}
                 }
-        }
+        } else {
+		// guess mimetype from headers or filename
+                $type = guess_image_type($siteinfo["image"],true);
+
+                $i = fetch_url($siteinfo["image"]);
+                $ph = new Photo($i, $type);
+
+		if($ph->is_valid())
+			$siteinfo["images"][] = array("src"=>$siteinfo["image"],
+							"width"=>$ph->getWidth(),
+							"height"=>$ph->getHeight());
+	}
 
 	if ($siteinfo["text"] == "") {
 		$text = "";
@@ -172,8 +196,8 @@ function parse_url_content(&$a) {
 	if(local_user() && intval(get_pconfig(local_user(),'system','plaintext')))
 		$textmode = true;
 
-	if($textmode)
-	$br = (($textmode) ? "\n" : '<br /?');
+	//if($textmode)
+	$br = (($textmode) ? "\n" : '<br />');
 
 	if(x($_GET,'binurl'))
 		$url = trim(hex2bin($_GET['binurl']));
@@ -234,12 +258,19 @@ function parse_url_content(&$a) {
 		echo sprintf($template,$url,$url,'') . $str_tags;
 		killme();
 	} else {
-		$image = $siteinfo["image"];
 		$text = $siteinfo["text"];
 		$title = $siteinfo["title"];
 	}
 
-	if ($image != "") {
+	$image = "";
+
+	foreach ($siteinfo["images"] as $imagedata)
+		if($textmode)
+			$image .= '[img='.$imagedata["width"].'x'.$imagedata["height"].']'.$imagedata["src"].'[/img]';
+		else
+			$image .= '<img height="'.$imagedata["height"].'" width="'.$imagedata["width"].'" src="'.$imagedata["src"].'" alt="photo" />';
+
+/*	if ($image != "") {
 		$i = fetch_url($image);
 		if($i) {
 			require_once('include/Photo.php');
@@ -264,17 +295,17 @@ function parse_url_content(&$a) {
 				}
 			}
 		}
-	}
+	}*/
 
 	if(strlen($text)) {
 		if($textmode)
-			$text = $br.$br.'[quote]'.trim($text).'[/quote]'.$br ;
+			$text = $br.'[quote]'.trim($text).'[/quote]'.$br ;
 		else
-			$text = '<br /><br /><blockquote>'.trim($text).'</blockquote><br />';
+			$text = '<br /><blockquote>'.trim($text).'</blockquote><br />';
 	}
 
 	if($image) {
-		$text = $image.$br.$text;
+		$text = $br.$br.$image.$br.$text;
 	}
 	$title = str_replace(array("\r","\n"),array('',''),$title);
 
