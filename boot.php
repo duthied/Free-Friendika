@@ -413,6 +413,7 @@ if(! class_exists('App')) {
 					. 'include' . PATH_SEPARATOR
 					. 'library' . PATH_SEPARATOR
 					. 'library/phpsec' . PATH_SEPARATOR
+					. 'library/langdet' . PATH_SEPARATOR
 					. '.' );
 
 			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
