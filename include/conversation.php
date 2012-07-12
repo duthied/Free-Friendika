@@ -73,7 +73,6 @@ function item_redir_and_replace_images($body, $images, $cid) {
 		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
 		$cnt++;
 	}
-
 	return $newbody;
 }}
 
@@ -241,6 +240,17 @@ function localize_item(&$item){
 				$item['body'] = str_replace($mtch[0],'[url=' . zrl($mtch[1] . '/photos/' . $mtch[2] . '/image/' . $mtch[3] ,true) . '][img' . $mtch[4] . ']h' . $mtch[5]  . '[/img][/url]',$item['body']);
 		}
 	}
+
+	// add sparkle links to appropriate permalinks
+
+	$x = stristr($item['plink'],'/display/');
+	if($x) {
+		$sparkle = false;
+		$y = best_link_url($item,$sparkle,true);
+		if(strstr($y,'/redir/'))
+			$item['plink'] = $y . '?f=&url=' . $item['plink'];
+	} 
+
 
 
 }
