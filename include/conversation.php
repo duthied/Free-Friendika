@@ -234,6 +234,7 @@ function localize_item(&$item){
 				$item['body'] = str_replace($mtch[0],'@[url=' . zrl($mtch[1]). ']',$item['body']);
 		}
 	}
+
 	// add zrl's to public images
 	if(preg_match_all('/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is',$item['body'],$matches,PREG_SET_ORDER)) {
 		foreach($matches as $mtch) {
