@@ -1,6 +1,4 @@
 <?php
-require_once('include/Photo.php');
-
 if(!function_exists('deletenode')) {
 	function deletenode(&$doc, $node)
 	{
@@ -9,6 +7,30 @@ if(!function_exists('deletenode')) {
 		foreach ($list as $child)
 			$child->parentNode->removeChild($child);
 	}
+}
+
+function completeurl($url, $scheme) {
+        $urlarr = parse_url($url);
+
+        if (isset($urlarr["scheme"]))
+                return($url);
+
+        $schemearr = parse_url($scheme);
+
+        $complete = $schemearr["scheme"]."://".$schemearr["host"];
+
+        if ($schemearr["port"] != "")
+                $complete .= ":".$schemearr["port"];
+
+        $complete .= $urlarr["path"];
+
+        if ($urlarr["query"] != "")
+                $complete .= "?".$urlarr["query"];
+
+        if ($urlarr["fragment"] != "")
+                $complete .= "#".$urlarr["fragment"];
+
+        return($complete);
 }
 
 function parseurl_getsiteinfo($url) {
@@ -25,7 +47,8 @@ function parseurl_getsiteinfo($url) {
 	$header = curl_exec($ch);
 	curl_close($ch);
 
-	if (preg_match('/charset=(.*?)\n/', $header, $matches))
+	// Fetch the first mentioned charset. Can be in body or header
+	if (preg_match('/charset=(.*?)['."'".'"\s\n]/', $header, $matches))
 		$charset = trim(array_pop($matches));
 	else
 		$charset = "utf-8";
@@ -57,11 +80,13 @@ function parseurl_getsiteinfo($url) {
 
 	$xpath = new DomXPath($doc);
 
-	$list = $xpath->query("head/title");
+	//$list = $xpath->query("head/title");
+	$list = $xpath->query("//title");
 	foreach ($list as $node)
 		$siteinfo["title"] =  html_entity_decode($node->nodeValue, ENT_QUOTES, "UTF-8");
 
-	$list = $xpath->query("head/meta[@name]");
+	//$list = $xpath->query("head/meta[@name]");
+	$list = $xpath->query("//meta[@name]");
 	foreach ($list as $node) {
 		$attr = array();
 		if ($node->attributes->length)
@@ -86,7 +111,8 @@ function parseurl_getsiteinfo($url) {
 		}
 	}
 
-	$list = $xpath->query("head/meta[@property]");
+	//$list = $xpath->query("head/meta[@property]");
+	$list = $xpath->query("//meta[@property]");
 	foreach ($list as $node) {
 		$attr = array();
 		if ($node->attributes->length)
@@ -116,38 +142,32 @@ function parseurl_getsiteinfo($url) {
                                 foreach ($node->attributes as $attribute)
                                         $attr[$attribute->name] = $attribute->value;
 
-                        // guess mimetype from headers or filename
-                        $type = guess_image_type($attr["src"],true);
+			$src = completeurl($attr["src"], $url);
+			$photodata = getimagesize($src);
 
-                        $i = fetch_url($attr["src"]);
-                        $ph = new Photo($i, $type);
-
-			if($ph->is_valid() and ($ph->getWidth() > 200) and ($ph->getHeight() > 200)) {
-				if ($siteinfo["image"] == "")
-	                                $siteinfo["image"] = $attr["src"];
-
-				if($ph->getWidth() > 300 || $ph->getHeight() > 300) {
-					$ph->scaleImage(300);
-	                                $siteinfo["images"][] = array("src"=>$attr["src"],
-									"width"=>$ph->getWidth(),
-									"height"=>$ph->getHeight());
-				} else
-	                                $siteinfo["images"][] = array("src"=>$attr["src"],
-									"width"=>$ph->getWidth(),
-									"height"=>$ph->getHeight());
+			if (($photodata[0] > 150) and ($photodata[1] > 150)) {
+				if ($photodata[0] > 300) {
+					$photodata[1] = $photodata[1] * (300 / $photodata[0]);
+					$photodata[0] = 300;
+				}
+				if ($photodata[1] > 300) {
+					$photodata[0] = $photodata[0] * (300 / $photodata[1]);
+					$photodata[1] = 300;
+				}
+				$siteinfo["images"][] = array("src"=>$src,
+								"width"=>$photodata[0],
+								"height"=>$photodata[1]);
 			}
+
                 }
         } else {
-		// guess mimetype from headers or filename
-                $type = guess_image_type($siteinfo["image"],true);
+		$src = completeurl($siteinfo["image"], $url);
+		$photodata = getimagesize($src);
 
-                $i = fetch_url($siteinfo["image"]);
-                $ph = new Photo($i, $type);
-
-		if($ph->is_valid())
-			$siteinfo["images"][] = array("src"=>$siteinfo["image"],
-							"width"=>$ph->getWidth(),
-							"height"=>$ph->getHeight());
+		if (($photodata[0] > 10) and ($photodata[1] > 10))
+			$siteinfo["images"][] = array("src"=>$src,
+							"width"=>$photodata[0],
+							"height"=>$photodata[1]);
 	}
 
 	if ($siteinfo["text"] == "") {
@@ -155,19 +175,22 @@ function parseurl_getsiteinfo($url) {
 
 		$list = $xpath->query("//div[@class='article']");
 		foreach ($list as $node)
-			$text .= " ".trim($node->nodeValue);
+			if (strlen($node->nodeValue) > 40)
+				$text .= " ".trim($node->nodeValue);
 
 		if ($text == "") {
 			$list = $xpath->query("//div[@class='content']");
 			foreach ($list as $node)
-				$text .= " ".trim($node->nodeValue);
+				if (strlen($node->nodeValue) > 40)
+					$text .= " ".trim($node->nodeValue);
 		}
 
 		// If none text was found then take the paragraph content
 		if ($text == "") {
 			$list = $xpath->query("//p");
 			foreach ($list as $node)
-				$text .= " ".trim($node->nodeValue);
+				if (strlen($node->nodeValue) > 40)
+					$text .= " ".trim($node->nodeValue);
 		}
 
 		if ($text != "") {
@@ -238,9 +261,9 @@ function parse_url_content(&$a) {
 	if($url && $title && $text) {
 
 		if($textmode)
-			$text = $br . $br . '[quote]' . trim($text) . '[/quote]' . $br;
+			$text = $br . '[quote]' . trim($text) . '[/quote]' . $br;
 		else
-			$text = '<br /><br /><blockquote>' . trim($text) . '</blockquote><br />';
+			$text = '<br /><blockquote>' . trim($text) . '</blockquote><br />';
 
 		$title = str_replace(array("\r","\n"),array('',''),$title);
 
@@ -255,7 +278,8 @@ function parse_url_content(&$a) {
 	$siteinfo = parseurl_getsiteinfo($url);
 
 	if($siteinfo["title"] == "") {
-		echo sprintf($template,$url,$url,'') . $str_tags;
+		echo print_r($siteinfo, true);
+		//echo sprintf($template,$url,$url,'') . $str_tags;
 		killme();
 	} else {
 		$text = $siteinfo["text"];
@@ -305,7 +329,7 @@ function parse_url_content(&$a) {
 	}
 
 	if($image) {
-		$text = $br.$br.$image.$br.$text;
+		$text = $br.$br.$image.$text;
 	}
 	$title = str_replace(array("\r","\n"),array('',''),$title);
 
@@ -313,6 +337,6 @@ function parse_url_content(&$a) {
 
 	logger('parse_url: returns: ' . $result);
 
-	echo $result;
+	echo trim($result);
 	killme();
 }

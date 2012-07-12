@@ -1727,5 +1727,6 @@ notifications/follow
 notifications/leave
 blocks/exists
 blocks/blocking
+lists
 */
 
