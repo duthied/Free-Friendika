@@ -54,6 +54,20 @@ function notification($params) {
 
 		$parent_id = $params['parent'];
 
+		// Check to see if there was already a tag notify for this post.
+		// If so don't create a second notification
+		
+		$p = null;
+		$p = q("select id from notify where type = %d and link = '%s' and uid = %d limit 1",
+			intval(NOTIFY_TAGSELF),
+			dbesc($params['link']),
+			intval($params['uid'])
+		);
+		if($p and count($p)) {
+			pop_lang();
+			return;
+		}
+	
 
 		// if it's a post figure out who's post it is.
 
@@ -110,9 +124,9 @@ function notification($params) {
 
 		$preamble = sprintf( t('%1$s posted to your profile wall at %2$s') , $params['source_name'], $sitename);
 		
-		$epreamble = sprintf( t('%1$s posted to [url=%2s]your wall[/url]') , 
+		$epreamble = sprintf( t('%1$s posted to [url=%2$s]your wall[/url]') , 
 								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-								$itemlink); 
+								$params['link']); 
 		
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );

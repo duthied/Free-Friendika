@@ -4,6 +4,8 @@ require_once('include/bbcode.php');
 require_once('include/oembed.php');
 require_once('include/salmon.php');
 require_once('include/crypto.php');
+require_once('include/Photo.php');
+
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -278,7 +280,99 @@ function construct_activity_target($item) {
 	}
 
 	return '';
-} 
+}
+
+/* limit_body_size()
+ *
+ *		The purpose of this function is to apply system message length limits to
+ *		imported messages without including any embedded photos in the length
+ */
+if(! function_exists('limit_body_size')) {
+function limit_body_size($body) {
+
+	logger('limit_body_size: start', LOGGER_DEBUG);
+
+	$maxlen = get_max_import_size();
+
+	// If the length of the body, including the embedded images, is smaller
+	// than the maximum, then don't waste time looking for the images
+	if($maxlen && (strlen($body) > $maxlen)) {
+
+		logger('limit_body_size: the total body length exceeds the limit', LOGGER_DEBUG);
+
+		$orig_body = $body;
+		$new_body = '';
+		$textlen = 0;
+		$max_found = false;
+
+		$img_start = strpos($orig_body, '[img');
+		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+		while(($img_st_close !== false) && ($img_end !== false)) {
+
+			$img_st_close++; // make it point to AFTER the closing bracket
+			$img_end += $img_start;
+			$img_end += strlen('[/img]');
+
+			if(! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
+				// This is an embedded image
+
+				if( ($textlen + $img_start) > $maxlen ) {
+					if($textlen < $maxlen) {
+						logger('limit_body_size: the limit happens before an embedded image', LOGGER_DEBUG);
+						$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
+						$textlen = $maxlen;
+					}
+				}
+				else {
+					$new_body = $new_body . substr($orig_body, 0, $img_start);
+					$textlen += $img_start;
+				}
+
+				$new_body = $new_body . substr($orig_body, $img_start, $img_end - $img_start);
+			}
+			else {
+
+				if( ($textlen + $img_end) > $maxlen ) {
+					if($textlen < $maxlen) {
+						logger('limit_body_size: the limit happens before the end of a non-embedded image', LOGGER_DEBUG);
+						$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
+						$textlen = $maxlen;
+					}
+				}
+				else {
+					$new_body = $new_body . substr($orig_body, 0, $img_end);
+					$textlen += $img_end;
+				}
+			}
+			$orig_body = substr($orig_body, $img_end);
+
+			if($orig_body === false) // in case the body ends on a closing image tag
+				$orig_body = '';
+
+			$img_start = strpos($orig_body, '[img');
+			$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+			$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+		}
+
+		if( ($textlen + strlen($orig_body)) > $maxlen) {
+			if($textlen < $maxlen) {
+				logger('limit_body_size: the limit happens after the end of the last image', LOGGER_DEBUG);
+				$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
+				$textlen = $maxlen;
+			}
+		}
+		else {
+			logger('limit_body_size: the text size with embedded images extracted did not violate the limit', LOGGER_DEBUG);
+			$new_body = $new_body . $orig_body;
+			$textlen += strlen($orig_body);
+		}
+
+		return $new_body;
+	}
+	else
+		return $body;
+}}
 
 function title_is_body($title, $body) {
 
@@ -442,9 +536,8 @@ function get_atom_elements($feed,$item) {
 		$res['body'] = notags(base64url_decode($res['body']));
 	}
 
-	$maxlen = get_max_import_size();
-	if($maxlen && (strlen($res['body']) > $maxlen))
-		$res['body'] = substr($res['body'],0, $maxlen);
+	
+	$res['body'] = limit_body_size($res['body']);
 
 	// It isn't certain at this point whether our content is plaintext or html and we'd be foolish to trust 
 	// the content type. Our own network only emits text normally, though it might have been converted to 
@@ -757,6 +850,12 @@ function item_store($arr,$force_parent = false) {
 	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false)) 
 		$arr['body'] = strip_tags($arr['body']);
 
+	require_once('Text/LanguageDetect.php');
+	$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
+	$l = new Text_LanguageDetect;
+	$lng = $l->detectConfidence($naked_body);
+	$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
 	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : random_string());
@@ -825,7 +924,7 @@ function item_store($arr,$force_parent = false) {
 			if($r[0]['uri'] != $r[0]['parent-uri']) {
 				$arr['thr-parent'] = $arr['parent-uri'];
 				$arr['parent-uri'] = $r[0]['parent-uri'];
-				$z = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d 
+				$z = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d 
 					ORDER BY `id` ASC LIMIT 1",
 					dbesc($r[0]['parent-uri']),
 					dbesc($r[0]['parent-uri']),
@@ -2304,7 +2403,8 @@ function local_delivery($importer,$data) {
 					}
 
 					if($item['uri'] == $item['parent-uri']) {
-						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s'
+						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
+							`body` = '', `title` = ''
 							WHERE `parent-uri` = '%s' AND `uid` = %d",
 							dbesc($when),
 							dbesc(datetime_convert()),
@@ -2313,7 +2413,8 @@ function local_delivery($importer,$data) {
 						);
 					}
 					else {
-						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' 
+						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
+							`body` = '', `title` = ''
 							WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 							dbesc($when),
 							dbesc(datetime_convert()),
@@ -3119,20 +3220,33 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	return $o;
 }
 
-function fix_private_photos($s,$uid, $item = null, $cid = 0) {
+function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$a = get_app();
 
 	logger('fix_private_photos', LOGGER_DEBUG);
 	$site = substr($a->get_baseurl(),strpos($a->get_baseurl(),'://'));
 
-	if(preg_match("/\[img(.*?)\](.*?)\[\/img\]/is",$s,$matches)) {
-		$image = $matches[2];
+	$orig_body = $s;
+	$new_body = '';
+
+	$img_start = strpos($orig_body, '[img');
+	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+	$img_len = ($img_start !== false ? strpos(substr($orig_body, $img_start + $img_st_close + 1), '[/img]') : false);
+	while( ($img_st_close !== false) && ($img_len !== false) ) {
+
+		$img_st_close++; // make it point to AFTER the closing bracket
+		$image = substr($orig_body, $img_start + $img_st_close, $img_len);
+
 		logger('fix_private_photos: found photo ' . $image, LOGGER_DEBUG);
+
+
 		if(stristr($image , $site . '/photo/')) {
+			// Only embed locally hosted photos
 			$replace = false;
 			$i = basename($image);
 			$i = str_replace(array('.jpg','.png'),array('',''),$i);
 			$x = strpos($i,'-');
+
 			if($x) {
 				$res = substr($i,$x+1);
 				$i = substr($i,0,$x);
@@ -3150,14 +3264,6 @@ function fix_private_photos($s,$uid, $item = null, $cid = 0) {
 					// 3. Otherwise, if we have an item, see if the item permissions match the photo
 					//    permissions, regardless of order but first check to see if they're an exact
 					//    match to save some processing overhead.
-				
-					// Currently we only embed one private photo per message so as not to hit import 
-					// size limits at the receiving end.
-
-					// To embed multiples, we would need to parse out the embedded photos on message
-					// receipt and limit size based only on the text component. Would also need to
-					// ignore all photos during bbcode translation and item localisation, as these
-					// will hit internal regex backtrace limits.  
 
 					if(has_permissions($r[0])) {
 						if($cid) {
@@ -3172,15 +3278,45 @@ function fix_private_photos($s,$uid, $item = null, $cid = 0) {
 						}
 					}
 					if($replace) {
+						$data = $r[0]['data'];
+						$type = $r[0]['type'];
+
+						// If a custom width and height were specified, apply before embedding
+						if(preg_match("/\[img\=([0-9]*)x([0-9]*)\]/is", substr($orig_body, $img_start, $img_st_close), $match)) {
+							logger('fix_private_photos: scaling photo', LOGGER_DEBUG);
+
+							$width = intval($match[1]);
+							$height = intval($match[2]);
+
+							$ph = new Photo($data, $type);
+							if($ph->is_valid()) {
+								$ph->scaleImage(max($width, $height));
+								$data = $ph->imageString();
+								$type = $ph->getType();
+							}
+						}
+
 						logger('fix_private_photos: replacing photo', LOGGER_DEBUG);
-						$s = str_replace($image, 'data:' . $r[0]['type'] . ';base64,' . base64_encode($r[0]['data']), $s);
-						logger('fix_private_photos: replaced: ' . $s, LOGGER_DATA);
+						$image = 'data:' . $type . ';base64,' . base64_encode($data);
+						logger('fix_private_photos: replaced: ' . $image, LOGGER_DATA);
 					}
 				}
 			}
 		}	
+
+		$new_body = $new_body . substr($orig_body, 0, $img_start + $img_st_close) . $image . '[/img]';
+		$orig_body = substr($orig_body, $img_start + $img_st_close + $img_len + strlen('[/img]'));
+		if($orig_body === false)
+			$orig_body = '';
+
+		$img_start = strpos($orig_body, '[img');
+		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+		$img_len = ($img_start !== false ? strpos(substr($orig_body, $img_start + $img_st_close + 1), '[/img]') : false);
 	}
-	return($s);
+
+	$new_body = $new_body . $orig_body;
+
+	return($new_body);
 }
 
 
@@ -3524,7 +3660,9 @@ function posted_dates($uid,$wall) {
 		$dnow = substr($dthen,0,8) . '28';
 
 	$ret = array();
-	while($dnow >= $dthen) {
+	// Starting with the current month, get the first and last days of every
+	// month down to and including the month of the first post
+	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dstart = substr($dnow,0,8) . '01';
 		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');
@@ -3583,7 +3721,7 @@ function store_diaspora_retract_sig($item, $user, $baseurl) {
 	}
 	else {
 		$r = q("SELECT `nick`, `url` FROM `contact` WHERE `id` = '%d' LIMIT 1",
-			$item['contact-id']
+			$item['contact-id'] // If this function gets called, drop_item() has already checked remote_user() == $item['contact-id']
 		);
 		if(count($r)) {
 			// The below handle only works for NETWORK_DFRN. I think that's ok, because this function

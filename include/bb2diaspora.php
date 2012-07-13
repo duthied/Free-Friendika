@@ -7,6 +7,66 @@ require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
 require_once("include/markdownify/markdownify.php");
 
+
+function get_bb_tag_pos($s, $name, $occurance = 1) {
+
+	if($occurance < 1)
+		$occurance = 1;
+
+	$start_open = -1;
+	for($i = 1; $i <= $occurance; $i++) {
+		if( $start_open !== false)
+			$start_open = strpos($s, '[' . $name, $start_open + 1); // allow [name= type tags
+	}
+
+	if( $start_open === false)
+		return false;
+
+	$start_equal = strpos($s, '=', $start_open);
+	$start_close = strpos($s, ']', $start_open);
+
+	if( $start_close === false)
+		return false;
+
+	$start_close++;
+
+	$end_open = strpos($s, '[/' . $name . ']', $start_close);
+
+	if( $end_open === false)
+		return false;
+
+	$res = array( 'start' => array('open' => $start_open, 'close' => $start_close),
+	              'end' => array('open' => $end_open, 'close' => $end_open + strlen('[/' . $name . ']')) );
+	if( $start_equal !== false)
+		$res['start']['equal'] = $start_equal + 1;
+
+	return $res;
+}
+
+function bb_tag_preg_replace($pattern, $replace, $name, $s) {
+
+	$string = $s;
+
+	$occurance = 1;
+	$pos = get_bb_tag_pos($string, $name, $occurance);
+	while($pos !== false && $occurance < 1000) {
+
+		$start = substr($string, 0, $pos['start']['open']);
+		$subject = substr($string, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
+		$end = substr($string, $pos['end']['close']);
+		if($end === false)
+			$end = '';
+
+		$subject = preg_replace($pattern, $replace, $subject);
+		$string = $start . $subject . $end;
+
+		$occurance++;
+		$pos = get_bb_tag_pos($string, $name, $occurance);
+	}
+
+	return $string;
+}
+
 // we don't want to support a bbcode specific markdown interpreter
 // and the markdown library we have is pretty good, but provides HTML output.
 // So we'll use that to convert to HTML, then convert the HTML back to bbcode,
@@ -38,20 +98,23 @@ function diaspora2bb($s) {
 	$s = Markdown($s);
 
 	$s = str_replace('&#35;','#',$s);
-
-	$s = str_replace("\n",'<br />',$s);
+// we seem to have double linebreaks
+//	$s = str_replace("\n",'<br />',$s);
 
 	$s = html2bbcode($s);
 //	$s = str_replace('&#42;','*',$s);
+
+	// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
+	$s = str_replace('&#x2672;',html_entity_decode('&#x2672;',ENT_QUOTES,'UTF-8'),$s);
 
 	// Convert everything that looks like a link to a link
 	$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3]$2$3[/url]',$s);
 
 	//$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)(vimeo|youtu|www\.youtube|soundcloud)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3$4]$2$3$4[/url]',$s);
-	$s = preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[youtube]$2[/youtube]',$s);
-	$s = preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[youtube]$1[/youtube]',$s);
-	$s = preg_replace("/\[url\=?(.*?)\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[vimeo]$2[/vimeo]',$s);
-	$s = preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[vimeo]$1[/vimeo]',$s);
+	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[youtube]$2[/youtube]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[youtube]$1[/youtube]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/	\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[vimeo]$2[/vimeo]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[vimeo]$1[/vimeo]','url',$s);
 	// remove duplicate adjacent code tags
 	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);
 
@@ -67,6 +130,12 @@ function stripdcode_br_cb($s) {
 }
 
 
+//////////////////////
+// The following "diaspora_ul" and "diaspora_ol" are only appropriate for the
+// pre-Markdownify conversion. If Markdownify isn't used, use the non-Markdownify
+// versions below
+//////////////////////
+/*
 function diaspora_ul($s) {
 	// Replace "[*]" followed by any number (including zero) of
 	// spaces by "* " to match Diaspora's list format
@@ -100,32 +169,33 @@ function diaspora_ol($s) {
 	else
 		return $s[0];
 }
+*/
+
+//////////////////////
+// Non-Markdownify versions of "diaspora_ol" and "diaspora_ul"
+//////////////////////
+function diaspora_ul($s) {
+	// Replace "[\\*]" followed by any number (including zero) of
+	// spaces by "* " to match Diaspora's list format
+	return preg_replace("/\[\\\\\*\]( *)/", "* ", $s[1]);
+}
+
+function diaspora_ol($s) {
+	// A hack: Diaspora will create a properly-numbered ordered list even
+	// if you use '1.' for each element of the list, like:
+	// 1. First element
+	// 1. Second element
+	// 1. Third element
+	return preg_replace("/\[\\\\\*\]( *)/", "1. ", $s[1]);
+}
 
 
 function bb2diaspora($Text,$preserve_nl = false) {
 
-	// bbcode() will convert "[*]" into "<li>" with no closing "</li>"
-	// Markdownify() is unable to handle these, as it makes each new
-	// "<li>" into a deeper nested element until it crashes. So pre-format
-	// the lists as Diaspora lists before sending the $Text to bbcode()
-	//
-	// Note that to get nested lists to work for Diaspora, we would need
-	// to define the closing tag for the list elements. So nested lists
-	// are going to be flattened out in Diaspora for now
-/*	$endlessloop = 0;
-	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
-	       ((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) || 
-	       ((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false))) && (++$endlessloop < 20)) {
-		$Text = preg_replace_callback("/\[list\](.*?)\[\/list\]/is", 'diaspora_ul', $Text);
-		$Text = preg_replace_callback("/\[list=1\](.*?)\[\/list\]/is", 'diaspora_ol', $Text);
-		$Text = preg_replace_callback("/\[list=i\](.*?)\[\/list\]/s",'diaspora_ol', $Text);
-		$Text = preg_replace_callback("/\[list=I\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-		$Text = preg_replace_callback("/\[list=a\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-		$Text = preg_replace_callback("/\[list=A\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-		$Text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/is", 'diaspora_ul', $Text);
-		$Text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/is", 'diaspora_ol', $Text);
-	}
-*/
+	// Re-enabling the converter again.
+	// The bbcode parser now handles youtube-links (and the other stuff) correctly.
+	// Additionally the html code is now fixed so that lists are now working.
+
 	// Convert it to HTML - don't try oembed
 	$Text = bbcode($Text, $preserve_nl, false);
 
@@ -142,7 +212,9 @@ function bb2diaspora($Text,$preserve_nl = false) {
 	// Remove all unconverted tags
 	$Text = strip_tags($Text);
 
-/*
+
+/* Old routine
+
 	$ev = bbtoevent($Text);
 
 	// Replace any html brackets with HTML Entities to prevent executing HTML or script
@@ -225,15 +297,21 @@ function bb2diaspora($Text,$preserve_nl = false) {
 	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])is","$2",$Text);
 
 	// Check for list text
-	$Text = preg_replace_callback("/\[list\](.*?)\[\/list\]/is", 'diaspora_ul', $Text);
-	$Text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/is", 'diaspora_ul', $Text);
-	$Text = preg_replace_callback("/\[list=1\](.*?)\[\/list\]/is", 'diaspora_ol', $Text);
-	$Text = preg_replace_callback("/\[list=i\](.*?)\[\/list\]/s",'diaspora_ol', $Text);
-	$Text = preg_replace_callback("/\[list=I\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-	$Text = preg_replace_callback("/\[list=a\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-	$Text = preg_replace_callback("/\[list=A\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
-	$Text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/is", 'diaspora_ol', $Text);
-//	$Text = preg_replace("/\[li\](.*?)\[\/li\]/s", '<li>$1</li>' ,$Text);
+	$endlessloop = 0;
+	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
+	       ((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) || 
+	       ((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false)) || 
+	       ((strpos($Text, "[/li]") !== false) && (strpos($Text, "[li]") !== false))) && (++$endlessloop < 20)) {
+		$Text = preg_replace_callback("/\[list\](.*?)\[\/list\]/is", 'diaspora_ul', $Text);
+		$Text = preg_replace_callback("/\[list=1\](.*?)\[\/list\]/is", 'diaspora_ol', $Text);
+		$Text = preg_replace_callback("/\[list=i\](.*?)\[\/list\]/s",'diaspora_ol', $Text);
+		$Text = preg_replace_callback("/\[list=I\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
+		$Text = preg_replace_callback("/\[list=a\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
+		$Text = preg_replace_callback("/\[list=A\](.*?)\[\/list\]/s", 'diaspora_ol', $Text);
+		$Text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/is", 'diaspora_ul', $Text);
+		$Text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/is", 'diaspora_ol', $Text);
+		$Text = preg_replace("/\[li\]( *)(.*?)\[\/li\]/s", '* $2' ,$Text);
+	}
 
 	// Just get rid of table tags since Diaspora doesn't support tables
 	$Text = preg_replace("/\[th\](.*?)\[\/th\]/s", '$1' ,$Text);
@@ -295,12 +373,13 @@ function bb2diaspora($Text,$preserve_nl = false) {
 
 	// If we found an event earlier, strip out all the event code and replace with a reformatted version.
 
-	if(x($ev,'desc') && x($ev,'start')) {
+	if(x($ev,'start')) {
 
 		$sub = format_event_diaspora($ev);
 
-		$Text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/is",$sub,$Text);
-		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/is",'',$Text);
+		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/is",'',$Text);
+		$Text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/is",'',$Text);
+		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/is",$sub,$Text);
 		$Text = preg_replace("/\[event\-finish\](.*?)\[\/event\-finish\]/is",'',$Text);
 		$Text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/is",'',$Text);
 		$Text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is",'',$Text);
@@ -309,6 +388,7 @@ function bb2diaspora($Text,$preserve_nl = false) {
 	$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
 
 	$Text = preg_replace_callback('/\[(.*?)\]\((.*?)\)/ism','unescape_underscores_in_links',$Text);
+
 */
 
 	// Remove any leading or trailing whitespace, as this will mess up
@@ -336,7 +416,7 @@ function format_event_diaspora($ev) {
 
 	$o = 'Friendica event notification:' . "\n";
 
-	$o .= '**' . bb2diaspora($ev['desc']) .  '**' . "\n";
+	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
 	$o .= t('Starts:') . ' ' . '['
 		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC', 

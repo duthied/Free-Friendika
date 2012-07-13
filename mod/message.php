@@ -88,6 +88,84 @@ function message_post(&$a) {
 
 }
 
+// Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
+// is identical to the code in include/conversation.php
+if(! function_exists('item_extract_images')) {
+function item_extract_images($body) {
+
+	$saved_image = array();
+	$orig_body = $body;
+	$new_body = '';
+
+	$cnt = 0;
+	$img_start = strpos($orig_body, '[img');
+	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+	$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+	while(($img_st_close !== false) && ($img_end !== false)) {
+
+		$img_st_close++; // make it point to AFTER the closing bracket
+		$img_end += $img_start;
+
+		if(! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
+			// This is an embedded image
+
+			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
+			$new_body = $new_body . substr($orig_body, 0, $img_start) . '[!#saved_image' . $cnt . '#!]';
+
+			$cnt++;
+		}
+		else
+			$new_body = $new_body . substr($orig_body, 0, $img_end + strlen('[/img]'));
+
+		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
+
+		if($orig_body === false) // in case the body ends on a closing image tag
+			$orig_body = '';
+
+		$img_start = strpos($orig_body, '[img');
+		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+	}
+
+	$new_body = $new_body . $orig_body;
+
+	return array('body' => $new_body, 'images' => $saved_image);
+}}
+
+if(! function_exists('item_redir_and_replace_images')) {
+function item_redir_and_replace_images($body, $images, $cid) {
+
+	$origbody = $body;
+	$newbody = '';
+
+	for($i = 0; $i < count($images); $i++) {
+		$search = '/\[url\=(.*?)\]\[!#saved_image' . $i . '#!\]\[\/url\]' . '/is';
+		$replace = '[url=' . z_path() . '/redir/' . $cid 
+		           . '?f=1&url=' . '$1' . '][!#saved_image' . $i . '#!][/url]' ;
+
+		$img_end = strpos($origbody, '[!#saved_image' . $i . '#!][/url]') + strlen('[!#saved_image' . $i . '#!][/url]');
+		$process_part = substr($origbody, 0, $img_end);
+		$origbody = substr($origbody, $img_end);
+
+		$process_part = preg_replace($search, $replace, $process_part);
+		$newbody = $newbody . $process_part;
+	}
+	$newbody = $newbody . $origbody;
+
+	$cnt = 0;
+	foreach($images as $image) {
+		// We're depending on the property of 'foreach' (specified on the PHP website) that
+		// it loops over the array starting from the first element and going sequentially
+		// to the last element
+		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
+		$cnt++;
+	}
+
+	return $newbody;
+}}
+
+
+
 function message_content(&$a) {
 
 	$o = '';
@@ -224,6 +302,7 @@ function message_content(&$a) {
 		// list messages
 
 		$o .= $header;
+
 		
 		$r = q("SELECT count(*) AS `total` FROM `mail` 
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
@@ -232,7 +311,7 @@ function message_content(&$a) {
 		);
 		if(count($r))
 			$a->set_pager_total($r[0]['total']);
-	
+
 		$r = q("SELECT max(`mail`.`created`) AS `mailcreated`, min(`mail`.`seen`) AS `mailseen`, 
 			`mail`.* , `contact`.`name`, `contact`.`url`, `contact`.`thumb` , `contact`.`network`,
 			count( * ) as count
@@ -243,6 +322,7 @@ function message_content(&$a) {
 			intval($a->pager['start']),
 			intval($a->pager['itemspage'])
 		);
+
 		if(! count($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
@@ -343,26 +423,9 @@ function message_content(&$a) {
 			}
 
 
-			$Text = $message['body'];
-			$saved_image = '';
-			$img_start = strpos($Text,'[img]data:');
-			$img_end = strpos($Text,'[/img]');
-
-			if($img_start !== false && $img_end !== false && $img_end > $img_start) {
-				$start_fragment = substr($Text,0,$img_start);
-				$img_start += strlen('[img]');
-				$saved_image = substr($Text,$img_start,$img_end - $img_start);
-				$end_fragment = substr($Text,$img_end + strlen('[/img]'));		
-				$Text = $start_fragment . '[!#saved_image#!]' . $end_fragment;
-				$search = '/\[url\=(.*?)\]\[!#saved_image#!\]\[\/url\]' . '/is';
-				$replace = '[url=' . z_path() . '/redir/' . $message['contact-id'] 
-					. '?f=1&url=' . '$1' . '][!#saved_image#!][/url]' ;
-
-				$Text = preg_replace($search,$replace,$Text);
-
-			if(strlen($saved_image))
-				$message['body'] = str_replace('[!#saved_image#!]', '[img]' . $saved_image . '[/img]',$Text);
-			}
+			$extracted = item_extract_images($message['body']);
+			if($extracted['images'])
+				$message['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $message['contact-id']);
 
 			$mails[] = array(
 				'id' => $message['id'],

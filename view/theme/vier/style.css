@@ -306,6 +306,10 @@
 .icon.s48.unlock {
   background-image: url("../../../images/icons/48/unlock.png");
 }
+.sparkle {
+	cursor: url('lock.cur'), pointer;
+}
+
 
 #contact-edit-links ul {
   list-style: none;

@@ -5,6 +5,7 @@ require_once('include/items.php');
 require_once('include/bb2diaspora.php');
 require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
+require_once('include/lock.php');
 
 
 function diaspora_dispatch_public($msg) {
@@ -60,10 +61,10 @@ function diaspora_dispatch($importer,$msg) {
 		$ret = diaspora_request($importer,$xmlbase->request);
 	}
 	elseif($xmlbase->status_message) {
-		$ret = diaspora_post($importer,$xmlbase->status_message);
+		$ret = diaspora_post($importer,$xmlbase->status_message,$msg);
 	}
 	elseif($xmlbase->profile) {
-		$ret = diaspora_profile($importer,$xmlbase->profile);
+		$ret = diaspora_profile($importer,$xmlbase->profile,$msg);
 	}
 	elseif($xmlbase->comment) {
 		$ret = diaspora_comment($importer,$xmlbase->comment,$msg);
@@ -72,10 +73,10 @@ function diaspora_dispatch($importer,$msg) {
 		$ret = diaspora_like($importer,$xmlbase->like,$msg);
 	}
 	elseif($xmlbase->asphoto) {
-		$ret = diaspora_asphoto($importer,$xmlbase->asphoto);
+		$ret = diaspora_asphoto($importer,$xmlbase->asphoto,$msg);
 	}
 	elseif($xmlbase->reshare) {
-		$ret = diaspora_reshare($importer,$xmlbase->reshare);
+		$ret = diaspora_reshare($importer,$xmlbase->reshare,$msg);
 	}
 	elseif($xmlbase->retraction) {
 		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
@@ -113,27 +114,93 @@ function diaspora_get_contact_by_handle($uid,$handle) {
 }
 
 function find_diaspora_person_by_handle($handle) {
+
+	$person = false;
 	$update = false;
-	$r = q("select * from fcontact where network = '%s' and addr = '%s' limit 1",
-		dbesc(NETWORK_DIASPORA),
-		dbesc($handle)
-	);
-	if(count($r)) {
-		logger('find_diaspora_person_by handle: in cache ' . print_r($r,true), LOGGER_DEBUG);
-		// update record occasionally so it doesn't get stale
-		$d = strtotime($r[0]['updated'] . ' +00:00');
-		if($d > strtotime('now - 14 days'))
-			return $r[0];
-		$update = true;
-	}
-	logger('find_diaspora_person_by_handle: refresh',LOGGER_DEBUG);
-	require_once('include/Scrape.php');
-	$r = probe_url($handle, PROBE_DIASPORA);
-	if((count($r)) && ($r['network'] === NETWORK_DIASPORA)) {
-		add_fcontact($r,$update);
-		return ($r);
-	}
-	return false;
+	$got_lock = false;
+
+	$endlessloop = 0;
+	$maxloops = 10;
+
+	do {
+		$r = q("select * from fcontact where network = '%s' and addr = '%s' limit 1",
+			dbesc(NETWORK_DIASPORA),
+			dbesc($handle)
+		);
+		if(count($r)) {
+			$person = $r[0];
+			logger('find_diaspora_person_by handle: in cache ' . print_r($r,true), LOGGER_DEBUG);
+
+			// update record occasionally so it doesn't get stale
+			$d = strtotime($person['updated'] . ' +00:00');
+			if($d < strtotime('now - 14 days'))
+				$update = true;
+		}
+
+
+		// FETCHING PERSON INFORMATION FROM REMOTE SERVER
+		//
+		// If the person isn't in our 'fcontact' table, or if he/she is but
+		// his/her information hasn't been updated for more than 14 days, then
+		// we want to fetch the person's information from the remote server.
+		//
+		// Note that $person isn't changed by this block of code unless the
+		// person's information has been successfully fetched from the remote
+		// server. So if $person was 'false' to begin with (because he/she wasn't
+		// in the local cache), it'll stay false, and if $person held the local
+		// cache information to begin with, it'll keep that information. That way
+		// if there's a problem with the remote fetch, we can at least use our
+		// cached information--it's better than nothing.
+
+		if((! $person) || ($update))  {
+			// Lock the function to prevent race conditions if multiple items
+			// come in at the same time from a person who doesn't exist in
+			// fcontact
+			//
+			// Don't loop forever. On the last loop, try to create the contact
+			// whether the function is locked or not. Maybe the locking thread
+			// has died or something. At any rate, a duplicate in 'fcontact'
+			// is a much smaller problem than a deadlocked thread
+			$got_lock = lock_function('find_diaspora_person_by_handle', false);
+			if(($endlessloop + 1) >= $maxloops)
+				$got_lock = true;
+
+			if($got_lock) {
+				logger('find_diaspora_person_by_handle: create or refresh', LOGGER_DEBUG);
+				require_once('include/Scrape.php');
+				$r = probe_url($handle, PROBE_DIASPORA);
+
+				// Note that Friendica contacts can return a "Diaspora person"
+				// if Diaspora connectivity is enabled on their server
+				if((count($r)) && ($r['network'] === NETWORK_DIASPORA)) {
+					add_fcontact($r,$update);
+					$person = ($r);
+				}
+
+				unlock_function('find_diaspora_person_by_handle');
+			}
+			else {
+				logger('find_diaspora_person_by_handle: couldn\'t lock function', LOGGER_DEBUG);
+				if(! $person)
+					block_on_function_lock('find_diaspora_person_by_handle');
+			}
+		}
+	} while((! $person) && (! $got_lock) && (++$endlessloop < $maxloops));
+	// We need to try again if the person wasn't in 'fcontact' but the function was locked.
+	// The fact that the function was locked may mean that another process was creating the
+	// person's record. It could also mean another process was creating or updating an unrelated
+	// person.
+	//
+	// At any rate, we need to keep trying until we've either got the person or had a chance to
+	// try to fetch his/her remote information. But we don't want to block on locking the
+	// function, because if the other process is creating the record, then when we acquire the lock
+	// we'll dive right into creating another, duplicate record. We DO want to at least wait
+	// until the lock is released, so we don't flood the database with requests.
+	//
+	// If the person was in the 'fcontact' table, don't try again. It's not worth the time, since
+	// we do have some information for the person
+
+	return $person;
 }
 
 
@@ -654,11 +721,16 @@ function diaspora_post_allow($importer,$contact) {
 }
 
 
-function diaspora_post($importer,$xml) {
+function diaspora_post($importer,$xml,$msg) {
 
 	$a = get_app();
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -770,7 +842,7 @@ function diaspora_post($importer,$xml) {
 
 }
 
-function diaspora_reshare($importer,$xml) {
+function diaspora_reshare($importer,$xml,$msg) {
 
 	logger('diaspora_reshare: init: ' . print_r($xml,true));
 
@@ -778,6 +850,11 @@ function diaspora_reshare($importer,$xml) {
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
 
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -844,7 +921,7 @@ function diaspora_reshare($importer,$xml) {
 	else
 		$details = $orig_author;
 	
-	$prefix = '&#x2672; ' . $details . "\n"; 
+	$prefix = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $details . "\n"; 
 
 
 	// allocate a guid on our system - we aren't fixing any collisions.
@@ -924,12 +1001,17 @@ function diaspora_reshare($importer,$xml) {
 }
 
 
-function diaspora_asphoto($importer,$xml) {
+function diaspora_asphoto($importer,$xml,$msg) {
 	logger('diaspora_asphoto called');
 
 	$a = get_app();
 	$guid = notags(unxmlify($xml->guid));
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -1154,6 +1236,7 @@ function diaspora_comment($importer,$xml,$msg) {
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
+	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
@@ -1190,7 +1273,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	if(($parent_item['origin']) && (! $parent_author_signature)) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
-			dbesc($author_signed_data),
+			dbesc($signed_data),
 			dbesc(base64_encode($author_signature)),
 			dbesc($diaspora_handle)
 		);
@@ -1591,8 +1674,8 @@ function diaspora_like($importer,$xml,$msg) {
 
 	// likes on comments not supported here and likes on photos not supported by Diaspora
 
-	if($target_type !== 'Post')
-		return;
+//	if($target_type !== 'Post')
+//		return;
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$msg['author']);
 	if(! $contact) {
@@ -1773,7 +1856,7 @@ EOT;
 	if(! $parent_author_signature) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
-			dbesc($author_signed_data),
+			dbesc($signed_data),
 			dbesc(base64_encode($author_signature)),
 			dbesc($diaspora_handle)
 		);
@@ -1923,10 +2006,16 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 	// NOTREACHED
 }
 
-function diaspora_profile($importer,$xml) {
+function diaspora_profile($importer,$xml,$msg) {
 
 	$a = get_app();
 	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+
+
+	if($diaspora_handle != $msg['author']) {
+		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
+		return 202;
+	}
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact)
@@ -2165,22 +2254,30 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	$myaddr = $owner['nickname'] . '@' .  substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 //	$theiraddr = $contact['addr'];
 
-	// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-	// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-	// The only item with `parent` and `id` as the parent id is the parent item.
-	$p = q("select guid from item where parent = %d and id = %d limit 1",
-		intval($item['parent']),
-		intval($item['parent'])
-	);
+	if($item['thr-parent']) {
+		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+		        dbesc($item['thr-parent'])
+		      );
+	}
+	else {
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+			intval($item['parent']),
+			intval($item['parent'])
+		);
+	}
 	if(count($p))
-		$parent_guid = $p[0]['guid'];
+		$parent = $p[0];
 	else
 		return;
 
 	if($item['verb'] === ACTIVITY_LIKE) {
 		$tpl = get_markup_template('diaspora_like.tpl');
 		$like = true;
-		$target_type = 'Post';
+		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
+//		$target_type = (strpos($parent['type'], 'comment') ? 'Comment' : 'Post');
 //		$positive = (($item['deleted']) ? 'false' : 'true');
 		$positive = 'true';
 
@@ -2197,15 +2294,15 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	// sign it
 
 	if($like)
-		$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $myaddr;
+		$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $myaddr;
 	else
-		$signed_text = $item['guid'] . ';' . $parent_guid . ';' . $text . ';' . $myaddr;
+		$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $myaddr;
 
 	$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
 
 	$msg = replace_macros($tpl,array(
 		'$guid' => xmlify($item['guid']),
-		'$parent_guid' => xmlify($parent_guid),
+		'$parent_guid' => xmlify($parent['guid']),
 		'$target_type' =>xmlify($target_type),
 		'$authorsig' => xmlify($authorsig),
 		'$body' => xmlify($text),
@@ -2233,15 +2330,22 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	$text = html_entity_decode(bb2diaspora($body));
 
 
-	// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-	// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-	// The only item with `parent` and `id` as the parent id is the parent item.
-	$p = q("select guid from item where parent = %d and id = %d limit 1",
-		intval($item['parent']),
-		intval($item['parent'])
-	);
+	if($item['thr-parent']) {
+		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+		        dbesc($item['thr-parent'])
+		      );
+	}
+	else {
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+			intval($item['parent']),
+			intval($item['parent'])
+		      );
+	}
 	if(count($p))
-		$parent_guid = $p[0]['guid'];
+		$parent = $p[0];
 	else
 		return;
 
@@ -2259,7 +2363,8 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	elseif($item['verb'] === ACTIVITY_LIKE) {
 		$like = true;
 
-		$target_type = 'Post';
+		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
+//		$target_type = (strpos($parent['type'], 'comment') ? 'Comment' : 'Post');
 //		$positive = (($item['deleted']) ? 'false' : 'true');
 		$positive = 'true';
 
@@ -2294,9 +2399,9 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	if($relay_retract)
 		$sender_signed_text = $item['guid'] . ';' . $target_type;
 	elseif($like)
-		$sender_signed_text = $item['guid'] . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $handle;
+		$sender_signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
 	else
-		$sender_signed_text = $item['guid'] . ';' . $parent_guid . ';' . $text . ';' . $handle;
+		$sender_signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
 
 	// Sign the relayable with the top-level owner's signature
 	//
@@ -2313,7 +2418,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 
 	$msg = replace_macros($tpl,array(
 		'$guid' => xmlify($item['guid']),
-		'$parent_guid' => xmlify($parent_guid),
+		'$parent_guid' => xmlify($parent['guid']),
 		'$target_type' =>xmlify($target_type),
 		'$authorsig' => xmlify($authorsig),
 		'$parentsig' => xmlify($parentauthorsig),
@@ -2429,7 +2534,7 @@ function diaspora_send_mail($item,$owner,$contact) {
 
 }
 
-function diaspora_transmit($owner,$contact,$slap,$public_batch) {
+function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false) {
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
 	if(! $enabled) {
@@ -2446,7 +2551,7 @@ function diaspora_transmit($owner,$contact,$slap,$public_batch) {
 
 	logger('diaspora_transmit: ' . $logid . ' ' . $dest_url);
 
-	if(was_recently_delayed($contact['id'])) {
+	if( (! $queue_run) && (was_recently_delayed($contact['id'])) ) {
 		$return_code = 0;
 	}
 	else {

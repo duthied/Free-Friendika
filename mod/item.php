@@ -18,6 +18,7 @@
 require_once('include/crypto.php');
 require_once('include/enotify.php');
 require_once('include/email.php');
+require_once('Text/LanguageDetect.php');
 
 function item_post(&$a) {
 
@@ -215,6 +216,15 @@ function item_post(&$a) {
 		$verb              = notags(trim($_REQUEST['verb']));
 		$emailcc           = notags(trim($_REQUEST['emailcc']));
 		$body              = escape_tags(trim($_REQUEST['body']));
+
+
+		$naked_body = preg_replace('/\[(.+?)\]/','',$body);
+		$l = new Text_LanguageDetect;
+		$lng = $l->detectConfidence($naked_body);
+
+		$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+
+		logger('mod_item: detect language' . print_r($lng,true) . $naked_body, LOGGER_DATA);
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
@@ -561,7 +571,7 @@ function item_post(&$a) {
 	$datarray['attach']        = $attachments;
 	$datarray['bookmark']      = intval($bookmark);
 	$datarray['thr-parent']    = $thr_parent;
-	$datarray['postopts']      = '';
+	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
 
@@ -1039,16 +1049,11 @@ function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, 
 	require_once('include/bb2diaspora.php');
 	$signed_body = html_entity_decode(bb2diaspora($datarray['body']));
 
-//	$myaddr = $user['nickname'] . '@' . substr($baseurl, strpos($baseurl,'://') + 3);
-//	if( $author['network'] === NETWORK_DIASPORA)
-//		$diaspora_handle = $author['addr'];
-//	else {
 	// Only works for NETWORK_DFRN
 	$contact_baseurl_start = strpos($author['url'],'://') + 3;
 	$contact_baseurl_length = strpos($author['url'],'/profile') - $contact_baseurl_start;
 	$contact_baseurl = substr($author['url'], $contact_baseurl_start, $contact_baseurl_length);
 	$diaspora_handle = $author['nick'] . '@' . $contact_baseurl;
-//	}
 
 	$signed_text = $datarray['guid'] . ';' . $parent_item['guid'] . ';' . $signed_body . ';' . $diaspora_handle;
 

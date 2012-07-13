@@ -106,17 +106,18 @@ function like_content(&$a) {
 
 
 	$r = q("SELECT * FROM `item` WHERE `verb` = '%s' AND `deleted` = 0 
-		AND `contact-id` = %d AND ( `parent` = '%s' OR `parent-uri` = '%s') LIMIT 1",
+		AND `contact-id` = %d AND ( `parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s') LIMIT 1",
 		dbesc($activity),
 		intval($contact['id']),
 		dbesc($item_id),
-		dbesc($item_id)
+		dbesc($item_id),
+		dbesc($item['uri'])
 	);
 	if(count($r)) {
 		$like_item = $r[0];
 
 		// Already voted, undo it
-		$r = q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d LIMIT 1",
+		$r = q("UPDATE `item` SET `deleted` = 1, `unseen` = 1, `changed` = '%s' WHERE `id` = %d LIMIT 1",
 			dbesc(datetime_convert()),
 			intval($like_item['id'])
 		);
@@ -245,9 +246,6 @@ function store_diaspora_like_retract_sig($activity, $item, $like_item, $contact)
 	if(($activity === ACTIVITY_LIKE) && (! $item['resource-id'])) {
 		$signed_text = $like_item['guid'] . ';' . 'Like';
 
-//		if( $contact['network'] === NETWORK_DIASPORA)
-//			$diaspora_handle = $contact['addr'];
-//		else {
 		// Only works for NETWORK_DFRN
 		$contact_baseurl_start = strpos($contact['url'],'://') + 3;
 		$contact_baseurl_length = strpos($contact['url'],'/profile') - $contact_baseurl_start;
@@ -268,7 +266,6 @@ function store_diaspora_like_retract_sig($activity, $item, $like_item, $contact)
 			if( $r)
 				$authorsig = base64_encode(rsa_sign($signed_text,$r['prvkey'],'sha256'));
 		}
-//		}
 
 		if(! isset($authorsig))
 			$authorsig = '';
@@ -299,9 +296,6 @@ function store_diaspora_like_sig($activity, $post_type, $contact, $post_id) {
 	logger('mod_like: storing diaspora like signature');
 
 	if(($activity === ACTIVITY_LIKE) && ($post_type === t('status'))) {
-//		if( $contact['network'] === NETWORK_DIASPORA)
-//			$diaspora_handle = $contact['addr'];
-//		else {
 		// Only works for NETWORK_DFRN
 		$contact_baseurl_start = strpos($contact['url'],'://') + 3;
 		$contact_baseurl_length = strpos($contact['url'],'/profile') - $contact_baseurl_start;
@@ -322,7 +316,6 @@ function store_diaspora_like_sig($activity, $post_type, $contact, $post_id) {
 			if( $r)
 				$contact_uprvkey = $r['prvkey'];
 		}
-//		}
 
 		$r = q("SELECT guid, parent FROM `item` WHERE id = %d LIMIT 1",
 			intval($post_id)
