@@ -698,9 +698,10 @@ function get_atom_elements($feed,$item) {
 	call_hooks('parse_atom', $arr);
 
 	//if (($res["title"] != "") or (strpos($res["body"], "RT @") > 0)) {
-	//	$debugfile = tempnam("/home/ike/log", "item-res2-");
-	//	file_put_contents($debugfile, serialize($res));
-	//}
+	if (strpos($res["body"], "RT @") !== false) {
+		$debugfile = tempnam("/home/ike/log", "item-res2-");
+		file_put_contents($debugfile, serialize($arr));
+	}
 
 	return $res;
 }

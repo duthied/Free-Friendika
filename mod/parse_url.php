@@ -294,33 +294,6 @@ function parse_url_content(&$a) {
 		else
 			$image .= '<img height="'.$imagedata["height"].'" width="'.$imagedata["width"].'" src="'.$imagedata["src"].'" alt="photo" />';
 
-/*	if ($image != "") {
-		$i = fetch_url($image);
-		if($i) {
-			require_once('include/Photo.php');
-			// guess mimetype from headers or filename
-			$type = guess_image_type($image,true);
-
-			$ph = new Photo($i, $type);
-			if($ph->is_valid()) {
-				if($ph->getWidth() > 300 || $ph->getHeight() > 300) {
-					$ph->scaleImage(300);
-					$new_width = $ph->getWidth();
-					$new_height = $ph->getHeight();
-					if($textmode)
-						$image = $br . $br . '[img=' . $new_width . 'x' . $new_height . ']' . $image . '[/img]';
-					else
-						$image = '<br /><br /><img height="' . $new_height . '" width="' . $new_width . '" src="' .$image . '" alt="photo" />';
-				} else {
-					if($textmode)
-						$image = $br.$br.'[img]'.$image.'[/img]';
-					else
-						$image = '<br /><br /><img src="'.$image.'" alt="photo" />';
-				}
-			}
-		}
-	}*/
-
 	if(strlen($text)) {
 		if($textmode)
 			$text = $br.'[quote]'.trim($text).'[/quote]'.$br ;

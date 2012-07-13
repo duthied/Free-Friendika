@@ -156,6 +156,7 @@
 				//echo "<pre>"; var_dump($r); die();
 			}
 		}
+		header("HTTP/1.1 404 Not Found");
 		logger('API call not implemented: '.$a->query_string." - ".print_r($_REQUEST,true));
 		$r = '<status><error>not implemented</error></status>';
 		switch($type){
