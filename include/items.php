@@ -816,12 +816,14 @@ function item_store($arr,$force_parent = false) {
 	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false)) 
 		$arr['body'] = strip_tags($arr['body']);
 
-	require_once('Text/LanguageDetect.php');
-	$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
-	$l = new Text_LanguageDetect;
-	$lng = $l->detectConfidence($naked_body);
-	$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
 
+	if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+		require_once('Text/LanguageDetect.php');
+		$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
+		$l = new Text_LanguageDetect;
+		$lng = $l->detectConfidence($naked_body);
+		$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+	}
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
 	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : random_string());

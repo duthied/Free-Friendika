@@ -219,12 +219,18 @@ function item_post(&$a) {
 
 
 		$naked_body = preg_replace('/\[(.+?)\]/','',$body);
-		$l = new Text_LanguageDetect;
-		$lng = $l->detectConfidence($naked_body);
 
-		$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+		if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+			$l = new Text_LanguageDetect;
+			$lng = $l->detectConfidence($naked_body);
 
-		logger('mod_item: detect language' . print_r($lng,true) . $naked_body, LOGGER_DATA);
+			$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+
+			logger('mod_item: detect language' . print_r($lng,true) . $naked_body, LOGGER_DATA);
+		}
+		else
+			$postopts = '';
+
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
