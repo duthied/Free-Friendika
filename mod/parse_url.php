@@ -147,11 +147,11 @@ function parseurl_getsiteinfo($url) {
 
 			if (($photodata[0] > 150) and ($photodata[1] > 150)) {
 				if ($photodata[0] > 300) {
-					$photodata[1] = $photodata[1] * (300 / $photodata[0]);
+					$photodata[1] = round($photodata[1] * (300 / $photodata[0]));
 					$photodata[0] = 300;
 				}
 				if ($photodata[1] > 300) {
-					$photodata[0] = $photodata[0] * (300 / $photodata[1]);
+					$photodata[0] = round($photodata[0] * (300 / $photodata[1]));
 					$photodata[1] = 300;
 				}
 				$siteinfo["images"][] = array("src"=>$src,
