@@ -786,6 +786,31 @@ function get_atom_elements($feed,$item) {
 		$res['target'] .= '</target>' . "\n";
 	}
 
+	// This is some experimental stuff. By now retweets are shown with "RT:"
+	// But: There is data so that the message could be shown similar to native retweets
+	// There is some better way to parse this array - but it didn't worked for me.
+	$child = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://activitystrea.ms/spec/1.0/"][object][0]["child"];
+	if (is_array($child)) {
+		$message = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["content"][0]["data"];
+		$author = $child[SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10];
+		$uri = $author["uri"][0]["data"];
+		$name = $author["name"][0]["data"];
+		$avatar = @array_shift($author["link"][2]["attribs"]);
+		$avatar = $avatar["href"];
+
+		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
+			$res["owner-name"] = $res["author-name"];
+			$res["owner-link"] = $res["author-link"];
+			$res["owner-avatar"] = $res["author-avatar"];
+
+			$res["author-name"] = $name;
+			$res["author-link"] = $uri;
+			$res["author-avatar"] = $avatar;
+
+			$res["body"] = html2bbcode($message);
+		}
+	}
+
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
