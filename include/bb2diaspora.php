@@ -190,7 +190,7 @@ function diaspora_ol($s) {
 }
 
 
-function bb2diaspora($Text,$preserve_nl = false) {
+function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	// Re-enabling the converter again.
 	// The bbcode parser now handles youtube-links (and the other stuff) correctly.
@@ -202,8 +202,9 @@ function bb2diaspora($Text,$preserve_nl = false) {
 	// the following was added on 10-January-2012 due to an inability of Diaspora's
 	// new javascript markdown processor to handle links with images as the link "text"
 	// It is not optimal and may be removed if this ability is restored in the future
-	$Text = preg_replace("/\[url\=([^\[\]]*)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\]/ism",
-				"[img]$2[/img]\n[url]$1[/url]", $Text);
+	if ($fordiaspora)
+		$Text = preg_replace("/\[url\=([^\[\]]*)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\]/ism",
+					"[url]$1[/url]\n[img]$2[/img]", $Text);
 
 	// Convert it to HTML - don't try oembed
 	$Text = bbcode($Text, $preserve_nl, false);
