@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1405\n"
+"Project-Id-Version: 3.0.1406\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-15 10:00-0700\n"
+"POT-Creation-Date: 2012-07-16 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7178,81 +7178,81 @@ msgstr ""
 msgid "Miscellaneous"
 msgstr ""
 
-#: ../../include/datetime.php:131 ../../include/datetime.php:263
+#: ../../include/datetime.php:153 ../../include/datetime.php:285
 msgid "year"
 msgstr ""
 
-#: ../../include/datetime.php:136 ../../include/datetime.php:264
+#: ../../include/datetime.php:158 ../../include/datetime.php:286
 msgid "month"
 msgstr ""
 
-#: ../../include/datetime.php:141 ../../include/datetime.php:266
+#: ../../include/datetime.php:163 ../../include/datetime.php:288
 msgid "day"
 msgstr ""
 
-#: ../../include/datetime.php:254
+#: ../../include/datetime.php:276
 msgid "never"
 msgstr ""
 
-#: ../../include/datetime.php:260
+#: ../../include/datetime.php:282
 msgid "less than a second ago"
 msgstr ""
 
-#: ../../include/datetime.php:263
+#: ../../include/datetime.php:285
 msgid "years"
 msgstr ""
 
-#: ../../include/datetime.php:264
+#: ../../include/datetime.php:286
 msgid "months"
 msgstr ""
 
-#: ../../include/datetime.php:265
+#: ../../include/datetime.php:287
 msgid "week"
 msgstr ""
 
-#: ../../include/datetime.php:265
+#: ../../include/datetime.php:287
 msgid "weeks"
 msgstr ""
 
-#: ../../include/datetime.php:266
+#: ../../include/datetime.php:288
 msgid "days"
 msgstr ""
 
-#: ../../include/datetime.php:267
+#: ../../include/datetime.php:289
 msgid "hour"
 msgstr ""
 
-#: ../../include/datetime.php:267
+#: ../../include/datetime.php:289
 msgid "hours"
 msgstr ""
 
-#: ../../include/datetime.php:268
+#: ../../include/datetime.php:290
 msgid "minute"
 msgstr ""
 
-#: ../../include/datetime.php:268
+#: ../../include/datetime.php:290
 msgid "minutes"
 msgstr ""
 
-#: ../../include/datetime.php:269
+#: ../../include/datetime.php:291
 msgid "second"
 msgstr ""
 
-#: ../../include/datetime.php:269
+#: ../../include/datetime.php:291
 msgid "seconds"
 msgstr ""
 
-#: ../../include/datetime.php:278
+#: ../../include/datetime.php:300
 #, php-format
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: ../../include/datetime.php:450 ../../include/items.php:1561
+#: ../../include/datetime.php:472 ../../include/items.php:1561
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/datetime.php:451 ../../include/items.php:1562
+#: ../../include/datetime.php:473 ../../include/items.php:1562
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
