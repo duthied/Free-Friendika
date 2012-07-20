@@ -910,6 +910,7 @@ function item_photo_menu($item){
 		 if(! count($a->contacts))
 			load_contact_links(local_user());
 	}
+	$poke_link="";
 	$contact_url="";
 	$pm_url="";
 	$status_link="";
@@ -939,6 +940,7 @@ function item_photo_menu($item){
 		}
 	}
 	if(($cid) && (! $item['self'])) {
+		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $cid;
 		$contact_url = $a->get_baseurl($ssl_state) . '/contacts/' . $cid;
 		$posts_link = $a->get_baseurl($ssl_state) . '/network/?cid=' . $cid;
 
@@ -961,6 +963,7 @@ function item_photo_menu($item){
 		t("Network Posts") => $posts_link, 
 		t("Edit Contact") => $contact_url,
 		t("Send PM") => $pm_url,
+		t("Poke") => $poke_link
 	);
 	
 	
@@ -972,7 +975,7 @@ function item_photo_menu($item){
 
 	$o = "";
 	foreach($menu as $k=>$v){
-		if ($v!="") $o .= "<li><a href='$v'>$k</a></li>\n";
+		if ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}

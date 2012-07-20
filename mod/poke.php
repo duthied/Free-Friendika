@@ -150,7 +150,8 @@ EOT;
 
 	$shortlist = array();
 	foreach($verbs as $k => $v)
-		$shortlist[] = array($k,$v[1]);
+		if($v[1] !== 'NOTRANSLATION')
+			$shortlist[] = array($k,$v[1]);
 
 
 	$tpl = get_markup_template('poke_content.tpl');
