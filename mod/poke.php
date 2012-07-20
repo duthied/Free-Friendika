@@ -107,6 +107,21 @@ function poke_content(&$a) {
 		return;
 	}
 
+	$name = '';
+	$id = '';
+
+	if(intval($_GET['c'])) {
+		$r = q("select id,name from contact where id = %d and uid = %d limit 1",
+			intval($_GET['c']),
+			intval(local_user())
+		);
+		if(count($r)) {
+			$name = $r[0]['name'];
+			$id = $r[0]['id'];
+		}
+	}
+
+
 	$base = $a->get_baseurl();
 
 	$a->page['htmlhead'] .= '<script src="' . $a->get_baseurl(true) . '/library/jquery_ac/friendica.complete.js" ></script>';
@@ -146,7 +161,9 @@ EOT;
 		'$clabel' => t('Recipient'),
 		'$choice' => t('Choose what you wish to do to recipient'),
 		'$verbs' => $shortlist,
-		'$submit' => t('Submit')
+		'$submit' => t('Submit'),
+		'$name' => $name,
+		'$id' => $id
 	));
 
 	return $o;
