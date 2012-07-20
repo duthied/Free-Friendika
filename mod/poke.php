@@ -102,6 +102,11 @@ function poke_init(&$a) {
 
 function poke_content(&$a) {
 
+	if(! local_user()) {
+		notice( t('Permission denied.') . EOL);
+		return;
+	}
+
 	$base = $a->get_baseurl();
 
 	$a->page['htmlhead'] .= '<script src="' . $a->get_baseurl(true) . '/library/jquery_ac/friendica.complete.js" ></script>';
