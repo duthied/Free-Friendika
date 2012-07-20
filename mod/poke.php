@@ -54,7 +54,7 @@ function poke_init(&$a) {
 	$arr['parent-uri']    = $uri;
 	$arr['type']          = 'activity';
 	$arr['wall']          = 1;
-	$arr['contact-id']    = $target['id'];
+	$arr['contact-id']    = $poster['id'];
 	$arr['owner-name']    = $poster['name'];
 	$arr['owner-link']    = $poster['url'];
 	$arr['owner-avatar']  = $poster['thumb'];
