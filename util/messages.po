@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1410\n"
+"Project-Id-Version: 3.0.1411\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-20 10:00-0700\n"
+"POT-Creation-Date: 2012-07-21 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -144,6 +144,7 @@ msgstr ""
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
+#: ../../addon/forumlist/forumlist.php:169
 #: ../../addon/impressum/impressum.php:82
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
@@ -4914,10 +4915,11 @@ msgid "%s - Click to open/close"
 msgstr ""
 
 #: ../../addon/page/page.php:61 ../../addon/page/page.php:91
+#: ../../addon/forumlist/forumlist.php:54
 msgid "Forums"
 msgstr ""
 
-#: ../../addon/page/page.php:129
+#: ../../addon/page/page.php:129 ../../addon/forumlist/forumlist.php:88
 msgid "Forums:"
 msgstr ""
 
@@ -4929,7 +4931,7 @@ msgstr ""
 msgid "Page Settings"
 msgstr ""
 
-#: ../../addon/page/page.php:196
+#: ../../addon/page/page.php:196 ../../addon/forumlist/forumlist.php:155
 msgid "How many forums to display on sidebar without paging"
 msgstr ""
 
@@ -5415,6 +5417,30 @@ msgstr ""
 
 #: ../../addon/oembed.old/oembed.php:71
 msgid "URL to embed:"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:57
+msgid "show/hide"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:72
+msgid "No forum subscriptions"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:124
+msgid "Forumlist settings updated."
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:153
+msgid "Forumlist Settings"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:158
+msgid "Randomise Forumlist/Forum list"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:161
+msgid "Show forumlists/forums on profile forumlist"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:36
