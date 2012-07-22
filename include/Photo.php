@@ -38,28 +38,41 @@ class Photo {
         return $t;
     }
 
+    /**
+     * Maps Mime types to Imagick formats
+     */
+    static function get_FormatsMap() {
+        $m = array(
+            'image/jpeg' => 'JPG',
+            'image/png' => 'PNG',
+            'image/gif' => 'GIF'
+        );
+        return $m;
+    }
+
     public function __construct($data, $type=null) {
         $this->imagick = class_exists('Imagick');
         $this->types = $this->supportedTypes();
+        if (!array_key_exists($type,$this->types)){
+            $type='image/jpeg';
+        }
+        $this->type = $type;
 
         if($this->is_imagick()) {
             $this->image = new Imagick();
             $this->image->readImageBlob($data);
 
             /**
-             * Setup the image to the format of the one we just loaded,
-             * we'll change it to something else if we need to at the time we save it
+             * Setup the image to the format it will be saved to
              */
-            $this->image->setFormat($this->image->getImageFormat());
+            $map = $this->get_FormatsMap();
+            $format = $map[$type];
+            $this->image->setFormat($format);
 
             // Always coalesce, if it is not a multi-frame image it won't hurt anyway
             $this->image = $this->image->coalesceImages();
         } else {
-            if (!array_key_exists($type,$this->types)){
-                $type='image/jpeg';
-            }
             $this->valid = false;
-            $this->type = $type;
             $this->image = @imagecreatefromstring($data);
             if($this->image !== FALSE) {
                 $this->width  = imagesx($this->image);
@@ -126,9 +139,6 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick()) {
-            return $this->image->getImageMimeType();
-        }
         return $this->type;
     }
 
@@ -457,14 +467,9 @@ class Photo {
                 // We change nothing here, do we?
                 break;
             default:
-                // Convert to jpeg by default
                 $quality = get_config('system','jpeg_quality');
                 if((! $quality) || ($quality > 100))
                     $quality = JPEG_QUALITY;
-                if($this->is_imagick()) {
-                    $this->image->setFormat('jpeg');
-                    logger('Photo: imageString: Unhandled mime type ('. $this->getType() .'), Imagick format is "'. $this->image->getFormat() .'"', LOGGER_DEBUG);
-                }
                 else imagejpeg($this->image,NULL,$quality);
         }
 
@@ -640,11 +645,7 @@ function import_profile_photo($photo,$uid,$cid) {
     $filename = basename($photo);
     $img_str = fetch_url($photo,true);
 
-    if($this->is_imagick()) $type = null;
-    else {
-        // guess mimetype from headers or filename
-        $type = guess_image_type($photo,true);
-    }
+    $type = guess_image_type($photo,true);
     $img = new Photo($img_str, $type);
     if($img->is_valid()) {
 
