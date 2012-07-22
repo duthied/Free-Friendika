@@ -38,18 +38,6 @@ class Photo {
         return $t;
     }
 
-    /**
-     * Maps Mime types to Imagick formats
-     */
-    static function get_FormatsMap() {
-        $m = array(
-            'image/jpeg' => 'JPG',
-            'image/png' => 'PNG',
-            'image/gif' => 'GIF'
-        );
-        return $m;
-    }
-
     public function __construct($data, $type=null) {
         $this->imagick = class_exists('Imagick');
         $this->types = $this->supportedTypes();
@@ -97,6 +85,18 @@ class Photo {
 
     public function is_imagick() {
         return $this->imagick;
+    }
+
+    /**
+     * Maps Mime types to Imagick formats
+     */
+    public function get_FormatsMap() {
+        $m = array(
+            'image/jpeg' => 'JPG',
+            'image/png' => 'PNG',
+            'image/gif' => 'GIF'
+        );
+        return $m;
     }
 
     public function is_valid() {
