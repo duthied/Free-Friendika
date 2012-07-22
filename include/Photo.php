@@ -365,7 +365,7 @@ class Photo {
         if($this->is_imagick()) {
             $this->image->setFirstIterator();
             do {
-                $this->image->resizeImage($max, $max, imagick::FILTER_LANCZOS, 1, false);
+                $this->image->resizeImage($dim, $dim, imagick::FILTER_LANCZOS, 1, false);
             } while ($this->image->nextImage());
             return;
         }
