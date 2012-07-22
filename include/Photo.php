@@ -475,6 +475,8 @@ class Photo {
                 $this->image->stripImage();
             }
 
+            /* Clean it */
+            $this->image = $this->image->deconstructImages();
             $string = $this->image->getImagesBlob();
         } else {
             $string = ob_get_contents();
