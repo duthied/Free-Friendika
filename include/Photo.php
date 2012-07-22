@@ -4,7 +4,6 @@ if(! class_exists("Photo")) {
 class Photo {
 
     private $image;
-    private $ext;
 
     /**
      * Put back gd stuff, not everybody have Imagick
@@ -41,6 +40,7 @@ class Photo {
 
     public function __construct($data, $type=null) {
         $this->imagick = class_exists('Imagick');
+        $this->types = $this->supportedTypes();
 
         if($this->is_imagick()) {
             $this->image = new Imagick();
@@ -54,10 +54,7 @@ class Photo {
 
             // If it is a gif, it may be animated, get it ready for any future operations
             if($this->image->getFormat() !== "GIF") $this->image = $this->image->coalesceImages();
-
-            $this->ext = strtolower($this->image->getImageFormat());
         } else {
-            $this->types = $this->supportedTypes();
             if (!array_key_exists($type,$this->types)){
                 $type='image/jpeg';
             }
@@ -139,9 +136,7 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick())
-            return $this->ext;
-        return $this->types[$this->type];
+        return $this->types[$this->getType()];
     }
 
     public function scaleImage($max) {
