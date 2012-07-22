@@ -470,7 +470,7 @@ class Photo {
 
         $quality = FALSE;
 
-        ob_start()
+        ob_start();
 
         switch($this->getType()){
             case "image/png":
