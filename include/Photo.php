@@ -600,7 +600,7 @@ function guess_image_type($filename, $fromcurl=false) {
              * we won't be tricked by a manipulated extension
              */
             $image = new Imagick($filename);
-            $type = 'image/'. strtolower($image->getImageFormat());
+            $type = $image->getImageMimeType();
         } else {
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $types = Photo::supportedTypes();
