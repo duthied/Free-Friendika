@@ -124,8 +124,7 @@ class Photo {
             return FALSE;
 
         if($this->is_imagick()) {
-            // This should do the trick (see supportedTypes above)
-            return 'image/'. $this->getExt();
+            return $this->image->getImageMimeType();
         }
         return $this->type;
     }
