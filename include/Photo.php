@@ -47,7 +47,7 @@ class Photo {
             $this->image->readImageBlob($data);
 
             // If it is a gif, it may be animated, get it ready for any future operations
-            if($this->image->getFormat() !== "GIF") $this->image = $this->image->coalesceImages();
+            if($this->image->getImageFormat() !== "GIF") $this->image = $this->image->coalesceImages();
 
             $this->ext = strtolower($this->image->getImageFormat());
         } else {
@@ -460,8 +460,10 @@ class Photo {
                 $quality = get_config('system','jpeg_quality');
                 if((! $quality) || ($quality > 100))
                     $quality = JPEG_QUALITY;
-                if($this->is_imagick())
+                if($this->is_imagick()) {
                     $this->image->setImageFormat('jpeg');
+                    logger('Photo: imageString: Unhandled mime type ('. $this->getType() .'), Imagick format is "'. $this->image->getImageFormat() .'"', LOGGER_DEBUG);
+                }
                 else imagejpeg($this->image,NULL,$quality);
         }
 
