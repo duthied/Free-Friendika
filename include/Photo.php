@@ -52,8 +52,8 @@ class Photo {
              */
             $this->image->setFormat($this->image->getImageFormat());
 
-            // If it is a gif, it may be animated, get it ready for any future operations
-            if($this->image->getFormat() !== "GIF") $this->image = $this->image->coalesceImages();
+            // Always coalesce, if it is not a multi-frame image it won't hurt anyway
+            $this->image = $this->image->coalesceImages();
         } else {
             if (!array_key_exists($type,$this->types)){
                 $type='image/jpeg';
