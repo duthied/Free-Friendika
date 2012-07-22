@@ -46,8 +46,14 @@ class Photo {
             $this->image = new Imagick();
             $this->image->readImageBlob($data);
 
+            /**
+             * Setup the image to the format of the one we just loaded,
+             * we'll change it to something else if we need to at the time we save it
+             */
+            $this->image->setFormat($this->image->getImageFormat());
+
             // If it is a gif, it may be animated, get it ready for any future operations
-            if($this->image->getImageFormat() !== "GIF") $this->image = $this->image->coalesceImages();
+            if($this->image->getFormat() !== "GIF") $this->image = $this->image->coalesceImages();
 
             $this->ext = strtolower($this->image->getImageFormat());
         } else {
@@ -111,8 +117,8 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        /* Clean it */
         if($this->is_imagick()) {
+            /* Clean it */
             $this->image = $this->image->deconstructImages();
             return $this->image;
         }
@@ -147,7 +153,7 @@ class Photo {
              * If it is not animated, there will be only one iteration here,
              * so don't bother checking
              */
-            // Don't forget to go back to the first frame for any further operation
+            // Don't forget to go back to the first frame
             $this->image->setFirstIterator();
             do {
                 $this->image->resizeImage($max, $max, imagick::FILTER_LANCZOS, 1, true);
@@ -461,17 +467,17 @@ class Photo {
                 if((! $quality) || ($quality > 100))
                     $quality = JPEG_QUALITY;
                 if($this->is_imagick()) {
-                    $this->image->setImageFormat('jpeg');
-                    logger('Photo: imageString: Unhandled mime type ('. $this->getType() .'), Imagick format is "'. $this->image->getImageFormat() .'"', LOGGER_DEBUG);
+                    $this->image->setFormat('jpeg');
+                    logger('Photo: imageString: Unhandled mime type ('. $this->getType() .'), Imagick format is "'. $this->image->getFormat() .'"', LOGGER_DEBUG);
                 }
                 else imagejpeg($this->image,NULL,$quality);
         }
 
         if($this->is_imagick()) {
             if($quality !== FALSE) {
-            // Do we need to iterate for animations?
-            $this->image->setImageCompressionQuality($quality);
-            $this->image->stripImage();
+                // Do we need to iterate for animations?
+                $this->image->setCompressionQuality($quality);
+                $this->image->stripImage();
             }
 
             $string = $this->image->getImagesBlob();
