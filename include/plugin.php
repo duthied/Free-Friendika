@@ -162,7 +162,6 @@ function call_hooks($name, &$data = null) {
 	$a = get_app();
 
 	if((is_array($a->hooks)) && (array_key_exists($name,$a->hooks))) {
-	logger('call_hooks ' . print_r($a->hooks[$name],true) , LOGGER_DEBUG);
 		foreach($a->hooks[$name] as $hook) {
 			@include_once($hook[0]);
 			if(function_exists($hook[1])) {
