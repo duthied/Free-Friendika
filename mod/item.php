@@ -77,15 +77,14 @@ function item_post(&$a) {
 			);
 		}
 		// if this isn't the real parent of the conversation, find it
-		// We are now threading the comments, the parent may have a parent
-		/*if($r !== false && count($r)) {
+		if($r !== false && count($r)) {
 			$parid = $r[0]['parent'];
 			if($r[0]['id'] != $r[0]['parent']) {
 				$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
 					intval($parid)
 				);
 			}
-		}*/
+		}
 
 		if(($r === false) || (! count($r))) {
 			notice( t('Unable to locate original post.') . EOL);

@@ -582,9 +582,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				}	
 
 				$override_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
-				// The comment box should now appear under each writable item, not only at the end of the thread, don't bother with $comments_seen
-				//$show_comment_box = ((($page_writeable) && ($item_writeable) && ($comments_seen == $comments[$item['parent']])) ? true : false);
-				$show_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
+				$show_comment_box = ((($page_writeable) && ($item_writeable) && ($comments_seen == $comments[$item['parent']])) ? true : false);
 
 
 				if(($comments[$item['parent']] > 2) && ($comments_seen <= ($comments[$item['parent']] - 2)) && ($item['gravity'] == 6)) {
@@ -683,13 +681,12 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					}
 
 					if(($show_comment_box) || (($show_comment_box == false) && ($override_comment_box == false) && ($item['last-child']))) {
-						// The parent is now the item itself, not his parent
 						$comment = replace_macros($cmnt_tpl,array(
 							'$return_path' => '', 
 							'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
 							'$type' => (($mode === 'profile') ? 'wall-comment' : 'net-comment'),
 							'$id' => $item['item_id'],
-							'$parent' => $item['item_id'],
+							'$parent' => $item['parent'],
 							'$qcomment' => $qcomment,
 							'$profile_uid' =>  $profile_owner,
 							'$mylink' => $a->contact['url'],
