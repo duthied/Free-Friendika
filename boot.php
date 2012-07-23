@@ -747,9 +747,10 @@ if(! function_exists('check_config')) {
 							// If the update fails or times-out completely you may need to
 							// delete the config entry to try again.
 
-							if(get_config('database','update_' . $x))
+							$t = get_config('database','update_' . $x);
+							if($t !== false)
 								break;
-							set_config('database','update_' . $x, '1');
+							set_config('database','update_' . $x, time());
 
 							// call the specific update
 
@@ -772,13 +773,14 @@ if(! function_exists('check_config')) {
 									. 'Content-transfer-encoding: 8bit' );
 								//try the logger
 								logger('CRITICAL: Update Failed: '. $x);
+								break;
 							}
-							else
+							else {
 								set_config('database','update_' . $x, 'success');
-								
+								set_config('system','build', $x + 1);
+							}								
 						}
 					}
-					set_config('system','build', DB_UPDATE_VERSION);
 				}
 			}
 		}
