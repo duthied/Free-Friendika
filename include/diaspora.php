@@ -2120,12 +2120,6 @@ function diaspora_unshare($me,$contact) {
 }
 
 
-function diaspora_replace_tags_callback($matches) {
-	$result = '#'. str_replace(' ', '_', $matches[2]);
-	return $result;
-}
-
-
 function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 
 	$a = get_app();
