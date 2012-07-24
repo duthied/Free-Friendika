@@ -15,10 +15,10 @@
 			</div>
 	{{ endif }}
 
-	<br /><br />
+<!--	<br /><br />
 	<div class="login-extra-links">
 	By signing in you agree to the latest <a href="tos.html" title="$tostitle" id="terms-of-service-link" >$toslink</a> and <a href="privacy.html" title="$privacytitle" id="privacy-link" >$privacylink</a>
-	</div>
+	</div>-->
 
 	<br /><br />
 	<div id="login-submit-wrapper" >
