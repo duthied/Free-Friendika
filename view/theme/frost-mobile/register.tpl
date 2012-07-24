@@ -60,9 +60,9 @@
 	$publish
 
 	<div id="register-footer">
-	<div class="agreement">
+<!--	<div class="agreement">
 	By clicking '$regbutt' you are agreeing to the latest <a href="tos.html" title="$tostitle" id="terms-of-service-link" >$toslink</a> and <a href="privacy.html" title="$privacytitle" id="privacy-link" >$privacylink</a>
-	</div>
+	</div>-->
 	<br />
 
 	<div id="register-submit-wrapper">
