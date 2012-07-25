@@ -1338,7 +1338,13 @@ function update_1152() {
 }
 
 function update_1153() {
-	$r = q("CREATE INDEX `uid_commented` ON `item` (`uid`, `commented`);  CREATE INDEX `uid_created` ON `item` (`uid`, `created`)");
+	$r = q("CREATE INDEX `uid_commented` ON `item` (`uid`, `commented`)");
+	if(! $r)
+		return UPDATE_FAILED;
+	$r = q("CREATE INDEX `uid_created` ON `item` (`uid`, `created`)");
+	if(! $r)
+		return UPDATE_FAILED;
+	$r = q("CREATE INDEX `uid_unseen` ON `item` (`uid`, `unseen`)");
 	if(! $r)
 		return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
