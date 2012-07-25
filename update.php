@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1153 );
+define( 'UPDATE_VERSION' , 1154 );
 
 /**
  *
@@ -1337,3 +1337,9 @@ function update_1152() {
 	return UPDATE_SUCCESS;
 }
 
+function update_1153() {
+	$r = q("CREATE INDEX `uid_commented` ON `item` (`uid`, `commented`);  CREATE INDEX `uid_created` ON `item` (`uid`, `created`)");
+	if(! $r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}

@@ -569,6 +569,8 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `moderated` (`moderated`),
   KEY `spam` (`spam`),
   KEY `author-name` (`author-name`),
+  KEY `uid_commented` (`uid`, `commented`),
+  KEY `uid_created` (`uid`, `created`),
   FULLTEXT KEY `title` (`title`),
   FULLTEXT KEY `body` (`body`),
   FULLTEXT KEY `allow_cid` (`allow_cid`),
