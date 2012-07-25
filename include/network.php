@@ -802,7 +802,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 	$s = htmlspecialchars_decode($s);
 
 	$matches = null;
-	$c = preg_match_all('/\[img\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
+	$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($c) {
 		require_once('include/Photo.php');
 		foreach($matches as $mtch) {
