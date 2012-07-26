@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1154 );
+define( 'UPDATE_VERSION' , 1153 );
 
 /**
  *
@@ -1333,19 +1333,6 @@ function update_1152() {
 		KEY `term`  ( `term` )
 		) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
 	if (!$r)
-		return UPDATE_FAILED;
-	return UPDATE_SUCCESS;
-}
-
-function update_1153() {
-	$r = q("CREATE INDEX `uid_commented` ON `item` (`uid`, `commented`)");
-	if(! $r)
-		return UPDATE_FAILED;
-	$r = q("CREATE INDEX `uid_created` ON `item` (`uid`, `created`)");
-	if(! $r)
-		return UPDATE_FAILED;
-	$r = q("CREATE INDEX `uid_unseen` ON `item` (`uid`, `unseen`)");
-	if(! $r)
 		return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }
