@@ -473,7 +473,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			}
 		}
 
-		logger('item, page_writeable:'. ($page_writeable ? 'yes' : 'no') .', show comment box: '. ($show_comment_box ? 'yes' : 'no'), LOGGER_DEBUG);
 		if($page_writeable) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
@@ -489,7 +488,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 					$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
 					$qcomment = (($qc) ? explode("\n",$qc) : null);
 				}
-				
 				$comment = replace_macros($cmnt_tpl,array(
 					'$return_path' => '', 
 					'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
