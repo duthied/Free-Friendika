@@ -8,11 +8,12 @@ require_once('include/datetime.php');
 require_once('include/pgettext.php');
 require_once('include/nav.php');
 require_once('include/cache.php');
+require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1412' );
+define ( 'FRIENDICA_VERSION',      '3.0.1415' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1153      );
+define ( 'DB_UPDATE_VERSION',      1154      );
 
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
@@ -559,7 +560,7 @@ if(! class_exists('App')) {
 				$interval = 40000;
 
 			$this->page['title'] = $this->config['sitename'];
-			$tpl = file_get_contents('view/head.tpl');
+			$tpl = get_markup_template('head.tpl');
 			$this->page['htmlhead'] = replace_macros($tpl,array(
 				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
 				'$local_user' => local_user(),
@@ -747,9 +748,10 @@ if(! function_exists('check_config')) {
 							// If the update fails or times-out completely you may need to
 							// delete the config entry to try again.
 
-							if(get_config('database','update_' . $x))
+							$t = get_config('database','update_' . $x);
+							if($t !== false)
 								break;
-							set_config('database','update_' . $x, '1');
+							set_config('database','update_' . $x, time());
 
 							// call the specific update
 
@@ -772,13 +774,14 @@ if(! function_exists('check_config')) {
 									. 'Content-transfer-encoding: 8bit' );
 								//try the logger
 								logger('CRITICAL: Update Failed: '. $x);
+								break;
 							}
-							else
+							else {
 								set_config('database','update_' . $x, 'success');
-								
+								set_config('system','build', $x + 1);
+							}								
 						}
 					}
-					set_config('system','build', DB_UPDATE_VERSION);
 				}
 			}
 		}
@@ -1441,9 +1444,18 @@ if(! function_exists('current_theme')) {
 	
 		$a = get_app();
 	
-		$system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
-		$theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $system_theme);
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 	
+		if($is_mobile) {
+			$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : '');
+			$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile-theme')) ? $_SESSION['mobile-theme'] : $system_theme);
+		}
+		if(!$is_mobile || ($system_theme === '' && $theme_name === '')) {
+			$system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+			$theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $system_theme);
+		}
+
 		if($theme_name &&
 				(file_exists('view/theme/' . $theme_name . '/style.css') ||
 						file_exists('view/theme/' . $theme_name . '/style.php')))
@@ -1579,18 +1591,21 @@ if(! function_exists('profile_tabs')){
 				'url' => $url,
 				'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
 				'title' => t('Status Messages and Posts'),
+				'id' => 'status-tab',
 			),
 			array(
 				'label' => t('Profile'),
 				'url' 	=> $url.'/?tab=profile',
 				'sel'	=> ((isset($tab) && $tab=='profile')?'active':''),
 				'title' => t('Profile Details'),
+				'id' => 'profile-tab',
 			),
 			array(
 				'label' => t('Photos'),
 				'url'	=> $a->get_baseurl() . '/photos/' . $nickname,
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='photos')?'active':''),
 				'title' => t('Photo Albums'),
+				'id' => 'photo-tab',
 			),
 		);
 	
@@ -1600,12 +1615,14 @@ if(! function_exists('profile_tabs')){
 				'url'	=> $a->get_baseurl() . '/events',
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
 				'title' => t('Events and Calendar'),
+				'id' => 'events-tab',
 			);
 			$tabs[] = array(
 				'label' => t('Personal Notes'),
 				'url'	=> $a->get_baseurl() . '/notes',
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='notes')?'active':''),
 				'title' => t('Only You Can See This'),
+				'id' => 'notes-tab',
 			);
 		}
 
