@@ -76,13 +76,13 @@
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<div class="wall-item-delete-end"></div>
 		</div>
+		<div class="wall-item-comment-wrapper" >
+			$item.comment
+		</div>
 	</div>
 	<div class="wall-item-wrapper-end"></div>
 	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
 	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
-	<div class="wall-item-comment-wrapper" >
-	$item.comment
-	</div>
 <div class="wall-item-outside-wrapper-end$item.indent" ></div>
 </div>
 {{ for $item.children as $item }}
