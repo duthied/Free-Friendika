@@ -19,7 +19,7 @@
 	<div id="photos-upload-exist-end"></div>
 
 	<div id="photos-upload-noshare-div" class="photos-upload-noshare-div" >
-		<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" checked />
+		<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" />
 		<label id="photos-upload-noshare-text" for="photos-upload-noshare" >$nosharetext</label>
 	</div>
 
