@@ -12,12 +12,14 @@
 	<div id="photos-upload-new-end"></div>
 	<div id="photos-upload-exist-wrapper">
 		<div id="photos-upload-existing-album-text">$existalbumtext</div>
+		<select id="photos-upload-album-select" name="album" size="4">
 		$albumselect
+		</select>
 	</div>
 	<div id="photos-upload-exist-end"></div>
 
 	<div id="photos-upload-noshare-div" class="photos-upload-noshare-div" >
-		<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" />
+		<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" checked />
 		<label id="photos-upload-noshare-text" for="photos-upload-noshare" >$nosharetext</label>
 	</div>
 

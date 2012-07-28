@@ -19,5 +19,7 @@ function frost_mobile_init(&$a) {
 		$a->page['htmlhead'] = str_replace('$stylesheet', $a->get_baseurl() . '/view/theme/frost-mobile/login-style.css', $a->page['htmlhead']);
 
 	}
+	if( $a->module === 'login' )
+		$a->page['end'] .= '<script type="text/javascript"> $j(document).ready(function() { $j("#id_" + window.loginName).focus();} );</script>';
 
 }

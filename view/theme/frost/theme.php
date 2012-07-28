@@ -17,7 +17,8 @@ function frost_init(&$a) {
 	// making pages load faster
 	if( $a->module === 'home' || $a->module === 'login' || $a->module === 'register' || $a->module === 'lostpass' ) {
 		$a->page['htmlhead'] = str_replace('$stylesheet', $a->get_baseurl() . '/view/theme/frost/login-style.css', $a->page['htmlhead']);
-
 	}
+	if( $a->module === 'login' )
+		$a->page['end'] .= '<script type="text/javascript"> $j(document).ready(function() { $j("#id_" + window.loginName).focus();} );</script>';
 
 }
