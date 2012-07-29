@@ -582,11 +582,13 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 
 		$item_result['children'] = array();
 		if(count($item['children'])) {
+			$collapse_all_children = $collapse_all;
 			if(!$toplevelpost && !$collapse_all)
-				$collapse_all = true;
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all);
+				$collapse_all_children = true;
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all_children);
 		}
 		$item_result['private'] = $item['private'];
+		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
 		$result[] = $item_result;
 	}
 
@@ -811,7 +813,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 				$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $previewing);
 			}
 			else {
-
 
 				// Figure out how many comments each parent has
 				// (Comments all have gravity of 6)
