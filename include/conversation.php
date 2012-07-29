@@ -467,6 +467,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 				if($items_seen == 1) {
 					$firstcollapsed = true;
 				}
+				logger('Thread level: '. $thread_level .', items seen: '. $items_seen .', nb items: '. $nb_items .', body: ['. $item['body'] .']', LOGGER_DEBUG);
 				if($thread_level > 2) {
 					if($items_seen == $nb_items)
 						$lastcollapsed = true;
@@ -584,9 +585,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		// Show children of children only if enabled
 		if(count($item['children'])
 		&& (($thread_level < 2) || get_config('system','thread_allow'))) {
-			
-			$thread_level++;
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $thread_level);
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
