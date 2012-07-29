@@ -1251,6 +1251,12 @@ if(! function_exists('get_birthdays')) {
 		if(! local_user())
 			return $o;
 
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
+			return $o;
+
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 		$bd_short = t('F d');
 
@@ -1328,6 +1334,13 @@ if(! function_exists('get_events')) {
 		$a = get_app();
 
 		if(! local_user())
+			return $o;
+
+
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
 			return $o;
 
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
