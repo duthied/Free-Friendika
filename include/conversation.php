@@ -303,15 +303,13 @@ function localize_item(&$item){
  * Recursively prepare a thread for HTML
  */
 
-function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner) {
+function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all=false) {
 	$result = array();
 
 	$wall_template = 'wall_thread.tpl';
 	$wallwall_template = 'wallwall_thread.tpl';
 	$items_seen = 0;
 	$nb_items = count($items);
-	$lastcollapsed = false;
-	$firstcollapsed = false;
 	
 	foreach($items as $item) {
 		// prevent private email reply to public conversation from leaking.
@@ -338,6 +336,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		$thumb = $item['thumb'];
 		$indent = '';
 		$osparkle = '';
+		$lastcollapsed = false;
+		$firstcollapsed = false;
 
 		$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
 		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
@@ -463,11 +463,15 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		} else {
 			$indent = 'comment';
 			// Collapse comments
-			if($nb_items > 2) {
-				if(!$firstcollapsed && ($items_seen <= ($nb_items - 2))) {
+			if(($nb_items > 2) || $collapse_all) {
+				if($items_seen == 1) {
 					$firstcollapsed = true;
 				}
-				else if($items_seen == ($nb_items - 1)) {
+				if($collapse_all) {
+					if($items_seen == $nb_items)
+						$lastcollapsed = true;
+				}
+				else if($items_seen == ($nb_items - 2)) {
 					$lastcollapsed = true;
 				}
 			}
@@ -524,8 +528,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 
 		$tmp_item = array(
 			// collapse comments in template. I don't like this much...
-			'comment_firstcollapsed' => $comment_firstcollapsed,
-			'comment_lastcollapsed' => $comment_lastcollapsed,
+			'comment_firstcollapsed' => $firstcollapsed,
+			'comment_lastcollapsed' => $lastcollapsed,
 			// template to use to render item (wall, walltowall, search)
 			'template' => $template,
 			
@@ -571,10 +575,16 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		call_hooks('display_item', $arr);
 
 		$item_result = $arr['output'];
+		if($firstcollapsed) {
+			$item_result['num_comments'] = sprintf( tt('%d comment','%d comments',$nb_items),$nb_items );
+			$item_result['hide_text'] = t('show more');
+		}
 
 		$item_result['children'] = array();
 		if(count($item['children'])) {
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner);
+			if(!$toplevelpost && !$collapse_all)
+				$collapse_all = true;
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all);
 		}
 		$item_result['private'] = $item['private'];
 		$result[] = $item_result;
@@ -799,7 +809,8 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 				}
 
 				$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $previewing);
-			} else {
+			}
+			else {
 
 
 				// Figure out how many comments each parent has

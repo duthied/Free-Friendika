@@ -1,12 +1,10 @@
+{{if $item.comment_firstcollapsed}}
+	<div class="hide-comments-outer">
+	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
+	</div>
+	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
+{{endif}}
 <div id="tread-wrapper-$item.id" class="tread-wrapper">
-		{{if $item.comment_firstcollapsed}}
-			<div class="hide-comments-outer">
-			<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
-			</div>
-			<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
-		{{endif}}
-		{{if $item.comment_lastcollapsed}}</div>{{endif}}
-
 <a name="$item.id" ></a>
 <div class="wall-item-outside-wrapper $item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
 	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
@@ -76,9 +74,6 @@
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<div class="wall-item-delete-end"></div>
 		</div>
-		<div class="wall-item-comment-wrapper" >
-			$item.comment
-		</div>
 	</div>
 	<div class="wall-item-wrapper-end"></div>
 	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
@@ -88,4 +83,9 @@
 {{ for $item.children as $item }}
 	{{ inc $item.template }}{{ endinc }}
 {{ endfor }}
+<div class="wall-item-comment-wrapper" >
+	$item.comment
 </div>
+
+</div>
+{{if $item.comment_lastcollapsed}}</div>{{endif}}
