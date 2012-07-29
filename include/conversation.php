@@ -467,7 +467,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 				if($items_seen == 1) {
 					$firstcollapsed = true;
 				}
-				logger('Thread level: '. $thread_level .', items seen: '. $items_seen .', nb items: '. $nb_items .', body: ['. $item['body'] .']', LOGGER_DEBUG);
 				if($thread_level > 2) {
 					if($items_seen == $nb_items)
 						$lastcollapsed = true;

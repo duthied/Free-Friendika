@@ -310,7 +310,7 @@ function profile_content(&$a, $update = 0) {
 		);
 	}
 
-	$o .= conversation($a,$items,'profile',$update);
+	$o .= conversation($a,$items,'profile',$update, false, true);
 
 	if(! $update) {
 	  if(! get_pconfig($a->profile['profile_uid'],'system','alt_pager')) {
