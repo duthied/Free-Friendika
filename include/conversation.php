@@ -677,6 +677,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 
 			//$tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
+			$thr_c = false;
 
 			foreach($items as $item) {
 				$threadsid++;
@@ -1171,6 +1172,9 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 
 			}
 		}
+	}
+	else {
+		$thr_c = false;
 	}
 
 
