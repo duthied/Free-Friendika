@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1415\n"
+"Project-Id-Version: 3.0.1418\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-25 10:00-0700\n"
+"POT-Creation-Date: 2012-07-28 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -149,6 +149,7 @@ msgstr ""
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
 #: ../../addon/openstreetmap/openstreetmap.php:70
+#: ../../addon/group_text/group_text.php:84
 #: ../../addon/libravatar/libravatar.php:99
 #: ../../addon/libertree/libertree.php:90 ../../addon/altpager/altpager.php:87
 #: ../../addon/mathjax/mathjax.php:42 ../../addon/editplain/editplain.php:84
@@ -1307,7 +1308,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../mod/content.php:587 ../../addon/page/page.php:76
-#: ../../addon/page/page.php:110 ../../addon/showmore/showmore.php:114
+#: ../../addon/page/page.php:110 ../../addon/showmore/showmore.php:119
 #: ../../include/contact_widgets.php:188 ../../include/conversation.php:592
 #: ../../boot.php:570
 msgid "show more"
@@ -4831,6 +4832,157 @@ msgstr ""
 msgid "Connect on Friendica!"
 msgstr ""
 
+#: ../../addon/morepokes/morepokes.php:19
+msgid "bitchslap"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:19
+msgid "bitchslapped"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:20
+msgid "shag"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:20
+msgid "shagged"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:21
+msgid "do something obscenely biological to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:21
+msgid "did something obscenely biological to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:22
+msgid "point out the new poke feature to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:22
+msgid "pointed out the new poke feature to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:23
+msgid "declare undying love for"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:23
+msgid "declared undying love for"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:24
+msgid "set fire to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:25
+msgid "patent"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:25
+msgid "patented"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:26
+msgid "stroke beard"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:26
+msgid "stroked their beard at"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:27
+msgid ""
+"bemoaned the declining standards of modern secondary and tertiary education "
+"to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:27
+msgid ""
+"bemoans the declining standards of modern secondary and tertiary education to"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:28
+msgid "hug"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:28
+msgid "hugged"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:29
+msgid "kiss"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:29
+msgid "kissed"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:30
+msgid "raise eyebrows at"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:30
+msgid "raised their eyebrows at"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:31
+msgid "insult"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:31
+msgid "insulted"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:32
+msgid "praise"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:32
+msgid "praised"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:33
+msgid "be dubious of"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:33
+msgid "was dubious of"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:34
+msgid "eat"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:34
+msgid "ate"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:35
+msgid "giggle and fawn at"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:35
+msgid "giggled and fawned at"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:36
+msgid "doubt"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:36
+msgid "doubted"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:37
+msgid "glare"
+msgstr ""
+
+#: ../../addon/morepokes/morepokes.php:37
+msgid "glared at"
+msgstr ""
+
 #: ../../addon/yourls/yourls.php:55
 msgid "YourLS Settings"
 msgstr ""
@@ -5601,6 +5753,19 @@ msgstr ""
 msgid "The default zoom level. (1:world, 18:highest)"
 msgstr ""
 
+#: ../../addon/group_text/group_text.php:46
+#: ../../addon/editplain/editplain.php:46
+msgid "Editplain settings updated."
+msgstr ""
+
+#: ../../addon/group_text/group_text.php:76
+msgid "Group Text"
+msgstr ""
+
+#: ../../addon/group_text/group_text.php:78
+msgid "Use a text only (non-image) group selector in the \"group edit\" menu"
+msgstr ""
+
 #: ../../addon/libravatar/libravatar.php:14
 msgid "Could NOT install Libravatar successfully.<br>It requires PHP >= 5.3"
 msgstr ""
@@ -5721,10 +5886,6 @@ msgid ""
 "be either the MathJax CDN or another installation of MathJax."
 msgstr ""
 
-#: ../../addon/editplain/editplain.php:46
-msgid "Editplain settings updated."
-msgstr ""
-
 #: ../../addon/editplain/editplain.php:76
 msgid "Editplain Settings"
 msgstr ""
@@ -5754,22 +5915,6 @@ msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:111
 msgid "Gravatar settings updated."
-msgstr ""
-
-#: ../../addon/morechoice/morechoice.php:129
-msgid "bitchslap"
-msgstr ""
-
-#: ../../addon/morechoice/morechoice.php:129
-msgid "bitchslapped"
-msgstr ""
-
-#: ../../addon/morechoice/morechoice.php:130
-msgid "shag"
-msgstr ""
-
-#: ../../addon/morechoice/morechoice.php:130
-msgid "shagged"
 msgstr ""
 
 #: ../../addon/testdrive/testdrive.php:95

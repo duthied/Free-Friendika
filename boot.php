@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1415' );
+define ( 'FRIENDICA_VERSION',      '3.0.1418' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -570,6 +570,13 @@ if(! class_exists('App')) {
 				'$showmore' => t('show more'),
 				'$showfewer' => t('show fewer'),
 				'$update_interval' => $interval
+			));
+		}
+
+		function init_page_end() {
+			$tpl = get_markup_template('end.tpl');
+			$this->page['end'] = replace_macros($tpl,array(
+				'$baseurl' => $this->get_baseurl() // FIXME for z_path!!!!
 			));
 		}
 
@@ -1244,6 +1251,12 @@ if(! function_exists('get_birthdays')) {
 		if(! local_user())
 			return $o;
 
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
+			return $o;
+
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 		$bd_short = t('F d');
 
@@ -1321,6 +1334,13 @@ if(! function_exists('get_events')) {
 		$a = get_app();
 
 		if(! local_user())
+			return $o;
+
+
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
 			return $o;
 
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
