@@ -303,7 +303,7 @@ function localize_item(&$item){
  * Recursively prepare a thread for HTML
  */
 
-function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all=false) {
+function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $thread_level=1) {
 	$result = array();
 
 	$wall_template = 'wall_thread.tpl';
@@ -463,11 +463,11 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		} else {
 			$indent = 'comment';
 			// Collapse comments
-			if(($nb_items > 2) || $collapse_all) {
+			if(($nb_items > 2) || ($thread_level > 2)) {
 				if($items_seen == 1) {
 					$firstcollapsed = true;
 				}
-				if($collapse_all) {
+				if($thread_level > 2) {
 					if($items_seen == $nb_items)
 						$lastcollapsed = true;
 				}
@@ -581,11 +581,12 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		}
 
 		$item_result['children'] = array();
-		if(count($item['children'])) {
-			$collapse_all_children = $collapse_all;
-			if(!$toplevelpost && !$collapse_all)
-				$collapse_all_children = true;
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $collapse_all_children);
+		// Show children of children only if enabled
+		if(count($item['children'])
+		&& (($thread_level < 2) || get_config('system','thread_allow'))) {
+			
+			$thread_level++;
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $thread_level);
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
@@ -668,7 +669,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
-	
+		
 	if($items && count($items)) {
 
 		if($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
@@ -796,6 +797,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 		{
 			// Normal View
 
+
 			// Threaded comments, $thr_c is used for now since we don't know what other parts of friendica uses this function
 			// Better not rely on the new code for stuff we haven't examined yet
 			if($thr_c) {
@@ -810,7 +812,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 					}
 				}
 
-				$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $previewing);
+				$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
 			}
 			else {
 
@@ -1168,6 +1170,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false, $thr_c = fa
 
 					$threads[$threadsid]['items'][] = $arr['output'];
 				}
+
 			}
 		}
 	}
