@@ -1486,6 +1486,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
+		'$mobileapp' => t('Friendica mobile web'),
 	));
 
 
