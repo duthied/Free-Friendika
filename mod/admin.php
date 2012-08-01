@@ -471,6 +471,9 @@ function admin_page_dbsync(&$a) {
 
 	if($a->argc > 3 && intval($a->argv[3]) && $a->argv[2] === 'mark') {
 		set_config('database', 'update_' . intval($a->argv[3]), 'success');
+		$curr = get_config('system','build');
+		if(intval($curr) == intval($a->argv[3]))
+			set_config('system','build',intval($curr) + 1);
 		info( t('Update has been marked successful') . EOL);
 		goaway($a->get_baseurl(true) . '/admin/dbsync');
 	}

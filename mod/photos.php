@@ -69,30 +69,11 @@ function photos_init(&$a) {
 		$a->page['aside'] .= $o;
 
 
-		$a->page['htmlhead'] .= "<script> var ispublic = '" . t('everybody') . "';" ;
+		$tpl = get_markup_template("photos_head.tpl");
+		$a->page['htmlhead'] .= replace_macros($tpl,array(
+			'$ispublic' => t('everybody')
+		));
 
-		$a->page['htmlhead'] .= <<< EOT
-
-		$(document).ready(function() {
-
-			$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-				var selstr;
-				$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-					selstr = $(this).text();
-					$('#jot-perms-icon').removeClass('unlock').addClass('lock');
-					$('#jot-public').hide();
-				});
-				if(selstr == null) { 
-					$('#jot-perms-icon').removeClass('lock').addClass('unlock');
-					$('#jot-public').show();
-				}
-
-			}).trigger('change');
-
-		});
-
-		</script>
-EOT;
 	}
 
 	return;
@@ -962,7 +943,7 @@ function photos_content(&$a) {
 		$selname = (($datum) ? hex2bin($datum) : '');
 
 
-		$albumselect = '<select id="photos-upload-album-select" name="album" size="4">';
+		$albumselect = '';
 
 		
 		$albumselect .= '<option value="" ' . ((! $selname) ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
@@ -977,8 +958,6 @@ function photos_content(&$a) {
 
 		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
-		$albumselect .= '</select>';
-
 		$uploader = '';
 
 		$ret = array('post_url' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'],
@@ -988,7 +967,7 @@ function photos_content(&$a) {
 
 		call_hooks('photo_upload_form',$ret);
 
-		$default_upload = '<input type="file" name="userfile" /> 	<div class="photos-upload-submit-wrapper" >
+		$default_upload = '<input id="photos-upload-choose" type="file" name="userfile" /> 	<div class="photos-upload-submit-wrapper" >
 		<input type="submit" name="submit" value="' . t('Submit') . '" id="photos-upload-submit" /> </div>';
 
 
@@ -1195,15 +1174,12 @@ function photos_content(&$a) {
 			
 		}
 
-		if(! $cmd !== 'edit') {
-			$a->page['htmlhead'] .= '<script>
-				$(document).keydown(function(event) {' . "\n";
-
-			if($prevlink)
-				$a->page['htmlhead'] .= 'if(event.ctrlKey && event.keyCode == 37) { event.preventDefault(); window.location.href = \'' . $prevlink . '\'; }' . "\n";
-			if($nextlink)
-				$a->page['htmlhead'] .= 'if(event.ctrlKey && event.keyCode == 39) { event.preventDefault(); window.location.href = \'' . $nextlink . '\'; }' . "\n";
-			$a->page['htmlhead'] .= '});</script>';
+		if( $cmd === 'edit') {
+			$tpl = get_markup_template('photo_edit_head.tpl');
+			$a->page['htmlhead'] .= replace_macros($tpl,array(
+				'$prevlink' => $prevlink,
+				'$nextlink' => $nextlink
+			));
 		}
 
 		if($prevlink)

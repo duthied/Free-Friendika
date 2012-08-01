@@ -403,7 +403,7 @@ function load_view_file($s) {
 		return file_get_contents("$d/$lang/$b");
 	
 	$theme = current_theme();
-	
+
 	if(file_exists("$d/theme/$theme/$b"))
 		return file_get_contents("$d/theme/$theme/$b");
 			
@@ -706,6 +706,22 @@ function linkify($s) {
 	return($s);
 }}
 
+function get_poke_verbs() {
+	
+	// index is present tense verb
+	// value is array containing past tense verb, translation of present, translation of past
+
+	$arr = array(
+		'poke' => array( 'poked', t('poke'), t('poked')),
+		'ping' => array( 'pinged', t('ping'), t('pinged')),
+		'prod' => array( 'prodded', t('prod'), t('prodded')),
+		'slap' => array( 'slapped', t('slap'), t('slapped')),
+		'finger' => array( 'fingered', t('finger'), t('fingered')),
+		'rebuff' => array( 'rebuffed', t('rebuff'), t('rebuffed')),
+	);
+	call_hooks('poke_verbs', $arr);
+	return $arr;
+}
 
 /**
  * 
@@ -1562,7 +1578,7 @@ function undo_post_tagging($s) {
 
 function fix_mce_lf($s) {
 	$s = str_replace("\r\n","\n",$s);
-	$s = str_replace("\n\n","\n",$s);
+//	$s = str_replace("\n\n","\n",$s);
 	return $s;
 }
 

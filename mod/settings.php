@@ -18,30 +18,10 @@ function settings_init(&$a) {
 
 	// These lines provide the javascript needed by the acl selector
 
-	$a->page['htmlhead'] .= "<script> var ispublic = '" . t('everybody') . "';" ;
-
-	$a->page['htmlhead'] .= <<< EOT
-
-	$(document).ready(function() {
-
-		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
-			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-				selstr = $(this).text();
-				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
-				$('#jot-public').hide();
-			});
-			if(selstr == null) { 
-				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
-				$('#jot-public').show();
-			}
-
-		}).trigger('change');
-
-	});
-
-	</script>
-EOT;
+	$tpl = get_markup_template("settings-head.tpl");
+	$a->page['htmlhead'] .= replace_macros($tpl,array(
+		'$ispublic' => t('everybody')
+	));
 
 
 
@@ -373,6 +353,8 @@ function settings_post(&$a) {
 		$notify += intval($_POST['notify6']);
 	if(x($_POST,'notify7'))
 		$notify += intval($_POST['notify7']);
+	if(x($_POST,'notify8'))
+		$notify += intval($_POST['notify8']);
 
 	$email_changed = false;
 
@@ -779,6 +761,11 @@ function settings_content(&$a) {
 			'$theme_config' => $theme_config,
 		));
 		
+		$tpl = get_markup_template("settings_display_end.tpl");
+		$a->page['end'] .= replace_macros($tpl, array(
+			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes)
+		));
+
 		return $o;
 	}
 	
@@ -1025,6 +1012,7 @@ function settings_content(&$a) {
 		'$notify5'	=> array('notify5', t('You receive a private message'), ($notify & NOTIFY_MAIL), NOTIFY_MAIL, ''),
 		'$notify6'  => array('notify6', t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, ''),		
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),		
+		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),		
 		
 		
 		'$h_advn' => t('Advanced Account/Page Type Settings'),

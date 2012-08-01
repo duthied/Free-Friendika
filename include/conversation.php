@@ -162,6 +162,49 @@ function localize_item(&$item){
 		$item['body'] = sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
 
 	}
+	if (stristr($item['verb'],ACTIVITY_POKE)) {
+		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+		if(! $verb)
+			return;
+		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
+
+		$Aname = $item['author-name'];
+		$Alink = $item['author-link'];
+		
+		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+		
+		$obj = parse_xml_string($xmlhead.$item['object']);
+		$links = parse_xml_string($xmlhead."<links>".unxmlify($obj->link)."</links>");
+		
+		$Bname = $obj->title;
+		$Blink = ""; $Bphoto = "";
+		foreach ($links->link as $l){
+			$atts = $l->attributes();
+			switch($atts['rel']){
+				case "alternate": $Blink = $atts['href'];
+				case "photo": $Bphoto = $atts['href'];
+			}
+			
+		}
+		
+		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
+		if ($Bphoto!="") $Bphoto = '[url=' . zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+
+		// we can't have a translation string with three positions but no distinguishable text
+		// So here is the translate string.
+
+		$txt = t('%1$s poked %2$s');
+
+		// now translate the verb
+
+		$txt = str_replace( t('poked'), t($verb), $txt);
+
+		// then do the sprintf on the translation string
+
+		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
+
+	}
     if ($item['verb']===ACTIVITY_TAG){
 		$r = q("SELECT * from `item`,`contact` WHERE 
 		`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
@@ -867,6 +910,7 @@ function item_photo_menu($item){
 		 if(! count($a->contacts))
 			load_contact_links(local_user());
 	}
+	$poke_link="";
 	$contact_url="";
 	$pm_url="";
 	$status_link="";
@@ -896,6 +940,7 @@ function item_photo_menu($item){
 		}
 	}
 	if(($cid) && (! $item['self'])) {
+		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $cid;
 		$contact_url = $a->get_baseurl($ssl_state) . '/contacts/' . $cid;
 		$posts_link = $a->get_baseurl($ssl_state) . '/network/?cid=' . $cid;
 
@@ -918,6 +963,7 @@ function item_photo_menu($item){
 		t("Network Posts") => $posts_link, 
 		t("Edit Contact") => $contact_url,
 		t("Send PM") => $pm_url,
+		t("Poke") => $poke_link
 	);
 	
 	
@@ -929,7 +975,7 @@ function item_photo_menu($item){
 
 	$o = "";
 	foreach($menu as $k=>$v){
-		if ($v!="") $o .= "<li><a href='$v'>$k</a></li>\n";
+		if ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}
@@ -1009,8 +1055,24 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		$plaintext = true;
 
 	$tpl = get_markup_template('jot-header.tpl');
-	
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
+		'$newpost' => 'true',
+		'$baseurl' => $a->get_baseurl(true),
+		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$geotag' => $geotag,
+		'$nickname' => $x['nickname'],
+		'$ispublic' => t('Visible to <strong>everybody</strong>'),
+		'$linkurl' => t('Please enter a link URL:'),
+		'$vidurl' => t("Please enter a video link/URL:"),
+		'$audurl' => t("Please enter an audio link/URL:"),
+		'$term' => t('Tag term:'),
+		'$fileas' => t('Save to Folder:'),
+		'$whereareu' => t('Where are you right now?')
+	));
+
+
+	$tpl = get_markup_template('jot-end.tpl');
+	$a->page['end'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
 		'$baseurl' => $a->get_baseurl(true),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
@@ -1101,6 +1163,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
+		'$mobileapp' => t('Friendica mobile web'),
 	));
 
 
