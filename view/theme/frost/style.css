@@ -3525,9 +3525,9 @@ aside input[type='text'] {
 	margin: 10px 10px 0 0;
 	visibility: none;
 }
-[class^="comment-edit-bb-end"] {
+/*[class^="comment-edit-bb-end"] {
 	clear: both;
-}
+}*/
 .editicon {
     display: inline-block;
 /*    background-image: url(bbedit.png);

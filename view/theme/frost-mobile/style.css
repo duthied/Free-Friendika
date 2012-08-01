@@ -3462,7 +3462,7 @@ aside input[type='text'] {
 	background-image: url('../../../images/icons.png');
 }
 .article { background-position: 0px 0px;}
-.audio { display: none; background-position: -16px 0px;}
+.icon.audio { display: none; background-position: -16px 0px;}
 .block { background-position: -32px 0px;}
 /*.drop { background-position: -48px 0px;}
 .drophide { background-position: -64px 0px;}*/
@@ -3635,9 +3635,9 @@ aside input[type='text'] {
 	margin: 20px 10px 0 0;
 	visibility: none;
 }
-[class^="comment-edit-bb-end"] {
+/*[class^="comment-edit-bb-end"] {
 	clear: both;
-}
+}*/
 .editicon {
     display: inline-block;
 	background-size: 100% 100%;
