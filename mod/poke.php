@@ -52,7 +52,7 @@ function poke_init(&$a) {
 			intval($parent),
 			intval($uid)
 		);
-		if(! count($r)) {
+		if(count($r)) {
 			$parent_uri = $r[0]['uri'];
 			$private    = $r[0]['private'];
 			$allow_cid  = $r[0]['allow_cid'];
@@ -70,9 +70,6 @@ function poke_init(&$a) {
 		$deny_cid      = (($private) ? '' : $a->user['deny_cid']);
 		$deny_gid      = (($private) ? '' : $a->user['deny_gid']);
 	}
-
-
-
 
 	$poster = $a->contact;
 
