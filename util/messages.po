@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1421\n"
+"Project-Id-Version: 3.0.1422\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-31 10:00-0700\n"
+"POT-Creation-Date: 2012-08-01 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 #: ../../mod/crepair.php:115 ../../mod/wall_attach.php:44
 #: ../../mod/fsuggest.php:78 ../../mod/events.php:140 ../../mod/api.php:26
 #: ../../mod/api.php:31 ../../mod/photos.php:116 ../../mod/photos.php:938
-#: ../../mod/editpost.php:10 ../../mod/install.php:151 ../../mod/poke.php:109
+#: ../../mod/editpost.php:10 ../../mod/install.php:151 ../../mod/poke.php:135
 #: ../../mod/notifications.php:66 ../../mod/contacts.php:139
 #: ../../mod/settings.php:86 ../../mod/settings.php:519
 #: ../../mod/settings.php:524 ../../mod/manage.php:86 ../../mod/network.php:6
@@ -51,7 +51,7 @@ msgstr ""
 #: ../../mod/profile_photo.php:166 ../../mod/message.php:38
 #: ../../mod/message.php:168 ../../mod/allfriends.php:9
 #: ../../mod/nogroup.php:25 ../../mod/wall_upload.php:53
-#: ../../mod/follow.php:9 ../../mod/display.php:138 ../../mod/profiles.php:7
+#: ../../mod/follow.php:9 ../../mod/display.php:130 ../../mod/profiles.php:7
 #: ../../mod/profiles.php:408 ../../mod/delegate.php:6
 #: ../../mod/suggest.php:28 ../../mod/invite.php:13 ../../mod/invite.php:81
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
@@ -127,7 +127,7 @@ msgstr ""
 #: ../../mod/photos.php:1285 ../../mod/photos.php:1325
 #: ../../mod/photos.php:1365 ../../mod/photos.php:1396
 #: ../../mod/install.php:246 ../../mod/install.php:284
-#: ../../mod/localtime.php:45 ../../mod/poke.php:169 ../../mod/content.php:691
+#: ../../mod/localtime.php:45 ../../mod/poke.php:199 ../../mod/content.php:691
 #: ../../mod/contacts.php:341 ../../mod/settings.php:537
 #: ../../mod/settings.php:691 ../../mod/settings.php:752
 #: ../../mod/settings.php:958 ../../mod/group.php:85 ../../mod/message.php:294
@@ -1222,23 +1222,23 @@ msgstr ""
 msgid "Please select your timezone:"
 msgstr ""
 
-#: ../../mod/poke.php:163
+#: ../../mod/poke.php:192
 msgid "Poke/Prod"
 msgstr ""
 
-#: ../../mod/poke.php:164
+#: ../../mod/poke.php:193
 msgid "poke, prod or do other things to somebody"
 msgstr ""
 
-#: ../../mod/poke.php:165
+#: ../../mod/poke.php:194
 msgid "Recipient"
 msgstr ""
 
-#: ../../mod/poke.php:166
+#: ../../mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
 msgstr ""
 
-#: ../../mod/poke.php:168
+#: ../../mod/poke.php:198
 msgid "Make this post private"
 msgstr ""
 
@@ -2986,8 +2986,8 @@ msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
-#: ../../mod/admin.php:705 ../../mod/admin.php:904 ../../mod/display.php:37
-#: ../../mod/display.php:142 ../../include/items.php:3692
+#: ../../mod/admin.php:705 ../../mod/admin.php:904 ../../mod/display.php:29
+#: ../../mod/display.php:134 ../../include/items.php:3692
 msgid "Item not found."
 msgstr ""
 
@@ -3811,7 +3811,7 @@ msgstr ""
 msgid "Requested profile is not available."
 msgstr ""
 
-#: ../../mod/profile.php:141 ../../mod/display.php:75
+#: ../../mod/profile.php:141 ../../mod/display.php:67
 msgid "Access to this profile has been restricted."
 msgstr ""
 
@@ -3898,7 +3898,7 @@ msgstr ""
 msgid "link"
 msgstr ""
 
-#: ../../mod/display.php:135
+#: ../../mod/display.php:127
 msgid "Item has been removed."
 msgstr ""
 
