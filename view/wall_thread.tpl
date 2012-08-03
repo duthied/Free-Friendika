@@ -72,10 +72,14 @@
 				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="icon drophide" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
 			</div>
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
-			<div class="wall-item-delete-end"></div>			
-<div class="wall-item-comment-wrapper" >
-	$item.comment
-</div>
+			<div class="wall-item-delete-end"></div>
+			{{ if $item.threaded }}
+			{{ if $item.comment }}
+			<div class="wall-item-comment-wrapper" >
+				$item.comment
+			</div>
+			{{ endif }}
+			{{ endif }}
 		</div>
 	</div>
 	<div class="wall-item-wrapper-end"></div>
@@ -87,5 +91,10 @@
 	{{ inc $item.template }}{{ endinc }}
 {{ endfor }}
 
+{{ if $item.flatten }}
+<div class="wall-item-comment-wrapper" >
+	$item.comment
+</div>
+{{ endif }}
 </div>
 {{if $item.comment_lastcollapsed}}</div>{{endif}}

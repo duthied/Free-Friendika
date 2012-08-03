@@ -581,13 +581,27 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		}
 
 		$item_result['children'] = array();
-		// Show children of children only if enabled
-		if(count($item['children'])
-		&& (($thread_level < 2) || get_config('system','thread_allow'))) {
+		if(count($item['children'])) {
 			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
+
+		/*
+		 * I don't like this very much...
+		 */
+		if(get_config('system','thread_allow')) {
+			$item_result['flatten'] = false;
+			$item_result['threaded'] = true;
+		}
+		else {
+			$item_result['flatten'] = true;
+			$item_result['threaded'] = false;
+			if(!$toplevelpost) {
+				$item_result['comment'] = false;
+			}
+		}
+		
 		$result[] = $item_result;
 	}
 
@@ -1134,9 +1148,16 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 function get_item_children($arr, $parent) {
 	$children = array();
 	foreach($arr as $item) {
-		if(($item['id'] != $item['parent']) && ($item['thr-parent'] == $parent['uri'])) {
-			$item['children'] = get_item_children($arr, $item);
-			$children[] = $item;
+		if($item['id'] != $item['parent']) {
+			if(get_config('system','thread_allow')) {
+				if($item['thr-parent'] == $parent['uri']) {
+					$item['children'] = get_item_children($arr, $item);
+					$children[] = $item;
+				}
+			}
+			else if($item['parent'] == $parent['id']) {
+				$children[] = $item;
+			}
 		}
 	}
 	return $children;
