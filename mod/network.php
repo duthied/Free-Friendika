@@ -687,7 +687,7 @@ function network_content(&$a, $update = 0) {
 
 	$mode = (($nouveau) ? 'network-new' : 'network');
 
-	$o .= conversation($a,$items,$mode,$update, false, true);
+	$o .= conversation($a,$items,$mode,$update);
 
 	if(! $update) {
 	        if(! get_pconfig(local_user(),'system','alt_pager')) {

@@ -133,7 +133,7 @@ function notes_content(&$a,$update = false) {
 		if(count($r)) {
 			$items = conv_sort($r,"`commented`");
 
-			$o .= conversation($a,$items,'notes',$update, false, true);
+			$o .= conversation($a,$items,'notes',$update);
 		}
 	}
 

@@ -115,7 +115,7 @@ function display_content(&$a) {
 
 		$items = conv_sort($r,"`commented`");
 		
-		$o .= conversation($a,$items,'display', false, false, true);
+		$o .= conversation($a,$items,'display', false);
 
 	}
 	else {
