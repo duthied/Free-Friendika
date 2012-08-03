@@ -1350,4 +1350,3 @@ function update_1154() {
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }
-
