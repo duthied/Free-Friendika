@@ -533,7 +533,7 @@ function get_atom_elements($feed,$item) {
 		$res['body'] = $rawenv[0]['data'];
 		$res['body'] = str_replace(array(' ',"\t","\r","\n"), array('','','',''),$res['body']);
 		// make sure nobody is trying to sneak some html tags by us
-		$res['body'] = notags(base64url_decode($res['body']));
+		$res['body'] = htmlspecialchars(base64url_decode($res['body']),ENT_QUOTES,'UTF-8');
 	}
 
 	
@@ -577,6 +577,7 @@ function get_atom_elements($feed,$item) {
 
 		$res['body'] = escape_tags($res['body']);
 	}
+
 
 	// this tag is obsolete but we keep it for really old sites
 
@@ -3327,7 +3328,6 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
 	else
 		$body = $item['body'];
-
 
 	$o = "\r\n\r\n<entry>\r\n";
 
