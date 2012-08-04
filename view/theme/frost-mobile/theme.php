@@ -22,4 +22,7 @@ function frost_mobile_init(&$a) {
 	if( $a->module === 'login' )
 		$a->page['end'] .= '<script type="text/javascript"> $j(document).ready(function() { $j("#id_" + window.loginName).focus();} );</script>';
 
+
+	$a->sourcename = 'Friendica mobile web';
+
 }
