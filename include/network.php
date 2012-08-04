@@ -854,6 +854,10 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			}
 		}
 	}
+
+	// replace the special char encoding
+
+	$s = htmlspecialchars($s,ENT_QUOTES,'UTF-8');
 	return $s;
 }
 

@@ -578,6 +578,7 @@ function get_atom_elements($feed,$item) {
 		$res['body'] = escape_tags($res['body']);
 	}
 
+
 	// this tag is obsolete but we keep it for really old sites
 
 	$allow = $item->get_item_tags(NAMESPACE_DFRN,'comment-allow');
@@ -3327,7 +3328,6 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
 	else
 		$body = $item['body'];
-
 
 	$o = "\r\n\r\n<entry>\r\n";
 
