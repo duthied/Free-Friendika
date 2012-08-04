@@ -6,8 +6,6 @@ Photo album display?
 
 - Edit photo page: bottom buttons are off-center in Dolphin Mini
 
-- Pager: looks weird when only "prev" is there
-
 - BB code buttons for status updates
 
 - Get "add contact" back on contacts page
@@ -15,8 +13,6 @@ Photo album display?
 - Admin: access to more pages than summary?
 
 - Embedded video playback is way too big
-
-- It would be better to allow the "source" specification for posts and comments to be anything the theme author wants--but how to make translateable?
 
 - Needs to be faster!
 	- Reduce DOM elements (~2400 for 10 items, ~8400 for 40 items)
