@@ -2333,13 +2333,13 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	$body = $item['body'];
 	$text = html_entity_decode(bb2diaspora($body));
 
-
-	if($item['thr-parent']) {
+	// Diaspora doesn't support threaded comments
+	/*if($item['thr-parent']) {
 		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
 		        dbesc($item['thr-parent'])
 		      );
 	}
-	else {
+	else {*/
 		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
 		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
 		// The only item with `parent` and `id` as the parent id is the parent item.
@@ -2347,7 +2347,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 			intval($item['parent']),
 			intval($item['parent'])
 		      );
-	}
+	//}
 	if(count($p))
 		$parent = $p[0];
 	else
