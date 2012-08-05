@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1422\n"
+"Project-Id-Version: 3.0.1424\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-01 10:00-0700\n"
+"POT-Creation-Date: 2012-08-03 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2602,7 +2602,7 @@ msgstr ""
 
 #: ../../mod/notes.php:63 ../../mod/filer.php:30
 #: ../../addon/facebook/facebook.php:770
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:236
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:263
 #: ../../addon/dav/layout.fnk.php:441 ../../addon/dav/layout.fnk.php:488
 #: ../../include/text.php:677
 msgid "Save"
@@ -4787,23 +4787,23 @@ msgstr ""
 msgid "How many contacts to display on profile sidebar"
 msgstr ""
 
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:233
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:260
 msgid "Lifetime of the cache (in hours)"
 msgstr ""
 
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:238
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:265
 msgid "Cache Statistics"
 msgstr ""
 
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:241
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:268
 msgid "Number of items"
 msgstr ""
 
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:243
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:270
 msgid "Size of the cache"
 msgstr ""
 
-#: ../../addon/privacy_image_cache/privacy_image_cache.php:245
+#: ../../addon/privacy_image_cache/privacy_image_cache.php:272
 msgid "Delete the whole cache"
 msgstr ""
 
@@ -7504,7 +7504,7 @@ msgstr ""
 msgid "Attachments:"
 msgstr ""
 
-#: ../../include/network.php:843
+#: ../../include/network.php:849
 msgid "view full size"
 msgstr ""
 
@@ -7803,11 +7803,11 @@ msgstr ""
 msgid "From: "
 msgstr ""
 
-#: ../../include/bbcode.php:102 ../../include/bbcode.php:317
+#: ../../include/bbcode.php:102 ../../include/bbcode.php:323
 msgid "Image/photo"
 msgstr ""
 
-#: ../../include/bbcode.php:282 ../../include/bbcode.php:302
+#: ../../include/bbcode.php:288 ../../include/bbcode.php:308
 msgid "$1 wrote:"
 msgstr ""
 

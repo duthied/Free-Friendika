@@ -438,6 +438,7 @@ function item_post(&$a) {
 
 	$body = bb_translate_video($body);
 
+
 	/**
 	 * Fold multi-line [code] sequences
 	 */
@@ -445,6 +446,8 @@ function item_post(&$a) {
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body); 
 
 	$body = scale_external_images($body,false);
+
+
 
 	/**
 	 * Look for any tags and linkify them
