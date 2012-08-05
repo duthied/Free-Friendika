@@ -514,6 +514,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 					'$edurl' => t('Link'),
 					'$edvideo' => t('Video'),
 					'$preview' => t('Preview'),
+					'$sourceapp' => t($a->sourcename),
 					'$ww' => (($mode === 'network') ? $commentww : '')
 				));
 			}
@@ -1132,7 +1133,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
-		'$mobileapp' => t('Friendica mobile web'),
+		'$sourceapp' => t($a->sourcename),
 	));
 
 

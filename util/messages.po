@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1424\n"
+"Project-Id-Version: 3.0.1425\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-03 10:00-0700\n"
+"POT-Creation-Date: 2012-08-04 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -863,7 +863,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3204
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3205
 msgid "[Name Withheld]"
 msgstr ""
 
@@ -1917,7 +1917,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:702
 #: ../../addon/facebook/facebook.php:1200
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3213
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3214
 #: ../../boot.php:779
 msgid "Administrator"
 msgstr ""
@@ -3031,28 +3031,28 @@ msgstr ""
 msgid "Wall Photos"
 msgstr ""
 
-#: ../../mod/item.php:800
+#: ../../mod/item.php:803
 msgid "System error. Post not saved."
 msgstr ""
 
-#: ../../mod/item.php:825
+#: ../../mod/item.php:828
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social network."
 msgstr ""
 
-#: ../../mod/item.php:827
+#: ../../mod/item.php:830
 #, php-format
 msgid "You may visit them online at %s"
 msgstr ""
 
-#: ../../mod/item.php:828
+#: ../../mod/item.php:831
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
 msgstr ""
 
-#: ../../mod/item.php:830
+#: ../../mod/item.php:833
 #, php-format
 msgid "%s posted an update."
 msgstr ""
@@ -7789,12 +7789,12 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: ../../include/datetime.php:472 ../../include/items.php:1620
+#: ../../include/datetime.php:472 ../../include/items.php:1621
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/datetime.php:473 ../../include/items.php:1621
+#: ../../include/datetime.php:473 ../../include/items.php:1622
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -8064,11 +8064,11 @@ msgstr ""
 msgid "following"
 msgstr ""
 
-#: ../../include/items.php:3211
+#: ../../include/items.php:3212
 msgid "A new person is sharing with you at "
 msgstr ""
 
-#: ../../include/items.php:3211
+#: ../../include/items.php:3212
 msgid "You have a new follower at "
 msgstr ""
 
