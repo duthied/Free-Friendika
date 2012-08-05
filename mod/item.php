@@ -604,7 +604,7 @@ function item_post(&$a) {
 
 	if($preview) {
 		require_once('include/conversation.php');
-		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search');
+		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search', false);
 		logger('preview: ' . $o);
 		echo json_encode(array('preview' => $o));
 		killme();
