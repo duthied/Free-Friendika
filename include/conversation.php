@@ -1151,7 +1151,12 @@ function get_item_children($arr, $parent) {
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
 			if(get_config('system','thread_allow')) {
-				if($item['thr-parent'] == $parent['uri']) {
+				// Fallback to parent-uri if thr-parent is not set
+				$thr_parent = $item['thr-parent'];
+				if($thr_parent == '')
+					$thr_parent = $item['parent-uri'];
+				
+				if($thr_parent == $parent['uri']) {
 					$item['children'] = get_item_children($arr, $item);
 					$children[] = $item;
 				}

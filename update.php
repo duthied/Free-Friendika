@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1155 );
+define( 'UPDATE_VERSION' , 1154 );
 
 /**
  *
@@ -1339,13 +1339,6 @@ function update_1152() {
 
 function update_1153() {
 	$r = q("ALTER TABLE `hook` ADD `priority` INT(11) UNSIGNED NOT NULL DEFAULT '0'");
-	
-	if(!$r) return UPDATE_FAILED;
-	return UPDATE_SUCCESS;
-}
-
-function update_1154() {
-	$r = q("UPDATE `item` SET `thr-parent`=`parent-uri` WHERE `id`!=`parent` AND `thr-parent`=''");
 	
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
