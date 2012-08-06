@@ -599,19 +599,19 @@ section {
 /* threaded comments */
 .children {
 
-	&> .children {
+	& .children {
 		margin-left: 40px;
 		.wall-item-container { width: 710px; }
 	
-		&> .children {
+		& .children {
 			margin-left: 40px;
 			.wall-item-container { width: 670px; }
 		
-			&> .children {
+			& .children {
 				margin-left: 40px;
 				.wall-item-container { width: 630px; }
 
-				&> .children {
+				& .children {
 					margin-left: 40px;
 					.wall-item-container { width: 590px; }
 					
@@ -623,6 +623,7 @@ section {
 		}
 	}
 }
+.threaded .hide-comments-outer { margin-left: 20px; }
 
 span[id^="showmore-teaser"]{
     background: url("showmore-bg.jpg") no-repeat center bottom;

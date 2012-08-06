@@ -1,3 +1,13 @@
+{{if $mode == display}}
+{{ else }}
+{{if $item.comment_firstcollapsed}}
+	<div class="hide-comments-outer">
+	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
+	</div>
+	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
+{{endif}}
+{{ endif }}
+
 <div class="wall-item-decor">
 	<span class="icon s22 star $item.isstarred" id="starred-$item.id" title="$item.star.starred">$item.star.starred</span>
 	{{ if $item.lock }}<span class="icon s22 lock fakelink" onclick="lockview(event,$item.id);" title="$item.lock">$item.lock</span>{{ endif }}	
@@ -111,6 +121,11 @@
 		{{ endif }}
 	</div>
 {{ endfor }}
+
+{{if $mode == display}}
+{{ else }}
+{{if $item.comment_lastcollapsed}}</div>{{endif}}
+{{ endif }}
 
 {{ if $item.flatten }}
 <div class="wall-item-comment-wrapper" >

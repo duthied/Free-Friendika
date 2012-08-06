@@ -1,16 +1,6 @@
 {{ for $threads as $item }}
 <div id="tread-wrapper-$item.id" class="tread-wrapper {{ if $item.threaded }}threaded{{ endif }}">
-        {{if $mode == display}}
-        {{ else }}
-		{{if $item.comment_firstcollapsed}}
-			<div class="hide-comments-outer">
-			<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
-			</div>
-			<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
-		{{endif}}
-		{{if $item.comment_lastcollapsed}}</div>{{endif}}
-        {{ endif }}
-        
+       
 		{{ if $item.type == tag }}
 			{{ inc wall_item_tag.tpl }}{{ endinc }}
 		{{ else }}

@@ -1143,32 +1143,35 @@ section {
   height: 25px;
 }
 /* threaded comments */
-.children > .children {
+.children .children {
   margin-left: 40px;
 }
-.children > .children .wall-item-container {
+.children .children .wall-item-container {
   width: 710px;
 }
-.children > .children > .children {
+.children .children .children {
   margin-left: 40px;
 }
-.children > .children > .children .wall-item-container {
+.children .children .children .wall-item-container {
   width: 670px;
 }
-.children > .children > .children > .children {
+.children .children .children .children {
   margin-left: 40px;
 }
-.children > .children > .children > .children .wall-item-container {
+.children .children .children .children .wall-item-container {
   width: 630px;
 }
-.children > .children > .children > .children > .children {
+.children .children .children .children .children {
   margin-left: 40px;
 }
-.children > .children > .children > .children > .children .wall-item-container {
+.children .children .children .children .children .wall-item-container {
   width: 590px;
 }
-.children > .children > .children > .children > .children .children {
+.children .children .children .children .children .children {
   margin-left: 0px;
+}
+.threaded .hide-comments-outer {
+  margin-left: 20px;
 }
 span[id^="showmore-teaser"] {
   background: url("showmore-bg.jpg") no-repeat center bottom;
