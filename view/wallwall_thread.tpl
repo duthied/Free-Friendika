@@ -1,3 +1,10 @@
+{{if $item.comment_firstcollapsed}}
+	<div class="hide-comments-outer">
+	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
+	</div>
+	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
+{{endif}}
+<div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
 <a name="$item.id" ></a>
 <div class="wall-item-outside-wrapper$item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >
 	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
@@ -71,6 +78,13 @@
 			</div>
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<div class="wall-item-delete-end"></div>
+			{{ if $item.threaded }}
+			{{ if $item.comment }}
+			<div class="wall-item-comment-wrapper" >
+				$item.comment
+			</div>
+			{{ endif }}
+			{{ endif }}
 		</div>
 	</div>	
 	<div class="wall-item-wrapper-end"></div>
@@ -83,4 +97,14 @@
 
 <div class="wall-item-outside-wrapper-end$item.indent" ></div>
 </div>
+{{ for $item.children as $item }}
+	{{ inc $item.template }}{{ endinc }}
+{{ endfor }}
 
+{{ if $item.flatten }}
+<div class="wall-item-comment-wrapper" >
+	$item.comment
+</div>
+{{ endif }}
+</div>
+{{if $item.comment_lastcollapsed}}</div>{{endif}}
