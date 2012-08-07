@@ -545,6 +545,10 @@ function item_post(&$a) {
 
 	$uri = item_new_uri($a->get_hostname(),$profile_uid);
 
+	// Fallback so that we alway have a thr-parent
+	if(!$thr_parent)
+		$thr_parent = $uri;
+
 	$datarray = array();
 	$datarray['uid']           = $profile_uid;
 	$datarray['type']          = $post_type;
