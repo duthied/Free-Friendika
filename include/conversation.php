@@ -300,6 +300,21 @@ function localize_item(&$item){
 }
 
 /**
+ * Count the total of comments on this item and its desendants
+ */
+function count_descendants($item) {
+	$total = count($item['children']);
+
+	if($total > 0) {
+		foreach($item['children'] as $child) {
+			$total += count_descendants($child);
+		}
+	}
+
+	return $total;
+}
+
+/**
  * Recursively prepare a thread for HTML
  */
 
@@ -310,6 +325,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 	$wallwall_template = 'wallwall_thread.tpl';
 	$items_seen = 0;
 	$nb_items = count($items);
+	
+	$total_children = $nb_items;
 	
 	foreach($items as $item) {
 		// prevent private email reply to public conversation from leaking.
@@ -338,6 +355,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		$osparkle = '';
 		$lastcollapsed = false;
 		$firstcollapsed = false;
+		$total_children += count_descendants($item);
 
 		$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
 		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
@@ -577,7 +595,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 
 		$item_result = $arr['output'];
 		if($firstcollapsed) {
-			$item_result['num_comments'] = sprintf( tt('%d comment','%d comments',$nb_items),$nb_items );
+			$item_result['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 			$item_result['hide_text'] = t('show more');
 		}
 
