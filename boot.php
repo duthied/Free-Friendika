@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1425' );
+define ( 'FRIENDICA_VERSION',      '3.0.1427' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -349,11 +349,21 @@ if(! class_exists('App')) {
 		public  $plugins;
 		public  $apps = array();
 		public  $identities;
-		public	$sourcename = '';
 	
 		public $nav_sel;
 
 		public $category;
+
+		// Allow themes to control internal parameters
+		// by changing App values in theme.php
+		//
+		// Possibly should make these part of the plugin
+		// system, but it seems like overkill to invoke
+		// all the plugin machinery just to change a couple
+		// of values
+		public	$sourcename = '';
+		public	$videowidth = 425;
+		public	$videoheight = 350;
 
 		private $scheme;
 		private $hostname;

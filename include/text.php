@@ -504,6 +504,10 @@ function get_tags($s) {
 
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
 
+	// ignore anything in a bbtag
+
+	$s = preg_replace('/\[(.*?)\]/sm','',$s);
+
 	// Match full names against @tags including the space between first and last
 	// We will look these up afterward to see if they are full names or not recognisable.
 

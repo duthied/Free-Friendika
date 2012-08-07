@@ -3701,6 +3701,7 @@ function drop_item($id,$interactive = true) {
 
 	if((local_user() == $item['uid']) || (remote_user() == $item['contact-id']) || (! $interactive)) {
 
+		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 		// delete the item
 
 		$r = q("UPDATE `item` SET `deleted` = 1, `title` = '', `body` = '', `edited` = '%s', `changed` = '%s' WHERE `id` = %d LIMIT 1",
