@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1426\n"
+"Project-Id-Version: 3.0.1427\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-05 10:00-0700\n"
+"POT-Creation-Date: 2012-08-06 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -227,7 +227,7 @@ msgstr ""
 msgid "Edit event"
 msgstr ""
 
-#: ../../mod/events.php:307 ../../include/text.php:1110
+#: ../../mod/events.php:307 ../../include/text.php:1114
 msgid "link to source"
 msgstr ""
 
@@ -423,7 +423,7 @@ msgstr ""
 
 #: ../../mod/photos.php:572 ../../mod/like.php:145 ../../mod/tagger.php:70
 #: ../../addon/communityhome/communityhome.php:163
-#: ../../view/theme/diabook/theme.php:570 ../../include/text.php:1362
+#: ../../view/theme/diabook/theme.php:570 ../../include/text.php:1366
 #: ../../include/diaspora.php:1793 ../../include/conversation.php:114
 #: ../../include/conversation.php:230
 msgid "photo"
@@ -2600,7 +2600,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:770
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:263
 #: ../../addon/dav/layout.fnk.php:441 ../../addon/dav/layout.fnk.php:488
-#: ../../include/text.php:677
+#: ../../include/text.php:681
 msgid "Save"
 msgstr ""
 
@@ -2861,7 +2861,7 @@ msgstr ""
 msgid "No contacts."
 msgstr ""
 
-#: ../../mod/viewcontacts.php:76 ../../include/text.php:614
+#: ../../mod/viewcontacts.php:76 ../../include/text.php:618
 msgid "View Contacts"
 msgstr ""
 
@@ -3906,8 +3906,8 @@ msgstr ""
 msgid "No installed applications."
 msgstr ""
 
-#: ../../mod/search.php:83 ../../include/text.php:674
-#: ../../include/text.php:675 ../../include/nav.php:91
+#: ../../mod/search.php:83 ../../include/text.php:678
+#: ../../include/text.php:679 ../../include/nav.php:91
 msgid "Search"
 msgstr ""
 
@@ -5139,7 +5139,7 @@ msgid "Latest likes"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:155
-#: ../../view/theme/diabook/theme.php:562 ../../include/text.php:1360
+#: ../../view/theme/diabook/theme.php:562 ../../include/text.php:1364
 #: ../../include/conversation.php:106 ../../include/conversation.php:222
 msgid "event"
 msgstr ""
@@ -5260,38 +5260,38 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:254
 #: ../../addon/dav/common/wdcal_edit.inc.php:270
 #: ../../addon/dav/common/wdcal_edit.inc.php:293
-#: ../../addon/dav/common/wdcal_edit.inc.php:305 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:305 ../../include/text.php:884
 msgid "Sunday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:235
 #: ../../addon/dav/common/wdcal_edit.inc.php:274
-#: ../../addon/dav/common/wdcal_edit.inc.php:308 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:308 ../../include/text.php:884
 msgid "Monday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:238
-#: ../../addon/dav/common/wdcal_edit.inc.php:277 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:277 ../../include/text.php:884
 msgid "Tuesday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:241
-#: ../../addon/dav/common/wdcal_edit.inc.php:280 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:280 ../../include/text.php:884
 msgid "Wednesday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:244
-#: ../../addon/dav/common/wdcal_edit.inc.php:283 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:283 ../../include/text.php:884
 msgid "Thursday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:247
-#: ../../addon/dav/common/wdcal_edit.inc.php:286 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:286 ../../include/text.php:884
 msgid "Friday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:250
-#: ../../addon/dav/common/wdcal_edit.inc.php:289 ../../include/text.php:880
+#: ../../addon/dav/common/wdcal_edit.inc.php:289 ../../include/text.php:884
 msgid "Saturday"
 msgstr ""
 
@@ -7337,158 +7337,158 @@ msgstr ""
 msgid "older"
 msgstr ""
 
-#: ../../include/text.php:593
+#: ../../include/text.php:597
 msgid "No contacts"
 msgstr ""
 
-#: ../../include/text.php:602
+#: ../../include/text.php:606
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/text.php:715
+#: ../../include/text.php:719
 msgid "poke"
 msgstr ""
 
-#: ../../include/text.php:715 ../../include/conversation.php:201
+#: ../../include/text.php:719 ../../include/conversation.php:201
 msgid "poked"
 msgstr ""
 
-#: ../../include/text.php:716
+#: ../../include/text.php:720
 msgid "ping"
 msgstr ""
 
-#: ../../include/text.php:716
+#: ../../include/text.php:720
 msgid "pinged"
 msgstr ""
 
-#: ../../include/text.php:717
+#: ../../include/text.php:721
 msgid "prod"
 msgstr ""
 
-#: ../../include/text.php:717
+#: ../../include/text.php:721
 msgid "prodded"
 msgstr ""
 
-#: ../../include/text.php:718
+#: ../../include/text.php:722
 msgid "slap"
 msgstr ""
 
-#: ../../include/text.php:718
+#: ../../include/text.php:722
 msgid "slapped"
 msgstr ""
 
-#: ../../include/text.php:719
+#: ../../include/text.php:723
 msgid "finger"
 msgstr ""
 
-#: ../../include/text.php:719
+#: ../../include/text.php:723
 msgid "fingered"
 msgstr ""
 
-#: ../../include/text.php:720
+#: ../../include/text.php:724
 msgid "rebuff"
 msgstr ""
 
-#: ../../include/text.php:720
+#: ../../include/text.php:724
 msgid "rebuffed"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "January"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "February"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "March"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "April"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "May"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "June"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "July"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "August"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "September"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "October"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "November"
 msgstr ""
 
-#: ../../include/text.php:884
+#: ../../include/text.php:888
 msgid "December"
 msgstr ""
 
-#: ../../include/text.php:970
+#: ../../include/text.php:974
 msgid "bytes"
 msgstr ""
 
-#: ../../include/text.php:990 ../../include/text.php:1005
+#: ../../include/text.php:994 ../../include/text.php:1009
 msgid "remove"
 msgstr ""
 
-#: ../../include/text.php:990 ../../include/text.php:1005
+#: ../../include/text.php:994 ../../include/text.php:1009
 msgid "[remove]"
 msgstr ""
 
-#: ../../include/text.php:993
+#: ../../include/text.php:997
 msgid "Categories:"
 msgstr ""
 
-#: ../../include/text.php:1008
+#: ../../include/text.php:1012
 msgid "Filed under:"
 msgstr ""
 
-#: ../../include/text.php:1024 ../../include/text.php:1036
+#: ../../include/text.php:1028 ../../include/text.php:1040
 msgid "Click to open/close"
 msgstr ""
 
-#: ../../include/text.php:1142 ../../include/user.php:236
+#: ../../include/text.php:1146 ../../include/user.php:236
 msgid "default"
 msgstr ""
 
-#: ../../include/text.php:1154
+#: ../../include/text.php:1158
 msgid "Select an alternate language"
 msgstr ""
 
-#: ../../include/text.php:1364
+#: ../../include/text.php:1368
 msgid "activity"
 msgstr ""
 
-#: ../../include/text.php:1366
+#: ../../include/text.php:1370
 msgid "comment"
 msgstr ""
 
-#: ../../include/text.php:1367
+#: ../../include/text.php:1371
 msgid "post"
 msgstr ""
 
-#: ../../include/text.php:1522
+#: ../../include/text.php:1526
 msgid "Item filed"
 msgstr ""
 
