@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1427' );
+define ( 'FRIENDICA_VERSION',      '3.0.1429' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
