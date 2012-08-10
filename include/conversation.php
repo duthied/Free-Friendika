@@ -837,7 +837,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			require_once('object/Conversation.php');
 			require_once('object/Item.php');
 
-			$conv = new Conversation();
+			$conv = new Conversation($mode);
 
 			// get all the topmost parents
 			// this shouldn't be needed, as we should have only them in our array
@@ -853,11 +853,12 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			}
 
 			//$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
-			$threads = $conv->get_template_data($a, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
+			$threads = $conv->get_template_data($cmnt_tpl);
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
 			}
+			logger('[DEBUG] conversation : $threads = '. print_r($threads, true), LOGGER_DEBUG);
 		}
 	}
 		
