@@ -2,7 +2,11 @@
 {{ else }}
 {{if $item.comment_firstcollapsed}}
 	<div class="hide-comments-outer">
-	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
+		<span id="hide-comments-total-$item.id" 
+			class="hide-comments-total">$item.num_comments</span>
+			<span id="hide-comments-$item.id" 
+				class="hide-comments fakelink" 
+				onclick="showHideComments($item.id);">$item.hide_text</span>
 	</div>
 	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
 {{endif}}
