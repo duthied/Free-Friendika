@@ -676,6 +676,9 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		$page_writeable = false;
 	}
 
+	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
+
+
 	if($update)
 		$return_url = $_SESSION['return_url'];
 	else
@@ -851,7 +854,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($dropping?t('Delete Selected Items'):False),
+		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
 	));
 
 	return $o;
