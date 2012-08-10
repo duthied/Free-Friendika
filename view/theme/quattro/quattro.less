@@ -545,6 +545,7 @@ section {
 	width: 710px;
 	border: 1px solid @Grey5;
 	margin-top: 10px;
+	background-color: @JotPreviewBackgroundColor;
 	
 	.contact-photo { width: 32px; height: 32px; margin-left: 16px;
 		/*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
@@ -555,8 +556,13 @@ section {
 	}
 	.wall-item-links { padding-left: 12px; }
 
-	.wall-item-container { width: 700px; }
-	.tread-wrapper { width: 700px; padding: 0; margin: 10px 0;}
+	.wall-item-container { width: 90%; }
+	.tread-wrapper { 
+		width: 90%; padding: 0; margin: 10px 0; 
+		background-color: @JotPreviewBackgroundColor;
+		border-bottom: 0px;
+	}
+	.wall-item-conv { display: none; }
 }
 
 .shiny { border-right:10px solid @ShinyBorderColor; }
@@ -599,32 +605,49 @@ section {
 
 /* threaded comments */
 .children {
-
+	margin-top: 1em;
+	.hide-comments-outer { margin-left:60px; }
+	
+	.comment-edit-preview { width: 660px;
+		.wall-item-container { width: 610px; }
+	 }
+	
 	& .children {
+		
 		margin-left: 40px;
 		.wall-item-container { width: 710px; }
+		.comment-edit-preview { width: 620px;
+			.wall-item-container { width: 620px; }
+		 }
 	
 		& .children {
-			margin-left: 40px;
 			.wall-item-container { width: 670px; }
+			.comment-edit-preview { width: 580px; 
+				.wall-item-container { width: 580px; }
+			}
 		
 			& .children {
-				margin-left: 40px;
 				.wall-item-container { width: 630px; }
+				.comment-edit-preview { width: 540px; 
+					.wall-item-container { width: 540px; }
+				}
 
 				& .children {
-					margin-left: 40px;
 					.wall-item-container { width: 590px; }
+					.comment-edit-preview { width: 500px; 
+						.wall-item-container { width: 500px; }
+					}
 					
 					.children {
 						margin-left: 0px;
-					}		
+						.hide-comments-outer { margin-left: 0px; }
+					}
 				}
 			}		
 		}
 	}
 }
-.threaded .hide-comments-outer { margin-left: 20px; }
+/*.threaded .hide-comments-outer { margin-left: 20px; }*/
 
 span[id^="showmore-teaser"]{
     background: url("showmore-bg.jpg") no-repeat center bottom;

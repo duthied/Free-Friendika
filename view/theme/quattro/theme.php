@@ -42,6 +42,16 @@ function insertFormatting(comment,BBcode,id) {
 	return true;
 }
 
+function showThread(id) {
+	$("#collapsed-comments-" + id).show()
+	$("#collapsed-comments-" + id + " .collapsed-comments").show()
+}
+function hideThread(id) {
+	$("#collapsed-comments-" + id).hide()
+	$("#collapsed-comments-" + id + " .collapsed-comments").hide()
+}
+
+
 function cmtBbOpen(id) {
 	$("#comment-edit-bb-" + id).show();
 }

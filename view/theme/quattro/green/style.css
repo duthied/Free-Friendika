@@ -1075,6 +1075,7 @@ section {
   width: 710px;
   border: 1px solid #2d2d2d;
   margin-top: 10px;
+  background-color: #ddffdd;
 }
 .comment-edit-preview .contact-photo {
   width: 32px;
@@ -1091,12 +1092,17 @@ section {
   padding-left: 12px;
 }
 .comment-edit-preview .wall-item-container {
-  width: 700px;
+  width: 90%;
 }
 .comment-edit-preview .tread-wrapper {
-  width: 700px;
+  width: 90%;
   padding: 0;
   margin: 10px 0;
+  background-color: #ddffdd;
+  border-bottom: 0px;
+}
+.comment-edit-preview .wall-item-conv {
+  display: none;
 }
 .shiny {
   border-right: 10px solid #ddffdd;
@@ -1143,36 +1149,64 @@ section {
   height: 25px;
 }
 /* threaded comments */
+.children {
+  margin-top: 1em;
+}
+.children .hide-comments-outer {
+  margin-left: 60px;
+}
+.children .comment-edit-preview {
+  width: 660px;
+}
+.children .comment-edit-preview .wall-item-container {
+  width: 610px;
+}
 .children .children {
   margin-left: 40px;
 }
 .children .children .wall-item-container {
   width: 710px;
 }
-.children .children .children {
-  margin-left: 40px;
+.children .children .comment-edit-preview {
+  width: 620px;
+}
+.children .children .comment-edit-preview .wall-item-container {
+  width: 620px;
 }
 .children .children .children .wall-item-container {
   width: 670px;
 }
-.children .children .children .children {
-  margin-left: 40px;
+.children .children .children .comment-edit-preview {
+  width: 580px;
+}
+.children .children .children .comment-edit-preview .wall-item-container {
+  width: 580px;
 }
 .children .children .children .children .wall-item-container {
   width: 630px;
 }
-.children .children .children .children .children {
-  margin-left: 40px;
+.children .children .children .children .comment-edit-preview {
+  width: 540px;
+}
+.children .children .children .children .comment-edit-preview .wall-item-container {
+  width: 540px;
 }
 .children .children .children .children .children .wall-item-container {
   width: 590px;
 }
+.children .children .children .children .children .comment-edit-preview {
+  width: 500px;
+}
+.children .children .children .children .children .comment-edit-preview .wall-item-container {
+  width: 500px;
+}
 .children .children .children .children .children .children {
   margin-left: 0px;
 }
-.threaded .hide-comments-outer {
-  margin-left: 20px;
+.children .children .children .children .children .children .hide-comments-outer {
+  margin-left: 0px;
 }
+/*.threaded .hide-comments-outer { margin-left: 20px; }*/
 span[id^="showmore-teaser"] {
   background: url("showmore-bg.jpg") no-repeat center bottom;
 }

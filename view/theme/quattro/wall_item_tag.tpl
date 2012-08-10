@@ -1,3 +1,5 @@
+{{ if $item.thread_level!=1 }}<div class="children">{{ endif }}
+
 <div class="wall-item-container item-tag $item.indent">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
@@ -17,6 +19,8 @@
 		</div>
 	</div>
 </div>
+
+{{ if $item.thread_level!=1 }}</div>{{ endif }}
 
 {{ if $item.flatten }}
 <div class="wall-item-comment-wrapper" >$item.comment</div>
