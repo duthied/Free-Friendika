@@ -43,10 +43,10 @@ function insertFormatting(comment,BBcode,id) {
 }
 
 function cmtBbOpen(id) {
-	$(".comment-edit-bb-" + id).show();
+	$("#comment-edit-bb-" + id).show();
 }
-function cmtBbClose(comment, id) {
-	$(".comment-edit-bb-" + id).hide();
+function cmtBbClose(id) {
+	$("#comment-edit-bb-" + id).hide();
 }
 $(document).ready(function() {
 
