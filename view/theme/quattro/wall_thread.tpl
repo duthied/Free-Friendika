@@ -97,14 +97,14 @@
 		<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
 		<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>	
 	</div>
-	{{ if $item.threaded }}{{ if $item.comment }}
+	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent==comment }}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
-					$item.comment
+			$item.comment
 		</div>
 	</div>
-	{{ endif }}{{ endif }}
+	{{ endif }}{{ endif }}{{ endif }}
 
 </div>
 
@@ -124,8 +124,10 @@
 {{if $item.comment_lastcollapsed}}</div>{{endif}}
 {{ endif }}
 
+{{ if $item.indent!=comment}}
+<div class="wall-item-comment-wrapper" >$item.comment</div>
+{{ endif }}
+
 {{ if $item.flatten }}
-<div class="wall-item-comment-wrapper" >
-	$item.comment
-</div>
+<div class="wall-item-comment-wrapper" >$item.comment</div>
 {{ endif }}

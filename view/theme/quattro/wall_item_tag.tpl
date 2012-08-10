@@ -19,7 +19,5 @@
 </div>
 
 {{ if $item.flatten }}
-<div class="wall-item-comment-wrapper" >
-	$item.comment
-</div>
+<div class="wall-item-comment-wrapper" >$item.comment</div>
 {{ endif }}
