@@ -834,18 +834,30 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
+			require_once('object/Conversation.php');
+			require_once('object/Item.php');
+
+			$conv = new Conversation();
+
 			// get all the topmost parents
-			// this shouldn't be needed, as we should have only them in ou array
+			// this shouldn't be needed, as we should have only them in our array
 			// But for now, this array respects the old style, just in case
 
 			$threads = array();
 			foreach($items as $item) {
 				if($item['id'] == $item['parent']) {
-					$threads[] = $item;
+					// $threads[] = $item;
+					$item_object = new Item($item);
+					$conv->add_thread($item_object);
 				}
 			}
 
-			$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
+			//$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
+			$threads = $conv->get_template_data($a, $cmnt_tpl, $page_writeable, $mode, $profile_owner);
+			if(!$threads) {
+				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
+				$threads = array();
+			}
 		}
 	}
 		
