@@ -88,6 +88,8 @@
 			{{ endif }}
 
 <div class="wall-item-outside-wrapper-end$item.indent" ></div>
+
+
 </div>
 {{ for $item.children as $item }}
 	{{ inc $item.template }}{{ endinc }}
@@ -100,4 +102,3 @@
 {{ endif }}
 </div>
 {{if $item.comment_lastcollapsed}}</div>{{endif}}
-
