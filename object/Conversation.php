@@ -54,7 +54,7 @@ class Conversation extends BaseObject {
 		$result = array();
 
 		foreach($this->threads as $item) {
-			if($item->get_network() === NETWORK_MAIL && local_user() != $item->get_uid())
+			if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid'))
 				continue;
 			$item_data = $item->get_template_data($cmnt_tpl, $this->mode, $alike, $dlike);
 			if(!$item_data) {

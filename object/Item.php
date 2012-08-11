@@ -107,7 +107,7 @@ class Item extends BaseObject {
 		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
 			$profile_avatar = $a->contacts[$normalised]['thumb'];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($this->get_thumb()));
+			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($this->get_data_value('thumb')));
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
@@ -334,18 +334,6 @@ class Item extends BaseObject {
 	public function get_id() {
 		return $this->get_data_value('id');
 	}
-	
-	public function get_network() {
-		return $this->get_data_value('network');
-	}
-	
-	public function get_uid() {
-		return $this->get_data_value('uid');
-	}
-	
-	public function get_thumb() {
-		return $this->get_data_value('thumb');
-	}
 
 	/**
 	 * Add a child item
@@ -434,7 +422,7 @@ class Item extends BaseObject {
 	 * 		_ value on success
 	 * 		_ false on failure
 	 */
-	private function get_data_value($name) {
+	public function get_data_value($name) {
 		if(!x($this->data, $name)) {
 			logger('[ERROR] Item::get_data_value : Item has no value name "'. $name .'".', LOGGER_DEBUG);
 			return false;
