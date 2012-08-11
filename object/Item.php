@@ -19,10 +19,12 @@ class Item extends BaseObject {
 	private $mode = null;
 	private $page_writeable = false;
 	private $profile_owner = 0;
+	private $toplevel = false;
 
 	public function __construct($data) {
 		$this->data = $data;
 		$this->set_template('wall');
+		$this->toplevel = ($this->get_id() == $this->get_parent());
 	}
 
 	/**
@@ -55,7 +57,6 @@ class Item extends BaseObject {
 		$firstcollapsed = false;
 		$total_children += count_descendants($item);
 
-		$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
 		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
 		$show_comment_box = ((($this->is_page_writeable()) && ($item_writeable)) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
@@ -115,7 +116,7 @@ class Item extends BaseObject {
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
 
-		if($toplevelpost) {
+		if($this->is_toplevel()) {
 			if((! $item['self']) && ($this->get_mode() !== 'profile')) {
 				if($item['wall']) {
 
@@ -302,7 +303,7 @@ class Item extends BaseObject {
 			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $this->is_page_writeable(), $this->get_mode(), $this->get_profile_owner(), $alike, $dlike, ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
-		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
+		$item_result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
 		if(get_config('system','thread_allow')) {
 			$item_result['flatten'] = false;
@@ -311,7 +312,7 @@ class Item extends BaseObject {
 		else {
 			$item_result['flatten'] = true;
 			$item_result['threaded'] = false;
-			if(!$toplevelpost) {
+			if(!$htis->is_toplevel()) {
 				$item_result['comment'] = false;
 			}
 		}
@@ -335,6 +336,10 @@ class Item extends BaseObject {
 	
 	public function get_thumb() {
 		return $this->get_data_value('thumb');
+	}
+	
+	public function get_parent() {
+		return $this->get_data_value('parent');
 	}
 
 	/**
@@ -427,6 +432,13 @@ class Item extends BaseObject {
 	 */
 	private function get_template() {
 		return $this->template;
+	}
+
+	/**
+	 * Check if this is a toplevel post
+	 */
+	private function is_toplevel() {
+		return $this->toplevel;
 	}
 }
 ?>
