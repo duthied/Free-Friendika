@@ -4,6 +4,7 @@ if(class_exists('Item'))
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
+require_once('boot.php');
 
 /**
  * An item
@@ -21,7 +22,7 @@ class Item extends BaseObject {
 
 	public function __construct($data) {
 		$this->data = $data;
-		$this->template = $this->available_templates['wall'];
+		$this->set_template('wall');
 	}
 
 	/**
@@ -31,7 +32,7 @@ class Item extends BaseObject {
 	 * 		_ The data requested on success
 	 * 		_ false on failure
 	 */
-	public function get_template_data($cmnt_tpl, $mode) {
+	public function get_template_data($cmnt_tpl, $mode, $alike, $dlike) {
 		$result = array();
 
 		$a = $this->get_app();
@@ -40,9 +41,6 @@ class Item extends BaseObject {
 
 		$item = $this->get_data();
 
-		$alike = array();
-		$dlike = array();
-		$template = $this->available_templates['wall'];
 		$comment = '';
 		$commentww = '';
 		$sparkle = '';
@@ -130,7 +128,7 @@ class Item extends BaseObject {
 					$owner_url = zrl($a->page_contact['url']);
 					$owner_photo = $a->page_contact['thumb'];
 					$owner_name = $a->page_contact['name'];
-					$template = $this->available_templates['wall2wall'];
+					$this->set_template('wall2wall');
 					$commentww = 'ww';	
 				}
 			}
@@ -154,7 +152,7 @@ class Item extends BaseObject {
 					$owner_url = $item['owner-link'];
 					$owner_photo = $item['owner-avatar'];
 					$owner_name = $item['owner-name'];
-					$template = $this->available_templates['wall2wall'];
+					$this->set_template('wall2wall');
 					$commentww = 'ww';
 					// If it is our contact, use a friendly redirect link
 					if((link_compare($item['owner-link'],$item['url'])) 
@@ -252,7 +250,7 @@ class Item extends BaseObject {
 			'comment_firstcollapsed' => $firstcollapsed,
 			'comment_lastcollapsed' => $lastcollapsed,
 			// template to use to render item (wall, walltowall, search)
-			'template' => $template,
+			'template' => $this->get_template(),
 			
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'tags' => $tags,
@@ -303,7 +301,7 @@ class Item extends BaseObject {
 
 		$item_result['children'] = array();
 		if(count($item['children'])) {
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $this->is_page_writeable(), $this->get_mode(), $this->get_profile_owner(), ($thread_level + 1));
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $this->is_page_writeable(), $this->get_mode(), $this->get_profile_owner(), $alike, $dlike, ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
@@ -409,6 +407,22 @@ class Item extends BaseObject {
 	 */
 	private function is_page_writeable() {
 		return $this->page_writeable;
+	}
+
+	/**
+	 * Set template
+	 */
+	private function set_template($name) {
+		if(!x($this->available_templates, $name))
+			return false;
+		$this->template = $this->available_templates[$name];
+	}
+
+	/**
+	 * Get template
+	 */
+	private function get_template() {
+		return $this->template;
 	}
 }
 ?>

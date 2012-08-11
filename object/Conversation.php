@@ -50,13 +50,13 @@ class Conversation extends BaseObject {
 	 * 		_ The data requested on success
 	 * 		_ false on failure
 	 */
-	public function get_template_data($cmnt_tpl) {
+	public function get_template_data($cmnt_tpl, $alike, $dlike) {
 		$result = array();
 
 		foreach($this->threads as $item) {
 			if($item->get_network() === NETWORK_MAIL && local_user() != $item->get_uid())
 				continue;
-			$item_data = $item->get_template_data($cmnt_tpl, $this->mode);
+			$item_data = $item->get_template_data($cmnt_tpl, $this->mode, $alike, $dlike);
 			if(!$item_data) {
 				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG);
 				return false;
