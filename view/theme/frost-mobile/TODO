@@ -26,6 +26,4 @@ Photo album display?
 	- Reduce DOM elements (~2400 for 10 items, ~8400 for 40 items)
 
 
-- Add wall-thread.tpl and wallwall-thread.tpl
-
 - Sometimes, when "Permission denied", wrong login page is shown
