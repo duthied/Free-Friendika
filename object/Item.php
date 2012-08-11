@@ -49,8 +49,6 @@ class Item extends BaseObject {
 		$dropping = false;
 		$star = false;
 		$isstarred = "unstarred";
-		$photo = $item['photo'];
-		$thumb = $item['thumb'];
 		$indent = '';
 		$osparkle = '';
 		$lastcollapsed = false;
@@ -99,7 +97,7 @@ class Item extends BaseObject {
 		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
 			$profile_avatar = $a->contacts[$normalised]['thumb'];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($thumb));
+			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($this->get_thumb()));
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
@@ -334,6 +332,10 @@ class Item extends BaseObject {
 	public function get_uid() {
 		return $this->get_data_value('uid');
 	}
+	
+	public function get_thumb() {
+		return $this->get_data_value('thumb');
+	}
 
 	/**
 	 * Get raw data
@@ -352,7 +354,7 @@ class Item extends BaseObject {
 	 * 		_ false on failure
 	 */
 	private function get_data_value($name) {
-		if(!x($this->data[$name])) {
+		if(!x($this->data, $name)) {
 			logger('[ERROR] Item::get_data_value : Item has no value name "'. $name .'".', LOGGER_DEBUG);
 			return false;
 		}
@@ -413,8 +415,10 @@ class Item extends BaseObject {
 	 * Set template
 	 */
 	private function set_template($name) {
-		if(!x($this->available_templates, $name))
+		if(!x($this->available_templates, $name)) {
+			logger('[ERROR] Item::set_template : Template not available ("'. $name .'").', LOGGER_DEBUG);
 			return false;
+		}
 		$this->template = $this->available_templates[$name];
 	}
 
