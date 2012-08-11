@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1430' );
+define ( 'FRIENDICA_VERSION',      '3.0.1431' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -364,6 +364,7 @@ if(! class_exists('App')) {
 		public	$sourcename = '';
 		public	$videowidth = 425;
 		public	$videoheight = 350;
+		public	$force_max_items = 0;
 
 		private $scheme;
 		private $hostname;
