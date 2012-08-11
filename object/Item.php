@@ -116,9 +116,6 @@ class Item extends BaseObject {
 			$tag = trim($tag);
 			if ($tag!="") $tags[] = bbcode($tag);
 		}
-		
-		like_puller($a,$item,$alike,'like');
-		like_puller($a,$item,$dlike,'dislike');
 
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
