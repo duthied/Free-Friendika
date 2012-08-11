@@ -65,7 +65,7 @@ class Item extends BaseObject {
 		$osparkle = '';
 		$lastcollapsed = false;
 		$firstcollapsed = false;
-		$total_children += count_descendants($item);
+		$total_children = $this->count_descendants();
 
 		$show_comment_box = ((($this->is_page_writeable()) && ($this->is_writeable())) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
@@ -522,6 +522,20 @@ class Item extends BaseObject {
 	 */
 	private function is_writeable() {
 		return $this->writeable;
+	}
+
+	/**
+	 * Count the total of our descendants
+	 */
+	private function count_descendants() {
+		$children = $this->get_children();
+		$total = count($children);
+		if($total > 0) {
+			foreach($children as $child) {
+				$total += $child->count_descendants();
+			}
+		}
+		return $total;
 	}
 }
 ?>
