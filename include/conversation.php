@@ -336,11 +336,13 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 			// Don't count it as a visible item
 			$nb_items--;
+			$total_children = $nb_items;
 			continue;
 		}
 
 		if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
 			$nb_items --;
+			$total_children = $nb_items;
 			continue;
 		}
 		
