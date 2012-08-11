@@ -21,12 +21,20 @@ class Item extends BaseObject {
 	private $profile_owner = 0;
 	private $toplevel = false;
 	private $writeable = false;
+	private $children = array();
+	private $parent = null;
 
 	public function __construct($data) {
 		$this->data = $data;
 		$this->set_template('wall');
-		$this->toplevel = ($this->get_id() == $this->get_parent());
+		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 		$this->writeable = ($this->get_data_value('writeable') || $this->get_data_value('self'));
+
+		// Prepare the children
+		foreach($data['children'] as $item) {
+			$child = new Item($item);
+			$this->add_child($child);
+		}
 	}
 
 	/**
@@ -338,9 +346,76 @@ class Item extends BaseObject {
 	public function get_thumb() {
 		return $this->get_data_value('thumb');
 	}
-	
-	public function get_parent() {
-		return $this->get_data_value('parent');
+
+	/**
+	 * Add a child item
+	 */
+	public function add_child($item) {
+		$item_id = $item->get_id();
+		if(!$item_id) {
+			logger('[ERROR] Item::add_child : Item has no ID!!', LOGGER_DEBUG);
+			return false;
+		}
+		if($this->get_child($item->get_id())) {
+			logger('[WARN] Item::add_child : Item already exists ('. $item->get_id() .').', LOGGER_DEBUG);
+			return false;
+		}
+		$item->set_parent($this);
+		$this->children[] = $item;
+		return end($this->children);
+	}
+
+	/**
+	 * Get a child by its ID
+	 */
+	public function get_child($id) {
+		foreach($this->get_children() as $child) {
+			if($child->get_id() == $id)
+				return $child;
+		}
+		return null;
+	}
+
+	/**
+	 * Get all ou children
+	 */
+	public function get_children() {
+		return $this->children;
+	}
+
+	/**
+	 * Set our parent
+	 */
+	protected function set_parent($item) {
+		$parent = $this->get_parent();
+		if($parent) {
+			$parent->remove_child($this);
+		}
+		$this->parent = $item;
+	}
+
+	/**
+	 * Remove a child
+	 */
+	public function remove_child($item) {
+		$id = $item->get_id();
+		foreach($this->get_children() as $key => $child) {
+			if($child->get_id() == $id) {
+				unset($this->children[$key]);
+				// Reindex the array, in order to make sure there won't be any trouble on loops using count()
+				$this->children = array_values($this->children);
+				return true;
+			}
+		}
+		logger('[WARN] Item::remove_child : Item is not a child ('. $id .').', LOGGER_DEBUG);
+		return false;
+	}
+
+	/**
+	 * Get parent item
+	 */
+	protected function get_parent() {
+		return $this->parent;
 	}
 
 	/**
