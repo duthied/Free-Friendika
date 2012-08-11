@@ -42,7 +42,7 @@ class Item extends BaseObject {
 	 * 		_ The data requested on success
 	 * 		_ false on failure
 	 */
-	public function get_template_data($cmnt_tpl, $alike, $dlike) {
+	public function get_template_data($cmnt_tpl, $alike, $dlike, $thread_level=1) {
 		$result = array();
 
 		$a = $this->get_app();
@@ -183,19 +183,6 @@ class Item extends BaseObject {
 			}
 		} else {
 			$indent = 'comment';
-			// Collapse comments
-			if(($nb_items > 2) || ($thread_level > 2)) {
-				if($items_seen == 1) {
-					$firstcollapsed = true;
-				}
-				if($thread_level > 2) {
-					if($items_seen == $nb_items)
-						$lastcollapsed = true;
-				}
-				else if($items_seen == ($nb_items - 2)) {
-					$lastcollapsed = true;
-				}
-			}
 		}
 
 		if($conv->is_writeable()) {
@@ -297,15 +284,28 @@ class Item extends BaseObject {
 		call_hooks('display_item', $arr);
 
 		$item_result = $arr['output'];
-		if($firstcollapsed) {
-			$item_result['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
-			$item_result['hide_text'] = t('show more');
-		}
 
 		$item_result['children'] = array();
-		if(count($item['children'])) {
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $conv->is_writeable(), $conv->get_mode(), $conv->get_profile_owner(), $alike, $dlike, ($thread_level + 1));
+		$children = $this->get_children();
+		$nb_children = count($children);
+		if($nb_children > 0) {
+			foreach($this->get_children() as $child) {
+				$item_result['children'][] = $child->get_template_data($cmnt_tpl, $alike, $dlike, $thread_level + 1);
+			}
+			// Collapse
+			if(($nb_children > 2) || ($thread_level > 1)) {
+				$item_result['children'][0]['comment_firstcollapsed'] = true;
+				$item_result['children'][0]['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
+				$item_result['children'][0]['hide_text'] = t('show more');
+				if($thread_level > 1) {
+					$item_result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
+				}
+				else {
+					$item_result['children'][$nb_children - 3]['comment_lastcollapsed'] = true;
+				}
+			}
 		}
+		
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
