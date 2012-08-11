@@ -20,11 +20,13 @@ class Item extends BaseObject {
 	private $page_writeable = false;
 	private $profile_owner = 0;
 	private $toplevel = false;
+	private $writeable = false;
 
 	public function __construct($data) {
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_parent());
+		$this->writeable = ($this->get_data_value('writeable') || $this->get_data_value('self'));
 	}
 
 	/**
@@ -57,8 +59,7 @@ class Item extends BaseObject {
 		$firstcollapsed = false;
 		$total_children += count_descendants($item);
 
-		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
-		$show_comment_box = ((($this->is_page_writeable()) && ($item_writeable)) ? true : false);
+		$show_comment_box = ((($this->is_page_writeable()) && ($this->is_writeable())) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
@@ -439,6 +440,13 @@ class Item extends BaseObject {
 	 */
 	private function is_toplevel() {
 		return $this->toplevel;
+	}
+
+	/**
+	 * Check if this is writeable
+	 */
+	private function is_writeable() {
+		return $this->writeable;
 	}
 }
 ?>
