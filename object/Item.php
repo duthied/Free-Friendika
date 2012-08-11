@@ -15,6 +15,9 @@ class Item extends BaseObject {
 		'wall' => 'wall_thread.tpl',
 		'wall2wall' => 'wallwall_thread.tpl'
 	);
+	private $mode = null;
+	private $page_writeable = false;
+	private $profile_owner = 0;
 
 	public function __construct($data) {
 		$this->data = $data;
@@ -33,28 +36,7 @@ class Item extends BaseObject {
 
 		$a = $this->get_app();
 
-		$page_writeable = false;
-		$profile_owner = 0;
-
-		switch($mode) {
-			case 'network':
-			case 'notes':
-				$profile_owner = local_user();
-				$page_writeable = true;
-				break;
-			case 'profile':
-				$profile_owner = $a->profile['profile_uid'];
-				$page_writeable = can_write_wall($a,$profile_owner);
-				break;
-			case 'display':
-				$profile_owner = $a->profile['uid'];
-				$page_writeable = can_write_wall($a,$profile_owner);
-				break;
-			default:
-				logger('[ERROR] Item::prepare_threads_body : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
-				return false;
-				break;
-		}
+		$this->set_mode($mode);
 
 		$item = $this->get_data();
 
@@ -79,13 +61,13 @@ class Item extends BaseObject {
 
 		$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
 		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
-		$show_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
+		$show_comment_box = ((($this->is_page_writeable()) && ($item_writeable)) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
 		$redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $item['cid'] ;
-		$shareable = ((($profile_owner == local_user()) && ($item['private'] != 1)) ? true : false);
+		$shareable = ((($this->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
 		if(local_user() && link_compare($a->contact['url'],$item['author-link']))
 			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 		else
@@ -99,7 +81,7 @@ class Item extends BaseObject {
 			'delete' => t('Delete'),
 		);
 		
-		$filer = (($profile_owner == local_user()) ? t("save to folder") : false);
+		$filer = (($this->get_profile_owner() == local_user()) ? t("save to folder") : false);
 
 		$diff_author    = ((link_compare($item['url'],$item['author-link'])) ? false : true);
 		$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
@@ -138,7 +120,7 @@ class Item extends BaseObject {
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
 
 		if($toplevelpost) {
-			if((! $item['self']) && ($mode !== 'profile')) {
+			if((! $item['self']) && ($this->get_mode() !== 'profile')) {
 				if($item['wall']) {
 
 					// On the network page, I am the owner. On the display page it will be the profile owner.
@@ -184,7 +166,7 @@ class Item extends BaseObject {
 						$owner_url = zrl($owner_url);
 				}
 			}
-			if($profile_owner == local_user()) {
+			if($this->get_profile_owner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 				$star = array(
@@ -215,7 +197,7 @@ class Item extends BaseObject {
 			}
 		}
 
-		if($page_writeable) {
+		if($this->is_page_writeable()) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
 				'dislike' => array( t("I don't like this \x28toggle\x29"), t("dislike")),
@@ -232,12 +214,12 @@ class Item extends BaseObject {
 				}
 				$comment = replace_macros($cmnt_tpl,array(
 					'$return_path' => '', 
-					'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
-					'$type' => (($mode === 'profile') ? 'wall-comment' : 'net-comment'),
+					'$jsreload' => (($this->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
+					'$type' => (($this->get_mode() === 'profile') ? 'wall-comment' : 'net-comment'),
 					'$id' => $item['item_id'],
 					'$parent' => $item['item_id'],
 					'$qcomment' => $qcomment,
-					'$profile_uid' =>  $profile_owner,
+					'$profile_uid' =>  $this->get_profile_owner(),
 					'$mylink' => $a->contact['url'],
 					'$mytitle' => t('This is you'),
 					'$myphoto' => $a->contact['thumb'],
@@ -253,7 +235,7 @@ class Item extends BaseObject {
 					'$edvideo' => t('Video'),
 					'$preview' => t('Preview'),
 					'$sourceapp' => t($a->sourcename),
-					'$ww' => (($mode === 'network') ? $commentww : '')
+					'$ww' => (($this->get_mode() === 'network') ? $commentww : '')
 				));
 			}
 		}
@@ -321,7 +303,7 @@ class Item extends BaseObject {
 
 		$item_result['children'] = array();
 		if(count($item['children'])) {
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, ($thread_level + 1));
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $this->is_page_writeable(), $this->get_mode(), $this->get_profile_owner(), ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
@@ -387,7 +369,46 @@ class Item extends BaseObject {
 		if($this->get_mode() == $mode)
 			return;
 
-		
+		switch($mode) {
+			case 'network':
+			case 'notes':
+				$this->profile_owner = local_user();
+				$this->page_writeable = true;
+				break;
+			case 'profile':
+				$this->profile_owner = $a->profile['profile_uid'];
+				$this->page_writeable = can_write_wall($a,$this->profile_owner);
+				break;
+			case 'display':
+				$this->profile_owner = $a->profile['uid'];
+				$this->page_writeable = can_write_wall($a,$this->profile_owner);
+				break;
+			default:
+				logger('[ERROR] Item::set_mode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
+				return false;
+				break;
+		}
+	}
+
+	/**
+	 * Get mode
+	 */
+	private function get_mode() {
+		return $this->mode;
+	}
+
+	/**
+	 * Get profile owner
+	 */
+	private function get_profile_owner() {
+		return $this->profile_owner;
+	}
+
+	/**
+	 * Get page writable
+	 */
+	private function is_page_writeable() {
+		return $this->page_writeable;
 	}
 }
 ?>
