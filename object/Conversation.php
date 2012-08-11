@@ -15,9 +15,62 @@ require_once('include/text.php');
 class Conversation extends BaseObject {
 	private $threads = array();
 	private $mode = null;
+	private $writeable = false;
+	private $profile_owner = 0;
 
 	public function __construct($mode) {
-		$this->mode = $mode;
+		$this->set_mode($mode);
+	}
+
+	/**
+	 * Set the mode we'll be displayed on
+	 */
+	private function set_mode($mode) {
+		if($this->get_mode() == $mode)
+			return;
+
+		$a = $this->get_app();
+
+		switch($mode) {
+			case 'network':
+			case 'notes':
+				$this->profile_owner = local_user();
+				$this->writeable = true;
+				break;
+			case 'profile':
+				$this->profile_owner = $a->profile['profile_uid'];
+				$this->writeable = can_write_wall($a,$this->profile_owner);
+				break;
+			case 'display':
+				$this->profile_owner = $a->profile['uid'];
+				$this->writeable = can_write_wall($a,$this->profile_owner);
+				break;
+			default:
+				logger('[ERROR] Conversation::set_mode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
+				return false;
+				break;
+		}
+	}
+
+	/**
+	 * Get mode
+	 */
+	public function get_mode() {
+		return $this->mode;
+	}
+
+	/**
+	 * Check if page is writeable
+	 */
+	public function is_writeable() {
+		return $this->writeable;
+	}
+
+	/**
+	 * Get profile owner
+	 */
+	public function get_profile_owner() {
+		return $this->profile_owner;
 	}
 
 	/**
@@ -37,6 +90,7 @@ class Conversation extends BaseObject {
 			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
+		$item->set_conversation($this);
 		$this->threads[] = $item;
 		return end($this->threads);
 	}
@@ -56,7 +110,7 @@ class Conversation extends BaseObject {
 		foreach($this->threads as $item) {
 			if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid'))
 				continue;
-			$item_data = $item->get_template_data($cmnt_tpl, $this->mode, $alike, $dlike);
+			$item_data = $item->get_template_data($cmnt_tpl, $alike, $dlike);
 			if(!$item_data) {
 				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG);
 				return false;
