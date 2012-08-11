@@ -305,11 +305,11 @@ function localize_item(&$item){
 function count_descendants($item) {
 	$total = count($item['children']);
 
-	if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE)
-		return 0;
-
 	if($total > 0) {
 		foreach($item['children'] as $child) {
+			if($child['verb'] === ACTIVITY_LIKE || $child['verb'] === ACTIVITY_DISLIKE) {
+				$total --;
+			}
 			$total += count_descendants($child);
 		}
 	}
@@ -332,17 +332,25 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 	$total_children = $nb_items;
 	
 	foreach($items as $item) {
-		// prevent private email reply to public conversation from leaking.
 		if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 			// Don't count it as a visible item
 			$nb_items--;
-			$total_children = $nb_items;
+			$total_children --;
+		}
+		if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+			$nb_items --;
+			$total_children --;
+
+		}
+	}
+
+	foreach($items as $item) {
+		// prevent private email reply to public conversation from leaking.
+		if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 			continue;
 		}
 
 		if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
-			$nb_items --;
-			$total_children = $nb_items;
 			continue;
 		}
 		
