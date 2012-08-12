@@ -16,6 +16,7 @@ class Item extends BaseObject {
 		'wall' => 'wall_thread.tpl',
 		'wall2wall' => 'wallwall_thread.tpl'
 	);
+	private $comment_box_template = 'comment_item.tpl';
 	private $toplevel = false;
 	private $writeable = false;
 	private $children = array();
@@ -42,14 +43,13 @@ class Item extends BaseObject {
 	 * 		_ The data requested on success
 	 * 		_ false on failure
 	 */
-	public function get_template_data($cmnt_tpl, $alike, $dlike, $thread_level=1) {
+	public function get_template_data($alike, $dlike, $thread_level=1) {
 		$result = array();
 
 		$a = $this->get_app();
 
 		$item = $this->get_data();
 
-		$comment = '';
 		$commentww = '';
 		$sparkle = '';
 		$owner_url = $owner_photo = $owner_name = '';
@@ -63,7 +63,6 @@ class Item extends BaseObject {
 
 		$conv = $this->get_conversation();
 
-		$show_comment_box = ((($conv->is_writeable()) && ($this->is_writeable())) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
@@ -189,41 +188,6 @@ class Item extends BaseObject {
 				'dislike' => array( t("I don't like this \x28toggle\x29"), t("dislike")),
 			);
 			if ($shareable) $buttons['share'] = array( t('Share this'), t('share'));
-
-
-			if($show_comment_box) {
-				$qc = $qcomment =  null;
-
-				if(in_array('qcomment',$a->plugins)) {
-					$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
-					$qcomment = (($qc) ? explode("\n",$qc) : null);
-				}
-				$comment = replace_macros($cmnt_tpl,array(
-					'$return_path' => '', 
-					'$jsreload' => (($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
-					'$type' => (($conv->get_mode() === 'profile') ? 'wall-comment' : 'net-comment'),
-					'$id' => $item['item_id'],
-					'$parent' => $item['item_id'],
-					'$qcomment' => $qcomment,
-					'$profile_uid' =>  $conv->get_profile_owner(),
-					'$mylink' => $a->contact['url'],
-					'$mytitle' => t('This is you'),
-					'$myphoto' => $a->contact['thumb'],
-					'$comment' => t('Comment'),
-					'$submit' => t('Submit'),
-					'$edbold' => t('Bold'),
-					'$editalic' => t('Italic'),
-					'$eduline' => t('Underline'),
-					'$edquote' => t('Quote'),
-					'$edcode' => t('Code'),
-					'$edimg' => t('Image'),
-					'$edurl' => t('Link'),
-					'$edvideo' => t('Video'),
-					'$preview' => t('Preview'),
-					'$sourceapp' => t($a->sourcename),
-					'$ww' => (($conv->get_mode() === 'network') ? $commentww : '')
-				));
-			}
 		}
 
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
@@ -270,7 +234,7 @@ class Item extends BaseObject {
 			'vote' => $buttons,
 			'like' => $like,
 			'dislike' => $dislike,
-			'comment' => $comment,
+			'comment' => $this->get_comment_box($commentww),
 			'previewing' => $previewing,
 			'wait' => t('Please wait'),
 		);
@@ -285,7 +249,7 @@ class Item extends BaseObject {
 		$nb_children = count($children);
 		if($nb_children > 0) {
 			foreach($this->get_children() as $child) {
-				$item_result['children'][] = $child->get_template_data($cmnt_tpl, $alike, $dlike, $thread_level + 1);
+				$item_result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
 			}
 			// Collapse
 			if(($nb_children > 2) || ($thread_level > 1)) {
@@ -493,6 +457,67 @@ class Item extends BaseObject {
 			}
 		}
 		return $total;
+	}
+
+	/**
+	 * Get the template for the comment box
+	 */
+	private function get_comment_box_template() {
+		return $this->comment_box_template;
+	}
+
+	/**
+	 * Get the comment box
+	 *
+	 * Returns:
+	 * 		_ The comment box string (empty if no comment box)
+	 * 		_ false on failure
+	 */
+	private function get_comment_box($ww) {
+		$comment_box = '';
+		$conv = $this->get_conversation();
+		$template = get_markup_template($this->get_comment_box_template());
+
+		if($conv->is_writeable() && $this->is_writeable()) {
+			$a = $this->get_app();
+			$qc = $qcomment =  null;
+
+			/*
+			 * Hmmm, code depending on the presence of a particular plugin?
+			 * This should be better if done by a hook
+			 */
+			if(in_array('qcomment',$a->plugins)) {
+				$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
+				$qcomment = (($qc) ? explode("\n",$qc) : null);
+			}
+			$comment_box = replace_macros($template,array(
+				'$return_path' => '', 
+				'$jsreload' => (($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
+				'$type' => (($conv->get_mode() === 'profile') ? 'wall-comment' : 'net-comment'),
+				'$id' => $this->get_id(),
+				'$parent' => $this->get_id(),
+				'$qcomment' => $qcomment,
+				'$profile_uid' =>  $conv->get_profile_owner(),
+				'$mylink' => $a->contact['url'],
+				'$mytitle' => t('This is you'),
+				'$myphoto' => $a->contact['thumb'],
+				'$comment' => t('Comment'),
+				'$submit' => t('Submit'),
+				'$edbold' => t('Bold'),
+				'$editalic' => t('Italic'),
+				'$eduline' => t('Underline'),
+				'$edquote' => t('Quote'),
+				'$edcode' => t('Code'),
+				'$edimg' => t('Image'),
+				'$edurl' => t('Link'),
+				'$edvideo' => t('Video'),
+				'$preview' => t('Preview'),
+				'$sourceapp' => t($a->sourcename),
+				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
+			));
+		}
+
+		return $comment_box;
 	}
 }
 ?>

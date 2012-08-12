@@ -870,7 +870,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				}
 			}
 
-			$threads = $conv->get_template_data($cmnt_tpl, $alike, $dlike);
+			$threads = $conv->get_template_data($alike, $dlike);
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
