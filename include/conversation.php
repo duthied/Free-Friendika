@@ -862,8 +862,17 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			$threads = array();
 			foreach($items as $item) {
 
+				// Can we put this after the visibility check?
 				like_puller($a,$item,$alike,'like');
 				like_puller($a,$item,$dlike,'dislike');
+
+				// Only add what is visible
+				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+					continue;
+				}
+				if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+					continue;
+				}
 
 				if($item['id'] == $item['parent']) {
 					$item_object = new Item($item);

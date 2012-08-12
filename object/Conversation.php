@@ -91,6 +91,18 @@ class Conversation extends BaseObject {
 			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
+
+		/*
+		 * Only add will be displayed
+		 */
+		if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
+			logger('[WARN] Conversation::add_thread : Thread is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
+			return false;
+		}
+		if($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
+			logger('[WARN] Conversation::add_thread : Thread is a (dis)like ('. $item->get_id() .').', LOGGER_DEBUG);
+			return false;
+		}
 		$item->set_conversation($this);
 		$this->threads[] = $item;
 		return end($this->threads);
