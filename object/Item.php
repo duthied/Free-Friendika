@@ -36,9 +36,11 @@ class Item extends BaseObject {
 		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
 
 		// Prepare the children
-		foreach($data['children'] as $item) {
-			$child = new Item($item);
-			$this->add_child($child);
+		if(count($data['children'])) {
+			foreach($data['children'] as $item) {
+				$child = new Item($item);
+				$this->add_child($child);
+			}
 		}
 	}
 
@@ -280,9 +282,6 @@ class Item extends BaseObject {
 		else {
 			$item_result['flatten'] = true;
 			$item_result['threaded'] = false;
-			if(!$htis->is_toplevel()) {
-				$item_result['comment'] = false;
-			}
 		}
 		
 		$result = $item_result;
@@ -479,6 +478,10 @@ class Item extends BaseObject {
 	 * 		_ false on failure
 	 */
 	private function get_comment_box($ww) {
+		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
+			return '';
+		}
+		
 		$comment_box = '';
 		$conv = $this->get_conversation();
 		$template = get_markup_template($this->get_comment_box_template());
