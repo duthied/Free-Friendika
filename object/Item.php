@@ -477,6 +477,8 @@ class Item extends BaseObject {
 			$ww = 'ww';
 
 		if($conv->is_writeable() && $this->is_writeable()) {
+			logger('[DEBUG] Item::get_comment_box : Comment box is visible.', LOGGER_DEBUG);
+			
 			$a = $this->get_app();
 			$qc = $qcomment =  null;
 
@@ -513,6 +515,9 @@ class Item extends BaseObject {
 				'$sourceapp' => t($a->sourcename),
 				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
 			));
+		}
+		else {
+			logger('[DEBUG] Item::get_comment_box : Comment box is NOT visible. Conv: '. ($conv->is_writeable() ? 'yes' : 'no') .' Item: '. ($this->is_writeable() ? 'yes' : 'no'), LOGGER_DEBUG);
 		}
 
 		return $comment_box;
