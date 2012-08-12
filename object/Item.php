@@ -249,42 +249,40 @@ class Item extends BaseObject {
 		$arr = array('item' => $item, 'output' => $tmp_item);
 		call_hooks('display_item', $arr);
 
-		$item_result = $arr['output'];
+		$result = $arr['output'];
 
-		$item_result['children'] = array();
+		$result['children'] = array();
 		$children = $this->get_children();
 		$nb_children = count($children);
 		if($nb_children > 0) {
 			foreach($this->get_children() as $child) {
-				$item_result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
+				$result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
 			}
 			// Collapse
 			if(($nb_children > 2) || ($thread_level > 1)) {
-				$item_result['children'][0]['comment_firstcollapsed'] = true;
-				$item_result['children'][0]['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
-				$item_result['children'][0]['hide_text'] = t('show more');
+				$result['children'][0]['comment_firstcollapsed'] = true;
+				$result['children'][0]['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
+				$result['children'][0]['hide_text'] = t('show more');
 				if($thread_level > 1) {
-					$item_result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
+					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				}
 				else {
-					$item_result['children'][$nb_children - 3]['comment_lastcollapsed'] = true;
+					$result['children'][$nb_children - 3]['comment_lastcollapsed'] = true;
 				}
 			}
 		}
 		
-		$item_result['private'] = $item['private'];
-		$item_result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
+		$result['private'] = $item['private'];
+		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
 		if(get_config('system','thread_allow')) {
-			$item_result['flatten'] = false;
-			$item_result['threaded'] = true;
+			$result['flatten'] = false;
+			$result['threaded'] = true;
 		}
 		else {
-			$item_result['flatten'] = true;
-			$item_result['threaded'] = false;
+			$result['flatten'] = true;
+			$result['threaded'] = false;
 		}
-		
-		$result = $item_result;
 
 		return $result;
 	}
