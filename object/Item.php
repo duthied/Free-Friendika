@@ -133,6 +133,7 @@ class Item extends BaseObject {
 		 * Maybe we should establish a way to be notified about conversation changes
 		 */
 		$this->check_wall_to_wall();
+		
 		if($this->is_wall_to_wall() && ($this->get_owner_url() == $this->get_redirect_url()))
 			$osparkle = ' sparkle';
 		
@@ -171,7 +172,6 @@ class Item extends BaseObject {
 		$body = prepare_body($item,true);
 
 		$tmp_item = array(
-			// template to use to render item (wall, walltowall, search)
 			'template' => $this->get_template(),
 			
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
@@ -207,7 +207,7 @@ class Item extends BaseObject {
 			'vote' => $buttons,
 			'like' => $like,
 			'dislike' => $dislike,
-			'comment' => $this->get_comment_box($commentww),
+			'comment' => $this->get_comment_box(),
 			'previewing' => $previewing,
 			'wait' => t('Please wait'),
 		);
@@ -221,7 +221,7 @@ class Item extends BaseObject {
 		$children = $this->get_children();
 		$nb_children = count($children);
 		if($nb_children > 0) {
-			foreach($this->get_children() as $child) {
+			foreach($children as $child) {
 				$result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
 			}
 			// Collapse
@@ -443,7 +443,7 @@ class Item extends BaseObject {
 	 * 		_ The comment box string (empty if no comment box)
 	 * 		_ false on failure
 	 */
-	private function get_comment_box($ww) {
+	private function get_comment_box() {
 		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
 			return '';
 		}
