@@ -59,8 +59,6 @@ class Item extends BaseObject {
 		$isstarred = "unstarred";
 		$indent = '';
 		$osparkle = '';
-		$lastcollapsed = false;
-		$firstcollapsed = false;
 		$total_children = $this->count_descendants();
 
 		$conv = $this->get_conversation();
@@ -236,9 +234,6 @@ class Item extends BaseObject {
 		$body = prepare_body($item,true);
 
 		$tmp_item = array(
-			// collapse comments in template. I don't like this much...
-			'comment_firstcollapsed' => $firstcollapsed,
-			'comment_lastcollapsed' => $lastcollapsed,
 			// template to use to render item (wall, walltowall, search)
 			'template' => $this->get_template(),
 			

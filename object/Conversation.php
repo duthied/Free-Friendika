@@ -50,6 +50,7 @@ class Conversation extends BaseObject {
 				return false;
 				break;
 		}
+		$this->mode = $mode;
 	}
 
 	/**
