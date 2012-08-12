@@ -22,12 +22,18 @@ class Item extends BaseObject {
 	private $children = array();
 	private $parent = null;
 	private $conversation = null;
+	private $redirect_url = null;
 
 	public function __construct($data) {
+		$a = $this->get_app();
+		
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 		$this->writeable = ($this->get_data_value('writeable') || $this->get_data_value('self'));
+
+		$ssl_state = ((local_user()) ? true : false);
+		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
 
 		// Prepare the children
 		foreach($data['children'] as $item) {
@@ -67,7 +73,6 @@ class Item extends BaseObject {
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
-		$redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $item['cid'] ;
 		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
 		if(local_user() && link_compare($a->contact['url'],$item['author-link']))
 			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
@@ -157,7 +162,7 @@ class Item extends BaseObject {
 					// If it is our contact, use a friendly redirect link
 					if((link_compare($item['owner-link'],$item['url'])) 
 						&& ($item['network'] === NETWORK_DFRN)) {
-						$owner_url = $redirect_url;
+						$owner_url = $this->get_redirect_url();
 						$osparkle = ' sparkle';
 					}
 					else
@@ -205,7 +210,7 @@ class Item extends BaseObject {
 			'tags' => $tags,
 			'body' => template_escape($body),
 			'text' => strip_tags(template_escape($body)),
-			'id' => $item['item_id'],
+			'id' => $this->get_id(),
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $owner_name, ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
@@ -518,6 +523,10 @@ class Item extends BaseObject {
 		}
 
 		return $comment_box;
+	}
+
+	private function get_redirect_url() {
+		return $this->redirect_url;
 	}
 }
 ?>
