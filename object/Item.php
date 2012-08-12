@@ -23,6 +23,10 @@ class Item extends BaseObject {
 	private $parent = null;
 	private $conversation = null;
 	private $redirect_url = null;
+	private $owner_url = '';
+	private $owner_photo = '';
+	private $owner_name = '';
+	private $wall_to_wall = false;
 
 	public function __construct($data) {
 		$a = $this->get_app();
@@ -60,7 +64,6 @@ class Item extends BaseObject {
 
 		$commentww = '';
 		$sparkle = '';
-		$owner_url = $owner_photo = $owner_name = '';
 		$buttons = '';
 		$dropping = false;
 		$star = false;
@@ -124,53 +127,16 @@ class Item extends BaseObject {
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
 
+		/*
+		 * We should avoid doing this all the time, but it depends on the conversation mode
+		 * And the conv mode may change when we change the conv, or it changes its mode
+		 * Maybe we should establish a way to be notified about conversation changes
+		 */
+		$this->check_wall_to_wall();
+		if($this->is_wall_to_wall() && ($this->get_owner_url() == $this->get_redirect_url()))
+			$osparkle = ' sparkle';
+		
 		if($this->is_toplevel()) {
-			if((! $item['self']) && ($conv->get_mode() !== 'profile')) {
-				if($item['wall']) {
-
-					// On the network page, I am the owner. On the display page it will be the profile owner.
-					// This will have been stored in $a->page_contact by our calling page.
-					// Put this person as the wall owner of the wall-to-wall notice.
-
-					$owner_url = zrl($a->page_contact['url']);
-					$owner_photo = $a->page_contact['thumb'];
-					$owner_name = $a->page_contact['name'];
-					$this->set_template('wall2wall');
-					$commentww = 'ww';	
-				}
-			}
-			else if($item['owner-link']) {
-
-				$owner_linkmatch = (($item['owner-link']) && link_compare($item['owner-link'],$item['author-link']));
-				$alias_linkmatch = (($item['alias']) && link_compare($item['alias'],$item['author-link']));
-				$owner_namematch = (($item['owner-name']) && $item['owner-name'] == $item['author-name']);
-				if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
-
-					// The author url doesn't match the owner (typically the contact)
-					// and also doesn't match the contact alias. 
-					// The name match is a hack to catch several weird cases where URLs are 
-					// all over the park. It can be tricked, but this prevents you from
-					// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
-					// well that it's the same Bob Smith. 
-
-					// But it could be somebody else with the same name. It just isn't highly likely. 
-					
-
-					$owner_url = $item['owner-link'];
-					$owner_photo = $item['owner-avatar'];
-					$owner_name = $item['owner-name'];
-					$this->set_template('wall2wall');
-					$commentww = 'ww';
-					// If it is our contact, use a friendly redirect link
-					if((link_compare($item['owner-link'],$item['url'])) 
-						&& ($item['network'] === NETWORK_DFRN)) {
-						$owner_url = $this->get_redirect_url();
-						$osparkle = ' sparkle';
-					}
-					else
-						$owner_url = zrl($owner_url);
-				}
-			}
 			if($conv->get_profile_owner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
@@ -214,7 +180,7 @@ class Item extends BaseObject {
 			'text' => strip_tags(template_escape($body)),
 			'id' => $this->get_id(),
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
-			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $owner_name, ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
+			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
 			'wall' => t('Wall-to-Wall'),
 			'vwall' => t('via Wall-To-Wall:'),
@@ -229,9 +195,9 @@ class Item extends BaseObject {
 			'lock' => $lock,
 			'location' => template_escape($location),
 			'indent' => $indent,
-			'owner_url' => $owner_url,
-			'owner_photo' => $owner_photo,
-			'owner_name' => template_escape($owner_name),
+			'owner_url' => $this->get_owner_url(),
+			'owner_photo' => $this->get_owner_photo(),
+			'owner_name' => template_escape($this->get_owner_name()),
 			'plink' => get_plink($item),
 			'edpost' => $edpost,
 			'isstarred' => $isstarred,
@@ -376,6 +342,8 @@ class Item extends BaseObject {
 	 * set conversation
 	 */
 	public function set_conversation($conv) {
+		$previous_mode = ($this->conversation ? $this->conversation->get_mode() : '');
+		
 		$this->conversation = $conv;
 
 		// Set it on our children too
@@ -483,6 +451,9 @@ class Item extends BaseObject {
 		$comment_box = '';
 		$conv = $this->get_conversation();
 		$template = get_markup_template($this->get_comment_box_template());
+		$ww = '';
+		if( ($conv->get_mode() === 'network') && $this->is_wall_to_wall() )
+			$ww = 'ww';
 
 		if($conv->is_writeable() && $this->is_writeable()) {
 			$a = $this->get_app();
@@ -528,6 +499,85 @@ class Item extends BaseObject {
 
 	private function get_redirect_url() {
 		return $this->redirect_url;
+	}
+
+	/**
+	 * Check if we are a wall to wall item and set the relevant properties
+	 */
+	protected function check_wall_to_wall() {
+		$a = $this->get_app();
+		$conv = $this->get_conversation();
+		$this->wall_to_wall = false;
+		
+		if($this->is_toplevel()) {
+			if( (! $this->get_data_value('self')) && ($conv->get_mode() !== 'profile')) {
+				if($this->get_data_value('wall')) {
+
+					// On the network page, I am the owner. On the display page it will be the profile owner.
+					// This will have been stored in $a->page_contact by our calling page.
+					// Put this person as the wall owner of the wall-to-wall notice.
+
+					$this->owner_url = zrl($a->page_contact['url']);
+					$this->owner_photo = $a->page_contact['thumb'];
+					$this->owner_name = $a->page_contact['name'];
+					$this->set_template('wall2wall');
+					$this->wall_to_wall = true;
+				}
+			}
+			else if($this->get_data_value('owner-link')) {
+
+				$owner_linkmatch = (($this->get_data_value('owner-link')) && link_compare($this->get_data_value('owner-link'),$this->get_data_value('author-link')));
+				$alias_linkmatch = (($this->get_data_value('alias')) && link_compare($this->get_data_value('alias'),$this->get_data_value('author-link')));
+				$owner_namematch = (($this->get_data_value('owner-name')) && $this->get_data_value('owner-name') == $this->get_data_value('author-name'));
+				if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
+
+					// The author url doesn't match the owner (typically the contact)
+					// and also doesn't match the contact alias. 
+					// The name match is a hack to catch several weird cases where URLs are 
+					// all over the park. It can be tricked, but this prevents you from
+					// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
+					// well that it's the same Bob Smith. 
+
+					// But it could be somebody else with the same name. It just isn't highly likely. 
+					
+
+					$this->owner_photo = $this->get_data_value('owner-avatar');
+					$this->owner_name = $this->get_data_value('owner-name');
+					$this->set_template('wall2wall');
+					$this->wall_to_wall = true;
+					// If it is our contact, use a friendly redirect link
+					if((link_compare($this->get_data_value('owner-link'),$this->get_data_value('url'))) 
+						&& ($this->get_data_value('network') === NETWORK_DFRN)) {
+						$this->owner_url = $this->get_redirect_url();
+					}
+					else
+						$this->owner_url = zrl($this->get_data_value('owner-link'));
+				}
+			}
+		}
+
+		if(!$this->wall_to_wall) {
+			$this->set_template('wall');
+			$this->owner_url = '';
+			$this->owner_photo = '';
+			$this->owner_name = '';
+		}
+	}
+
+	private function is_wall_to_wall() {
+		return $this->wall_to_wall;
+	}
+
+	private function get_owner_url() {
+		return $this->owner_url;
+	}
+
+	private function get_owner_photo() {
+		return $this->owner_photo;
+	}
+
+	private function get_owner_name() {
+		return $this->owner_name;
 	}
 }
 ?>
