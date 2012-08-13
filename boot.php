@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1433' );
+define ( 'FRIENDICA_VERSION',      '3.0.1434' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -735,9 +735,13 @@ if(! function_exists('check_config')) {
 		// than the currently visited url, store the current value accordingly.
 		// "Radically different" ignores common variations such as http vs https
 		// and www.example.com vs example.com.
+		// We will only change the url to an ip address if there is no existing setting
 
-		if((! x($url)) || (! link_compare($url,$a->get_baseurl())))
+		if(! x($url))
 			$url = set_config('system','url',$a->get_baseurl());
+		if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
+			$url = set_config('system','url',$a->get_baseurl());
+
 
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
