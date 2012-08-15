@@ -411,6 +411,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 
 
 	$Text = preg_replace('/\[\&amp\;([#a-z0-9]+)\;\]/','&$1;',$Text);
+	$Text = preg_replace('/\&\#039\;/','\'',$Text);
+	$Text = preg_replace('/\&quot\;/','"',$Text);
 
 	// fix any escaped ampersands that may have been converted into links
 	$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
