@@ -495,6 +495,7 @@ class enotify {
 			$multipartMessageBody,	 						// message body
 			$messageHeader									// message headers
 		);
+		logger("notification: enotify::send header " . $header, LOGGER_DEBUG);
 		logger("notification: enotify::send returns " . $res, LOGGER_DEBUG);
 	}
 }
