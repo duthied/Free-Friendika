@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1435\n"
+"Project-Id-Version: 3.0.1436\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-14 10:00-0700\n"
+"POT-Creation-Date: 2012-08-15 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,8 +55,9 @@ msgstr ""
 #: ../../mod/profiles.php:408 ../../mod/delegate.php:6
 #: ../../mod/suggest.php:28 ../../mod/invite.php:13 ../../mod/invite.php:81
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
-#: ../../addon/facebook/facebook.php:516 ../../addon/dav/layout.fnk.php:354
-#: ../../include/items.php:3816 ../../index.php:315
+#: ../../addon/facebook/facebook.php:516
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3816
+#: ../../index.php:315
 msgid "Permission denied."
 msgstr ""
 
@@ -86,7 +87,7 @@ msgid "Return to contact editor"
 msgstr ""
 
 #: ../../mod/crepair.php:148 ../../mod/settings.php:539
-#: ../../mod/settings.php:565 ../../mod/admin.php:667 ../../mod/admin.php:676
+#: ../../mod/settings.php:565 ../../mod/admin.php:679 ../../mod/admin.php:688
 msgid "Name"
 msgstr ""
 
@@ -131,8 +132,8 @@ msgstr ""
 #: ../../mod/contacts.php:341 ../../mod/settings.php:537
 #: ../../mod/settings.php:691 ../../mod/settings.php:752
 #: ../../mod/settings.php:958 ../../mod/group.php:85 ../../mod/message.php:294
-#: ../../mod/message.php:478 ../../mod/admin.php:424 ../../mod/admin.php:664
-#: ../../mod/admin.php:800 ../../mod/admin.php:999 ../../mod/admin.php:1086
+#: ../../mod/message.php:478 ../../mod/admin.php:435 ../../mod/admin.php:676
+#: ../../mod/admin.php:812 ../../mod/admin.php:1011 ../../mod/admin.php:1098
 #: ../../mod/profiles.php:578 ../../mod/invite.php:119
 #: ../../addon/fromgplus/fromgplus.php:40
 #: ../../addon/facebook/facebook.php:619
@@ -180,7 +181,7 @@ msgstr ""
 msgid "Help:"
 msgstr ""
 
-#: ../../mod/help.php:34 ../../addon/dav/layout.fnk.php:225
+#: ../../mod/help.php:34 ../../addon/dav/friendica/layout.fnk.php:225
 #: ../../include/nav.php:86
 msgid "Help"
 msgstr ""
@@ -240,12 +241,12 @@ msgstr ""
 msgid "Create New Event"
 msgstr ""
 
-#: ../../mod/events.php:333 ../../addon/dav/layout.fnk.php:263
+#: ../../mod/events.php:333 ../../addon/dav/friendica/layout.fnk.php:263
 msgid "Previous"
 msgstr ""
 
 #: ../../mod/events.php:334 ../../mod/install.php:205
-#: ../../addon/dav/layout.fnk.php:266
+#: ../../addon/dav/friendica/layout.fnk.php:266
 msgid "Next"
 msgstr ""
 
@@ -606,7 +607,7 @@ msgstr ""
 
 #: ../../mod/photos.php:1426 ../../mod/content.php:439
 #: ../../mod/content.php:721 ../../mod/settings.php:600
-#: ../../mod/settings.php:689 ../../mod/group.php:168 ../../mod/admin.php:671
+#: ../../mod/settings.php:689 ../../mod/group.php:168 ../../mod/admin.php:683
 #: ../../include/conversation.php:395 ../../include/conversation.php:792
 msgid "Delete"
 msgstr ""
@@ -1480,7 +1481,7 @@ msgid "if applicable"
 msgstr ""
 
 #: ../../mod/notifications.php:157 ../../mod/notifications.php:204
-#: ../../mod/admin.php:669
+#: ../../mod/admin.php:681
 msgid "Approve"
 msgstr ""
 
@@ -1681,12 +1682,12 @@ msgid "View all contacts"
 msgstr ""
 
 #: ../../mod/contacts.php:308 ../../mod/contacts.php:367
-#: ../../mod/admin.php:673
+#: ../../mod/admin.php:685
 msgid "Unblock"
 msgstr ""
 
 #: ../../mod/contacts.php:308 ../../mod/contacts.php:367
-#: ../../mod/admin.php:672
+#: ../../mod/admin.php:684
 msgid "Block"
 msgstr ""
 
@@ -1783,7 +1784,7 @@ msgstr ""
 msgid "Update public posts"
 msgstr ""
 
-#: ../../mod/contacts.php:364 ../../mod/admin.php:1144
+#: ../../mod/contacts.php:364 ../../mod/admin.php:1156
 msgid "Update now"
 msgstr ""
 
@@ -1996,9 +1997,9 @@ msgstr ""
 msgid "Remove account"
 msgstr ""
 
-#: ../../mod/settings.php:69 ../../mod/admin.php:759 ../../mod/admin.php:964
-#: ../../addon/dav/layout.fnk.php:225 ../../addon/mathjax/mathjax.php:36
-#: ../../view/theme/diabook/theme.php:643
+#: ../../mod/settings.php:69 ../../mod/admin.php:771 ../../mod/admin.php:976
+#: ../../addon/dav/friendica/layout.fnk.php:225
+#: ../../addon/mathjax/mathjax.php:36 ../../view/theme/diabook/theme.php:643
 #: ../../view/theme/diabook/theme.php:773 ../../include/nav.php:137
 msgid "Settings"
 msgstr ""
@@ -2599,8 +2600,8 @@ msgstr ""
 #: ../../mod/notes.php:63 ../../mod/filer.php:30
 #: ../../addon/facebook/facebook.php:770
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:263
-#: ../../addon/dav/layout.fnk.php:441 ../../addon/dav/layout.fnk.php:488
-#: ../../include/text.php:681
+#: ../../addon/dav/friendica/layout.fnk.php:441
+#: ../../addon/dav/friendica/layout.fnk.php:488 ../../include/text.php:681
 msgid "Save"
 msgstr ""
 
@@ -2926,7 +2927,7 @@ msgstr ""
 msgid "Your invitation ID: "
 msgstr ""
 
-#: ../../mod/register.php:255 ../../mod/admin.php:425
+#: ../../mod/register.php:255 ../../mod/admin.php:436
 msgid "Registration"
 msgstr ""
 
@@ -2982,7 +2983,7 @@ msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
-#: ../../mod/admin.php:708 ../../mod/admin.php:907 ../../mod/display.php:29
+#: ../../mod/admin.php:720 ../../mod/admin.php:919 ../../mod/display.php:29
 #: ../../mod/display.php:135 ../../include/items.php:3694
 msgid "Item not found."
 msgstr ""
@@ -3086,7 +3087,8 @@ msgstr ""
 msgid "Upload Profile Photo"
 msgstr ""
 
-#: ../../mod/profile_photo.php:212 ../../addon/dav/layout.fnk.php:152
+#: ../../mod/profile_photo.php:212
+#: ../../addon/dav/friendica/layout.fnk.php:152
 msgid "Upload"
 msgstr ""
 
@@ -3213,19 +3215,19 @@ msgstr ""
 msgid "Theme settings updated."
 msgstr ""
 
-#: ../../mod/admin.php:96 ../../mod/admin.php:423
+#: ../../mod/admin.php:96 ../../mod/admin.php:434
 msgid "Site"
 msgstr ""
 
-#: ../../mod/admin.php:97 ../../mod/admin.php:663 ../../mod/admin.php:675
+#: ../../mod/admin.php:97 ../../mod/admin.php:675 ../../mod/admin.php:687
 msgid "Users"
 msgstr ""
 
-#: ../../mod/admin.php:98 ../../mod/admin.php:757 ../../mod/admin.php:799
+#: ../../mod/admin.php:98 ../../mod/admin.php:769 ../../mod/admin.php:811
 msgid "Plugins"
 msgstr ""
 
-#: ../../mod/admin.php:99 ../../mod/admin.php:962 ../../mod/admin.php:998
+#: ../../mod/admin.php:99 ../../mod/admin.php:974 ../../mod/admin.php:1010
 msgid "Themes"
 msgstr ""
 
@@ -3233,7 +3235,7 @@ msgstr ""
 msgid "DB updates"
 msgstr ""
 
-#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1085
+#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1097
 msgid "Logs"
 msgstr ""
 
@@ -3249,19 +3251,19 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: ../../mod/admin.php:183 ../../mod/admin.php:645
+#: ../../mod/admin.php:183 ../../mod/admin.php:657
 msgid "Normal Account"
 msgstr ""
 
-#: ../../mod/admin.php:184 ../../mod/admin.php:646
+#: ../../mod/admin.php:184 ../../mod/admin.php:658
 msgid "Soapbox Account"
 msgstr ""
 
-#: ../../mod/admin.php:185 ../../mod/admin.php:647
+#: ../../mod/admin.php:185 ../../mod/admin.php:659
 msgid "Community/Celebrity Account"
 msgstr ""
 
-#: ../../mod/admin.php:186 ../../mod/admin.php:648
+#: ../../mod/admin.php:186 ../../mod/admin.php:660
 msgid "Automatic Friend Account"
 msgstr ""
 
@@ -3277,9 +3279,9 @@ msgstr ""
 msgid "Message queues"
 msgstr ""
 
-#: ../../mod/admin.php:212 ../../mod/admin.php:422 ../../mod/admin.php:662
-#: ../../mod/admin.php:756 ../../mod/admin.php:798 ../../mod/admin.php:961
-#: ../../mod/admin.php:997 ../../mod/admin.php:1084
+#: ../../mod/admin.php:212 ../../mod/admin.php:433 ../../mod/admin.php:674
+#: ../../mod/admin.php:768 ../../mod/admin.php:810 ../../mod/admin.php:973
+#: ../../mod/admin.php:1009 ../../mod/admin.php:1096
 msgid "Administration"
 msgstr ""
 
@@ -3303,511 +3305,523 @@ msgstr ""
 msgid "Active plugins"
 msgstr ""
 
-#: ../../mod/admin.php:361
+#: ../../mod/admin.php:367
 msgid "Site settings updated."
 msgstr ""
 
-#: ../../mod/admin.php:409
+#: ../../mod/admin.php:396
+msgid "Don't apply a special theme for mobile devices."
+msgstr ""
+
+#: ../../mod/admin.php:420
 msgid "Closed"
 msgstr ""
 
-#: ../../mod/admin.php:410
+#: ../../mod/admin.php:421
 msgid "Requires approval"
 msgstr ""
 
-#: ../../mod/admin.php:411
+#: ../../mod/admin.php:422
 msgid "Open"
 msgstr ""
 
-#: ../../mod/admin.php:415
+#: ../../mod/admin.php:426
 msgid "No SSL policy, links will track page SSL state"
 msgstr ""
 
-#: ../../mod/admin.php:416
+#: ../../mod/admin.php:427
 msgid "Force all links to use SSL"
 msgstr ""
 
-#: ../../mod/admin.php:417
+#: ../../mod/admin.php:428
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr ""
 
-#: ../../mod/admin.php:426
+#: ../../mod/admin.php:437
 msgid "File upload"
 msgstr ""
 
-#: ../../mod/admin.php:427
+#: ../../mod/admin.php:438
 msgid "Policies"
 msgstr ""
 
-#: ../../mod/admin.php:428
+#: ../../mod/admin.php:439
 msgid "Advanced"
 msgstr ""
 
-#: ../../mod/admin.php:432 ../../addon/statusnet/statusnet.php:567
+#: ../../mod/admin.php:443 ../../addon/statusnet/statusnet.php:567
 msgid "Site name"
 msgstr ""
 
-#: ../../mod/admin.php:433
+#: ../../mod/admin.php:444
 msgid "Banner/Logo"
 msgstr ""
 
-#: ../../mod/admin.php:434
+#: ../../mod/admin.php:445
 msgid "System language"
 msgstr ""
 
-#: ../../mod/admin.php:435
+#: ../../mod/admin.php:446
 msgid "System theme"
 msgstr ""
 
-#: ../../mod/admin.php:435
+#: ../../mod/admin.php:446
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a href='#' "
 "id='cnftheme'>change theme settings</a>"
 msgstr ""
 
-#: ../../mod/admin.php:436
+#: ../../mod/admin.php:447
+msgid "Mobile system theme"
+msgstr ""
+
+#: ../../mod/admin.php:447
+msgid "Theme for mobile devices"
+msgstr ""
+
+#: ../../mod/admin.php:448
 msgid "SSL link policy"
 msgstr ""
 
-#: ../../mod/admin.php:436
+#: ../../mod/admin.php:448
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr ""
 
-#: ../../mod/admin.php:437
+#: ../../mod/admin.php:449
 msgid "Maximum image size"
 msgstr ""
 
-#: ../../mod/admin.php:437
+#: ../../mod/admin.php:449
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr ""
 
-#: ../../mod/admin.php:439
+#: ../../mod/admin.php:451
 msgid "Register policy"
 msgstr ""
 
-#: ../../mod/admin.php:440
+#: ../../mod/admin.php:452
 msgid "Register text"
 msgstr ""
 
-#: ../../mod/admin.php:440
+#: ../../mod/admin.php:452
 msgid "Will be displayed prominently on the registration page."
 msgstr ""
 
-#: ../../mod/admin.php:441
+#: ../../mod/admin.php:453
 msgid "Accounts abandoned after x days"
 msgstr ""
 
-#: ../../mod/admin.php:441
+#: ../../mod/admin.php:453
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr ""
 
-#: ../../mod/admin.php:442
+#: ../../mod/admin.php:454
 msgid "Allowed friend domains"
 msgstr ""
 
-#: ../../mod/admin.php:442
+#: ../../mod/admin.php:454
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
 
-#: ../../mod/admin.php:443
+#: ../../mod/admin.php:455
 msgid "Allowed email domains"
 msgstr ""
 
-#: ../../mod/admin.php:443
+#: ../../mod/admin.php:455
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr ""
 
-#: ../../mod/admin.php:444
+#: ../../mod/admin.php:456
 msgid "Block public"
 msgstr ""
 
-#: ../../mod/admin.php:444
+#: ../../mod/admin.php:456
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr ""
 
-#: ../../mod/admin.php:445
+#: ../../mod/admin.php:457
 msgid "Force publish"
 msgstr ""
 
-#: ../../mod/admin.php:445
+#: ../../mod/admin.php:457
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr ""
 
-#: ../../mod/admin.php:446
+#: ../../mod/admin.php:458
 msgid "Global directory update URL"
 msgstr ""
 
-#: ../../mod/admin.php:446
+#: ../../mod/admin.php:458
 msgid ""
 "URL to update the global directory. If this is not set, the global directory "
 "is completely unavailable to the application."
 msgstr ""
 
-#: ../../mod/admin.php:447
+#: ../../mod/admin.php:459
 msgid "Allow threaded items"
 msgstr ""
 
-#: ../../mod/admin.php:447
+#: ../../mod/admin.php:459
 msgid "Allow infinite level threading for items on this site."
 msgstr ""
 
-#: ../../mod/admin.php:449
+#: ../../mod/admin.php:461
 msgid "Block multiple registrations"
 msgstr ""
 
-#: ../../mod/admin.php:449
+#: ../../mod/admin.php:461
 msgid "Disallow users to register additional accounts for use as pages."
 msgstr ""
 
-#: ../../mod/admin.php:450
+#: ../../mod/admin.php:462
 msgid "OpenID support"
 msgstr ""
 
-#: ../../mod/admin.php:450
+#: ../../mod/admin.php:462
 msgid "OpenID support for registration and logins."
 msgstr ""
 
-#: ../../mod/admin.php:451
+#: ../../mod/admin.php:463
 msgid "Fullname check"
 msgstr ""
 
-#: ../../mod/admin.php:451
+#: ../../mod/admin.php:463
 msgid ""
 "Force users to register with a space between firstname and lastname in Full "
 "name, as an antispam measure"
 msgstr ""
 
-#: ../../mod/admin.php:452
+#: ../../mod/admin.php:464
 msgid "UTF-8 Regular expressions"
 msgstr ""
 
-#: ../../mod/admin.php:452
+#: ../../mod/admin.php:464
 msgid "Use PHP UTF8 regular expressions"
 msgstr ""
 
-#: ../../mod/admin.php:453
+#: ../../mod/admin.php:465
 msgid "Show Community Page"
 msgstr ""
 
-#: ../../mod/admin.php:453
+#: ../../mod/admin.php:465
 msgid ""
 "Display a Community page showing all recent public postings on this site."
 msgstr ""
 
-#: ../../mod/admin.php:454
+#: ../../mod/admin.php:466
 msgid "Enable OStatus support"
 msgstr ""
 
-#: ../../mod/admin.php:454
+#: ../../mod/admin.php:466
 msgid ""
 "Provide built-in OStatus (identi.ca, status.net, etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
 msgstr ""
 
-#: ../../mod/admin.php:455
+#: ../../mod/admin.php:467
 msgid "Enable Diaspora support"
 msgstr ""
 
-#: ../../mod/admin.php:455
+#: ../../mod/admin.php:467
 msgid "Provide built-in Diaspora network compatibility."
 msgstr ""
 
-#: ../../mod/admin.php:456
+#: ../../mod/admin.php:468
 msgid "Only allow Friendica contacts"
 msgstr ""
 
-#: ../../mod/admin.php:456
+#: ../../mod/admin.php:468
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
 msgstr ""
 
-#: ../../mod/admin.php:457
+#: ../../mod/admin.php:469
 msgid "Verify SSL"
 msgstr ""
 
-#: ../../mod/admin.php:457
+#: ../../mod/admin.php:469
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you "
 "cannot connect (at all) to self-signed SSL sites."
 msgstr ""
 
-#: ../../mod/admin.php:458
+#: ../../mod/admin.php:470
 msgid "Proxy user"
 msgstr ""
 
-#: ../../mod/admin.php:459
+#: ../../mod/admin.php:471
 msgid "Proxy URL"
 msgstr ""
 
-#: ../../mod/admin.php:460
+#: ../../mod/admin.php:472
 msgid "Network timeout"
 msgstr ""
 
-#: ../../mod/admin.php:460
+#: ../../mod/admin.php:472
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr ""
 
-#: ../../mod/admin.php:461
+#: ../../mod/admin.php:473
 msgid "Delivery interval"
 msgstr ""
 
-#: ../../mod/admin.php:461
+#: ../../mod/admin.php:473
 msgid ""
 "Delay background delivery processes by this many seconds to reduce system "
 "load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 "
 "for large dedicated servers."
 msgstr ""
 
-#: ../../mod/admin.php:462
+#: ../../mod/admin.php:474
 msgid "Poll interval"
 msgstr ""
 
-#: ../../mod/admin.php:462
+#: ../../mod/admin.php:474
 msgid ""
 "Delay background polling processes by this many seconds to reduce system "
 "load. If 0, use delivery interval."
 msgstr ""
 
-#: ../../mod/admin.php:463
+#: ../../mod/admin.php:475
 msgid "Maximum Load Average"
 msgstr ""
 
-#: ../../mod/admin.php:463
+#: ../../mod/admin.php:475
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default 50."
 msgstr ""
 
-#: ../../mod/admin.php:480
+#: ../../mod/admin.php:492
 msgid "Update has been marked successful"
 msgstr ""
 
-#: ../../mod/admin.php:490
+#: ../../mod/admin.php:502
 #, php-format
 msgid "Executing %s failed. Check system logs."
 msgstr ""
 
-#: ../../mod/admin.php:493
+#: ../../mod/admin.php:505
 #, php-format
 msgid "Update %s was successfully applied."
 msgstr ""
 
-#: ../../mod/admin.php:497
+#: ../../mod/admin.php:509
 #, php-format
 msgid "Update %s did not return a status. Unknown if it succeeded."
 msgstr ""
 
-#: ../../mod/admin.php:500
+#: ../../mod/admin.php:512
 #, php-format
 msgid "Update function %s could not be found."
 msgstr ""
 
-#: ../../mod/admin.php:515
+#: ../../mod/admin.php:527
 msgid "No failed updates."
 msgstr ""
 
-#: ../../mod/admin.php:519
+#: ../../mod/admin.php:531
 msgid "Failed Updates"
 msgstr ""
 
-#: ../../mod/admin.php:520
+#: ../../mod/admin.php:532
 msgid ""
 "This does not include updates prior to 1139, which did not return a status."
 msgstr ""
 
-#: ../../mod/admin.php:521
+#: ../../mod/admin.php:533
 msgid "Mark success (if update was manually applied)"
 msgstr ""
 
-#: ../../mod/admin.php:522
+#: ../../mod/admin.php:534
 msgid "Attempt to execute this update step automatically"
 msgstr ""
 
-#: ../../mod/admin.php:547
+#: ../../mod/admin.php:559
 #, php-format
 msgid "%s user blocked/unblocked"
 msgid_plural "%s users blocked/unblocked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../mod/admin.php:554
+#: ../../mod/admin.php:566
 #, php-format
 msgid "%s user deleted"
 msgid_plural "%s users deleted"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../mod/admin.php:593
+#: ../../mod/admin.php:605
 #, php-format
 msgid "User '%s' deleted"
 msgstr ""
 
-#: ../../mod/admin.php:601
+#: ../../mod/admin.php:613
 #, php-format
 msgid "User '%s' unblocked"
 msgstr ""
 
-#: ../../mod/admin.php:601
+#: ../../mod/admin.php:613
 #, php-format
 msgid "User '%s' blocked"
 msgstr ""
 
-#: ../../mod/admin.php:665
+#: ../../mod/admin.php:677
 msgid "select all"
 msgstr ""
 
-#: ../../mod/admin.php:666
+#: ../../mod/admin.php:678
 msgid "User registrations waiting for confirm"
 msgstr ""
 
-#: ../../mod/admin.php:667
+#: ../../mod/admin.php:679
 msgid "Request date"
 msgstr ""
 
-#: ../../mod/admin.php:667 ../../mod/admin.php:676
+#: ../../mod/admin.php:679 ../../mod/admin.php:688
 #: ../../include/contact_selectors.php:79
 msgid "Email"
 msgstr ""
 
-#: ../../mod/admin.php:668
+#: ../../mod/admin.php:680
 msgid "No registrations."
 msgstr ""
 
-#: ../../mod/admin.php:670
+#: ../../mod/admin.php:682
 msgid "Deny"
 msgstr ""
 
-#: ../../mod/admin.php:676
+#: ../../mod/admin.php:688
 msgid "Register date"
 msgstr ""
 
-#: ../../mod/admin.php:676
+#: ../../mod/admin.php:688
 msgid "Last login"
 msgstr ""
 
-#: ../../mod/admin.php:676
+#: ../../mod/admin.php:688
 msgid "Last item"
 msgstr ""
 
-#: ../../mod/admin.php:676
+#: ../../mod/admin.php:688
 msgid "Account"
 msgstr ""
 
-#: ../../mod/admin.php:678
+#: ../../mod/admin.php:690
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: ../../mod/admin.php:679
+#: ../../mod/admin.php:691
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: ../../mod/admin.php:720
+#: ../../mod/admin.php:732
 #, php-format
 msgid "Plugin %s disabled."
 msgstr ""
 
-#: ../../mod/admin.php:724
+#: ../../mod/admin.php:736
 #, php-format
 msgid "Plugin %s enabled."
 msgstr ""
 
-#: ../../mod/admin.php:734 ../../mod/admin.php:932
+#: ../../mod/admin.php:746 ../../mod/admin.php:944
 msgid "Disable"
 msgstr ""
 
-#: ../../mod/admin.php:736 ../../mod/admin.php:934
+#: ../../mod/admin.php:748 ../../mod/admin.php:946
 msgid "Enable"
 msgstr ""
 
-#: ../../mod/admin.php:758 ../../mod/admin.php:963
+#: ../../mod/admin.php:770 ../../mod/admin.php:975
 msgid "Toggle"
 msgstr ""
 
-#: ../../mod/admin.php:766 ../../mod/admin.php:973
+#: ../../mod/admin.php:778 ../../mod/admin.php:985
 msgid "Author: "
 msgstr ""
 
-#: ../../mod/admin.php:767 ../../mod/admin.php:974
+#: ../../mod/admin.php:779 ../../mod/admin.php:986
 msgid "Maintainer: "
 msgstr ""
 
-#: ../../mod/admin.php:896
+#: ../../mod/admin.php:908
 msgid "No themes found."
 msgstr ""
 
-#: ../../mod/admin.php:955
+#: ../../mod/admin.php:967
 msgid "Screenshot"
 msgstr ""
 
-#: ../../mod/admin.php:1003
+#: ../../mod/admin.php:1015
 msgid "[Experimental]"
 msgstr ""
 
-#: ../../mod/admin.php:1004
+#: ../../mod/admin.php:1016
 msgid "[Unsupported]"
 msgstr ""
 
-#: ../../mod/admin.php:1031
+#: ../../mod/admin.php:1043
 msgid "Log settings updated."
 msgstr ""
 
-#: ../../mod/admin.php:1087
+#: ../../mod/admin.php:1099
 msgid "Clear"
 msgstr ""
 
-#: ../../mod/admin.php:1093
+#: ../../mod/admin.php:1105
 msgid "Debugging"
 msgstr ""
 
-#: ../../mod/admin.php:1094
+#: ../../mod/admin.php:1106
 msgid "Log file"
 msgstr ""
 
-#: ../../mod/admin.php:1094
+#: ../../mod/admin.php:1106
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr ""
 
-#: ../../mod/admin.php:1095
+#: ../../mod/admin.php:1107
 msgid "Log level"
 msgstr ""
 
-#: ../../mod/admin.php:1145
+#: ../../mod/admin.php:1157
 msgid "Close"
 msgstr ""
 
-#: ../../mod/admin.php:1151
+#: ../../mod/admin.php:1163
 msgid "FTP Host"
 msgstr ""
 
-#: ../../mod/admin.php:1152
+#: ../../mod/admin.php:1164
 msgid "FTP Path"
 msgstr ""
 
-#: ../../mod/admin.php:1153
+#: ../../mod/admin.php:1165
 msgid "FTP User"
 msgstr ""
 
-#: ../../mod/admin.php:1154
+#: ../../mod/admin.php:1166
 msgid "FTP Password"
 msgstr ""
 
@@ -4727,7 +4741,8 @@ msgstr ""
 msgid "Activate Real-Time Updates"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:799 ../../addon/dav/layout.fnk.php:361
+#: ../../addon/facebook/facebook.php:799
+#: ../../addon/dav/friendica/layout.fnk.php:361
 msgid "The new values have been saved."
 msgstr ""
 
@@ -5152,10 +5167,6 @@ msgstr ""
 msgid "event"
 msgstr ""
 
-#: ../../addon/dav/dav_caldav_backend_virtual_friendica.inc.php:36
-msgid "Friendicy-Native events"
-msgstr ""
-
 #: ../../addon/dav/common/wdcal_backend.inc.php:92
 #: ../../addon/dav/common/wdcal_backend.inc.php:166
 #: ../../addon/dav/common/wdcal_backend.inc.php:178
@@ -5171,7 +5182,8 @@ msgid "Could not open component for editing"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:140
-#: ../../addon/dav/layout.fnk.php:143 ../../addon/dav/layout.fnk.php:422
+#: ../../addon/dav/friendica/layout.fnk.php:143
+#: ../../addon/dav/friendica/layout.fnk.php:422
 msgid "Go back to the calendar"
 msgstr ""
 
@@ -5179,7 +5191,8 @@ msgstr ""
 msgid "Event data"
 msgstr ""
 
-#: ../../addon/dav/common/wdcal_edit.inc.php:146 ../../addon/dav/main.php:206
+#: ../../addon/dav/common/wdcal_edit.inc.php:146
+#: ../../addon/dav/friendica/main.php:239
 msgid "Calendar"
 msgstr ""
 
@@ -5329,7 +5342,7 @@ msgid "#num#th-last #wkday# of each month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:372
-#: ../../addon/dav/layout.fnk.php:255
+#: ../../addon/dav/friendica/layout.fnk.php:255
 msgid "Month"
 msgstr ""
 
@@ -5449,178 +5462,189 @@ msgstr ""
 msgid "Private Events"
 msgstr ""
 
-#: ../../addon/dav/dav_carddav_backend_virtual_friendica.inc.php:53
+#: ../../addon/dav/common/dav_carddav_backend_private.inc.php:46
+msgid "Private Addressbooks"
+msgstr ""
+
+#: ../../addon/dav/friendica/dav_caldav_backend_virtual_friendica.inc.php:36
+msgid "Friendica-Native events"
+msgstr ""
+
+#: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:36
+#: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:59
 msgid "Friendica-Contacts"
 msgstr ""
 
-#: ../../addon/dav/dav_carddav_backend_virtual_friendica.inc.php:54
+#: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:60
 msgid "Your Friendica-Contacts"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:99 ../../addon/dav/layout.fnk.php:136
+#: ../../addon/dav/friendica/layout.fnk.php:99
+#: ../../addon/dav/friendica/layout.fnk.php:136
 msgid ""
 "Something went wrong when trying to import the file. Sorry. Maybe some "
 "events were imported anyway."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:131
+#: ../../addon/dav/friendica/layout.fnk.php:131
 msgid "Something went wrong when trying to import the file. Sorry."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:134
+#: ../../addon/dav/friendica/layout.fnk.php:134
 msgid "The ICS-File has been imported."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:138
+#: ../../addon/dav/friendica/layout.fnk.php:138
 msgid "No file was uploaded."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:147
+#: ../../addon/dav/friendica/layout.fnk.php:147
 msgid "Import a ICS-file"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:150
+#: ../../addon/dav/friendica/layout.fnk.php:150
 msgid "ICS-File"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:151
+#: ../../addon/dav/friendica/layout.fnk.php:151
 msgid "Overwrite all #num# existing events"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:228
+#: ../../addon/dav/friendica/layout.fnk.php:228
 msgid "New event"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:232
+#: ../../addon/dav/friendica/layout.fnk.php:232
 msgid "Today"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:241
+#: ../../addon/dav/friendica/layout.fnk.php:241
 msgid "Day"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:248
+#: ../../addon/dav/friendica/layout.fnk.php:248
 msgid "Week"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:260
+#: ../../addon/dav/friendica/layout.fnk.php:260
 msgid "Reload"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:271
+#: ../../addon/dav/friendica/layout.fnk.php:271
 msgid "Date"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:313
+#: ../../addon/dav/friendica/layout.fnk.php:313
 msgid "Error"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:380
+#: ../../addon/dav/friendica/layout.fnk.php:380
 msgid "The calendar has been updated."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:393
+#: ../../addon/dav/friendica/layout.fnk.php:393
 msgid "The new calendar has been created."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:417
+#: ../../addon/dav/friendica/layout.fnk.php:417
 msgid "The calendar has been deleted."
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:424
+#: ../../addon/dav/friendica/layout.fnk.php:424
 msgid "Calendar Settings"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:430
+#: ../../addon/dav/friendica/layout.fnk.php:430
 msgid "Date format"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:439
+#: ../../addon/dav/friendica/layout.fnk.php:439
 msgid "Time zone"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:445
+#: ../../addon/dav/friendica/layout.fnk.php:445
 msgid "Calendars"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:487
+#: ../../addon/dav/friendica/layout.fnk.php:487
 msgid "Create a new calendar"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:496
+#: ../../addon/dav/friendica/layout.fnk.php:496
 msgid "Limitations"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:500 ../../addon/libravatar/libravatar.php:82
+#: ../../addon/dav/friendica/layout.fnk.php:500
+#: ../../addon/libravatar/libravatar.php:82
 msgid "Warning"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:504
+#: ../../addon/dav/friendica/layout.fnk.php:504
 msgid "Synchronization (iPhone, Thunderbird Lightning, Android, ...)"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:511
+#: ../../addon/dav/friendica/layout.fnk.php:511
 msgid "Synchronizing this calendar with the iPhone"
 msgstr ""
 
-#: ../../addon/dav/layout.fnk.php:522
+#: ../../addon/dav/friendica/layout.fnk.php:522
 msgid "Synchronizing your Friendica-Contacts with the iPhone"
 msgstr ""
 
-#: ../../addon/dav/main.php:169
+#: ../../addon/dav/friendica/main.php:202
 msgid ""
 "The current version of this plugin has not been set up correctly. Please "
 "contact the system administrator of your installation of friendica to fix "
 "this."
 msgstr ""
 
-#: ../../addon/dav/main.php:209
+#: ../../addon/dav/friendica/main.php:242
 msgid "Extended calendar with CalDAV-support"
 msgstr ""
 
-#: ../../addon/dav/main.php:246 ../../addon/dav/main.php:247
-#: ../../include/delivery.php:463 ../../include/enotify.php:26
-#: ../../include/notifier.php:710
+#: ../../addon/dav/friendica/main.php:279
+#: ../../addon/dav/friendica/main.php:280 ../../include/delivery.php:463
+#: ../../include/enotify.php:26 ../../include/notifier.php:710
 msgid "noreply"
 msgstr ""
 
-#: ../../addon/dav/main.php:249
+#: ../../addon/dav/friendica/main.php:282
 msgid "Notification: "
 msgstr ""
 
-#: ../../addon/dav/main.php:276
+#: ../../addon/dav/friendica/main.php:309
 msgid "The database tables have been installed."
 msgstr ""
 
-#: ../../addon/dav/main.php:277
+#: ../../addon/dav/friendica/main.php:310
 msgid "An error occurred during the installation."
 msgstr ""
 
-#: ../../addon/dav/main.php:283
+#: ../../addon/dav/friendica/main.php:316
 msgid "The database tables have been updated."
 msgstr ""
 
-#: ../../addon/dav/main.php:285
+#: ../../addon/dav/friendica/main.php:317
 msgid "An error occurred during the update."
 msgstr ""
 
-#: ../../addon/dav/main.php:301
+#: ../../addon/dav/friendica/main.php:333
 msgid "No system-wide settings yet."
 msgstr ""
 
-#: ../../addon/dav/main.php:304
+#: ../../addon/dav/friendica/main.php:336
 msgid "Database status"
 msgstr ""
 
-#: ../../addon/dav/main.php:307
+#: ../../addon/dav/friendica/main.php:339
 msgid "Installed"
 msgstr ""
 
-#: ../../addon/dav/main.php:310
+#: ../../addon/dav/friendica/main.php:343
 msgid "Upgrade needed"
 msgstr ""
 
-#: ../../addon/dav/main.php:310
+#: ../../addon/dav/friendica/main.php:343
 msgid ""
 "Please back up all calendar data (the tables beginning with dav_*) before "
 "proceeding. While all calendar events <i>should</i> be converted to the new "
@@ -5629,23 +5653,23 @@ msgid ""
 "button."
 msgstr ""
 
-#: ../../addon/dav/main.php:310
+#: ../../addon/dav/friendica/main.php:343
 msgid "Upgrade"
 msgstr ""
 
-#: ../../addon/dav/main.php:313
+#: ../../addon/dav/friendica/main.php:346
 msgid "Not installed"
 msgstr ""
 
-#: ../../addon/dav/main.php:313
+#: ../../addon/dav/friendica/main.php:346
 msgid "Install"
 msgstr ""
 
-#: ../../addon/dav/main.php:317
+#: ../../addon/dav/friendica/main.php:350
 msgid "Unknown"
 msgstr ""
 
-#: ../../addon/dav/main.php:317
+#: ../../addon/dav/friendica/main.php:350
 msgid ""
 "Something really went wrong. I cannot recover from this state automatically, "
 "sorry. Please go to the database backend, back up the data, and delete all "
@@ -5653,28 +5677,36 @@ msgid ""
 "should be able to reinitialize the tables automatically."
 msgstr ""
 
-#: ../../addon/dav/main.php:322
+#: ../../addon/dav/friendica/main.php:355
 msgid "Troubleshooting"
 msgstr ""
 
-#: ../../addon/dav/main.php:323
+#: ../../addon/dav/friendica/main.php:356
 msgid "Manual creation of the database tables:"
 msgstr ""
 
-#: ../../addon/dav/main.php:324
+#: ../../addon/dav/friendica/main.php:357
 msgid "Show SQL-statements"
 msgstr ""
 
-#: ../../addon/dav/calendar.friendica.fnk.php:193
+#: ../../addon/dav/friendica/calendar.friendica.fnk.php:206
 msgid "Private Calendar"
 msgstr ""
 
-#: ../../addon/dav/calendar.friendica.fnk.php:194
+#: ../../addon/dav/friendica/calendar.friendica.fnk.php:207
 msgid "Friendica Events: Mine"
 msgstr ""
 
-#: ../../addon/dav/calendar.friendica.fnk.php:195
+#: ../../addon/dav/friendica/calendar.friendica.fnk.php:208
 msgid "Friendica Events: Contacts"
+msgstr ""
+
+#: ../../addon/dav/friendica/calendar.friendica.fnk.php:248
+msgid "Private Addresses"
+msgstr ""
+
+#: ../../addon/dav/friendica/calendar.friendica.fnk.php:249
+msgid "Friendica Contacts"
 msgstr ""
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:84
