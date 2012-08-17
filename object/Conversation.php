@@ -15,7 +15,7 @@ require_once('include/text.php');
 class Conversation extends BaseObject {
 	private $threads = array();
 	private $mode = null;
-	private $writeable = false;
+	private $writable = false;
 	private $profile_owner = 0;
 
 	public function __construct($mode) {
@@ -35,15 +35,15 @@ class Conversation extends BaseObject {
 			case 'network':
 			case 'notes':
 				$this->profile_owner = local_user();
-				$this->writeable = true;
+				$this->writable = true;
 				break;
 			case 'profile':
 				$this->profile_owner = $a->profile['profile_uid'];
-				$this->writeable = can_write_wall($a,$this->profile_owner);
+				$this->writable = can_write_wall($a,$this->profile_owner);
 				break;
 			case 'display':
 				$this->profile_owner = $a->profile['uid'];
-				$this->writeable = can_write_wall($a,$this->profile_owner);
+				$this->writable = can_write_wall($a,$this->profile_owner);
 				break;
 			default:
 				logger('[ERROR] Conversation::set_mode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
@@ -61,10 +61,10 @@ class Conversation extends BaseObject {
 	}
 
 	/**
-	 * Check if page is writeable
+	 * Check if page is writable
 	 */
-	public function is_writeable() {
-		return $this->writeable;
+	public function is_writable() {
+		return $this->writable;
 	}
 
 	/**

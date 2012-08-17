@@ -18,7 +18,7 @@ class Item extends BaseObject {
 	);
 	private $comment_box_template = 'comment_item.tpl';
 	private $toplevel = false;
-	private $writeable = false;
+	private $writable = false;
 	private $children = array();
 	private $parent = null;
 	private $conversation = null;
@@ -34,7 +34,7 @@ class Item extends BaseObject {
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->writeable = ($this->get_data_value('writable') || $this->get_data_value('self'));
+		$this->writable = ($this->get_data_value('writable') || $this->get_data_value('self'));
 
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
@@ -165,7 +165,7 @@ class Item extends BaseObject {
 			$indent = 'comment';
 		}
 
-		if($conv->is_writeable()) {
+		if($conv->is_writable()) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
 				'dislike' => array( t("I don't like this \x28toggle\x29"), t("dislike")),
@@ -430,10 +430,10 @@ class Item extends BaseObject {
 	}
 
 	/**
-	 * Check if this is writeable
+	 * Check if this is writable
 	 */
-	private function is_writeable() {
-		return $this->writeable;
+	private function is_writable() {
+		return $this->writable;
 	}
 
 	/**
@@ -476,7 +476,7 @@ class Item extends BaseObject {
 		if( ($conv->get_mode() === 'network') && $this->is_wall_to_wall() )
 			$ww = 'ww';
 
-		if($conv->is_writeable() && $this->is_writeable()) {
+		if($conv->is_writable() && $this->is_writable()) {
 			logger('[DEBUG] Item::get_comment_box : Comment box is visible.', LOGGER_DEBUG);
 			
 			$a = $this->get_app();
@@ -517,7 +517,7 @@ class Item extends BaseObject {
 			));
 		}
 		else {
-			logger('[DEBUG] Item::get_comment_box : Comment box is NOT visible. Conv: '. ($conv->is_writeable() ? 'yes' : 'no') .' Item: '. ($this->is_writeable() ? 'yes' : 'no'), LOGGER_DEBUG);
+			logger('[DEBUG] Item::get_comment_box : Comment box is NOT visible. Conv: '. ($conv->is_writable() ? 'yes' : 'no') .' Item: '. ($this->is_writable() ? 'yes' : 'no'), LOGGER_DEBUG);
 		}
 
 		return $comment_box;
