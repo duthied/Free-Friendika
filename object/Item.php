@@ -42,6 +42,15 @@ class Item extends BaseObject {
 		// Prepare the children
 		if(count($data['children'])) {
 			foreach($data['children'] as $item) {
+				/*
+				 * Only add will be displayed
+				 */
+				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+					continue;
+				}
+				if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+					continue;
+				}
 				$child = new Item($item);
 				$this->add_child($child);
 			}
@@ -270,6 +279,18 @@ class Item extends BaseObject {
 			logger('[WARN] Item::add_child : Item already exists ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
+		/*
+		 * Only add will be displayed
+		 */
+		if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
+			logger('[WARN] Item::add_child : Item is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
+			return false;
+		}
+		if($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
+			logger('[WARN] Item::add_child : Item is a (dis)like ('. $item->get_id() .').', LOGGER_DEBUG);
+			return false;
+		}
+		
 		$item->set_parent($this);
 		$this->children[] = $item;
 		return end($this->children);
@@ -456,6 +477,8 @@ class Item extends BaseObject {
 			$ww = 'ww';
 
 		if($conv->is_writeable() && $this->is_writeable()) {
+			logger('[DEBUG] Item::get_comment_box : Comment box is visible.', LOGGER_DEBUG);
+			
 			$a = $this->get_app();
 			$qc = $qcomment =  null;
 
@@ -492,6 +515,9 @@ class Item extends BaseObject {
 				'$sourceapp' => t($a->sourcename),
 				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
 			));
+		}
+		else {
+			logger('[DEBUG] Item::get_comment_box : Comment box is NOT visible. Conv: '. ($conv->is_writeable() ? 'yes' : 'no') .' Item: '. ($this->is_writeable() ? 'yes' : 'no'), LOGGER_DEBUG);
 		}
 
 		return $comment_box;
