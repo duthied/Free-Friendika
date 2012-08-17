@@ -237,6 +237,7 @@ function admin_page_site_post(&$a){
 	$banner				=	((x($_POST,'banner'))      		? trim($_POST['banner'])					: false);
 	$language			=	((x($_POST,'language'))			? notags(trim($_POST['language']))			: '');
 	$theme				=	((x($_POST,'theme'))			? notags(trim($_POST['theme']))				: '');
+	$theme_mobile			=	((x($_POST,'theme_mobile'))		? notags(trim($_POST['theme_mobile']))			: '');
 	$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))		:  0);
 	
 	
@@ -325,6 +326,11 @@ function admin_page_site_post(&$a){
 	}
 	set_config('system','language', $language);
 	set_config('system','theme', $theme);
+        if ( $theme_mobile === '---' ) {
+            del_config('system','mobile-theme');
+        } else {
+    	    set_config('system','mobile-theme', $theme_mobile);
+        }
 	set_config('system','maximagesize', $maximagesize);
 	
 	set_config('config','register_policy', $register_policy);
@@ -386,12 +392,17 @@ function admin_page_site(&$a) {
 	
 	/* Installed themes */
 	$theme_choices = array();
+	$theme_choices_mobile = array();
+        $theme_choices_mobile["---"] = t("Don't apply a special theme for mobile devices.");
 	$files = glob('view/theme/*');
 	if($files) {
 		foreach($files as $file) {
 			$f = basename($file);
 			$theme_name = ((file_exists($file . '/experimental')) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
-			$theme_choices[$f] = $theme_name;
+                        $theme_choices[$f] = $theme_name;
+                        if (file_exists($file . '/mobile')) {
+                            $theme_choices_mobile[$f] = $theme_name;
+                        }
 		}
 	}
 	
@@ -433,6 +444,7 @@ function admin_page_site(&$a) {
 		'$banner'			=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 			=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
+		'$theme_mobile' 			=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
 		'$ssl_policy'       => array('ssl_policy', t("SSL link policy"), (string) intval(get_config('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices),
 		'$maximagesize'		=> array('maximagesize', t("Maximum image size"), get_config('system','maximagesize'), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
 

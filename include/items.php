@@ -2136,7 +2136,7 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-	if((is_array($contact)) && ($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
+	if(($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("Photo.php");
 		$photo_failure = false;
@@ -2194,7 +2194,7 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
+	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($importer['importer_uid']),
 			intval($importer['id'])
@@ -2778,12 +2778,14 @@ function local_delivery($importer,$data) {
 				$parent = 0;
 
 				if($posted_id) {
-					$r = q("SELECT `parent` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+					$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($posted_id),
 						intval($importer['importer_uid'])
 					);
-					if(count($r))
+					if(count($r)) {
 						$parent = $r[0]['parent'];
+						$parent_uri = $r[0]['parent-uri'];
+					}
 			
 					if(! $is_like) {
 						$r1 = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `uid` = %d AND `parent` = %d",
@@ -2823,7 +2825,7 @@ function local_delivery($importer,$data) {
 								'verb'         => ACTIVITY_POST,
 								'otype'        => 'item',
 								'parent'       => $parent,
-
+								'parent_uri'   => $parent_uri,
 							));
 
 						}
@@ -2972,6 +2974,7 @@ function local_delivery($importer,$data) {
 									'verb'         => ACTIVITY_POST,
 									'otype'        => 'item',
 									'parent'       => $conv_parent,
+									'parent_uri'   => $parent_uri
 
 								));
 
@@ -3061,7 +3064,8 @@ function local_delivery($importer,$data) {
 			$datarray['uid'] = $importer['importer_uid'];
 			$datarray['contact-id'] = $importer['id'];
 
-			if(! link_compare($datarray['owner-link'],$contact['url'])) {
+
+			if(! link_compare($datarray['owner-link'],$importer['url'])) {
 				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery, 
 				// but otherwise there's a possible data mixup on the sender's system.
 				// the tgroup delivery code called from item_store will correct it if it's a forum,
@@ -3339,7 +3343,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if(strlen($item['owner-name']))
 		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
 
-	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || ($item['thr-parent'])) {
+	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
 	}

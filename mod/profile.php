@@ -1,8 +1,9 @@
 <?php
 
-function profile_init(&$a) {
+require_once('include/contact_widgets.php');
 
-	require_once('include/contact_widgets.php');
+
+function profile_init(&$a) {
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';

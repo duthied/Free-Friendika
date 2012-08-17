@@ -1350,7 +1350,7 @@ function diaspora_comment($importer,$xml,$msg) {
 				'verb'         => ACTIVITY_POST,
 				'otype'        => 'item',
 				'parent'       => $conv_parent,
-
+				'parent_uri'   => $parent_uri
 			));
 
 			// only send one notification
