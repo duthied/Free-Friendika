@@ -378,10 +378,12 @@ function title_is_body($title, $body) {
 
 	$title = strip_tags($title);
 	$title = trim($title);
+	$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
 	$title = str_replace(array("\n", "\r", "\t", " "), array("","","",""), $title);
 
 	$body = strip_tags($body);
 	$body = trim($body);
+	$body = html_entity_decode($body, ENT_QUOTES, 'UTF-8');
 	$body = str_replace(array("\n", "\r", "\t", " "), array("","","",""), $body);
 
 	if (strlen($title) < strlen($body))
