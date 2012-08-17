@@ -885,7 +885,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
 			}
-			logger('[DEBUG] conversation : $threads = '. print_r($threads, true), LOGGER_DEBUG);
 		}
 	}
 		

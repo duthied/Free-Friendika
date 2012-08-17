@@ -34,7 +34,7 @@ class Item extends BaseObject {
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->writeable = ($this->get_data_value('writeable') || $this->get_data_value('self'));
+		$this->writeable = ($this->get_data_value('writable') || $this->get_data_value('self'));
 
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
