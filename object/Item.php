@@ -216,7 +216,7 @@ class Item extends BaseObject {
 			'vote' => $buttons,
 			'like' => $like,
 			'dislike' => $dislike,
-			'comment' => $this->get_comment_box(),
+			'comment' => $this->get_comment_box($indent),
 			'previewing' => $previewing,
 			'wait' => t('Please wait'),
 		);
@@ -250,7 +250,7 @@ class Item extends BaseObject {
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
-		if(get_config('system','thread_allow')) {
+		if(get_config('system','thread_allow') && $a->theme_thread_allow) {
 			$result['flatten'] = false;
 			$result['threaded'] = true;
 		}
@@ -464,7 +464,7 @@ class Item extends BaseObject {
 	 * 		_ The comment box string (empty if no comment box)
 	 * 		_ false on failure
 	 */
-	private function get_comment_box() {
+	private function get_comment_box($indent) {
 		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
 			return '';
 		}
@@ -510,6 +510,7 @@ class Item extends BaseObject {
 				'$edurl' => t('Link'),
 				'$edvideo' => t('Video'),
 				'$preview' => t('Preview'),
+				'$indent' => $indent,
 				'$sourceapp' => t($a->sourcename),
 				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
 			));
