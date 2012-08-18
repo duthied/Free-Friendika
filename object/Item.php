@@ -219,6 +219,7 @@ class Item extends BaseObject {
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => $previewing,
 			'wait' => t('Please wait'),
+			'thread_level' => $thread_level
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -280,7 +281,7 @@ class Item extends BaseObject {
 			return false;
 		}
 		/*
-		 * Only add will be displayed
+		 * Only add what will be displayed
 		 */
 		if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
 			logger('[WARN] Item::add_child : Item is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
