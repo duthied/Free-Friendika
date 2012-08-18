@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1436\n"
+"Project-Id-Version: 3.0.1438\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-15 10:00-0700\n"
+"POT-Creation-Date: 2012-08-17 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,7 +56,7 @@ msgstr ""
 #: ../../mod/suggest.php:28 ../../mod/invite.php:13 ../../mod/invite.php:81
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
 #: ../../addon/facebook/facebook.php:516
-#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3816
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3819
 #: ../../index.php:315
 msgid "Permission denied."
 msgstr ""
@@ -860,7 +860,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3207
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3210
 msgid "[Name Withheld]"
 msgstr ""
 
@@ -1914,7 +1914,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:702
 #: ../../addon/facebook/facebook.php:1200
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3216
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3219
 #: ../../boot.php:796
 msgid "Administrator"
 msgstr ""
@@ -2685,8 +2685,8 @@ msgstr ""
 #: ../../mod/newmember.php:16
 msgid ""
 "On your <em>Quick Start</em> page - find a brief introduction to your "
-"profile and network tabs, connect to Facebook, make some new connections, "
-"and find some groups to join."
+"profile and network tabs, make some new connections, and find some groups to "
+"join."
 msgstr ""
 
 #: ../../mod/newmember.php:18
@@ -2984,7 +2984,7 @@ msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:720 ../../mod/admin.php:919 ../../mod/display.php:29
-#: ../../mod/display.php:135 ../../include/items.php:3694
+#: ../../mod/display.php:135 ../../include/items.php:3697
 msgid "Item not found."
 msgstr ""
 
@@ -3028,28 +3028,28 @@ msgstr ""
 msgid "Wall Photos"
 msgstr ""
 
-#: ../../mod/item.php:808
+#: ../../mod/item.php:809
 msgid "System error. Post not saved."
 msgstr ""
 
-#: ../../mod/item.php:833
+#: ../../mod/item.php:834
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social network."
 msgstr ""
 
-#: ../../mod/item.php:835
+#: ../../mod/item.php:836
 #, php-format
 msgid "You may visit them online at %s"
 msgstr ""
 
-#: ../../mod/item.php:836
+#: ../../mod/item.php:837
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
 msgstr ""
 
-#: ../../mod/item.php:838
+#: ../../mod/item.php:839
 #, php-format
 msgid "%s posted an update."
 msgstr ""
@@ -5604,7 +5604,7 @@ msgstr ""
 
 #: ../../addon/dav/friendica/main.php:279
 #: ../../addon/dav/friendica/main.php:280 ../../include/delivery.php:463
-#: ../../include/enotify.php:26 ../../include/notifier.php:710
+#: ../../include/enotify.php:28 ../../include/notifier.php:710
 msgid "noreply"
 msgstr ""
 
@@ -7864,187 +7864,187 @@ msgstr ""
 msgid "Visible to everybody"
 msgstr ""
 
-#: ../../include/enotify.php:14
+#: ../../include/enotify.php:16
 msgid "Friendica Notification"
 msgstr ""
 
-#: ../../include/enotify.php:17
+#: ../../include/enotify.php:19
 msgid "Thank You,"
 msgstr ""
 
-#: ../../include/enotify.php:19
+#: ../../include/enotify.php:21
 #, php-format
 msgid "%s Administrator"
 msgstr ""
 
-#: ../../include/enotify.php:38
+#: ../../include/enotify.php:40
 #, php-format
 msgid "%s <!item_type!>"
 msgstr ""
 
-#: ../../include/enotify.php:42
+#: ../../include/enotify.php:44
 #, php-format
 msgid "[Friendica:Notify] New mail received at %s"
 msgstr ""
 
-#: ../../include/enotify.php:44
+#: ../../include/enotify.php:46
 #, php-format
 msgid "%1$s sent you a new private message at %2$s."
 msgstr ""
 
-#: ../../include/enotify.php:45
+#: ../../include/enotify.php:47
 #, php-format
 msgid "%1$s sent you %2$s."
 msgstr ""
 
-#: ../../include/enotify.php:45
+#: ../../include/enotify.php:47
 msgid "a private message"
 msgstr ""
 
-#: ../../include/enotify.php:46
+#: ../../include/enotify.php:48
 #, php-format
 msgid "Please visit %s to view and/or reply to your private messages."
 msgstr ""
 
-#: ../../include/enotify.php:87
+#: ../../include/enotify.php:89
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:94
+#: ../../include/enotify.php:96
 #, php-format
 msgid "%1$s commented on [url=%2$s]%3$s's %4$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:102
+#: ../../include/enotify.php:104
 #, php-format
 msgid "%1$s commented on [url=%2$s]your %3$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:112
+#: ../../include/enotify.php:114
 #, php-format
 msgid "[Friendica:Notify] Comment to conversation #%1$d by %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:113
+#: ../../include/enotify.php:115
 #, php-format
 msgid "%s commented on an item/conversation you have been following."
 msgstr ""
 
-#: ../../include/enotify.php:116 ../../include/enotify.php:131
-#: ../../include/enotify.php:144 ../../include/enotify.php:162
-#: ../../include/enotify.php:175
+#: ../../include/enotify.php:118 ../../include/enotify.php:133
+#: ../../include/enotify.php:146 ../../include/enotify.php:164
+#: ../../include/enotify.php:177
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr ""
 
-#: ../../include/enotify.php:123
+#: ../../include/enotify.php:125
 #, php-format
 msgid "[Friendica:Notify] %s posted to your profile wall"
 msgstr ""
 
-#: ../../include/enotify.php:125
+#: ../../include/enotify.php:127
 #, php-format
 msgid "%1$s posted to your profile wall at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:127
+#: ../../include/enotify.php:129
 #, php-format
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:138
+#: ../../include/enotify.php:140
 #, php-format
 msgid "[Friendica:Notify] %s tagged you"
 msgstr ""
 
-#: ../../include/enotify.php:139
+#: ../../include/enotify.php:141
 #, php-format
 msgid "%1$s tagged you at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:140
+#: ../../include/enotify.php:142
 #, php-format
 msgid "%1$s [url=%2$s]tagged you[/url]."
 msgstr ""
 
-#: ../../include/enotify.php:152
+#: ../../include/enotify.php:154
 #, php-format
 msgid "[Friendica:Notify] %1$s poked you"
 msgstr ""
 
-#: ../../include/enotify.php:153
+#: ../../include/enotify.php:155
 #, php-format
 msgid "%1$s poked you at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:154
+#: ../../include/enotify.php:156
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
 msgstr ""
 
-#: ../../include/enotify.php:169
+#: ../../include/enotify.php:171
 #, php-format
 msgid "[Friendica:Notify] %s tagged your post"
 msgstr ""
 
-#: ../../include/enotify.php:170
+#: ../../include/enotify.php:172
 #, php-format
 msgid "%1$s tagged your post at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:171
+#: ../../include/enotify.php:173
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:182
+#: ../../include/enotify.php:184
 msgid "[Friendica:Notify] Introduction received"
 msgstr ""
 
-#: ../../include/enotify.php:183
+#: ../../include/enotify.php:185
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:184
+#: ../../include/enotify.php:186
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
 msgstr ""
 
-#: ../../include/enotify.php:187 ../../include/enotify.php:205
+#: ../../include/enotify.php:189 ../../include/enotify.php:207
 #, php-format
 msgid "You may visit their profile at %s"
 msgstr ""
 
-#: ../../include/enotify.php:189
+#: ../../include/enotify.php:191
 #, php-format
 msgid "Please visit %s to approve or reject the introduction."
 msgstr ""
 
-#: ../../include/enotify.php:196
+#: ../../include/enotify.php:198
 msgid "[Friendica:Notify] Friend suggestion received"
 msgstr ""
 
-#: ../../include/enotify.php:197
+#: ../../include/enotify.php:199
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:198
+#: ../../include/enotify.php:200
 #, php-format
 msgid "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
 msgstr ""
 
-#: ../../include/enotify.php:203
+#: ../../include/enotify.php:205
 msgid "Name:"
 msgstr ""
 
-#: ../../include/enotify.php:204
+#: ../../include/enotify.php:206
 msgid "Photo:"
 msgstr ""
 
-#: ../../include/enotify.php:207
+#: ../../include/enotify.php:209
 #, php-format
 msgid "Please visit %s to approve or reject the suggestion."
 msgstr ""
@@ -8104,15 +8104,15 @@ msgstr ""
 msgid "following"
 msgstr ""
 
-#: ../../include/items.php:3214
+#: ../../include/items.php:3217
 msgid "A new person is sharing with you at "
 msgstr ""
 
-#: ../../include/items.php:3214
+#: ../../include/items.php:3217
 msgid "You have a new follower at "
 msgstr ""
 
-#: ../../include/items.php:3883
+#: ../../include/items.php:3886
 msgid "Archives"
 msgstr ""
 
