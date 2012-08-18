@@ -544,35 +544,35 @@ class Item extends BaseObject {
 					$this->set_template('wall2wall');
 					$this->wall_to_wall = true;
 				}
-			}
-			else if($this->get_data_value('owner-link')) {
+				else if($this->get_data_value('owner-link')) {
 
-				$owner_linkmatch = (($this->get_data_value('owner-link')) && link_compare($this->get_data_value('owner-link'),$this->get_data_value('author-link')));
-				$alias_linkmatch = (($this->get_data_value('alias')) && link_compare($this->get_data_value('alias'),$this->get_data_value('author-link')));
-				$owner_namematch = (($this->get_data_value('owner-name')) && $this->get_data_value('owner-name') == $this->get_data_value('author-name'));
-				if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
+					$owner_linkmatch = (($this->get_data_value('owner-link')) && link_compare($this->get_data_value('owner-link'),$this->get_data_value('author-link')));
+					$alias_linkmatch = (($this->get_data_value('alias')) && link_compare($this->get_data_value('alias'),$this->get_data_value('author-link')));
+					$owner_namematch = (($this->get_data_value('owner-name')) && $this->get_data_value('owner-name') == $this->get_data_value('author-name'));
+					if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
 
-					// The author url doesn't match the owner (typically the contact)
-					// and also doesn't match the contact alias. 
-					// The name match is a hack to catch several weird cases where URLs are 
-					// all over the park. It can be tricked, but this prevents you from
-					// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
-					// well that it's the same Bob Smith. 
+						// The author url doesn't match the owner (typically the contact)
+						// and also doesn't match the contact alias. 
+						// The name match is a hack to catch several weird cases where URLs are 
+						// all over the park. It can be tricked, but this prevents you from
+						// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
+						// well that it's the same Bob Smith. 
 
-					// But it could be somebody else with the same name. It just isn't highly likely. 
-					
+						// But it could be somebody else with the same name. It just isn't highly likely. 
+						
 
-					$this->owner_photo = $this->get_data_value('owner-avatar');
-					$this->owner_name = $this->get_data_value('owner-name');
-					$this->set_template('wall2wall');
-					$this->wall_to_wall = true;
-					// If it is our contact, use a friendly redirect link
-					if((link_compare($this->get_data_value('owner-link'),$this->get_data_value('url'))) 
-						&& ($this->get_data_value('network') === NETWORK_DFRN)) {
-						$this->owner_url = $this->get_redirect_url();
+						$this->owner_photo = $this->get_data_value('owner-avatar');
+						$this->owner_name = $this->get_data_value('owner-name');
+						$this->set_template('wall2wall');
+						$this->wall_to_wall = true;
+						// If it is our contact, use a friendly redirect link
+						if((link_compare($this->get_data_value('owner-link'),$this->get_data_value('url'))) 
+							&& ($this->get_data_value('network') === NETWORK_DFRN)) {
+							$this->owner_url = $this->get_redirect_url();
+						}
+						else
+							$this->owner_url = zrl($this->get_data_value('owner-link'));
 					}
-					else
-						$this->owner_url = zrl($this->get_data_value('owner-link'));
 				}
 			}
 		}
