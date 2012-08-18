@@ -396,7 +396,7 @@ class Item extends BaseObject {
 	 * 		_ false on failure
 	 */
 	public function get_data_value($name) {
-		if(!x($this->data, $name)) {
+		if(!isset($this->data[$name])) {
 			logger('[ERROR] Item::get_data_value : Item has no value name "'. $name .'".', LOGGER_DEBUG);
 			return false;
 		}
@@ -477,8 +477,6 @@ class Item extends BaseObject {
 			$ww = 'ww';
 
 		if($conv->is_writable() && $this->is_writable()) {
-			logger('[DEBUG] Item::get_comment_box : Comment box is visible.', LOGGER_DEBUG);
-			
 			$a = $this->get_app();
 			$qc = $qcomment =  null;
 
@@ -515,9 +513,6 @@ class Item extends BaseObject {
 				'$sourceapp' => t($a->sourcename),
 				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
 			));
-		}
-		else {
-			logger('[DEBUG] Item::get_comment_box : Comment box is NOT visible. Conv: '. ($conv->is_writable() ? 'yes' : 'no') .' Item: '. ($this->is_writable() ? 'yes' : 'no'), LOGGER_DEBUG);
 		}
 
 		return $comment_box;
