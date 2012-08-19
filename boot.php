@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1438' );
+define ( 'FRIENDICA_VERSION',      '3.0.1439' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -904,6 +904,10 @@ if(! function_exists('login')) {
 			$tpl = get_markup_template("logout.tpl");
 		}
 		else {
+			$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"),array(
+				'$baseurl'		=> $a->get_baseurl(true)
+			));
+
 			$tpl = get_markup_template("login.tpl");
 			$_SESSION['return_url'] = $a->query_string;
 		}
