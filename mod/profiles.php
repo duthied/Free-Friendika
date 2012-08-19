@@ -48,8 +48,13 @@ function profiles_post(&$a) {
 			
 		$name = notags(trim($_POST['name']));
 
+		if(! strlen($name)) {
+			$name = '[No Name]';
+		}
+
 		if($orig[0]['name'] != $name)
 			$namechanged = true;
+
 
 
 		$pdesc = notags(trim($_POST['pdesc']));

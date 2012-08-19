@@ -583,6 +583,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => template_escape($item['title']),
+			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
+
 			'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 			'lock' => $lock,
 			'location' => template_escape($location),
@@ -815,6 +817,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'title' => template_escape($item['title']),
 					'body' => template_escape($body),
 					'text' => strip_tags(template_escape($body)),
+					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 					'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => template_escape($location),
 					'indent' => '',
