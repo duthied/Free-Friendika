@@ -93,10 +93,12 @@
 	{{ inc $item.template }}{{ endinc }}
 {{ endfor }}
 
+{{ if $item.comment }}
 {{ if $item.flatten }}
 <div class="wall-item-comment-wrapper" >
 	$item.comment
 </div>
+{{ endif }}
 {{ endif }}
 </div>
 {{if $item.comment_lastcollapsed}}</div>{{endif}}

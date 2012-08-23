@@ -27,6 +27,7 @@ class Item extends BaseObject {
 	private $owner_photo = '';
 	private $owner_name = '';
 	private $wall_to_wall = false;
+	private $threaded = false;
 
 	public function __construct($data) {
 		$a = $this->get_app();
@@ -38,6 +39,9 @@ class Item extends BaseObject {
 
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
+
+		if(get_config('system','thread_allow') && $a->theme_thread_allow)
+			$this->threaded = true;
 
 		// Prepare the children
 		if(count($data['children'])) {
@@ -200,6 +204,7 @@ class Item extends BaseObject {
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => template_escape($item['title']),
+			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 			'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 			'lock' => $lock,
 			'location' => template_escape($location),
@@ -251,7 +256,7 @@ class Item extends BaseObject {
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
-		if(get_config('system','thread_allow') && $a->theme_thread_allow) {
+		if($this->is_threaded()) {
 			$result['flatten'] = false;
 			$result['threaded'] = true;
 		}
@@ -265,6 +270,10 @@ class Item extends BaseObject {
 	
 	public function get_id() {
 		return $this->get_data_value('id');
+	}
+
+	public function is_threaded() {
+		return $this->threaded;
 	}
 
 	/**
@@ -490,7 +499,8 @@ class Item extends BaseObject {
 				$qcomment = (($qc) ? explode("\n",$qc) : null);
 			}
 			$comment_box = replace_macros($template,array(
-				'$return_path' => '', 
+				'$return_path' => '',
+				'$threaded' => $this->is_threaded(),
 				'$jsreload' => (($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
 				'$type' => (($conv->get_mode() === 'profile') ? 'wall-comment' : 'net-comment'),
 				'$id' => $this->get_id(),
