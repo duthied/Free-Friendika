@@ -205,6 +205,20 @@ function localize_item(&$item){
 		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
 
 	}
+	if (stristr($item['verb'],ACTIVITY_MOOD)) {
+		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+		if(! $verb)
+			return;
+
+		$Aname = $item['author-name'];
+		$Alink = $item['author-link'];
+		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
+		
+		$txt = t('%1$s is currently %2$s');
+
+		$item['body'] = sprintf($txt, $A, t($verb));
+	}
+
     if ($item['verb']===ACTIVITY_TAG){
 		$r = q("SELECT * from `item`,`contact` WHERE 
 		`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
@@ -508,6 +522,13 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			}
 		}
 
+		if(intval(get_config('system','thread_allow')) && $a->theme_thread_allow) {
+			$comments_threaded = true;
+		}
+		else {
+			$comments_threaded = false;
+		}
+
 		if($page_writeable) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
@@ -524,7 +545,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 					$qcomment = (($qc) ? explode("\n",$qc) : null);
 				}
 				$comment = replace_macros($cmnt_tpl,array(
-					'$return_path' => '', 
+					'$return_path' => '',
+					'$threaded' => $comments_threaded, 
 					'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
 					'$type' => (($mode === 'profile') ? 'wall-comment' : 'net-comment'),
 					'$id' => $item['item_id'],
@@ -583,6 +605,8 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => template_escape($item['title']),
+			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
+
 			'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 			'lock' => $lock,
 			'location' => template_escape($location),
@@ -815,6 +839,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'title' => template_escape($item['title']),
 					'body' => template_escape($body),
 					'text' => strip_tags(template_escape($body)),
+					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 					'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => template_escape($location),
 					'indent' => '',

@@ -69,7 +69,11 @@
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
-				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a> <span class="wall-item-ago">$item.ago</span>
+				<a href="$item.profile_url" target="redir"
+                                title="$item.linktitle"
+                                class="wall-item-name-link"><span
+                                class="wall-item-name$item.sparkle">$item.name</span></a>
+                                <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
 				 <br/>$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall
 				 
 			</div>

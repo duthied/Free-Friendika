@@ -938,6 +938,9 @@ input#dfrn-url {
 .tread-wrapper .tread-wrapper {
 	margin-left: 50px;
 }
+.tread-wrapper .wall-item-comment-wrapper {
+	margin-left: 50px;
+}
 
 .tread-end-wrapper {
 	margin-left: 50px;
