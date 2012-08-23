@@ -1476,7 +1476,10 @@ if(! function_exists('proc_run')) {
 			$args[$x] = escapeshellarg($args[$x]);
 
 		$cmdline = implode($args," ");
-		proc_close(proc_open($cmdline." &",array(),$foo));
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('start /b ' . $cmdline,array(),$foo));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo));
 	}
 }
 
