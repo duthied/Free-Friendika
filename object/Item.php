@@ -40,7 +40,7 @@ class Item extends BaseObject {
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
 
-		if(get_config('system','thread_allow') && $a->theme_thread_allow)
+		if(get_config('system','thread_allow') && $a->theme_thread_allow && !$this->is_toplevel())
 			$this->threaded = true;
 
 		// Prepare the children
