@@ -590,33 +590,6 @@ class Item extends BaseObject {
 		}
 
 		if(!$this->wall_to_wall) {
-			// Fallback, check if can find a @ tag
-			$tags = $this->get_data_value('tag');
-			if(strpos($tags, '@[url') !== FALSE) {
-				// We have at least one @ tag
-				$matches = array();
-				preg_match_all('/\@\[url=([^\]]+)\]([^\[]+)\[\/url\]/', $tags, $matches, PREG_SET_ORDER);
-
-				$r = null;
-				foreach($matches as $wall) {
-					$uri = $wall[1];
-					$r = q("SELECT `url`,`name`,`photo`,`forum` FROM `contact` WHERE `url`='%s' LIMIT 1",
-						dbesc($uri)
-					);
-
-					if(count($r) && (intval($r[0]['forum']) == 1)) {
-						$this->owner_url = zrl($r[0]['url']);
-						$this->owner_name = $r[0]['name'];
-						$this->owner_photo = $r[0]['photo'];
-						$this->wall_to_wall = true;
-						$this->set_template('wall2wall');
-						break;
-					}
-				}
-			}
-		}
-
-		if(!$this->wall_to_wall) {
 			$this->set_template('wall');
 			$this->owner_url = '';
 			$this->owner_photo = '';
