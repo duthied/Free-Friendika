@@ -496,7 +496,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 					if(strpos($tags, '@[url') !== FALSE) {
 						// We have at least one @ tag
 						$template = $wallwall_template;
-						$commentww = 'ww';
 						
 						$matches = array();
 						preg_match_all('/\@\[url=([^\]]+)\]([^\[]+)\[\/url\]/', $tags, $matches, PREG_SET_ORDER);
@@ -512,6 +511,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 								$owner_url = zrl($r[0]['url']);
 								$owner_name = $r[0]['name'];
 								$owner_photo = $r[0]['photo'];
+								$commentww = 'ww';
 								break;
 							}
 						}
@@ -522,6 +522,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 							$owner_name = $matches[0][2];
 							// Use the nosign
 							$owner_photo = $a->get_baseurl() .'/images/nosign.jpg';
+							$commentww = 'ww';
 						}
 					}
 				}
