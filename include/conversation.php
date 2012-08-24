@@ -521,7 +521,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 							$owner_url = zrl($matches[0][1]);
 							$owner_name = $matches[0][2];
 							// Use the nosign
-							$owner_photo = $a->get_baseurl .'/images/nosign.jpg';
+							$owner_photo = $a->get_baseurl() .'/images/nosign.jpg';
 						}
 					}
 				}
