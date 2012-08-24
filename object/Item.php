@@ -590,6 +590,44 @@ class Item extends BaseObject {
 		}
 
 		if(!$this->wall_to_wall) {
+			// Fallback, check if can find a @ tag
+			$tags = $this->get_data_value('tag');
+			if(strpos($tags, '@[url') !== FALSE) {
+				// We have at least one @ tag
+				$matches = array();
+				preg_match_all('/\@\[url=([^\]]+)\]([^\[]+)\[\/url\]/', $tags, $matches, PREG_SET_ORDER);
+
+				$r = null;
+				foreach($matches as $wall) {
+					$uri = $wall[1];
+					$r = q("SELECT `url`,`name`,`photo` FROM `contact` WHERE `url`='%s' LIMIT 1",
+						dbesc($uri)
+					);
+
+					if(count($r)) {
+						$this->owner_url = zrl($r[0]['url']);
+						$this->owner_name = $r[0]['name'];
+						$this->owner_photo = $r[0]['photo'];
+						$this->set_template('wall2wall');
+						$this->wall_to_wall = true;
+						break;
+					}
+				}
+
+				if(!$this->wall_to_wall) {
+					// We found no matching contact in the database, just do the best we can (we'll only miss the photo)
+					$this->owner_url = zrl($matches[0][1]);
+					$this->owner_name = $matches[0][2];
+					// Use the nosign
+					$this->owner_photo = $a->get_baseurl .'/images/nosign.jpg';
+					$this->set_template('wall2wall');
+					$this->wall_to_wall = true;
+				}
+			}
+		}
+
+		if(!$this->wall_to_wall) {
+			// Definitely not wall to wall
 			$this->set_template('wall');
 			$this->owner_url = '';
 			$this->owner_photo = '';
