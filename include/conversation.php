@@ -490,42 +490,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 							$owner_url = zrl($owner_url);
 					}
 				}
-				if($commentww != 'ww') {
-					// Fallback, check if can find a @ tag
-					$tags = $item['tag'];
-					if(strpos($tags, '@[url') !== FALSE) {
-						// We have at least one @ tag
-						$template = $wallwall_template;
-						
-						$matches = array();
-						preg_match_all('/\@\[url=([^\]]+)\]([^\[]+)\[\/url\]/', $tags, $matches, PREG_SET_ORDER);
-
-						$r = null;
-						foreach($matches as $wall) {
-							$uri = $wall[1];
-							$r = q("SELECT `url`,`name`,`photo` FROM `contact` WHERE `url`='%s' LIMIT 1",
-								dbesc($uri)
-							);
-
-							if(count($r)) {
-								$owner_url = zrl($r[0]['url']);
-								$owner_name = $r[0]['name'];
-								$owner_photo = $r[0]['photo'];
-								$commentww = 'ww';
-								break;
-							}
-						}
-
-						if($commentww != 'ww') {
-							// We found no matching contact in the database, just do the best we can (we'll only miss the photo)
-							$owner_url = zrl($matches[0][1]);
-							$owner_name = $matches[0][2];
-							// Use the nosign
-							$owner_photo = $a->get_baseurl() .'/images/nosign.jpg';
-							$commentww = 'ww';
-						}
-					}
-				}
 			}
 			if($profile_owner == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
