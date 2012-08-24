@@ -620,7 +620,7 @@ class Item extends BaseObject {
 					$this->owner_url = zrl($matches[0][1]);
 					$this->owner_name = $matches[0][2];
 					// Use the nosign
-					$this->owner_photo = $a->get_baseurl .'/images/nosign.jpg';
+					$this->owner_photo = $a->get_baseurl() .'/images/nosign.jpg';
 				}
 			}
 		}
