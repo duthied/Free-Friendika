@@ -277,8 +277,7 @@ function create_user($arr) {
 		require_once('include/group.php');
 		group_add($newuid, t('Friends'));
 
-		if((! isset($a->config['system']['newuser_public'])) || ($a->config['system']['newuser_public'] == 0)) {
-			// Make the group we just created the default for new contacts and for posts
+		if(! get_config('system', 'newuser_public')) {
 			$r = q("SELECT id FROM `group` WHERE uid = %d AND name = '%s'",
 				intval($newuid),
 				dbesc(t('Friends'))
