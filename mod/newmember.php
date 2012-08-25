@@ -69,7 +69,7 @@ function newmember_content(&$a) {
 
 	$o .= '<li>' . '<a target="newmember" href="contacts">' . t('Group Your Contacts') . '</a><br />' . t('Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.') . '</li>' . EOL;
 
-	if((! isset($a->config['system']['newuser_public'])) || (! $a->config['system']['newuser_public'])) {
+	if(! get_config('system', 'newuser_public')) {
 		$o .= '<li>' . '<a target="newmember" href="help/Groups-and-Privacy">' . t("Why Aren't My Posts Public?") . '</a><br />' . t("Friendica respects your privacy. By default, your posts will only show up to people you've added as friends. For more information, see the help section from the link above.") . '</li>' . EOL;
 	}
 
