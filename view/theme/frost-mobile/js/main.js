@@ -372,7 +372,7 @@
 		$j(".wall-item-body").each(function() {
 				if($j(this).height() > 310) {
 				if(! $j(this).hasClass('divmore')) {
-					$j(this).divgrow({ initialHeight: 300, showBrackets: false, speed: 300 });
+					$j(this).divgrow({ initialHeight: 300, showBrackets: false, speed: 0 });
 					$j(this).addClass('divmore');
 				}
 			}					
