@@ -444,6 +444,7 @@ function message_content(&$a) {
 				'delete' => t('Delete message'),
 				'to_name' => template_escape($message['name']),
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'],'D, d M Y - g:i A'),
+                                'ago' => relative_date($message['created']),
 			);
 				
 			$seen = $message['seen'];
