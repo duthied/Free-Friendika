@@ -12,7 +12,9 @@
 	<div id="photos-upload-new-end"></div>
 	<div id="photos-upload-exist-wrapper">
 		<div id="photos-upload-existing-album-text">$existalbumtext</div>
+		<select id="photos-upload-album-select" name="album" size="4">
 		$albumselect
+		</select>
 	</div>
 	<div id="photos-upload-exist-end"></div>
 
@@ -26,6 +28,7 @@
 		<a href="#photos-upload-permissions-wrapper" id="photos-upload-perms-menu" class="button popupbox" />
 		<span id="jot-perms-icon" class="icon $lockstate" ></span>$permissions
 		</a>
+	</div>
 	<div id="photos-upload-perms-end"></div>
 
 	<div style="display: none;">

@@ -6,6 +6,7 @@
 			autoDimensions: false,
 			onStart: function(){
 				var theme = $("#id_theme :selected").val();
+				var theme_mobile = $("#id_theme_mobile :selected").val();
 				$("#cnftheme").attr('href',"$baseurl/admin/themes/"+theme);
 			}, 
 			onComplete: function(){
@@ -44,6 +45,7 @@
 	{{ inc field_textarea.tpl with $field=$banner }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$language }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$theme }}{{ endinc }}
+	{{ inc field_select.tpl with $field=$theme_mobile }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$ssl_policy }}{{ endinc }}
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
@@ -71,6 +73,7 @@
 	{{ inc field_checkbox.tpl with $field=$diaspora_enabled }}{{ endinc }}
 	{{ inc field_checkbox.tpl with $field=$dfrn_only }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$global_directory }}{{ endinc }}
+	{{ inc field_checkbox.tpl with $field=$thread_allow }}{{ endinc }}
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
 	

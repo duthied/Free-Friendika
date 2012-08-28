@@ -12,7 +12,9 @@
 	<div id="photos-upload-new-end"></div>
 	<div id="photos-upload-exist-wrapper">
 		<div id="photos-upload-existing-album-text">$existalbumtext</div>
+		<select id="photos-upload-album-select" name="album" size="4">
 		$albumselect
+		</select>
 	</div>
 	<div id="photos-upload-exist-end"></div>
 
@@ -28,6 +30,7 @@
 		<a href="#photos-upload-permissions-wrapper" id="photos-upload-perms-menu" class="popupbox button" />
 		<span id="jot-perms-icon" class="icon $lockstate  photo-perms-icon" ></span><div class="photo-jot-perms-text">$permissions</div>
 		</a>
+	</div>
 	<div id="photos-upload-perms-end"></div>
 
 	<div style="display: none;">
@@ -46,10 +49,3 @@
 	</div>
 </form>
 
-<!--
-<script>
-	$("a#photos-upload-perms-menu").fancybox({
-		'transitionIn' : 'none',
-		'transitionOut' : 'none'
-	}); 
-</script>-->

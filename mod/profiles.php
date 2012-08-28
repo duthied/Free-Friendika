@@ -48,8 +48,13 @@ function profiles_post(&$a) {
 			
 		$name = notags(trim($_POST['name']));
 
+		if(! strlen($name)) {
+			$name = '[No Name]';
+		}
+
 		if($orig[0]['name'] != $name)
 			$namechanged = true;
+
 
 
 		$pdesc = notags(trim($_POST['pdesc']));
@@ -546,6 +551,10 @@ function profiles_content(&$a) {
 			'$baseurl' => $a->get_baseurl(true),
 			'$editselect' => $editselect,
 		));
+		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => $editselect,
+		));
 
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
@@ -556,9 +565,6 @@ function profiles_content(&$a) {
 			'$yes_selected' => (($r[0]['hide-friends']) ? " checked=\"checked\" " : ""),
 			'$no_selected' => (($r[0]['hide-friends'] == 0) ? " checked=\"checked\" " : "")
 		));
-
-		$a->page['htmlhead'] .= "<script type=\"text/javascript\" src=\"js/country.js\" ></script>";
-
 
 
 

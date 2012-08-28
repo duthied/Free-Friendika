@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1414' );
+define ( 'FRIENDICA_VERSION',      '3.0.1444' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1154      );
 
@@ -253,6 +253,7 @@ define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
+define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
 
 define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
 define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
@@ -353,6 +354,19 @@ if(! class_exists('App')) {
 		public $nav_sel;
 
 		public $category;
+
+		// Allow themes to control internal parameters
+		// by changing App values in theme.php
+		//
+		// Possibly should make these part of the plugin
+		// system, but it seems like overkill to invoke
+		// all the plugin machinery just to change a couple
+		// of values
+		public	$sourcename = '';
+		public	$videowidth = 425;
+		public	$videoheight = 350;
+		public	$force_max_items = 0;
+		public	$theme_thread_allow = true;
 
 		private $scheme;
 		private $hostname;
@@ -564,6 +578,13 @@ if(! class_exists('App')) {
 			));
 		}
 
+		function init_page_end() {
+			$tpl = get_markup_template('end.tpl');
+			$this->page['end'] = replace_macros($tpl,array(
+				'$baseurl' => $this->get_baseurl() // FIXME for z_path!!!!
+			));
+		}
+
 		function set_curl_code($code) {
 			$this->curl_code = $code;
 		}
@@ -706,9 +727,13 @@ if(! function_exists('check_config')) {
 		// than the currently visited url, store the current value accordingly.
 		// "Radically different" ignores common variations such as http vs https
 		// and www.example.com vs example.com.
+		// We will only change the url to an ip address if there is no existing setting
 
-		if((! x($url)) || (! link_compare($url,$a->get_baseurl())))
+		if(! x($url))
 			$url = set_config('system','url',$a->get_baseurl());
+		if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
+			$url = set_config('system','url',$a->get_baseurl());
+
 
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
@@ -871,6 +896,10 @@ if(! function_exists('login')) {
 			$tpl = get_markup_template("logout.tpl");
 		}
 		else {
+			$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"),array(
+				'$baseurl'		=> $a->get_baseurl(true)
+			));
+
 			$tpl = get_markup_template("login.tpl");
 			$_SESSION['return_url'] = $a->query_string;
 		}
@@ -1235,6 +1264,12 @@ if(! function_exists('get_birthdays')) {
 		if(! local_user())
 			return $o;
 
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
+			return $o;
+
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 		$bd_short = t('F d');
 
@@ -1312,6 +1347,13 @@ if(! function_exists('get_events')) {
 		$a = get_app();
 
 		if(! local_user())
+			return $o;
+
+
+		$mobile_detect = new Mobile_Detect();
+		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+		if($is_mobile)
 			return $o;
 
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
@@ -1425,7 +1467,10 @@ if(! function_exists('proc_run')) {
 			$args[$x] = escapeshellarg($args[$x]);
 
 		$cmdline = implode($args," ");
-		proc_close(proc_open($cmdline." &",array(),$foo));
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('start /b ' . $cmdline,array(),$foo));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo));
 	}
 }
 

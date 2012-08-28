@@ -1,6 +1,6 @@
 <a name="$item.id" ></a>
-<div class="wall-item-outside-wrapper$item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<!--<div class="wall-item-outside-wrapper $item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >-->
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info" id="wall-item-info-$item.id">
 <!--			<div class="wall-item-photo-wrapper" id="wall-item-photo-wrapper-$item.id" 
 				 onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')" 
@@ -16,29 +16,29 @@
 					</ul>
 				</div>-->
 			</div>
-			<div class="wall-item-photo-end"></div>
+			<!--<div class="wall-item-photo-end"></div>-->
 			<div class="wall-item-wrapper" id="wall-item-wrapper-$item.id" >
-				{{ if $item.lock }}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="$item.lock" onclick="lockview(event,$item.id);" /></div>
+				{{ if $item.lock }}<!--<div class="wall-item-lock">--><img src="images/lock_icon.gif" class="wall-item-lock lockview" alt="$item.lock" onclick="lockview(event,$item.id);" /><!--</div>-->
 				{{ else }}<div class="wall-item-lock"></div>{{ endif }}	
 				<div class="wall-item-location" id="wall-item-location-$item.id">$item.location</div>				
 			</div>
 		</div>
-		<div class="wall-item-author">
+		<!--<div class="wall-item-author">-->
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a>
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>
+				<div class="wall-item-ago" id="wall-item-ago-$item.id" >$item.ago</div>
 				
-		</div>
+		<!--</div>-->
 		<br />
 
 		<div class="wall-item-content" id="wall-item-content-$item.id" >
 			<div class="wall-item-title" id="wall-item-title-$item.id">$item.title</div>
-			<div class="wall-item-title-end"></div>
+			<!--<div class="wall-item-title-end"></div>-->
 			<div class="wall-item-body" id="wall-item-body-$item.id" >$item.body
-					<div class="body-tag">
+					<!--<div class="body-tag">-->
 						{{ for $item.tags as $tag }}
-							<span class='tag'>$tag</span>
+							<span class='body-tag tag'>$tag</span>
 						{{ endfor }}
-					</div>
+					<!--</div>-->
 			</div>
 		</div>
 		<div class="wall-item-tools" id="wall-item-tools-$item.id">
@@ -51,7 +51,7 @@
 			</div>
 			{{ endif }}
 			{{ if $item.plink }}
-				<div class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link$item.sparkle"></a></div>
+				<!--<div class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="wall-item-links-wrapper icon remote-link$item.sparkle"></a></div>-->
 			{{ endif }}
 			{{ if $item.edpost }}
 				<a class="editpost icon pencil" href="$item.edpost.0" title="$item.edpost.1"></a>
@@ -64,19 +64,19 @@
 			{{ if $item.filer }}
 			<a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item filer-icon" title="$item.filer"></a>
 			{{ endif }}			
-			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-$item.id" >
-				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="icon drophide" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
-			</div>
+			<!--<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-$item.id" >-->
+				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="wall-item-delete-wrapper icon drophide" id="wall-item-delete-wrapper-$item.id" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
+			<!--</div>-->
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
-			<div class="wall-item-delete-end"></div>
+			<!--<div class="wall-item-delete-end"></div>-->
 		</div>
 	</div>
-	<div class="wall-item-wrapper-end"></div>
+	<!--<div class="wall-item-wrapper-end"></div>-->
 	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
 	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
-	<div class="wall-item-comment-wrapper" >
+	<!--<div class="wall-item-comment-wrapper" >-->
 	$item.comment
-	</div>
+	<!--</div>-->
 
-<div class="wall-item-outside-wrapper-end$item.indent" ></div>
-</div>
+<!--<div class="wall-item-outside-wrapper-end $item.indent" ></div>-->
+<!--</div>-->

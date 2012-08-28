@@ -196,15 +196,23 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	// The bbcode parser now handles youtube-links (and the other stuff) correctly.
 	// Additionally the html code is now fixed so that lists are now working.
 
+	/**
+	 * Transform #tags, strip off the [url] and replace spaces with underscore
+	 */
+	$Text = preg_replace_callback('/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', create_function('$match',
+		'return \'#\'. str_replace(\' \', \'_\', $match[2]);'
+	), $Text);
+
+
 	// Converting images with size parameters to simple images. Markdown doesn't know it.
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
 
 	// the following was added on 10-January-2012 due to an inability of Diaspora's
 	// new javascript markdown processor to handle links with images as the link "text"
 	// It is not optimal and may be removed if this ability is restored in the future
-	if ($fordiaspora)
-		$Text = preg_replace("/\[url\=([^\[\]]*)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\]/ism",
-					"[url]$1[/url]\n[img]$2[/img]", $Text);
+	//if ($fordiaspora)
+	//	$Text = preg_replace("/\[url\=([^\[\]]*)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\]/ism",
+	//				"[url]$1[/url]\n[img]$2[/img]", $Text);
 
 	// Convert it to HTML - don't try oembed
 	$Text = bbcode($Text, $preserve_nl, false);

@@ -36,8 +36,16 @@ function editpost_content(&$a) {
 	$o .= '<h2>' . t('Edit post') . '</h2>';
 
 	$tpl = get_markup_template('jot-header.tpl');
-	
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
+		'$baseurl' => $a->get_baseurl(),
+		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
+		'$geotag' => $geotag,
+		'$nickname' => $a->user['nickname']
+	));
+
+	$tpl = get_markup_template('jot-end.tpl');
+	$a->page['end'] .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
 		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
@@ -115,8 +123,8 @@ function editpost_content(&$a) {
 		'$jotnets' => $jotnets,
 		'$title' => $itm[0]['title'],
 		'$placeholdertitle' => t('Set title'),
-                '$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
-                '$placeholdercategory' => t('Categories (comma-separated list)'),
+		'$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
+		'$placeholdercategory' => t('Categories (comma-separated list)'),
 		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user), $celeb),
@@ -124,6 +132,7 @@ function editpost_content(&$a) {
 		'$profile_uid' => $_SESSION['uid'],
 		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
+		'$sourceapp' => t($a->sourcename),
 	));
 
 	return $o;

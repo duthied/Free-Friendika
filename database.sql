@@ -570,6 +570,9 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `moderated` (`moderated`),
   KEY `spam` (`spam`),
   KEY `author-name` (`author-name`),
+  KEY `uid_commented` (`uid`, `commented`),
+  KEY `uid_created` (`uid`, `created`),
+  KEY `uid_unseen` (`uid`, `unseen`),
   FULLTEXT KEY `title` (`title`),
   FULLTEXT KEY `body` (`body`),
   FULLTEXT KEY `allow_cid` (`allow_cid`),
@@ -603,7 +606,7 @@ CREATE TABLE IF NOT EXISTS `item_id` (
 -- Table structure for table `locks`
 --
 
-CREATE TABLE `locks` (
+CREATE TABLE IF NOT EXISTS `locks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` char(128) NOT NULL,
   `locked` tinyint(1) NOT NULL DEFAULT '0',
