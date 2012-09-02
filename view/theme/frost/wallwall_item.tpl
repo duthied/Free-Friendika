@@ -1,6 +1,6 @@
 <a name="$item.id" ></a>
-<!--<div class="wall-item-outside-wrapper$item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >-->
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<!--<div class="wall-item-outside-wrapper $item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >-->
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info wallwall" id="wall-item-info-$item.id">
 			<div class="wall-item-photo-wrapper wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
 				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-photo-link" id="wall-item-ownerphoto-link-$item.id">
@@ -22,14 +22,14 @@
 			</div>
 			<!--<div class="wall-item-photo-end"></div>-->
 			<div class="wall-item-wrapper" id="wall-item-wrapper-$item.id" >
-				{{ if $item.lock }}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="$item.lock" onclick="lockview(event,$item.id);" /></div>
+				{{ if $item.lock }}<!--<div class="wall-item-lock">--><img src="images/lock_icon.gif" class="wall-item-lock lockview" alt="$item.lock" onclick="lockview(event,$item.id);" /><!--</div>-->
 				{{ else }}<div class="wall-item-lock"></div>{{ endif }}	
 				<div class="wall-item-location" id="wall-item-location-$item.id">$item.location</div>
 			</div>
 		</div>
 		<!--<div class="wall-item-author">-->
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a> $item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall<br />
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>				
+				<div class="wall-item-ago"  id="wall-item-ago-$item.id" title="$item.localtime" >$item.ago</div>
 		<!--</div>-->
 		<div class="wall-item-content" id="wall-item-content-$item.id" >
 			<div class="wall-item-title" id="wall-item-title-$item.id">$item.title</div>
@@ -67,7 +67,7 @@
 			{{ endif }}			
 			
 			<!--<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-$item.id" >-->
-				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="wall-item-delete-wrapper icon drophide" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
+				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="wall-item-delete-wrapper icon drophide" title="$item.drop.delete" id="wall-item-delete-wrapper-$item.id" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
 			<!--</div>-->
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<!--<div class="wall-item-delete-end"></div>-->
@@ -81,6 +81,6 @@
 	$item.comment
 	<!--</div>-->
 
-<!--<div class="wall-item-outside-wrapper-end$item.indent" ></div>-->
+<!--<div class="wall-item-outside-wrapper-end $item.indent" ></div>-->
 <!--</div>-->
 

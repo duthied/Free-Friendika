@@ -70,7 +70,7 @@ function notags($string) {
 if(! function_exists('escape_tags')) {
 function escape_tags($string) {
 
-	return(htmlspecialchars($string));
+	return(htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }}
 
 
@@ -504,6 +504,10 @@ function get_tags($s) {
 
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
 
+	// ignore anything in a bbtag
+
+	$s = preg_replace('/\[(.*?)\]/sm','',$s);
+
 	// Match full names against @tags including the space between first and last
 	// We will look these up afterward to see if they are full names or not recognisable.
 
@@ -722,6 +726,39 @@ function get_poke_verbs() {
 	call_hooks('poke_verbs', $arr);
 	return $arr;
 }
+
+function get_mood_verbs() {
+	
+	// index is present tense verb
+	// value is array containing past tense verb, translation of present, translation of past
+
+	$arr = array(
+		'happy'      => t('happy'),
+		'sad'        => t('sad'),
+		'mellow'     => t('mellow'),
+		'tired'      => t('tired'),
+		'perky'      => t('perky'),
+		'angry'      => t('angry'),
+		'stupefied'  => t('stupified'),
+		'puzzled'    => t('puzzled'),
+		'interested' => t('interested'),
+		'bitter'     => t('bitter'),
+		'cheerful'   => t('cheerful'),
+		'alive'      => t('alive'),
+		'annoyed'    => t('annoyed'),
+		'anxious'    => t('anxious'),
+		'cranky'     => t('cranky'),
+		'disturbed'  => t('disturbed'),
+		'frustrated' => t('frustrated'),
+		'motivated'  => t('motivated'),
+		'relaxed'    => t('relaxed'),
+		'surprised'  => t('surprised'),
+	);
+
+	call_hooks('mood_verbs', $arr);
+	return $arr;
+}
+
 
 /**
  * 

@@ -64,6 +64,89 @@ function bb_unspacefy_and_trim($st) {
   return $unspacefied;
 }
 
+function bb_find_open_close($s, $open, $close, $occurance = 1) {
+
+	if($occurance < 1)
+		$occurance = 1;
+
+	$start_pos = -1;
+	for($i = 1; $i <= $occurance; $i++) {
+		if( $start_pos !== false)
+			$start_pos = strpos($s, $open, $start_pos + 1);
+	}
+
+	if( $start_pos === false)
+		return false;
+
+	$end_pos = strpos($s, $close, $start_pos);
+
+	if( $end_pos === false)
+		return false;
+
+	$res = array( 'start' => $start_pos, 'end' => $end_pos );
+
+	return $res;
+}
+
+function get_bb_tag_pos($s, $name, $occurance = 1) {
+
+	if($occurance < 1)
+		$occurance = 1;
+
+	$start_open = -1;
+	for($i = 1; $i <= $occurance; $i++) {
+		if( $start_open !== false)
+			$start_open = strpos($s, '[' . $name, $start_open + 1); // allow [name= type tags
+	}
+
+	if( $start_open === false)
+		return false;
+
+	$start_equal = strpos($s, '=', $start_open);
+	$start_close = strpos($s, ']', $start_open);
+
+	if( $start_close === false)
+		return false;
+
+	$start_close++;
+
+	$end_open = strpos($s, '[/' . $name . ']', $start_close);
+
+	if( $end_open === false)
+		return false;
+
+	$res = array( 'start' => array('open' => $start_open, 'close' => $start_close),
+	              'end' => array('open' => $end_open, 'close' => $end_open + strlen('[/' . $name . ']')) );
+	if( $start_equal !== false)
+		$res['start']['equal'] = $start_equal + 1;
+
+	return $res;
+}
+
+function bb_tag_preg_replace($pattern, $replace, $name, $s) {
+
+	$string = $s;
+
+	$occurance = 1;
+	$pos = get_bb_tag_pos($string, $name, $occurance);
+	while($pos !== false && $occurance < 1000) {
+
+		$start = substr($string, 0, $pos['start']['open']);
+		$subject = substr($string, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
+		$end = substr($string, $pos['end']['close']);
+		if($end === false)
+			$end = '';
+
+		$subject = preg_replace($pattern, $replace, $subject);
+		$string = $start . $subject . $end;
+
+		$occurance++;
+		$pos = get_bb_tag_pos($string, $name, $occurance);
+	}
+
+	return $string;
+}
+
 if(! function_exists('bb_extract_images')) {
 function bb_extract_images($body) {
 
@@ -340,9 +423,14 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . t('Image/photo') . '" />', $Text);
 
 
+
+	$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br />', $Text);
+	$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . '$1' . ' ' . t('Encrypted content') . '" /><br />', $Text);
+
+
 	// Try to Oembed
 	if ($tryoembed) {
-		$Text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4))\[\/video\]/ism", '<video src="$1" controls="controls" width="425" height="350"><a href="$1">$1</a></video>', $Text);
+		$Text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4))\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></video>', $Text);
 		$Text = preg_replace("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3))\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $Text);
 
 		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", 'tryoembed', $Text);
@@ -356,7 +444,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 
 
 	if ($tryoembed)
-		$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="425" height="350"><a href="$1">$1</a></iframe>', $Text);
+		$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $Text);
 	else
 		$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $Text);
 
@@ -372,7 +460,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	$Text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism",'[youtube]$1[/youtube]',$Text);
 
 	if ($tryoembed)
-		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="425" height="350" src="http://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $Text);
+		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="http://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $Text);
 	else
 		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", "http://www.youtube.com/watch?v=$1", $Text);
 
@@ -386,7 +474,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	$Text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism",'[vimeo]$1[/vimeo]',$Text);
 
 	if ($tryoembed)
-		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="425" height="350" src="http://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $Text);
+		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="http://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $Text);
 	else
 		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", "http://vimeo.com/$1", $Text);
 
@@ -424,6 +512,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 
 
 	$Text = preg_replace('/\[\&amp\;([#a-z0-9]+)\;\]/','&$1;',$Text);
+	$Text = preg_replace('/\&\#039\;/','\'',$Text);
+	$Text = preg_replace('/\&quot\;/','"',$Text);
 
 	// fix any escaped ampersands that may have been converted into links
 	$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);

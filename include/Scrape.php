@@ -394,7 +394,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 				}
 				if($link['@attributes']['rel'] === 'diaspora-public-key') {
 					$diaspora_key = base64_decode(unamp($link['@attributes']['href']));
-					$pubkey = rsatopem($diaspora_key);
+					if(strstr($diaspora_key,'RSA '))
+						$pubkey = rsatopem($diaspora_key);
+					else
+						$pubkey = $diaspora_key;
 					$diaspora = true;
 				}
 			}

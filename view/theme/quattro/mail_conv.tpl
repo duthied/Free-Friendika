@@ -22,7 +22,10 @@
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
-				<a href="$mail.from_url" target="redir" class="wall-item-name-link"><span class="wall-item-name$mail.sparkle">$mail.from_name</span></a> <span class="wall-item-ago">$mail.date</span>
+				<a href="$mail.from_url" target="redir"
+                                class="wall-item-name-link"><span
+                                class="wall-item-name$mail.sparkle">$mail.from_name</span></a>
+                                <span class="wall-item-ago" title="$mail.date">$mail.ago</span>
 			</div>
 			
 			<div class="wall-item-actions-social">

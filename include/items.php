@@ -580,6 +580,7 @@ function get_atom_elements($feed,$item) {
 		$res['body'] = escape_tags($res['body']);
 	}
 
+
 	// this tag is obsolete but we keep it for really old sites
 
 	$allow = $item->get_item_tags(NAMESPACE_DFRN,'comment-allow');
@@ -930,6 +931,8 @@ function item_store($arr,$force_parent = false) {
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid());
 
+
+	$arr['thr-parent'] = $arr['parent-uri'];
 	if($arr['parent-uri'] === $arr['uri']) {
 		$parent_id = 0;
 		$parent_deleted = 0;
@@ -955,7 +958,6 @@ function item_store($arr,$force_parent = false) {
 			// and re-attach to the conversation parent.
 
 			if($r[0]['uri'] != $r[0]['parent-uri']) {
-				$arr['thr-parent'] = $arr['parent-uri'];
 				$arr['parent-uri'] = $r[0]['parent-uri'];
 				$z = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d 
 					ORDER BY `id` ASC LIMIT 1",
@@ -997,7 +999,6 @@ function item_store($arr,$force_parent = false) {
 			if($force_parent) {
 				logger('item_store: $force_parent=true, reply converted to top-level post.');
 				$parent_id = 0;
-				$arr['thr-parent'] = $arr['parent-uri'];
 				$arr['parent-uri'] = $arr['uri'];
 				$arr['gravity'] = 0;
 			}
@@ -2141,7 +2142,7 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-	if((is_array($contact)) && ($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
+	if(($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("Photo.php");
 		$photo_failure = false;
@@ -2199,7 +2200,7 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
+	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($importer['importer_uid']),
 			intval($importer['id'])
@@ -2464,6 +2465,7 @@ function local_delivery($importer,$data) {
 
 					$is_a_remote_delete = false;
 
+					// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
 					$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`, 
 						`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item` 
 						LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
@@ -2477,7 +2479,7 @@ function local_delivery($importer,$data) {
 						intval($importer['importer_uid'])
 					);
 					if($r && count($r))
-						$is_a_remote_delete = true;			
+						$is_a_remote_delete = true;
 
 					// Does this have the characteristics of a community or private group comment?
 					// If it's a reply to a wall post on a community/prvgroup page it's a 
@@ -2782,12 +2784,14 @@ function local_delivery($importer,$data) {
 				$parent = 0;
 
 				if($posted_id) {
-					$r = q("SELECT `parent` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+					$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($posted_id),
 						intval($importer['importer_uid'])
 					);
-					if(count($r))
+					if(count($r)) {
 						$parent = $r[0]['parent'];
+						$parent_uri = $r[0]['parent-uri'];
+					}
 			
 					if(! $is_like) {
 						$r1 = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `uid` = %d AND `parent` = %d",
@@ -2804,7 +2808,7 @@ function local_delivery($importer,$data) {
 					}
 
 					if($posted_id && $parent) {
-				
+
 						proc_run('php',"include/notifier.php","comment-import","$posted_id");
 					
 						if((! $is_like) && (! $importer['self'])) {
@@ -2827,7 +2831,7 @@ function local_delivery($importer,$data) {
 								'verb'         => ACTIVITY_POST,
 								'otype'        => 'item',
 								'parent'       => $parent,
-
+								'parent_uri'   => $parent_uri,
 							));
 
 						}
@@ -2976,6 +2980,7 @@ function local_delivery($importer,$data) {
 									'verb'         => ACTIVITY_POST,
 									'otype'        => 'item',
 									'parent'       => $conv_parent,
+									'parent_uri'   => $parent_uri
 
 								));
 
@@ -3065,7 +3070,8 @@ function local_delivery($importer,$data) {
 			$datarray['uid'] = $importer['importer_uid'];
 			$datarray['contact-id'] = $importer['id'];
 
-			if(! link_compare($datarray['owner-link'],$contact['url'])) {
+
+			if(! link_compare($datarray['owner-link'],$importer['url'])) {
 				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery, 
 				// but otherwise there's a possible data mixup on the sender's system.
 				// the tgroup delivery code called from item_store will correct it if it's a forum,
@@ -3334,7 +3340,6 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	else
 		$body = $item['body'];
 
-
 	$o = "\r\n\r\n<entry>\r\n";
 
 	if(is_array($author))
@@ -3344,7 +3349,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if(strlen($item['owner-name']))
 		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
 
-	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || ($item['thr-parent'])) {
+	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
 	}
@@ -3705,8 +3710,9 @@ function drop_item($id,$interactive = true) {
 
 	// check if logged in user is either the author or owner of this item
 
-	if((local_user() == $item['uid']) || (remote_user() == $item['contact-id'])) {
+	if((local_user() == $item['uid']) || (remote_user() == $item['contact-id']) || (! $interactive)) {
 
+		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 		// delete the item
 
 		$r = q("UPDATE `item` SET `deleted` = 1, `title` = '', `body` = '', `edited` = '%s', `changed` = '%s' WHERE `id` = %d LIMIT 1",

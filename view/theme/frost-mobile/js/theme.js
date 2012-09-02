@@ -1,8 +1,8 @@
 $j(document).ready(function() {
 
-		/* enable tinymce on focus and click */
-		$j("#profile-jot-text").focus(enableOnUser);
-		$j("#profile-jot-text").click(enableOnUser);
+	/* enable tinymce on focus and click */
+	$j("#profile-jot-text").focus(enableOnUser);
+	$j("#profile-jot-text").click(enableOnUser);
 
 	if(typeof window.AjaxUpload != "undefined") {
 		switch(window.ajaxType) {
@@ -543,6 +543,15 @@ function showHideComments(id) {
 		$j("#hide-comments-" + id).html(window.showFewer);
 	}
 }
+
+/*function showHideCommentBox(id) {
+	if( $j('#comment-edit-form-' + id).is(':visible')) {
+		$j('#comment-edit-form-' + id).hide();
+	}
+	else {
+		$j('#comment-edit-form-' + id).show();
+	}
+}*/
 
 
 /*function deleteCheckedItems() {
