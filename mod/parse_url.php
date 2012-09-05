@@ -36,6 +36,9 @@ function completeurl($url, $scheme) {
         if ($schemearr["port"] != "")
                 $complete .= ":".$schemearr["port"];
 
+		if(strpos($urlarr['path'],'/') !== 0)
+			$complete .= '/';
+
         $complete .= $urlarr["path"];
 
         if ($urlarr["query"] != "")
