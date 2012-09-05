@@ -1025,11 +1025,29 @@ if(! function_exists('get_max_import_size')) {
 
 if(! function_exists('profile_load')) {
 	function profile_load(&$a, $nickname, $profile = 0) {
-		if(remote_user()) {
-			$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
-					intval($_SESSION['visitor_id']));
-			if(count($r))
-				$profile = $r[0]['profile-id'];
+
+		$user = q("select uid from user where nickname = '%s' limit 1",
+			dbesc($nickname)
+		);
+		
+		if(! ($user && count($user))) {
+			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			notice( t('Requested account is not available.') . EOL );
+			$a->error = 404;
+			return;
+		}
+
+		if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $user[0]['uid']) {
+					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
+						intval($visitor['cid'])
+					);
+					if(count($r))
+						$profile = $r[0]['profile-id'];
+					break;
+				}
+			}
 		}
 
 		$r = null;
@@ -1144,8 +1162,14 @@ if(! function_exists('profile_sidebar')) {
 
 		// don't show connect link to authenticated visitors either
 
-		if((remote_user()) && ($_SESSION['visitor_visiting'] == $profile['uid']))
-			$connect = False;
+		if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $profile['uid']) {
+					$connect = false;
+					break;
+				}
+			}
+		}
 
 		if(get_my_url() && $profile['unkmail'])
 			$wallmessage = t('Message');
