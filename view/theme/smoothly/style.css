@@ -84,8 +84,8 @@ li {
 input[type=text] {
 	border: 2px solid #b0b0b0;
 	padding: 2px;
-	width: 300px;
-	margin: 0px;
+	/*width: 300px;*/
+	margin-left: 3px;
     -webkit-border-radius: 3px 3px 3px 3px;
     -moz-border-radius: 3px 3px 3px 3px;
     border-radius: 3px 3px 3px 3px;	
@@ -93,7 +93,7 @@ input[type=text] {
 
 input[type=submit] {
 	/*margin: 10px 2px 5px 2px;*/
-	margin: 0px 0px 0px 200px;
+	margin: 0px 0px 5px 2px;
 	border: none;
 	font-size: 0.9em;
 	padding: 5px;
@@ -149,7 +149,7 @@ section {
 }
 
 .mframe {
-	padding: 5px;
+	padding: 2px;
 	background-color: #efefef;
 	border: 2px solid #dddddd;
 	-moz-box-shadow: 3px 3px 4px #959494;
@@ -2056,7 +2056,7 @@ margin-left: 0px;
 }
 
 #follow-sidebar input[type="text"] {
-	margin-left: 10px;
+	margin-left: 3px;
 	margin-bottom: 10px;
 }
 
@@ -2855,7 +2855,7 @@ tr {
 
 .field label {
 	float: left;
-	width: 200px;
+	width: 550px;
 }
 
 .field input,
