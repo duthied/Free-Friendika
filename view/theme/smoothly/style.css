@@ -84,6 +84,7 @@ li {
 input[type=text] {
 	border: 2px solid #b0b0b0;
 	padding: 2px;
+	width: 300px;
 	margin: 0px;
     -webkit-border-radius: 3px 3px 3px 3px;
     -moz-border-radius: 3px 3px 3px 3px;
@@ -91,7 +92,8 @@ input[type=text] {
 }
 
 input[type=submit] {
-	margin: 10px 2px 5px 2px;
+	/*margin: 10px 2px 5px 2px;*/
+	margin: 0px 0px 0px 200px;
 	border: none;
 	font-size: 0.9em;
 	padding: 5px;
@@ -2847,7 +2849,7 @@ tr {
 .field {
 	margin-bottom: 5px;
 	padding-bottom: 10px;
-	overflow: auto;
+	/*overflow: auto;*/
 	width: 90%;
 }
 
@@ -2858,7 +2860,7 @@ tr {
 
 .field input,
 .field textarea {
-	width: 400px;
+	width: 220px;
 }
 .field textarea { height: 100px; }
 .field_help {
