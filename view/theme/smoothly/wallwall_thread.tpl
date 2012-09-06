@@ -86,6 +86,8 @@
 	<div class="wall-item-wrapper-end"></div>
 	<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
 	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-comment-separator"></div>
+
 	{{ if $item.threaded }}
 	{{ if $item.comment }}
 	<div class="wall-item-comment-wrapper $item.indent" >
