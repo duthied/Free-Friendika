@@ -2849,14 +2849,14 @@ tr {
 
 .field {
 	margin-bottom: 5px;
-	padding-bottom: 10px;
+	padding-bottom: 0px;
 	/*overflow: auto;*/
 	width: 90%;
 }
 
 .field label {
 	float: left;
-	width: 550px;
+	width: 400px; /*550*/
 }
 
 .field input,
