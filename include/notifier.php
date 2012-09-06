@@ -295,7 +295,7 @@ function notifier_run($argv, $argc){
 			// a delivery fork. private groups (forum_mode == 2) do not uplink
 
 			if((intval($parent['forum_mode']) == 1) && (! $top_level) && ($cmd !== 'uplink')) {
-				proc_run('php','include/notifier','uplink',$item_id);
+				proc_run('php','include/notifier.php','uplink',$item_id);
 			}
 
 			$conversants = array();
