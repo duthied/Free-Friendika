@@ -36,7 +36,6 @@ body {
     font-weight: normal;
     line-height: 18px;
     color: #626262;
-    /*background: url("back-gradient.jpg") repeat-x scroll left top #F2F2F2;*/
     background-color: #F2F2F2;
     /*width: 99%;*/
     color: #333333;
@@ -1205,15 +1204,15 @@ profile-jot-banner-wrapper {
 	top: 45px;
 	background-position: 35px center;
 }
-.wall-item-outside-wrapper.comment .wall-item-info { width: 50px; } /*60*/
+.wall-item-outside-wrapper.comment .wall-item-info { width: 60px; }
 .wall-item-outside-wrapper.comment .wall-item-body {
-	margin-left: 50px;/*70*/
+	margin-left: 60px;/*70*/
 	max-width: 100%;
 	padding-right: 10px;
 	padding-left: 0px;
 }
 
-.wall-item-outside-wrapper.comment .wall-item-author { margin-left: 50px; } /*10*/
+.wall-item-outside-wrapper.comment .wall-item-author { margin-left: 60px; } /*10*/
 
 .wall-item-outside-wrapper.comment .wall-item-photo-menu {
 	min-width: 50px;
@@ -2862,6 +2861,9 @@ tr {
 .field input,
 .field textarea {
 	width: 220px;
+    border: 1px solid #CDCDCD;
+    border-radius: 5px 5px 5px 5px;
+    /*box-shadow: 3px 3px 4px 0 #959494;*/
 }
 .field textarea { height: 100px; }
 .field_help {
@@ -3325,4 +3327,11 @@ ul.menu-popup {
 /* Pages profile widget */
 #page-profile div#profile-page-list{
 margin-left: 45px;
+}
+
+
+hr.line-dots {
+    background: url("icons/dot.png") repeat-x scroll left center transparent;
+    border: medium none;
+    /*padding: 0.5em 0;*/
 }
