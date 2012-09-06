@@ -284,7 +284,7 @@ nav {
     width: 960px;
 	z-index: 10000;
 	height: 50px;
-	position: fixed; /*fixed*/
+	position: fixed;
 	color: #efefef;
 	background: url("nav-bg.png") no-repeat scroll 0px 7px transparent;
 	/*background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #7c7d7b), color-stop(1, #555753) );*/
@@ -595,7 +595,7 @@ h3#search:before {
 }
 
 #sidebar-group-list {
-	margin-left: 30px;
+	margin-left: 0px;
 	margin-right: 30px;
 }
 
@@ -1098,7 +1098,7 @@ profile-jot-banner-wrapper {
 	color: #898989;
 }
 
-.wall-item-location .smalltext { margin-left: 25px;  font-size: 0.9em; display: block;}
+.wall-item-location .smalltext { margin-left: 2px;  font-size: 0.9em; display: block;}
 .wall-item-location > br { display: none; }
 .wall-item-conv a{
 	font-size: 0.9em;
@@ -1871,7 +1871,7 @@ margin-left: 0px;
 /* = Notifications = */
 /* ================= */
 
-/*#notification-show-hide-wrapper {
+#notification-show-hide-wrapper {
 	width: 160px;
 	-moz-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
@@ -1907,7 +1907,7 @@ margin-left: 0px;
 
 #notification-show-hide-wrapper a {
 	color: #efefef;
-}*/
+}
 
 /* ============ */
 /* = Contacts = */

@@ -3,7 +3,7 @@
 	<input type="hidden" name="auth-params" value="login" />
 
 	<div id="login_standard">
-	<img style="float:left" src="/images/friendica-128.png" title="friendica">
+	<img style="float:left; margin-right:20px" src="/images/friendica-128.png" title="friendica">
 	{{ inc field_input.tpl with $field=$lname }}{{ endinc }}
 	{{ inc field_password.tpl with $field=$lpassword }}{{ endinc }}
 	</div>
