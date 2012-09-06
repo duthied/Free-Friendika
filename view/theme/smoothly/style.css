@@ -919,7 +919,7 @@ profile-jot-banner-wrapper {
 	min-width: 400px;
 	list-style: none;
 	padding: 0px; /*10*/
-	border-bottom: 1px solid #efefef;
+	/*border-bottom: 1px solid #efefef;*/
 	font-size: 0.9em;
 	margin-top: 0px;
 }

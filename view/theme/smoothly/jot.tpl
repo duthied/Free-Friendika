@@ -21,25 +21,25 @@
                 <textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" >{{ if $content }}$content{{ else }}$share{{ endif }}</textarea>
 		</div>
 	<div id="profile-upload-wrapper" class="jot-tool" style="display: none;" >
-		<div id="wall-image-upload-div" ><a onclick="return false;" id="wall-image-upload" class="icon border camera" title="$upload"></a></div>
+		<div id="wall-image-upload-div" ><a href="#"  onclick="return false;" id="wall-image-upload" class="icon border camera" title="$upload"></a></div>
 	</div>
 	<div id="profile-attach-wrapper" class="jot-tool" style="display: none;" >
 		<div id="wall-file-upload-div" ><a href="#" onclick="return false;" id="wall-file-upload" class="icon border attach" title="$attach"></a></div>
 	</div>  
 	<div id="profile-link-wrapper" class="jot-tool" style="display: none;" ondragenter="linkdropper(event);" ondragover="linkdropper(event);" ondrop="linkdrop(event);" >
-		<a id="profile-link" class="icon border  link" title="$weblink" ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink(); return false;"></a>
+		<a href="#" id="profile-link" class="icon border  link" title="$weblink" ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink(); return false;"></a>
 	</div> 
 	<div id="profile-video-wrapper" class="jot-tool" style="display: none;" >
-		<a id="profile-video" class="icon border  video" title="$video" onclick="jotVideoURL(); return false;"></a>
+		<a href="#" id="profile-video" class="icon border  video" title="$video" onclick="jotVideoURL(); return false;"></a>
 	</div> 
 	<div id="profile-audio-wrapper" class="jot-tool" style="display: none;" >
-		<a id="profile-audio" class="icon border  audio" title="$audio" onclick="jotAudioURL(); return false;"></a>
+		<a href="#" id="profile-audio" class="icon border  audio" title="$audio" onclick="jotAudioURL(); return false;"></a>
 	</div> 
 	<div id="profile-location-wrapper" class="jot-tool" style="display: none;" >
-		<a id="profile-location" class="icon border  globe" title="$setloc" onclick="jotGetLocation(); return false;"></a>
+		<a href="#" id="profile-location" class="icon border  globe" title="$setloc" onclick="jotGetLocation(); return false;"></a>
 	</div> 
 	<div id="profile-nolocation-wrapper" class="jot-tool" style="display: none;" >
-		<a id="profile-nolocation" class="icon border  noglobe" title="$noloc" onclick="jotClearLocation(); return false;"></a>
+		<a href="#" id="profile-nolocation" class="icon border  noglobe" title="$noloc" onclick="jotClearLocation(); return false;"></a>
 	</div> 
 
 	<span onclick="preview_post();" id="jot-preview-link" class="fakelink" style="display: none;" >$preview</span>
