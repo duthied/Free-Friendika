@@ -291,7 +291,6 @@ nav {
 }
 nav a { text-decoration: none;	color: #eeeeec; border:0px;}
 nav a:hover { text-decoration: none;	color: #eeeeec; border:0px;}
-
 nav #banner {
 	display: block;
 	position: absolute;
@@ -305,7 +304,6 @@ nav #banner #logo-text a {
 	font-weight: bold;
 	margin-left: 3px;
 }
-
 nav #user-menu {
 	display: block;
 	width: 190px; /*240*/
@@ -327,19 +325,16 @@ nav #user-menu {
 	text-decoration:none;
 	text-align: center;   
 }
-
 nav #user-menu-label::after {
 	content: url("menu-user-pin.png") no-repeat;
 	padding-left: 15px;
 }
-
 nav #user-menu-label {
 	vertical-align: middle;
    	font-size: 12px;
 	padding: 5px;
 	text-align: center;
 }
-
 ul#user-menu-popup {
 	display: none;
 	position: absolute;
@@ -363,7 +358,6 @@ ul#user-menu-popup {
 	box-shadow: 5px 5px 10px #242424;    
 	z-index: 10000;
 }
-
 ul#user-menu-popup li { display: block; }
 ul#user-menu-popup li a { display: block; padding: 5px; }
 ul#user-menu-popup li a:hover {
@@ -373,7 +367,6 @@ ul#user-menu-popup li a:hover {
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#6da6c4', endColorstr='#1873a2');
 	background-color:#6da6c4;
 }
-
 ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:inset; }
 
 /* ============= */
@@ -389,13 +382,12 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 	width: 44px;
 	height: 32px;
 	background: transparent url('notifications.png') 0px 0px no-repeat; 
-	color: #333333; /*efefef*/
+	color: #333333;
 	font-weight: bold;
 	font-size: 0.8em;
 	padding-top: 0.5em;
 	float: left;
 	padding-left: 11px;
-	/*display: none;*/
 }
 #notify-update { background-position: 0px -168px; }
 #net-update { background-position: 0px -126px }
@@ -410,7 +402,6 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 	position: fixed;
 	z-index: 10;
 }
-
 #language-selector {
 	position:fixed;
 	bottom:2px;
@@ -443,7 +434,6 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 	color: #efefef;
 	font-style: bold;
 }
-
 #sysmsg_info br,
 #sysmsg br {
 	display:block;
@@ -1061,7 +1051,7 @@ profile-jot-banner-wrapper {
 .wall-item-author {
 	/*clear: left;*/
 	font-size: 0.9em;
-	margin: 0px 0px 0px 100px; /*140*/
+	margin: 0px 0px 10px 450px; /*140*/
 	padding-left: 0px; /*10*/
 /*	font-variant:small-caps; */
 }
