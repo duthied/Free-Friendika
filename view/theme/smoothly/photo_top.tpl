@@ -1,4 +1,3 @@
-
 <div class="photo-top-image-wrapper lframe" id="photo-top-image-wrapper-$id">
 	<div id="photo-album-wrapper-inner">
 	<a href="$photo.link" class="photo-top-photo-link" id="photo-top-photo-link-$id" title="$photo.title"><img src="$photo.src" alt="$phoyo.alt" title="$photo.title" class="photo-top-photo" id="photo-top-photo-$id" /></a>

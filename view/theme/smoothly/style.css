@@ -491,7 +491,7 @@ aside a{
 	font-size: 1.4em;
 	font-weight: bold;
 	border-bottom: none;
-	padding-top: 0px; /*10*/
+	padding-top: 15px;
 }
 
 .vcard #profile-photo-wrapper {
@@ -615,8 +615,7 @@ h3#search:before {
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
 	border-radius:5px;
-	border:1px solid #eee;
-	color:#e6e6e6;
+	color:#7c7d7b;
 	/*text-shadow:-1px 0px 0px #bdbdbd;*/
 	border: 1px solid #cdcdcd;
 }
@@ -1364,9 +1363,11 @@ div[id$="wrapper"] br { clear: left; }
 }
 
 .profile-edit-side-div {
-	margin-top: 20px; /*5*/
-	margin-right: 0px; /*30*/
-	float: right;
+	margin-top: 10px;
+	margin-right: 0px;
+	margin-left: 180px;
+	float: left;
+	position: absolute;
 }
 
 #cropimage-wrapper { float:left; }

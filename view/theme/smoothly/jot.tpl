@@ -1,4 +1,3 @@
-
 <div id="profile-jot-wrapper" > 
 	<div id="profile-jot-banner-wrapper">
 		<div id="profile-jot-desc" >&nbsp;</div>

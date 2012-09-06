@@ -1,4 +1,3 @@
-
 <div class="contact-entry-wrapper" id="contact-entry-wrapper-$contact.id" >
 	<div class="contact-entry-photo-wrapper" >
 		<div class="contact-entry-photo mframe" id="contact-entry-photo-$contact.id"

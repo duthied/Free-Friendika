@@ -41,5 +41,3 @@
 </div>
 
 $contact_block
-
-

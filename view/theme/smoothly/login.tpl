@@ -1,4 +1,3 @@
-
 <div class="login-form">
 <form action="$dest_url" method="post" >
 	<input type="hidden" name="auth-params" value="login" />
