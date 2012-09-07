@@ -756,8 +756,10 @@ function dfrn_request_content(&$a) {
 		 */
  
 		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
-			notice( t('Public access denied.') . EOL);
-			return;
+			if(! get_config('system','local_block')) {
+				notice( t('Public access denied.') . EOL);
+				return;
+			}
 		}
 
 

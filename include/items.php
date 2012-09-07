@@ -2122,8 +2122,11 @@ function local_delivery($importer,$data) {
 
 
 	$rawtags = $feed->get_feed_tags( NAMESPACE_DFRN, 'owner');
-	if(! $rawtags)
-		$rawtags = $feed->get_feed_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
+
+// Fallback should not be needed here. If it isn't DFRN it won't have DFRN updated tags
+//	if(! $rawtags)
+//		$rawtags = $feed->get_feed_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
+
 	if($rawtags) {
 		$elems = $rawtags[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10];
 		if($elems['name'][0]['attribs'][NAMESPACE_DFRN]['updated']) {
