@@ -81,8 +81,8 @@ li {
 input[type=text] {
 	border: 1px solid #b0b0b0;
 	padding: 2px;
-	/*width: 300px;*/
-	margin-left: 3px;
+	width: 466px;
+	margin-left: 0px;
 	-webkit-border-radius: 3px 3px 3px 3px;
 	-moz-border-radius: 3px 3px 3px 3px;
 	border-radius: 3px 3px 3px 3px;	
