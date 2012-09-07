@@ -1047,13 +1047,17 @@ profile-jot-banner-wrapper {
 }
 .wall-item-lock-wrapper { float: right; }
 .wall-item-dislike,
-.wall-item-like,
-.wall-item-author {
-	/*clear: left;*/
+.wall-item-like {
+	clear: left;
 	font-size: 0.9em;
-	margin: 0px 0px 10px 450px; /*140*/
-	padding-left: 0px; /*10*/
-/*	font-variant:small-caps; */
+	margin: 0px 0px 10px 450px;
+	padding-left: 0px;
+
+}
+.wall-item-author {
+	font-size: 0.9em;
+	margin: 0px 0px 0px 100px;
+	padding-left: 0px;
 }
 
 .wall-item-author a {
