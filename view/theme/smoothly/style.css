@@ -3314,7 +3314,7 @@ ul.menu-popup {
 }
 
 hr.line-dots {
-    background: url("icons/dot.png") repeat-x scroll left center transparent;
+    background: url("dot.png") repeat-x scroll left center transparent;
     border: medium none;
     /*padding: 0.5em 0;*/
 }

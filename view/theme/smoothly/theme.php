@@ -6,16 +6,14 @@
  * Version: 0.4
  * Author: Alex <https://friendica.pixelbits.de/profile/alex>
  * Maintainer: Alex <https://friendica.pixelbits.de/profile/alex>
- * Screenshot: <a href="screenshot.jpg">Screenshot</a>
+ * Screenshot: <a href="screenshot.png">Screenshot</a>
  */
 
-$a->theme_info = array(
-  'extends' => 'smoothly',
-);
+$a->theme_info = array();
+
 function smoothly_init(&$a) {
 $a->page['htmlhead'] .= <<< EOT
 <script>
-
 function insertFormatting(comment,BBcode,id) {
 	
 		var tmpStr = $("#comment-edit-text-" + id).val();
@@ -52,8 +50,9 @@ function cmtBbOpen(id) {
 function cmtBbClose(comment, id) {
 	$(".comment-edit-bb-" + id).hide();
 }
-
 $(document).ready(function() {
+
+$('html').click(function() { $("#nav-notifications-menu" ).hide(); });
 
 $('.group-edit-icon').hover(
 	function() {
@@ -95,25 +94,4 @@ $('.savedsearchterm').hover(
 
 </script>
 EOT;
-// get resize configuration
-
-$resize=false;
-$site_resize = get_config('smoothly', 'resize' );
-if(local_user()) $resize = get_pconfig(local_user(), 'smoothly', 'resize' );
-
-if ($resize===false) $resize=$site_resize;
-if ($resize===false) $resize=0;
-
-if (intval($resize) > 0) {
-//load jquery.ae.image.resize.js
-$imageresizeJS = $a->get_baseurl($ssl_state)."/view/theme/smoothly/js/jquery.ae.image.resize.js";
-$a->page['htmlhead'] .= sprintf('<script language="JavaScript" src="%s" ></script>', $imageresizeJS);
-$a->page['htmlhead'] .= '
-<script>
-
- $(function() {
-	$(".wall-item-content  img").aeImageResize({height: '.$resize.', width: '.$resize.'});
-  });
-</script>';}
 }
-
