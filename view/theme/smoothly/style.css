@@ -1172,7 +1172,7 @@ profile-jot-banner-wrapper {
 }
 
 .icon.drop,
-.icon.drophide { float: right;	margin-top: 8px; }
+.icon.drophide { float: right;}
 #item-delete-selected {	overflow: auto;	width: 100%;}
 
 
@@ -1265,7 +1265,6 @@ profile-jot-banner-wrapper {
 #item-delete-selected-desc {
 	color: #898989;
 	float: right;
-	margin-top: 10px; 
 }
 
 .wall-item-body code {
