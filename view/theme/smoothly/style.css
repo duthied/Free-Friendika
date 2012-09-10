@@ -88,8 +88,19 @@ input[type=text] {
 	border-radius: 3px 3px 3px 3px;	
 }
 
+input[type=text-sidebar] {
+	border: 1px solid #b0b0b0;
+	padding: 2px;
+	width: 172px;
+	margin-left: 10px;
+	margin-top: 10px;
+	-webkit-border-radius: 3px 3px 3px 3px;
+	-moz-border-radius: 3px 3px 3px 3px;
+	border-radius: 3px 3px 3px 3px;	
+}
+
 input[type=submit] {
-	margin: 0px 0px 5px 2px;
+	margin: 10px;
 	border: none;
 	font-size: 0.9em;
 	padding: 5px;
@@ -550,11 +561,11 @@ aside h4 { font-size: 1.3em; }
 	padding: 5px 5px 5px 5px;
 }
 #netsearch-box input[type="text"] {
-	width: 175px;
+	width: 97%;
 }
 #netsearch-box input[type="submit"] {
-	width: 48%;
-	margin-top: 5px;
+	width: auto;
+	/*margin-top: 5px;*/
 }
 
 h3#search:before {
@@ -2047,14 +2058,16 @@ margin-left: 0px;
 }
 
 #side-follow-submit {
-	width: 70px;
+	width: 178px;
+	margin: 10px;
+	text-align: center;
 }
 
 #side-match-link {
-	width: 180px;
+	width: 158px;
 	padding: 10px;
-	margin: auto;
-	margin-bottom: 20px;
+	margin: auto 10px 20px;
+	/*margin-bottom: 20px;*/
 	-moz-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
 	box-shadow:inset 0px 1px 0px 0px #cfcfcf;
@@ -2090,7 +2103,7 @@ margin-left: 0px;
 }
 
 #side-invite-link {
-	width: 180px;
+	width: 80%;
 	padding: 10px;
 	margin: auto;
 	margin-bottom: 20px;
@@ -2130,7 +2143,7 @@ margin-left: 0px;
 }
 
 #side-suggest-link {
-	width: 180px;
+	width: 80%;
 	padding: 10px;
 	margin: auto;
 	margin-bottom: 20px;
