@@ -8,7 +8,7 @@
 <!--	<a id="system-menu-link" class="nav-link" href="#system-menu" title="Menu">Menu</a>-->
 	<div class="nav-button-container">
 <!--	<a class="system-menu-link nav-link" href="#system-menu" title="Menu">-->
-	<img rel="#system-menu-list" class="nav-link" src="/view/theme/frost-mobile/images/menu.png">
+	<img rel="#system-menu-list" class="nav-link" src="$baseurl/view/theme/frost-mobile/images/menu.png">
 <!--	</a>-->
 	<ul id="system-menu-list" class="nav-menu-list">
 		{{ if $nav.login }}
@@ -57,7 +57,7 @@
 <!--	<a id="nav-notifications-linkmenu" class="nav-link" href="$nav.notifications.0" rel="#nav-notifications-menu" title="$nav.notifications.1">$nav.notifications.1</a>-->
 	<div class="nav-button-container">
 <!--	<a id="nav-notifications-linkmenu" class="nav-link" href="$nav.notifications.0" rel="#nav-notifications-menu" title="$nav.notifications.1">-->
-	<img rel="#nav-notifications-menu" class="nav-link" src="/view/theme/frost-mobile/images/notifications.png">
+	<img rel="#nav-notifications-menu" class="nav-link" src="$baseurl/view/theme/frost-mobile/images/notifications.png">
 <!--	</a>-->
 	<span id="notify-update" class="nav-ajax-left"></span>
 	<ul id="nav-notifications-menu" class="notifications-menu-popup">
@@ -71,7 +71,7 @@
 <!--	<a id="contacts-menu-link" class="nav-link" href="#contacts-menu" title="Contacts">Contacts</a>-->
 	<div class="nav-button-container">
 <!--	<a class="contacts-menu-link nav-link" href="#contacts-menu" title="Contacts">-->
-	<img rel="#contacts-menu-list"  class="nav-link" src="/view/theme/frost-mobile/images/contacts.png">
+	<img rel="#contacts-menu-list"  class="nav-link" src="$baseurl/view/theme/frost-mobile/images/contacts.png">
 	<!--</a>-->
 	{{ if $nav.introductions }}
 	<span id="intro-update" class="nav-ajax-left"></span>
@@ -95,7 +95,7 @@
 <!--	<a id="nav-messages-link" class="nav-link $nav.messages.2 $sel.messages nav-load-page-link" href="$nav.messages.0" title="$nav.messages.3" >$nav.messages.1</a>-->
 	<div class="nav-button-container">
 	<a id="nav-messages-link" class="$nav.messages.2 $sel.messages nav-load-page-link" href="$nav.messages.0" title="$nav.messages.3" >
-	<img src="/view/theme/frost-mobile/images/message.png" class="nav-link">
+	<img src="$baseurl/view/theme/frost-mobile/images/message.png" class="nav-link">
 	</a>
 	<span id="mail-update" class="nav-ajax-left"></span>
 	</div>
@@ -104,7 +104,7 @@
 <!--	<a id="network-menu-link" class="nav-link" href="#network-menu" title="Network">Network</a>-->
 	<div class="nav-button-container">
 <!--	<a class="network-menu-link nav-link" href="#network-menu" title="Network">-->
-	<img rel="#network-menu-list" class="nav-link" src="/view/theme/frost-mobile/images/network.png">
+	<img rel="#network-menu-list" class="nav-link" src="$baseurl/view/theme/frost-mobile/images/network.png">
 <!--	</a>-->
 	{{ if $nav.network }}
 	<span id="net-update" class="nav-ajax-left"></span>
