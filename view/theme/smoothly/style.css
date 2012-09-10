@@ -288,10 +288,10 @@ nav {
 	padding: 0;
 	width: 960px;
 	z-index: 10000;
-	height: 50px;
+	height: 40px;
 	position: fixed;
 	color: #efefef;
-	background: url("nav-bg.png") no-repeat scroll 0px 7px transparent;
+	background: url("nav-bg.png") no-repeat scroll 0px 0px transparent;
 	/*background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #7c7d7b), color-stop(1, #555753) );*/
 	/*background:-moz-linear-gradient( center top, #7c7d7b 5%, #555753 100% );*/
 	/*filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#7c7d7b', endColorstr='#555753');*/
@@ -306,7 +306,7 @@ nav #banner {
 	display: block;
 	position: absolute;
 	margin-left: 3px; /*10*/
-	margin-top: 10px; /*5*/
+	margin-top: 3px; /*5*/
 	padding-bottom:5px;	
 }
 nav #banner #logo-text a {
@@ -320,7 +320,7 @@ nav #user-menu {
 	width: 190px; /*240*/
 	float: right;
 	margin-right: 5px; /*20%*/
-	margin-top: 11px;
+	margin-top: 3px;
 	padding: 5px;
 	position: relative;
 	vertical-align: middle;
@@ -387,7 +387,7 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 #notifications {
 	height: 32px;
 	position: absolute;
-	top:10px; left: 35%;
+	top:2px; left: 35%;
 }
 .nav-ajax-update {
 	width: 44px;
@@ -401,7 +401,7 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 	padding-left: 11px;
 }
 #notify-update { background-position: 0px -168px; }
-#net-update { background-position: 0px -126px }
+#net-update { background-position: 0px -126px; }
 #mail-update { background-position: 0px -40px; }
 #intro-update { background-position: 0px -84px; }
 #home-update { background-position: 0px 0px; }
@@ -1789,7 +1789,7 @@ margin-left: 0px;
 
 .mail-list-detail {
 	margin-left: 100px;
-	width: 300px;
+	width: 600px;
 	min-height: 70px;
 	padding: 20px;
 	padding-top:10px;
@@ -2080,7 +2080,7 @@ margin-left: 0px;
 	border-radius:5px;
 	padding: 5px 10px 5px 10px;
 	color: #efefef;
-	font-size: 1.2em;
+	font-size: 1.1em;
 	text-align: center;
 }
 
@@ -2119,7 +2119,7 @@ margin-left: 0px;
 	border-radius:5px;
 	padding: 5px 10px 5px 10px;
 	color: #efefef;
-	font-size: 1.2em;
+	font-size: 1.1em;
 	text-align: center;	
 }
 
@@ -2159,7 +2159,7 @@ margin-left: 0px;
 	border-radius:5px;
 	padding: 5px 10px 5px 10px;
 	color: #efefef;
-	font-size: 1.2em;
+	font-size: 1.1em;
 	text-align: center;	
 }
 
