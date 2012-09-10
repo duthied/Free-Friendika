@@ -28,6 +28,7 @@ class Item extends BaseObject {
 	private $owner_name = '';
 	private $wall_to_wall = false;
 	private $threaded = false;
+	private $visiting = false;
 
 	public function __construct($data) {
 		$a = $this->get_app();
@@ -35,6 +36,16 @@ class Item extends BaseObject {
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
+
+		if(is_array($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['cid'] == $this->get_data_value('contact-id')) {
+					$this->visiting = true;
+					break;
+				}
+			}
+		}
+		
 		$this->writable = ($this->get_data_value('writable') || $this->get_data_value('self'));
 
 		$ssl_state = ((local_user()) ? true : false);
@@ -96,16 +107,8 @@ class Item extends BaseObject {
 			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 		else
 			$edpost = false;
-		if($this->get_data_value('uid') == local_user())
+		if(($this->get_data_value('uid') == local_user()) || $this->is_visiting())
 			$dropping = true;
-		elseif(is_array($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $visitor) {
-				if($visitor['cid'] == $this->get_data_value('contact-id')) {
-					$dropping = true;
-					break;
-				}
-			}
-		}
 
 		$drop = array(
 			'dropping' => $dropping,
@@ -451,6 +454,13 @@ class Item extends BaseObject {
 	 * Check if this is writable
 	 */
 	private function is_writable() {
+		$conv = $this->get_conversation();
+
+		if($conv) {
+			// This will allow us to comment on wall-to-wall items owned by our friends
+			// and community forums even if somebody else wrote the post.
+			return ($this->writable || ($this->is_visiting() && $conv->get_mode() == 'profile'));
+		}
 		return $this->writable;
 	}
 
@@ -619,6 +629,10 @@ class Item extends BaseObject {
 
 	private function get_owner_name() {
 		return $this->owner_name;
+	}
+
+	private function is_visiting() {
+		return $this->visiting;
 	}
 }
 ?>
