@@ -96,8 +96,16 @@ class Item extends BaseObject {
 			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 		else
 			$edpost = false;
-		if((intval($item['contact-id']) && $item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
+		if($this->get_data_value('uid') == local_user())
 			$dropping = true;
+		elseif(is_array($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['cid'] == $this->get_data_value('contact-id')) {
+					$dropping = true;
+					break;
+				}
+			}
+		}
 
 		$drop = array(
 			'dropping' => $dropping,
