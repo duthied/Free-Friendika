@@ -87,8 +87,8 @@ class Conversation extends BaseObject {
 	 * Add a thread to the conversation
 	 *
 	 * Returns:
-	 * 		_ The inserted item on success
-	 * 		_ false on failure
+	 *      _ The inserted item on success
+	 *      _ false on failure
 	 */
 	public function add_thread($item) {
 		$item_id = $item->get_id();
@@ -123,8 +123,8 @@ class Conversation extends BaseObject {
 	 * We should find a way to avoid using those arguments (at least most of them)
 	 *
 	 * Returns:
-	 * 		_ The data requested on success
-	 * 		_ false on failure
+	 *      _ The data requested on success
+	 *      _ false on failure
 	 */
 	public function get_template_data($alike, $dlike) {
 		$result = array();
@@ -147,8 +147,8 @@ class Conversation extends BaseObject {
 	 * Get a thread based on its item id
 	 *
 	 * Returns:
-	 * 		_ The found item on success
-	 * 		_ false on failure
+	 *      _ The found item on success
+	 *      _ false on failure
 	 */
 	private function get_thread($id) {
 		foreach($this->threads as $item) {

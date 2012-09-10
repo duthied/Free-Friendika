@@ -76,8 +76,8 @@ class Item extends BaseObject {
 	 * Get data in a form usable by a conversation template
 	 *
 	 * Returns:
-	 * 		_ The data requested on success
-	 * 		_ false on failure
+	 *      _ The data requested on success
+	 *      _ false on failure
 	 */
 	public function get_template_data($alike, $dlike, $thread_level=1) {
 		$result = array();
@@ -130,7 +130,7 @@ class Item extends BaseObject {
 		if($sp)
 			$sparkle = ' sparkle';
 		else
-			$profile_link = zrl($profile_link);					
+			$profile_link = zrl($profile_link);                 
 
 		$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
 		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
@@ -413,8 +413,8 @@ class Item extends BaseObject {
 	 * Get a data value
 	 *
 	 * Returns:
-	 * 		_ value on success
-	 * 		_ false on failure
+	 *      _ value on success
+	 *      _ false on failure
 	 */
 	public function get_data_value($name) {
 		if(!isset($this->data[$name])) {
@@ -489,8 +489,8 @@ class Item extends BaseObject {
 	 * Get the comment box
 	 *
 	 * Returns:
-	 * 		_ The comment box string (empty if no comment box)
-	 * 		_ false on failure
+	 *      _ The comment box string (empty if no comment box)
+	 *      _ false on failure
 	 */
 	private function get_comment_box($indent) {
 		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
