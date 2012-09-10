@@ -909,7 +909,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
             require_once('object/Conversation.php');
             require_once('object/Item.php');
 
-            $conv = new Conversation($mode);
+            $conv = new Conversation($mode, $preview);
 
             // get all the topmost parents
             // this shouldn't be needed, as we should have only them in our array

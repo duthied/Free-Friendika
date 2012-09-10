@@ -222,7 +222,7 @@ class Item extends BaseObject {
 			'like' => $like,
 			'dislike' => $dislike,
 			'comment' => $this->get_comment_box($indent),
-			'previewing' => $previewing,
+			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level
 		);

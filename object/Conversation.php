@@ -17,9 +17,11 @@ class Conversation extends BaseObject {
 	private $mode = null;
 	private $writable = false;
 	private $profile_owner = 0;
+	private $preview = false;
 
-	public function __construct($mode) {
+	public function __construct($mode, $preview) {
 		$this->set_mode($mode);
+		$this->preview = $preview;
 	}
 
 	/**
@@ -65,6 +67,13 @@ class Conversation extends BaseObject {
 	 */
 	public function is_writable() {
 		return $this->writable;
+	}
+
+	/**
+	 * Check if page is a preview
+	 */
+	public function is_preview() {
+		return $this->preview;
 	}
 
 	/**
