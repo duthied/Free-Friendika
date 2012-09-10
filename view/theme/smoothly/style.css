@@ -127,7 +127,7 @@ input[type=submit]:active {
 
 section {
 	float: left;
-	padding-top: 60px;
+	padding-top: 40px; /*60*/
 	width: 730px;
 	font-size: 0.9em;
 	line-height: 1.2em;
@@ -909,10 +909,9 @@ profile-jot-banner-wrapper {
 .tabs {
 	min-width: 400px;
 	list-style: none;
-	padding: 0px; /*10*/
+	padding: 10px 0px;
 	/*border-bottom: 1px solid #efefef;*/
 	font-size: 0.9em;
-	margin-top: 0px;
 }
 .tabs li { display: inline;}
 
