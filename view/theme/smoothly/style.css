@@ -3,7 +3,7 @@
   	Smoothly
    
   	Created by Anne Walk and Devlon Duthie on 2011-09-24
-	Modified by alex@friendica.pixelbits.de on 2012-09-10
+	Modified by alex@friendica.pixelbits.de on 2012-09-06
 
 */
 /* ========== */
@@ -138,7 +138,7 @@ input[type=submit]:active {
 
 section {
 	float: left;
-	padding-top: 20px; /*60*/
+	padding-top: 30px; /*60*/
 	width: 730px;
 	font-size: 0.9em;
 	line-height: 1.2em;
