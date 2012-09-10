@@ -346,7 +346,7 @@ function count_descendants($item) {
  * Recursively prepare a thread for HTML
  */
 
-function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $alike, $dlike, $thread_level=1) {
+function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $profile_owner, $alike, $dlike, $previewing, $thread_level=1) {
 	$result = array();
 
 	$wall_template = 'wall_thread.tpl';
@@ -394,12 +394,34 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		$thumb = $item['thumb'];
 		$indent = '';
 		$osparkle = '';
+		$visiting = false;
 		$lastcollapsed = false;
 		$firstcollapsed = false;
 		$total_children += count_descendants($item);
 
 		$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
+
+
+		if($item['uid'] == local_user())
+			$dropping = true;
+		elseif(is_array($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['cid'] == $item['contact-id']) {
+					$dropping = true;
+					$visiting = true;
+					break;
+				}
+			}
+		}
+
 		$item_writeable = (($item['writable'] || $item['self']) ? true : false);
+
+		// This will allow us to comment on wall-to-wall items owned by our friends
+		// and community forums even if somebody else wrote the post. 
+
+		if($visiting && $mode == 'profile')
+			$item_writeable = true;
+
 		$show_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
@@ -411,8 +433,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 		else
 			$edpost = false;
-		if((intval($item['contact-id']) && $item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
-			$dropping = true;
 
 		$drop = array(
 			'dropping' => $dropping,
@@ -651,7 +671,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 
 		$item_result['children'] = array();
 		if(count($item['children'])) {
-			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $alike, $dlike, ($thread_level + 1));
+			$item_result['children'] = prepare_threads_body($a, $item['children'], $cmnt_tpl, $page_writeable, $mode, $profile_owner, $alike, $dlike, $previewing, ($thread_level + 1));
 		}
 		$item_result['private'] = $item['private'];
 		$item_result['toplevel'] = ($toplevelpost ? 'toplevel_item' : '');
@@ -901,7 +921,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				}
 			}
 
-			$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode,  $profile_owner, $alike, $dlike);
+			$threads = prepare_threads_body($a, $threads, $cmnt_tpl, $page_writeable, $mode,  $profile_owner, $alike, $dlike, $previewing);
 		}
 	}
 		

@@ -295,7 +295,11 @@ class Photo {
         if( (! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg') )
             return;
 
-        $exif = exif_read_data($filename);
+        $exif = @exif_read_data($filename);
+
+		if(! $exif)
+			return;
+
         $ort = $exif['Orientation'];
 
         switch($ort)
