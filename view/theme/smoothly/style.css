@@ -387,7 +387,7 @@ ul#user-menu-popup li a.nav-sep { border-top: 1px solid #989898; border-style:in
 #notifications {
 	height: 32px;
 	position: absolute;
-	top:2px; left: 35%;
+	top:3px; left: 35%;
 }
 .nav-ajax-update {
 	width: 44px;
