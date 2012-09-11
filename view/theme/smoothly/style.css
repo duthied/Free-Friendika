@@ -67,7 +67,14 @@ label {
 }
 
 li {
-	list-style: none;
+	list-style: none outside none;
+}
+li.widget-list {
+	list-style: none outside none;
+	background: url("arrow.png") no-repeat scroll left center transparent;
+	/*border-bottom: 1px dotted #D3D3D3;*/
+	display: block;
+    	padding: 3px 24px;
 }
 
 .required { display: inline; color: #1873a2; }
@@ -153,11 +160,15 @@ section {
 
 .mframe {
 	padding: 2px;
-	background-color: #efefef;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #C5C5C5;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 0 8px #BDBDBD;
+	/*background-color: #efefef;
 	border: 1px solid #dddddd;
 	-moz-box-shadow: 3px 3px 4px #959494;
 	-webkit-box-shadow: 3px 3px 4px #959494;
-	box-shadow: 3px 3px 4px #959494;
+	box-shadow: 3px 3px 4px #959494;*/
 }
 
 #wall-item-lock {
@@ -490,12 +501,13 @@ aside a{
 	margin: 10px 0px;
 	padding: 12px;
 	width: 175px;
-	background-color: #f3f3f3;
-	border: 1px solid #dddddd;
+	background: none repeat scroll 0 0 #FFFFFF;
+	/*background-color: #f3f3f3;*/
+	border: 1px solid #C5C5C5; /*1px solid #dddddd;*/
 	-moz-box-shadow: 3px 3px 4px #959494;
 	-webkit-box-shadow: 3px 3px 4px #959494;
-	box-shadow: 3px 3px 4px #959494;	
-border-radius: 5px 5px 5px 5px;
+	box-shadow: 0 0 8px #BDBDBD; /*3px 3px 4px #959494;*/	
+	border-radius: 6px 6px 6px 6px;
 }
 
 aside h4 { font-size: 1.3em; }
@@ -944,10 +956,11 @@ profile-jot-banner-wrapper {
 	margin-bottom: 20px;
 	padding-right: 10px;
 	padding-left: 12px;
-	background: -moz-linear-gradient(center top , #F8F8F8 5%, #F6F6F6 100%) repeat scroll 0 0 #F8F8F8;
+	background: none repeat scroll 0 0 #FFFFFF;
+	/*background: -moz-linear-gradient(center top , #F8F8F8 5%, #F6F6F6 100%) repeat scroll 0 0 #F8F8F8;*/
 	border: 1px solid #CDCDCD;
-	border-radius: 5px 5px 5px 5px;
-	box-shadow: 3px 3px 4px 0 #959494;
+	border-radius: 6px 6px 6px 6px;
+	box-shadow: 0 0 8px #BDBDBD; /*3px 3px 4px 0 #959494;*/
 	margin-top: 20px;
 }
 
@@ -1253,7 +1266,7 @@ profile-jot-banner-wrapper {
 
 #item-delete-selected-desc {
 	color: #898989;
-	float: right;
+	float: left;
 }
 
 .wall-item-body code {
@@ -3302,7 +3315,7 @@ ul.menu-popup {
 }
 
 hr.line-dots {
-    background: url("view/theme/smoothly/dot.png") repeat-x scroll left center transparent;
+    background: url("dot.png") repeat-x scroll left center transparent;
     border: medium none;
     /*padding: 0.5em 0;*/
 }
