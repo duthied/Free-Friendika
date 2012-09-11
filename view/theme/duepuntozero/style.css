@@ -1765,7 +1765,7 @@ input#dfrn-url {
 
 .comment-edit-text-empty {
 	color: gray;
-	height: 5em;
+	height: 2em;
 	width: 175px;
 	overflow: auto;
 	margin-bottom: 10px;
