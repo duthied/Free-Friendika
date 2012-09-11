@@ -507,7 +507,7 @@ aside a{
 	-moz-box-shadow: 3px 3px 4px #959494;
 	-webkit-box-shadow: 3px 3px 4px #959494;
 	box-shadow: 0 0 8px #BDBDBD; /*3px 3px 4px #959494;*/	
-	border-radius: 6px 6px 6px 6px;
+	border-radius: 5px 5px 5px 5px;
 }
 
 aside h4 { font-size: 1.3em; }
@@ -959,7 +959,7 @@ profile-jot-banner-wrapper {
 	background: none repeat scroll 0 0 #FFFFFF;
 	/*background: -moz-linear-gradient(center top , #F8F8F8 5%, #F6F6F6 100%) repeat scroll 0 0 #F8F8F8;*/
 	border: 1px solid #CDCDCD;
-	border-radius: 6px 6px 6px 6px;
+	border-radius: 5px 5px 5px 5px;
 	box-shadow: 0 0 8px #BDBDBD; /*3px 3px 4px 0 #959494;*/
 	margin-top: 20px;
 }
@@ -2842,7 +2842,7 @@ tr {
 
 .field label {
 	float: left;
-	width: 400px; /*550*/
+	width: 480px; /*550*/
 }
 
 .field input,
