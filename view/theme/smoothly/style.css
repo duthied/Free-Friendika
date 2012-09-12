@@ -176,34 +176,39 @@ section {
 }
 
 .button {
-	border: none;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-radius: 5px 5px 5px 5px;
 	font-size: 1em;
-	-moz-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #cfcfcf;
-	box-shadow:inset 0px 1px 0px 0px #cfcfcf;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
-	background:-moz-linear-gradient( center top, #bdbdbd 5%, #a2a2a2 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bdbdbd', endColorstr='#a2a2a2');
-	background-color:#bdbdbd;
-	-moz-border-radius:5px;
-	-webkit-border-radius:5px;
-	border-radius:5px;
-	color:#efefef;
-	text-align: center;	
+	box-shadow: inset 0px 0px 0px 0px #cfcfcf;
+		-moz-box-shadow:inset 0px 0px 0px 0px #cfcfcf;
+		-webkit-box-shadow:inset 0px 0px 0px 0px #cfcfcf;
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
+	background: -moz-linear-gradient( center top, #bdbdbd 5%, #a2a2a2 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bdbdbd', endColorstr='#a2a2a2');
+	background-color: #bdbdbd;
+	color: #efefef;
+	text-align: center;
 }
 
 .button:hover {
-	border: none;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
-	background:-moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
-	background-color:#1873a2;
-	color: #efefef;	
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-radius: 5px 5px 5px 5px;
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
+	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
+	background-color: #1873a2;
+	color: #efefef;
 }
 
 .button:active {
-	position:relative;
-	top:1px;
+	position: relative;
+	top: 1px;
 }
 
 .button a {
@@ -300,21 +305,13 @@ nav {
 	height: 40px;
 	position: fixed;
 	color: #efefef;
-	/*background: url("nav-bg.png") no-repeat scroll 0px 0px transparent;*/
-	/*background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #7c7d7b), color-stop(1, #555753) );*/
-	/*background:-moz-linear-gradient( center top, #7c7d7b 5%, #555753 100% );*/
-	/*filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#7c7d7b', endColorstr='#555753');*/
-	/*background-color:#7c7d7b;*/
 	margin-bottom: 16px;
 	font-size: 15px;
-	/*border-bottom: 1px solid #494948;*/
-	
 	background: -moz-linear-gradient(center top , #BDBDBD 5%, #A2A2A2 100%) repeat scroll 0 0 #BDBDBD;
-	/*background-color: #f3f3f3;*/
-	border: 1px solid #C5C5C5; /*1px solid #dddddd;*/
-	-moz-box-shadow: 3px 3px 4px #959494;
-	-webkit-box-shadow: 3px 3px 4px #959494;
-	box-shadow: 0 0 8px #BDBDBD; /*3px 3px 4px #959494;*/	
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
 	border-radius: 5px 5px 5px 5px;
 }
 nav a { text-decoration: none;	color: #eeeeec; border:0px;}
@@ -334,9 +331,9 @@ nav #banner #logo-text a {
 }
 nav #user-menu {
 	display: block;
-	width: 190px; /*240*/
+	width: 190px;
 	float: right;
-	margin-right: 5px; /*20%*/
+	margin-right: 5px;
 	margin-top: 3px;
 	padding: 5px;
 	position: relative;
@@ -348,7 +345,7 @@ nav #user-menu {
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
 	border-radius:5px;
-	border: 1px solid #9A9A9A;
+	border: 1px solid #7C7D8B;
 	color:#efefef;
 	text-decoration:none;
 	text-align: center;   
@@ -1788,12 +1785,13 @@ margin-left: 0px;
 
 .mail-list-sender {
 	float: left;
-	padding: 5px;
+	padding: 2px;
 	background-color: #efefef;
-	border: 1px dotted #eeeeee;
-	-moz-box-shadow: 3px 3px 4px #959494;
-	-webkit-box-shadow: 3px 3px 4px #959494;
-	box-shadow: 3px 3px 4px #959494;
+	border: 1px solid #C5C5C5;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
 }
 
 .mail-list-detail {
