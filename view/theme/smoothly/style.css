@@ -263,13 +263,13 @@ section {
 	border-radius: 5px;
 	border: 1px solid #494948;
 	background-color: #2e3436;
-	opacity:50%;
+	opacity: 50%;
 	color: #eeeeec;
 	padding:1em;
 	z-index: 200;
-	-moz-box-shadow: 7px 7px 12px #434343;
-	-webkit-box-shadow: 7px75px 12px #434343;
 	box-shadow: 7px 7px 10px #434343;
+		-moz-box-shadow: 7px 7px 12px #434343;
+		-webkit-box-shadow: 7px75px 12px #434343;
 }
 
 /* ========= */
@@ -307,7 +307,9 @@ nav {
 	color: #efefef;
 	margin-bottom: 16px;
 	font-size: 15px;
+	background-color: #BDBDBD;
 	background: -moz-linear-gradient(center top , #BDBDBD 5%, #A2A2A2 100%) repeat scroll 0 0 #BDBDBD;
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 3px 3px 4px #959494;
@@ -335,7 +337,7 @@ nav #user-menu {
 	width: 190px;
 	float: right;
 	margin-right: 5px;
-	margin-top: 3px;
+	margin-top: 4px;
 	padding: 5px;
 	position: relative;
 	vertical-align: middle;
