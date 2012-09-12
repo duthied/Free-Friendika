@@ -328,6 +328,7 @@ nav #banner #logo-text a {
 	font-size: 40px;
 	font-weight: bold;
 	margin-left: 3px;
+	text-shadow: #7C7D7B 3px 3px 5px;
 }
 nav #user-menu {
 	display: block;
