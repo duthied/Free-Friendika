@@ -3755,10 +3755,10 @@ hr.line-dots {
 /* SCROLL TO TOP
 ----------------------------------------------------------- */
 #scrollup {
-	position:fixed;
-	right:5px;
-	bottom:5px;
-	z-index:100;
+	position: fixed;
+	right: 5px;
+	bottom: 5px;
+	z-index: 100;
 }
 
 #scrollup a:hover{
@@ -3772,3 +3772,8 @@ hr.line-dots {
 	background: #fbfde9;
 	border-radius: 5px;
 }
+
+/*div.wall-item-content-wrapper.shiny {
+	background-image: url("star.png");
+	background-repeat: no-repeat;
+}*/
