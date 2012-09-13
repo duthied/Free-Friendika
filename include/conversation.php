@@ -467,9 +467,19 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
 
 		$tags=array();
+		$hashtags = array();
+		$mentions = array();
 		foreach(explode(',',$item['tag']) as $tag){
 			$tag = trim($tag);
-			if ($tag!="") $tags[] = bbcode($tag);
+			if ($tag!="") {
+				$t = bbcode($tag);
+				$tags[] = $t;
+				if($t[0] == '#')
+					$hashtags[] = $t;
+				elseif($t[0] == '@')
+					$mentions[] = $t;
+			}
+
 		}
 
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
@@ -620,7 +630,9 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			'template' => $template,
 
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
-			'tags' => $tags,
+			'tags' => template_escape($tags),
+			'hashtags' => template_escape($hashtags),
+			'mentions' => template_escape($mentions),
 			'body' => template_escape($body),
 			'text' => strip_tags(template_escape($body)),
 			'id' => $item['item_id'],
@@ -814,6 +826,21 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 
 
+				$tags=array();
+				$hashtags = array();
+				$mentions = array();
+				foreach(explode(',',$item['tag']) as $tag){
+					$tag = trim($tag);
+					if ($tag!="") {
+						$t = bbcode($tag);
+						$tags[] = $t;
+						if($t[0] == '#')
+							$hashtags[] = $t;
+						elseif($t[0] == '@')
+							$mentions[] = $t;
+					}
+				}
+
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
 				if($profile_link === 'mailbox')
@@ -869,6 +896,9 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'thumb' => $profile_avatar,
 					'title' => template_escape($item['title']),
 					'body' => template_escape($body),
+					'tags' => template_escape($tags),
+					'hashtags' => template_escape($hashtags),
+					'mentions' => template_escape($mentions),
 					'text' => strip_tags(template_escape($body)),
 					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 					'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
