@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1464\n"
+"Project-Id-Version: 3.0.1465\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-12 10:00-0700\n"
+"POT-Creation-Date: 2012-09-13 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,8 +56,9 @@ msgstr ""
 #: ../../mod/profiles.php:413 ../../mod/delegate.php:6
 #: ../../mod/suggest.php:28 ../../mod/invite.php:13 ../../mod/invite.php:81
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
-#: ../../addon/facebook/facebook.php:516
-#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3844
+#: ../../addon/facebook/facebook.php:516 ../../addon/fbpost/fbpost.php:159
+#: ../../addon/fbpost/fbpost.php:165
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3908
 #: ../../index.php:317
 msgid "Permission denied."
 msgstr ""
@@ -140,15 +141,15 @@ msgstr ""
 #: ../../addon/fromgplus/fromgplus.php:40
 #: ../../addon/facebook/facebook.php:619
 #: ../../addon/snautofollow/snautofollow.php:64 ../../addon/bg/bg.php:90
-#: ../../addon/yourls/yourls.php:76 ../../addon/ljpost/ljpost.php:93
-#: ../../addon/nsfw/nsfw.php:57 ../../addon/page/page.php:210
-#: ../../addon/planets/planets.php:158
+#: ../../addon/fbpost/fbpost.php:226 ../../addon/yourls/yourls.php:76
+#: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:57
+#: ../../addon/page/page.php:210 ../../addon/planets/planets.php:158
 #: ../../addon/uhremotestorage/uhremotestorage.php:89
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
 #: ../../addon/forumlist/forumlist.php:169
-#: ../../addon/impressum/impressum.php:82
+#: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
 #: ../../addon/openstreetmap/openstreetmap.php:70
@@ -158,7 +159,7 @@ msgstr ""
 #: ../../addon/mathjax/mathjax.php:42 ../../addon/editplain/editplain.php:84
 #: ../../addon/blackout/blackout.php:98 ../../addon/gravatar/gravatar.php:95
 #: ../../addon/pageheader/pageheader.php:55 ../../addon/ijpost/ijpost.php:93
-#: ../../addon/jappixmini/jappixmini.php:302
+#: ../../addon/jappixmini/jappixmini.php:307
 #: ../../addon/statusnet/statusnet.php:278
 #: ../../addon/statusnet/statusnet.php:292
 #: ../../addon/statusnet/statusnet.php:318
@@ -874,7 +875,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3223
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3287
 msgid "[Name Withheld]"
 msgstr ""
 
@@ -1951,9 +1952,9 @@ msgstr ""
 #: ../../mod/register.php:90 ../../mod/register.php:144
 #: ../../mod/regmod.php:54 ../../mod/dfrn_confirm.php:752
 #: ../../addon/facebook/facebook.php:702
-#: ../../addon/facebook/facebook.php:1200
+#: ../../addon/facebook/facebook.php:1200 ../../addon/fbpost/fbpost.php:661
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3232
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3296
 #: ../../boot.php:788
 msgid "Administrator"
 msgstr ""
@@ -2101,7 +2102,7 @@ msgid "Private forum has no privacy permissions and no default privacy group."
 msgstr ""
 
 #: ../../mod/settings.php:471 ../../addon/facebook/facebook.php:495
-#: ../../addon/impressum/impressum.php:77
+#: ../../addon/fbpost/fbpost.php:144 ../../addon/impressum/impressum.php:78
 #: ../../addon/openstreetmap/openstreetmap.php:80
 #: ../../addon/mathjax/mathjax.php:66 ../../addon/piwik/piwik.php:105
 #: ../../addon/twitter/twitter.php:389
@@ -2648,6 +2649,7 @@ msgstr ""
 #: ../../mod/notes.php:63 ../../mod/filer.php:30
 #: ../../addon/facebook/facebook.php:770
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:263
+#: ../../addon/fbpost/fbpost.php:267
 #: ../../addon/dav/friendica/layout.fnk.php:441
 #: ../../addon/dav/friendica/layout.fnk.php:488 ../../include/text.php:681
 msgid "Save"
@@ -2809,7 +2811,7 @@ msgid "Connecting"
 msgstr ""
 
 #: ../../mod/newmember.php:49 ../../mod/newmember.php:51
-#: ../../addon/facebook/facebook.php:728
+#: ../../addon/facebook/facebook.php:728 ../../addon/fbpost/fbpost.php:239
 #: ../../include/contact_selectors.php:81
 msgid "Facebook"
 msgstr ""
@@ -3110,7 +3112,7 @@ msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:731 ../../mod/admin.php:930 ../../mod/display.php:29
-#: ../../mod/display.php:145 ../../include/items.php:3710
+#: ../../mod/display.php:145 ../../include/items.php:3774
 msgid "Item not found."
 msgstr ""
 
@@ -4747,7 +4749,7 @@ msgstr ""
 msgid "Updating contacts"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:551
+#: ../../addon/facebook/facebook.php:551 ../../addon/fbpost/fbpost.php:192
 msgid "Facebook API key is missing."
 msgstr ""
 
@@ -4763,13 +4765,13 @@ msgstr ""
 msgid "Remove Facebook connector"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:576
+#: ../../addon/facebook/facebook.php:576 ../../addon/fbpost/fbpost.php:217
 msgid ""
 "Re-authenticate [This is necessary whenever your Facebook password is "
 "changed.]"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:583
+#: ../../addon/facebook/facebook.php:583 ../../addon/fbpost/fbpost.php:224
 msgid "Post to Facebook by default"
 msgstr ""
 
@@ -4835,11 +4837,11 @@ msgstr ""
 msgid "Facebook Connector Settings"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:744
+#: ../../addon/facebook/facebook.php:744 ../../addon/fbpost/fbpost.php:255
 msgid "Facebook API Key"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:754
+#: ../../addon/facebook/facebook.php:754 ../../addon/fbpost/fbpost.php:262
 msgid ""
 "Error: it appears that you have specified the App-ID and -Secret in your ."
 "htconfig.php file. As long as they are specified there, they cannot be set "
@@ -4862,11 +4864,11 @@ msgid ""
 "going on."
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:766
+#: ../../addon/facebook/facebook.php:766 ../../addon/fbpost/fbpost.php:264
 msgid "App-ID / API-Key"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:767
+#: ../../addon/facebook/facebook.php:767 ../../addon/fbpost/fbpost.php:265
 msgid "Application secret"
 msgstr ""
 
@@ -4901,38 +4903,38 @@ msgstr ""
 msgid "Activate Real-Time Updates"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:799
+#: ../../addon/facebook/facebook.php:799 ../../addon/fbpost/fbpost.php:282
 #: ../../addon/dav/friendica/layout.fnk.php:361
 msgid "The new values have been saved."
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:823
+#: ../../addon/facebook/facebook.php:823 ../../addon/fbpost/fbpost.php:301
 msgid "Post to Facebook"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:921
+#: ../../addon/facebook/facebook.php:921 ../../addon/fbpost/fbpost.php:399
 msgid ""
 "Post to Facebook cancelled because of multi-network access permission "
 "conflict."
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:1149
+#: ../../addon/facebook/facebook.php:1149 ../../addon/fbpost/fbpost.php:610
 msgid "View on Friendica"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:1182
+#: ../../addon/facebook/facebook.php:1182 ../../addon/fbpost/fbpost.php:643
 msgid "Facebook post failed. Queued for retry."
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:1222
+#: ../../addon/facebook/facebook.php:1222 ../../addon/fbpost/fbpost.php:683
 msgid "Your Facebook connection became invalid. Please Re-authenticate."
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:1223
+#: ../../addon/facebook/facebook.php:1223 ../../addon/fbpost/fbpost.php:684
 msgid "Facebook connection became invalid"
 msgstr ""
 
-#: ../../addon/facebook/facebook.php:1224
+#: ../../addon/facebook/facebook.php:1224 ../../addon/fbpost/fbpost.php:685
 #, php-format
 msgid ""
 "Hi %1$s,\n"
@@ -4984,6 +4986,26 @@ msgstr ""
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:272
 msgid "Delete the whole cache"
+msgstr ""
+
+#: ../../addon/fbpost/fbpost.php:172
+msgid "Facebook Post disabled"
+msgstr ""
+
+#: ../../addon/fbpost/fbpost.php:199
+msgid "Facebook Post"
+msgstr ""
+
+#: ../../addon/fbpost/fbpost.php:205
+msgid "Install Facebook Post connector for this account."
+msgstr ""
+
+#: ../../addon/fbpost/fbpost.php:212
+msgid "Remove Facebook Post connector"
+msgstr ""
+
+#: ../../addon/fbpost/fbpost.php:240
+msgid "Facebook Post Settings"
 msgstr ""
 
 #: ../../addon/widgets/widget_like.php:58
@@ -5045,11 +5067,11 @@ msgid "did something obscenely biological to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:22
-msgid "point out the new poke feature to"
+msgid "point out the poke feature to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:22
-msgid "pointed out the new poke feature to"
+msgid "pointed out the poke feature to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:23
@@ -5061,112 +5083,108 @@ msgid "declared undying love for"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:24
-msgid "set fire to"
-msgstr ""
-
-#: ../../addon/morepokes/morepokes.php:25
 msgid "patent"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:25
+#: ../../addon/morepokes/morepokes.php:24
 msgid "patented"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:26
+#: ../../addon/morepokes/morepokes.php:25
 msgid "stroke beard"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:26
+#: ../../addon/morepokes/morepokes.php:25
 msgid "stroked their beard at"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:27
+#: ../../addon/morepokes/morepokes.php:26
 msgid ""
 "bemoan the declining standards of modern secondary and tertiary education to"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:27
+#: ../../addon/morepokes/morepokes.php:26
 msgid ""
 "bemoans the declining standards of modern secondary and tertiary education to"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:28
+#: ../../addon/morepokes/morepokes.php:27
 msgid "hug"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:28
+#: ../../addon/morepokes/morepokes.php:27
 msgid "hugged"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:29
+#: ../../addon/morepokes/morepokes.php:28
 msgid "kiss"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:29
+#: ../../addon/morepokes/morepokes.php:28
 msgid "kissed"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:30
+#: ../../addon/morepokes/morepokes.php:29
 msgid "raise eyebrows at"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:30
+#: ../../addon/morepokes/morepokes.php:29
 msgid "raised their eyebrows at"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:31
+#: ../../addon/morepokes/morepokes.php:30
 msgid "insult"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:31
+#: ../../addon/morepokes/morepokes.php:30
 msgid "insulted"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:32
+#: ../../addon/morepokes/morepokes.php:31
 msgid "praise"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:32
+#: ../../addon/morepokes/morepokes.php:31
 msgid "praised"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:33
+#: ../../addon/morepokes/morepokes.php:32
 msgid "be dubious of"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:33
+#: ../../addon/morepokes/morepokes.php:32
 msgid "was dubious of"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:34
+#: ../../addon/morepokes/morepokes.php:33
 msgid "eat"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:34
+#: ../../addon/morepokes/morepokes.php:33
 msgid "ate"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:35
+#: ../../addon/morepokes/morepokes.php:34
 msgid "giggle and fawn at"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:35
+#: ../../addon/morepokes/morepokes.php:34
 msgid "giggled and fawned at"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:36
+#: ../../addon/morepokes/morepokes.php:35
 msgid "doubt"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:36
+#: ../../addon/morepokes/morepokes.php:35
 msgid "doubted"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:37
+#: ../../addon/morepokes/morepokes.php:36
 msgid "glare"
 msgstr ""
 
-#: ../../addon/morepokes/morepokes.php:37
+#: ../../addon/morepokes/morepokes.php:36
 msgid "glared at"
 msgstr ""
 
@@ -6127,68 +6145,68 @@ msgstr ""
 msgid "Show forumlists/forums on profile forumlist"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:36
+#: ../../addon/impressum/impressum.php:37
 msgid "Impressum"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:49
-#: ../../addon/impressum/impressum.php:51
-#: ../../addon/impressum/impressum.php:83
+#: ../../addon/impressum/impressum.php:50
+#: ../../addon/impressum/impressum.php:52
+#: ../../addon/impressum/impressum.php:84
 msgid "Site Owner"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:49
-#: ../../addon/impressum/impressum.php:87
+#: ../../addon/impressum/impressum.php:50
+#: ../../addon/impressum/impressum.php:88
 msgid "Email Address"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:54
-#: ../../addon/impressum/impressum.php:85
+#: ../../addon/impressum/impressum.php:55
+#: ../../addon/impressum/impressum.php:86
 msgid "Postal Address"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:60
+#: ../../addon/impressum/impressum.php:61
 msgid ""
 "The impressum addon needs to be configured!<br />Please add at least the "
 "<tt>owner</tt> variable to your config file. For other variables please "
 "refer to the README file of the addon."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:83
+#: ../../addon/impressum/impressum.php:84
 msgid "The page operators name."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:84
+#: ../../addon/impressum/impressum.php:85
 msgid "Site Owners Profile"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:84
+#: ../../addon/impressum/impressum.php:85
 msgid "Profile address of the operator."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:85
+#: ../../addon/impressum/impressum.php:86
 msgid "How to contact the operator via snail mail. You can use BBCode here."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:86
+#: ../../addon/impressum/impressum.php:87
 msgid "Notes"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:86
+#: ../../addon/impressum/impressum.php:87
 msgid ""
 "Additional notes that are displayed beneath the contact information. You can "
 "use BBCode here."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:87
+#: ../../addon/impressum/impressum.php:88
 msgid "How to contact the operator via email. (will be displayed obfuscated)"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:88
+#: ../../addon/impressum/impressum.php:89
 msgid "Footer note"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:88
+#: ../../addon/impressum/impressum.php:89
 msgid "Text for the footer. You can use BBCode here."
 msgstr ""
 
@@ -6496,6 +6514,58 @@ msgstr ""
 
 #: ../../addon/ijpost/ijpost.php:87
 msgid "Post to InsaneJournal by default"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:266
+msgid "Jappix Mini addon settings"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:268
+msgid "Activate addon"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:271
+msgid "Do <em>not</em> insert the Jappixmini Chat-Widget into the webinterface"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:274
+msgid "Jabber username"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:277
+msgid "Jabber server"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:281
+msgid "Jabber BOSH host"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:285
+msgid "Jabber password"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:290
+msgid "Encrypt Jabber password with Friendica password (recommended)"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:293
+msgid "Friendica password"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:296
+msgid "Approve subscription requests from Friendica contacts automatically"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:299
+msgid "Subscribe to Friendica contacts automatically"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:302
+msgid "Purge internal list of jabber addresses of contacts"
+msgstr ""
+
+#: ../../addon/jappixmini/jappixmini.php:308
+msgid "Add contact"
 msgstr ""
 
 #: ../../addon/viewsrc/viewsrc.php:37
@@ -8062,12 +8132,12 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: ../../include/datetime.php:472 ../../include/items.php:1621
+#: ../../include/datetime.php:472 ../../include/items.php:1683
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/datetime.php:473 ../../include/items.php:1622
+#: ../../include/datetime.php:473 ../../include/items.php:1684
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -8341,15 +8411,15 @@ msgstr ""
 msgid "following"
 msgstr ""
 
-#: ../../include/items.php:3230
+#: ../../include/items.php:3294
 msgid "A new person is sharing with you at "
 msgstr ""
 
-#: ../../include/items.php:3230
+#: ../../include/items.php:3294
 msgid "You have a new follower at "
 msgstr ""
 
-#: ../../include/items.php:3911
+#: ../../include/items.php:3975
 msgid "Archives"
 msgstr ""
 
