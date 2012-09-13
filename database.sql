@@ -260,6 +260,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   `type` char(255) NOT NULL,
   `nofinish` tinyint(1) NOT NULL DEFAULT '0',
   `adjust` tinyint(1) NOT NULL DEFAULT '1',
+  `ignore` tinyint(1) NOT NULL DEFAULT '0',
   `allow_cid` mediumtext NOT NULL,
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
@@ -271,7 +272,8 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `type` ( `type` ),
   KEY `start` ( `start` ),
   KEY `finish` ( `finish` ),
-  KEY `adjust` ( `adjust` )
+  KEY `adjust` ( `adjust` ),
+  KEY `ignore` ( `ignore` ),
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
