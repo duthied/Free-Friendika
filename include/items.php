@@ -1184,6 +1184,15 @@ function tag_deliver($uid,$item_id) {
 
 	// send a notification
 
+	// use a local photo if we have one
+
+	$r = q("select thumb from contact where uid = %d and nurl = '%s' limit 1",
+		intval($u[0]['uid']),
+		dbesc(normalise_link($item['author-link']))
+	);
+	$photo = (($r && count($r)) ? $r[0]['thumb'] : $item['author-avatar']);
+
+
 	require_once('include/enotify.php');
 	notification(array(
 		'type'         => NOTIFY_TAGSELF,
@@ -1196,7 +1205,7 @@ function tag_deliver($uid,$item_id) {
 		'link'         => $a->get_baseurl() . '/display/' . $u[0]['nickname'] . '/' . $item['id'],
 		'source_name'  => $item['author-name'],
 		'source_link'  => $item['author-link'],
-		'source_photo' => $item['author-avatar'],
+		'source_photo' => $photo,
 		'verb'         => ACTIVITY_TAG,
 		'otype'        => 'item'
 	));
