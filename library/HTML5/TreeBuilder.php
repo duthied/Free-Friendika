@@ -3037,8 +3037,22 @@ class HTML5_TreeBuilder {
         }
 
     private function insertElement($token, $append = true) {
-        $el = $this->dom->createElementNS(self::NS_HTML, $token['name']);
-
+		$sep_pos = strpos($token['name'],':');
+		$ns_uri = self::NS_HTML;
+		if($sep_pos !== FALSE) {
+			// This tag has a namespace
+			$ns = substr($token['name'], 0, $sep_pos);
+			switch($ns) {
+				case 'g':
+					$ns_uri = 'http://base.google.com/ns/1.0';
+					break;
+				default:
+					logger("HTML5/TreeBuilder.php: Unknown namespace '". $ns ."', tag = ". $token['name'], LOGGER_DEBUG);
+					break;
+			}
+		}
+        $el = $this->dom->createElementNS($ns_uri, $token['name']);
+		
         if (!empty($token['attr'])) {
             foreach($token['attr'] as $attr) {
 
