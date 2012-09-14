@@ -127,6 +127,7 @@ class HTML5_TreeBuilder {
     const NS_XLINK  = 'http://www.w3.org/1999/xlink';
     const NS_XML    = 'http://www.w3.org/XML/1998/namespace';
     const NS_XMLNS  = 'http://www.w3.org/2000/xmlns/';
+    const NS_GOOGLE = 'http://base.google.com/ns/1.0';
 
     public function __construct() {
         $this->mode = self::INITIAL;
@@ -1428,6 +1429,14 @@ class HTML5_TreeBuilder {
                 case 'caption': case 'col': case 'colgroup': case 'frame': case 'head':
                 case 'tbody': case 'td': case 'tfoot': case 'th': case 'thead': case 'tr':
                     // parse error
+                break;
+
+                /* Google */
+                case 'g:plusone':
+					/* Reconstruct the active formatting elements, if any. */
+                    $this->reconstructActiveFormattingElements();
+
+                    $this->insertForeignElement($token, self::NS_GOOGLE);
                 break;
 
                 /* A start tag token not covered by the previous entries */
@@ -3037,21 +3046,7 @@ class HTML5_TreeBuilder {
         }
 
     private function insertElement($token, $append = true) {
-		$sep_pos = strpos($token['name'],':');
-		$ns_uri = self::NS_HTML;
-		if($sep_pos !== FALSE) {
-			// This tag has a namespace
-			$ns = substr($token['name'], 0, $sep_pos);
-			switch($ns) {
-				case 'g':
-					$ns_uri = 'http://base.google.com/ns/1.0';
-					break;
-				default:
-					logger("HTML5/TreeBuilder.php: Unknown namespace '". $ns ."', tag = ". $token['name'], LOGGER_DEBUG);
-					break;
-			}
-		}
-        $el = $this->dom->createElementNS($ns_uri, $token['name']);
+        $el = $this->dom->createElementNS(self::NS_HTML, $token['name']);
 		
         if (!empty($token['attr'])) {
             foreach($token['attr'] as $attr) {
