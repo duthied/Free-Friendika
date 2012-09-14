@@ -355,7 +355,7 @@ function admin_page_site_post(&$a){
 		set_config('system','directory_submit_url', $global_directory);
 	}
 	set_config('system','thread_allow', $thread_allow);
-	set_config('system','newuser_private', $newuser_private;
+	set_config('system','newuser_private', $newuser_private);
 
 	set_config('system','block_extended_register', $no_multi_reg);
 	set_config('system','no_openid', $no_openid);
