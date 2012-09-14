@@ -127,7 +127,6 @@ class HTML5_TreeBuilder {
     const NS_XLINK  = 'http://www.w3.org/1999/xlink';
     const NS_XML    = 'http://www.w3.org/XML/1998/namespace';
     const NS_XMLNS  = 'http://www.w3.org/2000/xmlns/';
-    const NS_GOOGLE = 'http://base.google.com/ns/1.0';
 
     public function __construct() {
         $this->mode = self::INITIAL;
@@ -159,6 +158,8 @@ class HTML5_TreeBuilder {
 
         if ($this->ignore_lf_token) $this->ignore_lf_token--;
         $this->ignored = false;
+
+        $token['name'] = str_replace(':', '-', $token['name']);
         // indenting is a little wonky, this can be changed later on
         switch ($mode) {
 
@@ -1430,15 +1431,7 @@ class HTML5_TreeBuilder {
                 case 'tbody': case 'td': case 'tfoot': case 'th': case 'thead': case 'tr':
                     // parse error
                 break;
-
-                /* Google */
-                case 'g:plusone':
-					/* Reconstruct the active formatting elements, if any. */
-                    $this->reconstructActiveFormattingElements();
-
-                    $this->insertForeignElement($token, self::NS_GOOGLE);
-                break;
-
+                
                 /* A start tag token not covered by the previous entries */
                 default:
                     /* Reconstruct the active formatting elements, if any. */
