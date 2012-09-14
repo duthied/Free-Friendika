@@ -3757,8 +3757,8 @@ hr.line-dots {
 ----------------------------------------------------------- */
 #scrollup {
 	position: fixed;
-	right: 5px;
-	bottom: 5px;
+	right: 1px;
+	bottom: 30px;
 	z-index: 100;
 }
 
