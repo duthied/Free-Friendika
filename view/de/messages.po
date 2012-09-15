@@ -13,6 +13,7 @@
 #   <leberwurscht@hoegners.de>, 2012.
 #   <marmor69@web.de>, 2012.
 # Martin Schmitt <mas@scsy.de>, 2012.
+#   <matthias@matthiasmoritz.de>, 2012.
 # Oliver  <post@toktan.org>, 2012.
 #   <tobias.diekershoff@gmx.net>, 2011-2012.
 #   <transifex@zottel.net>, 2011-2012.
@@ -22,7 +23,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2012-09-13 10:00-0700\n"
-"PO-Revision-Date: 2012-09-14 13:44+0000\n"
+"PO-Revision-Date: 2012-09-15 08:34+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -5010,19 +5011,19 @@ msgstr ""
 
 #: ../../addon/fbpost/fbpost.php:199
 msgid "Facebook Post"
-msgstr ""
+msgstr "Beitrag auf Facebook"
 
 #: ../../addon/fbpost/fbpost.php:205
 msgid "Install Facebook Post connector for this account."
-msgstr ""
+msgstr "Facebook-Connector für dieses Konto installieren."
 
 #: ../../addon/fbpost/fbpost.php:212
 msgid "Remove Facebook Post connector"
-msgstr ""
+msgstr "Facebook-Connector entfernen"
 
 #: ../../addon/fbpost/fbpost.php:240
 msgid "Facebook Post Settings"
-msgstr ""
+msgstr "Facebook-Beitragseinstellungen"
 
 #: ../../addon/widgets/widget_like.php:58
 #, php-format
@@ -5084,11 +5085,11 @@ msgstr "machte etwas obszönes Körperliches mit"
 
 #: ../../addon/morepokes/morepokes.php:22
 msgid "point out the poke feature to"
-msgstr ""
+msgstr "zeigte die neue Anstups-Funktion"
 
 #: ../../addon/morepokes/morepokes.php:22
 msgid "pointed out the poke feature to"
-msgstr ""
+msgstr "zeigte die neue Anstups-Funktion"
 
 #: ../../addon/morepokes/morepokes.php:23
 msgid "declare undying love for"
