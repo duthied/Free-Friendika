@@ -663,7 +663,7 @@ function import_profile_photo($photo,$uid,$cid) {
         intval($uid),
         intval($cid)
     );
-    if(count($r)) {
+    if(count($r) && strlen($r[0]['resource-id'])) {
         $hash = $r[0]['resource-id'];
     }
     else {

@@ -1280,6 +1280,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
 		'$sourceapp' => t($a->sourcename),
+		'$cancel' => t('Cancel')
 	));
 
 
