@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `start` ( `start` ),
   KEY `finish` ( `finish` ),
   KEY `adjust` ( `adjust` ),
-  KEY `ignore` ( `ignore` ),
+  KEY `ignore` ( `ignore` )
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
