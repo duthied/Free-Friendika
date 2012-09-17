@@ -404,9 +404,6 @@ code {
   padding: 10px;
   margin-top: 20px;
 }
-textarea {
-  font-size: 20px;
-}
 #panel {
   position: absolute;
   width: 10em;
@@ -1072,7 +1069,6 @@ section {
   padding: 0.3em;
 }
 .wall-item-comment-wrapper .comment-edit-text-full {
-  font-size: 20px;
   height: 4em;
   color: #2d2d2d;
   border: 1px solid #2d2d2d;
@@ -1314,9 +1310,6 @@ span[id^="showmore-wrap"] {
   color: #999999;
   border: 1px solid #999999;
   padding: 0.3em;
-}
-#jot .profile-jot-text:focus {
-  font-size: 20px;
 }
 #jot #jot-tools {
   margin: 0px;

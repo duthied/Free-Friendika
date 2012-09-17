@@ -28,3 +28,11 @@
 			}
 		";
 	}
+
+    $textarea_font_size = "20";
+
+    echo "
+        textarea { font-size: ${textarea_font_size}px; }
+        .wall-item-comment-wrapper .comment-edit-text-full { font-size: ${textarea_font_size}px; }
+        #jot .profile-jot-text:focus { font-size: ${textarea_font_size}px; }
+    ";
