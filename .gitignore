@@ -21,4 +21,5 @@ report/
 .buildpath
 .externalToolBuilders
 .settings
+.DS_Store
 
