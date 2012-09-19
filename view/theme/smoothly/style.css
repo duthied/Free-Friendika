@@ -3534,7 +3534,7 @@ footer {
 }
 
 #acl-list {
-	height: auto;
+	height: 400px;
 	border: 1px solid #cccccc;
 	background-color: #efefef;
 	clear: both;
@@ -3543,7 +3543,6 @@ footer {
 }
 
 #acl-list-content {
-	margin-left: 20px;
 }
 
 .acl-list-item {
