@@ -99,7 +99,7 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if ($item['verb']=== ACTIVITY_LIKE || $item['verb']=== ACTIVITY_DISLIKE){
+	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE)){
 
 		$r = q("SELECT * from `item`,`contact` WHERE
 				`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
@@ -132,18 +132,16 @@ function localize_item(&$item){
 
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
-		switch($item['verb']){
-			case ACTIVITY_LIKE :
-				$bodyverb = t('%1$s likes %2$s\'s %3$s');
-				break;
-			case ACTIVITY_DISLIKE:
-				$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-				break;
+		if(activity_match($item['verb'],ACTIVITY_LIKE)) {
+			$bodyverb = t('%1$s likes %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
+			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
 		}
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 
 	}
-	if ($item['verb']=== ACTIVITY_FRIEND){
+	if (activity_match($item['verb'],ACTIVITY_FRIEND)) {
 
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
 
@@ -230,7 +228,7 @@ function localize_item(&$item){
 		$item['body'] = sprintf($txt, $A, t($verb));
 	}
 
-	if ($item['verb']===ACTIVITY_TAG){
+	if (activity_match($item['verb'],ACTIVITY_TAG)) {
 		$r = q("SELECT * from `item`,`contact` WHERE
 		`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
 		 dbesc($item['parent-uri']));
@@ -267,7 +265,7 @@ function localize_item(&$item){
 		$item['body'] = sprintf( t('%1$s tagged %2$s\'s %3$s with %4$s'), $author, $objauthor, $plink, $tag );
 
 	}
-	if ($item['verb']=== ACTIVITY_FAVORITE){
+	if (activity_match($item['verb'],ACTIVITY_FAVORITE)){
 
 		if ($item['object-type']== "")
 			return;
@@ -332,14 +330,24 @@ function count_descendants($item) {
 
 	if($total > 0) {
 		foreach($item['children'] as $child) {
-			if($child['verb'] === ACTIVITY_LIKE || $child['verb'] === ACTIVITY_DISLIKE) {
+			if(! visible_activity($child))
 				$total --;
-			}
 			$total += count_descendants($child);
 		}
 	}
 
 	return $total;
+}
+
+function visible_activity($item) {
+
+	if(activity_match($child['verb'],ACTIVITY_LIKE) || activity_match($child['verb'],ACTIVITY_DISLIKE))
+		return false;
+
+	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && $item['uid'] != local_user())
+		return false;
+
+	return true;
 }
 
 /**
@@ -362,10 +370,9 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			$nb_items--;
 			$total_children --;
 		}
-		if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+		if(! visible_activity($item)) {
 			$nb_items --;
 			$total_children --;
-
 		}
 	}
 
@@ -375,7 +382,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			continue;
 		}
 
-		if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+		if(! visible_activity($item)) {
 			continue;
 		}
 
@@ -956,7 +963,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 					continue;
 				}
-				if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+				if(! visible_activity($item)) {
 					continue;
 				}
 
