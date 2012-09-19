@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1468\n"
+"Project-Id-Version: 3.0.1470\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-16 10:00-0700\n"
+"POT-Creation-Date: 2012-09-18 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -142,7 +142,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:619
 #: ../../addon/snautofollow/snautofollow.php:64 ../../addon/bg/bg.php:90
 #: ../../addon/fbpost/fbpost.php:226 ../../addon/yourls/yourls.php:76
-#: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:57
+#: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:88
 #: ../../addon/page/page.php:210 ../../addon/planets/planets.php:158
 #: ../../addon/uhremotestorage/uhremotestorage.php:89
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
@@ -3088,7 +3088,7 @@ msgid "People Search"
 msgstr ""
 
 #: ../../mod/like.php:145 ../../mod/like.php:298 ../../mod/tagger.php:62
-#: ../../addon/facebook/facebook.php:1594
+#: ../../addon/facebook/facebook.php:1598
 #: ../../addon/communityhome/communityhome.php:158
 #: ../../addon/communityhome/communityhome.php:167
 #: ../../view/theme/diabook/theme.php:565
@@ -3098,7 +3098,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: ../../mod/like.php:162 ../../addon/facebook/facebook.php:1598
+#: ../../mod/like.php:162 ../../addon/facebook/facebook.php:1602
 #: ../../addon/communityhome/communityhome.php:172
 #: ../../view/theme/diabook/theme.php:579 ../../include/diaspora.php:1840
 #: ../../include/conversation.php:137
@@ -5237,11 +5237,11 @@ msgstr ""
 msgid "Post to LiveJournal by default"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:47
+#: ../../addon/nsfw/nsfw.php:78
 msgid "Not Safe For Work (General Purpose Content Filter) settings"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:49
+#: ../../addon/nsfw/nsfw.php:80
 msgid ""
 "This plugin looks in posts for the words/text you specify below, and "
 "collapses any content containing those keywords so it is not displayed at "
@@ -5251,23 +5251,23 @@ msgid ""
 "can thereby be used as a general purpose content filter."
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:50
+#: ../../addon/nsfw/nsfw.php:81
 msgid "Enable Content filter"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:53
+#: ../../addon/nsfw/nsfw.php:84
 msgid "Comma separated list of keywords to hide"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:58
+#: ../../addon/nsfw/nsfw.php:89
 msgid "Use /expression/ to provide regular expressions"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:74
+#: ../../addon/nsfw/nsfw.php:105
 msgid "NSFW Settings saved."
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:121
+#: ../../addon/nsfw/nsfw.php:157
 #, php-format
 msgid "%s - Click to open/close"
 msgstr ""
