@@ -249,7 +249,7 @@ function events_content(&$a) {
 		} else {
 			$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event` LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` 
-				WHERE `event`.`uid` = %d and ignore = %d
+				WHERE `event`.`uid` = %d and event.ignore = %d
 				AND (( `adjust` = 0 AND `finish` >= '%s' AND `start` <= '%s' ) 
 				OR  (  `adjust` = 1 AND `finish` >= '%s' AND `start` <= '%s' )) ",
 				intval(local_user()),
