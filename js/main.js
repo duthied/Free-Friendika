@@ -144,6 +144,29 @@
 			if(mail == 0) { mail = '';  $('#mail-update-li').removeClass('show') } else { $('#mail-update-li').addClass('show') }
 			$('#mail-update-li').html(mail);
 
+
+			var allevents = $(data).find('all-events').text();
+			if(allevents == 0) { allevents = ''; $('#allevents-update').removeClass('show') } else { $('#allevents-update').addClass('show') }
+			$('#allevents-update').html(allevents);
+
+			var alleventstoday = $(data).find('all-events-today').text();
+			if(alleventstoday == 0) { $('#allevents-update').removeClass('notif-allevents-today') } else { $('#allevents-update').addClass('notif-allevents-today') }
+
+			var events = $(data).find('events').text();
+			if(events == 0) { events = ''; $('#events-update').removeClass('show') } else { $('#events-update').addClass('show') }
+			$('#events-update').html(events);
+
+			var eventstoday = $(data).find('events-today').text();
+			if(eventstoday == 0) { $('#events-update').removeClass('notif-events-today') } else { $('#events-update').addClass('notif-events-today') }
+
+			var birthdays = $(data).find('birthdays').text();
+			if(birthdays == 0) {birthdays = ''; $('#birthdays-update').removeClass('show') } else { $('#birthdays-update').addClass('show') }
+			$('#birthdays-update').html(birthdays);
+
+			var birthdaystoday = $(data).find('birthdays-today').text();
+			if(birthdaystoday == 0) { $('#birthdays-update').removeClass('notif-birthdays-today') } else { $('#birthdays-update').addClass('notif-birthdays-today') }
+
+
 			var eNotif = $(data).find('notif')
 			
 			if (eNotif.children("note").length==0){

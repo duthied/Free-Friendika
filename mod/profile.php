@@ -304,7 +304,7 @@ function profile_content(&$a, $update = 0) {
 		$items = array();
 	}
 
-	if($is_owner && ! $update) {
+	if($is_owner && (! $update) && (! get_config('theme','hide_eventlist'))) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}
