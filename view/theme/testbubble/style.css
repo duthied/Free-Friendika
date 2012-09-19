@@ -2875,6 +2875,10 @@ tr {
 /* = Icons = */
 /* ========= */
 
+.sparkle {
+	cursor: url('lock.cur'), pointer;
+}
+
 .icon {
 	display: block; width: 20px; height: 20px;
 	background-image: url('icons.png');
@@ -3279,4 +3283,10 @@ ul.menu-popup {
 }
 .notify-seen {
 	background: #000;
+}
+
+
+/* Pages profile widget */
+#page-profile div#profile-page-list{
+margin-left: 45px;
 }

@@ -172,7 +172,6 @@ $lbl_about
 
 </div>
 <div id="about-jot-end"></div>
-</div>
 
 
 <div id="interest-jot-wrapper" >
@@ -184,7 +183,28 @@ $lbl_hobbies
 
 </div>
 <div id="interest-jot-end"></div>
+
+
+<div id="likes-jot-wrapper" >
+<p id="likes-jot-desc" >
+$lbl_likes
+</p>
+
+<textarea rows="10" cols="72" id="likes-jot-text" name="likes" >$likes</textarea>
+
 </div>
+<div id="likes-jot-end"></div>
+
+
+<div id="dislikes-jot-wrapper" >
+<p id="dislikes-jot-desc" >
+$lbl_dislikes
+</p>
+
+<textarea rows="10" cols="72" id="dislikes-jot-text" name="dislikes" >$dislikes</textarea>
+
+</div>
+<div id="dislikes-jot-end"></div>
 
 
 <div id="contact-jot-wrapper" >
@@ -196,7 +216,6 @@ $lbl_social
 
 </div>
 <div id="contact-jot-end"></div>
-</div>
 
 
 <div class="profile-edit-submit-wrapper" >
@@ -214,7 +233,6 @@ $lbl_music
 
 </div>
 <div id="music-jot-end"></div>
-</div>
 
 <div id="book-jot-wrapper" >
 <p id="book-jot-desc" >
@@ -225,7 +243,6 @@ $lbl_book
 
 </div>
 <div id="book-jot-end"></div>
-</div>
 
 
 
@@ -238,7 +255,6 @@ $lbl_tv
 
 </div>
 <div id="tv-jot-end"></div>
-</div>
 
 
 
@@ -251,7 +267,6 @@ $lbl_film
 
 </div>
 <div id="film-jot-end"></div>
-</div>
 
 
 <div class="profile-edit-submit-wrapper" >
@@ -269,7 +284,6 @@ $lbl_love
 
 </div>
 <div id="romance-jot-end"></div>
-</div>
 
 
 
@@ -282,7 +296,6 @@ $lbl_work
 
 </div>
 <div id="work-jot-end"></div>
-</div>
 
 
 
@@ -295,7 +308,6 @@ $lbl_school
 
 </div>
 <div id="education-jot-end"></div>
-</div>
 
 
 

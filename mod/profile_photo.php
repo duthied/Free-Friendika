@@ -24,6 +24,20 @@ function profile_photo_post(&$a) {
         
 	if((x($_POST,'cropfinal')) && ($_POST['cropfinal'] == 1)) {
 
+		// unless proven otherwise
+		$is_default_profile = 1;
+
+		if($_REQUEST['profile']) {
+			$r = q("select id, `is-default` from profile where id = %d and uid = %d limit 1",
+				intval($_REQUEST['profile']),
+				intval(local_user())
+			);
+			if(count($r) && (! intval($r[0]['is-default'])))
+				$is_default_profile = 0;
+		} 
+
+		
+
 		// phase 2 - we have finished cropping
 
 		if($a->argc != 2) {
@@ -57,31 +71,44 @@ function profile_photo_post(&$a) {
 			if($im->is_valid()) {
 				$im->cropImage(175,$srcX,$srcY,$srcW,$srcH);
 
-				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, 1);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, $is_default_profile);
 
 				if($r === false)
 					notice ( sprintf(t('Image size reduction [%s] failed.'),"175") . EOL );
 
 				$im->scaleImage(80);
 
-				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 5, 1);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 5, $is_default_profile);
 			
 				if($r === false)
 					notice( sprintf(t('Image size reduction [%s] failed.'),"80") . EOL );
 
 				$im->scaleImage(48);
 
-				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 6, 1);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 6, $is_default_profile);
 			
 				if($r === false)
 					notice( sprintf(t('Image size reduction [%s] failed.'),"48") . EOL );
 
-				// Unset the profile photo flag from any other photos I own
+				// If setting for the default profile, unset the profile photo flag from any other photos I own
 
-				$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
-					dbesc($base_image['resource-id']),
-					intval(local_user())
-				);
+				if($is_default_profile) {
+					$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
+						dbesc($base_image['resource-id']),
+						intval(local_user())
+					);
+				}
+				else {
+					$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d limit 1",
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-4'),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-5'),
+						intval($_REQUEST['profile']),
+						intval(local_user())
+					);
+				}
+
+				// we'll set the updated profile-photo timestamp even if it isn't the default profile,
+				// so that browsers will do a cache update unconditionally
 
 				$r = q("UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 					dbesc(datetime_convert()),
@@ -128,6 +155,7 @@ function profile_photo_post(&$a) {
 		return;
 	}
 
+	$ph->orient($src);
 	@unlink($src);
 	return profile_photo_crop_ui_head($a, $ph);
 	
@@ -200,6 +228,11 @@ function profile_photo_content(&$a) {
 		// go ahead as we have jus uploaded a new photo to crop
 	}
 
+	$profiles = q("select `id`,`profile-name` as `name`,`is-default` as `default` from profile where uid = %d",
+		intval(local_user())
+	);
+
+
 	if(! x($a->config,'imagecrop')) {
 	
 		$tpl = get_markup_template('profile_photo.tpl');
@@ -207,8 +240,10 @@ function profile_photo_content(&$a) {
 		$o .= replace_macros($tpl,array(
 			'$user' => $a->user['nickname'],
 			'$lbl_upfile' => t('Upload File:'),
+			'$lbl_profiles' => t('Select a profile:'),
 			'$title' => t('Upload Profile Photo'),
 			'$submit' => t('Upload'),
+			'$profiles' => $profiles,
 			'$form_security_token' => get_form_security_token("profile_photo"),
 			'$select' => sprintf('%s %s', t('or'), ($newuser) ? '<a href="' . $a->get_baseurl() . '">' . t('skip this step') . '</a>' : '<a href="'. $a->get_baseurl() . '/photos/' . $a->user['nickname'] . '">' . t('select a photo from your photo albums') . '</a>')
 		));
@@ -221,6 +256,7 @@ function profile_photo_content(&$a) {
 		$tpl = get_markup_template("cropbody.tpl");
 		$o .= replace_macros($tpl,array(
 			'$filename' => $filename,
+			'$profile' => intval($_REQUEST['profile']),
 			'$resource' => $a->config['imagecrop'] . '-' . $a->config['imagecrop_resolution'],
 			'$image_url' => $a->get_baseurl() . '/photo/' . $filename,
 			'$title' => t('Crop Image'),
@@ -235,8 +271,14 @@ function profile_photo_content(&$a) {
 }}
 
 
-if(! function_exists('_crop_ui_head')) {
+if(! function_exists('profile_photo_crop_ui_head')) {
 function profile_photo_crop_ui_head(&$a, $ph){
+	$max_length = get_config('system','max_image_length');
+	if(! $max_length)
+		$max_length = MAX_IMAGE_LENGTH;
+	if($max_length > 0)
+		$ph->scaleImage($max_length);
+
 	$width = $ph->getWidth();
 	$height = $ph->getHeight();
 
@@ -272,6 +314,7 @@ function profile_photo_crop_ui_head(&$a, $ph){
 	$a->config['imagecrop_resolution'] = $smallest;
 	$a->config['imagecrop_ext'] = $ph->getExt();
 	$a->page['htmlhead'] .= get_markup_template("crophead.tpl");
+	$a->page['end'] .= get_markup_template("cropend.tpl");
 	return;
 }}
 

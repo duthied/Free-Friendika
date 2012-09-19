@@ -1,6 +1,6 @@
-<a name="$item.id" />
-<div class="wall-item-outside-wrapper$item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<a name="$item.id" ></a>
+<div class="wall-item-outside-wrapper $item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info wallwall" id="wall-item-info-$item.id">
 			<div class="wall-item-photo-wrapper wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
 				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-photo-link" id="wall-item-ownerphoto-link-$item.id">
@@ -59,12 +59,12 @@ class="icon recycle wall-item-share-buttons"  title="$item.vote.share.0" onclick
 				<li class="wall-item-filer-wrapper"><a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item icon file-as" title="$item.star.filer"></a></li>
 			{{ endif }}
 			{{ if $item.plink }}
-				<li class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link"></a></li>
+				<li class="wall-item-links-wrapper$item.sparkle"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link"></a></li>
 			{{ endif }}
 			{{ if $item.edpost }}
 				<li><a class="editpost icon pencil" href="$item.edpost.0" title="$item.edpost.1"></a></li>
 			{{ endif }}
-		
+
 			<li class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-$item.id" >
 				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="icon drophide" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
@@ -86,12 +86,13 @@ class="icon recycle wall-item-share-buttons"  title="$item.vote.share.0" onclick
 		</div>
 	</div>	
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
-	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
+	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-comment-separator"></div>
 	<div class="wall-item-comment-wrapper">
 	$item.comment
 	</div>
 
-<div class="wall-item-outside-wrapper-end$item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent" ></div>
 </div>
 

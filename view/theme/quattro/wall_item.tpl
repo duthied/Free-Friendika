@@ -5,7 +5,7 @@
 	<img id="like-rotator-$item.id" class="like-rotator" src="images/rotator.gif" alt="$item.wait" title="$item.wait" style="display: none;" />
 </div>
 
-<div class="wall-item-container $item.indent">
+<div class="wall-item-container $item.indent" id="item-$item.id">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper"
@@ -23,7 +23,7 @@
 			<div class="wall-item-location">$item.location</div>	
 		</div>
 		<div class="wall-item-content">
-			{{ if $item.title }}<h2><a href="$item.plink.href">$item.title</a></h2>{{ endif }}
+			{{ if $item.title }}<h2><a href="$item.plink.href" class="$item.sparkle">$item.title</a></h2>{{ endif }}
 			$item.body
 		</div>
 	</div>
@@ -38,11 +38,15 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="">
-			{{ if $item.plink }}<a class="icon s16 link" title="$item.plink.title" href="$item.plink.href">$item.plink.title</a>{{ endif }}
+			{{ if $item.plink }}<a class="icon s16 link$item.sparkle" title="$item.plink.title" href="$item.plink.href">$item.plink.title</a>{{ endif }}
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
-				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a> <span class="wall-item-ago">$item.ago</span>
+				<a href="$item.profile_url" target="redir"
+                                title="$item.linktitle"
+                                class="wall-item-name-link"><span
+                                class="wall-item-name$item.sparkle">$item.name</span></a>
+                                <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
 			</div>
 			
 			<div class="wall-item-actions-social">

@@ -13,8 +13,10 @@
  */
 
 require_once('boot.php');
+require_once('object/BaseObject.php');
 
 $a = new App;
+BaseObject::set_app($a);
 
 /**
  *
@@ -118,6 +120,12 @@ if(! x($_SESSION,'authenticated'))
 
 $a->init_pagehead();
 
+/**
+ * Build the page ending -- this is stuff that goes right before
+ * the closing </body> tag
+ */
+
+$a->init_page_end();
 
 
 if(! x($_SESSION,'sysmsg'))

@@ -1,6 +1,6 @@
 <a name="$item.id" ></a>
-<div class="wall-item-outside-wrapper$item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent$item.previewing wallwall" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info wallwall" id="wall-item-info-$item.id">
 			<div class="wall-item-photo-wrapper wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
 				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-photo-link" id="wall-item-ownerphoto-link-$item.id">
@@ -29,7 +29,7 @@
 		</div>
 		<div class="wall-item-author">
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a> $item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall<br />
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>				
+				<div class="wall-item-ago" id="wall-item-ago-$item.id" title="$item.localtime">$item.ago</div>
 		</div>			
 		<div class="wall-item-content" id="wall-item-content-$item.id" >
 			<div class="wall-item-title" id="wall-item-title-$item.id">$item.title</div>
@@ -52,7 +52,7 @@
 			</div>
 			{{ endif }}
 			{{ if $item.plink }}
-				<div class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link"></a></div>
+				<div class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link$item.sparkle"></a></div>
 			{{ endif }}
 			{{ if $item.edpost }}
 				<a class="editpost icon pencil" href="$item.edpost.0" title="$item.edpost.1"></a>
@@ -74,13 +74,13 @@
 		</div>
 	</div>	
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
-	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
+	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
 	<div class="wall-item-comment-separator"></div>
-	<div class="wall-item-comment-wrapper" >
+	<div class="wall-item-comment-wrapper">
 	$item.comment
 	</div>
 
-<div class="wall-item-outside-wrapper-end$item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent" ></div>
 </div>
 

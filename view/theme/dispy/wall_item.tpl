@@ -1,6 +1,6 @@
-<a name="$item.id" />
-<div class="wall-item-outside-wrapper$item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<a name="$item.id" ></a>
+<div class="wall-item-outside-wrapper $item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info" id="wall-item-info-$item.id">
 			<div class="wall-item-photo-wrapper" id="wall-item-photo-wrapper-$item.id" 
 				 onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')" 
@@ -52,7 +52,7 @@
 				<li><a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item icon file-as" title="$item.filer"></a></li>
 				{{ endif }}
 				{{ if $item.plink }}
-				<li class="wall-item-links-wrapper"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link"></a></li>
+				<li class="wall-item-links-wrapper$item.sparkle"><a href="$item.plink.href" title="$item.plink.title" target="external-link" class="icon remote-link"></a></li>
 				{{ endif }}
 				{{ if $item.edpost }}
 				<li><a class="editpost icon pencil" href="$item.edpost.0" title="$item.edpost.1"></a></li>
@@ -78,11 +78,11 @@
 		</div>
 	</div>
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
-	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>
-	<div class="wall-item-comment-wrapper">
+	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
+	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-comment-wrapper" >
 	$item.comment
 	</div>
 
-<div class="wall-item-outside-wrapper-end$item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent" ></div>
 </div>

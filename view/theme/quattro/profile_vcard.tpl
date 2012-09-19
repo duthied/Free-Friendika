@@ -45,7 +45,9 @@
 
 	{{ if $marital }}<dl class="marital"><dt class="marital-label"><span class="heart">&hearts;</span>$marital</dt><dd class="marital-text">$profile.marital</dd></dl>{{ endif }}
 
-	{{ if $homepage }}<dl class="homepage"><dt class="homepage-label">$homepage</dt><dd class="homepage-url"><a href="$profile.homepage" target="external-link">$profile.homepage</a></dd></dl>{{ endif }}
+	{{ if $homepage }}<dl class="homepage"><dt
+        class="homepage-label">$homepage</dt><dd class="homepage-url"><a
+        href="$profile.homepage" target="external-link">$profile.homepage</a></dd></dl>{{ endif }}
 
 	{{ inc diaspora_vcard.tpl }}{{ endinc }}
 	
@@ -53,6 +55,9 @@
 		<ul>
 			{{ if $connect }}
 				<li><a id="dfrn-request-link" href="dfrn_request/$profile.nickname">$connect</a></li>
+			{{ endif }}
+			{{ if $wallmessage }}
+				<li><a id="wallmessage-link" href="wallmessage/$profile.nickname">$wallmessage</a></li>
 			{{ endif }}
 		</ul>
 	</div>

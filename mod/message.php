@@ -18,24 +18,17 @@ function message_init(&$a) {
 	));
 	$base = $a->get_baseurl();
 
-	$a->page['htmlhead'] .= '<script src="' . $a->get_baseurl(true) . '/library/jquery_ac/friendica.complete.js" ></script>';
-	$a->page['htmlhead'] .= <<< EOT
+	$head_tpl = get_markup_template('message-head.tpl');
+	$a->page['htmlhead'] .= replace_macros($head_tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
 
-<script>$(document).ready(function() { 
-	var a; 
-	a = $("#recip").autocomplete({ 
-		serviceUrl: '$base/acl',
-		minChars: 2,
-		width: 350,
-		onSelect: function(value,data) {
-			$("#recip-complete").val(data);
-		}			
-	});
-
-}); 
-
-</script>
-EOT;
+	$end_tpl = get_markup_template('message-end.tpl');
+	$a->page['end'] .= replace_macros($end_tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
 	
 }
 
@@ -87,6 +80,84 @@ function message_post(&$a) {
 	}
 
 }
+
+// Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
+// is identical to the code in include/conversation.php
+if(! function_exists('item_extract_images')) {
+function item_extract_images($body) {
+
+	$saved_image = array();
+	$orig_body = $body;
+	$new_body = '';
+
+	$cnt = 0;
+	$img_start = strpos($orig_body, '[img');
+	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+	$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+	while(($img_st_close !== false) && ($img_end !== false)) {
+
+		$img_st_close++; // make it point to AFTER the closing bracket
+		$img_end += $img_start;
+
+		if(! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
+			// This is an embedded image
+
+			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
+			$new_body = $new_body . substr($orig_body, 0, $img_start) . '[!#saved_image' . $cnt . '#!]';
+
+			$cnt++;
+		}
+		else
+			$new_body = $new_body . substr($orig_body, 0, $img_end + strlen('[/img]'));
+
+		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
+
+		if($orig_body === false) // in case the body ends on a closing image tag
+			$orig_body = '';
+
+		$img_start = strpos($orig_body, '[img');
+		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
+		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
+	}
+
+	$new_body = $new_body . $orig_body;
+
+	return array('body' => $new_body, 'images' => $saved_image);
+}}
+
+if(! function_exists('item_redir_and_replace_images')) {
+function item_redir_and_replace_images($body, $images, $cid) {
+
+	$origbody = $body;
+	$newbody = '';
+
+	for($i = 0; $i < count($images); $i++) {
+		$search = '/\[url\=(.*?)\]\[!#saved_image' . $i . '#!\]\[\/url\]' . '/is';
+		$replace = '[url=' . z_path() . '/redir/' . $cid 
+		           . '?f=1&url=' . '$1' . '][!#saved_image' . $i . '#!][/url]' ;
+
+		$img_end = strpos($origbody, '[!#saved_image' . $i . '#!][/url]') + strlen('[!#saved_image' . $i . '#!][/url]');
+		$process_part = substr($origbody, 0, $img_end);
+		$origbody = substr($origbody, $img_end);
+
+		$process_part = preg_replace($search, $replace, $process_part);
+		$newbody = $newbody . $process_part;
+	}
+	$newbody = $newbody . $origbody;
+
+	$cnt = 0;
+	foreach($images as $image) {
+		// We're depending on the property of 'foreach' (specified on the PHP website) that
+		// it loops over the array starting from the first element and going sequentially
+		// to the last element
+		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
+		$cnt++;
+	}
+
+	return $newbody;
+}}
+
+
 
 function message_content(&$a) {
 
@@ -164,8 +235,15 @@ function message_content(&$a) {
 
 
 		$tpl = get_markup_template('msg-header.tpl');
-
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+			'$nickname' => $a->user['nickname'],
+			'$linkurl' => t('Please enter a link URL:')
+		));
+	
+		$tpl = get_markup_template('msg-end.tpl');
+		$a->page['end'] .= replace_macros($tpl, array(
 			'$baseurl' => $a->get_baseurl(true),
 			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
@@ -224,6 +302,7 @@ function message_content(&$a) {
 		// list messages
 
 		$o .= $header;
+
 		
 		$r = q("SELECT count(*) AS `total` FROM `mail` 
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
@@ -232,7 +311,7 @@ function message_content(&$a) {
 		);
 		if(count($r))
 			$a->set_pager_total($r[0]['total']);
-	
+
 		$r = q("SELECT max(`mail`.`created`) AS `mailcreated`, min(`mail`.`seen`) AS `mailseen`, 
 			`mail`.* , `contact`.`name`, `contact`.`url`, `contact`.`thumb` , `contact`.`network`,
 			count( * ) as count
@@ -243,6 +322,7 @@ function message_content(&$a) {
 			intval($a->pager['start']),
 			intval($a->pager['itemspage'])
 		);
+
 		if(! count($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
@@ -271,6 +351,7 @@ function message_content(&$a) {
 				'$body' => template_escape($rr['body']),
 				'$to_name' => template_escape($rr['name']),
 				'$date' => datetime_convert('UTC',date_default_timezone_get(),$rr['mailcreated'], t('D, d M Y - g:i A')),
+                                '$ago' => relative_date($rr['mailcreated']),
 				'$seen' => $rr['mailseen'],
 				'$count' => sprintf( tt('%d message', '%d messages', $rr['count']), $rr['count']),
 			));
@@ -319,8 +400,13 @@ function message_content(&$a) {
 		require_once("include/bbcode.php");
 
 		$tpl = get_markup_template('msg-header.tpl');
-	
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
+			'$nickname' => $a->user['nickname'],
+			'$baseurl' => $a->get_baseurl(true)
+		));
+
+		$tpl = get_markup_template('msg-end.tpl');
+		$a->page['end'] .= replace_macros($tpl, array(
 			'$nickname' => $a->user['nickname'],
 			'$baseurl' => $a->get_baseurl(true)
 		));
@@ -343,26 +429,9 @@ function message_content(&$a) {
 			}
 
 
-			$Text = $message['body'];
-			$saved_image = '';
-			$img_start = strpos($Text,'[img]data:');
-			$img_end = strpos($Text,'[/img]');
-
-			if($img_start !== false && $img_end !== false && $img_end > $img_start) {
-				$start_fragment = substr($Text,0,$img_start);
-				$img_start += strlen('[img]');
-				$saved_image = substr($Text,$img_start,$img_end - $img_start);
-				$end_fragment = substr($Text,$img_end + strlen('[/img]'));		
-				$Text = $start_fragment . '[!#saved_image#!]' . $end_fragment;
-				$search = '/\[url\=(.*?)\]\[!#saved_image#!\]\[\/url\]' . '/is';
-				$replace = '[url=' . z_path() . '/redir/' . $message['contact-id'] 
-					. '?f=1&url=' . '$1' . '][!#saved_image#!][/url]' ;
-
-				$Text = preg_replace($search,$replace,$Text);
-
-			if(strlen($saved_image))
-				$message['body'] = str_replace('[!#saved_image#!]', '[img]' . $saved_image . '[/img]',$Text);
-			}
+			$extracted = item_extract_images($message['body']);
+			if($extracted['images'])
+				$message['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $message['contact-id']);
 
 			$mails[] = array(
 				'id' => $message['id'],
@@ -375,6 +444,7 @@ function message_content(&$a) {
 				'delete' => t('Delete message'),
 				'to_name' => template_escape($message['name']),
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'],'D, d M Y - g:i A'),
+                                'ago' => relative_date($message['created']),
 			);
 				
 			$seen = $message['seen'];
@@ -407,6 +477,7 @@ function message_content(&$a) {
 			'$parent' => $parent,
 			'$upload' => t('Upload photo'),
 			'$insert' => t('Insert web link'),
+			'$submit' => t('Submit'),
 			'$wait' => t('Please wait')
 
 		));

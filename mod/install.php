@@ -60,7 +60,7 @@ function install_post(&$a) {
 
 			return; 
 			break;
-		case 4;
+		case 4:
 			$urlpath = $a->get_path();
 			$dbhost = notags(trim($_POST['dbhost']));
 			$dbuser = notags(trim($_POST['dbuser']));
@@ -155,11 +155,11 @@ function install_content(&$a) {
 	}
 
 	if(x($a->data,'txt') && strlen($a->data['txt'])) {
-		$tpl = get_markup_template('install.tpl');
 		$db_return_text .= manual_config($a);
 	}
 	
 	if ($db_return_text!="") {
+		$tpl = get_markup_template('install.tpl');
 		return replace_macros($tpl, array(
 			'$title' => $install_title,
 			'$pass' => "",
@@ -466,7 +466,6 @@ function load_database_rem($v, $i){
 function load_database($db) {
 
 	$str = file_get_contents('database.sql');
-//	$str = array_reduce(explode("\n", $str),"load_database_rem","");
 	$arr = explode(';',$str);
 	$errors = false;
 	foreach($arr as $a) {
@@ -488,7 +487,7 @@ function what_next() {
 		."<p>".t('IMPORTANT: You will need to [manually] setup a scheduled task for the poller.')
 		.t('Please see the file "INSTALL.txt".')			
 		."</p><p>"
-		.t("Go to your new Firendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
+		.t("Go to your new Friendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
 		."</p>";
 }
 

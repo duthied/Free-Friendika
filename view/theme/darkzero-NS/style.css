@@ -49,7 +49,7 @@ background: #444;
 	color: #99CCFF;
 }
 
-.wall-item-photo-menu li a {
+.wall-item-photo-menu li a, .contact-photo-menu {
 	color: #CCCCCC; background-color: #333333;
 }
 
@@ -113,7 +113,7 @@ input#acl-search {
 
 
 .notify-seen {
-  background:#666;
+  background:#111;
 }
 
 #nav-notifications-menu {
@@ -151,6 +151,33 @@ blockquote {
 	overflow: none;
 }
 
-.editicon:hover {
-	background-color: #ccc;
+.editicon {
+	background-color: #333;
+}
+
+#datebrowse-sidebar select {
+color:#99CCFF !important;
+}
+
+.settings-widget .selected {
+background: #666;
+}
+
+#adminpage table tr:hover {
+    color: #eec;
+    background-color: #666;
+}
+
+input#prvmail-subject {
+background: #222 !important;
+}
+
+/* Events */
+
+.fc-state-highlight {
+background: #666 !important;
+}
+ 
+.fc-state-disabled, .fc-state-disabled .fc-button-inner {
+color: #000 !important;
 }

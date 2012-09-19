@@ -18,13 +18,17 @@
 
 	<div id="photo-edit-tags-end"></div>
 	<div id="photo-edit-rotate-wrapper">
-		<div id="photo-edit-rotate-label">$rotate</div>
-		<input type="checkbox" name="rotate" value="1" />
+		<div id="photo-edit-rotate-label">
+			$rotatecw<br>
+			$rotateccw
+		</div>
+		<input type="radio" name="rotate" value="1" /><br>
+		<input type="radio" name="rotate" value="2" />
 	</div>
 	<div id="photo-edit-rotate-end"></div>
 
 	<div id="photo-edit-perms" class="photo-edit-perms" >
-		<a href="#photo-edit-perms-select" id="photo-edit-perms-menu" class="button" title="$permissions"/>
+		<a href="#photo-edit-perms-select" id="photo-edit-perms-menu" class="button popupbox" title="$permissions"/>
 			<span id="jot-perms-icon" class="icon $lockstate" ></span>$permissions
 		</a>
 		<div id="photo-edit-perms-menu-end"></div>
@@ -43,9 +47,4 @@
 	<div id="photo-edit-end"></div>
 </form>
 
-<script>
-	$("a#photo-edit-perms-menu").fancybox({
-		'transitionIn' : 'none',
-		'transitionOut' : 'none'
-	}); 
-</script>
+

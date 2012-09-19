@@ -44,6 +44,7 @@ function theme_admin_post(&$a){
 function quattro_form(&$a, $align, $color){
 	$colors = array(
 		"dark"=>"Quattro", 
+		"lilac"=>"Lilac", 
 		"green"=>"Green"
 	);
 	

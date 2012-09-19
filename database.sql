@@ -254,16 +254,26 @@ CREATE TABLE IF NOT EXISTS `event` (
   `edited` datetime NOT NULL,
   `start` datetime NOT NULL,
   `finish` datetime NOT NULL,
+  `summary` text NOT NULL,
   `desc` text NOT NULL,
   `location` text NOT NULL,
   `type` char(255) NOT NULL,
   `nofinish` tinyint(1) NOT NULL DEFAULT '0',
   `adjust` tinyint(1) NOT NULL DEFAULT '1',
+  `ignore` tinyint(1) NOT NULL DEFAULT '0',
   `allow_cid` mediumtext NOT NULL,
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
   `deny_gid` mediumtext NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `uid` ( `uid` ),
+  KEY `cid` ( `cid` ),
+  KEY `uri` ( `uri` ),
+  KEY `type` ( `type` ),
+  KEY `start` ( `start` ),
+  KEY `finish` ( `finish` ),
+  KEY `adjust` ( `adjust` ),
+  KEY `ignore` ( `ignore` )
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -448,6 +458,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
   `hook` char(255) NOT NULL,
   `file` char(255) NOT NULL,
   `function` char(255) NOT NULL,
+  `priority` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
@@ -561,6 +572,9 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `moderated` (`moderated`),
   KEY `spam` (`spam`),
   KEY `author-name` (`author-name`),
+  KEY `uid_commented` (`uid`, `commented`),
+  KEY `uid_created` (`uid`, `created`),
+  KEY `uid_unseen` (`uid`, `unseen`),
   FULLTEXT KEY `title` (`title`),
   FULLTEXT KEY `body` (`body`),
   FULLTEXT KEY `allow_cid` (`allow_cid`),
@@ -578,14 +592,29 @@ CREATE TABLE IF NOT EXISTS `item` (
 --
 
 CREATE TABLE IF NOT EXISTS `item_id` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `iid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
   `sid` char(255) NOT NULL,
   `service` char(255) NOT NULL,
-  PRIMARY KEY (`iid`),
+  PRIMARY KEY (`id`),
+  KEY `iid` (`iid`),
   KEY `uid` (`uid`),
   KEY `sid` (`sid`),
   KEY `service` (`service`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `locks`
+--
+
+CREATE TABLE IF NOT EXISTS `locks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` char(128) NOT NULL,
+  `locked` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -831,6 +860,8 @@ CREATE TABLE IF NOT EXISTS `profile` (
   `religion` char(255) NOT NULL,
   `pub_keywords` text NOT NULL,
   `prv_keywords` text NOT NULL,
+  `likes` text NOT NULL,
+  `dislikes` text NOT NULL,
   `about` text NOT NULL,
   `summary` char(255) NOT NULL,
   `music` text NOT NULL,
@@ -973,6 +1004,26 @@ CREATE TABLE IF NOT EXISTS `spam` (
   KEY `spam` (`spam`),
   KEY `ham` (`ham`),
   KEY `term` (`term`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `term`
+--
+
+CREATE TABLE IF NOT EXISTS `term` (
+  `tid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `oid` INT UNSIGNED NOT NULL ,
+  `otype` TINYINT( 3 ) UNSIGNED NOT NULL ,
+  `type` TINYINT( 3 ) UNSIGNED NOT NULL ,
+  `term` CHAR( 255 ) NOT NULL ,
+  `url` CHAR( 255 ) NOT NULL, 
+  PRIMARY KEY (`tid`),
+  KEY `oid` ( `oid` ),
+  KEY `otype` ( `otype` ),
+  KEY `type`  ( `type` ),
+  KEY `term`  ( `term` )
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

@@ -1,4 +1,7 @@
 <h3>$pagename</h3>
+
+<div id="photos-usage-message">$usage</div>
+
 <form action="photos/$nickname" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form" >
 	<div id="photos-upload-new-wrapper" >
 		<div id="photos-upload-newalbum-div">
@@ -9,7 +12,9 @@
 	<div id="photos-upload-new-end"></div>
 	<div id="photos-upload-exist-wrapper">
 		<div id="photos-upload-existing-album-text">$existalbumtext</div>
+		<select id="photos-upload-album-select" name="album" size="4">
 		$albumselect
+		</select>
 	</div>
 	<div id="photos-upload-exist-end"></div>
 
@@ -20,9 +25,10 @@
 
 
 	<div id="photos-upload-perms" class="photos-upload-perms" >
-		<a href="#photos-upload-permissions-wrapper" id="photos-upload-perms-menu" class="button" />
+		<a href="#photos-upload-permissions-wrapper" id="photos-upload-perms-menu" class="button popupbox" />
 		<span id="jot-perms-icon" class="icon $lockstate" ></span>$permissions
 		</a>
+	</div>
 	<div id="photos-upload-perms-end"></div>
 
 	<div style="display: none;">
@@ -40,9 +46,3 @@
 	<div class="photos-upload-end" ></div>
 </form>
 
-<script>
-	$("a#photos-upload-perms-menu").fancybox({
-		'transitionIn' : 'none',
-		'transitionOut' : 'none'
-	}); 
-</script>

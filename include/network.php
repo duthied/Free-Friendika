@@ -14,15 +14,16 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		return false;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
-	
+
 	if (!is_null($accept_content)){
 		curl_setopt($ch,CURLOPT_HTTPHEADER, array (
 			"Accept: " . $accept_content
 		));
 	}
-	
+
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Friendica");
+	//@curl_setopt($ch, CURLOPT_USERAGENT, "Friendica");
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
 
 
 	if(intval($timeout)) {
@@ -59,7 +60,6 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
 	$http_code = $curl_info['http_code'];
-
 //	logger('fetch_url:' . $http_code . ' data: ' . $s);
 	$header = '';
 
@@ -73,24 +73,22 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	}
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-        $matches = array();
-        preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-        $newurl = trim(array_pop($matches));
+		$matches = array();
+		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
+		$newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-        $url_parsed = @parse_url($newurl);
-        if (isset($url_parsed)) {
-            $redirects++;
-            return fetch_url($newurl,$binary,$redirects,$timeout);
-        }
-    }
+		$url_parsed = @parse_url($newurl);
+		if (isset($url_parsed)) {
+			$redirects++;
+			return fetch_url($newurl,$binary,$redirects,$timeout);
+		}
+	}
 
 	$a->set_curl_code($http_code);
 
 	$body = substr($s,strlen($header));
-
 	$a->set_curl_headers($header);
-
 	@curl_close($ch);
 	return($body);
 }}
@@ -607,6 +605,9 @@ function validate_url(&$url) {
 if(! function_exists('validate_email')) {
 function validate_email($addr) {
 
+	if(get_config('system','disable_email_validation'))
+		return true;
+
 	if(! strpos($addr,'@'))
 		return false;
 	$h = substr($addr,strpos($addr,'@') + 1);
@@ -793,20 +794,41 @@ function add_fcontact($arr,$update = false) {
 }
 
 
-function scale_external_images($s,$include_link = true) {
+function scale_external_images($s, $include_link = true, $scale_replace = false) {
 
 	$a = get_app();
 
+	// Picture addresses can contain special characters
+	$s = htmlspecialchars_decode($s);
+
 	$matches = null;
-	$c = preg_match_all('/\[img\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
+	$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($c) {
 		require_once('include/Photo.php');
 		foreach($matches as $mtch) {
 			logger('scale_external_image: ' . $mtch[1]);
+
 			$hostname = str_replace('www.','',substr($a->get_baseurl(),strpos($a->get_baseurl(),'://')+3));
 			if(stristr($mtch[1],$hostname))
 				continue;
-			$i = fetch_url($mtch[1]);
+
+			// $scale_replace, if passed, is an array of two elements. The
+			// first is the name of the full-size image. The second is the
+			// name of a remote, scaled-down version of the full size image.
+			// This allows Friendica to display the smaller remote image if
+			// one exists, while still linking to the full-size image
+			if($scale_replace)
+				$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[1]);
+			else
+				$scaled = $mtch[1];
+			$i = fetch_url($scaled);
+
+			$cache = get_config('system','itemcache');
+			if (($cache != '') and is_dir($cache)) {
+				$cachefile = $cache."/".hash("md5", $scaled);
+				file_put_contents($cachefile, $i);
+			}
+
 			// guess mimetype from headers or filename
 			$type = guess_image_type($mtch[1],true);
 			
@@ -822,7 +844,7 @@ function scale_external_images($s,$include_link = true) {
 						$new_width = $ph->getWidth();
 						$new_height = $ph->getHeight();
 						logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
-						$s = str_replace($mtch[0],'[img=' . $new_width . 'x' . $new_height. ']' . $mtch[1] . '[/img]'
+						$s = str_replace($mtch[0],'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
 							. "\n" . (($include_link) 
 								? '[url=' . $mtch[1] . ']' . t('view full size') . '[/url]' . "\n"
 								: ''),$s);
@@ -832,6 +854,10 @@ function scale_external_images($s,$include_link = true) {
 			}
 		}
 	}
+
+	// replace the special char encoding
+
+	$s = htmlspecialchars($s,ENT_QUOTES,'UTF-8');
 	return $s;
 }
 

@@ -12,7 +12,9 @@ function oembed_replacecb($matches){
 
 function oembed_fetch_url($embedurl){
 
-	$txt = Cache::get($embedurl);
+	$a = get_app();
+
+	$txt = Cache::get($a->videowidth . $embedurl);
 
 	// These media files should now be caught in bbcode.php
 	// left here as a fallback in case this is called from another source
@@ -38,7 +40,7 @@ function oembed_fetch_url($embedurl){
 					$entries = $xpath->query("//link[@type='application/json+oembed']");
 					foreach($entries as $e){
 						$href = $e->getAttributeNode("href")->nodeValue;
-						$txt = fetch_url($href . '&maxwidth=425');
+						$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
 						break;
 					}
 				}
@@ -47,7 +49,7 @@ function oembed_fetch_url($embedurl){
 		
 		if ($txt==false || $txt==""){
 			// try oohembed service
-			$ourl = "http://oohembed.com/oohembed/?url=".urlencode($embedurl).'&maxwidth=425';  
+			$ourl = "http://oohembed.com/oohembed/?url=".urlencode($embedurl).'&maxwidth=' . $a->videowidth;  
 			$txt = fetch_url($ourl);
 		}
 		
@@ -55,7 +57,7 @@ function oembed_fetch_url($embedurl){
 		if ($txt[0]!="{") $txt='{"type":"error"}';
 	
 		//save in cache
-		Cache::set($embedurl,$txt);
+		Cache::set($a->videowidth . $embedurl,$txt);
 
 	}
 	
@@ -93,7 +95,8 @@ function oembed_format_object($j){
 			$ret.="<br>";
 		}; break;
 		case "photo": {
-			$ret.= "<img width='".$j->width."' height='".$j->height."' src='".$j->url."'>";
+			$ret.= "<img width='".$j->width."' src='".$j->url."'>";
+			//$ret.= "<img width='".$j->width."' height='".$j->height."' src='".$j->url."'>";
 			$ret.="<br>";
 		}; break;  
 		case "link": {
@@ -113,7 +116,7 @@ function oembed_format_object($j){
 		if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
 	} else {
 		// add <a> for html2bbcode conversion
-		$ret .= "<a href='$embedurl' rel='oembed'/>";
+		$ret .= "<a href='$embedurl' rel='oembed'></a>";
 	}
 	$ret.="<br style='clear:left'></span>";
 	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));

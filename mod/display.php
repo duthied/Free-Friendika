@@ -16,15 +16,7 @@ function display_content(&$a) {
 
 	$o = '<div id="live-display"></div>' . "\r\n";
 
-	$a->page['htmlhead'] .= <<<EOT
-<script>
-$(document).ready(function() {
-	$(".comment-edit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-	// make auto-complete work in more places
-	$(".wall-item-comment-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-});
-</script>
-EOT;
+	$a->page['htmlhead'] .= get_markup_template('display-head.tpl');
 
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
@@ -43,8 +35,18 @@ EOT;
 	$contact = null;
 	$remote_contact = false;
 
-	if(remote_user()) {
-		$contact_id = $_SESSION['visitor_id'];
+	$contact_id = 0;
+
+	if(is_array($_SESSION['remote'])) {
+		foreach($_SESSION['remote'] as $v) {
+			if($v['uid'] == $a->profile['uid']) {
+				$contact_id = $v['cid'];
+				break;
+			}
+		}
+	}
+
+	if($contact_id) {
 		$groups = init_groups_visitor($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
@@ -121,12 +123,13 @@ EOT;
 			);
 		}
 
-
-		$o .= conversation($a,$r,'display', false);
+		$items = conv_sort($r,"`commented`");
+		
+		$o .= conversation($a,$items,'display', false);
 
 	}
 	else {
-		$r = q("SELECT `id` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
+		$r = q("SELECT `id`,`deleted` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
 			dbesc($item_id),
 			dbesc($item_id)
 		);

@@ -100,10 +100,32 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 		return str_replace('1','0',$d->format($fmt));
 	}
 
-	$d = new DateTime($s, new DateTimeZone($from));
-	$d->setTimeZone(new DateTimeZone($to));
+	try {
+		$from_obj = new DateTimeZone($from);
+	}
+	catch(Exception $e) {
+		$from_obj = new DateTimeZone('UTC');
+	}
+
+	try {
+		$d = new DateTime($s, $from_obj);
+	}
+	catch(Exception $e) {
+		logger('datetime_convert: exception: ' . $e->getMessage());
+		$d = new DateTime('now', $from_obj);
+	}
+
+	try {
+		$to_obj = new DateTimeZone($to);
+	}
+	catch(Exception $e) {
+		$to_obj = new DateTimeZone('UTC');
+	}
+
+	$d->setTimeZone($to_obj);
 	return($d->format($fmt));
 }}
+
 
 // wrapper for date selector, tailored for use in birthday fields
 
@@ -447,11 +469,13 @@ function update_contact_birthdays() {
 			 *
 			 */
 			 
-			$bdtext = t('Birthday:') . ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]' ;
+			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
+			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
 
 
-			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`desc`,`type`,`adjust`)
-				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",
+
+			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",
 				intval($rr['uid']),
 			 	intval($rr['id']),
 				dbesc(datetime_convert()),
@@ -459,6 +483,7 @@ function update_contact_birthdays() {
 				dbesc(datetime_convert('UTC','UTC', $nextbd)),
 				dbesc(datetime_convert('UTC','UTC', $nextbd . ' + 1 day ')),
 				dbesc($bdtext),
+				dbesc($bdtext2),
 				dbesc('birthday'),
 				intval(0)
 			);

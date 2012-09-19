@@ -170,7 +170,7 @@ function dfrn_request_post(&$a) {
 					info( t("Introduction complete.") . EOL);
 				}
 
-				$r = q("select id from contact where uid = %d and url = '%s' and `site-pubkey` = '%s limit 1",
+				$r = q("select id from contact where uid = %d and url = '%s' and `site-pubkey` = '%s' limit 1",
 					intval(local_user()),
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
@@ -756,8 +756,10 @@ function dfrn_request_content(&$a) {
 		 */
  
 		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
-			notice( t('Public access denied.') . EOL);
-			return;
+			if(! get_config('system','local_block')) {
+				notice( t('Public access denied.') . EOL);
+				return;
+			}
 		}
 
 

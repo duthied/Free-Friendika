@@ -71,22 +71,32 @@ class dba {
 	}
 
 	public function q($sql) {
+		global $a;
 
 		if((! $this->db) || (! $this->connected))
 			return false;
 
 		$this->error = '';
 
-		//if (get_config("system", "db_log") != "")
-		//	@file_put_contents(get_config("system", "db_log"), datetime_convert().':'.session_id(). ' Start '.$sql."\n", FILE_APPEND);
+		if(x($a->config,'system') && x($a->config['system'],'db_log'))
+			$stamp1 = microtime(true);
 
 		if($this->mysqli)
 			$result = @$this->db->query($sql);
 		else
 			$result = @mysql_query($sql,$this->db);
 
-		//if (get_config("system", "db_log") != "")
-		//	@file_put_contents(get_config("system", "db_log"), datetime_convert().':'.session_id(). ' Stop '."\n", FILE_APPEND);
+		if(x($a->config,'system') && x($a->config['system'],'db_log')) {
+			$stamp2 = microtime(true);
+			$duration = round($stamp2-$stamp1, 3);
+			if ($duration > $a->config["system"]["db_loglimit"]) {
+				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				@file_put_contents($a->config["system"]["db_log"], $duration."\t".
+						basename($backtrace[1]["file"])."\t".
+						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
+						substr($sql, 0, 2000)."\n", FILE_APPEND);
+			}
+		}
 
 		if($this->mysqli) {
 			if($this->db->errno)
@@ -275,3 +285,9 @@ function dbesc_array(&$arr) {
 		array_walk($arr,'dbesc_array_cb');
 	}
 }}
+
+
+function dba_timer() {
+	return microtime(true);
+}
+

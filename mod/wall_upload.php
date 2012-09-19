@@ -37,14 +37,25 @@ function wall_upload_post(&$a) {
 		$can_post = true;
 	else {
 		if($community_page && remote_user()) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval(remote_user()),
-				intval($page_owner_uid)
-			);
-			if(count($r)) {
-				$can_post = true;
-				$visitor = remote_user();
-				$default_cid = $visitor;
+			$cid = 0;
+			if(is_array($_SESSION['remote'])) {
+				foreach($_SESSION['remote'] as $v) {
+					if($v['uid'] == $page_owner_uid) {
+						$cid = $v['cid'];
+						break;
+					}
+				}
+			}
+			if($cid) {
+
+				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
+					intval($cid),
+					intval($page_owner_uid)
+				);
+				if(count($r)) {
+					$can_post = true;
+					$visitor = $cid;
+				}
 			}
 		}
 	}
@@ -79,6 +90,19 @@ function wall_upload_post(&$a) {
 		killme();
 	}
 
+	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+		intval($page_owner_uid)
+	);
+
+	$limit = service_class_fetch($page_owner_uid,'photo_upload_limit');
+
+	if(($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
+		echo upgrade_message(true) . EOL ;
+		@unlink($src);
+		killme();
+	}
+
+
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
@@ -88,7 +112,14 @@ function wall_upload_post(&$a) {
 		killme();
 	}
 
+	$ph->orient($src);
 	@unlink($src);
+
+	$max_length = get_config('system','max_image_length');
+	if(! $max_length)
+		$max_length = MAX_IMAGE_LENGTH;
+	if($max_length > 0)
+		$ph->scaleImage($max_length);
 
 	$width = $ph->getWidth();
 	$height = $ph->getHeight();
