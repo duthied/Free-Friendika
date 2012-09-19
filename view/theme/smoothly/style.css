@@ -109,10 +109,11 @@ li.widget-list {
 
 
 input[type=text] {
+	float: left;
 	border: 1px solid #b0b0b0;
 	padding: 2px;
-	width: 466px;
-	margin-left: 0px;
+	width: 575px;
+	margin-top: 10px;
 	border-radius: 3px 3px 3px 3px;
 		-webkit-border-radius: 3px 3px 3px 3px;
 		-moz-border-radius: 3px 3px 3px 3px;
@@ -647,7 +648,7 @@ aside h4 {
 	padding: 5px 5px 5px 5px;
 }
 #netsearch-box input[type="text"] {
-	width: 97%;
+	width: 90%;
 }
 #netsearch-box input[type="submit"] {
 	width: auto;
@@ -869,6 +870,7 @@ ul .sidebar-group-li .icon {
 
 #profile-jot-text_tbl {
 	margin-bottom: 10px;
+	margin-top: 10px;
 }
 
 #profile-jot-text_ifr {
@@ -882,7 +884,7 @@ ul .sidebar-group-li .icon {
 #jot-title {
 	margin: 0px;
 	height: 20px;
-	width: 466px;
+	width: 575px;
 	font-weight: bold;
 	border: 1px solid #cccccc;
 }
@@ -955,7 +957,7 @@ ul .sidebar-group-li .icon {
 #profile-jot-submit {
 	width: 80px;
 	float: right;
-	margin-right: 90px;
+	margin-right: 145px;
 	margin-top: -20px;
 	margin-left: 10px;
 	padding: 5px 5px;
@@ -1073,7 +1075,7 @@ ul .sidebar-group-li .icon {
 }
 
 #profile-jot-wrapper {
-	margin-top: 0px;
+	margin-top: -15px;
 	padding-top: 0px;
 }
 
@@ -1177,10 +1179,9 @@ profile-jot-banner-wrapper {
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
 	margin-top: 20px;
-	margin-left: 100px;
 	padding-bottom: 5px;
 	float: right;
-	width: 100%;
+	width: auto;
 }
 
 .wall-item-tools:hover {
@@ -1189,11 +1190,30 @@ profile-jot-banner-wrapper {
 	transition: all 0.25s ease-in-out;	
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
-	margin-left: 140px;
+}
+
+.wall-item-social { 
+	filter: alpha(opacity=60);
+	opacity: 0.7;
+	transition: all 0.25s ease-in-out;
+		-webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
+	margin-top: 20px;
+	margin-left: 0px;
+	padding-bottom: 5px;
+	float: left;
+	width: auto;
+}
+
+.wall-item-social:hover {
+	filter: alpha(opacity=100);
+	opacity: 1;
+	transition: all 0.25s ease-in-out;	
+		-webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-tools {
-	/*margin: 5px 5px 0px 70px;*/
 	float: right;
 }
 
@@ -1213,7 +1233,8 @@ profile-jot-banner-wrapper {
 }
 
 .wall-item-delete-wrapper {
-	float: right;
+	float: left;
+	margin-right: 10px;
 }
 
 .wall-item-links-wrapper a.icon {
@@ -1224,6 +1245,7 @@ profile-jot-banner-wrapper {
 
 .pencil {
 	float: left;
+	margin-right: 20px;
 }
 
 .star-item {
@@ -1912,6 +1934,7 @@ select[size],
 select[multiple], 
 select[size][multiple] {
 	-webkit-appearance: listbox;
+	margin: 5px 0px 10px 30px;
 }
 
 select {
@@ -1925,7 +1948,7 @@ keygen, select {
 	/*-webkit-border-radius: ;*/
 }
 
-input, textarea, keygen {
+textarea, keygen {
 	margin-top: 3px;
 	font-size: 0.9em;
 	letter-spacing: normal;
@@ -1936,6 +1959,20 @@ input, textarea, keygen {
 	text-shadow: none;
 	display: inline-block;
 	text-align: -webkit-auto;	
+}
+
+input {
+	margin-top: 3px;
+	margin-right: 10px;
+	/*font-size: 0.9em;
+	letter-spacing: normal;
+	word-spacing: normal;
+	line-height: 1.2em;
+	text-transform: none;
+	text-indent: 0px;
+	text-shadow: none;
+	display: inline-block;
+	text-align: -webkit-auto;*/
 }
 
 .qq-upload-button {
@@ -2423,7 +2460,7 @@ margin-left: 0px;
 }
 
 #follow-sidebar {
-	margin-bottom: 20px;
+	margin-bottom: 80px;
 }
 
 #follow-sidebar h3:before {
@@ -3389,7 +3426,7 @@ tr {
 .no 		{ background-position: -90px  -20px;}
 .pause 		{ background-position: -110px -20px;}
 .play 		{ background-position: -130px -20px;}
-.pencil 	{ background-position: -150px -20px; margin-right: 10px;}
+.pencil 	{ background-position: -150px -20px; margin-right: 12px;}
 .small-pencil	{ background-position: -170px -20px;}
 .recycle 	{ background-position: -190px -20px;}
 .remote-link	{ background-position: -210px -20px; margin-right: 10px;}
@@ -3807,4 +3844,3 @@ div.wall-item-content-wrapper.shiny {
 	background-image: url("shiny.png");
 	background-repeat: repeat-x;
 }
-
