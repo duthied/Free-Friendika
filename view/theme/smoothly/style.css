@@ -20,7 +20,6 @@ Orange - #fec01d
 body {
     margin: 0 auto;
     padding-bottom: 3em;
-    /*position: relative;*/
     width: 960px;
     font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
     font-size: 15px;
@@ -1122,7 +1121,7 @@ profile-jot-banner-wrapper {
 .wall-item-outside-wrapper {
 	max-width: 100%;
 	border-bottom: 1px solid #dedede; 
-	margin-top: 20px;
+	/*margin-top: 20px;*/
 	margin-bottom: 20px;
 	padding-right: 10px;
 	padding-left: 12px;
@@ -1458,13 +1457,18 @@ profile-jot-banner-wrapper {
 	margin-left: 60px;
 }
 
-.tread-wrapper  { 
+.tread-wrapper  {
+	border: 0px solid #CDCDCD;
+	border-radius: 5px 5px 5px 5px;
+	margin-bottom: 20px;
+	background-color: #E2E2E2;
 }
 
 .collapsed-comments,
 .hide-comments-outer,
 .wall-item-outside-wrapper.comment { 
-	margin-left: 30px; 
+	margin-left: 30px;
+	margin-bottom: 20px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo {
