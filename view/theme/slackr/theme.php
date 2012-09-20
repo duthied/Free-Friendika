@@ -37,12 +37,21 @@ function insertFormatting(comment,BBcode,id) {
 	return true;
 }
 
-function cmtBbOpen(id) {
-	$(".comment-edit-bb-" + id).show();
+function cmtBbOpen(comment, id) {
+	if($(comment).hasClass('comment-edit-text-full')) {
+		$(".comment-edit-bb-" + id).show();
+		return true;
+	}
+	return false;
 }
-function cmtBbClose(id) {
-	$(".comment-edit-bb-" + id).hide();
+function cmtBbClose(comment, id) {
+//	if($(comment).hasClass('comment-edit-text-empty')) {
+//		$(".comment-edit-bb-" + id).hide();
+//		return true;
+//	}
+	return false;
 }
+
 
 function hidecal() {
 	if(editor) return;

@@ -2,8 +2,8 @@
 
 /*
  * Name: Smoothly
- * Description: Theme opzimized for Tablets
- * Version: 0.4
+ * Description: Like coffee with milk. Theme works fine with iPad[2].
+ * Version: Version 0.9.19-4
  * Author: Alex <https://friendica.pixelbits.de/profile/alex>
  * Maintainer: Alex <https://friendica.pixelbits.de/profile/alex>
  * Screenshot: <a href="screenshot.png">Screenshot</a>
@@ -13,6 +13,7 @@ $a->theme_info = array();
 
 function smoothly_init(&$a) {
 $a->page['htmlhead'] .= <<< EOT
+
 <script>
 function insertFormatting(comment,BBcode,id) {
 	
@@ -91,7 +92,27 @@ $('.savedsearchterm').hover(
 
 });
 
-
 </script>
 EOT;
+
+    // custom css
+    if (!is_null($cssFile)) {
+        $a->page['htmlhead'] .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $cssFile);
+    }
+
+_js_in_foot();
+
+}
+
+if(! function_exists('_js_in_foot')) {
+	function _js_in_foot() {
+		/** @purpose insert stuff in bottom of page
+		*/
+		$a = get_app();
+		$baseurl = $a->get_baseurl($ssl_state);
+		$bottom['$baseurl'] = $baseurl;
+		$tpl = file_get_contents(dirname(__file__) . '/bottom.tpl');
+
+		return $a->page['bottom'] = replace_macros($tpl, $bottom);
+	}
 }

@@ -1190,6 +1190,15 @@ function tag_deliver($uid,$item_id) {
 
 	// send a notification
 
+	// use a local photo if we have one
+
+	$r = q("select thumb from contact where uid = %d and nurl = '%s' limit 1",
+		intval($u[0]['uid']),
+		dbesc(normalise_link($item['author-link']))
+	);
+	$photo = (($r && count($r)) ? $r[0]['thumb'] : $item['author-avatar']);
+
+
 	require_once('include/enotify.php');
 	notification(array(
 		'type'         => NOTIFY_TAGSELF,
@@ -1202,7 +1211,7 @@ function tag_deliver($uid,$item_id) {
 		'link'         => $a->get_baseurl() . '/display/' . $u[0]['nickname'] . '/' . $item['id'],
 		'source_name'  => $item['author-name'],
 		'source_link'  => $item['author-link'],
-		'source_photo' => $item['author-avatar'],
+		'source_photo' => $photo,
 		'verb'         => ACTIVITY_TAG,
 		'otype'        => 'item'
 	));
@@ -1248,6 +1257,59 @@ function tag_deliver($uid,$item_id) {
 	);
 
 	proc_run('php','include/notifier.php','tgroup',$item_id);			
+
+}
+
+
+
+function tgroup_check($uid,$item) {
+
+	$a = get_app();
+
+	$mention = false;
+
+	// check that the message originated elsewhere and is a top-level post
+
+	if(($item['wall']) || ($item['origin']) || ($item['uri'] != $item['parent-uri']))
+		return false;
+
+
+	$u = q("select * from user where uid = %d limit 1",
+		intval($uid)
+	);
+	if(! count($u))
+		return false;
+
+	$community_page = (($u[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+	$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
+
+
+	$link = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
+
+	// Diaspora uses their own hardwired link URL in @-tags
+	// instead of the one we supply with webfinger
+
+	$dlink = normalise_link($a->get_baseurl() . '/u/' . $u[0]['nickname']);
+
+	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism',$item['body'],$matches,PREG_SET_ORDER);
+	if($cnt) {
+		foreach($matches as $mtch) {
+			if(link_compare($link,$mtch[1]) || link_compare($dlink,$mtch[1])) {
+				$mention = true;
+				logger('tgroup_check: mention found: ' . $mtch[2]);
+			}
+		}
+	}
+
+	if(! $mention)
+		return false;
+
+	if((! $community_page) && (! $prvgroup))
+		return false;
+
+
+
+	return true;
 
 }
 
@@ -1809,6 +1871,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				if($pass == 1)
 					continue;
 
+				// not allowed to post
+
+				if($contact['rel'] == CONTACT_IS_FOLLOWER)
+					continue;
+
+
 				// Have we seen it? If not, import it.
 
 				$item_id  = $item->get_id();
@@ -2082,6 +2150,14 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					$datarray['owner-link']   = $contact['url'];
 					$datarray['owner-avatar'] = $contact['thumb'];
 				}
+
+				// We've allowed "followers" to reach this point so we can decide if they are 
+				// posting an @-tag delivery, which followers are allowed to do for certain
+				// page types. Now that we've parsed the post, let's check if it is legit. Otherwise ignore it. 
+
+				if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
+					continue;
+
 
 				$r = item_store($datarray);
 				continue;
@@ -2626,22 +2702,32 @@ function local_delivery($importer,$data) {
 			// Specifically, the recipient? 
 
 			$is_a_remote_comment = false;
-
-			// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
-			$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`, 
-				`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item` 
-				LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
-				WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
-				AND `item`.`uid` = %d 
-				$sql_extra
+			$top_uri = $parent_uri;
+			
+			$r = q("select `item`.`parent-uri` from `item`
+				WHERE `item`.`uri` = '%s'
 				LIMIT 1",
-				dbesc($parent_uri),
-				dbesc($parent_uri),
-				dbesc($parent_uri),
-				intval($importer['importer_uid'])
+				dbesc($parent_uri)
 			);
-			if($r && count($r))
-				$is_a_remote_comment = true;			
+			if($r && count($r)) {
+				$top_uri = $r[0]['parent-uri'];
+
+				// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
+				$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`, 
+					`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item` 
+					LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
+					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
+					AND `item`.`uid` = %d 
+					$sql_extra
+					LIMIT 1",
+					dbesc($top_uri),
+					dbesc($top_uri),
+					dbesc($top_uri),
+					intval($importer['importer_uid'])
+				);
+				if($r && count($r))
+					$is_a_remote_comment = true;
+			}
 
 			// Does this have the characteristics of a community or private group comment?
 			// If it's a reply to a wall post on a community/prvgroup page it's a 
@@ -2695,15 +2781,6 @@ function local_delivery($importer,$data) {
 				}
 
 
-				// TODO: make this next part work against both delivery threads of a community post
-
-//				if((! link_compare($datarray['author-link'],$importer['url'])) && (! $community)) {
-//					logger('local_delivery: received relay claiming to be from ' . $importer['url'] . ' however comment author url is ' . $datarray['author-link'] ); 
-					// they won't know what to do so don't report an error. Just quietly die.
-//					return 0;
-//				}					
-
-				// our user with $importer['importer_uid'] is the owner
 
 				$own = q("select name,url,thumb from contact where uid = %d and self = 1 limit 1",
 					intval($importer['importer_uid'])
@@ -2773,15 +2850,6 @@ function local_delivery($importer,$data) {
 					}
 				}
 
-// 				if($community) {
-//					$newtag = '@[url=' . $a->get_baseurl() . '/profile/' . $importer['nickname'] . ']' . $importer['username'] . '[/url]';
-//					if(! stristr($datarray['tag'],$newtag)) {
-//						if(strlen($datarray['tag']))
-//							$datarray['tag'] .= ',';
-//						$datarray['tag'] .= $newtag;
-//					}
-//				}
-
 
 				$posted_id = item_store($datarray);
 				$parent = 0;
@@ -2850,6 +2918,9 @@ function local_delivery($importer,$data) {
 
 				$item_id  = $item->get_id();
 				$datarray = get_atom_elements($feed,$item);
+
+				if($importer['rel'] == CONTACT_IS_FOLLOWER)
+					continue;
 
 				$r = q("SELECT `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 					dbesc($item_id),
@@ -2945,7 +3016,7 @@ function local_delivery($importer,$data) {
 				if(!x($datarray['type']) || $datarray['type'] != 'activity') {
 
 					$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0",
-						dbesc($parent_uri),
+						dbesc($top_uri),
 						intval($importer['importer_uid'])
 					);
 
@@ -3084,6 +3155,9 @@ function local_delivery($importer,$data) {
 				$datarray['owner-link']   = $importer['url'];
 				$datarray['owner-avatar'] = $importer['thumb'];
 			}
+
+			if(($importer['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['importer_uid'],$datarray)))
+				continue;
 
 			$posted_id = item_store($datarray);
 

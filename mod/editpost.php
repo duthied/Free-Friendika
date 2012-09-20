@@ -133,6 +133,7 @@ function editpost_content(&$a) {
 		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
 		'$sourceapp' => t($a->sourcename),
+		'$cancel' => t('Cancel')
 	));
 
 	return $o;
