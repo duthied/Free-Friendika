@@ -352,69 +352,6 @@ function visible_activity($item) {
 
 
 /**
- * returns 
- * [
- *    //categories [
- *          {
- *               'name': 'category name',
- *              'removeurl': 'url to remove this category',
- *             'first': 'is the first in this array? true/false',
- *               'last': 'is the last in this array? true/false',
- *           } ,
- *           ....
- *       ],
- *       // folders [
- *               'name': 'folder name',
- *               'removeurl': 'url to remove this folder',
- *               'first': 'is the first in this array? true/false',
- *               'last': 'is the last in this array? true/false',
- *           } ,
- *           ....       
- *       ]
- *   ]
- */
-function get_cats_and_terms($item) {
-    $categories = array();
-    $folders = array();
-
-    $matches = false; $first = true;
-    $cnt = preg_match_all('/<(.*?)>/',$item['file'],$matches,PREG_SET_ORDER);
-    if($cnt) {
-        foreach($matches as $mtch) {
-            $categories[] = array(
-                'name' => xmlify(file_tag_decode($mtch[1])),
-                'removeurl' => $a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])),
-                'first' => $first,
-                'last' => false
-            );
-            $first = false;
-        }
-    }
-    if (count($categories)) $categories[count($categories)-1]['last'] = true;
-    
-
-
-    $matches = false; $first = true;
-    $cnt = preg_match_all('/\[(.*?)\]/',$item['file'],$matches,PREG_SET_ORDER);
-    if($cnt) {
-        foreach($matches as $mtch) {
-            $folders[] = array(
-                'name' => xmlify(file_tag_decode($mtch[1])),
-                'removeurl' => $a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])),
-                'first' => $first,
-                'last' => false
-            );
-            $first = false;
-        }
-    }
-
-    if (count($folders)) $folders[count($folders)-1]['last'] = true;
-    
-    return array($categories, $folders);
-}
-
-
-/**
  * Recursively prepare a thread for HTML
  */
 
