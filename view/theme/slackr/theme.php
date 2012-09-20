@@ -45,10 +45,10 @@ function cmtBbOpen(comment, id) {
 	return false;
 }
 function cmtBbClose(comment, id) {
-	if($(comment).hasClass('comment-edit-text-empty')) {
-		$(".comment-edit-bb-" + id).hide();
-		return true;
-	}
+//	if($(comment).hasClass('comment-edit-text-empty')) {
+//		$(".comment-edit-bb-" + id).hide();
+//		return true;
+//	}
 	return false;
 }
 
