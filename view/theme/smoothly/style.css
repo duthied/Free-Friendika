@@ -1445,7 +1445,7 @@ profile-jot-banner-wrapper {
 	overflow: auto;
 	margin-top: 20px;
 	float: right;
-    	width: 230px;
+    width: 250px;
 }
 
 /* ============ */
@@ -1457,9 +1457,14 @@ profile-jot-banner-wrapper {
 	color: #898989;
 	margin-left: 60px;
 }
- 
+
+.tread-wrapper  { 
+}
+
+.collapsed-comments,
+.hide-comments-outer,
 .wall-item-outside-wrapper.comment { 
-	margin-left: 70px; 
+	margin-left: 30px; 
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo {
@@ -1504,7 +1509,7 @@ profile-jot-banner-wrapper {
 
 .comment-wwedit-wrapper,
 .comment-edit-wrapper { 
-	margin: 0px 0px 0px 80px;
+	margin: 0px 0px 5px 0px;
 }
 
 .comment-wwedit-wrapper img,
@@ -1516,7 +1521,7 @@ profile-jot-banner-wrapper {
 
 .comment-edit-photo-link { 
 	float: left; 
-	width: 40px;
+	width: 30px;
 }
 
 .comment-edit-text-empty { 
@@ -3485,6 +3490,7 @@ footer {
 	clear: both; 
 }
 
+#profile-jot-text-loading,
 #profile-jot-text {
 	height: 20px;
 	color: #cccccc;
