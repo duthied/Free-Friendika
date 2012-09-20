@@ -3,7 +3,7 @@
   	Smoothly
    
   	Created by Anne Walk and Devlon Duthie on 2011-09-24
-	Modified by alex@friendica.pixelbits.de on 2012-09-17
+	Modified by alex@friendica.pixelbits.de on 2012-09-20
 
 
 ** Colors ** 
@@ -3795,7 +3795,7 @@ ul.menu-popup {
 }
 
 .qcomment {
-	opacity: 0;
+	opacity: 0.8;
 	filter: alpha(opacity=0);
 }
 
