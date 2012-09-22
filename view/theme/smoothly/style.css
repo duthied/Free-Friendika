@@ -3,7 +3,7 @@
   	Smoothly
    
   	Created by Anne Walk and Devlon Duthie on 2011-09-24
-	Modified by alex@friendica.pixelbits.de on 2012-09-17
+	Modified by alex@friendica.pixelbits.de on 2012-09-20
 
 
 ** Colors ** 
@@ -20,7 +20,6 @@ Orange - #fec01d
 body {
     margin: 0 auto;
     padding-bottom: 3em;
-    /*position: relative;*/
     width: 960px;
     font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
     font-size: 15px;
@@ -1122,7 +1121,7 @@ profile-jot-banner-wrapper {
 .wall-item-outside-wrapper {
 	max-width: 100%;
 	border-bottom: 1px solid #dedede; 
-	margin-top: 20px;
+	/*margin-top: 20px;*/
 	margin-bottom: 20px;
 	padding-right: 10px;
 	padding-left: 12px;
@@ -1445,7 +1444,7 @@ profile-jot-banner-wrapper {
 	overflow: auto;
 	margin-top: 20px;
 	float: right;
-    	width: 230px;
+    width: 250px;
 }
 
 /* ============ */
@@ -1457,9 +1456,19 @@ profile-jot-banner-wrapper {
 	color: #898989;
 	margin-left: 60px;
 }
- 
+
+.tread-wrapper  {
+	border: 0px solid #CDCDCD;
+	border-radius: 5px 5px 5px 5px;
+	margin-bottom: 20px;
+	background-color: #E2E2E2;
+}
+
+.collapsed-comments,
+.hide-comments-outer,
 .wall-item-outside-wrapper.comment { 
-	margin-left: 70px; 
+	margin-left: 30px;
+	margin-bottom: 20px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo {
@@ -1504,7 +1513,7 @@ profile-jot-banner-wrapper {
 
 .comment-wwedit-wrapper,
 .comment-edit-wrapper { 
-	margin: 0px 0px 0px 80px;
+	margin: 0px 0px 5px 0px;
 }
 
 .comment-wwedit-wrapper img,
@@ -1516,7 +1525,7 @@ profile-jot-banner-wrapper {
 
 .comment-edit-photo-link { 
 	float: left; 
-	width: 40px;
+	width: 30px;
 }
 
 .comment-edit-text-empty { 
@@ -3485,6 +3494,7 @@ footer {
 	clear: both; 
 }
 
+#profile-jot-text-loading,
 #profile-jot-text {
 	height: 20px;
 	color: #cccccc;
@@ -3795,7 +3805,7 @@ ul.menu-popup {
 }
 
 .qcomment {
-	opacity: 0;
+	opacity: 0.8;
 	filter: alpha(opacity=0);
 }
 
