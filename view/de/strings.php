@@ -860,6 +860,7 @@ $a->strings["Request date"] = "Anfragedatum";
 $a->strings["Email"] = "E-Mail";
 $a->strings["No registrations."] = "Keine Neuanmeldungen.";
 $a->strings["Deny"] = "Verwehren";
+$a->strings["Site admin"] = "Seitenadministrator";
 $a->strings["Register date"] = "Anmeldedatum";
 $a->strings["Last login"] = "Letzte Anmeldung";
 $a->strings["Last item"] = "Letzter Beitrag";
