@@ -247,6 +247,8 @@ function register_content(&$a) {
 
 	call_hooks('register_form',$arr);
 
+	$o = $arr['template'];
+
 	$o = replace_macros($o, array(
 		'$oidhtml' => $oidhtml,
 		'$invitations' => get_config('system','invitation_only'),
