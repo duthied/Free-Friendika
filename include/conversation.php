@@ -626,13 +626,12 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$indent .= ' shiny';
 
+
 		localize_item($item);
 
 		$body = prepare_body($item,true);
 
-		list($categories, $folders) = get_cats_and_terms($item);
-
-
+		list($categories,$folders) = get_cats_and_terms($item);
 
 		$tmp_item = array(
 			// collapse comments in template. I don't like this much...
@@ -645,6 +644,10 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 			'tags' => template_escape($tags),
 			'hashtags' => template_escape($hashtags),
 			'mentions' => template_escape($mentions),
+			'txt_cats' => t('Categories:'),
+			'txt_folders' => t('Filed under:'),
+			'has_cats' => ((count($categories)) ? 'true' : ''),
+			'has_folders' => ((count($folders)) ? 'true' : ''),
 			'categories' => $categories,
 			'folders' => $folders,
 			'body' => template_escape($body),
@@ -899,6 +902,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 				$body = prepare_body($item,true);
 
+
 				list($categories, $folders) = get_cats_and_terms($item);
 				//$tmp_item = replace_macros($tpl,array(
 				$tmp_item = array(
@@ -916,6 +920,10 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'tags' => template_escape($tags),
 					'hashtags' => template_escape($hashtags),
 					'mentions' => template_escape($mentions),
+					'txt_cats' => t('Categories:'),
+					'txt_folders' => t('Filed under:'),
+					'has_cats' => ((count($categories)) ? 'true' : ''),
+					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
 					'text' => strip_tags(template_escape($body)),
