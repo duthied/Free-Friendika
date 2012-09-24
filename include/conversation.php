@@ -626,13 +626,12 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$indent .= ' shiny';
 
+
 		localize_item($item);
 
 		$body = prepare_body($item,true);
 
-		list($categories, $folders) = get_cats_and_terms($item);
-
-
+		list($categories,$folders) = get_cats_and_terms($item);
 
 		$tmp_item = array(
 			// collapse comments in template. I don't like this much...
@@ -902,6 +901,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$shareable = false;
 
 				$body = prepare_body($item,true);
+
 
 				list($categories, $folders) = get_cats_and_terms($item);
 				//$tmp_item = replace_macros($tpl,array(
