@@ -1,3 +1,4 @@
+<a name="$item.id" ></a>
 <div class="wall-item-outside-wrapper $item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
 	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info" id="wall-item-info-$item.id">
@@ -34,7 +35,7 @@
 		</div>
 		<div class="wall-item-author">
 				<a href="$item.profile_url" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a>
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>
+				<div class="wall-item-ago"  id="wall-item-ago-$item.id" title="$item.localtime">$item.ago</div>
 				
 		</div>			
 		

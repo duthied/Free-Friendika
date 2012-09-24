@@ -45,7 +45,8 @@
 			<a href="$item.profile_url" title="$item.linktitle" class="wall-item-name-link">
 			<span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span>
 			</a>
-			<div class="wall-item-ago"  id="wall-item-ago-$item.id">&bull; $item.ago</div>
+			<div class="wall-item-ago">&bull;</div>
+			<div class="wall-item-ago" id="wall-item-ago-$item.id" title="$item.localtime">$item.ago</div>
 		</div>	
 
 		<div>
@@ -54,11 +55,25 @@
 			<div class="wall-item-title" id="wall-item-title-$item.id">$item.title</div>
 			<div class="wall-item-title-end"></div>
 			<div class="wall-item-body" id="wall-item-body-$item.id" >$item.body
-					<div class="body-tag">
-						{{ for $item.tags as $tag }}
-							<span class='tag'>$tag</span>
-						{{ endfor }}
-					</div>
+				<div class="body-tag">
+					{{ for $item.tags as $tag }}
+					<span class='tag'>$tag</span>
+					{{ endfor }}
+				</div>
+
+				{{ if $item.has_cats }}
+				<div class="categorytags"><span>$item.txt_cats {{ for $item.categories as $cat }}$cat.name 
+				<a href="$cat.removeurl" title="$remove">[$remove]</a> 
+				{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
+				</div>
+				{{ endif }}
+
+				{{ if $item.has_folders }}
+				<div class="filesavetags"><span>$item.txt_folders {{ for $item.folders as $cat }}$cat.name 
+				<a href="$cat.removeurl" title="$remove">[$remove]</a> 
+				{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
+				</div>
+				{{ endif }}
 			</div>
 		</div>
 		<div class="wall-item-social" id="wall-item-social-$item.id">
