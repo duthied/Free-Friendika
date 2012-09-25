@@ -38,4 +38,3 @@
 
 <br />
 <div id="events-reminder"></div>
-<br />
