@@ -598,7 +598,6 @@ class Item extends BaseObject {
 					$this->owner_url = zrl($a->page_contact['url']);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
-					$this->set_template('wall2wall');
 					$this->wall_to_wall = true;
 				}
 				else if($this->get_data_value('owner-link')) {
@@ -620,7 +619,6 @@ class Item extends BaseObject {
 
 						$this->owner_photo = $this->get_data_value('owner-avatar');
 						$this->owner_name = $this->get_data_value('owner-name');
-						$this->set_template('wall2wall');
 						$this->wall_to_wall = true;
 						// If it is our contact, use a friendly redirect link
 						if((link_compare($this->get_data_value('owner-link'),$this->get_data_value('url'))) 

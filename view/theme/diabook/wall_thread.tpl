@@ -36,7 +36,6 @@
 		<div class="wall-item-content">
 			{{ if $item.title }}<h2><a href="$item.plink.href">$item.title</a></h2>{{ endif }}
 			$item.body
-
 			{{ if $item.has_cats }}
 			<div class="categorytags"><span>$item.txt_cats {{ for $item.categories as $cat }}$cat.name <a href="$cat.removeurl" title="$remove">[$remove]</a> {{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
 			</div>
