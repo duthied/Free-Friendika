@@ -5,24 +5,31 @@
 	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
 {{endif}}
 <div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
-<div class="wall-item-outside-wrapper $item.indent" id="wall-item-outside-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent wallwall" id="wall-item-outside-wrapper-$item.id" >
 	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
-		<div class="wall-item-info" id="wall-item-info-$item.id">
-			<div class="wall-item-photo-wrapper mframe" id="wall-item-photo-wrapper-$item.id" 
-				 onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')" 
-				 onmouseout="t$item.id=setTimeout('closeMenu(\'wall-item-photo-menu-button-$item.id\'); closeMenu(\'wall-item-photo-menu-$item.id\');',200)">
+		<div class="wall-item-info{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-info-$item.id">
+			{{ if $item.owner_url }}
+			<div class="wall-item-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
+				<a href="$item.owner_url" title="$item.olinktitle" class="wall-item-photo-link" id="wall-item-ownerphoto-link-$item.id">
+				<img src="$item.owner_photo" class="wall-item-photo$item.osparkle" id="wall-item-ownerphoto-$item.id" style="height: 80px; width: 80px;" alt="$item.owner_name" /></a>
+			</div>
+			<div class="wall-item-arrowphoto-wrapper" ><img src="images/larrow.gif" alt="$item.wall" /></div>
+			{{ endif }}
+			<div class="wall-item-photo-wrapper mframe{{ if $item.owner_url }} wwfrom{{ endif }}" id="wall-item-photo-wrapper-$item.id" 
+				onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')"
+                onmouseout="t$item.id=setTimeout('closeMenu(\'wall-item-photo-menu-button-$item.id\'); closeMenu(\'wall-item-photo-menu-$item.id\');',200)">
 				<a href="$item.profile_url" title="$item.linktitle" class="wall-item-photo-link" id="wall-item-photo-link-$item.id">
-					<img src="$item.thumb" class="wall-item-photo$item.sparkle" id="wall-item-photo-$item.id" style="height: 80px; width: 80px;" alt="$item.name" />
-				</a>
+				<img src="$item.thumb" class="wall-item-photo$item.sparkle" id="wall-item-photo-$item.id" style="height: 80px; width: 80px;" alt="$item.name" /></a>
 				<span onclick="openClose('wall-item-photo-menu-$item.id');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-$item.id">menu</span>
-				<div class="wall-item-photo-menu" id="wall-item-photo-menu-$item.id">
-					<ul>
-						$item.item_photo_menu
-					</ul>
-				</div>
+                <div class="wall-item-photo-menu" id="wall-item-photo-menu-$item.id">
+                    <ul>
+                        $item.item_photo_menu
+                    </ul>
+                </div>
+
 			</div>
 			<div class="wall-item-photo-end"></div>
-			<div class="wall-item-location" id="wall-item-location-$item.id">{{ if $item.location }}<span class="icon globe"></span>$item.location {{ endif }}</div>				
+			<div class="wall-item-location" id="wall-item-location-$item.id">{{ if $item.location }}<span class="icon globe"></span>$item.location {{ endif }}</div>
 		</div>
 		<div class="wall-item-lock-wrapper">
 				{{ if $item.lock }}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="$item.lock" onclick="lockview(event,$item.id);" /></div>
@@ -66,13 +73,11 @@
 				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<div class="wall-item-delete-end"></div>
 		</div>
-		
 		<div class="wall-item-author">
-				<a href="$item.profile_url" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a>
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>
-				
+			<a href="$item.profile_url" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a>
+			<div class="wall-item-ago"  id="wall-item-ago-$item.id">$item.ago</div>
 		</div>	
-	</div>
+	</div>	
 	<div class="wall-item-wrapper-end"></div>
 	<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
 	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>

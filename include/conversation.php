@@ -359,7 +359,7 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 	$result = array();
 
 	$wall_template = 'wall_thread.tpl';
-	$wallwall_template = 'wallwall_thread.tpl';
+//	$wallwall_template = 'wallwall_thread.tpl';
 	$items_seen = 0;
 	$nb_items = count($items);
 
@@ -504,7 +504,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 					$owner_url = zrl($a->page_contact['url']);
 					$owner_photo = $a->page_contact['thumb'];
 					$owner_name = $a->page_contact['name'];
-					$template = $wallwall_template;
 					$commentww = 'ww';
 				}
 				else if($item['owner-link']) {
@@ -527,7 +526,6 @@ function prepare_threads_body($a, $items, $cmnt_tpl, $page_writeable, $mode, $pr
 						$owner_url = $item['owner-link'];
 						$owner_photo = $item['owner-avatar'];
 						$owner_name = $item['owner-name'];
-						$template = $wallwall_template;
 						$commentww = 'ww';
 						// If it is our contact, use a friendly redirect link
 						if((link_compare($item['owner-link'],$item['url']))
@@ -793,8 +791,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$items = $cb['items'];
 
 	$cmnt_tpl    = get_markup_template('comment_item.tpl');
-	$tpl         = 'wall_item.tpl';
-	$wallwall    = 'wallwall_item.tpl';
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
 	$alike = array();
@@ -814,7 +810,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			// "New Item View" on network page or search page results
 			// - just loop through the items and format them minimally for display
 
-			//$tpl = get_markup_template('search_item.tpl');
+//			$tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
 
 			foreach($items as $item) {
