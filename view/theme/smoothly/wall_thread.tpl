@@ -113,7 +113,7 @@
 				{{ endif }}
 			</div>
 
-			{{ if $item.drop.dropping }}
+			{{ if $item.drop.pagedrop }}
 			<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />			{{ endif }}
 			<div class="wall-item-delete-end"></div>
 		</div>

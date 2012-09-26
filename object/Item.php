@@ -112,6 +112,7 @@ class Item extends BaseObject {
 
 		$drop = array(
 			'dropping' => $dropping,
+			'pagedrop' => $item['pagedrop'],
 			'select' => t('Select'), 
 			'delete' => t('Delete'),
 		);
