@@ -71,7 +71,8 @@ function ping_init(&$a) {
 
 		if(count($r)) {		
 
-			call_hooks('network_ping', array('items' => $r));
+			$arr = array('items' => $r);
+			call_hooks('network_ping', $arr);
 
 			foreach ($r as $it) {
 
