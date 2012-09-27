@@ -1186,7 +1186,7 @@ function tag_deliver($uid,$item_id) {
 
 	// use a local photo if we have one
 
-	$r = q("select thumb from contact where uid = %d and nurl = '%s' limit 1",
+	$r = q("select * from contact where uid = %d and nurl = '%s' limit 1",
 		intval($u[0]['uid']),
 		dbesc(normalise_link($item['author-link']))
 	);
@@ -1209,6 +1209,11 @@ function tag_deliver($uid,$item_id) {
 		'verb'         => ACTIVITY_TAG,
 		'otype'        => 'item'
 	));
+
+
+	$arr = array('item' => $item, 'user' => $u[0], 'contact' => $r[0]);
+
+	call_hooks('tagged', $arr);
 
 	if((! $community_page) && (! $prvgroup))
 		return;
