@@ -732,6 +732,22 @@ aside #profile-extra-links li {
   margin: 0px;
   list-style: none;
 }
+aside #wallmessage-link {
+  display: block;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  color: #ffffff;
+  background: #009100 url('../../../images/connect-bg.png') no-repeat left center;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 2px 2px 35px;
+  margin-top: 3px;
+}
+aside #wallmessage-link:hover {
+  text-decoration: none;
+  background-color: #ccff42;
+}
 aside #dfrn-request-link {
   display: block;
   -moz-border-radius: 5px 5px 5px 5px;
@@ -1136,6 +1152,9 @@ section {
   opacity: 0.5;
 }
 .wwto {
+  position: absolute !important;
+  width: 25px;
+  height: 25px;
   background: #FFFFFF;
   border: 2px solid #364e59;
   height: 25px;

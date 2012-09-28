@@ -64,8 +64,10 @@
 			
 			<div class="wall-item-actions-tools">
 
-				{{ if $item.drop.dropping }}
+				{{ if $item.drop.pagedrop }}
 					<input type="checkbox" title="$item.drop.select" name="itemselected[]" class="item-select" value="$item.id" />
+				{{ endif }}
+				{{ if $item.drop.dropping }}
 					<a href="item/drop/$item.id" onclick="return confirmDelete();" class="icon delete s16" title="$item.drop.delete">$item.drop.delete</a>
 				{{ endif }}
 				{{ if $item.edpost }}

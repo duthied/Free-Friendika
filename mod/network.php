@@ -471,7 +471,7 @@ function network_content(&$a, $update = 0) {
 		}
 	}
 
-	if((! $group) && (! $cid) && (! $update)) {
+	if((! $group) && (! $cid) && (! $update) && (! get_config('theme','hide_eventlist'))) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}

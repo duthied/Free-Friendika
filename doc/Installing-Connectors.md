@@ -100,20 +100,17 @@ b. The url should be your site URL with a trailing slash.
 
 You **may** be required to provide a privacy and/or terms of service URL.
 
-c. Set the following values in your .htconfig.php file
-
-```
-$a->config['facebook']['appid'] = 'xxxxxxxxxxx';
-$a->config['facebook']['appsecret'] = 'xxxxxxxxxxxxxxx';
-```
-
-Replace with the settings Facebook gives you.
-
-d. Navigate to Set Web->Site URL & Domain -> Website Settings.  Set Site URL
+c. Navigate to Set Web->Site URL & Domain -> Website Settings.  Set Site URL
 to yoursubdomain.yourdomain.com.  Set Site Domain to your yourdomain.com.
 
+d. Install the Facebook plugin on your Friendica site at 'admin/plugins'. You should then see a link for Facebook under 'Plugin Features' on the sidebar of the admin panel. Select that. 
 
-On Friendica, visit the Facebook Settings section of the "Settings->Connector Settings" page. And click 'Install Facebook Connector'.
+e. Enter the App-ID and App Secret that Facebook gave you. Change any other settings as desired.
+
+
+On Friendica, each member who wishes to use the Facebook connector should visit the Facebook Settings section of their "Settings->Connector Settings" page, and click 'Install Facebook Connector'.
+
+Choose the appropriate settings for your usage and privacy requirements.
 
 This will ask you to login to Facebook and grant permission to the
 plugin to do its stuff. Allow it to do so.

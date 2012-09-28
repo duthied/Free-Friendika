@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1155 );
+define( 'UPDATE_VERSION' , 1156 );
 
 /**
  *
@@ -1349,5 +1349,16 @@ function update_1154() {
 
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
+}
+
+function update_1155() {
+	$r1 = q("ALTER TABLE `item_id` DROP PRIMARY KEY");
+	$r2 = q("ALTER TABLE `item_id` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST");
+	$r3 = q("ALTER TABLE `item_id` ADD INDEX ( `iid` ) ");
+
+	if($r1 && $r2 && $r3)
+		return UPDATE_SUCCESS;
+
+	return UPDATE_FAILED;
 }
 

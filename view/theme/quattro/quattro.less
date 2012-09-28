@@ -311,6 +311,18 @@ aside {
 		li { padding: 0px; margin: 0px; list-style: none; }
 	}
 
+	#wallmessage-link {
+		display: block;
+		.rounded();
+		color: @AsideConnect;
+		background: @AsideConnectBg url('../../../images/connect-bg.png') no-repeat left center;
+		font-weight: bold;
+		text-transform:uppercase;
+		padding: 4px 2px 2px 35px;
+                margin-top: 3px;
+		
+		&:hover { text-decoration: none; background-color: @AsideConnectHoverBg; }
+	}
 	#dfrn-request-link {
 		display: block;
 		.rounded();

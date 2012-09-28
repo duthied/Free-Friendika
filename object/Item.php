@@ -63,7 +63,7 @@ class Item extends BaseObject {
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 					continue;
 				}
-				if($item['verb'] === ACTIVITY_LIKE || $item['verb'] === ACTIVITY_DISLIKE) {
+				if(! visible_activity($item)) {
 					continue;
 				}
 				$child = new Item($item);
@@ -112,6 +112,7 @@ class Item extends BaseObject {
 
 		$drop = array(
 			'dropping' => $dropping,
+			'pagedrop' => $item['pagedrop'],
 			'select' => t('Select'), 
 			'delete' => t('Delete'),
 		);
@@ -143,10 +144,20 @@ class Item extends BaseObject {
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
 
 		$tags=array();
+		$hashtags = array();
+		$mentions = array();
 		foreach(explode(',',$item['tag']) as $tag){
 			$tag = trim($tag);
-			if ($tag!="") $tags[] = bbcode($tag);
-		}
+			if ($tag!="") {
+				$t = bbcode($tag);
+				$tags[] = $t;
+				if($t[0] == '#')
+					$hashtags[] = $t;
+				elseif($t[0] == '@')
+					$mentions[] = $t;
+			}
+
+		}        
 
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
@@ -195,11 +206,21 @@ class Item extends BaseObject {
 
 		$body = prepare_body($item,true);
 
+        list($categories, $folders) = get_cats_and_terms($item);
+
 		$tmp_item = array(
 			'template' => $this->get_template(),
 			
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'tags' => $tags,
+            'hashtags' => $hashtags,
+            'mentions' => $mentions,
+			'txt_cats' => t('Categories:'),
+			'txt_folders' => t('Filed under:'),
+			'has_cats' => ((count($categories)) ? 'true' : ''),
+			'has_folders' => ((count($folders)) ? 'true' : ''),
+            'categories' => $categories,
+            'folders' => $folders,            
 			'body' => template_escape($body),
 			'text' => strip_tags(template_escape($body)),
 			'id' => $this->get_id(),
@@ -254,6 +275,8 @@ class Item extends BaseObject {
 			if(($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
+				$result['children'][0]['hidden_comments_num'] = $total_children;
+				$result['children'][0]['hidden_comments_text'] = tt('comment', 'comments', $total_children);
 				$result['children'][0]['hide_text'] = t('show more');
 				if($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
@@ -264,6 +287,11 @@ class Item extends BaseObject {
 			}
 		}
 		
+        if ($this->is_toplevel()) {
+            $result['total_comments_num'] = $total_children;
+            $result['total_comments_text'] = tt('comment', 'comments', $total_children);
+        }
+        
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
@@ -304,11 +332,9 @@ class Item extends BaseObject {
 		 * Only add what will be displayed
 		 */
 		if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
-			logger('[WARN] Item::add_child : Item is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
-		if($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
-			logger('[WARN] Item::add_child : Item is a (dis)like ('. $item->get_id() .').', LOGGER_DEBUG);
+		if(activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE)) {
 			return false;
 		}
 		
@@ -571,7 +597,6 @@ class Item extends BaseObject {
 					$this->owner_url = zrl($a->page_contact['url']);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
-					$this->set_template('wall2wall');
 					$this->wall_to_wall = true;
 				}
 				else if($this->get_data_value('owner-link')) {
@@ -593,7 +618,6 @@ class Item extends BaseObject {
 
 						$this->owner_photo = $this->get_data_value('owner-avatar');
 						$this->owner_name = $this->get_data_value('owner-name');
-						$this->set_template('wall2wall');
 						$this->wall_to_wall = true;
 						// If it is our contact, use a friendly redirect link
 						if((link_compare($this->get_data_value('owner-link'),$this->get_data_value('url'))) 
@@ -634,5 +658,9 @@ class Item extends BaseObject {
 	private function is_visiting() {
 		return $this->visiting;
 	}
+
+
+
+
 }
 ?>
