@@ -341,11 +341,14 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
-	if(activity_match($child['verb'],ACTIVITY_LIKE) || activity_match($child['verb'],ACTIVITY_DISLIKE))
+	if(activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE))
 		return false;
 
-	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && $item['uid'] != local_user())
-		return false;
+	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
+		if(! (($item['self']) && ($item['uid'] == local_user()))) {
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -678,12 +681,17 @@ function item_photo_menu($item){
 		 if(! count($a->contacts))
 			load_contact_links(local_user());
 	}
+	$sub_link="";
 	$poke_link="";
 	$contact_url="";
 	$pm_url="";
 	$status_link="";
 	$photos_link="";
 	$posts_link="";
+
+	if((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
+		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
+	}
 
 	$sparkle = false;
 	$profile_link = best_link_url($item,$sparkle,$ssl_state);
@@ -725,6 +733,7 @@ function item_photo_menu($item){
 	}
 
 	$menu = Array(
+		t("Follow Thread") => $sub_link,
 		t("View Status") => $status_link,
 		t("View Profile") => $profile_link,
 		t("View Photos") => $photos_link,
@@ -743,7 +752,11 @@ function item_photo_menu($item){
 
 	$o = "";
 	foreach($menu as $k=>$v){
-		if ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
+		if(strpos($v,'javascript:') === 0) {
+			$v = substr($v,11);
+			$o .= "<li><a href=\"#\" onclick=\"$v\">$k</a></li>\n";
+		}
+		elseif ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}
