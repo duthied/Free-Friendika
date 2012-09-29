@@ -1250,6 +1250,12 @@ function photos_content(&$a) {
 
 		// Do we have an item for this photo?
 
+		// FIXME! - replace following code to display the conversation with our normal 
+		// conversation functions so that it works correctly and tracks changes
+		// in the evolving conversation code.
+		// The difference is that we won't be displaying the conversation head item
+		// as a "post" but displaying instead the photo it is linked to
+
 		$linked_items = q("SELECT * FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			dbesc($datum)
 		);
@@ -1389,6 +1395,8 @@ function photos_content(&$a) {
 			
 			$like = '';
 			$dislike = '';
+
+
 
 			// display comments
 			if(count($r)) {
