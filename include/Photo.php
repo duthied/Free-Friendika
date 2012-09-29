@@ -227,7 +227,18 @@ class Photo {
             return FALSE;
 
         if($width > $max && $height > $max) {
-            if($width > $height) {
+
+			// very tall image (greater than 16:9)
+			// constrain the width - let the height float.
+
+			if((($height * 9) / 16) > $width) {
+				$dest_width = $max;
+     	        $dest_height = intval(( $height * $max ) / $width);
+			}
+
+			// else constrain both dimensions
+
+			elseif($width > $height) {
                 $dest_width = $max;
                 $dest_height = intval(( $height * $max ) / $width);
             }
@@ -243,8 +254,18 @@ class Photo {
             }
             else {
                 if( $height > $max ) {
-                    $dest_width = intval(( $width * $max ) / $height);
-                    $dest_height = $max;
+
+					// very tall image (greater than 16:9)
+					// constrain the width - let the height float.
+
+					if((($height * 9) / 16) > $width) {
+						$dest_width = $max;
+     	        		$dest_height = intval(( $height * $max ) / $width);
+					}
+					else {
+	                    $dest_width = intval(( $width * $max ) / $height);
+    	                $dest_height = $max;
+					}
                 }
                 else {
                     $dest_width = $width;
