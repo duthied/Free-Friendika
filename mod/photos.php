@@ -27,7 +27,7 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra ",
+		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
 			intval($a->data['user']['uid'])
 		);
 
