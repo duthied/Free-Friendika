@@ -380,10 +380,16 @@
 		unpause();
 		$('#like-rotator-' + ident.toString()).show();
 		$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
-//		if(timer) clearTimeout(timer);
-//		timer = setTimeout(NavUpdate,3000);
 		liking = 1;
 	}
+
+	function dosubthread(ident) {
+		unpause();
+		$('#like-rotator-' + ident.toString()).show();
+		$.get('subthread/' + ident.toString(), NavUpdate );
+		liking = 1;
+	}
+
 
 	function dostar(ident) {
 		ident = ident.toString();
