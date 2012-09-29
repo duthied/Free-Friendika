@@ -213,8 +213,16 @@ class Photo {
             // Don't forget to go back to the first frame
             $this->image->setFirstIterator();
             do {
+
+				// FIXME - implement horizantal bias for scaling as in followin GD functions
+				// to allow very tall images to be constrained only horizontally. 
+
                 $this->image->resizeImage($max, $max, imagick::FILTER_LANCZOS, 1, true);
             } while ($this->image->nextImage());
+
+			// FIXME - also we need to copy the new dimensions to $this->height, $this->width as other functions
+			// may rely on it.
+
             return;
         }
 
@@ -256,11 +264,11 @@ class Photo {
                 if( $height > $max ) {
 
 					// very tall image (greater than 16:9)
-					// constrain the width - let the height float.
+					// but width is OK - don't do anything
 
 					if((($height * 9) / 16) > $width) {
-						$dest_width = $max;
-     	        		$dest_height = intval(( $height * $max ) / $width);
+						$dest_width = $width;
+     	        		$dest_height = $height;
 					}
 					else {
 	                    $dest_width = intval(( $width * $max ) / $height);
