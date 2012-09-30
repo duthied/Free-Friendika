@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1480\n"
+"Project-Id-Version: 3.0.1481\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-28 10:00-0700\n"
+"POT-Creation-Date: 2012-09-29 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,9 +127,9 @@ msgstr ""
 
 #: ../../mod/crepair.php:166 ../../mod/fsuggest.php:107
 #: ../../mod/events.php:455 ../../mod/photos.php:1005
-#: ../../mod/photos.php:1081 ../../mod/photos.php:1338
-#: ../../mod/photos.php:1378 ../../mod/photos.php:1419
-#: ../../mod/photos.php:1451 ../../mod/install.php:246
+#: ../../mod/photos.php:1081 ../../mod/photos.php:1344
+#: ../../mod/photos.php:1384 ../../mod/photos.php:1427
+#: ../../mod/photos.php:1459 ../../mod/install.php:246
 #: ../../mod/install.php:284 ../../mod/localtime.php:45 ../../mod/poke.php:199
 #: ../../mod/content.php:693 ../../mod/contacts.php:348
 #: ../../mod/settings.php:543 ../../mod/settings.php:697
@@ -381,13 +381,13 @@ msgstr ""
 
 #: ../../mod/photos.php:54 ../../mod/photos.php:149 ../../mod/photos.php:986
 #: ../../mod/photos.php:1073 ../../mod/photos.php:1088
-#: ../../mod/photos.php:1530 ../../mod/photos.php:1542
+#: ../../mod/photos.php:1538 ../../mod/photos.php:1550
 #: ../../addon/communityhome/communityhome.php:110
 #: ../../view/theme/diabook/theme.php:598
 msgid "Contact Photos"
 msgstr ""
 
-#: ../../mod/photos.php:61 ../../mod/photos.php:1104 ../../mod/photos.php:1580
+#: ../../mod/photos.php:61 ../../mod/photos.php:1104 ../../mod/photos.php:1588
 msgid "Upload New Photos"
 msgstr ""
 
@@ -418,7 +418,7 @@ msgstr ""
 msgid "Delete Album"
 msgstr ""
 
-#: ../../mod/photos.php:240 ../../mod/photos.php:1339
+#: ../../mod/photos.php:240 ../../mod/photos.php:1345
 msgid "Delete Photo"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr ""
 msgid "Do not show a status post for this upload"
 msgstr ""
 
-#: ../../mod/photos.php:1032 ../../mod/photos.php:1334
+#: ../../mod/photos.php:1032 ../../mod/photos.php:1340
 msgid "Permissions"
 msgstr ""
 
@@ -512,7 +512,7 @@ msgstr ""
 msgid "Show Oldest First"
 msgstr ""
 
-#: ../../mod/photos.php:1124 ../../mod/photos.php:1563
+#: ../../mod/photos.php:1124 ../../mod/photos.php:1571
 msgid "View Photo"
 msgstr ""
 
@@ -545,53 +545,53 @@ msgstr ""
 msgid "View Full Size"
 msgstr ""
 
-#: ../../mod/photos.php:1311
+#: ../../mod/photos.php:1317
 msgid "Tags: "
 msgstr ""
 
-#: ../../mod/photos.php:1314
+#: ../../mod/photos.php:1320
 msgid "[Remove any tag]"
 msgstr ""
 
-#: ../../mod/photos.php:1324
+#: ../../mod/photos.php:1330
 msgid "Rotate CW (right)"
 msgstr ""
 
-#: ../../mod/photos.php:1325
+#: ../../mod/photos.php:1331
 msgid "Rotate CCW (left)"
 msgstr ""
 
-#: ../../mod/photos.php:1327
+#: ../../mod/photos.php:1333
 msgid "New album name"
 msgstr ""
 
-#: ../../mod/photos.php:1330
+#: ../../mod/photos.php:1336
 msgid "Caption"
 msgstr ""
 
-#: ../../mod/photos.php:1332
+#: ../../mod/photos.php:1338
 msgid "Add a Tag"
 msgstr ""
 
-#: ../../mod/photos.php:1336
+#: ../../mod/photos.php:1342
 msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
-#: ../../mod/photos.php:1356 ../../mod/content.php:667
+#: ../../mod/photos.php:1362 ../../mod/content.php:667
 #: ../../object/Item.php:196
 msgid "I like this (toggle)"
 msgstr ""
 
-#: ../../mod/photos.php:1357 ../../mod/content.php:668
+#: ../../mod/photos.php:1363 ../../mod/content.php:668
 #: ../../object/Item.php:197
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: ../../mod/photos.php:1358 ../../include/conversation.php:909
+#: ../../mod/photos.php:1364 ../../include/conversation.php:909
 msgid "Share"
 msgstr ""
 
-#: ../../mod/photos.php:1359 ../../mod/editpost.php:112
+#: ../../mod/photos.php:1365 ../../mod/editpost.php:112
 #: ../../mod/content.php:482 ../../mod/content.php:845
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:293
 #: ../../mod/message.php:481 ../../include/conversation.php:573
@@ -599,36 +599,36 @@ msgstr ""
 msgid "Please wait"
 msgstr ""
 
-#: ../../mod/photos.php:1375 ../../mod/photos.php:1416
-#: ../../mod/photos.php:1448 ../../mod/content.php:690
+#: ../../mod/photos.php:1381 ../../mod/photos.php:1424
+#: ../../mod/photos.php:1456 ../../mod/content.php:690
 #: ../../object/Item.php:555
 msgid "This is you"
 msgstr ""
 
-#: ../../mod/photos.php:1377 ../../mod/photos.php:1418
-#: ../../mod/photos.php:1450 ../../mod/content.php:692 ../../boot.php:574
+#: ../../mod/photos.php:1383 ../../mod/photos.php:1426
+#: ../../mod/photos.php:1458 ../../mod/content.php:692 ../../boot.php:574
 #: ../../object/Item.php:557
 msgid "Comment"
 msgstr ""
 
-#: ../../mod/photos.php:1379 ../../mod/editpost.php:133
+#: ../../mod/photos.php:1385 ../../mod/editpost.php:133
 #: ../../mod/content.php:702 ../../include/conversation.php:946
 #: ../../object/Item.php:567
 msgid "Preview"
 msgstr ""
 
-#: ../../mod/photos.php:1479 ../../mod/content.php:439
+#: ../../mod/photos.php:1487 ../../mod/content.php:439
 #: ../../mod/content.php:723 ../../mod/settings.php:606
 #: ../../mod/settings.php:695 ../../mod/group.php:168 ../../mod/admin.php:696
 #: ../../include/conversation.php:518 ../../object/Item.php:117
 msgid "Delete"
 msgstr ""
 
-#: ../../mod/photos.php:1569
+#: ../../mod/photos.php:1577
 msgid "View Album"
 msgstr ""
 
-#: ../../mod/photos.php:1578
+#: ../../mod/photos.php:1586
 msgid "Recent Photos"
 msgstr ""
 
