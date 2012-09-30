@@ -994,6 +994,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 						intval($tagcid),
 						intval($profile_uid)
 				);
+			}
 			else {
 				$newname = str_replace('_',' ',$name);
 

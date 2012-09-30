@@ -205,27 +205,6 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick()) {
-            /**
-             * If it is not animated, there will be only one iteration here,
-             * so don't bother checking
-             */
-            // Don't forget to go back to the first frame
-            $this->image->setFirstIterator();
-            do {
-
-				// FIXME - implement horizantal bias for scaling as in followin GD functions
-				// to allow very tall images to be constrained only horizontally. 
-
-                $this->image->resizeImage($max, $max, imagick::FILTER_LANCZOS, 1, true);
-            } while ($this->image->nextImage());
-
-			// FIXME - also we need to copy the new dimensions to $this->height, $this->width as other functions
-			// may rely on it.
-
-            return;
-        }
-
         $width = $this->width;
         $height = $this->height;
 
@@ -280,6 +259,28 @@ class Photo {
                     $dest_height = $height;
                 }
             }
+        }
+
+
+        if($this->is_imagick()) {
+            /**
+             * If it is not animated, there will be only one iteration here,
+             * so don't bother checking
+             */
+            // Don't forget to go back to the first frame
+            $this->image->setFirstIterator();
+            do {
+
+				// FIXME - implement horizantal bias for scaling as in followin GD functions
+				// to allow very tall images to be constrained only horizontally. 
+
+                $this->image->scaleImage($dest_width, $dest_height);
+            } while ($this->image->nextImage());
+
+			// FIXME - also we need to copy the new dimensions to $this->height, $this->width as other functions
+			// may rely on it.
+
+            return;
         }
 
 
@@ -400,8 +401,6 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick())
-            return $this->scaleImage($min);
 
         $width = $this->width;
         $height = $this->height;
@@ -438,6 +437,8 @@ class Photo {
             }
         }
 
+        if($this->is_imagick())
+            return $this->scaleImage($dest_width,$dest_height);
 
         $dest = imagecreatetruecolor( $dest_width, $dest_height );
         imagealphablending($dest, false);
@@ -460,7 +461,7 @@ class Photo {
         if($this->is_imagick()) {
             $this->image->setFirstIterator();
             do {
-                $this->image->resizeImage($dim, $dim, imagick::FILTER_LANCZOS, 1, false);
+                $this->image->scaleImage($dim, $dim);
             } while ($this->image->nextImage());
             return;
         }
