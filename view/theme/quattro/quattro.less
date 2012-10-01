@@ -591,19 +591,37 @@ section {
 
 .wall-item-tags { padding-top: 5px; }
 .tag {
-	background: url("../../../images/tag_b.png") no-repeat center left;
+	background: url("icons/tag.png") no-repeat center right;
 	color: @TagColor;
+	padding-right: 8px;
 	padding-left: 3px;
-	a {
-		padding-right: 8px;
-		background: url("../../../images/tag.png") no-repeat center right;
-		color: @TagColor;
-	}
+	a { color: @TagColor;	}
 }
-.filesavetags {
+.mention {
+	background: url("icons/men.png") no-repeat 1px center;
+	color: @MentionColor;
+	padding-right: 3px;
+	padding-left: 18px;
+	a { color: @MentionColor;	}
+}
+.folder {
+	background: url("icons/folder.png") no-repeat 1px center;
+	color: @MentionColor;
+	padding-right: 3px;
+	padding-left: 15px;
+	a { color: @MentionColor;	}
+}
+.category {
+	background: url("icons/category.png") no-repeat 1px center;
+	color: @MentionColor;
+	padding-right: 3px;
+	padding-left: 15px;
+	a { color: @MentionColor;	}
+}
+/*.filesavetags {
     padding: 3px 0px 3px 0px;
     opacity: 0.5;
-}
+}*/
 
 .wwto { 
 	position: absolute !important; 
