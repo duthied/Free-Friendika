@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-09-25
+	Created by alex@friendica.pixelbits.de on 2012-10-04
 
 ** Colors ** 
 Blue links - #1873a2
@@ -74,7 +74,7 @@ li.widget-list {
 	list-style: none outside none;
 	background: url("arrow.png") no-repeat scroll left center transparent;
 	display: block;
-   	padding: 3px 24px;
+   	/*padding: 3px 24px;*/
 }
 
 .required {
@@ -643,11 +643,11 @@ aside {
 	font-style: bold;
 }
 
-aside a{
-	padding-bottom: 5px;
+aside a {
+	/*padding-bottom: 5px;*/
 }
 
-.vcard {
+.vcard .title {
 	font-size: 1em;
 }
 
@@ -655,6 +655,9 @@ aside a{
 	font-size: 12px;
 	font-variant: normal;
 	-webkit-margin-start: 10px;
+}
+
+.fn {
 }
 
 .vcard .fn {
@@ -894,11 +897,11 @@ ul .sidebar-group-li .icon {
 	width: 12px;
 }
 
-.nets-ul {
+.nets-ul, .fileas-ul, .categories-ul  {
 	list-style-type: none;
 }
 
-.nets-ul li {
+.nets-ul li, .fileas-ul li, .categories-ul li {
 	margin-top: 10px;
 }
 
@@ -907,6 +910,14 @@ ul .sidebar-group-li .icon {
 }
 .nets-all {
 	margin-left: 42px;
+}
+
+.fileas-link, .categories-link {
+	margin-left: 24px;
+}
+
+.fileas-all, .categories-all {
+	margin-left: 0px;
 }
 
 .widget h3 {
@@ -975,15 +986,24 @@ ul .sidebar-group-li .icon {
 	float: left;
 }
 
+.contact-block-link {
+	float: left;
+}
+
 .contact-block-textdiv {
 	width: 150px;
 	height: 34px;
 	float: left;
 }
 
+.contact-block-h4,
+.contact-block-content {
+}
+
+#contact-block,
 #contact-block-end {
 	clear: both;
-} 
+}
 
 /* ======= */
 /* = Jot = */
@@ -1061,6 +1081,8 @@ ul .sidebar-group-li .icon {
 	border: 1px solid #7C7D7B;
 	border-radius: 5px 5px 5px 5px;
 }
+
+#jot-preview-form {}
 
 #jot-preview-link {
 	float: left;
@@ -1176,6 +1198,12 @@ ul .sidebar-group-li .icon {
     display:block!important;
 }
 
+#profile-video-wrapper,
+#profile-audio-wrapper,
+#profile-location-wrapper,
+#profile-nolocation-wrapper {
+}
+
 #group_allow_wrapper,
 #group_deny_wrapper,
 #acl-permit-outer-wrapper {
@@ -1217,13 +1245,20 @@ ul .sidebar-group-li .icon {
 
 #profile-jot-wrapper {
 	margin-top: -15px;
-	padding-top: 0px;
 }
 
-profile-jot-banner-wrapper {
-	padding: 0px;
-	margin: 0px;
-}
+#profile-jot-desc,
+#profile-jot-form,
+#jot-location,
+#jot-coord,
+#jot-preview,
+#jot-title-wrap,
+#jot-category-wrap,
+#jot-text-wrap,
+#profile-jot-text-loading,
+#profile-attach-wrapper,
+#profile-link-wrapper,
+#profile-jot-banner-wrapper {}
 
 .contact-h4 {
 	font-size: 1.2em;
@@ -1282,6 +1317,8 @@ profile-jot-banner-wrapper {
 	max-width: 100%;
 	padding-top: 10px;
 }
+
+.wall-item-comment-wrapper {}
 
 .wall-item-photo-menu {
 	display: none;
@@ -1582,6 +1619,7 @@ profile-jot-banner-wrapper {
 	float: right;
 }
 
+#item-delete-selected-end,
 #item-delete-selected {	
 	overflow: auto;
 	margin-top: 20px;
@@ -1589,16 +1627,18 @@ profile-jot-banner-wrapper {
     width: 250px;
 }
 
+#item-delete-selected-icon {}
+
 code {
 	font-family: Courier, monospace;
-	white-space: pre;
+	/*white-space: pre;*/
 	display: block;
 	overflow: auto;
 	border: 1px solid #444;
 	background: #EEE;
 	color: #444;
 	padding: 10px;
-	margin-top: 20px; 
+	margin-top: 10px; 
 }
 
 blockquote {
@@ -1616,6 +1656,8 @@ blockquote {
 	color: #898989;
 	margin-left: 60px;
 }
+
+#tread-wrapper {}
 
 .tread-wrapper  {
 	border: 0px solid #CDCDCD;
@@ -1743,13 +1785,13 @@ blockquote {
 
 .wall-item-body code {
 	font-family: Courier, monospace;
-	white-space: pre;
+	/*white-space: pre;*/
 	display: block;
 	overflow: auto;
 	border: 1px solid #cccccc;
-	border-width: 1px 1px 1px 10px;
-	padding-left: 10px;
-	margin-top: 20px; 
+	border-width: 1px 1px 1px 3px;
+	padding-left: 5px;
+	margin-top: 10px; 
 }
 
 /* =========== */
@@ -2097,7 +2139,6 @@ div[id$="wrapper"] br {
 }
 
 select, input {
-	margin-top: 0px;
 	border: 1px solid #b0b0b0;
 	padding: 2px;
 	border-radius: 3px 3px 3px 3px;
@@ -3150,7 +3191,9 @@ margin-left: 0px;
 /* ========== */
 /* = Events = */
 /* ========== */
- 
+
+#events-reminder {}
+
 .clear { 
 	clear: both;
 	margin-top: 10px;
@@ -4111,3 +4154,82 @@ hr.line-dots {
     background: url("dot.png") repeat-x scroll left center transparent;
     border: medium none;
 }
+
+.body-tag, .filesavetags, .categorytags {
+	opacity: 0.5;
+	filter:alpha(opacity=50);
+}
+
+.body-tag:hover, .filesavetags:hover, .categorytags:hover {
+	opacity: 1.0 !important;
+	filter:alpha(opacity=100) !important;
+}
+
+.item-select {
+	opacity: 0.5;
+	filter:alpha(opacity=10);
+	float: right;
+	margin-right: 10px;
+
+}
+.item-select:hover, .checkeditem {
+	opacity: 1;
+	filter:alpha(opacity=100);
+}
+
+.filer-icon {
+	display: block; width: 16px; height: 16px;
+	background-image: url('file.gif');
+}
+
+.icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
+[class^="comment-edit-bb"] {
+	list-style: none;
+	display: none;
+	margin: 0px 0 -5px 0px;
+	padding: 0px;
+	width: 75%;
+}
+
+.body-attach {
+	margin-top: 10px;
+}
+
+.grey {
+	color: #888888;
+}
+
+.location, .location-label, .gender-label, .marital-label, .homepage-label {
+	float: left;
+	text-align: left;
+	display: block;
+}
+
+.adr, .x-gender, .marital-text, .homepage-url {
+	float: left;
+	display: block;
+	margin-left: 8px;
+}
+
+#birthday-notice {}
+#nav-notifications-template {}
+#categories-sidebar {}
+#nets-desc {}
+#status-tab {}
+#page-footer {}
+#live-profile {}
+
+.city-state-zip {}
+.country-name {}
+.locality {}
+.region {}
+.postal-code {}
+.mpfriend {}
+.toplevel_item {}
+
+.fc-header,
+.fc-view,
+.fc-view-basicWeek,
+.fc-grid,
+.fc-border-separate,
+.fc-content {}
