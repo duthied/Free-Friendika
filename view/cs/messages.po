@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2012-09-25 10:00-0700\n"
-"PO-Revision-Date: 2012-09-26 08:15+0000\n"
+"POT-Creation-Date: 2012-09-29 10:00-0700\n"
+"PO-Revision-Date: 2012-10-02 20:11+0000\n"
 "Last-Translator: Michal Šupler <msupler@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/projects/p/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -59,7 +59,7 @@ msgstr "Aktualizace kontaktu selhala."
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
 #: ../../addon/facebook/facebook.php:516 ../../addon/fbpost/fbpost.php:159
 #: ../../addon/fbpost/fbpost.php:165
-#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3908
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3913
 #: ../../index.php:317
 msgid "Permission denied."
 msgstr "Přístup odmítnut."
@@ -128,9 +128,9 @@ msgstr "Nové foto z této URL adresy"
 
 #: ../../mod/crepair.php:166 ../../mod/fsuggest.php:107
 #: ../../mod/events.php:455 ../../mod/photos.php:1005
-#: ../../mod/photos.php:1081 ../../mod/photos.php:1338
-#: ../../mod/photos.php:1378 ../../mod/photos.php:1419
-#: ../../mod/photos.php:1451 ../../mod/install.php:246
+#: ../../mod/photos.php:1081 ../../mod/photos.php:1344
+#: ../../mod/photos.php:1384 ../../mod/photos.php:1427
+#: ../../mod/photos.php:1459 ../../mod/install.php:246
 #: ../../mod/install.php:284 ../../mod/localtime.php:45 ../../mod/poke.php:199
 #: ../../mod/content.php:693 ../../mod/contacts.php:348
 #: ../../mod/settings.php:543 ../../mod/settings.php:697
@@ -149,7 +149,7 @@ msgstr "Nové foto z této URL adresy"
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
-#: ../../addon/forumlist/forumlist.php:169
+#: ../../addon/forumlist/forumlist.php:163
 #: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
@@ -177,7 +177,7 @@ msgstr "Nové foto z této URL adresy"
 #: ../../view/theme/diabook/theme.php:757
 #: ../../view/theme/diabook/config.php:190
 #: ../../view/theme/quattro/config.php:53 ../../view/theme/dispy/config.php:70
-#: ../../include/conversation.php:607 ../../object/Item.php:559
+#: ../../object/Item.php:558
 msgid "Submit"
 msgstr "Odeslat"
 
@@ -308,7 +308,7 @@ msgstr "Sdílet tuto událost"
 #: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/editpost.php:136
 #: ../../mod/dfrn_request.php:847 ../../mod/settings.php:544
 #: ../../mod/settings.php:570 ../../addon/js_upload/js_upload.php:45
-#: ../../include/conversation.php:1307
+#: ../../include/conversation.php:948
 msgid "Cancel"
 msgstr "Zrušit"
 
@@ -382,13 +382,13 @@ msgstr "Fotoalba"
 
 #: ../../mod/photos.php:54 ../../mod/photos.php:149 ../../mod/photos.php:986
 #: ../../mod/photos.php:1073 ../../mod/photos.php:1088
-#: ../../mod/photos.php:1530 ../../mod/photos.php:1542
+#: ../../mod/photos.php:1538 ../../mod/photos.php:1550
 #: ../../addon/communityhome/communityhome.php:110
 #: ../../view/theme/diabook/theme.php:598
 msgid "Contact Photos"
 msgstr "Fotogalerie kontaktu"
 
-#: ../../mod/photos.php:61 ../../mod/photos.php:1104 ../../mod/photos.php:1580
+#: ../../mod/photos.php:61 ../../mod/photos.php:1104 ../../mod/photos.php:1588
 msgid "Upload New Photos"
 msgstr "Nahrát nové fotografie"
 
@@ -419,7 +419,7 @@ msgstr "Album nenalezeno."
 msgid "Delete Album"
 msgstr "Smazat album"
 
-#: ../../mod/photos.php:240 ../../mod/photos.php:1339
+#: ../../mod/photos.php:240 ../../mod/photos.php:1345
 msgid "Delete Photo"
 msgstr "Smazat fotografii"
 
@@ -427,8 +427,8 @@ msgstr "Smazat fotografii"
 msgid "was tagged in a"
 msgstr "štítek byl přidán v"
 
-#: ../../mod/photos.php:584 ../../mod/like.php:145 ../../mod/tagger.php:62
-#: ../../addon/communityhome/communityhome.php:163
+#: ../../mod/photos.php:584 ../../mod/like.php:145 ../../mod/subthread.php:87
+#: ../../mod/tagger.php:62 ../../addon/communityhome/communityhome.php:163
 #: ../../view/theme/diabook/theme.php:570 ../../include/text.php:1439
 #: ../../include/diaspora.php:1824 ../../include/conversation.php:125
 #: ../../include/conversation.php:253
@@ -497,7 +497,7 @@ msgstr "nebo stávající název alba: "
 msgid "Do not show a status post for this upload"
 msgstr "Nezobrazovat stav pro tento upload"
 
-#: ../../mod/photos.php:1032 ../../mod/photos.php:1334
+#: ../../mod/photos.php:1032 ../../mod/photos.php:1340
 msgid "Permissions"
 msgstr "Oprávnění:"
 
@@ -513,7 +513,7 @@ msgstr "Zobrazit nejprve nejnovější:"
 msgid "Show Oldest First"
 msgstr "Zobrazit nejprve nejstarší:"
 
-#: ../../mod/photos.php:1124 ../../mod/photos.php:1563
+#: ../../mod/photos.php:1124 ../../mod/photos.php:1571
 msgid "View Photo"
 msgstr "Zobraz fotografii"
 
@@ -538,7 +538,7 @@ msgid "Use as profile photo"
 msgstr "Použít jako profilovou fotografii"
 
 #: ../../mod/photos.php:1224 ../../mod/content.php:603
-#: ../../include/conversation.php:436 ../../object/Item.php:103
+#: ../../object/Item.php:103
 msgid "Private Message"
 msgstr "Soukromá zpráva"
 
@@ -546,94 +546,91 @@ msgstr "Soukromá zpráva"
 msgid "View Full Size"
 msgstr "Zobrazit v plné velikosti"
 
-#: ../../mod/photos.php:1311
+#: ../../mod/photos.php:1317
 msgid "Tags: "
 msgstr "Štítky: "
 
-#: ../../mod/photos.php:1314
+#: ../../mod/photos.php:1320
 msgid "[Remove any tag]"
 msgstr "[Odstranit všechny štítky]"
 
-#: ../../mod/photos.php:1324
+#: ../../mod/photos.php:1330
 msgid "Rotate CW (right)"
 msgstr "Rotovat po směru hodinových ručiček (doprava)"
 
-#: ../../mod/photos.php:1325
+#: ../../mod/photos.php:1331
 msgid "Rotate CCW (left)"
 msgstr "Rotovat proti směru hodinových ručiček (doleva)"
 
-#: ../../mod/photos.php:1327
+#: ../../mod/photos.php:1333
 msgid "New album name"
 msgstr "Nové jméno alba"
 
-#: ../../mod/photos.php:1330
+#: ../../mod/photos.php:1336
 msgid "Caption"
 msgstr "Titulek"
 
-#: ../../mod/photos.php:1332
+#: ../../mod/photos.php:1338
 msgid "Add a Tag"
 msgstr "Přidat štítek"
 
-#: ../../mod/photos.php:1336
+#: ../../mod/photos.php:1342
 msgid ""
 "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr "Příklad: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 
-#: ../../mod/photos.php:1356 ../../mod/content.php:667
-#: ../../include/conversation.php:581 ../../object/Item.php:195
+#: ../../mod/photos.php:1362 ../../mod/content.php:667
+#: ../../object/Item.php:196
 msgid "I like this (toggle)"
 msgstr "Líbí se mi to (přepínač)"
 
-#: ../../mod/photos.php:1357 ../../mod/content.php:668
-#: ../../include/conversation.php:582 ../../object/Item.php:196
+#: ../../mod/photos.php:1363 ../../mod/content.php:668
+#: ../../object/Item.php:197
 msgid "I don't like this (toggle)"
 msgstr "Nelíbí se mi to (přepínač)"
 
-#: ../../mod/photos.php:1358 ../../include/conversation.php:1268
+#: ../../mod/photos.php:1364 ../../include/conversation.php:909
 msgid "Share"
 msgstr "Sdílet"
 
-#: ../../mod/photos.php:1359 ../../mod/editpost.php:112
+#: ../../mod/photos.php:1365 ../../mod/editpost.php:112
 #: ../../mod/content.php:482 ../../mod/content.php:845
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:293
-#: ../../mod/message.php:481 ../../include/conversation.php:686
-#: ../../include/conversation.php:944 ../../include/conversation.php:1287
-#: ../../object/Item.php:257
+#: ../../mod/message.php:481 ../../include/conversation.php:573
+#: ../../include/conversation.php:928 ../../object/Item.php:258
 msgid "Please wait"
 msgstr "Čekejte prosím"
 
-#: ../../mod/photos.php:1375 ../../mod/photos.php:1416
-#: ../../mod/photos.php:1448 ../../mod/content.php:690
-#: ../../include/conversation.php:604 ../../object/Item.php:556
+#: ../../mod/photos.php:1381 ../../mod/photos.php:1424
+#: ../../mod/photos.php:1456 ../../mod/content.php:690
+#: ../../object/Item.php:555
 msgid "This is you"
 msgstr "Nastavte Vaši polohu"
 
-#: ../../mod/photos.php:1377 ../../mod/photos.php:1418
-#: ../../mod/photos.php:1450 ../../mod/content.php:692
-#: ../../include/conversation.php:606 ../../boot.php:574
-#: ../../object/Item.php:558
+#: ../../mod/photos.php:1383 ../../mod/photos.php:1426
+#: ../../mod/photos.php:1458 ../../mod/content.php:692 ../../boot.php:574
+#: ../../object/Item.php:557
 msgid "Comment"
 msgstr "Okomentovat"
 
-#: ../../mod/photos.php:1379 ../../mod/editpost.php:133
-#: ../../mod/content.php:702 ../../include/conversation.php:616
-#: ../../include/conversation.php:1305 ../../object/Item.php:568
+#: ../../mod/photos.php:1385 ../../mod/editpost.php:133
+#: ../../mod/content.php:702 ../../include/conversation.php:946
+#: ../../object/Item.php:567
 msgid "Preview"
 msgstr "Náhled"
 
-#: ../../mod/photos.php:1479 ../../mod/content.php:439
+#: ../../mod/photos.php:1487 ../../mod/content.php:439
 #: ../../mod/content.php:723 ../../mod/settings.php:606
 #: ../../mod/settings.php:695 ../../mod/group.php:168 ../../mod/admin.php:696
-#: ../../include/conversation.php:448 ../../include/conversation.php:889
-#: ../../object/Item.php:116
+#: ../../include/conversation.php:518 ../../object/Item.php:117
 msgid "Delete"
 msgstr "Odstranit"
 
-#: ../../mod/photos.php:1569
+#: ../../mod/photos.php:1577
 msgid "View Album"
 msgstr "Zobrazit album"
 
-#: ../../mod/photos.php:1578
+#: ../../mod/photos.php:1586
 msgid "Recent Photos"
 msgstr "Aktuální fotografie"
 
@@ -691,29 +688,28 @@ msgstr "Položka nenalezena"
 msgid "Edit post"
 msgstr "Upravit příspěvek"
 
-#: ../../mod/editpost.php:88 ../../include/conversation.php:1254
+#: ../../mod/editpost.php:88 ../../include/conversation.php:895
 msgid "Post to Email"
 msgstr "Poslat příspěvek na e-mail"
 
 #: ../../mod/editpost.php:103 ../../mod/content.php:710
-#: ../../mod/settings.php:605 ../../include/conversation.php:441
-#: ../../object/Item.php:107
+#: ../../mod/settings.php:605 ../../object/Item.php:107
 msgid "Edit"
 msgstr "Upravit"
 
 #: ../../mod/editpost.php:104 ../../mod/wallmessage.php:150
 #: ../../mod/message.php:291 ../../mod/message.php:478
-#: ../../include/conversation.php:1269
+#: ../../include/conversation.php:910
 msgid "Upload photo"
 msgstr "Nahrát fotografii"
 
-#: ../../mod/editpost.php:105 ../../include/conversation.php:1271
+#: ../../mod/editpost.php:105 ../../include/conversation.php:912
 msgid "Attach file"
 msgstr "Přiložit soubor"
 
 #: ../../mod/editpost.php:106 ../../mod/wallmessage.php:151
 #: ../../mod/message.php:292 ../../mod/message.php:479
-#: ../../include/conversation.php:1273
+#: ../../include/conversation.php:914
 msgid "Insert web link"
 msgstr "Vložit webový odkaz"
 
@@ -729,35 +725,35 @@ msgstr "Vložit Vorbis [.ogg] video"
 msgid "Insert Vorbis [.ogg] audio"
 msgstr "Vložit Vorbis [.ogg] audio"
 
-#: ../../mod/editpost.php:110 ../../include/conversation.php:1279
+#: ../../mod/editpost.php:110 ../../include/conversation.php:920
 msgid "Set your location"
 msgstr "Nastavte vaši polohu"
 
-#: ../../mod/editpost.php:111 ../../include/conversation.php:1281
+#: ../../mod/editpost.php:111 ../../include/conversation.php:922
 msgid "Clear browser location"
 msgstr "Odstranit adresu v prohlížeči"
 
-#: ../../mod/editpost.php:113 ../../include/conversation.php:1288
+#: ../../mod/editpost.php:113 ../../include/conversation.php:929
 msgid "Permission settings"
 msgstr "Nastavení oprávnění"
 
-#: ../../mod/editpost.php:121 ../../include/conversation.php:1297
+#: ../../mod/editpost.php:121 ../../include/conversation.php:938
 msgid "CC: email addresses"
 msgstr "skrytá kopie: e-mailové adresy"
 
-#: ../../mod/editpost.php:122 ../../include/conversation.php:1298
+#: ../../mod/editpost.php:122 ../../include/conversation.php:939
 msgid "Public post"
 msgstr "Veřejný příspěvek"
 
-#: ../../mod/editpost.php:125 ../../include/conversation.php:1284
+#: ../../mod/editpost.php:125 ../../include/conversation.php:925
 msgid "Set title"
 msgstr "Nastavit titulek"
 
-#: ../../mod/editpost.php:127 ../../include/conversation.php:1286
+#: ../../mod/editpost.php:127 ../../include/conversation.php:927
 msgid "Categories (comma-separated list)"
 msgstr "Kategorie (čárkou oddělený seznam)"
 
-#: ../../mod/editpost.php:128 ../../include/conversation.php:1300
+#: ../../mod/editpost.php:128 ../../include/conversation.php:941
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "Příklad: bob@example.com, mary@example.com"
 
@@ -879,7 +875,7 @@ msgstr "Prosím potvrďte Vaši žádost o propojení %s."
 msgid "Confirm"
 msgstr "Potvrdit"
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3287
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3292
 msgid "[Name Withheld]"
 msgstr "[Jméno odepřeno]"
 
@@ -1301,32 +1297,28 @@ msgid "Group: "
 msgstr "Skupina: "
 
 #: ../../mod/content.php:438 ../../mod/content.php:722
-#: ../../include/conversation.php:447 ../../include/conversation.php:888
-#: ../../object/Item.php:115
+#: ../../include/conversation.php:517 ../../object/Item.php:116
 msgid "Select"
 msgstr "Vybrat"
 
 #: ../../mod/content.php:455 ../../mod/content.php:815
-#: ../../mod/content.php:816 ../../include/conversation.php:654
-#: ../../include/conversation.php:655 ../../include/conversation.php:907
-#: ../../object/Item.php:226 ../../object/Item.php:227
+#: ../../mod/content.php:816 ../../include/conversation.php:536
+#: ../../object/Item.php:227 ../../object/Item.php:228
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "Zobrazit profil uživatele %s na %s"
 
 #: ../../mod/content.php:465 ../../mod/content.php:827
-#: ../../include/conversation.php:668 ../../include/conversation.php:927
-#: ../../object/Item.php:239
+#: ../../include/conversation.php:556 ../../object/Item.php:240
 #, php-format
 msgid "%s from %s"
 msgstr "%s od %s"
 
-#: ../../mod/content.php:480 ../../include/conversation.php:942
+#: ../../mod/content.php:480 ../../include/conversation.php:571
 msgid "View in context"
 msgstr "Pohled v kontextu"
 
-#: ../../mod/content.php:586 ../../include/conversation.php:695
-#: ../../object/Item.php:276
+#: ../../mod/content.php:586 ../../object/Item.php:277
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
@@ -1335,8 +1327,7 @@ msgstr[1] "%d komentářů"
 msgstr[2] "%d komentářů"
 
 #: ../../mod/content.php:588 ../../include/text.php:1443
-#: ../../include/conversation.php:697 ../../object/Item.php:278
-#: ../../object/Item.php:291
+#: ../../object/Item.php:279 ../../object/Item.php:292
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
@@ -1345,113 +1336,92 @@ msgstr[2] "komentář"
 
 #: ../../mod/content.php:589 ../../addon/page/page.php:76
 #: ../../addon/page/page.php:110 ../../addon/showmore/showmore.php:119
-#: ../../include/contact_widgets.php:195 ../../include/conversation.php:698
-#: ../../boot.php:575 ../../object/Item.php:279
+#: ../../include/contact_widgets.php:195 ../../boot.php:575
+#: ../../object/Item.php:280
 msgid "show more"
 msgstr "zobrazit více"
 
-#: ../../mod/content.php:667 ../../include/conversation.php:581
-#: ../../object/Item.php:195
+#: ../../mod/content.php:667 ../../object/Item.php:196
 msgid "like"
 msgstr "má rád"
 
-#: ../../mod/content.php:668 ../../include/conversation.php:582
-#: ../../object/Item.php:196
+#: ../../mod/content.php:668 ../../object/Item.php:197
 msgid "dislike"
 msgstr "nemá rád"
 
-#: ../../mod/content.php:670 ../../include/conversation.php:584
-#: ../../object/Item.php:198
+#: ../../mod/content.php:670 ../../object/Item.php:199
 msgid "Share this"
 msgstr "Sdílet toto"
 
-#: ../../mod/content.php:670 ../../include/conversation.php:584
-#: ../../object/Item.php:198
+#: ../../mod/content.php:670 ../../object/Item.php:199
 msgid "share"
 msgstr "sdílí"
 
-#: ../../mod/content.php:694 ../../include/conversation.php:608
-#: ../../object/Item.php:560
+#: ../../mod/content.php:694 ../../object/Item.php:559
 msgid "Bold"
 msgstr "Tučné"
 
-#: ../../mod/content.php:695 ../../include/conversation.php:609
-#: ../../object/Item.php:561
+#: ../../mod/content.php:695 ../../object/Item.php:560
 msgid "Italic"
 msgstr "Kurzíva"
 
-#: ../../mod/content.php:696 ../../include/conversation.php:610
-#: ../../object/Item.php:562
+#: ../../mod/content.php:696 ../../object/Item.php:561
 msgid "Underline"
 msgstr "Podrtžené"
 
-#: ../../mod/content.php:697 ../../include/conversation.php:611
-#: ../../object/Item.php:563
+#: ../../mod/content.php:697 ../../object/Item.php:562
 msgid "Quote"
 msgstr "Citovat"
 
-#: ../../mod/content.php:698 ../../include/conversation.php:612
-#: ../../object/Item.php:564
+#: ../../mod/content.php:698 ../../object/Item.php:563
 msgid "Code"
 msgstr "Kód"
 
-#: ../../mod/content.php:699 ../../include/conversation.php:613
-#: ../../object/Item.php:565
+#: ../../mod/content.php:699 ../../object/Item.php:564
 msgid "Image"
 msgstr "Obrázek"
 
-#: ../../mod/content.php:700 ../../include/conversation.php:614
-#: ../../object/Item.php:566
+#: ../../mod/content.php:700 ../../object/Item.php:565
 msgid "Link"
 msgstr "Odkaz"
 
-#: ../../mod/content.php:701 ../../include/conversation.php:615
-#: ../../object/Item.php:567
+#: ../../mod/content.php:701 ../../object/Item.php:566
 msgid "Video"
 msgstr "Video"
 
-#: ../../mod/content.php:735 ../../include/conversation.php:545
-#: ../../object/Item.php:179
+#: ../../mod/content.php:735 ../../object/Item.php:180
 msgid "add star"
 msgstr "přidat hvězdu"
 
-#: ../../mod/content.php:736 ../../include/conversation.php:546
-#: ../../object/Item.php:180
+#: ../../mod/content.php:736 ../../object/Item.php:181
 msgid "remove star"
 msgstr "odebrat hvězdu"
 
-#: ../../mod/content.php:737 ../../include/conversation.php:547
-#: ../../object/Item.php:181
+#: ../../mod/content.php:737 ../../object/Item.php:182
 msgid "toggle star status"
 msgstr "přepnout hvězdu"
 
-#: ../../mod/content.php:740 ../../include/conversation.php:550
-#: ../../object/Item.php:184
+#: ../../mod/content.php:740 ../../object/Item.php:185
 msgid "starred"
 msgstr "označeno hvězdou"
 
-#: ../../mod/content.php:741 ../../include/conversation.php:551
-#: ../../object/Item.php:185
+#: ../../mod/content.php:741 ../../object/Item.php:186
 msgid "add tag"
 msgstr "přidat štítek"
 
-#: ../../mod/content.php:745 ../../include/conversation.php:451
-#: ../../object/Item.php:119
+#: ../../mod/content.php:745 ../../object/Item.php:120
 msgid "save to folder"
 msgstr "uložit do složky"
 
-#: ../../mod/content.php:817 ../../include/conversation.php:656
-#: ../../object/Item.php:228
+#: ../../mod/content.php:817 ../../object/Item.php:229
 msgid "to"
 msgstr "pro"
 
-#: ../../mod/content.php:818 ../../include/conversation.php:657
-#: ../../object/Item.php:229
+#: ../../mod/content.php:818 ../../object/Item.php:230
 msgid "Wall-to-Wall"
 msgstr "Zeď-na-Zeď"
 
-#: ../../mod/content.php:819 ../../include/conversation.php:658
-#: ../../object/Item.php:230
+#: ../../mod/content.php:819 ../../object/Item.php:231
 msgid "via Wall-To-Wall:"
 msgstr "přes Zeď-na-Zeď "
 
@@ -1970,7 +1940,7 @@ msgstr "Na %s bylo zažádáno o resetování hesla"
 #: ../../addon/facebook/facebook.php:702
 #: ../../addon/facebook/facebook.php:1200 ../../addon/fbpost/fbpost.php:661
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3296
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3301
 #: ../../boot.php:788
 msgid "Administrator"
 msgstr "Administrátor"
@@ -2290,7 +2260,7 @@ msgstr "Minimum 10 sekund, žádné maximum."
 
 #: ../../mod/settings.php:776
 msgid "Number of items to display per page:"
-msgstr ""
+msgstr "Počet položek zobrazených na stránce:"
 
 #: ../../mod/settings.php:776
 msgid "Maximum of 100 items"
@@ -2704,7 +2674,7 @@ msgstr "Žádný příjemce."
 
 #: ../../mod/wallmessage.php:123 ../../mod/wallmessage.php:131
 #: ../../mod/message.php:242 ../../mod/message.php:250
-#: ../../include/conversation.php:1205 ../../include/conversation.php:1222
+#: ../../include/conversation.php:846 ../../include/conversation.php:863
 msgid "Please enter a link URL:"
 msgstr "Zadejte prosím URL odkaz:"
 
@@ -3104,8 +3074,8 @@ msgstr "Registrovat"
 msgid "People Search"
 msgstr "Vyhledávání lidí"
 
-#: ../../mod/like.php:145 ../../mod/like.php:298 ../../mod/tagger.php:62
-#: ../../addon/facebook/facebook.php:1598
+#: ../../mod/like.php:145 ../../mod/like.php:298 ../../mod/subthread.php:87
+#: ../../mod/tagger.php:62 ../../addon/facebook/facebook.php:1598
 #: ../../addon/communityhome/communityhome.php:158
 #: ../../addon/communityhome/communityhome.php:167
 #: ../../view/theme/diabook/theme.php:565
@@ -3130,7 +3100,7 @@ msgstr "%1$s nemá rád %2$s na %3$s"
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:734 ../../mod/admin.php:933 ../../mod/display.php:29
-#: ../../mod/display.php:145 ../../include/items.php:3774
+#: ../../mod/display.php:145 ../../include/items.php:3779
 msgid "Item not found."
 msgstr "Položka nenalezena."
 
@@ -3204,7 +3174,7 @@ msgstr "%s poslal aktualizaci."
 #: ../../mod/mood.php:62 ../../include/conversation.php:226
 #, php-format
 msgid "%1$s is currently %2$s"
-msgstr ""
+msgstr "%1$s je právě %2$s"
 
 #: ../../mod/mood.php:133
 msgid "Mood"
@@ -3656,13 +3626,13 @@ msgstr "Povolit zpracování obsahu tohoto webu neomezeným počtem paralelních
 
 #: ../../mod/admin.php:470
 msgid "Private posts by default for new users"
-msgstr ""
+msgstr "Nastavit pro nové uživatele příspěvky jako soukromé"
 
 #: ../../mod/admin.php:470
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
-msgstr ""
+msgstr "Nastavit defaultní práva pro příspěvky od všech nových členů na výchozí soukromou skupinu raději než jako veřejné."
 
 #: ../../mod/admin.php:472
 msgid "Block multiple registrations"
@@ -4030,48 +4000,48 @@ msgstr "Přístup na tento profil byl omezen."
 msgid "Tips for New Members"
 msgstr "Tipy pro nové členy"
 
-#: ../../mod/ping.php:235
+#: ../../mod/ping.php:238
 msgid "{0} wants to be your friend"
 msgstr "{0} chce být Vaším přítelem"
 
-#: ../../mod/ping.php:240
+#: ../../mod/ping.php:243
 msgid "{0} sent you a message"
 msgstr "{0} vám poslal zprávu"
 
-#: ../../mod/ping.php:245
+#: ../../mod/ping.php:248
 msgid "{0} requested registration"
 msgstr "{0} požaduje registraci"
 
-#: ../../mod/ping.php:251
+#: ../../mod/ping.php:254
 #, php-format
 msgid "{0} commented %s's post"
 msgstr "{0} komentoval příspěvek uživatele %s"
 
-#: ../../mod/ping.php:256
+#: ../../mod/ping.php:259
 #, php-format
 msgid "{0} liked %s's post"
 msgstr "{0} má rád příspěvek uživatele %s"
 
-#: ../../mod/ping.php:261
+#: ../../mod/ping.php:264
 #, php-format
 msgid "{0} disliked %s's post"
 msgstr "{0} nemá rád příspěvek uživatele %s"
 
-#: ../../mod/ping.php:266
+#: ../../mod/ping.php:269
 #, php-format
 msgid "{0} is now friends with %s"
 msgstr "{0} se skamarádil s %s"
 
-#: ../../mod/ping.php:271
+#: ../../mod/ping.php:274
 msgid "{0} posted"
 msgstr "{0} zasláno"
 
-#: ../../mod/ping.php:276
+#: ../../mod/ping.php:279
 #, php-format
 msgid "{0} tagged %s's post with #%s"
 msgstr "{0} označen %s' příspěvek s #%s"
 
-#: ../../mod/ping.php:282
+#: ../../mod/ping.php:285
 msgid "{0} mentioned you in a post"
 msgstr "{0} vás zmínil v příspěvku"
 
@@ -4104,6 +4074,11 @@ msgstr "Společní přátelé"
 #: ../../mod/common.php:78
 msgid "No contacts in common."
 msgstr "Žádné společné kontakty."
+
+#: ../../mod/subthread.php:103
+#, php-format
+msgid "%1$s is following %2$s's %3$s"
+msgstr "%1$s následuje %3$s uživatele %2$s"
 
 #: ../../mod/share.php:28
 msgid "link"
@@ -4433,8 +4408,8 @@ msgstr "viditelné pro všechny"
 msgid "Edit visibility"
 msgstr "Upravit viditelnost"
 
-#: ../../mod/filer.php:29 ../../include/conversation.php:1209
-#: ../../include/conversation.php:1226
+#: ../../mod/filer.php:29 ../../include/conversation.php:850
+#: ../../include/conversation.php:867
 msgid "Save to Folder:"
 msgstr "Uložit do složky:"
 
@@ -5095,11 +5070,11 @@ msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:22
 msgid "point out the poke feature to"
-msgstr ""
+msgstr "upozornit na poke funkci uživatele"
 
 #: ../../addon/morepokes/morepokes.php:22
 msgid "pointed out the poke feature to"
-msgstr ""
+msgstr "upozorněn na poke funkci "
 
 #: ../../addon/morepokes/morepokes.php:23
 msgid "declare undying love for"
@@ -5300,11 +5275,11 @@ msgid "%s - Click to open/close"
 msgstr "%s - Klikněte pro otevření/zavření"
 
 #: ../../addon/page/page.php:61 ../../addon/page/page.php:91
-#: ../../addon/forumlist/forumlist.php:54
+#: ../../addon/forumlist/forumlist.php:55
 msgid "Forums"
 msgstr "Fóra"
 
-#: ../../addon/page/page.php:129 ../../addon/forumlist/forumlist.php:88
+#: ../../addon/page/page.php:129 ../../addon/forumlist/forumlist.php:89
 msgid "Forums:"
 msgstr "Fóra:"
 
@@ -5316,7 +5291,7 @@ msgstr "Nastavení stránky aktualizováno."
 msgid "Page Settings"
 msgstr "Nastavení stránky"
 
-#: ../../addon/page/page.php:196 ../../addon/forumlist/forumlist.php:155
+#: ../../addon/page/page.php:196
 msgid "How many forums to display on sidebar without paging"
 msgstr "Kolik diskuzních fór zobrazit v bočním panelu bez použití stránkování"
 
@@ -6149,7 +6124,7 @@ msgstr "Použití OEmbed pro videa na YouTube"
 msgid "URL to embed:"
 msgstr "URL adresa k vložení:"
 
-#: ../../addon/forumlist/forumlist.php:57
+#: ../../addon/forumlist/forumlist.php:58
 msgid "show/hide"
 msgstr "zobrazit/skrýt"
 
@@ -6157,21 +6132,21 @@ msgstr "zobrazit/skrýt"
 msgid "No forum subscriptions"
 msgstr "Žádné registrace k fórům"
 
-#: ../../addon/forumlist/forumlist.php:124
+#: ../../addon/forumlist/forumlist.php:125
 msgid "Forumlist settings updated."
 msgstr "Nastavení Forumlist aktualizováno."
 
-#: ../../addon/forumlist/forumlist.php:153
+#: ../../addon/forumlist/forumlist.php:150
 msgid "Forumlist Settings"
 msgstr "Nastavení Forumlist"
 
-#: ../../addon/forumlist/forumlist.php:158
-msgid "Randomise Forumlist/Forum list"
-msgstr "Náhodně rozdělit seznam Forumlist/Forum"
+#: ../../addon/forumlist/forumlist.php:152
+msgid "Randomise forum list"
+msgstr "Zamíchat list fór"
 
-#: ../../addon/forumlist/forumlist.php:161
-msgid "Show forumlists/forums on profile forumlist"
-msgstr "Zobrazit forumlists/forums na profilu forumlist"
+#: ../../addon/forumlist/forumlist.php:155
+msgid "Show forums on profile page"
+msgstr "Zobrazit fóra na profilové stránce"
 
 #: ../../addon/impressum/impressum.php:37
 msgid "Impressum"
@@ -6562,15 +6537,15 @@ msgstr "Jabber server"
 
 #: ../../addon/jappixmini/jappixmini.php:281
 msgid "Jabber BOSH host"
-msgstr ""
+msgstr "Jabber BOSH host"
 
 #: ../../addon/jappixmini/jappixmini.php:285
 msgid "Jabber password"
-msgstr ""
+msgstr "Jabber heslo"
 
 #: ../../addon/jappixmini/jappixmini.php:290
 msgid "Encrypt Jabber password with Friendica password (recommended)"
-msgstr ""
+msgstr "Zašifrovat Jabber heslo s heslem Friendica (doporučeno)"
 
 #: ../../addon/jappixmini/jappixmini.php:293
 msgid "Friendica password"
@@ -6578,11 +6553,11 @@ msgstr "Friendica heslo"
 
 #: ../../addon/jappixmini/jappixmini.php:296
 msgid "Approve subscription requests from Friendica contacts automatically"
-msgstr ""
+msgstr "Automaticky schválit požadavek na členství od Friedica kontaktů."
 
 #: ../../addon/jappixmini/jappixmini.php:299
 msgid "Subscribe to Friendica contacts automatically"
-msgstr ""
+msgstr "Automaticky zaslat požadavek na členství Friedica kontaktům."
 
 #: ../../addon/jappixmini/jappixmini.php:302
 msgid "Purge internal list of jabber addresses of contacts"
@@ -6964,20 +6939,20 @@ msgstr "Oblíbené kanály"
 
 #: ../../addon/fromapp/fromapp.php:38
 msgid "Fromapp settings updated."
-msgstr ""
+msgstr "Fromapp nastavení aktualizováno."
 
 #: ../../addon/fromapp/fromapp.php:64
 msgid "FromApp Settings"
-msgstr ""
+msgstr "FromApp nastavení"
 
 #: ../../addon/fromapp/fromapp.php:66
 msgid ""
 "The application name you would like to show your posts originating from."
-msgstr ""
+msgstr "Jméno aplikace, které chcete aby bylo jako zdroj u vašich příspěvků"
 
 #: ../../addon/fromapp/fromapp.php:70
 msgid "Use this application name even if another application was used."
-msgstr ""
+msgstr "Použij toto jméno aplikace i když byla použita jiná aplikace"
 
 #: ../../addon/blogger/blogger.php:42
 msgid "Post to blogger"
@@ -8155,12 +8130,12 @@ msgstr "sekund"
 msgid "%1$d %2$s ago"
 msgstr "před %1$d %2$s"
 
-#: ../../include/datetime.php:472 ../../include/items.php:1683
+#: ../../include/datetime.php:472 ../../include/items.php:1688
 #, php-format
 msgid "%s's birthday"
 msgstr "%s má narozeniny"
 
-#: ../../include/datetime.php:473 ../../include/items.php:1684
+#: ../../include/datetime.php:473 ../../include/items.php:1689
 #, php-format
 msgid "Happy Birthday %s"
 msgstr "Veselé narozeniny %s"
@@ -8435,15 +8410,15 @@ msgstr "Nepodařilo se získat kontaktní informace."
 msgid "following"
 msgstr "následující"
 
-#: ../../include/items.php:3294
+#: ../../include/items.php:3299
 msgid "A new person is sharing with you at "
 msgstr "Nový člověk si s vámi sdílí na"
 
-#: ../../include/items.php:3294
+#: ../../include/items.php:3299
 msgid "You have a new follower at "
 msgstr "Máte nového následovníka na"
 
-#: ../../include/items.php:3975
+#: ../../include/items.php:3980
 msgid "Archives"
 msgstr "Archív"
 
@@ -8537,34 +8512,34 @@ msgstr "Formulářový bezpečnostní token nebyl správný. To pravděpodobně 
 msgid "stopped following"
 msgstr "následování zastaveno"
 
-#: ../../include/Contact.php:220 ../../include/conversation.php:1106
+#: ../../include/Contact.php:220 ../../include/conversation.php:743
 msgid "Poke"
 msgstr "Šťouchnout"
 
-#: ../../include/Contact.php:221 ../../include/conversation.php:1100
+#: ../../include/Contact.php:221 ../../include/conversation.php:737
 msgid "View Status"
 msgstr "Zobrazit Status"
 
-#: ../../include/Contact.php:222 ../../include/conversation.php:1101
+#: ../../include/Contact.php:222 ../../include/conversation.php:738
 msgid "View Profile"
 msgstr "Zobrazit Profil"
 
-#: ../../include/Contact.php:223 ../../include/conversation.php:1102
+#: ../../include/Contact.php:223 ../../include/conversation.php:739
 msgid "View Photos"
 msgstr "Zobrazit Fotky"
 
 #: ../../include/Contact.php:224 ../../include/Contact.php:237
-#: ../../include/conversation.php:1103
+#: ../../include/conversation.php:740
 msgid "Network Posts"
 msgstr "Zobrazit Příspěvky sítě"
 
 #: ../../include/Contact.php:225 ../../include/Contact.php:237
-#: ../../include/conversation.php:1104
+#: ../../include/conversation.php:741
 msgid "Edit Contact"
 msgstr "Editovat Kontakty"
 
 #: ../../include/Contact.php:226 ../../include/Contact.php:237
-#: ../../include/conversation.php:1105
+#: ../../include/conversation.php:742
 msgid "Send PM"
 msgstr "Poslat soukromou zprávu"
 
@@ -8582,120 +8557,122 @@ msgstr "příspěvek/položka"
 msgid "%1$s marked %2$s's %3$s as favorite"
 msgstr "uživatel %1$s označil %2$s's %3$s jako oblíbeného"
 
-#: ../../include/conversation.php:645 ../../include/conversation.php:919
-#: ../../object/Item.php:217
+#: ../../include/conversation.php:548 ../../object/Item.php:218
 msgid "Categories:"
-msgstr ""
+msgstr "Kategorie:"
 
-#: ../../include/conversation.php:646 ../../include/conversation.php:920
-#: ../../object/Item.php:218
+#: ../../include/conversation.php:549 ../../object/Item.php:219
 msgid "Filed under:"
-msgstr ""
+msgstr "Vyplněn pod:"
 
-#: ../../include/conversation.php:1002
+#: ../../include/conversation.php:633
 msgid "remove"
 msgstr "odstranit"
 
-#: ../../include/conversation.php:1006
+#: ../../include/conversation.php:637
 msgid "Delete Selected Items"
 msgstr "Smazat vybrané položky"
 
-#: ../../include/conversation.php:1164
+#: ../../include/conversation.php:736
+msgid "Follow Thread"
+msgstr "Následovat vlákno"
+
+#: ../../include/conversation.php:805
 #, php-format
 msgid "%s likes this."
 msgstr "%s se to líbí."
 
-#: ../../include/conversation.php:1164
+#: ../../include/conversation.php:805
 #, php-format
 msgid "%s doesn't like this."
 msgstr "%s se to nelíbí."
 
-#: ../../include/conversation.php:1168
+#: ../../include/conversation.php:809
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this."
 msgstr "<span  %1$s>%2$d lidem</span> se to líbí."
 
-#: ../../include/conversation.php:1170
+#: ../../include/conversation.php:811
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this."
 msgstr "<span  %1$s>%2$d lidem</span> se to nelíbí."
 
-#: ../../include/conversation.php:1176
+#: ../../include/conversation.php:817
 msgid "and"
 msgstr "a"
 
-#: ../../include/conversation.php:1179
+#: ../../include/conversation.php:820
 #, php-format
 msgid ", and %d other people"
 msgstr ", a %d dalších lidí"
 
-#: ../../include/conversation.php:1180
+#: ../../include/conversation.php:821
 #, php-format
 msgid "%s like this."
 msgstr "%s se to líbí."
 
-#: ../../include/conversation.php:1180
+#: ../../include/conversation.php:821
 #, php-format
 msgid "%s don't like this."
 msgstr "%s se to nelíbí."
 
-#: ../../include/conversation.php:1204 ../../include/conversation.php:1221
+#: ../../include/conversation.php:845 ../../include/conversation.php:862
 msgid "Visible to <strong>everybody</strong>"
 msgstr "Viditelné pro <strong>všechny</strong>"
 
-#: ../../include/conversation.php:1206 ../../include/conversation.php:1223
+#: ../../include/conversation.php:847 ../../include/conversation.php:864
 msgid "Please enter a video link/URL:"
 msgstr "Prosím zadejte URL adresu videa:"
 
-#: ../../include/conversation.php:1207 ../../include/conversation.php:1224
+#: ../../include/conversation.php:848 ../../include/conversation.php:865
 msgid "Please enter an audio link/URL:"
 msgstr "Prosím zadejte URL adresu zvukového záznamu:"
 
-#: ../../include/conversation.php:1208 ../../include/conversation.php:1225
+#: ../../include/conversation.php:849 ../../include/conversation.php:866
 msgid "Tag term:"
 msgstr "Štítek:"
 
-#: ../../include/conversation.php:1210 ../../include/conversation.php:1227
+#: ../../include/conversation.php:851 ../../include/conversation.php:868
 msgid "Where are you right now?"
 msgstr "Kde právě jste?"
 
-#: ../../include/conversation.php:1270
+#: ../../include/conversation.php:911
 msgid "upload photo"
 msgstr "nahrát fotky"
 
-#: ../../include/conversation.php:1272
+#: ../../include/conversation.php:913
 msgid "attach file"
 msgstr "přidat soubor"
 
-#: ../../include/conversation.php:1274
+#: ../../include/conversation.php:915
 msgid "web link"
 msgstr "webový odkaz"
 
-#: ../../include/conversation.php:1275
+#: ../../include/conversation.php:916
 msgid "Insert video link"
 msgstr "Zadejte odkaz na video"
 
-#: ../../include/conversation.php:1276
+#: ../../include/conversation.php:917
 msgid "video link"
 msgstr "odkaz na video"
 
-#: ../../include/conversation.php:1277
+#: ../../include/conversation.php:918
 msgid "Insert audio link"
 msgstr "Zadejte odkaz na zvukový záznam"
 
-#: ../../include/conversation.php:1278
+#: ../../include/conversation.php:919
 msgid "audio link"
 msgstr "odkaz na audio"
 
-#: ../../include/conversation.php:1280
+#: ../../include/conversation.php:921
 msgid "set location"
 msgstr "nastavit místo"
 
-#: ../../include/conversation.php:1282
+#: ../../include/conversation.php:923
 msgid "clear location"
 msgstr "vymazat místo"
 
-#: ../../include/conversation.php:1289
+#: ../../include/conversation.php:930
 msgid "permissions"
 msgstr "oprávnění"
 
