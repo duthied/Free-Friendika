@@ -2006,3 +2006,4 @@ $a->strings["Status Messages and Posts"] = "Statusnachrichten und Beiträge";
 $a->strings["Profile Details"] = "Profildetails";
 $a->strings["Events and Calendar"] = "Ereignisse und Kalender";
 $a->strings["Only You Can See This"] = "Nur du kannst das sehen";
+$a->strings["toggle mobile"] = "auf/von Mobile Ansicht wechseln";
