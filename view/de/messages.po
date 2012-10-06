@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2012-10-03 10:00-0700\n"
-"PO-Revision-Date: 2012-10-04 08:30+0000\n"
+"POT-Creation-Date: 2012-10-04 10:00-0700\n"
+"PO-Revision-Date: 2012-10-06 08:38+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -158,12 +158,12 @@ msgstr "Neues Foto von dieser URL"
 #: ../../addon/snautofollow/snautofollow.php:64 ../../addon/bg/bg.php:90
 #: ../../addon/fbpost/fbpost.php:226 ../../addon/yourls/yourls.php:76
 #: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:88
-#: ../../addon/page/page.php:210 ../../addon/planets/planets.php:158
+#: ../../addon/page/page.php:211 ../../addon/planets/planets.php:158
 #: ../../addon/uhremotestorage/uhremotestorage.php:89
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
-#: ../../addon/forumlist/forumlist.php:163
+#: ../../addon/forumlist/forumlist.php:164
 #: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
@@ -190,7 +190,7 @@ msgstr "Neues Foto von dieser URL"
 #: ../../view/theme/cleanzero/config.php:80
 #: ../../view/theme/diabook/theme.php:757
 #: ../../view/theme/diabook/config.php:190
-#: ../../view/theme/quattro/config.php:53 ../../view/theme/dispy/config.php:70
+#: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
 #: ../../object/Item.php:558
 msgid "Submit"
 msgstr "Senden"
@@ -319,7 +319,7 @@ msgstr "Titel:"
 msgid "Share this event"
 msgstr "Veranstaltung teilen"
 
-#: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/editpost.php:136
+#: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/editpost.php:142
 #: ../../mod/dfrn_request.php:847 ../../mod/settings.php:544
 #: ../../mod/settings.php:570 ../../addon/js_upload/js_upload.php:45
 #: ../../include/conversation.php:948
@@ -473,7 +473,7 @@ msgstr "Hochladen des Bildes gescheitert."
 
 #: ../../mod/photos.php:860 ../../mod/community.php:18
 #: ../../mod/dfrn_request.php:760 ../../mod/viewcontacts.php:17
-#: ../../mod/display.php:7 ../../mod/search.php:73 ../../mod/directory.php:31
+#: ../../mod/display.php:7 ../../mod/search.php:86 ../../mod/directory.php:31
 msgid "Public access denied."
 msgstr "Öffentlicher Zugriff verweigert."
 
@@ -607,7 +607,7 @@ msgstr "Ich mag das nicht (toggle)"
 msgid "Share"
 msgstr "Teilen"
 
-#: ../../mod/photos.php:1383 ../../mod/editpost.php:112
+#: ../../mod/photos.php:1383 ../../mod/editpost.php:118
 #: ../../mod/content.php:482 ../../mod/content.php:845
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:293
 #: ../../mod/message.php:481 ../../include/conversation.php:573
@@ -627,7 +627,7 @@ msgstr "Das bist du"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: ../../mod/photos.php:1403 ../../mod/editpost.php:133
+#: ../../mod/photos.php:1403 ../../mod/editpost.php:139
 #: ../../mod/content.php:702 ../../include/conversation.php:946
 #: ../../object/Item.php:567
 msgid "Preview"
@@ -658,7 +658,7 @@ msgid "Community"
 msgstr "Gemeinschaft"
 
 #: ../../mod/community.php:63 ../../mod/community.php:88
-#: ../../mod/search.php:148 ../../mod/search.php:174
+#: ../../mod/search.php:161 ../../mod/search.php:187
 msgid "No results."
 msgstr "Keine Ergebnisse."
 
@@ -717,57 +717,81 @@ msgstr "Bearbeiten"
 msgid "Upload photo"
 msgstr "Foto hochladen"
 
-#: ../../mod/editpost.php:105 ../../include/conversation.php:912
+#: ../../mod/editpost.php:105 ../../include/conversation.php:911
+msgid "upload photo"
+msgstr "Bild hochladen"
+
+#: ../../mod/editpost.php:106 ../../include/conversation.php:912
 msgid "Attach file"
 msgstr "Datei anhängen"
 
-#: ../../mod/editpost.php:106 ../../mod/wallmessage.php:151
+#: ../../mod/editpost.php:107 ../../include/conversation.php:913
+msgid "attach file"
+msgstr "Datei anhängen"
+
+#: ../../mod/editpost.php:108 ../../mod/wallmessage.php:151
 #: ../../mod/message.php:292 ../../mod/message.php:479
 #: ../../include/conversation.php:914
 msgid "Insert web link"
 msgstr "einen Link einfügen"
 
-#: ../../mod/editpost.php:107
-msgid "Insert YouTube video"
-msgstr "YouTube-Video einfügen"
+#: ../../mod/editpost.php:109 ../../include/conversation.php:915
+msgid "web link"
+msgstr "Weblink"
 
-#: ../../mod/editpost.php:108
-msgid "Insert Vorbis [.ogg] video"
-msgstr "Vorbis [.ogg] Video einfügen"
+#: ../../mod/editpost.php:110 ../../include/conversation.php:916
+msgid "Insert video link"
+msgstr "Video-Adresse einfügen"
 
-#: ../../mod/editpost.php:109
-msgid "Insert Vorbis [.ogg] audio"
-msgstr "Vorbis [.ogg] Audio einfügen"
+#: ../../mod/editpost.php:111 ../../include/conversation.php:917
+msgid "video link"
+msgstr "Video-Link"
 
-#: ../../mod/editpost.php:110 ../../include/conversation.php:920
+#: ../../mod/editpost.php:112 ../../include/conversation.php:918
+msgid "Insert audio link"
+msgstr "Audio-Adresse einfügen"
+
+#: ../../mod/editpost.php:113 ../../include/conversation.php:919
+msgid "audio link"
+msgstr "Audio-Link"
+
+#: ../../mod/editpost.php:114 ../../include/conversation.php:920
 msgid "Set your location"
 msgstr "Deinen Standort festlegen"
 
-#: ../../mod/editpost.php:111 ../../include/conversation.php:922
+#: ../../mod/editpost.php:115 ../../include/conversation.php:921
+msgid "set location"
+msgstr "Ort setzen"
+
+#: ../../mod/editpost.php:116 ../../include/conversation.php:922
 msgid "Clear browser location"
 msgstr "Browser-Standort leeren"
 
-#: ../../mod/editpost.php:113 ../../include/conversation.php:929
+#: ../../mod/editpost.php:117 ../../include/conversation.php:923
+msgid "clear location"
+msgstr "Ort löschen"
+
+#: ../../mod/editpost.php:119 ../../include/conversation.php:929
 msgid "Permission settings"
 msgstr "Berechtigungseinstellungen"
 
-#: ../../mod/editpost.php:121 ../../include/conversation.php:938
+#: ../../mod/editpost.php:127 ../../include/conversation.php:938
 msgid "CC: email addresses"
 msgstr "Cc:-E-Mail-Addressen"
 
-#: ../../mod/editpost.php:122 ../../include/conversation.php:939
+#: ../../mod/editpost.php:128 ../../include/conversation.php:939
 msgid "Public post"
 msgstr "Öffentlicher Beitrag"
 
-#: ../../mod/editpost.php:125 ../../include/conversation.php:925
+#: ../../mod/editpost.php:131 ../../include/conversation.php:925
 msgid "Set title"
 msgstr "Titel setzen"
 
-#: ../../mod/editpost.php:127 ../../include/conversation.php:927
+#: ../../mod/editpost.php:133 ../../include/conversation.php:927
 msgid "Categories (comma-separated list)"
 msgstr "Kategorien (kommasepariert)"
 
-#: ../../mod/editpost.php:128 ../../include/conversation.php:941
+#: ../../mod/editpost.php:134 ../../include/conversation.php:941
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "Z.B.: bob@example.com, mary@example.com"
 
@@ -1345,8 +1369,8 @@ msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] "Kommentar"
 
-#: ../../mod/content.php:589 ../../addon/page/page.php:76
-#: ../../addon/page/page.php:110 ../../addon/showmore/showmore.php:119
+#: ../../mod/content.php:589 ../../addon/page/page.php:77
+#: ../../addon/page/page.php:111 ../../addon/showmore/showmore.php:119
 #: ../../include/contact_widgets.php:195 ../../boot.php:585
 #: ../../object/Item.php:280
 msgid "show more"
@@ -2559,11 +2583,11 @@ msgstr "Wähle eine Identität zum Verwalten: "
 msgid "Search Results For:"
 msgstr "Suchergebnisse für:"
 
-#: ../../mod/network.php:221 ../../mod/search.php:16
+#: ../../mod/network.php:221 ../../mod/search.php:18
 msgid "Remove term"
 msgstr "Begriff entfernen"
 
-#: ../../mod/network.php:230 ../../mod/search.php:13
+#: ../../mod/network.php:230 ../../mod/search.php:27
 msgid "Saved Searches"
 msgstr "Gespeicherte Suchen"
 
@@ -4102,7 +4126,7 @@ msgstr "Anwendungen"
 msgid "No installed applications."
 msgstr "Keine Applikationen installiert."
 
-#: ../../mod/search.php:85 ../../include/text.php:678
+#: ../../mod/search.php:98 ../../include/text.php:678
 #: ../../include/text.php:679 ../../include/nav.php:91
 msgid "Search"
 msgstr "Suche"
@@ -5277,32 +5301,32 @@ msgstr "NSFW-Einstellungen gespeichert"
 msgid "%s - Click to open/close"
 msgstr "%s – Zum Öffnen/Schließen klicken"
 
-#: ../../addon/page/page.php:61 ../../addon/page/page.php:91
-#: ../../addon/forumlist/forumlist.php:55
+#: ../../addon/page/page.php:62 ../../addon/page/page.php:92
+#: ../../addon/forumlist/forumlist.php:56
 msgid "Forums"
 msgstr "Foren"
 
-#: ../../addon/page/page.php:129 ../../addon/forumlist/forumlist.php:89
+#: ../../addon/page/page.php:130 ../../addon/forumlist/forumlist.php:90
 msgid "Forums:"
 msgstr "Foren:"
 
-#: ../../addon/page/page.php:165
+#: ../../addon/page/page.php:166
 msgid "Page settings updated."
 msgstr "Seiteneinstellungen aktualisiert."
 
-#: ../../addon/page/page.php:194
+#: ../../addon/page/page.php:195
 msgid "Page Settings"
 msgstr "Seiteneinstellungen"
 
-#: ../../addon/page/page.php:196
+#: ../../addon/page/page.php:197
 msgid "How many forums to display on sidebar without paging"
 msgstr "Wie viele Foren sollen in der Seitenleiste ohne Umblättern angezeigt werden"
 
-#: ../../addon/page/page.php:199
+#: ../../addon/page/page.php:200
 msgid "Randomise Page/Forum list"
 msgstr "Zufällige Seiten/Foren Liste"
 
-#: ../../addon/page/page.php:202
+#: ../../addon/page/page.php:203
 msgid "Show pages/forums on profile page"
 msgstr "Foren/Seiten auf der Profilseite anzeigen"
 
@@ -6127,27 +6151,27 @@ msgstr "OEmbed für Youtube Videos verwenden"
 msgid "URL to embed:"
 msgstr "URL zum Einbetten:"
 
-#: ../../addon/forumlist/forumlist.php:58
+#: ../../addon/forumlist/forumlist.php:59
 msgid "show/hide"
 msgstr "anzeigen/verbergen"
 
-#: ../../addon/forumlist/forumlist.php:72
+#: ../../addon/forumlist/forumlist.php:73
 msgid "No forum subscriptions"
 msgstr "Keine Foren-Mitgliedschaften."
 
-#: ../../addon/forumlist/forumlist.php:125
+#: ../../addon/forumlist/forumlist.php:126
 msgid "Forumlist settings updated."
 msgstr "Einstellungen zur Foren-Liste aktualisiert."
 
-#: ../../addon/forumlist/forumlist.php:150
+#: ../../addon/forumlist/forumlist.php:151
 msgid "Forumlist Settings"
 msgstr "Foren-Liste Einstellungen"
 
-#: ../../addon/forumlist/forumlist.php:152
+#: ../../addon/forumlist/forumlist.php:153
 msgid "Randomise forum list"
 msgstr "Zufällige Zusammenstellung der Foren-Liste"
 
-#: ../../addon/forumlist/forumlist.php:155
+#: ../../addon/forumlist/forumlist.php:156
 msgid "Show forums on profile page"
 msgstr "Zeige die Liste der Foren auf der Profilseite"
 
@@ -7019,7 +7043,7 @@ msgstr "Veröffentliche öffentliche Beiträge standardmäßig bei Posterous"
 
 #: ../../view/theme/cleanzero/config.php:82
 #: ../../view/theme/diabook/config.php:192
-#: ../../view/theme/quattro/config.php:55 ../../view/theme/dispy/config.php:72
+#: ../../view/theme/quattro/config.php:66 ../../view/theme/dispy/config.php:72
 msgid "Theme settings"
 msgstr "Themeneinstellungen"
 
@@ -7038,7 +7062,7 @@ msgid "Set theme width"
 msgstr "Theme Breite festlegen"
 
 #: ../../view/theme/cleanzero/config.php:86
-#: ../../view/theme/quattro/config.php:57
+#: ../../view/theme/quattro/config.php:68
 msgid "Color scheme"
 msgstr "Farbschema"
 
@@ -7213,17 +7237,25 @@ msgstr "Zoomfaktor der Earth Layer"
 msgid "Last tweets"
 msgstr "Neueste Tweets"
 
-#: ../../view/theme/quattro/config.php:56
+#: ../../view/theme/quattro/config.php:67
 msgid "Alignment"
 msgstr "Ausrichtung"
 
-#: ../../view/theme/quattro/config.php:56
+#: ../../view/theme/quattro/config.php:67
 msgid "Left"
 msgstr "Links"
 
-#: ../../view/theme/quattro/config.php:56
+#: ../../view/theme/quattro/config.php:67
 msgid "Center"
 msgstr "Mitte"
+
+#: ../../view/theme/quattro/config.php:69
+msgid "Posts font size"
+msgstr "Schriftgröße in Beiträgen"
+
+#: ../../view/theme/quattro/config.php:70
+msgid "Textareas font size"
+msgstr "Schriftgröße in Eingabefeldern"
 
 #: ../../view/theme/dispy/config.php:75
 msgid "Set colour scheme"
@@ -8636,42 +8668,6 @@ msgstr "Tag:"
 #: ../../include/conversation.php:851 ../../include/conversation.php:868
 msgid "Where are you right now?"
 msgstr "Wo hältst du dich jetzt gerade auf?"
-
-#: ../../include/conversation.php:911
-msgid "upload photo"
-msgstr "Bild hochladen"
-
-#: ../../include/conversation.php:913
-msgid "attach file"
-msgstr "Datei anhängen"
-
-#: ../../include/conversation.php:915
-msgid "web link"
-msgstr "Weblink"
-
-#: ../../include/conversation.php:916
-msgid "Insert video link"
-msgstr "Video-Adresse einfügen"
-
-#: ../../include/conversation.php:917
-msgid "video link"
-msgstr "Video-Link"
-
-#: ../../include/conversation.php:918
-msgid "Insert audio link"
-msgstr "Audio-Adresse einfügen"
-
-#: ../../include/conversation.php:919
-msgid "audio link"
-msgstr "Audio-Link"
-
-#: ../../include/conversation.php:921
-msgid "set location"
-msgstr "Ort setzen"
-
-#: ../../include/conversation.php:923
-msgid "clear location"
-msgstr "Ort löschen"
 
 #: ../../include/conversation.php:930
 msgid "permissions"
