@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1486\n"
+"Project-Id-Version: 3.0.1489\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-04 10:00-0700\n"
+"POT-Creation-Date: 2012-10-07 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -148,7 +148,7 @@ msgstr ""
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
-#: ../../addon/forumlist/forumlist.php:164
+#: ../../addon/forumlist/forumlist.php:175
 #: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
@@ -5284,11 +5284,11 @@ msgid "%s - Click to open/close"
 msgstr ""
 
 #: ../../addon/page/page.php:62 ../../addon/page/page.php:92
-#: ../../addon/forumlist/forumlist.php:56
+#: ../../addon/forumlist/forumlist.php:60
 msgid "Forums"
 msgstr ""
 
-#: ../../addon/page/page.php:130 ../../addon/forumlist/forumlist.php:90
+#: ../../addon/page/page.php:130 ../../addon/forumlist/forumlist.php:94
 msgid "Forums:"
 msgstr ""
 
@@ -6133,28 +6133,32 @@ msgstr ""
 msgid "URL to embed:"
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:59
+#: ../../addon/forumlist/forumlist.php:63
 msgid "show/hide"
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:73
+#: ../../addon/forumlist/forumlist.php:77
 msgid "No forum subscriptions"
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:126
+#: ../../addon/forumlist/forumlist.php:131
 msgid "Forumlist settings updated."
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:151
+#: ../../addon/forumlist/forumlist.php:159
 msgid "Forumlist Settings"
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:153
+#: ../../addon/forumlist/forumlist.php:161
 msgid "Randomise forum list"
 msgstr ""
 
-#: ../../addon/forumlist/forumlist.php:156
+#: ../../addon/forumlist/forumlist.php:164
 msgid "Show forums on profile page"
+msgstr ""
+
+#: ../../addon/forumlist/forumlist.php:167
+msgid "Show forums on network page"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:37
