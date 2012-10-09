@@ -53,7 +53,7 @@ you wish to communicate with the Diaspora network.
 
 
 	- For alternative server configurations (such as Nginx server and MariaDB 
-	database engine, refer to the wiki at https://github.com/friendica/friendica/wiki
+	database engine), refer to the wiki at https://github.com/friendica/friendica/wiki
 
 2. Unpack the Friendica files into the root of your web server document area.
 
