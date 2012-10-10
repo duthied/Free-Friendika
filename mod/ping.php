@@ -63,8 +63,8 @@ function ping_init(&$a) {
 				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`, 
 				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink` 
 				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d 
+				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND 
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`parent` != 0
 				ORDER BY `item`.`created` DESC",
 			intval(local_user())
 		);
