@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1496' );
+define ( 'FRIENDICA_VERSION',      '3.0.1497' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1156      );
 
@@ -283,7 +283,9 @@ define ( 'GRAVITY_COMMENT',      6);
  */
 
 function startup() {
+	
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 	set_time_limit(0);
 
 	// This has to be quite large to deal with embedded private photos
@@ -402,7 +404,6 @@ if(! class_exists('App')) {
 				$this->scheme = 'https';
 			elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
 			$this->scheme = 'https';
-
 
 			if(x($_SERVER,'SERVER_NAME')) {
 				$this->hostname = $_SERVER['SERVER_NAME'];
@@ -1794,3 +1795,4 @@ function curPageURL() {
 	}
 	return $pageURL;
 }
+
