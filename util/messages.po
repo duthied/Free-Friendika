@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1492\n"
+"Project-Id-Version: 3.0.1496\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-10 10:00-0700\n"
+"POT-Creation-Date: 2012-10-14 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,7 +40,7 @@ msgstr ""
 #: ../../mod/editpost.php:10 ../../mod/install.php:151 ../../mod/poke.php:135
 #: ../../mod/notifications.php:66 ../../mod/contacts.php:146
 #: ../../mod/settings.php:86 ../../mod/settings.php:525
-#: ../../mod/settings.php:530 ../../mod/manage.php:87 ../../mod/network.php:6
+#: ../../mod/settings.php:530 ../../mod/manage.php:90 ../../mod/network.php:6
 #: ../../mod/notes.php:20 ../../mod/wallmessage.php:9
 #: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
 #: ../../mod/wallmessage.php:103 ../../mod/attach.php:33
@@ -59,7 +59,10 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:516 ../../addon/fbpost/fbpost.php:159
 #: ../../addon/fbpost/fbpost.php:165
 #: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3913
-#: ../../index.php:317
+#: ../../index.php:317 ../../addon.old/facebook/facebook.php:510
+#: ../../addon.old/facebook/facebook.php:516
+#: ../../addon.old/fbpost/fbpost.php:159 ../../addon.old/fbpost/fbpost.php:165
+#: ../../addon.old/dav/friendica/layout.fnk.php:354
 msgid "Permission denied."
 msgstr ""
 
@@ -140,14 +143,16 @@ msgstr ""
 #: ../../mod/profiles.php:594 ../../mod/invite.php:119
 #: ../../addon/fromgplus/fromgplus.php:40
 #: ../../addon/facebook/facebook.php:619
-#: ../../addon/snautofollow/snautofollow.php:64 ../../addon/bg/bg.php:90
+#: ../../addon/snautofollow/snautofollow.php:64
 #: ../../addon/fbpost/fbpost.php:226 ../../addon/yourls/yourls.php:76
 #: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:88
 #: ../../addon/page/page.php:211 ../../addon/planets/planets.php:158
 #: ../../addon/uhremotestorage/uhremotestorage.php:89
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
-#: ../../addon/drpost/drpost.php:110 ../../addon/startpage/startpage.php:92
-#: ../../addon/geonames/geonames.php:187 ../../addon/oembed.old/oembed.php:41
+#: ../../addon/remote_permissions/remote_permissions.php:47
+#: ../../addon/remote_permissions/remote_permissions.php:195
+#: ../../addon/startpage/startpage.php:92
+#: ../../addon/geonames/geonames.php:187
 #: ../../addon/forumlist/forumlist.php:175
 #: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
@@ -176,7 +181,52 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:757
 #: ../../view/theme/diabook/config.php:190
 #: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
-#: ../../object/Item.php:558
+#: ../../object/Item.php:558 ../../addon.old/fromgplus/fromgplus.php:40
+#: ../../addon.old/facebook/facebook.php:619
+#: ../../addon.old/snautofollow/snautofollow.php:64
+#: ../../addon.old/bg/bg.php:90 ../../addon.old/fbpost/fbpost.php:226
+#: ../../addon.old/yourls/yourls.php:76 ../../addon.old/ljpost/ljpost.php:93
+#: ../../addon.old/nsfw/nsfw.php:88 ../../addon.old/page/page.php:211
+#: ../../addon.old/planets/planets.php:158
+#: ../../addon.old/uhremotestorage/uhremotestorage.php:89
+#: ../../addon.old/randplace/randplace.php:177
+#: ../../addon.old/dwpost/dwpost.php:93 ../../addon.old/drpost/drpost.php:110
+#: ../../addon.old/startpage/startpage.php:92
+#: ../../addon.old/geonames/geonames.php:187
+#: ../../addon.old/oembed.old/oembed.php:41
+#: ../../addon.old/forumlist/forumlist.php:175
+#: ../../addon.old/impressum/impressum.php:83
+#: ../../addon.old/notimeline/notimeline.php:64
+#: ../../addon.old/blockem/blockem.php:57
+#: ../../addon.old/qcomment/qcomment.php:61
+#: ../../addon.old/openstreetmap/openstreetmap.php:70
+#: ../../addon.old/group_text/group_text.php:84
+#: ../../addon.old/libravatar/libravatar.php:99
+#: ../../addon.old/libertree/libertree.php:90
+#: ../../addon.old/altpager/altpager.php:87
+#: ../../addon.old/mathjax/mathjax.php:42
+#: ../../addon.old/editplain/editplain.php:84
+#: ../../addon.old/blackout/blackout.php:98
+#: ../../addon.old/gravatar/gravatar.php:95
+#: ../../addon.old/pageheader/pageheader.php:55
+#: ../../addon.old/ijpost/ijpost.php:93
+#: ../../addon.old/jappixmini/jappixmini.php:307
+#: ../../addon.old/statusnet/statusnet.php:278
+#: ../../addon.old/statusnet/statusnet.php:292
+#: ../../addon.old/statusnet/statusnet.php:318
+#: ../../addon.old/statusnet/statusnet.php:325
+#: ../../addon.old/statusnet/statusnet.php:353
+#: ../../addon.old/statusnet/statusnet.php:576
+#: ../../addon.old/tumblr/tumblr.php:90
+#: ../../addon.old/numfriends/numfriends.php:85
+#: ../../addon.old/gnot/gnot.php:88 ../../addon.old/wppost/wppost.php:110
+#: ../../addon.old/showmore/showmore.php:48 ../../addon.old/piwik/piwik.php:89
+#: ../../addon.old/twitter/twitter.php:180
+#: ../../addon.old/twitter/twitter.php:209
+#: ../../addon.old/twitter/twitter.php:394 ../../addon.old/irc/irc.php:55
+#: ../../addon.old/fromapp/fromapp.php:77
+#: ../../addon.old/blogger/blogger.php:102
+#: ../../addon.old/posterous/posterous.php:103
 msgid "Submit"
 msgstr ""
 
@@ -185,7 +235,7 @@ msgid "Help:"
 msgstr ""
 
 #: ../../mod/help.php:34 ../../addon/dav/friendica/layout.fnk.php:225
-#: ../../include/nav.php:86
+#: ../../include/nav.php:86 ../../addon.old/dav/friendica/layout.fnk.php:225
 msgid "Help"
 msgstr ""
 
@@ -245,11 +295,13 @@ msgid "Create New Event"
 msgstr ""
 
 #: ../../mod/events.php:349 ../../addon/dav/friendica/layout.fnk.php:263
+#: ../../addon.old/dav/friendica/layout.fnk.php:263
 msgid "Previous"
 msgstr ""
 
 #: ../../mod/events.php:350 ../../mod/install.php:205
 #: ../../addon/dav/friendica/layout.fnk.php:266
+#: ../../addon.old/dav/friendica/layout.fnk.php:266
 msgid "Next"
 msgstr ""
 
@@ -308,6 +360,7 @@ msgstr ""
 #: ../../mod/dfrn_request.php:847 ../../mod/settings.php:544
 #: ../../mod/settings.php:570 ../../addon/js_upload/js_upload.php:45
 #: ../../include/conversation.php:948
+#: ../../addon.old/js_upload/js_upload.php:45
 msgid "Cancel"
 msgstr ""
 
@@ -325,6 +378,7 @@ msgstr ""
 
 #: ../../mod/tagrm.php:93 ../../mod/delegate.php:130
 #: ../../addon/dav/common/wdcal_edit.inc.php:468
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:468
 msgid "Remove"
 msgstr ""
 
@@ -384,6 +438,7 @@ msgstr ""
 #: ../../mod/photos.php:1556 ../../mod/photos.php:1568
 #: ../../addon/communityhome/communityhome.php:110
 #: ../../view/theme/diabook/theme.php:598
+#: ../../addon.old/communityhome/communityhome.php:110
 msgid "Contact Photos"
 msgstr ""
 
@@ -407,6 +462,7 @@ msgstr ""
 #: ../../addon/communityhome/communityhome.php:111
 #: ../../view/theme/diabook/theme.php:599 ../../include/user.php:324
 #: ../../include/user.php:331 ../../include/user.php:338
+#: ../../addon.old/communityhome/communityhome.php:111
 msgid "Profile Photos"
 msgstr ""
 
@@ -431,6 +487,7 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:570 ../../include/text.php:1439
 #: ../../include/diaspora.php:1835 ../../include/conversation.php:125
 #: ../../include/conversation.php:253
+#: ../../addon.old/communityhome/communityhome.php:163
 msgid "photo"
 msgstr ""
 
@@ -439,6 +496,7 @@ msgid "by"
 msgstr ""
 
 #: ../../mod/photos.php:707 ../../addon/js_upload/js_upload.php:315
+#: ../../addon.old/js_upload/js_upload.php:315
 msgid "Image exceeds size limit of "
 msgstr ""
 
@@ -1296,11 +1354,12 @@ msgstr ""
 msgid "No matches"
 msgstr ""
 
-#: ../../mod/lockview.php:34
+#: ../../mod/lockview.php:31 ../../mod/lockview.php:39
 msgid "Remote privacy information not available."
 msgstr ""
 
-#: ../../mod/lockview.php:43
+#: ../../mod/lockview.php:48
+#: ../../addon/remote_permissions/remote_permissions.php:123
 msgid "Visible to:"
 msgstr ""
 
@@ -1355,7 +1414,8 @@ msgstr[1] ""
 #: ../../mod/content.php:589 ../../addon/page/page.php:77
 #: ../../addon/page/page.php:111 ../../addon/showmore/showmore.php:119
 #: ../../include/contact_widgets.php:195 ../../boot.php:585
-#: ../../object/Item.php:280
+#: ../../object/Item.php:280 ../../addon.old/page/page.php:77
+#: ../../addon.old/page/page.php:111 ../../addon.old/showmore/showmore.php:119
 msgid "show more"
 msgstr ""
 
@@ -1444,6 +1504,7 @@ msgid "via Wall-To-Wall:"
 msgstr ""
 
 #: ../../mod/home.php:28 ../../addon/communityhome/communityhome.php:179
+#: ../../addon.old/communityhome/communityhome.php:179
 #, php-format
 msgid "Welcome to %s"
 msgstr ""
@@ -1452,184 +1513,184 @@ msgstr ""
 msgid "Invalid request identifier."
 msgstr ""
 
-#: ../../mod/notifications.php:35 ../../mod/notifications.php:161
-#: ../../mod/notifications.php:207
+#: ../../mod/notifications.php:35 ../../mod/notifications.php:164
+#: ../../mod/notifications.php:210
 msgid "Discard"
 msgstr ""
 
-#: ../../mod/notifications.php:51 ../../mod/notifications.php:160
-#: ../../mod/notifications.php:206 ../../mod/contacts.php:321
+#: ../../mod/notifications.php:51 ../../mod/notifications.php:163
+#: ../../mod/notifications.php:209 ../../mod/contacts.php:321
 #: ../../mod/contacts.php:375
 msgid "Ignore"
 msgstr ""
 
-#: ../../mod/notifications.php:75
+#: ../../mod/notifications.php:78
 msgid "System"
 msgstr ""
 
-#: ../../mod/notifications.php:80 ../../include/nav.php:113
+#: ../../mod/notifications.php:83 ../../include/nav.php:113
 msgid "Network"
 msgstr ""
 
-#: ../../mod/notifications.php:85 ../../mod/network.php:407
+#: ../../mod/notifications.php:88 ../../mod/network.php:407
 msgid "Personal"
 msgstr ""
 
-#: ../../mod/notifications.php:90 ../../view/theme/diabook/theme.php:127
+#: ../../mod/notifications.php:93 ../../view/theme/diabook/theme.php:127
 #: ../../include/nav.php:77 ../../include/nav.php:115
 msgid "Home"
 msgstr ""
 
-#: ../../mod/notifications.php:95 ../../include/nav.php:121
+#: ../../mod/notifications.php:98 ../../include/nav.php:121
 msgid "Introductions"
 msgstr ""
 
-#: ../../mod/notifications.php:100 ../../mod/message.php:176
+#: ../../mod/notifications.php:103 ../../mod/message.php:176
 #: ../../include/nav.php:128
 msgid "Messages"
 msgstr ""
 
-#: ../../mod/notifications.php:119
+#: ../../mod/notifications.php:122
 msgid "Show Ignored Requests"
 msgstr ""
 
-#: ../../mod/notifications.php:119
+#: ../../mod/notifications.php:122
 msgid "Hide Ignored Requests"
 msgstr ""
 
-#: ../../mod/notifications.php:145 ../../mod/notifications.php:191
+#: ../../mod/notifications.php:148 ../../mod/notifications.php:194
 msgid "Notification type: "
 msgstr ""
 
-#: ../../mod/notifications.php:146
+#: ../../mod/notifications.php:149
 msgid "Friend Suggestion"
 msgstr ""
 
-#: ../../mod/notifications.php:148
+#: ../../mod/notifications.php:151
 #, php-format
 msgid "suggested by %s"
 msgstr ""
 
-#: ../../mod/notifications.php:153 ../../mod/notifications.php:200
+#: ../../mod/notifications.php:156 ../../mod/notifications.php:203
 #: ../../mod/contacts.php:381
 msgid "Hide this contact from others"
 msgstr ""
 
-#: ../../mod/notifications.php:154 ../../mod/notifications.php:201
+#: ../../mod/notifications.php:157 ../../mod/notifications.php:204
 msgid "Post a new friend activity"
 msgstr ""
 
-#: ../../mod/notifications.php:154 ../../mod/notifications.php:201
+#: ../../mod/notifications.php:157 ../../mod/notifications.php:204
 msgid "if applicable"
 msgstr ""
 
-#: ../../mod/notifications.php:157 ../../mod/notifications.php:204
+#: ../../mod/notifications.php:160 ../../mod/notifications.php:207
 #: ../../mod/admin.php:694
 msgid "Approve"
 msgstr ""
 
-#: ../../mod/notifications.php:177
+#: ../../mod/notifications.php:180
 msgid "Claims to be known to you: "
 msgstr ""
 
-#: ../../mod/notifications.php:177
+#: ../../mod/notifications.php:180
 msgid "yes"
 msgstr ""
 
-#: ../../mod/notifications.php:177
+#: ../../mod/notifications.php:180
 msgid "no"
 msgstr ""
 
-#: ../../mod/notifications.php:184
+#: ../../mod/notifications.php:187
 msgid "Approve as: "
 msgstr ""
 
-#: ../../mod/notifications.php:185
+#: ../../mod/notifications.php:188
 msgid "Friend"
 msgstr ""
 
-#: ../../mod/notifications.php:186
+#: ../../mod/notifications.php:189
 msgid "Sharer"
 msgstr ""
 
-#: ../../mod/notifications.php:186
+#: ../../mod/notifications.php:189
 msgid "Fan/Admirer"
 msgstr ""
 
-#: ../../mod/notifications.php:192
+#: ../../mod/notifications.php:195
 msgid "Friend/Connect Request"
 msgstr ""
 
-#: ../../mod/notifications.php:192
+#: ../../mod/notifications.php:195
 msgid "New Follower"
 msgstr ""
 
-#: ../../mod/notifications.php:213
+#: ../../mod/notifications.php:216
 msgid "No introductions."
 msgstr ""
 
-#: ../../mod/notifications.php:216 ../../include/nav.php:122
+#: ../../mod/notifications.php:219 ../../include/nav.php:122
 msgid "Notifications"
 msgstr ""
 
-#: ../../mod/notifications.php:253 ../../mod/notifications.php:378
-#: ../../mod/notifications.php:465
+#: ../../mod/notifications.php:256 ../../mod/notifications.php:381
+#: ../../mod/notifications.php:468
 #, php-format
 msgid "%s liked %s's post"
 msgstr ""
 
-#: ../../mod/notifications.php:262 ../../mod/notifications.php:387
-#: ../../mod/notifications.php:474
+#: ../../mod/notifications.php:265 ../../mod/notifications.php:390
+#: ../../mod/notifications.php:477
 #, php-format
 msgid "%s disliked %s's post"
 msgstr ""
 
-#: ../../mod/notifications.php:276 ../../mod/notifications.php:401
-#: ../../mod/notifications.php:488
+#: ../../mod/notifications.php:279 ../../mod/notifications.php:404
+#: ../../mod/notifications.php:491
 #, php-format
 msgid "%s is now friends with %s"
 msgstr ""
 
-#: ../../mod/notifications.php:283 ../../mod/notifications.php:408
+#: ../../mod/notifications.php:286 ../../mod/notifications.php:411
 #, php-format
 msgid "%s created a new post"
 msgstr ""
 
-#: ../../mod/notifications.php:284 ../../mod/notifications.php:409
-#: ../../mod/notifications.php:497
+#: ../../mod/notifications.php:287 ../../mod/notifications.php:412
+#: ../../mod/notifications.php:500
 #, php-format
 msgid "%s commented on %s's post"
 msgstr ""
 
-#: ../../mod/notifications.php:298
+#: ../../mod/notifications.php:301
 msgid "No more network notifications."
 msgstr ""
 
-#: ../../mod/notifications.php:302
+#: ../../mod/notifications.php:305
 msgid "Network Notifications"
 msgstr ""
 
-#: ../../mod/notifications.php:328 ../../mod/notify.php:61
+#: ../../mod/notifications.php:331 ../../mod/notify.php:61
 msgid "No more system notifications."
 msgstr ""
 
-#: ../../mod/notifications.php:332 ../../mod/notify.php:65
+#: ../../mod/notifications.php:335 ../../mod/notify.php:65
 msgid "System Notifications"
 msgstr ""
 
-#: ../../mod/notifications.php:423
+#: ../../mod/notifications.php:426
 msgid "No more personal notifications."
 msgstr ""
 
-#: ../../mod/notifications.php:427
+#: ../../mod/notifications.php:430
 msgid "Personal Notifications"
 msgstr ""
 
-#: ../../mod/notifications.php:504
+#: ../../mod/notifications.php:507
 msgid "No more home notifications."
 msgstr ""
 
-#: ../../mod/notifications.php:508
+#: ../../mod/notifications.php:511
 msgid "Home Notifications"
 msgstr ""
 
@@ -1958,7 +2019,11 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:1200 ../../addon/fbpost/fbpost.php:661
 #: ../../addon/public_server/public_server.php:62
 #: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3301
-#: ../../boot.php:798
+#: ../../boot.php:798 ../../addon.old/facebook/facebook.php:702
+#: ../../addon.old/facebook/facebook.php:1200
+#: ../../addon.old/fbpost/fbpost.php:661
+#: ../../addon.old/public_server/public_server.php:62
+#: ../../addon.old/testdrive/testdrive.php:67
 msgid "Administrator"
 msgstr ""
 
@@ -2045,6 +2110,8 @@ msgstr ""
 #: ../../addon/dav/friendica/layout.fnk.php:225
 #: ../../addon/mathjax/mathjax.php:36 ../../view/theme/diabook/theme.php:643
 #: ../../view/theme/diabook/theme.php:773 ../../include/nav.php:137
+#: ../../addon.old/dav/friendica/layout.fnk.php:225
+#: ../../addon.old/mathjax/mathjax.php:36
 msgid "Settings"
 msgstr ""
 
@@ -2105,10 +2172,18 @@ msgid "Private forum has no privacy permissions and no default privacy group."
 msgstr ""
 
 #: ../../mod/settings.php:471 ../../addon/facebook/facebook.php:495
-#: ../../addon/fbpost/fbpost.php:144 ../../addon/impressum/impressum.php:78
+#: ../../addon/fbpost/fbpost.php:144
+#: ../../addon/remote_permissions/remote_permissions.php:204
+#: ../../addon/impressum/impressum.php:78
 #: ../../addon/openstreetmap/openstreetmap.php:80
 #: ../../addon/mathjax/mathjax.php:66 ../../addon/piwik/piwik.php:105
 #: ../../addon/twitter/twitter.php:389
+#: ../../addon.old/facebook/facebook.php:495
+#: ../../addon.old/fbpost/fbpost.php:144
+#: ../../addon.old/impressum/impressum.php:78
+#: ../../addon.old/openstreetmap/openstreetmap.php:80
+#: ../../addon.old/mathjax/mathjax.php:66 ../../addon.old/piwik/piwik.php:105
+#: ../../addon.old/twitter/twitter.php:389
 msgid "Settings updated."
 msgstr ""
 
@@ -2119,11 +2194,13 @@ msgstr ""
 
 #: ../../mod/settings.php:546 ../../mod/settings.php:572
 #: ../../addon/statusnet/statusnet.php:570
+#: ../../addon.old/statusnet/statusnet.php:570
 msgid "Consumer Key"
 msgstr ""
 
 #: ../../mod/settings.php:547 ../../mod/settings.php:573
 #: ../../addon/statusnet/statusnet.php:569
+#: ../../addon.old/statusnet/statusnet.php:569
 msgid "Consumer Secret"
 msgstr ""
 
@@ -2160,6 +2237,7 @@ msgid "No Plugin settings configured"
 msgstr ""
 
 #: ../../mod/settings.php:628 ../../addon/widgets/widgets.php:123
+#: ../../addon.old/widgets/widgets.php:123
 msgid "Plugin Settings"
 msgstr ""
 
@@ -2216,6 +2294,7 @@ msgstr ""
 
 #: ../../mod/settings.php:690 ../../mod/settings.php:695
 #: ../../addon/dav/common/wdcal_edit.inc.php:191
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:191
 msgid "None"
 msgstr ""
 
@@ -2547,17 +2626,17 @@ msgstr ""
 msgid "Change the behaviour of this account for special situations"
 msgstr ""
 
-#: ../../mod/manage.php:91
+#: ../../mod/manage.php:94
 msgid "Manage Identities and/or Pages"
 msgstr ""
 
-#: ../../mod/manage.php:94
+#: ../../mod/manage.php:97
 msgid ""
 "Toggle between different identities or community/group pages which share "
 "your account details or which you have been granted \"manage\" permissions"
 msgstr ""
 
-#: ../../mod/manage.php:96
+#: ../../mod/manage.php:99
 msgid "Select an identity to manage: "
 msgstr ""
 
@@ -2655,6 +2734,11 @@ msgstr ""
 #: ../../addon/fbpost/fbpost.php:267
 #: ../../addon/dav/friendica/layout.fnk.php:441
 #: ../../addon/dav/friendica/layout.fnk.php:488 ../../include/text.php:681
+#: ../../addon.old/facebook/facebook.php:770
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:263
+#: ../../addon.old/fbpost/fbpost.php:267
+#: ../../addon.old/dav/friendica/layout.fnk.php:441
+#: ../../addon.old/dav/friendica/layout.fnk.php:488
 msgid "Save"
 msgstr ""
 
@@ -2816,6 +2900,8 @@ msgstr ""
 #: ../../mod/newmember.php:49 ../../mod/newmember.php:51
 #: ../../addon/facebook/facebook.php:728 ../../addon/fbpost/fbpost.php:239
 #: ../../include/contact_selectors.php:81
+#: ../../addon.old/facebook/facebook.php:728
+#: ../../addon.old/fbpost/fbpost.php:239
 msgid "Facebook"
 msgstr ""
 
@@ -3097,6 +3183,9 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:574 ../../include/diaspora.php:1835
 #: ../../include/conversation.php:120 ../../include/conversation.php:129
 #: ../../include/conversation.php:248 ../../include/conversation.php:257
+#: ../../addon.old/facebook/facebook.php:1598
+#: ../../addon.old/communityhome/communityhome.php:158
+#: ../../addon.old/communityhome/communityhome.php:167
 msgid "status"
 msgstr ""
 
@@ -3104,6 +3193,8 @@ msgstr ""
 #: ../../addon/communityhome/communityhome.php:172
 #: ../../view/theme/diabook/theme.php:579 ../../include/diaspora.php:1851
 #: ../../include/conversation.php:136
+#: ../../addon.old/facebook/facebook.php:1602
+#: ../../addon.old/communityhome/communityhome.php:172
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
 msgstr ""
@@ -3233,6 +3324,7 @@ msgstr ""
 
 #: ../../mod/profile_photo.php:245
 #: ../../addon/dav/friendica/layout.fnk.php:152
+#: ../../addon.old/dav/friendica/layout.fnk.php:152
 msgid "Upload"
 msgstr ""
 
@@ -3490,6 +3582,7 @@ msgid "Advanced"
 msgstr ""
 
 #: ../../mod/admin.php:451 ../../addon/statusnet/statusnet.php:567
+#: ../../addon.old/statusnet/statusnet.php:567
 msgid "Site name"
 msgstr ""
 
@@ -4170,6 +4263,7 @@ msgid "Address"
 msgstr ""
 
 #: ../../mod/profiles.php:221 ../../addon/dav/common/wdcal_edit.inc.php:183
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:183
 msgid "Location"
 msgstr ""
 
@@ -4738,98 +4832,122 @@ msgid "%1$s has joined %2$s"
 msgstr ""
 
 #: ../../addon/fromgplus/fromgplus.php:29
+#: ../../addon.old/fromgplus/fromgplus.php:29
 msgid "Google+ Import Settings"
 msgstr ""
 
 #: ../../addon/fromgplus/fromgplus.php:32
+#: ../../addon.old/fromgplus/fromgplus.php:32
 msgid "Enable Google+ Import"
 msgstr ""
 
 #: ../../addon/fromgplus/fromgplus.php:35
+#: ../../addon.old/fromgplus/fromgplus.php:35
 msgid "Google Account ID"
 msgstr ""
 
 #: ../../addon/fromgplus/fromgplus.php:55
+#: ../../addon.old/fromgplus/fromgplus.php:55
 msgid "Google+ Import Settings saved."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:523
+#: ../../addon.old/facebook/facebook.php:523
 msgid "Facebook disabled"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:528
+#: ../../addon.old/facebook/facebook.php:528
 msgid "Updating contacts"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:551 ../../addon/fbpost/fbpost.php:192
+#: ../../addon.old/facebook/facebook.php:551
+#: ../../addon.old/fbpost/fbpost.php:192
 msgid "Facebook API key is missing."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:558
+#: ../../addon.old/facebook/facebook.php:558
 msgid "Facebook Connect"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:564
+#: ../../addon.old/facebook/facebook.php:564
 msgid "Install Facebook connector for this account."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:571
+#: ../../addon.old/facebook/facebook.php:571
 msgid "Remove Facebook connector"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:576 ../../addon/fbpost/fbpost.php:217
+#: ../../addon.old/facebook/facebook.php:576
+#: ../../addon.old/fbpost/fbpost.php:217
 msgid ""
 "Re-authenticate [This is necessary whenever your Facebook password is "
 "changed.]"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:583 ../../addon/fbpost/fbpost.php:224
+#: ../../addon.old/facebook/facebook.php:583
+#: ../../addon.old/fbpost/fbpost.php:224
 msgid "Post to Facebook by default"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:589
+#: ../../addon.old/facebook/facebook.php:589
 msgid ""
 "Facebook friend linking has been disabled on this site. The following "
 "settings will have no effect."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:593
+#: ../../addon.old/facebook/facebook.php:593
 msgid ""
 "Facebook friend linking has been disabled on this site. If you disable it, "
 "you will be unable to re-enable it."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:596
+#: ../../addon.old/facebook/facebook.php:596
 msgid "Link all your Facebook friends and conversations on this website"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:598
+#: ../../addon.old/facebook/facebook.php:598
 msgid ""
 "Facebook conversations consist of your <em>profile wall</em> and your friend "
 "<em>stream</em>."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:599
+#: ../../addon.old/facebook/facebook.php:599
 msgid "On this website, your Facebook friend stream is only visible to you."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:600
+#: ../../addon.old/facebook/facebook.php:600
 msgid ""
 "The following settings determine the privacy of your Facebook profile wall "
 "on this website."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:604
+#: ../../addon.old/facebook/facebook.php:604
 msgid ""
 "On this website your Facebook profile wall conversations will only be "
 "visible to you"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:609
+#: ../../addon.old/facebook/facebook.php:609
 msgid "Do not import your Facebook profile wall conversations"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:611
+#: ../../addon.old/facebook/facebook.php:611
 msgid ""
 "If you choose to link conversations and leave both of these boxes unchecked, "
 "your Facebook profile wall will be merged with your profile wall on this "
@@ -4838,22 +4956,29 @@ msgid ""
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:616
+#: ../../addon.old/facebook/facebook.php:616
 msgid "Comma separated applications to ignore"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:700
+#: ../../addon.old/facebook/facebook.php:700
 msgid "Problems with Facebook Real-Time Updates"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:729
+#: ../../addon.old/facebook/facebook.php:729
 msgid "Facebook Connector Settings"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:744 ../../addon/fbpost/fbpost.php:255
+#: ../../addon.old/facebook/facebook.php:744
+#: ../../addon.old/fbpost/fbpost.php:255
 msgid "Facebook API Key"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:754 ../../addon/fbpost/fbpost.php:262
+#: ../../addon.old/facebook/facebook.php:754
+#: ../../addon.old/fbpost/fbpost.php:262
 msgid ""
 "Error: it appears that you have specified the App-ID and -Secret in your ."
 "htconfig.php file. As long as they are specified there, they cannot be set "
@@ -4861,92 +4986,123 @@ msgid ""
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:759
+#: ../../addon.old/facebook/facebook.php:759
 msgid ""
 "Error: the given API Key seems to be incorrect (the application access token "
 "could not be retrieved)."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:761
+#: ../../addon.old/facebook/facebook.php:761
 msgid "The given API Key seems to work correctly."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:763
+#: ../../addon.old/facebook/facebook.php:763
 msgid ""
 "The correctness of the API Key could not be detected. Something strange's "
 "going on."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:766 ../../addon/fbpost/fbpost.php:264
+#: ../../addon.old/facebook/facebook.php:766
+#: ../../addon.old/fbpost/fbpost.php:264
 msgid "App-ID / API-Key"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:767 ../../addon/fbpost/fbpost.php:265
+#: ../../addon.old/facebook/facebook.php:767
+#: ../../addon.old/fbpost/fbpost.php:265
 msgid "Application secret"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:768
+#: ../../addon.old/facebook/facebook.php:768
 #, php-format
 msgid "Polling Interval in minutes (minimum %1$s minutes)"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:769
+#: ../../addon.old/facebook/facebook.php:769
 msgid ""
 "Synchronize comments (no comments on Facebook are missed, at the cost of "
 "increased system load)"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:773
+#: ../../addon.old/facebook/facebook.php:773
 msgid "Real-Time Updates"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:777
+#: ../../addon.old/facebook/facebook.php:777
 msgid "Real-Time Updates are activated."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:778
+#: ../../addon.old/facebook/facebook.php:778
 msgid "Deactivate Real-Time Updates"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:780
+#: ../../addon.old/facebook/facebook.php:780
 msgid "Real-Time Updates not activated."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:780
+#: ../../addon.old/facebook/facebook.php:780
 msgid "Activate Real-Time Updates"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:799 ../../addon/fbpost/fbpost.php:282
 #: ../../addon/dav/friendica/layout.fnk.php:361
+#: ../../addon.old/facebook/facebook.php:799
+#: ../../addon.old/fbpost/fbpost.php:282
+#: ../../addon.old/dav/friendica/layout.fnk.php:361
 msgid "The new values have been saved."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:823 ../../addon/fbpost/fbpost.php:301
+#: ../../addon.old/facebook/facebook.php:823
+#: ../../addon.old/fbpost/fbpost.php:301
 msgid "Post to Facebook"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:921 ../../addon/fbpost/fbpost.php:399
+#: ../../addon.old/facebook/facebook.php:921
+#: ../../addon.old/fbpost/fbpost.php:399
 msgid ""
 "Post to Facebook cancelled because of multi-network access permission "
 "conflict."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:1149 ../../addon/fbpost/fbpost.php:610
+#: ../../addon.old/facebook/facebook.php:1149
+#: ../../addon.old/fbpost/fbpost.php:610
 msgid "View on Friendica"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:1182 ../../addon/fbpost/fbpost.php:643
+#: ../../addon.old/facebook/facebook.php:1182
+#: ../../addon.old/fbpost/fbpost.php:643
 msgid "Facebook post failed. Queued for retry."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:1222 ../../addon/fbpost/fbpost.php:683
+#: ../../addon.old/facebook/facebook.php:1222
+#: ../../addon.old/fbpost/fbpost.php:683
 msgid "Your Facebook connection became invalid. Please Re-authenticate."
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:1223 ../../addon/fbpost/fbpost.php:684
+#: ../../addon.old/facebook/facebook.php:1223
+#: ../../addon.old/fbpost/fbpost.php:684
 msgid "Facebook connection became invalid"
 msgstr ""
 
 #: ../../addon/facebook/facebook.php:1224 ../../addon/fbpost/fbpost.php:685
+#: ../../addon.old/facebook/facebook.php:1224
+#: ../../addon.old/fbpost/fbpost.php:685
 #, php-format
 msgid ""
 "Hi %1$s,\n"
@@ -4957,70 +5113,67 @@ msgid ""
 msgstr ""
 
 #: ../../addon/snautofollow/snautofollow.php:32
+#: ../../addon.old/snautofollow/snautofollow.php:32
 msgid "StatusNet AutoFollow settings updated."
 msgstr ""
 
 #: ../../addon/snautofollow/snautofollow.php:56
+#: ../../addon.old/snautofollow/snautofollow.php:56
 msgid "StatusNet AutoFollow Settings"
 msgstr ""
 
 #: ../../addon/snautofollow/snautofollow.php:58
+#: ../../addon.old/snautofollow/snautofollow.php:58
 msgid "Automatically follow any StatusNet followers/mentioners"
 msgstr ""
 
-#: ../../addon/bg/bg.php:51
-msgid "Bg settings updated."
-msgstr ""
-
-#: ../../addon/bg/bg.php:82
-msgid "Bg Settings"
-msgstr ""
-
-#: ../../addon/bg/bg.php:84 ../../addon/numfriends/numfriends.php:79
-msgid "How many contacts to display on profile sidebar"
-msgstr ""
-
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:260
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:260
 msgid "Lifetime of the cache (in hours)"
 msgstr ""
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:265
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:265
 msgid "Cache Statistics"
 msgstr ""
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:268
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:268
 msgid "Number of items"
 msgstr ""
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:270
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:270
 msgid "Size of the cache"
 msgstr ""
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:272
+#: ../../addon.old/privacy_image_cache/privacy_image_cache.php:272
 msgid "Delete the whole cache"
 msgstr ""
 
-#: ../../addon/fbpost/fbpost.php:172
+#: ../../addon/fbpost/fbpost.php:172 ../../addon.old/fbpost/fbpost.php:172
 msgid "Facebook Post disabled"
 msgstr ""
 
-#: ../../addon/fbpost/fbpost.php:199
+#: ../../addon/fbpost/fbpost.php:199 ../../addon.old/fbpost/fbpost.php:199
 msgid "Facebook Post"
 msgstr ""
 
-#: ../../addon/fbpost/fbpost.php:205
+#: ../../addon/fbpost/fbpost.php:205 ../../addon.old/fbpost/fbpost.php:205
 msgid "Install Facebook Post connector for this account."
 msgstr ""
 
-#: ../../addon/fbpost/fbpost.php:212
+#: ../../addon/fbpost/fbpost.php:212 ../../addon.old/fbpost/fbpost.php:212
 msgid "Remove Facebook Post connector"
 msgstr ""
 
-#: ../../addon/fbpost/fbpost.php:240
+#: ../../addon/fbpost/fbpost.php:240 ../../addon.old/fbpost/fbpost.php:240
 msgid "Facebook Post Settings"
 msgstr ""
 
 #: ../../addon/widgets/widget_like.php:58
+#: ../../addon.old/widgets/widget_like.php:58
 #, php-format
 msgid "%d person likes this"
 msgid_plural "%d people like this"
@@ -5028,6 +5181,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../addon/widgets/widget_like.php:61
+#: ../../addon.old/widgets/widget_like.php:61
 #, php-format
 msgid "%d person doesn't like this"
 msgid_plural "%d people don't like this"
@@ -5035,224 +5189,262 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../addon/widgets/widget_friendheader.php:40
+#: ../../addon.old/widgets/widget_friendheader.php:40
 msgid "Get added to this list!"
 msgstr ""
 
-#: ../../addon/widgets/widgets.php:56
+#: ../../addon/widgets/widgets.php:56 ../../addon.old/widgets/widgets.php:56
 msgid "Generate new key"
 msgstr ""
 
-#: ../../addon/widgets/widgets.php:59
+#: ../../addon/widgets/widgets.php:59 ../../addon.old/widgets/widgets.php:59
 msgid "Widgets key"
 msgstr ""
 
-#: ../../addon/widgets/widgets.php:61
+#: ../../addon/widgets/widgets.php:61 ../../addon.old/widgets/widgets.php:61
 msgid "Widgets available"
 msgstr ""
 
 #: ../../addon/widgets/widget_friends.php:40
+#: ../../addon.old/widgets/widget_friends.php:40
 msgid "Connect on Friendica!"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:19
+#: ../../addon.old/morepokes/morepokes.php:19
 msgid "bitchslap"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:19
+#: ../../addon.old/morepokes/morepokes.php:19
 msgid "bitchslapped"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:20
+#: ../../addon.old/morepokes/morepokes.php:20
 msgid "shag"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:20
+#: ../../addon.old/morepokes/morepokes.php:20
 msgid "shagged"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:21
+#: ../../addon.old/morepokes/morepokes.php:21
 msgid "do something obscenely biological to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:21
+#: ../../addon.old/morepokes/morepokes.php:21
 msgid "did something obscenely biological to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:22
+#: ../../addon.old/morepokes/morepokes.php:22
 msgid "point out the poke feature to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:22
+#: ../../addon.old/morepokes/morepokes.php:22
 msgid "pointed out the poke feature to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:23
+#: ../../addon.old/morepokes/morepokes.php:23
 msgid "declare undying love for"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:23
+#: ../../addon.old/morepokes/morepokes.php:23
 msgid "declared undying love for"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:24
+#: ../../addon.old/morepokes/morepokes.php:24
 msgid "patent"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:24
+#: ../../addon.old/morepokes/morepokes.php:24
 msgid "patented"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:25
+#: ../../addon.old/morepokes/morepokes.php:25
 msgid "stroke beard"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:25
+#: ../../addon.old/morepokes/morepokes.php:25
 msgid "stroked their beard at"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:26
+#: ../../addon.old/morepokes/morepokes.php:26
 msgid ""
 "bemoan the declining standards of modern secondary and tertiary education to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:26
+#: ../../addon.old/morepokes/morepokes.php:26
 msgid ""
 "bemoans the declining standards of modern secondary and tertiary education to"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:27
+#: ../../addon.old/morepokes/morepokes.php:27
 msgid "hug"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:27
+#: ../../addon.old/morepokes/morepokes.php:27
 msgid "hugged"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:28
+#: ../../addon.old/morepokes/morepokes.php:28
 msgid "kiss"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:28
+#: ../../addon.old/morepokes/morepokes.php:28
 msgid "kissed"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:29
+#: ../../addon.old/morepokes/morepokes.php:29
 msgid "raise eyebrows at"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:29
+#: ../../addon.old/morepokes/morepokes.php:29
 msgid "raised their eyebrows at"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:30
+#: ../../addon.old/morepokes/morepokes.php:30
 msgid "insult"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:30
+#: ../../addon.old/morepokes/morepokes.php:30
 msgid "insulted"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:31
+#: ../../addon.old/morepokes/morepokes.php:31
 msgid "praise"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:31
+#: ../../addon.old/morepokes/morepokes.php:31
 msgid "praised"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:32
+#: ../../addon.old/morepokes/morepokes.php:32
 msgid "be dubious of"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:32
+#: ../../addon.old/morepokes/morepokes.php:32
 msgid "was dubious of"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:33
+#: ../../addon.old/morepokes/morepokes.php:33
 msgid "eat"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:33
+#: ../../addon.old/morepokes/morepokes.php:33
 msgid "ate"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:34
+#: ../../addon.old/morepokes/morepokes.php:34
 msgid "giggle and fawn at"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:34
+#: ../../addon.old/morepokes/morepokes.php:34
 msgid "giggled and fawned at"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:35
+#: ../../addon.old/morepokes/morepokes.php:35
 msgid "doubt"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:35
+#: ../../addon.old/morepokes/morepokes.php:35
 msgid "doubted"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:36
+#: ../../addon.old/morepokes/morepokes.php:36
 msgid "glare"
 msgstr ""
 
 #: ../../addon/morepokes/morepokes.php:36
+#: ../../addon.old/morepokes/morepokes.php:36
 msgid "glared at"
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:55
+#: ../../addon/yourls/yourls.php:55 ../../addon.old/yourls/yourls.php:55
 msgid "YourLS Settings"
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:57
+#: ../../addon/yourls/yourls.php:57 ../../addon.old/yourls/yourls.php:57
 msgid "URL: http://"
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:62
+#: ../../addon/yourls/yourls.php:62 ../../addon.old/yourls/yourls.php:62
 msgid "Username:"
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:67
+#: ../../addon/yourls/yourls.php:67 ../../addon.old/yourls/yourls.php:67
 msgid "Password:"
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:72
+#: ../../addon/yourls/yourls.php:72 ../../addon.old/yourls/yourls.php:72
 msgid "Use SSL "
 msgstr ""
 
-#: ../../addon/yourls/yourls.php:92
+#: ../../addon/yourls/yourls.php:92 ../../addon.old/yourls/yourls.php:92
 msgid "yourls Settings saved."
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:39
+#: ../../addon/ljpost/ljpost.php:39 ../../addon.old/ljpost/ljpost.php:39
 msgid "Post to LiveJournal"
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:70
+#: ../../addon/ljpost/ljpost.php:70 ../../addon.old/ljpost/ljpost.php:70
 msgid "LiveJournal Post Settings"
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:72
+#: ../../addon/ljpost/ljpost.php:72 ../../addon.old/ljpost/ljpost.php:72
 msgid "Enable LiveJournal Post Plugin"
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:77
+#: ../../addon/ljpost/ljpost.php:77 ../../addon.old/ljpost/ljpost.php:77
 msgid "LiveJournal username"
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:82
+#: ../../addon/ljpost/ljpost.php:82 ../../addon.old/ljpost/ljpost.php:82
 msgid "LiveJournal password"
 msgstr ""
 
-#: ../../addon/ljpost/ljpost.php:87
+#: ../../addon/ljpost/ljpost.php:87 ../../addon.old/ljpost/ljpost.php:87
 msgid "Post to LiveJournal by default"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:78
+#: ../../addon/nsfw/nsfw.php:78 ../../addon.old/nsfw/nsfw.php:78
 msgid "Not Safe For Work (General Purpose Content Filter) settings"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:80
+#: ../../addon/nsfw/nsfw.php:80 ../../addon.old/nsfw/nsfw.php:80
 msgid ""
 "This plugin looks in posts for the words/text you specify below, and "
 "collapses any content containing those keywords so it is not displayed at "
@@ -5262,61 +5454,64 @@ msgid ""
 "can thereby be used as a general purpose content filter."
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:81
+#: ../../addon/nsfw/nsfw.php:81 ../../addon.old/nsfw/nsfw.php:81
 msgid "Enable Content filter"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:84
+#: ../../addon/nsfw/nsfw.php:84 ../../addon.old/nsfw/nsfw.php:84
 msgid "Comma separated list of keywords to hide"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:89
+#: ../../addon/nsfw/nsfw.php:89 ../../addon.old/nsfw/nsfw.php:89
 msgid "Use /expression/ to provide regular expressions"
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:105
+#: ../../addon/nsfw/nsfw.php:105 ../../addon.old/nsfw/nsfw.php:105
 msgid "NSFW Settings saved."
 msgstr ""
 
-#: ../../addon/nsfw/nsfw.php:157
+#: ../../addon/nsfw/nsfw.php:157 ../../addon.old/nsfw/nsfw.php:157
 #, php-format
 msgid "%s - Click to open/close"
 msgstr ""
 
 #: ../../addon/page/page.php:62 ../../addon/page/page.php:92
-#: ../../addon/forumlist/forumlist.php:60
+#: ../../addon/forumlist/forumlist.php:60 ../../addon.old/page/page.php:62
+#: ../../addon.old/page/page.php:92 ../../addon.old/forumlist/forumlist.php:60
 msgid "Forums"
 msgstr ""
 
 #: ../../addon/page/page.php:130 ../../addon/forumlist/forumlist.php:94
+#: ../../addon.old/page/page.php:130
+#: ../../addon.old/forumlist/forumlist.php:94
 msgid "Forums:"
 msgstr ""
 
-#: ../../addon/page/page.php:166
+#: ../../addon/page/page.php:166 ../../addon.old/page/page.php:166
 msgid "Page settings updated."
 msgstr ""
 
-#: ../../addon/page/page.php:195
+#: ../../addon/page/page.php:195 ../../addon.old/page/page.php:195
 msgid "Page Settings"
 msgstr ""
 
-#: ../../addon/page/page.php:197
+#: ../../addon/page/page.php:197 ../../addon.old/page/page.php:197
 msgid "How many forums to display on sidebar without paging"
 msgstr ""
 
-#: ../../addon/page/page.php:200
+#: ../../addon/page/page.php:200 ../../addon.old/page/page.php:200
 msgid "Randomise Page/Forum list"
 msgstr ""
 
-#: ../../addon/page/page.php:203
+#: ../../addon/page/page.php:203 ../../addon.old/page/page.php:203
 msgid "Show pages/forums on profile page"
 msgstr ""
 
-#: ../../addon/planets/planets.php:150
+#: ../../addon/planets/planets.php:150 ../../addon.old/planets/planets.php:150
 msgid "Planets Settings"
 msgstr ""
 
-#: ../../addon/planets/planets.php:152
+#: ../../addon/planets/planets.php:152 ../../addon.old/planets/planets.php:152
 msgid "Enable Planets Plugin"
 msgstr ""
 
@@ -5325,35 +5520,48 @@ msgstr ""
 #: ../../addon/communityhome/twillingham/communityhome.php:28
 #: ../../addon/communityhome/twillingham/communityhome.php:34
 #: ../../include/nav.php:64 ../../boot.php:922
+#: ../../addon.old/communityhome/communityhome.php:28
+#: ../../addon.old/communityhome/communityhome.php:34
+#: ../../addon.old/communityhome/twillingham/communityhome.php:28
+#: ../../addon.old/communityhome/twillingham/communityhome.php:34
 msgid "Login"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:29
 #: ../../addon/communityhome/twillingham/communityhome.php:29
+#: ../../addon.old/communityhome/communityhome.php:29
+#: ../../addon.old/communityhome/twillingham/communityhome.php:29
 msgid "OpenID"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:38
 #: ../../addon/communityhome/twillingham/communityhome.php:38
+#: ../../addon.old/communityhome/communityhome.php:38
+#: ../../addon.old/communityhome/twillingham/communityhome.php:38
 msgid "Latest users"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:81
 #: ../../addon/communityhome/twillingham/communityhome.php:81
+#: ../../addon.old/communityhome/communityhome.php:81
+#: ../../addon.old/communityhome/twillingham/communityhome.php:81
 msgid "Most active users"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:98
+#: ../../addon.old/communityhome/communityhome.php:98
 msgid "Latest photos"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:133
+#: ../../addon.old/communityhome/communityhome.php:133
 msgid "Latest likes"
 msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:155
 #: ../../view/theme/diabook/theme.php:562 ../../include/text.php:1437
 #: ../../include/conversation.php:117 ../../include/conversation.php:245
+#: ../../addon.old/communityhome/communityhome.php:155
 msgid "event"
 msgstr ""
 
@@ -5363,107 +5571,141 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_backend.inc.php:206
 #: ../../addon/dav/common/wdcal_backend.inc.php:214
 #: ../../addon/dav/common/wdcal_backend.inc.php:229
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:92
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:166
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:178
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:206
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:214
+#: ../../addon.old/dav/common/wdcal_backend.inc.php:229
 msgid "No access"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:30
 #: ../../addon/dav/common/wdcal_edit.inc.php:738
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:30
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:738
 msgid "Could not open component for editing"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:140
 #: ../../addon/dav/friendica/layout.fnk.php:143
 #: ../../addon/dav/friendica/layout.fnk.php:422
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:140
+#: ../../addon.old/dav/friendica/layout.fnk.php:143
+#: ../../addon.old/dav/friendica/layout.fnk.php:422
 msgid "Go back to the calendar"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:144
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:144
 msgid "Event data"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:146
 #: ../../addon/dav/friendica/main.php:239
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:146
+#: ../../addon.old/dav/friendica/main.php:239
 msgid "Calendar"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:163
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:163
 msgid "Special color"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:169
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:169
 msgid "Subject"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:173
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:173
 msgid "Starts"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:178
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:178
 msgid "Ends"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:185
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:185
 msgid "Description"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:188
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:188
 msgid "Recurrence"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:190
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:190
 msgid "Frequency"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:194
 #: ../../include/contact_selectors.php:59
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:194
 msgid "Daily"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:197
 #: ../../include/contact_selectors.php:60
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:197
 msgid "Weekly"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:200
 #: ../../include/contact_selectors.php:61
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:200
 msgid "Monthly"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:203
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:203
 msgid "Yearly"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:214
 #: ../../include/datetime.php:288
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:214
 msgid "days"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:215
 #: ../../include/datetime.php:287
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:215
 msgid "weeks"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:216
 #: ../../include/datetime.php:286
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:216
 msgid "months"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:217
 #: ../../include/datetime.php:285
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:217
 msgid "years"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:218
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:218
 msgid "Interval"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:218
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:218
 msgid "All %select% %time%"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:222
 #: ../../addon/dav/common/wdcal_edit.inc.php:260
 #: ../../addon/dav/common/wdcal_edit.inc.php:481
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:222
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:260
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:481
 msgid "Days"
 msgstr ""
 
@@ -5472,316 +5714,407 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:270
 #: ../../addon/dav/common/wdcal_edit.inc.php:293
 #: ../../addon/dav/common/wdcal_edit.inc.php:305 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:231
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:254
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:270
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:293
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:305
 msgid "Sunday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:235
 #: ../../addon/dav/common/wdcal_edit.inc.php:274
 #: ../../addon/dav/common/wdcal_edit.inc.php:308 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:235
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:274
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:308
 msgid "Monday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:238
 #: ../../addon/dav/common/wdcal_edit.inc.php:277 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:238
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:277
 msgid "Tuesday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:241
 #: ../../addon/dav/common/wdcal_edit.inc.php:280 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:241
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:280
 msgid "Wednesday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:244
 #: ../../addon/dav/common/wdcal_edit.inc.php:283 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:244
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:283
 msgid "Thursday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:247
 #: ../../addon/dav/common/wdcal_edit.inc.php:286 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:247
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:286
 msgid "Friday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:250
 #: ../../addon/dav/common/wdcal_edit.inc.php:289 ../../include/text.php:917
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:250
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:289
 msgid "Saturday"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:297
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:297
 msgid "First day of week:"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:350
 #: ../../addon/dav/common/wdcal_edit.inc.php:373
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:350
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:373
 msgid "Day of month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:354
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:354
 msgid "#num#th of each month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:357
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:357
 msgid "#num#th-last of each month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:360
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:360
 msgid "#num#th #wkday# of each month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:363
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:363
 msgid "#num#th-last #wkday# of each month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:372
 #: ../../addon/dav/friendica/layout.fnk.php:255
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:372
+#: ../../addon.old/dav/friendica/layout.fnk.php:255
 msgid "Month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:377
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:377
 msgid "#num#th of the given month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:380
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:380
 msgid "#num#th-last of the given month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:383
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:383
 msgid "#num#th #wkday# of the given month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:386
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:386
 msgid "#num#th-last #wkday# of the given month"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:413
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:413
 msgid "Repeat until"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:417
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:417
 msgid "Infinite"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:420
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:420
 msgid "Until the following date"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:423
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:423
 msgid "Number of times"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:429
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:429
 msgid "Exceptions"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:432
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:432
 msgid "none"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:449
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:449
 msgid "Notification"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:466
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:466
 msgid "Notify by"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:469
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:469
 msgid "E-Mail"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:470
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:470
 msgid "On Friendica / Display"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:474
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:474
 msgid "Time"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:478
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:478
 msgid "Hours"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:479
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:479
 msgid "Minutes"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:480
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:480
 msgid "Seconds"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:482
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:482
 msgid "Weeks"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:485
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:485
 msgid "before the"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:486
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:486
 msgid "start of the event"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:487
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:487
 msgid "end of the event"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:492
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:492
 msgid "Add a notification"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:687
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:687
 msgid "The event #name# will start at #date"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:696
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:696
 msgid "#name# is about to begin."
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:769
+#: ../../addon.old/dav/common/wdcal_edit.inc.php:769
 msgid "Saved"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_configuration.php:148
+#: ../../addon.old/dav/common/wdcal_configuration.php:148
 msgid "U.S. Time Format (mm/dd/YYYY)"
 msgstr ""
 
 #: ../../addon/dav/common/wdcal_configuration.php:243
+#: ../../addon.old/dav/common/wdcal_configuration.php:243
 msgid "German Time Format (dd.mm.YYYY)"
 msgstr ""
 
 #: ../../addon/dav/common/dav_caldav_backend_private.inc.php:39
+#: ../../addon.old/dav/common/dav_caldav_backend_private.inc.php:39
 msgid "Private Events"
 msgstr ""
 
 #: ../../addon/dav/common/dav_carddav_backend_private.inc.php:46
+#: ../../addon.old/dav/common/dav_carddav_backend_private.inc.php:46
 msgid "Private Addressbooks"
 msgstr ""
 
 #: ../../addon/dav/friendica/dav_caldav_backend_virtual_friendica.inc.php:36
+#: ../../addon.old/dav/friendica/dav_caldav_backend_virtual_friendica.inc.php:36
 msgid "Friendica-Native events"
 msgstr ""
 
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:36
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:59
+#: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:36
+#: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:59
 msgid "Friendica-Contacts"
 msgstr ""
 
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:60
+#: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:60
 msgid "Your Friendica-Contacts"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:99
 #: ../../addon/dav/friendica/layout.fnk.php:136
+#: ../../addon.old/dav/friendica/layout.fnk.php:99
+#: ../../addon.old/dav/friendica/layout.fnk.php:136
 msgid ""
 "Something went wrong when trying to import the file. Sorry. Maybe some "
 "events were imported anyway."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:131
+#: ../../addon.old/dav/friendica/layout.fnk.php:131
 msgid "Something went wrong when trying to import the file. Sorry."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:134
+#: ../../addon.old/dav/friendica/layout.fnk.php:134
 msgid "The ICS-File has been imported."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:138
+#: ../../addon.old/dav/friendica/layout.fnk.php:138
 msgid "No file was uploaded."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:147
+#: ../../addon.old/dav/friendica/layout.fnk.php:147
 msgid "Import a ICS-file"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:150
+#: ../../addon.old/dav/friendica/layout.fnk.php:150
 msgid "ICS-File"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:151
+#: ../../addon.old/dav/friendica/layout.fnk.php:151
 msgid "Overwrite all #num# existing events"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:228
+#: ../../addon.old/dav/friendica/layout.fnk.php:228
 msgid "New event"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:232
+#: ../../addon.old/dav/friendica/layout.fnk.php:232
 msgid "Today"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:241
+#: ../../addon.old/dav/friendica/layout.fnk.php:241
 msgid "Day"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:248
+#: ../../addon.old/dav/friendica/layout.fnk.php:248
 msgid "Week"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:260
+#: ../../addon.old/dav/friendica/layout.fnk.php:260
 msgid "Reload"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:271
+#: ../../addon.old/dav/friendica/layout.fnk.php:271
 msgid "Date"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:313
+#: ../../addon.old/dav/friendica/layout.fnk.php:313
 msgid "Error"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:380
+#: ../../addon.old/dav/friendica/layout.fnk.php:380
 msgid "The calendar has been updated."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:393
+#: ../../addon.old/dav/friendica/layout.fnk.php:393
 msgid "The new calendar has been created."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:417
+#: ../../addon.old/dav/friendica/layout.fnk.php:417
 msgid "The calendar has been deleted."
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:424
+#: ../../addon.old/dav/friendica/layout.fnk.php:424
 msgid "Calendar Settings"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:430
+#: ../../addon.old/dav/friendica/layout.fnk.php:430
 msgid "Date format"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:439
+#: ../../addon.old/dav/friendica/layout.fnk.php:439
 msgid "Time zone"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:445
+#: ../../addon.old/dav/friendica/layout.fnk.php:445
 msgid "Calendars"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:487
+#: ../../addon.old/dav/friendica/layout.fnk.php:487
 msgid "Create a new calendar"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:496
+#: ../../addon.old/dav/friendica/layout.fnk.php:496
 msgid "Limitations"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:500
 #: ../../addon/libravatar/libravatar.php:82
+#: ../../addon.old/dav/friendica/layout.fnk.php:500
+#: ../../addon.old/libravatar/libravatar.php:82
 msgid "Warning"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:504
+#: ../../addon.old/dav/friendica/layout.fnk.php:504
 msgid "Synchronization (iPhone, Thunderbird Lightning, Android, ...)"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:511
+#: ../../addon.old/dav/friendica/layout.fnk.php:511
 msgid "Synchronizing this calendar with the iPhone"
 msgstr ""
 
 #: ../../addon/dav/friendica/layout.fnk.php:522
+#: ../../addon.old/dav/friendica/layout.fnk.php:522
 msgid "Synchronizing your Friendica-Contacts with the iPhone"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:202
+#: ../../addon.old/dav/friendica/main.php:202
 msgid ""
 "The current version of this plugin has not been set up correctly. Please "
 "contact the system administrator of your installation of friendica to fix "
@@ -5789,52 +6122,65 @@ msgid ""
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:242
+#: ../../addon.old/dav/friendica/main.php:242
 msgid "Extended calendar with CalDAV-support"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:279
 #: ../../addon/dav/friendica/main.php:280 ../../include/delivery.php:464
 #: ../../include/enotify.php:28 ../../include/notifier.php:710
+#: ../../addon.old/dav/friendica/main.php:279
+#: ../../addon.old/dav/friendica/main.php:280
 msgid "noreply"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:282
+#: ../../addon.old/dav/friendica/main.php:282
 msgid "Notification: "
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:309
+#: ../../addon.old/dav/friendica/main.php:309
 msgid "The database tables have been installed."
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:310
+#: ../../addon.old/dav/friendica/main.php:310
 msgid "An error occurred during the installation."
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:316
+#: ../../addon.old/dav/friendica/main.php:316
 msgid "The database tables have been updated."
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:317
+#: ../../addon.old/dav/friendica/main.php:317
 msgid "An error occurred during the update."
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:333
+#: ../../addon.old/dav/friendica/main.php:333
 msgid "No system-wide settings yet."
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:336
+#: ../../addon.old/dav/friendica/main.php:336
 msgid "Database status"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:339
+#: ../../addon.old/dav/friendica/main.php:339
 msgid "Installed"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:343
+#: ../../addon.old/dav/friendica/main.php:343
 msgid "Upgrade needed"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:343
+#: ../../addon.old/dav/friendica/main.php:343
 msgid ""
 "Please back up all calendar data (the tables beginning with dav_*) before "
 "proceeding. While all calendar events <i>should</i> be converted to the new "
@@ -5844,22 +6190,27 @@ msgid ""
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:343
+#: ../../addon.old/dav/friendica/main.php:343
 msgid "Upgrade"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:346
+#: ../../addon.old/dav/friendica/main.php:346
 msgid "Not installed"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:346
+#: ../../addon.old/dav/friendica/main.php:346
 msgid "Install"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:350
+#: ../../addon.old/dav/friendica/main.php:350
 msgid "Unknown"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:350
+#: ../../addon.old/dav/friendica/main.php:350
 msgid ""
 "Something really went wrong. I cannot recover from this state automatically, "
 "sorry. Please go to the database backend, back up the data, and delete all "
@@ -5868,38 +6219,47 @@ msgid ""
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:355
+#: ../../addon.old/dav/friendica/main.php:355
 msgid "Troubleshooting"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:356
+#: ../../addon.old/dav/friendica/main.php:356
 msgid "Manual creation of the database tables:"
 msgstr ""
 
 #: ../../addon/dav/friendica/main.php:357
+#: ../../addon.old/dav/friendica/main.php:357
 msgid "Show SQL-statements"
 msgstr ""
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:206
+#: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:206
 msgid "Private Calendar"
 msgstr ""
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:207
+#: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:207
 msgid "Friendica Events: Mine"
 msgstr ""
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:208
+#: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:208
 msgid "Friendica Events: Contacts"
 msgstr ""
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:248
+#: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:248
 msgid "Private Addresses"
 msgstr ""
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:249
+#: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:249
 msgid "Friendica Contacts"
 msgstr ""
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:84
+#: ../../addon.old/uhremotestorage/uhremotestorage.php:84
 #, php-format
 msgid ""
 "Allow to use your friendica id (%s) to connecto to external unhosted-enabled "
@@ -5908,183 +6268,197 @@ msgid ""
 msgstr ""
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:85
+#: ../../addon.old/uhremotestorage/uhremotestorage.php:85
 msgid "Template URL (with {category})"
 msgstr ""
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:86
+#: ../../addon.old/uhremotestorage/uhremotestorage.php:86
 msgid "OAuth end-point"
 msgstr ""
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:87
+#: ../../addon.old/uhremotestorage/uhremotestorage.php:87
 msgid "Api"
 msgstr ""
 
 #: ../../addon/membersince/membersince.php:18
+#: ../../addon.old/membersince/membersince.php:18
 msgid "Member since:"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:20
+#: ../../addon/tictac/tictac.php:20 ../../addon.old/tictac/tictac.php:20
 msgid "Three Dimensional Tic-Tac-Toe"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:53
+#: ../../addon/tictac/tictac.php:53 ../../addon.old/tictac/tictac.php:53
 msgid "3D Tic-Tac-Toe"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:58
+#: ../../addon/tictac/tictac.php:58 ../../addon.old/tictac/tictac.php:58
 msgid "New game"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:59
+#: ../../addon/tictac/tictac.php:59 ../../addon.old/tictac/tictac.php:59
 msgid "New game with handicap"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:60
+#: ../../addon/tictac/tictac.php:60 ../../addon.old/tictac/tictac.php:60
 msgid ""
 "Three dimensional tic-tac-toe is just like the traditional game except that "
 "it is played on multiple levels simultaneously. "
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:61
+#: ../../addon/tictac/tictac.php:61 ../../addon.old/tictac/tictac.php:61
 msgid ""
 "In this case there are three levels. You win by getting three in a row on "
 "any level, as well as up, down, and diagonally across the different levels."
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:63
+#: ../../addon/tictac/tictac.php:63 ../../addon.old/tictac/tictac.php:63
 msgid ""
 "The handicap game disables the center position on the middle level because "
 "the player claiming this square often has an unfair advantage."
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:182
+#: ../../addon/tictac/tictac.php:182 ../../addon.old/tictac/tictac.php:182
 msgid "You go first..."
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:187
+#: ../../addon/tictac/tictac.php:187 ../../addon.old/tictac/tictac.php:187
 msgid "I'm going first this time..."
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:193
+#: ../../addon/tictac/tictac.php:193 ../../addon.old/tictac/tictac.php:193
 msgid "You won!"
 msgstr ""
 
 #: ../../addon/tictac/tictac.php:199 ../../addon/tictac/tictac.php:224
+#: ../../addon.old/tictac/tictac.php:199 ../../addon.old/tictac/tictac.php:224
 msgid "\"Cat\" game!"
 msgstr ""
 
-#: ../../addon/tictac/tictac.php:222
+#: ../../addon/tictac/tictac.php:222 ../../addon.old/tictac/tictac.php:222
 msgid "I won!"
 msgstr ""
 
 #: ../../addon/randplace/randplace.php:169
+#: ../../addon.old/randplace/randplace.php:169
 msgid "Randplace Settings"
 msgstr ""
 
 #: ../../addon/randplace/randplace.php:171
+#: ../../addon.old/randplace/randplace.php:171
 msgid "Enable Randplace Plugin"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:39
+#: ../../addon/dwpost/dwpost.php:39 ../../addon.old/dwpost/dwpost.php:39
 msgid "Post to Dreamwidth"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:70
+#: ../../addon/dwpost/dwpost.php:70 ../../addon.old/dwpost/dwpost.php:70
 msgid "Dreamwidth Post Settings"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:72
+#: ../../addon/dwpost/dwpost.php:72 ../../addon.old/dwpost/dwpost.php:72
 msgid "Enable dreamwidth Post Plugin"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:77
+#: ../../addon/dwpost/dwpost.php:77 ../../addon.old/dwpost/dwpost.php:77
 msgid "dreamwidth username"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:82
+#: ../../addon/dwpost/dwpost.php:82 ../../addon.old/dwpost/dwpost.php:82
 msgid "dreamwidth password"
 msgstr ""
 
-#: ../../addon/dwpost/dwpost.php:87
+#: ../../addon/dwpost/dwpost.php:87 ../../addon.old/dwpost/dwpost.php:87
 msgid "Post to dreamwidth by default"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:35
-msgid "Post to Drupal"
+#: ../../addon/remote_permissions/remote_permissions.php:44
+msgid "Remote Permissions Settings"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:72
-msgid "Drupal Post Settings"
+#: ../../addon/remote_permissions/remote_permissions.php:45
+msgid ""
+"Allow recipients of your private posts to see the other recipients of the "
+"posts"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:74
-msgid "Enable Drupal Post Plugin"
+#: ../../addon/remote_permissions/remote_permissions.php:57
+msgid "Remote Permissions settings updated."
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:79
-msgid "Drupal username"
+#: ../../addon/remote_permissions/remote_permissions.php:177
+msgid "Visible to"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:84
-msgid "Drupal password"
+#: ../../addon/remote_permissions/remote_permissions.php:177
+msgid "may only be a partial list"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:89
-msgid "Post Type - article,page,or blog"
+#: ../../addon/remote_permissions/remote_permissions.php:196
+msgid "Global"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:94
-msgid "Drupal site URL"
+#: ../../addon/remote_permissions/remote_permissions.php:196
+msgid "The posts of every user on this server show the post recipients"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:99
-msgid "Drupal site uses clean URLS"
+#: ../../addon/remote_permissions/remote_permissions.php:197
+msgid "Individual"
 msgstr ""
 
-#: ../../addon/drpost/drpost.php:104
-msgid "Post to Drupal by default"
-msgstr ""
-
-#: ../../addon/drpost/drpost.php:184 ../../addon/wppost/wppost.php:201
-#: ../../addon/blogger/blogger.php:172 ../../addon/posterous/posterous.php:189
-msgid "Post from Friendica"
+#: ../../addon/remote_permissions/remote_permissions.php:197
+msgid "Each user chooses whether his/her posts show the post recipients"
 msgstr ""
 
 #: ../../addon/startpage/startpage.php:83
+#: ../../addon.old/startpage/startpage.php:83
 msgid "Startpage Settings"
 msgstr ""
 
 #: ../../addon/startpage/startpage.php:85
+#: ../../addon.old/startpage/startpage.php:85
 msgid "Home page to load after login  - leave blank for profile wall"
 msgstr ""
 
 #: ../../addon/startpage/startpage.php:88
+#: ../../addon.old/startpage/startpage.php:88
 msgid "Examples: &quot;network&quot; or &quot;notifications/system&quot;"
 msgstr ""
 
 #: ../../addon/geonames/geonames.php:143
+#: ../../addon.old/geonames/geonames.php:143
 msgid "Geonames settings updated."
 msgstr ""
 
 #: ../../addon/geonames/geonames.php:179
+#: ../../addon.old/geonames/geonames.php:179
 msgid "Geonames Settings"
 msgstr ""
 
 #: ../../addon/geonames/geonames.php:181
+#: ../../addon.old/geonames/geonames.php:181
 msgid "Enable Geonames Plugin"
 msgstr ""
 
 #: ../../addon/public_server/public_server.php:126
 #: ../../addon/testdrive/testdrive.php:94
+#: ../../addon.old/public_server/public_server.php:126
+#: ../../addon.old/testdrive/testdrive.php:94
 #, php-format
 msgid "Your account on %s will expire in a few days."
 msgstr ""
 
 #: ../../addon/public_server/public_server.php:127
+#: ../../addon.old/public_server/public_server.php:127
 msgid "Your Friendica account is about to expire."
 msgstr ""
 
 #: ../../addon/public_server/public_server.php:128
+#: ../../addon.old/public_server/public_server.php:128
 #, php-format
 msgid ""
 "Hi %1$s,\n"
@@ -6094,94 +6468,105 @@ msgid ""
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:43
+#: ../../addon.old/js_upload/js_upload.php:43
 msgid "Upload a file"
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:44
+#: ../../addon.old/js_upload/js_upload.php:44
 msgid "Drop files here to upload"
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:46
+#: ../../addon.old/js_upload/js_upload.php:46
 msgid "Failed"
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:297
+#: ../../addon.old/js_upload/js_upload.php:297
 msgid "No files were uploaded."
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:303
+#: ../../addon.old/js_upload/js_upload.php:303
 msgid "Uploaded file is empty"
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:326
+#: ../../addon.old/js_upload/js_upload.php:326
 msgid "File has an invalid extension, it should be one of "
 msgstr ""
 
 #: ../../addon/js_upload/js_upload.php:337
+#: ../../addon.old/js_upload/js_upload.php:337
 msgid "Upload was cancelled, or server error encountered"
 msgstr ""
 
-#: ../../addon/oembed.old/oembed.php:30
-msgid "OEmbed settings updated"
-msgstr ""
-
-#: ../../addon/oembed.old/oembed.php:43
-msgid "Use OEmbed for YouTube videos"
-msgstr ""
-
-#: ../../addon/oembed.old/oembed.php:71
-msgid "URL to embed:"
-msgstr ""
-
 #: ../../addon/forumlist/forumlist.php:63
+#: ../../addon.old/forumlist/forumlist.php:63
 msgid "show/hide"
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:77
+#: ../../addon.old/forumlist/forumlist.php:77
 msgid "No forum subscriptions"
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:131
+#: ../../addon.old/forumlist/forumlist.php:131
 msgid "Forumlist settings updated."
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:159
+#: ../../addon.old/forumlist/forumlist.php:159
 msgid "Forumlist Settings"
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:161
+#: ../../addon.old/forumlist/forumlist.php:161
 msgid "Randomise forum list"
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:164
+#: ../../addon.old/forumlist/forumlist.php:164
 msgid "Show forums on profile page"
 msgstr ""
 
 #: ../../addon/forumlist/forumlist.php:167
+#: ../../addon.old/forumlist/forumlist.php:167
 msgid "Show forums on network page"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:37
+#: ../../addon.old/impressum/impressum.php:37
 msgid "Impressum"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:50
 #: ../../addon/impressum/impressum.php:52
 #: ../../addon/impressum/impressum.php:84
+#: ../../addon.old/impressum/impressum.php:50
+#: ../../addon.old/impressum/impressum.php:52
+#: ../../addon.old/impressum/impressum.php:84
 msgid "Site Owner"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:50
 #: ../../addon/impressum/impressum.php:88
+#: ../../addon.old/impressum/impressum.php:50
+#: ../../addon.old/impressum/impressum.php:88
 msgid "Email Address"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:55
 #: ../../addon/impressum/impressum.php:86
+#: ../../addon.old/impressum/impressum.php:55
+#: ../../addon.old/impressum/impressum.php:86
 msgid "Postal Address"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:61
+#: ../../addon.old/impressum/impressum.php:61
 msgid ""
 "The impressum addon needs to be configured!<br />Please add at least the "
 "<tt>owner</tt> variable to your config file. For other variables please "
@@ -6189,193 +6574,236 @@ msgid ""
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:84
+#: ../../addon.old/impressum/impressum.php:84
 msgid "The page operators name."
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:85
+#: ../../addon.old/impressum/impressum.php:85
 msgid "Site Owners Profile"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:85
+#: ../../addon.old/impressum/impressum.php:85
 msgid "Profile address of the operator."
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:86
+#: ../../addon.old/impressum/impressum.php:86
 msgid "How to contact the operator via snail mail. You can use BBCode here."
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:87
+#: ../../addon.old/impressum/impressum.php:87
 msgid "Notes"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:87
+#: ../../addon.old/impressum/impressum.php:87
 msgid ""
 "Additional notes that are displayed beneath the contact information. You can "
 "use BBCode here."
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:88
+#: ../../addon.old/impressum/impressum.php:88
 msgid "How to contact the operator via email. (will be displayed obfuscated)"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:89
+#: ../../addon.old/impressum/impressum.php:89
 msgid "Footer note"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:89
+#: ../../addon.old/impressum/impressum.php:89
 msgid "Text for the footer. You can use BBCode here."
 msgstr ""
 
-#: ../../addon/buglink/buglink.php:15
+#: ../../addon/buglink/buglink.php:15 ../../addon.old/buglink/buglink.php:15
 msgid "Report Bug"
 msgstr ""
 
 #: ../../addon/notimeline/notimeline.php:32
+#: ../../addon.old/notimeline/notimeline.php:32
 msgid "No Timeline settings updated."
 msgstr ""
 
 #: ../../addon/notimeline/notimeline.php:56
+#: ../../addon.old/notimeline/notimeline.php:56
 msgid "No Timeline Settings"
 msgstr ""
 
 #: ../../addon/notimeline/notimeline.php:58
+#: ../../addon.old/notimeline/notimeline.php:58
 msgid "Disable Archive selector on profile wall"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:51
+#: ../../addon/blockem/blockem.php:51 ../../addon.old/blockem/blockem.php:51
 msgid "\"Blockem\" Settings"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:53
+#: ../../addon/blockem/blockem.php:53 ../../addon.old/blockem/blockem.php:53
 msgid "Comma separated profile URLS to block"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:70
+#: ../../addon/blockem/blockem.php:70 ../../addon.old/blockem/blockem.php:70
 msgid "BLOCKEM Settings saved."
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:105
+#: ../../addon/blockem/blockem.php:105 ../../addon.old/blockem/blockem.php:105
 #, php-format
 msgid "Blocked %s - Click to open/close"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:160
+#: ../../addon/blockem/blockem.php:160 ../../addon.old/blockem/blockem.php:160
 msgid "Unblock Author"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:162
+#: ../../addon/blockem/blockem.php:162 ../../addon.old/blockem/blockem.php:162
 msgid "Block Author"
 msgstr ""
 
-#: ../../addon/blockem/blockem.php:194
+#: ../../addon/blockem/blockem.php:194 ../../addon.old/blockem/blockem.php:194
 msgid "blockem settings updated"
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:51
+#: ../../addon.old/qcomment/qcomment.php:51
 msgid ":-)"
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:51
+#: ../../addon.old/qcomment/qcomment.php:51
 msgid ":-("
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:51
+#: ../../addon.old/qcomment/qcomment.php:51
 msgid "lol"
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:54
+#: ../../addon.old/qcomment/qcomment.php:54
 msgid "Quick Comment Settings"
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:56
+#: ../../addon.old/qcomment/qcomment.php:56
 msgid ""
 "Quick comments are found near comment boxes, sometimes hidden. Click them to "
 "provide simple replies."
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:57
+#: ../../addon.old/qcomment/qcomment.php:57
 msgid "Enter quick comments, one per line"
 msgstr ""
 
 #: ../../addon/qcomment/qcomment.php:75
+#: ../../addon.old/qcomment/qcomment.php:75
 msgid "Quick Comment settings saved."
 msgstr ""
 
 #: ../../addon/openstreetmap/openstreetmap.php:71
+#: ../../addon.old/openstreetmap/openstreetmap.php:71
 msgid "Tile Server URL"
 msgstr ""
 
 #: ../../addon/openstreetmap/openstreetmap.php:71
+#: ../../addon.old/openstreetmap/openstreetmap.php:71
 msgid ""
 "A list of <a href=\"http://wiki.openstreetmap.org/wiki/TMS\" target=\"_blank"
 "\">public tile servers</a>"
 msgstr ""
 
 #: ../../addon/openstreetmap/openstreetmap.php:72
+#: ../../addon.old/openstreetmap/openstreetmap.php:72
 msgid "Default zoom"
 msgstr ""
 
 #: ../../addon/openstreetmap/openstreetmap.php:72
+#: ../../addon.old/openstreetmap/openstreetmap.php:72
 msgid "The default zoom level. (1:world, 18:highest)"
 msgstr ""
 
 #: ../../addon/group_text/group_text.php:46
 #: ../../addon/editplain/editplain.php:46
+#: ../../addon.old/group_text/group_text.php:46
+#: ../../addon.old/editplain/editplain.php:46
 msgid "Editplain settings updated."
 msgstr ""
 
 #: ../../addon/group_text/group_text.php:76
+#: ../../addon.old/group_text/group_text.php:76
 msgid "Group Text"
 msgstr ""
 
 #: ../../addon/group_text/group_text.php:78
+#: ../../addon.old/group_text/group_text.php:78
 msgid "Use a text only (non-image) group selector in the \"group edit\" menu"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:14
+#: ../../addon.old/libravatar/libravatar.php:14
 msgid "Could NOT install Libravatar successfully.<br>It requires PHP >= 5.3"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:73
 #: ../../addon/gravatar/gravatar.php:71
+#: ../../addon.old/libravatar/libravatar.php:73
+#: ../../addon.old/gravatar/gravatar.php:71
 msgid "generic profile image"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:74
 #: ../../addon/gravatar/gravatar.php:72
+#: ../../addon.old/libravatar/libravatar.php:74
+#: ../../addon.old/gravatar/gravatar.php:72
 msgid "random geometric pattern"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:75
 #: ../../addon/gravatar/gravatar.php:73
+#: ../../addon.old/libravatar/libravatar.php:75
+#: ../../addon.old/gravatar/gravatar.php:73
 msgid "monster face"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:76
 #: ../../addon/gravatar/gravatar.php:74
+#: ../../addon.old/libravatar/libravatar.php:76
+#: ../../addon.old/gravatar/gravatar.php:74
 msgid "computer generated face"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:77
 #: ../../addon/gravatar/gravatar.php:75
+#: ../../addon.old/libravatar/libravatar.php:77
+#: ../../addon.old/gravatar/gravatar.php:75
 msgid "retro arcade style face"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:83
+#: ../../addon.old/libravatar/libravatar.php:83
 #, php-format
 msgid "Your PHP version %s is lower than the required PHP >= 5.3."
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:84
+#: ../../addon.old/libravatar/libravatar.php:84
 msgid "This addon is not functional on your server."
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:93
 #: ../../addon/gravatar/gravatar.php:89
+#: ../../addon.old/libravatar/libravatar.php:93
+#: ../../addon.old/gravatar/gravatar.php:89
 msgid "Information"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:93
+#: ../../addon.old/libravatar/libravatar.php:93
 msgid ""
 "Gravatar addon is installed. Please disable the Gravatar addon.<br>The "
 "Libravatar addon will fall back to Gravatar if nothing was found at "
@@ -6384,83 +6812,99 @@ msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:100
 #: ../../addon/gravatar/gravatar.php:96
+#: ../../addon.old/libravatar/libravatar.php:100
+#: ../../addon.old/gravatar/gravatar.php:96
 msgid "Default avatar image"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:100
+#: ../../addon.old/libravatar/libravatar.php:100
 msgid "Select default avatar image if none was found. See README"
 msgstr ""
 
 #: ../../addon/libravatar/libravatar.php:112
+#: ../../addon.old/libravatar/libravatar.php:112
 msgid "Libravatar settings updated."
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:36
+#: ../../addon.old/libertree/libertree.php:36
 msgid "Post to libertree"
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:67
+#: ../../addon.old/libertree/libertree.php:67
 msgid "libertree Post Settings"
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:69
+#: ../../addon.old/libertree/libertree.php:69
 msgid "Enable Libertree Post Plugin"
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:74
+#: ../../addon.old/libertree/libertree.php:74
 msgid "Libertree API token"
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:79
+#: ../../addon.old/libertree/libertree.php:79
 msgid "Libertree site URL"
 msgstr ""
 
 #: ../../addon/libertree/libertree.php:84
+#: ../../addon.old/libertree/libertree.php:84
 msgid "Post to Libertree by default"
 msgstr ""
 
 #: ../../addon/altpager/altpager.php:46
+#: ../../addon.old/altpager/altpager.php:46
 msgid "Altpager settings updated."
 msgstr ""
 
 #: ../../addon/altpager/altpager.php:79
+#: ../../addon.old/altpager/altpager.php:79
 msgid "Alternate Pagination Setting"
 msgstr ""
 
 #: ../../addon/altpager/altpager.php:81
+#: ../../addon.old/altpager/altpager.php:81
 msgid "Use links to \"newer\" and \"older\" pages in place of page numbers?"
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:37
+#: ../../addon/mathjax/mathjax.php:37 ../../addon.old/mathjax/mathjax.php:37
 msgid ""
 "The MathJax addon renders mathematical formulae written using the LaTeX "
 "syntax surrounded by the usual $$ or an eqnarray block in the postings of "
 "your wall,network tab and private mail."
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:38
+#: ../../addon/mathjax/mathjax.php:38 ../../addon.old/mathjax/mathjax.php:38
 msgid "Use the MathJax renderer"
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:74
+#: ../../addon/mathjax/mathjax.php:74 ../../addon.old/mathjax/mathjax.php:74
 msgid "MathJax Base URL"
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:74
+#: ../../addon/mathjax/mathjax.php:74 ../../addon.old/mathjax/mathjax.php:74
 msgid ""
 "The URL for the javascript file that should be included to use MathJax. Can "
 "be either the MathJax CDN or another installation of MathJax."
 msgstr ""
 
 #: ../../addon/editplain/editplain.php:76
+#: ../../addon.old/editplain/editplain.php:76
 msgid "Editplain Settings"
 msgstr ""
 
 #: ../../addon/editplain/editplain.php:78
+#: ../../addon.old/editplain/editplain.php:78
 msgid "Disable richtext status editor"
 msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:89
+#: ../../addon.old/gravatar/gravatar.php:89
 msgid ""
 "Libravatar addon is installed, too. Please disable Libravatar addon or this "
 "Gravatar addon.<br>The Libravatar addon will fall back to Gravatar if "
@@ -6468,26 +6912,32 @@ msgid ""
 msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:96
+#: ../../addon.old/gravatar/gravatar.php:96
 msgid "Select default avatar image if none was found at Gravatar. See README"
 msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:97
+#: ../../addon.old/gravatar/gravatar.php:97
 msgid "Rating of images"
 msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:97
+#: ../../addon.old/gravatar/gravatar.php:97
 msgid "Select the appropriate avatar rating for your site. See README"
 msgstr ""
 
 #: ../../addon/gravatar/gravatar.php:111
+#: ../../addon.old/gravatar/gravatar.php:111
 msgid "Gravatar settings updated."
 msgstr ""
 
 #: ../../addon/testdrive/testdrive.php:95
+#: ../../addon.old/testdrive/testdrive.php:95
 msgid "Your Friendica test account is about to expire."
 msgstr ""
 
 #: ../../addon/testdrive/testdrive.php:96
+#: ../../addon.old/testdrive/testdrive.php:96
 #, php-format
 msgid ""
 "Hi %1$s,\n"
@@ -6501,120 +6951,142 @@ msgid ""
 msgstr ""
 
 #: ../../addon/pageheader/pageheader.php:50
+#: ../../addon.old/pageheader/pageheader.php:50
 msgid "\"pageheader\" Settings"
 msgstr ""
 
 #: ../../addon/pageheader/pageheader.php:68
+#: ../../addon.old/pageheader/pageheader.php:68
 msgid "pageheader Settings saved."
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:39
+#: ../../addon/ijpost/ijpost.php:39 ../../addon.old/ijpost/ijpost.php:39
 msgid "Post to Insanejournal"
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:70
+#: ../../addon/ijpost/ijpost.php:70 ../../addon.old/ijpost/ijpost.php:70
 msgid "InsaneJournal Post Settings"
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:72
+#: ../../addon/ijpost/ijpost.php:72 ../../addon.old/ijpost/ijpost.php:72
 msgid "Enable InsaneJournal Post Plugin"
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:77
+#: ../../addon/ijpost/ijpost.php:77 ../../addon.old/ijpost/ijpost.php:77
 msgid "InsaneJournal username"
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:82
+#: ../../addon/ijpost/ijpost.php:82 ../../addon.old/ijpost/ijpost.php:82
 msgid "InsaneJournal password"
 msgstr ""
 
-#: ../../addon/ijpost/ijpost.php:87
+#: ../../addon/ijpost/ijpost.php:87 ../../addon.old/ijpost/ijpost.php:87
 msgid "Post to InsaneJournal by default"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:266
+#: ../../addon.old/jappixmini/jappixmini.php:266
 msgid "Jappix Mini addon settings"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:268
+#: ../../addon.old/jappixmini/jappixmini.php:268
 msgid "Activate addon"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:271
+#: ../../addon.old/jappixmini/jappixmini.php:271
 msgid "Do <em>not</em> insert the Jappixmini Chat-Widget into the webinterface"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:274
+#: ../../addon.old/jappixmini/jappixmini.php:274
 msgid "Jabber username"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:277
+#: ../../addon.old/jappixmini/jappixmini.php:277
 msgid "Jabber server"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:281
+#: ../../addon.old/jappixmini/jappixmini.php:281
 msgid "Jabber BOSH host"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:285
+#: ../../addon.old/jappixmini/jappixmini.php:285
 msgid "Jabber password"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:290
+#: ../../addon.old/jappixmini/jappixmini.php:290
 msgid "Encrypt Jabber password with Friendica password (recommended)"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:293
+#: ../../addon.old/jappixmini/jappixmini.php:293
 msgid "Friendica password"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:296
+#: ../../addon.old/jappixmini/jappixmini.php:296
 msgid "Approve subscription requests from Friendica contacts automatically"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:299
+#: ../../addon.old/jappixmini/jappixmini.php:299
 msgid "Subscribe to Friendica contacts automatically"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:302
+#: ../../addon.old/jappixmini/jappixmini.php:302
 msgid "Purge internal list of jabber addresses of contacts"
 msgstr ""
 
 #: ../../addon/jappixmini/jappixmini.php:308
+#: ../../addon.old/jappixmini/jappixmini.php:308
 msgid "Add contact"
 msgstr ""
 
-#: ../../addon/viewsrc/viewsrc.php:37
+#: ../../addon/viewsrc/viewsrc.php:37 ../../addon.old/viewsrc/viewsrc.php:37
 msgid "View Source"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:134
+#: ../../addon.old/statusnet/statusnet.php:134
 msgid "Post to StatusNet"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:176
+#: ../../addon.old/statusnet/statusnet.php:176
 msgid ""
 "Please contact your site administrator.<br />The provided API URL is not "
 "valid."
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:204
+#: ../../addon.old/statusnet/statusnet.php:204
 msgid "We could not contact the StatusNet API with the Path you entered."
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:232
+#: ../../addon.old/statusnet/statusnet.php:232
 msgid "StatusNet settings updated."
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:257
+#: ../../addon.old/statusnet/statusnet.php:257
 msgid "StatusNet Posting Settings"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:271
+#: ../../addon.old/statusnet/statusnet.php:271
 msgid "Globally Available StatusNet OAuthKeys"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:272
+#: ../../addon.old/statusnet/statusnet.php:272
 msgid ""
 "There are preconfigured OAuth key pairs for some StatusNet servers "
 "available. If you are useing one of them, please use these credentials. If "
@@ -6622,10 +7094,12 @@ msgid ""
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:280
+#: ../../addon.old/statusnet/statusnet.php:280
 msgid "Provide your own OAuth Credentials"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:281
+#: ../../addon.old/statusnet/statusnet.php:281
 msgid ""
 "No consumer key pair for StatusNet found. Register your Friendica Account as "
 "an desktop client on your StatusNet account, copy the consumer key pair here "
@@ -6635,18 +7109,22 @@ msgid ""
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:283
+#: ../../addon.old/statusnet/statusnet.php:283
 msgid "OAuth Consumer Key"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:286
+#: ../../addon.old/statusnet/statusnet.php:286
 msgid "OAuth Consumer Secret"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:289
+#: ../../addon.old/statusnet/statusnet.php:289
 msgid "Base API Path (remember the trailing /)"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:310
+#: ../../addon.old/statusnet/statusnet.php:310
 msgid ""
 "To connect to your StatusNet account click the button below to get a "
 "security code from StatusNet which you have to copy into the input box below "
@@ -6655,30 +7133,38 @@ msgid ""
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:311
+#: ../../addon.old/statusnet/statusnet.php:311
 msgid "Log in with StatusNet"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:313
+#: ../../addon.old/statusnet/statusnet.php:313
 msgid "Copy the security code from StatusNet here"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:319
+#: ../../addon.old/statusnet/statusnet.php:319
 msgid "Cancel Connection Process"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:321
+#: ../../addon.old/statusnet/statusnet.php:321
 msgid "Current StatusNet API is"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:322
+#: ../../addon.old/statusnet/statusnet.php:322
 msgid "Cancel StatusNet Connection"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:333 ../../addon/twitter/twitter.php:189
+#: ../../addon.old/statusnet/statusnet.php:333
+#: ../../addon.old/twitter/twitter.php:189
 msgid "Currently connected to: "
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:334
+#: ../../addon.old/statusnet/statusnet.php:334
 msgid ""
 "If enabled all your <strong>public</strong> postings can be posted to the "
 "associated StatusNet account. You can choose to do so by default (here) or "
@@ -6686,6 +7172,7 @@ msgid ""
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:336
+#: ../../addon.old/statusnet/statusnet.php:336
 msgid ""
 "<strong>Note</strong>: Due your privacy settings (<em>Hide your profile "
 "details from unknown viewers?</em>) the link potentially included in public "
@@ -6694,143 +7181,169 @@ msgid ""
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:339
+#: ../../addon.old/statusnet/statusnet.php:339
 msgid "Allow posting to StatusNet"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:342
+#: ../../addon.old/statusnet/statusnet.php:342
 msgid "Send public postings to StatusNet by default"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:345
+#: ../../addon.old/statusnet/statusnet.php:345
 msgid "Send linked #-tags and @-names to StatusNet"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:350 ../../addon/twitter/twitter.php:206
+#: ../../addon.old/statusnet/statusnet.php:350
+#: ../../addon.old/twitter/twitter.php:206
 msgid "Clear OAuth configuration"
 msgstr ""
 
 #: ../../addon/statusnet/statusnet.php:568
+#: ../../addon.old/statusnet/statusnet.php:568
 msgid "API URL"
 msgstr ""
 
 #: ../../addon/infiniteimprobabilitydrive/infiniteimprobabilitydrive.php:19
+#: ../../addon.old/infiniteimprobabilitydrive/infiniteimprobabilitydrive.php:19
 msgid "Infinite Improbability Drive"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:36
+#: ../../addon/tumblr/tumblr.php:36 ../../addon.old/tumblr/tumblr.php:36
 msgid "Post to Tumblr"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:67
+#: ../../addon/tumblr/tumblr.php:67 ../../addon.old/tumblr/tumblr.php:67
 msgid "Tumblr Post Settings"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:69
+#: ../../addon/tumblr/tumblr.php:69 ../../addon.old/tumblr/tumblr.php:69
 msgid "Enable Tumblr Post Plugin"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:74
+#: ../../addon/tumblr/tumblr.php:74 ../../addon.old/tumblr/tumblr.php:74
 msgid "Tumblr login"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:79
+#: ../../addon/tumblr/tumblr.php:79 ../../addon.old/tumblr/tumblr.php:79
 msgid "Tumblr password"
 msgstr ""
 
-#: ../../addon/tumblr/tumblr.php:84
+#: ../../addon/tumblr/tumblr.php:84 ../../addon.old/tumblr/tumblr.php:84
 msgid "Post to Tumblr by default"
 msgstr ""
 
 #: ../../addon/numfriends/numfriends.php:46
+#: ../../addon.old/numfriends/numfriends.php:46
 msgid "Numfriends settings updated."
 msgstr ""
 
 #: ../../addon/numfriends/numfriends.php:77
+#: ../../addon.old/numfriends/numfriends.php:77
 msgid "Numfriends Settings"
 msgstr ""
 
-#: ../../addon/gnot/gnot.php:48
+#: ../../addon/numfriends/numfriends.php:79 ../../addon.old/bg/bg.php:84
+#: ../../addon.old/numfriends/numfriends.php:79
+msgid "How many contacts to display on profile sidebar"
+msgstr ""
+
+#: ../../addon/gnot/gnot.php:48 ../../addon.old/gnot/gnot.php:48
 msgid "Gnot settings updated."
 msgstr ""
 
-#: ../../addon/gnot/gnot.php:79
+#: ../../addon/gnot/gnot.php:79 ../../addon.old/gnot/gnot.php:79
 msgid "Gnot Settings"
 msgstr ""
 
-#: ../../addon/gnot/gnot.php:81
+#: ../../addon/gnot/gnot.php:81 ../../addon.old/gnot/gnot.php:81
 msgid ""
 "Allows threading of email comment notifications on Gmail and anonymising the "
 "subject line."
 msgstr ""
 
-#: ../../addon/gnot/gnot.php:82
+#: ../../addon/gnot/gnot.php:82 ../../addon.old/gnot/gnot.php:82
 msgid "Enable this plugin/addon?"
 msgstr ""
 
-#: ../../addon/gnot/gnot.php:97
+#: ../../addon/gnot/gnot.php:97 ../../addon.old/gnot/gnot.php:97
 #, php-format
 msgid "[Friendica:Notify] Comment to conversation #%d"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:42
+#: ../../addon/wppost/wppost.php:42 ../../addon.old/wppost/wppost.php:42
 msgid "Post to Wordpress"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:76
+#: ../../addon/wppost/wppost.php:76 ../../addon.old/wppost/wppost.php:76
 msgid "WordPress Post Settings"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:78
+#: ../../addon/wppost/wppost.php:78 ../../addon.old/wppost/wppost.php:78
 msgid "Enable WordPress Post Plugin"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:83
+#: ../../addon/wppost/wppost.php:83 ../../addon.old/wppost/wppost.php:83
 msgid "WordPress username"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:88
+#: ../../addon/wppost/wppost.php:88 ../../addon.old/wppost/wppost.php:88
 msgid "WordPress password"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:93
+#: ../../addon/wppost/wppost.php:93 ../../addon.old/wppost/wppost.php:93
 msgid "WordPress API URL"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:98
+#: ../../addon/wppost/wppost.php:98 ../../addon.old/wppost/wppost.php:98
 msgid "Post to WordPress by default"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:103
+#: ../../addon/wppost/wppost.php:103 ../../addon.old/wppost/wppost.php:103
 msgid "Provide a backlink to the Friendica post"
 msgstr ""
 
-#: ../../addon/wppost/wppost.php:207
+#: ../../addon/wppost/wppost.php:201 ../../addon/blogger/blogger.php:172
+#: ../../addon/posterous/posterous.php:189
+#: ../../addon.old/drpost/drpost.php:184 ../../addon.old/wppost/wppost.php:201
+#: ../../addon.old/blogger/blogger.php:172
+#: ../../addon.old/posterous/posterous.php:189
+msgid "Post from Friendica"
+msgstr ""
+
+#: ../../addon/wppost/wppost.php:207 ../../addon.old/wppost/wppost.php:207
 msgid "Read the original post and comment stream on Friendica"
 msgstr ""
 
 #: ../../addon/showmore/showmore.php:38
+#: ../../addon.old/showmore/showmore.php:38
 msgid "\"Show more\" Settings"
 msgstr ""
 
 #: ../../addon/showmore/showmore.php:41
+#: ../../addon.old/showmore/showmore.php:41
 msgid "Enable Show More"
 msgstr ""
 
 #: ../../addon/showmore/showmore.php:44
+#: ../../addon.old/showmore/showmore.php:44
 msgid "Cutting posts after how much characters"
 msgstr ""
 
 #: ../../addon/showmore/showmore.php:65
+#: ../../addon.old/showmore/showmore.php:65
 msgid "Show More Settings saved."
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:79
+#: ../../addon/piwik/piwik.php:79 ../../addon.old/piwik/piwik.php:79
 msgid ""
 "This website is tracked using the <a href='http://www.piwik.org'>Piwik</a> "
 "analytics tool."
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:82
+#: ../../addon/piwik/piwik.php:82 ../../addon.old/piwik/piwik.php:82
 #, php-format
 msgid ""
 "If you do not want that your visits are logged this way you <a href='%s'>can "
@@ -6838,47 +7351,47 @@ msgid ""
 "(opt-out)."
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:90
+#: ../../addon/piwik/piwik.php:90 ../../addon.old/piwik/piwik.php:90
 msgid "Piwik Base URL"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:90
+#: ../../addon/piwik/piwik.php:90 ../../addon.old/piwik/piwik.php:90
 msgid ""
 "Absolute path to your Piwik installation. (without protocol (http/s), with "
 "trailing slash)"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:91
+#: ../../addon/piwik/piwik.php:91 ../../addon.old/piwik/piwik.php:91
 msgid "Site ID"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:92
+#: ../../addon/piwik/piwik.php:92 ../../addon.old/piwik/piwik.php:92
 msgid "Show opt-out cookie link?"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:93
+#: ../../addon/piwik/piwik.php:93 ../../addon.old/piwik/piwik.php:93
 msgid "Asynchronous tracking"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:73
+#: ../../addon/twitter/twitter.php:73 ../../addon.old/twitter/twitter.php:73
 msgid "Post to Twitter"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:122
+#: ../../addon/twitter/twitter.php:122 ../../addon.old/twitter/twitter.php:122
 msgid "Twitter settings updated."
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:146
+#: ../../addon/twitter/twitter.php:146 ../../addon.old/twitter/twitter.php:146
 msgid "Twitter Posting Settings"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:153
+#: ../../addon/twitter/twitter.php:153 ../../addon.old/twitter/twitter.php:153
 msgid ""
 "No consumer key pair for Twitter found. Please contact your site "
 "administrator."
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:172
+#: ../../addon/twitter/twitter.php:172 ../../addon.old/twitter/twitter.php:172
 msgid ""
 "At this Friendica instance the Twitter plugin was enabled but you have not "
 "yet connected your account to your Twitter account. To do so click the "
@@ -6887,22 +7400,22 @@ msgid ""
 "be posted to Twitter."
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:173
+#: ../../addon/twitter/twitter.php:173 ../../addon.old/twitter/twitter.php:173
 msgid "Log in with Twitter"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:175
+#: ../../addon/twitter/twitter.php:175 ../../addon.old/twitter/twitter.php:175
 msgid "Copy the PIN from Twitter here"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:190
+#: ../../addon/twitter/twitter.php:190 ../../addon.old/twitter/twitter.php:190
 msgid ""
 "If enabled all your <strong>public</strong> postings can be posted to the "
 "associated Twitter account. You can choose to do so by default (here) or for "
 "every posting separately in the posting options when writing the entry."
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:192
+#: ../../addon/twitter/twitter.php:192 ../../addon.old/twitter/twitter.php:192
 msgid ""
 "<strong>Note</strong>: Due your privacy settings (<em>Hide your profile "
 "details from unknown viewers?</em>) the link potentially included in public "
@@ -6910,124 +7423,132 @@ msgid ""
 "the visitor that the access to your profile has been restricted."
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:195
+#: ../../addon/twitter/twitter.php:195 ../../addon.old/twitter/twitter.php:195
 msgid "Allow posting to Twitter"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:198
+#: ../../addon/twitter/twitter.php:198 ../../addon.old/twitter/twitter.php:198
 msgid "Send public postings to Twitter by default"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:201
+#: ../../addon/twitter/twitter.php:201 ../../addon.old/twitter/twitter.php:201
 msgid "Send linked #-tags and @-names to Twitter"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:396
+#: ../../addon/twitter/twitter.php:396 ../../addon.old/twitter/twitter.php:396
 msgid "Consumer key"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:397
+#: ../../addon/twitter/twitter.php:397 ../../addon.old/twitter/twitter.php:397
 msgid "Consumer secret"
 msgstr ""
 
-#: ../../addon/irc/irc.php:44
+#: ../../addon/irc/irc.php:44 ../../addon.old/irc/irc.php:44
 msgid "IRC Settings"
 msgstr ""
 
-#: ../../addon/irc/irc.php:46
+#: ../../addon/irc/irc.php:46 ../../addon.old/irc/irc.php:46
 msgid "Channel(s) to auto connect (comma separated)"
 msgstr ""
 
-#: ../../addon/irc/irc.php:51
+#: ../../addon/irc/irc.php:51 ../../addon.old/irc/irc.php:51
 msgid "Popular Channels (comma separated)"
 msgstr ""
 
-#: ../../addon/irc/irc.php:69
+#: ../../addon/irc/irc.php:69 ../../addon.old/irc/irc.php:69
 msgid "IRC settings saved."
 msgstr ""
 
-#: ../../addon/irc/irc.php:74
+#: ../../addon/irc/irc.php:74 ../../addon.old/irc/irc.php:74
 msgid "IRC Chatroom"
 msgstr ""
 
-#: ../../addon/irc/irc.php:96
+#: ../../addon/irc/irc.php:96 ../../addon.old/irc/irc.php:96
 msgid "Popular Channels"
 msgstr ""
 
-#: ../../addon/fromapp/fromapp.php:38
+#: ../../addon/fromapp/fromapp.php:38 ../../addon.old/fromapp/fromapp.php:38
 msgid "Fromapp settings updated."
 msgstr ""
 
-#: ../../addon/fromapp/fromapp.php:64
+#: ../../addon/fromapp/fromapp.php:64 ../../addon.old/fromapp/fromapp.php:64
 msgid "FromApp Settings"
 msgstr ""
 
-#: ../../addon/fromapp/fromapp.php:66
+#: ../../addon/fromapp/fromapp.php:66 ../../addon.old/fromapp/fromapp.php:66
 msgid ""
 "The application name you would like to show your posts originating from."
 msgstr ""
 
-#: ../../addon/fromapp/fromapp.php:70
+#: ../../addon/fromapp/fromapp.php:70 ../../addon.old/fromapp/fromapp.php:70
 msgid "Use this application name even if another application was used."
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:42
+#: ../../addon/blogger/blogger.php:42 ../../addon.old/blogger/blogger.php:42
 msgid "Post to blogger"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:74
+#: ../../addon/blogger/blogger.php:74 ../../addon.old/blogger/blogger.php:74
 msgid "Blogger Post Settings"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:76
+#: ../../addon/blogger/blogger.php:76 ../../addon.old/blogger/blogger.php:76
 msgid "Enable Blogger Post Plugin"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:81
+#: ../../addon/blogger/blogger.php:81 ../../addon.old/blogger/blogger.php:81
 msgid "Blogger username"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:86
+#: ../../addon/blogger/blogger.php:86 ../../addon.old/blogger/blogger.php:86
 msgid "Blogger password"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:91
+#: ../../addon/blogger/blogger.php:91 ../../addon.old/blogger/blogger.php:91
 msgid "Blogger API URL"
 msgstr ""
 
-#: ../../addon/blogger/blogger.php:96
+#: ../../addon/blogger/blogger.php:96 ../../addon.old/blogger/blogger.php:96
 msgid "Post to Blogger by default"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:37
+#: ../../addon.old/posterous/posterous.php:37
 msgid "Post to Posterous"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:70
+#: ../../addon.old/posterous/posterous.php:70
 msgid "Posterous Post Settings"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:72
+#: ../../addon.old/posterous/posterous.php:72
 msgid "Enable Posterous Post Plugin"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:77
+#: ../../addon.old/posterous/posterous.php:77
 msgid "Posterous login"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:82
+#: ../../addon.old/posterous/posterous.php:82
 msgid "Posterous password"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:87
+#: ../../addon.old/posterous/posterous.php:87
 msgid "Posterous site ID"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:92
+#: ../../addon.old/posterous/posterous.php:92
 msgid "Posterous API token"
 msgstr ""
 
 #: ../../addon/posterous/posterous.php:97
+#: ../../addon.old/posterous/posterous.php:97
 msgid "Post to Posterous by default"
 msgstr ""
 
@@ -8774,4 +9295,60 @@ msgstr ""
 
 #: ../../index.php:378
 msgid "toggle mobile"
+msgstr ""
+
+#: ../../addon.old/bg/bg.php:51
+msgid "Bg settings updated."
+msgstr ""
+
+#: ../../addon.old/bg/bg.php:82
+msgid "Bg Settings"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:35
+msgid "Post to Drupal"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:72
+msgid "Drupal Post Settings"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:74
+msgid "Enable Drupal Post Plugin"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:79
+msgid "Drupal username"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:84
+msgid "Drupal password"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:89
+msgid "Post Type - article,page,or blog"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:94
+msgid "Drupal site URL"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:99
+msgid "Drupal site uses clean URLS"
+msgstr ""
+
+#: ../../addon.old/drpost/drpost.php:104
+msgid "Post to Drupal by default"
+msgstr ""
+
+#: ../../addon.old/oembed.old/oembed.php:30
+msgid "OEmbed settings updated"
+msgstr ""
+
+#: ../../addon.old/oembed.old/oembed.php:43
+msgid "Use OEmbed for YouTube videos"
+msgstr ""
+
+#: ../../addon.old/oembed.old/oembed.php:71
+msgid "URL to embed:"
 msgstr ""

@@ -69,6 +69,9 @@ function notifications_content(&$a) {
 
 	nav_set_selected('notifications');		
 
+	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
+
+
 	$o = '';
 	$tabs = array(
 		array(
@@ -211,7 +214,7 @@ function notifications_content(&$a) {
 		}
 		else
 			info( t('No introductions.') . EOL);
-		
+
 		$o .= replace_macros($notif_tpl,array(
 			'$notif_header' => t('Notifications'),
 			'$tabs' => $tabs,
