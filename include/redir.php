@@ -2,14 +2,22 @@
 
 function auto_redir(&$a, $contact_nick) {
 
+	// disabling temporarily - seeing a lot of recursive redirects, triggered in my case
+	// because one of my contacts has the same nickname as me so it's redirecting to his site 
+	// (I'm trying to load my own profile page and he is remote so it shouldn't redirect anyway). 
+	// Need some time to sort this out.
+
+	return;
+
 	if(local_user()) {
 
-		$r = q("SELECT id FROM contact WHERE uid = ( SELECT uid FROM user WHERE nickname = '%s' LIMIT 1 ) AND nick = '%s' AND network = '%s' LIMIT 1",
+		$r = q("SELECT id FROM contact WHERE uid = ( SELECT uid FROM user WHERE nickname = '%s' LIMIT 1 ) AND nick = '%s' AND network = '%s' and self = 0 LIMIT 1",
 			   dbesc($contact_nick),
 			   dbesc($a->user['nickname']),
 			   dbesc(NETWORK_DFRN)
 		);
-		if(!$r || $r[0]['id'] == remote_user())
+
+		if((!$r) || (! count($r)) || $r[0]['id'] == remote_user())
 			return;
 
 
@@ -19,7 +27,7 @@ function auto_redir(&$a, $contact_nick) {
 		       intval(local_user())
 		);
 
-		if(! $r)
+		if(! ($r && count($r)))
 			return;
 
 		$cid = $r[0]['id'];
