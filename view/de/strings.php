@@ -1400,6 +1400,7 @@ $a->strings["Forumlist settings updated."] = "Einstellungen zur Foren-Liste aktu
 $a->strings["Forumlist Settings"] = "Foren-Liste Einstellungen";
 $a->strings["Randomise forum list"] = "Zufällige Zusammenstellung der Foren-Liste";
 $a->strings["Show forums on profile page"] = "Zeige die Liste der Foren auf der Profilseite";
+$a->strings["Show forums on network page"] = "Zeige Foren auf der Netzwerk-Seite";
 $a->strings["Impressum"] = "Impressum";
 $a->strings["Site Owner"] = "Betreiber der Seite";
 $a->strings["Email Address"] = "Email Adresse";

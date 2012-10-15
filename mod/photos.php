@@ -4,14 +4,18 @@ require_once('include/items.php');
 require_once('include/acl_selectors.php');
 require_once('include/bbcode.php');
 require_once('include/security.php');
+require_once('include/redir.php');
 
 
 function photos_init(&$a) {
 
+	if($a->argc > 1)
+		auto_redir($a, $a->argv[1]);
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
+
 	$o = '';
 
 	if($a->argc > 1) {
@@ -1443,6 +1447,7 @@ function photos_content(&$a) {
 							'$myphoto' => $contact['thumb'],
 							'$comment' => t('Comment'),
 							'$submit' => t('Submit'),
+							'$preview' => t('Preview'),
 							'$sourceapp' => t($a->sourcename),
 							'$ww' => ''
 						));
@@ -1460,27 +1465,6 @@ function photos_content(&$a) {
 
 					$redirect_url = $a->get_baseurl() . '/redir/' . $item['cid'] ;
 			
-					if($can_post || can_write_wall($a,$owner_uid)) {
-
-						if($item['last-child']) {
-							$comments .= replace_macros($cmnt_tpl,array(
-								'$return_path' => '',
-								'$jsreload' => $return_url,
-								'$type' => 'wall-comment',
-								'$id' => $item['item_id'],
-								'$parent' => $item['parent'],
-								'$profile_uid' =>  $owner_uid,
-								'$mylink' => $contact['url'],
-								'$mytitle' => t('This is you'),
-								'$myphoto' => $contact['thumb'],
-								'$comment' => t('Comment'),
-								'$submit' => t('Submit'),
-								'$sourceapp' => t($a->sourcename),
-								'$ww' => ''
-							));
-						}
-					}
-
 
 					if(local_user() && ($item['contact-uid'] == local_user()) 
 						&& ($item['network'] == 'dfrn') && (! $item['self'] )) {
@@ -1518,6 +1502,28 @@ function photos_content(&$a) {
 						'$drop' => $drop,
 						'$comment' => $comment
 					));
+
+					if($can_post || can_write_wall($a,$owner_uid)) {
+
+						if($item['last-child']) {
+							$comments .= replace_macros($cmnt_tpl,array(
+								'$return_path' => '',
+								'$jsreload' => $return_url,
+								'$type' => 'wall-comment',
+								'$id' => $item['item_id'],
+								'$parent' => $item['parent'],
+								'$profile_uid' =>  $owner_uid,
+								'$mylink' => $contact['url'],
+								'$mytitle' => t('This is you'),
+								'$myphoto' => $contact['thumb'],
+								'$comment' => t('Comment'),
+								'$submit' => t('Submit'),
+								'$preview' => t('Preview'),
+								'$sourceapp' => t($a->sourcename),
+								'$ww' => ''
+							));
+						}
+					}
 				}
 			}
 
