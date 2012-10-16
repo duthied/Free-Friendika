@@ -616,16 +616,16 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	}
    //end twitter
    if($ccCookie != "10") {
-   $close_pages = get_pconfig(local_user(), 'diabook', 'close_pages' );
-	$close_mapquery = get_pconfig(local_user(), 'diabook', 'close_mapquery' );
-	$close_profiles = get_pconfig(local_user(), 'diabook', 'close_profiles' );
-	$close_helpers = get_pconfig(local_user(), 'diabook', 'close_helpers' );
-	$close_services = get_pconfig(local_user(), 'diabook', 'close_services' );
-	$close_friends = get_pconfig(local_user(), 'diabook', 'close_friends' );
-	$close_twitter = get_pconfig(local_user(), 'diabook', 'close_twitter' );
-	$close_lastusers = get_pconfig(local_user(), 'diabook', 'close_lastusers' );
-	$close_lastphotos = get_pconfig(local_user(), 'diabook', 'close_lastphotos' );
-	$close_lastlikes = get_pconfig(local_user(), 'diabook', 'close_lastlikes' );
+	$close_pages      = get_diabook_config( "close_pages", 1 );
+	$close_profiles   = get_diabook_config( "close_profiles", 0 );
+	$close_helpers    = get_diabook_config( "close_helpers", 0 );
+	$close_services   = get_diabook_config( "close_services", 0 );
+	$close_friends    = get_diabook_config( "close_friends", 0 );
+	$close_lastusers  = get_diabook_config( "close_lastusers", 0 );
+	$close_lastphotos = get_diabook_config( "close_lastphotos", 0 );
+	$close_lastlikes  = get_diabook_config( "close_lastlikes", 0 );
+	$close_twitter    = get_diabook_config( "close_twitter", 1 );
+	$close_mapquery   = get_diabook_config( "close_mapquery", 1 );
 	$close_or_not = array('1'=>t("don't show"),	'0'=>t("show"),);
 	$boxsettings['title'] = Array("", t('Show/hide boxes at right-hand column:'), "", "");
 	$aside['$boxsettings'] = $boxsettings;
