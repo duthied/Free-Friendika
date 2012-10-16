@@ -2,12 +2,8 @@
 
 function auto_redir(&$a, $contact_nick) {
 
-	// disabling temporarily - seeing a lot of recursive redirects, triggered in my case
-	// because one of my contacts has the same nickname as me so it's redirecting to his site 
-	// (I'm trying to load my own profile page and he is remote so it shouldn't redirect anyway). 
-	// Need some time to sort this out.
-
-	return;
+	if((! $contact_nick) || ($contact_nick === $a->user['nickname']))
+		return;
 
 	if(local_user()) {
 
