@@ -4,14 +4,18 @@ require_once('include/items.php');
 require_once('include/acl_selectors.php');
 require_once('include/bbcode.php');
 require_once('include/security.php');
+require_once('include/redir.php');
 
 
 function photos_init(&$a) {
 
+	if($a->argc > 1)
+		auto_redir($a, $a->argv[1]);
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
+
 	$o = '';
 
 	if($a->argc > 1) {
@@ -27,7 +31,7 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra ",
+		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
 			intval($a->data['user']['uid'])
 		);
 
@@ -481,7 +485,25 @@ function photos_post(&$a) {
 									intval($profile_uid)
 								);
 							}
-							elseif(strstr($name,'_') || strstr($name,' ')) {
+							else {
+								$newname = str_replace('_',' ',$name);
+
+								//select someone from this user's contacts by name
+								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+										dbesc($newname),
+										intval($page_owner_uid)
+								);
+
+								if(! $r) {
+									//select someone by attag or nick and the name passed in
+									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+											dbesc($name),
+											dbesc($name),
+											intval($page_owner_uid)
+									);
+								}
+							}
+/*							elseif(strstr($name,'_') || strstr($name,' ')) {
 								$newname = str_replace('_',' ',$name);
 								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 									dbesc($newname),
@@ -494,7 +516,7 @@ function photos_post(&$a) {
 									dbesc($name),
 									intval($page_owner_uid)
 								);
-							}
+							}*/
 							if(count($r)) {
 								$newname = $r[0]['name'];
 								$profile = $r[0]['url'];
@@ -1250,6 +1272,12 @@ function photos_content(&$a) {
 
 		// Do we have an item for this photo?
 
+		// FIXME! - replace following code to display the conversation with our normal 
+		// conversation functions so that it works correctly and tracks changes
+		// in the evolving conversation code.
+		// The difference is that we won't be displaying the conversation head item
+		// as a "post" but displaying instead the photo it is linked to
+
 		$linked_items = q("SELECT * FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			dbesc($datum)
 		);
@@ -1390,6 +1418,8 @@ function photos_content(&$a) {
 			$like = '';
 			$dislike = '';
 
+
+
 			// display comments
 			if(count($r)) {
 
@@ -1417,6 +1447,7 @@ function photos_content(&$a) {
 							'$myphoto' => $contact['thumb'],
 							'$comment' => t('Comment'),
 							'$submit' => t('Submit'),
+							'$preview' => t('Preview'),
 							'$sourceapp' => t($a->sourcename),
 							'$ww' => ''
 						));
@@ -1434,27 +1465,6 @@ function photos_content(&$a) {
 
 					$redirect_url = $a->get_baseurl() . '/redir/' . $item['cid'] ;
 			
-					if($can_post || can_write_wall($a,$owner_uid)) {
-
-						if($item['last-child']) {
-							$comments .= replace_macros($cmnt_tpl,array(
-								'$return_path' => '',
-								'$jsreload' => $return_url,
-								'$type' => 'wall-comment',
-								'$id' => $item['item_id'],
-								'$parent' => $item['parent'],
-								'$profile_uid' =>  $owner_uid,
-								'$mylink' => $contact['url'],
-								'$mytitle' => t('This is you'),
-								'$myphoto' => $contact['thumb'],
-								'$comment' => t('Comment'),
-								'$submit' => t('Submit'),
-								'$sourceapp' => t($a->sourcename),
-								'$ww' => ''
-							));
-						}
-					}
-
 
 					if(local_user() && ($item['contact-uid'] == local_user()) 
 						&& ($item['network'] == 'dfrn') && (! $item['self'] )) {
@@ -1492,6 +1502,28 @@ function photos_content(&$a) {
 						'$drop' => $drop,
 						'$comment' => $comment
 					));
+
+					if($can_post || can_write_wall($a,$owner_uid)) {
+
+						if($item['last-child']) {
+							$comments .= replace_macros($cmnt_tpl,array(
+								'$return_path' => '',
+								'$jsreload' => $return_url,
+								'$type' => 'wall-comment',
+								'$id' => $item['item_id'],
+								'$parent' => $item['parent'],
+								'$profile_uid' =>  $owner_uid,
+								'$mylink' => $contact['url'],
+								'$mytitle' => t('This is you'),
+								'$myphoto' => $contact['thumb'],
+								'$comment' => t('Comment'),
+								'$submit' => t('Submit'),
+								'$preview' => t('Preview'),
+								'$sourceapp' => t($a->sourcename),
+								'$ww' => ''
+							));
+						}
+					}
 				}
 			}
 

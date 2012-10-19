@@ -1,6 +1,6 @@
 $myname,
 
-'$requestor' på $sitename vill följa dina uppdateringar här på Friendika.
+'$requestor' på $sitename vill följa dina uppdateringar här på Friendica.
 
 Besök dennes profil på $url.
 

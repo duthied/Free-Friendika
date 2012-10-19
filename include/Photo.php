@@ -129,11 +129,12 @@ class Photo {
                     $this->image->setCompressionQuality($quality);
             }
 
-            $this->width  = $this->image->getImageWidth();
+			// The 'width' and 'height' properties are only used by non-Imagick routines.
+			$this->width  = $this->image->getImageWidth();
 			$this->height = $this->image->getImageHeight();
 			$this->valid  = true;
 
-            return true;
+			return true;
 		}
 
 		$this->valid = false;
@@ -205,21 +206,8 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick()) {
-            /**
-             * If it is not animated, there will be only one iteration here,
-             * so don't bother checking
-             */
-            // Don't forget to go back to the first frame
-            $this->image->setFirstIterator();
-            do {
-                $this->image->resizeImage($max, $max, imagick::FILTER_LANCZOS, 1, true);
-            } while ($this->image->nextImage());
-            return;
-        }
-
-        $width = $this->width;
-        $height = $this->height;
+        $width = $this->getWidth();
+        $height = $this->getHeight();
 
         $dest_width = $dest_height = 0;
 
@@ -227,7 +215,18 @@ class Photo {
             return FALSE;
 
         if($width > $max && $height > $max) {
-            if($width > $height) {
+
+			// very tall image (greater than 16:9)
+			// constrain the width - let the height float.
+
+			if((($height * 9) / 16) > $width) {
+				$dest_width = $max;
+     	        $dest_height = intval(( $height * $max ) / $width);
+			}
+
+			// else constrain both dimensions
+
+			elseif($width > $height) {
                 $dest_width = $max;
                 $dest_height = intval(( $height * $max ) / $width);
             }
@@ -243,14 +242,47 @@ class Photo {
             }
             else {
                 if( $height > $max ) {
-                    $dest_width = intval(( $width * $max ) / $height);
-                    $dest_height = $max;
+
+					// very tall image (greater than 16:9)
+					// but width is OK - don't do anything
+
+					if((($height * 9) / 16) > $width) {
+						$dest_width = $width;
+     	        		$dest_height = $height;
+					}
+					else {
+	                    $dest_width = intval(( $width * $max ) / $height);
+    	                $dest_height = $max;
+					}
                 }
                 else {
                     $dest_width = $width;
                     $dest_height = $height;
                 }
             }
+        }
+
+
+        if($this->is_imagick()) {
+			/**
+			 * If it is not animated, there will be only one iteration here,
+			 * so don't bother checking
+			 */
+			// Don't forget to go back to the first frame
+			$this->image->setFirstIterator();
+			do {
+
+				// FIXME - implement horizantal bias for scaling as in followin GD functions
+				// to allow very tall images to be constrained only horizontally. 
+
+				$this->image->scaleImage($dest_width, $dest_height);
+			} while ($this->image->nextImage());
+
+			// These may not be necessary any more
+			$this->width  = $this->image->getImageWidth();
+			$this->height = $this->image->getImageHeight();
+
+			return;
         }
 
 
@@ -371,11 +403,9 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick())
-            return $this->scaleImage($min);
 
-        $width = $this->width;
-        $height = $this->height;
+        $width = $this->getWidth();
+        $height = $this->getHeight();
 
         $dest_width = $dest_height = 0;
 
@@ -409,6 +439,8 @@ class Photo {
             }
         }
 
+        if($this->is_imagick())
+            return $this->scaleImage($dest_width,$dest_height);
 
         $dest = imagecreatetruecolor( $dest_width, $dest_height );
         imagealphablending($dest, false);
@@ -431,7 +463,7 @@ class Photo {
         if($this->is_imagick()) {
             $this->image->setFirstIterator();
             do {
-                $this->image->resizeImage($dim, $dim, imagick::FILTER_LANCZOS, 1, false);
+                $this->image->scaleImage($dim, $dim);
             } while ($this->image->nextImage());
             return;
         }
@@ -453,19 +485,19 @@ class Photo {
         if(!$this->is_valid())
             return FALSE;
 
-        if($this->is_imagick()) {
-            $this->image->setFirstIterator();
-            do {
-                $this->image->cropImage($w, $h, $x, $y);
-                /**
-                 * We need to remove the canva,
-                 * or the image is not resized to the crop:
-                 * http://php.net/manual/en/imagick.cropimage.php#97232
-                 */
-                $this->image->setImagePage(0, 0, 0, 0);
-            } while ($this->image->nextImage());
-            return $this->scaleImage($max);
-        }
+		if($this->is_imagick()) {
+			$this->image->setFirstIterator();
+			do {
+				$this->image->cropImage($w, $h, $x, $y);
+				/**
+				 * We need to remove the canva,
+				 * or the image is not resized to the crop:
+				 * http://php.net/manual/en/imagick.cropimage.php#97232
+				 */
+				$this->image->setImagePage(0, 0, 0, 0);
+			} while ($this->image->nextImage());
+			return $this->scaleImage($max);
+		}
 
         $dest = imagecreatetruecolor( $max, $max );
         imagealphablending($dest, false);
@@ -633,7 +665,7 @@ function guess_image_type($filename, $fromcurl=false) {
     }
     if (is_null($type)){
         // Guessing from extension? Isn't that... dangerous?
-        if(class_exists('Imagick')) {
+        if(class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
             /**
              * Well, this not much better,
              * but at least it comes from the data inside the image,
