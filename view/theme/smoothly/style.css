@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-10-04
+	Created by alex@friendica.pixelbits.de on 2012-10-19
 
 ** Colors ** 
 Blue links - #1873a2
@@ -74,7 +74,7 @@ li.widget-list {
 	list-style: none outside none;
 	background: url("arrow.png") no-repeat scroll left center transparent;
 	display: block;
-   	/*padding: 3px 24px;*/
+   	padding: 3px 24px;
 }
 
 .required {
@@ -913,7 +913,7 @@ ul .sidebar-group-li .icon {
 }
 
 .fileas-link, .categories-link {
-	margin-left: 24px;
+	margin-left: 0px;
 }
 
 .fileas-all, .categories-all {
@@ -1318,7 +1318,9 @@ ul .sidebar-group-li .icon {
 	padding-top: 10px;
 }
 
-.wall-item-comment-wrapper {}
+.wall-item-comment-wrapper {
+	margin-left: 10px;
+}
 
 .wall-item-photo-menu {
 	display: none;
@@ -1732,7 +1734,7 @@ blockquote {
 }
 
 .comment-edit-text-empty { 
-	width: 80%;
+	width: 672px; /*80%*/
 	height: 20px;
 	color: #babdb6;
 	transition: all 0.5s ease-in-out;	
@@ -1745,7 +1747,7 @@ blockquote {
 }
 
 .comment-edit-text-full { 
-	width: 80%; 
+	width: 670px; 
 	height: 6em;
 	transition: all 0.5s ease-in-out;	
 		-webkit-transition: all 0.5s ease-in-out;
@@ -1753,8 +1755,8 @@ blockquote {
 }
 
 .comment-edit-submit-wrapper { 
-	width: 80%; 
-	margin-left: 40px; 
+	width: 670px; 
+	margin-left: 20px; 
 	text-align: left; 
 }
 
@@ -2633,7 +2635,7 @@ margin-left: 0px;
 	background-image: url("photo-menu.jpg");
 	background-position: top left; 
 	background-repeat: no-repeat;
-	margin: 0px; padding: 0px;
+	margin: 10px 0 0 0; padding: 0px;
 	width: 16px;
 	height: 16px;
 	top: 64px; left:0px;
@@ -4053,6 +4055,8 @@ ul.menu-popup {
 .qcomment {
 	opacity: 0.8;
 	filter: alpha(opacity=0);
+	position: relative;
+	left: 30px;
 }
 
 .qcomment:hover {
@@ -4233,3 +4237,7 @@ hr.line-dots {
 .fc-grid,
 .fc-border-separate,
 .fc-content {}
+
+div#datebrowse-sidebar.widget {
+	text-align:center;
+}
