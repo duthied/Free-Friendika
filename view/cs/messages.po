@@ -1236,9 +1236,9 @@ msgstr "Časová konverze"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
-msgstr "Friendika poskytuje tuto službu pro sdílení událostí s ostatními sítěmi a přátel v neznámých časových pásem."
+msgstr "Friendica poskytuje tuto službu pro sdílení událostí s ostatními sítěmi a přátel v neznámých časových pásem."
 
 #: ../../mod/localtime.php:30
 #, php-format
@@ -2816,7 +2816,7 @@ msgid ""
 "Set some public keywords for your default profile which describe your "
 "interests. We may be able to find other people with similar interests and "
 "suggest friendships."
-msgstr "Nastavte si nějaká veřejné klíčová slova pro výchozí profil, která popisují Vaše zájmy. Friendika Vám může nalézt další lidi s podobnými zájmy a navrhnout přátelství."
+msgstr "Nastavte si nějaká veřejné klíčová slova pro výchozí profil, která popisují Vaše zájmy. Friendica Vám může nalézt další lidi s podobnými zájmy a navrhnout přátelství."
 
 #: ../../mod/newmember.php:44
 msgid "Connecting"
@@ -2924,7 +2924,7 @@ msgstr "Navštivte sekci nápovědy"
 msgid ""
 "Our <strong>help</strong> pages may be consulted for detail on other program"
 " features and resources."
-msgstr "Na stránkách <strong>Nápověda</strong> naleznete nejen další podrobnosti o všech funkcích Friendika ale také další zdroje informací."
+msgstr "Na stránkách <strong>Nápověda</strong> naleznete nejen další podrobnosti o všech funkcích Friendica ale také další zdroje informací."
 
 #: ../../mod/attach.php:8
 msgid "Item not available."

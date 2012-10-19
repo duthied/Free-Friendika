@@ -308,7 +308,7 @@ div.main-container {
 	border-radius: 5px;
 	padding: 5px;
 	font-weight: bold;
-	background: #3465a4 url('friendika-16.png') no-repeat 95% center;
+	background: #3465a4 url('friendica-16.png') no-repeat 95% center;
 }
 #wallmessage-link {
 	display: block;
@@ -589,7 +589,7 @@ footer {
 
 input#dfrn-url {
 	float: left;
-	background: url(friendika-16.png) no-repeat;
+	background: url(friendica-16.png) no-repeat;
 	background-position: 2px center;
 	font-size: 17px;
 	padding-left: 21px;

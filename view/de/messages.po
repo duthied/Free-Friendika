@@ -1249,7 +1249,7 @@ msgstr "Zeitumrechnung"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr "Friendica bietet diese Funktion an, um das Teilen von Events mit den Kontakten zu vereinfachen, deren Zeitzone nicht ermittelt werden kann."
 

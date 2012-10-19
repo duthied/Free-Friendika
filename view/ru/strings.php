@@ -184,7 +184,7 @@ $a->strings["Please enter your 'Identity Address' from one of the following supp
 $a->strings["<strike>Connect as an email follower</strike> (Coming soon)"] = "";
 $a->strings["If you are not yet a member of the free social web, <a href=\"http://dir.friendica.com/siteinfo\">follow this link to find a public Friendica site and join us today</a>."] = "";
 $a->strings["Friend/Connection Request"] = "Запрос в друзья / на подключение";
-$a->strings["Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca"] = "Примеры: jojo@demo.friendika.com, http://demo.friendika.com/profile/jojo, testuser@identi.ca";
+$a->strings["Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca"] = "Примеры: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca";
 $a->strings["Please answer the following:"] = "Пожалуйста, ответьте следующее:";
 $a->strings["Does %s know you?"] = "%s знает вас?";
 $a->strings["Add a personal note:"] = "Добавить личную заметку:";
@@ -250,7 +250,7 @@ $a->strings["<h1>What next</h1>"] = "";
 $a->strings["IMPORTANT: You will need to [manually] setup a scheduled task for the poller."] = "ВАЖНО: Вам нужно будет [вручную] установить запланированное задание для регистратора.";
 $a->strings["l F d, Y \\@ g:i A"] = "l F d, Y \\@ g:i A";
 $a->strings["Time Conversion"] = "История общения";
-$a->strings["Friendika provides this service for sharing events with other networks and friends in unknown timezones."] = "";
+$a->strings["Friendica provides this service for sharing events with other networks and friends in unknown timezones."] = "";
 $a->strings["UTC time: %s"] = "UTC время: %s";
 $a->strings["Current timezone: %s"] = "Ваш часовой пояс: %s";
 $a->strings["Converted localtime: %s"] = "Ваше изменённое время: %s";

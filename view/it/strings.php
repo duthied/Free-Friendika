@@ -222,7 +222,7 @@ $a->strings["The command line version of PHP on your system does not have \"regi
 $a->strings["This is required for message delivery to work."] = "E' obbligatorio per far funzionare la consegna dei messaggi.";
 $a->strings["PHP register_argc_argv"] = "PHP register_argc_argv";
 $a->strings["Error: the \"openssl_pkey_new\" function on this system is not able to generate encryption keys"] = "Errore: la funzione \"openssl_pkey_new\" in questo sistema non è in grado di generare le chiavi di criptazione";
-$a->strings["If running under Windows, please see \"http://www.php.net/manual/en/openssl.installation.php\"."] = "Se stai eseguendo friendika su windows, guarda \"http://www.php.net/manual/en/openssl.installation.php\".";
+$a->strings["If running under Windows, please see \"http://www.php.net/manual/en/openssl.installation.php\"."] = "Se stai eseguendo friendica su windows, guarda \"http://www.php.net/manual/en/openssl.installation.php\".";
 $a->strings["Generate encryption keys"] = "Genera chiavi di criptazione";
 $a->strings["libCurl PHP module"] = "modulo PHP libCurl";
 $a->strings["GD graphics PHP module"] = "modulo PHP GD graphics";
@@ -249,7 +249,7 @@ $a->strings["<h1>What next</h1>"] = "";
 $a->strings["IMPORTANT: You will need to [manually] setup a scheduled task for the poller."] = "IMPORTANTE: Devi impostare [manualmente] la pianificazione del poller.";
 $a->strings["l F d, Y \\@ g:i A"] = "l d F Y \\@ G:i";
 $a->strings["Time Conversion"] = "Conversione Ora";
-$a->strings["Friendika provides this service for sharing events with other networks and friends in unknown timezones."] = "Friendika fornisce questo servizio per la condivisione di eventi con altre reti e contatti in fusi orari sconosciuti.";
+$a->strings["Friendica provides this service for sharing events with other networks and friends in unknown timezones."] = "Friendica fornisce questo servizio per la condivisione di eventi con altre reti e contatti in fusi orari sconosciuti.";
 $a->strings["UTC time: %s"] = "Ora UTC: %s";
 $a->strings["Current timezone: %s"] = "Fuso orario corrente: %s";
 $a->strings["Converted localtime: %s"] = "Ora locale convertita: %s";

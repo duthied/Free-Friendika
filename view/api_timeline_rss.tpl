@@ -1,9 +1,9 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:georss="http://www.georss.org/georss" xmlns:twitter="http://api.twitter.com">
   <channel>
-    <title>Friendika</title>
+    <title>Friendica</title>
     <link>$rss.alternate</link>
     <atom:link type="application/rss+xml" rel="self" href="$rss.self"/>
-    <description>Friendika timeline</description>
+    <description>Friendica timeline</description>
     <language>$rss.language</language>
     <ttl>40</ttl>
 	<image>

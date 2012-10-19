@@ -520,7 +520,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	$nv['suggest'] = Array('suggest', t('Friend Suggestions'), "", "");
 	$nv['invite'] = Array('invite', t('Invite Friends'), "", "");
 
-	$nv['search'] = '<form name="simple_bar" method="get" action="http://dir.friendika.com/directory">
+	$nv['search'] = '<form name="simple_bar" method="get" action="http://dir.friendica.com/directory">
 						<span class="sbox_l"></span>
 						<span class="sbox">
 						<input type="text" name="search" size="13" maxlength="50">

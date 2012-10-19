@@ -1090,7 +1090,7 @@ msgstr "Errore: la funzione \"openssl_pkey_new\" in questo sistema non è in gra
 msgid ""
 "If running under Windows, please see "
 "\"http://www.php.net/manual/en/openssl.installation.php\"."
-msgstr "Se stai eseguendo friendika su windows, guarda \"http://www.php.net/manual/en/openssl.installation.php\"."
+msgstr "Se stai eseguendo friendica su windows, guarda \"http://www.php.net/manual/en/openssl.installation.php\"."
 
 #: ../../mod/install.php:364
 msgid "Generate encryption keys"
@@ -1215,9 +1215,9 @@ msgstr "Conversione Ora"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
-msgstr "Friendika fornisce questo servizio per la condivisione di eventi con altre reti e contatti in fusi orari sconosciuti."
+msgstr "Friendica fornisce questo servizio per la condivisione di eventi con altre reti e contatti in fusi orari sconosciuti."
 
 #: ../../mod/localtime.php:30
 #, php-format

@@ -1236,7 +1236,7 @@ msgstr "Conversion temporelle"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr "Friendica fournit ce service pour partager des événements avec d'autres réseaux et amis indépendament de leur fuseau horaire."
 

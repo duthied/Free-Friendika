@@ -249,13 +249,13 @@ $a->strings["You can alternatively skip this procedure and perform a manual inst
 $a->strings[".htconfig.php is writable"] = ".htconfig.php tem permissão de escrita";
 $a->strings["Url rewrite in .htaccess is not working. Check your server configuration."] = "A reescrita de URLs definida no .htaccess não está funcionando. Por favor, verifique as configurações do seu servidor.";
 $a->strings["Url rewrite is working"] = "A reescrita de URLs está funcionando";
-$a->strings["The database configuration file \".htconfig.php\" could not be written. Please use the enclosed text to create a configuration file in your web server root."] = "Não foi possível gravar o arquivo de configuração \".htconfig.php\". Por favor, use o texto incluso para criar um arquivo de configuração na raiz da instalação do Friendika em seu servidor web.";
+$a->strings["The database configuration file \".htconfig.php\" could not be written. Please use the enclosed text to create a configuration file in your web server root."] = "Não foi possível gravar o arquivo de configuração \".htconfig.php\". Por favor, use o texto incluso para criar um arquivo de configuração na raiz da instalação do Friendica em seu servidor web.";
 $a->strings["Errors encountered creating database tables."] = "Foram encontrados erros durante a criação das tabelas do banco de dados.";
 $a->strings["<h1>What next</h1>"] = "<h1>A seguir</h1>";
 $a->strings["IMPORTANT: You will need to [manually] setup a scheduled task for the poller."] = "IMPORTANTE: Você deve configurar [manualmente] uma tarefa agendada para o captador.";
 $a->strings["l F d, Y \\@ g:i A"] = "l F d, Y \\@ H:i";
 $a->strings["Time Conversion"] = "Conversão de tempo";
-$a->strings["Friendika provides this service for sharing events with other networks and friends in unknown timezones."] = "Friendica fornece este serviço para compartilhar eventos com outras redes e amigos em fusos horários diferentes.";
+$a->strings["Friendica provides this service for sharing events with other networks and friends in unknown timezones."] = "Friendica fornece este serviço para compartilhar eventos com outras redes e amigos em fusos horários diferentes.";
 $a->strings["UTC time: %s"] = "Hora UTC: %s";
 $a->strings["Current timezone: %s"] = "Fuso horário atual: %s";
 $a->strings["Converted localtime: %s"] = "Horário local convertido: %s";
