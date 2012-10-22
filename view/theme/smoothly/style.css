@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-10-19
+	Created by alex@friendica.pixelbits.de on 2012-10-22
 
 ** Colors ** 
 Blue links - #1873a2
@@ -14,85 +14,8 @@ Dark Grey Gradients - #7c7d7b and #555753
 Orange - #fec01d
 */
 
-body {
-    margin: 0 auto;
-    padding-bottom: 3em;
-    width: 960px;
-    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
-    font-size: 15px;
-    font-size-adjust: none;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: normal;
-    line-height: 18px;
-    color: #626262;
-    background-color: #F2F2F2;
-    color: #333333;
-}
+@import url('css/typography.css');
 
-img {
-	border: 0 none;
-	max-width: 550px;
-}
-
-a {
-	color: #1873a2;
-	text-decoration: none;
-	margin-bottom: 1px;
-}
-
-a:hover {
-	color: #6da6c4;
-	padding-bottom: 0px;
-}
-
-h3 > a, h4 > a {
-	font-size: 18px;
-	color: #626262;
-}
-
-h3 {
-	margin: 0px;
-	margin-bottom: 5px;
-	font-size: 18px;
-	color: #626262;
-}
-
-h2 {
-	color: #626262;
-}
-
-p {
-	max-width: 600px;
-}
-
-li {
-	list-style: none outside none;
-}
-
-li.widget-list {
-	list-style: none outside none;
-	background: url("arrow.png") no-repeat scroll left center transparent;
-	display: block;
-   	padding: 3px 24px;
-}
-
-.required {
-	display: inline;
-	color: #1873a2;
-}
-
-.fakelink, .fakelink:visited, .fakelink:link {
-	color: #1873a2;
-	cursor: pointer;
-	margin-bottom: 10px;
-	margin-left: 10px;
-	/*background: url("down.png") no-repeat scroll left center transparent;*/
-}
-
-.fakelink:hover {
-	color: #6da6c4;
-}
 
 .lockview {
 	cursor: pointer;
@@ -153,6 +76,10 @@ input[type=submit]:hover {
 input[type=submit]:active {
 	position: relative;
 	top: 1px;
+}
+
+#search-submit {
+	margin: 10px 10px 0 0;
 }
 
 .smalltext {
@@ -331,7 +258,8 @@ section {
 /* ========= */
 
 .pager {
-	padding-top: 30px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	display: block;
 	clear: both;
 	text-align: center;
@@ -479,6 +407,7 @@ nav #nav-link-wrapper .nav-link {
 	padding-bottom: 8px;
 }
 */
+
 .error-message {
 	color: #FF0000;
 	font-size: 1.1em;
@@ -639,7 +568,7 @@ aside {
 	float: right;
 	width: 205px;
 	margin-top: 45px;
-	font-size: 0.9em;
+	/*font-size: 0.9em;*/
 	font-style: bold;
 }
 
@@ -782,13 +711,17 @@ h3#search:before {
 	padding-bottom: 10px;
 }
 
+#peoplefind-desc {
+	margin-left: 10px;
+}
+
 #sidebar-group-list {
 	margin-left: 0px;
 	margin-right: 30px;
 }
 
 #sidebar-group-list  a {
-	padding-bottom: 10px;
+	/*padding-bottom: 10px;*/
 }
 
 /*#sidebar-group-list ul {
@@ -820,6 +753,13 @@ h3#search:before {
 		-webkit-border-radius: 5px;
 	color: #7c7d7b;
 	border: 1px solid #cdcdcd;
+}
+
+li.widget-list {
+	list-style: none outside none;
+	background: url("arrow.png") no-repeat scroll left center transparent;
+	display: block;
+   	padding: 3px 24px;
 }
 
 #sidebar-new-group {
@@ -888,7 +828,7 @@ h3#search:before {
 ul .sidebar-group-li {
 	list-style: none;
 	font-size: 1.0em;
-	padding-bottom: 5px;
+	/*padding-bottom: 5px;*/
 }
 
 ul .sidebar-group-li .icon {
@@ -902,7 +842,7 @@ ul .sidebar-group-li .icon {
 }
 
 .nets-ul li, .fileas-ul li, .categories-ul li {
-	margin-top: 10px;
+	/*margin-top: 10px;*/
 }
 
 .nets-link {
@@ -921,6 +861,7 @@ ul .sidebar-group-li .icon {
 }
 
 .widget h3 {
+	font-size: 125%;
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0edf0), color-stop(1, #e2e2e2) );
 	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
@@ -935,6 +876,10 @@ ul .sidebar-group-li .icon {
 	vertical-align: baseline;
 	text-align: center;
 	text-shadow: -1px 0px 0px #bdbdbd;	
+}
+
+#connect-desc {
+	margin-left: 10px;
 }
 
 #group-sidebar h3:before {
@@ -1513,7 +1458,7 @@ ul .sidebar-group-li .icon {
 }
 
 .wall-item-location .smalltext { 
-	margin-left: 25px;  
+	margin-left: 0px;  
 	font-size: 0.9em; 
 	display: block;
 }
@@ -1643,11 +1588,6 @@ code {
 	margin-top: 10px; 
 }
 
-blockquote {
-    background-color: #F4F8F9;
-    border-left: 4px solid #DAE4EE;
-    padding: 0.4em;
-}
 
 /* ============ */
 /* = Comments = */
@@ -3003,11 +2943,12 @@ margin-left: 0px;
 #settings-nickname-desc {
 	width: 80%;
 	background-color: #efefef;
+	margin-top: 10px;
 	margin-bottom: 10px;
 	border-radius: 5px;
 		-webkit-border-radius: 5px;
 		-moz-border-radius: 5px;
-	padding: 5px;
+	padding: 10px;
 }
 
 #register-form div {
@@ -3598,7 +3539,8 @@ tr {
 
 .field_help {
 	display: block;
-	margin-left: 100px;
+	margin-left: 0px;
+	margin-bottom: 10px;
 	color: #666666;	
 }
 
@@ -4240,4 +4182,18 @@ hr.line-dots {
 
 div#datebrowse-sidebar.widget {
 	text-align:center;
+}
+
+/* Fakelink */
+
+.fakelink, .fakelink:visited, .fakelink:link {
+	color: #1873a2;
+	cursor: pointer;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	/*background: url("down.png") no-repeat scroll left center transparent;*/
+}
+
+.fakelink:hover {
+	color: #6da6c4;
 }
