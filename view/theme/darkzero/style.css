@@ -40,6 +40,9 @@ nav #banner #logo-text a { color: #ffffff; }
 	-moz-border-radius: 0px 0px 3px 3px;
 	border-radius: 0px 0px 3px 3px;	
 }
+.editicon {
+    	background-color: #333;
+}
 .comment-edit-preview{ color: #000000; }
 .wall-item-content-wrapper.comment { background-color: #444444; border: 0px;}
 .photo-top-album-name{ background-color: #333333; }
@@ -67,6 +70,18 @@ nav #banner #logo-text a { color: #ffffff; }
 .wall-item-photo-menu li a:hover {
 	background-color: #CCCCCC; color: #333333;
 }
+
+code {
+  background:#2e2f2e !important;
+  color:#fff !important;
+}
+
+blockquote {
+  background:#2e2f2e !important;
+  color:#eec !important;
+}
+
+
 #page-footer { min-height: 1em;}
 footer {
 	margin: 0px 10%;
@@ -108,13 +123,12 @@ input#dfrn-url {
 #jot-category:focus {
 	border: 1px solid #cccccc; 
 }
-blockquote {
-	background: #ddd;
-	color: #000;
-}
 
 .acl-list-item p, #profile-jot-email-label, div#jot-preview-content, div.profile-jot-net {
         color: #eec;
+}
+#fancybox-content{
+  background:#444;
 }
 
 input#acl-search {
@@ -138,43 +152,8 @@ input#acl-search {
   background:#2e2f2e;
 }
 
-code {
-  background:#2e2f2e !important;
-  color:#fff !important;
-}
-
-blockquote {
-  background:#2e2f2e !important;
-  color:#eec !important;
-}
-
 .group-selected, .nets-selected, .fileas-selected, .categories-selected{
   background:#2e2f2e;
-}
-
-#fancybox-content{
-  background:#444;
-}
-
-.editicon {
-    	background-color: #333;
-}
-
-#datebrowse-sidebar select {
-color:#99CCFF !important;
-}
-
-.settings-widget .selected {
-background: #666;
-}
-
-#adminpage table tr:hover {
-    color: #eec;
-    background-color: #666;
-}
-
-input#prvmail-subject {
-background: #222 !important;
 }
 
 /* Events */
@@ -185,4 +164,26 @@ background: #666 !important;
 
 .fc-state-disabled, .fc-state-disabled .fc-button-inner {
 color: #000 !important;
+}
+
+/*Admin page */
+
+#adminpage table tr:hover {
+    color: #eec;
+    background-color: #666;
+}
+
+.settings-widget .selected {
+background: #666;
+}
+
+
+/* Stuff that doesn't seem to fit with anything else */
+
+#datebrowse-sidebar select {
+color:#99CCFF !important;
+}
+
+input#prvmail-subject {
+background: #222 !important;
 }
