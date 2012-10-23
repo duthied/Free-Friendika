@@ -1954,6 +1954,11 @@ div[id$="wrapper"] br {
 	overflow: auto;
 }
 
+.photo {
+	height: 191px;
+	width: 191px;
+}
+
 #side-bar-photos-albums h3:before {
 	content: url("photography.png");
 	padding-right: 10px;
@@ -2640,6 +2645,20 @@ margin-left: 0px;
 	font-size: 14px;
 	text-align: center;
 	margin: auto;
+}
+
+#contact-edit-info-wrapper,
+#contact-edit-info-end,
+#contact-edit-profile-select-text,
+#contact-edit-profile-select-end,
+#contact-edit-poll-wrapper,
+#contact-edit-end {
+}
+
+.contact-edit-submit {
+}
+
+#contact-profile-selector {
 }
 
 .contact-photo-menu-button {
