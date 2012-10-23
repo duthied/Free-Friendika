@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1503\n"
+"Project-Id-Version: 3.0.1504\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-21 10:00-0700\n"
+"POT-Creation-Date: 2012-10-22 10:00-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,7 +58,7 @@ msgstr ""
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
 #: ../../addon/facebook/facebook.php:516 ../../addon/fbpost/fbpost.php:159
 #: ../../addon/fbpost/fbpost.php:165
-#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3913
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3914
 #: ../../index.php:319 ../../addon.old/facebook/facebook.php:510
 #: ../../addon.old/facebook/facebook.php:516
 #: ../../addon.old/fbpost/fbpost.php:159 ../../addon.old/fbpost/fbpost.php:165
@@ -955,7 +955,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3292
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3293
 msgid "[Name Withheld]"
 msgstr ""
 
@@ -2019,7 +2019,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:702
 #: ../../addon/facebook/facebook.php:1200 ../../addon/fbpost/fbpost.php:661
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3301
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3302
 #: ../../boot.php:799 ../../addon.old/facebook/facebook.php:702
 #: ../../addon.old/facebook/facebook.php:1200
 #: ../../addon.old/fbpost/fbpost.php:661
@@ -3207,7 +3207,7 @@ msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:734 ../../mod/admin.php:933 ../../mod/display.php:29
-#: ../../mod/display.php:145 ../../include/items.php:3779
+#: ../../mod/display.php:145 ../../include/items.php:3780
 msgid "Item not found."
 msgstr ""
 
@@ -8659,12 +8659,12 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: ../../include/datetime.php:472 ../../include/items.php:1688
+#: ../../include/datetime.php:472 ../../include/items.php:1689
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/datetime.php:473 ../../include/items.php:1689
+#: ../../include/datetime.php:473 ../../include/items.php:1690
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -8938,15 +8938,15 @@ msgstr ""
 msgid "following"
 msgstr ""
 
-#: ../../include/items.php:3299
+#: ../../include/items.php:3300
 msgid "A new person is sharing with you at "
 msgstr ""
 
-#: ../../include/items.php:3299
+#: ../../include/items.php:3300
 msgid "You have a new follower at "
 msgstr ""
 
-#: ../../include/items.php:3980
+#: ../../include/items.php:3981
 msgid "Archives"
 msgstr ""
 
