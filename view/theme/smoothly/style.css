@@ -50,7 +50,7 @@ input[type=text-sidebar] {
 }
 
 input[type=submit] {
-	margin: 10px;
+	margin:10px 10px 0 0;
 	font-size: 0.9em;
 	padding: 5px;
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
@@ -1055,7 +1055,7 @@ ul .sidebar-group-li .icon {
 }
 
 #theme-preview {
-	margin: 15px 0 15px 150px;
+	margin: 15px 0 15px 0;
 }
 
 #profile-jot-perms, #profile-jot-submit {
@@ -1836,19 +1836,19 @@ div[id$="wrapper"] br {
 	margin-left: 20px;
 }
 
-#profile-listing-desc {
+#profile-listing-desc,
+#profile-listing-new-link-wrapper {
 	float: left;
 	display: inline;
 	padding: 5px 10px 5px 10px;
 	width: 150px;
-	margin-bottom: 20px;
-	margin-top: 20px;
+	margin:20px 10px 0 0;
 	display: inline-block;
 	font-style: bold;
 	text-align: center;
 }
 
-#profile-listing-new-link-wrapper {
+/*#profile-listing-new-link-wrapper {
 	float: left;
 	display: inline;
 	width: auto;
@@ -1857,7 +1857,7 @@ div[id$="wrapper"] br {
 	padding: 5px 10px 5px 10px;
 	font-style: bold;
 	text-align: center;
-}
+}*/
 
 .profile-listing-name {
 	font-size: 1em;
@@ -3094,12 +3094,14 @@ margin-left: 0px;
 	margin-bottom: 20px;
 }
 
+.settings-submit,
 .settings-submit-wrapper,
 .profile-edit-submit-wrapper { 
 	margin: 30px 0px;
 }
 
-.profile-listing { 
+.profile-listing,
+.profile-listing-end { 
 	float: left; 
 	clear: both; 
 	margin: 20px 20px 0px 0px;
@@ -3628,7 +3630,8 @@ tr {
 
 .field label {
 	float: left;
-	width: 480px;
+	width: auto;
+	margin: 5px 10px 0 0;
 }
 
 .field checkbox {
@@ -4215,6 +4218,7 @@ div.wall-item-content-wrapper.shiny {
 #profile-upload-wrapper,
 #wall-image-upload-div,
 #wall-file-upload-div,
+
 .hover, .focus {
 	cursor: pointer;
 }
@@ -4320,3 +4324,43 @@ div#datebrowse-sidebar.widget {
 .fakelink:hover {
 	color: #6da6c4;
 }
+
+#id_theme {
+	margin:10px 10px 0 0;
+}
+
+#id_post_newfriend,
+#id_post_joingroup,
+#id_post_profilechange,
+#id_notify1,
+#id_notify2,
+#id_notify3,
+#id_notify4,
+#id_notify5,
+#id_notify6,
+#id_notify7,
+#id_notify8,
+#id_allow_location {
+	margin: 6px 0 0 0;
+}
+
+#settings-form {}
+.select {}
+.field_help {
+	margin: 5px 0 10px;
+}
+
+#settings-activity-desc,
+#settings-notify-desc {
+	margin:10px 10px 10px 0;
+	font-weight: bold;
+}
+
+#settings-notifications {
+	border: 1px solid #7C7D7B;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+	padding:10px;
+}
+

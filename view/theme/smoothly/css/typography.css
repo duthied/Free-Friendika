@@ -135,8 +135,8 @@ dd { margin:0 0 1.5em 0.8em; }
 p {
 	max-width: 600px;
 	font-size:1em;
-	line-height:1.5em;
-	margin: 1.5em 0 0 0;
+	/*line-height:1.5em;*/
+	/*margin: 1.5em 0 0 0;*/
 }
 
 blockquote, cite, q {
