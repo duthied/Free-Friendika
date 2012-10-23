@@ -613,6 +613,7 @@ aside a {
 	font-size: 1.4em;
 	font-weight: bold;
 	border-bottom: none;
+	margin-top:10px;
 }
 
 .vcard #profile-photo-wrapper {
