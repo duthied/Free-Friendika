@@ -84,8 +84,19 @@ input[type=submit]:active {
 	top: 1px;
 }
 
-#search-submit {
+#search-text,
+#search-submit,
+#search-save {
 	margin: 10px 10px 0 0;
+}
+
+#directory-search,
+#directory-search-submit,
+#search-save {
+}
+
+.dirsearch-desc {
+
 }
 
 .smalltext {
@@ -104,7 +115,7 @@ input[type=submit]:active {
 
 section {
 	float: left;
-	margin-top: 45px;
+	margin-top: 50px;
 	width: 730px;
 	font-size: 0.9em;
 	line-height: 1.2em;
@@ -3904,8 +3915,8 @@ footer {
 
 #global-directory-link {
 	width: 150px;
-	padding: 7px;
-	margin-bottom: 10px;
+	padding: 4px;
+	/*margin-bottom: 10px;*/
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
 	background: -moz-linear-gradient( center top, #bdbdbd 5%, #a2a2a2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bdbdbd', endColorstr='#a2a2a2');
