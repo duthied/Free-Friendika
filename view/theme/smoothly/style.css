@@ -740,6 +740,8 @@ h3 #search:before {
 	margin: 10px;
 }
 
+#sidebar-page-list {}
+
 .widget {
 	margin-top: 20px;
 	box-shadow: 1px 2px 6px 0px #959494;
@@ -4287,7 +4289,7 @@ div #datebrowse-sidebar.widget {
 	color: #1873a2;
 	cursor: pointer;
 	margin-bottom: 10px;
-	margin-left: 10px;
+	margin-left: 5px;
 	/*background: url("down.png") no-repeat scroll left center transparent;*/
 }
 
@@ -4335,3 +4337,15 @@ div #datebrowse-sidebar.widget {
 }
 
 #id_npassword {}
+
+#posted-date-selector {
+	margin-left: 33px;
+}
+
+#hide-comments-page-widget {
+	margin-left: 40px;
+}
+
+#collapsed-comments-page-widget {}
+
+.tool {}
