@@ -1626,7 +1626,7 @@ ul .sidebar-group-li .icon {
 
 .icon.drop,
 .icon.drophide { 
-	float: right;
+	float: left;
 }
 
 #item-delete-selected-end,
@@ -1912,8 +1912,10 @@ div[id$="wrapper"] br {
 }
 
 .profile-match-wrapper {
-	width: 82%;
-	padding: 5px;
+	float:left;
+	height:120px;
+	padding:10px;
+	width:120px;
 	margin-bottom: 10px;
 	margin-left: 20px;
 	background-color: #f6f6f6;
@@ -2611,10 +2613,18 @@ margin-left: 0px;
 }
 
 #contact-edit-update-now:hover {
+	color: #efefef;
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
 	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
 	background-color: #1873a2;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 }
 
 #contact-edit-update-now:active {
@@ -4383,3 +4393,7 @@ div #datebrowse-sidebar.widget {
 #logo-img {
 	margin: 3px 0 0 0;
 }
+
+.bigwidget {}
+
+#remote-friends-in-common  {}
