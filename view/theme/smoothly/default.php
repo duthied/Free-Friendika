@@ -3,6 +3,11 @@
 <head>
   <title><?php if(x($page,'title')) echo $page['title'] ?></title>
   <script>var baseurl="<?php echo $a->get_baseurl() ?>";</script>
+  <script type="text/javascript">
+	function ScrollToBottom(){
+	window.scrollTo(0,document.body.scrollHeight);
+	}
+  </script>
   <?php if(x($page,'htmlhead')) echo $page['htmlhead'] ?>
 </head>
 <body>

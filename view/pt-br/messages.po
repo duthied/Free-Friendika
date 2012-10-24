@@ -1216,7 +1216,7 @@ msgid ""
 "The database configuration file \".htconfig.php\" could not be written. "
 "Please use the enclosed text to create a configuration file in your web "
 "server root."
-msgstr "Não foi possível gravar o arquivo de configuração \".htconfig.php\". Por favor, use o texto incluso para criar um arquivo de configuração na raiz da instalação do Friendika em seu servidor web."
+msgstr "Não foi possível gravar o arquivo de configuração \".htconfig.php\". Por favor, use o texto incluso para criar um arquivo de configuração na raiz da instalação do Friendica em seu servidor web."
 
 #: ../../mod/install.php:475
 msgid "Errors encountered creating database tables."
@@ -1243,7 +1243,7 @@ msgstr "Conversão de tempo"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr "Friendica fornece este serviço para compartilhar eventos com outras redes e amigos em fusos horários diferentes."
 

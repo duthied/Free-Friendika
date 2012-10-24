@@ -1218,7 +1218,7 @@ msgstr "Tíma leiðréttir"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr "Friendica veitir þessa þjónustu til að deila atburðum milli neta og vina í óþekktum tímabeltum."
 

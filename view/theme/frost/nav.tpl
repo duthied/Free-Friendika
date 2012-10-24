@@ -44,7 +44,7 @@
 		{{ endif }}
 
 		{{ if $nav.help }}
-		<li><a id="nav-help-link" class="$nav.help.2 nav-load-page-link" target="friendika-help" href="$nav.help.0" title="$nav.help.3" >$nav.help.1</a></li>
+		<li><a id="nav-help-link" class="$nav.help.2 nav-load-page-link" target="friendica-help" href="$nav.help.0" title="$nav.help.3" >$nav.help.1</a></li>
 		{{ endif }}
 		
 		{{ if $nav.logout }}
