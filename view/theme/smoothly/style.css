@@ -916,7 +916,12 @@ ul .sidebar-group-li .icon {
 }
 
 .nets-link {
-	margin-left: 24px;
+	color: #1873A2;
+	text-decoration: none;
+	margin-left: 2px;
+	padding-left: 20px;
+	background: url("images/arrow.png") no-repeat scroll left center transparent;
+	box-shadow: none;
 }
 .nets-all {
 	margin-left: 42px;
