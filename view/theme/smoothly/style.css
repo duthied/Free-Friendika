@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-10-24
+	Created by alex@friendica.pixelbits.de on 2012-10-25
 
 ** Colors ** 
 Blue links - #1873a2
@@ -412,7 +412,7 @@ nav #user-menu:hover {
 }
 
 nav #user-menu-label::after {
-	content: url("menu-user-pin.png") no-repeat;
+	content: url("images/menu-user-pin.png") no-repeat;
 	padding-left: 15px;
 }
 
@@ -457,9 +457,9 @@ ul#user-menu-popup {
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#797979', endColorstr='#898988');
 	background-color: #898988;
 	width: 100%;
-	padding: 10px 0px;
+	padding: 0;
 	margin: 0px;
-	margin-top: 4px;
+	margin-top: 10px;
 	top: 20px;
 	left: 0px;
 	border: 1px solid #9a9a9a;
@@ -509,7 +509,7 @@ ul#user-menu-popup li a.nav-sep {
 .nav-ajax-update {
 	width: 44px;
 	height: 32px;
-	background: transparent url('notifications.png') 0px 0px no-repeat; 
+	background: transparent url('images/notifications.png') 0px 0px no-repeat; 
 	color: #333333;
 	font-weight: bold;
 	font-size: 0.8em;
@@ -722,7 +722,7 @@ aside h4 {
 }
 
 h3 #search:before {
-	content: url("search.png");
+	content: url("images/search.png");
 	padding-right: 10px;
 	vertical-align: middle;
 }
@@ -818,7 +818,7 @@ h3 #search:before {
 
 li.widget-list {
 	list-style: none outside none;
-	background: url("arrow.png") no-repeat scroll left center transparent;
+	background: url("images/arrow.png") no-repeat scroll left center transparent;
 	display: block;
    	padding: 3px 24px;
 }
@@ -955,7 +955,7 @@ ul .sidebar-group-li .icon {
 }
 
 #group-sidebar h3:before {
-	content: url("groups.png");
+	content: url("images/groups.png");
 	padding-right: 10px;
 	vertical-align: middle;
 }
@@ -1369,7 +1369,7 @@ ul .sidebar-group-li .icon {
 .wall-item-photo-menu-button {
 	display: none;
 	text-indent: -99999px;
-	background: #eeeeee url("menu-user-pin.png") no-repeat 75px center;
+	background: #eeeeee url("images/menu-user-pin.png") no-repeat 75px center;
 	position: absolute;
 	overflow: hidden;
 	height: 20px;
@@ -1388,8 +1388,16 @@ ul .sidebar-group-li .icon {
 
 .wall-item-photo-wrapper { 
 	width: 80px; 
-	height: 80px;  
+	height: 80px;
+	padding: 4px;
 	position: relative;
+	border: 1px solid #dddddd;
+	border-radius: 5px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+	box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
 }
 
 .wall-item-tools { 
@@ -1883,6 +1891,10 @@ div[id$="wrapper"] br {
 	color: #898989;
 }
 
+#profile-edit-links {
+	margin-left: 0;
+}
+
 #profile-edit-links li {
 	display: inline;
 	width: 150px;
@@ -1975,12 +1987,19 @@ div[id$="wrapper"] br {
 }
 
 .photo {
-	height: 191px;
-	width: 191px;
+	height: 191px!important;
+	width: 191px!important;
+}
+
+#side-bar-photos-albums {
+}
+
+#photo-albums-upload-link {
+	margin: 20px;
 }
 
 #side-bar-photos-albums h3:before {
-	content: url("photography.png");
+	content: url("images/photography.png");
 	padding-right: 10px;
 	vertical-align: middle;
 }
@@ -2058,7 +2077,9 @@ div[id$="wrapper"] br {
 	border-bottom: 0px; 
 }
 
-.photo-top-photo {}
+.photo-top-photo {
+	width: 180px;
+}
 .photo-album-photo {} 
 
 .photo-top-album-name {
@@ -2114,13 +2135,13 @@ div[id$="wrapper"] br {
 #photo-prev-link { 
 	left: 0px; 
 	top: 0px; 
-	background-image: url('prev.png'); 
+	background-image: url('images/prev.png'); 
 }
 
 #photo-next-link { 
 	right: 0px; 
 	top: 0px; 
-	background-image: url('next.png');
+	background-image: url('images/next.png');
 }
 
 #photo-prev-link a,
@@ -2153,17 +2174,15 @@ div[id$="wrapper"] br {
 
 #photos-upload-existing-album-text,
 #photos-upload-newalbum-div { 
-	background-color: #fff;
 	color: #909090;
-	font-size: 1.2em;
 	padding: 3px 0px;
-	padding-left: 0px;
 	width: 300px;
 }
 
 #photos-upload-album-select,
 #photos-upload-newalbum { 
-	width: 400px; 
+	width: 400px;
+	margin-bottom: 10px;
 }
 
 #photos-upload-perms-menu {
@@ -2174,6 +2193,12 @@ div[id$="wrapper"] br {
 #photos-upload-perms-menu .icon {
 	display: none;
 }
+
+#photos-upload-perms {
+	margin-top: 10px;
+}
+
+.photos-upload-perms {}
 
 select, input {
 	border: 1px solid #b0b0b0;
@@ -2684,7 +2709,7 @@ margin-left: 0px;
 
 .contact-photo-menu-button {
 	position: absolute;
-	background-image: url("photo-menu.jpg");
+	background-image: url("images/photo-menu.jpg");
 	background-position: top left; 
 	background-repeat: no-repeat;
 	margin: 10px 0 0 0; 
@@ -2746,7 +2771,7 @@ margin-left: 0px;
 }
 
 #follow-sidebar h3:before {
-	content: url("user.png");
+	content: url("images/user.png");
 	padding-right: 10px;
 	vertical-align: middle;
 }
@@ -2902,7 +2927,7 @@ margin-left: 0px;
 
 #id_openid_url, 
 .openid input {
-	background: url(login-bg.gif) no-repeat;
+	background: url(images/login-bg.gif) no-repeat;
 	background-position: 0 50%;
 	padding-left: 18px;
 	width: 250px!important;
@@ -3336,7 +3361,7 @@ margin-left: 0px;
 }
 
 .event-description:before {
-	content: url('calendar.png');
+	content: url('images/calendar.png');
 	margin-right: 15px;
 	vertical-align: middle;
 }
@@ -3666,19 +3691,19 @@ margin-left: 0px;
 	display: block; 
 	width: 20px; 
 	height: 20px;
-	background-image: url("icons.png");
+	background-image: url("images/icons.png");
 }
 .starred { 
-	background-image: url("star.png");
+	background-image: url("images/star.png");
 	repeat: no-repeat;
 }
 .unstarred { 
-	background-image: url("premium.png");
+	background-image: url("images/premium.png");
 	repeat: no-repeat;
 }
 
 .notify {
-	background-image: url("notifications.png");
+	background-image: url("images/notifications.png");
 	repeat: no-repeat;
 }
 
@@ -3719,7 +3744,7 @@ margin-left: 0px;
 }
 
 .sharePerms {
-	background-image: url("icons.png");
+	background-image: url("images/icons.png");
 	width: 20px;
 	height: 20px;
 	margin: 2px 0px 2px 3px;
@@ -4149,7 +4174,7 @@ ul.menu-popup {
 }
 
 div.wall-item-content-wrapper.shiny {
-	background-image: url("shiny.png");
+	background-image: url("images/shiny.png");
 	background-repeat: repeat-x;
 }
 
@@ -4174,7 +4199,7 @@ div.wall-item-content-wrapper.shiny {
 }
 
 hr.line-dots {
-    background: url("dot.png") repeat-x scroll left center transparent;
+    background: url("images/dot.png") repeat-x scroll left center transparent;
     border: medium none;
 }
 
@@ -4207,7 +4232,7 @@ hr.line-dots {
 
 .filer-icon {
 	display: block; width: 16px; height: 16px;
-	background-image: url('file.gif');
+	background-image: url('images/file.gif');
 }
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
@@ -4281,7 +4306,7 @@ div #datebrowse-sidebar.widget {
 	color: #1873a2;
 	cursor: pointer;
 	margin-bottom: 10px;
-	/*background: url("down.png") no-repeat scroll left center transparent;*/
+	/*background: url("images/down.png") no-repeat scroll left center transparent;*/
 }
 
 .fakelink:hover {
