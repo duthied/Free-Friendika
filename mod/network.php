@@ -767,15 +767,24 @@ function network_content(&$a, $update = 0) {
 	// level which items you've seen and which you haven't. If you're looking
 	// at the top level network page just mark everything seen. 
 	
-/*	if((! $group) && (! $cid) && (! $star)) {
+
+// The $update_unseen is a bit unreliable if you have stuff coming into your stream from a new contact - 
+// and other feeds that bring in stuff from the past. One can't find it all. 
+// I'm reviving this block to mark everything seen on page 1 of the network as a temporary measure.
+// The correct solution is to implement a network notifications box just like the system notifications popup
+// with the ability in the popup to "mark all seen".
+// Several people are complaining because there are unseen messages they can't find and as time goes
+// on they just get buried deeper. It has happened to me a couple of times also.
+
+	if((! $group) && (! $cid) && (! $star)) {
 		$r = q("UPDATE `item` SET `unseen` = 0 
 			WHERE `unseen` = 1 AND `uid` = %d",
 			intval(local_user())
 		);
-	}*/
+	}
 
-	if($update_unseen)
-		$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+//	if($update_unseen)
+//		$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
 
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
