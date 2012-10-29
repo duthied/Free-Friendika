@@ -1,8 +1,8 @@
 <?php
 
-if (($_POST["friendika_acct_name"] != '') && ($_POST["friendika_password"] != '')) {
-	setcookie("username", $_POST["friendika_acct_name"], time()+60*60*24*300);
-	setcookie("password", $_POST["friendika_password"], time()+60*60*24*300);
+if (($_POST["friendica_acct_name"] != '') && ($_POST["friendica_password"] != '')) {
+	setcookie("username", $_POST["friendica_acct_name"], time()+60*60*24*300);
+	setcookie("password", $_POST["friendica_password"], time()+60*60*24*300);
 }
 
 ?>
@@ -59,14 +59,14 @@ if ((isset($title)) && (isset($text)) && (isset($url))) {
 
 if (isset($_POST['submit'])) {
 	
-	if (($_POST["friendika_acct_name"] != '') && ($_POST["friendika_password"] != '')) {
-		$acctname = $_POST["friendika_acct_name"];
+	if (($_POST["friendica_acct_name"] != '') && ($_POST["friendica_password"] != '')) {
+		$acctname = $_POST["friendica_acct_name"];
 		$tmp_account_array = explode("@", $acctname);
 		if (isset($tmp_account_array[1])) {
 			$username = $tmp_account_array[0];
 			$hostname = $tmp_account_array[1];
 		}
-		$password = $_POST["friendika_password"];
+		$password = $_POST["friendica_password"];
 		$content = $_POST["content"];
 
 		$url = "http://" . $hostname . '/api/statuses/update';
@@ -106,15 +106,15 @@ function showForm($error, $content) {
 	
 	echo <<<EOF
 	<div class='wrap1'>
-		<h2><img class='logo' src='friendika-32.png' align='middle';/>
-		Friendika Bookmarklet</h2>
+		<h2><img class='logo' src='friendica-32.png' align='middle';/>
+		Friendica Bookmarklet</h2>
 	</div>
 
 	<div class="wrap2">
 		<form method="post" action="{$_SERVER['PHP_SELF']}">
-			Enter the email address of the Friendika Account that you want to cross-post to:(example: user@friendika.org)<br /><br />
-			Account ID: <input type="text" name="friendika_acct_name" value="{$username_cookie}" size="50"/><br />
-			Password: <input type="password" name="friendika_password" value="{$password_cookie}" size="50"/><br />
+			Enter the email address of the Friendica Account that you want to cross-post to:(example: user@friendica.org)<br /><br />
+			Account ID: <input type="text" name="friendica_acct_name" value="{$username_cookie}" size="50"/><br />
+			Password: <input type="password" name="friendica_password" value="{$password_cookie}" size="50"/><br />
 			<textarea name="content" id="content" rows="6" cols="70">{$content}</textarea><br />
 			<input type="submit" value="PostIt!" name="submit" />&nbsp;&nbsp;<span class='error'>$error</span>
 		</form>

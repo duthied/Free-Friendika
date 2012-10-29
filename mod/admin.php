@@ -448,7 +448,7 @@ function admin_page_site(&$a) {
 		
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), ""),
+		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),

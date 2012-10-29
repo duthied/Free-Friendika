@@ -1211,7 +1211,7 @@ msgstr "Tidskonvertering"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr "Friendica har denne tjenesten for å dele hendelser med andre nettverk og venner i ukjente tidssoner."
 

@@ -11,7 +11,7 @@
 	<?php if( $a->module === 'home' ) { ?>
 	<center>
 	<div class="login-button">
-	<a href="login" class="login-button-link"><img class="login-button-image" src="/images/friendika-1600.png" title="Click to log in"></a>
+	<a href="login" class="login-button-link"><img class="login-button-image" src="/images/friendica-1600.png" title="Click to log in"></a>
 	</div>
 	</center>
 
@@ -28,11 +28,9 @@
 		<!--<div class='main-content-loading'><img src="/view/theme/frost/images/ajax-loader.gif" alt="Please wait..."></div>-->
 		<div class='main-content-container'>
 		<aside><?php if(x($page,'aside')) echo $page['aside']; ?></aside>
-		<div class='section-wrapper'>
 		<section><?php if(x($page,'content')) echo $page['content']; ?>
 			<div id="page-footer"></div>
 		</section>
-		</div>
 		<right_aside><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></right_aside>
 		<footer><?php if(x($page,'footer')) echo $page['footer']; ?></footer>
 		</div>

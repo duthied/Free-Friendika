@@ -584,31 +584,6 @@ function network_content(&$a, $update = 0) {
 		$o .= get_events();
 	}
 
-	if(! $update) {
-		// The special div is needed for liveUpdate to kick in for this page.
-		// We only launch liveUpdate if you aren't filtering in some incompatible 
-		// way and also you aren't writing a comment (discovered in javascript).
-
-		$o .= '<div id="live-network"></div>' . "\r\n";
-		$o .= "<script> var profile_uid = " . $_SESSION['uid'] 
-			. "; var netargs = '" . substr($a->cmd,8)
-			. '?f='
-			. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
-			. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '') 
-			. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '') 
-			. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '') 
-			. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '') 
-			. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '') 
-			. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '') 
-			. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '') 
-			. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '') 
-			. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '') 
-			. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '') 
-			. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '') 
-
-			. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-	}
-
 	$sql_extra3 = '';
 
 	if($datequery) {
@@ -792,15 +767,24 @@ function network_content(&$a, $update = 0) {
 	// level which items you've seen and which you haven't. If you're looking
 	// at the top level network page just mark everything seen. 
 	
-/*	if((! $group) && (! $cid) && (! $star)) {
+
+// The $update_unseen is a bit unreliable if you have stuff coming into your stream from a new contact - 
+// and other feeds that bring in stuff from the past. One can't find it all. 
+// I'm reviving this block to mark everything seen on page 1 of the network as a temporary measure.
+// The correct solution is to implement a network notifications box just like the system notifications popup
+// with the ability in the popup to "mark all seen".
+// Several people are complaining because there are unseen messages they can't find and as time goes
+// on they just get buried deeper. It has happened to me a couple of times also.
+
+	if((! $group) && (! $cid) && (! $star)) {
 		$r = q("UPDATE `item` SET `unseen` = 0 
 			WHERE `unseen` = 1 AND `uid` = %d",
 			intval(local_user())
 		);
-	}*/
+	}
 
-	if($update_unseen)
-		$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+//	if($update_unseen)
+//		$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
 
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;

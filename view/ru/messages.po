@@ -906,7 +906,7 @@ msgstr "Запрос в друзья / на подключение"
 msgid ""
 "Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, "
 "testuser@identi.ca"
-msgstr "Примеры: jojo@demo.friendika.com, http://demo.friendika.com/profile/jojo, testuser@identi.ca"
+msgstr "Примеры: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca"
 
 #: ../../mod/dfrn_request.php:833
 msgid "Please answer the following:"
@@ -1214,7 +1214,7 @@ msgstr "История общения"
 
 #: ../../mod/localtime.php:26
 msgid ""
-"Friendika provides this service for sharing events with other networks and "
+"Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
 msgstr ""
 
