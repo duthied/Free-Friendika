@@ -125,7 +125,7 @@ function import_account(&$a, $file) {
          if ($contact['uid'] == $olduid && $contact['self'] == '0') {
             switch ($contact['network']){
                 case NETWORK_DFRN:
-                    // send moved message
+                    //  send relocate message (below)
                     break;
                 case NETWORK_ZOT:
                     // TODO handle zot network
@@ -226,7 +226,9 @@ function import_account(&$a, $file) {
             logger("uimport:insert pconfig ".$pconfig['id']. " : ERROR : ".last_error(), LOGGER_NORMAL);
         }
     } 
-     
+    
+    // send relocate messages
+    proc_run('php', 'include/notifier.php', 'relocate' , $newuid);
     
     info(t("Done. You can now login with your username and password"));
     goaway( $a->get_baseurl() ."/login");

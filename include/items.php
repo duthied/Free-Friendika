@@ -2305,7 +2305,7 @@ function local_delivery($importer,$data) {
 	}
 
 
-/*
+
 	// Currently unsupported - needs a lot of work
 	$reloc = $feed->get_feed_tags( NAMESPACE_DFRN, 'relocate' );
 	if(isset($reloc[0]['child'][NAMESPACE_DFRN])) {
@@ -2315,23 +2315,71 @@ function local_delivery($importer,$data) {
 		$newloc['cid'] = $importer['id'];
 		$newloc['name'] = notags(unxmlify($base['name'][0]['data']));
 		$newloc['photo'] = notags(unxmlify($base['photo'][0]['data']));
+		$newloc['thumb'] = notags(unxmlify($base['thumb'][0]['data']));
+		$newloc['micro'] = notags(unxmlify($base['micro'][0]['data']));
 		$newloc['url'] = notags(unxmlify($base['url'][0]['data']));
 		$newloc['request'] = notags(unxmlify($base['request'][0]['data']));
 		$newloc['confirm'] = notags(unxmlify($base['confirm'][0]['data']));
 		$newloc['notify'] = notags(unxmlify($base['notify'][0]['data']));
 		$newloc['poll'] = notags(unxmlify($base['poll'][0]['data']));
 		$newloc['site-pubkey'] = notags(unxmlify($base['site-pubkey'][0]['data']));
-		$newloc['pubkey'] = notags(unxmlify($base['pubkey'][0]['data']));
-		$newloc['prvkey'] = notags(unxmlify($base['prvkey'][0]['data']));
+		/*$newloc['pubkey'] = notags(unxmlify($base['pubkey'][0]['data']));
+		$newloc['prvkey'] = notags(unxmlify($base['prvkey'][0]['data']));*/
 		
+        log("items:relocate contact ".print_r($newloc, true), LOGGER_DEBUG);
+        
+        // update contact
+        $r = q("SELECT photo, url FROM contact WHERE WHERE id=%d AND uid=%d;",
+                    intval($importer['importer_uid']),
+                    intval($importer['id']));
+        $old = $r[0];
+        
+        $x = q("UPDATE contact SET
+                        name = '%s',
+                        photo = '%s',
+                        thumb = '%s',
+                        micro = '%s',
+                        url = '%s',
+                        request = '%s',
+                        confirm = '%s',
+                        notify = '%s',
+                        poll = '%s',
+                        site-pubkey = '%s'
+                WHERE id=%d AND uid=%d;",
+                    dbesc($newloc['name']),
+                    dbesc($newloc['photo']),
+                    dbesc($newloc['thumb']),
+                    dbesc($newloc['micro']),
+                    dbesc($newloc['url']),
+                    dbesc($newloc['request']),
+                    dbesc($newloc['confirm']),
+                    dbesc($newloc['notify']),
+                    dbesc($newloc['poll']),
+                    dbesc($newloc['site-pubkey']),
+                    intval($importer['importer_uid']),
+                    intval($importer['id']));
+        
+        // update items
+        $fields = array(
+            'owner-link' => array($old['url'], $newloc['url']),
+            'author-link' => array($old['url'], $newloc['url']),
+            'owner-avatar' => array($old['photo'], $newloc['photo']),
+            'author-avatar' => array($old['photo'], $newloc['photo']),
+        );
+        foreach ($fields as $n=>$f)
+            $x = q("UPDATE item SET `%s`='%s' WHERE `%s`='%s' AND uid=%d",
+                        $n, dbesc($f[1]),
+                        $n, dbesc($f[0]),
+                        intval($importer['importer_uid']));
+        
 		// TODO
 		// merge with current record, current contents have priority
 		// update record, set url-updated
 		// update profile photos
 		// schedule a scan?
-
+        return 0;
 	}
-*/
+
 
 	// handle friend suggestion notification
 

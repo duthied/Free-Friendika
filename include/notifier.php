@@ -89,6 +89,7 @@ function notifier_run($argv, $argc){
 	$expire = false;
 	$mail = false;
 	$fsuggest = false;
+    $relocate = false;
 	$top_level = false;
 	$recipients = array();
 	$url_recipients = array();
@@ -134,6 +135,11 @@ function notifier_run($argv, $argc){
 		$recipients[] = $suggest[0]['cid'];
 		$item = $suggest[0];
 	}
+    elseif($cmd === 'relocate') {
+        $normal_mode = false;
+		$relocate = true;
+        $uid = $item_id;
+    }
 	else {
 
 		// find ancestors
@@ -404,6 +410,29 @@ function notifier_run($argv, $argc){
 		);
 
 	}
+    elseif($relocate) {
+        $public_message = false;  // suggestions are not public
+
+		$sugg_template = get_markup_template('atom_relocate.tpl');
+
+        $atom .= replace_macros($sugg_template, array(
+            '$name' => xmlfy($owner['name']),
+            '$photo' => xmlfy($owner['photo']),
+            '$thumb' => xmlfy($owner['thumb']),
+            '$micro' => xmlfy($owner['micro']),
+            '$url' => xmlfy($owner['url']),
+            '$request' => xmlfy($owner['request']),
+            '$confirm' => xmlfy($owner['confirm']),
+            '$notify' => xmlfy($owner['notify']),
+            '$poll' => xmlfy($owner['poll']),
+            '$site-pubkey' => xmlfy(get_config('system','site_pubkey')),
+            //'$pubkey' => xmlfy($owner['pubkey']),
+            //'$prvkey' => xmlfy($owner['prvkey']),
+		)); 
+        $recipients_relocate = q("SELECT * FROM contacts WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
+        
+        
+    }
 	else {
 		if($followup) {
 			foreach($items as $item) {  // there is only one item
@@ -479,9 +508,12 @@ function notifier_run($argv, $argc){
 	else
 		$recip_str = implode(', ', $recipients);
 
-	$r = q("SELECT * FROM `contact` WHERE `id` IN ( %s ) AND `blocked` = 0 AND `pending` = 0 ",
-		dbesc($recip_str)
-	);
+    if ($relocate)
+        $r = $recipients_relocate;
+    else
+        $r = q("SELECT * FROM `contact` WHERE `id` IN ( %s ) AND `blocked` = 0 AND `pending` = 0 ",
+            dbesc($recip_str)
+        );
 
 
 	require_once('include/salmon.php');
