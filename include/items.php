@@ -2168,8 +2168,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 }
 
 function local_delivery($importer,$data) {
-
 	$a = get_app();
+
+    logger(__function__, LOGGER_TRACE);
 
 	if($importer['readonly']) {
 		// We aren't receiving stuff from this person. But we will quietly ignore them
@@ -2322,16 +2323,19 @@ function local_delivery($importer,$data) {
 		$newloc['confirm'] = notags(unxmlify($base['confirm'][0]['data']));
 		$newloc['notify'] = notags(unxmlify($base['notify'][0]['data']));
 		$newloc['poll'] = notags(unxmlify($base['poll'][0]['data']));
-		$newloc['site-pubkey'] = notags(unxmlify($base['site-pubkey'][0]['data']));
+		$newloc['sitepubkey'] = notags(unxmlify($base['sitepubkey'][0]['data']));
+		/** relocated user must have original key pair */
 		/*$newloc['pubkey'] = notags(unxmlify($base['pubkey'][0]['data']));
 		$newloc['prvkey'] = notags(unxmlify($base['prvkey'][0]['data']));*/
 		
-        log("items:relocate contact ".print_r($newloc, true), LOGGER_DEBUG);
+        logger("items:relocate contact ".print_r($newloc, true).print_r($importer, true), LOGGER_DEBUG);
         
         // update contact
-        $r = q("SELECT photo, url FROM contact WHERE WHERE id=%d AND uid=%d;",
-                    intval($importer['importer_uid']),
-                    intval($importer['id']));
+        $r = q("SELECT photo, url FROM contact WHERE id=%d AND uid=%d;",
+                    intval($importer['id']),
+					intval($importer['importer_uid']));
+		if ($r === false) 
+			return 1;
         $old = $r[0];
         
         $x = q("UPDATE contact SET
@@ -2344,7 +2348,7 @@ function local_delivery($importer,$data) {
                         confirm = '%s',
                         notify = '%s',
                         poll = '%s',
-                        site-pubkey = '%s'
+                        `site-pubkey` = '%s'
                 WHERE id=%d AND uid=%d;",
                     dbesc($newloc['name']),
                     dbesc($newloc['photo']),
@@ -2355,10 +2359,12 @@ function local_delivery($importer,$data) {
                     dbesc($newloc['confirm']),
                     dbesc($newloc['notify']),
                     dbesc($newloc['poll']),
-                    dbesc($newloc['site-pubkey']),
-                    intval($importer['importer_uid']),
-                    intval($importer['id']));
-        
+                    dbesc($newloc['sitepubkey']),
+                    intval($importer['id']),
+					intval($importer['importer_uid']));
+
+        if ($x === false)
+			return 1;
         // update items
         $fields = array(
             'owner-link' => array($old['url'], $newloc['url']),
@@ -2366,12 +2372,15 @@ function local_delivery($importer,$data) {
             'owner-avatar' => array($old['photo'], $newloc['photo']),
             'author-avatar' => array($old['photo'], $newloc['photo']),
         );
-        foreach ($fields as $n=>$f)
+        foreach ($fields as $n=>$f){
             $x = q("UPDATE item SET `%s`='%s' WHERE `%s`='%s' AND uid=%d",
                         $n, dbesc($f[1]),
                         $n, dbesc($f[0]),
                         intval($importer['importer_uid']));
-        
+			if ($x === false)
+				return 1;
+		}
+		
 		// TODO
 		// merge with current record, current contents have priority
 		// update record, set url-updated

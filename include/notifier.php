@@ -1,5 +1,4 @@
 <?php
-
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
@@ -206,7 +205,7 @@ function notifier_run($argv, $argc){
 	// fill this in with a single salmon slap if applicable
 	$slap = '';
 
-	if(! ($mail || $fsuggest)) {
+	if(! ($mail || $fsuggest || $relocate)) {
 
 		require_once('include/group.php');
 
@@ -415,22 +414,30 @@ function notifier_run($argv, $argc){
 
 		$sugg_template = get_markup_template('atom_relocate.tpl');
 
+		/* get site pubkey. this could be a new installation with no site keys*/
+		$pubkey = get_config('system','site_pubkey');
+		if(! $pubkey) {
+			$res = new_keypair(1024);
+			set_config('system','site_prvkey', $res['prvkey']);
+			set_config('system','site_pubkey', $res['pubkey']);
+		}
+		
+		
         $atom .= replace_macros($sugg_template, array(
-            '$name' => xmlfy($owner['name']),
-            '$photo' => xmlfy($owner['photo']),
-            '$thumb' => xmlfy($owner['thumb']),
-            '$micro' => xmlfy($owner['micro']),
-            '$url' => xmlfy($owner['url']),
-            '$request' => xmlfy($owner['request']),
-            '$confirm' => xmlfy($owner['confirm']),
-            '$notify' => xmlfy($owner['notify']),
-            '$poll' => xmlfy($owner['poll']),
-            '$site-pubkey' => xmlfy(get_config('system','site_pubkey')),
-            //'$pubkey' => xmlfy($owner['pubkey']),
-            //'$prvkey' => xmlfy($owner['prvkey']),
+            '$name' => xmlify($owner['name']),
+            '$photo' => xmlify($owner['photo']),
+            '$thumb' => xmlify($owner['thumb']),
+            '$micro' => xmlify($owner['micro']),
+            '$url' => xmlify($owner['url']),
+            '$request' => xmlify($owner['request']),
+            '$confirm' => xmlify($owner['confirm']),
+            '$notify' => xmlify($owner['notify']),
+            '$poll' => xmlify($owner['poll']),
+            '$sitepubkey' => xmlify(get_config('system','site_pubkey')),
+            //'$pubkey' => xmlify($owner['pubkey']),
+            //'$prvkey' => xmlify($owner['prvkey']),
 		)); 
-        $recipients_relocate = q("SELECT * FROM contacts WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
-        
+        $recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
         
     }
 	else {
@@ -525,7 +532,7 @@ function notifier_run($argv, $argc){
 	if(count($r)) {
 
 		foreach($r as $contact) {
-			if((! $mail) && (! $fsuggest) && (! $followup) && (! $contact['self'])) {
+			if((! $mail) && (! $fsuggest) && (! $followup) && (!$relocate) && (! $contact['self'])) {
 				if(($contact['network'] === NETWORK_DIASPORA) && ($public_message))
 					continue;
 				q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
@@ -562,7 +569,7 @@ function notifier_run($argv, $argc){
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here. 
 		
-			if((! $mail) && (! $fsuggest) && (! $followup)) {
+			if((! $mail) && (! $fsuggest) && (!$relocate) && (! $followup)) {
 
 				$this_batch[] = $contact['id'];
 
@@ -577,7 +584,7 @@ function notifier_run($argv, $argc){
 
 			$deliver_status = 0;
 
-			logger("main delivery by notifier: followup=$followup mail=$mail fsuggest=$fsuggest");
+			logger("main delivery by notifier: followup=$followup mail=$mail fsuggest=$fsuggest relocate=$relocate");
 
 			switch($contact['network']) {
 				case NETWORK_DFRN:
@@ -933,6 +940,7 @@ function notifier_run($argv, $argc){
 
 	return;
 }
+
 
 if (array_search(__file__,get_included_files())===0){
   notifier_run($argv,$argc);

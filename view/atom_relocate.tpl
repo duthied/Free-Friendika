@@ -10,7 +10,7 @@
 	<dfrn:confirm>$confirm</dfrn:confirm>
 	<dfrn:notify>$notify</dfrn:notify>
 	<dfrn:poll>$poll</dfrn:poll>
-	<dfrn:site-pubkey>$site-pubkey</dfrn:site-pubkey>
+	<dfrn:sitepubkey>$sitepubkey</dfrn:sitepubkey>
 
 
 </dfrn:relocate>
