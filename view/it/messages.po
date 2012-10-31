@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2012-10-21 10:00-0700\n"
-"PO-Revision-Date: 2012-10-22 12:47+0000\n"
+"POT-Creation-Date: 2012-10-29 10:00-0700\n"
+"PO-Revision-Date: 2012-10-25 07:03+0000\n"
 "Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/friendica/language/it/)\n"
 "MIME-Version: 1.0\n"
@@ -63,7 +63,7 @@ msgstr "Le modifiche al contatto non sono state salvate."
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
 #: ../../addon/facebook/facebook.php:516 ../../addon/fbpost/fbpost.php:159
 #: ../../addon/fbpost/fbpost.php:165
-#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3913
+#: ../../addon/dav/friendica/layout.fnk.php:354 ../../include/items.php:3914
 #: ../../index.php:319 ../../addon.old/facebook/facebook.php:510
 #: ../../addon.old/facebook/facebook.php:516
 #: ../../addon.old/fbpost/fbpost.php:159 ../../addon.old/fbpost/fbpost.php:165
@@ -183,7 +183,7 @@ msgstr "Nuova foto da questo URL"
 #: ../../addon/irc/irc.php:55 ../../addon/fromapp/fromapp.php:77
 #: ../../addon/blogger/blogger.php:102 ../../addon/posterous/posterous.php:103
 #: ../../view/theme/cleanzero/config.php:80
-#: ../../view/theme/diabook/theme.php:642
+#: ../../view/theme/diabook/theme.php:599
 #: ../../view/theme/diabook/config.php:152
 #: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
 #: ../../object/Item.php:558 ../../addon.old/fromgplus/fromgplus.php:40
@@ -290,7 +290,7 @@ msgstr "Modifca l'evento"
 msgid "link to source"
 msgstr "Collegamento all'originale"
 
-#: ../../mod/events.php:347 ../../view/theme/diabook/theme.php:91
+#: ../../mod/events.php:347 ../../view/theme/diabook/theme.php:90
 #: ../../include/nav.php:52 ../../boot.php:1701
 msgid "Events"
 msgstr "Eventi"
@@ -442,7 +442,7 @@ msgstr "Album foto"
 #: ../../mod/photos.php:1095 ../../mod/photos.php:1110
 #: ../../mod/photos.php:1562 ../../mod/photos.php:1574
 #: ../../addon/communityhome/communityhome.php:110
-#: ../../view/theme/diabook/theme.php:492
+#: ../../view/theme/diabook/theme.php:485
 #: ../../addon.old/communityhome/communityhome.php:110
 msgid "Contact Photos"
 msgstr "Foto dei contatti"
@@ -465,7 +465,7 @@ msgstr "I dati di questo contatto non sono disponibili"
 #: ../../mod/profile_photo.php:204 ../../mod/profile_photo.php:296
 #: ../../mod/profile_photo.php:305
 #: ../../addon/communityhome/communityhome.php:111
-#: ../../view/theme/diabook/theme.php:493 ../../include/user.php:324
+#: ../../view/theme/diabook/theme.php:486 ../../include/user.php:324
 #: ../../include/user.php:331 ../../include/user.php:338
 #: ../../addon.old/communityhome/communityhome.php:111
 msgid "Profile Photos"
@@ -489,7 +489,7 @@ msgstr "è stato taggato in una"
 
 #: ../../mod/photos.php:606 ../../mod/like.php:145 ../../mod/subthread.php:87
 #: ../../mod/tagger.php:62 ../../addon/communityhome/communityhome.php:163
-#: ../../view/theme/diabook/theme.php:464 ../../include/text.php:1437
+#: ../../view/theme/diabook/theme.php:457 ../../include/text.php:1437
 #: ../../include/diaspora.php:1835 ../../include/conversation.php:125
 #: ../../include/conversation.php:253
 #: ../../addon.old/communityhome/communityhome.php:163
@@ -701,7 +701,7 @@ msgstr "Foto recenti"
 msgid "Not available."
 msgstr "Non disponibile."
 
-#: ../../mod/community.php:32 ../../view/theme/diabook/theme.php:93
+#: ../../mod/community.php:32 ../../view/theme/diabook/theme.php:92
 #: ../../include/nav.php:101
 msgid "Community"
 msgstr "Comunità"
@@ -961,7 +961,7 @@ msgstr "Conferma la tua richiesta di connessione con %s."
 msgid "Confirm"
 msgstr "Conferma"
 
-#: ../../mod/dfrn_request.php:715 ../../include/items.php:3292
+#: ../../mod/dfrn_request.php:715 ../../include/items.php:3293
 msgid "[Name Withheld]"
 msgstr "[Nome Nascosto]"
 
@@ -1544,7 +1544,7 @@ msgstr "Rete"
 msgid "Personal"
 msgstr "Personale"
 
-#: ../../mod/notifications.php:93 ../../view/theme/diabook/theme.php:87
+#: ../../mod/notifications.php:93 ../../view/theme/diabook/theme.php:86
 #: ../../include/nav.php:77 ../../include/nav.php:115
 msgid "Home"
 msgstr "Home"
@@ -1989,7 +1989,7 @@ msgstr "sei un fan di"
 msgid "Edit contact"
 msgstr "Modifca contatto"
 
-#: ../../mod/contacts.php:571 ../../view/theme/diabook/theme.php:89
+#: ../../mod/contacts.php:571 ../../view/theme/diabook/theme.php:88
 #: ../../include/nav.php:139
 msgid "Contacts"
 msgstr "Contatti"
@@ -2026,7 +2026,7 @@ msgstr "Richiesta reimpostazione password su %s"
 #: ../../addon/facebook/facebook.php:702
 #: ../../addon/facebook/facebook.php:1200 ../../addon/fbpost/fbpost.php:661
 #: ../../addon/public_server/public_server.php:62
-#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3301
+#: ../../addon/testdrive/testdrive.php:67 ../../include/items.php:3302
 #: ../../boot.php:799 ../../addon.old/facebook/facebook.php:702
 #: ../../addon.old/facebook/facebook.php:1200
 #: ../../addon.old/fbpost/fbpost.php:661
@@ -2116,9 +2116,8 @@ msgstr ""
 #: ../../mod/settings.php:69 ../../mod/newmember.php:22
 #: ../../mod/admin.php:785 ../../mod/admin.php:990
 #: ../../addon/dav/friendica/layout.fnk.php:225
-#: ../../addon/mathjax/mathjax.php:36 ../../view/theme/diabook/theme.php:537
-#: ../../view/theme/diabook/theme.php:658 ../../include/nav.php:137
-#: ../../addon.old/dav/friendica/layout.fnk.php:225
+#: ../../addon/mathjax/mathjax.php:36 ../../view/theme/diabook/theme.php:614
+#: ../../include/nav.php:137 ../../addon.old/dav/friendica/layout.fnk.php:225
 #: ../../addon.old/mathjax/mathjax.php:36
 msgid "Settings"
 msgstr "Impostazioni"
@@ -2863,7 +2862,7 @@ msgid ""
 msgstr "Guarda le altre impostazioni, in particolare le impostazioni della privacy. Un profilo non pubblicato è come un numero di telefono non in elenco. In genere, dovresti pubblicare il tuo profilo - a meno che tutti i tuoi amici e potenziali tali sappiano esattamente come trovarti."
 
 #: ../../mod/newmember.php:32 ../../mod/profperm.php:103
-#: ../../view/theme/diabook/theme.php:88 ../../include/profile_advanced.php:7
+#: ../../view/theme/diabook/theme.php:87 ../../include/profile_advanced.php:7
 #: ../../include/profile_advanced.php:84 ../../include/nav.php:50
 #: ../../boot.php:1684
 msgid "Profile"
@@ -2974,7 +2973,7 @@ msgstr "Nel pannello laterale nella pagina \"Contatti\", ci sono diversi strumen
 
 #: ../../mod/newmember.php:66 ../../include/group.php:270
 msgid "Groups"
-msgstr "Grouppi"
+msgstr "Gruppi"
 
 #: ../../mod/newmember.php:70
 msgid "Group Your Contacts"
@@ -3188,8 +3187,8 @@ msgstr "Cerca persone"
 #: ../../mod/tagger.php:62 ../../addon/facebook/facebook.php:1598
 #: ../../addon/communityhome/communityhome.php:158
 #: ../../addon/communityhome/communityhome.php:167
-#: ../../view/theme/diabook/theme.php:459
-#: ../../view/theme/diabook/theme.php:468 ../../include/diaspora.php:1835
+#: ../../view/theme/diabook/theme.php:452
+#: ../../view/theme/diabook/theme.php:461 ../../include/diaspora.php:1835
 #: ../../include/conversation.php:120 ../../include/conversation.php:129
 #: ../../include/conversation.php:248 ../../include/conversation.php:257
 #: ../../addon.old/facebook/facebook.php:1598
@@ -3200,7 +3199,7 @@ msgstr "stato"
 
 #: ../../mod/like.php:162 ../../addon/facebook/facebook.php:1602
 #: ../../addon/communityhome/communityhome.php:172
-#: ../../view/theme/diabook/theme.php:473 ../../include/diaspora.php:1851
+#: ../../view/theme/diabook/theme.php:466 ../../include/diaspora.php:1851
 #: ../../include/conversation.php:136
 #: ../../addon.old/facebook/facebook.php:1602
 #: ../../addon.old/communityhome/communityhome.php:172
@@ -3215,7 +3214,7 @@ msgstr "A %1$s non piace %3$s di %2$s"
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:734 ../../mod/admin.php:933 ../../mod/display.php:29
-#: ../../mod/display.php:145 ../../include/items.php:3779
+#: ../../mod/display.php:145 ../../include/items.php:3780
 msgid "Item not found."
 msgstr "Elemento non trovato."
 
@@ -3223,7 +3222,7 @@ msgstr "Elemento non trovato."
 msgid "Access denied."
 msgstr "Accesso negato."
 
-#: ../../mod/fbrowser.php:25 ../../view/theme/diabook/theme.php:90
+#: ../../mod/fbrowser.php:25 ../../view/theme/diabook/theme.php:89
 #: ../../include/nav.php:51 ../../boot.php:1691
 msgid "Photos"
 msgstr "Foto"
@@ -4616,7 +4615,7 @@ msgstr ""
 msgid "diaspora2bb: "
 msgstr ""
 
-#: ../../mod/suggest.php:38 ../../view/theme/diabook/theme.php:520
+#: ../../mod/suggest.php:38 ../../view/theme/diabook/theme.php:513
 #: ../../include/contact_widgets.php:34
 msgid "Friend Suggestions"
 msgstr "Contatti suggeriti"
@@ -4631,7 +4630,7 @@ msgstr "Nessun suggerimento disponibile. Se questo è un sito nuovo, riprova tra
 msgid "Ignore/Hide"
 msgstr "Ignora / Nascondi"
 
-#: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
+#: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:511
 msgid "Global Directory"
 msgstr "Elenco globale"
 
@@ -5568,7 +5567,7 @@ msgid "Latest likes"
 msgstr "Ultimi \"mi piace\""
 
 #: ../../addon/communityhome/communityhome.php:155
-#: ../../view/theme/diabook/theme.php:456 ../../include/text.php:1435
+#: ../../view/theme/diabook/theme.php:449 ../../include/text.php:1435
 #: ../../include/conversation.php:117 ../../include/conversation.php:245
 #: ../../addon.old/communityhome/communityhome.php:155
 msgid "event"
@@ -7582,137 +7581,135 @@ msgstr ""
 msgid "Color scheme"
 msgstr "Schema colori"
 
-#: ../../view/theme/diabook/theme.php:87 ../../include/nav.php:49
+#: ../../view/theme/diabook/theme.php:86 ../../include/nav.php:49
 #: ../../include/nav.php:115
 msgid "Your posts and conversations"
 msgstr "I tuoi messaggi e le tue conversazioni"
 
-#: ../../view/theme/diabook/theme.php:88 ../../include/nav.php:50
+#: ../../view/theme/diabook/theme.php:87 ../../include/nav.php:50
 msgid "Your profile page"
 msgstr "Pagina del tuo profilo"
 
-#: ../../view/theme/diabook/theme.php:89
+#: ../../view/theme/diabook/theme.php:88
 msgid "Your contacts"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:90 ../../include/nav.php:51
+#: ../../view/theme/diabook/theme.php:89 ../../include/nav.php:51
 msgid "Your photos"
 msgstr "Le tue foto"
 
-#: ../../view/theme/diabook/theme.php:91 ../../include/nav.php:52
+#: ../../view/theme/diabook/theme.php:90 ../../include/nav.php:52
 msgid "Your events"
 msgstr "I tuoi eventi"
 
-#: ../../view/theme/diabook/theme.php:92 ../../include/nav.php:53
+#: ../../view/theme/diabook/theme.php:91 ../../include/nav.php:53
 msgid "Personal notes"
 msgstr "Note personali"
 
-#: ../../view/theme/diabook/theme.php:92 ../../include/nav.php:53
+#: ../../view/theme/diabook/theme.php:91 ../../include/nav.php:53
 msgid "Your personal photos"
 msgstr "Le tue foto personali"
 
-#: ../../view/theme/diabook/theme.php:94
-#: ../../view/theme/diabook/theme.php:537
-#: ../../view/theme/diabook/theme.php:632
+#: ../../view/theme/diabook/theme.php:93
 #: ../../view/theme/diabook/config.php:163
 msgid "Community Pages"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:384
-#: ../../view/theme/diabook/theme.php:634
+#: ../../view/theme/diabook/theme.php:377
+#: ../../view/theme/diabook/theme.php:591
 #: ../../view/theme/diabook/config.php:165
 msgid "Community Profiles"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:405
-#: ../../view/theme/diabook/theme.php:639
+#: ../../view/theme/diabook/theme.php:398
+#: ../../view/theme/diabook/theme.php:596
 #: ../../view/theme/diabook/config.php:170
 msgid "Last users"
 msgstr "Ultimi utenti"
 
-#: ../../view/theme/diabook/theme.php:434
-#: ../../view/theme/diabook/theme.php:641
+#: ../../view/theme/diabook/theme.php:427
+#: ../../view/theme/diabook/theme.php:598
 #: ../../view/theme/diabook/config.php:172
 msgid "Last likes"
 msgstr "Ultimi \"mi piace\""
 
-#: ../../view/theme/diabook/theme.php:479
-#: ../../view/theme/diabook/theme.php:640
+#: ../../view/theme/diabook/theme.php:472
+#: ../../view/theme/diabook/theme.php:597
 #: ../../view/theme/diabook/config.php:171
 msgid "Last photos"
 msgstr "Ultime foto"
 
-#: ../../view/theme/diabook/theme.php:516
-#: ../../view/theme/diabook/theme.php:637
+#: ../../view/theme/diabook/theme.php:509
+#: ../../view/theme/diabook/theme.php:594
 #: ../../view/theme/diabook/config.php:168
 msgid "Find Friends"
 msgstr "Trova Amici"
 
-#: ../../view/theme/diabook/theme.php:517
+#: ../../view/theme/diabook/theme.php:510
 msgid "Local Directory"
 msgstr "Elenco Locale"
 
-#: ../../view/theme/diabook/theme.php:519 ../../include/contact_widgets.php:35
+#: ../../view/theme/diabook/theme.php:512 ../../include/contact_widgets.php:35
 msgid "Similar Interests"
 msgstr "Interessi simili"
 
-#: ../../view/theme/diabook/theme.php:521 ../../include/contact_widgets.php:37
+#: ../../view/theme/diabook/theme.php:514 ../../include/contact_widgets.php:37
 msgid "Invite Friends"
 msgstr "Invita amici"
 
-#: ../../view/theme/diabook/theme.php:572
-#: ../../view/theme/diabook/theme.php:633
+#: ../../view/theme/diabook/theme.php:531
+#: ../../view/theme/diabook/theme.php:590
 #: ../../view/theme/diabook/config.php:164
 msgid "Earth Layers"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:577
+#: ../../view/theme/diabook/theme.php:536
 msgid "Set zoomfactor for Earth Layers"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:578
+#: ../../view/theme/diabook/theme.php:537
 #: ../../view/theme/diabook/config.php:161
 msgid "Set longitude (X) for Earth Layers"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:579
+#: ../../view/theme/diabook/theme.php:538
 #: ../../view/theme/diabook/config.php:162
 msgid "Set latitude (Y) for Earth Layers"
 msgstr ""
 
+#: ../../view/theme/diabook/theme.php:551
 #: ../../view/theme/diabook/theme.php:592
-#: ../../view/theme/diabook/theme.php:635
 #: ../../view/theme/diabook/config.php:166
 msgid "Help or @NewHere ?"
 msgstr "Serve aiuto? Sei nuovo?"
 
-#: ../../view/theme/diabook/theme.php:599
-#: ../../view/theme/diabook/theme.php:636
+#: ../../view/theme/diabook/theme.php:558
+#: ../../view/theme/diabook/theme.php:593
 #: ../../view/theme/diabook/config.php:167
 msgid "Connect Services"
 msgstr "Servizi di conessione"
 
-#: ../../view/theme/diabook/theme.php:606
-#: ../../view/theme/diabook/theme.php:638
+#: ../../view/theme/diabook/theme.php:565
+#: ../../view/theme/diabook/theme.php:595
 msgid "Last Tweets"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:609
+#: ../../view/theme/diabook/theme.php:568
 #: ../../view/theme/diabook/config.php:159
 msgid "Set twitter search term"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:629
+#: ../../view/theme/diabook/theme.php:587
 #: ../../view/theme/diabook/config.php:146 ../../include/acl_selectors.php:288
 msgid "don't show"
 msgstr "non mostrare"
 
-#: ../../view/theme/diabook/theme.php:629
+#: ../../view/theme/diabook/theme.php:587
 #: ../../view/theme/diabook/config.php:146 ../../include/acl_selectors.php:287
 msgid "show"
 msgstr "mostra"
 
-#: ../../view/theme/diabook/theme.php:630
+#: ../../view/theme/diabook/theme.php:588
 msgid "Show/hide boxes at right-hand column:"
 msgstr ""
 
@@ -8663,12 +8660,12 @@ msgstr "secondi"
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s fa"
 
-#: ../../include/datetime.php:472 ../../include/items.php:1688
+#: ../../include/datetime.php:472 ../../include/items.php:1689
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/datetime.php:473 ../../include/items.php:1689
+#: ../../include/datetime.php:473 ../../include/items.php:1690
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -8943,15 +8940,15 @@ msgstr "Impossibile recuperare informazioni sul contatto."
 msgid "following"
 msgstr "segue"
 
-#: ../../include/items.php:3299
+#: ../../include/items.php:3300
 msgid "A new person is sharing with you at "
 msgstr "Una nuova persona sta condividendo con te da "
 
-#: ../../include/items.php:3299
+#: ../../include/items.php:3300
 msgid "You have a new follower at "
 msgstr "Una nuova persona ti segue su "
 
-#: ../../include/items.php:3980
+#: ../../include/items.php:3981
 msgid "Archives"
 msgstr ""
 
