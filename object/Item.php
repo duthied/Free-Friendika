@@ -567,7 +567,8 @@ class Item extends BaseObject {
 				'$preview' => t('Preview'),
 				'$indent' => $indent,
 				'$sourceapp' => t($a->sourcename),
-				'$ww' => (($conv->get_mode() === 'network') ? $ww : '')
+				'$ww' => (($conv->get_mode() === 'network') ? $ww : ''),
+				'$rand_num' => random_digits(12)
 			));
 		}
 
