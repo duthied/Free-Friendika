@@ -900,22 +900,26 @@ function wallInitEditor() {
 		$j("#prvmail-text").contact_autocomplete(baseurl+"/acl");
 }
 
-function deleteCheckedItems() {
-	var checkedstr = '';
+function deleteCheckedItems(delID) {
+	if(confirm(window.delItems)) {
+		var checkedstr = '';
 
-	$j('.item-select').each( function() {
-		if($j(this).is(':checked')) {
-			if(checkedstr.length != 0) {
-				checkedstr = checkedstr + ',' + $j(this).val();
-			}
-			else {
-				checkedstr = $j(this).val();
-			}
-		}	
-	});
-	$j.post('item', { dropitems: checkedstr }, function(data) {
-		window.location.reload();
-	});
+		$j(delID).hide();
+		$j(delID + '-rotator').show();
+		$j('.item-select').each( function() {
+			if($j(this).is(':checked')) {
+				if(checkedstr.length != 0) {
+					checkedstr = checkedstr + ',' + $j(this).val();
+				}
+				else {
+					checkedstr = $j(this).val();
+				}
+			}	
+		});
+		$j.post('item', { dropitems: checkedstr }, function(data) {
+			window.location.reload();
+		});
+	}
 }
 
 
