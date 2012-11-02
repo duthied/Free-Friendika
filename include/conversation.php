@@ -436,7 +436,11 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	else if($mode === 'display') {
 		$profile_owner = $a->profile['uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
-		$live_update_div = '<div id="live-display"></div>' . "\r\n";
+		if(!$update) {
+			$live_update_div = '<div id="live-display"></div>' . "\r\n"
+				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
+				. " var profile_page = 1; </script>";
+		}
 	}
 	else if($mode === 'community') {
 		$profile_owner = 0;
