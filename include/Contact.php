@@ -169,6 +169,7 @@ function mark_for_death($contact) {
 			q("update contact set `archive` = 1 where id = %d limit 1",
 				intval($contact['id'])
 			);
+			q("UPDATE `item` SET `private` = 2 WHERE `contact-id` = %d AND `uid` = %d", intval($contact['id']), intval($contact['uid']));
 
 			//contact_remove($contact['id']);
 
