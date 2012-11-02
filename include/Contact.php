@@ -22,7 +22,8 @@ function user_remove($uid) {
 		$r[0]['nickname']
 	);
 
-	q("DELETE FROM `contact` WHERE `uid` = %d", intval($uid));
+	// don't delete yet, will be done later when contacts have deleted my stuff
+	// q("DELETE FROM `contact` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `gcign` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `group` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `group_member` WHERE `uid` = %d", intval($uid));
@@ -41,7 +42,10 @@ function user_remove($uid) {
 	q("DELETE FROM `pconfig` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `search` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `spam` WHERE `uid` = %d", intval($uid));
-	q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
+	// don't delete yet, will be done later when contacts have deleted my stuff
+	// q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
+	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
+	proc_run('php', "include/notifier.php", "removeme", $uid);
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);
