@@ -1079,15 +1079,13 @@ section {
   padding-bottom: 2px;
 }
 .tag {
-  background: url("../../../images/tag_b.png") repeat-x center left;
-  color: #ffffff;
+  color: rgb(153,153,153);
   padding-left: 3px;
   font-size: 10px;
 }
 .tag a {
   padding-right: 8px;
-  background: url("../../../images/tag.png") no-repeat center right;
-  color: #ffffff;
+  color: rgb(153,153,153);
 }
 .wwto {
   position: absolute !important;

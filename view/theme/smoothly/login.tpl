@@ -1,4 +1,4 @@
-<img style="float:left; margin-right:20px" src="/images/friendica-128.png" title="friendica">
+<img style="float:left; margin:5px 20px 0 0" src="/images/friendica-128.png" title="friendica">
 
 <div class="login-form">
 <form action="$dest_url" method="post" >

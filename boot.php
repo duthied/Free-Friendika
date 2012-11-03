@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1500' );
+define ( 'FRIENDICA_VERSION',      '3.0.1514' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1156      );
 
@@ -1796,3 +1796,10 @@ function curPageURL() {
 	return $pageURL;
 }
 
+function random_digits($digits) {
+	$rn = '';
+	for($i = 0; $i < $digits; $i++) {
+		$rn .= rand(0,9);
+	}
+	return $rn;
+}

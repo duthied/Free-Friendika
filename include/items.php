@@ -76,6 +76,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 			killme();
 
 		$contact = $r[0];
+		require_once('include/security.php');
 		$groups = init_groups_visitor($contact['id']);
 
 		if(count($groups)) {
@@ -3906,10 +3907,10 @@ function drop_item($id,$interactive = true) {
 
 		// send the notification upstream/downstream as the case may be
 
+		proc_run('php',"include/notifier.php","drop","$drop_id");
+
 		if(! $interactive)
 			return $owner;
-
-		proc_run('php',"include/notifier.php","drop","$drop_id");
 		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	}
