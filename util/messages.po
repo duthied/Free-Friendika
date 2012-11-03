@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.0.1516\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-03 10:00-0700\n"
+"POT-Creation-Date: 2012-11-03 15:31-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,6 +23,7 @@ msgstr ""
 
 #: ../../mod/update_notes.php:41 ../../mod/update_community.php:18
 #: ../../mod/update_network.php:22 ../../mod/update_profile.php:41
+#: ../../mod/update_display.php:22
 msgid "[Embedded content - reload page to view]"
 msgstr ""
 
@@ -45,14 +46,14 @@ msgstr ""
 #: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
 #: ../../mod/wallmessage.php:103 ../../mod/attach.php:33
 #: ../../mod/group.php:19 ../../mod/viewcontacts.php:22
-#: ../../mod/register.php:38 ../../mod/regmod.php:116 ../../mod/item.php:126
-#: ../../mod/item.php:142 ../../mod/mood.php:114
+#: ../../mod/register.php:38 ../../mod/regmod.php:116 ../../mod/item.php:139
+#: ../../mod/item.php:155 ../../mod/mood.php:114
 #: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
 #: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
 #: ../../mod/message.php:38 ../../mod/message.php:168
 #: ../../mod/allfriends.php:9 ../../mod/nogroup.php:25
 #: ../../mod/wall_upload.php:64 ../../mod/follow.php:9
-#: ../../mod/display.php:141 ../../mod/profiles.php:7
+#: ../../mod/display.php:165 ../../mod/profiles.php:7
 #: ../../mod/profiles.php:424 ../../mod/delegate.php:6
 #: ../../mod/suggest.php:28 ../../mod/invite.php:13 ../../mod/invite.php:81
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:510
@@ -131,8 +132,8 @@ msgstr ""
 #: ../../mod/crepair.php:166 ../../mod/fsuggest.php:107
 #: ../../mod/events.php:455 ../../mod/photos.php:1027
 #: ../../mod/photos.php:1103 ../../mod/photos.php:1366
-#: ../../mod/photos.php:1406 ../../mod/photos.php:1449
-#: ../../mod/photos.php:1520 ../../mod/install.php:246
+#: ../../mod/photos.php:1406 ../../mod/photos.php:1450
+#: ../../mod/photos.php:1522 ../../mod/install.php:246
 #: ../../mod/install.php:284 ../../mod/localtime.php:45 ../../mod/poke.php:199
 #: ../../mod/content.php:693 ../../mod/contacts.php:348
 #: ../../mod/settings.php:543 ../../mod/settings.php:697
@@ -181,7 +182,7 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:599
 #: ../../view/theme/diabook/config.php:152
 #: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
-#: ../../object/Item.php:558 ../../addon.old/fromgplus/fromgplus.php:40
+#: ../../object/Item.php:559 ../../addon.old/fromgplus/fromgplus.php:40
 #: ../../addon.old/facebook/facebook.php:619
 #: ../../addon.old/snautofollow/snautofollow.php:64
 #: ../../addon.old/bg/bg.php:90 ../../addon.old/fbpost/fbpost.php:226
@@ -359,7 +360,7 @@ msgstr ""
 #: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/editpost.php:142
 #: ../../mod/dfrn_request.php:847 ../../mod/settings.php:544
 #: ../../mod/settings.php:570 ../../addon/js_upload/js_upload.php:45
-#: ../../include/conversation.php:996
+#: ../../include/conversation.php:1001
 #: ../../addon.old/js_upload/js_upload.php:45
 msgid "Cancel"
 msgstr ""
@@ -384,7 +385,7 @@ msgstr ""
 
 #: ../../mod/dfrn_poll.php:99 ../../mod/dfrn_poll.php:530
 #, php-format
-msgid "%s welcomes %s"
+msgid "%1$s welcomes %2$s"
 msgstr ""
 
 #: ../../mod/api.php:76 ../../mod/api.php:102
@@ -435,14 +436,14 @@ msgstr ""
 
 #: ../../mod/photos.php:58 ../../mod/photos.php:153 ../../mod/photos.php:1008
 #: ../../mod/photos.php:1095 ../../mod/photos.php:1110
-#: ../../mod/photos.php:1562 ../../mod/photos.php:1574
+#: ../../mod/photos.php:1565 ../../mod/photos.php:1577
 #: ../../addon/communityhome/communityhome.php:110
 #: ../../view/theme/diabook/theme.php:485
 #: ../../addon.old/communityhome/communityhome.php:110
 msgid "Contact Photos"
 msgstr ""
 
-#: ../../mod/photos.php:65 ../../mod/photos.php:1126 ../../mod/photos.php:1612
+#: ../../mod/photos.php:65 ../../mod/photos.php:1126 ../../mod/photos.php:1615
 msgid "Upload New Photos"
 msgstr ""
 
@@ -479,20 +480,12 @@ msgid "Delete Photo"
 msgstr ""
 
 #: ../../mod/photos.php:606
-msgid "was tagged in a"
-msgstr ""
-
-#: ../../mod/photos.php:606 ../../mod/like.php:145 ../../mod/subthread.php:87
-#: ../../mod/tagger.php:62 ../../addon/communityhome/communityhome.php:163
-#: ../../view/theme/diabook/theme.php:457 ../../include/text.php:1437
-#: ../../include/diaspora.php:1835 ../../include/conversation.php:125
-#: ../../include/conversation.php:253
-#: ../../addon.old/communityhome/communityhome.php:163
-msgid "photo"
+#, php-format
+msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
 #: ../../mod/photos.php:606
-msgid "by"
+msgid "a photo"
 msgstr ""
 
 #: ../../mod/photos.php:711 ../../addon/js_upload/js_upload.php:315
@@ -570,7 +563,7 @@ msgstr ""
 msgid "Show Oldest First"
 msgstr ""
 
-#: ../../mod/photos.php:1146 ../../mod/photos.php:1595
+#: ../../mod/photos.php:1146 ../../mod/photos.php:1598
 msgid "View Photo"
 msgstr ""
 
@@ -645,49 +638,49 @@ msgstr ""
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: ../../mod/photos.php:1386 ../../include/conversation.php:957
+#: ../../mod/photos.php:1386 ../../include/conversation.php:962
 msgid "Share"
 msgstr ""
 
 #: ../../mod/photos.php:1387 ../../mod/editpost.php:118
-#: ../../mod/content.php:482 ../../mod/content.php:845
+#: ../../mod/content.php:482 ../../mod/content.php:846
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:293
-#: ../../mod/message.php:481 ../../include/conversation.php:620
-#: ../../include/conversation.php:976 ../../object/Item.php:258
+#: ../../mod/message.php:481 ../../include/conversation.php:624
+#: ../../include/conversation.php:981 ../../object/Item.php:258
 msgid "Please wait"
 msgstr ""
 
-#: ../../mod/photos.php:1403 ../../mod/photos.php:1446
-#: ../../mod/photos.php:1517 ../../mod/content.php:690
-#: ../../object/Item.php:555
+#: ../../mod/photos.php:1403 ../../mod/photos.php:1447
+#: ../../mod/photos.php:1519 ../../mod/content.php:690
+#: ../../object/Item.php:556
 msgid "This is you"
 msgstr ""
 
-#: ../../mod/photos.php:1405 ../../mod/photos.php:1448
-#: ../../mod/photos.php:1519 ../../mod/content.php:692 ../../boot.php:585
-#: ../../object/Item.php:557
+#: ../../mod/photos.php:1405 ../../mod/photos.php:1449
+#: ../../mod/photos.php:1521 ../../mod/content.php:692 ../../boot.php:585
+#: ../../object/Item.php:558
 msgid "Comment"
 msgstr ""
 
-#: ../../mod/photos.php:1407 ../../mod/photos.php:1450
-#: ../../mod/photos.php:1521 ../../mod/editpost.php:139
-#: ../../mod/content.php:702 ../../include/conversation.php:994
-#: ../../object/Item.php:567
+#: ../../mod/photos.php:1407 ../../mod/photos.php:1451
+#: ../../mod/photos.php:1523 ../../mod/editpost.php:139
+#: ../../mod/content.php:702 ../../include/conversation.php:999
+#: ../../object/Item.php:568
 msgid "Preview"
 msgstr ""
 
-#: ../../mod/photos.php:1489 ../../mod/content.php:439
-#: ../../mod/content.php:723 ../../mod/settings.php:606
+#: ../../mod/photos.php:1491 ../../mod/content.php:439
+#: ../../mod/content.php:724 ../../mod/settings.php:606
 #: ../../mod/group.php:168 ../../mod/admin.php:696
-#: ../../include/conversation.php:565 ../../object/Item.php:117
+#: ../../include/conversation.php:569 ../../object/Item.php:117
 msgid "Delete"
 msgstr ""
 
-#: ../../mod/photos.php:1601
+#: ../../mod/photos.php:1604
 msgid "View Album"
 msgstr ""
 
-#: ../../mod/photos.php:1610
+#: ../../mod/photos.php:1613
 msgid "Recent Photos"
 msgstr ""
 
@@ -745,96 +738,96 @@ msgstr ""
 msgid "Edit post"
 msgstr ""
 
-#: ../../mod/editpost.php:88 ../../include/conversation.php:943
+#: ../../mod/editpost.php:88 ../../include/conversation.php:948
 msgid "Post to Email"
 msgstr ""
 
-#: ../../mod/editpost.php:103 ../../mod/content.php:710
+#: ../../mod/editpost.php:103 ../../mod/content.php:711
 #: ../../mod/settings.php:605 ../../object/Item.php:107
 msgid "Edit"
 msgstr ""
 
 #: ../../mod/editpost.php:104 ../../mod/wallmessage.php:150
 #: ../../mod/message.php:291 ../../mod/message.php:478
-#: ../../include/conversation.php:958
+#: ../../include/conversation.php:963
 msgid "Upload photo"
 msgstr ""
 
-#: ../../mod/editpost.php:105 ../../include/conversation.php:959
+#: ../../mod/editpost.php:105 ../../include/conversation.php:964
 msgid "upload photo"
 msgstr ""
 
-#: ../../mod/editpost.php:106 ../../include/conversation.php:960
+#: ../../mod/editpost.php:106 ../../include/conversation.php:965
 msgid "Attach file"
 msgstr ""
 
-#: ../../mod/editpost.php:107 ../../include/conversation.php:961
+#: ../../mod/editpost.php:107 ../../include/conversation.php:966
 msgid "attach file"
 msgstr ""
 
 #: ../../mod/editpost.php:108 ../../mod/wallmessage.php:151
 #: ../../mod/message.php:292 ../../mod/message.php:479
-#: ../../include/conversation.php:962
+#: ../../include/conversation.php:967
 msgid "Insert web link"
 msgstr ""
 
-#: ../../mod/editpost.php:109 ../../include/conversation.php:963
+#: ../../mod/editpost.php:109 ../../include/conversation.php:968
 msgid "web link"
 msgstr ""
 
-#: ../../mod/editpost.php:110 ../../include/conversation.php:964
+#: ../../mod/editpost.php:110 ../../include/conversation.php:969
 msgid "Insert video link"
 msgstr ""
 
-#: ../../mod/editpost.php:111 ../../include/conversation.php:965
+#: ../../mod/editpost.php:111 ../../include/conversation.php:970
 msgid "video link"
 msgstr ""
 
-#: ../../mod/editpost.php:112 ../../include/conversation.php:966
+#: ../../mod/editpost.php:112 ../../include/conversation.php:971
 msgid "Insert audio link"
 msgstr ""
 
-#: ../../mod/editpost.php:113 ../../include/conversation.php:967
+#: ../../mod/editpost.php:113 ../../include/conversation.php:972
 msgid "audio link"
 msgstr ""
 
-#: ../../mod/editpost.php:114 ../../include/conversation.php:968
+#: ../../mod/editpost.php:114 ../../include/conversation.php:973
 msgid "Set your location"
 msgstr ""
 
-#: ../../mod/editpost.php:115 ../../include/conversation.php:969
+#: ../../mod/editpost.php:115 ../../include/conversation.php:974
 msgid "set location"
 msgstr ""
 
-#: ../../mod/editpost.php:116 ../../include/conversation.php:970
+#: ../../mod/editpost.php:116 ../../include/conversation.php:975
 msgid "Clear browser location"
 msgstr ""
 
-#: ../../mod/editpost.php:117 ../../include/conversation.php:971
+#: ../../mod/editpost.php:117 ../../include/conversation.php:976
 msgid "clear location"
 msgstr ""
 
-#: ../../mod/editpost.php:119 ../../include/conversation.php:977
+#: ../../mod/editpost.php:119 ../../include/conversation.php:982
 msgid "Permission settings"
 msgstr ""
 
-#: ../../mod/editpost.php:127 ../../include/conversation.php:986
+#: ../../mod/editpost.php:127 ../../include/conversation.php:991
 msgid "CC: email addresses"
 msgstr ""
 
-#: ../../mod/editpost.php:128 ../../include/conversation.php:987
+#: ../../mod/editpost.php:128 ../../include/conversation.php:992
 msgid "Public post"
 msgstr ""
 
-#: ../../mod/editpost.php:131 ../../include/conversation.php:973
+#: ../../mod/editpost.php:131 ../../include/conversation.php:978
 msgid "Set title"
 msgstr ""
 
-#: ../../mod/editpost.php:133 ../../include/conversation.php:975
+#: ../../mod/editpost.php:133 ../../include/conversation.php:980
 msgid "Categories (comma-separated list)"
 msgstr ""
 
-#: ../../mod/editpost.php:134 ../../include/conversation.php:989
+#: ../../mod/editpost.php:134 ../../include/conversation.php:994
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
@@ -1376,25 +1369,25 @@ msgstr ""
 msgid "Group: "
 msgstr ""
 
-#: ../../mod/content.php:438 ../../mod/content.php:722
-#: ../../include/conversation.php:564 ../../object/Item.php:116
+#: ../../mod/content.php:438 ../../mod/content.php:723
+#: ../../include/conversation.php:568 ../../object/Item.php:116
 msgid "Select"
 msgstr ""
 
-#: ../../mod/content.php:455 ../../mod/content.php:815
-#: ../../mod/content.php:816 ../../include/conversation.php:583
+#: ../../mod/content.php:455 ../../mod/content.php:816
+#: ../../mod/content.php:817 ../../include/conversation.php:587
 #: ../../object/Item.php:227 ../../object/Item.php:228
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: ../../mod/content.php:465 ../../mod/content.php:827
-#: ../../include/conversation.php:603 ../../object/Item.php:240
+#: ../../mod/content.php:465 ../../mod/content.php:828
+#: ../../include/conversation.php:607 ../../object/Item.php:240
 #, php-format
 msgid "%s from %s"
 msgstr ""
 
-#: ../../mod/content.php:480 ../../include/conversation.php:618
+#: ../../mod/content.php:480 ../../include/conversation.php:622
 msgid "View in context"
 msgstr ""
 
@@ -1436,71 +1429,71 @@ msgstr ""
 msgid "share"
 msgstr ""
 
-#: ../../mod/content.php:694 ../../object/Item.php:559
+#: ../../mod/content.php:694 ../../object/Item.php:560
 msgid "Bold"
 msgstr ""
 
-#: ../../mod/content.php:695 ../../object/Item.php:560
+#: ../../mod/content.php:695 ../../object/Item.php:561
 msgid "Italic"
 msgstr ""
 
-#: ../../mod/content.php:696 ../../object/Item.php:561
+#: ../../mod/content.php:696 ../../object/Item.php:562
 msgid "Underline"
 msgstr ""
 
-#: ../../mod/content.php:697 ../../object/Item.php:562
+#: ../../mod/content.php:697 ../../object/Item.php:563
 msgid "Quote"
 msgstr ""
 
-#: ../../mod/content.php:698 ../../object/Item.php:563
+#: ../../mod/content.php:698 ../../object/Item.php:564
 msgid "Code"
 msgstr ""
 
-#: ../../mod/content.php:699 ../../object/Item.php:564
+#: ../../mod/content.php:699 ../../object/Item.php:565
 msgid "Image"
 msgstr ""
 
-#: ../../mod/content.php:700 ../../object/Item.php:565
+#: ../../mod/content.php:700 ../../object/Item.php:566
 msgid "Link"
 msgstr ""
 
-#: ../../mod/content.php:701 ../../object/Item.php:566
+#: ../../mod/content.php:701 ../../object/Item.php:567
 msgid "Video"
 msgstr ""
 
-#: ../../mod/content.php:735 ../../object/Item.php:180
+#: ../../mod/content.php:736 ../../object/Item.php:180
 msgid "add star"
 msgstr ""
 
-#: ../../mod/content.php:736 ../../object/Item.php:181
+#: ../../mod/content.php:737 ../../object/Item.php:181
 msgid "remove star"
 msgstr ""
 
-#: ../../mod/content.php:737 ../../object/Item.php:182
+#: ../../mod/content.php:738 ../../object/Item.php:182
 msgid "toggle star status"
 msgstr ""
 
-#: ../../mod/content.php:740 ../../object/Item.php:185
+#: ../../mod/content.php:741 ../../object/Item.php:185
 msgid "starred"
 msgstr ""
 
-#: ../../mod/content.php:741 ../../object/Item.php:186
+#: ../../mod/content.php:742 ../../object/Item.php:186
 msgid "add tag"
 msgstr ""
 
-#: ../../mod/content.php:745 ../../object/Item.php:120
+#: ../../mod/content.php:746 ../../object/Item.php:120
 msgid "save to folder"
 msgstr ""
 
-#: ../../mod/content.php:817 ../../object/Item.php:229
+#: ../../mod/content.php:818 ../../object/Item.php:229
 msgid "to"
 msgstr ""
 
-#: ../../mod/content.php:818 ../../object/Item.php:230
+#: ../../mod/content.php:819 ../../object/Item.php:230
 msgid "Wall-to-Wall"
 msgstr ""
 
-#: ../../mod/content.php:819 ../../object/Item.php:231
+#: ../../mod/content.php:820 ../../object/Item.php:231
 msgid "via Wall-To-Wall:"
 msgstr ""
 
@@ -2773,7 +2766,7 @@ msgstr ""
 
 #: ../../mod/wallmessage.php:123 ../../mod/wallmessage.php:131
 #: ../../mod/message.php:242 ../../mod/message.php:250
-#: ../../include/conversation.php:894 ../../include/conversation.php:911
+#: ../../include/conversation.php:898 ../../include/conversation.php:916
 msgid "Please enter a link URL:"
 msgstr ""
 
@@ -3175,6 +3168,15 @@ msgstr ""
 msgid "People Search"
 msgstr ""
 
+#: ../../mod/like.php:145 ../../mod/subthread.php:87 ../../mod/tagger.php:62
+#: ../../addon/communityhome/communityhome.php:163
+#: ../../view/theme/diabook/theme.php:457 ../../include/text.php:1437
+#: ../../include/diaspora.php:1835 ../../include/conversation.php:125
+#: ../../include/conversation.php:253
+#: ../../addon.old/communityhome/communityhome.php:163
+msgid "photo"
+msgstr ""
+
 #: ../../mod/like.php:145 ../../mod/like.php:298 ../../mod/subthread.php:87
 #: ../../mod/tagger.php:62 ../../addon/facebook/facebook.php:1598
 #: ../../addon/communityhome/communityhome.php:158
@@ -3205,8 +3207,8 @@ msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
-#: ../../mod/admin.php:734 ../../mod/admin.php:933 ../../mod/display.php:29
-#: ../../mod/display.php:145 ../../include/items.php:3780
+#: ../../mod/admin.php:734 ../../mod/admin.php:933 ../../mod/display.php:39
+#: ../../mod/display.php:169 ../../include/items.php:3780
 msgid "Item not found."
 msgstr ""
 
@@ -3236,42 +3238,42 @@ msgstr ""
 msgid "Please login."
 msgstr ""
 
-#: ../../mod/item.php:91
+#: ../../mod/item.php:104
 msgid "Unable to locate original post."
 msgstr ""
 
-#: ../../mod/item.php:275
+#: ../../mod/item.php:288
 msgid "Empty post discarded."
 msgstr ""
 
-#: ../../mod/item.php:407 ../../mod/wall_upload.php:133
+#: ../../mod/item.php:420 ../../mod/wall_upload.php:133
 #: ../../mod/wall_upload.php:142 ../../mod/wall_upload.php:149
 #: ../../include/message.php:144
 msgid "Wall Photos"
 msgstr ""
 
-#: ../../mod/item.php:820
+#: ../../mod/item.php:833
 msgid "System error. Post not saved."
 msgstr ""
 
-#: ../../mod/item.php:845
+#: ../../mod/item.php:858
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social network."
 msgstr ""
 
-#: ../../mod/item.php:847
+#: ../../mod/item.php:860
 #, php-format
 msgid "You may visit them online at %s"
 msgstr ""
 
-#: ../../mod/item.php:848
+#: ../../mod/item.php:861
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
 msgstr ""
 
-#: ../../mod/item.php:850
+#: ../../mod/item.php:863
 #, php-format
 msgid "%s posted an update."
 msgstr ""
@@ -4096,7 +4098,7 @@ msgstr ""
 msgid "Requested profile is not available."
 msgstr ""
 
-#: ../../mod/profile.php:155 ../../mod/display.php:77
+#: ../../mod/profile.php:155 ../../mod/display.php:87
 msgid "Access to this profile has been restricted."
 msgstr ""
 
@@ -4188,7 +4190,7 @@ msgstr ""
 msgid "link"
 msgstr ""
 
-#: ../../mod/display.php:138
+#: ../../mod/display.php:162
 msgid "Item has been removed."
 msgstr ""
 
@@ -4513,8 +4515,8 @@ msgstr ""
 msgid "Edit visibility"
 msgstr ""
 
-#: ../../mod/filer.php:29 ../../include/conversation.php:898
-#: ../../include/conversation.php:915
+#: ../../mod/filer.php:29 ../../include/conversation.php:902
+#: ../../include/conversation.php:920
 msgid "Save to Folder:"
 msgstr ""
 
@@ -9037,34 +9039,34 @@ msgstr ""
 msgid "stopped following"
 msgstr ""
 
-#: ../../include/Contact.php:220 ../../include/conversation.php:791
+#: ../../include/Contact.php:220 ../../include/conversation.php:795
 msgid "Poke"
 msgstr ""
 
-#: ../../include/Contact.php:221 ../../include/conversation.php:785
+#: ../../include/Contact.php:221 ../../include/conversation.php:789
 msgid "View Status"
 msgstr ""
 
-#: ../../include/Contact.php:222 ../../include/conversation.php:786
+#: ../../include/Contact.php:222 ../../include/conversation.php:790
 msgid "View Profile"
 msgstr ""
 
-#: ../../include/Contact.php:223 ../../include/conversation.php:787
+#: ../../include/Contact.php:223 ../../include/conversation.php:791
 msgid "View Photos"
 msgstr ""
 
 #: ../../include/Contact.php:224 ../../include/Contact.php:237
-#: ../../include/conversation.php:788
+#: ../../include/conversation.php:792
 msgid "Network Posts"
 msgstr ""
 
 #: ../../include/Contact.php:225 ../../include/Contact.php:237
-#: ../../include/conversation.php:789
+#: ../../include/conversation.php:793
 msgid "Edit Contact"
 msgstr ""
 
 #: ../../include/Contact.php:226 ../../include/Contact.php:237
-#: ../../include/conversation.php:790
+#: ../../include/conversation.php:794
 msgid "Send PM"
 msgstr ""
 
@@ -9082,86 +9084,90 @@ msgstr ""
 msgid "%1$s marked %2$s's %3$s as favorite"
 msgstr ""
 
-#: ../../include/conversation.php:595 ../../object/Item.php:218
+#: ../../include/conversation.php:599 ../../object/Item.php:218
 msgid "Categories:"
 msgstr ""
 
-#: ../../include/conversation.php:596 ../../object/Item.php:219
+#: ../../include/conversation.php:600 ../../object/Item.php:219
 msgid "Filed under:"
 msgstr ""
 
-#: ../../include/conversation.php:681
+#: ../../include/conversation.php:685
 msgid "remove"
 msgstr ""
 
-#: ../../include/conversation.php:685
+#: ../../include/conversation.php:689
 msgid "Delete Selected Items"
 msgstr ""
 
-#: ../../include/conversation.php:784
+#: ../../include/conversation.php:788
 msgid "Follow Thread"
-msgstr ""
-
-#: ../../include/conversation.php:853
-#, php-format
-msgid "%s likes this."
-msgstr ""
-
-#: ../../include/conversation.php:853
-#, php-format
-msgid "%s doesn't like this."
 msgstr ""
 
 #: ../../include/conversation.php:857
 #, php-format
+msgid "%s likes this."
+msgstr ""
+
+#: ../../include/conversation.php:857
+#, php-format
+msgid "%s doesn't like this."
+msgstr ""
+
+#: ../../include/conversation.php:861
+#, php-format
 msgid "<span  %1$s>%2$d people</span> like this."
 msgstr ""
 
-#: ../../include/conversation.php:859
+#: ../../include/conversation.php:863
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this."
 msgstr ""
 
-#: ../../include/conversation.php:865
+#: ../../include/conversation.php:869
 msgid "and"
 msgstr ""
 
-#: ../../include/conversation.php:868
+#: ../../include/conversation.php:872
 #, php-format
 msgid ", and %d other people"
 msgstr ""
 
-#: ../../include/conversation.php:869
+#: ../../include/conversation.php:873
 #, php-format
 msgid "%s like this."
 msgstr ""
 
-#: ../../include/conversation.php:869
+#: ../../include/conversation.php:873
 #, php-format
 msgid "%s don't like this."
 msgstr ""
 
-#: ../../include/conversation.php:893 ../../include/conversation.php:910
+#: ../../include/conversation.php:897 ../../include/conversation.php:915
 msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
-#: ../../include/conversation.php:895 ../../include/conversation.php:912
+#: ../../include/conversation.php:899 ../../include/conversation.php:917
 msgid "Please enter a video link/URL:"
 msgstr ""
 
-#: ../../include/conversation.php:896 ../../include/conversation.php:913
+#: ../../include/conversation.php:900 ../../include/conversation.php:918
 msgid "Please enter an audio link/URL:"
 msgstr ""
 
-#: ../../include/conversation.php:897 ../../include/conversation.php:914
+#: ../../include/conversation.php:901 ../../include/conversation.php:919
 msgid "Tag term:"
 msgstr ""
 
-#: ../../include/conversation.php:899 ../../include/conversation.php:916
+#: ../../include/conversation.php:903 ../../include/conversation.php:921
 msgid "Where are you right now?"
 msgstr ""
 
-#: ../../include/conversation.php:978
+#: ../../include/conversation.php:904
+msgid "Delete item(s)?"
+msgstr ""
+
+#: ../../include/conversation.php:983
 msgid "permissions"
 msgstr ""
 
