@@ -31,7 +31,7 @@ Here you can find an overview of the different ways to create and edit your post
 
 Cleanzero  <img src="doc/img/editor_zero.png" alt="cleanzero.png" style="padding-left: 20px; vertical-align:middle;"> 
 
-<span style="padding-left: 10px; font-style:italic;">(inkl. weiterer "zero"-Themen, comix, easterbunny, facepark, slackr </span>
+<span style="padding-left: 10px; font-style:italic;">(incl. more "zero"-themes, comix, easterbunny, facepark, slackr </span>
 
 Darkbubble  <img src="doc/img/editor_darkbubble.png" alt="darkbubble.png" style="padding-left: 14px; vertical-align:middle;"> <i>(inkl. smoothly, testbubble)</i>
 
