@@ -71,7 +71,7 @@ function poller_run($argv, $argc){
 	// delete user and contact records for recently removed accounts
 
 	$r = q("SELECT * FROM `user` WHERE `account_removed` = 1 AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if (count($r)) {
+	if ($r) {
 		foreach($r as $user) {
 			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
 			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
