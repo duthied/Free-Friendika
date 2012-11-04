@@ -90,13 +90,14 @@ nav .nav-link{display:inline-block;width:22px;height:22px;overflow:hidden;margin
 #nav-home-link{background-position:-44px -132px;}#nav-home-link:hover{background-position:-66px -132px;}
 #nav-intro-link{background-position:0px -88px;}#nav-intro-link:hover{background-position:-22px -88px;}
 #nav-login-link,#nav-logout-link{background-position:0 -88px;}#nav-login-link:hover,#nav-logout-link:hover{background-position:-22px -88px;}
-#nav-manage-link{background-position:0px -22px;}#nav-manage-link:hover{background-position:-22px -22px;}
+#nav-manage-link{background-position:-88px -88px;}#nav-manage-link:hover{background-position:-110px -88px;}
 #nav-messages-link{background-position:-44px -88px;}#nav-messages-link:hover{background-position:-66px -88px;}
 #nav-notify-link,#nav-notifications-linkmenu{background-position:-44px -110px;}
 #nav-notify-link:hover{background-position:-66px -110px;}
 #nav-network-link{background-position:0px -177px;}#nav-network-link:hover{background-position:-22px -177px;}
 #nav-search-link{background-position:0 -44px;}#nav-search-link:hover{background-position:-22px -44px;}
 #jot-title,#profile-link,#profile-title,#profile-attach-wrapper,#profile-audio,#profile-link,#profile-location,#profile-nolocation,#profile-title,#profile-upload-wrapper,#profile-video,#profile-jot-submit,#wall-image-upload,#wall-file-upload,#wall-image-upload-div,#wall-file-upload-div,.icon,.hover,.focus,.pointer{cursor:pointer;}
+.sparkle{cursor:url("icons/sparkle.cur"),pointer;}
 div.jGrowl div.notice{background:#511919 url("../../../images/icons/48/notice.png") no-repeat 5px center;color:white;padding-left:58px;margin-top:50px;}
 div.jGrowl div.info{background:#364e59 url("../../../images/icons/48/info.png") no-repeat 5px center;color:white;padding-left:58px;margin-top:50px;}
 #nav-notifications-menu{margin:30px 0 0 -20px;width:275px;max-height:300px;overflow-y:auto;font-size:9pt;}#nav-notifications-menu img{float:left;margin-right:5px;}
@@ -190,7 +191,7 @@ nav #nav-notifications-linkmenu.on .icon.s22.notify,nav #nav-notifications-linkm
 #jot-title-wrapper{margin-bottom:5px;}
 #jot-title-display{font-weight:bold;}
 .jothidden{display:none;}
-#jot-preview-content{background-color:#f2f2c3;color:#111111;border:1px solid #111111;-o-border-radius:5px;-webkit-border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;border-radius:5px;-moz-box-shadow:5px 0 10px 0px #111111;-o-box-shadow:5px 0 10px 0px #111111;-webkit-box-shadow:5px 0 10px 0px #111111;-ms-box-shadow:5px 0 10px 0px #111111;box-shadow:5px 0 10px 0px #111111;padding:3px 3px 6px 10px;}#jot-preview-content .wall-item-outside-wrapper{border:0;-o-border-radius:0px 0px 0px 0px;-webkit-border-radius:0px 0px 0px 0px;-moz-border-radius:0px 0px 0px 0px;-ms-border-radius:0px 0px 0px 0px;border-radius:0px 0px 0px 0px;-moz-box-shadow:0 0 0 0 #111111;-o-box-shadow:0 0 0 0 #111111;-webkit-box-shadow:0 0 0 0 #111111;-ms-box-shadow:0 0 0 0 #111111;box-shadow:0 0 0 0 #111111;}
+#jot-preview-content{background-color:#f2f2c3;color:#111111;border:1px solid #111111;-o-border-radius:5px;-webkit-border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;border-radius:5px;-moz-box-shadow:5px 0 10px 0px #111111;-o-box-shadow:5px 0 10px 0px #111111;-webkit-box-shadow:5px 0 10px 0px #111111;-ms-box-shadow:5px 0 10px 0px #111111;box-shadow:5px 0 10px 0px #111111;padding:3px 3px 6px 10px;margin:5em auto 1em;}#jot-preview-content .wall-item-outside-wrapper{border:0;-o-border-radius:0px 0px 0px 0px;-webkit-border-radius:0px 0px 0px 0px;-moz-border-radius:0px 0px 0px 0px;-ms-border-radius:0px 0px 0px 0px;border-radius:0px 0px 0px 0px;-moz-box-shadow:0 0 0 0 #111111;-o-box-shadow:0 0 0 0 #111111;-webkit-box-shadow:0 0 0 0 #111111;-ms-box-shadow:0 0 0 0 #111111;box-shadow:0 0 0 0 #111111;}
 #sectionmain{margin:1em;font-size:0.8em;min-width:475px;width:69%;float:left;display:inline;}
 .tabs{margin:0px;padding:0px;list-style:none;list-style-position:inside;margin:10px 0;}.tabs li{display:inline;font-size:smaller;}
 .tab{border:1px solid #284d7d;padding:4px;-o-border-radius:5px;-webkit-border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;border-radius:5px;}.tab:active,.tab:hover{background:#f2f2c3;color:#111111;border:1px solid #284d7d;}

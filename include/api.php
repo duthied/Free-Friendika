@@ -156,6 +156,7 @@
 				//echo "<pre>"; var_dump($r); die();
 			}
 		}
+		header("HTTP/1.1 404 Not Found");
 		logger('API call not implemented: '.$a->query_string." - ".print_r($_REQUEST,true));
 		$r = '<status><error>not implemented</error></status>';
 		switch($type){
@@ -490,7 +491,8 @@
                 $_REQUEST['type'] = 'wall';
                 $_REQUEST['profile_uid'] = local_user();
                 $_REQUEST['api_source'] = true;
-                $txt = urldecode(requestdata('status'));
+                $txt = requestdata('status');
+                //$txt = urldecode(requestdata('status'));
 
                 require_once('library/HTMLPurifier.auto.php');
                 require_once('include/html2bbcode.php');
@@ -554,7 +556,8 @@
 
 		}
 		else
-			$_REQUEST['body'] = urldecode(requestdata('status'));
+			$_REQUEST['body'] = requestdata('status');
+			//$_REQUEST['body'] = urldecode(requestdata('status'));
 
 		$parent = requestdata('in_reply_to_status_id');
 		if(ctype_digit($parent))
@@ -751,6 +754,15 @@
 		);
 
 		$ret = api_format_items($r,$user_info);
+
+		// We aren't going to try to figure out at the item, group, and page
+		// level which items you've seen and which you haven't. If you're looking
+		// at the network timeline just mark everything seen. 
+	
+		$r = q("UPDATE `item` SET `unseen` = 0 
+			WHERE `unseen` = 1 AND `uid` = %d",
+			intval($user_info['uid'])
+		);
 
 
 		$data = array('$statuses' => $ret);
@@ -1725,4 +1737,6 @@ notifications/follow
 notifications/leave
 blocks/exists
 blocks/blocking
+lists
 */
+

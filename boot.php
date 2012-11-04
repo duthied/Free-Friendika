@@ -8,11 +8,12 @@ require_once('include/datetime.php');
 require_once('include/pgettext.php');
 require_once('include/nav.php');
 require_once('include/cache.php');
+require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1398' );
+define ( 'FRIENDICA_VERSION',      '3.0.1516' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1153      );
+define ( 'DB_UPDATE_VERSION',      1156      );
 
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
@@ -191,6 +192,7 @@ define ( 'NOTIFY_SUGGEST',  0x0020 );
 define ( 'NOTIFY_PROFILE',  0x0040 );
 define ( 'NOTIFY_TAGSELF',  0x0080 );
 define ( 'NOTIFY_TAGSHARE', 0x0100 );
+define ( 'NOTIFY_POKE',     0x0200 );
 
 define ( 'NOTIFY_SYSTEM',   0x8000 );
 
@@ -215,7 +217,7 @@ define ( 'TERM_OBJ_PHOTO', 2 );
  * various namespaces we may need to parse
  */
 
-define ( 'NAMESPACE_ZOT',             'http://purl.org/macgirvin/zot' );
+define ( 'NAMESPACE_ZOT',             'http://purl.org/zot' );
 define ( 'NAMESPACE_DFRN' ,           'http://purl.org/macgirvin/dfrn/1.0' );
 define ( 'NAMESPACE_THREAD' ,         'http://purl.org/syndication/thread/1.0' );
 define ( 'NAMESPACE_TOMB' ,           'http://purl.org/atompub/tombstones/1.0' );
@@ -250,6 +252,9 @@ define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 
+define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
+define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
+
 define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
 define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
 define ( 'ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person' );
@@ -278,7 +283,9 @@ define ( 'GRAVITY_COMMENT',      6);
  */
 
 function startup() {
+	
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 	set_time_limit(0);
 
 	// This has to be quite large to deal with embedded private photos
@@ -345,10 +352,25 @@ if(! class_exists('App')) {
 		public  $plugins;
 		public  $apps = array();
 		public  $identities;
+		public	$is_mobile;
+		public	$is_tablet;
 	
 		public $nav_sel;
 
 		public $category;
+
+		// Allow themes to control internal parameters
+		// by changing App values in theme.php
+		//
+		// Possibly should make these part of the plugin
+		// system, but it seems like overkill to invoke
+		// all the plugin machinery just to change a couple
+		// of values
+		public	$sourcename = '';
+		public	$videowidth = 425;
+		public	$videoheight = 350;
+		public	$force_max_items = 0;
+		public	$theme_thread_allow = true;
 
 		private $scheme;
 		private $hostname;
@@ -383,7 +405,6 @@ if(! class_exists('App')) {
 			elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
 			$this->scheme = 'https';
 
-
 			if(x($_SERVER,'SERVER_NAME')) {
 				$this->hostname = $_SERVER['SERVER_NAME'];
 
@@ -413,6 +434,7 @@ if(! class_exists('App')) {
 					. 'include' . PATH_SEPARATOR
 					. 'library' . PATH_SEPARATOR
 					. 'library/phpsec' . PATH_SEPARATOR
+					. 'library/langdet' . PATH_SEPARATOR
 					. '.' );
 
 			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
@@ -453,21 +475,12 @@ if(! class_exists('App')) {
 			$this->argc = count($this->argv);
 			if((array_key_exists('0',$this->argv)) && strlen($this->argv[0])) {
 				$this->module = str_replace(".", "_", $this->argv[0]);
+				$this->module = str_replace("-", "_", $this->module);
 			}
 			else {
 				$this->argc = 1;
 				$this->argv = array('home');
 				$this->module = 'home';
-			}
-
-			/**
-			 * Special handling for the webfinger/lrdd host XRD file
-			 */
-
-			if($this->cmd === '.well-known/host-meta') {
-				$this->argc = 1;
-				$this->argv = array('hostxrd');
-				$this->module = 'hostxrd';
 			}
 
 			/**
@@ -481,6 +494,14 @@ if(! class_exists('App')) {
 			if($this->pager['start'] < 0)
 				$this->pager['start'] = 0;
 			$this->pager['total'] = 0;
+
+			/**
+			 * Detect mobile devices
+			 */
+
+			$mobile_detect = new Mobile_Detect();
+			$this->is_mobile = $mobile_detect->isMobile();
+			$this->is_tablet = $mobile_detect->isTablet();
 		}
 
 		function get_baseurl($ssl = false) {
@@ -555,7 +576,7 @@ if(! class_exists('App')) {
 				$interval = 40000;
 
 			$this->page['title'] = $this->config['sitename'];
-			$tpl = file_get_contents('view/head.tpl');
+			$tpl = get_markup_template('head.tpl');
 			$this->page['htmlhead'] = replace_macros($tpl,array(
 				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
 				'$local_user' => local_user(),
@@ -565,6 +586,13 @@ if(! class_exists('App')) {
 				'$showmore' => t('show more'),
 				'$showfewer' => t('show fewer'),
 				'$update_interval' => $interval
+			));
+		}
+
+		function init_page_end() {
+			$tpl = get_markup_template('end.tpl');
+			$this->page['end'] = replace_macros($tpl,array(
+				'$baseurl' => $this->get_baseurl() // FIXME for z_path!!!!
 			));
 		}
 
@@ -710,9 +738,13 @@ if(! function_exists('check_config')) {
 		// than the currently visited url, store the current value accordingly.
 		// "Radically different" ignores common variations such as http vs https
 		// and www.example.com vs example.com.
+		// We will only change the url to an ip address if there is no existing setting
 
-		if((! x($url)) || (! link_compare($url,$a->get_baseurl())))
+		if(! x($url))
 			$url = set_config('system','url',$a->get_baseurl());
+		if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
+			$url = set_config('system','url',$a->get_baseurl());
+
 
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
@@ -743,9 +775,10 @@ if(! function_exists('check_config')) {
 							// If the update fails or times-out completely you may need to
 							// delete the config entry to try again.
 
-							if(get_config('database','update_' . $x))
+							$t = get_config('database','update_' . $x);
+							if($t !== false)
 								break;
-							set_config('database','update_' . $x, '1');
+							set_config('database','update_' . $x, time());
 
 							// call the specific update
 
@@ -768,13 +801,14 @@ if(! function_exists('check_config')) {
 									. 'Content-transfer-encoding: 8bit' );
 								//try the logger
 								logger('CRITICAL: Update Failed: '. $x);
+								break;
 							}
-							else
+							else {
 								set_config('database','update_' . $x, 'success');
-								
+								set_config('system','build', $x + 1);
+							}								
 						}
 					}
-					set_config('system','build', DB_UPDATE_VERSION);
 				}
 			}
 		}
@@ -873,6 +907,10 @@ if(! function_exists('login')) {
 			$tpl = get_markup_template("logout.tpl");
 		}
 		else {
+			$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"),array(
+				'$baseurl'		=> $a->get_baseurl(true)
+			));
+
 			$tpl = get_markup_template("login.tpl");
 			$_SESSION['return_url'] = $a->query_string;
 		}
@@ -998,11 +1036,29 @@ if(! function_exists('get_max_import_size')) {
 
 if(! function_exists('profile_load')) {
 	function profile_load(&$a, $nickname, $profile = 0) {
-		if(remote_user()) {
-			$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
-					intval($_SESSION['visitor_id']));
-			if(count($r))
-				$profile = $r[0]['profile-id'];
+
+		$user = q("select uid from user where nickname = '%s' limit 1",
+			dbesc($nickname)
+		);
+		
+		if(! ($user && count($user))) {
+			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			notice( t('Requested account is not available.') . EOL );
+			$a->error = 404;
+			return;
+		}
+
+		if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $user[0]['uid']) {
+					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
+						intval($visitor['cid'])
+					);
+					if(count($r))
+						$profile = $r[0]['profile-id'];
+					break;
+				}
+			}
 		}
 
 		$r = null;
@@ -1043,9 +1099,12 @@ if(! function_exists('profile_load')) {
 
 		$a->profile = $r[0];
 
+		$a->profile['mobile-theme'] = get_pconfig($profile_uid, 'system', 'mobile_theme');
+
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
 		$_SESSION['theme'] = $a->profile['theme'];
+		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
 		/**
 		 * load/reload current theme info
@@ -1117,8 +1176,14 @@ if(! function_exists('profile_sidebar')) {
 
 		// don't show connect link to authenticated visitors either
 
-		if((remote_user()) && ($_SESSION['visitor_visiting'] == $profile['uid']))
-			$connect = False;
+		if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $profile['uid']) {
+					$connect = false;
+					break;
+				}
+			}
+		}
 
 		if(get_my_url() && $profile['unkmail'])
 			$wallmessage = t('Message');
@@ -1234,8 +1299,14 @@ if(! function_exists('get_birthdays')) {
 		$a = get_app();
 		$o = '';
 
-		if(! local_user())
+		if(! local_user() || $a->is_mobile || $a->is_tablet)
 			return $o;
+
+//		$mobile_detect = new Mobile_Detect();
+//		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+//		if($is_mobile)
+//			return $o;
 
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 		$bd_short = t('F d');
@@ -1313,8 +1384,15 @@ if(! function_exists('get_events')) {
 
 		$a = get_app();
 
-		if(! local_user())
+		if(! local_user() || $a->is_mobile || $a->is_tablet)
 			return $o;
+
+
+//		$mobile_detect = new Mobile_Detect();
+//		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+
+//		if($is_mobile)
+//			return $o;
 
 		$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 		$bd_short = t('F d');
@@ -1427,7 +1505,10 @@ if(! function_exists('proc_run')) {
 			$args[$x] = escapeshellarg($args[$x]);
 
 		$cmdline = implode($args," ");
-		proc_close(proc_open($cmdline." &",array(),$foo));
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
 	}
 }
 
@@ -1437,9 +1518,31 @@ if(! function_exists('current_theme')) {
 	
 		$a = get_app();
 	
-		$system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
-		$theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $system_theme);
+//		$mobile_detect = new Mobile_Detect();
+//		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+		$is_mobile = $a->is_mobile || $a->is_tablet;
 	
+		if($is_mobile) {
+			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+				$system_theme = '';
+				$theme_name = '';
+			}
+			else {
+				$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : '');
+				$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile-theme')) ? $_SESSION['mobile-theme'] : $system_theme);
+
+				if($theme_name === '---') {
+					// user has selected to have the mobile theme be the same as the normal one
+					$system_theme = '';
+					$theme_name = '';
+				}
+			}
+		}
+		if(!$is_mobile || ($system_theme === '' && $theme_name === '')) {
+			$system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+			$theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $system_theme);
+		}
+
 		if($theme_name &&
 				(file_exists('view/theme/' . $theme_name . '/style.css') ||
 						file_exists('view/theme/' . $theme_name . '/style.php')))
@@ -1575,18 +1678,21 @@ if(! function_exists('profile_tabs')){
 				'url' => $url,
 				'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
 				'title' => t('Status Messages and Posts'),
+				'id' => 'status-tab',
 			),
 			array(
 				'label' => t('Profile'),
 				'url' 	=> $url.'/?tab=profile',
 				'sel'	=> ((isset($tab) && $tab=='profile')?'active':''),
 				'title' => t('Profile Details'),
+				'id' => 'profile-tab',
 			),
 			array(
 				'label' => t('Photos'),
 				'url'	=> $a->get_baseurl() . '/photos/' . $nickname,
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='photos')?'active':''),
 				'title' => t('Photo Albums'),
+				'id' => 'photo-tab',
 			),
 		);
 	
@@ -1596,12 +1702,14 @@ if(! function_exists('profile_tabs')){
 				'url'	=> $a->get_baseurl() . '/events',
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
 				'title' => t('Events and Calendar'),
+				'id' => 'events-tab',
 			);
 			$tabs[] = array(
 				'label' => t('Personal Notes'),
 				'url'	=> $a->get_baseurl() . '/notes',
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='notes')?'active':''),
 				'title' => t('Only You Can See This'),
+				'id' => 'notes-tab',
 			);
 		}
 
@@ -1669,4 +1777,29 @@ function build_querystring($params, $name=null) {
         } 
     } 
     return $ret;    
+}
+
+/**
+* Returns the complete URL of the current page, e.g.: http(s)://something.com/network
+*
+* Taken from http://webcheatsheet.com/php/get_current_page_url.php
+*/
+function curPageURL() {
+	$pageURL = 'http';
+	if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+	$pageURL .= "://";
+	if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
+		$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+	} else {
+		$pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+	}
+	return $pageURL;
+}
+
+function random_digits($digits) {
+	$rn = '';
+	for($i = 0; $i < $digits; $i++) {
+		$rn .= rand(0,9);
+	}
+	return $rn;
 }

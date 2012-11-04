@@ -14,15 +14,16 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		return false;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
-	
+
 	if (!is_null($accept_content)){
 		curl_setopt($ch,CURLOPT_HTTPHEADER, array (
 			"Accept: " . $accept_content
 		));
 	}
-	
+
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Friendica");
+	//@curl_setopt($ch, CURLOPT_USERAGENT, "Friendica");
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
 
 
 	if(intval($timeout)) {
@@ -59,7 +60,6 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
 	$http_code = $curl_info['http_code'];
-
 //	logger('fetch_url:' . $http_code . ' data: ' . $s);
 	$header = '';
 
@@ -73,24 +73,22 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	}
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-        $matches = array();
-        preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-        $newurl = trim(array_pop($matches));
+		$matches = array();
+		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
+		$newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-        $url_parsed = @parse_url($newurl);
-        if (isset($url_parsed)) {
-            $redirects++;
-            return fetch_url($newurl,$binary,$redirects,$timeout);
-        }
-    }
+		$url_parsed = @parse_url($newurl);
+		if (isset($url_parsed)) {
+			$redirects++;
+			return fetch_url($newurl,$binary,$redirects,$timeout);
+		}
+	}
 
 	$a->set_curl_code($http_code);
 
 	$body = substr($s,strlen($header));
-
 	$a->set_curl_headers($header);
-
 	@curl_close($ch);
 	return($body);
 }}
@@ -800,8 +798,11 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 
 	$a = get_app();
 
+	// Picture addresses can contain special characters
+	$s = htmlspecialchars_decode($s);
+
 	$matches = null;
-	$c = preg_match_all('/\[img\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
+	$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($c) {
 		require_once('include/Photo.php');
 		foreach($matches as $mtch) {
@@ -821,6 +822,12 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			else
 				$scaled = $mtch[1];
 			$i = fetch_url($scaled);
+
+			$cache = get_config('system','itemcache');
+			if (($cache != '') and is_dir($cache)) {
+				$cachefile = $cache."/".hash("md5", $scaled);
+				file_put_contents($cachefile, $i);
+			}
 
 			// guess mimetype from headers or filename
 			$type = guess_image_type($mtch[1],true);
@@ -847,6 +854,10 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			}
 		}
 	}
+
+	// replace the special char encoding
+
+	$s = htmlspecialchars($s,ENT_QUOTES,'UTF-8');
 	return $s;
 }
 

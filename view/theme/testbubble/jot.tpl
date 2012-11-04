@@ -16,6 +16,7 @@
 		<input type="hidden" name="coord" id="jot-coord" value="" />
 		<input type="hidden" name="post_id" value="$post_id" />
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
+		<input type="hidden" name="post_id_random" value="$rand_num" />
 		<div id="jot-title-wrap"><input name="title" id="jot-title" type="text" placeholder="$placeholdertitle" value="$title" class="jothidden" style="display:none"></div>
 		<div id="jot-text-wrap">
                 <img id="profile-jot-text-loading" src="images/rotator.gif" alt="$wait" title="$wait" style="display: none;" />
@@ -47,7 +48,7 @@
 
 	<div id="profile-jot-submit-wrapper" style="display:none;padding-left: 400px;">
 		<input type="submit" id="profile-jot-submit" name="submit" value="$share" />
-		<div id="profile-jot-perms" class="profile-jot-perms" style="display: $visitor;" >
+		<div id="profile-jot-perms" class="profile-jot-perms" style="display: $pvisit;" >
             <a href="#profile-jot-acl-wrapper" id="jot-perms-icon" class="icon $lockstate sharePerms" title="$permset"></a>$bang</div>
 	</div>
 

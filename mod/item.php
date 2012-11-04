@@ -18,6 +18,7 @@
 require_once('include/crypto.php');
 require_once('include/enotify.php');
 require_once('include/email.php');
+require_once('Text/LanguageDetect.php');
 
 function item_post(&$a) {
 
@@ -44,6 +45,19 @@ function item_post(&$a) {
 	$api_source = ((x($_REQUEST,'api_source') && $_REQUEST['api_source']) ? true : false);
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 	$preview = ((x($_REQUEST,'preview')) ? intval($_REQUEST['preview']) : 0);
+
+
+	// Check for doubly-submitted posts, and reject duplicates
+	// Note that we have to ignore previews, otherwise nothing will post
+	// after it's been previewed
+	if(!$preview && x($_REQUEST['post_id_random'])) {
+		if(x($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
+			logger("item post: duplicate post", LOGGER_DEBUG);
+			item_post_return($a->get_baseurl(), $api_source, $return_path);
+		}
+		else
+			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
+	}
 
 	/**
 	 * Is this a reply to something?
@@ -78,6 +92,7 @@ function item_post(&$a) {
 		// if this isn't the real parent of the conversation, find it
 		if($r !== false && count($r)) {
 			$parid = $r[0]['parent'];
+			$parent_uri = $r[0]['uri'];
 			if($r[0]['id'] != $r[0]['parent']) {
 				$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
 					intval($parid)
@@ -95,8 +110,8 @@ function item_post(&$a) {
 		$parent = $r[0]['id'];
 
 		// multi-level threading - preserve the info but re-parent to our single level threading
-		if(($parid) && ($parid != $parent))
-			$thr_parent = $parent_uri;
+		//if(($parid) && ($parid != $parent))
+		$thr_parent = $parent_uri;
 
 		if($parent_item['contact-id'] && $uid) {
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -216,6 +231,21 @@ function item_post(&$a) {
 		$emailcc           = notags(trim($_REQUEST['emailcc']));
 		$body              = escape_tags(trim($_REQUEST['body']));
 
+
+		$naked_body = preg_replace('/\[(.+?)\]/','',$body);
+
+		if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+			$l = new Text_LanguageDetect;
+			$lng = $l->detectConfidence($naked_body);
+
+			$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+
+			logger('mod_item: detect language' . print_r($lng,true) . $naked_body, LOGGER_DATA);
+		}
+		else
+			$postopts = '';
+
+
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
 		// If this is a comment, set the permissions from the parent.
@@ -289,6 +319,7 @@ function item_post(&$a) {
 
 	$author = null;
 	$self   = false;
+	$contact_id = 0;
 
 	if((local_user()) && (local_user() == $profile_uid)) {
 		$self = true;
@@ -297,9 +328,19 @@ function item_post(&$a) {
 		);
 	}
 	elseif(remote_user()) {
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
-			intval(remote_user())
-		);
+		if(is_array($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $v) {
+				if($v['uid'] == $profile_uid) {
+					$contact_id = $v['cid'];
+					break;
+				}
+			}
+		}				
+		if($contact_id) {
+			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
+				intval($contact_id)
+			);
+		}
 	}
 
 	if(count($r)) {
@@ -345,8 +386,8 @@ function item_post(&$a) {
 
 	$match = null;
 
-	if((! $preview) && preg_match_all("/\[img\](.*?)\[\/img\]/",$body,$match)) {
-		$images = $match[1];
+	if((! $preview) && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
+		$images = $match[2];
 		if(count($images)) {
 			foreach($images as $image) {
 				if(! stristr($image,$a->get_baseurl() . '/photo/'))
@@ -422,6 +463,7 @@ function item_post(&$a) {
 
 	$body = bb_translate_video($body);
 
+
 	/**
 	 * Fold multi-line [code] sequences
 	 */
@@ -429,6 +471,8 @@ function item_post(&$a) {
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body); 
 
 	$body = scale_external_images($body,false);
+
+
 
 	/**
 	 * Look for any tags and linkify them
@@ -525,6 +569,10 @@ function item_post(&$a) {
 
 	$uri = item_new_uri($a->get_hostname(),$profile_uid);
 
+	// Fallback so that we alway have a thr-parent
+	if(!$thr_parent)
+		$thr_parent = $uri;
+
 	$datarray = array();
 	$datarray['uid']           = $profile_uid;
 	$datarray['type']          = $post_type;
@@ -561,7 +609,7 @@ function item_post(&$a) {
 	$datarray['attach']        = $attachments;
 	$datarray['bookmark']      = intval($bookmark);
 	$datarray['thr-parent']    = $thr_parent;
-	$datarray['postopts']      = '';
+	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
 
@@ -584,7 +632,7 @@ function item_post(&$a) {
 
 	if($preview) {
 		require_once('include/conversation.php');
-		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search',false,true);
+		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search', false, true);
 		logger('preview: ' . $o);
 		echo json_encode(array('preview' => $o));
 		killme();
@@ -724,6 +772,7 @@ function item_post(&$a) {
 					'verb'         => ACTIVITY_POST,
 					'otype'        => 'item',
 					'parent'       => $parent,
+					'parent_uri'   => $parent_item['uri']
 				));
 			
 			}
@@ -837,27 +886,29 @@ function item_post(&$a) {
 
 	logger('post_complete');
 
+	item_post_return($a->get_baseurl(), $api_source, $return_path);
+	// NOTREACHED
+}
+
+function item_post_return($baseurl, $api_source, $return_path) {
 	// figure out how to return, depending on from whence we came
 
 	if($api_source)
 		return;
 
 	if($return_path) {
-		goaway($a->get_baseurl() . "/" . $return_path);
+		goaway($baseurl . "/" . $return_path);
 	}
 
 	$json = array('success' => 1);
 	if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
-		$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
+		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 
 	logger('post_json: ' . print_r($json,true), LOGGER_DEBUG);
 
 	echo json_encode($json);
 	killme();
-	// NOTREACHED
 }
-
-
 
 
 
@@ -958,7 +1009,26 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 						intval($tagcid),
 						intval($profile_uid)
 				);
-			} elseif(strstr($name,'_') || strstr($name,' ')) { //no id
+			}
+			else {
+				$newname = str_replace('_',' ',$name);
+
+				//select someone from this user's contacts by name
+				$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($newname),
+						intval($profile_uid)
+				);
+
+				if(! $r) {
+					//select someone by attag or nick and the name passed in
+					$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+							dbesc($name),
+							dbesc($name),
+							intval($profile_uid)
+					);
+				}
+			}
+/*			} elseif(strstr($name,'_') || strstr($name,' ')) { //no id
 				//get the real name
 				$newname = str_replace('_',' ',$name);
 				//select someone from this user's contacts by name
@@ -973,7 +1043,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 						dbesc($name),
 						intval($profile_uid)
 				);
-			}
+			}*/
 			//$r is set, if someone could be selected
 			if(count($r)) {
 				$profile = $r[0]['url'];
@@ -1039,16 +1109,11 @@ function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, 
 	require_once('include/bb2diaspora.php');
 	$signed_body = html_entity_decode(bb2diaspora($datarray['body']));
 
-//	$myaddr = $user['nickname'] . '@' . substr($baseurl, strpos($baseurl,'://') + 3);
-//	if( $author['network'] === NETWORK_DIASPORA)
-//		$diaspora_handle = $author['addr'];
-//	else {
 	// Only works for NETWORK_DFRN
 	$contact_baseurl_start = strpos($author['url'],'://') + 3;
 	$contact_baseurl_length = strpos($author['url'],'/profile') - $contact_baseurl_start;
 	$contact_baseurl = substr($author['url'], $contact_baseurl_start, $contact_baseurl_length);
 	$diaspora_handle = $author['nick'] . '@' . $contact_baseurl;
-//	}
 
 	$signed_text = $datarray['guid'] . ';' . $parent_item['guid'] . ';' . $signed_body . ';' . $diaspora_handle;
 

@@ -6,12 +6,13 @@
 				<input type="hidden" name="return" value="$return_path" />
 				<input type="hidden" name="jsreload" value="$jsreload" />
 				<input type="hidden" name="preview" id="comment-preview-inp-$id" value="0" />
+				<input type="hidden" name="post_id_random" value="$rand_num" />
 
 				<div class="comment-edit-photo" id="comment-edit-photo-$id" >
 					<a class="comment-edit-photo-link" href="$mylink" title="$mytitle"><img class="my-comment-photo" src="$myphoto" alt="$mytitle" title="$mytitle" /></a>
 				</div>
-				<div class="comment-edit-photo-end"></div>
-				<ul class="comment-edit-bb-$id">
+				<ul id="comment-edit-bb-$id"
+					class="comment-edit-bb">
 					<li><a class="editicon boldbb shadow"
 						style="cursor: pointer;" title="$edbold"
 						onclick="insertFormatting('$comment','b', $id);"></a></li>
@@ -37,8 +38,11 @@
 						style="cursor: pointer;" title="$edvideo"
 						onclick="insertFormatting('$comment','video', $id);"></a></li>
 				</ul>	
-				<div class="comment-edit-bb-end"></div>
-				<textarea id="comment-edit-text-$id" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,$id);cmtBbOpen($id);" onBlur="commentClose(this,$id);" >$comment</textarea>			
+				<textarea id="comment-edit-text-$id" 
+					class="comment-edit-text-empty" 
+					name="body" 
+					onFocus="commentOpen(this,$id) && cmtBbOpen($id);" 
+					onBlur="commentClose(this,$id) && cmtBbClose($id);" >$comment</textarea>
 				{{ if $qcomment }}
 					<select id="qcomment-select-$id" name="qcomment-$id" class="qcomment" onchange="qCommentInsert(this,$id);" >
 					<option value=""></option>
@@ -48,14 +52,12 @@
 					</select>
 				{{ endif }}
 
-				<div class="comment-edit-text-end"></div>
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-$id" style="display: none;" >
 					<input type="submit" onclick="post_comment($id); return false;" id="comment-edit-submit-$id" class="comment-edit-submit" name="submit" value="$submit" />
 					<span onclick="preview_comment($id);" id="comment-edit-preview-link-$id" class="fakelink">$preview</span>
 					<div id="comment-edit-preview-$id" class="comment-edit-preview" style="display:none;"></div>
 				</div>
 
-				<div class="comment-edit-end"></div>
 			</form>
 
 		</div>

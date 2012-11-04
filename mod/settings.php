@@ -18,30 +18,10 @@ function settings_init(&$a) {
 
 	// These lines provide the javascript needed by the acl selector
 
-	$a->page['htmlhead'] .= "<script> var ispublic = '" . t('everybody') . "';" ;
-
-	$a->page['htmlhead'] .= <<< EOT
-
-	$(document).ready(function() {
-
-		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
-			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-				selstr = $(this).text();
-				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
-				$('#jot-public').hide();
-			});
-			if(selstr == null) { 
-				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
-				$('#jot-public').show();
-			}
-
-		}).trigger('change');
-
-	});
-
-	</script>
-EOT;
+	$tpl = get_markup_template("settings-head.tpl");
+	$a->page['htmlhead'] .= replace_macros($tpl,array(
+		'$ispublic' => t('everybody')
+	));
 
 
 
@@ -256,16 +236,21 @@ function settings_post(&$a) {
 		check_form_security_token_redirectOnErr('/settings/display', 'settings_display');
 
 		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->user['theme']);
+		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
 		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);  
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
 		$browser_update   = $browser_update * 1000;
 		if($browser_update < 10000)
-			$browser_update = 40000;
+			$browser_update = 10000;
 
 		$itemspage_network   = ((x($_POST,'itemspage_network')) ? intval($_POST['itemspage_network']) : 40);
 		if($itemspage_network > 100)
-					$itemspage_network = 40;
+			$itemspage_network = 100;
 
+
+		if($mobile_theme !== '') {
+			set_pconfig(local_user(),'system','mobile_theme',$mobile_theme);
+		}
 
 		set_pconfig(local_user(),'system','update_interval', $browser_update);
 		set_pconfig(local_user(),'system','itemspage_network', $itemspage_network);
@@ -373,6 +358,8 @@ function settings_post(&$a) {
 		$notify += intval($_POST['notify6']);
 	if(x($_POST,'notify7'))
 		$notify += intval($_POST['notify7']);
+	if(x($_POST,'notify8'))
+		$notify += intval($_POST['notify8']);
 
 	$email_changed = false;
 
@@ -515,10 +502,11 @@ function settings_post(&$a) {
 	require_once('include/profile_update.php');
 	profile_change();
 
-	$_SESSION['theme'] = $theme;
+	//$_SESSION['theme'] = $theme;
 	if($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
 
 		// FIXME - set to un-verified, blocked and redirect to logout
+		// Why? Are we verifying people or email addresses?
 
 	}
 
@@ -704,7 +692,7 @@ function settings_content(&$a) {
 			'$mail_pass'	=> array('mail_pass', 	 t('Email password:'), '', ''),
 			'$mail_replyto'	=> array('mail_replyto', t('Reply-to address:'), '', 'Optional'),
 			'$mail_pubmail'	=> array('mail_pubmail', t('Send public posts to all email contacts:'), $mail_pubmail, ''),
-			'$mail_action'	=> array('mail_action',	 t('Action after import:'), $mail_action, '', array(0=>t('None'), 1=>t('Delete'), 2=>t('Mark as seen'), 3=>t('Move to folder'))),
+			'$mail_action'	=> array('mail_action',	 t('Action after import:'), $mail_action, '', array(0=>t('None'), /*1=>t('Delete'),*/ 2=>t('Mark as seen'), 3=>t('Move to folder'))),
 			'$mail_movetofolder'	=> array('mail_movetofolder',	 t('Move to folder:'), $mail_movetofolder, ''),
 			'$submit' => t('Submit'),
 
@@ -722,6 +710,9 @@ function settings_content(&$a) {
 		$default_theme = get_config('system','theme');
 		if(! $default_theme)
 			$default_theme = 'default';
+		$default_mobile_theme = get_config('system','mobile-theme');
+		if(! $mobile_default_theme)
+			$mobile_default_theme = 'none';
 
 		$allowed_themes_str = get_config('system','allowed_themes');
 		$allowed_themes_raw = explode(',',$allowed_themes_str);
@@ -733,19 +724,27 @@ function settings_content(&$a) {
 
 		
 		$themes = array();
+		$mobile_themes = array("---" => t('No special theme for mobile devices'));
 		$files = glob('view/theme/*');
 		if($allowed_themes) {
 			foreach($allowed_themes as $th) {
 				$f = $th;
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
+				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
 				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){ 
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
-					$themes[$f]=$theme_name;
+					if($is_mobile) {
+						$mobile_themes[$f]=$theme_name;
+					}
+					else {
+						$themes[$f]=$theme_name;
+					}
 				}
 			}
 		}
 		$theme_selected = (!x($_SESSION,'theme')? $default_theme : $_SESSION['theme']);
+		$mobile_theme_selected = (!x($_SESSION,'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
 		
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
 		$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
@@ -771,14 +770,20 @@ function settings_content(&$a) {
 			'$baseurl' => $a->get_baseurl(true),
 			'$uid' => local_user(),
 		
-			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes),
+			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
+			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
-			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display on the network page:"), $itemspage_network, t('Maximum of 100 items')),
+			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
 			
 			'$theme_config' => $theme_config,
 		));
 		
+		$tpl = get_markup_template("settings_display_end.tpl");
+		$a->page['end'] .= replace_macros($tpl, array(
+			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes)
+		));
+
 		return $o;
 	}
 	
@@ -1025,6 +1030,7 @@ function settings_content(&$a) {
 		'$notify5'	=> array('notify5', t('You receive a private message'), ($notify & NOTIFY_MAIL), NOTIFY_MAIL, ''),
 		'$notify6'  => array('notify6', t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, ''),		
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),		
+		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),		
 		
 		
 		'$h_advn' => t('Advanced Account/Page Type Settings'),

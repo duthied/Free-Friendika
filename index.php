@@ -13,8 +13,10 @@
  */
 
 require_once('boot.php');
+require_once('object/BaseObject.php');
 
 $a = new App;
+BaseObject::set_app($a);
 
 /**
  *
@@ -26,6 +28,8 @@ $a = new App;
 $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
 
 @include(".htconfig.php");
+
+
 
 $lang = get_browser_language();
 	
@@ -118,6 +122,12 @@ if(! x($_SESSION,'authenticated'))
 
 $a->init_pagehead();
 
+/**
+ * Build the page ending -- this is stuff that goes right before
+ * the closing </body> tag
+ */
+
+$a->init_page_end();
 
 
 if(! x($_SESSION,'sysmsg'))
@@ -357,6 +367,19 @@ if($a->module != 'install') {
  */
 
 $a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => current_theme_url()));
+
+if($a->is_mobile || $a->is_tablet) {
+	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+		$link = $a->get_baseurl() . '/toggle_mobile?address=' . curPageURL();
+	}
+	else {
+		$link = $a->get_baseurl() . '/toggle_mobile?off=1&address=' . curPageURL();
+	}
+	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
+	                     	'$toggle_link' => $link,
+	                     	'$toggle_text' => t('toggle mobile')
+    	                 ));
+}
 
 $page    = $a->page;
 $profile = $a->profile;

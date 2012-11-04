@@ -39,7 +39,9 @@
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 			$("#mod-cmnt-wrap-" + id).show();
 			openMenu("comment-edit-submit-wrapper-" + id);
+			return true;
 		}
+		return false;
 	}
 	function commentClose(obj,id) {
 		if(obj.value == '') {
@@ -48,7 +50,9 @@
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-empty");
 			$("#mod-cmnt-wrap-" + id).hide();
 			closeMenu("comment-edit-submit-wrapper-" + id);
+			return true;
 		}
+		return false;
 	}
 
 
@@ -85,14 +89,15 @@
 		$(obj).val('');
 	}
 
-	function showHideComments(id) {
-		if( $('#collapsed-comments-' + id).is(':visible')) {
-			$('#collapsed-comments-' + id).hide();
-			$('#hide-comments-' + id).html('$showmore');
+	window.showMore = "$showmore";
+	window.showFewer = "$showfewer";
+
+	function showHideCommentBox(id) {
+		if( $('#comment-edit-form-' + id).is(':visible')) {
+			$('#comment-edit-form-' + id).hide();
 		}
 		else {
-			$('#collapsed-comments-' + id).show();
-			$('#hide-comments-' + id).html('$showfewer');
+			$('#comment-edit-form-' + id).show();
 		}
 	}
 

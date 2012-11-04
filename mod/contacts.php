@@ -28,39 +28,40 @@ function contacts_init(&$a) {
 
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
-			$o .= '<div class="vcard">';
-			$o .= '<div class="fn">' . $a->data['contact']['name'] . '</div>';
-			$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->data['contact']['photo'] . '" alt="' . $a->data['contact']['name'] . '" /></div>';
-			$o .= '</div>';
-			$a->page['aside'] .= $o;
-
+			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
+				'$name' => $a->data['contact']['name'],
+				'$photo' => $a->data['contact']['photo']
+			));
+			$follow_widget = '';
 	}	
-	else
-		$a->page['aside'] .= follow_widget();
+	else {
+		$vcard_widget = '';
+		$follow_widget = follow_widget();
+	}
 
-	$a->page['aside'] .= group_side('contacts','group',false,0,$contact_id);
+	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
+	$findpeople_widget .= findpeople_widget();
+	$networks_widget .= networks_widget('contacts',$_GET['nets']);
+	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
+		'$vcard_widget' => $vcard_widget,
+		'$follow_widget' => $follow_widget,
+		'$groups_widget' => $groups_widget,
+		'$findpeople_widget' => $findpeople_widget,
+		'$networks_widget' => $networks_widget
+	));
 
-	$a->page['aside'] .= findpeople_widget();
-
-	$a->page['aside'] .= networks_widget('contacts',$_GET['nets']);
 	$base = $a->get_baseurl();
+	$tpl = get_markup_template("contacts-head.tpl");
+	$a->page['htmlhead'] .= replace_macros($tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
 
-	$a->page['htmlhead'] .= '<script src="' . $a->get_baseurl(true) . '/library/jquery_ac/friendica.complete.js" ></script>';
-	$a->page['htmlhead'] .= <<< EOT
-
-<script>$(document).ready(function() { 
-	var a; 
-	a = $("#contacts-search").autocomplete({ 
-		serviceUrl: '$base/acl',
-		minChars: 2,
-		width: 350,
-	});
-	a.setOptions({ params: { type: 'a' }});
-
-}); 
-
-</script>
-EOT;
+	$tpl = get_markup_template("contacts-end.tpl");
+	$a->page['end'] .= replace_macros($tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
 
 
 }
@@ -244,6 +245,10 @@ function contacts_content(&$a) {
 			$editselect = 'none';
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => $editselect,
+		));
+		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
 			'$baseurl' => $a->get_baseurl(true),
 			'$editselect' => $editselect,
 		));

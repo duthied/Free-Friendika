@@ -275,7 +275,7 @@ function onepoll_run($argv, $argc){
 			openssl_private_decrypt(hex2bin($mailconf[0]['pass']),$password,$x[0]['prvkey']);
 			$mbox = email_connect($mailbox,$mailconf[0]['user'],$password);
 			unset($password);
-			logger("Mail: Connect");
+			logger("Mail: Connect to " . $mailconf[0]['user']);
 			if($mbox) {
 				q("UPDATE `mailacct` SET `last_check` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
 					dbesc(datetime_convert()),
@@ -289,19 +289,68 @@ function onepoll_run($argv, $argc){
 			$msgs = email_poll($mbox,$contact['addr']);
 
 			if(count($msgs)) {
-				logger("Mail: Parsing ".count($msgs)." mails.", LOGGER_DEBUG);
+				logger("Mail: Parsing ".count($msgs)." mails for ".$mailconf[0]['user'], LOGGER_DEBUG);
 
-				foreach($msgs as $msg_uid) {
+				$metas = email_msg_meta($mbox,implode(',',$msgs));
+				if(count($metas) != count($msgs)) {
+					logger("onepoll: for " . $mailconf[0]['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
+					break;
+				}
+				$msgs = array_combine($msgs, $metas);
+
+				foreach($msgs as $msg_uid => $meta) {
 					logger("Mail: Parsing mail ".$msg_uid, LOGGER_DATA);
 
 					$datarray = array();
-					$meta = email_msg_meta($mbox,$msg_uid);
-					$headers = email_msg_headers($mbox,$msg_uid);
+//					$meta = email_msg_meta($mbox,$msg_uid);
+//					$headers = email_msg_headers($mbox,$msg_uid);
 
-					// look for a 'references' header and try and match with a parent item we have locally.
-
-					$raw_refs = ((x($headers,'references')) ? str_replace("\t",'',$headers['references']) : '');
 					$datarray['uri'] = msgid2iri(trim($meta->message_id,'<>'));
+
+					// Have we seen it before?
+					$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
+						intval($importer_uid),
+						dbesc($datarray['uri'])
+					);
+
+					if(count($r)) {
+						logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'],LOGGER_DEBUG);
+						if($meta->deleted && ! $r[0]['deleted']) {
+							q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d LIMIT 1",
+								dbesc(datetime_convert()),
+								intval($r[0]['id'])
+							);
+						}
+						/*switch ($mailconf[0]['action']) {
+							case 0:
+								logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'].". Doing nothing.", LOGGER_DEBUG);
+								break;
+							case 1:
+								logger("Mail: Deleting ".$msg_uid." for ".$mailconf[0]['user']);
+								imap_delete($mbox, $msg_uid, FT_UID);
+								break;
+							case 2:
+								logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf[0]['user']);
+								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+								break;
+							case 3:
+								logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']." for ".$mailconf[0]['user']);
+								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+								if ($mailconf[0]['movetofolder'] != "")
+									imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);
+								break;
+						}*/
+						continue;
+					}
+
+
+					// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
+
+//					$raw_refs = ((x($headers,'references')) ? str_replace("\t",'',$headers['references']) : '');
+					$raw_refs = ((property_exists($meta,'references')) ? str_replace("\t",'',$meta->references) : '');
+					if(! trim($raw_refs))
+						$raw_refs = ((property_exists($meta,'in_reply_to')) ? str_replace("\t",'',$meta->in_reply_to) : '');
+					$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
 
 					if($raw_refs) {
 						$refs_arr = explode(' ', $raw_refs);
@@ -314,47 +363,13 @@ function onepoll_run($argv, $argc){
 							intval($importer_uid)
 						);
 						if(count($r))
-							$datarray['parent-uri'] = $r[0]['uri'];
+							$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
+//							$datarray['parent-uri'] = $r[0]['uri'];
 					}
 
 
 					if(! x($datarray,'parent-uri'))
 						$datarray['parent-uri'] = $datarray['uri'];
-
-					// Have we seen it before?
-					$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-						intval($importer_uid),
-						dbesc($datarray['uri'])
-					);
-
-					if(count($r)) {
-//						logger("Mail: Seen before ".$msg_uid);
-						if($meta->deleted && ! $r[0]['deleted']) {
-							q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d LIMIT 1",
-								dbesc(datetime_convert()),
-								intval($r[0]['id'])
-							);
-						}
-						switch ($mailconf[0]['action']) {
-							case 0:
-								break;
-							case 1:
-								logger("Mail: Deleting ".$msg_uid);
-								imap_delete($mbox, $msg_uid, FT_UID);
-								break;
-							case 2:
-								logger("Mail: Mark as seen ".$msg_uid);
-								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-								break;
-							case 3:
-								logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']);
-								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-								if ($mailconf[0]['movetofolder'] != "")
-									imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);
-								break;
-						}
-						continue;
-					}
 
 					// Decoding the header
 					$subject = imap_mime_header_decode($meta->subject);
@@ -377,12 +392,12 @@ function onepoll_run($argv, $argc){
 
 					$r = email_get_msg($mbox,$msg_uid, $reply);
 					if(! $r) {
-						logger("Mail: can't fetch msg ".$msg_uid);
+						logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf[0]['user']);
 						continue;
 					}
 					$datarray['body'] = escape_tags($r['body']);
 
-					logger("Mail: Importing ".$msg_uid);
+					logger("Mail: Importing ".$msg_uid." for ".$mailconf[0]['user']);
 
 					// some mailing lists have the original author as 'from' - add this sender info to msg body.
 					// todo: adding a gravatar for the original author would be cool
@@ -421,17 +436,18 @@ function onepoll_run($argv, $argc){
 					);
 					switch ($mailconf[0]['action']) {
 						case 0:
+							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'].". Doing nothing.", LOGGER_DEBUG);
 							break;
 						case 1:
-							logger("Mail: Deleting ".$msg_uid);
+							logger("Mail: Deleting ".$msg_uid." for ".$mailconf[0]['user']);
 							imap_delete($mbox, $msg_uid, FT_UID);
 							break;
 						case 2:
-							logger("Mail: Mark as seen ".$msg_uid);
+							logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf[0]['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 							break;
 						case 3:
-							logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']);
+							logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']." for ".$mailconf[0]['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 							if ($mailconf[0]['movetofolder'] != "")
 								imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);

@@ -70,7 +70,7 @@ function notags($string) {
 if(! function_exists('escape_tags')) {
 function escape_tags($string) {
 
-	return(htmlspecialchars($string));
+	return(htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }}
 
 
@@ -280,6 +280,31 @@ function paginate(&$a) {
 	return $o;
 }}
 
+if(! function_exists('alt_pager')) {
+function alt_pager(&$a, $i) {
+        $o = '';
+	$stripped = preg_replace('/(&page=[0-9]*)/','',$a->query_string);
+	$stripped = str_replace('q=','',$stripped);
+	$stripped = trim($stripped,'/');
+	$pagenum = $a->pager['page'];
+        $url = $a->get_baseurl() . '/' . $stripped;
+
+        $o .= '<div class="pager">';
+
+	if($a->pager['page']>1)
+	  $o .= "<a href=\"$url"."&page=".($a->pager['page'] - 1).'">' . t('newer') . '</a>';
+        if($i>0) {
+          if($a->pager['page']>1)
+	          $o .= "&nbsp;-&nbsp;";
+	  $o .= "<a href=\"$url"."&page=".($a->pager['page'] + 1).'">' . t('older') . '</a>';
+	}
+
+
+        $o .= '</div>'."\r\n";
+
+	return $o;
+}}
+
 // Turn user/group ACLs stored as angle bracketed text into arrays
 
 if(! function_exists('expand_acl')) {
@@ -378,7 +403,7 @@ function load_view_file($s) {
 		return file_get_contents("$d/$lang/$b");
 	
 	$theme = current_theme();
-	
+
 	if(file_exists("$d/theme/$theme/$b"))
 		return file_get_contents("$d/theme/$theme/$b");
 			
@@ -478,6 +503,10 @@ function get_tags($s) {
 	// ignore anything in a code block
 
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
+
+	// ignore anything in a bbtag
+
+	$s = preg_replace('/\[(.*?)\]/sm','',$s);
 
 	// Match full names against @tags including the space between first and last
 	// We will look these up afterward to see if they are full names or not recognisable.
@@ -681,6 +710,55 @@ function linkify($s) {
 	return($s);
 }}
 
+function get_poke_verbs() {
+	
+	// index is present tense verb
+	// value is array containing past tense verb, translation of present, translation of past
+
+	$arr = array(
+		'poke' => array( 'poked', t('poke'), t('poked')),
+		'ping' => array( 'pinged', t('ping'), t('pinged')),
+		'prod' => array( 'prodded', t('prod'), t('prodded')),
+		'slap' => array( 'slapped', t('slap'), t('slapped')),
+		'finger' => array( 'fingered', t('finger'), t('fingered')),
+		'rebuff' => array( 'rebuffed', t('rebuff'), t('rebuffed')),
+	);
+	call_hooks('poke_verbs', $arr);
+	return $arr;
+}
+
+function get_mood_verbs() {
+	
+	// index is present tense verb
+	// value is array containing past tense verb, translation of present, translation of past
+
+	$arr = array(
+		'happy'      => t('happy'),
+		'sad'        => t('sad'),
+		'mellow'     => t('mellow'),
+		'tired'      => t('tired'),
+		'perky'      => t('perky'),
+		'angry'      => t('angry'),
+		'stupefied'  => t('stupified'),
+		'puzzled'    => t('puzzled'),
+		'interested' => t('interested'),
+		'bitter'     => t('bitter'),
+		'cheerful'   => t('cheerful'),
+		'alive'      => t('alive'),
+		'annoyed'    => t('annoyed'),
+		'anxious'    => t('anxious'),
+		'cranky'     => t('cranky'),
+		'disturbed'  => t('disturbed'),
+		'frustrated' => t('frustrated'),
+		'motivated'  => t('motivated'),
+		'relaxed'    => t('relaxed'),
+		'surprised'  => t('surprised'),
+	);
+
+	call_hooks('mood_verbs', $arr);
+	return $arr;
+}
+
 
 /**
  * 
@@ -748,7 +826,6 @@ function smilies($s, $sample = false) {
 		':facepalm',
 		':like',
 		':dislike',
-		'~friendika', 
 		'~friendica'
 
 	);
@@ -786,7 +863,6 @@ function smilies($s, $sample = false) {
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/like.gif" alt=":like" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/dislike.gif" alt=":dislike" />',
-		'<a href="http://project.friendika.com">~friendika <img class="smiley" src="' . $a->get_baseurl() . '/images/friendika-16.png" alt="~friendika" /></a>',
 		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . $a->get_baseurl() . '/images/friendica-16.png" alt="~friendica" /></a>'
 	);
 
@@ -927,7 +1003,7 @@ function prepare_body($item,$attach = false) {
 					}
 					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
-					if((local_user() == $item['uid']) && $item['contact-id'] != $a->contact['id'])
+					if((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN))
 						$the_url = $a->get_baseurl() . '/redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
 					else
 						$the_url = $mtch[1];
@@ -938,34 +1014,7 @@ function prepare_body($item,$attach = false) {
 		}
 		$s .= '<div class="clear"></div></div>';
 	}
-	$matches = false;
-	$cnt = preg_match_all('/<(.*?)>/',$item['file'],$matches,PREG_SET_ORDER);
-	if($cnt) {
-//		logger('prepare_text: categories: ' . print_r($matches,true), LOGGER_DEBUG);
-		foreach($matches as $mtch) {
-			if(strlen($x))
-				$x .= ',';
-			$x .= xmlify(file_tag_decode($mtch[1])) 
-				. ((local_user() == $item['uid']) ? ' <a href="' . $a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])) . '" title="' . t('remove') . '" >' . t('[remove]') . '</a>' : '');
-		}
-		if(strlen($x))
-			$s .= '<div class="categorytags"><span>' . t('Categories:') . ' </span>' . $x . '</div>'; 
 
-
-	}
-	$matches = false;
-	$x = '';
-	$cnt = preg_match_all('/\[(.*?)\]/',$item['file'],$matches,PREG_SET_ORDER);
-	if($cnt) {
-//		logger('prepare_text: filed_under: ' . print_r($matches,true), LOGGER_DEBUG);
-		foreach($matches as $mtch) {
-			if(strlen($x))
-				$x .= '&nbsp;&nbsp;&nbsp;';
-			$x .= xmlify(file_tag_decode($mtch[1])) . ' <a href="' . $a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])) . '" title="' . t('remove') . '" >' . t('[remove]') . '</a>';
-		}
-		if(strlen($x) && (local_user() == $item['uid']))
-			$s .= '<div class="filesavetags"><span>' . t('Filed under:') . ' </span>' . $x . '</div>'; 
-	}
 
 	// Look for spoiler
 	$spoilersearch = '<blockquote class="spoiler">';
@@ -1018,6 +1067,73 @@ function prepare_text($text) {
 
 	return $s;
 }}
+
+
+/**
+ * returns 
+ * [
+ *    //categories [
+ *          {
+ *               'name': 'category name',
+ *              'removeurl': 'url to remove this category',
+ *             'first': 'is the first in this array? true/false',
+ *               'last': 'is the last in this array? true/false',
+ *           } ,
+ *           ....
+ *       ],
+ *       // folders [
+ *               'name': 'folder name',
+ *               'removeurl': 'url to remove this folder',
+ *               'first': 'is the first in this array? true/false',
+ *               'last': 'is the last in this array? true/false',
+ *           } ,
+ *           ....       
+ *       ]
+ *   ]
+ */
+function get_cats_and_terms($item) {
+    $a = get_app();
+    $categories = array();
+    $folders = array();
+
+    $matches = false; $first = true;
+    $cnt = preg_match_all('/<(.*?)>/',$item['file'],$matches,PREG_SET_ORDER);
+    if($cnt) {
+        foreach($matches as $mtch) {
+            $categories[] = array(
+                'name' => xmlify(file_tag_decode($mtch[1])),
+                'url' =>  "#",
+                'removeurl' => ((local_user() == $item['uid'])?$a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
+                'first' => $first,
+                'last' => false
+            );
+            $first = false;
+        }
+    }
+    if (count($categories)) $categories[count($categories)-1]['last'] = true;
+    
+
+	if(local_user() == $item['uid']) {
+	    $matches = false; $first = true;
+    	$cnt = preg_match_all('/\[(.*?)\]/',$item['file'],$matches,PREG_SET_ORDER);
+	    if($cnt) {
+    	    foreach($matches as $mtch) {
+        	    $folders[] = array(
+            	    'name' => xmlify(file_tag_decode($mtch[1])),
+                	 'url' =>  "#",
+	                'removeurl' => ((local_user() == $item['uid'])?$a->get_baseurl() . '/filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])):""),
+    	            'first' => $first,
+        	        'last' => false
+            	);
+	            $first = false;
+			}
+        }
+    }
+
+    if (count($folders)) $folders[count($folders)-1]['last'] = true;
+
+    return array($categories, $folders);
+}
 
 
 /**
@@ -1537,6 +1653,7 @@ function undo_post_tagging($s) {
 
 function fix_mce_lf($s) {
 	$s = str_replace("\r\n","\n",$s);
+//	$s = str_replace("\n\n","\n",$s);
 	return $s;
 }
 

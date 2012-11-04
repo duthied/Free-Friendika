@@ -194,7 +194,7 @@ aside {
 	border-radius: 5px;
 	padding: 5px;
 	font-weight: bold;
-	background: #3465a4 url('friendika-16.png') no-repeat 95% center;
+	background: #3465a4 url('friendica-16.png') no-repeat 95% center;
 }
 #wallmessage-link {
 	display: block;
@@ -245,8 +245,9 @@ section {
 
 /* footer */
 footer {
-    display: none;
-
+	text-align: right;
+	padding-bottom: 1em;
+	padding-right: 3em;
 }
 
 .birthday-today, .event-today {
@@ -437,7 +438,7 @@ div.wall-item-content-wrapper.shiny {
 
 input#dfrn-url {
 	float: left;
-	background: url(friendika-16.png) no-repeat;
+	background: url(friendica-16.png) no-repeat;
 	background-position: 2px center;
 	font-size: 17px;
 	padding-left: 21px;
@@ -932,11 +933,21 @@ input#dfrn-url {
 	position: relative;
 	-moz-border-radius: 3px;
 	border-radius: 3px;	
+}
 
+.tread-wrapper .tread-wrapper {
+	margin-left: 50px;
+}
+.tread-wrapper .wall-item-comment-wrapper {
+	margin-left: 50px;
+}
+
+.tread-end-wrapper {
+	margin-left: 50px;
 }
 
 .wall-item-content-wrapper.comment {
-	margin-left: 50px;
+#	margin-left: 50px;
 	background: #EEEEEE;
 }
 
@@ -1128,7 +1139,7 @@ input#dfrn-url {
 	margin-left: 10px;
 	/*margin-bottom: 20px;*/
 	/*padding: 20px;*/
-	max-height: 400px;
+	max-height: 700px;
 	overflow: auto;
 }
 
@@ -1175,9 +1186,7 @@ input#dfrn-url {
 }
 
 .comment-wwedit-wrapper {
-	margin-top: 15px;
 	background: #f3f3f3;
-	margin-left: 50px;
 }
 
 .comment-edit-photo {
@@ -1187,6 +1196,10 @@ input#dfrn-url {
 	width: 100px;
 	float: left;
 }
+.comment-wwedit-wrapper.threaded > .comment-edit-form > .comment-edit-photo {
+	width: 40px;
+}
+
 .comment-edit-photo img {
 	width: 25px;
 }
@@ -1204,6 +1217,10 @@ input#dfrn-url {
 
 .comment-edit-submit {
 	margin: 10px 0px 10px 110px;
+}
+
+.comment-wwedit-wrapper.threaded > .comment-edit-form > .comment-edit-submit-wrapper > .comment-edit-submit {
+	margin-left: 50px;
 }
 
 #profile-jot-plugin-wrapper,
@@ -1749,10 +1766,14 @@ input#dfrn-url {
 
 .comment-edit-text-empty {
 	color: gray;
-	height: 30px;
+	height: 2em;
 	width: 175px;
 	overflow: auto;
 	margin-bottom: 10px;
+}
+
+.comment-wwedit-wrapper.threaded > .comment-edit-form > .comment-edit-text-empty {
+	height: 1.5em;
 }
 
 .comment-edit-text-full {
@@ -3037,7 +3058,8 @@ aside input[type='text'] {
 [class^="comment-edit-bb"] {
 	list-style: none;
 	display: none;
-	margin: 0px 0 -5px 60px;
+	margin: 0px 0 -5px 0px;
+	padding: 0px;
 	width: 75%;
 }
 [class^="comment-edit-bb"] > li {

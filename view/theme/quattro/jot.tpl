@@ -13,6 +13,7 @@
 		<input type="hidden" name="coord" id="jot-coord" value="" />
 		<input type="hidden" name="post_id" value="$post_id" />
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
+		<input type="hidden" name="post_id_random" value="$rand_num" />
 
 		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" >{{ if $content }}$content{{ else }}$share{{ endif }}</textarea>
 
@@ -20,7 +21,7 @@
 			<li><a href="#" onclick="return false;" id="wall-image-upload" title="$upload">$shortupload</a></a></li>
 			<li><a href="#" onclick="return false;" id="wall-file-upload"  title="$attach">$shortattach</a></li>
 			<li><a id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink(); return false;" title="$weblink">$shortweblink</a></li>
-			<li><a id="profile-video" onclick="jotVideoURL();return false;" title="$gvideo">$shortvideo</a></li>
+			<li><a id="profile-video" onclick="jotVideoURL();return false;" title="$video">$shortvideo</a></li>
 			<li><a id="profile-audio" onclick="jotAudioURL();return false;" title="$audio">$shortaudio</a></li>
 			<!-- TODO: waiting for a better placement 
 			<li><a id="profile-location" onclick="jotGetLocation();return false;" title="$setloc">$shortsetloc</a></li>

@@ -8,7 +8,7 @@ function uninstall_plugin($plugin){
 	q("DELETE FROM `addon` WHERE `name` = '%s' ",
 		dbesc($plugin)
 	);
-
+    
 	@include_once('addon/' . $plugin . '/' . $plugin . '.php');
 	if(function_exists($plugin . '_uninstall')) {
 		$func = $plugin . '_uninstall';
@@ -18,7 +18,6 @@ function uninstall_plugin($plugin){
 
 if (! function_exists('install_plugin')){
 function install_plugin($plugin) {
-
 	// silently fail if plugin was removed
 
 	if(! file_exists('addon/' . $plugin . '/' . $plugin . '.php'))
@@ -77,7 +76,7 @@ function reload_plugins() {
 				$pl = trim($pl);
 
 				$fname = 'addon/' . $pl . '/' . $pl . '.php';
-				
+
 				if(file_exists($fname)) {
 					$t = @filemtime($fname);
 					foreach($installed as $i) {
@@ -111,7 +110,7 @@ function reload_plugins() {
 
 
 if(! function_exists('register_hook')) {
-function register_hook($hook,$file,$function) {
+function register_hook($hook,$file,$function,$priority=0) {
 
 	$r = q("SELECT * FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s' LIMIT 1",
 		dbesc($hook),
@@ -121,10 +120,11 @@ function register_hook($hook,$file,$function) {
 	if(count($r))
 		return true;
 
-	$r = q("INSERT INTO `hook` (`hook`, `file`, `function`) VALUES ( '%s', '%s', '%s' ) ",
+	$r = q("INSERT INTO `hook` (`hook`, `file`, `function`, `priority`) VALUES ( '%s', '%s', '%s', '%s' ) ",
 		dbesc($hook),
 		dbesc($file),
-		dbesc($function)
+		dbesc($function),
+		dbesc($priority)
 	);
 	return $r;
 }}
@@ -145,7 +145,7 @@ if(! function_exists('load_hooks')) {
 function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
-	$r = q("SELECT * FROM `hook` WHERE 1");
+	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC");
 	if(count($r)) {
 		foreach($r as $rr) {
 			if(! array_key_exists($rr['hook'],$a->hooks))
@@ -255,6 +255,7 @@ function get_theme_info($theme){
 		'author' => array(),
 		'maintainer' => array(),
 		'version' => "",
+		'credits' => "",
 		'experimental' => false,
 		'unsupported' => false
 	);

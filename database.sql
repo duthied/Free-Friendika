@@ -260,6 +260,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   `type` char(255) NOT NULL,
   `nofinish` tinyint(1) NOT NULL DEFAULT '0',
   `adjust` tinyint(1) NOT NULL DEFAULT '1',
+  `ignore` tinyint(1) NOT NULL DEFAULT '0',
   `allow_cid` mediumtext NOT NULL,
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
@@ -271,7 +272,8 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `type` ( `type` ),
   KEY `start` ( `start` ),
   KEY `finish` ( `finish` ),
-  KEY `adjust` ( `adjust` )
+  KEY `adjust` ( `adjust` ),
+  KEY `ignore` ( `ignore` )
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -456,6 +458,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
   `hook` char(255) NOT NULL,
   `file` char(255) NOT NULL,
   `function` char(255) NOT NULL,
+  `priority` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
@@ -569,6 +572,9 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `moderated` (`moderated`),
   KEY `spam` (`spam`),
   KEY `author-name` (`author-name`),
+  KEY `uid_commented` (`uid`, `commented`),
+  KEY `uid_created` (`uid`, `created`),
+  KEY `uid_unseen` (`uid`, `unseen`),
   FULLTEXT KEY `title` (`title`),
   FULLTEXT KEY `body` (`body`),
   FULLTEXT KEY `allow_cid` (`allow_cid`),
@@ -586,11 +592,13 @@ CREATE TABLE IF NOT EXISTS `item` (
 --
 
 CREATE TABLE IF NOT EXISTS `item_id` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `iid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
   `sid` char(255) NOT NULL,
   `service` char(255) NOT NULL,
-  PRIMARY KEY (`iid`),
+  PRIMARY KEY (`id`),
+  KEY `iid` (`iid`),
   KEY `uid` (`uid`),
   KEY `sid` (`sid`),
   KEY `service` (`service`)
@@ -602,7 +610,7 @@ CREATE TABLE IF NOT EXISTS `item_id` (
 -- Table structure for table `locks`
 --
 
-CREATE TABLE `locks` (
+CREATE TABLE IF NOT EXISTS `locks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` char(128) NOT NULL,
   `locked` tinyint(1) NOT NULL DEFAULT '0',

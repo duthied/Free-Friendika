@@ -10,14 +10,13 @@ function nuke_session() {
 	unset($_SESSION['administrator']);
 	unset($_SESSION['cid']);
 	unset($_SESSION['theme']);
+	unset($_SESSION['mobile-theme']);
 	unset($_SESSION['page_flags']);
 	unset($_SESSION['submanage']);
 	unset($_SESSION['my_url']);
 	unset($_SESSION['my_address']);
 	unset($_SESSION['addr']);
 	unset($_SESSION['return_url']);
-	unset($_SESSION['theme']);
-	unset($_SESSION['page_flags']);
 }
 
 
@@ -168,24 +167,5 @@ else {
 		authenticate_success($record, true, true);
 	}
 }
-
-// Returns an array of group id's this contact is a member of.
-// This array will only contain group id's related to the uid of this
-// DFRN contact. They are *not* neccessarily unique across the entire site. 
-
-
-if(! function_exists('init_groups_visitor')) {
-function init_groups_visitor($contact_id) {
-	$groups = array();
-	$r = q("SELECT `gid` FROM `group_member` 
-		WHERE `contact-id` = %d ",
-		intval($contact_id)
-	);
-	if(count($r)) {
-		foreach($r as $rr)
-			$groups[] = $rr['gid'];
-	}
-	return $groups;
-}}
 
 

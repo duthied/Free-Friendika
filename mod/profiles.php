@@ -48,8 +48,13 @@ function profiles_post(&$a) {
 			
 		$name = notags(trim($_POST['name']));
 
+		if(! strlen($name)) {
+			$name = '[No Name]';
+		}
+
 		if($orig[0]['name'] != $name)
 			$namechanged = true;
+
 
 
 		$pdesc = notags(trim($_POST['pdesc']));
@@ -96,13 +101,24 @@ function profiles_post(&$a) {
 				}
 				else {
 					$newname = $lookup;
-					if(strstr($lookup,' ')) {
+/*					if(strstr($lookup,' ')) {
 						$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 							dbesc($newname),
 							intval(local_user())
 						);
 					}
 					else {
+						$r = q("SELECT * FROM `contact` WHERE `nick` = '%s' AND `uid` = %d LIMIT 1",
+							dbesc($lookup),
+							intval(local_user())
+						);
+					}*/
+					
+					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($newname),
+						intval(local_user())
+					);
+					if(! $r) {
 						$r = q("SELECT * FROM `contact` WHERE `nick` = '%s' AND `uid` = %d LIMIT 1",
 							dbesc($lookup),
 							intval(local_user())
@@ -385,9 +401,17 @@ function profile_activity($changed, $value) {
 	$arr['deny_gid']  = $a->user['deny_gid'];
 
 	$i = item_store($arr);
-	if($i)
+	if($i) {
+
+		// give it a permanent link
+		q("update item set plink = '%s' where id = %d limit 1",
+			dbesc($a->get_baseurl() . '/display/' . $a->user['nickname'] . '/' . $i),
+			intval($i)
+		);
+
 	   	proc_run('php',"include/notifier.php","activity","$i");
 
+	}
 }
 
 
@@ -538,6 +562,10 @@ function profiles_content(&$a) {
 			'$baseurl' => $a->get_baseurl(true),
 			'$editselect' => $editselect,
 		));
+		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => $editselect,
+		));
 
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
@@ -548,9 +576,6 @@ function profiles_content(&$a) {
 			'$yes_selected' => (($r[0]['hide-friends']) ? " checked=\"checked\" " : ""),
 			'$no_selected' => (($r[0]['hide-friends'] == 0) ? " checked=\"checked\" " : "")
 		));
-
-		$a->page['htmlhead'] .= "<script type=\"text/javascript\" src=\"js/country.js\" ></script>";
-
 
 
 

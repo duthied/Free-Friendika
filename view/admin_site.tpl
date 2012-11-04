@@ -6,6 +6,7 @@
 			autoDimensions: false,
 			onStart: function(){
 				var theme = $("#id_theme :selected").val();
+				var theme_mobile = $("#id_theme_mobile :selected").val();
 				$("#cnftheme").attr('href',"$baseurl/admin/themes/"+theme);
 			}, 
 			onComplete: function(){
@@ -44,6 +45,7 @@
 	{{ inc field_textarea.tpl with $field=$banner }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$language }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$theme }}{{ endinc }}
+	{{ inc field_select.tpl with $field=$theme_mobile }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$ssl_policy }}{{ endinc }}
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
@@ -60,6 +62,8 @@
 
 	<h3>$upload</h3>
 	{{ inc field_input.tpl with $field=$maximagesize }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$maximagelength }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$jpegimagequality }}{{ endinc }}
 	
 	<h3>$corporate</h3>
 	{{ inc field_input.tpl with $field=$allowed_sites }}{{ endinc }}
@@ -71,6 +75,8 @@
 	{{ inc field_checkbox.tpl with $field=$diaspora_enabled }}{{ endinc }}
 	{{ inc field_checkbox.tpl with $field=$dfrn_only }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$global_directory }}{{ endinc }}
+	{{ inc field_checkbox.tpl with $field=$thread_allow }}{{ endinc }}
+	{{ inc field_checkbox.tpl with $field=$newuser_private }}{{ endinc }}
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
 	

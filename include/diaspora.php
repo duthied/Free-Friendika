@@ -102,6 +102,37 @@ function diaspora_dispatch($importer,$msg) {
 	return $ret;
 }
 
+function diaspora_handle_from_contact($contact_id) {
+	$handle = False;
+
+	logger("diaspora_handle_from_contact: contact id is " . $contact_id, LOGGER_DEBUG);
+
+	$r = q("SELECT network, addr, self, url, nick FROM contact WHERE id = %d",
+	       intval($contact_id)
+	);
+	if($r) {
+		$contact = $r[0];
+
+		logger("diaspora_handle_from_contact: contact 'self' = " . $contact['self'] . " 'url' = " . $contact['url'], LOGGER_DEBUG);
+
+		if($contact['network'] === NETWORK_DIASPORA) {
+			$handle = $contact['addr'];
+
+//			logger("diaspora_handle_from_contact: contact id is a Diaspora person, handle = " . $handle, LOGGER_DEBUG);
+		}
+		elseif(($contact['network'] === NETWORK_DFRN) || ($contact['self'] == 1)) {
+			$baseurl_start = strpos($contact['url'],'://') + 3;
+			$baseurl_length = strpos($contact['url'],'/profile') - $baseurl_start; // allows installations in a subdirectory--not sure how Diaspora will handle
+			$baseurl = substr($contact['url'], $baseurl_start, $baseurl_length);
+			$handle = $contact['nick'] . '@' . $baseurl;
+
+//			logger("diaspora_handle_from_contact: contact id is a DFRN person, handle = " . $handle, LOGGER_DEBUG);
+		}
+	}
+
+	return $handle;
+}
+
 function diaspora_get_contact_by_handle($uid,$handle) {
 	$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `addr` = '%s' LIMIT 1",
 		dbesc(NETWORK_DIASPORA),
@@ -110,6 +141,17 @@ function diaspora_get_contact_by_handle($uid,$handle) {
 	);
 	if($r && count($r))
 		return $r[0];
+
+	$handle_parts = explode("@", $handle);
+	$nurl_sql = '%%://' . $handle_parts[1] . '%%/profile/' . $handle_parts[0];
+	$r = q("SELECT * FROM contact WHERE network = '%s' AND uid = %d AND nurl LIKE '%s' LIMIT 1",
+	       dbesc(NETWORK_DFRN),
+	       intval($uid),
+	       dbesc($nurl_sql)
+	);
+	if($r && count($r))
+		return $r[0];
+
 	return false;
 }
 
@@ -1236,6 +1278,7 @@ function diaspora_comment($importer,$xml,$msg) {
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
+	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
@@ -1272,7 +1315,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	if(($parent_item['origin']) && (! $parent_author_signature)) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
-			dbesc($author_signed_data),
+			dbesc($signed_data),
 			dbesc(base64_encode($author_signature)),
 			dbesc($diaspora_handle)
 		);
@@ -1281,7 +1324,7 @@ function diaspora_comment($importer,$xml,$msg) {
 		// the existence of parent_author_signature means the parent_author or owner
 		// is already relaying.
 
-		proc_run('php','include/notifier.php','comment',$message_id);
+		proc_run('php','include/notifier.php','comment-import',$message_id);
 	}
 
 	$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0 ",
@@ -1318,7 +1361,7 @@ function diaspora_comment($importer,$xml,$msg) {
 				'verb'         => ACTIVITY_POST,
 				'otype'        => 'item',
 				'parent'       => $conv_parent,
-
+				'parent_uri'   => $parent_uri
 			));
 
 			// only send one notification
@@ -1673,8 +1716,8 @@ function diaspora_like($importer,$xml,$msg) {
 
 	// likes on comments not supported here and likes on photos not supported by Diaspora
 
-	if($target_type !== 'Post')
-		return;
+//	if($target_type !== 'Post')
+//		return;
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$msg['author']);
 	if(! $contact) {
@@ -1855,7 +1898,7 @@ EOT;
 	if(! $parent_author_signature) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
-			dbesc($author_signed_data),
+			dbesc($signed_data),
 			dbesc(base64_encode($author_signature)),
 			dbesc($diaspora_handle)
 		);
@@ -1866,7 +1909,7 @@ EOT;
 	// is already relaying. The parent_item['origin'] indicates the message was created on our system
 
 	if(($parent_item['origin']) && (! $parent_author_signature))
-		proc_run('php','include/notifier.php','comment',$message_id);
+		proc_run('php','include/notifier.php','comment-import',$message_id);
 
 	return;
 }
@@ -1917,7 +1960,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$diaspora_handle);
 	if(! $contact) {
-		logger('diaspora_signed_retraction: no contact');
+		logger('diaspora_signed_retraction: no contact ' . $diaspora_handle . ' for ' . $importer['uid']);
 		return;
 	}
 
@@ -1992,7 +2035,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 						// is already relaying.
 						logger('diaspora_signed_retraction: relaying relayable_retraction');
 
-						proc_run('php','include/notifier.php','relayable_retraction',$r[0]['id']);
+						proc_run('php','include/notifier.php','drop',$r[0]['id']);
 					}
 				}
 			}
@@ -2029,11 +2072,20 @@ function diaspora_profile($importer,$xml,$msg) {
 	$image_url = unxmlify($xml->image_url);
 	$birthday = unxmlify($xml->birthday);
 
-	$r = q("SELECT DISTINCT ( `resource-id` ) FROM `photo` WHERE  `uid` = %d AND `contact-id` = %d AND `album` = 'Contact Photos' ",
+
+	$handle_parts = explode("@", $diaspora_handle);
+	if($name === '') {
+		$name = $handle_parts[0];
+	}
+	if(strpos($image_url, $handle_parts[1]) === false) {
+		$image_url = "http://" . $handle_parts[1] . $image_url;
+	}
+
+/*	$r = q("SELECT DISTINCT ( `resource-id` ) FROM `photo` WHERE  `uid` = %d AND `contact-id` = %d AND `album` = 'Contact Photos' ",
 		intval($importer['uid']),
 		intval($contact['id'])
 	);
-	$oldphotos = ((count($r)) ? $r : null);
+	$oldphotos = ((count($r)) ? $r : null);*/
 
 	require_once('include/Photo.php');
 
@@ -2066,7 +2118,7 @@ function diaspora_profile($importer,$xml,$msg) {
 		intval($importer['uid'])
 	); 
 
-	if($r) {
+/*	if($r) {
 		if($oldphotos) {
 			foreach($oldphotos as $ph) {
 				q("DELETE FROM `photo` WHERE `uid` = %d AND `contact-id` = %d AND `album` = 'Contact Photos' AND `resource-id` = '%s' ",
@@ -2076,7 +2128,7 @@ function diaspora_profile($importer,$xml,$msg) {
 				);
 			}
 		}
-	}	
+	}	*/
 
 	return;
 
@@ -2119,7 +2171,6 @@ function diaspora_unshare($me,$contact) {
 }
 
 
-
 function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 
 	$a = get_app();
@@ -2153,8 +2204,6 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 		}
 	}
 */
-	// Removal of tags
-	$body = preg_replace('/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '#$2', $body);
 
 	//if(strlen($title))
 	//	$body = "[b]".html_entity_decode($title)."[/b]\n\n".$body;
@@ -2253,22 +2302,31 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	$myaddr = $owner['nickname'] . '@' .  substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 //	$theiraddr = $contact['addr'];
 
-	// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-	// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-	// The only item with `parent` and `id` as the parent id is the parent item.
-	$p = q("select guid from item where parent = %d and id = %d limit 1",
-		intval($item['parent']),
-		intval($item['parent'])
-	);
+	// Diaspora doesn't support threaded comments
+	/*if($item['thr-parent']) {
+		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+		        dbesc($item['thr-parent'])
+		      );
+	}
+	else {*/
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+			intval($item['parent']),
+			intval($item['parent'])
+		);
+	//}
 	if(count($p))
-		$parent_guid = $p[0]['guid'];
+		$parent = $p[0];
 	else
 		return;
 
 	if($item['verb'] === ACTIVITY_LIKE) {
 		$tpl = get_markup_template('diaspora_like.tpl');
 		$like = true;
-		$target_type = 'Post';
+		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
+//		$target_type = (strpos($parent['type'], 'comment') ? 'Comment' : 'Post');
 //		$positive = (($item['deleted']) ? 'false' : 'true');
 		$positive = 'true';
 
@@ -2285,15 +2343,15 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	// sign it
 
 	if($like)
-		$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $myaddr;
+		$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $myaddr;
 	else
-		$signed_text = $item['guid'] . ';' . $parent_guid . ';' . $text . ';' . $myaddr;
+		$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $myaddr;
 
 	$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
 
 	$msg = replace_macros($tpl,array(
 		'$guid' => xmlify($item['guid']),
-		'$parent_guid' => xmlify($parent_guid),
+		'$parent_guid' => xmlify($parent['guid']),
 		'$target_type' =>xmlify($target_type),
 		'$authorsig' => xmlify($authorsig),
 		'$body' => xmlify($text),
@@ -2320,16 +2378,23 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	$body = $item['body'];
 	$text = html_entity_decode(bb2diaspora($body));
 
-
-	// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-	// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-	// The only item with `parent` and `id` as the parent id is the parent item.
-	$p = q("select guid from item where parent = %d and id = %d limit 1",
-		intval($item['parent']),
-		intval($item['parent'])
-	);
+	// Diaspora doesn't support threaded comments
+	/*if($item['thr-parent']) {
+		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+		        dbesc($item['thr-parent'])
+		      );
+	}
+	else {*/
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+		       intval($item['parent']),
+		       intval($item['parent'])
+		      );
+	//}
 	if(count($p))
-		$parent_guid = $p[0]['guid'];
+		$parent = $p[0];
 	else
 		return;
 
@@ -2347,7 +2412,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	elseif($item['verb'] === ACTIVITY_LIKE) {
 		$like = true;
 
-		$target_type = 'Post';
+		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
 //		$positive = (($item['deleted']) ? 'false' : 'true');
 		$positive = 'true';
 
@@ -2361,7 +2426,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	// fetch the original signature	if the relayable was created by a Diaspora
 	// or DFRN user. Relayables for other networks are not supported.
 
-	$r = q("select * from sign where " . $sql_sign_id . " = %d limit 1",
+/*	$r = q("select * from sign where " . $sql_sign_id . " = %d limit 1",
 		intval($item['id'])
 	);
 	if(count($r)) { 
@@ -2377,14 +2442,32 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 		// function is called
 		logger('diaspora_send_relay: original author signature not found, cannot send relayable');
 		return;
-	}
+	}*/
+
+	/* Since the author signature is only checked by the parent, not by the relay recipients,
+	 * I think it may not be necessary for us to do so much work to preserve all the original
+	 * signatures. The important thing that Diaspora DOES need is the original creator's handle.
+	 * Let's just generate that and forget about all the original author signature stuff.
+	 *
+	 * Note: this might be more of an problem if we want to support likes on comments for older
+	 * versions of Diaspora (diaspora-pistos), but since there are a number of problems with
+	 * doing that, let's ignore it for now.
+	 *
+	 * Currently, only DFRN contacts are supported. StatusNet shouldn't be hard, but it hasn't
+	 * been done yet
+	 */
+
+	$handle = diaspora_handle_from_contact($item['contact-id']);
+	if(! $handle)
+		return;
+
 
 	if($relay_retract)
 		$sender_signed_text = $item['guid'] . ';' . $target_type;
 	elseif($like)
-		$sender_signed_text = $item['guid'] . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $handle;
+		$sender_signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
 	else
-		$sender_signed_text = $item['guid'] . ';' . $parent_guid . ';' . $text . ';' . $handle;
+		$sender_signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
 
 	// Sign the relayable with the top-level owner's signature
 	//
@@ -2401,7 +2484,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 
 	$msg = replace_macros($tpl,array(
 		'$guid' => xmlify($item['guid']),
-		'$parent_guid' => xmlify($parent_guid),
+		'$parent_guid' => xmlify($parent['guid']),
 		'$target_type' =>xmlify($target_type),
 		'$authorsig' => xmlify($authorsig),
 		'$parentsig' => xmlify($parentauthorsig),
@@ -2517,7 +2600,7 @@ function diaspora_send_mail($item,$owner,$contact) {
 
 }
 
-function diaspora_transmit($owner,$contact,$slap,$public_batch) {
+function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false) {
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
 	if(! $enabled) {
@@ -2534,7 +2617,7 @@ function diaspora_transmit($owner,$contact,$slap,$public_batch) {
 
 	logger('diaspora_transmit: ' . $logid . ' ' . $dest_url);
 
-	if(was_recently_delayed($contact['id'])) {
+	if( (! $queue_run) && (was_recently_delayed($contact['id'])) ) {
 		$return_code = 0;
 	}
 	else {

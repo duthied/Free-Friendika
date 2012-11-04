@@ -6,6 +6,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	$_SESSION['uid'] = $user_record['uid'];
 	$_SESSION['theme'] = $user_record['theme'];
+	$_SESSION['mobile-theme'] = get_pconfig($user_record['uid'], 'system', 'mobile_theme');
 	$_SESSION['authenticated'] = 1;
 	$_SESSION['page_flags'] = $user_record['page-flags'];
 	$_SESSION['my_url'] = $a->get_baseurl() . '/profile/' . $user_record['nickname'];
@@ -120,12 +121,26 @@ function can_write_wall(&$a,$owner) {
 		elseif($verified === 1)
 			return false;
 		else {
+			$cid = 0;
+
+			if(is_array($_SESSION['remote'])) {
+				foreach($_SESSION['remote'] as $visitor) {
+					if($visitor['uid'] == $owner) {
+						$cid = $visitor['cid'];
+						break;
+					}
+				}
+			}
+
+			if(! $cid)
+				return false;
+
 
 			$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` LEFT JOIN `user` on `user`.`uid` = `contact`.`uid` 
 				WHERE `contact`.`uid` = %d AND `contact`.`id` = %d AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
 				AND `user`.`blockwall` = 0 AND `readonly` = 0  AND ( `contact`.`rel` IN ( %d , %d ) OR `user`.`page-flags` = %d ) LIMIT 1",
 				intval($owner),
-				intval(remote_user()),
+				intval($cid),
 				intval(CONTACT_IS_SHARING),
 				intval(CONTACT_IS_FRIEND),
 				intval(PAGE_COMMUNITY)
@@ -199,7 +214,7 @@ function permissions_sql($owner_id,$remote_verified = false,$groups = null) {
 					$gs .= '|<' . intval($g) . '>';
 			} 
 
-			$sql = sprintf(
+			/*$sql = sprintf(
 				" AND ( allow_cid = '' OR allow_cid REGEXP '<%d>' ) 
 				  AND ( deny_cid  = '' OR  NOT deny_cid REGEXP '<%d>' ) 
 				  AND ( allow_gid = '' OR allow_gid REGEXP '%s' )
@@ -208,6 +223,16 @@ function permissions_sql($owner_id,$remote_verified = false,$groups = null) {
 				intval($remote_user),
 				intval($remote_user),
 				dbesc($gs),
+				dbesc($gs)
+			);*/
+			$sql = sprintf(
+				" AND ( NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
+				  AND ( allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR ( allow_cid = '' AND allow_gid = '') )
+				  )
+				",
+				intval($remote_user),
+				dbesc($gs),
+				intval($remote_user),
 				dbesc($gs)
 			);
 		}
@@ -346,3 +371,23 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 		killme();
 	}
 }
+
+// Returns an array of group id's this contact is a member of.
+// This array will only contain group id's related to the uid of this
+// DFRN contact. They are *not* neccessarily unique across the entire site. 
+
+
+if(! function_exists('init_groups_visitor')) {
+function init_groups_visitor($contact_id) {
+	$groups = array();
+	$r = q("SELECT `gid` FROM `group_member` 
+		WHERE `contact-id` = %d ",
+		intval($contact_id)
+	);
+	if(count($r)) {
+		foreach($r as $rr)
+			$groups[] = $rr['gid'];
+	}
+	return $groups;
+}}
+

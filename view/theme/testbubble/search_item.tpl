@@ -1,5 +1,5 @@
-<div class="wall-item-outside-wrapper$item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper$item.indent" id="wall-item-content-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent$item.previewing" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info" id="wall-item-info-$item.id">
 			<div class="wall-item-photo-wrapper mframe" id="wall-item-photo-wrapper-$item.id" 
 				 onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')" 
@@ -24,7 +24,7 @@
 			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-$item.id" >
 				{{ if $item.drop.dropping }}<a href="item/drop/$item.id" onclick="return confirmDelete();" class="icon drophide" title="$item.drop.delete" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a>{{ endif }}
 			</div>
-				{{ if $item.drop.dropping }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
+				{{ if $item.drop.pagedrop }}<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />{{ endif }}
 			<div class="wall-item-delete-end"></div>
 		</div>
 		<div class="wall-item-content" id="wall-item-content-$item.id" >
@@ -50,4 +50,4 @@
 	<div class="wall-item-wrapper-end"></div>
 </div>
 
-<div class="wall-item-outside-wrapper-end$item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent" ></div>

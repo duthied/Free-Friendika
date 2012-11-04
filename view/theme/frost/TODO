@@ -1,0 +1,14 @@
+Home page edit pencil
+Preview spacing
+Photo album display
+
+Check TinyMCE optimization
+"Profiles" page is wonky
+Settings, admin, photos upload don't look beautiful
+
+Threading:
+	- indentation
+	- top-level "show more" looks bad
+	- need some visual way to tie sub-comments to their parent comments
+	- need a way to change styles if the system allows threading or not
+	- just don't allow?

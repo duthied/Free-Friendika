@@ -1,5 +1,7 @@
 <?php
 
+require_once('include/email.php');
+
 function notification($params) {
 
 	logger('notification: entry', LOGGER_DEBUG);
@@ -124,9 +126,9 @@ function notification($params) {
 
 		$preamble = sprintf( t('%1$s posted to your profile wall at %2$s') , $params['source_name'], $sitename);
 		
-		$epreamble = sprintf( t('%1$s posted to [url=%2s]your wall[/url]') , 
+		$epreamble = sprintf( t('%1$s posted to [url=%2$s]your wall[/url]') , 
 								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-								$itemlink); 
+								$params['link']); 
 		
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -140,6 +142,24 @@ function notification($params) {
 		$epreamble = sprintf( t('%1$s [url=%2$s]tagged you[/url].') , 
 								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 								$params['link']); 
+
+		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$tsitelink = sprintf( $sitelink, $siteurl );
+		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
+		$itemlink =  $params['link'];
+	}
+
+	if($params['type'] == NOTIFY_POKE) {
+
+		$subject =	sprintf( t('[Friendica:Notify] %1$s poked you') , $params['source_name']);
+		$preamble = sprintf( t('%1$s poked you at %2$s') , $params['source_name'], $sitename);
+		$epreamble = sprintf( t('%1$s [url=%2$s]poked you[/url].') , 
+								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+								$params['link']); 
+
+		$subject = str_replace('poked', t($params['activity']), $subject);
+		$preamble = str_replace('poked', t($params['activity']), $preamble);
+		$epreamble = str_replace('poked', t($params['activity']), $epreamble);
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -306,7 +326,7 @@ function notification($params) {
 		// If so, create the record of it and use a message-id smtp header.
 
 		if(!$r) {
-			logger("norify_id:" . intval($notify_id). ", parent: " . intval($params['parent']) . "uid: " . 
+			logger("notify_id:" . intval($notify_id). ", parent: " . intval($params['parent']) . "uid: " . 
 intval($params['uid']), LOGGER_DEBUG);
 			$r = q("insert into `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
 				values(%d,%d,%d,%d)",
@@ -477,6 +497,7 @@ class enotify {
 			$multipartMessageBody,	 						// message body
 			$messageHeader									// message headers
 		);
+		logger("notification: enotify::send header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
 		logger("notification: enotify::send returns " . $res, LOGGER_DEBUG);
 	}
 }

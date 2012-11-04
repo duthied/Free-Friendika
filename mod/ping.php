@@ -55,20 +55,24 @@ function ping_init(&$a) {
 		$dislikes = array();
 		$friends = array();
 		$posts = array();
+
 		$home = 0;
 		$network = 0;
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`, 
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`, 
+				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`, 
 				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink` 
 				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d 
+				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND 
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `pitem`.`parent` != 0
 				ORDER BY `item`.`created` DESC",
 			intval(local_user())
 		);
 
 		if(count($r)) {		
+
+			$arr = array('items' => $r);
+			call_hooks('network_ping', $arr);
 
 			foreach ($r as $it) {
 
@@ -140,6 +144,48 @@ function ping_init(&$a) {
 			$register = "0";
 		}
 
+		$all_events = 0;
+		$all_events_today = 0;
+		$events = 0;
+		$events_today = 0;
+		$birthdays = 0;
+		$birthdays_today = 0;
+
+
+		$ev = q("SELECT count(`event`.`id`) as total, type, start, adjust FROM `event`
+			WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
+			ORDER BY `start` ASC ",
+			intval(local_user()),
+			dbesc(datetime_convert('UTC','UTC','now + 7 days')),
+			dbesc(datetime_convert('UTC','UTC','now'))
+		);
+
+		if($ev && count($ev)) {
+			$all_events = intval($ev[0]['total']);
+
+			if($all_events) {
+				$str_now = datetime_convert('UTC',$a->timezone,'now','Y-m-d');
+				foreach($ev as $x) {
+					$bd = false;
+					if($x['type'] === 'birthday') {
+						$birthdays ++;
+						$bd = true;
+					}
+					else {
+						$events ++;
+					}
+					if(datetime_convert('UTC',((intval($x['adjust'])) ? $a->timezone : 'UTC'), $x['start'],'Y-m-d') === $str_now) {
+						$all_events_today ++;
+						if($bd)
+							$birthdays_today ++;
+						else
+							$events_today ++;
+					}
+				}
+			}
+		}
+
+
 
 		function xmlize($href, $name, $url, $photo, $date, $seen, $message){
 			$data = array('href' => &$href, 'name' => &$name, 'url'=>&$url, 'photo'=>&$photo, 'date'=>&$date, 'seen'=>&$seen, 'messsage'=>&$message);
@@ -153,8 +199,15 @@ function ping_init(&$a) {
 		echo "<intro>$intro</intro>
 				<mail>$mail</mail>
 				<net>$network</net>
-				<home>$home</home>";
+				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
+
+		echo "<all-events>$all_events</all-events>
+			<all-events-today>$all_events_today</all-events-today>
+			<events>$events</events>
+			<events-today>$events_today</events-today>
+			<birthdays>$birthdays</birthdays>
+			<birthdays-today>$birthdays_today</birthdays-today>\r\n";
 		
 		$tot = $mail+$intro+$register+count($comments)+count($likes)+count($dislikes)+count($friends)+count($posts)+count($tags);
 

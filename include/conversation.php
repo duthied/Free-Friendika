@@ -1,5 +1,8 @@
 <?php
 
+require_once("include/bbcode.php");
+
+
 // Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
 // is identical to the code in mod/message.php for 'item_extract_images' and
 // 'item_redir_and_replace_images'
@@ -51,19 +54,27 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	$origbody = $body;
 	$newbody = '';
 
-	for($i = 0; $i < count($images); $i++) {
-		$search = '/\[url\=(.*?)\]\[!#saved_image' . $i . '#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . z_path() . '/redir/' . $cid 
-		           . '?f=1&url=' . '$1' . '][!#saved_image' . $i . '#!][/url]' ;
+	$cnt = 1;
+	$pos = get_bb_tag_pos($origbody, 'url', 1);
+	while($pos !== false && $cnt < 1000) {
 
-		$img_end = strpos($origbody, '[!#saved_image' . $i . '#!][/url]') + strlen('[!#saved_image' . $i . '#!][/url]');
-		$process_part = substr($origbody, 0, $img_end);
-		$origbody = substr($origbody, $img_end);
+		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
+		$replace = '[url=' . z_path() . '/redir/' . $cid
+				   . '?f=1&url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
 
-		$process_part = preg_replace($search, $replace, $process_part);
-		$newbody = $newbody . $process_part;
+		$newbody .= substr($origbody, 0, $pos['start']['open']);
+		$subject = substr($origbody, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
+		$origbody = substr($origbody, $pos['end']['close']);
+		if($origbody === false)
+			$origbody = '';
+
+		$subject = preg_replace($search, $replace, $subject);
+		$newbody .= $subject;
+
+		$cnt++;
+		$pos = get_bb_tag_pos($origbody, 'url', 1);
 	}
-	$newbody = $newbody . $origbody;
+	$newbody .= $origbody;
 
 	$cnt = 0;
 	foreach($images as $image) {
@@ -73,7 +84,6 @@ function item_redir_and_replace_images($body, $images, $cid) {
 		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
 		$cnt++;
 	}
-
 	return $newbody;
 }}
 
@@ -89,17 +99,17 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if ($item['verb']=== ACTIVITY_LIKE || $item['verb']=== ACTIVITY_DISLIKE){
+	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE)){
 
-		$r = q("SELECT * from `item`,`contact` WHERE 
+		$r = q("SELECT * from `item`,`contact` WHERE
 				`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
 				 dbesc($item['parent-uri']));
 		if(count($r)==0) return;
 		$obj=$r[0];
-		
-		$author	 = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
+
+		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
-		
+
 		switch($obj['verb']){
 			case ACTIVITY_POST:
 				switch ($obj['object-type']){
@@ -113,38 +123,36 @@ function localize_item(&$item){
 			default:
 				if($obj['resource-id']){
 					$post_type = t('photo');
-					$m=array();	preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+					$m=array(); preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
 					$post_type = t('status');
 				}
 		}
-	
+
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-                
-		switch($item['verb']){
-			case ACTIVITY_LIKE :
-				$bodyverb = t('%1$s likes %2$s\'s %3$s');
-				break;
-			case ACTIVITY_DISLIKE:
-				$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-				break;
+
+		if(activity_match($item['verb'],ACTIVITY_LIKE)) {
+			$bodyverb = t('%1$s likes %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
+			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
 		}
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
-			
+
 	}
-	if ($item['verb']=== ACTIVITY_FRIEND){
+	if (activity_match($item['verb'],ACTIVITY_FRIEND)) {
 
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
 
 		$Aname = $item['author-name'];
 		$Alink = $item['author-link'];
-		
+
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-		
+
 		$obj = parse_xml_string($xmlhead.$item['object']);
 		$links = parse_xml_string($xmlhead."<links>".unxmlify($obj->link)."</links>");
-		
+
 		$Bname = $obj->title;
 		$Blink = ""; $Bphoto = "";
 		foreach ($links->link as $l){
@@ -153,9 +161,9 @@ function localize_item(&$item){
 				case "alternate": $Blink = $atts['href'];
 				case "photo": $Bphoto = $atts['href'];
 			}
-			
+
 		}
-		
+
 		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
 		$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto!="") $Bphoto = '[url=' . zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
@@ -163,16 +171,73 @@ function localize_item(&$item){
 		$item['body'] = sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
 
 	}
-    if ($item['verb']===ACTIVITY_TAG){
-		$r = q("SELECT * from `item`,`contact` WHERE 
+	if (stristr($item['verb'],ACTIVITY_POKE)) {
+		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+		if(! $verb)
+			return;
+		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
+
+		$Aname = $item['author-name'];
+		$Alink = $item['author-link'];
+
+		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+
+		$obj = parse_xml_string($xmlhead.$item['object']);
+		$links = parse_xml_string($xmlhead."<links>".unxmlify($obj->link)."</links>");
+
+		$Bname = $obj->title;
+		$Blink = ""; $Bphoto = "";
+		foreach ($links->link as $l){
+			$atts = $l->attributes();
+			switch($atts['rel']){
+				case "alternate": $Blink = $atts['href'];
+				case "photo": $Bphoto = $atts['href'];
+			}
+
+		}
+
+		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
+		if ($Bphoto!="") $Bphoto = '[url=' . zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+
+		// we can't have a translation string with three positions but no distinguishable text
+		// So here is the translate string.
+
+		$txt = t('%1$s poked %2$s');
+
+		// now translate the verb
+
+		$txt = str_replace( t('poked'), t($verb), $txt);
+
+		// then do the sprintf on the translation string
+
+		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
+
+	}
+	if (stristr($item['verb'],ACTIVITY_MOOD)) {
+		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+		if(! $verb)
+			return;
+
+		$Aname = $item['author-name'];
+		$Alink = $item['author-link'];
+		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
+
+		$txt = t('%1$s is currently %2$s');
+
+		$item['body'] = sprintf($txt, $A, t($verb));
+	}
+
+	if (activity_match($item['verb'],ACTIVITY_TAG)) {
+		$r = q("SELECT * from `item`,`contact` WHERE
 		`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
 		 dbesc($item['parent-uri']));
 		if(count($r)==0) return;
 		$obj=$r[0];
-		
-		$author	 = '[url=' . zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
+
+		$author  = '[url=' . zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
 		$objauthor =  '[url=' . zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
-		
+
 		switch($obj['verb']){
 			case ACTIVITY_POST:
 				switch ($obj['object-type']){
@@ -186,30 +251,30 @@ function localize_item(&$item){
 			default:
 				if($obj['resource-id']){
 					$post_type = t('photo');
-					$m=array();	preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+					$m=array(); preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
 					$post_type = t('status');
 				}
 		}
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-		
+
 		$parsedobj = parse_xml_string($xmlhead.$item['object']);
-		
+
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
 		$item['body'] = sprintf( t('%1$s tagged %2$s\'s %3$s with %4$s'), $author, $objauthor, $plink, $tag );
-		
+
 	}
-	if ($item['verb']=== ACTIVITY_FAVORITE){
+	if (activity_match($item['verb'],ACTIVITY_FAVORITE)){
 
 		if ($item['object-type']== "")
 			return;
 
 		$Aname = $item['author-name'];
 		$Alink = $item['author-link'];
-		
+
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-		
+
 		$obj = parse_xml_string($xmlhead.$item['object']);
 		if(strlen($obj->id)) {
 			$r = q("select * from item where uri = '%s' and uid = %d limit 1",
@@ -235,15 +300,59 @@ function localize_item(&$item){
 				$item['body'] = str_replace($mtch[0],'@[url=' . zrl($mtch[1]). ']',$item['body']);
 		}
 	}
+
 	// add zrl's to public images
-	if(preg_match_all('/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is',$item['body'],$matches,PREG_SET_ORDER)) {
-		foreach($matches as $mtch) {
-				$item['body'] = str_replace($mtch[0],'[url=' . zrl($mtch[1] . '/photos/' . $mtch[2] . '/image/' . $mtch[3] ,true) . '][img' . $mtch[4] . ']h' . $mtch[5]  . '[/img][/url]',$item['body']);
-		}
+	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
+	if(preg_match($photo_pattern,$item['body'])) {
+		$photo_replace = '[url=' . zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
+		$item['body'] = bb_tag_preg_replace($photo_pattern, $photo_replace, 'url', $item['body']);
+	}
+
+	// add sparkle links to appropriate permalinks
+
+	$x = stristr($item['plink'],'/display/');
+	if($x) {
+		$sparkle = false;
+		$y = best_link_url($item,$sparkle,true);
+		if(strstr($y,'/redir/'))
+			$item['plink'] = $y . '?f=&url=' . $item['plink'];
 	}
 
 
+
 }
+
+/**
+ * Count the total of comments on this item and its desendants
+ */
+function count_descendants($item) {
+	$total = count($item['children']);
+
+	if($total > 0) {
+		foreach($item['children'] as $child) {
+			if(! visible_activity($child))
+				$total --;
+			$total += count_descendants($child);
+		}
+	}
+
+	return $total;
+}
+
+function visible_activity($item) {
+
+	if(activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE))
+		return false;
+
+	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
+		if(! (($item['self']) && ($item['uid'] == local_user()))) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 
 /**
  * "Render" a conversation or list of items for HTML display.
@@ -251,7 +360,7 @@ function localize_item(&$item){
  *      - Sequential or unthreaded ("New Item View" or search results)
  *      - conversation view
  * The $mode parameter decides between the various renderings and also
- * figures out how to determine page owner and other contextual items 
+ * figures out how to determine page owner and other contextual items
  * that are based on unique features of the calling module.
  *
  */
@@ -265,34 +374,88 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$ssl_state = ((local_user()) ? true : false);
 
 	$profile_owner = 0;
-	$page_writeable      = false;
+	$page_writeable = false;
+	$live_update_div = '';
 
 	$previewing = (($preview) ? ' preview ' : '');
 
 	if($mode === 'network') {
 		$profile_owner = local_user();
 		$page_writeable = true;
-	}
+		if(!$update) {
+			// The special div is needed for liveUpdate to kick in for this page.
+			// We only launch liveUpdate if you aren't filtering in some incompatible 
+			// way and also you aren't writing a comment (discovered in javascript).
 
-	if($mode === 'profile') {
+			$live_update_div = '<div id="live-network"></div>' . "\r\n"
+				. "<script> var profile_uid = " . $_SESSION['uid'] 
+				. "; var netargs = '" . substr($a->cmd,8)
+				. '?f='
+				. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
+				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '') 
+				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '') 
+				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '') 
+				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '') 
+				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '') 
+				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '') 
+				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '') 
+				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '') 
+				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '') 
+				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '') 
+				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '') 
+
+				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+		}
+	}
+	else if($mode === 'profile') {
 		$profile_owner = $a->profile['profile_uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
-	}
 
-	if($mode === 'notes') {
+		if(!$update) {
+			$tab = notags(trim($_GET['tab']));
+			$tab = ( $tab ? $tab : 'posts' );
+			if($tab === 'posts') {
+				// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
+				// because browser prefetching might change it on us. We have to deliver it with the page.
+
+				$live_update_div = '<div id="live-profile"></div>' . "\r\n"
+					. "<script> var profile_uid = " . $a->profile['profile_uid'] 
+					. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+			}
+		}
+	}
+	else if($mode === 'notes') {
 		$profile_owner = local_user();
 		$page_writeable = true;
+		if(!$update) {
+			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
+				. "<script> var profile_uid = " . local_user() 
+				. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+		}
 	}
-
-	if($mode === 'display') {
+	else if($mode === 'display') {
 		$profile_owner = $a->profile['uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
+		if(!$update) {
+			$live_update_div = '<div id="live-display"></div>' . "\r\n"
+				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
+				. " var profile_page = 1; </script>";
+		}
 	}
-
-	if($mode === 'community') {
+	else if($mode === 'community') {
 		$profile_owner = 0;
 		$page_writeable = false;
+		if(!$update) {
+			$live_update_div = '<div id="live-community"></div>' . "\r\n"
+				. "<script> var profile_uid = -1; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+		}
 	}
+	else if($mode === 'search') {
+		$live_update_div = '<div id="live-search"></div>' . "\r\n";
+	}
+
+	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
+
 
 	if($update)
 		$return_url = $_SESSION['return_url'];
@@ -307,26 +470,26 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$items = $cb['items'];
 
 	$cmnt_tpl    = get_markup_template('comment_item.tpl');
-	$tpl         = 'wall_item.tpl';
-	$wallwall    = 'wallwall_item.tpl';
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
 	$alike = array();
 	$dlike = array();
-	
-	
+
+
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
-	
+
+	$page_template = get_markup_template("conversation.tpl");
+
 	if($items && count($items)) {
 
 		if($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
 
-			// "New Item View" on network page or search page results 
+			// "New Item View" on network page or search page results
 			// - just loop through the items and format them minimally for display
 
-			//$tpl = get_markup_template('search_item.tpl');
+//			$tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
 
 			foreach($items as $item) {
@@ -339,23 +502,38 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$sparkle     = '';
 
 				if($mode === 'search' || $mode === 'community') {
-					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) 
+					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE)))
 						&& ($item['id'] != $item['parent']))
 						continue;
 					$nickname = $item['nickname'];
 				}
 				else
 					$nickname = $a->user['nickname'];
-				
+
 				// prevent private email from leaking.
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
 						continue;
-			
+
 				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
 				if($item['author-link'] && (! $item['author-name']))
 					$profile_name = $item['author-link'];
 
 
+
+				$tags=array();
+				$hashtags = array();
+				$mentions = array();
+				foreach(explode(',',$item['tag']) as $tag){
+					$tag = trim($tag);
+					if ($tag!="") {
+						$t = bbcode($tag);
+						$tags[] = $t;
+						if($t[0] == '#')
+							$hashtags[] = $t;
+						elseif($t[0] == '@')
+							$mentions[] = $t;
+					}
+				}
 
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
@@ -364,7 +542,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				if($sp)
 					$sparkle = ' sparkle';
 				else
-					$profile_link = zrl($profile_link);					
+					$profile_link = zrl($profile_link);
 
 				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
 				if(($normalised != 'mailbox') && (x($a->contacts[$normalised])))
@@ -386,20 +564,23 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 				$drop = array(
 					'dropping' => $dropping,
-					'select' => t('Select'), 
+					'pagedrop' => $page_dropping,
+					'select' => t('Select'),
 					'delete' => t('Delete'),
 				);
 
 				$star = false;
 				$isstarred = "unstarred";
-				
+
 				$lock = false;
 				$likebuttons = false;
 				$shareable = false;
 
 				$body = prepare_body($item,true);
-				
-				//$tmp_item = replace_macros($tpl,array(
+
+
+				list($categories, $folders) = get_cats_and_terms($item);
+
 				$tmp_item = array(
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
@@ -412,7 +593,17 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'thumb' => $profile_avatar,
 					'title' => template_escape($item['title']),
 					'body' => template_escape($body),
+					'tags' => template_escape($tags),
+					'hashtags' => template_escape($hashtags),
+					'mentions' => template_escape($mentions),
+					'txt_cats' => t('Categories:'),
+					'txt_folders' => t('Filed under:'),
+					'has_cats' => ((count($categories)) ? 'true' : ''),
+					'has_folders' => ((count($folders)) ? 'true' : ''),
+					'categories' => $categories,
+					'folders' => $folders,
 					'text' => strip_tags(template_escape($body)),
+					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 					'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => template_escape($location),
 					'indent' => '',
@@ -431,6 +622,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
+					'thread_level' => 1,
 				);
 
 				$arr = array('item' => $item, 'output' => $tmp_item);
@@ -445,371 +637,56 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		else
 		{
 			// Normal View
+			$page_template = get_markup_template("threaded_conversation.tpl");
 
+			require_once('object/Conversation.php');
+			require_once('object/Item.php');
 
-			// Figure out how many comments each parent has
-			// (Comments all have gravity of 6)
-			// Store the result in the $comments array
+			$conv = new Conversation($mode, $preview);
 
-			$comments = array();
+			// get all the topmost parents
+			// this shouldn't be needed, as we should have only them in our array
+			// But for now, this array respects the old style, just in case
+
+			$threads = array();
 			foreach($items as $item) {
-				if((intval($item['gravity']) == 6) && ($item['id'] != $item['parent'])) {
-					if(! x($comments,$item['parent']))
-						$comments[$item['parent']] = 1;
-					else
-						$comments[$item['parent']] += 1;
-				} elseif(! x($comments,$item['parent'])) 
-					$comments[$item['parent']] = 0; // avoid notices later on
-			}
 
-			// map all the like/dislike activities for each parent item 
-			// Store these in the $alike and $dlike arrays
-
-			foreach($items as $item) {
+				// Can we put this after the visibility check?
 				like_puller($a,$item,$alike,'like');
 				like_puller($a,$item,$dlike,'dislike');
+
+				// Only add what is visible
+				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+					continue;
+				}
+				if(! visible_activity($item)) {
+					continue;
+				}
+
+				$item['pagedrop'] = $page_dropping;
+
+				if($item['id'] == $item['parent']) {
+					$item_object = new Item($item);
+					$conv->add_thread($item_object);
+				}
 			}
 
-			$comments_collapsed = false;
-			$comments_seen = 0;
-			$comment_lastcollapsed = false;
-			$comment_firstcollapsed = false;
-			$blowhard = 0;
-			$blowhard_count = 0;
-
-
-			foreach($items as $item) {
-
-				$comment = '';
-				$template = $tpl;
-				$commentww = '';
-				$sparkle = '';
-				$owner_url = $owner_photo = $owner_name = '';
-
-				// We've already parsed out like/dislike for special treatment. We can ignore them now
-
-				if(((activity_match($item['verb'],ACTIVITY_LIKE)) 
-					|| (activity_match($item['verb'],ACTIVITY_DISLIKE))) 
-					&& ($item['id'] != $item['parent']))
-					continue;
-
-				$toplevelpost = (($item['id'] == $item['parent']) ? true : false);
-
-
-				// Take care of author collapsing and comment collapsing
-				// (author collapsing is currently disabled)
-				// If a single author has more than 3 consecutive top-level posts, squash the remaining ones.
-				// If there are more than two comments, squash all but the last 2.
-			
-				if($toplevelpost) {
-
-					$item_writeable = (($item['writable'] || $item['self']) ? true : false);
-
-					$comments_seen = 0;
-					$comments_collapsed = false;
-					$comment_lastcollapsed  = false;
-					$comment_firstcollapsed = false;
-					
-					$threadsid++;
-					$threads[$threadsid]['id'] = $item['item_id'];
-					$threads[$threadsid]['private'] = $item['private'];
-					$threads[$threadsid]['items'] = array();
-
-				}
-				else {
-
-					// prevent private email reply to public conversation from leaking.
-					if($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
-							continue;
-
-					$comments_seen ++;
-					$comment_lastcollapsed  = false;
-					$comment_firstcollapsed = false;
-				}	
-
-				$override_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
-				$show_comment_box = ((($page_writeable) && ($item_writeable) && ($comments_seen == $comments[$item['parent']])) ? true : false);
-
-
-				if(($comments[$item['parent']] > 2) && ($comments_seen <= ($comments[$item['parent']] - 2)) && ($item['gravity'] == 6)) {
-
-					if (!$comments_collapsed){
-						$threads[$threadsid]['num_comments'] = sprintf( tt('%d comment','%d comments',$comments[$item['parent']]),$comments[$item['parent']] );
-						$threads[$threadsid]['hide_text'] = t('show more');
-						$comments_collapsed = true;
-						$comment_firstcollapsed = true;
-					}
-				}
-				if(($comments[$item['parent']] > 2) && ($comments_seen == ($comments[$item['parent']] - 1))) {
-
-					$comment_lastcollapsed = true;
-				}
-
-				$redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $item['cid'] ;
-
-				$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
-					|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
-					? t('Private Message')
-					: false);
-
-
-				// Top-level wall post not written by the wall owner (wall-to-wall)
-				// First figure out who owns it. 
-
-				$osparkle = '';
-
-				if(($toplevelpost) && (! $item['self']) && ($mode !== 'profile')) {
-
-					if($item['wall']) {
-
-						// On the network page, I am the owner. On the display page it will be the profile owner.
-						// This will have been stored in $a->page_contact by our calling page.
-						// Put this person as the wall owner of the wall-to-wall notice.
-
-						$owner_url = zrl($a->page_contact['url']);
-						$owner_photo = $a->page_contact['thumb'];
-						$owner_name = $a->page_contact['name'];
-						$template = $wallwall;
-						$commentww = 'ww';	
-					}
-
-					if((! $item['wall']) && $item['owner-link']) {
-
-						$owner_linkmatch = (($item['owner-link']) && link_compare($item['owner-link'],$item['author-link']));
-						$alias_linkmatch = (($item['alias']) && link_compare($item['alias'],$item['author-link']));
-						$owner_namematch = (($item['owner-name']) && $item['owner-name'] == $item['author-name']);
-						if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
-
-							// The author url doesn't match the owner (typically the contact)
-							// and also doesn't match the contact alias. 
-							// The name match is a hack to catch several weird cases where URLs are 
-							// all over the park. It can be tricked, but this prevents you from
-							// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
-							// well that it's the same Bob Smith. 
-
-							// But it could be somebody else with the same name. It just isn't highly likely. 
-							
-
-							$owner_url = $item['owner-link'];
-							$owner_photo = $item['owner-avatar'];
-							$owner_name = $item['owner-name'];
-							$template = $wallwall;
-							$commentww = 'ww';
-							// If it is our contact, use a friendly redirect link
-							if((link_compare($item['owner-link'],$item['url'])) 
-								&& ($item['network'] === NETWORK_DFRN)) {
-								$owner_url = $redirect_url;
-								$osparkle = ' sparkle';
-							}
-							else
-								$owner_url = zrl($owner_url);
-						}
-					}
-				}
-
-				$likebuttons = '';
-				$shareable = ((($profile_owner == local_user()) && ($item['private'] != 1)) ? true : false); 
-
-				if($page_writeable) {
-/*					if($toplevelpost) {  */
-						$likebuttons = array(
-							'like' => array( t("I like this \x28toggle\x29"), t("like")),
-							'dislike' => array( t("I don't like this \x28toggle\x29"), t("dislike")),
-						);
-						if ($shareable) $likebuttons['share'] = array( t('Share this'), t('share'));
-/*					} */
-
-					$qc = $qcomment =  null;
-
-					if(in_array('qcomment',$a->plugins)) {
-						$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
-						$qcomment = (($qc) ? explode("\n",$qc) : null);
-					}
-
-					if(($show_comment_box) || (($show_comment_box == false) && ($override_comment_box == false) && ($item['last-child']))) {
-						$comment = replace_macros($cmnt_tpl,array(
-							'$return_path' => '', 
-							'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
-							'$type' => (($mode === 'profile') ? 'wall-comment' : 'net-comment'),
-							'$id' => $item['item_id'],
-							'$parent' => $item['parent'],
-							'$qcomment' => $qcomment,
-							'$profile_uid' =>  $profile_owner,
-							'$mylink' => $a->contact['url'],
-							'$mytitle' => t('This is you'),
-							'$myphoto' => $a->contact['thumb'],
-							'$comment' => t('Comment'),
-							'$submit' => t('Submit'),
-							'$edbold' => t('Bold'),
-							'$editalic' => t('Italic'),
-							'$eduline' => t('Underline'),
-							'$edquote' => t('Quote'),
-							'$edcode' => t('Code'),
-							'$edimg' => t('Image'),
-							'$edurl' => t('Link'),
-							'$edvideo' => t('Video'),
-							'$preview' => t('Preview'),
-							'$ww' => (($mode === 'network') ? $commentww : '')
-						));
-					}
-				}
-
-				if(local_user() && link_compare($a->contact['url'],$item['author-link']))
-					$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
-				else
-					$edpost = false;
-
-				$drop = '';
-				$dropping = false;
-
-				if((intval($item['contact-id']) && $item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
-					$dropping = true;
-
-				$drop = array(
-					'dropping' => $dropping,
-					'select' => t('Select'), 
-					'delete' => t('Delete'),
-				);
-
-				$star = false;
-				$filer = false;
-
-				$isstarred = "unstarred";
-				if ($profile_owner == local_user()) {
-					if($toplevelpost) {
-						$isstarred = (($item['starred']) ? "starred" : "unstarred");
-
-						$star = array(
-							'do' => t("add star"),
-							'undo' => t("remove star"),
-							'toggle' => t("toggle star status"),
-							'classdo' => (($item['starred']) ? "hidden" : ""),
-							'classundo' => (($item['starred']) ? "" : "hidden"),
-							'starred' =>  t('starred'),
-							'tagger' => t("add tag"),
-							'classtagger' => "",
-						);
-					}
-					$filer = t("save to folder");
-				}
-
-
-				$photo = $item['photo'];
-				$thumb = $item['thumb'];
-
-				// Post was remotely authored.
-
-				$diff_author    = ((link_compare($item['url'],$item['author-link'])) ? false : true);
-
-				$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
-
-				if($item['author-link'] && (! $item['author-name']))
-					$profile_name = $item['author-link'];
-
-				$sp = false;
-				$profile_link = best_link_url($item,$sp);
-				if($profile_link === 'mailbox')
-					$profile_link = '';
-				if($sp)
-					$sparkle = ' sparkle';
-				else
-					$profile_link = zrl($profile_link);					
-
-				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-				if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
-					$profile_avatar = $a->contacts[$normalised]['thumb'];
-				else
-					$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($thumb));
-
-				$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
-				$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
-
-				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
-				call_hooks('render_location',$locate);
-
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
-
-				$indent = (($toplevelpost) ? '' : ' comment');
-
-				if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
-					$indent .= ' shiny'; 
-
-				// 
-				localize_item($item);
-
-
-				$tags=array();
-				foreach(explode(',',$item['tag']) as $tag){
-					$tag = trim($tag);
-					if ($tag!="") $tags[] = bbcode($tag);
-				}
-
-				// Build the HTML
-
-				$body = prepare_body($item,true);
-				//$tmp_item = replace_macros($template,
-				$tmp_item = array(
-					// collapse comments in template. I don't like this much...
-					'comment_firstcollapsed' => $comment_firstcollapsed,
-					'comment_lastcollapsed' => $comment_lastcollapsed,
-					// template to use to render item (wall, walltowall, search)
-					'template' => $template,
-					
-					'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
-					'tags' => $tags,
-					'body' => template_escape($body),
-					'text' => strip_tags(template_escape($body)),
-					'id' => $item['item_id'],
-					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
-					'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
-					'to' => t('to'),
-					'wall' => t('Wall-to-Wall'),
-					'vwall' => t('via Wall-To-Wall:'),
-					'profile_url' => $profile_link,
-					'item_photo_menu' => item_photo_menu($item),
-					'name' => template_escape($profile_name),
-					'thumb' => $profile_avatar,
-					'osparkle' => $osparkle,
-					'sparkle' => $sparkle,
-					'title' => template_escape($item['title']),
-					'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
-					'lock' => $lock,
-					'location' => template_escape($location),
-					'indent' => $indent,
-					'owner_url' => $owner_url,
-					'owner_photo' => $owner_photo,
-					'owner_name' => template_escape($owner_name),
-					'plink' => get_plink($item),
-					'edpost' => $edpost,
-					'isstarred' => $isstarred,
-					'star' => $star,
-					'filer' => $filer,
-					'drop' => $drop,
-					'vote' => $likebuttons,
-					'like' => $like,
-					'dislike' => $dislike,
-					'comment' => $comment,
-					'previewing' => $previewing,
-					'wait' => t('Please wait'),
-
-				);
-
-
-				$arr = array('item' => $item, 'output' => $tmp_item);
-				call_hooks('display_item', $arr);
-
-				$threads[$threadsid]['items'][] = $arr['output'];
+			$threads = $conv->get_template_data($alike, $dlike);
+			if(!$threads) {
+				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
+				$threads = array();
 			}
 		}
 	}
 
-	$page_template = get_markup_template("conversation.tpl");
 	$o = replace_macros($page_template, array(
 		'$baseurl' => $a->get_baseurl($ssl_state),
+		'$live_update' => $live_update_div,
+		'$remove' => t('remove'),
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($dropping?t('Delete Selected Items'):False),
+		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
 	));
 
 	return $o;
@@ -856,14 +733,20 @@ function item_photo_menu($item){
 		 if(! count($a->contacts))
 			load_contact_links(local_user());
 	}
+	$sub_link="";
+	$poke_link="";
 	$contact_url="";
 	$pm_url="";
 	$status_link="";
 	$photos_link="";
 	$posts_link="";
 
+	if((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
+		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
+	}
+
 	$sparkle = false;
-    $profile_link = best_link_url($item,$sparkle,$ssl_state);
+	$profile_link = best_link_url($item,$sparkle,$ssl_state);
 	if($profile_link === 'mailbox')
 		$profile_link = '';
 
@@ -879,12 +762,13 @@ function item_photo_menu($item){
 		$profile_link = zrl($profile_link);
 		if(local_user() && local_user() == $item['uid'] && link_compare($item['url'],$item['author-link'])) {
 			$cid = $item['contact-id'];
-		}		
+		}
 		else {
 			$cid = 0;
 		}
 	}
 	if(($cid) && (! $item['self'])) {
+		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $cid;
 		$contact_url = $a->get_baseurl($ssl_state) . '/contacts/' . $cid;
 		$posts_link = $a->get_baseurl($ssl_state) . '/network/?cid=' . $cid;
 
@@ -901,24 +785,30 @@ function item_photo_menu($item){
 	}
 
 	$menu = Array(
+		t("Follow Thread") => $sub_link,
 		t("View Status") => $status_link,
 		t("View Profile") => $profile_link,
 		t("View Photos") => $photos_link,
-		t("Network Posts") => $posts_link, 
+		t("Network Posts") => $posts_link,
 		t("Edit Contact") => $contact_url,
 		t("Send PM") => $pm_url,
+		t("Poke") => $poke_link
 	);
-	
-	
+
+
 	$args = array('item' => $item, 'menu' => $menu);
-	
+
 	call_hooks('item_photo_menu', $args);
 
-	$menu = $args['menu'];	
+	$menu = $args['menu'];
 
 	$o = "";
 	foreach($menu as $k=>$v){
-		if ($v!="") $o .= "<li><a href='$v'>$k</a></li>\n";
+		if(strpos($v,'javascript:') === 0) {
+			$v = substr($v,11);
+			$o .= "<li><a href=\"#\" onclick=\"$v\">$k</a></li>\n";
+		}
+		elseif ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}
@@ -946,7 +836,7 @@ function like_puller($a,$item,&$arr,$mode) {
 			$arr[$item['thr-parent'] . '-l'] = array();
 		if(! isset($arr[$item['thr-parent']]))
 			$arr[$item['thr-parent']] = 1;
-		else	
+		else
 			$arr[$item['thr-parent']] ++;
 		$arr[$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . $item['author-name'] . '</a>';
 	}
@@ -967,10 +857,10 @@ function format_like($cnt,$arr,$type,$id) {
 		$o .= (($type === 'like') ? sprintf( t('%s likes this.'), $arr[0]) : sprintf( t('%s doesn\'t like this.'), $arr[0])) . EOL ;
 	else {
 		$spanatts = 'class="fakelink" onclick="openClose(\'' . $type . 'list-' . $id . '\');"';
-		$o .= (($type === 'like') ? 
+		$o .= (($type === 'like') ?
 					sprintf( t('<span  %1$s>%2$d people</span> like this.'), $spanatts, $cnt)
-					 : 
-					sprintf( t('<span  %1$s>%2$d people</span> don\'t like this.'), $spanatts, $cnt) ); 
+					 :
+					sprintf( t('<span  %1$s>%2$d people</span> don\'t like this.'), $spanatts, $cnt) );
 		$o .= EOL ;
 		$total = count($arr);
 		if($total >= MAX_LIKERS)
@@ -990,7 +880,7 @@ function format_like($cnt,$arr,$type,$id) {
 function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 
 	$o = '';
-		
+
 	$geotag = (($x['allow_location']) ? get_markup_template('jot_geotag.tpl') : '');
 
 	$plaintext = false;
@@ -998,8 +888,25 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		$plaintext = true;
 
 	$tpl = get_markup_template('jot-header.tpl');
-	
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
+		'$newpost' => 'true',
+		'$baseurl' => $a->get_baseurl(true),
+		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$geotag' => $geotag,
+		'$nickname' => $x['nickname'],
+		'$ispublic' => t('Visible to <strong>everybody</strong>'),
+		'$linkurl' => t('Please enter a link URL:'),
+		'$vidurl' => t("Please enter a video link/URL:"),
+		'$audurl' => t("Please enter an audio link/URL:"),
+		'$term' => t('Tag term:'),
+		'$fileas' => t('Save to Folder:'),
+		'$whereareu' => t('Where are you right now?'),
+		'$delitems' => t('Delete item(s)?')
+	));
+
+
+	$tpl = get_markup_template('jot-end.tpl');
+	$a->page['end'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
 		'$baseurl' => $a->get_baseurl(true),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
@@ -1016,7 +923,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 
 
 	$tpl = get_markup_template("jot.tpl");
-		
+
 	$jotplugins = '';
 	$jotnets = '';
 
@@ -1047,7 +954,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 	if($notes_cid)
 		$jotnets .= '<input type="hidden" name="contact_allow[]" value="' . $notes_cid .'" />';
 
-	$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));	
+	$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
 
 	$o .= replace_macros($tpl,array(
 		'$return_path' => $a->query_string,
@@ -1090,17 +997,63 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
+		'$sourceapp' => t($a->sourcename),
+		'$cancel' => t('Cancel'),
+		'$rand_num' => random_digits(12)
 	));
 
 
 	if ($popup==true){
 		$o = '<div id="jot-popup" style="display: none;">'.$o.'</div>';
-		
+
 	}
 
 	return $o;
 }
 
+
+function get_item_children($arr, $parent) {
+	$children = array();
+	$a = get_app();
+	foreach($arr as $item) {
+		if($item['id'] != $item['parent']) {
+			if(get_config('system','thread_allow') && $a->theme_thread_allow) {
+				// Fallback to parent-uri if thr-parent is not set
+				$thr_parent = $item['thr-parent'];
+				if($thr_parent == '')
+					$thr_parent = $item['parent-uri'];
+
+				if($thr_parent == $parent['uri']) {
+					$item['children'] = get_item_children($arr, $item);
+					$children[] = $item;
+				}
+			}
+			else if($item['parent'] == $parent['id']) {
+				$children[] = $item;
+			}
+		}
+	}
+	return $children;
+}
+
+function sort_item_children($items) {
+	$result = $items;
+	usort($result,'sort_thr_created_rev');
+	foreach($result as $k => $i) {
+		if(count($result[$k]['children'])) {
+			$result[$k]['children'] = sort_item_children($result[$k]['children']);
+		}
+	}
+	return $result;
+}
+
+function add_children_to_list($children, &$arr) {
+	foreach($children as $y) {
+		$arr[] = $y;
+		if(count($y['children']))
+			add_children_to_list($y['children'], $arr);
+	}
+}
 
 function conv_sort($arr,$order) {
 
@@ -1108,6 +1061,7 @@ function conv_sort($arr,$order) {
 		return array();
 
 	$parents = array();
+	$children = array();
 
 	foreach($arr as $x)
 		if($x['id'] == $x['parent'])
@@ -1119,24 +1073,25 @@ function conv_sort($arr,$order) {
 		usort($parents,'sort_thr_commented');
 
 	if(count($parents))
-		foreach($parents as $i=>$_x) 
-			$parents[$i]['children'] = array();
+		foreach($parents as $i=>$_x)
+			$parents[$i]['children'] = get_item_children($arr, $_x);
 
-	foreach($arr as $x) {
+	/*foreach($arr as $x) {
 		if($x['id'] != $x['parent']) {
 			$p = find_thread_parent_index($parents,$x);
 			if($p !== false)
 				$parents[$p]['children'][] = $x;
 		}
-	}
+	}*/
 	if(count($parents)) {
 		foreach($parents as $k => $v) {
 			if(count($parents[$k]['children'])) {
-				$y = $parents[$k]['children'];
+				$parents[$k]['children'] = sort_item_children($parents[$k]['children']);
+				/*$y = $parents[$k]['children'];
 				usort($y,'sort_thr_created_rev');
-				$parents[$k]['children'] = $y;
+				$parents[$k]['children'] = $y;*/
 			}
-		}	
+		}
 	}
 
 	$ret = array();
@@ -1144,8 +1099,9 @@ function conv_sort($arr,$order) {
 		foreach($parents as $x) {
 			$ret[] = $x;
 			if(count($x['children']))
-				foreach($x['children'] as $y)
-					$ret[] = $y;
+				add_children_to_list($x['children'], $ret);
+				/*foreach($x['children'] as $y)
+					$ret[] = $y;*/
 		}
 	}
 

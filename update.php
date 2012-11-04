@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1153 );
+define( 'UPDATE_VERSION' , 1156 );
 
 /**
  *
@@ -1335,5 +1335,30 @@ function update_1152() {
 	if (!$r)
 		return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
+}
+
+function update_1153() {
+	$r = q("ALTER TABLE `hook` ADD `priority` INT(11) UNSIGNED NOT NULL DEFAULT '0'");
+	
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1154() {
+	$r = q("ALTER TABLE `event` ADD `ignore` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `adjust` , ADD INDEX ( `ignore` )");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1155() {
+	$r1 = q("ALTER TABLE `item_id` DROP PRIMARY KEY");
+	$r2 = q("ALTER TABLE `item_id` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST");
+	$r3 = q("ALTER TABLE `item_id` ADD INDEX ( `iid` ) ");
+
+	if($r1 && $r2 && $r3)
+		return UPDATE_SUCCESS;
+
+	return UPDATE_FAILED;
 }
 

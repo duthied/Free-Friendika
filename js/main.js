@@ -144,6 +144,29 @@
 			if(mail == 0) { mail = '';  $('#mail-update-li').removeClass('show') } else { $('#mail-update-li').addClass('show') }
 			$('#mail-update-li').html(mail);
 
+
+			var allevents = $(data).find('all-events').text();
+			if(allevents == 0) { allevents = ''; $('#allevents-update').removeClass('show') } else { $('#allevents-update').addClass('show') }
+			$('#allevents-update').html(allevents);
+
+			var alleventstoday = $(data).find('all-events-today').text();
+			if(alleventstoday == 0) { $('#allevents-update').removeClass('notif-allevents-today') } else { $('#allevents-update').addClass('notif-allevents-today') }
+
+			var events = $(data).find('events').text();
+			if(events == 0) { events = ''; $('#events-update').removeClass('show') } else { $('#events-update').addClass('show') }
+			$('#events-update').html(events);
+
+			var eventstoday = $(data).find('events-today').text();
+			if(eventstoday == 0) { $('#events-update').removeClass('notif-events-today') } else { $('#events-update').addClass('notif-events-today') }
+
+			var birthdays = $(data).find('birthdays').text();
+			if(birthdays == 0) {birthdays = ''; $('#birthdays-update').removeClass('show') } else { $('#birthdays-update').addClass('show') }
+			$('#birthdays-update').html(birthdays);
+
+			var birthdaystoday = $(data).find('birthdays-today').text();
+			if(birthdaystoday == 0) { $('#birthdays-update').removeClass('notif-birthdays-today') } else { $('#birthdays-update').addClass('notif-birthdays-today') }
+
+
 			var eNotif = $(data).find('notif')
 			
 			if (eNotif.children("note").length==0){
@@ -227,12 +250,13 @@
 					if($('#live-profile').length)   { src = 'profile'; liveUpdate(); }
 					if($('#live-community').length) { src = 'community'; liveUpdate(); }
 					if($('#live-notes').length)     { src = 'notes'; liveUpdate(); }
-					if($('#live-display').length) {
+					if($('#live-display').length)     { src = 'display'; liveUpdate(); }
+/*					if($('#live-display').length) {
 						if(liking) {
 							liking = 0;
 							window.location.href=window.location.href 
 						}
-					}
+					}*/
 					if($('#live-photos').length) { 
 						if(liking) {
 							liking = 0;
@@ -280,8 +304,7 @@
 			//});
 
 			// add a new thread
-
-			$('.tread-wrapper',data).each(function() {
+			$('.toplevel_item',data).each(function() {
 				var ident = $(this).attr('id');
 
 				if($('#' + ident).length == 0 && profile_page == 1) {
@@ -291,10 +314,26 @@
 					$('#' + prev).after($(this));
 				}
 				else {
+					// Find out if the hidden comments are open, so we can keep it that way
+					// if a new comment has been posted
+					var id = $('.hide-comments-total', this).attr('id');
+					if(typeof id != 'undefined') {
+						id = id.split('-')[3];
+						var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
+					}
+
 					$('img',this).each(function() {
 						$(this).attr('src',$(this).attr('dst'));
 					});
+					//vScroll = $(document).scrollTop();
+					$('html').height($('html').height());
 					$('#' + ident).replaceWith($(this));
+
+					if(typeof id != 'undefined') {
+						if(commentsOpen) showHideComments(id);
+					}
+					$('html').height('auto');
+					//$(document).scrollTop(vScroll);
 				}
 				prev = ident;
 			});
@@ -357,11 +396,17 @@
 	function dolike(ident,verb) {
 		unpause();
 		$('#like-rotator-' + ident.toString()).show();
-		$.get('like/' + ident.toString() + '?verb=' + verb );
-		if(timer) clearTimeout(timer);
-		timer = setTimeout(NavUpdate,3000);
+		$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
 		liking = 1;
 	}
+
+	function dosubthread(ident) {
+		unpause();
+		$('#like-rotator-' + ident.toString()).show();
+		$.get('subthread/' + ident.toString(), NavUpdate );
+		liking = 1;
+	}
+
 
 	function dostar(ident) {
 		ident = ident.toString();
@@ -471,6 +516,19 @@
 			"json"  
          );  
          return true;  
+	}
+
+
+
+	function showHideComments(id) {
+		if( $("#collapsed-comments-" + id).is(":visible")) {
+			$("#collapsed-comments-" + id).hide();
+			$("#hide-comments-" + id).html(window.showMore);
+		}
+		else {
+			$("#collapsed-comments-" + id).show();
+			$("#hide-comments-" + id).html(window.showFewer);
+		}
 	}
 
 
@@ -641,7 +699,7 @@ Array.prototype.remove = function(item) {
 function previewTheme(elm) {
 	theme = $(elm).val();
 	$.getJSON('pretheme?f=&theme=' + theme,function(data) {
-			$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><a href="' + data.img + '"><img src="' + data.img + '" width="320" height="240" alt="' + theme + '" /></a>');
+			$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" width="320" height="240" alt="' + theme + '" /></a>');
 	});
 
 }

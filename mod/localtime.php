@@ -23,7 +23,7 @@ function localtime_content(&$a) {
 
 	$o .= '<h3>' . t('Time Conversion') . '</h3>';
 
-	$o .= '<p>' . t('Friendika provides this service for sharing events with other networks and friends in unknown timezones.') . '</p>';
+	$o .= '<p>' . t('Friendica provides this service for sharing events with other networks and friends in unknown timezones.') . '</p>';
 
 
 

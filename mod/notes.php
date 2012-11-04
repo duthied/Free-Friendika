@@ -66,10 +66,6 @@ function notes_content(&$a,$update = false) {
 
     	$o .= status_editor($a,$x,$a->contact['id']);
 
-		$o .= '<div id="live-notes"></div>' . "\r\n";
-		$o .= "<script> var profile_uid = " . local_user() 
-			. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-
 	}
 
 	// Construct permissions
@@ -129,9 +125,13 @@ function notes_content(&$a,$update = false) {
 			intval(local_user()),
 			dbesc($parents_str)
 		);
-	}
 
-	$o .= conversation($a,$r,'notes',$update);
+		if(count($r)) {
+			$items = conv_sort($r,"`commented`");
+
+			$o .= conversation($a,$items,'notes',$update);
+		}
+	}
 
 
 	$o .= paginate($a);

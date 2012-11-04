@@ -1,7 +1,7 @@
 <?php
 
 
-function display_content(&$a) {
+function display_content(&$a, $update = 0) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
@@ -14,23 +14,25 @@ function display_content(&$a) {
 	require_once('include/acl_selectors.php');
 
 
-	$o = '<div id="live-display"></div>' . "\r\n";
+	$o = '';
 
-	$a->page['htmlhead'] .= <<<EOT
-<script>
-$(document).ready(function() {
-	$(".comment-edit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-	// make auto-complete work in more places
-	$(".wall-item-comment-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-});
-</script>
-EOT;
+	$a->page['htmlhead'] .= get_markup_template('display-head.tpl');
 
 
-	$nick = (($a->argc > 1) ? $a->argv[1] : '');
+	if($update) {
+		$nick = $_REQUEST['nick'];
+	}
+	else {
+		$nick = (($a->argc > 1) ? $a->argv[1] : '');
+	}
 	profile_load($a,$nick);
 
-	$item_id = (($a->argc > 2) ? intval($a->argv[2]) : 0);
+	if($update) {
+		$item_id = $_REQUEST['item_id'];
+	}
+	else {
+		$item_id = (($a->argc > 2) ? intval($a->argv[2]) : 0);
+	}
 
 	if(! $item_id) {
 		$a->error = 404;
@@ -43,8 +45,18 @@ EOT;
 	$contact = null;
 	$remote_contact = false;
 
-	if(remote_user()) {
-		$contact_id = $_SESSION['visitor_id'];
+	$contact_id = 0;
+
+	if(is_array($_SESSION['remote'])) {
+		foreach($_SESSION['remote'] as $v) {
+			if($v['uid'] == $a->profile['uid']) {
+				$contact_id = $v['cid'];
+				break;
+			}
+		}
+	}
+
+	if($contact_id) {
 		$groups = init_groups_visitor($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
@@ -76,7 +88,7 @@ EOT;
 		return;
 	}
 	
-	if ($is_owner)
+	if ($is_owner) {
 		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
 		$x = array(
@@ -91,9 +103,21 @@ EOT;
 			'profile_uid' => local_user()
 		);	
 		$o .= status_editor($a,$x,0,true);
-
+	}
 
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
+
+	if($update) {
+		$r = q("SELECT id FROM item WHERE item.uid = %d
+		        AND `item`.`parent` = ( SELECT `parent` FROM `item` WHERE ( `id` = '%s' OR `uri` = '%s' ))
+		        $sql_extra AND unseen = 1",
+		        intval($a->profile['uid']),
+		        dbesc($item_id),
+		        dbesc($item_id) 
+		);
+		if(!$r)
+			return '';
+	}
 
 	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
@@ -121,12 +145,15 @@ EOT;
 			);
 		}
 
+		$items = conv_sort($r,"`commented`");
 
-		$o .= conversation($a,$r,'display', false);
+		if(!$update)
+			$o .= "<script> var netargs = '?f=&nick=" . $nick . "&item_id=" . $item_id . "'; </script>";
+		$o .= conversation($a,$items,'display', $update);
 
 	}
 	else {
-		$r = q("SELECT `id` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
+		$r = q("SELECT `id`,`deleted` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
 			dbesc($item_id),
 			dbesc($item_id)
 		);

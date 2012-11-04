@@ -69,6 +69,9 @@ function notifications_content(&$a) {
 
 	nav_set_selected('notifications');		
 
+	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
+
+
 	$o = '';
 	$tabs = array(
 		array(
@@ -211,7 +214,7 @@ function notifications_content(&$a) {
 		}
 		else
 			info( t('No introductions.') . EOL);
-		
+
 		$o .= replace_macros($notif_tpl,array(
 			'$notif_header' => t('Notifications'),
 			'$tabs' => $tabs,
@@ -229,7 +232,7 @@ function notifications_content(&$a) {
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`, 
 				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink` 
 				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
+				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND `pitem`.`parent` != 0
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 ORDER BY `item`.`created` DESC" ,
 			intval(local_user())
 		);
