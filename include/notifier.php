@@ -134,13 +134,26 @@ function notifier_run(&$argv, &$argc){
 		$recipients[] = $suggest[0]['cid'];
 		$item = $suggest[0];
 	}
+	elseif($cmd === 'removeme') {
+		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($item_id));
+		$user = $r[0];
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1", intval($item_id));
+		$self = $r[0];
+		$r = q("SELECT * FROM `contact` WHERE `self` = 0 AND `uid` = %d", intval($item_id));
+		if(! count($r))
+			return;
+		require_once('include/Contact.php');
+		foreach($r as $contact) {
+			terminate_friendship($user, $self, $contact);
+		}
+		return;
+	}
     elseif($cmd === 'relocate') {
         $normal_mode = false;
 		$relocate = true;
         $uid = $item_id;
     }
 	else {
-
 		// find ancestors
 		$r = q("SELECT * FROM `item` WHERE `id` = %d and visible = 1 and moderated = 0 LIMIT 1",
 			intval($item_id)
@@ -622,7 +635,7 @@ function notifier_run(&$argv, &$argc){
 							AND `contact`.`pending` = 0
 							AND `contact`.`network` = '%s' AND `user`.`nickname` = '%s'
 							$sql_extra
-							AND `user`.`account_expired` = 0 LIMIT 1",
+							AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 LIMIT 1",
 							dbesc(NETWORK_DFRN),
 							dbesc($nickname)
 						);

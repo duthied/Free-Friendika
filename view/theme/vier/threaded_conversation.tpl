@@ -2,7 +2,7 @@ $live_update
 
 {{ for $threads as $item }}
 
-<div id="tread-wrapper-$item.id" class="tread-wrapper {{ if $item.threaded }}threaded{{ endif }}">
+<div id="tread-wrapper-$item.id" class="tread-wrapper {{ if $item.threaded }}threaded{{ endif }}  $item.toplevel">
        
        
 		{{ if $item.type == tag }}
@@ -17,9 +17,10 @@ $live_update
 <div id="conversation-end"></div>
 
 {{ if $dropping }}
-<a href="#" onclick="deleteCheckedItems();return false;">
+<a id="item-delete-selected" href="#" onclick="deleteCheckedItems();return false;">
 	<span class="icon s22 delete text">$dropping</span>
 </a>
+<img id="item-delete-selected-rotator" class="like-rotator" src="images/rotator.gif" style="display: none;" />
 {{ endif }}
 
 <script>

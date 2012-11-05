@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1508' );
+define ( 'FRIENDICA_VERSION',      '3.0.1517' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1156      );
 
@@ -1516,9 +1516,9 @@ if(! function_exists('proc_run')) {
 
 		$cmdline = implode($args," ");
 		if(get_config('system','proc_windows'))
-			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo));
+			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
 		else
-			proc_close(proc_open($cmdline." &",array(),$foo));
+			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
 	}
 }
 
@@ -1806,3 +1806,10 @@ function curPageURL() {
 	return $pageURL;
 }
 
+function random_digits($digits) {
+	$rn = '';
+	for($i = 0; $i < $digits; $i++) {
+		$rn .= rand(0,9);
+	}
+	return $rn;
+}

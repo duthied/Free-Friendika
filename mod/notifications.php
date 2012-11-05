@@ -245,7 +245,7 @@ function notifications_content(&$a) {
 		
 		$notif_content = '';
 		
-		if (count($r) > 0) {
+		if ($r) {
 			
 			foreach ($r as $it) {
 				switch($it['verb']){

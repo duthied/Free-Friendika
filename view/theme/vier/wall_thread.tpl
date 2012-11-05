@@ -42,7 +42,7 @@
 				</ul>
 				
 			</div>
-			{{ if $item.owner_url }}	
+			{{ if $item.owner_url }}
 			<div class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
 				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="contact-photo-link" id="wall-item-ownerphoto-link-$item.id">
 					<img src="$item.owner_photo" class="contact-photo $item.osparkle" id="wall-item-ownerphoto-$item.id" alt="$item.owner_name" />
@@ -60,9 +60,18 @@
 		<div class="wall-item-links">
 		</div>
 		<div class="wall-item-tags">
-			{{ for $item.tags as $tag }}
+			{{ for $item.hashtags as $tag }}
 				<span class='tag'>$tag</span>
 			{{ endfor }}
+  			{{ for $item.mentions as $tag }}
+				<span class='mention'>$tag</span>
+			{{ endfor }}
+               {{ for $item.folders as $cat }}
+                    <span class='folder'>$cat.name</a>{{if $cat.removeurl}} (<a href="$cat.removeurl" title="$remove">x</a>) {{endif}} </span>
+               {{ endfor }}
+                {{ for $item.categories as $cat }}
+                    <span class='category'>$cat.name</a>{{if $cat.removeurl}} (<a href="$cat.removeurl" title="$remove">x</a>) {{endif}} </span>
+                {{ endfor }}
 		</div>
 	</div>	
 	<div class="wall-item-bottom">
@@ -71,7 +80,11 @@
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
-				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a> <span class="wall-item-ago">$item.ago</span>
+				<a href="$item.profile_url" target="redir"
+                                title="$item.linktitle"
+                                class="wall-item-name-link"><span
+                                class="wall-item-name$item.sparkle">$item.name</span></a>
+                                <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
 				 {{ if $item.owner_url }}<br/>$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall
 				 {{ endif }}
 			</div>
@@ -118,14 +131,14 @@
 		<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>	
 	</div>
 	
-	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent==comment }}
+	{{ if $item.threaded }}{{ if $item.comment }}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
 					$item.comment
 		</div>
 	</div>
-	{{ endif }}{{ endif }}{{ endif }}
+	{{ endif }}{{ endif }}
 </div>
 
 

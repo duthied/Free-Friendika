@@ -27,6 +27,11 @@ function photos_init(&$a) {
 		if(! count($r))
 			return;
 
+		$o .= '<div class="vcard">';
+		$o .= '<div class="fn">' . $a->data['user']['username'] . '</div>';
+		$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg') . '" alt="' . $a->data['user']['username'] . '" /></div>';
+		$o .= '</div>';
+
 		$a->data['user'] = $r[0];
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
@@ -37,11 +42,6 @@ function photos_init(&$a) {
 
 		if(count($albums)) {
 			$a->data['albums'] = $albums;
-
-			$o .= '<div class="vcard">';
-			$o .= '<div class="fn">' . $a->data['user']['username'] . '</div>';
-			$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg') . '" alt="' . $a->data['user']['username'] . '" /></div>';
-			$o .= '</div>';
 
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);	
 
@@ -603,7 +603,7 @@ function photos_post(&$a) {
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
-					$arr['body']          = '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]' . ' ' . t('was tagged in a') . ' ' . '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('photo') . '[/url]' . ' ' . t('by') . ' ' . '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]' ;
+					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
 					$arr['body'] .= "\n\n" . '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
@@ -1406,7 +1406,8 @@ function photos_content(&$a) {
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
 							'$sourceapp' => t($a->sourcename),
-							'$ww' => ''
+							'$ww' => '',
+							'$rand_num' => random_digits(12)
 						));
 					}
 				}
@@ -1449,7 +1450,8 @@ function photos_content(&$a) {
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
 							'$sourceapp' => t($a->sourcename),
-							'$ww' => ''
+							'$ww' => '',
+							'$rand_num' => random_digits(12)
 						));
 					}
 				}
@@ -1520,7 +1522,8 @@ function photos_content(&$a) {
 								'$submit' => t('Submit'),
 								'$preview' => t('Preview'),
 								'$sourceapp' => t($a->sourcename),
-								'$ww' => ''
+								'$ww' => '',
+								'$rand_num' => random_digits(12)
 							));
 						}
 					}

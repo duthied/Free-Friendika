@@ -413,6 +413,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 		if(!$update) {
 			$tab = notags(trim($_GET['tab']));
+			$tab = ( $tab ? $tab : 'posts' );
 			if($tab === 'posts') {
 				// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 				// because browser prefetching might change it on us. We have to deliver it with the page.
@@ -435,7 +436,11 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	else if($mode === 'display') {
 		$profile_owner = $a->profile['uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
-		$live_update_div = '<div id="live-display"></div>' . "\r\n";
+		if(!$update) {
+			$live_update_div = '<div id="live-display"></div>' . "\r\n"
+				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
+				. " var profile_page = 1; </script>";
+		}
 	}
 	else if($mode === 'community') {
 		$profile_owner = 0;
@@ -895,7 +900,8 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$audurl' => t("Please enter an audio link/URL:"),
 		'$term' => t('Tag term:'),
 		'$fileas' => t('Save to Folder:'),
-		'$whereareu' => t('Where are you right now?')
+		'$whereareu' => t('Where are you right now?'),
+		'$delitems' => t('Delete item(s)?')
 	));
 
 
@@ -992,7 +998,8 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => t('Preview'),
 		'$sourceapp' => t($a->sourcename),
-		'$cancel' => t('Cancel')
+		'$cancel' => t('Cancel'),
+		'$rand_num' => random_digits(12)
 	));
 
 
@@ -1007,9 +1014,10 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 
 function get_item_children($arr, $parent) {
 	$children = array();
+	$a = get_app();
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if(get_config('system','thread_allow')) {
+			if(get_config('system','thread_allow') && $a->theme_thread_allow) {
 				// Fallback to parent-uri if thr-parent is not set
 				$thr_parent = $item['thr-parent'];
 				if($thr_parent == '')
