@@ -42,7 +42,7 @@ require_once('include/html2plain.php');
  */
 
 
-function notifier_run($argv, $argc){
+function notifier_run(&$argv, &$argc){
 	global $a, $db;
 
 	if(is_null($a)){
@@ -422,12 +422,20 @@ function notifier_run($argv, $argc){
 			set_config('system','site_pubkey', $res['pubkey']);
 		}
 		
+		$rp = q("SELECT `resource-id` , `scale`, type FROM `photo` 
+						WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
+		$photos = array();
+		$ext = Photo::supportedTypes();
+		foreach($rp as $p){
+			$photos[$p['scale']] = $a->get_baseurl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+		}
+		unset($rp, $ext);
 		
         $atom .= replace_macros($sugg_template, array(
             '$name' => xmlify($owner['name']),
-            '$photo' => xmlify($owner['photo']),
-            '$thumb' => xmlify($owner['thumb']),
-            '$micro' => xmlify($owner['micro']),
+            '$photo' => xmlify($photos[4]),
+            '$thumb' => xmlify($photos[5]),
+            '$micro' => xmlify($photos[6]),
             '$url' => xmlify($owner['url']),
             '$request' => xmlify($owner['request']),
             '$confirm' => xmlify($owner['confirm']),
@@ -438,7 +446,7 @@ function notifier_run($argv, $argc){
             //'$prvkey' => xmlify($owner['prvkey']),
 		)); 
         $recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
-        
+		unset($photos);
     }
 	else {
 		if($followup) {
