@@ -1181,13 +1181,13 @@ input#dfrn-url {
 /*	background: #EEEEEE;*/
 }
 
-.wall-item-like, .wall-item-dislike, .wall-item-boring {
+.wall-item-like, .wall-item-dislike {
 	font-style: italic;
 	margin-left: 0px;
 	opacity: 0.6;
 }
 
-.wall-item-like.comment, .wall-item-dislike.comment, .wall-item-boring.comment {
+.wall-item-like.comment, .wall-item-dislike.comment {
 	margin-left: 5px;
 }
 
