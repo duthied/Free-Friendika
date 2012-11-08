@@ -162,6 +162,33 @@ else {
 			goaway(z_root());
   		}
 
+		// If the user specified to remember the authentication, then change the cookie
+		// to expire after one year (the default is when the browser is closed).
+		// If the user did not specify to remember, change the cookie to expire when the
+		// browser is closed. The reason this is necessary is because if the user
+		// specifies to remember, then logs out and logs back in without specifying to
+		// remember, the old "remember" cookie may remain and prevent the session from
+		// expiring when the browser is closed.
+		//
+		// It seems like I should be able to test for the old cookie, but for some reason when
+		// I read the lifetime value from session_get_cookie_params(), I always get '0'
+		// (i.e. expire when the browser is closed), even when there's a time expiration
+		// on the cookie
+		if($_POST['remember']) {
+			$old_sid = session_id();
+			session_set_cookie_params('31449600'); // one year
+			session_regenerate_id(false);
+
+			q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
+		}
+		else {
+			$old_sid = session_id();
+			session_set_cookie_params('0');
+			session_regenerate_id(false);
+
+			q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
+		}
+
 		// if we haven't failed up this point, log them in.
 
 		authenticate_success($record, true, true);
