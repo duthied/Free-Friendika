@@ -1022,10 +1022,12 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
 	$datarray['owner-avatar'] = $contact['thumb'];
-	$datarray['author-name'] = $contact['name'];
-	$datarray['author-link'] = $contact['url'];
-	$datarray['author-avatar'] = $contact['thumb'];
-	$datarray['body'] = $prefix . $body;
+	$datarray['author-name'] = $person['name']; // Let reshared messages look like wall-to-wall posts
+	$datarray['author-link'] = $person['url']; // we have to set an additional value in the item in the future
+	// $datarray['author-avatar'] = $person['thumb']; // to distinct the wall-to-wall-posts from reshared/repeated messages
+	$datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
+	// $datarray['body'] = $prefix . $body;
+	$datarray['body'] = $body;
 	$datarray['tag'] = $str_tags;
 	$datarray['app']  = 'Diaspora';
 
