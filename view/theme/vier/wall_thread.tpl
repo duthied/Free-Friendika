@@ -89,9 +89,9 @@
 		<div class="wall-item-actions">
 			<div class="wall-item-location">$item.location</div>				
 			<div class="wall-item-actions-social">
-			{{ if $item.comment }}
+			{{ if $item.threaded }}{{ if $item.comment }}
 				<span id="comment-$item.id" class="fakelink togglecomment" onclick="openClose('item-comments-$item.id');">$item.switchcomment</span>
-			{{ endif }}
+			{{ endif }}{{ endif }}
 			{{ if $item.star }}
 				<a href="#" id="star-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classdo"  title="$item.star.do">$item.star.do</a>
 				<a href="#" id="unstar-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classundo"  title="$item.star.undo">$item.star.undo</a>
@@ -135,7 +135,7 @@
 	{{ if $item.threaded }}{{ if $item.comment }}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-comment-wrapper" id="total-comments-$item.id">
+		<div class="wall-item-comment-wrapper" id="item-comments-$item.id" style="display: none;">
 					$item.comment
 		</div>
 	</div>
@@ -165,5 +165,5 @@
 
 
 {{ if $item.flatten }}
-<div class="wall-item-comment-wrapper" id="item-comments-$item.id" style="display: none;">$item.comment</div>
+<div class="wall-item-comment-wrapper" id="item-comments-$item.id">$item.comment</div>
 {{ endif }}
