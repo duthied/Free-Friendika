@@ -27,12 +27,13 @@ function photos_init(&$a) {
 		if(! count($r))
 			return;
 
+		$a->data['user'] = $r[0];
+
 		$o .= '<div class="vcard">';
 		$o .= '<div class="fn">' . $a->data['user']['username'] . '</div>';
 		$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg') . '" alt="' . $a->data['user']['username'] . '" /></div>';
 		$o .= '</div>';
 
-		$a->data['user'] = $r[0];
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 

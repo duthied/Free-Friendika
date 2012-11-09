@@ -430,6 +430,9 @@ div.wall-item-content-wrapper.shiny {
 	height: 50px;
 }
 
+#login-submit-wrapper {
+	clear: both;
+}
 #login-submit-button {
 /*	margin-top: 10px; */
 	margin-left: 200px;
@@ -3294,4 +3297,11 @@ ul.menu-popup {
 
 #datebrowse-sidebar select {
 	margin-left: 25px;
+}
+
+#div_id_remember label {
+	width: 170px;
+}
+#div_id_remember input {
+	width: 20px;
 }
