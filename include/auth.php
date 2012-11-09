@@ -2,6 +2,7 @@
 
 
 require_once('include/security.php');
+require_once('include/datetime.php');
 
 function nuke_session() {
 	unset($_SESSION['authenticated']);
@@ -68,7 +69,18 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 			goaway(z_root());
 		}
 
-		authenticate_success($r[0]);
+		// Make sure to refresh the last login time for the user if the user
+		// stays logged in for a long time, e.g. with "Remember Me"
+		$login_refresh = false;
+		if(! x($_SESSION['last_login_date'])) {
+			$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
+		}
+		if( strcmp(datetime_convert('UTC','UTC','now - 12 hours'), $_SESSION['last_login_date']) > 0 ) {
+
+			$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
+			$login_refresh = true;
+		}
+		authenticate_success($r[0], false, false, $login_refresh);
 	}
 }
 else {
@@ -191,6 +203,7 @@ else {
 
 		// if we haven't failed up this point, log them in.
 
+		$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
 		authenticate_success($record, true, true);
 	}
 }
