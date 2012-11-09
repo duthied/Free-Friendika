@@ -722,7 +722,7 @@ ul.menu-popup .empty {
 aside {
   display: table-cell;
   vertical-align: top;
-  width: 200px;
+  width: 185px;
   padding: 0px 10px 0px 20px;
   border-right: 1px solid #D2D2D2;
   /* background: #F1F1F1; */
@@ -779,6 +779,28 @@ aside #dfrn-request-link:hover {
 aside #profiles-menu {
   width: 20em;
 }
+
+aside #search-text {
+  width: 150px;
+  height: 17px;
+  padding-left: 10px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+  -moz-border-bottom-colors: #dbdbdb;
+  -moz-border-top-colors: #999;
+  -moz-border-left-colors: #999;
+  -moz-border-right-colors: #dbdbdb;
+}
+
+.nets-ul {
+  margin-top: 0px;
+}
+.nets-all {
+  margin-left: 16px;
+}
+
 #contact-block {
   overflow: auto;
   height: auto;

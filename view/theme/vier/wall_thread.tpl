@@ -49,8 +49,16 @@
 				</a>
 			</div>
 			{{ endif }}			
-			<div class="wall-item-location">$item.location</div>	
 		</div>
+		<div class="wall-item-actions-author">
+			<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a>
+			 {{ if $item.owner_url }}$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> <!-- $item.vwall -->{{ endif }}
+			<span class="wall-item-ago">-
+				{{ if $item.plink }}<a class="link" title="$item.plink.title" href="$item.plink.href" style="color: #999">$item.ago</a>{{ else }} $item.ago {{ endif }}
+				{{ if $item.lock }} - <span class="fakelink" style="color: #999" onclick="lockview(event,$item.id);">$item.lock</span> {{ endif }}
+			</span>
+		</div>
+
 		<div class="wall-item-content">
 			{{ if $item.title }}<h2><a href="$item.plink.href" class="$item.sparkle">$item.title</a></h2>{{ endif }}
 			$item.body
@@ -79,7 +87,8 @@
 			{{ if $item.plink }}<a class="icon s16 link$item.sparkle" title="$item.plink.title" href="$item.plink.href">$item.plink.title</a>{{ endif }}
 		</div>
 		<div class="wall-item-actions">
-			<div class="wall-item-actions-author">
+			<div class="wall-item-location">$item.location</div>	
+		<!--	<div class="wall-item-actions-author">
 				<a href="$item.profile_url" target="redir"
                                 title="$item.linktitle"
                                 class="wall-item-name-link"><span
@@ -87,14 +96,16 @@
                                 <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
 				 {{ if $item.owner_url }}<br/>$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall
 				 {{ endif }}
-			</div>
+			</div> -->
 			
 			<div class="wall-item-actions-social">
+			<!-- {{ if $item.comment }}
+				<span id="comment-$item.id" class="fakelink" onclick="showHideComments(bar$item.id);">$item.switchcomment</span>
+			{{ endif }} -->
 			{{ if $item.star }}
 				<a href="#" id="star-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classdo"  title="$item.star.do">$item.star.do</a>
 				<a href="#" id="unstar-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classundo"  title="$item.star.undo">$item.star.undo</a>
 				<a href="#" id="tagger-$item.id" onclick="itemTag($item.id); return false;" class="$item.star.classtagger" title="$item.star.tagger">$item.star.tagger</a>
-
 			{{ endif }}
 			{{ if $item.filer }}
                                 <a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item filer-icon" title="$item.filer">$item.filer</a>
@@ -134,7 +145,7 @@
 	{{ if $item.threaded }}{{ if $item.comment }}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-comment-wrapper">
+		<div class="wall-item-comment-wrapper" id="total-comments-$item.id">
 					$item.comment
 		</div>
 	</div>
@@ -159,10 +170,11 @@
 {{ endif }}
 
 {{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >$item.comment</div>
+<div class="wall-item-comment-wrapper" id="item-comments-$item.id">$item.comment</div>
 {{ endif }}{{ endif }}{{ endif }}
 
 
 {{ if $item.flatten }}
-<div class="wall-item-comment-wrapper" >$item.comment</div>
+<!-- <div class="wall-item-comment-wrapper" id="collapsed-comments-bar$item.id" style="display: none;">$item.comment</div> -->
+<div class="wall-item-comment-wrapper" id="collapsed-comments-bar$item.id">$item.comment</div>
 {{ endif }}

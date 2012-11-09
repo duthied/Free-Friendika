@@ -253,6 +253,7 @@ class Item extends BaseObject {
 			'vote' => $buttons,
 			'like' => $like,
 			'dislike' => $dislike,
+			'switchcomment' => t('Comment'),
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
