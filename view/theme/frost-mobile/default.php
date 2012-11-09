@@ -11,7 +11,7 @@
 	<?php if( $a->module === 'home' ) { ?>
 	<center>
 	<div class="login-button">
-	<a href="login" class="login-button-link"><img class="login-button-image" src="/images/friendica-1600.png" title="Click to log in"></a>
+	<a href="login" class="login-button-link"><img class="login-button-image" src="images/friendica-1600.png" title="Click to log in"></a>
 	</div>
 	</center>
 
