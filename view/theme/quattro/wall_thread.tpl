@@ -132,7 +132,7 @@
 	</div>
 	
 	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent==comment }}
-	<div class="wall-item-bottom">
+	<div class="wall-item-bottom commentbox">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
 					$item.comment
