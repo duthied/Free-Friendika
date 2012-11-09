@@ -87,21 +87,11 @@
 			{{ if $item.plink }}<a class="icon s16 link$item.sparkle" title="$item.plink.title" href="$item.plink.href">$item.plink.title</a>{{ endif }}
 		</div>
 		<div class="wall-item-actions">
-			<div class="wall-item-location">$item.location</div>	
-		<!--	<div class="wall-item-actions-author">
-				<a href="$item.profile_url" target="redir"
-                                title="$item.linktitle"
-                                class="wall-item-name-link"><span
-                                class="wall-item-name$item.sparkle">$item.name</span></a>
-                                <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
-				 {{ if $item.owner_url }}<br/>$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall
-				 {{ endif }}
-			</div> -->
-			
+			<div class="wall-item-location">$item.location</div>				
 			<div class="wall-item-actions-social">
-			<!-- {{ if $item.comment }}
-				<span id="comment-$item.id" class="fakelink" onclick="showHideComments(bar$item.id);">$item.switchcomment</span>
-			{{ endif }} -->
+			{{ if $item.comment }}
+				<span id="comment-$item.id" class="fakelink togglecomment" onclick="openClose('item-comments-$item.id');">$item.switchcomment</span>
+			{{ endif }}
 			{{ if $item.star }}
 				<a href="#" id="star-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classdo"  title="$item.star.do">$item.star.do</a>
 				<a href="#" id="unstar-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classundo"  title="$item.star.undo">$item.star.undo</a>
@@ -175,6 +165,5 @@
 
 
 {{ if $item.flatten }}
-<!-- <div class="wall-item-comment-wrapper" id="collapsed-comments-bar$item.id" style="display: none;">$item.comment</div> -->
-<div class="wall-item-comment-wrapper" id="collapsed-comments-bar$item.id">$item.comment</div>
+<div class="wall-item-comment-wrapper" id="item-comments-$item.id" style="display: none;">$item.comment</div>
 {{ endif }}

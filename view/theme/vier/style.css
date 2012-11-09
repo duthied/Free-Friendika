@@ -1059,6 +1059,12 @@ section {
   color: #2d2d2d;
   border: 1px solid #2d2d2d;
 }
+
+.togglecomment {
+  float: left;
+  margin-right: 1em;
+}
+
 .comment-edit-preview {
   width: 710px;
   border: 1px solid #2d2d2d;
