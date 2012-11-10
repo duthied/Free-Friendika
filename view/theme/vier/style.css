@@ -319,7 +319,7 @@
 .hide-comments-outer {
   margin-left: 80px;
   margin-bottom: 5px;
-  width: 684px;
+  width: 660px;
   border-bottom: 1px solid #BDCDD4;
   border-top: 1px solid #BDCDD4;
 
@@ -449,8 +449,9 @@ div.jGrowl div.info {
 /* header */
 header {
   position: fixed;
-  left: 43%;
-  right: 43%;
+  /* left: 43%;
+  right: 43%; */
+  left: 25px;
   top: 0px;
   margin: 0px;
   padding: 0px;
@@ -492,7 +493,8 @@ nav {
   left: 0px;
   top: 0px;
   padding: 0px;
- background: #364A84;
+  padding-left: 0px;
+  background: #364A84;
     background: -moz-linear-gradient(top, #516499 0%, #364a84 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#516499), color-stop(100%,#364a84));
     background: -webkit-linear-gradient(top, #516499 0%,#364a84 100%);
@@ -529,6 +531,16 @@ nav ul li .menu-popup {
   left: 0px;
   right: auto;
 }
+nav #search-box #search-text {
+  background-image:  url('icons/lupe.png');
+  background-repeat:no-repeat;
+  padding-left:20px;
+  border-top-left-radius: 15px;
+border-top-right-radius: 15px;
+border-bottom-right-radius: 15px;
+border-bottom-left-radius: 15px;
+        }
+
 nav .nav-menu-icon {
   position: relative;
   height: 22px;
@@ -548,11 +560,16 @@ nav .nav-menu-icon img {
 nav .nav-menu-icon .nav-notify {
   top: 3px;
 }
+nav .nav-menu-label {
+  margin: 3px 5px 0px;
+}
 nav .nav-menu {
   position: relative;
   height: 16px;
   padding: 5px;
-  margin: 3px 15px 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 3px 5px 0px;
   font-size: 13px;
   border-bottom: 3px solid #364A84;
 }
@@ -581,22 +598,48 @@ nav #nav-help-link,
 nav #nav-search-link,
 nav #nav-directory-link,
 nav #nav-apps-link,
-nav #nav-site-linkmenu {
+nav #nav-notifications-linkmenu,
+nav #nav-site-linkmenu,
+nav #nav-user-linklabel {
   float: right;
+}
+nav #nav-user-linklabel {
+  padding-left: 0px;
+  margin-left: 0px;
 }
 nav #nav-help-link .menu-popup,
 nav #nav-search-link .menu-popup,
 nav #nav-directory-link .menu-popup,
 nav #nav-apps-link .menu-popup,
+nav #nav-notifications-linkmenu .menu-popup,
 nav #nav-site-linkmenu .menu-popup {
   right: 0px;
   left: auto;
+}
+nav #nav-site-linkmenu {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+nav #nav-notifications-linkmenu {
+  margin-left: 0px;
+  margin-right: 5px;
 }
 nav #nav-notifications-linkmenu.on .icon.s22.notify, nav #nav-notifications-linkmenu.selected .icon.s22.notify {
   background-image: url("../../../images/icons/22/notify_on.png");
 }
 nav #nav-apps-link.selected {
   background-color: #364e59;
+}
+
+nav #nav-community-link {
+  padding-left: 205px;
+}
+
+nav #nav-user-linkmenu {
+  float: right;
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-right: 5px;
 }
 
 #nav-notifications-mark-all {
@@ -798,7 +841,7 @@ aside #search-text {
   margin-top: 0px;
 }
 .nets-all {
-  margin-left: 16px;
+  margin-left: 10px;
 }
 
 #contact-block {
@@ -825,6 +868,18 @@ aside #search-text {
 #contact-block .contact-block-link img {
   widht: 48px;
   height: 58px;
+}
+.group_selected {
+  background: url("../../../view/theme/diabook/icons/selected.png") no-repeat left center;
+  float: left;
+  height: 22px;
+  width: 22px;
+}
+.group_unselected {
+  background: url("../../../view/theme/diabook/icons/unselected.png") no-repeat left center;
+  float: left;
+  height: 22px;
+  width: 22px;
 }
 /* widget */
 .widget {
@@ -879,11 +934,15 @@ aside #search-text {
 }
 .widget ul {
   padding: 0px;
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
 }
 .widget ul li {
-  padding-left: 16px;
-  min-height: 16px;
+  padding-left: 10px;
+  /* min-height: 20px; */
   list-style: none;
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 .widget .tool.selected {
   background: url('../../../images/selected.png') no-repeat left center;
@@ -897,7 +956,7 @@ aside #search-text {
 section {
   display: table-cell;
   vertical-align: top;
-  width: 800px;
+  width: 760px;
   padding: 0px 0px 0px 10px;
 }
 /* wall item */
@@ -906,11 +965,11 @@ section {
   position: relative;
   padding: 5px;
   margin-bottom: 0px;
-  width: 775px;
+  /* width: 755px; */
 }
 .wall-item-decor {
   position: absolute;
-  left: 790px;
+  left: 755px;
   top: -10px;
   width: 16px;
 }
@@ -919,7 +978,7 @@ section {
 }
 .wall-item-container {
   display: table;
-  width: 780px;
+  width: 745px;
 }
 .wall-item-container .wall-item-item, .wall-item-container .wall-item-bottom {
   display: table-row;
@@ -1022,7 +1081,7 @@ section {
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 80px;
-  width: 700px;
+  width: 665px;
   border-bottom: 1px solid hsl(198, 21%, 79%);
 }
 .wall-item-container.comment .contact-photo {
@@ -1060,7 +1119,7 @@ section {
   border: 1px solid #2d2d2d;
 }
 
-.togglecomment {
+.fakelink.togglecomment {
   float: left;
   margin-right: 1em;
 }
@@ -1098,6 +1157,38 @@ section {
 	border-right: 1px solid #A7C7F7;
 	padding-right: 12px;
 }
+
+#profile-jot-form #profile-jot-text {
+  height: 2.0em;
+  width: 99%;
+  font-size: 15px;
+  color: #999999;
+  border: 1px solid #DDD;
+  padding: 0.3em;
+  margin-bottom: 10px;
+}
+
+#profile-jot-form #jot-title, #profile-jot-form #jot-category {
+    
+         border-radius: 5px 5px 5px 5px;
+    font-weight: bold;
+    height: 20px;
+    margin: 0 0 5px;
+    width: 60%;
+    border: 1px solid #d2d2d2;
+}
+
+#profile-jot-form #jot-title:-webkit-input-placeholder {
+  font-weight: normal;
+}
+#profile-jot-form #jot-title:-moz-placeholder {
+  font-weight: normal;
+}
+#profile-jot-form #profile-jot-text_parent #profile-jot-text_tbl{
+  width: 785px;
+  height: 100px;
+}
+
 #jot-preview-content .tread-wrapper {
   background-color: #fce94f;
 }
@@ -1357,7 +1448,7 @@ section {
   clear: both;
 }
 #profile-jot-text_tbl {
-  width: 800px;
+  width: 780px;
 }
 #profile-jot-wrapper {
   margin-bottom: 20px;
@@ -1890,7 +1981,7 @@ a.mail-list-link {
 }
 
 .app-title {
-        margin: 10px;
+  margin: 0px;
 }
 
 #identity-manage-desc {
@@ -2047,4 +2138,21 @@ a.mail-list-link {
         float: left;
         width: 175px;
 }
+
+.menu-profile-list{
+  height: auto;
+  overflow: auto;
+  min-height: 16px;
+  list-style: none;
+        }
+.menu-profile-list:hover{
+        background: #E7F2F7;
+        }
+.menu-profile-list-item{
+        padding-left: 5px;
+        vertical-align: middle;
+        }       
+.menu-profile-list-item:hover{  
+        text-decoration: none;
+   }
 

@@ -859,7 +859,8 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['parent'] = 0;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
-	$datarray['owner-avatar'] = $contact['thumb'];
+	//$datarray['owner-avatar'] = $contact['thumb'];
+	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
 	$datarray['author-name'] = $contact['name'];
 	$datarray['author-link'] = $contact['url'];
 	$datarray['author-avatar'] = $contact['thumb'];
@@ -1021,7 +1022,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['parent'] = 0;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
-	$datarray['owner-avatar'] = $contact['thumb'];
+	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
 	$datarray['author-name'] = $person['name']; // Let reshared messages look like wall-to-wall posts
 	$datarray['author-link'] = $person['url']; // we have to set an additional value in the item in the future
 	// $datarray['author-avatar'] = $person['thumb']; // to distinct the wall-to-wall-posts from reshared/repeated messages
@@ -1118,7 +1119,8 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	$datarray['parent'] = 0;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
-	$datarray['owner-avatar'] = $contact['thumb'];
+	//$datarray['owner-avatar'] = $contact['thumb'];
+	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
 	$datarray['author-name'] = $contact['name'];
 	$datarray['author-link'] = $contact['url'];
 	$datarray['author-avatar'] = $contact['thumb'];
@@ -1866,7 +1868,8 @@ EOT;
 
 	$arr['owner-name'] = $parent_item['name'];
 	$arr['owner-link'] = $parent_item['url'];
-	$arr['owner-avatar'] = $parent_item['thumb'];
+	//$arr['owner-avatar'] = $parent_item['thumb'];
+	$arr['owner-avatar'] = ((x($parent_item,'thumb')) ? $parent_item['thumb'] : $parent_item['photo']);
 
 	$arr['author-name'] = $person['name'];
 	$arr['author-link'] = $person['url'];
