@@ -137,11 +137,7 @@
 			<div class="wall-item-location">$item.location&nbsp;</div>
 		</div>
 	</div>
-	<div class="wall-item-bottom">
-		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>	
-	</div>
+	
 </div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
