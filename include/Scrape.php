@@ -590,6 +590,12 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 		$check_feed = false;
 
+		if(stristr($url,'tumblr.com') && (! stristr($url,'/rss'))) {
+			$poll = $url . '/rss';
+			$check_feed = true;
+
+		}
+
 		if($twitter || ! $poll)
 			$check_feed = true;
 		if((! isset($vcard)) || (! x($vcard,'fn')) || (! $profile))
