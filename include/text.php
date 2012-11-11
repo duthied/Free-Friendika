@@ -336,11 +336,18 @@ function sanitise_acl(&$item) {
 
 
 // Convert an ACL array to a storable string
+// Normally ACL permissions will be an array.
+// We'll also allow a comma-separated string.
 
 if(! function_exists('perms2str')) {
 function perms2str($p) {
 	$ret = '';
-	$tmp = $p;
+
+	if(is_array($p))
+		$tmp = $p;
+	else
+		$tmp = explode(',',$p);
+
 	if(is_array($tmp)) {
 		array_walk($tmp,'sanitise_acl');
 		$ret = implode('',$tmp);
