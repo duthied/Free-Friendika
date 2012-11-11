@@ -340,12 +340,12 @@ h4 {
 }
 
 a {
-	color: #36C;
-	/* color: #3e3e8c; */
+	/* color: #36C; */
+	color: #3e3e8c;
 	text-decoration: none;
 }
 a:hover {
-	/* color: blue; */
+	color: blue;
 	text-decoration: underline
 }
 
@@ -373,13 +373,13 @@ a:hover {
   clear: both;
 }
 .fakelink {
-  color: #36c;
-  /* color: #3e3e8c; */
+  /* color: #36c; */
+  color: #3e3e8c;
   text-decoration: none;
   cursor: pointer;
 }
 .fakelink:hover {
-  /* color: blue; */
+  color: blue;
   /*color: #005c94; */
   text-decoration: underline;
 }
@@ -507,6 +507,7 @@ nav {
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  border-bottom: 5px solid #F80;
 }
 nav a,
 nav a:active,
@@ -536,10 +537,13 @@ nav #search-box #search-text {
   background-repeat:no-repeat;
   padding-left:0px;
   border-top-left-radius: 15px;
-border-top-right-radius: 15px;
-border-bottom-right-radius: 15px;
-border-bottom-left-radius: 15px;
-        }
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+  position: relative;
+  height: 17px;
+  margin: 4px 0px 4px 4px;
+}
 
 nav .nav-menu-icon {
   position: relative;
@@ -575,12 +579,13 @@ nav .nav-menu {
 }
 nav .nav-menu.selected {
   border-bottom: 3px solid #9eabb0;
-  background-color: #364E59;
+ /*  background-color: #364E59; */
 }
 nav .nav-notify {
   display: none;
   position: absolute;
-  background-color: #36c;
+ /*  background-color: #36c; */
+   background-color: #F80;
   /* background-color: #19aeff; */
   -moz-border-radius: 5px 5px 5px 5px;
   -webkit-border-radius: 5px 5px 5px 5px;
@@ -628,6 +633,8 @@ nav #nav-notifications-linkmenu {
 nav #nav-notifications-linkmenu.on .icon.s22.notify, nav #nav-notifications-linkmenu.selected .icon.s22.notify {
   background-image: url("../../../images/icons/22/notify_on.png");
 }
+nav #nav-messages-linkmenu.selected,
+nav #nav-user-linklabel.selected,
 nav #nav-apps-link.selected {
   background-color: #364e59;
 }
