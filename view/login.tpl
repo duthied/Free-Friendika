@@ -13,6 +13,8 @@
 			</div>
 	{{ endif }}
 
+	{{ inc field_checkbox.tpl with $field=$lremember }}{{ endinc }}
+
 	<div id="login-extra-links">
 		{{ if $register }}<a href="register" title="$register.title" id="register-link">$register.desc</a>{{ endif }}
         <a href="lostpass" title="$lostpass" id="lost-password-link" >$lostlink</a>
