@@ -593,7 +593,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		if(stristr($url,'tumblr.com') && (! stristr($url,'/rss'))) {
 			$poll = $url . '/rss';
 			$check_feed = true;
-
+			// Will leave it to others to figure out how to grab the avatar, which is on the $url page in the open graph meta links
 		}
 
 		if($twitter || ! $poll)
