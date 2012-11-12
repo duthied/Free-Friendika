@@ -943,9 +943,9 @@ ul .sidebar-group-li .icon {
 	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
 	background-color: #f0edf0;
-	/* border-radius: 5px 5px 0px 0px;
+	border-radius: 5px 5px 0px 0px;
 		-moz-border-radius: 5px 5px 0px 0px;
-		-webkit-border-radius: 5px 5px 0px 0px; */
+		-webkit-border-radius: 5px 5px 0px 0px;
 	border: 1px solid #e2e2e2;
 	border-bottom: 1px solid #cdcdcd;
 	padding-top: 5px;
@@ -2772,7 +2772,7 @@ margin-left: 0px;
 }
 
 #follow-sidebar {
-	margin-bottom: 80px;
+	margin-bottom: 10px;
 }
 
 #follow-sidebar h3:before {
@@ -4403,4 +4403,9 @@ div #datebrowse-sidebar.widget {
 		-webkit-border-radius: 5px;
 	padding:10px;
 	margin:10px 10px 10px 0;
+}
+
+#page-settings-label{
+	width: auto !important;
+	margin-bottom: 5px !important;
 }

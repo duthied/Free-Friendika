@@ -43,11 +43,11 @@ h6 {
 	font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
 	font-weight: 550;
 	color:#626262;
-	margin:0;
+	margin: 0;
 }
 
 h1 {
-	font-size:200%;
+	font-size: 200%;
 	line-height: 0.8571em;
 	margin: 0.4286em 0 0;
 }
@@ -59,18 +59,18 @@ h2 {
 }
 
 h3 {
-	font-size:145%;
-	margin:0.4286em 0 5px 0;
+	font-size: 145%;
+	margin: 0 0 5px 0;
 }
 
 h4 {
-	font-size:133.33%;
+	font-size: 133.33%;
 	line-height: 1.125em;
-	margin:1.125em 0 0 0;
+	margin: 1.125em 0 0 0;
 }
 
 h5 {
-	font-size:116.67%;
+	font-size: 116.67%;
 	line-height: 1.2857em;
 	margin: 1.2857em 0 0 0;
 }
