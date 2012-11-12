@@ -340,8 +340,9 @@ h4 {
 }
 
 a {
-	/* color: #36C; */
-	color: #3e3e8c;
+	/*  color: #36C; */
+	/* color: #3e3e8c; */
+	color: #3465A4;
 	text-decoration: none;
 }
 a:hover {
@@ -374,7 +375,8 @@ a:hover {
 }
 .fakelink {
   /* color: #36c; */
-  color: #3e3e8c;
+  /* color: #3e3e8c; */
+  color: #3465A4;
   text-decoration: none;
   cursor: pointer;
 }
@@ -580,6 +582,12 @@ nav .nav-menu {
 nav .nav-menu.selected {
   border-bottom: 3px solid #9eabb0;
  /*  background-color: #364E59; */
+}
+nav .nav-menu:hover {
+    color: #fff !important;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5);
+    background: #4c619c;
+    text-decoration: none;
 }
 nav .nav-notify {
   display: none;
