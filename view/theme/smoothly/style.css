@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-10-25
+	Created by alex@friendica.pixelbits.de on 2012-11-12
 
 ** Colors ** 
 Blue links - #1873a2
@@ -943,9 +943,9 @@ ul .sidebar-group-li .icon {
 	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
 	background-color: #f0edf0;
-	border-radius: 5px 5px 0px 0px;
+	/* border-radius: 5px 5px 0px 0px;
 		-moz-border-radius: 5px 5px 0px 0px;
-		-webkit-border-radius: 5px 5px 0px 0px;
+		-webkit-border-radius: 5px 5px 0px 0px; */
 	border: 1px solid #e2e2e2;
 	border-bottom: 1px solid #cdcdcd;
 	padding-top: 5px;
@@ -3549,6 +3549,7 @@ margin-left: 0px;
 #adminpage h3 {
 	border-bottom: 1px solid #898989;
 	margin-bottom: 5px;
+	padding-bottom: 5px;
 	margin-top: 10px;
 }
 
@@ -3565,10 +3566,16 @@ margin-left: 0px;
 #adminpage .plugin {
 	list-style: none;
 	display: block;
-	border: 1px solid #888888;
-	padding: 1em;
-	margin-bottom: 5px;
 	clear: left;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+	padding:10px;
+	margin:10px 10px 10px 0;
 }
 
 #adminpage .toggleplugin {
@@ -4351,10 +4358,14 @@ div #datebrowse-sidebar.widget {
 
 #settings-notifications {
 	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 	padding:10px;
+	margin:10px 10px 10px 0;
 }
 
 #id_npassword {}
@@ -4382,3 +4393,14 @@ div #datebrowse-sidebar.widget {
 
 #remote-friends-in-common  {}
 
+.settings-block {
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+	padding:10px;
+	margin:10px 10px 10px 0;
+}
