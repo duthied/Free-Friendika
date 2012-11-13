@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-11-12
+	Created by alex@friendica.pixelbits.de on 2012-11-13
 
 ** Colors ** 
 Blue links - #1873a2
@@ -4204,7 +4204,6 @@ div.wall-item-content-wrapper.shiny {
 #profile-upload-wrapper,
 #wall-image-upload-div,
 #wall-file-upload-div,
-
 .hover, 
 .focus {
 	cursor: pointer;
