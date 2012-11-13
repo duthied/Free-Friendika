@@ -27,7 +27,7 @@
 	<img id="like-rotator-$item.id" class="like-rotator" src="images/rotator.gif" alt="$item.wait" title="$item.wait" style="display: none;" />
 </div>
 
-<div class="wall-item-container $item.indent" id="item-$item.id">
+<div class="wall-item-container $item.indent $item.shiny" id="item-$item.id">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper mframe{{ if $item.owner_url }} wwfrom{{ endif }}"
@@ -145,7 +145,7 @@
 		<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>	
 	</div>
 	
-	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent==comment }}
+	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent $item.shiny==comment }}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
