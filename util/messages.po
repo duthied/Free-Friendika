@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1526\n"
+"Project-Id-Version: 3.0.1527\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-13 10:00-0800\n"
+"POT-Creation-Date: 2012-11-14 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -182,7 +182,7 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:599
 #: ../../view/theme/diabook/config.php:152
 #: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
-#: ../../object/Item.php:559 ../../addon.old/fromgplus/fromgplus.php:40
+#: ../../object/Item.php:562 ../../addon.old/fromgplus/fromgplus.php:40
 #: ../../addon.old/facebook/facebook.php:619
 #: ../../addon.old/snautofollow/snautofollow.php:64
 #: ../../addon.old/bg/bg.php:90 ../../addon.old/fbpost/fbpost.php:226
@@ -588,7 +588,7 @@ msgid "Use as profile photo"
 msgstr ""
 
 #: ../../mod/photos.php:1247 ../../mod/content.php:603
-#: ../../object/Item.php:103
+#: ../../object/Item.php:104
 msgid "Private Message"
 msgstr ""
 
@@ -629,12 +629,12 @@ msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
 #: ../../mod/photos.php:1385 ../../mod/content.php:667
-#: ../../object/Item.php:196
+#: ../../object/Item.php:197
 msgid "I like this (toggle)"
 msgstr ""
 
 #: ../../mod/photos.php:1386 ../../mod/content.php:668
-#: ../../object/Item.php:197
+#: ../../object/Item.php:198
 msgid "I don't like this (toggle)"
 msgstr ""
 
@@ -643,36 +643,36 @@ msgid "Share"
 msgstr ""
 
 #: ../../mod/photos.php:1388 ../../mod/editpost.php:118
-#: ../../mod/content.php:482 ../../mod/content.php:846
+#: ../../mod/content.php:482 ../../mod/content.php:848
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:293
 #: ../../mod/message.php:481 ../../include/conversation.php:624
-#: ../../include/conversation.php:985 ../../object/Item.php:258
+#: ../../include/conversation.php:985 ../../object/Item.php:261
 msgid "Please wait"
 msgstr ""
 
 #: ../../mod/photos.php:1404 ../../mod/photos.php:1448
 #: ../../mod/photos.php:1520 ../../mod/content.php:690
-#: ../../object/Item.php:556
+#: ../../object/Item.php:559
 msgid "This is you"
 msgstr ""
 
 #: ../../mod/photos.php:1406 ../../mod/photos.php:1450
 #: ../../mod/photos.php:1522 ../../mod/content.php:692 ../../boot.php:605
-#: ../../object/Item.php:558
+#: ../../object/Item.php:561
 msgid "Comment"
 msgstr ""
 
 #: ../../mod/photos.php:1408 ../../mod/photos.php:1452
 #: ../../mod/photos.php:1524 ../../mod/editpost.php:139
 #: ../../mod/content.php:702 ../../include/conversation.php:1003
-#: ../../object/Item.php:568
+#: ../../object/Item.php:571
 msgid "Preview"
 msgstr ""
 
 #: ../../mod/photos.php:1492 ../../mod/content.php:439
 #: ../../mod/content.php:724 ../../mod/settings.php:606
 #: ../../mod/group.php:168 ../../mod/admin.php:696
-#: ../../include/conversation.php:569 ../../object/Item.php:117
+#: ../../include/conversation.php:569 ../../object/Item.php:118
 msgid "Delete"
 msgstr ""
 
@@ -743,7 +743,7 @@ msgid "Post to Email"
 msgstr ""
 
 #: ../../mod/editpost.php:103 ../../mod/content.php:711
-#: ../../mod/settings.php:605 ../../object/Item.php:107
+#: ../../mod/settings.php:605 ../../object/Item.php:108
 msgid "Edit"
 msgstr ""
 
@@ -1428,19 +1428,19 @@ msgid "Group: "
 msgstr ""
 
 #: ../../mod/content.php:438 ../../mod/content.php:723
-#: ../../include/conversation.php:568 ../../object/Item.php:116
+#: ../../include/conversation.php:568 ../../object/Item.php:117
 msgid "Select"
 msgstr ""
 
-#: ../../mod/content.php:455 ../../mod/content.php:816
-#: ../../mod/content.php:817 ../../include/conversation.php:587
-#: ../../object/Item.php:227 ../../object/Item.php:228
+#: ../../mod/content.php:455 ../../mod/content.php:817
+#: ../../mod/content.php:818 ../../include/conversation.php:587
+#: ../../object/Item.php:229 ../../object/Item.php:230
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: ../../mod/content.php:465 ../../mod/content.php:828
-#: ../../include/conversation.php:607 ../../object/Item.php:240
+#: ../../mod/content.php:465 ../../mod/content.php:829
+#: ../../include/conversation.php:607 ../../object/Item.php:242
 #, php-format
 msgid "%s from %s"
 msgstr ""
@@ -1449,7 +1449,7 @@ msgstr ""
 msgid "View in context"
 msgstr ""
 
-#: ../../mod/content.php:586 ../../object/Item.php:277
+#: ../../mod/content.php:586 ../../object/Item.php:280
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
@@ -1457,7 +1457,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../mod/content.php:588 ../../include/text.php:1448
-#: ../../object/Item.php:279 ../../object/Item.php:292
+#: ../../object/Item.php:282 ../../object/Item.php:295
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
@@ -1466,92 +1466,92 @@ msgstr[1] ""
 #: ../../mod/content.php:589 ../../addon/page/page.php:77
 #: ../../addon/page/page.php:111 ../../addon/showmore/showmore.php:119
 #: ../../include/contact_widgets.php:195 ../../boot.php:606
-#: ../../object/Item.php:280 ../../addon.old/page/page.php:77
+#: ../../object/Item.php:283 ../../addon.old/page/page.php:77
 #: ../../addon.old/page/page.php:111 ../../addon.old/showmore/showmore.php:119
 msgid "show more"
 msgstr ""
 
-#: ../../mod/content.php:667 ../../object/Item.php:196
+#: ../../mod/content.php:667 ../../object/Item.php:197
 msgid "like"
 msgstr ""
 
-#: ../../mod/content.php:668 ../../object/Item.php:197
+#: ../../mod/content.php:668 ../../object/Item.php:198
 msgid "dislike"
 msgstr ""
 
-#: ../../mod/content.php:670 ../../object/Item.php:199
+#: ../../mod/content.php:670 ../../object/Item.php:200
 msgid "Share this"
 msgstr ""
 
-#: ../../mod/content.php:670 ../../object/Item.php:199
+#: ../../mod/content.php:670 ../../object/Item.php:200
 msgid "share"
 msgstr ""
 
-#: ../../mod/content.php:694 ../../object/Item.php:560
+#: ../../mod/content.php:694 ../../object/Item.php:563
 msgid "Bold"
 msgstr ""
 
-#: ../../mod/content.php:695 ../../object/Item.php:561
+#: ../../mod/content.php:695 ../../object/Item.php:564
 msgid "Italic"
 msgstr ""
 
-#: ../../mod/content.php:696 ../../object/Item.php:562
+#: ../../mod/content.php:696 ../../object/Item.php:565
 msgid "Underline"
 msgstr ""
 
-#: ../../mod/content.php:697 ../../object/Item.php:563
+#: ../../mod/content.php:697 ../../object/Item.php:566
 msgid "Quote"
 msgstr ""
 
-#: ../../mod/content.php:698 ../../object/Item.php:564
+#: ../../mod/content.php:698 ../../object/Item.php:567
 msgid "Code"
 msgstr ""
 
-#: ../../mod/content.php:699 ../../object/Item.php:565
+#: ../../mod/content.php:699 ../../object/Item.php:568
 msgid "Image"
 msgstr ""
 
-#: ../../mod/content.php:700 ../../object/Item.php:566
+#: ../../mod/content.php:700 ../../object/Item.php:569
 msgid "Link"
 msgstr ""
 
-#: ../../mod/content.php:701 ../../object/Item.php:567
+#: ../../mod/content.php:701 ../../object/Item.php:570
 msgid "Video"
 msgstr ""
 
-#: ../../mod/content.php:736 ../../object/Item.php:180
+#: ../../mod/content.php:736 ../../object/Item.php:181
 msgid "add star"
 msgstr ""
 
-#: ../../mod/content.php:737 ../../object/Item.php:181
+#: ../../mod/content.php:737 ../../object/Item.php:182
 msgid "remove star"
 msgstr ""
 
-#: ../../mod/content.php:738 ../../object/Item.php:182
+#: ../../mod/content.php:738 ../../object/Item.php:183
 msgid "toggle star status"
 msgstr ""
 
-#: ../../mod/content.php:741 ../../object/Item.php:185
+#: ../../mod/content.php:741 ../../object/Item.php:186
 msgid "starred"
 msgstr ""
 
-#: ../../mod/content.php:742 ../../object/Item.php:186
+#: ../../mod/content.php:742 ../../object/Item.php:187
 msgid "add tag"
 msgstr ""
 
-#: ../../mod/content.php:746 ../../object/Item.php:120
+#: ../../mod/content.php:746 ../../object/Item.php:121
 msgid "save to folder"
 msgstr ""
 
-#: ../../mod/content.php:818 ../../object/Item.php:229
+#: ../../mod/content.php:819 ../../object/Item.php:231
 msgid "to"
 msgstr ""
 
-#: ../../mod/content.php:819 ../../object/Item.php:230
+#: ../../mod/content.php:820 ../../object/Item.php:232
 msgid "Wall-to-Wall"
 msgstr ""
 
-#: ../../mod/content.php:820 ../../object/Item.php:231
+#: ../../mod/content.php:821 ../../object/Item.php:233
 msgid "via Wall-To-Wall:"
 msgstr ""
 
@@ -2756,15 +2756,21 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../../mod/uimport.php:41
+#: ../../mod/uimport.php:50 ../../mod/register.php:190
+msgid ""
+"This site has exceeded the number of allowed daily account registrations. "
+"Please try again tomorrow."
+msgstr ""
+
+#: ../../mod/uimport.php:64
 msgid "Import"
 msgstr ""
 
-#: ../../mod/uimport.php:43
+#: ../../mod/uimport.php:66
 msgid "Move account"
 msgstr ""
 
-#: ../../mod/uimport.php:44
+#: ../../mod/uimport.php:67
 msgid ""
 "You can import an account from another Friendica server. <br>\r\n"
 "                            You need to export your account from the old "
@@ -2775,11 +2781,11 @@ msgid ""
 "contacts from the OStatus network (statusnet/identi.ca) or from diaspora"
 msgstr ""
 
-#: ../../mod/uimport.php:47
+#: ../../mod/uimport.php:70
 msgid "Account file"
 msgstr ""
 
-#: ../../mod/uimport.php:47
+#: ../../mod/uimport.php:70
 msgid ""
 "To export your accont, go to \"Settings->Export your porsonal data\" and "
 "select \"Export account\""
@@ -3151,12 +3157,6 @@ msgstr ""
 
 #: ../../mod/register.php:152
 msgid "Your registration is pending approval by the site owner."
-msgstr ""
-
-#: ../../mod/register.php:190
-msgid ""
-"This site has exceeded the number of allowed daily account registrations. "
-"Please try again tomorrow."
 msgstr ""
 
 #: ../../mod/register.php:218
@@ -8451,22 +8451,31 @@ msgstr ""
 msgid "Error! I can't import this file: DB schema version is not compatible."
 msgstr ""
 
-#: ../../include/uimport.php:92
+#: ../../include/uimport.php:81
+msgid "Error! Cannot check nickname"
+msgstr ""
+
+#: ../../include/uimport.php:85
+#, php-format
+msgid "User '%s' already exists on this server!"
+msgstr ""
+
+#: ../../include/uimport.php:104
 msgid "User creation error"
 msgstr ""
 
-#: ../../include/uimport.php:110
+#: ../../include/uimport.php:122
 msgid "User profile creation error"
 msgstr ""
 
-#: ../../include/uimport.php:155
+#: ../../include/uimport.php:167
 #, php-format
 msgid "%d contact not imported"
 msgid_plural "%d contacts not imported"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/uimport.php:233
+#: ../../include/uimport.php:245
 msgid "Done. You can now login with your username and password"
 msgstr ""
 
@@ -9165,11 +9174,11 @@ msgstr ""
 msgid "%1$s marked %2$s's %3$s as favorite"
 msgstr ""
 
-#: ../../include/conversation.php:599 ../../object/Item.php:218
+#: ../../include/conversation.php:599 ../../object/Item.php:220
 msgid "Categories:"
 msgstr ""
 
-#: ../../include/conversation.php:600 ../../object/Item.php:219
+#: ../../include/conversation.php:600 ../../object/Item.php:221
 msgid "Filed under:"
 msgstr ""
 
