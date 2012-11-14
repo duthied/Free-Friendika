@@ -4244,6 +4244,8 @@ hr.line-dots {
 .filer-icon {
 	display: block; width: 16px; height: 16px;
 	background-image: url('images/file.gif');
+	margin-left: 5px;
+	float: left;
 }
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }

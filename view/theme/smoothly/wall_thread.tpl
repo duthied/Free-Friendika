@@ -70,16 +70,17 @@
 				{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
 				</div>
 				{{ endif }}
+
+				{{ if $item.has_folders }}
+				<div class="filesavetags"><span>$item.txt_folders {{ for $item.folders as $cat }}$cat.name 
+				<a href="$cat.removeurl" title="$remove">[$remove]</a> 
+				{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
+				</div>
+				{{ endif }}
+
 			</div>
 		</div>
 		<div class="wall-item-social" id="wall-item-social-$item.id">
-
-			{{ if $item.has_folders }}
-			<div class="filesavetags"><span>$item.txt_folders {{ for $item.folders as $cat }}$cat.name 
-			<a href="$cat.removeurl" title="$remove">[$remove]</a> 
-			{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
-			</div>
-			{{ endif }}
 
 			{{ if $item.vote }}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-$item.id">
@@ -101,6 +102,10 @@
 			<a href="#" id="starred-$item.id" onclick="dostar($item.id); return false;" class="star-item icon $item.isstarred" title="$item.star.toggle"></a>
 			<a href="#" id="tagger-$item.id" onclick="itemTag($item.id); return false;" class="tag-item icon tagged" title="$item.star.tagger"></a>
 			{{ endif }}
+
+			{{ if $item.filer }}
+			<a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item filer-icon" title="$item.filer"></a>
+			{{ endif }}
 	
 		</div>
 
@@ -116,7 +121,9 @@
 			</div>
 
 			{{ if $item.drop.pagedrop }}
-			<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />			{{ endif }}
+			<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />
+			{{ endif }}
+
 			<div class="wall-item-delete-end"></div>
 		</div>
 
