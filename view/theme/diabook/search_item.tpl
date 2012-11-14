@@ -1,9 +1,9 @@
-{{ if $item.indent }}{{ else }}
+{{ if $item.indent $item.shiny }}{{ else }}
 <div class="wall-item-decor">
 	<img id="like-rotator-$item.id" class="like-rotator" src="images/rotator.gif" alt="$item.wait" title="$item.wait" style="display: none;" />
 </div>
 {{ endif }}
-<div class="wall-item-container $item.indent">
+<div class="wall-item-container $item.indent $item.shiny">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper"

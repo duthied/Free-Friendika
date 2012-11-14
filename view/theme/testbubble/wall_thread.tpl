@@ -5,8 +5,8 @@
 	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
 {{endif}}
 <div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
-<div class="wall-item-outside-wrapper $item.indent wallwall" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent $item.shiny wallwall" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent $item.shiny" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-info-$item.id">
 			{{ if $item.owner_url }}
 			<div class="wall-item-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
@@ -83,14 +83,14 @@
 	<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>
 	{{ if $item.threaded }}
 	{{ if $item.comment }}
-	<div class="wall-item-comment-wrapper $item.indent" >
+	<div class="wall-item-comment-wrapper $item.indent $item.shiny" >
 		$item.comment
 	</div>
 	{{ endif }}
 	{{ endif }}
 </div>
 
-<div class="wall-item-outside-wrapper-end $item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent $item.shiny" ></div>
 
 {{ for $item.children as $item }}
 	{{ inc $item.template }}{{ endinc }}
