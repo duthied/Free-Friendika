@@ -3,6 +3,9 @@
  * Additional Changes: Michael Vogel <icarus@dabo.de>
  **/
 
+/* @import "css/font-awesome.css"; */
+@import url("css/font-awesome.css") all;
+
 /* ========= */
 /* = Admin = */
 /* ========= */
@@ -1058,6 +1061,22 @@ section {
 .wall-item-container .wall-item-links, .wall-item-container .wall-item-actions {
   display: table-cell;
   vertical-align: middle;
+  /* font-size: 17px; */
+}
+.mail-list-wrapper a,
+.wall-item-container .wall-item-bottom a,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-actions a,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-links a,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-actions .fakelink {
+  color: #999;
+}
+.mail-list-wrapper a:hover,
+.wall-item-container .wall-item-bottom a:hover,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-actions a:hover,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-links a:hover,
+.wall-item-container .wall-item-links, .wall-item-container .wall-item-actions .fakelink:hover {
+  color: #000;
+  text-decoration: none;
 }
 .wall-item-container .wall-item-links .icon, .wall-item-container .wall-item-actions .icon {
   opacity: 0.5;
@@ -1096,9 +1115,11 @@ section {
 }
 .wall-item-container .wall-item-actions-tools a {
   float: right;
+  margin-left: 10px;
 }
 .wall-item-container .wall-item-actions-tools input {
   float: right;
+  margin-left: 10px;
 }
 .wall-item-container.comment {
   margin-top: 5px;
@@ -1826,6 +1847,10 @@ blockquote {
 #group-separator,
 #prof-separator { display: none;}
 */
+
+#prvmail-upload {
+  margin-left: 10px;
+}
 
 #prvmail-to-label, #prvmail-subject-label, #prvmail-message-label {
 	margin-bottom: 10px;
