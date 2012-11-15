@@ -137,11 +137,8 @@
 
 
 <div id="scrollup" style="position: fixed; bottom: 5px; right: 10px;z-index: 97;"><a id="down" onclick="scrolldown()" ><img id="scroll_top_bottom" src="view/theme/diabook/icons/scroll_bottom.png" style="display:cursor !important;" alt="back to top" title="Scroll to bottom"></a></div>
-<div style="position: fixed; bottom: 61px; left: 6px;">$langselector</div>
-<div style="position: fixed; bottom: 23px; left: 5px;"><a href="http://pad.toktan.org/p/diabook" target="blank" ><img src="view/theme/diabook/icons/bluebug.png" title="report bugs for the theme diabook"/></a></div>
-
-
-
+<div style="position: fixed; bottom: 45px; left: 6px;">$langselector</div>
+</div>
 
 <ul id="nav-notifications-template" style="display:none;" rel="template">
 	<li class="{4}"><a href="{0}"><img src="{1}">{2} <span class="notif-when">{3}</span></a></li>

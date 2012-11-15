@@ -6,8 +6,8 @@
 {{endif}}
 <div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
 <a name="$item.id" ></a>
-<div class="wall-item-outside-wrapper $item.indent$item.previewing{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent $item.shiny$item.previewing{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-outside-wrapper-$item.id" >
+	<div class="wall-item-content-wrapper $item.indent $item.shiny" id="wall-item-content-wrapper-$item.id" >
 		<div class="wall-item-info{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-info-$item.id">
 			{{ if $item.owner_url }}
 			<div class="wall-item-photo-wrapper wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
@@ -105,13 +105,13 @@ class="icon recycle wall-item-share-buttons"  title="$item.vote.share.0" onclick
 		</div>
 	</div>	
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like $item.indent" id="wall-item-like-$item.id">$item.like</div>
-	<div class="wall-item-dislike $item.indent" id="wall-item-dislike-$item.id">$item.dislike</div>
+	<div class="wall-item-like $item.indent $item.shiny" id="wall-item-like-$item.id">$item.like</div>
+	<div class="wall-item-dislike $item.indent $item.shiny" id="wall-item-dislike-$item.id">$item.dislike</div>
 	<div class="wall-item-comment-separator"></div>
 
 	{{ if $item.threaded }}
 	{{ if $item.comment }}
-	<div class="wall-item-comment-wrapper $item.indent" >
+	<div class="wall-item-comment-wrapper $item.indent $item.shiny" >
 		$item.comment
 	</div>
 	{{ endif }}
@@ -123,7 +123,7 @@ class="icon recycle wall-item-share-buttons"  title="$item.vote.share.0" onclick
 	</div>
 	{{ endif }}
 
-<div class="wall-item-outside-wrapper-end $item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent $item.shiny" ></div>
 </div>
 {{ for $item.children as $item }}
 	{{ inc $item.template }}{{ endinc }}

@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1521' );
+define ( 'FRIENDICA_VERSION',      '3.0.1527' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1156      );
 
@@ -1009,6 +1009,13 @@ if(! function_exists('remote_user')) {
 // a page is loaded. Usually used for errors or alerts.
 
 if(! function_exists('notice')) {
+	/**
+	 * Show an error message to user.
+	 * 
+	 * This function save text in session, to be shown to the user at next page load
+	 * 
+	 * @param string $s - Text of notice
+	 */
 	function notice($s) {
 		$a = get_app();
 		if(! x($_SESSION,'sysmsg'))	$_SESSION['sysmsg'] = array();
@@ -1017,6 +1024,13 @@ if(! function_exists('notice')) {
 	}
 }
 if(! function_exists('info')) {
+	/**
+	 * Show an info message to user.
+	 * 
+	 * This function save text in session, to be shown to the user at next page load
+	 * 
+	 * @param string $s - Text of notice
+	 */
 	function info($s) {
 		$a = get_app();
 		if(! x($_SESSION,'sysmsg_info')) $_SESSION['sysmsg_info'] = array();

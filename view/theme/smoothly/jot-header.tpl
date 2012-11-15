@@ -1,22 +1,23 @@
-<script language="javascript" type="text/javascript" src="$baseurl/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js"></script>
+
 <script language="javascript" type="text/javascript">
 
 var editor=false;
 var textlen = 0;
 var plaintext = '$editselect';
 
-function initEditor(cb) {
-    if (editor==false) {
-        $("#profile-jot-text-loading").show();
- if(plaintext == 'none') {
-            $("#profile-jot-text-loading").hide();
-            $("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-            $(".jothidden").show();
-            editor = true;
-            $("a#jot-perms-icon").fancybox({
-                'transitionIn' : 'elastic',
-                'transitionOut' : 'elastic'
-            });
+function initEditor(cb){
+	if (editor==false){
+		$("#profile-jot-text-loading").show();
+		if(plaintext == 'none') {
+			$("#profile-jot-text-loading").hide();
+            		$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
+			$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
+            		$(".jothidden").show();
+            		editor = true;
+            		$("a#jot-perms-icon").fancybox({
+                		'transitionIn' : 'elastic',
+                		'transitionOut' : 'elastic'
+            		});
 	                            $("#profile-jot-submit-wrapper").show();
 								{{ if $newpost }}
     	                            $("#profile-upload-wrapper").show();
@@ -32,8 +33,8 @@ function initEditor(cb) {
 								{{ endif }}   
 
 
-            if (typeof cb!="undefined") cb();
-            return;
+			if (typeof cb!="undefined") cb();
+			return;
         }
         tinyMCE.init({
                 theme : "advanced",
@@ -89,7 +90,7 @@ function initEditor(cb) {
                             $('#profile-jot-desc').html('&nbsp;');
                         }
 
-								//Character count
+				//Character count
 
                                 if(textlen <= 140) {
                                         $('#character-counter').removeClass('red');
@@ -140,18 +141,26 @@ function initEditor(cb) {
         if (typeof cb!="undefined") cb();
     }
 } // initEditor
-</script>
-<script type="text/javascript" src="js/ajaxupload.js" ></script>
-<script>
-    var ispublic = '$ispublic';
-	$(document).ready(function() {
-                /* enable tinymce on focus */
-                $("#profile-jot-text").focus(function(){
-                    if (editor) return;
-                    $(this).val("");
-                    initEditor();
-                }); 
 
+function enableOnUser(){
+	if (editor) return;
+	$(this).val("");
+	initEditor();
+}
+
+</script>
+
+<script type="text/javascript" src="js/ajaxupload.js" >
+</script>
+
+<script>
+	var ispublic = '$ispublic';
+
+	$(document).ready(function() {
+		
+		/* enable tinymce on focus and click */
+		$("#profile-jot-text").focus(enableOnUser);
+		$("#profile-jot-text").click(enableOnUser);
 
 		var uploader = new window.AjaxUpload(
 			'wall-image-upload',
@@ -164,6 +173,7 @@ function initEditor(cb) {
 				}				 
 			}
 		);
+
 		var file_uploader = new window.AjaxUpload(
 			'wall-file-upload',
 			{ action: 'wall_attach/$nickname',
@@ -328,9 +338,9 @@ function initEditor(cb) {
 				if(reply && reply.length) {
 					commentBusy = true;
 					$('body').css('cursor', 'wait');
-					$.get('filer/' + id + '?term=' + reply);
-					if(timer) clearTimeout(timer);
-					timer = setTimeout(NavUpdate,3000);
+					$.get('filer/' + id + '?term=' + reply, NavUpdate);
+//					if(timer) clearTimeout(timer);
+//					timer = setTimeout(NavUpdate,3000);
 					liking = 1;
 					$.fancybox.close();
 				} else {

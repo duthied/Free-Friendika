@@ -165,6 +165,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$a = get_app();
 
+
 	if(! $recipient) return -1;
 	
 	if(! strlen($subject))
@@ -195,7 +196,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	$handles = $recip_handle . ';' . $sender_handle;
 
 	$r = q("insert into conv (uid,guid,creator,created,updated,subject,recips) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
-		intval(local_user()),
+		intval($recipient['uid']),
 		dbesc($conv_guid),
 		dbesc($sender_handle),
 		dbesc(datetime_convert()),
