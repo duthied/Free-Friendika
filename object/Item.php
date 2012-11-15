@@ -227,6 +227,7 @@ class Item extends BaseObject {
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
+			'via' => t('via'),
 			'wall' => t('Wall-to-Wall'),
 			'vwall' => t('via Wall-To-Wall:'),
 			'profile_url' => $profile_link,
