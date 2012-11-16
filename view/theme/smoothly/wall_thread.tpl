@@ -7,8 +7,9 @@
 {{endif}}
 
 <div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
-<div class="wall-item-outside-wrapper $item.indent{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-outside-wrapper-$item.id" >
-	<div class="wall-item-content-wrapper $item.indent" id="wall-item-content-wrapper-$item.id" >
+<div class="wall-item-outside-wrapper $item.indent $item.shiny wallwall" id="wall-item-outside-wrapper-$item.id" >
+<div class="wall-item-content-wrapper $item.indent $item.shiny" id="wall-item-content-wrapper-$item.id" >
+
 		<div class="wall-item-info{{ if $item.owner_url }} wallwall{{ endif }}" id="wall-item-info-$item.id">
 			{{ if $item.owner_url }}
 			<div class="wall-item-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
@@ -76,9 +77,11 @@
 				{{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
 				</div>
 				{{ endif }}
+
 			</div>
 		</div>
 		<div class="wall-item-social" id="wall-item-social-$item.id">
+
 			{{ if $item.vote }}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-$item.id">
 				<a href="#" class="icon like" title="$item.vote.like.0" onclick="dolike($item.id,'like'); return false"></a>
@@ -99,6 +102,10 @@
 			<a href="#" id="starred-$item.id" onclick="dostar($item.id); return false;" class="star-item icon $item.isstarred" title="$item.star.toggle"></a>
 			<a href="#" id="tagger-$item.id" onclick="itemTag($item.id); return false;" class="tag-item icon tagged" title="$item.star.tagger"></a>
 			{{ endif }}
+
+			{{ if $item.filer }}
+			<a href="#" id="filer-$item.id" onclick="itemFiler($item.id); return false;" class="filer-item filer-icon" title="$item.filer"></a>
+			{{ endif }}
 	
 		</div>
 
@@ -114,7 +121,9 @@
 			</div>
 
 			{{ if $item.drop.pagedrop }}
-			<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />			{{ endif }}
+			<input type="checkbox" onclick="checkboxhighlight(this);" title="$item.drop.select" class="item-select" name="itemselected[]" value="$item.id" />
+			{{ endif }}
+
 			<div class="wall-item-delete-end"></div>
 		</div>
 
@@ -125,14 +134,14 @@
 
 	{{ if $item.threaded }}
 	{{ if $item.comment }}
-	<div class="wall-item-comment-wrapper $item.indent" >
+        <div class="wall-item-comment-wrapper $item.indent $item.shiny" >
 		$item.comment
 	</div>
 	{{ endif }}
 	{{ endif }}
 </div>
 
-<div class="wall-item-outside-wrapper-end $item.indent" ></div>
+<div class="wall-item-outside-wrapper-end $item.indent $item.shiny" ></div>
 
 {{ for $item.children as $item }}
 	{{ inc $item.template }}{{ endinc }}
