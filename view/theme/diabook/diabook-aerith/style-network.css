@@ -99,6 +99,10 @@ a {color: #333333;}
   color: #3465A4;
 }
 
+nav a, nav a:active, nav a:visited, nav a:link, nav a:hover {
+color: #000;
+}
+
 /* popup notifications */
 div.jGrowl div.notice {background: #511919 url("../../../../images/icons/48/notice.png") no-repeat 5px center;}
 div.jGrowl div.info {background: #364e59 url("../../../../images/icons/48/info.png") no-repeat 5px center;}

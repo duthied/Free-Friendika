@@ -108,6 +108,7 @@ background-image: -webkit-gradient(
 	color-stop(0.26, rgb(215,227,241)),
 	color-stop(0.82, rgb(255,255,255))
 );
+}
 
 header #banner a,
 header #banner a:active,
