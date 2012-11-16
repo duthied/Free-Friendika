@@ -1,4 +1,4 @@
-@import url('../style-profile.css');
+@import url('../../diabook/style-profile.css');
 
  .icon.contacts {background-image: url("../diabook-aerith/icons/contacts.png");}
 .icon.notifications {background-image: url("../diabook-aerith/icons/notifications.png");}

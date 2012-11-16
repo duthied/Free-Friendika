@@ -1,4 +1,4 @@
-@import url('../style-network.css');
+@import url('../../diabook/style-network.css');
 
 /* There seem to be a stupid number of icons.  Can we do this better? Are they all actually used? */ 
 .icon.contacts {
