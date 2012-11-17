@@ -175,10 +175,6 @@ function photo_init(&$a) {
 		}
 	}
 
-	// Writing in cachefile
-	if (isset($cachefile) && $cachefile != '')
-		file_put_contents($cachefile, $data);
-
 	if(function_exists('header_remove')) {
 		header_remove('Pragma');
 		header_remove('pragma');
