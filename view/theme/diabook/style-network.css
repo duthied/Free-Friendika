@@ -1211,7 +1211,11 @@ body .pageheader{
 	}
 	
 #birthday-notice, #event-notice, #birthday-wrapper, #event-wrapper{
-	margin-bottom: 10px;
+	background-color: lightblue;
+	border: think solid black;
+	margin: 2px;
+	padding: 5px;
+	width: 95%;
 	}
 
 right_aside {
