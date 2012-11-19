@@ -41,7 +41,7 @@
 				$item.item_photo_menu
 				</ul>
 				
-			</div>	
+			
 			{{ if $item.owner_url }}
 			<div class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
 				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="contact-photo-link" id="wall-item-ownerphoto-link-$item.id">
@@ -49,7 +49,9 @@
 				</a>
 			</div>
 			{{ endif }}			
-			<div class="wall-item-location">$item.location</div>	
+			</div>
+			
+<div class="wall-item-location">$item.location</div>	
 		</div>
 
 <div class="wall-item-actions-author">
