@@ -11,7 +11,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1527' );
+define ( 'FRIENDICA_VERSION',      '3.0.1531' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1156      );
 
@@ -437,8 +437,9 @@ if(! class_exists('App')) {
 				if(isset($path) && strlen($path) && ($path != $this->path))
 					$this->path = $path;
 			}
-			if (is_array($argv) && $argc>1 && !x($_SERVER,'SERVER_NAME') && substr(end($argv), 0, 4)=="http" ) {
+			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
 				$this->set_baseurl(array_pop($argv) );
+				$argc --;
 			}
 
 			set_include_path(
