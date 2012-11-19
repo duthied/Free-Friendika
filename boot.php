@@ -437,8 +437,9 @@ if(! class_exists('App')) {
 				if(isset($path) && strlen($path) && ($path != $this->path))
 					$this->path = $path;
 			}
-			if (is_array($argv) && $argc>1 && !x($_SERVER,'SERVER_NAME') && substr(end($argv), 0, 4)=="http" ) {
+			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
 				$this->set_baseurl(array_pop($argv) );
+				$argc --;
 			}
 
 			set_include_path(
