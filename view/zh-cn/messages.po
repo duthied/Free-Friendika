@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2012-11-14 10:00-0800\n"
-"PO-Revision-Date: 2012-11-18 17:14+0000\n"
+"POT-Creation-Date: 2012-11-18 10:00-0800\n"
+"PO-Revision-Date: 2012-11-18 20:12+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -800,7 +800,7 @@ msgstr "设定您的位置"
 
 #: ../../mod/editpost.php:115 ../../include/conversation.php:978
 msgid "set location"
-msgstr ""
+msgstr "指定位置"
 
 #: ../../mod/editpost.php:116 ../../include/conversation.php:979
 msgid "Clear browser location"
@@ -808,7 +808,7 @@ msgstr "清空浏览器位置"
 
 #: ../../mod/editpost.php:117 ../../include/conversation.php:980
 msgid "clear location"
-msgstr ""
+msgstr "清理出位置"
 
 #: ../../mod/editpost.php:119 ../../include/conversation.php:986
 msgid "Permission settings"
@@ -2657,7 +2657,7 @@ msgstr "选择同一个人管理："
 
 #: ../../mod/network.php:181
 msgid "Search Results For:"
-msgstr ""
+msgstr "搜索结果为："
 
 #: ../../mod/network.php:221 ../../mod/search.php:18
 msgid "Remove term"
@@ -4140,7 +4140,7 @@ msgstr "FTP密码"
 
 #: ../../mod/profile.php:21 ../../boot.php:1123
 msgid "Requested profile is not available."
-msgstr ""
+msgstr "要求的简介联系不上的。"
 
 #: ../../mod/profile.php:155 ../../mod/display.php:87
 msgid "Access to this profile has been restricted."
@@ -4661,7 +4661,7 @@ msgstr "友谊建议"
 msgid ""
 "No suggestions available. If this is a new site, please try again in 24 "
 "hours."
-msgstr ""
+msgstr "没有建议。如果这是新网站，请24小时后再试。"
 
 #: ../../mod/suggest.php:61
 msgid "Ignore/Hide"
@@ -5125,7 +5125,7 @@ msgstr "发送到Facebook取消由于多网络准许矛盾。"
 #: ../../addon.old/facebook/facebook.php:1149
 #: ../../addon.old/fbpost/fbpost.php:610
 msgid "View on Friendica"
-msgstr ""
+msgstr "看在Friendica"
 
 #: ../../addon/facebook/facebook.php:1182 ../../addon/fbpost/fbpost.php:643
 #: ../../addon.old/facebook/facebook.php:1182
@@ -5249,7 +5249,7 @@ msgstr "可用的小窗口"
 #: ../../addon/widgets/widget_friends.php:40
 #: ../../addon.old/widgets/widget_friends.php:40
 msgid "Connect on Friendica!"
-msgstr ""
+msgstr "连接在Friendica！"
 
 #: ../../addon/morepokes/morepokes.php:19
 #: ../../addon.old/morepokes/morepokes.php:19
@@ -7144,7 +7144,7 @@ msgid ""
 "here and enter the API base root.<br />Before you register your own OAuth "
 "key pair ask the administrator if there is already a key pair for this "
 "Friendica installation at your favorited StatusNet installation."
-msgstr ""
+msgstr "找不到「consumer key」双为StatusNet。注册您Friendica账户当「desktop client」在您的StatusNet账户，粘贴「consumer key」双这儿和输入API基础根。<br />您登记您的OAuth钥匙双前问行政人员已经有没有钥匙双为这个Friendica安装在您最喜欢的StatusNet安装。"
 
 #: ../../addon/statusnet/statusnet.php:283
 #: ../../addon.old/statusnet/statusnet.php:283
@@ -7436,7 +7436,7 @@ msgid ""
 "button below to get a PIN from Twitter which you have to copy into the input"
 " box below and submit the form. Only your <strong>public</strong> posts will"
 " be posted to Twitter."
-msgstr ""
+msgstr "在这个Friendica网站使Twitter插件可用的可您还没有把您的账户和您Twitter账户连通。为这做点击下边的按钮得到密码从Twitter您要粘贴在下边的输入框和提交。只您的<strong>公开</strong>文章被发送到Twitter。"
 
 #: ../../addon/twitter/twitter.php:173 ../../addon.old/twitter/twitter.php:173
 msgid "Log in with Twitter"
@@ -8762,7 +8762,7 @@ msgstr ""
 msgid "Cannot locate DNS info for database server '%s'"
 msgstr "找不到DNS信息为数据库服务器「%s」"
 
-#: ../../include/message.php:15 ../../include/message.php:171
+#: ../../include/message.php:15 ../../include/message.php:172
 msgid "[no subject]"
 msgstr "[无题目]"
 
@@ -9243,7 +9243,7 @@ msgstr ""
 
 #: ../../include/conversation.php:987
 msgid "permissions"
-msgstr ""
+msgstr "权利"
 
 #: ../../include/plugin.php:389 ../../include/plugin.php:391
 msgid "Click here to upgrade."
