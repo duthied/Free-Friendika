@@ -64,6 +64,12 @@ function auto_redir(&$a, $contact_nick) {
 			$dfrn_id = '0:' . $orig_id;
 		}
 
+		// ensure that we've got a valid ID. There may be some edge cases with forums and non-duplex mode
+		// that may have triggered some of the "went to {profile/intro} and got an RSS feed" issues
+
+		if(strlen($dfrn_id) < 3)
+			return;
+			
 		$sec = random_string();
 
 		q("INSERT INTO `profile_check` ( `uid`, `cid`, `dfrn_id`, `sec`, `expire`)
