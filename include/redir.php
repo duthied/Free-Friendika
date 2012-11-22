@@ -4,7 +4,7 @@ function auto_redir(&$a, $contact_nick) {
 
 	// prevent looping
 
-	if(intval($_REQUEST,'redir'))
+	if(x($_REQUEST,'redir') && intval($_REQUEST['redir']))
 		return;
 
 	if((! $contact_nick) || ($contact_nick === $a->user['nickname']))
