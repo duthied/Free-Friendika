@@ -885,7 +885,7 @@ function item_store($arr,$force_parent = false) {
 
 
 	if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
-		require_once('Text/LanguageDetect.php');
+		require_once('library/langdet/Text/LanguageDetect.php');
 		$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
 		$l = new Text_LanguageDetect;
 		$lng = $l->detectConfidence($naked_body);

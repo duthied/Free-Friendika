@@ -18,7 +18,7 @@
 require_once('include/crypto.php');
 require_once('include/enotify.php');
 require_once('include/email.php');
-require_once('Text/LanguageDetect.php');
+require_once('library/langdet/Text/LanguageDetect.php');
 
 function item_post(&$a) {
 
