@@ -185,10 +185,13 @@ class Item extends BaseObject {
 					'classundo' => (($item['starred']) ? "" : "hidden"),
 					'starred' =>  t('starred'),
 				);
-				$tagger = array(
-					'add' => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? t("add tag") : ''),
-					'class' => "",
-				);
+				$tagger = '';
+				if(feature_enabled($conv->get_profile_owner(),'commtag')) {
+					$tagger = array(
+						'add' => t("add tag"),
+						'class' => "",
+					);
+				}
 			}
 		} else {
 			$indent = 'comment';
