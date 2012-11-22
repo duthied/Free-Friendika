@@ -58,7 +58,6 @@ function get_features() {
 			array('categories',     t('Post Categories'),			t('Add categories to your posts')),
 			array('filing',         t('Saved Folders'),				t('Ability to file posts under folders')),
 			array('dislike',        t('Dislike Posts'),				t('Ability to dislike posts/comments')),
-			array('boring',         t('Mark Boring Posts'),			t('Ability to mark posts/comments boring')),
 			array('star_posts',     t('Star Posts'),				t('Ability to mark special posts with a star indicator')),
 		),
 	);
