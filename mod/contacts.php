@@ -2,6 +2,7 @@
 
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
+require_once('include/contact_selectors.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
