@@ -13,6 +13,7 @@ Friendica - Dokumentation und Ressourcen
 * [Gruppen und Privatsphäre](help/Groups-and-Privacy)
 * [Tags und Erwähnungen](help/Tags-and-Mentions)
 * [Seiten](help/Pages)
+* [Account umziehen](help/Move-Account)
 * [Account löschen](help/Remove-Account)
 * [Bugs und Probleme](help/Bugs-and-Issues)
  
