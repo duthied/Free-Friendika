@@ -2024,6 +2024,7 @@ $a->strings["Status Messages and Posts"] = "Statusnachrichten und Beiträge";
 $a->strings["Profile Details"] = "Profildetails";
 $a->strings["Events and Calendar"] = "Ereignisse und Kalender";
 $a->strings["Only You Can See This"] = "Nur du kannst das sehen";
+$a->strings["via"] = "via";
 $a->strings["toggle mobile"] = "auf/von Mobile Ansicht wechseln";
 $a->strings["Bg settings updated."] = "Bg Einstellungen sind aktualisiert.";
 $a->strings["Bg Settings"] = "Bg Einstellungen";
