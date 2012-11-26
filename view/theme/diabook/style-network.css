@@ -948,8 +948,8 @@ ul.menu-popup .empty {
 aside {
   display: table-cell;
   vertical-align: top;
-  width: 160px;
-  padding: 0px 10px 0px 10px;
+  width: 150px;
+  padding: 0px 5px 0px 5px;
   border-right: 1px solid #D2D2D2;
   float: left;
   /* background: #F1F1F1; */
@@ -1009,7 +1009,7 @@ aside #profiles-menu {
   width: 20em;
 }
 aside #search-text {
-	width: 150px;
+	width: 140px;
 	height: 17px;
 	padding-left: 10px;
 	border-top-left-radius: 15px;
