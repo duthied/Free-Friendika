@@ -1523,14 +1523,14 @@ left: 105px;
 	border-radius: 3px;	
 }
 
-.wall-item-container .wall-item-content {
+.wall-item-content {
 
   max-width: 720px;
   word-wrap: break-word;
-
+  overflow:auto;
 
 }
-.wall-item-photo-container .wall-item-content {
+.wall-item-photo-container {
 
   max-width: 720px;
   word-wrap: break-word;
