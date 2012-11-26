@@ -394,14 +394,7 @@
 }
 
 /* global */
-body {
-  font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12.5px;
-  background-color: #ffffff;
-  color: #2d2d2d;
-  margin: 50px auto auto;
-  display: table;
-}
+
 
 h4 {
   font-size: 1.1em;
@@ -1157,12 +1150,6 @@ span.sbox input {
   top: 18px;
 }
 /* section */
-section {
-  display: table-cell;
-  vertical-align: top;
-  width: auto;
-  padding: 0px 0px 0px 12px;
-}
 
 body .pageheader{
   text-align: center;
@@ -1258,14 +1245,7 @@ transition: all 0.2s ease-in-out;
 
 
 /* wall item */
-.tread-wrapper {
-  border-bottom: 1px solid #D2D2D2;
-  position: relative;
-  padding: 5px;
-  margin-bottom: 0px;
-  width: 575px;
-  padding-top: 10px;
-}
+
 .wall-item-decor {
   position: absolute;
   left: 790px;
