@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1156 );
+define( 'UPDATE_VERSION' , 1157 );
 
 /**
  *
@@ -1362,3 +1362,10 @@ function update_1155() {
 	return UPDATE_FAILED;
 }
 
+function update_1156() {
+	$r = q("ALTER TABLE `photo` ADD `datasize` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `width` ,
+ADD INDEX ( `datasize` ) ");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}

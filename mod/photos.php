@@ -1027,19 +1027,15 @@ function photos_content(&$a) {
 		$default_upload = '<input id="photos-upload-choose" type="file" name="userfile" /> 	<div class="photos-upload-submit-wrapper" >
 		<input type="submit" name="submit" value="' . t('Submit') . '" id="photos-upload-submit" /> </div>';
 
-
-		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-			intval($a->data['user']['uid'])
-		);
-
-
+		$usage_message = '';
 		$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
 		if($limit !== false) {
+
+			$r = q("select sum(datasize) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+				intval($a->data['user']['uid'])
+			);
 			$usage_message = sprintf( t("You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."), $r[0]['total'] / 1024000, $limit / 1024000 );
 		}
-		else {
-			$usage_message = sprintf( t('You have used %1$.2f Mbytes of photo storage.'), $r[0]['total'] / 1024000 );
- 		}
 
 
 		$tpl = get_markup_template('photos_upload.tpl');
