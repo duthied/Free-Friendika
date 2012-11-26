@@ -1,0 +1,8 @@
+- Wall item tools in slightly the wrong place.
+- Such and suck likes this in slightly the wrong place.
+- Need to remove about 2 pixels from somewhere for 1024 resolution
+- Quick and dirty hack to make people with wide already configured use the normal CSS needs to be done properly.
+- Community profiles needs to be removed/pluginised or improved.  Most profiles are from Facebook.  That's unsupported.
+- Earth layers needs to be pluginised.
+- Twatter needs to be pluginised.
+- There's still a LOT of CSS clean up to be done
