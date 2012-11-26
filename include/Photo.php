@@ -584,6 +584,7 @@ class Photo {
                 `album` = '%s',
                 `height` = %d,
                 `width` = %d,
+				`datasize` = %d,
                 `data` = '%s',
                 `scale` = %d,
                 `profile` = %d,
@@ -604,6 +605,7 @@ class Photo {
                 dbesc($album),
                 intval($this->getHeight()),
                 intval($this->getWidth()),
+				dbesc(strlen($this->imageString())),
                 dbesc($this->imageString()),
                 intval($scale),
                 intval($profile),
@@ -616,8 +618,8 @@ class Photo {
         }
         else {
             $r = q("INSERT INTO `photo`
-                ( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
-                VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s' )",
+                ( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
+                VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s' )",
                 intval($uid),
                 intval($cid),
                 dbesc($guid),
@@ -629,6 +631,7 @@ class Photo {
                 dbesc($album),
                 intval($this->getHeight()),
                 intval($this->getWidth()),
+				dbesc(strlen($this->imageString())),
                 dbesc($this->imageString()),
                 intval($scale),
                 intval($profile),

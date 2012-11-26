@@ -777,6 +777,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
   `type` CHAR(128) NOT NULL DEFAULT 'image/jpeg',
   `height` smallint(6) NOT NULL,
   `width` smallint(6) NOT NULL,
+  `datasize` int(10) unsigned NOT NULL DEFAULT '0',
   `data` mediumblob NOT NULL,
   `scale` tinyint(3) NOT NULL,
   `profile` tinyint(1) NOT NULL DEFAULT '0',
@@ -789,6 +790,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
   KEY `resource-id` (`resource-id`),
   KEY `album` (`album`),
   KEY `scale` (`scale`),
+  KEY `datasize` (`datasize`),
   KEY `profile` (`profile`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
