@@ -606,6 +606,10 @@ function notifier_run(&$argv, &$argc){
 				}
 				continue;
 			}
+			// be sure to pick up any stragglers
+			if(count($this_batch))
+				proc_run('php','include/delivery.php',$cmd,$item_id,$this_batch);
+
 
 			$deliver_status = 0;
 
