@@ -394,7 +394,14 @@
 }
 
 /* global */
-
+body {
+  font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12.5px;
+  background-color: #ffffff;
+  color: #2d2d2d;
+  margin: 50px auto auto;
+  display: table;
+}
 
 h4 {
   font-size: 1.1em;
@@ -948,8 +955,8 @@ ul.menu-popup .empty {
 aside {
   display: table-cell;
   vertical-align: top;
-  width: 150px;
-  padding: 0px 5px 0px 5px;
+  width: 160px;
+  padding: 0px 10px 0px 10px;
   border-right: 1px solid #D2D2D2;
   float: left;
   /* background: #F1F1F1; */
@@ -1009,7 +1016,7 @@ aside #profiles-menu {
   width: 20em;
 }
 aside #search-text {
-	width: 140px;
+	width: 150px;
 	height: 17px;
 	padding-left: 10px;
 	border-top-left-radius: 15px;
@@ -1150,6 +1157,12 @@ span.sbox input {
   top: 18px;
 }
 /* section */
+section {
+  display: table-cell;
+  vertical-align: top;
+  width: auto;
+  padding: 0px 0px 0px 12px;
+}
 
 body .pageheader{
   text-align: center;
@@ -1198,11 +1211,7 @@ body .pageheader{
 	}
 	
 #birthday-notice, #event-notice, #birthday-wrapper, #event-wrapper{
-	background-color: lightblue;
-	border: think solid black;
-	margin: 2px;
-	padding: 5px;
-	width: 95%;
+	margin-bottom: 10px;
 	}
 
 right_aside {
@@ -1245,7 +1254,14 @@ transition: all 0.2s ease-in-out;
 
 
 /* wall item */
-
+.tread-wrapper {
+  border-bottom: 1px solid #D2D2D2;
+  position: relative;
+  padding: 5px;
+  margin-bottom: 0px;
+  width: 575px;
+  padding-top: 10px;
+}
 .wall-item-decor {
   position: absolute;
   left: 790px;

@@ -1,3 +1,10 @@
+{{if $item.comment_firstcollapsed}}
+	<div class="hide-comments-outer">
+	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
+	</div>
+	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
+{{endif}}
+<div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
 {{ if $item.indent }}{{ else }}
 <div class="wall-item-decor">
 	<img id="like-rotator-$item.id" class="like-rotator" src="images/rotator.gif" alt="$item.wait" title="$item.wait" style="display: none;" />
@@ -22,7 +29,7 @@
 			<div class="wall-item-actions-author">
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a> 
 			<span class="wall-item-ago">-
-			{{ if $item.plink }}<a class="link" title="$item.plink.title" href="$item.plink.href" style="color: #999">$item.ago</a>{{ else }} $item.ago {{ endif }}
+			{{ if $item.plink }}<a class="link$item.sparkle" title="$item.plink.title" href="$item.plink.href" style="color: #999">$item.ago</a>{{ else }} $item.ago {{ endif }}
 			{{ if $item.lock }} - <span class="fakelink" style="color: #999" onclick="lockview(event,$item.id);">$item.lock</span> {{ endif }}
 			</span>
 			</div>
@@ -106,6 +113,24 @@
 	</div>
 </div>
 
+{{ if $item.threaded }}
+{{ if $item.comment }}
+<div class="wall-item-comment-wrapper $item.indent" >
+	$item.comment
+</div>
+{{ endif }}
+{{ endif }}
+
+{{ if $item.flatten }}
 <div class="wall-item-comment-wrapper" >
 	$item.comment
 </div>
+{{ endif }}
+
+
+{{ for $item.children as $item }}
+	{{ inc $item.template }}{{ endinc }}
+{{ endfor }}
+
+</div>
+{{if $item.comment_lastcollapsed}}</div>{{endif}}
