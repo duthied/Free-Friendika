@@ -324,10 +324,10 @@ function profile_content(&$a, $update = 0) {
 
 	if(! $update) {
 		if( get_config('alt_pager', 'global') || get_pconfig($a->profile['profile_uid'],'system','alt_pager') ) {
-			$o .= paginate($a);
+			$o .= alt_pager($a,count($items));
 		}
 		else {
-			$o .= alt_pager($a,count($items));
+			$o .= paginate($a);
 		}
 	}
 
