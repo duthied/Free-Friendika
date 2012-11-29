@@ -166,8 +166,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/style.css")){
-		echo file_get_contents("$THEMEPATH/style.css");
+	if (file_exists("$THEMEPATH/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -445,8 +445,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-aerith/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-aerith/style.css");
+	if (file_exists("$THEMEPATH/diabook-aerith/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-aerith/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -723,8 +723,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-blue/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-blue/style.css");
+	if (file_exists("$THEMEPATH/diabook-blue/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-blue/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -1001,8 +1001,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-red/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-red/style.css");
+	if (file_exists("$THEMEPATH/diabook-red/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-red/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -1279,8 +1279,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-pink/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-pink/style.css");
+	if (file_exists("$THEMEPATH/diabook-pink/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-pink/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -1557,8 +1557,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-green/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-green/style.css");
+	if (file_exists("$THEMEPATH/diabook-green/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-green/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "
@@ -1835,8 +1835,8 @@
 	}
 	
 	if($resolution == "wide") {	
-	if (file_exists("$THEMEPATH/diabook-dark/style.css")){
-		echo file_get_contents("$THEMEPATH/diabook-dark/style.css");
+	if (file_exists("$THEMEPATH/diabook-dark/style-wide.css")){
+		echo file_get_contents("$THEMEPATH/diabook-dark/style-wide.css");
 	}
 	if($diabook_font_size == "16"){
 		echo "

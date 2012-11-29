@@ -244,6 +244,7 @@ function admin_page_site_post(&$a){
 	
 	
 	$register_policy	=	((x($_POST,'register_policy'))		? intval(trim($_POST['register_policy']))	:  0);
+	$daily_registrations	=	((x($_POST,'max_daily_registrations'))	? intval(trim($_POST['max_daily_registrations']))	:0);	
 	$abandon_days	    	=	((x($_POST,'abandon_days'))		? intval(trim($_POST['abandon_days']))		:  0);
 
 	$register_text		=	((x($_POST,'register_text'))		? notags(trim($_POST['register_text']))		: '');	
@@ -339,6 +340,7 @@ function admin_page_site_post(&$a){
 	set_config('system','jpeg_quality', $jpegimagequality);
 	
 	set_config('config','register_policy', $register_policy);
+	set_config('system','max_daily_registrations', $daily_registrations);
 	set_config('system','account_abandon_days', $abandon_days);
 	set_config('config','register_text', $register_text);
 	set_config('system','allowed_sites', $allowed_sites);
@@ -459,6 +461,7 @@ function admin_page_site(&$a) {
 		'$jpegimagequality'		=> array('jpegimagequality', t("JPEG image quality"), get_config('system','jpeg_quality'), t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")),
 
 		'$register_policy'	=> array('register_policy', t("Register policy"), $a->config['register_policy'], "", $register_choices),
+		'$daily_registrations'	=> array('max_daily_registrations', t("Maximum Daily Registrations"), get_config('system', 'max_daily_registrations'), t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")),
 		'$register_text'	=> array('register_text', t("Register text"), htmlentities($a->config['register_text'], ENT_QUOTES, 'UTF-8'), t("Will be displayed prominently on the registration page.")),
 		'$abandon_days'		=> array('abandon_days', t('Accounts abandoned after x days'), get_config('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')),
 		'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), get_config('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),

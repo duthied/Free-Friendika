@@ -398,7 +398,7 @@ body {
   font-size: 12.5px;
   background-color: #ffffff;
   color: #2d2d2d;
-  margin: 45px 2%;
+  margin: 50px auto auto;
   display: table;
 }
 
@@ -511,6 +511,21 @@ div.jGrowl div.info {
   padding-left: 58px;
 }
 /* header */
+header {
+  position: fixed;
+  left: 0%;
+  right: 80%;
+  top: 0px;
+  margin: 0px;
+  padding: 0px;
+  width: 22%;
+  height: 32px;
+  background: #000;
+  z-index: 100;
+  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+}
 header #site-location {
   display: none;
 }
@@ -542,6 +557,20 @@ header #banner #logo-text {
   top: 10%;
 }
 /* nav */
+nav {
+  width: 80%;
+  height: 32px;
+  position: fixed;
+  left: 22%;
+  top: 0px;
+  padding: 0px;
+  background: #000;
+  color: #ffffff;
+  z-index: 99;
+  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+}
 nav a,
 nav a:active,
 nav a:visited,
@@ -907,8 +936,8 @@ ul.menu-popup .empty {
 aside {
   display: table-cell;
   vertical-align: top;
-  width: 150px;
-  padding: 0px 8px 0px 8px;
+  width: 160px;
+  padding: 0px 10px 0px 10px;
   border-right: 1px solid #D2D2D2;
   float: left;
   /* background: #F1F1F1; */
@@ -1107,8 +1136,8 @@ span.sbox input {
 section {
   display: table-cell;
   vertical-align: top;
-  width: 90%;
-  padding: 5px;
+  width: 610px;
+  padding: 0px 0px 0px 12px;
 }
 
 body .pageheader{
@@ -1157,11 +1186,7 @@ body .pageheader{
 	}
 	
 #birthday-notice, #event-notice, #birthday-wrapper, #event-wrapper{
-	background-color: lightblue;
-	border: think solid black;
-	margin: 2px;
-	padding: 5px;
-	width: 95%;
+	margin-bottom: 10px;
 	}
 
 right_aside {
@@ -1204,8 +1229,6 @@ right_aside .icon {width: 10px; height: 10px;}
 transition: all 0.2s ease-in-out;
 		}
 /* wall item */
-
-/*
 .tread-wrapper {
   border-bottom: 1px solid #D2D2D2;
   position: relative;
@@ -1213,8 +1236,7 @@ transition: all 0.2s ease-in-out;
   margin-bottom: 0px;
   width: 575px;
   padding-top: 10px;
-}*/
-
+}
 .wall-item-decor {
   position: absolute;
   left: 790px;
