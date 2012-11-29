@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.0.1540\n"
+"Project-Id-Version: 3.0.1541\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-27 10:00-0800\n"
+"POT-Creation-Date: 2012-11-28 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6214,7 +6214,7 @@ msgstr ""
 
 #: ../../addon/dav/friendica/main.php:279
 #: ../../addon/dav/friendica/main.php:280 ../../include/delivery.php:464
-#: ../../include/enotify.php:28 ../../include/notifier.php:774
+#: ../../include/enotify.php:28 ../../include/notifier.php:778
 #: ../../addon.old/dav/friendica/main.php:279
 #: ../../addon.old/dav/friendica/main.php:280
 msgid "noreply"
@@ -8210,7 +8210,7 @@ msgstr ""
 msgid "Finishes:"
 msgstr ""
 
-#: ../../include/delivery.php:457 ../../include/notifier.php:767
+#: ../../include/delivery.php:457 ../../include/notifier.php:771
 msgid "(no subject)"
 msgstr ""
 

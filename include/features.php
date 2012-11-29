@@ -20,21 +20,21 @@ function get_features() {
 
 		// General
 		'general' => array(
-			'General Features',
+			t('General Features'),
 			//array('expire',         t('Content Expiration'),		t('Remove old posts/comments after a period of time')),
 			array('multi_profiles', t('Multiple Profiles'),			t('Ability to create multiple profiles')),
 		),
 
 		// Post composition
 		'composition' => array(
-			'Post Composition Features',
+			t('Post Composition Features'),
 			array('richtext',       t('Richtext Editor'),			t('Enable richtext editor')),
 			array('preview',        t('Post Preview'),				t('Allow previewing posts and comments before publishing them')),
 		),
 
 		// Network sidebar widgets
 		'widgets' => array(
-			'Network Sidebar Widgets',
+			t('Network Sidebar Widgets'),
 			array('archives',       t('Search by Date'),			t('Ability to select posts by date ranges')),
 			array('groups',    		t('Group Filter'),				t('Enable widget to display Network posts only from selected group')),
 			array('networks',  		t('Network Filter'),			t('Enable widget to display Network posts only from selected network')),
@@ -43,7 +43,7 @@ function get_features() {
 
 		// Network tabs
 		'net_tabs' => array(
-			'Network Tabs',
+			t('Network Tabs'),
 			array('personal_tab',   t('Network Personal Tab'),		t('Enable tab to display only Network posts that you\'ve interacted on')),
 			array('new_tab',   		t('Network New Tab'),			t('Enable tab to display only new Network posts (from the last 12 hours)')),
 			array('link_tab',   	t('Network Shared Links Tab'),	t('Enable tab to display only Network posts with links in them')),
@@ -51,7 +51,7 @@ function get_features() {
 
 		// Item tools
 		'tools' => array(
-			'Post/Comment Tools',
+			t('Post/Comment Tools'),
 			array('multi_delete',   t('Multiple Deletion'),			t('Select and delete multiple posts/comments at once')),
 			array('edit_posts',     t('Edit Sent Posts'),			t('Edit and correct posts and comments after sending')),
 			array('commtag',        t('Tagging'),					t('Ability to tag existing posts')),
