@@ -17,6 +17,8 @@ It also contains your secret keys to authenticate yourself to your contacts:
 Go to your new server, and open *http://newserver.com/uimport* (there is not a 
 direct link to this page at the moment).
 
+Do NOT create a new account prior to importing your old settings - uimport should be used *instead* of register.
+
 Load your saved account file and click "Import".
 
 Friendica will recreate your account on the new server, with your contacts and groups.
