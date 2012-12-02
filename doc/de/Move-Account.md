@@ -19,6 +19,9 @@ deinen Kontakten gegenüber ausweist.
 Rufe nun dem neuen Server die Seite *http://newserver.com/uimport* auf
 (es gibt derzeit keinen direkten Link auf diese Seite).
 
+Lege auf dem neuen Server auf keinen Fall einen gleichnamigen Account an!
+uimport muss anstelle des Registrierens verwendet werden.
+
 Wähle die gesicherte Account Datei aus und klicke "Importieren".
 
 Friendica wird nun deinen Account auf dem neuen Server wiederherstellen, mit
