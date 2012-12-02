@@ -42,6 +42,13 @@ function profiles_post(&$a) {
 		$day = intval($_POST['day']);
 			if(($day > $mtab[$month]) || ($day < 0))
 				$day = 0;
+
+		// It's OK to have an empty (0) year, but if you supplied a year you have to have a non-zero month and day
+		if($year && ! $month)
+			$month = 1;
+		if($year && ! $day)
+			$day = 1;
+
 		$dob = '0000-00-00';
 		$dob = sprintf('%04d-%02d-%02d',$year,$month,$day);
 
