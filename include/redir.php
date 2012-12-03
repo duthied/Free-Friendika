@@ -2,6 +2,11 @@
 
 function auto_redir(&$a, $contact_nick) {
 
+	// prevent looping
+
+	if(x($_REQUEST,'redir') && intval($_REQUEST['redir']))
+		return;
+
 	if((! $contact_nick) || ($contact_nick === $a->user['nickname']))
 		return;
 
@@ -20,12 +25,15 @@ function auto_redir(&$a, $contact_nick) {
 		if($domain_st === false)
 			return;
 		$baseurl = substr($baseurl, $domain_st + 3);
+		$nurl = normalise_link($baseurl);
+
 
 		$r = q("SELECT id FROM contact WHERE uid = ( SELECT uid FROM user WHERE nickname = '%s' LIMIT 1 )
-		        AND nick = '%s' AND self = 0 AND url LIKE '%%%s%%' AND blocked = 0 AND pending = 0 LIMIT 1",
+		        AND nick = '%s' AND self = 0 AND ( url LIKE '%%%s%%' or nurl LIKE '%%%s%%' ) AND blocked = 0 AND pending = 0 LIMIT 1",
 			   dbesc($contact_nick),
 			   dbesc($a->user['nickname']),
-		       dbesc($baseurl)
+		       dbesc($baseurl),
+               dbesc($nurl)
 		);
 
 		if((!$r) || (! count($r)) || $r[0]['id'] == remote_user())
@@ -56,6 +64,12 @@ function auto_redir(&$a, $contact_nick) {
 			$dfrn_id = '0:' . $orig_id;
 		}
 
+		// ensure that we've got a valid ID. There may be some edge cases with forums and non-duplex mode
+		// that may have triggered some of the "went to {profile/intro} and got an RSS feed" issues
+
+		if(strlen($dfrn_id) < 3)
+			return;
+			
 		$sec = random_string();
 
 		q("INSERT INTO `profile_check` ( `uid`, `cid`, `dfrn_id`, `sec`, `expire`)

@@ -885,7 +885,7 @@ function item_store($arr,$force_parent = false) {
 
 
 	if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
-		require_once('Text/LanguageDetect.php');
+		require_once('library/langdet/Text/LanguageDetect.php');
 		$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
 		$l = new Text_LanguageDetect;
 		$lng = $l->detectConfidence($naked_body);
@@ -4031,10 +4031,13 @@ function posted_dates($uid,$wall) {
 function posted_date_widget($url,$uid,$wall) {
 	$o = '';
 
+	if(! feature_enabled($uid,'archives'))
+		return $o;
+
 	// For former Facebook folks that left because of "timeline"
 
-	if($wall && intval(get_pconfig($uid,'system','no_wall_archive_widget')))
-		return $o;
+/*	if($wall && intval(get_pconfig($uid,'system','no_wall_archive_widget')))
+		return $o;*/
 
 	$ret = posted_dates($uid,$wall);
 	if(! count($ret))

@@ -15,7 +15,7 @@ $(document).ready(function() {
        
     });
     
-    $("div#pause").attr("style", "position: fixed;bottom: 25px;left: 5px;");
+    $("div#pause").attr("style", "position: fixed;bottom: 43px;left: 5px;");
     $("div#pause").html("<img src='images/pause.gif' alt='pause' title='pause live-updates (ctrl+space)' style='border: 1px solid black;opacity: 0.2;'>");
     $(document).keydown(function(event) {
     if (!$("div#pause").html()){

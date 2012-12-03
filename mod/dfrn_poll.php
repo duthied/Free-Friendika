@@ -493,7 +493,7 @@ function dfrn_poll_content(&$a) {
 
 			switch($destination_url) {
 				case 'profile':
-					$dest = $a->get_baseurl() . '/profile/' . $profile . '?tab=profile';
+					$dest = $a->get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
 					break;
 				case 'photos':
 					$dest = $a->get_baseurl() . '/photos/' . $profile;
@@ -503,7 +503,7 @@ function dfrn_poll_content(&$a) {
 					$dest = $a->get_baseurl() . '/profile/' . $profile;
 					break;		
 				default:
-					$dest = $destination_url;
+					$dest = $destination_url . '?f=&redir=1';
 					break;
 			}
 

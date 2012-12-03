@@ -1,96 +1,65 @@
-{{if $mode == display}}
-{{ else }}
 {{if $item.comment_firstcollapsed}}
 	<div class="hide-comments-outer">
-		<span id="hide-comments-total-$item.id" 
-			class="hide-comments-total">$item.num_comments</span>
-			<span id="hide-comments-$item.id" 
-				class="hide-comments fakelink" 
-				onclick="showHideComments($item.id);">$item.hide_text</span>
-			{{ if $item.thread_level==3 }} - 
-			<span id="hide-thread-$item-id"
-				class="fakelink"
-				onclick="showThread($item.id);">expand</span> /
-			<span id="hide-thread-$item-id"
-				class="fakelink"
-				onclick="hideThread($item.id);">collapse</span> thread{{ endif }}
+	<span id="hide-comments-total-$item.id" class="hide-comments-total">$item.num_comments</span> <span id="hide-comments-$item.id" class="hide-comments fakelink" onclick="showHideComments($item.id);">$item.hide_text</span>
 	</div>
 	<div id="collapsed-comments-$item.id" class="collapsed-comments" style="display: none;">
 {{endif}}
-{{ endif }}
-
-{{ if $item.thread_level!=1 }}<div class="children">{{ endif }}
-
+<div id="tread-wrapper-$item.id" class="tread-wrapper $item.toplevel">
+{{ if $item.indent }}{{ else }}
 <div class="wall-item-decor">
-	<span class="icon s22 star $item.isstarred" id="starred-$item.id" title="$item.star.starred">$item.star.starred</span>
-	{{ if $item.lock }}<span class="icon s22 lock fakelink" onclick="lockview(event,$item.id);" title="$item.lock">$item.lock</span>{{ endif }}	
 	<img id="like-rotator-$item.id" class="like-rotator" src="images/rotator.gif" alt="$item.wait" title="$item.wait" style="display: none;" />
 </div>
-
-<div class="wall-item-container $item.indent $item.shiny" id="item-$item.id">
+{{ endif }}
+<div class="wall-item-container $item.indent">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
-			<div class="contact-photo-wrapper mframe{{ if $item.owner_url }} wwfrom{{ endif }}"
+			<div class="contact-photo-wrapper"
 				onmouseover="if (typeof t$item.id != 'undefined') clearTimeout(t$item.id); openMenu('wall-item-photo-menu-button-$item.id')" 
 				onmouseout="t$item.id=setTimeout('closeMenu(\'wall-item-photo-menu-button-$item.id\'); closeMenu(\'wall-item-photo-menu-$item.id\');',200)">
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="contact-photo-link" id="wall-item-photo-link-$item.id">
-					<img src="$item.thumb" class="contact-photo $item.sparkle" id="wall-item-photo-$item.id" alt="$item.name" />
+					<img src="$item.thumb" class="contact-photo$item.sparkle" id="wall-item-photo-$item.id" alt="$item.name" />
 				</a>
 				<a href="#" rel="#wall-item-photo-menu-$item.id" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-$item.id">menu</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-$item.id">
 				$item.item_photo_menu
 				</ul>
 				
-			</div>	
-			{{ if $item.owner_url }}
-			<div class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-$item.id" >
-				<a href="$item.owner_url" target="redir" title="$item.olinktitle" class="contact-photo-link" id="wall-item-ownerphoto-link-$item.id">
-					<img src="$item.owner_photo" class="contact-photo $item.osparkle" id="wall-item-ownerphoto-$item.id" alt="$item.owner_name" />
-				</a>
 			</div>
-			{{ endif }}			
-			<div class="wall-item-location">$item.location</div>	
 		</div>
-
-<div class="wall-item-actions-author">
-				<a href="$item.profile_url" target="redir"
-                                title="$item.linktitle"
-                                class="wall-item-name-link"><span
-                                class="wall-item-name$item.sparkle">$item.name</span></a>
-                                <span class="wall-item-ago" title="$item.localtime">$item.ago</span>
-				 {{ if $item.owner_url }}<br/>$item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall
-				 {{ endif }}
+			<div class="wall-item-actions-author">
+				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle">$item.name</span></a> 
+			<span class="wall-item-ago">-
+			{{ if $item.plink }}<a class="link$item.sparkle" title="$item.plink.title" href="$item.plink.href" style="color: #999">$item.ago</a>{{ else }} $item.ago {{ endif }}
+			{{ if $item.lock }} - <span class="fakelink" style="color: #999" onclick="lockview(event,$item.id);">$item.lock</span> {{ endif }}
+			</span>
 			</div>
 		<div class="wall-item-content">
-			{{ if $item.title }}<h2><a href="$item.plink.href" class="$item.sparkle">$item.title</a></h2>{{ endif }}
+			{{ if $item.title }}<h2><a href="$item.plink.href">$item.title</a></h2>{{ endif }}
 			$item.body
+			{{ if $item.has_cats }}
+			<div class="categorytags"><span>$item.txt_cats {{ for $item.categories as $cat }}$cat.name <a href="$cat.removeurl" title="$remove">[$remove]</a> {{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
+			</div>
+			{{ endif }}
+
+			{{ if $item.has_folders }}
+			<div class="filesavetags"><span>$item.txt_folders {{ for $item.folders as $cat }}$cat.name <a href="$cat.removeurl" title="$remove">[$remove]</a> {{ if $cat.last }}{{ else }}, {{ endif }}{{ endfor }}
+			</div>
+			{{ endif }}
 		</div>
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
 		</div>
 		<div class="wall-item-tags">
-			{{ for $item.hashtags as $tag }}
+			{{ for $item.tags as $tag }}
 				<span class='tag'>$tag</span>
 			{{ endfor }}
-  			{{ for $item.mentions as $tag }}
-				<span class='mention'>$tag</span>
-			{{ endfor }}
-               {{ for $item.folders as $cat }}
-                    <span class='folder'>$cat.name</a>{{if $cat.removeurl}} (<a href="$cat.removeurl" title="$remove">x</a>) {{endif}} </span>
-               {{ endfor }}
-                {{ for $item.categories as $cat }}
-                    <span class='category'>$cat.name</a>{{if $cat.removeurl}} (<a href="$cat.removeurl" title="$remove">x</a>) {{endif}} </span>
-                {{ endfor }}
 		</div>
-	</div>	
+	</div>
 	<div class="wall-item-bottom">
-		<div class="wall-item-links">
-			{{ if $item.plink }}<a class="icon s16 link$item.sparkle" title="$item.plink.title" href="$item.plink.href">$item.plink.title</a>{{ endif }}
+		<div class="">
+
 		</div>
-		<div class="wall-item-actions">
-		
-			
 		<div class="wall-item-actions">
 
 			<div class="wall-item-actions-social">
@@ -137,46 +106,31 @@
 			<div class="wall-item-location">$item.location&nbsp;</div>
 		</div>
 	</div>
-	
-</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-like" id="wall-item-like-$item.id">$item.like</div>
 		<div class="wall-item-dislike" id="wall-item-dislike-$item.id">$item.dislike</div>	
 	</div>
-	
-	{{ if $item.threaded }}{{ if $item.comment }}{{ if $item.indent $item.shiny==comment }}
-	<div class="wall-item-bottom">
-		<div class="wall-item-links"></div>
-		<div class="wall-item-comment-wrapper">
-					$item.comment
-		</div>
-	</div>
-	{{ endif }}{{ endif }}{{ endif }}
 </div>
 
-
-{{ for $item.children as $child }}
-	{{ if $item.type == tag }}
-		{{ inc wall_item_tag.tpl with $item=$child }}{{ endinc }}
-	{{ else }}
-		{{ inc $item.template with $item=$child }}{{ endinc }}
-	{{ endif }}
-{{ endfor }}
-
-{{ if $item.thread_level!=1 }}</div>{{ endif }}
-
-
-{{if $mode == display}}
-{{ else }}
-{{if $item.comment_lastcollapsed}}</div>{{endif}}
+{{ if $item.threaded }}
+{{ if $item.comment }}
+<div class="wall-item-comment-wrapper $item.indent" >
+	$item.comment
+</div>
 {{ endif }}
-
-{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >$item.comment</div>
-{{ endif }}{{ endif }}{{ endif }}
-
+{{ endif }}
 
 {{ if $item.flatten }}
-<div class="wall-item-comment-wrapper" >$item.comment</div>
+<div class="wall-item-comment-wrapper" >
+	$item.comment
+</div>
 {{ endif }}
+
+
+{{ for $item.children as $item }}
+	{{ inc $item.template }}{{ endinc }}
+{{ endfor }}
+
+</div>
+{{if $item.comment_lastcollapsed}}</div>{{endif}}

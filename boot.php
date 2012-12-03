@@ -9,11 +9,12 @@ require_once('include/pgettext.php');
 require_once('include/nav.php');
 require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
+require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.0.1527' );
+define ( 'FRIENDICA_VERSION',      '3.0.1545' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1156      );
+define ( 'DB_UPDATE_VERSION',      1157      );
 
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
@@ -359,6 +360,7 @@ if(! class_exists('App')) {
 
 		public $category;
 
+
 		// Allow themes to control internal parameters
 		// by changing App values in theme.php
 
@@ -437,8 +439,9 @@ if(! class_exists('App')) {
 				if(isset($path) && strlen($path) && ($path != $this->path))
 					$this->path = $path;
 			}
-			if (is_array($argv) && $argc>1 && !x($_SERVER,'SERVER_NAME') && substr(end($argv), 0, 4)=="http" ) {
+			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
 				$this->set_baseurl(array_pop($argv) );
+				$argc --;
 			}
 
 			set_include_path(
@@ -1231,7 +1234,7 @@ if(! function_exists('profile_sidebar')) {
 
 
 		// show edit profile to yourself
-		if ($profile['uid'] == local_user()) {
+		if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
 			$profile['edit'] = array($a->get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
 		
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d",

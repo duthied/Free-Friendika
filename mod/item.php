@@ -18,7 +18,7 @@
 require_once('include/crypto.php');
 require_once('include/enotify.php');
 require_once('include/email.php');
-require_once('Text/LanguageDetect.php');
+require_once('library/langdet/Text/LanguageDetect.php');
 
 function item_post(&$a) {
 
@@ -309,7 +309,11 @@ function item_post(&$a) {
 	// First figure out if it's a status post that would've been
 	// created using tinymce. Otherwise leave it alone. 
 
-	$plaintext = (local_user() ? intval(get_pconfig(local_user(),'system','plaintext')) : 0);
+/*	$plaintext = (local_user() ? intval(get_pconfig(local_user(),'system','plaintext')) || !feature_enabled($profile_uid,'richtext') : 0);
+	if((! $parent) && (! $api_source) && (! $plaintext)) {
+		$body = fix_mce_lf($body);
+	}*/
+	$plaintext = (local_user() ? !feature_enabled($profile_uid,'richtext') : 0);
 	if((! $parent) && (! $api_source) && (! $plaintext)) {
 		$body = fix_mce_lf($body);
 	}

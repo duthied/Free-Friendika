@@ -181,7 +181,7 @@ function network_init(&$a) {
 		$a->page['content'] .= '<h2>' . t('Search Results For:') . ' '  . $search . '</h2>';
 	}
 
-	$a->page['aside'] .= group_side('network/0','network',true,$group_id);
+	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network',true,$group_id) : '');
 	$a->page['aside'] .= posted_date_widget($a->get_baseurl() . '/network',local_user(),false);	
 	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
@@ -190,6 +190,9 @@ function network_init(&$a) {
 }
 
 function saved_searches($search) {
+
+	if(! feature_enabled(local_user(),'savedsearch'))
+		return '';
 
 	$a = get_app();
 
@@ -403,30 +406,30 @@ function network_content(&$a, $update = 0) {
 			'title' => t('Sort by Post Date'),
 		),
 
-		array(
+/*		array(
 			'label' => t('Personal'),
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&conv=1',
 			'sel' => $conv_active,
 			'title' => t('Posts that mention or involve you'),
-		),
-		array(
+		),*/
+/*		array(
 			'label' => t('New'),
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel' => $new_active,
 			'title' => t('Activity Stream - by date'),
-		),
-		array(
+		),*/
+/*		array(
 			'label' => t('Starred'),
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&star=1',
 			'sel'=>$starred_active,
 			'title' => t('Favourite Posts'),
-		),
-		array(
+		),*/
+/*		array(
 			'label' => t('Shared Links'),
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&bmark=1',
 			'sel'=>$bookmarked_active,
 			'title'=> t('Interesting Links'),
-		),	
+		),	*/
 //		array(
 //			'label' => t('Spam'),
 //			'url'=>$a->get_baseurl(true) . '/network?f=&spam=1'
@@ -436,6 +439,53 @@ function network_content(&$a, $update = 0) {
 
 	);
 	
+	if(feature_enabled(local_user(),'personal_tab')) {
+		$tabs[] = array(
+			'label' => t('Personal'),
+			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&conv=1',
+			'sel' => $conv_active,
+			'title' => t('Posts that mention or involve you'),
+		);
+	}
+
+	if(feature_enabled(local_user(),'new_tab')) {
+		$tabs[] = array(
+			'label' => t('New'),
+			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'sel' => $new_active,
+			'title' => t('Activity Stream - by date'),
+		);
+	}
+
+	if(feature_enabled(local_user(),'link_tab')) {
+		$tabs[] = array(
+			'label' => t('Shared Links'),
+			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&bmark=1',
+			'sel'=>$bookmarked_active,
+			'title'=> t('Interesting Links'),
+		);
+	}
+
+	if(feature_enabled(local_user(),'star_posts')) {
+		$tabs[] = array(
+			'label' => t('Starred'),
+			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&star=1',
+			'sel'=>$starred_active,
+			'title' => t('Favourite Posts'),
+		);
+	}
+
+	// Not yet implemented
+
+/*	if(feature_enabled(local_user(),'spam_filter'))  {
+		$tabs[] = array(
+			'label' => t('Spam'),
+			'url'=>$a->get_baseurl(true) . '/network?f=&spam=1',
+			'sel'=> $spam_active,
+			'title' => t('Posts flagged as SPAM'),
+		);
+	}*/
+
 	// save selected tab, but only if not in search or file mode
 	if(!x($_GET,'search') && !x($_GET,'file')) {
 		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
@@ -646,7 +696,7 @@ function network_content(&$a, $update = 0) {
 
 	}
 	else {
-		if(! get_pconfig(local_user(),'system','alt_pager')) {
+		if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
 		        $r = q("SELECT COUNT(*) AS `total`
 			        FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			        WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
@@ -795,11 +845,11 @@ function network_content(&$a, $update = 0) {
 	$o .= conversation($a,$items,$mode,$update);
 
 	if(! $update) {
-		if(! get_pconfig(local_user(),'system','alt_pager')) {
-		        $o .= paginate($a);
+		if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+		        $o .= alt_pager($a,count($items));
 		}
 		else {
-		        $o .= alt_pager($a,count($items));
+		        $o .= paginate($a);
 		}
 	}
 
