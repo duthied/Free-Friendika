@@ -227,6 +227,23 @@ function fixacl(&$item) {
 	$item = intval(str_replace(array('<','>'),array('',''),$item));
 }
 
+function prune_deadguys($arr) {
+
+	if(! $arr)
+		return $arr;
+	$str = dbesc(implode(',',$arr));
+	$r = q("select id from contact where id in ( " . $str . ") and blocked = 0 and pending = 0 and archive = 0 ");
+	if($r) {
+		$ret = array();
+		foreach($r as $rr) 
+			$ret[] = $rr['id'];
+		return $ret;
+	}
+	return array();
+}
+
+
+
 function populate_acl($user = null,$celeb = false) {
 
 	$allow_cid = $allow_gid = $deny_cid = $deny_gid = false;
@@ -245,6 +262,14 @@ function populate_acl($user = null,$celeb = false) {
 		array_walk($deny_cid,'fixacl');
 		array_walk($deny_gid,'fixacl');
 	}
+
+	$allow_cid = prune_deadguys($allow_cid);
+
+	// We shouldn't need to prune deadguys from the block list. Either way they can't get the message.
+	// Also no point enumerating groups and checking them, that will take place on delivery.
+
+//	$deny_cid = prune_deadguys($deny_cid);
+
 
 	/*$o = '';
 	$o .= '<div id="acl-wrapper">';

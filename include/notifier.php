@@ -309,7 +309,7 @@ function notifier_run(&$argv, &$argc){
 			}
 
 			$allow_people = expand_acl($parent['allow_cid']);
-			$allow_groups = expand_groups(expand_acl($parent['allow_gid']));
+			$allow_groups = expand_groups(expand_acl($parent['allow_gid']),true);
 			$deny_people  = expand_acl($parent['deny_cid']);
 			$deny_groups  = expand_groups(expand_acl($parent['deny_gid']));
 
