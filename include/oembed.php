@@ -74,9 +74,10 @@ function oembed_format_object($j){
 	switch ($j->type) {
 		case "video": {
 			if (isset($j->thumbnail_url)) {
-				$tw = (isset($j->thumbnail_width)) ? $j->thumbnail_width:200;
-				$th = (isset($j->thumbnail_height)) ? $j->thumbnail_height:180;
-				$tr = $tw/$th;
+				$tw = (isset($j->thumbnail_width) && intval($j->thumbnail_width)) ? $j->thumbnail_width:200;
+				$th = (isset($j->thumbnail_height) && intval($j->thumbnail_height)) ? $j->thumbnail_height:180;
+				// make sure we don't attempt divide by zero, fallback is a 1:1 ratio
+				$tr = (($th) ? $tw/$th : 1);
 				
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
