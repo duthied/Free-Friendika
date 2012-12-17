@@ -99,6 +99,7 @@ class Item extends BaseObject {
 
 		$conv = $this->get_conversation();
 
+
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
@@ -496,6 +497,12 @@ class Item extends BaseObject {
 		if($conv) {
 			// This will allow us to comment on wall-to-wall items owned by our friends
 			// and community forums even if somebody else wrote the post.
+
+			// bug #517 - this fixes for conversation owner
+			if($conv->get_mode() == 'profile' && $conv->get_profile_owner() == local_user())
+				return true; 
+
+			// this fixes for visitors
 			return ($this->writable || ($this->is_visiting() && $conv->get_mode() == 'profile'));
 		}
 		return $this->writable;

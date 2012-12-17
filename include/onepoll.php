@@ -118,6 +118,7 @@ function onepoll_run(&$argv, &$argc){
 
 	if($contact['network'] === NETWORK_DFRN) {
 
+		
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
 		if(intval($contact['duplex']) && $contact['dfrn-id'])
 			$idtosend = '0:' . $orig_id;
@@ -126,6 +127,12 @@ function onepoll_run(&$argv, &$argc){
 
 		// they have permission to write to us. We already filtered this in the contact query.
 		$perm = 'rw';
+
+		// But this may be our first communication, so set the writable flag if it isn't set already.
+
+		if(! intval($contact['writable']))
+			q("update contact set writable = 1 where id = %d limit 1", intval($contact['id']));
+
 
 		$url = $contact['poll'] . '?dfrn_id=' . $idtosend 
 			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION 

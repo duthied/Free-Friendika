@@ -602,6 +602,7 @@ function profiles_content(&$a) {
 			'$profile_drop_link' => 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 			'$banner' => t('Edit Profile Details'),
 			'$submit' => t('Submit'),
+			'$profpic' => t('Change Profile Photo'),
 			'$viewprof' => t('View this profile'),
 			'$cr_prof' => t('Create a new profile using these settings'),
 			'$cl_prof' => t('Clone this profile'),

@@ -239,6 +239,9 @@ function parse_url_content(&$a) {
 	if(local_user() && intval(get_pconfig(local_user(),'system','plaintext')))
 		$textmode = true;
 
+	if(local_user() && (! feature_enabled(local_user(),'richtext')))
+		$textmode = true;
+
 	//if($textmode)
 	$br = (($textmode) ? "\n" : '<br />');
 

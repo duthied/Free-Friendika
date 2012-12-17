@@ -279,7 +279,7 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 	return $o;
 }
 
-function expand_groups($a) {
+function expand_groups($a,$check_dead = false) {
 	if(! (is_array($a) && count($a)))
 		return array();
 	$groups = implode(',', $a);
@@ -289,6 +289,10 @@ function expand_groups($a) {
 	if(count($r))
 		foreach($r as $rr)
 			$ret[] = $rr['contact-id'];
+	if($check_dead) {
+		require_once('include/acl_selectors.php');
+		$ret = prune_deadguys($ret);
+	}
 	return $ret;
 }
 
