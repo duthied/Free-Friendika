@@ -313,6 +313,45 @@
 	cursor: url('lock.cur'), pointer;
 }
 
+
+div.pager, .birthday-notice {
+  text-align: center;
+  height: 1.2em;
+  padding-bottom: 12px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  background-color: #f2f2f2;
+  clear: left;
+  margin-top: 15px;
+  padding: 1%;
+  height: 1em;
+  margin-bottom: 15px;
+}
+
+.birthday-notice {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+#live-network {
+/*  border-bottom: 1px solid #BDCDD4; */
+  border-bottom: 1px solid #D2D2D2;
+  width: 100%;
+  height: 10px;
+}
+
+.pager a {
+}
+
+.pager a.pager_older {
+  float: right;
+}
+
+.pager a.pager_newer {
+  float: left;
+}
+
 .shared_header {
   height: 32px;
   color: #999;
@@ -1008,7 +1047,8 @@ section {
 }
 /* wall item */
 .tread-wrapper {
-  border-bottom: 1px solid #D2D2D2;
+/*    border-bottom: 1px solid #BDCDD4; */
+border-bottom: 1px solid #D2D2D2;
   position: relative;
   padding: 5px;
   margin-bottom: 0px;
@@ -1869,7 +1909,7 @@ ul.tabs li .active, ul.tabs a:hover {
 
 /* page footer */
 footer {
-  height: 100px;
+  /* height: 100px; */
   display: table-row;
 }
 
