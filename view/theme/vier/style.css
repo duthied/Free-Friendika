@@ -313,6 +313,27 @@
 	cursor: url('lock.cur'), pointer;
 }
 
+.shared_header {
+  height: 32px;
+  color: #999;
+  border-top: 1px solid #D2D2D2;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.shared_header img {
+  float: left;
+}
+
+.shared_header span {
+  margin-left: 9px;
+}
+
+blockquote.shared_content {
+  margin-left: 32px;
+  color: #000;
+  border: none;
+}
 
 #contact-edit-links ul {
   list-style: none;
@@ -793,7 +814,7 @@ aside {
   padding: 0px 10px 0px 20px;
   border-right: 1px solid #D2D2D2;
   background-color: #ECECF2;
-  font-size: 13px;
+  font-size: 14px;
   /* background: #F1F1F1; */
 }
 aside .vcard .fn {
