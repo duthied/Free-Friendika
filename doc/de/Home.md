@@ -4,7 +4,7 @@ Friendica - Dokumentation und Ressourcen
 **Inhalte**
 
 * [Account - Basics](help/Account-Basics)
-* [Schnellstart für neue Benutzer](help/guide)
+* [Schnellstart für neue Benutzer](help/Quick-Start-guide)
 * [Beiträge erstellen](help/Text_editor)
 * [Beiträge kommentieren, einordnen und löschen](help/Text_comment)
 * [Profile](help/Profiles)

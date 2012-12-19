@@ -1,5 +1,3 @@
-[[!meta title="And Finally..."]]
-
 And that brings the Quick Start to an end.
 
 Here are some more things to help get you started:
