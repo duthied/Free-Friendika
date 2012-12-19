@@ -356,8 +356,8 @@ div.pager, .birthday-notice {
   height: 32px;
   color: #999;
   border-top: 1px solid #D2D2D2;
-  padding-top: 16px;
-  margin-top: 16px;
+  padding-top: 5px;
+  margin-top: 5px;
 }
 
 .shared_header img {

@@ -2081,3 +2081,5 @@ $a->strings["Post to Drupal by default"] = "Veröffentliche öffentliche Beiträ
 $a->strings["OEmbed settings updated"] = "OEmbed Einstellungen aktualisiert.";
 $a->strings["Use OEmbed for YouTube videos"] = "OEmbed für Youtube Videos verwenden";
 $a->strings["URL to embed:"] = "URL zum Einbetten:";
+$a->strings['<span><a href="%s" target="external-link">%s</a> wrote the following <a href="%s" target="external-link">post</a>:</span>'] = 
+            '<span><a href="%s" target="external-link">%s</a> hat diesen <a href="%s" target="external-link">Beitrag</a> ursprünglich gepostet:</span>';

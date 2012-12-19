@@ -791,12 +791,21 @@ function notifier_run(&$argv, &$argc){
 
 						if($it['uri'] !== $it['parent-uri']) {
 							$headers .= 'References: <' . iri2msgid($it['parent-uri']) . '>' . "\n";
-							if(!strlen($it['title'])) {
-								$r = q("SELECT `title` FROM `item` WHERE `parent-uri` = '%s' LIMIT 1",
-									dbesc($it['parent-uri']));
+							if(!$it['title']) {
+								$r = q("SELECT `title` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+									dbesc($it['parent-uri']),
+									intval($uid));
 
-								if(count($r) AND ($r[0]['title'] != ''))  
+								if(count($r) AND ($r[0]['title'] != ''))
 									$subject = $r[0]['title'];
+								else {
+									$r = q("SELECT `title` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d LIMIT 1",
+										dbesc($it['parent-uri']),
+										intval($uid));
+
+									if(count($r) AND ($r[0]['title'] != ''))
+										$subject = $r[0]['title'];
+								}
 							}
 							if(strncasecmp($subject,'RE:',3))
 								$subject = 'Re: '.$subject;
