@@ -1543,7 +1543,6 @@ ul .sidebar-group-li .icon {
 
 .wall-item-location {
 	margin-top: 5px;
-	width: 100px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 		-o-text-overflow: ellipsis;
