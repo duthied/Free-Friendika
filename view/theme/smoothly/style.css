@@ -1780,7 +1780,8 @@ code {
 }
 
 .comment-edit-text-empty { 
-	width: 672px; /*80%*/
+	width: 98%;
+	max-width: 672px;
 	height: 20px;
 	color: #babdb6;
 	transition: all 0.5s ease-in-out;	
@@ -1793,7 +1794,8 @@ code {
 }
 
 .comment-edit-text-full { 
-	width: 670px; 
+	width: 98%;
+	max-width: 672px;
 	height: 6em;
 	transition: all 0.5s ease-in-out;	
 		-webkit-transition: all 0.5s ease-in-out;
@@ -1801,7 +1803,8 @@ code {
 }
 
 .comment-edit-submit-wrapper { 
-	width: 670px; 
+	width: 98%;
+	max-width: 672px;
 	margin-left: 20px; 
 	text-align: left; 
 }
