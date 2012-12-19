@@ -1378,9 +1378,15 @@ ul .sidebar-group-li .icon {
 	position: absolute;
 	overflow: hidden;
 	height: 20px;
-	width: 90px;
+	width: 100%;
 	top: 85px;
 	left: -1px;
+	border-right: 1px solid #dddddd;
+	border-left: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
+	box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 3px 3px 4px #959494;
+		-webkit-box-shadow: 3px 3px 4px #959494;
 	border-radius: 0px 0px 5px  5px;	
 		-webkit-border-radius: 0px 0px 5px  5px;
 		-moz-border-radius: 0px 0px 5px  5px;
@@ -1605,7 +1611,7 @@ ul .sidebar-group-li .icon {
 
 .wall-item-photo-menu {
 	display: none;
-	min-width: 92px;
+	min-width: 88px;
 	color: #2e3436;
 	border-top: 1px;
 	background: #eeeeee;
@@ -1624,15 +1630,6 @@ ul .sidebar-group-li .icon {
 		-moz-box-shadow: 3px 3px 4px #959494;
 		-webkit-box-shadow: 3px 3px 4px #959494;
 
-}
-
-.wall-item-photo-menu-button {
-	border-right: 1px solid #dddddd;
-	border-left: 1px solid #dddddd;
-	border-bottom: 1px solid #dddddd;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
 }
 
 .fakelink wall-item-photo-menu-button {
@@ -1732,7 +1729,6 @@ code {
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-menu-button {
-	width: 50px;
 	top: 45px;
 	background-position: 35px center;
 }
