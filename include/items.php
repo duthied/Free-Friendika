@@ -806,7 +806,7 @@ function get_atom_elements($feed,$item) {
 		$avatar = $avatar["href"];
 
 		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
-			logger('get_atom_elements: fixing sender of repeated message. '.print_r($child, true));
+			logger('get_atom_elements: fixing sender of repeated message.');
 
 			/*$res["owner-name"] = $res["author-name"];
 			$res["owner-link"] = $res["author-link"];

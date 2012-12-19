@@ -313,6 +313,10 @@
 	cursor: url('lock.cur'), pointer;
 }
 
+#birthday-title, #event-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
 
 div.pager, .birthday-notice {
   text-align: center;

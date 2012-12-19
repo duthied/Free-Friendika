@@ -437,7 +437,29 @@ function onepoll_run(&$argv, &$argc){
 								else
 									$fromdecoded .= $frompart->text;
 
-							$datarray['body'] = "[b]".t('From: ') . escape_tags($fromdecoded) . "[/b]\n\n" . $datarray['body'];
+							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->get_hostname());
+
+							$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
+
+							if (isset($fromarr[0]->personal))
+								$fromname = $fromarr[0]->personal;
+							else
+								$fromname = $frommail;
+
+							//$datarray['body'] = "[b]".t('From: ') . escape_tags($fromdecoded) . "[/b]\n\n" . $datarray['body'];
+
+							$datarray['author-name'] = $fromname;
+							$datarray['author-link'] = "mailto:".$frommail;
+							$datarray['author-avatar'] = $contact['photo'];
+
+							$datarray['owner-name'] = $contact['name'];
+							$datarray['owner-link'] = "mailto:".$contact['addr'];
+							$datarray['owner-avatar'] = $contact['photo'];
+
+						} else {
+							$datarray['author-name'] = $contact['name'];
+							$datarray['author-link'] = 'mailbox';
+							$datarray['author-avatar'] = $contact['photo'];
 						}
 
 						$datarray['uid'] = $importer_uid;
@@ -448,9 +470,6 @@ function onepoll_run(&$argv, &$argc){
 							$datarray['private'] = 1;
 							$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 						}
-						$datarray['author-name'] = $contact['name'];
-						$datarray['author-link'] = 'mailbox';
-						$datarray['author-avatar'] = $contact['photo'];
 
 						$stored_item = item_store($datarray);
 						q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d",
