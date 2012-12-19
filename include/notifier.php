@@ -790,7 +790,13 @@ function notifier_run(&$argv, &$argc){
 						$headers .= 'Message-Id: <' . iri2msgid($it['uri']) . '>' . "\n";
 
 						if($it['uri'] !== $it['parent-uri']) {
-							$headers .= 'References: <' . iri2msgid($it['parent-uri']) . '>' . "\n";
+							$headers .= "References: <".iri2msgid($it["parent-uri"]).">";
+
+							// If Threading is enabled, write down the correct parent
+							if (($it["thr-parent"] != "") and ($it["thr-parent"] != $it["parent-uri"]))
+								$headers .= " <".iri2msgid($it["thr-parent"]).">";
+							$headers .= "\n";
+
 							if(!$it['title']) {
 								$r = q("SELECT `title` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 									dbesc($it['parent-uri']),

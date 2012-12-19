@@ -335,7 +335,7 @@ function onepoll_run(&$argv, &$argc){
 									intval($r[0]['id'])
 								);
 							}
-							/*switch ($mailconf[0]['action']) {
+							switch ($mailconf[0]['action']) {
 								case 0:
 									logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'].". Doing nothing.", LOGGER_DEBUG);
 									break;
@@ -353,7 +353,7 @@ function onepoll_run(&$argv, &$argc){
 									if ($mailconf[0]['movetofolder'] != "")
 										imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);
 									break;
-							}*/
+							}
 							continue;
 						}
 
