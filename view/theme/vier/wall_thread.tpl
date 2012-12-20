@@ -98,7 +98,7 @@
 				{{ endif }}
 			{{ endif }}
 			{{ if $item.vote.share }}
-				<a href="#" id="share-$item.id" title="$item.vote.share.0" onclick="jotShare($item.id); return false"><i class="icon-share icon-large"></i></a>
+				<a href="#" id="share-$item.id" title="$item.vote.share.0" onclick="jotShare($item.id); return false"><i class="icon-retweet icon-large"></i></a>
 			{{ endif }}
 			{{ if $item.star }}
 				<a href="#" id="star-$item.id" onclick="dostar($item.id); return false;"  class="$item.star.classdo"  title="$item.star.do"><i class="icon-star icon-large"></i></a>
