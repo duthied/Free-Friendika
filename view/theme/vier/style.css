@@ -1244,8 +1244,11 @@ border-bottom: 1px solid #D2D2D2;
 .wall-item-container.comment .wall-item-links {
   padding-left: 12px;
 }
+.wall-item-bottom .wall-item-comment-wrapper {
+  margin: 1px 5px 1px 0px;
+}
 .wall-item-comment-wrapper {
-  margin: 1px 5px 1px 80px;
+  margin: 1px 15px 1px 80px;
 }
 .wall-item-comment-wrapper .comment-edit-photo {
   display: none;
@@ -1270,11 +1273,6 @@ border-bottom: 1px solid #D2D2D2;
   margin-right: 1em;
 }
 
-.comment-edit-preview {
-  width: 660px;
-  border: 1px solid #2d2d2d;
-  margin-top: 10px;
-}
 .comment-edit-preview .contact-photo {
   width: 32px;
   height: 32px;
@@ -1283,6 +1281,9 @@ border-bottom: 1px solid #D2D2D2;
 
 }
 .comment-edit-preview {
+  width: 660px;
+  border: 1px solid #2d2d2d;
+  margin-top: 10px;
   top: 15px !important;
   left: 15px !important;
 }
@@ -1296,6 +1297,12 @@ border-bottom: 1px solid #D2D2D2;
   width: 700px;
   padding: 0;
   margin: 10px 0;
+  border-bottom: 0px;
+}
+
+.wall-item-bottom .comment-edit-preview {
+  width: 575px;
+  margin-bottom: 5px;
 }
 
 .shiny {
