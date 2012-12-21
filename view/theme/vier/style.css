@@ -89,56 +89,28 @@
 
 /*
 .article	{ background-position: -50px  0px;}
-.audio 		{ background-position: -70px  0px;}
 .block 		{ background-position: -90px  0px;}
 .drop 		{ background-position: -110px 0px;}
 .drophide 	{ background-position: -130px 0px;}
-.edit 		{ background-position: -150px 0px;}
-.camera 	{ background-position: -170px 0px;}
-.dislike 	{ background-position: -190px 0px;}
-.like 		{ background-position: -210px 0px;}
-.link 		{ background-position: -230px 0px;}
 
-.globe 		{ background-position: -50px  -20px;}
 .noglobe 	{ background-position: -70px  -20px;}
 .no 		{ background-position: -90px  -20px;}
-.pause 		{ background-position: -110px -20px;}
-.play 		{ background-position: -130px -20px;}
-.pencil 	{ background-position: -150px -20px;}
 .small-pencil	{ background-position: -170px -20px;}
 .recycle 	{ background-position: -190px -20px;}
 .remote-link	{ background-position: -210px -20px;}
 .share 		{ background-position: -230px -20px;}
 
 .tools 		{ background-position: -50px  -40px;}
-.lock 		{ background-position: -70px  -40px;}
-.unlock 	{ background-position: -90px  -40px;}
 
-.video          { background-position: -110px -40px;}
 .youtube        { background-position: -130px -40px;}
 
-.attach         { background-position: -190px -40px;}
 .language       { background-position: -210px -40px;}
-
 
 .on             { background-position: -50px  -60px;}
 .off            { background-position: -70px  -60px;}
 .prev           { background-position: -90px  -60px;}
 .next           { background-position: -110px -60px;}
 .tagged     { background-position: -130px -60px;}
-*/
-
-/*
-.attachtype {
-        display: block; width: 20px; height: 23px;
-        background-image: url('../../../images/content-types.png');
-}
-
-.type-video { background-position: 0px 0px; }
-.type-image { background-position: -20px 0px; }
-.type-audio { background-position: -40px 0px; }
-.type-text  { background-position: -60px 0px; }
-.type-unkn  { background-position: -80px 0px; }
 */
 
 .icon.drop, .icon.drophide {
@@ -165,40 +137,12 @@
 .icon a:hover {
 }
 
-/*.icon {
-  display: block;
-  width: 18px;
-  height: 18px;
-  background-image: url('icons.png');
-}
-
-.icon {
-  background-color: transparent ;
-  background-repeat: no-repeat;
-  display: block;
-  overflow: hidden;
-  text-indent: -9999px;
-  padding: 1px;
-} */
-
 .icon.text {
   text-indent: 0px;
 }
 .icon.s10 {
   min-width: 10px;
   height: 10px;
-}
-.icon.s10.notify {
-  background-image: url("../../../images/icons/10/notify_off.png");
-}
-.icon.s10.gear {
-  background-image: url("../../../images/icons/10/gear.png");
-}
-.icon.s10.add {
-  background-image: url("../../../images/icons/10/add.png");
-}
-.icon.s10.menu {
-  background-image: url("../../../images/icons/10/menu.png");
 }
 .icon.s10.text {
   padding: 2px 0px 0px 15px;
@@ -207,18 +151,6 @@
 .icon.s16 {
   min-width: 16px;
   height: 16px;
-}
-.icon.s16.notify {
-  background-image: url("../../../images/icons/16/notify_off.png");
-}
-.icon.s16.gear {
-  background-image: url("../../../images/icons/16/gear.png");
-}
-.icon.s16.add {
-  background-image: url("../../../images/icons/16/add.png");
-}
-.icon.s16.menu {
-  background-image: url("../../../images/icons/16/menu.png");
 }
 .icon.s16.text {
   padding: 4px 0px 0px 20px;
@@ -229,16 +161,7 @@
   height: 22px;
 }
 .icon.s22.notify {
-  background-image: url("../../../images/icons/22/notify_off.png");
-}
-.icon.s22.gear {
-  background-image: url("../../../images/icons/22/gear.png");
-}
-.icon.s22.add {
-  background-image: url("../../../images/icons/22/add.png");
-}
-.icon.s22.menu {
-  background-image: url("../../../images/icons/22/menu.png");
+  color: gray;
 }
 .icon.s22.text {
   padding: 10px 0px 0px 25px;
@@ -248,18 +171,6 @@
 .icon.s48 {
   width: 48px;
   height: 48px;
-}
-.icon.s48.notify {
-  background-image: url("../../../images/icons/48/notify_off.png");
-}
-.icon.s48.gear {
-  background-image: url("../../../images/icons/48/gear.png");
-}
-.icon.s48.add {
-  background-image: url("../../../images/icons/48/add.png");
-}
-.icon.s48.menu {
-  background-image: url("../../../images/icons/48/menu.png");
 }
 .sparkle {
 	cursor: url('lock.cur'), pointer;
@@ -664,7 +575,7 @@ nav #nav-notifications-linkmenu {
   margin-right: 5px;
 }
 nav #nav-notifications-linkmenu.on .icon.s22.notify, nav #nav-notifications-linkmenu.selected .icon.s22.notify {
-  background-image: url("../../../images/icons/22/notify_on.png");
+  color: white;
 }
 nav #nav-messages-linkmenu.selected,
 nav #nav-user-linklabel.selected,
