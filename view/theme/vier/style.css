@@ -610,8 +610,9 @@ nav #nav-apps-link.selected {
   background-color: #364e59;
 }
 
-nav #nav-community-link {
-  margin-left: 215px;
+/* nav #nav-community-link { */
+nav ul {
+  margin-left: 210px;
 }
 
 nav #nav-user-linkmenu {
