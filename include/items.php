@@ -823,6 +823,8 @@ function get_atom_elements($feed,$item) {
 				$res["author-name"] = $name;
 				$res["author-link"] = $uri;
 				$res["author-avatar"] = $avatar;
+
+				$res["body"] = html2bbcode($message);
 			}
 		}
 	}
