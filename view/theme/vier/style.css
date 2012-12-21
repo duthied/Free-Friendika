@@ -1689,8 +1689,7 @@ ul.tabs a, #jot-preview-link, .comment-edit-submit-wrapper .fakelink {
     background: linear-gradient(top, #ffffff 0%,#ececf2 100%);
 }
 
-ul.tabs li .active, ul.tabs a:hover, #jot-preview-link:hover, .comment-edit-submit-wrapper .fakelink:hover, {
-
+ul.tabs li .active, ul.tabs a:hover, #jot-preview-link:hover, .comment-edit-submit-wrapper .fakelink:hover {
     color: #fff;
     text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.5);
     border: 1px solid #ececf2;

@@ -809,7 +809,7 @@ function get_atom_elements($feed,$item) {
 			logger('get_atom_elements: fixing sender of repeated message.');
 
 			if (intval(get_config('system','new_share'))) {
-				$prefix = "[share author='".$name.
+				$prefix = "[share author='".str_replace("'", "&#039;",$name).
 						"' profile='".$uri.
 						"' avatar='".$avatar.
 						"' link='".$orig_uri."']";

@@ -221,7 +221,7 @@ function bb_ShareAttributes($match) {
         $author = "";
         preg_match("/author='(.*?)'/ism", $attributes, $matches);
         if ($matches[1] != "")
-                $author = $matches[1];
+                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
         preg_match('/author="(.*?)"/ism', $attributes, $matches);
         if ($matches[1] != "")

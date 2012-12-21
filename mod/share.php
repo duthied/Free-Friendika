@@ -23,7 +23,7 @@ function share_init(&$a) {
 			$pos = strpos($r[0]['body'], "[share");
 			$o = substr($r[0]['body'], $pos);
 		} else {
-			$o = "[share author='".$r[0]['author-name'].
+			$o = "[share author='".str_replace("'", "&#039;",$r[0]['author-name']).
 				"' profile='".$r[0]['author-link'].
 				"' avatar='".$r[0]['author-avatar'].
 				"' link='".$r[0]['plink']."']\n";
