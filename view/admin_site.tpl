@@ -93,6 +93,7 @@
 	{{ inc field_input.tpl with $field=$abandon_days }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$lockpath }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$temppath }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$basepath }}{{ endinc }}
 
 	<h3>$performance</h3>
 	{{ inc field_checkbox.tpl with $field=$use_fulltext_engine }}{{ endinc }}
