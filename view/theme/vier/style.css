@@ -33,8 +33,8 @@
 .admin.link {
         list-style-position: inside;
         font-size: 1em;
-        padding-left: 5px;
-        margin: 5px;
+/*        padding-left: 5px;
+        margin: 5px; */
 }
 
 #adminpage dl {
@@ -265,10 +265,12 @@ blockquote.shared_content {
 body {
   font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
+  background-color: #ddd;
   color: #2d2d2d;
   margin: 37px 0px 0px 0px;
   display: table;
+  width: 100%
 }
 h4 {
   font-size: 1.1em;
@@ -368,9 +370,12 @@ code {
 .tool a {
 /*  color: #000; */
 }
-.tool a:hover {
-  text-decoration: underline;
+.tool a:hover, .widget a:hover, #nets-sidear a:hover, #hide-forum-list:hover, .admin.link a:hover, aside h4 a:hover {
+  /* text-decoration: underline; */
+  text-decoration: none;
+  color: black;
 }
+
 .groupsideedit, .savedsearchdrop {
   float: right;
   opacity: 0.3;
@@ -379,18 +384,48 @@ code {
   opacity: 1;
 }
 
+.sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover, 
+#sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
+.nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, #message-new:hover {
+  /* background-color: #ddd; */
+  background-color: #e5e5e5;
+}
+
+
 .sidebar-group-element {
 /*  color: #000; */
 }
 
-#sidebar-new-group, #posted-date-selector, #hide-forum-list, #forum-list, #sidebar-ungrouped,
-.side-link, #peoplefind-desc, #connect-desc, #follow-sidebar form, #peoplefind-sidebar form,
-#netsearch-box form {
+.group-selected, .nets-selected, .fileas-selected {
+  font-weight: bold;
+}
+
+#sidebar-new-group, #hide-forum-list, #forum-list, #sidebar-ungrouped,
+.side-link, #peoplefind-desc, #connect-desc, .nets-all, .admin.link, #message-new {
+  padding-left: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-right: 5px;
+  display: block;
+}
+
+a.nets-link, .side-link a, a.sidebar-group-element, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a {
+  display: block;
+  color: black;
+}
+
+#follow-sidebar form, #peoplefind-sidebar form, #netsearch-box form, #posted-date-selector {
   margin-left: 10px;
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 
 #sidebar-ungrouped, .side-link {
   padding-top: 5px;
+}
+
+#forum-list a, .tool a, .admin.link a {
+  color: black;
 }
 
 #forum-list {
@@ -747,8 +782,9 @@ aside {
   vertical-align: top;
   width: 185px;
   padding: 10px 10px 10px 20px;
-  border-right: 1px solid #D2D2D2;
-  background-color: #ECECF2;
+  /* border-right: 1px solid #D2D2D2; */
+  /* background-color: #ECECF2; */
+  background-color: #F2F2F2;
   font-size: 14px;
   /* background: #F1F1F1; */
 }
@@ -828,9 +864,6 @@ aside h4 {
 
 .nets-ul {
   margin-top: 0px;
-}
-.nets-all {
-  margin-left: 10px;
 }
 
 #contact-block {
@@ -927,12 +960,12 @@ aside h4 {
   margin-bottom: 0px;
 }
 .widget ul li {
-  padding-left: 5px;
+  padding-left: 10px;
   /* min-height: 20px; */
   list-style: none;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  margin: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin: 0px;
 }
 .widget .tool.selected {
   background: url('../../../images/selected.png') no-repeat left center;
@@ -947,7 +980,8 @@ section {
   display: table-cell;
   vertical-align: top;
   width: 760px;
-  padding: 10px 0px 10px 10px;
+  padding: 10px 10px 10px 10px;
+  background-color: white;
 }
 /* wall item */
 .tread-wrapper {
