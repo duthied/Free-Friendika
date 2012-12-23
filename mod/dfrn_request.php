@@ -358,6 +358,7 @@ function dfrn_request_post(&$a) {
 					intval($uid)
 				);
 				if(! count($r)) {
+
 					notice( t('This account has not been configured for email. Request failed.') . EOL);
 					return;
 				}
@@ -616,7 +617,7 @@ function dfrn_request_post(&$a) {
 			 *
 			 */
 
-			$url = str_replace('{uri}', $a->get_baseurl() . '/dfrn_poll/' . $nickname, $url);
+			$url = str_replace('{uri}', $a->get_baseurl() . '/profile/' . $nickname, $url);
 			goaway($url);
 			// NOTREACHED
 			// END $network === NETWORK_OSTATUS
