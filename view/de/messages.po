@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2012-12-16 10:00-0800\n"
-"PO-Revision-Date: 2012-12-17 09:03+0000\n"
+"POT-Creation-Date: 2012-12-18 10:00-0800\n"
+"PO-Revision-Date: 2012-12-21 12:00+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -455,7 +455,7 @@ msgstr "Fotoalben"
 #: ../../mod/photos.php:59 ../../mod/photos.php:154 ../../mod/photos.php:1009
 #: ../../mod/photos.php:1092 ../../mod/photos.php:1107
 #: ../../mod/photos.php:1562 ../../mod/photos.php:1574
-#: ../../addon/communityhome/communityhome.php:110
+#: ../../addon/communityhome/communityhome.php:111
 #: ../../view/theme/diabook/theme.php:492
 #: ../../addon.old/communityhome/communityhome.php:110
 msgid "Contact Photos"
@@ -478,7 +478,7 @@ msgstr "Kontaktinformationen nicht verfügbar"
 #: ../../mod/profile_photo.php:81 ../../mod/profile_photo.php:88
 #: ../../mod/profile_photo.php:204 ../../mod/profile_photo.php:296
 #: ../../mod/profile_photo.php:305
-#: ../../addon/communityhome/communityhome.php:111
+#: ../../addon/communityhome/communityhome.php:112
 #: ../../view/theme/diabook/theme.php:493 ../../include/user.php:324
 #: ../../include/user.php:331 ../../include/user.php:338
 #: ../../addon.old/communityhome/communityhome.php:111
@@ -1572,7 +1572,7 @@ msgstr "Wall-to-Wall"
 msgid "via Wall-To-Wall:"
 msgstr "via Wall-To-Wall:"
 
-#: ../../mod/home.php:30 ../../addon/communityhome/communityhome.php:179
+#: ../../mod/home.php:30 ../../addon/communityhome/communityhome.php:180
 #: ../../addon.old/communityhome/communityhome.php:179
 #, php-format
 msgid "Welcome to %s"
@@ -3257,7 +3257,7 @@ msgid "People Search"
 msgstr "Personensuche"
 
 #: ../../mod/like.php:145 ../../mod/subthread.php:87 ../../mod/tagger.php:62
-#: ../../addon/communityhome/communityhome.php:163
+#: ../../addon/communityhome/communityhome.php:164
 #: ../../view/theme/diabook/theme.php:464 ../../include/text.php:1442
 #: ../../include/diaspora.php:1848 ../../include/conversation.php:125
 #: ../../include/conversation.php:253
@@ -3267,8 +3267,8 @@ msgstr "Foto"
 
 #: ../../mod/like.php:145 ../../mod/like.php:298 ../../mod/subthread.php:87
 #: ../../mod/tagger.php:62 ../../addon/facebook/facebook.php:1598
-#: ../../addon/communityhome/communityhome.php:158
-#: ../../addon/communityhome/communityhome.php:167
+#: ../../addon/communityhome/communityhome.php:159
+#: ../../addon/communityhome/communityhome.php:168
 #: ../../view/theme/diabook/theme.php:459
 #: ../../view/theme/diabook/theme.php:468 ../../include/diaspora.php:1848
 #: ../../include/conversation.php:120 ../../include/conversation.php:129
@@ -3280,7 +3280,7 @@ msgid "status"
 msgstr "Status"
 
 #: ../../mod/like.php:162 ../../addon/facebook/facebook.php:1602
-#: ../../addon/communityhome/communityhome.php:172
+#: ../../addon/communityhome/communityhome.php:173
 #: ../../view/theme/diabook/theme.php:473 ../../include/diaspora.php:1864
 #: ../../include/conversation.php:136
 #: ../../addon.old/facebook/facebook.php:1602
@@ -5288,7 +5288,7 @@ msgstr "Unterdrücke \"Auf Friendica Ansehen\""
 
 #: ../../addon/fbpost/fbpost.php:245
 msgid "Post to page/group:"
-msgstr ""
+msgstr "Auf FB Seite/Gruppe veröffentlichen"
 
 #: ../../addon/fbpost/fbpost.php:287 ../../addon.old/fbpost/fbpost.php:240
 msgid "Facebook Post Settings"
@@ -5680,12 +5680,12 @@ msgstr "Aktivste Nutzer"
 msgid "Latest photos"
 msgstr "Neueste Fotos"
 
-#: ../../addon/communityhome/communityhome.php:133
+#: ../../addon/communityhome/communityhome.php:134
 #: ../../addon.old/communityhome/communityhome.php:133
 msgid "Latest likes"
 msgstr "Neueste Favoriten"
 
-#: ../../addon/communityhome/communityhome.php:155
+#: ../../addon/communityhome/communityhome.php:156
 #: ../../view/theme/diabook/theme.php:456 ../../include/text.php:1440
 #: ../../include/conversation.php:117 ../../include/conversation.php:245
 #: ../../addon.old/communityhome/communityhome.php:155
@@ -8533,11 +8533,11 @@ msgstr "Anhänge:"
 msgid "view full size"
 msgstr "Volle Größe anzeigen"
 
-#: ../../include/oembed.php:137
+#: ../../include/oembed.php:138
 msgid "Embedded content"
 msgstr "Eingebetteter Inhalt"
 
-#: ../../include/oembed.php:146
+#: ../../include/oembed.php:147
 msgid "Embedding disabled"
 msgstr "Einbettungen deaktiviert"
 
