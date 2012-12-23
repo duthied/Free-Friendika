@@ -531,9 +531,10 @@ nav ul li .menu-popup {
   left: 0px;
   right: auto;
 }
+
 nav #search-box #search-text {
-  /* background-image:  url('icons/lupe.png'); */
-  background-repeat:no-repeat;
+  /*background-image:  url('icons/lupe.png');
+  background-repeat:no-repeat; */
   padding-left:0px;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
@@ -542,6 +543,8 @@ nav #search-box #search-text {
   position: relative;
   height: 17px;
   margin: 4px 0px 4px 4px;
+  width: 150px;
+  max-width: 150px;
 }
 
 nav .nav-menu-icon {
