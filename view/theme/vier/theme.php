@@ -7,7 +7,7 @@
  * Maintainer: Ike <http://pirati.ca/profile/heluecht>
  */
 
-$a->theme['template_engine'] = 'smarty3';
+set_template_engine($a, 'smarty3');
 
 $a->theme_info = array();
 
