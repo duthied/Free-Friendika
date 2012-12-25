@@ -477,7 +477,6 @@ function get_markup_template($s, $root = '') {
 //		$tt = microtime() - $ts;
 //		$a->page['debug'] .= "$tt <br>\n";
 //		return $file_contents;
-//		logger($template_file);
 		return file_get_contents($template_file);
 	}	
 }}
