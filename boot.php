@@ -1345,12 +1345,17 @@ if(! function_exists('profile_sidebar')) {
 
 		$tpl = get_markup_template('profile_vcard.tpl');
 
+		$p = array();
+		foreach($profile as $k => $v) {
+			$k = str_replace('-','_',$k);
+			$p[$k] = $v;
+		}
 
 		if($a->theme['template_engine'] === 'internal')
 			$location = template_escape($location);
 
 		$o .= replace_macros($tpl, array(
-			'$profile' => $profile,
+			'$profile' => $p,
 			'$connect'  => $connect,
 			'$wallmessage' => $wallmessage,
 			'$location' => $location,
