@@ -61,14 +61,9 @@ function notify_content(&$a) {
 			$notif_content .= t('No more system notifications.');
 		}
 		
-		$includes = array(
-			'$common_tabs' => 'common_tabs.tpl',
-		);
-		$includes = set_template_includes($a->theme['template_engine'], $includes);
-
-		$o .= replace_macros($notif_tpl,$includes + array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('System Notifications'),
-			'$tabs_data' => '', // $tabs,
+			'$tabs' => '', // $tabs,
 			'$notif_content' => $notif_content,
 		));
 

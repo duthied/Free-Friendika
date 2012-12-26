@@ -8,7 +8,7 @@
  */
 
 $a = get_app();
-$a->theme['template_engine'] = 'smarty3';
+set_template_engine($a, 'smarty3');
 
 function get_diabook_config($key, $default = false) {
 	if (local_user()) {
@@ -656,21 +656,16 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 		set_pconfig(local_user(), 'diabook', 'close_lastlikes', $_POST['diabook_close_lastlikes']);
 		}
 	}
-   $close = t('Settings');
-   $aside['$close'] = $close;
-   //get_baseurl
-   $url = $a->get_baseurl($ssl_state);
-   $aside['$url'] = $url;
+	$close = t('Settings');
+	$aside['$close'] = $close;
+
+	//get_baseurl
+	$url = $a->get_baseurl($ssl_state);
+	$aside['$url'] = $url;
+
 	//print right_aside
 	$tpl = get_markup_template('communityhome.tpl');
-
-	$includes = array(
-		'$field_select' => 'field_select.tpl',
-		'$field_input' => 'field_input.tpl',
-	);
-	$includes = set_template_includes($a->theme['template_engine'], $includes);
-
-	$a->page['right_aside'] = replace_macros($tpl, $includes + $aside);
+	$a->page['right_aside'] = replace_macros($tpl, $aside);
 
  }
 
