@@ -17,10 +17,11 @@
 								
 			</ul>
 			</div>
+		{{ else }}
+			<div class="profile-edit-side-div"><a class="profile-edit-side-link icon edit" title="$editprofile" href="profiles/$profid" ></a></div>
 		{{ endif }}
 	</div>
-				
-	
+
 
 	<div id="profile-photo-wrapper"><img class="photo" src="$profile.photo?rev=$profile.picdate" alt="$profile.name" /></div>
 	{{ if $pdesc }}<div class="title">$profile.pdesc</div>{{ endif }}
