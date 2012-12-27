@@ -6,7 +6,7 @@
 		return confirm("{{$confirm_delete_multi}}");
 	}
 	function selectall(cls){
-		$("."+cls).attr('checked','checked');
+		$j("."+cls).attr('checked','checked');
 		return false;
 	}
 </script>
@@ -14,7 +14,8 @@
 	<h1>{{$title}} - {{$page}}</h1>
 	
 	<form action="{{$baseurl}}/admin/users" method="post">
-		        <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+        <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+		
 		<h3>{{$h_pending}}</h3>
 		{{if $pending}}
 			<table id='pending'>
@@ -33,8 +34,8 @@
 					<td class="email">{{$u.email}}</td>
 					<td class="checkbox"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}" /></td>
 					<td class="tools">
-						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title='{{$approve}}'><span class='icon like'></span></a>
-						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title='{{$deny}}'><span class='icon dislike'></span></a>
+						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title='{{$approve}}'><span class='tool like'></span></a>
+						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title='{{$deny}}'><span class='tool dislike'></span></a>
 					</td>
 				</tr>
 			{{/foreach}}
@@ -69,11 +70,20 @@
 						<td class='register_date'>{{$u.register_date}}</td>
 						<td class='login_date'>{{$u.login_date}}</td>
 						<td class='lastitem_date'>{{$u.lastitem_date}}</td>
-						<td class='login_date'>{{$u.page_flags}}</td>
-						<td class="checkbox"><input type="checkbox" class="users_ckbx" id="id_user_{{$u.uid}}" name="user[]" value="{{$u.uid}}"/></td>
-						<td class="tools" style="width:60px;">
-							<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" title='{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}'><span class='icon block {{if $u.blocked==0}}dim{{/if}}'></span></a>
-							<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><span class='icon ad_drop'></span></a>
+						<td class='login_date'>{{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}}</td>
+						<td class="checkbox"> 
+                                    {{if $u.is_admin}}
+                                        &nbsp;
+                                    {{else}}
+                                        <input type="checkbox" class="users_ckbx" id="id_user_{{$u.uid}}" name="user[]" value="{{$u.uid}}"/></td>
+                                    {{/if}}
+						<td class="tools">
+                                    {{if $u.is_admin}}
+                                        &nbsp;
+                                    {{else}}
+                                        <a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" title='{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}'><span class='icon block {{if $u.blocked==0}}dim{{/if}}'></span></a>
+                                        <a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><span class='icon drop'></span></a>
+                                    {{/if}}
 						</td>
 					</tr>
 				{{/foreach}}
