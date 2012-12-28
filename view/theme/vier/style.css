@@ -7,6 +7,10 @@
 @import url("css/font-awesome.css") all;
 @import url("css/font2.css") all;
 
+img { 
+  border: 0px;
+}
+
 /* ========= */
 /* = Admin = */
 /* ========= */
