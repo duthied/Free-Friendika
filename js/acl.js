@@ -247,7 +247,7 @@ ACL.prototype.populate = function(data){
 	var height = Math.ceil(data.tot / that.nw) * 42;
 	that.list_content.height(height);
 	$(data.items).each(function(){
-		html = "<div class='acl-list-item {4} {5}' title='{6}' id='{2}{3}'>"+that.item_tpl+"</div>";
+		html = "<div class='acl-list-item {4} {5}' title='{6}' id='{2}{3}'><img src='{0}'/><p>{1}</p>"+that.item_tpl+"</div>";
 		html = html.format( this.photo, this.name, this.type, this.id, '', this.network, this.link );
 		if (this.uids!=undefined) that.group_uids[this.id] = this.uids;
 		//console.log(html);
