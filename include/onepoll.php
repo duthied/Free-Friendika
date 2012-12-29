@@ -252,6 +252,9 @@ function onepoll_run(&$argv, &$argc){
 
 		$stat_writeable = ((($contact['notify']) && ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['rel'] == CONTACT_IS_FRIEND)) ? 1 : 0);
 
+		if($contact['network'] === NETWORK_OSTATUS && get_pconfig($importer_uid,'system','ostatus_autofriend'))
+			$stat_writeable = 1;
+
 		if($stat_writeable != $contact['writable']) {
 			q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d LIMIT 1",
 				intval($stat_writeable),
