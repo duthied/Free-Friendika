@@ -1258,7 +1258,8 @@ border-bottom: 1px solid #D2D2D2;
 
 #profile-jot-form #profile-jot-text {
   height: 2.0em;
-  width: 99%;
+  /* width: 99%; */
+  width: 752px;
   font-size: 15px;
   color: #999999;
   border: 1px solid #DDD;
@@ -1272,7 +1273,8 @@ border-bottom: 1px solid #D2D2D2;
     font-weight: bold;
     height: 20px;
     margin: 0 0 5px;
-    width: 60%;
+    /* width: 60%; */
+    width: 762px;
     border: 1px solid #d2d2d2;
 }
 
