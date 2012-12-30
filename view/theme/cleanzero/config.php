@@ -75,7 +75,7 @@ function cleanzero_form(&$a, $color,$font_size,$resize,$theme_width){
 		"wide"=>"wide",
 		);
 
-	$t = file_get_contents( dirname(__file__). "/theme_settings.tpl" );
+	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(
 		'$submit' => t('Submit'),
 		'$baseurl' => $a->get_baseurl(),

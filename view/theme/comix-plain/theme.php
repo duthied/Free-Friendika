@@ -11,6 +11,7 @@
 $a->theme_info = array(
   'extends' => 'duepuntozero',
 );
+set_template_engine($a, 'smarty3');
 
 $a->page['htmlhead'] .= <<< EOT
 <script>

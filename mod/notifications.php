@@ -144,7 +144,8 @@ function notifications_content(&$a) {
 				if($rr['fid']) {
 
 					$return_addr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
-					$notif_content .= replace_macros($sugg,array(
+
+					$notif_content .= replace_macros($sugg, array(
 						'$str_notifytype' => t('Notification type: '),
 						'$notify_type' => t('Friend Suggestion'),
 						'$intro_id' => $rr['intro_id'],
@@ -161,7 +162,7 @@ function notifications_content(&$a) {
 						'$note' => $rr['note'],
 						'$request' => $rr['frequest'] . '?addr=' . $return_addr,
 						'$ignore' => t('Ignore'),
-						'$discard' => t('Discard')
+						'$discard' => t('Discard'),
 
 					));
 
@@ -190,7 +191,7 @@ function notifications_content(&$a) {
 					));
 				}			
 
-				$notif_content .= replace_macros($tpl,array(
+				$notif_content .= replace_macros($tpl, array(
 					'$str_notifytype' => t('Notification type: '),
 					'$notify_type' => (($rr['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
 					'$dfrn_text' => $dfrn_text,	
@@ -207,7 +208,7 @@ function notifications_content(&$a) {
 					'$approve' => t('Approve'),
 					'$note' => $rr['note'],
 					'$ignore' => t('Ignore'),
-					'$discard' => t('Discard')
+					'$discard' => t('Discard'),
 
 				));
 			}
@@ -215,7 +216,7 @@ function notifications_content(&$a) {
 		else
 			info( t('No introductions.') . EOL);
 
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('Notifications'),
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,
@@ -301,7 +302,7 @@ function notifications_content(&$a) {
 			$notif_content = t('No more network notifications.');
 		}
 		
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('Network Notifications'),
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,
@@ -331,7 +332,7 @@ function notifications_content(&$a) {
 			$notif_content .= t('No more system notifications.');
 		}
 		
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('System Notifications'),
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,
@@ -426,7 +427,7 @@ function notifications_content(&$a) {
 			$notif_content = t('No more personal notifications.');
 		}
 		
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('Personal Notifications'),
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,
@@ -507,7 +508,7 @@ function notifications_content(&$a) {
 			$notif_content = t('No more home notifications.');
 		}
 		
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('Home Notifications'),
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,

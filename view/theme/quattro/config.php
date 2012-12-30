@@ -59,7 +59,7 @@ function quattro_form(&$a, $align, $color, $tfs, $pfs){
     if ($tfs===false) $tfs="20";
     if ($pfs===false) $pfs="12";
     
-	$t = file_get_contents( dirname(__file__). "/theme_settings.tpl" );
+	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(
 		'$submit' => t('Submit'),
 		'$baseurl' => $a->get_baseurl(),

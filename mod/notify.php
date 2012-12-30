@@ -61,7 +61,7 @@ function notify_content(&$a) {
 			$notif_content .= t('No more system notifications.');
 		}
 		
-		$o .= replace_macros($notif_tpl,array(
+		$o .= replace_macros($notif_tpl, array(
 			'$notif_header' => t('System Notifications'),
 			'$tabs' => '', // $tabs,
 			'$notif_content' => $notif_content,

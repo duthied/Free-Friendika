@@ -668,7 +668,6 @@ function settings_content(&$a) {
 			'$title'	=> t('Additional Features'),
 			'$features' => $arr,
 			'$submit'   => t('Submit'),
-			'$field_yesno'	=> 'field_yesno.tpl',
 		));
 		return $o;
 	}
@@ -715,6 +714,7 @@ function settings_content(&$a) {
 			$mail_disabled_message = (($mail_disabled) ? t('Email access is disabled on this site.') : '');
 		}
 	
+
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_connectors"),
 			
@@ -891,7 +891,7 @@ function settings_content(&$a) {
 
 
 	$pageset_tpl = get_markup_template('pagetypes.tpl');
-	$pagetype = replace_macros($pageset_tpl,array(
+	$pagetype = replace_macros($pageset_tpl, array(
 		'$page_normal' 	=> array('page-flags', t('Normal Account Page'), PAGE_NORMAL, 
 									t('This account is a normal personal profile'), 
 									($a->user['page-flags'] == PAGE_NORMAL)),
@@ -1012,7 +1012,7 @@ function settings_content(&$a) {
 	require_once('include/group.php');
 	$group_select = mini_group_select(local_user(),$a->user['def_gid']);
 
-	$o .= replace_macros($stpl,array(
+	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),
 
 		'$submit' 	=> t('Submit'),

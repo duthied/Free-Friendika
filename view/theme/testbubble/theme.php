@@ -8,6 +8,8 @@
  * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
+set_template_engine($a, 'smarty3');
+
 $a->page['htmlhead'] .= <<< EOT
 <script>
 $(document).ready(function() {

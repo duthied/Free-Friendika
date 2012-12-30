@@ -40,7 +40,7 @@
 		</div>
 		<!--<div class="wall-item-author">-->
 				<a href="$item.profile_url" target="redir" title="$item.linktitle" class="wall-item-name-link"><span class="wall-item-name$item.sparkle" id="wall-item-name-$item.id" >$item.name</span></a>{{ if $item.owner_url }} $item.to <a href="$item.owner_url" target="redir" title="$item.olinktitle" class="wall-item-name-link"><span class="wall-item-name$item.osparkle" id="wall-item-ownername-$item.id">$item.owner_name</span></a> $item.vwall{{ endif }}<br />
-				<div class="wall-item-ago"  id="wall-item-ago-$item.id" title="$item.localtime" >$item.ago</div>
+				<div class="wall-item-ago"  id="wall-item-ago-$item.id" title="$item.localtime" ><a href="display/$user.nickname/$item.id">$item.ago</a></div>
 		<!--</div>-->
 		<div class="wall-item-content" id="wall-item-content-$item.id" >
 			<div class="wall-item-title" id="wall-item-title-$item.id">$item.title</div>
@@ -111,8 +111,8 @@
 
 <!--<div class="wall-item-outside-wrapper-end $item.indent" ></div>-->
 <!--</div>-->
-{{ for $item.children as $item }}
-	{{ inc $item.template }}{{ endinc }}
+{{ for $item.children as $child }}
+	{{ inc $child.template with $item=$child }}{{ endinc }}
 {{ endfor }}
 
 {{ if $item.flatten }}

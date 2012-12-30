@@ -2,14 +2,14 @@
 <div class="directory-item" id="directory-item-$id" >
 	<div class="directory-photo-wrapper" id="directory-photo-wrapper-$id" > 
 		<div class="directory-photo" id="directory-photo-$id" >
-			<a href="$profile-link" class="directory-profile-link" id="directory-profile-link-$id" >
-				<img class="directory-photo-img photo" src="$photo" alt="$alt-text" title="$alt-text" />
+			<a href="$profile_link" class="directory-profile-link" id="directory-profile-link-$id" >
+				<img class="directory-photo-img photo" src="$photo" alt="$alt_text" title="$alt_text" />
 			</a>
 		</div>
 	</div>
 	<div class="directory-profile-wrapper" id="directory-profile-wrapper-$id" >
 		<div class="contact-name" id="directory-name-$id">$name</div>
-		<div class="page-type">$page-type</div>
+		<div class="page-type">$page_type</div>
 		{{ if $pdesc }}<div class="directory-profile-title">$profile.pdesc</div>{{ endif }}
     	<div class="directory-detailcolumns-wrapper" id="directory-detailcolumns-wrapper-$id">
         	<div class="directory-detailscolumn-wrapper" id="directory-detailscolumn1-wrapper-$id">	
@@ -20,9 +20,9 @@
 					<span class="city-state-zip">
 						<span class="locality">$profile.locality</span>{{ if $profile.locality }}, {{ endif }}
 						<span class="region">$profile.region</span>
-						<span class="postal-code">$profile.postal-code</span>
+						<span class="postal-code">$profile.postal_code</span>
 					</span>
-					{{ if $profile.country-name }}<span class="country-name">$profile.country-name</span>{{ endif }}
+					{{ if $profile.country_name }}<span class="country-name">$profile.country_name</span>{{ endif }}
 				</dd>
 				</dl>
 			{{ endif }}

@@ -346,6 +346,17 @@ function message_content(&$a) {
 			else {
 				$partecipants = sprintf( t("%s and You"), $rr['from-name']);
 			}
+
+			if($a->theme['template_engine'] === 'internal') {
+				$subject_e = template_escape((($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'));
+				$body_e = template_escape($rr['body']);
+				$to_name_e = template_escape($rr['name']);
+			}
+			else {
+				$subject_e = (($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>');
+				$body_e = $rr['body'];
+				$to_name_e = $rr['name'];
+			}
 			
 			$o .= replace_macros($tpl, array(
 				'$id' => $rr['id'],
@@ -353,10 +364,10 @@ function message_content(&$a) {
 				'$from_url' => (($rr['network'] === NETWORK_DFRN) ? $a->get_baseurl(true) . '/redir/' . $rr['contact-id'] : $rr['url']),
 				'$sparkle' => ' sparkle',
 				'$from_photo' => (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']),
-				'$subject' => template_escape((($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>')),
+				'$subject' => $subject_e,
 				'$delete' => t('Delete conversation'),
-				'$body' => template_escape($rr['body']),
-				'$to_name' => template_escape($rr['name']),
+				'$body' => $body_e,
+				'$to_name' => $to_name_e,
 				'$date' => datetime_convert('UTC',date_default_timezone_get(),$rr['mailcreated'], t('D, d M Y - g:i A')),
                                 '$ago' => relative_date($rr['mailcreated']),
 				'$seen' => $rr['mailseen'],
@@ -370,6 +381,10 @@ function message_content(&$a) {
 	if(($a->argc > 1) && (intval($a->argv[1]))) {
 
 		$o .= $header;
+
+		$plaintext = true;
+		if( local_user() && feature_enabled(local_user(),'richtext') )
+			$plaintext = false;
 
 		$r = q("SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb` 
 			FROM `mail` LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id` 
@@ -408,14 +423,18 @@ function message_content(&$a) {
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
-			'$baseurl' => $a->get_baseurl(true)
+			'$linkurl' => t('Please enter a link URL:')
 		));
 
 		$tpl = get_markup_template('msg-end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
-			'$baseurl' => $a->get_baseurl(true)
+			'$linkurl' => t('Please enter a link URL:')
 		));
 
 
@@ -440,16 +459,29 @@ function message_content(&$a) {
 			if($extracted['images'])
 				$message['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $message['contact-id']);
 
+			if($a->theme['template_engine'] === 'internal') {
+				$from_name_e = template_escape($message['from-name']);
+				$subject_e = template_escape($message['title']);
+				$body_e = template_escape(smilies(bbcode($message['body'])));
+				$to_name_e = template_escape($message['name']);
+			}
+			else {
+				$from_name_e = $message['from-name'];
+				$subject_e = $message['title'];
+				$body_e = smilies(bbcode($message['body']));
+				$to_name_e = $message['name'];
+			}
+
 			$mails[] = array(
 				'id' => $message['id'],
-				'from_name' => template_escape($message['from-name']),
+				'from_name' => $from_name_e,
 				'from_url' => $from_url,
 				'sparkle' => $sparkle,
 				'from_photo' => $message['from-photo'],
-				'subject' => template_escape($message['title']),
-				'body' => template_escape(smilies(bbcode($message['body']))),
+				'subject' => $subject_e,
+				'body' => $body_e,
 				'delete' => t('Delete message'),
-				'to_name' => template_escape($message['name']),
+				'to_name' => $to_name_e,
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'],'D, d M Y - g:i A'),
                                 'ago' => relative_date($message['created']),
 			);
@@ -462,6 +494,14 @@ function message_content(&$a) {
 		$parent = '<input type="hidden" name="replyto" value="' . $message['parent-uri'] . '" />';
 
 		$tpl = get_markup_template('mail_display.tpl');
+
+		if($a->theme['template_engine'] === 'internal') {
+			$subjtxt_e = template_escape($message['title']);
+		}
+		else {
+			$subjtxt_e = $message['title'];
+		}
+
 		$o = replace_macros($tpl, array(
 			'$thread_id' => $a->argv[1],
 			'$thread_subject' => $message['title'],

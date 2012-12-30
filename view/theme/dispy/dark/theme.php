@@ -13,6 +13,7 @@ $a->theme_info = array(
     'family' => 'dispy',
     'name' => 'dark',
 );
+set_template_engine($a, 'smarty3');
 
 function dispy_dark_init(&$a) {
     /** @purpose set some theme defaults

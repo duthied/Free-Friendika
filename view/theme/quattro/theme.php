@@ -8,6 +8,7 @@
  */
  
 $a->theme_info = array();
+set_template_engine($a, 'smarty3');
 
 function quattro_init(&$a) {
 $a->page['htmlhead'] .= <<< EOT

@@ -11,6 +11,7 @@
 
 $a = get_app();
 $a->theme_info = array();
+set_template_engine($a, 'smarty3');
 
 function smoothly_init(&$a) {
 	$cssFile = null;
@@ -116,7 +117,7 @@ if(! function_exists('_js_in_foot')) {
 		$ssl_state = null;
 		$baseurl = $a->get_baseurl($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
-		$tpl = file_get_contents(dirname(__file__) . '/bottom.tpl');
+		$tpl = get_markup_template('bottom.tpl');
 
 		return $a->page['bottom'] = replace_macros($tpl, $bottom);
 	}

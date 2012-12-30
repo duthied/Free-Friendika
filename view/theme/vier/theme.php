@@ -8,6 +8,8 @@
  * Description: "Vier" uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
  */
 
+set_template_engine($a, 'smarty3');
+
 $a->theme_info = array();
 
 function vier_init(&$a) {
@@ -107,3 +109,4 @@ $('.savedsearchterm').hover(
 </script>
 EOT;
 }
+

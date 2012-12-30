@@ -1,20 +1,32 @@
 
-  function openClose(theID) {
-    if(document.getElementById(theID).style.display == "block") { 
-      document.getElementById(theID).style.display = "none" 
-    }
-    else { 
-      document.getElementById(theID).style.display = "block" 
-    } 
-  }
+	function openClose(listID) {
+/*		if(document.getElementById(theID).style.display == "block") { 
+			document.getElementById(theID).style.display = "none" 
+		}
+		else { 
+			document.getElementById(theID).style.display = "block" 
+		}*/
+		listID = "#" + listID.replace(/:/g, "\\:");
+		listID = listID.replace(/\./g, "\\.");
+		listID = listID.replace(/@/g, "\\@");
 
-  function openMenu(theID) {
-      document.getElementById(theID).style.display = "block" 
-  }
+		if($j(listID).is(":visible")) {
+			$j(listID).hide();
+			$j(listID+"-wrapper").show();
+		}
+		else {
+			$j(listID).show();
+			$j(listID+"-wrapper").hide();
+		}
+	}
 
-  function closeMenu(theID) {
-      document.getElementById(theID).style.display = "none" 
-  }
+	function openMenu(theID) {
+		document.getElementById(theID).style.display = "block" 
+	}
+
+	function closeMenu(theID) {
+		document.getElementById(theID).style.display = "none" 
+	}
 
 
 
@@ -166,6 +178,12 @@
 					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
 					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
 					nnm.append(html);
+				});
+
+				$("img[data-src]", nnm).each(function(i, el){
+					// Replace data-src attribute with src attribute for every image
+					$(el).attr('src', $(el).data("src"));
+					$(el).removeAttr("data-src");
 				});
 			}
 			notif = eNotif.attr('count');

@@ -1,6 +1,6 @@
 
-{{ for $mails as $mail }}
-	{{ inc mail_conv.tpl }}{{endinc}}
+{{ for $mails as $mail_item }}
+	{{ inc mail_conv.tpl with $mail=$mail_item }}{{endinc}}
 {{ endfor }}
 
 {{ if $canreply }}

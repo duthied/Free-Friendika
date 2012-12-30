@@ -21,11 +21,11 @@
 	</div>-->
 
 	<br />
+	{{ inc field_checkbox.tpl with $field=$lremember }}{{ endinc }}
+
 	<div id="login-submit-wrapper" >
 		<input type="submit" name="submit" id="login-submit-button" value="$login" />
 	</div>
-
-	{{ inc field_checkbox.tpl with $field=$lremember }}{{ endinc }}
 
 	<br /><br />
 	<div class="login-extra-links">

@@ -10,6 +10,7 @@
 $a->theme_info = array(
   'extends' => 'testbubble',
 );
+set_template_engine($a, 'smarty3');
 
 
 $a->page['htmlhead'] .= <<< EOT

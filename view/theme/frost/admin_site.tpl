@@ -11,13 +11,15 @@
 	{{ inc field_select.tpl with $field=$theme }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$theme_mobile }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$ssl_policy }}{{ endinc }}
+	{{ inc field_checkbox.tpl with $field=$new_share }}{{ endinc }}
+
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
 	
 	<h3>$registration</h3>
 	{{ inc field_input.tpl with $field=$register_text }}{{ endinc }}
 	{{ inc field_select.tpl with $field=$register_policy }}{{ endinc }}
-	
+	{{ inc field_input.tpl with $field=$daily_registrations }}{{ endinc }}
 	{{ inc field_checkbox.tpl with $field=$no_multi_reg }}{{ endinc }}
 	{{ inc field_checkbox.tpl with $field=$no_openid }}{{ endinc }}
 	{{ inc field_checkbox.tpl with $field=$no_regfullname }}{{ endinc }}
@@ -54,6 +56,15 @@
 	{{ inc field_input.tpl with $field=$poll_interval }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$maxloadavg }}{{ endinc }}
 	{{ inc field_input.tpl with $field=$abandon_days }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$lockpath }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$temppath }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$basepath }}{{ endinc }}
+
+	<h3>$performance</h3>
+	{{ inc field_checkbox.tpl with $field=$use_fulltext_engine }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$itemcache }}{{ endinc }}
+	{{ inc field_input.tpl with $field=$itemcache_duration }}{{ endinc }}
+
 	
 	<div class="submit"><input type="submit" name="page_site" value="$submit" /></div>
 	

@@ -4,12 +4,16 @@
   <div id="item-delete-selected-top-desc" >$dropping</div>
 </div>
 <img id="item-delete-selected-top-rotator" class="like-rotator" src="images/rotator.gif" style="display: none;" />
+{{ else }}
+{{ if $mode==display }}
+<div id="display-top-padding"></div>
+{{ endif }}
 {{ endif }}
 
 $live_update
 
-{{ for $threads as $item }}
-{{ inc $item.template }}{{ endinc }}
+{{ for $threads as $thread }}
+{{ inc $thread.template with $item=$thread }}{{ endinc }}
 {{ endfor }}
 
 <div id="conversation-end"></div>
