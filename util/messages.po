@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1570\n"
+"Project-Id-Version: 3.1.1571\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-27 10:00-0800\n"
+"POT-Creation-Date: 2012-12-28 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,7 +94,7 @@ msgid "Return to contact editor"
 msgstr ""
 
 #: ../../mod/crepair.php:148 ../../mod/settings.php:562
-#: ../../mod/settings.php:588 ../../mod/admin.php:721 ../../mod/admin.php:731
+#: ../../mod/settings.php:588 ../../mod/admin.php:731 ../../mod/admin.php:741
 msgid "Name"
 msgstr ""
 
@@ -131,7 +131,7 @@ msgid "New photo from this URL"
 msgstr ""
 
 #: ../../mod/crepair.php:166 ../../mod/fsuggest.php:107
-#: ../../mod/events.php:455 ../../mod/photos.php:1028
+#: ../../mod/events.php:466 ../../mod/photos.php:1028
 #: ../../mod/photos.php:1118 ../../mod/photos.php:1402
 #: ../../mod/photos.php:1442 ../../mod/photos.php:1486
 #: ../../mod/photos.php:1569 ../../mod/install.php:248
@@ -141,31 +141,31 @@ msgstr ""
 #: ../../mod/settings.php:739 ../../mod/settings.php:811
 #: ../../mod/settings.php:1018 ../../mod/group.php:87 ../../mod/mood.php:137
 #: ../../mod/message.php:301 ../../mod/message.php:527 ../../mod/admin.php:461
-#: ../../mod/admin.php:718 ../../mod/admin.php:855 ../../mod/admin.php:1054
-#: ../../mod/admin.php:1141 ../../mod/profiles.php:604
+#: ../../mod/admin.php:728 ../../mod/admin.php:865 ../../mod/admin.php:1064
+#: ../../mod/admin.php:1151 ../../mod/profiles.php:604
 #: ../../mod/invite.php:119 ../../addon/fromgplus/fromgplus.php:44
 #: ../../addon/facebook/facebook.php:619
 #: ../../addon/snautofollow/snautofollow.php:64
 #: ../../addon/fbpost/fbpost.php:272 ../../addon/yourls/yourls.php:76
 #: ../../addon/ljpost/ljpost.php:93 ../../addon/nsfw/nsfw.php:88
 #: ../../addon/page/page.php:211 ../../addon/planets/planets.php:158
-#: ../../addon/uhremotestorage/uhremotestorage.php:97
+#: ../../addon/uhremotestorage/uhremotestorage.php:89
 #: ../../addon/randplace/randplace.php:177 ../../addon/dwpost/dwpost.php:93
 #: ../../addon/remote_permissions/remote_permissions.php:48
-#: ../../addon/remote_permissions/remote_permissions.php:203
+#: ../../addon/remote_permissions/remote_permissions.php:196
 #: ../../addon/startpage/startpage.php:92
 #: ../../addon/geonames/geonames.php:187
 #: ../../addon/forumlist/forumlist.php:178
-#: ../../addon/impressum/impressum.php:90
+#: ../../addon/impressum/impressum.php:83
 #: ../../addon/notimeline/notimeline.php:64 ../../addon/blockem/blockem.php:57
 #: ../../addon/qcomment/qcomment.php:61
-#: ../../addon/openstreetmap/openstreetmap.php:76
+#: ../../addon/openstreetmap/openstreetmap.php:70
 #: ../../addon/group_text/group_text.php:84
-#: ../../addon/libravatar/libravatar.php:105
+#: ../../addon/libravatar/libravatar.php:99
 #: ../../addon/libertree/libertree.php:90 ../../addon/altpager/altpager.php:91
-#: ../../addon/altpager/altpager.php:104 ../../addon/mathjax/mathjax.php:42
-#: ../../addon/editplain/editplain.php:84
-#: ../../addon/blackout/blackout.php:104 ../../addon/gravatar/gravatar.php:101
+#: ../../addon/altpager/altpager.php:98 ../../addon/mathjax/mathjax.php:42
+#: ../../addon/editplain/editplain.php:84 ../../addon/blackout/blackout.php:99
+#: ../../addon/gravatar/gravatar.php:95
 #: ../../addon/pageheader/pageheader.php:55 ../../addon/ijpost/ijpost.php:93
 #: ../../addon/jappixmini/jappixmini.php:307
 #: ../../addon/statusnet/statusnet.php:278
@@ -173,10 +173,10 @@ msgstr ""
 #: ../../addon/statusnet/statusnet.php:318
 #: ../../addon/statusnet/statusnet.php:325
 #: ../../addon/statusnet/statusnet.php:353
-#: ../../addon/statusnet/statusnet.php:710 ../../addon/tumblr/tumblr.php:233
+#: ../../addon/statusnet/statusnet.php:703 ../../addon/tumblr/tumblr.php:233
 #: ../../addon/numfriends/numfriends.php:85 ../../addon/gnot/gnot.php:88
 #: ../../addon/wppost/wppost.php:110 ../../addon/showmore/showmore.php:48
-#: ../../addon/piwik/piwik.php:97 ../../addon/twitter/twitter.php:180
+#: ../../addon/piwik/piwik.php:89 ../../addon/twitter/twitter.php:180
 #: ../../addon/twitter/twitter.php:209 ../../addon/twitter/twitter.php:515
 #: ../../addon/irc/irc.php:55 ../../addon/fromapp/fromapp.php:77
 #: ../../addon/blogger/blogger.php:102 ../../addon/posterous/posterous.php:103
@@ -288,75 +288,75 @@ msgstr ""
 msgid "link to source"
 msgstr ""
 
-#: ../../mod/events.php:347 ../../view/theme/diabook/theme.php:92
+#: ../../mod/events.php:358 ../../view/theme/diabook/theme.php:92
 #: ../../include/nav.php:52 ../../boot.php:1791
 msgid "Events"
 msgstr ""
 
-#: ../../mod/events.php:348
+#: ../../mod/events.php:359
 msgid "Create New Event"
 msgstr ""
 
-#: ../../mod/events.php:349 ../../addon/dav/friendica/layout.fnk.php:263
+#: ../../mod/events.php:360 ../../addon/dav/friendica/layout.fnk.php:263
 #: ../../addon.old/dav/friendica/layout.fnk.php:263
 msgid "Previous"
 msgstr ""
 
-#: ../../mod/events.php:350 ../../mod/install.php:207
+#: ../../mod/events.php:361 ../../mod/install.php:207
 #: ../../addon/dav/friendica/layout.fnk.php:266
 #: ../../addon.old/dav/friendica/layout.fnk.php:266
 msgid "Next"
 msgstr ""
 
-#: ../../mod/events.php:423
+#: ../../mod/events.php:434
 msgid "hour:minute"
 msgstr ""
 
-#: ../../mod/events.php:433
+#: ../../mod/events.php:444
 msgid "Event details"
 msgstr ""
 
-#: ../../mod/events.php:434
+#: ../../mod/events.php:445
 #, php-format
 msgid "Format is %s %s. Starting date and Title are required."
 msgstr ""
 
-#: ../../mod/events.php:436
+#: ../../mod/events.php:447
 msgid "Event Starts:"
 msgstr ""
 
-#: ../../mod/events.php:436 ../../mod/events.php:450
+#: ../../mod/events.php:447 ../../mod/events.php:461
 msgid "Required"
 msgstr ""
 
-#: ../../mod/events.php:439
+#: ../../mod/events.php:450
 msgid "Finish date/time is not known or not relevant"
 msgstr ""
 
-#: ../../mod/events.php:441
+#: ../../mod/events.php:452
 msgid "Event Finishes:"
 msgstr ""
 
-#: ../../mod/events.php:444
+#: ../../mod/events.php:455
 msgid "Adjust for viewer timezone"
 msgstr ""
 
-#: ../../mod/events.php:446
+#: ../../mod/events.php:457
 msgid "Description:"
 msgstr ""
 
-#: ../../mod/events.php:448 ../../mod/directory.php:134
+#: ../../mod/events.php:459 ../../mod/directory.php:134
 #: ../../addon/forumdirectory/forumdirectory.php:156
 #: ../../include/event.php:40 ../../include/bb2diaspora.php:415
 #: ../../boot.php:1312
 msgid "Location:"
 msgstr ""
 
-#: ../../mod/events.php:450
+#: ../../mod/events.php:461
 msgid "Title:"
 msgstr ""
 
-#: ../../mod/events.php:452
+#: ../../mod/events.php:463
 msgid "Share this event"
 msgstr ""
 
@@ -671,7 +671,7 @@ msgstr ""
 
 #: ../../mod/photos.php:1527 ../../mod/content.php:439
 #: ../../mod/content.php:741 ../../mod/settings.php:623
-#: ../../mod/group.php:171 ../../mod/admin.php:725
+#: ../../mod/group.php:171 ../../mod/admin.php:735
 #: ../../include/conversation.php:569 ../../object/Item.php:119
 msgid "Delete"
 msgstr ""
@@ -1049,7 +1049,7 @@ msgid "Remove account"
 msgstr ""
 
 #: ../../mod/uexport.php:48 ../../mod/settings.php:74
-#: ../../mod/newmember.php:22 ../../mod/admin.php:814 ../../mod/admin.php:1019
+#: ../../mod/newmember.php:22 ../../mod/admin.php:824 ../../mod/admin.php:1029
 #: ../../addon/dav/friendica/layout.fnk.php:225
 #: ../../addon/mathjax/mathjax.php:36 ../../view/theme/diabook/theme.php:538
 #: ../../view/theme/diabook/theme.php:659 ../../include/nav.php:140
@@ -1667,7 +1667,7 @@ msgid "if applicable"
 msgstr ""
 
 #: ../../mod/notifications.php:161 ../../mod/notifications.php:208
-#: ../../mod/admin.php:723
+#: ../../mod/admin.php:733
 msgid "Approve"
 msgstr ""
 
@@ -1868,12 +1868,12 @@ msgid "View all contacts"
 msgstr ""
 
 #: ../../mod/contacts.php:319 ../../mod/contacts.php:378
-#: ../../mod/admin.php:727
+#: ../../mod/admin.php:737
 msgid "Unblock"
 msgstr ""
 
 #: ../../mod/contacts.php:319 ../../mod/contacts.php:378
-#: ../../mod/admin.php:726
+#: ../../mod/admin.php:736
 msgid "Block"
 msgstr ""
 
@@ -1970,7 +1970,7 @@ msgstr ""
 msgid "Update public posts"
 msgstr ""
 
-#: ../../mod/contacts.php:375 ../../mod/admin.php:1199
+#: ../../mod/contacts.php:375 ../../mod/admin.php:1209
 msgid "Update now"
 msgstr ""
 
@@ -2227,11 +2227,11 @@ msgstr ""
 
 #: ../../mod/settings.php:488 ../../addon/facebook/facebook.php:495
 #: ../../addon/fbpost/fbpost.php:151
-#: ../../addon/remote_permissions/remote_permissions.php:212
+#: ../../addon/remote_permissions/remote_permissions.php:205
 #: ../../addon/impressum/impressum.php:78
-#: ../../addon/openstreetmap/openstreetmap.php:86
-#: ../../addon/altpager/altpager.php:113 ../../addon/mathjax/mathjax.php:66
-#: ../../addon/piwik/piwik.php:113 ../../addon/twitter/twitter.php:504
+#: ../../addon/openstreetmap/openstreetmap.php:80
+#: ../../addon/altpager/altpager.php:107 ../../addon/mathjax/mathjax.php:66
+#: ../../addon/piwik/piwik.php:105 ../../addon/twitter/twitter.php:504
 #: ../../addon.old/facebook/facebook.php:495
 #: ../../addon.old/fbpost/fbpost.php:144
 #: ../../addon.old/impressum/impressum.php:78
@@ -3318,7 +3318,7 @@ msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
-#: ../../mod/admin.php:763 ../../mod/admin.php:962 ../../mod/display.php:39
+#: ../../mod/admin.php:773 ../../mod/admin.php:972 ../../mod/display.php:39
 #: ../../mod/display.php:169 ../../include/items.php:3853
 msgid "Item not found."
 msgstr ""
@@ -3568,15 +3568,15 @@ msgstr ""
 msgid "Site"
 msgstr ""
 
-#: ../../mod/admin.php:97 ../../mod/admin.php:717 ../../mod/admin.php:730
+#: ../../mod/admin.php:97 ../../mod/admin.php:727 ../../mod/admin.php:740
 msgid "Users"
 msgstr ""
 
-#: ../../mod/admin.php:98 ../../mod/admin.php:812 ../../mod/admin.php:854
+#: ../../mod/admin.php:98 ../../mod/admin.php:822 ../../mod/admin.php:864
 msgid "Plugins"
 msgstr ""
 
-#: ../../mod/admin.php:99 ../../mod/admin.php:1017 ../../mod/admin.php:1053
+#: ../../mod/admin.php:99 ../../mod/admin.php:1027 ../../mod/admin.php:1063
 msgid "Themes"
 msgstr ""
 
@@ -3584,7 +3584,7 @@ msgstr ""
 msgid "DB updates"
 msgstr ""
 
-#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1140
+#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1150
 msgid "Logs"
 msgstr ""
 
@@ -3628,9 +3628,9 @@ msgstr ""
 msgid "Message queues"
 msgstr ""
 
-#: ../../mod/admin.php:212 ../../mod/admin.php:459 ../../mod/admin.php:716
-#: ../../mod/admin.php:811 ../../mod/admin.php:853 ../../mod/admin.php:1016
-#: ../../mod/admin.php:1052 ../../mod/admin.php:1139
+#: ../../mod/admin.php:212 ../../mod/admin.php:459 ../../mod/admin.php:726
+#: ../../mod/admin.php:821 ../../mod/admin.php:863 ../../mod/admin.php:1026
+#: ../../mod/admin.php:1062 ../../mod/admin.php:1149
 msgid "Administration"
 msgstr ""
 
@@ -4115,153 +4115,153 @@ msgstr ""
 msgid "User '%s' blocked"
 msgstr ""
 
-#: ../../mod/admin.php:719
+#: ../../mod/admin.php:729
 msgid "select all"
 msgstr ""
 
-#: ../../mod/admin.php:720
+#: ../../mod/admin.php:730
 msgid "User registrations waiting for confirm"
 msgstr ""
 
-#: ../../mod/admin.php:721
+#: ../../mod/admin.php:731
 msgid "Request date"
 msgstr ""
 
-#: ../../mod/admin.php:721 ../../mod/admin.php:731
+#: ../../mod/admin.php:731 ../../mod/admin.php:741
 #: ../../include/contact_selectors.php:79
 #: ../../include/contact_selectors.php:86
 msgid "Email"
 msgstr ""
 
-#: ../../mod/admin.php:722
+#: ../../mod/admin.php:732
 msgid "No registrations."
 msgstr ""
 
-#: ../../mod/admin.php:724
+#: ../../mod/admin.php:734
 msgid "Deny"
 msgstr ""
 
-#: ../../mod/admin.php:728
+#: ../../mod/admin.php:738
 msgid "Site admin"
 msgstr ""
 
-#: ../../mod/admin.php:731
+#: ../../mod/admin.php:741
 msgid "Register date"
 msgstr ""
 
-#: ../../mod/admin.php:731
+#: ../../mod/admin.php:741
 msgid "Last login"
 msgstr ""
 
-#: ../../mod/admin.php:731
+#: ../../mod/admin.php:741
 msgid "Last item"
 msgstr ""
 
-#: ../../mod/admin.php:731
+#: ../../mod/admin.php:741
 msgid "Account"
 msgstr ""
 
-#: ../../mod/admin.php:733
+#: ../../mod/admin.php:743
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: ../../mod/admin.php:734
+#: ../../mod/admin.php:744
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: ../../mod/admin.php:775
+#: ../../mod/admin.php:785
 #, php-format
 msgid "Plugin %s disabled."
 msgstr ""
 
-#: ../../mod/admin.php:779
+#: ../../mod/admin.php:789
 #, php-format
 msgid "Plugin %s enabled."
 msgstr ""
 
-#: ../../mod/admin.php:789 ../../mod/admin.php:987
+#: ../../mod/admin.php:799 ../../mod/admin.php:997
 msgid "Disable"
 msgstr ""
 
-#: ../../mod/admin.php:791 ../../mod/admin.php:989
+#: ../../mod/admin.php:801 ../../mod/admin.php:999
 msgid "Enable"
 msgstr ""
 
-#: ../../mod/admin.php:813 ../../mod/admin.php:1018
+#: ../../mod/admin.php:823 ../../mod/admin.php:1028
 msgid "Toggle"
 msgstr ""
 
-#: ../../mod/admin.php:821 ../../mod/admin.php:1028
+#: ../../mod/admin.php:831 ../../mod/admin.php:1038
 msgid "Author: "
 msgstr ""
 
-#: ../../mod/admin.php:822 ../../mod/admin.php:1029
+#: ../../mod/admin.php:832 ../../mod/admin.php:1039
 msgid "Maintainer: "
 msgstr ""
 
-#: ../../mod/admin.php:951
+#: ../../mod/admin.php:961
 msgid "No themes found."
 msgstr ""
 
-#: ../../mod/admin.php:1010
+#: ../../mod/admin.php:1020
 msgid "Screenshot"
 msgstr ""
 
-#: ../../mod/admin.php:1058
+#: ../../mod/admin.php:1068
 msgid "[Experimental]"
 msgstr ""
 
-#: ../../mod/admin.php:1059
+#: ../../mod/admin.php:1069
 msgid "[Unsupported]"
 msgstr ""
 
-#: ../../mod/admin.php:1086
+#: ../../mod/admin.php:1096
 msgid "Log settings updated."
 msgstr ""
 
-#: ../../mod/admin.php:1142
+#: ../../mod/admin.php:1152
 msgid "Clear"
 msgstr ""
 
-#: ../../mod/admin.php:1148
+#: ../../mod/admin.php:1158
 msgid "Debugging"
 msgstr ""
 
-#: ../../mod/admin.php:1149
+#: ../../mod/admin.php:1159
 msgid "Log file"
 msgstr ""
 
-#: ../../mod/admin.php:1149
+#: ../../mod/admin.php:1159
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr ""
 
-#: ../../mod/admin.php:1150
+#: ../../mod/admin.php:1160
 msgid "Log level"
 msgstr ""
 
-#: ../../mod/admin.php:1200
+#: ../../mod/admin.php:1210
 msgid "Close"
 msgstr ""
 
-#: ../../mod/admin.php:1206
+#: ../../mod/admin.php:1216
 msgid "FTP Host"
 msgstr ""
 
-#: ../../mod/admin.php:1207
+#: ../../mod/admin.php:1217
 msgid "FTP Path"
 msgstr ""
 
-#: ../../mod/admin.php:1208
+#: ../../mod/admin.php:1218
 msgid "FTP User"
 msgstr ""
 
-#: ../../mod/admin.php:1209
+#: ../../mod/admin.php:1219
 msgid "FTP Password"
 msgstr ""
 
@@ -6461,7 +6461,7 @@ msgstr ""
 msgid "Friendica Contacts"
 msgstr ""
 
-#: ../../addon/uhremotestorage/uhremotestorage.php:92
+#: ../../addon/uhremotestorage/uhremotestorage.php:84
 #: ../../addon.old/uhremotestorage/uhremotestorage.php:84
 #, php-format
 msgid ""
@@ -6470,17 +6470,17 @@ msgid ""
 "wiki/RemoteStorage#WebFinger\">RemoteStorage WebFinger</a>"
 msgstr ""
 
-#: ../../addon/uhremotestorage/uhremotestorage.php:93
+#: ../../addon/uhremotestorage/uhremotestorage.php:85
 #: ../../addon.old/uhremotestorage/uhremotestorage.php:85
 msgid "Template URL (with {category})"
 msgstr ""
 
-#: ../../addon/uhremotestorage/uhremotestorage.php:94
+#: ../../addon/uhremotestorage/uhremotestorage.php:86
 #: ../../addon.old/uhremotestorage/uhremotestorage.php:86
 msgid "OAuth end-point"
 msgstr ""
 
-#: ../../addon/uhremotestorage/uhremotestorage.php:95
+#: ../../addon/uhremotestorage/uhremotestorage.php:87
 #: ../../addon.old/uhremotestorage/uhremotestorage.php:87
 msgid "Api"
 msgstr ""
@@ -6601,21 +6601,21 @@ msgstr ""
 msgid "may only be a partial list"
 msgstr ""
 
-#: ../../addon/remote_permissions/remote_permissions.php:204
-#: ../../addon/altpager/altpager.php:105
+#: ../../addon/remote_permissions/remote_permissions.php:197
+#: ../../addon/altpager/altpager.php:99
 msgid "Global"
 msgstr ""
 
-#: ../../addon/remote_permissions/remote_permissions.php:204
+#: ../../addon/remote_permissions/remote_permissions.php:197
 msgid "The posts of every user on this server show the post recipients"
 msgstr ""
 
-#: ../../addon/remote_permissions/remote_permissions.php:205
-#: ../../addon/altpager/altpager.php:106
+#: ../../addon/remote_permissions/remote_permissions.php:198
+#: ../../addon/altpager/altpager.php:100
 msgid "Individual"
 msgstr ""
 
-#: ../../addon/remote_permissions/remote_permissions.php:205
+#: ../../addon/remote_permissions/remote_permissions.php:198
 msgid "Each user chooses whether his/her posts show the post recipients"
 msgstr ""
 
@@ -6749,7 +6749,7 @@ msgstr ""
 
 #: ../../addon/impressum/impressum.php:50
 #: ../../addon/impressum/impressum.php:52
-#: ../../addon/impressum/impressum.php:91
+#: ../../addon/impressum/impressum.php:84
 #: ../../addon.old/impressum/impressum.php:50
 #: ../../addon.old/impressum/impressum.php:52
 #: ../../addon.old/impressum/impressum.php:84
@@ -6757,14 +6757,14 @@ msgid "Site Owner"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:50
-#: ../../addon/impressum/impressum.php:95
+#: ../../addon/impressum/impressum.php:88
 #: ../../addon.old/impressum/impressum.php:50
 #: ../../addon.old/impressum/impressum.php:88
 msgid "Email Address"
 msgstr ""
 
 #: ../../addon/impressum/impressum.php:55
-#: ../../addon/impressum/impressum.php:93
+#: ../../addon/impressum/impressum.php:86
 #: ../../addon.old/impressum/impressum.php:55
 #: ../../addon.old/impressum/impressum.php:86
 msgid "Postal Address"
@@ -6778,49 +6778,49 @@ msgid ""
 "refer to the README file of the addon."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:91
+#: ../../addon/impressum/impressum.php:84
 #: ../../addon.old/impressum/impressum.php:84
 msgid "The page operators name."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:92
+#: ../../addon/impressum/impressum.php:85
 #: ../../addon.old/impressum/impressum.php:85
 msgid "Site Owners Profile"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:92
+#: ../../addon/impressum/impressum.php:85
 #: ../../addon.old/impressum/impressum.php:85
 msgid "Profile address of the operator."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:93
+#: ../../addon/impressum/impressum.php:86
 #: ../../addon.old/impressum/impressum.php:86
 msgid "How to contact the operator via snail mail. You can use BBCode here."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:94
+#: ../../addon/impressum/impressum.php:87
 #: ../../addon.old/impressum/impressum.php:87
 msgid "Notes"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:94
+#: ../../addon/impressum/impressum.php:87
 #: ../../addon.old/impressum/impressum.php:87
 msgid ""
 "Additional notes that are displayed beneath the contact information. You can "
 "use BBCode here."
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:95
+#: ../../addon/impressum/impressum.php:88
 #: ../../addon.old/impressum/impressum.php:88
 msgid "How to contact the operator via email. (will be displayed obfuscated)"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:96
+#: ../../addon/impressum/impressum.php:89
 #: ../../addon.old/impressum/impressum.php:89
 msgid "Footer note"
 msgstr ""
 
-#: ../../addon/impressum/impressum.php:96
+#: ../../addon/impressum/impressum.php:89
 #: ../../addon.old/impressum/impressum.php:89
 msgid "Text for the footer. You can use BBCode here."
 msgstr ""
@@ -6910,24 +6910,24 @@ msgstr ""
 msgid "Quick Comment settings saved."
 msgstr ""
 
-#: ../../addon/openstreetmap/openstreetmap.php:77
+#: ../../addon/openstreetmap/openstreetmap.php:71
 #: ../../addon.old/openstreetmap/openstreetmap.php:71
 msgid "Tile Server URL"
 msgstr ""
 
-#: ../../addon/openstreetmap/openstreetmap.php:77
+#: ../../addon/openstreetmap/openstreetmap.php:71
 #: ../../addon.old/openstreetmap/openstreetmap.php:71
 msgid ""
 "A list of <a href=\"http://wiki.openstreetmap.org/wiki/TMS\" target=\"_blank"
 "\">public tile servers</a>"
 msgstr ""
 
-#: ../../addon/openstreetmap/openstreetmap.php:78
+#: ../../addon/openstreetmap/openstreetmap.php:72
 #: ../../addon.old/openstreetmap/openstreetmap.php:72
 msgid "Default zoom"
 msgstr ""
 
-#: ../../addon/openstreetmap/openstreetmap.php:78
+#: ../../addon/openstreetmap/openstreetmap.php:72
 #: ../../addon.old/openstreetmap/openstreetmap.php:72
 msgid "The default zoom level. (1:world, 18:highest)"
 msgstr ""
@@ -7012,19 +7012,19 @@ msgid ""
 "Libravatar."
 msgstr ""
 
-#: ../../addon/libravatar/libravatar.php:106
-#: ../../addon/gravatar/gravatar.php:102
+#: ../../addon/libravatar/libravatar.php:100
+#: ../../addon/gravatar/gravatar.php:96
 #: ../../addon.old/libravatar/libravatar.php:100
 #: ../../addon.old/gravatar/gravatar.php:96
 msgid "Default avatar image"
 msgstr ""
 
-#: ../../addon/libravatar/libravatar.php:106
+#: ../../addon/libravatar/libravatar.php:100
 #: ../../addon.old/libravatar/libravatar.php:100
 msgid "Select default avatar image if none was found. See README"
 msgstr ""
 
-#: ../../addon/libravatar/libravatar.php:118
+#: ../../addon/libravatar/libravatar.php:112
 #: ../../addon.old/libravatar/libravatar.php:112
 msgid "Libravatar settings updated."
 msgstr ""
@@ -7074,11 +7074,11 @@ msgstr ""
 msgid "Use links to \"newer\" and \"older\" pages in place of page numbers?"
 msgstr ""
 
-#: ../../addon/altpager/altpager.php:105
+#: ../../addon/altpager/altpager.php:99
 msgid "Force global use of the alternate pager"
 msgstr ""
 
-#: ../../addon/altpager/altpager.php:106
+#: ../../addon/altpager/altpager.php:100
 msgid "Each user chooses whether to use the alternate pager"
 msgstr ""
 
@@ -7093,11 +7093,11 @@ msgstr ""
 msgid "Use the MathJax renderer"
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:80 ../../addon.old/mathjax/mathjax.php:74
+#: ../../addon/mathjax/mathjax.php:75 ../../addon.old/mathjax/mathjax.php:74
 msgid "MathJax Base URL"
 msgstr ""
 
-#: ../../addon/mathjax/mathjax.php:80 ../../addon.old/mathjax/mathjax.php:74
+#: ../../addon/mathjax/mathjax.php:75 ../../addon.old/mathjax/mathjax.php:74
 msgid ""
 "The URL for the javascript file that should be included to use MathJax. Can "
 "be either the MathJax CDN or another installation of MathJax."
@@ -7127,22 +7127,22 @@ msgid ""
 "nothing was found at Libravatar."
 msgstr ""
 
-#: ../../addon/gravatar/gravatar.php:102
+#: ../../addon/gravatar/gravatar.php:96
 #: ../../addon.old/gravatar/gravatar.php:96
 msgid "Select default avatar image if none was found at Gravatar. See README"
 msgstr ""
 
-#: ../../addon/gravatar/gravatar.php:103
+#: ../../addon/gravatar/gravatar.php:97
 #: ../../addon.old/gravatar/gravatar.php:97
 msgid "Rating of images"
 msgstr ""
 
-#: ../../addon/gravatar/gravatar.php:103
+#: ../../addon/gravatar/gravatar.php:97
 #: ../../addon.old/gravatar/gravatar.php:97
 msgid "Select the appropriate avatar rating for your site. See README"
 msgstr ""
 
-#: ../../addon/gravatar/gravatar.php:117
+#: ../../addon/gravatar/gravatar.php:111
 #: ../../addon.old/gravatar/gravatar.php:111
 msgid "Gravatar settings updated."
 msgstr ""
@@ -7579,25 +7579,25 @@ msgid ""
 "(opt-out)."
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:98 ../../addon.old/piwik/piwik.php:90
+#: ../../addon/piwik/piwik.php:90 ../../addon.old/piwik/piwik.php:90
 msgid "Piwik Base URL"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:98 ../../addon.old/piwik/piwik.php:90
+#: ../../addon/piwik/piwik.php:90 ../../addon.old/piwik/piwik.php:90
 msgid ""
 "Absolute path to your Piwik installation. (without protocol (http/s), with "
 "trailing slash)"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:99 ../../addon.old/piwik/piwik.php:91
+#: ../../addon/piwik/piwik.php:91 ../../addon.old/piwik/piwik.php:91
 msgid "Site ID"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:100 ../../addon.old/piwik/piwik.php:92
+#: ../../addon/piwik/piwik.php:92 ../../addon.old/piwik/piwik.php:92
 msgid "Show opt-out cookie link?"
 msgstr ""
 
-#: ../../addon/piwik/piwik.php:101 ../../addon.old/piwik/piwik.php:93
+#: ../../addon/piwik/piwik.php:93 ../../addon.old/piwik/piwik.php:93
 msgid "Asynchronous tracking"
 msgstr ""
 

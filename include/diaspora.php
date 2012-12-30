@@ -752,7 +752,7 @@ function diaspora_request($importer,$xml) {
 }
 
 function diaspora_post_allow($importer,$contact) {
-	if(($contact['blocked']) || ($contact['readonly']))
+	if(($contact['blocked']) || ($contact['readonly']) || ($contact['archive']))
 		return false;
 	if($contact['rel'] == CONTACT_IS_SHARING || $contact['rel'] == CONTACT_IS_FRIEND)
 		return true;
