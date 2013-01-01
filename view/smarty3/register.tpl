@@ -43,7 +43,7 @@
 	</div>
 	<div id="register-email-end" ></div>
 
-	<p id="register-nickname-desc" >{{$nickdesc|replace:'$sitename':$sitename}}</p>
+	<p id="register-nickname-desc" >{{$nickdesc}}</p>
 
 	<div id="register-nickname-wrapper" >
 		<label for="register-nickname" id="label-register-nickname" >{{$nicklabel}}</label>

@@ -11,10 +11,12 @@
 	<p id="register-realpeople">{{$realpeople}}</p>
 
 	<br />
-	<div id="register-openid-wrapper"  class="field input" >
-			{{$oidhtml|sprintf:$oidlabel:$openid}}
+{{if $oidlabel }}
+	<div id="register-openid-wrapper" >
+    	<label for="register-openid" id="label-register-openid" >{{$oidlabel}}</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" 	id="register-openid" value="{{$openid}}" >
 	</div>
 	<div id="register-openid-end" ></div>
+{{/if}}
 
 	<div class="register-explain-wrapper">
 	<p id="register-fill-desc">{{$fillwith}} {{$fillext}}</p>
@@ -54,7 +56,7 @@
 	<div id="register-nickname-end" ></div>
 
 	<div class="register-explain-wrapper">
-	<p id="register-nickname-desc" >{{$nickdesc|replace:'$sitename':$sitename}}</p>
+	<p id="register-nickname-desc" >{{$nickdesc}}</p>
 	</div>
 
 	{{$publish}}
