@@ -240,7 +240,6 @@ function register_content(&$a) {
 		));
 	}
 
-
 	$license = '';
 
 	$o = get_markup_template("register.tpl");
