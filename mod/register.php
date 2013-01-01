@@ -253,7 +253,7 @@ function register_content(&$a) {
 
 	$o = replace_macros($o, array(
 		'$oidhtml' => $oidhtml,
-        '$oidhtml_old' => $oidhtml_old,
+               '$oidhtml_old' => $oidhtml_old,
 		'$invitations' => get_config('system','invitation_only'),
 		'$invite_desc' => t('Membership on this site is by invitation only.'),
 		'$invite_label' => t('Your invitation ID: '),
