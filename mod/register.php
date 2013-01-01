@@ -214,8 +214,7 @@ function register_content(&$a) {
 		$oidlabel = '';
 	}
 	else {
-		$oidhtml = '<label for="register-openid" id="label-register-openid" >%s</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="%s" >';
-		$oidhtml_old = '<label for="register-openid" id="label-register-openid" >$oidlabel</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="$openid" >';
+		$oidhtml = '<label for="register-openid" id="label-register-openid" >$oidlabel</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="$openid" >';
 		$fillwith = t("You may \x28optionally\x29 fill in this form via OpenID by supplying your OpenID and clicking 'Register'.");
 		$fillext =  t('If you are not familiar with OpenID, please leave that field blank and fill in the rest of the items.');
 		$oidlabel = t("Your OpenID \x28optional\x29: ");
