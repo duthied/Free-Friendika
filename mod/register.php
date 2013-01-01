@@ -253,7 +253,6 @@ function register_content(&$a) {
 
 	$o = replace_macros($o, array(
 		'$oidhtml' => $oidhtml,
-               '$oidhtml_old' => $oidhtml_old,
 		'$invitations' => get_config('system','invitation_only'),
 		'$invite_desc' => t('Membership on this site is by invitation only.'),
 		'$invite_label' => t('Your invitation ID: '),
@@ -269,7 +268,7 @@ function register_content(&$a) {
 		'$openid'    => $openid_url,
 		'$namelabel' => t('Your Full Name ' . "\x28" . 'e.g. Joe Smith' . "\x29" . ': '),
 		'$addrlabel' => t('Your Email Address: '),
-		'$nickdesc'  => t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be \'<strong>nickname@$sitename</strong>\'.'),
+		'$nickdesc'  => str_replace('$sitename',$a->get_hostname(),t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be \'<strong>nickname@$sitename</strong>\'.')),
 		'$nicklabel' => t('Choose a nickname: '),
 		'$photo'     => $photo,
 		'$publish'   => $profile_publish,
