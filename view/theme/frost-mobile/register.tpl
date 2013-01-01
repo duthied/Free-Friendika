@@ -12,7 +12,7 @@
 
 	<br />
 	<div id="register-openid-wrapper"  class="field input" >
-			$oidhtml
+			$oidhtml_old
 	</div>
 	<div id="register-openid-end" ></div>
 

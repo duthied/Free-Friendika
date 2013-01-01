@@ -12,7 +12,7 @@
 	<p id="register-fill-ext">$fillext</p>
 
 	<div id="register-openid-wrapper" >
-			$oidhtml
+			$oidhtml_old
 	</div>
 	<div id="register-openid-end" ></div>
 

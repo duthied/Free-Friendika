@@ -12,7 +12,7 @@
 	<p id="register-fill-ext">{{$fillext}}</p>
 
 	<div id="register-openid-wrapper" >
-			{{$oidhtml}}
+			{{$oidhtml|sprintf:$oidlabel:$openid}}
 	</div>
 	<div id="register-openid-end" ></div>
 
@@ -41,7 +41,7 @@
 	</div>
 	<div id="register-email-end" ></div>
 
-	<p id="register-nickname-desc" >{{$nickdesc}}</p>
+	<p id="register-nickname-desc" >{{$nickdesc|replace:'$sitename':$sitename}}</p>
 
 	<div id="register-nickname-wrapper" >
 		<label for="register-nickname" id="label-register-nickname" >{{$nicklabel}}</label>

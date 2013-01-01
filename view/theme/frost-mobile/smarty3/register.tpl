@@ -12,7 +12,7 @@
 
 	<br />
 	<div id="register-openid-wrapper"  class="field input" >
-			{{$oidhtml}}
+			{{$oidhtml|sprintf:$oidlabel:$openid}}
 	</div>
 	<div id="register-openid-end" ></div>
 
@@ -54,7 +54,7 @@
 	<div id="register-nickname-end" ></div>
 
 	<div class="register-explain-wrapper">
-	<p id="register-nickname-desc" >{{$nickdesc}}</p>
+	<p id="register-nickname-desc" >{{$nickdesc|replace:'$sitename':$sitename}}</p>
 	</div>
 
 	{{$publish}}
