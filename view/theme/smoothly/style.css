@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2012-11-14
+	Created by alex@friendica.pixelbits.de on 2013-01-01
 
 ** Colors ** 
 Blue links - #1873a2
@@ -1946,9 +1946,10 @@ div[id$="wrapper"] br {
 	clear:both; 
 }
 
-.profile-match-name a {
-	color: #999;
-	font-size: 1em;
+.profile-match-name {
+        float: left;
+        text-align: left;
+        overflow: hidden;
 }
 
 .profile-match-name a:hover {
@@ -1956,20 +1957,36 @@ div[id$="wrapper"] br {
 }
 
 .profile-match-wrapper {
+	position: relative;
 	float:left;
-	height:120px;
-	padding:10px;
-	width:120px;
-	margin-bottom: 10px;
-	/*margin-left: 20px;*/
+	height:80px;
+	padding:5px;
+	width:80px;
+	margin-bottom: 70px;
+	margin-right: 29px;
 	background-color: #f6f6f6;
 	border: 1px solid #dddddd;
 	box-shadow: 3px 3px 4px #959494;
 		-moz-box-shadow: 3px 3px 4px #959494;
 		-webkit-box-shadow: 3px 3px 4px #959494;
-	clear: both;	
 }
 
+.profile-match-break,
+.profile-match-end {
+        clear: both;
+}
+
+.profile-match-connect {
+        text-align: left;
+        font-weight: bold;
+}
+.profile-match-ignore {
+	height: 0!important;
+}
+
+#profile-match-wrapper-end {
+        clear: both;
+}
 .profile-match-end {
 	clear: both;
 }
