@@ -254,7 +254,7 @@ ACL.prototype.populate = function(data){
 		that.list_content.append(html);
 	});
 	$(".acl-list-item[rel!=acl-template] img[data-src]").each(function(i, el){
-		// Add data-src attribute with src attribute for every image
+		// Add src attribute for images with a data-src attribute
 		$(el).attr('src', $(el).data("src"));
 	});
 	that.update_view();
