@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1575\n"
+"Project-Id-Version: 3.1.1576\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-01 10:00-0800\n"
+"POT-Creation-Date: 2013-01-02 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3240,38 +3240,38 @@ msgstr ""
 msgid "Include your profile in member directory?"
 msgstr ""
 
-#: ../../mod/register.php:256
+#: ../../mod/register.php:255
 msgid "Membership on this site is by invitation only."
 msgstr ""
 
-#: ../../mod/register.php:257
+#: ../../mod/register.php:256
 msgid "Your invitation ID: "
 msgstr ""
 
-#: ../../mod/register.php:260 ../../mod/admin.php:462
+#: ../../mod/register.php:259 ../../mod/admin.php:462
 msgid "Registration"
 msgstr ""
 
-#: ../../mod/register.php:268
+#: ../../mod/register.php:267
 msgid "Your Full Name (e.g. Joe Smith): "
 msgstr ""
 
-#: ../../mod/register.php:269
+#: ../../mod/register.php:268
 msgid "Your Email Address: "
 msgstr ""
 
-#: ../../mod/register.php:270
+#: ../../mod/register.php:269
 msgid ""
 "Choose a profile nickname. This must begin with a text character. Your "
 "profile address on this site will then be '<strong>nickname@$sitename</"
 "strong>'."
 msgstr ""
 
-#: ../../mod/register.php:271
+#: ../../mod/register.php:270
 msgid "Choose a nickname: "
 msgstr ""
 
-#: ../../mod/register.php:274 ../../include/nav.php:81 ../../boot.php:951
+#: ../../mod/register.php:273 ../../include/nav.php:81 ../../boot.php:951
 msgid "Register"
 msgstr ""
 
