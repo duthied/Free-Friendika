@@ -1170,7 +1170,7 @@ if(! function_exists('profile_load')) {
 
 		if(! $r[0]['is-default']) {
 			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
-					intval($profile_uid)
+					intval($r[0]['profile_uid'])
 			);
 			if($x && count($x))
 				$r[0]['pub_keywords'] = $x[0]['pub_keywords'];
@@ -1178,7 +1178,7 @@ if(! function_exists('profile_load')) {
 
 		$a->profile = $r[0];
 
-		$a->profile['mobile-theme'] = get_pconfig($profile_uid, 'system', 'mobile_theme');
+		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
 
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
@@ -1617,7 +1617,7 @@ if(! function_exists('current_theme')) {
 //		$mobile_detect = new Mobile_Detect();
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 		$is_mobile = $a->is_mobile || $a->is_tablet;
-	
+
 		if($is_mobile) {
 			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 				$system_theme = '';
