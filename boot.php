@@ -1107,6 +1107,10 @@ if(! function_exists('get_max_import_size')) {
  * Profile information is placed in the App structure for later retrieval.
  * Honours the owner's chosen theme for display.
  *
+ * IMPORTANT: Should only be run in the _init() functions of a module. That ensures that
+ * the theme is chosen before the _init() function of a theme is run, which will usually
+ * load a lot of theme-specific content
+ *
  */
 
 if(! function_exists('profile_load')) {
@@ -1184,6 +1188,8 @@ if(! function_exists('profile_load')) {
 		/**
 		 * load/reload current theme info
 		 */
+
+		set_template_engine($a); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = "view/theme/".current_theme()."/theme.php";
 		if (file_exists($theme_info_file)){
