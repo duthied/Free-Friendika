@@ -7,6 +7,7 @@ require_once('include/text.php');
 require_once('include/pgettext.php');
 require_once('include/datetime.php');
 
+
 function create_user($arr) {
 
 	// Required: { username, nickname, email } or { openid_url }

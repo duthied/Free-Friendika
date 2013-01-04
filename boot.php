@@ -847,9 +847,10 @@ if(! function_exists('check_config')) {
 									'$error' => sprintf( t('Update %s failed. See error logs.'), $x)
 								));
 								$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
-									
+								require_once('include/email.php');
+								$subject = email_header_encode($subject,'UTF-8');	
 								mail($a->config['admin_email'], $subject, $email_msg,
-									'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+									'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 									. 'Content-type: text/plain; charset=UTF-8' . "\n"
 									. 'Content-transfer-encoding: 8bit' );
 								//try the logger
