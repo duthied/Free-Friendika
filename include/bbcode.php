@@ -312,6 +312,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	$Text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","[share$1]$2[/share]",$Text);
 	$Text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism","[quote$1]$2[/quote]",$Text);
 
+	$Text = preg_replace("/\n\[code\]/ism", "[code]", $Text);
+	$Text = preg_replace("/\[\/code\]\n/ism", "[/code]", $Text);
+
 	// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 	if (!$tryoembed)
 		$Text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","\n[share$1$2]$3[/share]",$Text);
@@ -327,12 +330,13 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	$Text = str_replace("\r\n","\n", $Text);
 
 	// removing multiplicated newlines
-	$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]");
-	$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]");
-	do {
-		$oldtext = $Text;
-		$Text = str_replace($search, $replace, $Text);
-	} while ($oldtext != $Text);
+//	$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]");
+//	$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]");
+//	do {
+//		$oldtext = $Text;
+//		$Text = str_replace($search, $replace, $Text);
+//	} while ($oldtext != $Text);
+
 
 	$Text = str_replace(array("\r","\n"), array('<br />','<br />'), $Text);
 
