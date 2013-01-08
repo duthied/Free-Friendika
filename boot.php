@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1581' );
+define ( 'FRIENDICA_VERSION',      '3.1.1582' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1157      );
 
@@ -663,6 +663,14 @@ if(! class_exists('App')) {
 
 		function get_curl_headers() {
 			return $this->curl_headers;
+		}
+
+		function get_template_engine() {
+			return get_template_engine($this);
+		}
+
+		function set_template_engine($engine = 'internal') {
+			return set_template_engine($this,$engine);
 		}
 
 		function get_cached_avatar_image($avatar_image){
@@ -1972,4 +1980,8 @@ function set_template_engine(&$a, $engine = 'internal') {
 				break;
 		}
 	}
+}
+
+function get_template_engine($a) {
+	return $a->theme['template_engine'];
 }

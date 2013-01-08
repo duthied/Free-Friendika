@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1581\n"
+"Project-Id-Version: 3.1.1582\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-07 10:00-0800\n"
+"POT-Creation-Date: 2013-01-08 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,7 +38,7 @@ msgstr ""
 #: ../../mod/crepair.php:115 ../../mod/wall_attach.php:55
 #: ../../mod/fsuggest.php:78 ../../mod/events.php:140 ../../mod/api.php:26
 #: ../../mod/api.php:31 ../../mod/photos.php:133 ../../mod/photos.php:995
-#: ../../mod/editpost.php:10 ../../mod/install.php:151 ../../mod/poke.php:135
+#: ../../mod/editpost.php:10 ../../mod/install.php:155 ../../mod/poke.php:135
 #: ../../mod/notifications.php:66 ../../mod/contacts.php:147
 #: ../../mod/settings.php:91 ../../mod/settings.php:542
 #: ../../mod/settings.php:547 ../../mod/manage.php:90 ../../mod/network.php:6
@@ -46,7 +46,7 @@ msgstr ""
 #: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
 #: ../../mod/wallmessage.php:103 ../../mod/attach.php:33
 #: ../../mod/group.php:19 ../../mod/viewcontacts.php:22
-#: ../../mod/register.php:40 ../../mod/regmod.php:118 ../../mod/item.php:139
+#: ../../mod/register.php:40 ../../mod/regmod.php:125 ../../mod/item.php:139
 #: ../../mod/item.php:155 ../../mod/mood.php:114
 #: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
 #: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
@@ -60,7 +60,7 @@ msgstr ""
 #: ../../addon/facebook/facebook.php:518 ../../addon/fbpost/fbpost.php:170
 #: ../../addon/fbpost/fbpost.php:176
 #: ../../addon/dav/friendica/layout.fnk.php:354
-#: ../../addon/tumblr/tumblr.php:34 ../../include/items.php:3987
+#: ../../addon/tumblr/tumblr.php:34 ../../include/items.php:3994
 #: ../../index.php:333 ../../addon.old/facebook/facebook.php:510
 #: ../../addon.old/facebook/facebook.php:516
 #: ../../addon.old/fbpost/fbpost.php:159 ../../addon.old/fbpost/fbpost.php:165
@@ -134,8 +134,8 @@ msgstr ""
 #: ../../mod/events.php:466 ../../mod/photos.php:1028
 #: ../../mod/photos.php:1118 ../../mod/photos.php:1402
 #: ../../mod/photos.php:1442 ../../mod/photos.php:1486
-#: ../../mod/photos.php:1569 ../../mod/install.php:248
-#: ../../mod/install.php:286 ../../mod/localtime.php:45 ../../mod/poke.php:199
+#: ../../mod/photos.php:1569 ../../mod/install.php:252
+#: ../../mod/install.php:290 ../../mod/localtime.php:45 ../../mod/poke.php:199
 #: ../../mod/content.php:710 ../../mod/contacts.php:352
 #: ../../mod/settings.php:560 ../../mod/settings.php:670
 #: ../../mod/settings.php:739 ../../mod/settings.php:811
@@ -289,7 +289,7 @@ msgid "link to source"
 msgstr ""
 
 #: ../../mod/events.php:358 ../../view/theme/diabook/theme.php:91
-#: ../../include/nav.php:52 ../../boot.php:1798
+#: ../../include/nav.php:52 ../../boot.php:1805
 msgid "Events"
 msgstr ""
 
@@ -302,7 +302,7 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: ../../mod/events.php:361 ../../mod/install.php:207
+#: ../../mod/events.php:361 ../../mod/install.php:211
 #: ../../addon/dav/friendica/layout.fnk.php:266
 #: ../../addon.old/dav/friendica/layout.fnk.php:266
 msgid "Next"
@@ -348,7 +348,7 @@ msgstr ""
 #: ../../mod/events.php:459 ../../mod/directory.php:134
 #: ../../addon/forumdirectory/forumdirectory.php:156
 #: ../../include/event.php:40 ../../include/bb2diaspora.php:415
-#: ../../boot.php:1319
+#: ../../boot.php:1326
 msgid "Location:"
 msgstr ""
 
@@ -417,7 +417,7 @@ msgstr ""
 #: ../../mod/settings.php:969 ../../mod/settings.php:975
 #: ../../mod/settings.php:1005 ../../mod/settings.php:1006
 #: ../../mod/settings.php:1007 ../../mod/settings.php:1008
-#: ../../mod/settings.php:1009 ../../mod/register.php:239
+#: ../../mod/settings.php:1009 ../../mod/register.php:254
 #: ../../mod/profiles.php:603
 msgid "Yes"
 msgstr ""
@@ -429,12 +429,12 @@ msgstr ""
 #: ../../mod/settings.php:969 ../../mod/settings.php:975
 #: ../../mod/settings.php:1005 ../../mod/settings.php:1006
 #: ../../mod/settings.php:1007 ../../mod/settings.php:1008
-#: ../../mod/settings.php:1009 ../../mod/register.php:240
+#: ../../mod/settings.php:1009 ../../mod/register.php:255
 #: ../../mod/profiles.php:604
 msgid "No"
 msgstr ""
 
-#: ../../mod/photos.php:51 ../../boot.php:1791
+#: ../../mod/photos.php:51 ../../boot.php:1798
 msgid "Photo Albums"
 msgstr ""
 
@@ -948,7 +948,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: ../../mod/dfrn_request.php:716 ../../include/items.php:3366
+#: ../../mod/dfrn_request.php:716 ../../include/items.php:3370
 msgid "[Name Withheld]"
 msgstr ""
 
@@ -1079,284 +1079,284 @@ msgid ""
 "of your account (photos are not exported)"
 msgstr ""
 
-#: ../../mod/install.php:117
+#: ../../mod/install.php:121
 msgid "Friendica Social Communications Server - Setup"
 msgstr ""
 
-#: ../../mod/install.php:123
+#: ../../mod/install.php:127
 msgid "Could not connect to database."
 msgstr ""
 
-#: ../../mod/install.php:127
+#: ../../mod/install.php:131
 msgid "Could not create table."
 msgstr ""
 
-#: ../../mod/install.php:133
+#: ../../mod/install.php:137
 msgid "Your Friendica site database has been installed."
 msgstr ""
 
-#: ../../mod/install.php:138
+#: ../../mod/install.php:142
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
 msgstr ""
 
-#: ../../mod/install.php:139 ../../mod/install.php:206
-#: ../../mod/install.php:506
+#: ../../mod/install.php:143 ../../mod/install.php:210
+#: ../../mod/install.php:510
 msgid "Please see the file \"INSTALL.txt\"."
 msgstr ""
 
-#: ../../mod/install.php:203
+#: ../../mod/install.php:207
 msgid "System check"
 msgstr ""
 
-#: ../../mod/install.php:208
+#: ../../mod/install.php:212
 msgid "Check again"
 msgstr ""
 
-#: ../../mod/install.php:227
+#: ../../mod/install.php:231
 msgid "Database connection"
 msgstr ""
 
-#: ../../mod/install.php:228
+#: ../../mod/install.php:232
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
 msgstr ""
 
-#: ../../mod/install.php:229
+#: ../../mod/install.php:233
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
 msgstr ""
 
-#: ../../mod/install.php:230
+#: ../../mod/install.php:234
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
 msgstr ""
 
-#: ../../mod/install.php:234
+#: ../../mod/install.php:238
 msgid "Database Server Name"
 msgstr ""
 
-#: ../../mod/install.php:235
+#: ../../mod/install.php:239
 msgid "Database Login Name"
 msgstr ""
 
-#: ../../mod/install.php:236
+#: ../../mod/install.php:240
 msgid "Database Login Password"
 msgstr ""
 
-#: ../../mod/install.php:237
+#: ../../mod/install.php:241
 msgid "Database Name"
 msgstr ""
 
-#: ../../mod/install.php:238 ../../mod/install.php:277
+#: ../../mod/install.php:242 ../../mod/install.php:281
 msgid "Site administrator email address"
 msgstr ""
 
-#: ../../mod/install.php:238 ../../mod/install.php:277
+#: ../../mod/install.php:242 ../../mod/install.php:281
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
 msgstr ""
 
-#: ../../mod/install.php:242 ../../mod/install.php:280
+#: ../../mod/install.php:246 ../../mod/install.php:284
 msgid "Please select a default timezone for your website"
 msgstr ""
 
-#: ../../mod/install.php:267
+#: ../../mod/install.php:271
 msgid "Site settings"
 msgstr ""
 
-#: ../../mod/install.php:320
+#: ../../mod/install.php:324
 msgid "Could not find a command line version of PHP in the web server PATH."
 msgstr ""
 
-#: ../../mod/install.php:321
+#: ../../mod/install.php:325
 msgid ""
 "If you don't have a command line version of PHP installed on server, you "
 "will not be able to run background polling via cron. See <a href='http://"
 "friendica.com/node/27'>'Activating scheduled tasks'</a>"
 msgstr ""
 
-#: ../../mod/install.php:325
+#: ../../mod/install.php:329
 msgid "PHP executable path"
 msgstr ""
 
-#: ../../mod/install.php:325
+#: ../../mod/install.php:329
 msgid ""
 "Enter full path to php executable. You can leave this blank to continue the "
 "installation."
 msgstr ""
 
-#: ../../mod/install.php:330
+#: ../../mod/install.php:334
 msgid "Command line PHP"
 msgstr ""
 
-#: ../../mod/install.php:339
+#: ../../mod/install.php:343
 msgid ""
 "The command line version of PHP on your system does not have "
 "\"register_argc_argv\" enabled."
 msgstr ""
 
-#: ../../mod/install.php:340
+#: ../../mod/install.php:344
 msgid "This is required for message delivery to work."
 msgstr ""
 
-#: ../../mod/install.php:342
+#: ../../mod/install.php:346
 msgid "PHP register_argc_argv"
 msgstr ""
 
-#: ../../mod/install.php:363
+#: ../../mod/install.php:367
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
 msgstr ""
 
-#: ../../mod/install.php:364
+#: ../../mod/install.php:368
 msgid ""
 "If running under Windows, please see \"http://www.php.net/manual/en/openssl."
 "installation.php\"."
 msgstr ""
 
-#: ../../mod/install.php:366
+#: ../../mod/install.php:370
 msgid "Generate encryption keys"
 msgstr ""
 
-#: ../../mod/install.php:373
+#: ../../mod/install.php:377
 msgid "libCurl PHP module"
 msgstr ""
 
-#: ../../mod/install.php:374
+#: ../../mod/install.php:378
 msgid "GD graphics PHP module"
 msgstr ""
 
-#: ../../mod/install.php:375
+#: ../../mod/install.php:379
 msgid "OpenSSL PHP module"
 msgstr ""
 
-#: ../../mod/install.php:376
+#: ../../mod/install.php:380
 msgid "mysqli PHP module"
 msgstr ""
 
-#: ../../mod/install.php:377
+#: ../../mod/install.php:381
 msgid "mb_string PHP module"
 msgstr ""
 
-#: ../../mod/install.php:382 ../../mod/install.php:384
+#: ../../mod/install.php:386 ../../mod/install.php:388
 msgid "Apache mod_rewrite module"
 msgstr ""
 
-#: ../../mod/install.php:382
+#: ../../mod/install.php:386
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:390
+#: ../../mod/install.php:394
 msgid "Error: libCURL PHP module required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:394
+#: ../../mod/install.php:398
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:398
+#: ../../mod/install.php:402
 msgid "Error: openssl PHP module required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:402
+#: ../../mod/install.php:406
 msgid "Error: mysqli PHP module required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:406
+#: ../../mod/install.php:410
 msgid "Error: mb_string PHP module required but not installed."
 msgstr ""
 
-#: ../../mod/install.php:423
+#: ../../mod/install.php:427
 msgid ""
 "The web installer needs to be able to create a file called \".htconfig.php\" "
 "in the top folder of your web server and it is unable to do so."
 msgstr ""
 
-#: ../../mod/install.php:424
+#: ../../mod/install.php:428
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
 msgstr ""
 
-#: ../../mod/install.php:425
+#: ../../mod/install.php:429
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named .htconfig.php in your Friendica top folder."
 msgstr ""
 
-#: ../../mod/install.php:426
+#: ../../mod/install.php:430
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation. "
 "Please see the file \"INSTALL.txt\" for instructions."
 msgstr ""
 
-#: ../../mod/install.php:429
+#: ../../mod/install.php:433
 msgid ".htconfig.php is writable"
 msgstr ""
 
-#: ../../mod/install.php:439
+#: ../../mod/install.php:443
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
 msgstr ""
 
-#: ../../mod/install.php:440
+#: ../../mod/install.php:444
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
 msgstr ""
 
-#: ../../mod/install.php:441
+#: ../../mod/install.php:445
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has "
 "write access to this folder."
 msgstr ""
 
-#: ../../mod/install.php:442
+#: ../../mod/install.php:446
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
 msgstr ""
 
-#: ../../mod/install.php:445
+#: ../../mod/install.php:449
 msgid "view/smarty3 is writable"
 msgstr ""
 
-#: ../../mod/install.php:457
+#: ../../mod/install.php:461
 msgid ""
 "Url rewrite in .htaccess is not working. Check your server configuration."
 msgstr ""
 
-#: ../../mod/install.php:459
+#: ../../mod/install.php:463
 msgid "Url rewrite is working"
 msgstr ""
 
-#: ../../mod/install.php:469
+#: ../../mod/install.php:473
 msgid ""
 "The database configuration file \".htconfig.php\" could not be written. "
 "Please use the enclosed text to create a configuration file in your web "
 "server root."
 msgstr ""
 
-#: ../../mod/install.php:493
+#: ../../mod/install.php:497
 msgid "Errors encountered creating database tables."
 msgstr ""
 
-#: ../../mod/install.php:504
+#: ../../mod/install.php:508
 msgid "<h1>What next</h1>"
 msgstr ""
 
-#: ../../mod/install.php:505
+#: ../../mod/install.php:509
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the poller."
 msgstr ""
@@ -1428,7 +1428,7 @@ msgid "is interested in:"
 msgstr ""
 
 #: ../../mod/match.php:58 ../../mod/suggest.php:59
-#: ../../include/contact_widgets.php:9 ../../boot.php:1257
+#: ../../include/contact_widgets.php:9 ../../boot.php:1264
 msgid "Connect"
 msgstr ""
 
@@ -1585,7 +1585,7 @@ msgstr ""
 msgid "via Wall-To-Wall:"
 msgstr ""
 
-#: ../../mod/home.php:30 ../../addon/communityhome/communityhome.php:189
+#: ../../mod/home.php:34 ../../addon/communityhome/communityhome.php:189
 #: ../../addon.old/communityhome/communityhome.php:179
 #, php-format
 msgid "Welcome to %s"
@@ -2091,63 +2091,63 @@ msgstr ""
 msgid "Password reset request issued. Check your email."
 msgstr ""
 
-#: ../../mod/lostpass.php:44
+#: ../../mod/lostpass.php:49
 #, php-format
 msgid "Password reset requested at %s"
 msgstr ""
 
-#: ../../mod/lostpass.php:66
+#: ../../mod/lostpass.php:71
 msgid ""
 "Request could not be verified. (You may have previously submitted it.) "
 "Password reset failed."
 msgstr ""
 
-#: ../../mod/lostpass.php:84 ../../boot.php:991
+#: ../../mod/lostpass.php:89 ../../boot.php:998
 msgid "Password Reset"
 msgstr ""
 
-#: ../../mod/lostpass.php:85
+#: ../../mod/lostpass.php:90
 msgid "Your password has been reset as requested."
 msgstr ""
 
-#: ../../mod/lostpass.php:86
+#: ../../mod/lostpass.php:91
 msgid "Your new password is"
 msgstr ""
 
-#: ../../mod/lostpass.php:87
+#: ../../mod/lostpass.php:92
 msgid "Save or copy your new password - and then"
 msgstr ""
 
-#: ../../mod/lostpass.php:88
+#: ../../mod/lostpass.php:93
 msgid "click here to login"
 msgstr ""
 
-#: ../../mod/lostpass.php:89
+#: ../../mod/lostpass.php:94
 msgid ""
 "Your password may be changed from the <em>Settings</em> page after "
 "successful login."
 msgstr ""
 
-#: ../../mod/lostpass.php:107
+#: ../../mod/lostpass.php:116
 #, php-format
 msgid "Your password has been changed at %s"
 msgstr ""
 
-#: ../../mod/lostpass.php:122
+#: ../../mod/lostpass.php:131
 msgid "Forgot your Password?"
 msgstr ""
 
-#: ../../mod/lostpass.php:123
+#: ../../mod/lostpass.php:132
 msgid ""
 "Enter your email address and submit to have your password reset. Then check "
 "your email for further instructions."
 msgstr ""
 
-#: ../../mod/lostpass.php:124
+#: ../../mod/lostpass.php:133
 msgid "Nickname or Email: "
 msgstr ""
 
-#: ../../mod/lostpass.php:125
+#: ../../mod/lostpass.php:134
 msgid "Reset"
 msgstr ""
 
@@ -2782,7 +2782,7 @@ msgstr ""
 msgid "Invalid contact."
 msgstr ""
 
-#: ../../mod/notes.php:44 ../../boot.php:1805
+#: ../../mod/notes.php:44 ../../boot.php:1812
 msgid "Personal Notes"
 msgstr ""
 
@@ -2800,7 +2800,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../../mod/uimport.php:50 ../../mod/register.php:192
+#: ../../mod/uimport.php:50 ../../mod/register.php:207
 msgid ""
 "This site has exceeded the number of allowed daily account registrations. "
 "Please try again tomorrow."
@@ -2956,7 +2956,7 @@ msgstr ""
 #: ../../mod/newmember.php:32 ../../mod/profperm.php:103
 #: ../../view/theme/diabook/theme.php:88 ../../include/profile_advanced.php:7
 #: ../../include/profile_advanced.php:84 ../../include/nav.php:50
-#: ../../boot.php:1781
+#: ../../boot.php:1788
 msgid "Profile"
 msgstr ""
 
@@ -3183,85 +3183,85 @@ msgstr ""
 msgid "View Contacts"
 msgstr ""
 
-#: ../../mod/register.php:91 ../../mod/regmod.php:54
+#: ../../mod/register.php:99 ../../mod/regmod.php:61
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: ../../mod/register.php:99
+#: ../../mod/register.php:107
 msgid ""
 "Registration successful. Please check your email for further instructions."
 msgstr ""
 
-#: ../../mod/register.php:103
+#: ../../mod/register.php:111
 msgid "Failed to send email message. Here is the message that failed."
 msgstr ""
 
-#: ../../mod/register.php:108
+#: ../../mod/register.php:116
 msgid "Your registration can not be processed."
 msgstr ""
 
-#: ../../mod/register.php:145
+#: ../../mod/register.php:160
 #, php-format
 msgid "Registration request at %s"
 msgstr ""
 
-#: ../../mod/register.php:154
+#: ../../mod/register.php:169
 msgid "Your registration is pending approval by the site owner."
 msgstr ""
 
-#: ../../mod/register.php:220
+#: ../../mod/register.php:235
 msgid ""
 "You may (optionally) fill in this form via OpenID by supplying your OpenID "
 "and clicking 'Register'."
 msgstr ""
 
-#: ../../mod/register.php:221
+#: ../../mod/register.php:236
 msgid ""
 "If you are not familiar with OpenID, please leave that field blank and fill "
 "in the rest of the items."
 msgstr ""
 
-#: ../../mod/register.php:222
+#: ../../mod/register.php:237
 msgid "Your OpenID (optional): "
 msgstr ""
 
-#: ../../mod/register.php:236
+#: ../../mod/register.php:251
 msgid "Include your profile in member directory?"
 msgstr ""
 
-#: ../../mod/register.php:257
+#: ../../mod/register.php:272
 msgid "Membership on this site is by invitation only."
 msgstr ""
 
-#: ../../mod/register.php:258
+#: ../../mod/register.php:273
 msgid "Your invitation ID: "
 msgstr ""
 
-#: ../../mod/register.php:261 ../../mod/admin.php:462
+#: ../../mod/register.php:276 ../../mod/admin.php:462
 msgid "Registration"
 msgstr ""
 
-#: ../../mod/register.php:269
+#: ../../mod/register.php:284
 msgid "Your Full Name (e.g. Joe Smith): "
 msgstr ""
 
-#: ../../mod/register.php:270
+#: ../../mod/register.php:285
 msgid "Your Email Address: "
 msgstr ""
 
-#: ../../mod/register.php:271
+#: ../../mod/register.php:286
 msgid ""
 "Choose a profile nickname. This must begin with a text character. Your "
 "profile address on this site will then be '<strong>nickname@$sitename</"
 "strong>'."
 msgstr ""
 
-#: ../../mod/register.php:272
+#: ../../mod/register.php:287
 msgid "Choose a nickname: "
 msgstr ""
 
-#: ../../mod/register.php:275 ../../include/nav.php:81 ../../boot.php:952
+#: ../../mod/register.php:290 ../../include/nav.php:81 ../../boot.php:959
 msgid "Register"
 msgstr ""
 
@@ -3309,7 +3309,7 @@ msgstr ""
 
 #: ../../mod/notice.php:15 ../../mod/viewsrc.php:15 ../../mod/admin.php:159
 #: ../../mod/admin.php:773 ../../mod/admin.php:972 ../../mod/display.php:47
-#: ../../mod/display.php:177 ../../include/items.php:3853
+#: ../../mod/display.php:177 ../../include/items.php:3860
 msgid "Item not found."
 msgstr ""
 
@@ -3318,7 +3318,7 @@ msgid "Access denied."
 msgstr ""
 
 #: ../../mod/fbrowser.php:25 ../../view/theme/diabook/theme.php:90
-#: ../../include/nav.php:51 ../../boot.php:1788
+#: ../../include/nav.php:51 ../../boot.php:1795
 msgid "Photos"
 msgstr ""
 
@@ -3326,16 +3326,16 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: ../../mod/regmod.php:63
+#: ../../mod/regmod.php:70
 msgid "Account approved."
 msgstr ""
 
-#: ../../mod/regmod.php:100
+#: ../../mod/regmod.php:107
 #, php-format
 msgid "Registration revoked for %s"
 msgstr ""
 
-#: ../../mod/regmod.php:112
+#: ../../mod/regmod.php:119
 msgid "Please login."
 msgstr ""
 
@@ -4255,7 +4255,7 @@ msgstr ""
 msgid "FTP Password"
 msgstr ""
 
-#: ../../mod/profile.php:21 ../../boot.php:1165
+#: ../../mod/profile.php:21 ../../boot.php:1172
 msgid "Requested profile is not available."
 msgstr ""
 
@@ -4662,23 +4662,23 @@ msgstr ""
 msgid "Edit/Manage Profiles"
 msgstr ""
 
-#: ../../mod/profiles.php:719 ../../boot.php:1285
+#: ../../mod/profiles.php:719 ../../boot.php:1292
 msgid "Change profile photo"
 msgstr ""
 
-#: ../../mod/profiles.php:720 ../../boot.php:1286
+#: ../../mod/profiles.php:720 ../../boot.php:1293
 msgid "Create New Profile"
 msgstr ""
 
-#: ../../mod/profiles.php:731 ../../boot.php:1296
+#: ../../mod/profiles.php:731 ../../boot.php:1303
 msgid "Profile Image"
 msgstr ""
 
-#: ../../mod/profiles.php:733 ../../boot.php:1299
+#: ../../mod/profiles.php:733 ../../boot.php:1306
 msgid "visible to everybody"
 msgstr ""
 
-#: ../../mod/profiles.php:734 ../../boot.php:1300
+#: ../../mod/profiles.php:734 ../../boot.php:1307
 msgid "Edit visibility"
 msgstr ""
 
@@ -4810,19 +4810,19 @@ msgstr ""
 
 #: ../../mod/directory.php:136
 #: ../../addon/forumdirectory/forumdirectory.php:158
-#: ../../include/profile_advanced.php:17 ../../boot.php:1321
+#: ../../include/profile_advanced.php:17 ../../boot.php:1328
 msgid "Gender:"
 msgstr ""
 
 #: ../../mod/directory.php:138
 #: ../../addon/forumdirectory/forumdirectory.php:160
-#: ../../include/profile_advanced.php:37 ../../boot.php:1324
+#: ../../include/profile_advanced.php:37 ../../boot.php:1331
 msgid "Status:"
 msgstr ""
 
 #: ../../mod/directory.php:140
 #: ../../addon/forumdirectory/forumdirectory.php:162
-#: ../../include/profile_advanced.php:48 ../../boot.php:1326
+#: ../../include/profile_advanced.php:48 ../../boot.php:1333
 msgid "Homepage:"
 msgstr ""
 
@@ -4998,12 +4998,12 @@ msgstr ""
 msgid "Unable to update your contact profile details on our system"
 msgstr ""
 
-#: ../../mod/dfrn_confirm.php:751
+#: ../../mod/dfrn_confirm.php:760
 #, php-format
 msgid "Connection accepted at %s"
 msgstr ""
 
-#: ../../mod/dfrn_confirm.php:800
+#: ../../mod/dfrn_confirm.php:809
 #, php-format
 msgid "%1$s has joined %2$s"
 msgstr ""
@@ -5727,7 +5727,7 @@ msgstr ""
 
 #: ../../addon/communityhome/communityhome.php:28
 #: ../../addon/communityhome/communityhome.php:34 ../../include/nav.php:64
-#: ../../boot.php:977 ../../addon.old/communityhome/communityhome.php:28
+#: ../../boot.php:984 ../../addon.old/communityhome/communityhome.php:28
 #: ../../addon.old/communityhome/communityhome.php:34
 #: ../../addon.old/communityhome/twillingham/communityhome.php:28
 #: ../../addon.old/communityhome/twillingham/communityhome.php:34
@@ -8710,7 +8710,7 @@ msgstr ""
 msgid "Contacts not in any group"
 msgstr ""
 
-#: ../../include/nav.php:46 ../../boot.php:976
+#: ../../include/nav.php:46 ../../boot.php:983
 msgid "Logout"
 msgstr ""
 
@@ -8718,7 +8718,7 @@ msgstr ""
 msgid "End this session"
 msgstr ""
 
-#: ../../include/nav.php:49 ../../boot.php:1774
+#: ../../include/nav.php:49 ../../boot.php:1781
 msgid "Status"
 msgstr ""
 
@@ -8810,7 +8810,7 @@ msgstr ""
 msgid "Delegations"
 msgstr ""
 
-#: ../../include/nav.php:142 ../../boot.php:1279
+#: ../../include/nav.php:142 ../../boot.php:1286
 msgid "Profiles"
 msgstr ""
 
@@ -9390,15 +9390,15 @@ msgstr ""
 msgid "following"
 msgstr ""
 
-#: ../../include/items.php:3373
+#: ../../include/items.php:3380
 msgid "A new person is sharing with you at "
 msgstr ""
 
-#: ../../include/items.php:3373
+#: ../../include/items.php:3380
 msgid "You have a new follower at "
 msgstr ""
 
-#: ../../include/items.php:4057
+#: ../../include/items.php:4064
 msgid "Archives"
 msgstr ""
 
@@ -9646,117 +9646,117 @@ msgstr ""
 msgid "show fewer"
 msgstr ""
 
-#: ../../boot.php:847
+#: ../../boot.php:851
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr ""
 
-#: ../../boot.php:849
+#: ../../boot.php:856
 #, php-format
 msgid "Update Error at %s"
 msgstr ""
 
-#: ../../boot.php:951
+#: ../../boot.php:958
 msgid "Create a New Account"
 msgstr ""
 
-#: ../../boot.php:979
+#: ../../boot.php:986
 msgid "Nickname or Email address: "
 msgstr ""
 
-#: ../../boot.php:980
+#: ../../boot.php:987
 msgid "Password: "
 msgstr ""
 
-#: ../../boot.php:981
+#: ../../boot.php:988
 msgid "Remember me"
 msgstr ""
 
-#: ../../boot.php:984
+#: ../../boot.php:991
 msgid "Or login using OpenID: "
 msgstr ""
 
-#: ../../boot.php:990
+#: ../../boot.php:997
 msgid "Forgot your password?"
 msgstr ""
 
-#: ../../boot.php:993
+#: ../../boot.php:1000
 msgid "Website Terms of Service"
 msgstr ""
 
-#: ../../boot.php:994
+#: ../../boot.php:1001
 msgid "terms of service"
 msgstr ""
 
-#: ../../boot.php:996
+#: ../../boot.php:1003
 msgid "Website Privacy Policy"
 msgstr ""
 
-#: ../../boot.php:997
+#: ../../boot.php:1004
 msgid "privacy policy"
 msgstr ""
 
-#: ../../boot.php:1126
+#: ../../boot.php:1133
 msgid "Requested account is not available."
 msgstr ""
 
-#: ../../boot.php:1205
+#: ../../boot.php:1212
 msgid "Edit profile"
 msgstr ""
 
-#: ../../boot.php:1271
+#: ../../boot.php:1278
 msgid "Message"
 msgstr ""
 
-#: ../../boot.php:1279
+#: ../../boot.php:1286
 msgid "Manage/edit profiles"
 msgstr ""
 
-#: ../../boot.php:1402 ../../boot.php:1488
+#: ../../boot.php:1409 ../../boot.php:1495
 msgid "g A l F d"
 msgstr ""
 
-#: ../../boot.php:1403 ../../boot.php:1489
+#: ../../boot.php:1410 ../../boot.php:1496
 msgid "F d"
 msgstr ""
 
-#: ../../boot.php:1448 ../../boot.php:1529
+#: ../../boot.php:1455 ../../boot.php:1536
 msgid "[today]"
 msgstr ""
 
-#: ../../boot.php:1460
+#: ../../boot.php:1467
 msgid "Birthday Reminders"
 msgstr ""
 
-#: ../../boot.php:1461
+#: ../../boot.php:1468
 msgid "Birthdays this week:"
 msgstr ""
 
-#: ../../boot.php:1522
+#: ../../boot.php:1529
 msgid "[No description]"
 msgstr ""
 
-#: ../../boot.php:1540
+#: ../../boot.php:1547
 msgid "Event Reminders"
 msgstr ""
 
-#: ../../boot.php:1541
+#: ../../boot.php:1548
 msgid "Events this week:"
 msgstr ""
 
-#: ../../boot.php:1777
+#: ../../boot.php:1784
 msgid "Status Messages and Posts"
 msgstr ""
 
-#: ../../boot.php:1784
+#: ../../boot.php:1791
 msgid "Profile Details"
 msgstr ""
 
-#: ../../boot.php:1801
+#: ../../boot.php:1808
 msgid "Events and Calendar"
 msgstr ""
 
-#: ../../boot.php:1808
+#: ../../boot.php:1815
 msgid "Only You Can See This"
 msgstr ""
 
