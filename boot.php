@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1578' );
+define ( 'FRIENDICA_VERSION',      '3.1.1581' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1157      );
 
@@ -839,6 +839,10 @@ if(! function_exists('check_config')) {
 							$retval = $func();
 							if($retval) {
 								//send the administrator an e-mail
+
+							$engine = get_app()->get_template_engine();
+							get_app()->set_template_engine();
+
 								$email_tpl = get_intltext_template("update_fail_eml.tpl");
 								$email_msg = replace_macros($email_tpl, array(
 									'$sitename' => $a->config['sitename'],
@@ -846,6 +850,9 @@ if(! function_exists('check_config')) {
 									'$update' => $x,
 									'$error' => sprintf( t('Update %s failed. See error logs.'), $x)
 								));
+
+								get_app()->set_template_engine($engine);
+
 								$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
 								require_once('include/email.php');
 								$subject = email_header_encode($subject,'UTF-8');	
