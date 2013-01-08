@@ -134,7 +134,7 @@
 
 
 {{foreach $item.children as $child_item}}
-	{{include file="file:{{$child_item.template}}" item=$child_item}}
+	{{include file="{{$child_item.template}}" item=$child_item}}
 {{/foreach}}
 
 </div>
