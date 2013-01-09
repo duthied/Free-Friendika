@@ -213,8 +213,28 @@ class Item extends BaseObject {
 		localize_item($item);
 
 		if ($item["postopts"]) {
-			$langdata = explode(";", $item["postopts"]);
-			$langstr = substr($langdata[0], 5)." (".round($langdata[1]*100, 1)."%)";
+			//$langdata = explode(";", $item["postopts"]);
+			//$langstr = substr($langdata[0], 5)." (".round($langdata[1]*100, 1)."%)";
+			$langstr = "";
+			if (substr($item["postopts"], 0, 5) == "lang=") {
+				$postopts = substr($item["postopts"], 5);
+
+				$languages = explode(":", $postopts);
+
+				if (sizeof($languages) == 1) {
+					$languages = array();
+					$languages[] = $postopts;
+				}
+
+				foreach ($languages as $language) {
+					$langdata = explode(";", $language);
+					if ($langstr != "")
+						$langstr .= ", ";
+
+					//$langstr .= $langdata[0]." (".round($langdata[1]*100, 1)."%)";
+					$langstr .= round($langdata[1]*100, 1)."% ".$langdata[0];
+				}
+			}
 		}
 
 		$body = prepare_body($item,true);

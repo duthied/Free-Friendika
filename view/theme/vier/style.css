@@ -1091,6 +1091,7 @@ border-bottom: 1px solid #D2D2D2;
   max-width: 660px;
   word-wrap: break-word;
   line-height: 1.36;
+  padding-bottom: 6px;
 }
 
 .wall-item-container .wall-item-content img {
@@ -1304,7 +1305,9 @@ border-bottom: 1px solid #D2D2D2;
 .wall-item-tags {
   padding-top: 1px;
   padding-bottom: 2px;
+  display: none;
 }
+
 .tag {
   color: rgb(153,153,153);
   padding-left: 3px;

@@ -898,8 +898,23 @@ function item_store($arr,$force_parent = false) {
 		require_once('library/langdet/Text/LanguageDetect.php');
 		$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
 		$l = new Text_LanguageDetect;
-		$lng = $l->detectConfidence($naked_body);
-		$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+		//$lng = $l->detectConfidence($naked_body);
+		//$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+		$lng = $l->detect($naked_body, 3);
+
+		if (sizeof($lng) > 0) {
+			$postopts = "";
+
+			foreach ($lng as $language => $score) {
+				if ($postopts == "")
+					$postopts = "lang=";
+				else
+					$postopts .= ":";
+
+				$postopts .= $language.";".$score;
+			}
+			$arr['postopts'] = $postopts;
+		}
 	}
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);

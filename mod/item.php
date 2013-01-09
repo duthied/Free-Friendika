@@ -236,9 +236,23 @@ function item_post(&$a) {
 
 		if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
 			$l = new Text_LanguageDetect;
-			$lng = $l->detectConfidence($naked_body);
+			//$lng = $l->detectConfidence($naked_body);
+			//$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
 
-			$postopts = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+			$lng = $l->detect($naked_body, 3);
+
+			if (sizeof($lng) > 0) {
+				$postopts = "";
+
+				foreach ($lng as $language => $score) {
+					if ($postopts == "")
+						$postopts = "lang=";
+					else
+						$postopts .= ":";
+
+					$postopts .= $language.";".$score;
+				}
+			}
 
 			logger('mod_item: detect language' . print_r($lng,true) . $naked_body, LOGGER_DATA);
 		}
