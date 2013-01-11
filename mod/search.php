@@ -136,6 +136,11 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 	}
 
+	if($tag) {
+		$sql_extra = sprintf(" AND `tag`.`tag` = '%s' ", '#'.dbesc(protect_sprintf($search)));
+		$sql_table = "`tag` LEFT JOIN `item` ON `item`.`id` = `tag`.`iid`";
+	} else
+		$sql_table = "`item`";
 
 
 
@@ -146,7 +151,7 @@ function search_content(&$a) {
 
 	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
 	        $r = q("SELECT distinct(`item`.`uri`) as `total`
-		        FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
+		        FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
 		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0) 
 			        OR `item`.`uid` = %d )
@@ -169,7 +174,7 @@ function search_content(&$a) {
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
 		`user`.`nickname`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
 		WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 		AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0 ) 
