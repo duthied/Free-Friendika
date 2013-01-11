@@ -671,14 +671,6 @@ if(! class_exists('App')) {
 			return $this->curl_headers;
 		}
 
-		function get_template_engine() {
-			return get_template_engine($this);
-		}
-
-		function set_template_engine($engine = 'internal') {
-			return set_template_engine($this,$engine);
-		}
-
 		function get_cached_avatar_image($avatar_image){
 			if($this->cached_profile_image[$avatar_image])
 				return $this->cached_profile_image[$avatar_image];
