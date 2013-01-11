@@ -1305,16 +1305,16 @@ border-bottom: 1px solid #D2D2D2;
 .wall-item-tags {
   padding-top: 1px;
   padding-bottom: 2px;
-  display: none;
+  /*display: none;*/
 }
 
 .tag {
   color: rgb(153,153,153);
-  padding-left: 3px;
-  font-size: 10px;
+  /*padding-left: 3px;
+  font-size: 10px;*/
 }
 .tag a {
-  padding-right: 8px;
+  /*padding-right: 8px;*/
   color: rgb(153,153,153);
 }
 .wwto {

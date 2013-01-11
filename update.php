@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1157 );
+define( 'UPDATE_VERSION' , 1158 );
 
 /**
  *
@@ -1365,6 +1365,19 @@ function update_1155() {
 function update_1156() {
 	$r = q("ALTER TABLE `photo` ADD `datasize` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `width` ,
 ADD INDEX ( `datasize` ) ");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1157() {
+	$r = q("CREATE TABLE IF NOT EXISTS `tag` (
+  `iid` int(11) NOT NULL,
+  `tag` char(255) NOT NULL,
+  `link` char(255) NOT NULL,
+  PRIMARY KEY (`iid`, `tag`),
+  KEY `tag` (`tag`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
 
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;

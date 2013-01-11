@@ -1118,3 +1118,17 @@ CREATE TABLE IF NOT EXISTS `userd` (
   `username` char(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tag`
+--
+
+CREATE TABLE IF NOT EXISTS `tag` (
+  `iid` int(11) NOT NULL,
+  `tag` char(255) NOT NULL,
+  `link` char(255) NOT NULL,
+  PRIMARY KEY (`iid`, `tag`),
+  KEY `tag` (`tag`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

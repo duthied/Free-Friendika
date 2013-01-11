@@ -148,7 +148,18 @@ class Item extends BaseObject {
 		$tags=array();
 		$hashtags = array();
 		$mentions = array();
-		foreach(explode(',',$item['tag']) as $tag){
+
+		$taglist = q("select tag,link from tag where iid=%d", intval($item['id']));
+
+		foreach($taglist as $tag) {
+			$tags[] = substr($tag["tag"], 0, 1)."<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
+			if (substr($tag["tag"], 0, 1) == "#")
+				$hashtags[] = "#<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
+			elseif (substr($tag["tag"], 0, 1) == "@")
+				$mentions[] = "@<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
+		}
+
+		/*foreach(explode(',',$item['tag']) as $tag){
 			$tag = trim($tag);
 			if ($tag!="") {
 				$t = bbcode($tag);
@@ -158,8 +169,7 @@ class Item extends BaseObject {
 				elseif($t[0] == '@')
 					$mentions[] = $t;
 			}
-
-		}        
+		}*/
 
 		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
@@ -270,7 +280,7 @@ class Item extends BaseObject {
 			'has_cats' => ((count($categories)) ? 'true' : ''),
 			'has_folders' => ((count($folders)) ? 'true' : ''),
             'categories' => $categories,
-            'folders' => $folders,            
+            'folders' => $folders,
 			'body' => $body_e,
 			'text' => $text_e,
 			'id' => $this->get_id(),
