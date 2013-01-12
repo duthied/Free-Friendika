@@ -2206,7 +2206,7 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 	$images = array();
 
 	$title = $item['title'];
-	$body = fix_private_photos($item['body'], $owner['uid'], $item, $contact['id']);
+	$body = $item['body'];
 
 /*
 	// We're trying to match Diaspora's split message/photo protocol but
@@ -2328,7 +2328,9 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	$myaddr = $owner['nickname'] . '@' .  substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 //	$theiraddr = $contact['addr'];
 
-	// Diaspora doesn't support threaded comments
+	// Diaspora doesn't support threaded comments, but some
+	// versions of Diaspora (i.e. Diaspora-pistos) support
+	// likes on comments
 	if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
 		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
 		        dbesc($item['thr-parent'])
@@ -2404,7 +2406,9 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	$body = $item['body'];
 	$text = html_entity_decode(bb2diaspora($body));
 
-	// Diaspora doesn't support threaded comments
+	// Diaspora doesn't support threaded comments, but some
+	// versions of Diaspora (i.e. Diaspora-pistos) support
+	// likes on comments
 	if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
 		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
 		        dbesc($item['thr-parent'])
