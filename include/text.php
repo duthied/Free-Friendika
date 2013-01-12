@@ -489,12 +489,12 @@ function get_template_file($a, $filename, $root = '') {
 	if($root !== '' && $root[strlen($root)-1] !== '/')
 		$root = $root . '/';
 
-	if(file_exists($root . "view/theme/$theme/$filename"))
-		$template_file = $root . "view/theme/$theme/$filename";
-	elseif (x($a->theme_info,"extends") && file_exists($root . "view/theme/".$a->theme_info["extends"]."/$filename"))
-		$template_file = $root . "view/theme/".$a->theme_info["extends"]."/$filename";
+	if(file_exists("{$root}view/theme/$theme/$filename"))
+		$template_file = "{$root}view/theme/$theme/$filename";
+	elseif (x($a->theme_info,"extends") && file_exists("{$root}view/theme/{$a->theme_info["extends"]}/$filename"))
+		$template_file = "{$root}view/theme/{$a->theme_info["extends"]}/$filename";
 	else
-		$template_file = $root . "view/$filename";
+		$template_file = "{$root}view/$filename";
 
 	return $template_file;
 }}
@@ -1041,13 +1041,13 @@ function prepare_body($item,$attach = false) {
 		return $s;
 	}
 
-	$arr = explode(',',$item['attach']);
+	$arr = explode('[/attach],',$item['attach']);
 	if(count($arr)) {
 		$s .= '<div class="body-attach">';
 		foreach($arr as $r) {
 			$matches = false;
 			$icon = '';
-			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"\[\/attach\]|',$r,$matches, PREG_SET_ORDER);
+			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches, PREG_SET_ORDER);
 			if($cnt) {
 				foreach($matches as $mtch) {
 					$icontype = strtolower(substr($mtch[3],0,strpos($mtch[3],'/')));
