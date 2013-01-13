@@ -228,6 +228,7 @@ function photos_post(&$a) {
 						dbesc($rr['parent-uri']),
 						intval($page_owner_uid)
 					);
+					create_tags_from_itemuri($rr['parent-uri'], $page_owner_uid);
 
 					$drop_id = intval($rr['id']);
 
@@ -275,6 +276,7 @@ function photos_post(&$a) {
 					dbesc($i[0]['uri']),
 					intval($page_owner_uid)
 				);
+				create_tags_from_itemuri($i[0]['uri'], $page_owner_uid);
 
 				$url = $a->get_baseurl();
 				$drop_id = intval($i[0]['id']);
@@ -335,7 +337,7 @@ function photos_post(&$a) {
 						$ph->scaleImage(640);
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
-		
+
 						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 1 limit 1",
 							dbesc($ph->imageString()),
 							intval($height),
@@ -357,7 +359,7 @@ function photos_post(&$a) {
 							dbesc($resource_id),
 							intval($page_owner_uid)
 						);
-					}	
+					}
 				}
 			}
 		}
@@ -835,8 +837,8 @@ function photos_post(&$a) {
 			intval($item_id)
 		);
 	}
-	
-	if($visible) 
+
+	if($visible)
 		proc_run('php', "include/notifier.php", 'wall-new', $item_id);
 
 	call_hooks('photo_post_end',intval($item_id));
@@ -1341,7 +1343,7 @@ function photos_content(&$a) {
 				intval($a->pager['itemspage'])
 
 			);
-		
+
 			if((local_user()) && (local_user() == $link_item['uid'])) {
 				q("UPDATE `item` SET `unseen` = 0 WHERE `parent` = %d and `uid` = %d",
 					intval($link_item['parent']),
