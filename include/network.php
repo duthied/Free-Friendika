@@ -76,9 +76,17 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	}
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-		$matches = array();
-		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-		$newurl = trim(array_pop($matches));
+		$new_location_info = @parse_url($curl_info["redirect_url"]);
+		$old_location_info = @parse_url($curl_info["url"]);
+
+		$newurl = $curl_info["redirect_url"];
+
+		if (($new_location_info["path"] == "") AND ($new_location_info["host"] != ""))
+			$newurl = $new_location_info["scheme"]."://".$new_location_info["host"].$old_location_info["path"];
+
+		//$matches = array();
+		//preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
+		//$newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
 		$url_parsed = @parse_url($newurl);
