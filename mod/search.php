@@ -124,6 +124,9 @@ function search_content(&$a) {
 	if(! $search)
 		return $o;
 
+	if (get_config('system','only_tag_search'))
+		$tag = true;
+
 	if (get_config('system','use_fulltext_engine')) {
 		if($tag)
 			$sql_extra = sprintf(" AND MATCH (`item`.`tag`) AGAINST ('".'"%s"'."' in boolean mode) ", '#'.dbesc(protect_sprintf($search)));

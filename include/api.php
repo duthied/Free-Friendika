@@ -1040,18 +1040,23 @@
 		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
 
-		if (get_config('system','use_fulltext_engine'))
-                        $sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (MATCH(`author-link`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
-                                dbesc(protect_sprintf($myurl)),
-                                dbesc(protect_sprintf($myurl)),
-                                dbesc(protect_sprintf($diasp_url))
-                        );
-                else
-                        $sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where ( `author-link` like '%s' or `tag` like '%s' or tag like '%s' )) ",
-                                dbesc(protect_sprintf('%' . $myurl)),
-                                dbesc(protect_sprintf('%' . $myurl . ']%')),
-                                dbesc(protect_sprintf('%' . $diasp_url . ']%'))
-                        );
+		/*if (get_config('system','use_fulltext_engine'))
+			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (MATCH(`author-link`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
+				dbesc(protect_sprintf($myurl)),
+				dbesc(protect_sprintf($myurl)),
+				dbesc(protect_sprintf($diasp_url))
+			);
+		else
+			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where ( `author-link` like '%s' or `tag` like '%s' or tag like '%s' )) ",
+				dbesc(protect_sprintf('%' . $myurl)),
+				dbesc(protect_sprintf('%' . $myurl . ']%')),
+				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
+			);*/
+
+		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
+			dbesc(protect_sprintf($myurl)),
+			dbesc(protect_sprintf($myurl))
+		);
 
 		if ($max_id > 0)
 			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);

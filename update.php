@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1158 );
+define( 'UPDATE_VERSION' , 1159 );
 
 /**
  *
@@ -1379,6 +1379,12 @@ function update_1157() {
   KEY `tag` (`tag`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
 
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+function update_1158() {
+	$r = q("ALTER TABLE `item` ADD `mention` TINYINT(1) NOT NULL DEFAULT '0', ADD INDEX (`mention`)");
+// KEY `mention` (`mention`)
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }

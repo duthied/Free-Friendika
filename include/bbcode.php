@@ -603,7 +603,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 
 	// Clean up the HTML by loading and saving the HTML with the DOM
 	// Only do it when it has to be done - for performance reasons
-	if (!$tryoembed) {
+	// Update: Now it is done every time - since bad structured html can break a whole page
+	//if (!$tryoembed) {
 		$doc = new DOMDocument();
 		$doc->preserveWhiteSpace = false;
 
@@ -618,7 +619,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 		$Text = str_replace('<br></li>','</li>', $Text);
 
 		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
-	}
+	//}
 
 	call_hooks('bbcode',$Text);
 

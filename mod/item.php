@@ -19,6 +19,7 @@ require_once('include/crypto.php');
 require_once('include/enotify.php');
 require_once('include/email.php');
 require_once('library/langdet/Text/LanguageDetect.php');
+require_once('include/tags.php');
 
 function item_post(&$a) {
 
@@ -685,6 +686,7 @@ function item_post(&$a) {
 			intval($post_id),
 			intval($profile_uid)
 		);
+		create_tags_from_itemuri($post_id, $profile_uid);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -750,6 +752,7 @@ function item_post(&$a) {
 	if(count($r)) {
 		$post_id = $r[0]['id'];
 		logger('mod_item: saved item ' . $post_id);
+		create_tags_from_item($post_id);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');

@@ -20,7 +20,7 @@ function create_tags_from_item($itemid) {
 
 	$searchpath = $a->get_baseurl()."/search?tag=";
 
-	$messages = q("SELECT `uri`, `uid`, `id`, `deleted`, `title`, `body`, `tag` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
+	$messages = q("SELECT `uri`, `uid`, `id`, `created`, `edited`, `commented`, `received`, `changed`, `deleted`, `title`, `body`, `tag` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
 
 	if (!$messages)
 		return;
@@ -58,8 +58,9 @@ function create_tags_from_item($itemid) {
 	}
 
 	foreach ($tags as $tag=>$link)
-		$r = q("INSERT INTO `tag` (`iid`, `tag`, `link`) VALUES (%d, '%s', '%s')",
-			intval($itemid), dbesc($tag), dbesc($link));
+		$r = q("INSERT INTO `tag` (`iid`, `tag`, `link`, `created`, `edited`, `commented`, `received`, `changed`) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+			intval($itemid), dbesc($tag), dbesc($link), dbesc($message["created"]),
+			dbesc($message["edited"]), dbesc($message["commented"]), dbesc($message["received"]), dbesc($message["changed"]));
 }
 
 function create_tags_from_itemuri($itemuri, $uid) {
