@@ -1037,10 +1037,11 @@
 
 		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
-		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
+		//$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
+		$myurl = str_replace('www.','',$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
 
-		/*if (get_config('system','use_fulltext_engine'))
+/*		if (get_config('system','use_fulltext_engine'))
 			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (MATCH(`author-link`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
 				dbesc(protect_sprintf($myurl)),
 				dbesc(protect_sprintf($myurl)),
@@ -1051,8 +1052,8 @@
 				dbesc(protect_sprintf('%' . $myurl)),
 				dbesc(protect_sprintf('%' . $myurl . ']%')),
 				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
-			);*/
-
+			);
+*/
 		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
 			dbesc(protect_sprintf($myurl)),
 			dbesc(protect_sprintf($myurl))

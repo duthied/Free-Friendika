@@ -23,7 +23,7 @@ function search_saved_searches() {
 			);
 		}
 
-		
+
 		$tpl = get_markup_template("saved_searches_aside.tpl");
 
 		$o .= replace_macros($tpl, array(
@@ -32,7 +32,7 @@ function search_saved_searches() {
 			'$searchbox' => '',
 			'$saved' 	 => $saved,
 		));
-	}		
+	}
 
 	return $o;
 
@@ -127,7 +127,7 @@ function search_content(&$a) {
 	if (get_config('system','only_tag_search'))
 		$tag = true;
 
-	if (get_config('system','use_fulltext_engine')) {
+	/*if (get_config('system','use_fulltext_engine')) {
 		if($tag)
 			$sql_extra = sprintf(" AND MATCH (`item`.`tag`) AGAINST ('".'"%s"'."' in boolean mode) ", '#'.dbesc(protect_sprintf($search)));
 		else
@@ -137,15 +137,20 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`tag` REGEXP '%s' ", 	dbesc('\\]' . protect_sprintf(preg_quote($search)) . '\\['));
 		else
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-	}
+	}*/
 
 	if($tag) {
-		$sql_extra = sprintf(" AND `tag`.`tag` = '%s' ", '#'.dbesc(protect_sprintf($search)));
-		$sql_table = "`tag` LEFT JOIN `item` ON `item`.`id` = `tag`.`iid`";
-	} else
+		$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+		$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+	} else {
+		if (get_config('system','use_fulltext_engine')) {
+			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
+		} else {
+			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
+		}
 		$sql_table = "`item`";
-
-
+	}
 
 	// Here is the way permissions work in the search module...
 	// Only public posts can be shown

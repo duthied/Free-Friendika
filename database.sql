@@ -1017,18 +1017,22 @@ CREATE TABLE IF NOT EXISTS `spam` (
 --
 
 CREATE TABLE IF NOT EXISTS `term` (
-  `tid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `oid` INT UNSIGNED NOT NULL ,
-  `otype` TINYINT( 3 ) UNSIGNED NOT NULL ,
-  `type` TINYINT( 3 ) UNSIGNED NOT NULL ,
-  `term` CHAR( 255 ) NOT NULL ,
-  `url` CHAR( 255 ) NOT NULL, 
+  `tid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `aid` int(10) unsigned NOT NULL DEFAULT '0',
+  `uid` int(10) unsigned NOT NULL DEFAULT '0',
+  `oid` int(10) unsigned NOT NULL,
+  `otype` tinyint(3) unsigned NOT NULL,
+  `type` tinyint(3) unsigned NOT NULL,
+  `term` char(255) NOT NULL,
+  `url` char(255) NOT NULL,
   PRIMARY KEY (`tid`),
-  KEY `oid` ( `oid` ),
-  KEY `otype` ( `otype` ),
-  KEY `type`  ( `type` ),
-  KEY `term`  ( `term` )
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `oid` (`oid`),
+  KEY `otype` (`otype`),
+  KEY `type` (`type`),
+  KEY `term` (`term`),
+  KEY `uid` (`uid`),
+  KEY `aid` (`aid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 

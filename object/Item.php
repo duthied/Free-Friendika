@@ -145,18 +145,27 @@ class Item extends BaseObject {
 		call_hooks('render_location',$locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
 
+		$searchpath = $a->get_baseurl()."/search?tag=";
 		$tags=array();
 		$hashtags = array();
 		$mentions = array();
 
-		$taglist = q("select tag,link from tag where iid=%d", intval($item['id']));
+		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
+				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
 		foreach($taglist as $tag) {
-			$tags[] = substr($tag["tag"], 0, 1)."<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
-			if (substr($tag["tag"], 0, 1) == "#")
-				$hashtags[] = "#<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
-			elseif (substr($tag["tag"], 0, 1) == "@")
-				$mentions[] = "@<a href=\"".$tag["link"]."\" target=\"external-link\">".substr($tag["tag"], 1)."</a>";
+
+			if ($tag["url"] == "")
+				$tag["url"] = $searchpath.strtolower($tag["term"]);
+
+			if ($tag["type"] == TERM_HASHTAG) {
+				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$prefix = "#";
+			} elseif ($tag["type"] == TERM_MENTION) {
+				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$prefix = "@";
+			}
+			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
 		}
 
 		/*foreach(explode(',',$item['tag']) as $tag){

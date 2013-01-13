@@ -689,7 +689,9 @@ function network_content(&$a, $update = 0) {
 				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
 			);*/
 
-		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
+		//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
+		//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `mention`)",
+		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s'))",
 			dbesc(protect_sprintf($myurl)),
 			dbesc(protect_sprintf($myurl))
 		);

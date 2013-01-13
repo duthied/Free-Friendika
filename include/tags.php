@@ -12,11 +12,16 @@ if(is_null($db)) {
         unset($db_host, $db_user, $db_pass, $db_data);
 };
 
-$a->set_baseurl(get_config('system','url'));
+$a->set_baseurl("https://pirati.ca");
 */
 
 function create_tags_from_item($itemid) {
 	global $a;
+
+	$profile_base = $a->get_baseurl();
+	$profile_data = parse_url($profile_base);
+	$profile_base_friendica = $profile_data['host'].$profile_data['path']."/profile/";
+	$profile_base_diaspora = $profile_data['host'].$profile_data['path']."/u/";
 
 	$searchpath = $a->get_baseurl()."/search?tag=";
 
@@ -28,7 +33,11 @@ function create_tags_from_item($itemid) {
 	$message = $messages[0];
 
 	// Clean up all tags
-	q("DELETE FROM `tag` WHERE `iid` = %d", intval($itemid));
+	q("DELETE FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
+		intval(TERM_OBJ_POST),
+		intval($itemid),
+		intval(TERM_HASHTAG),
+		intval(TERM_MENTION));
 
 	if ($message["deleted"])
 		return;
@@ -49,7 +58,7 @@ function create_tags_from_item($itemid) {
 	$pattern = "/\W\#([^\[].*?)[\s'\".,:;\?!\[\]\/]/ism";
 	if (preg_match_all($pattern, $data, $matches))
 		foreach ($matches[1] as $match)
-			$tags["#".strtolower($match)] = $searchpath.strtolower($match);
+			$tags["#".strtolower($match)] = ""; // $searchpath.strtolower($match);
 
 	$pattern = "/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism";
 	if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
@@ -57,10 +66,31 @@ function create_tags_from_item($itemid) {
 			$tags[$match[1].strtolower(trim($match[3], ',.:;[]/\"?!'))] = $match[2];
 	}
 
-	foreach ($tags as $tag=>$link)
-		$r = q("INSERT INTO `tag` (`iid`, `tag`, `link`, `created`, `edited`, `commented`, `received`, `changed`) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-			intval($itemid), dbesc($tag), dbesc($link), dbesc($message["created"]),
-			dbesc($message["edited"]), dbesc($message["commented"]), dbesc($message["received"]), dbesc($message["changed"]));
+	foreach ($tags as $tag=>$link) {
+
+		if (substr(trim($tag), 0, 1) == "#") {
+			$type = TERM_HASHTAG;
+			$term = substr($tag, 1);
+		} elseif (substr(trim($tag), 0, 1) == "@") {
+			$type = TERM_MENTION;
+			$term = substr($tag, 1);
+		} else { // This shouldn't happen
+			$type = TERM_HASHTAG;
+			$term = $tag;
+		}
+
+		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`) VALUES (%d, %d, %d, %d, '%s', '%s')",
+			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval($type), dbesc($term), dbesc($link));
+
+		// Search for mentions
+		if ((substr($tag, 0, 1) == '@') AND (strpos($link, $profile_base_friendica) OR strpos($link, $profile_base_diaspora))) {
+			$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
+			foreach ($users AS $user) {
+				if ($user["uid"] == $message["uid"])
+					q("UPDATE `item` SET `mention` = 1 WHERE `id` = %d", intval($itemid));
+			}
+		}
+	}
 }
 
 function create_tags_from_itemuri($itemuri, $uid) {
@@ -71,12 +101,16 @@ function create_tags_from_itemuri($itemuri, $uid) {
 }
 
 function update_items() {
-	$messages = q("SELECT `id` FROM `item` where tag !='' ORDER BY `created` DESC LIMIT 100");
+	//$messages = q("SELECT `id` FROM `item` where tag !='' ORDER BY `created` DESC limit 10");
+	$messages = q("SELECT `id` FROM `item` where tag !=''");
 
 	foreach ($messages as $message)
 		create_tags_from_item($message["id"]);
 }
 
+//print_r($tags);
+//print_r($hashtags);
+//print_r($mentions);
 //update_items();
 //create_tags_from_item(265194);
 //create_tags_from_itemuri("infoagent@diasp.org:cce94abd104c06e8", 2);

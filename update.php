@@ -1371,13 +1371,10 @@ ADD INDEX ( `datasize` ) ");
 }
 
 function update_1157() {
-	$r = q("CREATE TABLE IF NOT EXISTS `tag` (
-  `iid` int(11) NOT NULL,
-  `tag` char(255) NOT NULL,
-  `link` char(255) NOT NULL,
-  PRIMARY KEY (`iid`, `tag`),
-  KEY `tag` (`tag`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+	$r = q("ALTER TABLE `term` ADD `aid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD `uid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD INDEX (`uid`),
+		ADD INDEX (`aid`)");
 
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
