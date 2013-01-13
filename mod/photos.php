@@ -5,7 +5,7 @@ require_once('include/acl_selectors.php');
 require_once('include/bbcode.php');
 require_once('include/security.php');
 require_once('include/redir.php');
-
+require_once('include/tags.php');
 
 function photos_init(&$a) {
 
@@ -559,6 +559,7 @@ function photos_post(&$a) {
 				intval($item_id),
 				intval($page_owner_uid)
 			);
+			create_tags_from_item($item_id);
 
 			$best = 0;
 			foreach($p as $scales) {
