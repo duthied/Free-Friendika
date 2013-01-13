@@ -6,7 +6,7 @@ function network_init(&$a) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
-	
+
 	$is_a_date_query = false;
 
 	if($a->argc > 1) {
@@ -17,12 +17,12 @@ function network_init(&$a) {
 			}
 		}
 	}
-    
+
     // convert query string to array and remove first element (which is friendica args)
     $query_array = array();
     parse_str($a->query_string, $query_array);
     array_shift($query_array);
-    
+
 	// fetch last used network view and redirect if needed
 	if(! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
@@ -141,11 +141,11 @@ function network_init(&$a) {
 
 	if(x($_GET['nets']) && $_GET['nets'] === 'all')
 		unset($_GET['nets']);
-	
+
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
 	set_pconfig(local_user(), 'network.view', 'group.selected', $group_id);
-		  
+
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 	require_once('include/items.php');
@@ -500,7 +500,7 @@ function network_content(&$a, $update = 0) {
 
 
 
-	
+
 
 	$contact_id = $a->cid;
 
@@ -645,16 +645,26 @@ function network_content(&$a, $update = 0) {
 
 	$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
+	$sql_table = "`item`";
 
 	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
-		if (get_config('system','use_fulltext_engine')) {
+
+		if(strpos($search,'#') === 0) {
+                	$tag = true;
+			$search = substr($search,1);
+		}
+
+		if (get_config('system','only_tag_search'))
+			$tag = true;
+
+		/*if (get_config('system','use_fulltext_engine')) {
 			if(strpos($search,'#') === 0)
 				$sql_extra .= sprintf(" AND (MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode)) ",
 					dbesc(protect_sprintf($search))
 				);
 			else
-				$sql_extra .= sprintf(" AND (MATCH(`item`.`body`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode)) ",
+				$sql_extra .= sprintf(" AND (MATCH(`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode)) ",
 					dbesc(protect_sprintf($search)),
 					dbesc(protect_sprintf($search))
 				);
@@ -663,6 +673,17 @@ function network_content(&$a, $update = 0) {
 					dbesc(protect_sprintf('%' . $search . '%')),
 					dbesc(protect_sprintf('%]' . $search . '[%'))
 			);
+		}*/
+
+		if($tag) {
+			$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+			$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+		} else {
+			if (get_config('system','use_fulltext_engine'))
+				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
+			else
+				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 	}
 	if(strlen($file)) {
@@ -689,9 +710,7 @@ function network_content(&$a, $update = 0) {
 				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
 			);*/
 
-		//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
-		//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `mention`)",
-		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s'))",
+		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
 			dbesc(protect_sprintf($myurl)),
 			dbesc(protect_sprintf($myurl))
 		);
@@ -706,7 +725,7 @@ function network_content(&$a, $update = 0) {
 	else {
 		if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
 		        $r = q("SELECT COUNT(*) AS `total`
-			        FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			        FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			        WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 			        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			        $sql_extra2 $sql_extra3
@@ -737,11 +756,10 @@ function network_content(&$a, $update = 0) {
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`, `contact`.`writable`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
+			FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 
 			AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 			$simple_update
-			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra $sql_nets
 			ORDER BY `item`.`received` DESC $pager_sql ",
@@ -764,7 +782,7 @@ function network_content(&$a, $update = 0) {
 
 		if($update) {
 			$r = q("SELECT `parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
 				(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')
 				and `item`.`moderated` = 0 and `item`.`unseen` = 1
@@ -775,7 +793,7 @@ function network_content(&$a, $update = 0) {
 		}
 		else {
 			$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact_uid`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 				AND `item`.`moderated` = 0 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				AND `item`.`parent` = `item`.`id`
@@ -800,9 +818,9 @@ function network_content(&$a, $update = 0) {
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item`, `contact`
+				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-				AND `item`.`moderated` = 0 AND `contact`.`id` = `item`.`contact-id`
+				AND `item`.`moderated` = 0
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				AND `item`.`parent` IN ( %s )
 				$sql_extra ",
@@ -824,7 +842,7 @@ function network_content(&$a, $update = 0) {
 	// We aren't going to try and figure out at the item, group, and page
 	// level which items you've seen and which you haven't. If you're looking
 	// at the top level network page just mark everything seen. 
-	
+
 
 // The $update_unseen is a bit unreliable if you have stuff coming into your stream from a new contact - 
 // and other feeds that bring in stuff from the past. One can't find it all. 

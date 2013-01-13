@@ -562,11 +562,12 @@ function get_tags($s) {
 	$ret = array();
 
 	// ignore anything in a code block
-
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
 
-	// ignore anything in a bbtag
+	// Force line feeds at bbtags
+	$s = str_replace(array("[", "]"), array("\n[", "]\n"), $s);
 
+	// ignore anything in a bbtag
 	$s = preg_replace('/\[(.*?)\]/sm','',$s);
 
 	// Match full names against @tags including the space between first and last
