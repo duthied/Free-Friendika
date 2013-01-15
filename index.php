@@ -143,7 +143,6 @@ elseif($maintenance)
 else {
 	proc_run('php', 'include/dbupdate.php');
 	check_plugins($a);
-	//check_config($a);
 }
 
 nav_set_selected('nothing');
