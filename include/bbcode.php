@@ -254,12 +254,22 @@ function bb_ShareAttributes($match) {
         if ($matches[1] != "")
                 $profile = $matches[1];
 
+        $posted = "";
+        preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $posted = $matches[1];
+
+        preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $posted = $matches[1];
+		$reldate = (($posted) ? " " . relative_date($posted) : ''); 
+
         $headline = '<div class="shared_header">';
 
 	if ($avatar != "")
 		$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
 
-	$headline .= sprintf(t('<span><a href="%s" target="external-link">%s</a> wrote the following <a href="%s" target="external-link">post</a>:</span>'), $profile, $author, $link);
+	$headline .= sprintf(t('<span><a href="%s" target="external-link">%s</a> wrote the following <a href="%s" target="external-link">post</a>'.$reldate.':</span>'), $profile, $author, $link);
 
         $headline .= "</div>";
 
