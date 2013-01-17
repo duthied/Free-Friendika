@@ -1019,7 +1019,8 @@ function prepare_body($item,$attach = false) {
 	$a = get_app();
 	call_hooks('prepare_body_init', $item);
 
-	$cachefile = get_cachefile($item["guid"]."-".strtotime($item["edited"])."-".hash("crc32", $item['body']));
+	//$cachefile = get_cachefile($item["guid"]."-".strtotime($item["edited"])."-".hash("crc32", $item['body']));
+	$cachefile = get_cachefile($item["guid"]."-".hash("md5", $item['body']));
 
 	if (($cachefile != '')) {
 		if (file_exists($cachefile))
@@ -1027,6 +1028,7 @@ function prepare_body($item,$attach = false) {
 		else {
 			$s = prepare_text($item['body']);
 			file_put_contents($cachefile, $s);
+			logger('prepare_body: put item '.$item["id"].' into cachefile '.$cachefile);
 		}
 	} else
 		$s = prepare_text($item['body']);

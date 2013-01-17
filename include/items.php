@@ -6,6 +6,7 @@ require_once('include/salmon.php');
 require_once('include/crypto.php');
 require_once('include/Photo.php');
 require_once('include/tags.php');
+require_once('include/text.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -238,7 +239,7 @@ function construct_activity_object($item) {
 					$r->link = str_replace('&','&amp;', $r->link);
 				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
 				$o .= $r->link;
-			}					
+			}
 			else
 				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
 		}
@@ -270,7 +271,7 @@ function construct_activity_target($item) {
 					$r->link = str_replace('&','&amp;', $r->link);
 				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
 				$o .= $r->link;
-			}					
+			}
 			else
 				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
 		}
@@ -882,7 +883,7 @@ function item_store($arr,$force_parent = false) {
 		$arr['gravity'] = 0;
 	elseif(activity_match($arr['verb'],ACTIVITY_POST))
 		$arr['gravity'] = 6;
-	else      
+	else
 		$arr['gravity'] = 6;   // extensible catchall
 
 	if(! x($arr,'type'))
@@ -1072,10 +1073,9 @@ function item_store($arr,$force_parent = false) {
 
 	if(count($r)) {
 		$current_post = $r[0]['id'];
-		create_tags_from_item($r[0]['id']);
 		logger('item_store: created item ' . $current_post);
-	}
-	else {
+		create_tags_from_item($r[0]['id']);
+	} else {
 		logger('item_store: could not locate created item');
 		return 0;
 	}
@@ -1152,6 +1152,15 @@ function item_store($arr,$force_parent = false) {
 	}
 
 	tag_deliver($arr['uid'],$current_post);
+
+	// Store the fresh generated item into the cache
+	$cachefile = get_cachefile($arr["guid"]."-".hash("md5", $arr['body']));
+
+	if (($cachefile != '') AND !file_exists($cachefile)) {
+		$s = prepare_text($arr['body']);
+		file_put_contents($cachefile, $s);
+		logger('item_store: put item '.$current_post.' into cachefile '.$cachefile);
+	}
 
 	return $current_post;
 }
