@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1589\n"
+"Project-Id-Version: 3.1.1592\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-15 10:00-0800\n"
+"POT-Creation-Date: 2013-01-18 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4351,7 +4351,7 @@ msgstr ""
 msgid "%1$s is following %2$s's %3$s"
 msgstr ""
 
-#: ../../mod/share.php:43
+#: ../../mod/share.php:44
 msgid "link"
 msgstr ""
 
@@ -8978,22 +8978,22 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:505
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:515
 msgid "Image/photo"
 msgstr ""
 
-#: ../../include/bbcode.php:262
+#: ../../include/bbcode.php:272
 #, php-format
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
-"href=\"%s\" target=\"external-link\">post</a>:</span>"
+"href=\"%s\" target=\"external-link\">post</a>"
 msgstr ""
 
-#: ../../include/bbcode.php:470 ../../include/bbcode.php:490
+#: ../../include/bbcode.php:480 ../../include/bbcode.php:500
 msgid "$1 wrote:"
 msgstr ""
 
-#: ../../include/bbcode.php:510 ../../include/bbcode.php:511
+#: ../../include/bbcode.php:520 ../../include/bbcode.php:521
 msgid "Encrypted content"
 msgstr ""
 

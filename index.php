@@ -141,7 +141,7 @@ if($install)
 elseif($maintenance)
 	$a->module = 'maintenance';
 else {
-	proc_run('php', 'include/dbupdate.php');
+	check_db();
 	check_plugins($a);
 }
 

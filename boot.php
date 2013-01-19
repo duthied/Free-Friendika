@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1589' );
+define ( 'FRIENDICA_VERSION',      '3.1.1592' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1158      );
 
@@ -802,6 +802,20 @@ function absurl($path) {
 function is_ajax() {
 	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 }
+
+function check_db() {
+
+	$build = get_config('system','build');
+	if(! x($build)) {
+		set_config('system','build',DB_UPDATE_VERSION);
+		$buid = DB_UPDATE_VERSION;
+	}
+	if($build != DB_UPDATE_VERSION)
+		proc_run('php', 'include/dbupdate.php');
+
+}
+
+
 
 
 // Primarily involved with database upgrade, but also sets the
