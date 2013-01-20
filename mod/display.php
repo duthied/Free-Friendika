@@ -1,6 +1,18 @@
 <?php
 
 
+function display_init(&$a) {
+
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+		return;
+	}
+
+	$nick = (($a->argc > 1) ? $a->argv[1] : '');
+	profile_load($a,$nick);
+
+}
+
+
 function display_content(&$a, $update = 0) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -25,10 +37,10 @@ function display_content(&$a, $update = 0) {
 	else {
 		$nick = (($a->argc > 1) ? $a->argv[1] : '');
 	}
-	profile_load($a,$nick);
 
 	if($update) {
 		$item_id = $_REQUEST['item_id'];
+		$a->profile = array('uid' => intval($update), 'profile_uid' => intval($update));
 	}
 	else {
 		$item_id = (($a->argc > 2) ? intval($a->argv[2]) : 0);
@@ -108,6 +120,8 @@ function display_content(&$a, $update = 0) {
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
 	if($update) {
+
+dbg(1);
 		$r = q("SELECT id FROM item WHERE item.uid = %d
 		        AND `item`.`parent` = ( SELECT `parent` FROM `item` WHERE ( `id` = '%s' OR `uri` = '%s' ))
 		        $sql_extra AND unseen = 1",
@@ -115,6 +129,7 @@ function display_content(&$a, $update = 0) {
 		        dbesc($item_id),
 		        dbesc($item_id) 
 		);
+dbg(0);
 		if(!$r)
 			return '';
 	}

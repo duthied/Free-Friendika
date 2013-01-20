@@ -145,9 +145,11 @@ blockquote, cite, q {
 }
 
 blockquote {
-    background-color: #F4F8F9;
-    border-left: 4px solid #DAE4EE;
-    padding: 0.4em;
+	background-color: #F4F8F9;
+	border-left: 4px solid #DAE4EE;
+	margin: 0;
+	padding: 0.4em;
+	white-space: normal;
 }
 
 strong, b { font-weight:bold; }

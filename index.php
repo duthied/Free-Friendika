@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  *
  * Friendica
@@ -43,7 +44,7 @@ load_translation_table($lang);
 
 require_once("include/dba.php");
 
-if(! $install) {
+if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
     	    unset($db_host, $db_user, $db_pass, $db_data);
 
@@ -58,6 +59,8 @@ if(! $install) {
 	load_hooks();
 	call_hooks('init_1');
 }
+
+$maintenance = get_config('system', 'maintenance');
 
 
 /**
@@ -89,7 +92,7 @@ if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
 	load_translation_table($lang);
 }
 
-if((x($_GET,'zrl')) && (! $install)) {
+if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
 	$_SESSION['my_url'] = $_GET['zrl'];
 	$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
 	zrl_init($a);
@@ -135,8 +138,12 @@ if(! x($_SESSION,'sysmsg_info'))
 
 if($install)
 	$a->module = 'install';
-else
-	check_config($a);
+elseif($maintenance)
+	$a->module = 'maintenance';
+else {
+	proc_run('php', 'include/dbupdate.php');
+	check_plugins($a);
+}
 
 nav_set_selected('nothing');
 
@@ -237,7 +244,7 @@ if (file_exists($theme_info_file)){
 if(! x($a->page,'content'))
 	$a->page['content'] = '';
 
-if(! $install)
+if(!$install && !$maintenance)
 	call_hooks('page_content_top',$a->page['content']);
 
 /**
@@ -372,19 +379,13 @@ $a->page['content'] .=  '<div id="pause"></div>';
  *
  */
 
-if($a->module != 'install') {
+if($a->module != 'install' && $a->module != 'maintenance') {
 	nav($a);
 }
 
 /**
- * Build the page - now that we have all the components
+ * Add a "toggle mobile" link if we're using a mobile device
  */
-
-if(!$a->theme['stylesheet'])
-	$stylesheet = current_theme_url();
-else
-	$stylesheet = $a->theme['stylesheet'];
-$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
 
 if($a->is_mobile || $a->is_tablet) {
 	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
@@ -398,6 +399,16 @@ if($a->is_mobile || $a->is_tablet) {
 	                     	'$toggle_text' => t('toggle mobile')
     	                 ));
 }
+
+/**
+ * Build the page - now that we have all the components
+ */
+
+if(!$a->theme['stylesheet'])
+	$stylesheet = current_theme_url();
+else
+	$stylesheet = $a->theme['stylesheet'];
+$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
 
 $page    = $a->page;
 $profile = $a->profile;

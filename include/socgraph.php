@@ -2,7 +2,6 @@
 
 require_once('include/datetime.php');
 
-
 /*
  * poco_load
  *

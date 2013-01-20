@@ -7,6 +7,7 @@ require_once('include/crypto.php');
 require_once('include/Photo.php');
 require_once('include/tags.php');
 require_once('include/text.php');
+require_once('include/email.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -3410,9 +3411,9 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 					'$sitename' => $a->config['sitename']
 				));
 				$res = mail($r[0]['email'], 
-					(($sharing) ? t('A new person is sharing with you at ') : t("You have a new follower at ")) . $a->config['sitename'],
+					email_header_encode((($sharing) ? t('A new person is sharing with you at ') : t("You have a new follower at ")) . $a->config['sitename'],'UTF-8'),
 					$email,
-					'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+					'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 					. 'Content-type: text/plain; charset=UTF-8' . "\n"
 					. 'Content-transfer-encoding: 8bit' );
 
@@ -3772,11 +3773,11 @@ function item_getfeedtags($item) {
 
 function item_getfeedattach($item) {
 	$ret = '';
-	$arr = explode(',',$item['attach']);
+	$arr = explode('[/attach],',$item['attach']);
 	if(count($arr)) {
 		foreach($arr as $r) {
 			$matches = false;
-			$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"\[\/attach\]|',$r,$matches);
+			$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches);
 			if($cnt) {
 				$ret .= '<link rel="enclosure" href="' . xmlify($matches[1]) . '" type="' . xmlify($matches[3]) . '" ';
 				if(intval($matches[2]))

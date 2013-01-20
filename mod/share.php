@@ -26,7 +26,8 @@ function share_init(&$a) {
 			$o = "[share author='".str_replace("'", "&#039;",$r[0]['author-name']).
 				"' profile='".$r[0]['author-link'].
 				"' avatar='".$r[0]['author-avatar'].
-				"' link='".$r[0]['plink']."']\n";
+				"' link='".$r[0]['plink'].
+				"' posted='".$r[0]['created']."']\n";
 			if($r[0]['title'])
 				$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
 			$o .= $r[0]['body'];
