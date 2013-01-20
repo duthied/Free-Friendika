@@ -25,7 +25,7 @@ function create_tags_from_item($itemid) {
 
 	$searchpath = $a->get_baseurl()."/search?tag=";
 
-	$messages = q("SELECT `uri`, `uid`, `id`, `created`, `edited`, `commented`, `received`, `changed`, `deleted`, `title`, `body`, `tag` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
+	$messages = q("SELECT `guid`, `uid`, `id`, `edited`, `deleted`, `title`, `body`, `tag` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
 
 	if (!$messages)
 		return;
@@ -41,6 +41,14 @@ function create_tags_from_item($itemid) {
 
 	if ($message["deleted"])
 		return;
+
+	$cachefile = get_cachefile($message["guid"]."-".hash("md5", $message['body']));
+
+	if (($cachefile != '') AND !file_exists($cachefile)) {
+		$s = prepare_text($message['body']);
+		file_put_contents($cachefile, $s);
+		logger('create_tags_from_item: put item '.$message["id"].' into cachefile '.$cachefile);
+	}
 
 	$taglist = explode(",", $message["tag"]);
 

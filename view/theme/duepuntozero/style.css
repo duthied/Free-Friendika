@@ -3305,3 +3305,7 @@ ul.menu-popup {
 #div_id_remember input {
 	width: 20px;
 }
+
+.shared_header span {
+	margin-left: 10px;
+}

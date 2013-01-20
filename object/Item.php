@@ -66,6 +66,7 @@ class Item extends BaseObject {
 				if(! visible_activity($item)) {
 					continue;
 				}
+				$item['pagedrop'] = $data['pagedrop'];
 				$child = new Item($item);
 				$this->add_child($child);
 			}
@@ -150,7 +151,7 @@ class Item extends BaseObject {
 		$hashtags = array();
 		$mentions = array();
 
-		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
+		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
 				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
 		foreach($taglist as $tag) {
@@ -536,13 +537,7 @@ class Item extends BaseObject {
 			return false;
 		}
 
-		if($a->theme['template_engine'] === 'smarty3') {
-			$template_file = get_template_file($a, 'smarty3/' . $this->available_templates[$name]);
-		}
-		else {
-			$template_file = $this->available_templates[$name];
-		}
-		$this->template = $template_file;
+		$this->template = $this->available_templates[$name];
 	}
 
 	/**

@@ -524,7 +524,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$hashtags = array();
 				$mentions = array();
 
-				$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
+				$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
 						intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
 				foreach($taglist as $tag) {
@@ -896,26 +896,21 @@ function format_like($cnt,$arr,$type,$id) {
 	if($cnt == 1)
 		$o .= (($type === 'like') ? sprintf( t('%s likes this.'), $arr[0]) : sprintf( t('%s doesn\'t like this.'), $arr[0])) . EOL ;
 	else {
-		//$spanatts = 'class="fakelink" onclick="openClose(\'' . $type . 'list-' . $id . '\');"';
+		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
 		switch($type) {
 			case 'like':
-//				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this.'), $spanatts, $cnt);
-				$mood = t('like this');
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
 				break;
 			case 'dislike':
-//				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this.'), $spanatts, $cnt);
-				$mood = t('don\'t like this');
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
 				break;
 		}
-		$tpl = get_markup_template("voting_fakelink.tpl");
-		$phrase = replace_macros($tpl, array(
-			'$vote_id' => $type . 'list-' . $id,
-			'$count' => $cnt,
-			'$people' => t('people'),
-			'$vote_mood' => $mood
+		$phrase .= EOL ;
+		$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), array(
+			'$phrase' => $phrase,
+			'$type' => $type,
+			'$id' => $id
 		));
-		$o .= $phrase;
-//		$o .= EOL ;
 
 		$total = count($arr);
 		if($total >= MAX_LIKERS)

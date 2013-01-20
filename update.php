@@ -1371,6 +1371,7 @@ ADD INDEX ( `datasize` ) ");
 }
 
 function update_1157() {
+<<<<<<< HEAD
 	$r = q("ALTER TABLE `term` ADD `aid` int(10) unsigned NOT NULL DEFAULT '0',
 		ADD `uid` int(10) unsigned NOT NULL DEFAULT '0',
 		ADD INDEX (`uid`),
@@ -1380,6 +1381,32 @@ function update_1157() {
 	return UPDATE_SUCCESS;
 }
 function update_1158() {
+	$r = q("CREATE TABLE  IF NOT EXISTS `dsprphotoq` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `uid` int(11) NOT NULL,
+	  `msg` mediumtext NOT NULL,
+	  `attempt` tinyint(4) NOT NULL,
+	  PRIMARY KEY (`id`)
+	  ) ENGINE=MyISAM DEFAULT CHARSET=utf8"
+	);
+
+	if($r)
+		return UPDATE_SUCCESS;
+
+	return UPDATE_FAILED;
+}
+
+function update_1159() {
+	$r = q("ALTER TABLE `term` ADD `aid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD `uid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD INDEX (`uid`),
+		ADD INDEX (`aid`)");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1160() {
 	$r = q("ALTER TABLE `item` ADD `mention` TINYINT(1) NOT NULL DEFAULT '0', ADD INDEX (`mention`)");
 // KEY `mention` (`mention`)
 	if(!$r) return UPDATE_FAILED;

@@ -12,10 +12,9 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1572' );
+define ( 'FRIENDICA_VERSION',      '3.1.1589' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1159      );
-
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -385,8 +384,14 @@ if(! class_exists('App')) {
 			'template_engine' => 'internal',
 		);
 
-		public $smarty3_ldelim = '{{';
-		public $smarty3_rdelim = '}}';
+		private $ldelim = array(
+			'internal' => '',
+			'smarty3' => '{{'
+		);
+		private $rdelim = array(
+			'internal' => '',
+			'smarty3' => '}}'
+		);
 
 		private $scheme;
 		private $hostname;
@@ -617,17 +622,17 @@ if(! class_exists('App')) {
 			 */
 			if(!isset($this->page['htmlhead']))
 				$this->page['htmlhead'] = '';
-			$tpl = get_markup_template('head.tpl');
 
 			// If we're using Smarty, then doing replace_macros() will replace
 			// any unrecognized variables with a blank string. Since we delay
 			// replacing $stylesheet until later, we need to replace it now
 			// with another variable name
 			if($this->theme['template_engine'] === 'smarty3')
-				$stylesheet = $this->smarty3_ldelim . '$stylesheet' . $this->smarty3_rdelim;
+				$stylesheet = $this->get_template_ldelim('smarty3') . '$stylesheet' . $this->get_template_rdelim('smarty3');
 			else
 				$stylesheet = '$stylesheet';
 
+			$tpl = get_markup_template('head.tpl');
 			$this->page['htmlhead'] = replace_macros($tpl,array(
 				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
 				'$local_user' => local_user(),
@@ -688,6 +693,31 @@ if(! class_exists('App')) {
 			return $this->cached_profile_image[$avatar_image];
 		}
 
+		function get_template_engine() {
+			return $this->theme['template_engine'];
+		}
+
+		function set_template_engine($engine = 'internal') {
+
+			$this->theme['template_engine'] = 'internal';
+
+			switch($engine) {
+				case 'smarty3':
+					if(is_writable('view/smarty3/'))
+						$this->theme['template_engine'] = 'smarty3';
+					break;
+				default:
+					break;
+			}
+		}
+
+		function get_template_ldelim($engine = 'internal') {
+			return $this->ldelim[$engine];
+		}
+
+		function get_template_rdelim($engine = 'internal') {
+			return $this->rdelim[$engine];
+		}
 
 	}
 }
@@ -776,15 +806,11 @@ function is_ajax() {
 
 // Primarily involved with database upgrade, but also sets the
 // base url for use in cmdline programs which don't have
-// $_SERVER variables, and synchronising the state of installed plugins.
+// $_SERVER variables
 
 
 if(! function_exists('check_config')) {
 	function check_config(&$a) {
-
-		$build = get_config('system','build');
-		if(! x($build))
-			$build = set_config('system','build',DB_UPDATE_VERSION);
 
 		$url = get_config('system','url');
 
@@ -799,6 +825,10 @@ if(! function_exists('check_config')) {
 		if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
 			$url = set_config('system','url',$a->get_baseurl());
 
+
+		$build = get_config('system','build');
+		if(! x($build))
+			$build = set_config('system','build',DB_UPDATE_VERSION);
 
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
@@ -848,9 +878,10 @@ if(! function_exists('check_config')) {
 									'$error' => sprintf( t('Update %s failed. See error logs.'), $x)
 								));
 								$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
-									
+								require_once('include/email.php');
+								$subject = email_header_encode($subject,'UTF-8');	
 								mail($a->config['admin_email'], $subject, $email_msg,
-									'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+									'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 									. 'Content-type: text/plain; charset=UTF-8' . "\n"
 									. 'Content-transfer-encoding: 8bit' );
 								//try the logger
@@ -866,6 +897,14 @@ if(! function_exists('check_config')) {
 				}
 			}
 		}
+
+		return;
+	}
+}
+
+
+if(! function_exists('check_plugins')) {
+	function check_plugins(&$a) {
 
 		/**
 		 *
@@ -1108,6 +1147,10 @@ if(! function_exists('get_max_import_size')) {
  * Profile information is placed in the App structure for later retrieval.
  * Honours the owner's chosen theme for display.
  *
+ * IMPORTANT: Should only be run in the _init() functions of a module. That ensures that
+ * the theme is chosen before the _init() function of a theme is run, which will usually
+ * load a lot of theme-specific content
+ *
  */
 
 if(! function_exists('profile_load')) {
@@ -1167,7 +1210,7 @@ if(! function_exists('profile_load')) {
 
 		if(! $r[0]['is-default']) {
 			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
-					intval($profile_uid)
+					intval($r[0]['profile_uid'])
 			);
 			if($x && count($x))
 				$r[0]['pub_keywords'] = $x[0]['pub_keywords'];
@@ -1175,7 +1218,7 @@ if(! function_exists('profile_load')) {
 
 		$a->profile = $r[0];
 
-		$a->profile['mobile-theme'] = get_pconfig($profile_uid, 'system', 'mobile_theme');
+		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
 
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
@@ -1185,6 +1228,8 @@ if(! function_exists('profile_load')) {
 		/**
 		 * load/reload current theme info
 		 */
+
+		$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = "view/theme/".current_theme()."/theme.php";
 		if (file_exists($theme_info_file)){
@@ -1344,8 +1389,6 @@ if(! function_exists('profile_sidebar')) {
 		}
 
 
-		$tpl = get_markup_template('profile_vcard.tpl');
-
 		$p = array();
 		foreach($profile as $k => $v) {
 			$k = str_replace('-','_',$k);
@@ -1355,6 +1398,7 @@ if(! function_exists('profile_sidebar')) {
 		if($a->theme['template_engine'] === 'internal')
 			$location = template_escape($location);
 
+		$tpl = get_markup_template('profile_vcard.tpl');
 		$o .= replace_macros($tpl, array(
 			'$profile' => $p,
 			'$connect'  => $connect,
@@ -1612,7 +1656,7 @@ if(! function_exists('current_theme')) {
 //		$mobile_detect = new Mobile_Detect();
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 		$is_mobile = $a->is_mobile || $a->is_tablet;
-	
+
 		if($is_mobile) {
 			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 				$system_theme = '';
@@ -1947,16 +1991,9 @@ function clear_cache($basepath = "", $path = "") {
 }
 
 function set_template_engine(&$a, $engine = 'internal') {
+// This function is no longer necessary, but keep it as a wrapper to the class method
+// to avoid breaking themes again unnecessarily
 
-	$a->theme['template_engine'] = 'internal';
-
-	if(is_writable('view/smarty3/')) {
-		switch($engine) {
-			case 'smarty3':
-				$a->theme['template_engine'] = 'smarty3';
-				break;
-			default:
-				break;
-		}
-	}
+	$a->set_template_engine($engine);
 }
+

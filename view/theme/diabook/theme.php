@@ -7,9 +7,6 @@
  * Author:
  */
 
-$a = get_app();
-set_template_engine($a, 'smarty3');
-
 function get_diabook_config($key, $default = false) {
 	if (local_user()) {
 		$result = get_pconfig(local_user(), "diabook", $key);
@@ -25,6 +22,8 @@ function get_diabook_config($key, $default = false) {
 }
 
 function diabook_init(&$a) {
+
+set_template_engine($a, 'smarty3');
 
 //print diabook-version for debugging
 $diabook_version = "Diabook (Version: 1.027)";
@@ -393,9 +392,9 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 			$entry = replace_macros($tpl,array(
 				'$id' => $rr['id'],
-				'$profile-link' => zrl($rr['url']),
+				'$profile_link' => zrl($rr['url']),
 				'$photo' => $rr[$photo],
-				'$alt-text' => $rr['name'],
+				'$alt_text' => $rr['name'],
 			));
 			$aside['$comunity_profiles_items'][] = $entry;
 		}
@@ -422,9 +421,9 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 			$entry = replace_macros($tpl,array(
 				'$id' => $rr['id'],
-				'$profile-link' => $profile_link,
+				'$profile_link' => $profile_link,
 				'$photo' => $a->get_cached_avatar_image($rr[$photo]),
-				'$alt-text' => $rr['name'],
+				'$alt_text' => $rr['name'],
 			));
 			$aside['$lastusers_items'][] = $entry;
 		}
@@ -501,9 +500,9 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 
 			$entry = replace_macros($tpl,array(
 				'$id' => $rr['id'],
-				'$profile-link' => $photo_page,
+				'$profile_link' => $photo_page,
 				'$photo' => $photo_url,
-				'$alt-text' => $rr['username']." : ".$rr['desc'],
+				'$alt_text' => $rr['username']." : ".$rr['desc'],
 			));
 
 			$aside['$photos_items'][] = $entry;
