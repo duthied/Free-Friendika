@@ -367,6 +367,7 @@ function lrdd($uri, $debug = false) {
 	logger('lrdd: constructed url: ' . $url);
 
 	$xml = fetch_url($url);
+
 	$headers = $a->get_curl_headers();
 
 	if (! $xml)

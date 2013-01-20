@@ -557,7 +557,7 @@ function diaspora_decode($importer,$xml) {
 
 }
 
-	
+
 function diaspora_request($importer,$xml) {
 
 	$a = get_app();
@@ -567,7 +567,7 @@ function diaspora_request($importer,$xml) {
 
 	if(! $sender_handle || ! $recipient_handle)
 		return;
-	 
+
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$sender_handle);
 
 	if($contact) {
@@ -752,6 +752,20 @@ function diaspora_request($importer,$xml) {
 }
 
 function diaspora_post_allow($importer,$contact) {
+
+	// perhaps we were already sharing with this person. Now they're sharing with us.
+	// That makes us friends.
+	// Normally this should have handled by getting a request - but this could get lost
+	if($contact['rel'] == CONTACT_IS_FOLLOWER && $importer['page-flags'] != PAGE_COMMUNITY) {
+		q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			intval(CONTACT_IS_FRIEND),
+			intval($contact['id']),
+			intval($importer['uid'])
+		);
+		$contact['rel'] = CONTACT_IS_FRIEND;
+		logger('diaspora_post_allow: defining user '.$contact["nick"].' as friend');
+	}
+
 	if(($contact['blocked']) || ($contact['readonly']) || ($contact['archive']))
 		return false;
 	if($contact['rel'] == CONTACT_IS_SHARING || $contact['rel'] == CONTACT_IS_FRIEND)
