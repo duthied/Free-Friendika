@@ -7,6 +7,7 @@
 #   <braknazwy@autograf.pl>, 2012-2013.
 #   <charizard@autograf.pl>, 2012.
 #   <czarnystokrotek@mailoo.org>, 2012.
+# Daria Początek <charizard@autograf.pl>, 2013.
 #   <d.exax@hotmail.com>, 2012.
 #   <hubertkoscianski@op.pl>, 2012.
 #   <jakub.hag96@gmail.com>, 2012.
@@ -25,9 +26,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-01-15 10:00-0800\n"
-"PO-Revision-Date: 2013-01-16 08:18+0000\n"
-"Last-Translator: julia.domagalska <braknazwy@autograf.pl>\n"
+"POT-Creation-Date: 2013-01-18 10:00-0800\n"
+"PO-Revision-Date: 2013-01-20 18:09+0000\n"
+"Last-Translator: daria.poczatek <charizard@autograf.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -512,7 +513,7 @@ msgstr ""
 
 #: ../../mod/photos.php:607
 msgid "a photo"
-msgstr ""
+msgstr "zdjęcie"
 
 #: ../../mod/photos.php:712 ../../addon/js_upload/js_upload.php:321
 #: ../../addon.old/js_upload/js_upload.php:315
@@ -1378,7 +1379,7 @@ msgstr "Zostały napotkane błędy przy tworzeniu tabeli bazy danych."
 
 #: ../../mod/install.php:504
 msgid "<h1>What next</h1>"
-msgstr ""
+msgstr "<h1>Co dalej</h1>"
 
 #: ../../mod/install.php:505
 msgid ""
@@ -2315,11 +2316,11 @@ msgstr "Ustawienia wtyczki"
 
 #: ../../mod/settings.php:660
 msgid "Off"
-msgstr ""
+msgstr "Wyłącz"
 
 #: ../../mod/settings.php:660
 msgid "On"
-msgstr ""
+msgstr "Włącz"
 
 #: ../../mod/settings.php:668
 msgid "Additional Features"
@@ -2842,7 +2843,7 @@ msgstr ""
 
 #: ../../mod/uimport.php:66
 msgid "Move account"
-msgstr ""
+msgstr "Przenieś konto"
 
 #: ../../mod/uimport.php:67
 msgid "You can import an account from another Friendica server."
@@ -2898,7 +2899,7 @@ msgstr "Wysłano."
 
 #: ../../mod/wallmessage.php:86 ../../mod/wallmessage.php:95
 msgid "No recipient."
-msgstr ""
+msgstr "Brak odbiorcy."
 
 #: ../../mod/wallmessage.php:123 ../../mod/wallmessage.php:131
 #: ../../mod/message.php:249 ../../mod/message.php:257
@@ -3644,7 +3645,7 @@ msgstr ""
 
 #: ../../mod/admin.php:188
 msgid "Private Forum"
-msgstr ""
+msgstr "Forum Prywatne"
 
 #: ../../mod/admin.php:207
 msgid "Message queues"
@@ -4348,7 +4349,7 @@ msgstr "{0} wspomniał Cię w swoim wpisie"
 
 #: ../../mod/nogroup.php:59
 msgid "Contacts who are not members of a group"
-msgstr ""
+msgstr "Kontakty spoza członków grupy"
 
 #: ../../mod/openid.php:24
 msgid "OpenID protocol error. No ID returned."
@@ -4381,7 +4382,7 @@ msgstr ""
 msgid "%1$s is following %2$s's %3$s"
 msgstr ""
 
-#: ../../mod/share.php:43
+#: ../../mod/share.php:44
 msgid "link"
 msgstr ""
 
@@ -4446,7 +4447,7 @@ msgstr ""
 
 #: ../../mod/profiles.php:333
 msgid "Work/Employment"
-msgstr ""
+msgstr "Praca/Zatrudnienie"
 
 #: ../../mod/profiles.php:336
 msgid "Religion"
@@ -4518,7 +4519,7 @@ msgstr "Edytuj profil."
 
 #: ../../mod/profiles.php:627
 msgid "Change Profile Photo"
-msgstr ""
+msgstr "Zmień profilowe zdjęcie"
 
 #: ../../mod/profiles.php:628
 msgid "View this profile"
@@ -5326,7 +5327,7 @@ msgstr ""
 #: ../../addon.old/facebook/facebook.php:1223
 #: ../../addon.old/fbpost/fbpost.php:684
 msgid "Facebook connection became invalid"
-msgstr ""
+msgstr "Błędne połączenie z Facebookiem"
 
 #: ../../addon/facebook/facebook.php:1226 ../../addon/fbpost/fbpost.php:845
 #: ../../addon.old/facebook/facebook.php:1224
@@ -5735,11 +5736,11 @@ msgstr ""
 
 #: ../../addon/page/page.php:166 ../../addon.old/page/page.php:166
 msgid "Page settings updated."
-msgstr ""
+msgstr "Zaktualizowano ustawienia strony."
 
 #: ../../addon/page/page.php:195 ../../addon.old/page/page.php:195
 msgid "Page Settings"
-msgstr ""
+msgstr "Ustawienia strony"
 
 #: ../../addon/page/page.php:197 ../../addon.old/page/page.php:197
 msgid "How many forums to display on sidebar without paging"
@@ -5860,7 +5861,7 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:169
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:169
 msgid "Subject"
-msgstr ""
+msgstr "Temat"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:173
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:173
@@ -6020,7 +6021,7 @@ msgstr "Pierwszy dzień tygodnia:"
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:350
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:373
 msgid "Day of month"
-msgstr ""
+msgstr "Dzień miesiąca"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:354
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:354
@@ -6112,7 +6113,7 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:469
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:469
 msgid "E-Mail"
-msgstr ""
+msgstr "E-Mail"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:470
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:470
@@ -6162,7 +6163,7 @@ msgstr "zakończenie wydarzenia"
 #: ../../addon/dav/common/wdcal_edit.inc.php:492
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:492
 msgid "Add a notification"
-msgstr ""
+msgstr "Dodaj powiadomienie"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:687
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:687
@@ -6238,7 +6239,7 @@ msgstr ""
 #: ../../addon/dav/friendica/layout.fnk.php:138
 #: ../../addon.old/dav/friendica/layout.fnk.php:138
 msgid "No file was uploaded."
-msgstr ""
+msgstr "Nie wgrano pliku."
 
 #: ../../addon/dav/friendica/layout.fnk.php:147
 #: ../../addon.old/dav/friendica/layout.fnk.php:147
@@ -8414,7 +8415,7 @@ msgstr "(bez tematu)"
 
 #: ../../include/Scrape.php:583
 msgid " on Last.fm"
-msgstr ""
+msgstr "na Last.fm"
 
 #: ../../include/text.php:262
 msgid "prev"
@@ -8434,11 +8435,11 @@ msgstr "następny"
 
 #: ../../include/text.php:314
 msgid "newer"
-msgstr ""
+msgstr "nowsze"
 
 #: ../../include/text.php:318
 msgid "older"
-msgstr ""
+msgstr "starsze"
 
 #: ../../include/text.php:657
 msgid "No contacts"
@@ -9009,22 +9010,22 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:505
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:515
 msgid "Image/photo"
 msgstr "Obrazek/zdjęcie"
 
-#: ../../include/bbcode.php:262
+#: ../../include/bbcode.php:272
 #, php-format
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
-"href=\"%s\" target=\"external-link\">post</a>:</span>"
+"href=\"%s\" target=\"external-link\">post</a>"
 msgstr ""
 
-#: ../../include/bbcode.php:470 ../../include/bbcode.php:490
+#: ../../include/bbcode.php:480 ../../include/bbcode.php:500
 msgid "$1 wrote:"
 msgstr "$1 napisał:"
 
-#: ../../include/bbcode.php:510 ../../include/bbcode.php:511
+#: ../../include/bbcode.php:520 ../../include/bbcode.php:521
 msgid "Encrypted content"
 msgstr ""
 
@@ -9666,7 +9667,7 @@ msgstr "zezwolenia"
 
 #: ../../include/plugin.php:389 ../../include/plugin.php:391
 msgid "Click here to upgrade."
-msgstr ""
+msgstr "Kliknij tu, aby zaktualizować."
 
 #: ../../include/plugin.php:397
 msgid "This action exceeds the limits set by your subscription plan."
@@ -9708,7 +9709,7 @@ msgstr "Hasło:"
 
 #: ../../boot.php:1020
 msgid "Remember me"
-msgstr ""
+msgstr "Zapamiętaj mnie"
 
 #: ../../boot.php:1023
 msgid "Or login using OpenID: "
