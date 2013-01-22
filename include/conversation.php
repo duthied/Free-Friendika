@@ -684,6 +684,8 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					continue;
 				}
 
+				call_hooks('display_item', $arr);
+
 				$item['pagedrop'] = $page_dropping;
 
 				if($item['id'] == $item['parent']) {
