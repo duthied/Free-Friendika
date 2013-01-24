@@ -1933,7 +1933,7 @@ $a->strings["%1\$d %2\$s ago"] = "%1\$d %2\$s her";
 $a->strings["%s's birthday"] = "%ss Geburtstag";
 $a->strings["Happy Birthday %s"] = "Herzlichen Glückwunsch %s";
 $a->strings["Image/photo"] = "Bild/Foto";
-$a->strings["<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a href=\"%s\" target=\"external-link\">post</a>:</span>"] = "<span><a href=\"%s\" target=\"external-link\">%s</a> schrieb den folgenden <a href=\"%s\" target=\"external-link\">Eintrag</a>:</span>";
+$a->strings["<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a href=\"%s\" target=\"external-link\">post</a>"] = "<span><a href=\"%s\" target=\"external-link\">%s</a> schrieb den folgenden <a href=\"%s\" target=\"external-link\">Beitrag</a>";
 $a->strings["$1 wrote:"] = "$1 hat geschrieben:";
 $a->strings["Encrypted content"] = "Verschlüsselter Inhalt";
 $a->strings["General Features"] = "Allgemeine Features";
