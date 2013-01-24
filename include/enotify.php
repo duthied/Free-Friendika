@@ -56,12 +56,13 @@ function notification($params) {
 
 		$parent_id = $params['parent'];
 
-		// Check to see if there was already a tag notify for this post.
+		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
 		
 		$p = null;
-		$p = q("select id from notify where type = %d and link = '%s' and uid = %d limit 1",
+		$p = q("select id from notify where ( type = %d or type = %d ) and link = '%s' and uid = %d limit 1",
 			intval(NOTIFY_TAGSELF),
+			intval(NOTIFY_COMMENT),
 			dbesc($params['link']),
 			intval($params['uid'])
 		);
