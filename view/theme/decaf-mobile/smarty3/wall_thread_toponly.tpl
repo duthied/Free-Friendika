@@ -84,7 +84,6 @@
 	</div>	
 	<div class="wall-item-like {{$item.indent}}" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
 	<div class="wall-item-dislike {{$item.indent}}" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
-	<div class="wall-item-boring {{$item.indent}}" id="wall-item-boring-{{$item.id}}">{{$item.boring}}</div>
 
 	<div class="hide-comments-outer">
 	<a href="display/{{$user.nickname}}/{{$item.id}}"><span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.total_comments_num}} {{$item.total_comments_text}}</span></a>

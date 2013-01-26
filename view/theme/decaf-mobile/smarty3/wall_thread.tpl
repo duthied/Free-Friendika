@@ -100,7 +100,6 @@
 	{{*<!--<div class="wall-item-wrapper-end"></div>-->*}}
 	<div class="wall-item-like wall-item-like-full {{$item.indent}}" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
 	<div class="wall-item-dislike wall-item-dislike-full {{$item.indent}}" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
-	<div class="wall-item-boring wall-item-boring-full {{$item.indent}}" id="wall-item-boring-{{$item.id}}">{{$item.boring}}</div>
 
 	{{if $item.threaded}}
 	{{if $item.comment}}
