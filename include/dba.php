@@ -78,18 +78,20 @@ class dba {
 
 		$this->error = '';
 
-		if(x($a->config,'system') && x($a->config['system'],'db_log'))
-			$stamp1 = microtime(true);
+		$stamp1 = microtime(true);
 
 		if($this->mysqli)
 			$result = @$this->db->query($sql);
 		else
 			$result = @mysql_query($sql,$this->db);
 
+		$stamp2 = microtime(true);
+		$duration = (float)($stamp2-$stamp1);
+		$a->performance["database"] += (float)$duration;
+
 		if(x($a->config,'system') && x($a->config['system'],'db_log')) {
-			$stamp2 = microtime(true);
-			$duration = round($stamp2-$stamp1, 3);
 			if (($duration > $a->config["system"]["db_loglimit"])) {
+				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				@file_put_contents($a->config["system"]["db_log"], $duration."\t".
 						basename($backtrace[1]["file"])."\t".

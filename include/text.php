@@ -6,16 +6,17 @@
 // returns substituted string.
 // WARNING: this is pretty basic, and doesn't properly handle search strings that are substrings of each other.
 // For instance if 'test' => "foo" and 'testing' => "bar", testing could become either bar or fooing, 
-// depending on the order in which they were declared in the array.   
+// depending on the order in which they were declared in the array.
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
 
-if(! function_exists('replace_macros')) {  
+if(! function_exists('replace_macros')) {
 function replace_macros($s,$r) {
 	global $t;
 
-//	$ts = microtime();
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 
 	if($a->theme['template_engine'] === 'smarty3') {
@@ -34,12 +35,14 @@ function replace_macros($s,$r) {
 	}
 	else {
 		$r =  $t->replace($s,$r);
-	
+
 		$output = template_unescape($r);
 	}
-//	$tt = microtime() - $ts;
-//	$a = get_app();
-//	$a->page['debug'] .= "$tt <br>\n";
+	$a = get_app();
+	$stamp2 = microtime(true);
+	$duration = (float)($stamp2-$stamp1);
+	$a->performance["rendering"] += (float)$duration;
+
 	return $output;
 }}
 
@@ -427,12 +430,12 @@ function load_view_file($s) {
 	$d = dirname($s);
 	if(file_exists("$d/$lang/$b"))
 		return file_get_contents("$d/$lang/$b");
-	
+
 	$theme = current_theme();
 
 	if(file_exists("$d/theme/$theme/$b"))
 		return file_get_contents("$d/theme/$theme/$b");
-			
+
 	return file_get_contents($s);
 }}
 
@@ -458,7 +461,8 @@ function get_intltext_template($s) {
 
 if(! function_exists('get_markup_template')) {
 function get_markup_template($s, $root = '') {
-//	$ts = microtime();
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 
 	if($a->theme['template_engine'] === 'smarty3') {
@@ -467,18 +471,21 @@ function get_markup_template($s, $root = '') {
 		$template = new FriendicaSmarty();
 		$template->filename = $template_file;
 
-//		$tt = microtime() - $ts;
-//		$a->page['debug'] .= "$tt <br>\n";
+		$stamp2 = microtime(true);
+		$duration = (float)($stamp2-$stamp1);
+		$a->performance["rendering"] += (float)$duration;
+
 		return $template;
 	}
 	else {
 		$template_file = get_template_file($a, $s, $root);
-//		$file_contents = file_get_contents($template_file);
-//		$tt = microtime() - $ts;
-//		$a->page['debug'] .= "$tt <br>\n";
-//		return $file_contents;
+
+		$stamp2 = microtime(true);
+		$duration = (float)($stamp2-$stamp1);
+		$a->performance["rendering"] += (float)$duration;
+
 		return file_get_contents($template_file);
-	}	
+	}
 }}
 
 if(! function_exists("get_template_file")) {

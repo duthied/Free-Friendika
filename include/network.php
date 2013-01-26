@@ -7,10 +7,12 @@
 if(! function_exists('fetch_url')) {
 function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_content=Null) {
 
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 
 	$ch = @curl_init($url);
-	if(($redirects > 8) || (! $ch)) 
+	if(($redirects > 8) || (! $ch))
 		return false;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
@@ -101,6 +103,11 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	$body = substr($s,strlen($header));
 	$a->set_curl_headers($header);
 	@curl_close($ch);
+
+	$stamp2 = microtime(true);
+	$duration = (float)($stamp2-$stamp1);
+	$a->performance["network"] += (float)$duration;
+
 	return($body);
 }}
 
@@ -108,6 +115,9 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 
 if(! function_exists('post_url')) {
 function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) {
+
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 	$ch = curl_init($url);
 	if(($redirects > 8) || (! $ch))
@@ -190,6 +200,11 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	$a->set_curl_headers($header);
 
 	curl_close($ch);
+
+	$stamp2 = microtime(true);
+	$duration = (float)($stamp2-$stamp1);
+	$a->performance["network"] += (float)$duration;
+
 	return($body);
 }}
 
@@ -299,9 +314,9 @@ function webfinger_dfrn($s,&$hcard) {
 			if($link['@attributes']['rel'] === NAMESPACE_DFRN)
 				$profile_link = $link['@attributes']['href'];
 			if($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB)
-				$profile_link = 'stat:' . $link['@attributes']['template'];	
+				$profile_link = 'stat:' . $link['@attributes']['template'];
 			if($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard')
-				$hcard = $link['@attributes']['href'];				
+				$hcard = $link['@attributes']['href'];
 		}
 	}
 	return $profile_link;
@@ -417,7 +432,7 @@ function lrdd($uri, $debug = false) {
 				elseif(x($link['@attributes'],'href'))
 					$href = $link['@attributes']['href'];
 			}
-		}		
+		}
 	}
 
 	if((! isset($tpl)) || (! strpos($tpl,'{uri}')))
@@ -436,7 +451,7 @@ function lrdd($uri, $debug = false) {
 
 		$lines = explode("\n",$headers);
 		if(count($lines)) {
-			foreach($lines as $line) {				
+			foreach($lines as $line) {
 				if((stristr($line,'link:')) && preg_match('/<([^>].*)>.*rel\=[\'\"]lrdd[\'\"]/',$line,$matches)) {
 					return(fetch_xrd_links($matches[1]));
 					break;
@@ -482,7 +497,7 @@ function lrdd($uri, $debug = false) {
 
 	$lines = explode("\n",$headers);
 	if(count($lines)) {
-		foreach($lines as $line) {				
+		foreach($lines as $line) {
 			// TODO alter the following regex to support multiple relations (space separated)
 			if((stristr($line,'link:')) && preg_match('/<([^>].*)>.*rel\=[\'\"]lrdd[\'\"]/',$line,$matches)) {
 				$pagelink = $matches[1];
@@ -598,14 +613,14 @@ function fetch_xrd_links($url) {
 
 if(! function_exists('validate_url')) {
 function validate_url(&$url) {
-	
+
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
 	if(substr($url,0,4) != 'http')
 		$url = 'http://' . $url;
 	$h = @parse_url($url);
-	
+
 	if(($h) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 		return true;
 	}

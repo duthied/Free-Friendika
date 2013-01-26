@@ -355,7 +355,8 @@ if(! class_exists('App')) {
 		public  $identities;
 		public	$is_mobile;
 		public	$is_tablet;
-	
+		public	$performance = array();
+
 		public $nav_sel;
 
 		public $category;
@@ -403,7 +404,7 @@ if(! class_exists('App')) {
 
 		private $cached_profile_image;
 		private $cached_profile_picdate;
-							
+
 		function __construct() {
 
 			global $default_timezone, $argv, $argc;
@@ -411,6 +412,11 @@ if(! class_exists('App')) {
 			$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
 
 			date_default_timezone_set($this->timezone);
+
+			$this->performance["start"] = microtime(true);
+			$this->performance["database"] = 0;
+			$this->performance["network"] = 0;
+			$this->performance["rendering"] = 0;
 
 			$this->config = array();
 			$this->page = array();
