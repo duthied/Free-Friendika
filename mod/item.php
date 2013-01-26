@@ -762,7 +762,9 @@ function item_post(&$a) {
 
 		if (($cachefile != '') AND !file_exists($cachefile)) {
 			$s = prepare_text($datarray['body']);
+			$stamp1 = microtime(true);
 			file_put_contents($cachefile, $s);
+			$a->save_timestamp($stamp1, "file");
 			logger('mod_item: put item '.$r[0]['id'].' into cachefile '.$cachefile);
 		}
 

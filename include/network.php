@@ -104,9 +104,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	$a->set_curl_headers($header);
 	@curl_close($ch);
 
-	$stamp2 = microtime(true);
-	$duration = (float)($stamp2-$stamp1);
-	$a->performance["network"] += (float)$duration;
+	$a->save_timestamp($stamp1, "network");
 
 	return($body);
 }}
@@ -201,9 +199,7 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 
 	curl_close($ch);
 
-	$stamp2 = microtime(true);
-	$duration = (float)($stamp2-$stamp1);
-	$a->performance["network"] += (float)$duration;
+	$a->save_timestamp($stamp1, "network");
 
 	return($body);
 }}
@@ -851,8 +847,11 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			$i = fetch_url($scaled);
 
 			$cachefile = get_cachefile(hash("md5", $scaled));
-			if ($cachefile != '')
+			if ($cachefile != '') {
+				$stamp1 = microtime(true);
 				file_put_contents($cachefile, $i);
+				$a->save_timestamp($stamp1, "file");
+			}
 
 			// guess mimetype from headers or filename
 			$type = guess_image_type($mtch[1],true);

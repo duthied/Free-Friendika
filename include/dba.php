@@ -23,6 +23,9 @@ class dba {
 	public  $error = false;
 
 	function __construct($server,$user,$pass,$db,$install = false) {
+		global $a;
+
+		$stamp1 = microtime(true);
 
 		$server = trim($server);
 		$user = trim($user);
@@ -64,6 +67,8 @@ class dba {
 			if(! $install)
 				system_unavailable();
 		}
+
+		$a->save_timestamp($stamp1, "network");
 	}
 
 	public function getdb() {
@@ -87,7 +92,6 @@ class dba {
 
 		$stamp2 = microtime(true);
 		$duration = (float)($stamp2-$stamp1);
-		$a->performance["database"] += (float)$duration;
 
 		if(x($a->config,'system') && x($a->config['system'],'db_log')) {
 			if (($duration > $a->config["system"]["db_loglimit"])) {
@@ -164,6 +168,7 @@ class dba {
 			}
 		}
 
+		$a->save_timestamp($stamp1, "database");
 
 		if($this->debug)
 			logger('dba: ' . printable(print_r($r, true)));

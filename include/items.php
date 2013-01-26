@@ -1159,7 +1159,9 @@ function item_store($arr,$force_parent = false) {
 
 	if (($cachefile != '') AND !file_exists($cachefile)) {
 		$s = prepare_text($arr['body']);
+		$stamp1 = microtime(true);
 		file_put_contents($cachefile, $s);
+		$a->save_timestamp($stamp1, "file");
 		logger('item_store: put item '.$current_post.' into cachefile '.$cachefile);
 	}
 

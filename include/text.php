@@ -428,15 +428,26 @@ function load_view_file($s) {
 		$lang = 'en';
 	$b = basename($s);
 	$d = dirname($s);
-	if(file_exists("$d/$lang/$b"))
-		return file_get_contents("$d/$lang/$b");
+	if(file_exists("$d/$lang/$b")) {
+		$stamp1 = microtime(true);
+		$content = file_get_contents("$d/$lang/$b");
+		$a->save_timestamp($stamp1, "file");
+		return $content;
+	}
 
 	$theme = current_theme();
 
-	if(file_exists("$d/theme/$theme/$b"))
-		return file_get_contents("$d/theme/$theme/$b");
+	if(file_exists("$d/theme/$theme/$b")) {
+		$stamp1 = microtime(true);
+		$content = file_get_contents("$d/theme/$theme/$b");
+		$a->save_timestamp($stamp1, "file");
+		return $content;
+	}
 
-	return file_get_contents($s);
+	$stamp1 = microtime(true);
+	$content = file_get_contents($s);
+	$a->save_timestamp($stamp1, "file");
+	return $content;
 }}
 
 if(! function_exists('get_intltext_template')) {
@@ -451,12 +462,22 @@ function get_intltext_template($s) {
 	if(! isset($lang))
 		$lang = 'en';
 
-	if(file_exists("view/$lang$engine/$s"))
-		return file_get_contents("view/$lang$engine/$s");
-	elseif(file_exists("view/en$engine/$s"))
-		return file_get_contents("view/en$engine/$s");
-	else
-		return file_get_contents("view$engine/$s");
+	if(file_exists("view/$lang$engine/$s")) {
+		$stamp1 = microtime(true);
+		$content = file_get_contents("view/$lang$engine/$s");
+		$a->save_timestamp($stamp1, "file");
+		return $content;
+	} elseif(file_exists("view/en$engine/$s")) {
+		$stamp1 = microtime(true);
+		$content = file_get_contents("view/en$engine/$s");
+		$a->save_timestamp($stamp1, "file");
+		return $content;
+	} else {
+		$stamp1 = microtime(true);
+		$content = file_get_contents("view$engine/$s");
+		$a->save_timestamp($stamp1, "file");
+		return $content;
+	}
 }}
 
 if(! function_exists('get_markup_template')) {
@@ -470,21 +491,19 @@ function get_markup_template($s, $root = '') {
 
 		$template = new FriendicaSmarty();
 		$template->filename = $template_file;
-
-		$stamp2 = microtime(true);
-		$duration = (float)($stamp2-$stamp1);
-		$a->performance["rendering"] += (float)$duration;
+		$a->save_timestamp($stamp1, "rendering");
 
 		return $template;
 	}
 	else {
 		$template_file = get_template_file($a, $s, $root);
+		$a->save_timestamp($stamp1, "rendering");
 
-		$stamp2 = microtime(true);
-		$duration = (float)($stamp2-$stamp1);
-		$a->performance["rendering"] += (float)$duration;
+		$stamp1 = microtime(true);
+		$content = file_get_contents($template_file);
+		$a->save_timestamp($stamp1, "file");
+		return $content;
 
-		return file_get_contents($template_file);
 	}
 }}
 
@@ -541,8 +560,10 @@ function logger($msg,$level = 0) {
 
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
 		return;
-	
+
+	$stamp1 = microtime(true);
 	@file_put_contents($logfile, datetime_convert() . ':' . session_id() . ' ' . $msg . "\n", FILE_APPEND);
+	$a->save_timestamp($stamp1, "file");
 	return;
 }}
 
@@ -1029,11 +1050,15 @@ function prepare_body($item,$attach = false) {
 	$cachefile = get_cachefile($item["guid"]."-".hash("md5", $item['body']));
 
 	if (($cachefile != '')) {
-		if (file_exists($cachefile))
+		if (file_exists($cachefile)) {
+			$stamp1 = microtime(true);
 			$s = file_get_contents($cachefile);
-		else {
+			$a->save_timestamp($stamp1, "file");
+		} else {
 			$s = prepare_text($item['body']);
+			$stamp1 = microtime(true);
 			file_put_contents($cachefile, $s);
+			$a->save_timestamp($stamp1, "file");
 			logger('prepare_body: put item '.$item["id"].' into cachefile '.$cachefile);
 		}
 	} else

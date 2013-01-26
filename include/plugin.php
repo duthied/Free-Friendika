@@ -201,12 +201,15 @@ function get_plugin_info($plugin){
 		'author' => array(),
 		'version' => ""
 	);
-	
+
 	if (!is_file("addon/$plugin/$plugin.php")) return $info;
-	
+
+	$stamp1 = microtime(true);
 	$f = file_get_contents("addon/$plugin/$plugin.php");
+	$a->save_timestamp($stamp1, "file");
+
 	$r = preg_match("|/\*.*\*/|msU", $f, $m);
-	
+
 	if ($r){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {
@@ -266,11 +269,13 @@ function get_theme_info($theme){
 		$info['unsupported'] = true;
 
 	if (!is_file("view/theme/$theme/theme.php")) return $info;
-	
+
+	$stamp1 = microtime(true);
 	$f = file_get_contents("view/theme/$theme/theme.php");
+	$a->save_timestamp($stamp1, "file");
+
 	$r = preg_match("|/\*.*\*/|msU", $f, $m);
-	
-	
+
 	if ($r){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {

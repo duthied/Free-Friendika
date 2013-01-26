@@ -417,6 +417,7 @@ if(! class_exists('App')) {
 			$this->performance["database"] = 0;
 			$this->performance["network"] = 0;
 			$this->performance["rendering"] = 0;
+			$this->performance["parser"] = 0;
 
 			$this->config = array();
 			$this->page = array();
@@ -723,6 +724,12 @@ if(! class_exists('App')) {
 
 		function get_template_rdelim($engine = 'internal') {
 			return $this->rdelim[$engine];
+		}
+
+		function save_timestamp($stamp1, $value) {
+			$stamp2 = microtime(true);
+			$duration = (float)($stamp2-$stamp1);
+			$this->performance[$value] += (float)$duration;
 		}
 
 	}

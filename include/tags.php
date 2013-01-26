@@ -46,7 +46,9 @@ function create_tags_from_item($itemid) {
 
 	if (($cachefile != '') AND !file_exists($cachefile)) {
 		$s = prepare_text($message['body']);
+		$stamp1 = microtime(true);
 		file_put_contents($cachefile, $s);
+		$a->save_timestamp($stamp1, "file");
 		logger('create_tags_from_item: put item '.$message["id"].' into cachefile '.$cachefile);
 	}
 

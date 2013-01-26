@@ -283,6 +283,8 @@ function bb_ShareAttributes($match) {
 
 function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 
 	// Hide all [noparse] contained bbtags by spacefying them
@@ -636,6 +638,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true) {
 	//}
 
 	call_hooks('bbcode',$Text);
+
+	$a->save_timestamp($stamp1, "parser");
 
 	return $Text;
 }
