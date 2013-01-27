@@ -418,6 +418,8 @@ if(! class_exists('App')) {
 			$this->performance["network"] = 0;
 			$this->performance["rendering"] = 0;
 			$this->performance["parser"] = 0;
+			$this->performance["marktime"] = 0;
+			$this->performance["markstart"] = microtime(true);
 
 			$this->config = array();
 			$this->page = array();
@@ -726,12 +728,17 @@ if(! class_exists('App')) {
 			return $this->rdelim[$engine];
 		}
 
-		function save_timestamp($stamp1, $value) {
-			$stamp2 = microtime(true);
-			$duration = (float)($stamp2-$stamp1);
+		function save_timestamp($stamp, $value) {
+			$duration = (float)(microtime(true)-$stamp);
+
 			$this->performance[$value] += (float)$duration;
+			$this->performance["marktime"] += (float)$duration;
 		}
 
+		function mark_timestamp($mark) {
+			//$this->performance["markstart"] -= microtime(true) - $this->performance["marktime"];
+			$this->performance["markstart"] = microtime(true) - $this->performance["markstart"] - $this->performance["marktime"];
+		}
 	}
 }
 

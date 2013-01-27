@@ -368,7 +368,6 @@ function visible_activity($item) {
 if(!function_exists('conversation')) {
 function conversation(&$a, $items, $mode, $update, $preview = false) {
 
-
 	require_once('include/bbcode.php');
 
 	$ssl_state = ((local_user()) ? true : false);

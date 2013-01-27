@@ -39,9 +39,7 @@ function replace_macros($s,$r) {
 		$output = template_unescape($r);
 	}
 	$a = get_app();
-	$stamp2 = microtime(true);
-	$duration = (float)($stamp2-$stamp1);
-	$a->performance["rendering"] += (float)$duration;
+	$a->save_timestamp($stamp1, "rendering");
 
 	return $output;
 }}

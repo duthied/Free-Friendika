@@ -8,7 +8,7 @@ function uninstall_plugin($plugin){
 	q("DELETE FROM `addon` WHERE `name` = '%s' ",
 		dbesc($plugin)
 	);
-    
+
 	@include_once('addon/' . $plugin . '/' . $plugin . '.php');
 	if(function_exists($plugin . '_uninstall')) {
 		$func = $plugin . '_uninstall';
@@ -28,9 +28,9 @@ function install_plugin($plugin) {
 	if(function_exists($plugin . '_install')) {
 		$func = $plugin . '_install';
 		$func();
-		
+
 		$plugin_admin = (function_exists($plugin."_plugin_admin")?1:0);
-		
+
 		$r = q("INSERT INTO `addon` (`name`, `installed`, `timestamp`, `plugin_admin`) VALUES ( '%s', 1, %d , %d ) ",
 			dbesc($plugin),
 			intval($t),
@@ -195,6 +195,9 @@ function call_hooks($name, &$data = null) {
 
 if (! function_exists('get_plugin_info')){
 function get_plugin_info($plugin){
+
+	$a = get_app();
+
 	$info=Array(
 		'name' => $plugin,
 		'description' => "",
@@ -229,10 +232,10 @@ function get_plugin_info($plugin){
 						$info[$k]=$v;
 					}
 				}
-				
+
 			}
 		}
-		
+
 	}
 	return $info;
 }}
@@ -241,7 +244,7 @@ function get_plugin_info($plugin){
 /*
  * parse theme comment in search of theme infos.
  * like
- * 	
+ *
  * 	 * Name: My Theme
  *   * Description: My Cool Theme
  * 	 * Version: 1.2.3
@@ -270,6 +273,7 @@ function get_theme_info($theme){
 
 	if (!is_file("view/theme/$theme/theme.php")) return $info;
 
+	$a = get_app();
 	$stamp1 = microtime(true);
 	$f = file_get_contents("view/theme/$theme/theme.php");
 	$a->save_timestamp($stamp1, "file");

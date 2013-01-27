@@ -321,7 +321,7 @@ function network_query_get_sel_net() {
 	if(x($_GET,'nets')) {
 		$network = $_GET['nets'];
 	}
-	
+
 	return $network;
 }
 
@@ -382,14 +382,14 @@ function network_content(&$a, $update = 0) {
 	// item filter tabs
 	// TODO: fix this logic, reduce duplication
 	//$a->page['content'] .= '<div class="tabs-wrapper">';
-	
+
 	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
 	// if no tabs are selected, defaults to comments
 	if ($no_active=='active') $all_active='active';
 	//echo "<pre>"; var_dump($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active); killme();
 
 	$cmd = (($datequery) ? '' : $a->cmd);
-	$len_naked_cmd = strlen(str_replace('/new','',$cmd));		
+	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
 
 	// tabs
 	$tabs = array(
@@ -435,10 +435,10 @@ function network_content(&$a, $update = 0) {
 //			'url'=>$a->get_baseurl(true) . '/network?f=&spam=1'
 //			'sel'=> $spam_active,
 //			'title' => t('Posts flagged as SPAM'),
-//		),	
+//		),
 
 	);
-	
+
 	if(feature_enabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
 			'label' => t('Personal'),
@@ -571,11 +571,11 @@ function network_content(&$a, $update = 0) {
 	}
 
 
-	// We don't have to deal with ACL's on this page. You're looking at everything
+	// We don't have to deal with ACLs on this page. You're looking at everything
 	// that belongs to you, hence you can see all of it. We will filter by group if
 	// desired. 
 
-	
+
 	$sql_options  = (($star) ? " and starred = 1 " : '');
 	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
 
