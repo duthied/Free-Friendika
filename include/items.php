@@ -831,15 +831,28 @@ function get_atom_elements($feed,$item) {
 		}
 	}
 
+	// Search for ostatus conversation url
+	$links = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
+
+	foreach ($links as $link) {
+		$conversation = array_shift($link["attribs"]);
+
+		if ($conversation["rel"] == "ostatus:conversation") {
+			$res["ostatus_conversation"] = $conversation["href"];
+			logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
+		}
+	};
+
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
 
 	//if (($res["title"] != "") or (strpos($res["body"], "RT @") > 0)) {
 	//if (strpos($res["body"], "RT @") !== false) {
-	//	$debugfile = tempnam("/home/ike/log", "item-res2-");
-	//	file_put_contents($debugfile, serialize($arr));
-	//}
+	/*if (strpos($res["body"], "@") !== false) {
+		$debugfile = tempnam("/var/www/virtual/pirati.ca/phptmp/", "item-res2-");
+		file_put_contents($debugfile, serialize($arr));
+	}*/
 
 	return $res;
 }
@@ -876,6 +889,15 @@ function item_store($arr,$force_parent = false) {
 	if(x($arr,'dsprsig')) {
 		$dsprsig = json_decode(base64_decode($arr['dsprsig']));
 		unset($arr['dsprsig']);
+	}
+
+	// if an OStatus conversation url was passed in, it is stored and then
+	// removed from the array.
+	$ostatus_conversation = null;
+
+	if (isset($arr["ostatus_conversation"])) {
+		$ostatus_conversation = $arr["ostatus_conversation"];
+	        unset($arr["ostatus_conversation"]);
 	}
 
 	if(x($arr, 'gravity'))
@@ -969,9 +991,9 @@ function item_store($arr,$force_parent = false) {
 		$deny_cid  = $arr['deny_cid'];
 		$deny_gid  = $arr['deny_gid'];
 	}
-	else { 
+	else {
 
-		// find the parent and snarf the item id and ACL's
+		// find the parent and snarf the item id and ACLs
 		// and anything else we need to inherit
 
 		$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC LIMIT 1",
@@ -1076,6 +1098,7 @@ function item_store($arr,$force_parent = false) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 		create_tags_from_item($r[0]['id']);
+		// ostatus_conversation
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
@@ -1159,6 +1182,7 @@ function item_store($arr,$force_parent = false) {
 
 	if (($cachefile != '') AND !file_exists($cachefile)) {
 		$s = prepare_text($arr['body']);
+		$a = get_app();
 		$stamp1 = microtime(true);
 		file_put_contents($cachefile, $s);
 		$a->save_timestamp($stamp1, "file");

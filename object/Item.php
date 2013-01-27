@@ -190,10 +190,10 @@ class Item extends BaseObject {
 		 * Maybe we should establish a way to be notified about conversation changes
 		 */
 		$this->check_wall_to_wall();
-		
+
 		if($this->is_wall_to_wall() && ($this->get_owner_url() == $this->get_redirect_url()))
 			$osparkle = ' sparkle';
-		
+
 		if($this->is_toplevel()) {
 			if($conv->get_profile_owner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
@@ -283,14 +283,14 @@ class Item extends BaseObject {
 
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'tags' => $tags,
-            'hashtags' => $hashtags,
-            'mentions' => $mentions,
+			'hashtags' => $hashtags,
+			'mentions' => $mentions,
 			'txt_cats' => t('Categories:'),
 			'txt_folders' => t('Filed under:'),
 			'has_cats' => ((count($categories)) ? 'true' : ''),
 			'has_folders' => ((count($folders)) ? 'true' : ''),
-            'categories' => $categories,
-            'folders' => $folders,
+			'categories' => $categories,
+			'folders' => $folders,
 			'body' => $body_e,
 			'text' => $text_e,
 			'id' => $this->get_id(),
@@ -361,12 +361,12 @@ class Item extends BaseObject {
 				}
 			}
 		}
-		
+
         if ($this->is_toplevel()) {
             $result['total_comments_num'] = "$total_children";
             $result['total_comments_text'] = tt('comment', 'comments', $total_children);
         }
-        
+
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 

@@ -158,6 +158,8 @@ function load_hooks() {
 
 if(! function_exists('call_hooks')) {
 function call_hooks($name, &$data = null) {
+	$stamp1 = microtime(true);
+
 	$a = get_app();
 
 	if((is_array($a->hooks)) && (array_key_exists($name,$a->hooks))) {
@@ -177,7 +179,6 @@ function call_hooks($name, &$data = null) {
 			}
 		}
 	}
-
 }}
 
 
