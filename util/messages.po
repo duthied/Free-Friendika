@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1599\n"
+"Project-Id-Version: 3.1.1601\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-25 10:00-0800\n"
+"POT-Creation-Date: 2013-01-27 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgstr ""
 #: ../../mod/wall_upload.php:66 ../../mod/follow.php:9
 #: ../../mod/display.php:180 ../../mod/profiles.php:146
 #: ../../mod/profiles.php:567 ../../mod/delegate.php:6
-#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:83
+#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:101
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:512
 #: ../../addon/facebook/facebook.php:518 ../../addon/fbpost/fbpost.php:170
 #: ../../addon/fbpost/fbpost.php:176
@@ -143,7 +143,7 @@ msgstr ""
 #: ../../mod/message.php:301 ../../mod/message.php:527 ../../mod/admin.php:461
 #: ../../mod/admin.php:728 ../../mod/admin.php:865 ../../mod/admin.php:1064
 #: ../../mod/admin.php:1151 ../../mod/profiles.php:626
-#: ../../mod/invite.php:121 ../../addon/fromgplus/fromgplus.php:44
+#: ../../mod/invite.php:140 ../../addon/fromgplus/fromgplus.php:44
 #: ../../addon/facebook/facebook.php:621
 #: ../../addon/snautofollow/snautofollow.php:64
 #: ../../addon/fbpost/fbpost.php:280 ../../addon/yourls/yourls.php:76
@@ -2903,7 +2903,7 @@ msgid "Subject:"
 msgstr ""
 
 #: ../../mod/wallmessage.php:147 ../../mod/message.php:295
-#: ../../mod/message.php:521 ../../mod/invite.php:115
+#: ../../mod/message.php:521 ../../mod/invite.php:134
 msgid "Your message:"
 msgstr ""
 
@@ -4845,32 +4845,40 @@ msgstr ""
 msgid "No entries (some entries may be hidden)."
 msgstr ""
 
-#: ../../mod/invite.php:37
+#: ../../mod/invite.php:27
+msgid "Total invitation limit exceeded."
+msgstr ""
+
+#: ../../mod/invite.php:49
 #, php-format
 msgid "%s : Not a valid email address."
 msgstr ""
 
-#: ../../mod/invite.php:61
+#: ../../mod/invite.php:73
 msgid "Please join us on Friendica"
 msgstr ""
 
-#: ../../mod/invite.php:71
+#: ../../mod/invite.php:84
+msgid "Invitation limit exceeded. Please contact your site administrator."
+msgstr ""
+
+#: ../../mod/invite.php:89
 #, php-format
 msgid "%s : Message delivery failed."
 msgstr ""
 
-#: ../../mod/invite.php:75
+#: ../../mod/invite.php:93
 #, php-format
 msgid "%d message sent."
 msgid_plural "%d messages sent."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../mod/invite.php:94
+#: ../../mod/invite.php:112
 msgid "You have no more invitations available"
 msgstr ""
 
-#: ../../mod/invite.php:102
+#: ../../mod/invite.php:120
 #, php-format
 msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
@@ -4878,14 +4886,14 @@ msgid ""
 "other social networks."
 msgstr ""
 
-#: ../../mod/invite.php:104
+#: ../../mod/invite.php:122
 #, php-format
 msgid ""
 "To accept this invitation, please visit and register at %s or any other "
 "public Friendica website."
 msgstr ""
 
-#: ../../mod/invite.php:105
+#: ../../mod/invite.php:123
 #, php-format
 msgid ""
 "Friendica sites all inter-connect to create a huge privacy-enhanced social "
@@ -4894,36 +4902,36 @@ msgid ""
 "sites you can join."
 msgstr ""
 
-#: ../../mod/invite.php:108
+#: ../../mod/invite.php:126
 msgid ""
 "Our apologies. This system is not currently configured to connect with other "
 "public sites or invite members."
 msgstr ""
 
-#: ../../mod/invite.php:113
+#: ../../mod/invite.php:132
 msgid "Send invitations"
 msgstr ""
 
-#: ../../mod/invite.php:114
+#: ../../mod/invite.php:133
 msgid "Enter email addresses, one per line:"
 msgstr ""
 
-#: ../../mod/invite.php:116
+#: ../../mod/invite.php:135
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
 msgstr ""
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid "You will need to supply this invitation code: $invite_code"
 msgstr ""
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
 msgstr ""
 
-#: ../../mod/invite.php:120
+#: ../../mod/invite.php:139
 msgid ""
 "For more information about the Friendica project and why we feel it is "
 "important, please visit http://friendica.com"
