@@ -248,6 +248,10 @@ function item_post(&$a) {
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
+
+		if($user['hidewall'])
+			$private = 2;
+
 		// If this is a comment, set the permissions from the parent.
 
 		if($parent_item) {
