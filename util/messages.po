@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1597\n"
+"Project-Id-Version: 3.1.1601\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-23 10:00-0800\n"
+"POT-Creation-Date: 2013-01-27 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgstr ""
 #: ../../mod/wall_upload.php:66 ../../mod/follow.php:9
 #: ../../mod/display.php:180 ../../mod/profiles.php:146
 #: ../../mod/profiles.php:567 ../../mod/delegate.php:6
-#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:83
+#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:101
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:512
 #: ../../addon/facebook/facebook.php:518 ../../addon/fbpost/fbpost.php:170
 #: ../../addon/fbpost/fbpost.php:176
@@ -143,7 +143,7 @@ msgstr ""
 #: ../../mod/message.php:301 ../../mod/message.php:527 ../../mod/admin.php:461
 #: ../../mod/admin.php:728 ../../mod/admin.php:865 ../../mod/admin.php:1064
 #: ../../mod/admin.php:1151 ../../mod/profiles.php:626
-#: ../../mod/invite.php:121 ../../addon/fromgplus/fromgplus.php:44
+#: ../../mod/invite.php:140 ../../addon/fromgplus/fromgplus.php:44
 #: ../../addon/facebook/facebook.php:621
 #: ../../addon/snautofollow/snautofollow.php:64
 #: ../../addon/fbpost/fbpost.php:280 ../../addon/yourls/yourls.php:76
@@ -368,7 +368,7 @@ msgstr ""
 #: ../../mod/dfrn_request.php:848 ../../mod/settings.php:561
 #: ../../mod/settings.php:587 ../../mod/fbrowser.php:81
 #: ../../mod/fbrowser.php:116 ../../addon/js_upload/js_upload.php:45
-#: ../../include/conversation.php:1040
+#: ../../include/conversation.php:1042
 #: ../../addon.old/js_upload/js_upload.php:45
 msgid "Cancel"
 msgstr ""
@@ -642,7 +642,7 @@ msgstr ""
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: ../../mod/photos.php:1422 ../../include/conversation.php:1000
+#: ../../mod/photos.php:1422 ../../include/conversation.php:1002
 msgid "Share"
 msgstr ""
 
@@ -650,7 +650,7 @@ msgstr ""
 #: ../../mod/content.php:499 ../../mod/content.php:883
 #: ../../mod/wallmessage.php:152 ../../mod/message.php:300
 #: ../../mod/message.php:528 ../../include/conversation.php:645
-#: ../../include/conversation.php:1019 ../../object/Item.php:293
+#: ../../include/conversation.php:1021 ../../object/Item.php:293
 msgid "Please wait"
 msgstr ""
 
@@ -668,7 +668,7 @@ msgstr ""
 
 #: ../../mod/photos.php:1443 ../../mod/photos.php:1487
 #: ../../mod/photos.php:1570 ../../mod/editpost.php:142
-#: ../../mod/content.php:719 ../../include/conversation.php:1037
+#: ../../mod/content.php:719 ../../include/conversation.php:1039
 #: ../../object/Item.php:613
 msgid "Preview"
 msgstr ""
@@ -742,7 +742,7 @@ msgstr ""
 msgid "Edit post"
 msgstr ""
 
-#: ../../mod/editpost.php:91 ../../include/conversation.php:986
+#: ../../mod/editpost.php:91 ../../include/conversation.php:988
 msgid "Post to Email"
 msgstr ""
 
@@ -753,85 +753,85 @@ msgstr ""
 
 #: ../../mod/editpost.php:107 ../../mod/wallmessage.php:150
 #: ../../mod/message.php:298 ../../mod/message.php:525
-#: ../../include/conversation.php:1001
+#: ../../include/conversation.php:1003
 msgid "Upload photo"
 msgstr ""
 
-#: ../../mod/editpost.php:108 ../../include/conversation.php:1002
+#: ../../mod/editpost.php:108 ../../include/conversation.php:1004
 msgid "upload photo"
 msgstr ""
 
-#: ../../mod/editpost.php:109 ../../include/conversation.php:1003
+#: ../../mod/editpost.php:109 ../../include/conversation.php:1005
 msgid "Attach file"
 msgstr ""
 
-#: ../../mod/editpost.php:110 ../../include/conversation.php:1004
+#: ../../mod/editpost.php:110 ../../include/conversation.php:1006
 msgid "attach file"
 msgstr ""
 
 #: ../../mod/editpost.php:111 ../../mod/wallmessage.php:151
 #: ../../mod/message.php:299 ../../mod/message.php:526
-#: ../../include/conversation.php:1005
+#: ../../include/conversation.php:1007
 msgid "Insert web link"
 msgstr ""
 
-#: ../../mod/editpost.php:112 ../../include/conversation.php:1006
+#: ../../mod/editpost.php:112 ../../include/conversation.php:1008
 msgid "web link"
 msgstr ""
 
-#: ../../mod/editpost.php:113 ../../include/conversation.php:1007
+#: ../../mod/editpost.php:113 ../../include/conversation.php:1009
 msgid "Insert video link"
 msgstr ""
 
-#: ../../mod/editpost.php:114 ../../include/conversation.php:1008
+#: ../../mod/editpost.php:114 ../../include/conversation.php:1010
 msgid "video link"
 msgstr ""
 
-#: ../../mod/editpost.php:115 ../../include/conversation.php:1009
+#: ../../mod/editpost.php:115 ../../include/conversation.php:1011
 msgid "Insert audio link"
 msgstr ""
 
-#: ../../mod/editpost.php:116 ../../include/conversation.php:1010
+#: ../../mod/editpost.php:116 ../../include/conversation.php:1012
 msgid "audio link"
 msgstr ""
 
-#: ../../mod/editpost.php:117 ../../include/conversation.php:1011
+#: ../../mod/editpost.php:117 ../../include/conversation.php:1013
 msgid "Set your location"
 msgstr ""
 
-#: ../../mod/editpost.php:118 ../../include/conversation.php:1012
+#: ../../mod/editpost.php:118 ../../include/conversation.php:1014
 msgid "set location"
 msgstr ""
 
-#: ../../mod/editpost.php:119 ../../include/conversation.php:1013
+#: ../../mod/editpost.php:119 ../../include/conversation.php:1015
 msgid "Clear browser location"
 msgstr ""
 
-#: ../../mod/editpost.php:120 ../../include/conversation.php:1014
+#: ../../mod/editpost.php:120 ../../include/conversation.php:1016
 msgid "clear location"
 msgstr ""
 
-#: ../../mod/editpost.php:122 ../../include/conversation.php:1020
+#: ../../mod/editpost.php:122 ../../include/conversation.php:1022
 msgid "Permission settings"
 msgstr ""
 
-#: ../../mod/editpost.php:130 ../../include/conversation.php:1029
+#: ../../mod/editpost.php:130 ../../include/conversation.php:1031
 msgid "CC: email addresses"
 msgstr ""
 
-#: ../../mod/editpost.php:131 ../../include/conversation.php:1030
+#: ../../mod/editpost.php:131 ../../include/conversation.php:1032
 msgid "Public post"
 msgstr ""
 
-#: ../../mod/editpost.php:134 ../../include/conversation.php:1016
+#: ../../mod/editpost.php:134 ../../include/conversation.php:1018
 msgid "Set title"
 msgstr ""
 
-#: ../../mod/editpost.php:136 ../../include/conversation.php:1018
+#: ../../mod/editpost.php:136 ../../include/conversation.php:1020
 msgid "Categories (comma-separated list)"
 msgstr ""
 
-#: ../../mod/editpost.php:137 ../../include/conversation.php:1032
+#: ../../mod/editpost.php:137 ../../include/conversation.php:1034
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
@@ -2877,7 +2877,7 @@ msgstr ""
 #: ../../mod/wallmessage.php:123 ../../mod/wallmessage.php:131
 #: ../../mod/message.php:249 ../../mod/message.php:257
 #: ../../mod/message.php:429 ../../mod/message.php:437
-#: ../../include/conversation.php:936 ../../include/conversation.php:954
+#: ../../include/conversation.php:938 ../../include/conversation.php:956
 msgid "Please enter a link URL:"
 msgstr ""
 
@@ -2903,7 +2903,7 @@ msgid "Subject:"
 msgstr ""
 
 #: ../../mod/wallmessage.php:147 ../../mod/message.php:295
-#: ../../mod/message.php:521 ../../mod/invite.php:115
+#: ../../mod/message.php:521 ../../mod/invite.php:134
 msgid "Your message:"
 msgstr ""
 
@@ -4686,8 +4686,8 @@ msgstr ""
 msgid "Edit visibility"
 msgstr ""
 
-#: ../../mod/filer.php:30 ../../include/conversation.php:940
-#: ../../include/conversation.php:958
+#: ../../mod/filer.php:30 ../../include/conversation.php:942
+#: ../../include/conversation.php:960
 msgid "Save to Folder:"
 msgstr ""
 
@@ -4845,32 +4845,40 @@ msgstr ""
 msgid "No entries (some entries may be hidden)."
 msgstr ""
 
-#: ../../mod/invite.php:37
+#: ../../mod/invite.php:27
+msgid "Total invitation limit exceeded."
+msgstr ""
+
+#: ../../mod/invite.php:49
 #, php-format
 msgid "%s : Not a valid email address."
 msgstr ""
 
-#: ../../mod/invite.php:61
+#: ../../mod/invite.php:73
 msgid "Please join us on Friendica"
 msgstr ""
 
-#: ../../mod/invite.php:71
+#: ../../mod/invite.php:84
+msgid "Invitation limit exceeded. Please contact your site administrator."
+msgstr ""
+
+#: ../../mod/invite.php:89
 #, php-format
 msgid "%s : Message delivery failed."
 msgstr ""
 
-#: ../../mod/invite.php:75
+#: ../../mod/invite.php:93
 #, php-format
 msgid "%d message sent."
 msgid_plural "%d messages sent."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../mod/invite.php:94
+#: ../../mod/invite.php:112
 msgid "You have no more invitations available"
 msgstr ""
 
-#: ../../mod/invite.php:102
+#: ../../mod/invite.php:120
 #, php-format
 msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
@@ -4878,14 +4886,14 @@ msgid ""
 "other social networks."
 msgstr ""
 
-#: ../../mod/invite.php:104
+#: ../../mod/invite.php:122
 #, php-format
 msgid ""
 "To accept this invitation, please visit and register at %s or any other "
 "public Friendica website."
 msgstr ""
 
-#: ../../mod/invite.php:105
+#: ../../mod/invite.php:123
 #, php-format
 msgid ""
 "Friendica sites all inter-connect to create a huge privacy-enhanced social "
@@ -4894,36 +4902,36 @@ msgid ""
 "sites you can join."
 msgstr ""
 
-#: ../../mod/invite.php:108
+#: ../../mod/invite.php:126
 msgid ""
 "Our apologies. This system is not currently configured to connect with other "
 "public sites or invite members."
 msgstr ""
 
-#: ../../mod/invite.php:113
+#: ../../mod/invite.php:132
 msgid "Send invitations"
 msgstr ""
 
-#: ../../mod/invite.php:114
+#: ../../mod/invite.php:133
 msgid "Enter email addresses, one per line:"
 msgstr ""
 
-#: ../../mod/invite.php:116
+#: ../../mod/invite.php:135
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
 msgstr ""
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid "You will need to supply this invitation code: $invite_code"
 msgstr ""
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
 msgstr ""
 
-#: ../../mod/invite.php:120
+#: ../../mod/invite.php:139
 msgid ""
 "For more information about the Friendica project and why we feel it is "
 "important, please visit http://friendica.com"
@@ -9200,145 +9208,145 @@ msgstr ""
 msgid "Please visit %s to view and/or reply to your private messages."
 msgstr ""
 
-#: ../../include/enotify.php:89
+#: ../../include/enotify.php:90
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:96
+#: ../../include/enotify.php:97
 #, php-format
 msgid "%1$s commented on [url=%2$s]%3$s's %4$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:104
+#: ../../include/enotify.php:105
 #, php-format
 msgid "%1$s commented on [url=%2$s]your %3$s[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:114
+#: ../../include/enotify.php:115
 #, php-format
 msgid "[Friendica:Notify] Comment to conversation #%1$d by %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:115
+#: ../../include/enotify.php:116
 #, php-format
 msgid "%s commented on an item/conversation you have been following."
 msgstr ""
 
-#: ../../include/enotify.php:118 ../../include/enotify.php:133
-#: ../../include/enotify.php:146 ../../include/enotify.php:164
-#: ../../include/enotify.php:177
+#: ../../include/enotify.php:119 ../../include/enotify.php:134
+#: ../../include/enotify.php:147 ../../include/enotify.php:165
+#: ../../include/enotify.php:178
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr ""
 
-#: ../../include/enotify.php:125
+#: ../../include/enotify.php:126
 #, php-format
 msgid "[Friendica:Notify] %s posted to your profile wall"
 msgstr ""
 
-#: ../../include/enotify.php:127
+#: ../../include/enotify.php:128
 #, php-format
 msgid "%1$s posted to your profile wall at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:129
+#: ../../include/enotify.php:130
 #, php-format
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:140
+#: ../../include/enotify.php:141
 #, php-format
 msgid "[Friendica:Notify] %s tagged you"
 msgstr ""
 
-#: ../../include/enotify.php:141
+#: ../../include/enotify.php:142
 #, php-format
 msgid "%1$s tagged you at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:142
+#: ../../include/enotify.php:143
 #, php-format
 msgid "%1$s [url=%2$s]tagged you[/url]."
 msgstr ""
 
-#: ../../include/enotify.php:154
+#: ../../include/enotify.php:155
 #, php-format
 msgid "[Friendica:Notify] %1$s poked you"
 msgstr ""
 
-#: ../../include/enotify.php:155
+#: ../../include/enotify.php:156
 #, php-format
 msgid "%1$s poked you at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:156
+#: ../../include/enotify.php:157
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
 msgstr ""
 
-#: ../../include/enotify.php:171
+#: ../../include/enotify.php:172
 #, php-format
 msgid "[Friendica:Notify] %s tagged your post"
 msgstr ""
 
-#: ../../include/enotify.php:172
+#: ../../include/enotify.php:173
 #, php-format
 msgid "%1$s tagged your post at %2$s"
 msgstr ""
 
-#: ../../include/enotify.php:173
+#: ../../include/enotify.php:174
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
 msgstr ""
 
-#: ../../include/enotify.php:184
-msgid "[Friendica:Notify] Introduction received"
-msgstr ""
-
 #: ../../include/enotify.php:185
-#, php-format
-msgid "You've received an introduction from '%1$s' at %2$s"
+msgid "[Friendica:Notify] Introduction received"
 msgstr ""
 
 #: ../../include/enotify.php:186
 #, php-format
+msgid "You've received an introduction from '%1$s' at %2$s"
+msgstr ""
+
+#: ../../include/enotify.php:187
+#, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
 msgstr ""
 
-#: ../../include/enotify.php:189 ../../include/enotify.php:207
+#: ../../include/enotify.php:190 ../../include/enotify.php:208
 #, php-format
 msgid "You may visit their profile at %s"
 msgstr ""
 
-#: ../../include/enotify.php:191
+#: ../../include/enotify.php:192
 #, php-format
 msgid "Please visit %s to approve or reject the introduction."
 msgstr ""
 
-#: ../../include/enotify.php:198
-msgid "[Friendica:Notify] Friend suggestion received"
-msgstr ""
-
 #: ../../include/enotify.php:199
-#, php-format
-msgid "You've received a friend suggestion from '%1$s' at %2$s"
+msgid "[Friendica:Notify] Friend suggestion received"
 msgstr ""
 
 #: ../../include/enotify.php:200
 #, php-format
+msgid "You've received a friend suggestion from '%1$s' at %2$s"
+msgstr ""
+
+#: ../../include/enotify.php:201
+#, php-format
 msgid "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
 msgstr ""
 
-#: ../../include/enotify.php:205
+#: ../../include/enotify.php:206
 msgid "Name:"
 msgstr ""
 
-#: ../../include/enotify.php:206
+#: ../../include/enotify.php:207
 msgid "Photo:"
 msgstr ""
 
-#: ../../include/enotify.php:209
+#: ../../include/enotify.php:210
 #, php-format
 msgid "Please visit %s to approve or reject the suggestion."
 msgstr ""
@@ -9500,34 +9508,34 @@ msgstr ""
 msgid "stopped following"
 msgstr ""
 
-#: ../../include/Contact.php:225 ../../include/conversation.php:816
+#: ../../include/Contact.php:225 ../../include/conversation.php:818
 msgid "Poke"
 msgstr ""
 
-#: ../../include/Contact.php:226 ../../include/conversation.php:810
+#: ../../include/Contact.php:226 ../../include/conversation.php:812
 msgid "View Status"
 msgstr ""
 
-#: ../../include/Contact.php:227 ../../include/conversation.php:811
+#: ../../include/Contact.php:227 ../../include/conversation.php:813
 msgid "View Profile"
 msgstr ""
 
-#: ../../include/Contact.php:228 ../../include/conversation.php:812
+#: ../../include/Contact.php:228 ../../include/conversation.php:814
 msgid "View Photos"
 msgstr ""
 
 #: ../../include/Contact.php:229 ../../include/Contact.php:242
-#: ../../include/conversation.php:813
+#: ../../include/conversation.php:815
 msgid "Network Posts"
 msgstr ""
 
 #: ../../include/Contact.php:230 ../../include/Contact.php:242
-#: ../../include/conversation.php:814
+#: ../../include/conversation.php:816
 msgid "Edit Contact"
 msgstr ""
 
 #: ../../include/Contact.php:231 ../../include/Contact.php:242
-#: ../../include/conversation.php:815
+#: ../../include/conversation.php:817
 msgid "Send PM"
 msgstr ""
 
@@ -9553,82 +9561,82 @@ msgstr ""
 msgid "Filed under:"
 msgstr ""
 
-#: ../../include/conversation.php:706
+#: ../../include/conversation.php:708
 msgid "remove"
 msgstr ""
 
-#: ../../include/conversation.php:710
+#: ../../include/conversation.php:712
 msgid "Delete Selected Items"
 msgstr ""
 
-#: ../../include/conversation.php:809
+#: ../../include/conversation.php:811
 msgid "Follow Thread"
 msgstr ""
 
-#: ../../include/conversation.php:878
+#: ../../include/conversation.php:880
 #, php-format
 msgid "%s likes this."
 msgstr ""
 
-#: ../../include/conversation.php:878
+#: ../../include/conversation.php:880
 #, php-format
 msgid "%s doesn't like this."
 msgstr ""
 
-#: ../../include/conversation.php:883
+#: ../../include/conversation.php:885
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
 msgstr ""
 
-#: ../../include/conversation.php:886
+#: ../../include/conversation.php:888
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
 msgstr ""
 
-#: ../../include/conversation.php:900
+#: ../../include/conversation.php:902
 msgid "and"
 msgstr ""
 
-#: ../../include/conversation.php:906
+#: ../../include/conversation.php:908
 #, php-format
 msgid ", and %d other people"
 msgstr ""
 
-#: ../../include/conversation.php:908
+#: ../../include/conversation.php:910
 #, php-format
 msgid "%s like this."
 msgstr ""
 
-#: ../../include/conversation.php:908
+#: ../../include/conversation.php:910
 #, php-format
 msgid "%s don't like this."
 msgstr ""
 
-#: ../../include/conversation.php:935 ../../include/conversation.php:953
+#: ../../include/conversation.php:937 ../../include/conversation.php:955
 msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
-#: ../../include/conversation.php:937 ../../include/conversation.php:955
+#: ../../include/conversation.php:939 ../../include/conversation.php:957
 msgid "Please enter a video link/URL:"
 msgstr ""
 
-#: ../../include/conversation.php:938 ../../include/conversation.php:956
+#: ../../include/conversation.php:940 ../../include/conversation.php:958
 msgid "Please enter an audio link/URL:"
 msgstr ""
 
-#: ../../include/conversation.php:939 ../../include/conversation.php:957
+#: ../../include/conversation.php:941 ../../include/conversation.php:959
 msgid "Tag term:"
 msgstr ""
 
-#: ../../include/conversation.php:941 ../../include/conversation.php:959
+#: ../../include/conversation.php:943 ../../include/conversation.php:961
 msgid "Where are you right now?"
 msgstr ""
 
-#: ../../include/conversation.php:942
+#: ../../include/conversation.php:944
 msgid "Delete item(s)?"
 msgstr ""
 
-#: ../../include/conversation.php:1021
+#: ../../include/conversation.php:1023
 msgid "permissions"
 msgstr ""
 

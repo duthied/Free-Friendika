@@ -248,6 +248,10 @@ function item_post(&$a) {
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
+
+		if($user['hidewall'])
+			$private = 2;
+
 		// If this is a comment, set the permissions from the parent.
 
 		if($parent_item) {
@@ -923,10 +927,12 @@ function item_content(&$a) {
 
 	require_once('include/security.php');
 
+	$o = '';
 	if(($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		require_once('include/items.php');
-		drop_item($a->argv[2]);
+		$o = drop_item($a->argv[2]);
 	}
+	return $o;
 }
 
 /**
