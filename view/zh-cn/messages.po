@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-01-25 10:00-0800\n"
-"PO-Revision-Date: 2013-01-27 07:38+0000\n"
+"POT-Creation-Date: 2013-01-27 10:00-0800\n"
+"PO-Revision-Date: 2013-01-28 12:52+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr "熟人更新失败。"
 #: ../../mod/wall_upload.php:66 ../../mod/follow.php:9
 #: ../../mod/display.php:180 ../../mod/profiles.php:146
 #: ../../mod/profiles.php:567 ../../mod/delegate.php:6
-#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:83
+#: ../../mod/suggest.php:28 ../../mod/invite.php:15 ../../mod/invite.php:101
 #: ../../mod/dfrn_confirm.php:53 ../../addon/facebook/facebook.php:512
 #: ../../addon/facebook/facebook.php:518 ../../addon/fbpost/fbpost.php:170
 #: ../../addon/fbpost/fbpost.php:176
@@ -146,7 +146,7 @@ msgstr "新照片从这个URL"
 #: ../../mod/message.php:301 ../../mod/message.php:527 ../../mod/admin.php:461
 #: ../../mod/admin.php:728 ../../mod/admin.php:865 ../../mod/admin.php:1064
 #: ../../mod/admin.php:1151 ../../mod/profiles.php:626
-#: ../../mod/invite.php:121 ../../addon/fromgplus/fromgplus.php:44
+#: ../../mod/invite.php:140 ../../addon/fromgplus/fromgplus.php:44
 #: ../../addon/facebook/facebook.php:621
 #: ../../addon/snautofollow/snautofollow.php:64
 #: ../../addon/fbpost/fbpost.php:280 ../../addon/yourls/yourls.php:76
@@ -277,7 +277,7 @@ msgstr "建议朋友给%s"
 
 #: ../../mod/events.php:66
 msgid "Event title and start time are required."
-msgstr ""
+msgstr "项目标题和开始时间是必须的。"
 
 #: ../../mod/events.php:279
 msgid "l, F j"
@@ -322,7 +322,7 @@ msgstr "项目内容"
 #: ../../mod/events.php:445
 #, php-format
 msgid "Format is %s %s. Starting date and Title are required."
-msgstr ""
+msgstr "形式是%s%s。开始时间和标题是必须的。"
 
 #: ../../mod/events.php:447
 msgid "Event Starts:"
@@ -330,7 +330,7 @@ msgstr "事件开始:"
 
 #: ../../mod/events.php:447 ../../mod/events.php:461
 msgid "Required"
-msgstr ""
+msgstr "必须的"
 
 #: ../../mod/events.php:450
 msgid "Finish date/time is not known or not relevant"
@@ -357,7 +357,7 @@ msgstr "位置:"
 
 #: ../../mod/events.php:461
 msgid "Title:"
-msgstr ""
+msgstr "标题："
 
 #: ../../mod/events.php:463
 msgid "Share this event"
@@ -536,7 +536,7 @@ msgstr "这个项目使用权限的。"
 #: ../../mod/photos.php:1037
 #, php-format
 msgid "You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."
-msgstr ""
+msgstr "您用%2$.2f兆字节的%1$.2f兆字节照片存储。"
 
 #: ../../mod/photos.php:1053
 msgid "Upload Photos"
@@ -613,11 +613,11 @@ msgstr "[删除任何标签]"
 
 #: ../../mod/photos.php:1388
 msgid "Rotate CW (right)"
-msgstr ""
+msgstr "顺时针地转动（左）"
 
 #: ../../mod/photos.php:1389
 msgid "Rotate CCW (left)"
-msgstr ""
+msgstr "反顺时针地转动（右）"
 
 #: ../../mod/photos.php:1391
 msgid "New album name"
@@ -1405,11 +1405,11 @@ msgstr "请选择你的时区:"
 
 #: ../../mod/poke.php:192
 msgid "Poke/Prod"
-msgstr ""
+msgstr "戳"
 
 #: ../../mod/poke.php:193
 msgid "poke, prod or do other things to somebody"
-msgstr ""
+msgstr "把人家戳或别的行动"
 
 #: ../../mod/poke.php:194
 msgid "Recipient"
@@ -1916,7 +1916,7 @@ msgstr "专家熟人设置"
 
 #: ../../mod/contacts.php:347
 msgid "Communications lost with this contact!"
-msgstr ""
+msgstr "联系跟这个熟人断开了！"
 
 #: ../../mod/contacts.php:350
 msgid "Contact Editor"
@@ -2904,7 +2904,7 @@ msgid "Subject:"
 msgstr "题目："
 
 #: ../../mod/wallmessage.php:147 ../../mod/message.php:295
-#: ../../mod/message.php:521 ../../mod/invite.php:115
+#: ../../mod/message.php:521 ../../mod/invite.php:134
 msgid "Your message:"
 msgstr "你的消息："
 
@@ -3589,7 +3589,7 @@ msgstr "管理"
 
 #: ../../mod/admin.php:121
 msgid "Plugin Features"
-msgstr ""
+msgstr "插件特点"
 
 #: ../../mod/admin.php:123
 msgid "User registrations waiting for confirmation"
@@ -3613,11 +3613,11 @@ msgstr "自动朋友帐户"
 
 #: ../../mod/admin.php:187
 msgid "Blog Account"
-msgstr ""
+msgstr "博客账户"
 
 #: ../../mod/admin.php:188
 msgid "Private Forum"
-msgstr ""
+msgstr "私人评坛"
 
 #: ../../mod/admin.php:207
 msgid "Message queues"
@@ -4352,7 +4352,7 @@ msgstr ""
 
 #: ../../mod/share.php:44
 msgid "link"
-msgstr ""
+msgstr "链接"
 
 #: ../../mod/display.php:177
 msgid "Item has been removed."
@@ -4407,11 +4407,11 @@ msgstr "情人"
 
 #: ../../mod/profiles.php:325
 msgid "Likes"
-msgstr ""
+msgstr "喜欢"
 
 #: ../../mod/profiles.php:329
 msgid "Dislikes"
-msgstr ""
+msgstr "不喜欢"
 
 #: ../../mod/profiles.php:333
 msgid "Work/Employment"
@@ -4592,11 +4592,11 @@ msgstr "私人关键字"
 
 #: ../../mod/profiles.php:653 ../../include/profile_advanced.php:62
 msgid "Likes:"
-msgstr ""
+msgstr "喜欢："
 
 #: ../../mod/profiles.php:654 ../../include/profile_advanced.php:64
 msgid "Dislikes:"
-msgstr ""
+msgstr "不喜欢："
 
 #: ../../mod/profiles.php:655
 msgid "Example: fishing photography software"
@@ -4736,15 +4736,15 @@ msgstr "没有项目。"
 
 #: ../../mod/babel.php:17
 msgid "Source (bbcode) text:"
-msgstr ""
+msgstr "源代码（bbcode）正文"
 
 #: ../../mod/babel.php:23
 msgid "Source (Diaspora) text to convert to BBcode:"
-msgstr ""
+msgstr "源代（Diaspora）正文要翻译成BBCode："
 
 #: ../../mod/babel.php:31
 msgid "Source input: "
-msgstr ""
+msgstr "源代码输入："
 
 #: ../../mod/babel.php:35
 msgid "bb2html (raw HTML): "
@@ -4752,35 +4752,35 @@ msgstr ""
 
 #: ../../mod/babel.php:39
 msgid "bb2html: "
-msgstr ""
+msgstr "bb2html："
 
 #: ../../mod/babel.php:43
 msgid "bb2html2bb: "
-msgstr ""
+msgstr "bb2html2bb："
 
 #: ../../mod/babel.php:47
 msgid "bb2md: "
-msgstr ""
+msgstr "bb2md："
 
 #: ../../mod/babel.php:51
 msgid "bb2md2html: "
-msgstr ""
+msgstr "bb2md2html："
 
 #: ../../mod/babel.php:55
 msgid "bb2dia2bb: "
-msgstr ""
+msgstr "bb2dia2bb："
 
 #: ../../mod/babel.php:59
 msgid "bb2md2html2bb: "
-msgstr ""
+msgstr "bb2md2html2bb："
 
 #: ../../mod/babel.php:69
 msgid "Source input (Diaspora format): "
-msgstr ""
+msgstr "源代输入（Diaspora形式）："
 
 #: ../../mod/babel.php:74
 msgid "diaspora2bb: "
-msgstr ""
+msgstr "diaspora2bb: "
 
 #: ../../mod/suggest.php:38 ../../view/theme/diabook/theme.php:520
 #: ../../include/contact_widgets.php:34
@@ -4844,31 +4844,39 @@ msgstr "关于："
 msgid "No entries (some entries may be hidden)."
 msgstr "没有文章(有的文章会被隐藏)。"
 
-#: ../../mod/invite.php:37
+#: ../../mod/invite.php:27
+msgid "Total invitation limit exceeded."
+msgstr ""
+
+#: ../../mod/invite.php:49
 #, php-format
 msgid "%s : Not a valid email address."
 msgstr "%s : 不是效的电子邮件地址."
 
-#: ../../mod/invite.php:61
+#: ../../mod/invite.php:73
 msgid "Please join us on Friendica"
 msgstr "请加入我们再Friendica"
 
-#: ../../mod/invite.php:71
+#: ../../mod/invite.php:84
+msgid "Invitation limit exceeded. Please contact your site administrator."
+msgstr ""
+
+#: ../../mod/invite.php:89
 #, php-format
 msgid "%s : Message delivery failed."
 msgstr "%s : 送消息失败了。"
 
-#: ../../mod/invite.php:75
+#: ../../mod/invite.php:93
 #, php-format
 msgid "%d message sent."
 msgid_plural "%d messages sent."
 msgstr[0] "%d消息传送了。"
 
-#: ../../mod/invite.php:94
+#: ../../mod/invite.php:112
 msgid "You have no more invitations available"
 msgstr "您没有别的邀请"
 
-#: ../../mod/invite.php:102
+#: ../../mod/invite.php:120
 #, php-format
 msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
@@ -4876,14 +4884,14 @@ msgid ""
 " other social networks."
 msgstr "参观%s看一单公开网站您会加入。Friendica成员在别的网站都会互相连接，再跟很多别的社会网络。"
 
-#: ../../mod/invite.php:104
+#: ../../mod/invite.php:122
 #, php-format
 msgid ""
 "To accept this invitation, please visit and register at %s or any other "
 "public Friendica website."
 msgstr "为接受这个邀请，请再%s或什么别的Friendica网站注册。"
 
-#: ../../mod/invite.php:105
+#: ../../mod/invite.php:123
 #, php-format
 msgid ""
 "Friendica sites all inter-connect to create a huge privacy-enhanced social "
@@ -4892,36 +4900,36 @@ msgid ""
 "sites you can join."
 msgstr "Friendica网站们都互相连接造成隐私增加的社会网络属和控制由它的成员。它们也能跟多传统的社会网络连接。看%s表示一单您会加入供替换的Friendica网站。"
 
-#: ../../mod/invite.php:108
+#: ../../mod/invite.php:126
 msgid ""
 "Our apologies. This system is not currently configured to connect with other"
 " public sites or invite members."
 msgstr "不好意思。这个系统目前没设置跟别的公开网站连接或邀请成员。"
 
-#: ../../mod/invite.php:113
+#: ../../mod/invite.php:132
 msgid "Send invitations"
 msgstr "发请柬"
 
-#: ../../mod/invite.php:114
+#: ../../mod/invite.php:133
 msgid "Enter email addresses, one per line:"
 msgstr "输入电子邮件地址，一行一个："
 
-#: ../../mod/invite.php:116
+#: ../../mod/invite.php:135
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
 msgstr "您被邀请跟我和彼得近朋友们再Friendica加入－和帮助我们造成更好的社会网络。"
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid "You will need to supply this invitation code: $invite_code"
 msgstr "您要输入这个邀请密码：$invite_code"
 
-#: ../../mod/invite.php:118
+#: ../../mod/invite.php:137
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
 msgstr "您一注册，请页跟我连接，用我的简介在："
 
-#: ../../mod/invite.php:120
+#: ../../mod/invite.php:139
 msgid ""
 "For more information about the Friendica project and why we feel it is "
 "important, please visit http://friendica.com"
@@ -5017,22 +5025,22 @@ msgstr "%1$s加入%2$s了"
 #: ../../addon/fromgplus/fromgplus.php:33
 #: ../../addon.old/fromgplus/fromgplus.php:29
 msgid "Google+ Import Settings"
-msgstr ""
+msgstr "Google+进口设置"
 
 #: ../../addon/fromgplus/fromgplus.php:36
 #: ../../addon.old/fromgplus/fromgplus.php:32
 msgid "Enable Google+ Import"
-msgstr ""
+msgstr "使Google+进口可用"
 
 #: ../../addon/fromgplus/fromgplus.php:39
 #: ../../addon.old/fromgplus/fromgplus.php:35
 msgid "Google Account ID"
-msgstr ""
+msgstr "Google+用户名"
 
 #: ../../addon/fromgplus/fromgplus.php:59
 #: ../../addon.old/fromgplus/fromgplus.php:55
 msgid "Google+ Import Settings saved."
-msgstr ""
+msgstr "把Google+进口设置保存了"
 
 #: ../../addon/facebook/facebook.php:525
 #: ../../addon.old/facebook/facebook.php:523
@@ -5197,7 +5205,7 @@ msgstr "输入的API密码显得对地运行。"
 msgid ""
 "The correctness of the API Key could not be detected. Something strange's "
 "going on."
-msgstr ""
+msgstr "API钥匙的正确性发现不了。什么奇怪的进行"
 
 #: ../../addon/facebook/facebook.php:768 ../../addon/fbpost/fbpost.php:319
 #: ../../addon.old/facebook/facebook.php:766
@@ -5308,17 +5316,17 @@ msgstr "你好%1$s,⏎ ⏎ 您账户在%2$s和Facebook的接通无效了。平�
 #: ../../addon/snautofollow/snautofollow.php:32
 #: ../../addon.old/snautofollow/snautofollow.php:32
 msgid "StatusNet AutoFollow settings updated."
-msgstr ""
+msgstr "StatusNet自动关注设置更新了。"
 
 #: ../../addon/snautofollow/snautofollow.php:56
 #: ../../addon.old/snautofollow/snautofollow.php:56
 msgid "StatusNet AutoFollow Settings"
-msgstr ""
+msgstr "StatusNet自动关注设置"
 
 #: ../../addon/snautofollow/snautofollow.php:58
 #: ../../addon.old/snautofollow/snautofollow.php:58
 msgid "Automatically follow any StatusNet followers/mentioners"
-msgstr ""
+msgstr "自动关注所有的StatusGet关注者／提及"
 
 #: ../../addon/privacy_image_cache/privacy_image_cache.php:351
 #: ../../addon.old/privacy_image_cache/privacy_image_cache.php:260
@@ -5694,27 +5702,27 @@ msgstr "论坛"
 #: ../../addon.old/page/page.php:130
 #: ../../addon.old/forumlist/forumlist.php:94
 msgid "Forums:"
-msgstr ""
+msgstr "评坛："
 
 #: ../../addon/page/page.php:166 ../../addon.old/page/page.php:166
 msgid "Page settings updated."
-msgstr ""
+msgstr "页设置更新了"
 
 #: ../../addon/page/page.php:195 ../../addon.old/page/page.php:195
 msgid "Page Settings"
-msgstr ""
+msgstr "页设置"
 
 #: ../../addon/page/page.php:197 ../../addon.old/page/page.php:197
 msgid "How many forums to display on sidebar without paging"
-msgstr ""
+msgstr "多少评坛要在工具栏上表示无分页"
 
 #: ../../addon/page/page.php:200 ../../addon.old/page/page.php:200
 msgid "Randomise Page/Forum list"
-msgstr ""
+msgstr "把页／评坛单洗牌"
 
 #: ../../addon/page/page.php:203 ../../addon.old/page/page.php:203
 msgid "Show pages/forums on profile page"
-msgstr ""
+msgstr "表示页／评坛在简介页"
 
 #: ../../addon/planets/planets.php:150 ../../addon.old/planets/planets.php:150
 msgid "Planets Settings"
@@ -5801,7 +5809,7 @@ msgstr ""
 #: ../../addon.old/dav/friendica/layout.fnk.php:143
 #: ../../addon.old/dav/friendica/layout.fnk.php:422
 msgid "Go back to the calendar"
-msgstr ""
+msgstr "返回日历"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:144
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:144
@@ -5813,7 +5821,7 @@ msgstr ""
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:146
 #: ../../addon.old/dav/friendica/main.php:239
 msgid "Calendar"
-msgstr ""
+msgstr "日历"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:163
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:163
@@ -5828,17 +5836,17 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:173
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:173
 msgid "Starts"
-msgstr ""
+msgstr "开始"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:178
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:178
 msgid "Ends"
-msgstr ""
+msgstr "结束"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:185
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:185
 msgid "Description"
-msgstr ""
+msgstr "描述"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:188
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:188
@@ -5914,7 +5922,7 @@ msgstr ""
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:260
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:481
 msgid "Days"
-msgstr ""
+msgstr "天"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:231
 #: ../../addon/dav/common/wdcal_edit.inc.php:254
@@ -6065,7 +6073,7 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:449
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:449
 msgid "Notification"
-msgstr ""
+msgstr "通知"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:466
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:466
@@ -6090,12 +6098,12 @@ msgstr ""
 #: ../../addon/dav/common/wdcal_edit.inc.php:478
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:478
 msgid "Hours"
-msgstr ""
+msgstr "小时"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:479
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:479
 msgid "Minutes"
-msgstr ""
+msgstr "分钟"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:480
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:480
@@ -6172,12 +6180,12 @@ msgstr ""
 #: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:36
 #: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:59
 msgid "Friendica-Contacts"
-msgstr ""
+msgstr "Friendica熟人"
 
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:60
 #: ../../addon.old/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:60
 msgid "Your Friendica-Contacts"
-msgstr ""
+msgstr "您的Friendica熟人"
 
 #: ../../addon/dav/friendica/layout.fnk.php:99
 #: ../../addon/dav/friendica/layout.fnk.php:136
@@ -6221,7 +6229,7 @@ msgstr ""
 #: ../../addon/dav/friendica/layout.fnk.php:228
 #: ../../addon.old/dav/friendica/layout.fnk.php:228
 msgid "New event"
-msgstr ""
+msgstr "新项目"
 
 #: ../../addon/dav/friendica/layout.fnk.php:232
 #: ../../addon.old/dav/friendica/layout.fnk.php:232
@@ -6231,7 +6239,7 @@ msgstr "今天"
 #: ../../addon/dav/friendica/layout.fnk.php:241
 #: ../../addon.old/dav/friendica/layout.fnk.php:241
 msgid "Day"
-msgstr ""
+msgstr "天"
 
 #: ../../addon/dav/friendica/layout.fnk.php:248
 #: ../../addon.old/dav/friendica/layout.fnk.php:248
@@ -6241,7 +6249,7 @@ msgstr "周"
 #: ../../addon/dav/friendica/layout.fnk.php:260
 #: ../../addon.old/dav/friendica/layout.fnk.php:260
 msgid "Reload"
-msgstr ""
+msgstr "再装入"
 
 #: ../../addon/dav/friendica/layout.fnk.php:271
 #: ../../addon.old/dav/friendica/layout.fnk.php:271
@@ -6271,17 +6279,17 @@ msgstr ""
 #: ../../addon/dav/friendica/layout.fnk.php:424
 #: ../../addon.old/dav/friendica/layout.fnk.php:424
 msgid "Calendar Settings"
-msgstr ""
+msgstr "日历设置"
 
 #: ../../addon/dav/friendica/layout.fnk.php:430
 #: ../../addon.old/dav/friendica/layout.fnk.php:430
 msgid "Date format"
-msgstr ""
+msgstr "日期形式"
 
 #: ../../addon/dav/friendica/layout.fnk.php:439
 #: ../../addon.old/dav/friendica/layout.fnk.php:439
 msgid "Time zone"
-msgstr ""
+msgstr "时区"
 
 #: ../../addon/dav/friendica/layout.fnk.php:445
 #: ../../addon.old/dav/friendica/layout.fnk.php:445
@@ -6296,29 +6304,29 @@ msgstr ""
 #: ../../addon/dav/friendica/layout.fnk.php:496
 #: ../../addon.old/dav/friendica/layout.fnk.php:496
 msgid "Limitations"
-msgstr ""
+msgstr "限制"
 
 #: ../../addon/dav/friendica/layout.fnk.php:500
 #: ../../addon/libravatar/libravatar.php:82
 #: ../../addon.old/dav/friendica/layout.fnk.php:500
 #: ../../addon.old/libravatar/libravatar.php:82
 msgid "Warning"
-msgstr ""
+msgstr "警告"
 
 #: ../../addon/dav/friendica/layout.fnk.php:504
 #: ../../addon.old/dav/friendica/layout.fnk.php:504
 msgid "Synchronization (iPhone, Thunderbird Lightning, Android, ...)"
-msgstr ""
+msgstr "同步（iPhone，Thunderbird Lightning, 案桌，等）"
 
 #: ../../addon/dav/friendica/layout.fnk.php:511
 #: ../../addon.old/dav/friendica/layout.fnk.php:511
 msgid "Synchronizing this calendar with the iPhone"
-msgstr ""
+msgstr "正在把这个日历跟iPhone同步"
 
 #: ../../addon/dav/friendica/layout.fnk.php:522
 #: ../../addon.old/dav/friendica/layout.fnk.php:522
 msgid "Synchronizing your Friendica-Contacts with the iPhone"
-msgstr ""
+msgstr "正在把您的Friendica熟人跟iPhone同步"
 
 #: ../../addon/dav/friendica/main.php:202
 #: ../../addon.old/dav/friendica/main.php:202
@@ -6331,7 +6339,7 @@ msgstr ""
 #: ../../addon/dav/friendica/main.php:242
 #: ../../addon.old/dav/friendica/main.php:242
 msgid "Extended calendar with CalDAV-support"
-msgstr ""
+msgstr "增能日历跟CalDAV支持"
 
 #: ../../addon/dav/friendica/main.php:279
 #: ../../addon/dav/friendica/main.php:280 ../../include/delivery.php:468
@@ -6349,12 +6357,12 @@ msgstr ""
 #: ../../addon/dav/friendica/main.php:309
 #: ../../addon.old/dav/friendica/main.php:309
 msgid "The database tables have been installed."
-msgstr ""
+msgstr "数据库表格被安装了。"
 
 #: ../../addon/dav/friendica/main.php:310
 #: ../../addon.old/dav/friendica/main.php:310
 msgid "An error occurred during the installation."
-msgstr ""
+msgstr "安装出错误。"
 
 #: ../../addon/dav/friendica/main.php:316
 #: ../../addon.old/dav/friendica/main.php:316
@@ -6369,22 +6377,22 @@ msgstr ""
 #: ../../addon/dav/friendica/main.php:333
 #: ../../addon.old/dav/friendica/main.php:333
 msgid "No system-wide settings yet."
-msgstr ""
+msgstr "还没有系统设置。"
 
 #: ../../addon/dav/friendica/main.php:336
 #: ../../addon.old/dav/friendica/main.php:336
 msgid "Database status"
-msgstr ""
+msgstr "数据库现状"
 
 #: ../../addon/dav/friendica/main.php:339
 #: ../../addon.old/dav/friendica/main.php:339
 msgid "Installed"
-msgstr ""
+msgstr "安装了"
 
 #: ../../addon/dav/friendica/main.php:343
 #: ../../addon.old/dav/friendica/main.php:343
 msgid "Upgrade needed"
-msgstr ""
+msgstr "必须更新"
 
 #: ../../addon/dav/friendica/main.php:343
 #: ../../addon.old/dav/friendica/main.php:343
@@ -6399,17 +6407,17 @@ msgstr ""
 #: ../../addon/dav/friendica/main.php:343
 #: ../../addon.old/dav/friendica/main.php:343
 msgid "Upgrade"
-msgstr ""
+msgstr "更新"
 
 #: ../../addon/dav/friendica/main.php:346
 #: ../../addon.old/dav/friendica/main.php:346
 msgid "Not installed"
-msgstr ""
+msgstr "没安装"
 
 #: ../../addon/dav/friendica/main.php:346
 #: ../../addon.old/dav/friendica/main.php:346
 msgid "Install"
-msgstr ""
+msgstr "安装"
 
 #: ../../addon/dav/friendica/main.php:350
 #: ../../addon.old/dav/friendica/main.php:350
@@ -6428,32 +6436,32 @@ msgstr ""
 #: ../../addon/dav/friendica/main.php:355
 #: ../../addon.old/dav/friendica/main.php:355
 msgid "Troubleshooting"
-msgstr ""
+msgstr "调试"
 
 #: ../../addon/dav/friendica/main.php:356
 #: ../../addon.old/dav/friendica/main.php:356
 msgid "Manual creation of the database tables:"
-msgstr ""
+msgstr "手动造成数据库表格："
 
 #: ../../addon/dav/friendica/main.php:357
 #: ../../addon.old/dav/friendica/main.php:357
 msgid "Show SQL-statements"
-msgstr ""
+msgstr "表示SQL陈述"
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:206
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:206
 msgid "Private Calendar"
-msgstr ""
+msgstr "私人日历"
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:207
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:207
 msgid "Friendica Events: Mine"
-msgstr ""
+msgstr "Friendica项目：我的"
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:208
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:208
 msgid "Friendica Events: Contacts"
-msgstr ""
+msgstr "Friendica项目：熟人"
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:248
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:248
@@ -6836,17 +6844,17 @@ msgstr "报案程序错误"
 #: ../../addon/notimeline/notimeline.php:32
 #: ../../addon.old/notimeline/notimeline.php:32
 msgid "No Timeline settings updated."
-msgstr ""
+msgstr "没有时间链设置更新"
 
 #: ../../addon/notimeline/notimeline.php:56
 #: ../../addon.old/notimeline/notimeline.php:56
 msgid "No Timeline Settings"
-msgstr ""
+msgstr "没有时间链设置"
 
 #: ../../addon/notimeline/notimeline.php:58
 #: ../../addon.old/notimeline/notimeline.php:58
 msgid "Disable Archive selector on profile wall"
-msgstr ""
+msgstr "使在简介墙上档案选择器不能用"
 
 #: ../../addon/blockem/blockem.php:51 ../../addon.old/blockem/blockem.php:51
 msgid "\"Blockem\" Settings"
@@ -6953,7 +6961,7 @@ msgstr ""
 #: ../../addon/libravatar/libravatar.php:14
 #: ../../addon.old/libravatar/libravatar.php:14
 msgid "Could NOT install Libravatar successfully.<br>It requires PHP >= 5.3"
-msgstr ""
+msgstr "安装不了Libravatar。<br>它要求PHP>=5.3"
 
 #: ../../addon/libravatar/libravatar.php:73
 #: ../../addon/gravatar/gravatar.php:71
@@ -6994,19 +7002,19 @@ msgstr "复古游乐场式面子"
 #: ../../addon.old/libravatar/libravatar.php:83
 #, php-format
 msgid "Your PHP version %s is lower than the required PHP >= 5.3."
-msgstr ""
+msgstr "您PHP版体数%s是比要求的5.3少。"
 
 #: ../../addon/libravatar/libravatar.php:84
 #: ../../addon.old/libravatar/libravatar.php:84
 msgid "This addon is not functional on your server."
-msgstr ""
+msgstr "这个加件在您的服务器不可用的"
 
 #: ../../addon/libravatar/libravatar.php:93
 #: ../../addon/gravatar/gravatar.php:89
 #: ../../addon.old/libravatar/libravatar.php:93
 #: ../../addon.old/gravatar/gravatar.php:89
 msgid "Information"
-msgstr ""
+msgstr "信息"
 
 #: ../../addon/libravatar/libravatar.php:93
 #: ../../addon.old/libravatar/libravatar.php:93
@@ -7014,7 +7022,7 @@ msgid ""
 "Gravatar addon is installed. Please disable the Gravatar addon.<br>The "
 "Libravatar addon will fall back to Gravatar if nothing was found at "
 "Libravatar."
-msgstr ""
+msgstr "Gravatar加件安装着。请使Gravatar加件不可用。<br>如果找不到什么在Libravatar加件可依靠的是Gravatar。"
 
 #: ../../addon/libravatar/libravatar.php:100
 #: ../../addon/gravatar/gravatar.php:96
@@ -7026,57 +7034,57 @@ msgstr "默认纸娃娃系统"
 #: ../../addon/libravatar/libravatar.php:100
 #: ../../addon.old/libravatar/libravatar.php:100
 msgid "Select default avatar image if none was found. See README"
-msgstr ""
+msgstr "选择默认纸娃娃系统如果一个也找不到。看README"
 
 #: ../../addon/libravatar/libravatar.php:112
 #: ../../addon.old/libravatar/libravatar.php:112
 msgid "Libravatar settings updated."
-msgstr ""
+msgstr "Libravatar设置更新了。"
 
 #: ../../addon/libertree/libertree.php:36
 #: ../../addon.old/libertree/libertree.php:36
 msgid "Post to libertree"
-msgstr ""
+msgstr "转播到libertree"
 
 #: ../../addon/libertree/libertree.php:67
 #: ../../addon.old/libertree/libertree.php:67
 msgid "libertree Post Settings"
-msgstr ""
+msgstr "libertree转播设置"
 
 #: ../../addon/libertree/libertree.php:69
 #: ../../addon.old/libertree/libertree.php:69
 msgid "Enable Libertree Post Plugin"
-msgstr ""
+msgstr "使Libertree转播插件可用"
 
 #: ../../addon/libertree/libertree.php:74
 #: ../../addon.old/libertree/libertree.php:74
 msgid "Libertree API token"
-msgstr ""
+msgstr "Libertree API令牌"
 
 #: ../../addon/libertree/libertree.php:79
 #: ../../addon.old/libertree/libertree.php:79
 msgid "Libertree site URL"
-msgstr ""
+msgstr "Libertree网站URL"
 
 #: ../../addon/libertree/libertree.php:84
 #: ../../addon.old/libertree/libertree.php:84
 msgid "Post to Libertree by default"
-msgstr ""
+msgstr "默认地转播到Libertree"
 
 #: ../../addon/altpager/altpager.php:46
 #: ../../addon.old/altpager/altpager.php:46
 msgid "Altpager settings updated."
-msgstr ""
+msgstr "Altpager设置更新了。"
 
 #: ../../addon/altpager/altpager.php:83
 #: ../../addon.old/altpager/altpager.php:79
 msgid "Alternate Pagination Setting"
-msgstr ""
+msgstr "供替换的分页设置"
 
 #: ../../addon/altpager/altpager.php:85
 #: ../../addon.old/altpager/altpager.php:81
 msgid "Use links to \"newer\" and \"older\" pages in place of page numbers?"
-msgstr ""
+msgstr "用到「更新」和「更旧」页代替页数？"
 
 #: ../../addon/altpager/altpager.php:99
 msgid "Force global use of the alternate pager"
@@ -7129,7 +7137,7 @@ msgid ""
 "Libravatar addon is installed, too. Please disable Libravatar addon or this "
 "Gravatar addon.<br>The Libravatar addon will fall back to Gravatar if "
 "nothing was found at Libravatar."
-msgstr ""
+msgstr "Libravatar加件页安装着。请是Libravatar加件或者这个Gravatar加件。<br>Libravatar加件没找到在Libravatar的时候可依靠的是Gravatar"
 
 #: ../../addon/gravatar/gravatar.php:96
 #: ../../addon.old/gravatar/gravatar.php:96
@@ -7434,7 +7442,7 @@ msgstr "API URL"
 #: ../../addon/infiniteimprobabilitydrive/infiniteimprobabilitydrive.php:19
 #: ../../addon.old/infiniteimprobabilitydrive/infiniteimprobabilitydrive.php:19
 msgid "Infinite Improbability Drive"
-msgstr ""
+msgstr "无穷不至于机车"
 
 #: ../../addon/tumblr/tumblr.php:144
 msgid "You are now authenticated to tumblr."
@@ -8377,7 +8385,7 @@ msgstr "沒有题目"
 
 #: ../../include/Scrape.php:583
 msgid " on Last.fm"
-msgstr ""
+msgstr "在Last.fm"
 
 #: ../../include/text.php:262
 msgid "prev"
@@ -8397,11 +8405,11 @@ msgstr "下个"
 
 #: ../../include/text.php:314
 msgid "newer"
-msgstr ""
+msgstr "更新"
 
 #: ../../include/text.php:318
 msgid "older"
-msgstr ""
+msgstr "更旧"
 
 #: ../../include/text.php:657
 msgid "No contacts"
@@ -8959,12 +8967,12 @@ msgstr "%1$d %2$s以前"
 #: ../../include/datetime.php:472 ../../include/items.php:1705
 #, php-format
 msgid "%s's birthday"
-msgstr ""
+msgstr "%s的生日"
 
 #: ../../include/datetime.php:473 ../../include/items.php:1706
 #, php-format
 msgid "Happy Birthday %s"
-msgstr ""
+msgstr "生日快乐%s"
 
 #: ../../include/bbcode.php:210 ../../include/bbcode.php:515
 msgid "Image/photo"
@@ -9172,12 +9180,12 @@ msgstr "[Friendica:Notify]收到新邮件在%s"
 #: ../../include/enotify.php:46
 #, php-format
 msgid "%1$s sent you a new private message at %2$s."
-msgstr ""
+msgstr "%1$s发给您新私人通知在%2$s."
 
 #: ../../include/enotify.php:47
 #, php-format
 msgid "%1$s sent you %2$s."
-msgstr ""
+msgstr "%1$s发给您%2$s."
 
 #: ../../include/enotify.php:47
 msgid "a private message"
@@ -9191,22 +9199,22 @@ msgstr "清去%s为了看或回答你私人的消息"
 #: ../../include/enotify.php:90
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
-msgstr ""
+msgstr "%1$s于[url=%2$s]a %3$s[/url]评论了"
 
 #: ../../include/enotify.php:97
 #, php-format
 msgid "%1$s commented on [url=%2$s]%3$s's %4$s[/url]"
-msgstr ""
+msgstr "%1$s于[url=%2$s]%3$s的%4$s[/url]评论了"
 
 #: ../../include/enotify.php:105
 #, php-format
 msgid "%1$s commented on [url=%2$s]your %3$s[/url]"
-msgstr ""
+msgstr "%1$s于[url=%2$s]您的%3$s[/url]评论了"
 
 #: ../../include/enotify.php:115
 #, php-format
 msgid "[Friendica:Notify] Comment to conversation #%1$d by %2$s"
-msgstr ""
+msgstr "[Friendica:Notify]于交流#%1$d由%2$s评论"
 
 #: ../../include/enotify.php:116
 #, php-format
@@ -9228,12 +9236,12 @@ msgstr "[Friendica:Notify] %s贴在您的简介墙"
 #: ../../include/enotify.php:128
 #, php-format
 msgid "%1$s posted to your profile wall at %2$s"
-msgstr ""
+msgstr "%1$s放在您的简介墙在%2$s"
 
 #: ../../include/enotify.php:130
 #, php-format
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
-msgstr ""
+msgstr "%1$s放在[url=%2$s]您的墙[/url]"
 
 #: ../../include/enotify.php:141
 #, php-format
@@ -9243,12 +9251,12 @@ msgstr "[Friendica:Notify] %s标签您"
 #: ../../include/enotify.php:142
 #, php-format
 msgid "%1$s tagged you at %2$s"
-msgstr ""
+msgstr "%1$s把您在%2$s标签"
 
 #: ../../include/enotify.php:143
 #, php-format
 msgid "%1$s [url=%2$s]tagged you[/url]."
-msgstr ""
+msgstr "%1$s[url=%2$s]把您标签[/url]."
 
 #: ../../include/enotify.php:155
 #, php-format
@@ -9273,12 +9281,12 @@ msgstr "[Friendica:Notify] %s标前您的文章"
 #: ../../include/enotify.php:173
 #, php-format
 msgid "%1$s tagged your post at %2$s"
-msgstr ""
+msgstr "%1$s把您的文章在%2$s标签"
 
 #: ../../include/enotify.php:174
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
-msgstr ""
+msgstr "%1$s把[url=%2$s]您的文章[/url]标签"
 
 #: ../../include/enotify.php:185
 msgid "[Friendica:Notify] Introduction received"
@@ -9287,12 +9295,12 @@ msgstr "[Friendica:Notify] 收到介绍"
 #: ../../include/enotify.php:186
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr ""
+msgstr "您从「%1$s」受到一个介绍在%2$s"
 
 #: ../../include/enotify.php:187
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr ""
+msgstr "您从%2$s收到[url=%1$s]一个介绍[/url]。"
 
 #: ../../include/enotify.php:190 ../../include/enotify.php:208
 #, php-format
@@ -9311,13 +9319,13 @@ msgstr "[Friendica:Notify] 收到朋友建议"
 #: ../../include/enotify.php:200
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr ""
+msgstr "您从「%2$s」收到[url=%1$s]一个朋友建议[/url]。"
 
 #: ../../include/enotify.php:201
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr ""
+msgstr "您从%2$s收到[url=%1$s]一个朋友建议[/url]为%2$s。"
 
 #: ../../include/enotify.php:206
 msgid "Name:"
@@ -9397,7 +9405,7 @@ msgstr "你有新的关注者在"
 
 #: ../../include/items.php:4057
 msgid "Archives"
-msgstr ""
+msgstr "档案"
 
 #: ../../include/user.php:39
 msgid "An invitation is required."
@@ -9623,15 +9631,15 @@ msgstr "权利"
 
 #: ../../include/plugin.php:389 ../../include/plugin.php:391
 msgid "Click here to upgrade."
-msgstr ""
+msgstr "这里点击为更新。"
 
 #: ../../include/plugin.php:397
 msgid "This action exceeds the limits set by your subscription plan."
-msgstr ""
+msgstr "这个行动超过您订阅的限制。"
 
 #: ../../include/plugin.php:402
 msgid "This action is not available under your subscription plan."
-msgstr ""
+msgstr "这个行动在您的订阅不可用的。"
 
 #: ../../boot.php:640
 msgid "Delete this item?"
@@ -9765,11 +9773,11 @@ msgstr ""
 
 #: ../../addon.old/bg/bg.php:51
 msgid "Bg settings updated."
-msgstr ""
+msgstr "Bg设置更新了"
 
 #: ../../addon.old/bg/bg.php:82
 msgid "Bg Settings"
-msgstr ""
+msgstr "Bg设置"
 
 #: ../../addon.old/drpost/drpost.php:35
 msgid "Post to Drupal"
