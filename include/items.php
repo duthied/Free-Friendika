@@ -8,6 +8,7 @@ require_once('include/Photo.php');
 require_once('include/tags.php');
 require_once('include/text.php');
 require_once('include/email.php');
+require_once('include/ostatus_conversation.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -1098,7 +1099,6 @@ function item_store($arr,$force_parent = false) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 		create_tags_from_item($r[0]['id']);
-		// ostatus_conversation
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
@@ -1134,6 +1134,10 @@ function item_store($arr,$force_parent = false) {
 		intval($current_post)
 	);
 	create_tags_from_item($current_post);
+
+	// Complete ostatus threads
+	if ($ostatus_conversation)
+		complete_conversation($current_post, $ostatus_conversation);
 
         $arr['id'] = $current_post;
         $arr['parent'] = $parent_id;
