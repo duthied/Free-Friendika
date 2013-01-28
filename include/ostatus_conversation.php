@@ -17,7 +17,7 @@ function complete_conversation($itemid, $conversation_url) {
 	require_once('include/html2bbcode.php');
 	require_once('include/items.php');
 
-	logger('complete_conversation: completing conversation url '.$conversation_url.' for id '.$itemid);
+	//logger('complete_conversation: completing conversation url '.$conversation_url.' for id '.$itemid);
 
 	$messages = q("SELECT `uid`, `parent` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
 	if (!$messages)
@@ -43,7 +43,7 @@ function complete_conversation($itemid, $conversation_url) {
 
 	$conv = str_replace("/conversation/", "/api/statusnet/conversation/", $conversation_url).".as";
 
-	logger('complete_conversation: fetching conversation url '.$conversation_url.' for '.$itemid);
+	logger('complete_conversation: fetching conversation url '.$conv.' for '.$itemid);
 	$conv_as = fetch_url($conv);
 
 	if ($conv_as) {
@@ -61,10 +61,10 @@ function complete_conversation($itemid, $conversation_url) {
 
 				$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
 					intval($message["uid"]), dbesc($first_id));
-				if ($new_parents)
+				if ($new_parents AND ($itemid != $parent["id"])) {
 					$parent = $new_parents[0];
-
-				logger('complete_conversation: adopting new parent '.$parent["id"].' for '.$itemid);
+					logger('complete_conversation: adopting new parent '.$parent["id"].' for '.$itemid);
+				}
 			}
 
 			if (isset($single_conv->context->inReplyTo->id))
