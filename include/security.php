@@ -266,8 +266,8 @@ function item_permissions_sql($owner_id,$remote_verified = false,$groups = null)
 	 * Profile owner - everything is visible
 	 */
 
-	if(($local_user) && ($local_user == $owner_id)) {
-		$sql = ''; 
+	if($local_user && ($local_user == $owner_id)) {
+		$sql = '';
 	}
 
 	/**
@@ -300,7 +300,7 @@ function item_permissions_sql($owner_id,$remote_verified = false,$groups = null)
 			} 
 
 			$sql = sprintf(
-				" AND ( private = 0 OR ( private = 1 AND wall = 1 AND ( allow_cid = '' OR allow_cid REGEXP '<%d>' ) 
+				" AND ( private = 0 OR ( private in (1,2) AND wall = 1 AND ( allow_cid = '' OR allow_cid REGEXP '<%d>' ) 
 				  AND ( deny_cid  = '' OR  NOT deny_cid REGEXP '<%d>' ) 
 				  AND ( allow_gid = '' OR allow_gid REGEXP '%s' )
 				  AND ( deny_gid  = '' OR NOT deny_gid REGEXP '%s'))) 

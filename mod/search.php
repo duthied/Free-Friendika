@@ -149,7 +149,7 @@ function search_content(&$a) {
 		        FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
 		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0) 
-			        OR `item`.`uid` = %d )
+			        OR ( `item`.`uid` = %d ))
 		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		        $sql_extra group by `item`.`uri` ", 
 		        intval(local_user())
@@ -168,12 +168,12 @@ function search_content(&$a) {
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`
+		`user`.`nickname`, `user`.`uid`, `user`.`hidewall`
 		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
 		WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 		AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0 ) 
-			OR `item`.`uid` = %d )
+			OR ( `item`.`uid` = %d ))
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		$sql_extra
 		group by `item`.`uri`	

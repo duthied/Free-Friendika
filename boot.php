@@ -12,9 +12,9 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1592' );
+define ( 'FRIENDICA_VERSION',      '3.1.1601' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1158      );
+define ( 'DB_UPDATE_VERSION',      1159      );
 
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
@@ -1940,6 +1940,36 @@ function build_querystring($params, $name=null) {
         } 
     } 
     return $ret;    
+}
+
+function explode_querystring($query) {
+	$arg_st = strpos($query, '?');
+	if($arg_st !== false) {
+		$base = substr($query, 0, $arg_st);
+		$arg_st += 1;
+	}
+	else {
+		$base = '';
+		$arg_st = 0;
+	}
+
+	$args = explode('&', substr($query, $arg_st));
+	foreach($args as $k=>$arg) {
+		if($arg === '')
+			unset($args[$k]);
+	}
+	$args = array_values($args);
+
+	if(!$base) {
+		$base = $args[0];
+		unset($args[0]);
+		$args = array_values($args);
+	}
+
+	return array(
+		'base' => $base,
+		'args' => $args,
+	);
 }
 
 /**
