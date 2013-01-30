@@ -591,6 +591,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `uid_created` (`uid`, `created`),
   KEY `uid_unseen` (`uid`, `unseen`),
   KEY `mention` (`mention`),
+  KEY `resource-id` (`resource-id`),
   FULLTEXT KEY `title` (`title`),
   FULLTEXT KEY `body` (`body`),
   FULLTEXT KEY `allow_cid` (`allow_cid`),

@@ -164,9 +164,10 @@ function search_content(&$a) {
 		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0) 
 			        OR `item`.`uid` = %d )
 		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		        $sql_extra group by `item`.`uri` ", 
+		        $sql_extra ",
 		        intval(local_user())
 	        );
+//		        $sql_extra group by `item`.`uri` ",
 
 	        if(count($r))
 		        $a->set_pager_total(count($r));
@@ -189,13 +190,13 @@ function search_content(&$a) {
 			OR `item`.`uid` = %d )
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		$sql_extra
-		group by `item`.`uri`	
 		ORDER BY `received` DESC LIMIT %d , %d ",
 		intval(local_user()),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 
 	);
+//		group by `item`.`uri`
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);

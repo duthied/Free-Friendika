@@ -1,16 +1,4 @@
 <?php
-/*require_once("boot.php");
-if(@is_null($a)) {
-        $a = new App;
-}
-
-if(is_null($db)) {
-        @include(".htconfig.php");
-        require_once("dba.php");
-        $db = new dba($db_host, $db_user, $db_pass, $db_data);
-        unset($db_host, $db_user, $db_pass, $db_data);
-};*/
-
 function complete_conversation($itemid, $conversation_url) {
 	global $a;
 
@@ -54,16 +42,17 @@ function complete_conversation($itemid, $conversation_url) {
 		$items = array_reverse($conv_as->items);
 
 		foreach ($items as $single_conv) {
-			//print_r($single_conv);
-
 			if ($first_id == "") {
 				$first_id = $single_conv->id;
 
 				$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
 					intval($message["uid"]), dbesc($first_id));
-				if ($new_parents AND ($itemid != $parent["id"])) {
+				if ($new_parents) {
 					$parent = $new_parents[0];
 					logger('complete_conversation: adopting new parent '.$parent["id"].' for '.$itemid);
+				} else {
+					$parent["id"] = 0;
+					$parent["uri"] = $first_id;
 				}
 			}
 
@@ -72,33 +61,37 @@ function complete_conversation($itemid, $conversation_url) {
 			else
 				$parent_uri = $parent["uri"];
 
-			$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-						intval($message["uid"]), dbesc($single_conv->id));
-			if ($message_exists) {
-				$existing_message = $message_exists[0];
-				$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d LIMIT 1",
-					intval($parent["id"]),
-					dbesc($parent["uri"]),
-					dbesc($parent_uri),
-					intval($existing_message["id"]));
-				continue;
+			if ($parent["id"] != 0) {
+				$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
+							intval($message["uid"]), dbesc($single_conv->id));
+				if ($message_exists) {
+					$existing_message = $message_exists[0];
+					$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d LIMIT 1",
+						intval($parent["id"]),
+						dbesc($parent["uri"]),
+						dbesc($parent_uri),
+						intval($existing_message["id"]));
+					continue;
+				}
 			}
 
 			$arr = array();
 			$arr["uri"] = $single_conv->id;
+			$arr["plink"] = $single_conv->id;
 			$arr["uid"] = $message["uid"];
 			$arr["contact-id"] = $parent["contact-id"]; // To-Do
-			$arr["parent"] = $parent["id"];
+			if ($parent["id"] != 0)
+				$arr["parent"] = $parent["id"];
 			$arr["parent-uri"] = $parent["uri"];
 			$arr["thr-parent"] = $parent_uri;
 			$arr["created"] = $single_conv->published;
 			$arr["edited"] = $single_conv->published;
-			$arr["owner-name"] = $single_conv->actor->contact->displayName;
-			//$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
+			//$arr["owner-name"] = $single_conv->actor->contact->displayName;
+			$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
 			$arr["owner-link"] = $single_conv->actor->id;
 			$arr["owner-avatar"] = $single_conv->actor->image->url;
-			$arr["author-name"] = $single_conv->actor->contact->displayName;
-			//$arr["author-name"] = $single_conv->actor->contact->preferredUsername;
+			//$arr["author-name"] = $single_conv->actor->contact->displayName;
+			$arr["author-name"] = $single_conv->actor->contact->preferredUsername;
 			$arr["author-link"] = $single_conv->actor->id;
 			$arr["author-avatar"] = $single_conv->actor->image->url;
 			$arr["body"] = html2bbcode($single_conv->content);
@@ -120,21 +113,22 @@ function complete_conversation($itemid, $conversation_url) {
 
 			// If the newly created item is the top item then change the parent settings of the thread
 			if ($newitem AND ($arr["uri"] == $first_id)) {
-				logger('complete_conversation: changing parents to parent '.$newitem.' old parent: '.$parent["id"].' new uri: '.$arr["uri"]);
+				logger('complete_conversation: setting new parent to id '.$newitem);
+				$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
+					intval($message["uid"]), intval($newitem));
+				if ($new_parents) {
+					$parent = $new_parents[0];
+					logger('complete_conversation: done changing parents to parent '.$newitem);
+				}
+
+				/*logger('complete_conversation: changing parents to parent '.$newitem.' old parent: '.$parent["id"].' new uri: '.$arr["uri"]);
 				$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s' WHERE `parent` = %d",
 					intval($newitem),
 					dbesc($arr["uri"]),
 					intval($parent["id"]));
-				logger('complete_conversation: done changing parents to parent '.$newitem);
+				logger('complete_conversation: done changing parents to parent '.$newitem.' '.print_r($r, true));*/
 			}
-			//print_r($arr);
 		}
 	}
 }
-/*
-$id = 282481;
-$conversation = "http://identi.ca/conversation/98268580";
-
-complete_conversation($id, $conversation);
-*/
 ?>

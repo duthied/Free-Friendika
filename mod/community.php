@@ -75,12 +75,13 @@ function community_content(&$a, $update = 0) {
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' 
 		AND `item`.`private` = 0 AND `item`.`wall` = 1 AND `user`.`hidewall` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 group by `item`.`uri`
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		ORDER BY `received` DESC LIMIT %d, %d ",
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 
 	);
+//		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 group by `item`.`uri`
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);
