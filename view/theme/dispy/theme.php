@@ -52,7 +52,7 @@ function dispy_init(&$a) {
 	<script type="text/javascript">
 	$(document).ready(function() {
 		// Select all links with lightbox class
-		$("a.lightbox").fancybox();
+		$("img.lightbox").colorbox({maxHeight:"90%"});
 
     	$('.group-edit-icon').hover(
 			function() {
