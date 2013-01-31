@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-01-27 10:00-0800\n"
-"PO-Revision-Date: 2013-01-28 12:52+0000\n"
+"PO-Revision-Date: 2013-01-30 13:05+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -1413,15 +1413,15 @@ msgstr "把人家戳或别的行动"
 
 #: ../../mod/poke.php:194
 msgid "Recipient"
-msgstr ""
+msgstr "接受者"
 
 #: ../../mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
-msgstr ""
+msgstr "选择您想把别人作"
 
 #: ../../mod/poke.php:198
 msgid "Make this post private"
-msgstr ""
+msgstr "使这个文章私人"
 
 #: ../../mod/match.php:12
 msgid "Profile Match"
@@ -2679,7 +2679,7 @@ msgstr "你被在新闻标签"
 
 #: ../../mod/settings.php:1075
 msgid "You are poked/prodded/etc. in a post"
-msgstr ""
+msgstr "您在文章被戳"
 
 #: ../../mod/settings.php:1078
 msgid "Advanced Account/Page Type Settings"
@@ -5429,32 +5429,32 @@ msgstr "连接在Friendica！"
 #: ../../addon/morepokes/morepokes.php:19
 #: ../../addon.old/morepokes/morepokes.php:19
 msgid "bitchslap"
-msgstr ""
+msgstr "恶毒掌击"
 
 #: ../../addon/morepokes/morepokes.php:19
 #: ../../addon.old/morepokes/morepokes.php:19
 msgid "bitchslapped"
-msgstr ""
+msgstr "恶毒掌击了"
 
 #: ../../addon/morepokes/morepokes.php:20
 #: ../../addon.old/morepokes/morepokes.php:20
 msgid "shag"
-msgstr ""
+msgstr "肏"
 
 #: ../../addon/morepokes/morepokes.php:20
 #: ../../addon.old/morepokes/morepokes.php:20
 msgid "shagged"
-msgstr ""
+msgstr "肏了"
 
 #: ../../addon/morepokes/morepokes.php:21
 #: ../../addon.old/morepokes/morepokes.php:21
 msgid "do something obscenely biological to"
-msgstr ""
+msgstr "做什么淫秽生物的于"
 
 #: ../../addon/morepokes/morepokes.php:21
 #: ../../addon.old/morepokes/morepokes.php:21
 msgid "did something obscenely biological to"
-msgstr ""
+msgstr "做了什么淫秽生物的于"
 
 #: ../../addon/morepokes/morepokes.php:22
 #: ../../addon.old/morepokes/morepokes.php:22
@@ -5469,145 +5469,145 @@ msgstr ""
 #: ../../addon/morepokes/morepokes.php:23
 #: ../../addon.old/morepokes/morepokes.php:23
 msgid "declare undying love for"
-msgstr ""
+msgstr "表明永远的爱情为"
 
 #: ../../addon/morepokes/morepokes.php:23
 #: ../../addon.old/morepokes/morepokes.php:23
 msgid "declared undying love for"
-msgstr ""
+msgstr "表明了永远的爱情为"
 
 #: ../../addon/morepokes/morepokes.php:24
 #: ../../addon.old/morepokes/morepokes.php:24
 msgid "patent"
-msgstr ""
+msgstr "专利"
 
 #: ../../addon/morepokes/morepokes.php:24
 #: ../../addon.old/morepokes/morepokes.php:24
 msgid "patented"
-msgstr ""
+msgstr "专利了"
 
 #: ../../addon/morepokes/morepokes.php:25
 #: ../../addon.old/morepokes/morepokes.php:25
 msgid "stroke beard"
-msgstr ""
+msgstr "摸胡子"
 
 #: ../../addon/morepokes/morepokes.php:25
 #: ../../addon.old/morepokes/morepokes.php:25
 msgid "stroked their beard at"
-msgstr ""
+msgstr "摸胡子了"
 
 #: ../../addon/morepokes/morepokes.php:26
 #: ../../addon.old/morepokes/morepokes.php:26
 msgid ""
 "bemoan the declining standards of modern secondary and tertiary education to"
-msgstr ""
+msgstr "哀叹现代的二三等教育规格的衰退给"
 
 #: ../../addon/morepokes/morepokes.php:26
 #: ../../addon.old/morepokes/morepokes.php:26
 msgid ""
 "bemoans the declining standards of modern secondary and tertiary education "
 "to"
-msgstr ""
+msgstr "哀叹现代的二三等教育规格的衰退给"
 
 #: ../../addon/morepokes/morepokes.php:27
 #: ../../addon.old/morepokes/morepokes.php:27
 msgid "hug"
-msgstr ""
+msgstr "拥抱"
 
 #: ../../addon/morepokes/morepokes.php:27
 #: ../../addon.old/morepokes/morepokes.php:27
 msgid "hugged"
-msgstr ""
+msgstr "拥抱了"
 
 #: ../../addon/morepokes/morepokes.php:28
 #: ../../addon.old/morepokes/morepokes.php:28
 msgid "kiss"
-msgstr ""
+msgstr "亲吻"
 
 #: ../../addon/morepokes/morepokes.php:28
 #: ../../addon.old/morepokes/morepokes.php:28
 msgid "kissed"
-msgstr ""
+msgstr "亲吻了"
 
 #: ../../addon/morepokes/morepokes.php:29
 #: ../../addon.old/morepokes/morepokes.php:29
 msgid "raise eyebrows at"
-msgstr ""
+msgstr "举起眉毛于"
 
 #: ../../addon/morepokes/morepokes.php:29
 #: ../../addon.old/morepokes/morepokes.php:29
 msgid "raised their eyebrows at"
-msgstr ""
+msgstr "举起了眉毛于"
 
 #: ../../addon/morepokes/morepokes.php:30
 #: ../../addon.old/morepokes/morepokes.php:30
 msgid "insult"
-msgstr ""
+msgstr "侮辱"
 
 #: ../../addon/morepokes/morepokes.php:30
 #: ../../addon.old/morepokes/morepokes.php:30
 msgid "insulted"
-msgstr ""
+msgstr "侮辱"
 
 #: ../../addon/morepokes/morepokes.php:31
 #: ../../addon.old/morepokes/morepokes.php:31
 msgid "praise"
-msgstr ""
+msgstr "赞扬"
 
 #: ../../addon/morepokes/morepokes.php:31
 #: ../../addon.old/morepokes/morepokes.php:31
 msgid "praised"
-msgstr ""
+msgstr "赞扬了"
 
 #: ../../addon/morepokes/morepokes.php:32
 #: ../../addon.old/morepokes/morepokes.php:32
 msgid "be dubious of"
-msgstr ""
+msgstr "怀疑"
 
 #: ../../addon/morepokes/morepokes.php:32
 #: ../../addon.old/morepokes/morepokes.php:32
 msgid "was dubious of"
-msgstr ""
+msgstr "怀疑了"
 
 #: ../../addon/morepokes/morepokes.php:33
 #: ../../addon.old/morepokes/morepokes.php:33
 msgid "eat"
-msgstr ""
+msgstr "吃"
 
 #: ../../addon/morepokes/morepokes.php:33
 #: ../../addon.old/morepokes/morepokes.php:33
 msgid "ate"
-msgstr ""
+msgstr "吃了"
 
 #: ../../addon/morepokes/morepokes.php:34
 #: ../../addon.old/morepokes/morepokes.php:34
 msgid "giggle and fawn at"
-msgstr ""
+msgstr "咯咯地笑和巴结为"
 
 #: ../../addon/morepokes/morepokes.php:34
 #: ../../addon.old/morepokes/morepokes.php:34
 msgid "giggled and fawned at"
-msgstr ""
+msgstr "咯咯地笑和巴结为了"
 
 #: ../../addon/morepokes/morepokes.php:35
 #: ../../addon.old/morepokes/morepokes.php:35
 msgid "doubt"
-msgstr ""
+msgstr "怀疑"
 
 #: ../../addon/morepokes/morepokes.php:35
 #: ../../addon.old/morepokes/morepokes.php:35
 msgid "doubted"
-msgstr ""
+msgstr "怀疑了"
 
 #: ../../addon/morepokes/morepokes.php:36
 #: ../../addon.old/morepokes/morepokes.php:36
 msgid "glare"
-msgstr ""
+msgstr "瞪"
 
 #: ../../addon/morepokes/morepokes.php:36
 #: ../../addon.old/morepokes/morepokes.php:36
 msgid "glared at"
-msgstr ""
+msgstr "瞪了"
 
 #: ../../addon/yourls/yourls.php:55 ../../addon.old/yourls/yourls.php:55
 msgid "YourLS Settings"
@@ -5800,7 +5800,7 @@ msgstr "看不了"
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:30
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:738
 msgid "Could not open component for editing"
-msgstr ""
+msgstr "开不了部件为编辑"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:140
 #: ../../addon/dav/friendica/layout.fnk.php:143
@@ -5814,7 +5814,7 @@ msgstr "返回日历"
 #: ../../addon/dav/common/wdcal_edit.inc.php:144
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:144
 msgid "Event data"
-msgstr ""
+msgstr "项目内容"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:146
 #: ../../addon/dav/friendica/main.php:239
@@ -5826,12 +5826,12 @@ msgstr "日历"
 #: ../../addon/dav/common/wdcal_edit.inc.php:163
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:163
 msgid "Special color"
-msgstr ""
+msgstr "特别颜色"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:169
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:169
 msgid "Subject"
-msgstr ""
+msgstr "题目"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:173
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:173
@@ -5851,12 +5851,12 @@ msgstr "描述"
 #: ../../addon/dav/common/wdcal_edit.inc.php:188
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:188
 msgid "Recurrence"
-msgstr ""
+msgstr "复发"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:190
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:190
 msgid "Frequency"
-msgstr ""
+msgstr "频率"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:194
 #: ../../include/contact_selectors.php:59
@@ -5879,7 +5879,7 @@ msgstr "每月"
 #: ../../addon/dav/common/wdcal_edit.inc.php:203
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:203
 msgid "Yearly"
-msgstr ""
+msgstr "一年一次"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:214
 #: ../../include/datetime.php:288
@@ -5908,12 +5908,12 @@ msgstr "年"
 #: ../../addon/dav/common/wdcal_edit.inc.php:218
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:218
 msgid "Interval"
-msgstr ""
+msgstr "间隔"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:218
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:218
 msgid "All %select% %time%"
-msgstr ""
+msgstr "每%select%%time%"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:222
 #: ../../addon/dav/common/wdcal_edit.inc.php:260
@@ -5984,34 +5984,34 @@ msgstr "星期六"
 #: ../../addon/dav/common/wdcal_edit.inc.php:297
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:297
 msgid "First day of week:"
-msgstr ""
+msgstr "星期第一天："
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:350
 #: ../../addon/dav/common/wdcal_edit.inc.php:373
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:350
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:373
 msgid "Day of month"
-msgstr ""
+msgstr "月里天数"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:354
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:354
 msgid "#num#th of each month"
-msgstr ""
+msgstr "每月第#num#个"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:357
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:357
 msgid "#num#th-last of each month"
-msgstr ""
+msgstr "每月第#num#个最后"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:360
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:360
 msgid "#num#th #wkday# of each month"
-msgstr ""
+msgstr "每月第#num#个#wkday#"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:363
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:363
 msgid "#num#th-last #wkday# of each month"
-msgstr ""
+msgstr "每月第#num#个最后#wkday#"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:372
 #: ../../addon/dav/friendica/layout.fnk.php:255
@@ -6023,52 +6023,52 @@ msgstr "月"
 #: ../../addon/dav/common/wdcal_edit.inc.php:377
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:377
 msgid "#num#th of the given month"
-msgstr ""
+msgstr "月第#num#个天"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:380
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:380
 msgid "#num#th-last of the given month"
-msgstr ""
+msgstr "月第#num#个最后天"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:383
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:383
 msgid "#num#th #wkday# of the given month"
-msgstr ""
+msgstr "月第#num#个#wkday#"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:386
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:386
 msgid "#num#th-last #wkday# of the given month"
-msgstr ""
+msgstr "月第#num#个最后#wkday#"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:413
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:413
 msgid "Repeat until"
-msgstr ""
+msgstr "重复到"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:417
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:417
 msgid "Infinite"
-msgstr ""
+msgstr "无限的"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:420
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:420
 msgid "Until the following date"
-msgstr ""
+msgstr "到下个日期"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:423
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:423
 msgid "Number of times"
-msgstr ""
+msgstr "多少次"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:429
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:429
 msgid "Exceptions"
-msgstr ""
+msgstr "除外"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:432
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:432
 msgid "none"
-msgstr ""
+msgstr "没有"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:449
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:449
@@ -6078,22 +6078,22 @@ msgstr "通知"
 #: ../../addon/dav/common/wdcal_edit.inc.php:466
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:466
 msgid "Notify by"
-msgstr ""
+msgstr "用地方法为通知"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:469
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:469
 msgid "E-Mail"
-msgstr ""
+msgstr "电子邮件"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:470
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:470
 msgid "On Friendica / Display"
-msgstr ""
+msgstr "在Friendica／表示"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:474
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:474
 msgid "Time"
-msgstr ""
+msgstr "时间"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:478
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:478
@@ -6108,27 +6108,27 @@ msgstr "分钟"
 #: ../../addon/dav/common/wdcal_edit.inc.php:480
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:480
 msgid "Seconds"
-msgstr ""
+msgstr "秒"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:482
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:482
 msgid "Weeks"
-msgstr ""
+msgstr "周"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:485
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:485
 msgid "before the"
-msgstr ""
+msgstr "前"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:486
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:486
 msgid "start of the event"
-msgstr ""
+msgstr "项目开始"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:487
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:487
 msgid "end of the event"
-msgstr ""
+msgstr "项目结束"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:492
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:492
@@ -6722,22 +6722,22 @@ msgstr "上传注销了，或相遇服务器错误"
 #: ../../addon/forumlist/forumlist.php:67
 #: ../../addon.old/forumlist/forumlist.php:63
 msgid "show/hide"
-msgstr ""
+msgstr "表示／隐藏"
 
 #: ../../addon/forumlist/forumlist.php:81
 #: ../../addon.old/forumlist/forumlist.php:77
 msgid "No forum subscriptions"
-msgstr ""
+msgstr "没有评坛订阅"
 
 #: ../../addon/forumlist/forumlist.php:134
 #: ../../addon.old/forumlist/forumlist.php:131
 msgid "Forumlist settings updated."
-msgstr ""
+msgstr "评坛单设置更新了。"
 
 #: ../../addon/forumlist/forumlist.php:162
 #: ../../addon.old/forumlist/forumlist.php:159
 msgid "Forumlist Settings"
-msgstr ""
+msgstr "评坛单设置"
 
 #: ../../addon/forumlist/forumlist.php:164
 #: ../../addon.old/forumlist/forumlist.php:161
@@ -6951,12 +6951,12 @@ msgstr ""
 #: ../../addon/group_text/group_text.php:76
 #: ../../addon.old/group_text/group_text.php:76
 msgid "Group Text"
-msgstr ""
+msgstr "组正文"
 
 #: ../../addon/group_text/group_text.php:78
 #: ../../addon.old/group_text/group_text.php:78
 msgid "Use a text only (non-image) group selector in the \"group edit\" menu"
-msgstr ""
+msgstr "用光正文（无图片）组选择器在「组编辑」单"
 
 #: ../../addon/libravatar/libravatar.php:14
 #: ../../addon.old/libravatar/libravatar.php:14
@@ -8423,51 +8423,51 @@ msgstr[0] "%d熟人"
 
 #: ../../include/text.php:779
 msgid "poke"
-msgstr ""
+msgstr "戳"
 
 #: ../../include/text.php:779 ../../include/conversation.php:210
 msgid "poked"
-msgstr ""
+msgstr "戳了"
 
 #: ../../include/text.php:780
 msgid "ping"
-msgstr ""
+msgstr "砰"
 
 #: ../../include/text.php:780
 msgid "pinged"
-msgstr ""
+msgstr "砰了"
 
 #: ../../include/text.php:781
 msgid "prod"
-msgstr ""
+msgstr "柔戳"
 
 #: ../../include/text.php:781
 msgid "prodded"
-msgstr ""
+msgstr "柔戳了"
 
 #: ../../include/text.php:782
 msgid "slap"
-msgstr ""
+msgstr "掌击"
 
 #: ../../include/text.php:782
 msgid "slapped"
-msgstr ""
+msgstr "掌击了"
 
 #: ../../include/text.php:783
 msgid "finger"
-msgstr ""
+msgstr "指"
 
 #: ../../include/text.php:783
 msgid "fingered"
-msgstr ""
+msgstr "指了"
 
 #: ../../include/text.php:784
 msgid "rebuff"
-msgstr ""
+msgstr "窝脖儿"
 
 #: ../../include/text.php:784
 msgid "rebuffed"
-msgstr ""
+msgstr "窝脖儿了"
 
 #: ../../include/text.php:796
 msgid "happy"
@@ -8805,7 +8805,7 @@ msgstr "发件箱"
 
 #: ../../include/nav.php:135
 msgid "Manage"
-msgstr "管理"
+msgstr "代用户"
 
 #: ../../include/nav.php:135
 msgid "Manage other pages"
@@ -9261,17 +9261,17 @@ msgstr "%1$s[url=%2$s]把您标签[/url]."
 #: ../../include/enotify.php:155
 #, php-format
 msgid "[Friendica:Notify] %1$s poked you"
-msgstr ""
+msgstr "[Friendica:Notify]您被%1$s戳"
 
 #: ../../include/enotify.php:156
 #, php-format
 msgid "%1$s poked you at %2$s"
-msgstr ""
+msgstr "您被%1$s戳在%2$s"
 
 #: ../../include/enotify.php:157
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
-msgstr ""
+msgstr "%1$s[url=%2$s]把您戳[/url]。"
 
 #: ../../include/enotify.php:172
 #, php-format
@@ -9499,7 +9499,7 @@ msgstr "结束关注了"
 
 #: ../../include/Contact.php:225 ../../include/conversation.php:818
 msgid "Poke"
-msgstr ""
+msgstr "戳"
 
 #: ../../include/Contact.php:226 ../../include/conversation.php:812
 msgid "View Status"
@@ -9531,7 +9531,7 @@ msgstr "法私人的新闻"
 #: ../../include/conversation.php:206
 #, php-format
 msgid "%1$s poked %2$s"
-msgstr ""
+msgstr "%1$s把%2$s戳"
 
 #: ../../include/conversation.php:290
 msgid "post/item"
