@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-01-27 10:00-0800\n"
-"PO-Revision-Date: 2013-01-30 13:05+0000\n"
+"PO-Revision-Date: 2013-01-31 13:15+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -2937,7 +2937,7 @@ msgid ""
 "On your <em>Quick Start</em> page - find a brief introduction to your "
 "profile and network tabs, make some new connections, and find some groups to"
 " join."
-msgstr ""
+msgstr "在您的<em>快开始</em>页－看段介绍您的简介和网络分页，结新联系，而找新组为加入。"
 
 #: ../../mod/newmember.php:26
 msgid "Go to Your Settings"
@@ -3388,15 +3388,15 @@ msgstr "%s贴上一个新闻。"
 #: ../../mod/mood.php:62 ../../include/conversation.php:226
 #, php-format
 msgid "%1$s is currently %2$s"
-msgstr ""
+msgstr "%1$s现在是%2$s"
 
 #: ../../mod/mood.php:133
 msgid "Mood"
-msgstr ""
+msgstr "心情"
 
 #: ../../mod/mood.php:134
 msgid "Set your current mood and tell your friends"
-msgstr ""
+msgstr "选择现在的心情而告诉朋友们"
 
 #: ../../mod/profile_photo.php:44
 msgid "Image uploaded but image cropping failed."
@@ -3718,11 +3718,11 @@ msgstr "默认系统主题－会被用户简介超驰－<a href='#' id='cnftheme
 
 #: ../../mod/admin.php:474
 msgid "Mobile system theme"
-msgstr ""
+msgstr "手机系统主题"
 
 #: ../../mod/admin.php:474
 msgid "Theme for mobile devices"
-msgstr ""
+msgstr "主题适合手机"
 
 #: ../../mod/admin.php:475
 msgid "SSL link policy"
@@ -3855,11 +3855,11 @@ msgstr "URL为更新综合目录。如果没有，这个应用用不了综合目
 
 #: ../../mod/admin.php:490
 msgid "Allow threaded items"
-msgstr ""
+msgstr "允许线绳项目"
 
 #: ../../mod/admin.php:490
 msgid "Allow infinite level threading for items on this site."
-msgstr ""
+msgstr "允许无限水平线绳为这网站的项目。"
 
 #: ../../mod/admin.php:491
 msgid "Private posts by default for new users"
@@ -6133,22 +6133,22 @@ msgstr "项目结束"
 #: ../../addon/dav/common/wdcal_edit.inc.php:492
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:492
 msgid "Add a notification"
-msgstr ""
+msgstr "加一个通知"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:687
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:687
 msgid "The event #name# will start at #date"
-msgstr ""
+msgstr "项目#name#开始在#date"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:696
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:696
 msgid "#name# is about to begin."
-msgstr ""
+msgstr "#name#快开始。"
 
 #: ../../addon/dav/common/wdcal_edit.inc.php:769
 #: ../../addon.old/dav/common/wdcal_edit.inc.php:769
 msgid "Saved"
-msgstr ""
+msgstr "保存了"
 
 #: ../../addon/dav/common/wdcal_configuration.php:148
 #: ../../addon.old/dav/common/wdcal_configuration.php:148
@@ -6163,17 +6163,17 @@ msgstr "德国时间形式（日／月／年）"
 #: ../../addon/dav/common/dav_caldav_backend_private.inc.php:39
 #: ../../addon.old/dav/common/dav_caldav_backend_private.inc.php:39
 msgid "Private Events"
-msgstr ""
+msgstr "私人项目"
 
 #: ../../addon/dav/common/dav_carddav_backend_private.inc.php:46
 #: ../../addon.old/dav/common/dav_carddav_backend_private.inc.php:46
 msgid "Private Addressbooks"
-msgstr ""
+msgstr "私人通讯录"
 
 #: ../../addon/dav/friendica/dav_caldav_backend_virtual_friendica.inc.php:36
 #: ../../addon.old/dav/friendica/dav_caldav_backend_virtual_friendica.inc.php:36
 msgid "Friendica-Native events"
-msgstr ""
+msgstr "本Friendica项目"
 
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:36
 #: ../../addon/dav/friendica/dav_carddav_backend_virtual_friendica.inc.php:59
@@ -6194,37 +6194,37 @@ msgstr "您的Friendica熟人"
 msgid ""
 "Something went wrong when trying to import the file. Sorry. Maybe some "
 "events were imported anyway."
-msgstr ""
+msgstr "进口文件出了问题。不好意思。可能一些项目却是成功地进口了。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:131
 #: ../../addon.old/dav/friendica/layout.fnk.php:131
 msgid "Something went wrong when trying to import the file. Sorry."
-msgstr ""
+msgstr "进口文件出了问题。不好意思。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:134
 #: ../../addon.old/dav/friendica/layout.fnk.php:134
 msgid "The ICS-File has been imported."
-msgstr ""
+msgstr "把ICS文件进口了。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:138
 #: ../../addon.old/dav/friendica/layout.fnk.php:138
 msgid "No file was uploaded."
-msgstr ""
+msgstr "没有上传的文件。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:147
 #: ../../addon.old/dav/friendica/layout.fnk.php:147
 msgid "Import a ICS-file"
-msgstr ""
+msgstr "进口ICS文件"
 
 #: ../../addon/dav/friendica/layout.fnk.php:150
 #: ../../addon.old/dav/friendica/layout.fnk.php:150
 msgid "ICS-File"
-msgstr ""
+msgstr "ICS文件"
 
 #: ../../addon/dav/friendica/layout.fnk.php:151
 #: ../../addon.old/dav/friendica/layout.fnk.php:151
 msgid "Overwrite all #num# existing events"
-msgstr ""
+msgstr "替换所有#num#现有的项目"
 
 #: ../../addon/dav/friendica/layout.fnk.php:228
 #: ../../addon.old/dav/friendica/layout.fnk.php:228
@@ -6264,17 +6264,17 @@ msgstr "错误"
 #: ../../addon/dav/friendica/layout.fnk.php:380
 #: ../../addon.old/dav/friendica/layout.fnk.php:380
 msgid "The calendar has been updated."
-msgstr ""
+msgstr "日历更新了。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:393
 #: ../../addon.old/dav/friendica/layout.fnk.php:393
 msgid "The new calendar has been created."
-msgstr ""
+msgstr "新日历创造了。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:417
 #: ../../addon.old/dav/friendica/layout.fnk.php:417
 msgid "The calendar has been deleted."
-msgstr ""
+msgstr "日历删除了。"
 
 #: ../../addon/dav/friendica/layout.fnk.php:424
 #: ../../addon.old/dav/friendica/layout.fnk.php:424
@@ -6294,12 +6294,12 @@ msgstr "时区"
 #: ../../addon/dav/friendica/layout.fnk.php:445
 #: ../../addon.old/dav/friendica/layout.fnk.php:445
 msgid "Calendars"
-msgstr ""
+msgstr "日历"
 
 #: ../../addon/dav/friendica/layout.fnk.php:487
 #: ../../addon.old/dav/friendica/layout.fnk.php:487
 msgid "Create a new calendar"
-msgstr ""
+msgstr "创造新日历"
 
 #: ../../addon/dav/friendica/layout.fnk.php:496
 #: ../../addon.old/dav/friendica/layout.fnk.php:496
@@ -6334,7 +6334,7 @@ msgid ""
 "The current version of this plugin has not been set up correctly. Please "
 "contact the system administrator of your installation of friendica to fix "
 "this."
-msgstr ""
+msgstr "现有的插件没安装好。请跟系统管理您的friendica安装联系为维修。"
 
 #: ../../addon/dav/friendica/main.php:242
 #: ../../addon.old/dav/friendica/main.php:242
@@ -6352,7 +6352,7 @@ msgstr "noreply"
 #: ../../addon/dav/friendica/main.php:282
 #: ../../addon.old/dav/friendica/main.php:282
 msgid "Notification: "
-msgstr ""
+msgstr "通知："
 
 #: ../../addon/dav/friendica/main.php:309
 #: ../../addon.old/dav/friendica/main.php:309
@@ -6367,12 +6367,12 @@ msgstr "安装出错误。"
 #: ../../addon/dav/friendica/main.php:316
 #: ../../addon.old/dav/friendica/main.php:316
 msgid "The database tables have been updated."
-msgstr ""
+msgstr "数据库表格更新了。"
 
 #: ../../addon/dav/friendica/main.php:317
 #: ../../addon.old/dav/friendica/main.php:317
 msgid "An error occurred during the update."
-msgstr ""
+msgstr "更新出了问题。"
 
 #: ../../addon/dav/friendica/main.php:333
 #: ../../addon.old/dav/friendica/main.php:333
@@ -6402,7 +6402,7 @@ msgid ""
 "database structure, it's always safe to have a backup. Below, you can have a"
 " look at the database-queries that will be made when pressing the "
 "'update'-button."
-msgstr ""
+msgstr "请备份所有的日历数据（表格有前缀「dav_」）继续之前。虽然所有的日历项目<i>应该</i>被转化成新数据库体系，备份总是最好。下边您会看数据库命令进行按「更新」按钮的时候。"
 
 #: ../../addon/dav/friendica/main.php:343
 #: ../../addon.old/dav/friendica/main.php:343
@@ -6422,7 +6422,7 @@ msgstr "安装"
 #: ../../addon/dav/friendica/main.php:350
 #: ../../addon.old/dav/friendica/main.php:350
 msgid "Unknown"
-msgstr ""
+msgstr "不知道的"
 
 #: ../../addon/dav/friendica/main.php:350
 #: ../../addon.old/dav/friendica/main.php:350
@@ -6431,7 +6431,7 @@ msgid ""
 " sorry. Please go to the database backend, back up the data, and delete all "
 "tables beginning with 'dav_' manually. Afterwards, this installation routine"
 " should be able to reinitialize the tables automatically."
-msgstr ""
+msgstr "出什么真糟糕的问题。我不能自动地恢复，不好意思。请看数据库系统，备份数据，而手动地把所有前缀着「dav_」表格删除。之后，这个安装程序应该能把表格自动地初始化。"
 
 #: ../../addon/dav/friendica/main.php:355
 #: ../../addon.old/dav/friendica/main.php:355
@@ -6466,12 +6466,12 @@ msgstr "Friendica项目：熟人"
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:248
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:248
 msgid "Private Addresses"
-msgstr ""
+msgstr "私人地址"
 
 #: ../../addon/dav/friendica/calendar.friendica.fnk.php:249
 #: ../../addon.old/dav/friendica/calendar.friendica.fnk.php:249
 msgid "Friendica Contacts"
-msgstr ""
+msgstr "Friendica熟人"
 
 #: ../../addon/uhremotestorage/uhremotestorage.php:84
 #: ../../addon.old/uhremotestorage/uhremotestorage.php:84
@@ -8471,71 +8471,71 @@ msgstr "窝脖儿了"
 
 #: ../../include/text.php:796
 msgid "happy"
-msgstr ""
+msgstr "开心"
 
 #: ../../include/text.php:797
 msgid "sad"
-msgstr ""
+msgstr "伤心"
 
 #: ../../include/text.php:798
 msgid "mellow"
-msgstr ""
+msgstr "轻松"
 
 #: ../../include/text.php:799
 msgid "tired"
-msgstr ""
+msgstr "累"
 
 #: ../../include/text.php:800
 msgid "perky"
-msgstr ""
+msgstr "机敏"
 
 #: ../../include/text.php:801
 msgid "angry"
-msgstr ""
+msgstr "生气"
 
 #: ../../include/text.php:802
 msgid "stupified"
-msgstr ""
+msgstr "麻醉"
 
 #: ../../include/text.php:803
 msgid "puzzled"
-msgstr ""
+msgstr "纳闷"
 
 #: ../../include/text.php:804
 msgid "interested"
-msgstr ""
+msgstr "有兴趣"
 
 #: ../../include/text.php:805
 msgid "bitter"
-msgstr ""
+msgstr "苦"
 
 #: ../../include/text.php:806
 msgid "cheerful"
-msgstr ""
+msgstr "快乐"
 
 #: ../../include/text.php:807
 msgid "alive"
-msgstr ""
+msgstr "活着"
 
 #: ../../include/text.php:808
 msgid "annoyed"
-msgstr ""
+msgstr "被烦恼"
 
 #: ../../include/text.php:809
 msgid "anxious"
-msgstr ""
+msgstr "心焦"
 
 #: ../../include/text.php:810
 msgid "cranky"
-msgstr ""
+msgstr "不稳"
 
 #: ../../include/text.php:811
 msgid "disturbed"
-msgstr ""
+msgstr "不安"
 
 #: ../../include/text.php:812
 msgid "frustrated"
-msgstr ""
+msgstr "被作梗"
 
 #: ../../include/text.php:813
 msgid "motivated"
@@ -8991,7 +8991,7 @@ msgstr "$1写："
 
 #: ../../include/bbcode.php:520 ../../include/bbcode.php:521
 msgid "Encrypted content"
-msgstr ""
+msgstr "加密的内容"
 
 #: ../../include/features.php:23
 msgid "General Features"
