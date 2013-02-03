@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-01-27 10:00-0800\n"
-"PO-Revision-Date: 2013-01-31 13:15+0000\n"
+"PO-Revision-Date: 2013-02-03 11:16+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -564,11 +564,11 @@ msgstr "编照片册"
 
 #: ../../mod/photos.php:1135
 msgid "Show Newest First"
-msgstr ""
+msgstr "先表示最新的"
 
 #: ../../mod/photos.php:1137
 msgid "Show Oldest First"
-msgstr ""
+msgstr "先表示最老的"
 
 #: ../../mod/photos.php:1170 ../../mod/photos.php:1668
 msgid "View Photo"
@@ -2394,7 +2394,7 @@ msgstr "搬到文件夹："
 
 #: ../../mod/settings.php:769 ../../mod/admin.php:420
 msgid "No special theme for mobile devices"
-msgstr ""
+msgstr "没专门适合手机的主题"
 
 #: ../../mod/settings.php:809
 msgid "Display Settings"
@@ -2406,7 +2406,7 @@ msgstr "显示主题："
 
 #: ../../mod/settings.php:816
 msgid "Mobile Theme:"
-msgstr ""
+msgstr "手机主题："
 
 #: ../../mod/settings.php:817
 msgid "Update browser every xx seconds"
@@ -2418,7 +2418,7 @@ msgstr "最小10秒，没有上限"
 
 #: ../../mod/settings.php:818
 msgid "Number of items to display per page:"
-msgstr ""
+msgstr "每页表示多少项目："
 
 #: ../../mod/settings.php:818
 msgid "Maximum of 100 items"
@@ -2926,11 +2926,11 @@ msgstr "我们想提高几个建议和超链接为让你的经历愉快。点击
 
 #: ../../mod/newmember.php:14
 msgid "Getting Started"
-msgstr ""
+msgstr "开始方法"
 
 #: ../../mod/newmember.php:18
 msgid "Friendica Walk-Through"
-msgstr ""
+msgstr "Friendica游览"
 
 #: ../../mod/newmember.php:18
 msgid ""
@@ -2941,7 +2941,7 @@ msgstr "在您的<em>快开始</em>页－看段介绍您的简介和网络分页
 
 #: ../../mod/newmember.php:26
 msgid "Go to Your Settings"
-msgstr ""
+msgstr "您的设置"
 
 #: ../../mod/newmember.php:26
 msgid ""
@@ -2978,7 +2978,7 @@ msgstr "上传一张简历照片除非你已经做过。研究表明有真正自
 
 #: ../../mod/newmember.php:38
 msgid "Edit Your Profile"
-msgstr ""
+msgstr "编辑您的简介"
 
 #: ../../mod/newmember.php:38
 msgid ""
@@ -2989,7 +2989,7 @@ msgstr "随意编你的<strong>公开的</strong>简历。评论设置为藏起�
 
 #: ../../mod/newmember.php:40
 msgid "Profile Keywords"
-msgstr ""
+msgstr "简介关键字"
 
 #: ../../mod/newmember.php:40
 msgid ""
@@ -3000,7 +3000,7 @@ msgstr "指定一些公开关键字在您的默认简介描述您兴趣。我们
 
 #: ../../mod/newmember.php:44
 msgid "Connecting"
-msgstr ""
+msgstr "连接着"
 
 #: ../../mod/newmember.php:49 ../../mod/newmember.php:51
 #: ../../addon/facebook/facebook.php:730 ../../addon/fbpost/fbpost.php:294
@@ -3024,7 +3024,7 @@ msgstr "<em>要是</em>这是你的私利服务器，安装Facebook插件会把�
 
 #: ../../mod/newmember.php:56
 msgid "Importing Emails"
-msgstr ""
+msgstr "进口着邮件"
 
 #: ../../mod/newmember.php:56
 msgid ""
@@ -3035,7 +3035,7 @@ msgstr "输入你电子邮件使用信息在插销设置页，要是你想用你
 
 #: ../../mod/newmember.php:58
 msgid "Go to Your Contacts Page"
-msgstr ""
+msgstr "您的熟人页"
 
 #: ../../mod/newmember.php:58
 msgid ""
@@ -3046,7 +3046,7 @@ msgstr "您熟人页是您门口为管理熟人和连接朋友们在别的网络
 
 #: ../../mod/newmember.php:60
 msgid "Go to Your Site's Directory"
-msgstr ""
+msgstr "您网站的目录"
 
 #: ../../mod/newmember.php:60
 msgid ""
@@ -3057,7 +3057,7 @@ msgstr "目录页让您找别人在这个网络或别的同盟的网站。找一
 
 #: ../../mod/newmember.php:62
 msgid "Finding New People"
-msgstr ""
+msgstr "找新人"
 
 #: ../../mod/newmember.php:62
 msgid ""
@@ -3074,7 +3074,7 @@ msgstr "组"
 
 #: ../../mod/newmember.php:70
 msgid "Group Your Contacts"
-msgstr ""
+msgstr "把熟人组起来"
 
 #: ../../mod/newmember.php:70
 msgid ""
@@ -3085,22 +3085,22 @@ msgstr "您交朋友们后，组织他们分私人交流组在您熟人页的边
 
 #: ../../mod/newmember.php:73
 msgid "Why Aren't My Posts Public?"
-msgstr ""
+msgstr "我文章怎么没公开的？"
 
 #: ../../mod/newmember.php:73
 msgid ""
 "Friendica respects your privacy. By default, your posts will only show up to"
 " people you've added as friends. For more information, see the help section "
 "from the link above."
-msgstr ""
+msgstr "Friendica尊敬您的隐私。默认是您文章只被您朋友们看。更多消息在帮助部分在上面的链接。"
 
 #: ../../mod/newmember.php:78
 msgid "Getting Help"
-msgstr ""
+msgstr "怎么获得帮助"
 
 #: ../../mod/newmember.php:82
 msgid "Go to the Help Section"
-msgstr ""
+msgstr "看帮助部分"
 
 #: ../../mod/newmember.php:82
 msgid ""
@@ -3429,7 +3429,7 @@ msgstr "上传文件："
 
 #: ../../mod/profile_photo.php:243
 msgid "Select a profile:"
-msgstr ""
+msgstr "选择一个简介"
 
 #: ../../mod/profile_photo.php:245
 #: ../../addon/dav/friendica/layout.fnk.php:152
@@ -3752,23 +3752,23 @@ msgstr "最多上传照相的字节。默认是零，意思是无限。"
 
 #: ../../mod/admin.php:478
 msgid "Maximum image length"
-msgstr ""
+msgstr "最大图片大小"
 
 #: ../../mod/admin.php:478
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
-msgstr ""
+msgstr "最多像素在上传图片的长度。默认-1，意思是无限。"
 
 #: ../../mod/admin.php:479
 msgid "JPEG image quality"
-msgstr ""
+msgstr "JPEG图片质量"
 
 #: ../../mod/admin.php:479
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
-msgstr ""
+msgstr "上传的JPEG被用这质量［0－100］保存。默认100，最高。"
 
 #: ../../mod/admin.php:481
 msgid "Register policy"
@@ -3863,7 +3863,7 @@ msgstr "允许无限水平线绳为这网站的项目。"
 
 #: ../../mod/admin.php:491
 msgid "Private posts by default for new users"
-msgstr ""
+msgstr "新用户默认写私人文章"
 
 #: ../../mod/admin.php:491
 msgid ""
@@ -5355,19 +5355,19 @@ msgstr "删除全缓存"
 
 #: ../../addon/fbpost/fbpost.php:183 ../../addon.old/fbpost/fbpost.php:172
 msgid "Facebook Post disabled"
-msgstr ""
+msgstr "使Facebook文章不可用的"
 
 #: ../../addon/fbpost/fbpost.php:210 ../../addon.old/fbpost/fbpost.php:199
 msgid "Facebook Post"
-msgstr ""
+msgstr "Facebook文章"
 
 #: ../../addon/fbpost/fbpost.php:216 ../../addon.old/fbpost/fbpost.php:205
 msgid "Install Facebook Post connector for this account."
-msgstr ""
+msgstr "安装Facebook文章连接器为这个账户"
 
 #: ../../addon/fbpost/fbpost.php:223 ../../addon.old/fbpost/fbpost.php:212
 msgid "Remove Facebook Post connector"
-msgstr ""
+msgstr "把Facebook文章连接器删除"
 
 #: ../../addon/fbpost/fbpost.php:239
 msgid "Suppress \"View on friendica\""
@@ -5383,7 +5383,7 @@ msgstr ""
 
 #: ../../addon/fbpost/fbpost.php:295 ../../addon.old/fbpost/fbpost.php:240
 msgid "Facebook Post Settings"
-msgstr ""
+msgstr "Facebook文章设置"
 
 #: ../../addon/fbpost/fbpost.php:375
 #, php-format
@@ -5459,12 +5459,12 @@ msgstr "做了什么淫秽生物的于"
 #: ../../addon/morepokes/morepokes.php:22
 #: ../../addon.old/morepokes/morepokes.php:22
 msgid "point out the poke feature to"
-msgstr ""
+msgstr "把戳特点指给"
 
 #: ../../addon/morepokes/morepokes.php:22
 #: ../../addon.old/morepokes/morepokes.php:22
 msgid "pointed out the poke feature to"
-msgstr ""
+msgstr "把了戳特点指给"
 
 #: ../../addon/morepokes/morepokes.php:23
 #: ../../addon.old/morepokes/morepokes.php:23
@@ -7210,68 +7210,68 @@ msgstr "默认地转播到InsaneJournal"
 #: ../../addon/jappixmini/jappixmini.php:266
 #: ../../addon.old/jappixmini/jappixmini.php:266
 msgid "Jappix Mini addon settings"
-msgstr ""
+msgstr "Jappix Mini加件设置"
 
 #: ../../addon/jappixmini/jappixmini.php:268
 #: ../../addon.old/jappixmini/jappixmini.php:268
 msgid "Activate addon"
-msgstr ""
+msgstr "使加件可用"
 
 #: ../../addon/jappixmini/jappixmini.php:271
 #: ../../addon.old/jappixmini/jappixmini.php:271
 msgid ""
 "Do <em>not</em> insert the Jappixmini Chat-Widget into the webinterface"
-msgstr ""
+msgstr "<em>别</em>把Jappixmini聊小窗插入网用户界面"
 
 #: ../../addon/jappixmini/jappixmini.php:274
 #: ../../addon.old/jappixmini/jappixmini.php:274
 msgid "Jabber username"
-msgstr ""
+msgstr "Jabber用户名"
 
 #: ../../addon/jappixmini/jappixmini.php:277
 #: ../../addon.old/jappixmini/jappixmini.php:277
 msgid "Jabber server"
-msgstr ""
+msgstr "Jabber服务器"
 
 #: ../../addon/jappixmini/jappixmini.php:281
 #: ../../addon.old/jappixmini/jappixmini.php:281
 msgid "Jabber BOSH host"
-msgstr ""
+msgstr "Jabber BOSH主机"
 
 #: ../../addon/jappixmini/jappixmini.php:285
 #: ../../addon.old/jappixmini/jappixmini.php:285
 msgid "Jabber password"
-msgstr ""
+msgstr "Jabber密码"
 
 #: ../../addon/jappixmini/jappixmini.php:290
 #: ../../addon.old/jappixmini/jappixmini.php:290
 msgid "Encrypt Jabber password with Friendica password (recommended)"
-msgstr ""
+msgstr "把Jabber密码跟Friendica密码加密（推荐的）"
 
 #: ../../addon/jappixmini/jappixmini.php:293
 #: ../../addon.old/jappixmini/jappixmini.php:293
 msgid "Friendica password"
-msgstr ""
+msgstr "Friendica密码"
 
 #: ../../addon/jappixmini/jappixmini.php:296
 #: ../../addon.old/jappixmini/jappixmini.php:296
 msgid "Approve subscription requests from Friendica contacts automatically"
-msgstr ""
+msgstr "自动地批准从Friendica熟人的订阅要求"
 
 #: ../../addon/jappixmini/jappixmini.php:299
 #: ../../addon.old/jappixmini/jappixmini.php:299
 msgid "Subscribe to Friendica contacts automatically"
-msgstr ""
+msgstr "自动地订阅Friendica熟人"
 
 #: ../../addon/jappixmini/jappixmini.php:302
 #: ../../addon.old/jappixmini/jappixmini.php:302
 msgid "Purge internal list of jabber addresses of contacts"
-msgstr ""
+msgstr "把熟人jabber地址从内部单"
 
 #: ../../addon/jappixmini/jappixmini.php:308
 #: ../../addon.old/jappixmini/jappixmini.php:308
 msgid "Add contact"
-msgstr ""
+msgstr "加熟人"
 
 #: ../../addon/viewsrc/viewsrc.php:37 ../../addon.old/viewsrc/viewsrc.php:37
 msgid "View Source"
@@ -8539,15 +8539,15 @@ msgstr "被作梗"
 
 #: ../../include/text.php:813
 msgid "motivated"
-msgstr ""
+msgstr "士气高涨"
 
 #: ../../include/text.php:814
 msgid "relaxed"
-msgstr ""
+msgstr "轻松"
 
 #: ../../include/text.php:815
 msgid "surprised"
-msgstr ""
+msgstr "诧异"
 
 #: ../../include/text.php:979
 msgid "January"
@@ -9701,7 +9701,7 @@ msgstr ""
 
 #: ../../boot.php:1186
 msgid "Requested account is not available."
-msgstr ""
+msgstr "要求的账户不可用。"
 
 #: ../../boot.php:1265
 msgid "Edit profile"
