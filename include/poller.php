@@ -86,7 +86,8 @@ function poller_run(&$argv, &$argc){
 	if($abandon_days < 1)
 		$abandon_days = 0;
 
-
+	// Check OStatus conversations
+	check_conversations();
 
 	// once daily run birthday_updates and then expire in background
 

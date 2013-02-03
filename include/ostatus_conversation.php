@@ -1,9 +1,39 @@
 <?php
-function complete_conversation($itemid, $conversation_url) {
-	global $a;
+define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 
-	require_once('include/html2bbcode.php');
-	require_once('include/items.php');
+function check_conversations() {
+        $last = get_config('system','ostatus_last_poll');
+
+        $poll_interval = intval(get_config('system','ostatus_poll_interval'));
+        if(! $poll_interval)
+                $poll_interval = OSTATUS_DEFAULT_POLL_INTERVAL;
+
+        if($last) {
+                $next = $last + ($poll_interval * 60);
+                if($next > time()) {
+                        logger('complete_conversation: poll intervall not reached');
+                        return;
+                }
+        }
+
+        logger('complete_conversation: cron_start');
+
+        $start = date("Y-m-d H:i:s", time() - 86400);
+        $conversations = q("SELECT * FROM `term` WHERE `type` = 7 AND `term` > '%s'", 
+                                dbesc($start));
+        foreach ($conversations AS $conversation) {
+                $id = $conversation['oid'];
+                $url = $conversation['url'];
+                complete_conversation($id, $url);
+        }
+
+        logger('complete_conversation: cron_end');
+
+        set_config('system','ostatus_last_poll', time());
+}
+
+function complete_conversation($itemid, $conversation_url, $only_add_conversation = false) {
+	global $a;
 
 	//logger('complete_conversation: completing conversation url '.$conversation_url.' for id '.$itemid);
 
@@ -11,13 +41,6 @@ function complete_conversation($itemid, $conversation_url) {
 	if (!$messages)
 		return;
 	$message = $messages[0];
-
-	// Get the parent
-	$parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-			intval($message["uid"]), intval($message["parent"]));
-	if (!$parents)
-		return;
-	$parent = $parents[0];
 
 	// Store conversation url if not done before
 	$conversation = q("SELECT `url` FROM `term` WHERE `uid` = %d AND `oid` = %d AND `otype` = %d AND `type` = %d",
@@ -28,6 +51,19 @@ function complete_conversation($itemid, $conversation_url) {
 			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval(TERM_CONVERSATION), dbesc(datetime_convert()), dbesc($conversation_url));
 		logger('complete_conversation: Storing conversation url '.$conversation_url.' for id '.$itemid);
 	}
+
+	if ($only_add_conversation)
+		return;
+
+	// Get the parent
+	$parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
+			intval($message["uid"]), intval($message["parent"]));
+	if (!$parents)
+		return;
+	$parent = $parents[0];
+
+	require_once('include/html2bbcode.php');
+	require_once('include/items.php');
 
 	$conv = str_replace("/conversation/", "/api/statusnet/conversation/", $conversation_url).".as";
 
@@ -110,6 +146,9 @@ function complete_conversation($itemid, $conversation_url) {
 				unset($arr["coord"]);
 
 			$newitem = item_store($arr);
+
+			// Add the conversation entry (but don't fetch the whole conversation)
+			complete_conversation($newitem, $conversation_url, true);
 
 			// If the newly created item is the top item then change the parent settings of the thread
 			if ($newitem AND ($arr["uri"] == $first_id)) {
