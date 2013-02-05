@@ -126,7 +126,7 @@
 		// fancyboxes
 		$j("a.popupbox").colorbox({
 			'inline' : true,
-			'transition' : 'none'
+			'transition' : 'elastic'
 		});
 		
 

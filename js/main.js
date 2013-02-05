@@ -109,7 +109,7 @@
 		});*/
 		$("a.popupbox").colorbox({
 			'inline' : true,
-			'transition' : 'none'
+			'transition' : 'elastic'
 		});
 		
 
