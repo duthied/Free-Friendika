@@ -169,7 +169,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	$a->page['htmlhead'] .= '
 	<script>
 	 $(function() {
-		$("img.lightbox").colorbox({maxHeight:"90%"}); // Select all links with lightbox class
+		$("a.lightbox").colorbox({maxHeight:"90%"}); // Select all links with lightbox class
 	 	$("a#twittersettings-link").colorbox({inline:true,onClosed: function() { $("#twittersettings").attr("style","display: none;");}} );
 		$("a#mapcontrol-link").colorbox({inline:true,onClosed: function() { $("#mapcontrol").attr("style","display: none;");}} );
 		$("a#closeicon").colorbox({inline:true,onClosed: function() { $("#boxsettings").attr("style","display: none;");}} );
