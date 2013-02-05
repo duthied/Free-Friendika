@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1603\n"
+"Project-Id-Version: 3.1.1610\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-29 10:00-0800\n"
+"POT-Creation-Date: 2013-02-05 10:00-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,7 +178,7 @@ msgstr ""
 #: ../../addon/numfriends/numfriends.php:85 ../../addon/gnot/gnot.php:88
 #: ../../addon/wppost/wppost.php:110 ../../addon/showmore/showmore.php:48
 #: ../../addon/piwik/piwik.php:89 ../../addon/twitter/twitter.php:191
-#: ../../addon/twitter/twitter.php:229 ../../addon/twitter/twitter.php:554
+#: ../../addon/twitter/twitter.php:229 ../../addon/twitter/twitter.php:556
 #: ../../addon/irc/irc.php:55 ../../addon/fromapp/fromapp.php:77
 #: ../../addon/blogger/blogger.php:102 ../../addon/posterous/posterous.php:103
 #: ../../view/theme/cleanzero/config.php:80
@@ -2265,7 +2265,7 @@ msgstr ""
 #: ../../addon/impressum/impressum.php:78
 #: ../../addon/openstreetmap/openstreetmap.php:104
 #: ../../addon/altpager/altpager.php:107 ../../addon/mathjax/mathjax.php:66
-#: ../../addon/piwik/piwik.php:105 ../../addon/twitter/twitter.php:548
+#: ../../addon/piwik/piwik.php:105 ../../addon/twitter/twitter.php:550
 #: ../../addon.old/facebook/facebook.php:495
 #: ../../addon.old/fbpost/fbpost.php:144
 #: ../../addon.old/impressum/impressum.php:78
@@ -7765,12 +7765,20 @@ msgstr ""
 msgid "Send linked #-tags and @-names to Twitter"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:556 ../../addon.old/twitter/twitter.php:396
+#: ../../addon/twitter/twitter.php:558 ../../addon.old/twitter/twitter.php:396
 msgid "Consumer key"
 msgstr ""
 
-#: ../../addon/twitter/twitter.php:557 ../../addon.old/twitter/twitter.php:397
+#: ../../addon/twitter/twitter.php:559 ../../addon.old/twitter/twitter.php:397
 msgid "Consumer secret"
+msgstr ""
+
+#: ../../addon/twitter/twitter.php:560
+msgid "Name of the Twitter Application"
+msgstr ""
+
+#: ../../addon/twitter/twitter.php:560
+msgid "set this to avoid mirroring postings from ~friendica back to ~friendica"
 msgstr ""
 
 #: ../../addon/irc/irc.php:44 ../../addon.old/irc/irc.php:44
