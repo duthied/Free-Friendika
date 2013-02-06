@@ -106,7 +106,7 @@ function photo_init(&$a) {
 			intval($resolution)
 		);
 		if(count($r)) {
-			
+
 			$sql_extra = permissions_sql($r[0]['uid']);
 
 			// Now we'll see if we can access the photo
@@ -169,13 +169,13 @@ function photo_init(&$a) {
 		}
 	}
 
-	if(isset($customres) && $customres > 0 && $customres < 500) {
-		$ph = new Photo($data, $mimetype);
-		if($ph->is_valid()) {
+	$ph = new Photo($data, $mimetype);
+	if($ph->is_valid()) {
+		if(isset($customres) && $customres > 0 && $customres < 500) {
 			$ph->scaleImageSquare($customres);
-			$data = $ph->imageString();
-			$mimetype = $ph->getType();
 		}
+		$data = $ph->imageString();
+		$mimetype = $ph->getType();
 	}
 
 	if(function_exists('header_remove')) {

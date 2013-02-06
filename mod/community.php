@@ -64,7 +64,8 @@ function community_content(&$a, $update = 0) {
 
 	}
 
-	$r = q("SELECT distinct(`item`.`uri`), `item`.*, `item`.`id` AS `item_id`, 
+	//$r = q("SELECT distinct(`item`.`uri`)
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`, 
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
@@ -75,13 +76,13 @@ function community_content(&$a, $update = 0) {
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' 
 		AND `item`.`private` = 0 AND `item`.`wall` = 1 AND `user`.`hidewall` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
 		ORDER BY `received` DESC LIMIT %d, %d ",
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 
 	);
-//		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 group by `item`.`uri`
+//		group by `item`.`uri`
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);
