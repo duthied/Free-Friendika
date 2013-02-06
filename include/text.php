@@ -175,9 +175,8 @@ if(! function_exists('xmlify')) {
 function xmlify($str) {
 	$buffer = '';
 	
-	$len = mb_strlen($str);
-	for($x = 0; $x < $len; $x ++) {
-		$char = $str[$x];
+	$str_array = preg_split('//u', $str, -1, PREG_SPLIT_NO_EMPTY);
+	foreach($str_array as $char) {
         
 		switch( $char ) {
 
