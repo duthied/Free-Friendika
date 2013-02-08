@@ -3594,7 +3594,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 			// Only embed locally hosted photos
 			$replace = false;
 			$i = basename($image);
-			$i = str_replace(array('.jpg','.png'),array('',''),$i);
+			$i = str_replace(array('.jpg','.png','.gif'),array('','',''),$i);
 			$x = strpos($i,'-');
 
 			if($x) {
@@ -3605,7 +3605,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 					intval($res),
 					intval($uid)
 				);
-				if(count($r)) {
+				if($r) {
 
 					// Check to see if we should replace this photo link with an embedded image
 					// 1. No need to do so if the photo is public
