@@ -239,7 +239,7 @@ function prune_deadguys($arr) {
 	if($r) {
 		$ret = array();
 		foreach($r as $rr) 
-			$ret[] = $rr['id'];
+			$ret[] = intval($rr['id']);
 		return $ret;
 	}
 	return array();
@@ -339,7 +339,7 @@ function populate_acl($user = null,$celeb = false) {
 function construct_acl_data(&$a, $user) {
 
 	// Get group and contact information for html ACL selector
-	$acl_data = acl_lookup(&$a, 'html');
+	$acl_data = acl_lookup($a, 'html');
 
 	$user_defaults = get_acl_permissions($user);
 

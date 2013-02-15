@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1601' );
+define ( 'FRIENDICA_VERSION',      '3.1.1612' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1159      );
 
@@ -1327,7 +1327,7 @@ if(! function_exists('profile_sidebar')) {
 			}
 		}
 
-		if(get_my_url() && $profile['unkmail'])
+		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
 			$wallmessage = t('Message');
 		else
 			$wallmessage = false;
