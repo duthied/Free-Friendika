@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-02-07 10:00-0800\n"
-"PO-Revision-Date: 2013-02-07 11:00+0000\n"
+"PO-Revision-Date: 2013-02-10 11:56+0000\n"
 "Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -366,7 +366,7 @@ msgstr "分享这个项目"
 
 #: ../../mod/maintenance.php:5
 msgid "System down for maintenance"
-msgstr ""
+msgstr "系统关闭为了维持"
 
 #: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/photos.php:202
 #: ../../mod/photos.php:289 ../../mod/editpost.php:148
@@ -494,7 +494,7 @@ msgstr "删除相册"
 
 #: ../../mod/photos.php:197
 msgid "Do you really want to delete this photo album and all its photos?"
-msgstr ""
+msgstr "您真的想删除这个相册和所有里面的照相吗？"
 
 #: ../../mod/photos.php:275 ../../mod/photos.php:286 ../../mod/photos.php:1499
 msgid "Delete Photo"
@@ -502,7 +502,7 @@ msgstr "删除照片"
 
 #: ../../mod/photos.php:284
 msgid "Do you really want to delete this photo?"
-msgstr ""
+msgstr "您真的想删除这个照相吗？"
 
 #: ../../mod/photos.php:653
 #, php-format
@@ -575,20 +575,20 @@ msgstr "权利"
 #: ../../mod/photos.php:1137 ../../mod/photos.php:1503
 #: ../../mod/settings.php:1070
 msgid "Show to Groups"
-msgstr ""
+msgstr "给组表示"
 
 #: ../../mod/photos.php:1138 ../../mod/photos.php:1504
 #: ../../mod/settings.php:1071
 msgid "Show to Contacts"
-msgstr ""
+msgstr "给熟人表示"
 
 #: ../../mod/photos.php:1139
 msgid "Private Photo"
-msgstr ""
+msgstr "私人照相"
 
 #: ../../mod/photos.php:1140
 msgid "Public Photo"
-msgstr ""
+msgstr "公开照相"
 
 #: ../../mod/photos.php:1207
 msgid "Edit Album"
@@ -670,11 +670,11 @@ msgstr "例子：@zhang, @Zhang_San, @li@example.com, #Beijing, #ktv"
 
 #: ../../mod/photos.php:1505
 msgid "Private photo"
-msgstr ""
+msgstr "私人照相"
 
 #: ../../mod/photos.php:1506
 msgid "Public photo"
-msgstr ""
+msgstr "公开照相"
 
 #: ../../mod/photos.php:1526 ../../mod/content.php:684
 #: ../../object/Item.php:204
@@ -1350,30 +1350,30 @@ msgstr ".htconfig.php是可写的"
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
-msgstr ""
+msgstr "Friendica用Smarty3模板机车为建筑网页。Smarty3把模板编译成PHP为催建筑网页。"
 
 #: ../../mod/install.php:440
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
-msgstr ""
+msgstr "为了保存这些模板，网服务器要写权利于view/smarty3/目录在Friendica主目录下。"
 
 #: ../../mod/install.php:441
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has"
 " write access to this folder."
-msgstr ""
+msgstr "请保险您网服务器用户（比如www-data）有这个目录的写权利。"
 
 #: ../../mod/install.php:442
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
-msgstr ""
+msgstr "注意：为了安全，您应该只给网服务器写权利于view/smarty3/－没有模板文件（.tpl）之下。"
 
 #: ../../mod/install.php:445
 msgid "view/smarty3 is writable"
-msgstr ""
+msgstr "能写view/smarty3"
 
 #: ../../mod/install.php:457
 msgid ""
@@ -1856,7 +1856,7 @@ msgstr "把联系从存档拿来了"
 
 #: ../../mod/contacts.php:244
 msgid "Do you really want to delete this contact?"
-msgstr ""
+msgstr "您真的想删除这个熟人吗？"
 
 #: ../../mod/contacts.php:263
 msgid "Contact has been removed."
@@ -2176,7 +2176,7 @@ msgstr "您的密码能被变化从<em>设置</em>页成功登记后。"
 #: ../../mod/lostpass.php:107
 #, php-format
 msgid "Your password has been changed at %s"
-msgstr ""
+msgstr "您密码被变化在%s"
 
 #: ../../mod/lostpass.php:122
 msgid "Forgot your Password?"
@@ -2663,15 +2663,15 @@ msgstr "（点击为打开/关闭）"
 
 #: ../../mod/settings.php:1072
 msgid "Default Private Post"
-msgstr ""
+msgstr "默认私人文章"
 
 #: ../../mod/settings.php:1073
 msgid "Default Public Post"
-msgstr ""
+msgstr "默认公开文章"
 
 #: ../../mod/settings.php:1077
 msgid "Default Permissions for New Posts"
-msgstr ""
+msgstr "默认权利为新文章"
 
 #: ../../mod/settings.php:1089
 msgid "Maximum private messages per day from unknown people:"
@@ -2873,20 +2873,20 @@ msgstr "把账户搬出"
 
 #: ../../mod/uimport.php:67
 msgid "You can import an account from another Friendica server."
-msgstr ""
+msgstr "您会从别的Friendica服务器进口账户"
 
 #: ../../mod/uimport.php:68
 msgid ""
 "You need to export your account from the old server and upload it here. We "
 "will recreate your old account here with all your contacts. We will try also"
 " to inform your friends that you moved here."
-msgstr ""
+msgstr "您要把您老服务器账户出口才这里上传。我们重现您账户这里，包括所有您的熟人。我们再试通知您朋友们您搬到这里。"
 
 #: ../../mod/uimport.php:69
 msgid ""
 "This feature is experimental. We can't import contacts from the OStatus "
 "network (statusnet/identi.ca) or from Diaspora"
-msgstr ""
+msgstr "这个特点是在试验阶段。我们进口不了Ostatus网络(statusnet/identi.ca)或Diaspora熟人"
 
 #: ../../mod/uimport.php:70
 msgid "Account file"
@@ -3537,7 +3537,7 @@ msgstr "这里没有什么新的"
 
 #: ../../mod/navigation.php:24 ../../include/nav.php:38
 msgid "Clear notifications"
-msgstr ""
+msgstr "清理出通知"
 
 #: ../../mod/message.php:9 ../../include/nav.php:159
 msgid "New Message"
@@ -3549,7 +3549,7 @@ msgstr "找不到熟人信息。"
 
 #: ../../mod/message.php:207
 msgid "Do you really want to delete this message?"
-msgstr ""
+msgstr "您真的想删除这个通知吗？"
 
 #: ../../mod/message.php:227
 msgid "Message deleted."
@@ -3755,7 +3755,7 @@ msgstr "高等"
 
 #: ../../mod/admin.php:466
 msgid "Performance"
-msgstr ""
+msgstr "性能"
 
 #: ../../mod/admin.php:470 ../../addon/statusnet/statusnet.php:744
 #: ../../addon.old/statusnet/statusnet.php:567
@@ -3798,11 +3798,11 @@ msgstr "决定产生的环节否则被强迫用SSL"
 
 #: ../../mod/admin.php:476
 msgid "'Share' element"
-msgstr ""
+msgstr "「合用」要素"
 
 #: ../../mod/admin.php:476
 msgid "Activates the bbcode element 'share' for repeating items."
-msgstr ""
+msgstr "把bbcode要素「合用」为重复项目。"
 
 #: ../../mod/admin.php:477
 msgid "Maximum image size"
@@ -3840,14 +3840,14 @@ msgstr "注册政策"
 
 #: ../../mod/admin.php:482
 msgid "Maximum Daily Registrations"
-msgstr ""
+msgstr "一天最多注册"
 
 #: ../../mod/admin.php:482
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
-msgstr ""
+msgstr "如果注册上边许可的，这个选择一天最多新用户注册会接待。如果注册关闭了，这个设置没有印象。"
 
 #: ../../mod/admin.php:483
 msgid "Register text"
@@ -4066,39 +4066,39 @@ msgstr "系统负荷平均以上转播和检查行程会被耽误－默认50。"
 
 #: ../../mod/admin.php:509
 msgid "Use MySQL full text engine"
-msgstr ""
+msgstr "用MySQL全正文机车"
 
 #: ../../mod/admin.php:509
 msgid ""
 "Activates the full text engine. Speeds up search - but can only search for "
 "four and more characters."
-msgstr ""
+msgstr "使全正文机车可用。把搜索催－可是只能搜索4字以上"
 
 #: ../../mod/admin.php:510
 msgid "Path to item cache"
-msgstr ""
+msgstr "路线到项目缓存"
 
 #: ../../mod/admin.php:511
 msgid "Cache duration in seconds"
-msgstr ""
+msgstr "缓存时间秒"
 
 #: ../../mod/admin.php:511
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day)."
-msgstr ""
+msgstr "缓存文件应该保存多久？默认是86400秒（一天）。"
 
 #: ../../mod/admin.php:512
 msgid "Path for lock file"
-msgstr ""
+msgstr "路线到锁文件"
 
 #: ../../mod/admin.php:513
 msgid "Temp path"
-msgstr ""
+msgstr "临时文件路线"
 
 #: ../../mod/admin.php:514
 msgid "Base path to installation"
-msgstr ""
+msgstr "基础安装路线"
 
 #: ../../mod/admin.php:532
 msgid "Update has been marked successful"
@@ -4551,7 +4551,7 @@ msgstr "剪辑简介消息"
 
 #: ../../mod/profiles.php:627
 msgid "Change Profile Photo"
-msgstr ""
+msgstr "改变简介照片"
 
 #: ../../mod/profiles.php:628
 msgid "View this profile"
@@ -4812,7 +4812,7 @@ msgstr "源代码输入："
 
 #: ../../mod/babel.php:35
 msgid "bb2html (raw HTML): "
-msgstr ""
+msgstr "bb2html（生HTML）： "
 
 #: ../../mod/babel.php:39
 msgid "bb2html: "
@@ -4848,7 +4848,7 @@ msgstr "diaspora2bb: "
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr ""
+msgstr "您真的想删除这个建议吗？"
 
 #: ../../mod/suggest.php:66 ../../view/theme/diabook/theme.php:520
 #: ../../include/contact_widgets.php:34
@@ -4914,7 +4914,7 @@ msgstr "没有文章(有的文章会被隐藏)。"
 
 #: ../../mod/invite.php:27
 msgid "Total invitation limit exceeded."
-msgstr ""
+msgstr "邀请限超过了。"
 
 #: ../../mod/invite.php:49
 #, php-format
@@ -4927,7 +4927,7 @@ msgstr "请加入我们再Friendica"
 
 #: ../../mod/invite.php:84
 msgid "Invitation limit exceeded. Please contact your site administrator."
-msgstr ""
+msgstr "邀请限超过了。请联系您的网站管理员。"
 
 #: ../../mod/invite.php:89
 #, php-format
@@ -5439,15 +5439,15 @@ msgstr "把Facebook文章连接器删除"
 
 #: ../../addon/fbpost/fbpost.php:239
 msgid "Suppress \"View on friendica\""
-msgstr ""
+msgstr "禁止「看在Friendica」"
 
 #: ../../addon/fbpost/fbpost.php:243
 msgid "Mirror wall posts from facebook to friendica."
-msgstr ""
+msgstr "复制墙文章从facebook到friendica。"
 
 #: ../../addon/fbpost/fbpost.php:253
 msgid "Post to page/group:"
-msgstr ""
+msgstr "放在页／组："
 
 #: ../../addon/fbpost/fbpost.php:295 ../../addon.old/fbpost/fbpost.php:240
 msgid "Facebook Post Settings"
@@ -5456,7 +5456,7 @@ msgstr "Facebook文章设置"
 #: ../../addon/fbpost/fbpost.php:375
 #, php-format
 msgid "%s:"
-msgstr ""
+msgstr "%s："
 
 #: ../../addon/widgets/widget_like.php:59
 #: ../../addon.old/widgets/widget_like.php:58
@@ -5802,7 +5802,7 @@ msgstr "使行星插件可用"
 
 #: ../../addon/forumdirectory/forumdirectory.php:22
 msgid "Forum Directory"
-msgstr ""
+msgstr "评坛目录"
 
 #: ../../addon/communityhome/communityhome.php:28
 #: ../../addon/communityhome/communityhome.php:34 ../../include/nav.php:91
@@ -7014,7 +7014,7 @@ msgstr "默认变焦距。(1:世界, 18:最高)"
 
 #: ../../addon/group_text/group_text.php:46
 msgid "Group Text settings updated."
-msgstr ""
+msgstr "组正文设置更新了。"
 
 #: ../../addon/group_text/group_text.php:76
 #: ../../addon.old/group_text/group_text.php:76
@@ -7156,11 +7156,11 @@ msgstr "用到「更新」和「更旧」页代替页数？"
 
 #: ../../addon/altpager/altpager.php:99
 msgid "Force global use of the alternate pager"
-msgstr ""
+msgstr "让大家用供替换的分页"
 
 #: ../../addon/altpager/altpager.php:100
 msgid "Each user chooses whether to use the alternate pager"
-msgstr ""
+msgstr "每用户选择是否用供替换的分页"
 
 #: ../../addon/mathjax/mathjax.php:37 ../../addon.old/mathjax/mathjax.php:37
 msgid ""
@@ -7485,11 +7485,11 @@ msgstr "默认发送公开文章在StatusNet"
 #: ../../addon/statusnet/statusnet.php:358
 msgid ""
 "Mirror all posts from statusnet that are no replies or repeated messages"
-msgstr ""
+msgstr "复制所有文章从statusnet除了回答或重复的通知以外"
 
 #: ../../addon/statusnet/statusnet.php:362
 msgid "Shortening method that optimizes the post"
-msgstr ""
+msgstr "缩短方法优化文章"
 
 #: ../../addon/statusnet/statusnet.php:366
 #: ../../addon.old/statusnet/statusnet.php:345
@@ -7514,11 +7514,11 @@ msgstr "无穷不至于机车"
 
 #: ../../addon/tumblr/tumblr.php:144
 msgid "You are now authenticated to tumblr."
-msgstr ""
+msgstr "现在tumblr证明您是真的"
 
 #: ../../addon/tumblr/tumblr.php:145
 msgid "return to the connector page"
-msgstr ""
+msgstr "会连接器页"
 
 #: ../../addon/tumblr/tumblr.php:158 ../../addon.old/tumblr/tumblr.php:36
 msgid "Post to Tumblr"
@@ -7530,7 +7530,7 @@ msgstr "Tumblr发送设置"
 
 #: ../../addon/tumblr/tumblr.php:188
 msgid "(Re-)Authenticate your tumblr page"
-msgstr ""
+msgstr "再认证您的tumblr页"
 
 #: ../../addon/tumblr/tumblr.php:192 ../../addon.old/tumblr/tumblr.php:69
 msgid "Enable Tumblr Post Plugin"
@@ -7542,11 +7542,11 @@ msgstr "默认地给Tumblr发送"
 
 #: ../../addon/tumblr/tumblr.php:217
 msgid "Post to page:"
-msgstr ""
+msgstr "放在页："
 
 #: ../../addon/tumblr/tumblr.php:228
 msgid "You are not authenticated to tumblr"
-msgstr ""
+msgstr "tumblr没证明您是真的"
 
 #: ../../addon/numfriends/numfriends.php:46
 #: ../../addon.old/numfriends/numfriends.php:46
@@ -7746,11 +7746,11 @@ msgstr "默认地发送公开文章到Twitter"
 
 #: ../../addon/twitter/twitter.php:213
 msgid "Mirror all posts from twitter that are no replies or retweets"
-msgstr ""
+msgstr "复制所有文章从twitter除了回答或复准文以外"
 
 #: ../../addon/twitter/twitter.php:217
 msgid "Shortening method that optimizes the tweet"
-msgstr ""
+msgstr "缩短方法优化缩短方法优化准文"
 
 #: ../../addon/twitter/twitter.php:221 ../../addon.old/twitter/twitter.php:201
 msgid "Send linked #-tags and @-names to Twitter"
@@ -7766,12 +7766,12 @@ msgstr "密码(Consumer secret)"
 
 #: ../../addon/twitter/twitter.php:560
 msgid "Name of the Twitter Application"
-msgstr ""
+msgstr "Twitter应用名"
 
 #: ../../addon/twitter/twitter.php:560
 msgid ""
 "set this to avoid mirroring postings from ~friendica back to ~friendica"
-msgstr ""
+msgstr "选择这个为避免复制文章从~friendica回归~friendica"
 
 #: ../../addon/irc/irc.php:44 ../../addon.old/irc/irc.php:44
 msgid "IRC Settings"
@@ -8854,7 +8854,7 @@ msgstr "网络重设"
 
 #: ../../include/nav.php:141
 msgid "Load Network page with no filters"
-msgstr ""
+msgstr "表示网络页无滤器"
 
 #: ../../include/nav.php:149
 msgid "Friend Requests"
@@ -8890,7 +8890,7 @@ msgstr "管理别的页"
 
 #: ../../include/nav.php:165
 msgid "Delegations"
-msgstr ""
+msgstr "代表"
 
 #: ../../include/nav.php:169 ../../boot.php:1339
 msgid "Profiles"
@@ -8898,7 +8898,7 @@ msgstr "简介"
 
 #: ../../include/nav.php:169
 msgid "Manage/Edit Profiles"
-msgstr ""
+msgstr "管理／编辑简介"
 
 #: ../../include/nav.php:171
 msgid "Manage/edit friends and contacts"
@@ -8910,11 +8910,11 @@ msgstr "网站开办和配置"
 
 #: ../../include/nav.php:182
 msgid "Navigation"
-msgstr ""
+msgstr "航行"
 
 #: ../../include/nav.php:182
 msgid "Site map"
-msgstr ""
+msgstr "网站地图"
 
 #: ../../include/contact_widgets.php:6
 msgid "Add New Contact"
@@ -9064,7 +9064,7 @@ msgstr "图像／照片"
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
 "href=\"%s\" target=\"external-link\">post</a>"
-msgstr ""
+msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a>写了下面的<a href=\"%s\" target=\"external-link\">文章</a>"
 
 #: ../../include/bbcode.php:480 ../../include/bbcode.php:500
 msgid "$1 wrote:"
@@ -9076,151 +9076,151 @@ msgstr "加密的内容"
 
 #: ../../include/features.php:23
 msgid "General Features"
-msgstr ""
+msgstr "总的特点"
 
 #: ../../include/features.php:25
 msgid "Multiple Profiles"
-msgstr ""
+msgstr "多简介"
 
 #: ../../include/features.php:25
 msgid "Ability to create multiple profiles"
-msgstr ""
+msgstr "能穿凿多简介"
 
 #: ../../include/features.php:30
 msgid "Post Composition Features"
-msgstr ""
+msgstr "写文章特点"
 
 #: ../../include/features.php:31
 msgid "Richtext Editor"
-msgstr ""
+msgstr "富文本格式编辑"
 
 #: ../../include/features.php:31
 msgid "Enable richtext editor"
-msgstr ""
+msgstr "使富文本格式编辑可用"
 
 #: ../../include/features.php:32
 msgid "Post Preview"
-msgstr ""
+msgstr "文章预演"
 
 #: ../../include/features.php:32
 msgid "Allow previewing posts and comments before publishing them"
-msgstr ""
+msgstr "允许文章和评论出版前预演"
 
 #: ../../include/features.php:37
 msgid "Network Sidebar Widgets"
-msgstr ""
+msgstr "网络工具栏小窗口"
 
 #: ../../include/features.php:38
 msgid "Search by Date"
-msgstr ""
+msgstr "按日期搜索"
 
 #: ../../include/features.php:38
 msgid "Ability to select posts by date ranges"
-msgstr ""
+msgstr "能按时期范围选择文章"
 
 #: ../../include/features.php:39
 msgid "Group Filter"
-msgstr ""
+msgstr "组滤器"
 
 #: ../../include/features.php:39
 msgid "Enable widget to display Network posts only from selected group"
-msgstr ""
+msgstr "使光表示网络文章从选择的组小窗口"
 
 #: ../../include/features.php:40
 msgid "Network Filter"
-msgstr ""
+msgstr "网络滤器"
 
 #: ../../include/features.php:40
 msgid "Enable widget to display Network posts only from selected network"
-msgstr ""
+msgstr "使光表示网络文章从选择的网络小窗口"
 
 #: ../../include/features.php:41
 msgid "Save search terms for re-use"
-msgstr ""
+msgstr "保存搜索关键为再用"
 
 #: ../../include/features.php:46
 msgid "Network Tabs"
-msgstr ""
+msgstr "网络分页"
 
 #: ../../include/features.php:47
 msgid "Network Personal Tab"
-msgstr ""
+msgstr "网络私人分页"
 
 #: ../../include/features.php:47
 msgid "Enable tab to display only Network posts that you've interacted on"
-msgstr ""
+msgstr "使表示光网络文章您参加了分页可用"
 
 #: ../../include/features.php:48
 msgid "Network New Tab"
-msgstr ""
+msgstr "网络新分页"
 
 #: ../../include/features.php:48
 msgid "Enable tab to display only new Network posts (from the last 12 hours)"
-msgstr ""
+msgstr "使表示光网络文章在12小时内分页可用"
 
 #: ../../include/features.php:49
 msgid "Network Shared Links Tab"
-msgstr ""
+msgstr "网络分享链接分页"
 
 #: ../../include/features.php:49
 msgid "Enable tab to display only Network posts with links in them"
-msgstr ""
+msgstr "使表示光网络文章包括链接分页可用"
 
 #: ../../include/features.php:54
 msgid "Post/Comment Tools"
-msgstr ""
+msgstr "文章／评论工具"
 
 #: ../../include/features.php:55
 msgid "Multiple Deletion"
-msgstr ""
+msgstr "多删除"
 
 #: ../../include/features.php:55
 msgid "Select and delete multiple posts/comments at once"
-msgstr ""
+msgstr "选择和删除多文章／评论一次"
 
 #: ../../include/features.php:56
 msgid "Edit Sent Posts"
-msgstr ""
+msgstr "编辑发送的文章"
 
 #: ../../include/features.php:56
 msgid "Edit and correct posts and comments after sending"
-msgstr ""
+msgstr "编辑或修改文章和评论发送后"
 
 #: ../../include/features.php:57
 msgid "Tagging"
-msgstr ""
+msgstr "标签"
 
 #: ../../include/features.php:57
 msgid "Ability to tag existing posts"
-msgstr ""
+msgstr "能把目前的文章标签"
 
 #: ../../include/features.php:58
 msgid "Post Categories"
-msgstr ""
+msgstr "文章种类"
 
 #: ../../include/features.php:58
 msgid "Add categories to your posts"
-msgstr ""
+msgstr "加入种类给您的文章"
 
 #: ../../include/features.php:59
 msgid "Ability to file posts under folders"
-msgstr ""
+msgstr "能把文章归档在文件夹 "
 
 #: ../../include/features.php:60
 msgid "Dislike Posts"
-msgstr ""
+msgstr "不喜欢文章"
 
 #: ../../include/features.php:60
 msgid "Ability to dislike posts/comments"
-msgstr ""
+msgstr "能不喜欢文章／评论"
 
 #: ../../include/features.php:61
 msgid "Star Posts"
-msgstr ""
+msgstr "文章星"
 
 #: ../../include/features.php:61
 msgid "Ability to mark special posts with a star indicator"
-msgstr ""
+msgstr "能把优秀文章跟星标注"
 
 #: ../../include/dba.php:41
 #, php-format
@@ -9486,7 +9486,7 @@ msgstr "你有新的关注者在"
 
 #: ../../include/items.php:3892
 msgid "Do you really want to delete this item?"
-msgstr ""
+msgstr "您真的想删除这个项目吗？"
 
 #: ../../include/items.php:4085
 msgid "Archives"
@@ -9660,12 +9660,12 @@ msgstr "%s没有喜欢这个."
 #: ../../include/conversation.php:887
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
-msgstr ""
+msgstr "<span  %1$s>%2$d人们</span>喜欢这个"
 
 #: ../../include/conversation.php:890
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
-msgstr ""
+msgstr "<span  %1$s>%2$d人们</span>不喜欢这个"
 
 #: ../../include/conversation.php:904
 msgid "and"
@@ -9720,15 +9720,15 @@ msgstr "权利"
 
 #: ../../include/conversation.php:1068
 msgid "Post to Groups"
-msgstr ""
+msgstr "发到组"
 
 #: ../../include/conversation.php:1069
 msgid "Post to Contacts"
-msgstr ""
+msgstr "发到熟人"
 
 #: ../../include/conversation.php:1070
 msgid "Private post"
-msgstr ""
+msgstr "私人文章"
 
 #: ../../include/plugin.php:429 ../../include/plugin.php:431
 msgid "Click here to upgrade."
@@ -9786,19 +9786,19 @@ msgstr "忘记你的密码吗？"
 
 #: ../../boot.php:1053
 msgid "Website Terms of Service"
-msgstr ""
+msgstr "网站的各项规定"
 
 #: ../../boot.php:1054
 msgid "terms of service"
-msgstr ""
+msgstr "各项规定"
 
 #: ../../boot.php:1056
 msgid "Website Privacy Policy"
-msgstr ""
+msgstr "网站隐私政策"
 
 #: ../../boot.php:1057
 msgid "privacy policy"
-msgstr ""
+msgstr "隐私政策"
 
 #: ../../boot.php:1186
 msgid "Requested account is not available."
