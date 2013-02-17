@@ -41,7 +41,7 @@ function queue_run(&$argv, &$argc){
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
 	$r = q("select * from deliverq where 1");
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr) {
 			logger('queue: deliverq');
 			proc_run('php','include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
@@ -53,7 +53,7 @@ function queue_run(&$argv, &$argc){
 	$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue` 
 		LEFT JOIN `contact` ON `queue`.`cid` = `contact`.`id` 
 		WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr) {
 			logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
 			logger('Expired queue data :' . $rr['content'], LOGGER_DATA);
@@ -73,7 +73,7 @@ function queue_run(&$argv, &$argc){
 
 		$r = q("SELECT `id` FROM `queue` WHERE (( `created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR && `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE ) OR ( `last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR ))");
 	}
-	if(! count($r)){
+	if(! $r){
 		return;
 	}
 

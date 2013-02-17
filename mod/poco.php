@@ -148,7 +148,7 @@ function poco_init(&$a) {
 	if($format === 'xml') {
 		header('Content-type: text/xml');
 		echo replace_macros(get_markup_template('poco_xml.tpl'),array_xmlify(array('$response' => $ret)));
-		http_status_exit(500);
+		killme();
 	}
 	if($format === 'json') {
 		header('Content-type: application/json');

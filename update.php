@@ -1371,16 +1371,6 @@ ADD INDEX ( `datasize` ) ");
 }
 
 function update_1157() {
-<<<<<<< HEAD
-	$r = q("ALTER TABLE `term` ADD `aid` int(10) unsigned NOT NULL DEFAULT '0',
-		ADD `uid` int(10) unsigned NOT NULL DEFAULT '0',
-		ADD INDEX (`uid`),
-		ADD INDEX (`aid`)");
-
-	if(!$r) return UPDATE_FAILED;
-	return UPDATE_SUCCESS;
-}
-function update_1158() {
 	$r = q("CREATE TABLE  IF NOT EXISTS `dsprphotoq` (
 	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	  `uid` int(11) NOT NULL,
@@ -1389,6 +1379,20 @@ function update_1158() {
 	  PRIMARY KEY (`id`)
 	  ) ENGINE=MyISAM DEFAULT CHARSET=utf8"
 	);
+
+	if($r)
+		return UPDATE_SUCCESS;
+}
+
+function update_1158() {
+	set_config('system', 'maintenance', 1);
+
+	// Wait for 15 seconds for current requests to
+	// clear before locking up the database
+	sleep(15);
+
+	$r = q("CREATE INDEX event_id ON item(`event-id`)");
+	set_config('system', 'maintenance', 0);
 
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1402,13 +1406,27 @@ function update_1159() {
 		ADD INDEX (`uid`),
 		ADD INDEX (`aid`)");
 
-	if(!$r) return UPDATE_FAILED;
+	if(!$r)
+		return UPDATE_FAILED;
+
+	require_once('include/tags.php');
+	update_items();
+
 	return UPDATE_SUCCESS;
 }
 
 function update_1160() {
+	set_config('system', 'maintenance', 1);
+
+	// Wait for 15 seconds for current requests to
+	// clear before locking up the database
+	sleep(15);
+
 	$r = q("ALTER TABLE `item` ADD `mention` TINYINT(1) NOT NULL DEFAULT '0', ADD INDEX (`mention`)");
-// KEY `mention` (`mention`)
-	if(!$r) return UPDATE_FAILED;
+	set_config('system', 'maintenance', 0);
+
+	if(!$r)
+		return UPDATE_FAILED;
+
 	return UPDATE_SUCCESS;
 }

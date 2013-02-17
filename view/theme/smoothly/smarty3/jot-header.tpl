@@ -19,9 +19,9 @@ function initEditor(cb){
 			$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
             		$(".jothidden").show();
             		editor = true;
-            		$("a#jot-perms-icon").fancybox({
-                		'transitionIn' : 'elastic',
-                		'transitionOut' : 'elastic'
+            		$("a#jot-perms-icon").colorbox({
+						'inline' : true,
+						'transition' : 'elastic'
             		});
 	                            $("#profile-jot-submit-wrapper").show();
 								{{if $newpost}}
@@ -58,9 +58,9 @@ function initEditor(cb){
                 entity_encoding : "raw",
                 add_unload_trigger : false,
                 remove_linebreaks : false,
-                force_p_newlines : false,
-                force_br_newlines : true,
-                forced_root_block : '',
+                //force_p_newlines : false,
+                //force_br_newlines : true,
+                forced_root_block : 'div',
                 convert_urls: false,
                 content_css: "{{$baseurl}}/view/custom_tinymce.css",
                 theme_advanced_path : false,
@@ -138,9 +138,9 @@ function initEditor(cb){
         });
         editor = true;
         // setup acl popup
-        $("a#jot-perms-icon").fancybox({
-            'transitionIn' : 'none',
-            'transitionOut' : 'none'
+        $("a#jot-perms-icon").colorbox({
+			'inline' : true,
+			'transition' : 'elastic'
         }); 
     } else {
         if (typeof cb!="undefined") cb();
@@ -329,7 +329,7 @@ function enableOnUser(){
 		var bordercolor = $("input").css("border-color");
 		
 		$.get('filer/', function(data){
-			$.fancybox(data);
+			$.colorbox({html:data});
 			$("#id_term").keypress(function(){
 				$(this).css("border-color",bordercolor);
 			})
@@ -347,7 +347,7 @@ function enableOnUser(){
 //					if(timer) clearTimeout(timer);
 //					timer = setTimeout(NavUpdate,3000);
 					liking = 1;
-					$.fancybox.close();
+					$.colorbox.close();
 				} else {
 					$("#id_term").css("border-color","#FF0000");
 				}

@@ -450,6 +450,11 @@
 			case "xml":
 				$data = array_xmlify($data);
 				$tpl = get_markup_template("api_".$templatename."_".$type.".tpl");
+				if(! $tpl) {
+					header ("Content-Type: text/xml");
+					echo '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<status><error>not implemented</error></status>';
+					killme();
+				}
 				$ret = replace_macros($tpl, $data);
 				break;
 			case "json":

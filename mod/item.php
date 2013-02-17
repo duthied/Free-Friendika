@@ -263,6 +263,10 @@ function item_post(&$a) {
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
+
+		if($user['hidewall'])
+			$private = 2;
+
 		// If this is a comment, set the permissions from the parent.
 
 		if($parent_item) {
@@ -891,8 +895,11 @@ function item_post(&$a) {
 					. '<br />';
 				$disclaimer .= sprintf( t('You may visit them online at %s'), $a->get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL; 
-
-				$subject  = email_header_encode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'),$a->user['username']),'UTF-8');
+                                if (!$datarray['title']=='') {
+                                    $subject = email_header_encode($datarray['title'],'UTF-8');
+                                } else {
+				    $subject = email_header_encode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'),$a->user['username']),'UTF-8');
+                                }
 				$headers  = 'From: ' . email_header_encode($a->user['username'],'UTF-8') . ' <' . $a->user['email'] . '>' . "\n";
 				$headers .= 'MIME-Version: 1.0' . "\n";
 				$headers .= 'Content-Type: text/html; charset=UTF-8' . "\n";
@@ -900,7 +907,7 @@ function item_post(&$a) {
 				$link = '<a href="' . $a->get_baseurl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-				@mail($addr, $subject, $message, $headers);
+                                @mail($addr, $subject, $message, $headers);
 			}
 		}
 	}
@@ -951,10 +958,17 @@ function item_content(&$a) {
 
 	require_once('include/security.php');
 
+	$o = '';
 	if(($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		require_once('include/items.php');
-		drop_item($a->argv[2]);
+		require_once('include/items.php'); 
+		$o = drop_item($a->argv[2], !is_ajax());
+		if (is_ajax()){
+			// ajax return: [<item id>, 0 (no perm) | <owner id>] 
+			echo json_encode(array(intval($a->argv[2]), intval($o)));
+			kllme();
+		}
 	}
+	return $o;
 }
 
 /**

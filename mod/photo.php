@@ -169,13 +169,16 @@ function photo_init(&$a) {
 		}
 	}
 
-	$ph = new Photo($data, $mimetype);
-	if($ph->is_valid()) {
-		if(isset($customres) && $customres > 0 && $customres < 500) {
-			$ph->scaleImageSquare($customres);
+	// Resize only if its not a GIF
+	if ($mime != "image/gif") {
+		$ph = new Photo($data, $mimetype);
+		if($ph->is_valid()) {
+			if(isset($customres) && $customres > 0 && $customres < 500) {
+				$ph->scaleImageSquare($customres);
+			}
+			$data = $ph->imageString();
+			$mimetype = $ph->getType();
 		}
-		$data = $ph->imageString();
-		$mimetype = $ph->getType();
 	}
 
 	if(function_exists('header_remove')) {

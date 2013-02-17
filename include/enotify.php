@@ -56,12 +56,13 @@ function notification($params) {
 
 		$parent_id = $params['parent'];
 
-		// Check to see if there was already a tag notify for this post.
+		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
 		
 		$p = null;
-		$p = q("select id from notify where type = %d and link = '%s' and uid = %d limit 1",
+		$p = q("select id from notify where ( type = %d or type = %d ) and link = '%s' and uid = %d limit 1",
 			intval(NOTIFY_TAGSELF),
+			intval(NOTIFY_COMMENT),
 			dbesc($params['link']),
 			intval($params['uid'])
 		);
@@ -298,6 +299,38 @@ function notification($params) {
 		pop_lang();
 		return;
 	}
+
+	// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
+	// After we've stored everything, look again to see if there are any duplicates and if so remove them
+
+	$p = null;
+	$p = q("select id from notify where ( type = %d or type = %d ) and link = '%s' and uid = %d order by id",
+		intval(NOTIFY_TAGSELF),
+		intval(NOTIFY_COMMENT),
+		dbesc($params['link']),
+		intval($params['uid'])
+	);
+	if($p && (count($p) > 1)) {
+		for ($d = 1; $d < count($p); $d ++) {
+			q("delete from notify where id = %d limit 1",
+				intval($p[$d]['id'])
+			);
+		}
+
+		// only continue on if we stored the first one
+
+		if($notify_id != $p[0]['id']) {
+			pop_lang();
+			return;
+		}
+	}
+
+
+
+
+
+
+
 
 	$itemlink = $a->get_baseurl() . '/notify/view/' . $notify_id;
 	$msg = replace_macros($epreamble,array('$itemlink' => $itemlink));

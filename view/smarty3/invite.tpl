@@ -4,6 +4,9 @@
  *
  *}}
 <form action="invite" method="post" id="invite-form" >
+
+<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+
 <div id="invite-wrapper">
 
 <h3>{{$invite}}</h3>

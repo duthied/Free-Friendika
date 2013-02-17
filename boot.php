@@ -12,9 +12,9 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1589' );
+define ( 'FRIENDICA_VERSION',      '3.1.1612' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1159      );
+define ( 'DB_UPDATE_VERSION',      1161      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -824,14 +824,26 @@ function is_ajax() {
 	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 }
 
+function check_db() {
 
-// Primarily involved with database upgrade, but also sets the
-// base url for use in cmdline programs which don't have
+	$build = get_config('system','build');
+	if(! x($build)) {
+		set_config('system','build',DB_UPDATE_VERSION);
+		$build = DB_UPDATE_VERSION;
+	}
+	if($build != DB_UPDATE_VERSION)
+		proc_run('php', 'include/dbupdate.php');
+
+}
+
+
+
+
+// Sets the base url for use in cmdline programs which don't have
 // $_SERVER variables
 
-
-if(! function_exists('check_config')) {
-	function check_config(&$a) {
+if(! function_exists('check_url')) {
+	function check_url(&$a) {
 
 		$url = get_config('system','url');
 
@@ -846,6 +858,15 @@ if(! function_exists('check_config')) {
 		if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
 			$url = set_config('system','url',$a->get_baseurl());
 
+		return;
+	}
+}
+
+
+// Automatic database updates
+
+if(! function_exists('update_db')) {
+	function update_db(&$a) {
 
 		$build = get_config('system','build');
 		if(! x($build))
@@ -1327,7 +1348,7 @@ if(! function_exists('profile_sidebar')) {
 			}
 		}
 
-		if(get_my_url() && $profile['unkmail'])
+		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
 			$wallmessage = t('Message');
 		else
 			$wallmessage = false;
@@ -1364,9 +1385,15 @@ if(! function_exists('profile_sidebar')) {
 
 
 			}
-
-
 		}
+        if ($profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
+            $profile['edit'] = array($a->get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
+        	$profile['menu'] = array(
+				'chg_photo' => t('Change profile photo'),
+				'cr_new' => null,
+				'entries' => array(),
+			);
+        }
 
 
 
@@ -1418,6 +1445,7 @@ if(! function_exists('profile_sidebar')) {
 
 		if($a->theme['template_engine'] === 'internal')
 			$location = template_escape($location);
+
 
 		$tpl = get_markup_template('profile_vcard.tpl');
 		$o .= replace_macros($tpl, array(
@@ -1933,6 +1961,36 @@ function build_querystring($params, $name=null) {
         } 
     } 
     return $ret;    
+}
+
+function explode_querystring($query) {
+	$arg_st = strpos($query, '?');
+	if($arg_st !== false) {
+		$base = substr($query, 0, $arg_st);
+		$arg_st += 1;
+	}
+	else {
+		$base = '';
+		$arg_st = 0;
+	}
+
+	$args = explode('&', substr($query, $arg_st));
+	foreach($args as $k=>$arg) {
+		if($arg === '')
+			unset($args[$k]);
+	}
+	$args = array_values($args);
+
+	if(!$base) {
+		$base = $args[0];
+		unset($args[0]);
+		$args = array_values($args);
+	}
+
+	return array(
+		'base' => $base,
+		'args' => $args,
+	);
 }
 
 /**
