@@ -274,6 +274,7 @@ function admin_page_site_post(&$a){
 	$diaspora_enabled	=	((x($_POST,'diaspora_enabled'))		? True   					: False);
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
 	$new_share		=	((x($_POST,'new_share'))		? True   					: False);
+	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
 	$use_fulltext_engine	=	((x($_POST,'use_fulltext_engine'))	? True   					: False);
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
@@ -380,6 +381,7 @@ function admin_page_site_post(&$a){
 	set_config('system','diaspora_enabled', $diaspora_enabled);
 
 	set_config('system','new_share', $new_share);
+	set_config('system','hide_help', $hide_help);
 	set_config('system','use_fulltext_engine', $use_fulltext_engine);
 	set_config('system','itemcache', $itemcache);
 	set_config('system','itemcache_duration', $itemcache_duration);
@@ -474,6 +476,7 @@ function admin_page_site(&$a) {
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
 		'$ssl_policy'		=> array('ssl_policy', t("SSL link policy"), (string) intval(get_config('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices),
 		'$new_share'		=> array('new_share', t("'Share' element"), get_config('system','new_share'), t("Activates the bbcode element 'share' for repeating items.")),
+		'$hide_help'		=> array('hide_help', t("Hide help entry from navigation menu"), get_config('system','hide_help'), t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")),
 		'$maximagesize'		=> array('maximagesize', t("Maximum image size"), get_config('system','maximagesize'), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
 		'$maximagelength'		=> array('maximagelength', t("Maximum image length"), get_config('system','max_image_length'), t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")),
 		'$jpegimagequality'		=> array('jpegimagequality', t("JPEG image quality"), get_config('system','jpeg_quality'), t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")),

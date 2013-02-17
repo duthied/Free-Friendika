@@ -56,6 +56,7 @@
 	{{include file="field_select.tpl" field=$theme_mobile}}
 	{{include file="field_select.tpl" field=$ssl_policy}}
 	{{include file="field_checkbox.tpl" field=$new_share}}
+	{{include file="field_checkbox.tpl" field=$hide_help}}
 
 	
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
