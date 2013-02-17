@@ -175,7 +175,7 @@ function call_hooks($name, &$data = null) {
 			}
 			else {
 				// remove orphan hooks
-				q("delete from hook where hook = '%s' and file = '$s' and function = '%s' limit 1",
+				q("delete from hook where hook = '%s' and file = '%s' and function = '%s' limit 1",
 					dbesc($name),
 					dbesc($hook[0]),
 					dbesc($hook[1])
