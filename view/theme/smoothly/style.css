@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-01-11
+	Created by alex@friendica.pixelbits.de on 2013-02-20
 
 ** Colors ** 
 Blue links - #1873a2
@@ -3522,7 +3522,7 @@ margin-left: 0px;
 /* ========= */
 
 #adminpage {
-	width: 80%;
+	width: 90%;
 }
 
 #pending-update {
@@ -3630,13 +3630,25 @@ margin-left: 0px;
 /* =============== */
 
 .field {
-	width: 90%;
+    margin-bottom: 10px;
+    overflow: auto;
+    padding-bottom: 0px;
+    width: 100%;
+}
+
+.field.radio .field_help {
+    margin-left: 205px;
+}
+
+.field .field_help {
+    color: #666666;
+    display: block;
+    margin-left: 200px;
 }
 
 .field label {
-	float: left;
-	min-width: 120px;
-	margin: 5px 10px 0 0;
+    float: left;
+    width: 200px;
 }
 
 .field checkbox {
@@ -3646,15 +3658,11 @@ margin-left: 0px;
 
 .field input,
 .field textarea {
-	width: 220px;
+	width: 400px;
 	border: 1px solid #CDCDCD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
-}
-
-.field textarea { 
-	height: 100px; 
 }
 
 .field password { 
@@ -4346,6 +4354,12 @@ div #datebrowse-sidebar.widget {
 	margin:10px 10px 0 0;
 }
 
+#id_maxreq,
+#id_cntunkmail,
+#id_expire {
+	width: 75px;
+}
+
 #id_post_newfriend,
 #id_post_joingroup,
 #id_post_profilechange,
@@ -4358,7 +4372,7 @@ div #datebrowse-sidebar.widget {
 #id_notify7,
 #id_notify8,
 #id_allow_location {
-	margin: 6px 0 0 0;
+	margin: 6px 0 0 10px;
 }
 
 #settings-form {}
@@ -4374,6 +4388,7 @@ div #datebrowse-sidebar.widget {
 }
 
 #settings-notifications {
+	width: 400px;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 3px 3px 4px #959494;
@@ -4425,4 +4440,38 @@ div #datebrowse-sidebar.widget {
 #page-settings-label{
 	width: auto !important;
 	margin-bottom: 5px !important;
+}
+
+.onoff {
+	margin-right: 10px;
+}
+
+.settings-heading {
+	margin: 25px 0 25px 0;
+}
+
+#id_itemcache,
+#id_basepath,
+#id_temppath,
+#id_lockpath,
+#id_proxyuser,
+#id_proxy,
+#id_allowed_email,
+#id_allowed_sites,
+#id_directory_submit_url,
+#id_register_text {
+	width: 440px;
+}
+
+#id_itemcache_duration,
+#id_abandon_days,
+#id_maxloadavg,
+#id_poll_interval,
+#id_delivery_interval,
+#id_timeout,
+#id_jpegimagequality,
+#id_maximagelength,
+#id_maximagesize,
+#id_max_daily_registrations {
+	width: 75px;
 }
