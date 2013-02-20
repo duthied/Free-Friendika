@@ -835,14 +835,16 @@ function get_atom_elements($feed,$item) {
 	// Search for ostatus conversation url
 	$links = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
 
-	foreach ($links as $link) {
-		$conversation = array_shift($link["attribs"]);
+	if (is_array($links)) {
+		foreach ($links as $link) {
+			$conversation = array_shift($link["attribs"]);
 
-		if ($conversation["rel"] == "ostatus:conversation") {
-			$res["ostatus_conversation"] = $conversation["href"];
-			logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
-		}
-	};
+			if ($conversation["rel"] == "ostatus:conversation") {
+				$res["ostatus_conversation"] = $conversation["href"];
+				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
+			}
+		};
+	}
 
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 

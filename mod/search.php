@@ -140,9 +140,13 @@ function search_content(&$a) {
 	}*/
 
 	if($tag) {
-		$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d",
+		//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d",
+		//			dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+		//$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+
+		$sql_extra = sprintf(" AND EXISTS (SELECT * FROM `term` WHERE `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d) GROUP BY `item`.`uri` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-		$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+		$sql_table = "`item` FORCE INDEX (`uri`) ";
 	} else {
 		if (get_config('system','use_fulltext_engine')) {
 			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
@@ -178,7 +182,7 @@ function search_content(&$a) {
 	        }
 	}
 
-	$r = q("SELECT distinct(`item`.`uri`), `item`.*, `item`.`id` AS `item_id`, 
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`, 
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
