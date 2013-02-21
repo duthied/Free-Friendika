@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-02-20
+	Created by alex@friendica.pixelbits.de on 2013-02-21
 
 ** Colors ** 
 Blue links - #1873a2
@@ -202,6 +202,12 @@ section {
 	clear: both;
 }
 
+.login-extra-links {
+	width: 100%;
+	margin-left: 145px;
+	clear: both;
+}
+
 #login-extra-links a {
 	display: block;
 	margin: 10px;
@@ -215,7 +221,7 @@ section {
 }
 
 #login_standard {
-	width: 250px;
+	width: 260px;
 	float: left;
 	border: 1px solid #7C7D7B;
 	border-radius: 5px;
@@ -256,7 +262,7 @@ section {
 }
 
 #login-submit-button {
-	width: 271px;
+	width: 280px;
 }
 
 .login-form,
@@ -4475,3 +4481,4 @@ div #datebrowse-sidebar.widget {
 #id_max_daily_registrations {
 	width: 75px;
 }
+
