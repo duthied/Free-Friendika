@@ -36,8 +36,7 @@ Friendica Documentation and Resources
 **External Resources**
 
 * [Main Website](http://friendica.com)
-* [Forums](http://groups.google.com/group/friendica)
-* [Developer Forums](http://groups.google.com/group/friendica-dev)
+* [Mailing List Archive](http://librelist.com/browser/friendica/)
 
 **About**
 
