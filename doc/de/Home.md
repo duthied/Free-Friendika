@@ -36,8 +36,7 @@ Friendica - Dokumentation und Ressourcen
 **Externe Ressourcen**
 
 * [Haupt-Webseite](http://friendica.com)
-* [Foren](http://groups.google.com/group/friendica)
-* [Entwickler-Foren](http://groups.google.com/group/friendica-dev)
+* [Mailing Liste](http://librelist.com/browser/friendica/)
 * [Deutsches Friendica-Wiki](http://wiki.toktan.org/doku.php)
 
 **Über diese Seite**
