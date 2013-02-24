@@ -97,6 +97,28 @@ function parseurl_getsiteinfo($url) {
 
 	$xpath = new DomXPath($doc);
 
+	$list = $xpath->query("//meta[@content]");
+        foreach ($list as $node) {
+                $attr = array();
+                if ($node->attributes->length)
+                        foreach ($node->attributes as $attribute)
+                                $attr[$attribute->name] = $attribute->value;
+
+                if (@$attr["http-equiv"] == 'refresh') {
+                        $path = $attr["content"];
+                        $pathinfo = explode(";", $path);
+                        $content = "";
+                        foreach ($pathinfo AS $value) {
+                                if (substr(strtolower($value), 0, 4) == "url=")
+                                        $content = substr($value, 4);
+                        }
+                        if ($content != "") {
+                                $siteinfo = parseurl_getsiteinfo($content);
+                                return($siteinfo);
+                        }
+                }
+	}
+
 	//$list = $xpath->query("head/title");
 	$list = $xpath->query("//title");
 	foreach ($list as $node)
