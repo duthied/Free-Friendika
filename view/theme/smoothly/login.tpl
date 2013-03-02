@@ -1,5 +1,4 @@
 <img style="float:left; margin:5px 20px 0 0" src="/images/friendica-128.png" title="friendica">
-
 <div class="login-form">
 <form action="$dest_url" method="post" >
 	<input type="hidden" name="auth-params" value="login" />
@@ -34,5 +33,4 @@
 	
 </form>
 </div>
-
 <script type="text/javascript">window.loginName = "$lname.0";</script>
