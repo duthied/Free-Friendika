@@ -232,7 +232,7 @@ class Item extends BaseObject {
 
 		localize_item($item);
 
-		if ($item["postopts"]) {
+		if ($item["postopts"] and !get_config("system", "suppress_language")) {
 			//$langdata = explode(";", $item["postopts"]);
 			//$langstr = substr($langdata[0], 5)." (".round($langdata[1]*100, 1)."%)";
 			$langstr = "";
