@@ -90,7 +90,7 @@ class Item extends BaseObject {
                 if (strcmp($item['created'], $item['edited'])<>0) {
                       $edited = array(
                           'label' => t('This entry was edited'),
-                          'date' => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),,
+                          'date' => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
                           'relative' => relative_date($item['edited'])
                       );
                 }
