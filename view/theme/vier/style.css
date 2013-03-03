@@ -608,6 +608,9 @@ nav .nav-menu-icon.selected {
 nav .nav-menu-icon img {
   width: 22px;
   height: 22px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
 }
 nav .nav-menu-icon .nav-notify {
   top: 3px;
@@ -865,6 +868,7 @@ aside .vcard dl {
 aside select {
   background-color: white;
   width: 165px;
+  border-color: #ccc;
 }
 
 aside .vcard dt {
