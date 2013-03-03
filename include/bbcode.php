@@ -642,8 +642,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace('/\&quot\;/','"',$Text);
 
 	// fix any escaped ampersands that may have been converted into links
-	$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
-	$Text = preg_replace("/\<(.*?)(src|href)=\"[^hfm](.*?)\>/ism",'<$1$2="">',$Text);
+	$Text = preg_replace("/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
+	$Text = preg_replace("/\<([^>]*?)(src|href)=\"[^hfm](.*?)\>/ism",'<$1$2="">',$Text);
 
 	if($saved_image)
 		$Text = bb_replace_images($Text, $saved_image);
@@ -652,20 +652,20 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Only do it when it has to be done - for performance reasons
 	// Update: Now it is done every time - since bad structured html can break a whole page
 	//if (!$tryoembed) {
-		$doc = new DOMDocument();
-		$doc->preserveWhiteSpace = false;
+//		$doc = new DOMDocument();
+//		$doc->preserveWhiteSpace = false;
 
-		$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
+//		$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
 
-		$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
-		@$doc->loadHTML($doctype."<html><body>".$Text."</body></html>");
+//		$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
+//		@$doc->loadHTML($doctype."<html><body>".$Text."</body></html>");
 
-		$Text = $doc->saveHTML();
-		$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
+//		$Text = $doc->saveHTML();
+//		$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
 
-		$Text = str_replace('<br></li>','</li>', $Text);
+//		$Text = str_replace('<br></li>','</li>', $Text);
 
-		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
+//		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
 	//}
 
 	call_hooks('bbcode',$Text);
