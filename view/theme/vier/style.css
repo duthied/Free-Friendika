@@ -1185,6 +1185,36 @@ border-bottom: 1px solid #D2D2D2;
   color: black;
   font-weight: bold;
 }
+
+.wall-item-container:hover .wall-item-name {
+  color: #36c;
+  font-weight: bold;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -ms-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.toplevel_item .wall-item-content a,
+.wall-item-container .wall-item-content a,
+.toplevel_item .fakelink,
+.wall-item-container .fakelink {
+  color: black;
+}
+
+.toplevel_item:hover .fakelink,
+.wall-item-container:hover .fakelink,
+.toplevel_item:hover .wall-item-content a,
+.wall-item-container:hover .wall-item-content a {
+  color: #36c;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -ms-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
 .wall-item-container .wall-item-actions-author {
   width: 100%;
   margin-bottom: 0.3em;
