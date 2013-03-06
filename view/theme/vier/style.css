@@ -291,7 +291,7 @@ body {
   background-color: #F2F2F2;
   color: #2d2d2d;
   /* margin: 37px 0px 0px 0px; */
-  margin: 32px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
   display: table;
   /* width: 100% */
 }
@@ -849,6 +849,7 @@ ul.menu-popup .empty {
 
 right_aside {
   width: 0px;
+  top: 32px;
   display: block;
 }
 
@@ -857,12 +858,20 @@ aside {
   /* display: table-cell; */
   vertical-align: top;
   width: 185px;
-  padding: 10px 10px 10px 20px;
+  padding: 32px 10px 10px 20px;
   /* border-right: 1px solid #D2D2D2; */
   /* background-color: #ECECF2; */
   background-color: #F2F2F2;
   font-size: 13px;
   /* background: #F1F1F1; */
+  top: 0px;
+  overflow-y: auto;
+  z-index: 2;
+
+  position: fixed;
+  /* overflow: auto; */
+  height: 100%;
+  /* overflow: scroll; */
 }
 aside .vcard .fn {
   font-size: 18px;
@@ -1062,6 +1071,7 @@ aside h4 {
 section {
   display: table-cell;
   vertical-align: top;
+  top: 32px;
   width: 766px;
   max-width: 766px;
   padding: 10px 10px 10px 10px;
@@ -1069,6 +1079,9 @@ section {
   border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
   border-left: 1px solid lightgray;
+
+  position: absolute;
+  left: 215px;
 }
 /* wall item */
 .tread-wrapper {
