@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-02-27
+	Created by alex@friendica.pixelbits.de on 2013-03-11
 
 ** Colors ** 
 Blue links - #1873a2
@@ -197,7 +197,7 @@ section {
 }
 
 #login-extra-links {
-	width: 90px;
+	width: auto;
 	margin-top: 20px;
 	clear: both;
 }
@@ -210,10 +210,9 @@ section {
 
 #login-extra-links a {
 	display: block;
-	margin: 10px;
+	margin: 0px;
 	padding: 5px 0px 5px 0px;
-	text-align: center;
-	margin-right: 20px;	
+	text-align: left;
 }
 
 #login-extra-filler {
@@ -233,12 +232,14 @@ section {
 
 #login_openid {
 	width: 300px;
-	margin-left: 150px;
+	/*margin-left: 150px;*/
+
 }
 
 #login_standard input,
 #login_openid input {
-	width: 240px;
+	width: 250px;
+	height: 25px;
 }
 
 #register-link,
@@ -258,7 +259,7 @@ section {
 #login-submit-button,
 #login-submit-wrapper {
 	margin-top: 10px;
-	margin-left: 75px;
+	margin-left: 0px;
 }
 
 #login-submit-button {
@@ -2967,7 +2968,7 @@ margin-left: 0px;
 	background: url(images/login-bg.gif) no-repeat;
 	background-position: 0 50%;
 	padding-left: 18px;
-	width: 250px!important;
+	width: 260px!important;
 }
 
 .openid:hover {
@@ -3648,7 +3649,7 @@ margin-left: 0px;
 
 .field {
     margin-bottom: 10px;
-    overflow: auto;
+    /*overflow: auto;*/
     padding-bottom: 0px;
     width: 100%;
 }
@@ -3665,7 +3666,8 @@ margin-left: 0px;
 
 .field label {
     float: left;
-    width: 200px;
+    width: auto;
+	margin-right: 10px;
 }
 
 .field checkbox {
@@ -3675,7 +3677,7 @@ margin-left: 0px;
 
 .field input,
 .field textarea {
-	width: 400px;
+	width: auto;
 	border: 1px solid #CDCDCD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
