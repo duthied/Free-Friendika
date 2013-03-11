@@ -204,7 +204,7 @@ section {
 
 .login-extra-links {
 	width: 100%;
-	margin-left: 145px;
+	margin-left: 0px;
 	clear: both;
 }
 
@@ -232,14 +232,12 @@ section {
 
 #login_openid {
 	width: 300px;
-	/*margin-left: 150px;*/
-
+	margin-left: 150px;
 }
 
 #login_standard input,
 #login_openid input {
-	width: 250px;
-	height: 25px;
+	width: 240px;
 }
 
 #register-link,
@@ -258,8 +256,6 @@ section {
 
 #login-submit-button,
 #login-submit-wrapper {
-	margin-top: 10px;
-	margin-left: 0px;
 }
 
 #login-submit-button {
@@ -635,9 +631,8 @@ aside h4 {
 
 .vcard #profile-photo-wrapper {
 	margin: 10px 0px;
-	padding: 1px;
-	width: 200px;
-	height: 200px;
+	padding: 6px;
+	width: auto;
 	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #C5C5C5;
 	box-shadow: 0 0 8px #BDBDBD;
@@ -1405,18 +1400,10 @@ ul .sidebar-group-li .icon {
 	width: 100px;
 }
 
-.wall-item-photo {
-	width: 81px !important; 
-	height: 81px !important;
-	border-radius: 5px;
-		-webkit-border-radius: 5px;
-		-moz-border-radius: 5px;
-}
-
 .wall-item-photo-wrapper { 
 	width: 80px; 
 	height: 80px;
-	padding: 1px;
+	padding: 4px;
 	position: relative;
 	border: 1px solid #dddddd;
 	border-radius: 5px;
@@ -1599,13 +1586,14 @@ ul .sidebar-group-li .icon {
 }
 
 .wallwall .wwto {
-	left: 0px;
+	left: -10px;
+	margin: 0;
 	position: absolute;
-	margin: -1px;
-	top: 63px;
+	top: 65px;
+	width: 30px;
 	z-index: 900;
-	width: 0px;
-	height: 0px;    
+	width: 30px;
+	height: 30px;    
 }
 
 .wallwall .wwto img { 
@@ -1619,8 +1607,8 @@ ul .sidebar-group-li .icon {
 
 .wall-item-arrowphoto-wrapper {
 	position: absolute;
-	left: 30px;
-	top: 67px;
+	left: 20px;
+	top: 70px;
 	z-index: 950;
 }
 
@@ -1734,8 +1722,8 @@ code {
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo {
-	width: 41px!important;
-	height: 41px!important;
+	width: 40px!important;
+	height: 40px!important;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-wrapper {
@@ -2022,11 +2010,8 @@ div[id$="wrapper"] br {
 }
 
 .photo {
-	height: 200px!important;
-	width: 200px!important;
-	border-radius: 5px;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
+	height: 191px!important;
+	width: 191px!important;
 }
 
 #side-bar-photos-albums {
@@ -2968,7 +2953,7 @@ margin-left: 0px;
 	background: url(images/login-bg.gif) no-repeat;
 	background-position: 0 50%;
 	padding-left: 18px;
-	width: 260px!important;
+	width: 250px!important;
 }
 
 .openid:hover {
@@ -3649,7 +3634,7 @@ margin-left: 0px;
 
 .field {
     margin-bottom: 10px;
-    /*overflow: auto;*/
+    overflow: auto;
     padding-bottom: 0px;
     width: 100%;
 }
@@ -3666,8 +3651,7 @@ margin-left: 0px;
 
 .field label {
     float: left;
-    width: auto;
-	margin-right: 10px;
+    width: 200px;
 }
 
 .field checkbox {
@@ -3677,7 +3661,7 @@ margin-left: 0px;
 
 .field input,
 .field textarea {
-	width: auto;
+	width: 400px;
 	border: 1px solid #CDCDCD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
@@ -4402,12 +4386,12 @@ div #datebrowse-sidebar.widget {
 
 #settings-activity-desc,
 #settings-notify-desc {
-	margin:10px 10px 10px 0;
+	margin: 10px 10px 10px 0;
 	font-weight: bold;
 }
 
 #settings-notifications {
-	width: 400px;
+	width: 410px;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 3px 3px 4px #959494;
@@ -4415,8 +4399,8 @@ div #datebrowse-sidebar.widget {
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
-	padding:10px;
-	margin:10px 10px 10px 0;
+	padding: 10px;
+	margin: 10px 10px 10px 0;
 }
 
 #id_npassword {}
@@ -4495,3 +4479,9 @@ div #datebrowse-sidebar.widget {
 	width: 75px;
 }
 
+#id_remember {
+	width: auto;
+}
+
+.field.input.openid {
+}
