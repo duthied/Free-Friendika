@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-03-11
+	Created by alex@friendica.pixelbits.de on 2013-03-12
 
 ** Colors ** 
 Blue links - #1873a2
@@ -208,13 +208,6 @@ section {
 	clear: both;
 }
 
-#login-extra-links a {
-	display: block;
-	margin: 0px;
-	padding: 5px 0px 5px 0px;
-	text-align: left;
-}
-
 #login-extra-filler {
 	display: none;
 }
@@ -230,9 +223,11 @@ section {
 	margin: 10px 0 0 0;
 }
 
-#login_openid {
-	width: 300px;
-	margin-left: 150px;
+#login_openid,
+#div_id_remember,
+#login-extra-links a {
+	width: 460px;
+	float: left;
 }
 
 #login_standard input,
@@ -242,9 +237,8 @@ section {
 
 #register-link,
 #lost-password-link {
-	font-size: 80%;
-	width: 210px;
-	margin-left: 5px;
+	width: 260px;
+
 }
 
 #login-name-end,
