@@ -93,8 +93,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		//$newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-		$url_parsed = @parse_url($newurl);
-		if (isset($url_parsed)) {
+		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 			$redirects++;
 			return fetch_url($newurl,$binary,$redirects,$timeout);
 		}
@@ -188,8 +187,7 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
         $newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-        $url_parsed = @parse_url($newurl);
-        if (isset($url_parsed)) {
+        if (filter_var($newurl, FILTER_VALIDATE_URL)) {
             $redirects++;
             return fetch_url($newurl,false,$redirects,$timeout);
         }
