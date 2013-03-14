@@ -1117,7 +1117,7 @@ border-bottom: 1px solid #D2D2D2;
   font-size: 14px;
 }
 .wall-item-container .wall-item-bottom {
-  opacity: 0.5;
+  opacity: 0;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
