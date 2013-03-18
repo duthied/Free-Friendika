@@ -172,6 +172,9 @@ function display_content(&$a, $update = 0) {
 		$description = trim(html2plain(bbcode($r[0]["body"], false, false), 0, true));
 		$title = trim(html2plain(bbcode($r[0]["title"], false, false), 0, true));
 
+		$description = htmlspecialchars($description, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
+		$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
+
 		if ($title == "")
 			$title = $r[0]["author-name"];
 
