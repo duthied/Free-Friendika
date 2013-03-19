@@ -46,7 +46,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 			$master_record = $r[0];
 	}
 
-	$r = q("SELECT `uid`,`username`,`nickname` FROM `user` WHERE `password` = '%s' AND `email` = '%s'",
+	$r = q("SELECT `uid`,`username`,`nickname` FROM `user` WHERE `password` = '%s' AND `email` = '%s' AND `account_removed` = 0 ",
 		dbesc($master_record['password']),
 		dbesc($master_record['email'])
 	);
@@ -56,8 +56,8 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$a->identities = array();
 
 	$r = q("select `user`.`uid`, `user`.`username`, `user`.`nickname` 
-		from manage left join user on manage.mid = user.uid 
-		where `manage`.`uid` = %d",
+		from manage left join user on manage.mid = user.uid where `user`.`account_removed` = 0
+		and `manage`.`uid` = %d",
 		intval($master_record['uid'])
 	);
 	if($r && count($r))
