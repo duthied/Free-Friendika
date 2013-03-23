@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-03-19 03:30-0700\n"
-"PO-Revision-Date: 2013-03-21 13:46+0000\n"
+"PO-Revision-Date: 2013-03-22 11:40+0000\n"
 "Last-Translator: alexej <info@pixelbits.de>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -2661,7 +2661,7 @@ msgstr "Редактировать контакт"
 
 #: ../../mod/nogroup.php:59
 msgid "Contacts who are not members of a group"
-msgstr ""
+msgstr "Контакты, которые не являются членами группы"
 
 #: ../../mod/ping.php:238
 msgid "{0} wants to be your friend"
@@ -2817,7 +2817,7 @@ msgstr "Ваша регистрация в ожидании одобрения �
 msgid ""
 "This site has exceeded the number of allowed daily account registrations. "
 "Please try again tomorrow."
-msgstr ""
+msgstr "Этот сайт превысил допустимое количество ежедневных регистраций. Пожалуйста, повторите попытку завтра."
 
 #: ../../mod/register.php:220
 msgid ""
@@ -3007,11 +3007,11 @@ msgstr "У контакта отменено игнорирование"
 
 #: ../../mod/contacts.php:220
 msgid "Contact has been archived"
-msgstr ""
+msgstr "Контакт заархивирован"
 
 #: ../../mod/contacts.php:220
 msgid "Contact has been unarchived"
-msgstr ""
+msgstr "Контакт разархивирован"
 
 #: ../../mod/contacts.php:244
 msgid "Do you really want to delete this contact?"
@@ -3752,7 +3752,7 @@ msgstr "(нажмите, чтобы открыть / закрыть)"
 #: ../../mod/settings.php:1070 ../../mod/photos.php:1140
 #: ../../mod/photos.php:1506
 msgid "Show to Groups"
-msgstr ""
+msgstr "Показать в группах"
 
 #: ../../mod/settings.php:1071 ../../mod/photos.php:1141
 #: ../../mod/photos.php:1507
@@ -4042,7 +4042,7 @@ msgstr "Подключение принято в %s"
 #: ../../mod/dfrn_confirm.php:800
 #, php-format
 msgid "%1$s has joined %2$s"
-msgstr ""
+msgstr "%1$s присоединился %2$s"
 
 #: ../../mod/dfrn_poll.php:101 ../../mod/dfrn_poll.php:534
 #, php-format
@@ -4108,7 +4108,7 @@ msgstr "Неверный адрес электронной почты."
 
 #: ../../mod/dfrn_request.php:362
 msgid "This account has not been configured for email. Request failed."
-msgstr ""
+msgstr "Этот аккаунт не настроен для электронной почты. Запрос не удался."
 
 #: ../../mod/dfrn_request.php:458
 msgid "Unable to resolve your name at the provided location."
@@ -4143,7 +4143,7 @@ msgstr "Неверно идентифицирован вход. Пожалуйс
 
 #: ../../mod/dfrn_request.php:670
 msgid "Hide this contact"
-msgstr ""
+msgstr "Скрыть этот контакт"
 
 #: ../../mod/dfrn_request.php:673
 #, php-format
@@ -4167,7 +4167,7 @@ msgstr "Пожалуйста, введите ваш 'идентификацио�
 
 #: ../../mod/dfrn_request.php:827
 msgid "<strike>Connect as an email follower</strike> (Coming soon)"
-msgstr ""
+msgstr "<strike>Соединитесь как email последователь</strike> (скоро)"
 
 #: ../../mod/dfrn_request.php:829
 msgid ""
@@ -4323,11 +4323,11 @@ msgstr ""
 
 #: ../../mod/admin.php:187
 msgid "Private Forum"
-msgstr ""
+msgstr "Личный форум"
 
 #: ../../mod/admin.php:206
 msgid "Message queues"
-msgstr ""
+msgstr "Очереди сообщений"
 
 #: ../../mod/admin.php:211 ../../mod/admin.php:478 ../../mod/admin.php:749
 #: ../../mod/admin.php:846 ../../mod/admin.php:888 ../../mod/admin.php:1054
@@ -4401,7 +4401,7 @@ msgstr "Расширенный"
 
 #: ../../mod/admin.php:485
 msgid "Performance"
-msgstr ""
+msgstr "Производительность"
 
 #: ../../mod/admin.php:489
 msgid "Site name"
@@ -4427,11 +4427,11 @@ msgstr ""
 
 #: ../../mod/admin.php:493
 msgid "Mobile system theme"
-msgstr ""
+msgstr "Мобильная тема системы"
 
 #: ../../mod/admin.php:493
 msgid "Theme for mobile devices"
-msgstr ""
+msgstr "Тема для мобильных устройств"
 
 #: ../../mod/admin.php:494
 msgid "SSL link policy"
@@ -4443,7 +4443,7 @@ msgstr "Ссылки должны быть вынуждены использов
 
 #: ../../mod/admin.php:495
 msgid "'Share' element"
-msgstr ""
+msgstr "'Share' элемент"
 
 #: ../../mod/admin.php:495
 msgid "Activates the bbcode element 'share' for repeating items."
@@ -4451,7 +4451,7 @@ msgstr ""
 
 #: ../../mod/admin.php:496
 msgid "Hide help entry from navigation menu"
-msgstr ""
+msgstr "Скрыть пункт \"помощь\" в меню навигации"
 
 #: ../../mod/admin.php:496
 msgid ""
@@ -4461,7 +4461,7 @@ msgstr ""
 
 #: ../../mod/admin.php:497
 msgid "Single user instance"
-msgstr ""
+msgstr "Однопользовательский режим"
 
 #: ../../mod/admin.php:497
 msgid "Make this instance multi-user or single-user for the named user"
@@ -4479,7 +4479,7 @@ msgstr ""
 
 #: ../../mod/admin.php:499
 msgid "Maximum image length"
-msgstr ""
+msgstr "Максимальная длина картинки"
 
 #: ../../mod/admin.php:499
 msgid ""
@@ -4489,7 +4489,7 @@ msgstr ""
 
 #: ../../mod/admin.php:500
 msgid "JPEG image quality"
-msgstr ""
+msgstr "Качество JPEG изображения"
 
 #: ../../mod/admin.php:500
 msgid ""
@@ -4503,7 +4503,7 @@ msgstr "Политика регистрация"
 
 #: ../../mod/admin.php:503
 msgid "Maximum Daily Registrations"
-msgstr ""
+msgstr "Максимальное число регистраций в день"
 
 #: ../../mod/admin.php:503
 msgid ""
@@ -4518,7 +4518,7 @@ msgstr "Текст регистрации"
 
 #: ../../mod/admin.php:504
 msgid "Will be displayed prominently on the registration page."
-msgstr ""
+msgstr "Будет находиться на видном месте на странице регистрации."
 
 #: ../../mod/admin.php:505
 msgid "Accounts abandoned after x days"
@@ -4590,7 +4590,7 @@ msgstr ""
 
 #: ../../mod/admin.php:512
 msgid "Private posts by default for new users"
-msgstr ""
+msgstr "Частные сообщения по умолчанию для новых пользователей"
 
 #: ../../mod/admin.php:512
 msgid ""
@@ -4644,7 +4644,7 @@ msgstr "Поддержка OpenID"
 
 #: ../../mod/admin.php:518
 msgid "OpenID support for registration and logins."
-msgstr ""
+msgstr "OpenID поддержка для регистрации и входа в систему."
 
 #: ../../mod/admin.php:519
 msgid "Fullname check"
@@ -4662,7 +4662,7 @@ msgstr "UTF-8 регулярные выражения"
 
 #: ../../mod/admin.php:520
 msgid "Use PHP UTF8 regular expressions"
-msgstr ""
+msgstr "Используйте PHP UTF-8 для регулярных выражений"
 
 #: ../../mod/admin.php:521
 msgid "Show Community Page"
@@ -4730,7 +4730,7 @@ msgstr ""
 
 #: ../../mod/admin.php:529
 msgid "Delivery interval"
-msgstr ""
+msgstr "Интервал поставки"
 
 #: ../../mod/admin.php:529
 msgid ""
@@ -4741,7 +4741,7 @@ msgstr ""
 
 #: ../../mod/admin.php:530
 msgid "Poll interval"
-msgstr ""
+msgstr "Интервал опроса"
 
 #: ../../mod/admin.php:530
 msgid ""
@@ -4821,11 +4821,11 @@ msgstr ""
 
 #: ../../mod/admin.php:590
 msgid "No failed updates."
-msgstr ""
+msgstr "Неудавшихся обновлений нет."
 
 #: ../../mod/admin.php:594
 msgid "Failed Updates"
-msgstr ""
+msgstr "Неудавшиеся обновления"
 
 #: ../../mod/admin.php:595
 msgid ""
@@ -4902,7 +4902,7 @@ msgstr "Админ сайта"
 
 #: ../../mod/admin.php:762
 msgid "Account expired"
-msgstr ""
+msgstr "Аккаунт просрочен"
 
 #: ../../mod/admin.php:765
 msgid "Register date"
@@ -4960,11 +4960,11 @@ msgstr "Автор:"
 
 #: ../../mod/admin.php:857 ../../mod/admin.php:1067
 msgid "Maintainer: "
-msgstr ""
+msgstr "Программа обслуживания: "
 
 #: ../../mod/admin.php:986
 msgid "No themes found."
-msgstr ""
+msgstr "Темы не найдены."
 
 #: ../../mod/admin.php:1048
 msgid "Screenshot"
@@ -5087,7 +5087,7 @@ msgstr "Начало мероприятия:"
 
 #: ../../mod/events.php:459 ../../mod/events.php:473
 msgid "Required"
-msgstr ""
+msgstr "Требуется"
 
 #: ../../mod/events.php:462
 msgid "Finish date/time is not known or not relevant"
@@ -5107,7 +5107,7 @@ msgstr "Описание:"
 
 #: ../../mod/events.php:473
 msgid "Title:"
-msgstr ""
+msgstr "Титул:"
 
 #: ../../mod/events.php:475
 msgid "Share this event"
@@ -5185,7 +5185,7 @@ msgstr "[Встроенное содержание - перезагрузите 
 
 #: ../../mod/follow.php:27
 msgid "Contact added"
-msgstr ""
+msgstr "Контакт добавлен"
 
 #: ../../mod/friendica.php:55
 msgid "This is Friendica, version"
@@ -5213,7 +5213,7 @@ msgstr "Предложения, похвала, пожертвования? Пи
 
 #: ../../mod/friendica.php:75
 msgid "Installed plugins/addons/apps:"
-msgstr ""
+msgstr "Установленные плагины / добавки / приложения:"
 
 #: ../../mod/friendica.php:88
 msgid "No installed plugins/addons/apps"
@@ -5434,7 +5434,7 @@ msgstr "Не выбран получатель."
 
 #: ../../mod/wallmessage.php:59
 msgid "Unable to check your home location."
-msgstr ""
+msgstr "Невозможно проверить местоположение."
 
 #: ../../mod/wallmessage.php:62 ../../mod/message.php:70
 msgid "Message could not be sent."
@@ -5442,7 +5442,7 @@ msgstr "Сообщение не может быть отправлено."
 
 #: ../../mod/wallmessage.php:65 ../../mod/message.php:73
 msgid "Message collection failure."
-msgstr ""
+msgstr "Неудача коллекции сообщения."
 
 #: ../../mod/wallmessage.php:68 ../../mod/message.php:76
 msgid "Message sent."
@@ -5450,7 +5450,7 @@ msgstr "Сообщение отправлено."
 
 #: ../../mod/wallmessage.php:86 ../../mod/wallmessage.php:95
 msgid "No recipient."
-msgstr ""
+msgstr "Без адресата."
 
 #: ../../mod/wallmessage.php:142 ../../mod/message.php:319
 msgid "Send Private Message"
@@ -5558,7 +5558,7 @@ msgstr "Ваш пароль может быть изменен на страни
 #: ../../mod/lostpass.php:107
 #, php-format
 msgid "Your password has been changed at %s"
-msgstr ""
+msgstr "Ваш пароль был изменен %s"
 
 #: ../../mod/lostpass.php:122
 msgid "Forgot your Password?"
@@ -5580,7 +5580,7 @@ msgstr "Сброс"
 
 #: ../../mod/maintenance.php:5
 msgid "System down for maintenance"
-msgstr ""
+msgstr "Система закрыта на техническое обслуживание"
 
 #: ../../mod/manage.php:106
 msgid "Manage Identities and/or Pages"
@@ -5631,7 +5631,7 @@ msgstr "Нет сообщений."
 #: ../../mod/message.php:378
 #, php-format
 msgid "Unknown sender - %s"
-msgstr ""
+msgstr "Неизвестный отправитель - %s"
 
 #: ../../mod/message.php:381
 #, php-format
@@ -5946,7 +5946,7 @@ msgstr "Удалить альбом"
 
 #: ../../mod/photos.php:197
 msgid "Do you really want to delete this photo album and all its photos?"
-msgstr ""
+msgstr "Вы действительно хотите удалить этот альбом и все его фотографии?"
 
 #: ../../mod/photos.php:276 ../../mod/photos.php:287 ../../mod/photos.php:1502
 msgid "Delete Photo"
@@ -5954,7 +5954,7 @@ msgstr "Удалить фото"
 
 #: ../../mod/photos.php:285
 msgid "Do you really want to delete this photo?"
-msgstr ""
+msgstr "Вы действительно хотите удалить эту фотографию?"
 
 #: ../../mod/photos.php:656
 #, php-format
@@ -6008,11 +6008,11 @@ msgstr "Разрешения"
 
 #: ../../mod/photos.php:1142
 msgid "Private Photo"
-msgstr ""
+msgstr "Личное фото"
 
 #: ../../mod/photos.php:1143
 msgid "Public Photo"
-msgstr ""
+msgstr "Публичное фото"
 
 #: ../../mod/photos.php:1210
 msgid "Edit Album"
@@ -6020,11 +6020,11 @@ msgstr "Редактировать альбом"
 
 #: ../../mod/photos.php:1216
 msgid "Show Newest First"
-msgstr ""
+msgstr "Показать новые первыми"
 
 #: ../../mod/photos.php:1218
 msgid "Show Oldest First"
-msgstr ""
+msgstr "Показать старые первыми"
 
 #: ../../mod/photos.php:1251 ../../mod/photos.php:1778
 msgid "View Photo"
@@ -6069,11 +6069,11 @@ msgstr "[Удалить любое ключевое слово]"
 
 #: ../../mod/photos.php:1487
 msgid "Rotate CW (right)"
-msgstr ""
+msgstr "Поворот по часовой стрелке (направо)"
 
 #: ../../mod/photos.php:1488
 msgid "Rotate CCW (left)"
-msgstr ""
+msgstr "Поворот против часовой стрелки (налево)"
 
 #: ../../mod/photos.php:1490
 msgid "New album name"
@@ -6721,19 +6721,19 @@ msgstr "делиться"
 
 #: ../../mod/content.php:734 ../../object/Item.php:654
 msgid "Bold"
-msgstr ""
+msgstr "Жирный"
 
 #: ../../mod/content.php:735 ../../object/Item.php:655
 msgid "Italic"
-msgstr ""
+msgstr "Kурсивный"
 
 #: ../../mod/content.php:736 ../../object/Item.php:656
 msgid "Underline"
-msgstr ""
+msgstr "Подчеркнутый"
 
 #: ../../mod/content.php:737 ../../object/Item.php:657
 msgid "Quote"
-msgstr ""
+msgstr "Цитата"
 
 #: ../../mod/content.php:738 ../../object/Item.php:658
 msgid "Code"
