@@ -128,7 +128,7 @@ section {
 }
 
 .mframe {
-	padding: 3px;
+	padding: 0;
 	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
@@ -2341,6 +2341,10 @@ input #photo_edit_form {
 	-webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
 	-moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
 	box-shadow: 0 0 5px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+	border: 1px solid #7C7D7B;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 }
 
 #prvmail-wrapper:before, 
@@ -2365,6 +2369,10 @@ input #photo_edit_form {
 		-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 		-moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 	z-index: -1;
+	border: 1px solid #7C7D7B;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 }
 
 #prvmail-wrapper:after, 
@@ -2377,6 +2385,10 @@ input #photo_edit_form {
 		-moz-transform: skew(5deg) rotate(5deg);
 		-ms-transform: skew(5deg) rotate(5deg);
 		-o-transform: skew(5deg) rotate(5deg);
+	border: 1px solid #7C7D7B;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 }
 
 .prvmail-text {
@@ -2499,6 +2511,7 @@ margin-left: 0px;
 .mail-conv-sender-photo {
 	width: 64px;
 	height: 64px;
+	border-radius: 3px 3px 3px 3px;
 }
 
 .mail-conv-sender-name { 
