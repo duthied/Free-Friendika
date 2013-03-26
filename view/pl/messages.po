@@ -32,8 +32,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-03-19 03:30-0700\n"
-"PO-Revision-Date: 2013-03-23 15:17+0000\n"
-"Last-Translator: julia.domagalska <braknazwy@autograf.pl>\n"
+"PO-Revision-Date: 2013-03-25 12:31+0000\n"
+"Last-Translator: Cyryl Sochacki <cyrylsochacki@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -483,7 +483,7 @@ msgstr "zaczepiony"
 
 #: ../../include/text.php:820
 msgid "ping"
-msgstr ""
+msgstr "ping"
 
 #: ../../include/text.php:820
 msgid "pinged"
@@ -1052,7 +1052,7 @@ msgstr "MySpace"
 
 #: ../../include/contact_selectors.php:87
 msgid "Google+"
-msgstr ""
+msgstr "Google+"
 
 #: ../../include/contact_widgets.php:6
 msgid "Add New Contact"
@@ -1332,7 +1332,7 @@ msgstr ""
 
 #: ../../include/features.php:32
 msgid "Post Preview"
-msgstr ""
+msgstr "Podgląd posta"
 
 #: ../../include/features.php:32
 msgid "Allow previewing posts and comments before publishing them"
@@ -1352,7 +1352,7 @@ msgstr ""
 
 #: ../../include/features.php:39
 msgid "Group Filter"
-msgstr ""
+msgstr "Filtrowanie grupowe"
 
 #: ../../include/features.php:39
 msgid "Enable widget to display Network posts only from selected group"
@@ -1587,7 +1587,7 @@ msgstr "Usuń zaznaczone elementy"
 
 #: ../../include/conversation.php:831
 msgid "Follow Thread"
-msgstr ""
+msgstr "Śledź wątek"
 
 #: ../../include/conversation.php:900
 #, php-format
@@ -1787,7 +1787,7 @@ msgstr ""
 
 #: ../../include/conversation.php:1088
 msgid "Private post"
-msgstr ""
+msgstr "Prywatne posty"
 
 #: ../../include/enotify.php:16
 msgid "Friendica Notification"
@@ -1991,7 +1991,7 @@ msgstr "Brak nowych zdarzeń"
 
 #: ../../include/nav.php:38 ../../mod/navigation.php:24
 msgid "Clear notifications"
-msgstr ""
+msgstr "Wyczyść powiadomienia"
 
 #: ../../include/nav.php:73 ../../boot.php:1057
 msgid "Logout"
@@ -2217,7 +2217,7 @@ msgstr ""
 
 #: ../../include/nav.php:182
 msgid "Site map"
-msgstr ""
+msgstr "Mapa strony"
 
 #: ../../include/network.php:875
 msgid "view full size"
@@ -2350,11 +2350,11 @@ msgstr ""
 
 #: ../../mod/profiles.php:325
 msgid "Likes"
-msgstr ""
+msgstr "Polubień"
 
 #: ../../mod/profiles.php:329
 msgid "Dislikes"
-msgstr ""
+msgstr "Nie lubień"
 
 #: ../../mod/profiles.php:333
 msgid "Work/Employment"
@@ -3253,7 +3253,7 @@ msgstr "Pokaż tylko ignorowane kontakty"
 
 #: ../../mod/contacts.php:503
 msgid "Archived"
-msgstr ""
+msgstr "Zarchiwizowane"
 
 #: ../../mod/contacts.php:506
 msgid "Only show archived contacts"
@@ -3309,7 +3309,7 @@ msgstr "Ustawienia wtyczek"
 
 #: ../../mod/settings.php:56 ../../mod/uexport.php:30
 msgid "Connected apps"
-msgstr ""
+msgstr "Powiązane aplikacje"
 
 #: ../../mod/settings.php:61 ../../mod/uexport.php:35 ../../mod/uexport.php:80
 msgid "Export personal data"
@@ -3555,7 +3555,7 @@ msgstr "Wyświetl motyw:"
 
 #: ../../mod/settings.php:816
 msgid "Mobile Theme:"
-msgstr ""
+msgstr "Mobilny motyw:"
 
 #: ../../mod/settings.php:817
 msgid "Update browser every xx seconds"
@@ -3858,7 +3858,7 @@ msgstr ""
 
 #: ../../mod/share.php:44
 msgid "link"
-msgstr ""
+msgstr "Link"
 
 #: ../../mod/crepair.php:102
 msgid "Contact settings applied."
@@ -4064,7 +4064,7 @@ msgstr ""
 #: ../../mod/dfrn_poll.php:101 ../../mod/dfrn_poll.php:534
 #, php-format
 msgid "%1$s welcomes %2$s"
-msgstr ""
+msgstr "%1$s witamy %2$s"
 
 #: ../../mod/dfrn_request.php:93
 msgid "This introduction has already been accepted."
@@ -4262,7 +4262,7 @@ msgstr "Brak odwiedzin (niektóre odwiedziny mogą być ukryte)."
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr ""
+msgstr "Czy na pewno chcesz usunąć te sugestie ?"
 
 #: ../../mod/suggest.php:72
 msgid ""
@@ -4460,7 +4460,7 @@ msgstr ""
 
 #: ../../mod/admin.php:495
 msgid "'Share' element"
-msgstr ""
+msgstr "'Udostępnij' element"
 
 #: ../../mod/admin.php:495
 msgid "Activates the bbcode element 'share' for repeating items."
@@ -4520,7 +4520,7 @@ msgstr "Zarejestruj polisę"
 
 #: ../../mod/admin.php:503
 msgid "Maximum Daily Registrations"
-msgstr ""
+msgstr "Maksymalnie dziennych rejestracji"
 
 #: ../../mod/admin.php:503
 msgid ""
@@ -5146,7 +5146,7 @@ msgstr ""
 
 #: ../../mod/uexport.php:73
 msgid "Export all"
-msgstr ""
+msgstr "Eksportuj wszystko"
 
 #: ../../mod/uexport.php:73
 msgid ""
@@ -5161,7 +5161,7 @@ msgstr "- wybierz -"
 
 #: ../../mod/uimport.php:64
 msgid "Import"
-msgstr ""
+msgstr "Import"
 
 #: ../../mod/uimport.php:66
 msgid "Move account"
@@ -5648,7 +5648,7 @@ msgstr "Brak wiadomości."
 #: ../../mod/message.php:378
 #, php-format
 msgid "Unknown sender - %s"
-msgstr ""
+msgstr "Nieznany wysyłający - %s"
 
 #: ../../mod/message.php:381
 #, php-format
@@ -6466,7 +6466,7 @@ msgstr ""
 
 #: ../../mod/install.php:341
 msgid "Found PHP version: "
-msgstr ""
+msgstr "Znaleziono wersje PHP:"
 
 #: ../../mod/install.php:343
 msgid "PHP cli binary"
@@ -6512,7 +6512,7 @@ msgstr "Moduł PHP-GD"
 
 #: ../../mod/install.php:390
 msgid "OpenSSL PHP module"
-msgstr ""
+msgstr "Moduł PHP OpenSSL"
 
 #: ../../mod/install.php:391
 msgid "mysqli PHP module"
@@ -6524,7 +6524,7 @@ msgstr "Moduł mb_string PHP"
 
 #: ../../mod/install.php:397 ../../mod/install.php:399
 msgid "Apache mod_rewrite module"
-msgstr ""
+msgstr "Moduł Apache mod_rewrite"
 
 #: ../../mod/install.php:397
 msgid ""
@@ -7029,7 +7029,7 @@ msgstr ""
 
 #: ../../boot.php:1078
 msgid "privacy policy"
-msgstr ""
+msgstr "polityka prywatności"
 
 #: ../../boot.php:1207
 msgid "Requested account is not available."
