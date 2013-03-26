@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-03-12
+	Created by alex@friendica.pixelbits.de on 2013-03-26
 
 ** Colors ** 
 Blue links - #1873a2
@@ -70,8 +70,8 @@ input[type=submit]:hover {
 	color: #efefef;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -119,7 +119,7 @@ section {
 }
 
 .lframe {
-	border: 1px solid #dddddd;
+	border: 1px solid #7C7D7B;
 	box-shadow: 3px 3px 6px #959494;
 		-moz-box-shadow: 3px 3px 6px #959494;
 		-webkit-box-shadow: 3px 3px 6px #959494;
@@ -130,13 +130,13 @@ section {
 .mframe {
 	padding: 3px;
 	background: none repeat scroll 0 0 #FFFFFF;
-	border: 1px solid #C5C5C5;
+	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 #wall-item-lock {
@@ -160,8 +160,8 @@ section {
 .button:hover {
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -329,8 +329,8 @@ nav {
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #bdbdbd), color-stop(1, #a2a2a2) );
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -384,10 +384,13 @@ nav #user-menu {
 	background: -moz-linear-gradient( center top, #797979 5%, #898988 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#797979', endColorstr='#898988');
 	background-color: #a2a2a2;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
-	border: 1px solid #7C7D8B;
 	color: #efefef;
 	text-decoration: none;
 	text-align: center;   
@@ -396,8 +399,8 @@ nav #user-menu {
 nav #user-menu:hover {
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -580,7 +583,7 @@ ul#user-menu-popup li a.nav-sep {
 #sysmsg br {
 	display:block;
 	margin:2px 0px;
-	border-top: 1px solid #dddddd;
+	border-top: 1px solid #7C7D7B;
 }
 
 /* ================= */
@@ -625,15 +628,15 @@ aside h4 {
 
 .vcard #profile-photo-wrapper {
 	margin: 10px 0px;
-	padding: 6px;
+	padding: 0;
 	width: auto;
 	background: none repeat scroll 0 0 #FFFFFF;
-	border: 1px solid #C5C5C5;
+	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -726,7 +729,7 @@ h3 #search:before {
 
 #network-new-link {
 	background-color: #f3f3f3;
-	border: 1px solid #cdcdcd;
+	border: 1px solid #7C7D7B;
 	margin-bottom: 10px;
 	border-radius: 5px;	
 		-webkit-border-radius: 5px;
@@ -810,7 +813,7 @@ h3 #search:before {
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 	color: #7c7d7b;
-	border: 1px solid #cdcdcd;
+	border: 1px solid #7C7D7B;
 }
 
 li.widget-list {
@@ -847,8 +850,8 @@ li.widget-list {
 	background-color: #1873a2;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -944,7 +947,7 @@ ul .sidebar-group-li .icon {
 		-moz-border-radius: 5px 5px 0px 0px;
 		-webkit-border-radius: 5px 5px 0px 0px;
 	border: 1px solid #e2e2e2;
-	border-bottom: 1px solid #cdcdcd;
+	border-bottom: 1px solid #7C7D7B;
 	padding-top: 5px;
 	padding-bottom: 5px;
 	vertical-align: baseline;
@@ -999,13 +1002,13 @@ ul .sidebar-group-li .icon {
 	width: 47px;
 	height: 47px;
 	margin-right: 2px;
-	border: 1px solid #C5C5C5;
+	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .contact-block-div {
@@ -1175,8 +1178,8 @@ ul .sidebar-group-li .icon {
 	background-color: #1873a2;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -1345,13 +1348,13 @@ ul .sidebar-group-li .icon {
 	padding-right: 10px;
 	padding-left: 12px;
 	background: none repeat scroll 0 0 #FFFFFF;
-	border: 1px solid #CDCDCD;
+	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .wall-item-outside-wrapper-end {
@@ -1378,12 +1381,12 @@ ul .sidebar-group-li .icon {
 	width: 100%;
 	top: 85px;
 	left: -1px;
-	border-right: 1px solid #dddddd;
-	border-left: 1px solid #dddddd;
-	border-bottom: 1px solid #dddddd;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	border-right: 1px solid #7C7D7B;
+	border-left: 1px solid #7C7D7B;
+	border-bottom: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 0px 0px 5px  5px;	
 		-webkit-border-radius: 0px 0px 5px  5px;
 		-moz-border-radius: 0px 0px 5px  5px;
@@ -1397,15 +1400,15 @@ ul .sidebar-group-li .icon {
 .wall-item-photo-wrapper { 
 	width: 80px; 
 	height: 80px;
-	padding: 4px;
+	padding: 0;
 	position: relative;
-	border: 1px solid #dddddd;
+	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-webkit-border-radius: 5px;
 		-moz-border-radius: 5px;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .wall-item-tools { 
@@ -1612,9 +1615,9 @@ ul .sidebar-group-li .icon {
 	color: #2e3436;
 	border-top: 1px;
 	background: #eeeeee;
-	border-right: 1px solid #dddddd;
-	border-left: 1px solid #dddddd;
-	border-bottom: 1px solid #dddddd;
+	border-right: 1px solid #7C7D7B;
+	border-left: 1px solid #7C7D7B;
+	border-bottom: 1px solid #7C7D7B;
 	position: absolute;
 	left: -1px; 
 	top: 101px;
@@ -1623,9 +1626,9 @@ ul .sidebar-group-li .icon {
 	border-radius: 0px 5px 5px 5px;
 		-webkit-border-radius: 0px 5px 5px 5px;
 		-moz-border-radius: 0px 5px 5px 5px;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 
 }
 
@@ -1633,9 +1636,9 @@ ul .sidebar-group-li .icon {
 	-webkit-border-radius: 0px 5px 5px 5px;
 	-moz-border-radius: 0px 5px 5px 5px;
 	border-radius: 0px 5px 5px 5px;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .wall-item-photo-menu ul { 
@@ -1806,7 +1809,7 @@ code {
 	padding: 5px 5px;
 	background-color: #a2a2a2;
 	color: #eeeeec;
-	border: 1px solid #CDCDCD;
+	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -1814,13 +1817,13 @@ code {
 
 .comment-edit-submit:hover {
 	background-color: #1873a2;
-	border: 1px solid #CDCDCD;
+	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .comment-edit-submit:active {
@@ -1962,10 +1965,10 @@ div[id$="wrapper"] br {
 	margin-bottom: 70px;
 	margin-right: 29px;
 	background-color: #f6f6f6;
-	border: 1px solid #dddddd;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .profile-match-break,
@@ -2004,8 +2007,8 @@ div[id$="wrapper"] br {
 }
 
 .photo {
-	height: 191px!important;
-	width: 191px!important;
+	height: 100% !important;
+	width: 100% !important;
 }
 
 #side-bar-photos-albums {
@@ -2432,13 +2435,13 @@ margin-left: 0px;
 	float: left;
 	padding: 2px;
 	background-color: #efefef;
-	border: 1px solid #C5C5C5;
+	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .mail-list-detail {
@@ -2447,7 +2450,7 @@ margin-left: 0px;
 	min-height: 70px;
 	padding: 20px;
 	padding-top: 10px;
-	border: 1px solid #dddddd;
+	border: 1px solid #7C7D7B;
 }
 	
 .mail-list-sender-name {
@@ -2525,7 +2528,7 @@ margin-left: 0px;
 	margin-bottom: 0px;
 	vertical-align: middle;
 	margin: auto;
-	border: 1px solid #dddddd;
+	border: 1px solid #7C7D7B;
 }
 
 .mail-conv-break { 
@@ -2541,7 +2544,7 @@ margin-left: 0px;
 
 #prvmail-subject {
 	font-weight: bold;
-	border: 1px solid #dddddd;
+	border: 1px solid #7C7D7B;
 }
 
 /* ================= */
@@ -2691,8 +2694,8 @@ margin-left: 0px;
 	background-color: #1873a2;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -2837,8 +2840,8 @@ margin-left: 0px;
 	background-color: #1873a2;	
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -2873,7 +2876,7 @@ margin-left: 0px;
 	font-weight: bold;
 	font-stretch: semi-expanded;
 	background-color: #f3f3f3;
-	border: 1px solid #cdcdcd;
+	border: 1px solid #7C7D7B;
 	padding: 10px;
 	margin-top: 20px;
 	border-radius: 5px;
@@ -3030,8 +3033,8 @@ margin-left: 0px;
 	background-color: #555753;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -3581,8 +3584,8 @@ margin-left: 0px;
 	clear: left;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -3656,7 +3659,7 @@ margin-left: 0px;
 .field input,
 .field textarea {
 	width: 400px;
-	border: 1px solid #CDCDCD;
+	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -3967,8 +3970,8 @@ footer {
 	background-color: #1873a2;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -4097,15 +4100,15 @@ ul.menu-popup {
 	color: #2e3436;
 	border-top: 0px;
 	background: #eeeeee;
-	border-right: 1px solid #dddddd;
-	border-left: 1px solid #dddddd;
-	border-bottom: 1px solid #dddddd;
+	border-right: 1px solid #7C7D7B;
+	border-left: 1px solid #7C7D7B;
+	border-bottom: 1px solid #7C7D7B;
 	border-radius: 0px 5px 5px 5px;
 		-webkit-border-radius: 0px 5px 5px 5px;
 		-moz-border-radius: 0px 5px 5px 5px;
-	box-shadow: 3px 3px 4px #959494;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 .acpopupitem {
@@ -4388,8 +4391,8 @@ div #datebrowse-sidebar.widget {
 	width: 410px;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -4425,8 +4428,8 @@ div #datebrowse-sidebar.widget {
 .settings-block {
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
-		-moz-box-shadow: 3px 3px 4px #959494;
-		-webkit-box-shadow: 3px 3px 4px #959494;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;

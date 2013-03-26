@@ -255,6 +255,9 @@ a:focus {
 img,
 figure {
 	border: 0 none;
+	border-radius: 5px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
 	max-width: 550px;
 	margin: 0;
 }
