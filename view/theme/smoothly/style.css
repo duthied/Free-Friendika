@@ -2,7 +2,7 @@
   	style.css
   	Smoothly
    
-	Created by alex@friendica.pixelbits.de on 2013-03-26
+	Created by alex@friendica.pixelbits.de on 2013-03-27
 
 ** Colors ** 
 Blue links - #1873a2
@@ -129,14 +129,14 @@ section {
 
 .mframe {
 	padding: 0;
-	background: none repeat scroll 0 0 #FFFFFF;
+	/*background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
-		-webkit-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
 }
 
 #wall-item-lock {
@@ -219,19 +219,26 @@ section {
 	border-radius: 5px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
-	padding: 10px;
-	margin: 10px 0 0 0;
+	padding: 15px 10px 10px 20px;
+	margin: 20px 0 0 210px;
 }
 
 #login_openid,
-#div_id_remember,
 #login-extra-links a {
 	width: 460px;
 	float: left;
+	margin: 5px 0 0 230px;
+}
+
+#div_id_remember {
+	width: 258px;
+	float: left;
+	margin: 5px 0 0 230px;
 }
 
 #login_standard input,
 #login_openid input {
+	height: 20px;
 	width: 240px;
 }
 
@@ -253,7 +260,8 @@ section {
 }
 
 #login-submit-button {
-	width: 280px;
+	width: 250px;
+	margin: 10px 0 0 230px;
 }
 
 .login-form,
@@ -331,9 +339,9 @@ nav {
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
 		-webkit-box-shadow: 0 0 8px #BDBDBD;
-	border-radius: 5px;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
+	border-radius: 0px 0px 5px 5px;
+		-moz-border-radius: 0px 0px 5px 5px;
+		-webkit-border-radius: 0px 0px 5px 5px;
 }
 
 nav a {
@@ -630,7 +638,7 @@ aside h4 {
 	margin: 10px 0px;
 	padding: 0;
 	width: auto;
-	background: none repeat scroll 0 0 #FFFFFF;
+	/*background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #7C7D7B;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
@@ -639,7 +647,7 @@ aside h4 {
 		-webkit-box-shadow: 0 0 8px #BDBDBD;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
+		-webkit-border-radius: 5px;*/
 }
 
 
@@ -896,7 +904,7 @@ li.widget-list {
 }
 
 ul .sidebar-group-li {
-	list-style: none;
+	list-style: disc;
 	font-size: 1.0em;
 }
 
@@ -1340,6 +1348,13 @@ ul .sidebar-group-li .icon {
 /* = Posts = */
 /* ========= */
 
+.wall-item-name {
+	font-style: bold !important;
+	border: 0px !important;
+	border-radius: 0px !important;
+	box-shadow: none !important;
+}
+
 .wall-item-outside-wrapper {
 	max-width: 100%;
 	border-bottom: 1px solid #dedede; 
@@ -1374,13 +1389,13 @@ ul .sidebar-group-li .icon {
 .wall-item-photo-menu-button {
 	display: none;
 	text-indent: -99999px;
-	background: #eeeeee url("images/menu-user-pin.png") no-repeat 75px center;
+	background: #eeeeee url("images/menu-user-pin.png") no-repeat 35px center;
 	position: absolute;
 	overflow: hidden;
 	height: 20px;
 	width: 100%;
-	top: 85px;
-	left: -1px;
+	top: 82px;
+	left: 0;
 	border-right: 1px solid #7C7D7B;
 	border-left: 1px solid #7C7D7B;
 	border-bottom: 1px solid #7C7D7B;
@@ -1402,6 +1417,17 @@ ul .sidebar-group-li .icon {
 	height: 80px;
 	padding: 0;
 	position: relative;
+	/*border: 1px solid #7C7D7B;
+	border-radius: 5px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+}
+
+.wall-item-photo { 
+
 	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-webkit-border-radius: 5px;
@@ -1619,7 +1645,7 @@ ul .sidebar-group-li .icon {
 	border-left: 1px solid #7C7D7B;
 	border-bottom: 1px solid #7C7D7B;
 	position: absolute;
-	left: -1px; 
+	left: 0px; 
 	top: 101px;
 	display: none;
 	z-index: 10000;
@@ -1729,8 +1755,8 @@ code {
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-menu-button {
-	top: 45px;
-	background-position: 35px center;
+	top: 42px;
+	background-position: 15px center;
 }
 	
 .wall-item-outside-wrapper.comment .wall-item-info { 
@@ -2009,6 +2035,15 @@ div[id$="wrapper"] br {
 .photo {
 	height: 203px !important;
 	width: 203px !important;
+	border: 1px solid #7C7D7B;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
+	border-radius: 5px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 }
 
 #side-bar-photos-albums {
@@ -2663,6 +2698,13 @@ margin-left: 0px;
 
 .contact-entry-photo {
 	position: relative;
+	/*border: 1px solid #7C7D7B;
+	border-radius: 3px;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
 }
 
 .contact-entry-edit-links .icon {	
@@ -3643,7 +3685,7 @@ margin-left: 0px;
 /* =============== */
 
 .field {
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;*/
     overflow: auto;
     padding-bottom: 0px;
     width: 100%;
@@ -3661,7 +3703,7 @@ margin-left: 0px;
 
 .field label {
     float: left;
-    width: 200px;
+    width: 210px;
 }
 
 .field checkbox {
@@ -3731,6 +3773,21 @@ margin-left: 0px;
 
 .sparkle {
 	cursor: url('lock.cur'), pointer;
+	width: 100%;
+	height: 100%;
+	/*border: 1px solid #7C7D7B;
+	border-radius: 3px;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+	box-shadow: 0 0 8px #BDBDBD;
+		-moz-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+}
+
+.label {
+	border: 0px;
+	border-radius: 0px;
+	box-shadow: none;
 }
 
 .icon {
@@ -4207,7 +4264,7 @@ ul.menu-popup {
 #scrollup {
 	position: fixed;
 	right: 1px;
-	bottom: 30px;
+	bottom: 260px;
 	z-index: 100;
 }
 
@@ -4425,7 +4482,9 @@ div #datebrowse-sidebar.widget {
 
 #collapsed-comments-page-widget {}
 
-.tool {}
+.tool {
+    list-style-type: disc;
+}
 
 #logo-text {
 }
@@ -4491,6 +4550,7 @@ div #datebrowse-sidebar.widget {
 
 #id_remember {
 	width: auto;
+	float: right;
 }
 
 .field.input.openid {
