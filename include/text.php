@@ -279,7 +279,6 @@ function hex2bin($s) {
 }}
 
 
-
 if(! function_exists('paginate')) {
 /**
  * Automatic pagination.
@@ -1694,6 +1693,16 @@ function base64url_decode($s) {
 
 
 if (!function_exists('str_getcsv')) {
+	/**
+	 * Parse csv string
+	 * 
+	 * @param string $input
+	 * @param string $delimiter
+	 * @param string $enclosure
+	 * @param string $escape
+	 * @param string $eol
+	 * @return boolean|array False on error, otherwise array[row][column]
+	 */
     function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = '\n') {
         if (is_string($input) && !empty($input)) {
             $output = array();
@@ -1750,6 +1759,11 @@ if (!function_exists('str_getcsv')) {
     }
 } 
 
+/**
+ * return div element with class 'clear'
+ * @return string
+ * @deprecated
+ */
 function cleardiv() {
 	return '<div class="clear"></div>';
 }
@@ -1786,6 +1800,8 @@ function html2bb_video($s) {
 
 /**
  * apply xmlify() to all values of array $val, recursively
+ * @param array $val
+ * @return array
  */
 function array_xmlify($val){
 	if (is_bool($val)) return $val?"true":"false";
@@ -1794,6 +1810,13 @@ function array_xmlify($val){
 }
 
 
+/**
+ * transorm link href and img src from relative to absolute
+ * 
+ * @param string $text
+ * @param string $base base url
+ * @return string
+ */
 function reltoabs($text, $base)
 {
   if (empty($base))
@@ -1826,6 +1849,12 @@ function reltoabs($text, $base)
   return $text;
 }
 
+/**
+ * get translated item type
+ * 
+ * @param array $itme
+ * @return string
+ */
 function item_post_type($item) {
 	if(intval($item['event-id']))
 		return t('event');
