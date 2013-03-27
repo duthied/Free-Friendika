@@ -1,9 +1,9 @@
 <?php
 
+require_once "object/TemplateEngine.php";
 require_once("library/Smarty/libs/Smarty.class.php");
 
 class FriendicaSmarty extends Smarty {
-
 	public $filename;
 
 	function __construct() {
@@ -37,7 +37,33 @@ class FriendicaSmarty extends Smarty {
 		}
 		return $this->fetch('file:' . $this->filename);
 	}
+	
+
 }
 
-
-
+class FriendicaSmartyEngine implements ITemplateEngine {
+	static $name ="smarty3";
+	// ITemplateEngine interface
+	public function replace_macros($s, $r) {
+		$template = '';
+		if(gettype($s) === 'string') {
+			$template = $s;
+			$s = new FriendicaSmarty();
+		}
+		foreach($r as $key=>$value) {
+			if($key[0] === '$') {
+				$key = substr($key, 1);
+			}
+			$s->assign($key, $value);
+		}
+		return $s->parsed($template);		
+	}
+	
+	public function get_template_file($file, $root=''){
+		$a = get_app();
+		$template_file = get_template_file($a, 'smarty3/' . $file, $root);
+		$template = new FriendicaSmarty();
+		$template->filename = $template_file;
+		return $template;
+	}
+}

@@ -15,39 +15,20 @@ if(! function_exists('replace_macros')) {
 /**
  * This is our template processor
  * 
- * @global Template $t
  * @param string|FriendicaSmarty $s the string requiring macro substitution, 
  *									or an instance of FriendicaSmarty
  * @param array $r key value pairs (search => replace)
  * @return string substituted string
  */
 function replace_macros($s,$r) {
-	global $t;
 	
 	$stamp1 = microtime(true);
 
 	$a = get_app();
 
-	if($a->theme['template_engine'] === 'smarty3') {
-		$template = '';
-		if(gettype($s) === 'string') {
-			$template = $s;
-			$s = new FriendicaSmarty();
-		}
-		foreach($r as $key=>$value) {
-			if($key[0] === '$') {
-				$key = substr($key, 1);
-			}
-			$s->assign($key, $value);
-		}
-		$output = $s->parsed($template);
-	}
-	else {
-		$r =  $t->replace($s,$r);
+	$t = $a->template_engine();
+	$output = $t->replace_macros($s,$r);
 
-		$output = template_unescape($r);
-	}
-	$a = get_app();
 	$a->save_timestamp($stamp1, "rendering");
 
 	return $output;
@@ -582,6 +563,14 @@ function get_markup_template($s, $root = '') {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
+	$t = $a->template_engine();
+	
+	$template = $t->get_template_file($s, $root);
+	
+	$a->save_timestamp($stamp1, "file");
+	
+	return $template;
+	/*
 
 	if($a->theme['template_engine'] === 'smarty3') {
 		$template_file = get_template_file($a, 'smarty3/' . $s, $root);
@@ -602,6 +591,7 @@ function get_markup_template($s, $root = '') {
 		return $content;
 
 	}
+	 */
 }}
 
 if(! function_exists("get_template_file")) {
