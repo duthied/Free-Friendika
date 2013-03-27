@@ -3,6 +3,8 @@
 require_once "object/TemplateEngine.php";
 require_once("library/Smarty/libs/Smarty.class.php");
 
+define('SMARTY3_TEMPLATE_FOLDER','templates');
+
 class FriendicaSmarty extends Smarty {
 	public $filename;
 
@@ -14,10 +16,10 @@ class FriendicaSmarty extends Smarty {
 
 		// setTemplateDir can be set to an array, which Smarty will parse in order.
 		// The order is thus very important here
-		$template_dirs = array('theme' => "view/theme/$theme/smarty3/");
+		$template_dirs = array('theme' => "view/theme/$theme/".SMARTY3_TEMPLATE_FOLDER."/");
 		if( x($a->theme_info,"extends") )
-			$template_dirs = $template_dirs + array('extends' => "view/theme/".$a->theme_info["extends"]."/smarty3/");
-		$template_dirs = $template_dirs + array('base' => 'view/smarty3/');
+			$template_dirs = $template_dirs + array('extends' => "view/theme/".$a->theme_info["extends"]."/".SMARTY3_TEMPLATE_FOLDER."/");
+		$template_dirs = $template_dirs + array('base' => "view/".SMARTY3_TEMPLATE_FOLDER."/");
 		$this->setTemplateDir($template_dirs);
 
 		$this->setCompileDir('view/smarty3/compiled/');
@@ -61,7 +63,7 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 	
 	public function get_template_file($file, $root=''){
 		$a = get_app();
-		$template_file = get_template_file($a, 'smarty3/' . $file, $root);
+		$template_file = get_template_file($a, SMARTY3_TEMPLATE_FOLDER.'/'.$file, $root);
 		$template = new FriendicaSmarty();
 		$template->filename = $template_file;
 		return $template;
