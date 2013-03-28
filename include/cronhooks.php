@@ -38,7 +38,6 @@ function cronhooks_run(&$argv, &$argc){
 	load_hooks();
 
 	logger('cronhooks: start');
-echo("@@@ cronhooks start\n");
 	
 
 	$d = datetime_convert();
