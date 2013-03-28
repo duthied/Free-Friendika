@@ -26,7 +26,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-03-19 03:30-0700\n"
-"PO-Revision-Date: 2013-03-21 09:29+0000\n"
+"PO-Revision-Date: 2013-03-28 06:48+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -4633,7 +4633,7 @@ msgid ""
 "of the image. This means that contacts who receive posts containing private "
 "photos will have to authenticate and load each image, which may take a "
 "while."
-msgstr ""
+msgstr "Ersetze lokal gehostete private Fotos in Beiträgen nicht mit einer eingebetteten Kopie des Bildes. Dies bedeutet, dass Kontakte, die Beiträge mit privaten Fotos erhalten sich zunächst auf den jeweiligen Servern authentifizieren müssen bevor die Bilder geladen und angezeigt werden, was eine gewisse Zeit dauert."
 
 #: ../../mod/admin.php:517
 msgid "Block multiple registrations"
@@ -6445,7 +6445,7 @@ msgstr "Kommandozeilen-PHP"
 
 #: ../../mod/install.php:340
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
-msgstr ""
+msgstr "Die ausführbare Datei von PHP stimmt nicht mit der PHP cli Version überein (es könnte sich um die cgi-fgci Version handeln)"
 
 #: ../../mod/install.php:341
 msgid "Found PHP version: "
@@ -6453,7 +6453,7 @@ msgstr "Gefundene PHP Version:"
 
 #: ../../mod/install.php:343
 msgid "PHP cli binary"
-msgstr ""
+msgstr "PHP CLI Binary"
 
 #: ../../mod/install.php:354
 msgid ""

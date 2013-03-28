@@ -1078,7 +1078,7 @@ $a->strings["Don't include the content of a post/comment/private message/etc. in
 $a->strings["Disallow public access to addons listed in the apps menu."] = "Öffentlichen Zugriff auf Addons im Apps Menü verbieten.";
 $a->strings["Checking this box will restrict addons listed in the apps menu to members only."] = "Wenn ausgewählt werden die im Apps Menü aufgeführten Addons nur angemeldeten Nutzern der Seite zur Verfügung gestellt.";
 $a->strings["Don't embed private images in posts"] = "Private Bilder nicht in Beiträgen einbetten.";
-$a->strings["Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while."] = "";
+$a->strings["Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while."] = "Ersetze lokal gehostete private Fotos in Beiträgen nicht mit einer eingebetteten Kopie des Bildes. Dies bedeutet, dass Kontakte, die Beiträge mit privaten Fotos erhalten sich zunächst auf den jeweiligen Servern authentifizieren müssen bevor die Bilder geladen und angezeigt werden, was eine gewisse Zeit dauert.";
 $a->strings["Block multiple registrations"] = "Unterbinde Mehrfachregistrierung";
 $a->strings["Disallow users to register additional accounts for use as pages."] = "Benutzern nicht erlauben, weitere Konten als zusätzliche Profile anzulegen.";
 $a->strings["OpenID support"] = "OpenID Unterstützung";
@@ -1492,9 +1492,9 @@ $a->strings["If you don't have a command line version of PHP installed on server
 $a->strings["PHP executable path"] = "Pfad zu PHP";
 $a->strings["Enter full path to php executable. You can leave this blank to continue the installation."] = "Gib den kompletten Pfad zur ausführbaren Datei von PHP an. Du kannst dieses Feld auch frei lassen und mit der Installation fortfahren.";
 $a->strings["Command line PHP"] = "Kommandozeilen-PHP";
-$a->strings["PHP executable is not the php cli binary (could be cgi-fgci version)"] = "";
+$a->strings["PHP executable is not the php cli binary (could be cgi-fgci version)"] = "Die ausführbare Datei von PHP stimmt nicht mit der PHP cli Version überein (es könnte sich um die cgi-fgci Version handeln)";
 $a->strings["Found PHP version: "] = "Gefundene PHP Version:";
-$a->strings["PHP cli binary"] = "";
+$a->strings["PHP cli binary"] = "PHP CLI Binary";
 $a->strings["The command line version of PHP on your system does not have \"register_argc_argv\" enabled."] = "Die Kommandozeilenversion von PHP auf deinem System hat \"register_argc_argv\" nicht aktiviert.";
 $a->strings["This is required for message delivery to work."] = "Dies wird für die Auslieferung von Nachrichten benötigt.";
 $a->strings["PHP register_argc_argv"] = "PHP register_argc_argv";
