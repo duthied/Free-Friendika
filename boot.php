@@ -383,7 +383,7 @@ if(! class_exists('App')) {
 			'force_max_items' => 0,
 			'thread_allow' => true,
 			'stylesheet' => '',
-			'template_engine' => 'internal',
+			'template_engine' => 'smarty3',
 		);
 		
 		// array of registered template engines ('name'=>'class name')
@@ -755,7 +755,6 @@ if(! class_exists('App')) {
 		 * @return object Template Engine instance
 		 */
 		function template_engine($name = ''){
-			
 			if ($name!=="") {
 				$template_engine = $name;
 			} else {
@@ -764,6 +763,7 @@ if(! class_exists('App')) {
 					$template_engine = $this->theme['template_engine'];
 				}
 			}
+			
 			if (isset($this->template_engines[$template_engine])){
 				if(isset($this->template_engine_instance[$template_engine])){
 					return $this->template_engine_instance[$template_engine];
@@ -783,7 +783,8 @@ if(! class_exists('App')) {
 		}
 
 		function set_template_engine($engine = 'smarty3') {
-
+			$this->theme['template_engine'] = $engine;
+			/*
 			$this->theme['template_engine'] = 'smarty3';
 
 			switch($engine) {
@@ -794,6 +795,7 @@ if(! class_exists('App')) {
 				default:
 					break;
 			}
+			*/
 		}
 
 		function get_template_ldelim($engine = 'smarty3') {

@@ -570,28 +570,6 @@ function get_markup_template($s, $root = '') {
 	$a->save_timestamp($stamp1, "file");
 	
 	return $template;
-	/*
-
-	if($a->theme['template_engine'] === 'smarty3') {
-		$template_file = get_template_file($a, 'smarty3/' . $s, $root);
-
-		$template = new FriendicaSmarty();
-		$template->filename = $template_file;
-		$a->save_timestamp($stamp1, "rendering");
-
-		return $template;
-	}
-	else {
-		$template_file = get_template_file($a, $s, $root);
-		$a->save_timestamp($stamp1, "rendering");
-
-		$stamp1 = microtime(true);
-		$content = file_get_contents($template_file);
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-
-	}
-	 */
 }}
 
 if(! function_exists("get_template_file")) {
@@ -613,6 +591,8 @@ function get_template_file($a, $filename, $root = '') {
 		$template_file = "{$root}view/theme/$theme/$filename";
 	elseif (x($a->theme_info,"extends") && file_exists("{$root}view/theme/{$a->theme_info["extends"]}/$filename"))
 		$template_file = "{$root}view/theme/{$a->theme_info["extends"]}/$filename";
+	elseif (file_exists("{$root}/$filename"))
+		$template_file = "{$root}/$filename";
 	else
 		$template_file = "{$root}view/$filename";
 
