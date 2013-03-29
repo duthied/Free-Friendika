@@ -291,9 +291,9 @@ blockquote.shared_content {
 body {
   font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  /* background-color: #ffffff; */
+  background-color: #ffffff;
   /* background-color: #ddd; */
-  background-color: #F2F2F2;
+  /* background-color: #F2F2F2; */
   color: #2d2d2d;
   /* margin: 37px 0px 0px 0px; */
   margin: 0px 0px 0px 0px;
