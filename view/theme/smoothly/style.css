@@ -1,8 +1,8 @@
 /*
   	style.css
-  	Smoothly
-   
-	Created by alex@friendica.pixelbits.de on 2013-03-27
+  	Theme: Smoothly
+	Maintainer: alex@friendica.pixelbits.de
+	last change: 2013-04-01
 
 ** Colors ** 
 Blue links - #1873a2
@@ -15,6 +15,28 @@ Orange - #fec01d
 */
 
 @import url('css/typography.css');
+
+@media only screen and (device-width: 768px) {
+/* For general iPad layouts */
+#page {
+	-moz-background-clip: border; 
+	-moz-background-origin: pdading; 
+	-moz-background-size: auto auto; 
+	background-attachment: scroll; 
+	background-color: transparent; 
+	background-image: url( ); 
+	background-position: center top; 
+	background-repeat: no-repeat;
+	} 
+}
+
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+/* For portrait layouts only */
+}
+	 
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
+/* For landscape layouts only */
+}
 
 .lockview {
 	cursor: pointer;
@@ -128,15 +150,15 @@ section {
 }
 
 .mframe {
-	padding: 0;
-	/*background: none repeat scroll 0 0 #FFFFFF;
+	padding: 1px;
+	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
-		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 #wall-item-lock {
@@ -1047,6 +1069,14 @@ ul .sidebar-group-li .icon {
 /* = Jot = */
 /* ======= */
 
+.jothidden {
+  display: none;
+}
+#jot {
+  width: 100%;
+  margin: 0px 2em 20px 0px;
+}
+
 #profile-jot-text-loading,
 #profile-jot-text {
 	height: 20px;
@@ -1094,10 +1124,6 @@ ul .sidebar-group-li .icon {
 #jot-category:hover,
 #jot-category:focus {
 	border: 1px solid #cccccc;
-}
-
-.jothidden {
-	display: none; 
 }
 
 .preview {
@@ -1244,11 +1270,12 @@ ul .sidebar-group-li .icon {
 	border-bottom: 0px;
 	padding: 5px;
 }
+
 #profile-jot-acl-wrapper {
 	margin: 0px 10px;
 	border: 1px solid #eeeeee;
 	border-top: 0px;
-    display:block!important;
+    	display: block !important;
 }
 
 #profile-video-wrapper,
@@ -1427,14 +1454,13 @@ ul .sidebar-group-li .icon {
 }
 
 .wall-item-photo { 
-
-	border: 1px solid #7C7D7B;
-	border-radius: 5px;
-		-webkit-border-radius: 5px;
-		-moz-border-radius: 5px;
-	box-shadow: 0 0 8px #BDBDBD;
+	border: 0px solid #7C7D7B;
+	border-radius: 2px;
+		-webkit-border-radius: 2px;
+		-moz-border-radius: 2px;
+	/*box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
-		-webkit-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
 }
 
 .wall-item-tools { 
@@ -1534,7 +1560,8 @@ ul .sidebar-group-li .icon {
 
 .wall-item-body img { 
 	max-width: 100%; 
-	height: auto; 
+	height: auto;
+	border-radius: 0;
 }
 
 .wall-item-body p {
@@ -1747,11 +1774,17 @@ code {
 .wall-item-outside-wrapper.comment .wall-item-photo {
 	width: 40px!important;
 	height: 40px!important;
+	border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-wrapper {
 	width: 40px; 
-	height: 40px; 
+	height: 40px;
+	border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-menu-button {
@@ -3774,7 +3807,7 @@ margin-left: 0px;
 .sparkle {
 	cursor: url('lock.cur'), pointer;
 	width: 100%;
-	height: 100%;
+	height: auto;
 	/*border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
