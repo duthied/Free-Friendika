@@ -24,13 +24,43 @@ function last_insert_id(){
     return $db->error;
  }
  
+ /**
+  * Remove columns from array $arr that aren't in table $table
+  * 
+  * @param string $table Table name
+  * @param array &$arr Column=>Value array from json (by ref)
+  */
+ function check_cols($table, &$arr){
+ 	$query = sprintf("SHOW COLUMNS IN `%s`", dbesc($table));
+ 	logger("uimport: $query", LOGGER_DEBUG);
+	$r = q($query);
+	$tcols = array();
+	// get a plain array of column names
+	foreach($r as $tcol) {
+		$tcols[] = $tcol['Field'];
+	}
+	// remove inexistent columns
+	foreach($arr as $icol=>$ival) {
+		if (!in_array($icol, $tcols)) {
+			unset($arr[$icol]);
+		}
+	}
+ }
+ 
+ /**
+  * Import data into table $table
+  * 
+  * @param string $table Table name
+  * @param array $arr Column=>Value array from json
+  */
  function db_import_assoc($table, $arr){
-    if (IMPORT_DEBUG) return true;
     if (isset($arr['id'])) unset($arr['id']);
+    check_cols($table, $arr);
     $cols = implode("`,`", array_map('dbesc', array_keys($arr)));
     $vals = implode("','", array_map('dbesc', array_values($arr)));
     $query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
     logger("uimport: $query",LOGGER_TRACE);
+    if (IMPORT_DEBUG) return true;
     return q($query);
  }
 
