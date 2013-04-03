@@ -94,14 +94,14 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		}
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-		$url_parsed = @parse_url($newurl);
-		if (isset($url_parsed)) {
+		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 			$redirects++;
 			return fetch_url($newurl,$binary,$redirects,$timeout);
 		}
 	}
 
 	$a->set_curl_code($http_code);
+	$a->set_curl_content_type($curl_info['content_type']);
 
 	$body = substr($s,strlen($header));
 	$a->set_curl_headers($header);
@@ -189,8 +189,7 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
         $newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
-        $url_parsed = @parse_url($newurl);
-        if (isset($url_parsed)) {
+        if (filter_var($newurl, FILTER_VALIDATE_URL)) {
             $redirects++;
             return fetch_url($newurl,false,$redirects,$timeout);
         }
