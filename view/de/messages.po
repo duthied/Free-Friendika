@@ -25,8 +25,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-03-19 03:30-0700\n"
-"PO-Revision-Date: 2013-03-28 06:48+0000\n"
+"POT-Creation-Date: 2013-04-03 00:02-0700\n"
+"PO-Revision-Date: 2013-04-04 15:25+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -2208,7 +2208,7 @@ msgstr "Navigation"
 msgid "Site map"
 msgstr "Sitemap"
 
-#: ../../include/network.php:875
+#: ../../include/network.php:876
 msgid "view full size"
 msgstr "Volle Größe anzeigen"
 
@@ -2430,18 +2430,18 @@ msgstr "Profil bearbeiten"
 #: ../../mod/profiles.php:626 ../../mod/contacts.php:386
 #: ../../mod/settings.php:560 ../../mod/settings.php:670
 #: ../../mod/settings.php:739 ../../mod/settings.php:811
-#: ../../mod/settings.php:1037 ../../mod/crepair.php:166
-#: ../../mod/poke.php:199 ../../mod/admin.php:480 ../../mod/admin.php:751
+#: ../../mod/settings.php:1037 ../../mod/admin.php:480 ../../mod/admin.php:751
 #: ../../mod/admin.php:890 ../../mod/admin.php:1090 ../../mod/admin.php:1177
-#: ../../mod/events.php:478 ../../mod/fsuggest.php:107 ../../mod/group.php:87
-#: ../../mod/invite.php:140 ../../mod/localtime.php:45
-#: ../../mod/manage.php:110 ../../mod/message.php:335
-#: ../../mod/message.php:564 ../../mod/mood.php:137 ../../mod/photos.php:1078
-#: ../../mod/photos.php:1199 ../../mod/photos.php:1501
-#: ../../mod/photos.php:1552 ../../mod/photos.php:1596
-#: ../../mod/photos.php:1679 ../../mod/install.php:248
-#: ../../mod/install.php:286 ../../mod/content.php:733
-#: ../../object/Item.php:653 ../../view/theme/cleanzero/config.php:80
+#: ../../mod/crepair.php:166 ../../mod/poke.php:199 ../../mod/events.php:478
+#: ../../mod/fsuggest.php:107 ../../mod/group.php:87 ../../mod/invite.php:140
+#: ../../mod/localtime.php:45 ../../mod/manage.php:110
+#: ../../mod/message.php:335 ../../mod/message.php:564 ../../mod/mood.php:137
+#: ../../mod/photos.php:1078 ../../mod/photos.php:1199
+#: ../../mod/photos.php:1501 ../../mod/photos.php:1552
+#: ../../mod/photos.php:1596 ../../mod/photos.php:1679
+#: ../../mod/install.php:248 ../../mod/install.php:286
+#: ../../mod/content.php:733 ../../object/Item.php:653
+#: ../../view/theme/cleanzero/config.php:80
 #: ../../view/theme/diabook/config.php:152
 #: ../../view/theme/diabook/theme.php:642 ../../view/theme/dispy/config.php:70
 #: ../../view/theme/quattro/config.php:64
@@ -3378,7 +3378,7 @@ msgid "Add application"
 msgstr "Programm hinzufügen"
 
 #: ../../mod/settings.php:562 ../../mod/settings.php:588
-#: ../../mod/crepair.php:148 ../../mod/admin.php:754 ../../mod/admin.php:765
+#: ../../mod/admin.php:754 ../../mod/admin.php:765 ../../mod/crepair.php:148
 msgid "Name"
 msgstr "Name"
 
@@ -3844,431 +3844,6 @@ msgstr "Erweiterte Konto-/Seitentyp-Einstellungen"
 #: ../../mod/settings.php:1109
 msgid "Change the behaviour of this account for special situations"
 msgstr "Verhalten dieses Kontos in bestimmten Situationen:"
-
-#: ../../mod/share.php:44
-msgid "link"
-msgstr "Link"
-
-#: ../../mod/crepair.php:102
-msgid "Contact settings applied."
-msgstr "Einstellungen zum Kontakt angewandt."
-
-#: ../../mod/crepair.php:104
-msgid "Contact update failed."
-msgstr "Konnte den Kontakt nicht aktualisieren."
-
-#: ../../mod/crepair.php:129 ../../mod/dfrn_confirm.php:118
-#: ../../mod/fsuggest.php:20 ../../mod/fsuggest.php:92
-msgid "Contact not found."
-msgstr "Kontakt nicht gefunden."
-
-#: ../../mod/crepair.php:135
-msgid "Repair Contact Settings"
-msgstr "Kontakteinstellungen reparieren"
-
-#: ../../mod/crepair.php:137
-msgid ""
-"<strong>WARNING: This is highly advanced</strong> and if you enter incorrect"
-" information your communications with this contact may stop working."
-msgstr "<strong>ACHTUNG: Das sind Experten-Einstellungen!</strong> Wenn du etwas Falsches eingibst, funktioniert die Kommunikation mit diesem Kontakt evtl. nicht mehr."
-
-#: ../../mod/crepair.php:138
-msgid ""
-"Please use your browser 'Back' button <strong>now</strong> if you are "
-"uncertain what to do on this page."
-msgstr "Bitte nutze den Zurück-Button deines Browsers <strong>jetzt</strong>, wenn du dir unsicher bist, was du tun willst."
-
-#: ../../mod/crepair.php:144
-msgid "Return to contact editor"
-msgstr "Zurück zum Kontakteditor"
-
-#: ../../mod/crepair.php:149
-msgid "Account Nickname"
-msgstr "Konto-Spitzname"
-
-#: ../../mod/crepair.php:150
-msgid "@Tagname - overrides Name/Nickname"
-msgstr "@Tagname - überschreibt Name/Spitzname"
-
-#: ../../mod/crepair.php:151
-msgid "Account URL"
-msgstr "Konto-URL"
-
-#: ../../mod/crepair.php:152
-msgid "Friend Request URL"
-msgstr "URL für Freundschaftsanfragen"
-
-#: ../../mod/crepair.php:153
-msgid "Friend Confirm URL"
-msgstr "URL für Bestätigungen von Freundschaftsanfragen"
-
-#: ../../mod/crepair.php:154
-msgid "Notification Endpoint URL"
-msgstr "URL-Endpunkt für Benachrichtigungen"
-
-#: ../../mod/crepair.php:155
-msgid "Poll/Feed URL"
-msgstr "Pull/Feed-URL"
-
-#: ../../mod/crepair.php:156
-msgid "New photo from this URL"
-msgstr "Neues Foto von dieser URL"
-
-#: ../../mod/delegate.php:95
-msgid "No potential page delegates located."
-msgstr "Keine potentiellen Bevollmächtigten für die Seite gefunden."
-
-#: ../../mod/delegate.php:123
-msgid ""
-"Delegates are able to manage all aspects of this account/page except for "
-"basic account settings. Please do not delegate your personal account to "
-"anybody that you do not trust completely."
-msgstr "Bevollmächtigte sind in der Lage, alle Aspekte dieses Kontos/dieser Seite zu verwalten, abgesehen von den Grundeinstellungen des Kontos. Bitte gib niemandem eine Bevollmächtigung für deinen privaten Account, dem du nicht absolut vertraust!"
-
-#: ../../mod/delegate.php:124
-msgid "Existing Page Managers"
-msgstr "Vorhandene Seiten Manager"
-
-#: ../../mod/delegate.php:126
-msgid "Existing Page Delegates"
-msgstr "Vorhandene Bevollmächtigte für die Seite"
-
-#: ../../mod/delegate.php:128
-msgid "Potential Delegates"
-msgstr "Potentielle Bevollmächtigte"
-
-#: ../../mod/delegate.php:130 ../../mod/tagrm.php:93
-msgid "Remove"
-msgstr "Entfernen"
-
-#: ../../mod/delegate.php:131
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: ../../mod/delegate.php:132
-msgid "No entries."
-msgstr "Keine Einträge"
-
-#: ../../mod/poke.php:192
-msgid "Poke/Prod"
-msgstr "Anstupsen etc."
-
-#: ../../mod/poke.php:193
-msgid "poke, prod or do other things to somebody"
-msgstr "Stupse Leute an oder mache anderes mit ihnen"
-
-#: ../../mod/poke.php:194
-msgid "Recipient"
-msgstr "Empfänger"
-
-#: ../../mod/poke.php:195
-msgid "Choose what you wish to do to recipient"
-msgstr "Was willst du mit dem Empfänger machen:"
-
-#: ../../mod/poke.php:198
-msgid "Make this post private"
-msgstr "Diesen Beitrag privat machen"
-
-#: ../../mod/dfrn_confirm.php:119
-msgid ""
-"This may occasionally happen if contact was requested by both persons and it"
-" has already been approved."
-msgstr "Das kann passieren, wenn sich zwei Kontakte gegenseitig eingeladen haben und bereits einer angenommen wurde."
-
-#: ../../mod/dfrn_confirm.php:237
-msgid "Response from remote site was not understood."
-msgstr "Antwort der Gegenstelle unverständlich."
-
-#: ../../mod/dfrn_confirm.php:246
-msgid "Unexpected response from remote site: "
-msgstr "Unerwartete Antwort der Gegenstelle: "
-
-#: ../../mod/dfrn_confirm.php:254
-msgid "Confirmation completed successfully."
-msgstr "Bestätigung erfolgreich abgeschlossen."
-
-#: ../../mod/dfrn_confirm.php:256 ../../mod/dfrn_confirm.php:270
-#: ../../mod/dfrn_confirm.php:277
-msgid "Remote site reported: "
-msgstr "Gegenstelle meldet: "
-
-#: ../../mod/dfrn_confirm.php:268
-msgid "Temporary failure. Please wait and try again."
-msgstr "Zeitweiser Fehler. Bitte warte einige Momente und versuche es dann noch einmal."
-
-#: ../../mod/dfrn_confirm.php:275
-msgid "Introduction failed or was revoked."
-msgstr "Kontaktanfrage schlug fehl oder wurde zurückgezogen."
-
-#: ../../mod/dfrn_confirm.php:420
-msgid "Unable to set contact photo."
-msgstr "Konnte das Bild des Kontakts nicht speichern."
-
-#: ../../mod/dfrn_confirm.php:562
-#, php-format
-msgid "No user record found for '%s' "
-msgstr "Für '%s' wurde kein Nutzer gefunden"
-
-#: ../../mod/dfrn_confirm.php:572
-msgid "Our site encryption key is apparently messed up."
-msgstr "Der Verschlüsselungsschlüssel unserer Seite ist anscheinend nicht in Ordnung."
-
-#: ../../mod/dfrn_confirm.php:583
-msgid "Empty site URL was provided or URL could not be decrypted by us."
-msgstr "Leere URL für die Seite erhalten oder die URL konnte nicht entschlüsselt werden."
-
-#: ../../mod/dfrn_confirm.php:604
-msgid "Contact record was not found for you on our site."
-msgstr "Für diesen Kontakt wurde auf unserer Seite kein Eintrag gefunden."
-
-#: ../../mod/dfrn_confirm.php:618
-#, php-format
-msgid "Site public key not available in contact record for URL %s."
-msgstr "Die Kontaktdaten für URL %s enthalten keinen Public Key für den Server."
-
-#: ../../mod/dfrn_confirm.php:638
-msgid ""
-"The ID provided by your system is a duplicate on our system. It should work "
-"if you try again."
-msgstr "Die ID, die uns dein System angeboten hat, ist hier bereits vergeben. Bitte versuche es noch einmal."
-
-#: ../../mod/dfrn_confirm.php:649
-msgid "Unable to set your contact credentials on our system."
-msgstr "Deine Kontaktreferenzen konnten nicht in unserem System gespeichert werden."
-
-#: ../../mod/dfrn_confirm.php:716
-msgid "Unable to update your contact profile details on our system"
-msgstr "Die Updates für dein Profil konnten nicht gespeichert werden"
-
-#: ../../mod/dfrn_confirm.php:751
-#, php-format
-msgid "Connection accepted at %s"
-msgstr "Auf %s wurde die Verbindung akzeptiert"
-
-#: ../../mod/dfrn_confirm.php:800
-#, php-format
-msgid "%1$s has joined %2$s"
-msgstr "%1$s ist %2$s beigetreten"
-
-#: ../../mod/dfrn_poll.php:101 ../../mod/dfrn_poll.php:534
-#, php-format
-msgid "%1$s welcomes %2$s"
-msgstr "%1$s heißt %2$s herzlich willkommen"
-
-#: ../../mod/dfrn_request.php:93
-msgid "This introduction has already been accepted."
-msgstr "Diese Kontaktanfrage wurde bereits akzeptiert."
-
-#: ../../mod/dfrn_request.php:118 ../../mod/dfrn_request.php:513
-msgid "Profile location is not valid or does not contain profile information."
-msgstr "Profiladresse ist ungültig oder stellt einige Profildaten nicht zur Verfügung."
-
-#: ../../mod/dfrn_request.php:123 ../../mod/dfrn_request.php:518
-msgid "Warning: profile location has no identifiable owner name."
-msgstr "Warnung: Es konnte kein Name des Besitzers von der angegebenen Profiladresse gefunden werden."
-
-#: ../../mod/dfrn_request.php:125 ../../mod/dfrn_request.php:520
-msgid "Warning: profile location has no profile photo."
-msgstr "Warnung: Es konnte kein Profilbild bei der angegebenen Profiladresse gefunden werden."
-
-#: ../../mod/dfrn_request.php:128 ../../mod/dfrn_request.php:523
-#, php-format
-msgid "%d required parameter was not found at the given location"
-msgid_plural "%d required parameters were not found at the given location"
-msgstr[0] "%d benötigter Parameter wurde an der angegebenen Stelle nicht gefunden"
-msgstr[1] "%d benötigte Parameter wurden an der angegebenen Stelle nicht gefunden"
-
-#: ../../mod/dfrn_request.php:170
-msgid "Introduction complete."
-msgstr "Kontaktanfrage abgeschlossen."
-
-#: ../../mod/dfrn_request.php:209
-msgid "Unrecoverable protocol error."
-msgstr "Nicht behebbarer Protokollfehler."
-
-#: ../../mod/dfrn_request.php:237
-msgid "Profile unavailable."
-msgstr "Profil nicht verfügbar."
-
-#: ../../mod/dfrn_request.php:262
-#, php-format
-msgid "%s has received too many connection requests today."
-msgstr "%s hat heute zu viele Freundschaftsanfragen erhalten."
-
-#: ../../mod/dfrn_request.php:263
-msgid "Spam protection measures have been invoked."
-msgstr "Maßnahmen zum Spamschutz wurden ergriffen."
-
-#: ../../mod/dfrn_request.php:264
-msgid "Friends are advised to please try again in 24 hours."
-msgstr "Freunde sind angehalten, es in 24 Stunden erneut zu versuchen."
-
-#: ../../mod/dfrn_request.php:326
-msgid "Invalid locator"
-msgstr "Ungültiger Locator"
-
-#: ../../mod/dfrn_request.php:335
-msgid "Invalid email address."
-msgstr "Ungültige E-Mail Adresse."
-
-#: ../../mod/dfrn_request.php:362
-msgid "This account has not been configured for email. Request failed."
-msgstr "Dieses Konto ist nicht für E-Mail konfiguriert. Anfrage fehlgeschlagen."
-
-#: ../../mod/dfrn_request.php:458
-msgid "Unable to resolve your name at the provided location."
-msgstr "Konnte deinen Namen an der angegebenen Stelle nicht finden."
-
-#: ../../mod/dfrn_request.php:471
-msgid "You have already introduced yourself here."
-msgstr "Du hast dich hier bereits vorgestellt."
-
-#: ../../mod/dfrn_request.php:475
-#, php-format
-msgid "Apparently you are already friends with %s."
-msgstr "Es scheint so, als ob du bereits mit %s befreundet bist."
-
-#: ../../mod/dfrn_request.php:496
-msgid "Invalid profile URL."
-msgstr "Ungültige Profil-URL."
-
-#: ../../mod/dfrn_request.php:592
-msgid "Your introduction has been sent."
-msgstr "Deine Kontaktanfrage wurde gesendet."
-
-#: ../../mod/dfrn_request.php:645
-msgid "Please login to confirm introduction."
-msgstr "Bitte melde dich an, um die Kontaktanfrage zu bestätigen."
-
-#: ../../mod/dfrn_request.php:659
-msgid ""
-"Incorrect identity currently logged in. Please login to "
-"<strong>this</strong> profile."
-msgstr "Momentan bist du mit einer anderen Identität angemeldet. Bitte melde Dich mit <strong>diesem</strong> Profil an."
-
-#: ../../mod/dfrn_request.php:670
-msgid "Hide this contact"
-msgstr "Verberge diesen Kontakt"
-
-#: ../../mod/dfrn_request.php:673
-#, php-format
-msgid "Welcome home %s."
-msgstr "Willkommen zurück %s."
-
-#: ../../mod/dfrn_request.php:674
-#, php-format
-msgid "Please confirm your introduction/connection request to %s."
-msgstr "Bitte bestätige deine Kontaktanfrage bei %s."
-
-#: ../../mod/dfrn_request.php:675
-msgid "Confirm"
-msgstr "Bestätigen"
-
-#: ../../mod/dfrn_request.php:811
-msgid ""
-"Please enter your 'Identity Address' from one of the following supported "
-"communications networks:"
-msgstr "Bitte gib die Adresse deines Profils in einem der unterstützten sozialen Netzwerke an:"
-
-#: ../../mod/dfrn_request.php:827
-msgid "<strike>Connect as an email follower</strike> (Coming soon)"
-msgstr "<strike>Als E-Mail-Kontakt verbinden</strike> (In Kürze verfügbar)"
-
-#: ../../mod/dfrn_request.php:829
-msgid ""
-"If you are not yet a member of the free social web, <a "
-"href=\"http://dir.friendica.com/siteinfo\">follow this link to find a public"
-" Friendica site and join us today</a>."
-msgstr "Wenn du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href=\"http://dir.friendica.com/siteinfo\">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
-
-#: ../../mod/dfrn_request.php:832
-msgid "Friend/Connection Request"
-msgstr "Freundschafts-/Kontaktanfrage"
-
-#: ../../mod/dfrn_request.php:833
-msgid ""
-"Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, "
-"testuser@identi.ca"
-msgstr "Beispiele: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca"
-
-#: ../../mod/dfrn_request.php:834
-msgid "Please answer the following:"
-msgstr "Bitte beantworte Folgendes:"
-
-#: ../../mod/dfrn_request.php:835
-#, php-format
-msgid "Does %s know you?"
-msgstr "Kennt %s dich?"
-
-#: ../../mod/dfrn_request.php:838
-msgid "Add a personal note:"
-msgstr "Eine persönliche Notiz beifügen:"
-
-#: ../../mod/dfrn_request.php:841
-msgid "StatusNet/Federated Social Web"
-msgstr "StatusNet/Federated Social Web"
-
-#: ../../mod/dfrn_request.php:843
-#, php-format
-msgid ""
-" - please do not use this form.  Instead, enter %s into your Diaspora search"
-" bar."
-msgstr " - bitte verwende dieses Formular nicht. Stattdessen suche nach %s in deiner Diaspora Suchleiste."
-
-#: ../../mod/dfrn_request.php:844
-msgid "Your Identity Address:"
-msgstr "Adresse deines Profils:"
-
-#: ../../mod/dfrn_request.php:847
-msgid "Submit Request"
-msgstr "Anfrage abschicken"
-
-#: ../../mod/subthread.php:103
-#, php-format
-msgid "%1$s is following %2$s's %3$s"
-msgstr "%1$s folgt %2$s %3$s"
-
-#: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
-msgid "Global Directory"
-msgstr "Weltweites Verzeichnis"
-
-#: ../../mod/directory.php:57
-msgid "Find on this site"
-msgstr "Auf diesem Server suchen"
-
-#: ../../mod/directory.php:60
-msgid "Site Directory"
-msgstr "Verzeichnis"
-
-#: ../../mod/directory.php:114
-msgid "Gender: "
-msgstr "Geschlecht:"
-
-#: ../../mod/directory.php:187
-msgid "No entries (some entries may be hidden)."
-msgstr "Keine Einträge (einige Einträge könnten versteckt sein)."
-
-#: ../../mod/suggest.php:27
-msgid "Do you really want to delete this suggestion?"
-msgstr "Möchtest du wirklich diese Empfehlung löschen?"
-
-#: ../../mod/suggest.php:72
-msgid ""
-"No suggestions available. If this is a new site, please try again in 24 "
-"hours."
-msgstr "Keine Vorschläge. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
-
-#: ../../mod/suggest.php:90
-msgid "Ignore/Hide"
-msgstr "Ignorieren/Verbergen"
-
-#: ../../mod/dirfind.php:26
-msgid "People Search"
-msgstr "Personensuche"
-
-#: ../../mod/dirfind.php:60 ../../mod/match.php:65
-msgid "No matches"
-msgstr "Keine Übereinstimmungen"
 
 #: ../../mod/admin.php:55
 msgid "Theme settings updated."
@@ -4990,7 +4565,7 @@ msgid "Clear"
 msgstr "löschen"
 
 #: ../../mod/admin.php:1184
-msgid "Debugging"
+msgid "Enable Debugging"
 msgstr "Protokoll führen"
 
 #: ../../mod/admin.php:1185
@@ -5026,6 +4601,431 @@ msgstr "FTP Nutzername"
 #: ../../mod/admin.php:1245
 msgid "FTP Password"
 msgstr "FTP Passwort"
+
+#: ../../mod/share.php:44
+msgid "link"
+msgstr "Link"
+
+#: ../../mod/crepair.php:102
+msgid "Contact settings applied."
+msgstr "Einstellungen zum Kontakt angewandt."
+
+#: ../../mod/crepair.php:104
+msgid "Contact update failed."
+msgstr "Konnte den Kontakt nicht aktualisieren."
+
+#: ../../mod/crepair.php:129 ../../mod/dfrn_confirm.php:118
+#: ../../mod/fsuggest.php:20 ../../mod/fsuggest.php:92
+msgid "Contact not found."
+msgstr "Kontakt nicht gefunden."
+
+#: ../../mod/crepair.php:135
+msgid "Repair Contact Settings"
+msgstr "Kontakteinstellungen reparieren"
+
+#: ../../mod/crepair.php:137
+msgid ""
+"<strong>WARNING: This is highly advanced</strong> and if you enter incorrect"
+" information your communications with this contact may stop working."
+msgstr "<strong>ACHTUNG: Das sind Experten-Einstellungen!</strong> Wenn du etwas Falsches eingibst, funktioniert die Kommunikation mit diesem Kontakt evtl. nicht mehr."
+
+#: ../../mod/crepair.php:138
+msgid ""
+"Please use your browser 'Back' button <strong>now</strong> if you are "
+"uncertain what to do on this page."
+msgstr "Bitte nutze den Zurück-Button deines Browsers <strong>jetzt</strong>, wenn du dir unsicher bist, was du tun willst."
+
+#: ../../mod/crepair.php:144
+msgid "Return to contact editor"
+msgstr "Zurück zum Kontakteditor"
+
+#: ../../mod/crepair.php:149
+msgid "Account Nickname"
+msgstr "Konto-Spitzname"
+
+#: ../../mod/crepair.php:150
+msgid "@Tagname - overrides Name/Nickname"
+msgstr "@Tagname - überschreibt Name/Spitzname"
+
+#: ../../mod/crepair.php:151
+msgid "Account URL"
+msgstr "Konto-URL"
+
+#: ../../mod/crepair.php:152
+msgid "Friend Request URL"
+msgstr "URL für Freundschaftsanfragen"
+
+#: ../../mod/crepair.php:153
+msgid "Friend Confirm URL"
+msgstr "URL für Bestätigungen von Freundschaftsanfragen"
+
+#: ../../mod/crepair.php:154
+msgid "Notification Endpoint URL"
+msgstr "URL-Endpunkt für Benachrichtigungen"
+
+#: ../../mod/crepair.php:155
+msgid "Poll/Feed URL"
+msgstr "Pull/Feed-URL"
+
+#: ../../mod/crepair.php:156
+msgid "New photo from this URL"
+msgstr "Neues Foto von dieser URL"
+
+#: ../../mod/delegate.php:95
+msgid "No potential page delegates located."
+msgstr "Keine potentiellen Bevollmächtigten für die Seite gefunden."
+
+#: ../../mod/delegate.php:123
+msgid ""
+"Delegates are able to manage all aspects of this account/page except for "
+"basic account settings. Please do not delegate your personal account to "
+"anybody that you do not trust completely."
+msgstr "Bevollmächtigte sind in der Lage, alle Aspekte dieses Kontos/dieser Seite zu verwalten, abgesehen von den Grundeinstellungen des Kontos. Bitte gib niemandem eine Bevollmächtigung für deinen privaten Account, dem du nicht absolut vertraust!"
+
+#: ../../mod/delegate.php:124
+msgid "Existing Page Managers"
+msgstr "Vorhandene Seiten Manager"
+
+#: ../../mod/delegate.php:126
+msgid "Existing Page Delegates"
+msgstr "Vorhandene Bevollmächtigte für die Seite"
+
+#: ../../mod/delegate.php:128
+msgid "Potential Delegates"
+msgstr "Potentielle Bevollmächtigte"
+
+#: ../../mod/delegate.php:130 ../../mod/tagrm.php:93
+msgid "Remove"
+msgstr "Entfernen"
+
+#: ../../mod/delegate.php:131
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: ../../mod/delegate.php:132
+msgid "No entries."
+msgstr "Keine Einträge"
+
+#: ../../mod/poke.php:192
+msgid "Poke/Prod"
+msgstr "Anstupsen etc."
+
+#: ../../mod/poke.php:193
+msgid "poke, prod or do other things to somebody"
+msgstr "Stupse Leute an oder mache anderes mit ihnen"
+
+#: ../../mod/poke.php:194
+msgid "Recipient"
+msgstr "Empfänger"
+
+#: ../../mod/poke.php:195
+msgid "Choose what you wish to do to recipient"
+msgstr "Was willst du mit dem Empfänger machen:"
+
+#: ../../mod/poke.php:198
+msgid "Make this post private"
+msgstr "Diesen Beitrag privat machen"
+
+#: ../../mod/dfrn_confirm.php:119
+msgid ""
+"This may occasionally happen if contact was requested by both persons and it"
+" has already been approved."
+msgstr "Das kann passieren, wenn sich zwei Kontakte gegenseitig eingeladen haben und bereits einer angenommen wurde."
+
+#: ../../mod/dfrn_confirm.php:237
+msgid "Response from remote site was not understood."
+msgstr "Antwort der Gegenstelle unverständlich."
+
+#: ../../mod/dfrn_confirm.php:246
+msgid "Unexpected response from remote site: "
+msgstr "Unerwartete Antwort der Gegenstelle: "
+
+#: ../../mod/dfrn_confirm.php:254
+msgid "Confirmation completed successfully."
+msgstr "Bestätigung erfolgreich abgeschlossen."
+
+#: ../../mod/dfrn_confirm.php:256 ../../mod/dfrn_confirm.php:270
+#: ../../mod/dfrn_confirm.php:277
+msgid "Remote site reported: "
+msgstr "Gegenstelle meldet: "
+
+#: ../../mod/dfrn_confirm.php:268
+msgid "Temporary failure. Please wait and try again."
+msgstr "Zeitweiser Fehler. Bitte warte einige Momente und versuche es dann noch einmal."
+
+#: ../../mod/dfrn_confirm.php:275
+msgid "Introduction failed or was revoked."
+msgstr "Kontaktanfrage schlug fehl oder wurde zurückgezogen."
+
+#: ../../mod/dfrn_confirm.php:420
+msgid "Unable to set contact photo."
+msgstr "Konnte das Bild des Kontakts nicht speichern."
+
+#: ../../mod/dfrn_confirm.php:562
+#, php-format
+msgid "No user record found for '%s' "
+msgstr "Für '%s' wurde kein Nutzer gefunden"
+
+#: ../../mod/dfrn_confirm.php:572
+msgid "Our site encryption key is apparently messed up."
+msgstr "Der Verschlüsselungsschlüssel unserer Seite ist anscheinend nicht in Ordnung."
+
+#: ../../mod/dfrn_confirm.php:583
+msgid "Empty site URL was provided or URL could not be decrypted by us."
+msgstr "Leere URL für die Seite erhalten oder die URL konnte nicht entschlüsselt werden."
+
+#: ../../mod/dfrn_confirm.php:604
+msgid "Contact record was not found for you on our site."
+msgstr "Für diesen Kontakt wurde auf unserer Seite kein Eintrag gefunden."
+
+#: ../../mod/dfrn_confirm.php:618
+#, php-format
+msgid "Site public key not available in contact record for URL %s."
+msgstr "Die Kontaktdaten für URL %s enthalten keinen Public Key für den Server."
+
+#: ../../mod/dfrn_confirm.php:638
+msgid ""
+"The ID provided by your system is a duplicate on our system. It should work "
+"if you try again."
+msgstr "Die ID, die uns dein System angeboten hat, ist hier bereits vergeben. Bitte versuche es noch einmal."
+
+#: ../../mod/dfrn_confirm.php:649
+msgid "Unable to set your contact credentials on our system."
+msgstr "Deine Kontaktreferenzen konnten nicht in unserem System gespeichert werden."
+
+#: ../../mod/dfrn_confirm.php:716
+msgid "Unable to update your contact profile details on our system"
+msgstr "Die Updates für dein Profil konnten nicht gespeichert werden"
+
+#: ../../mod/dfrn_confirm.php:751
+#, php-format
+msgid "Connection accepted at %s"
+msgstr "Auf %s wurde die Verbindung akzeptiert"
+
+#: ../../mod/dfrn_confirm.php:800
+#, php-format
+msgid "%1$s has joined %2$s"
+msgstr "%1$s ist %2$s beigetreten"
+
+#: ../../mod/dfrn_poll.php:101 ../../mod/dfrn_poll.php:534
+#, php-format
+msgid "%1$s welcomes %2$s"
+msgstr "%1$s heißt %2$s herzlich willkommen"
+
+#: ../../mod/dfrn_request.php:93
+msgid "This introduction has already been accepted."
+msgstr "Diese Kontaktanfrage wurde bereits akzeptiert."
+
+#: ../../mod/dfrn_request.php:118 ../../mod/dfrn_request.php:513
+msgid "Profile location is not valid or does not contain profile information."
+msgstr "Profiladresse ist ungültig oder stellt einige Profildaten nicht zur Verfügung."
+
+#: ../../mod/dfrn_request.php:123 ../../mod/dfrn_request.php:518
+msgid "Warning: profile location has no identifiable owner name."
+msgstr "Warnung: Es konnte kein Name des Besitzers von der angegebenen Profiladresse gefunden werden."
+
+#: ../../mod/dfrn_request.php:125 ../../mod/dfrn_request.php:520
+msgid "Warning: profile location has no profile photo."
+msgstr "Warnung: Es konnte kein Profilbild bei der angegebenen Profiladresse gefunden werden."
+
+#: ../../mod/dfrn_request.php:128 ../../mod/dfrn_request.php:523
+#, php-format
+msgid "%d required parameter was not found at the given location"
+msgid_plural "%d required parameters were not found at the given location"
+msgstr[0] "%d benötigter Parameter wurde an der angegebenen Stelle nicht gefunden"
+msgstr[1] "%d benötigte Parameter wurden an der angegebenen Stelle nicht gefunden"
+
+#: ../../mod/dfrn_request.php:170
+msgid "Introduction complete."
+msgstr "Kontaktanfrage abgeschlossen."
+
+#: ../../mod/dfrn_request.php:209
+msgid "Unrecoverable protocol error."
+msgstr "Nicht behebbarer Protokollfehler."
+
+#: ../../mod/dfrn_request.php:237
+msgid "Profile unavailable."
+msgstr "Profil nicht verfügbar."
+
+#: ../../mod/dfrn_request.php:262
+#, php-format
+msgid "%s has received too many connection requests today."
+msgstr "%s hat heute zu viele Freundschaftsanfragen erhalten."
+
+#: ../../mod/dfrn_request.php:263
+msgid "Spam protection measures have been invoked."
+msgstr "Maßnahmen zum Spamschutz wurden ergriffen."
+
+#: ../../mod/dfrn_request.php:264
+msgid "Friends are advised to please try again in 24 hours."
+msgstr "Freunde sind angehalten, es in 24 Stunden erneut zu versuchen."
+
+#: ../../mod/dfrn_request.php:326
+msgid "Invalid locator"
+msgstr "Ungültiger Locator"
+
+#: ../../mod/dfrn_request.php:335
+msgid "Invalid email address."
+msgstr "Ungültige E-Mail Adresse."
+
+#: ../../mod/dfrn_request.php:362
+msgid "This account has not been configured for email. Request failed."
+msgstr "Dieses Konto ist nicht für E-Mail konfiguriert. Anfrage fehlgeschlagen."
+
+#: ../../mod/dfrn_request.php:458
+msgid "Unable to resolve your name at the provided location."
+msgstr "Konnte deinen Namen an der angegebenen Stelle nicht finden."
+
+#: ../../mod/dfrn_request.php:471
+msgid "You have already introduced yourself here."
+msgstr "Du hast dich hier bereits vorgestellt."
+
+#: ../../mod/dfrn_request.php:475
+#, php-format
+msgid "Apparently you are already friends with %s."
+msgstr "Es scheint so, als ob du bereits mit %s befreundet bist."
+
+#: ../../mod/dfrn_request.php:496
+msgid "Invalid profile URL."
+msgstr "Ungültige Profil-URL."
+
+#: ../../mod/dfrn_request.php:592
+msgid "Your introduction has been sent."
+msgstr "Deine Kontaktanfrage wurde gesendet."
+
+#: ../../mod/dfrn_request.php:645
+msgid "Please login to confirm introduction."
+msgstr "Bitte melde dich an, um die Kontaktanfrage zu bestätigen."
+
+#: ../../mod/dfrn_request.php:659
+msgid ""
+"Incorrect identity currently logged in. Please login to "
+"<strong>this</strong> profile."
+msgstr "Momentan bist du mit einer anderen Identität angemeldet. Bitte melde Dich mit <strong>diesem</strong> Profil an."
+
+#: ../../mod/dfrn_request.php:670
+msgid "Hide this contact"
+msgstr "Verberge diesen Kontakt"
+
+#: ../../mod/dfrn_request.php:673
+#, php-format
+msgid "Welcome home %s."
+msgstr "Willkommen zurück %s."
+
+#: ../../mod/dfrn_request.php:674
+#, php-format
+msgid "Please confirm your introduction/connection request to %s."
+msgstr "Bitte bestätige deine Kontaktanfrage bei %s."
+
+#: ../../mod/dfrn_request.php:675
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: ../../mod/dfrn_request.php:811
+msgid ""
+"Please enter your 'Identity Address' from one of the following supported "
+"communications networks:"
+msgstr "Bitte gib die Adresse deines Profils in einem der unterstützten sozialen Netzwerke an:"
+
+#: ../../mod/dfrn_request.php:827
+msgid "<strike>Connect as an email follower</strike> (Coming soon)"
+msgstr "<strike>Als E-Mail-Kontakt verbinden</strike> (In Kürze verfügbar)"
+
+#: ../../mod/dfrn_request.php:829
+msgid ""
+"If you are not yet a member of the free social web, <a "
+"href=\"http://dir.friendica.com/siteinfo\">follow this link to find a public"
+" Friendica site and join us today</a>."
+msgstr "Wenn du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href=\"http://dir.friendica.com/siteinfo\">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
+
+#: ../../mod/dfrn_request.php:832
+msgid "Friend/Connection Request"
+msgstr "Freundschafts-/Kontaktanfrage"
+
+#: ../../mod/dfrn_request.php:833
+msgid ""
+"Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, "
+"testuser@identi.ca"
+msgstr "Beispiele: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca"
+
+#: ../../mod/dfrn_request.php:834
+msgid "Please answer the following:"
+msgstr "Bitte beantworte Folgendes:"
+
+#: ../../mod/dfrn_request.php:835
+#, php-format
+msgid "Does %s know you?"
+msgstr "Kennt %s dich?"
+
+#: ../../mod/dfrn_request.php:838
+msgid "Add a personal note:"
+msgstr "Eine persönliche Notiz beifügen:"
+
+#: ../../mod/dfrn_request.php:841
+msgid "StatusNet/Federated Social Web"
+msgstr "StatusNet/Federated Social Web"
+
+#: ../../mod/dfrn_request.php:843
+#, php-format
+msgid ""
+" - please do not use this form.  Instead, enter %s into your Diaspora search"
+" bar."
+msgstr " - bitte verwende dieses Formular nicht. Stattdessen suche nach %s in deiner Diaspora Suchleiste."
+
+#: ../../mod/dfrn_request.php:844
+msgid "Your Identity Address:"
+msgstr "Adresse deines Profils:"
+
+#: ../../mod/dfrn_request.php:847
+msgid "Submit Request"
+msgstr "Anfrage abschicken"
+
+#: ../../mod/subthread.php:103
+#, php-format
+msgid "%1$s is following %2$s's %3$s"
+msgstr "%1$s folgt %2$s %3$s"
+
+#: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
+msgid "Global Directory"
+msgstr "Weltweites Verzeichnis"
+
+#: ../../mod/directory.php:57
+msgid "Find on this site"
+msgstr "Auf diesem Server suchen"
+
+#: ../../mod/directory.php:60
+msgid "Site Directory"
+msgstr "Verzeichnis"
+
+#: ../../mod/directory.php:114
+msgid "Gender: "
+msgstr "Geschlecht:"
+
+#: ../../mod/directory.php:187
+msgid "No entries (some entries may be hidden)."
+msgstr "Keine Einträge (einige Einträge könnten versteckt sein)."
+
+#: ../../mod/suggest.php:27
+msgid "Do you really want to delete this suggestion?"
+msgstr "Möchtest du wirklich diese Empfehlung löschen?"
+
+#: ../../mod/suggest.php:72
+msgid ""
+"No suggestions available. If this is a new site, please try again in 24 "
+"hours."
+msgstr "Keine Vorschläge. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
+
+#: ../../mod/suggest.php:90
+msgid "Ignore/Hide"
+msgstr "Ignorieren/Verbergen"
+
+#: ../../mod/dirfind.php:26
+msgid "People Search"
+msgstr "Personensuche"
+
+#: ../../mod/dirfind.php:60 ../../mod/match.php:65
+msgid "No matches"
+msgstr "Keine Übereinstimmungen"
 
 #: ../../mod/tagrm.php:41
 msgid "Tag removed"
