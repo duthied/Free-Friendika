@@ -489,10 +489,12 @@ function settings_post(&$a) {
 
 	$r = q("UPDATE `profile` 
 		SET `publish` = %d, 
+		`name` = '%s',
 		`net-publish` = %d,
 		`hide-friends` = %d
 		WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval($publish),
+		dbesc($username),
 		intval($net_publish),
 		intval($hide_friends),
 		intval(local_user())
