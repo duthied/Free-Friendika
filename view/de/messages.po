@@ -25,8 +25,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-04-03 00:02-0700\n"
-"PO-Revision-Date: 2013-04-04 15:25+0000\n"
+"POT-Creation-Date: 2013-04-04 00:02-0700\n"
+"PO-Revision-Date: 2013-04-06 06:22+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -38,7 +38,7 @@ msgstr ""
 #: ../../include/profile_advanced.php:7 ../../include/profile_advanced.php:84
 #: ../../include/nav.php:77 ../../mod/profperm.php:103
 #: ../../mod/newmember.php:32 ../../view/theme/diabook/theme.php:88
-#: ../../boot.php:1868
+#: ../../boot.php:1877
 msgid "Profile"
 msgstr "Profil"
 
@@ -47,7 +47,7 @@ msgid "Full Name:"
 msgstr "Kompletter Name:"
 
 #: ../../include/profile_advanced.php:17 ../../mod/directory.php:136
-#: ../../boot.php:1408
+#: ../../boot.php:1417
 msgid "Gender:"
 msgstr "Geschlecht:"
 
@@ -68,7 +68,7 @@ msgid "Age:"
 msgstr "Alter:"
 
 #: ../../include/profile_advanced.php:37 ../../mod/directory.php:138
-#: ../../boot.php:1411
+#: ../../boot.php:1420
 msgid "Status:"
 msgstr "Status:"
 
@@ -82,7 +82,7 @@ msgid "Sexual Preference:"
 msgstr "Sexuelle Vorlieben:"
 
 #: ../../include/profile_advanced.php:48 ../../mod/directory.php:140
-#: ../../boot.php:1413
+#: ../../boot.php:1422
 msgid "Homepage:"
 msgstr "Homepage:"
 
@@ -418,306 +418,306 @@ msgstr "Kontakt bearbeiten"
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
-#: ../../include/text.php:276
+#: ../../include/text.php:313
 msgid "prev"
 msgstr "vorige"
 
-#: ../../include/text.php:278
+#: ../../include/text.php:315
 msgid "first"
 msgstr "erste"
 
-#: ../../include/text.php:307
+#: ../../include/text.php:344
 msgid "last"
 msgstr "letzte"
 
-#: ../../include/text.php:310
+#: ../../include/text.php:347
 msgid "next"
 msgstr "nächste"
 
-#: ../../include/text.php:328
+#: ../../include/text.php:371
 msgid "newer"
 msgstr "neuer"
 
-#: ../../include/text.php:332
+#: ../../include/text.php:375
 msgid "older"
 msgstr "älter"
 
-#: ../../include/text.php:697
+#: ../../include/text.php:837
 msgid "No contacts"
 msgstr "Keine Kontakte"
 
-#: ../../include/text.php:706
+#: ../../include/text.php:846
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
 msgstr[0] "%d Kontakt"
 msgstr[1] "%d Kontakte"
 
-#: ../../include/text.php:718 ../../mod/viewcontacts.php:76
+#: ../../include/text.php:858 ../../mod/viewcontacts.php:76
 msgid "View Contacts"
 msgstr "Kontakte anzeigen"
 
-#: ../../include/text.php:778 ../../include/text.php:779
+#: ../../include/text.php:935 ../../include/text.php:936
 #: ../../include/nav.php:118 ../../mod/search.php:99
 msgid "Search"
 msgstr "Suche"
 
-#: ../../include/text.php:781 ../../mod/notes.php:63 ../../mod/filer.php:31
+#: ../../include/text.php:938 ../../mod/notes.php:63 ../../mod/filer.php:31
 msgid "Save"
 msgstr "Speichern"
 
-#: ../../include/text.php:819
+#: ../../include/text.php:987
 msgid "poke"
 msgstr "anstupsen"
 
-#: ../../include/text.php:819 ../../include/conversation.php:211
+#: ../../include/text.php:987 ../../include/conversation.php:211
 msgid "poked"
 msgstr "stupste"
 
-#: ../../include/text.php:820
+#: ../../include/text.php:988
 msgid "ping"
 msgstr "anpingen"
 
-#: ../../include/text.php:820
+#: ../../include/text.php:988
 msgid "pinged"
 msgstr "pingte"
 
-#: ../../include/text.php:821
+#: ../../include/text.php:989
 msgid "prod"
 msgstr "knuffen"
 
-#: ../../include/text.php:821
+#: ../../include/text.php:989
 msgid "prodded"
 msgstr "knuffte"
 
-#: ../../include/text.php:822
+#: ../../include/text.php:990
 msgid "slap"
 msgstr "ohrfeigen"
 
-#: ../../include/text.php:822
+#: ../../include/text.php:990
 msgid "slapped"
 msgstr "ohrfeigte"
 
-#: ../../include/text.php:823
+#: ../../include/text.php:991
 msgid "finger"
 msgstr "befummeln"
 
-#: ../../include/text.php:823
+#: ../../include/text.php:991
 msgid "fingered"
 msgstr "befummelte"
 
-#: ../../include/text.php:824
+#: ../../include/text.php:992
 msgid "rebuff"
 msgstr "eine Abfuhr erteilen"
 
-#: ../../include/text.php:824
+#: ../../include/text.php:992
 msgid "rebuffed"
 msgstr "abfuhrerteilte"
 
-#: ../../include/text.php:836
+#: ../../include/text.php:1006
 msgid "happy"
 msgstr "glücklich"
 
-#: ../../include/text.php:837
+#: ../../include/text.php:1007
 msgid "sad"
 msgstr "traurig"
 
-#: ../../include/text.php:838
+#: ../../include/text.php:1008
 msgid "mellow"
 msgstr "sanft"
 
-#: ../../include/text.php:839
+#: ../../include/text.php:1009
 msgid "tired"
 msgstr "müde"
 
-#: ../../include/text.php:840
+#: ../../include/text.php:1010
 msgid "perky"
 msgstr "frech"
 
-#: ../../include/text.php:841
+#: ../../include/text.php:1011
 msgid "angry"
 msgstr "sauer"
 
-#: ../../include/text.php:842
+#: ../../include/text.php:1012
 msgid "stupified"
 msgstr "verblüfft"
 
-#: ../../include/text.php:843
+#: ../../include/text.php:1013
 msgid "puzzled"
 msgstr "verwirrt"
 
-#: ../../include/text.php:844
+#: ../../include/text.php:1014
 msgid "interested"
 msgstr "interessiert"
 
-#: ../../include/text.php:845
+#: ../../include/text.php:1015
 msgid "bitter"
 msgstr "verbittert"
 
-#: ../../include/text.php:846
+#: ../../include/text.php:1016
 msgid "cheerful"
 msgstr "fröhlich"
 
-#: ../../include/text.php:847
+#: ../../include/text.php:1017
 msgid "alive"
 msgstr "lebendig"
 
-#: ../../include/text.php:848
+#: ../../include/text.php:1018
 msgid "annoyed"
 msgstr "verärgert"
 
-#: ../../include/text.php:849
+#: ../../include/text.php:1019
 msgid "anxious"
 msgstr "unruhig"
 
-#: ../../include/text.php:850
+#: ../../include/text.php:1020
 msgid "cranky"
 msgstr "schrullig"
 
-#: ../../include/text.php:851
+#: ../../include/text.php:1021
 msgid "disturbed"
 msgstr "verstört"
 
-#: ../../include/text.php:852
+#: ../../include/text.php:1022
 msgid "frustrated"
 msgstr "frustriert"
 
-#: ../../include/text.php:853
+#: ../../include/text.php:1023
 msgid "motivated"
 msgstr "motiviert"
 
-#: ../../include/text.php:854
+#: ../../include/text.php:1024
 msgid "relaxed"
 msgstr "entspannt"
 
-#: ../../include/text.php:855
+#: ../../include/text.php:1025
 msgid "surprised"
 msgstr "überrascht"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Monday"
 msgstr "Montag"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Tuesday"
 msgstr "Dienstag"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Wednesday"
 msgstr "Mittwoch"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Thursday"
 msgstr "Donnerstag"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Friday"
 msgstr "Freitag"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Saturday"
 msgstr "Samstag"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1191
 msgid "Sunday"
 msgstr "Sonntag"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "January"
 msgstr "Januar"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "February"
 msgstr "Februar"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "March"
 msgstr "März"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "April"
 msgstr "April"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "May"
 msgstr "Mai"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "June"
 msgstr "Juni"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "July"
 msgstr "Juli"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "August"
 msgstr "August"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "September"
 msgstr "September"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "October"
 msgstr "Oktober"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "November"
 msgstr "November"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1195
 msgid "December"
 msgstr "Dezember"
 
-#: ../../include/text.php:1153
+#: ../../include/text.php:1352
 msgid "bytes"
 msgstr "Byte"
 
-#: ../../include/text.php:1180 ../../include/text.php:1192
+#: ../../include/text.php:1379 ../../include/text.php:1391
 msgid "Click to open/close"
 msgstr "Zum öffnen/schließen klicken"
 
-#: ../../include/text.php:1333 ../../mod/events.php:335
+#: ../../include/text.php:1553 ../../mod/events.php:335
 msgid "link to source"
 msgstr "Link zum Originalbeitrag"
 
-#: ../../include/text.php:1365 ../../include/user.php:237
+#: ../../include/text.php:1596 ../../include/user.php:237
 msgid "default"
 msgstr "Standard"
 
-#: ../../include/text.php:1377
+#: ../../include/text.php:1608
 msgid "Select an alternate language"
 msgstr "Alternative Sprache auswählen"
 
-#: ../../include/text.php:1583 ../../include/conversation.php:118
+#: ../../include/text.php:1860 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
 msgstr "Veranstaltung"
 
-#: ../../include/text.php:1585 ../../include/diaspora.php:1874
+#: ../../include/text.php:1862 ../../include/diaspora.php:1874
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
 #: ../../view/theme/diabook/theme.php:464
 msgid "photo"
 msgstr "Foto"
 
-#: ../../include/text.php:1587
+#: ../../include/text.php:1864
 msgid "activity"
 msgstr "Aktivität"
 
-#: ../../include/text.php:1589 ../../mod/content.php:628
+#: ../../include/text.php:1866 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] "Kommentar"
 
-#: ../../include/text.php:1590
+#: ../../include/text.php:1867
 msgid "post"
 msgstr "Beitrag"
 
-#: ../../include/text.php:1745
+#: ../../include/text.php:2022
 msgid "Item filed"
 msgstr "Beitrag abgelegt"
 
@@ -808,7 +808,7 @@ msgid "Finishes:"
 msgstr "Endet:"
 
 #: ../../include/bb2diaspora.php:415 ../../include/event.php:40
-#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1406
+#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1415
 msgid "Location:"
 msgstr "Ort:"
 
@@ -973,19 +973,19 @@ msgstr "OK, wahrscheinlich harmlos"
 msgid "Reputable, has my trust"
 msgstr "Seriös, hat mein Vertrauen"
 
-#: ../../include/contact_selectors.php:56
+#: ../../include/contact_selectors.php:56 ../../mod/admin.php:452
 msgid "Frequently"
 msgstr "immer wieder"
 
-#: ../../include/contact_selectors.php:57
+#: ../../include/contact_selectors.php:57 ../../mod/admin.php:453
 msgid "Hourly"
 msgstr "Stündlich"
 
-#: ../../include/contact_selectors.php:58
+#: ../../include/contact_selectors.php:58 ../../mod/admin.php:454
 msgid "Twice daily"
 msgstr "Zweimal täglich"
 
-#: ../../include/contact_selectors.php:59
+#: ../../include/contact_selectors.php:59 ../../mod/admin.php:455
 msgid "Daily"
 msgstr "Täglich"
 
@@ -1010,8 +1010,8 @@ msgid "RSS/Atom"
 msgstr "RSS/Atom"
 
 #: ../../include/contact_selectors.php:79
-#: ../../include/contact_selectors.php:86 ../../mod/admin.php:754
-#: ../../mod/admin.php:765
+#: ../../include/contact_selectors.php:86 ../../mod/admin.php:766
+#: ../../mod/admin.php:777
 msgid "Email"
 msgstr "E-Mail"
 
@@ -1058,7 +1058,7 @@ msgid "Example: bob@example.com, http://example.com/barbara"
 msgstr "Beispiel: bob@example.com, http://example.com/barbara"
 
 #: ../../include/contact_widgets.php:9 ../../mod/suggest.php:88
-#: ../../mod/match.php:58 ../../boot.php:1338
+#: ../../mod/match.php:58 ../../boot.php:1347
 msgid "Connect"
 msgstr "Verbinden"
 
@@ -1135,7 +1135,7 @@ msgstr[0] "%d gemeinsamer Kontakt"
 msgstr[1] "%d gemeinsame Kontakte"
 
 #: ../../include/contact_widgets.php:204 ../../mod/content.php:629
-#: ../../object/Item.php:365 ../../boot.php:652
+#: ../../object/Item.php:365 ../../boot.php:653
 msgid "show more"
 msgstr "mehr anzeigen"
 
@@ -1161,6 +1161,95 @@ msgstr "$1 hat geschrieben:"
 #: ../../include/bbcode.php:553 ../../include/bbcode.php:554
 msgid "Encrypted content"
 msgstr "Verschlüsselter Inhalt"
+
+#: ../../include/items.php:1791 ../../include/datetime.php:472
+#, php-format
+msgid "%s's birthday"
+msgstr "%ss Geburtstag"
+
+#: ../../include/items.php:1792 ../../include/datetime.php:473
+#, php-format
+msgid "Happy Birthday %s"
+msgstr "Herzlichen Glückwunsch %s"
+
+#: ../../include/items.php:3466 ../../mod/dfrn_request.php:716
+msgid "[Name Withheld]"
+msgstr "[Name unterdrückt]"
+
+#: ../../include/items.php:3473
+msgid "A new person is sharing with you at "
+msgstr "Eine neue Person teilt mit dir auf "
+
+#: ../../include/items.php:3473
+msgid "You have a new follower at "
+msgstr "Du hast einen neuen Kontakt auf "
+
+#: ../../include/items.php:3957 ../../mod/admin.php:158
+#: ../../mod/admin.php:809 ../../mod/admin.php:1009 ../../mod/viewsrc.php:15
+#: ../../mod/notice.php:15 ../../mod/display.php:51 ../../mod/display.php:213
+msgid "Item not found."
+msgstr "Beitrag nicht gefunden."
+
+#: ../../include/items.php:3996
+msgid "Do you really want to delete this item?"
+msgstr "Möchtest du wirklich dieses Item löschen?"
+
+#: ../../include/items.php:3998 ../../mod/profiles.php:606
+#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/contacts.php:246
+#: ../../mod/settings.php:934 ../../mod/settings.php:940
+#: ../../mod/settings.php:948 ../../mod/settings.php:952
+#: ../../mod/settings.php:957 ../../mod/settings.php:963
+#: ../../mod/settings.php:969 ../../mod/settings.php:975
+#: ../../mod/settings.php:1005 ../../mod/settings.php:1006
+#: ../../mod/settings.php:1007 ../../mod/settings.php:1008
+#: ../../mod/settings.php:1009 ../../mod/dfrn_request.php:836
+#: ../../mod/suggest.php:29 ../../mod/message.php:209
+msgid "Yes"
+msgstr "Ja"
+
+#: ../../include/items.php:4001 ../../include/conversation.php:1080
+#: ../../mod/contacts.php:249 ../../mod/settings.php:561
+#: ../../mod/settings.php:587 ../../mod/dfrn_request.php:848
+#: ../../mod/suggest.php:32 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
+#: ../../mod/editpost.php:148 ../../mod/fbrowser.php:81
+#: ../../mod/fbrowser.php:116 ../../mod/message.php:212
+#: ../../mod/photos.php:202 ../../mod/photos.php:290
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../../include/items.php:4121 ../../mod/profiles.php:146
+#: ../../mod/profiles.php:567 ../../mod/notes.php:20 ../../mod/nogroup.php:25
+#: ../../mod/item.php:140 ../../mod/item.php:156 ../../mod/allfriends.php:9
+#: ../../mod/api.php:26 ../../mod/api.php:31 ../../mod/register.php:40
+#: ../../mod/regmod.php:118 ../../mod/attach.php:33 ../../mod/contacts.php:147
+#: ../../mod/settings.php:91 ../../mod/settings.php:542
+#: ../../mod/settings.php:547 ../../mod/crepair.php:115
+#: ../../mod/delegate.php:6 ../../mod/poke.php:135
+#: ../../mod/dfrn_confirm.php:53 ../../mod/suggest.php:56
+#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/uimport.php:23
+#: ../../mod/follow.php:9 ../../mod/fsuggest.php:78 ../../mod/group.php:19
+#: ../../mod/viewcontacts.php:22 ../../mod/wall_attach.php:55
+#: ../../mod/wall_upload.php:66 ../../mod/invite.php:15
+#: ../../mod/invite.php:101 ../../mod/wallmessage.php:9
+#: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
+#: ../../mod/wallmessage.php:103 ../../mod/manage.php:96
+#: ../../mod/message.php:38 ../../mod/message.php:174 ../../mod/mood.php:114
+#: ../../mod/network.php:6 ../../mod/notifications.php:66
+#: ../../mod/photos.php:133 ../../mod/photos.php:1044
+#: ../../mod/display.php:209 ../../mod/install.php:151
+#: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
+#: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
+#: ../../index.php:346
+msgid "Permission denied."
+msgstr "Zugriff verweigert."
+
+#: ../../include/items.php:4191
+msgid "Archives"
+msgstr "Archiv"
+
+#: ../../include/network.php:875
+msgid "view full size"
+msgstr "Volle Größe anzeigen"
 
 #: ../../include/datetime.php:43 ../../include/datetime.php:45
 msgid "Miscellaneous"
@@ -1234,16 +1323,6 @@ msgstr "Sekunden"
 #, php-format
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s her"
-
-#: ../../include/datetime.php:472 ../../include/items.php:1771
-#, php-format
-msgid "%s's birthday"
-msgstr "%ss Geburtstag"
-
-#: ../../include/datetime.php:473 ../../include/items.php:1772
-#, php-format
-msgid "Happy Birthday %s"
-msgstr "Herzlichen Glückwunsch %s"
 
 #: ../../include/plugin.php:439 ../../include/plugin.php:441
 msgid "Click here to upgrade."
@@ -1526,10 +1605,10 @@ msgstr "%1$s hat %2$s\\s %3$s als Favorit markiert"
 msgid "Select"
 msgstr "Auswählen"
 
-#: ../../include/conversation.php:588 ../../mod/settings.php:623
-#: ../../mod/admin.php:758 ../../mod/group.php:171 ../../mod/photos.php:1637
-#: ../../mod/content.php:462 ../../mod/content.php:764
-#: ../../object/Item.php:127
+#: ../../include/conversation.php:588 ../../mod/admin.php:770
+#: ../../mod/settings.php:623 ../../mod/group.php:171
+#: ../../mod/photos.php:1637 ../../mod/content.php:462
+#: ../../mod/content.php:764 ../../object/Item.php:127
 msgid "Delete"
 msgstr "Löschen"
 
@@ -1756,16 +1835,6 @@ msgstr "Z.B.: bob@example.com, mary@example.com"
 msgid "Preview"
 msgstr "Vorschau"
 
-#: ../../include/conversation.php:1080 ../../include/items.php:3981
-#: ../../mod/contacts.php:249 ../../mod/settings.php:561
-#: ../../mod/settings.php:587 ../../mod/dfrn_request.php:848
-#: ../../mod/suggest.php:32 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
-#: ../../mod/editpost.php:148 ../../mod/fbrowser.php:81
-#: ../../mod/fbrowser.php:116 ../../mod/message.php:212
-#: ../../mod/photos.php:202 ../../mod/photos.php:290
-msgid "Cancel"
-msgstr "Abbrechen"
-
 #: ../../include/conversation.php:1086
 msgid "Post to Groups"
 msgstr "Poste an Gruppe"
@@ -1982,7 +2051,7 @@ msgstr "Keine Neuigkeiten."
 msgid "Clear notifications"
 msgstr "Bereinige Benachrichtigungen"
 
-#: ../../include/nav.php:73 ../../boot.php:1057
+#: ../../include/nav.php:73 ../../boot.php:1066
 msgid "Logout"
 msgstr "Abmelden"
 
@@ -1990,7 +2059,7 @@ msgstr "Abmelden"
 msgid "End this session"
 msgstr "Diese Sitzung beenden"
 
-#: ../../include/nav.php:76 ../../boot.php:1861
+#: ../../include/nav.php:76 ../../boot.php:1870
 msgid "Status"
 msgstr "Status"
 
@@ -2004,7 +2073,7 @@ msgid "Your profile page"
 msgstr "Deine Profilseite"
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
-#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1875
+#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1884
 msgid "Photos"
 msgstr "Bilder"
 
@@ -2013,7 +2082,7 @@ msgid "Your photos"
 msgstr "Deine Fotos"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1885
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1894
 msgid "Events"
 msgstr "Veranstaltungen"
 
@@ -2029,7 +2098,7 @@ msgstr "Persönliche Notizen"
 msgid "Your personal photos"
 msgstr "Deine privaten Fotos"
 
-#: ../../include/nav.php:91 ../../boot.php:1058
+#: ../../include/nav.php:91 ../../boot.php:1067
 msgid "Login"
 msgstr "Anmeldung"
 
@@ -2046,7 +2115,7 @@ msgstr "Pinnwand"
 msgid "Home Page"
 msgstr "Homepage"
 
-#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1033
+#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1042
 msgid "Register"
 msgstr "Registrieren"
 
@@ -2164,8 +2233,8 @@ msgstr "Delegierungen"
 msgid "Delegate Page Management"
 msgstr "Delegiere das Management für die Seite"
 
-#: ../../include/nav.php:167 ../../mod/settings.php:74 ../../mod/admin.php:849
-#: ../../mod/admin.php:1057 ../../mod/uexport.php:48
+#: ../../include/nav.php:167 ../../mod/admin.php:861 ../../mod/admin.php:1069
+#: ../../mod/settings.php:74 ../../mod/uexport.php:48
 #: ../../mod/newmember.php:22 ../../view/theme/diabook/theme.php:537
 #: ../../view/theme/diabook/theme.php:658
 msgid "Settings"
@@ -2175,7 +2244,7 @@ msgstr "Einstellungen"
 msgid "Account settings"
 msgstr "Kontoeinstellungen"
 
-#: ../../include/nav.php:169 ../../boot.php:1360
+#: ../../include/nav.php:169 ../../boot.php:1369
 msgid "Profiles"
 msgstr "Profile"
 
@@ -2208,10 +2277,6 @@ msgstr "Navigation"
 msgid "Site map"
 msgstr "Sitemap"
 
-#: ../../include/network.php:876
-msgid "view full size"
-msgstr "Volle Größe anzeigen"
-
 #: ../../include/oembed.php:138
 msgid "Embedded content"
 msgstr "Eingebetteter Inhalt"
@@ -2219,71 +2284,6 @@ msgstr "Eingebetteter Inhalt"
 #: ../../include/oembed.php:147
 msgid "Embedding disabled"
 msgstr "Einbettungen deaktiviert"
-
-#: ../../include/items.php:3446 ../../mod/dfrn_request.php:716
-msgid "[Name Withheld]"
-msgstr "[Name unterdrückt]"
-
-#: ../../include/items.php:3453
-msgid "A new person is sharing with you at "
-msgstr "Eine neue Person teilt mit dir auf "
-
-#: ../../include/items.php:3453
-msgid "You have a new follower at "
-msgstr "Du hast einen neuen Kontakt auf "
-
-#: ../../include/items.php:3937 ../../mod/admin.php:158
-#: ../../mod/admin.php:797 ../../mod/admin.php:997 ../../mod/viewsrc.php:15
-#: ../../mod/notice.php:15 ../../mod/display.php:51 ../../mod/display.php:213
-msgid "Item not found."
-msgstr "Beitrag nicht gefunden."
-
-#: ../../include/items.php:3976
-msgid "Do you really want to delete this item?"
-msgstr "Möchtest du wirklich dieses Item löschen?"
-
-#: ../../include/items.php:3978 ../../mod/profiles.php:606
-#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/contacts.php:246
-#: ../../mod/settings.php:934 ../../mod/settings.php:940
-#: ../../mod/settings.php:948 ../../mod/settings.php:952
-#: ../../mod/settings.php:957 ../../mod/settings.php:963
-#: ../../mod/settings.php:969 ../../mod/settings.php:975
-#: ../../mod/settings.php:1005 ../../mod/settings.php:1006
-#: ../../mod/settings.php:1007 ../../mod/settings.php:1008
-#: ../../mod/settings.php:1009 ../../mod/dfrn_request.php:836
-#: ../../mod/suggest.php:29 ../../mod/message.php:209
-msgid "Yes"
-msgstr "Ja"
-
-#: ../../include/items.php:4101 ../../mod/profiles.php:146
-#: ../../mod/profiles.php:567 ../../mod/notes.php:20 ../../mod/nogroup.php:25
-#: ../../mod/item.php:140 ../../mod/item.php:156 ../../mod/allfriends.php:9
-#: ../../mod/api.php:26 ../../mod/api.php:31 ../../mod/register.php:40
-#: ../../mod/regmod.php:118 ../../mod/attach.php:33 ../../mod/contacts.php:147
-#: ../../mod/settings.php:91 ../../mod/settings.php:542
-#: ../../mod/settings.php:547 ../../mod/crepair.php:115
-#: ../../mod/delegate.php:6 ../../mod/poke.php:135
-#: ../../mod/dfrn_confirm.php:53 ../../mod/suggest.php:56
-#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/uimport.php:23
-#: ../../mod/follow.php:9 ../../mod/fsuggest.php:78 ../../mod/group.php:19
-#: ../../mod/viewcontacts.php:22 ../../mod/wall_attach.php:55
-#: ../../mod/wall_upload.php:66 ../../mod/invite.php:15
-#: ../../mod/invite.php:101 ../../mod/wallmessage.php:9
-#: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
-#: ../../mod/wallmessage.php:103 ../../mod/manage.php:96
-#: ../../mod/message.php:38 ../../mod/message.php:174 ../../mod/mood.php:114
-#: ../../mod/network.php:6 ../../mod/notifications.php:66
-#: ../../mod/photos.php:133 ../../mod/photos.php:1044
-#: ../../mod/display.php:209 ../../mod/install.php:151
-#: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
-#: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
-#: ../../index.php:346
-msgid "Permission denied."
-msgstr "Zugriff verweigert."
-
-#: ../../include/items.php:4171
-msgid "Archives"
-msgstr "Archiv"
 
 #: ../../include/security.php:22
 msgid "Welcome "
@@ -2427,11 +2427,11 @@ msgstr "Nein"
 msgid "Edit Profile Details"
 msgstr "Profil bearbeiten"
 
-#: ../../mod/profiles.php:626 ../../mod/contacts.php:386
-#: ../../mod/settings.php:560 ../../mod/settings.php:670
-#: ../../mod/settings.php:739 ../../mod/settings.php:811
-#: ../../mod/settings.php:1037 ../../mod/admin.php:480 ../../mod/admin.php:751
-#: ../../mod/admin.php:890 ../../mod/admin.php:1090 ../../mod/admin.php:1177
+#: ../../mod/profiles.php:626 ../../mod/admin.php:491 ../../mod/admin.php:763
+#: ../../mod/admin.php:902 ../../mod/admin.php:1102 ../../mod/admin.php:1189
+#: ../../mod/contacts.php:386 ../../mod/settings.php:560
+#: ../../mod/settings.php:670 ../../mod/settings.php:739
+#: ../../mod/settings.php:811 ../../mod/settings.php:1037
 #: ../../mod/crepair.php:166 ../../mod/poke.php:199 ../../mod/events.php:478
 #: ../../mod/fsuggest.php:107 ../../mod/group.php:87 ../../mod/invite.php:140
 #: ../../mod/localtime.php:45 ../../mod/manage.php:110
@@ -2607,23 +2607,23 @@ msgstr "Alter: "
 msgid "Edit/Manage Profiles"
 msgstr "Verwalte/Editiere Profile"
 
-#: ../../mod/profiles.php:722 ../../boot.php:1366 ../../boot.php:1392
+#: ../../mod/profiles.php:722 ../../boot.php:1375 ../../boot.php:1401
 msgid "Change profile photo"
 msgstr "Profilbild ändern"
 
-#: ../../mod/profiles.php:723 ../../boot.php:1367
+#: ../../mod/profiles.php:723 ../../boot.php:1376
 msgid "Create New Profile"
 msgstr "Neues Profil anlegen"
 
-#: ../../mod/profiles.php:734 ../../boot.php:1377
+#: ../../mod/profiles.php:734 ../../boot.php:1386
 msgid "Profile Image"
 msgstr "Profilbild"
 
-#: ../../mod/profiles.php:736 ../../boot.php:1380
+#: ../../mod/profiles.php:736 ../../boot.php:1389
 msgid "visible to everybody"
 msgstr "sichtbar für jeden"
 
-#: ../../mod/profiles.php:737 ../../boot.php:1381
+#: ../../mod/profiles.php:737 ../../boot.php:1390
 msgid "Edit visibility"
 msgstr "Sichtbarkeit bearbeiten"
 
@@ -2651,7 +2651,7 @@ msgstr "Sichtbar für"
 msgid "All Contacts (with secure profile access)"
 msgstr "Alle Kontakte (mit gesichertem Profilzugriff)"
 
-#: ../../mod/notes.php:44 ../../boot.php:1892
+#: ../../mod/notes.php:44 ../../boot.php:1901
 msgid "Personal Notes"
 msgstr "Persönliche Notizen"
 
@@ -2713,6 +2713,804 @@ msgstr "{0} hat %ss Beitrag mit dem Schlagwort #%s versehen"
 #: ../../mod/ping.php:285
 msgid "{0} mentioned you in a post"
 msgstr "{0} hat dich in einem Beitrag erwähnt"
+
+#: ../../mod/admin.php:55
+msgid "Theme settings updated."
+msgstr "Themeneinstellungen aktualisiert."
+
+#: ../../mod/admin.php:96 ../../mod/admin.php:490
+msgid "Site"
+msgstr "Seite"
+
+#: ../../mod/admin.php:97 ../../mod/admin.php:762 ../../mod/admin.php:776
+msgid "Users"
+msgstr "Nutzer"
+
+#: ../../mod/admin.php:98 ../../mod/admin.php:859 ../../mod/admin.php:901
+msgid "Plugins"
+msgstr "Plugins"
+
+#: ../../mod/admin.php:99 ../../mod/admin.php:1067 ../../mod/admin.php:1101
+msgid "Themes"
+msgstr "Themen"
+
+#: ../../mod/admin.php:100
+msgid "DB updates"
+msgstr "DB Updates"
+
+#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1188
+msgid "Logs"
+msgstr "Protokolle"
+
+#: ../../mod/admin.php:121
+msgid "Plugin Features"
+msgstr "Plugin Features"
+
+#: ../../mod/admin.php:123
+msgid "User registrations waiting for confirmation"
+msgstr "Nutzeranmeldungen die auf Bestätigung warten"
+
+#: ../../mod/admin.php:182 ../../mod/admin.php:733
+msgid "Normal Account"
+msgstr "Normales Konto"
+
+#: ../../mod/admin.php:183 ../../mod/admin.php:734
+msgid "Soapbox Account"
+msgstr "Marktschreier-Konto"
+
+#: ../../mod/admin.php:184 ../../mod/admin.php:735
+msgid "Community/Celebrity Account"
+msgstr "Forum/Promi-Konto"
+
+#: ../../mod/admin.php:185 ../../mod/admin.php:736
+msgid "Automatic Friend Account"
+msgstr "Automatisches Freundekonto"
+
+#: ../../mod/admin.php:186
+msgid "Blog Account"
+msgstr "Blog Account"
+
+#: ../../mod/admin.php:187
+msgid "Private Forum"
+msgstr "Privates Forum"
+
+#: ../../mod/admin.php:206
+msgid "Message queues"
+msgstr "Nachrichten-Warteschlangen"
+
+#: ../../mod/admin.php:211 ../../mod/admin.php:489 ../../mod/admin.php:761
+#: ../../mod/admin.php:858 ../../mod/admin.php:900 ../../mod/admin.php:1066
+#: ../../mod/admin.php:1100 ../../mod/admin.php:1187
+msgid "Administration"
+msgstr "Administration"
+
+#: ../../mod/admin.php:212
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+#: ../../mod/admin.php:214
+msgid "Registered users"
+msgstr "Registrierte Nutzer"
+
+#: ../../mod/admin.php:216
+msgid "Pending registrations"
+msgstr "Anstehende Anmeldungen"
+
+#: ../../mod/admin.php:217
+msgid "Version"
+msgstr "Version"
+
+#: ../../mod/admin.php:219
+msgid "Active plugins"
+msgstr "Aktive Plugins"
+
+#: ../../mod/admin.php:405
+msgid "Site settings updated."
+msgstr "Seiteneinstellungen aktualisiert."
+
+#: ../../mod/admin.php:434 ../../mod/settings.php:769
+msgid "No special theme for mobile devices"
+msgstr "Kein spezielles Theme für mobile Geräte verwenden."
+
+#: ../../mod/admin.php:451 ../../mod/contacts.php:330
+msgid "Never"
+msgstr "Niemals"
+
+#: ../../mod/admin.php:460
+msgid "Multi user instance"
+msgstr "Mehrbenutzer Instanz"
+
+#: ../../mod/admin.php:476
+msgid "Closed"
+msgstr "Geschlossen"
+
+#: ../../mod/admin.php:477
+msgid "Requires approval"
+msgstr "Bedarf der Zustimmung"
+
+#: ../../mod/admin.php:478
+msgid "Open"
+msgstr "Offen"
+
+#: ../../mod/admin.php:482
+msgid "No SSL policy, links will track page SSL state"
+msgstr "Keine SSL Richtlinie, Links werden das verwendete Protokoll beibehalten"
+
+#: ../../mod/admin.php:483
+msgid "Force all links to use SSL"
+msgstr "SSL für alle Links erzwingen"
+
+#: ../../mod/admin.php:484
+msgid "Self-signed certificate, use SSL for local links only (discouraged)"
+msgstr "Selbst-unterzeichnetes Zertifikat, SSL nur für lokale Links verwenden (nicht empfohlen)"
+
+#: ../../mod/admin.php:492 ../../mod/register.php:261
+msgid "Registration"
+msgstr "Registrierung"
+
+#: ../../mod/admin.php:493
+msgid "File upload"
+msgstr "Datei hochladen"
+
+#: ../../mod/admin.php:494
+msgid "Policies"
+msgstr "Regeln"
+
+#: ../../mod/admin.php:495
+msgid "Advanced"
+msgstr "Erweitert"
+
+#: ../../mod/admin.php:496
+msgid "Performance"
+msgstr "Performance"
+
+#: ../../mod/admin.php:500
+msgid "Site name"
+msgstr "Seitenname"
+
+#: ../../mod/admin.php:501
+msgid "Banner/Logo"
+msgstr "Banner/Logo"
+
+#: ../../mod/admin.php:502
+msgid "System language"
+msgstr "Systemsprache"
+
+#: ../../mod/admin.php:503
+msgid "System theme"
+msgstr "Systemweites Thema"
+
+#: ../../mod/admin.php:503
+msgid ""
+"Default system theme - may be over-ridden by user profiles - <a href='#' "
+"id='cnftheme'>change theme settings</a>"
+msgstr "Vorgabe für das System-Theme - kann von Benutzerprofilen überschrieben werden - <a href='#' id='cnftheme'>Theme-Einstellungen ändern</a>"
+
+#: ../../mod/admin.php:504
+msgid "Mobile system theme"
+msgstr "Systemweites mobiles Thema"
+
+#: ../../mod/admin.php:504
+msgid "Theme for mobile devices"
+msgstr "Thema für mobile Geräte"
+
+#: ../../mod/admin.php:505
+msgid "SSL link policy"
+msgstr "Regeln für SSL Links"
+
+#: ../../mod/admin.php:505
+msgid "Determines whether generated links should be forced to use SSL"
+msgstr "Bestimmt, ob generierte Links SSL verwenden müssen"
+
+#: ../../mod/admin.php:506
+msgid "'Share' element"
+msgstr "'Teilen' Element"
+
+#: ../../mod/admin.php:506
+msgid "Activates the bbcode element 'share' for repeating items."
+msgstr "Aktiviert das bbcode Element 'Teilen' um Einträge zu wiederholen."
+
+#: ../../mod/admin.php:507
+msgid "Hide help entry from navigation menu"
+msgstr "Verberge den Menüeintrag für die Hilfe im Navigationsmenü"
+
+#: ../../mod/admin.php:507
+msgid ""
+"Hides the menu entry for the Help pages from the navigation menu. You can "
+"still access it calling /help directly."
+msgstr "Verbirgt den Menüeintrag für die Hilfe-Seiten im Navigationsmenü. Die Seiten können weiterhin über /help aufgerufen werden."
+
+#: ../../mod/admin.php:508
+msgid "Single user instance"
+msgstr "Ein-Nutzer Instanz"
+
+#: ../../mod/admin.php:508
+msgid "Make this instance multi-user or single-user for the named user"
+msgstr "Regelt ob es sich bei dieser Instanz um eine ein Personen Installation oder eine Installation mit mehr als einem Nutzer handelt."
+
+#: ../../mod/admin.php:509
+msgid "Maximum image size"
+msgstr "Maximale Größe von Bildern"
+
+#: ../../mod/admin.php:509
+msgid ""
+"Maximum size in bytes of uploaded images. Default is 0, which means no "
+"limits."
+msgstr "Maximale Upload-Größe von Bildern in Bytes. Standard ist 0, d.h. ohne Limit."
+
+#: ../../mod/admin.php:510
+msgid "Maximum image length"
+msgstr "Maximale Länge von Bildern"
+
+#: ../../mod/admin.php:510
+msgid ""
+"Maximum length in pixels of the longest side of uploaded images. Default is "
+"-1, which means no limits."
+msgstr "Maximale Länge in Pixeln der längsten Seite eines hoch geladenen Bildes. Grundeinstellung ist -1 was keine Einschränkung bedeutet."
+
+#: ../../mod/admin.php:511
+msgid "JPEG image quality"
+msgstr "Qualität des JPEG Bildes"
+
+#: ../../mod/admin.php:511
+msgid ""
+"Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
+"100, which is full quality."
+msgstr "Hoch geladene JPEG Bilder werden mit dieser Qualität [0-100] gespeichert. Grundeinstellung ist 100, kein Qualitätsverlust."
+
+#: ../../mod/admin.php:513
+msgid "Register policy"
+msgstr "Registrierungsmethode"
+
+#: ../../mod/admin.php:514
+msgid "Maximum Daily Registrations"
+msgstr "Maximum täglicher Neuanmeldungen"
+
+#: ../../mod/admin.php:514
+msgid ""
+"If registration is permitted above, this sets the maximum number of new user"
+" registrations to accept per day.  If register is set to closed, this "
+"setting has no effect."
+msgstr "Wenn die Registrierung weiter oben erlaubt ist, regelt dies die maximale Anzahl von Neuanmeldungen pro Tag.   Wenn die Registrierung geschlossen ist, hat diese Einstellung keinen Effekt."
+
+#: ../../mod/admin.php:515
+msgid "Register text"
+msgstr "Registrierungstext"
+
+#: ../../mod/admin.php:515
+msgid "Will be displayed prominently on the registration page."
+msgstr "Wird gut sichtbar auf der Registrierungsseite angezeigt."
+
+#: ../../mod/admin.php:516
+msgid "Accounts abandoned after x days"
+msgstr "Nutzerkonten gelten nach x Tagen als unbenutzt"
+
+#: ../../mod/admin.php:516
+msgid ""
+"Will not waste system resources polling external sites for abandonded "
+"accounts. Enter 0 for no time limit."
+msgstr "Verschwende keine System-Ressourcen auf das Pollen externer Seiten, wenn Konten nicht mehr benutzt werden. 0 eingeben für kein Limit."
+
+#: ../../mod/admin.php:517
+msgid "Allowed friend domains"
+msgstr "Erlaubte Domains für Kontakte"
+
+#: ../../mod/admin.php:517
+msgid ""
+"Comma separated list of domains which are allowed to establish friendships "
+"with this site. Wildcards are accepted. Empty to allow any domains"
+msgstr "Liste der Domains, die für Freundschaften erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
+
+#: ../../mod/admin.php:518
+msgid "Allowed email domains"
+msgstr "Erlaubte Domains für E-Mails"
+
+#: ../../mod/admin.php:518
+msgid ""
+"Comma separated list of domains which are allowed in email addresses for "
+"registrations to this site. Wildcards are accepted. Empty to allow any "
+"domains"
+msgstr "Liste der Domains, die für E-Mail-Adressen bei der Registrierung erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
+
+#: ../../mod/admin.php:519
+msgid "Block public"
+msgstr "Öffentlichen Zugriff blockieren"
+
+#: ../../mod/admin.php:519
+msgid ""
+"Check to block public access to all otherwise public personal pages on this "
+"site unless you are currently logged in."
+msgstr "Klicken, um öffentlichen Zugriff auf sonst öffentliche Profile zu blockieren, wenn man nicht eingeloggt ist."
+
+#: ../../mod/admin.php:520
+msgid "Force publish"
+msgstr "Erzwinge Veröffentlichung"
+
+#: ../../mod/admin.php:520
+msgid ""
+"Check to force all profiles on this site to be listed in the site directory."
+msgstr "Klicken, um Anzeige aller Profile dieses Servers im Verzeichnis zu erzwingen."
+
+#: ../../mod/admin.php:521
+msgid "Global directory update URL"
+msgstr "URL für Updates beim weltweiten Verzeichnis"
+
+#: ../../mod/admin.php:521
+msgid ""
+"URL to update the global directory. If this is not set, the global directory"
+" is completely unavailable to the application."
+msgstr "URL für Update des globalen Verzeichnisses. Wenn nichts eingetragen ist, bleibt das globale Verzeichnis unerreichbar."
+
+#: ../../mod/admin.php:522
+msgid "Allow threaded items"
+msgstr "Erlaube Threads in Diskussionen"
+
+#: ../../mod/admin.php:522
+msgid "Allow infinite level threading for items on this site."
+msgstr "Erlaube ein unendliches Level für Threads auf dieser Seite."
+
+#: ../../mod/admin.php:523
+msgid "Private posts by default for new users"
+msgstr "Private Beiträge als Standard für neue Nutzer"
+
+#: ../../mod/admin.php:523
+msgid ""
+"Set default post permissions for all new members to the default privacy "
+"group rather than public."
+msgstr "Die Standard-Zugriffsrechte für neue Nutzer werden so gesetzt, dass als Voreinstellung in die private Gruppe gepostet wird anstelle von öffentlichen Beiträgen."
+
+#: ../../mod/admin.php:524
+msgid "Don't include post content in email notifications"
+msgstr "Inhalte von Beiträgen nicht in Email Benachrichtigungen versenden"
+
+#: ../../mod/admin.php:524
+msgid ""
+"Don't include the content of a post/comment/private message/etc. in the "
+"email notifications that are sent out from this site, as a privacy measure."
+msgstr "Inhalte von Beiträgen/Kommentaren/privaten Nachrichten/usw., zum Datenschutz, nicht in Email-Benachrichtigungen einbinden."
+
+#: ../../mod/admin.php:525
+msgid "Disallow public access to addons listed in the apps menu."
+msgstr "Öffentlichen Zugriff auf Addons im Apps Menü verbieten."
+
+#: ../../mod/admin.php:525
+msgid ""
+"Checking this box will restrict addons listed in the apps menu to members "
+"only."
+msgstr "Wenn ausgewählt werden die im Apps Menü aufgeführten Addons nur angemeldeten Nutzern der Seite zur Verfügung gestellt."
+
+#: ../../mod/admin.php:526
+msgid "Don't embed private images in posts"
+msgstr "Private Bilder nicht in Beiträgen einbetten."
+
+#: ../../mod/admin.php:526
+msgid ""
+"Don't replace locally-hosted private photos in posts with an embedded copy "
+"of the image. This means that contacts who receive posts containing private "
+"photos will have to authenticate and load each image, which may take a "
+"while."
+msgstr "Ersetze lokal gehostete private Fotos in Beiträgen nicht mit einer eingebetteten Kopie des Bildes. Dies bedeutet, dass Kontakte, die Beiträge mit privaten Fotos erhalten sich zunächst auf den jeweiligen Servern authentifizieren müssen bevor die Bilder geladen und angezeigt werden, was eine gewisse Zeit dauert."
+
+#: ../../mod/admin.php:528
+msgid "Block multiple registrations"
+msgstr "Unterbinde Mehrfachregistrierung"
+
+#: ../../mod/admin.php:528
+msgid "Disallow users to register additional accounts for use as pages."
+msgstr "Benutzern nicht erlauben, weitere Konten als zusätzliche Profile anzulegen."
+
+#: ../../mod/admin.php:529
+msgid "OpenID support"
+msgstr "OpenID Unterstützung"
+
+#: ../../mod/admin.php:529
+msgid "OpenID support for registration and logins."
+msgstr "OpenID-Unterstützung für Registrierung und Login."
+
+#: ../../mod/admin.php:530
+msgid "Fullname check"
+msgstr "Namen auf Vollständigkeit überprüfen"
+
+#: ../../mod/admin.php:530
+msgid ""
+"Force users to register with a space between firstname and lastname in Full "
+"name, as an antispam measure"
+msgstr "Leerzeichen zwischen Vor- und Nachname im vollständigen Namen erzwingen, um SPAM zu vermeiden."
+
+#: ../../mod/admin.php:531
+msgid "UTF-8 Regular expressions"
+msgstr "UTF-8 Reguläre Ausdrücke"
+
+#: ../../mod/admin.php:531
+msgid "Use PHP UTF8 regular expressions"
+msgstr "PHP UTF8 Ausdrücke verwenden"
+
+#: ../../mod/admin.php:532
+msgid "Show Community Page"
+msgstr "Gemeinschaftsseite anzeigen"
+
+#: ../../mod/admin.php:532
+msgid ""
+"Display a Community page showing all recent public postings on this site."
+msgstr "Zeige die Gemeinschaftsseite mit allen öffentlichen Beiträgen auf diesem Server."
+
+#: ../../mod/admin.php:533
+msgid "Enable OStatus support"
+msgstr "OStatus Unterstützung aktivieren"
+
+#: ../../mod/admin.php:533
+msgid ""
+"Provide built-in OStatus (identi.ca, status.net, etc.) compatibility. All "
+"communications in OStatus are public, so privacy warnings will be "
+"occasionally displayed."
+msgstr "Biete die eingebaute OStatus (identi.ca, status.net, etc.) Unterstützung an. Jede Kommunikation in OStatus ist öffentlich, Privatsphäre Warnungen werden nur bei Bedarf angezeigt."
+
+#: ../../mod/admin.php:534
+msgid "OStatus conversation completion interval"
+msgstr "Intervall zum Vervollständigen von OStatus Unterhaltungen"
+
+#: ../../mod/admin.php:534
+msgid ""
+"How often shall the poller check for new entries in OStatus conversations? "
+"This can be a very ressource task."
+msgstr "Wie oft soll der Poller checken ob es neue Nachrichten in OStatus Unterhaltungen gibt die geladen werden müssen. Je nach Anzahl der OStatus Kontakte könnte dies ein sehr Ressourcen lastiger Job sein."
+
+#: ../../mod/admin.php:535
+msgid "Enable Diaspora support"
+msgstr "Diaspora-Support aktivieren"
+
+#: ../../mod/admin.php:535
+msgid "Provide built-in Diaspora network compatibility."
+msgstr "Verwende die eingebaute Diaspora-Verknüpfung."
+
+#: ../../mod/admin.php:536
+msgid "Only allow Friendica contacts"
+msgstr "Nur Friendica-Kontakte erlauben"
+
+#: ../../mod/admin.php:536
+msgid ""
+"All contacts must use Friendica protocols. All other built-in communication "
+"protocols disabled."
+msgstr "Alle Kontakte müssen das Friendica Protokoll nutzen. Alle anderen Kommunikationsprotokolle werden deaktiviert."
+
+#: ../../mod/admin.php:537
+msgid "Verify SSL"
+msgstr "SSL Überprüfen"
+
+#: ../../mod/admin.php:537
+msgid ""
+"If you wish, you can turn on strict certificate checking. This will mean you"
+" cannot connect (at all) to self-signed SSL sites."
+msgstr "Wenn gewollt, kann man hier eine strenge Zertifikatkontrolle einstellen. Das bedeutet, dass man zu keinen Seiten mit selbst unterzeichnetem SSL eine Verbindung herstellen kann."
+
+#: ../../mod/admin.php:538
+msgid "Proxy user"
+msgstr "Proxy Nutzer"
+
+#: ../../mod/admin.php:539
+msgid "Proxy URL"
+msgstr "Proxy URL"
+
+#: ../../mod/admin.php:540
+msgid "Network timeout"
+msgstr "Netzwerk Wartezeit"
+
+#: ../../mod/admin.php:540
+msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
+msgstr "Der Wert ist in Sekunden. Setze 0 für unbegrenzt (nicht empfohlen)."
+
+#: ../../mod/admin.php:541
+msgid "Delivery interval"
+msgstr "Zustellungsintervall"
+
+#: ../../mod/admin.php:541
+msgid ""
+"Delay background delivery processes by this many seconds to reduce system "
+"load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 "
+"for large dedicated servers."
+msgstr "Verzögere im Hintergrund laufende Auslieferungsprozesse um die angegebene Anzahl an Sekunden, um die Systemlast zu verringern. Empfehlungen: 4-5 für Shared-Hosts, 2-3 für VPS, 0-1 für große dedizierte Server."
+
+#: ../../mod/admin.php:542
+msgid "Poll interval"
+msgstr "Abfrageintervall"
+
+#: ../../mod/admin.php:542
+msgid ""
+"Delay background polling processes by this many seconds to reduce system "
+"load. If 0, use delivery interval."
+msgstr "Verzögere Hintergrundprozesse, um diese Anzahl an Sekunden um die Systemlast zu reduzieren. Bei 0 Sekunden wird das Auslieferungsintervall verwendet."
+
+#: ../../mod/admin.php:543
+msgid "Maximum Load Average"
+msgstr "Maximum Load Average"
+
+#: ../../mod/admin.php:543
+msgid ""
+"Maximum system load before delivery and poll processes are deferred - "
+"default 50."
+msgstr "Maximale Systemlast bevor Verteil- und Empfangsprozesse verschoben werden - Standard 50"
+
+#: ../../mod/admin.php:545
+msgid "Use MySQL full text engine"
+msgstr "Nutze MySQL full text engine"
+
+#: ../../mod/admin.php:545
+msgid ""
+"Activates the full text engine. Speeds up search - but can only search for "
+"four and more characters."
+msgstr "Aktiviert die 'full text engine'. Beschleunigt die Suche - aber es kann nur nach vier oder mehr Zeichen gesucht werden."
+
+#: ../../mod/admin.php:546
+msgid "Path to item cache"
+msgstr "Pfad zum Eintrag Cache"
+
+#: ../../mod/admin.php:547
+msgid "Cache duration in seconds"
+msgstr "Cache-Dauer in Sekunden"
+
+#: ../../mod/admin.php:547
+msgid ""
+"How long should the cache files be hold? Default value is 86400 seconds (One"
+" day)."
+msgstr "Wie lange sollen die Dateien im Cache vorgehalten werden? Standardwert ist 86400 Sekunden (ein Tag)."
+
+#: ../../mod/admin.php:548
+msgid "Path for lock file"
+msgstr "Pfad für die Sperrdatei"
+
+#: ../../mod/admin.php:549
+msgid "Temp path"
+msgstr "Temp Pfad"
+
+#: ../../mod/admin.php:550
+msgid "Base path to installation"
+msgstr "Basis-Pfad zur Installation"
+
+#: ../../mod/admin.php:567
+msgid "Update has been marked successful"
+msgstr "Update wurde als erfolgreich markiert"
+
+#: ../../mod/admin.php:577
+#, php-format
+msgid "Executing %s failed. Check system logs."
+msgstr "Ausführung von %s schlug fehl. Systemprotokolle prüfen."
+
+#: ../../mod/admin.php:580
+#, php-format
+msgid "Update %s was successfully applied."
+msgstr "Update %s war erfolgreich."
+
+#: ../../mod/admin.php:584
+#, php-format
+msgid "Update %s did not return a status. Unknown if it succeeded."
+msgstr "Update %s hat keinen Status zurückgegeben. Unbekannter Status."
+
+#: ../../mod/admin.php:587
+#, php-format
+msgid "Update function %s could not be found."
+msgstr "Updatefunktion %s konnte nicht gefunden werden."
+
+#: ../../mod/admin.php:602
+msgid "No failed updates."
+msgstr "Keine fehlgeschlagenen Updates."
+
+#: ../../mod/admin.php:606
+msgid "Failed Updates"
+msgstr "Fehlgeschlagene Updates"
+
+#: ../../mod/admin.php:607
+msgid ""
+"This does not include updates prior to 1139, which did not return a status."
+msgstr "Ohne Updates vor 1139, da diese keinen Status zurückgegeben haben."
+
+#: ../../mod/admin.php:608
+msgid "Mark success (if update was manually applied)"
+msgstr "Als erfolgreich markieren (falls das Update manuell installiert wurde)"
+
+#: ../../mod/admin.php:609
+msgid "Attempt to execute this update step automatically"
+msgstr "Versuchen, diesen Schritt automatisch auszuführen"
+
+#: ../../mod/admin.php:634
+#, php-format
+msgid "%s user blocked/unblocked"
+msgid_plural "%s users blocked/unblocked"
+msgstr[0] "%s Benutzer geblockt/freigegeben"
+msgstr[1] "%s Benutzer geblockt/freigegeben"
+
+#: ../../mod/admin.php:641
+#, php-format
+msgid "%s user deleted"
+msgid_plural "%s users deleted"
+msgstr[0] "%s Nutzer gelöscht"
+msgstr[1] "%s Nutzer gelöscht"
+
+#: ../../mod/admin.php:680
+#, php-format
+msgid "User '%s' deleted"
+msgstr "Nutzer '%s' gelöscht"
+
+#: ../../mod/admin.php:688
+#, php-format
+msgid "User '%s' unblocked"
+msgstr "Nutzer '%s' entsperrt"
+
+#: ../../mod/admin.php:688
+#, php-format
+msgid "User '%s' blocked"
+msgstr "Nutzer '%s' gesperrt"
+
+#: ../../mod/admin.php:764
+msgid "select all"
+msgstr "Alle auswählen"
+
+#: ../../mod/admin.php:765
+msgid "User registrations waiting for confirm"
+msgstr "Neuanmeldungen, die auf deine Bestätigung warten"
+
+#: ../../mod/admin.php:766
+msgid "Request date"
+msgstr "Anfragedatum"
+
+#: ../../mod/admin.php:766 ../../mod/admin.php:777 ../../mod/settings.php:562
+#: ../../mod/settings.php:588 ../../mod/crepair.php:148
+msgid "Name"
+msgstr "Name"
+
+#: ../../mod/admin.php:767
+msgid "No registrations."
+msgstr "Keine Neuanmeldungen."
+
+#: ../../mod/admin.php:768 ../../mod/notifications.php:161
+#: ../../mod/notifications.php:208
+msgid "Approve"
+msgstr "Genehmigen"
+
+#: ../../mod/admin.php:769
+msgid "Deny"
+msgstr "Verwehren"
+
+#: ../../mod/admin.php:771 ../../mod/contacts.php:353
+#: ../../mod/contacts.php:412
+msgid "Block"
+msgstr "Sperren"
+
+#: ../../mod/admin.php:772 ../../mod/contacts.php:353
+#: ../../mod/contacts.php:412
+msgid "Unblock"
+msgstr "Entsperren"
+
+#: ../../mod/admin.php:773
+msgid "Site admin"
+msgstr "Seitenadministrator"
+
+#: ../../mod/admin.php:774
+msgid "Account expired"
+msgstr "Account ist abgelaufen"
+
+#: ../../mod/admin.php:777
+msgid "Register date"
+msgstr "Anmeldedatum"
+
+#: ../../mod/admin.php:777
+msgid "Last login"
+msgstr "Letzte Anmeldung"
+
+#: ../../mod/admin.php:777
+msgid "Last item"
+msgstr "Letzter Beitrag"
+
+#: ../../mod/admin.php:777
+msgid "Account"
+msgstr "Nutzerkonto"
+
+#: ../../mod/admin.php:779
+msgid ""
+"Selected users will be deleted!\\n\\nEverything these users had posted on "
+"this site will be permanently deleted!\\n\\nAre you sure?"
+msgstr "Die markierten Nutzer werden gelöscht!\\n\\nAlle Beiträge, die diese Nutzer auf dieser Seite veröffentlicht haben, werden permanent gelöscht!\\n\\nBist du sicher?"
+
+#: ../../mod/admin.php:780
+msgid ""
+"The user {0} will be deleted!\\n\\nEverything this user has posted on this "
+"site will be permanently deleted!\\n\\nAre you sure?"
+msgstr "Der Nutzer {0} wird gelöscht!\\n\\nAlles was dieser Nutzer auf dieser Seite veröffentlicht hat, wird permanent gelöscht!\\n\\nBist du sicher?"
+
+#: ../../mod/admin.php:821
+#, php-format
+msgid "Plugin %s disabled."
+msgstr "Plugin %s deaktiviert."
+
+#: ../../mod/admin.php:825
+#, php-format
+msgid "Plugin %s enabled."
+msgstr "Plugin %s aktiviert."
+
+#: ../../mod/admin.php:835 ../../mod/admin.php:1038
+msgid "Disable"
+msgstr "Ausschalten"
+
+#: ../../mod/admin.php:837 ../../mod/admin.php:1040
+msgid "Enable"
+msgstr "Einschalten"
+
+#: ../../mod/admin.php:860 ../../mod/admin.php:1068
+msgid "Toggle"
+msgstr "Umschalten"
+
+#: ../../mod/admin.php:868 ../../mod/admin.php:1078
+msgid "Author: "
+msgstr "Autor:"
+
+#: ../../mod/admin.php:869 ../../mod/admin.php:1079
+msgid "Maintainer: "
+msgstr "Betreuer:"
+
+#: ../../mod/admin.php:998
+msgid "No themes found."
+msgstr "Keine Themen gefunden."
+
+#: ../../mod/admin.php:1060
+msgid "Screenshot"
+msgstr "Bildschirmfoto"
+
+#: ../../mod/admin.php:1106
+msgid "[Experimental]"
+msgstr "[Experimentell]"
+
+#: ../../mod/admin.php:1107
+msgid "[Unsupported]"
+msgstr "[Nicht unterstützt]"
+
+#: ../../mod/admin.php:1134
+msgid "Log settings updated."
+msgstr "Protokolleinstellungen aktualisiert."
+
+#: ../../mod/admin.php:1190
+msgid "Clear"
+msgstr "löschen"
+
+#: ../../mod/admin.php:1196
+msgid "Enable Debugging"
+msgstr "Protokoll führen"
+
+#: ../../mod/admin.php:1197
+msgid "Log file"
+msgstr "Protokolldatei"
+
+#: ../../mod/admin.php:1197
+msgid ""
+"Must be writable by web server. Relative to your Friendica top-level "
+"directory."
+msgstr "Webserver muss Schreibrechte besitzen. Abhängig vom Friendica-Installationsverzeichnis."
+
+#: ../../mod/admin.php:1198
+msgid "Log level"
+msgstr "Protokoll-Level"
+
+#: ../../mod/admin.php:1247 ../../mod/contacts.php:409
+msgid "Update now"
+msgstr "Jetzt aktualisieren"
+
+#: ../../mod/admin.php:1248
+msgid "Close"
+msgstr "Schließen"
+
+#: ../../mod/admin.php:1254
+msgid "FTP Host"
+msgstr "FTP Host"
+
+#: ../../mod/admin.php:1255
+msgid "FTP Path"
+msgstr "FTP Pfad"
+
+#: ../../mod/admin.php:1256
+msgid "FTP User"
+msgstr "FTP Nutzername"
+
+#: ../../mod/admin.php:1257
+msgid "FTP Password"
+msgstr "FTP Passwort"
 
 #: ../../mod/item.php:105
 msgid "Unable to locate original post."
@@ -2852,10 +3650,6 @@ msgstr "Mitgliedschaft auf dieser Seite ist nur nach vorheriger Einladung mögli
 #: ../../mod/register.php:258
 msgid "Your invitation ID: "
 msgstr "ID deiner Einladung: "
-
-#: ../../mod/register.php:261 ../../mod/admin.php:481
-msgid "Registration"
-msgstr "Registrierung"
 
 #: ../../mod/register.php:269
 msgid "Your Full Name (e.g. Joe Smith): "
@@ -3046,10 +3840,6 @@ msgstr "%s teilt mit Dir"
 msgid "Private communications are not available for this contact."
 msgstr "Private Kommunikation ist für diesen Kontakt nicht verfügbar."
 
-#: ../../mod/contacts.php:330
-msgid "Never"
-msgstr "Niemals"
-
 #: ../../mod/contacts.php:334
 msgid "(Update was successful)"
 msgstr "(Aktualisierung war erfolgreich)"
@@ -3070,16 +3860,6 @@ msgstr "Netzwerktyp: %s"
 #: ../../mod/contacts.php:348
 msgid "View all contacts"
 msgstr "Alle Kontakte anzeigen"
-
-#: ../../mod/contacts.php:353 ../../mod/contacts.php:412
-#: ../../mod/admin.php:760
-msgid "Unblock"
-msgstr "Entsperren"
-
-#: ../../mod/contacts.php:353 ../../mod/contacts.php:412
-#: ../../mod/admin.php:759
-msgid "Block"
-msgstr "Sperren"
 
 #: ../../mod/contacts.php:356
 msgid "Toggle Blocked status"
@@ -3173,10 +3953,6 @@ msgstr "letzte Aktualisierung:"
 #: ../../mod/contacts.php:407
 msgid "Update public posts"
 msgstr "Öffentliche Beiträge aktualisieren"
-
-#: ../../mod/contacts.php:409 ../../mod/admin.php:1235
-msgid "Update now"
-msgstr "Jetzt aktualisieren"
 
 #: ../../mod/contacts.php:416
 msgid "Currently blocked"
@@ -3377,11 +4153,6 @@ msgstr "Einstellungen aktualisiert."
 msgid "Add application"
 msgstr "Programm hinzufügen"
 
-#: ../../mod/settings.php:562 ../../mod/settings.php:588
-#: ../../mod/admin.php:754 ../../mod/admin.php:765 ../../mod/crepair.php:148
-msgid "Name"
-msgstr "Name"
-
 #: ../../mod/settings.php:563 ../../mod/settings.php:589
 msgid "Consumer Key"
 msgstr "Consumer Key"
@@ -3529,10 +4300,6 @@ msgstr "In einen Ordner verschieben"
 #: ../../mod/settings.php:738
 msgid "Move to folder:"
 msgstr "In diesen Ordner verschieben:"
-
-#: ../../mod/settings.php:769 ../../mod/admin.php:432
-msgid "No special theme for mobile devices"
-msgstr "Kein spezielles Theme für mobile Geräte verwenden."
 
 #: ../../mod/settings.php:809
 msgid "Display Settings"
@@ -3844,763 +4611,6 @@ msgstr "Erweiterte Konto-/Seitentyp-Einstellungen"
 #: ../../mod/settings.php:1109
 msgid "Change the behaviour of this account for special situations"
 msgstr "Verhalten dieses Kontos in bestimmten Situationen:"
-
-#: ../../mod/admin.php:55
-msgid "Theme settings updated."
-msgstr "Themeneinstellungen aktualisiert."
-
-#: ../../mod/admin.php:96 ../../mod/admin.php:479
-msgid "Site"
-msgstr "Seite"
-
-#: ../../mod/admin.php:97 ../../mod/admin.php:750 ../../mod/admin.php:764
-msgid "Users"
-msgstr "Nutzer"
-
-#: ../../mod/admin.php:98 ../../mod/admin.php:847 ../../mod/admin.php:889
-msgid "Plugins"
-msgstr "Plugins"
-
-#: ../../mod/admin.php:99 ../../mod/admin.php:1055 ../../mod/admin.php:1089
-msgid "Themes"
-msgstr "Themen"
-
-#: ../../mod/admin.php:100
-msgid "DB updates"
-msgstr "DB Updates"
-
-#: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1176
-msgid "Logs"
-msgstr "Protokolle"
-
-#: ../../mod/admin.php:121
-msgid "Plugin Features"
-msgstr "Plugin Features"
-
-#: ../../mod/admin.php:123
-msgid "User registrations waiting for confirmation"
-msgstr "Nutzeranmeldungen die auf Bestätigung warten"
-
-#: ../../mod/admin.php:182 ../../mod/admin.php:721
-msgid "Normal Account"
-msgstr "Normales Konto"
-
-#: ../../mod/admin.php:183 ../../mod/admin.php:722
-msgid "Soapbox Account"
-msgstr "Marktschreier-Konto"
-
-#: ../../mod/admin.php:184 ../../mod/admin.php:723
-msgid "Community/Celebrity Account"
-msgstr "Forum/Promi-Konto"
-
-#: ../../mod/admin.php:185 ../../mod/admin.php:724
-msgid "Automatic Friend Account"
-msgstr "Automatisches Freundekonto"
-
-#: ../../mod/admin.php:186
-msgid "Blog Account"
-msgstr "Blog Account"
-
-#: ../../mod/admin.php:187
-msgid "Private Forum"
-msgstr "Privates Forum"
-
-#: ../../mod/admin.php:206
-msgid "Message queues"
-msgstr "Nachrichten-Warteschlangen"
-
-#: ../../mod/admin.php:211 ../../mod/admin.php:478 ../../mod/admin.php:749
-#: ../../mod/admin.php:846 ../../mod/admin.php:888 ../../mod/admin.php:1054
-#: ../../mod/admin.php:1088 ../../mod/admin.php:1175
-msgid "Administration"
-msgstr "Administration"
-
-#: ../../mod/admin.php:212
-msgid "Summary"
-msgstr "Zusammenfassung"
-
-#: ../../mod/admin.php:214
-msgid "Registered users"
-msgstr "Registrierte Nutzer"
-
-#: ../../mod/admin.php:216
-msgid "Pending registrations"
-msgstr "Anstehende Anmeldungen"
-
-#: ../../mod/admin.php:217
-msgid "Version"
-msgstr "Version"
-
-#: ../../mod/admin.php:219
-msgid "Active plugins"
-msgstr "Aktive Plugins"
-
-#: ../../mod/admin.php:403
-msgid "Site settings updated."
-msgstr "Seiteneinstellungen aktualisiert."
-
-#: ../../mod/admin.php:449
-msgid "Multi user instance"
-msgstr "Mehrbenutzer Instanz"
-
-#: ../../mod/admin.php:465
-msgid "Closed"
-msgstr "Geschlossen"
-
-#: ../../mod/admin.php:466
-msgid "Requires approval"
-msgstr "Bedarf der Zustimmung"
-
-#: ../../mod/admin.php:467
-msgid "Open"
-msgstr "Offen"
-
-#: ../../mod/admin.php:471
-msgid "No SSL policy, links will track page SSL state"
-msgstr "Keine SSL Richtlinie, Links werden das verwendete Protokoll beibehalten"
-
-#: ../../mod/admin.php:472
-msgid "Force all links to use SSL"
-msgstr "SSL für alle Links erzwingen"
-
-#: ../../mod/admin.php:473
-msgid "Self-signed certificate, use SSL for local links only (discouraged)"
-msgstr "Selbst-unterzeichnetes Zertifikat, SSL nur für lokale Links verwenden (nicht empfohlen)"
-
-#: ../../mod/admin.php:482
-msgid "File upload"
-msgstr "Datei hochladen"
-
-#: ../../mod/admin.php:483
-msgid "Policies"
-msgstr "Regeln"
-
-#: ../../mod/admin.php:484
-msgid "Advanced"
-msgstr "Erweitert"
-
-#: ../../mod/admin.php:485
-msgid "Performance"
-msgstr "Performance"
-
-#: ../../mod/admin.php:489
-msgid "Site name"
-msgstr "Seitenname"
-
-#: ../../mod/admin.php:490
-msgid "Banner/Logo"
-msgstr "Banner/Logo"
-
-#: ../../mod/admin.php:491
-msgid "System language"
-msgstr "Systemsprache"
-
-#: ../../mod/admin.php:492
-msgid "System theme"
-msgstr "Systemweites Thema"
-
-#: ../../mod/admin.php:492
-msgid ""
-"Default system theme - may be over-ridden by user profiles - <a href='#' "
-"id='cnftheme'>change theme settings</a>"
-msgstr "Vorgabe für das System-Theme - kann von Benutzerprofilen überschrieben werden - <a href='#' id='cnftheme'>Theme-Einstellungen ändern</a>"
-
-#: ../../mod/admin.php:493
-msgid "Mobile system theme"
-msgstr "Systemweites mobiles Thema"
-
-#: ../../mod/admin.php:493
-msgid "Theme for mobile devices"
-msgstr "Thema für mobile Geräte"
-
-#: ../../mod/admin.php:494
-msgid "SSL link policy"
-msgstr "Regeln für SSL Links"
-
-#: ../../mod/admin.php:494
-msgid "Determines whether generated links should be forced to use SSL"
-msgstr "Bestimmt, ob generierte Links SSL verwenden müssen"
-
-#: ../../mod/admin.php:495
-msgid "'Share' element"
-msgstr "'Teilen' Element"
-
-#: ../../mod/admin.php:495
-msgid "Activates the bbcode element 'share' for repeating items."
-msgstr "Aktiviert das bbcode Element 'Teilen' um Einträge zu wiederholen."
-
-#: ../../mod/admin.php:496
-msgid "Hide help entry from navigation menu"
-msgstr "Verberge den Menüeintrag für die Hilfe im Navigationsmenü"
-
-#: ../../mod/admin.php:496
-msgid ""
-"Hides the menu entry for the Help pages from the navigation menu. You can "
-"still access it calling /help directly."
-msgstr "Verbirgt den Menüeintrag für die Hilfe-Seiten im Navigationsmenü. Die Seiten können weiterhin über /help aufgerufen werden."
-
-#: ../../mod/admin.php:497
-msgid "Single user instance"
-msgstr "Ein-Nutzer Instanz"
-
-#: ../../mod/admin.php:497
-msgid "Make this instance multi-user or single-user for the named user"
-msgstr "Regelt ob es sich bei dieser Instanz um eine ein Personen Installation oder eine Installation mit mehr als einem Nutzer handelt."
-
-#: ../../mod/admin.php:498
-msgid "Maximum image size"
-msgstr "Maximale Größe von Bildern"
-
-#: ../../mod/admin.php:498
-msgid ""
-"Maximum size in bytes of uploaded images. Default is 0, which means no "
-"limits."
-msgstr "Maximale Upload-Größe von Bildern in Bytes. Standard ist 0, d.h. ohne Limit."
-
-#: ../../mod/admin.php:499
-msgid "Maximum image length"
-msgstr "Maximale Länge von Bildern"
-
-#: ../../mod/admin.php:499
-msgid ""
-"Maximum length in pixels of the longest side of uploaded images. Default is "
-"-1, which means no limits."
-msgstr "Maximale Länge in Pixeln der längsten Seite eines hoch geladenen Bildes. Grundeinstellung ist -1 was keine Einschränkung bedeutet."
-
-#: ../../mod/admin.php:500
-msgid "JPEG image quality"
-msgstr "Qualität des JPEG Bildes"
-
-#: ../../mod/admin.php:500
-msgid ""
-"Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
-"100, which is full quality."
-msgstr "Hoch geladene JPEG Bilder werden mit dieser Qualität [0-100] gespeichert. Grundeinstellung ist 100, kein Qualitätsverlust."
-
-#: ../../mod/admin.php:502
-msgid "Register policy"
-msgstr "Registrierungsmethode"
-
-#: ../../mod/admin.php:503
-msgid "Maximum Daily Registrations"
-msgstr "Maximum täglicher Neuanmeldungen"
-
-#: ../../mod/admin.php:503
-msgid ""
-"If registration is permitted above, this sets the maximum number of new user"
-" registrations to accept per day.  If register is set to closed, this "
-"setting has no effect."
-msgstr "Wenn die Registrierung weiter oben erlaubt ist, regelt dies die maximale Anzahl von Neuanmeldungen pro Tag.   Wenn die Registrierung geschlossen ist, hat diese Einstellung keinen Effekt."
-
-#: ../../mod/admin.php:504
-msgid "Register text"
-msgstr "Registrierungstext"
-
-#: ../../mod/admin.php:504
-msgid "Will be displayed prominently on the registration page."
-msgstr "Wird gut sichtbar auf der Registrierungsseite angezeigt."
-
-#: ../../mod/admin.php:505
-msgid "Accounts abandoned after x days"
-msgstr "Nutzerkonten gelten nach x Tagen als unbenutzt"
-
-#: ../../mod/admin.php:505
-msgid ""
-"Will not waste system resources polling external sites for abandonded "
-"accounts. Enter 0 for no time limit."
-msgstr "Verschwende keine System-Ressourcen auf das Pollen externer Seiten, wenn Konten nicht mehr benutzt werden. 0 eingeben für kein Limit."
-
-#: ../../mod/admin.php:506
-msgid "Allowed friend domains"
-msgstr "Erlaubte Domains für Kontakte"
-
-#: ../../mod/admin.php:506
-msgid ""
-"Comma separated list of domains which are allowed to establish friendships "
-"with this site. Wildcards are accepted. Empty to allow any domains"
-msgstr "Liste der Domains, die für Freundschaften erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
-
-#: ../../mod/admin.php:507
-msgid "Allowed email domains"
-msgstr "Erlaubte Domains für E-Mails"
-
-#: ../../mod/admin.php:507
-msgid ""
-"Comma separated list of domains which are allowed in email addresses for "
-"registrations to this site. Wildcards are accepted. Empty to allow any "
-"domains"
-msgstr "Liste der Domains, die für E-Mail-Adressen bei der Registrierung erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
-
-#: ../../mod/admin.php:508
-msgid "Block public"
-msgstr "Öffentlichen Zugriff blockieren"
-
-#: ../../mod/admin.php:508
-msgid ""
-"Check to block public access to all otherwise public personal pages on this "
-"site unless you are currently logged in."
-msgstr "Klicken, um öffentlichen Zugriff auf sonst öffentliche Profile zu blockieren, wenn man nicht eingeloggt ist."
-
-#: ../../mod/admin.php:509
-msgid "Force publish"
-msgstr "Erzwinge Veröffentlichung"
-
-#: ../../mod/admin.php:509
-msgid ""
-"Check to force all profiles on this site to be listed in the site directory."
-msgstr "Klicken, um Anzeige aller Profile dieses Servers im Verzeichnis zu erzwingen."
-
-#: ../../mod/admin.php:510
-msgid "Global directory update URL"
-msgstr "URL für Updates beim weltweiten Verzeichnis"
-
-#: ../../mod/admin.php:510
-msgid ""
-"URL to update the global directory. If this is not set, the global directory"
-" is completely unavailable to the application."
-msgstr "URL für Update des globalen Verzeichnisses. Wenn nichts eingetragen ist, bleibt das globale Verzeichnis unerreichbar."
-
-#: ../../mod/admin.php:511
-msgid "Allow threaded items"
-msgstr "Erlaube Threads in Diskussionen"
-
-#: ../../mod/admin.php:511
-msgid "Allow infinite level threading for items on this site."
-msgstr "Erlaube ein unendliches Level für Threads auf dieser Seite."
-
-#: ../../mod/admin.php:512
-msgid "Private posts by default for new users"
-msgstr "Private Beiträge als Standard für neue Nutzer"
-
-#: ../../mod/admin.php:512
-msgid ""
-"Set default post permissions for all new members to the default privacy "
-"group rather than public."
-msgstr "Die Standard-Zugriffsrechte für neue Nutzer werden so gesetzt, dass als Voreinstellung in die private Gruppe gepostet wird anstelle von öffentlichen Beiträgen."
-
-#: ../../mod/admin.php:513
-msgid "Don't include post content in email notifications"
-msgstr "Inhalte von Beiträgen nicht in Email Benachrichtigungen versenden"
-
-#: ../../mod/admin.php:513
-msgid ""
-"Don't include the content of a post/comment/private message/etc. in the "
-"email notifications that are sent out from this site, as a privacy measure."
-msgstr "Inhalte von Beiträgen/Kommentaren/privaten Nachrichten/usw., zum Datenschutz, nicht in Email-Benachrichtigungen einbinden."
-
-#: ../../mod/admin.php:514
-msgid "Disallow public access to addons listed in the apps menu."
-msgstr "Öffentlichen Zugriff auf Addons im Apps Menü verbieten."
-
-#: ../../mod/admin.php:514
-msgid ""
-"Checking this box will restrict addons listed in the apps menu to members "
-"only."
-msgstr "Wenn ausgewählt werden die im Apps Menü aufgeführten Addons nur angemeldeten Nutzern der Seite zur Verfügung gestellt."
-
-#: ../../mod/admin.php:515
-msgid "Don't embed private images in posts"
-msgstr "Private Bilder nicht in Beiträgen einbetten."
-
-#: ../../mod/admin.php:515
-msgid ""
-"Don't replace locally-hosted private photos in posts with an embedded copy "
-"of the image. This means that contacts who receive posts containing private "
-"photos will have to authenticate and load each image, which may take a "
-"while."
-msgstr "Ersetze lokal gehostete private Fotos in Beiträgen nicht mit einer eingebetteten Kopie des Bildes. Dies bedeutet, dass Kontakte, die Beiträge mit privaten Fotos erhalten sich zunächst auf den jeweiligen Servern authentifizieren müssen bevor die Bilder geladen und angezeigt werden, was eine gewisse Zeit dauert."
-
-#: ../../mod/admin.php:517
-msgid "Block multiple registrations"
-msgstr "Unterbinde Mehrfachregistrierung"
-
-#: ../../mod/admin.php:517
-msgid "Disallow users to register additional accounts for use as pages."
-msgstr "Benutzern nicht erlauben, weitere Konten als zusätzliche Profile anzulegen."
-
-#: ../../mod/admin.php:518
-msgid "OpenID support"
-msgstr "OpenID Unterstützung"
-
-#: ../../mod/admin.php:518
-msgid "OpenID support for registration and logins."
-msgstr "OpenID-Unterstützung für Registrierung und Login."
-
-#: ../../mod/admin.php:519
-msgid "Fullname check"
-msgstr "Namen auf Vollständigkeit überprüfen"
-
-#: ../../mod/admin.php:519
-msgid ""
-"Force users to register with a space between firstname and lastname in Full "
-"name, as an antispam measure"
-msgstr "Leerzeichen zwischen Vor- und Nachname im vollständigen Namen erzwingen, um SPAM zu vermeiden."
-
-#: ../../mod/admin.php:520
-msgid "UTF-8 Regular expressions"
-msgstr "UTF-8 Reguläre Ausdrücke"
-
-#: ../../mod/admin.php:520
-msgid "Use PHP UTF8 regular expressions"
-msgstr "PHP UTF8 Ausdrücke verwenden"
-
-#: ../../mod/admin.php:521
-msgid "Show Community Page"
-msgstr "Gemeinschaftsseite anzeigen"
-
-#: ../../mod/admin.php:521
-msgid ""
-"Display a Community page showing all recent public postings on this site."
-msgstr "Zeige die Gemeinschaftsseite mit allen öffentlichen Beiträgen auf diesem Server."
-
-#: ../../mod/admin.php:522
-msgid "Enable OStatus support"
-msgstr "OStatus Unterstützung aktivieren"
-
-#: ../../mod/admin.php:522
-msgid ""
-"Provide built-in OStatus (identi.ca, status.net, etc.) compatibility. All "
-"communications in OStatus are public, so privacy warnings will be "
-"occasionally displayed."
-msgstr "Biete die eingebaute OStatus (identi.ca, status.net, etc.) Unterstützung an. Jede Kommunikation in OStatus ist öffentlich, Privatsphäre Warnungen werden nur bei Bedarf angezeigt."
-
-#: ../../mod/admin.php:523
-msgid "Enable Diaspora support"
-msgstr "Diaspora-Support aktivieren"
-
-#: ../../mod/admin.php:523
-msgid "Provide built-in Diaspora network compatibility."
-msgstr "Verwende die eingebaute Diaspora-Verknüpfung."
-
-#: ../../mod/admin.php:524
-msgid "Only allow Friendica contacts"
-msgstr "Nur Friendica-Kontakte erlauben"
-
-#: ../../mod/admin.php:524
-msgid ""
-"All contacts must use Friendica protocols. All other built-in communication "
-"protocols disabled."
-msgstr "Alle Kontakte müssen das Friendica Protokoll nutzen. Alle anderen Kommunikationsprotokolle werden deaktiviert."
-
-#: ../../mod/admin.php:525
-msgid "Verify SSL"
-msgstr "SSL Überprüfen"
-
-#: ../../mod/admin.php:525
-msgid ""
-"If you wish, you can turn on strict certificate checking. This will mean you"
-" cannot connect (at all) to self-signed SSL sites."
-msgstr "Wenn gewollt, kann man hier eine strenge Zertifikatkontrolle einstellen. Das bedeutet, dass man zu keinen Seiten mit selbst unterzeichnetem SSL eine Verbindung herstellen kann."
-
-#: ../../mod/admin.php:526
-msgid "Proxy user"
-msgstr "Proxy Nutzer"
-
-#: ../../mod/admin.php:527
-msgid "Proxy URL"
-msgstr "Proxy URL"
-
-#: ../../mod/admin.php:528
-msgid "Network timeout"
-msgstr "Netzwerk Wartezeit"
-
-#: ../../mod/admin.php:528
-msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
-msgstr "Der Wert ist in Sekunden. Setze 0 für unbegrenzt (nicht empfohlen)."
-
-#: ../../mod/admin.php:529
-msgid "Delivery interval"
-msgstr "Zustellungsintervall"
-
-#: ../../mod/admin.php:529
-msgid ""
-"Delay background delivery processes by this many seconds to reduce system "
-"load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 "
-"for large dedicated servers."
-msgstr "Verzögere im Hintergrund laufende Auslieferungsprozesse um die angegebene Anzahl an Sekunden, um die Systemlast zu verringern. Empfehlungen: 4-5 für Shared-Hosts, 2-3 für VPS, 0-1 für große dedizierte Server."
-
-#: ../../mod/admin.php:530
-msgid "Poll interval"
-msgstr "Abfrageintervall"
-
-#: ../../mod/admin.php:530
-msgid ""
-"Delay background polling processes by this many seconds to reduce system "
-"load. If 0, use delivery interval."
-msgstr "Verzögere Hintergrundprozesse, um diese Anzahl an Sekunden um die Systemlast zu reduzieren. Bei 0 Sekunden wird das Auslieferungsintervall verwendet."
-
-#: ../../mod/admin.php:531
-msgid "Maximum Load Average"
-msgstr "Maximum Load Average"
-
-#: ../../mod/admin.php:531
-msgid ""
-"Maximum system load before delivery and poll processes are deferred - "
-"default 50."
-msgstr "Maximale Systemlast bevor Verteil- und Empfangsprozesse verschoben werden - Standard 50"
-
-#: ../../mod/admin.php:533
-msgid "Use MySQL full text engine"
-msgstr "Nutze MySQL full text engine"
-
-#: ../../mod/admin.php:533
-msgid ""
-"Activates the full text engine. Speeds up search - but can only search for "
-"four and more characters."
-msgstr "Aktiviert die 'full text engine'. Beschleunigt die Suche - aber es kann nur nach vier oder mehr Zeichen gesucht werden."
-
-#: ../../mod/admin.php:534
-msgid "Path to item cache"
-msgstr "Pfad zum Eintrag Cache"
-
-#: ../../mod/admin.php:535
-msgid "Cache duration in seconds"
-msgstr "Cache-Dauer in Sekunden"
-
-#: ../../mod/admin.php:535
-msgid ""
-"How long should the cache files be hold? Default value is 86400 seconds (One"
-" day)."
-msgstr "Wie lange sollen die Dateien im Cache vorgehalten werden? Standardwert ist 86400 Sekunden (ein Tag)."
-
-#: ../../mod/admin.php:536
-msgid "Path for lock file"
-msgstr "Pfad für die Sperrdatei"
-
-#: ../../mod/admin.php:537
-msgid "Temp path"
-msgstr "Temp Pfad"
-
-#: ../../mod/admin.php:538
-msgid "Base path to installation"
-msgstr "Basis-Pfad zur Installation"
-
-#: ../../mod/admin.php:555
-msgid "Update has been marked successful"
-msgstr "Update wurde als erfolgreich markiert"
-
-#: ../../mod/admin.php:565
-#, php-format
-msgid "Executing %s failed. Check system logs."
-msgstr "Ausführung von %s schlug fehl. Systemprotokolle prüfen."
-
-#: ../../mod/admin.php:568
-#, php-format
-msgid "Update %s was successfully applied."
-msgstr "Update %s war erfolgreich."
-
-#: ../../mod/admin.php:572
-#, php-format
-msgid "Update %s did not return a status. Unknown if it succeeded."
-msgstr "Update %s hat keinen Status zurückgegeben. Unbekannter Status."
-
-#: ../../mod/admin.php:575
-#, php-format
-msgid "Update function %s could not be found."
-msgstr "Updatefunktion %s konnte nicht gefunden werden."
-
-#: ../../mod/admin.php:590
-msgid "No failed updates."
-msgstr "Keine fehlgeschlagenen Updates."
-
-#: ../../mod/admin.php:594
-msgid "Failed Updates"
-msgstr "Fehlgeschlagene Updates"
-
-#: ../../mod/admin.php:595
-msgid ""
-"This does not include updates prior to 1139, which did not return a status."
-msgstr "Ohne Updates vor 1139, da diese keinen Status zurückgegeben haben."
-
-#: ../../mod/admin.php:596
-msgid "Mark success (if update was manually applied)"
-msgstr "Als erfolgreich markieren (falls das Update manuell installiert wurde)"
-
-#: ../../mod/admin.php:597
-msgid "Attempt to execute this update step automatically"
-msgstr "Versuchen, diesen Schritt automatisch auszuführen"
-
-#: ../../mod/admin.php:622
-#, php-format
-msgid "%s user blocked/unblocked"
-msgid_plural "%s users blocked/unblocked"
-msgstr[0] "%s Benutzer geblockt/freigegeben"
-msgstr[1] "%s Benutzer geblockt/freigegeben"
-
-#: ../../mod/admin.php:629
-#, php-format
-msgid "%s user deleted"
-msgid_plural "%s users deleted"
-msgstr[0] "%s Nutzer gelöscht"
-msgstr[1] "%s Nutzer gelöscht"
-
-#: ../../mod/admin.php:668
-#, php-format
-msgid "User '%s' deleted"
-msgstr "Nutzer '%s' gelöscht"
-
-#: ../../mod/admin.php:676
-#, php-format
-msgid "User '%s' unblocked"
-msgstr "Nutzer '%s' entsperrt"
-
-#: ../../mod/admin.php:676
-#, php-format
-msgid "User '%s' blocked"
-msgstr "Nutzer '%s' gesperrt"
-
-#: ../../mod/admin.php:752
-msgid "select all"
-msgstr "Alle auswählen"
-
-#: ../../mod/admin.php:753
-msgid "User registrations waiting for confirm"
-msgstr "Neuanmeldungen, die auf deine Bestätigung warten"
-
-#: ../../mod/admin.php:754
-msgid "Request date"
-msgstr "Anfragedatum"
-
-#: ../../mod/admin.php:755
-msgid "No registrations."
-msgstr "Keine Neuanmeldungen."
-
-#: ../../mod/admin.php:756 ../../mod/notifications.php:161
-#: ../../mod/notifications.php:208
-msgid "Approve"
-msgstr "Genehmigen"
-
-#: ../../mod/admin.php:757
-msgid "Deny"
-msgstr "Verwehren"
-
-#: ../../mod/admin.php:761
-msgid "Site admin"
-msgstr "Seitenadministrator"
-
-#: ../../mod/admin.php:762
-msgid "Account expired"
-msgstr "Account ist abgelaufen"
-
-#: ../../mod/admin.php:765
-msgid "Register date"
-msgstr "Anmeldedatum"
-
-#: ../../mod/admin.php:765
-msgid "Last login"
-msgstr "Letzte Anmeldung"
-
-#: ../../mod/admin.php:765
-msgid "Last item"
-msgstr "Letzter Beitrag"
-
-#: ../../mod/admin.php:765
-msgid "Account"
-msgstr "Nutzerkonto"
-
-#: ../../mod/admin.php:767
-msgid ""
-"Selected users will be deleted!\\n\\nEverything these users had posted on "
-"this site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Die markierten Nutzer werden gelöscht!\\n\\nAlle Beiträge, die diese Nutzer auf dieser Seite veröffentlicht haben, werden permanent gelöscht!\\n\\nBist du sicher?"
-
-#: ../../mod/admin.php:768
-msgid ""
-"The user {0} will be deleted!\\n\\nEverything this user has posted on this "
-"site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Der Nutzer {0} wird gelöscht!\\n\\nAlles was dieser Nutzer auf dieser Seite veröffentlicht hat, wird permanent gelöscht!\\n\\nBist du sicher?"
-
-#: ../../mod/admin.php:809
-#, php-format
-msgid "Plugin %s disabled."
-msgstr "Plugin %s deaktiviert."
-
-#: ../../mod/admin.php:813
-#, php-format
-msgid "Plugin %s enabled."
-msgstr "Plugin %s aktiviert."
-
-#: ../../mod/admin.php:823 ../../mod/admin.php:1026
-msgid "Disable"
-msgstr "Ausschalten"
-
-#: ../../mod/admin.php:825 ../../mod/admin.php:1028
-msgid "Enable"
-msgstr "Einschalten"
-
-#: ../../mod/admin.php:848 ../../mod/admin.php:1056
-msgid "Toggle"
-msgstr "Umschalten"
-
-#: ../../mod/admin.php:856 ../../mod/admin.php:1066
-msgid "Author: "
-msgstr "Autor:"
-
-#: ../../mod/admin.php:857 ../../mod/admin.php:1067
-msgid "Maintainer: "
-msgstr "Betreuer:"
-
-#: ../../mod/admin.php:986
-msgid "No themes found."
-msgstr "Keine Themen gefunden."
-
-#: ../../mod/admin.php:1048
-msgid "Screenshot"
-msgstr "Bildschirmfoto"
-
-#: ../../mod/admin.php:1094
-msgid "[Experimental]"
-msgstr "[Experimentell]"
-
-#: ../../mod/admin.php:1095
-msgid "[Unsupported]"
-msgstr "[Nicht unterstützt]"
-
-#: ../../mod/admin.php:1122
-msgid "Log settings updated."
-msgstr "Protokolleinstellungen aktualisiert."
-
-#: ../../mod/admin.php:1178
-msgid "Clear"
-msgstr "löschen"
-
-#: ../../mod/admin.php:1184
-msgid "Enable Debugging"
-msgstr "Protokoll führen"
-
-#: ../../mod/admin.php:1185
-msgid "Log file"
-msgstr "Protokolldatei"
-
-#: ../../mod/admin.php:1185
-msgid ""
-"Must be writable by web server. Relative to your Friendica top-level "
-"directory."
-msgstr "Webserver muss Schreibrechte besitzen. Abhängig vom Friendica-Installationsverzeichnis."
-
-#: ../../mod/admin.php:1186
-msgid "Log level"
-msgstr "Protokoll-Level"
-
-#: ../../mod/admin.php:1236
-msgid "Close"
-msgstr "Schließen"
-
-#: ../../mod/admin.php:1242
-msgid "FTP Host"
-msgstr "FTP Host"
-
-#: ../../mod/admin.php:1243
-msgid "FTP Path"
-msgstr "FTP Pfad"
-
-#: ../../mod/admin.php:1244
-msgid "FTP User"
-msgstr "FTP Nutzername"
-
-#: ../../mod/admin.php:1245
-msgid "FTP Password"
-msgstr "FTP Passwort"
 
 #: ../../mod/share.php:44
 msgid "link"
@@ -5531,7 +5541,7 @@ msgid ""
 "Password reset failed."
 msgstr "Anfrage konnte nicht verifiziert werden. (Eventuell hast du bereits eine ähnliche Anfrage gestellt.) Zurücksetzen des Passworts gescheitert."
 
-#: ../../mod/lostpass.php:84 ../../boot.php:1072
+#: ../../mod/lostpass.php:84 ../../boot.php:1081
 msgid "Password Reset"
 msgstr "Passwort zurücksetzen"
 
@@ -5917,7 +5927,7 @@ msgstr "Keine weiteren Pinnwand-Benachrichtigungen"
 msgid "Home Notifications"
 msgstr "Pinnwand Benachrichtigungen"
 
-#: ../../mod/photos.php:51 ../../boot.php:1878
+#: ../../mod/photos.php:51 ../../boot.php:1887
 msgid "Photo Albums"
 msgstr "Fotoalben"
 
@@ -6118,7 +6128,7 @@ msgstr "Das bist du"
 
 #: ../../mod/photos.php:1551 ../../mod/photos.php:1595
 #: ../../mod/photos.php:1678 ../../mod/content.php:732
-#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:651
+#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:652
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -6311,7 +6321,7 @@ msgid ""
 " features and resources."
 msgstr "Unsere <strong>Hilfe</strong> Seiten können herangezogen werden, um weitere Einzelheiten zu andern Programm Features zu erhalten."
 
-#: ../../mod/profile.php:21 ../../boot.php:1246
+#: ../../mod/profile.php:21 ../../boot.php:1255
 msgid "Requested profile is not available."
 msgstr "Das angefragte Profil ist nicht vorhanden."
 
@@ -6955,128 +6965,128 @@ msgstr "Schriftgröße in Beiträgen"
 msgid "Textareas font size"
 msgstr "Schriftgröße in Eingabefeldern"
 
-#: ../../boot.php:650
+#: ../../index.php:405
+msgid "toggle mobile"
+msgstr "auf/von Mobile Ansicht wechseln"
+
+#: ../../boot.php:651
 msgid "Delete this item?"
 msgstr "Diesen Beitrag löschen?"
 
-#: ../../boot.php:653
+#: ../../boot.php:654
 msgid "show fewer"
 msgstr "weniger anzeigen"
 
-#: ../../boot.php:920
+#: ../../boot.php:929
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "Update %s fehlgeschlagen. Bitte Fehlerprotokoll überprüfen."
 
-#: ../../boot.php:922
+#: ../../boot.php:931
 #, php-format
 msgid "Update Error at %s"
 msgstr "Updatefehler bei %s"
 
-#: ../../boot.php:1032
+#: ../../boot.php:1041
 msgid "Create a New Account"
 msgstr "Neues Konto erstellen"
 
-#: ../../boot.php:1060
+#: ../../boot.php:1069
 msgid "Nickname or Email address: "
 msgstr "Spitzname oder E-Mail-Adresse: "
 
-#: ../../boot.php:1061
+#: ../../boot.php:1070
 msgid "Password: "
 msgstr "Passwort: "
 
-#: ../../boot.php:1062
+#: ../../boot.php:1071
 msgid "Remember me"
 msgstr "Anmeldedaten merken"
 
-#: ../../boot.php:1065
+#: ../../boot.php:1074
 msgid "Or login using OpenID: "
 msgstr "Oder melde dich mit deiner OpenID an: "
 
-#: ../../boot.php:1071
+#: ../../boot.php:1080
 msgid "Forgot your password?"
 msgstr "Passwort vergessen?"
 
-#: ../../boot.php:1074
+#: ../../boot.php:1083
 msgid "Website Terms of Service"
 msgstr "Website Nutzungsbedingungen"
 
-#: ../../boot.php:1075
+#: ../../boot.php:1084
 msgid "terms of service"
 msgstr "Nutzungsbedingungen"
 
-#: ../../boot.php:1077
+#: ../../boot.php:1086
 msgid "Website Privacy Policy"
 msgstr "Website Datenschutzerklärung"
 
-#: ../../boot.php:1078
+#: ../../boot.php:1087
 msgid "privacy policy"
 msgstr "Datenschutzerklärung"
 
-#: ../../boot.php:1207
+#: ../../boot.php:1216
 msgid "Requested account is not available."
 msgstr "Das angefragte Profil ist nicht vorhanden."
 
-#: ../../boot.php:1286 ../../boot.php:1390
+#: ../../boot.php:1295 ../../boot.php:1399
 msgid "Edit profile"
 msgstr "Profil bearbeiten"
 
-#: ../../boot.php:1352
+#: ../../boot.php:1361
 msgid "Message"
 msgstr "Nachricht"
 
-#: ../../boot.php:1360
+#: ../../boot.php:1369
 msgid "Manage/edit profiles"
 msgstr "Profile verwalten/editieren"
 
-#: ../../boot.php:1489 ../../boot.php:1575
+#: ../../boot.php:1498 ../../boot.php:1584
 msgid "g A l F d"
 msgstr "l, d. F G \\U\\h\\r"
 
-#: ../../boot.php:1490 ../../boot.php:1576
+#: ../../boot.php:1499 ../../boot.php:1585
 msgid "F d"
 msgstr "d. F"
 
-#: ../../boot.php:1535 ../../boot.php:1616
+#: ../../boot.php:1544 ../../boot.php:1625
 msgid "[today]"
 msgstr "[heute]"
 
-#: ../../boot.php:1547
+#: ../../boot.php:1556
 msgid "Birthday Reminders"
 msgstr "Geburtstagserinnerungen"
 
-#: ../../boot.php:1548
+#: ../../boot.php:1557
 msgid "Birthdays this week:"
 msgstr "Geburtstage diese Woche:"
 
-#: ../../boot.php:1609
+#: ../../boot.php:1618
 msgid "[No description]"
 msgstr "[keine Beschreibung]"
 
-#: ../../boot.php:1627
+#: ../../boot.php:1636
 msgid "Event Reminders"
 msgstr "Veranstaltungserinnerungen"
 
-#: ../../boot.php:1628
+#: ../../boot.php:1637
 msgid "Events this week:"
 msgstr "Veranstaltungen diese Woche"
 
-#: ../../boot.php:1864
+#: ../../boot.php:1873
 msgid "Status Messages and Posts"
 msgstr "Statusnachrichten und Beiträge"
 
-#: ../../boot.php:1871
+#: ../../boot.php:1880
 msgid "Profile Details"
 msgstr "Profildetails"
 
-#: ../../boot.php:1888
+#: ../../boot.php:1897
 msgid "Events and Calendar"
 msgstr "Ereignisse und Kalender"
 
-#: ../../boot.php:1895
+#: ../../boot.php:1904
 msgid "Only You Can See This"
 msgstr "Nur du kannst das sehen"
-
-#: ../../index.php:405
-msgid "toggle mobile"
-msgstr "auf/von Mobile Ansicht wechseln"
