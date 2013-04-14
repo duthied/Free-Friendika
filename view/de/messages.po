@@ -26,7 +26,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-04-04 00:02-0700\n"
-"PO-Revision-Date: 2013-04-06 06:22+0000\n"
+"PO-Revision-Date: 2013-04-14 15:25+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -4114,7 +4114,7 @@ msgstr "Leere Passwörter sind nicht erlaubt. Passwort bleibt unverändert."
 
 #: ../../mod/settings.php:323
 msgid "Password changed."
-msgstr "Passwort ändern."
+msgstr "Passwort geändert."
 
 #: ../../mod/settings.php:325
 msgid "Password update failed. Please try again."
