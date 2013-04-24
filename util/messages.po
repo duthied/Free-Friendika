@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1677\n"
+"Project-Id-Version: 3.1.1679\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-21 00:02-0700\n"
+"POT-Creation-Date: 2013-04-23 00:02-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1105,90 +1105,6 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: ../../include/items.php:1791 ../../include/datetime.php:472
-#, php-format
-msgid "%s's birthday"
-msgstr ""
-
-#: ../../include/items.php:1792 ../../include/datetime.php:473
-#, php-format
-msgid "Happy Birthday %s"
-msgstr ""
-
-#: ../../include/items.php:3466 ../../mod/dfrn_request.php:716
-msgid "[Name Withheld]"
-msgstr ""
-
-#: ../../include/items.php:3473
-msgid "A new person is sharing with you at "
-msgstr ""
-
-#: ../../include/items.php:3473
-msgid "You have a new follower at "
-msgstr ""
-
-#: ../../include/items.php:3957 ../../mod/display.php:51
-#: ../../mod/display.php:246 ../../mod/admin.php:158 ../../mod/admin.php:809
-#: ../../mod/admin.php:1009 ../../mod/viewsrc.php:15 ../../mod/notice.php:15
-msgid "Item not found."
-msgstr ""
-
-#: ../../include/items.php:3996
-msgid "Do you really want to delete this item?"
-msgstr ""
-
-#: ../../include/items.php:3998 ../../mod/profiles.php:610
-#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/contacts.php:246
-#: ../../mod/settings.php:954 ../../mod/settings.php:960
-#: ../../mod/settings.php:968 ../../mod/settings.php:972
-#: ../../mod/settings.php:977 ../../mod/settings.php:983
-#: ../../mod/settings.php:989 ../../mod/settings.php:995
-#: ../../mod/settings.php:1025 ../../mod/settings.php:1026
-#: ../../mod/settings.php:1027 ../../mod/settings.php:1028
-#: ../../mod/settings.php:1029 ../../mod/dfrn_request.php:836
-#: ../../mod/suggest.php:29 ../../mod/message.php:209
-msgid "Yes"
-msgstr ""
-
-#: ../../include/items.php:4001 ../../include/conversation.php:1080
-#: ../../mod/contacts.php:249 ../../mod/settings.php:581
-#: ../../mod/settings.php:607 ../../mod/dfrn_request.php:848
-#: ../../mod/suggest.php:32 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
-#: ../../mod/editpost.php:148 ../../mod/fbrowser.php:81
-#: ../../mod/fbrowser.php:116 ../../mod/message.php:212
-#: ../../mod/photos.php:202 ../../mod/photos.php:290
-msgid "Cancel"
-msgstr ""
-
-#: ../../include/items.php:4121 ../../mod/profiles.php:146
-#: ../../mod/profiles.php:571 ../../mod/notes.php:20 ../../mod/display.php:242
-#: ../../mod/nogroup.php:25 ../../mod/item.php:140 ../../mod/item.php:156
-#: ../../mod/allfriends.php:9 ../../mod/api.php:26 ../../mod/api.php:31
-#: ../../mod/register.php:40 ../../mod/regmod.php:118 ../../mod/attach.php:33
-#: ../../mod/contacts.php:147 ../../mod/settings.php:91
-#: ../../mod/settings.php:562 ../../mod/settings.php:567
-#: ../../mod/crepair.php:115 ../../mod/delegate.php:6 ../../mod/poke.php:135
-#: ../../mod/dfrn_confirm.php:53 ../../mod/suggest.php:56
-#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/uimport.php:23
-#: ../../mod/follow.php:9 ../../mod/fsuggest.php:78 ../../mod/group.php:19
-#: ../../mod/viewcontacts.php:22 ../../mod/wall_attach.php:55
-#: ../../mod/wall_upload.php:66 ../../mod/invite.php:15
-#: ../../mod/invite.php:101 ../../mod/wallmessage.php:9
-#: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
-#: ../../mod/wallmessage.php:103 ../../mod/manage.php:96
-#: ../../mod/message.php:38 ../../mod/message.php:174 ../../mod/mood.php:114
-#: ../../mod/network.php:6 ../../mod/notifications.php:66
-#: ../../mod/photos.php:133 ../../mod/photos.php:1044
-#: ../../mod/install.php:151 ../../mod/profile_photo.php:19
-#: ../../mod/profile_photo.php:169 ../../mod/profile_photo.php:180
-#: ../../mod/profile_photo.php:193 ../../index.php:346
-msgid "Permission denied."
-msgstr ""
-
-#: ../../include/items.php:4191
-msgid "Archives"
-msgstr ""
-
 #: ../../include/network.php:875
 msgid "view full size"
 msgstr ""
@@ -1266,6 +1182,16 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
+#: ../../include/datetime.php:472 ../../include/items.php:1813
+#, php-format
+msgid "%s's birthday"
+msgstr ""
+
+#: ../../include/datetime.php:473 ../../include/items.php:1814
+#, php-format
+msgid "Happy Birthday %s"
+msgstr ""
+
 #: ../../include/plugin.php:439 ../../include/plugin.php:441
 msgid "Click here to upgrade."
 msgstr ""
@@ -1314,6 +1240,80 @@ msgstr ""
 
 #: ../../include/diaspora.php:2262
 msgid "Attachments:"
+msgstr ""
+
+#: ../../include/items.php:3488 ../../mod/dfrn_request.php:716
+msgid "[Name Withheld]"
+msgstr ""
+
+#: ../../include/items.php:3495
+msgid "A new person is sharing with you at "
+msgstr ""
+
+#: ../../include/items.php:3495
+msgid "You have a new follower at "
+msgstr ""
+
+#: ../../include/items.php:3979 ../../mod/display.php:51
+#: ../../mod/display.php:246 ../../mod/admin.php:158 ../../mod/admin.php:809
+#: ../../mod/admin.php:1009 ../../mod/viewsrc.php:15 ../../mod/notice.php:15
+msgid "Item not found."
+msgstr ""
+
+#: ../../include/items.php:4018
+msgid "Do you really want to delete this item?"
+msgstr ""
+
+#: ../../include/items.php:4020 ../../mod/profiles.php:610
+#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/contacts.php:246
+#: ../../mod/settings.php:954 ../../mod/settings.php:960
+#: ../../mod/settings.php:968 ../../mod/settings.php:972
+#: ../../mod/settings.php:977 ../../mod/settings.php:983
+#: ../../mod/settings.php:989 ../../mod/settings.php:995
+#: ../../mod/settings.php:1025 ../../mod/settings.php:1026
+#: ../../mod/settings.php:1027 ../../mod/settings.php:1028
+#: ../../mod/settings.php:1029 ../../mod/dfrn_request.php:836
+#: ../../mod/suggest.php:29 ../../mod/message.php:209
+msgid "Yes"
+msgstr ""
+
+#: ../../include/items.php:4023 ../../include/conversation.php:1080
+#: ../../mod/contacts.php:249 ../../mod/settings.php:581
+#: ../../mod/settings.php:607 ../../mod/dfrn_request.php:848
+#: ../../mod/suggest.php:32 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
+#: ../../mod/editpost.php:148 ../../mod/fbrowser.php:81
+#: ../../mod/fbrowser.php:116 ../../mod/message.php:212
+#: ../../mod/photos.php:202 ../../mod/photos.php:290
+msgid "Cancel"
+msgstr ""
+
+#: ../../include/items.php:4143 ../../mod/profiles.php:146
+#: ../../mod/profiles.php:571 ../../mod/notes.php:20 ../../mod/display.php:242
+#: ../../mod/nogroup.php:25 ../../mod/item.php:140 ../../mod/item.php:156
+#: ../../mod/allfriends.php:9 ../../mod/api.php:26 ../../mod/api.php:31
+#: ../../mod/register.php:40 ../../mod/regmod.php:118 ../../mod/attach.php:33
+#: ../../mod/contacts.php:147 ../../mod/settings.php:91
+#: ../../mod/settings.php:562 ../../mod/settings.php:567
+#: ../../mod/crepair.php:115 ../../mod/delegate.php:6 ../../mod/poke.php:135
+#: ../../mod/dfrn_confirm.php:53 ../../mod/suggest.php:56
+#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/uimport.php:23
+#: ../../mod/follow.php:9 ../../mod/fsuggest.php:78 ../../mod/group.php:19
+#: ../../mod/viewcontacts.php:22 ../../mod/wall_attach.php:55
+#: ../../mod/wall_upload.php:66 ../../mod/invite.php:15
+#: ../../mod/invite.php:101 ../../mod/wallmessage.php:9
+#: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
+#: ../../mod/wallmessage.php:103 ../../mod/manage.php:96
+#: ../../mod/message.php:38 ../../mod/message.php:174 ../../mod/mood.php:114
+#: ../../mod/network.php:6 ../../mod/notifications.php:66
+#: ../../mod/photos.php:133 ../../mod/photos.php:1044
+#: ../../mod/install.php:151 ../../mod/profile_photo.php:19
+#: ../../mod/profile_photo.php:169 ../../mod/profile_photo.php:180
+#: ../../mod/profile_photo.php:193 ../../index.php:346
+msgid "Permission denied."
+msgstr ""
+
+#: ../../include/items.php:4213
+msgid "Archives"
 msgstr ""
 
 #: ../../include/features.php:23
