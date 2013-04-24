@@ -2,7 +2,7 @@
   	style.css
   	Theme: Smoothly
 	Maintainer: alex@friendica.pixelbits.de
-	last change: 2013-04-01
+	last change: 2013-04-24
 
 ** Colors ** 
 Blue links - #1873a2
@@ -18,7 +18,7 @@ Orange - #fec01d
 
 @media only screen and (device-width: 768px) {
 /* For general iPad layouts */
-#page {
+#body {
 	-moz-background-clip: border; 
 	-moz-background-origin: pdading; 
 	-moz-background-size: auto auto; 
@@ -133,11 +133,16 @@ input[type=submit]:active {
 }
 
 section {
+	position: relative;
 	float: left;
-	margin-top: 50px;
+	margin: 50px auto -2em; /* the bottom margin is the negative value of the footer's height */
 	width: 730px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
 	font-size: 0.9em;
 	line-height: 1.2em;
+	padding-bottom: 2em;
 }
 
 .lframe {
@@ -316,11 +321,9 @@ section {
 /* ========= */
 
 .pager {
-	padding-top: 10px;
-	padding-bottom: 10px;
 	display: block;
-	clear: both;
-	text-align: center;
+	/*clear: both;*/
+	text-align: left;
 }
 
 .pager a {
@@ -347,7 +350,7 @@ nav {
 	list-style: none outside none;
 	margin: 0;
 	padding: 0;
-	width: 960px;
+	width: 958px;
 	z-index: 10000;
 	height: 40px;
 	position: fixed;
@@ -569,16 +572,16 @@ ul#user-menu-popup li a.nav-sep {
 }
 
 #lang-select-icon {
-	bottom: 6px;
+	bottom: 5px;
 	cursor: pointer;
-	left: 28px;
+	left: 915px;
 	position: fixed;
 	z-index: 10;
 }
 #language-selector {
 	position: fixed;
 	bottom: 2px;
-	left: 52px;
+	left: 945px;
 	z-index: 10;
 }
 
@@ -1723,7 +1726,7 @@ ul .sidebar-group-li .icon {
 #item-delete-selected-end,
 #item-delete-selected {	
 	overflow: auto;
-	margin-top: 20px;
+	margin-top: 0px;
 	float: right;
 	width: 250px;
 }
@@ -3720,23 +3723,23 @@ margin-left: 0px;
 .field {
     /*margin-bottom: 10px;*/
     overflow: auto;
-    padding-bottom: 0px;
+    padding-bottom: 10px;
     width: 100%;
 }
 
 .field.radio .field_help {
-    margin-left: 205px;
+    margin-left: 255px;
 }
 
 .field .field_help {
     color: #666666;
     display: block;
-    margin-left: 200px;
+    margin-left: 225px;
 }
 
 .field label {
     float: left;
-    width: 210px;
+    width: 225px;
 }
 
 .field checkbox {
@@ -3746,7 +3749,8 @@ margin-left: 0px;
 
 .field input,
 .field textarea {
-	width: 400px;
+	/*width: 400px;*/
+	float: left;
 	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
@@ -3921,10 +3925,32 @@ margin-left: 0px;
 	font-size: 0.7em; 
 }
 
-footer { 
-	display: block; 
-	margin: 50px 20%; 
-	clear: both; 
+footer {
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0edf0), color-stop(1, #e2e2e2) );
+	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
+	background-color: #f0edf0;
+	border-radius: 5px 5px 0px 0px;
+		-moz-border-radius: 5px 5px 0px 0px;
+		-webkit-border-radius: 5px 5px 0px 0px;
+	border: 1px solid #7C7D7B;
+	border-bottom: none;
+	box-shadow: 1px 2px 6px 0px #959494;
+		-moz-box-shadow: 1px 2px 6px 0px #959494;
+		-webkit-box-shadow: 1px 2px 6px 0px #959494;
+	color: #EFEFEF;
+	display: block;
+	float: right;
+	font-size: 15px;
+	height: 2em;
+	list-style: none outside none;
+	margin: 0 0 0 755px;
+	padding: 0;
+	position: fixed;
+	bottom: 0;
+	width: 203px;
+	z-index: 10;
+	clear:both;
 }
 
 
@@ -4295,9 +4321,9 @@ ul.menu-popup {
 /* SCROLL TO TOP
 ----------------------------------------------------------- */
 #scrollup {
-	position: fixed;
-	right: 1px;
-	bottom: 260px;
+	position: absolute;
+	right: 70px;
+	bottom: -4px;
 	z-index: 100;
 }
 

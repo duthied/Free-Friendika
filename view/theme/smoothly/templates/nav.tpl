@@ -61,11 +61,6 @@
 	</div>
 </nav>
 
-<div id="scrollup" >
-<a href="javascript:scrollTo(0,0)"><img src="view/theme/smoothly/images/totop.png" alt="to top" title="to top" /></a><br />
-<a href="javascript:ScrollToBottom()"><img src="view/theme/smoothly/images/tobottom.png" alt="to bottom" title="to bottom" /></a>
-</div>
-
 <ul id="nav-notifications-template" style="display:none;" rel="template">
 	<li class="{4}"><a href="{0}"><img data-src="{1}" height="24" width="24" alt="" />{2} <span class="notif-when">{3}</span></a></li>
 </ul>
