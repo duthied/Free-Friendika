@@ -294,7 +294,7 @@ function construct_activity_target($item) {
 if(! function_exists('limit_body_size')) {
 function limit_body_size($body) {
 
-	logger('limit_body_size: start', LOGGER_DEBUG);
+//	logger('limit_body_size: start', LOGGER_DEBUG);
 
 	$maxlen = get_max_import_size();
 

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1681\n"
+"Project-Id-Version: 3.1.1684\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-25 00:02-0700\n"
+"POT-Creation-Date: 2013-04-28 00:02-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1086,7 +1086,7 @@ msgstr ""
 msgid " on Last.fm"
 msgstr ""
 
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:545
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:549
 msgid "Image/photo"
 msgstr ""
 
@@ -1097,11 +1097,11 @@ msgid ""
 "href=\"%s\" target=\"external-link\">post</a>"
 msgstr ""
 
-#: ../../include/bbcode.php:510 ../../include/bbcode.php:530
+#: ../../include/bbcode.php:514 ../../include/bbcode.php:534
 msgid "$1 wrote:"
 msgstr ""
 
-#: ../../include/bbcode.php:553 ../../include/bbcode.php:554
+#: ../../include/bbcode.php:557 ../../include/bbcode.php:558
 msgid "Encrypted content"
 msgstr ""
 

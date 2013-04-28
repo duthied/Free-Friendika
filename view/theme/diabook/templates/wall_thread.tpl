@@ -75,11 +75,11 @@
 				{{if $item.vote.dislike}}
 				<a href="#" id="dislike-{{$item.id}}" class="icon dislike" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>
 				{{/if}}
-			{{/if}}
 						
-			{{if $item.vote.share}}
+				{{if $item.vote.share}}
 				<a href="#" id="share-{{$item.id}}" class="icon recycle" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>
-			{{/if}}	
+				{{/if}}	
+			{{/if}}
 
 
 			{{if $item.star}}
