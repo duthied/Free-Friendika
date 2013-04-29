@@ -377,6 +377,18 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$page_writeable = false;
 	$live_update_div = '';
 
+	$arr_blocked = null;
+
+	if(local_user()) {
+		$str_blocked = get_pconfig(local_user(),'system','blocked');
+		if($str_blocked) {
+			$arr_blocked = explode(',',$str_blocked);
+			for($x = 0; $x < count($arr_blocked); $x ++)
+				$arr_blocked[$x] = trim($arr_blocked[$x]);
+		}
+
+	}
+
 	$previewing = (($preview) ? ' preview ' : '');
 
 	if($mode === 'network') {
@@ -493,6 +505,19 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			$tpl = 'search_item.tpl';
 
 			foreach($items as $item) {
+				if($arr_blocked) {
+					$blocked = false;
+					foreach($arr_blocked as $b) {
+						if($b && link_compare($item['author-link'],$b)) {
+							$blocked = true;
+							break;
+						}
+					}
+					if($blocked)
+						continue;
+				}
+							
+
 				$threadsid++;
 
 				$comment     = '';
@@ -690,6 +715,21 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 			$threads = array();
 			foreach($items as $item) {
+
+				if($arr_blocked) {
+					$blocked = false;
+					foreach($arr_blocked as $b) {
+						
+						if($b && link_compare($item['author-link'],$b)) {
+							$blocked = true;
+							break;
+						}
+					}
+					if($blocked)
+						continue;
+				}
+							
+
 
 				// Can we put this after the visibility check?
 				like_puller($a,$item,$alike,'like');
