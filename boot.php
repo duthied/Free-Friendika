@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1684' );
+define ( 'FRIENDICA_VERSION',      '3.1.1688' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1163      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -423,6 +423,7 @@ if(! class_exists('App')) {
 			$this->performance["start"] = microtime(true);
 			$this->performance["database"] = 0;
 			$this->performance["network"] = 0;
+			$this->performance["file"] = 0;
 			$this->performance["rendering"] = 0;
 			$this->performance["parser"] = 0;
 			$this->performance["marktime"] = 0;
