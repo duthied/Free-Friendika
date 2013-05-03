@@ -2099,10 +2099,7 @@ function random_digits($digits) {
 function get_cachefile($file, $writemode = true) {
 	$cache = get_config("system","itemcache");
 
-	if ($cache == "")
-		return("");
-
-	if (!is_dir($cache))
+	if ((! $cache) || (! is_dir($cache)))
 		return("");
 
 	$subfolder = $cache."/".substr($file, 0, 2);
