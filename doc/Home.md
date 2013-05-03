@@ -3,7 +3,7 @@ Friendica Documentation and Resources
 
 **Contents**
 
-* Generell functions - first steps
+* General functions - first steps
 	* [Account Basics](help/Account-Basics)
 	* [New User Quick Start](help/Quick-Start-guide)
 	* [Creating posts](help/Text_editor)
