@@ -639,6 +639,12 @@ aside h4 {
 	font-size: 1.3em;
 }
 
+.vcard  {
+	width: 205px;
+	padding-bottom: 10px;
+	/*border-bottom-style: dotted;*/
+}
+
 .vcard .title {
 	font-size: 1em;
 }
@@ -1061,11 +1067,13 @@ ul .sidebar-group-li .icon {
 .contact-block-h4,
 .contact-block-content {
 	margin: 0;
+	font-size: 1.2em;
 }
 
 #contact-block,
 #contact-block-end {
 	clear: both;
+	padding-top: 10px;
 }
 
 /* ======= */
@@ -4426,6 +4434,7 @@ hr.line-dots {
 	float: left;
 	text-align: left;
 	display: block;
+	line-height: 0.6em;
 }
 
 .adr, 
@@ -4435,6 +4444,8 @@ hr.line-dots {
 	float: left;
 	display: block;
 	margin-left: 8px;
+	line-height: 1em;
+	text-align: left;
 }
 
 #birthday-notice {}
