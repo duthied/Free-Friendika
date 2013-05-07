@@ -2,7 +2,7 @@
   	style.css
   	Theme: Smoothly
 	Maintainer: alex@friendica.pixelbits.de
-	last change: 2013-04-24
+	last change: 2013-05-07
 
 ** Colors ** 
 Blue links - #1873a2
@@ -574,14 +574,14 @@ ul#user-menu-popup li a.nav-sep {
 #lang-select-icon {
 	bottom: 5px;
 	cursor: pointer;
-	left: 915px;
+	left: 25px;
 	position: fixed;
 	z-index: 10;
 }
 #language-selector {
 	position: fixed;
 	bottom: 2px;
-	left: 945px;
+	left: 55px;
 	z-index: 10;
 }
 
@@ -1032,8 +1032,8 @@ ul .sidebar-group-li .icon {
 /* ================== */
 
 .contact-block-img {
-	width: 47px;
-	height: 47px;
+	width: 47px !important;
+	height: 47px !important;
 	margin-right: 2px;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
@@ -3739,7 +3739,7 @@ margin-left: 0px;
 
 .field label {
     float: left;
-    width: 225px;
+    width: 230px;
 }
 
 .field checkbox {
