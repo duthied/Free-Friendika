@@ -3933,7 +3933,13 @@ margin-left: 0px;
 	font-size: 0.7em; 
 }
 
-footer {
+footer { display: block; margin: 50px 20%; clear: both; }
+
+/* ========== */
+/* = Tools = */
+/* ========== */
+
+tools {
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0edf0), color-stop(1, #e2e2e2) );
 	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
@@ -3960,7 +3966,6 @@ footer {
 	z-index: 10;
 	clear:both;
 }
-
 
 /* ======= */
 /* = ACL = */
