@@ -28,8 +28,9 @@
 	<footer id="footer">
 		<?php if(x($page, 'footer')) echo $page['footer']; ?>
 		<div id="scrollup" >
-		<a href="javascript:scrollTo(0,100000)"><img src="view/theme/smoothly/images/tobottom.png" alt="to bottom" title="to bottom" /></a>
-		<a href="javascript:scrollTo(0,0)"><img src="view/theme/smoothly/images/totop.png" alt="to top" title="to top" /></a>
+		<a class="item-scrollup" href="javascript:scrollTo(0,100000)"><img src="view/theme/smoothly/images/down.png" alt="to bottom" title="to bottom" /></a>
+		<a class="item-scrollup" href="javascript:scrollTo(0,0)"><img src="view/theme/smoothly/images/up.png" alt="to top" title="to top" /></a>
+		<a class="item-scrollup" href="logout"><img src="view/theme/smoothly/images/power.png" alt="power" title="power" /></a>
 		</div>
 	</footer>
 

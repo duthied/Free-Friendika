@@ -2,7 +2,7 @@
   	style.css
   	Theme: Smoothly
 	Maintainer: alex@friendica.pixelbits.de
-	last change: 2013-05-07
+	last change: 2013-05-08
 
 ** Colors ** 
 Blue links - #1873a2
@@ -3950,7 +3950,7 @@ footer {
 	display: block;
 	float: right;
 	font-size: 15px;
-	height: 2em;
+	height: 38px;
 	list-style: none outside none;
 	margin: 0 0 0 755px;
 	padding: 0;
@@ -4330,14 +4330,19 @@ ul.menu-popup {
 ----------------------------------------------------------- */
 #scrollup {
 	position: absolute;
-	right: 70px;
-	bottom: -4px;
+	right: 0px;
+	bottom: -1px;
 	z-index: 100;
+padding-right: 10px;
 }
 
 #scrollup a:hover {
 	text-decoration: none;
 	border: 0;
+}
+
+.item-scrollup {
+	margin-left: 5px;
 }
 
 /* New posts and comments => background color

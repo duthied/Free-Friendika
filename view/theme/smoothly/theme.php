@@ -3,7 +3,7 @@
 /*
  * Name: Smoothly
  * Description: Like coffee with milk. Theme optimized for iPad[2].
- * Version: Version 2013-05-07.2
+ * Version: Version 2013-05-08
  * Author: Anne Walk
  * Author: Devlon Duthied
  * Maintainer: Alex <https://friendica.pixelbits.de/profile/alex>
