@@ -2,7 +2,7 @@
   	style.css
   	Theme: Smoothly
 	Maintainer: alex@friendica.pixelbits.de
-	last change: 2013-04-24
+	last change: 2013-05-08
 
 ** Colors ** 
 Blue links - #1873a2
@@ -574,14 +574,14 @@ ul#user-menu-popup li a.nav-sep {
 #lang-select-icon {
 	bottom: 5px;
 	cursor: pointer;
-	left: 915px;
+	left: 25px;
 	position: fixed;
 	z-index: 10;
 }
 #language-selector {
 	position: fixed;
 	bottom: 2px;
-	left: 945px;
+	left: 55px;
 	z-index: 10;
 }
 
@@ -637,6 +637,12 @@ aside a {
 
 aside h4 {
 	font-size: 1.3em;
+}
+
+.vcard  {
+	width: 205px;
+	padding-bottom: 10px;
+	/*border-bottom-style: dotted;*/
 }
 
 .vcard .title {
@@ -1032,8 +1038,8 @@ ul .sidebar-group-li .icon {
 /* ================== */
 
 .contact-block-img {
-	width: 47px;
-	height: 47px;
+	width: 47px !important;
+	height: 47px !important;
 	margin-right: 2px;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
@@ -1061,11 +1067,13 @@ ul .sidebar-group-li .icon {
 .contact-block-h4,
 .contact-block-content {
 	margin: 0;
+	font-size: 1.2em;
 }
 
 #contact-block,
 #contact-block-end {
 	clear: both;
+	padding-top: 10px;
 }
 
 /* ======= */
@@ -3739,7 +3747,7 @@ margin-left: 0px;
 
 .field label {
     float: left;
-    width: 225px;
+    width: 230px;
 }
 
 .field checkbox {
@@ -3925,7 +3933,13 @@ margin-left: 0px;
 	font-size: 0.7em; 
 }
 
-footer {
+footer { display: block; margin: 50px 20%; clear: both; }
+
+/* ========== */
+/* = Tools = */
+/* ========== */
+
+tools {
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0edf0), color-stop(1, #e2e2e2) );
 	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
@@ -3942,7 +3956,7 @@ footer {
 	display: block;
 	float: right;
 	font-size: 15px;
-	height: 2em;
+	height: 38px;
 	list-style: none outside none;
 	margin: 0 0 0 755px;
 	padding: 0;
@@ -3952,7 +3966,6 @@ footer {
 	z-index: 10;
 	clear:both;
 }
-
 
 /* ======= */
 /* = ACL = */
@@ -4322,14 +4335,19 @@ ul.menu-popup {
 ----------------------------------------------------------- */
 #scrollup {
 	position: absolute;
-	right: 70px;
-	bottom: -4px;
+	right: 0px;
+	bottom: -1px;
 	z-index: 100;
+padding-right: 10px;
 }
 
 #scrollup a:hover {
 	text-decoration: none;
 	border: 0;
+}
+
+.item-scrollup {
+	margin-left: 5px;
 }
 
 /* New posts and comments => background color
@@ -4426,6 +4444,7 @@ hr.line-dots {
 	float: left;
 	text-align: left;
 	display: block;
+	line-height: 0.6em;
 }
 
 .adr, 
@@ -4435,6 +4454,8 @@ hr.line-dots {
 	float: left;
 	display: block;
 	margin-left: 8px;
+	line-height: 1em;
+	text-align: left;
 }
 
 #birthday-notice {}
