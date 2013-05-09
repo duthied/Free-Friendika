@@ -44,6 +44,9 @@ function item_post(&$a) {
 	logger('postvars ' . print_r($_REQUEST,true), LOGGER_DATA);
 
 	$api_source = ((x($_REQUEST,'api_source') && $_REQUEST['api_source']) ? true : false);
+
+	$message_id = ((x($_REQUEST,'message_id') && $api_source)  ? strip_tags($_REQUEST['message_id'])       : '');
+
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 	$preview = ((x($_REQUEST,'preview')) ? intval($_REQUEST['preview']) : 0);
 
@@ -590,7 +593,7 @@ function item_post(&$a) {
 	
 	$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 
-	$uri = item_new_uri($a->get_hostname(),$profile_uid);
+	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid));
 
 	// Fallback so that we alway have a thr-parent
 	if(!$thr_parent)

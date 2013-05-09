@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1688\n"
+"Project-Id-Version: 3.1.1695\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-02 00:02-0700\n"
+"POT-Creation-Date: 2013-05-09 00:02-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 #: ../../include/profile_advanced.php:7 ../../include/profile_advanced.php:84
 #: ../../include/nav.php:77 ../../mod/profperm.php:103
 #: ../../mod/newmember.php:32 ../../view/theme/diabook/theme.php:88
-#: ../../boot.php:1945
+#: ../../boot.php:1946
 msgid "Profile"
 msgstr ""
 
@@ -30,7 +30,7 @@ msgid "Full Name:"
 msgstr ""
 
 #: ../../include/profile_advanced.php:17 ../../mod/directory.php:136
-#: ../../boot.php:1485
+#: ../../boot.php:1486
 msgid "Gender:"
 msgstr ""
 
@@ -51,7 +51,7 @@ msgid "Age:"
 msgstr ""
 
 #: ../../include/profile_advanced.php:37 ../../mod/directory.php:138
-#: ../../boot.php:1488
+#: ../../boot.php:1489
 msgid "Status:"
 msgstr ""
 
@@ -65,7 +65,7 @@ msgid "Sexual Preference:"
 msgstr ""
 
 #: ../../include/profile_advanced.php:48 ../../mod/directory.php:140
-#: ../../boot.php:1490
+#: ../../boot.php:1491
 msgid "Homepage:"
 msgstr ""
 
@@ -751,7 +751,7 @@ msgid "Finishes:"
 msgstr ""
 
 #: ../../include/bb2diaspora.php:415 ../../include/event.php:40
-#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1483
+#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1484
 msgid "Location:"
 msgstr ""
 
@@ -1001,7 +1001,7 @@ msgid "Example: bob@example.com, http://example.com/barbara"
 msgstr ""
 
 #: ../../include/contact_widgets.php:9 ../../mod/suggest.php:88
-#: ../../mod/match.php:58 ../../boot.php:1415
+#: ../../mod/match.php:58 ../../boot.php:1416
 msgid "Connect"
 msgstr ""
 
@@ -1078,7 +1078,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../include/contact_widgets.php:204 ../../mod/content.php:629
-#: ../../object/Item.php:365 ../../boot.php:669
+#: ../../object/Item.php:365 ../../boot.php:670
 msgid "show more"
 msgstr ""
 
@@ -1105,7 +1105,7 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: ../../include/network.php:875
+#: ../../include/network.php:877
 msgid "view full size"
 msgstr ""
 
@@ -1289,7 +1289,7 @@ msgstr ""
 
 #: ../../include/items.php:4143 ../../mod/profiles.php:146
 #: ../../mod/profiles.php:571 ../../mod/notes.php:20 ../../mod/display.php:242
-#: ../../mod/nogroup.php:25 ../../mod/item.php:140 ../../mod/item.php:156
+#: ../../mod/nogroup.php:25 ../../mod/item.php:143 ../../mod/item.php:159
 #: ../../mod/allfriends.php:9 ../../mod/api.php:26 ../../mod/api.php:31
 #: ../../mod/register.php:40 ../../mod/regmod.php:118 ../../mod/attach.php:33
 #: ../../mod/contacts.php:147 ../../mod/settings.php:91
@@ -1978,7 +1978,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: ../../include/message.php:144 ../../mod/item.php:443
+#: ../../include/message.php:144 ../../mod/item.php:446
 #: ../../mod/wall_upload.php:135 ../../mod/wall_upload.php:144
 #: ../../mod/wall_upload.php:151
 msgid "Wall Photos"
@@ -1992,7 +1992,7 @@ msgstr ""
 msgid "Clear notifications"
 msgstr ""
 
-#: ../../include/nav.php:73 ../../boot.php:1134
+#: ../../include/nav.php:73 ../../boot.php:1135
 msgid "Logout"
 msgstr ""
 
@@ -2000,7 +2000,7 @@ msgstr ""
 msgid "End this session"
 msgstr ""
 
-#: ../../include/nav.php:76 ../../boot.php:1938
+#: ../../include/nav.php:76 ../../boot.php:1939
 msgid "Status"
 msgstr ""
 
@@ -2014,7 +2014,7 @@ msgid "Your profile page"
 msgstr ""
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
-#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1952
+#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1953
 msgid "Photos"
 msgstr ""
 
@@ -2023,7 +2023,7 @@ msgid "Your photos"
 msgstr ""
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1962
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1963
 msgid "Events"
 msgstr ""
 
@@ -2039,7 +2039,7 @@ msgstr ""
 msgid "Your personal photos"
 msgstr ""
 
-#: ../../include/nav.php:91 ../../boot.php:1135
+#: ../../include/nav.php:91 ../../boot.php:1136
 msgid "Login"
 msgstr ""
 
@@ -2056,7 +2056,7 @@ msgstr ""
 msgid "Home Page"
 msgstr ""
 
-#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1110
+#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1111
 msgid "Register"
 msgstr ""
 
@@ -2185,7 +2185,7 @@ msgstr ""
 msgid "Account settings"
 msgstr ""
 
-#: ../../include/nav.php:169 ../../boot.php:1437
+#: ../../include/nav.php:169 ../../boot.php:1438
 msgid "Profiles"
 msgstr ""
 
@@ -2584,23 +2584,23 @@ msgstr ""
 msgid "Edit/Manage Profiles"
 msgstr ""
 
-#: ../../mod/profiles.php:726 ../../boot.php:1443 ../../boot.php:1469
+#: ../../mod/profiles.php:726 ../../boot.php:1444 ../../boot.php:1470
 msgid "Change profile photo"
 msgstr ""
 
-#: ../../mod/profiles.php:727 ../../boot.php:1444
+#: ../../mod/profiles.php:727 ../../boot.php:1445
 msgid "Create New Profile"
 msgstr ""
 
-#: ../../mod/profiles.php:738 ../../boot.php:1454
+#: ../../mod/profiles.php:738 ../../boot.php:1455
 msgid "Profile Image"
 msgstr ""
 
-#: ../../mod/profiles.php:740 ../../boot.php:1457
+#: ../../mod/profiles.php:740 ../../boot.php:1458
 msgid "visible to everybody"
 msgstr ""
 
-#: ../../mod/profiles.php:741 ../../boot.php:1458
+#: ../../mod/profiles.php:741 ../../boot.php:1459
 msgid "Edit visibility"
 msgstr ""
 
@@ -2628,7 +2628,7 @@ msgstr ""
 msgid "All Contacts (with secure profile access)"
 msgstr ""
 
-#: ../../mod/notes.php:44 ../../boot.php:1969
+#: ../../mod/notes.php:44 ../../boot.php:1970
 msgid "Personal Notes"
 msgstr ""
 
@@ -3503,36 +3503,36 @@ msgstr ""
 msgid "FTP Password"
 msgstr ""
 
-#: ../../mod/item.php:105
+#: ../../mod/item.php:108
 msgid "Unable to locate original post."
 msgstr ""
 
-#: ../../mod/item.php:307
+#: ../../mod/item.php:310
 msgid "Empty post discarded."
 msgstr ""
 
-#: ../../mod/item.php:869
+#: ../../mod/item.php:872
 msgid "System error. Post not saved."
 msgstr ""
 
-#: ../../mod/item.php:894
+#: ../../mod/item.php:897
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social network."
 msgstr ""
 
-#: ../../mod/item.php:896
+#: ../../mod/item.php:899
 #, php-format
 msgid "You may visit them online at %s"
 msgstr ""
 
-#: ../../mod/item.php:897
+#: ../../mod/item.php:900
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
 msgstr ""
 
-#: ../../mod/item.php:901
+#: ../../mod/item.php:904
 #, php-format
 msgid "%s posted an update."
 msgstr ""
@@ -5547,7 +5547,7 @@ msgid ""
 "Password reset failed."
 msgstr ""
 
-#: ../../mod/lostpass.php:84 ../../boot.php:1149
+#: ../../mod/lostpass.php:84 ../../boot.php:1150
 msgid "Password Reset"
 msgstr ""
 
@@ -5933,7 +5933,7 @@ msgstr ""
 msgid "Home Notifications"
 msgstr ""
 
-#: ../../mod/photos.php:51 ../../boot.php:1955
+#: ../../mod/photos.php:51 ../../boot.php:1956
 msgid "Photo Albums"
 msgstr ""
 
@@ -6133,7 +6133,7 @@ msgstr ""
 
 #: ../../mod/photos.php:1551 ../../mod/photos.php:1595
 #: ../../mod/photos.php:1678 ../../mod/content.php:732
-#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:668
+#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:669
 msgid "Comment"
 msgstr ""
 
@@ -6326,7 +6326,7 @@ msgid ""
 "features and resources."
 msgstr ""
 
-#: ../../mod/profile.php:21 ../../boot.php:1323
+#: ../../mod/profile.php:21 ../../boot.php:1324
 msgid "Requested profile is not available."
 msgstr ""
 
@@ -6965,124 +6965,124 @@ msgstr ""
 msgid "toggle mobile"
 msgstr ""
 
-#: ../../boot.php:667
+#: ../../boot.php:668
 msgid "Delete this item?"
 msgstr ""
 
-#: ../../boot.php:670
+#: ../../boot.php:671
 msgid "show fewer"
 msgstr ""
 
-#: ../../boot.php:997
+#: ../../boot.php:998
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr ""
 
-#: ../../boot.php:999
+#: ../../boot.php:1000
 #, php-format
 msgid "Update Error at %s"
 msgstr ""
 
-#: ../../boot.php:1109
+#: ../../boot.php:1110
 msgid "Create a New Account"
 msgstr ""
 
-#: ../../boot.php:1137
+#: ../../boot.php:1138
 msgid "Nickname or Email address: "
 msgstr ""
 
-#: ../../boot.php:1138
+#: ../../boot.php:1139
 msgid "Password: "
 msgstr ""
 
-#: ../../boot.php:1139
+#: ../../boot.php:1140
 msgid "Remember me"
 msgstr ""
 
-#: ../../boot.php:1142
+#: ../../boot.php:1143
 msgid "Or login using OpenID: "
 msgstr ""
 
-#: ../../boot.php:1148
+#: ../../boot.php:1149
 msgid "Forgot your password?"
 msgstr ""
 
-#: ../../boot.php:1151
+#: ../../boot.php:1152
 msgid "Website Terms of Service"
 msgstr ""
 
-#: ../../boot.php:1152
+#: ../../boot.php:1153
 msgid "terms of service"
 msgstr ""
 
-#: ../../boot.php:1154
+#: ../../boot.php:1155
 msgid "Website Privacy Policy"
 msgstr ""
 
-#: ../../boot.php:1155
+#: ../../boot.php:1156
 msgid "privacy policy"
 msgstr ""
 
-#: ../../boot.php:1284
+#: ../../boot.php:1285
 msgid "Requested account is not available."
 msgstr ""
 
-#: ../../boot.php:1363 ../../boot.php:1467
+#: ../../boot.php:1364 ../../boot.php:1468
 msgid "Edit profile"
 msgstr ""
 
-#: ../../boot.php:1429
+#: ../../boot.php:1430
 msgid "Message"
 msgstr ""
 
-#: ../../boot.php:1437
+#: ../../boot.php:1438
 msgid "Manage/edit profiles"
 msgstr ""
 
-#: ../../boot.php:1566 ../../boot.php:1652
+#: ../../boot.php:1567 ../../boot.php:1653
 msgid "g A l F d"
 msgstr ""
 
-#: ../../boot.php:1567 ../../boot.php:1653
+#: ../../boot.php:1568 ../../boot.php:1654
 msgid "F d"
 msgstr ""
 
-#: ../../boot.php:1612 ../../boot.php:1693
+#: ../../boot.php:1613 ../../boot.php:1694
 msgid "[today]"
 msgstr ""
 
-#: ../../boot.php:1624
+#: ../../boot.php:1625
 msgid "Birthday Reminders"
 msgstr ""
 
-#: ../../boot.php:1625
+#: ../../boot.php:1626
 msgid "Birthdays this week:"
 msgstr ""
 
-#: ../../boot.php:1686
+#: ../../boot.php:1687
 msgid "[No description]"
 msgstr ""
 
-#: ../../boot.php:1704
+#: ../../boot.php:1705
 msgid "Event Reminders"
 msgstr ""
 
-#: ../../boot.php:1705
+#: ../../boot.php:1706
 msgid "Events this week:"
 msgstr ""
 
-#: ../../boot.php:1941
+#: ../../boot.php:1942
 msgid "Status Messages and Posts"
 msgstr ""
 
-#: ../../boot.php:1948
+#: ../../boot.php:1949
 msgid "Profile Details"
 msgstr ""
 
-#: ../../boot.php:1965
+#: ../../boot.php:1966
 msgid "Events and Calendar"
 msgstr ""
 
-#: ../../boot.php:1972
+#: ../../boot.php:1973
 msgid "Only You Can See This"
 msgstr ""

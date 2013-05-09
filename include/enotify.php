@@ -268,11 +268,17 @@ function notification($params) {
 	$datarray['type']  = $params['type'];
 	$datarray['verb']  = $params['verb'];
 	$datarray['otype'] = $params['otype'];
+	$datarray['abort'] = false;
  
 	call_hooks('enotify_store', $datarray);
 
-	// create notification entry in DB
+	if($datarray['abort']) {
+		pop_lang();
+		return;
+	}
 
+	// create notification entry in DB
+	if($datarray['store']) {
 	$r = q("insert into notify (hash,name,url,photo,date,uid,link,parent,type,verb,otype)
 		values('%s','%s','%s','%s','%s',%d,'%s',%d,%d,'%s','%s')",
 		dbesc($datarray['hash']),
