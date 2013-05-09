@@ -26,7 +26,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-05-09 00:02-0700\n"
-"PO-Revision-Date: 2013-05-09 16:17+0000\n"
+"PO-Revision-Date: 2013-05-09 17:05+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -5376,7 +5376,7 @@ msgstr "%s: Keine gültige Email Adresse."
 
 #: ../../mod/invite.php:73
 msgid "Please join us on Friendica"
-msgstr "Wir laden Dich zu unserem sozialen Netzwerk Friendica ein"
+msgstr "Ich lade Dich zu unserem sozialen Netzwerk Friendica ein"
 
 #: ../../mod/invite.php:84
 msgid "Invitation limit exceeded. Please contact your site administrator."
