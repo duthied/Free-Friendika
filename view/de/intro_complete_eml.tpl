@@ -1,11 +1,11 @@
 
 Hallo $[username],
 
-	'$[fn]' auf '$[dfrn_url]' hat deine Verbindungsanfrage 
-auf '$[sitename]' akzeptiert.
+	'$[fn]' auf '$[dfrn_url]' akzeptierte 
+deine Verbindungsanfrage auf '$[sitename]'.
 
-	'$[fn]' hat entschieden Dich als "Fan" zu akzeptieren, was zu einigen 
-Einschränkungen bei der Kommunikation führt - wie zB das Schreiben von privaten Nachrichten und einige Profil
+	'$[fn]' hat entschieden dich als "Fan" zu akzeptieren, was zu einigen 
+Einschränkungen bei der Kommunikation führt - wie z.B. das Schreiben von privaten Nachrichten und einige Profil
 Interaktionen. Sollte dies ein Promi-Konto oder eine Forum-Seite sein, werden die Einstellungen
 automatisch angewandt.
 
