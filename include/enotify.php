@@ -278,7 +278,7 @@ function notification($params) {
 	}
 
 	// create notification entry in DB
-	if($datarray['store']) {
+
 	$r = q("insert into notify (hash,name,url,photo,date,uid,link,parent,type,verb,otype)
 		values('%s','%s','%s','%s','%s',%d,'%s',%d,%d,'%s','%s')",
 		dbesc($datarray['hash']),
