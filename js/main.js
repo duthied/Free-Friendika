@@ -188,7 +188,11 @@
 
 				$("img[data-src]", nnm).each(function(i, el){
 					// Add src attribute for images with a data-src attribute
-					$(el).attr('src', $(el).data("src"));
+					// However, don't bother if the data-src attribute is empty, because
+					// an empty "src" tag for an image will cause some browsers
+					// to prefetch the root page of the Friendica hub, which will
+					// unnecessarily load an entire profile/ or network/ page
+					if($(el).data("src") != '') $(el).attr('src', $(el).data("src"));
 				});
 			}
 
@@ -381,6 +385,9 @@
 			}
 			/* autocomplete @nicknames */
 			$(".comment-edit-form  textarea").contact_autocomplete(baseurl+"/acl");
+
+			// setup videos, since VideoJS won't take care of any loaded via AJAX
+			if(typeof videojs != 'undefined') videojs.autoSetup();
 		});
 	}
 
