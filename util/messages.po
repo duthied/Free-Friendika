@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1697\n"
+"Project-Id-Version: 3.1.1699\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-11 00:02-0700\n"
+"POT-Creation-Date: 2013-05-13 00:03-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -401,309 +401,6 @@ msgstr ""
 msgid "Send PM"
 msgstr ""
 
-#: ../../include/text.php:294
-msgid "prev"
-msgstr ""
-
-#: ../../include/text.php:296
-msgid "first"
-msgstr ""
-
-#: ../../include/text.php:325
-msgid "last"
-msgstr ""
-
-#: ../../include/text.php:328
-msgid "next"
-msgstr ""
-
-#: ../../include/text.php:352
-msgid "newer"
-msgstr ""
-
-#: ../../include/text.php:356
-msgid "older"
-msgstr ""
-
-#: ../../include/text.php:807
-msgid "No contacts"
-msgstr ""
-
-#: ../../include/text.php:816
-#, php-format
-msgid "%d Contact"
-msgid_plural "%d Contacts"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../../include/text.php:828 ../../mod/viewcontacts.php:76
-msgid "View Contacts"
-msgstr ""
-
-#: ../../include/text.php:905 ../../include/text.php:906
-#: ../../include/nav.php:118 ../../mod/search.php:99
-msgid "Search"
-msgstr ""
-
-#: ../../include/text.php:908 ../../mod/notes.php:63 ../../mod/filer.php:31
-msgid "Save"
-msgstr ""
-
-#: ../../include/text.php:957
-msgid "poke"
-msgstr ""
-
-#: ../../include/text.php:957 ../../include/conversation.php:211
-msgid "poked"
-msgstr ""
-
-#: ../../include/text.php:958
-msgid "ping"
-msgstr ""
-
-#: ../../include/text.php:958
-msgid "pinged"
-msgstr ""
-
-#: ../../include/text.php:959
-msgid "prod"
-msgstr ""
-
-#: ../../include/text.php:959
-msgid "prodded"
-msgstr ""
-
-#: ../../include/text.php:960
-msgid "slap"
-msgstr ""
-
-#: ../../include/text.php:960
-msgid "slapped"
-msgstr ""
-
-#: ../../include/text.php:961
-msgid "finger"
-msgstr ""
-
-#: ../../include/text.php:961
-msgid "fingered"
-msgstr ""
-
-#: ../../include/text.php:962
-msgid "rebuff"
-msgstr ""
-
-#: ../../include/text.php:962
-msgid "rebuffed"
-msgstr ""
-
-#: ../../include/text.php:976
-msgid "happy"
-msgstr ""
-
-#: ../../include/text.php:977
-msgid "sad"
-msgstr ""
-
-#: ../../include/text.php:978
-msgid "mellow"
-msgstr ""
-
-#: ../../include/text.php:979
-msgid "tired"
-msgstr ""
-
-#: ../../include/text.php:980
-msgid "perky"
-msgstr ""
-
-#: ../../include/text.php:981
-msgid "angry"
-msgstr ""
-
-#: ../../include/text.php:982
-msgid "stupified"
-msgstr ""
-
-#: ../../include/text.php:983
-msgid "puzzled"
-msgstr ""
-
-#: ../../include/text.php:984
-msgid "interested"
-msgstr ""
-
-#: ../../include/text.php:985
-msgid "bitter"
-msgstr ""
-
-#: ../../include/text.php:986
-msgid "cheerful"
-msgstr ""
-
-#: ../../include/text.php:987
-msgid "alive"
-msgstr ""
-
-#: ../../include/text.php:988
-msgid "annoyed"
-msgstr ""
-
-#: ../../include/text.php:989
-msgid "anxious"
-msgstr ""
-
-#: ../../include/text.php:990
-msgid "cranky"
-msgstr ""
-
-#: ../../include/text.php:991
-msgid "disturbed"
-msgstr ""
-
-#: ../../include/text.php:992
-msgid "frustrated"
-msgstr ""
-
-#: ../../include/text.php:993
-msgid "motivated"
-msgstr ""
-
-#: ../../include/text.php:994
-msgid "relaxed"
-msgstr ""
-
-#: ../../include/text.php:995
-msgid "surprised"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Monday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Tuesday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Wednesday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Thursday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Friday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Saturday"
-msgstr ""
-
-#: ../../include/text.php:1161
-msgid "Sunday"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "January"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "February"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "March"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "April"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "May"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "June"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "July"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "August"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "September"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "October"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "November"
-msgstr ""
-
-#: ../../include/text.php:1165
-msgid "December"
-msgstr ""
-
-#: ../../include/text.php:1322
-msgid "bytes"
-msgstr ""
-
-#: ../../include/text.php:1349 ../../include/text.php:1361
-msgid "Click to open/close"
-msgstr ""
-
-#: ../../include/text.php:1523 ../../mod/events.php:335
-msgid "link to source"
-msgstr ""
-
-#: ../../include/text.php:1566 ../../include/user.php:237
-msgid "default"
-msgstr ""
-
-#: ../../include/text.php:1578
-msgid "Select an alternate language"
-msgstr ""
-
-#: ../../include/text.php:1830 ../../include/conversation.php:118
-#: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
-msgid "event"
-msgstr ""
-
-#: ../../include/text.php:1832 ../../include/diaspora.php:1874
-#: ../../include/conversation.php:126 ../../include/conversation.php:254
-#: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
-#: ../../view/theme/diabook/theme.php:464
-msgid "photo"
-msgstr ""
-
-#: ../../include/text.php:1834
-msgid "activity"
-msgstr ""
-
-#: ../../include/text.php:1836 ../../mod/content.php:628
-#: ../../object/Item.php:364 ../../object/Item.php:377
-msgid "comment"
-msgid_plural "comments"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../../include/text.php:1837
-msgid "post"
-msgstr ""
-
-#: ../../include/text.php:1992
-msgid "Item filed"
-msgstr ""
-
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
 msgstr ""
@@ -876,6 +573,10 @@ msgstr ""
 
 #: ../../include/user.php:212
 msgid "An error occurred during registration. Please try again."
+msgstr ""
+
+#: ../../include/user.php:237 ../../include/text.php:1594
+msgid "default"
 msgstr ""
 
 #: ../../include/user.php:247
@@ -1223,6 +924,13 @@ msgstr ""
 msgid "Sharing notification from Diaspora network"
 msgstr ""
 
+#: ../../include/diaspora.php:1874 ../../include/text.php:1860
+#: ../../include/conversation.php:126 ../../include/conversation.php:254
+#: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
+#: ../../view/theme/diabook/theme.php:464
+msgid "photo"
+msgstr ""
+
 #: ../../include/diaspora.php:1874 ../../include/conversation.php:121
 #: ../../include/conversation.php:130 ../../include/conversation.php:249
 #: ../../include/conversation.php:258 ../../mod/subthread.php:87
@@ -1472,6 +1180,302 @@ msgstr ""
 #: ../../include/dba.php:44
 #, php-format
 msgid "Cannot locate DNS info for database server '%s'"
+msgstr ""
+
+#: ../../include/text.php:294
+msgid "prev"
+msgstr ""
+
+#: ../../include/text.php:296
+msgid "first"
+msgstr ""
+
+#: ../../include/text.php:325
+msgid "last"
+msgstr ""
+
+#: ../../include/text.php:328
+msgid "next"
+msgstr ""
+
+#: ../../include/text.php:352
+msgid "newer"
+msgstr ""
+
+#: ../../include/text.php:356
+msgid "older"
+msgstr ""
+
+#: ../../include/text.php:807
+msgid "No contacts"
+msgstr ""
+
+#: ../../include/text.php:816
+#, php-format
+msgid "%d Contact"
+msgid_plural "%d Contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../../include/text.php:828 ../../mod/viewcontacts.php:76
+msgid "View Contacts"
+msgstr ""
+
+#: ../../include/text.php:905 ../../include/text.php:906
+#: ../../include/nav.php:118 ../../mod/search.php:99
+msgid "Search"
+msgstr ""
+
+#: ../../include/text.php:908 ../../mod/notes.php:63 ../../mod/filer.php:31
+msgid "Save"
+msgstr ""
+
+#: ../../include/text.php:957
+msgid "poke"
+msgstr ""
+
+#: ../../include/text.php:957 ../../include/conversation.php:211
+msgid "poked"
+msgstr ""
+
+#: ../../include/text.php:958
+msgid "ping"
+msgstr ""
+
+#: ../../include/text.php:958
+msgid "pinged"
+msgstr ""
+
+#: ../../include/text.php:959
+msgid "prod"
+msgstr ""
+
+#: ../../include/text.php:959
+msgid "prodded"
+msgstr ""
+
+#: ../../include/text.php:960
+msgid "slap"
+msgstr ""
+
+#: ../../include/text.php:960
+msgid "slapped"
+msgstr ""
+
+#: ../../include/text.php:961
+msgid "finger"
+msgstr ""
+
+#: ../../include/text.php:961
+msgid "fingered"
+msgstr ""
+
+#: ../../include/text.php:962
+msgid "rebuff"
+msgstr ""
+
+#: ../../include/text.php:962
+msgid "rebuffed"
+msgstr ""
+
+#: ../../include/text.php:976
+msgid "happy"
+msgstr ""
+
+#: ../../include/text.php:977
+msgid "sad"
+msgstr ""
+
+#: ../../include/text.php:978
+msgid "mellow"
+msgstr ""
+
+#: ../../include/text.php:979
+msgid "tired"
+msgstr ""
+
+#: ../../include/text.php:980
+msgid "perky"
+msgstr ""
+
+#: ../../include/text.php:981
+msgid "angry"
+msgstr ""
+
+#: ../../include/text.php:982
+msgid "stupified"
+msgstr ""
+
+#: ../../include/text.php:983
+msgid "puzzled"
+msgstr ""
+
+#: ../../include/text.php:984
+msgid "interested"
+msgstr ""
+
+#: ../../include/text.php:985
+msgid "bitter"
+msgstr ""
+
+#: ../../include/text.php:986
+msgid "cheerful"
+msgstr ""
+
+#: ../../include/text.php:987
+msgid "alive"
+msgstr ""
+
+#: ../../include/text.php:988
+msgid "annoyed"
+msgstr ""
+
+#: ../../include/text.php:989
+msgid "anxious"
+msgstr ""
+
+#: ../../include/text.php:990
+msgid "cranky"
+msgstr ""
+
+#: ../../include/text.php:991
+msgid "disturbed"
+msgstr ""
+
+#: ../../include/text.php:992
+msgid "frustrated"
+msgstr ""
+
+#: ../../include/text.php:993
+msgid "motivated"
+msgstr ""
+
+#: ../../include/text.php:994
+msgid "relaxed"
+msgstr ""
+
+#: ../../include/text.php:995
+msgid "surprised"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Monday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Tuesday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Wednesday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Thursday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Friday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Saturday"
+msgstr ""
+
+#: ../../include/text.php:1161
+msgid "Sunday"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "January"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "February"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "March"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "April"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "May"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "June"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "July"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "August"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "September"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "October"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "November"
+msgstr ""
+
+#: ../../include/text.php:1165
+msgid "December"
+msgstr ""
+
+#: ../../include/text.php:1321 ../../mod/videos.php:301
+msgid "View Video"
+msgstr ""
+
+#: ../../include/text.php:1353
+msgid "bytes"
+msgstr ""
+
+#: ../../include/text.php:1377 ../../include/text.php:1389
+msgid "Click to open/close"
+msgstr ""
+
+#: ../../include/text.php:1551 ../../mod/events.php:335
+msgid "link to source"
+msgstr ""
+
+#: ../../include/text.php:1606
+msgid "Select an alternate language"
+msgstr ""
+
+#: ../../include/text.php:1858 ../../include/conversation.php:118
+#: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
+msgid "event"
+msgstr ""
+
+#: ../../include/text.php:1862
+msgid "activity"
+msgstr ""
+
+#: ../../include/text.php:1864 ../../mod/content.php:628
+#: ../../object/Item.php:364 ../../object/Item.php:377
+msgid "comment"
+msgid_plural "comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../../include/text.php:1865
+msgid "post"
+msgstr ""
+
+#: ../../include/text.php:2020
+msgid "Item filed"
 msgstr ""
 
 #: ../../include/group.php:25
@@ -2023,7 +2027,7 @@ msgid "Your photos"
 msgstr ""
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1963
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1970
 msgid "Events"
 msgstr ""
 
@@ -2628,14 +2632,14 @@ msgstr ""
 msgid "All Contacts (with secure profile access)"
 msgstr ""
 
-#: ../../mod/notes.php:44 ../../boot.php:1970
+#: ../../mod/notes.php:44 ../../boot.php:1977
 msgid "Personal Notes"
 msgstr ""
 
 #: ../../mod/display.php:19 ../../mod/search.php:89
 #: ../../mod/dfrn_request.php:761 ../../mod/directory.php:31
-#: ../../mod/viewcontacts.php:17 ../../mod/photos.php:914
-#: ../../mod/community.php:18
+#: ../../mod/videos.php:115 ../../mod/viewcontacts.php:17
+#: ../../mod/photos.php:914 ../../mod/community.php:18
 msgid "Public access denied."
 msgstr ""
 
@@ -5043,6 +5047,26 @@ msgstr ""
 msgid "No matches"
 msgstr ""
 
+#: ../../mod/videos.php:125
+msgid "No videos selected"
+msgstr ""
+
+#: ../../mod/videos.php:226 ../../mod/photos.php:1025
+msgid "Access to this item is restricted."
+msgstr ""
+
+#: ../../mod/videos.php:308 ../../mod/photos.php:1784
+msgid "View Album"
+msgstr ""
+
+#: ../../mod/videos.php:317
+msgid "Recent Videos"
+msgstr ""
+
+#: ../../mod/videos.php:319
+msgid "Upload New Videos"
+msgstr ""
+
 #: ../../mod/tagrm.php:41
 msgid "Tag removed"
 msgstr ""
@@ -5993,10 +6017,6 @@ msgstr ""
 msgid "No photos selected"
 msgstr ""
 
-#: ../../mod/photos.php:1025
-msgid "Access to this item is restricted."
-msgstr ""
-
 #: ../../mod/photos.php:1088
 #, php-format
 msgid "You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."
@@ -6135,10 +6155,6 @@ msgstr ""
 #: ../../mod/photos.php:1678 ../../mod/content.php:732
 #: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:669
 msgid "Comment"
-msgstr ""
-
-#: ../../mod/photos.php:1784
-msgid "View Album"
 msgstr ""
 
 #: ../../mod/photos.php:1793
@@ -7079,10 +7095,14 @@ msgstr ""
 msgid "Profile Details"
 msgstr ""
 
-#: ../../boot.php:1966
-msgid "Events and Calendar"
+#: ../../boot.php:1960 ../../boot.php:1963
+msgid "Videos"
 msgstr ""
 
 #: ../../boot.php:1973
+msgid "Events and Calendar"
+msgstr ""
+
+#: ../../boot.php:1980
 msgid "Only You Can See This"
 msgstr ""

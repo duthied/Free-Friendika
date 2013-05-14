@@ -26,7 +26,7 @@ echo "New DB VERSION: " . DB_UPDATE_VERSION . "\n";
 
 if($build != DB_UPDATE_VERSION) {
 	echo "Updating database...";
-	check_config($a);
+	check_db($a);
 	echo "Done\n";
 }
 
