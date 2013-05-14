@@ -25,8 +25,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-05-09 00:02-0700\n"
-"PO-Revision-Date: 2013-05-09 17:05+0000\n"
+"POT-Creation-Date: 2013-05-13 00:03-0700\n"
+"PO-Revision-Date: 2013-05-14 17:16+0000\n"
 "Last-Translator: bavatar <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -418,309 +418,6 @@ msgstr "Kontakt bearbeiten"
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
-#: ../../include/text.php:294
-msgid "prev"
-msgstr "vorige"
-
-#: ../../include/text.php:296
-msgid "first"
-msgstr "erste"
-
-#: ../../include/text.php:325
-msgid "last"
-msgstr "letzte"
-
-#: ../../include/text.php:328
-msgid "next"
-msgstr "nächste"
-
-#: ../../include/text.php:352
-msgid "newer"
-msgstr "neuer"
-
-#: ../../include/text.php:356
-msgid "older"
-msgstr "älter"
-
-#: ../../include/text.php:807
-msgid "No contacts"
-msgstr "Keine Kontakte"
-
-#: ../../include/text.php:816
-#, php-format
-msgid "%d Contact"
-msgid_plural "%d Contacts"
-msgstr[0] "%d Kontakt"
-msgstr[1] "%d Kontakte"
-
-#: ../../include/text.php:828 ../../mod/viewcontacts.php:76
-msgid "View Contacts"
-msgstr "Kontakte anzeigen"
-
-#: ../../include/text.php:905 ../../include/text.php:906
-#: ../../include/nav.php:118 ../../mod/search.php:99
-msgid "Search"
-msgstr "Suche"
-
-#: ../../include/text.php:908 ../../mod/notes.php:63 ../../mod/filer.php:31
-msgid "Save"
-msgstr "Speichern"
-
-#: ../../include/text.php:957
-msgid "poke"
-msgstr "anstupsen"
-
-#: ../../include/text.php:957 ../../include/conversation.php:211
-msgid "poked"
-msgstr "stupste"
-
-#: ../../include/text.php:958
-msgid "ping"
-msgstr "anpingen"
-
-#: ../../include/text.php:958
-msgid "pinged"
-msgstr "pingte"
-
-#: ../../include/text.php:959
-msgid "prod"
-msgstr "knuffen"
-
-#: ../../include/text.php:959
-msgid "prodded"
-msgstr "knuffte"
-
-#: ../../include/text.php:960
-msgid "slap"
-msgstr "ohrfeigen"
-
-#: ../../include/text.php:960
-msgid "slapped"
-msgstr "ohrfeigte"
-
-#: ../../include/text.php:961
-msgid "finger"
-msgstr "befummeln"
-
-#: ../../include/text.php:961
-msgid "fingered"
-msgstr "befummelte"
-
-#: ../../include/text.php:962
-msgid "rebuff"
-msgstr "eine Abfuhr erteilen"
-
-#: ../../include/text.php:962
-msgid "rebuffed"
-msgstr "abfuhrerteilte"
-
-#: ../../include/text.php:976
-msgid "happy"
-msgstr "glücklich"
-
-#: ../../include/text.php:977
-msgid "sad"
-msgstr "traurig"
-
-#: ../../include/text.php:978
-msgid "mellow"
-msgstr "sanft"
-
-#: ../../include/text.php:979
-msgid "tired"
-msgstr "müde"
-
-#: ../../include/text.php:980
-msgid "perky"
-msgstr "frech"
-
-#: ../../include/text.php:981
-msgid "angry"
-msgstr "sauer"
-
-#: ../../include/text.php:982
-msgid "stupified"
-msgstr "verblüfft"
-
-#: ../../include/text.php:983
-msgid "puzzled"
-msgstr "verwirrt"
-
-#: ../../include/text.php:984
-msgid "interested"
-msgstr "interessiert"
-
-#: ../../include/text.php:985
-msgid "bitter"
-msgstr "verbittert"
-
-#: ../../include/text.php:986
-msgid "cheerful"
-msgstr "fröhlich"
-
-#: ../../include/text.php:987
-msgid "alive"
-msgstr "lebendig"
-
-#: ../../include/text.php:988
-msgid "annoyed"
-msgstr "verärgert"
-
-#: ../../include/text.php:989
-msgid "anxious"
-msgstr "unruhig"
-
-#: ../../include/text.php:990
-msgid "cranky"
-msgstr "schrullig"
-
-#: ../../include/text.php:991
-msgid "disturbed"
-msgstr "verstört"
-
-#: ../../include/text.php:992
-msgid "frustrated"
-msgstr "frustriert"
-
-#: ../../include/text.php:993
-msgid "motivated"
-msgstr "motiviert"
-
-#: ../../include/text.php:994
-msgid "relaxed"
-msgstr "entspannt"
-
-#: ../../include/text.php:995
-msgid "surprised"
-msgstr "überrascht"
-
-#: ../../include/text.php:1161
-msgid "Monday"
-msgstr "Montag"
-
-#: ../../include/text.php:1161
-msgid "Tuesday"
-msgstr "Dienstag"
-
-#: ../../include/text.php:1161
-msgid "Wednesday"
-msgstr "Mittwoch"
-
-#: ../../include/text.php:1161
-msgid "Thursday"
-msgstr "Donnerstag"
-
-#: ../../include/text.php:1161
-msgid "Friday"
-msgstr "Freitag"
-
-#: ../../include/text.php:1161
-msgid "Saturday"
-msgstr "Samstag"
-
-#: ../../include/text.php:1161
-msgid "Sunday"
-msgstr "Sonntag"
-
-#: ../../include/text.php:1165
-msgid "January"
-msgstr "Januar"
-
-#: ../../include/text.php:1165
-msgid "February"
-msgstr "Februar"
-
-#: ../../include/text.php:1165
-msgid "March"
-msgstr "März"
-
-#: ../../include/text.php:1165
-msgid "April"
-msgstr "April"
-
-#: ../../include/text.php:1165
-msgid "May"
-msgstr "Mai"
-
-#: ../../include/text.php:1165
-msgid "June"
-msgstr "Juni"
-
-#: ../../include/text.php:1165
-msgid "July"
-msgstr "Juli"
-
-#: ../../include/text.php:1165
-msgid "August"
-msgstr "August"
-
-#: ../../include/text.php:1165
-msgid "September"
-msgstr "September"
-
-#: ../../include/text.php:1165
-msgid "October"
-msgstr "Oktober"
-
-#: ../../include/text.php:1165
-msgid "November"
-msgstr "November"
-
-#: ../../include/text.php:1165
-msgid "December"
-msgstr "Dezember"
-
-#: ../../include/text.php:1322
-msgid "bytes"
-msgstr "Byte"
-
-#: ../../include/text.php:1349 ../../include/text.php:1361
-msgid "Click to open/close"
-msgstr "Zum öffnen/schließen klicken"
-
-#: ../../include/text.php:1523 ../../mod/events.php:335
-msgid "link to source"
-msgstr "Link zum Originalbeitrag"
-
-#: ../../include/text.php:1566 ../../include/user.php:237
-msgid "default"
-msgstr "Standard"
-
-#: ../../include/text.php:1578
-msgid "Select an alternate language"
-msgstr "Alternative Sprache auswählen"
-
-#: ../../include/text.php:1830 ../../include/conversation.php:118
-#: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
-msgid "event"
-msgstr "Veranstaltung"
-
-#: ../../include/text.php:1832 ../../include/diaspora.php:1874
-#: ../../include/conversation.php:126 ../../include/conversation.php:254
-#: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
-#: ../../view/theme/diabook/theme.php:464
-msgid "photo"
-msgstr "Foto"
-
-#: ../../include/text.php:1834
-msgid "activity"
-msgstr "Aktivität"
-
-#: ../../include/text.php:1836 ../../mod/content.php:628
-#: ../../object/Item.php:364 ../../object/Item.php:377
-msgid "comment"
-msgid_plural "comments"
-msgstr[0] "Kommentar"
-msgstr[1] "Kommentare"
-
-#: ../../include/text.php:1837
-msgid "post"
-msgstr "Beitrag"
-
-#: ../../include/text.php:1992
-msgid "Item filed"
-msgstr "Beitrag abgelegt"
-
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
 msgstr "Für jeden sichtbar"
@@ -894,6 +591,10 @@ msgstr "FATALER FEHLER: Sicherheitsschlüssel konnten nicht erzeugt werden."
 #: ../../include/user.php:212
 msgid "An error occurred during registration. Please try again."
 msgstr "Während der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
+
+#: ../../include/user.php:237 ../../include/text.php:1594
+msgid "default"
+msgstr "Standard"
 
 #: ../../include/user.php:247
 msgid "An error occurred creating your default profile. Please try again."
@@ -1240,6 +941,13 @@ msgstr "%1$s ist nun mit %2$s befreundet"
 msgid "Sharing notification from Diaspora network"
 msgstr "Freigabe-Benachrichtigung von Diaspora"
 
+#: ../../include/diaspora.php:1874 ../../include/text.php:1860
+#: ../../include/conversation.php:126 ../../include/conversation.php:254
+#: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
+#: ../../view/theme/diabook/theme.php:464
+msgid "photo"
+msgstr "Foto"
+
 #: ../../include/diaspora.php:1874 ../../include/conversation.php:121
 #: ../../include/conversation.php:130 ../../include/conversation.php:249
 #: ../../include/conversation.php:258 ../../mod/subthread.php:87
@@ -1490,6 +1198,302 @@ msgstr "Erlaubt es Beiträge mit einem Stern-Indikator zu  markieren"
 #, php-format
 msgid "Cannot locate DNS info for database server '%s'"
 msgstr "Kann die DNS Informationen für den Datenbankserver '%s' nicht ermitteln."
+
+#: ../../include/text.php:294
+msgid "prev"
+msgstr "vorige"
+
+#: ../../include/text.php:296
+msgid "first"
+msgstr "erste"
+
+#: ../../include/text.php:325
+msgid "last"
+msgstr "letzte"
+
+#: ../../include/text.php:328
+msgid "next"
+msgstr "nächste"
+
+#: ../../include/text.php:352
+msgid "newer"
+msgstr "neuer"
+
+#: ../../include/text.php:356
+msgid "older"
+msgstr "älter"
+
+#: ../../include/text.php:807
+msgid "No contacts"
+msgstr "Keine Kontakte"
+
+#: ../../include/text.php:816
+#, php-format
+msgid "%d Contact"
+msgid_plural "%d Contacts"
+msgstr[0] "%d Kontakt"
+msgstr[1] "%d Kontakte"
+
+#: ../../include/text.php:828 ../../mod/viewcontacts.php:76
+msgid "View Contacts"
+msgstr "Kontakte anzeigen"
+
+#: ../../include/text.php:905 ../../include/text.php:906
+#: ../../include/nav.php:118 ../../mod/search.php:99
+msgid "Search"
+msgstr "Suche"
+
+#: ../../include/text.php:908 ../../mod/notes.php:63 ../../mod/filer.php:31
+msgid "Save"
+msgstr "Speichern"
+
+#: ../../include/text.php:957
+msgid "poke"
+msgstr "anstupsen"
+
+#: ../../include/text.php:957 ../../include/conversation.php:211
+msgid "poked"
+msgstr "stupste"
+
+#: ../../include/text.php:958
+msgid "ping"
+msgstr "anpingen"
+
+#: ../../include/text.php:958
+msgid "pinged"
+msgstr "pingte"
+
+#: ../../include/text.php:959
+msgid "prod"
+msgstr "knuffen"
+
+#: ../../include/text.php:959
+msgid "prodded"
+msgstr "knuffte"
+
+#: ../../include/text.php:960
+msgid "slap"
+msgstr "ohrfeigen"
+
+#: ../../include/text.php:960
+msgid "slapped"
+msgstr "ohrfeigte"
+
+#: ../../include/text.php:961
+msgid "finger"
+msgstr "befummeln"
+
+#: ../../include/text.php:961
+msgid "fingered"
+msgstr "befummelte"
+
+#: ../../include/text.php:962
+msgid "rebuff"
+msgstr "eine Abfuhr erteilen"
+
+#: ../../include/text.php:962
+msgid "rebuffed"
+msgstr "abfuhrerteilte"
+
+#: ../../include/text.php:976
+msgid "happy"
+msgstr "glücklich"
+
+#: ../../include/text.php:977
+msgid "sad"
+msgstr "traurig"
+
+#: ../../include/text.php:978
+msgid "mellow"
+msgstr "sanft"
+
+#: ../../include/text.php:979
+msgid "tired"
+msgstr "müde"
+
+#: ../../include/text.php:980
+msgid "perky"
+msgstr "frech"
+
+#: ../../include/text.php:981
+msgid "angry"
+msgstr "sauer"
+
+#: ../../include/text.php:982
+msgid "stupified"
+msgstr "verblüfft"
+
+#: ../../include/text.php:983
+msgid "puzzled"
+msgstr "verwirrt"
+
+#: ../../include/text.php:984
+msgid "interested"
+msgstr "interessiert"
+
+#: ../../include/text.php:985
+msgid "bitter"
+msgstr "verbittert"
+
+#: ../../include/text.php:986
+msgid "cheerful"
+msgstr "fröhlich"
+
+#: ../../include/text.php:987
+msgid "alive"
+msgstr "lebendig"
+
+#: ../../include/text.php:988
+msgid "annoyed"
+msgstr "verärgert"
+
+#: ../../include/text.php:989
+msgid "anxious"
+msgstr "unruhig"
+
+#: ../../include/text.php:990
+msgid "cranky"
+msgstr "schrullig"
+
+#: ../../include/text.php:991
+msgid "disturbed"
+msgstr "verstört"
+
+#: ../../include/text.php:992
+msgid "frustrated"
+msgstr "frustriert"
+
+#: ../../include/text.php:993
+msgid "motivated"
+msgstr "motiviert"
+
+#: ../../include/text.php:994
+msgid "relaxed"
+msgstr "entspannt"
+
+#: ../../include/text.php:995
+msgid "surprised"
+msgstr "überrascht"
+
+#: ../../include/text.php:1161
+msgid "Monday"
+msgstr "Montag"
+
+#: ../../include/text.php:1161
+msgid "Tuesday"
+msgstr "Dienstag"
+
+#: ../../include/text.php:1161
+msgid "Wednesday"
+msgstr "Mittwoch"
+
+#: ../../include/text.php:1161
+msgid "Thursday"
+msgstr "Donnerstag"
+
+#: ../../include/text.php:1161
+msgid "Friday"
+msgstr "Freitag"
+
+#: ../../include/text.php:1161
+msgid "Saturday"
+msgstr "Samstag"
+
+#: ../../include/text.php:1161
+msgid "Sunday"
+msgstr "Sonntag"
+
+#: ../../include/text.php:1165
+msgid "January"
+msgstr "Januar"
+
+#: ../../include/text.php:1165
+msgid "February"
+msgstr "Februar"
+
+#: ../../include/text.php:1165
+msgid "March"
+msgstr "März"
+
+#: ../../include/text.php:1165
+msgid "April"
+msgstr "April"
+
+#: ../../include/text.php:1165
+msgid "May"
+msgstr "Mai"
+
+#: ../../include/text.php:1165
+msgid "June"
+msgstr "Juni"
+
+#: ../../include/text.php:1165
+msgid "July"
+msgstr "Juli"
+
+#: ../../include/text.php:1165
+msgid "August"
+msgstr "August"
+
+#: ../../include/text.php:1165
+msgid "September"
+msgstr "September"
+
+#: ../../include/text.php:1165
+msgid "October"
+msgstr "Oktober"
+
+#: ../../include/text.php:1165
+msgid "November"
+msgstr "November"
+
+#: ../../include/text.php:1165
+msgid "December"
+msgstr "Dezember"
+
+#: ../../include/text.php:1321 ../../mod/videos.php:301
+msgid "View Video"
+msgstr "Video ansehen"
+
+#: ../../include/text.php:1353
+msgid "bytes"
+msgstr "Byte"
+
+#: ../../include/text.php:1377 ../../include/text.php:1389
+msgid "Click to open/close"
+msgstr "Zum öffnen/schließen klicken"
+
+#: ../../include/text.php:1551 ../../mod/events.php:335
+msgid "link to source"
+msgstr "Link zum Originalbeitrag"
+
+#: ../../include/text.php:1606
+msgid "Select an alternate language"
+msgstr "Alternative Sprache auswählen"
+
+#: ../../include/text.php:1858 ../../include/conversation.php:118
+#: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
+msgid "event"
+msgstr "Veranstaltung"
+
+#: ../../include/text.php:1862
+msgid "activity"
+msgstr "Aktivität"
+
+#: ../../include/text.php:1864 ../../mod/content.php:628
+#: ../../object/Item.php:364 ../../object/Item.php:377
+msgid "comment"
+msgid_plural "comments"
+msgstr[0] "Kommentar"
+msgstr[1] "Kommentare"
+
+#: ../../include/text.php:1865
+msgid "post"
+msgstr "Beitrag"
+
+#: ../../include/text.php:2020
+msgid "Item filed"
+msgstr "Beitrag abgelegt"
 
 #: ../../include/group.php:25
 msgid ""
@@ -2041,7 +2045,7 @@ msgid "Your photos"
 msgstr "Deine Fotos"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1963
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1970
 msgid "Events"
 msgstr "Veranstaltungen"
 
@@ -2646,14 +2650,14 @@ msgstr "Sichtbar für"
 msgid "All Contacts (with secure profile access)"
 msgstr "Alle Kontakte (mit gesichertem Profilzugriff)"
 
-#: ../../mod/notes.php:44 ../../boot.php:1970
+#: ../../mod/notes.php:44 ../../boot.php:1977
 msgid "Personal Notes"
 msgstr "Persönliche Notizen"
 
 #: ../../mod/display.php:19 ../../mod/search.php:89
 #: ../../mod/dfrn_request.php:761 ../../mod/directory.php:31
-#: ../../mod/viewcontacts.php:17 ../../mod/photos.php:914
-#: ../../mod/community.php:18
+#: ../../mod/videos.php:115 ../../mod/viewcontacts.php:17
+#: ../../mod/photos.php:914 ../../mod/community.php:18
 msgid "Public access denied."
 msgstr "Öffentlicher Zugriff verweigert."
 
@@ -5064,6 +5068,26 @@ msgstr "Personensuche"
 msgid "No matches"
 msgstr "Keine Übereinstimmungen"
 
+#: ../../mod/videos.php:125
+msgid "No videos selected"
+msgstr "Keine Videos  ausgewählt"
+
+#: ../../mod/videos.php:226 ../../mod/photos.php:1025
+msgid "Access to this item is restricted."
+msgstr "Zugriff zu diesem Eintrag wurde eingeschränkt."
+
+#: ../../mod/videos.php:308 ../../mod/photos.php:1784
+msgid "View Album"
+msgstr "Album betrachten"
+
+#: ../../mod/videos.php:317
+msgid "Recent Videos"
+msgstr "Neueste Videos"
+
+#: ../../mod/videos.php:319
+msgid "Upload New Videos"
+msgstr "Neues Video hochladen"
+
 #: ../../mod/tagrm.php:41
 msgid "Tag removed"
 msgstr "Tag entfernt"
@@ -6014,10 +6038,6 @@ msgstr "Bilddatei ist leer."
 msgid "No photos selected"
 msgstr "Keine Bilder ausgewählt"
 
-#: ../../mod/photos.php:1025
-msgid "Access to this item is restricted."
-msgstr "Zugriff zu diesem Eintrag wurde eingeschränkt."
-
 #: ../../mod/photos.php:1088
 #, php-format
 msgid "You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."
@@ -6158,10 +6178,6 @@ msgstr "Das bist du"
 #: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:669
 msgid "Comment"
 msgstr "Kommentar"
-
-#: ../../mod/photos.php:1784
-msgid "View Album"
-msgstr "Album betrachten"
 
 #: ../../mod/photos.php:1793
 msgid "Recent Photos"
@@ -7102,10 +7118,14 @@ msgstr "Statusnachrichten und Beiträge"
 msgid "Profile Details"
 msgstr "Profildetails"
 
-#: ../../boot.php:1966
+#: ../../boot.php:1960 ../../boot.php:1963
+msgid "Videos"
+msgstr "Videos"
+
+#: ../../boot.php:1973
 msgid "Events and Calendar"
 msgstr "Ereignisse und Kalender"
 
-#: ../../boot.php:1973
+#: ../../boot.php:1980
 msgid "Only You Can See This"
 msgstr "Nur du kannst das sehen"
