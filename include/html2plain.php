@@ -107,6 +107,10 @@ function html2plain($html, $wraplength = 75, $compact = false)
 
 	$message = str_replace("\r", "", $html);
 
+	// replace all hashtag addresses
+	$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
+	$message = preg_replace($pattern, '#$2', $message);
+
 	$doc = new DOMDocument();
 	$doc->preserveWhiteSpace = false;
 

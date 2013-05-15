@@ -668,6 +668,12 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 //		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
 	//}
 
+	// Remove all hashtag addresses
+	if (!$tryoembed) {
+		$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
+		$Text = preg_replace($pattern, '#$2', $Text);
+	}
+
 	call_hooks('bbcode',$Text);
 
 	$a->save_timestamp($stamp1, "parser");
