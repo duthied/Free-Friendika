@@ -263,6 +263,9 @@ function settings_post(&$a) {
 		$itemspage_network   = ((x($_POST,'itemspage_network')) ? intval($_POST['itemspage_network']) : 40);
 		if($itemspage_network > 100)
 			$itemspage_network = 100;
+		$itemspage_mobile_network   = ((x($_POST,'itemspage_mobile_network')) ? intval($_POST['itemspage_mobile_network']) : 20);
+		if($itemspage_mobile_network > 100)
+			$itemspage_mobile_network = 100;
 
 
 		if($mobile_theme !== '') {
@@ -271,6 +274,7 @@ function settings_post(&$a) {
 
 		set_pconfig(local_user(),'system','update_interval', $browser_update);
 		set_pconfig(local_user(),'system','itemspage_network', $itemspage_network);
+		set_pconfig(local_user(),'system','itemspage_mobile_network', $itemspage_mobile_network);
 		set_pconfig(local_user(),'system','no_smilies',$nosmile);
 
 
@@ -300,7 +304,8 @@ function settings_post(&$a) {
 	if((x($_POST,'npassword')) || (x($_POST,'confirm'))) {
 
 		$newpass = $_POST['npassword'];
-		$confirm = $_POST['confirm'];
+        $confirm = $_POST['confirm'];
+        $oldpass = hash('whirlpool', $_POST['opassword']);
 
 		$err = false;
 		if($newpass != $confirm ) {
@@ -311,7 +316,15 @@ function settings_post(&$a) {
 		if((! x($newpass)) || (! x($confirm))) {
 			notice( t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
-		}
+        }
+
+        //  check if the old password was supplied correctly before 
+        //  changing it to the new value
+        $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
+        if( $oldpass != $r[0]['password'] ) {
+            notice( t('Wrong password.') . EOL);
+            $err = true;
+        }
 
 		if(! $err) {
 			$password = hash('whirlpool',$newpass);
@@ -394,8 +407,17 @@ function settings_post(&$a) {
 
 	if($email != $a->user['email']) {
 		$email_changed = true;
+        //  check for the correct password
+        $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
+        $password = hash('whirlpool', $_POST['password']);
+        if ($password != $r[0]['password']) {
+            $err .= t('Wrong Password') . EOL;
+            $email = $a->user['email'];
+        }
+        //  check the email is valid
         if(! valid_email($email))
-			$err .= t(' Not valid email.');
+            $err .= t(' Not valid email.');
+        //  ensure new email is not the admin mail
 		if((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0)) {
 			$err .= t(' Cannot change to that email.');
 			$email = $a->user['email'];
@@ -489,10 +511,12 @@ function settings_post(&$a) {
 
 	$r = q("UPDATE `profile` 
 		SET `publish` = %d, 
+		`name` = '%s',
 		`net-publish` = %d,
 		`hide-friends` = %d
 		WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval($publish),
+		dbesc($username),
 		intval($net_publish),
 		intval($hide_friends),
 		intval(local_user())
@@ -793,6 +817,8 @@ function settings_content(&$a) {
 
 		$itemspage_network = intval(get_pconfig(local_user(), 'system','itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
+		$itemspage_mobile_network = intval(get_pconfig(local_user(), 'system','itemspage_mobile_network'));
+		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : 20); // default if not set: 20 items
 		
 		$nosmile = get_pconfig(local_user(),'system','no_smilies');
 		$nosmile = (($nosmile===false)? '0': $nosmile); // default if not set: 0
@@ -816,6 +842,7 @@ function settings_content(&$a) {
 			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
+			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
 			
 			'$theme_config' => $theme_config,
@@ -1043,6 +1070,8 @@ function settings_content(&$a) {
 		'$h_pass' 	=> t('Password Settings'),
 		'$password1'=> array('npassword', t('New Password:'), '', ''),
 		'$password2'=> array('confirm', t('Confirm:'), '', t('Leave password fields blank unless changing')),
+		'$password3'=> array('opassword', t('Current Password:'), '', t('Your current password to confirm the changes')),
+		'$password4'=> array('password', t('Password:'), '', t('Your current password to confirm the changes')),
 		'$oid_enable' => (! get_config('system','no_openid')),
 		'$openid'	=> $openid_field,
 		

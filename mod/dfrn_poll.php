@@ -29,7 +29,7 @@ function dfrn_poll_init(&$a) {
 
 	if(($dfrn_id === '') && (! x($_POST,'dfrn_id'))) {
 		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
-			killme();
+			http_status_exit(403);
 		}
 
 		$user = '';
@@ -37,8 +37,10 @@ function dfrn_poll_init(&$a) {
 			$r = q("SELECT `hidewall`,`nickname` FROM `user` WHERE `user`.`nickname` = '%s' LIMIT 1",
 				dbesc($a->argv[1])
 			);
-			if((! count($r)) || (count($r) && $r[0]['hidewall']))
-				killme();
+			if(! $r)
+				http_status_exit(404);
+			if(($r[0]['hidewall']) && (! local_user()))
+				http_status_exit(403);
 			$user = $r[0]['nickname'];
 		}
  

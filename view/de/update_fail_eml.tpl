@@ -1,5 +1,5 @@
 Hi, 
-ich bin $sitename.   
+$sitename   
 Die friendica Entwickler haben jüngst Update $update veröffentlicht, 
 aber als ich versucht habe es zu installieren ist etwas schrecklich schief gegangen.  
 Das sollte schnellst möglichst behoben werden und ich kann das nicht alleine machen. 

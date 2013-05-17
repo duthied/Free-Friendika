@@ -101,6 +101,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	}
 
 	$a->set_curl_code($http_code);
+	$a->set_curl_content_type($curl_info['content_type']);
 
 	$body = substr($s,strlen($header));
 	$a->set_curl_headers($header);
@@ -818,12 +819,12 @@ function add_fcontact($arr,$update = false) {
 }
 
 
-function scale_external_images($s, $include_link = true, $scale_replace = false) {
+function scale_external_images($srctext, $include_link = true, $scale_replace = false) {
 
 	$a = get_app();
 
 	// Picture addresses can contain special characters
-	$s = htmlspecialchars_decode($s);
+	$s = htmlspecialchars_decode($srctext);
 
 	$matches = null;
 	$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism',$s,$matches,PREG_SET_ORDER);
@@ -845,7 +846,9 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 				$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[1]);
 			else
 				$scaled = $mtch[1];
-			$i = fetch_url($scaled);
+			$i = @fetch_url($scaled);
+			if(! $i)
+				return $srctext;
 
 			$cachefile = get_cachefile(hash("md5", $scaled));
 			if ($cachefile != '') {

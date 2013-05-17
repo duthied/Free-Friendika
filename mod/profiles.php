@@ -455,6 +455,10 @@ function profiles_post(&$a) {
 				dbesc(datetime_convert()),
 				intval(local_user())
 			);
+			$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d limit 1",
+				dbesc($name),
+				intval(local_user())
+			);
 		}
 
 		if($is_default) {

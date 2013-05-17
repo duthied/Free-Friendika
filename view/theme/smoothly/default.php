@@ -26,8 +26,17 @@
 	<right_aside><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></right_aside>
 
 	<footer id="footer">
-		<?php if(x($page, 'footer')) echo $page['footer']; ?>
+	<?php if(x($page, 'footer')) echo $page['footer']; ?>
 	</footer>
+
+	<tools id="tools">
+	<?php if (x($page, 'tools')) echo $page['tools']; ?>
+	<div id="scrollup" >
+	<a class="item-scrollup" href="javascript:scrollTo(0,100000)"><img src="view/theme/smoothly/images/down.png" alt="to bottom" title="to bottom" /></a>
+	<a class="item-scrollup" href="javascript:scrollTo(0,0)"><img src="view/theme/smoothly/images/up.png" alt="to top" title="to top" /></a>
+	<a class="item-scrollup" href="logout"><img src="view/theme/smoothly/images/power.png" alt="power" title="power" /></a>
+	</div>
+	</tools>
 
 	<?php if (x($page, 'bottom')) echo $page['bottom']; ?>
 </body>

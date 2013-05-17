@@ -1,8 +1,8 @@
 /*
   	style.css
-  	Smoothly
-   
-	Created by alex@friendica.pixelbits.de on 2013-03-27
+  	Theme: Smoothly
+	Maintainer: alex@friendica.pixelbits.de
+	last change: 2013-05-08
 
 ** Colors ** 
 Blue links - #1873a2
@@ -15,6 +15,28 @@ Orange - #fec01d
 */
 
 @import url('css/typography.css');
+
+@media only screen and (device-width: 768px) {
+/* For general iPad layouts */
+#body {
+	-moz-background-clip: border; 
+	-moz-background-origin: pdading; 
+	-moz-background-size: auto auto; 
+	background-attachment: scroll; 
+	background-color: transparent; 
+	background-image: url( ); 
+	background-position: center top; 
+	background-repeat: no-repeat;
+	} 
+}
+
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+/* For portrait layouts only */
+}
+	 
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
+/* For landscape layouts only */
+}
 
 .lockview {
 	cursor: pointer;
@@ -111,11 +133,16 @@ input[type=submit]:active {
 }
 
 section {
+	position: relative;
 	float: left;
-	margin-top: 50px;
+	margin: 50px auto -2em; /* the bottom margin is the negative value of the footer's height */
 	width: 730px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
 	font-size: 0.9em;
 	line-height: 1.2em;
+	padding-bottom: 2em;
 }
 
 .lframe {
@@ -128,15 +155,15 @@ section {
 }
 
 .mframe {
-	padding: 0;
-	/*background: none repeat scroll 0 0 #FFFFFF;
+	padding: 1px;
+	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
-		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
 #wall-item-lock {
@@ -294,11 +321,9 @@ section {
 /* ========= */
 
 .pager {
-	padding-top: 10px;
-	padding-bottom: 10px;
 	display: block;
-	clear: both;
-	text-align: center;
+	/*clear: both;*/
+	text-align: left;
 }
 
 .pager a {
@@ -325,7 +350,7 @@ nav {
 	list-style: none outside none;
 	margin: 0;
 	padding: 0;
-	width: 960px;
+	width: 958px;
 	z-index: 10000;
 	height: 40px;
 	position: fixed;
@@ -547,16 +572,16 @@ ul#user-menu-popup li a.nav-sep {
 }
 
 #lang-select-icon {
-	bottom: 6px;
+	bottom: 5px;
 	cursor: pointer;
-	left: 28px;
+	left: 25px;
 	position: fixed;
 	z-index: 10;
 }
 #language-selector {
 	position: fixed;
 	bottom: 2px;
-	left: 52px;
+	left: 55px;
 	z-index: 10;
 }
 
@@ -612,6 +637,12 @@ aside a {
 
 aside h4 {
 	font-size: 1.3em;
+}
+
+.vcard  {
+	width: 205px;
+	padding-bottom: 10px;
+	/*border-bottom-style: dotted;*/
 }
 
 .vcard .title {
@@ -1007,8 +1038,8 @@ ul .sidebar-group-li .icon {
 /* ================== */
 
 .contact-block-img {
-	width: 47px;
-	height: 47px;
+	width: 47px !important;
+	height: 47px !important;
 	margin-right: 2px;
 	border: 1px solid #7C7D7B;
 	border-radius: 3px;
@@ -1036,16 +1067,26 @@ ul .sidebar-group-li .icon {
 .contact-block-h4,
 .contact-block-content {
 	margin: 0;
+	font-size: 1.2em;
 }
 
 #contact-block,
 #contact-block-end {
 	clear: both;
+	padding-top: 10px;
 }
 
 /* ======= */
 /* = Jot = */
 /* ======= */
+
+.jothidden {
+  display: none;
+}
+#jot {
+  width: 100%;
+  margin: 0px 2em 20px 0px;
+}
 
 #profile-jot-text-loading,
 #profile-jot-text {
@@ -1094,10 +1135,6 @@ ul .sidebar-group-li .icon {
 #jot-category:hover,
 #jot-category:focus {
 	border: 1px solid #cccccc;
-}
-
-.jothidden {
-	display: none; 
 }
 
 .preview {
@@ -1244,11 +1281,12 @@ ul .sidebar-group-li .icon {
 	border-bottom: 0px;
 	padding: 5px;
 }
+
 #profile-jot-acl-wrapper {
 	margin: 0px 10px;
 	border: 1px solid #eeeeee;
 	border-top: 0px;
-    display:block!important;
+    	display: block !important;
 }
 
 #profile-video-wrapper,
@@ -1427,14 +1465,13 @@ ul .sidebar-group-li .icon {
 }
 
 .wall-item-photo { 
-
-	border: 1px solid #7C7D7B;
-	border-radius: 5px;
-		-webkit-border-radius: 5px;
-		-moz-border-radius: 5px;
-	box-shadow: 0 0 8px #BDBDBD;
+	border: 0px solid #7C7D7B;
+	border-radius: 2px;
+		-webkit-border-radius: 2px;
+		-moz-border-radius: 2px;
+	/*box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
-		-webkit-box-shadow: 0 0 8px #BDBDBD;
+		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
 }
 
 .wall-item-tools { 
@@ -1534,7 +1571,8 @@ ul .sidebar-group-li .icon {
 
 .wall-item-body img { 
 	max-width: 100%; 
-	height: auto; 
+	height: auto;
+	border-radius: 0;
 }
 
 .wall-item-body p {
@@ -1696,7 +1734,7 @@ ul .sidebar-group-li .icon {
 #item-delete-selected-end,
 #item-delete-selected {	
 	overflow: auto;
-	margin-top: 20px;
+	margin-top: 0px;
 	float: right;
 	width: 250px;
 }
@@ -1747,11 +1785,17 @@ code {
 .wall-item-outside-wrapper.comment .wall-item-photo {
 	width: 40px!important;
 	height: 40px!important;
+	border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-wrapper {
 	width: 40px; 
-	height: 40px; 
+	height: 40px;
+	border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
 }
 
 .wall-item-outside-wrapper.comment .wall-item-photo-menu-button {
@@ -3687,23 +3731,23 @@ margin-left: 0px;
 .field {
     /*margin-bottom: 10px;*/
     overflow: auto;
-    padding-bottom: 0px;
+    padding-bottom: 10px;
     width: 100%;
 }
 
 .field.radio .field_help {
-    margin-left: 205px;
+    margin-left: 255px;
 }
 
 .field .field_help {
     color: #666666;
     display: block;
-    margin-left: 200px;
+    margin-left: 225px;
 }
 
 .field label {
     float: left;
-    width: 210px;
+    width: 230px;
 }
 
 .field checkbox {
@@ -3713,7 +3757,8 @@ margin-left: 0px;
 
 .field input,
 .field textarea {
-	width: 400px;
+	/*width: 400px;*/
+	float: left;
 	border: 1px solid #7C7D7B;
 	border-radius: 5px;
 		-moz-border-radius: 5px;
@@ -3774,7 +3819,7 @@ margin-left: 0px;
 .sparkle {
 	cursor: url('lock.cur'), pointer;
 	width: 100%;
-	height: 100%;
+	height: auto;
 	/*border: 1px solid #7C7D7B;
 	border-radius: 3px;
 		-moz-border-radius: 3px;
@@ -3888,12 +3933,39 @@ margin-left: 0px;
 	font-size: 0.7em; 
 }
 
-footer { 
-	display: block; 
-	margin: 50px 20%; 
-	clear: both; 
-}
+footer { display: block; margin: 50px 20%; clear: both; }
 
+/* ========== */
+/* = Tools = */
+/* ========== */
+
+tools {
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0edf0), color-stop(1, #e2e2e2) );
+	background: -moz-linear-gradient( center top, #f0edf0 5%, #e2e2e2 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0edf0', endColorstr='#e2e2e2');
+	background-color: #f0edf0;
+	border-radius: 5px 5px 0px 0px;
+		-moz-border-radius: 5px 5px 0px 0px;
+		-webkit-border-radius: 5px 5px 0px 0px;
+	border: 1px solid #7C7D7B;
+	border-bottom: none;
+	box-shadow: 1px 2px 6px 0px #959494;
+		-moz-box-shadow: 1px 2px 6px 0px #959494;
+		-webkit-box-shadow: 1px 2px 6px 0px #959494;
+	color: #EFEFEF;
+	display: block;
+	float: right;
+	font-size: 15px;
+	height: 38px;
+	list-style: none outside none;
+	margin: 0 0 0 755px;
+	padding: 0;
+	position: fixed;
+	bottom: 0;
+	width: 203px;
+	z-index: 10;
+	clear:both;
+}
 
 /* ======= */
 /* = ACL = */
@@ -4262,15 +4334,20 @@ ul.menu-popup {
 /* SCROLL TO TOP
 ----------------------------------------------------------- */
 #scrollup {
-	position: fixed;
-	right: 1px;
-	bottom: 260px;
+	position: absolute;
+	right: 0px;
+	bottom: -1px;
 	z-index: 100;
+padding-right: 10px;
 }
 
 #scrollup a:hover {
 	text-decoration: none;
 	border: 0;
+}
+
+.item-scrollup {
+	margin-left: 5px;
 }
 
 /* New posts and comments => background color
@@ -4367,6 +4444,7 @@ hr.line-dots {
 	float: left;
 	text-align: left;
 	display: block;
+	line-height: 0.6em;
 }
 
 .adr, 
@@ -4376,6 +4454,8 @@ hr.line-dots {
 	float: left;
 	display: block;
 	margin-left: 8px;
+	line-height: 1em;
+	text-align: left;
 }
 
 #birthday-notice {}

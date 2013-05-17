@@ -32,7 +32,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-03-19 03:30-0700\n"
-"PO-Revision-Date: 2013-03-25 12:31+0000\n"
+"PO-Revision-Date: 2013-04-02 08:42+0000\n"
 "Last-Translator: Cyryl Sochacki <cyrylsochacki@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -6782,7 +6782,7 @@ msgstr "włącz status gwiazdy"
 
 #: ../../mod/content.php:781 ../../object/Item.php:216
 msgid "starred"
-msgstr ""
+msgstr "gwiazdką"
 
 #: ../../mod/content.php:782 ../../object/Item.php:221
 msgid "add tag"
@@ -7097,4 +7097,4 @@ msgstr "Tylko ty możesz to zobaczyć"
 
 #: ../../index.php:405
 msgid "toggle mobile"
-msgstr ""
+msgstr "przełącz na mobilny"

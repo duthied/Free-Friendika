@@ -17,7 +17,7 @@ function notification($params) {
 	$product = FRIENDICA_PLATFORM;
 	$siteurl = $a->get_baseurl(true);
 	$thanks = t('Thank You,');
-	$sitename = get_config('config','sitename');
+	$sitename = $a->config['sitename'];
 	$site_admin = sprintf( t('%s Administrator'), $sitename);
 
 	$sender_name = $product;
@@ -268,8 +268,14 @@ function notification($params) {
 	$datarray['type']  = $params['type'];
 	$datarray['verb']  = $params['verb'];
 	$datarray['otype'] = $params['otype'];
+	$datarray['abort'] = false;
  
 	call_hooks('enotify_store', $datarray);
+
+	if($datarray['abort']) {
+		pop_lang();
+		return;
+	}
 
 	// create notification entry in DB
 
