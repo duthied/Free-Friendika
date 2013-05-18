@@ -133,7 +133,7 @@ function editpost_content(&$a) {
 		'$emailcc' => t('CC: email addresses'),
 		'$public' => t('Public post'),
 		'$jotnets' => $jotnets,
-		'$title' => $itm[0]['title'],
+		'$title' => htmlspecialchars($itm[0]['title']),
 		'$placeholdertitle' => t('Set title'),
 		'$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
 		'$placeholdercategory' => (feature_enabled(local_user(),'categories') ? t('Categories (comma-separated list)') : ''),
