@@ -673,7 +673,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	//}
 
 	// Remove all hashtag addresses
-	if (!$tryoembed) {
+	if (!$tryoembed AND get_config("system", "remove_hashtags_on_export")) {
 		$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 		$Text = preg_replace($pattern, '#$2', $Text);
 	}
@@ -684,4 +684,3 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	return $Text;
 }
-
