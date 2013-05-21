@@ -1,6 +1,6 @@
 <?php
 
-require_once("dba.php");
+require_once("include/dba.php");
 
 /**
  * translation support
