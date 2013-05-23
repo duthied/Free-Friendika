@@ -114,7 +114,7 @@ function install_content(&$a) {
 	global $install_wizard_pass, $db;
 	$o = '';
 	$wizard_status = "";
-	$install_title = t('Friendica Social Communications Server - Setup');
+	$install_title = t('Friendica Communications Server - Setup');
 	
 
 	
