@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-05-28 00:01-0700\n"
-"PO-Revision-Date: 2013-05-29 17:45+0000\n"
+"PO-Revision-Date: 2013-05-29 23:22+0000\n"
 "Last-Translator: abinoam <abinoam@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/friendica/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -270,11 +270,11 @@ msgstr "Não disponível"
 
 #: ../../include/profile_selectors.php:42
 msgid "Has crush"
-msgstr ""
+msgstr "Se apaixonando"
 
 #: ../../include/profile_selectors.php:42
 msgid "Infatuated"
-msgstr ""
+msgstr "Apaixonado"
 
 #: ../../include/profile_selectors.php:42
 msgid "Dating"
@@ -421,7 +421,7 @@ msgstr "Imagem/foto"
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
 "href=\"%s\" target=\"external-link\">post</a>"
-msgstr ""
+msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a>escreveu o seguinte<a href=\"%s\" target=\"external-link\">publicação</a>"
 
 #: ../../include/bbcode.php:514 ../../include/bbcode.php:534
 msgid "$1 wrote:"
@@ -429,7 +429,7 @@ msgstr "$1 escreveu:"
 
 #: ../../include/bbcode.php:557 ../../include/bbcode.php:558
 msgid "Encrypted content"
-msgstr ""
+msgstr "Conteúdo criptografado"
 
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
@@ -1299,7 +1299,7 @@ msgstr "triste"
 
 #: ../../include/text.php:978
 msgid "mellow"
-msgstr ""
+msgstr "desencanado"
 
 #: ../../include/text.php:979
 msgid "tired"
@@ -1307,7 +1307,7 @@ msgstr "cansado"
 
 #: ../../include/text.php:980
 msgid "perky"
-msgstr ""
+msgstr "audacioso"
 
 #: ../../include/text.php:981
 msgid "angry"
@@ -1327,11 +1327,11 @@ msgstr "interessado"
 
 #: ../../include/text.php:985
 msgid "bitter"
-msgstr ""
+msgstr "rancoroso"
 
 #: ../../include/text.php:986
 msgid "cheerful"
-msgstr ""
+msgstr "jovial"
 
 #: ../../include/text.php:987
 msgid "alive"
@@ -1347,7 +1347,7 @@ msgstr "ansioso"
 
 #: ../../include/text.php:990
 msgid "cranky"
-msgstr ""
+msgstr "excêntrico"
 
 #: ../../include/text.php:991
 msgid "disturbed"
@@ -1447,7 +1447,7 @@ msgstr "Dezembro"
 
 #: ../../include/text.php:1321 ../../mod/videos.php:301
 msgid "View Video"
-msgstr ""
+msgstr "Ver Vídeo"
 
 #: ../../include/text.php:1353
 msgid "bytes"
@@ -1498,7 +1498,7 @@ msgstr "Um grupo removido com esse nome foi reativado. Permissões de items já 
 
 #: ../../include/group.php:207
 msgid "Default privacy group for new contacts"
-msgstr ""
+msgstr "Conjunto de privacidade padrão para novos contatos"
 
 #: ../../include/group.php:226
 msgid "Everybody"
@@ -1798,7 +1798,7 @@ msgstr "Postar em Grupos"
 
 #: ../../include/conversation.php:1127
 msgid "Post to Contacts"
-msgstr ""
+msgstr "Publique para Contatos"
 
 #: ../../include/conversation.php:1128
 msgid "Private post"
@@ -1849,7 +1849,7 @@ msgstr "Favor visitar %s para ver e/ou responder às suas mensagens privadas."
 #: ../../include/enotify.php:90
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
-msgstr ""
+msgstr "%1$s comentou em [url=%2$s]a %3$s[/url]"
 
 #: ../../include/enotify.php:97
 #, php-format
@@ -1936,7 +1936,7 @@ msgstr "%1$s marcou sua publicação às %2$s"
 #: ../../include/enotify.php:174
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
-msgstr ""
+msgstr "%1$s marcou [url=%2$s]sua publicação[/url]"
 
 #: ../../include/enotify.php:185
 msgid "[Friendica:Notify] Introduction received"
@@ -1945,12 +1945,12 @@ msgstr "[Friendica:Notify] Você recebeu uma apresentação"
 #: ../../include/enotify.php:186
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr ""
+msgstr "Você recebeu uma apresentação de '%1$s' em %2$s"
 
 #: ../../include/enotify.php:187
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr ""
+msgstr "Você recebeu [url=%1$s]uma apresentação[/url] de %2$s."
 
 #: ../../include/enotify.php:190 ../../include/enotify.php:208
 #, php-format
@@ -1969,13 +1969,13 @@ msgstr "[Friendica:Notify] Você recebeu uma sugestão de amigo"
 #: ../../include/enotify.php:200
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr ""
+msgstr "Você recebeu uma sugestão de amigo de '%1$s' em %2$s"
 
 #: ../../include/enotify.php:201
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr ""
+msgstr "Você recebeu [url=%1$s]uma sugestão de amigo[/url] de %2$s em %3$s"
 
 #: ../../include/enotify.php:206
 msgid "Name:"
@@ -3079,17 +3079,17 @@ msgstr "Não incluir o conteúdo de uma postagem/comentário/mensagem privada/et
 
 #: ../../mod/admin.php:525
 msgid "Disallow public access to addons listed in the apps menu."
-msgstr ""
+msgstr "Disabilita acesso público a addons listados no menu de aplicativos."
 
 #: ../../mod/admin.php:525
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
-msgstr ""
+msgstr "Marcar essa caixa ira restringir os addons listados no menu de aplicativos aos membros somente."
 
 #: ../../mod/admin.php:526
 msgid "Don't embed private images in posts"
-msgstr ""
+msgstr "Não inclua imagens privadas em publicações"
 
 #: ../../mod/admin.php:526
 msgid ""
@@ -3097,7 +3097,7 @@ msgid ""
 "of the image. This means that contacts who receive posts containing private "
 "photos will have to authenticate and load each image, which may take a "
 "while."
-msgstr ""
+msgstr "Não substitue fotos privativas guardadas localmente em publicações por uma cópia inclusa da imagem. Isso significa que os contatos que recebem publicações contendo fotos privadas terão que autenticar e carregar cada imagem, o que pode levar algum tempo."
 
 #: ../../mod/admin.php:528
 msgid "Block multiple registrations"
@@ -3155,13 +3155,13 @@ msgstr "Fornece compatibilidade nativa ao OStatus (identi,.ca, status.net, etc.)
 
 #: ../../mod/admin.php:534
 msgid "OStatus conversation completion interval"
-msgstr ""
+msgstr "Intervalo de finalização da conversação OStatus "
 
 #: ../../mod/admin.php:534
 msgid ""
 "How often shall the poller check for new entries in OStatus conversations? "
 "This can be a very ressource task."
-msgstr ""
+msgstr "De quanto em quanto tempo o \"buscador\" (poller) deve checar por novas entradas numa conversação OStatus? Essa pode ser uma tarefa bem demorada."
 
 #: ../../mod/admin.php:535
 msgid "Enable Diaspora support"
@@ -3480,7 +3480,7 @@ msgstr "Limpar"
 
 #: ../../mod/admin.php:1196
 msgid "Enable Debugging"
-msgstr ""
+msgstr "Habilitar Debugging"
 
 #: ../../mod/admin.php:1197
 msgid "Log file"
@@ -3764,7 +3764,7 @@ msgstr "Nenhum contato em comum."
 
 #: ../../mod/apps.php:7
 msgid "You must be logged in to use addons. "
-msgstr ""
+msgstr "Você precisa estar logado para usar os addons."
 
 #: ../../mod/apps.php:11
 msgid "Applications"
@@ -4115,7 +4115,7 @@ msgstr "Não é permitido uma senha em branco. A senha não foi modificada."
 
 #: ../../mod/settings.php:325
 msgid "Wrong password."
-msgstr ""
+msgstr "Senha errada."
 
 #: ../../mod/settings.php:336
 msgid "Password changed."
@@ -4135,7 +4135,7 @@ msgstr " O nome é muito curto."
 
 #: ../../mod/settings.php:414
 msgid "Wrong Password"
-msgstr ""
+msgstr "Senha Errada"
 
 #: ../../mod/settings.php:419
 msgid " Not valid email."
@@ -4340,7 +4340,7 @@ msgstr "Máximo de 100 itens"
 
 #: ../../mod/settings.php:845
 msgid "Number of items to display per page when viewed from mobile device:"
-msgstr ""
+msgstr "Número de itens a serem exibidos por página quando visualizando em um dispositivo móvel:"
 
 #: ../../mod/settings.php:846
 msgid "Don't show emoticons"
@@ -4497,15 +4497,15 @@ msgstr "Deixe os campos de senha em branco, a não ser que você queira alterá-
 
 #: ../../mod/settings.php:1073
 msgid "Current Password:"
-msgstr ""
+msgstr "Senha Atual:"
 
 #: ../../mod/settings.php:1073 ../../mod/settings.php:1074
 msgid "Your current password to confirm the changes"
-msgstr ""
+msgstr "Sua senha atual para confirmar as mudanças"
 
 #: ../../mod/settings.php:1074
 msgid "Password:"
-msgstr ""
+msgstr "Senha:"
 
 #: ../../mod/settings.php:1078
 msgid "Basic Settings"
@@ -5064,7 +5064,7 @@ msgstr "Nenhuma correspondência"
 
 #: ../../mod/videos.php:125
 msgid "No videos selected"
-msgstr ""
+msgstr "Nenhum vídeo selecionado"
 
 #: ../../mod/videos.php:226 ../../mod/photos.php:1025
 msgid "Access to this item is restricted."
@@ -5076,11 +5076,11 @@ msgstr "Ver álbum"
 
 #: ../../mod/videos.php:317
 msgid "Recent Videos"
-msgstr ""
+msgstr "Vídeos Recentes"
 
 #: ../../mod/videos.php:319
 msgid "Upload New Videos"
-msgstr ""
+msgstr "Envie Novos Vídeos"
 
 #: ../../mod/tagrm.php:41
 msgid "Tag removed"
@@ -6368,7 +6368,7 @@ msgstr "Dicas para novos membros"
 
 #: ../../mod/install.php:117
 msgid "Friendica Communications Server - Setup"
-msgstr ""
+msgstr "Servidor de Comunicações Friendica - Configuração"
 
 #: ../../mod/install.php:123
 msgid "Could not connect to database."
@@ -6484,15 +6484,15 @@ msgstr "PHP em linha de comando"
 
 #: ../../mod/install.php:340
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
-msgstr ""
+msgstr "O executável do PHP não é o binário do php cli (could be cgi-fcgi version)"
 
 #: ../../mod/install.php:341
 msgid "Found PHP version: "
-msgstr ""
+msgstr "Encontrado PHP versão:"
 
 #: ../../mod/install.php:343
 msgid "PHP cli binary"
-msgstr ""
+msgstr "Binário cli do PHP"
 
 #: ../../mod/install.php:354
 msgid ""
@@ -6827,7 +6827,7 @@ msgstr "via Mural-para-mural"
 
 #: ../../object/Item.php:92
 msgid "This entry was edited"
-msgstr ""
+msgstr "Essa entrada foi editada"
 
 #: ../../object/Item.php:309
 msgid "via"
@@ -7114,7 +7114,7 @@ msgstr "Detalhe do Perfil"
 
 #: ../../boot.php:1961 ../../boot.php:1964
 msgid "Videos"
-msgstr ""
+msgstr "Vídeos"
 
 #: ../../boot.php:1974
 msgid "Events and Calendar"
