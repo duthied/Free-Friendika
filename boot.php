@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.1.1699' );
+define ( 'FRIENDICA_VERSION',      '3.1.1714' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1163      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -437,6 +437,14 @@ if(! class_exists('App')) {
 
 			startup();
 
+			set_include_path(
+					'include' . PATH_SEPARATOR
+					. 'library' . PATH_SEPARATOR
+					. 'library/phpsec' . PATH_SEPARATOR
+					. 'library/langdet' . PATH_SEPARATOR
+					. '.' );
+
+
 			$this->scheme = 'http';
 			if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
 				$this->scheme = 'https';
@@ -471,15 +479,8 @@ if(! class_exists('App')) {
 				$argc --;
 			}
 
-			set_include_path(
-					"include/$this->hostname" . PATH_SEPARATOR
-					. 'include' . PATH_SEPARATOR
-					. 'library' . PATH_SEPARATOR
-					. 'library/phpsec' . PATH_SEPARATOR
-					. 'library/langdet' . PATH_SEPARATOR
-					. '.' );
+			set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
             
-
 			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
 				$this->query_string = substr($_SERVER['QUERY_STRING'],2);
 				// removing trailing / - maybe a nginx problem

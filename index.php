@@ -414,7 +414,9 @@ if(!$a->theme['stylesheet'])
 	$stylesheet = current_theme_url();
 else
 	$stylesheet = $a->theme['stylesheet'];
-$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
+
+$a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
+//$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
 
 $page    = $a->page;
 $profile = $a->profile;

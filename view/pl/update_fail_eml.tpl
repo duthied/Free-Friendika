@@ -1,5 +1,5 @@
 Hey,  
-Jestem $sitename.   
+Jestem $sitename;   
 Deweloperzy friendica wydali ostatnio aktualizację $update, 
 ale kiedy próbowałem ją zainstalować, coś poszło nie tak.  
 To musi być szybko poprawione, ale nie mogę zrobić tego sam. Proszę o kontakt z 
