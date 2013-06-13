@@ -624,7 +624,8 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 			logger('probe_url: scrape_feed: headers: ' . $a->get_curl_headers(), LOGGER_DATA);
 
-   			$feed->set_raw_data($xml);
+			// Don't try and parse an empty string
+   			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
 
 		    $feed->init();
 			if($feed->error())

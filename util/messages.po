@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 3.1.1714\n"
+"Project-Id-Version: 3.1.1729\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-28 00:01-0700\n"
+"POT-Creation-Date: 2013-06-12 00:01-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -401,7 +401,8 @@ msgstr ""
 msgid "Send PM"
 msgstr ""
 
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:549
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:550
+#: ../../include/bbcode.php:551
 msgid "Image/photo"
 msgstr ""
 
@@ -416,7 +417,7 @@ msgstr ""
 msgid "$1 wrote:"
 msgstr ""
 
-#: ../../include/bbcode.php:557 ../../include/bbcode.php:558
+#: ../../include/bbcode.php:559 ../../include/bbcode.php:560
 msgid "Encrypted content"
 msgstr ""
 
@@ -594,7 +595,7 @@ msgstr ""
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: ../../include/user.php:237 ../../include/text.php:1594
+#: ../../include/user.php:237 ../../include/text.php:1596
 msgid "default"
 msgstr ""
 
@@ -924,7 +925,7 @@ msgstr ""
 msgid "Sharing notification from Diaspora network"
 msgstr ""
 
-#: ../../include/diaspora.php:1874 ../../include/text.php:1860
+#: ../../include/diaspora.php:1874 ../../include/text.php:1862
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
 #: ../../view/theme/diabook/theme.php:464
@@ -1358,123 +1359,123 @@ msgstr ""
 msgid "surprised"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Monday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Tuesday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Wednesday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Thursday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Friday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Saturday"
 msgstr ""
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Sunday"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "January"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "February"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "March"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "April"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "May"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "June"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "July"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "August"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "September"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "October"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "November"
 msgstr ""
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "December"
 msgstr ""
 
-#: ../../include/text.php:1321 ../../mod/videos.php:301
+#: ../../include/text.php:1323 ../../mod/videos.php:301
 msgid "View Video"
 msgstr ""
 
-#: ../../include/text.php:1353
+#: ../../include/text.php:1355
 msgid "bytes"
 msgstr ""
 
-#: ../../include/text.php:1377 ../../include/text.php:1389
+#: ../../include/text.php:1379 ../../include/text.php:1391
 msgid "Click to open/close"
 msgstr ""
 
-#: ../../include/text.php:1551 ../../mod/events.php:335
+#: ../../include/text.php:1553 ../../mod/events.php:335
 msgid "link to source"
 msgstr ""
 
-#: ../../include/text.php:1606
+#: ../../include/text.php:1608
 msgid "Select an alternate language"
 msgstr ""
 
-#: ../../include/text.php:1858 ../../include/conversation.php:118
+#: ../../include/text.php:1860 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
 msgstr ""
 
-#: ../../include/text.php:1862
+#: ../../include/text.php:1864
 msgid "activity"
 msgstr ""
 
-#: ../../include/text.php:1864 ../../mod/content.php:628
+#: ../../include/text.php:1866 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/text.php:1865
+#: ../../include/text.php:1867
 msgid "post"
 msgstr ""
 
-#: ../../include/text.php:2020
+#: ../../include/text.php:2022
 msgid "Item filed"
 msgstr ""
 
