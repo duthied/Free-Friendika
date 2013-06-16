@@ -743,7 +743,7 @@
 		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 		//$since_id = 0;//$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		$exclude_replies = (x($_REQUEST,'exclude_replies')?1:0);
-		$parent_id = (x($_REQUEST,'parent_id')?$_REQUEST['parent_id']:0);
+		$conversation_id = (x($_REQUEST,'conversation_id')?$_REQUEST['conversation_id']:0);
 
 		$start = $page*$count;
 
@@ -754,8 +754,8 @@
 			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
 		if ($exclude_replies > 0)
 			$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
-		if ($parent_id > 0)
-			$sql_extra .= ' AND `item`.`parent` = '.intval($parent_id);
+		if ($conversation_id > 0)
+			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
@@ -820,7 +820,7 @@
 		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 		//$since_id = 0;//$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		$exclude_replies = (x($_REQUEST,'exclude_replies')?1:0);
-		$parent_id = (x($_REQUEST,'parent_id')?$_REQUEST['parent_id']:0);
+		$conversation_id = (x($_REQUEST,'conversation_id')?$_REQUEST['conversation_id']:0);
 
 		$start = $page*$count;
 
@@ -830,8 +830,8 @@
 			$sql_extra = 'AND `item`.`id` <= '.intval($max_id);
 		if ($exclude_replies > 0)
 			$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
-		if ($parent_id > 0)
-			$sql_extra .= ' AND `item`.`parent` = '.intval($parent_id);
+		if ($conversation_id > 0)
+			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
 		/*$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
@@ -1135,7 +1135,7 @@
 		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		//$since_id = 0;//$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		$exclude_replies = (x($_REQUEST,'exclude_replies')?1:0);
-		$parent_id = (x($_REQUEST,'parent_id')?$_REQUEST['parent_id']:0);
+		$conversation_id = (x($_REQUEST,'conversation_id')?$_REQUEST['conversation_id']:0);
 
 		$start = $page*$count;
 
@@ -1144,8 +1144,8 @@
 
 		if ($exclude_replies > 0)
 			$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
-		if ($parent_id > 0)
-			$sql_extra .= ' AND `item`.`parent` = '.intval($parent_id);
+		if ($conversation_id > 0)
+			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
