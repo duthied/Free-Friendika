@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-12 00:01-0700\n"
-"PO-Revision-Date: 2013-06-11 17:12+0000\n"
+"PO-Revision-Date: 2013-06-19 05:03+0000\n"
 "Last-Translator: Haakon Meland Eriksen <haakon.eriksen@far.no>\n"
 "Language-Team: Norwegian Bokmål (Norway) (http://www.transifex.com/projects/p/friendica/language/nb_NO/)\n"
 "MIME-Version: 1.0\n"
@@ -71,7 +71,7 @@ msgstr "Hjemmeside:"
 
 #: ../../include/profile_advanced.php:50 ../../mod/profiles.php:652
 msgid "Hometown:"
-msgstr ""
+msgstr "Hjemsted:"
 
 #: ../../include/profile_advanced.php:52
 msgid "Tags:"
@@ -95,11 +95,11 @@ msgstr "Hobbyer/Interesser:"
 
 #: ../../include/profile_advanced.php:62 ../../mod/profiles.php:657
 msgid "Likes:"
-msgstr ""
+msgstr "Liker:"
 
 #: ../../include/profile_advanced.php:64 ../../mod/profiles.php:658
 msgid "Dislikes:"
-msgstr ""
+msgstr "Liker ikke:"
 
 #: ../../include/profile_advanced.php:67
 msgid "Contact information and Social Networks:"
@@ -1500,7 +1500,7 @@ msgstr ""
 
 #: ../../include/group.php:270 ../../mod/newmember.php:66
 msgid "Groups"
-msgstr ""
+msgstr "Grupper"
 
 #: ../../include/group.php:271
 msgid "Edit group"
@@ -1669,7 +1669,7 @@ msgstr ""
 #: ../../include/conversation.php:1002 ../../include/conversation.php:1020
 #: ../../mod/filer.php:30
 msgid "Save to Folder:"
-msgstr ""
+msgstr "Lagre til mappe:"
 
 #: ../../include/conversation.php:1003 ../../include/conversation.php:1021
 msgid "Where are you right now?"
@@ -1695,7 +1695,7 @@ msgstr "Last opp bilde"
 
 #: ../../include/conversation.php:1083 ../../mod/editpost.php:111
 msgid "upload photo"
-msgstr ""
+msgstr "last opp bilde"
 
 #: ../../include/conversation.php:1084 ../../mod/editpost.php:112
 msgid "Attach file"
@@ -1703,7 +1703,7 @@ msgstr "Legg ved fil"
 
 #: ../../include/conversation.php:1085 ../../mod/editpost.php:113
 msgid "attach file"
-msgstr ""
+msgstr "legg ved fil"
 
 #: ../../include/conversation.php:1086 ../../mod/editpost.php:114
 #: ../../mod/wallmessage.php:155 ../../mod/message.php:333
@@ -1713,23 +1713,23 @@ msgstr "Sett inn web-adresse"
 
 #: ../../include/conversation.php:1087 ../../mod/editpost.php:115
 msgid "web link"
-msgstr ""
+msgstr "web-adresse"
 
 #: ../../include/conversation.php:1088 ../../mod/editpost.php:116
 msgid "Insert video link"
-msgstr ""
+msgstr "Sett inn video-link"
 
 #: ../../include/conversation.php:1089 ../../mod/editpost.php:117
 msgid "video link"
-msgstr ""
+msgstr "videolink"
 
 #: ../../include/conversation.php:1090 ../../mod/editpost.php:118
 msgid "Insert audio link"
-msgstr ""
+msgstr "Sett inn lydlink"
 
 #: ../../include/conversation.php:1091 ../../mod/editpost.php:119
 msgid "audio link"
-msgstr ""
+msgstr "lydlink"
 
 #: ../../include/conversation.php:1092 ../../mod/editpost.php:120
 msgid "Set your location"
@@ -1737,7 +1737,7 @@ msgstr "Angi din plassering"
 
 #: ../../include/conversation.php:1093 ../../mod/editpost.php:121
 msgid "set location"
-msgstr ""
+msgstr "angi plassering"
 
 #: ../../include/conversation.php:1094 ../../mod/editpost.php:122
 msgid "Clear browser location"
@@ -1745,7 +1745,7 @@ msgstr "Fjern nettleserplassering"
 
 #: ../../include/conversation.php:1095 ../../mod/editpost.php:123
 msgid "clear location"
-msgstr ""
+msgstr "fjern plassering"
 
 #: ../../include/conversation.php:1097 ../../mod/editpost.php:137
 msgid "Set title"
@@ -1753,7 +1753,7 @@ msgstr "Lagre tittel"
 
 #: ../../include/conversation.php:1099 ../../mod/editpost.php:139
 msgid "Categories (comma-separated list)"
-msgstr ""
+msgstr "Kategorier (kommaseparert liste)"
 
 #: ../../include/conversation.php:1101 ../../mod/editpost.php:125
 msgid "Permission settings"
@@ -1992,11 +1992,11 @@ msgstr "Veggbilder"
 
 #: ../../include/nav.php:34 ../../mod/navigation.php:20
 msgid "Nothing new here"
-msgstr ""
+msgstr "Ikke noe nytt her"
 
 #: ../../include/nav.php:38 ../../mod/navigation.php:24
 msgid "Clear notifications"
-msgstr ""
+msgstr "Fjern varslinger"
 
 #: ../../include/nav.php:73 ../../boot.php:1136
 msgid "Logout"
@@ -2314,55 +2314,55 @@ msgstr "Profilnavn er påkrevet."
 
 #: ../../mod/profiles.php:317
 msgid "Marital Status"
-msgstr ""
+msgstr "Ekteskapelig status"
 
 #: ../../mod/profiles.php:321
 msgid "Romantic Partner"
-msgstr ""
+msgstr "Romantisk partner"
 
 #: ../../mod/profiles.php:325
 msgid "Likes"
-msgstr ""
+msgstr "Liker"
 
 #: ../../mod/profiles.php:329
 msgid "Dislikes"
-msgstr ""
+msgstr "Liker ikke"
 
 #: ../../mod/profiles.php:333
 msgid "Work/Employment"
-msgstr ""
+msgstr "Arbeid/ansatt hos"
 
 #: ../../mod/profiles.php:336
 msgid "Religion"
-msgstr ""
+msgstr "Religion"
 
 #: ../../mod/profiles.php:340
 msgid "Political Views"
-msgstr ""
+msgstr "Politisk ståsted"
 
 #: ../../mod/profiles.php:344
 msgid "Gender"
-msgstr ""
+msgstr "Kjønn"
 
 #: ../../mod/profiles.php:348
 msgid "Sexual Preference"
-msgstr ""
+msgstr "Seksuell orientering"
 
 #: ../../mod/profiles.php:352
 msgid "Homepage"
-msgstr ""
+msgstr "Hjemmeside"
 
 #: ../../mod/profiles.php:356
 msgid "Interests"
-msgstr ""
+msgstr "Interesser"
 
 #: ../../mod/profiles.php:360
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: ../../mod/profiles.php:367
 msgid "Location"
-msgstr ""
+msgstr "Plassering"
 
 #: ../../mod/profiles.php:450
 msgid "Profile updated."
@@ -2370,26 +2370,26 @@ msgstr "Profil oppdatert."
 
 #: ../../mod/profiles.php:521
 msgid " and "
-msgstr ""
+msgstr "og"
 
 #: ../../mod/profiles.php:529
 msgid "public profile"
-msgstr ""
+msgstr "offentlig profil"
 
 #: ../../mod/profiles.php:532
 #, php-format
 msgid "%1$s changed %2$s to &ldquo;%3$s&rdquo;"
-msgstr ""
+msgstr "%1$s endret %2$s til &ldquo;%3$s&rdquo;"
 
 #: ../../mod/profiles.php:533
 #, php-format
 msgid " - Visit %1$s's %2$s"
-msgstr ""
+msgstr "- Besøk %1$s sin %2$s"
 
 #: ../../mod/profiles.php:536
 #, php-format
 msgid "%1$s has an updated %2$s, changing %3$s."
-msgstr ""
+msgstr "%1$s har oppdatert %2$s, endret %3$s."
 
 #: ../../mod/profiles.php:609
 msgid "Hide your contact/friend list from viewers of this profile?"
@@ -2433,7 +2433,7 @@ msgstr "Lagre"
 
 #: ../../mod/profiles.php:631
 msgid "Change Profile Photo"
-msgstr ""
+msgstr "Endre profilbilde"
 
 #: ../../mod/profiles.php:632
 msgid "View this profile"
@@ -2506,7 +2506,7 @@ msgstr "Eksempler: kari123, Kari Nordmann, kari@example.com"
 
 #: ../../mod/profiles.php:649
 msgid "Since [date]:"
-msgstr ""
+msgstr "Fra [dato]:"
 
 #: ../../mod/profiles.php:651
 msgid "Homepage URL:"
@@ -2665,7 +2665,7 @@ msgstr "Endre kontakt"
 
 #: ../../mod/nogroup.php:59
 msgid "Contacts who are not members of a group"
-msgstr ""
+msgstr "Kontakter som ikke er medlemmer av en gruppe"
 
 #: ../../mod/ping.php:238
 msgid "{0} wants to be your friend"
@@ -2710,7 +2710,7 @@ msgstr "{0} merket %s sitt innlegg med #%s"
 
 #: ../../mod/ping.php:285
 msgid "{0} mentioned you in a post"
-msgstr ""
+msgstr "{0} nevnte deg i et innlegg"
 
 #: ../../mod/admin.php:55
 msgid "Theme settings updated."
@@ -3018,7 +3018,7 @@ msgstr "Utesteng publikum"
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
-msgstr ""
+msgstr "Kryss av for å blokkere offentlig tilgang til sider som ellers ville vært offentlige personlige sider med mindre du er logget inn."
 
 #: ../../mod/admin.php:520
 msgid "Force publish"
@@ -3027,7 +3027,7 @@ msgstr "Tving publisering"
 #: ../../mod/admin.php:520
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
-msgstr ""
+msgstr "Sett hake for å tvinge alle profiler på dette nettstedet til å vises i nettstedskatalogen."
 
 #: ../../mod/admin.php:521
 msgid "Global directory update URL"
@@ -3037,35 +3037,35 @@ msgstr "URL for oppdatering av Global-katalog"
 msgid ""
 "URL to update the global directory. If this is not set, the global directory"
 " is completely unavailable to the application."
-msgstr ""
+msgstr "URL for å oppdatere den globale katalogen. Hvis denne ikke er angitt, så vil den globale katalogen være helt utilgjengelige for programmet."
 
 #: ../../mod/admin.php:522
 msgid "Allow threaded items"
-msgstr ""
+msgstr "Tillat en tråd av elementer "
 
 #: ../../mod/admin.php:522
 msgid "Allow infinite level threading for items on this site."
-msgstr ""
+msgstr "Tillat ubegrenset antall nivåer i en tråd for elementer på dette nettstedet."
 
 #: ../../mod/admin.php:523
 msgid "Private posts by default for new users"
-msgstr ""
+msgstr "Private meldinger som standard for nye brukere"
 
 #: ../../mod/admin.php:523
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
-msgstr ""
+msgstr "Sett standard postetillatelser for alle nye medlemmer til standard personverngruppe i stedet for offentlig."
 
 #: ../../mod/admin.php:524
 msgid "Don't include post content in email notifications"
-msgstr ""
+msgstr "Ikke inkluder innholdet i en melding i epostvarsler"
 
 #: ../../mod/admin.php:524
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
-msgstr ""
+msgstr "Ikke inkluder innholdet i en melding/kommentar/privat melding/osv. i epostvarsler som sendes ut fra dette nettstedet, som et personverntiltak."
 
 #: ../../mod/admin.php:525
 msgid "Disallow public access to addons listed in the apps menu."
@@ -3095,7 +3095,7 @@ msgstr "Blokker flere registreringer"
 
 #: ../../mod/admin.php:528
 msgid "Disallow users to register additional accounts for use as pages."
-msgstr ""
+msgstr "Ikke tillat brukere å registrere ytterligere kontoer til bruk som sider."
 
 #: ../../mod/admin.php:529
 msgid "OpenID support"
@@ -3103,7 +3103,7 @@ msgstr "OpenID-støtte"
 
 #: ../../mod/admin.php:529
 msgid "OpenID support for registration and logins."
-msgstr ""
+msgstr "OpenID-støtte for registrering og innlogging."
 
 #: ../../mod/admin.php:530
 msgid "Fullname check"
@@ -3113,7 +3113,7 @@ msgstr "Sjekk fullt navn"
 msgid ""
 "Force users to register with a space between firstname and lastname in Full "
 "name, as an antispam measure"
-msgstr ""
+msgstr "Tving brukere til å registrere med et mellomrom mellom fornavn og etternavn i Fullt navn, som et tiltak mot søppelpost (antispam)."
 
 #: ../../mod/admin.php:531
 msgid "UTF-8 Regular expressions"
@@ -3121,7 +3121,7 @@ msgstr "UTF-8 regulære uttrykk"
 
 #: ../../mod/admin.php:531
 msgid "Use PHP UTF8 regular expressions"
-msgstr ""
+msgstr "Bruk PHP UTF8 regulære uttrykk"
 
 #: ../../mod/admin.php:532
 msgid "Show Community Page"
@@ -3130,7 +3130,7 @@ msgstr "Vis Felleskap-side"
 #: ../../mod/admin.php:532
 msgid ""
 "Display a Community page showing all recent public postings on this site."
-msgstr ""
+msgstr "Vis en Fellesskapsside som viser de siste offentlige meldinger på dette nettstedet."
 
 #: ../../mod/admin.php:533
 msgid "Enable OStatus support"
@@ -3141,7 +3141,7 @@ msgid ""
 "Provide built-in OStatus (identi.ca, status.net, etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
-msgstr ""
+msgstr "Tilby innebygget OStatus-kompatibilitet (identi.ca, status.net, etc.). All kommunikasjon via OStatus er offentlig, så personvernadvarsler vil bli vist av og til."
 
 #: ../../mod/admin.php:534
 msgid "OStatus conversation completion interval"
@@ -3155,21 +3155,21 @@ msgstr ""
 
 #: ../../mod/admin.php:535
 msgid "Enable Diaspora support"
-msgstr ""
+msgstr "Aktiver Diaspora-støtte"
 
 #: ../../mod/admin.php:535
 msgid "Provide built-in Diaspora network compatibility."
-msgstr ""
+msgstr "Tilby innebygget kompatibilitet med Diaspora-nettverket."
 
 #: ../../mod/admin.php:536
 msgid "Only allow Friendica contacts"
-msgstr ""
+msgstr "Bare tillat Friendica-kontakter"
 
 #: ../../mod/admin.php:536
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
-msgstr ""
+msgstr "Alle kontakter må bruke Friendica-protokoller. Alle andre innebyggede kommunikasjonsprotokoller blir deaktivert."
 
 #: ../../mod/admin.php:537
 msgid "Verify SSL"
@@ -3179,7 +3179,7 @@ msgstr "Bekreft SSL"
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
-msgstr ""
+msgstr "Hvis du vil, så kan du skru på streng sertifikatkontroll. Dette betyr at du ikke kan opprette forbindelse (i det hele tatt) med nettsteder som bruker selvsignerte SSL-sertifikater."
 
 #: ../../mod/admin.php:538
 msgid "Proxy user"
@@ -3195,78 +3195,78 @@ msgstr "Tidsavbrudd for nettverk"
 
 #: ../../mod/admin.php:540
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
-msgstr ""
+msgstr "Verdien er i sekunder. Sett til 0 for ubegrenset (ikke anbefalt)."
 
 #: ../../mod/admin.php:541
 msgid "Delivery interval"
-msgstr ""
+msgstr "Leveringsintervall"
 
 #: ../../mod/admin.php:541
 msgid ""
 "Delay background delivery processes by this many seconds to reduce system "
 "load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 "
 "for large dedicated servers."
-msgstr ""
+msgstr "Forsink bakgrunnsprosesser for levering med så mange sekunder for å redusere belastningen på systemet. Anbefalinger: 4-5 for delt tjener, 2-3 for virtuelle private tjenere. 0-1 for store, dedikerte tjenere."
 
 #: ../../mod/admin.php:542
 msgid "Poll interval"
-msgstr ""
+msgstr "Spørreintervall"
 
 #: ../../mod/admin.php:542
 msgid ""
 "Delay background polling processes by this many seconds to reduce system "
 "load. If 0, use delivery interval."
-msgstr ""
+msgstr "Reduser spørreprosesser i bakgrunnen med så mange sekunder for å redusere belastningen på systemet. Hvis 0, bruk leveringsintervall."
 
 #: ../../mod/admin.php:543
 msgid "Maximum Load Average"
-msgstr ""
+msgstr "Maksimal snittlast"
 
 #: ../../mod/admin.php:543
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default 50."
-msgstr ""
+msgstr "Maksimal systemlast før leverings- og spørreprosesser utsettes - standard er 50."
 
 #: ../../mod/admin.php:545
 msgid "Use MySQL full text engine"
-msgstr ""
+msgstr "Bruk MySQL fulltekstmotor"
 
 #: ../../mod/admin.php:545
 msgid ""
 "Activates the full text engine. Speeds up search - but can only search for "
 "four and more characters."
-msgstr ""
+msgstr "Aktiverer fulltekstmotoren. Øker hastigheten til søk, men kan bare søke etter minimum fire eller flere tegn."
 
 #: ../../mod/admin.php:546
 msgid "Path to item cache"
-msgstr ""
+msgstr "Sti til mellomlager for elementer"
 
 #: ../../mod/admin.php:547
 msgid "Cache duration in seconds"
-msgstr ""
+msgstr "Mellomlagringens varighet i sekunder"
 
 #: ../../mod/admin.php:547
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day)."
-msgstr ""
+msgstr "Hvor lenge skal filene i mellomlagret beholdes? Standardveri er 86400 sekunder (Et døgn)."
 
 #: ../../mod/admin.php:548
 msgid "Path for lock file"
-msgstr ""
+msgstr "Sti til fillås"
 
 #: ../../mod/admin.php:549
 msgid "Temp path"
-msgstr ""
+msgstr "Temp-sti"
 
 #: ../../mod/admin.php:550
 msgid "Base path to installation"
-msgstr ""
+msgstr "Sti til installasjonsbasen"
 
 #: ../../mod/admin.php:567
 msgid "Update has been marked successful"
-msgstr ""
+msgstr "Oppdatering har blitt markert som vellykket"
 
 #: ../../mod/admin.php:577
 #, php-format
@@ -3276,17 +3276,17 @@ msgstr "Utføring av %s mislyktes. Sjekk systemlogger."
 #: ../../mod/admin.php:580
 #, php-format
 msgid "Update %s was successfully applied."
-msgstr ""
+msgstr "Oppdatering %s ble iverksatt på en vellykket måte."
 
 #: ../../mod/admin.php:584
 #, php-format
 msgid "Update %s did not return a status. Unknown if it succeeded."
-msgstr ""
+msgstr "Oppdatering %s returnerte ikke en status. Ukjent om oppdateringen er vellykket."
 
 #: ../../mod/admin.php:587
 #, php-format
 msgid "Update function %s could not be found."
-msgstr ""
+msgstr "Oppdateringsfunksjon %s ble ikke funnet."
 
 #: ../../mod/admin.php:602
 msgid "No failed updates."
@@ -3299,15 +3299,15 @@ msgstr "Mislykkede oppdateringer"
 #: ../../mod/admin.php:607
 msgid ""
 "This does not include updates prior to 1139, which did not return a status."
-msgstr ""
+msgstr "Dette inkluderer ikke oppdateringer som kom før 1139, som ikke returnerer en status."
 
 #: ../../mod/admin.php:608
 msgid "Mark success (if update was manually applied)"
-msgstr ""
+msgstr "Marker vellykket (hvis oppdatering ble iverksatt manuelt)"
 
 #: ../../mod/admin.php:609
 msgid "Attempt to execute this update step automatically"
-msgstr ""
+msgstr "Forsøk å utføre dette oppdateringspunktet automatisk"
 
 #: ../../mod/admin.php:634
 #, php-format
@@ -3380,11 +3380,11 @@ msgstr "Ikke blokker"
 
 #: ../../mod/admin.php:773
 msgid "Site admin"
-msgstr ""
+msgstr "Nettstedets administrator"
 
 #: ../../mod/admin.php:774
 msgid "Account expired"
-msgstr ""
+msgstr "Konto utgått"
 
 #: ../../mod/admin.php:777
 msgid "Register date"
@@ -3438,27 +3438,27 @@ msgstr "Veksle"
 
 #: ../../mod/admin.php:868 ../../mod/admin.php:1078
 msgid "Author: "
-msgstr ""
+msgstr "Forfatter:"
 
 #: ../../mod/admin.php:869 ../../mod/admin.php:1079
 msgid "Maintainer: "
-msgstr ""
+msgstr "Vedlikeholder:"
 
 #: ../../mod/admin.php:998
 msgid "No themes found."
-msgstr ""
+msgstr "Ingen temaer funnet."
 
 #: ../../mod/admin.php:1060
 msgid "Screenshot"
-msgstr ""
+msgstr "Skjermbilde"
 
 #: ../../mod/admin.php:1106
 msgid "[Experimental]"
-msgstr ""
+msgstr "[Eksperimentell]"
 
 #: ../../mod/admin.php:1107
 msgid "[Unsupported]"
-msgstr ""
+msgstr "[Ikke støttet]"
 
 #: ../../mod/admin.php:1134
 msgid "Log settings updated."
@@ -3480,7 +3480,7 @@ msgstr "Loggfil"
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
-msgstr ""
+msgstr "Web-serveren må ha skriverettigheter. Relativt til toppnivåkatalogen til din Friendicas."
 
 #: ../../mod/admin.php:1198
 msgid "Log level"
@@ -3612,7 +3612,7 @@ msgstr "Din registrering venter på godkjenning fra eier av stedet."
 msgid ""
 "This site has exceeded the number of allowed daily account registrations. "
 "Please try again tomorrow."
-msgstr ""
+msgstr "Dette nettstedet har overskredet antallet tillate daglige kontoregistreringer. Vennligst prøv igjen imorgen."
 
 #: ../../mod/register.php:220
 msgid ""
@@ -3746,11 +3746,11 @@ msgstr "diaspora2bb:"
 
 #: ../../mod/common.php:42
 msgid "Common Friends"
-msgstr ""
+msgstr "Felles venner"
 
 #: ../../mod/common.php:78
 msgid "No contacts in common."
-msgstr ""
+msgstr "Ingen kontakter felles."
 
 #: ../../mod/apps.php:7
 msgid "You must be logged in to use addons. "
@@ -3798,15 +3798,15 @@ msgstr "Kontakten er ikke ignorert lenger"
 
 #: ../../mod/contacts.php:220
 msgid "Contact has been archived"
-msgstr ""
+msgstr "Kontakt har blitt arkivert"
 
 #: ../../mod/contacts.php:220
 msgid "Contact has been unarchived"
-msgstr ""
+msgstr "Kontakt har blitt hentet tilbake fra arkivet"
 
 #: ../../mod/contacts.php:244
 msgid "Do you really want to delete this contact?"
-msgstr ""
+msgstr "Ønsker du virkelig å slette denne kontakten?"
 
 #: ../../mod/contacts.php:263
 msgid "Contact has been removed."
@@ -3854,7 +3854,7 @@ msgstr "Vis alle kontakter"
 
 #: ../../mod/contacts.php:356
 msgid "Toggle Blocked status"
-msgstr ""
+msgstr "Veksle blokkeringsstatus"
 
 #: ../../mod/contacts.php:359 ../../mod/contacts.php:413
 msgid "Unignore"
@@ -3868,19 +3868,19 @@ msgstr "Ignorer"
 
 #: ../../mod/contacts.php:362
 msgid "Toggle Ignored status"
-msgstr ""
+msgstr "Veksle ingnorertstatus"
 
 #: ../../mod/contacts.php:366
 msgid "Unarchive"
-msgstr ""
+msgstr "Hent ut av arkivet"
 
 #: ../../mod/contacts.php:366
 msgid "Archive"
-msgstr ""
+msgstr "Arkiver"
 
 #: ../../mod/contacts.php:369
 msgid "Toggle Archive status"
-msgstr ""
+msgstr "Veksle arkivertstatus"
 
 #: ../../mod/contacts.php:372
 msgid "Repair"
@@ -3888,11 +3888,11 @@ msgstr "Reparer"
 
 #: ../../mod/contacts.php:375
 msgid "Advanced Contact Settings"
-msgstr ""
+msgstr "Avanserte kontaktinnstillinger"
 
 #: ../../mod/contacts.php:381
 msgid "Communications lost with this contact!"
-msgstr ""
+msgstr "Kommunikasjon tapt med denne kontakten!"
 
 #: ../../mod/contacts.php:384
 msgid "Contact Editor"
@@ -3955,7 +3955,7 @@ msgstr "Ignorert nå"
 
 #: ../../mod/contacts.php:418
 msgid "Currently archived"
-msgstr ""
+msgstr "For øyeblikket arkivert"
 
 #: ../../mod/contacts.php:419 ../../mod/notifications.php:157
 #: ../../mod/notifications.php:204
@@ -3965,15 +3965,15 @@ msgstr "Skjul denne kontakten for andre"
 #: ../../mod/contacts.php:419
 msgid ""
 "Replies/likes to your public posts <strong>may</strong> still be visible"
-msgstr ""
+msgstr "Svar/liker til dine offentlige innlegg <strong>kan</strong> fortsatt være synlige"
 
 #: ../../mod/contacts.php:470
 msgid "Suggestions"
-msgstr ""
+msgstr "Forslag"
 
 #: ../../mod/contacts.php:473
 msgid "Suggest potential friends"
-msgstr ""
+msgstr "Foreslå mulige venner"
 
 #: ../../mod/contacts.php:476 ../../mod/group.php:194
 msgid "All Contacts"
@@ -3981,47 +3981,47 @@ msgstr "Alle kontakter"
 
 #: ../../mod/contacts.php:479
 msgid "Show all contacts"
-msgstr ""
+msgstr "Vis alle kontakter"
 
 #: ../../mod/contacts.php:482
 msgid "Unblocked"
-msgstr ""
+msgstr "Ikke blokkert"
 
 #: ../../mod/contacts.php:485
 msgid "Only show unblocked contacts"
-msgstr ""
+msgstr "Bare vis ikke blokkerte kontakter"
 
 #: ../../mod/contacts.php:489
 msgid "Blocked"
-msgstr ""
+msgstr "Blokkert"
 
 #: ../../mod/contacts.php:492
 msgid "Only show blocked contacts"
-msgstr ""
+msgstr "Bare vis blokkerte kontakter"
 
 #: ../../mod/contacts.php:496
 msgid "Ignored"
-msgstr ""
+msgstr "Ignorert"
 
 #: ../../mod/contacts.php:499
 msgid "Only show ignored contacts"
-msgstr ""
+msgstr "Bare vis ignorerte kontakter"
 
 #: ../../mod/contacts.php:503
 msgid "Archived"
-msgstr ""
+msgstr "Arkivert"
 
 #: ../../mod/contacts.php:506
 msgid "Only show archived contacts"
-msgstr ""
+msgstr "Bare vis arkiverte kontakter"
 
 #: ../../mod/contacts.php:510
 msgid "Hidden"
-msgstr ""
+msgstr "Skjult"
 
 #: ../../mod/contacts.php:513
 msgid "Only show hidden contacts"
-msgstr ""
+msgstr "Bare vis skjulte kontakter"
 
 #: ../../mod/contacts.php:561
 msgid "Mutual Friendship"
@@ -4049,11 +4049,11 @@ msgstr "alle"
 
 #: ../../mod/settings.php:35
 msgid "Additional features"
-msgstr ""
+msgstr "Tilleggsfunksjoner"
 
 #: ../../mod/settings.php:40 ../../mod/uexport.php:14
 msgid "Display settings"
-msgstr ""
+msgstr "Visningsinnstillinger"
 
 #: ../../mod/settings.php:46 ../../mod/uexport.php:20
 msgid "Connector settings"
@@ -4073,7 +4073,7 @@ msgstr "Eksporter personlige data"
 
 #: ../../mod/settings.php:66 ../../mod/uexport.php:40
 msgid "Remove account"
-msgstr ""
+msgstr "Fjern konto"
 
 #: ../../mod/settings.php:118
 msgid "Missing some important data!"
@@ -4093,7 +4093,7 @@ msgstr "E-postinnstillinger er oppdatert."
 
 #: ../../mod/settings.php:247
 msgid "Features updated"
-msgstr ""
+msgstr "Funksjoner oppdatert"
 
 #: ../../mod/settings.php:312
 msgid "Passwords do not match. Password unchanged."
@@ -4137,11 +4137,11 @@ msgstr "Kan ikke endre til den e-postadressen."
 
 #: ../../mod/settings.php:476
 msgid "Private forum has no privacy permissions. Using default privacy group."
-msgstr ""
+msgstr "Privat forum har ingen personverntillatelser. Bruker standard personverngruppe."
 
 #: ../../mod/settings.php:480
 msgid "Private forum has no privacy permissions and no default privacy group."
-msgstr ""
+msgstr "Privat forum har ingen personverntillatelser og ingen standard personverngruppe."
 
 #: ../../mod/settings.php:510
 msgid "Settings updated."
@@ -4203,15 +4203,15 @@ msgstr "Tilleggsinnstillinger"
 
 #: ../../mod/settings.php:684
 msgid "Off"
-msgstr ""
+msgstr "Av"
 
 #: ../../mod/settings.php:684
 msgid "On"
-msgstr ""
+msgstr "På"
 
 #: ../../mod/settings.php:692
 msgid "Additional Features"
-msgstr ""
+msgstr "Tilleggsfunksjoner"
 
 #: ../../mod/settings.php:705 ../../mod/settings.php:706
 #, php-format
@@ -4286,23 +4286,23 @@ msgstr "Send offentlige meldinger til alle e-postkontakter:"
 
 #: ../../mod/settings.php:761
 msgid "Action after import:"
-msgstr ""
+msgstr "Handling etter import:"
 
 #: ../../mod/settings.php:761
 msgid "Mark as seen"
-msgstr ""
+msgstr "Marker som sett"
 
 #: ../../mod/settings.php:761
 msgid "Move to folder"
-msgstr ""
+msgstr "Flytt til mappe"
 
 #: ../../mod/settings.php:762
 msgid "Move to folder:"
-msgstr ""
+msgstr "Flytt til mappe:"
 
 #: ../../mod/settings.php:835
 msgid "Display Settings"
-msgstr ""
+msgstr "Visningsinnstillinger"
 
 #: ../../mod/settings.php:841 ../../mod/settings.php:853
 msgid "Display Theme:"
@@ -4310,23 +4310,23 @@ msgstr "Vis tema:"
 
 #: ../../mod/settings.php:842
 msgid "Mobile Theme:"
-msgstr ""
+msgstr "Mobilt tema:"
 
 #: ../../mod/settings.php:843
 msgid "Update browser every xx seconds"
-msgstr ""
+msgstr "Oppdater nettleser hvert xx sekund"
 
 #: ../../mod/settings.php:843
 msgid "Minimum of 10 seconds, no maximum"
-msgstr ""
+msgstr "Minimum 10 sekunder, ikke noe maksimum"
 
 #: ../../mod/settings.php:844
 msgid "Number of items to display per page:"
-msgstr ""
+msgstr "Antall elementer som vises per side:"
 
 #: ../../mod/settings.php:844 ../../mod/settings.php:845
 msgid "Maximum of 100 items"
-msgstr ""
+msgstr "Maksimum 100 elementer"
 
 #: ../../mod/settings.php:845
 msgid "Number of items to display per page when viewed from mobile device:"
@@ -4334,11 +4334,11 @@ msgstr ""
 
 #: ../../mod/settings.php:846
 msgid "Don't show emoticons"
-msgstr ""
+msgstr "Ikke vis uttrykksikoner"
 
 #: ../../mod/settings.php:922
 msgid "Normal Account Page"
-msgstr ""
+msgstr "Vanlig konto-side"
 
 #: ../../mod/settings.php:923
 msgid "This account is a normal personal profile"
@@ -4346,7 +4346,7 @@ msgstr "Denne kontoen er en vanlig personlig profil"
 
 #: ../../mod/settings.php:926
 msgid "Soapbox Page"
-msgstr ""
+msgstr "Talerstol-side"
 
 #: ../../mod/settings.php:927
 msgid "Automatically approve all connection/friend requests as read-only fans"
@@ -4354,7 +4354,7 @@ msgstr "Automatisk godkjenning av alle forespørsler om forbindelse/venner som f
 
 #: ../../mod/settings.php:930
 msgid "Community Forum/Celebrity Account"
-msgstr ""
+msgstr "Fellesskapsforum/Kjendis-side"
 
 #: ../../mod/settings.php:931
 msgid ""
@@ -4363,7 +4363,7 @@ msgstr "Automatisk godkjenning av alle forespørsler om forbindelse/venner som f
 
 #: ../../mod/settings.php:934
 msgid "Automatic Friend Page"
-msgstr ""
+msgstr "Automatisk venn-side"
 
 #: ../../mod/settings.php:935
 msgid "Automatically approve all connection/friend requests as friends"
@@ -4371,11 +4371,11 @@ msgstr "Automatisk godkjenning av alle forespørsler om forbindelse/venner som v
 
 #: ../../mod/settings.php:938
 msgid "Private Forum [Experimental]"
-msgstr ""
+msgstr "Privat forum [Eksperimentell]"
 
 #: ../../mod/settings.php:939
 msgid "Private forum - approved members only"
-msgstr ""
+msgstr "Privat forum - kun godkjente medlemmer"
 
 #: ../../mod/settings.php:951
 msgid "OpenID:"
@@ -4399,7 +4399,7 @@ msgstr "Skjul kontakt-/venne-listen din for besøkende til standardprofilen din?
 
 #: ../../mod/settings.php:979
 msgid "Hide your profile details from unknown viewers?"
-msgstr ""
+msgstr "Skjul dine profildetaljer fra ukjente besøkende?"
 
 #: ../../mod/settings.php:984
 msgid "Allow friends to post to your profile page?"
@@ -4411,11 +4411,11 @@ msgstr "Tillat venner å merke dine innlegg?"
 
 #: ../../mod/settings.php:996
 msgid "Allow us to suggest you as a potential friend to new members?"
-msgstr ""
+msgstr "Tillat oss å foreslå deg som en mulig venn til nye medlemmer?"
 
 #: ../../mod/settings.php:1002
 msgid "Permit unknown people to send you private mail?"
-msgstr ""
+msgstr "Tillat ukjente personer å sende deg privat post?"
 
 #: ../../mod/settings.php:1010
 msgid "Profile is <strong>not published</strong>."
@@ -4431,7 +4431,7 @@ msgstr "Din identitetsadresse er"
 
 #: ../../mod/settings.php:1029
 msgid "Automatically expire posts after this many days:"
-msgstr ""
+msgstr "Innlegg utgår automatisk etter så mange dager:"
 
 #: ../../mod/settings.php:1029
 msgid "If empty, posts will not expire. Expired posts will be deleted"
@@ -4439,31 +4439,31 @@ msgstr "Tomme innlegg utgår ikke. Utgåtte innlegg slettes."
 
 #: ../../mod/settings.php:1030
 msgid "Advanced expiration settings"
-msgstr ""
+msgstr "Avanserte innstillinger for å utgå"
 
 #: ../../mod/settings.php:1031
 msgid "Advanced Expiration"
-msgstr ""
+msgstr "Avansert utgå"
 
 #: ../../mod/settings.php:1032
 msgid "Expire posts:"
-msgstr ""
+msgstr "Innlegg utgår:"
 
 #: ../../mod/settings.php:1033
 msgid "Expire personal notes:"
-msgstr ""
+msgstr "Personlige notater utgår:"
 
 #: ../../mod/settings.php:1034
 msgid "Expire starred posts:"
-msgstr ""
+msgstr "Innlegg med stjerne utgår:"
 
 #: ../../mod/settings.php:1035
 msgid "Expire photos:"
-msgstr ""
+msgstr "Bilder utgår:"
 
 #: ../../mod/settings.php:1036
 msgid "Only expire posts by others:"
-msgstr ""
+msgstr "Kun innlegg fra andre utgår:"
 
 #: ../../mod/settings.php:1062
 msgid "Account Settings"
@@ -4540,28 +4540,28 @@ msgstr "(klikk for å åpne/lukke)"
 #: ../../mod/settings.php:1099 ../../mod/photos.php:1140
 #: ../../mod/photos.php:1506
 msgid "Show to Groups"
-msgstr ""
+msgstr "Vis til grupper"
 
 #: ../../mod/settings.php:1100 ../../mod/photos.php:1141
 #: ../../mod/photos.php:1507
 msgid "Show to Contacts"
-msgstr ""
+msgstr "Vis til kontakter"
 
 #: ../../mod/settings.php:1101
 msgid "Default Private Post"
-msgstr ""
+msgstr "Standard privat innlegg"
 
 #: ../../mod/settings.php:1102
 msgid "Default Public Post"
-msgstr ""
+msgstr "Standard offentlig innlegg"
 
 #: ../../mod/settings.php:1106
 msgid "Default Permissions for New Posts"
-msgstr ""
+msgstr "Standard tillatelser for nye innlegg"
 
 #: ../../mod/settings.php:1118
 msgid "Maximum private messages per day from unknown people:"
-msgstr ""
+msgstr "Maksimalt antall private meldinger per dag fra ukjente personer:"
 
 #: ../../mod/settings.php:1121
 msgid "Notification Settings"
@@ -4569,19 +4569,19 @@ msgstr "Beskjedinnstillinger"
 
 #: ../../mod/settings.php:1122
 msgid "By default post a status message when:"
-msgstr ""
+msgstr "Standard å legge inn en statusmelding når:"
 
 #: ../../mod/settings.php:1123
 msgid "accepting a friend request"
-msgstr ""
+msgstr "aksepterer en venneforespørsel"
 
 #: ../../mod/settings.php:1124
 msgid "joining a forum/community"
-msgstr ""
+msgstr "blir med i et forum/fellesskap"
 
 #: ../../mod/settings.php:1125
 msgid "making an <em>interesting</em> profile change"
-msgstr ""
+msgstr "gjør en <em>interessant</em> profilendring"
 
 #: ../../mod/settings.php:1126
 msgid "Send a notification email when:"
@@ -4609,27 +4609,27 @@ msgstr "Du mottar en privat melding"
 
 #: ../../mod/settings.php:1132
 msgid "You receive a friend suggestion"
-msgstr ""
+msgstr "Du mottar et venneforslag"
 
 #: ../../mod/settings.php:1133
 msgid "You are tagged in a post"
-msgstr ""
+msgstr "Du er merket i et innlegg"
 
 #: ../../mod/settings.php:1134
 msgid "You are poked/prodded/etc. in a post"
-msgstr ""
+msgstr "Du er dyttet/dultet/etc i et innlegg"
 
 #: ../../mod/settings.php:1137
 msgid "Advanced Account/Page Type Settings"
-msgstr ""
+msgstr "Avanserte konto-/sidetype-innstillinger"
 
 #: ../../mod/settings.php:1138
 msgid "Change the behaviour of this account for special situations"
-msgstr ""
+msgstr "Endre oppførselen til denne kontoen i spesielle situasjoner"
 
 #: ../../mod/share.php:44
 msgid "link"
-msgstr ""
+msgstr "lenke"
 
 #: ../../mod/crepair.php:102
 msgid "Contact settings applied."
@@ -4755,7 +4755,7 @@ msgstr ""
 msgid ""
 "This may occasionally happen if contact was requested by both persons and it"
 " has already been approved."
-msgstr ""
+msgstr "Denne kan skje innimellom hvis kontakt ble forespurt av begge personer og den allerede er godkjent."
 
 #: ../../mod/dfrn_confirm.php:237
 msgid "Response from remote site was not understood."
@@ -4806,7 +4806,7 @@ msgstr "Kontaktinformasjon om deg ble ikke funnet på vårt nettsted."
 #: ../../mod/dfrn_confirm.php:618
 #, php-format
 msgid "Site public key not available in contact record for URL %s."
-msgstr ""
+msgstr "Nettstedets offentlige nøkkel er ikke tilgjengelig i kontaktregisteret for URL %s."
 
 #: ../../mod/dfrn_confirm.php:638
 msgid ""
@@ -4830,12 +4830,12 @@ msgstr "Tilkobling godtatt på %s"
 #: ../../mod/dfrn_confirm.php:800
 #, php-format
 msgid "%1$s has joined %2$s"
-msgstr ""
+msgstr "%1$s har blitt med %2$s"
 
 #: ../../mod/dfrn_poll.php:103 ../../mod/dfrn_poll.php:536
 #, php-format
 msgid "%1$s welcomes %2$s"
-msgstr ""
+msgstr "%1$s hilser %2$s"
 
 #: ../../mod/dfrn_request.php:93
 msgid "This introduction has already been accepted."
@@ -5008,7 +5008,7 @@ msgstr "Send forespørsel"
 #: ../../mod/subthread.php:103
 #, php-format
 msgid "%1$s is following %2$s's %3$s"
-msgstr ""
+msgstr "%1$s følger %2$s sin %3$s"
 
 #: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
 msgid "Global Directory"
@@ -5032,13 +5032,13 @@ msgstr "Ingen oppføringer (noen oppføringer kan være skjulte)."
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr ""
+msgstr "Vil du virkelig slette dette forslaget?"
 
 #: ../../mod/suggest.php:72
 msgid ""
 "No suggestions available. If this is a new site, please try again in 24 "
 "hours."
-msgstr ""
+msgstr "Ingen forslag tilgjengelig. Hvis dette er et nytt nettsted, vennligst prøv igjen om 24 timer."
 
 #: ../../mod/suggest.php:90
 msgid "Ignore/Hide"
@@ -5094,7 +5094,7 @@ msgstr "Endre innlegg"
 
 #: ../../mod/events.php:66
 msgid "Event title and start time are required."
-msgstr ""
+msgstr "Hendelsens tittel og starttidspunkt er påkrevet."
 
 #: ../../mod/events.php:291
 msgid "l, F j"
@@ -5127,7 +5127,7 @@ msgstr "Hendelsesdetaljer"
 #: ../../mod/events.php:457
 #, php-format
 msgid "Format is %s %s. Starting date and Title are required."
-msgstr ""
+msgstr "Formatet er  %s %s. Startdato og tittel er påkrevet."
 
 #: ../../mod/events.php:459
 msgid "Event Starts:"
@@ -5135,7 +5135,7 @@ msgstr "Hendelsen  starter:"
 
 #: ../../mod/events.php:459 ../../mod/events.php:473
 msgid "Required"
-msgstr ""
+msgstr "Påkrevet"
 
 #: ../../mod/events.php:462
 msgid "Finish date/time is not known or not relevant"
@@ -5155,7 +5155,7 @@ msgstr "Beskrivelse:"
 
 #: ../../mod/events.php:473
 msgid "Title:"
-msgstr ""
+msgstr "Tittel:"
 
 #: ../../mod/events.php:475
 msgid "Share this event"
@@ -5163,67 +5163,67 @@ msgstr "Del denne hendelsen"
 
 #: ../../mod/fbrowser.php:113
 msgid "Files"
-msgstr ""
+msgstr "Filer"
 
 #: ../../mod/uexport.php:72
 msgid "Export account"
-msgstr ""
+msgstr "Eksporter konto"
 
 #: ../../mod/uexport.php:72
 msgid ""
 "Export your account info and contacts. Use this to make a backup of your "
 "account and/or to move it to another server."
-msgstr ""
+msgstr "Eksporter din kontos informasjon og kontakter. Bruk denne til å ta en sikkerhetskopi av kontoen din og/eller for å flytte til en annen tjener."
 
 #: ../../mod/uexport.php:73
 msgid "Export all"
-msgstr ""
+msgstr "Eksporter alt"
 
 #: ../../mod/uexport.php:73
 msgid ""
 "Export your accout info, contacts and all your items as json. Could be a "
 "very big file, and could take a lot of time. Use this to make a full backup "
 "of your account (photos are not exported)"
-msgstr ""
+msgstr "Eksporter din kontoinformasjon, kontakter og alle dine elementer som JSON. Det kan bli en svært stor fil, og kan ta lang tid. Bruk denne til å gjøre en full sikkerhetskopi av kontoen din (bilder blir ikke eksportert)"
 
 #: ../../mod/filer.php:30
 msgid "- select -"
-msgstr ""
+msgstr "- velg -"
 
 #: ../../mod/uimport.php:64
 msgid "Import"
-msgstr ""
+msgstr "Importer"
 
 #: ../../mod/uimport.php:66
 msgid "Move account"
-msgstr ""
+msgstr "Flytt konto"
 
 #: ../../mod/uimport.php:67
 msgid "You can import an account from another Friendica server."
-msgstr ""
+msgstr "Du kan importere en konto fra en annen Friendica-tjener."
 
 #: ../../mod/uimport.php:68
 msgid ""
 "You need to export your account from the old server and upload it here. We "
 "will recreate your old account here with all your contacts. We will try also"
 " to inform your friends that you moved here."
-msgstr ""
+msgstr "Du må eksportere din konto fra den gamle tjeneren og laste den opp hit. Vi vil gjenskape din gamle konto her med alle dine kontakter. Vi vil også forsøke å informere dine venner at du har flyttet hit."
 
 #: ../../mod/uimport.php:69
 msgid ""
 "This feature is experimental. We can't import contacts from the OStatus "
 "network (statusnet/identi.ca) or from Diaspora"
-msgstr ""
+msgstr "Denne egenskapen er eksperimentell. Vi kan ikke importere kontakter fra OStatus-nettverk (statusnet/identi.ca) eller fra Diaspora"
 
 #: ../../mod/uimport.php:70
 msgid "Account file"
-msgstr ""
+msgstr "Kontofil"
 
 #: ../../mod/uimport.php:70
 msgid ""
 "To export your accont, go to \"Settings->Export your porsonal data\" and "
 "select \"Export account\""
-msgstr ""
+msgstr "For å eksportere din konto, gå til \"Innstillnger -> Eksporter dine personlige data\" og velg \"Eksporter konto\""
 
 #: ../../mod/update_community.php:18 ../../mod/update_display.php:22
 #: ../../mod/update_network.php:22 ../../mod/update_notes.php:41
@@ -5233,11 +5233,11 @@ msgstr "[Innebygget innhold - hent siden på nytt for å se det]"
 
 #: ../../mod/follow.php:27
 msgid "Contact added"
-msgstr ""
+msgstr "Kontakt lagt til "
 
 #: ../../mod/friendica.php:55
 msgid "This is Friendica, version"
-msgstr ""
+msgstr "Dette er Friendica, versjon"
 
 #: ../../mod/friendica.php:56
 msgid "running at web location"
@@ -5247,7 +5247,7 @@ msgstr "kjører på web-plassering"
 msgid ""
 "Please visit <a href=\"http://friendica.com\">Friendica.com</a> to learn "
 "more about the Friendica project."
-msgstr ""
+msgstr "Vennligst besøk <a href=\"http://friendica.com\">Friendica.com</a> for å lære mer om Friendica-prosjektet."
 
 #: ../../mod/friendica.php:60
 msgid "Bug reports and issues: please visit"
@@ -5257,11 +5257,11 @@ msgstr "Feilrapporter og problemer: vennligst besøk"
 msgid ""
 "Suggestions, praise, donations, etc. - please email \"Info\" at Friendica - "
 "dot com"
-msgstr ""
+msgstr "Forslag, ros, donasjoner, og så videre - vennligst send e-post til \"Info\" alfakrøll Friendica punktum com"
 
 #: ../../mod/friendica.php:75
 msgid "Installed plugins/addons/apps:"
-msgstr ""
+msgstr "Installerte plugins/tillegg/apper:"
 
 #: ../../mod/friendica.php:88
 msgid "No installed plugins/addons/apps"
@@ -5347,7 +5347,7 @@ msgstr "Velkommen til %s"
 
 #: ../../mod/viewsrc.php:7
 msgid "Access denied."
-msgstr ""
+msgstr "Tilgang avslått."
 
 #: ../../mod/wall_attach.php:69
 #, php-format
@@ -5375,7 +5375,7 @@ msgstr "Mislyktes med å laste opp bilde."
 
 #: ../../mod/invite.php:27
 msgid "Total invitation limit exceeded."
-msgstr ""
+msgstr "Grensen for totalt antall invitasjoner er overskredet."
 
 #: ../../mod/invite.php:49
 #, php-format
@@ -5384,11 +5384,11 @@ msgstr "%s: Ugyldig e-postadresse."
 
 #: ../../mod/invite.php:73
 msgid "Please join us on Friendica"
-msgstr ""
+msgstr "Vær med oss på Friendica"
 
 #: ../../mod/invite.php:84
 msgid "Invitation limit exceeded. Please contact your site administrator."
-msgstr ""
+msgstr "Invitasjonsgrense overskredet. Vennligst kontakt administrator på ditt nettsted."
 
 #: ../../mod/invite.php:89
 #, php-format
@@ -5412,14 +5412,14 @@ msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
 "other sites can all connect with each other, as well as with members of many"
 " other social networks."
-msgstr ""
+msgstr "Besøk %s for en liste med offentlige nettsteder du kan bli med i. Friendica-medlemmer ved andre nettsteder kan alle opprette forbindelse til hverandre, og i tillegg til medlemmer av mange andre sosiale nettverk."
 
 #: ../../mod/invite.php:122
 #, php-format
 msgid ""
 "To accept this invitation, please visit and register at %s or any other "
 "public Friendica website."
-msgstr ""
+msgstr "For å akseptere denne invitasjonen, vær så snill å besøk og registrer deg hos %s eller et hvilket som helst annet offentlig Friendica-nettsted."
 
 #: ../../mod/invite.php:123
 #, php-format
@@ -5428,7 +5428,7 @@ msgid ""
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks. See %s for a list of alternate Friendica "
 "sites you can join."
-msgstr ""
+msgstr "Friendica-nettsteder er alle forbundet med hverandre for å lage et personvern-forbedret sosialt nettverk  som eies og kontrolleres av medlemmene selv. De kan også forbindes med mange tradisjonelle sosiale nettverk. Se %s for en liste over alternative Friendica-nettsteder du kan bli med i."
 
 #: ../../mod/invite.php:126
 msgid ""
@@ -5453,7 +5453,7 @@ msgstr "Din melding:"
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
-msgstr ""
+msgstr "Du er herved hjertelig invitert til å bli med meg og andre nære venner på Friendica - hjelp oss å skape en bedre sosial web."
 
 #: ../../mod/invite.php:137
 msgid "You will need to supply this invitation code: $invite_code"
@@ -5468,7 +5468,7 @@ msgstr "Når du har registrert, vennligst kontakt meg via min profilside på:"
 msgid ""
 "For more information about the Friendica project and why we feel it is "
 "important, please visit http://friendica.com"
-msgstr ""
+msgstr "For mer informasjon om Friendica-prosjektet og hvorfor vi mener det er viktig, vennligst besøk http://friendica.com"
 
 #: ../../mod/wallmessage.php:42 ../../mod/wallmessage.php:112
 #, php-format
@@ -5481,7 +5481,7 @@ msgstr "Ingen mottaker valgt."
 
 #: ../../mod/wallmessage.php:59
 msgid "Unable to check your home location."
-msgstr ""
+msgstr "Ikke i stand til avgjøre plasseringen til ditt hjemsted."
 
 #: ../../mod/wallmessage.php:62 ../../mod/message.php:70
 msgid "Message could not be sent."
@@ -5489,7 +5489,7 @@ msgstr "Meldingen kunne ikke sendes."
 
 #: ../../mod/wallmessage.php:65 ../../mod/message.php:73
 msgid "Message collection failure."
-msgstr ""
+msgstr "Meldingsinnsamling mislyktes."
 
 #: ../../mod/wallmessage.php:68 ../../mod/message.php:76
 msgid "Message sent."
@@ -5497,7 +5497,7 @@ msgstr "Melding sendt."
 
 #: ../../mod/wallmessage.php:86 ../../mod/wallmessage.php:95
 msgid "No recipient."
-msgstr ""
+msgstr "Ingen mottaker."
 
 #: ../../mod/wallmessage.php:142 ../../mod/message.php:319
 msgid "Send Private Message"
@@ -5508,7 +5508,7 @@ msgstr "Send privat melding"
 msgid ""
 "If you wish for %s to respond, please check that the privacy settings on "
 "your site allow private mail from unknown senders."
-msgstr ""
+msgstr "Hvis du ønsker å la %s få svare, vennligst sjekk om personverninnstillingene på ditt nettsted tillater private post fra ukjente avsendere."
 
 #: ../../mod/wallmessage.php:144 ../../mod/message.php:320
 #: ../../mod/message.php:553
@@ -5605,7 +5605,7 @@ msgstr "Passordet ditt kan endres fra siden <em>Innstillinger</em> etter vellykk
 #: ../../mod/lostpass.php:107
 #, php-format
 msgid "Your password has been changed at %s"
-msgstr ""
+msgstr "Ditt passord har blitt endret %s"
 
 #: ../../mod/lostpass.php:122
 msgid "Forgot your Password?"
@@ -5627,7 +5627,7 @@ msgstr "Tilbakestill"
 
 #: ../../mod/maintenance.php:5
 msgid "System down for maintenance"
-msgstr ""
+msgstr "Systemet er nede for vedlikehold"
 
 #: ../../mod/manage.php:106
 msgid "Manage Identities and/or Pages"
@@ -5661,7 +5661,7 @@ msgstr "Mislyktes med å finne kontaktinformasjon."
 
 #: ../../mod/message.php:207
 msgid "Do you really want to delete this message?"
-msgstr ""
+msgstr "Ønsker du virkelig å slette denne meldingen?"
 
 #: ../../mod/message.php:227
 msgid "Message deleted."
@@ -5678,17 +5678,17 @@ msgstr "Ingen meldinger."
 #: ../../mod/message.php:378
 #, php-format
 msgid "Unknown sender - %s"
-msgstr ""
+msgstr "Ukjent avsender - %s"
 
 #: ../../mod/message.php:381
 #, php-format
 msgid "You and %s"
-msgstr ""
+msgstr "Du og %s"
 
 #: ../../mod/message.php:384
 #, php-format
 msgid "%s and You"
-msgstr ""
+msgstr "%s og du"
 
 #: ../../mod/message.php:405 ../../mod/message.php:546
 msgid "Delete conversation"
@@ -5717,7 +5717,7 @@ msgstr "Slett melding"
 msgid ""
 "No secure communications available. You <strong>may</strong> be able to "
 "respond from the sender's profile page."
-msgstr ""
+msgstr "Ingen sikker kommunikasjon tilgjengelig. Du <strong>kan kanskje</strong> svare fra senderens profilside."
 
 #: ../../mod/message.php:552
 msgid "Send Reply"
@@ -5940,7 +5940,7 @@ msgstr "Nettverksvarslinger"
 
 #: ../../mod/notifications.php:332 ../../mod/notify.php:61
 msgid "No more system notifications."
-msgstr ""
+msgstr "Ingen flere systemvarsler."
 
 #: ../../mod/notifications.php:336 ../../mod/notify.php:65
 msgid "System Notifications"
@@ -5991,7 +5991,7 @@ msgstr "Slett album"
 
 #: ../../mod/photos.php:197
 msgid "Do you really want to delete this photo album and all its photos?"
-msgstr ""
+msgstr "Ønsker du virkelig å slette dette fotoalbumet og alle bildene i det?"
 
 #: ../../mod/photos.php:276 ../../mod/photos.php:287 ../../mod/photos.php:1502
 msgid "Delete Photo"
@@ -5999,16 +5999,16 @@ msgstr "Slett bilde"
 
 #: ../../mod/photos.php:285
 msgid "Do you really want to delete this photo?"
-msgstr ""
+msgstr "Ønsker du virkelig å slette dette bildet?"
 
 #: ../../mod/photos.php:656
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
-msgstr ""
+msgstr "%1$s ble merket i %2$s av %3$s"
 
 #: ../../mod/photos.php:656
 msgid "a photo"
-msgstr ""
+msgstr "et bilde"
 
 #: ../../mod/photos.php:761
 msgid "Image exceeds size limit of "
@@ -6025,7 +6025,7 @@ msgstr "Ingen bilder er valgt"
 #: ../../mod/photos.php:1088
 #, php-format
 msgid "You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."
-msgstr ""
+msgstr "Du har brukt %1$.2f Mbytes av %2$.2f Mbytes bildelagring."
 
 #: ../../mod/photos.php:1123
 msgid "Upload Photos"
@@ -6049,11 +6049,11 @@ msgstr "Tillatelser"
 
 #: ../../mod/photos.php:1142
 msgid "Private Photo"
-msgstr ""
+msgstr "Privat bilde"
 
 #: ../../mod/photos.php:1143
 msgid "Public Photo"
-msgstr ""
+msgstr "Offentlig bilde"
 
 #: ../../mod/photos.php:1210
 msgid "Edit Album"
@@ -6061,11 +6061,11 @@ msgstr "Endre album"
 
 #: ../../mod/photos.php:1216
 msgid "Show Newest First"
-msgstr ""
+msgstr "Vis nyeste først"
 
 #: ../../mod/photos.php:1218
 msgid "Show Oldest First"
-msgstr ""
+msgstr "Vis eldste først"
 
 #: ../../mod/photos.php:1251 ../../mod/photos.php:1778
 msgid "View Photo"
@@ -6110,11 +6110,11 @@ msgstr "[Fjern en tag]"
 
 #: ../../mod/photos.php:1487
 msgid "Rotate CW (right)"
-msgstr ""
+msgstr "Roter med klokka (høyre)"
 
 #: ../../mod/photos.php:1488
 msgid "Rotate CCW (left)"
-msgstr ""
+msgstr "Roter mot klokka (venstre)"
 
 #: ../../mod/photos.php:1490
 msgid "New album name"
@@ -6135,11 +6135,11 @@ msgstr "Eksempel: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping
 
 #: ../../mod/photos.php:1508
 msgid "Private photo"
-msgstr ""
+msgstr "Privat bilde"
 
 #: ../../mod/photos.php:1509
 msgid "Public photo"
-msgstr ""
+msgstr "Offentlig bilde"
 
 #: ../../mod/photos.php:1529 ../../mod/content.php:707
 #: ../../object/Item.php:232
@@ -6169,7 +6169,7 @@ msgstr "Nye bilder"
 
 #: ../../mod/newmember.php:6
 msgid "Welcome to Friendica"
-msgstr ""
+msgstr "Velkommen til Friendica"
 
 #: ../../mod/newmember.php:8
 msgid "New Member Checklist"
@@ -6181,33 +6181,33 @@ msgid ""
 "enjoyable. Click any item to visit the relevant page. A link to this page "
 "will be visible from your home page for two weeks after your initial "
 "registration and then will quietly disappear."
-msgstr ""
+msgstr "Vi vil gjerne gi noe noen tips og lenker for å hjelpe deg til en hyggelig opplevelse. Klikk på et element for å besøke den relevante siden. En lenke til denne siden vil være synlig på din hovedside i to uker etter at du registrerte deg og så vil den bli borte av seg selv."
 
 #: ../../mod/newmember.php:14
 msgid "Getting Started"
-msgstr ""
+msgstr "Komme igang"
 
 #: ../../mod/newmember.php:18
 msgid "Friendica Walk-Through"
-msgstr ""
+msgstr "Friendica gjennomgang"
 
 #: ../../mod/newmember.php:18
 msgid ""
 "On your <em>Quick Start</em> page - find a brief introduction to your "
 "profile and network tabs, make some new connections, and find some groups to"
 " join."
-msgstr ""
+msgstr "På <em>Hurtigstart</em>-siden din, så finner du en kort introduksjon til profilen din og nettverksfanen, hvordan du oppretter nye forbindelser, og hvordan du finner grupper å bli med i."
 
 #: ../../mod/newmember.php:26
 msgid "Go to Your Settings"
-msgstr ""
+msgstr "Gå til Dine innstillinger"
 
 #: ../../mod/newmember.php:26
 msgid ""
 "On your <em>Settings</em> page -  change your initial password. Also make a "
 "note of your Identity Address. This looks just like an email address - and "
 "will be useful in making friends on the free social web."
-msgstr ""
+msgstr "På siden <em>Innstillinger</em> - bytt passordet du fikk. Merk deg også Din identitetsadresse. Denne ser ut som en vanlig e-postadresse, og er nyttig for å bli venner i den frie sosiale web'en."
 
 #: ../../mod/newmember.php:28
 msgid ""
@@ -6230,7 +6230,7 @@ msgstr "Last opp et profilbilde hvis du ikke har gjort det allerede. Studier vis
 
 #: ../../mod/newmember.php:38
 msgid "Edit Your Profile"
-msgstr ""
+msgstr "Endre profilen din"
 
 #: ../../mod/newmember.php:38
 msgid ""
@@ -6241,7 +6241,7 @@ msgstr "Du kan endre <strong>standardprofilen</strong> din slik du ønsker. Se o
 
 #: ../../mod/newmember.php:40
 msgid "Profile Keywords"
-msgstr ""
+msgstr "Profilnøkkelord"
 
 #: ../../mod/newmember.php:40
 msgid ""
@@ -6252,7 +6252,7 @@ msgstr "Legg til noen offentlige nøkkelord til standardprofilen din som beskriv
 
 #: ../../mod/newmember.php:44
 msgid "Connecting"
-msgstr ""
+msgstr "Kobling"
 
 #: ../../mod/newmember.php:49
 msgid ""
@@ -6264,33 +6264,33 @@ msgstr "Tillat Facebook-koblingen hvis du har en Facebook-konto og vi vil (valgf
 msgid ""
 "<em>If</em> this is your own personal server, installing the Facebook addon "
 "may ease your transition to the free social web."
-msgstr ""
+msgstr "<em>Hvis</em> dette er din egen personlige tjener, så kan installasjon av Facebook-tillegget gjøre overgangen til den frie sosiale web'en lettere."
 
 #: ../../mod/newmember.php:56
 msgid "Importing Emails"
-msgstr ""
+msgstr "Importere e-post"
 
 #: ../../mod/newmember.php:56
 msgid ""
 "Enter your email access information on your Connector Settings page if you "
 "wish to import and interact with friends or mailing lists from your email "
 "INBOX"
-msgstr ""
+msgstr "Skriv inn tilgangsinformasjon til e-posten din på siden for Koblingsinnstillinger, hvis du ønsker å importere og samhandle med venner eller e-postlister fra din e-post INNBOKS"
 
 #: ../../mod/newmember.php:58
 msgid "Go to Your Contacts Page"
-msgstr ""
+msgstr "Gå til Dine kontakter-siden"
 
 #: ../../mod/newmember.php:58
 msgid ""
 "Your Contacts page is your gateway to managing friendships and connecting "
 "with friends on other networks. Typically you enter their address or site "
 "URL in the <em>Add New Contact</em> dialog."
-msgstr ""
+msgstr "Dine kontakter-siden er der du håndterer vennskap og skaper forbindelser med venner på andre nettverk. Vanligvis skriver du deres adresse eller nettsteds-URL i dialogboksen <em>Legg til ny kontakt</em>"
 
 #: ../../mod/newmember.php:60
 msgid "Go to Your Site's Directory"
-msgstr ""
+msgstr "Gå til Din lokale katalog"
 
 #: ../../mod/newmember.php:60
 msgid ""
@@ -6301,7 +6301,7 @@ msgstr "Katalog-siden lar deg finne andre folk i dette nettverket eller andre fo
 
 #: ../../mod/newmember.php:62
 msgid "Finding New People"
-msgstr ""
+msgstr "Finn nye personer"
 
 #: ../../mod/newmember.php:62
 msgid ""
@@ -6310,11 +6310,11 @@ msgid ""
 "interest, and provide suggestions based on network relationships. On a brand"
 " new site, friend suggestions will usually begin to be populated within 24 "
 "hours."
-msgstr ""
+msgstr "I sidepanelet på Kontakter-siden er flere verktøy for å finne nye venner. Vi kan matche personer utfra interesse, slå opp personer på navn eller interesse, og gi forslag basert på nettverksforbindelser. På et helt nytt nettsted, så vil venneforslag vanligvis dukke opp innen 24 timer."
 
 #: ../../mod/newmember.php:70
 msgid "Group Your Contacts"
-msgstr ""
+msgstr "Kontaktgrupper"
 
 #: ../../mod/newmember.php:70
 msgid ""
@@ -6325,22 +6325,22 @@ msgstr "Når du har fått noen venner, så kan du organisere dem i private samta
 
 #: ../../mod/newmember.php:73
 msgid "Why Aren't My Posts Public?"
-msgstr ""
+msgstr "Hvorfor er ikke mine innlegg offentlige?"
 
 #: ../../mod/newmember.php:73
 msgid ""
 "Friendica respects your privacy. By default, your posts will only show up to"
 " people you've added as friends. For more information, see the help section "
 "from the link above."
-msgstr ""
+msgstr "Friendica respekterer ditt privatliv. Som standard, så vil dine innlegg bare vises til personer du har lagt til som venner. For mer informasjon, se Hjelp-siden fra lenken ovenfor."
 
 #: ../../mod/newmember.php:78
 msgid "Getting Help"
-msgstr ""
+msgstr "Få hjelp"
 
 #: ../../mod/newmember.php:82
 msgid "Go to the Help Section"
-msgstr ""
+msgstr "Gå til Hjelp-siden"
 
 #: ../../mod/newmember.php:82
 msgid ""
