@@ -292,7 +292,7 @@ function paginate_data(&$a, $count=null) {
 		if($a->pager['page']>1)
 			_l($data,  "prev", $url.'&page='.($a->pager['page'] - 1), t('newer'));
 		if($count>0)
-			_l($data,  "next", $url.'&page='.($a->pager['page'] - 1), t('older'));
+			_l($data,  "next", $url.'&page='.($a->pager['page'] + 1), t('older'));
 	} else {
 		// full pager
 		if($a->pager['total'] > $a->pager['itemspage']) {
