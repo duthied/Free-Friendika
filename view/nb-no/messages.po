@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-12 00:01-0700\n"
-"PO-Revision-Date: 2013-06-19 05:03+0000\n"
+"PO-Revision-Date: 2013-06-20 05:11+0000\n"
 "Last-Translator: Haakon Meland Eriksen <haakon.eriksen@far.no>\n"
 "Language-Team: Norwegian Bokmål (Norway) (http://www.transifex.com/projects/p/friendica/language/nb_NO/)\n"
 "MIME-Version: 1.0\n"
@@ -761,7 +761,7 @@ msgstr "Venneforslag"
 
 #: ../../include/contact_widgets.php:35 ../../view/theme/diabook/theme.php:519
 msgid "Similar Interests"
-msgstr ""
+msgstr "Liknende interesser"
 
 #: ../../include/contact_widgets.php:36
 msgid "Random Profile"
@@ -1516,7 +1516,7 @@ msgstr ""
 
 #: ../../include/group.php:275 ../../mod/network.php:234
 msgid "add"
-msgstr ""
+msgstr "legg til"
 
 #: ../../include/conversation.php:140 ../../mod/like.php:170
 #, php-format
@@ -1531,7 +1531,7 @@ msgstr ""
 #: ../../include/conversation.php:227 ../../mod/mood.php:62
 #, php-format
 msgid "%1$s is currently %2$s"
-msgstr ""
+msgstr "%1$s er for øyeblikket %2$s"
 
 #: ../../include/conversation.php:266 ../../mod/tagger.php:95
 #, php-format
@@ -2017,7 +2017,7 @@ msgstr "Dine innlegg og samtaler"
 
 #: ../../include/nav.php:77 ../../view/theme/diabook/theme.php:88
 msgid "Your profile page"
-msgstr ""
+msgstr "Din profilside"
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
 #: ../../view/theme/diabook/theme.php:90 ../../boot.php:1954
@@ -2026,7 +2026,7 @@ msgstr "Bilder"
 
 #: ../../include/nav.php:78 ../../view/theme/diabook/theme.php:90
 msgid "Your photos"
-msgstr ""
+msgstr "Dine bilder"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
 #: ../../view/theme/diabook/theme.php:91 ../../boot.php:1971
@@ -2035,15 +2035,15 @@ msgstr "Hendelser"
 
 #: ../../include/nav.php:79 ../../view/theme/diabook/theme.php:91
 msgid "Your events"
-msgstr ""
+msgstr "Dine hendelser"
 
 #: ../../include/nav.php:80 ../../view/theme/diabook/theme.php:92
 msgid "Personal notes"
-msgstr ""
+msgstr "Personlige notater"
 
 #: ../../include/nav.php:80 ../../view/theme/diabook/theme.php:92
 msgid "Your personal photos"
-msgstr ""
+msgstr "Dine personlige bilder"
 
 #: ../../include/nav.php:91 ../../boot.php:1137
 msgid "Login"
@@ -3527,7 +3527,7 @@ msgstr "Systemfeil. Meldingen ble ikke lagret."
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social "
 "network."
-msgstr ""
+msgstr "Denne meldingen ble sendt til deg av %s, et medlem av det sosiale nettverket Friendica."
 
 #: ../../mod/item.php:899
 #, php-format
@@ -4662,7 +4662,7 @@ msgstr "Vennligst bruk Tilbake-knappen i nettleseren din <strong>nå</strong> hv
 
 #: ../../mod/crepair.php:144
 msgid "Return to contact editor"
-msgstr ""
+msgstr "Gå tilbake til å endre kontakt"
 
 #: ../../mod/crepair.php:149
 msgid "Account Nickname"
@@ -4698,7 +4698,7 @@ msgstr "Nytt bilde fra denne URL-en"
 
 #: ../../mod/delegate.php:95
 msgid "No potential page delegates located."
-msgstr ""
+msgstr "Fant ingen potensielle sidedelegater."
 
 #: ../../mod/delegate.php:123
 msgid ""
@@ -4713,11 +4713,11 @@ msgstr "Eksisterende sidebehandlere"
 
 #: ../../mod/delegate.php:126
 msgid "Existing Page Delegates"
-msgstr ""
+msgstr "Eksisterende sidedelegater"
 
 #: ../../mod/delegate.php:128
 msgid "Potential Delegates"
-msgstr ""
+msgstr "Mulige delegater"
 
 #: ../../mod/delegate.php:130 ../../mod/tagrm.php:93
 msgid "Remove"
@@ -4725,31 +4725,31 @@ msgstr "Slett"
 
 #: ../../mod/delegate.php:131
 msgid "Add"
-msgstr ""
+msgstr "Legg til"
 
 #: ../../mod/delegate.php:132
 msgid "No entries."
-msgstr ""
+msgstr "Ingen oppføringer"
 
 #: ../../mod/poke.php:192
 msgid "Poke/Prod"
-msgstr ""
+msgstr "Dytt/dult"
 
 #: ../../mod/poke.php:193
 msgid "poke, prod or do other things to somebody"
-msgstr ""
+msgstr "dytt, dult eller gjør andre ting med noen"
 
 #: ../../mod/poke.php:194
 msgid "Recipient"
-msgstr ""
+msgstr "Mottaker"
 
 #: ../../mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
-msgstr ""
+msgstr "Velg hva du ønsker å gjøre med mottakeren"
 
 #: ../../mod/poke.php:198
 msgid "Make this post private"
-msgstr ""
+msgstr "Gjør dette innlegget privat"
 
 #: ../../mod/dfrn_confirm.php:119
 msgid ""
@@ -5016,7 +5016,7 @@ msgstr "Global katalog"
 
 #: ../../mod/directory.php:57
 msgid "Find on this site"
-msgstr ""
+msgstr "Finn på dette nettstedet"
 
 #: ../../mod/directory.php:60
 msgid "Site Directory"
@@ -5528,7 +5528,7 @@ msgstr "Tidskonvertering"
 msgid ""
 "Friendica provides this service for sharing events with other networks and "
 "friends in unknown timezones."
-msgstr ""
+msgstr "Friendica har denne tjenesten for å dele hendelser med andre nettverk og venner i ukjente tidssoner."
 
 #: ../../mod/localtime.php:30
 #, php-format
@@ -5653,7 +5653,7 @@ msgstr "Ingen nøkkelord å sammenlikne. Vennligst legg til nøkkelord i din sta
 
 #: ../../mod/match.php:57
 msgid "is interested in:"
-msgstr ""
+msgstr "er interessert i:"
 
 #: ../../mod/message.php:67
 msgid "Unable to locate contact information."
@@ -5725,15 +5725,15 @@ msgstr "Send svar"
 
 #: ../../mod/mood.php:133
 msgid "Mood"
-msgstr ""
+msgstr "Stemning"
 
 #: ../../mod/mood.php:134
 msgid "Set your current mood and tell your friends"
-msgstr ""
+msgstr "Angi din stemning og fortell dine venner"
 
 #: ../../mod/network.php:181
 msgid "Search Results For:"
-msgstr ""
+msgstr "Søkeresultater for:"
 
 #: ../../mod/network.php:397
 msgid "Commented Order"
@@ -5741,7 +5741,7 @@ msgstr "Etter kommentarer"
 
 #: ../../mod/network.php:400
 msgid "Sort by Comment Date"
-msgstr ""
+msgstr "Sorter etter kommentardato"
 
 #: ../../mod/network.php:403
 msgid "Posted Order"
@@ -5749,7 +5749,7 @@ msgstr "Etter innlegg"
 
 #: ../../mod/network.php:406
 msgid "Sort by Post Date"
-msgstr ""
+msgstr "Sorter etter innleggsdato"
 
 #: ../../mod/network.php:444 ../../mod/notifications.php:88
 msgid "Personal"
@@ -5757,7 +5757,7 @@ msgstr "Personlig"
 
 #: ../../mod/network.php:447
 msgid "Posts that mention or involve you"
-msgstr ""
+msgstr "Innlegg som nevner eller involverer deg"
 
 #: ../../mod/network.php:453
 msgid "New"
@@ -5765,15 +5765,15 @@ msgstr "Ny"
 
 #: ../../mod/network.php:456
 msgid "Activity Stream - by date"
-msgstr ""
+msgstr "Aktivitetsstrøm - etter dato"
 
 #: ../../mod/network.php:462
 msgid "Shared Links"
-msgstr ""
+msgstr "Delte lenker"
 
 #: ../../mod/network.php:465
 msgid "Interesting Links"
-msgstr ""
+msgstr "Interessante lenker"
 
 #: ../../mod/network.php:471
 msgid "Starred"
@@ -5781,7 +5781,7 @@ msgstr "Med stjerne"
 
 #: ../../mod/network.php:474
 msgid "Favourite Posts"
-msgstr ""
+msgstr "Favorittinnlegg"
 
 #: ../../mod/network.php:546
 #, php-format
@@ -6362,15 +6362,15 @@ msgstr ""
 
 #: ../../mod/install.php:123
 msgid "Could not connect to database."
-msgstr ""
+msgstr "Kunne ikke koble til database."
 
 #: ../../mod/install.php:127
 msgid "Could not create table."
-msgstr ""
+msgstr "Kunne ikke lage tabell."
 
 #: ../../mod/install.php:133
 msgid "Your Friendica site database has been installed."
-msgstr ""
+msgstr "Databasen til Friendica-nettstedet ditt har blitt installert."
 
 #: ../../mod/install.php:138
 msgid ""
@@ -6385,21 +6385,21 @@ msgstr "Vennligst se filen \"INSTALL.txt\"."
 
 #: ../../mod/install.php:203
 msgid "System check"
-msgstr ""
+msgstr "Systemsjekk"
 
 #: ../../mod/install.php:208
 msgid "Check again"
-msgstr ""
+msgstr "Sjekk på nytt"
 
 #: ../../mod/install.php:227
 msgid "Database connection"
-msgstr ""
+msgstr "Databaseforbindelse"
 
 #: ../../mod/install.php:228
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
-msgstr ""
+msgstr "For å installere Friendica må vi vite hvordan man kan koble seg til din database."
 
 #: ../../mod/install.php:229
 msgid ""
@@ -6431,13 +6431,13 @@ msgstr "Databasenavn"
 
 #: ../../mod/install.php:238 ../../mod/install.php:277
 msgid "Site administrator email address"
-msgstr ""
+msgstr "Nettstedsadministrator sin e-postadresse"
 
 #: ../../mod/install.php:238 ../../mod/install.php:277
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
-msgstr ""
+msgstr "Din kontos e-postadresse må stemme med denne for å kunne bruke panelet for webadministrasjon."
 
 #: ../../mod/install.php:242 ../../mod/install.php:280
 msgid "Please select a default timezone for your website"
@@ -6445,7 +6445,7 @@ msgstr "Vennligst velg en standard tidssone for ditt nettsted"
 
 #: ../../mod/install.php:267
 msgid "Site settings"
-msgstr ""
+msgstr "Innstillinger for nettstedet"
 
 #: ../../mod/install.php:321
 msgid "Could not find a command line version of PHP in the web server PATH."
@@ -6456,21 +6456,21 @@ msgid ""
 "If you don't have a command line version of PHP installed on server, you "
 "will not be able to run background polling via cron. See <a "
 "href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>"
-msgstr ""
+msgstr "Hvis du ikke har installert kommandolinjeversjonen av PHP på tjeneren, så vil du ikke kunne kjøre bakgrunnsspørring via cron. Se <a href='http://friendica.com/node/27'>'Aktivere tidsstyrte oppgaver'</a>"
 
 #: ../../mod/install.php:326
 msgid "PHP executable path"
-msgstr ""
+msgstr "PHP kjørefil sin sti"
 
 #: ../../mod/install.php:326
 msgid ""
 "Enter full path to php executable. You can leave this blank to continue the "
 "installation."
-msgstr ""
+msgstr "Skriv inn hele stien til php kjørefilen. Du kan la denne stå blank for å fortsette installasjonen."
 
 #: ../../mod/install.php:331
 msgid "Command line PHP"
-msgstr ""
+msgstr "Kommandolinje PHP"
 
 #: ../../mod/install.php:340
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
@@ -6496,7 +6496,7 @@ msgstr "Dette er nødvendig for at meldingslevering skal virke."
 
 #: ../../mod/install.php:357
 msgid "PHP register_argc_argv"
-msgstr ""
+msgstr "PHP register_argc_argv"
 
 #: ../../mod/install.php:378
 msgid ""
@@ -6512,31 +6512,31 @@ msgstr "For kjøring på Windows, vennligst se \"http://www.php.net/manual/en/op
 
 #: ../../mod/install.php:381
 msgid "Generate encryption keys"
-msgstr ""
+msgstr "Lag krypteringsnøkler"
 
 #: ../../mod/install.php:388
 msgid "libCurl PHP module"
-msgstr ""
+msgstr "libCurl PHP modul"
 
 #: ../../mod/install.php:389
 msgid "GD graphics PHP module"
-msgstr ""
+msgstr "GD graphics PHP modul"
 
 #: ../../mod/install.php:390
 msgid "OpenSSL PHP module"
-msgstr ""
+msgstr "OpenSSL PHP modul"
 
 #: ../../mod/install.php:391
 msgid "mysqli PHP module"
-msgstr ""
+msgstr "mysqli PHP modul"
 
 #: ../../mod/install.php:392
 msgid "mb_string PHP module"
-msgstr ""
+msgstr "mb_string PHP modul"
 
 #: ../../mod/install.php:397 ../../mod/install.php:399
 msgid "Apache mod_rewrite module"
-msgstr ""
+msgstr "Apache mod_rewrite modul"
 
 #: ../../mod/install.php:397
 msgid ""
@@ -6580,55 +6580,55 @@ msgstr "Dette skyldes oftest manglende tillatelse, ettersom web-tjeneren kanskje
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named .htconfig.php in your Friendica top folder."
-msgstr ""
+msgstr "På slutten av denne prosedyren, så gir vi deg en tekst å lagre i en fil kalt .htconfig.php i din Friendica sin toppmappe."
 
 #: ../../mod/install.php:441
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation."
 " Please see the file \"INSTALL.txt\" for instructions."
-msgstr ""
+msgstr "Du kan alternativt hoppe over denne prosedyren og utføre en manuell installasjon. Vennligst se filen \"INSTALL.txt\" for instruksjoner."
 
 #: ../../mod/install.php:444
 msgid ".htconfig.php is writable"
-msgstr ""
+msgstr ".htconfig.php er skrivbar"
 
 #: ../../mod/install.php:454
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
-msgstr ""
+msgstr "Friendica bruker Smarty3 malmotor for å gjengi sine webvisninger. Smarty3 kompilerer maler til PHP for å gjøre gjengivelse raskere."
 
 #: ../../mod/install.php:455
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
-msgstr ""
+msgstr "For å lagre disse kompilerte malene må webtjenesten ha skrivetilgang til katalogen view/smarty3/ som er under Friendica sin toppnivåmappe."
 
 #: ../../mod/install.php:456
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has"
 " write access to this folder."
-msgstr ""
+msgstr "Vennligst sjekk at brukeren din webtjeneste kjører som (for eksempel www-data) har skrivetilgang til denne mappen."
 
 #: ../../mod/install.php:457
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
-msgstr ""
+msgstr "Merknad: som et sikkerhetstiltak, du bør gi webtjenesten skrivetilgang kun til view/smarty3/ - ikke til malfilene (.tpl) som den inneholder."
 
 #: ../../mod/install.php:460
 msgid "view/smarty3 is writable"
-msgstr ""
+msgstr "view/smarty3 er skrivbar"
 
 #: ../../mod/install.php:472
 msgid ""
 "Url rewrite in .htaccess is not working. Check your server configuration."
-msgstr ""
+msgstr "URL omskriving i .htaccess virker ikke. Sjekk konfigurasjonen til webtjenesten."
 
 #: ../../mod/install.php:474
 msgid "Url rewrite is working"
-msgstr ""
+msgstr "URL omskriving virker"
 
 #: ../../mod/install.php:484
 msgid ""
@@ -6643,7 +6643,7 @@ msgstr "Feil oppstod under opprettelsen av databasetabeller."
 
 #: ../../mod/install.php:519
 msgid "<h1>What next</h1>"
-msgstr ""
+msgstr "<h1>Hva nå</h1>"
 
 #: ../../mod/install.php:520
 msgid ""
@@ -6690,7 +6690,7 @@ msgstr "Last opp fil:"
 
 #: ../../mod/profile_photo.php:243
 msgid "Select a profile:"
-msgstr ""
+msgstr "Velg en profil:"
 
 #: ../../mod/profile_photo.php:245
 msgid "Upload"
@@ -6873,49 +6873,49 @@ msgstr ""
 #: ../../view/theme/diabook/config.php:161
 #: ../../view/theme/diabook/theme.php:578
 msgid "Set longitude (X) for Earth Layers"
-msgstr ""
+msgstr "Angi lengdegrad (X) for Earth Layers"
 
 #: ../../view/theme/diabook/config.php:162
 #: ../../view/theme/diabook/theme.php:579
 msgid "Set latitude (Y) for Earth Layers"
-msgstr ""
+msgstr "Angi breddegrad (Y) for Earth Layers"
 
 #: ../../view/theme/diabook/config.php:163
 #: ../../view/theme/diabook/theme.php:94
 #: ../../view/theme/diabook/theme.php:537
 #: ../../view/theme/diabook/theme.php:632
 msgid "Community Pages"
-msgstr ""
+msgstr "Felleskapssider"
 
 #: ../../view/theme/diabook/config.php:164
 #: ../../view/theme/diabook/theme.php:572
 #: ../../view/theme/diabook/theme.php:633
 msgid "Earth Layers"
-msgstr ""
+msgstr "Earth Layers"
 
 #: ../../view/theme/diabook/config.php:165
 #: ../../view/theme/diabook/theme.php:384
 #: ../../view/theme/diabook/theme.php:634
 msgid "Community Profiles"
-msgstr ""
+msgstr "Fellesskapsprofiler"
 
 #: ../../view/theme/diabook/config.php:166
 #: ../../view/theme/diabook/theme.php:592
 #: ../../view/theme/diabook/theme.php:635
 msgid "Help or @NewHere ?"
-msgstr ""
+msgstr "Hjelp eller @NewHere ?"
 
 #: ../../view/theme/diabook/config.php:167
 #: ../../view/theme/diabook/theme.php:599
 #: ../../view/theme/diabook/theme.php:636
 msgid "Connect Services"
-msgstr ""
+msgstr "Forbindelse til tjenester"
 
 #: ../../view/theme/diabook/config.php:168
 #: ../../view/theme/diabook/theme.php:516
 #: ../../view/theme/diabook/theme.php:637
 msgid "Find Friends"
-msgstr ""
+msgstr "Finn venner"
 
 #: ../../view/theme/diabook/config.php:169
 msgid "Last tweets"
@@ -6925,36 +6925,36 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:405
 #: ../../view/theme/diabook/theme.php:639
 msgid "Last users"
-msgstr ""
+msgstr "Siste brukere"
 
 #: ../../view/theme/diabook/config.php:171
 #: ../../view/theme/diabook/theme.php:479
 #: ../../view/theme/diabook/theme.php:640
 msgid "Last photos"
-msgstr ""
+msgstr "Siste bilder"
 
 #: ../../view/theme/diabook/config.php:172
 #: ../../view/theme/diabook/theme.php:434
 #: ../../view/theme/diabook/theme.php:641
 msgid "Last likes"
-msgstr ""
+msgstr "Siste liker"
 
 #: ../../view/theme/diabook/theme.php:89
 msgid "Your contacts"
-msgstr ""
+msgstr "Dine kontakter"
 
 #: ../../view/theme/diabook/theme.php:517
 msgid "Local Directory"
-msgstr ""
+msgstr "Lokal katalog"
 
 #: ../../view/theme/diabook/theme.php:577
 msgid "Set zoomfactor for Earth Layers"
-msgstr ""
+msgstr "Angi zoomfaktor for Earth Layers"
 
 #: ../../view/theme/diabook/theme.php:606
 #: ../../view/theme/diabook/theme.php:638
 msgid "Last Tweets"
-msgstr ""
+msgstr "Siste Tweets"
 
 #: ../../view/theme/diabook/theme.php:630
 msgid "Show/hide boxes at right-hand column:"
