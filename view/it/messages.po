@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-12 00:01-0700\n"
-"PO-Revision-Date: 2013-06-06 16:10+0000\n"
+"PO-Revision-Date: 2013-06-20 08:54+0000\n"
 "Last-Translator: Francesco Apruzzese <cescoap@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/friendica/language/it/)\n"
 "MIME-Version: 1.0\n"
@@ -3084,7 +3084,7 @@ msgstr ""
 
 #: ../../mod/admin.php:526
 msgid "Don't embed private images in posts"
-msgstr ""
+msgstr "Non inglobare immagini private nei post"
 
 #: ../../mod/admin.php:526
 msgid ""
@@ -4335,7 +4335,7 @@ msgstr "Massimo 100 voci"
 
 #: ../../mod/settings.php:845
 msgid "Number of items to display per page when viewed from mobile device:"
-msgstr ""
+msgstr "Numero di voci da visualizzare per pagina quando si utilizza un dispositivo mobile:"
 
 #: ../../mod/settings.php:846
 msgid "Don't show emoticons"
@@ -4496,7 +4496,7 @@ msgstr "Password Attuale:"
 
 #: ../../mod/settings.php:1073 ../../mod/settings.php:1074
 msgid "Your current password to confirm the changes"
-msgstr ""
+msgstr "La tua password attuale per confermare le modifiche"
 
 #: ../../mod/settings.php:1074
 msgid "Password:"
@@ -6822,7 +6822,7 @@ msgstr "da bacheca a bacheca"
 
 #: ../../object/Item.php:92
 msgid "This entry was edited"
-msgstr ""
+msgstr "Questa voce è stata modificata"
 
 #: ../../object/Item.php:309
 msgid "via"
