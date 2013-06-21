@@ -79,6 +79,8 @@ function create_tags_from_item($itemid) {
 	foreach ($tags as $tag=>$link) {
 
 		if (substr(trim($tag), 0, 1) == "#") {
+			if(ctype_digit(substr($tag,1)))
+				continue;
 			$type = TERM_HASHTAG;
 			$term = substr($tag, 1);
 		} elseif (substr(trim($tag), 0, 1) == "@") {
