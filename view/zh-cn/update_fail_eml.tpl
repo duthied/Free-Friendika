@@ -1,11 +1,11 @@
-Hey, 
-I'm $sitename.   
-The friendica developers released update $update recently, 
-but when I tried to install it, something went terribly wrong.  
-This needs to be fixed soon and I can't do it alone. Please contact a 
-friendica developer if you can not help me on your own. My database might be invalid. 
+你好， 
+我是$sitename；   
+Friendica开发者最近出版更新$update， 
+可我安装的时候，遇到什么灾害，  
+这要紧急地维修，可我不会自己做。请联系 
+一个Friendica开发者如果你不会自己帮我。我的数据库会不效。 
 
-The error message is '$error'.   
+错误通信是「$error」   
 
-I'm sorry, 
-your friendica server at $siteurl
+不好意思， 
+你Friendica服务器在$siteurl

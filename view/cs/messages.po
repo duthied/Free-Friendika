@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-05-22 00:01-0700\n"
-"PO-Revision-Date: 2013-05-24 17:03+0000\n"
+"POT-Creation-Date: 2013-06-12 00:01-0700\n"
+"PO-Revision-Date: 2013-06-12 18:39+0000\n"
 "Last-Translator: Michal Šupler <msupler@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/projects/p/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -401,7 +401,8 @@ msgstr "Editovat Kontakty"
 msgid "Send PM"
 msgstr "Poslat soukromou zprávu"
 
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:549
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:550
+#: ../../include/bbcode.php:551
 msgid "Image/photo"
 msgstr "Obrázek/fotografie"
 
@@ -416,7 +417,7 @@ msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a> napsal následujíc
 msgid "$1 wrote:"
 msgstr "$1 napsal:"
 
-#: ../../include/bbcode.php:557 ../../include/bbcode.php:558
+#: ../../include/bbcode.php:559 ../../include/bbcode.php:560
 msgid "Encrypted content"
 msgstr "Šifrovaný obsah"
 
@@ -594,7 +595,7 @@ msgstr "Závažná chyba: Generování bezpečnostních klíčů se nezdařilo."
 msgid "An error occurred during registration. Please try again."
 msgstr "Došlo k chybě při registraci. Zkuste to prosím znovu."
 
-#: ../../include/user.php:237 ../../include/text.php:1594
+#: ../../include/user.php:237 ../../include/text.php:1596
 msgid "default"
 msgstr "standardní"
 
@@ -926,7 +927,7 @@ msgstr "%1$s je nyní přítel s %2$s"
 msgid "Sharing notification from Diaspora network"
 msgstr "Sdílení oznámení ze sítě Diaspora"
 
-#: ../../include/diaspora.php:1874 ../../include/text.php:1860
+#: ../../include/diaspora.php:1874 ../../include/text.php:1862
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
 #: ../../view/theme/diabook/theme.php:464
@@ -1361,112 +1362,112 @@ msgstr "uvolněný"
 msgid "surprised"
 msgstr "překvapený"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Monday"
 msgstr "Pondělí"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Tuesday"
 msgstr "Úterý"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Wednesday"
 msgstr "Středa"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Thursday"
 msgstr "Čtvrtek"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Friday"
 msgstr "Pátek"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Saturday"
 msgstr "Sobota"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Sunday"
 msgstr "Neděle"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "January"
 msgstr "Ledna"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "February"
 msgstr "Února"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "March"
 msgstr "Března"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "April"
 msgstr "Dubna"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "May"
 msgstr "Května"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "June"
 msgstr "Června"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "July"
 msgstr "Července"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "August"
 msgstr "Srpna"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "September"
 msgstr "Září"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "October"
 msgstr "Října"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "November"
 msgstr "Listopadu"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "December"
 msgstr "Prosinec"
 
-#: ../../include/text.php:1321 ../../mod/videos.php:301
+#: ../../include/text.php:1323 ../../mod/videos.php:301
 msgid "View Video"
 msgstr "Zobrazit video"
 
-#: ../../include/text.php:1353
+#: ../../include/text.php:1355
 msgid "bytes"
 msgstr "bytů"
 
-#: ../../include/text.php:1377 ../../include/text.php:1389
+#: ../../include/text.php:1379 ../../include/text.php:1391
 msgid "Click to open/close"
 msgstr "Klikněte pro otevření/zavření"
 
-#: ../../include/text.php:1551 ../../mod/events.php:335
+#: ../../include/text.php:1553 ../../mod/events.php:335
 msgid "link to source"
 msgstr "odkaz na zdroj"
 
-#: ../../include/text.php:1606
+#: ../../include/text.php:1608
 msgid "Select an alternate language"
 msgstr "Vyběr alternativního jazyka"
 
-#: ../../include/text.php:1858 ../../include/conversation.php:118
+#: ../../include/text.php:1860 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
 msgstr "událost"
 
-#: ../../include/text.php:1862
+#: ../../include/text.php:1864
 msgid "activity"
 msgstr "aktivita"
 
-#: ../../include/text.php:1864 ../../mod/content.php:628
+#: ../../include/text.php:1866 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
 msgid "comment"
 msgid_plural "comments"
@@ -1474,11 +1475,11 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] "komentář"
 
-#: ../../include/text.php:1865
+#: ../../include/text.php:1867
 msgid "post"
 msgstr "příspěvek"
 
-#: ../../include/text.php:2020
+#: ../../include/text.php:2022
 msgid "Item filed"
 msgstr "Položka vyplněna"
 
@@ -6367,8 +6368,8 @@ msgid "Tips for New Members"
 msgstr "Tipy pro nové členy"
 
 #: ../../mod/install.php:117
-msgid "Friendica Social Communications Server - Setup"
-msgstr "Friendica Sociální komunkační server - Nastavení"
+msgid "Friendica Communications Server - Setup"
+msgstr "Friendica Komunikační server - Nastavení"
 
 #: ../../mod/install.php:123
 msgid "Could not connect to database."
