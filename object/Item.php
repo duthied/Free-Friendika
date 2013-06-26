@@ -158,25 +158,6 @@ class Item extends BaseObject {
 		$hashtags = array();
 		$mentions = array();
 
-		if (!get_config('system','suppress_tags')) {
-			$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
-					intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
-
-			foreach($taglist as $tag) {
-
-				if ($tag["url"] == "")
-					$tag["url"] = $searchpath.strtolower($tag["term"]);
-
-				if ($tag["type"] == TERM_HASHTAG) {
-					$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
-					$prefix = "#";
-				} elseif ($tag["type"] == TERM_MENTION) {
-					$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
-					$prefix = "@";
-				}
-				$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
-			}
-		}
 
 		/*foreach(explode(',',$item['tag']) as $tag){
 			$tag = trim($tag);
@@ -291,9 +272,9 @@ class Item extends BaseObject {
 			'template' => $this->get_template(),
 
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
-			'tags' => $tags,
-			'hashtags' => $hashtags,
-			'mentions' => $mentions,
+			'tags' => $item['tags'],
+			'hashtags' => $item['hashtags'],
+			'mentions' => $item['mentions'],
 			'txt_cats' => t('Categories:'),
 			'txt_folders' => t('Filed under:'),
 			'has_cats' => ((count($categories)) ? 'true' : ''),

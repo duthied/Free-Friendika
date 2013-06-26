@@ -1269,10 +1269,41 @@ if(! function_exists('prepare_body')) {
  * @hook prepare_body ('item'=>item array, 'html'=>body string) after first bbcode to html
  * @hook prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
  */
-function prepare_body($item,$attach = false) {
+function prepare_body(&$item,$attach = false) {
 
 	$a = get_app();
 	call_hooks('prepare_body_init', $item);
+
+	$searchpath = $a->get_baseurl()."/search?tag=";
+
+	$tags=array();
+	$hashtags = array();
+	$mentions = array();
+
+	if (!get_config('system','suppress_tags')) {
+		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
+				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+
+		foreach($taglist as $tag) {
+
+			if ($tag["url"] == "")
+				$tag["url"] = $searchpath.strtolower($tag["term"]);
+
+			if ($tag["type"] == TERM_HASHTAG) {
+				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$prefix = "#";
+			} elseif ($tag["type"] == TERM_MENTION) {
+				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$prefix = "@";
+			}
+			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+		}
+	}
+
+	$item['tags'] = $tags;
+	$item['hashtags'] = $hashtags;
+	$item['mentions'] = $mentions;
+
 
 	//$cachefile = get_cachefile($item["guid"]."-".strtotime($item["edited"])."-".hash("crc32", $item['body']));
 	$cachefile = get_cachefile($item["guid"]."-".hash("md5", $item['body']));
