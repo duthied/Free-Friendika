@@ -2,6 +2,10 @@
 
 require_once("boot.php");
 
+function logger($txt, $lvl=""){
+	echo $txt."\n";
+}
+
 function RemoveReply($subject) {
 	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
 		$subject = trim(substr($subject, 4));
@@ -541,10 +545,10 @@ function onepoll_run(&$argv, &$argc){
 		if($contact['network'] === NETWORK_DFRN || $contact['blocked'] || $contact['readonly'])
 			$hubmode = 'unsubscribe';
 
-		if($contact['network'] === NETWORK_OSTATUS && (! $contact['hub-verify']))
+		if(($contact['network'] === NETWORK_OSTATUS ||  $contact['network'] == NETWORK_FEED) && (! $contact['hub-verify']))
 			$hub_update = true;
 
-		if((strlen($hub)) && ($hub_update) && ($contact['rel'] != CONTACT_IS_FOLLOWER)) {
+		if((strlen($hub)) && ($hub_update) && (($contact['rel'] != CONTACT_IS_FOLLOWER) || $contact['network'] == NETWORK_FEED) ) {
 			logger('poller: hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
 			$hubs = explode(',', $hub);
 			if(count($hubs)) {
