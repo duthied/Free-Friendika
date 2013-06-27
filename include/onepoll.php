@@ -2,10 +2,6 @@
 
 require_once("boot.php");
 
-function logger($txt, $lvl=""){
-	echo $txt."\n";
-}
-
 function RemoveReply($subject) {
 	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
 		$subject = trim(substr($subject, 4));
