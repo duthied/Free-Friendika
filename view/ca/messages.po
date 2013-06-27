@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-05-13 00:03-0700\n"
-"PO-Revision-Date: 2013-05-15 21:23+0000\n"
+"POT-Creation-Date: 2013-06-12 00:01-0700\n"
+"PO-Revision-Date: 2013-06-26 10:11+0000\n"
 "Last-Translator: Rafael GARAU <transifex@macadamia.es>\n"
 "Language-Team: Catalan (http://www.transifex.com/projects/p/friendica/language/ca/)\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: ../../include/profile_advanced.php:7 ../../include/profile_advanced.php:84
 #: ../../include/nav.php:77 ../../mod/profperm.php:103
 #: ../../mod/newmember.php:32 ../../view/theme/diabook/theme.php:88
-#: ../../boot.php:1946
+#: ../../boot.php:1947
 msgid "Profile"
 msgstr "Perfil"
 
@@ -31,7 +31,7 @@ msgid "Full Name:"
 msgstr "Nom Complet:"
 
 #: ../../include/profile_advanced.php:17 ../../mod/directory.php:136
-#: ../../boot.php:1486
+#: ../../boot.php:1487
 msgid "Gender:"
 msgstr "Gènere:"
 
@@ -52,7 +52,7 @@ msgid "Age:"
 msgstr "Edat:"
 
 #: ../../include/profile_advanced.php:37 ../../mod/directory.php:138
-#: ../../boot.php:1489
+#: ../../boot.php:1490
 msgid "Status:"
 msgstr "Estatus:"
 
@@ -66,7 +66,7 @@ msgid "Sexual Preference:"
 msgstr "Preferència Sexual:"
 
 #: ../../include/profile_advanced.php:48 ../../mod/directory.php:140
-#: ../../boot.php:1491
+#: ../../boot.php:1492
 msgid "Homepage:"
 msgstr "Pàgina web:"
 
@@ -402,6 +402,26 @@ msgstr "Editat Contacte"
 msgid "Send PM"
 msgstr "Enviar Missatge Privat"
 
+#: ../../include/bbcode.php:210 ../../include/bbcode.php:550
+#: ../../include/bbcode.php:551
+msgid "Image/photo"
+msgstr "Imatge/foto"
+
+#: ../../include/bbcode.php:272
+#, php-format
+msgid ""
+"<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
+"href=\"%s\" target=\"external-link\">post</a>"
+msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a> va escriure el següent <a href=\"%s\" target=\"external-link\">post</a>"
+
+#: ../../include/bbcode.php:514 ../../include/bbcode.php:534
+msgid "$1 wrote:"
+msgstr "$1 va escriure:"
+
+#: ../../include/bbcode.php:559 ../../include/bbcode.php:560
+msgid "Encrypted content"
+msgstr "Encriptar contingut"
+
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
 msgstr "Visible per tothom"
@@ -449,7 +469,7 @@ msgid "Finishes:"
 msgstr "Acaba:"
 
 #: ../../include/bb2diaspora.php:415 ../../include/event.php:40
-#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1484
+#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1485
 msgid "Location:"
 msgstr "Ubicació:"
 
@@ -576,7 +596,7 @@ msgstr "ERROR IMPORTANT: La generació de claus de seguretat ha fallat."
 msgid "An error occurred during registration. Please try again."
 msgstr "Un error ha succeït durant el registre. Intenta-ho de nou."
 
-#: ../../include/user.php:237 ../../include/text.php:1594
+#: ../../include/user.php:237 ../../include/text.php:1596
 msgid "default"
 msgstr "per defecte"
 
@@ -703,7 +723,7 @@ msgid "Example: bob@example.com, http://example.com/barbara"
 msgstr "Exemple: bob@example.com, http://example.com/barbara"
 
 #: ../../include/contact_widgets.php:9 ../../mod/suggest.php:88
-#: ../../mod/match.php:58 ../../boot.php:1416
+#: ../../mod/match.php:58 ../../boot.php:1417
 msgid "Connect"
 msgstr "Connexió"
 
@@ -780,32 +800,13 @@ msgstr[0] "%d contacte en comú"
 msgstr[1] "%d contactes en comú"
 
 #: ../../include/contact_widgets.php:204 ../../mod/content.php:629
-#: ../../object/Item.php:365 ../../boot.php:670
+#: ../../object/Item.php:365 ../../boot.php:671
 msgid "show more"
 msgstr "Mostrar més"
 
 #: ../../include/Scrape.php:583
 msgid " on Last.fm"
 msgstr " a Last.fm"
-
-#: ../../include/bbcode.php:210 ../../include/bbcode.php:549
-msgid "Image/photo"
-msgstr "Imatge/foto"
-
-#: ../../include/bbcode.php:272
-#, php-format
-msgid ""
-"<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
-"href=\"%s\" target=\"external-link\">post</a>"
-msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a> va escriure el següent <a href=\"%s\" target=\"external-link\">post</a>"
-
-#: ../../include/bbcode.php:514 ../../include/bbcode.php:534
-msgid "$1 wrote:"
-msgstr "$1 va escriure:"
-
-#: ../../include/bbcode.php:557 ../../include/bbcode.php:558
-msgid "Encrypted content"
-msgstr "Encriptar contingut"
 
 #: ../../include/network.php:877
 msgid "view full size"
@@ -925,7 +926,7 @@ msgstr "%1$s és ara amic amb %2$s"
 msgid "Sharing notification from Diaspora network"
 msgstr "Compartint la notificació de la xarxa Diàspora"
 
-#: ../../include/diaspora.php:1874 ../../include/text.php:1860
+#: ../../include/diaspora.php:1874 ../../include/text.php:1862
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
 #: ../../view/theme/diabook/theme.php:464
@@ -1359,123 +1360,123 @@ msgstr "tranquil"
 msgid "surprised"
 msgstr "sorprès"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Monday"
 msgstr "Dilluns"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Tuesday"
 msgstr "Dimarts"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Wednesday"
 msgstr "Dimecres"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Thursday"
 msgstr "Dijous"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Friday"
 msgstr "Divendres"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Saturday"
 msgstr "Dissabte"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1163
 msgid "Sunday"
 msgstr "Diumenge"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "January"
 msgstr "Gener"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "February"
 msgstr "Febrer"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "March"
 msgstr "Març"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "April"
 msgstr "Abril"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "May"
 msgstr "Maig"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "June"
 msgstr "Juny"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "July"
 msgstr "Juliol"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "August"
 msgstr "Agost"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "September"
 msgstr "Setembre"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "October"
 msgstr "Octubre"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "November"
 msgstr "Novembre"
 
-#: ../../include/text.php:1165
+#: ../../include/text.php:1167
 msgid "December"
 msgstr "Desembre"
 
-#: ../../include/text.php:1321 ../../mod/videos.php:301
+#: ../../include/text.php:1323 ../../mod/videos.php:301
 msgid "View Video"
 msgstr "Veure Video"
 
-#: ../../include/text.php:1353
+#: ../../include/text.php:1355
 msgid "bytes"
 msgstr "bytes"
 
-#: ../../include/text.php:1377 ../../include/text.php:1389
+#: ../../include/text.php:1379 ../../include/text.php:1391
 msgid "Click to open/close"
 msgstr "Clicar per a obrir/tancar"
 
-#: ../../include/text.php:1551 ../../mod/events.php:335
+#: ../../include/text.php:1553 ../../mod/events.php:335
 msgid "link to source"
 msgstr "Enllaç al origen"
 
-#: ../../include/text.php:1606
+#: ../../include/text.php:1608
 msgid "Select an alternate language"
 msgstr "Sel·lecciona un idioma alternatiu"
 
-#: ../../include/text.php:1858 ../../include/conversation.php:118
+#: ../../include/text.php:1860 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
 msgstr "esdeveniment"
 
-#: ../../include/text.php:1862
+#: ../../include/text.php:1864
 msgid "activity"
 msgstr "activitat"
 
-#: ../../include/text.php:1864 ../../mod/content.php:628
+#: ../../include/text.php:1866 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] "comentari"
 
-#: ../../include/text.php:1865
+#: ../../include/text.php:1867
 msgid "post"
 msgstr "missatge"
 
-#: ../../include/text.php:2020
+#: ../../include/text.php:2022
 msgid "Item filed"
 msgstr "Element arxivat"
 
@@ -1998,7 +1999,7 @@ msgstr "Res nou aquí"
 msgid "Clear notifications"
 msgstr "Neteja notificacions"
 
-#: ../../include/nav.php:73 ../../boot.php:1135
+#: ../../include/nav.php:73 ../../boot.php:1136
 msgid "Logout"
 msgstr "Sortir"
 
@@ -2006,7 +2007,7 @@ msgstr "Sortir"
 msgid "End this session"
 msgstr "Termina sessió"
 
-#: ../../include/nav.php:76 ../../boot.php:1939
+#: ../../include/nav.php:76 ../../boot.php:1940
 msgid "Status"
 msgstr "Estatus"
 
@@ -2020,7 +2021,7 @@ msgid "Your profile page"
 msgstr "La seva pàgina de perfil"
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
-#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1953
+#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1954
 msgid "Photos"
 msgstr "Fotos"
 
@@ -2029,7 +2030,7 @@ msgid "Your photos"
 msgstr "Les seves fotos"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1970
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1971
 msgid "Events"
 msgstr "Esdeveniments"
 
@@ -2045,7 +2046,7 @@ msgstr "Notes personals"
 msgid "Your personal photos"
 msgstr "Les seves fotos personals"
 
-#: ../../include/nav.php:91 ../../boot.php:1136
+#: ../../include/nav.php:91 ../../boot.php:1137
 msgid "Login"
 msgstr "Identifica't"
 
@@ -2062,7 +2063,7 @@ msgstr "Inici"
 msgid "Home Page"
 msgstr "Pàgina d'Inici"
 
-#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1111
+#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1112
 msgid "Register"
 msgstr "Registrar"
 
@@ -2191,7 +2192,7 @@ msgstr "Ajustos"
 msgid "Account settings"
 msgstr "Configuració del compte"
 
-#: ../../include/nav.php:169 ../../boot.php:1438
+#: ../../include/nav.php:169 ../../boot.php:1439
 msgid "Profiles"
 msgstr "Perfils"
 
@@ -2590,23 +2591,23 @@ msgstr "Edat:"
 msgid "Edit/Manage Profiles"
 msgstr "Editar/Gestionar Perfils"
 
-#: ../../mod/profiles.php:726 ../../boot.php:1444 ../../boot.php:1470
+#: ../../mod/profiles.php:726 ../../boot.php:1445 ../../boot.php:1471
 msgid "Change profile photo"
 msgstr "Canviar la foto del perfil"
 
-#: ../../mod/profiles.php:727 ../../boot.php:1445
+#: ../../mod/profiles.php:727 ../../boot.php:1446
 msgid "Create New Profile"
 msgstr "Crear un Nou Perfil"
 
-#: ../../mod/profiles.php:738 ../../boot.php:1455
+#: ../../mod/profiles.php:738 ../../boot.php:1456
 msgid "Profile Image"
 msgstr "Imatge del Perfil"
 
-#: ../../mod/profiles.php:740 ../../boot.php:1458
+#: ../../mod/profiles.php:740 ../../boot.php:1459
 msgid "visible to everybody"
 msgstr "Visible per tothom"
 
-#: ../../mod/profiles.php:741 ../../boot.php:1459
+#: ../../mod/profiles.php:741 ../../boot.php:1460
 msgid "Edit visibility"
 msgstr "Editar visibilitat"
 
@@ -2634,7 +2635,7 @@ msgstr "Visible Per"
 msgid "All Contacts (with secure profile access)"
 msgstr "Tots els Contactes (amb accés segur al perfil)"
 
-#: ../../mod/notes.php:44 ../../boot.php:1977
+#: ../../mod/notes.php:44 ../../boot.php:1978
 msgid "Personal Notes"
 msgstr "Notes Personals"
 
@@ -5576,7 +5577,7 @@ msgid ""
 "Password reset failed."
 msgstr "La sol·licitut no pot ser verificada. (Hauries de presentar-la abans). Restabliment de contrasenya fracassat."
 
-#: ../../mod/lostpass.php:84 ../../boot.php:1150
+#: ../../mod/lostpass.php:84 ../../boot.php:1151
 msgid "Password Reset"
 msgstr "Restabliment de Contrasenya"
 
@@ -5962,7 +5963,7 @@ msgstr "No més notificacions d'inici."
 msgid "Home Notifications"
 msgstr "Notificacions d'Inici"
 
-#: ../../mod/photos.php:51 ../../boot.php:1956
+#: ../../mod/photos.php:51 ../../boot.php:1957
 msgid "Photo Albums"
 msgstr "Àlbum de Fotos"
 
@@ -6159,7 +6160,7 @@ msgstr "Aquest ets tu"
 
 #: ../../mod/photos.php:1551 ../../mod/photos.php:1595
 #: ../../mod/photos.php:1678 ../../mod/content.php:732
-#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:669
+#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:670
 msgid "Comment"
 msgstr "Comentari"
 
@@ -6348,7 +6349,7 @@ msgid ""
 " features and resources."
 msgstr "A les nostres pàgines <strong>d'ajuda</strong> es poden consultar detalls sobre les característiques d'altres programes i recursos."
 
-#: ../../mod/profile.php:21 ../../boot.php:1324
+#: ../../mod/profile.php:21 ../../boot.php:1325
 msgid "Requested profile is not available."
 msgstr "El perfil sol·licitat no està disponible."
 
@@ -6357,8 +6358,8 @@ msgid "Tips for New Members"
 msgstr "Consells per a nous membres"
 
 #: ../../mod/install.php:117
-msgid "Friendica Social Communications Server - Setup"
-msgstr "Friendica Social Communications Server - Ajustos"
+msgid "Friendica Communications Server - Setup"
+msgstr "Friendica Servidor de Comunicacions - Configuració"
 
 #: ../../mod/install.php:123
 msgid "Could not connect to database."
@@ -6988,128 +6989,128 @@ msgstr "mida del text en Areas de Text"
 msgid "toggle mobile"
 msgstr "canviar a mòbil"
 
-#: ../../boot.php:668
+#: ../../boot.php:669
 msgid "Delete this item?"
 msgstr "Esborrar aquest element?"
 
-#: ../../boot.php:671
+#: ../../boot.php:672
 msgid "show fewer"
 msgstr "Mostrar menys"
 
-#: ../../boot.php:998
+#: ../../boot.php:999
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "Actualització de %s fracassà. Mira el registre d'errors."
 
-#: ../../boot.php:1000
+#: ../../boot.php:1001
 #, php-format
 msgid "Update Error at %s"
 msgstr "Error d'actualització en %s"
 
-#: ../../boot.php:1110
+#: ../../boot.php:1111
 msgid "Create a New Account"
 msgstr "Crear un Nou Compte"
 
-#: ../../boot.php:1138
+#: ../../boot.php:1139
 msgid "Nickname or Email address: "
 msgstr "Àlies o Adreça de correu:"
 
-#: ../../boot.php:1139
+#: ../../boot.php:1140
 msgid "Password: "
 msgstr "Contrasenya:"
 
-#: ../../boot.php:1140
+#: ../../boot.php:1141
 msgid "Remember me"
 msgstr "Recorda'm ho"
 
-#: ../../boot.php:1143
+#: ../../boot.php:1144
 msgid "Or login using OpenID: "
 msgstr "O accedixi emprant OpenID:"
 
-#: ../../boot.php:1149
+#: ../../boot.php:1150
 msgid "Forgot your password?"
 msgstr "Oblidà la contrasenya?"
 
-#: ../../boot.php:1152
+#: ../../boot.php:1153
 msgid "Website Terms of Service"
 msgstr "Termes del Servei al Llocweb"
 
-#: ../../boot.php:1153
+#: ../../boot.php:1154
 msgid "terms of service"
 msgstr "termes del servei"
 
-#: ../../boot.php:1155
+#: ../../boot.php:1156
 msgid "Website Privacy Policy"
 msgstr "Política de Privacitat al Llocweb"
 
-#: ../../boot.php:1156
+#: ../../boot.php:1157
 msgid "privacy policy"
 msgstr "política de privacitat"
 
-#: ../../boot.php:1285
+#: ../../boot.php:1286
 msgid "Requested account is not available."
 msgstr "El compte sol·licitat no esta disponible"
 
-#: ../../boot.php:1364 ../../boot.php:1468
+#: ../../boot.php:1365 ../../boot.php:1469
 msgid "Edit profile"
 msgstr "Editar perfil"
 
-#: ../../boot.php:1430
+#: ../../boot.php:1431
 msgid "Message"
 msgstr "Missatge"
 
-#: ../../boot.php:1438
+#: ../../boot.php:1439
 msgid "Manage/edit profiles"
 msgstr "Gestiona/edita perfils"
 
-#: ../../boot.php:1567 ../../boot.php:1653
+#: ../../boot.php:1568 ../../boot.php:1654
 msgid "g A l F d"
 msgstr "g A l F d"
 
-#: ../../boot.php:1568 ../../boot.php:1654
+#: ../../boot.php:1569 ../../boot.php:1655
 msgid "F d"
 msgstr "F d"
 
-#: ../../boot.php:1613 ../../boot.php:1694
+#: ../../boot.php:1614 ../../boot.php:1695
 msgid "[today]"
 msgstr "[avui]"
 
-#: ../../boot.php:1625
+#: ../../boot.php:1626
 msgid "Birthday Reminders"
 msgstr "Recordatori d'Aniversaris"
 
-#: ../../boot.php:1626
+#: ../../boot.php:1627
 msgid "Birthdays this week:"
 msgstr "Aniversari aquesta setmana"
 
-#: ../../boot.php:1687
+#: ../../boot.php:1688
 msgid "[No description]"
 msgstr "[sense descripció]"
 
-#: ../../boot.php:1705
+#: ../../boot.php:1706
 msgid "Event Reminders"
 msgstr "Recordatori d'Esdeveniments"
 
-#: ../../boot.php:1706
+#: ../../boot.php:1707
 msgid "Events this week:"
 msgstr "Esdeveniments aquesta setmana"
 
-#: ../../boot.php:1942
+#: ../../boot.php:1943
 msgid "Status Messages and Posts"
 msgstr "Missatges i Enviaments d'Estatus"
 
-#: ../../boot.php:1949
+#: ../../boot.php:1950
 msgid "Profile Details"
 msgstr "Detalls del Perfil"
 
-#: ../../boot.php:1960 ../../boot.php:1963
+#: ../../boot.php:1961 ../../boot.php:1964
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../../boot.php:1973
+#: ../../boot.php:1974
 msgid "Events and Calendar"
 msgstr "Esdeveniments i Calendari"
 
-#: ../../boot.php:1980
+#: ../../boot.php:1981
 msgid "Only You Can See This"
 msgstr "Només ho pots veure tu"
