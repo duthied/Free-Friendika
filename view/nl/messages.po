@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-26 00:01-0700\n"
-"PO-Revision-Date: 2013-07-05 08:57+0000\n"
+"PO-Revision-Date: 2013-07-08 06:38+0000\n"
 "Last-Translator: gertc <gcauwenberg@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/friendica/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -105,7 +105,7 @@ msgstr "Houdt niet van:"
 
 #: ../../include/profile_advanced.php:67
 msgid "Contact information and Social Networks:"
-msgstr ""
+msgstr "Contactinformatie en Sociale Netwerken:"
 
 #: ../../include/profile_advanced.php:69
 msgid "Musical interests:"
@@ -113,7 +113,7 @@ msgstr "Muzikale interesse "
 
 #: ../../include/profile_advanced.php:71
 msgid "Books, literature:"
-msgstr ""
+msgstr "Boeken, literatuur:"
 
 #: ../../include/profile_advanced.php:73
 msgid "Television:"
@@ -121,19 +121,19 @@ msgstr "Televisie"
 
 #: ../../include/profile_advanced.php:75
 msgid "Film/dance/culture/entertainment:"
-msgstr ""
+msgstr "Film/dans/cultuur/ontspanning:"
 
 #: ../../include/profile_advanced.php:77
 msgid "Love/Romance:"
-msgstr ""
+msgstr "Liefde/romantiek:"
 
 #: ../../include/profile_advanced.php:79
 msgid "Work/employment:"
-msgstr ""
+msgstr "Werk/beroep:"
 
 #: ../../include/profile_advanced.php:81
 msgid "School/education:"
-msgstr ""
+msgstr "School/opleiding:"
 
 #: ../../include/profile_selectors.php:6
 msgid "Male"
@@ -145,19 +145,19 @@ msgstr "Vrouw"
 
 #: ../../include/profile_selectors.php:6
 msgid "Currently Male"
-msgstr ""
+msgstr "Momenteel mannelijk"
 
 #: ../../include/profile_selectors.php:6
 msgid "Currently Female"
-msgstr ""
+msgstr "Momenteel vrouwelijk"
 
 #: ../../include/profile_selectors.php:6
 msgid "Mostly Male"
-msgstr ""
+msgstr "Meestal mannelijk"
 
 #: ../../include/profile_selectors.php:6
 msgid "Mostly Female"
-msgstr ""
+msgstr "Meestal vrouwelijk"
 
 #: ../../include/profile_selectors.php:6
 msgid "Transgender"
@@ -169,11 +169,11 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:6
 msgid "Transsexual"
-msgstr ""
+msgstr "Transseksueel"
 
 #: ../../include/profile_selectors.php:6
 msgid "Hermaphrodite"
-msgstr ""
+msgstr "Hermafrodiet"
 
 #: ../../include/profile_selectors.php:6
 msgid "Neuter"
@@ -181,15 +181,15 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:6
 msgid "Non-specific"
-msgstr ""
+msgstr "Niet-specifiek"
 
 #: ../../include/profile_selectors.php:6
 msgid "Other"
-msgstr ""
+msgstr "Anders"
 
 #: ../../include/profile_selectors.php:6
 msgid "Undecided"
-msgstr ""
+msgstr "Onbeslist"
 
 #: ../../include/profile_selectors.php:23
 msgid "Males"
@@ -209,19 +209,19 @@ msgstr "Lesbie"
 
 #: ../../include/profile_selectors.php:23
 msgid "No Preference"
-msgstr ""
+msgstr "Geen voorkeur"
 
 #: ../../include/profile_selectors.php:23
 msgid "Bisexual"
-msgstr ""
+msgstr "Biseksueel"
 
 #: ../../include/profile_selectors.php:23
 msgid "Autosexual"
-msgstr ""
+msgstr "Autoseksueel"
 
 #: ../../include/profile_selectors.php:23
 msgid "Abstinent"
-msgstr ""
+msgstr "Onthouder"
 
 #: ../../include/profile_selectors.php:23
 msgid "Virgin"
@@ -241,27 +241,27 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:23
 msgid "Nonsexual"
-msgstr ""
+msgstr "Niet seksueel"
 
 #: ../../include/profile_selectors.php:42
 msgid "Single"
-msgstr ""
+msgstr "Alleenstaand"
 
 #: ../../include/profile_selectors.php:42
 msgid "Lonely"
-msgstr ""
+msgstr "Eenzaam"
 
 #: ../../include/profile_selectors.php:42
 msgid "Available"
-msgstr ""
+msgstr "Beschikbaar"
 
 #: ../../include/profile_selectors.php:42
 msgid "Unavailable"
-msgstr ""
+msgstr "Onbeschikbaar"
 
 #: ../../include/profile_selectors.php:42
 msgid "Has crush"
-msgstr ""
+msgstr "Verliefd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Infatuated"
@@ -273,20 +273,20 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Unfaithful"
-msgstr ""
+msgstr "Ontrouw"
 
 #: ../../include/profile_selectors.php:42
 msgid "Sex Addict"
-msgstr ""
+msgstr "Seksverslaafd"
 
 #: ../../include/profile_selectors.php:42 ../../include/user.php:279
 #: ../../include/user.php:283
 msgid "Friends"
-msgstr ""
+msgstr "Vrienden"
 
 #: ../../include/profile_selectors.php:42
 msgid "Friends/Benefits"
-msgstr ""
+msgstr "Vrienden met een beetje meer"
 
 #: ../../include/profile_selectors.php:42
 msgid "Casual"
@@ -294,7 +294,7 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Engaged"
-msgstr ""
+msgstr "Verloofd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Married"
@@ -306,11 +306,11 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Partners"
-msgstr ""
+msgstr "Partners"
 
 #: ../../include/profile_selectors.php:42
 msgid "Cohabiting"
-msgstr ""
+msgstr "Samenwonend"
 
 #: ../../include/profile_selectors.php:42
 msgid "Common law"
@@ -326,11 +326,11 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Swinger"
-msgstr ""
+msgstr "Swinger"
 
 #: ../../include/profile_selectors.php:42
 msgid "Betrayed"
-msgstr ""
+msgstr "Bedrogen"
 
 #: ../../include/profile_selectors.php:42
 msgid "Separated"
@@ -338,11 +338,11 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Unstable"
-msgstr ""
+msgstr "Onstabiel"
 
 #: ../../include/profile_selectors.php:42
 msgid "Divorced"
-msgstr ""
+msgstr "Gescheiden"
 
 #: ../../include/profile_selectors.php:42
 msgid "Imaginarily divorced"
@@ -354,19 +354,19 @@ msgstr ""
 
 #: ../../include/profile_selectors.php:42
 msgid "Uncertain"
-msgstr ""
+msgstr "Onzeker"
 
 #: ../../include/profile_selectors.php:42
 msgid "It's complicated"
-msgstr ""
+msgstr "Het is gecompliceerd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Don't care"
-msgstr ""
+msgstr "Kan me niet schelen"
 
 #: ../../include/profile_selectors.php:42
 msgid "Ask me"
-msgstr ""
+msgstr "Vraag me"
 
 #: ../../include/Contact.php:115
 msgid "stopped following"
@@ -430,16 +430,16 @@ msgstr ""
 #: ../../include/acl_selectors.php:326 ../../view/theme/diabook/config.php:146
 #: ../../view/theme/diabook/theme.php:629
 msgid "show"
-msgstr ""
+msgstr "tonen"
 
 #: ../../include/acl_selectors.php:327 ../../view/theme/diabook/config.php:146
 #: ../../view/theme/diabook/theme.php:629
 msgid "don't show"
-msgstr ""
+msgstr "Niet tonen"
 
 #: ../../include/auth.php:38
 msgid "Logged out."
-msgstr ""
+msgstr "Uitgelogd."
 
 #: ../../include/auth.php:112 ../../include/auth.php:175
 #: ../../mod/openid.php:93
@@ -454,20 +454,20 @@ msgstr ""
 
 #: ../../include/auth.php:128
 msgid "The error message was:"
-msgstr ""
+msgstr "De foutboodschap was:"
 
 #: ../../include/bb2diaspora.php:393 ../../include/event.php:11
 #: ../../mod/localtime.php:12
 msgid "l F d, Y \\@ g:i A"
-msgstr ""
+msgstr "l F d, Y \\@ g:i A"
 
 #: ../../include/bb2diaspora.php:399 ../../include/event.php:20
 msgid "Starts:"
-msgstr ""
+msgstr "Begint:"
 
 #: ../../include/bb2diaspora.php:407 ../../include/event.php:30
 msgid "Finishes:"
-msgstr ""
+msgstr "Eindigt:"
 
 #: ../../include/bb2diaspora.php:415 ../../include/event.php:40
 #: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1489
@@ -485,11 +485,11 @@ msgstr ""
 #: ../../include/follow.php:59
 msgid ""
 "This site is not configured to allow communications with other networks."
-msgstr ""
+msgstr "Deze webstek is niet geconfigureerd om communicatie met andere netwerken mogelijk te maken."
 
 #: ../../include/follow.php:60 ../../include/follow.php:80
 msgid "No compatible communication protocols or feeds were discovered."
-msgstr ""
+msgstr "Er werden geen compatibele communicatieprotocols of feeds ontdekt."
 
 #: ../../include/follow.php:78
 msgid "The profile address specified does not provide adequate information."
@@ -599,7 +599,7 @@ msgstr ""
 
 #: ../../include/user.php:237 ../../include/text.php:1618
 msgid "default"
-msgstr ""
+msgstr "standaard"
 
 #: ../../include/user.php:247
 msgid "An error occurred creating your default profile. Please try again."
@@ -759,11 +759,11 @@ msgstr "Zoek"
 #: ../../include/contact_widgets.php:34 ../../mod/suggest.php:66
 #: ../../view/theme/diabook/theme.php:520
 msgid "Friend Suggestions"
-msgstr ""
+msgstr "Vriendschapsvoorstellen"
 
 #: ../../include/contact_widgets.php:35 ../../view/theme/diabook/theme.php:519
 msgid "Similar Interests"
-msgstr ""
+msgstr "Dezelfde interesses"
 
 #: ../../include/contact_widgets.php:36
 msgid "Random Profile"
@@ -771,7 +771,7 @@ msgstr "Willekeurig Profiel"
 
 #: ../../include/contact_widgets.php:37 ../../view/theme/diabook/theme.php:521
 msgid "Invite Friends"
-msgstr ""
+msgstr "Vrienden uitnodigen"
 
 #: ../../include/contact_widgets.php:70
 msgid "Networks"
@@ -807,7 +807,7 @@ msgstr "toon meer"
 
 #: ../../include/Scrape.php:583
 msgid " on Last.fm"
-msgstr ""
+msgstr " op Last.fm"
 
 #: ../../include/network.php:877
 msgid "view full size"
@@ -910,7 +910,7 @@ msgstr ""
 
 #: ../../include/delivery.php:457 ../../include/notifier.php:775
 msgid "(no subject)"
-msgstr ""
+msgstr "(geen onderwerp)"
 
 #: ../../include/delivery.php:468 ../../include/enotify.php:28
 #: ../../include/notifier.php:785
@@ -963,7 +963,7 @@ msgstr ""
 
 #: ../../include/items.php:3495
 msgid "You have a new follower at "
-msgstr ""
+msgstr "Je hebt een nieuwe volger op "
 
 #: ../../include/items.php:3979 ../../mod/display.php:51
 #: ../../mod/display.php:246 ../../mod/admin.php:158 ../../mod/admin.php:809
@@ -973,7 +973,7 @@ msgstr "Item niet gevonden."
 
 #: ../../include/items.php:4018
 msgid "Do you really want to delete this item?"
-msgstr ""
+msgstr "Wil je echt dit item verwijderen?"
 
 #: ../../include/items.php:4020 ../../mod/profiles.php:610
 #: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/settings.php:961
@@ -1026,23 +1026,23 @@ msgstr "Toegang geweigerd"
 
 #: ../../include/items.php:4213
 msgid "Archives"
-msgstr ""
+msgstr "Archieven"
 
 #: ../../include/features.php:23
 msgid "General Features"
-msgstr ""
+msgstr "Algemene Functies"
 
 #: ../../include/features.php:25
 msgid "Multiple Profiles"
-msgstr ""
+msgstr "Meerdere Profielen"
 
 #: ../../include/features.php:25
 msgid "Ability to create multiple profiles"
-msgstr ""
+msgstr "Mogelijkheid om meerdere profielen aan te maken"
 
 #: ../../include/features.php:30
 msgid "Post Composition Features"
-msgstr ""
+msgstr "Functies voor het opstellen van berichten"
 
 #: ../../include/features.php:31
 msgid "Richtext Editor"
@@ -1066,15 +1066,15 @@ msgstr ""
 
 #: ../../include/features.php:38
 msgid "Search by Date"
-msgstr ""
+msgstr "Zoeken op datum"
 
 #: ../../include/features.php:38
 msgid "Ability to select posts by date ranges"
-msgstr ""
+msgstr "Mogelijkheid om berichten te selecteren volgens datumbereik"
 
 #: ../../include/features.php:39
 msgid "Group Filter"
-msgstr ""
+msgstr "Groepsfilter"
 
 #: ../../include/features.php:39
 msgid "Enable widget to display Network posts only from selected group"
@@ -1212,14 +1212,14 @@ msgstr "volgende"
 
 #: ../../include/text.php:829
 msgid "No contacts"
-msgstr ""
+msgstr "Geen contacten"
 
 #: ../../include/text.php:838
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d contact"
+msgstr[1] "%d contacten"
 
 #: ../../include/text.php:850 ../../mod/viewcontacts.php:76
 msgid "View Contacts"
@@ -1284,11 +1284,11 @@ msgstr ""
 
 #: ../../include/text.php:998
 msgid "happy"
-msgstr ""
+msgstr "Blij"
 
 #: ../../include/text.php:999
 msgid "sad"
-msgstr ""
+msgstr "Verdrietig"
 
 #: ../../include/text.php:1000
 msgid "mellow"
@@ -1296,7 +1296,7 @@ msgstr ""
 
 #: ../../include/text.php:1001
 msgid "tired"
-msgstr ""
+msgstr "vermoeid"
 
 #: ../../include/text.php:1002
 msgid "perky"
@@ -1304,7 +1304,7 @@ msgstr ""
 
 #: ../../include/text.php:1003
 msgid "angry"
-msgstr ""
+msgstr "boos"
 
 #: ../../include/text.php:1004
 msgid "stupified"
@@ -1312,27 +1312,27 @@ msgstr ""
 
 #: ../../include/text.php:1005
 msgid "puzzled"
-msgstr ""
+msgstr "onzeker"
 
 #: ../../include/text.php:1006
 msgid "interested"
-msgstr ""
+msgstr "Geïnteresseerd"
 
 #: ../../include/text.php:1007
 msgid "bitter"
-msgstr ""
+msgstr "bitter"
 
 #: ../../include/text.php:1008
 msgid "cheerful"
-msgstr ""
+msgstr "vrolijk"
 
 #: ../../include/text.php:1009
 msgid "alive"
-msgstr ""
+msgstr "levend"
 
 #: ../../include/text.php:1010
 msgid "annoyed"
-msgstr ""
+msgstr "verveeld"
 
 #: ../../include/text.php:1011
 msgid "anxious"
@@ -1348,19 +1348,19 @@ msgstr ""
 
 #: ../../include/text.php:1014
 msgid "frustrated"
-msgstr ""
+msgstr "gefrustreerd"
 
 #: ../../include/text.php:1015
 msgid "motivated"
-msgstr ""
+msgstr "gemotiveerd"
 
 #: ../../include/text.php:1016
 msgid "relaxed"
-msgstr ""
+msgstr "ontspannen"
 
 #: ../../include/text.php:1017
 msgid "surprised"
-msgstr ""
+msgstr "verbaasd"
 
 #: ../../include/text.php:1185
 msgid "Monday"
@@ -1444,11 +1444,11 @@ msgstr "Bekijk Video"
 
 #: ../../include/text.php:1377
 msgid "bytes"
-msgstr ""
+msgstr "bytes"
 
 #: ../../include/text.php:1401 ../../include/text.php:1413
 msgid "Click to open/close"
-msgstr ""
+msgstr "klik om te openen/sluiten"
 
 #: ../../include/text.php:1575 ../../mod/events.php:335
 msgid "link to source"
@@ -1456,16 +1456,16 @@ msgstr "Verwijzing naar bron"
 
 #: ../../include/text.php:1630
 msgid "Select an alternate language"
-msgstr ""
+msgstr "Kies een andere taal"
 
 #: ../../include/text.php:1882 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
-msgstr ""
+msgstr "gebeurtenis"
 
 #: ../../include/text.php:1886
 msgid "activity"
-msgstr ""
+msgstr "activiteit"
 
 #: ../../include/text.php:1888 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
@@ -1519,7 +1519,7 @@ msgstr ""
 
 #: ../../include/group.php:275 ../../mod/network.php:234
 msgid "add"
-msgstr ""
+msgstr "toevoegen"
 
 #: ../../include/conversation.php:140 ../../mod/like.php:170
 #, php-format
@@ -1534,7 +1534,7 @@ msgstr ""
 #: ../../include/conversation.php:227 ../../mod/mood.php:62
 #, php-format
 msgid "%1$s is currently %2$s"
-msgstr ""
+msgstr "%1$s is nu %2$s"
 
 #: ../../include/conversation.php:266 ../../mod/tagger.php:95
 #, php-format
@@ -1585,7 +1585,7 @@ msgstr "%s van %s"
 
 #: ../../include/conversation.php:687 ../../mod/content.php:520
 msgid "View in context"
-msgstr ""
+msgstr "In context bekijken"
 
 #: ../../include/conversation.php:689 ../../include/conversation.php:1100
 #: ../../mod/editpost.php:124 ../../mod/wallmessage.php:156
@@ -1985,7 +1985,7 @@ msgstr ""
 
 #: ../../include/message.php:15 ../../include/message.php:172
 msgid "[no subject]"
-msgstr ""
+msgstr "[geen onderwerp]"
 
 #: ../../include/message.php:144 ../../mod/item.php:446
 #: ../../mod/wall_upload.php:135 ../../mod/wall_upload.php:144
@@ -1995,7 +1995,7 @@ msgstr ""
 
 #: ../../include/nav.php:34 ../../mod/navigation.php:20
 msgid "Nothing new here"
-msgstr ""
+msgstr "Niets nieuw hier"
 
 #: ../../include/nav.php:38 ../../mod/navigation.php:24
 msgid "Clear notifications"
@@ -2020,7 +2020,7 @@ msgstr ""
 
 #: ../../include/nav.php:77 ../../view/theme/diabook/theme.php:88
 msgid "Your profile page"
-msgstr ""
+msgstr "Jouw profiel pagina"
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
 #: ../../view/theme/diabook/theme.php:90 ../../boot.php:1958
@@ -2029,7 +2029,7 @@ msgstr "Foto's"
 
 #: ../../include/nav.php:78 ../../view/theme/diabook/theme.php:90
 msgid "Your photos"
-msgstr ""
+msgstr "Jouw foto's"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
 #: ../../view/theme/diabook/theme.php:91 ../../boot.php:1975
@@ -2038,19 +2038,19 @@ msgstr "Gebeurtenissen"
 
 #: ../../include/nav.php:79 ../../view/theme/diabook/theme.php:91
 msgid "Your events"
-msgstr ""
+msgstr "Jouw gebeurtenissen"
 
 #: ../../include/nav.php:80 ../../view/theme/diabook/theme.php:92
 msgid "Personal notes"
-msgstr ""
+msgstr "Persoonlijke nota's"
 
 #: ../../include/nav.php:80 ../../view/theme/diabook/theme.php:92
 msgid "Your personal photos"
-msgstr ""
+msgstr "Jouw persoonlijke foto's"
 
 #: ../../include/nav.php:91 ../../boot.php:1141
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 #: ../../include/nav.php:91
 msgid "Sign in"
@@ -2128,7 +2128,7 @@ msgstr ""
 
 #: ../../include/nav.php:149 ../../mod/notifications.php:98
 msgid "Introductions"
-msgstr "Introductie"
+msgstr "Contactaanvragen"
 
 #: ../../include/nav.php:149
 msgid "Friend Requests"
@@ -2196,7 +2196,7 @@ msgstr "Account instellingen"
 
 #: ../../include/nav.php:169 ../../boot.php:1443
 msgid "Profiles"
-msgstr ""
+msgstr "Profielen"
 
 #: ../../include/nav.php:169
 msgid "Manage/Edit Profiles"
@@ -2250,26 +2250,26 @@ msgstr ""
 #: ../../include/uimport.php:120
 #, php-format
 msgid "User '%s' already exists on this server!"
-msgstr ""
+msgstr "Gebruiker '%s' bestaat al op deze server!"
 
 #: ../../include/uimport.php:139
 msgid "User creation error"
-msgstr ""
+msgstr "Fout bij het aanmaken van de gebruiker"
 
 #: ../../include/uimport.php:157
 msgid "User profile creation error"
-msgstr ""
+msgstr "Fout bij het aanmaken van het gebruikersprofiel"
 
 #: ../../include/uimport.php:206
 #, php-format
 msgid "%d contact not imported"
 msgid_plural "%d contacts not imported"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d contact werd niet geïmporteerd"
+msgstr[1] "%d contacten werden niet geïmporteerd"
 
 #: ../../include/uimport.php:276
 msgid "Done. You can now login with your username and password"
-msgstr ""
+msgstr "Gebeurd. Je kunt nu inloggen met je gebruikersnaam en wachtwoord"
 
 #: ../../include/security.php:22
 msgid "Welcome "
@@ -2627,15 +2627,15 @@ msgstr ""
 
 #: ../../mod/profperm.php:105 ../../mod/group.php:224
 msgid "Click on a contact to add or remove."
-msgstr ""
+msgstr "Klik op een contact om het toe te voegen of te verwijderen."
 
 #: ../../mod/profperm.php:114
 msgid "Visible To"
-msgstr ""
+msgstr "Zichtbaar voor"
 
 #: ../../mod/profperm.php:130
 msgid "All Contacts (with secure profile access)"
-msgstr ""
+msgstr "Alle contacten (met veilige profieltoegang)"
 
 #: ../../mod/notes.php:44 ../../boot.php:1982
 msgid "Personal Notes"
@@ -3515,38 +3515,38 @@ msgstr "FTP wachtwoord"
 
 #: ../../mod/item.php:108
 msgid "Unable to locate original post."
-msgstr ""
+msgstr "Ik kan de originele post niet meer vinden."
 
 #: ../../mod/item.php:310
 msgid "Empty post discarded."
-msgstr ""
+msgstr "Lege post weggegooid."
 
 #: ../../mod/item.php:872
 msgid "System error. Post not saved."
-msgstr ""
+msgstr "Systeemfout. Post niet bewaard."
 
 #: ../../mod/item.php:897
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social "
 "network."
-msgstr ""
+msgstr "Dit bericht werd naar jou gestuurd door %s, een lid van het Friendica sociale netwerk."
 
 #: ../../mod/item.php:899
 #, php-format
 msgid "You may visit them online at %s"
-msgstr ""
+msgstr "Je kunt ze online bezoeken op %s"
 
 #: ../../mod/item.php:900
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
-msgstr ""
+msgstr "Contacteer de afzender door op dit bericht te antwoorden als je deze berichten niet wilt ontvangen."
 
 #: ../../mod/item.php:904
 #, php-format
 msgid "%s posted an update."
-msgstr ""
+msgstr "%s heeft een wijziging geplaatst."
 
 #: ../../mod/allfriends.php:34
 #, php-format
@@ -4061,15 +4061,15 @@ msgstr "Verplaatsen naar map:"
 
 #: ../../mod/settings.php:835
 msgid "Display Settings"
-msgstr ""
+msgstr "Scherminstellingen"
 
 #: ../../mod/settings.php:841 ../../mod/settings.php:853
 msgid "Display Theme:"
-msgstr ""
+msgstr "Schermthema:"
 
 #: ../../mod/settings.php:842
 msgid "Mobile Theme:"
-msgstr ""
+msgstr "Mobiel thema:"
 
 #: ../../mod/settings.php:843
 msgid "Update browser every xx seconds"
@@ -4190,27 +4190,27 @@ msgstr "Jouw Identiteitsadres is"
 
 #: ../../mod/settings.php:1029
 msgid "Automatically expire posts after this many days:"
-msgstr ""
+msgstr "Laat berichten automatisch vervallen na zo veel dagen:"
 
 #: ../../mod/settings.php:1029
 msgid "If empty, posts will not expire. Expired posts will be deleted"
-msgstr ""
+msgstr "Berichten zullen niet vervallen indien leeg. Vervallen berichten zullen worden verwijderd."
 
 #: ../../mod/settings.php:1030
 msgid "Advanced expiration settings"
-msgstr ""
+msgstr "Geavanceerde instellingen voor vervallen"
 
 #: ../../mod/settings.php:1031
 msgid "Advanced Expiration"
-msgstr ""
+msgstr "Geavanceerd Verval:"
 
 #: ../../mod/settings.php:1032
 msgid "Expire posts:"
-msgstr ""
+msgstr "Laat berichten vervallen:"
 
 #: ../../mod/settings.php:1033
 msgid "Expire personal notes:"
-msgstr ""
+msgstr "Laat persoonlijke nota's vervallen:"
 
 #: ../../mod/settings.php:1034
 msgid "Expire starred posts:"
@@ -4218,11 +4218,11 @@ msgstr ""
 
 #: ../../mod/settings.php:1035
 msgid "Expire photos:"
-msgstr ""
+msgstr "Laat foto's vervallen:"
 
 #: ../../mod/settings.php:1036
 msgid "Only expire posts by others:"
-msgstr ""
+msgstr "Laat alleen berichten door anderen vervallen:"
 
 #: ../../mod/settings.php:1062
 msgid "Account Settings"
@@ -4266,11 +4266,11 @@ msgstr "E-mail Adres:"
 
 #: ../../mod/settings.php:1081
 msgid "Your Timezone:"
-msgstr "Je Tijdszone:"
+msgstr "Je Tijdzone:"
 
 #: ../../mod/settings.php:1082
 msgid "Default Post Location:"
-msgstr ""
+msgstr "Standaard locatie:"
 
 #: ../../mod/settings.php:1083
 msgid "Use Browser Location:"
@@ -4290,7 +4290,7 @@ msgstr "(om spam misbruik te voorkomen)"
 
 #: ../../mod/settings.php:1089
 msgid "Default Post Permissions"
-msgstr ""
+msgstr "Standaard toelatingen voor nieuwe berichten"
 
 #: ../../mod/settings.php:1090
 msgid "(click to open/close)"
@@ -4316,7 +4316,7 @@ msgstr "Standaard Publieke Post"
 
 #: ../../mod/settings.php:1106
 msgid "Default Permissions for New Posts"
-msgstr "Standaard toelatingen voor nieuwe posts"
+msgstr "Standaard toelatingen voor nieuwe berichten"
 
 #: ../../mod/settings.php:1118
 msgid "Maximum private messages per day from unknown people:"
@@ -4348,11 +4348,11 @@ msgstr "Stuur een notificatie e-mail wanneer:"
 
 #: ../../mod/settings.php:1127
 msgid "You receive an introduction"
-msgstr "Je een introductie ontvangt"
+msgstr "Je een contactaanvraag ontvangt"
 
 #: ../../mod/settings.php:1128
 msgid "Your introductions are confirmed"
-msgstr "Je introducties bevestigd werden"
+msgstr "Je contactaanvragen bevestigd werden"
 
 #: ../../mod/settings.php:1129
 msgid "Someone writes on your profile wall"
@@ -4392,11 +4392,11 @@ msgstr "link"
 
 #: ../../mod/crepair.php:102
 msgid "Contact settings applied."
-msgstr ""
+msgstr "Contactinstellingen toegepast."
 
 #: ../../mod/crepair.php:104
 msgid "Contact update failed."
-msgstr ""
+msgstr "Aanpassen van contact mislukt."
 
 #: ../../mod/crepair.php:129 ../../mod/dfrn_confirm.php:118
 #: ../../mod/fsuggest.php:20 ../../mod/fsuggest.php:92
@@ -4405,7 +4405,7 @@ msgstr "Contact niet gevonden"
 
 #: ../../mod/crepair.php:135
 msgid "Repair Contact Settings"
-msgstr ""
+msgstr "Contactinstellingen herstellen"
 
 #: ../../mod/crepair.php:137
 msgid ""
@@ -4425,7 +4425,7 @@ msgstr ""
 
 #: ../../mod/crepair.php:149
 msgid "Account Nickname"
-msgstr ""
+msgstr "Bijnaam account"
 
 #: ../../mod/crepair.php:150
 msgid "@Tagname - overrides Name/Nickname"
@@ -4775,7 +4775,7 @@ msgstr "%1$s volgt %3$s van %2$s"
 
 #: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
 msgid "Global Directory"
-msgstr ""
+msgstr "Globaal Adresboek"
 
 #: ../../mod/directory.php:57
 msgid "Find on this site"
@@ -4787,7 +4787,7 @@ msgstr "Gevonden:"
 
 #: ../../mod/directory.php:60
 msgid "Site Directory"
-msgstr ""
+msgstr "Webstek Adresboek"
 
 #: ../../mod/directory.php:114
 msgid "Gender: "
@@ -4799,17 +4799,17 @@ msgstr "Geen gegevens (sommige gegevens kunnen verborgen zijn)."
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr ""
+msgstr "Wil je echt dit voorstel verwijderen?"
 
 #: ../../mod/suggest.php:72
 msgid ""
 "No suggestions available. If this is a new site, please try again in 24 "
 "hours."
-msgstr ""
+msgstr "Geen voorstellen beschikbaar. Als dit een nieuwe webstek is, kun je over 24 uur nog eens proberen."
 
 #: ../../mod/suggest.php:90
 msgid "Ignore/Hide"
-msgstr ""
+msgstr "Negeren/Verbergen"
 
 #: ../../mod/dirfind.php:26
 msgid "People Search"
@@ -4914,7 +4914,7 @@ msgstr "Gebeurtenis eindigt:"
 
 #: ../../mod/events.php:467
 msgid "Adjust for viewer timezone"
-msgstr "Pas aan aan de tijdszone van de gebruiker"
+msgstr "Pas aan aan de tijdzone van de gebruiker"
 
 #: ../../mod/events.php:469
 msgid "Description:"
@@ -5088,11 +5088,11 @@ msgstr "Toegang geweigerd"
 #: ../../mod/wall_attach.php:69
 #, php-format
 msgid "File exceeds size limit of %d"
-msgstr ""
+msgstr "Bestand is groter dan de toegelaten %d"
 
 #: ../../mod/wall_attach.php:110 ../../mod/wall_attach.php:121
 msgid "File upload failed."
-msgstr ""
+msgstr "Uploaden van bestand mislukt."
 
 #: ../../mod/wall_upload.php:90 ../../mod/profile_photo.php:144
 #, php-format
@@ -5274,7 +5274,7 @@ msgstr "UTC tijd: %s"
 #: ../../mod/localtime.php:33
 #, php-format
 msgid "Current timezone: %s"
-msgstr "Huidige Tijdszone: %s"
+msgstr "Huidige Tijdzone: %s"
 
 #: ../../mod/localtime.php:36
 #, php-format
@@ -5283,7 +5283,7 @@ msgstr ""
 
 #: ../../mod/localtime.php:41
 msgid "Please select your timezone:"
-msgstr ""
+msgstr "Selecteer je tijdzone:"
 
 #: ../../mod/lockview.php:31 ../../mod/lockview.php:39
 msgid "Remote privacy information not available."
@@ -5385,11 +5385,11 @@ msgstr "Profielmatch"
 
 #: ../../mod/match.php:20
 msgid "No keywords to match. Please add keywords to your default profile."
-msgstr ""
+msgstr "Geen sleutelwoorden om te zoeken. Voeg sleutelwoorden toe aan je standaard profiel."
 
 #: ../../mod/match.php:57
 msgid "is interested in:"
-msgstr ""
+msgstr "Is geïnteresseerd in:"
 
 #: ../../mod/message.php:67
 msgid "Unable to locate contact information."
@@ -5461,31 +5461,31 @@ msgstr "Verstuur Antwoord"
 
 #: ../../mod/mood.php:133
 msgid "Mood"
-msgstr ""
+msgstr "Stemming"
 
 #: ../../mod/mood.php:134
 msgid "Set your current mood and tell your friends"
-msgstr ""
+msgstr "Stel je huidige stemming in, en vertel het je vrienden"
 
 #: ../../mod/network.php:181
 msgid "Search Results For:"
-msgstr ""
+msgstr "Zoekresultaten voor:"
 
 #: ../../mod/network.php:397
 msgid "Commented Order"
-msgstr ""
+msgstr "Reactie-volgorde"
 
 #: ../../mod/network.php:400
 msgid "Sort by Comment Date"
-msgstr ""
+msgstr "Sorteren volgens datum van reactie"
 
 #: ../../mod/network.php:403
 msgid "Posted Order"
-msgstr ""
+msgstr "Plaatsings-volgorde"
 
 #: ../../mod/network.php:406
 msgid "Sort by Post Date"
-msgstr ""
+msgstr "Sorteren volgens datum van plaatsing"
 
 #: ../../mod/network.php:444 ../../mod/notifications.php:88
 msgid "Personal"
@@ -5493,15 +5493,15 @@ msgstr "Persoonlijk"
 
 #: ../../mod/network.php:447
 msgid "Posts that mention or involve you"
-msgstr ""
+msgstr "Berichten die jou vermelden of op jou betrekking hebben"
 
 #: ../../mod/network.php:453
 msgid "New"
-msgstr ""
+msgstr "Nieuw"
 
 #: ../../mod/network.php:456
 msgid "Activity Stream - by date"
-msgstr ""
+msgstr "Activiteitenstroom - volgens datum"
 
 #: ../../mod/network.php:462
 msgid "Shared Links"
@@ -5524,12 +5524,12 @@ msgstr ""
 msgid "Warning: This group contains %s member from an insecure network."
 msgid_plural ""
 "Warning: This group contains %s members from an insecure network."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Waarschuwing: Deze groep bevat %s lid van een onveilig netwerk."
+msgstr[1] "Waarschuwing: Deze groep bevat %s leden van een onveilig netwerk."
 
 #: ../../mod/network.php:549
 msgid "Private messages to this group are at risk of public disclosure."
-msgstr ""
+msgstr "Privéberichten naar deze groep kunnen openbaar gemaakt worden."
 
 #: ../../mod/network.php:596 ../../mod/content.php:119
 msgid "No such group"
@@ -5545,15 +5545,15 @@ msgstr "Groep:"
 
 #: ../../mod/network.php:621
 msgid "Contact: "
-msgstr ""
+msgstr "Contact: "
 
 #: ../../mod/network.php:623
 msgid "Private messages to this person are at risk of public disclosure."
-msgstr ""
+msgstr "Privéberichten naar deze persoon kunnen openbaar gemaakt worden."
 
 #: ../../mod/network.php:628
 msgid "Invalid contact."
-msgstr ""
+msgstr "Ongeldig contact."
 
 #: ../../mod/notifications.php:26
 msgid "Invalid request identifier."
@@ -5646,7 +5646,7 @@ msgstr "Nieuwe Volger"
 
 #: ../../mod/notifications.php:217
 msgid "No introductions."
-msgstr "Geen introducties"
+msgstr "Geen contactaanvragen."
 
 #: ../../mod/notifications.php:257 ../../mod/notifications.php:382
 #: ../../mod/notifications.php:469
@@ -6011,7 +6011,7 @@ msgstr ""
 msgid ""
 "<em>If</em> this is your own personal server, installing the Facebook addon "
 "may ease your transition to the free social web."
-msgstr ""
+msgstr "<em>Als</em> dit jouw eigen persoonlijke server is kan het installeren van de Facebook toevoeging je overgang naar het vrije sociale web vergemakkelijken."
 
 #: ../../mod/newmember.php:56
 msgid "Importing Emails"
@@ -6033,11 +6033,11 @@ msgid ""
 "Your Contacts page is your gateway to managing friendships and connecting "
 "with friends on other networks. Typically you enter their address or site "
 "URL in the <em>Add New Contact</em> dialog."
-msgstr ""
+msgstr "Je contactenpagina is jouw poort om vriendschappen te beheren en verbinding te leggen met vrienden op andere netwerken. Je kunt hun adres of URL toevoegen in de <em>Voeg nieuw contact toe</em> dialoog."
 
 #: ../../mod/newmember.php:60
 msgid "Go to Your Site's Directory"
-msgstr ""
+msgstr "Ga naar het adresboek van je webstek"
 
 #: ../../mod/newmember.php:60
 msgid ""
@@ -6109,72 +6109,72 @@ msgstr ""
 
 #: ../../mod/install.php:123
 msgid "Could not connect to database."
-msgstr ""
+msgstr "Kon geen toegang krijgen tot de database."
 
 #: ../../mod/install.php:127
 msgid "Could not create table."
-msgstr ""
+msgstr "Kon tabel niet aanmaken."
 
 #: ../../mod/install.php:133
 msgid "Your Friendica site database has been installed."
-msgstr ""
+msgstr "De database van je Friendica webstek is geïnstalleerd."
 
 #: ../../mod/install.php:138
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
-msgstr ""
+msgstr "Het kan nodig zijn om het bestand \"database.sql\" manueel te importeren met phpmyadmin of mysql."
 
 #: ../../mod/install.php:139 ../../mod/install.php:206
 #: ../../mod/install.php:521
 msgid "Please see the file \"INSTALL.txt\"."
-msgstr ""
+msgstr "Zie het bestand \"INSTALL.txt\"."
 
 #: ../../mod/install.php:203
 msgid "System check"
-msgstr ""
+msgstr "Systeemcontrole"
 
 #: ../../mod/install.php:208
 msgid "Check again"
-msgstr ""
+msgstr "Controleer opnieuw"
 
 #: ../../mod/install.php:227
 msgid "Database connection"
-msgstr ""
+msgstr "Verbinding met database"
 
 #: ../../mod/install.php:228
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
-msgstr ""
+msgstr "Om Friendica te kunnen installeren moet ik weten hoe ik jouw database kan bereiken."
 
 #: ../../mod/install.php:229
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
-msgstr ""
+msgstr "Neem contact op met jouw hostingprovider of websitebeheerder, wanneer je vragen hebt over deze instellingen. "
 
 #: ../../mod/install.php:230
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
-msgstr ""
+msgstr "De database die je hier opgeeft zou al moeten bestaan. Maak anders de database aan voordat je verder gaat."
 
 #: ../../mod/install.php:234
 msgid "Database Server Name"
-msgstr ""
+msgstr "Servernaam database"
 
 #: ../../mod/install.php:235
 msgid "Database Login Name"
-msgstr ""
+msgstr "Gebruikersnaam database"
 
 #: ../../mod/install.php:236
 msgid "Database Login Password"
-msgstr ""
+msgstr "Wachtwoord database"
 
 #: ../../mod/install.php:237
 msgid "Database Name"
-msgstr ""
+msgstr "Naam database"
 
 #: ../../mod/install.php:238 ../../mod/install.php:277
 msgid "Site administrator email address"
@@ -6188,36 +6188,36 @@ msgstr "Het e-mail adres van je account moet hiermee overeenkomen om het adminis
 
 #: ../../mod/install.php:242 ../../mod/install.php:280
 msgid "Please select a default timezone for your website"
-msgstr ""
+msgstr "Selecteer een standaard tijdzone voor uw webstek"
 
 #: ../../mod/install.php:267
 msgid "Site settings"
-msgstr ""
+msgstr "Webstek instellingen"
 
 #: ../../mod/install.php:321
 msgid "Could not find a command line version of PHP in the web server PATH."
-msgstr ""
+msgstr "Kan geen command-line-versie van PHP vinden in het PATH van de webserver."
 
 #: ../../mod/install.php:322
 msgid ""
 "If you don't have a command line version of PHP installed on server, you "
 "will not be able to run background polling via cron. See <a "
 "href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>"
-msgstr ""
+msgstr "Als je geen command-line versie van PHP geïnstalleerd hebt op je server, kun je geen polling op de achtergrond gebruiken via cron. Zie  <a href='http://friendica.com/node/27'>'Activeren van geplande taken'</a>"
 
 #: ../../mod/install.php:326
 msgid "PHP executable path"
-msgstr ""
+msgstr "PATH van het PHP commando"
 
 #: ../../mod/install.php:326
 msgid ""
 "Enter full path to php executable. You can leave this blank to continue the "
 "installation."
-msgstr ""
+msgstr "Vul het volledige path in naar het php programma. Je kunt dit blanco laten om de installatie verder te zetten."
 
 #: ../../mod/install.php:331
 msgid "Command line PHP"
-msgstr ""
+msgstr "PHP-opdrachtregel"
 
 #: ../../mod/install.php:340
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
@@ -6235,15 +6235,15 @@ msgstr ""
 msgid ""
 "The command line version of PHP on your system does not have "
 "\"register_argc_argv\" enabled."
-msgstr ""
+msgstr "De command-line versie van PHP op jouw systeem heeft \"register_argc_argv\" niet geactiveerd."
 
 #: ../../mod/install.php:355
 msgid "This is required for message delivery to work."
-msgstr ""
+msgstr "Dit is nodig om het verzenden van berichten mogelijk te maken."
 
 #: ../../mod/install.php:357
 msgid "PHP register_argc_argv"
-msgstr ""
+msgstr "PHP register_argc_argv"
 
 #: ../../mod/install.php:378
 msgid ""
@@ -6263,94 +6263,94 @@ msgstr ""
 
 #: ../../mod/install.php:388
 msgid "libCurl PHP module"
-msgstr ""
+msgstr "libCurl PHP module"
 
 #: ../../mod/install.php:389
 msgid "GD graphics PHP module"
-msgstr ""
+msgstr "GD graphics PHP module"
 
 #: ../../mod/install.php:390
 msgid "OpenSSL PHP module"
-msgstr ""
+msgstr "OpenSSL PHP module"
 
 #: ../../mod/install.php:391
 msgid "mysqli PHP module"
-msgstr ""
+msgstr "mysqli PHP module"
 
 #: ../../mod/install.php:392
 msgid "mb_string PHP module"
-msgstr ""
+msgstr "mb_string PHP module"
 
 #: ../../mod/install.php:397 ../../mod/install.php:399
 msgid "Apache mod_rewrite module"
-msgstr ""
+msgstr "Apache mod_rewrite module"
 
 #: ../../mod/install.php:397
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
-msgstr ""
+msgstr "Fout: Apache-module mod-rewrite is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:405
 msgid "Error: libCURL PHP module required but not installed."
-msgstr ""
+msgstr "Fout: PHP-module libCURL is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:409
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
-msgstr ""
+msgstr "Fout: PHP-module GD graphics met JPEG support is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:413
 msgid "Error: openssl PHP module required but not installed."
-msgstr ""
+msgstr "Fout: PHP-module openssl is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:417
 msgid "Error: mysqli PHP module required but not installed."
-msgstr ""
+msgstr "Fout: PHP-module mysqli is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:421
 msgid "Error: mb_string PHP module required but not installed."
-msgstr ""
+msgstr "Fout: PHP-module mb_string is vereist, maar niet geïnstalleerd."
 
 #: ../../mod/install.php:438
 msgid ""
 "The web installer needs to be able to create a file called \".htconfig.php\""
 " in the top folder of your web server and it is unable to do so."
-msgstr ""
+msgstr "Het installatieprogramma moet een bestand \".htconfig.php\" in de bovenste map van je webserver aanmaken, maar kan dit niet doen."
 
 #: ../../mod/install.php:439
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
-msgstr ""
+msgstr "Dit is meestal een permissieprobleem, omdat de webserver niet in staat is om in deze map bestanden weg te schrijven - ook al kun je dit zelf wel."
 
 #: ../../mod/install.php:440
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named .htconfig.php in your Friendica top folder."
-msgstr ""
+msgstr "Op het einde van deze procedure zal ik je een tekst geven om te bewaren in een bestand .htconfig.php in je hoogste Friendica map."
 
 #: ../../mod/install.php:441
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation."
 " Please see the file \"INSTALL.txt\" for instructions."
-msgstr ""
+msgstr "Je kunt ook deze procedure overslaan, en een manuele installatie uitvoeren. Lees het bestand \"INSTALL.txt\" voor instructies."
 
 #: ../../mod/install.php:444
 msgid ".htconfig.php is writable"
-msgstr ""
+msgstr ".htconfig.php is schrijfbaar"
 
 #: ../../mod/install.php:454
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
-msgstr ""
+msgstr "Friendica gebruikt het Smarty3 sjabloon systeem om zijn webpagina's weer te geven. Smarty3 compileert sjablonen naar PHP om de weergave te versnellen."
 
 #: ../../mod/install.php:455
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
-msgstr ""
+msgstr "Om deze gecompileerde sjablonen op te slaan moet de webserver schrijftoegang hebben op de map view/smarty3 onder de hoogste Friendica map."
 
 #: ../../mod/install.php:456
 msgid ""
@@ -6382,21 +6382,21 @@ msgid ""
 "The database configuration file \".htconfig.php\" could not be written. "
 "Please use the enclosed text to create a configuration file in your web "
 "server root."
-msgstr ""
+msgstr "Het databaseconfiguratiebestand \".htconfig.php\" kon niet worden weggeschreven. Je kunt de bijgevoegde tekst gebruiken om in een configuratiebestand aan te maken in de hoogste map van je webserver."
 
 #: ../../mod/install.php:508
 msgid "Errors encountered creating database tables."
-msgstr ""
+msgstr "Tijdens het aanmaken van databasetabellen zijn fouten vastgesteld."
 
 #: ../../mod/install.php:519
 msgid "<h1>What next</h1>"
-msgstr ""
+msgstr "<h1>Wat nu</h1>"
 
 #: ../../mod/install.php:520
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "poller."
-msgstr ""
+msgstr "BELANGRIJK: Je zult [manueel] een geplande taak moeten aanmaken voor de poller."
 
 #: ../../mod/contacts.php:85 ../../mod/contacts.php:165
 msgid "Could not access contact record."
@@ -6685,43 +6685,43 @@ msgstr ""
 
 #: ../../mod/profile_photo.php:128
 msgid "Unable to process image"
-msgstr ""
+msgstr "Ik kan de afbeelding niet verwerken"
 
 #: ../../mod/profile_photo.php:242
 msgid "Upload File:"
-msgstr ""
+msgstr "Upload bestand:"
 
 #: ../../mod/profile_photo.php:243
 msgid "Select a profile:"
-msgstr ""
+msgstr "Kies een profiel:"
 
 #: ../../mod/profile_photo.php:245
 msgid "Upload"
-msgstr ""
+msgstr "Uploaden"
 
 #: ../../mod/profile_photo.php:248
 msgid "skip this step"
-msgstr ""
+msgstr "Deze stap overslaan"
 
 #: ../../mod/profile_photo.php:248
 msgid "select a photo from your photo albums"
-msgstr ""
+msgstr "Kies een foto uit je fotoalbums"
 
 #: ../../mod/profile_photo.php:262
 msgid "Crop Image"
-msgstr ""
+msgstr "Afbeelding bijsnijden"
 
 #: ../../mod/profile_photo.php:263
 msgid "Please adjust the image cropping for optimum viewing."
-msgstr ""
+msgstr "Pas het afsnijden van de afbeelding aan voor het beste resultaat."
 
 #: ../../mod/profile_photo.php:265
 msgid "Done Editing"
-msgstr ""
+msgstr "Wijzigingen compleet"
 
 #: ../../mod/profile_photo.php:299
 msgid "Image uploaded successfully."
-msgstr ""
+msgstr "Uploaden van afbeelding gelukt."
 
 #: ../../mod/community.php:23
 msgid "Not available."
@@ -6830,7 +6830,7 @@ msgstr "via"
 #: ../../view/theme/diabook/config.php:154
 #: ../../view/theme/dispy/config.php:72 ../../view/theme/quattro/config.php:66
 msgid "Theme settings"
-msgstr ""
+msgstr "Thema instellingen"
 
 #: ../../view/theme/cleanzero/config.php:83
 msgid "Set resize level for images in posts and comments (width and height)"
@@ -6844,12 +6844,12 @@ msgstr ""
 
 #: ../../view/theme/cleanzero/config.php:85
 msgid "Set theme width"
-msgstr ""
+msgstr "Stel breedte van het thema in"
 
 #: ../../view/theme/cleanzero/config.php:86
 #: ../../view/theme/quattro/config.php:68
 msgid "Color scheme"
-msgstr ""
+msgstr "Kleurschema"
 
 #: ../../view/theme/diabook/config.php:156
 #: ../../view/theme/dispy/config.php:74
@@ -6918,7 +6918,7 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:516
 #: ../../view/theme/diabook/theme.php:637
 msgid "Find Friends"
-msgstr ""
+msgstr "Zoek vrienden"
 
 #: ../../view/theme/diabook/config.php:169
 msgid "Last tweets"
@@ -6928,13 +6928,13 @@ msgstr ""
 #: ../../view/theme/diabook/theme.php:405
 #: ../../view/theme/diabook/theme.php:639
 msgid "Last users"
-msgstr ""
+msgstr "Laatste gebruikers"
 
 #: ../../view/theme/diabook/config.php:171
 #: ../../view/theme/diabook/theme.php:479
 #: ../../view/theme/diabook/theme.php:640
 msgid "Last photos"
-msgstr ""
+msgstr "Laatste foto's"
 
 #: ../../view/theme/diabook/config.php:172
 #: ../../view/theme/diabook/theme.php:434
@@ -6944,11 +6944,11 @@ msgstr ""
 
 #: ../../view/theme/diabook/theme.php:89
 msgid "Your contacts"
-msgstr ""
+msgstr "Jouw contacten"
 
 #: ../../view/theme/diabook/theme.php:517
 msgid "Local Directory"
-msgstr ""
+msgstr "Lokaal Adresboek"
 
 #: ../../view/theme/diabook/theme.php:577
 msgid "Set zoomfactor for Earth Layers"
@@ -6965,19 +6965,19 @@ msgstr ""
 
 #: ../../view/theme/dispy/config.php:75
 msgid "Set colour scheme"
-msgstr ""
+msgstr "Stel kleurschema in"
 
 #: ../../view/theme/quattro/config.php:67
 msgid "Alignment"
-msgstr ""
+msgstr "Uitlijning"
 
 #: ../../view/theme/quattro/config.php:67
 msgid "Left"
-msgstr ""
+msgstr "Links"
 
 #: ../../view/theme/quattro/config.php:67
 msgid "Center"
-msgstr ""
+msgstr "Gecentreerd"
 
 #: ../../view/theme/quattro/config.php:69
 msgid "Posts font size"
@@ -6993,25 +6993,25 @@ msgstr ""
 
 #: ../../boot.php:673
 msgid "Delete this item?"
-msgstr ""
+msgstr "Dit item verwijderen?"
 
 #: ../../boot.php:676
 msgid "show fewer"
-msgstr ""
+msgstr "Minder tonen"
 
 #: ../../boot.php:1003
 #, php-format
 msgid "Update %s failed. See error logs."
-msgstr ""
+msgstr "Wijziging %s mislukt. Lees de error logbestanden."
 
 #: ../../boot.php:1005
 #, php-format
 msgid "Update Error at %s"
-msgstr ""
+msgstr "Wijzigingsfout op %s"
 
 #: ../../boot.php:1115
 msgid "Create a New Account"
-msgstr ""
+msgstr "Nieuw account aanmaken"
 
 #: ../../boot.php:1143
 msgid "Nickname or Email address: "
@@ -7019,51 +7019,51 @@ msgstr "Bijnaam of e-mail adres:"
 
 #: ../../boot.php:1144
 msgid "Password: "
-msgstr ""
+msgstr "Wachtwoord:"
 
 #: ../../boot.php:1145
 msgid "Remember me"
-msgstr ""
+msgstr "Onthou me"
 
 #: ../../boot.php:1148
 msgid "Or login using OpenID: "
-msgstr ""
+msgstr "Of log in met OpenID:"
 
 #: ../../boot.php:1154
 msgid "Forgot your password?"
-msgstr ""
+msgstr "Wachtwoord vergeten?"
 
 #: ../../boot.php:1157
 msgid "Website Terms of Service"
-msgstr ""
+msgstr "Webstek Servicevoorwaarden"
 
 #: ../../boot.php:1158
 msgid "terms of service"
-msgstr ""
+msgstr "servicevoorwaarden"
 
 #: ../../boot.php:1160
 msgid "Website Privacy Policy"
-msgstr ""
+msgstr "Webstek Privacy Beleid"
 
 #: ../../boot.php:1161
 msgid "privacy policy"
-msgstr ""
+msgstr "privacybeleid"
 
 #: ../../boot.php:1290
 msgid "Requested account is not available."
-msgstr ""
+msgstr "Gevraagde account is niet beschikbaar."
 
 #: ../../boot.php:1369 ../../boot.php:1473
 msgid "Edit profile"
-msgstr ""
+msgstr "Bewerk profiel"
 
 #: ../../boot.php:1435
 msgid "Message"
-msgstr ""
+msgstr "Bericht"
 
 #: ../../boot.php:1443
 msgid "Manage/edit profiles"
-msgstr ""
+msgstr "Beheer/Wijzig profielen"
 
 #: ../../boot.php:1572 ../../boot.php:1658
 msgid "g A l F d"
@@ -7075,27 +7075,27 @@ msgstr ""
 
 #: ../../boot.php:1618 ../../boot.php:1699
 msgid "[today]"
-msgstr ""
+msgstr "[vandaag]"
 
 #: ../../boot.php:1630
 msgid "Birthday Reminders"
-msgstr ""
+msgstr "Verjaardagsherinneringen"
 
 #: ../../boot.php:1631
 msgid "Birthdays this week:"
-msgstr ""
+msgstr "Verjaardagen deze week:"
 
 #: ../../boot.php:1692
 msgid "[No description]"
-msgstr ""
+msgstr "[Geen beschrijving]"
 
 #: ../../boot.php:1710
 msgid "Event Reminders"
-msgstr ""
+msgstr "Gebeurtenisherinneringen"
 
 #: ../../boot.php:1711
 msgid "Events this week:"
-msgstr ""
+msgstr "Gebeurtenissen deze week:"
 
 #: ../../boot.php:1947
 msgid "Status Messages and Posts"
@@ -7103,7 +7103,7 @@ msgstr ""
 
 #: ../../boot.php:1954
 msgid "Profile Details"
-msgstr ""
+msgstr "Profiel Details"
 
 #: ../../boot.php:1965 ../../boot.php:1968
 msgid "Videos"
@@ -7115,4 +7115,4 @@ msgstr "Gebeurtenissen en Kalender"
 
 #: ../../boot.php:1985
 msgid "Only You Can See This"
-msgstr ""
+msgstr "Alleen jij kunt dit zien"
