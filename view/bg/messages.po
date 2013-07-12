@@ -4,13 +4,14 @@
 # 
 # Translators:
 # Mike Macgirvin, 2010
+# Yasen Pramatarov <yasen@lindeas.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
-"POT-Creation-Date: 2013-06-12 00:01-0700\n"
-"PO-Revision-Date: 2013-06-24 16:39+0000\n"
-"Last-Translator: beardyunixer <founder@kakste.com>\n"
+"POT-Creation-Date: 2013-06-26 00:01-0700\n"
+"PO-Revision-Date: 2013-07-11 16:43+0000\n"
+"Last-Translator: Yasen Pramatarov <yasen@lindeas.com>\n"
 "Language-Team: Bulgarian (http://www.transifex.com/projects/p/friendica/language/bg/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,7 +22,7 @@ msgstr ""
 #: ../../include/profile_advanced.php:7 ../../include/profile_advanced.php:84
 #: ../../include/nav.php:77 ../../mod/profperm.php:103
 #: ../../mod/newmember.php:32 ../../view/theme/diabook/theme.php:88
-#: ../../boot.php:1947
+#: ../../boot.php:1951
 msgid "Profile"
 msgstr "Височина на профила"
 
@@ -30,7 +31,7 @@ msgid "Full Name:"
 msgstr "Собствено и фамилно име"
 
 #: ../../include/profile_advanced.php:17 ../../mod/directory.php:136
-#: ../../boot.php:1487
+#: ../../boot.php:1491
 msgid "Gender:"
 msgstr "Пол:"
 
@@ -51,7 +52,7 @@ msgid "Age:"
 msgstr "Възраст:"
 
 #: ../../include/profile_advanced.php:37 ../../mod/directory.php:138
-#: ../../boot.php:1490
+#: ../../boot.php:1494
 msgid "Status:"
 msgstr "Състояние:"
 
@@ -65,7 +66,7 @@ msgid "Sexual Preference:"
 msgstr "Сексуални предпочитания:"
 
 #: ../../include/profile_advanced.php:48 ../../mod/directory.php:140
-#: ../../boot.php:1492
+#: ../../boot.php:1496
 msgid "Homepage:"
 msgstr "Начална страница:"
 
@@ -95,11 +96,11 @@ msgstr "Хобита / Интереси:"
 
 #: ../../include/profile_advanced.php:62 ../../mod/profiles.php:657
 msgid "Likes:"
-msgstr ""
+msgstr "Харесвания:"
 
 #: ../../include/profile_advanced.php:64 ../../mod/profiles.php:658
 msgid "Dislikes:"
-msgstr ""
+msgstr "Нехаресвания:"
 
 #: ../../include/profile_advanced.php:67
 msgid "Contact information and Social Networks:"
@@ -419,7 +420,7 @@ msgstr "$ 1 пише:"
 
 #: ../../include/bbcode.php:559 ../../include/bbcode.php:560
 msgid "Encrypted content"
-msgstr ""
+msgstr "Шифрирано съдържание"
 
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
@@ -468,7 +469,7 @@ msgid "Finishes:"
 msgstr "Играчи:"
 
 #: ../../include/bb2diaspora.php:415 ../../include/event.php:40
-#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1485
+#: ../../mod/directory.php:134 ../../mod/events.php:471 ../../boot.php:1489
 msgid "Location:"
 msgstr "Място:"
 
@@ -595,7 +596,7 @@ msgstr "Сериозна грешка: генериране на ключове 
 msgid "An error occurred during registration. Please try again."
 msgstr "Възникна грешка по време на регистрацията. Моля, опитайте отново."
 
-#: ../../include/user.php:237 ../../include/text.php:1596
+#: ../../include/user.php:237 ../../include/text.php:1618
 msgid "default"
 msgstr "預設值"
 
@@ -677,7 +678,7 @@ msgstr "RSS / Atom"
 #: ../../include/contact_selectors.php:86 ../../mod/admin.php:766
 #: ../../mod/admin.php:777
 msgid "Email"
-msgstr "Имейл"
+msgstr "Е-поща"
 
 #: ../../include/contact_selectors.php:80 ../../mod/settings.php:705
 #: ../../mod/dfrn_request.php:842
@@ -707,7 +708,7 @@ msgstr "MySpace"
 
 #: ../../include/contact_selectors.php:87
 msgid "Google+"
-msgstr ""
+msgstr "Google+"
 
 #: ../../include/contact_widgets.php:6
 msgid "Add New Contact"
@@ -722,7 +723,7 @@ msgid "Example: bob@example.com, http://example.com/barbara"
 msgstr "Пример: bob@example.com, http://example.com/barbara"
 
 #: ../../include/contact_widgets.php:9 ../../mod/suggest.php:88
-#: ../../mod/match.php:58 ../../boot.php:1417
+#: ../../mod/match.php:58 ../../boot.php:1421
 msgid "Connect"
 msgstr "Свързване! "
 
@@ -749,8 +750,8 @@ msgstr "Свържете се / последваща"
 msgid "Examples: Robert Morgenstein, Fishing"
 msgstr "Примери: Робърт Morgenstein, Риболов"
 
-#: ../../include/contact_widgets.php:33 ../../mod/contacts.php:613
-#: ../../mod/directory.php:61
+#: ../../include/contact_widgets.php:33 ../../mod/directory.php:61
+#: ../../mod/contacts.php:613
 msgid "Find"
 msgstr "Търсене"
 
@@ -799,7 +800,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: ../../include/contact_widgets.php:204 ../../mod/content.php:629
-#: ../../object/Item.php:365 ../../boot.php:671
+#: ../../object/Item.php:365 ../../boot.php:675
 msgid "show more"
 msgstr "покажи още"
 
@@ -892,11 +893,11 @@ msgstr ""
 #: ../../include/datetime.php:473 ../../include/items.php:1814
 #, php-format
 msgid "Happy Birthday %s"
-msgstr ""
+msgstr "Честит рожден ден, %s!"
 
 #: ../../include/plugin.php:439 ../../include/plugin.php:441
 msgid "Click here to upgrade."
-msgstr ""
+msgstr "Натиснете тук за обновяване."
 
 #: ../../include/plugin.php:447
 msgid "This action exceeds the limits set by your subscription plan."
@@ -925,7 +926,7 @@ msgstr "%1$s вече е приятел с %2$s"
 msgid "Sharing notification from Diaspora network"
 msgstr "Споделяне на уведомление от диаспората мрежа"
 
-#: ../../include/diaspora.php:1874 ../../include/text.php:1862
+#: ../../include/diaspora.php:1874 ../../include/text.php:1884
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62 ../../mod/like.php:151
 #: ../../view/theme/diabook/theme.php:464
@@ -974,25 +975,25 @@ msgid "Do you really want to delete this item?"
 msgstr ""
 
 #: ../../include/items.php:4020 ../../mod/profiles.php:610
-#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/contacts.php:246
-#: ../../mod/settings.php:961 ../../mod/settings.php:967
-#: ../../mod/settings.php:975 ../../mod/settings.php:979
-#: ../../mod/settings.php:984 ../../mod/settings.php:990
-#: ../../mod/settings.php:996 ../../mod/settings.php:1002
-#: ../../mod/settings.php:1032 ../../mod/settings.php:1033
-#: ../../mod/settings.php:1034 ../../mod/settings.php:1035
-#: ../../mod/settings.php:1036 ../../mod/dfrn_request.php:836
-#: ../../mod/suggest.php:29 ../../mod/message.php:209
+#: ../../mod/api.php:105 ../../mod/register.php:239 ../../mod/settings.php:961
+#: ../../mod/settings.php:967 ../../mod/settings.php:975
+#: ../../mod/settings.php:979 ../../mod/settings.php:984
+#: ../../mod/settings.php:990 ../../mod/settings.php:996
+#: ../../mod/settings.php:1002 ../../mod/settings.php:1032
+#: ../../mod/settings.php:1033 ../../mod/settings.php:1034
+#: ../../mod/settings.php:1035 ../../mod/settings.php:1036
+#: ../../mod/dfrn_request.php:836 ../../mod/suggest.php:29
+#: ../../mod/message.php:209 ../../mod/contacts.php:246
 msgid "Yes"
 msgstr "Yes"
 
 #: ../../include/items.php:4023 ../../include/conversation.php:1120
-#: ../../mod/contacts.php:249 ../../mod/settings.php:585
-#: ../../mod/settings.php:611 ../../mod/dfrn_request.php:848
-#: ../../mod/suggest.php:32 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
-#: ../../mod/editpost.php:148 ../../mod/fbrowser.php:81
-#: ../../mod/fbrowser.php:116 ../../mod/message.php:212
-#: ../../mod/photos.php:202 ../../mod/photos.php:290
+#: ../../mod/settings.php:585 ../../mod/settings.php:611
+#: ../../mod/dfrn_request.php:848 ../../mod/suggest.php:32
+#: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/editpost.php:148
+#: ../../mod/fbrowser.php:81 ../../mod/fbrowser.php:116
+#: ../../mod/message.php:212 ../../mod/photos.php:202 ../../mod/photos.php:290
+#: ../../mod/contacts.php:249
 msgid "Cancel"
 msgstr "Отмени"
 
@@ -1001,12 +1002,12 @@ msgstr "Отмени"
 #: ../../mod/nogroup.php:25 ../../mod/item.php:143 ../../mod/item.php:159
 #: ../../mod/allfriends.php:9 ../../mod/api.php:26 ../../mod/api.php:31
 #: ../../mod/register.php:40 ../../mod/regmod.php:118 ../../mod/attach.php:33
-#: ../../mod/contacts.php:147 ../../mod/settings.php:91
+#: ../../mod/uimport.php:23 ../../mod/settings.php:91
 #: ../../mod/settings.php:566 ../../mod/settings.php:571
 #: ../../mod/crepair.php:115 ../../mod/delegate.php:6 ../../mod/poke.php:135
 #: ../../mod/dfrn_confirm.php:53 ../../mod/suggest.php:56
-#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/uimport.php:23
-#: ../../mod/follow.php:9 ../../mod/fsuggest.php:78 ../../mod/group.php:19
+#: ../../mod/editpost.php:10 ../../mod/events.php:140 ../../mod/follow.php:9
+#: ../../mod/fsuggest.php:78 ../../mod/group.php:19
 #: ../../mod/viewcontacts.php:22 ../../mod/wall_attach.php:55
 #: ../../mod/wall_upload.php:66 ../../mod/invite.php:15
 #: ../../mod/invite.php:101 ../../mod/wallmessage.php:9
@@ -1015,9 +1016,10 @@ msgstr "Отмени"
 #: ../../mod/message.php:38 ../../mod/message.php:174 ../../mod/mood.php:114
 #: ../../mod/network.php:6 ../../mod/notifications.php:66
 #: ../../mod/photos.php:133 ../../mod/photos.php:1044
-#: ../../mod/install.php:151 ../../mod/profile_photo.php:19
-#: ../../mod/profile_photo.php:169 ../../mod/profile_photo.php:180
-#: ../../mod/profile_photo.php:193 ../../index.php:346
+#: ../../mod/install.php:151 ../../mod/contacts.php:147
+#: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
+#: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
+#: ../../index.php:346
 msgid "Permission denied."
 msgstr "Разрешението е отказано."
 
@@ -1063,7 +1065,7 @@ msgstr ""
 
 #: ../../include/features.php:38
 msgid "Search by Date"
-msgstr ""
+msgstr "Търсене по дата"
 
 #: ../../include/features.php:38
 msgid "Ability to select posts by date ranges"
@@ -1079,7 +1081,7 @@ msgstr ""
 
 #: ../../include/features.php:40
 msgid "Network Filter"
-msgstr ""
+msgstr "Мрежов филтър"
 
 #: ../../include/features.php:40
 msgid "Enable widget to display Network posts only from selected network"
@@ -1183,299 +1185,299 @@ msgstr ""
 msgid "Cannot locate DNS info for database server '%s'"
 msgstr "Не може да намери DNS информация за сървъра на базата данни \" %s \""
 
-#: ../../include/text.php:294
-msgid "prev"
-msgstr "Пред."
-
-#: ../../include/text.php:296
-msgid "first"
-msgstr "Първа"
-
-#: ../../include/text.php:325
-msgid "last"
-msgstr "Дата на последния одит. "
-
-#: ../../include/text.php:328
-msgid "next"
-msgstr "следващ"
-
-#: ../../include/text.php:352
+#: ../../include/text.php:293
 msgid "newer"
 msgstr ""
 
-#: ../../include/text.php:356
+#: ../../include/text.php:295
 msgid "older"
 msgstr ""
 
-#: ../../include/text.php:807
+#: ../../include/text.php:300
+msgid "prev"
+msgstr "Пред."
+
+#: ../../include/text.php:302
+msgid "first"
+msgstr "Първа"
+
+#: ../../include/text.php:334
+msgid "last"
+msgstr "Дата на последния одит. "
+
+#: ../../include/text.php:337
+msgid "next"
+msgstr "следващ"
+
+#: ../../include/text.php:829
 msgid "No contacts"
 msgstr "Няма контакти"
 
-#: ../../include/text.php:816
+#: ../../include/text.php:838
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/text.php:828 ../../mod/viewcontacts.php:76
+#: ../../include/text.php:850 ../../mod/viewcontacts.php:76
 msgid "View Contacts"
 msgstr "Вижте Контакти"
 
-#: ../../include/text.php:905 ../../include/text.php:906
+#: ../../include/text.php:927 ../../include/text.php:928
 #: ../../include/nav.php:118 ../../mod/search.php:99
 msgid "Search"
 msgstr "Търсене"
 
-#: ../../include/text.php:908 ../../mod/notes.php:63 ../../mod/filer.php:31
+#: ../../include/text.php:930 ../../mod/notes.php:63 ../../mod/filer.php:31
 msgid "Save"
 msgstr "Запази"
 
-#: ../../include/text.php:957
+#: ../../include/text.php:979
 msgid "poke"
 msgstr ""
 
-#: ../../include/text.php:957 ../../include/conversation.php:211
+#: ../../include/text.php:979 ../../include/conversation.php:211
 msgid "poked"
 msgstr ""
 
-#: ../../include/text.php:958
+#: ../../include/text.php:980
 msgid "ping"
 msgstr ""
 
-#: ../../include/text.php:958
+#: ../../include/text.php:980
 msgid "pinged"
 msgstr ""
 
-#: ../../include/text.php:959
+#: ../../include/text.php:981
 msgid "prod"
 msgstr ""
 
-#: ../../include/text.php:959
+#: ../../include/text.php:981
 msgid "prodded"
 msgstr ""
 
-#: ../../include/text.php:960
+#: ../../include/text.php:982
 msgid "slap"
 msgstr ""
 
-#: ../../include/text.php:960
+#: ../../include/text.php:982
 msgid "slapped"
 msgstr ""
 
-#: ../../include/text.php:961
+#: ../../include/text.php:983
 msgid "finger"
 msgstr ""
 
-#: ../../include/text.php:961
+#: ../../include/text.php:983
 msgid "fingered"
 msgstr ""
 
-#: ../../include/text.php:962
+#: ../../include/text.php:984
 msgid "rebuff"
 msgstr ""
 
-#: ../../include/text.php:962
+#: ../../include/text.php:984
 msgid "rebuffed"
 msgstr ""
 
-#: ../../include/text.php:976
+#: ../../include/text.php:998
 msgid "happy"
 msgstr ""
 
-#: ../../include/text.php:977
+#: ../../include/text.php:999
 msgid "sad"
 msgstr ""
 
-#: ../../include/text.php:978
+#: ../../include/text.php:1000
 msgid "mellow"
 msgstr ""
 
-#: ../../include/text.php:979
+#: ../../include/text.php:1001
 msgid "tired"
 msgstr ""
 
-#: ../../include/text.php:980
+#: ../../include/text.php:1002
 msgid "perky"
 msgstr ""
 
-#: ../../include/text.php:981
+#: ../../include/text.php:1003
 msgid "angry"
 msgstr ""
 
-#: ../../include/text.php:982
+#: ../../include/text.php:1004
 msgid "stupified"
 msgstr ""
 
-#: ../../include/text.php:983
+#: ../../include/text.php:1005
 msgid "puzzled"
 msgstr ""
 
-#: ../../include/text.php:984
+#: ../../include/text.php:1006
 msgid "interested"
 msgstr ""
 
-#: ../../include/text.php:985
+#: ../../include/text.php:1007
 msgid "bitter"
 msgstr ""
 
-#: ../../include/text.php:986
+#: ../../include/text.php:1008
 msgid "cheerful"
 msgstr ""
 
-#: ../../include/text.php:987
+#: ../../include/text.php:1009
 msgid "alive"
 msgstr ""
 
-#: ../../include/text.php:988
+#: ../../include/text.php:1010
 msgid "annoyed"
 msgstr ""
 
-#: ../../include/text.php:989
+#: ../../include/text.php:1011
 msgid "anxious"
 msgstr ""
 
-#: ../../include/text.php:990
+#: ../../include/text.php:1012
 msgid "cranky"
 msgstr ""
 
-#: ../../include/text.php:991
+#: ../../include/text.php:1013
 msgid "disturbed"
 msgstr ""
 
-#: ../../include/text.php:992
+#: ../../include/text.php:1014
 msgid "frustrated"
 msgstr ""
 
-#: ../../include/text.php:993
+#: ../../include/text.php:1015
 msgid "motivated"
 msgstr ""
 
-#: ../../include/text.php:994
+#: ../../include/text.php:1016
 msgid "relaxed"
 msgstr ""
 
-#: ../../include/text.php:995
+#: ../../include/text.php:1017
 msgid "surprised"
 msgstr ""
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Monday"
 msgstr "Понеделник"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Wednesday"
 msgstr "Сряда"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Thursday"
 msgstr "Четвъртък"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Friday"
 msgstr "Петък"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Saturday"
 msgstr "Събота"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1185
 msgid "Sunday"
 msgstr "Неделя"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "January"
 msgstr "януари"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "February"
 msgstr "февруари"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "March"
 msgstr "март"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "April"
 msgstr "април"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "May"
 msgstr "Май"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "June"
 msgstr "юни"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "July"
 msgstr "юли"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "August"
 msgstr "август"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "September"
 msgstr "септември"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "October"
 msgstr "октомври"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "November"
 msgstr "ноември"
 
-#: ../../include/text.php:1167
+#: ../../include/text.php:1189
 msgid "December"
 msgstr "декември"
 
-#: ../../include/text.php:1323 ../../mod/videos.php:301
+#: ../../include/text.php:1345 ../../mod/videos.php:301
 msgid "View Video"
-msgstr ""
+msgstr "Преглед на видеоклип"
 
-#: ../../include/text.php:1355
+#: ../../include/text.php:1377
 msgid "bytes"
 msgstr "байта"
 
-#: ../../include/text.php:1379 ../../include/text.php:1391
+#: ../../include/text.php:1401 ../../include/text.php:1413
 msgid "Click to open/close"
 msgstr "Кликнете за отваряне / затваряне"
 
-#: ../../include/text.php:1553 ../../mod/events.php:335
+#: ../../include/text.php:1575 ../../mod/events.php:335
 msgid "link to source"
 msgstr "връзка източник"
 
-#: ../../include/text.php:1608
+#: ../../include/text.php:1630
 msgid "Select an alternate language"
 msgstr "Избор на заместник език"
 
-#: ../../include/text.php:1860 ../../include/conversation.php:118
+#: ../../include/text.php:1882 ../../include/conversation.php:118
 #: ../../include/conversation.php:246 ../../view/theme/diabook/theme.php:456
 msgid "event"
 msgstr "събитието."
 
-#: ../../include/text.php:1864
+#: ../../include/text.php:1886
 msgid "activity"
 msgstr "дейност"
 
-#: ../../include/text.php:1866 ../../mod/content.php:628
+#: ../../include/text.php:1888 ../../mod/content.php:628
 #: ../../object/Item.php:364 ../../object/Item.php:377
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/text.php:1867
+#: ../../include/text.php:1889
 msgid "post"
 msgstr "след"
 
-#: ../../include/text.php:2022
+#: ../../include/text.php:2044
 msgid "Item filed"
 msgstr "Т. подава"
 
@@ -1557,14 +1559,14 @@ msgstr "избор"
 #: ../../mod/photos.php:1637 ../../mod/content.php:462
 #: ../../mod/content.php:764 ../../object/Item.php:127
 msgid "Delete"
-msgstr "Изтрий"
+msgstr "Изтриване"
 
 #: ../../include/conversation.php:652 ../../mod/content.php:495
 #: ../../mod/content.php:875 ../../mod/content.php:876
 #: ../../object/Item.php:306 ../../object/Item.php:307
 #, php-format
 msgid "View %s's profile @ %s"
-msgstr "Вижте %s 'е Profile @ %s"
+msgstr "Преглед профила на %s в %s"
 
 #: ../../include/conversation.php:664 ../../object/Item.php:297
 msgid "Categories:"
@@ -1572,7 +1574,7 @@ msgstr "Категории:"
 
 #: ../../include/conversation.php:665 ../../object/Item.php:298
 msgid "Filed under:"
-msgstr "Пила под:"
+msgstr "Записано в:"
 
 #: ../../include/conversation.php:672 ../../mod/content.php:505
 #: ../../mod/content.php:887 ../../object/Item.php:320
@@ -1996,9 +1998,9 @@ msgstr "Нищо ново тук"
 
 #: ../../include/nav.php:38 ../../mod/navigation.php:24
 msgid "Clear notifications"
-msgstr ""
+msgstr "Изчистване на уведомленията"
 
-#: ../../include/nav.php:73 ../../boot.php:1136
+#: ../../include/nav.php:73 ../../boot.php:1140
 msgid "Logout"
 msgstr "изход"
 
@@ -2006,7 +2008,7 @@ msgstr "изход"
 msgid "End this session"
 msgstr "Край на тази сесия"
 
-#: ../../include/nav.php:76 ../../boot.php:1940
+#: ../../include/nav.php:76 ../../boot.php:1944
 msgid "Status"
 msgstr "Състояние:"
 
@@ -2020,7 +2022,7 @@ msgid "Your profile page"
 msgstr "Вашият профил страница"
 
 #: ../../include/nav.php:78 ../../mod/fbrowser.php:25
-#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1954
+#: ../../view/theme/diabook/theme.php:90 ../../boot.php:1958
 msgid "Photos"
 msgstr "Снимки"
 
@@ -2029,7 +2031,7 @@ msgid "Your photos"
 msgstr "Вашите снимки"
 
 #: ../../include/nav.php:79 ../../mod/events.php:370
-#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1971
+#: ../../view/theme/diabook/theme.php:91 ../../boot.php:1975
 msgid "Events"
 msgstr "Събития"
 
@@ -2045,7 +2047,7 @@ msgstr "Личните бележки"
 msgid "Your personal photos"
 msgstr "Вашите лични снимки"
 
-#: ../../include/nav.php:91 ../../boot.php:1137
+#: ../../include/nav.php:91 ../../boot.php:1141
 msgid "Login"
 msgstr "Вход"
 
@@ -2056,13 +2058,13 @@ msgstr "Вход"
 #: ../../include/nav.php:104 ../../include/nav.php:143
 #: ../../mod/notifications.php:93 ../../view/theme/diabook/theme.php:87
 msgid "Home"
-msgstr "Home"
+msgstr "Начало"
 
 #: ../../include/nav.php:104
 msgid "Home Page"
 msgstr "Начална страница"
 
-#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1112
+#: ../../include/nav.php:108 ../../mod/register.php:275 ../../boot.php:1116
 msgid "Register"
 msgstr "Регистратор"
 
@@ -2191,7 +2193,7 @@ msgstr "Настройки"
 msgid "Account settings"
 msgstr "Настройки на профила"
 
-#: ../../include/nav.php:169 ../../boot.php:1439
+#: ../../include/nav.php:169 ../../boot.php:1443
 msgid "Profiles"
 msgstr "Профили "
 
@@ -2218,11 +2220,11 @@ msgstr "Настройка и конфигуриране на сайта"
 
 #: ../../include/nav.php:182
 msgid "Navigation"
-msgstr ""
+msgstr "Навигация"
 
 #: ../../include/nav.php:182
 msgid "Site map"
-msgstr ""
+msgstr "Карта на сайта"
 
 #: ../../include/oembed.php:138
 msgid "Embedded content"
@@ -2251,20 +2253,20 @@ msgstr ""
 
 #: ../../include/uimport.php:139
 msgid "User creation error"
-msgstr ""
+msgstr "Грешка при създаване на потребителя"
 
 #: ../../include/uimport.php:157
 msgid "User profile creation error"
-msgstr ""
+msgstr "Грешка при създаване профила на потребителя"
 
-#: ../../include/uimport.php:202
+#: ../../include/uimport.php:206
 #, php-format
 msgid "%d contact not imported"
 msgid_plural "%d contacts not imported"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../include/uimport.php:272
+#: ../../include/uimport.php:276
 msgid "Done. You can now login with your username and password"
 msgstr ""
 
@@ -2322,11 +2324,11 @@ msgstr "Романтичен партньор"
 
 #: ../../mod/profiles.php:325
 msgid "Likes"
-msgstr ""
+msgstr "Харесвания"
 
 #: ../../mod/profiles.php:329
 msgid "Dislikes"
-msgstr ""
+msgstr "Нехаресвания"
 
 #: ../../mod/profiles.php:333
 msgid "Work/Employment"
@@ -2412,28 +2414,28 @@ msgstr "Редактиране на детайли от профила"
 
 #: ../../mod/profiles.php:630 ../../mod/admin.php:491 ../../mod/admin.php:763
 #: ../../mod/admin.php:902 ../../mod/admin.php:1102 ../../mod/admin.php:1189
-#: ../../mod/contacts.php:386 ../../mod/settings.php:584
-#: ../../mod/settings.php:694 ../../mod/settings.php:763
-#: ../../mod/settings.php:837 ../../mod/settings.php:1064
-#: ../../mod/crepair.php:166 ../../mod/poke.php:199 ../../mod/events.php:478
-#: ../../mod/fsuggest.php:107 ../../mod/group.php:87 ../../mod/invite.php:140
-#: ../../mod/localtime.php:45 ../../mod/manage.php:110
-#: ../../mod/message.php:335 ../../mod/message.php:564 ../../mod/mood.php:137
-#: ../../mod/photos.php:1078 ../../mod/photos.php:1199
-#: ../../mod/photos.php:1501 ../../mod/photos.php:1552
-#: ../../mod/photos.php:1596 ../../mod/photos.php:1679
-#: ../../mod/install.php:248 ../../mod/install.php:286
+#: ../../mod/settings.php:584 ../../mod/settings.php:694
+#: ../../mod/settings.php:763 ../../mod/settings.php:837
+#: ../../mod/settings.php:1064 ../../mod/crepair.php:166
+#: ../../mod/poke.php:199 ../../mod/events.php:478 ../../mod/fsuggest.php:107
+#: ../../mod/group.php:87 ../../mod/invite.php:140 ../../mod/localtime.php:45
+#: ../../mod/manage.php:110 ../../mod/message.php:335
+#: ../../mod/message.php:564 ../../mod/mood.php:137 ../../mod/photos.php:1078
+#: ../../mod/photos.php:1199 ../../mod/photos.php:1501
+#: ../../mod/photos.php:1552 ../../mod/photos.php:1596
+#: ../../mod/photos.php:1679 ../../mod/install.php:248
+#: ../../mod/install.php:286 ../../mod/contacts.php:386
 #: ../../mod/content.php:733 ../../object/Item.php:653
 #: ../../view/theme/cleanzero/config.php:80
 #: ../../view/theme/diabook/config.php:152
 #: ../../view/theme/diabook/theme.php:642 ../../view/theme/dispy/config.php:70
 #: ../../view/theme/quattro/config.php:64
 msgid "Submit"
-msgstr "Подаване"
+msgstr "Изпращане"
 
 #: ../../mod/profiles.php:631
 msgid "Change Profile Photo"
-msgstr ""
+msgstr "Промяна снимката на профила"
 
 #: ../../mod/profiles.php:632
 msgid "View this profile"
@@ -2590,23 +2592,23 @@ msgstr "Възраст: "
 msgid "Edit/Manage Profiles"
 msgstr "Редактиране / Управление на профили"
 
-#: ../../mod/profiles.php:726 ../../boot.php:1445 ../../boot.php:1471
+#: ../../mod/profiles.php:726 ../../boot.php:1449 ../../boot.php:1475
 msgid "Change profile photo"
 msgstr "Промяна на снимката на профил"
 
-#: ../../mod/profiles.php:727 ../../boot.php:1446
+#: ../../mod/profiles.php:727 ../../boot.php:1450
 msgid "Create New Profile"
 msgstr "Създай нов профил"
 
-#: ../../mod/profiles.php:738 ../../boot.php:1456
+#: ../../mod/profiles.php:738 ../../boot.php:1460
 msgid "Profile Image"
 msgstr "Профил на изображението"
 
-#: ../../mod/profiles.php:740 ../../boot.php:1459
+#: ../../mod/profiles.php:740 ../../boot.php:1463
 msgid "visible to everybody"
 msgstr "видими за всички"
 
-#: ../../mod/profiles.php:741 ../../boot.php:1460
+#: ../../mod/profiles.php:741 ../../boot.php:1464
 msgid "Edit visibility"
 msgstr "Редактиране на видимост"
 
@@ -2634,7 +2636,7 @@ msgstr "Вижда се от"
 msgid "All Contacts (with secure profile access)"
 msgstr "Всички контакти с охраняем достъп до профил)"
 
-#: ../../mod/notes.php:44 ../../boot.php:1978
+#: ../../mod/notes.php:44 ../../boot.php:1982
 msgid "Personal Notes"
 msgstr "Личните бележки"
 
@@ -2653,8 +2655,8 @@ msgstr "Достъпът до този профил е ограничен."
 msgid "Item has been removed."
 msgstr ", Т. е била отстранена."
 
-#: ../../mod/nogroup.php:40 ../../mod/contacts.php:395
-#: ../../mod/contacts.php:585 ../../mod/viewcontacts.php:62
+#: ../../mod/nogroup.php:40 ../../mod/viewcontacts.php:62
+#: ../../mod/contacts.php:395 ../../mod/contacts.php:585
 #, php-format
 msgid "Visit %s's profile [%s]"
 msgstr "Посетете %s Профилът на [ %s ]"
@@ -2718,15 +2720,15 @@ msgstr "Тема Настройки актуализира."
 
 #: ../../mod/admin.php:96 ../../mod/admin.php:490
 msgid "Site"
-msgstr "обекта"
+msgstr "Сайт"
 
 #: ../../mod/admin.php:97 ../../mod/admin.php:762 ../../mod/admin.php:776
 msgid "Users"
-msgstr "потребители"
+msgstr "Потребители"
 
 #: ../../mod/admin.php:98 ../../mod/admin.php:859 ../../mod/admin.php:901
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Приставки"
 
 #: ../../mod/admin.php:99 ../../mod/admin.php:1067 ../../mod/admin.php:1101
 msgid "Themes"
@@ -2734,15 +2736,15 @@ msgstr "Теми"
 
 #: ../../mod/admin.php:100
 msgid "DB updates"
-msgstr "БД актуализации"
+msgstr "Обновления на БД"
 
 #: ../../mod/admin.php:115 ../../mod/admin.php:122 ../../mod/admin.php:1188
 msgid "Logs"
-msgstr "Дневник"
+msgstr "Дневници"
 
 #: ../../mod/admin.php:121
 msgid "Plugin Features"
-msgstr "Plug-in Функции"
+msgstr "Настройки на приставките"
 
 #: ../../mod/admin.php:123
 msgid "User registrations waiting for confirmation"
@@ -2770,7 +2772,7 @@ msgstr ""
 
 #: ../../mod/admin.php:187
 msgid "Private Forum"
-msgstr ""
+msgstr "Частен форум"
 
 #: ../../mod/admin.php:206
 msgid "Message queues"
@@ -2800,11 +2802,11 @@ msgstr "Версия "
 
 #: ../../mod/admin.php:219
 msgid "Active plugins"
-msgstr "Активни плъгини"
+msgstr "Включени приставки"
 
 #: ../../mod/admin.php:405
 msgid "Site settings updated."
-msgstr "Настройки на сайта актуализира."
+msgstr "Настройките на сайта са обновени."
 
 #: ../../mod/admin.php:434 ../../mod/settings.php:793
 msgid "No special theme for mobile devices"
@@ -2860,11 +2862,11 @@ msgstr "Напреднал"
 
 #: ../../mod/admin.php:496
 msgid "Performance"
-msgstr ""
+msgstr "Производителност"
 
 #: ../../mod/admin.php:500
 msgid "Site name"
-msgstr "{0}Име на обекта:{/0} {1}              {/1}"
+msgstr "Име на сайта"
 
 #: ../../mod/admin.php:501
 msgid "Banner/Logo"
@@ -2872,11 +2874,11 @@ msgstr "Банер / лого"
 
 #: ../../mod/admin.php:502
 msgid "System language"
-msgstr "Система език"
+msgstr "Системен език"
 
 #: ../../mod/admin.php:503
 msgid "System theme"
-msgstr "Система тема"
+msgstr "Системна тема"
 
 #: ../../mod/admin.php:503
 msgid ""
@@ -3099,11 +3101,11 @@ msgstr "Забраните на потребителите да се регис�
 
 #: ../../mod/admin.php:529
 msgid "OpenID support"
-msgstr "OpenID подкрепа"
+msgstr "Поддръжка на OpenID"
 
 #: ../../mod/admin.php:529
 msgid "OpenID support for registration and logins."
-msgstr "OpenID подкрепа за регистрация и данни за вход."
+msgstr "Поддръжка на OpenID за регистрация и влизане."
 
 #: ../../mod/admin.php:530
 msgid "Fullname check"
@@ -3362,7 +3364,7 @@ msgstr "Няма регистрации."
 #: ../../mod/admin.php:768 ../../mod/notifications.php:161
 #: ../../mod/notifications.php:208
 msgid "Approve"
-msgstr "Одобрено "
+msgstr "Одобряване"
 
 #: ../../mod/admin.php:769
 msgid "Deny"
@@ -3371,16 +3373,16 @@ msgstr "Отказ"
 #: ../../mod/admin.php:771 ../../mod/contacts.php:353
 #: ../../mod/contacts.php:412
 msgid "Block"
-msgstr "Блок"
+msgstr "Блокиране"
 
 #: ../../mod/admin.php:772 ../../mod/contacts.php:353
 #: ../../mod/contacts.php:412
 msgid "Unblock"
-msgstr "Деблокирай"
+msgstr "Разблокиране"
 
 #: ../../mod/admin.php:773
 msgid "Site admin"
-msgstr ""
+msgstr "Администратор на сайта"
 
 #: ../../mod/admin.php:774
 msgid "Account expired"
@@ -3764,284 +3766,40 @@ msgstr "Приложения"
 msgid "No installed applications."
 msgstr "Няма инсталираните приложения."
 
-#: ../../mod/contacts.php:85 ../../mod/contacts.php:165
-msgid "Could not access contact record."
-msgstr "Не може да бъде достъп до запис за контакт."
+#: ../../mod/uimport.php:64
+msgid "Import"
+msgstr "Внасяне"
 
-#: ../../mod/contacts.php:99
-msgid "Could not locate selected profile."
-msgstr "Не може да намери избрания профил."
-
-#: ../../mod/contacts.php:122
-msgid "Contact updated."
-msgstr "Свържете се актуализират."
-
-#: ../../mod/contacts.php:124 ../../mod/dfrn_request.php:571
-msgid "Failed to update contact record."
-msgstr "Неуспех да се актуализира рекорд за контакт."
-
-#: ../../mod/contacts.php:187
-msgid "Contact has been blocked"
-msgstr "За контакти е бил блокиран"
-
-#: ../../mod/contacts.php:187
-msgid "Contact has been unblocked"
-msgstr "Контакт са отблокирани"
-
-#: ../../mod/contacts.php:201
-msgid "Contact has been ignored"
-msgstr "Лицето е било игнорирано"
-
-#: ../../mod/contacts.php:201
-msgid "Contact has been unignored"
-msgstr "За контакти е бил unignored"
-
-#: ../../mod/contacts.php:220
-msgid "Contact has been archived"
-msgstr "Контакт бяха архивирани"
-
-#: ../../mod/contacts.php:220
-msgid "Contact has been unarchived"
-msgstr "За контакти е бил разархивира"
-
-#: ../../mod/contacts.php:244
-msgid "Do you really want to delete this contact?"
+#: ../../mod/uimport.php:66
+msgid "Move account"
 msgstr ""
 
-#: ../../mod/contacts.php:263
-msgid "Contact has been removed."
-msgstr "Контакт е била отстранена."
+#: ../../mod/uimport.php:67
+msgid "You can import an account from another Friendica server."
+msgstr ""
 
-#: ../../mod/contacts.php:301
-#, php-format
-msgid "You are mutual friends with %s"
-msgstr "Вие сте общи приятели с %s"
-
-#: ../../mod/contacts.php:305
-#, php-format
-msgid "You are sharing with %s"
-msgstr "Вие споделяте с %s"
-
-#: ../../mod/contacts.php:310
-#, php-format
-msgid "%s is sharing with you"
-msgstr "%s се споделя с вас"
-
-#: ../../mod/contacts.php:327
-msgid "Private communications are not available for this contact."
-msgstr "Частни съобщения не са на разположение за този контакт."
-
-#: ../../mod/contacts.php:334
-msgid "(Update was successful)"
-msgstr "(Update е била успешна)"
-
-#: ../../mod/contacts.php:334
-msgid "(Update was not successful)"
-msgstr "(Актуализация не е била успешна)"
-
-#: ../../mod/contacts.php:336
-msgid "Suggest friends"
-msgstr "Предложете приятели"
-
-#: ../../mod/contacts.php:340
-#, php-format
-msgid "Network type: %s"
-msgstr "Тип мрежа: %s"
-
-#: ../../mod/contacts.php:348
-msgid "View all contacts"
-msgstr "Преглед на всички контакти"
-
-#: ../../mod/contacts.php:356
-msgid "Toggle Blocked status"
-msgstr "Превключване Блокирани статус"
-
-#: ../../mod/contacts.php:359 ../../mod/contacts.php:413
-msgid "Unignore"
-msgstr "Извади от пренебрегнатите"
-
-#: ../../mod/contacts.php:359 ../../mod/contacts.php:413
-#: ../../mod/notifications.php:51 ../../mod/notifications.php:164
-#: ../../mod/notifications.php:210
-msgid "Ignore"
-msgstr "Пренебрегване"
-
-#: ../../mod/contacts.php:362
-msgid "Toggle Ignored status"
-msgstr "Превключване игнорирани статус"
-
-#: ../../mod/contacts.php:366
-msgid "Unarchive"
-msgstr "Разархивирате"
-
-#: ../../mod/contacts.php:366
-msgid "Archive"
-msgstr "Архив"
-
-#: ../../mod/contacts.php:369
-msgid "Toggle Archive status"
-msgstr "Превключване статус Архив"
-
-#: ../../mod/contacts.php:372
-msgid "Repair"
-msgstr "Ремонт"
-
-#: ../../mod/contacts.php:375
-msgid "Advanced Contact Settings"
-msgstr "Разширени настройки за контакт"
-
-#: ../../mod/contacts.php:381
-msgid "Communications lost with this contact!"
-msgstr "Communications загубиха с този контакт!"
-
-#: ../../mod/contacts.php:384
-msgid "Contact Editor"
-msgstr "Свържете се редактор"
-
-#: ../../mod/contacts.php:387
-msgid "Profile Visibility"
-msgstr "Профил Видимост"
-
-#: ../../mod/contacts.php:388
-#, php-format
+#: ../../mod/uimport.php:68
 msgid ""
-"Please choose the profile you would like to display to %s when viewing your "
-"profile securely."
-msgstr "Моля, изберете профила, който бихте искали да покажете на %s при гледане на здраво вашия профил."
+"You need to export your account from the old server and upload it here. We "
+"will recreate your old account here with all your contacts. We will try also"
+" to inform your friends that you moved here."
+msgstr ""
 
-#: ../../mod/contacts.php:389
-msgid "Contact Information / Notes"
-msgstr "Информация за контакти / Забележки"
-
-#: ../../mod/contacts.php:390
-msgid "Edit contact notes"
-msgstr "Редактиране на контакт с бележка"
-
-#: ../../mod/contacts.php:396
-msgid "Block/Unblock contact"
-msgstr "Блокиране / Деблокиране на контакт"
-
-#: ../../mod/contacts.php:397
-msgid "Ignore contact"
-msgstr "Игнорирай се свържете с"
-
-#: ../../mod/contacts.php:398
-msgid "Repair URL settings"
-msgstr "Настройки за ремонт на URL"
-
-#: ../../mod/contacts.php:399
-msgid "View conversations"
-msgstr "Вижте разговори"
-
-#: ../../mod/contacts.php:401
-msgid "Delete contact"
-msgstr "Изтриване на контакта"
-
-#: ../../mod/contacts.php:405
-msgid "Last update:"
-msgstr "Последна актуализация:"
-
-#: ../../mod/contacts.php:407
-msgid "Update public posts"
-msgstr "Актуализиране на държавни длъжности"
-
-#: ../../mod/contacts.php:416
-msgid "Currently blocked"
-msgstr "Които понастоящем са блокирани"
-
-#: ../../mod/contacts.php:417
-msgid "Currently ignored"
-msgstr "В момента игнорирани"
-
-#: ../../mod/contacts.php:418
-msgid "Currently archived"
-msgstr "В момента архивират"
-
-#: ../../mod/contacts.php:419 ../../mod/notifications.php:157
-#: ../../mod/notifications.php:204
-msgid "Hide this contact from others"
-msgstr "Скриване на този контакт от другите"
-
-#: ../../mod/contacts.php:419
+#: ../../mod/uimport.php:69
 msgid ""
-"Replies/likes to your public posts <strong>may</strong> still be visible"
-msgstr "Отговори / обича да си публични длъжности <strong> май </ STRONG> все още да се вижда"
+"This feature is experimental. We can't import contacts from the OStatus "
+"network (statusnet/identi.ca) or from Diaspora"
+msgstr ""
 
-#: ../../mod/contacts.php:470
-msgid "Suggestions"
-msgstr "Предложения"
+#: ../../mod/uimport.php:70
+msgid "Account file"
+msgstr ""
 
-#: ../../mod/contacts.php:473
-msgid "Suggest potential friends"
-msgstr "Предполагат потенциал приятели"
-
-#: ../../mod/contacts.php:476 ../../mod/group.php:194
-msgid "All Contacts"
-msgstr "Всички Контакти"
-
-#: ../../mod/contacts.php:479
-msgid "Show all contacts"
-msgstr "Покажи на всички контакти"
-
-#: ../../mod/contacts.php:482
-msgid "Unblocked"
-msgstr "Отблокирани"
-
-#: ../../mod/contacts.php:485
-msgid "Only show unblocked contacts"
-msgstr "Покажи само Разблокирани контакти"
-
-#: ../../mod/contacts.php:489
-msgid "Blocked"
-msgstr "Блокиран"
-
-#: ../../mod/contacts.php:492
-msgid "Only show blocked contacts"
-msgstr "Покажи само Блокираните контакти"
-
-#: ../../mod/contacts.php:496
-msgid "Ignored"
-msgstr "Игнорирани"
-
-#: ../../mod/contacts.php:499
-msgid "Only show ignored contacts"
-msgstr "Покажи само игнорирани контакти"
-
-#: ../../mod/contacts.php:503
-msgid "Archived"
-msgstr "Архивиран:"
-
-#: ../../mod/contacts.php:506
-msgid "Only show archived contacts"
-msgstr "Покажи само архивирани контакти"
-
-#: ../../mod/contacts.php:510
-msgid "Hidden"
-msgstr "Скрит"
-
-#: ../../mod/contacts.php:513
-msgid "Only show hidden contacts"
-msgstr "Само показва скрити контакти"
-
-#: ../../mod/contacts.php:561
-msgid "Mutual Friendship"
-msgstr "Взаимното приятелство"
-
-#: ../../mod/contacts.php:565
-msgid "is a fan of yours"
-msgstr "е фенка"
-
-#: ../../mod/contacts.php:569
-msgid "you are a fan of"
-msgstr "Вие сте фен на"
-
-#: ../../mod/contacts.php:611
-msgid "Search your contacts"
-msgstr "Търсене на вашите контакти"
-
-#: ../../mod/contacts.php:612 ../../mod/directory.php:59
-msgid "Finding: "
-msgstr "Намиране: "
+#: ../../mod/uimport.php:70
+msgid ""
+"To export your account, go to \"Settings->Export your personal data\" and "
+"select \"Export account\""
+msgstr ""
 
 #: ../../mod/settings.php:23 ../../mod/photos.php:79
 msgid "everybody"
@@ -4049,7 +3807,7 @@ msgstr "всички"
 
 #: ../../mod/settings.php:35
 msgid "Additional features"
-msgstr ""
+msgstr "Допълнителни възможности"
 
 #: ../../mod/settings.php:40 ../../mod/uexport.php:14
 msgid "Display settings"
@@ -4105,7 +3863,7 @@ msgstr "Празните пароли не са разрешени. Парола
 
 #: ../../mod/settings.php:325
 msgid "Wrong password."
-msgstr ""
+msgstr "Неправилна парола"
 
 #: ../../mod/settings.php:336
 msgid "Password changed."
@@ -4125,7 +3883,7 @@ msgstr " Името е твърде кратко."
 
 #: ../../mod/settings.php:414
 msgid "Wrong Password"
-msgstr ""
+msgstr "Неправилна парола"
 
 #: ../../mod/settings.php:419
 msgid " Not valid email."
@@ -4179,7 +3937,7 @@ msgstr "Свързани Apps"
 #: ../../mod/settings.php:646 ../../mod/editpost.php:109
 #: ../../mod/content.php:751 ../../object/Item.php:117
 msgid "Edit"
-msgstr "編輯"
+msgstr "Редактиране"
 
 #: ../../mod/settings.php:648
 msgid "Client key starts with"
@@ -4203,15 +3961,15 @@ msgstr "Plug-in Настройки"
 
 #: ../../mod/settings.php:684
 msgid "Off"
-msgstr ""
+msgstr "Изкл."
 
 #: ../../mod/settings.php:684
 msgid "On"
-msgstr ""
+msgstr "Вкл."
 
 #: ../../mod/settings.php:692
 msgid "Additional Features"
-msgstr ""
+msgstr "Допълнителни възможности"
 
 #: ../../mod/settings.php:705 ../../mod/settings.php:706
 #, php-format
@@ -4487,7 +4245,7 @@ msgstr "Оставете паролите полета празни, освен 
 
 #: ../../mod/settings.php:1073
 msgid "Current Password:"
-msgstr ""
+msgstr "Текуща парола:"
 
 #: ../../mod/settings.php:1073 ../../mod/settings.php:1074
 msgid "Your current password to confirm the changes"
@@ -4540,12 +4298,12 @@ msgstr "(Щракнете за отваряне / затваряне)"
 #: ../../mod/settings.php:1099 ../../mod/photos.php:1140
 #: ../../mod/photos.php:1506
 msgid "Show to Groups"
-msgstr ""
+msgstr "Показване на групи"
 
 #: ../../mod/settings.php:1100 ../../mod/photos.php:1141
 #: ../../mod/photos.php:1507
 msgid "Show to Contacts"
-msgstr ""
+msgstr "Показване на контакти"
 
 #: ../../mod/settings.php:1101
 msgid "Default Private Post"
@@ -4642,7 +4400,7 @@ msgstr "Свържете се актуализира провали."
 #: ../../mod/crepair.php:129 ../../mod/dfrn_confirm.php:118
 #: ../../mod/fsuggest.php:20 ../../mod/fsuggest.php:92
 msgid "Contact not found."
-msgstr "Свържете не е намерен."
+msgstr "Контактът не е намерен."
 
 #: ../../mod/crepair.php:135
 msgid "Repair Contact Settings"
@@ -4741,7 +4499,7 @@ msgstr ""
 
 #: ../../mod/poke.php:194
 msgid "Recipient"
-msgstr ""
+msgstr "Получател"
 
 #: ../../mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
@@ -4914,6 +4672,10 @@ msgstr "Явно вече сте приятели с %s ."
 msgid "Invalid profile URL."
 msgstr "Невалиден URL адрес на профила."
 
+#: ../../mod/dfrn_request.php:571 ../../mod/contacts.php:124
+msgid "Failed to update contact record."
+msgstr "Неуспех да се актуализира рекорд за контакт."
+
 #: ../../mod/dfrn_request.php:592
 msgid "Your introduction has been sent."
 msgstr "Вашият въвеждането е било изпратено."
@@ -5018,6 +4780,10 @@ msgstr "Глобален справочник"
 msgid "Find on this site"
 msgstr "Търсене в този сайт"
 
+#: ../../mod/directory.php:59 ../../mod/contacts.php:612
+msgid "Finding: "
+msgstr "Намиране: "
+
 #: ../../mod/directory.php:60
 msgid "Site Directory"
 msgstr "Site Directory"
@@ -5032,7 +4798,7 @@ msgstr "Няма записи (някои вписвания, могат да б
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr ""
+msgstr "Наистина ли искате да изтриете това предложение?"
 
 #: ../../mod/suggest.php:72
 msgid ""
@@ -5054,7 +4820,7 @@ msgstr "Няма съответствия"
 
 #: ../../mod/videos.php:125
 msgid "No videos selected"
-msgstr ""
+msgstr "Няма избрани видеоклипове"
 
 #: ../../mod/videos.php:226 ../../mod/photos.php:1025
 msgid "Access to this item is restricted."
@@ -5066,11 +4832,11 @@ msgstr "Вижте албуми"
 
 #: ../../mod/videos.php:317
 msgid "Recent Videos"
-msgstr ""
+msgstr "Скорошни видеоклипове"
 
 #: ../../mod/videos.php:319
 msgid "Upload New Videos"
-msgstr ""
+msgstr "Качване на нови видеоклипове"
 
 #: ../../mod/tagrm.php:41
 msgid "Tag removed"
@@ -5135,7 +4901,7 @@ msgstr "Събитие Започва:"
 
 #: ../../mod/events.php:459 ../../mod/events.php:473
 msgid "Required"
-msgstr ""
+msgstr "Задължително"
 
 #: ../../mod/events.php:462
 msgid "Finish date/time is not known or not relevant"
@@ -5155,7 +4921,7 @@ msgstr "Описание:"
 
 #: ../../mod/events.php:473
 msgid "Title:"
-msgstr ""
+msgstr "Заглавие:"
 
 #: ../../mod/events.php:475
 msgid "Share this event"
@@ -5177,7 +4943,7 @@ msgstr ""
 
 #: ../../mod/uexport.php:73
 msgid "Export all"
-msgstr ""
+msgstr "Изнасяне на всичко"
 
 #: ../../mod/uexport.php:73
 msgid ""
@@ -5189,41 +4955,6 @@ msgstr ""
 #: ../../mod/filer.php:30
 msgid "- select -"
 msgstr "избор"
-
-#: ../../mod/uimport.php:64
-msgid "Import"
-msgstr ""
-
-#: ../../mod/uimport.php:66
-msgid "Move account"
-msgstr ""
-
-#: ../../mod/uimport.php:67
-msgid "You can import an account from another Friendica server."
-msgstr ""
-
-#: ../../mod/uimport.php:68
-msgid ""
-"You need to export your account from the old server and upload it here. We "
-"will recreate your old account here with all your contacts. We will try also"
-" to inform your friends that you moved here."
-msgstr ""
-
-#: ../../mod/uimport.php:69
-msgid ""
-"This feature is experimental. We can't import contacts from the OStatus "
-"network (statusnet/identi.ca) or from Diaspora"
-msgstr ""
-
-#: ../../mod/uimport.php:70
-msgid "Account file"
-msgstr ""
-
-#: ../../mod/uimport.php:70
-msgid ""
-"To export your accont, go to \"Settings->Export your porsonal data\" and "
-"select \"Export account\""
-msgstr ""
 
 #: ../../mod/update_community.php:18 ../../mod/update_display.php:22
 #: ../../mod/update_network.php:22 ../../mod/update_notes.php:41
@@ -5269,16 +5000,16 @@ msgstr "Няма инсталирани плъгини / Addons / приложе
 
 #: ../../mod/fsuggest.php:63
 msgid "Friend suggestion sent."
-msgstr "Приятел предложение е изпратено."
+msgstr "Предложението за приятелство е изпратено."
 
 #: ../../mod/fsuggest.php:97
 msgid "Suggest Friends"
-msgstr "Предложете Приятели"
+msgstr "Предлагане на приятели"
 
 #: ../../mod/fsuggest.php:99
 #, php-format
 msgid "Suggest a friend for %s"
-msgstr "Предложи на приятел за %s"
+msgstr "Предлагане на приятел за %s"
 
 #: ../../mod/group.php:29
 msgid "Group created."
@@ -5320,6 +5051,10 @@ msgstr "Група Editor"
 msgid "Members"
 msgstr "Членове"
 
+#: ../../mod/group.php:194 ../../mod/contacts.php:476
+msgid "All Contacts"
+msgstr "Всички Контакти"
+
 #: ../../mod/hcard.php:10
 msgid "No profile"
 msgstr "Няма профил"
@@ -5330,11 +5065,11 @@ msgstr "Помощ"
 
 #: ../../mod/help.php:90 ../../index.php:231
 msgid "Not Found"
-msgstr "Не е намерена"
+msgstr "Не е намерено"
 
 #: ../../mod/help.php:93 ../../index.php:234
 msgid "Page not found."
-msgstr "Страницата не е намерена"
+msgstr "Страницата не е намерена."
 
 #: ../../mod/viewcontacts.php:39
 msgid "No contacts."
@@ -5576,7 +5311,7 @@ msgid ""
 "Password reset failed."
 msgstr "Искането не може да бъде проверена. (Може да се преди това са го внесе.) За нулиране на паролата не успя."
 
-#: ../../mod/lostpass.php:84 ../../boot.php:1151
+#: ../../mod/lostpass.php:84 ../../boot.php:1155
 msgid "Password Reset"
 msgstr "Смяна на паролата"
 
@@ -5725,7 +5460,7 @@ msgstr "Изпратете Отговор"
 
 #: ../../mod/mood.php:133
 msgid "Mood"
-msgstr ""
+msgstr "Настроение"
 
 #: ../../mod/mood.php:134
 msgid "Set your current mood and tell your friends"
@@ -5753,7 +5488,7 @@ msgstr "Сортирай по пощата дата"
 
 #: ../../mod/network.php:444 ../../mod/notifications.php:88
 msgid "Personal"
-msgstr "Личен"
+msgstr "Лично"
 
 #: ../../mod/network.php:447
 msgid "Posts that mention or involve you"
@@ -5826,19 +5561,25 @@ msgstr "Невалидна заявка идентификатор."
 #: ../../mod/notifications.php:35 ../../mod/notifications.php:165
 #: ../../mod/notifications.php:211
 msgid "Discard"
-msgstr "Изхвърлете"
+msgstr "Отхвърляне"
+
+#: ../../mod/notifications.php:51 ../../mod/notifications.php:164
+#: ../../mod/notifications.php:210 ../../mod/contacts.php:359
+#: ../../mod/contacts.php:413
+msgid "Ignore"
+msgstr "Пренебрегване"
 
 #: ../../mod/notifications.php:78
 msgid "System"
-msgstr "Системни настройки 35"
+msgstr "Система"
 
 #: ../../mod/notifications.php:122
 msgid "Show Ignored Requests"
-msgstr "Покажи Игнорирани Заявки"
+msgstr "Показване на пренебрегнатите заявки"
 
 #: ../../mod/notifications.php:122
 msgid "Hide Ignored Requests"
-msgstr "Скриване на Игнорирани Заявки"
+msgstr "Скриване на пренебрегнатите заявки"
 
 #: ../../mod/notifications.php:149 ../../mod/notifications.php:195
 msgid "Notification type: "
@@ -5852,6 +5593,11 @@ msgstr "Приятел за предложения"
 #, php-format
 msgid "suggested by %s"
 msgstr "предложено от %s"
+
+#: ../../mod/notifications.php:157 ../../mod/notifications.php:204
+#: ../../mod/contacts.php:419
+msgid "Hide this contact from others"
+msgstr "Скриване на този контакт от другите"
 
 #: ../../mod/notifications.php:158 ../../mod/notifications.php:205
 msgid "Post a new friend activity"
@@ -5883,11 +5629,11 @@ msgstr "Приятел"
 
 #: ../../mod/notifications.php:190
 msgid "Sharer"
-msgstr "Шарер"
+msgstr "Споделящ"
 
 #: ../../mod/notifications.php:190
 msgid "Fan/Admirer"
-msgstr "Вентилатор / почитател"
+msgstr "Почитател"
 
 #: ../../mod/notifications.php:196
 msgid "Friend/Connect Request"
@@ -5962,7 +5708,7 @@ msgstr "Не повече домашни уведомление."
 msgid "Home Notifications"
 msgstr "Начало Известия"
 
-#: ../../mod/photos.php:51 ../../boot.php:1957
+#: ../../mod/photos.php:51 ../../boot.php:1961
 msgid "Photo Albums"
 msgstr "Фотоалбуми"
 
@@ -6049,11 +5795,11 @@ msgstr "права"
 
 #: ../../mod/photos.php:1142
 msgid "Private Photo"
-msgstr ""
+msgstr "Частна снимка"
 
 #: ../../mod/photos.php:1143
 msgid "Public Photo"
-msgstr ""
+msgstr "Публична снимка"
 
 #: ../../mod/photos.php:1210
 msgid "Edit Album"
@@ -6135,11 +5881,11 @@ msgstr "Пример: @ Боб, @ Barbara_Jensen, jim@example.com @, # Кали�
 
 #: ../../mod/photos.php:1508
 msgid "Private photo"
-msgstr ""
+msgstr "Частна снимка"
 
 #: ../../mod/photos.php:1509
 msgid "Public photo"
-msgstr ""
+msgstr "Публична снимка"
 
 #: ../../mod/photos.php:1529 ../../mod/content.php:707
 #: ../../object/Item.php:232
@@ -6155,11 +5901,11 @@ msgstr "Не ми харесва това (смяна)"
 #: ../../mod/photos.php:1676 ../../mod/content.php:730
 #: ../../object/Item.php:650
 msgid "This is you"
-msgstr "Това ви е"
+msgstr "Това сте вие"
 
 #: ../../mod/photos.php:1551 ../../mod/photos.php:1595
 #: ../../mod/photos.php:1678 ../../mod/content.php:732
-#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:670
+#: ../../object/Item.php:338 ../../object/Item.php:652 ../../boot.php:674
 msgid "Comment"
 msgstr "Коментар"
 
@@ -6230,7 +5976,7 @@ msgstr "Качване на снимката на профила, ако не с
 
 #: ../../mod/newmember.php:38
 msgid "Edit Your Profile"
-msgstr ""
+msgstr "Редактиране на профила"
 
 #: ../../mod/newmember.php:38
 msgid ""
@@ -6241,7 +5987,7 @@ msgstr "Редактиране на <strong> подразбиране </strong> 
 
 #: ../../mod/newmember.php:40
 msgid "Profile Keywords"
-msgstr ""
+msgstr "Ключови думи на профила"
 
 #: ../../mod/newmember.php:40
 msgid ""
@@ -6252,7 +5998,7 @@ msgstr "Задайте някои обществени ключови думи �
 
 #: ../../mod/newmember.php:44
 msgid "Connecting"
-msgstr ""
+msgstr "Свързване"
 
 #: ../../mod/newmember.php:49
 msgid ""
@@ -6268,7 +6014,7 @@ msgstr "<em> Ако </ EM>, това е вашият собствен сървъ
 
 #: ../../mod/newmember.php:56
 msgid "Importing Emails"
-msgstr ""
+msgstr "Внасяне на е-пощи"
 
 #: ../../mod/newmember.php:56
 msgid ""
@@ -6301,7 +6047,7 @@ msgstr "Страницата на справочника ви позволява
 
 #: ../../mod/newmember.php:62
 msgid "Finding New People"
-msgstr ""
+msgstr "Откриване на нови хора"
 
 #: ../../mod/newmember.php:62
 msgid ""
@@ -6325,7 +6071,7 @@ msgstr "След като сте направили някои приятели,
 
 #: ../../mod/newmember.php:73
 msgid "Why Aren't My Posts Public?"
-msgstr ""
+msgstr "Защо публикациите ми не са публични?"
 
 #: ../../mod/newmember.php:73
 msgid ""
@@ -6348,7 +6094,7 @@ msgid ""
 " features and resources."
 msgstr "Нашата <strong> помощ </ strong> страницата може да бъде консултиран за подробности относно други характеристики, програма и ресурси."
 
-#: ../../mod/profile.php:21 ../../boot.php:1325
+#: ../../mod/profile.php:21 ../../boot.php:1329
 msgid "Requested profile is not available."
 msgstr "Замолената профила не е достъпна."
 
@@ -6651,6 +6397,262 @@ msgid ""
 "poller."
 msgstr "ВАЖНО: Вие ще трябва да [ръчно] настройка на планирана задача за poller."
 
+#: ../../mod/contacts.php:85 ../../mod/contacts.php:165
+msgid "Could not access contact record."
+msgstr "Не може да бъде достъп до запис за контакт."
+
+#: ../../mod/contacts.php:99
+msgid "Could not locate selected profile."
+msgstr "Не може да намери избрания профил."
+
+#: ../../mod/contacts.php:122
+msgid "Contact updated."
+msgstr "Свържете се актуализират."
+
+#: ../../mod/contacts.php:187
+msgid "Contact has been blocked"
+msgstr "За контакти е бил блокиран"
+
+#: ../../mod/contacts.php:187
+msgid "Contact has been unblocked"
+msgstr "Контакт са отблокирани"
+
+#: ../../mod/contacts.php:201
+msgid "Contact has been ignored"
+msgstr "Лицето е било игнорирано"
+
+#: ../../mod/contacts.php:201
+msgid "Contact has been unignored"
+msgstr "За контакти е бил unignored"
+
+#: ../../mod/contacts.php:220
+msgid "Contact has been archived"
+msgstr "Контакт бяха архивирани"
+
+#: ../../mod/contacts.php:220
+msgid "Contact has been unarchived"
+msgstr "За контакти е бил разархивира"
+
+#: ../../mod/contacts.php:244
+msgid "Do you really want to delete this contact?"
+msgstr "Наистина ли искате да изтриете този контакт?"
+
+#: ../../mod/contacts.php:263
+msgid "Contact has been removed."
+msgstr "Контакт е била отстранена."
+
+#: ../../mod/contacts.php:301
+#, php-format
+msgid "You are mutual friends with %s"
+msgstr "Вие сте общи приятели с %s"
+
+#: ../../mod/contacts.php:305
+#, php-format
+msgid "You are sharing with %s"
+msgstr "Вие споделяте с %s"
+
+#: ../../mod/contacts.php:310
+#, php-format
+msgid "%s is sharing with you"
+msgstr "%s се споделя с вас"
+
+#: ../../mod/contacts.php:327
+msgid "Private communications are not available for this contact."
+msgstr "Частни съобщения не са на разположение за този контакт."
+
+#: ../../mod/contacts.php:334
+msgid "(Update was successful)"
+msgstr "(Update е била успешна)"
+
+#: ../../mod/contacts.php:334
+msgid "(Update was not successful)"
+msgstr "(Актуализация не е била успешна)"
+
+#: ../../mod/contacts.php:336
+msgid "Suggest friends"
+msgstr "Предложете приятели"
+
+#: ../../mod/contacts.php:340
+#, php-format
+msgid "Network type: %s"
+msgstr "Тип мрежа: %s"
+
+#: ../../mod/contacts.php:348
+msgid "View all contacts"
+msgstr "Преглед на всички контакти"
+
+#: ../../mod/contacts.php:356
+msgid "Toggle Blocked status"
+msgstr "Превключване Блокирани статус"
+
+#: ../../mod/contacts.php:359 ../../mod/contacts.php:413
+msgid "Unignore"
+msgstr "Извади от пренебрегнатите"
+
+#: ../../mod/contacts.php:362
+msgid "Toggle Ignored status"
+msgstr "Превключване игнорирани статус"
+
+#: ../../mod/contacts.php:366
+msgid "Unarchive"
+msgstr "Разархивирате"
+
+#: ../../mod/contacts.php:366
+msgid "Archive"
+msgstr "Архив"
+
+#: ../../mod/contacts.php:369
+msgid "Toggle Archive status"
+msgstr "Превключване статус Архив"
+
+#: ../../mod/contacts.php:372
+msgid "Repair"
+msgstr "Ремонт"
+
+#: ../../mod/contacts.php:375
+msgid "Advanced Contact Settings"
+msgstr "Разширени настройки за контакт"
+
+#: ../../mod/contacts.php:381
+msgid "Communications lost with this contact!"
+msgstr "Communications загубиха с този контакт!"
+
+#: ../../mod/contacts.php:384
+msgid "Contact Editor"
+msgstr "Свържете се редактор"
+
+#: ../../mod/contacts.php:387
+msgid "Profile Visibility"
+msgstr "Профил Видимост"
+
+#: ../../mod/contacts.php:388
+#, php-format
+msgid ""
+"Please choose the profile you would like to display to %s when viewing your "
+"profile securely."
+msgstr "Моля, изберете профила, който бихте искали да покажете на %s при гледане на здраво вашия профил."
+
+#: ../../mod/contacts.php:389
+msgid "Contact Information / Notes"
+msgstr "Информация за контакти / Забележки"
+
+#: ../../mod/contacts.php:390
+msgid "Edit contact notes"
+msgstr "Редактиране на контакт с бележка"
+
+#: ../../mod/contacts.php:396
+msgid "Block/Unblock contact"
+msgstr "Блокиране / Деблокиране на контакт"
+
+#: ../../mod/contacts.php:397
+msgid "Ignore contact"
+msgstr "Игнорирай се свържете с"
+
+#: ../../mod/contacts.php:398
+msgid "Repair URL settings"
+msgstr "Настройки за ремонт на URL"
+
+#: ../../mod/contacts.php:399
+msgid "View conversations"
+msgstr "Вижте разговори"
+
+#: ../../mod/contacts.php:401
+msgid "Delete contact"
+msgstr "Изтриване на контакта"
+
+#: ../../mod/contacts.php:405
+msgid "Last update:"
+msgstr "Последна актуализация:"
+
+#: ../../mod/contacts.php:407
+msgid "Update public posts"
+msgstr "Актуализиране на държавни длъжности"
+
+#: ../../mod/contacts.php:416
+msgid "Currently blocked"
+msgstr "Които понастоящем са блокирани"
+
+#: ../../mod/contacts.php:417
+msgid "Currently ignored"
+msgstr "В момента игнорирани"
+
+#: ../../mod/contacts.php:418
+msgid "Currently archived"
+msgstr "В момента архивират"
+
+#: ../../mod/contacts.php:419
+msgid ""
+"Replies/likes to your public posts <strong>may</strong> still be visible"
+msgstr "Отговори / обича да си публични длъжности <strong> май </ STRONG> все още да се вижда"
+
+#: ../../mod/contacts.php:470
+msgid "Suggestions"
+msgstr "Предложения"
+
+#: ../../mod/contacts.php:473
+msgid "Suggest potential friends"
+msgstr "Предполагат потенциал приятели"
+
+#: ../../mod/contacts.php:479
+msgid "Show all contacts"
+msgstr "Покажи на всички контакти"
+
+#: ../../mod/contacts.php:482
+msgid "Unblocked"
+msgstr "Отблокирани"
+
+#: ../../mod/contacts.php:485
+msgid "Only show unblocked contacts"
+msgstr "Покажи само Разблокирани контакти"
+
+#: ../../mod/contacts.php:489
+msgid "Blocked"
+msgstr "Блокиран"
+
+#: ../../mod/contacts.php:492
+msgid "Only show blocked contacts"
+msgstr "Покажи само Блокираните контакти"
+
+#: ../../mod/contacts.php:496
+msgid "Ignored"
+msgstr "Игнорирани"
+
+#: ../../mod/contacts.php:499
+msgid "Only show ignored contacts"
+msgstr "Покажи само игнорирани контакти"
+
+#: ../../mod/contacts.php:503
+msgid "Archived"
+msgstr "Архивиран:"
+
+#: ../../mod/contacts.php:506
+msgid "Only show archived contacts"
+msgstr "Покажи само архивирани контакти"
+
+#: ../../mod/contacts.php:510
+msgid "Hidden"
+msgstr "Скрит"
+
+#: ../../mod/contacts.php:513
+msgid "Only show hidden contacts"
+msgstr "Само показва скрити контакти"
+
+#: ../../mod/contacts.php:561
+msgid "Mutual Friendship"
+msgstr "Взаимното приятелство"
+
+#: ../../mod/contacts.php:565
+msgid "is a fan of yours"
+msgstr "е фенка"
+
+#: ../../mod/contacts.php:569
+msgid "you are a fan of"
+msgstr "Вие сте фен на"
+
+#: ../../mod/contacts.php:611
+msgid "Search your contacts"
+msgstr "Търсене на вашите контакти"
+
 #: ../../mod/oexchange.php:25
 msgid "Post successful."
 msgstr "Мнение успешно."
@@ -6690,7 +6692,7 @@ msgstr "прикрепи файл"
 
 #: ../../mod/profile_photo.php:243
 msgid "Select a profile:"
-msgstr ""
+msgstr "Избор на профил:"
 
 #: ../../mod/profile_photo.php:245
 msgid "Upload"
@@ -6745,7 +6747,7 @@ msgstr "Споделете това"
 
 #: ../../mod/content.php:710 ../../object/Item.php:235
 msgid "share"
-msgstr "дял,%"
+msgstr "споделяне"
 
 #: ../../mod/content.php:734 ../../object/Item.php:654
 msgid "Bold"
@@ -6757,11 +6759,11 @@ msgstr "Курсив"
 
 #: ../../mod/content.php:736 ../../object/Item.php:656
 msgid "Underline"
-msgstr "Подчертаване"
+msgstr "Подчертан"
 
 #: ../../mod/content.php:737 ../../object/Item.php:657
 msgid "Quote"
-msgstr "цитат"
+msgstr "Цитат"
 
 #: ../../mod/content.php:738 ../../object/Item.php:658
 msgid "Code"
@@ -6769,7 +6771,7 @@ msgstr "Код"
 
 #: ../../mod/content.php:739 ../../object/Item.php:659
 msgid "Image"
-msgstr "снимка"
+msgstr "Изображение"
 
 #: ../../mod/content.php:740 ../../object/Item.php:660
 msgid "Link"
@@ -6797,7 +6799,7 @@ msgstr "звезда"
 
 #: ../../mod/content.php:782 ../../object/Item.php:221
 msgid "add tag"
-msgstr "Добавяне на маркери"
+msgstr "добавяне на етикет"
 
 #: ../../mod/content.php:786 ../../object/Item.php:130
 msgid "save to folder"
@@ -6817,7 +6819,7 @@ msgstr "чрез стена до стена:"
 
 #: ../../object/Item.php:92
 msgid "This entry was edited"
-msgstr ""
+msgstr "Записът е редактиран"
 
 #: ../../object/Item.php:309
 msgid "via"
@@ -6988,128 +6990,128 @@ msgstr ""
 msgid "toggle mobile"
 msgstr ""
 
-#: ../../boot.php:669
+#: ../../boot.php:673
 msgid "Delete this item?"
 msgstr "Изтриване на тази бележка?"
 
-#: ../../boot.php:672
+#: ../../boot.php:676
 msgid "show fewer"
 msgstr "показват по-малко"
 
-#: ../../boot.php:999
+#: ../../boot.php:1003
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "Актуализация %s не успя. Виж логовете за грешки."
 
-#: ../../boot.php:1001
+#: ../../boot.php:1005
 #, php-format
 msgid "Update Error at %s"
 msgstr "Актуализиране на Грешка в %s"
 
-#: ../../boot.php:1111
+#: ../../boot.php:1115
 msgid "Create a New Account"
 msgstr "Създаване на нов профил:"
 
-#: ../../boot.php:1139
+#: ../../boot.php:1143
 msgid "Nickname or Email address: "
 msgstr "Псевдоним или имейл адрес: "
 
-#: ../../boot.php:1140
+#: ../../boot.php:1144
 msgid "Password: "
 msgstr "Парола "
 
-#: ../../boot.php:1141
+#: ../../boot.php:1145
 msgid "Remember me"
 msgstr ""
 
-#: ../../boot.php:1144
+#: ../../boot.php:1148
 msgid "Or login using OpenID: "
 msgstr "Или да влезнете с OpenID: "
 
-#: ../../boot.php:1150
+#: ../../boot.php:1154
 msgid "Forgot your password?"
 msgstr "Забравена парола?"
 
-#: ../../boot.php:1153
-msgid "Website Terms of Service"
-msgstr ""
-
-#: ../../boot.php:1154
-msgid "terms of service"
-msgstr ""
-
-#: ../../boot.php:1156
-msgid "Website Privacy Policy"
-msgstr ""
-
 #: ../../boot.php:1157
-msgid "privacy policy"
-msgstr ""
+msgid "Website Terms of Service"
+msgstr "Условия за ползване на сайта"
 
-#: ../../boot.php:1286
+#: ../../boot.php:1158
+msgid "terms of service"
+msgstr "условия за ползване"
+
+#: ../../boot.php:1160
+msgid "Website Privacy Policy"
+msgstr "Политика за поверителност на сайта"
+
+#: ../../boot.php:1161
+msgid "privacy policy"
+msgstr "политика за поверителност"
+
+#: ../../boot.php:1290
 msgid "Requested account is not available."
 msgstr ""
 
-#: ../../boot.php:1365 ../../boot.php:1469
+#: ../../boot.php:1369 ../../boot.php:1473
 msgid "Edit profile"
 msgstr "Редактиране на потребителския профил"
 
-#: ../../boot.php:1431
+#: ../../boot.php:1435
 msgid "Message"
 msgstr "Съобщение"
 
-#: ../../boot.php:1439
+#: ../../boot.php:1443
 msgid "Manage/edit profiles"
 msgstr "Управление / редактиране на профили"
 
-#: ../../boot.php:1568 ../../boot.php:1654
+#: ../../boot.php:1572 ../../boot.php:1658
 msgid "g A l F d"
 msgstr "грама Л Е г"
 
-#: ../../boot.php:1569 ../../boot.php:1655
+#: ../../boot.php:1573 ../../boot.php:1659
 msgid "F d"
 msgstr "F г"
 
-#: ../../boot.php:1614 ../../boot.php:1695
+#: ../../boot.php:1618 ../../boot.php:1699
 msgid "[today]"
 msgstr "Днес"
 
-#: ../../boot.php:1626
+#: ../../boot.php:1630
 msgid "Birthday Reminders"
 msgstr "Напомняния за рождени дни"
 
-#: ../../boot.php:1627
+#: ../../boot.php:1631
 msgid "Birthdays this week:"
 msgstr "Рождени дни този Седмица:"
 
-#: ../../boot.php:1688
+#: ../../boot.php:1692
 msgid "[No description]"
 msgstr "[Няма описание]"
 
-#: ../../boot.php:1706
+#: ../../boot.php:1710
 msgid "Event Reminders"
 msgstr "Напомняния"
 
-#: ../../boot.php:1707
+#: ../../boot.php:1711
 msgid "Events this week:"
 msgstr "Събития тази седмица:"
 
-#: ../../boot.php:1943
+#: ../../boot.php:1947
 msgid "Status Messages and Posts"
 msgstr "Съобщения за състоянието и пощи"
 
-#: ../../boot.php:1950
+#: ../../boot.php:1954
 msgid "Profile Details"
 msgstr "Детайли от профила"
 
-#: ../../boot.php:1961 ../../boot.php:1964
+#: ../../boot.php:1965 ../../boot.php:1968
 msgid "Videos"
-msgstr ""
+msgstr "Видеоклипове"
 
-#: ../../boot.php:1974
+#: ../../boot.php:1978
 msgid "Events and Calendar"
 msgstr "Събития и календарни"
 
-#: ../../boot.php:1981
+#: ../../boot.php:1985
 msgid "Only You Can See This"
 msgstr "Можете да видите това"
