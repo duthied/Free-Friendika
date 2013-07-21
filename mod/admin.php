@@ -622,8 +622,39 @@ function admin_page_dbsync(&$a) {
 function admin_page_users_post(&$a){
 	$pending = ( x($_POST, 'pending') ? $_POST['pending'] : Array() );
 	$users = ( x($_POST, 'user') ? $_POST['user'] : Array() );
+	$nu_name = ( x($_POST, 'new_user_name') ? $_POST['new_user_name'] : ''); 
+  $nu_nickname = ( x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : ''); 
+  $nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
-    check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+  check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+    
+  if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) { 
+      require_once('include/user.php'); 
+      require_once('include/email.php'); 
+      $result = create_user( array('username'=>$nu_name, 'email'=>$nu_email, 'nickname'=>$nu_nickname, 'verified'=>1)  ); 
+      if(! $result['success']) { 
+		    notice($result['message']); 
+		    return; 
+      } 
+      $nu = $result['user']; 
+      $email_tpl = get_intltext_template("register_adminadd_eml.tpl"); 
+      $email_tpl = replace_macros($email_tpl, array( 
+		    '$sitename' => $a->config['sitename'], 
+		    '$siteurl' =>  $a->get_baseurl(), 
+		    '$username' => $nu['username'], 
+		    '$email' => $nu['email'], 
+		    '$password' => $result['password'], 
+		    '$uid' => $nu['uid'] )); 
+ 
+      $res = mail($nu['email'], email_header_encode( sprintf( t('Registration details for %s'), $a->config['sitename']),'UTF-8'), 
+		    $email_tpl,  
+		    'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n" 
+		    . 'Content-type: text/plain; charset=UTF-8' . "\n" 
+		    . 'Content-transfer-encoding: 8bit' ); 
+      if ($res) { 
+		    info( t('Registration successful. Email send to user').EOL ); 
+      } 
+  }
 
 	if (x($_POST,'page_users_block')){
 		foreach($users as $uid){
@@ -774,6 +805,7 @@ function admin_page_users(&$a){
         '$accountexpired' => t('Account expired'),
 		
 		'$h_users' => t('Users'),
+		'$h_newuser' => t('New User'),
 		'$th_users' => array( t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'),  t('Account') ),
 
 		'$confirm_delete_multi' => t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
@@ -786,6 +818,9 @@ function admin_page_users(&$a){
 
 		'$pending' => $pending,
 		'$users' => $users,
+		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")), 
+    '$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")), 
+    '$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
 	));
 	$o .= paginate($a);
 	return $o;
