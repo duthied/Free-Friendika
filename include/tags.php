@@ -92,7 +92,7 @@ function create_tags_from_item($itemid) {
 			$term = substr($tag, 1);
 		} else { // This shouldn't happen
 			$type = TERM_HASHTAG;
-			$term = $tag."-oh";
+			$term = $tag;
 		}
 
 		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`) VALUES (%d, %d, %d, %d, '%s', '%s')",
