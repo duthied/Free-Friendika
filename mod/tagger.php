@@ -185,8 +185,6 @@ EOT;
 			intval($r[0]['id']),
 			dbesc($term)
 		);
-		echo "<pre>"; var_dump($t); killme();
-		// not really sure about this...
 		if(count($x) && !$x[0]['blocktags'] && $t[0]['tcount']==0){
 			q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 	                   intval($r[0]['id']),
