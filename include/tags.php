@@ -79,6 +79,12 @@ function create_tags_from_item($itemid) {
 	foreach ($tags as $tag=>$link) {
 
 		if (substr(trim($tag), 0, 1) == "#") {
+			// try to ignore #039 or #1 or anything like that
+			if(ctype_digit(substr(trim($tag),1)))
+				continue;
+			// try to ignore html hex escapes, e.g. #x2317
+			if((substr(trim($tag),1,1) == 'x' || substr(trim($tag),1,1) == 'X') && ctype_digit(substr(trim($tag),2)))
+				continue;
 			$type = TERM_HASHTAG;
 			$term = substr($tag, 1);
 		} elseif (substr(trim($tag), 0, 1) == "@") {

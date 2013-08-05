@@ -622,9 +622,40 @@ function admin_page_dbsync(&$a) {
 function admin_page_users_post(&$a){
 	$pending = ( x($_POST, 'pending') ? $_POST['pending'] : Array() );
 	$users = ( x($_POST, 'user') ? $_POST['user'] : Array() );
+	$nu_name = ( x($_POST, 'new_user_name') ? $_POST['new_user_name'] : ''); 
+  $nu_nickname = ( x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : ''); 
+  $nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
-    check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
-
+  check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+    
+  if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) { 
+      require_once('include/user.php'); 
+      require_once('include/email.php'); 
+      $result = create_user( array('username'=>$nu_name, 'email'=>$nu_email, 'nickname'=>$nu_nickname, 'verified'=>1)  ); 
+      if(! $result['success']) { 
+		    notice($result['message']); 
+		    return; 
+      } 
+      $nu = $result['user']; 
+      $email_tpl = get_intltext_template("register_adminadd_eml.tpl"); 
+      $email_tpl = replace_macros($email_tpl, array( 
+		    '$sitename' => $a->config['sitename'], 
+		    '$siteurl' =>  $a->get_baseurl(), 
+		    '$username' => $nu['username'], 
+		    '$email' => $nu['email'], 
+		    '$password' => $result['password'], 
+		    '$uid' => $nu['uid'] )); 
+ 
+      $res = mail($nu['email'], email_header_encode( sprintf( t('Registration details for %s'), $a->config['sitename']),'UTF-8'), 
+		    $email_tpl,  
+		    'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n" 
+		    . 'Content-type: text/plain; charset=UTF-8' . "\n" 
+		    . 'Content-transfer-encoding: 8bit' ); 
+      if ($res) { 
+		    info( t('Registration successful. Email send to user').EOL ); 
+      } 
+  }
+	
 	if (x($_POST,'page_users_block')){
 		foreach($users as $uid){
 			q("UPDATE `user` SET `blocked`=1-`blocked` WHERE `uid`=%s",
@@ -740,19 +771,35 @@ function admin_page_users(&$a){
 		$e['login_date'] = relative_date($e['login_date']);
 		$e['lastitem_date'] = relative_date($e['lastitem_date']);
         $e['is_admin'] = ($e['email'] === $a->config['admin_email']);
+        $e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
 		return $e;
 	}
 	$users = array_map("_setup_users", $users);
 	
 	
 	// Get rid of dashes in key names, Smarty3 can't handle them
-	foreach($users as $key => $user) {
-		$new_user = array();
-		foreach($user as $k => $v) {
+	// and extracting deleted users
+	
+	$tmp_users = Array();
+	$deleted = Array();
+	
+	while(count($users)) {
+		$new_user = Array();
+		foreach( array_pop($users) as $k => $v) {
 			$k = str_replace('-','_',$k);
 			$new_user[$k] = $v;
 		}
-		$users[$key] = $new_user;
+		if($new_user['deleted']) {
+			array_push($deleted, $new_user);
+		}
+		else {
+			array_push($tmp_users, $new_user);
+		}
+	}
+	//Reversing the two array, and moving $tmp_users to $users
+	array_reverse($deleted);
+	while(count($tmp_users)) {
+		array_push($users, array_pop($tmp_users));
 	}
 
 	$t = get_markup_template("admin_users.tpl");
@@ -763,6 +810,7 @@ function admin_page_users(&$a){
 		'$submit' => t('Submit'),
 		'$select_all' => t('select all'),
 		'$h_pending' => t('User registrations waiting for confirm'),
+		'$h_deleted' => t('User waiting for permanent deletion'),
 		'$th_pending' => array( t('Request date'), t('Name'), t('Email') ),
 		'$no_pending' =>  t('No registrations.'),
 		'$approve' => t('Approve'),
@@ -774,6 +822,8 @@ function admin_page_users(&$a){
         '$accountexpired' => t('Account expired'),
 		
 		'$h_users' => t('Users'),
+		'$h_newuser' => t('New User'),
+		'$th_deleted' => array( t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Deleted since') ),
 		'$th_users' => array( t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'),  t('Account') ),
 
 		'$confirm_delete_multi' => t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
@@ -785,7 +835,11 @@ function admin_page_users(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 
 		'$pending' => $pending,
+		'deleted' => $deleted,
 		'$users' => $users,
+		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")), 
+    '$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")), 
+    '$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
 	));
 	$o .= paginate($a);
 	return $o;
