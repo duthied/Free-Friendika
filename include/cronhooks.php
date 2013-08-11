@@ -24,6 +24,9 @@ function cronhooks_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
+	if ($hostname =  get_config('system', 'hostname'))
+		$a->set_hostname($hostname);
+
 	$lockpath = get_config('system','lockpath');
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'cron.lck');

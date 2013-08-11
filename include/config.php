@@ -77,7 +77,8 @@ function get_config($family, $key, $instore = false) {
 				return false;
 			else
 				return $val;
-		} else
+		}
+			// else
 			//logger("APC: cache miss for value ".$family."|".$key, LOGGER_DEBUG);
 
 
@@ -207,7 +208,7 @@ function get_pconfig($uid,$family, $key, $instore = false) {
 				return false;
 			else
 				return $val;
-		} else
+		} // else
 			//logger("APC: cache miss for value ".$family."|".$key, LOGGER_DEBUG);
 
 
