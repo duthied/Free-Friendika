@@ -65,9 +65,6 @@ function notifier_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	if ($hostname =  get_config('system', 'hostname'))
-		$a->set_hostname($hostname);
-
 	load_hooks();
 
 	if($argc < 3)

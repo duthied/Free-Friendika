@@ -30,9 +30,6 @@ function poller_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	if ($hostname =  get_config('system', 'hostname'))
-		$a->set_hostname($hostname);
-
 	$maxsysload = intval(get_config('system','maxloadavg'));
 	if($maxsysload < 1)
 		$maxsysload = 50;

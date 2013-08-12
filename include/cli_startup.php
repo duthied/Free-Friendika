@@ -24,9 +24,6 @@ function cli_startup() {
 	load_config('config');
 	load_config('system');
 
-	if ($hostname =  get_config('system', 'hostname'))
-		$a->set_hostname($hostname);
-
 	$a->set_baseurl(get_config('system','url'));
 
 	load_hooks();
