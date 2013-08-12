@@ -70,7 +70,6 @@ function get_config($family, $key, $instore = false) {
 	if (function_exists("apc_fetch") AND function_exists("apc_exists"))
 		if (apc_exists($family."|".$key)) {
 			$val = apc_fetch($family."|".$key);
-			//logger("APC: fetched stored value ".$family."|".$key, LOGGER_DEBUG);
 			$a->config[$family][$key] = $val;
 
 			if ($val === '!<unset>!')
@@ -78,9 +77,6 @@ function get_config($family, $key, $instore = false) {
 			else
 				return $val;
 		}
-			// else
-			//logger("APC: cache miss for value ".$family."|".$key, LOGGER_DEBUG);
-
 
 	$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
 		dbesc($family),
@@ -201,15 +197,13 @@ function get_pconfig($uid,$family, $key, $instore = false) {
 	if (function_exists("apc_fetch") AND function_exists("apc_exists"))
 		if (apc_exists($uid."|".$family."|".$key)) {
 			$val = apc_fetch($uid."|".$family."|".$key);
-			//logger("APC: fetched stored value ".$uid."|".$family."|".$key, LOGGER_DEBUG);
 			$a->config[$uid][$family][$key] = $val;
 
 			if ($val === '!<unset>!')
 				return false;
 			else
 				return $val;
-		} // else
-			//logger("APC: cache miss for value ".$family."|".$key, LOGGER_DEBUG);
+		}
 
 
 	$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' LIMIT 1",
