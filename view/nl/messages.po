@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-26 00:01-0700\n"
-"PO-Revision-Date: 2013-08-03 15:34+0000\n"
-"Last-Translator: gertc <gcauwenberg@gmail.com>\n"
+"PO-Revision-Date: 2013-08-19 20:48+0000\n"
+"Last-Translator: jeroenpraat <>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/friendica/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -78,7 +78,7 @@ msgstr "Thuisstad:"
 
 #: ../../include/profile_advanced.php:52
 msgid "Tags:"
-msgstr ""
+msgstr "Labels:"
 
 #: ../../include/profile_advanced.php:54 ../../mod/profiles.php:653
 msgid "Political Views:"
@@ -407,14 +407,14 @@ msgstr ""
 #: ../../include/bbcode.php:210 ../../include/bbcode.php:550
 #: ../../include/bbcode.php:551
 msgid "Image/photo"
-msgstr ""
+msgstr "Afbeelding/foto"
 
 #: ../../include/bbcode.php:272
 #, php-format
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
 "href=\"%s\" target=\"external-link\">post</a>"
-msgstr ""
+msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a> schreef het volgende <a href=\"%s\" target=\"external-link\">bericht</a>"
 
 #: ../../include/bbcode.php:514 ../../include/bbcode.php:534
 msgid "$1 wrote:"
@@ -422,11 +422,11 @@ msgstr "$1 schreef:"
 
 #: ../../include/bbcode.php:559 ../../include/bbcode.php:560
 msgid "Encrypted content"
-msgstr ""
+msgstr "Versleutelde inhoud"
 
 #: ../../include/acl_selectors.php:325
 msgid "Visible to everybody"
-msgstr ""
+msgstr "Zichtbaar voor iedereen"
 
 #: ../../include/acl_selectors.php:326 ../../view/theme/diabook/config.php:146
 #: ../../view/theme/diabook/theme.php:629
@@ -727,7 +727,7 @@ msgstr "Voorbeeld: jan@voorbeeld.be, http://voorbeeld.nl/barbara"
 #: ../../include/contact_widgets.php:9 ../../mod/suggest.php:88
 #: ../../mod/match.php:58 ../../boot.php:1421
 msgid "Connect"
-msgstr ""
+msgstr "Verbinden"
 
 #: ../../include/contact_widgets.php:23
 #, php-format
@@ -1148,11 +1148,11 @@ msgstr ""
 
 #: ../../include/features.php:57
 msgid "Tagging"
-msgstr ""
+msgstr "Labelen"
 
 #: ../../include/features.php:57
 msgid "Ability to tag existing posts"
-msgstr ""
+msgstr "Mogelijkheid om bestaande berichten te labelen"
 
 #: ../../include/features.php:58
 msgid "Post Categories"
@@ -1598,11 +1598,11 @@ msgstr "Even geduld"
 
 #: ../../include/conversation.php:768
 msgid "remove"
-msgstr ""
+msgstr "verwijder"
 
 #: ../../include/conversation.php:772
 msgid "Delete Selected Items"
-msgstr ""
+msgstr "Geselecteerde items verwijderen"
 
 #: ../../include/conversation.php:871
 msgid "Follow Thread"
@@ -1668,7 +1668,7 @@ msgstr ""
 
 #: ../../include/conversation.php:1001 ../../include/conversation.php:1019
 msgid "Tag term:"
-msgstr ""
+msgstr "Label:"
 
 #: ../../include/conversation.php:1002 ../../include/conversation.php:1020
 #: ../../mod/filer.php:30
@@ -1677,7 +1677,7 @@ msgstr "Bewaren in map:"
 
 #: ../../include/conversation.php:1003 ../../include/conversation.php:1021
 msgid "Where are you right now?"
-msgstr ""
+msgstr "Waar ben je nu?"
 
 #: ../../include/conversation.php:1004
 msgid "Delete item(s)?"
@@ -1890,17 +1890,17 @@ msgstr ""
 #: ../../include/enotify.php:141
 #, php-format
 msgid "[Friendica:Notify] %s tagged you"
-msgstr ""
+msgstr "[Friendica:Notificatie] %s heeft jou genoemd"
 
 #: ../../include/enotify.php:142
 #, php-format
 msgid "%1$s tagged you at %2$s"
-msgstr ""
+msgstr "%1$s heeft jou in %2$s genoemd"
 
 #: ../../include/enotify.php:143
 #, php-format
 msgid "%1$s [url=%2$s]tagged you[/url]."
-msgstr ""
+msgstr "%1$s [url=%2$s]heeft jou genoemd[/url]."
 
 #: ../../include/enotify.php:155
 #, php-format
@@ -1920,41 +1920,41 @@ msgstr ""
 #: ../../include/enotify.php:172
 #, php-format
 msgid "[Friendica:Notify] %s tagged your post"
-msgstr ""
+msgstr "[Friendica:Notificatie] %s heeft jouw bericht gelabeld"
 
 #: ../../include/enotify.php:173
 #, php-format
 msgid "%1$s tagged your post at %2$s"
-msgstr ""
+msgstr "%1$s heeft jouw bericht gelabeld in %2$s"
 
 #: ../../include/enotify.php:174
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
-msgstr ""
+msgstr "%1$s labelde [url=%2$s]jouw bericht[/url]"
 
 #: ../../include/enotify.php:185
 msgid "[Friendica:Notify] Introduction received"
-msgstr ""
+msgstr "[Friendica:Notificatie] Contactaanvraag ontvangen"
 
 #: ../../include/enotify.php:186
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr ""
+msgstr "Je hebt een contactaanvraag onvtangen van '%1$s' om %2$s"
 
 #: ../../include/enotify.php:187
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr ""
+msgstr "Je ontving [url=%1$s]een contactaanvraag[/url] van %2$s."
 
 #: ../../include/enotify.php:190 ../../include/enotify.php:208
 #, php-format
 msgid "You may visit their profile at %s"
-msgstr ""
+msgstr "U kunt hun profiel bezoeken op %s"
 
 #: ../../include/enotify.php:192
 #, php-format
 msgid "Please visit %s to approve or reject the introduction."
-msgstr ""
+msgstr "Bezoek %s om de contactaanvraag goed of af te keuren."
 
 #: ../../include/enotify.php:199
 msgid "[Friendica:Notify] Friend suggestion received"
@@ -2000,7 +2000,7 @@ msgstr "Niets nieuw hier"
 
 #: ../../include/nav.php:38 ../../mod/navigation.php:24
 msgid "Clear notifications"
-msgstr ""
+msgstr "Notificaties verwijderen"
 
 #: ../../include/nav.php:73 ../../boot.php:1140
 msgid "Logout"
@@ -2230,11 +2230,11 @@ msgstr ""
 
 #: ../../include/oembed.php:138
 msgid "Embedded content"
-msgstr ""
+msgstr "Ingebedde inhoud"
 
 #: ../../include/oembed.php:147
 msgid "Embedding disabled"
-msgstr ""
+msgstr "Inbedden uitgeschakeld"
 
 #: ../../include/uimport.php:94
 msgid "Error decoding account file"
@@ -2620,7 +2620,7 @@ msgstr "Toegang geweigerd"
 
 #: ../../mod/profperm.php:25 ../../mod/profperm.php:55
 msgid "Invalid profile identifier."
-msgstr ""
+msgstr "Ongeldige profiel-identificatie."
 
 #: ../../mod/profperm.php:101
 msgid "Profile Visibility Editor"
@@ -2710,11 +2710,11 @@ msgstr "{0} plaatste"
 #: ../../mod/ping.php:279
 #, php-format
 msgid "{0} tagged %s's post with #%s"
-msgstr ""
+msgstr "{0} labelde %s's bericht met #%s"
 
 #: ../../mod/ping.php:285
 msgid "{0} mentioned you in a post"
-msgstr ""
+msgstr "{0} vermeldde je in een bericht"
 
 #: ../../mod/admin.php:55
 msgid "Theme settings updated."
@@ -3220,11 +3220,11 @@ msgstr "Poll-interval"
 msgid ""
 "Delay background polling processes by this many seconds to reduce system "
 "load. If 0, use delivery interval."
-msgstr ""
+msgstr "Stel achtergrondprocessen zoveel seconden uit om de systeembelasting te beperken. Indien 0 wordt het afleverinterval gebruikt."
 
 #: ../../mod/admin.php:543
 msgid "Maximum Load Average"
-msgstr ""
+msgstr "Maximum gemiddelde belasting"
 
 #: ../../mod/admin.php:543
 msgid ""
@@ -3244,7 +3244,7 @@ msgstr "Activeert de zoekmotor. Dit maakt zoeken sneller, maar het kan alleen zo
 
 #: ../../mod/admin.php:546
 msgid "Path to item cache"
-msgstr ""
+msgstr "Pad naar cache voor items"
 
 #: ../../mod/admin.php:547
 msgid "Cache duration in seconds"
@@ -3258,7 +3258,7 @@ msgstr "Hoe lang moeten bestanden in cache gehouden worden? Standaard waarde is 
 
 #: ../../mod/admin.php:548
 msgid "Path for lock file"
-msgstr ""
+msgstr "Pad voor lock bestand"
 
 #: ../../mod/admin.php:549
 msgid "Temp path"
@@ -3307,7 +3307,7 @@ msgstr "Dit is zonder de wijzigingen voor 1139, welke geen status teruggaven."
 
 #: ../../mod/admin.php:608
 msgid "Mark success (if update was manually applied)"
-msgstr ""
+msgstr "Markeren als succes (als aanpassing manueel doorgevoerd werd)"
 
 #: ../../mod/admin.php:609
 msgid "Attempt to execute this update step automatically"
@@ -4167,7 +4167,7 @@ msgstr "Vrienden toestaan om op jou profielpagina te posten?"
 
 #: ../../mod/settings.php:990
 msgid "Allow friends to tag your posts?"
-msgstr "Vrienden toestaan om jouw posts te labelen?"
+msgstr "Sta vrienden toe om jouw berichten te labelen?"
 
 #: ../../mod/settings.php:996
 msgid "Allow us to suggest you as a potential friend to new members?"
@@ -4349,11 +4349,11 @@ msgstr "Stuur een notificatie e-mail wanneer:"
 
 #: ../../mod/settings.php:1127
 msgid "You receive an introduction"
-msgstr "Je een contactaanvraag ontvangt"
+msgstr "Je ontvangt een contactaanvraag"
 
 #: ../../mod/settings.php:1128
 msgid "Your introductions are confirmed"
-msgstr "Je contactaanvragen bevestigd werden"
+msgstr "Jouw contactaanvragen zijn bevestigd"
 
 #: ../../mod/settings.php:1129
 msgid "Someone writes on your profile wall"
@@ -4373,7 +4373,7 @@ msgstr "Je een suggestie voor een vriendschap ontvangt"
 
 #: ../../mod/settings.php:1133
 msgid "You are tagged in a post"
-msgstr "Je in een post vernoemd wordt"
+msgstr "Je bent in een bericht genoemd"
 
 #: ../../mod/settings.php:1134
 msgid "You are poked/prodded/etc. in a post"
@@ -4430,7 +4430,7 @@ msgstr "Bijnaam account"
 
 #: ../../mod/crepair.php:150
 msgid "@Tagname - overrides Name/Nickname"
-msgstr ""
+msgstr "@Labelnaam - krijgt voorrang op naam/bijnaam"
 
 #: ../../mod/crepair.php:151
 msgid "Account URL"
@@ -4553,26 +4553,26 @@ msgstr "Geen gebruiker gevonden voor '%s'"
 
 #: ../../mod/dfrn_confirm.php:572
 msgid "Our site encryption key is apparently messed up."
-msgstr ""
+msgstr "De encryptie-sleutel van onze webstek is blijkbaar beschadigd."
 
 #: ../../mod/dfrn_confirm.php:583
 msgid "Empty site URL was provided or URL could not be decrypted by us."
-msgstr ""
+msgstr "Er werd een lege URL gegeven, of de URL kon niet ontcijferd worden door ons."
 
 #: ../../mod/dfrn_confirm.php:604
 msgid "Contact record was not found for you on our site."
-msgstr ""
+msgstr "We vonden op onze webstek geen contactrecord voor jou."
 
 #: ../../mod/dfrn_confirm.php:618
 #, php-format
 msgid "Site public key not available in contact record for URL %s."
-msgstr ""
+msgstr "Publieke sleutel voor webstek niet beschikbaar in contactrecord voor URL %s."
 
 #: ../../mod/dfrn_confirm.php:638
 msgid ""
 "The ID provided by your system is a duplicate on our system. It should work "
 "if you try again."
-msgstr ""
+msgstr "Het ID dat jouw systeem aangeeft is een dubbel op ons systeem. Als je opnieuw probeert zou het moeten werken."
 
 #: ../../mod/dfrn_confirm.php:649
 msgid "Unable to set your contact credentials on our system."
@@ -4962,7 +4962,7 @@ msgstr "- Kies -"
 #: ../../mod/update_network.php:22 ../../mod/update_notes.php:41
 #: ../../mod/update_profile.php:41
 msgid "[Embedded content - reload page to view]"
-msgstr ""
+msgstr "[Ingebedde inhoud - herlaad pagina om het te bekijken]"
 
 #: ../../mod/follow.php:27
 msgid "Contact added"
@@ -5165,7 +5165,7 @@ msgid ""
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks. See %s for a list of alternate Friendica "
 "sites you can join."
-msgstr ""
+msgstr "Friendica servers zijn allemaal onderling verbonden om een reusachtig sociaal web te maken met verbeterde privacy, dat eigendom is van en gecontroleerd door zijn leden. Ze kunnen ook verbindingen maken met verschillende traditionele sociale netwerken. Bekijk %s voor een lijst van alternatieve Friendica servers waar je aan kunt sluiten."
 
 #: ../../mod/invite.php:126
 msgid ""
@@ -5259,7 +5259,7 @@ msgstr "Onderwerp:"
 
 #: ../../mod/localtime.php:24
 msgid "Time Conversion"
-msgstr ""
+msgstr "Tijdsconversie"
 
 #: ../../mod/localtime.php:26
 msgid ""
@@ -5280,7 +5280,7 @@ msgstr "Huidige Tijdzone: %s"
 #: ../../mod/localtime.php:36
 #, php-format
 msgid "Converted localtime: %s"
-msgstr ""
+msgstr "Omgerekende lokale tijd: %s"
 
 #: ../../mod/localtime.php:41
 msgid "Please select your timezone:"
@@ -5850,7 +5850,7 @@ msgstr "Bekijk in volledig formaat"
 
 #: ../../mod/photos.php:1444
 msgid "Tags: "
-msgstr "Tags: "
+msgstr "Labels: "
 
 #: ../../mod/photos.php:1447
 msgid "[Remove any tag]"
@@ -5944,7 +5944,7 @@ msgid ""
 "On your <em>Quick Start</em> page - find a brief introduction to your "
 "profile and network tabs, make some new connections, and find some groups to"
 " join."
-msgstr ""
+msgstr "Op je <em>Snelstart</em> pagina kun je een korte inleiding vinden over je profiel en netwerk tabs, om enkele nieuwe connecties te leggen en groepen te vinden om lid van te worden."
 
 #: ../../mod/newmember.php:26
 msgid "Go to Your Settings"
@@ -6006,7 +6006,7 @@ msgstr "Verbinding aan het maken"
 msgid ""
 "Authorise the Facebook Connector if you currently have a Facebook account "
 "and we will (optionally) import all your Facebook friends and conversations."
-msgstr ""
+msgstr "Machtig de Facebook Connector als je een Facebook account hebt. We zullen (optioneel) al je Facebook vrienden en conversaties importeren."
 
 #: ../../mod/newmember.php:51
 msgid ""
@@ -6058,7 +6058,7 @@ msgid ""
 "interest, and provide suggestions based on network relationships. On a brand"
 " new site, friend suggestions will usually begin to be populated within 24 "
 "hours."
-msgstr ""
+msgstr "Op het zijpaneel van de Contacten pagina vind je verschillende tools om nieuwe vrienden te zoeken. We kunnen mensen op interesses matchen, mensen opzoeken op naam of hobby, en suggesties doen gebaseerd op netwerk-relaties. Op een nieuwe webstek beginnen vriendschapssuggesties meestal binnen de 24 uur beschikbaar te worden."
 
 #: ../../mod/newmember.php:70
 msgid "Group Your Contacts"
@@ -6256,7 +6256,7 @@ msgstr ""
 msgid ""
 "If running under Windows, please see "
 "\"http://www.php.net/manual/en/openssl.installation.php\"."
-msgstr ""
+msgstr "Zie \"http://www.php.net/manual/en/openssl.installation.php\" wanneer u Friendica onder Windows draait."
 
 #: ../../mod/install.php:381
 msgid "Generate encryption keys"
@@ -6657,7 +6657,7 @@ msgstr "Doorzoek je contacten"
 
 #: ../../mod/oexchange.php:25
 msgid "Post successful."
-msgstr ""
+msgstr "Bericht succesvol geplaatst."
 
 #: ../../mod/openid.php:24
 msgid "OpenID protocol error. No ID returned."
@@ -6670,19 +6670,19 @@ msgstr "Account niet gevonden, en OpenID-registratie is niet toegelaten op deze 
 
 #: ../../mod/profile_photo.php:44
 msgid "Image uploaded but image cropping failed."
-msgstr ""
+msgstr "Afbeelding opgeladen, maar bijsnijden mislukt."
 
 #: ../../mod/profile_photo.php:77 ../../mod/profile_photo.php:84
 #: ../../mod/profile_photo.php:91 ../../mod/profile_photo.php:308
 #, php-format
 msgid "Image size reduction [%s] failed."
-msgstr ""
+msgstr "Verkleining van de afbeelding [%s] mislukt."
 
 #: ../../mod/profile_photo.php:118
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
-msgstr ""
+msgstr "Shift-herlaad de pagina, of maak de browser cache leeg als nieuwe foto's niet onmiddellijk verschijnen."
 
 #: ../../mod/profile_photo.php:128
 msgid "Unable to process image"
