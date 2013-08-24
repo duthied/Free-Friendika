@@ -423,8 +423,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// removing multiplicated newlines
 	if (get_config("system", "remove_multiplicated_lines")) {
-		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]");
-		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]");
+		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n");
+		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]");
 		do {
 			$oldtext = $Text;
 			$Text = str_replace($search, $replace, $Text);
@@ -713,21 +713,28 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Only do it when it has to be done - for performance reasons
 	// Update: Now it is done every time - since bad structured html can break a whole page
 	//if (!$tryoembed) {
-//		$doc = new DOMDocument();
-//		$doc->preserveWhiteSpace = false;
+	//	$doc = new DOMDocument();
+	//	$doc->preserveWhiteSpace = false;
 
-//		$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
+	//	$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
 
-//		$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
-//		@$doc->loadHTML($doctype."<html><body>".$Text."</body></html>");
+	//	$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
+	//	@$doc->loadHTML($doctype."<html><body>".$Text."</body></html>");
 
-//		$Text = $doc->saveHTML();
-//		$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
+	//	$Text = $doc->saveHTML();
+	//	$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
 
-//		$Text = str_replace('<br></li>','</li>', $Text);
+	//	$Text = str_replace('<br></li>','</li>', $Text);
 
-//		$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
+	//	$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
 	//}
+
+	// Clean up some useless linebreaks in lists
+	//$Text = str_replace('<br /><ul','<ul ', $Text);
+	//$Text = str_replace('</ul><br />','</ul>', $Text);
+	//$Text = str_replace('</li><br />','</li>', $Text);
+	//$Text = str_replace('<br /><li>','<li>', $Text);
+	//	$Text = str_replace('<br /><ul','<ul ', $Text);
 
 	// Remove all hashtag addresses
 	if (!$tryoembed AND get_config("system", "remove_hashtags_on_export")) {
