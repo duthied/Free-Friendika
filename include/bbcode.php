@@ -36,7 +36,8 @@ function stripcode_br_cb($s) {
 
 function tryoembed($match){
 	$url = ((count($match)==2)?$match[1]:$match[2]);
-//	logger("tryoembed: $url");
+
+	//logger("tryoembed: $url");
 
 	$o = oembed_fetch_url($url);
 
