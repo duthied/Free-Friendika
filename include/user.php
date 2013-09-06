@@ -60,7 +60,13 @@ function create_user($arr) {
 			$openid->returnUrl = $a->get_baseurl() . '/openid'; 
 			$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');
 			$openid->optional = array('namePerson/first','media/image/aspect11','media/image/default');
-			goaway($openid->authUrl());
+			try {			
+				$authurl = $openid->authUrl();
+			} catch (Exception $e){
+				$result['message'] .= t('Error:').$e->getMessage() . EOL . t('Check your OpenID url') . EOL;
+				return $result;
+			}
+			goaway($authurl);
 			// NOTREACHED	
 		}
 
