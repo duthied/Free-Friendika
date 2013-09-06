@@ -63,7 +63,7 @@ function create_user($arr) {
 			try {			
 				$authurl = $openid->authUrl();
 			} catch (Exception $e){
-				$result['message'] .= t('Error:').$e->getMessage() . EOL . t('Check your OpenID url') . EOL;
+				$result['message'] .= t("We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID."). EOL . EOL . t("The error message was:") . $e->getMessage() . EOL; 
 				return $result;
 			}
 			goaway($authurl);
