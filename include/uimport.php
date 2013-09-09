@@ -120,12 +120,26 @@ function import_account(&$a, $file) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}
+	// check if username matches deleted account
+	$r = q("SELECT id FROM userd WHERE username='%s'", $account['user']['nickname']);
+	if ($r === false) {
+		logger("uimport:check nickname : ERROR : " . last_error(), LOGGER_NORMAL);
+		notice(t('Error! Cannot check nickname'));
+		return;
+	}
+	if (count($r) > 0) {
+		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
+		return;
+	}
 
 	$oldbaseurl = $account['baseurl'];
 	$newbaseurl = $a->get_baseurl();
 	$olduid = $account['user']['uid'];
 
-	unset($account['user']['uid']);
+        unset($account['user']['uid']);
+        unset($account['user']['account_expired']);
+        unset($account['user']['account_expires_on']);
+        unset($account['user']['expire_notification_sent']);
 	foreach ($account['user'] as $k => &$v) {
 		$v = str_replace($oldbaseurl, $newbaseurl, $v);
 	}
