@@ -227,7 +227,7 @@
 .type-unkn  { background-position: -80px 0px; }
 
 .icon.drop, .icon.drophide {
- float: left;
+ float: right;
 }
 
 .icon {
@@ -876,6 +876,7 @@ nav #nav-directory-link,
 nav #nav-apps-link,
 nav #nav-site-linkmenu, 
 nav #nav-home-link,
+nav #nav-login-link,
 nav #nav-user-linkmenu
 {
   float: right;
@@ -883,18 +884,23 @@ nav #nav-user-linkmenu
 nav #nav-user-linkmenu{
 	margin-right: 0px;
 	}
-nav #nav-home-link, #nav-directory-link, #nav-apps-link{
+nav #nav-home-link, #nav-directory-link, #nav-login-link, #nav-apps-link{
 	margin-left: 0px;
 	margin-right: 0px;
 	font-weight: bold;
 	margin: 3px 5px;
-	font-size: 15px;
 	}
 nav #nav-directory-link{
-  margin-right: 0px;	
+  margin-right: 10px;	
 	}
+
+li#nav-site-linkmenu.nav-menu-icon{
+	display: none;
+}
+
 nav #nav-home-link{
-  margin-left: 0px;	
+   margin-left: 0px;	
+   display: none;
 	}
 nav #nav-help-link .menu-popup,
 nav #nav-search-link .menu-popup,
@@ -904,6 +910,7 @@ nav #nav-site-linkmenu .menu-popup {
   right: 0px;
   left: auto;
 }
+
 
 nav #nav-messages-linkmenu.on .icon.messages, nav #nav-messages-linkmenu.selected .icon.messages{
 	background-image: url("../../../view/theme/diabook/diabook-red/icons/messages2.png");
@@ -1250,6 +1257,9 @@ aside #login-extra-links{
   height: 22px;
   width: 22px;
 }
+#group-all-contacts{
+  overflow: auto;
+}
 .icon.text_add		{ 
 		background-image: url("../../../images/icons/16/add.png");
 		float: right;
@@ -1384,6 +1394,9 @@ body .pageheader{
 	}
 #id_openid_url {
   width: 173px;	
+	}
+.contact-edit-submit{
+	display: block;
 	}
 #contact-edit-end {
 	}
@@ -1744,6 +1757,17 @@ body .pageheader{
 	
 #jot-preview-content .tread-wrapper {
   background-color: #fff797;
+}
+
+span#jot-preview-link.tab.button{
+	float: right;
+	margin-left: 10px;
+	margin-right: 14px;
+	margin-top: 2px;
+	font-size: 11px;
+	font-weight: bolder;
+	cursor: pointer;
+	border: 0px;
 }
 
 .wall-item-tags {
