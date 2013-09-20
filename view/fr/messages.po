@@ -7,13 +7,14 @@
 # ltriay <zapimax38@free.fr>, 2013
 # Marquis_de_Carabas <olivier@free-beer.ch>, 2012
 # Olivier <olivier+transifex@migeot.org>, 2011-2012
+# Tubuntu, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-26 00:01-0700\n"
-"PO-Revision-Date: 2013-07-01 15:26+0000\n"
-"Last-Translator: ltriay <zapimax38@free.fr>\n"
+"PO-Revision-Date: 2013-09-17 19:55+0000\n"
+"Last-Translator: Tubuntu\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2906,11 +2907,11 @@ msgstr "Détermine si les liens générés doivent forcer l'usage de SSL"
 
 #: ../../mod/admin.php:506
 msgid "'Share' element"
-msgstr ""
+msgstr "Élément 'partage'"
 
 #: ../../mod/admin.php:506
 msgid "Activates the bbcode element 'share' for repeating items."
-msgstr ""
+msgstr "Active l'élément bbcode 'partage' pour la répétition d'éléments."
 
 #: ../../mod/admin.php:507
 msgid "Hide help entry from navigation menu"
@@ -2966,14 +2967,14 @@ msgstr "Politique d'inscription"
 
 #: ../../mod/admin.php:514
 msgid "Maximum Daily Registrations"
-msgstr ""
+msgstr "Inscriptions maximum par jour"
 
 #: ../../mod/admin.php:514
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
-msgstr ""
+msgstr "Si les inscriptions sont permises ci-dessus, ceci fixe le nombre maximum d'inscriptions de nouveaux utilisateurs acceptées par jour. Si les inscriptions ne sont pas ouvertes, ce paramètre n'a aucun effet."
 
 #: ../../mod/admin.php:515
 msgid "Register text"
@@ -3063,13 +3064,13 @@ msgstr "Rendre les posts de tous les nouveaux utilisateurs accessibles seulement
 
 #: ../../mod/admin.php:524
 msgid "Don't include post content in email notifications"
-msgstr ""
+msgstr "Ne pas inclure le contenu posté dans l'e-mail de notification"
 
 #: ../../mod/admin.php:524
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
-msgstr ""
+msgstr "Ne pas inclure le contenu d'un postage/commentaire/message privé/etc dans l'e-mail de notification qui est envoyé à partir du site, par mesure de confidentialité."
 
 #: ../../mod/admin.php:525
 msgid "Disallow public access to addons listed in the apps menu."
@@ -3254,7 +3255,7 @@ msgstr "Durée du cache en secondes"
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day)."
-msgstr ""
+msgstr "Combien de temps faut-il garder les fichiers du cache? La valeur par défaut est de 86400 secondes (un jour)."
 
 #: ../../mod/admin.php:548
 msgid "Path for lock file"
@@ -3778,7 +3779,7 @@ msgstr "Migrer le compte"
 
 #: ../../mod/uimport.php:67
 msgid "You can import an account from another Friendica server."
-msgstr ""
+msgstr "Vous pouvez importer un compte d'un autre serveur Friendica."
 
 #: ../../mod/uimport.php:68
 msgid ""
@@ -5342,7 +5343,7 @@ msgstr "Votre mot de passe peut être changé depuis la page &lt;em&gt;Réglages
 #: ../../mod/lostpass.php:107
 #, php-format
 msgid "Your password has been changed at %s"
-msgstr ""
+msgstr "Votre mot de passe a été modifié à %s"
 
 #: ../../mod/lostpass.php:122
 msgid "Forgot your Password?"
@@ -5364,7 +5365,7 @@ msgstr "Réinitialiser"
 
 #: ../../mod/maintenance.php:5
 msgid "System down for maintenance"
-msgstr ""
+msgstr "Système indisponible pour cause de maintenance"
 
 #: ../../mod/manage.php:106
 msgid "Manage Identities and/or Pages"
@@ -5752,7 +5753,7 @@ msgstr "Voulez-vous vraiment supprimer cette photo ?"
 #: ../../mod/photos.php:656
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
-msgstr ""
+msgstr "%1$s a été identifié %2$s par %3$s"
 
 #: ../../mod/photos.php:656
 msgid "a photo"
@@ -5801,7 +5802,7 @@ msgstr "Photo privée"
 
 #: ../../mod/photos.php:1143
 msgid "Public Photo"
-msgstr ""
+msgstr "Photo publique"
 
 #: ../../mod/photos.php:1210
 msgid "Edit Album"
@@ -5883,11 +5884,11 @@ msgstr "Exemples: @bob, @Barbara_Jensen, @jim@example.com, #Californie, #vacance
 
 #: ../../mod/photos.php:1508
 msgid "Private photo"
-msgstr ""
+msgstr "Photo privée"
 
 #: ../../mod/photos.php:1509
 msgid "Public photo"
-msgstr ""
+msgstr "Photo publique"
 
 #: ../../mod/photos.php:1529 ../../mod/content.php:707
 #: ../../object/Item.php:232
@@ -6437,7 +6438,7 @@ msgstr "Contact désarchivé"
 
 #: ../../mod/contacts.php:244
 msgid "Do you really want to delete this contact?"
-msgstr ""
+msgstr "Voulez-vous vraiment supprimer ce contact?"
 
 #: ../../mod/contacts.php:263
 msgid "Contact has been removed."
