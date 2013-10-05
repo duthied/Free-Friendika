@@ -1,0 +1,193 @@
+A little guide to increase the performance of a friendica site
+**************************************************************
+
+At first
+========
+
+Feel freee to ask the friendica support at 
+<https://helpers.pyxis.uberspace.de/profile/helpers> if you need some 
+clarification about the following instruction or if you need help in any 
+other way.
+
+System configuration
+====================
+
+Please go to /admin/site/ on your system and change the following values:
+
+* Set "JPEG image quality" to 50. 
+
+This value reduces the data that is send from the server to the client. 
+50 is a value that doesn't influences image qualitity too much.
+
+* Set "OStatus conversation completion interval" to "never".
+
+if you are having many OStatus contacts then completing of conversations 
+can be very time wasting. The downside: You won't see any answer in 
+OStatus conversations.
+
+* Set "Path for lock file" to an empty folder outside your web root.
+
+Lock files help avoiding the situation that several background processes 
+run at the same time. 
+
+For example: It can happen the the poller.php is working longer than 
+expected. When there would be no lock file than maybe several instances 
+of poller.php would run at the same time - which would slow down the 
+systen and would affect the maximum numbers of processes and database 
+conenctions.
+
+Please define a full file path that is writeable by the web server 
+process. If your site would be located at "/var/www/sitename/htdocs/" 
+you maybe could create a folder "/var/www/sitename/temp/".
+
+* Enable "Use MySQL full text engine"
+
+When using MyISAM (default) this speeds up the search.
+
+* Set "Path to item cache" to an empty value outside your web root.
+
+Parsed BBCode and some external images will be put there. Parsing BBCode 
+is a timewasting process that also uses much CPU speed.
+
+You can use the same folder like you used for the lock file.
+
+---------
+!Warning!
+---------
+
+The folder for the item cache is cleaned up regularly. Every file that 
+exceedes the cache duration is deleted. If you accidently would point 
+the cache path to your web root then you would delete your webroot!
+
+So ensure twice that the folder only contains temporary content that can 
+be deleted at any time.
+
+You have been warned.
+
+P.S. It happened to me :)
+
+Plugins
+=======
+
+Active the following plugins:
+* Alternate Pagination
+* Privacy Image Cache
+* rendertime
+
+Alternate Pagination
+--------------------
+
+Description:
+
+This plugin reduces the database load massively. Downside: You can't see 
+anymore the number of pages.
+
+Administration:
+
+Go to the admin settings of "altpager" and set it to "global". 
+
+Privacy Image Cache
+-------------------
+
+Description:
+
+This plugin is prefetching external content and stores it into the 
+cache. Besides speeding up the page rendering it is also good for 
+keeping the privacy of your users, since embedded pictures would be 
+loaded from your site and not from a foreign site (that could spy on the 
+IP addresses).
+
+Additionally it helps with content from external sites that are having a 
+slow performance or that are aren't online all the time.
+
+Administration:
+
+Please create a folder named "privacy_image_cache" and "photo" in 
+your web root. If these folders exists then the cached files will be 
+stored there. This has the great advantage that your webserver will 
+fetch the files directly from there. 
+
+rendertime
+----------
+
+This plugin doesn't speed up your system. It helps analysing your 
+bottlenecks.
+
+When enabled you see some values like the following at the bottom of 
+every page:
+
+Performance: Database: 0.244, Network: 0.002, Rendering: 0.044, Parser: 0.001, I/O: 0.021, Other: 0.237, Total: 0.548
+
+* Database: This is the time for all database queries
+* Network: Time that is needed to fetch content from external sites
+* Rendering: Time for theme rendering
+* Parser: The time that the BBCode parser needed to create the output
+* I/O: Time for local file access
+* Others: Everything else :)
+* Total: The sum of all above values
+
+These values are showing your performance problems. 
+
+Webserver
+=========
+
+If you are using apache pease enable the following modules.
+
+Cache-Control
+-------------
+
+This module tells the client to cache the content of static files so 
+that they aren't fetched with every request.
+
+Enable the module "mod_expires" by typing in "a2enmod expires" as root.
+
+Please add the following lines to your site config in the "directory" 
+context.
+
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresDefault "access plus 1 week"
+</IfModule>
+
+See also: http://httpd.apache.org/docs/2.2/mod/mod_expires.html
+
+Compress content
+----------------
+
+This module compresses the traffic between the webserver and the client.
+
+Enable the module "mod_deflate" by typing in "a2enmod deflate" as root.
+
+See also: http://httpd.apache.org/docs/2.2/mod/mod_deflate.html
+
+PHP
+===
+
+FCGI
+----
+
+When using apache think about using FCGI. When using a Debian based 
+distribution you will need the packages named "php5-cgi" and " 
+libapache2-mod-fcgid".
+
+Please refer to external documentations for a more detaillied 
+explanation how to set up a system based upon FCGI.
+
+APC
+---
+
+APC is an opcode cache. It speeds up the processing of PHP code. 
+
+When APC is enabled, friendica uses it to store configuration data 
+between different requests. This helps speeding up the page creation 
+time.
+
+Database
+========
+
+There are scripts like tuning-primer.sh <http://www.day32.com/MySQL/> 
+and mysqltuner.pl <http://mysqltuner.pl> that analyse your database 
+server and that are giving hints on values that could be changed.
+
+Please enable the slow query log. This helps being aware of performance 
+problems.
