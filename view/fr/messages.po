@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: http://bugs.friendica.com/\n"
 "POT-Creation-Date: 2013-06-26 00:01-0700\n"
-"PO-Revision-Date: 2013-09-17 19:55+0000\n"
+"PO-Revision-Date: 2013-10-06 20:44+0000\n"
 "Last-Translator: Tubuntu\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -3786,13 +3786,13 @@ msgid ""
 "You need to export your account from the old server and upload it here. We "
 "will recreate your old account here with all your contacts. We will try also"
 " to inform your friends that you moved here."
-msgstr ""
+msgstr "Vous devez exporter votre compte à partir de l'ancien serveur et le téléverser ici. Nous recréerons votre ancien compte ici avec tous vos contacts. Nous tenterons également d'informer vos amis que vous avez déménagé ici."
 
 #: ../../mod/uimport.php:69
 msgid ""
 "This feature is experimental. We can't import contacts from the OStatus "
 "network (statusnet/identi.ca) or from Diaspora"
-msgstr ""
+msgstr "Cette fonctionnalité est expérimentale. Nous ne pouvons importer les contacts des réseaux OStatus (statusnet/identi.ca) ou Diaspora"
 
 #: ../../mod/uimport.php:70
 msgid "Account file"
@@ -3810,7 +3810,7 @@ msgstr "tout le monde"
 
 #: ../../mod/settings.php:35
 msgid "Additional features"
-msgstr ""
+msgstr "Fonctions supplémentaires"
 
 #: ../../mod/settings.php:40 ../../mod/uexport.php:14
 msgid "Display settings"
@@ -3854,7 +3854,7 @@ msgstr "Réglages de courriel mis-à-jour."
 
 #: ../../mod/settings.php:247
 msgid "Features updated"
-msgstr ""
+msgstr "Fonctionnalités mises à jour"
 
 #: ../../mod/settings.php:312
 msgid "Passwords do not match. Password unchanged."
@@ -3964,15 +3964,15 @@ msgstr "Extensions"
 
 #: ../../mod/settings.php:684
 msgid "Off"
-msgstr ""
+msgstr "Éteint"
 
 #: ../../mod/settings.php:684
 msgid "On"
-msgstr ""
+msgstr "Allumé"
 
 #: ../../mod/settings.php:692
 msgid "Additional Features"
-msgstr ""
+msgstr "Fonctions supplémentaires"
 
 #: ../../mod/settings.php:705 ../../mod/settings.php:706
 #, php-format
@@ -4310,11 +4310,11 @@ msgstr "Montrer aux Contacts"
 
 #: ../../mod/settings.php:1101
 msgid "Default Private Post"
-msgstr ""
+msgstr "Message privé par défaut"
 
 #: ../../mod/settings.php:1102
 msgid "Default Public Post"
-msgstr ""
+msgstr "Message publique par défaut"
 
 #: ../../mod/settings.php:1106
 msgid "Default Permissions for New Posts"
@@ -4773,7 +4773,7 @@ msgstr "Envoyer la requête"
 #: ../../mod/subthread.php:103
 #, php-format
 msgid "%1$s is following %2$s's %3$s"
-msgstr ""
+msgstr "%1$s suit les %3$s de %2$s"
 
 #: ../../mod/directory.php:49 ../../view/theme/diabook/theme.php:518
 msgid "Global Directory"
@@ -5113,7 +5113,7 @@ msgstr "Le téléversement de l'image a échoué."
 
 #: ../../mod/invite.php:27
 msgid "Total invitation limit exceeded."
-msgstr ""
+msgstr "La limite d'invitation totale est éxédée."
 
 #: ../../mod/invite.php:49
 #, php-format
@@ -5126,7 +5126,7 @@ msgstr "Rejoignez-nous sur Friendica"
 
 #: ../../mod/invite.php:84
 msgid "Invitation limit exceeded. Please contact your site administrator."
-msgstr ""
+msgstr "Limite d'invitation exédée. Veuillez contacter l'administrateur de votre site."
 
 #: ../../mod/invite.php:89
 #, php-format
