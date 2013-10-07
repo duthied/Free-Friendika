@@ -1,6 +1,8 @@
 How-to: Performance verbessern
 ==========
 
+* [Zur Startseite der Hilfe](help)
+
 Eine kleine Anleitung, um die Performance einer Friendica-Seite zu verbessern.
 
 **Vorab:**
