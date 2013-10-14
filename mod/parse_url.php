@@ -59,7 +59,7 @@ function parseurl_getsiteinfo($url) {
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch,CURLOPT_USERAGENT,'Opera/9.64(Windows NT 5.1; U; de) Presto/2.1.1');
+	curl_setopt($ch,CURLOPT_USERAGENT,' Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0');
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);
