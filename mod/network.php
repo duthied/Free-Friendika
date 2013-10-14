@@ -174,8 +174,6 @@ function network_init(&$a) {
 		);
 	}
 
-
-	
 	// search terms header
 	if(x($_GET,'search')) {
 		$a->page['content'] .= '<h2>' . t('Search Results For:') . ' '  . $search . '</h2>';
@@ -225,9 +223,9 @@ function saved_searches($search) {
 				'selected'		=> ($search==$rr['term']),
 			);
 		}
-	}		
+	}
 
-	
+
 	$tpl = get_markup_template("saved_searches_aside.tpl");
 	$o = replace_macros($tpl, array(
 		'$title'	 => t('Saved Searches'),
@@ -235,7 +233,7 @@ function saved_searches($search) {
 		'$searchbox' => search($search,'netsearch-box',$srchurl,true),
 		'$saved' 	 => $saved,
 	));
-	
+
 	return $o;
 
 }
@@ -270,15 +268,15 @@ function network_query_get_sel_tab($a) {
 		|| ($a->argc > 2 && $a->argv[2] === 'new')) {
 			$new_active = 'active';
 	}
-	
+
 	if(x($_GET,'search')) {
 		$search_active = 'active';
 	}
-	
+
 	if(x($_GET,'star')) {
 		$starred_active = 'active';
 	}
-	
+
 	if(x($_GET,'bmark')) {
 		$bookmarked_active = 'active';
 	}
@@ -291,8 +289,8 @@ function network_query_get_sel_tab($a) {
 		$spam_active = 'active';
 	}
 
-	
-	
+
+
 	if (($new_active == '') 
 		&& ($starred_active == '') 
 		&& ($bookmarked_active == '')
@@ -308,7 +306,7 @@ function network_query_get_sel_tab($a) {
 		 case 'comment' : $all_active = 'active'; $no_active=''; break;
 		}
 	}
-	
+
 	return array($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
 }
 
@@ -571,7 +569,6 @@ function network_content(&$a, $update = 0) {
 	// that belongs to you, hence you can see all of it. We will filter by group if
 	// desired. 
 
-
 	$sql_options  = (($star) ? " and starred = 1 " : '');
 	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
 
@@ -641,6 +638,7 @@ function network_content(&$a, $update = 0) {
 
 	$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
+	$sql_order = "`item`.`received`";
 	$sql_table = "`item`";
 
 	if(x($_GET,'search')) {
@@ -675,11 +673,15 @@ function network_content(&$a, $update = 0) {
 			$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
 			$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+
+			$sql_order = "`term`.`tid`";
 		} else {
 			if (get_config('system','use_fulltext_engine'))
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
 			else
 				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
+
+			$sql_order = "`item`.`received`";
 		}
 	}
 	if(strlen($file)) {
@@ -767,7 +769,7 @@ function network_content(&$a, $update = 0) {
 			$simple_update
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra $sql_nets
-			ORDER BY `item`.`received` DESC $pager_sql ",
+			ORDER BY $sql_order DESC $pager_sql ",
 			intval($_SESSION['uid'])
 		);
 
@@ -782,6 +784,9 @@ function network_content(&$a, $update = 0) {
 				$ordering = "`created`";
 		else
 				$ordering = "`commented`";
+
+		if ($sql_order == "")
+			$sql_order = "`item`.$ordering";
 
 		// Fetch a page full of parent items for this page
 
@@ -803,7 +808,7 @@ function network_content(&$a, $update = 0) {
 				AND `item`.`moderated` = 0 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				AND `item`.`parent` = `item`.`id`
 				$sql_extra3 $sql_extra $sql_nets
-				ORDER BY `item`.$ordering DESC $pager_sql ",
+				ORDER BY $sql_order DESC $pager_sql ",
 				intval(local_user())
 			);
 		}
@@ -874,7 +879,7 @@ function network_content(&$a, $update = 0) {
 
 	$o .= conversation($a,$items,$mode,$update);
 
-	if(! $update) {
+	if(!$update) {
 		if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
 		        $o .= alt_pager($a,count($items));
 		}
