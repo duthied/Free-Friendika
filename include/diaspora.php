@@ -1040,7 +1040,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
 	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
-	if (intval(get_config('system','new_share'))) {
+	if (!intval(get_config('system','wall-to-wall_share'))) {
 		$prefix = "[share author='".str_replace("'", "&#039;",$person['name']).
 				"' profile='".$person['url'].
 				"' avatar='".((x($person,'thumb')) ? $person['thumb'] : $person['photo']).

@@ -811,7 +811,7 @@ function get_atom_elements($feed,$item) {
 		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
 			logger('get_atom_elements: fixing sender of repeated message.');
 
-			if (intval(get_config('system','new_share'))) {
+			if (!intval(get_config('system','wall-to-wall_share'))) {
 				$prefix = "[share author='".str_replace("'", "&#039;",$name).
 						"' profile='".$uri.
 						"' avatar='".$avatar.
