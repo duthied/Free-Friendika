@@ -7,14 +7,17 @@ Wie viele andere soziale Netzwerke benutzt auch Friendica eine spezielle Schreib
 
 **Erwähnungen**
 
-Personen werden "getagged", indem du das "@"-Zeichen vor den Namen schreibst. 
+Personen werden "getaggt", indem du das "@"-Zeichen vor den Namen schreibst. 
 
-Im Folgenden findest du verschiedene Möglichkeiten, um eine Person zu erwähnen:
+Personen **in deiner Kontaktliste** werden „getaggt“, indem du das “@“-Zeichen vor den Namen schreibst. 
+ 
+* <i>@mike</i> - deutet auf eine Person hin, die im Netzwerk den Namen "mike" nutzt
+* <i>@mike_macgirvin</i> - deutet auf eine Person hin, die sich im Netzwerk "Mike Macgirvin" nennt. Beachte, dass Leerzeichen in Tags nicht genutzt werden können.
+* <i>@mike+151</i> - diese Schreibweise deutet auf eine Person hin, die "mike" heißt und deren Kontakt-Identitäts-Nummer 151 ist. Bei der Eingabe erscheint direkt ein Auswahlmenü, sodass du diese Nummer nicht selbst kennen musst. 
 
-* @mike - deutet auf eine Person hin, die im Netzwerk den Namen "mike" nutzt
-* @mike_macgirvin - deutet auf eine Person hin, die sich im Netzwerk "Mike Macgirvin" nennt. Beachte, dass Leerzeichen in Tags nicht genutzt werden können.
-* @mike+151 - diese Schreibweise deutet auf eine Person hin, die "mike" heißt und deren Kontakt-Identitäts-Nummer 151 ist. Bei der Eingabe erscheint direkt ein Auswahlmenü, sodass du diese Nummer nicht selbst kennen musst. 
-* @mike@macgirvin.com - diese Schreibweise deutet auf die Profiladresse eines Nutzers in einem anderen Netzwerk oder auf jemanden, der *nicht* in deiner Kontaktliste ist. Diese Schreibweise wird "Fernerwähnung" (remote mention)genannt und kann nur im Email-Stil geschrieben werden, nicht als Internetadresse/URL.
+Personen, die in einem anderen Netzwerk sind oder die sich **NICHT in deiner Kontaktliste** befinden, werden wie folgt getaggt: 
+ 
+* <i>@mike@macgirvin.com</i> - diese Schreibweise wird "Fernerwähnung" (remote mention)genannt und kann nur im Email-Stil geschrieben werden, nicht als Internetadresse/URL.
 
 
 Wenn das System ungewollte Erwähnungen nicht blockiert, erhält diese Person eine Mitteilung oder nimmt direkt an der Diskussion teil, wenn es sich um einen öffentlichen Beitrag handelt. Bitte beachte, dass Friendica eingehende "Erwähnungs"-Nachrichten von Personen blockt, die du nicht zu deinem Profil hinzugefügt hast. Diese Maßnahme dient dazu, Spam zu vermeiden.
