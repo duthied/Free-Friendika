@@ -30,23 +30,26 @@ See [BBCode tags reference](help/BBCode) page to see all what you can do.
 
 The icons under the text area are there to help you to write posts quickly:
 
-<img src="doc/img/camera.png" width="32" height="32" alt="editor" align="left" style="padding-bottom: 20px;"> Upload a picture from your computer. The image will be uploaded and correct bbcode tag will be added to your post.
+<img src="doc/img/camera.png" width="32" height="32" alt="editor" align="left" style="padding-bottom: 20px;"> Upload a picture from your computer. The image will be uploaded and correct bbcode tag will be added to your post.*
 <p style="clear:both;"></p>
 
-<img src="doc/img/paper_clip.png" width="32" height="32" alt="paper_clip" align="left"> Add files from your computer. Same as picture, but for generic attachment to the post.
+<img src="doc/img/paper_clip.png" width="32" height="32" alt="paper_clip" align="left"> Add files from your computer. Same as picture, but for generic attachment to the post.*
 <p style="clear:both;"></p>
 
-<img src="doc/img/chain.png" width="32" height="32" alt="chain" align="left"> Add a web address (url). Enter an url and Friendica will add to your post a link to the url and an excerpt from the web site, if possible
+<img src="doc/img/chain.png" width="32" height="32" alt="chain" align="left"> Add a web address (url). Enter an url and Friendica will add to your post a link to the url and an excerpt from the web site, if possible.
 <p style="clear:both;"></p>
 
-<img src="doc/img/video.png" width="32" height="32" alt="video" align="left"> Add a video. Enter the url to a video (ogg) or to a video page on youtube or vimeo, and it will be embedded in your post
+<img src="doc/img/video.png" width="32" height="32" alt="video" align="left"> Add a video. Enter the url to a video (ogg) or to a video page on youtube or vimeo, and it will be embedded in your post with a preview. Friendica is using [HTML5](http://en.wikipedia.org/wiki/HTML5_video) for embedding content. Therefore, the supported files are depending on your browser and operating system (OS). Some filetypes are WebM, MP4 and OGG.*
 <p style="clear:both;"></p>
 
-<img src="doc/img/mic.png" width="32" height="32" alt="mic" align="left"> Add an audio. Same as video, but for audio
+<img src="doc/img/mic.png" width="32" height="32" alt="mic" align="left" style="padding-bottom: 20px;"> Add an audio. Same as video, but for audio. Depending on your browser and operation system MP3, OGG and AAC are supported. Additionally, you are able to add URLs from audiohosters like Soundcloud. 
+
 <p style="clear:both;"></p>
 
 <img src="doc/img/globe.png" width="32" height="32" alt="globe" align="left"> Set your geographic location. This location will be added into a Google Maps search. That's why a note like "New York" or "10004" is already enough.
 <p style="clear:both;"></p>
+
+<i>* how to [upload](help/FAQ#upload) files</i>
 
 Those icons can change with themes. Some examples:
 

@@ -6,6 +6,7 @@ Frequently Asked Questions - FAQ
 User
 
 * **[Why do I getting warnings about certificates?](help/FAQ#ssl)**
+* **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
 * **[What is the difference between blocked|ignored|archived|hidden contacts?](help/FAQ#contacts)**
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
@@ -45,6 +46,25 @@ Also you can have problems with the connection to diaspora because some pods req
 If you are just using friendica for a specified group of people on a single server without a connection to the rest of the friendica network, there is no need to use SSL. If you exclusively use public posts, there is also no need for it. 
 
 If you havn't set up a server yet, it's wise to compare the different provider and their SSL conditions. Some allow the usage of free certificates or give you the access to their certificate for free. Other ones only allow bought certificates from themselves or other providers.
+
+<a name="upload"></a>
+
+**How can I upload images, files, links, videos and sound files to posts?**
+
+You can upload images from your computer by using the [editor](help/Text_editor). An overview of all uploaded images is listed at <i>yourpage.com/photos/profilename</i>. There you could also upload images directly and choose, if your contacts shall receive a message about this upload.
+
+Generally, you could attach every kind of file to a post. This is possible by using the "paper-clip"-symbol at the editor. These files will be linked to your post and can be downloaded by your contacts. But it's not possible to get a preview for these ones. Because of this, this upload method is recommended for office or zipped files. 
+If you want to use Dropbox, owncloud at your own server or any other [filehoster](http://en.wikipedia.org/wiki/Comparison_of_file_hosting_services), you'll have use the "link"-button (chain-symbol). 
+
+When you're adding URLs of other webpages with the "link"-button, Friendica tries to create a small preview. If this doesn't work, try to add the link by typing: [url=http://example.com]<i>self-chosen name</i>[/url].
+
+You can also add video and audio files to posts. But instead of a direct upload you have to use one of the following methods:
+
+1. Add the video or audio link of a hoster (Youtube, Vimeo, Soundcloud and everyone else with oembed/opengraph-support). Videos will be shown with a preview image you can click on to start it. SoundCloud directly inserts a player to your post. 
+
+2. If you have an own server, you can upload your multimedia files via FTP and insert the URL. Your video or sound file will be shown with their own player at your post. 
+
+Friendica is using HTML5 for embedding content. Therefore, the supported files are depending on your browser and operating system (OS). Some filetypes are WebM, MP4, MP3 and OGG. There are more examples at wikipedia ([video](http://en.wikipedia.org/wiki/HTML5_video), [audio](http://en.wikipedia.org/wiki/HTML5_audio)).
 
 <a name="avatars"></a>
 
