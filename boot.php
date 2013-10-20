@@ -12,7 +12,7 @@ require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.2' );
+define ( 'FRIENDICA_VERSION',      '3.2.1744' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1163      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -1154,7 +1154,7 @@ if(! function_exists('login')) {
 	
 			'$lname'	 	=> array('username', t('Nickname or Email address: ') , '', ''),
 			'$lpassword' 	=> array('password', t('Password: '), '', ''),
-			'$lremember'	=> array('remember', t('Remember me'), 0, ''),
+			'$lremember'	=> array('remember', t('Remember me'), 0,  ''),
 	
 			'$openid'		=> !$noid,
 			'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
