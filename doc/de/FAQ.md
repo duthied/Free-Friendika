@@ -6,6 +6,8 @@ Häufig gestellte Fragen - FAQ
 Nutzer
 
 * **[Warum erhalte ich Warnungen über fehlende Zertifikate?](help/FAQ#ssl)**
+* **[Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?
+](help/FAQ#upload)**
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
@@ -20,7 +22,7 @@ Admins
 
 Nutzer
 --------
-*****
+****
 <a name="ssl"></a>
 
 **Warum erhalte ich Warnungen über fehlende Zertifikate?**
@@ -44,6 +46,24 @@ Abgesehen davon kann es ohne SSL auch Probleme mit der Verbindung zu Diaspora ge
 Wenn du Friendica nur für eine bestimmte Gruppe von Leuten auf einem einzelnen Server nutzt, bei dem keine Verbindung zum restlichen Netzwerk besteht, dann benötigst du kein SSL. Ebenso benötigst du SSL nicht, wenn du ausschließlich öffentliche Beiträge auf deiner Seite veröffentlichst bzw. empfängst. 
 
 Wenn du zum jetzigen Zeitpunkt noch keinen Server aufgesetzt hast, ist es sinnvoll, die verschiedenen Anbieter in Bezug auf SSL zu vergleichen. Einige erlauben die Nutzung von freien Zertifikaten oder lassen dich ihre eigenen Zertifikate mitnutzen. Andere erlauben nur kostenpflichtige Zertifikate als eigenes Angebot bzw. von anderen Anbietern. 
+
+<a name="upload"></a>
+
+**Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?**
+
+Bilder können direkt im [Beitragseditor](help/Text_editor) vom Computer hochgeladen werden. Eine Übersicht aller Bilder, die auf deinem Server liegen, findest du unter <i>deineSeite.de/photos/profilname</i>. Dort kannst du auch direkt Bilder hochladen und festlegen, ob deine Kontakte eine Nachricht über das neue Bild bekommen.
+
+Alle Arten von Dateien können grundsätzlich als Anhang in Friendica hochgeladen werden. Dafür verwendest du das Büroklammersymbol im Editor. Sie sind dann direkt an den Beitrag geknüpft, können von den Betrachtern heruntergeladen werden, aber werden nicht als Vorschau angezeigt. Deshalb eignet sich diese Methode vor allem für Office-Dateien oder gepackte Dateien wie ZIPs, aber weniger für Multimediadateien. Wer hingegen Dateien über Dropbox, über eine auf dem eigenen Server installierte Owncloud oder über einen anderen [Filehoster](http://en.wikipedia.org/wiki/Comparison_of_file_hosting_services) einfügen will, verwendet den Link-Button.
+
+Wenn du mit dem Link-Button (Ketten-Symbol) URLs zu anderen Seiten einfügst, versucht Friendica eine kurze Zusammenfassung als Vorschau abzurufen. Manchmal klappts das nicht ... dann verlinke den Beitrag einfach per [url=http://example.com]<i>freigewählter Name</i>[/url] im Editor.
+
+Video- und Audiodateien können zwar in Beiträge eingebunden werden, allerdings geht das nicht über einen direkten Upload im Editor wie bei Fotos. Du hast zwei Möglichkeiten:
+
+1. Du kannst bei dem Video- oder Audiobutton die URL von einem Hoster eingeben (Youtube, Vimeo, Soundcloud und alle anderen mit oembed/opengraph-Unterstützung). Bei Videos zeigt Friendica dann ein Vorschaubild in deinem Beitrag an, nach einem Klick öffnet sich ein eingebetter Player. Bei Soundcloud wird der Player direkt eingebunden.
+2. Wenn du Zugang zu einem eigenen Server hast, kannst deine Multimediadatei per FTP dort hochladen und beim Video-/Audiobutton diese URL angeben. Dann wird das Video oder die Audiodatei direkt mit einem Player in deinem Beitrag angezeigt.
+Friendica verwendet zur Einbettung HTML5. Das bedeutet, dass je nach Browser und Betriebssystem andere Formate unterstützt werden, darunter WebM, MP4, MP3 und Ogg. Eine Tabelle findest du bei Wikipedia ([Video](http://en.wikipedia.org/wiki/HTML5_video), [Audio](http://en.wikipedia.org/wiki/HTML5_audio)).
+
+Zum Konvertieren von Videos in das lizenfreie Videoformat WebM gibt es unter Windows das kostenlose Programm [Xmedia-Recode](http://www.xmedia-recode.de/).
 
 <a name="avatars"></a>
 

@@ -11,12 +11,15 @@ Like many other modern social networks, Friendica uses a special notation inside
 
 People are tagged by preceding their name with the @ character.
 
-The following are various ways of indicating a person:
+You can tag **persons who are in your social circle** by adding the "@"-sign in front of the name.
 
 * @mike - indicates a known contact in your social circle whose nickname is "mike"
 * @mike_macgirvin - indicates a known contact in your social circle whose  full name is "Mike Macgirvin". Note that spaces cannot be used inside tags.
 * @mike+151 - this form is used by the drop-down tag completion tool. It indicates the contact whose nickname is mike and whose contact identifier number is 151. The drop-down tool may be used to resolve people with duplicate nicknames. 
-* @mike@macgirvin.com - indicates the Identity Address of a person on a different network, or one that is *not* in your social circle. This is called a "remote mention" and can only be an email-style locator, not a web URL.
+
+You can tag a person on a different network or one that is **not in your social circle** by using the following notation:
+	
+* @mike@macgirvin.com - This is called a "remote mention" and can only be an email-style locator, not a web URL.
 
 Unless their system blocks unsolicited "mentions", the person tagged will likely receive a "Mention" post/activity or become a direct participant in the conversation in the case of public posts. Please note that Friendica blocks incoming "mentions" from people with no relationship to you. This is a spam prevention measure.
 
