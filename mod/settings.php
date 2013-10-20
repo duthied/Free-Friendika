@@ -259,7 +259,8 @@ function settings_post(&$a) {
 
 		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->user['theme']);
 		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
-		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);  
+		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
+		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
 		$browser_update   = $browser_update * 1000;
 		if($browser_update < 10000)
@@ -281,6 +282,7 @@ function settings_post(&$a) {
 		set_pconfig(local_user(),'system','itemspage_network', $itemspage_network);
 		set_pconfig(local_user(),'system','itemspage_mobile_network', $itemspage_mobile_network);
 		set_pconfig(local_user(),'system','no_smilies',$nosmile);
+		set_pconfig(local_user(),'system','infinite_scroll',$infinite_scroll);
 
 
 		if ($theme == $a->user['theme']){
@@ -816,7 +818,7 @@ function settings_content(&$a) {
 		}
 		$theme_selected = (!x($_SESSION,'theme')? $default_theme : $_SESSION['theme']);
 		$mobile_theme_selected = (!x($_SESSION,'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
-		
+
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
 		$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 
@@ -824,17 +826,19 @@ function settings_content(&$a) {
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
 		$itemspage_mobile_network = intval(get_pconfig(local_user(), 'system','itemspage_mobile_network'));
 		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : 20); // default if not set: 20 items
-		
+
 		$nosmile = get_pconfig(local_user(),'system','no_smilies');
 		$nosmile = (($nosmile===false)? '0': $nosmile); // default if not set: 0
 
+		$infinite_scroll = get_pconfig(local_user(),'system','infinite_scroll');
+		$infinite_scroll = (($infinite_scroll===false)? '0': $infinite_scroll); // default if not set: 0
 
 		$theme_config = "";
 		if( ($themeconfigfile = get_theme_config_file($theme_selected)) != null){
 			require_once($themeconfigfile);
 			$theme_config = theme_content($a);
 		}
-		
+
 		$tpl = get_markup_template("settings_display.tpl");
 		$o = replace_macros($tpl, array(
 			'$ptitle' 	=> t('Display Settings'),
@@ -842,17 +846,18 @@ function settings_content(&$a) {
 			'$submit' 	=> t('Submit'),
 			'$baseurl' => $a->get_baseurl(true),
 			'$uid' => local_user(),
-		
+
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
 			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
-			
+			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
+
 			'$theme_config' => $theme_config,
 		));
-		
+
 		$tpl = get_markup_template("settings_display_end.tpl");
 		$a->page['end'] .= replace_macros($tpl, array(
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes)
@@ -860,8 +865,8 @@ function settings_content(&$a) {
 
 		return $o;
 	}
-	
-	
+
+
 	/*
 	 * ACCOUNT SETTINGS
 	 */

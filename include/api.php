@@ -984,7 +984,7 @@
 		);
 
 		if ($r[0]['body'] != "") {
-			if (intval(get_config('system','new_share'))) {
+			if (!intval(get_config('system','old_share'))) {
 				$post = "[share author='".str_replace("'", "&#039;", $r[0]['reply_author']).
 						"' profile='".$r[0]['reply_url'].
 						"' avatar='".$r[0]['reply_photo'].

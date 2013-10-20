@@ -92,5 +92,5 @@ $a->config['system']['lockpath'] = "";
 // If enabled, the MyBB fulltext engine is used
 // $a->config['system']['use_fulltext_engine'] = true;
 
-// Use the new "share" element
-// $a->config['system']['new_share'] = true;
+// Use the old style "share"
+// $a->config['system']['old_share'] = false;

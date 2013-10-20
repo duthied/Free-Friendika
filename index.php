@@ -108,6 +108,7 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
  *
+
  */
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
@@ -117,7 +118,6 @@ if((x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module ==
 
 if(! x($_SESSION,'authenticated'))
 	header('X-Account-Management-Status: none');
-
 
 /* set up page['htmlhead'] and page['end'] for the modules to use */
 $a->page['htmlhead'] = '';
@@ -427,6 +427,83 @@ else
 
 $a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
 //$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
+
+if ($_GET["mode"] == "raw") {
+	$doc = new DOMDocument();
+
+	$target = new DOMDocument();
+	$target->loadXML("<root></root>");
+
+	$content = mb_convert_encoding($a->page["content"], 'HTML-ENTITIES', "UTF-8");
+
+	@$doc->loadHTML($content);
+
+	$xpath = new DomXPath($doc);
+
+	$list = $xpath->query("//*[contains(@id,'tread-wrapper-')]");  /* */
+
+	foreach ($list as $item) {
+
+		$item = $target->importNode($item, true);
+
+		// And then append it to the target
+		$target->documentElement->appendChild($item);
+	}
+
+	header("Content-type: text/html; charset=utf-8");
+
+	echo substr($target->saveHTML(), 6, -8);
+
+	session_write_close();
+	exit;
+
+} elseif (get_pconfig(local_user(),'system','infinite_scroll') AND ($_GET["q"] == "network")) {
+	if (is_string($_GET["page"]))
+		$pageno = $_GET["page"];
+	else
+		$pageno = 1;
+
+	$reload_uri = "";
+
+	foreach ($_GET AS $param => $value)
+		if (($param != "page") AND ($param != "q"))
+			$reload_uri .= "&".$param."=".$value;
+
+$a->page['htmlhead'] .= <<< EOT
+<script type="text/javascript">
+
+$(document).ready(function() {
+    num = $pageno;
+});
+
+function loadcontent() {
+	//$("div.loader").show();
+
+	num+=1;
+
+	console.log('Loading page ' + num);
+
+	$.get('/network?mode=raw$reload_uri&page=' + num, function(data) {
+		$(data).insertBefore('#conversation-end');
+	});
+
+	//$("div.loader").fadeOut('normal');
+}
+
+var num = $pageno;
+
+$(window).scroll(function(e){
+
+	//if ($(window).scrollTop() == $(document).height() - $(window).height()){
+	if ($(window).scrollTop() > $("section").height() - $(window).height()){
+		loadcontent();
+	}
+});
+</script>
+
+EOT;
+
+}
 
 $page    = $a->page;
 $profile = $a->profile;

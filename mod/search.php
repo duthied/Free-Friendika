@@ -144,6 +144,8 @@ function search_content(&$a) {
 		$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d group by `item`.`uri` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
 		$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+		$sql_order = "`term`.`tid`";
+		//$sql_order = "`item`.`received`";
 
 		//$sql_extra = sprintf(" AND EXISTS (SELECT * FROM `term` WHERE `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d) GROUP BY `item`.`uri` ",
 		//			dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
@@ -155,6 +157,7 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 		$sql_table = "`item`";
+		$sql_order = "`item`.`received`";
 	}
 
 	// Here is the way permissions work in the search module...
@@ -195,7 +198,7 @@ function search_content(&$a) {
 			OR ( `item`.`uid` = %d ))
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		$sql_extra
-		ORDER BY `received` DESC LIMIT %d , %d ",
+		ORDER BY $sql_order DESC LIMIT %d , %d ",
 		intval(local_user()),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
@@ -209,7 +212,7 @@ function search_content(&$a) {
 	}
 
 
-	if($tag) 
+	if($tag)
 		$o .= '<h2>Items tagged with: ' . $search . '</h2>';
 	else
 		$o .= '<h2>Search results for: ' . $search . '</h2>';

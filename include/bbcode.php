@@ -343,15 +343,15 @@ function bb_ShareAttributesSimple2($match) {
 function GetProfileUsername($profile, $username) {
 	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2@$1", $profile);
 	if ($friendica != $profile)
-		return($friendica);
+		return($friendica." (".$username.")");
 
 	$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
 	if ($diaspora != $profile)
-		return($diaspora);
+		return($diaspora." (".$username.")");
 
 	$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1@twitter.com", $profile);
 	if ($twitter != $profile)
-		return($twitter);
+		return($twitter." (".$username.")");
 
 	$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
 	if ($StatusnetHost != $profile) {
@@ -360,7 +360,7 @@ function GetProfileUsername($profile, $username) {
 			$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 			$user = json_decode($UserData);
 			if ($user)
-				return($user->screen_name."@".$StatusnetHost);
+				return($user->screen_name."@".$StatusnetHost." (".$username.")");
 		}
 	}
 
