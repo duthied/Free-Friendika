@@ -2156,6 +2156,7 @@ function clear_cache($basepath = "", $path = "") {
 	if ($cachetime == 0)
 		$cachetime = 86400;
 
+	if (is_writable($path)){
 	if ($dh = opendir($path)) {
 		while (($file = readdir($dh)) !== false) {
 			$fullpath = $path."/".$file;
@@ -2165,6 +2166,7 @@ function clear_cache($basepath = "", $path = "") {
 				unlink($fullpath);
 		}
 		closedir($dh);
+	}
 	}
 }
 
