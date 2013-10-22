@@ -2175,3 +2175,27 @@ function set_template_engine(&$a, $engine = 'internal') {
 	$a->set_template_engine($engine);
 }
 
+if(!function_exists('exif_imagetype')) {
+	function exif_imagetype($file) {
+		$size = getimagesize($file);
+
+		switch ($size["mime"]) {
+			case "image/jpeg":
+				$imagetype = IMAGETYPE_JPEG;
+				break;
+			case "image/gif":
+				$imagetype = IMAGETYPE_GIF;
+				break;
+			case "image/png":
+				$imagetype = IMAGETYPE_PNG;
+				break;
+			case "":
+				$imagetype = "";
+				break;
+			default:
+				$imagetype = 99;
+		}
+
+		return($imagetype);
+	}
+}
