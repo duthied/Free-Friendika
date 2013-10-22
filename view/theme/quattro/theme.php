@@ -18,11 +18,29 @@ $a->page['htmlhead'] .= <<< EOT
 $(document).ready(function(){
     $('nav').bind('nav-update', function(e,data){
         var notifCount = $(data).find('notif').attr('count');
+        var intro = $(data).find('intro').text();
+        var mail = $(data).find('mail').text();
+        
+        console.log(intro,mail);
+        
         if (notifCount > 0 ) {
             Tinycon.setBubble(notifCount);
         } else {
             Tinycon.setBubble('');
         }
+        
+        if (intro>0){
+			$("#nav-introductions-link").addClass("on");
+		} else {
+			$("#nav-introductions-link").removeClass("on");
+		}
+		
+        if (mail>0){
+			$("#nav-messages-link").addClass("on");
+		} else {
+			$("#nav-messages-link").removeClass("on");
+		}
+		
     });
 });        
 
