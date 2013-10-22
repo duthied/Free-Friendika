@@ -239,6 +239,7 @@ function admin_page_site_post(&$a){
 
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
+	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
 	$language		=	((x($_POST,'language'))			? notags(trim($_POST['language']))		: '');
 	$theme			=	((x($_POST,'theme'))			? notags(trim($_POST['theme']))			: '');
 	$theme_mobile		=	((x($_POST,'theme_mobile'))		? notags(trim($_POST['theme_mobile']))		: '');
@@ -284,6 +285,7 @@ function admin_page_site_post(&$a){
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
 	$old_share		=	((x($_POST,'old_share'))		? True   					: False);
 	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
+	$suppress_language	=	((x($_POST,'suppress_language'))	? True   					: False);
 	$use_fulltext_engine	=	((x($_POST,'use_fulltext_engine'))	? True   					: False);
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
@@ -344,6 +346,11 @@ function admin_page_site_post(&$a){
 		);
 	} else {
 		set_config('system','banner', $banner);
+	}
+	if ($info=="") {
+	    del_config('config','info');
+	} else {
+	    set_config('config','info',$info);
 	}
 	set_config('system','language', $language);
 	set_config('system','theme', $theme);
@@ -473,6 +480,8 @@ function admin_page_site(&$a) {
 	if($banner == false) 
 		$banner = '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
 	$banner = htmlspecialchars($banner);
+	$info = get_config('config','info');
+	$info = htmlspecialchars($info);
 
 	//echo "<pre>"; var_dump($lang_choices); die("</pre>");
 
@@ -504,6 +513,7 @@ function admin_page_site(&$a) {
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
+		'$info'	=> array('info',t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at dir.friendica.com/siteinfo.')),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
@@ -548,6 +558,7 @@ function admin_page_site(&$a) {
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
+		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),
 		'$itemcache'		=> array('itemcache', t("Path to item cache"), get_config('system','itemcache'), "The item caches buffers generated bbcode and external images."),
 		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), get_config('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day).")),
 		'$lockpath'		=> array('lockpath', t("Path for lock file"), get_config('system','lockpath'), "The lock file is used to avoid multiple pollers at one time. Only define a folder here."),

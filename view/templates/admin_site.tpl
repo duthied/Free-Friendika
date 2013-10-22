@@ -51,6 +51,7 @@
 
 	{{include file="field_input.tpl" field=$sitename}}
 	{{include file="field_textarea.tpl" field=$banner}}
+	{{include file="field_textarea.tpl" field=$info}}
 	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
 	{{include file="field_select.tpl" field=$theme_mobile}}
@@ -108,6 +109,7 @@
 	{{include file="field_input.tpl" field=$lockpath}}
 	{{include file="field_input.tpl" field=$temppath}}
 	{{include file="field_input.tpl" field=$basepath}}
+	{{include file="field_checkbox.tpl" field=$suppress_language}}
 
 	<h3>{{$performance}}</h3>
 	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}
