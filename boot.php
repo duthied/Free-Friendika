@@ -2177,3 +2177,9 @@ function set_template_engine(&$a, $engine = 'internal') {
 	$a->set_template_engine($engine);
 }
 
+if(!function_exists('exif_imagetype')) {
+        function exif_imagetype($file) {
+                $size = getimagesize($file);
+                return($size[2]);
+        }
+}
