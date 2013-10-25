@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1163 );
+define( 'UPDATE_VERSION' , 1164 );
 
 /**
  *
@@ -1440,4 +1440,18 @@ function update_1161() {
 function update_1162() {
 	require_once('include/tags.php');
 	update_items();
+}
+
+function update_1163() {
+	set_config('system', 'maintenance', 1);
+
+	$r = q("ALTER TABLE `item` ADD `network` char(32) NOT NULL,
+		ADD INDEX (`network`)");
+
+	set_config('system', 'maintenance', 0);
+
+	if(!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
 }
