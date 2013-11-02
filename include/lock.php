@@ -17,7 +17,7 @@ function lock_function($fn_name, $block = true, $wait_sec = 2, $timeout = 30) {
 		);
 
 		if((count($r)) && (! $r[0]['locked'])) {
-			q("UPDATE locks SET locked = 1 WHERE name = '%s' LIMIT 1",
+			q("UPDATE locks SET locked = 1 WHERE name = '%s'",
 				dbesc($fn_name)
 			);
 			$got_lock = true;
@@ -65,7 +65,7 @@ function block_on_function_lock($fn_name, $wait_sec = 2, $timeout = 30) {
 
 if(! function_exists('unlock_function')) {
 function unlock_function($fn_name) {
-	$r = q("UPDATE locks SET locked = 0 WHERE name = '%s' LIMIT 1",
+	$r = q("UPDATE locks SET locked = 0 WHERE name = '%s'",
 			dbesc($fn_name)
 	     );
 

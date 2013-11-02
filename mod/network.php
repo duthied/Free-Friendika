@@ -796,7 +796,7 @@ function network_content(&$a, $update = 0) {
 		// Fetch a page full of parent items for this page
 
 		if($update) {
-			$r = q("SELECT `parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `item`.`parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
 				(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')

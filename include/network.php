@@ -783,7 +783,7 @@ function add_fcontact($arr,$update = false) {
 			`alias` = '%s',
 			`pubkey` = '%s',
 			`updated` = '%s'
-			WHERE `url` = '%s' AND `network` = '%s' LIMIT 1", 
+			WHERE `url` = '%s' AND `network` = '%s'",
 			dbesc($arr['name']),
 			dbesc($arr['photo']),
 			dbesc($arr['request']),
