@@ -983,7 +983,23 @@ function item_store($arr,$force_parent = false) {
 	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid());
+	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
 
+	if ($arr['network'] == "") {
+		$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			intval($arr['contact-id']),
+			intval($arr['uid'])
+		);
+
+		if(count($r))
+			$arr['network'] = $r[0]["network"];
+
+		// Fallback to friendica (why is it empty in some cases?)
+		if ($arr['network'] == "")
+			$arr['network'] = NETWORK_DFRN;
+
+		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
+	}
 
 	$arr['thr-parent'] = $arr['parent-uri'];
 	if($arr['parent-uri'] === $arr['uri']) {
@@ -1285,7 +1301,7 @@ function tag_deliver($uid,$item_id) {
 		}
 		return;
 	}
-		
+
 
 	// send a notification
 
@@ -1730,12 +1746,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		else {
 			$resource_id = photo_new_resource();
 		}
-			
+
 		$img_str = fetch_url($photo_url,true);
 		// guess mimetype from headers or filename
 		$type = guess_image_type($photo_url,true);
-		
-		
+
+
 		$img = new Photo($img_str, $type);
 		if($img->is_valid()) {
 			if($have_photo) {
@@ -4082,6 +4098,9 @@ function drop_item($id,$interactive = true) {
 
 		// clean up item_id and sign meta-data tables
 
+		/*
+		// Old code - caused very long queries and warning entries in the mysql logfiles:
+
 		$r = q("DELETE FROM item_id where iid in (select id from item where parent = %d and uid = %d)",
 			intval($item['id']),
 			intval($item['uid'])
@@ -4091,6 +4110,31 @@ function drop_item($id,$interactive = true) {
 			intval($item['id']),
 			intval($item['uid'])
 		);
+		*/
+
+		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
+
+		// Creating list of parents
+		$r = q("select id from item where parent = %d and uid = %d",
+			intval($item['id']),
+			intval($item['uid'])
+		);
+
+		$parentid = "";
+
+		foreach ($r AS $row) {
+			if ($parentid != "")
+				$parentid .= ", ";
+
+			$parentid .= $row["id"];
+		}
+
+		// Now delete them
+		if ($parentid != "") {
+			$r = q("DELETE FROM item_id where iid in (%s)", dbesc($parentid));
+
+			$r = q("DELETE FROM sign where iid in (%s)", dbesc($parentid));
+		}
 
 		// If it's the parent of a comment thread, kill all the kids
 

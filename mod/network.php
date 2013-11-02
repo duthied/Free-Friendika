@@ -572,7 +572,8 @@ function network_content(&$a, $update = 0) {
 	$sql_options  = (($star) ? " and starred = 1 " : '');
 	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
 
-	$sql_nets = (($nets) ? sprintf(" and `contact`.`network` = '%s' ", dbesc($nets)) : '');
+	//$sql_nets = (($nets) ? sprintf(" and `contact`.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_nets = (($nets) ? sprintf(" and `item`.`network` = '%s' ", dbesc($nets)) : '');
 
 	$sql_extra = " AND `item`.`parent` IN ( SELECT `parent` FROM `item` WHERE `id` = `parent` $sql_options ) ";
 
@@ -608,7 +609,9 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = " . intval($cid) . " and deleted = 0 ) ";
+			$sql_table = "`item` INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." and deleted = 0 ORDER BY `item`.`received` DESC) AS `temp1` ON item.parent = `temp1`.parent ";
+			$sql_extra = "";
+			//$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = " . intval($cid) . " and deleted = 0 ) ";
 			$o = '<h2>' . t('Contact: ') . $r[0]['name'] . '</h2>' . $o;
 			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( t('Private messages to this person are at risk of public disclosure.') . EOL);
@@ -639,7 +642,9 @@ function network_content(&$a, $update = 0) {
 	$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 	$sql_order = "`item`.`received`";
-	$sql_table = "`item`";
+
+	if ($sql_table == "")
+		$sql_table = "`item`";
 
 	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
@@ -890,3 +895,4 @@ function network_content(&$a, $update = 0) {
 
 	return $o;
 }
+

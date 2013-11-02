@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1164 );
+define( 'UPDATE_VERSION' , 1165 );
 
 /**
  *
@@ -1440,6 +1440,8 @@ function update_1161() {
 function update_1162() {
 	require_once('include/tags.php');
 	update_items();
+
+	return UPDATE_SUCCESS;
 }
 
 function update_1163() {
@@ -1452,6 +1454,58 @@ function update_1163() {
 
 	if(!$r)
 		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+function update_1164() {
+	set_config('system', 'maintenance', 1);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DFRN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DFRN, NETWORK_DFRN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_ZOT, NETWORK_ZOT);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_OSTATUS, NETWORK_OSTATUS);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_FEED, NETWORK_FEED);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DIASPORA, NETWORK_DIASPORA);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MAIL, NETWORK_MAIL);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MAIL2, NETWORK_MAIL2);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_FACEBOOK, NETWORK_FACEBOOK);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_LINKEDIN, NETWORK_LINKEDIN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_XMPP, NETWORK_XMPP);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MYSPACE, NETWORK_MYSPACE);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_GPLUS, NETWORK_GPLUS);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_PUMPIO, NETWORK_PUMPIO);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_TWITTER, NETWORK_TWITTER);
+
+	set_config('system', 'maintenance', 0);
 
 	return UPDATE_SUCCESS;
 }
