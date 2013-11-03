@@ -267,9 +267,11 @@ function bb_ShareAttributes($match) {
         preg_match('/posted="(.*?)"/ism', $attributes, $matches);
         if ($matches[1] != "")
                 $posted = $matches[1];
-		$reldate = (($posted) ? " " . relative_date($posted) : '');
 
-        $headline = '<br /><div class="shared_header">';
+	$reldate = (($posted) ? " " . relative_date($posted) : '');
+
+	$headline = '<div class="shared_header">';
+        //$headline = '<br /><div class="shared_header">';
 
 	if ($avatar != "")
 		$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
