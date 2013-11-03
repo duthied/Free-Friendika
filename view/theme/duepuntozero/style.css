@@ -1601,7 +1601,7 @@ input#dfrn-url {
 
 #contact-profile-selector {
 	width: 175px;
-	margin-left: 175px;
+	/*margin-left: 175px;*/
 }
 
 .contact-edit-submit {
