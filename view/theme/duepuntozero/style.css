@@ -1654,6 +1654,7 @@ input#dfrn-url {
 
 #profile-jot-text {
 	height: 20px;
+	width: 100%;
 	color:#cccccc;
 	border: 1px solid #cccccc;
 	padding: 3px 0px 0px 5px;
