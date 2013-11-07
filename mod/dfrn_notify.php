@@ -40,7 +40,7 @@ function dfrn_notify_post(&$a) {
 		xml_status(3);
 	}
 
-	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s'",
 		dbesc($dfrn_id),
 		dbesc($challenge)
 	);
@@ -62,21 +62,21 @@ function dfrn_notify_post(&$a) {
 			xml_status(3);
 			break; // NOTREACHED
 	}
-		 
+
 	// be careful - $importer will contain both the contact information for the contact
 	// sending us the post, and also the user information for the person receiving it.
 	// since they are mixed together, it is easy to get them confused.
 
-	$r = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`, 
-					`contact`.`pubkey` AS `cpubkey`, 
-					`contact`.`prvkey` AS `cprvkey`, 
-					`contact`.`thumb` AS `thumb`, 
+	$r = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`,
+					`contact`.`pubkey` AS `cpubkey`,
+					`contact`.`prvkey` AS `cprvkey`,
+					`contact`.`thumb` AS `thumb`,
 					`contact`.`url` as `url`,
 					`contact`.`name` as `senderName`,
-					`user`.* 
-			FROM `contact` 
-			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid` 
-			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
+					`user`.*
+			FROM `contact`
+			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
+			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				AND `user`.`nickname` = '%s' AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
 		dbesc($a->argv[1])
 	);
@@ -87,12 +87,12 @@ function dfrn_notify_post(&$a) {
 		//NOTREACHED
 	}
 
-	// $importer in this case contains the contact record for the remote contact joined with the user record of our user. 
+	// $importer in this case contains the contact record for the remote contact joined with the user record of our user.
 
 	$importer = $r[0];
 
 	if((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
-		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d LIMIT 1",
+		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d",
 			intval(($writable == (-1)) ? $importer['writable'] : $writable),
 			intval($forum),
 			intval($prv),
@@ -117,7 +117,7 @@ function dfrn_notify_post(&$a) {
 		 * Relationship is dissolved permanently
 		 */
 
-		require_once('include/Contact.php'); 
+		require_once('include/Contact.php');
 		contact_remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);
 		xml_status(0);
@@ -218,8 +218,8 @@ function dfrn_notify_content(&$a) {
 				break; // NOTREACHED
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`page-flags` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
-				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s' 
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`page-flags` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
+				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s'
 				AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
 				dbesc($a->argv[1])
 		);
@@ -265,13 +265,13 @@ function dfrn_notify_content(&$a) {
 
 		header("Content-type: text/xml");
 
-		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" 
+		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n"
 			. '<dfrn_notify>' . "\r\n"
 			. "\t" . '<status>' . $status . '</status>' . "\r\n"
 			. "\t" . '<dfrn_version>' . DFRN_PROTOCOL_VERSION . '</dfrn_version>' . "\r\n"
 			. "\t" . '<rino>' . $rino . '</rino>' . "\r\n"
-			. "\t" . '<perm>' . $perm . '</perm>' . "\r\n" 
-			. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n" 
+			. "\t" . '<perm>' . $perm . '</perm>' . "\r\n"
+			. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n"
 			. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 			. '</dfrn_notify>' . "\r\n" ;
 

@@ -494,9 +494,14 @@ var num = $pageno;
 
 $(window).scroll(function(e){
 
-	//if ($(window).scrollTop() == $(document).height() - $(window).height()){
-	if ($(window).scrollTop() > $("section").height() - $(window).height()){
-		loadcontent();
+	if ($(document).height() != $(window).height()) {
+		// First method that is expected to work - but has problems with Chrome
+		if ($(window).scrollTop() == $(document).height() - $(window).height())
+			loadcontent();
+	} else {
+		// This method works with Chrome - but seems to be much slower in Firefox
+		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height()))
+			loadcontent();
 	}
 });
 </script>

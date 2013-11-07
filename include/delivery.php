@@ -52,7 +52,7 @@ function delivery_run(&$argv, &$argc){
 		);
 		if(! count($r)) {
 			continue;
-		}	
+		}
 
 		$maxsysload = intval(get_config('system','maxloadavg'));
 		if($maxsysload < 1)
@@ -67,7 +67,7 @@ function delivery_run(&$argv, &$argc){
 
 		// It's ours to deliver. Remove it from the queue.
 
-		q("delete from deliverq where cmd = '%s' and item = %d and contact = %d limit 1",
+		q("delete from deliverq where cmd = '%s' and item = %d and contact = %d",
 			dbesc($cmd),
 			dbesc($item_id),
 			dbesc($contact_id)
@@ -331,7 +331,7 @@ function delivery_run(&$argv, &$argc){
 					if($x && count($x)) {
 						$write_flag = ((($x[0]['rel']) && ($x[0]['rel'] != CONTACT_IS_SHARING)) ? true : false);
 						if((($owner['page-flags'] == PAGE_COMMUNITY) || ($write_flag)) && (! $x[0]['writable'])) {
-							q("update contact set writable = 1 where id = %d limit 1",
+							q("update contact set writable = 1 where id = %d",
 								intval($x[0]['id'])
 							);
 							$x[0]['writable'] = 1;
@@ -430,7 +430,7 @@ function delivery_run(&$argv, &$argc){
 					if($cmd === 'wall-new') 
 						$it = $items[0];
 					else {
-						$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1", 
+						$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 							intval($argv[2]),
 							intval($uid)
 						);

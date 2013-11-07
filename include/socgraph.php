@@ -92,8 +92,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		}
 
 		if((! $name) || (! $profile_url) || (! $profile_photo))
-			continue; 
-		 
+			continue;
+
 		$x = q("select * from `gcontact` where `nurl` = '%s' limit 1",
 			dbesc(normalise_link($profile_url))
 		);
@@ -102,8 +102,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			$gcid = $x[0]['id'];
 
 			if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo) {
-				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s' 
-					where `nurl` = '%s' limit 1",
+				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s'
+					where `nurl` = '%s'",
 					dbesc($name),
 					dbesc($profile_photo),
 					dbesc($connect_url),
@@ -146,7 +146,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			);
 		}
 		else {
-			q("update glink set updated = '%s' where `cid` = %d and `uid` = %d and `gcid` = %d and zcid = %d limit 1",
+			q("update glink set updated = '%s' where `cid` = %d and `uid` = %d and `gcid` = %d and zcid = %d",
 				dbesc(datetime_convert()),
 				intval($cid),
 				intval($uid),

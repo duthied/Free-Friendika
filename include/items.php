@@ -983,7 +983,23 @@ function item_store($arr,$force_parent = false) {
 	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid());
+	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
 
+	if ($arr['network'] == "") {
+		$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			intval($arr['contact-id']),
+			intval($arr['uid'])
+		);
+
+		if(count($r))
+			$arr['network'] = $r[0]["network"];
+
+		// Fallback to friendica (why is it empty in some cases?)
+		if ($arr['network'] == "")
+			$arr['network'] = NETWORK_DFRN;
+
+		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
+	}
 
 	$arr['thr-parent'] = $arr['parent-uri'];
 	if($arr['parent-uri'] === $arr['uri']) {
@@ -1125,7 +1141,7 @@ function item_store($arr,$force_parent = false) {
 	// Set parent id - and also make sure to inherit the parent's ACL's.
 
 	$r = q("UPDATE `item` SET `parent` = %d, `allow_cid` = '%s', `allow_gid` = '%s',
-		`deny_cid` = '%s', `deny_gid` = '%s', `private` = %d, `deleted` = %d WHERE `id` = %d LIMIT 1",
+		`deny_cid` = '%s', `deny_gid` = '%s', `private` = %d, `deleted` = %d WHERE `id` = %d",
 		intval($parent_id),
 		dbesc($allow_cid),
 		dbesc($allow_gid),
@@ -1152,7 +1168,7 @@ function item_store($arr,$force_parent = false) {
 
 	// update the commented timestamp on the parent
 
-	q("UPDATE `item` set `commented` = '%s', `changed` = '%s' WHERE `id` = %d LIMIT 1",
+	q("UPDATE `item` set `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		intval($parent_id)
@@ -1277,7 +1293,7 @@ function tag_deliver($uid,$item_id) {
 			// mmh.. no mention.. community page or private group... no wall.. no origin.. top-post (not a comment)
 			// delete it!
 			logger("tag_deliver: no-mention top-level post to communuty or private group. delete.");
-			q("DELETE FROM item WHERE id = %d and uid = %d limit 1",
+			q("DELETE FROM item WHERE id = %d and uid = %d",
 				intval($item_id),
 				intval($uid)
 			);
@@ -1285,7 +1301,7 @@ function tag_deliver($uid,$item_id) {
 		}
 		return;
 	}
-		
+
 
 	// send a notification
 
@@ -1346,8 +1362,8 @@ function tag_deliver($uid,$item_id) {
 
 	$forum_mode = (($prvgroup) ? 2 : 1);
 
-	q("update item set wall = 1, origin = 1, forum_mode = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s', 
-		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  where id = %d limit 1",
+	q("update item set wall = 1, origin = 1, forum_mode = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
+		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  where id = %d",
 		intval($forum_mode),
 		dbesc($c[0]['name']),
 		dbesc($c[0]['url']),
@@ -1498,7 +1514,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($perm) {
 		if((($perm == 'rw') && (! intval($contact['writable']))) 
 		|| (($perm == 'r') && (intval($contact['writable'])))) {
-			q("update contact set writable = %d where id = %d limit 1",
+			q("update contact set writable = %d where id = %d",
 				intval(($perm == 'rw') ? 1 : 0),
 				intval($contact['id'])
 			);
@@ -1730,12 +1746,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		else {
 			$resource_id = photo_new_resource();
 		}
-			
+
 		$img_str = fetch_url($photo_url,true);
 		// guess mimetype from headers or filename
 		$type = guess_image_type($photo_url,true);
-		
-		
+
+
 		$img = new Photo($img_str, $type);
 		if($img->is_valid()) {
 			if($have_photo) {
@@ -1760,7 +1776,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			$a = get_app();
 
 			q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-				WHERE `uid` = %d AND `id` = %d LIMIT 1",
+				WHERE `uid` = %d AND `id` = %d",
 				dbesc(datetime_convert()),
 				dbesc($a->get_baseurl() . '/photo/' . $hash . '-4.'.$img->getExt()),
 				dbesc($a->get_baseurl() . '/photo/' . $hash . '-5.'.$img->getExt()),
@@ -1777,7 +1793,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			intval($contact['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($contact['uid']),
@@ -1830,7 +1846,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 			// update bdyear
 
-			q("UPDATE `contact` SET `bdyear` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+			q("UPDATE `contact` SET `bdyear` = '%s' WHERE `uid` = %d AND `id` = %d",
 				dbesc(substr($birthday,0,4)),
 				intval($contact['uid']),
 				intval($contact['id'])
@@ -1851,7 +1867,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		$community_page = intval($rawtags[0]['data']);
 	}
 	if(is_array($contact) && intval($contact['forum']) != $community_page) {
-		q("update contact set forum = %d where id = %d limit 1",
+		q("update contact set forum = %d where id = %d",
 			intval($community_page),
 			intval($contact['id'])
 		);
@@ -1914,7 +1930,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 											if(trim($tag) !== trim($xo->body))
 												$newtags[] = trim($tag);
 									}
-									q("update item set tag = '%s' where id = %d limit 1",
+									q("update item set tag = '%s' where id = %d",
 										dbesc(implode(',',$newtags)),
 										intval($i[0]['id'])
 									);
@@ -1938,7 +1954,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					else {
 						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
 							`body` = '', `title` = '' 
-							WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+							WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($when),
 							dbesc(datetime_convert()),
 							dbesc($uri),
@@ -1952,20 +1968,20 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 								dbesc($item['parent-uri']),
 								intval($item['uid'])
 							);
-							// who is the last child now? 
-							$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `moderated` = 0 AND `uid` = %d 
+							// who is the last child now?
+							$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `moderated` = 0 AND `uid` = %d
 								ORDER BY `created` DESC LIMIT 1",
 									dbesc($item['parent-uri']),
 									intval($importer['uid'])
 							);
 							if(count($r)) {
-								q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d LIMIT 1",
+								q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 									intval($r[0]['id'])
 								);
 							}
-						}	
+						}
 					}
-				}	
+				}
 			}
 		}
 	}
@@ -2044,13 +2060,13 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Update content if 'updated' changes
 
 				if(count($r)) {
-					if (edited_timestamp_is_newer($r[0], $datarray)) {  
+					if (edited_timestamp_is_newer($r[0], $datarray)) {
 
 						// do not accept (ignore) an earlier edit than one we currently have.
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
@@ -2070,7 +2086,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							dbesc($parent_uri),
 							intval($importer['uid'])
 						);
-						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d",
 							intval($allow[0]['data']),
 							dbesc(datetime_convert()),
 							dbesc($item_id),
@@ -2119,7 +2135,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						if($xo->id && $xo->content) {
 							$newtag = '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
 							if(! (stristr($r[0]['tag'],$newtag))) {
-								q("UPDATE item SET tag = '%s' WHERE id = %d LIMIT 1",
+								q("UPDATE item SET tag = '%s' WHERE id = %d",
 									dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . $newtag),
 									intval($r[0]['id'])
 								);
@@ -2199,7 +2215,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
@@ -2214,7 +2230,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 					$allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
 					if($allow && $allow[0]['data'] != $r[0]['last-child']) {
-						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							intval($allow[0]['data']),
 							dbesc(datetime_convert()),
 							dbesc($item_id),
@@ -2369,12 +2385,12 @@ function local_delivery($importer,$data) {
 		else {
 			$resource_id = photo_new_resource();
 		}
-			
+
 		$img_str = fetch_url($photo_url,true);
 		// guess mimetype from headers or filename
 		$type = guess_image_type($photo_url,true);
-		
-		
+
+
 		$img = new Photo($img_str, $type);
 		if($img->is_valid()) {
 			if($have_photo) {
@@ -2399,7 +2415,7 @@ function local_delivery($importer,$data) {
 			$a = get_app();
 
 			q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-				WHERE `uid` = %d AND `id` = %d LIMIT 1",
+				WHERE `uid` = %d AND `id` = %d",
 				dbesc(datetime_convert()),
 				dbesc($a->get_baseurl() . '/photo/' . $hash . '-4.'.$img->getExt()),
 				dbesc($a->get_baseurl() . '/photo/' . $hash . '-5.'.$img->getExt()),
@@ -2416,7 +2432,7 @@ function local_delivery($importer,$data) {
 			intval($importer['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($importer['importer_uid']),
@@ -2675,7 +2691,7 @@ function local_delivery($importer,$data) {
 		$community_page = intval($rawtags[0]['data']);
 	}
 	if(intval($importer['forum']) != $community_page) {
-		q("update contact set forum = %d where id = %d limit 1",
+		q("update contact set forum = %d where id = %d",
 			intval($community_page),
 			intval($importer['id'])
 		);
@@ -2704,7 +2720,7 @@ function local_delivery($importer,$data) {
 
 				// check for relayed deletes to our conversation
 
-				$is_reply = false;		
+				$is_reply = false;
 				$r = q("select * from item where uri = '%s' and uid = %d limit 1",
 					dbesc($uri),
 					intval($importer['importer_uid'])
@@ -2713,7 +2729,7 @@ function local_delivery($importer,$data) {
 					$parent_uri = $r[0]['parent-uri'];
 					if($r[0]['id'] != $r[0]['parent'])
 						$is_reply = true;
-				}				
+				}
 
 				if($is_reply) {
 					$community = false;
@@ -2806,7 +2822,7 @@ function local_delivery($importer,$data) {
 											if(trim($tag) !== trim($xo->body))
 												$newtags[] = trim($tag);
 									}
-									q("update item set tag = '%s' where id = %d limit 1",
+									q("update item set tag = '%s' where id = %d",
 										dbesc(implode(',',$newtags)),
 										intval($i[0]['id'])
 									);
@@ -2830,7 +2846,7 @@ function local_delivery($importer,$data) {
 					else {
 						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
 							`body` = '', `title` = ''
-							WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+							WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($when),
 							dbesc(datetime_convert()),
 							dbesc($uri),
@@ -2851,7 +2867,7 @@ function local_delivery($importer,$data) {
 									intval($importer['importer_uid'])
 							);
 							if(count($r)) {
-								q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d LIMIT 1",
+								q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 									intval($r[0]['id'])
 								);
 							}
@@ -2887,13 +2903,13 @@ function local_delivery($importer,$data) {
 			}
 			else
 				$sql_extra = " and contact.self = 1 and item.wall = 1 ";
- 
-			// was the top-level post for this reply written by somebody on this site? 
-			// Specifically, the recipient? 
+
+			// was the top-level post for this reply written by somebody on this site?
+			// Specifically, the recipient?
 
 			$is_a_remote_comment = false;
 			$top_uri = $parent_uri;
-			
+
 			$r = q("select `item`.`parent-uri` from `item`
 				WHERE `item`.`uri` = '%s'
 				LIMIT 1",
@@ -2903,11 +2919,11 @@ function local_delivery($importer,$data) {
 				$top_uri = $r[0]['parent-uri'];
 
 				// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
-				$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`, 
-					`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item` 
-					LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
+				$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`,
+					`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item`
+					LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
-					AND `item`.`uid` = %d 
+					AND `item`.`uid` = %d
 					$sql_extra
 					LIMIT 1",
 					dbesc($top_uri),
@@ -2954,7 +2970,7 @@ function local_delivery($importer,$data) {
 							continue;
 
 						logger('received updated comment' , LOGGER_DEBUG);
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
@@ -3030,7 +3046,7 @@ function local_delivery($importer,$data) {
 									intval($importer['importer_uid'])
 								);
 								if(count($i) && ! intval($i[0]['blocktags'])) {
-									q("UPDATE item SET tag = '%s', `edited` = '%s' WHERE id = %d LIMIT 1",
+									q("UPDATE item SET tag = '%s', `edited` = '%s' WHERE id = %d",
 										dbesc($tagp[0]['tag'] . (strlen($tagp[0]['tag']) ? ',' : '') . $newtag),
 										intval($tagp[0]['id']),
 										dbesc(datetime_convert())
@@ -3063,7 +3079,7 @@ function local_delivery($importer,$data) {
 							intval($r[0]['parent'])
 						);
 
-						$r2 = q("UPDATE `item` SET `last-child` = 1, `changed` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+						$r2 = q("UPDATE `item` SET `last-child` = 1, `changed` = '%s' WHERE `uid` = %d AND `id` = %d",
 							dbesc(datetime_convert()),
 							intval($importer['importer_uid']),
 							intval($posted_id)
@@ -3122,13 +3138,13 @@ function local_delivery($importer,$data) {
 				// Update content if 'updated' changes
 
 				if(count($r)) {
-					if (edited_timestamp_is_newer($r[0], $datarray)) {  
+					if (edited_timestamp_is_newer($r[0], $datarray)) {
 
 						// do not accept (ignore) an earlier edit than one we currently have.
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
@@ -3148,7 +3164,7 @@ function local_delivery($importer,$data) {
 							dbesc($parent_uri),
 							intval($importer['importer_uid'])
 						);
-						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d",
 							intval($allow[0]['data']),
 							dbesc(datetime_convert()),
 							dbesc($item_id),
@@ -3193,7 +3209,7 @@ function local_delivery($importer,$data) {
 						// extract tag, if not duplicate, add to parent item
 						if($xo->content) {
 							if(! (stristr($r[0]['tag'],trim($xo->content)))) {
-								q("UPDATE item SET tag = '%s' WHERE id = %d LIMIT 1",
+								q("UPDATE item SET tag = '%s' WHERE id = %d",
 									dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
 									intval($r[0]['id'])
 								);
@@ -3298,13 +3314,13 @@ function local_delivery($importer,$data) {
 			// Update content if 'updated' changes
 
 			if(count($r)) {
-				if (edited_timestamp_is_newer($r[0], $datarray)) {  
+				if (edited_timestamp_is_newer($r[0], $datarray)) {
 
 					// do not accept (ignore) an earlier edit than one we currently have.
 					if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 						continue;
 
-					$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+					$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 						dbesc($datarray['title']),
 						dbesc($datarray['body']),
 						dbesc($datarray['tag']),
@@ -3319,7 +3335,7 @@ function local_delivery($importer,$data) {
 
 				$allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
 				if($allow && $allow[0]['data'] != $r[0]['last-child']) {
-					$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+					$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 						intval($allow[0]['data']),
 						dbesc(datetime_convert()),
 						dbesc($item_id),
@@ -3427,7 +3443,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 	if(is_array($contact)) {
 		if(($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
 			|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
-			$r = q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			$r = q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact['id']),
 				intval($importer['uid'])
@@ -3506,7 +3522,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 function lose_follower($importer,$contact,$datarray,$item) {
 
 	if(($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
-		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d LIMIT 1",
+		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
 			intval(CONTACT_IS_SHARING),
 			intval($contact['id'])
 		);
@@ -3519,7 +3535,7 @@ function lose_follower($importer,$contact,$datarray,$item) {
 function lose_sharer($importer,$contact,$datarray,$item) {
 
 	if(($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
-		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d LIMIT 1",
+		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
 			intval(CONTACT_IS_FOLLOWER),
 			intval($contact['id'])
 		);
@@ -3558,7 +3574,7 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if(! strlen($contact['hub-verify'])) {
-		$r = q("UPDATE `contact` SET `hub-verify` = '%s' WHERE `id` = %d LIMIT 1",
+		$r = q("UPDATE `contact` SET `hub-verify` = '%s' WHERE `id` = %d",
 			dbesc($verify_token),
 			intval($contact['id'])
 		);
@@ -4031,7 +4047,7 @@ function drop_item($id,$interactive = true) {
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 		// delete the item
 
-		$r = q("UPDATE `item` SET `deleted` = 1, `title` = '', `body` = '', `edited` = '%s', `changed` = '%s' WHERE `id` = %d LIMIT 1",
+		$r = q("UPDATE `item` SET `deleted` = 1, `title` = '', `body` = '', `edited` = '%s', `changed` = '%s' WHERE `id` = %d",
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($item['id'])
@@ -4073,7 +4089,7 @@ function drop_item($id,$interactive = true) {
 		// If item is a link to an event, nuke the event record.
 
 		if(intval($item['event-id'])) {
-			q("DELETE FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			q("DELETE FROM `event` WHERE `id` = %d AND `uid` = %d",
 				intval($item['event-id']),
 				intval($item['uid'])
 			);
@@ -4081,6 +4097,9 @@ function drop_item($id,$interactive = true) {
 		}
 
 		// clean up item_id and sign meta-data tables
+
+		/*
+		// Old code - caused very long queries and warning entries in the mysql logfiles:
 
 		$r = q("DELETE FROM item_id where iid in (select id from item where parent = %d and uid = %d)",
 			intval($item['id']),
@@ -4091,6 +4110,31 @@ function drop_item($id,$interactive = true) {
 			intval($item['id']),
 			intval($item['uid'])
 		);
+		*/
+
+		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
+
+		// Creating list of parents
+		$r = q("select id from item where parent = %d and uid = %d",
+			intval($item['id']),
+			intval($item['uid'])
+		);
+
+		$parentid = "";
+
+		foreach ($r AS $row) {
+			if ($parentid != "")
+				$parentid .= ", ";
+
+			$parentid .= $row["id"];
+		}
+
+		// Now delete them
+		if ($parentid != "") {
+			$r = q("DELETE FROM item_id where iid in (%s)", dbesc($parentid));
+
+			$r = q("DELETE FROM sign where iid in (%s)", dbesc($parentid));
+		}
 
 		// If it's the parent of a comment thread, kill all the kids
 
@@ -4118,7 +4162,7 @@ function drop_item($id,$interactive = true) {
 				intval($item['uid'])
 			);
 			if(count($r)) {
-				q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d LIMIT 1",
+				q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 					intval($r[0]['id'])
 				);
 			}

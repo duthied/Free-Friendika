@@ -267,9 +267,11 @@ function bb_ShareAttributes($match) {
         preg_match('/posted="(.*?)"/ism', $attributes, $matches);
         if ($matches[1] != "")
                 $posted = $matches[1];
-		$reldate = (($posted) ? " " . relative_date($posted) : '');
 
-        $headline = '<br /><div class="shared_header">';
+	$reldate = (($posted) ? " " . relative_date($posted) : '');
+
+	$headline = '<div class="shared_header">';
+        //$headline = '<br /><div class="shared_header">';
 
 	if ($avatar != "")
 		$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
@@ -633,8 +635,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", 'tryoembed', $Text);
 		$Text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", 'tryoembed', $Text);
 	} else {
-		$Text = preg_replace("/\[video\](.*?)\[\/video\]/", '$1', $Text);
-		$Text = preg_replace("/\[audio\](.*?)\[\/audio\]/", '$1', $Text);
+		$Text = preg_replace("/\[video\](.*?)\[\/video\]/",
+					'<a href="$1" target="external-link">$1</a>', $Text);
+		$Text = preg_replace("/\[audio\](.*?)\[\/audio\]/",
+					'<a href="$1" target="external-link">$1</a>', $Text);
 	}
 
 	// html5 video and audio
@@ -659,8 +663,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	if ($tryoembed)
 		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $Text);
 	else
-		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", "https://www.youtube.com/watch?v=$1", $Text);
-
+		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
+					'<a href="https://www.youtube.com/watch?v=$1" target="external-link">https://www.youtube.com/watch?v=$1</a>', $Text);
 
 	if ($tryoembed) {
 		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text); 
@@ -673,7 +677,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	if ($tryoembed)
 		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $Text);
 	else
-		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", "https://vimeo.com/$1", $Text);
+		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+					'<a href="https://vimeo.com/$1" target="external-link">https://vimeo.com/$1</a>', $Text);
 
 //	$Text = preg_replace("/\[youtube\](.*?)\[\/youtube\]/", '<object width="425" height="350" type="application/x-shockwave-flash" data="http://www.youtube.com/v/$1" ><param name="movie" value="http://www.youtube.com/v/$1"></param><!--[if IE]><embed src="http://www.youtube.com/v/$1" type="application/x-shockwave-flash" width="425" height="350" /><![endif]--></object>', $Text);
 

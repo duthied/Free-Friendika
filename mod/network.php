@@ -168,7 +168,7 @@ function network_init(&$a) {
 		}
 	}
 	if(x($_GET,'remove')) {
-		q("delete from `search` where `uid` = %d and `term` = '%s' limit 1",
+		q("delete from `search` where `uid` = %d and `term` = '%s'",
 			intval(local_user()),
 			dbesc($search)
 		);
@@ -572,7 +572,8 @@ function network_content(&$a, $update = 0) {
 	$sql_options  = (($star) ? " and starred = 1 " : '');
 	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
 
-	$sql_nets = (($nets) ? sprintf(" and `contact`.`network` = '%s' ", dbesc($nets)) : '');
+	//$sql_nets = (($nets) ? sprintf(" and `contact`.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_nets = (($nets) ? sprintf(" and `item`.`network` = '%s' ", dbesc($nets)) : '');
 
 	$sql_extra = " AND `item`.`parent` IN ( SELECT `parent` FROM `item` WHERE `id` = `parent` $sql_options ) ";
 
@@ -608,7 +609,9 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = " . intval($cid) . " and deleted = 0 ) ";
+			$sql_table = "`item` INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." and deleted = 0 ORDER BY `item`.`received` DESC) AS `temp1` ON item.parent = `temp1`.parent ";
+			$sql_extra = "";
+			//$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = " . intval($cid) . " and deleted = 0 ) ";
 			$o = '<h2>' . t('Contact: ') . $r[0]['name'] . '</h2>' . $o;
 			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( t('Private messages to this person are at risk of public disclosure.') . EOL);
@@ -639,7 +642,9 @@ function network_content(&$a, $update = 0) {
 	$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 	$sql_order = "`item`.`received`";
-	$sql_table = "`item`";
+
+	if ($sql_table == "")
+		$sql_table = "`item`";
 
 	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
@@ -670,11 +675,18 @@ function network_content(&$a, $update = 0) {
 		}*/
 
 		if($tag) {
-			$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
-					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-			$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+			//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
+			//		dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+			//$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
 
-			$sql_order = "`term`.`tid`";
+			//$sql_order = "`term`.`tid`";
+
+			$sql_extra = "";
+
+			$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
+
+			$sql_order = "`item`.`received`";
 		} else {
 			if (get_config('system','use_fulltext_engine'))
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
@@ -791,7 +803,7 @@ function network_content(&$a, $update = 0) {
 		// Fetch a page full of parent items for this page
 
 		if($update) {
-			$r = q("SELECT `parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `item`.`parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
 				(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')
@@ -890,3 +902,4 @@ function network_content(&$a, $update = 0) {
 
 	return $o;
 }
+

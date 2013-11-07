@@ -43,7 +43,7 @@ function dfrn_poll_init(&$a) {
 				http_status_exit(403);
 			$user = $r[0]['nickname'];
 		}
- 
+
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
 		echo get_feed_for($a, '', $user,$last_update);
@@ -71,13 +71,13 @@ function dfrn_poll_init(&$a) {
 				break; // NOTREACHED
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`username`, `user`.`nickname` 
+		$r = q("SELECT `contact`.*, `user`.`username`, `user`.`nickname`
 			FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
+			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `user`.`nickname` = '%s' $sql_extra LIMIT 1",
 			dbesc($a->argv[1])
 		);
-		
+
 		if(count($r)) {
 
 			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
@@ -104,10 +104,10 @@ function dfrn_poll_init(&$a) {
 					// Visitors get 1 day session.
 					$session_id = session_id();
 					$expire = time() + 86400;
-					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s' LIMIT 1",
+					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s'",
 						dbesc($expire),
 						dbesc($session_id)
-					); 
+					);
 				}
 			}
 			$profile = $r[0]['nickname'];
@@ -211,13 +211,13 @@ function dfrn_poll_post(&$a) {
 	$ptype        = ((x($_POST,'type'))         ? $_POST['type']                 : '');
 	$dfrn_version = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version'] : 2.0);
 	$perm         = ((x($_POST,'perm'))         ? $_POST['perm']                 : 'r');
-          
+
 	if($ptype === 'profile-check') {
 
 		if((strlen($challenge)) && (strlen($sec))) {
 
 			logger('dfrn_poll: POST: profile-check');
- 
+
 			q("DELETE FROM `profile_check` WHERE `expire` < " . intval(time()));
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
@@ -289,7 +289,7 @@ function dfrn_poll_post(&$a) {
 	$type = $r[0]['type'];
 	$last_update = $r[0]['last_update'];
 
-	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s'",
 		dbesc($dfrn_id),
 		dbesc($challenge)
 	);
@@ -323,7 +323,7 @@ function dfrn_poll_post(&$a) {
 
 	$contact = $r[0];
 	$owner_uid = $r[0]['uid'];
-	$contact_id = $r[0]['id']; 
+	$contact_id = $r[0]['id'];
 
 
 	if($type === 'reputation' && strlen($url)) {
@@ -356,7 +356,7 @@ function dfrn_poll_post(&$a) {
 	}
 	else {
 
-		// Update the writable flag if it changed		
+		// Update the writable flag if it changed
 		logger('dfrn_poll: post request feed: ' . print_r($_POST,true),LOGGER_DATA);
 		if($dfrn_version >= 2.21) {
 			if($perm === 'rw')
@@ -365,13 +365,13 @@ function dfrn_poll_post(&$a) {
 				$writable = 0;
 
 			if($writable !=  $contact['writable']) {
-				q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d LIMIT 1",
+				q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
 					intval($writable),
 					intval($contact_id)
 				);
 			}
 		}
-				
+
 		header("Content-type: application/atom+xml");
 		$o = get_feed_for($a,$dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
@@ -440,9 +440,9 @@ function dfrn_poll_content(&$a) {
 
 		$nickname = $a->argv[1];
 
-		$r = q("SELECT `contact`.*, `user`.`username`, `user`.`nickname` 
+		$r = q("SELECT `contact`.*, `user`.`username`, `user`.`nickname`
 			FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
+			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `user`.`nickname` = '%s' $sql_extra LIMIT 1",
 			dbesc($nickname)
 		);
@@ -522,8 +522,8 @@ function dfrn_poll_content(&$a) {
 
 				logger('dfrn_poll: secure profile: challenge: ' . $xml->challenge . ' expecting ' . $hash);
 				logger('dfrn_poll: secure profile: sec: ' . $xml->sec . ' expecting ' . $sec);
- 
-				
+
+
 				if(((int) $xml->status == 0) && ($xml->challenge == $hash)  && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
 					if(! x($_SESSION,'remote'))
@@ -537,12 +537,12 @@ function dfrn_poll_content(&$a) {
 					// Visitors get 1 day session.
 					$session_id = session_id();
 					$expire = time() + 86400;
-					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s' LIMIT 1",
+					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s'",
 						dbesc($expire),
 						dbesc($session_id)
-					); 
+					);
 				}
-			
+
 				goaway($dest);
 			}
 			goaway($dest);

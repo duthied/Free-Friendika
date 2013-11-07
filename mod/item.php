@@ -106,7 +106,7 @@ function item_post(&$a) {
 
 		if(($r === false) || (! count($r))) {
 			notice( t('Unable to locate original post.') . EOL);
-			if(x($_REQUEST,'return')) 
+			if(x($_REQUEST,'return'))
 				goaway($a->get_baseurl() . "/" . $return_path );
 			killme();
 		}
@@ -157,7 +157,7 @@ function item_post(&$a) {
 
 	if((! can_write_wall($a,$profile_uid)) && (! $allow_moderated)) {
 		notice( t('Permission denied.') . EOL) ;
-		if(x($_REQUEST,'return')) 
+		if(x($_REQUEST,'return'))
 			goaway($a->get_baseurl() . "/" . $return_path );
 		killme();
 	}
@@ -275,10 +275,10 @@ function item_post(&$a) {
 		if($parent_item) {
 			$private = 0;
 
-			if(($parent_item['private']) 
-				|| strlen($parent_item['allow_cid']) 
-				|| strlen($parent_item['allow_gid']) 
-				|| strlen($parent_item['deny_cid']) 
+			if(($parent_item['private'])
+				|| strlen($parent_item['allow_cid'])
+				|| strlen($parent_item['allow_gid'])
+				|| strlen($parent_item['deny_cid'])
 				|| strlen($parent_item['deny_gid'])) {
 				$private = (($parent_item['private']) ? $parent_item['private'] : 1);
 			}
@@ -288,7 +288,7 @@ function item_post(&$a) {
 			$str_contact_deny  = $parent_item['deny_cid'];
 			$str_group_deny    = $parent_item['deny_gid'];
 		}
-	
+
 		$pubmail_enable    = ((x($_REQUEST,'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && (! $private)) ? 1 : 0);
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
@@ -308,7 +308,7 @@ function item_post(&$a) {
 			if($preview)
 				killme();
 			info( t('Empty post discarded.') . EOL );
-			if(x($_REQUEST,'return')) 
+			if(x($_REQUEST,'return'))
 				goaway($a->get_baseurl() . "/" . $return_path );
 			killme();
 		}
@@ -361,7 +361,7 @@ function item_post(&$a) {
 					break;
 				}
 			}
-		}				
+		}
 		if($contact_id) {
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($contact_id)
@@ -375,7 +375,7 @@ function item_post(&$a) {
 	}
 
 	// get contact info for owner
-	
+
 	if($profile_uid == local_user()) {
 		$contact_record = $author;
 	}
@@ -400,7 +400,7 @@ function item_post(&$a) {
 
 	/**
 	 *
-	 * When a photo was uploaded into the message using the (profile wall) ajax 
+	 * When a photo was uploaded into the message using the (profile wall) ajax
 	 * uploader, The permissions are initially set to disallow anybody but the
 	 * owner from seeing it. This is because the permissions may not yet have been
 	 * set for the post. If it's private, the photo permissions should be set
@@ -433,7 +433,7 @@ function item_post(&$a) {
 
 				if(! count($r))
 					continue;
- 
+
 
 				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
@@ -445,7 +445,7 @@ function item_post(&$a) {
 					intval($profile_uid),
 					dbesc( t('Wall Photos'))
 				);
- 
+
 			}
 		}
 	}
@@ -464,10 +464,10 @@ function item_post(&$a) {
 				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 					intval($profile_uid),
 					intval($attach)
-				);				
+				);
 				if(count($r)) {
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-						WHERE `uid` = %d AND `id` = %d LIMIT 1",
+						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
 						dbesc($str_group_allow),
 						dbesc($str_contact_deny),
@@ -555,7 +555,7 @@ function item_post(&$a) {
 		// we tagged a private forum in a top level post and the message was public.
 		// Restrict it.
 		$private = 1;
-		$str_contact_allow = '<' . $private_id . '>'; 
+		$str_contact_allow = '<' . $private_id . '>';
 	}
 
 	$attachments = '';
@@ -683,7 +683,7 @@ function item_post(&$a) {
 
 
 	if($orig_post) {
-		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($datarray['title']),
 			dbesc($datarray['body']),
 			dbesc($datarray['tag']),
@@ -786,7 +786,7 @@ function item_post(&$a) {
 			// Inherit ACL's from the parent item.
 
 			$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
-				WHERE `id` = %d LIMIT 1",
+				WHERE `id` = %d",
 				dbesc($parent_item['allow_cid']),
 				dbesc($parent_item['allow_gid']),
 				dbesc($parent_item['deny_cid']),
@@ -849,7 +849,7 @@ function item_post(&$a) {
 			$parent = $post_id;
 
 		$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `plink` = '%s', `changed` = '%s', `last-child` = 1, `visible` = 1
-			WHERE `id` = %d LIMIT 1",
+			WHERE `id` = %d",
 			intval($parent),
 			dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
 			dbesc($a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id),
@@ -862,7 +862,7 @@ function item_post(&$a) {
 		// They will show up as people comment on them.
 
 		if(! $parent_item['visible']) {
-			$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d LIMIT 1",
+			$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
 				intval($parent_item['id'])
 			);
 		}
@@ -876,7 +876,7 @@ function item_post(&$a) {
 
 	// update the commented timestamp on the parent
 
-	q("UPDATE `item` set `commented` = '%s', `changed` = '%s' WHERE `id` = %d LIMIT 1",
+	q("UPDATE `item` set `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		intval($parent)

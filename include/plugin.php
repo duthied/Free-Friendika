@@ -42,7 +42,7 @@ function install_plugin($plugin) {
 		// This way the system won't fall over dead during the update.
 
 		if(file_exists('addon/' . $plugin . '/.hidden')) {
-			q("update addon set hidden = 1 where name = '%s' limit 1",
+			q("update addon set hidden = 1 where name = '%s'",
 				dbesc($plugin)
 			);
 		}
@@ -92,7 +92,7 @@ function reload_plugins() {
 								$func = $pl . '_install';
 								$func();
 							}
-							q("UPDATE `addon` SET `timestamp` = %d WHERE `id` = %d LIMIT 1",
+							q("UPDATE `addon` SET `timestamp` = %d WHERE `id` = %d",
 								intval($t),
 								intval($i['id'])
 							);
@@ -104,7 +104,7 @@ function reload_plugins() {
 	}
 
 }}
-				
+
 
 
 
@@ -132,7 +132,7 @@ function register_hook($hook,$file,$function,$priority=0) {
 if(! function_exists('unregister_hook')) {
 function unregister_hook($hook,$file,$function) {
 
-	$r = q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
 		dbesc($hook),
 		dbesc($file),
 		dbesc($function)
@@ -175,7 +175,7 @@ function call_hooks($name, &$data = null) {
 			}
 			else {
 				// remove orphan hooks
-				q("delete from hook where hook = '%s' and file = '%s' and function = '%s' limit 1",
+				q("delete from hook where hook = '%s' and file = '%s' and function = '%s'",
 					dbesc($name),
 					dbesc($hook[0]),
 					dbesc($hook[1])
