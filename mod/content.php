@@ -173,23 +173,6 @@ function content_content(&$a, $update = 0) {
 		if (get_config('system','only_tag_search'))
 			$tag = true;
 
-		/*if (get_config('system','use_fulltext_engine')) {
-			if(strpos($search,'#') === 0)
-				$sql_extra .= sprintf(" AND (MATCH(tag) AGAINST ('%s' in boolean mode)) ",
-					dbesc(protect_sprintf($search))
-				);
-			else
-				$sql_extra .= sprintf(" AND (MATCH(`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode)) ",
-					dbesc(protect_sprintf($search)),
-					dbesc(protect_sprintf($search))
-				);
-		} else {
-			$sql_extra .= sprintf(" AND ( `item`.`body` like '%s' OR `item`.`tag` like '%s' ) ",
-					dbesc(protect_sprintf('%' . $search . '%')),
-					dbesc(protect_sprintf('%]' . $search . '[%'))
-			);
-		}*/
-
 		if($tag) {
 			//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
 			//	dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
@@ -216,18 +199,6 @@ function content_content(&$a, $update = 0) {
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace('www.','',$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
-		/*if (get_config('system','use_fulltext_engine'))
-			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from $sql_table where (MATCH(`author-link`, `tag`) AGAINST ('%s' in boolean mode) or MATCH(tag) AGAINST ('%s' in boolean mode))) ",
-				dbesc(protect_sprintf($myurl)),
-				dbesc(protect_sprintf($myurl)),
-				dbesc(protect_sprintf($diasp_url))
-			);
-		else
-			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from $sql_table where ( `author-link` like '%s' or `tag` like '%s' or tag like '%s' )) ",
-				dbesc(protect_sprintf('%' . $myurl)),
-				dbesc(protect_sprintf('%' . $myurl . ']%')),
-				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
-			);*/
 
 		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
 			dbesc(protect_sprintf($myurl)),
@@ -395,7 +366,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
-	
+
 	if($items && count($items)) {
 
 		if($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
@@ -423,11 +394,11 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				}
 				else
 					$nickname = $a->user['nickname'];
-				
+
 				// prevent private email from leaking.
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
 						continue;
-			
+
 				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
 				if($item['author-link'] && (! $item['author-name']))
 					$profile_name = $item['author-link'];
@@ -582,8 +553,8 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 
 				// We've already parsed out like/dislike for special treatment. We can ignore them now
 
-				if(((activity_match($item['verb'],ACTIVITY_LIKE)) 
-					|| (activity_match($item['verb'],ACTIVITY_DISLIKE))) 
+				if(((activity_match($item['verb'],ACTIVITY_LIKE))
+					|| (activity_match($item['verb'],ACTIVITY_DISLIKE)))
 					&& ($item['id'] != $item['parent']))
 					continue;
 
@@ -594,7 +565,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				// (author collapsing is currently disabled)
 				// If a single author has more than 3 consecutive top-level posts, squash the remaining ones.
 				// If there are more than two comments, squash all but the last 2.
-			
+
 				if($toplevelpost) {
 
 					$item_writeable = (($item['writable'] || $item['self']) ? true : false);
@@ -603,7 +574,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					$comments_collapsed = false;
 					$comment_lastcollapsed  = false;
 					$comment_firstcollapsed = false;
-					
+
 					$threadsid++;
 					$threads[$threadsid]['id'] = $item['item_id'];
 					$threads[$threadsid]['private'] = $item['private'];
@@ -666,7 +637,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 						$owner_photo = $a->page_contact['thumb'];
 						$owner_name = $a->page_contact['name'];
 						$template = $wallwall;
-						$commentww = 'ww';	
+						$commentww = 'ww';
 					}
 
 					if((! $item['wall']) && $item['owner-link']) {
@@ -684,7 +655,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 							// well that it's the same Bob Smith. 
 
 							// But it could be somebody else with the same name. It just isn't highly likely. 
-							
+
 
 							$owner_url = $item['owner-link'];
 							$owner_photo = $item['owner-avatar'];
