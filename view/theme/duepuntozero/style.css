@@ -114,6 +114,14 @@ nav #site-location {
 	padding: 10px;
 }
 
+.warning-message {
+    background-color: #F4FA58;
+    border: 1px solid #F3F781;
+    color: #000000;
+    font-size: 1.1em;
+    padding: 10px;
+}
+
 
 nav #banner {
 	display: block;
