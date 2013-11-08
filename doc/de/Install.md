@@ -24,6 +24,11 @@ Bevor du anfängst: suche dir einen Domain- oder Subdomainnamen für deinen Serv
 
     [Dreamhost.com bietet ein ausreichendes Hosting-Paket mit den nötigen Features zu einem annehmbaren Preis. Wenn dein Hosting-Anbieter keinen Unix-Zugriff erlaubt, kannst du Schwierigkeiten mit der Einrichtung der Webseite haben. 
     
+    1.1. APT-Pakete
+		- Apache: sudo apt-get install apache2
+		- PHP5: sudo apt-get install php5
+			- PHP5-Zusätzliche Pakete: sudo apt-get install php5-curl php5-gd php5-mysql php5-mcrypt
+		- MySQL: sudo apt-get install mysql-server
 
 2. Entpacke die Friendica-Daten in das Quellverzeichnis (root) des Dokumentenbereichs deines Webservers.
 
