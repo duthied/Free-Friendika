@@ -108,7 +108,7 @@ function admin_content(&$a) {
 
 	/* get plugins admin page */
 
-	$r = q("SELECT * FROM `addon` WHERE `plugin_admin`=1");
+	$r = q("SELECT name FROM `addon` WHERE `plugin_admin`=1");
 	$aside['plugins_admin']=Array();
 	foreach ($r as $h){
 		$plugin =$h['name'];
@@ -605,7 +605,7 @@ function admin_page_dbsync(&$a) {
 	}
 
 	$failed = array();
-	$r = q("select * from config where `cat` = 'database' ");
+	$r = q("select k, v from config where `cat` = 'database' ");
 	if(count($r)) {
 		foreach($r as $rr) {
 			$upd = intval(substr($rr['k'],7));
@@ -711,7 +711,7 @@ function admin_page_users_post(&$a){
 function admin_page_users(&$a){
 	if ($a->argc>2) {
 		$uid = $a->argv[3];
-		$user = q("SELECT * FROM `user` WHERE `uid`=%d", intval($uid));
+		$user = q("SELECT username, blocked FROM `user` WHERE `uid`=%d", intval($uid));
 		if (count($user)==0){
 			notice( 'User not found' . EOL);
 			goaway($a->get_baseurl(true) . '/admin/users' );
