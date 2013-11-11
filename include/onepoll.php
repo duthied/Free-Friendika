@@ -423,7 +423,6 @@ function onepoll_run(&$argv, &$argc){
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
 						if(!x($datarray,'parent-uri') and $reply) {
-							//$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE MATCH (`title`) AGAINST ('".'"%s"'."' IN BOOLEAN MODE) AND `uid` = %d ORDER BY `created` DESC LIMIT 1",
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid));

@@ -599,7 +599,9 @@ function network_content(&$a, $update = 0) {
 				info( t('Group is empty'));
 		}
 
-		$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND ( `contact-id` IN ( $contact_str ) OR `allow_gid` like '" . protect_sprintf('%<' . intval($group) . '>%') . "' ) and deleted = 0 ) ";
+		$sql_table = "`item` INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON item.parent = `temp1`.parent ";
+		$sql_extra = "";
+		//$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND ( `contact-id` IN ( $contact_str ) OR `allow_gid` like '" . protect_sprintf('%<' . intval($group) . '>%') . "' ) and deleted = 0 ) ";
 		$o = '<h2>' . t('Group: ') . $r[0]['name'] . '</h2>' . $o;
 	}
 	elseif($cid) {
@@ -641,7 +643,8 @@ function network_content(&$a, $update = 0) {
 
 	$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
-	$sql_order = "`item`.`received`";
+	//$sql_order = "`item`.`received`";
+	$sql_order = "";
 
 	if ($sql_table == "")
 		$sql_table = "`item`";
@@ -656,23 +659,6 @@ function network_content(&$a, $update = 0) {
 
 		if (get_config('system','only_tag_search'))
 			$tag = true;
-
-		/*if (get_config('system','use_fulltext_engine')) {
-			if(strpos($search,'#') === 0)
-				$sql_extra .= sprintf(" AND (MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode)) ",
-					dbesc(protect_sprintf($search))
-				);
-			else
-				$sql_extra .= sprintf(" AND (MATCH(`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode)) ",
-					dbesc(protect_sprintf($search)),
-					dbesc(protect_sprintf($search))
-				);
-		} else {
-			$sql_extra .= sprintf(" AND ( `item`.`body` like '%s' OR `item`.`tag` like '%s' ) ",
-					dbesc(protect_sprintf('%' . $search . '%')),
-					dbesc(protect_sprintf('%]' . $search . '[%'))
-			);
-		}*/
 
 		if($tag) {
 			//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
@@ -705,20 +691,6 @@ function network_content(&$a, $update = 0) {
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace('www.','',$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
-		/*if (get_config('system','use_fulltext_engine'))
-			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (MATCH(`author-link`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
-			//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (`author-link` IN ('https://%s', 'http://%s') OR MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
-			//$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
-				dbesc(protect_sprintf($myurl)),
-				dbesc(protect_sprintf($myurl)),
-				dbesc(protect_sprintf($diasp_url))
-			);
-		else
-			$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where ( `author-link` like '%s' or `tag` like '%s' or tag like '%s' )) ",
-				dbesc(protect_sprintf('%' . $myurl)),
-				dbesc(protect_sprintf('%' . $myurl . ']%')),
-				dbesc(protect_sprintf('%' . $diasp_url . ']%'))
-			);*/
 
 		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
 			dbesc(protect_sprintf($myurl)),
@@ -781,7 +753,7 @@ function network_content(&$a, $update = 0) {
 			$simple_update
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra $sql_nets
-			ORDER BY $sql_order DESC $pager_sql ",
+			ORDER BY `item`.`received` DESC $pager_sql ",
 			intval($_SESSION['uid'])
 		);
 
