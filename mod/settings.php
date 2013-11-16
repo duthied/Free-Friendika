@@ -306,6 +306,12 @@ function settings_post(&$a) {
 
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 	
+	if (x($_POST,'resend_relocate')) {
+		proc_run('php', 'include/notifier.php', 'relocate', local_user());
+		info(t("Relocate message has been send to your contacts"));
+		goaway($a->get_baseurl(true) . '/settings');
+	}
+	
 	call_hooks('settings_post', $_POST);
 
 	if((x($_POST,'npassword')) || (x($_POST,'confirm'))) {
@@ -1147,6 +1153,10 @@ function settings_content(&$a) {
 		'$h_advn' => t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => t('Change the behaviour of this account for special situations'),
 		'$pagetype' => $pagetype,
+		
+		'$relocate' => t('Relocate'),
+		'$relocate_text' => t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
+		'$relocate_button' => t("Resend relocate message to contacts"),
 		
 	));
 

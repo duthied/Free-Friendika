@@ -38,6 +38,7 @@ require_once('include/html2plain.php');
  *		tgroup					(in items.php)
  *		wall-new				(in photos.php, item.php)
  *		removeme				(in Contact.php)
+ * 		relocate				(in uimport.php)
  *
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  */
