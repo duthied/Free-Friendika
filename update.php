@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1165 );
+define( 'UPDATE_VERSION' , 1166 );
 
 /**
  *
@@ -1506,6 +1506,23 @@ function update_1164() {
 		NETWORK_TWITTER, NETWORK_TWITTER);
 
 	set_config('system', 'maintenance', 0);
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1165() {
+	$r = q("CREATE TABLE IF NOT EXISTS `push_subscriber` (
+			`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		    `uid` INT NOT NULL,
+	        `callback_url` CHAR( 255 ) NOT NULL,
+            `topic` CHAR( 255 ) NOT NULL,
+            `nickname` CHAR( 255 ) NOT NULL,
+            `push` INT NOT NULL,
+            `last_update` DATETIME NOT NULL,
+            `secret` CHAR( 255 ) NOT NULL
+		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
 
 	return UPDATE_SUCCESS;
 }

@@ -2,6 +2,51 @@
 require_once("boot.php");
 require_once('include/queue_fn.php');
 
+function handle_pubsubhubbub() {
+	global $a, $db;
+
+	logger('queue [pubsubhubbub]: start');
+
+	// We'll push to each subscriber that has the push flag set,
+	// i.e. there has been an update (set in notifier.php).
+
+	$r = q("SELECT * FROM `push_subscriber` WHERE `push` = 1");
+
+	foreach($r as $rr) {
+		$params = get_feed_for($a, '', $rr['nickname'], $rr['last_update']);
+		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
+
+		$headers = array("Content-type: application/atom+xml",
+						 sprintf("Link: <%s>;rel=hub," .
+								 "<%s>;rel=self",
+								 $a->get_baseurl() . '/pubsubhubbub',
+								 $rr['topic']),
+						 "X-Hub-Signature: sha1=" . $hmac_sig);
+
+		logger('queue [pubsubhubbub]: POST', $headers);
+
+		post_url($rr['callback_url'], $params, $headers);
+		$ret = $a->get_curl_code();
+
+		if ($ret >= 200 && $ret <= 299) {
+			logger('queue [pubsubhubbub]: successfully pushed to ' .
+				   $rr['callback_url']);
+			// here we should set push = 0 and update last_update to 'now'
+			$date_now = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+			q("UPDATE `push_subscriber` SET `push` = 0, last_update = '%s' " .
+			  "WHERE id = %d",
+			  dbesc($date_now),
+			  intval($rr['id']));
+		} else {
+			logger('queue [pubsubhubbub]: error when pushing to ' .
+				   $rr['callback_url'] . 'HTTP: ', $ret);
+			// here we should set update some retry counter
+			// or cancel if counter is too high, remove subscription?
+		}
+	}
+}
+
+
 function queue_run(&$argv, &$argc){
 	global $a, $db;
 
@@ -37,6 +82,8 @@ function queue_run(&$argv, &$argc){
 	$deadguys = array();
 
 	logger('queue: start');
+
+	handle_pubsubhubbub();
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 

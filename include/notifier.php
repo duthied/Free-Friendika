@@ -966,9 +966,18 @@ function notifier_run(&$argv, &$argc){
 					$h = trim($h);
 					if(! strlen($h))
 						continue;
-					$params = 'hub.mode=publish&hub.url=' . urlencode($a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
-					post_url($h,$params);
-					logger('pubsub: publish: ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
+
+					if ($h === '[internal]') {
+						// Set push flag for PuSH subscribers to this topic,
+						// they will be notified in queue.php
+						q("UPDATE `push_subscriber` SET `push` = 1 " . 
+						  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
+					} else {
+
+						$params = 'hub.mode=publish&hub.url=' . urlencode( $a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
+						post_url($h,$params);
+						logger('pubsub: publish: ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
+					}
 					if(count($hubs) > 1)
 						sleep(7);				// try and avoid multiple hubs responding at precisely the same time
 				}
