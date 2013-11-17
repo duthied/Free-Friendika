@@ -84,7 +84,7 @@ function group_content(&$a) {
 	$tpl = get_markup_template('group_edit.tpl');
 
 	$context = array(
-			'$submit' => t('Submit'),
+			'$submit' => t('Save Group'),
 	);
 
 	if(($a->argc == 2) && ($a->argv[1] === 'new')) {
