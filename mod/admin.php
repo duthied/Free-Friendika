@@ -566,7 +566,7 @@ function admin_page_site(&$a) {
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$registration' => t('Registration'),
 		'$upload' => t('File upload'),
 		'$corporate' => t('Policies'),
@@ -891,7 +891,7 @@ function admin_page_users(&$a){
 		// strings //
 		'$title' => t('Administration'),
 		'$page' => t('Users'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Add User'),
 		'$select_all' => t('select all'),
 		'$h_pending' => t('User registrations waiting for confirm'),
 		'$h_deleted' => t('User waiting for permanent deletion'),
@@ -1037,7 +1037,7 @@ function admin_page_plugins(&$a){
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',	
 		'$plugins' => $plugins,
@@ -1237,7 +1237,7 @@ function admin_page_themes(&$a){
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Themes'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
@@ -1324,7 +1324,7 @@ readable.");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Logs'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
 		'$data' => $data,
 		'$baseurl' => $a->get_baseurl(true),
