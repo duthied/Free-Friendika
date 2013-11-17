@@ -314,9 +314,9 @@ function settings_post(&$a) {
 	
 	call_hooks('settings_post', $_POST);
 
-	if((x($_POST,'npassword')) || (x($_POST,'confirm'))) {
+	if((x($_POST,'password')) || (x($_POST,'confirm'))) {
 
-		$newpass = $_POST['npassword'];
+		$newpass = $_POST['password'];
         $confirm = $_POST['confirm'];
         $oldpass = hash('whirlpool', $_POST['opassword']);
 
@@ -422,7 +422,7 @@ function settings_post(&$a) {
 		$email_changed = true;
         //  check for the correct password
         $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-        $password = hash('whirlpool', $_POST['password']);
+        $password = hash('whirlpool', $_POST['mpassword']);
         if ($password != $r[0]['password']) {
             $err .= t('Wrong Password') . EOL;
             $email = $a->user['email'];
@@ -1084,10 +1084,10 @@ function settings_content(&$a) {
 		'$nickname_block' => $prof_addr,
 		
 		'$h_pass' 	=> t('Password Settings'),
-		'$password1'=> array('npassword', t('New Password:'), '', ''),
+		'$password1'=> array('password', t('New Password:'), '', ''),
 		'$password2'=> array('confirm', t('Confirm:'), '', t('Leave password fields blank unless changing')),
 		'$password3'=> array('opassword', t('Current Password:'), '', t('Your current password to confirm the changes')),
-		'$password4'=> array('password', t('Password:'), '', t('Your current password to confirm the changes')),
+		'$password4'=> array('mpassword', t('Password:'), '', t('Your current password to confirm the changes')),
 		'$oid_enable' => (! get_config('system','no_openid')),
 		'$openid'	=> $openid_field,
 		
