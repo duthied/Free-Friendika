@@ -7,10 +7,10 @@ function handle_pubsubhubbub() {
 
 	logger('queue [pubsubhubbub]: start');
 
-	// We'll push to each subscriber that has the push flag set,
+	// We'll push to each subscriber that has push > 0,
 	// i.e. there has been an update (set in notifier.php).
 
-	$r = q("SELECT * FROM `push_subscriber` WHERE `push` = 1");
+	$r = q("SELECT * FROM `push_subscriber` WHERE `push` > 0");
 
 	foreach($r as $rr) {
 		$params = get_feed_for($a, '', $rr['nickname'], $rr['last_update']);
@@ -31,17 +31,30 @@ function handle_pubsubhubbub() {
 		if ($ret >= 200 && $ret <= 299) {
 			logger('queue [pubsubhubbub]: successfully pushed to ' .
 				   $rr['callback_url']);
-			// here we should set push = 0 and update last_update to 'now'
+
+			// set last_update to "now", and reset push=0
 			$date_now = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
 			q("UPDATE `push_subscriber` SET `push` = 0, last_update = '%s' " .
 			  "WHERE id = %d",
 			  dbesc($date_now),
 			  intval($rr['id']));
+
 		} else {
 			logger('queue [pubsubhubbub]: error when pushing to ' .
 				   $rr['callback_url'] . 'HTTP: ', $ret);
-			// here we should set update some retry counter
-			// or cancel if counter is too high, remove subscription?
+
+			// we use the push variable also as a counter, if we failed we
+			// increment this until some upper limit where we give up
+			$new_push = intval($rr['push']) + 1;
+			
+			if ($new_push > 30) // OK, let's give up
+				$new_push = 0;
+
+			q("UPDATE `push_subscriber` SET `push` = %d, last_update = '%s' " .
+			  "WHERE id = %d",
+			  $new_push,
+			  dbesc($date_now),
+			  intval($rr['id']));
 		}
 	}
 }
