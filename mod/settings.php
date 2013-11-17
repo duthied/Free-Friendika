@@ -594,7 +594,7 @@ function settings_content(&$a) {
 			$o .= replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("settings_oauth"),
 				'$title'	=> t('Add application'),
-				'$submit'	=> t('Submit'),
+				'$submit'	=> t('Save Settings'),
 				'$cancel'	=> t('Cancel'),
 				'$name'		=> array('name', t('Name'), '', ''),
 				'$key'		=> array('key', t('Consumer Key'), '', ''),
@@ -704,7 +704,7 @@ function settings_content(&$a) {
 			'$form_security_token' => get_form_security_token("settings_features"),
 			'$title'	=> t('Additional Features'),
 			'$features' => $arr,
-			'$submit'   => t('Submit'),
+			'$submit'   => t('Save Settings'),
 		));
 		return $o;
 	}
@@ -773,7 +773,7 @@ function settings_content(&$a) {
 			'$mail_pubmail'	=> array('mail_pubmail', t('Send public posts to all email contacts:'), $mail_pubmail, ''),
 			'$mail_action'	=> array('mail_action',	 t('Action after import:'), $mail_action, '', array(0=>t('None'), /*1=>t('Delete'),*/ 2=>t('Mark as seen'), 3=>t('Move to folder'))),
 			'$mail_movetofolder'	=> array('mail_movetofolder',	 t('Move to folder:'), $mail_movetofolder, ''),
-			'$submit' => t('Submit'),
+			'$submit' => t('Save Settings'),
 
 			'$settings_connectors' => $settings_connectors
 		));
@@ -849,7 +849,7 @@ function settings_content(&$a) {
 		$o = replace_macros($tpl, array(
 			'$ptitle' 	=> t('Display Settings'),
 			'$form_security_token' => get_form_security_token("settings_display"),
-			'$submit' 	=> t('Submit'),
+			'$submit' 	=> t('Save Settings'),
 			'$baseurl' => $a->get_baseurl(true),
 			'$uid' => local_user(),
 
@@ -1077,7 +1077,7 @@ function settings_content(&$a) {
 	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),
 
-		'$submit' 	=> t('Submit'),
+		'$submit' 	=> t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$uid' => local_user(),
 		'$form_security_token' => get_form_security_token("settings"),
