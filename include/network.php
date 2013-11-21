@@ -549,7 +549,7 @@ function fetch_lrdd_template($host) {
 	}
 	if(count($links)) {
 		foreach($links as $link)
-			if($link['@attributes']['rel'] && $link['@attributes']['rel'] === 'lrdd')
+			if($link['@attributes']['rel'] && $link['@attributes']['rel'] === 'lrdd' && (!$link['@attributes']['type'] || $link['@attributes']['type'] === 'application/xrd+xml'))
 				$tpl = $link['@attributes']['template'];
 	}
 	if(! strpos($tpl,'{uri}'))
@@ -566,7 +566,7 @@ function fetch_xrd_links($url) {
 
 	$xrd_timeout = intval(get_config('system','xrd_timeout'));
 	$redirects = 0;
-	$xml = fetch_url($url,false,$redirects,(($xrd_timeout) ? $xrd_timeout : 20));
+	$xml = fetch_url($url,false,$redirects,(($xrd_timeout) ? $xrd_timeout : 20), "application/xrd+xml");
 
 	logger('fetch_xrd_links: ' . $xml, LOGGER_DATA);
 
