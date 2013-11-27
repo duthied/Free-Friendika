@@ -1554,7 +1554,7 @@ if(! function_exists('feed_hublinks')) {
  * @return string hub link xml elements
  */
 function feed_hublinks() {
-
+	$a = get_app();
 	$hub = get_config('system','huburl');
 
 	$hubxml = '';
@@ -1565,6 +1565,8 @@ function feed_hublinks() {
 				$h = trim($h);
 				if(! strlen($h))
 					continue;
+				if ($h === '[internal]')
+					$h = $a->get_baseurl() . '/pubsubhubbub';
 				$hubxml .= '<link rel="hub" href="' . xmlify($h) . '" />' . "\n" ;
 			}
 		}

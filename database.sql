@@ -1156,3 +1156,22 @@ CREATE TABLE IF NOT EXISTS `tag` (
   PRIMARY KEY (`iid`, `tag`),
   KEY `tag` (`tag`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `push_subscriber`
+--
+
+CREATE TABLE IF NOT EXISTS `push_subscriber` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `callback_url` char(255) NOT NULL,
+  `topic` char(255) NOT NULL,
+  `nickname` char(255) NOT NULL,
+  `push` int(11) NOT NULL,
+  `last_update` datetime NOT NULL,
+  `secret` char(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
