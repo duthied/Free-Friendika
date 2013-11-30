@@ -16,8 +16,13 @@
 {{if $mail_disabled}}
 
 {{else}}
-	<div class="settings-block">
-	<h3 class="settings-heading">{{$h_imap}}</h3>
+	<span id="settings_mail_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
+		<h3 class="settings-heading">{{$h_imap}}</h3>
+	</span>
+	<div id="settings_mail_expanded" class="settings-block" style="display: none;">
+	<span class="fakelink" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
+		<h3 class="settings-heading">{{$h_imap}}</h3>
+	</span>
 	<p>{{$imap_desc}}</p>
 	{{include file="field_custom.tpl" field=$imap_lastcheck}}
 	{{include file="field_input.tpl" field=$mail_server}}
