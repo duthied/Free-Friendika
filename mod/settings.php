@@ -317,8 +317,8 @@ function settings_post(&$a) {
 	if((x($_POST,'password')) || (x($_POST,'confirm'))) {
 
 		$newpass = $_POST['password'];
-        $confirm = $_POST['confirm'];
-        $oldpass = hash('whirlpool', $_POST['opassword']);
+		$confirm = $_POST['confirm'];
+		$oldpass = hash('whirlpool', $_POST['opassword']);
 
 		$err = false;
 		if($newpass != $confirm ) {
