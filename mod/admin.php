@@ -71,7 +71,7 @@ function admin_post(&$a){
 	}
 
 	goaway($a->get_baseurl(true) . '/admin' );
-	return; // NOTREACHED	
+	return; // NOTREACHED
 }
 
 /**
@@ -199,7 +199,7 @@ function admin_page_summary(&$a) {
 
 	$r = q("SELECT COUNT(id) as `count` FROM `register`");
 	$pending = $r[0]['count'];
-		
+
 	$r = q("select count(*) as total from deliverq where 1");
 	$deliverq = (($r) ? $r[0]['total'] : 0);
 
@@ -367,7 +367,7 @@ function admin_page_site_post(&$a){
 	set_config('system','maximagesize', $maximagesize);
 	set_config('system','max_image_length', $maximagelength);
 	set_config('system','jpeg_quality', $jpegimagequality);
-	
+
 	set_config('config','register_policy', $register_policy);
 	set_config('system','max_daily_registrations', $daily_registrations);
 	set_config('system','account_abandon_days', $abandon_days);
@@ -404,7 +404,7 @@ function admin_page_site_post(&$a){
         set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
 	set_config('system','diaspora_enabled', $diaspora_enabled);
 	set_config('config','private_addons', $private_addons);
-	
+
 	set_config('system','old_share', $old_share);
 	set_config('system','hide_help', $hide_help);
 	set_config('system','use_fulltext_engine', $use_fulltext_engine);
@@ -413,7 +413,7 @@ function admin_page_site_post(&$a){
 	set_config('system','lockpath', $lockpath);
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
-	
+
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
 	return; // NOTREACHED
@@ -425,11 +425,11 @@ function admin_page_site_post(&$a){
  * @return string
  */
 function admin_page_site(&$a) {
-	
+
 	/* Installed langs */
 	$lang_choices = array();
 	$langs = glob('view/*/strings.php');
-	
+
 	if(is_array($langs) && count($langs)) {
 		if(! in_array('view/en/strings.php',$langs))
 			$langs[] = 'view/en/';
@@ -439,7 +439,7 @@ function admin_page_site(&$a) {
 			$lang_choices[$t[1]] = $t[1];
 		}
 	}
-	
+
 	/* Installed themes */
 	$theme_choices = array();
 	$theme_choices_mobile = array();
@@ -508,7 +508,7 @@ function admin_page_site(&$a) {
 		'$corporate' => t('Policies'),
 		'$advanced' => t('Advanced'),
 		'$performance' => t('Performance'),
-		
+
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
@@ -539,7 +539,7 @@ function admin_page_site(&$a) {
 		'$enotify_no_content'	=> array('enotify_no_content', t("Don't include post content in email notifications"), get_config('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")),
 		'$private_addons'	=> array('private_addons', t("Disallow public access to addons listed in the apps menu."), get_config('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")),
 		'$disable_embedded'	=> array('disable_embedded', t("Don't embed private images in posts"), get_config('system','disable_embedded'), t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")),
-		
+
 		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  get_config('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !get_config('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !get_config('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
@@ -624,7 +624,7 @@ function admin_page_dbsync(&$a) {
 		'$mark' => t('Mark success (if update was manually applied)'),
 		'$apply' => t('Attempt to execute this update step automatically'),
 		'$failed' => $failed
-	));	
+	));
 
 	return $o;
 
@@ -643,7 +643,7 @@ function admin_page_users_post(&$a){
   $nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
   check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
-    
+
   if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) { 
       require_once('include/user.php'); 
       require_once('include/email.php'); 
@@ -671,7 +671,7 @@ function admin_page_users_post(&$a){
 		    info( t('Registration successful. Email send to user').EOL ); 
       } 
   }
-	
+
 	if (x($_POST,'page_users_block')){
 		foreach($users as $uid){
 			q("UPDATE `user` SET `blocked`=1-`blocked` WHERE `uid`=%s",
@@ -687,7 +687,7 @@ function admin_page_users_post(&$a){
 		}
 		notice( sprintf( tt("%s user deleted", "%s users deleted", count($users)), count($users)) );
 	}
-	
+
 	if (x($_POST,'page_users_approve')){
 		require_once("mod/regmod.php");
 		foreach($pending as $hash){
@@ -701,7 +701,7 @@ function admin_page_users_post(&$a){
 		}
 	}
 	goaway($a->get_baseurl(true) . '/admin/users' );
-	return; // NOTREACHED	
+	return; // NOTREACHED
 }
 
 /**
@@ -716,14 +716,14 @@ function admin_page_users(&$a){
 			notice( 'User not found' . EOL);
 			goaway($a->get_baseurl(true) . '/admin/users' );
 			return ''; // NOTREACHED
-		}		
+		}
 		switch($a->argv[2]){
 			case "delete":{
                 check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				// delete user
 				require_once("include/Contact.php");
 				user_remove($uid);
-				
+
 				notice( sprintf(t("User '%s' deleted"), $user[0]['username']) . EOL);
 			}; break;
 			case "block":{
@@ -737,16 +737,16 @@ function admin_page_users(&$a){
 		}
 		goaway($a->get_baseurl(true) . '/admin/users' );
 		return ''; // NOTREACHED
-		
+
 	}
-	
+
 	/* get pending */
 	$pending = q("SELECT `register`.*, `contact`.`name`, `user`.`email`
 				 FROM `register`
 				 LEFT JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 				 LEFT JOIN `user` ON `register`.`uid` = `user`.`uid`;");
-	
-	
+
+
 	/* get users */
 
 	$total = q("SELECT count(*) as total FROM `user` where 1");
@@ -754,8 +754,8 @@ function admin_page_users(&$a){
 		$a->set_pager_total($total[0]['total']);
 		$a->set_pager_itemspage(100);
 	}
-	
-	
+
+
 	$users = q("SELECT `user` . * , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
 				FROM
 					(SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
@@ -773,11 +773,14 @@ function admin_page_users(&$a){
 				intval($a->pager['start']),
 				intval($a->pager['itemspage'])
 				);
-					
+
 	function _setup_users($e){
-        $a = get_app();
+		$a = get_app();
+
+		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+
 		$accounts = Array(
-			t('Normal Account'), 
+			t('Normal Account'),
 			t('Soapbox Account'),
 			t('Community/Celebrity Account'),
                         t('Automatic Friend Account')
@@ -786,19 +789,20 @@ function admin_page_users(&$a){
 		$e['register_date'] = relative_date($e['register_date']);
 		$e['login_date'] = relative_date($e['login_date']);
 		$e['lastitem_date'] = relative_date($e['lastitem_date']);
-        $e['is_admin'] = ($e['email'] === $a->config['admin_email']);
-        $e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
+		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
+		$e['is_admin'] = in_array($e['email'], $adminlist);
+		$e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
 		return $e;
 	}
 	$users = array_map("_setup_users", $users);
-	
-	
+
+
 	// Get rid of dashes in key names, Smarty3 can't handle them
 	// and extracting deleted users
-	
+
 	$tmp_users = Array();
 	$deleted = Array();
-	
+
 	while(count($users)) {
 		$new_user = Array();
 		foreach( array_pop($users) as $k => $v) {

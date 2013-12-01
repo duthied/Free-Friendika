@@ -23,7 +23,7 @@ function register_post(&$a) {
 
 	switch($a->config['register_policy']) {
 
-	
+
 	case REGISTER_OPEN:
 		$blocked = 0;
 		$verified = 1;
@@ -118,8 +118,11 @@ function register_post(&$a) {
 			dbesc($lang)
 		);
 
+		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+
 		$r = q("SELECT `language` FROM `user` WHERE `email` = '%s' LIMIT 1",
-			dbesc($a->config['admin_email'])
+			//dbesc($a->config['admin_email'])
+			dbesc($adminlist[0])
 		);
 		if(count($r))
 			push_lang($r[0]['language']);
