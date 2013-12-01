@@ -108,7 +108,7 @@ function admin_content(&$a) {
 
 	/* get plugins admin page */
 
-	$r = q("SELECT * FROM `addon` WHERE `plugin_admin`=1");
+	$r = q("SELECT name FROM `addon` WHERE `plugin_admin`=1");
 	$aside['plugins_admin']=Array();
 	foreach ($r as $h){
 		$plugin =$h['name'];
@@ -237,6 +237,70 @@ function admin_page_site_post(&$a){
 
 	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
 
+	// relocate
+	if (x($_POST,'relocate') && x($_POST,'relocate_url') && $_POST['relocate_url']!=""){
+		$new_url = $_POST['relocate_url'];
+		$new_url = rtrim($new_url,"/");
+		
+		$parsed = @parse_url($new_url);
+		if (!$parsed || (!x($parsed,'host') || !x($parsed,'scheme'))) {
+			notice(t("Can not parse base url. Must have at least <scheme>://<domain>"));
+			goaway($a->get_baseurl(true) . '/admin/site' );
+		}
+		
+		/* steps:
+		 * replace all "baseurl" to "new_url" in config, profile, term, items and contacts
+		 * send relocate for every local user
+		 * */
+		
+		$old_url = $a->get_baseurl(true);
+		
+		function update_table($table_name, $fields, $old_url, $new_url) {
+			global $db, $a;
+			
+			$dbold = dbesc($old_url);
+			$dbnew = dbesc($new_url);
+			
+			$upd = array();
+			foreach ($fields as $f) {
+				$upd[] = "`$f` = REPLACE(`$f`, '$dbold', '$dbnew')";
+			}
+			
+			$upds = implode(", ", $upd);
+			
+			
+			
+			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
+			$r = q($q);
+			if (!$r) {
+				notice( "Falied updating '$table_name': " . $db->error );
+				goaway($a->get_baseurl(true) . '/admin/site' );
+			}
+		}
+		
+		// update tables
+		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
+		update_table("term", array('url'), $old_url, $new_url);
+		update_table("contact", array('photo','thumb','micro','url','nurl','request','notify','poll','confirm','poco'), $old_url, $new_url);
+		update_table("item", array('owner-link','owner-avatar','author-name','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
+
+		// update config
+		$a->set_baseurl($new_url);
+	 	set_config('system','url',$new_url);
+		
+		// send relocate
+		$users = q("SELECT uid FROM user WHERE account_removed = 0 AND account_expired = 0");
+		
+		foreach ($users as $user) {
+			proc_run('php', 'include/notifier.php', 'relocate', $user['uid']);
+		}
+
+		info("Relocation started. Could take a while to complete.");
+		
+		goaway($a->get_baseurl(true) . '/admin/site' );
+	}
+	// end relocate
+	
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
 	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
@@ -502,13 +566,13 @@ function admin_page_site(&$a) {
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$registration' => t('Registration'),
 		'$upload' => t('File upload'),
 		'$corporate' => t('Policies'),
 		'$advanced' => t('Advanced'),
 		'$performance' => t('Performance'),
-
+		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
@@ -564,6 +628,9 @@ function admin_page_site(&$a) {
 		'$lockpath'		=> array('lockpath', t("Path for lock file"), get_config('system','lockpath'), "The lock file is used to avoid multiple pollers at one time. Only define a folder here."),
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), "If you have a restricted system where the webserver can't access the system temp path, enter another path here."),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
+		
+		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
+		
         '$form_security_token' => get_form_security_token("admin_site"),
 
 	));
@@ -605,7 +672,7 @@ function admin_page_dbsync(&$a) {
 	}
 
 	$failed = array();
-	$r = q("select * from config where `cat` = 'database' ");
+	$r = q("select k, v from config where `cat` = 'database' ");
 	if(count($r)) {
 		foreach($r as $rr) {
 			$upd = intval(substr($rr['k'],7));
@@ -711,7 +778,7 @@ function admin_page_users_post(&$a){
 function admin_page_users(&$a){
 	if ($a->argc>2) {
 		$uid = $a->argv[3];
-		$user = q("SELECT * FROM `user` WHERE `uid`=%d", intval($uid));
+		$user = q("SELECT username, blocked FROM `user` WHERE `uid`=%d", intval($uid));
 		if (count($user)==0){
 			notice( 'User not found' . EOL);
 			goaway($a->get_baseurl(true) . '/admin/users' );
@@ -827,7 +894,7 @@ function admin_page_users(&$a){
 		// strings //
 		'$title' => t('Administration'),
 		'$page' => t('Users'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Add User'),
 		'$select_all' => t('select all'),
 		'$h_pending' => t('User registrations waiting for confirm'),
 		'$h_deleted' => t('User waiting for permanent deletion'),
@@ -973,7 +1040,7 @@ function admin_page_plugins(&$a){
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',	
 		'$plugins' => $plugins,
@@ -1173,7 +1240,7 @@ function admin_page_themes(&$a){
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Themes'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
@@ -1260,7 +1327,7 @@ readable.");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Logs'),
-		'$submit' => t('Submit'),
+		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
 		'$data' => $data,
 		'$baseurl' => $a->get_baseurl(true),

@@ -306,11 +306,17 @@ function settings_post(&$a) {
 
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
+	if (x($_POST,'resend_relocate')) {
+		proc_run('php', 'include/notifier.php', 'relocate', local_user());
+		info(t("Relocate message has been send to your contacts"));
+		goaway($a->get_baseurl(true) . '/settings');
+	}
+
 	call_hooks('settings_post', $_POST);
 
-	if((x($_POST,'npassword')) || (x($_POST,'confirm'))) {
+	if((x($_POST,'password')) || (x($_POST,'confirm'))) {
 
-		$newpass = $_POST['npassword'];
+		$newpass = $_POST['password'];
         $confirm = $_POST['confirm'];
         $oldpass = hash('whirlpool', $_POST['opassword']);
 
@@ -416,7 +422,7 @@ function settings_post(&$a) {
 		$email_changed = true;
 		//  check for the correct password
 		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-		$password = hash('whirlpool', $_POST['password']);
+		$password = hash('whirlpool', $_POST['mpassword']);
 		if ($password != $r[0]['password']) {
 			$err .= t('Wrong Password') . EOL;
 			$email = $a->user['email'];
@@ -592,7 +598,7 @@ function settings_content(&$a) {
 			$o .= replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("settings_oauth"),
 				'$title'	=> t('Add application'),
-				'$submit'	=> t('Submit'),
+				'$submit'	=> t('Save Settings'),
 				'$cancel'	=> t('Cancel'),
 				'$name'		=> array('name', t('Name'), '', ''),
 				'$key'		=> array('key', t('Consumer Key'), '', ''),
@@ -702,7 +708,7 @@ function settings_content(&$a) {
 			'$form_security_token' => get_form_security_token("settings_features"),
 			'$title'	=> t('Additional Features'),
 			'$features' => $arr,
-			'$submit'   => t('Submit'),
+			'$submit'   => t('Save Settings'),
 		));
 		return $o;
 	}
@@ -771,7 +777,7 @@ function settings_content(&$a) {
 			'$mail_pubmail'	=> array('mail_pubmail', t('Send public posts to all email contacts:'), $mail_pubmail, ''),
 			'$mail_action'	=> array('mail_action',	 t('Action after import:'), $mail_action, '', array(0=>t('None'), /*1=>t('Delete'),*/ 2=>t('Mark as seen'), 3=>t('Move to folder'))),
 			'$mail_movetofolder'	=> array('mail_movetofolder',	 t('Move to folder:'), $mail_movetofolder, ''),
-			'$submit' => t('Submit'),
+			'$submit' => t('Save Settings'),
 
 			'$settings_connectors' => $settings_connectors
 		));
@@ -847,7 +853,7 @@ function settings_content(&$a) {
 		$o = replace_macros($tpl, array(
 			'$ptitle' 	=> t('Display Settings'),
 			'$form_security_token' => get_form_security_token("settings_display"),
-			'$submit' 	=> t('Submit'),
+			'$submit' 	=> t('Save Settings'),
 			'$baseurl' => $a->get_baseurl(true),
 			'$uid' => local_user(),
 
@@ -1075,27 +1081,27 @@ function settings_content(&$a) {
 	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),
 
-		'$submit' 	=> t('Submit'),
+		'$submit' 	=> t('Save Settings'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$uid' => local_user(),
 		'$form_security_token' => get_form_security_token("settings"),
 		'$nickname_block' => $prof_addr,
-		
+
 		'$h_pass' 	=> t('Password Settings'),
-		'$password1'=> array('npassword', t('New Password:'), '', ''),
+		'$password1'=> array('password', t('New Password:'), '', ''),
 		'$password2'=> array('confirm', t('Confirm:'), '', t('Leave password fields blank unless changing')),
 		'$password3'=> array('opassword', t('Current Password:'), '', t('Your current password to confirm the changes')),
-		'$password4'=> array('password', t('Password:'), '', t('Your current password to confirm the changes')),
+		'$password4'=> array('mpassword', t('Password:'), '', t('Your current password to confirm the changes')),
 		'$oid_enable' => (! get_config('system','no_openid')),
 		'$openid'	=> $openid_field,
-		
+
 		'$h_basic' 	=> t('Basic Settings'),
 		'$username' => array('username',  t('Full Name:'), $username,''),
 		'$email' 	=> array('email', t('Email Address:'), $email, ''),
 		'$timezone' => array('timezone_select' , t('Your Timezone:'), select_timezone($timezone), ''),
 		'$defloc'	=> array('defloc', t('Default Post Location:'), $defloc, ''),
 		'$allowloc' => array('allow_location', t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''),
-		
+
 
 		'$h_prv' 	=> t('Security and Privacy Settings'),
 
@@ -1151,6 +1157,10 @@ function settings_content(&$a) {
 		'$h_advn' => t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => t('Change the behaviour of this account for special situations'),
 		'$pagetype' => $pagetype,
+		
+		'$relocate' => t('Relocate'),
+		'$relocate_text' => t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
+		'$relocate_button' => t("Resend relocate message to contacts"),
 		
 	));
 

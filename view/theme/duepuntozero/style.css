@@ -114,6 +114,14 @@ nav #site-location {
 	padding: 10px;
 }
 
+.warning-message {
+    background-color: #F4FA58;
+    border: 1px solid #F3F781;
+    color: #000000;
+    font-size: 1.1em;
+    padding: 10px;
+}
+
 
 nav #banner {
 	display: block;
@@ -1601,7 +1609,7 @@ input#dfrn-url {
 
 #contact-profile-selector {
 	width: 175px;
-	margin-left: 175px;
+	/*margin-left: 175px;*/
 }
 
 .contact-edit-submit {
@@ -1654,6 +1662,7 @@ input#dfrn-url {
 
 #profile-jot-text {
 	height: 20px;
+	width: 100%;
 	color:#cccccc;
 	border: 1px solid #cccccc;
 	padding: 3px 0px 0px 5px;
