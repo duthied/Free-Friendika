@@ -9,7 +9,10 @@ function friendica_init(&$a) {
 			$sql_extra = sprintf(" AND nickname = '%s' ",dbesc($a->config['admin_nickname']));
 		}
 		if (isset($a->config['admin_email']) && $a->config['admin_email']!=''){
-			$r = q("SELECT username, nickname FROM user WHERE email='%s' $sql_extra", dbesc($a->config['admin_email']));
+	                $adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+
+			//$r = q("SELECT username, nickname FROM user WHERE email='%s' $sql_extra", dbesc($a->config['admin_email']));
+			$r = q("SELECT username, nickname FROM user WHERE email='%s' $sql_extra", dbesc($adminlist[0]));
 			$admin = array(
 				'name' => $r[0]['username'],
 				'profile'=> $a->get_baseurl().'/profile/'.$r[0]['nickname'],
@@ -34,7 +37,7 @@ function friendica_init(&$a) {
 			'admin' => $admin,
 			'site_name' => $a->config['sitename'],
 			'platform' => FRIENDICA_PLATFORM,
-			'info' => ((x($a->config,'info')) ? $a->config['info'] : '')			
+			'info' => ((x($a->config,'info')) ? $a->config['info'] : '')
 		);
 
 		echo json_encode($data);

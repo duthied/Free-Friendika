@@ -4,10 +4,10 @@
 function get_theme_config_file($theme){
 	$a = get_app();
 	$base_theme = $a->theme_info['extends'];
-	
+
 	if (file_exists("view/theme/$theme/config.php")){
 		return "view/theme/$theme/config.php";
-	} 
+	}
 	if (file_exists("view/theme/$base_theme/config.php")){
 		return "view/theme/$base_theme/config.php";
 	}
@@ -157,17 +157,17 @@ function settings_post(&$a) {
 
 	if(($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		check_form_security_token_redirectOnErr('/settings/addon', 'settings_addon');
-		
+
 		call_hooks('plugin_settings_post', $_POST);
 		return;
 	}
 
 	if(($a->argc > 1) && ($a->argv[1] == 'connectors')) {
-		
+
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
-		
+
 		if(x($_POST, 'imap-submit')) {
-			
+
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
 			$mail_port         = ((x($_POST,'mail_port')) ? $_POST['mail_port'] : '');
 			$mail_ssl          = ((x($_POST,'mail_ssl')) ? strtolower(trim($_POST['mail_ssl'])) : '');
@@ -298,27 +298,27 @@ function settings_post(&$a) {
 				dbesc($theme),
 				intval(local_user())
 		);
-	
+
 		call_hooks('display_settings_post', $_POST);
 		goaway($a->get_baseurl(true) . '/settings/display' );
 		return; // NOTREACHED
 	}
 
 	check_form_security_token_redirectOnErr('/settings', 'settings');
-	
+
 	if (x($_POST,'resend_relocate')) {
 		proc_run('php', 'include/notifier.php', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway($a->get_baseurl(true) . '/settings');
 	}
-	
+
 	call_hooks('settings_post', $_POST);
 
 	if((x($_POST,'password')) || (x($_POST,'confirm'))) {
 
 		$newpass = $_POST['password'];
-        $confirm = $_POST['confirm'];
-        $oldpass = hash('whirlpool', $_POST['opassword']);
+		$confirm = $_POST['confirm'];
+		$oldpass = hash('whirlpool', $_POST['opassword']);
 
 		$err = false;
 		if($newpass != $confirm ) {
@@ -331,7 +331,7 @@ function settings_post(&$a) {
 			$err = true;
         }
 
-        //  check if the old password was supplied correctly before 
+        //  check if the old password was supplied correctly before
         //  changing it to the new value
         $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
         if( $oldpass != $r[0]['password'] ) {
@@ -352,7 +352,7 @@ function settings_post(&$a) {
 		}
 	}
 
-	
+
 	$username         = ((x($_POST,'username'))   ? notags(trim($_POST['username']))     : '');
 	$email            = ((x($_POST,'email'))      ? notags(trim($_POST['email']))        : '');
 	$timezone         = ((x($_POST,'timezone'))   ? notags(trim($_POST['timezone']))     : '');
@@ -378,7 +378,7 @@ function settings_post(&$a) {
 	$blocktags        = (((x($_POST,'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
 	$unkmail          = (((x($_POST,'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
 	$cntunkmail       = ((x($_POST,'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
-	$suggestme        = ((x($_POST,'suggestme')) ? intval($_POST['suggestme'])  : 0);  
+	$suggestme        = ((x($_POST,'suggestme')) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 	$post_newfriend   = (($_POST['post_newfriend'] == 1) ? 1: 0);
@@ -420,20 +420,24 @@ function settings_post(&$a) {
 
 	if($email != $a->user['email']) {
 		$email_changed = true;
-        //  check for the correct password
-        $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-        $password = hash('whirlpool', $_POST['mpassword']);
-        if ($password != $r[0]['password']) {
-            $err .= t('Wrong Password') . EOL;
-            $email = $a->user['email'];
-        }
-        //  check the email is valid
-        if(! valid_email($email))
-            $err .= t(' Not valid email.');
-        //  ensure new email is not the admin mail
-		if((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0)) {
-			$err .= t(' Cannot change to that email.');
+		//  check for the correct password
+		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
+		$password = hash('whirlpool', $_POST['mpassword']);
+		if ($password != $r[0]['password']) {
+			$err .= t('Wrong Password') . EOL;
 			$email = $a->user['email'];
+		}
+		//  check the email is valid
+		if(! valid_email($email))
+			$err .= t(' Not valid email.');
+		//  ensure new email is not the admin mail
+		//if((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0)) {
+		if(x($a->config,'admin_email')) {
+			$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
+			if (in_array(strtolower($email), $adminlist)) {
+				$err .= t(' Cannot change to that email.');
+				$email = $a->user['email'];
+			}
 		}
 	}
 
@@ -542,7 +546,7 @@ function settings_post(&$a) {
 			dbesc(datetime_convert()),
 			intval(local_user())
 		);
-	}		
+	}
 
 	if(($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
@@ -567,7 +571,7 @@ function settings_post(&$a) {
 	goaway($a->get_baseurl(true) . '/settings' );
 	return; // NOTREACHED
 }
-		
+
 
 if(! function_exists('settings_content')) {
 function settings_content(&$a) {
@@ -1082,7 +1086,7 @@ function settings_content(&$a) {
 		'$uid' => local_user(),
 		'$form_security_token' => get_form_security_token("settings"),
 		'$nickname_block' => $prof_addr,
-		
+
 		'$h_pass' 	=> t('Password Settings'),
 		'$password1'=> array('password', t('New Password:'), '', ''),
 		'$password2'=> array('confirm', t('Confirm:'), '', t('Leave password fields blank unless changing')),
@@ -1090,14 +1094,14 @@ function settings_content(&$a) {
 		'$password4'=> array('mpassword', t('Password:'), '', t('Your current password to confirm the changes')),
 		'$oid_enable' => (! get_config('system','no_openid')),
 		'$openid'	=> $openid_field,
-		
+
 		'$h_basic' 	=> t('Basic Settings'),
 		'$username' => array('username',  t('Full Name:'), $username,''),
 		'$email' 	=> array('email', t('Email Address:'), $email, ''),
 		'$timezone' => array('timezone_select' , t('Your Timezone:'), select_timezone($timezone), ''),
 		'$defloc'	=> array('defloc', t('Default Post Location:'), $defloc, ''),
 		'$allowloc' => array('allow_location', t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''),
-		
+
 
 		'$h_prv' 	=> t('Security and Privacy Settings'),
 

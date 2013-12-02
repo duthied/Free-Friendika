@@ -1906,7 +1906,11 @@ if(! function_exists('feed_birthday')) {
 if(! function_exists('is_site_admin')) {
 	function is_site_admin() {
 		$a = get_app();
-		if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
+
+		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+
+		//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
+		if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && in_array($a->user['email'], $adminlist))
 			return true;
 		return false;
 	}
