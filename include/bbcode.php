@@ -259,16 +259,22 @@ function bb_ShareAttributes($match) {
         if ($matches[1] != "")
                 $profile = $matches[1];
 
-        $posted = "";
-        preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $posted = $matches[1];
+	$posted = "";
 
-        preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $posted = $matches[1];
+	$itemcache = get_config("system","itemcache");
 
-	$reldate = (($posted) ? " " . relative_date($posted) : '');
+	// relative dates only make sense when they aren't cached
+	if ($itemcache == "") {
+		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
+		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
+		$reldate = (($posted) ? " " . relative_date($posted) : '');
+	}
 
 	$headline = '<div class="shared_header">';
         //$headline = '<br /><div class="shared_header">';
