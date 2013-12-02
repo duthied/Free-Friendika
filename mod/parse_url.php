@@ -50,7 +50,7 @@ function completeurl($url, $scheme) {
         return($complete);
 }
 
-function parseurl_getsiteinfo($url) {
+function parseurl_getsiteinfo($url, $no_guessing = false) {
 	$siteinfo = array();
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -184,7 +184,7 @@ function parseurl_getsiteinfo($url) {
 		}
 	}
 
-	if (@$siteinfo["image"] == "") {
+	if ((@$siteinfo["image"] == "") AND !$no_guessing) {
             $list = $xpath->query("//img[@src]");
             foreach ($list as $node) {
                 $attr = array();
@@ -223,7 +223,7 @@ function parseurl_getsiteinfo($url) {
 							"height"=>$photodata[1]);
 	}
 
-	if (@$siteinfo["text"] == "") {
+	if ((@$siteinfo["text"] == "") AND (@$siteinfo["title"] != "") AND !$no_guessing) {
 		$text = "";
 
 		$list = $xpath->query("//div[@class='article']");
