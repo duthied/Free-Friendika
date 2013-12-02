@@ -96,16 +96,16 @@ function dfrn_request_post(&$a) {
 					else
 						$contact_record = $r[0];
 				}
-	
+
 				if(is_array($contact_record)) {
-					$r = q("UPDATE `contact` SET `ret-aes` = %d, hidden = %d WHERE `id` = %d LIMIT 1",
+					$r = q("UPDATE `contact` SET `ret-aes` = %d, hidden = %d WHERE `id` = %d",
 						intval($aes_allow),
 						intval($hidden),
 						intval($contact_record['id'])
 					);
 				}
 				else {
-	
+
 					/**
 					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					 */
@@ -406,7 +406,7 @@ function dfrn_request_post(&$a) {
 					`uri-date` = '%s', 
 					`avatar-date` = '%s', 
 					`hidden` = 0,
-					WHERE `id` = %d LIMIT 1
+					WHERE `id` = %d
 				",
 					dbesc($photos[0]),
 					dbesc($photos[1]),
@@ -486,7 +486,7 @@ function dfrn_request_post(&$a) {
 			if(is_array($contact_record)) {
 				// There is a contact record but no issued-id, so this
 				// is a reciprocal introduction from a known contact
-				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d LIMIT 1",
+				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d",
 					dbesc($issued_id),
 					intval($contact_record['id'])
 				);
@@ -565,7 +565,7 @@ function dfrn_request_post(&$a) {
 					if(count($r)) 
 						$contact_record = $r[0];
 				}
-	
+
 			}
 			if($r === false) {
 				notice( t('Failed to update contact record.') . EOL );
@@ -573,7 +573,7 @@ function dfrn_request_post(&$a) {
 			}
 
 			$hash = random_string() . (string) time();   // Generate a confirm_key
-	
+
 			if(is_array($contact_record)) {
 				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
 					VALUES ( %d, %d, 1, %d, '%s', '%s', '%s' )",
@@ -741,7 +741,7 @@ function dfrn_request_content(&$a) {
 				// If we are auto_confirming, this record will have already been nuked
 				// in dfrn_confirm_post()
 
-				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s' LIMIT 1",
+				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
 					dbesc($_GET['confirm_key'])
 				);
 			}
