@@ -5,9 +5,9 @@ function notifications_post(&$a) {
 	if(! local_user()) {
 		goaway(z_root());
 	}
-	
+
 	$request_id = (($a->argc > 1) ? $a->argv[1] : 0);
-	
+
 	if($request_id === "all")
 		return;
 
@@ -17,7 +17,7 @@ function notifications_post(&$a) {
 			intval($request_id),
 			intval(local_user())
 		);
-	
+
 		if(count($r)) {
 			$intro_id = $r[0]['id'];
 			$contact_id = $r[0]['contact-id'];
@@ -35,7 +35,7 @@ function notifications_post(&$a) {
 		if($_POST['submit'] == t('Discard')) {
 			$r = q("DELETE FROM `intro` WHERE `id` = %d LIMIT 1", 
 				intval($intro_id)
-			);	
+			);
 			if(! $fid) {
 
 				// The check for blocked and pending is in case the friendship was already approved
@@ -49,7 +49,7 @@ function notifications_post(&$a) {
 			goaway($a->get_baseurl(true) . '/notifications/intros');
 		}
 		if($_POST['submit'] == t('Ignore')) {
-			$r = q("UPDATE `intro` SET `ignore` = 1 WHERE `id` = %d LIMIT 1",
+			$r = q("UPDATE `intro` SET `ignore` = 1 WHERE `id` = %d",
 				intval($intro_id));
 			goaway($a->get_baseurl(true) . '/notifications/intros');
 		}
@@ -67,7 +67,7 @@ function notifications_content(&$a) {
 		return;
 	}
 
-	nav_set_selected('notifications');		
+	nav_set_selected('notifications');
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
 
@@ -105,19 +105,19 @@ function notifications_content(&$a) {
 			'sel'=> '',
 		),
 	);
-	
+
 	$o = "";
 
-	
+
 	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		nav_set_selected('introductions');
 		if(($a->argc > 2) && ($a->argv[2] == 'all'))
 			$sql_extra = '';
 		else
 			$sql_extra = " AND `ignore` = 0 ";
-		
+
 		$notif_tpl = get_markup_template('notifications.tpl');
-		
+
 		$notif_content .= '<a href="' . ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ) . '" id="notifications-show-hide-link" >'
 			. ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')) . '</a></div>' . "\r\n";
 
@@ -189,12 +189,12 @@ function notifications_content(&$a) {
 						'$as_friend' => t('Friend'),
 						'$as_fan' => (($rr['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
 					));
-				}			
+				}
 
 				$notif_content .= replace_macros($tpl, array(
 					'$str_notifytype' => t('Notification type: '),
 					'$notify_type' => (($rr['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
-					'$dfrn_text' => $dfrn_text,	
+					'$dfrn_text' => $dfrn_text,
 					'$dfrn_id' => $rr['issued-id'],
 					'$uid' => $_SESSION['uid'],
 					'$intro_id' => $rr['intro_id'],
@@ -221,14 +221,14 @@ function notifications_content(&$a) {
 			'$tabs' => $tabs,
 			'$notif_content' => $notif_content,
 		));
-		
+
 		$o .= paginate($a);
 		return $o;
-				
+
 	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
-		
+
 		$notif_tpl = get_markup_template('notifications.tpl');
-		
+
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, 
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`, 
 				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink` 

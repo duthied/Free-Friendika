@@ -80,7 +80,7 @@ function reload_plugins() {
 				if(file_exists($fname)) {
 					$t = @filemtime($fname);
 					foreach($installed as $i) {
-						if(($i['name'] == $pl) && ($i['timestamp'] != $t)) {	
+						if(($i['name'] == $pl) && ($i['timestamp'] != $t)) {
 							logger('Reloading plugin: ' . $i['name']);
 							@include_once($fname);
 
@@ -145,7 +145,7 @@ if(! function_exists('load_hooks')) {
 function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
-	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC");
+	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
 	if(count($r)) {
 		foreach($r as $rr) {
 			if(! array_key_exists($rr['hook'],$a->hooks))
