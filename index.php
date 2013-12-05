@@ -460,7 +460,8 @@ if ($_GET["mode"] == "raw") {
 	session_write_close();
 	exit;
 
-} elseif (get_pconfig(local_user(),'system','infinite_scroll') AND ($_GET["q"] == "network")) {
+} elseif (get_pconfig(local_user(),'system','infinite_scroll')
+          AND ($_GET["q"] == "network") AND ($_GET["mode"] != "minimal")) {
 	if (is_string($_GET["page"]))
 		$pageno = $_GET["page"];
 	else
