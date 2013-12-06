@@ -1088,6 +1088,12 @@ section {
   position: absolute;
   left: 215px;
 }
+
+section.minimal {
+  top: 0px;
+  left: 0px;
+}
+
 /* wall item */
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */

@@ -428,7 +428,7 @@ else
 $a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
 //$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
 
-if ($_GET["mode"] == "raw") {
+if (($_GET["mode"] == "raw") OR ($_GET["mode"] == "minimal")) {
 	$doc = new DOMDocument();
 
 	$target = new DOMDocument();
@@ -449,6 +449,9 @@ if ($_GET["mode"] == "raw") {
 		// And then append it to the target
 		$target->documentElement->appendChild($item);
 	}
+}
+
+if ($_GET["mode"] == "raw") {
 
 	header("Content-type: text/html; charset=utf-8");
 
@@ -457,7 +460,8 @@ if ($_GET["mode"] == "raw") {
 	session_write_close();
 	exit;
 
-} elseif (get_pconfig(local_user(),'system','infinite_scroll') AND ($_GET["q"] == "network")) {
+} elseif (get_pconfig(local_user(),'system','infinite_scroll')
+          AND ($_GET["q"] == "network") AND ($_GET["mode"] != "minimal")) {
 	if (is_string($_GET["page"]))
 		$pageno = $_GET["page"];
 	else
@@ -515,13 +519,21 @@ $profile = $a->profile;
 
 header("Content-type: text/html; charset=utf-8");
 
-$template = 'view/theme/' . current_theme() . '/' 
-	. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
 
-if(file_exists($template))
-	require_once($template);
-else
-	require_once(str_replace('theme/' . current_theme() . '/', '', $template));
+if ($_GET["mode"] == "minimal") {
+	//$page['content'] = substr($target->saveHTML(), 6, -8)."\n\n".
+	//			'<div id="conversation-end"></div>'."\n\n";
+
+	require "view/minimal.php";
+} else {
+	$template = 'view/theme/' . current_theme() . '/' 
+		. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
+
+	if(file_exists($template))
+		require_once($template);
+	else
+		require_once(str_replace('theme/' . current_theme() . '/', '', $template));
+}
 
 session_write_close();
 exit;
