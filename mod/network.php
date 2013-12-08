@@ -115,21 +115,21 @@ function network_init(&$a) {
 			'/network?f=&bmark=1',			//bookmarked
 			'/network?f=&spam=1',			//spam
 		);
-		
+
 		// redirect if current selected tab is 'no_active' and
-		// last selected tab is _not_ 'all_active'. 
+		// last selected tab is _not_ 'all_active'.
 		// and this isn't a date query
 
 		if ($sel_tabs[0] == 'active' && $last_sel_tabs[0]!='active' && (! $is_a_date_query)) {
 			$k = array_search('active', $last_sel_tabs);
-          
+
             // merge tab querystring with request querystring
             $dest_qa = array();
             list($dest_url,$dest_qs) = explode("?", $tab_urls[$k]);
             parse_str( $dest_qs, $dest_qa);
             $dest_qa = array_merge($query_array, $dest_qa);
             $dest_qs = build_querystring($dest_qa);
-            
+
             // groups filter is in form of "network/nnn". Add it to $dest_url, if it's possible
             if ($a->argc==2 && is_numeric($a->argv[1]) && strpos($dest_url, "/",1)===false){
                 $dest_url .= "/".$a->argv[1];
