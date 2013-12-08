@@ -806,22 +806,36 @@ function network_content(&$a, $update = 0) {
 			foreach($r as $rr)
 				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
-			$parents_str = implode(', ', $parents_arr);
 
-			$items = q("SELECT `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-				AND `item`.`moderated` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`parent` IN ( %s )
-				$sql_extra ",
-				intval(local_user()),
-				dbesc($parents_str)
-			);
+			//$parents_str = implode(', ', $parents_arr);
 
+			// splitted into separate queries to avoid the problem with very long threads
+			// so always the last X comments are loaded
+			// This problem can occur expecially with imported facebook posts
+			$max_comments = get_config("system", "max_comments");
+			if ($max_comments == 0)
+				$max_comments = 1000;
+
+			$items = array();
+
+			foreach ($parents_arr AS $parents_str) {
+
+				$thread_items = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+					`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
+					`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
+					`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+					FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+					WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
+					AND `item`.`moderated` = 0
+					AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+					AND `item`.`parent` IN ( %s )
+					$sql_extra ORDER BY `item`.`commented` DESC LIMIT %d",
+					intval(local_user()),
+					dbesc($parents_str),
+					intval($max_comments + 1)
+				);
+				$items = array_merge($items, $thread_items);
+			}
 			$items = conv_sort($items,$ordering);
 
 		} else {

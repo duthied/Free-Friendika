@@ -17,19 +17,19 @@ function user_allow($hash) {
 	$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($register[0]['uid'])
 	);
-	
+
 	if(! count($user))
 		killme();
 
-	$r = q("DELETE FROM `register` WHERE `hash` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `register` WHERE `hash` = '%s'",
 		dbesc($register[0]['hash'])
 	);
 
 
-	$r = q("UPDATE `user` SET `blocked` = 0, `verified` = 1 WHERE `uid` = %d LIMIT 1",
+	$r = q("UPDATE `user` SET `blocked` = 0, `verified` = 1 WHERE `uid` = %d",
 		intval($register[0]['uid'])
 	);
-	
+
 	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1",
 		intval($user[0]['uid'])
 	);
@@ -62,7 +62,7 @@ function user_allow($hash) {
 	if($res) {
 		info( t('Account approved.') . EOL );
 		return true;
-	}	
+	}
 
 }
 
@@ -83,23 +83,23 @@ function user_deny($hash) {
 	$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($register[0]['uid'])
 	);
-	
-	$r = q("DELETE FROM `user` WHERE `uid` = %d LIMIT 1",
+
+	$r = q("DELETE FROM `user` WHERE `uid` = %d",
 		intval($register[0]['uid'])
 	);
-	$r = q("DELETE FROM `contact` WHERE `uid` = %d LIMIT 1",
+	$r = q("DELETE FROM `contact` WHERE `uid` = %d",
 		intval($register[0]['uid'])
-	); 
-	$r = q("DELETE FROM `profile` WHERE `uid` = %d LIMIT 1",
+	);
+	$r = q("DELETE FROM `profile` WHERE `uid` = %d",
 		intval($register[0]['uid'])
-	); 
+	);
 
-	$r = q("DELETE FROM `register` WHERE `hash` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `register` WHERE `hash` = '%s'",
 		dbesc($register[0]['hash'])
 	);
 	notice( sprintf(t('Registration revoked for %s'), $user[0]['username']) . EOL);
 	return true;
-	
+
 }
 
 function regmod_content(&$a) {
