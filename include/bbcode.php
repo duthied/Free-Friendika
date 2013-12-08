@@ -23,7 +23,7 @@ function cleancss($input) {
 		if (($char >= "a") and ($char <= "z"))
 			$cleaned .= $char;
 
-		if (!(strpos(" #;:0123456789", $char) === false))
+		if (!(strpos(" #;:0123456789-_", $char) === false))
 			$cleaned .= $char;
 	}
 
