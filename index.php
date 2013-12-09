@@ -471,7 +471,7 @@ if ($_GET["mode"] == "raw") {
 
 	foreach ($_GET AS $param => $value)
 		if (($param != "page") AND ($param != "q"))
-			$reload_uri .= "&".$param."=".$value;
+			$reload_uri .= "&".$param."=".urlencode($value);
 
 $a->page['htmlhead'] .= <<< EOT
 <script type="text/javascript">

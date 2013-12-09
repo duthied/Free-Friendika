@@ -21,7 +21,7 @@ if(! function_exists('replace_macros')) {
  * @return string substituted string
  */
 function replace_macros($s,$r) {
-	
+
 	$stamp1 = microtime(true);
 
 	$a = get_app();
@@ -55,7 +55,7 @@ function random_string($size = 64,$type = RANDOM_STRING_HEX) {
 
 if(! function_exists('notags')) {
 /**
- * This is our primary input filter. 
+ * This is our primary input filter.
  *
  * The high bit hack only involved some old IE browser, forget which (IE5/Mac?)
  * that had an XSS attack vector due to stripping the high-bit on an 8-bit character
@@ -278,12 +278,18 @@ function paginate_data(&$a, $count=null) {
 	$stripped = str_replace('q=','',$stripped);
 	$stripped = trim($stripped,'/');
 	$pagenum = $a->pager['page'];
+
+	if (!strstr($stripped, "?")) {
+		$pos = strpos($stripped, "&");
+		$stripped = substr($stripped, 0, $pos)."?".substr($stripped, $pos + 1);
+	}
+
 	$url = $a->get_baseurl() . '/' . $stripped;
 
 
 	$data = array();
-	function _l(&$d, $name, $url, $text, $class="") { 
-		
+	function _l(&$d, $name, $url, $text, $class="") {
+
 		$d[$name] = array('url'=>$url, 'text'=>$text, 'class'=>$class); 
 	}
 
@@ -359,7 +365,7 @@ if(! function_exists('paginate')) {
  * @return string html for pagination #FIXME remove html
  */
 function paginate(&$a) {
-	
+
 	$data = paginate_data($a);
 	$tpl = get_markup_template("paginate.tpl");
 	return replace_macros($tpl, array("pager" => $data));

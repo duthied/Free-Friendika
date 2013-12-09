@@ -479,6 +479,11 @@ div.jGrowl div.info {
   color: #ffffff;
   padding-left: 58px;
 }
+
+div.jGrowl div.jGrowl-notification {
+  margin-top: 40px;
+}
+
 /* header */
 header {
   position: fixed;
@@ -1161,6 +1166,21 @@ border-bottom: 1px solid #D2D2D2;
   font-size: 12px;
 }
 
+.wall-item-container .wall-item-content .type-link img,
+.type-link img {
+  max-width: 160px;
+  max-height: 160px;
+  float: left;
+  margin-right: 10px;
+}
+.type-link blockquote {
+  margin-left: 160px;
+  max-height: 160px;
+  overflow: hidden;
+}
+.type-link .oembed {
+}
+
 .wall-item-container .wall-item-content {
   font-size: 14px;
   max-width: 660px;
@@ -1659,22 +1679,27 @@ border-bottom: 1px solid #D2D2D2;
 #profile-link-wrapper {
   float: left;
   margin-left: 15px;
+  cursor: pointer;
 }
 #profile-video-wrapper {
   float: left;
   margin-left: 15px;
+  cursor: pointer;
 }
 #profile-audio-wrapper {
   float: left;
   margin-left: 15px;
+  cursor: pointer;
 }
 #profile-location-wrapper {
   float: left;
   margin-left: 15px;
+  cursor: pointer;
 }
 #profile-nolocation-wrapper {
   float: left;
   margin-left: 15px;
+  cursor: pointer;
 }
 #jot-perms-icon {
   float: right;

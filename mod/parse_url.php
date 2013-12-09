@@ -75,6 +75,19 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 		return($siteinfo);
 	}
 
+	require_once("include/oembed.php");
+
+	$oembed_data = oembed_fetch_url($url);
+
+	if ($oembed_data->type == "link") {
+		if (isset($oembed_data->title))
+			$siteinfo["title"] = $oembed_data->title;
+		if (isset($oembed_data->description))
+			$siteinfo["text"] = $oembed_data->description;
+		if (isset($oembed_data->thumbnail_url))
+			$siteinfo["image"] = $oembed_data->thumbnail_url;
+	}
+
 	// Fetch the first mentioned charset. Can be in body or header
 	if (preg_match('/charset=(.*?)['."'".'"\s\n]/', $header, $matches))
 		$charset = trim(array_pop($matches));
