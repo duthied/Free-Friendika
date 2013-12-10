@@ -194,8 +194,8 @@ function saved_searches($search) {
 
 	$a = get_app();
 
-	$srchurl = '/network?f=' 
-		. ((x($_GET,'cid'))   ? '&cid='   . $_GET['cid']   : '') 
+	$srchurl = '/network?f='
+		. ((x($_GET,'cid'))   ? '&cid='   . $_GET['cid']   : '')
 		. ((x($_GET,'star'))  ? '&star='  . $_GET['star']  : '')
 		. ((x($_GET,'bmark')) ? '&bmark=' . $_GET['bmark'] : '')
 		. ((x($_GET,'conv'))  ? '&conv='  . $_GET['conv']  : '')
@@ -204,7 +204,7 @@ function saved_searches($search) {
 		. ((x($_GET,'cmax'))  ? '&cmax='  . $_GET['cmax']  : '')
 		. ((x($_GET,'file'))  ? '&file='  . $_GET['file']  : '');
 	;
-	
+
 	$o = '';
 
 	$r = q("select `id`,`term` from `search` WHERE `uid` = %d",
@@ -264,7 +264,7 @@ function network_query_get_sel_tab($a) {
 	$spam_active = '';
 	$postord_active = '';
 
-	if(($a->argc > 1 && $a->argv[1] === 'new') 
+	if(($a->argc > 1 && $a->argv[1] === 'new')
 		|| ($a->argc > 2 && $a->argv[2] === 'new')) {
 			$new_active = 'active';
 	}
@@ -291,8 +291,8 @@ function network_query_get_sel_tab($a) {
 
 
 
-	if (($new_active == '') 
-		&& ($starred_active == '') 
+	if (($new_active == '')
+		&& ($starred_active == '')
 		&& ($bookmarked_active == '')
 		&& ($conv_active == '')
 		&& ($search_active == '')
@@ -645,6 +645,7 @@ function network_content(&$a, $update = 0) {
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 	//$sql_order = "`item`.`received`";
 	$sql_order = "";
+	$order_mode = "received";
 
 	if ($sql_table == "")
 		$sql_table = "`item`";
@@ -673,6 +674,7 @@ function network_content(&$a, $update = 0) {
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 
 			$sql_order = "`item`.`received`";
+			$order_mode = "received";
 		} else {
 			if (get_config('system','use_fulltext_engine'))
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
@@ -680,6 +682,7 @@ function network_content(&$a, $update = 0) {
 				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 
 			$sql_order = "`item`.`received`";
+			$order_mode = "received";
 		}
 	}
 	if(strlen($file)) {
@@ -764,13 +767,21 @@ function network_content(&$a, $update = 0) {
 		// Normal conversation view
 
 
-		if($order === 'post')
-				$ordering = "`created`";
-		else
-				$ordering = "`commented`";
+		if($order === 'post') {
+			$ordering = "`created`";
+			if ($sql_order == "")
+				$order_mode = "created";
+		} else {
+			$ordering = "`commented`";
+			if ($sql_order == "")
+				$order_mode = "commented";
+		}
 
 		if ($sql_order == "")
 			$sql_order = "`item`.$ordering";
+
+		if (($_GET["offset"] != ""))
+			$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
 
 		// Fetch a page full of parent items for this page
 
@@ -801,6 +812,7 @@ function network_content(&$a, $update = 0) {
 
 		$parents_arr = array();
 		$parents_str = '';
+		$date_offset = "";
 
 		if(count($r)) {
 			foreach($r as $rr)
@@ -841,6 +853,13 @@ function network_content(&$a, $update = 0) {
 		} else {
 			$items = array();
 		}
+
+		if ($_GET["offset"] == "")
+			$date_offset = $items[0][$order_mode];
+		else
+			$date_offset = $_GET["offset"];
+
+		$a->page_offset = $date_offset;
 
 		if($parents_str)
 			$update_unseen = ' WHERE uid = ' . intval(local_user()) . ' AND unseen = 1 AND parent IN ( ' . dbesc($parents_str) . ' )';

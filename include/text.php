@@ -279,13 +279,15 @@ function paginate_data(&$a, $count=null) {
 	$stripped = trim($stripped,'/');
 	$pagenum = $a->pager['page'];
 
+	if (($a->page_offset != "") AND !strstr($stripped, "&offset="))
+		$stripped .= "&offset=".urlencode($a->page_offset);
+
 	if (!strstr($stripped, "?")) {
 		$pos = strpos($stripped, "&");
 		$stripped = substr($stripped, 0, $pos)."?".substr($stripped, $pos + 1);
 	}
 
 	$url = $a->get_baseurl() . '/' . $stripped;
-
 
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
@@ -307,7 +309,7 @@ function paginate_data(&$a, $count=null) {
 
 			_l($data, "first", $url."&page=1",  t('first'));
 
-			
+
 			$numpages = $a->pager['total'] / $a->pager['itemspage'];
 
 			$numstart = 1;
@@ -338,11 +340,11 @@ function paginate_data(&$a, $count=null) {
 
 			$lastpage = (($numpages > intval($numpages)) ? intval($numpages)+1 : $numpages);
 			_l($data, "last", $url."&page=$lastpage", t('last'));
-			
+
 			if(($a->pager['total'] - ($a->pager['itemspage'] * $a->pager['page'])) > 0)
 				_l($data, "next", $url."&page=".($a->pager['page'] + 1), t('next'));
 
-		}	
+		}
 	}
 	return $data;
 
@@ -384,14 +386,14 @@ function alt_pager(&$a, $i) {
 	$data = paginate_data($a, $i);
 	$tpl = get_markup_template("paginate.tpl");
 	return replace_macros($tpl, array('pager' => $data));
-	
+
 }}
 
 
 if(! function_exists('expand_acl')) {
 /**
  * Turn user/group ACLs stored as angle bracketed text into arrays
- * 
+ *
  * @param string $s
  * @return array
  */

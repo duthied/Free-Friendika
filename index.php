@@ -473,6 +473,10 @@ if ($_GET["mode"] == "raw") {
 		if (($param != "page") AND ($param != "q"))
 			$reload_uri .= "&".$param."=".urlencode($value);
 
+	if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
+		$reload_uri .= "&offset=".urlencode($a->page_offset);
+
+
 $a->page['htmlhead'] .= <<< EOT
 <script type="text/javascript">
 
