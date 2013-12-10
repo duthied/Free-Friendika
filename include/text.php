@@ -282,7 +282,7 @@ function paginate_data(&$a, $count=null) {
 	if (($a->page_offset != "") AND !strstr($stripped, "&offset="))
 		$stripped .= "&offset=".urlencode($a->page_offset);
 
-	if (!strstr($stripped, "?")) {
+	if (strpos($stripped, "?") === 0) {
 		$pos = strpos($stripped, "&");
 		$stripped = substr($stripped, 0, $pos)."?".substr($stripped, $pos + 1);
 	}
