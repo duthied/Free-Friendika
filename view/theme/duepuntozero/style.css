@@ -91,6 +91,7 @@ nav {
 	display: block;
 	margin: 0px 10%;
 	border-bottom: 1px solid #babdb6;
+	position: relative; 
 }
 nav #site-location {
 	color: #888a85;
@@ -2905,6 +2906,8 @@ aside input[type='text'] {
 
 .field.radio .field_help { margin-left: 0px; }
 
+
+
 /**
  * ADMIN
  */
@@ -3252,7 +3255,7 @@ ul.menu-popup {
 	list-style: none;
 	z-index: 100000;
 	top: 90px;
-	left: 400px;
+	left: 200px;
 }
 #nav-notifications-menu {
 	width: 320px;
@@ -3327,4 +3330,64 @@ ul.menu-popup {
 
 .shared_header span {
 	margin-left: 10px;
+}
+
+/* small screens */
+@media all and (max-width: 1089px) {
+    .field label { width: 90%; }
+    .field input, .field textarea, .field select  { width: 90%; }
+	.field input[type="checkbox"],.field input[type="radio"] {
+		width: 2em;
+	}
+    #id_openid_url { width: 85%; }
+    .field_help { margin-left: 0px; }
+	textarea { width: 100%; }
+}
+@media all and (max-width: 760px) {
+	body { background-image: none; }
+	nav, aside, section, footer { 
+		margin: 0px; 
+		float: none; 
+		position: relative; 
+		width: 100%;
+		padding: 0.5em;
+		height: auto;
+	}
+	aside:before {
+		content: ">>";
+		display: block;
+		background-color: #eee;
+	}
+	aside { overflow: hidden; min-height: 0; height: 1em;}
+	aside:hover, aside:focus { height: auto; }
+
+	nav .nav-link { 
+		float: left;
+		width: 23%;
+		min-width: 100px;
+		height: 15px;	
+		display: block;
+		margin: 0.4em 2px 0 0;
+
+		padding: 6px 3px;
+		border-width: 1px 1px 0px;
+		border-style: solid solid none;
+		border-color: rgb(186, 189, 182);
+		background-color: rgb(174, 192,211)!important;
+	}
+	.nav-commlink.selected,
+	.nav-commlink { 
+		border-bottom: 0px;
+		padding: 6px 3px;
+		min-width: 100px;
+		float: left; 
+		margin-top: 0.4em;
+		width: 23%;
+		bottom: auto;
+	}
+	.nav-ajax-left {margin-left: -1em; margin-top: 0px;	}
+	nav #site-location,
+	nav #banner { position: relative; clear:both; }
+	ul.menu-popup { left: 0px; top 20px; }
+
 }
