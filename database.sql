@@ -1175,3 +1175,18 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `unique_contacts`
+--
+
+CREATE TABLE IF NOT EXISTS `unique_contacts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `url` CHAR(255) NOT NULL,
+  `nick` CHAR(255) NOT NULL,
+  `name` CHAR(255) NOT NULL,
+  `avatar` CHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `url` (`url`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
