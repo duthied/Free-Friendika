@@ -215,13 +215,14 @@ function contact_photo_menu($contact) {
 		$status_link = $profile_link . "?url=status";
 		$photos_link = $profile_link . "?url=photos";
 		$profile_link = $profile_link . "?url=profile";
-		$contact_drop_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/drop';
 		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
 	}
 
 	$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
 	$posts_link = $a->get_baseurl() . '/network/0?nets=all&cid=' . $contact['id'];
+	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
+	
 
 	$menu = Array(
 		'poke' => array(t("Poke"), $poke_link),
