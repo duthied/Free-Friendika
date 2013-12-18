@@ -26,8 +26,40 @@ function ACL(backend_url, preset){
 	$("#acl-search").keypress(that.on_search);
 	$("#acl-wrapper").parents("form").submit(that.on_submit);
 	
+	/* add/remove mentions  */
+	that.element = $("#profile-jot-text");
+	that.htmlelm = that.element.get()[0];
+	
 	/* startup! */
 	that.get(0,100);
+}
+
+ACL.prototype.remove_mention = function(nick) {
+	searchText = '@'+nick+ " ";
+	// 'editor' is defined in jot-header.tpl : false=plaintext, true:tinyMCE
+	if (editor==false) {
+		start = that.element.val().search(searchText); 
+		if ( start<0) return;
+		end = start+searchText.length;
+		that.element.setSelection(start,end).replaceSelectedText('').collapseSelection(false);
+	} else {
+		start =  tinyMCE.activeEditor.getContent({format : 'raw'}).search( searchText );
+		if ( start<0 ) return;
+		txt = tinyMCE.activeEditor.getContent();
+		newtxt = txt.replace(searchText, '');
+		tinyMCE.activeEditor.setContent(newtxt);
+	}
+}
+
+ACL.prototype.add_mention = function(nick) {
+	// 'editor' is defined in jot-header.tpl : false=plaintext, true:tinyMCE
+	if (editor==false) {
+		if ( that.element.val().search( '@'+nick) >= 0 ) return;
+		that.element.val( "@"+nick+" " + that.element.val() );
+	} else {
+		if ( tinyMCE.activeEditor.getContent({format : 'raw'}).search( '@'+nick) >= 0 ) return;
+		tinyMCE.activeEditor.dom.add(tinyMCE.activeEditor.getBody(), 'span', {}, '@'+nick+" ");
+	}
 }
 
 ACL.prototype.on_submit = function(){
@@ -105,7 +137,8 @@ ACL.prototype.on_button_hide = function(event){
 
 ACL.prototype.set_allow = function(itemid){
 	type = itemid[0];
-	id 	 = parseInt(itemid.substr(1));
+	id     = parseInt(itemid.substr(1));
+	
 	switch(type){
 		case "g":
 			if (that.allow_gid.indexOf(id)<0){
@@ -118,8 +151,10 @@ ACL.prototype.set_allow = function(itemid){
 		case "c":
 			if (that.allow_cid.indexOf(id)<0){
 				that.allow_cid.push(id)
+				if (that.data[id].forum=="1") that.add_mention(that.data[id].nick);
 			} else {
 				that.allow_cid.remove(id);
+				if (that.data[id].forum=="1") that.remove_mention(that.data[id].nick);
 			}
 			if (that.deny_cid.indexOf(id)>=0) that.deny_cid.remove(id);			
 			break;
@@ -129,7 +164,8 @@ ACL.prototype.set_allow = function(itemid){
 
 ACL.prototype.set_deny = function(itemid){
 	type = itemid[0];
-	id 	 = parseInt(itemid.substr(1));
+	id     = parseInt(itemid.substr(1));
+	
 	switch(type){
 		case "g":
 			if (that.deny_gid.indexOf(id)<0){
@@ -140,6 +176,7 @@ ACL.prototype.set_deny = function(itemid){
 			if (that.allow_gid.indexOf(id)>=0) that.allow_gid.remove(id);
 			break;
 		case "c":
+			if (that.data[id].forum=="1") that.remove_mention(that.data[id].nick);
 			if (that.deny_cid.indexOf(id)<0){
 				that.deny_cid.push(id)
 			} else {
@@ -246,17 +283,20 @@ ACL.prototype.get = function(start,count, search){
 ACL.prototype.populate = function(data){
 	var height = Math.ceil(data.tot / that.nw) * 42;
 	that.list_content.height(height);
+	that.data = {};
 	$(data.items).each(function(){
-		html = "<div class='acl-list-item {4} {5}' title='{6}' id='{2}{3}'>"+that.item_tpl+"</div>";
-		html = html.format(this.photo, this.name, this.type, this.id, '', this.network, this.link);
+		html = "<div class='acl-list-item {4} {5} type{2}' title='{6}' id='{2}{3}'>"+that.item_tpl+"</div>";
+		html = html.format(this.photo, this.name, this.type, this.id, (this.forum=='1'?'forum':''), this.network, this.link);
 		if (this.uids!=undefined) that.group_uids[this.id] = this.uids;
 		//console.log(html);
 		that.list_content.append(html);
+		that.data[this.id] = this;
 	});
 	$(".acl-list-item img[data-src]", that.list_content).each(function(i, el){
 		// Add src attribute for images with a data-src attribute
 		$(el).attr('src', $(el).data("src"));
 	});
+	
 	that.update_view();
 }
 
