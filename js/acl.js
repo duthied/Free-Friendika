@@ -34,11 +34,11 @@ function ACL(backend_url, preset){
 	that.get(0,100);
 }
 
-ACL.prototype.remove_mention = function(nick) {
-	searchText = '@'+nick+ " ";
-	// 'editor' is defined in jot-header.tpl : false=plaintext, true:tinyMCE
-	if (editor==false) {
-		start = that.element.val().search(searchText); 
+ACL.prototype.remove_mention = function(id) {
+	var nick = that.data[id].nick;
+	var searchText = "@"+nick+"+"+id+" ";
+	if (tinyMCE.activeEditor===null) {
+		start = that.element.val().indexOf(searchText); 
 		if ( start<0) return;
 		end = start+searchText.length;
 		that.element.setSelection(start,end).replaceSelectedText('').collapseSelection(false);
@@ -51,14 +51,15 @@ ACL.prototype.remove_mention = function(nick) {
 	}
 }
 
-ACL.prototype.add_mention = function(nick) {
-	// 'editor' is defined in jot-header.tpl : false=plaintext, true:tinyMCE
-	if (editor==false) {
-		if ( that.element.val().search( '@'+nick) >= 0 ) return;
-		that.element.val( "@"+nick+" " + that.element.val() );
+ACL.prototype.add_mention = function(id) {
+	var nick = that.data[id].nick;
+	var searchText =  "@"+nick+"+"+id+" ";
+	if (tinyMCE.activeEditor===null) {
+		if ( that.element.val().indexOf( searchText) >= 0 ) return;
+		that.element.val( searchText + that.element.val() );
 	} else {
-		if ( tinyMCE.activeEditor.getContent({format : 'raw'}).search( '@'+nick) >= 0 ) return;
-		tinyMCE.activeEditor.dom.add(tinyMCE.activeEditor.getBody(), 'span', {}, '@'+nick+" ");
+		if ( tinyMCE.activeEditor.getContent({format : 'raw'}).search(searchText) >= 0 ) return;
+		tinyMCE.activeEditor.dom.add(tinyMCE.activeEditor.getBody(), 'span', {}, searchText);
 	}
 }
 
@@ -151,10 +152,10 @@ ACL.prototype.set_allow = function(itemid){
 		case "c":
 			if (that.allow_cid.indexOf(id)<0){
 				that.allow_cid.push(id)
-				if (that.data[id].forum=="1") that.add_mention(that.data[id].nick);
+				if (that.data[id].forum=="1") that.add_mention(id);
 			} else {
 				that.allow_cid.remove(id);
-				if (that.data[id].forum=="1") that.remove_mention(that.data[id].nick);
+				if (that.data[id].forum=="1") that.remove_mention(id);
 			}
 			if (that.deny_cid.indexOf(id)>=0) that.deny_cid.remove(id);			
 			break;
@@ -176,7 +177,7 @@ ACL.prototype.set_deny = function(itemid){
 			if (that.allow_gid.indexOf(id)>=0) that.allow_gid.remove(id);
 			break;
 		case "c":
-			if (that.data[id].forum=="1") that.remove_mention(that.data[id].nick);
+			if (that.data[id].forum=="1") that.remove_mention(id);
 			if (that.deny_cid.indexOf(id)<0){
 				that.deny_cid.push(id)
 			} else {
@@ -188,9 +189,13 @@ ACL.prototype.set_deny = function(itemid){
 	that.update_view();
 }
 
+ACL.prototype.is_show_all = function() {
+	return (that.allow_gid.length==0 && that.allow_cid.length==0 &&
+		that.deny_gid.length==0 && that.deny_cid.length==0);
+}
+
 ACL.prototype.update_view = function(){
-	if (that.allow_gid.length==0 && that.allow_cid.length==0 &&
-		that.deny_gid.length==0 && that.deny_cid.length==0){
+	if (this.is_show_all()){
 			that.showall.addClass("selected");
 			/* jot acl */
 				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
