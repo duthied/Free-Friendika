@@ -19,7 +19,7 @@
 	{{include file="contact_template.tpl"}}
 {{/foreach}}
 <div id="contact-edit-end"></div>
-<div class="submit">
+<div id="contats-actions">
 {{foreach $batch_actions as $n=>$l}}
  <input class="batch-action" name="{{$n}}" value="{{$l}}" type="submit">
  {{/foreach}}

@@ -1359,7 +1359,7 @@ span[id^="showmore-wrap"] {
 .contact-photo:hover .contact-select {
   display: block;
 }
-.submit {
+#contats-actions {
   clear: both;
 }
 .contact-photo {
