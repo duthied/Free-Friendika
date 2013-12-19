@@ -320,11 +320,11 @@
 				$ret = array(
 					'id' => $r[0]["id"],
 					'name' => $r[0]["name"],
-					'screen_name' => $r[0]["name"],
+					'screen_name' => (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']),
 					'location' => NULL,
 					'description' => NULL,
 					'profile_image_url' => $r[0]["avatar"],
-					'url' => NULL,
+					'url' => $r[0]["url"],
 					'protected' => false,
 					'followers_count' => 0,
 					'friends_count' => 0,
@@ -332,7 +332,7 @@
 					'favourites_count' => 0,
 					'utc_offset' => 0,
 					'time_zone' => 'UTC',
-					'statuses_count' => 1,
+					'statuses_count' => 0,
 					'following' => 1,
 					'statusnet_blocking' => false,
 					'notifications' => false,
@@ -447,27 +447,35 @@
 	}
 
 	function api_item_get_user(&$a, $item) {
-		global $usercache;
 
-		$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
-			dbesc(normalise_link($item['owner-link'])));
-
-		if (count($r) == 0)
-			q("INSERT INTO unique_contacts (url, name, avatar) VALUES ('%s', '%s', '%s')",
-			dbesc(normalise_link($item["owner-link"])), dbesc($item["owner-name"]), dbesc($item["owner-avatar"]));
-
-		$r = q("SELECT * FROM unique_contacts WHERE url='%s' LIMIT 1",
+		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 			dbesc(normalise_link($item['author-link'])));
 
-		if (count($r) == 0) {
+		if (count($author) == 0) {
 			q("INSERT INTO unique_contacts (url, name, avatar) VALUES ('%s', '%s', '%s')",
 			dbesc(normalise_link($item["author-link"])), dbesc($item["author-name"]), dbesc($item["author-avatar"]));
 
-			$r = q("SELECT * FROM unique_contacts WHERE url='%s' LIMIT 1",
+			$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 				dbesc(normalise_link($item['author-link'])));
 		}
 
-		return api_get_user($a,$r[0]["url"]);
+		$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+			dbesc(normalise_link($item['owner-link'])));
+
+		if (count($owner) == 0) {
+			q("INSERT INTO unique_contacts (url, name, avatar) VALUES ('%s', '%s', '%s')",
+			dbesc(normalise_link($item["owner-link"])), dbesc($item["owner-name"]), dbesc($item["owner-avatar"]));
+
+			$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+				dbesc(normalise_link($item['owner-link'])));
+		}
+
+		// Comments in threads may appear as wall-to-wall postings.
+		// So only take the owner at the top posting.
+		if ($item["id"] == $item["parent"])
+			return api_get_user($a,$item["owner-link"]);
+		else
+			return api_get_user($a,$item["author-link"]);
 	}
 
 
@@ -652,17 +660,17 @@
 	function api_status_show(&$a, $type){
 		$user_info = api_get_user($a);
 		// get last public wall message
-
-		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`
+		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
 				FROM `item`, `contact`, `item` as `i`, `contact` as `c`
-				WHERE `item`.`contact-id` = %d
+				WHERE `item`.`contact-id` = %d AND `item`.`owner-link` = '%s'
 					AND `i`.`id` = `item`.`parent`
 					AND `contact`.`id`=`item`.`contact-id` AND `c`.`id`=`i`.`contact-id` AND `contact`.`self`=1
 					AND `item`.`type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `item`.`created` DESC
 				LIMIT 1",
-				intval($user_info['cid'])
+				intval($user_info['cid']),
+				dbesc($user_info['url'])
 		);
 
 		if (count($lastwall)>0){
@@ -673,8 +681,14 @@
 			$in_reply_to_screen_name = NULL;
 			if ($lastwall['parent']!=$lastwall['id']) {
 				$in_reply_to_status_id=$lastwall['parent'];
-				$in_reply_to_user_id = $lastwall['reply_uid'];
-				$in_reply_to_screen_name = $lastwall['reply_author'];
+				//$in_reply_to_user_id = $lastwall['reply_uid'];
+				//$in_reply_to_screen_name = $lastwall['reply_author'];
+
+				$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($lastwall['item-author'])));
+				if ($r) {
+					$in_reply_to_screen_name = $r[0]['name'];
+					$in_reply_to_user_id = $r[0]['id'];
+				}
 			}
 			$status_info = array(
 				'text' => trim(html2plain(bbcode($lastwall['body'], false, false, 2), 0)),
@@ -719,13 +733,14 @@
 
 		$lastwall = q("SELECT `item`.*
 				FROM `item`, `contact`
-				WHERE `item`.`contact-id` = %d
+				WHERE `item`.`contact-id` = %d  AND `item`.`owner-link` = '%s'
 					AND `contact`.`id`=`item`.`contact-id`
 					AND `type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `created` DESC
 				LIMIT 1",
-				intval($user_info['cid'])
+				intval($user_info['cid']),
+				dbesc($user_info['url'])
 		);
 
 		if (count($lastwall)>0){
@@ -735,12 +750,17 @@
 			$in_reply_to_user_id = NULL;
 			$in_reply_to_screen_name = NULL;
 			if ($lastwall['parent']!=$lastwall['id']) {
-				$reply = q("SELECT `item`.`id`, `item`.`contact-id` as `reply_uid`, `contact`.`nick` as `reply_author`
+				$reply = q("SELECT `item`.`id`, `item`.`contact-id` as `reply_uid`, `contact`.`nick` as `reply_author`, `item`.`author-link` AS `item-author`
                                             FROM `item`,`contact` WHERE `contact`.`id`=`item`.`contact-id` AND `item`.`id` = %d", intval($lastwall['parent']));
 				if (count($reply)>0) {
 					$in_reply_to_status_id=$lastwall['parent'];
-					$in_reply_to_user_id = $reply[0]['reply_uid'];
-					$in_reply_to_screen_name = $reply[0]['reply_author'];
+					//$in_reply_to_user_id = $reply[0]['reply_uid'];
+					//$in_reply_to_screen_name = $reply[0]['reply_author'];
+					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($reply[0]['item-author'])));
+					if ($r) {
+						$in_reply_to_screen_name = $r[0]['name'];
+						$in_reply_to_user_id = $r[0]['id'];
+					}
 				}
 			}
 			$user_info['status'] = array(
@@ -1445,6 +1465,14 @@
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
 
+			// Retweets are only valid for top postings
+			if (($item['owner-link'] != $item['author-link']) AND ($item["id"] == $item["parent"])) {
+				$retweeted_status = $status;
+				$retweeted_status["user"] = api_get_user($a,$item["author-link"]);
+
+				$status["retweeted_status"] = $retweeted_status;
+			}
+
 			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status["user"]["cid"]);
 			unset($status["user"]["uid"]);
@@ -1638,13 +1666,14 @@
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
 		if($qtype == 'followers')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
- 
 
-		$r = q("SELECT id FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
+
+		$r = q("SELECT unique_contacts.id FROM contact, unique_contacts WHERE contact.nurl = unique_contacts.url AND `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
 			intval(api_user())
 		);
 
 		if(is_array($r)) {
+
 			if($type === 'xml') {
 				header("Content-type: application/xml");
 				echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" . '<ids>' . "\r\n";
@@ -1738,6 +1767,8 @@
 		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
 		if ($page<0) $page=0;
 
+		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+
 		$start = $page*$count;
 
 		$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
@@ -1754,8 +1785,9 @@
 			$sql_extra = "`from-url`!='".dbesc( $profile_url )."'";
 		}
 
-		$r = q("SELECT * FROM `mail` WHERE uid=%d AND $sql_extra ORDER BY created DESC LIMIT %d,%d",
+		$r = q("SELECT * FROM `mail` WHERE uid=%d AND $sql_extra AND id > %d ORDER BY created DESC LIMIT %d,%d",
 				intval(api_user()),
+				intval($since_id),
 				intval($start),	intval($count)
 		);
 
