@@ -68,10 +68,12 @@
 		}
 
 		if (!isset($_SERVER['PHP_AUTH_USER'])) {
-		   logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
-		    header('WWW-Authenticate: Basic realm="Friendica"');
-		    header('HTTP/1.0 401 Unauthorized');
-		    die('This api requires login');
+			logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
+			header('WWW-Authenticate: Basic realm="Friendica"');
+			header('HTTP/1.0 401 Unauthorized');
+			die((api_error(&$a, 'json', "This api requires login")));
+
+			//die('This api requires login');
 		}
 
 		$user = $_SERVER['PHP_AUTH_USER'];
@@ -169,7 +171,12 @@
 		}
 		header("HTTP/1.1 404 Not Found");
 		logger('API call not implemented: '.$a->query_string." - ".print_r($_REQUEST,true));
-		$r = '<status><error>not implemented</error></status>';
+		return(api_error(&$a, $type, "not implemented"));
+
+	}
+
+	function api_error(&$a, $type, $error) {
+		$r = "<status><error>".$error."</error><request>".$a->query_string."</request></status>";
 		switch($type){
 			case "xml":
 				header ("Content-Type: text/xml");
@@ -177,7 +184,7 @@
 				break;
 			case "json":
 				header ("Content-Type: application/json");
-			    return json_encode(array('error' => 'not implemented'));
+				return json_encode(array('error' => $error, 'request' => $a->query_string));
 				break;
 			case "rss":
 				header ("Content-Type: application/rss+xml");
@@ -225,7 +232,7 @@
 	/**
 	 * Returns user info array.
 	 */
-	function api_get_user(&$a, $contact_id = Null){
+	function api_get_user(&$a, $contact_id = Null, $type = "json"){
 		global $called_api;
 		$user = null;
 		$extra_query = "";
@@ -245,7 +252,7 @@
 			$user = dbesc(api_unique_id_to_url($contact_id));
 
 			if ($user == "")
-				return false;
+				die(api_error($a, $type, t("User not found.")));
 
 			$url = $user;
 			$extra_query = "AND `contact`.`nurl` = '%s' ";
@@ -256,7 +263,7 @@
 			$user = dbesc(api_unique_id_to_url($_GET['user_id']));
 
 			if ($user == "")
-				return false;
+				die(api_error($a, $type, t("User not found.")));
 
 			$url = $user;
 			$extra_query = "AND `contact`.`nurl` = '%s' ";
@@ -344,7 +351,7 @@
 
 				return $ret;
 			} else
-				return False;
+				die(api_error($a, $type, t("User not found.")));
 
 		}
 
@@ -448,7 +455,7 @@
 
 	function api_item_get_user(&$a, $item) {
 
-		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+		$author = q("SELECT * FROM unique_contacts WHERE url='%s' LIMIT 1",
 			dbesc(normalise_link($item['author-link'])));
 
 		if (count($author) == 0) {
@@ -457,6 +464,9 @@
 
 			$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 				dbesc(normalise_link($item['author-link'])));
+		} else if ($item["author-link"].$item["author-name"] != $author[0]["url"].$author[0]["name"]) {
+			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE url = '%s'",
+			dbesc($item["author-name"]), dbesc($item["author-avatar"]), dbesc(normalise_link($item["author-link"])));
 		}
 
 		$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
@@ -468,6 +478,9 @@
 
 			$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 				dbesc(normalise_link($item['owner-link'])));
+		} else if ($item["owner-link"].$item["owner-name"] != $owner[0]["url"].$owner[0]["name"]) {
+			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE url = '%s'",
+			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]), dbesc(normalise_link($item["owner-link"])));
 		}
 
 		// Comments in threads may appear as wall-to-wall postings.
@@ -518,6 +531,18 @@
 	function api_account_verify_credentials(&$a, $type){
 		if (api_user()===false) return false;
 		$user_info = api_get_user($a);
+
+		// "verified" isn't used here in the standard
+		unset($user_info["verified"]);
+
+		// - Adding last status
+		$user_info["status"] = api_status_show($a,"raw");
+		unset($user_info["status"]["user"]);
+
+		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
+		unset($user_info["cid"]);
+		unset($user_info["uid"]);
+		unset($user_info["self"]);
 
 		return api_apply_template("user", $type, array('$user' => $user_info));
 
@@ -701,12 +726,10 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => false,
+				// attachments
 				'user' => $user_info,
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
-				//'coordinates' => $lastwall['coord'],
-				//'place' => $lastwall['location'],
-				//'contributors' => ''
 			);
 
 			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -714,6 +737,9 @@
 			unset($status_info["user"]["uid"]);
 			unset($status_info["user"]["self"]);
 		}
+
+		if ($type == "raw")
+			return($status_info);
 
 		return  api_apply_template("status", $type, array('$status' => $status_info));
 
@@ -980,6 +1006,9 @@
 			intval($id)
 		);
 
+		if (!$r)
+			die(api_error($a, $type, t("There is no status with this id.")));
+
 		$ret = api_format_items($r,$user_info);
 
 		if ($conversation) {
@@ -1111,6 +1140,7 @@
 
 		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
+		// Ugly code - should be changed
 		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		//$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
@@ -1402,7 +1432,6 @@
 			$status_user = api_item_get_user($a,$item);
 
 			// Look if the posts are matching if they should be filtered by user id
-			// To-Do: Fix for wall-to-wall-posts
 			if ($filter_user AND ($status_user["id"] != $user_info["id"]))
 				continue;
 
@@ -1459,7 +1488,7 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,
-				'attachments' => array(),
+				//'attachments' => array(),
 				'user' =>  $status_user ,
 				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
 				'statusnet_conversation_id'	=> $item['parent'],
@@ -1516,7 +1545,7 @@
 			  'reset_time_in_seconds' => strtotime('now + 1 hour'),
 			  'remaining_hits' => (string) 150,
 			  'hourly_limit' => (string) 150,
-			  'reset_time' => datetime_convert('UTC','UTC','now + 1 hour',ATOM_TIME),
+			  'reset_time' => api_date(datetime_convert('UTC','UTC','now + 1 hour',ATOM_TIME)),
 		);
 		if ($type == "xml")
 			$hash['resettime_in_seconds'] = $hash['reset_time_in_seconds'];
@@ -1622,18 +1651,18 @@
 
 		$config = array(
 			'site' => array('name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
-				'logo' => $logo, 'fancy' => 'true', 'language' => 'en', 'email' => $email, 'broughtby' => '',
-				'broughtbyurl' => '', 'timezone' => 'UTC', 'closed' => $closed, 'inviteonly' => 'false',
+				'logo' => $logo, 'fancy' => true, 'language' => 'en', 'email' => $email, 'broughtby' => '',
+				'broughtbyurl' => '', 'timezone' => 'UTC', 'closed' => $closed, 'inviteonly' => false,
 				'private' => $private, 'textlimit' => $textlimit, 'sslserver' => $sslserver, 'ssl' => $ssl,
 				'shorturllength' => '30',
-        'friendica' => array(
-                             'FRIENDICA_PLATFORM' => FRIENDICA_PLATFORM,
-                             'FRIENDICA_VERSION' => FRIENDICA_VERSION,
-                             'DFRN_PROTOCOL_VERSION' => DFRN_PROTOCOL_VERSION,
-                             'DB_UPDATE_VERSION' => DB_UPDATE_VERSION
-                             )
+				'friendica' => array(
+						'FRIENDICA_PLATFORM' => FRIENDICA_PLATFORM,
+						'FRIENDICA_VERSION' => FRIENDICA_VERSION,
+						'DFRN_PROTOCOL_VERSION' => DFRN_PROTOCOL_VERSION,
+						'DB_UPDATE_VERSION' => DB_UPDATE_VERSION
+						)
 			),
-		);  
+		);
 
 		return api_apply_template('config', $type, array('$config' => $config));
 
@@ -1771,7 +1800,9 @@
 
 		$start = $page*$count;
 
-		$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
+		//$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
+		$profile_url = $user_info["url"];
+
 		if ($box=="sentbox") {
 			$sql_extra = "`from-url`='".dbesc( $profile_url )."'";
 		}
@@ -1859,15 +1890,6 @@
 
 	api_register_func('api/oauth/request_token', 'api_oauth_request_token', false);
 	api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
-
-/*
-
-To-Do:
-- renewing of unique contacts
-- support of repeated items
-
-Bugs:
-*/
 
 /*
 Not implemented by now:
