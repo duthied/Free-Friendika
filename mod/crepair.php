@@ -59,8 +59,9 @@ function crepair_post(&$a) {
 	$poll    = ((x($_POST,'poll')) ? $_POST['poll'] : '');
 	$attag   = ((x($_POST,'attag')) ? $_POST['attag'] : '');
 	$photo   = ((x($_POST,'photo')) ? $_POST['photo'] : '');
+	$remote_self = ((x($_POST,'remote_self')) ? intval($_POST['remote_self']) : 0);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' 
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s', `remote_self` = '%d'
 		WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		dbesc($name),
 		dbesc($nick),
@@ -70,6 +71,7 @@ function crepair_post(&$a) {
 		dbesc($notify),
 		dbesc($poll),
 		dbesc($attag),
+		$remote_self,
 		intval($contact['id']),
 		local_user()
 	);
@@ -154,6 +156,8 @@ function crepair_content(&$a) {
 		'$label_notify' => t('Notification Endpoint URL'),
 		'$label_poll' => t('Poll/Feed URL'),
 		'$label_photo' => t('New photo from this URL'),
+		'$label_remote_self' => t('Remote Self'),
+		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.')),  
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],
 		'$contact_id'   => $contact['id'],
@@ -164,7 +168,7 @@ function crepair_content(&$a) {
 		'$poll'         => $contact['poll'],
 		'$contact_attag'  => $contact['attag'],
 		'$lbl_submit'   => t('Submit')
-	));
+	    ));
 
 	return $o;
 
