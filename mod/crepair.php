@@ -157,6 +157,7 @@ function crepair_content(&$a) {
 		'$label_poll' => t('Poll/Feed URL'),
 		'$label_photo' => t('New photo from this URL'),
 		'$label_remote_self' => t('Remote Self'),
+		'$allow_remote_self' => get_config('system','allow_users_remote_self'),
 		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.')),  
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],

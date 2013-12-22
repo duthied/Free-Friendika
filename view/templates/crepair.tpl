@@ -37,9 +37,10 @@
 <label id="crepair-photo-label" class="crepair-label" for="crepair-photo">{{$label_photo}}</label>
 <input type="text" id="crepair-photo" class="crepair-input" name="photo" value="" />
 <div class="clear"></div>
-
+{{if $allow_remote_self eq 1}}
 <h4>{{$label_remote_self}}</h4>
 {{include file="field_checkbox.tpl" field=$remote_self}}
+{{/if}}
 
 <input type="submit" name="submit" value="{{$lbl_submit}}" />
 
