@@ -732,6 +732,11 @@
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
+			if (($lastwall['item_network'] != "") AND ($status["source"] == 'web'))
+				$status_info["source"] = network_to_name($lastwall['item_network']);
+			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $status_info["source"]))
+				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network']).')');
+
 			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status_info["user"]["cid"]);
 			unset($status_info["user"]["uid"]);
@@ -803,6 +808,12 @@
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
+
+			if (($lastwall['item_network'] != "") AND ($user_info["status"]["source"] == 'web'))
+				$user_info["status"]["source"] = network_to_name($lastwall['item_network']);
+			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $user_info["status"]["source"]))
+				$user_info["status"]["source"] = trim($user_info["status"]["source"].' ('.network_to_name($lastwall['item_network']).')');
+
 		}
 
 		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -851,7 +862,7 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -929,7 +940,7 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-	        $r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+	        $r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 	                `contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
         	        `contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
                 	`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
@@ -994,7 +1005,7 @@
 		else
 			$sql_extra .= " AND `item`.`id` = %d";
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1045,7 +1056,7 @@
 
 		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `contact`.`nick` as `reply_author`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1155,7 +1166,7 @@
 		if ($max_id > 0)
 			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1226,7 +1237,7 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1280,7 +1291,7 @@
 
 			$start = $page*$count;
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1493,6 +1504,12 @@
 				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
+
+			if (($item['item_network'] != "") AND ($status["source"] == 'web'))
+				$status["source"] = network_to_name($item['item_network']);
+			else if (($item['item_network'] != "") AND (network_to_name($item['item_network']) != $status["source"]))
+				$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network']).')');
+
 
 			// Retweets are only valid for top postings
 			if (($item['owner-link'] != $item['author-link']) AND ($item["id"] == $item["parent"])) {
