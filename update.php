@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1166 );
+define( 'UPDATE_VERSION' , 1167 );
 
 /**
  *
@@ -1520,6 +1520,21 @@ function update_1165() {
             `push` INT NOT NULL,
             `last_update` DATETIME NOT NULL,
             `secret` CHAR( 255 ) NOT NULL
+		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1166() {
+	$r = q("CREATE TABLE IF NOT EXISTS `unique_contacts` (
+			`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`url` CHAR(255) NOT NULL,
+			`nick` CHAR(255) NOT NULL,
+			`name` CHAR(255) NOT NULL,
+			`avatar` CHAR(255) NOT NULL,
+			INDEX (`url`)
 		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
 	if (!$r)
 		return UPDATE_FAILED;
