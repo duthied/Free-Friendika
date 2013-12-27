@@ -218,7 +218,7 @@
 
 
 	/**
-	 * Unique contact to to contact url.
+	 * Unique contact to contact url.
 	 */
 	function api_unique_id_to_url($id){
 		$r = q("SELECT url FROM unique_contacts WHERE id=%d LIMIT 1",
@@ -1760,11 +1760,11 @@
 
 		require_once("include/message.php");
 
-		$r = q("SELECT `id` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
+		$r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 				intval(api_user()),
 				dbesc($_POST['screen_name']));
 
-		$recipient = api_get_user($a, $r[0]['id']);
+		$recipient = api_get_user($a, $r[0]['nurl']);
 		$replyto = '';
 		$sub     = '';
 		if (x($_REQUEST,'replyto')) {
@@ -1824,19 +1824,19 @@
 		$profile_url = $user_info["url"];
 
 		if ($box=="sentbox") {
-			$sql_extra = "`from-url`='".dbesc( $profile_url )."'";
+			$sql_extra = "`mail`.`from-url`='".dbesc( $profile_url )."'";
 		}
 		elseif ($box=="conversation") {
-			$sql_extra = "`parent-uri`='".dbesc( $_GET["uri"] )  ."'";
+			$sql_extra = "`mail`.`parent-uri`='".dbesc( $_GET["uri"] )  ."'";
 		}
 		elseif ($box=="all") {
 			$sql_extra = "true";
 		}
 		elseif ($box=="inbox") {
-			$sql_extra = "`from-url`!='".dbesc( $profile_url )."'";
+			$sql_extra = "`mail`.`from-url`!='".dbesc( $profile_url )."'";
 		}
 
-		$r = q("SELECT * FROM `mail` WHERE uid=%d AND $sql_extra AND id > %d ORDER BY created DESC LIMIT %d,%d",
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`created` DESC LIMIT %d,%d",
 				intval(api_user()),
 				intval($since_id),
 				intval($start),	intval($count)
@@ -1846,11 +1846,12 @@
 		foreach($r as $item) {
 			if ($box == "inbox" || $item['from-url'] != $profile_url){
 				$recipient = $user_info;
-				$sender = api_get_user($a,$item['contact-id']);
+				$sender = api_get_user($a,normalise_link($item['contact-url']));
 			}
 			elseif ($box == "sentbox" || $item['from-url'] != $profile_url){
-				$recipient = api_get_user($a,$item['contact-id']);
+				$recipient = api_get_user($a,normalise_link($item['contact-url']));
 				$sender = $user_info;
+
 			}
 
 			$ret[]=api_format_messages($item, $recipient, $sender);
