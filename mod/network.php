@@ -746,7 +746,7 @@ function network_content(&$a, $update = 0) {
 	if($nouveau) {
 		// "New Item View" - show all items unthreaded in reverse created date order
 
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`, `contact`.`writable`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -786,7 +786,7 @@ function network_content(&$a, $update = 0) {
 		// Fetch a page full of parent items for this page
 
 		if($update) {
-			$r = q("SELECT `item`.`parent` AS `item_id`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
 				(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')
@@ -797,7 +797,7 @@ function network_content(&$a, $update = 0) {
 			);
 		}
 		else {
-			$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 				AND `item`.`moderated` = 0 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -832,7 +832,7 @@ function network_content(&$a, $update = 0) {
 
 			foreach ($parents_arr AS $parents_str) {
 
-				$thread_items = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+				$thread_items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 					`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
 					`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 					`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`

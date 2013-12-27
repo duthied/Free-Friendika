@@ -3,17 +3,17 @@
 /**
  *
  * This is the POST destination for most all locally posted
- * text stuff. This function handles status, wall-to-wall status, 
- * local comments, and remote coments that are posted on this site 
+ * text stuff. This function handles status, wall-to-wall status,
+ * local comments, and remote coments that are posted on this site
  * (as opposed to being delivered in a feed).
- * Also processed here are posts and comments coming through the 
- * statusnet/twitter API. 
- * All of these become an "item" which is our basic unit of 
+ * Also processed here are posts and comments coming through the
+ * statusnet/twitter API.
+ * All of these become an "item" which is our basic unit of
  * information.
- * Posts that originate externally or do not fall into the above 
- * posting categories go through item_store() instead of this function. 
+ * Posts that originate externally or do not fall into the above
+ * posting categories go through item_store() instead of this function.
  *
- */  
+ */
 
 require_once('include/crypto.php');
 require_once('include/enotify.php');
@@ -200,6 +200,7 @@ function item_post(&$a) {
 		$body              = escape_tags(trim($_REQUEST['body']));
 		$private           = $orig_post['private'];
 		$pubmail_enable    = $orig_post['pubmail'];
+		$network           = $orig_post['network'];
 
 	}
 	else {
@@ -234,6 +235,7 @@ function item_post(&$a) {
 		$verb              = notags(trim($_REQUEST['verb']));
 		$emailcc           = notags(trim($_REQUEST['emailcc']));
 		$body              = escape_tags(trim($_REQUEST['body']));
+		$network           = notags(trim($_REQUEST['network']));
 
 
 		$naked_body = preg_replace('/\[(.+?)\]/','',$body);
@@ -275,6 +277,12 @@ function item_post(&$a) {
 		if($parent_item) {
 			$private = 0;
 
+			// for non native networks use the network of the original post as network of the item
+			if (($parent_item['network'] != NETWORK_DIASPORA)
+				AND ($parent_item['network'] != NETWORK_OSTATUS)
+				AND ($network == ""))
+				$network = $parent_item['network'];
+
 			if(($parent_item['private'])
 				|| strlen($parent_item['allow_cid'])
 				|| strlen($parent_item['allow_gid'])
@@ -288,7 +296,6 @@ function item_post(&$a) {
 			$str_contact_deny  = $parent_item['deny_cid'];
 			$str_group_deny    = $parent_item['deny_gid'];
 		}
-
 		$pubmail_enable    = ((x($_REQUEST,'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && (! $private)) ? 1 : 0);
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
@@ -519,7 +526,7 @@ function item_post(&$a) {
 		&& ($parent_contact['nick']) && (! in_array('@' . $parent_contact['nick'],$tags))) {
 		$body = '@' . $parent_contact['nick'] . ' ' . $body;
 		$tags[] = '@' . $parent_contact['nick'];
-	}		
+	}
 
 	$tagged = array();
 
@@ -584,13 +591,16 @@ function item_post(&$a) {
 	if(! strlen($verb))
 		$verb = ACTIVITY_POST ;
 
+	if ($network == "")
+		$network = NETWORK_DFRN;
+
 	$gravity = (($parent) ? 6 : 0 );
 
 	// even if the post arrived via API we are considering that it 
 	// originated on this site by default for determining relayability.
 
 	$origin = ((x($_REQUEST,'origin')) ? intval($_REQUEST['origin']) : 1);
-	
+
 	$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 
 	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid));
@@ -604,6 +614,7 @@ function item_post(&$a) {
 	$datarray['type']          = $post_type;
 	$datarray['wall']          = $wall;
 	$datarray['gravity']       = $gravity;
+	$datarray['network']       = $network;
 	$datarray['contact-id']    = $contact_id;
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
@@ -709,15 +720,16 @@ function item_post(&$a) {
 		$post_id = 0;
 
 
-	$r = q("INSERT INTO `item` (`guid`, `uid`,`type`,`wall`,`gravity`,`contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
+	$r = q("INSERT INTO `item` (`guid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
 		`author-name`, `author-link`, `author-avatar`, `created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, 
 		`tag`, `inform`, `verb`, `postopts`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file` )
-		VALUES( '%s', %d, '%s', %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
+		VALUES( '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
 		dbesc($datarray['guid']),
 		intval($datarray['uid']),
 		dbesc($datarray['type']),
 		intval($datarray['wall']),
 		intval($datarray['gravity']),
+		dbesc($datarray['network']),
 		intval($datarray['contact-id']),
 		dbesc($datarray['owner-name']),
 		dbesc($datarray['owner-link']),
@@ -1103,7 +1115,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 			if(count($r)) {
 				$profile = $r[0]['url'];
 				//set newname to nick, find alias
-				if($r[0]['network'] === 'stat') {
+				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER)) {
 					$newname = $r[0]['nick'];
 					$stat = true;
 					if($r[0]['alias'])

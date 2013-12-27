@@ -146,6 +146,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		}
 
 		$arr = array();
+		$arr["network"] = NETWORK_OSTATUS;
 		$arr["uri"] = $single_conv->id;
 		$arr["plink"] = $single_conv->id;
 		$arr["uid"] = $message["uid"];
