@@ -322,7 +322,9 @@ class Item extends BaseObject {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
                         'postopts' => $langstr,
-                        'edited' => $edited
+                        'edited' => $edited,
+			'network' => $item["item_network"],
+			'network_name' => network_to_name($item['item_network']),
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

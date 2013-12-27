@@ -642,7 +642,7 @@ function diaspora_request($importer,$xml) {
 
 		return;
 	}
-	
+
 	$ret = find_diaspora_person_by_handle($sender_handle);
 
 
@@ -868,6 +868,7 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['wall'] = 0;
+	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
@@ -1032,6 +1033,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['wall'] = 0;
+	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
@@ -1136,10 +1138,11 @@ function diaspora_asphoto($importer,$xml,$msg) {
 
 	$datarray = array();
 
-	
+
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['wall'] = 0;
+	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
@@ -1153,7 +1156,7 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	$datarray['author-link'] = $contact['url'];
 	$datarray['author-avatar'] = $contact['thumb'];
 	$datarray['body'] = $body;
-	
+
 	$datarray['app']  = 'Diaspora/Cubbi.es';
 
 	$message_id = item_store($datarray);
@@ -1312,6 +1315,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
+	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $message_id;
@@ -1332,7 +1336,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['tag'] = $str_tags;
 
 	// We can't be certain what the original app is if the message is relayed.
-	if(($parent_item['origin']) && (! $parent_author_signature)) 
+	if(($parent_item['origin']) && (! $parent_author_signature))
 		$datarray['app']  = 'Diaspora';
 
 	$message_id = item_store($datarray);
@@ -1894,6 +1898,7 @@ EOT;
 	$arr['uri'] = $uri;
 	$arr['uid'] = $importer['uid'];
 	$arr['guid'] = $guid;
+	$arr['network']  = NETWORK_DIASPORA;
 	$arr['contact-id'] = $contact['id'];
 	$arr['type'] = 'activity';
 	$arr['wall'] = $parent_item['wall'];
@@ -1909,7 +1914,7 @@ EOT;
 	$arr['author-name'] = $person['name'];
 	$arr['author-link'] = $person['url'];
 	$arr['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
-	
+
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $parent_item['author-link'] . ']' . $parent_item['author-name'] . '[/url]';
 	$plink = '[url=' . $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $parent_item['id'] . ']' . $post_type . '[/url]';

@@ -134,7 +134,7 @@ function display_content(&$a, $update = 0) {
 			return '';
 	}
 
-	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -163,7 +163,7 @@ function display_content(&$a, $update = 0) {
 		if($r) {
 			$item_uri = $r[0]['uri'];
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`

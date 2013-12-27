@@ -62,6 +62,9 @@
 				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.ago}}</a>{{else}} {{$item.ago}} {{/if}}
 				{{if $item.lock}}<span class="fakelink" style="color: #999" onclick="lockview(event,{{$item.id}});">{{$item.lock}}</span> {{/if}}
 			</span>
+			<span class="wall-item-network">
+				{{$item.network_name}}
+			</span>
 		</div>
 
 		<div itemprop="description" class="wall-item-content">

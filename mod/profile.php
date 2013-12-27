@@ -217,7 +217,8 @@ function profile_content(&$a, $update = 0) {
 
 	if($update) {
 
-		$r = q("SELECT distinct(parent) AS `item_id`, `contact`.`uid` AS `contact-uid`
+		$r = q("SELECT distinct(parent) AS `item_id`, `item`.`network` AS `item_network`,
+			`contact`.`uid` AS `contact-uid`
 			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
 			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')
@@ -278,7 +279,8 @@ function profile_content(&$a, $update = 0) {
 
 		// FROM `item` FORCE INDEX (created, uid) LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 
-		$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact-uid`
+		$r = q("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+			`contact`.`uid` AS `contact-uid`
 			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 			and `item`.`moderated` = 0 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -299,7 +301,7 @@ function profile_content(&$a, $update = 0) {
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
  
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`, 
 			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
