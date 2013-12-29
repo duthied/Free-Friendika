@@ -1,4 +1,9 @@
 <?php
+/* To-Do:
+ - Detecting shared items and transfer them as retweeted items
+ - Automatically detect if incoming data is HTML or BBCode
+ - search for usernames should first search friendica, then the other open networks, then the closed ones
+*/
 	require_once("include/bbcode.php");
 	require_once("include/datetime.php");
 	require_once("include/conversation.php");
@@ -276,7 +281,7 @@
 			if (api_user()!==false)  $extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
 
-		if (is_null($user) && $a->argc > (count($called_api)-1)){
+		if (is_null($user) AND ($a->argc > (count($called_api)-1)) AND (count($called_api) > 0)){
 			$argid = count($called_api);
 			list($user, $null) = explode(".",$a->argv[$argid]);
 			if(is_numeric($user)){
@@ -533,6 +538,10 @@
 	 */
 	function api_account_verify_credentials(&$a, $type){
 		if (api_user()===false) return false;
+
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
 		$user_info = api_get_user($a);
 
 		// "verified" isn't used here in the standard
@@ -540,7 +549,10 @@
 
 		// - Adding last status
 		$user_info["status"] = api_status_show($a,"raw");
-		unset($user_info["status"]["user"]);
+		if (!count($user_info["status"]))
+			unset($user_info["status"]);
+		else
+			unset($user_info["status"]["user"]);
 
 		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($user_info["cid"]);
@@ -838,6 +850,9 @@
 	 */
 	function api_statuses_home_timeline(&$a, $type){
 		if (api_user()===false) return false;
+
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
 
 		$user_info = api_get_user($a);
 		// get last newtork messages
@@ -1138,6 +1153,9 @@
 	function api_statuses_mentions(&$a, $type){
 		if (api_user()===false) return false;
 
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
 		$user_info = api_get_user($a);
 		// get last newtork messages
 
@@ -1233,7 +1251,8 @@
 		$start = $page*$count;
 
 		$sql_extra = '';
-		if ($user_info['self']==1) $sql_extra .= " AND `item`.`wall` = 1 ";
+		if ($user_info['self']==1)
+			$sql_extra .= " AND `item`.`wall` = 1 ";
 
 		if ($exclude_replies > 0)
 			$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
@@ -1275,9 +1294,14 @@
 
 
 	function api_favorites(&$a, $type){
+		global $called_api;
+
 		if (api_user()===false) return false;
 
+		$called_api= array();
+
 		$user_info = api_get_user($a);
+
 		// in friendica starred item are private
 		// return favorites only for self
 		logger('api_favorites: self:' . $user_info['self']);
@@ -1285,7 +1309,6 @@
 		if ($user_info['self']==0) {
 			$ret = array();
 		} else {
-
 
 			// params
 			$count = (x($_GET,'count')?$_GET['count']:20);
@@ -1754,17 +1777,21 @@
 	function api_direct_messages_new(&$a, $type) {
 		if (api_user()===false) return false;
 
-		if (!x($_POST, "text") || !x($_POST,"screen_name")) return;
+		if (!x($_POST, "text") OR (!x($_POST,"screen_name") AND !x($_POST,"user_id"))) return;
 
 		$sender = api_get_user($a);
 
 		require_once("include/message.php");
 
-		$r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
-				intval(api_user()),
-				dbesc($_POST['screen_name']));
+		if ($_POST['screen_name']) {
+			$r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
+					intval(api_user()),
+					dbesc($_POST['screen_name']));
 
-		$recipient = api_get_user($a, $r[0]['nurl']);
+			$recipient = api_get_user($a, $r[0]['nurl']);
+		} else
+			$recipient = api_get_user($a, $_POST['user_id']);
+
 		$replyto = '';
 		$sub     = '';
 		if (x($_REQUEST,'replyto')) {
@@ -1783,7 +1810,7 @@
 			}
 		}
 
-		$id = send_message($recipient['id'], $_POST['text'], $sub, $replyto);
+		$id = send_message($recipient['cid'], $_POST['text'], $sub, $replyto);
 
 		if ($id>-1) {
 			$r = q("SELECT * FROM `mail` WHERE id=%d", intval($id));
@@ -1808,6 +1835,9 @@
 
 	function api_direct_messages_box(&$a, $type, $box) {
 		if (api_user()===false) return false;
+
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
 
 		$user_info = api_get_user($a);
 
