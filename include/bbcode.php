@@ -378,7 +378,7 @@ function GetProfileUsername($profile, $username) {
 	// BBcode 2 HTML was written by WAY2WEB.net
 	// extended to work with Mistpark/Friendica - Mike Macgirvin
 
-function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = false) {
+function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = false, $forplaintext = false) {
 
 	$stamp1 = microtime(true);
 
@@ -462,8 +462,11 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 
 	// Perform URL Search
-
-	$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="external-link">$2</a>', $Text);
+	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
+	if (!$forplaintext)
+		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="external-link">$2</a>', $Text);
+	else
+		$Text = preg_replace("(\[url\](.*?)\[\/url\])ism","$1",$Text);
 
 	if ($tryoembed)
 		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\].*?\[\/bookmark\]/ism",'tryoembed',$Text);

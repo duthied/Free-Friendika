@@ -1,6 +1,5 @@
 <?php
 /* To-Do:
- - Detecting shared items and transfer them as retweeted items
  - Automatically detect if incoming data is HTML or BBCode
  - search for usernames should first search friendica, then the other open networks, then the closed ones
 */
@@ -329,6 +328,10 @@
 				$r = q("SELECT * FROM unique_contacts WHERE nick='%s' LIMIT 1", $nick);
 
 			if ($r) {
+				// If no nick where given, extract it from the address
+				if (($r[0]['nick'] == "") OR ($r[0]['name'] == $r[0]['nick']))
+					$r[0]['nick'] = api_get_nick($r[0]["url"]);
+
 				$ret = array(
 					'id' => $r[0]["id"],
 					'name' => $r[0]["name"],
@@ -417,6 +420,14 @@
 			$countfriends = 0;
 			$countfollowers = 0;
 			$starred = 0;
+		}
+
+		// Add a nick if it isn't present there
+		if (($uinfo[0]['nick'] == "") OR ($uinfo[0]['name'] == $uinfo[0]['nick'])) {
+			$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
+			//if ($uinfo[0]['nick'] != "")
+			//	q("UPDATE contact SET nick = '%s' WHERE id = %d",
+			//		dbesc($uinfo[0]['nick']), intval($uinfo[0]["id"]));
 		}
 
 		// Fetching unique id
@@ -726,12 +737,15 @@
 
 				$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($lastwall['item-author'])));
 				if ($r) {
-					$in_reply_to_screen_name = $r[0]['name'];
+					if ($r[0]['nick'] == "")
+						$r[0]['nick'] = api_get_nick($r[0]["url"]);
+
+					$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
 					$in_reply_to_user_id = $r[0]['id'];
 				}
 			}
 			$status_info = array(
-				'text' => trim(html2plain(bbcode($lastwall['body'], false, false, 2), 0)),
+				'text' => trim(html2plain(bbcode(api_clean_plain_items($lastwall['body']), false, false, 2, true), 0)),
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
@@ -804,13 +818,16 @@
 					//$in_reply_to_screen_name = $reply[0]['reply_author'];
 					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($reply[0]['item-author'])));
 					if ($r) {
-						$in_reply_to_screen_name = $r[0]['name'];
+						if ($r[0]['nick'] == "")
+							$r[0]['nick'] = api_get_nick($r[0]["url"]);
+
+						$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
 						$in_reply_to_user_id = $r[0]['id'];
 					}
 				}
 			}
 			$user_info['status'] = array(
-				'text' => trim(html2plain(bbcode($lastwall['body'], false, false, 2), 0)),
+				'text' => trim(html2plain(bbcode(api_clean_plain_items($lastwall['body']), false, false, 2, true), 0)),
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
@@ -1445,11 +1462,11 @@
 			}
 			elseif ($_GET["getText"] == "plain") {
 				//$ret['text'] = html2plain(bbcode($item['body'], false, false, true), 0);
-				$ret['text'] = trim(html2plain(bbcode($item['body'], false, false, 2), 0));
+				$ret['text'] = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
 			}
 		}
 		else {
-			$ret['text'] = $item['title']."\n".html2plain(bbcode($item['body'], false, false, 2), 0);
+			$ret['text'] = $item['title']."\n".html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0);
 		}
 		if (isset($_GET["getUserObjects"]) && $_GET["getUserObjects"] == "false") {
 			unset($ret['sender']);
@@ -1465,6 +1482,8 @@
 		$ret = Array();
 
 		foreach($r as $item) {
+			api_share_as_retweet($a, api_user(), $item);
+
 			localize_item($item);
 			$status_user = api_item_get_user($a,$item);
 
@@ -1491,7 +1510,10 @@
 					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($r[0]['author-link'])));
 
 					if ($r) {
-						$in_reply_to_screen_name = $r[0]['name'];
+						if ($r[0]['nick'] == "")
+							$r[0]['nick'] = api_get_nick($r[0]["url"]);
+
+						$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
 						$in_reply_to_user_id = $r[0]['id'];
 					}
 				}
@@ -1502,7 +1524,7 @@
 			}
 
 			// Workaround for ostatus messages where the title is identically to the body
-			$statusbody = trim(html2plain(bbcode($item['body'], false, false, 2), 0));
+			$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
 
 			$statustitle = trim($item['title']);
 
@@ -1942,6 +1964,159 @@
 	api_register_func('api/oauth/request_token', 'api_oauth_request_token', false);
 	api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
 
+function api_share_as_retweet($a, $uid, &$item) {
+	$body = trim($item["body"]);
+
+	// Skip if it isn't a pure repeated messages
+	// Does it start with a share?
+	if (strpos($body, "[share") > 0)
+		return(false);
+
+	// Does it end with a share?
+	if (strlen($body) > (strrpos($body, "[/share]") + 8))
+		return(false);
+
+	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+	// Skip if there is no shared message in there
+	if ($body == $attributes)
+		return(false);
+
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
+
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
+
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
+
+	$avatar = "";
+	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
+
+	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
+
+	$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$2",$body);
+
+	if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
+		return(false);
+
+	$item["body"] = $shared_body;
+	$item["author-name"] = $author;
+	$item["author-link"] = $profile;
+	$item["author-avatar"] = $avatar;
+
+	return(true);
+
+}
+
+function api_get_nick($profile) {
+/* To-Do:
+ - remove trailing jung from profile url
+ - pump.io check has to check the websitr
+*/
+
+	$nick = "";
+
+	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
+	if ($friendica != $profile)
+		$nick = $friendica;
+
+	if (!$nick == "") {
+		$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2", $profile);
+		if ($diaspora != $profile)
+			$nick = $diaspora;
+	}
+
+	if (!$nick == "") {
+		$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1", $profile);
+		if ($twitter != $profile)
+			$nick = $twitter;
+	}
+
+
+	if (!$nick == "") {
+		$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
+		if ($StatusnetHost != $profile) {
+			$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
+			if ($StatusnetUser != $profile) {
+				$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
+				$user = json_decode($UserData);
+				if ($user)
+					$nick = $user->screen_name;
+			}
+		}
+	}
+
+	// To-Do: look at the page if its really a pumpio site
+	//if (!$nick == "") {
+	//	$pumpio = preg_replace("=https?://(.*)/(.*)/=ism", "$2", $profile."/");
+        //	if ($pumpio != $profile)
+	//		$nick = $pumpio;
+		//      <div class="media" id="profile-block" data-profile-id="acct:kabniel@microca.st">
+
+	//}
+
+	if ($nick != "") {
+		q("UPDATE unique_contacts SET nick = '%s' WHERE url = '%s'",
+			dbesc($nick), dbesc(normalise_link($profile)));
+		return($nick);
+	}
+
+        return(false);
+}
+
+function api_clean_plain_items($Text) {
+	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
+	return($Text);
+}
+
+function api_cleanup_share($shared) {
+        if ($shared[2] != "type-link")
+                return($shared[3]);
+
+        if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+                return($shared[3]);
+
+        $title = "";
+        $link = "";
+
+        if (isset($bookmark[2][0]))
+                $title = $bookmark[2][0];
+
+        if (isset($bookmark[1][0]))
+                $link = $bookmark[1][0];
+
+	if (strpos($shared[1],$title) !== false)
+		$title = "";
+
+	if (strpos($shared[1],$link) !== false)
+		$link = "";
+
+        $text = trim($shared[1]);
+
+	//if (strlen($text) < strlen($title))
+	if (($text == "") AND ($title != ""))
+		$text .= "\n\n".trim($title);
+
+        if ($link != "")
+                $text .= "\n".trim($link);
+
+        return(trim($text));
+}
+
 /*
 Not implemented by now:
 favorites
@@ -1970,4 +2145,3 @@ blocks/exists
 blocks/blocking
 lists
 */
-
