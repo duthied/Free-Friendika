@@ -36,7 +36,7 @@ function ACL(backend_url, preset, automention){
 }
 
 ACL.prototype.remove_mention = function(id) {
-	if (!that.aclautomention) return;
+	if (!that.automention) return;
 	var nick = that.data[id].nick;
 	var searchText = "@"+nick+"+"+id+" ";
 	if (tinyMCE.activeEditor===null) {
@@ -54,7 +54,7 @@ ACL.prototype.remove_mention = function(id) {
 }
 
 ACL.prototype.add_mention = function(id) {
-	if (!that.aclautomention) return;
+	if (!that.automention) return;
 	var nick = that.data[id].nick;
 	var searchText =  "@"+nick+"+"+id+" ";
 	if (tinyMCE.activeEditor===null) {
