@@ -617,7 +617,6 @@ function fetch_xrd_links($url) {
 
 if(! function_exists('validate_url')) {
 function validate_url(&$url) {
-
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;

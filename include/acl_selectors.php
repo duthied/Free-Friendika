@@ -1,6 +1,7 @@
 <?php
 
 require_once("include/contact_selectors.php");
+require_once("include/features.php");
 
 /**
  * 
@@ -329,6 +330,9 @@ function populate_acl($user = null,$celeb = false) {
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
+		'$features' => array(
+			"aclautomention"=>(feature_enabled($user,"aclautomention")?"true":"false")
+		),
 	));
 	
 	
@@ -474,14 +478,15 @@ function acl_lookup(&$a, $out_type = 'json') {
 				"name"  => $g['name'],
 				"id"	=> intval($g['id']),
 				"uids"  => array_map("intval", explode(",",$g['uids'])),
-				"link"  => ''
+				"link"  => '',
+				"forum" => '0'
 			);
 		}
 	}
 	
 	if ($type=='' || $type=='c'){
 	
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag` FROM `contact` 
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, forum FROM `contact` 
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 			$sql_extra2
 			ORDER BY `name` ASC ",
@@ -541,6 +546,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				"network" => $g['network'],
 				"link" => $g['url'],
 				"nick" => ($g['attag']) ? $g['attag'] : $g['nick'],
+				"forum" => $g['forum']
 			);
 		}			
 	}
