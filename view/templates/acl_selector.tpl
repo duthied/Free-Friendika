@@ -20,7 +20,8 @@ $(document).ready(function() {
 	if(typeof acl=="undefined"){
 		acl = new ACL(
 			baseurl+"/acl",
-			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ]
+			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ],
+			{{$features.aclautomention}}
 		);
 	}
 });

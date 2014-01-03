@@ -1,7 +1,8 @@
-function ACL(backend_url, preset){
+function ACL(backend_url, preset, automention){
 	that = this;
 	
 	that.url = backend_url;
+	that.automention = automention;
 	
 	that.kp_timer = null;
 	
@@ -35,6 +36,7 @@ function ACL(backend_url, preset){
 }
 
 ACL.prototype.remove_mention = function(id) {
+	if (!that.aclautomention) return;
 	var nick = that.data[id].nick;
 	var searchText = "@"+nick+"+"+id+" ";
 	if (tinyMCE.activeEditor===null) {
@@ -52,6 +54,7 @@ ACL.prototype.remove_mention = function(id) {
 }
 
 ACL.prototype.add_mention = function(id) {
+	if (!that.aclautomention) return;
 	var nick = that.data[id].nick;
 	var searchText =  "@"+nick+"+"+id+" ";
 	if (tinyMCE.activeEditor===null) {

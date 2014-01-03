@@ -1,6 +1,7 @@
 <?php
 
 require_once("include/contact_selectors.php");
+require_once("include/features.php");
 
 /**
  * 
@@ -329,6 +330,9 @@ function populate_acl($user = null,$celeb = false) {
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
+		'$features' => array(
+			"aclautomention"=>(feature_enabled($user,"aclautomention")?"true":"false")
+		),
 	));
 	
 	
