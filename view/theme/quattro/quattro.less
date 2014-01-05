@@ -527,7 +527,8 @@ section {
 	.contact-photo-wrapper { margin-left: 16px; }
 	.contact-photo { 
 		width: 32px; height: 32px; 
-	}	
+	}
+	
 	.contact-photo-menu-button {
 		top: 15px !important;
 		left: 0px !important;
@@ -738,6 +739,10 @@ span[id^="showmore-wrap"] {
 
 
 .contact-photo-wrapper { position: relative; }
+.contact-select {	position: absolute; top:64px; left:64px; display:none; }
+.contact-select:checked,
+.contact-photo:hover .contact-select {	display:block; }
+#contats-actions { clear: both; }
 .contact-photo { 
 	width: 48px; height: 48px;
 	img { width: 48px; height: 48px; }

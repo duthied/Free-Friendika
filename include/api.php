@@ -74,7 +74,7 @@
 			logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
 			header('HTTP/1.0 401 Unauthorized');
-			die((api_error(&$a, 'json', "This api requires login")));
+			die((api_error($a, 'json', "This api requires login")));
 
 			//die('This api requires login');
 		}
@@ -174,7 +174,7 @@
 		}
 		header("HTTP/1.1 404 Not Found");
 		logger('API call not implemented: '.$a->query_string." - ".print_r($_REQUEST,true));
-		return(api_error(&$a, $type, "not implemented"));
+		return(api_error($a, $type, "not implemented"));
 
 	}
 

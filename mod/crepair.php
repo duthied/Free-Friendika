@@ -156,7 +156,9 @@ function crepair_content(&$a) {
 		'$label_notify' => t('Notification Endpoint URL'),
 		'$label_poll' => t('Poll/Feed URL'),
 		'$label_photo' => t('New photo from this URL'),
-		'$label_self' => t('Mirror all posts to the wall?'),
+		'$label_remote_self' => t('Remote Self'),
+		'$allow_remote_self' => get_config('system','allow_users_remote_self'),
+		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.')),  
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],
 		'$contact_id'   => $contact['id'],
@@ -169,7 +171,7 @@ function crepair_content(&$a) {
 		'$contact_self' => array('remote_self', t('Mirror all posts to the wall?'), $contact['remote_self'], 
 					t('Shall all posts from this contact posted like your own posts?')),
 		'$lbl_submit'   => t('Submit')
-	));
+	    ));
 
 	return $o;
 
