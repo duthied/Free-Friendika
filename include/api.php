@@ -2166,6 +2166,9 @@ function api_cleanup_share($shared) {
 function api_best_nickname(&$contacts) {
 	$best_contact = array();
 
+	if (count($contact) == 0)
+		return;
+
 	foreach ($contacts AS $contact)
 		if ($contact["network"] == "") {
 			$contact["network"] = "dfrn";
