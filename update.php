@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1167 );
+define( 'UPDATE_VERSION' , 1169 );
 
 /**
  *
@@ -1536,6 +1536,22 @@ function update_1166() {
 			`avatar` CHAR(255) NOT NULL,
 			INDEX (`url`)
 		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1167() {
+	$r = q("ALTER TABLE `contact` ADD `notify_new_posts` TINYINT(1) NOT NULL DEFAULT '0'");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1168() {
+	$r = q("ALTER TABLE `contact` ADD `fetch_further_information` TINYINT(1) NOT NULL DEFAULT '0'");
 	if (!$r)
 		return UPDATE_FAILED;
 

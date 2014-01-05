@@ -44,6 +44,8 @@
 <input type="text" id="crepair-photo" class="crepair-input" name="photo" value="" />
 <div class="clear"></div>
 
+{{include file="field_checkbox.tpl" field=$contact_self}}
+
 <input type="submit" name="submit" value="{{$lbl_submit}}" />
 
 </form>

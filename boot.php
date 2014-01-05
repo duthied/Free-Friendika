@@ -14,7 +14,7 @@ require_once('include/features.php');
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_VERSION',      '3.2.1745' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1167      );
+define ( 'DB_UPDATE_VERSION',      1169      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -197,6 +197,7 @@ define ( 'NOTIFY_PROFILE',  0x0040 );
 define ( 'NOTIFY_TAGSELF',  0x0080 );
 define ( 'NOTIFY_TAGSHARE', 0x0100 );
 define ( 'NOTIFY_POKE',     0x0200 );
+define ( 'NOTIFY_SHARE',    0x0400 );
 
 define ( 'NOTIFY_SYSTEM',   0x8000 );
 
@@ -394,6 +395,9 @@ if(! class_exists('App')) {
 		public $template_engines = array();
 		// array of instanced template engines ('name'=>'instance')
 		public $template_engine_instance = array();
+
+		// Used for reducing load to the ostatus completion
+		public $last_ostatus_conversation_url;
 
 		private $ldelim = array(
 			'internal' => '',

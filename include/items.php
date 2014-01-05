@@ -406,7 +406,7 @@ function title_is_body($title, $body) {
 
 
 
-function get_atom_elements($feed,$item) {
+function get_atom_elements($feed, $item, $contact = array()) {
 
 	require_once('library/HTMLPurifier.auto.php');
 	require_once('include/html2bbcode.php');
@@ -542,7 +542,7 @@ function get_atom_elements($feed,$item) {
 		$res['body'] = notags(base64url_decode($res['body']));
 	}
 
-	
+
 	$res['body'] = limit_body_size($res['body']);
 
 	// It isn't certain at this point whether our content is plaintext or html and we'd be foolish to trust 
@@ -846,6 +846,11 @@ function get_atom_elements($feed,$item) {
 		};
 	}
 
+	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
+		$res["body"] = $res["title"]."\n\n[class=type-link]".fetch_siteinfo($res['plink'])."[/class]";
+		$res["title"] = "";
+	}
+
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
@@ -858,6 +863,31 @@ function get_atom_elements($feed,$item) {
 	}*/
 
 	return $res;
+}
+
+function fetch_siteinfo($url) {
+	require_once("mod/parse_url.php");
+
+	// Fetch site infos - but only from the meta data
+	$data = parseurl_getsiteinfo($url, true);
+
+	$text = "";
+
+	if (!is_string($data["text"]) AND (sizeof($data["images"]) == 0) AND ($data["title"] == $url))
+		return("");
+
+	if (is_string($data["title"]))
+		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]\n";
+
+	if (sizeof($data["images"]) > 0) {
+		$imagedata = $data["images"][0];
+		$text .= '[img='.$imagedata["width"].'x'.$imagedata["height"].']'.$imagedata["src"].'[/img]' . "\n";
+	}
+
+	if (is_string($data["text"]))
+		$text .= "[quote]".$data["text"]."[/quote]";
+
+	return($text);
 }
 
 function encode_rel_links($links) {
@@ -1100,10 +1130,10 @@ function item_store($arr,$force_parent = false) {
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
-	$r = dbq("INSERT INTO `item` (`" 
-			. implode("`, `", array_keys($arr)) 
-			. "`) VALUES ('" 
-			. implode("', '", array_values($arr)) 
+	$r = dbq("INSERT INTO `item` (`"
+			. implode("`, `", array_keys($arr))
+			. "`) VALUES ('"
+			. implode("', '", array_values($arr))
 			. "')" );
 
 	// find the item we just created
@@ -1117,6 +1147,49 @@ function item_store($arr,$force_parent = false) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 		create_tags_from_item($r[0]['id']);
+
+		// Only check for notifications on start posts
+		if ($arr['parent-uri'] === $arr['uri']) {
+			logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+
+			// Send a notification for every new post?
+			$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
+				intval($arr['contact-id']),
+				intval($arr['uid'])
+			);
+
+			if(count($r)) {
+				logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+				$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
+                			intval($arr['uid']));
+
+				$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
+					intval($current_post),
+					intval($arr['uid'])
+				);
+
+				$a = get_app();
+
+				require_once('include/enotify.php');
+				notification(array(
+					'type'         => NOTIFY_SHARE,
+					'notify_flags' => $u[0]['notify-flags'],
+					'language'     => $u[0]['language'],
+					'to_name'      => $u[0]['username'],
+					'to_email'     => $u[0]['email'],
+					'uid'          => $u[0]['uid'],
+					'item'         => $item[0],
+					'link'         => $a->get_baseurl().'/display/'.$u[0]['nickname'].'/'.$current_post,
+					'source_name'  => $item[0]['author-name'],
+					'source_link'  => $item[0]['author-link'],
+					'source_photo' => $item[0]['author-avatar'],
+					'verb'         => ACTIVITY_TAG,
+					'otype'        => 'item'
+				));
+				logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+			}
+		}
+
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
@@ -1136,9 +1209,9 @@ function item_store($arr,$force_parent = false) {
  	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid))
 		$private = 1;
 	else
-		$private = $arr['private']; 
+		$private = $arr['private'];
 
-	// Set parent id - and also make sure to inherit the parent's ACL's.
+	// Set parent id - and also make sure to inherit the parent's ACLs.
 
 	$r = q("UPDATE `item` SET `parent` = %d, `allow_cid` = '%s', `allow_gid` = '%s',
 		`deny_cid` = '%s', `deny_gid` = '%s', `private` = %d, `deleted` = %d WHERE `id` = %d",
@@ -1201,7 +1274,7 @@ function item_store($arr,$force_parent = false) {
 	// current post can be deleted if is for a communuty page and no mention are
 	// in it.
 	if (!$deleted) {
-		
+
 		// Store the fresh generated item into the cache
 		$cachefile = get_cachefile($arr["guid"]."-".hash("md5", $arr['body']));
 
@@ -2023,7 +2096,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Have we seen it? If not, import it.
 
 				$item_id  = $item->get_id();
-				$datarray = get_atom_elements($feed,$item);
+				$datarray = get_atom_elements($feed, $item, $contact);
 
 				if((! x($datarray,'author-name')) && ($contact['network'] != NETWORK_DFRN))
 					$datarray['author-name'] = $contact['name'];
@@ -2164,7 +2237,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				$item_id  = $item->get_id();
 
-				$datarray = get_atom_elements($feed,$item);
+				$datarray = get_atom_elements($feed, $item, $contact);
 
 				if(is_array($contact)) {
 					if((! x($datarray,'author-name')) && ($contact['network'] != NETWORK_DFRN))
@@ -2894,7 +2967,7 @@ function local_delivery($importer,$data) {
 
 	foreach($feed->get_items() as $item) {
 
-		$is_reply = false;		
+		$is_reply = false;
 		$item_id = $item->get_id();
 		$rawthread = $item->get_item_tags( NAMESPACE_THREAD, 'in-reply-to');
 		if(isset($rawthread[0]['attribs']['']['ref'])) {
@@ -2961,7 +3034,7 @@ function local_delivery($importer,$data) {
 				$is_like = false;
 				// remote reply to our post. Import and then notify everybody else.
 
-				$datarray = get_atom_elements($feed,$item);
+				$datarray = get_atom_elements($feed, $item);
 
 				$r = q("SELECT `id`, `uid`, `last-child`, `edited`, `body`  FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 					dbesc($item_id),
@@ -3426,7 +3499,7 @@ function local_delivery($importer,$data) {
 
 						// send a notification
 						require_once('include/enotify.php');
-								
+
 						notification(array(
 							'type'         => NOTIFY_POKE,
 							'notify_flags' => $importer['notify-flags'],

@@ -28,7 +28,7 @@ function crepair_init(&$a) {
 			$o .= '</div>';
 			$a->page['aside'] .= $o;
 
-	}	
+	}
 }
 
 
@@ -59,8 +59,9 @@ function crepair_post(&$a) {
 	$poll    = ((x($_POST,'poll')) ? $_POST['poll'] : '');
 	$attag   = ((x($_POST,'attag')) ? $_POST['attag'] : '');
 	$photo   = ((x($_POST,'photo')) ? $_POST['photo'] : '');
+	$remote_self = ((x($_POST,'remote_self')) ? $_POST['remote_self'] : false);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' 
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
 		WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		dbesc($name),
 		dbesc($nick),
@@ -70,6 +71,7 @@ function crepair_post(&$a) {
 		dbesc($notify),
 		dbesc($poll),
 		dbesc($attag),
+		intval($remote_self),
 		intval($contact['id']),
 		local_user()
 	);
@@ -154,6 +156,7 @@ function crepair_content(&$a) {
 		'$label_notify' => t('Notification Endpoint URL'),
 		'$label_poll' => t('Poll/Feed URL'),
 		'$label_photo' => t('New photo from this URL'),
+		'$label_self' => t('Mirror all posts to the wall?'),
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],
 		'$contact_id'   => $contact['id'],
@@ -163,6 +166,8 @@ function crepair_content(&$a) {
 		'$notify'       => $contact['notify'],
 		'$poll'         => $contact['poll'],
 		'$contact_attag'  => $contact['attag'],
+		'$contact_self' => array('remote_self', t('Mirror all posts to the wall?'), $contact['remote_self'], 
+					t('Shall all posts from this contact posted like your own posts?')),
 		'$lbl_submit'   => t('Submit')
 	));
 
