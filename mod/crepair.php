@@ -168,8 +168,6 @@ function crepair_content(&$a) {
 		'$notify'       => $contact['notify'],
 		'$poll'         => $contact['poll'],
 		'$contact_attag'  => $contact['attag'],
-		'$contact_self' => array('remote_self', t('Mirror all posts to the wall?'), $contact['remote_self'], 
-					t('Shall all posts from this contact posted like your own posts?')),
 		'$lbl_submit'   => t('Submit')
 	    ));
 

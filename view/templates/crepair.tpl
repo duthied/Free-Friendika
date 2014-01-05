@@ -42,8 +42,6 @@
 {{include file="field_checkbox.tpl" field=$remote_self}}
 {{/if}}
 
-{{include file="field_checkbox.tpl" field=$contact_self}}
-
 <input type="submit" name="submit" value="{{$lbl_submit}}" />
 
 </form>
