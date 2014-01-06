@@ -504,6 +504,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 			$tpl = 'search_item.tpl';
 
 			foreach($items as $item) {
+
 				if($arr_blocked) {
 					$blocked = false;
 					foreach($arr_blocked as $b) {
@@ -648,6 +649,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$tmp_item = array(
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
+					'network' => $item['item_network'],
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
@@ -693,6 +695,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				call_hooks('display_item', $arr);
 
 				$threads[$threadsid]['id'] = $item['item_id'];
+				$threads[$threadsid]['network'] = $item['item_network'];
 				$threads[$threadsid]['items'] = array($arr['output']);
 
 			}

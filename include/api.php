@@ -1,7 +1,6 @@
 <?php
 /* To-Do:
  - Automatically detect if incoming data is HTML or BBCode
- - search for usernames should first search friendica, then the other open networks, then the closed ones
 */
 	require_once("include/bbcode.php");
 	require_once("include/datetime.php");
@@ -243,6 +242,8 @@
 		$url = "";
 		$nick = "";
 
+		logger("api_get_user: Fetching user data for user ".$contact_id, LOGGER_DEBUG);
+
 		// Searching for contact URL
 		if(!is_null($contact_id) AND (intval($contact_id) == 0)){
 			$user = dbesc(normalise_link($contact_id));
@@ -318,6 +319,9 @@
 				$user
 		);
 
+		// Selecting the id by priority, friendica first
+		api_best_nickname($uinfo);
+
 		// if the contact wasn't found, fetch it from the unique contacts
 		if (count($uinfo)==0) {
 			$r = array();
@@ -357,6 +361,7 @@
 					'uid' => 0,
 					'cid' => 0,
 					'self' => 0,
+					'network' => '',
 				);
 
 				return $ret;
@@ -374,7 +379,7 @@
 			);
 
 			// count public wall messages
-			$r = q("SELECT COUNT(`id`) as `count` FROM `item`
+			$r = q("SELECT COUNT(`id`) as `count` FROM `item` USE INDEX (uid, type)
 					WHERE  `uid` = %d
 					AND `type`='wall'
 					AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
@@ -466,6 +471,7 @@
 			'uid' => intval($uinfo[0]['uid']),
 			'cid' => intval($uinfo[0]['cid']),
 			'self' => $uinfo[0]['self'],
+			'network' => $uinfo[0]['network'],
 		);
 
 		return $ret;
@@ -553,17 +559,24 @@
 		unset($_REQUEST["user_id"]);
 		unset($_GET["user_id"]);
 
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
+		$skip_status = (x($_REQUEST,'skip_status')?$_REQUEST['skip_status']:false);
+
 		$user_info = api_get_user($a);
 
 		// "verified" isn't used here in the standard
 		unset($user_info["verified"]);
 
 		// - Adding last status
-		$user_info["status"] = api_status_show($a,"raw");
-		if (!count($user_info["status"]))
-			unset($user_info["status"]);
-		else
-			unset($user_info["status"]["user"]);
+		if (!$skip_status) {
+			$user_info["status"] = api_status_show($a,"raw");
+			if (!count($user_info["status"]))
+				unset($user_info["status"]);
+			else
+				unset($user_info["status"]["user"]);
+		}
 
 		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($user_info["cid"]);
@@ -706,6 +719,7 @@
 		return api_status_show($a,$type);
 	}
 	api_register_func('api/statuses/update','api_statuses_update', true);
+	api_register_func('api/statuses/update_with_media','api_statuses_update', true);
 
 
 	function api_status_show(&$a, $type){
@@ -870,6 +884,9 @@
 
 		unset($_REQUEST["user_id"]);
 		unset($_GET["user_id"]);
+
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
 
 		$user_info = api_get_user($a);
 		// get last newtork messages
@@ -1173,6 +1190,9 @@
 		unset($_REQUEST["user_id"]);
 		unset($_GET["user_id"]);
 
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
 		$user_info = api_get_user($a);
 		// get last newtork messages
 
@@ -1326,13 +1346,19 @@
 		if ($user_info['self']==0) {
 			$ret = array();
 		} else {
+			$sql_extra = "";
 
 			// params
+			$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+			$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 			$count = (x($_GET,'count')?$_GET['count']:20);
 			$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
 			if ($page<0) $page=0;
 
 			$start = $page*$count;
+
+			if ($max_id > 0)
+				$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
 
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
@@ -1345,9 +1371,11 @@
 				AND `contact`.`id` = `item`.`contact-id`
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				$sql_extra
+				AND `item`.`id`>%d
 				ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
 				//intval($user_info['uid']),
 				intval(api_user()),
+				intval($since_id),
 				intval($start),	intval($count)
 			);
 
@@ -1641,12 +1669,6 @@
 		if (api_user()===false) return false;
 		$user_info = api_get_user($a);
 
-
-		// friends and followers only for self
-		if ($user_info['self']==0){
-			return false;
-		}
-
 		if (x($_GET,'cursor') && $_GET['cursor']=='undefined'){
 			/* this is to stop Hotot to load friends multiple times
 			*  I'm not sure if I'm missing return something or
@@ -1663,13 +1685,17 @@
 		if($qtype == 'followers')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 
-		$r = q("SELECT id FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
+		// friends and followers only for self
+		if ($user_info['self'] == 0)
+			$sql_extra = " AND false ";
+
+		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
 			intval(api_user())
 		);
 
 		$ret = array();
 		foreach($r as $cid){
-			$user =  api_get_user($a, $cid['id']);
+			$user = api_get_user($a, $cid['nurl']);
 			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($user["cid"]);
 			unset($user["uid"]);
@@ -1678,7 +1704,6 @@
 			if ($user)
 				$ret[] = $user;
 		}
-
 
 		return array('$users' => $ret);
 
@@ -1756,11 +1781,17 @@
 		if(! api_user())
 			return false;
 
+		$user_info = api_get_user($a);
+
 		if($qtype == 'friends')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
 		if($qtype == 'followers')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 
+		if (!$user_info["self"])
+			$sql_extra = " AND false ";
+
+		$stringify_ids = (x($_REQUEST,'stringify_ids')?$_REQUEST['stringify_ids']:false);
 
 		$r = q("SELECT unique_contacts.id FROM contact, unique_contacts WHERE contact.nurl = unique_contacts.url AND `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
 			intval(api_user())
@@ -1779,7 +1810,12 @@
 			elseif($type === 'json') {
 				$ret = array();
 				header("Content-type: application/json");
-				foreach($r as $rr) $ret[] = $rr['id'];
+				foreach($r as $rr)
+					if ($stringify_ids)
+						$ret[] = $rr['id'];
+					else
+						$ret[] = intval($rr['id']);
+
 				echo json_encode($ret);
 				killme();
 			}
@@ -1806,9 +1842,12 @@
 		require_once("include/message.php");
 
 		if ($_POST['screen_name']) {
-			$r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
+			$r = q("SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 					intval(api_user()),
 					dbesc($_POST['screen_name']));
+
+			// Selecting the id by priority, friendica first
+			api_best_nickname($r);
 
 			$recipient = api_get_user($a, $r[0]['nurl']);
 		} else
@@ -1861,6 +1900,9 @@
 		unset($_REQUEST["user_id"]);
 		unset($_GET["user_id"]);
 
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
 		$user_info = api_get_user($a);
 
 		// params
@@ -1869,6 +1911,7 @@
 		if ($page<0) $page=0;
 
 		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 
 		$start = $page*$count;
 
@@ -1887,6 +1930,9 @@
 		elseif ($box=="inbox") {
 			$sql_extra = "`mail`.`from-url`!='".dbesc( $profile_url )."'";
 		}
+
+		if ($max_id > 0)
+			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
 
 		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`created` DESC LIMIT %d,%d",
 				intval(api_user()),
@@ -2025,7 +2071,7 @@ function api_share_as_retweet($a, $uid, &$item) {
 function api_get_nick($profile) {
 /* To-Do:
  - remove trailing jung from profile url
- - pump.io check has to check the websitr
+ - pump.io check has to check the website
 */
 
 	$nick = "";
@@ -2115,6 +2161,49 @@ function api_cleanup_share($shared) {
                 $text .= "\n".trim($link);
 
         return(trim($text));
+}
+
+function api_best_nickname(&$contacts) {
+	$best_contact = array();
+
+	if (count($contact) == 0)
+		return;
+
+	foreach ($contacts AS $contact)
+		if ($contact["network"] == "") {
+			$contact["network"] = "dfrn";
+			$best_contact = array($contact);
+		}
+
+	if (sizeof($best_contact) == 0)
+		foreach ($contacts AS $contact)
+			if ($contact["network"] == "dfrn")
+				$best_contact = array($contact);
+
+	if (sizeof($best_contact) == 0)
+		foreach ($contacts AS $contact)
+			if ($contact["network"] == "dspr")
+				$best_contact = array($contact);
+
+	if (sizeof($best_contact) == 0)
+		foreach ($contacts AS $contact)
+			if ($contact["network"] == "stat")
+				$best_contact = array($contact);
+
+	if (sizeof($best_contact) == 0)
+		foreach ($contacts AS $contact)
+			if ($contact["network"] == "pump")
+				$best_contact = array($contact);
+
+	if (sizeof($best_contact) == 0)
+		foreach ($contacts AS $contact)
+			if ($contact["network"] == "twit")
+				$best_contact = array($contact);
+
+	if (sizeof($best_contact) == 1)
+		$contacts = $best_contact;
+	else
+		$contacts = array($contacts[0]);
 }
 
 /*

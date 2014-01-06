@@ -113,7 +113,7 @@ function contacts_batch_actions(&$a){
 
 
 function contacts_post(&$a) {
-	
+
 	if(! local_user())
 		return;
 
@@ -153,6 +153,10 @@ function contacts_post(&$a) {
 
 	$hidden = intval($_POST['hidden']);
 
+	$notify = intval($_POST['notify']);
+
+	$fetch_further_information = intval($_POST['fetch_further_information']);
+
 	$priority = intval($_POST['poll']);
 	if($priority > 5 || $priority < 0)
 		$priority = 0;
@@ -160,11 +164,13 @@ function contacts_post(&$a) {
 	$info = fix_mce_lf(escape_tags(trim($_POST['info'])));
 
 	$r = q("UPDATE `contact` SET `profile-id` = %d, `priority` = %d , `info` = '%s',
-		`hidden` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($profile_id),
 		intval($priority),
 		dbesc($info),
 		intval($hidden),
+		intval($notify),
+		intval($fetch_further_information),
 		intval($contact_id),
 		intval(local_user())
 	);
@@ -489,6 +495,8 @@ function contacts_content(&$a) {
 			'$ignored' => (($contact['readonly']) ? t('Currently ignored') : ''),
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
+			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
+			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), ($contact['fetch_further_information'] == 1), t('Fetch further information for feeds')),
 			'$photo' => $contact['photo'],
 			'$name' => $contact['name'],
 			'$dir_icon' => $dir_icon,

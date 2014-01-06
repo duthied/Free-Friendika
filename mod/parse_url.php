@@ -311,9 +311,9 @@ function parse_url_content(&$a) {
 	logger('parse_url: ' . $url);
 
 	if($textmode)
-		$template = $br . '[bookmark=%s]%s[/bookmark]%s' . $br;
+		$template = '[bookmark=%s]%s[/bookmark]%s' . $br;
 	else
-		$template = "<br /><a class=\"bookmark\" href=\"%s\" >%s</a>%s<br />";
+		$template = "<a class=\"bookmark\" href=\"%s\" >%s</a>%s<br />";
 
 	$arr = array('url' => $url, 'text' => '');
 
@@ -328,9 +328,9 @@ function parse_url_content(&$a) {
 	if($url && $title && $text) {
 
 		if($textmode)
-			$text = $br . '[quote]' . trim($text) . '[/quote]' . $br;
+			$text = '[quote]' . trim($text) . '[/quote]' . $br;
 		else
-			$text = '<br /><blockquote>' . trim($text) . '</blockquote><br />';
+			$text = '<blockquote>' . trim($text) . '</blockquote><br />';
 
 		$title = str_replace(array("\r","\n"),array('',''),$title);
 
@@ -344,8 +344,10 @@ function parse_url_content(&$a) {
 
 	$siteinfo = parseurl_getsiteinfo($url);
 
+	$sitedata = "";
+
 	if($siteinfo["title"] == "") {
-		echo sprintf($template,$url,$url,'') . $str_tags;
+		$sitedata .= sprintf($template,$url,$url,'') . $str_tags;
 		killme();
 	} else {
 		$text = $siteinfo["text"];
@@ -377,20 +379,24 @@ function parse_url_content(&$a) {
 
 	if(strlen($text)) {
 		if($textmode)
-			$text = $br.'[quote]'.trim($text).'[/quote]'.$br ;
+			$text = '[quote]'.trim($text).'[/quote]';
 		else
-			$text = '<br /><blockquote>'.trim($text).'</blockquote><br />';
+			$text = '<blockquote>'.trim($text).'</blockquote>';
 	}
 
 	if($image) {
 		$text = $br.$br.$image.$text;
 	}
+
 	$title = str_replace(array("\r","\n"),array('',''),$title);
 
 	$result = sprintf($template,$url,($title) ? $title : $url,$text) . $str_tags;
 
 	logger('parse_url: returns: ' . $result);
 
-	echo trim($result);
+	$sitedata .=  trim($result);
+
+	echo "[class=type-link]".$sitedata."[/class]";
+
 	killme();
 }

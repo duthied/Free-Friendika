@@ -28,7 +28,7 @@ function crepair_init(&$a) {
 			$o .= '</div>';
 			$a->page['aside'] .= $o;
 
-	}	
+	}
 }
 
 
@@ -59,9 +59,9 @@ function crepair_post(&$a) {
 	$poll    = ((x($_POST,'poll')) ? $_POST['poll'] : '');
 	$attag   = ((x($_POST,'attag')) ? $_POST['attag'] : '');
 	$photo   = ((x($_POST,'photo')) ? $_POST['photo'] : '');
-	$remote_self = ((x($_POST,'remote_self')) ? intval($_POST['remote_self']) : 0);
+	$remote_self = ((x($_POST,'remote_self')) ? $_POST['remote_self'] : false);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s', `remote_self` = '%d'
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
 		WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		dbesc($name),
 		dbesc($nick),
@@ -71,7 +71,7 @@ function crepair_post(&$a) {
 		dbesc($notify),
 		dbesc($poll),
 		dbesc($attag),
-		$remote_self,
+		intval($remote_self),
 		intval($contact['id']),
 		local_user()
 	);
