@@ -301,6 +301,8 @@
 			}
 		}
 
+		logger("api_get_user: user ".$user, LOGGER_DEBUG);
+
 		if (!$user) {
 			if (api_user()===false) {
 				api_login($a); return False;
@@ -541,6 +543,7 @@
 				$ret = $data;
 				break;
 		}
+
 		return $ret;
 	}
 
@@ -578,8 +581,7 @@
 				unset($user_info["status"]["user"]);
 		}
 
-		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($user_info["cid"]);
+		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($user_info["uid"]);
 		unset($user_info["self"]);
 
@@ -724,6 +726,9 @@
 
 	function api_status_show(&$a, $type){
 		$user_info = api_get_user($a);
+
+		logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
+
 		// get last public wall message
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
 				FROM `item`, `contact`, `item` as `i`, `contact` as `c`
@@ -758,6 +763,7 @@
 					$in_reply_to_user_id = $r[0]['id'];
 				}
 			}
+
 			$status_info = array(
 				'text' => trim(html2plain(bbcode(api_clean_plain_items($lastwall['body']), false, false, 2, true), 0)),
 				'truncated' => false,
@@ -780,8 +786,7 @@
 			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $status_info["source"]))
 				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network']).')');
 
-			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-			unset($status_info["user"]["cid"]);
+			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status_info["user"]["uid"]);
 			unset($status_info["user"]["self"]);
 		}
@@ -862,8 +867,7 @@
 
 		}
 
-		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($user_info["cid"]);
+		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($user_info["uid"]);
 		unset($user_info["self"]);
 
@@ -1091,9 +1095,11 @@
 
 
 	/**
-	 * 
+	 *
 	 */
 	function api_statuses_repeat(&$a, $type){
+		global $called_api;
+
 		if (api_user()===false) return false;
 
 		$user_info = api_get_user($a);
@@ -1123,13 +1129,17 @@
 
 		if ($r[0]['body'] != "") {
 			if (!intval(get_config('system','old_share'))) {
-				$post = "[share author='".str_replace("'", "&#039;", $r[0]['reply_author']).
-						"' profile='".$r[0]['reply_url'].
-						"' avatar='".$r[0]['reply_photo'].
-						"' link='".$r[0]['plink']."']";
-
-				$post .= $r[0]['body'];
-				$post .= "[/share]";
+				if (strpos($r[0]['body'], "[/share]") !== false) {
+					$pos = strpos($r[0]['body'], "[share");
+					$post = substr($r[0]['body'], $pos);
+				} else {
+					$post = "[share author='".str_replace("'", "&#039;", $r[0]['author-name']).
+							"' profile='".$r[0]['author-link'].
+							"' avatar='".$r[0]['author-avatar'].
+							"' link='".$r[0]['plink']."']";
+					$post .= $r[0]['body'];
+					$post .= "[/share]";
+				}
 				$_REQUEST['body'] = $post;
 			} else
 				$_REQUEST['body'] = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8')."[url=".$r[0]['reply_url']."]".$r[0]['reply_author']."[/url] \n".$r[0]['body'];
@@ -1142,17 +1152,14 @@
 			item_post($a);
 		}
 
-		if ($type == 'xml')
-			$ok = "true";
-		else
-			$ok = "ok";
-
-		return api_apply_template('test', $type, array('$ok' => $ok));
+		// this should output the last post (the one we just posted).
+		$called_api = null;
+		return(api_status_show($a,$type));
 	}
 	api_register_func('api/statuses/retweet','api_statuses_repeat', true);
 
 	/**
-	 * 
+	 *
 	 */
 	function api_statuses_destroy(&$a, $type){
 		if (api_user()===false) return false;
@@ -1167,15 +1174,12 @@
 
 		logger('API: api_statuses_destroy: '.$id);
 
+		$ret = api_statuses_show($a, $type);
+
 		require_once('include/items.php');
 		drop_item($id, false);
 
-		if ($type == 'xml')
-			$ok = "true";
-		else
-			$ok = "ok";
-
-		return api_apply_template('test', $type, array('$ok' => $ok));
+		return($ret);
 	}
 	api_register_func('api/statuses/destroy','api_statuses_destroy', true);
 
@@ -1474,11 +1478,9 @@
 				'recipient'             => $recipient,
 		);
 
-		// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($ret["sender"]["cid"]);
+		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($ret["sender"]["uid"]);
 		unset($ret["sender"]["self"]);
-		unset($ret["recipient"]["cid"]);
 		unset($ret["recipient"]["uid"]);
 		unset($ret["recipient"]["self"]);
 
@@ -1595,8 +1597,7 @@
 				$status["retweeted_status"] = $retweeted_status;
 			}
 
-			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-			unset($status["user"]["cid"]);
+			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status["user"]["uid"]);
 			unset($status["user"]["self"]);
 
@@ -1655,15 +1656,15 @@
 		else
 			$ok = "ok";
 
-		return api_apply_template('test', $type, array('$ok' => $ok));
+		return api_apply_template('test', $type, array("$ok" => $ok));
 
 	}
 	api_register_func('api/help/test','api_help_test',false);
 
 	/**
-	 *  https://dev.twitter.com/docs/api/1/get/statuses/friends 
+	 *  https://dev.twitter.com/docs/api/1/get/statuses/friends
 	 *  This function is deprecated by Twitter
-	 *  returns: json, xml 
+	 *  returns: json, xml
 	 **/
 	function api_statuses_f(&$a, $type, $qtype) {
 		if (api_user()===false) return false;
@@ -1696,8 +1697,7 @@
 		$ret = array();
 		foreach($r as $cid){
 			$user = api_get_user($a, $cid['nurl']);
-			// "cid", "uid" and "self" are only needed for some internal stuff, so remove it from here
-			unset($user["cid"]);
+			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($user["uid"]);
 			unset($user["self"]);
 
