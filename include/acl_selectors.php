@@ -338,7 +338,7 @@ function populate_acl($user = null,$celeb = false) {
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
 		'$features' => array(
-			"aclautomention"=>(feature_enabled($user,"aclautomention")?"true":"false")
+			"aclautomention"=>(feature_enabled($uid,"aclautomention")?"true":"false")
 		),
 	));
 
