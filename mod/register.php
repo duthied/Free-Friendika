@@ -264,7 +264,7 @@ function register_content(&$a) {
 		'$realpeople' => $realpeople,
 		'$regtitle'  => t('Registration'),
 		'$registertext' =>((x($a->config,'register_text'))
-			? '<div class="error-message">' . bbcode($a->config['register_text']) . '</div>'
+			? bbcode($a->config['register_text'])
 			: "" ),
 		'$fillwith'  => $fillwith,
 		'$fillext'   => $fillext,
