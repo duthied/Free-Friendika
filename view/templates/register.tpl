@@ -4,7 +4,7 @@
 
 	<input type="hidden" name="photo" value="{{$photo}}" />
 
-	{{if $registertext != ""}}<div class="error-message">'{{$registertext}} </div>{{/if}}
+	{{if $registertext != ""}}<div class="error-message">{{$registertext}} </div>{{/if}}
 
 
 	<p id="register-realpeople">{{$realpeople}}</p>
