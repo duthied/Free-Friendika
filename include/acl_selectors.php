@@ -320,7 +320,14 @@ function populate_acl($user = null,$celeb = false) {
 	$o .= '</div>';
 	$o .= '</div>' . "\r\n";
 	$o .= '<div id="acl-wrapper-end"></div>' . "\r\n";*/
-	
+
+	// Not totally sure what input values can come
+	// This is a hotfix to prevent massive php warnings
+	if (is_array($user) AND isset($user["uid"]))
+		$uid = $user["uid"];
+	else
+		$uid = intval($user);
+
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, array(
 		'$showall'=> t("Visible to everybody"),
@@ -334,8 +341,8 @@ function populate_acl($user = null,$celeb = false) {
 			"aclautomention"=>(feature_enabled($user,"aclautomention")?"true":"false")
 		),
 	));
-	
-	
+
+
 	return $o;
 
 }

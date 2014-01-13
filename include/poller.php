@@ -89,6 +89,9 @@ function poller_run(&$argv, &$argc){
 	// Check OStatus conversations
 	check_conversations();
 
+	// To-Do: Regenerate usage statistics
+	// q("ANALYZE TABLE `item`");
+
 	// once daily run birthday_updates and then expire in background
 
 	$d1 = get_config('system','last_expire_day');
