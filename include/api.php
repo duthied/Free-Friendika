@@ -521,9 +521,16 @@
 		// Comments in threads may appear as wall-to-wall postings.
 		// So only take the owner at the top posting.
 		if ($item["id"] == $item["parent"])
-			return api_get_user($a,$item["owner-link"]);
+			$status_user = api_get_user($a,$item["owner-link"]);
 		else
-			return api_get_user($a,$item["author-link"]);
+			$status_user = api_get_user($a,$item["author-link"]);
+
+		$status_user["protected"] = (($item["allow_cid"] != "") OR
+						($item["allow_gid"] != "") OR
+						($item["deny_cid"] != "") OR
+						($item["deny_gid"] != ""));
+
+		return ($status_user);
 	}
 
 
@@ -1125,6 +1132,67 @@
 		}
 	}
 	api_register_func('api/statuses/show','api_statuses_show', true);
+
+
+	/**
+	 *
+	 */
+	function api_conversation_show(&$a, $type){
+		if (api_user()===false) return false;
+
+		$user_info = api_get_user($a);
+
+		// params
+		$id = intval($a->argv[3]);
+		$count = (x($_REQUEST,'count')?$_REQUEST['count']:20);
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+		if ($page<0) $page=0;
+		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
+
+		$start = $page*$count;
+
+		if ($id == 0)
+			$id = intval($_REQUEST["id"]);
+
+		// Hotot workaround
+		if ($id == 0)
+			$id = intval($a->argv[4]);
+
+		logger('API: api_conversation_show: '.$id);
+
+		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
+
+		$sql_extra = '';
+
+		if ($max_id > 0)
+			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
+
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
+			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
+			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
+			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
+			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
+			AND `item`.`uid` = %d AND `contact`.`id` = `item`.`contact-id`
+			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND `item`.`id`>%d $sql_extra
+			ORDER BY `item`.`received` DESC LIMIT %d ,%d",
+			intval($id), intval(api_user()),
+                        intval($since_id),
+                        intval($start), intval($count)
+		);
+
+		if (!$r)
+			die(api_error($a, $type, t("There is no conversation with this id.")));
+
+		$ret = api_format_items($r,$user_info);
+
+		$data = array('$statuses' => $ret);
+		return api_apply_template("timeline", $type, $data);
+	}
+	api_register_func('api/conversation/show','api_conversation_show', true);
 
 
 	/**
