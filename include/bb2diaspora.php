@@ -133,6 +133,10 @@ function diaspora_ol($s) {
 
 function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
+	// Since Diaspora is creating a summary for links, this function removes them before posting
+	if ($fordiaspora)
+		$Text = bb_remove_share_information($Text);
+
 	// Re-enabling the converter again.
 	// The bbcode parser now handles youtube-links (and the other stuff) correctly.
 	// Additionally the html code is now fixed so that lists are now working.
@@ -159,7 +163,10 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	//$Text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","\n[share$1$2]$3[/share]",$Text);
 
 	// Convert it to HTML - don't try oembed
-	$Text = bbcode($Text, $preserve_nl, false);
+	if ($fordiaspora)
+		$Text = bbcode($Text, $preserve_nl, false, 3);
+	else
+		$Text = bbcode($Text, $preserve_nl, false, 4);
 
 	// Now convert HTML to Markdown
 	$md = new Markdownify(false, false, false);
@@ -179,7 +186,7 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 		$count++;
 		$pos = bb_find_open_close($Text, '[', ']', $count);
-	}	
+	}
 
 	// If the text going into bbcode() has a plain URL in it, i.e.
 	// with no [url] tags around it, it will come out of parseString()

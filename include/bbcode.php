@@ -1,7 +1,47 @@
 <?php
-
 require_once("include/oembed.php");
 require_once('include/event.php');
+
+function bb_remove_share_information($Text) {
+        $Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","bb_cleanup_share",$Text);
+        return($Text);
+}
+
+function bb_cleanup_share($shared) {
+        if ($shared[2] != "type-link")
+                return($shared[3]);
+
+        if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+                return($shared[3]);
+
+        $title = "";
+        $link = "";
+
+        if (isset($bookmark[2][0]))
+                $title = $bookmark[2][0];
+
+        if (isset($bookmark[1][0]))
+                $link = $bookmark[1][0];
+
+        if (strpos($shared[1],$title) !== false)
+                $title = "";
+
+        if (strpos($shared[1],$link) !== false)
+                $link = "";
+
+        $text = trim($shared[1]);
+
+	if (($text == "") AND ($title != "") AND ($link == ""))
+		$text .= "\n\n".trim($title);
+
+	if (($link != "") AND ($title != ""))
+		$text .= "\n[url=".trim($link)."]".trim($title)."[/url]";
+	elseif (($link != ""))
+		$text .= "\n".trim($link);
+
+        return(trim($text));
+}
+
 
 function bb_cleanstyle($st) {
   return "<span style=\"".cleancss($st[1]).";\">".$st[2]."</span>";
@@ -291,6 +331,112 @@ function bb_ShareAttributes($match) {
         return($text);
 }
 
+// Escpecially for Diaspora (there mustn't be links in the share information)
+function bb_ShareAttributesDiaspora($match) {
+
+        $attributes = $match[2];
+
+        $author = "";
+        preg_match("/author='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+
+        preg_match('/author="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $author = $matches[1];
+
+        $profile = "";
+        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+	$posted = "";
+//	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+//	if ($matches[1] != "")
+//		$posted = " ".date("Y-m-d H:i", strtotime($matches[1]));
+//
+//	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+//	if ($matches[1] != "")
+//		$posted = " ".date("Y-m-d H:i", strtotime($matches[1]));
+
+	$userid = GetProfileUsername($profile,$author);
+
+	$headline = '<div class="shared_header">';
+	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
+	//$headline .= sprintf(t('<span><b>'.
+	//		html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
+	//		'<a href="%s" target="external-link">%s</a>%s:</b></span>'), $profile, $userid, $posted);
+        $headline .= "</div>";
+
+	$text = trim($match[1]);
+
+	if ($text != "")
+		$text .= "<hr />";
+
+	$text .= $headline.'<blockquote class="shared_content">'.trim($match[3])."</blockquote><br />";
+	//$text .= $headline."<br />".trim($match[3])."<br />";
+
+        return($text);
+}
+
+// Optimized for Libertree, Wordpress, Tumblr, ...
+function bb_ShareAttributesForExport($match) {
+
+        $attributes = $match[2];
+
+        $author = "";
+        preg_match("/author='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+
+        preg_match('/author="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $author = $matches[1];
+
+        $profile = "";
+        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        $link = "";
+        preg_match("/link='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
+
+        preg_match('/link="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
+
+	if ($link == "")
+		$link = $profile;
+
+	$userid = GetProfileUsername($profile,$author);
+
+	$headline = '<div class="shared_header">';
+	$headline .= sprintf(t('<span><b>'.
+			html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
+			'<a href="%s" target="external-link">%s</a>%s:</b></span>'), $link, $userid, $posted);
+        $headline .= "</div>";
+
+	$text = trim($match[1]);
+
+	if ($text != "")
+		$text .= "<hr />";
+
+	$text .= $headline.'<blockquote class="shared_content">'.trim($match[3])."</blockquote><br />";
+
+        return($text);
+}
+
+// Still in use?
 function bb_ShareAttributesSimple($match) {
 
         $attributes = $match[1];
@@ -319,6 +465,8 @@ function bb_ShareAttributesSimple($match) {
 
         return($text);
 }
+
+// Used for text exports (Twitter, Facebook, Google+)
 function bb_ShareAttributesSimple2($match) {
 
         $attributes = $match[1];
@@ -349,17 +497,22 @@ function bb_ShareAttributesSimple2($match) {
 }
 
 function GetProfileUsername($profile, $username) {
-	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2@$1", $profile);
-	if ($friendica != $profile)
-		return($friendica." (".$username.")");
-
-	$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
-	if ($diaspora != $profile)
-		return($diaspora." (".$username.")");
 
 	$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1@twitter.com", $profile);
 	if ($twitter != $profile)
-		return($twitter." (".$username.")");
+		return($username." (".$twitter.")");
+
+	$gplus = preg_replace("=https?://plus.google.com/(.*)=ism", "$1@plus.google.com", $profile);
+	if ($gplus != $profile)
+		return($username." (".$gplus.")");
+
+	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2@$1", $profile);
+	if ($friendica != $profile)
+		return($username." (".$friendica.")");
+
+	$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
+	if ($diaspora != $profile)
+		return($username." (".$diaspora.")");
 
 	$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
 	if ($StatusnetHost != $profile) {
@@ -368,9 +521,14 @@ function GetProfileUsername($profile, $username) {
 			$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 			$user = json_decode($UserData);
 			if ($user)
-				return($user->screen_name."@".$StatusnetHost." (".$username.")");
+				return($username." (".$user->screen_name."@".$StatusnetHost.")");
 		}
 	}
+
+	// To-Do: Better check for pumpio
+	$pumpio = preg_replace("=https?://([^/]*).*/(\w*)=ism", "$2@$1", $profile);
+	if ($pumpio != $profile)
+		return($username." (".$pumpio.")");
 
 	return($username);
 }
@@ -630,6 +788,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesSimple",$Text);
 	elseif ($simplehtml == 2)
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesSimple2",$Text);
+	elseif ($simplehtml == 3)
+		$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesDiaspora",$Text);
+	elseif ($simplehtml == 4)
+		$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesForExport",$Text);
 
 	$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br />', $Text);
 	$Text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . '$1' . ' ' . t('Encrypted content') . '" /><br />', $Text);
