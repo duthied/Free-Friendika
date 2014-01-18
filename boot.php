@@ -141,6 +141,7 @@ define ( 'NETWORK_MYSPACE',          'mysp');    // MySpace
 define ( 'NETWORK_GPLUS',            'goog');    // Google+
 define ( 'NETWORK_PUMPIO',           'pump');    // pump.io
 define ( 'NETWORK_TWITTER',          'twit');    // Twitter
+define ( 'NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 
@@ -165,6 +166,7 @@ $netgroup_ids = array(
 	NETWORK_GPLUS    => (-12),
 	NETWORK_PUMPIO   => (-13),
 	NETWORK_TWITTER  => (-14),
+	NETWORK_DIASPORA2 => (-15),
 
 	NETWORK_PHANTOM  => (-127),
 );
@@ -1628,7 +1630,7 @@ if(! function_exists('get_birthdays')) {
 						$sparkle = " sparkle";
 						$url = $a->get_baseurl() . '/redir/'  . $rr['cid'];
 					}
-	
+
 					$rr['link'] = $url;
 					$rr['title'] = $rr['name'];
 					$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ?  ' ' . t('[today]') : '');

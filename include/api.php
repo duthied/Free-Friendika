@@ -34,8 +34,11 @@
 
 	function api_register_func($path, $func, $auth=false){
 		global $API;
-		$API[$path] = array('func'=>$func,
-							'auth'=>$auth);
+		$API[$path] = array('func'=>$func, 'auth'=>$auth);
+
+		// Workaround for hotot
+		$path = str_replace("api/", "api/1.1/", $path);
+		$API[$path] = array('func'=>$func, 'auth'=>$auth);
 	}
 
 	/**
@@ -340,6 +343,7 @@
 
 				$ret = array(
 					'id' => $r[0]["id"],
+					'id_str' => (string) $r[0]["id"],
 					'name' => $r[0]["name"],
 					'screen_name' => (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']),
 					'location' => NULL,
@@ -381,7 +385,7 @@
 			);
 
 			// count public wall messages
-			$r = q("SELECT COUNT(`id`) as `count` FROM `item` USE INDEX (uid, type)
+			$r = q("SELECT COUNT(`id`) as `count` FROM `item`
 					WHERE  `uid` = %d
 					AND `type`='wall'
 					AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
@@ -448,11 +452,15 @@
 			$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
 		}
 
+		require_once('include/contact_selectors.php');
+		$network_name = network_to_name($uinfo[0]['network']);
+
 		$ret = Array(
 			'id' => intval($r[0]['id']),
+			'id_str' => (string) intval($r[0]['id']),
 			'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
 			'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
-			'location' => ($usr) ? $usr[0]['default-location'] : NULL,
+			'location' => ($usr) ? $usr[0]['default-location'] : $network_name,
 			'description' => (($profile) ? $profile[0]['pdesc'] : NULL),
 			'profile_image_url' => $uinfo[0]['micro'],
 			'profile_image_url_https' => $uinfo[0]['micro'],
@@ -460,13 +468,13 @@
 			'protected' => false,
 			'followers_count' => intval($countfollowers),
 			'friends_count' => intval($countfriends),
-			'created_at' => api_date($uinfo[0]['name-date']),
+			'created_at' => api_date($uinfo[0]['created']),
 			'favourites_count' => intval($starred),
-			'utc_offset' => "0", // To-Do
-			'time_zone' => 'UTC', // To-Do $uinfo[0]['timezone'],
+			'utc_offset' => "0",
+			'time_zone' => 'UTC',
 			'statuses_count' => intval($countitms),
-			'following' => true, //#XXX: fix me
-			'verified' => true, //#XXX: fix me
+			'following' => (($uinfo[0]['rel'] == CONTACT_IS_FOLLOWER) OR ($uinfo[0]['rel'] == CONTACT_IS_FRIEND)),
+			'verified' => true,
 			'statusnet_blocking' => false,
 			'notifications' => false,
 			'statusnet_profile_url' => $a->get_baseurl()."/contacts/".$uinfo[0]['cid'],
@@ -513,9 +521,16 @@
 		// Comments in threads may appear as wall-to-wall postings.
 		// So only take the owner at the top posting.
 		if ($item["id"] == $item["parent"])
-			return api_get_user($a,$item["owner-link"]);
+			$status_user = api_get_user($a,$item["owner-link"]);
 		else
-			return api_get_user($a,$item["author-link"]);
+			$status_user = api_get_user($a,$item["author-link"]);
+
+		$status_user["protected"] = (($item["allow_cid"] != "") OR
+						($item["allow_gid"] != "") OR
+						($item["deny_cid"] != "") OR
+						($item["deny_gid"] != ""));
+
+		return ($status_user);
 	}
 
 
@@ -732,7 +747,8 @@
 		// get last public wall message
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
 				FROM `item`, `contact`, `item` as `i`, `contact` as `c`
-				WHERE `item`.`contact-id` = %d AND `item`.`owner-link` = '%s'
+				WHERE `item`.`contact-id` = %d
+					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
 					AND `contact`.`id`=`item`.`contact-id` AND `c`.`id`=`i`.`contact-id` AND `contact`.`self`=1
 					AND `item`.`type`!='activity'
@@ -740,7 +756,10 @@
 				ORDER BY `item`.`created` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
-				dbesc($user_info['url'])
+				dbesc($user_info['url']),
+				dbesc(normalise_link($user_info['url'])),
+				dbesc($user_info['url']),
+				dbesc(normalise_link($user_info['url']))
 		);
 
 		if (count($lastwall)>0){
@@ -748,9 +767,12 @@
 
 			$in_reply_to_status_id = NULL;
 			$in_reply_to_user_id = NULL;
+			$in_reply_to_status_id_str = NULL;
+			$in_reply_to_user_id_str = NULL;
 			$in_reply_to_screen_name = NULL;
 			if ($lastwall['parent']!=$lastwall['id']) {
-				$in_reply_to_status_id=$lastwall['parent'];
+				$in_reply_to_status_id= intval($lastwall['parent']);
+				$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
 				//$in_reply_to_user_id = $lastwall['reply_uid'];
 				//$in_reply_to_screen_name = $lastwall['reply_author'];
 
@@ -760,7 +782,8 @@
 						$r[0]['nick'] = api_get_nick($r[0]["url"]);
 
 					$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
-					$in_reply_to_user_id = $r[0]['id'];
+					$in_reply_to_user_id = intval($r[0]['id']);
+					$in_reply_to_user_id_str = (string) intval($r[0]['id']);
 				}
 			}
 
@@ -769,9 +792,12 @@
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
+				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
 				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
-				'id' => $lastwall['id'],
+				'id' => intval($lastwall['id']),
+				'id_str' => (string) $lastwall['id'],
 				'in_reply_to_user_id' => $in_reply_to_user_id,
+				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => false,
@@ -812,36 +838,43 @@
 
 		$lastwall = q("SELECT `item`.*
 				FROM `item`, `contact`
-				WHERE `item`.`contact-id` = %d  AND `item`.`owner-link` = '%s'
+				WHERE `item`.`contact-id` = %d
+					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `contact`.`id`=`item`.`contact-id`
 					AND `type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `created` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
-				dbesc($user_info['url'])
+				dbesc($user_info['url']),
+				dbesc(normalise_link($user_info['url'])),
+				dbesc($user_info['url']),
+				dbesc(normalise_link($user_info['url']))
 		);
-
+//print_r($user_info);
 		if (count($lastwall)>0){
 			$lastwall = $lastwall[0];
 
 			$in_reply_to_status_id = NULL;
 			$in_reply_to_user_id = NULL;
+			$in_reply_to_status_id_str = NULL;
+			$in_reply_to_user_id_str = NULL;
 			$in_reply_to_screen_name = NULL;
 			if ($lastwall['parent']!=$lastwall['id']) {
 				$reply = q("SELECT `item`.`id`, `item`.`contact-id` as `reply_uid`, `contact`.`nick` as `reply_author`, `item`.`author-link` AS `item-author`
                                             FROM `item`,`contact` WHERE `contact`.`id`=`item`.`contact-id` AND `item`.`id` = %d", intval($lastwall['parent']));
 				if (count($reply)>0) {
-					$in_reply_to_status_id=$lastwall['parent'];
-					//$in_reply_to_user_id = $reply[0]['reply_uid'];
-					//$in_reply_to_screen_name = $reply[0]['reply_author'];
+					$in_reply_to_status_id = intval($lastwall['parent']);
+					$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
+
 					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($reply[0]['item-author'])));
 					if ($r) {
 						if ($r[0]['nick'] == "")
 							$r[0]['nick'] = api_get_nick($r[0]["url"]);
 
 						$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
-						$in_reply_to_user_id = $r[0]['id'];
+						$in_reply_to_user_id = intval($r[0]['id']);
+						$in_reply_to_user_id_str = (string) intval($r[0]['id']);
 					}
 				}
 			}
@@ -850,9 +883,12 @@
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
+				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
 				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
-				'id' => $lastwall['contact-id'],
+				'id' => intval($lastwall['contact-id']),
+				'id_str' => (string) $lastwall['contact-id'],
 				'in_reply_to_user_id' => $in_reply_to_user_id,
+				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => false,
@@ -1050,6 +1086,10 @@
 		if ($id == 0)
 			$id = intval($_REQUEST["id"]);
 
+		// Hotot workaround
+		if ($id == 0)
+			$id = intval($a->argv[4]);
+
 		logger('API: api_statuses_show: '.$id);
 
 		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
@@ -1097,6 +1137,67 @@
 	/**
 	 *
 	 */
+	function api_conversation_show(&$a, $type){
+		if (api_user()===false) return false;
+
+		$user_info = api_get_user($a);
+
+		// params
+		$id = intval($a->argv[3]);
+		$count = (x($_REQUEST,'count')?$_REQUEST['count']:20);
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+		if ($page<0) $page=0;
+		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
+
+		$start = $page*$count;
+
+		if ($id == 0)
+			$id = intval($_REQUEST["id"]);
+
+		// Hotot workaround
+		if ($id == 0)
+			$id = intval($a->argv[4]);
+
+		logger('API: api_conversation_show: '.$id);
+
+		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
+
+		$sql_extra = '';
+
+		if ($max_id > 0)
+			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
+
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
+			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
+			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
+			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
+			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
+			AND `item`.`uid` = %d AND `contact`.`id` = `item`.`contact-id`
+			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND `item`.`id`>%d $sql_extra
+			ORDER BY `item`.`received` DESC LIMIT %d ,%d",
+			intval($id), intval(api_user()),
+                        intval($since_id),
+                        intval($start), intval($count)
+		);
+
+		if (!$r)
+			die(api_error($a, $type, t("There is no conversation with this id.")));
+
+		$ret = api_format_items($r,$user_info);
+
+		$data = array('$statuses' => $ret);
+		return api_apply_template("timeline", $type, $data);
+	}
+	api_register_func('api/conversation/show','api_conversation_show', true);
+
+
+	/**
+	 *
+	 */
 	function api_statuses_repeat(&$a, $type){
 		global $called_api;
 
@@ -1109,6 +1210,10 @@
 
 		if ($id == 0)
 			$id = intval($_REQUEST["id"]);
+
+		// Hotot workaround
+		if ($id == 0)
+			$id = intval($a->argv[4]);
 
 		logger('API: api_statuses_repeat: '.$id);
 
@@ -1171,6 +1276,10 @@
 
 		if ($id == 0)
 			$id = intval($_REQUEST["id"]);
+
+		// Hotot workaround
+		if ($id == 0)
+			$id = intval($a->argv[4]);
 
 		logger('API: api_statuses_destroy: '.$id);
 
@@ -1526,12 +1635,15 @@
 					intval(api_user()),
 					dbesc($item['thr-parent']));
 				if ($r)
-					$in_reply_to_status_id = $r[0]['id'];
+					$in_reply_to_status_id = intval($r[0]['id']);
 				else
-					$in_reply_to_status_id = $item['parent'];
+					$in_reply_to_status_id = intval($item['parent']);
+
+				$in_reply_to_status_id_str = (string) intval($item['parent']);
 
 				$in_reply_to_screen_name = NULL;
 				$in_reply_to_user_id = NULL;
+				$in_reply_to_user_id_str = NULL;
 
 				$r = q("SELECT `author-link` FROM item WHERE uid=%d AND id=%d LIMIT 1",
 					intval(api_user()),
@@ -1544,13 +1656,16 @@
 							$r[0]['nick'] = api_get_nick($r[0]["url"]);
 
 						$in_reply_to_screen_name = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
-						$in_reply_to_user_id = $r[0]['id'];
+						$in_reply_to_user_id = intval($r[0]['id']);
+						$in_reply_to_user_id_str = (string) intval($r[0]['id']);
 					}
 				}
 			} else {
 				$in_reply_to_screen_name = NULL;
 				$in_reply_to_user_id = NULL;
 				$in_reply_to_status_id = NULL;
+				$in_reply_to_user_id_str = NULL;
+				$in_reply_to_status_id_str = NULL;
 			}
 
 			// Workaround for ostatus messages where the title is identically to the body
@@ -1571,9 +1686,12 @@
 				'truncated' => False,
 				'created_at'=> api_date($item['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
+				'in_reply_to_status_id_str' => $in_reply_to_status_id,
 				'source'    => (($item['app']) ? $item['app'] : 'web'),
 				'id'		=> intval($item['id']),
+				'id_str'	=> (string) intval($item['id']),
 				'in_reply_to_user_id' => $in_reply_to_user_id,
+				'in_reply_to_user_id_str' => $in_reply_to_user_id,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,

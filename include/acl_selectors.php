@@ -320,7 +320,7 @@ function populate_acl($user = null,$celeb = false) {
 	$o .= '</div>';
 	$o .= '</div>' . "\r\n";
 	$o .= '<div id="acl-wrapper-end"></div>' . "\r\n";*/
-	
+
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, array(
 		'$showall'=> t("Visible to everybody"),
@@ -334,8 +334,8 @@ function populate_acl($user = null,$celeb = false) {
 			"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
 		),
 	));
-	
-	
+
+
 	return $o;
 
 }
