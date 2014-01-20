@@ -225,7 +225,7 @@ function xmlify($str) {
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
 	*/
-	$buffer = htmlspecialchars($str);
+	$buffer = htmlspecialchars($str, ENT_QUOTES);
 	$buffer = trim($buffer);
 	
 	return($buffer);
@@ -246,7 +246,7 @@ function unxmlify($s) {
 	$ret = mb_ereg_replace('&lt;', "<", $ret);
 	$ret = mb_ereg_replace('&gt;', ">", $ret);
 	*/
-	$ret = htmlspecialchars_decode($s);
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;	
 }}
 
