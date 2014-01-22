@@ -218,14 +218,16 @@ function xmlify($str) {
 				break;
 		}	
 	}*/
-
+	/*
 	$buffer = mb_ereg_replace("&", "&amp;", $str);
 	$buffer = mb_ereg_replace("'", "&apos;", $buffer);
-	$buffer = mb_ereg_replace("\"", "&quot;", $buffer);
+	$buffer = mb_ereg_replace('"', "&quot;", $buffer);
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
-
+	*/
+	$buffer = htmlspecialchars($str, ENT_QUOTES);
 	$buffer = trim($buffer);
+	
 	return($buffer);
 }}
 
@@ -238,11 +240,13 @@ if(! function_exists('unxmlify')) {
 function unxmlify($s) {
 //	$ret = str_replace('&amp;','&', $s);
 //	$ret = str_replace(array('&lt;','&gt;','&quot;','&apos;'),array('<','>','"',"'"),$ret);
-	$ret = mb_ereg_replace('&amp;', '&', $s);
+	/*$ret = mb_ereg_replace('&amp;', '&', $s);
 	$ret = mb_ereg_replace('&apos;', "'", $ret);
 	$ret = mb_ereg_replace('&quot;', '"', $ret);
 	$ret = mb_ereg_replace('&lt;', "<", $ret);
 	$ret = mb_ereg_replace('&gt;', ">", $ret);
+	*/
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;	
 }}
 
