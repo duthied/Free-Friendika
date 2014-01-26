@@ -99,7 +99,7 @@ function display_content(&$a, $update = 0) {
 		notice( t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
-	
+
 	if ($is_owner) {
 		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
@@ -216,12 +216,20 @@ function display_content(&$a, $update = 0) {
 		$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
 
+		// Schema.org microdata
+		$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$r[0]["thumb"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
+
+		// Dublin Core
 		$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
 
+		// Open Graph
 		$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-		//<meta property="og:image" content="" />
+		$a->page['htmlhead'] .= '<meta property="og:image" content="'.$r[0]["thumb"].'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$r[0]["plink"].'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
