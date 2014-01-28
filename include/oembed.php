@@ -82,7 +82,7 @@ function oembed_format_object($j){
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
 				$ret.=replace_macros($tpl, array(
-                    '$baseurl' => $a->get_baseurl(),
+				'$baseurl' => $a->get_baseurl(),
 					'$embedurl'=>$embedurl,
 					'$escapedhtml'=>base64_encode($jhtml),
 					'$tw'=>$tw,
@@ -105,16 +105,34 @@ function oembed_format_object($j){
 		}; break;
 		case "rich": {
 			// not so safe..
-			$ret.= $jhtml;
+			if (!get_config("system","no_oembed_rich_content"))
+				$ret.= $jhtml;
 		}; break;
 	}
 
 	// add link to source if not present in "rich" type
 	if ($j->type!='rich' || !strpos($j->html,$embedurl) ){
-		if (isset($j->provider_name)) $ret .= $j->provider_name.": ";
-		$embedlink = (isset($j->title))?$j->title:$embedurl;
-		$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
-		if (isset($j->author_name)) $ret.=" (".$j->author_name.")";
+		if (isset($j->title)) {
+			if (isset($j->provider_name))
+				$ret .= $j->provider_name.": ";
+
+			$embedlink = (isset($j->title))?$j->title:$embedurl;
+			$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+			if (isset($j->author_name))
+				$ret.=" (".$j->author_name.")";
+		} elseif (isset($j->provider_name) OR isset($j->author_name)) {
+			$embedlink = "";
+			if (isset($j->provider_name))
+				$embedlink .= $j->provider_name;
+
+			if (isset($j->author_name)) {
+				if ($embedlink != "")
+					$embedlink .= ": ";
+
+				$embedlink .= $j->author_name;
+			}
+			$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+		}
 		//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
 		//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
 	} else {
