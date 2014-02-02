@@ -289,11 +289,15 @@ blockquote.shared_content {
 
 /* global */
 body {
-  font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif; */
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
+  /* font-size: 13px; */
+  /* line-height: 19.5px; */
+  font-weight: 400;
   /* background-color: #ffffff; */
-  background-color: #FAFAFA;
-  /* background-color: rgb(252, 252, 252); */
+  /* background-color: #FAFAFA; */
+  background-color: rgb(229, 229, 229);
   color: #2d2d2d;
   margin: 0px 0px 0px 0px;
   display: table;
@@ -550,8 +554,8 @@ nav {
   z-index: 100;
   /*-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
   border-bottom: 5px solid #F80; */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
 }
 
 nav .icon {
@@ -880,11 +884,12 @@ aside {
   top: 32px;
   overflow-y: auto;
   z-index: 2;
-
+  line-height: 17px;
   position: fixed;
   /* overflow: auto; */
   height: calc(100% - 42px);
   /* overflow: scroll; */
+  box-shadow: 1px 1px 6px -3px #666;
 }
 aside .vcard .fn {
   font-size: 18px;
@@ -1091,13 +1096,15 @@ section {
   padding: 10px 10px 10px 10px;
   /* background-color: white; */
   /* background-color: rgb(252, 252, 252); */
-  background-color: #FAFAFA;
-  border-bottom: 1px solid lightgray;
+  /* background-color: #FAFAFA; */
+  background-color: inherit;
+  /* border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
-  border-left: 1px solid lightgray;
-
+  border-left: 1px solid lightgray; */
   position: absolute;
-  left: 215px;
+  /*left: 215px;*/
+  left: calc(215px + (100% - (215px + 766px)) / 6);
+  /* left: calc(215px + (100% - 215px) / 10); */
 }
 
 section.minimal {
@@ -1111,12 +1118,15 @@ section.minimal {
 border-bottom: 1px solid #D2D2D2;
   position: relative;
   padding: 5px;
-  margin-bottom: 0px;
-  /* width: 755px; */
+  margin-bottom: 10px;
+  box-shadow: 1px 1px 6px -3px rgba(0, 0, 0, 0.7);
+  background-color: #FAFaFa;
+ /* width: 755px; */
 }
 .wall-item-decor {
   position: absolute;
-  left: 755px;
+/*  left: 755px; */
+  left: calc(100% - 7px);
 /*  top: -10px; */
   width: 16px;
 }
@@ -1125,7 +1135,8 @@ border-bottom: 1px solid #D2D2D2;
 }
 .wall-item-container {
   display: table;
-  width: 745px;
+/*  width: 745px; */
+  width: calc(100% - 10px);
 }
 
 .wall-item-content hr {
@@ -1143,7 +1154,7 @@ border-bottom: 1px solid #D2D2D2;
   display: table-row;
 }
 .wall-item-bottom {
-  font-size: 14px;
+  /* font-size: 14px; */
 }
 .wall-item-container .wall-item-bottom {
   opacity: 0;
@@ -1208,20 +1219,22 @@ border-bottom: 1px solid #D2D2D2;
 }
 
 .wall-item-container .wall-item-content {
-  font-size: 14px;
+  /* font-size: 14px; */
   max-width: 660px;
   word-wrap: break-word;
-  line-height: 1.36;
+  /* line-height: 1.36; */
   padding-bottom: 6px;
 }
 
 .wall-item-container .wall-item-content img {
-  max-width: 650px;
+  max-width: 100%;
+  /* max-width: 650px; */
   /* max-width: 580px; */
 }
 .children .wall-item-container .wall-item-item .wall-item-content img {
   /* max-width: 650px; */
-  max-width: 580px;
+  /* max-width: 580px; */
+  max-width: 100%;
 }
 .wall-item-container .wall-item-links, .wall-item-container .wall-item-actions {
   display: table-cell;
@@ -1338,7 +1351,8 @@ border-bottom: 1px solid #D2D2D2;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 80px;
-  width: 665px;
+/*  width: 665px; */
+  width: calc(100% - 90px);
   border-bottom: 1px solid hsl(198, 21%, 79%);
 }
 .wall-item-container.comment .wall-item-content {
@@ -1371,13 +1385,13 @@ border-bottom: 1px solid #D2D2D2;
 .wall-item-comment-wrapper textarea {
   height: 1.2em;
   width: 100%;
-  font-size: 10px;
+  font-size: 13px;
   color: #999999;
   border: 1px solid #DDD;
   padding: 0.3em;
 }
 .wall-item-comment-wrapper .comment-edit-text-full {
-  font-size: 14px;
+  /* font-size: 14px; */
   height: 4em;
   color: #2d2d2d;
   border: 1px solid #2d2d2d;
@@ -1427,34 +1441,47 @@ border-bottom: 1px solid #D2D2D2;
 }
 
 .twit {
-  background-color: #FFFAFA;
+  /* background-color: #FFFAFA; */
+  background-color: #fafeff;
 }
 .pump {
-  background-color: #FAFFFA;
+  /* background-color: #FAFFFA; */
+  background-color: #fcfffa;
 }
 .face {
-  background-color: #FAFAFF;
+  /* background-color: #FAFAFF; */
+  background-color: #fafcff;
 }
 .feed {
-  background-color: #FFFFFA;
+  /* background-color: #FFFFFA; */
+  background-color: #fffdfa;
 }
 .dspr {
   background-color: #FFFAFF;
 }
 .dfrn {
-  background-color: #FAFFFF;
-}
-.stat {
   background-color: #FAFAFA;
 }
+.stat {
+  /* background-color: #FAFFFF; */
+  background-color: #fffafd;
+}
 .mail {
-  background-color: #FFFFF9;
+  /* background-color: #FFFFF9; */
+  background-color: #fffafa;
+}
+
+#profile-jot-form {
+  box-shadow: 1px 1px 6px -3px #666;
+  background-color: #fafafa;
+  padding: 10px;
 }
 
 #profile-jot-form #profile-jot-text {
   height: 2.0em;
   /* width: 99%; */
-  width: 752px;
+  /* width: 752px; */
+  width: calc(100% - 10px);
   font-size: 15px;
   color: #999999;
   border: 1px solid #DDD;
@@ -1469,7 +1496,8 @@ border-bottom: 1px solid #D2D2D2;
     height: 20px;
     margin: 0 0 5px;
     /* width: 60%; */
-    width: 762px;
+    /* width: 762px; */
+    width: 100%;
     border: 1px solid #d2d2d2;
 }
 
@@ -1480,7 +1508,8 @@ border-bottom: 1px solid #D2D2D2;
   font-weight: normal;
 }
 #profile-jot-form #profile-jot-text_parent #profile-jot-text_tbl{
-  width: 785px;
+/*  width: 785px; */
+  width: 100%;
   height: 100px;
 }
 
@@ -1909,6 +1938,26 @@ ul.tabs a {
     padding-bottom: 0px;
     padding: 0px 12px 0px 12px;
     color: #444;
+}
+
+ul.tabs a {
+    box-shadow: 1px 1px 6px -3px #666;
+    margin-right: 5px;
+}
+
+#birthday-notice, #event-notice {
+    box-shadow: 1px 1px 6px -3px #666;
+    margin-bottom: 5px;
+}
+
+#birthday-wrapper, #event-wrapper {
+    background-color: #FAFAFA;
+    box-shadow: 1px 1px 6px -3px #666;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 div.pager, .birthday-notice, #jot-preview-link, .comment-edit-submit-wrapper .fakelink {
