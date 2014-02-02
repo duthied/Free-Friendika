@@ -554,7 +554,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $Text);
 	$Text = preg_replace("/(\s*)\[\/(\w*)\]/ism", '[/$2]$1', $Text);
 
-	// Extract the private images which use data url's since preg has issues with
+	// Extract the private images which use data urls since preg has issues with
 	// large data sizes. Stash them away while we do bbcode conversion, and then put them back
 	// in after we've done all the regex matching. We cannot use any preg functions to do this.
 
@@ -618,18 +618,23 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Set up the parameters for a MAIL search string
 	$MAILSearchString = $URLSearchString;
 
+	if ($simplehtml == 5)
+		$Text = preg_replace("/[^#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $Text);
 
 	// Perform URL Search
+	if ($tryoembed)
+		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\].*?\[\/bookmark\]/ism",'tryoembed',$Text);
+
+	if ($simplehtml == 5)
+		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url]$1[/url]',$Text);
+	else
+		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$Text);
+
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 	if (!$forplaintext)
 		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="external-link">$2</a>', $Text);
 	else
-		$Text = preg_replace("(\[url\](.*?)\[\/url\])ism","$1",$Text);
-
-	if ($tryoembed)
-		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\].*?\[\/bookmark\]/ism",'tryoembed',$Text);
-
-	$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$Text);
+		$Text = preg_replace("(\[url\](.*?)\[\/url\])ism"," $1 ",$Text);
 
 	if ($tryoembed)
 		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism",'tryoembed',$Text);
@@ -786,7 +791,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributes",$Text);
 	elseif ($simplehtml == 1)
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesSimple",$Text);
-	elseif ($simplehtml == 2)
+	elseif (($simplehtml == 2) OR ($simplehtml == 5))
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesSimple2",$Text);
 	elseif ($simplehtml == 3)
 		$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesDiaspora",$Text);

@@ -191,9 +191,9 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	//node2bbcode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array(), '', '');
 	if (!$compact)
-		node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '[img]$1', '[/img]');
+		node2bbcode($doc, 'img', array('src'=>'/(.+)/'), ' [img]$1', '[/img] ');
 	else
-		node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '', '');
+		node2bbcode($doc, 'img', array('src'=>'/(.+)/'), ' ', ' ');
 
 	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), ' $1 ', '', true);
 
