@@ -299,6 +299,8 @@ class Item extends BaseObject {
 			'title' => $title_e,
 			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 			'ago' => (($item['app']) ? sprintf( t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
+			'app' => $item['app'],
+			'created' => relative_date($item['created']),
 			'lock' => $lock,
 			'location' => $location_e,
 			'indent' => $indent,

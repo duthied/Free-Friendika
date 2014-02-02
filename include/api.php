@@ -807,6 +807,10 @@
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
+			$entities = api_get_entitities($status_info['text'], $lastwall['body']);
+			if (count($entities) > 0)
+				$status_info['entities'] = $entities;
+
 			if (($lastwall['item_network'] != "") AND ($status["source"] == 'web'))
 				$status_info["source"] = network_to_name($lastwall['item_network']);
 			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $status_info["source"]))
@@ -896,6 +900,10 @@
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
+			$entities = api_get_entitities($user_info['text'], $lastwall['body']);
+			if (count($entities) > 0)
+				$user_info['entities'] = $entities;
+
 			if (($lastwall['item_network'] != "") AND ($user_info["status"]["source"] == 'web'))
 				$user_info["status"]["source"] = network_to_name($lastwall['item_network']);
 			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $user_info["status"]["source"]))
@@ -965,7 +973,7 @@
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
-			ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 			//intval($user_info['uid']),
 			intval(api_user()),
 			intval($since_id),
@@ -1046,7 +1054,7 @@
                 	AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
-                	ORDER BY `received` DESC LIMIT %d, %d ",
+                	ORDER BY `item`.`id` DESC LIMIT %d, %d ",
 			intval($since_id),
                 	intval($start),
                 	intval($count));
@@ -1178,7 +1186,7 @@
 			AND `item`.`uid` = %d AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `item`.`id`>%d $sql_extra
-			ORDER BY `item`.`received` DESC LIMIT %d ,%d",
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
                         intval($since_id),
                         intval($start), intval($count)
@@ -1348,7 +1356,7 @@
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
-			ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 			//intval($user_info['uid']),
 			intval(api_user()),
 			intval($since_id),
@@ -1421,7 +1429,7 @@
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
-			ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 			intval(api_user()),
 			intval($user_info['cid']),
 			intval($since_id),
@@ -1485,7 +1493,7 @@
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				$sql_extra
 				AND `item`.`id`>%d
-				ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
+				ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 				//intval($user_info['uid']),
 				intval(api_user()),
 				intval($since_id),
@@ -1615,6 +1623,120 @@
 		return $ret;
 	}
 
+	function api_get_entitities($text, $bbcode) {
+		/*
+		To-Do:
+		* remove links to pictures if they are links of a picture
+		* Some video stuff isn't recognized
+		* Links at the first character of the post
+		* different sizes of pictures
+		* caching picture data (using the id for that?) (See privacy_image_cache)
+		*/
+
+		$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:true);
+
+// To-Do
+//		if (!$include_entities OR ($include_entities == "false"))
+//			return false;
+
+		$entities = array();
+		$entities["hashtags"] = array();
+		$entities["symbols"] = array();
+		$entities["urls"] = array();
+		$entities["user_mentions"] = array();
+
+		$bbcode = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
+		//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
+		$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism",'[url=$1]$1[/url]',$bbcode);
+		$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism",'[url=$1]$1[/url]',$bbcode);
+		$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism",'[url=$1]$1[/url]',$bbcode);
+		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
+
+		$URLSearchString = "^\[\]";
+		//preg_match_all("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $bbcode, $urls1);
+		preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
+
+		$ordered_urls = array();
+		foreach ($urls[1] AS $id=>$url) {
+			//$start = strpos($text, $url, $offset);
+			$start = iconv_strpos($text, $url, 0, "UTF-8");
+			if (!($start === false))
+				$ordered_urls[$start] = array("url" => $url, "title" => $urls[2][$id]);
+		}
+
+		ksort($ordered_urls);
+
+		$offset = 0;
+		//foreach ($urls[1] AS $id=>$url) {
+		foreach ($ordered_urls AS $url) {
+			if ((substr($url["title"], 0, 7) != "http://") AND (substr($url["title"], 0, 8) != "https://") AND
+				!strpos($url["title"], "http://") AND !strpos($url["title"], "https://"))
+				$display_url = $url["title"];
+			else {
+				$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url["url"]);
+				$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
+
+				if (strlen($display_url) > 26)
+					$display_url = substr($display_url, 0, 25)."…";
+			}
+
+			//$start = strpos($text, $url, $offset);
+			$start = iconv_strpos($text, $url["url"], $offset, "UTF-8");
+			if (!($start === false)) {
+				$entities["urls"][] = array("url" => $url["url"],
+								"expanded_url" => $url["url"],
+								"display_url" => $display_url,
+								"indices" => array($start, $start+strlen($url["url"])));
+				$offset = $start + 1;
+			}
+		}
+
+		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
+		$ordered_images = array();
+		foreach ($images[1] AS $image) {
+			//$start = strpos($text, $url, $offset);
+			$start = iconv_strpos($text, $image, 0, "UTF-8");
+			if (!($start === false))
+				$ordered_images[$start] = $image;
+		}
+		//$entities["media"] = array();
+		$offset = 0;
+
+		foreach ($ordered_images AS $url) {
+			$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url);
+			$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
+
+			if (strlen($display_url) > 26)
+				$display_url = substr($display_url, 0, 25)."…";
+
+			$start = iconv_strpos($text, $url, $offset, "UTF-8");
+			if (!($start === false)) {
+				$redirects = 0;
+				$img_str = fetch_url($url,true, $redirects, 10);
+				$image = @imagecreatefromstring($img_str);
+				if ($image) {
+					$entities["media"][] = array(
+								"id" => $start,
+								"id_str" => (string)$start,
+								"indices" => array($start, $start+strlen($url)),
+								"media_url" => $url,
+								"media_url_https" => $url,
+								"url" => $url,
+								"display_url" => $display_url,
+								"expanded_url" => $url,
+								"type" => "photo",
+								"sizes" => array("medium" => array(
+												"w" => imagesx($image),
+												"h" => imagesy($image),
+												"resize" => "fit")));
+				}
+				$offset = $start + 1;
+			}
+		}
+
+		return($entities);
+	}
+
 	function api_format_items($r,$user_info, $filter_user = false) {
 
 		$a = get_app();
@@ -1669,6 +1791,7 @@
 			}
 
 			// Workaround for ostatus messages where the title is identically to the body
+			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
 			$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
 
 			$statustitle = trim($item['title']);
@@ -1697,9 +1820,14 @@
 				'favorited' => $item['starred'] ? true : false,
 				//'attachments' => array(),
 				'user' =>  $status_user ,
+				//'entities' => NULL,
 				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
+
+			$entities = api_get_entitities($status['text'], $item['body']);
+			if (count($entities) > 0)
+				$status['entities'] = $entities;
 
 			if (($item['item_network'] != "") AND ($status["source"] == 'web'))
 				$status["source"] = network_to_name($item['item_network']);
@@ -1778,6 +1906,20 @@
 
 	}
 	api_register_func('api/help/test','api_help_test',false);
+
+	function api_lists(&$a,$type) {
+
+		$ret = array();
+		return array($ret);
+	}
+	api_register_func('api/lists','api_lists',true);
+
+	function api_lists_list(&$a,$type) {
+
+		$ret = array();
+		return array($ret);
+	}
+	api_register_func('api/lists/list','api_lists_list',true);
 
 	/**
 	 *  https://dev.twitter.com/docs/api/1/get/statuses/friends
@@ -2052,7 +2194,7 @@
 		if ($max_id > 0)
 			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
 
-		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`created` DESC LIMIT %d,%d",
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
 				intval(api_user()),
 				intval($since_id),
 				intval($start),	intval($count)
