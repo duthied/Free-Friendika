@@ -184,6 +184,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
   `profile-id` int(11) NOT NULL DEFAULT '0' COMMENT 'which profile to display - 0 is public default',
   `bdyear` char(4) NOT NULL COMMENT 'birthday notify flag',
   `bd` date NOT NULL,
+  `notify_new_posts` TINYINT(1) NOT NULL DEFAULT '0',
+  `fetch_further_information` TINYINT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `self` (`self`),
