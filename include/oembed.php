@@ -62,6 +62,10 @@ function oembed_fetch_url($embedurl){
 	}
 
 	$j = json_decode($txt);
+
+	if (!is_object($j))
+		return false;
+
 	$j->embedurl = $embedurl;
 	return $j;
 }
