@@ -826,6 +826,10 @@ function add_fcontact($arr,$update = false) {
 
 function scale_external_images($srctext, $include_link = true, $scale_replace = false) {
 
+	// Suppress "view full size"
+	if (intval(get_config('system','no_view_full_size')))
+		$include_link = false;
+
 	$a = get_app();
 
 	// Picture addresses can contain special characters
