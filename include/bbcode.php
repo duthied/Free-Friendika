@@ -322,7 +322,7 @@ function bb_ShareAttributes($match) {
 	if ($avatar != "")
 		$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
 
-	$headline .= sprintf(t('<span><a href="%s" target="external-link">%s</a> wrote the following <a href="%s" target="external-link">post</a>'.$reldate.':</span>'), $profile, $author, $link);
+	$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
 
         $headline .= "</div>";
 
@@ -369,7 +369,7 @@ function bb_ShareAttributesDiaspora($match) {
 	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
 	//$headline .= sprintf(t('<span><b>'.
 	//		html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
-	//		'<a href="%s" target="external-link">%s</a>%s:</b></span>'), $profile, $userid, $posted);
+	//		'<a href="%s" target="_blank">%s</a>%s:</b></span>'), $profile, $userid, $posted);
         $headline .= "</div>";
 
 	$text = trim($match[1]);
@@ -423,7 +423,7 @@ function bb_ShareAttributesForExport($match) {
 	$headline = '<div class="shared_header">';
 	$headline .= sprintf(t('<span><b>'.
 			html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
-			'<a href="%s" target="external-link">%s</a>%s:</b></span>'), $link, $userid, $posted);
+			'<a href="%s" target="_blank">%s</a>%s:</b></span>'), $link, $userid, $posted);
         $headline .= "</div>";
 
 	$text = trim($match[1]);
@@ -533,6 +533,23 @@ function GetProfileUsername($profile, $username) {
 	return($username);
 }
 
+function RemovePictureLinks($match) {
+	$ch = @curl_init($match[2]);
+	@curl_setopt($ch, CURLOPT_NOBODY, true);
+	@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+	@curl_exec($ch);
+	$curl_info = @curl_getinfo($ch);
+
+	if (substr($curl_info["content_type"], 0, 6) == "image/")
+		$text = "[url=".$match[2]."]".$match[2]."[/url]";
+	else
+		$text = "[url=".$match[1]."]".$match[1]."[/url]";
+
+	return($text);
+}
+
+
 	// BBcode 2 HTML was written by WAY2WEB.net
 	// extended to work with Mistpark/Friendica - Mike Macgirvin
 
@@ -632,19 +649,21 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 	if (!$forplaintext)
-		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="external-link">$2</a>', $Text);
-	else
-		$Text = preg_replace("(\[url\](.*?)\[\/url\])ism"," $1 ",$Text);
+		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+	else {
+		$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism"," $1 ",$Text);
+		$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'RemovePictureLinks', $Text);
+	}
 
 	if ($tryoembed)
 		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism",'tryoembed',$Text);
 
-	$Text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="external-link">$1</a>', $Text);
-	$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="external-link">$2</a>', $Text);
+	$Text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $Text);
+	$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
 	//$Text = preg_replace("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
 
 	// Red compatibility, though the link can't be authenticated on Friendica
-	$Text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="external-link">$2</a>', $Text);
+	$Text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
 
 
 	// we may need to restrict this further if it picks up too many strays
@@ -812,9 +831,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", 'tryoembed', $Text);
 	} else {
 		$Text = preg_replace("/\[video\](.*?)\[\/video\]/",
-					'<a href="$1" target="external-link">$1</a>', $Text);
+					'<a href="$1" target="_blank">$1</a>', $Text);
 		$Text = preg_replace("/\[audio\](.*?)\[\/audio\]/",
-					'<a href="$1" target="external-link">$1</a>', $Text);
+					'<a href="$1" target="_blank">$1</a>', $Text);
 	}
 
 	// html5 video and audio
@@ -840,7 +859,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $Text);
 	else
 		$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
-					'<a href="https://www.youtube.com/watch?v=$1" target="external-link">https://www.youtube.com/watch?v=$1</a>', $Text);
+					'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $Text);
 
 	if ($tryoembed) {
 		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text); 
@@ -854,7 +873,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $Text);
 	else
 		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
-					'<a href="https://vimeo.com/$1" target="external-link">https://vimeo.com/$1</a>', $Text);
+					'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $Text);
 
 //	$Text = preg_replace("/\[youtube\](.*?)\[\/youtube\]/", '<object width="425" height="350" type="application/x-shockwave-flash" data="http://www.youtube.com/v/$1" ><param name="movie" value="http://www.youtube.com/v/$1"></param><!--[if IE]><embed src="http://www.youtube.com/v/$1" type="application/x-shockwave-flash" width="425" height="350" /><![endif]--></object>', $Text);
 

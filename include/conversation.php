@@ -558,13 +558,13 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 						$tag["url"] = $searchpath.strtolower($tag["term"]);
 
 					if ($tag["type"] == TERM_HASHTAG) {
-						$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+						$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 						$prefix = "#";
 					} elseif ($tag["type"] == TERM_MENTION) {
-						$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+						$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 						$prefix = "@";
 					}
-					$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+					$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				}
 
 				/*foreach(explode(',',$item['tag']) as $tag){
