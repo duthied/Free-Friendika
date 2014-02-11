@@ -1639,6 +1639,9 @@
 //		if (!$include_entities OR ($include_entities == "false"))
 //			return false;
 
+		// Change pure links in text to bbcode uris
+		$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
+
 		$entities = array();
 		$entities["hashtags"] = array();
 		$entities["symbols"] = array();
@@ -1648,8 +1651,15 @@
 		$bbcode = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
 		//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 		$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism",'[url=$1]$1[/url]',$bbcode);
+
+		$bbcode = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
+					'[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism",'[url=$1]$1[/url]',$bbcode);
+
+                $Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+					'[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism",'[url=$1]$1[/url]',$bbcode);
+
 		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
 		$URLSearchString = "^\[\]";
@@ -1716,8 +1726,8 @@
 				$image = @imagecreatefromstring($img_str);
 				if ($image) {
 					$entities["media"][] = array(
-								"id" => $start,
-								"id_str" => (string)$start,
+								"id" => $start+1,
+								"id_str" => (string)$start+1,
 								"indices" => array($start, $start+strlen($url)),
 								"media_url" => $url,
 								"media_url_https" => $url,
@@ -1792,7 +1802,8 @@
 
 			// Workaround for ostatus messages where the title is identically to the body
 			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
-			$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
+			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
+			$statusbody = trim(html2plain($html, 0));
 
 			$statustitle = trim($item['title']);
 
@@ -2390,20 +2401,20 @@ function api_clean_plain_items($Text) {
 }
 
 function api_cleanup_share($shared) {
-        if ($shared[2] != "type-link")
-                return($shared[3]);
+	if ($shared[2] != "type-link")
+		return($shared[0]);
 
-        if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-                return($shared[3]);
+	if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+		return($shared[0]);
 
-        $title = "";
-        $link = "";
+	$title = "";
+	$link = "";
 
-        if (isset($bookmark[2][0]))
-                $title = $bookmark[2][0];
+	if (isset($bookmark[2][0]))
+		$title = $bookmark[2][0];
 
-        if (isset($bookmark[1][0]))
-                $link = $bookmark[1][0];
+	if (isset($bookmark[1][0]))
+		$link = $bookmark[1][0];
 
 	if (strpos($shared[1],$title) !== false)
 		$title = "";
@@ -2411,16 +2422,16 @@ function api_cleanup_share($shared) {
 	if (strpos($shared[1],$link) !== false)
 		$link = "";
 
-        $text = trim($shared[1]);
+	$text = trim($shared[1]);
 
 	//if (strlen($text) < strlen($title))
 	if (($text == "") AND ($title != ""))
 		$text .= "\n\n".trim($title);
 
-        if ($link != "")
-                $text .= "\n".trim($link);
+	if ($link != "")
+		$text .= "\n".trim($link);
 
-        return(trim($text));
+	return(trim($text));
 }
 
 function api_best_nickname(&$contacts) {
