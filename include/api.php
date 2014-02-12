@@ -952,8 +952,6 @@
 
 		$start = $page*$count;
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		$sql_extra = '';
 		if ($max_id > 0)
 			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
@@ -1031,8 +1029,6 @@
 
 		$start = $page*$count;
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		if ($max_id > 0)
 			$sql_extra = 'AND `item`.`id` <= '.intval($max_id);
 		if ($exclude_replies > 0)
@@ -1100,7 +1096,6 @@
 
 		logger('API: api_statuses_show: '.$id);
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 		$conversation = (x($_REQUEST,'conversation')?1:0);
 
 		$sql_extra = '';
@@ -1169,8 +1164,6 @@
 
 		logger('API: api_conversation_show: '.$id);
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		$sql_extra = '';
 
 		if ($max_id > 0)
@@ -1224,8 +1217,6 @@
 			$id = intval($a->argv[4]);
 
 		logger('API: api_statuses_repeat: '.$id);
-
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
@@ -1327,8 +1318,6 @@
 		//$since_id = 0;//$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 
 		$start = $page*$count;
-
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
 		// Ugly code - should be changed
 		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
@@ -1626,18 +1615,15 @@
 	function api_get_entitities($text, $bbcode) {
 		/*
 		To-Do:
-		* remove links to pictures if they are links of a picture
-		* Some video stuff isn't recognized
 		* Links at the first character of the post
 		* different sizes of pictures
 		* caching picture data (using the id for that?) (See privacy_image_cache)
 		*/
 
-		$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:true);
+		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
-// To-Do
-//		if (!$include_entities OR ($include_entities == "false"))
-//			return false;
+		if ($include_entities != "true")
+			return false;
 
 		// Change pure links in text to bbcode uris
 		$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
@@ -1648,7 +1634,9 @@
 		$entities["urls"] = array();
 		$entities["user_mentions"] = array();
 
-		$bbcode = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
+		$URLSearchString = "^\[\]";
+
+		$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
 		//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 		$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism",'[url=$1]$1[/url]',$bbcode);
 
@@ -1662,7 +1650,6 @@
 
 		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
-		$URLSearchString = "^\[\]";
 		//preg_match_all("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $bbcode, $urls1);
 		preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
 
@@ -2396,6 +2383,11 @@ function api_get_nick($profile) {
 }
 
 function api_clean_plain_items($Text) {
+	$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
+
+	if ($include_entities == "true")
+		$Text = preg_replace("/\[url\=([^\]]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
+
 	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
 	return($Text);
 }
