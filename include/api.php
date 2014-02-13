@@ -1636,6 +1636,8 @@
 
 		$URLSearchString = "^\[\]";
 
+		$bbcode = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'#$2',$bbcode);
+
 		$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
 		//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 		$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism",'[url=$1]$1[/url]',$bbcode);
@@ -1834,7 +1836,12 @@
 
 
 			// Retweets are only valid for top postings
-			if (($item['owner-link'] != $item['author-link']) AND ($item["id"] == $item["parent"])) {
+			// It doesn't work reliable with the link if its a feed
+			$IsRetweet = ($item['owner-link'] != $item['author-link']);
+			if ($IsRetweet)
+				$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
+
+			if ($IsRetweet AND ($item["id"] == $item["parent"])) {
 				$retweeted_status = $status;
 				$retweeted_status["user"] = api_get_user($a,$item["author-link"]);
 
@@ -2385,8 +2392,12 @@ function api_get_nick($profile) {
 function api_clean_plain_items($Text) {
 	$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
-	if ($include_entities == "true")
-		$Text = preg_replace("/\[url\=([^\]]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
+	if ($include_entities == "true") {
+		$URLSearchString = "^\[\]";
+
+		$Text = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'#$2',$Text);
+		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
+	}
 
 	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
 	return($Text);
