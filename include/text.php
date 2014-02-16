@@ -968,7 +968,7 @@ if(! function_exists('linkify')) {
  * @param string $s
  */
 function linkify($s) {
-	$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="external-link">$1</a>', $s);
+	$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank">$1</a>', $s);
 	$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$s);
 	return($s);
 }}
@@ -1301,13 +1301,13 @@ function prepare_body(&$item,$attach = false) {
 				$tag["url"] = $searchpath.strtolower($tag["term"]);
 
 			if ($tag["type"] == TERM_HASHTAG) {
-				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				$prefix = "#";
 			} elseif ($tag["type"] == TERM_MENTION) {
-				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				$prefix = "@";
 			}
-			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"external-link\">".$tag["term"]."</a>";
+			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 		}
 	}
 
@@ -1418,7 +1418,7 @@ function prepare_body(&$item,$attach = false) {
 					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
 
-					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="external-link" >' . $icon . '</a>';
+					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
 				}
 			}
 		}

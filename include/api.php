@@ -952,8 +952,6 @@
 
 		$start = $page*$count;
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		$sql_extra = '';
 		if ($max_id > 0)
 			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
@@ -1031,8 +1029,6 @@
 
 		$start = $page*$count;
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		if ($max_id > 0)
 			$sql_extra = 'AND `item`.`id` <= '.intval($max_id);
 		if ($exclude_replies > 0)
@@ -1100,7 +1096,6 @@
 
 		logger('API: api_statuses_show: '.$id);
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 		$conversation = (x($_REQUEST,'conversation')?1:0);
 
 		$sql_extra = '';
@@ -1169,8 +1164,6 @@
 
 		logger('API: api_conversation_show: '.$id);
 
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
-
 		$sql_extra = '';
 
 		if ($max_id > 0)
@@ -1224,8 +1217,6 @@
 			$id = intval($a->argv[4]);
 
 		logger('API: api_statuses_repeat: '.$id);
-
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
@@ -1327,8 +1318,6 @@
 		//$since_id = 0;//$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 
 		$start = $page*$count;
-
-		//$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:false);
 
 		// Ugly code - should be changed
 		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
@@ -1626,18 +1615,18 @@
 	function api_get_entitities($text, $bbcode) {
 		/*
 		To-Do:
-		* remove links to pictures if they are links of a picture
-		* Some video stuff isn't recognized
 		* Links at the first character of the post
 		* different sizes of pictures
 		* caching picture data (using the id for that?) (See privacy_image_cache)
 		*/
 
-		$include_entities = (x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:true);
+		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
-// To-Do
-//		if (!$include_entities OR ($include_entities == "false"))
-//			return false;
+		if ($include_entities != "true")
+			return array();
+
+		// Change pure links in text to bbcode uris
+		$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
 
 		$entities = array();
 		$entities["hashtags"] = array();
@@ -1645,14 +1634,24 @@
 		$entities["urls"] = array();
 		$entities["user_mentions"] = array();
 
-		$bbcode = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
+		$URLSearchString = "^\[\]";
+
+		$bbcode = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'#$2',$bbcode);
+
+		$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$bbcode);
 		//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 		$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism",'[url=$1]$1[/url]',$bbcode);
+
+		$bbcode = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
+					'[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism",'[url=$1]$1[/url]',$bbcode);
+
+                $Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+					'[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism",'[url=$1]$1[/url]',$bbcode);
+
 		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
-		$URLSearchString = "^\[\]";
 		//preg_match_all("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $bbcode, $urls1);
 		preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
 
@@ -1716,8 +1715,8 @@
 				$image = @imagecreatefromstring($img_str);
 				if ($image) {
 					$entities["media"][] = array(
-								"id" => $start,
-								"id_str" => (string)$start,
+								"id" => $start+1,
+								"id_str" => (string)$start+1,
 								"indices" => array($start, $start+strlen($url)),
 								"media_url" => $url,
 								"media_url_https" => $url,
@@ -1792,7 +1791,8 @@
 
 			// Workaround for ostatus messages where the title is identically to the body
 			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
-			$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
+			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
+			$statusbody = trim(html2plain($html, 0));
 
 			$statustitle = trim($item['title']);
 
@@ -1836,7 +1836,12 @@
 
 
 			// Retweets are only valid for top postings
-			if (($item['owner-link'] != $item['author-link']) AND ($item["id"] == $item["parent"])) {
+			// It doesn't work reliable with the link if its a feed
+			$IsRetweet = ($item['owner-link'] != $item['author-link']);
+			if ($IsRetweet)
+				$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
+
+			if ($IsRetweet AND ($item["id"] == $item["parent"])) {
 				$retweeted_status = $status;
 				$retweeted_status["user"] = api_get_user($a,$item["author-link"]);
 
@@ -2385,25 +2390,34 @@ function api_get_nick($profile) {
 }
 
 function api_clean_plain_items($Text) {
+	$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
+
+	if ($include_entities == "true") {
+		$URLSearchString = "^\[\]";
+
+		$Text = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'#$2',$Text);
+		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
+	}
+
 	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
 	return($Text);
 }
 
 function api_cleanup_share($shared) {
-        if ($shared[2] != "type-link")
-                return($shared[3]);
+	if ($shared[2] != "type-link")
+		return($shared[0]);
 
-        if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-                return($shared[3]);
+	if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+		return($shared[0]);
 
-        $title = "";
-        $link = "";
+	$title = "";
+	$link = "";
 
-        if (isset($bookmark[2][0]))
-                $title = $bookmark[2][0];
+	if (isset($bookmark[2][0]))
+		$title = $bookmark[2][0];
 
-        if (isset($bookmark[1][0]))
-                $link = $bookmark[1][0];
+	if (isset($bookmark[1][0]))
+		$link = $bookmark[1][0];
 
 	if (strpos($shared[1],$title) !== false)
 		$title = "";
@@ -2411,16 +2425,16 @@ function api_cleanup_share($shared) {
 	if (strpos($shared[1],$link) !== false)
 		$link = "";
 
-        $text = trim($shared[1]);
+	$text = trim($shared[1]);
 
 	//if (strlen($text) < strlen($title))
 	if (($text == "") AND ($title != ""))
 		$text .= "\n\n".trim($title);
 
-        if ($link != "")
-                $text .= "\n".trim($link);
+	if ($link != "")
+		$text .= "\n".trim($link);
 
-        return(trim($text));
+	return(trim($text));
 }
 
 function api_best_nickname(&$contacts) {
