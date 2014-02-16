@@ -327,12 +327,14 @@ function parse_url_content(&$a) {
 
 	if($url && $title && $text) {
 
+		$title = str_replace(array("\r","\n"),array('',''),$title);
+
 		if($textmode)
 			$text = '[quote]' . trim($text) . '[/quote]' . $br;
-		else
-			$text = '<blockquote>' . trim($text) . '</blockquote><br />';
-
-		$title = str_replace(array("\r","\n"),array('',''),$title);
+		else {
+			$text = '<blockquote>' . htmlspecialchars(trim($text)) . '</blockquote><br />';
+			$title = htmlspecialchars($title);
+		}
 
 		$result = sprintf($template,$url,($title) ? $title : $url,$text) . $str_tags;
 
@@ -381,7 +383,7 @@ function parse_url_content(&$a) {
 		if($textmode)
 			$text = '[quote]'.trim($text).'[/quote]';
 		else
-			$text = '<blockquote>'.trim($text).'</blockquote>';
+			$text = '<blockquote>'.htmlspecialchars(trim($text)).'</blockquote>';
 	}
 
 	if($image) {
