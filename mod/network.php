@@ -575,7 +575,11 @@ function network_content(&$a, $update = 0) {
 	//$sql_nets = (($nets) ? sprintf(" and `contact`.`network` = '%s' ", dbesc($nets)) : '');
 	$sql_nets = (($nets) ? sprintf(" and `item`.`network` = '%s' ", dbesc($nets)) : '');
 
-	$sql_extra = " AND `item`.`parent` IN ( SELECT `parent` FROM `item` WHERE `id` = `parent` $sql_options ) ";
+	if ($star OR $bmark) {
+		$sql_table = "`item` INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options and deleted = 0 ORDER BY `commented` DESC) AS `temp1` ON item.parent = `temp1`.parent ";
+		$sql_extra = "";
+	} else
+		$sql_extra = " AND `item`.`parent` IN ( SELECT `parent` FROM `item` WHERE `id` = `parent` $sql_options ) ";
 
 	if($group) {
 		$r = q("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
