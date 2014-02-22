@@ -8,31 +8,23 @@ function hostxrd_init(&$a) {
 	$pubkey = get_config('system','site_pubkey');
 
 	if(! $pubkey) {
+		$res = new_keypair(1024);
 
-		// should only have to ever do this once.
-
-		$res=openssl_pkey_new(array(
-			'digest_alg' => 'sha1',
-			'private_key_bits' => 4096,
-			'encrypt_key' => false ));
-
-
-		$prvkey = '';
-
-		openssl_pkey_export($res, $prvkey);
-
-		// Get public key
-
-		$pkey = openssl_pkey_get_details($res);
-		$pubkey = $pkey["key"];
-
-		set_config('system','site_prvkey', $prvkey);
-		set_config('system','site_pubkey', $pubkey);
+		set_config('system','site_prvkey', $res['prvkey']);
+		set_config('system','site_pubkey', $res['pubkey']);
 	}
 
-	$tpl = file_get_contents('view/xrd_host.tpl');
-	echo str_replace(array(
-		'$zhost','$zroot','$domain','$zot_post','$bigkey'),array($a->get_hostname(),z_root(),z_path(),z_root() . '/post', salmon_key(get_config('system','site_pubkey'))),$tpl);
+	//$tpl = file_get_contents('view/xrd_host.tpl');
+	/*echo str_replace(array(
+		'$zhost','$zroot','$domain','$zot_post','$bigkey'),array($a->get_hostname(),z_root(),z_path(),z_root() . '/post', salmon_key(get_config('system','site_pubkey'))),$tpl);*/
+	$tpl = get_markup_template('xrd_host.tpl');
+	echo replace_macros($tpl, array(
+		'$zhost' => $a->get_hostname(),
+		'$zroot' => z_root(),
+		'$domain' => z_path(),
+		'$zot_post' => z_root() . '/post',
+		'$bigkey' => salmon_key(get_config('system','site_pubkey')),
+	));
 	session_write_close();
 	exit();
 

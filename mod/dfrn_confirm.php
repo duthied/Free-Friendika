@@ -71,12 +71,16 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$dfrn_id   = $handsfree['dfrn_id'];
 			$intro_id  = $handsfree['intro_id'];
 			$duplex    = $handsfree['duplex'];
+			$hidden    = ((array_key_exists('hidden',$handsfree)) ? intval($handsfree['hidden']) : 0 );
+			$activity  = ((array_key_exists('activity',$handsfree)) ? intval($handsfree['activity']) : 0 );
 		}
 		else {
 			$dfrn_id  = ((x($_POST,'dfrn_id'))    ? notags(trim($_POST['dfrn_id'])) : "");
 			$intro_id = ((x($_POST,'intro_id'))   ? intval($_POST['intro_id'])      : 0 );
 			$duplex   = ((x($_POST,'duplex'))     ? intval($_POST['duplex'])        : 0 );
 			$cid      = ((x($_POST,'contact_id')) ? intval($_POST['contact_id'])    : 0 );
+			$hidden   = ((x($_POST,'hidden'))     ? intval($_POST['hidden'])        : 0 );
+			$activity = ((x($_POST,'activity'))   ? intval($_POST['activity'])      : 0 );
 		}
 
 		/**
@@ -103,7 +107,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		 *
 		 */
 
-		$r = q("SELECT * FROM `contact` WHERE ( ( `issued-id` != '' AND `issued-id` = '%s' ) OR ( `id` = %d AND `id` != 0 ) ) AND `uid` = %d LIMIT 1",
+		$r = q("SELECT * FROM `contact` WHERE ( ( `issued-id` != '' AND `issued-id` = '%s' ) OR ( `id` = %d AND `id` != 0 ) ) AND `uid` = %d AND `duplex` = 0 LIMIT 1",
 			dbesc($dfrn_id),
 			intval($cid),
 			intval($uid)
@@ -112,6 +116,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		if(! count($r)) {
 			logger('dfrn_confirm: Contact not found in DB.'); 
 			notice( t('Contact not found.') . EOL );
+			notice( t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL );
 			return;
 		}
 
@@ -122,7 +127,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$site_pubkey  = $contact['site-pubkey'];
 		$dfrn_confirm = $contact['confirm'];
 		$aes_allow    = $contact['aes_allow'];
-
+		
 		$network = ((strlen($contact['issued-id'])) ? NETWORK_DFRN : NETWORK_OSTATUS);
 
 		if($contact['network'])
@@ -139,19 +144,12 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			 * worried about key leakage than anybody cracking it.  
 			 *
 			 */
+			require_once('include/crypto.php');
 
-			$res = openssl_pkey_new(array(
-				'digest_alg' => 'sha1',
-				'private_key_bits' => 4096,
-				'encrypt_key' => false )
-			);
+			$res = new_keypair(4096);
 
-			$private_key = '';
-
-			openssl_pkey_export($res, $private_key);
-
-			$pubkey = openssl_pkey_get_details($res);
-			$public_key = $pubkey["key"];
+			$private_key = $res['prvkey'];
+			$public_key  = $res['pubkey'];
 
 			// Save the private key. Send them the public key.
 
@@ -202,6 +200,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			if($duplex == 1)
 				$params['duplex'] = 1;
 
+			if($user[0]['page-flags'] == PAGE_COMMUNITY)
+				$params['page'] = 1;
+			if($user[0]['page-flags'] == PAGE_PRVGROUP)
+				$params['page'] = 2;
+
 			logger('dfrn_confirm: Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params,true), LOGGER_DATA);
 
 			/**
@@ -248,7 +251,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$message = unxmlify($xml->message);   // human readable text of what may have gone wrong.
 			switch($status) {
 				case 0:
-					notice( t("Confirmation completed successfully.") . EOL);
+					info( t("Confirmation completed successfully.") . EOL);
 					if(strlen($message))
 						notice( t('Remote site reported: ') . $message . EOL);
 					break;
@@ -316,7 +319,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			if(($relation == CONTACT_IS_SHARING) && ($duplex))
 				$duplex = 0;
 
-			$r = q("UPDATE `contact` SET `photo` = '%s', 
+			$r = q("UPDATE `contact` SET 
+				`photo` = '%s', 
 				`thumb` = '%s',
 				`micro` = '%s', 
 				`rel` = %d, 
@@ -326,6 +330,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				`blocked` = 0, 
 				`pending` = 0,
 				`duplex` = %d,
+				`hidden` = %d,
 				`network` = 'dfrn' WHERE `id` = %d LIMIT 1
 			",
 				dbesc($photos[0]),
@@ -336,6 +341,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($duplex),
+				intval($hidden),
 				intval($contact_id)
 			);
 		}
@@ -365,6 +371,9 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			if($network === NETWORK_DIASPORA) {
 				if($duplex)
 					$new_relation = CONTACT_IS_FRIEND;
+				else
+					$new_relation = CONTACT_IS_SHARING;
+
 				if($new_relation != CONTACT_IS_FOLLOWER)
 					$writable = 1;
 			}
@@ -387,6 +396,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				`pending` = 0,
 				`network` = '%s',
 				`writable` = %d,
+				`hidden` = %d,
 				`rel` = %d
 				WHERE `id` = %d LIMIT 1
 			",
@@ -400,6 +410,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				dbesc($poll),
 				dbesc($network),
 				intval($writable),
+				intval($hidden),
 				intval($new_relation),
 				intval($contact_id)
 			);			
@@ -418,64 +429,82 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		else
 			$contact = null;
 
-		// Send a new friend post if we are allowed to...
 
-		$r = q("SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-			intval($uid)
-		);
-		if((count($r)) && ($r[0]['hide-friends'] == 0) && (is_array($contact)) &&  isset($new_relation) && ($new_relation == CONTACT_IS_FRIEND)) {
+		if((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
 
-			if($r[0]['network'] === NETWORK_DIASPORA) {
+			if(($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
 				$ret = diaspora_share($user[0],$r[0]);
 				logger('mod_follow: diaspora_share returns: ' . $ret);
 			}
 
-			require_once('include/items.php');
+			// Send a new friend post if we are allowed to...
 
-			$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
+			$r = q("SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
 				intval($uid)
 			);
 
-			if(count($self)) {
+			if((count($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
 
-				$arr = array();
-				$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid); 
-				$arr['uid'] = $uid;
-				$arr['contact-id'] = $self[0]['id'];
-				$arr['wall'] = 1;
-				$arr['type'] = 'wall';
-				$arr['gravity'] = 0;
-				$arr['author-name'] = $arr['owner-name'] = $self[0]['name'];
-				$arr['author-link'] = $arr['owner-link'] = $self[0]['url'];
-				$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
-				$arr['verb'] = ACTIVITY_FRIEND;
-				$arr['object-type'] = ACTIVITY_OBJ_PERSON;
-				
-				$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
-				$B = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
-				$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
-				$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
+				require_once('include/items.php');
 
-				$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
-					. '<id>' . $contact['url'] . '/' . $contact['name'] . '</id>';
-				$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />' . "\n");
-				$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $contact['thumb'] . '" />' . "\n");
-				$arr['object'] .= '</link></object>' . "\n";
-				$arr['last-child'] = 1;
+				$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
+					intval($uid)
+				);
 
-				$arr['allow_cid'] = $user[0]['allow_cid'];
-				$arr['allow_gid'] = $user[0]['allow_gid'];
-				$arr['deny_cid']  = $user[0]['deny_cid'];
-				$arr['deny_gid']  = $user[0]['deny_gid'];
+				if(count($self)) {
 
-				$i = item_store($arr);
-				if($i)
-			    	proc_run('php',"include/notifier.php","activity","$i");
+					$arr = array();
+					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid); 
+					$arr['uid'] = $uid;
+					$arr['contact-id'] = $self[0]['id'];
+					$arr['wall'] = 1;
+					$arr['type'] = 'wall';
+					$arr['gravity'] = 0;
+					$arr['origin'] = 1;
+					$arr['author-name'] = $arr['owner-name'] = $self[0]['name'];
+					$arr['author-link'] = $arr['owner-link'] = $self[0]['url'];
+					$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
 
+					$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
+					$APhoto = '[url=' . $self[0]['url'] . ']' . '[img]' . $self[0]['thumb'] . '[/img][/url]';
+
+					$B = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
+					$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
+
+					$arr['verb'] = ACTIVITY_FRIEND;
+				    $arr['object-type'] = ACTIVITY_OBJ_PERSON;
+					$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
+
+					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
+						. '<id>' . $contact['url'] . '/' . $contact['name'] . '</id>';
+					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />' . "\n");
+					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $contact['thumb'] . '" />' . "\n");
+					$arr['object'] .= '</link></object>' . "\n";
+
+					$arr['last-child'] = 1;
+
+					$arr['allow_cid'] = $user[0]['allow_cid'];
+					$arr['allow_gid'] = $user[0]['allow_gid'];
+					$arr['deny_cid']  = $user[0]['deny_cid'];
+					$arr['deny_gid']  = $user[0]['deny_gid'];
+
+					$i = item_store($arr);
+					if($i)
+				    	proc_run('php',"include/notifier.php","activity","$i");
+				}
 			}
-
 		}
+
+
+		$g = q("select def_gid from user where uid = %d limit 1",
+			intval($uid)
+		);
+		if($contact && $g && intval($g[0]['def_gid'])) {
+			require_once('include/group.php');
+			group_add_member($uid,'',$contact['id'],$g[0]['def_gid']);
+		}
+
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
 
@@ -507,8 +536,12 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$source_url = ((x($_POST,'source_url'))   ? hex2bin($_POST['source_url'])  : '');
 		$aes_key    = ((x($_POST,'aes_key'))      ? $_POST['aes_key']              : '');
 		$duplex     = ((x($_POST,'duplex'))       ? intval($_POST['duplex'])       : 0 );
+		$page       = ((x($_POST,'page'))         ? intval($_POST['page'])         : 0 );
 		$version_id = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version'] : 2.0);
 	
+		$forum = (($page == 1) ? 1 : 0);
+		$prv   = (($page == 2) ? 1 : 0);
+
 		logger('dfrn_confirm: requestee contacted: ' . $node);
 
 		logger('dfrn_confirm: request: POST=' . print_r($_POST,true), LOGGER_DATA);
@@ -617,6 +650,15 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			xml_status(3,$message);
 		}
 
+		// It's possible that the other person also requested friendship.
+		// If it is a duplex relationship, ditch the issued-id if one exists. 
+
+		if($duplex) {
+			$r = q("UPDATE `contact` SET `issued-id` = '' WHERE `id` = %d LIMIT 1",
+				intval($dfrn_record)
+			);
+		}
+
 		// We're good but now we have to scrape the profile photo and send notifications.
 
 
@@ -627,9 +669,9 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		if(count($r))
 			$photo = $r[0]['photo'];
 		else
-			$photo = $a->get_baseurl() . '/images/default-profile.jpg';
+			$photo = $a->get_baseurl() . '/images/person-175.jpg';
 				
-		require_once("Photo.php");
+		require_once("include/Photo.php");
 
 		$photos = import_profile_photo($photo,$local_uid,$dfrn_record);
 
@@ -653,6 +695,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			`blocked` = 0, 
 			`pending` = 0,
 			`duplex` = %d, 
+			`forum` = %d,
+			`prv` = %d,
 			`network` = '%s' WHERE `id` = %d LIMIT 1
 		",
 			dbesc($photos[0]),
@@ -663,6 +707,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($duplex),
+			intval($forum),
+			intval($prv),
 			dbesc(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
@@ -680,6 +726,10 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			WHERE `contact`.`id` = %d LIMIT 1",
 			intval($dfrn_record)
 		);
+
+		if(count($r))
+			$combined = $r[0];
+
 		if((count($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
 
 			push_lang($r[0]['language']);
@@ -696,10 +746,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				'$dfrn_url' => $r[0]['url'],
 				'$uid' => $newuid )
 			);
-	
-			$res = mail($r[0]['email'], sprintf( t("Connection accepted at %s") , $a->config['sitename']),
+			require_once('include/email.php');
+
+			$res = mail($r[0]['email'], email_header_encode( sprintf( t("Connection accepted at %s") , $a->config['sitename']),'UTF-8'),
 				$email_tpl,
-				'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+				'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 				. 'Content-type: text/plain; charset=UTF-8' . "\n"
 				. 'Content-transfer-encoding: 8bit' );
 
@@ -707,6 +758,65 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				// pointless throwing an error here and confusing the person at the other end of the wire.
 			}
 			pop_lang();
+		}
+
+		// Send a new friend post if we are allowed to...
+
+		if($page && intval(get_pconfig($local_uid,'system','post_joingroup'))) {
+			$r = q("SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
+				intval($local_uid)
+			);
+
+			if((count($r)) && ($r[0]['hide-friends'] == 0)) {
+
+				require_once('include/items.php');
+
+				$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
+					intval($local_uid)
+				);
+
+				if(count($self)) {
+
+					$arr = array();
+					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $local_uid); 
+					$arr['uid'] = $local_uid;
+					$arr['contact-id'] = $self[0]['id'];
+					$arr['wall'] = 1;
+					$arr['type'] = 'wall';
+					$arr['gravity'] = 0;
+					$arr['origin'] = 1;
+					$arr['author-name'] = $arr['owner-name'] = $self[0]['name'];
+					$arr['author-link'] = $arr['owner-link'] = $self[0]['url'];
+					$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
+
+					$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
+					$APhoto = '[url=' . $self[0]['url'] . ']' . '[img]' . $self[0]['thumb'] . '[/img][/url]';
+
+					$B = '[url=' . $combined['url'] . ']' . $combined['name'] . '[/url]';
+					$BPhoto = '[url=' . $combined['url'] . ']' . '[img]' . $combined['thumb'] . '[/img][/url]';
+
+					$arr['verb'] = ACTIVITY_JOIN;
+					$arr['object-type'] = ACTIVITY_OBJ_GROUP;
+					$arr['body'] =  sprintf( t('%1$s has joined %2$s'), $A, $B)."\n\n\n" .$BPhoto;
+					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_GROUP . '</type><title>' . $combined['name'] . '</title>'
+						. '<id>' . $combined['url'] . '/' . $combined['name'] . '</id>';
+					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $combined['url'] . '" />' . "\n");
+					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $combined['thumb'] . '" />' . "\n");
+					$arr['object'] .= '</link></object>' . "\n";
+
+					$arr['last-child'] = 1;
+
+					$arr['allow_cid'] = $user[0]['allow_cid'];
+					$arr['allow_gid'] = $user[0]['allow_gid'];
+					$arr['deny_cid']  = $user[0]['deny_cid'];
+					$arr['deny_gid']  = $user[0]['deny_gid'];
+
+					$i = item_store($arr);
+					if($i)
+				    	proc_run('php',"include/notifier.php","activity","$i");
+
+				}
+			}
 		}
 		xml_status(0); // Success
 		return; // NOTREACHED

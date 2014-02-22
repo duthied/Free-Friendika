@@ -1,0 +1,176 @@
+body {
+	font-family: helvetica,arial,freesans,clean,sans-serif;
+	font-size: 14px;
+	/*background-image: none;*/
+	background-color: #ffffff;
+	color: #505050;/* ZP Change*/
+	margin: 0px;
+}
+
+a, a:visited, a:link { color: #3465a4; text-decoration: none; }
+a:hover {text-decoration: underline; }
+
+img { border :0px; }
+
+nav {
+	display: none;
+}
+
+/* popup notifications */
+div.jGrowl div.notice {
+  background: #511919 url("../../../images/icons/48/notice.png") no-repeat 5px center;
+  color: #ffffff;
+  padding-left: 58px;
+}
+div.jGrowl div.info {
+  background: #364e59 url("../../../images/icons/48/info.png") no-repeat 5px center;
+  color: #ffffff;
+  padding-left: 58px;
+}
+#jGrowl.top-right {
+	top: 15px;
+	right: 15px;
+}
+div.jGrowl-notification {
+  border-radius: 7px;
+}
+
+.login-button {
+	margin-top: 110px;
+}
+
+img.login-button-image {
+	max-width: 350px;
+}
+
+div.section-wrapper {
+	position: relative;
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.login-form {
+	padding-top: 200px;
+	margin-bottom: 50px;
+}
+
+.register-form {
+	margin-top: 15px;
+}
+
+.lostpass-form {
+	margin-top: 170px;
+}
+
+.field {
+	margin-bottom: 2px;
+	padding-bottom: 0px;
+	display: inline-block;
+	text-align: left;
+}
+
+.field label {
+	width: 275px;
+	/*position: absolute;*/
+	display: inline-block;
+	margin-left: 0px;
+	font-weight: 700;
+}
+
+.field input {
+/*	margin-left: 225px;*/
+	width: 200px;
+}
+
+.field.checkbox label {
+	position: auto;
+	/*margin-left: 100px;*/
+}
+/*.field.checkbox input {
+	width: auto;
+	margin-left: 140px;
+}*/
+
+#div_id_remember {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+#div_id_remember label {
+	width: auto;
+	margin-right: 1em;
+}
+
+/*.openid input {*/
+#id_openid_url, input.openid  {
+	background: url(login-bg.gif) no-repeat;
+	background-position: 0 50%;
+	width: 182px;
+	padding-left: 18px;
+}
+
+/*#wrapper_username input, #wrapper_password input, #wrapper_openid_url input {
+	margin-left: 225px;
+}*/
+
+/*#register-openid-wrapper input, #register-name-wrapper input, #register-email-wrapper input, #register-nickname-wrapper input {
+	margin-left: 275px;
+}*/
+
+#register-openid-wrapper {
+	display: inline-block;
+	text-align: left;
+}
+#label-register-openid {
+	display: inline-block;
+	width: 275px;
+}
+
+#login-name-wrapper input {
+	margin-left: 200px;
+}
+
+.login-extra-links, .agreement {
+	font-size: 12px;
+}
+
+#login-submit-button, #register-submit-button, #lostpass-submit-button {
+	font-size: 16px;
+}
+
+#register-link {
+	margin-right: 200px;
+}
+
+.error-message {
+	width: 475px;
+	color: #FF0000;
+	font-size: 1.1em;
+	text-align: left;
+	border: 1px solid #FF8888;
+	background-color: #FFEEEE;
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.register-explain-wrapper {
+	width: 400px;
+	font-size: 12px;
+	text-align: left;
+	margin-left: 200px;
+}
+
+#lostpass-desc {
+	width: 380px;
+	margin-left: 220px;
+	text-align: left;
+	font-size: 12px;
+}
+
+footer {
+	text-align: center;
+	padding-top: 3em;
+	padding-bottom: 1em;
+}

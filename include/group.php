@@ -40,7 +40,7 @@ function group_add($uid,$name) {
 function group_rmv($uid,$name) {
 	$ret = false;
 	if(x($uid) && x($name)) {
-		$r = q("SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' LIMIT 1",
+		$r = q("SELECT id FROM `group` WHERE `uid` = %d AND `name` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($name)
 		);
@@ -48,6 +48,37 @@ function group_rmv($uid,$name) {
 			$group_id = $r[0]['id'];
 		if(! $group_id)
 			return false;
+
+		// remove group from default posting lists
+		$r = q("SELECT def_gid, allow_gid, deny_gid FROM user WHERE uid = %d LIMIT 1",
+		       intval($uid)
+		);
+		if($r) {
+			$user_info = $r[0];
+			$change = false;
+
+			if($user_info['def_gid'] == $group_id) {
+				$user_info['def_gid'] = 0;
+				$change = true;
+			}
+			if(strpos($user_info['allow_gid'], '<' . $group_id . '>') !== false) {
+				$user_info['allow_gid'] = str_replace('<' . $group_id . '>', '', $user_info['allow_gid']);
+				$change = true;
+			}
+			if(strpos($user_info['deny_gid'], '<' . $group_id . '>') !== false) {
+				$user_info['deny_gid'] = str_replace('<' . $group_id . '>', '', $user_info['deny_gid']);
+				$change = true;
+			}
+
+			if($change) {
+				q("UPDATE user SET def_gid = %d, allow_gid = '%s', deny_gid = '%s' WHERE uid = %d",
+				  intval($user_info['def_gid']),
+				  dbesc($user_info['allow_gid']),
+				  dbesc($user_info['deny_gid']),
+				  intval($uid)
+				);
+			}
+		}
 
 		// remove all members
 		$r = q("DELETE FROM `group_member` WHERE `uid` = %d AND `gid` = %d ",
@@ -97,19 +128,20 @@ function group_rmv_member($uid,$name,$member) {
 }
 
 
-function group_add_member($uid,$name,$member) {
-	$gid = group_byname($uid,$name);
+function group_add_member($uid,$name,$member,$gid = 0) {
+	if(! $gid)
+		$gid = group_byname($uid,$name);
 	if((! $gid) || (! $uid) || (! $member))
 		return false;
 
-	$r = q("SELECT * FROM `group_member` WHERE `uid` = %d AND `id` = %d AND `contact-id` = %d LIMIT 1",	
+	$r = q("SELECT * FROM `group_member` WHERE `uid` = %d AND `gid` = %d AND `contact-id` = %d LIMIT 1",	
 		intval($uid),
 		intval($gid),
 		intval($member)
 	);
 	if(count($r))
 		return true;	// You might question this, but 
-				// we indicate success because the group was in fact created
+				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
  	if(! count($r))
 		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `contact-id`)
@@ -154,6 +186,32 @@ function group_public_members($gid) {
 }
 
 
+function mini_group_select($uid,$gid = 0) {
+	
+	$grps = array();
+	$o = '';
+
+	$r = q("SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d ORDER BY `name` ASC",
+		intval($uid)
+	);
+	$grps[] = array('name' => '', 'id' => '0', 'selected' => '');
+	if(count($r)) {
+		foreach($r as $rr) {
+			$grps[] = array('name' => $rr['name'], 'id' => $rr['id'], 'selected' => (($gid == $rr['id']) ? 'true' : ''));
+		}
+
+	}
+	logger('groups: ' . print_r($grps,true));
+
+	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
+		'$label' => t('Default privacy group for new contacts'),
+		'$groups' => $grps 
+	));
+	return $o;
+}
+
+
+
 
 function group_side($every="contacts",$each="group",$edit = false, $group_id = 0, $cid = 0) {
 
@@ -162,23 +220,21 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 	if(! local_user())
 		return '';
 
-	$createtext = t('Create a new group');
-	$linktext= t('Everybody');
-	$selected = (($group_id == 0) ? ' group-selected' : '');
-$o .= <<< EOT
+	$groups = array();
+	
+	$groups[] = array(
+		'text' 	=> t('Everybody'),
+		'id' => 0,
+		'selected' => (($group_id == 0) ? 'group-selected' : ''),
+		'href' 	=> $every,
+	);
 
-<div id="group-sidebar" class="widget">
-<h3>Groups</h3>
 
-<div id="sidebar-group-list">
-	<ul id="sidebar-group-ul">
-	<li class="sidebar-group-li" ><a href="$every" class="sidebar-group-element$selected" >$linktext</a></li>
-
-EOT;
 
 	$r = q("SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d ORDER BY `name` ASC",
 		intval($_SESSION['uid'])
 	);
+	$member_of = array();
 	if($cid) {
 		$member_of = groups_containing(local_user(),$cid);
 	} 
@@ -186,29 +242,44 @@ EOT;
 	if(count($r)) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
-			$o .= '	<li class="sidebar-group-li">' 
-			. (($edit) ? "<a href=\"group/{$rr['id']}\" title=\"" . t('Edit') 
-				. "\" class=\"groupsideedit\" ><img src=\"images/spencil.gif\" alt=\"" . t('Edit') . "\"></a> " : "") 
-			. (($cid) ? '<input type="checkbox" class="' . (($selected) ? 'ticked' : 'unticked') . '" onclick="contactgroupChangeMember(' . $rr['id'] . ',' . $cid . ');return true;" '
-				. ((in_array($rr['id'],$member_of)) ? ' checked="checked" ' : '') . '/>' : '')
-			. "<a href=\"$each/{$rr['id']}\" class=\"sidebar-group-element" . $selected ."\"  >{$rr['name']}</a></li>\r\n";
+			
+			if ($edit) {
+				$groupedit = array(
+					'href' => "group/".$rr['id'],
+					'title' => t('edit'),
+				);
+			} else {
+				$groupedit = null;
+			}
+			
+			$groups[] = array(
+				'id'		=> $rr['id'],
+				'cid'		=> $cid,
+				'text' 		=> $rr['name'],
+				'selected' 	=> $selected,
+				'href'		=> $each."/".$rr['id'],
+				'edit'		=> $groupedit,
+				'ismember'	=> in_array($rr['id'],$member_of),
+			);
 		}
 	}
-	$o .= "	</ul>\r\n	</div>";
-
-	$o .= <<< EOT
-
-  <div id="sidebar-new-group">
-  <a href="group/new">$createtext</a>
-  </div>
-</div>
 	
-EOT;
-
+	
+	$tpl = get_markup_template("group_side.tpl");
+	$o = replace_macros($tpl, array(
+		'$title'		=> t('Groups'),
+		'$edittext'     => t('Edit group'),
+		'$createtext' 	=> t('Create a new group'),
+		'$ungrouped'    => (($every === 'contacts') ? t('Contacts not in any group') : ''),
+		'$groups'		=> $groups,
+		'$add'			=> t('add'),
+	));
+		
+	
 	return $o;
 }
 
-function expand_groups($a) {
+function expand_groups($a,$check_dead = false) {
 	if(! (is_array($a) && count($a)))
 		return array();
 	$groups = implode(',', $a);
@@ -218,6 +289,10 @@ function expand_groups($a) {
 	if(count($r))
 		foreach($r as $rr)
 			$ret[] = $rr['contact-id'];
+	if($check_dead) {
+		require_once('include/acl_selectors.php');
+		$ret = prune_deadguys($ret);
+	}
 	return $ret;
 }
 

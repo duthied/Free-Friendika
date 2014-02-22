@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Nastavte následující pro Vaši instalaci MySQL
 // Zkopírujte nebo přejmenujte tento soubor na .htconfig.php
@@ -53,8 +53,8 @@ $a->config['php_path'] = '$phpath';
 
 // URL adresy globálního adresáře.
 
-$a->config['system']['directory_submit_url'] = 'http://dir.friendika.com/submit';
-$a->config['system']['directory_search_url'] = 'http://dir.friendika.com/directory?search=';
+$a->config['system']['directory_submit_url'] = 'http://dir.friendica.com/submit';
+$a->config['system']['directory_search_url'] = 'http://dir.friendica.com/directory?search=';
 
 // PuSH - také zvaný jako  pubsubhubbub URL. Tímto zajistíte doručování veřejných přízpěvků stejně rychle jako těch soukromých
 
@@ -70,9 +70,4 @@ $a->config['system']['rino_encrypt'] = true;
 
 $a->config['system']['theme'] = 'duepuntozero';
 
-// Addony or pluginy se nastavují zde.
-// Toto je list čárkou oddělených addonů, které jsou povoleny. Příklad:
-// $a->config['system']['addon'] = 'js_upload,randplace,oembed';
-
-$a->config['system']['addon'] = 'js_upload';
 

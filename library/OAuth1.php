@@ -3,8 +3,10 @@
 
 /* Generic exception class
  */
-class OAuthException extends Exception {
-  // pass
+if (!class_exists('OAuthException')) {
+	class OAuthException extends Exception {
+		// pass
+	}
 }
 
 class OAuthConsumer {
@@ -26,6 +28,10 @@ class OAuthToken {
   // access tokens and request tokens
   public $key;
   public $secret;
+
+  public $expires;
+  public $scope;
+  public $uid;
 
   /**
    * key = the token
@@ -85,7 +91,8 @@ abstract class OAuthSignatureMethod {
    */
   public function check_signature($request, $consumer, $token, $signature) {
     $built = $this->build_signature($request, $consumer, $token);
-    return $built == $signature;
+    //echo "<pre>"; var_dump($signature, $built, ($built == $signature)); killme();
+    return ($built == $signature);
   }
 }
 
@@ -113,7 +120,9 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
     $key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
     $key = implode('&', $key_parts);
 
-    return base64_encode(hash_hmac('sha1', $base_string, $key, true));
+
+    $r = base64_encode(hash_hmac('sha1', $base_string, $key, true));
+    return $r;
   }
 }
 
@@ -282,7 +291,12 @@ class OAuthRequest {
       }
 
     }
-
+    // fix for friendica redirect system
+    
+    $http_url =  substr($http_url, 0, strpos($http_url,$parameters['q'])+strlen($parameters['q']));
+    unset( $parameters['q'] );
+    
+	//echo "<pre>".__function__."\n"; var_dump($http_method, $http_url, $parameters, $_SERVER['REQUEST_URI']); killme();
     return new OAuthRequest($http_method, $http_url, $parameters);
   }
 
@@ -409,8 +423,11 @@ class OAuthRequest {
   /**
    * builds the data one would send in a POST request
    */
-  public function to_postdata() {
-    return OAuthUtil::build_http_query($this->parameters);
+  public function to_postdata($raw = false) {
+    if ($raw)
+      return($this->parameters);
+    else
+      return OAuthUtil::build_http_query($this->parameters);
   }
 
   /**
@@ -544,6 +561,7 @@ class OAuthServer {
   public function verify_request(&$request) {
     $this->get_version($request);
     $consumer = $this->get_consumer($request);
+    //echo __file__.__line__.__function__."<pre>"; var_dump($consumer); die();
     $token = $this->get_token($request, $consumer, "access");
     $this->check_signature($request, $consumer, $token);
     return array($consumer, $token);
@@ -642,6 +660,7 @@ class OAuthServer {
       $token,
       $signature
     );
+	
 
     if (!$valid_sig) {
       throw new OAuthException("Invalid signature");

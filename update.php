@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1094 );
+define( 'UPDATE_VERSION' , 1169 );
 
 /**
  *
@@ -786,4 +786,774 @@ function update_1093() {
 
 	q("ALTER TABLE `group` ADD `visible` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `uid` ");
 
+}
+
+function update_1094() {
+	q("ALTER TABLE `item` ADD `postopts` TEXT NOT NULL AFTER `target` ");
+}
+
+function update_1095() {
+	q("ALTER TABLE `contact` ADD `bd` DATE NOT NULL AFTER `bdyear` ");
+}
+
+function update_1096() {
+	q("ALTER TABLE `item` ADD `origin` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `deleted` , ADD INDEX ( `origin` ) ");
+}
+
+function update_1097() {
+	q("ALTER TABLE `queue` 
+		ADD INDEX (`cid`), 
+		ADD INDEX (`created`), 
+		ADD INDEX (`last`), 
+		ADD INDEX (`network`), 
+		ADD INDEX (`batch`) 
+	");
+}
+
+function update_1098() {
+	q("ALTER TABLE `contact` 
+		ADD INDEX (`network`), 
+		ADD INDEX (`name`), 
+		ADD INDEX (`nick`), 
+		ADD INDEX (`attag`), 
+		ADD INDEX (`url`),
+		ADD INDEX (`addr`), 
+		ADD INDEX (`batch`) 
+	");
+}
+
+function update_1099() {
+	q("CREATE TABLE IF NOT EXISTS `gcontact` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`name` CHAR( 255 ) NOT NULL ,
+	`url` CHAR( 255 ) NOT NULL ,
+	`nurl` CHAR( 255 ) NOT NULL ,
+	`photo` CHAR( 255 ) NOT NULL
+	) ENGINE = MYISAM ");
+
+	q("CREATE TABLE IF NOT EXISTS `glink` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`cid` INT NOT NULL ,
+	`uid` INT NOT NULL ,
+	`gcid` INT NOT NULL,
+	`updated` DATETIME NOT NULL
+	) ENGINE = MYISAM ");
+
+	q("ALTER TABLE `gcontact` ADD INDEX (`nurl`) ");
+	q("ALTER TABLE `glink` ADD INDEX (`cid`), ADD INDEX (`uid`), ADD INDEX (`gcid`), ADD INDEX (`updated`) ");
+
+	q("ALTER TABLE `contact` ADD `poco` TEXT NOT NULL AFTER `confirm` "); 
+
+}
+
+function update_1100() {
+	q("ALTER TABLE `contact` ADD `nurl` CHAR( 255 ) NOT NULL AFTER `url` ");
+	q("alter table contact add index (`nurl`) ");
+
+	require_once('include/text.php');
+
+	$r = q("select id, url from contact where url != '' and nurl = '' ");
+	if(count($r)) {
+		foreach($r as $rr) {
+			q("update contact set nurl = '%s' where id = %d limit 1",
+				dbesc(normalise_link($rr['url'])),
+				intval($rr['id'])
+			); 
+		}
+	}
+}
+
+
+function update_1101() {
+	q("CREATE TABLE IF NOT EXISTS `gcign` (
+	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`uid` INT NOT NULL ,
+	`gcid` INT NOT NULL
+	) ENGINE = MYISAM ");
+
+	q("ALTER TABLE `gcign` ADD INDEX (`uid`), ADD INDEX (`gcid`) ");
+}
+
+function update_1102() {
+	q("ALTER TABLE `clients` ADD `name` TEXT NULL DEFAULT NULL AFTER `redirect_uri` "); 
+	q("ALTER TABLE `clients` ADD `icon` TEXT NULL DEFAULT NULL AFTER `name` "); 
+	q("ALTER TABLE `clients` ADD `uid` INT NOT NULL DEFAULT 0 AFTER `icon` "); 
+
+	q("ALTER TABLE `tokens` ADD `secret` TEXT NOT NULL AFTER `id` "); 
+	q("ALTER TABLE `tokens` ADD `uid` INT NOT NULL AFTER `scope` "); 
+}
+
+
+function update_1103() {
+//	q("ALTER TABLE `item` ADD INDEX ( `wall` ) ");
+	q("ALTER TABLE `item` ADD FULLTEXT ( `tag` ) "); 
+	q("ALTER TABLE `contact` ADD INDEX ( `pending` ) ");
+	q("ALTER TABLE `user` ADD INDEX ( `hidewall` ) ");
+	q("ALTER TABLE `user` ADD INDEX ( `blockwall` ) ");
+	q("ALTER TABLE `user` ADD INDEX ( `blocked` ) ");
+	q("ALTER TABLE `user` ADD INDEX ( `verified` ) ");
+
+}
+
+function update_1104() {
+	q("ALTER TABLE `item` ADD `forum_mode` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `origin` , ADD INDEX ( `forum_mode` ) ");
+
+}
+
+function update_1105() {
+	q("ALTER TABLE `mail` ADD `convid` INT NOT NULL AFTER `contact-id` ");
+	q("ALTER TABLE `mail` ADD `guid` CHAR( 64 ) NOT NULL AFTER `uid` ");
+
+	q("CREATE TABLE IF NOT EXISTS `conv` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`guid` CHAR( 64 ) NOT NULL ,
+	`recips` MEDIUMTEXT NOT NULL ,
+	`uid` INT NOT NULL
+	) ENGINE = MYISAM ");
+}
+
+
+function update_1106() {
+	q("ALTER TABLE `item` ADD INDEX ( `author-link` ) ");
+
+}
+
+function update_1107() {
+	q("ALTER TABLE `item` ADD INDEX ( `bookmark` ) ");
+
+}
+
+function update_1108() { 
+	q("ALTER TABLE `contact` ADD `hidden` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `writable` ,
+ADD INDEX ( `hidden` ) ");
+
+}
+
+function update_1109() {
+	q("ALTER TABLE `conv` ADD `creator` CHAR( 255 ) NOT NULL ,
+		ADD `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+		ADD `updated` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+		ADD `subject` MEDIUMTEXT NOT NULL,
+		ADD INDEX ( `created` ), ADD INDEX ( `updated` ) ");
+}
+
+function update_1110() {
+	q("ALTER TABLE `mail` ADD `reply` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `seen`,
+		ADD INDEX ( `reply` ), ADD INDEX ( `uid` ), ADD INDEX ( `guid` ), ADD INDEX ( `seen` ),
+		ADD INDEX ( `uri` ), ADD INDEX ( `parent-uri`), ADD INDEX ( `created` ), ADD INDEX ( `convid` ) ");
+
+}
+
+function update_1111() {
+	q("ALTER TABLE `gcontact` ADD `connect` CHAR( 255 ) NOT NULL ");
+}
+
+
+function update_1112() {
+
+	q("CREATE TABLE IF NOT EXISTS `notify` (
+`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`type` INT( 11 ) NOT NULL ,
+`name` CHAR( 255 ) NOT NULL ,
+`url` CHAR( 255 ) NOT NULL ,
+`photo` CHAR( 255 ) NOT NULL ,
+`date` DATETIME NOT NULL ,
+`msg` MEDIUMTEXT NOT NULL ,
+`uid` INT NOT NULL ,
+`link` CHAR( 255 ) NOT NULL ,
+`seen` TINYINT( 1 ) NOT NULL DEFAULT '0'
+) ENGINE = MYISAM ");
+
+	q("ALTER TABLE `notify` ADD INDEX ( `type` ), ADD INDEX ( `uid`), ADD INDEX (`seen`), ADD INDEX (`date`) ");
+
+}
+
+function update_1113() {
+	q("ALTER TABLE `notify` ADD `verb` CHAR( 255 ) NOT NULL ,
+ADD `otype` CHAR( 16 ) NOT NULL");
+}
+
+function update_1114() {
+	q("CREATE TABLE IF NOT EXISTS `item_id` (
+`iid` INT NOT NULL ,
+`uid` INT NOT NULL ,
+`face` CHAR( 255 ) NOT NULL ,
+`dspr` CHAR( 255 ) NOT NULL ,
+`twit` CHAR( 255 ) NOT NULL ,
+`stat` CHAR( 255 ) NOT NULL ,
+PRIMARY KEY ( `iid` ),
+INDEX ( `uid` ),
+INDEX ( `face` ),
+INDEX ( `dspr` ),
+INDEX ( `twit` ),
+INDEX ( `stat` )
+) ENGINE = MYISAM ");
+
+}
+
+function update_1115() {
+	q("ALTER TABLE `item` ADD `moderated` 
+		TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `pubmail`, 
+		ADD INDEX (`moderated`) ");
+}
+
+function update_1116() {
+	//typo! corrected update was rolled forward
+}
+
+function update_1117() {
+q("create table if not exists `manage` (
+`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`uid` INT NOT NULL ,
+`mid` INT NOT NULL,
+INDEX ( `uid` ),
+INDEX ( `mid` )
+) ENGINE = MYISAM ");
+
+}
+
+function update_1118() {
+	// rolled forward
+}
+
+function update_1119() {
+q("ALTER TABLE `contact` ADD `closeness` TINYINT( 2 ) NOT NULL DEFAULT '99' AFTER `reason` , ADD INDEX (`closeness`) ");
+q("update contact set closeness = 0 where self = 1");
+q("ALTER TABLE `item` ADD `spam` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `visible` , ADD INDEX (`spam`) ");
+}
+
+
+function update_1120() {
+
+	// item table update from 1119 did not get into database.sql file.
+	// might be missing on new installs. We'll check.
+
+	$r = q("describe item");
+	if($r && count($r)) {
+		foreach($r as $rr)
+			if($rr['Field'] == 'spam')
+				return;
+	}
+	q("ALTER TABLE `item` ADD `spam` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `visible` , ADD INDEX (`spam`) ");
+
+}
+
+function update_1121() {
+	q("CREATE TABLE IF NOT EXISTS `poll_result` (
+	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`poll_id` INT NOT NULL ,
+	`choice` INT NOT NULL ,
+	INDEX ( `poll_id` ),
+	INDEX ( `choice` )
+	) ENGINE = MYISAM ");
+
+	q("CREATE TABLE IF NOT EXISTS `poll` (
+	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	`uid` INT NOT NULL ,
+	`q0` MEDIUMTEXT NOT NULL ,
+	`q1` MEDIUMTEXT NOT NULL ,
+	`q2` MEDIUMTEXT NOT NULL ,
+	`q3` MEDIUMTEXT NOT NULL ,
+	`q4` MEDIUMTEXT NOT NULL ,
+	`q5` MEDIUMTEXT NOT NULL ,
+	`q6` MEDIUMTEXT NOT NULL ,
+	`q7` MEDIUMTEXT NOT NULL ,
+	`q8` MEDIUMTEXT NOT NULL ,
+	`q9` MEDIUMTEXT NOT NULL ,
+	INDEX ( `uid` )
+	) ENGINE = MYISAM ");
+
+}
+
+function update_1122() {
+q("ALTER TABLE `notify` ADD `hash` CHAR( 64 ) NOT NULL AFTER `id` ,
+ADD INDEX ( `hash` ) ");
+}
+
+function update_1123() {
+set_config('system','allowed_themes','dispy,quattro,testbubble,vier,darkbubble,darkzero,duepuntozero,greenzero,purplezero,quattro-green,slackr');
+}
+
+function update_1124() {
+q("alter table item add index (`author-name`) ");
+}
+
+function update_1125() {
+  q("CREATE TABLE IF NOT EXISTS `notify-threads` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+  `notify-id` INT NOT NULL,
+  `master-parent-item` INT( 10 ) unsigned NOT NULL DEFAULT '0',
+  `parent-item` INT( 10 ) unsigned NOT NULL DEFAULT '0',
+  `receiver-uid` INT NOT NULL,
+  INDEX ( `master-parent-item` ),
+  INDEX ( `receiver-uid` )
+  ) ENGINE = MyISAM DEFAULT CHARSET=utf8");
+}
+
+function update_1126() {
+	q("ALTER TABLE `mailacct` ADD `action` INT NOT NULL AFTER `pass`,
+		ADD `movetofolder` CHAR(255) NOT NULL AFTER `action`");
+}
+
+function update_1127() {
+	q("CREATE TABLE IF NOT EXISTS `spam` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+  `uid` INT NOT NULL,
+  `spam` INT NOT NULL DEFAULT '0',
+  `ham` INT NOT NULL DEFAULT '0',
+  `term` CHAR(255) NOT NULL,
+  INDEX ( `uid` ),
+  INDEX ( `spam` ),
+  INDEX ( `ham` ),
+  INDEX ( `term` )
+  ) ENGINE = MyISAM DEFAULT CHARSET=utf8");
+}
+
+
+function update_1128() {
+	q("alter table spam add `date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `term` ");
+}
+
+function update_1129() {
+	q("ALTER TABLE `notify` ADD `parent` INT NOT NULL AFTER `link` , ADD INDEX ( `parent` ), ADD INDEX ( `link` ), ADD INDEX ( `otype` ) ");
+}
+
+function update_1130() {
+	q("ALTER TABLE `item` ADD `file` MEDIUMTEXT NOT NULL AFTER `inform`, ADD FULLTEXT KEY (`file`) ");
+}
+
+function update_1131() {
+	q("ALTER TABLE `contact` ADD `forum` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `writable` , ADD INDEX ( `forum` ) ");
+}
+
+
+function update_1132() {
+	q("CREATE TABLE IF NOT EXISTS `userd` (
+`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`username` CHAR( 255 ) NOT NULL,
+INDEX ( `username` )
+) ENGINE = MYISAM ");
+
+}
+
+function update_1133() {
+q("ALTER TABLE `user` ADD `unkmail` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `blocktags` , ADD INDEX ( `unkmail` ) ");
+q("ALTER TABLE `user` ADD `cntunkmail` INT NOT NULL DEFAULT '10' AFTER `unkmail` , ADD INDEX ( `cntunkmail` ) ");
+q("ALTER TABLE `mail` ADD `unknown` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `replied` , ADD INDEX ( `unknown` ) ");
+}
+
+function update_1134() {
+	// faulty update merged forward
+	// had a hardwired tablename of 'friendica' which isn't the right name on most systems
+}
+
+function update_1135() {
+	//there can't be indexes with more than 1000 bytes in mysql, 
+	//so change charset to be smaller
+	q("ALTER TABLE `config` CHANGE `cat` `cat` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL ,
+CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL"); 
+	
+	//same thing for pconfig
+	q("ALTER TABLE `pconfig` CHANGE `cat` `cat` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL ,
+	CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL"); 
+	// faulty update merged forward. Bad update in 1134 caused duplicate k,cat pairs
+	// these have to be cleared before the unique keys can be added.	
+}
+
+function update_1136() {
+
+	$arr = array();
+
+	// order in reverse so that we save the newest entry
+
+	$r = q("select * from config where 1 order by id desc");
+	if(count($r)) {
+		foreach($r as $rr) {
+			$found = false;
+			foreach($arr as $x) {
+				if($x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
+					$found = true;
+					q("delete from config where id = %d limit 1",
+						intval($rr['id'])
+					);
+				}
+			}
+			if(! $found) {
+				$arr[] = $rr;
+			}
+		}
+	}
+			
+	$arr = array();
+	$r = q("select * from pconfig where 1 order by id desc");
+	if(count($r)) {
+		foreach($r as $rr) {
+			$found = false;
+			foreach($arr as $x) {
+				if($x['uid'] == $rr['uid'] && $x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
+					$found = true;
+					q("delete from pconfig where id = %d limit 1",
+						intval($rr['id'])
+					);
+				}
+			}
+			if(! $found) {
+				$arr[] = $rr;
+			}
+		}
+	}
+	q("ALTER TABLE `config` ADD UNIQUE `access` ( `cat` , `k` ) "); 
+	q("ALTER TABLE `pconfig` ADD UNIQUE `access` ( `uid` , `cat` , `k` )"); 
+
+}
+
+
+function update_1137() {
+	q("alter table item_id DROP `face` , DROP `dspr` , DROP `twit` , DROP `stat` ");
+	q("ALTER TABLE `item_id` ADD `sid` CHAR( 255 ) NOT NULL AFTER `uid` , ADD `service` CHAR( 255 ) NOT NULL AFTER `sid` , add index (`sid`), add index ( `service`) ");
+}
+
+function update_1138() {
+	q("alter table contact add archive tinyint(1) not null default '0' after hidden, add index (archive)");
+}
+
+function update_1139() {
+	$r = q("alter table user add account_removed tinyint(1) not null default '0' after expire, add index(account_removed) ");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1140() {
+	$r = q("alter table addon add hidden tinyint(1) not null default '0' after installed, add index(hidden) ");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1141() {
+	$r = q("alter table glink add zcid int(11) not null after gcid, add index(zcid) ");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+
+function update_1142() {
+	$r = q("alter table user add service_class char(32) not null after expire_notification_sent, add index(service_class) ");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1143() {
+	$r = q("alter table user add def_gid int(11) not null default '0' after service_class");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1144() {
+	$r = q("alter table contact add prv tinyint(1) not null default '0' after forum");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1145() {
+	$r = q("alter table profile add howlong datetime not null default '0000-00-00 00:00:00' after `with`");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1146() {
+	$r = q("alter table profile add hometown char(255) not null after `country-name`, add index ( `hometown` ) ");
+	if(! $r)
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1147() {
+	$r1 = q("ALTER TABLE `sign` ALTER `iid` SET DEFAULT '0'");
+	$r2 = q("ALTER TABLE `sign` ADD `retract_iid` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `iid`");
+	$r3 = q("ALTER TABLE `sign` ADD INDEX ( `retract_iid` )");  
+	if((! $r1) || (! $r2) || (! $r3))
+		return UPDATE_FAILED ;
+	return UPDATE_SUCCESS ;
+}
+
+function update_1148() {
+	$r = q("ALTER TABLE photo ADD type CHAR(128) NOT NULL DEFAULT 'image/jpeg' AFTER filename");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+
+function update_1149() {
+	$r1 = q("ALTER TABLE profile ADD likes text NOT NULL after prv_keywords");
+	$r2 = q("ALTER TABLE profile ADD dislikes text NOT NULL after likes");
+	if (! ($r1 && $r2))
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+
+function update_1150() {
+	$r = q("ALTER TABLE event ADD summary text NOT NULL after finish, add index ( uid ), add index ( cid ), add index ( uri ), add index ( `start` ), add index ( finish ), add index ( `type` ), add index ( adjust ) ");
+	if(! $r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+
+function update_1151() {
+	$r = q("CREATE TABLE IF NOT EXISTS locks (
+			id INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+			name CHAR( 128 ) NOT NULL ,
+			locked TINYINT( 1 ) NOT NULL DEFAULT '0'
+		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1152() {
+	$r = q("CREATE TABLE IF NOT EXISTS `term` (
+		`tid` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+		`oid` INT UNSIGNED NOT NULL ,
+		`otype` TINYINT( 3 ) UNSIGNED NOT NULL ,
+		`type` TINYINT( 3 ) UNSIGNED NOT NULL ,
+		`term` CHAR( 255 ) NOT NULL ,
+		`url` CHAR( 255 ) NOT NULL, 
+		KEY `oid` ( `oid` ),
+		KEY `otype` ( `otype` ),
+		KEY `type`  ( `type` ),
+		KEY `term`  ( `term` )
+		) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1153() {
+	$r = q("ALTER TABLE `hook` ADD `priority` INT(11) UNSIGNED NOT NULL DEFAULT '0'");
+	
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1154() {
+	$r = q("ALTER TABLE `event` ADD `ignore` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `adjust` , ADD INDEX ( `ignore` )");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1155() {
+	$r1 = q("ALTER TABLE `item_id` DROP PRIMARY KEY");
+	$r2 = q("ALTER TABLE `item_id` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST");
+	$r3 = q("ALTER TABLE `item_id` ADD INDEX ( `iid` ) ");
+
+	if($r1 && $r2 && $r3)
+		return UPDATE_SUCCESS;
+
+	return UPDATE_FAILED;
+}
+
+function update_1156() {
+	$r = q("ALTER TABLE `photo` ADD `datasize` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `width` ,
+ADD INDEX ( `datasize` ) ");
+
+	if(!$r) return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1157() {
+	$r = q("CREATE TABLE  IF NOT EXISTS `dsprphotoq` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `uid` int(11) NOT NULL,
+	  `msg` mediumtext NOT NULL,
+	  `attempt` tinyint(4) NOT NULL,
+	  PRIMARY KEY (`id`)
+	  ) ENGINE=MyISAM DEFAULT CHARSET=utf8"
+	);
+
+	if($r)
+		return UPDATE_SUCCESS;
+}
+
+function update_1158() {
+	set_config('system', 'maintenance', 1);
+
+	// Wait for 15 seconds for current requests to
+	// clear before locking up the database
+	sleep(15);
+
+	$r = q("CREATE INDEX event_id ON item(`event-id`)");
+	set_config('system', 'maintenance', 0);
+
+	if($r)
+		return UPDATE_SUCCESS;
+
+	return UPDATE_FAILED;
+}
+
+function update_1159() {
+	$r = q("ALTER TABLE `term` ADD `aid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD `uid` int(10) unsigned NOT NULL DEFAULT '0',
+		ADD INDEX (`uid`),
+		ADD INDEX (`aid`)");
+
+	if(!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1160() {
+	set_config('system', 'maintenance', 1);
+
+	// Wait for 15 seconds for current requests to
+	// clear before locking up the database
+	sleep(15);
+
+	$r = q("ALTER TABLE `item` ADD `mention` TINYINT(1) NOT NULL DEFAULT '0', ADD INDEX (`mention`)");
+	set_config('system', 'maintenance', 0);
+
+	if(!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1161() {
+	$r = q("ALTER TABLE `pconfig` ADD INDEX (`cat`)");
+
+	if(!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1162() {
+	require_once('include/tags.php');
+	update_items();
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1163() {
+	set_config('system', 'maintenance', 1);
+
+	$r = q("ALTER TABLE `item` ADD `network` char(32) NOT NULL,
+		ADD INDEX (`network`)");
+
+	set_config('system', 'maintenance', 0);
+
+	if(!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+function update_1164() {
+	set_config('system', 'maintenance', 1);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DFRN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DFRN, NETWORK_DFRN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_ZOT, NETWORK_ZOT);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_OSTATUS, NETWORK_OSTATUS);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_FEED, NETWORK_FEED);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_DIASPORA, NETWORK_DIASPORA);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MAIL, NETWORK_MAIL);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MAIL2, NETWORK_MAIL2);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_FACEBOOK, NETWORK_FACEBOOK);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_LINKEDIN, NETWORK_LINKEDIN);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_XMPP, NETWORK_XMPP);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_MYSPACE, NETWORK_MYSPACE);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_GPLUS, NETWORK_GPLUS);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_PUMPIO, NETWORK_PUMPIO);
+
+	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
+		NETWORK_TWITTER, NETWORK_TWITTER);
+
+	set_config('system', 'maintenance', 0);
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1165() {
+	$r = q("CREATE TABLE IF NOT EXISTS `push_subscriber` (
+			`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		    `uid` INT NOT NULL,
+	        `callback_url` CHAR( 255 ) NOT NULL,
+            `topic` CHAR( 255 ) NOT NULL,
+            `nickname` CHAR( 255 ) NOT NULL,
+            `push` INT NOT NULL,
+            `last_update` DATETIME NOT NULL,
+            `secret` CHAR( 255 ) NOT NULL
+		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1166() {
+	$r = q("CREATE TABLE IF NOT EXISTS `unique_contacts` (
+			`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`url` CHAR(255) NOT NULL,
+			`nick` CHAR(255) NOT NULL,
+			`name` CHAR(255) NOT NULL,
+			`avatar` CHAR(255) NOT NULL,
+			INDEX (`url`)
+		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1167() {
+	$r = q("ALTER TABLE `contact` ADD `notify_new_posts` TINYINT(1) NOT NULL DEFAULT '0'");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1168() {
+	$r = q("ALTER TABLE `contact` ADD `fetch_further_information` TINYINT(1) NOT NULL DEFAULT '0'");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
 }

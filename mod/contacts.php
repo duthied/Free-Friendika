@@ -1,12 +1,15 @@
 <?php
 
 require_once('include/Contact.php');
+require_once('include/socgraph.php');
+require_once('include/contact_selectors.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
 		return;
 
 	$contact_id = 0;
+
 	if(($a->argc == 2) && intval($a->argv[1])) {
 		$contact_id = intval($a->argv[1]);
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
@@ -19,45 +22,105 @@ function contacts_init(&$a) {
 	}
 
 	require_once('include/group.php');
+	require_once('include/contact_widgets.php');
+
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
-	$a->page['aside'] .= group_side('contacts','group',false,0,$contact_id);
 
-	if(get_config('system','invitation_only')) {
-		$x = get_pconfig(local_user(),'system','invites_remaining');
-		if($x || is_site_admin()) {
-			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
-			. sprintf( tt('%d invitation available','%d invitations available',$x), $x) 
-			. '</div>' . $inv;
-		}
+	if($contact_id) {
+			$a->data['contact'] = $r[0];
+			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
+				'$name' => $a->data['contact']['name'],
+				'$photo' => $a->data['contact']['photo']
+			));
+			$follow_widget = '';
+	}
+	else {
+		$vcard_widget = '';
+		$follow_widget = follow_widget();
 	}
 
-	$tpl = get_markup_template('follow.tpl');
-	
-	$findSimilarLink = '<div class="side-link" id="side-match-link"><a href="match" >' 
-		. t('Similar Interests') . '</a></div>';
-	
-	$inv = '';
-	if($a->config['register_policy'] != REGISTER_CLOSED) {
-		$inv = '<div class="side-link" id="side-invite-link" ><a href="invite" >' . t("Invite Friends") . '</a></div>';
-	}
-		
-	$a->page['aside'] .= replace_macros($tpl,array(
-		'$label' => t('Connect/Follow'),
-		'$hint' => t('Example: bob@example.com, http://example.com/barbara'),
-		'$follow' => t('Follow'),
-		'$findSimilar' => $findSimilarLink,
-		'$inviteFriends' => $inv
+	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
+	$findpeople_widget .= findpeople_widget();
+	$networks_widget .= networks_widget('contacts',$_GET['nets']);
+	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
+		'$vcard_widget' => $vcard_widget,
+		'$follow_widget' => $follow_widget,
+		'$groups_widget' => $groups_widget,
+		'$findpeople_widget' => $findpeople_widget,
+		'$networks_widget' => $networks_widget
 	));
 
-	
+	$base = $a->get_baseurl();
+	$tpl = get_markup_template("contacts-head.tpl");
+	$a->page['htmlhead'] .= replace_macros($tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
+
+	$tpl = get_markup_template("contacts-end.tpl");
+	$a->page['end'] .= replace_macros($tpl,array(
+		'$baseurl' => $a->get_baseurl(true),
+		'$base' => $base
+	));
+
 
 }
 
-function contacts_post(&$a) {
+function contacts_batch_actions(&$a){
+	$contacts_id = $_POST['contact_batch'];
+	if (!is_array($contacts_id)) return;
 	
+	$orig_records = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND `uid` = %d AND `self` = 0",
+		implode(",", $contacts_id),
+		intval(local_user())
+	);
+	
+	$count_actions=0;
+	foreach($orig_records as $orig_record) {
+		$contact_id = $orig_record['id'];
+		if (x($_POST, 'contacts_batch_update')) {
+			_contact_update($contact_id);
+			$count_actions++;
+		}
+		if (x($_POST, 'contacts_batch_block')) {
+			$r  = _contact_block($contact_id, $orig_record);
+			if ($r) $count_actions++;
+		}
+		if (x($_POST, 'contacts_batch_ignore')) {
+			$r = _contact_ignore($contact_id, $orig_record);
+			if ($r) $count_actions++;
+		}
+		if (x($_POST, 'contacts_batch_archive')) {
+			$r = _contact_archive($contact_id, $orig_record);
+			if ($r) $count_actions++;
+		}
+		if (x($_POST, 'contacts_batch_drop')) {
+			_contact_drop($contact_id, $orig_record);
+			$count_actions++;
+		}
+	}
+	if ($count_actions>0) {
+		info ( sprintf( tt("%d contact edited.", "%d contacts edited", $count_actions), $count_actions) );
+	}
+	
+	if(x($_SESSION,'return_url'))
+		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+	else
+		goaway($a->get_baseurl(true) . '/contacts');
+
+}
+
+
+function contacts_post(&$a) {
+
 	if(! local_user())
 		return;
+
+	if ($a->argv[1]==="batch") {
+		contacts_batch_actions($a);
+		return;
+	}
 
 	$contact_id = intval($a->argv[1]);
 	if(! $contact_id)
@@ -70,7 +133,7 @@ function contacts_post(&$a) {
 
 	if(! count($orig_record)) {
 		notice( t('Could not access contact record.') . EOL);
-		goaway($a->get_baseurl() . '/contacts');
+		goaway($a->get_baseurl(true) . '/contacts');
 		return; // NOTREACHED
 	}
 
@@ -88,18 +151,26 @@ function contacts_post(&$a) {
 		}
 	}
 
+	$hidden = intval($_POST['hidden']);
+
+	$notify = intval($_POST['notify']);
+
+	$fetch_further_information = intval($_POST['fetch_further_information']);
 
 	$priority = intval($_POST['poll']);
 	if($priority > 5 || $priority < 0)
 		$priority = 0;
 
-	$info = escape_tags(trim($_POST['info']));
+	$info = fix_mce_lf(escape_tags(trim($_POST['info'])));
 
-	$r = q("UPDATE `contact` SET `profile-id` = %d, `priority` = %d , `info` = '%s'
-		WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	$r = q("UPDATE `contact` SET `profile-id` = %d, `priority` = %d , `info` = '%s',
+		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($profile_id),
 		intval($priority),
 		dbesc($info),
+		intval($hidden),
+		intval($notify),
+		intval($fetch_further_information),
 		intval($contact_id),
 		intval(local_user())
 	);
@@ -107,10 +178,61 @@ function contacts_post(&$a) {
 		info( t('Contact updated.') . EOL);
 	else
 		notice( t('Failed to update contact record.') . EOL);
+
+	$r = q("select * from contact where id = %d and uid = %d limit 1",
+		intval($contact_id),
+		intval(local_user())
+	);
+	if($r && count($r))
+		$a->data['contact'] = $r[0];
+
 	return;
 
 }
 
+/*contact actions*/
+function _contact_update($contact_id) {
+	// pull feed and consume it, which should subscribe to the hub.
+	proc_run('php',"include/poller.php","$contact_id"); 
+}
+function _contact_block($contact_id, $orig_record) {
+	$blocked = (($orig_record['blocked']) ? 0 : 1);
+	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		intval($blocked),
+		intval($contact_id),
+		intval(local_user())
+	);
+	return $r;
+
+}
+function _contact_ignore($contact_id, $orig_record) {
+	$readonly = (($orig_record['readonly']) ? 0 : 1);
+	$r = q("UPDATE `contact` SET `readonly` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		intval($readonly),
+		intval($contact_id),
+		intval(local_user())
+	);
+	return $r;
+}
+function _contact_archive($contact_id, $orig_record) {
+	$archived = (($orig_record['archive']) ? 0 : 1);
+	$r = q("UPDATE `contact` SET `archive` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		intval($archived),
+		intval($contact_id),
+		intval(local_user())
+	);
+	if ($archived) {
+		q("UPDATE `item` SET `private` = 2 WHERE `contact-id` = %d AND `uid` = %d", intval($contact_id), intval(local_user()));
+	}
+	return $r;
+}
+function _contact_drop($contact_id, $orig_record) {
+	require_once('include/Contact.php');
+	$a = get_app();
+
+	terminate_friendship($a->user,$a->contact,$orig_record);
+	contact_remove($orig_record['id']);
+}
 
 
 function contacts_content(&$a) {
@@ -119,7 +241,6 @@ function contacts_content(&$a) {
 	$o = '';
 	nav_set_selected('contacts');
 
-	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
@@ -141,195 +262,251 @@ function contacts_content(&$a) {
 
 		if(! count($orig_record)) {
 			notice( t('Could not access contact record.') . EOL);
-			goaway($a->get_baseurl() . '/contacts');
+			goaway($a->get_baseurl(true) . '/contacts');
 			return; // NOTREACHED
 		}
-
+		
 		if($cmd === 'update') {
-
-			// pull feed and consume it, which should subscribe to the hub.
-			proc_run('php',"include/poller.php","$contact_id");
-			goaway($a->get_baseurl() . '/contacts/' . $contact_id);
+			_contact_update($contact_id);
+			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
 			// NOTREACHED
 		}
 
 		if($cmd === 'block') {
-			$blocked = (($orig_record[0]['blocked']) ? 0 : 1);
-			$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($blocked),
-				intval($contact_id),
-				intval(local_user())
-			);
+			$r = _contact_block($contact_id, $orig_record[0]);
 			if($r) {
-				//notice( t('Contact has been ') . (($blocked) ? t('blocked') : t('unblocked')) . EOL );
 				info( (($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')) . EOL );
 			}
-			goaway($a->get_baseurl() . '/contacts/' . $contact_id);
+			
+			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
 		if($cmd === 'ignore') {
-			$readonly = (($orig_record[0]['readonly']) ? 0 : 1);
-			$r = q("UPDATE `contact` SET `readonly` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($readonly),
-				intval($contact_id),
-				intval(local_user())
-			);
+			$r = _contact_ignore($contact_id, $orig_record[0]);
 			if($r) {
 				info( (($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')) . EOL );
 			}
-			goaway($a->get_baseurl() . '/contacts/' . $contact_id);
+			
+			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			return; // NOTREACHED
+		}
+
+
+		if($cmd === 'archive') {
+			$r = _contact_archive($contact_id, $orig_record[0]);
+			if($r) {
+				info( (($archived) ? t('Contact has been archived') : t('Contact has been unarchived')) . EOL );
+			}			
+			
+			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
 		if($cmd === 'drop') {
 
-			// create an unfollow slap
-
-			if($orig_record[0]['network'] === NETWORK_OSTATUS) {
-				$tpl = get_markup_template('follow_slap.tpl');
-				$slap = replace_macros($tpl, array(
-					'$name' => $a->user['username'],
-					'$profile_page' => $a->get_baseurl() . '/profile/' . $a->user['nickname'],
-					'$photo' => $a->contact['photo'],
-					'$thumb' => $a->contact['thumb'],
-					'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-					'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . random_string(),
-					'$title' => '',
-					'$type' => 'text',
-					'$content' => t('stopped following'),
-					'$nick' => $a->user['nickname'],
-					'$verb' => 'http://ostatus.org/schema/1.0/unfollow', // ACTIVITY_UNFOLLOW,
-					'$ostat_follow' => '' // '<as:verb>http://ostatus.org/schema/1.0/unfollow</as:verb>' . "\r\n"
-				));
-
-				if((x($orig_record[0],'notify')) && (strlen($orig_record[0]['notify']))) {
-					require_once('include/salmon.php');
-					slapper($a->user,$orig_record[0]['notify'],$slap);
+			// Check if we should do HTML-based delete confirmation
+			if($_REQUEST['confirm']) {
+				// <form> can't take arguments in its "action" parameter
+				// so add any arguments as hidden inputs
+				$query = explode_querystring($a->query_string);
+				$inputs = array();
+				foreach($query['args'] as $arg) {
+					if(strpos($arg, 'confirm=') === false) {
+						$arg_parts = explode('=', $arg);
+						$inputs[] = array('name' => $arg_parts[0], 'value' => $arg_parts[1]);
+					}
 				}
+
+				$a->page['aside'] = '';
+				return replace_macros(get_markup_template('confirm.tpl'), array(
+					'$method' => 'get',
+					'$message' => t('Do you really want to delete this contact?'),
+					'$extra_inputs' => $inputs,
+					'$confirm' => t('Yes'),
+					'$confirm_url' => $query['base'],
+					'$confirm_name' => 'confirmed',
+					'$cancel' => t('Cancel'),
+				));
 			}
-			elseif($orig_record[0]['network'] === NETWORK_DIASPORA) {
-				require_once('include/diaspora.php');
-				diaspora_unshare($a->user,$orig_record[0]);
-			}
-			elseif($orig_record[0]['network'] === NETWORK_DFRN) {
-				require_once('include/items.php');
-				dfrn_deliver($a->user,$orig_record[0],'placeholder', 1);
+			// Now check how the user responded to the confirmation query
+			if($_REQUEST['canceled']) {
+				if(x($_SESSION,'return_url'))
+					goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+				else
+					goaway($a->get_baseurl(true) . '/contacts');
 			}
 
-			contact_remove($orig_record[0]['id']);
+			_contact_drop($contact_id, $orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
-			goaway($a->get_baseurl() . '/contacts');
+			if(x($_SESSION,'return_url'))
+				goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+			else
+				goaway($a->get_baseurl(true) . '/contacts');
 			return; // NOTREACHED
 		}
 	}
 
-	if(($a->argc == 2) && intval($a->argv[1])) {
 
-		$contact_id = intval($a->argv[1]);
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
-			intval(local_user()),
-			intval($contact_id)
-		);
-		if(! count($r)) {
-			notice( t('Contact not found.') . EOL);
-			return;
-		}
 
-		$tpl = get_markup_template('contact_head.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, array('$baseurl' => $a->get_baseurl()));
+	$_SESSION['return_url'] = $a->query_string;
+
+	if((x($a->data,'contact')) && (is_array($a->data['contact']))) {
+
+		$contact_id = $a->data['contact']['id'];
+		$contact = $a->data['contact'];
+
+		$editselect = 'none';
+		if( feature_enabled(local_user(),'richtext') )
+			$editselect = 'exact';
+
+		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => $editselect,
+		));
+		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
+			'$baseurl' => $a->get_baseurl(true),
+			'$editselect' => $editselect,
+		));
 
 		require_once('include/contact_selectors.php');
 
 		$tpl = get_markup_template("contact_edit.tpl");
 
-		switch($r[0]['rel']) {
+		switch($contact['rel']) {
 			case CONTACT_IS_FRIEND:
 				$dir_icon = 'images/lrarrow.gif';
-				$alt_text = t('Mutual Friendship');
+				$relation_text = t('You are mutual friends with %s');
 				break;
 			case CONTACT_IS_FOLLOWER;
 				$dir_icon = 'images/larrow.gif';
-				$alt_text = t('is a fan of yours');
+				$relation_text = t('You are sharing with %s');
 				break;
 	
 			case CONTACT_IS_SHARING;
 				$dir_icon = 'images/rarrow.gif';
-				$alt_text = t('you are a fan of');
+				$relation_text = t('%s is sharing with you');
 				break;
 			default:
 				break;
 		}
 
-		if(($r[0]['network'] === 'dfrn') && ($r[0]['rel'])) {
-			$url = "redir/{$r[0]['id']}";
+		$relation_text = sprintf($relation_text,$contact['name']);
+
+		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
+			$url = "redir/{$contact['id']}";
 			$sparkle = ' class="sparkle" ';
 		}
 		else { 
-			$url = $r[0]['url'];
+			$url = $contact['url'];
 			$sparkle = '';
 		}
 
-		$insecure = '<div id="profile-edit-insecure"><p><img src="images/unlock_icon.gif" alt="' . t('Privacy Unavailable') . '" />&nbsp;'
-			. t('Private communications are not available for this contact.') . '</p></div>';
+		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($r[0]['last-update'] == '0000-00-00 00:00:00') 
+		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00') 
 				? t('Never') 
-				: datetime_convert('UTC',date_default_timezone_get(),$r[0]['last-update'],'D, j M Y, g:i A'));
+				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
-		if($r[0]['last-update'] !== '0000-00-00 00:00:00')
-			$last_update .= ' ' . (($r[0]['last-update'] == $r[0]['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
+		if($contact['last-update'] !== '0000-00-00 00:00:00')
+			$last_update .= ' ' . (($contact['last-update'] == $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
-		$lblsuggest = (($r[0]['network'] === NETWORK_DFRN) 
-			? '<div id="contact-suggest-wrapper"><a href="fsuggest/' . $r[0]['id'] . '" id="contact-suggest">' . t('Suggest friends') . '</a></div>' : '');
+		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
-		$poll_enabled = (($r[0]['network'] !== NETWORK_DIASPORA) ? true : false);
+		$poll_enabled = (($contact['network'] !== NETWORK_DIASPORA) ? true : false);
 
-		$nettype = '<div id="contact-edit-nettype">' . sprintf( t('Network type: %s'),network_to_name($r[0]['network'])) . '</div>';
+		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network']));
 
-		$o .= replace_macros($tpl,array(
+		$common = count_common_friends(local_user(),$contact['id']);
+		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
+
+		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : ''); 
+
+		$x = count_all_friends(local_user(), $contact['id']);
+		$all_friends = (($x) ? t('View all contacts') : '');
+
+		// tabs
+		$tabs = array(
+			array(
+				'label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
+				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
+				'sel'   => '',
+				'title' => t('Toggle Blocked status'),
+			),
+			array(
+				'label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
+				'sel'   => '',
+				'title' => t('Toggle Ignored status'),
+			),
+
+			array(
+				'label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
+				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
+				'sel'   => '',
+				'title' => t('Toggle Archive status'),
+			),
+			array(
+				'label' => t('Repair'),
+				'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
+				'sel'   => '',
+				'title' => t('Advanced Contact Settings'),
+			)
+		);
+		$tab_tpl = get_markup_template('common_tabs.tpl');
+		$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
+
+		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
+
+		$o .= replace_macros($tpl, array(
 			'$header' => t('Contact Editor'),
+			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
-			'$lbl_vis2' => sprintf( t('Please choose the profile you would like to display to %s when viewing your profile securely.'), $r[0]['name']),
+			'$lbl_vis2' => sprintf( t('Please choose the profile you would like to display to %s when viewing your profile securely.'), $contact['name']),
 			'$lbl_info1' => t('Contact Information / Notes'),
-			'$lbl_rep1' => t('Online Reputation'),
-			'$lbl_rep2' => t('Occasionally your friends may wish to inquire about this person\'s online legitimacy.'),
-			'$lbl_rep3' => t('You may help them choose whether or not to interact with this person by providing a <em>reputation</em> to guide them.'),
-			'$lbl_rep4' => t('Please take a moment to elaborate on this selection if you feel it could be helpful to others.'),
-			'$visit' => sprintf( t('Visit %s\'s profile [%s]'),$r[0]['name'],$r[0]['url']),
+			'$infedit' => t('Edit contact notes'),
+			'$common_text' => $common_text,
+			'$common_link' => $a->get_baseurl(true) . '/common/loc/' . local_user() . '/' . $contact['id'],
+			'$all_friends' => $all_friends,
+			'$relation_text' => $relation_text,
+			'$visit' => sprintf( t('Visit %s\'s profile [%s]'),$contact['name'],$contact['url']),
 			'$blockunblock' => t('Block/Unblock contact'),
 			'$ignorecont' => t('Ignore contact'),
-			'$altcrepair' => t('Repair contact URL settings'),
-			'$lblcrepair' => t("Repair contact URL settings \x28WARNING: Advanced\x29"),
+			'$lblcrepair' => t("Repair URL settings"),
 			'$lblrecent' => t('View conversations'),
 			'$lblsuggest' => $lblsuggest,
 			'$delete' => t('Delete contact'),
 			'$nettype' => $nettype,
-			'$poll_interval' => contact_poll_interval($r[0]['priority'],(! $poll_enabled)),
+			'$poll_interval' => contact_poll_interval($contact['priority'],(! $poll_enabled)),
 			'$poll_enabled' => $poll_enabled,
-			'$lastupdtext' => t('Last updated: '),
-			'$updpub' => t('Update public posts: '),
+			'$lastupdtext' => t('Last update:'),
+			'$lost_contact' => $lost_contact,
+			'$updpub' => t('Update public posts'),
 			'$last_update' => $last_update,
 			'$udnow' => t('Update now'),
-			'$profile_select' => contact_profile_assign($r[0]['profile-id'],(($r[0]['network'] !== 'dfrn') ? true : false)),
-			'$contact_id' => $r[0]['id'],
-			'$block_text' => (($r[0]['blocked']) ? t('Unblock this contact') : t('Block this contact') ),
-			'$ignore_text' => (($r[0]['readonly']) ? t('Unignore this contact') : t('Ignore this contact') ),
-			'$insecure' => (($r[0]['network'] !== NETWORK_DFRN && $r[0]['network'] !== NETWORK_MAIL && $r[0]['network'] !== NETWORK_FACEBOOK && $r[0]['network'] !== NETWORK_DIASPORA) ? $insecure : ''),
-			'$info' => $r[0]['info'],
-			'$blocked' => (($r[0]['blocked']) ? '<div id="block-message">' . t('Currently blocked') . '</div>' : ''),
-			'$ignored' => (($r[0]['readonly']) ? '<div id="ignore-message">' . t('Currently ignored') . '</div>' : ''),
-			'$photo' => $r[0]['photo'],
-			'$name' => $r[0]['name'],
+			'$profile_select' => contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false)),
+			'$contact_id' => $contact['id'],
+			'$block_text' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
+			'$ignore_text' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+			'$insecure' => (($contact['network'] !== NETWORK_DFRN && $contact['network'] !== NETWORK_MAIL && $contact['network'] !== NETWORK_FACEBOOK && $contact['network'] !== NETWORK_DIASPORA) ? $insecure : ''),
+			'$info' => $contact['info'],
+			'$blocked' => (($contact['blocked']) ? t('Currently blocked') : ''),
+			'$ignored' => (($contact['readonly']) ? t('Currently ignored') : ''),
+			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
+			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
+			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
+			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), ($contact['fetch_further_information'] == 1), t('Fetch further information for feeds')),
+			'$photo' => $contact['photo'],
+			'$name' => $contact['name'],
 			'$dir_icon' => $dir_icon,
 			'$alt_text' => $alt_text,
 			'$sparkle' => $sparkle,
-			'$url' => $url
+			'$url' => $url,
 
 		));
 
-		$arr = array('contact' => $r[0],'output' => $o);
+		$arr = array('contact' => $contact,'output' => $o);
 
 		call_hooks('contact_edit', $arr);
 
@@ -337,53 +514,126 @@ function contacts_content(&$a) {
 
 	}
 
+	$blocked = false;
+	$hidden = false;
+	$ignored = false;
+	$all = false;
 
-	if(($a->argc == 2) && ($a->argv[1] === 'all'))
+	if(($a->argc == 2) && ($a->argv[1] === 'all')) {
 		$sql_extra = '';
+		$all = true;
+	}
+	elseif(($a->argc == 2) && ($a->argv[1] === 'blocked')) {
+		$sql_extra = " AND `blocked` = 1 ";
+		$blocked = true;
+	}
+	elseif(($a->argc == 2) && ($a->argv[1] === 'hidden')) {
+		$sql_extra = " AND `hidden` = 1 ";
+		$hidden = true;
+	}
+	elseif(($a->argc == 2) && ($a->argv[1] === 'ignored')) {
+		$sql_extra = " AND `readonly` = 1 ";
+		$ignored = true;
+	}
+	elseif(($a->argc == 2) && ($a->argv[1] === 'archived')) {
+		$sql_extra = " AND `archive` = 1 ";
+		$archived = true;
+	}
 	else
 		$sql_extra = " AND `blocked` = 0 ";
 
 	$search = ((x($_GET,'search')) ? notags(trim($_GET['search'])) : '');
+	$nets = ((x($_GET,'nets')) ? notags(trim($_GET['nets'])) : '');
 
-	$tpl = get_markup_template("contacts-top.tpl");
-	$o .= replace_macros($tpl,array(
-		'$header' => t('Contacts'),
-		'$hide_url' => ((strlen($sql_extra)) ? 'contacts/all' : 'contacts' ),
-		'$hide_text' => ((strlen($sql_extra)) ? t('Show Blocked Connections') : t('Hide Blocked Connections')),
-		'$search' => $search,
-		'$finding' => (strlen($search) ? '<h4>' . t('Finding: ') . "'" . $search . "'" . '</h4>' : ""),
-		'$submit' => t('Find'),
-		'$cmd' => $a->cmd
+	$tabs = array(
+		array(
+			'label' => t('Suggestions'),
+			'url'   => $a->get_baseurl(true) . '/suggest', 
+			'sel'   => '',
+			'title' => t('Suggest potential friends'),
+		),
+		array(
+			'label' => t('All Contacts'),
+			'url'   => $a->get_baseurl(true) . '/contacts/all', 
+			'sel'   => ($all) ? 'active' : '',
+			'title' => t('Show all contacts'),
+		),
+		array(
+			'label' => t('Unblocked'),
+			'url'   => $a->get_baseurl(true) . '/contacts',
+			'sel'   => ((! $all) && (! $blocked) && (! $hidden) && (! $search) && (! $nets) && (! $ignored) && (! $archived)) ? 'active' : '',
+			'title' => t('Only show unblocked contacts'),
+		),
+
+		array(
+			'label' => t('Blocked'),
+			'url'   => $a->get_baseurl(true) . '/contacts/blocked',
+			'sel'   => ($blocked) ? 'active' : '',
+			'title' => t('Only show blocked contacts'),
+		),
+
+		array(
+			'label' => t('Ignored'),
+			'url'   => $a->get_baseurl(true) . '/contacts/ignored',
+			'sel'   => ($ignored) ? 'active' : '',
+			'title' => t('Only show ignored contacts'),
+		),
+
+		array(
+			'label' => t('Archived'),
+			'url'   => $a->get_baseurl(true) . '/contacts/archived',
+			'sel'   => ($archived) ? 'active' : '',
+			'title' => t('Only show archived contacts'),
+		),
+
+		array(
+			'label' => t('Hidden'),
+			'url'   => $a->get_baseurl(true) . '/contacts/hidden',
+			'sel'   => ($hidden) ? 'active' : '',
+			'title' => t('Only show hidden contacts'),
+		),
+
+	);
+
+	$tab_tpl = get_markup_template('common_tabs.tpl');
+	$t = replace_macros($tab_tpl, array('$tabs'=>$tabs));
 
 
-	)); 
 
-	if($search)
-		$search = dbesc($search.'*');
-	$sql_extra .= ((strlen($search)) ? " AND MATCH `name` AGAINST ('$search' IN BOOLEAN MODE) " : "");
+	$searching = false;
+	if($search) {
+		$search_hdr = $search;
+		$search_txt = dbesc(protect_sprintf(preg_quote($search)));
+		$searching = true;
+	}
+	$sql_extra .= (($searching) ? " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') " : "");
 
+	if($nets)
+		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+ 
 	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : ''); 
 
 	
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact` 
-		WHERE `uid` = %d AND `pending` = 0 $sql_extra $sql_extra2 ",
+		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if(count($r))
+	if(count($r)) {
 		$a->set_pager_total($r[0]['total']);
+		$total = $r[0]['total'];
+	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `pending` = 0 $sql_extra $sql_extra2 ORDER BY `name` ASC LIMIT %d , %d ",
+
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ORDER BY `name` ASC LIMIT %d , %d ",
 		intval($_SESSION['uid']),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
 
+	$contacts = array();
+
 	if(count($r)) {
 
-		$tpl = get_markup_template("contact_template.tpl");
-
 		foreach($r as $rr) {
-			if($rr['self'])
-				continue;
 
 			switch($rr['rel']) {
 				case CONTACT_IS_FRIEND:
@@ -411,24 +661,50 @@ function contacts_content(&$a) {
 			}
 
 
-			$o .= replace_macros($tpl, array(
-				'$img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
-				'$edit_hover' => t('Edit contact'),
-				'$contact_photo_menu' => contact_photo_menu($rr),
-				'$id' => $rr['id'],
-				'$alt_text' => $alt_text,
-				'$dir_icon' => $dir_icon,
-				'$thumb' => $rr['thumb'], 
-				'$name' => $rr['name'],
-				'$username' => $rr['name'],
-				'$sparkle' => $sparkle,
-				'$url' => $url
-			));
+			$contacts[] = array(
+				'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
+				'edit_hover' => t('Edit contact'),
+				'photo_menu' => contact_photo_menu($rr),
+				'id' => $rr['id'],
+				'alt_text' => $alt_text,
+				'dir_icon' => $dir_icon,
+				'thumb' => $rr['thumb'], 
+				'name' => $rr['name'],
+				'username' => $rr['name'],
+				'sparkle' => $sparkle,
+				'itemurl' => $rr['url'],
+				'url' => $url,
+				'network' => network_to_name($rr['network']),
+			);
 		}
 
-		$o .= '<div id="contact-edit-end"></div>';
+		
 
 	}
-	$o .= paginate($a);
+	
+	$tpl = get_markup_template("contacts-template.tpl");
+	$o .= replace_macros($tpl, array(
+		'$baseurl' => $a->get_baseurl(),
+		'$header' => t('Contacts') . (($nets) ? ' - ' . network_to_name($nets) : ''),
+		'$tabs' => $t,
+		'$total' => $total,
+		'$search' => $search_hdr,
+		'$desc' => t('Search your contacts'),
+		'$finding' => (($searching) ? t('Finding: ') . "'" . $search . "'" : ""),
+		'$submit' => t('Find'),
+		'$cmd' => $a->cmd,
+		'$contacts' => $contacts,
+		'$contact_drop_confirm' => t('Do you really want to delete this contact?'),
+		'$batch_actions' => array(
+			'contacts_batch_update' => t('Update'),
+			'contacts_batch_block' => t('Block')."/".t("Unblock"),
+			"contacts_batch_ignore" => t('Ignore')."/".t("Unignore"),
+			"contacts_batch_archive" => t('Archive')."/".t("Unarchive"),
+			"contacts_batch_drop" => t('Delete'),
+		),
+		'$paginate' => paginate($a),
+
+	)); 
+	
 	return $o;
 }

@@ -1,15 +1,16 @@
 <?php
 
+require_once('include/email.php');
 
 function lostpass_post(&$a) {
 
-	$email = notags(trim($_POST['login-name']));
-	if(! $email)
+	$loginame = notags(trim($_POST['login-name']));
+	if(! $loginame)
 		goaway(z_root());
 
 	$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' ) AND `verified` = 1 AND `blocked` = 0 LIMIT 1",
-		dbesc($email),
-		dbesc($email)
+		dbesc($loginame),
+		dbesc($loginame)
 	);
 
 	if(! count($r)) {
@@ -19,6 +20,7 @@ function lostpass_post(&$a) {
 
 	$uid = $r[0]['uid'];
 	$username = $r[0]['username'];
+	$email = $r[0]['email'];
 
 	$new_password = autoname(12) . mt_rand(100,9999);
 	$new_password_encoded = hash('whirlpool',$new_password);
@@ -39,9 +41,9 @@ function lostpass_post(&$a) {
 			'$reset_link' => $a->get_baseurl() . '/lostpass?verify=' . $new_password
 	));
 
-	$res = mail($email, sprintf( t('Password reset requested at %s'),$a->config['sitename']),
+	$res = mail($email, email_header_encode(sprintf( t('Password reset requested at %s'),$a->config['sitename']),'UTF-8'),
 			$email_tpl,
-			'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+			'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
 			. 'Content-transfer-encoding: 8bit' );
 
@@ -102,8 +104,10 @@ function lostpass_content(&$a) {
 			'$new_password' => $new_password,
 			'$uid' => $newuid ));
 
-			$res = mail($email,"Your password has changed at {$a->config['sitename']}",$email_tpl,
-				'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
+			$subject = sprintf( t('Your password has been changed at %s'), $a->config['sitename']);
+
+			$res = mail($email, email_header_encode( $subject, 'UTF-8'), $email_tpl,
+				'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 				. 'Content-type: text/plain; charset=UTF-8' . "\n"
 				. 'Content-transfer-encoding: 8bit' );
 

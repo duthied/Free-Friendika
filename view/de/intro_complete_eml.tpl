@@ -1,18 +1,22 @@
 
-Lieber $username,
+Hallo $[username],
 
-'$fn' von '$dfrn_url' hat deine Kontaktanfrage auf '$sitename' bestätigt.
+	'$[fn]' auf '$[dfrn_url]' akzeptierte 
+deine Verbindungsanfrage auf '$[sitename]'.
 
-'$fn' hat sich dazu entschlossen dich als "Fan" mit eingeschränkten
-Kommunikationsmöglichkeiten zu akzeptieren. Dies umfasst private Nachrichten
-und einige Profilaktivitäten. Sollte dies eine Prominenten oder
-Gemeinschaftsseite sein, wurden diese Einstellungen automatisch vorgenommen.
+	'$[fn]' hat entschieden dich als "Fan" zu akzeptieren, was zu einigen 
+Einschränkungen bei der Kommunikation führt - wie z.B. das Schreiben von privaten Nachrichten und einige Profil
+Interaktionen. Sollte dies ein Promi-Konto oder eine Forum-Seite sein, werden die Einstellungen
+automatisch angewandt.
 
-'$fn' kann sich in Zukunft dazu entschließen eure Beziehung in eine beidseitige
-Freundschaft oder freizügigere Beziehung zu erweitern.
+	'$[fn]' kann wählen, ob die Freundschaft in eine beidseitige oder alles erlaubende 
+Beziehung in der Zukunft erweitert wird. 
 
-Ab sofort wirst du Statusmitteilungen von '$fn' erhalten, die auf deiner
-'Netzwerkseite' erscheinen werden.
+	Du empfängst ab sofort die öffentlichen Beiträge von '$[fn]', 
+auf deiner "Netzwerk" Seite.  
 
-Mit freundlichen Grüßen,
-        $sitename Administrator
+$[siteurl]
+
+Beste Grüße,
+
+	$[sitename] Administrator

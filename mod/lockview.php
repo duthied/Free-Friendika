@@ -24,21 +24,26 @@ function lockview_content(&$a) {
 	if(! count($r))
 		killme();
 	$item = $r[0];
-	if($item['uid'] != local_user())
+
+	call_hooks('lockview_content', $item);
+
+	if($item['uid'] != local_user()) {
+		echo t('Remote privacy information not available.') . '<br />';
 		killme();
+	}
 
 
-	$allowed_users = expand_acl($item['allow_cid']);
-	$allowed_groups = expand_acl($item['allow_gid']);
-	$deny_users = expand_acl($item['deny_cid']);
-	$deny_groups = expand_acl($item['deny_gid']);
-
-	if(($item['private']) && (! strlen($item['allow_cid'])) && (! strlen($item['allow_gid'])) 
+	if(($item['private'] == 1) && (! strlen($item['allow_cid'])) && (! strlen($item['allow_gid'])) 
 		&& (! strlen($item['deny_cid'])) && (! strlen($item['deny_gid']))) {
 
 		echo t('Remote privacy information not available.') . '<br />';
 		killme();
 	}
+
+	$allowed_users = expand_acl($item['allow_cid']);
+	$allowed_groups = expand_acl($item['allow_gid']);
+	$deny_users = expand_acl($item['deny_cid']);
+	$deny_groups = expand_acl($item['deny_gid']);
 
 	$o = t('Visible to:') . '<br />';
 	$l = array();

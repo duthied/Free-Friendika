@@ -6,7 +6,7 @@ require_once('include/event.php');
 
 
 function dfrn_notify_post(&$a) {
-
+    logger(__function__, LOGGER_TRACE);
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? notags(trim($_POST['dfrn_id']))   : '');
 	$dfrn_version = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version']    : 2.0);
 	$challenge    = ((x($_POST,'challenge'))    ? notags(trim($_POST['challenge'])) : '');
@@ -14,6 +14,11 @@ function dfrn_notify_post(&$a) {
 	$key          = ((x($_POST,'key'))          ? $_POST['key']                     : '');
 	$dissolve     = ((x($_POST,'dissolve'))     ? intval($_POST['dissolve'])        :  0);
 	$perm         = ((x($_POST,'perm'))         ? notags(trim($_POST['perm']))      : 'r');
+	$ssl_policy   = ((x($_POST,'ssl_policy'))   ? notags(trim($_POST['ssl_policy'])): 'none');
+	$page         = ((x($_POST,'page'))         ? intval($_POST['page'])            :  0);
+
+	$forum = (($page == 1) ? 1 : 0);
+	$prv   = (($page == 2) ? 1 : 0);
 
 	$writable = (-1);
 	if($dfrn_version >= 2.21) {
@@ -35,7 +40,7 @@ function dfrn_notify_post(&$a) {
 		xml_status(3);
 	}
 
-	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s' LIMIT 1",
+	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s'",
 		dbesc($dfrn_id),
 		dbesc($challenge)
 	);
@@ -57,22 +62,22 @@ function dfrn_notify_post(&$a) {
 			xml_status(3);
 			break; // NOTREACHED
 	}
-		 
+
 	// be careful - $importer will contain both the contact information for the contact
 	// sending us the post, and also the user information for the person receiving it.
 	// since they are mixed together, it is easy to get them confused.
 
-	$r = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`, 
-					`contact`.`pubkey` AS `cpubkey`, 
-					`contact`.`prvkey` AS `cprvkey`, 
-					`contact`.`thumb` AS `thumb`, 
+	$r = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`,
+					`contact`.`pubkey` AS `cpubkey`,
+					`contact`.`prvkey` AS `cprvkey`,
+					`contact`.`thumb` AS `thumb`,
 					`contact`.`url` as `url`,
 					`contact`.`name` as `senderName`,
-					`user`.* 
-			FROM `contact` 
-			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid` 
-			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
-				AND `user`.`nickname` = '%s' AND `user`.`account_expired` = 0 $sql_extra LIMIT 1",
+					`user`.*
+			FROM `contact`
+			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
+			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+				AND `user`.`nickname` = '%s' AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
 		dbesc($a->argv[1])
 	);
 
@@ -82,17 +87,26 @@ function dfrn_notify_post(&$a) {
 		//NOTREACHED
 	}
 
-	// $importer in this case contains the contact record for the remote contact joined with the user record of our user. 
+	// $importer in this case contains the contact record for the remote contact joined with the user record of our user.
 
 	$importer = $r[0];
 
-	if(($writable != (-1)) && ($writable != $importer['writable'])) {
-		q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d LIMIT 1",
-			intval($writable),
+	if((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
+		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d",
+			intval(($writable == (-1)) ? $importer['writable'] : $writable),
+			intval($forum),
+			intval($prv),
 			intval($importer['id'])
 		);
-		$importer['writable'] = $writable;
+		if($writable != (-1))
+			$importer['writable'] = $writable;
+		$importer['forum'] = $page;
 	}
+
+
+	// if contact's ssl policy changed, update our links
+
+	fix_contact_ssl_policy($importer,$ssl_policy);
 
 	logger('dfrn_notify: received notify from ' . $importer['name'] . ' for ' . $importer['username']);
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);
@@ -103,12 +117,19 @@ function dfrn_notify_post(&$a) {
 		 * Relationship is dissolved permanently
 		 */
 
-		require_once('include/Contact.php'); 
+		require_once('include/Contact.php');
 		contact_remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);
 		xml_status(0);
 
 	}
+
+
+	// If we are setup as a soapbox we aren't accepting input from this person
+
+	if($importer['page-flags'] == PAGE_SOAPBOX)
+		xml_status(0);
+
 
 	if(strlen($key)) {
 		$rawkey = hex2bin(trim($key));
@@ -197,9 +218,9 @@ function dfrn_notify_content(&$a) {
 				break; // NOTREACHED
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
-				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s' 
-				AND `user`.`account_expired` = 0 $sql_extra LIMIT 1",
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`page-flags` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
+				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s'
+				AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
 				dbesc($a->argv[1])
 		);
 
@@ -235,15 +256,22 @@ function dfrn_notify_content(&$a) {
 		if(! $rino_enable)
 			$rino = 0;
 
+		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
+			$perm = 'rw';
+		}
+		else {
+			$perm = 'r';
+		}
 
 		header("Content-type: text/xml");
 
-		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" 
+		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n"
 			. '<dfrn_notify>' . "\r\n"
 			. "\t" . '<status>' . $status . '</status>' . "\r\n"
 			. "\t" . '<dfrn_version>' . DFRN_PROTOCOL_VERSION . '</dfrn_version>' . "\r\n"
-			. "\t" . '<rino>' . $rino . '</rino>' . "\r\n" 
-			. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n" 
+			. "\t" . '<rino>' . $rino . '</rino>' . "\r\n"
+			. "\t" . '<perm>' . $perm . '</perm>' . "\r\n"
+			. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n"
 			. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 			. '</dfrn_notify>' . "\r\n" ;
 

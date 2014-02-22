@@ -1,8 +1,9 @@
 <?php
 
+
 /**
  *
- * Friendika
+ * Friendica
  *
  */
 
@@ -13,8 +14,10 @@
  */
 
 require_once('boot.php');
+require_once('object/BaseObject.php');
 
 $a = new App;
+BaseObject::set_app($a);
 
 /**
  *
@@ -27,9 +30,9 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
 
 @include(".htconfig.php");
 
-$lang = get_language();
-	
-load_translation_table($lang);
+
+
+
 
 /**
  *
@@ -37,12 +40,11 @@ load_translation_table($lang);
  *
  */
 
-require_once("dba.php");
-$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
-        unset($db_host, $db_user, $db_pass, $db_data);
+require_once("include/dba.php");
 
-
-if(! $install) {
+if(!$install) {
+	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
+    	    unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
@@ -51,31 +53,27 @@ if(! $install) {
 	load_config('config');
 	load_config('system');
 
-	require_once("session.php");
+	require_once("include/session.php");
 	load_hooks();
 	call_hooks('init_1');
+
+	$maintenance = get_config('system', 'maintenance');
 }
 
+$lang = get_browser_language();
+
+load_translation_table($lang);
 
 /**
  *
  * Important stuff we always need to do.
- * Initialise authentication and  date and time. 
- * Create the HTML head for the page, even if we may not use it (xml, etc.)
+ *
  * The order of these may be important so use caution if you think they're all
  * intertwingled with no logical order and decide to sort it out. Some of the
  * dependencies have changed, but at least at one time in the recent past - the 
  * order was critical to everything working properly
  *
  */
-
-require_once("datetime.php");
-
-$a->timezone = (($default_timezone) ? $default_timezone : 'UTC');
-
-date_default_timezone_set($a->timezone);
-
-$a->init_pagehead();
 
 session_start();
 
@@ -95,25 +93,36 @@ if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
 	load_translation_table($lang);
 }
 
+if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
+	$_SESSION['my_url'] = $_GET['zrl'];
+	$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
+	zrl_init($a);
+}
 
 /**
  *
  * For Mozilla auth manager - still needs sorting, and this might conflict with LRDD header.
  * Apache/PHP lumps the Link: headers into one - and other services might not be able to parse it
  * this way. There's a PHP flag to link the headers because by default this will over-write any other 
- * link header. 
+ * link header.
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
  *
+
  */
- 
+
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
 
 if((x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login'))
-	require("auth.php");
+	require("include/auth.php");
 
 if(! x($_SESSION,'authenticated'))
 	header('X-Account-Management-Status: none');
+
+/* set up page['htmlhead'] and page['end'] for the modules to use */
+$a->page['htmlhead'] = '';
+$a->page['end'] = '';
+
 
 if(! x($_SESSION,'sysmsg'))
 	$_SESSION['sysmsg'] = array();
@@ -127,18 +136,28 @@ if(! x($_SESSION,'sysmsg_info'))
  * any plugins have been added or removed and reacts accordingly. 
  */
 
-
 if($install)
 	$a->module = 'install';
-else
-	check_config($a);
+elseif($maintenance)
+	$a->module = 'maintenance';
+else {
+	check_url($a);
+	check_db();
+	check_plugins($a);
+}
 
+nav_set_selected('nothing');
 
-$arr = array('app_menu' => $a->apps);
+//Don't populate apps_menu if apps are private
+$privateapps = get_config('config','private_addons');
+if((local_user()) || (! $privateapps === "1"))
+{
+	$arr = array('app_menu' => $a->apps);
 
-call_hooks('app_menu', $arr);
+	call_hooks('app_menu', $arr);
 
-$a->apps = $arr['app_menu'];
+	$a->apps = $arr['app_menu'];
+}
 
 /**
  *
@@ -168,10 +187,22 @@ if(strlen($a->module)) {
 	 *
 	 */
 
+	// Compatibility with the Android Diaspora client
+	if ($a->module == "stream")
+		$a->module = "network";
+
+	$privateapps = get_config('config','private_addons');
+
 	if(is_array($a->plugins) && in_array($a->module,$a->plugins) && file_exists("addon/{$a->module}/{$a->module}.php")) {
-		include_once("addon/{$a->module}/{$a->module}.php");
-		if(function_exists($a->module . '_module'))
-			$a->module_loaded = true;
+		//Check if module is an app and if public access to apps is allowed or not
+		if((!local_user()) && plugin_is_app($a->module) && $privateapps === "1") {
+			info( t("You must be logged in to use addons. "));
+		}
+		else {
+			include_once("addon/{$a->module}/{$a->module}.php");
+			if(function_exists($a->module . '_module'))
+				$a->module_loaded = true;
+		}
 	}
 
 	/**
@@ -231,6 +262,8 @@ if (file_exists($theme_info_file)){
 if(! x($a->page,'content'))
 	$a->page['content'] = '';
 
+if(!$install && !$maintenance)
+	call_hooks('page_content_top',$a->page['content']);
 
 /**
  * Call module functions
@@ -238,29 +271,73 @@ if(! x($a->page,'content'))
 
 if($a->module_loaded) {
 	$a->page['page_title'] = $a->module;
+	$placeholder = '';
+
 	if(function_exists($a->module . '_init')) {
+		call_hooks($a->module . '_mod_init', $placeholder);
 		$func = $a->module . '_init';
 		$func($a);
 	}
 
+	if(function_exists(str_replace('-','_',current_theme()) . '_init')) {
+		$func = str_replace('-','_',current_theme()) . '_init';
+		$func($a);
+	}
+//	elseif (x($a->theme_info,"extends") && file_exists("view/theme/".$a->theme_info["extends"]."/theme.php")) {
+//		require_once("view/theme/".$a->theme_info["extends"]."/theme.php");
+//		if(function_exists(str_replace('-','_',$a->theme_info["extends"]) . '_init')) {
+//			$func = str_replace('-','_',$a->theme_info["extends"]) . '_init';
+//			$func($a);
+//		}
+//	}
+
 	if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! $a->error)
 		&& (function_exists($a->module . '_post'))
 		&& (! x($_POST,'auth-params'))) {
+		call_hooks($a->module . '_mod_post', $_POST);
 		$func = $a->module . '_post';
 		$func($a);
 	}
 
 	if((! $a->error) && (function_exists($a->module . '_afterpost'))) {
+		call_hooks($a->module . '_mod_afterpost',$placeholder);
 		$func = $a->module . '_afterpost';
 		$func($a);
 	}
 
 	if((! $a->error) && (function_exists($a->module . '_content'))) {
+		$arr = array('content' => $a->page['content']);
+		call_hooks($a->module . '_mod_content', $arr);
+		$a->page['content'] = $arr['content'];
 		$func = $a->module . '_content';
-		$a->page['content'] .= $func($a);
+		$arr = array('content' => $func($a));
+		call_hooks($a->module . '_mod_aftercontent', $arr);
+		$a->page['content'] .= $arr['content'];
 	}
 
+	if(function_exists(str_replace('-','_',current_theme()) . '_content_loaded')) {
+		$func = str_replace('-','_',current_theme()) . '_content_loaded';
+		$func($a);
+	}
 }
+
+/*
+ * Create the page head after setting the language
+ * and getting any auth credentials
+ *
+ * Moved init_pagehead() and init_page_end() to after
+ * all the module functions have executed so that all
+ * theme choices made by the modules can take effect
+ */
+
+$a->init_pagehead();
+
+/**
+ * Build the page ending -- this is stuff that goes right before
+ * the closing </body> tag
+ */
+
+$a->init_page_end();
 
 // If you're just visiting, let javascript take you home
 
@@ -318,28 +395,149 @@ $a->page['content'] .=  '<div id="pause"></div>';
  *
  */
 
-if($a->module != 'install') {
+if($a->module != 'install' && $a->module != 'maintenance') {
 	nav($a);
+}
+
+/**
+ * Add a "toggle mobile" link if we're using a mobile device
+ */
+
+if($a->is_mobile || $a->is_tablet) {
+	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+		$link = $a->get_baseurl() . '/toggle_mobile?address=' . curPageURL();
+	}
+	else {
+		$link = $a->get_baseurl() . '/toggle_mobile?off=1&address=' . curPageURL();
+	}
+	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
+	                     	'$toggle_link' => $link,
+	                     	'$toggle_text' => t('toggle mobile')
+    	                 ));
 }
 
 /**
  * Build the page - now that we have all the components
  */
 
-$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => current_theme_url()));
+if(!$a->theme['stylesheet'])
+	$stylesheet = current_theme_url();
+else
+	$stylesheet = $a->theme['stylesheet'];
+
+$a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
+//$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
+
+if (($_GET["mode"] == "raw") OR ($_GET["mode"] == "minimal")) {
+	$doc = new DOMDocument();
+
+	$target = new DOMDocument();
+	$target->loadXML("<root></root>");
+
+	$content = mb_convert_encoding($a->page["content"], 'HTML-ENTITIES', "UTF-8");
+
+	@$doc->loadHTML($content);
+
+	$xpath = new DomXPath($doc);
+
+	$list = $xpath->query("//*[contains(@id,'tread-wrapper-')]");  /* */
+
+	foreach ($list as $item) {
+
+		$item = $target->importNode($item, true);
+
+		// And then append it to the target
+		$target->documentElement->appendChild($item);
+	}
+}
+
+if ($_GET["mode"] == "raw") {
+
+	header("Content-type: text/html; charset=utf-8");
+
+	echo substr($target->saveHTML(), 6, -8);
+
+	session_write_close();
+	exit;
+
+} elseif (get_pconfig(local_user(),'system','infinite_scroll')
+          AND ($_GET["q"] == "network") AND ($_GET["mode"] != "minimal")) {
+	if (is_string($_GET["page"]))
+		$pageno = $_GET["page"];
+	else
+		$pageno = 1;
+
+	$reload_uri = "";
+
+	foreach ($_GET AS $param => $value)
+		if (($param != "page") AND ($param != "q"))
+			$reload_uri .= "&".$param."=".urlencode($value);
+
+	if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
+		$reload_uri .= "&offset=".urlencode($a->page_offset);
+
+
+$a->page['htmlhead'] .= <<< EOT
+<script type="text/javascript">
+
+$(document).ready(function() {
+    num = $pageno;
+});
+
+function loadcontent() {
+	//$("div.loader").show();
+
+	num+=1;
+
+	console.log('Loading page ' + num);
+
+	$.get('/network?mode=raw$reload_uri&page=' + num, function(data) {
+		$(data).insertBefore('#conversation-end');
+	});
+
+	//$("div.loader").fadeOut('normal');
+}
+
+var num = $pageno;
+
+$(window).scroll(function(e){
+
+	if ($(document).height() != $(window).height()) {
+		// First method that is expected to work - but has problems with Chrome
+		if ($(window).scrollTop() == $(document).height() - $(window).height())
+			loadcontent();
+	} else {
+		// This method works with Chrome - but seems to be much slower in Firefox
+		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height()))
+			loadcontent();
+	}
+});
+</script>
+
+EOT;
+
+}
 
 $page    = $a->page;
 $profile = $a->profile;
 
 header("Content-type: text/html; charset=utf-8");
 
-$template = 'view/' . $lang . '/' 
-	. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
 
-if(file_exists($template))
-	require_once($template);
-else
-	require_once(str_replace($lang . '/', '', $template));
+if ($_GET["mode"] == "minimal") {
+	//$page['content'] = substr($target->saveHTML(), 6, -8)."\n\n".
+	//			'<div id="conversation-end"></div>'."\n\n";
+
+	require "view/minimal.php";
+} else {
+	$template = 'view/theme/' . current_theme() . '/' 
+		. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
+
+	if(file_exists($template))
+		require_once($template);
+	else
+		require_once(str_replace('theme/' . current_theme() . '/', '', $template));
+}
 
 session_write_close();
 exit;

@@ -12,6 +12,9 @@ function format_event_html($ev) {
 
 	$o = '<div class="vevent">' . "\r\n";
 
+
+	$o .= '<p class="summary event-summary">' . bbcode($ev['summary']) .  '</p>' . "\r\n";
+
 	$o .= '<p class="description event-description">' . bbcode($ev['desc']) .  '</p>' . "\r\n";
 
 	$o .= '<p class="event-start">' . t('Starts:') . ' <abbr class="dtstart" title="'
@@ -42,7 +45,7 @@ function format_event_html($ev) {
 	return $o;
 }
 
-
+/*
 function parse_event($h) {
 
 	require_once('include/Scrape.php');
@@ -53,7 +56,12 @@ function parse_event($h) {
 
 	$ret = array();
 
-	$dom = HTML5_Parser::parse($h);
+
+	try {
+		$dom = HTML5_Parser::parse($h);
+	} catch (DOMException $e) {
+		logger('parse_event: parse error: ' . $e);
+	}
 
 	if(! $dom)
  		return $ret;
@@ -103,11 +111,14 @@ function parse_event($h) {
 
 	return $ret;
 }
-
+*/
 
 function format_event_bbcode($ev) {
 
 	$o = '';
+
+	if($ev['summary'])
+		$o .= '[event-summary]' . $ev['summary'] . '[/event-summary]';
 
 	if($ev['desc'])
 		$o .= '[event-description]' . $ev['desc'] . '[/event-description]';
@@ -143,6 +154,9 @@ function bbtoevent($s) {
 	$ev = array();
 
 	$match = '';
+	if(preg_match("/\[event\-summary\](.*?)\[\/event\-summary\]/is",$s,$match))
+		$ev['summary'] = $match[1];
+	$match = '';
 	if(preg_match("/\[event\-description\](.*?)\[\/event\-description\]/is",$s,$match))
 		$ev['desc'] = $match[1];
 	$match = '';
@@ -157,8 +171,7 @@ function bbtoevent($s) {
 	$match = '';
 	if(preg_match("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is",$s,$match))
 		$ev['adjust'] = $match[1];
-	$match = '';
-	$ev['nofinish'] = (($ev['start'] && (! $ev['finish'])) ? 1 : 0);
+	$ev['nofinish'] = (((x($ev, 'start') && $ev['start']) && (!x($ev, 'finish') || !$ev['finish'])) ? 1 : 0);
 	return $ev;
 
 }
@@ -240,6 +253,7 @@ function event_store($arr) {
 			`edited` = '%s',
 			`start` = '%s',
 			`finish` = '%s',
+			`summary` = '%s',
 			`desc` = '%s',
 			`location` = '%s',
 			`type` = '%s',
@@ -254,6 +268,7 @@ function event_store($arr) {
 			dbesc($arr['edited']),
 			dbesc($arr['start']),
 			dbesc($arr['finish']),
+			dbesc($arr['summary']),
 			dbesc($arr['desc']),
 			dbesc($arr['location']),
 			dbesc($arr['type']),
@@ -289,18 +304,22 @@ function event_store($arr) {
 				intval($arr['uid'])
 			);
 
-			return $r[0]['id'];
+			$item_id = $r[0]['id'];
 		}
 		else
-			return 0;
+			$item_id = 0;
+
+		call_hooks("event_updated", $arr['id']);
+
+		return $item_id;
 	}
 	else {
 
 		// New event. Store it. 
 
-		$r = q("INSERT INTO `event` ( `uid`,`cid`,`uri`,`created`,`edited`,`start`,`finish`,`desc`,`location`,`type`,
+		$r = q("INSERT INTO `event` ( `uid`,`cid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
 			`adjust`,`nofinish`,`allow_cid`,`allow_gid`,`deny_cid`,`deny_gid`)
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' ) ",
+			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' ) ",
 			intval($arr['uid']),
 			intval($arr['cid']),
 			dbesc($arr['uri']),
@@ -308,6 +327,7 @@ function event_store($arr) {
 			dbesc($arr['edited']),
 			dbesc($arr['start']),
 			dbesc($arr['finish']),
+			dbesc($arr['summary']),
 			dbesc($arr['desc']),
 			dbesc($arr['location']),
 			dbesc($arr['type']),
@@ -352,11 +372,11 @@ function event_store($arr) {
 		$item_arr['visible']       = 1;
 		$item_arr['verb']          = ACTIVITY_POST;
 		$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
-
+		$item_arr['origin']        = ((intval($arr['cid']) == 0) ? 1 : 0);
 		$item_arr['body']          = format_event_bbcode($event);
 
 
-		$item_arr['object'] = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($uri) . '</id>';
+		$item_arr['object'] = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($arr['uri']) . '</id>';
 		$item_arr['object'] .= '<content>' . xmlify(format_event_bbcode($event)) . '</content>';
 		$item_arr['object'] .= '</object>' . "\n";
 
@@ -377,6 +397,8 @@ function event_store($arr) {
 				intval($item_id)
 			);
 		}
+
+		call_hooks("event_created", $event['id']);
 
 		return $item_id;
 	}

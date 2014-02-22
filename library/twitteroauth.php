@@ -18,7 +18,7 @@ class TwitterOAuth {
   /* Contains the last API call. */
   public $url;
   /* Set up the API root URL. */
-  public $host = "https://api.twitter.com/1/";
+  public $host = "https://api.twitter.com/1.1/";
   /* Set timeout default. */
   public $timeout = 30;
   /* Set connect timeout. */
@@ -184,6 +184,8 @@ class TwitterOAuth {
     switch ($method) {
     case 'GET':
       return $this->http($request->to_url(), 'GET');
+    case 'UPLOAD':
+      return $this->http($request->get_normalized_http_url(), 'POST', $request->to_postdata(true));
     default:
       return $this->http($request->get_normalized_http_url(), $method, $request->to_postdata());
     }

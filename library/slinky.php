@@ -153,7 +153,7 @@ class Slinky {
 	public function set_service_from_url( $url = false ) {
 		if ( !$url )
 			$url = $this->url;
-		
+
 		$host = parse_url( $url, PHP_URL_HOST );
 		switch ( str_replace( 'www.', '', $host ) ) {
 			case 'bit.ly':
@@ -179,6 +179,11 @@ class Slinky {
 			case 'fon.gs':
 				if ( class_exists( 'Slinky_Fongs' ) ) {
 					$this->service = new Slinky_Fongs();
+					break;
+				}
+			case $this->get( 'yourls-url' ):
+				if ( class_exists( 'Slinky_YourLS' ) ) {
+					$this->service = new Slinky_YourLS();
 					break;
 				}
 			case 'micurl.com':
@@ -336,7 +341,7 @@ abstract class Slinky_Service {
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );			// Don't stress about SSL validity
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );			// Return the response, don't output it
 		curl_setopt( $ch, CURLOPT_TIMEOUT, SLINKY_TIMEOUT );	// Limit how long we'll wait for a response
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );			// Allow following of redirections
+		//curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );			// Allow following of redirections
 		$r  = curl_exec( $ch );
 		if ( curl_errno( $ch ) ) {
 			return false;
@@ -367,7 +372,7 @@ abstract class Slinky_Service {
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );			// Don't stress about SSL validity
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );			// Return the response, don't output it
 		curl_setopt( $ch, CURLOPT_TIMEOUT, SLINKY_TIMEOUT );	// Limit how long we'll wait for a response
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );			// Allow following of redirections
+		//curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );			// Allow following of redirections
 		$r  = curl_exec( $ch );
 		if ( curl_errno( $ch ) ) {
 			return false;
@@ -569,6 +574,31 @@ class Slinky_Fongs extends Slinky_Service {
 		$response = $this->url_get( 'http://fon.gs/create.php?url=' . urlencode( $url ) );
 		if ( 'OK:' == substr( $response, 0, 3 ) )
 			return str_replace( 'OK: ', '', $response );
+		else
+			return $url;
+	}
+}
+
+// yourls
+class Slinky_YourLS extends Slinky_Service {
+	function url_is_short( $url ) {
+	return stristr( $url, 'shit.li/' );
+    }
+    
+	function url_is_long( $url ) {
+	return !stristr( $url, 'shit.li/' );
+    }
+    
+	function make_short( $url ) {
+		echo $this->get( 'username' );
+		$use_ssl = $this->get( 'ssl' );
+		if ( $use_ssl )
+			$use_ssl  = 's';
+		else
+			$use_ssl = '';
+		$result = $this->url_get( 'http'. $use_ssl . '://' . $this->get( 'yourls-url' ) . '/yourls-api.php?username=' . $this->get( 'username' )  . '&password=' . $this->get( 'password' ) . '&action=shorturl&format=simple&url=' . urlencode( $url ) );
+		if ( 1 != $result && 2 != $result )
+			return $result;
 		else
 			return $url;
 	}

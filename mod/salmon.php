@@ -30,7 +30,7 @@ function salmon_post(&$a) {
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
 
-	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 LIMIT 1",
+	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		dbesc($nick)
 	);
 	if(! count($r))
@@ -170,14 +170,28 @@ function salmon_post(&$a) {
 	*
 	*/
 
-	$r = q("SELECT * FROM `contact` WHERE `network` = 'stat' AND ( `url` = '%s' OR `alias` = '%s') 
+	$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s' ) 
 		AND `uid` = %d LIMIT 1",
+		dbesc(NETWORK_OSTATUS),
 		dbesc($author_link),
 		dbesc($author_link),
 		intval($importer['uid'])
 	);
 	if(! count($r)) {
 		logger('mod-salmon: Author unknown to us.');
+		if(get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
+			require_once('include/follow.php');
+			$result = new_contact($importer['uid'],$author_link);
+			if($result['success']) {
+				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s' ) 
+					AND `uid` = %d LIMIT 1",
+					dbesc(NETWORK_OSTATUS),
+					dbesc($author_link),
+					dbesc($author_link),
+					intval($importer['uid'])
+				);
+			}
+		}
 	}	
 
 	// is this a follower? Or have we ignored the person?

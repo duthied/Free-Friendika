@@ -1,4 +1,5 @@
 <?php
+require_once('include/contact_selectors.php');
 
 function viewcontacts_init(&$a) {
 
@@ -22,16 +23,14 @@ function viewcontacts_content(&$a) {
 		return;
 	} 
 
-	$o .= '<h3>' . t('View Contacts') . '</h3>';
 
-
-	$r = q("SELECT COUNT(*) as `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0",
+	$r = q("SELECT COUNT(*) as `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ",
 		intval($a->profile['uid'])
 	);
 	if(count($r))
 		$a->set_pager_total($r[0]['total']);
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 ORDER BY `name` ASC LIMIT %d , %d ",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY `name` ASC LIMIT %d , %d ",
 		intval($a->profile['uid']),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
@@ -41,7 +40,7 @@ function viewcontacts_content(&$a) {
 		return $o;
 	}
 
-	$tpl = get_markup_template("viewcontact_template.tpl");
+	$contacts = array();
 
 	foreach($r as $rr) {
 		if($rr['self'])
@@ -55,20 +54,30 @@ function viewcontacts_content(&$a) {
 
 		if($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel']))
 			$url = 'redir/' . $rr['id'];
+		else
+			$url = zrl($url);
 
-		$o .= replace_macros($tpl, array(
-			'$id' => $rr['id'],
-			'$alt_text' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
-			'$thumb' => $rr['thumb'], 
-			'$name' => substr($rr['name'],0,20),
-			'$username' => $rr['name'],
-			'$url' => $url
-		));
+		$contacts[] = array(
+			'id' => $rr['id'],
+			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
+			'thumb' => $rr['thumb'], 
+			'name' => substr($rr['name'],0,20),
+			'username' => $rr['name'],
+			'url' => $url,
+			'sparkle' => '',
+			'itemurl' => $rr['url'],
+			'network' => network_to_name($rr['network']),
+		);
 	}
 
-	$o .= '<div id="view-contact-end"></div>';
 
-	$o .= paginate($a);
+	$tpl = get_markup_template("viewcontact_template.tpl");
+	$o .= replace_macros($tpl, array(
+		'$title' => t('View Contacts'),
+		'$contacts' => $contacts,
+		'$paginate' => paginate($a),
+	));
+
 
 	return $o;
 }

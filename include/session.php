@@ -6,12 +6,12 @@
 $session_exists = 0;
 $session_expire = 180000;
 
-if(! function_exists('ref_session_open')) { 
+if(! function_exists('ref_session_open')) {
 function ref_session_open ($s,$n) {
   return true;
 }}
 
-if(! function_exists('ref_session_read')) { 
+if(! function_exists('ref_session_read')) {
 function ref_session_read ($id) {
   global $session_exists;
   if(x($id))
@@ -23,20 +23,20 @@ function ref_session_read ($id) {
   return '';
 }}
 
-if(! function_exists('ref_session_write')) { 
+if(! function_exists('ref_session_write')) {
 function ref_session_write ($id,$data) {
   global $session_exists, $session_expire;
-  if(! $id || ! $data) { 
-    return false; 
+  if(! $id || ! $data) {
+    return false;
   }
 
   $expire = time() + $session_expire;
   $default_expire = time() + 300;
 
   if($session_exists)
-    $r = q("UPDATE `session` 
-            SET `data` = '%s', `expire` = '%s' 
-            WHERE `sid` = '%s' LIMIT 1", 
+    $r = q("UPDATE `session`
+            SET `data` = '%s', `expire` = '%s'
+            WHERE `sid` = '%s'",
             dbesc($data), dbesc($expire), dbesc($id));
   else
     $r = q("INSERT INTO `session`
@@ -46,18 +46,18 @@ function ref_session_write ($id,$data) {
   return true;
 }}
 
-if(! function_exists('ref_session_close')) { 
+if(! function_exists('ref_session_close')) {
 function ref_session_close() {
   return true;
 }}
 
-if(! function_exists('ref_session_destroy')) { 
+if(! function_exists('ref_session_destroy')) {
 function ref_session_destroy ($id) {
   q("DELETE FROM `session` WHERE `sid` = '%s'", dbesc($id));
   return true;
 }}
 
-if(! function_exists('ref_session_gc')) { 
+if(! function_exists('ref_session_gc')) {
 function ref_session_gc($expire) {
   q("DELETE FROM `session` WHERE `expire` < %d", dbesc(time()));
   q("OPTIMIZE TABLE `sess_data`");

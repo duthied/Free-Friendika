@@ -2,7 +2,7 @@
 
 require_once("boot.php");
 
-function expire_run($argv, $argc){
+function expire_run(&$argv, &$argc){
 	global $a, $db;
 
 	if(is_null($a)) {
@@ -11,7 +11,7 @@ function expire_run($argv, $argc){
   
 	if(is_null($db)) {
 	    @include(".htconfig.php");
-    	require_once("dba.php");
+    	require_once("include/dba.php");
 	    $db = new dba($db_host, $db_user, $db_pass, $db_data);
     	unset($db_host, $db_user, $db_pass, $db_data);
   	};
@@ -25,9 +25,17 @@ function expire_run($argv, $argc){
 	load_config('config');
 	load_config('system');
 
-
 	$a->set_baseurl(get_config('system','url'));
 
+
+	// physically remove anything that has been deleted for more than two months
+
+	$r = q("delete from item where deleted = 1 and changed < UTC_TIMESTAMP() - INTERVAL 60 DAY");
+
+	// make this optional as it could have a performance impact on large sites
+
+	if(intval(get_config('system','optimize_items')))
+		q("optimize table item");
 
 	logger('expire: start');
 	

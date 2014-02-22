@@ -158,6 +158,8 @@ class HTML5_TreeBuilder {
 
         if ($this->ignore_lf_token) $this->ignore_lf_token--;
         $this->ignored = false;
+
+        $token['name'] = str_replace(':', '-', $token['name']);
         // indenting is a little wonky, this can be changed later on
         switch ($mode) {
 
@@ -1429,7 +1431,7 @@ class HTML5_TreeBuilder {
                 case 'tbody': case 'td': case 'tfoot': case 'th': case 'thead': case 'tr':
                     // parse error
                 break;
-
+                
                 /* A start tag token not covered by the previous entries */
                 default:
                     /* Reconstruct the active formatting elements, if any. */
@@ -3037,11 +3039,21 @@ class HTML5_TreeBuilder {
         }
 
     private function insertElement($token, $append = true) {
-        $el = $this->dom->createElementNS(self::NS_HTML, $token['name']);
-
+	$el = $this->dom->createElementNS(self::NS_HTML, $token['name']);
+	if ($el == false) {
+		logger('insertElement(): ignoring invalid token='.$token['name']);
+		return false;
+	}
+		
         if (!empty($token['attr'])) {
             foreach($token['attr'] as $attr) {
-                if(!$el->hasAttribute($attr['name'])) {
+
+				// mike@macgirvin.com 2011-11-17, check attribute name for
+				// validity (ignoring extenders and combiners) as illegal chars in names
+				// causes everything to abort
+
+ 				$valid = preg_match('/^[a-zA-Z\_\:]([\-a-zA-Z0-9\_\:\.]+$)/',$attr['name'],$matches);
+                if($attr['name'] && (!$el->hasAttribute($attr['name'])) && ($valid)) {
                     $el->setAttribute($attr['name'], $attr['value']);
                 }
             }

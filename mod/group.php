@@ -21,6 +21,8 @@ function group_post(&$a) {
 	}
 
 	if(($a->argc == 2) && ($a->argv[1] === 'new')) {
+		check_form_security_token_redirectOnErr('/group/new', 'group_edit');
+		
 		$name = notags(trim($_POST['groupname']));
 		$r = group_add(local_user(),$name);
 		if($r) {
@@ -35,6 +37,8 @@ function group_post(&$a) {
 		return; // NOTREACHED
 	}
 	if(($a->argc == 2) && (intval($a->argv[1]))) {
+		check_form_security_token_redirectOnErr('/group', 'group_edit');
+		
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
@@ -62,13 +66,14 @@ function group_post(&$a) {
 }
 
 function group_content(&$a) {
-
+	$change = false;
+	
 	if(! local_user()) {
 		notice( t('Permission denied') . EOL);
 		return;
 	}
 
-	// Switch to text mod interface if we have more than 'n' contacts or group members
+	// Switch to text mode interface if we have more than 'n' contacts or group members
 
 	$switchtotext = get_pconfig(local_user(),'system','groupedit_image_limit');
 	if($switchtotext === false)
@@ -76,17 +81,27 @@ function group_content(&$a) {
 	if($switchtotext === false)
 		$switchtotext = 400;
 
+	$tpl = get_markup_template('group_edit.tpl');
+
+	$context = array(
+			'$submit' => t('Save Group'),
+	);
+
 	if(($a->argc == 2) && ($a->argv[1] === 'new')) {
-		$tpl = get_markup_template('group_new.tpl');
-		$o .= replace_macros($tpl,array(
-			'$desc' => t('Create a group of contacts/friends.'),
-			'$name' => t('Group Name: '),
-			'$submit' => t('Submit')
-		 ));
-		return $o;
+		
+		return replace_macros($tpl, $context + array(
+			'$title' => t('Create a group of contacts/friends.'),
+			'$gname' => array('groupname',t('Group Name: '), '', ''),
+			'$gid' => 'new',
+			'$form_security_token' => get_form_security_token("group_edit"),
+		));
+
+
 	}
 
 	if(($a->argc == 3) && ($a->argv[1] === 'drop')) {
+		check_form_security_token_redirectOnErr('/group', 'group_drop', 't');
+		
 		if(intval($a->argv[2])) {
 			$r = q("SELECT `name` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
@@ -104,6 +119,8 @@ function group_content(&$a) {
 	}
 
 	if(($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
+		check_form_security_token_ForbiddenOnErr('group_member_change', 't');
+		
 		$r = q("SELECT `id` FROM `contact` WHERE `id` = %d AND `uid` = %d and `self` = 0 and `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($a->argv[2]),
 			intval(local_user())
@@ -151,71 +168,68 @@ function group_content(&$a) {
 		$drop_tpl = get_markup_template('group_drop.tpl');
 		$drop_txt = replace_macros($drop_tpl, array(
 			'$id' => $group['id'],
-			'$delete' => t('Delete')
+			'$delete' => t('Delete'),
+			'$form_security_token' => get_form_security_token("group_drop"),
 		));
 
 		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
-		$tpl = get_markup_template('group_edit.tpl');
-		$o .= replace_macros($tpl, array(
-			'$gid' => $group['id'],
-			'$name' => $group['name'],
-			'$drop' => $drop_txt,
-			'$desc' => t('Click on a contact to add or remove.'),
+		
+		$context = $context + array(
 			'$title' => t('Group Editor'),
-			'$gname' => t('Group Name: '),
-			'$submit' => t('Submit')
-		));
+			'$gname' => array('groupname',t('Group Name: '),$group['name'], ''),
+			'$gid' => $group['id'],
+			'$drop' => $drop_txt,
+			'$form_security_token' => get_form_security_token('group_edit'),
+		);
 
 	}
 
 	if(! isset($group))
 		return;
 
-	$o .= '<div id="group-update-wrapper">';
-	if($change) 
-		$o = '';
-
-	$o .= '<h3>' . t('Members') . '</h3>';
-	$o .= '<div id="group-members">';
+	$groupeditor = array(
+		'label_members' => t('Members'),
+		'members' => array(),
+		'label_contacts' => t('All Contacts'),
+		'contacts' => array(),
+	);
+		
+	$sec_token = addslashes(get_form_security_token('group_member_change'));
 	$textmode = (($switchtotext && (count($members) > $switchtotext)) ? true : false);
 	foreach($members as $member) {
 		if($member['url']) {
-			$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . '); return true;';
-			$o .= micropro($member,true,'mpgroup', $textmode);
+			$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . ',\'' . $sec_token . '\'); return true;';
+			$groupeditor['members'][] = micropro($member,true,'mpgroup', $textmode);
 		}
 		else
 			group_rmv_member(local_user(),$group['name'],$member['id']);
 	}
 
-	$o .= '</div><div id="group-members-end"></div>';
-	$o .= '<hr id="group-separator" />';
-	
-	$o .= '<h3>' . t('All Contacts') . '</h3>';
-	$o .= '<div id="group-all-contacts">';
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 and `pending` = 0 and `self` = 0 ORDER BY `name` ASC",
+		intval(local_user())
+	);
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 and `pending` = 0 and `self` = 0 ORDER BY `name` ASC",
-			intval(local_user())
-		);
-
-		if(count($r)) {
-			$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
-			foreach($r as $member) {
-				if(! in_array($member['id'],$preselected)) {
-					$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . '); return true;';
-					$o .= micropro($member,true,'mpall', $textmode);
-				}
+	if(count($r)) {
+		$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
+		foreach($r as $member) {
+			if(! in_array($member['id'],$preselected)) {
+				$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . ',\'' . $sec_token . '\'); return true;';
+				$groupeditor['contacts'][] = micropro($member,true,'mpall', $textmode);
 			}
 		}
+	}
 
-		$o .= '</div><div id="group-all-contacts-end"></div>';
+	$context['$groupeditor'] = $groupeditor;
+	$context['$desc'] = t('Click on a contact to add or remove.');
 
 	if($change) {
-		echo $o;
+		$tpl = get_markup_template('groupeditor.tpl');
+		echo replace_macros($tpl, $context);
 		killme();
 	}
-	$o .= '</div>';
-	return $o;
+	
+	return replace_macros($tpl, $context);
 
 }
 

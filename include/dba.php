@@ -1,5 +1,7 @@
 <?php
 
+require_once('include/datetime.php');
+
 /**
  *
  * MySQL database class
@@ -16,19 +18,30 @@ class dba {
 
 	private $debug = 0;
 	private $db;
+	public  $mysqli = true;
 	public  $connected = false;
+	public  $error = false;
 
 	function __construct($server,$user,$pass,$db,$install = false) {
+		global $a;
+
+		$stamp1 = microtime(true);
 
 		$server = trim($server);
 		$user = trim($user);
 		$pass = trim($pass);
 		$db = trim($db);
 
+		if (!(strlen($server) && strlen($user))){
+			$this->connected = false;
+			$this->db = null;
+			return;
+		}
+
 		if($install) {
 			if(strlen($server) && ($server !== 'localhost') && ($server !== '127.0.0.1')) {
 				if(! dns_get_record($server, DNS_A + DNS_CNAME + DNS_PTR)) {
-					notice( sprintf( t('Cannot locate DNS info for database server \'%s\''), $server));
+					$this->error = sprintf( t('Cannot locate DNS info for database server \'%s\''), $server);
 					$this->connected = false;
 					$this->db = null;
 					return;
@@ -36,15 +49,26 @@ class dba {
 			}
 		}
 
-		$this->db = @new mysqli($server,$user,$pass,$db);
-		if(! mysqli_connect_errno()) {
-			$this->connected = true;
+		if(class_exists('mysqli')) {
+			$this->db = @new mysqli($server,$user,$pass,$db);
+			if(! mysqli_connect_errno()) {
+				$this->connected = true;
+			}
 		}
 		else {
+			$this->mysqli = false;
+			$this->db = mysql_connect($server,$user,$pass);
+			if($this->db && mysql_select_db($db,$this->db)) {
+				$this->connected = true;
+			}
+		}
+		if(! $this->connected) {
 			$this->db = null;
 			if(! $install)
 				system_unavailable();
 		}
+
+		$a->save_timestamp($stamp1, "network");
 	}
 
 	public function getdb() {
@@ -52,57 +76,104 @@ class dba {
 	}
 
 	public function q($sql) {
-		
+		global $a;
+
 		if((! $this->db) || (! $this->connected))
 			return false;
-		
-		$result = @$this->db->query($sql);
+
+		$this->error = '';
+
+		$stamp1 = microtime(true);
+
+		if($this->mysqli)
+			$result = @$this->db->query($sql);
+		else
+			$result = @mysql_query($sql,$this->db);
+
+		$stamp2 = microtime(true);
+		$duration = (float)($stamp2-$stamp1);
+
+		$a->save_timestamp($stamp1, "database");
+
+		if(x($a->config,'system') && x($a->config['system'],'db_log')) {
+			if (($duration > $a->config["system"]["db_loglimit"])) {
+				$duration = round($duration, 3);
+				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				@file_put_contents($a->config["system"]["db_log"], datetime_convert()."\t".$duration."\t".
+						basename($backtrace[1]["file"])."\t".
+						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
+						substr($sql, 0, 2000)."\n", FILE_APPEND);
+			}
+		}
+
+		if($this->mysqli) {
+			if($this->db->errno)
+				$this->error = $this->db->error;
+		}
+		elseif(mysql_errno($this->db))
+				$this->error = mysql_error($this->db);
+
+		if(strlen($this->error)) {
+			logger('dba: ' . $this->error);
+		}
 
 		if($this->debug) {
 
 			$mesg = '';
 
-			if($this->db->errno)
-				logger('dba: ' . $this->db->error);
-
 			if($result === false)
 				$mesg = 'false';
 			elseif($result === true)
 				$mesg = 'true';
-			else
-				$mesg = $result->num_rows . ' results' . EOL;
-        
-			$str =  'SQL = ' . printable($sql) . EOL . 'SQL returned ' . $mesg . EOL;
+			else {
+				if($this->mysqli)
+					$mesg = $result->num_rows . ' results' . EOL;
+    			else
+					$mesg = mysql_num_rows($result) . ' results' . EOL;
+			}
+
+			$str =  'SQL = ' . printable($sql) . EOL . 'SQL returned ' . $mesg
+				. (($this->error) ? ' error: ' . $this->error : '')
+				. EOL;
 
 			logger('dba: ' . $str );
 		}
-		else {
 
-			/**
-			 * If dbfail.out exists, we will write any failed calls directly to it,
-			 * regardless of any logging that may or may nor be in effect.
-			 * These usually indicate SQL syntax errors that need to be resolved.
-			 */
+		/**
+		 * If dbfail.out exists, we will write any failed calls directly to it,
+		 * regardless of any logging that may or may nor be in effect.
+		 * These usually indicate SQL syntax errors that need to be resolved.
+		 */
 
-			if($result === false) {
-				logger('dba: ' . printable($sql) . ' returned false.');
-				if(file_exists('dbfail.out'))
-					file_put_contents('dbfail.out', printable($sql) . ' returned false' . "\n", FILE_APPEND);
-			}
+		if($result === false) {
+			logger('dba: ' . printable($sql) . ' returned false.' . "\n" . $this->error);
+			if(file_exists('dbfail.out'))
+				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
 		}
 
 		if(($result === true) || ($result === false))
 			return $result;
 
 		$r = array();
-		if($result->num_rows) {
-			while($x = $result->fetch_array(MYSQL_ASSOC))
-				$r[] = $x;
-			$result->free_result();
+		if($this->mysqli) {
+			if($result->num_rows) {
+				while($x = $result->fetch_array(MYSQLI_ASSOC))
+					$r[] = $x;
+				$result->free_result();
+			}
 		}
-    
+		else {
+			if(mysql_num_rows($result)) {
+				while($x = mysql_fetch_array($result, MYSQL_ASSOC))
+					$r[] = $x;
+				mysql_free_result($result);
+			}
+		}
+
+		//$a->save_timestamp($stamp1, "database");
+
 		if($this->debug)
-			logger('dba: ' . printable(print_r($r, true)), LOGGER_DATA);
+			logger('dba: ' . printable(print_r($r, true)));
 		return($r);
 	}
 
@@ -111,12 +182,20 @@ class dba {
 	}
 
 	public function escape($str) {
-		if($this->db && $this->connected)
-			return @$this->db->real_escape_string($str);
+		if($this->db && $this->connected) {
+			if($this->mysqli)
+				return @$this->db->real_escape_string($str);
+			else
+				return @mysql_real_escape_string($str,$this->db);
+		}
 	}
 
 	function __destruct() {
-		@$this->db->close();
+		if ($this->db) 
+			if($this->mysqli)
+				$this->db->close();
+			else
+				mysql_close($this->db);
 	}
 }}
 
@@ -147,6 +226,7 @@ function dbesc($str) {
 }}
 
 
+
 // Function: q($sql,$args);
 // Description: execute SQL query with printf style args.
 // Example: $r = q("SELECT * FROM `%s` WHERE `uid` = %d",
@@ -160,8 +240,11 @@ function q($sql) {
 	unset($args[0]);
 
 	if($db && $db->connected) {
-		$ret = $db->q(vsprintf($sql,$args));
-		return $ret;
+		$stmt = @vsprintf($sql,$args); // Disabled warnings
+		//logger("dba: q: $stmt", LOGGER_ALL);
+		if($stmt === false)
+			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
+		return $db->q($stmt);
 	}
 
 	/**
@@ -170,7 +253,6 @@ function q($sql) {
 	 * session data after abnormal program termination 
 	 *
 	 */
-
 	logger('dba: no database: ' . print_r($args,true));
 	return false; 
 
@@ -212,6 +294,10 @@ function dbesc_array(&$arr) {
 	if(is_array($arr) && count($arr)) {
 		array_walk($arr,'dbesc_array_cb');
 	}
-}}		
+}}
 
+
+function dba_timer() {
+	return microtime(true);
+}
 

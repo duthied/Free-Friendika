@@ -1,14 +1,20 @@
-**Friendika Addon/Plugin development**
-
-This is an early specification and hook details may be subject to change.
+Friendica Addon/Plugin development
+==========================
 
 Please see the sample addon 'randplace' for a working example of using some of these features. The facebook addon provides an example of integrating both "addon" and "module" functionality. Addons work by intercepting event hooks - which must be registered. Modules work by intercepting specific page requests (by URL path). 
 
-You must register all addons/plugins with the system in the .htconfig.php file.
 
-     $a->config['system']['addon'] = 'plugin1name, plugin2name, another_name';
+Plugin names cannot contain spaces or other punctuation and are used as filenames and function names. You may supply a "friendly" name within the comment block. Each addon must contain both an install and an uninstall function based on the addon/plugin name. For instance "plugin1name_install()". These two functions take no arguments and are usually responsible for registering (and unregistering) event hooks that your plugin will require. The install and uninstall functions will also be called (i.e. re-installed) if the plugin changes after installation - therefore your uninstall should not destroy data and install should consider that data may already exist. Future extensions may provide for "setup" amd "remove". 
 
-Plugin names cannot contain spaces and are used as filenames. Each addon must contain both an install and an uninstall function based on the addon/plugin name. For instance "plugin1name_install()". These two functions take no arguments and are usually responsible for registering (and unregistering) event hooks that your plugin will require. The install and uninstall functions will also be called (i.e. re-installed) if the plugin changes after installation - therefore your uninstall should not destroy data and install should consider that data may already exist. Future extensions may provide for "setup" amd "remove". 
+Plugins should contain a comment block with the four following parameters: 
+
+	/*
+	* Name: My Great Plugin 
+ 	* Description: This is what my plugin does. It's really cool
+ 	* Version: 1.0
+ 	* Author: John Q. Public <john@myfriendicasite.com>
+	*/
+
 
 
 
@@ -16,9 +22,9 @@ Register your plugin hooks during installation.
 
     register_hook($hookname, $file, $function);
 
-$hookname is a string and corresponds to a known Friendika hook.
+$hookname is a string and corresponds to a known Friendica hook.
 
-$file is a pathname relative to the top-level Friendika directory. This *should* be 'addon/plugin_name/plugin_name.php' in most cases.
+$file is a pathname relative to the top-level Friendica directory. This *should* be 'addon/plugin_name/plugin_name.php' in most cases.
 
 $function is a string and is the name of the function which will be executed when the hook is called.
 
@@ -35,8 +41,8 @@ Your hook callback functions will be called with at least one and possibly two a
 If you wish to make changes to the calling data, you must declare them as
 reference variables (with '&') during function declaration.
 
-$a is the Friendika 'App' class - which contains a wealth of information
-about the current state of Friendika, such as which module has been called,
+$a is the Friendica 'App' class - which contains a wealth of information
+about the current state of Friendica, such as which module has been called,
 configuration info, the page contents at the point the hook was invoked, profile
 and user information, etc. It is recommeded you call this '$a' to match its usage
 elsewhere.
@@ -46,7 +52,8 @@ currently being processed, and generally contains information that is being imme
 processed or acted on that you can use, display, or alter. Remember to declare it with
 '&' if you wish to alter it.
 
-**Modules**
+Modules
+--------
 
 Plugins/addons may also act as "modules" and intercept all page requests for a given URL path. In order for a plugin to act as a module it needs to define a function "plugin_name_module()" which takes no arguments and need not do anything.
 
@@ -57,8 +64,29 @@ If this function exists, you will now receive all page requests for "http://my.w
 Your module functions will often contain the function plugin_name_content(&$a), which defines and returns the page body content. They may also contain plugin_name_post(&$a) which is called before the _content function and typically handles the results of POST forms. You may also have plugin_name_init(&$a) which is called very early on and often does module initialisation. 
 
 
+Templates
+----------
 
-**Current hooks:**
+If your plugin need some template, you can use Friendica template system. Friendica use [smarty3](http://www.smarty.net/) as template engine.
+
+Put your tpl files in *templates/* subfolder of your plugin.
+
+In your code, like in function plugin_name_content(), load template file and execute it passing needed values:
+
+    # load template file. first argument is the template name, 
+    # second is the plugin path relative to friendica top folder
+    $tpl = get_markup_template('mytemplate.tpl', 'addon/plugin_name/');
+
+    # apply template. first argument is the loaded template, 
+    # second an array of 'name'=>'values' to pass to template
+    $output = replace_macros($tpl,array(
+        'title' => 'My beautifull plugin',
+    ));
+
+See also wiki page [Quick Template Guide](https://github.com/friendica/friendica/wiki/Quick-Template-Guide)
+
+Current hooks:
+--------------
 
 **'authenticate'** - called when a user attempts to login.
     $b is an array
@@ -159,131 +187,194 @@ Your module functions will often contain the function plugin_name_content(&$a), 
 **'init_1'** - called just after DB has been opened and before session start
     $b is not used or passed
 
-
 **'page_end'** - called after HTML content functions have completed
     $b is (string) HTML of content div
 
+**'avatar_lookup'** - called when looking up the avatar
+    $b is (array)
+        'size' => the size of the avatar that will be looked up
+        'email' => email to look up the avatar for
+        'url' => the (string) generated URL of the avatar
 
-*** = subject to change
 
-Not yet documented (you may view these within the source code):
+A complete list of all hook callbacks with file locations (generated 14-Feb-2012): Please see the source for details of any hooks not documented above.
 
-**'atom_feed'** ***
 
-**'atom_feed_end'** ***
+boot.php:	call_hooks('login_hook',$o);
 
-**'parse_atom'** ***
+boot.php:	call_hooks('profile_sidebar_enter', $profile);
 
-**'atom_author'** ***
+boot.php:	call_hooks('profile_sidebar', $arr);
 
-**'atom_entry'** ***
+boot.php:	call_hooks("proc_run", $arr);
 
-A complete list of all hook callbacks with file locations (generated 22-Feb-2011): Please see the source for details of any hooks not documented above.
+include/contact_selectors.php:	call_hooks('network_to_name', $nets);
 
-boot.php:       call_hooks('contact_block_end', $arr);
+include/api.php:				call_hooks('logged_in', $a->user);
 
-boot.php:       call_hooks('profile_sidebar_enter', $profile);
+include/api.php:		call_hooks('logged_in', $a->user);
 
-boot.php:       call_hooks('profile_sidebar', $arr);
+include/queue.php:		call_hooks('queue_predeliver', $a, $r);
 
-boot.php:       call_hooks("proc_run", $args);
+include/queue.php:				call_hooks('queue_deliver', $a, $params);
 
-include/nav.php:        call_hooks('page_header', $a->page['nav']);
+include/text.php:	call_hooks('contact_block_end', $arr);
 
-include/auth.php:               call_hooks('authenticate', $addon_auth);
+include/text.php:	call_hooks('smilie', $s);
 
-include/auth.php:               call_hooks('logged_in', $a->user);
+include/text.php:	call_hooks('prepare_body_init', $item); 
 
-include/bbcode.php:     call_hooks('bbcode',$Text);
+include/text.php:	call_hooks('prepare_body', $prep_arr);
 
-include/acl_selectors.php:      call_hooks($a->module . '_pre_' . $selname, $arr);
+include/text.php:	call_hooks('prepare_body_final', $prep_arr);
 
-include/acl_selectors.php:      call_hooks($a->module . '_post_' . $selname, $o);
+include/nav.php:	call_hooks('page_header', $a->page['nav']);
 
-include/acl_selectors.php:      call_hooks($a->module . '_pre_' . $selname, $arr);
+include/auth.php:		call_hooks('authenticate', $addon_auth);
 
-include/acl_selectors.php:      call_hooks($a->module . '_post_' . $selname, $o);
+include/bbcode.php:	call_hooks('bbcode',$Text);
 
-include/items.php:      call_hooks('atom_feed', $atom);
+include/oauth.php:		call_hooks('logged_in', $a->user);		
 
-include/items.php:              call_hooks('atom_feed_end', $atom);
+include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-include/items.php:      call_hooks('atom_feed_end', $atom);
+include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 
-include/items.php:      call_hooks('parse_atom', $arr);
+include/acl_selectors.php:	call_hooks('contact_select_options', $x);
 
-include/items.php:      call_hooks('post_remote',$arr);
+include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-include/items.php:      call_hooks('atom_author', $o);
+include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 
-include/items.php:      call_hooks('atom_entry', $o);
+include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-include/html2bbcode.php:        call_hooks('html2bbcode', $text);
+include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 
-index.php:      call_hooks('init_1');
+include/notifier.php:		call_hooks('notifier_normal',$target_item);
+
+include/notifier.php:	call_hooks('notifier_end',$target_item);
+
+include/items.php:	call_hooks('atom_feed', $atom);
+
+include/items.php:		call_hooks('atom_feed_end', $atom);
+
+include/items.php:	call_hooks('atom_feed_end', $atom);
+
+include/items.php:	call_hooks('parse_atom', $arr);
+
+include/items.php:	call_hooks('post_remote',$arr);
+
+include/items.php:	call_hooks('atom_author', $o);
+
+include/items.php:	call_hooks('atom_entry', $o);
+
+include/bb2diaspora.php:	call_hooks('bb2diaspora',$Text);
+
+include/cronhooks.php:	call_hooks('cron', $d);
+
+include/security.php:		call_hooks('logged_in', $a->user);
+
+include/html2bbcode.php:	call_hooks('html2bbcode', $text);
+
+include/Contact.php:	call_hooks('remove_user',$r[0]);
+
+include/Contact.php:	call_hooks('contact_photo_menu', $args);
+
+include/conversation.php:	call_hooks('conversation_start',$cb);
+
+include/conversation.php:				call_hooks('render_location',$locate);
+
+include/conversation.php:				call_hooks('display_item', $arr);
+
+include/conversation.php:				call_hooks('render_location',$locate);
+
+include/conversation.php:				call_hooks('display_item', $arr);
+
+include/conversation.php:	call_hooks('item_photo_menu', $args);
+
+include/conversation.php:	call_hooks('jot_tool', $jotplugins);
+
+include/conversation.php:	call_hooks('jot_networks', $jotnets);
+
+include/plugin.php:if(! function_exists('call_hooks')) {
+
+include/plugin.php:function call_hooks($name, &$data = null) {
+
+index.php:	call_hooks('init_1');
 
 index.php:call_hooks('app_menu', $arr);
 
 index.php:call_hooks('page_end', $a->page['content']);
 
-mod/photos.php: call_hooks('photo_post_init', $_POST);
+mod/photos.php:	call_hooks('photo_post_init', $_POST);
 
-mod/photos.php: call_hooks('photo_post_file',$ret);
+mod/photos.php:	call_hooks('photo_post_file',$ret);
 
-mod/photos.php: call_hooks('photo_post_end',intval($item_id));
+mod/photos.php:		call_hooks('photo_post_end',$foo);
 
-mod/photos.php:         call_hooks('photo_upload_form',$ret);
+mod/photos.php:		call_hooks('photo_post_end',$foo);
 
-mod/parse_url.php:      call_hooks('parse_link', $arr);
+mod/photos.php:		call_hooks('photo_post_end',$foo);
 
-mod/home.php:   call_hooks("home_content",$o);
+mod/photos.php:	call_hooks('photo_post_end',intval($item_id));
 
-mod/contacts.php:       call_hooks('contact_edit_post', $_POST);
+mod/photos.php:		call_hooks('photo_upload_form',$ret);
 
-mod/contacts.php:               call_hooks('contact_edit', $arr);
+mod/friendica.php:	call_hooks('about_hook', $o); 	
 
-mod/settings.php:               call_hooks('plugin_settings_post', $_POST);
+mod/editpost.php:	call_hooks('jot_tool', $jotplugins);
 
-mod/settings.php:       call_hooks('settings_post', $_POST);
+mod/editpost.php:	call_hooks('jot_networks', $jotnets);
 
-mod/settings.php:               call_hooks('plugin_settings', $o);
+mod/parse_url.php:	call_hooks('parse_link', $arr);
 
-mod/settings.php:       call_hooks('settings_form',$o);
+mod/home.php:	call_hooks('home_init',$ret);
 
-mod/network.php:                call_hooks('jot_tool', $jotplugins);
+mod/home.php:	call_hooks("home_content",$o);
 
-mod/network.php:                call_hooks('jot_networks', $jotnets);
+mod/contacts.php:	call_hooks('contact_edit_post', $_POST);
 
-mod/network.php:                        call_hooks('display_item', $arr);
+mod/contacts.php:		call_hooks('contact_edit', $arr);
 
-mod/xrd.php:    call_hooks('personal_xrd', $arr);
+mod/settings.php:		call_hooks('plugin_settings_post', $_POST);
 
-mod/item.php:   call_hooks('post_local_start', $_POST);
+mod/settings.php:		call_hooks('connector_settings_post', $_POST);
 
-mod/item.php:   call_hooks('post_local',$datarray);
+mod/settings.php:	call_hooks('settings_post', $_POST);
 
-mod/item.php:   call_hooks('post_local_end', $datarray);
+mod/settings.php:		call_hooks('plugin_settings', $settings_addons);
 
-mod/profile.php:                        call_hooks('profile_advanced',$o);
+mod/settings.php:		call_hooks('connector_settings', $settings_connectors);
 
-mod/profile.php:                        call_hooks('jot_tool', $jotplugins); 
+mod/settings.php:	call_hooks('settings_form',$o);
 
-mod/profile.php:                        call_hooks('jot_networks', $jotnets);
+mod/register.php:	call_hooks('register_account', $newuid);
 
-mod/profile.php:                        call_hooks('display_item', $arr);
+mod/like.php:	call_hooks('post_local_end', $arr);
 
-mod/display.php:                        call_hooks('display_item', $arr);
+mod/xrd.php:	call_hooks('personal_xrd', $arr);
 
-mod/profiles.php:       call_hooks('profile_post', $_POST);
+mod/item.php:	call_hooks('post_local_start', $_REQUEST);
 
-mod/profiles.php:               call_hooks('profile_edit', $arr);
+mod/item.php:	call_hooks('post_local',$datarray);
 
-mod/cb.php:     call_hooks('cb_init');
+mod/item.php:	call_hooks('post_local_end', $datarray);
 
-mod/cb.php:     call_hooks('cb_post', $_POST);
+mod/profile.php:			call_hooks('profile_advanced',$o);
 
-mod/cb.php:     call_hooks('cb_afterpost');
+mod/profiles.php:	call_hooks('profile_post', $_POST);
 
-mod/cb.php:     call_hooks('cb_content', $o);
+mod/profiles.php:		call_hooks('profile_edit', $arr);
 
-mod/directory.php:                      call_hooks('directory_item', $arr);
+mod/tagger.php:	call_hooks('post_local_end', $arr);
+
+mod/cb.php:	call_hooks('cb_init');
+
+mod/cb.php:	call_hooks('cb_post', $_POST);
+
+mod/cb.php:	call_hooks('cb_afterpost');
+
+mod/cb.php:	call_hooks('cb_content', $o);
+
+mod/directory.php:			call_hooks('directory_item', $arr);
+

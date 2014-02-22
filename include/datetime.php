@@ -15,7 +15,6 @@ function timezone_cmp($a, $b) {
 }}
 
 // emit a timezone selector grouped (primarily) by continent
-
 if(! function_exists('select_timezone')) {
 function select_timezone($current = 'America/Los_Angeles') {
 
@@ -55,6 +54,23 @@ function select_timezone($current = 'America/Los_Angeles') {
 	return $o;
 }}
 
+// return a select using 'field_select_raw' template, with timezones 
+// groupped (primarily) by continent
+// arguments follow convetion as other field_* template array:
+// 'name', 'label', $value, 'help'
+if (!function_exists('field_timezone')){
+function field_timezone($name='timezone', $label='', $current = 'America/Los_Angeles', $help){
+	$options = select_timezone($current);
+	$options = str_replace('<select id="timezone_select" name="timezone">','', $options);
+	$options = str_replace('</select>','', $options);
+	
+	$tpl = get_markup_template('field_select_raw.tpl');
+	return replace_macros($tpl, array(
+		'$field' => array($name, $label, $current, $help, $options),
+	));
+	
+}}
+
 // General purpose date parse/convert function.
 // $from = source timezone
 // $to   = dest timezone
@@ -63,6 +79,16 @@ function select_timezone($current = 'America/Los_Angeles') {
 
 if(! function_exists('datetime_convert')) {
 function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d H:i:s") {
+
+	// Defaults to UTC if nothing is set, but throws an exception if set to empty string.
+	// Provide some sane defaults regardless.
+
+	if($from === '')
+		$from = 'UTC';
+	if($to === '')
+		$to = 'UTC';
+	if( ($s === '') || (! is_string($s)) )
+		$s = 'now';
 
 	// Slight hackish adjustment so that 'zero' datetime actually returns what is intended
 	// otherwise we end up with -0001-11-30 ...
@@ -74,10 +100,32 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 		return str_replace('1','0',$d->format($fmt));
 	}
 
-	$d = new DateTime($s, new DateTimeZone($from));
-	$d->setTimeZone(new DateTimeZone($to));
+	try {
+		$from_obj = new DateTimeZone($from);
+	}
+	catch(Exception $e) {
+		$from_obj = new DateTimeZone('UTC');
+	}
+
+	try {
+		$d = new DateTime($s, $from_obj);
+	}
+	catch(Exception $e) {
+		logger('datetime_convert: exception: ' . $e->getMessage());
+		$d = new DateTime('now', $from_obj);
+	}
+
+	try {
+		$to_obj = new DateTimeZone($to);
+	}
+	catch(Exception $e) {
+		$to_obj = new DateTimeZone('UTC');
+	}
+
+	$d->setTimeZone($to_obj);
 	return($d->format($fmt));
 }}
+
 
 // wrapper for date selector, tailored for use in birthday fields
 
@@ -218,7 +266,7 @@ function timesel($pre,$h,$m) {
 // Limited to range of timestamps
 
 if(! function_exists('relative_date')) {
-function relative_date($posted_date) {
+function relative_date($posted_date,$format = null) {
 
 	$localtime = datetime_convert('UTC',date_default_timezone_get(),$posted_date); 
 
@@ -244,10 +292,13 @@ function relative_date($posted_date) {
 	);
     
 	foreach ($a as $secs => $str) {
-	$d = $etime / $secs;
-	if ($d >= 1) {
-		$r = round($d);
-		return $r . ' ' . (($r == 1) ? $str[0] : $str[1]) . t(' ago');
+		$d = $etime / $secs;
+		if ($d >= 1) {
+			$r = round($d);
+			// translators - e.g. 22 hours ago, 1 minute ago
+			if(! $format)
+				$format = t('%1$d %2$s ago');
+			return sprintf( $format,$r, (($r == 1) ? $str[0] : $str[1]));
         }
     }
 }}
@@ -393,3 +444,60 @@ function cal($y = 0,$m = 0, $links = false, $class='') {
   
   return $o;
 }}
+
+
+function update_contact_birthdays() {
+
+	// This only handles foreign or alien networks where a birthday has been provided.
+	// In-network birthdays are handled within local_delivery
+
+	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` != '0000-00-00' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
+	if(count($r)) {
+		foreach($r as $rr) {
+
+			logger('update_contact_birthday: ' . $rr['bd']);
+
+			$nextbd = datetime_convert('UTC','UTC','now','Y') . substr($rr['bd'],4);
+
+			/**
+			 *
+			 * Add new birthday event for this person
+			 *
+			 * $bdtext is just a readable placeholder in case the event is shared
+			 * with others. We will replace it during presentation to our $importer
+			 * to contain a sparkle link and perhaps a photo. 
+			 *
+			 */
+			 
+			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
+			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
+
+
+
+			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",
+				intval($rr['uid']),
+			 	intval($rr['id']),
+				dbesc(datetime_convert()),
+				dbesc(datetime_convert()),
+				dbesc(datetime_convert('UTC','UTC', $nextbd)),
+				dbesc(datetime_convert('UTC','UTC', $nextbd . ' + 1 day ')),
+				dbesc($bdtext),
+				dbesc($bdtext2),
+				dbesc('birthday'),
+				intval(0)
+			);
+			
+
+			// update bdyear
+
+			q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+				dbesc(substr($nextbd,0,4)),
+				dbesc($nextbd),
+				intval($rr['uid']),
+				intval($rr['id'])
+			);
+
+		}
+	}
+}

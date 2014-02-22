@@ -38,19 +38,7 @@ function notes_content(&$a,$update = false) {
 	$is_owner = true;
 
 	$o ="";
-	// tabs
-	$tpl = get_markup_template('profile_tabs.tpl');
-	$o .= replace_macros($tpl,array(
-		'$url' => $a->get_baseurl() . '/profile/' . $a->user['nickname'],
-		'$phototab' => $a->get_baseurl() . '/photos/' . $a->user['nickname'],
-		'$status' => t('Status'),
-		'$profile' => t('Profile'),
-		'$photos' => t('Photos'),
-		'$events' => t('Events') ,
-		'$notes' => t('Personal Notes'),
-		'$activetab' => "notes",
-	));	
-	
+	$o .= profile_tabs($a,True);
 
 	if(! $update) {
 		$o .= '<h3>' . t('Personal Notes') . '</h3>';
@@ -72,15 +60,11 @@ function notes_content(&$a,$update = false) {
     	    'bang' => '',
         	'visitor' => 'block',
 	   	    'profile_uid' => local_user(),
-			'button' => t('Save')
-
+			'button' => t('Save'),
+			'acl_data' => '',
     	);
 
     	$o .= status_editor($a,$x,$a->contact['id']);
-
-		$o .= '<div id="live-notes"></div>' . "\r\n";
-		$o .= "<script> var profile_uid = " . local_user() 
-			. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 
 	}
 
@@ -92,8 +76,9 @@ function notes_content(&$a,$update = false) {
 
 	$r = q("SELECT COUNT(*) AS `total`
 		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
+		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 
+		AND `item`.`deleted` = 0 AND `item`.`type` = 'note'
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
 		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
 		$sql_extra ",
 		intval(local_user())
@@ -107,8 +92,9 @@ function notes_content(&$a,$update = false) {
 
 	$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact-uid`
 		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0 
+		and `item`.`moderated` = 0 AND `item`.`type` = 'note'
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
 		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
 		$sql_extra
 		ORDER BY `item`.`created` DESC LIMIT %d ,%d ",
@@ -127,11 +113,11 @@ function notes_content(&$a,$update = false) {
 		$parents_str = implode(', ', $parents_arr);
  
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`, `contact`.`rel`, 
+			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`, 
 			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
+			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `item`.`parent` IN ( %s )
 			$sql_extra
@@ -139,9 +125,13 @@ function notes_content(&$a,$update = false) {
 			intval(local_user()),
 			dbesc($parents_str)
 		);
-	}
 
-	$o .= conversation($a,$r,'notes',$update);
+		if(count($r)) {
+			$items = conv_sort($r,"`commented`");
+
+			$o .= conversation($a,$items,'notes',$update);
+		}
+	}
 
 
 	$o .= paginate($a);

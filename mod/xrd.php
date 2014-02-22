@@ -28,7 +28,8 @@ function xrd_init(&$a) {
 	header("Content-type: text/xml");
 
 	if(get_config('system','diaspora_enabled')) {
-		$tpl = file_get_contents('view/xrd_diaspora.tpl');
+		//$tpl = file_get_contents('view/xrd_diaspora.tpl');
+		$tpl = get_markup_template('xrd_diaspora.tpl');
 		$dspr = replace_macros($tpl,array(
 			'$baseurl' => $a->get_baseurl(),
 			'$dspr_guid' => $r[0]['guid'],
@@ -38,7 +39,8 @@ function xrd_init(&$a) {
 	else
 		$dspr = '';
 
-	$tpl = file_get_contents('view/xrd_person.tpl');
+	//$tpl = file_get_contents('view/xrd_person.tpl');
+	$tpl = get_markup_template('xrd_person.tpl');
 
 	$o = replace_macros($tpl, array(
 		'$nick'        => $r[0]['nickname'],
@@ -47,6 +49,7 @@ function xrd_init(&$a) {
 		'$hcard_url'   => $a->get_baseurl() . '/hcard/'         . $r[0]['nickname'],
 		'$atom'        => $a->get_baseurl() . '/dfrn_poll/'     . $r[0]['nickname'],
 		'$zot_post'    => $a->get_baseurl() . '/post/'          . $r[0]['nickname'],
+		'$poco_url'    => $a->get_baseurl() . '/poco/'          . $r[0]['nickname'],
 		'$photo'       => $a->get_baseurl() . '/photo/profile/' . $r[0]['uid']      . '.jpg',
 		'$dspr'        => $dspr,
 		'$salmon'      => $a->get_baseurl() . '/salmon/'        . $r[0]['nickname'],

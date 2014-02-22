@@ -25,12 +25,20 @@
 		echo $file . "\n";
 		include_once($file);
 	}
+    
+    echo "Directory: object\n";
+	$files = glob('object/*.php');
+	foreach($files as $file) {
+		echo $file . "\n";
+		include_once($file);
+	}
 
 	echo "Directory: addon\n";
 	$dirs = glob('addon/*');
 
 	foreach($dirs as $dir) {
-		$files = glob($dir . '/*.php');
+		$addon = basename($dir);
+		$files = glob($dir . '/' . $addon . '.php');
 		foreach($files as $file) {
 			echo $file . "\n";
 			include_once($file);

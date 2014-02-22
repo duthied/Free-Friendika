@@ -261,35 +261,36 @@ function aes_unencapsulate($data,$prvkey) {
 	return AES256CBC_decrypt(base64url_decode($data['data']),$k,$i);
 }
 
+function new_keypair($bits) {
 
-// This has been superceded.
+	$openssl_options = array(
+		'digest_alg'       => 'sha1',
+		'private_key_bits' => $bits,
+		'encrypt_key'      => false 
+	);
 
-function zot_encapsulate($data,$envelope,$pubkey) {
-$res = aes_encapsulate($data,$pubkey);
+	$conf = get_config('system','openssl_conf_file');
+	if($conf)
+		$openssl_options['config'] = $conf;
+	
+	$result = openssl_pkey_new($openssl_options);
 
-return <<< EOT
-<?xml version='1.0' encoding='UTF-8'?>
-<zot:msg xmlns:zot='http://purl.org/zot/1.0'>
- <zot:key>{$res['key']}</zot:key>
- <zot:iv>{$res['iv']}</zot:iv>
- <zot:env>$s1</zot:env>
- <zot:sig key_id="$keyid">$sig</zot:sig>
- <zot:alg>AES-256-CBC</zot:alg>
- <zot:data type='application/magic-envelope+xml'>{$res['data']}</zot:data>
-</zot:msg>
-EOT;
+	if(empty($result)) {
+		logger('new_keypair: failed');
+		return false;
+	}
+
+	// Get private key
+
+	$response = array('prvkey' => '', 'pubkey' => '');
+
+	openssl_pkey_export($result, $response['prvkey']);
+
+	// Get public key
+	$pkey = openssl_pkey_get_details($result);
+	$response['pubkey'] = $pkey["key"];
+
+	return $response;
 
 }
 
-// so has this
-
-function zot_unencapsulate($data,$prvkey) {
-	$ret = array();
-	$c = array();
-	$x = parse_xml_string($data);
-	$c = array('key' => $x->key,'iv' => $x->iv,'data' => $x->data);
-	openssl_private_decrypt(base64url_decode($x->sender),$s,$prvkey);
-	$ret['sender'] = $s;
-	$ret['data'] = aes_unencapsulate($x,$prvkey);
-	return $ret;
-}

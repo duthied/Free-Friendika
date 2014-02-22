@@ -1,6 +1,6 @@
 <?php
 
-require_once('acl_selectors.php');
+require_once('include/acl_selectors.php');
 
 function editpost_content(&$a) {
 
@@ -28,13 +28,29 @@ function editpost_content(&$a) {
 		return;
 	}
 
+/*	$plaintext = false;
+	if( local_user() && intval(get_pconfig(local_user(),'system','plaintext')) || !feature_enabled(local_user(),'richtext') )
+		$plaintext = true;*/
+	$plaintext = true;
+	if( local_user() && feature_enabled(local_user(),'richtext') )
+		$plaintext = false;
+
 
 	$o .= '<h2>' . t('Edit post') . '</h2>';
 
 	$tpl = get_markup_template('jot-header.tpl');
-	
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
+		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
+		'$geotag' => $geotag,
+		'$nickname' => $a->user['nickname']
+	));
+
+	$tpl = get_markup_template('jot-end.tpl');
+	$a->page['end'] .= replace_macros($tpl, array(
+		'$baseurl' => $a->get_baseurl(),
+		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
@@ -69,16 +85,19 @@ function editpost_content(&$a) {
 		}
 	}
 
-	if($mail_enabled) {
+	// I don't think there's any need for the $jotnets when editing the post,
+	// and including them makes it difficult for the JS-free theme, so let's
+	// disable them
+/*	if($mail_enabled) {
        $selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
 		$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> '
           	. t("Post to Email") . '</div>';
-	}
+	}*/
 					
 
 
 	call_hooks('jot_tool', $jotplugins);
-	call_hooks('jot_networks', $jotnets);
+	//call_hooks('jot_networks', $jotnets);
 
 	
 	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));	
@@ -89,17 +108,23 @@ function editpost_content(&$a) {
 		'$action' => 'item',
 		'$share' => t('Edit'),
 		'$upload' => t('Upload photo'),
+		'$shortupload' => t('upload photo'),
 		'$attach' => t('Attach file'),
+		'$shortattach' => t('attach file'),
 		'$weblink' => t('Insert web link'),
-		'$youtube' => t('Insert YouTube video'),
-		'$video' => t('Insert Vorbis [.ogg] video'),
-		'$audio' => t('Insert Vorbis [.ogg] audio'),
+		'$shortweblink' => t('web link'),
+		'$video' => t('Insert video link'),
+		'$shortvideo' => t('video link'),
+		'$audio' => t('Insert audio link'),
+		'$shortaudio' => t('audio link'),
 		'$setloc' => t('Set your location'),
+		'$shortsetloc' => t('set location'),
 		'$noloc' => t('Clear browser location'),
+		'$shortnoloc' => t('clear location'),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$ptyp' => $itm[0]['type'],
-		'$content' => $itm[0]['body'],
+		'$content' => undo_post_tagging($itm[0]['body']),
 		'$post_id' => $post_id,
 		'$baseurl' => $a->get_baseurl(),
 		'$defloc' => $a->user['default-location'],
@@ -108,12 +133,20 @@ function editpost_content(&$a) {
 		'$emailcc' => t('CC: email addresses'),
 		'$public' => t('Public post'),
 		'$jotnets' => $jotnets,
+		'$title' => htmlspecialchars($itm[0]['title']),
+		'$placeholdertitle' => t('Set title'),
+		'$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
+		'$placeholdercategory' => (feature_enabled(local_user(),'categories') ? t('Categories (comma-separated list)') : ''),
 		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user), $celeb),
 		'$bang' => (($group) ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
+		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
+		'$sourceapp' => t($a->sourcename),
+		'$cancel' => t('Cancel'),
+		'$rand_num' => random_digits(12)
 	));
 
 	return $o;

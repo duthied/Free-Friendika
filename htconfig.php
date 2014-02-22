@@ -23,7 +23,7 @@ $default_timezone = 'America/Los_Angeles';
 
 // What is your site name?
 
-$a->config['sitename'] = "Friendika Social Network";
+$a->config['sitename'] = "Friendica Social Network";
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
 // Be certain to create your own personal account before setting 
@@ -31,6 +31,9 @@ $a->config['sitename'] = "Friendika Social Network";
 // the registration page. REGISTER_APPROVE requires you set 'admin_email'
 // to the email address of an already registered person who can authorise
 // and/or approve/deny the request. 
+
+// In order to perform system administration via the admin panel, admin_email
+// must precisely match the email address of the person logged in.
 
 $a->config['register_policy'] = REGISTER_OPEN;
 $a->config['register_text'] = '';
@@ -51,8 +54,8 @@ $a->config['php_path'] = 'php';
 // You shouldn't need to change anything else.
 // Location of global directory submission page. 
 
-$a->config['system']['directory_submit_url'] = 'http://dir.friendika.com/submit';
-$a->config['system']['directory_search_url'] = 'http://dir.friendika.com/directory?search=';
+$a->config['system']['directory_submit_url'] = 'http://dir.friendica.com/submit';
+$a->config['system']['directory_search_url'] = 'http://dir.friendica.com/directory?search=';
 
 // PuSH - aka pubsubhubbub URL. This makes delivery of public posts as fast as private posts
 
@@ -64,19 +67,30 @@ $a->config['system']['huburl'] = 'http://pubsubhubbub.appspot.com';
 
 $a->config['system']['rino_encrypt'] = true;
 
+// allowed themes (change this from admin panel after installation)
+
+$a->config['system']['allowed_themes'] = 'dispy,quattro,vier,darkzero,duepuntozero,greenzero,purplezero,slackr,diabook';
+
 // default system theme
 
 $a->config['system']['theme'] = 'duepuntozero';
 
 
-// Addons or plugins are configured here.
-// This is a comma seperated list of addons to enable. Example:
-// $a->config['system']['addon'] = 'js_upload,randplace,oembed';
+// By default allow pseudonyms
 
-$a->config['system']['addon'] = 'js_upload';
+$a->config['system']['no_regfullname'] = true;
 
+// If set to true the priority settings of ostatus contacts are used
+$a->config['system']['ostatus_use_priority'] = false;
 
-// Disable oembed embedding
-// This disable the conversion of [embed]$url[/embed] tag in html
-// $a->config['system']['no_oembed'] = true;
+// If enabled, all items are cached in the given directory
+$a->config['system']['itemcache'] = "";
 
+// If enabled, the lockpath is used for a lockfile to check if the poller is running
+$a->config['system']['lockpath'] = "";
+
+// If enabled, the MyBB fulltext engine is used
+// $a->config['system']['use_fulltext_engine'] = true;
+
+// Use the old style "share"
+// $a->config['system']['old_share'] = false;

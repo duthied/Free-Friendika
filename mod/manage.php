@@ -1,20 +1,60 @@
 <?php
 
+require_once("include/text.php");
+
 
 function manage_post(&$a) {
 
-	if(! local_user() || ! is_array($a->identities))
+	if(! local_user())
 		return;
+
+	$uid = local_user();
+	$orig_record = $a->user;
+
+	if((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
+		$r = q("select * from user where uid = %d limit 1",
+			intval($_SESSION['submanage'])
+		);
+		if(count($r)) {
+			$uid = intval($r[0]['uid']);
+			$orig_record = $r[0];
+		}
+	}
+
+	$r = q("select * from manage where uid = %d",
+		intval($uid)
+	);
+
+	$submanage = $r;
 
 	$identity = ((x($_POST['identity'])) ? intval($_POST['identity']) : 0);
 	if(! $identity)
 		return;
 
-	$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `email` = '%s' AND `password` = '%s' LIMIT 1",
-		intval($identity),
-		dbesc($a->user['email']),
-		dbesc($a->user['password'])
-	);
+	$limited_id = 0;
+	$original_id = $uid;
+
+	if(count($submanage)) {
+		foreach($submanage as $m) {
+			if($identity == $m['mid']) {
+				$limited_id = $m['mid'];
+				break;
+			}
+		}
+	}
+
+	if($limited_id) {
+		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+			intval($limited_id)
+		);
+	}
+	else {
+		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `email` = '%s' AND `password` = '%s' LIMIT 1",
+			intval($identity),
+			dbesc($orig_record['email']),
+			dbesc($orig_record['password'])
+		);
+	}
 
 	if(! count($r))
 		return;
@@ -25,45 +65,26 @@ function manage_post(&$a) {
 	unset($_SESSION['administrator']);
 	unset($_SESSION['cid']);
 	unset($_SESSION['theme']);
+	unset($_SESSION['mobile-theme']);
 	unset($_SESSION['page_flags']);
+	unset($_SESSION['return_url']);
+	if(x($_SESSION,'submanage'))
+		unset($_SESSION['submanage']);
+	if(x($_SESSION,'sysmsg'))
+		unset($_SESSION['sysmsg']);
+	if(x($_SESSION,'sysmsg_info'))
+		unset($_SESSION['sysmsg_info']);
 
+	require_once('include/security.php');
+	authenticate_success($r[0],true,true);
 
-	$_SESSION['uid'] = $r[0]['uid'];
-	$_SESSION['theme'] = $r[0]['theme'];
-	$_SESSION['authenticated'] = 1;
-	$_SESSION['page_flags'] = $r[0]['page-flags'];
-	$_SESSION['my_url'] = $a->get_baseurl() . '/profile/' . $r[0]['nickname'];
+	if($limited_id)
+		$_SESSION['submanage'] = $original_id;
 
-	info( sprintf( t("Welcome back %s") , $r[0]['username']) . EOL);
-	$a->user = $r[0];
+	$ret = array();
+	call_hooks('home_init',$ret);
 
-	if(strlen($a->user['timezone'])) {
-		date_default_timezone_set($a->user['timezone']);
-		$a->timezone = $a->user['timezone'];
-	}
-
-	$r = q("SELECT `uid`,`username` FROM `user` WHERE `password` = '%s' AND `email` = '%s'",
-		dbesc($a->user['password']),
-		dbesc($a->user['email'])
-	);
-	if(count($r))
-		$a->identities = $r;
-
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
-		intval($_SESSION['uid']));
-	if(count($r)) {
-		$a->contact = $r[0];
-		$a->cid = $r[0]['id'];
-		$_SESSION['cid'] = $a->cid;
-	}
-
-	q("UPDATE `user` SET `login_date` = '%s' WHERE `uid` = %d LIMIT 1",
-		dbesc(datetime_convert()),
-		intval($_SESSION['uid'])
-	);
-
-	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] .'"');
-	goaway($a->get_baseurl() . '/profile/' . $a->user['nickname']);
+	goaway( $a->get_baseurl() . "/profile/" . $a->user['nickname'] );
 	// NOTREACHED
 }
 
@@ -71,39 +92,23 @@ function manage_post(&$a) {
 
 function manage_content(&$a) {
 
-	if(! local_user() || ! is_array($a->identities)) {
+	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
-	$r = q("SELECT * FROM `user` WHERE `email` = '%s' AND `password` = '%s'",
-		dbesc($a->user['email']),
-		dbesc($a->user['password'])
-	);
-	if(! count($r))
-		return;
-
-
-	$o = '<h3>' . t('Manage Identities and/or Pages') . '</h3>';
-
-	
-	$o .= '<div id="identity-manage-desc">' . t("\x28Toggle between different identities or community/group pages which share your account details.\x29") . '</div>';
-
-	$o .= '<div id="identity-manage-choose">' . t('Select an identity to manage: ') . '</div>';
-
-	$o .= '<div id="identity-selector-wrapper">' . "\r\n";
-	$o .= '<form action="manage" method="post" >' . "\r\n";
-	$o .= '<select name="identity" size="4">' . "\r\n";
-
-	foreach($r as $rr) {
-		$selected = (($rr['nickname'] === $a->user['nickname']) ? ' selected="selected" ' : '');
-		$o .= '<option ' . $selected . 'value="' . $rr['uid'] . '">' . $rr['username'] . ' (' . $rr['nickname'] . ')</option>' . "\r\n";
+	$identities = $a->identities;
+	foreach($identities as $key=>$id) {
+		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? ' selected="selected" ' : '');
 	}
 
-	$o .= '</select>' . "\r\n";
-	$o .= '<div id="identity-select-break"></div>' . "\r\n";
-
-	$o .= '<input id="identity-submit" type="submit" name="submit" value="' . t('Submit') . '" /></div></form>' . "\r\n";
+	$o = replace_macros(get_markup_template('manage.tpl'), array(
+		'$title' => t('Manage Identities and/or Pages'),
+		'$desc' => t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
+		'$choose' => t('Select an identity to manage: '),
+		'$identities' => $identities,
+		'$submit' => t('Submit'),
+	));
 
 	return $o;
 
