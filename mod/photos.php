@@ -49,7 +49,7 @@ function photos_init(&$a) {
 			if($albums_visible) {
 				$o .= '<div id="side-bar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
-					
+
 				$o .= '<ul>';
 				foreach($albums as $album) {
 
@@ -464,11 +464,11 @@ function photos_post(&$a) {
 			$arr['last-child']    = 1;
 			$arr['visible']       = $visibility;
 			$arr['origin']        = 1;
-			
+
 			$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']' 
 						. '[img]' . $a->get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]' 
 						. '[/url]';
-		
+
 			$item_id = item_store($arr);
 
 		}
@@ -623,7 +623,7 @@ function photos_post(&$a) {
 
 			if(count($taginfo)) {
 				foreach($taginfo as $tagged) {
-		
+
 					$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
 
 					$arr = array();
@@ -914,8 +914,8 @@ function photos_content(&$a) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
-	
-	
+
+
 	require_once('include/bbcode.php');
 	require_once('include/security.php');
 	require_once('include/conversation.php');
@@ -1032,7 +1032,7 @@ function photos_content(&$a) {
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);	
+	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request
@@ -1051,7 +1051,7 @@ function photos_content(&$a) {
 
 		$albumselect = '';
 
-		
+
 		$albumselect .= '<option value="" ' . ((! $selname) ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 		if(count($a->data['albums'])) {
 			foreach($a->data['albums'] as $album) {
@@ -1178,8 +1178,8 @@ function photos_content(&$a) {
 		);
 
 		$o .= '<h3>' . $album . '</h3>';
-		
-		if($cmd === 'edit') {		
+
+		if($cmd === 'edit') {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if($can_post) {
 					$edit_tpl = get_markup_template('album_edit.tpl');
@@ -1231,7 +1231,7 @@ function photos_content(&$a) {
 					$twist = 'rotleft';
 				else
 					$twist = 'rotright';
-				
+
 				$ext = $phototypes[$rr['type']];
 
 				if($a->theme['template_engine'] === 'internal') {
@@ -1260,7 +1260,7 @@ function photos_content(&$a) {
 
 		return $o;
 
-	}	
+	}
 
 
 	if($datatype === 'image') {
@@ -1277,12 +1277,12 @@ function photos_content(&$a) {
 		);
 
 		if(! count($ph)) {
-			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' 
+			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 				LIMIT 1",
 				intval($owner_uid),
 				dbesc($datum)
 			);
-			if(count($ph)) 
+			if(count($ph))
 				notice( t('Permission denied. Access to this item may be restricted.'));
 			else
 				notice( t('Photo not available') . EOL );
@@ -1298,11 +1298,11 @@ function photos_content(&$a) {
 			$order = 'DESC';
 
 
-		$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0 
+		$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 			$sql_extra ORDER BY `created` $order ",
 			dbesc($ph[0]['album']),
 			intval($owner_uid)
-		); 
+		);
 
 		if(count($prvnxt)) {
 			for($z = 0; $z < count($prvnxt); $z++) {
@@ -1338,7 +1338,7 @@ function photos_content(&$a) {
 		$album_link = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
  		$tools = Null;
  		$lock = Null;
- 
+
 		if($can_post && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = array(
 				'edit'	=> array($a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))),
@@ -1350,8 +1350,8 @@ function photos_content(&$a) {
 					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) ) 
 					? t('Private Message')
 					: Null);
-	  		
-			
+
+
 		}
 
 		if( $cmd === 'edit') {
@@ -1368,7 +1368,11 @@ function photos_content(&$a) {
 		$photo = array(
 			'href' => $a->get_baseurl() . '/photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
 			'title'=> t('View Full Size'),
-			'src'  => $a->get_baseurl() . '/photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . datetime_convert('','','','ymdhis')
+			'src'  => $a->get_baseurl() . '/photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . datetime_convert('','','','ymdhis'),
+			'height' => $hires['height'],
+			'width' => $hires['width'],
+			'album' => $hires['album'],
+			'filename' => $hires['filename'],
 		);
 
 		if($nextlink)
@@ -1377,7 +1381,7 @@ function photos_content(&$a) {
 
 		// Do we have an item for this photo?
 
-		// FIXME! - replace following code to display the conversation with our normal 
+		// FIXME! - replace following code to display the conversation with our normal
 		// conversation functions so that it works correctly and tracks changes
 		// in the evolving conversation code.
 		// The difference is that we won't be displaying the conversation head item
@@ -1392,7 +1396,7 @@ function photos_content(&$a) {
 				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`uid` = %d 
+				AND `item`.`uid` = %d
 				$sql_extra ",
 				dbesc($link_item['uri']),
 				dbesc($link_item['uri']),
@@ -1404,9 +1408,9 @@ function photos_content(&$a) {
 				$a->set_pager_total($r[0]['total']);
 
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`, 
-				`contact`.`rel`, `contact`.`thumb`, `contact`.`self`, 
+			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`,
+				`contact`.`rel`, `contact`.`thumb`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
@@ -1440,7 +1444,7 @@ function photos_content(&$a) {
 				if(strlen($tag_str))
 					$tag_str .= ', ';
 				$tag_str .= bbcode($t);
-			} 
+			}
 			$tags = array(t('Tags: '), $tag_str);
 			if($cmd === 'edit') {
 				$tags[] = $a->get_baseurl() . '/tagrm/' . $link_item['id'];
@@ -1487,7 +1491,7 @@ function photos_content(&$a) {
 				'$rotatecw' => t('Rotate CW (right)'),
 				'$rotateccw' => t('Rotate CCW (left)'),
 				'$album' => $album_e,
-				'$newalbum' => t('New album name'), 
+				'$newalbum' => t('New album name'),
 				'$nickname' => $a->data['user']['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],
 				'$capt_label' => t('Caption'),
@@ -1539,7 +1543,7 @@ function photos_content(&$a) {
 				if($can_post || can_write_wall($a,$owner_uid)) {
 					if($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
-							'$return_path' => '', 
+							'$return_path' => '',
 							'$jsreload' => $return_url,
 							'$type' => 'wall-comment',
 							'$id' => $link_item['id'],
@@ -1561,7 +1565,7 @@ function photos_content(&$a) {
 
 			$alike = array();
 			$dlike = array();
-			
+
 			$like = '';
 			$dislike = '';
 
@@ -1612,9 +1616,9 @@ function photos_content(&$a) {
 						continue;
 
 					$redirect_url = $a->get_baseurl() . '/redir/' . $item['cid'] ;
-			
 
-					if(local_user() && ($item['contact-uid'] == local_user()) 
+
+					if(local_user() && ($item['contact-uid'] == local_user())
 						&& ($item['network'] == 'dfrn') && (! $item['self'] )) {
 						$profile_url = $redirect_url;
 						$sparkle = ' sparkle';
@@ -1623,7 +1627,7 @@ function photos_content(&$a) {
 						$profile_url = $item['url'];
 						$sparkle = '';
 					}
- 
+
 					$diff_author = (($item['url'] !== $item['author-link']) ? true : false);
 
 					$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
@@ -1689,7 +1693,7 @@ function photos_content(&$a) {
 
 			$paginate = paginate($a);
 		}
-		
+
 		$photo_tpl = get_markup_template('photo_view.tpl');
 
 		if($a->theme['template_engine'] === 'internal') {
@@ -1715,14 +1719,20 @@ function photos_content(&$a) {
 			'$nextlink' => $nextlink,
 			'$desc' => $ph[0]['desc'],
 			'$tags' => $tags_e,
-			'$edit' => $edit,	
+			'$edit' => $edit,
 			'$likebuttons' => $likebuttons,
 			'$like' => $like_e,
 			'$dislike' => $dikslike_e,
 			'$comments' => $comments,
 			'$paginate' => $paginate,
 		));
-		
+
+		$a->page['htmlhead'] .= "\n".'<meta name="twitter:card" content="photo" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$photo["album"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.$photo["href"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image:width" content="'.$photo["width"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image:height" content="'.$photo["height"].'" />'."\n";
+
 		return $o;
 	}
 
@@ -1783,12 +1793,12 @@ function photos_content(&$a) {
 					'name'  => $name_e,
 					'alt'   => t('View Album'),
 				),
-				
+
 			);
 		}
 	}
-	
-	$tpl = get_markup_template('photos_recent.tpl'); 
+
+	$tpl = get_markup_template('photos_recent.tpl');
 	$o .= replace_macros($tpl, array(
 		'$title' => t('Recent Photos'),
 		'$can_post' => $can_post,
@@ -1796,7 +1806,7 @@ function photos_content(&$a) {
 		'$photos' => $photos,
 	));
 
-	
+
 	$o .= paginate($a);
 	return $o;
 }

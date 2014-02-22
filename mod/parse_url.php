@@ -52,6 +52,9 @@ function completeurl($url, $scheme) {
 
 function parseurl_getsiteinfo($url, $no_guessing = false) {
 	$siteinfo = array();
+
+	$siteinfo["type"] = "link";
+
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -164,6 +167,18 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 				break;
 			case "description":
 				$siteinfo["text"] = $attr["content"];
+				break;
+			case "twitter:image":
+				$siteinfo["image"] = $attr["content"];
+				break;
+			case "twitter:card":
+				$siteinfo["type"] = $attr["content"];
+				break;
+			case "twitter:description":
+				$siteinfo["text"] = $attr["content"];
+				break;
+			case "twitter:title":
+				$siteinfo["title"] = $attr["content"];
 				break;
 			case "dc.title":
 				$siteinfo["title"] = $attr["content"];
@@ -311,9 +326,9 @@ function parse_url_content(&$a) {
 	logger('parse_url: ' . $url);
 
 	if($textmode)
-		$template = '[bookmark=%s]%s[/bookmark]%s' . $br;
+		$template = '[bookmark=%s]%s[/bookmark]%s';
 	else
-		$template = "<a class=\"bookmark\" href=\"%s\" >%s</a>%s<br />";
+		$template = "<a class=\"bookmark\" href=\"%s\" >%s</a>%s";
 
 	$arr = array('url' => $url, 'text' => '');
 
@@ -386,9 +401,10 @@ function parse_url_content(&$a) {
 			$text = '<blockquote>'.htmlspecialchars(trim($text)).'</blockquote>';
 	}
 
-	if($image) {
+	if($image)
 		$text = $br.$br.$image.$text;
-	}
+	else
+		$text = $br.$text;
 
 	$title = str_replace(array("\r","\n"),array('',''),$title);
 
@@ -398,7 +414,10 @@ function parse_url_content(&$a) {
 
 	$sitedata .=  trim($result);
 
-	echo "[class=type-link]".$sitedata."[/class]";
+	if (($siteinfo["type"] != "photo"))
+		echo "[class=type-link]".$sitedata."[/class]";
+	else
+		echo "[class=type-photo]".$title.$br.$image."[/class]";
 
 	killme();
 }
