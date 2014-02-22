@@ -533,8 +533,8 @@ function GetProfileUsername($profile, $username) {
 	return($username);
 }
 
-function RemovePictureLinks($match) {
-	$ch = @curl_init($match[2]);
+function bb_RemovePictureLinks($match) {
+	$ch = @curl_init($match[1]);
 	@curl_setopt($ch, CURLOPT_NOBODY, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
@@ -542,13 +542,76 @@ function RemovePictureLinks($match) {
 	$curl_info = @curl_getinfo($ch);
 
 	if (substr($curl_info["content_type"], 0, 6) == "image/")
-		$text = "[url=".$match[2]."]".$match[2]."[/url]";
-	else
 		$text = "[url=".$match[1]."]".$match[1]."[/url]";
+	else {
+		$text = "[url=".$match[2]."]".$match[2]."[/url]";
+
+		// if its not a picture then look if its a page that contains a picture link
+		require_once("include/network.php");
+
+		$body = fetch_url($match[1]);
+
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+		$xpath = new DomXPath($doc);
+		$list = $xpath->query("//meta[@name]");
+		foreach ($list as $node) {
+			$attr = array();
+
+			if ($node->attributes->length)
+				foreach ($node->attributes as $attribute)
+					$attr[$attribute->name] = $attribute->value;
+
+			if (strtolower($attr["name"]) == "twitter:image")
+				$text = "[url=".$attr["content"]."]".$attr["content"]."[/url]";
+		}
+	}
 
 	return($text);
 }
 
+function bb_CleanPictureLinksSub($match) {
+	$ch = @curl_init($match[1]);
+	@curl_setopt($ch, CURLOPT_NOBODY, true);
+	@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+	@curl_exec($ch);
+	$curl_info = @curl_getinfo($ch);
+
+	// if its a link to a picture then embed this picture
+	if (substr($curl_info["content_type"], 0, 6) == "image/")
+		$text = "[img]".$match[1]."[/img]";
+	else {
+		$text = "[img]".$match[2]."[/img]";
+
+		// if its not a picture then look if its a page that contains a picture link
+		require_once("include/network.php");
+
+		$body = fetch_url($match[1]);
+
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+		$xpath = new DomXPath($doc);
+		$list = $xpath->query("//meta[@name]");
+		foreach ($list as $node) {
+			$attr = array();
+
+			if ($node->attributes->length)
+				foreach ($node->attributes as $attribute)
+					$attr[$attribute->name] = $attribute->value;
+
+			if (strtolower($attr["name"]) == "twitter:image")
+				$text = "[img]".$attr["content"]."[/img]";
+		}
+	}
+
+	return($text);
+}
+
+function bb_CleanPictureLinks($text) {
+	$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_CleanPictureLinksSub', $text);
+	return ($text);
+}
 
 	// BBcode 2 HTML was written by WAY2WEB.net
 	// extended to work with Mistpark/Friendica - Mike Macgirvin
@@ -635,6 +698,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Set up the parameters for a MAIL search string
 	$MAILSearchString = $URLSearchString;
 
+	// Bookmarks in red - will be converted to bookmarks in friendica
+	$Text = preg_replace("/#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $Text);
+	$Text = preg_replace("/#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $Text);
+
 	if ($simplehtml == 5)
 		$Text = preg_replace("/[^#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $Text);
 
@@ -652,7 +719,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
 	else {
 		$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism"," $1 ",$Text);
-		$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'RemovePictureLinks', $Text);
+		$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);
 	}
 
 	if ($tryoembed)
