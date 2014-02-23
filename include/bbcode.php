@@ -534,77 +534,85 @@ function GetProfileUsername($profile, $username) {
 }
 
 function bb_RemovePictureLinks($match) {
-	$ch = @curl_init($match[1]);
-	@curl_setopt($ch, CURLOPT_NOBODY, true);
-	@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
-	@curl_exec($ch);
-	$curl_info = @curl_getinfo($ch);
+	$text = Cache::get($match[1]);
 
-	if (substr($curl_info["content_type"], 0, 6) == "image/")
-		$text = "[url=".$match[1]."]".$match[1]."[/url]";
-	else {
-		$text = "[url=".$match[2]."]".$match[2]."[/url]";
+	if(is_null($text)){
+		$ch = @curl_init($match[1]);
+		@curl_setopt($ch, CURLOPT_NOBODY, true);
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+		@curl_exec($ch);
+		$curl_info = @curl_getinfo($ch);
 
-		// if its not a picture then look if its a page that contains a picture link
-		require_once("include/network.php");
+		if (substr($curl_info["content_type"], 0, 6) == "image/")
+			$text = "[url=".$match[1]."]".$match[1]."[/url]";
+		else {
+			$text = "[url=".$match[2]."]".$match[2]."[/url]";
 
-		$body = fetch_url($match[1]);
+			// if its not a picture then look if its a page that contains a picture link
+			require_once("include/network.php");
 
-		$doc = new DOMDocument();
-		@$doc->loadHTML($body);
-		$xpath = new DomXPath($doc);
-		$list = $xpath->query("//meta[@name]");
-		foreach ($list as $node) {
-			$attr = array();
+			$body = fetch_url($match[1]);
 
-			if ($node->attributes->length)
-				foreach ($node->attributes as $attribute)
-					$attr[$attribute->name] = $attribute->value;
+			$doc = new DOMDocument();
+			@$doc->loadHTML($body);
+			$xpath = new DomXPath($doc);
+			$list = $xpath->query("//meta[@name]");
+			foreach ($list as $node) {
+				$attr = array();
 
-			if (strtolower($attr["name"]) == "twitter:image")
-				$text = "[url=".$attr["content"]."]".$attr["content"]."[/url]";
+				if ($node->attributes->length)
+					foreach ($node->attributes as $attribute)
+						$attr[$attribute->name] = $attribute->value;
+
+				if (strtolower($attr["name"]) == "twitter:image")
+					$text = "[url=".$attr["content"]."]".$attr["content"]."[/url]";
+			}
 		}
+		Cache::set($match[1],$text);
 	}
-
 	return($text);
 }
 
 function bb_CleanPictureLinksSub($match) {
-	$ch = @curl_init($match[1]);
-	@curl_setopt($ch, CURLOPT_NOBODY, true);
-	@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
-	@curl_exec($ch);
-	$curl_info = @curl_getinfo($ch);
+	$text = Cache::get($match[1]);
 
-	// if its a link to a picture then embed this picture
-	if (substr($curl_info["content_type"], 0, 6) == "image/")
-		$text = "[img]".$match[1]."[/img]";
-	else {
-		$text = "[img]".$match[2]."[/img]";
+	if(is_null($text)){
+		$ch = @curl_init($match[1]);
+		@curl_setopt($ch, CURLOPT_NOBODY, true);
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+		@curl_exec($ch);
+		$curl_info = @curl_getinfo($ch);
 
-		// if its not a picture then look if its a page that contains a picture link
-		require_once("include/network.php");
+		// if its a link to a picture then embed this picture
+		if (substr($curl_info["content_type"], 0, 6) == "image/")
+			$text = "[img]".$match[1]."[/img]";
+		else {
+			$text = "[img]".$match[2]."[/img]";
 
-		$body = fetch_url($match[1]);
+			// if its not a picture then look if its a page that contains a picture link
+			require_once("include/network.php");
 
-		$doc = new DOMDocument();
-		@$doc->loadHTML($body);
-		$xpath = new DomXPath($doc);
-		$list = $xpath->query("//meta[@name]");
-		foreach ($list as $node) {
-			$attr = array();
+			$body = fetch_url($match[1]);
 
-			if ($node->attributes->length)
-				foreach ($node->attributes as $attribute)
-					$attr[$attribute->name] = $attribute->value;
+			$doc = new DOMDocument();
+			@$doc->loadHTML($body);
+			$xpath = new DomXPath($doc);
+			$list = $xpath->query("//meta[@name]");
+			foreach ($list as $node) {
+				$attr = array();
 
-			if (strtolower($attr["name"]) == "twitter:image")
-				$text = "[img]".$attr["content"]."[/img]";
+				if ($node->attributes->length)
+					foreach ($node->attributes as $attribute)
+						$attr[$attribute->name] = $attribute->value;
+
+				if (strtolower($attr["name"]) == "twitter:image")
+					$text = "[img]".$attr["content"]."[/img]";
+			}
 		}
+		Cache::set($match[1],$text);
 	}
-
 	return($text);
 }
 
