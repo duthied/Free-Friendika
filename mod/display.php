@@ -203,6 +203,10 @@ function display_content(&$a, $update = 0) {
 		$title = trim(html2plain(bbcode($r[0]["title"], false, false), 0, true));
 		$author_name = $r[0]["author-name"];
 
+		$image = "";
+		if ($image == "")
+			$image = $r[0]["thumb"];
+
 		if ($title == "")
 			$title = $author_name;
 
@@ -219,8 +223,15 @@ function display_content(&$a, $update = 0) {
 		// Schema.org microdata
 		$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$r[0]["thumb"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
+
+		// Twitter cards
+		$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.$image.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$r[0]["plink"].'" />'."\n";
 
 		// Dublin Core
 		$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
@@ -229,7 +240,7 @@ function display_content(&$a, $update = 0) {
 		// Open Graph
 		$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:image" content="'.$r[0]["thumb"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta property="og:image" content="'.$image.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$r[0]["plink"].'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";

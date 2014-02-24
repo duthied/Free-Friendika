@@ -1625,6 +1625,8 @@
 		if ($include_entities != "true")
 			return array();
 
+		$bbcode = bb_CleanPictureLinks($bbcode);
+
 		// Change pure links in text to bbcode uris
 		$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
 
@@ -2391,6 +2393,8 @@ function api_get_nick($profile) {
 
 function api_clean_plain_items($Text) {
 	$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
+
+	$Text = bb_CleanPictureLinks($Text);
 
 	if ($include_entities == "true") {
 		$URLSearchString = "^\[\]";

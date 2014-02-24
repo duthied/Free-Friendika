@@ -1219,6 +1219,10 @@ border-bottom: 1px solid #D2D2D2;
 .type-link .oembed {
 }
 
+.type-link img + br{
+  display: none;
+}
+
 .wall-item-container .wall-item-content {
   /* font-size: 14px; */
   max-width: 660px;
