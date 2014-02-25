@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-31 18:07+0100\n"
-"PO-Revision-Date: 2014-02-19 12:16+0000\n"
+"PO-Revision-Date: 2014-02-24 07:21+0000\n"
 "Last-Translator: vislav <bizadmin@list.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -657,7 +657,7 @@ msgstr "Пароль: "
 
 #: ../../boot.php:1157
 msgid "Remember me"
-msgstr "Напомнить"
+msgstr "Запомнить"
 
 #: ../../boot.php:1160
 msgid "Or login using OpenID: "
@@ -4400,11 +4400,11 @@ msgstr "Личные ключевые слова:"
 
 #: ../../mod/profiles.php:657 ../../include/profile_advanced.php:62
 msgid "Likes:"
-msgstr "Лайки:"
+msgstr "Нравится:"
 
 #: ../../mod/profiles.php:658 ../../include/profile_advanced.php:64
 msgid "Dislikes:"
-msgstr "Дизлайки:"
+msgstr "Не нравится:"
 
 #: ../../mod/profiles.php:659
 msgid "Example: fishing photography software"
@@ -4462,7 +4462,7 @@ msgstr "Школа / образование"
 msgid ""
 "This is your <strong>public</strong> profile.<br />It <strong>may</strong> "
 "be visible to anybody using the internet."
-msgstr "Это ваш <strong>публичный</strong> профиль. <br /> Он <strong>может</strong> быть виден каждому, используя Интернет."
+msgstr "Это ваш <strong>публичный</strong> профиль. <br /> Он <strong>может</strong> быть виден каждому через Интернет."
 
 #: ../../mod/profiles.php:725
 msgid "Edit/Manage Profiles"
