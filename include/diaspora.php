@@ -861,9 +861,11 @@ function diaspora_post($importer,$xml,$msg) {
 		foreach($matches as $mtch) {
 			if(strlen($str_tags))
 				$str_tags .= ',';
-			$str_tags .= '@[url=' . $mtch[1] . '[/url]';	
+			$str_tags .= '@[url=' . $mtch[1] . '[/url]';
 		}
 	}
+
+	$plink = 'https://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1).'/posts/'.$guid;
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
@@ -874,6 +876,7 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
+	$datarray['plink'] = $plink;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
 	//$datarray['owner-avatar'] = $contact['thumb'];
@@ -891,12 +894,12 @@ function diaspora_post($importer,$xml,$msg) {
 
 	$message_id = item_store($datarray);
 
-	if($message_id) {
-		q("update item set plink = '%s' where id = %d limit 1",
-			dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-			intval($message_id)
-		);
-	}
+	//if($message_id) {
+	//	q("update item set plink = '%s' where id = %d limit 1",
+	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+	//		intval($message_id)
+	//	);
+	//}
 
 	return;
 
@@ -1030,6 +1033,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 		}
 	}
 
+	$plink = 'https://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1).'/posts/'.$guid;
+
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['wall'] = 0;
@@ -1039,6 +1044,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
+	$datarray['plink'] = $plink;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
 	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
@@ -1064,12 +1070,12 @@ function diaspora_reshare($importer,$xml,$msg) {
 
 	$message_id = item_store($datarray);
 
-	if($message_id) {
-		q("update item set plink = '%s' where id = %d limit 1",
-			dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-			intval($message_id)
-		);
-	}
+	//if($message_id) {
+	//	q("update item set plink = '%s' where id = %d limit 1",
+	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+	//		intval($message_id)
+	//	);
+	//}
 
 	return;
 
@@ -1136,8 +1142,9 @@ function diaspora_asphoto($importer,$xml,$msg) {
 		return;
 	}
 
-	$datarray = array();
+	$plink = 'https://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1).'/posts/'.$guid;
 
+	$datarray = array();
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
@@ -1148,6 +1155,7 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
+	$datarray['plink'] = $plink;
 	$datarray['owner-name'] = $contact['name'];
 	$datarray['owner-link'] = $contact['url'];
 	//$datarray['owner-avatar'] = $contact['thumb'];
@@ -1161,12 +1169,12 @@ function diaspora_asphoto($importer,$xml,$msg) {
 
 	$message_id = item_store($datarray);
 
-	if($message_id) {
-		q("update item set plink = '%s' where id = %d limit 1",
-			dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-			intval($message_id)
-		);
-	}
+	//if($message_id) {
+	//	q("update item set plink = '%s' where id = %d limit 1",
+	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+	//		intval($message_id)
+	//	);
+	//}
 
 	return;
 
