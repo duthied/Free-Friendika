@@ -125,7 +125,8 @@ img {
   background-repeat: no-repeat;
   width: 18px;
   height: 18px;
-  display: block;
+  /* display: block; */
+  display: inline-block;
   overflow: hidden;
   padding: 1px;
   color: #999;
@@ -1116,18 +1117,18 @@ section.minimal {
 /* wall item */
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */
-border-bottom: 1px solid #D2D2D2;
+  border-bottom: 1px solid #D2D2D2;
   position: relative;
   padding: 5px;
   margin-bottom: 10px;
   box-shadow: 1px 1px 6px -3px rgba(0, 0, 0, 0.7);
-  background-color: #FAFaFa;
+  background-color: #FFFFFF;
  /* width: 755px; */
 }
 .wall-item-decor {
   position: absolute;
   left: 755px;
-  left: calc(100% - 7px);
+  left: calc(100% - 16px);
 /*  top: -10px; */
   width: 16px;
 }
@@ -1157,15 +1158,19 @@ border-bottom: 1px solid #D2D2D2;
 .wall-item-bottom {
   /* font-size: 14px; */
 }
-.wall-item-container .wall-item-bottom {
-  opacity: 0;
+/* .wall-item-container .wall-item-bottom { */
+.wall-item-container .wall-item-links,
+.wall-item-container .wall-item-actions {
+  opacity: 0.2;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
   -ms-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
-.wall-item-container:hover .wall-item-bottom {
+/* .wall-item-container:hover .wall-item-bottom { */
+.wall-item-container:hover .wall-item-links,
+.wall-item-container:hover .wall-item-actions {
   opacity: 1;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
@@ -1446,37 +1451,6 @@ border-bottom: 1px solid #D2D2D2;
   /* border-right: 10px solid #fce94f; */
 /*	border-right: 1px solid #A7C7F7;
 	padding-right: 12px; */
-}
-
-.twit {
-  /* background-color: #FFFAFA; */
-  background-color: #fafeff;
-}
-.pump {
-  /* background-color: #FAFFFA; */
-  background-color: #fcfffa;
-}
-.face {
-  /* background-color: #FAFAFF; */
-  background-color: #fafcff;
-}
-.feed {
-  /* background-color: #FFFFFA; */
-  background-color: #fffdfa;
-}
-.dspr {
-  background-color: #FFFAFF;
-}
-.dfrn {
-  background-color: #FAFAFA;
-}
-.stat {
-  /* background-color: #FAFFFF; */
-  background-color: #fffafd;
-}
-.mail {
-  /* background-color: #FFFFF9; */
-  background-color: #fffafa;
 }
 
 #profile-jot-form {

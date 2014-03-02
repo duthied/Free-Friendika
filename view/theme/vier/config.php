@@ -39,7 +39,8 @@ function theme_admin_post(&$a){
 function vier_form(&$a, $style){
 	$styles = array(
 		"shadow"=>"Shadow",
-		"flat"=>"Flat"
+		"flat"=>"Flat",
+		"netcolour"=>"Coloured Networks"
 	);
 	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(
