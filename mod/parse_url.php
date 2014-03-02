@@ -86,7 +86,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 		if (isset($oembed_data->title))
 			$siteinfo["title"] = $oembed_data->title;
 		if (isset($oembed_data->description))
-			$siteinfo["text"] = $oembed_data->description;
+			$siteinfo["text"] = trim($oembed_data->description);
 		if (isset($oembed_data->thumbnail_url))
 			$siteinfo["image"] = $oembed_data->thumbnail_url;
 	}
@@ -159,7 +159,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
                         foreach ($node->attributes as $attribute)
                                 $attr[$attribute->name] = $attribute->value;
 
-		$attr["content"] = html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8");
+		$attr["content"] = trim(html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8"));
 
 		switch (strtolower($attr["name"])) {
 			case "fulltitle":
@@ -197,7 +197,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
                         foreach ($node->attributes as $attribute)
                                 $attr[$attribute->name] = $attribute->value;
 
-		$attr["content"] = html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8");
+		$attr["content"] = trim(html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8"));
 
 		switch (strtolower($attr["property"])) {
 			case "og:image":
@@ -280,7 +280,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 			while (strpos($text, "  "))
 				$text = trim(str_replace("  ", " ", $text));
 
-			$siteinfo["text"] = html_entity_decode(substr($text,0,350), ENT_QUOTES, "UTF-8").'...';
+			$siteinfo["text"] = trim(html_entity_decode(substr($text,0,350), ENT_QUOTES, "UTF-8").'...');
 		}
 	}
 

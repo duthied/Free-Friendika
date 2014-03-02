@@ -1612,16 +1612,19 @@ if(! function_exists('get_plink')) {
  * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
  */
 function get_plink($item) {
-	$a = get_app();	
-	if (x($item,'plink') && ($item['private'] != 1)) {
-		return array(
-			'href' => $item['plink'],
+	$a = get_app();
+	$ret = array(
+			'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
 			'title' => t('link to source'),
 		);
-	} 
-	else {
-		return false;
-	}
+
+	$ret["orig"] = $ret["href"];
+
+	//if (x($item,'plink') && ($item['private'] != 1))
+	if (x($item,'plink'))
+		$ret["href"] = $item['plink'];
+
+	return($ret);
 }}
 
 if(! function_exists('unamp')) {
