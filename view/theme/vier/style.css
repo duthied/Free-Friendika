@@ -378,8 +378,6 @@ code {
   list-style: none;
   border: 3px solid #364e59;
   z-index: 100000;
-  -webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 /* tool */
@@ -446,11 +444,11 @@ code {
 
 a.nets-link, .side-link a, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a {
   display: block;
-  color: black;
+  color: #737373;
 }
 
 a.sidebar-group-element {
-  color: black;
+  color: #737373;
 }
 
 #follow-sidebar form, #peoplefind-sidebar form, #netsearch-box form, #posted-date-selector {
@@ -468,7 +466,7 @@ a.sidebar-group-element {
 }
 
 #forum-list a, .tool a, .admin.link a {
-  color: black;
+  color: #737373;
 }
 
 #forum-list {
@@ -553,9 +551,6 @@ nav {
     background: linear-gradient(top, #516499 0%,#364a84 100%); */
   color: #ffffff;
   z-index: 100;
-  /*-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  border-bottom: 5px solid #F80; */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
 }
 
@@ -772,8 +767,6 @@ ul.menu-popup {
   list-style: none;
   border: 3px solid #364e59;
   z-index: 100000;
-  -webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 ul.menu-popup a {
@@ -814,8 +807,6 @@ ul.menu-popup .empty {
   border: 1px solid #MenuBorder;
   overflow: auto;
   z-index: 100000;
-  -webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 .acpopupitem {
@@ -878,7 +869,8 @@ aside {
   padding: 10px 10px 0px 20px;
   /* border-right: 1px solid #D2D2D2; */
   /* background-color: #ECECF2; */
-  background-color: #F2F2F2;
+  /* background-color: #F2F2F2; */
+  background-color: #FFFFFF;
   font-size: 13px;
   /* background: #F1F1F1; */
   /* top: 0px; */
@@ -891,7 +883,8 @@ aside {
   height: 100%;
   height: calc(100% - 42px);
   /* overflow: scroll; */
-  box-shadow: 1px 1px 6px -3px #666;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
+  color: #737373;
 }
 aside .vcard .fn {
   font-size: 18px;
@@ -1121,7 +1114,7 @@ section.minimal {
   position: relative;
   padding: 5px;
   margin-bottom: 10px;
-  box-shadow: 1px 1px 6px -3px rgba(0, 0, 0, 0.7);
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
   background-color: #FFFFFF;
  /* width: 755px; */
 }
@@ -1454,7 +1447,7 @@ section.minimal {
 }
 
 #profile-jot-form {
-  box-shadow: 1px 1px 6px -3px #666;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
   background-color: #fafafa;
   padding: 10px;
 }
@@ -1536,8 +1529,6 @@ section.minimal {
   position: absolute !important;
   top: 40px;
   left: 30px;
-  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
 }
 .wwto .contact-photo {
@@ -1923,18 +1914,18 @@ ul.tabs a {
 }
 
 ul.tabs a {
-    box-shadow: 1px 1px 6px -3px #666;
+    box-shadow: 1px 2px 0px 0px #D8D8D8;
     margin-right: 5px;
 }
 
 #birthday-notice, #event-notice {
-    box-shadow: 1px 1px 6px -3px #666;
+    box-shadow: 1px 2px 0px 0px #D8D8D8;
     margin-bottom: 5px;
 }
 
 #birthday-wrapper, #event-wrapper {
     background-color: #FAFAFA;
-    box-shadow: 1px 1px 6px -3px #666;
+    box-shadow: 1px 2px 0px 0px #D8D8D8;
     padding-left: 10px;
     padding-right: 10px;
     padding-top: 5px;
