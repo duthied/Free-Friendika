@@ -842,13 +842,14 @@
 
 		$lastwall = q("SELECT `item`.*
 				FROM `item`, `contact`
-				WHERE `item`.`contact-id` = %d
+				WHERE `item`.`uid` = %d AND `item`.`contact-id` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `contact`.`id`=`item`.`contact-id`
 					AND `type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `created` DESC
 				LIMIT 1",
+				intval(api_user()),
 				intval($user_info['cid']),
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url'])),
@@ -1041,8 +1042,8 @@
         	        `contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
                 	`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
                 	`user`.`nickname`, `user`.`hidewall`
-                	FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-                	LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
+                	FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+                	INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
                 	WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
                 	AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
                 	AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''

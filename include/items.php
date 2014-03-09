@@ -9,6 +9,7 @@ require_once('include/tags.php');
 require_once('include/text.php');
 require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
+require_once('include/threads.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -36,7 +37,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 	$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' AND `deny_cid`  = '' AND `deny_gid`  = '' ";
 
 	$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
-		FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
+		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 		WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
 		dbesc($owner_nick)
 	);
@@ -122,15 +123,15 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 
 	$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
 
-	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-		`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`, 
+	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+		`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 		`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
-		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`, 
+		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 		`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 		`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 		LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0 
+		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0
 		AND `item`.`wall` = 1 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
 		$sql_extra
@@ -915,7 +916,7 @@ function encode_rel_links($links) {
 
 function item_store($arr,$force_parent = false) {
 
-	// If a Diaspora signature structure was passed in, pull it out of the 
+	// If a Diaspora signature structure was passed in, pull it out of the
 	// item array and set it aside for later storage.
 
 	$dsprsig = null;
@@ -947,7 +948,7 @@ function item_store($arr,$force_parent = false) {
 
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 
-	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false)) 
+	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
 		$arr['body'] = strip_tags($arr['body']);
 
 
@@ -1058,7 +1059,7 @@ function item_store($arr,$force_parent = false) {
 
 			if($r[0]['uri'] != $r[0]['parent-uri']) {
 				$arr['parent-uri'] = $r[0]['parent-uri'];
-				$z = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d 
+				$z = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d
 					ORDER BY `id` ASC LIMIT 1",
 					dbesc($r[0]['parent-uri']),
 					dbesc($r[0]['parent-uri']),
@@ -1077,18 +1078,32 @@ function item_store($arr,$force_parent = false) {
 			$arr['wall']    = $r[0]['wall'];
 
 			// if the parent is private, force privacy for the entire conversation
-			// This differs from the above settings as it subtly allows comments from 
-			// email correspondents to be private even if the overall thread is not. 
+			// This differs from the above settings as it subtly allows comments from
+			// email correspondents to be private even if the overall thread is not.
 
 			if($r[0]['private'])
 				$arr['private'] = $r[0]['private'];
 
 			// Edge case. We host a public forum that was originally posted to privately.
 			// The original author commented, but as this is a comment, the permissions
-			// weren't fixed up so it will still show the comment as private unless we fix it here. 
+			// weren't fixed up so it will still show the comment as private unless we fix it here.
 
 			if((intval($r[0]['forum_mode']) == 1) && (! $r[0]['private']))
 				$arr['private'] = 0;
+
+
+			// If its a post from myself then tag the thread as "mention"
+			logger("item_store: Checking if parent ".$parent_id." has to be tagged as mention for user ".$arr['uid'], LOGGER_DEBUG);
+			$u = q("select * from user where uid = %d limit 1", intval($arr['uid']));
+			if(count($u)) {
+				$a = get_app();
+				$self = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
+				logger("item_store: 'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
+				if ((normalise_link($arr['author-link']) == $self) OR (normalise_link($arr['owner-link']) == $self)) {
+					q("UPDATE `thread` SET `mention` = 1 WHERE `iid` = %d", intval($parent_id));
+					logger("item_store: tagged thread ".$parent_id." as mention for user ".$self, LOGGER_DEBUG);
+				}
+			}
 		}
 		else {
 
@@ -1150,6 +1165,7 @@ function item_store($arr,$force_parent = false) {
 
 		// Only check for notifications on start posts
 		if ($arr['parent-uri'] === $arr['uri']) {
+			add_thread($r[0]['id']);
 			logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 
 			// Send a notification for every new post?
@@ -1246,6 +1262,7 @@ function item_store($arr,$force_parent = false) {
 		dbesc(datetime_convert()),
 		intval($parent_id)
 	);
+	update_thread($parent_id);
 
 	if($dsprsig) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
@@ -1318,7 +1335,7 @@ function get_item_contact($item,$contacts) {
  */
 function tag_deliver($uid,$item_id) {
 
-	// 
+	//
 
 	$a = get_app();
 
@@ -1448,6 +1465,7 @@ function tag_deliver($uid,$item_id) {
 		dbesc($u[0]['deny_gid']),
 		intval($item_id)
 	);
+	update_thread($item_id);
 
 	proc_run('php','include/notifier.php','tgroup',$item_id);
 
@@ -1965,7 +1983,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					$when = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
 			}
 			if($deleted && is_array($contact)) {
-				$r = q("SELECT `item`.*, `contact`.`self` FROM `item` left join `contact` on `item`.`contact-id` = `contact`.`id` 
+				$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id` 
 					WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
 					dbesc($uri),
 					intval($importer['uid']),
@@ -2023,10 +2041,11 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							intval($importer['uid'])
 						);
 						create_tags_from_itemuri($item['uri'], $importer['uid']);
+						update_thread_uri($item['uri'], $importer['uid']);
 					}
 					else {
 						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
-							`body` = '', `title` = '' 
+							`body` = '', `title` = ''
 							WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($when),
 							dbesc(datetime_convert()),
@@ -2122,6 +2141,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						intval($importer['uid'])
 					);
 					$datarray['last-child'] = 1;
+					update_thread_uri($parent_uri, $importer['uid']);
 				}
 
 
@@ -2148,6 +2168,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							intval($importer['uid'])
 						);
 						create_tags_from_itemuri($item_id, $importer['uid']);
+						update_thread_uri($item_id, $importer['uid']);
 					}
 
 					// update last-child if it changes
@@ -2165,6 +2186,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							dbesc($item_id),
 							intval($importer['uid'])
 						);
+						update_thread_uri($item_id, $importer['uid']);
 					}
 					continue;
 				}
@@ -2291,7 +2313,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Update content if 'updated' changes
 
 				if(count($r)) {
-					if (edited_timestamp_is_newer($r[0], $datarray)) {  
+					if (edited_timestamp_is_newer($r[0], $datarray)) {
 
 						// do not accept (ignore) an earlier edit than one we currently have.
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
@@ -2306,6 +2328,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							intval($importer['uid'])
 						);
 						create_tags_from_itemuri($item_id, $importer['uid']);
+						update_thread_uri($item_id, $importer['uid']);
 					}
 
 					// update last-child if it changes
@@ -2318,6 +2341,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							dbesc($item_id),
 							intval($importer['uid'])
 						);
+						update_thread_uri($item_id, $importer['uid']);
 					}
 					continue;
 				}
@@ -2556,65 +2580,65 @@ function local_delivery($importer,$data) {
 		/*$newloc['pubkey'] = notags(unxmlify($base['pubkey'][0]['data']));
 		$newloc['prvkey'] = notags(unxmlify($base['prvkey'][0]['data']));*/
 
-        logger("items:relocate contact ".print_r($newloc, true).print_r($importer, true), LOGGER_DEBUG);
+		logger("items:relocate contact ".print_r($newloc, true).print_r($importer, true), LOGGER_DEBUG);
 
-        // update contact
-        $r = q("SELECT photo, url FROM contact WHERE id=%d AND uid=%d;",
-                    intval($importer['id']),
-					intval($importer['importer_uid']));
+		// update contact
+		$r = q("SELECT photo, url FROM contact WHERE id=%d AND uid=%d;",
+			intval($importer['id']),
+			intval($importer['importer_uid']));
 		if ($r === false)
 			return 1;
-        $old = $r[0];
+		$old = $r[0];
 
-        $x = q("UPDATE contact SET
-                        name = '%s',
-                        photo = '%s',
-                        thumb = '%s',
-                        micro = '%s',
-                        url = '%s',
-                        request = '%s',
-                        confirm = '%s',
-                        notify = '%s',
-                        poll = '%s',
-                        `site-pubkey` = '%s'
-                WHERE id=%d AND uid=%d;",
-                    dbesc($newloc['name']),
-                    dbesc($newloc['photo']),
-                    dbesc($newloc['thumb']),
-                    dbesc($newloc['micro']),
-                    dbesc($newloc['url']),
-                    dbesc($newloc['request']),
-                    dbesc($newloc['confirm']),
-                    dbesc($newloc['notify']),
-                    dbesc($newloc['poll']),
-                    dbesc($newloc['sitepubkey']),
-                    intval($importer['id']),
+		$x = q("UPDATE contact SET
+					name = '%s',
+					photo = '%s',
+					thumb = '%s',
+					micro = '%s',
+					url = '%s',
+					request = '%s',
+					confirm = '%s',
+					notify = '%s',
+					poll = '%s',
+					`site-pubkey` = '%s'
+			WHERE id=%d AND uid=%d;",
+					dbesc($newloc['name']),
+					dbesc($newloc['photo']),
+					dbesc($newloc['thumb']),
+					dbesc($newloc['micro']),
+					dbesc($newloc['url']),
+					dbesc($newloc['request']),
+					dbesc($newloc['confirm']),
+					dbesc($newloc['notify']),
+					dbesc($newloc['poll']),
+					dbesc($newloc['sitepubkey']),
+					intval($importer['id']),
 					intval($importer['importer_uid']));
 
-        if ($x === false)
+		if ($x === false)
 			return 1;
-        // update items
-        $fields = array(
-            'owner-link' => array($old['url'], $newloc['url']),
-            'author-link' => array($old['url'], $newloc['url']),
-            'owner-avatar' => array($old['photo'], $newloc['photo']),
-            'author-avatar' => array($old['photo'], $newloc['photo']),
-        );
-        foreach ($fields as $n=>$f){
-            $x = q("UPDATE item SET `%s`='%s' WHERE `%s`='%s' AND uid=%d",
-                        $n, dbesc($f[1]),
-                        $n, dbesc($f[0]),
-                        intval($importer['importer_uid']));
-			if ($x === false)
-				return 1;
-		}
+		// update items
+		$fields = array(
+			'owner-link' => array($old['url'], $newloc['url']),
+			'author-link' => array($old['url'], $newloc['url']),
+			'owner-avatar' => array($old['photo'], $newloc['photo']),
+			'author-avatar' => array($old['photo'], $newloc['photo']),
+			);
+		foreach ($fields as $n=>$f){
+			$x = q("UPDATE `item` SET `%s`='%s' WHERE `%s`='%s' AND uid=%d",
+					$n, dbesc($f[1]),
+					$n, dbesc($f[0]),
+					intval($importer['importer_uid']));
+				if ($x === false)
+					return 1;
+			}
 
 		// TODO
 		// merge with current record, current contents have priority
 		// update record, set url-updated
 		// update profile photos
 		// schedule a scan?
-        return 0;
+		return 0;
 	}
 
 
@@ -2832,7 +2856,7 @@ function local_delivery($importer,$data) {
 					// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
 					$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`, 
 						`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item` 
-						LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
+						INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` 
 						WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
 						AND `item`.`uid` = %d 
 						$sql_extra
@@ -2862,7 +2886,7 @@ function local_delivery($importer,$data) {
 					}
 				}
 
-				$r = q("SELECT `item`.*, `contact`.`self` FROM `item` left join contact on `item`.`contact-id` = `contact`.`id`
+				$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN contact on `item`.`contact-id` = `contact`.`id`
 					WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
 					dbesc($uri),
 					intval($importer['importer_uid']),
@@ -2924,6 +2948,7 @@ function local_delivery($importer,$data) {
 							intval($importer['importer_uid'])
 						);
 						create_tags_from_itemuri($item['uri'], $importer['importer_uid']);
+						update_thread_uri($item['uri'], $importer['importer_uid']);
 					}
 					else {
 						$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
@@ -2935,6 +2960,7 @@ function local_delivery($importer,$data) {
 							intval($importer['importer_uid'])
 						);
 						create_tags_from_itemuri($uri, $importer['importer_uid']);
+						update_thread_uri($uri, $importer['importer_uid']);
 						if($item['last-child']) {
 							// ensure that last-child is set in case the comment that had it just got wiped.
 							q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d ",
@@ -3003,7 +3029,7 @@ function local_delivery($importer,$data) {
 				// POSSIBLE CLEANUP --> Why select so many fields when only forum_mode and wall are used?
 				$r = q("select `item`.`id`, `item`.`uri`, `item`.`tag`, `item`.`forum_mode`,`item`.`origin`,`item`.`wall`,
 					`contact`.`name`, `contact`.`url`, `contact`.`thumb` from `item`
-					LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
 					AND `item`.`uid` = %d
 					$sql_extra
@@ -3346,7 +3372,7 @@ function local_delivery($importer,$data) {
 									continue;
 
 								require_once('include/enotify.php');
-								
+
 								$conv_parent = $conv['parent'];
 
 								notification(array(
@@ -3430,6 +3456,7 @@ function local_delivery($importer,$data) {
 						intval($importer['importer_uid'])
 					);
 					create_tags_from_itemuri($item_id, $importer['importer_uid']);
+					update_thread_uri($item_id, $importer['importer_uid']);
 				}
 
 				// update last-child if it changes
@@ -4154,6 +4181,7 @@ function drop_item($id,$interactive = true) {
 			intval($item['id'])
 		);
 		create_tags_from_item($item['id']);
+		delete_thread($item['id']);
 
 		// clean up categories and tags so they don't end up as orphans
 
@@ -4248,6 +4276,7 @@ function drop_item($id,$interactive = true) {
 				intval($item['uid'])
 			);
 			create_tags_from_item($item['parent-uri'], $item['uid']);
+			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		}
 		else {
@@ -4294,8 +4323,8 @@ function drop_item($id,$interactive = true) {
 
 
 function first_post_date($uid,$wall = false) {
-	$r = q("select id, created from item 
-		where uid = %d and wall = %d and deleted = 0 and visible = 1 AND moderated = 0 
+	$r = q("select id, created from item
+		where uid = %d and wall = %d and deleted = 0 and visible = 1 AND moderated = 0
 		and id = parent
 		order by created asc limit 1",
 		intval($uid),

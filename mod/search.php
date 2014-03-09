@@ -131,7 +131,7 @@ function search_content(&$a) {
 		//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d",
 		//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d group by `item`.`uri` ",
 		//			dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-		//$sql_table = "`term` LEFT JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
+		//$sql_table = "`term` INNER JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
 		//$sql_order = "`term`.`tid`";
 		//$sql_order = "`item`.`received`";
 
@@ -162,11 +162,12 @@ function search_content(&$a) {
 
 	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
 	        $r = q("SELECT distinct(`item`.`uri`) as `total`
-		        FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
-		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0) 
-			        OR ( `item`.`uid` = %d ))
+		        FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0)
+			        OR ( `item`.`uid` = %d ))
 		        $sql_extra ",
 		        intval(local_user())
 	        );
@@ -186,12 +187,12 @@ function search_content(&$a) {
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
 		`user`.`nickname`, `user`.`uid`, `user`.`hidewall`
-		FROM $sql_table LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		LEFT JOIN `user` ON `user`.`uid` = `item`.`uid`
+		FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+		INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 		WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 		AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0 ) 
 			OR ( `item`.`uid` = %d ))
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		$sql_extra
 		ORDER BY $sql_order DESC LIMIT %d , %d ",
 		intval(local_user()),

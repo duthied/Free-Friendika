@@ -111,7 +111,7 @@ function queue_run(&$argv, &$argc){
 	}
 
 	$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue` 
-		LEFT JOIN `contact` ON `queue`.`cid` = `contact`.`id` 
+		INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id` 
 		WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 	if($r) {
 		foreach($r as $rr) {

@@ -207,7 +207,7 @@ function notifier_run(&$argv, &$argc){
 	$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`, 
 		`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`, 
 		`user`.`page-flags`, `user`.`prvnets`
-		FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
+		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
 		WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 		intval($uid)
 	);
@@ -643,7 +643,7 @@ function notifier_run(&$argv, &$argc){
 							`contact`.`name` as `senderName`,
 							`user`.* 
 							FROM `contact` 
-							LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid` 
+							INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` 
 							WHERE `contact`.`blocked` = 0 AND `contact`.`archive` = 0
 							AND `contact`.`pending` = 0
 							AND `contact`.`network` = '%s' AND `user`.`nickname` = '%s'

@@ -157,7 +157,7 @@ function group_get_members($gid) {
 	$ret = array();
 	if(intval($gid)) {
 		$r = q("SELECT `group_member`.`contact-id`, `contact`.* FROM `group_member` 
-			LEFT JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
+			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
 			WHERE `gid` = %d AND `group_member`.`uid` = %d ORDER BY `contact`.`name` ASC ",
 			intval($gid),
 			intval(local_user())
@@ -172,7 +172,7 @@ function group_public_members($gid) {
 	$ret = 0;
 	if(intval($gid)) {
 		$r = q("SELECT `contact`.`id` AS `contact-id` FROM `group_member` 
-			LEFT JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
+			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
 			WHERE `gid` = %d AND `group_member`.`uid` = %d 
 			AND  `contact`.`network` = '%s' AND `contact`.`notify` != '' ",
 			intval($gid),
@@ -299,7 +299,7 @@ function expand_groups($a,$check_dead = false) {
 
 function member_of($c) {
 
-	$r = q("SELECT `group`.`name`, `group`.`id` FROM `group` LEFT JOIN `group_member` ON `group_member`.`gid` = `group`.`id` WHERE `group_member`.`contact-id` = %d AND `group`.`deleted` = 0 ORDER BY `group`.`name`  ASC ",
+	$r = q("SELECT `group`.`name`, `group`.`id` FROM `group` INNER JOIN `group_member` ON `group_member`.`gid` = `group`.`id` WHERE `group_member`.`contact-id` = %d AND `group`.`deleted` = 0 ORDER BY `group`.`name`  ASC ",
 		intval($c)
 	);
 

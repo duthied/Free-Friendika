@@ -6,6 +6,7 @@ require_once('include/bbcode.php');
 require_once('include/security.php');
 require_once('include/redir.php');
 require_once('include/tags.php');
+require_once('include/threads.php');
 
 function photos_init(&$a) {
 
@@ -253,6 +254,7 @@ function photos_post(&$a) {
 						intval($page_owner_uid)
 					);
 					create_tags_from_itemuri($rr['parent-uri'], $page_owner_uid);
+					delete_thread_uri($rr['parent-uri'], $page_owner_uid);
 
 					$drop_id = intval($rr['id']);
 
@@ -323,6 +325,7 @@ function photos_post(&$a) {
 					intval($page_owner_uid)
 				);
 				create_tags_from_itemuri($i[0]['uri'], $page_owner_uid);
+				delete_thread_uri($i[0]['uri'], $page_owner_uid);
 
 				$url = $a->get_baseurl();
 				$drop_id = intval($i[0]['id']);
@@ -371,7 +374,7 @@ function photos_post(&$a) {
 					$width  = $ph->getWidth();
 					$height = $ph->getHeight();
 
-					$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 0 limit 1",
+					$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 0",
 						dbesc($ph->imageString()),
 						intval($height),
 						intval($width),
@@ -384,7 +387,7 @@ function photos_post(&$a) {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 1 limit 1",
+						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 1",
 							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -398,7 +401,7 @@ function photos_post(&$a) {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 2 limit 1",
+						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 2",
 							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -599,7 +602,7 @@ function photos_post(&$a) {
 				$newinform .= ',';
 			$newinform .= $inform;
 
-			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($newtag),
 				dbesc($newinform),
 				dbesc(datetime_convert()),
@@ -608,6 +611,7 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 			create_tags_from_item($item_id);
+			update_thread($item_id);
 
 			$best = 0;
 			foreach($p as $scales) {
@@ -668,7 +672,7 @@ function photos_post(&$a) {
 
 					$item_id = item_store($arr);
 					if($item_id) {
-						q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+						q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
 							dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
 							intval($page_owner_uid),
 							intval($item_id)
@@ -877,7 +881,7 @@ function photos_post(&$a) {
 	$item_id = item_store($arr);
 
 	if($item_id) {
-		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
+		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
 			dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
 			intval($page_owner_uid),
 			intval($item_id)
@@ -1431,6 +1435,7 @@ function photos_content(&$a) {
 					intval($link_item['parent']),
 					intval(local_user())
 				);
+				update_thread($link_item['parent']);
 			}
 		}
 

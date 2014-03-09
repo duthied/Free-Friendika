@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1169 );
+define( 'UPDATE_VERSION' , 1170 );
 
 /**
  *
@@ -1554,6 +1554,51 @@ function update_1168() {
 	$r = q("ALTER TABLE `contact` ADD `fetch_further_information` TINYINT(1) NOT NULL DEFAULT '0'");
 	if (!$r)
 		return UPDATE_FAILED;
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1169() {
+	$r = q("CREATE TABLE IF NOT EXISTS `thread` (
+		  `iid` int(10) unsigned NOT NULL DEFAULT '0',
+		  `uid` int(10) unsigned NOT NULL DEFAULT '0',
+		  `contact-id` int(10) unsigned NOT NULL DEFAULT '0',
+		  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		  `edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		  `commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		  `received` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		  `changed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		  `wall` tinyint(1) NOT NULL DEFAULT '0',
+		  `private` tinyint(1) NOT NULL DEFAULT '0',
+		  `pubmail` tinyint(1) NOT NULL DEFAULT '0',
+		  `moderated` tinyint(1) NOT NULL DEFAULT '0',
+		  `visible` tinyint(1) NOT NULL DEFAULT '0',
+		  `spam` tinyint(1) NOT NULL DEFAULT '0',
+		  `starred` tinyint(1) NOT NULL DEFAULT '0',
+		  `bookmark` tinyint(1) NOT NULL DEFAULT '0',
+		  `unseen` tinyint(1) NOT NULL DEFAULT '1',
+		  `deleted` tinyint(1) NOT NULL DEFAULT '0',
+		  `origin` tinyint(1) NOT NULL DEFAULT '0',
+		  `forum_mode` tinyint(1) NOT NULL DEFAULT '0',
+		  `mention` tinyint(1) NOT NULL DEFAULT '0',
+		  `network` char(32) NOT NULL,
+		  PRIMARY KEY (`iid`),
+		  KEY `uid` (`uid`),
+		  KEY `contact-id` (`contact-id`),
+		  KEY `created` (`created`),
+		  KEY `edited` (`edited`),
+		  KEY `commented` (`commented`),
+		  KEY `received` (`received`),
+		  KEY `changed` (`changed`),
+		  KEY `network` (`network`)
+		  KEY `visible_deleted_moderated_private_wall_received` (`visible`,`deleted`,`moderated`,`private`,`wall`,`received`),
+		  KEY `uid_visible_deleted_moderated_created` (`uid`,`visible`,`deleted`,`moderated`,`created`),
+		  KEY `uid_visible_deleted_moderated_commented` (`uid`,`visible`,`deleted`,`moderated`,`commented`)
+		) ENGINE=MyISAM  DEFAULT CHARSET=utf8;");
+	if (!$r)
+		return UPDATE_FAILED;
+
+	proc_run('php',"include/threadupdate.php");
 
 	return UPDATE_SUCCESS;
 }

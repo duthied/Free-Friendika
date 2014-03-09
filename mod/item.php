@@ -20,6 +20,7 @@ require_once('include/enotify.php');
 require_once('include/email.php');
 require_once('library/langdet/Text/LanguageDetect.php');
 require_once('include/tags.php');
+require_once('include/threads.php');
 
 function item_post(&$a) {
 
@@ -705,6 +706,7 @@ function item_post(&$a) {
 			intval($profile_uid)
 		);
 		create_tags_from_itemuri($post_id, $profile_uid);
+		update_thread_uri($post_id, $profile_uid);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -772,6 +774,7 @@ function item_post(&$a) {
 		$post_id = $r[0]['id'];
 		logger('mod_item: saved item ' . $post_id);
 		create_tags_from_item($post_id);
+		add_thread($post_id);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -794,8 +797,9 @@ function item_post(&$a) {
 				dbesc(datetime_convert()),
 				intval($parent)
 			);
+			update_thread($parent, true);
 
-			// Inherit ACL's from the parent item.
+			// Inherit ACLs from the parent item.
 
 			$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
 				WHERE `id` = %d",
@@ -825,15 +829,14 @@ function item_post(&$a) {
 					'parent'       => $parent,
 					'parent_uri'   => $parent_item['uri']
 				));
-			
+
 			}
 
 
 			// Store the comment signature information in case we need to relay to Diaspora
 			store_diaspora_comment_sig($datarray, $author, ($self ? $a->user['prvkey'] : false), $parent_item, $post_id);
 
-		}
-		else {
+		} else {
 			$parent = $post_id;
 
 			if($contact_record != $author) {
@@ -868,6 +871,7 @@ function item_post(&$a) {
 			dbesc(datetime_convert()),
 			intval($post_id)
 		);
+		update_thread($post_id);
 
 		// photo comments turn the corresponding item visible to the profile wall
 		// This way we don't see every picture in your new photo album posted to your wall at once.
@@ -877,6 +881,7 @@ function item_post(&$a) {
 			$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
 				intval($parent_item['id'])
 			);
+			update_thread($parent_item['id']);
 		}
 	}
 	else {
@@ -893,6 +898,7 @@ function item_post(&$a) {
 		dbesc(datetime_convert()),
 		intval($parent)
 	);
+	update_thread($parent);
 
 	$datarray['id']    = $post_id;
 	$datarray['plink'] = $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id;

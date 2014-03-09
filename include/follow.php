@@ -262,7 +262,7 @@ function new_contact($uid,$url,$interactive = false) {
 		'$ostat_follow' => ''
 	));
 
-	$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid` 
+	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` 
 			WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 	);
