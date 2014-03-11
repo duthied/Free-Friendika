@@ -196,14 +196,14 @@ function settings_post(&$a) {
 				if(strlen($mail_pass)) {
 					$pass = '';
 					openssl_public_encrypt($mail_pass,$pass,$a->user['pubkey']);
-					q("UPDATE `mailacct` SET `pass` = '%s' WHERE `uid` = %d LIMIT 1",
+					q("UPDATE `mailacct` SET `pass` = '%s' WHERE `uid` = %d",
 						dbesc(bin2hex($pass)),
 						intval(local_user())
 					);
 				}
 				$r = q("UPDATE `mailacct` SET `server` = '%s', `port` = %d, `ssltype` = '%s', `user` = '%s',
 					`action` = %d, `movetofolder` = '%s',
-					`mailbox` = 'INBOX', `reply_to` = '%s', `pubmail` = %d WHERE `uid` = %d LIMIT 1",
+					`mailbox` = 'INBOX', `reply_to` = '%s', `pubmail` = %d WHERE `uid` = %d",
 					dbesc($mail_server),
 					intval($mail_port),
 					dbesc($mail_ssl),
@@ -294,7 +294,7 @@ function settings_post(&$a) {
 		}
 
 
-		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d LIMIT 1",
+		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				dbesc($theme),
 				intval(local_user())
 		);
@@ -341,7 +341,7 @@ function settings_post(&$a) {
 
 		if(! $err) {
 			$password = hash('whirlpool',$newpass);
-			$r = q("UPDATE `user` SET `password` = '%s' WHERE `uid` = %d LIMIT 1",
+			$r = q("UPDATE `user` SET `password` = '%s' WHERE `uid` = %d",
 				dbesc($password),
 				intval(local_user())
 			);
@@ -499,7 +499,7 @@ function settings_post(&$a) {
 		}
 	}
 
-	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s', `openid` = '%s', `timezone` = '%s',  `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `notify-flags` = %d, `page-flags` = %d, `default-location` = '%s', `allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s', `def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d, `unkmail` = %d, `cntunkmail` = %d  WHERE `uid` = %d LIMIT 1",
+	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s', `openid` = '%s', `timezone` = '%s',  `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `notify-flags` = %d, `page-flags` = %d, `default-location` = '%s', `allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s', `def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d, `unkmail` = %d, `cntunkmail` = %d  WHERE `uid` = %d",
 			dbesc($username),
 			dbesc($email),
 			dbesc($openid),
@@ -526,12 +526,12 @@ function settings_post(&$a) {
 	if($r)
 		info( t('Settings updated.') . EOL);
 
-	$r = q("UPDATE `profile` 
-		SET `publish` = %d, 
+	$r = q("UPDATE `profile`
+		SET `publish` = %d,
 		`name` = '%s',
 		`net-publish` = %d,
 		`hide-friends` = %d
-		WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
+		WHERE `is-default` = 1 AND `uid` = %d",
 		intval($publish),
 		dbesc($username),
 		intval($net_publish),
@@ -541,7 +541,7 @@ function settings_post(&$a) {
 
 
 	if($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self` = 1 LIMIT 1",
+		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self` = 1",
 			dbesc($username),
 			dbesc(datetime_convert()),
 			intval(local_user())

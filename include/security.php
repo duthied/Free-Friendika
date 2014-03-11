@@ -36,7 +36,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$a->timezone = $a->user['timezone'];
 	}
 
-	$master_record = $a->user;	
+	$master_record = $a->user;
 
 	if((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
 		$r = q("select * from user where uid = %d limit 1",
@@ -81,7 +81,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	if($login_initial || $login_refresh) {
 		$l = get_browser_language();
 
-		q("UPDATE `user` SET `login_date` = '%s', `language` = '%s' WHERE `uid` = %d LIMIT 1",
+		q("UPDATE `user` SET `login_date` = '%s', `language` = '%s' WHERE `uid` = %d",
 			dbesc(datetime_convert()),
 			dbesc($l),
 			intval($_SESSION['uid'])
@@ -209,7 +209,7 @@ function permissions_sql($owner_id,$remote_verified = false,$groups = null) {
 			}
 		}
 		if($remote_verified) {
-		
+
 			$gs = '<<>>'; // should be impossible to match
 
 			if(is_array($groups) && count($groups)) {

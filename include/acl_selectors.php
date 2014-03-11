@@ -399,19 +399,19 @@ function acl_lookup(&$a, $out_type = 'json') {
 	} else {
 		$sql_extra = $sql_extra2 = "";
 	}
-	
+
 	// count groups and contacts
 	if ($type=='' || $type=='g'){
-		$r = q("SELECT COUNT(`id`) AS g FROM `group` WHERE `deleted` = 0 AND `uid` = %d $sql_extra",
+		$r = q("SELECT COUNT(*) AS g FROM `group` WHERE `deleted` = 0 AND `uid` = %d $sql_extra",
 			intval(local_user())
 		);
 		$group_count = (int)$r[0]['g'];
 	} else {
 		$group_count = 0;
 	}
-	
+
 	if ($type=='' || $type=='c'){
-		$r = q("SELECT COUNT(`id`) AS c FROM `contact` 
+		$r = q("SELECT COUNT(*) AS c FROM `contact` 
 				WHERE `uid` = %d AND `self` = 0 
 				AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
 				AND `notify` != '' $sql_extra2" ,
@@ -423,7 +423,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 		// autocomplete for Private Messages
 
-		$r = q("SELECT COUNT(`id`) AS c FROM `contact` 
+		$r = q("SELECT COUNT(*) AS c FROM `contact` 
 				WHERE `uid` = %d AND `self` = 0 
 				AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 
 				AND `network` IN ('%s','%s','%s') $sql_extra2" ,
@@ -439,7 +439,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 		// autocomplete for Contacts
 
-		$r = q("SELECT COUNT(`id`) AS c FROM `contact` 
+		$r = q("SELECT COUNT(*) AS c FROM `contact` 
 				WHERE `uid` = %d AND `self` = 0 
 				AND `pending` = 0 $sql_extra2" ,
 			intval(local_user())

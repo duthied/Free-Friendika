@@ -65,13 +65,12 @@ function community_content(&$a, $update = 0) {
 
 	}
 
-	//$r = q("SELECT distinct(`item`.`uri`)
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
 		`user`.`nickname`, `user`.`hidewall`
-		FROM `thread` FORCE INDEX (`visible_deleted_moderated_private_wall_received`)
+		FROM `thread` FORCE INDEX (`wall_private_received`)
 		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND `user`.`hidewall` = 0
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''

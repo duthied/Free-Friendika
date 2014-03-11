@@ -64,13 +64,13 @@ function contact_remove($id) {
 
 	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
 	if($archive) {
-		q("update contact set `archive` = 1, `network` = 'none', `writable` = 0 where id = %d limit 1",
+		q("update contact set `archive` = 1, `network` = 'none', `writable` = 0 where id = %d",
 			intval($id)
 		);
 		return;
 	}
 
-	q("DELETE FROM `contact` WHERE `id` = %d LIMIT 1",
+	q("DELETE FROM `contact` WHERE `id` = %d",
 		intval($id)
 	);
 	q("DELETE FROM `item` WHERE `contact-id` = %d ",
@@ -148,7 +148,7 @@ function mark_for_death($contact) {
 		return;
 
 	if($contact['term-date'] == '0000-00-00 00:00:00') {
-		q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d LIMIT 1",
+		q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 		);
@@ -166,7 +166,7 @@ function mark_for_death($contact) {
 			// archive them rather than delete
 			// though if the owner tries to unarchive them we'll start the whole process over again
 
-			q("update contact set `archive` = 1 where id = %d limit 1",
+			q("update contact set `archive` = 1 where id = %d",
 				intval($contact['id'])
 			);
 			q("UPDATE `item` SET `private` = 2 WHERE `contact-id` = %d AND `uid` = %d", intval($contact['id']), intval($contact['uid']));
@@ -181,7 +181,7 @@ function mark_for_death($contact) {
 if(! function_exists('unmark_for_death')) {
 function unmark_for_death($contact) {
 	// It's a miracle. Our dead contact has inexplicably come back to life.
-	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d LIMIT 1",
+	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 		dbesc('0000-00-00 00:00:00'),
 		intval($contact['id'])
 	);

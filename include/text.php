@@ -482,9 +482,9 @@ if(! function_exists('photo_new_resource')) {
 /**
  * Generate a guaranteed unique photo ID.
  * safe from birthday paradox
- * 
+ *
  * @return string
- */	
+ */
 function photo_new_resource() {
 
 	do {
@@ -505,7 +505,7 @@ if(! function_exists('load_view_file')) {
  * @deprecated
  * wrapper to load a view template, checking for alternate
  * languages before falling back to the default
- * 
+ *
  * @global string $lang
  * @global App $a
  * @param string $s view name
@@ -2076,7 +2076,7 @@ function file_tag_save_file($uid,$item,$file) {
 	);
 	if(count($r)) {
 		if(! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']'))
-			q("update item set file = '%s' where id = %d and uid = %d limit 1",
+			q("update item set file = '%s' where id = %d and uid = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
 				intval($item),
 				intval($uid)
@@ -2107,7 +2107,7 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 	if(! count($r))
 		return false;
 
-	q("update item set file = '%s' where id = %d and uid = %d limit 1",
+	q("update item set file = '%s' where id = %d and uid = %d",
 		dbesc(str_replace($pattern,'',$r[0]['file'])),
 		intval($item),
 		intval($uid)

@@ -92,7 +92,7 @@ function update_1006() {
 			$spkey = openssl_pkey_get_details($sres);
 			$spubkey = $spkey["key"];
 			$r = q("UPDATE `user` SET `spubkey` = '%s', `sprvkey` = '%s'
-				WHERE `uid` = %d LIMIT 1",
+				WHERE `uid` = %d",
 				dbesc($spubkey),
 				dbesc($sprvkey),
 				intval($rr['uid'])
@@ -123,7 +123,7 @@ function update_1011() {
 	$r = q("SELECT * FROM `contact` WHERE 1");
 	if(count($r)) {
 		foreach($r as $rr) {
-				q("UPDATE `contact` SET `nick` = '%s' WHERE `id` = %d LIMIT 1",
+				q("UPDATE `contact` SET `nick` = '%s' WHERE `id` = %d",
 					dbesc(basename($rr['url'])),
 					intval($rr['id'])
 				);
@@ -157,11 +157,11 @@ function update_1014() {
 	if(count($r)) {
 		foreach($r as $rr) {		
 			if(stristr($rr['thumb'],'avatar'))
-				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d LIMIT 1",
+				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('avatar','micro',$rr['thumb'])),
 					intval($rr['id']));
 			else
-				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d LIMIT 1",
+				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('5.jpg','6.jpg',$rr['thumb'])),
 					intval($rr['id']));
 		}
@@ -310,7 +310,7 @@ function update_1031() {
 	if($r && count($r)) {
 		foreach($r as $rr) {
 			if(strstr($rr['object'],'type=&quot;http')) {
-				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d LIMIT 1",
+				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('type=&quot;http','href=&quot;http',$rr['object'])),
 					intval($rr['id'])
 				);
@@ -357,7 +357,7 @@ function update_1036() {
 	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' && `photo` LIKE '%include/photo%' ");
 	if(count($r)) {
 		foreach($r as $rr) {
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d LIMIT 1",
+			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
 				dbesc(str_replace('include/photo','photo',$rr['photo'])),
 				dbesc(str_replace('include/photo','photo',$rr['thumb'])),
 				dbesc(str_replace('include/photo','photo',$rr['micro'])),
@@ -595,7 +595,7 @@ function update_1074() {
 	$r = q("SELECT `uid` FROM `profile` WHERE `is-default` = 1 AND `hidewall` = 1");
 	if(count($r)) {
 		foreach($r as $rr)
-			q("UPDATE `user` SET `hidewall` = 1 WHERE `uid` = %d LIMIT 1",
+			q("UPDATE `user` SET `hidewall` = 1 WHERE `uid` = %d",
 				intval($rr['uid'])
 			);
 	}
@@ -617,7 +617,7 @@ function update_1075() {
 					$found = false;
 			} while ($found == true );
 
-			q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d LIMIT 1",
+			q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d",
 				dbesc($guid),
 				intval($rr['uid'])
 			);
@@ -736,7 +736,7 @@ function update_1087() {
 				intval($rr['id'])
 			);
 			if(count($x))
-				q("UPDATE `item` SET `commented` = '%s' WHERE `id` = %d LIMIT 1",
+				q("UPDATE `item` SET `commented` = '%s' WHERE `id` = %d",
 					dbesc($x[0]['cdate']),
 					intval($rr['id'])
 				);
@@ -855,7 +855,7 @@ function update_1100() {
 	$r = q("select id, url from contact where url != '' and nurl = '' ");
 	if(count($r)) {
 		foreach($r as $rr) {
-			q("update contact set nurl = '%s' where id = %d limit 1",
+			q("update contact set nurl = '%s' where id = %d",
 				dbesc(normalise_link($rr['url'])),
 				intval($rr['id'])
 			); 
@@ -1173,7 +1173,7 @@ function update_1136() {
 			foreach($arr as $x) {
 				if($x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
 					$found = true;
-					q("delete from config where id = %d limit 1",
+					q("delete from config where id = %d",
 						intval($rr['id'])
 					);
 				}
@@ -1192,7 +1192,7 @@ function update_1136() {
 			foreach($arr as $x) {
 				if($x['uid'] == $rr['uid'] && $x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
 					$found = true;
-					q("delete from pconfig where id = %d limit 1",
+					q("delete from pconfig where id = %d",
 						intval($rr['id'])
 					);
 				}

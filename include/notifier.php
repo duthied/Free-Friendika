@@ -443,7 +443,7 @@ function notifier_run(&$argv, &$argc){
 			set_config('system','site_prvkey', $res['prvkey']);
 			set_config('system','site_pubkey', $res['pubkey']);
 		}
-		
+
 		$rp = q("SELECT `resource-id` , `scale`, type FROM `photo` 
 						WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
 		$photos = array();
@@ -635,15 +635,15 @@ function notifier_run(&$argv, &$argc){
 						else
 							$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($contact['dfrn-id']));
 
-						$x = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`, 
-							`contact`.`pubkey` AS `cpubkey`, 
-							`contact`.`prvkey` AS `cprvkey`, 
-							`contact`.`thumb` AS `thumb`, 
+						$x = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`,
+							`contact`.`pubkey` AS `cpubkey`,
+							`contact`.`prvkey` AS `cprvkey`,
+							`contact`.`thumb` AS `thumb`,
 							`contact`.`url` as `url`,
 							`contact`.`name` as `senderName`,
-							`user`.* 
-							FROM `contact` 
-							INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` 
+							`user`.*
+							FROM `contact`
+							INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 							WHERE `contact`.`blocked` = 0 AND `contact`.`archive` = 0
 							AND `contact`.`pending` = 0
 							AND `contact`.`network` = '%s' AND `user`.`nickname` = '%s'
@@ -656,7 +656,7 @@ function notifier_run(&$argv, &$argc){
 						if($x && count($x)) {
 							$write_flag = ((($x[0]['rel']) && ($x[0]['rel'] != CONTACT_IS_SHARING)) ? true : false);
 							if((($owner['page-flags'] == PAGE_COMMUNITY) || ($write_flag)) && (! $x[0]['writable'])) {
-								q("update contact set writable = 1 where id = %d limit 1",
+								q("update contact set writable = 1 where id = %d",
 									intval($x[0]['id'])
 								);
 								$x[0]['writable'] = 1;
@@ -730,7 +730,7 @@ function notifier_run(&$argv, &$argc){
 
 				case NETWORK_MAIL:
 				case NETWORK_MAIL2:
-						
+
 					if(get_config('system','dfrn_only'))
 						break;
 
@@ -755,7 +755,7 @@ function notifier_run(&$argv, &$argc){
 						}
 						if(! $it)
 							break;
-						
+
 
 
 						$local_user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
@@ -763,7 +763,7 @@ function notifier_run(&$argv, &$argc){
 						);
 						if(! count($local_user))
 							break;
-						
+
 						$reply_to = '';
 						$r1 = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 							intval($uid)

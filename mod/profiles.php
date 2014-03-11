@@ -76,7 +76,7 @@ function profiles_init(&$a) {
 			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
 
 		goaway($a->get_baseurl(true) . '/profiles');
-	} 
+	}
 
 	if(($a->argc > 2) && ($a->argv[1] === 'clone')) {
 
@@ -98,16 +98,16 @@ function profiles_init(&$a) {
 		}
 		unset($r1[0]['id']);
 		$r1[0]['is-default'] = 0;
-		$r1[0]['publish'] = 0;	
-		$r1[0]['net-publish'] = 0;	
+		$r1[0]['publish'] = 0;
+		$r1[0]['net-publish'] = 0;
 		$r1[0]['profile-name'] = dbesc($name);
 
 		dbesc_array($r1[0]);
 
-		$r2 = dbq("INSERT INTO `profile` (`" 
-			. implode("`, `", array_keys($r1[0])) 
-			. "`) VALUES ('" 
-			. implode("', '", array_values($r1[0])) 
+		$r2 = dbq("INSERT INTO `profile` (`"
+			. implode("`, `", array_keys($r1[0]))
+			. "`) VALUES ('"
+			. implode("', '", array_values($r1[0]))
 			. "')" );
 
 		$r3 = q("SELECT `id` FROM `profile` WHERE `uid` = %d AND `profile-name` = '%s' LIMIT 1",
@@ -162,7 +162,7 @@ function profiles_post(&$a) {
 		}
 
 		check_form_security_token_redirectOnErr('/profiles', 'profile_edit');
-		
+
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
 		$profile_name = notags(trim($_POST['profile_name']));
@@ -170,7 +170,7 @@ function profiles_post(&$a) {
 			notify( t('Profile Name is required.') . EOL);
 			return;
 		}
-	
+
 		$year = intval($_POST['year']);
 		if($year < 1900 || $year > 2100 || $year < 0)
 			$year = 0;

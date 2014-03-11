@@ -384,26 +384,26 @@
 				intval(api_user())
 			);
 
+			//AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
 			// count public wall messages
-			$r = q("SELECT COUNT(`id`) as `count` FROM `item`
+			$r = q("SELECT count(*) as `count` FROM `item` force index (uid_type)
 					WHERE  `uid` = %d
-					AND `type`='wall'
-					AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
+					AND `type`='wall'",
 					intval($uinfo[0]['uid'])
 			);
 			$countitms = $r[0]['count'];
 		}
 		else {
-			$r = q("SELECT COUNT(`id`) as `count` FROM `item`
-					WHERE  `contact-id` = %d
-					AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
+			//AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
+			$r = q("SELECT count(*) as `count` FROM `item`
+					WHERE  `contact-id` = %d",
 					intval($uinfo[0]['id'])
 			);
 			$countitms = $r[0]['count'];
 		}
 
 		// count friends
-		$r = q("SELECT COUNT(`id`) as `count` FROM `contact`
+		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
 				AND `self`=0 AND `blocked`=0 AND `pending`=0 AND `hidden`=0",
 				intval($uinfo[0]['uid']),
@@ -412,7 +412,7 @@
 		);
 		$countfriends = $r[0]['count'];
 
-		$r = q("SELECT COUNT(`id`) as `count` FROM `contact`
+		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
 				AND `self`=0 AND `blocked`=0 AND `pending`=0 AND `hidden`=0",
 				intval($uinfo[0]['uid']),
@@ -421,7 +421,7 @@
 		);
 		$countfollowers = $r[0]['count'];
 
-		$r = q("SELECT count(`id`) as `count` FROM item where starred = 1 and uid = %d and deleted = 0",
+		$r = q("SELECT count(*) as `count` FROM item where starred = 1 and uid = %d and deleted = 0",
 			intval($uinfo[0]['uid'])
 		);
 		$starred = $r[0]['count'];
@@ -528,7 +528,8 @@
 		$status_user["protected"] = (($item["allow_cid"] != "") OR
 						($item["allow_gid"] != "") OR
 						($item["deny_cid"] != "") OR
-						($item["deny_gid"] != ""));
+						($item["deny_gid"] != "") OR
+						$item["private"]);
 
 		return ($status_user);
 	}
@@ -745,12 +746,27 @@
 		logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
 
 		// get last public wall message
-		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
-				FROM `item`, `contact`, `item` as `i`, `contact` as `c`
+		//$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
+		//		FROM `item`, `contact`, `item` as `i`, `contact` as `c`
+		//		WHERE `item`.`contact-id` = %d
+		//			AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
+		//			AND `i`.`id` = `item`.`parent`
+		//			AND `contact`.`id`=`item`.`contact-id` AND `c`.`id`=`i`.`contact-id` AND `contact`.`self`=1
+		//			AND `item`.`type`!='activity'
+		//			AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
+		//		ORDER BY `item`.`created` DESC
+		//		LIMIT 1",
+		//		intval($user_info['cid']),
+		//		dbesc($user_info['url']),
+		//		dbesc(normalise_link($user_info['url'])),
+		//		dbesc($user_info['url']),
+		//		dbesc(normalise_link($user_info['url']))
+		//);
+		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `i`.`author-link` AS `item-author`
+				FROM `item`, `item` as `i`
 				WHERE `item`.`contact-id` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
-					AND `contact`.`id`=`item`.`contact-id` AND `c`.`id`=`i`.`contact-id` AND `contact`.`self`=1
 					AND `item`.`type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `item`.`created` DESC
@@ -773,8 +789,6 @@
 			if ($lastwall['parent']!=$lastwall['id']) {
 				$in_reply_to_status_id= intval($lastwall['parent']);
 				$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
-				//$in_reply_to_user_id = $lastwall['reply_uid'];
-				//$in_reply_to_screen_name = $lastwall['reply_author'];
 
 				$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($lastwall['item-author'])));
 				if ($r) {
