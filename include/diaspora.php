@@ -7,6 +7,46 @@ require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 require_once('include/lock.php');
 
+function diaspora_add_page_info($url) {
+	require_once("mod/parse_url.php");
+	$data = parseurl_getsiteinfo($url, true);
+
+	logger('diaspora_add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DATA);
+
+	if (($data["type"] != "link") OR ($data["title"] == $url))
+		return("");
+
+	if (is_string($data["title"]))
+		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
+
+	if (sizeof($data["images"]) > 0) {
+		$imagedata = $data["images"][0];
+		$text .= '[img]'.$imagedata["src"].'[/img]';
+	}
+
+	if (is_string($data["text"]))
+		$text .= "[quote]".$data["text"]."[/quote]";
+
+	return("\n[class=type-".$data["type"]."]".$text."[/class]");
+}
+
+function diaspora_add_page_info_to_body($body) {
+
+	logger('diaspora_add_page_info_to_body: fetch page info for body '.$body, LOGGER_DATA);
+
+	$URLSearchString = "^\[\]";
+
+	// Adding these spaces is a quick hack due to my problems with regular expressions :)
+	preg_match("/[^@#]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
+
+	if (!$matches)
+		preg_match("/[^@#]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
+
+	if ($matches)
+		$body .= diaspora_add_page_info($matches[1]);
+
+	return $body;
+}
 
 function diaspora_dispatch_public($msg) {
 
@@ -827,6 +867,9 @@ function diaspora_post($importer,$xml,$msg) {
 
 	$body = diaspora2bb($xml->raw_message);
 
+	// Add OEmbed and other information to the body
+	$body = diaspora_add_page_info_to_body($body);
+
 	$datarray = array();
 
 	$str_tags = '';
@@ -873,7 +916,7 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
-	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
+	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
 	$datarray['plink'] = $plink;
@@ -968,6 +1011,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$body = diaspora2bb($source_xml->post->status_message->raw_message);
 		$body = scale_external_images($body);
 
+		// Add OEmbed and other information to the body
+		$body = diaspora_add_page_info_to_body($body);
 	}
 	else {
 		logger('diaspora_reshare: no reshare content found: ' . print_r($source_xml,true));
@@ -1041,7 +1086,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
-	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
+	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
 	$datarray['plink'] = $plink;
@@ -1152,7 +1197,7 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
-	$datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
+	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
 	$datarray['private'] = $private;
 	$datarray['parent'] = 0;
 	$datarray['plink'] = $plink;
@@ -1277,7 +1322,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	if(strcasecmp($diaspora_handle,$msg['author']) == 0)
 		$person = $contact;
 	else {
-		$person = find_diaspora_person_by_handle($diaspora_handle);	
+		$person = find_diaspora_person_by_handle($diaspora_handle);
 
 		if(! is_array($person)) {
 			logger('diaspora_comment: unable to find author details');
@@ -1286,7 +1331,6 @@ function diaspora_comment($importer,$xml,$msg) {
 	}
 
 	$body = diaspora2bb($text);
-
 	$message_id = $diaspora_handle . ':' . $guid;
 
 	$datarray = array();
@@ -1330,7 +1374,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['parent-uri'] = $parent_item['uri'];
 
 	// No timestamps for comments? OK, we'll the use current time.
-	$datarray['created'] = $datarray['edited'] = datetime_convert();
+	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert();
 	$datarray['private'] = $parent_item['private'];
 
 	$datarray['owner-name'] = $parent_item['owner-name'];
@@ -1626,7 +1670,7 @@ function diaspora_message($importer,$xml,$msg) {
 	}
 
 	$reply = 0;
-			
+
 	$body = diaspora2bb($msg_text);
 	$message_id = $msg_diaspora_handle . ':' . $msg_guid;
 
