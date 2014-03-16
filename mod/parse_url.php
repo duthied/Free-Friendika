@@ -82,6 +82,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 
 	$oembed_data = oembed_fetch_url($url);
 
+	if ($oembed_data->type != "error")
+		$siteinfo["type"] = $oembed_data->type;
+
 	if ($oembed_data->type == "link") {
 		if (isset($oembed_data->title))
 			$siteinfo["title"] = $oembed_data->title;
@@ -172,7 +175,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 				$siteinfo["image"] = $attr["content"];
 				break;
 			case "twitter:card":
-				$siteinfo["type"] = $attr["content"];
+				if ($siteinfo["type"] == "")
+					$siteinfo["type"] = $attr["content"];
 				break;
 			case "twitter:description":
 				$siteinfo["text"] = $attr["content"];
@@ -187,6 +191,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 				$siteinfo["text"] = $attr["content"];
 				break;
 		}
+		if ($siteinfo["type"] == "summary")
+			$siteinfo["type"] = "link";
 	}
 
 	//$list = $xpath->query("head/meta[@property]");
@@ -391,7 +397,7 @@ function parse_url_content(&$a) {
 			$total_images ++;
 			if($max_images && $max_images >= $total_images)
 				break;
-        }
+		}
 	}
 
 	if(strlen($text)) {
@@ -414,7 +420,9 @@ function parse_url_content(&$a) {
 
 	$sitedata .=  trim($result);
 
-	if (($siteinfo["type"] != "photo"))
+	if (($siteinfo["type"] == "video") AND ($url != ""))
+		echo "[video]".$url."[/video]";
+	elseif (($siteinfo["type"] != "photo"))
 		echo "[class=type-link]".$sitedata."[/class]";
 	else
 		echo "[class=type-photo]".$title.$br.$image."[/class]";
