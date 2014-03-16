@@ -386,7 +386,7 @@
 
 			//AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
 			// count public wall messages
-			$r = q("SELECT count(*) as `count` FROM `item` force index (uid_type)
+			$r = q("SELECT count(*) as `count` FROM `item`
 					WHERE  `uid` = %d
 					AND `type`='wall'",
 					intval($uinfo[0]['uid'])

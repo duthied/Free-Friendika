@@ -6,6 +6,7 @@ require_once('include/salmon.php');
 require_once('include/crypto.php');
 require_once('include/Photo.php');
 require_once('include/tags.php');
+require_once('include/files.php');
 require_once('include/text.php');
 require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
@@ -123,21 +124,24 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 
 	$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
 
+	//	AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
+	//	dbesc($check_date),
+
 	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 		`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 		`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 		`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+		FROM `item`
+		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
 		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0
-		AND `item`.`wall` = 1 AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
+		AND `item`.`wall` = 1 AND `item`.`changed` > '%s'
 		$sql_extra
 		ORDER BY `parent` %s, `created` ASC LIMIT 0, 300",
 		intval($owner_id),
-		dbesc($check_date),
 		dbesc($check_date),
 		dbesc($sort)
 	);
@@ -619,7 +623,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		$res['edited'] = unxmlify($rawedited[0]['data']);
 
 	if((x($res,'edited')) && (! (x($res,'created'))))
-		$res['created'] = $res['edited']; 
+		$res['created'] = $res['edited'];
 
 	if(! $res['created'])
 		$res['created'] = $item->get_date('c');
@@ -1161,7 +1165,6 @@ function item_store($arr,$force_parent = false) {
 	if(count($r)) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
-		create_tags_from_item($r[0]['id']);
 
 		// Only check for notifications on start posts
 		if ($arr['parent-uri'] === $arr['uri']) {
@@ -1240,7 +1243,6 @@ function item_store($arr,$force_parent = false) {
 		intval($parent_deleted),
 		intval($current_post)
 	);
-	create_tags_from_item($current_post);
 
 	// Complete ostatus threads
 	if ($ostatus_conversation)
@@ -1304,17 +1306,20 @@ function item_store($arr,$force_parent = false) {
 			logger('item_store: put item '.$current_post.' into cachefile '.$cachefile);
 		}
 
-        $r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
-        if (count($r) == 1) {
-            call_hooks('post_remote_end', $r[0]);
-        }
-        else {
-            logger('item_store: new item not found in DB, id ' . $current_post);
-        }
+		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
+		if (count($r) == 1) {
+			call_hooks('post_remote_end', $r[0]);
+		} else {
+			logger('item_store: new item not found in DB, id ' . $current_post);
+		}
 	}
+
+	create_tags_from_item($current_post);
+	create_files_from_item($current_post);
+
 	return $current_post;
 }
-
+// return - test
 function get_item_contact($item,$contacts) {
 	if(! count($contacts) || (! is_array($item)))
 		return false;
@@ -1762,7 +1767,7 @@ function edited_timestamp_is_newer($existing, $update) {
  * thing regardless of feed ordering. This won't be adequate in a fully-threaded
  * model where comments can have sub-threads. That would require some massive sorting
  * to get all the feed items into a mostly linear ordering, and might still require
- * recursion.  
+ * recursion.
  */
 
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
@@ -2041,6 +2046,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							intval($importer['uid'])
 						);
 						create_tags_from_itemuri($item['uri'], $importer['uid']);
+						create_files_from_itemuri($item['uri'], $importer['uid']);
 						update_thread_uri($item['uri'], $importer['uid']);
 					}
 					else {
@@ -2053,6 +2059,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							intval($importer['uid'])
 						);
 						create_tags_from_itemuri($uri, $importer['uid']);
+						create_files_from_itemuri($uri, $importer['uid']);
 						if($item['last-child']) {
 							// ensure that last-child is set in case the comment that had it just got wiped.
 							q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d ",
@@ -2159,11 +2166,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
 							dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+							dbesc(datetime_convert()),
 							dbesc($item_id),
 							intval($importer['uid'])
 						);
@@ -2319,11 +2327,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
 							dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+							dbesc(datetime_convert()),
 							dbesc($item_id),
 							intval($importer['uid'])
 						);
@@ -2948,6 +2957,7 @@ function local_delivery($importer,$data) {
 							intval($importer['importer_uid'])
 						);
 						create_tags_from_itemuri($item['uri'], $importer['importer_uid']);
+						create_files_from_itemuri($item['uri'], $importer['importer_uid']);
 						update_thread_uri($item['uri'], $importer['importer_uid']);
 					}
 					else {
@@ -2960,6 +2970,7 @@ function local_delivery($importer,$data) {
 							intval($importer['importer_uid'])
 						);
 						create_tags_from_itemuri($uri, $importer['importer_uid']);
+						create_files_from_itemuri($uri, $importer['importer_uid']);
 						update_thread_uri($uri, $importer['importer_uid']);
 						if($item['last-child']) {
 							// ensure that last-child is set in case the comment that had it just got wiped.
@@ -3078,11 +3089,12 @@ function local_delivery($importer,$data) {
 							continue;
 
 						logger('received updated comment' , LOGGER_DEBUG);
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
 							dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+							dbesc(datetime_convert()),
 							dbesc($item_id),
 							intval($importer['importer_uid'])
 						);
@@ -3164,9 +3176,10 @@ function local_delivery($importer,$data) {
 									intval($importer['importer_uid'])
 								);
 								if(count($i) && ! intval($i[0]['blocktags'])) {
-									q("UPDATE item SET tag = '%s', `edited` = '%s' WHERE id = %d",
+									q("UPDATE item SET tag = '%s', `edited` = '%s', `changed` = '%s' WHERE id = %d",
 										dbesc($tagp[0]['tag'] . (strlen($tagp[0]['tag']) ? ',' : '') . $newtag),
 										intval($tagp[0]['id']),
+										dbesc(datetime_convert()),
 										dbesc(datetime_convert())
 									);
 									create_tags_from_item($tagp[0]['id']);
@@ -3262,11 +3275,12 @@ function local_delivery($importer,$data) {
 						if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 							continue;
 
-						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+						$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 							dbesc($datarray['title']),
 							dbesc($datarray['body']),
 							dbesc($datarray['tag']),
 							dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+							dbesc(datetime_convert()),
 							dbesc($item_id),
 							intval($importer['importer_uid'])
 						);
@@ -3447,11 +3461,12 @@ function local_delivery($importer,$data) {
 					if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
 						continue;
 
-					$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+					$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 						dbesc($datarray['title']),
 						dbesc($datarray['body']),
 						dbesc($datarray['tag']),
 						dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+						dbesc(datetime_convert()),
 						dbesc($item_id),
 						intval($importer['importer_uid'])
 					);
@@ -3828,11 +3843,11 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	$mentioned = get_mentions($item);
 	if($mentioned)
 		$o .= $mentioned;
-	
+
 	call_hooks('atom_entry', $o);
 
 	$o .= '</entry>' . "\r\n";
-	
+
 	return $o;
 }
 
@@ -4021,7 +4036,7 @@ function item_getfeedattach($item) {
 }
 
 
-	
+
 function item_expire($uid,$days) {
 
 	if((! $uid) || ($days < 1))
@@ -4181,6 +4196,7 @@ function drop_item($id,$interactive = true) {
 			intval($item['id'])
 		);
 		create_tags_from_item($item['id']);
+		create_files_from_item($item['id']);
 		delete_thread($item['id']);
 
 		// clean up categories and tags so they don't end up as orphans
@@ -4276,6 +4292,7 @@ function drop_item($id,$interactive = true) {
 				intval($item['uid'])
 			);
 			create_tags_from_item($item['parent-uri'], $item['uid']);
+			create_files_from_item($item['parent-uri'], $item['uid']);
 			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		}

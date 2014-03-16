@@ -230,11 +230,13 @@ function profile_content(&$a, $update = 0) {
 			intval($a->profile['profile_uid'])
 		);
 
-	}
-	else {
+	} else {
+		$sql_post_table = "";
 
 		if(x($category)) {
-			$sql_extra .= protect_sprintf(file_tag_file_query('item',$category,'category'));
+			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+				dbesc(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
+			//$sql_extra .= protect_sprintf(file_tag_file_query('item',$category,'category'));
 		}
 
 		if($datequery) {
@@ -247,7 +249,7 @@ function profile_content(&$a, $update = 0) {
 		if( (! get_config('alt_pager', 'global')) && (! get_pconfig($a->profile['profile_uid'],'system','alt_pager')) ) {
 		    $r = q("SELECT COUNT(*) AS `total`
 			    FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			    INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+			    $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			    AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			    WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
 			    and `thread`.`moderated` = 0
@@ -282,7 +284,7 @@ function profile_content(&$a, $update = 0) {
 		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`,
 			`thread`.`uid` AS `contact-uid`
 			FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+			$sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
 			and `thread`.`moderated` = 0
@@ -310,7 +312,7 @@ function profile_content(&$a, $update = 0) {
 			FROM `item`, `contact`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 			and `item`.`moderated` = 0
-			AND `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `item`.`parent` IN ( %s )
 			$sql_extra ",

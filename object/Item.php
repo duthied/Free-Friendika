@@ -32,7 +32,7 @@ class Item extends BaseObject {
 
 	public function __construct($data) {
 		$a = $this->get_app();
-		
+
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));

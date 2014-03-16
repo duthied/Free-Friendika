@@ -128,17 +128,6 @@ function search_content(&$a) {
 		$tag = true;
 
 	if($tag) {
-		//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d",
-		//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d group by `item`.`uri` ",
-		//			dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-		//$sql_table = "`term` INNER JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
-		//$sql_order = "`term`.`tid`";
-		//$sql_order = "`item`.`received`";
-
-		//$sql_extra = sprintf(" AND EXISTS (SELECT * FROM `term` WHERE `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d) GROUP BY `item`.`uri` ",
-		//			dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-		//$sql_table = "`item` FORCE INDEX (`uri`) ";
-
 		$sql_extra = "";
 
 		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
@@ -158,7 +147,7 @@ function search_content(&$a) {
 	// Here is the way permissions work in the search module...
 	// Only public posts can be shown
 	// OR your own posts if you are a logged in member
-	// No items will be shown if the member has a blocked profile wall. 
+	// No items will be shown if the member has a blocked profile wall.
 
 	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
 	        $r = q("SELECT distinct(`item`.`uri`) as `total`

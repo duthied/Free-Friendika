@@ -1,7 +1,7 @@
 <?php
 /*
 To-Do:
-- Community-Seite umstellen
+- Update berücksichtigt keine Konversationen
 */
 
 function network_init(&$a) {
@@ -579,6 +579,7 @@ die("ss");
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 	$sql_order = "";
 	$order_mode = "received";
+	$tag = false;
 
 	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
@@ -596,20 +597,26 @@ die("ss");
 
 			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
+			$sql_order = "`item`.`id`";
+			$order_mode = "id";
 		} else {
 			if (get_config('system','use_fulltext_engine'))
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
 			else
 				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
+			$sql_order = "`item`.`received`";
+			$order_mode = "received";
 		}
-		$sql_order = "`item`.`received`";
-		$order_mode = "received";
 	}
-	if(strlen($file))
-		$sql_extra .= file_tag_file_query('item',unxmlify($file));
+	if(strlen($file)) {
+		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
+		$sql_order = "`item`.`id`";
+		$order_mode = "id";
+	}
 
 	if($conv)
-		$sql_extra2 .= " AND `mention`";
+		$sql_extra3 .= " AND `mention`";
 
 	if($update) {
 
@@ -654,6 +661,9 @@ die("ss");
 	if($nouveau) {
 		$simple_update = (($update) ? " and `item`.`unseen` = 1 " : '');
 
+		if ($sql_order == "")
+			$sql_order = "`item`.`received`";
+
 		// "New Item View" - show all items unthreaded in reverse created date order
 		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`, `contact`.`writable`,
@@ -665,7 +675,7 @@ die("ss");
 			AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 			$simple_update
 			$sql_extra $sql_nets
-			ORDER BY `item`.`received` DESC $pager_sql ",
+			ORDER BY $sql_order DESC $pager_sql ",
 			intval($_SESSION['uid'])
 		);
 

@@ -1202,7 +1202,7 @@ CREATE TABLE IF NOT EXISTS `unique_contacts` (
 CREATE TABLE IF NOT EXISTS `thread` (
   `iid` int(10) unsigned NOT NULL DEFAULT '0',
   `uid` int(10) unsigned NOT NULL DEFAULT '0',
-  `contact-id` int(10) unsigned NOT NULL DEFAULT '0',
+  `contact-id` int(11) unsigned NOT NULL DEFAULT '0',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -1223,15 +1223,13 @@ CREATE TABLE IF NOT EXISTS `thread` (
   `mention` tinyint(1) NOT NULL DEFAULT '0',
   `network` char(32) NOT NULL,
   PRIMARY KEY (`iid`),
-  KEY `uid` (`uid`),
-  KEY `contact-id` (`contact-id`),
   KEY `created` (`created`),
-  KEY `edited` (`edited`),
   KEY `commented` (`commented`),
-  KEY `received` (`received`),
-  KEY `changed` (`changed`),
-  KEY `network` (`network`),
-  KEY `visible_deleted_moderated_private_wall_received` (`visible`,`deleted`,`moderated`,`private`,`wall`,`received`),
-  KEY `uid_visible_deleted_moderated_created` (`uid`,`visible`,`deleted`,`moderated`,`created`),
-  KEY `uid_visible_deleted_moderated_commented` (`uid`,`visible`,`deleted`,`moderated`,`commented`)
+  KEY `uid_network_commented` (`uid`,`network`,`commented`),
+  KEY `uid_network_created` (`uid`,`network`,`created`),
+  KEY `uid_contactid_commented` (`uid`,`contact-id`,`commented`),
+  KEY `uid_contactid_created` (`uid`,`contact-id`,`created`),
+  KEY `wall_private_received` (`wall`,`private`,`received`),
+  KEY `uid_created` (`uid`,`created`),
+  KEY `uid_commented` (`uid`,`commented`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
