@@ -310,9 +310,9 @@ function item_permissions_sql($owner_id,$remote_verified = false,$groups = null)
 				dbesc($gs),
 				dbesc($gs)
 */
-				" AND ( `item`.private = 0 OR ( `item`.private in (1,2) AND wall = 1
+				" AND ( `item`.private = 0 OR ( `item`.private in (1,2) AND `item`.`wall` = 1
 				  AND ( NOT (`item`.deny_cid REGEXP '<%d>' OR `item`.deny_gid REGEXP '%s')
-				  AND ( `item`.allow_cid REGEXP '<%d>' OR `item`.allow_gid REGEXP '%s' OR ( allow_cid = '' AND allow_gid = '')))))
+				  AND ( `item`.allow_cid REGEXP '<%d>' OR `item`.allow_gid REGEXP '%s' OR ( `item`.allow_cid = '' AND `item`.allow_gid = '')))))
 				",
 				intval($remote_user),
 				dbesc($gs),

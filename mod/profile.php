@@ -263,16 +263,16 @@ function profile_content(&$a, $update = 0) {
 			}
 		}
 
-		//  check if we serve a mobile device and get the user settings 
+		//  check if we serve a mobile device and get the user settings
 		//  accordingly
-		if ($a->is_mobile) { 
+		if ($a->is_mobile) {
 		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
 		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
-		} else { 
+		} else {
 		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
 		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
 		}
-		//  now that we have the user settings, see if the theme forces 
+		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice
 		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
 			$itemspage_network = $a->force_max_items;
@@ -294,7 +294,6 @@ function profile_content(&$a, $update = 0) {
 			intval($a->profile['profile_uid'])
 
 		);
-
 	}
 
 	$parents_arr = array();
