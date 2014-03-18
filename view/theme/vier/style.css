@@ -130,6 +130,7 @@ img {
   overflow: hidden;
   padding: 1px;
   color: #999;
+  vertical-align: text-top;
 } 
 
 .icon:hover {
@@ -144,8 +145,9 @@ img {
   text-indent: 0px;
 }
 .icon.s10 {
-  min-width: 10px;
-  height: 10px;
+/*  min-width: 10px;
+  height: 10px; */
+ /* font-size: 10px; */
 }
 .icon.s10.text {
   padding: 2px 0px 0px 15px;
@@ -293,9 +295,10 @@ body {
   /* font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif; */
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  /* font-size: 13px; */
-  /* line-height: 19.5px; */
+  /* font-size: 13px;
+  line-height: 19.5px; */
   font-weight: 400;
+  font-style: normal;
   /* background-color: #ffffff; */
   /* background-color: #FAFAFA; */
   background-color: rgb(229, 229, 229);
@@ -1083,6 +1086,11 @@ aside h4 {
 }
 /* section */
 section {
+  /*font-size: 13px;
+  line-height: 19.5px;*/
+  font-size: 14.95px;
+  line-height: 21px;
+  /* font-family: Quodana,Verdana,DejaVu Sans,Bitstream Vera Sans,Helvetica,sans-serif; */
   display: table-cell;
   vertical-align: top;
   top: 32px;
