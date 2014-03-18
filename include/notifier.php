@@ -241,31 +241,31 @@ function notifier_run(&$argv, &$argc){
 
 		// if $parent['wall'] == 1 we will already have the parent message in our array
 		// and we will relay the whole lot.
- 
+
 		// expire sends an entire group of expire messages and cannot be forwarded.
-		// However the conversation owner will be a part of the conversation and will 
+		// However the conversation owner will be a part of the conversation and will
 		// be notified during this run.
 		// Other DFRN conversation members will be alerted during polled updates.
 
 
 
 		// Diaspora members currently are not notified of expirations, and other networks have
-		// either limited or no ability to process deletions. We should at least fix Diaspora 
+		// either limited or no ability to process deletions. We should at least fix Diaspora
 		// by stringing togther an array of retractions and sending them onward.
-		 
-  	
+
+
 		$localhost = str_replace('www.','',$a->get_hostname());
 		if(strpos($localhost,':'))
 			$localhost = substr($localhost,0,strpos($localhost,':'));
 
 		/**
 		 *
-		 * Be VERY CAREFUL if you make any changes to the following several lines. Seemingly innocuous changes 
-		 * have been known to cause runaway conditions which affected several servers, along with 
-		 * permissions issues. 
+		 * Be VERY CAREFUL if you make any changes to the following several lines. Seemingly innocuous changes
+		 * have been known to cause runaway conditions which affected several servers, along with
+		 * permissions issues.
 		 *
 		 */
- 
+
 		$relay_to_owner = false;
 
 		if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
@@ -274,8 +274,8 @@ function notifier_run(&$argv, &$argc){
 
 
 		if(($cmd === 'uplink') && (intval($parent['forum_mode']) == 1) && (! $top_level)) {
-			$relay_to_owner = true;			
-		} 
+			$relay_to_owner = true;
+		}
 
 		// until the 'origin' flag has been in use for several months
 		// we will just use it as a fallback test
@@ -452,7 +452,7 @@ function notifier_run(&$argv, &$argc){
 			$photos[$p['scale']] = $a->get_baseurl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
 		}
 		unset($rp, $ext);
-		
+
         $atom .= replace_macros($sugg_template, array(
             '$name' => xmlify($owner['name']),
             '$photo' => xmlify($photos[4]),
@@ -577,12 +577,12 @@ function notifier_run(&$argv, &$argc){
 		// This controls the number of deliveries to execute with each separate delivery process.
 		// By default we'll perform one delivery per process. Assuming a hostile shared hosting
 		// provider, this provides the greatest chance of deliveries if processes start getting 
-		// killed. We can also space them out with the delivery_interval to also help avoid them 
+		// killed. We can also space them out with the delivery_interval to also help avoid them
 		// getting whacked.
 
-		// If $deliveries_per_process > 1, we will chain this number of multiple deliveries 
-		// together into a single process. This will reduce the overall number of processes 
-		// spawned for each delivery, but they will run longer. 
+		// If $deliveries_per_process > 1, we will chain this number of multiple deliveries
+		// together into a single process. This will reduce the overall number of processes
+		// spawned for each delivery, but they will run longer.
 
 		$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
 		if($deliveries_per_process <= 0)
@@ -597,8 +597,8 @@ function notifier_run(&$argv, &$argc){
 				continue;
 
 			// potentially more than one recipient. Start a new process and space them out a bit.
-			// we will deliver single recipient types of message and email recipients here. 
-		
+			// we will deliver single recipient types of message and email recipients here.
+
 			if((! $mail) && (! $fsuggest) && (!$relocate) && (! $followup)) {
 
 				$this_batch[] = $contact['id'];
