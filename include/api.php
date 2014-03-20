@@ -821,6 +821,9 @@
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
+			if ($lastwall['title'] != "")
+				$status_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$status_info['statusnet_html'];
+
 			$entities = api_get_entitities($status_info['text'], $lastwall['body']);
 			if (count($entities) > 0)
 				$status_info['entities'] = $entities;
@@ -914,6 +917,9 @@
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
+
+			if ($lastwall['title'] != "")
+				$user_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$user_info['statusnet_html'];
 
 			$entities = api_get_entitities($user_info['text'], $lastwall['body']);
 			if (count($entities) > 0)
@@ -1841,6 +1847,9 @@
 				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
+
+			if ($item['title'] != "")
+				$status['statusnet_html'] = "<h4>".bbcode($item['title'])."</h4>\n".$status['statusnet_html'];
 
 			$entities = api_get_entitities($status['text'], $item['body']);
 			if (count($entities) > 0)
