@@ -531,9 +531,10 @@ die("ss");
 				info( t('Group is empty'));
 		}
 
-		$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
+		//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
 
-		$sql_extra3 .= " AND `contact-id` IN ($contact_str.$contact_str_self) ";
+		$sql_extra3 .= " AND `contact-id` IN ($contact_str$contact_str_self) ";
+		$sql_extra3 .= " AND EXISTS (SELECT id FROM `item` WHERE (`contact-id` IN ($contact_str)  OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 AND parent = $sql_table.$sql_parent) ";
 		$o = '<h2>' . t('Group: ') . $r[0]['name'] . '</h2>' . $o;
 	} elseif($cid) {
 
