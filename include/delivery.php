@@ -366,7 +366,6 @@ function delivery_run(&$argv, &$argc){
 				break;
 
 			case NETWORK_OSTATUS :
-
 				// Do not send to otatus if we are not configured to send to public networks
 				if($owner['prvnets'])
 					break;
@@ -386,7 +385,7 @@ function delivery_run(&$argv, &$argc){
 						// private emails may be in included in public conversations. Filter them.
 						if(($public_message) && $item['private'] == 1)
 							continue;
-	
+
 						$item_contact = get_item_contact($item,$icontacts);
 						if(! $item_contact)
 							continue;

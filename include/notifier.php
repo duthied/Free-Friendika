@@ -696,6 +696,7 @@ function notifier_run(&$argv, &$argc){
 					// Do not send to ostatus if we are not configured to send to public networks
 					if($owner['prvnets'])
 						break;
+
 					if(get_config('system','ostatus_disabled') || get_config('system','dfrn_only'))
 						break;
 
@@ -707,8 +708,7 @@ function notifier_run(&$argv, &$argc){
 							// queue message for redelivery
 							add_to_queue($contact['id'],NETWORK_OSTATUS,$slap);
 						}
-					}
-					else {
+					} else {
 
 						// only send salmon if public - e.g. if it's ok to notify
 						// a public hub, it's ok to send a salmon
@@ -847,7 +847,7 @@ function notifier_run(&$argv, &$argc){
 
 					if(! $contact['pubkey'])
 						break;
-					
+
 					if($target_item['verb'] === ACTIVITY_DISLIKE) {
 						// unsupported
 						break;
@@ -906,14 +906,14 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
-		$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s' 
+		$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
 			AND `uid` = %d AND `rel` != %d group by `batch` ORDER BY rand() ",
 			dbesc(NETWORK_DIASPORA),
 			intval($owner['uid']),
 			intval(CONTACT_IS_SHARING)
 		);
-			
-		$r2 = q("SELECT `id`, `name`,`network` FROM `contact` 
+
+		$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
 			WHERE `network` in ( '%s', '%s')  AND `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
 			AND `rel` != %d order by rand() ",
 			dbesc(NETWORK_DFRN),
