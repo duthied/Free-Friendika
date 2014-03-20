@@ -143,7 +143,7 @@ function item_post(&$a) {
 
 	if((x($_REQUEST,'commenter')) && ((! $parent) || (! $parent_item['wall']))) {
 		notice( t('Permission denied.') . EOL) ;
-		if(x($_REQUEST,'return')) 
+		if(x($_REQUEST,'return'))
 			goaway($a->get_baseurl() . "/" . $return_path );
 		killme();
 	}
@@ -707,6 +707,10 @@ function item_post(&$a) {
 			intval($post_id),
 			intval($profile_uid)
 		);
+
+		create_tags_from_item($post_id);
+		create_files_from_item($post_id);
+		update_thread($post_id);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
