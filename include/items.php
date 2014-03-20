@@ -52,6 +52,8 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 
 	$birthday = feed_birthday($owner_id,$owner['timezone']);
 
+	$sql_post_table = "";
+
 	if(! $public_feed) {
 
 		$sql_extra = '';
@@ -85,18 +87,18 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 		$groups = init_groups_visitor($contact['id']);
 
 		if(count($groups)) {
-			for($x = 0; $x < count($groups); $x ++) 
+			for($x = 0; $x < count($groups); $x ++)
 				$groups[$x] = '<' . intval($groups[$x]) . '>' ;
 			$gs = implode('|', $groups);
 		}
 		else
-			$gs = '<<>>' ; // Impossible to match 
+			$gs = '<<>>' ; // Impossible to match
 
-		$sql_extra = sprintf(" 
-			AND ( `allow_cid` = '' OR     `allow_cid` REGEXP '<%d>' ) 
-			AND ( `deny_cid`  = '' OR NOT `deny_cid`  REGEXP '<%d>' ) 
+		$sql_extra = sprintf("
+			AND ( `allow_cid` = '' OR     `allow_cid` REGEXP '<%d>' )
+			AND ( `deny_cid`  = '' OR NOT `deny_cid`  REGEXP '<%d>' )
 			AND ( `allow_gid` = '' OR     `allow_gid` REGEXP '%s' )
-			AND ( `deny_gid`  = '' OR NOT `deny_gid`  REGEXP '%s') 
+			AND ( `deny_gid`  = '' OR NOT `deny_gid`  REGEXP '%s')
 		",
 			intval($contact['id']),
 			intval($contact['id']),
@@ -114,7 +116,9 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 		$last_update = 'now -30 days';
 
 	if(isset($category)) {
-		$sql_extra .= file_tag_file_query('item',$category,'category');
+		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+				dbesc(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($owner_id));
+		//$sql_extra .= file_tag_file_query('item',$category,'category');
 	}
 
 	if($public_feed) {
@@ -133,7 +137,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 		`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 		`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-		FROM `item`
+		FROM `item` $sql_post_table
 		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
