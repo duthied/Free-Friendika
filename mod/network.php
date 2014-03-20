@@ -1,9 +1,4 @@
 <?php
-/*
-To-Do:
-- Update berücksichtigt keine Konversationen
-*/
-
 function network_init(&$a) {
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
