@@ -1609,16 +1609,27 @@ if(! function_exists('get_plink')) {
  */
 function get_plink($item) {
 	$a = get_app();
-	$ret = array(
-			'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
-			'title' => t('link to source'),
-		);
 
-	$ret["orig"] = $ret["href"];
+	if ($a->user['nickname'] != "") {
+		$ret = array(
+				'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
+				'title' => t('link to source'),
+			);
+		$ret["orig"] = $ret["href"];
+
+		if (x($item,'plink'))
+			$ret["href"] = $item['plink'];
+
+	} elseif (x($item,'plink') && ($item['private'] != 1))
+		$ret = array(
+				'href' => $item['plink'],
+				'orig' => $item['plink'],
+				'title' => t('link to source'),
+			);
+	else
+		$ret = array();
 
 	//if (x($item,'plink') && ($item['private'] != 1))
-	if (x($item,'plink'))
-		$ret["href"] = $item['plink'];
 
 	return($ret);
 }}
