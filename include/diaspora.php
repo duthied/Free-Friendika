@@ -1009,19 +1009,35 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 	elseif($source_xml->post->status_message) {
 		$body = diaspora2bb($source_xml->post->status_message->raw_message);
+
+		// Checking for embedded pictures
+		if($source_xml->post->status_message->photo->remote_photo_path AND
+			$source_xml->post->status_message->photo->remote_photo_name) {
+
+			$remote_photo_path = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_path));
+			$remote_photo_name = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_name));
+
+			$body = '[img]'.$remote_photo_path.$remote_photo_name.'[/img]'."\n".$body;
+
+			logger('diaspora_reshare: embedded picture link found: '.$body, LOGGER_DEBUG);
+		}
+
 		$body = scale_external_images($body);
 
 		// Add OEmbed and other information to the body
 		$body = diaspora_add_page_info_to_body($body);
 	}
 	else {
+		// Maybe it is a reshare of a photo that will be delivered at a later time (testing)
 		logger('diaspora_reshare: no reshare content found: ' . print_r($source_xml,true));
-		return;
+		$body = "";
+		//return;
 	}
-	if(! $body) {
-		logger('diaspora_reshare: empty body: source= ' . $x);
-		return;
-	}
+
+	//if(! $body) {
+	//	logger('diaspora_reshare: empty body: source= ' . $x);
+	//	return;
+	//}
 
 	$person = find_diaspora_person_by_handle($orig_author);
 
@@ -1112,6 +1128,9 @@ function diaspora_reshare($importer,$xml,$msg) {
 
 	$datarray['tag'] = $str_tags;
 	$datarray['app']  = 'Diaspora';
+
+	// if empty content it might be a photo that hasn't arrived yet. If a photo arrives, we'll make it visible. (testing)
+	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
 
 	$message_id = item_store($datarray);
 
