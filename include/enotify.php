@@ -255,10 +255,10 @@ function notification($params) {
 	$sitelink  = $h['sitelink'];
 	$tsitelink = $h['tsitelink'];
 	$hsitelink = $h['hsitelink'];
-	$itemlink  = $h['itemlink']; 
+	$itemlink  = $h['itemlink'];
 
 
-	require_once('include/html2bbcode.php');	
+	require_once('include/html2bbcode.php');
 
 	do {
 		$dups = false;
@@ -331,7 +331,7 @@ function notification($params) {
 	);
 	if($p && (count($p) > 1)) {
 		for ($d = 1; $d < count($p); $d ++) {
-			q("delete from notify where id = %d limit 1",
+			q("delete from notify where id = %d",
 				intval($p[$d]['id'])
 			);
 		}
@@ -353,12 +353,12 @@ function notification($params) {
 
 	$itemlink = $a->get_baseurl() . '/notify/view/' . $notify_id;
 	$msg = replace_macros($epreamble,array('$itemlink' => $itemlink));
-	$r = q("update notify set msg = '%s' where id = %d and uid = %d limit 1",
+	$r = q("update notify set msg = '%s' where id = %d and uid = %d",
 		dbesc($msg),
 		intval($notify_id),
 		intval($params['uid'])
 	);
-		
+
 
 	// send email notification if notification preferences permit
 
@@ -370,15 +370,15 @@ function notification($params) {
 		$id_for_parent = "${params['parent']}@${hostname}";
 
 		// Is this the first email notification for this parent item and user?
-		
-		$r = q("select `id` from `notify-threads` where `master-parent-item` = %d and `receiver-uid` = %d limit 1", 
+
+		$r = q("select `id` from `notify-threads` where `master-parent-item` = %d and `receiver-uid` = %d limit 1",
 			intval($params['parent']),
 			intval($params['uid']) );
 
 		// If so, create the record of it and use a message-id smtp header.
 
 		if(!$r) {
-			logger("notify_id:" . intval($notify_id). ", parent: " . intval($params['parent']) . "uid: " . 
+			logger("notify_id:" . intval($notify_id). ", parent: " . intval($params['parent']) . "uid: " .
 intval($params['uid']), LOGGER_DEBUG);
 			$r = q("insert into `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
 				values(%d,%d,%d,%d)",

@@ -20,6 +20,8 @@ require_once('include/enotify.php');
 require_once('include/email.php');
 require_once('library/langdet/Text/LanguageDetect.php');
 require_once('include/tags.php');
+require_once('include/files.php');
+require_once('include/threads.php');
 
 function item_post(&$a) {
 
@@ -141,7 +143,7 @@ function item_post(&$a) {
 
 	if((x($_REQUEST,'commenter')) && ((! $parent) || (! $parent_item['wall']))) {
 		notice( t('Permission denied.') . EOL) ;
-		if(x($_REQUEST,'return')) 
+		if(x($_REQUEST,'return'))
 			goaway($a->get_baseurl() . "/" . $return_path );
 		killme();
 	}
@@ -694,17 +696,21 @@ function item_post(&$a) {
 
 
 	if($orig_post) {
-		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d",
+		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($datarray['title']),
 			dbesc($datarray['body']),
 			dbesc($datarray['tag']),
 			dbesc($datarray['attach']),
 			dbesc($datarray['file']),
 			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
 			intval($post_id),
 			intval($profile_uid)
 		);
-		create_tags_from_itemuri($post_id, $profile_uid);
+
+		create_tags_from_item($post_id);
+		create_files_from_item($post_id);
+		update_thread($post_id);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -771,7 +777,7 @@ function item_post(&$a) {
 	if(count($r)) {
 		$post_id = $r[0]['id'];
 		logger('mod_item: saved item ' . $post_id);
-		create_tags_from_item($post_id);
+		add_thread($post_id);
 
 		// update filetags in pconfig
                 file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -794,8 +800,9 @@ function item_post(&$a) {
 				dbesc(datetime_convert()),
 				intval($parent)
 			);
+			update_thread($parent, true);
 
-			// Inherit ACL's from the parent item.
+			// Inherit ACLs from the parent item.
 
 			$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
 				WHERE `id` = %d",
@@ -825,15 +832,14 @@ function item_post(&$a) {
 					'parent'       => $parent,
 					'parent_uri'   => $parent_item['uri']
 				));
-			
+
 			}
 
 
 			// Store the comment signature information in case we need to relay to Diaspora
 			store_diaspora_comment_sig($datarray, $author, ($self ? $a->user['prvkey'] : false), $parent_item, $post_id);
 
-		}
-		else {
+		} else {
 			$parent = $post_id;
 
 			if($contact_record != $author) {
@@ -877,6 +883,7 @@ function item_post(&$a) {
 			$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
 				intval($parent_item['id'])
 			);
+			update_thread($parent_item['id']);
 		}
 	}
 	else {
@@ -893,6 +900,7 @@ function item_post(&$a) {
 		dbesc(datetime_convert()),
 		intval($parent)
 	);
+	update_thread($parent);
 
 	$datarray['id']    = $post_id;
 	$datarray['plink'] = $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id;
@@ -933,6 +941,10 @@ function item_post(&$a) {
 		}
 	}
 
+	create_tags_from_item($post_id);
+	create_files_from_item($post_id);
+	update_thread($post_id);
+
 	// This is a real juggling act on shared hosting services which kill your processes
 	// e.g. dreamhost. We used to start delivery to our native delivery agents in the background
 	// and then run our plugin delivery from the foreground. We're now doing plugin delivery first,
@@ -940,7 +952,7 @@ function item_post(&$a) {
 	// likely to get killed off. If you end up looking at an /item URL and a blank page,
 	// it's very likely the delivery got killed before all your friends could be notified.
 	// Currently the only realistic fixes are to use a reliable server - which precludes shared hosting,
-	// or cut back on plugins which do remote deliveries.  
+	// or cut back on plugins which do remote deliveries.
 
 	proc_run('php', "include/notifier.php", $notify_type, "$post_id");
 

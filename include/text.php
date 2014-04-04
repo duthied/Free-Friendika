@@ -486,9 +486,9 @@ if(! function_exists('photo_new_resource')) {
 /**
  * Generate a guaranteed unique photo ID.
  * safe from birthday paradox
- * 
+ *
  * @return string
- */	
+ */
 function photo_new_resource() {
 
 	do {
@@ -509,7 +509,7 @@ if(! function_exists('load_view_file')) {
  * @deprecated
  * wrapper to load a view template, checking for alternate
  * languages before falling back to the default
- * 
+ *
  * @global string $lang
  * @global App $a
  * @param string $s view name
@@ -1613,16 +1613,27 @@ if(! function_exists('get_plink')) {
  */
 function get_plink($item) {
 	$a = get_app();
-	$ret = array(
-			'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
-			'title' => t('link to source'),
-		);
 
-	$ret["orig"] = $ret["href"];
+	if ($a->user['nickname'] != "") {
+		$ret = array(
+				'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
+				'title' => t('link to source'),
+			);
+		$ret["orig"] = $ret["href"];
+
+		if (x($item,'plink'))
+			$ret["href"] = $item['plink'];
+
+	} elseif (x($item,'plink') && ($item['private'] != 1))
+		$ret = array(
+				'href' => $item['plink'],
+				'orig' => $item['plink'],
+				'title' => t('link to source'),
+			);
+	else
+		$ret = array();
 
 	//if (x($item,'plink') && ($item['private'] != 1))
-	if (x($item,'plink'))
-		$ret["href"] = $item['plink'];
 
 	return($ret);
 }}
@@ -2017,10 +2028,12 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
                 if($type == 'file') {
 	                $lbracket = '[';
 	                $rbracket = ']';
+			$termtype = TERM_FILE;
 	        }
                 else {
 	                $lbracket = '<';
         	        $rbracket = '>';
+			$termtype = TERM_CATEGORY;
 	        }
 
                 $filetags_updated = $saved;
@@ -2046,9 +2059,15 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 	        }
 
                 foreach($deleted_tags as $key => $tag) {
-		        $r = q("select file from item where uid = %d " . file_tag_file_query('item',$tag,$type),
-		                intval($uid)
-	                );
+			$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
+				dbesc($tag),
+				intval(TERM_OBJ_POST),
+				intval($termtype),
+				intval($uid));
+
+			//$r = q("select file from item where uid = %d " . file_tag_file_query('item',$tag,$type),
+			//	intval($uid)
+			//);
 
 	                if(count($r)) {
 			        unset($deleted_tags[$key]);
@@ -2071,6 +2090,8 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 }
 
 function file_tag_save_file($uid,$item,$file) {
+	require_once("include/files.php");
+
 	$result = false;
 	if(! intval($uid))
 		return false;
@@ -2080,11 +2101,14 @@ function file_tag_save_file($uid,$item,$file) {
 	);
 	if(count($r)) {
 		if(! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']'))
-			q("update item set file = '%s' where id = %d and uid = %d limit 1",
+			q("update item set file = '%s' where id = %d and uid = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
 				intval($item),
 				intval($uid)
 			);
+
+		create_files_from_item($item);
+
 		$saved = get_pconfig($uid,'system','filetags');
 		if((! strlen($saved)) || (! stristr($saved,'[' . file_tag_encode($file) . ']')))
 			set_pconfig($uid,'system','filetags',$saved . '[' . file_tag_encode($file) . ']');
@@ -2094,14 +2118,19 @@ function file_tag_save_file($uid,$item,$file) {
 }
 
 function file_tag_unsave_file($uid,$item,$file,$cat = false) {
+	require_once("include/files.php");
+
 	$result = false;
 	if(! intval($uid))
 		return false;
 
-	if($cat == true)
+	if($cat == true) {
 		$pattern = '<' . file_tag_encode($file) . '>' ;
-	else
+		$termtype = TERM_CATEGORY;
+	} else {
 		$pattern = '[' . file_tag_encode($file) . ']' ;
+		$termtype = TERM_FILE;
+	}
 
 
 	$r = q("select file from item where id = %d and uid = %d limit 1",
@@ -2111,15 +2140,22 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 	if(! count($r))
 		return false;
 
-	q("update item set file = '%s' where id = %d and uid = %d limit 1",
+	q("update item set file = '%s' where id = %d and uid = %d",
 		dbesc(str_replace($pattern,'',$r[0]['file'])),
 		intval($item),
 		intval($uid)
 	);
 
-	$r = q("select file from item where uid = %d and deleted = 0 " . file_tag_file_query('item',$file,(($cat) ? 'category' : 'file')),
-		intval($uid)
-	);
+	create_files_from_item($item);
+
+	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
+		dbesc($file),
+		intval(TERM_OBJ_POST),
+		intval($termtype),
+		intval($uid));
+
+	//$r = q("select file from item where uid = %d and deleted = 0 " . file_tag_file_query('item',$file,(($cat) ? 'category' : 'file')),
+	//);
 
 	if(! count($r)) {
 		$saved = get_pconfig($uid,'system','filetags');

@@ -62,7 +62,7 @@ function crepair_post(&$a) {
 	$remote_self = ((x($_POST,'remote_self')) ? $_POST['remote_self'] : false);
 
 	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
-		WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc($nick),
 		dbesc($url),
@@ -88,7 +88,7 @@ function crepair_post(&$a) {
 			`name-date` = '%s',
 			`uri-date` = '%s',
 			`avatar-date` = '%s'
-			WHERE `id` = %d LIMIT 1
+			WHERE `id` = %d
 			",
 			dbesc($photos[0]),
 			dbesc($photos[1]),

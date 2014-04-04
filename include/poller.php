@@ -174,7 +174,7 @@ function poller_run(&$argv, &$argc){
 		: '' 
 	);
 
-	$contacts = q("SELECT `contact`.`id` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
+	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
 		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
 		AND NOT `network` IN ( '%s', '%s', '%s' )
 		$sql_extra 

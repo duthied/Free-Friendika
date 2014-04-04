@@ -164,7 +164,7 @@ function contacts_post(&$a) {
 	$info = fix_mce_lf(escape_tags(trim($_POST['info'])));
 
 	$r = q("UPDATE `contact` SET `profile-id` = %d, `priority` = %d , `info` = '%s',
-		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d WHERE `id` = %d AND `uid` = %d",
 		intval($profile_id),
 		intval($priority),
 		dbesc($info),
@@ -197,7 +197,7 @@ function _contact_update($contact_id) {
 }
 function _contact_block($contact_id, $orig_record) {
 	$blocked = (($orig_record['blocked']) ? 0 : 1);
-	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d",
 		intval($blocked),
 		intval($contact_id),
 		intval(local_user())
@@ -207,7 +207,7 @@ function _contact_block($contact_id, $orig_record) {
 }
 function _contact_ignore($contact_id, $orig_record) {
 	$readonly = (($orig_record['readonly']) ? 0 : 1);
-	$r = q("UPDATE `contact` SET `readonly` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	$r = q("UPDATE `contact` SET `readonly` = %d WHERE `id` = %d AND `uid` = %d",
 		intval($readonly),
 		intval($contact_id),
 		intval(local_user())
@@ -216,7 +216,7 @@ function _contact_ignore($contact_id, $orig_record) {
 }
 function _contact_archive($contact_id, $orig_record) {
 	$archived = (($orig_record['archive']) ? 0 : 1);
-	$r = q("UPDATE `contact` SET `archive` = %d WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	$r = q("UPDATE `contact` SET `archive` = %d WHERE `id` = %d AND `uid` = %d",
 		intval($archived),
 		intval($contact_id),
 		intval(local_user())

@@ -32,7 +32,7 @@ class Item extends BaseObject {
 
 	public function __construct($data) {
 		$a = $this->get_app();
-		
+
 		$this->data = $data;
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
@@ -269,22 +269,22 @@ class Item extends BaseObject {
 		}
 
 		// Disable features that aren't available in several networks
-		if ($item["item_network"] != "dfrn") {
+		if (($item["item_network"] != "dfrn") AND isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$tagger = '';
 		}
 
-		if ($item["item_network"] == "feed")
+		if (($item["item_network"] == "feed") AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-		if ($item["item_network"] == "mail")
+		if (($item["item_network"] == "mail") AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-		if (($item["item_network"] == "dspr") AND ($indent == 'comment'))
+		if (($item["item_network"] == "dspr") AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Facebook can like comments - but it isn't programmed in the connector yet.
-		if (($item["item_network"] == "face") AND ($indent == 'comment'))
+		if (($item["item_network"] == "face") AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 

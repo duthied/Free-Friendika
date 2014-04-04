@@ -526,11 +526,12 @@ function admin_page_site(&$a) {
 
         /* OStatus conversation poll choices */
         $ostatus_poll_choices = array(
-                "-1" => t("Never"),
-                "0" => t("Frequently"),
-                "60" => t("Hourly"),
-                "720" => t("Twice daily"),
-                "1440" => t("Daily")
+		"-2" => t("Never"),
+		"-1" => t("At post arrival"),
+		"0" => t("Frequently"),
+		"60" => t("Hourly"),
+		"720" => t("Twice daily"),
+		"1440" => t("Daily")
             );
 
         /* get user names to make the install a personal install of X */

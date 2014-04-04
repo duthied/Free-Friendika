@@ -221,9 +221,10 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	if (!$compact AND ($message != "")) {
 		$counter = 1;
 		foreach ($urls as $id=>$url)
-			if (strpos($message, $url) === false)
-				$message .= "\n".$url." ";
-				//$message .= "\n[".($counter++)."] ".$url;
+			if ($url != "")
+				if (strpos($message, $url) === false)
+					$message .= "\n".$url." ";
+					//$message .= "\n[".($counter++)."] ".$url;
 	}
 
 	$message = str_replace("\n«", "«\n", $message);

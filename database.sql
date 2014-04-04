@@ -1192,3 +1192,44 @@ CREATE TABLE IF NOT EXISTS `unique_contacts` (
   PRIMARY KEY (`id`),
   KEY `url` (`url`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `thread`
+--
+
+CREATE TABLE IF NOT EXISTS `thread` (
+  `iid` int(10) unsigned NOT NULL DEFAULT '0',
+  `uid` int(10) unsigned NOT NULL DEFAULT '0',
+  `contact-id` int(11) unsigned NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `received` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `changed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `wall` tinyint(1) NOT NULL DEFAULT '0',
+  `private` tinyint(1) NOT NULL DEFAULT '0',
+  `pubmail` tinyint(1) NOT NULL DEFAULT '0',
+  `moderated` tinyint(1) NOT NULL DEFAULT '0',
+  `visible` tinyint(1) NOT NULL DEFAULT '0',
+  `spam` tinyint(1) NOT NULL DEFAULT '0',
+  `starred` tinyint(1) NOT NULL DEFAULT '0',
+  `bookmark` tinyint(1) NOT NULL DEFAULT '0',
+  `unseen` tinyint(1) NOT NULL DEFAULT '1',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `origin` tinyint(1) NOT NULL DEFAULT '0',
+  `forum_mode` tinyint(1) NOT NULL DEFAULT '0',
+  `mention` tinyint(1) NOT NULL DEFAULT '0',
+  `network` char(32) NOT NULL,
+  PRIMARY KEY (`iid`),
+  KEY `created` (`created`),
+  KEY `commented` (`commented`),
+  KEY `uid_network_commented` (`uid`,`network`,`commented`),
+  KEY `uid_network_created` (`uid`,`network`,`created`),
+  KEY `uid_contactid_commented` (`uid`,`contact-id`,`commented`),
+  KEY `uid_contactid_created` (`uid`,`contact-id`,`created`),
+  KEY `wall_private_received` (`wall`,`private`,`received`),
+  KEY `uid_created` (`uid`,`created`),
+  KEY `uid_commented` (`uid`,`commented`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

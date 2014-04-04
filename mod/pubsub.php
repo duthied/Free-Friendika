@@ -79,18 +79,18 @@ function pubsub_init(&$a) {
 
 		if($hub_mode === 'unsubscribe') {
 			if(! strlen($hub_verify)) {
-				logger('pubsub: bogus unsubscribe'); 
+				logger('pubsub: bogus unsubscribe');
 				hub_return(false, '');
 			}
 			logger('pubsub: unsubscribe success');
 		}
 
-		$r = q("UPDATE `contact` SET `subhub` = %d WHERE `id` = %d LIMIT 1",
+		$r = q("UPDATE `contact` SET `subhub` = %d WHERE `id` = %d",
 			intval($subscribe),
 			intval($contact['id'])
 		);
 
- 		hub_return(true, $hub_challenge);		
+ 		hub_return(true, $hub_challenge);
 	}
 }
 

@@ -120,32 +120,36 @@ function display_content(&$a, $update = 0) {
 
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
+	//	        AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' ))
+
 	if($update) {
 
 		$r = q("SELECT id FROM item WHERE item.uid = %d
-		        AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' ))
+		        AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE (`id` = '%s' OR `uri` = '%s'))
 		        $sql_extra AND unseen = 1",
 		        intval($a->profile['uid']),
 		        dbesc($item_id),
-		        dbesc($item_id) 
+		        dbesc($item_id)
 		);
 
 		if(!$r)
 			return '';
 	}
 
+	//	AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' )
+
 	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
+		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 		and `item`.`moderated` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' )
-		AND uid = %d )
+		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE (`id` = '%s' OR `uri` = '%s')
+		AND uid = %d)
 		$sql_extra
-		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
+		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
 		intval($a->profile['uid']),
 		dbesc($item_id),
 		dbesc($item_id),
@@ -162,16 +166,17 @@ function display_content(&$a, $update = 0) {
 		);
 		if($r) {
 			$item_uri = $r[0]['uri'];
+			//	AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE `uri` = '%s' AND uid = %d )
 
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 				and `item`.`moderated` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE `uri` = '%s' AND uid = %d )
+				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
 				intval(local_user()),
 				dbesc($item_uri),
@@ -184,7 +189,7 @@ function display_content(&$a, $update = 0) {
 	if($r) {
 
 		if((local_user()) && (local_user() == $a->profile['uid'])) {
-			q("UPDATE `item` SET `unseen` = 0 
+			q("UPDATE `item` SET `unseen` = 0
 				WHERE `parent` = %d AND `unseen` = 1",
 				intval($r[0]['parent'])
 			);
@@ -257,8 +262,8 @@ function display_content(&$a, $update = 0) {
 		if($r[0]['deleted']) {
 			notice( t('Item has been removed.') . EOL );
 		}
-		else {	
-			notice( t('Permission denied.') . EOL ); 
+		else {
+			notice( t('Permission denied.') . EOL );
 		}
 	}
 	else {

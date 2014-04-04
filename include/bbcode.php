@@ -2,6 +2,35 @@
 require_once("include/oembed.php");
 require_once('include/event.php');
 
+function bb_rearrange_link($shared) {
+	if ($shared[1] != "type-link")
+		return($shared[0]);
+
+	$newshare = trim($shared[2]);
+	$newshare = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $newshare);
+
+	if (!strpos($shared[0], "[bookmark"))
+		$newshare = preg_replace("/\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $newshare, 1);
+
+	preg_match("/\[img\](.*?)\[\/img\]/ism", $newshare, $matches);
+
+	if ($matches) {
+		$newshare = str_replace($matches[0], '', $newshare);
+		$newshare = "[img]".$matches[1]."[/img]\n".$newshare;
+	}
+
+	$search = array("\n\n", "\n ", " \n");
+	$replace = array("\n", "\n", "\n");
+	do {
+		$oldtext = $newshare;
+		$newshare = str_replace($search, $replace, $newshare);
+	} while ($oldtext != $newshare);
+
+	$newshare = "[class=type-link]".$newshare."[/class]";
+
+	return($newshare);
+}
+
 function bb_remove_share_information($Text) {
         $Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","bb_cleanup_share",$Text);
         return($Text);
@@ -669,6 +698,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$Text = preg_replace("/\n\[code\]/ism", "[code]", $Text);
 	$Text = preg_replace("/\[\/code\]\n/ism", "[/code]", $Text);
+
+	// Rearrange shared links
+	if (get_config("system", "rearrange_shared_links") AND (!$simplehtml OR $tryoembed))
+		$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_rearrange_link",$Text);
 
 	// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 	if (!$tryoembed)
