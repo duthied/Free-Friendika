@@ -856,9 +856,10 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"]."\n\n[class=type-link]".fetch_siteinfo($res['plink'])."[/class]";
+		$res["body"] = $res["title"].add_page_info($res['plink']);
 		$res["title"] = "";
-	}
+	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
+		$res["body"] = add_page_info_to_body($res["body"]);
 
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
@@ -874,29 +875,63 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function fetch_siteinfo($url) {
-	require_once("mod/parse_url.php");
+function add_page_info($url, $no_photos = false) {
+        require_once("mod/parse_url.php");
+        $data = parseurl_getsiteinfo($url, true);
 
-	// Fetch site infos - but only from the meta data
-	$data = parseurl_getsiteinfo($url, true);
+        logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
 
-	$text = "";
+	// It maybe is a rich content, but if it does have everything that a link has,
+	// then treat it that way
+	if (($data["type"] == "rich") AND is_string($data["title"]) AND
+		is_string($data["text"]) AND (sizeof($data["images"]) > 0))
+		$data["type"] = "link";
 
-	if (!is_string($data["text"]) AND (sizeof($data["images"]) == 0) AND ($data["title"] == $url))
+        if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $url))
+                return("");
+
+	if ($no_photos AND ($data["type"] == "photo"))
 		return("");
 
-	if (is_string($data["title"]))
-		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]\n";
+        if (($data["type"] != "photo") AND is_string($data["title"]))
+                $text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
 
-	if (sizeof($data["images"]) > 0) {
-		$imagedata = $data["images"][0];
-		$text .= '[img='.$imagedata["width"].'x'.$imagedata["height"].']'.$imagedata["src"].'[/img]' . "\n";
+        if (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
+                $imagedata = $data["images"][0];
+                $text .= '[img]'.$imagedata["src"].'[/img]';
+        }
+
+        if (($data["type"] != "photo") AND is_string($data["text"]))
+                $text .= "[quote]".$data["text"]."[/quote]";
+
+        return("\n[class=type-".$data["type"]."]".$text."[/class]");
+}
+
+function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
+
+        logger('add_page_info_to_body: fetch page info for body '.$body, LOGGER_DEBUG);
+
+        $URLSearchString = "^\[\]";
+
+        // Adding these spaces is a quick hack due to my problems with regular expressions :)
+        preg_match("/[^@#]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
+
+        if (!$matches)
+                preg_match("/[^@#]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
+
+	// Convert urls without bbcode elements
+	if (!$matches AND $texturl) {
+		preg_match("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", " ".$body, $matches);
+
+		// Yeah, a hack. I really hate regular expressions :)
+	        if ($matches)
+        	        $matches[1] = $matches[2];
 	}
 
-	if (is_string($data["text"]))
-		$text .= "[quote]".$data["text"]."[/quote]";
+        if ($matches)
+                $body .= add_page_info($matches[1], $no_photos);
 
-	return($text);
+        return $body;
 }
 
 function encode_rel_links($links) {
