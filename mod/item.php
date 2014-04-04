@@ -1127,7 +1127,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 			if(count($r)) {
 				$profile = $r[0]['url'];
 				//set newname to nick, find alias
-				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER)) {
+				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER) OR ($r[0]['network'] === NETWORK_STATUSNET)) {
 					$newname = $r[0]['nick'];
 					$stat = true;
 					if($r[0]['alias'])
