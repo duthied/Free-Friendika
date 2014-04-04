@@ -27,7 +27,9 @@ function diaspora2bb($s) {
 	$s = str_replace("\r","",$s);
 
 	// <br/> is invalid. Replace it with the valid expression
-	$s = str_replace("<br/>","<br />",$s);
+	logger("diaspora2bb: 1: ".$s);
+	$s = str_replace(array("<br/>", "</p>", "<p>"),array("<br />", "<br />", "<br />"),$s);
+	logger("diaspora2bb: 2: ".$s);
 
 	$s = preg_replace('/\@\{(.+?)\; (.+?)\@(.+?)\}/','@[url=https://$3/u/$2]$1[/url]',$s);
 
