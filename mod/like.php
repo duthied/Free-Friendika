@@ -109,14 +109,13 @@ function like_content(&$a) {
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 
 
-	$r = q("SELECT * FROM `item` WHERE `verb` = '%s' AND `deleted` = 0
-		AND `contact-id` = %d AND ( `parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s') LIMIT 1",
-		dbesc($activity),
-		intval($contact['id']),
-		dbesc($item_id),
-		dbesc($item_id),
-		dbesc($item['uri'])
+	$r = q("SELECT `id`, `guid` FROM `item` WHERE `verb` = '%s' AND `deleted` = 0
+		AND `contact-id` = %d AND `uid` = %d
+		AND (`parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s') LIMIT 1",
+		dbesc($activity), intval($contact['id']), intval($owner_uid),
+		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
+
 	if(count($r)) {
 		$like_item = $r[0];
 
