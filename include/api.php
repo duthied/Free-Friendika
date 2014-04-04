@@ -2420,10 +2420,11 @@ function api_clean_plain_items($Text) {
 
 	$Text = bb_CleanPictureLinks($Text);
 
-	if ($include_entities == "true") {
-		$URLSearchString = "^\[\]";
+	$URLSearchString = "^\[\]";
 
-		$Text = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'#$2',$Text);
+	$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'$1$3',$Text);
+
+	if ($include_entities == "true") {
 		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
 	}
 
