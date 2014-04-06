@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-31 18:07+0100\n"
-"PO-Revision-Date: 2014-02-24 07:21+0000\n"
+"PO-Revision-Date: 2014-03-12 05:32+0000\n"
 "Last-Translator: vislav <bizadmin@list.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -5885,12 +5885,12 @@ msgstr "%s не нравится это."
 #: ../../include/conversation.php:944
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
-msgstr ""
+msgstr "<span %1$s>%2$d людям</span> нравится это"
 
 #: ../../include/conversation.php:947
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
-msgstr ""
+msgstr "<span %1$s>%2$d людям</span> не нравится это"
 
 #: ../../include/conversation.php:961
 msgid "and"
