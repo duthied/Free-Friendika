@@ -12,6 +12,9 @@ function oembed_replacecb($matches){
 
 function oembed_fetch_url($embedurl){
 
+	$embedurl = trim($embedurl, "'");
+	$embedurl = trim($embedurl, '"');
+
 	$a = get_app();
 
 	$txt = Cache::get($a->videowidth . $embedurl);
@@ -48,9 +51,18 @@ function oembed_fetch_url($embedurl){
 		}
 
 		if ($txt==false || $txt==""){
-			// try oohembed service
-			$ourl = "http://oohembed.com/oohembed/?url=".urlencode($embedurl).'&maxwidth=' . $a->videowidth;  
-			$txt = fetch_url($ourl);
+			$embedly = get_config("system", "embedly");
+			if ($embedly == "") {
+				// try oohembed service
+				$ourl = "http://oohembed.com/oohembed/?url=".urlencode($embedurl).'&maxwidth=' . $a->videowidth;
+				$txt = fetch_url($ourl);
+			} else {
+				// try embedly service
+				$ourl = "https://api.embed.ly/1/oembed?key=".$embedly."&url=".urlencode($embedurl);
+				$txt = fetch_url($ourl);
+			}
+
+			logger("oembed_fetch_url: ".$txt, LOGGER_DEBUG);
 		}
 
 		$txt=trim($txt);

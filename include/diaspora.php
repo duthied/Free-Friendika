@@ -7,47 +7,6 @@ require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 require_once('include/lock.php');
 
-function diaspora_add_page_info($url) {
-	require_once("mod/parse_url.php");
-	$data = parseurl_getsiteinfo($url, true);
-
-	logger('diaspora_add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DATA);
-
-	if (($data["type"] != "link") OR ($data["title"] == $url))
-		return("");
-
-	if (is_string($data["title"]))
-		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
-
-	if (sizeof($data["images"]) > 0) {
-		$imagedata = $data["images"][0];
-		$text .= '[img]'.$imagedata["src"].'[/img]';
-	}
-
-	if (is_string($data["text"]))
-		$text .= "[quote]".$data["text"]."[/quote]";
-
-	return("\n[class=type-".$data["type"]."]".$text."[/class]");
-}
-
-function diaspora_add_page_info_to_body($body) {
-
-	logger('diaspora_add_page_info_to_body: fetch page info for body '.$body, LOGGER_DATA);
-
-	$URLSearchString = "^\[\]";
-
-	// Adding these spaces is a quick hack due to my problems with regular expressions :)
-	preg_match("/[^@#]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
-
-	if (!$matches)
-		preg_match("/[^@#]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
-
-	if ($matches)
-		$body .= diaspora_add_page_info($matches[1]);
-
-	return $body;
-}
-
 function diaspora_dispatch_public($msg) {
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
@@ -526,7 +485,7 @@ function diaspora_decode($importer,$xml) {
 		$base = $dom->env;
 	elseif($dom->data)
 		$base = $dom;
-	
+
 	if(! $base) {
 		logger('mod-diaspora: unable to locate salmon data in xml ');
 		http_status_exit(400);
@@ -654,7 +613,7 @@ function diaspora_request($importer,$xml) {
 				$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
 				$arr['verb'] = ACTIVITY_FRIEND;
 				$arr['object-type'] = ACTIVITY_OBJ_PERSON;
-				
+
 				$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
 				$B = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 				$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
@@ -713,7 +672,7 @@ function diaspora_request($importer,$xml) {
 		1,
 		2
 	);
-		 
+
 	// find the contact record we just created
 
 	$contact_record = diaspora_get_contact_by_handle($importer['uid'],$sender_handle);
@@ -734,7 +693,7 @@ function diaspora_request($importer,$xml) {
 	if($importer['page-flags'] == PAGE_NORMAL) {
 
 		$hash = random_string() . (string) time();   // Generate a confirm_key
-	
+
 		$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime` )
 			VALUES ( %d, %d, %d, %d, '%s', '%s', '%s' )",
 			intval($importer['uid']),
@@ -753,7 +712,7 @@ function diaspora_request($importer,$xml) {
 		require_once('include/Photo.php');
 
 		$photos = import_profile_photo($contact_record['photo'],$importer['uid'],$contact_record['id']);
-		
+
 		// technically they are sharing with us (CONTACT_IS_SHARING), 
 		// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
 		// we are going to change the relationship and make them a follower.
@@ -868,7 +827,7 @@ function diaspora_post($importer,$xml,$msg) {
 	$body = diaspora2bb($xml->raw_message);
 
 	// Add OEmbed and other information to the body
-	$body = diaspora_add_page_info_to_body($body);
+	$body = add_page_info_to_body($body, false, true);
 
 	$datarray = array();
 
@@ -1025,7 +984,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$body = scale_external_images($body);
 
 		// Add OEmbed and other information to the body
-		$body = diaspora_add_page_info_to_body($body);
+		$body = add_page_info_to_body($body, false, true);
 	}
 	else {
 		// Maybe it is a reshare of a photo that will be delivered at a later time (testing)
@@ -1445,12 +1404,12 @@ function diaspora_comment($importer,$xml,$msg) {
 		foreach($myconv as $conv) {
 
 			// now if we find a match, it means we're in this conversation
-	
+
 			if(! link_compare($conv['author-link'],$importer_url))
 				continue;
 
 			require_once('include/enotify.php');
-								
+
 			$conv_parent = $conv['parent'];
 
 			notification(array(
