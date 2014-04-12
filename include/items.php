@@ -914,10 +914,10 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
         $URLSearchString = "^\[\]";
 
         // Adding these spaces is a quick hack due to my problems with regular expressions :)
-        preg_match("/[^@#]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
+        preg_match("/[^!#@]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
 
         if (!$matches)
-                preg_match("/[^@#]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
+                preg_match("/[^!#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
 
 	// Convert urls without bbcode elements
 	if (!$matches AND $texturl) {
