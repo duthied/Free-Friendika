@@ -262,7 +262,7 @@ function diaspora_pubmsg_build($msg,$user,$contact,$prvkey,$pubkey) {
 
 	logger('diaspora_pubmsg_build: ' . $msg, LOGGER_DATA);
 
-	
+
 	$handle = $user['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 
 //	$b64_data = base64_encode($msg);
@@ -276,7 +276,7 @@ function diaspora_pubmsg_build($msg,$user,$contact,$prvkey,$pubkey) {
 	$encoding = 'base64url';
 	$alg = 'RSA-SHA256';
 
-	$signable_data = $data  . '.' . base64url_encode($type) . '.' 
+	$signable_data = $data  . '.' . base64url_encode($type) . '.'
 		. base64url_encode($encoding) . '.' . base64url_encode($alg) ;
 
 	$signature = rsa_sign($signable_data,$prvkey);
@@ -345,7 +345,7 @@ function diaspora_msg_build($msg,$user,$contact,$prvkey,$pubkey,$public = false)
 	$encoding = 'base64url';
 	$alg = 'RSA-SHA256';
 
-	$signable_data = $data  . '.' . base64url_encode($type) . '.' 
+	$signable_data = $data  . '.' . base64url_encode($type) . '.'
 		. base64url_encode($encoding) . '.' . base64url_encode($alg) ;
 
 	$signature = rsa_sign($signable_data,$prvkey);
@@ -713,7 +713,7 @@ function diaspora_request($importer,$xml) {
 
 		$photos = import_profile_photo($contact_record['photo'],$importer['uid'],$contact_record['id']);
 
-		// technically they are sharing with us (CONTACT_IS_SHARING), 
+		// technically they are sharing with us (CONTACT_IS_SHARING),
 		// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
 		// we are going to change the relationship and make them a follower.
 
@@ -1603,7 +1603,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 			'verb' => ACTIVITY_POST,
 			'otype' => 'mail'
 		));
-	}	
+	}
 
 	return;
 }
@@ -2301,7 +2301,7 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 				$body .= '[' . $mtch[3] . '](' . $mtch[1] . ')' . "\n";
 			}
 		}
-	}	
+	}
 
 
 	$public = (($item['private']) ? 'false' : 'true');
@@ -2309,13 +2309,17 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 	require_once('include/datetime.php');
 	$created = datetime_convert('UTC','UTC',$item['created'],'Y-m-d H:i:s \U\T\C');
 
+	// To-Do
+	// Detect a share element and do a reshare
+	// see: https://github.com/Raven24/diaspora-federation/blob/master/lib/diaspora-federation/entities/reshare.rb
 	$tpl = get_markup_template('diaspora_post.tpl');
 	$msg = replace_macros($tpl, array(
 		'$body' => $body,
 		'$guid' => $item['guid'],
 		'$handle' => xmlify($myaddr),
 		'$public' => $public,
-		'$created' => $created
+		'$created' => $created,
+		'$provider' => $item["app"]
 	));
 
 	logger('diaspora_send_status: ' . $owner['username'] . ' -> ' . $contact['name'] . ' base message: ' . $msg, LOGGER_DATA);
