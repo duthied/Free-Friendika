@@ -1244,9 +1244,13 @@ position: relative;
   overflow: hidden;
   border-left: 0px;
   padding-left: 0px;
+  font-size: 13px;
+  line-height: normal;
 }
 .type-link .oembed, .type-video .oembed {
-  font-size: inherit;
+  font-size: 18px;
+  font-weight: 300;
+  line-height: normal;
 }
 .type-link img, .type-video img {
 /* position: absolute;
@@ -1257,6 +1261,10 @@ top: 0; */
 .type-link a + br, .type-video a + br,
 .type-link img + br, .type-video img + br{
   display: none;
+}
+
+h2 {
+  line-height: normal;
 }
 
 .wall-item-container .wall-item-content {
@@ -1339,7 +1347,7 @@ top: 0; */
   transition: all 0.2s ease-in-out;
 }
 
-/* .wall-item-container .wall-item-content a, */
+.wall-item-container .wall-item-content a,
 .toplevel_item .fakelink,
 .wall-item-container .fakelink {
   color: black;
@@ -2024,7 +2032,7 @@ ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active
   width: 200px;
 }
 .field input, .field textarea {
-  width: 400px;
+  max-width: 400px;
 }
 .field textarea {
   height: 100px;
@@ -2068,6 +2076,12 @@ ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active
 }
 .field.radio .field_help {
   margin-left: 0px;
+}
+aside form {
+  overflow-x: hidden;
+}
+aside form .field label {
+  float: inherit;
 }
 
 #profile-edit-links-end {
