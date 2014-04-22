@@ -7,7 +7,7 @@ require_once('include/queue_fn.php');
 function profile_change() {
 
 	$a = get_app();
-	
+
 	if(! local_user())
 		return;
 
@@ -29,7 +29,7 @@ function profile_change() {
 		WHERE `user`.`uid` = %d AND `profile`.`is-default` = 1 LIMIT 1",
 		intval(local_user())
 	);
-	
+
 	if(! count($r))
 		return;
 	$profile = $r[0];

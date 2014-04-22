@@ -520,7 +520,8 @@ function bb_ShareAttributesSimple2($match) {
 
 	$userid = GetProfileUsername($profile,$author);
 
-        $text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />".$match[2];
+        //$text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />".$match[2];
+        $text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid.": <br />".$match[2];
 
         return($text);
 }

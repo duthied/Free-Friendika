@@ -39,9 +39,9 @@
 			<span class="city-state-zip">
 				<span class="locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
 				<span class="region">{{$profile.region}}</span>
-				<span class="postal-code">{{$profile.postal-code}}</span>
+				<span class="postal-code">{{$profile.postal_code}}</span>
 			</span>
-			{{if $profile.country-name}}<span class="country-name">{{$profile.country-name}}</span>{{/if}}
+			{{if $profile.country_name}}<span class="country-name">{{$profile.country_name}}</span>{{/if}}
 		</dd>
 		</dl>
 	{{/if}}
