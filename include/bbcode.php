@@ -55,8 +55,8 @@ function bb_cleanup_share($shared) {
         if (strpos($shared[1],$title) !== false)
                 $title = "";
 
-        if (strpos($shared[1],$link) !== false)
-                $link = "";
+//        if (strpos($shared[1],$link) !== false)
+//                $link = "";
 
         $text = trim($shared[1]);
 
@@ -555,10 +555,13 @@ function GetProfileUsername($profile, $username) {
 		}
 	}
 
-	// To-Do: Better check for pumpio
-	$pumpio = preg_replace("=https?://([^/]*).*/(\w*)=ism", "$2@$1", $profile);
-	if ($pumpio != $profile)
-		return($username." (".$pumpio.")");
+	// pumpio (http://host.name/user)
+	$rest = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$3", $profile);
+	if ($rest == "") {
+		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "*$2@$1*", $profile);
+		if ($pumpio != $profile)
+			return($username." (".$pumpio.")");
+	}
 
 	return($username);
 }
