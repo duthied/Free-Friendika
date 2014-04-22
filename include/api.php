@@ -15,16 +15,16 @@
 	$API = Array();
 	$called_api = Null;
 
-        function api_user() {
-          // It is not sufficient to use local_user() to check whether someone is allowed to use the API,
-          // because this will open CSRF holes (just embed an image with src=friendicasite.com/api/statuses/update?status=CSRF
-          // into a page, and visitors will post something without noticing it).
-          // Instead, use this function.
-          if ($_SESSION["allow_api"])
-            return local_user();
+	function api_user() {
+		// It is not sufficient to use local_user() to check whether someone is allowed to use the API,
+		// because this will open CSRF holes (just embed an image with src=friendicasite.com/api/statuses/update?status=CSRF
+		// into a page, and visitors will post something without noticing it).
+		// Instead, use this function.
+		if ($_SESSION["allow_api"])
+			return local_user();
 
-          return false;
-        }
+		return false;
+	}
 
 	function api_date($str){
 		//Wed May 23 06:01:13 +0000 2007
@@ -65,9 +65,9 @@
 
 		// workaround for HTTP-auth in CGI mode
 		if(x($_SERVER,'REDIRECT_REMOTE_USER')) {
-		 	$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"],6)) ;
+			$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"],6)) ;
 			if(strlen($userpass)) {
-			 	list($name, $password) = explode(':', $userpass);
+				list($name, $password) = explode(':', $userpass);
 				$_SERVER['PHP_AUTH_USER'] = $name;
 				$_SERVER['PHP_AUTH_PW'] = $password;
 			}
@@ -101,10 +101,10 @@
 		if(count($r)){
 			$record = $r[0];
 		} else {
-		   logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
-		    header('WWW-Authenticate: Basic realm="Friendica"');
-		    header('HTTP/1.0 401 Unauthorized');
-		    die('This api requires login');
+			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
+			header('WWW-Authenticate: Basic realm="Friendica"');
+			header('HTTP/1.0 401 Unauthorized');
+			die('This api requires login');
 		}
 
 		require_once('include/security.php');
@@ -154,7 +154,7 @@
 					case "json":
 						header ("Content-Type: application/json");
 						foreach($r as $rr)
-						    return json_encode($rr);
+							return json_encode($rr);
 						break;
 					case "rss":
 						header ("Content-Type: application/rss+xml");
@@ -167,7 +167,7 @@
 					case "as":
 						//header ("Content-Type: application/json");
 						//foreach($r as $rr)
-						//    return json_encode($rr);
+						//	return json_encode($rr);
 						return json_encode($r);
 						break;
 
@@ -436,9 +436,6 @@
 		// Add a nick if it isn't present there
 		if (($uinfo[0]['nick'] == "") OR ($uinfo[0]['name'] == $uinfo[0]['nick'])) {
 			$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
-			//if ($uinfo[0]['nick'] != "")
-			//	q("UPDATE contact SET nick = '%s' WHERE id = %d",
-			//		dbesc($uinfo[0]['nick']), intval($uinfo[0]["id"]));
 		}
 
 		// Fetching unique id
@@ -621,46 +618,46 @@
 	}
 
 /*Waitman Gobble Mod*/
-        function api_statuses_mediap(&$a, $type) {
-                if (api_user()===false) {
-                        logger('api_statuses_update: no user');
-                        return false;
-                }
-                $user_info = api_get_user($a);
+	function api_statuses_mediap(&$a, $type) {
+		if (api_user()===false) {
+			logger('api_statuses_update: no user');
+			return false;
+		}
+		$user_info = api_get_user($a);
 
-                $_REQUEST['type'] = 'wall';
-                $_REQUEST['profile_uid'] = api_user();
-                $_REQUEST['api_source'] = true;
-                $txt = requestdata('status');
-                //$txt = urldecode(requestdata('status'));
+		$_REQUEST['type'] = 'wall';
+		$_REQUEST['profile_uid'] = api_user();
+		$_REQUEST['api_source'] = true;
+		$txt = requestdata('status');
+		//$txt = urldecode(requestdata('status'));
 
-                require_once('library/HTMLPurifier.auto.php');
-                require_once('include/html2bbcode.php');
+		require_once('library/HTMLPurifier.auto.php');
+		require_once('include/html2bbcode.php');
 
-                if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
-                        $config->set('Cache.DefinitionImpl', null);
+			$config->set('Cache.DefinitionImpl', null);
 			$purifier = new HTMLPurifier($config);
-                        $txt = $purifier->purify($txt);
+			$txt = $purifier->purify($txt);
 		}
 		$txt = html2bbcode($txt);
 
-                $a->argv[1]=$user_info['screen_name']; //should be set to username?
+		$a->argv[1]=$user_info['screen_name']; //should be set to username?
 
 		$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-                require_once('mod/wall_upload.php');
+		require_once('mod/wall_upload.php');
 		$bebop = wall_upload_post($a);
 
 		//now that we have the img url in bbcode we can add it to the status and insert the wall item.
-                $_REQUEST['body']=$txt."\n\n".$bebop;
-                require_once('mod/item.php');
-                item_post($a);
+		$_REQUEST['body']=$txt."\n\n".$bebop;
+		require_once('mod/item.php');
+		item_post($a);
 
-                // this should output the last post (the one we just posted).
-                return api_status_show($a,$type);
-        }
-        api_register_func('api/statuses/mediap','api_statuses_mediap', true);
+		// this should output the last post (the one we just posted).
+		return api_status_show($a,$type);
+	}
+	api_register_func('api/statuses/mediap','api_statuses_mediap', true);
 /*Waitman Gobble Mod*/
 
 
@@ -746,22 +743,6 @@
 		logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
 
 		// get last public wall message
-		//$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `c`.`nick` as `reply_author`, `i`.`author-link` AS `item-author`
-		//		FROM `item`, `contact`, `item` as `i`, `contact` as `c`
-		//		WHERE `item`.`contact-id` = %d
-		//			AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-		//			AND `i`.`id` = `item`.`parent`
-		//			AND `contact`.`id`=`item`.`contact-id` AND `c`.`id`=`i`.`contact-id` AND `contact`.`self`=1
-		//			AND `item`.`type`!='activity'
-		//			AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
-		//		ORDER BY `item`.`created` DESC
-		//		LIMIT 1",
-		//		intval($user_info['cid']),
-		//		dbesc($user_info['url']),
-		//		dbesc(normalise_link($user_info['url'])),
-		//		dbesc($user_info['url']),
-		//		dbesc(normalise_link($user_info['url']))
-		//);
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `i`.`author-link` AS `item-author`
 				FROM `item`, `item` as `i`
 				WHERE `item`.`contact-id` = %d
@@ -859,7 +840,7 @@
 
 		$lastwall = q("SELECT `item`.*
 				FROM `item`, `contact`
-				WHERE `item`.`uid` = %d AND `item`.`contact-id` = %d
+				WHERE `item`.`uid` = %d AND `verb` = '%s' AND `item`.`contact-id` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `contact`.`id`=`item`.`contact-id`
 					AND `type`!='activity'
@@ -867,13 +848,13 @@
 				ORDER BY `created` DESC
 				LIMIT 1",
 				intval(api_user()),
+				dbesc(ACTIVITY_POST),
 				intval($user_info['cid']),
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url'])),
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url']))
 		);
-//print_r($user_info);
 		if (count($lastwall)>0){
 			$lastwall = $lastwall[0];
 
@@ -884,7 +865,7 @@
 			$in_reply_to_screen_name = NULL;
 			if ($lastwall['parent']!=$lastwall['id']) {
 				$reply = q("SELECT `item`.`id`, `item`.`contact-id` as `reply_uid`, `contact`.`nick` as `reply_author`, `item`.`author-link` AS `item-author`
-                                            FROM `item`,`contact` WHERE `contact`.`id`=`item`.`contact-id` AND `item`.`id` = %d", intval($lastwall['parent']));
+						FROM `item`,`contact` WHERE `contact`.`id`=`item`.`contact-id` AND `item`.`id` = %d", intval($lastwall['parent']));
 				if (count($reply)>0) {
 					$in_reply_to_status_id = intval($lastwall['parent']);
 					$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
@@ -986,15 +967,15 @@
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d
+			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-			//intval($user_info['uid']),
 			intval(api_user()),
+			dbesc(ACTIVITY_POST),
 			intval($since_id),
 			intval($start),	intval($count)
 		);
@@ -1057,24 +1038,25 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-	        $r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-	                `contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-        	        `contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-                	`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-                	`user`.`nickname`, `user`.`hidewall`
-                	FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-                	INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-                	WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-                	AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-                	AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-                	AND `item`.`private` = 0 AND `item`.`wall` = 1 AND `user`.`hidewall` = 0
-                	AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
+			`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
+			`user`.`nickname`, `user`.`hidewall`
+			FROM `item` STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
+			WHERE `verb` = '%s' AND `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+			AND `item`.`private` = 0 AND `item`.`wall` = 1 AND `user`.`hidewall` = 0
+			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra
 			AND `item`.`id`>%d
-                	ORDER BY `item`.`id` DESC LIMIT %d, %d ",
+			ORDER BY `item`.`id` DESC LIMIT %d, %d ",
+			dbesc(ACTIVITY_POST),
 			intval($since_id),
-                	intval($start),
-                	intval($count));
+			intval($start),
+			intval($count));
 
 		$ret = api_format_items($r,$user_info);
 
@@ -1197,13 +1179,14 @@
 			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
 			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`uid` = %d AND `contact`.`id` = `item`.`contact-id`
+			AND `item`.`uid` = %d AND `item`.`verb` = '%s' AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `item`.`id`>%d $sql_extra
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
-                        intval($since_id),
-                        intval($start), intval($count)
+			dbesc(ACTIVITY_POST),
+			intval($since_id),
+			intval($start), intval($count)
 		);
 
 		if (!$r)
@@ -1347,27 +1330,27 @@
 		$myurl = str_replace('www.','',$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
 
-		$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where `author-link` IN ('https://%s', 'http://%s') OR `mention`)",
-			dbesc(protect_sprintf($myurl)),
-			dbesc(protect_sprintf($myurl))
-		);
-
 		if ($max_id > 0)
-			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
+			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
 
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d
+			WHERE `item`.`uid` = %d AND `verb` = '%s'
+			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-			//intval($user_info['uid']),
+			intval(api_user()),
+			dbesc(ACTIVITY_POST),
+			dbesc(protect_sprintf($myurl)),
+			dbesc(protect_sprintf($myurl)),
 			intval(api_user()),
 			intval($since_id),
 			intval($start),	intval($count)
@@ -1432,7 +1415,7 @@
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d
+			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
@@ -1441,6 +1424,7 @@
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 			intval(api_user()),
+			dbesc(ACTIVITY_POST),
 			intval($user_info['cid']),
 			intval($since_id),
 			intval($start),	intval($count)
@@ -1496,7 +1480,7 @@
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 				FROM `item`, `contact`
-				WHERE `item`.`uid` = %d
+				WHERE `item`.`uid` = %d AND `verb` = '%s'
 				AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 				AND `item`.`starred` = 1
 				AND `contact`.`id` = `item`.`contact-id`
@@ -1504,8 +1488,8 @@
 				$sql_extra
 				AND `item`.`id`>%d
 				ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-				//intval($user_info['uid']),
 				intval(api_user()),
+				dbesc(ACTIVITY_POST),
 				intval($since_id),
 				intval($start),	intval($count)
 			);
@@ -1578,11 +1562,11 @@
 			$singleitem["title"] = $item["text"];
 			$singleitem["verb"] = "post";
 			$singleitem["statusnet:notice_info"]["local_id"] = $item["id"];
-				$singleitem["statusnet:notice_info"]["source"] = $item["source"];
-				$singleitem["statusnet:notice_info"]["favorite"] = "false";
-				$singleitem["statusnet:notice_info"]["repeated"] = "false";
-				//$singleitem["original"] = $item;
-				$items[] = $singleitem;
+			$singleitem["statusnet:notice_info"]["source"] = $item["source"];
+			$singleitem["statusnet:notice_info"]["favorite"] = "false";
+			$singleitem["statusnet:notice_info"]["repeated"] = "false";
+			//$singleitem["original"] = $item;
+			$items[] = $singleitem;
 		}
 		$as['items'] = $items;
 		$as['link']['url'] = $a->get_baseurl()."/".$user_info["screen_name"]."/all";
@@ -1669,7 +1653,7 @@
 					'[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism",'[url=$1]$1[/url]',$bbcode);
 
-                $Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
 					'[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism",'[url=$1]$1[/url]',$bbcode);
 
@@ -1879,30 +1863,8 @@
 			unset($status["user"]["self"]);
 
 			// 'geo' => array('type' => 'Point',
-                        //                   'coordinates' => array((float) $notice->lat,
-                        //                                          (float) $notice->lon));
-
-			// Seesmic doesn't like the following content
-			// completely disabled to make friendica totally compatible to the statusnet API
-			/*if ($_SERVER['HTTP_USER_AGENT'] != 'Seesmic') {
-				$status2 = array(
-					'updated'   => api_date($item['edited']),
-					'published' => api_date($item['created']),
-					'message_id' => $item['uri'],
-					'url'		=> ($item['plink']!=''?$item['plink']:$item['author-link']),
-					'coordinates' => $item['coord'],
-					'place' => $item['location'],
-					'contributors' => '',
-					'annotations'  => '',
-					'entities'  => '',
-					'objecttype' => (($item['object-type']) ? $item['object-type'] : ACTIVITY_OBJ_NOTE),
-					'verb' => (($item['verb']) ? $item['verb'] : ACTIVITY_POST),
-					'self' => $a->get_baseurl()."/api/statuses/show/".$item['id'].".".$type,
-					'edit' => $a->get_baseurl()."/api/statuses/show/".$item['id'].".".$type,
-				);
-
-				$status = array_merge($status, $status2);
-			}*/
+			//                   'coordinates' => array((float) $notice->lat,
+			//                                          (float) $notice->lon));
 
 			$ret[] = $status;
 		};
@@ -2400,7 +2362,7 @@ function api_get_nick($profile) {
 	// To-Do: look at the page if its really a pumpio site
 	//if (!$nick == "") {
 	//	$pumpio = preg_replace("=https?://(.*)/(.*)/=ism", "$2", $profile."/");
-        //	if ($pumpio != $profile)
+	//	if ($pumpio != $profile)
 	//		$nick = $pumpio;
 		//      <div class="media" id="profile-block" data-profile-id="acct:kabniel@microca.st">
 
@@ -2412,7 +2374,7 @@ function api_get_nick($profile) {
 		return($nick);
 	}
 
-        return(false);
+	return(false);
 }
 
 function api_clean_plain_items($Text) {
