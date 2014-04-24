@@ -117,6 +117,9 @@ function delegate_content(&$a) {
 			if(! in_array($rr['uid'],$uids))
 				$potentials[] = $rr;
 
+	require_once("mod/settings.php");
+	settings_init($a);
+
 	$o = replace_macros(get_markup_template('delegate.tpl'),array(
 		'$header' => t('Delegate Page Management'),
 		'$base' => $a->get_baseurl(),
