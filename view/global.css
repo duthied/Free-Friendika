@@ -1,8 +1,12 @@
 /* List of social Networks */
-img.connector {
+img.connector, img.connector-disabled {
   height: 40px;
   margin-right: 10px;
   border-radius: 10px;
+}
+
+img.connector-disabled {
+  opacity: 0.5;
 }
 
 h3.connector {
