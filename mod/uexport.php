@@ -3,19 +3,23 @@
 function uexport_init(&$a){
 	if(! local_user())
 		killme();
-        
+
+	require_once("mod/settings.php");
+        settings_init($a);
+
+/*
 	$tabs = array(
 		array(
 			'label'	=> t('Account settings'),
 			'url' 	=> $a->get_baseurl(true).'/settings',
 			'selected'	=> '',
-		),	
+		),
 		array(
 			'label'	=> t('Display settings'),
 			'url' 	=> $a->get_baseurl(true).'/settings/display',
 			'selected'	=>'',
-		),	
-		
+		),
+
 		array(
 			'label'	=> t('Connector settings'),
 			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
@@ -42,17 +46,18 @@ function uexport_init(&$a){
 			'selected' => ''
 		)
 	);
-	
+
 	$tabtpl = get_markup_template("generic_links_widget.tpl");
 	$a->page['aside'] = replace_macros($tabtpl, array(
 		'$title' => t('Settings'),
 		'$class' => 'settings-widget',
 		'$items' => $tabs,
 	));
+*/
 }
 
 function uexport_content(&$a){
-    
+
     if ($a->argc > 1) {
         header("Content-type: application/json");
         header('Content-Disposition: attachment; filename="'.$a->user['nickname'].'.'.$a->argv[1].'"');
@@ -73,15 +78,15 @@ function uexport_content(&$a){
             array('/uexport/backup',t('Export all'),t('Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')),
     );
     call_hooks('uexport_options', $options);
-        
+
     $tpl = get_markup_template("uexport.tpl");
     return replace_macros($tpl, array(
         '$baseurl' => $a->get_baseurl(),
         '$title' => t('Export personal data'),
         '$options' => $options
     ));
-    
-    
+
+
 }
 
 function _uexport_multirow($query) {
@@ -117,7 +122,7 @@ function uexport_account($a){
 	$user = _uexport_row(
         sprintf( "SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()) )
 	);
-    
+
 	$contact = _uexport_multirow(
         sprintf( "SELECT * FROM `contact` WHERE `uid` = %d ",intval(local_user()) )
 	);
@@ -139,7 +144,7 @@ function uexport_account($a){
     $group = _uexport_multirow(
         sprintf( "SELECT * FROM `group` WHERE uid = %d",intval(local_user()) )
     );
-    
+
     $group_member = _uexport_multirow(
         sprintf( "SELECT * FROM `group_member` WHERE uid = %d",intval(local_user()) )
     );
