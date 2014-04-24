@@ -17,11 +17,11 @@
 
 {{else}}
 	<span id="settings_mail_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
-		<h3 class="settings-heading">{{$h_imap}}</h3>
+		<img class="connector" src="images/mail.png" /><h3 class="settings-heading connector">{{$h_imap}}</h3>
 	</span>
 	<div id="settings_mail_expanded" class="settings-block" style="display: none;">
 	<span class="fakelink" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
-		<h3 class="settings-heading">{{$h_imap}}</h3>
+		<img class="connector" src="images/mail.png" /><h3 class="settings-heading connector">{{$h_imap}}</h3>
 	</span>
 	<p>{{$imap_desc}}</p>
 	{{include file="field_custom.tpl" field=$imap_lastcheck}}

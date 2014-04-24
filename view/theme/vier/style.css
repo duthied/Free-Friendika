@@ -1208,60 +1208,7 @@ section.minimal {
   width: 350px;
   float: left;
   font-size: 12px;
-}
-
-.type-link, .type-video {
-  border-top: 1px solid #D2D2D2;
-  border-bottom: 1px solid #D2D2D2;
-  display: block;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-top: 10px;
-/*
-padding-left: 170px;
-min-height: 90px;
-position: relative;
-*/
-}
-.type-link:after, .type-video:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-.wall-item-container .wall-item-content .type-link img,
-.type-link img, .type-video img {
-  max-width: 160px;
-  max-height: 160px;
-  float: left;
-  margin-right: 10px;
-}
-.type-link blockquote, .type-video blockquote {
-  /* margin-left: 160px; */
-  margin-left: 0px;
-  max-height: 160px;
-  overflow: hidden;
-  border-left: 0px;
-  padding-left: 0px;
-  font-size: 13px;
-  line-height: normal;
-}
-.type-link .oembed, .type-video .oembed {
-  font-size: 18px;
-  font-weight: 300;
-  line-height: normal;
-}
-.type-link img, .type-video img {
-/* position: absolute;
-left: 0;
-top: 0; */
-}
-.type-link span.oembed + br, .type-video span.oembed + br,
-.type-link a + br, .type-video a + br,
-.type-link img + br, .type-video img + br{
-  display: none;
-}
+}}
 
 h2 {
   line-height: normal;
@@ -2429,9 +2376,9 @@ a.mail-list-link {
 }
 
 .settings-block {
-        border: 1px solid #AAA;
-        margin: 10px;
-        padding: 10px;
+        /* border: 1px solid #AAA; */
+        padding-left: 5px;
+        padding-right: 5px;
 }
 
 .app-title {
