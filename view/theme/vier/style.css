@@ -727,6 +727,7 @@ nav #nav-messages-linkmenu.selected,
 nav #nav-user-linklabel.selected,
 nav #nav-apps-link.selected {
   background-color: #364e59;
+  border-bottom-style: none;
 }
 
 /* nav #nav-community-link { */
