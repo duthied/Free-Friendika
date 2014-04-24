@@ -32,7 +32,7 @@ function settings_init(&$a) {
 
 	$tabs = array(
 		array(
-			'label'	=> t('Account settings'),
+			'label'	=> t('Account'),
 			'url' 	=> $a->get_baseurl(true).'/settings',
 			'selected'	=> (($a->argc == 1)?'active':''),
 		),
@@ -42,19 +42,24 @@ function settings_init(&$a) {
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
 		),
 		array(
-			'label'	=> t('Display settings'),
+			'label'	=> t('Display'),
 			'url' 	=> $a->get_baseurl(true).'/settings/display',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
 		),
 
 		array(
-			'label'	=> t('Connector settings'),
+			'label'	=> t('Social Networks'),
 			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
 		),
 		array(
-			'label'	=> t('Plugin settings'),
+			'label'	=> t('Plugins'),
 			'url' 	=> $a->get_baseurl(true).'/settings/addon',
+			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
+		),
+		array(
+			'label'	=> t('Delegations'),
+			'url' 	=> $a->get_baseurl(true).'/delegate',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
 		),
 		array(
@@ -719,8 +724,13 @@ function settings_content(&$a) {
 
 		call_hooks('connector_settings', $settings_connectors);
 
-		$diasp_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('Diaspora'), ((get_config('system','diaspora_enabled')) ? t('enabled') : t('disabled')));
-		$ostat_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('StatusNet'), ((get_config('system','ostatus_disabled')) ? t('disabled') : t('enabled')));
+		if (is_site_admin()) {
+			$diasp_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('Diaspora'), ((get_config('system','diaspora_enabled')) ? t('enabled') : t('disabled')));
+			$ostat_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('StatusNet'), ((get_config('system','ostatus_disabled')) ? t('disabled') : t('enabled')));
+		} else {
+			$diasp_enabled = "";
+			$ostat_enabled = "";
+		}
 
 		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 		if(get_config('system','dfrn_only'))
@@ -759,7 +769,7 @@ function settings_content(&$a) {
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_connectors"),
 
-			'$title'	=> t('Connector Settings'),
+			'$title'	=> t('Social Networks'),
 
 			'$diasp_enabled' => $diasp_enabled,
 			'$ostat_enabled' => $ostat_enabled,

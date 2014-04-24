@@ -1,0 +1,60 @@
+/* List of social Networks */
+img.connector {
+  height: 40px;
+  margin-right: 10px;
+  border-radius: 10px;
+}
+
+h3.connector {
+  display: inline-block;
+  vertical-align: bottom;
+}
+span.connector {
+  vertical-align: super;
+}
+
+/* Embedded link information */
+.type-link, .type-video {
+  border-top: 1px solid #D2D2D2;
+  border-bottom: 1px solid #D2D2D2;
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 10px;
+}
+.type-link:after, .type-video:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.wall-item-container .wall-item-content .type-link img,
+.type-link img, .type-video img {
+  max-width: 160px;
+  max-height: 160px;
+  float: left;
+  margin-right: 10px;
+}
+.type-link blockquote, .type-video blockquote {
+  margin-left: 0px;
+  max-height: 160px;
+  overflow: hidden;
+  border-left: 0px;
+  padding-left: 0px;
+  font-size: 13px;
+  line-height: normal;
+}
+.type-link .oembed, .type-video .oembed {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: normal;
+}
+.type-link img, .type-video img {
+}
+
+.type-link span.oembed + br, .type-video span.oembed + br,
+.type-link a + br, .type-video a + br,
+.type-link img + br, .type-video img + br{
+  display: none;
+}

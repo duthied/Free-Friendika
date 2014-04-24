@@ -127,7 +127,9 @@ function nav_info(&$a) {
 	elseif(! get_config('system','no_community_page'))
 		$nav['community'] = array('community', t('Community'), "", t('Conversations on this site'));
 
-	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory')); 
+	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory'));
+
+	$nav['about'] = Array('friendica', t('Information'), "", t('Information about this friendica instance'));
 
 	/**
 	 *
