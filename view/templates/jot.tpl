@@ -59,7 +59,8 @@
 		<a href="#profile-jot-acl-wrapper" id="jot-perms-icon" class="icon {{$lockstate}}"  title="{{$permset}}" ></a>{{$bang}}
 	</div>
 
-	{{if $preview}}<span onclick="preview_post();" id="jot-preview-link" class="fakelink">{{$preview}}</span>{{/if}}
+	<!-- {{if $preview}}<span onclick="preview_post();" id="jot-preview-link" class="fakelink">{{$preview}}</span>{{/if}} -->
+	{{if $preview}}<input type="submit" onclick="preview_post(); return false;" id="jot-preview-link" value="{{$preview}}" />{{/if}}
 
 	<div id="profile-jot-perms-end"></div>
 
