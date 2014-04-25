@@ -72,7 +72,7 @@ function wall_attach_post(&$a) {
 	 */
 
 	if($filesize <=0) {
-		notice(t('$filesize <= 0; upload refused') . EOL);
+		notice(t('Sorry, maybe your upload is bigger than the PHP configuration allows') . EOL .(t('Or - did you try to upload an empty file?')) . EOL);
 		@unlink($src);
 		killme();
 	}
