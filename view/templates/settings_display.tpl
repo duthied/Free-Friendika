@@ -14,6 +14,7 @@
 {{include file="field_input.tpl" field=$itemspage_mobile_network}}
 {{include file="field_input.tpl" field=$ajaxint}}
 {{include file="field_checkbox.tpl" field=$nosmile}}
+{{include file="field_checkbox.tpl" field=$noinfo}}
 {{include file="field_checkbox.tpl" field=$infinite_scroll}}
 
 

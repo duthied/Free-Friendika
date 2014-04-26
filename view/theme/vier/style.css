@@ -1425,8 +1425,9 @@ h2 {
   /* width: 700px; */
   width: 100%;
   padding: 0;
-  margin: 10px 0;
+  margin: 10px 0px 0px 0px;
   border-bottom: 0px;
+  box-shadow: none;
 }
 
 .wall-item-bottom .comment-edit-preview {

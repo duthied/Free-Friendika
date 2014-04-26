@@ -2341,7 +2341,7 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 
 	$return_code = diaspora_transmit($owner,$contact,$slap,$public_batch);
 
-	logger('diaspora_send_status: guid: '.$item['guid'].' root_guid: '.$ret['root_guid'].' result '.$return_code, LOGGER_DEBUG);
+	logger('diaspora_send_status: guid: '.$item['guid'].' result '.$return_code, LOGGER_DEBUG);
 
 	if(count($images)) {
 		diaspora_send_images($item,$owner,$contact,$images,$public_batch);
@@ -2379,7 +2379,7 @@ function diaspora_is_reshare($body) {
         $ret= array();
 
         $ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
-        if ($ret["root_handle"] == $profile)
+        if (($ret["root_handle"] == $profile) OR ($ret["root_handle"] == ""))
                 return(false);
 
         $link = "";
@@ -2392,7 +2392,7 @@ function diaspora_is_reshare($body) {
                 $link = $matches[1];
 
         $ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
-        if ($ret["root_guid"] == $link)
+        if (($ret["root_guid"] == $link) OR ($ret["root_guid"] == ""))
                 return(false);
 
         return($ret);

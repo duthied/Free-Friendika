@@ -1255,6 +1255,10 @@ if(! function_exists('info')) {
 	 */
 	function info($s) {
 		$a = get_app();
+
+		if (local_user() AND get_pconfig(local_user(),'system','ignore_info'))
+			return;
+
 		if(! x($_SESSION,'sysmsg_info')) $_SESSION['sysmsg_info'] = array();
 		if($a->interactive)
 			$_SESSION['sysmsg_info'][] = $s;
