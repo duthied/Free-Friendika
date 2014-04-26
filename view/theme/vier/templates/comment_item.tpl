@@ -46,7 +46,8 @@
 
                                 </div>
 					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit}}" />
-					<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>
+					{{if $preview}}<input type="submit" onclick="preview_comment({{$id}}); return false;" id="comment-edit-preview-link-{{$id}}" class="comment-edit-submit" value="{{$preview}}" />{{/if}}
+					<!-- {{if $preview}}<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>{{/if}} -->
 					<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 				</div>
 

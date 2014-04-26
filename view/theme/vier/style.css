@@ -727,6 +727,7 @@ nav #nav-messages-linkmenu.selected,
 nav #nav-user-linklabel.selected,
 nav #nav-apps-link.selected {
   background-color: #364e59;
+  border-bottom-style: none;
 }
 
 /* nav #nav-community-link { */
@@ -1424,8 +1425,9 @@ h2 {
   /* width: 700px; */
   width: 100%;
   padding: 0;
-  margin: 10px 0;
+  margin: 10px 0px 0px 0px;
   border-bottom: 0px;
+  box-shadow: none;
 }
 
 .wall-item-bottom .comment-edit-preview {
@@ -1926,12 +1928,12 @@ ul.tabs a {
     margin-bottom: 10px;
 }
 
-div.pager, .birthday-notice, #jot-preview-link, .comment-edit-submit-wrapper .fakelink {
+div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
     padding: 2px 7px 2px 7px;
     color: black;
 }
 
-div.pager, .birthday-notice, ul.tabs a, #jot-preview-link, .comment-edit-submit-wrapper .fakelink {
+div.pager, .birthday-notice, ul.tabs a, .comment-edit-submit-wrapper .fakelink {
     border: 1px solid lightgray;
     background: #F2F2F2;
     margin-top: 2px;
@@ -1942,11 +1944,11 @@ ul.tabs a:hover {
     color: #333;
 }
 
-#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, #jot-preview-link:hover, .comment-edit-submit-wrapper .fakelink:hover {
+#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
     color: black;
 }
 
-ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active, #jot-preview-link:hover, .comment-edit-submit-wrapper .fakelink:hover {
+ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
     background-color: #e5e5e5;
     text-decoration: none;
     border: 1px solid darkgray;

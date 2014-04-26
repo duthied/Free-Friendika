@@ -2309,25 +2309,39 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 	require_once('include/datetime.php');
 	$created = datetime_convert('UTC','UTC',$item['created'],'Y-m-d H:i:s \U\T\C');
 
-	// To-Do
 	// Detect a share element and do a reshare
 	// see: https://github.com/Raven24/diaspora-federation/blob/master/lib/diaspora-federation/entities/reshare.rb
-	$tpl = get_markup_template('diaspora_post.tpl');
-	$msg = replace_macros($tpl, array(
-		'$body' => $body,
-		'$guid' => $item['guid'],
-		'$handle' => xmlify($myaddr),
-		'$public' => $public,
-		'$created' => $created,
-		'$provider' => $item["app"]
-	));
+	if (!$item['private'] AND ($ret = diaspora_is_reshare($item["body"]))) {
+		$tpl = get_markup_template('diaspora_reshare.tpl');
+		$msg = replace_macros($tpl, array(
+			'$root_handle' => xmlify($ret['root_handle']),
+			'$root_guid' => $ret['root_guid'],
+			'$guid' => $item['guid'],
+			'$handle' => xmlify($myaddr),
+			'$public' => $public,
+			'$created' => $created,
+			'$provider' => $item["app"]
+		));
+	} else {
+		$tpl = get_markup_template('diaspora_post.tpl');
+		$msg = replace_macros($tpl, array(
+			'$body' => $body,
+			'$guid' => $item['guid'],
+			'$handle' => xmlify($myaddr),
+			'$public' => $public,
+			'$created' => $created,
+			'$provider' => $item["app"]
+		));
+	}
 
-	logger('diaspora_send_status: ' . $owner['username'] . ' -> ' . $contact['name'] . ' base message: ' . $msg, LOGGER_DATA);
+	logger('diaspora_send_status: '.$owner['username'].' -> '.$contact['name'].' base message: '.$msg, LOGGER_DATA);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
 	$return_code = diaspora_transmit($owner,$contact,$slap,$public_batch);
+
+	logger('diaspora_send_status: guid: '.$item['guid'].' result '.$return_code, LOGGER_DEBUG);
 
 	if(count($images)) {
 		diaspora_send_images($item,$owner,$contact,$images,$public_batch);
@@ -2336,6 +2350,53 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 	return $return_code;
 }
 
+function diaspora_is_reshare($body) {
+	$body = trim($body);
+
+        // Skip if it isn't a pure repeated messages
+        // Does it start with a share?
+        if (strpos($body, "[share") > 0)
+                return(false);
+
+        // Does it end with a share?
+        if (strlen($body) > (strrpos($body, "[/share]") + 8))
+                return(false);
+
+        $attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+        // Skip if there is no shared message in there
+        if ($body == $attributes)
+                return(false);
+
+        $profile = "";
+        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        $ret= array();
+
+        $ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
+        if (($ret["root_handle"] == $profile) OR ($ret["root_handle"] == ""))
+                return(false);
+
+        $link = "";
+        preg_match("/link='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
+
+        preg_match('/link="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
+
+        $ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
+        if (($ret["root_guid"] == $link) OR ($ret["root_guid"] == ""))
+                return(false);
+
+        return($ret);
+}
 
 function diaspora_send_images($item,$owner,$contact,$images,$public_batch = false) {
 	$a = get_app();
