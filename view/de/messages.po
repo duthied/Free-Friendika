@@ -766,7 +766,7 @@ msgstr "Homepage:"
 
 #: ../../boot.php:1584 ../../boot.php:1670
 msgid "g A l F d"
-msgstr "l, d. F G \\U\\h\\r"
+msgstr "l, d. F G \U\h\r"
 
 #: ../../boot.php:1585 ../../boot.php:1671
 msgid "F d"
@@ -880,7 +880,7 @@ msgstr "die unter folgender Webadresse zu finden ist"
 msgid ""
 "Please visit <a href=\"http://friendica.com\">Friendica.com</a> to learn "
 "more about the Friendica project."
-msgstr "Bitte besuche <a href=\"http://friendica.com\">Friendica.com</a>, um mehr über das Friendica Projekt zu erfahren."
+msgstr "Bitte besuche <a href="http://friendica.com">Friendica.com</a>, um mehr über das Friendica Projekt zu erfahren."
 
 #: ../../mod/friendica.php:63
 msgid "Bug reports and issues: please visit"
@@ -890,7 +890,7 @@ msgstr "Probleme oder Fehler gefunden? Bitte besuche"
 msgid ""
 "Suggestions, praise, donations, etc. - please email \"Info\" at Friendica - "
 "dot com"
-msgstr "Vorschläge, Lob, Spenden usw.: E-Mail an \"Info\" at Friendica - dot com"
+msgstr "Vorschläge, Lob, Spenden usw.: E-Mail an "Info" at Friendica - dot com"
 
 #: ../../mod/friendica.php:78
 msgid "Installed plugins/addons/apps:"
@@ -1424,7 +1424,10 @@ msgid ""
 "interest, and provide suggestions based on network relationships. On a brand"
 " new site, friend suggestions will usually begin to be populated within 24 "
 "hours."
-msgstr "Im seitlichen Bedienfeld der Kontakteseite gibt es diverse Werkzeuge, um neue Freunde zu finden. Wir können Menschen mit den gleichen Interessen finden, anhand von Namen oder Interessen suchen oder aber aufgrund vorhandener Kontakte neue Freunde vorschlagen.\nAuf einer brandneuen - soeben erstellten - Seite starten die Kontaktvorschläge innerhalb von 24 Stunden."
+msgstr "Im seitlichen Bedienfeld der Kontakteseite gibt es diverse Werkzeuge, um neue Freunde zu finden. Wir können Menschen mit den gleichen Interessen finden, anhand von Namen oder Interessen suchen oder aber aufgrund vorhandener Kontakte neue Freunde vorschlagen.
+Auf einer brandneuen - soeben erstellten - Seite starten die Kontaktvorschläge innerhalb von 24 Stunden."
+Auf einer brandneuen - soeben erstellten - Seite starten die Kontaktvorschläge innerhalb von 24 Stunden."
+Auf einer brandneuen - soeben erstellten - Seite starten die Kontaktvorschläge innerhalb von 24 Stunden."
 
 #: ../../mod/newmember.php:66 ../../include/group.php:270
 msgid "Groups"
@@ -1611,12 +1614,12 @@ msgstr "Die Datenbank deiner Friendicaseite wurde installiert."
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
-msgstr "Möglicherweise musst du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren."
+msgstr "Möglicherweise musst du die Datei "database.sql" manuell mit phpmyadmin oder mysql importieren."
 
 #: ../../mod/install.php:139 ../../mod/install.php:206
 #: ../../mod/install.php:521
 msgid "Please see the file \"INSTALL.txt\"."
-msgstr "Lies bitte die \"INSTALL.txt\"."
+msgstr "Lies bitte die "INSTALL.txt"."
 
 #: ../../mod/install.php:203
 msgid "System check"
@@ -1727,7 +1730,7 @@ msgstr "PHP CLI Binary"
 msgid ""
 "The command line version of PHP on your system does not have "
 "\"register_argc_argv\" enabled."
-msgstr "Die Kommandozeilenversion von PHP auf deinem System hat \"register_argc_argv\" nicht aktiviert."
+msgstr "Die Kommandozeilenversion von PHP auf deinem System hat "register_argc_argv" nicht aktiviert."
 
 #: ../../mod/install.php:355
 msgid "This is required for message delivery to work."
@@ -1741,13 +1744,13 @@ msgstr "PHP register_argc_argv"
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
-msgstr "Fehler: Die Funktion \"openssl_pkey_new\" auf diesem System ist nicht in der Lage, Verschlüsselungsschlüssel zu erzeugen"
+msgstr "Fehler: Die Funktion "openssl_pkey_new" auf diesem System ist nicht in der Lage, Verschlüsselungsschlüssel zu erzeugen"
 
 #: ../../mod/install.php:379
 msgid ""
 "If running under Windows, please see "
 "\"http://www.php.net/manual/en/openssl.installation.php\"."
-msgstr "Wenn der Server unter Windows läuft, schau dir bitte \"http://www.php.net/manual/en/openssl.installation.php\" an."
+msgstr "Wenn der Server unter Windows läuft, schau dir bitte "http://www.php.net/manual/en/openssl.installation.php" an."
 
 #: ../../mod/install.php:381
 msgid "Generate encryption keys"
@@ -1807,7 +1810,7 @@ msgstr "Fehler: mb_string PHP Module wird benötigt ist aber nicht installiert."
 msgid ""
 "The web installer needs to be able to create a file called \".htconfig.php\""
 " in the top folder of your web server and it is unable to do so."
-msgstr "Der Installationswizard muss in der Lage sein, eine Datei im Stammverzeichnis deines Webservers anzulegen, ist allerdings derzeit nicht in der Lage, dies zu tun."
+msgstr ""
 
 #: ../../mod/install.php:439
 msgid ""
@@ -1874,7 +1877,7 @@ msgid ""
 "The database configuration file \".htconfig.php\" could not be written. "
 "Please use the enclosed text to create a configuration file in your web "
 "server root."
-msgstr "Die Konfigurationsdatei \".htconfig.php\" konnte nicht angelegt werden. Bitte verwende den angefügten Text, um die Datei im Stammverzeichnis deiner Friendica-Installation zu erzeugen."
+msgstr "Die Konfigurationsdatei ".htconfig.php" konnte nicht angelegt werden. Bitte verwende den angefügten Text, um die Datei im Stammverzeichnis deiner Friendica-Installation zu erzeugen."
 
 #: ../../mod/install.php:508
 msgid "Errors encountered creating database tables."
@@ -2122,11 +2125,11 @@ msgstr "Bestimmt, ob generierte Links SSL verwenden müssen"
 
 #: ../../mod/admin.php:587
 msgid "Old style 'Share'"
-msgstr "Altes \"Teilen\" Element"
+msgstr "Altes "Teilen" Element"
 
 #: ../../mod/admin.php:587
 msgid "Deactivates the bbcode element 'share' for repeating items."
-msgstr "Deaktiviert das BBCode Element \"share\" beim Wiederholen von Beiträgen."
+msgstr "Deaktiviert das BBCode Element "share" beim Wiederholen von Beiträgen."
 
 #: ../../mod/admin.php:588
 msgid "Hide help entry from navigation menu"
@@ -2676,13 +2679,13 @@ msgstr "Nutzerkonto"
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Die markierten Nutzer werden gelöscht!\\n\\nAlle Beiträge, die diese Nutzer auf dieser Seite veröffentlicht haben, werden permanent gelöscht!\\n\\nBist du sicher?"
+msgstr ""
 
 #: ../../mod/admin.php:919
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Der Nutzer {0} wird gelöscht!\\n\\nAlles was dieser Nutzer auf dieser Seite veröffentlicht hat, wird permanent gelöscht!\\n\\nBist du sicher?"
+msgstr ""
 
 #: ../../mod/admin.php:929
 msgid "Name of the new user."
@@ -3057,7 +3060,7 @@ msgstr "Account Datei"
 msgid ""
 "To export your account, go to \"Settings->Export your personal data\" and "
 "select \"Export account\""
-msgstr "Um deinen Account zu exportieren, rufe \"Einstellungen -> Persönliche Daten exportieren\" auf und wähle \"Account exportieren\""
+msgstr ""
 
 #: ../../mod/lockview.php:31 ../../mod/lockview.php:39
 msgid "Remote privacy information not available."
@@ -3219,7 +3222,7 @@ msgid ""
 "If you are not yet a member of the free social web, <a "
 "href=\"http://dir.friendica.com/siteinfo\">follow this link to find a public"
 " Friendica site and join us today</a>."
-msgstr "Wenn du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href=\"http://dir.friendica.com/siteinfo\">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
+msgstr "Wenn du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href="http://dir.friendica.com/siteinfo">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
 
 #: ../../mod/dfrn_request.php:832
 msgid "Friend/Connection Request"
@@ -4358,7 +4361,7 @@ msgstr "Region/Bundesstaat:"
 
 #: ../../mod/profiles.php:646
 msgid "<span class=\"heart\">&hearts;</span> Marital Status:"
-msgstr "<span class=\"heart\">&hearts;</span> Beziehungsstatus:"
+msgstr "<span class="heart">&hearts;</span> Beziehungsstatus:"
 
 #: ../../mod/profiles.php:647
 msgid "Who: (if applicable)"
@@ -4671,7 +4674,7 @@ msgstr "Beitrag erfolgreich veröffentlicht."
 #: ../../mod/localtime.php:12 ../../include/event.php:11
 #: ../../include/bb2diaspora.php:393
 msgid "l F d, Y \\@ g:i A"
-msgstr "l, d. F Y\\, H:i"
+msgstr ""
 
 #: ../../mod/localtime.php:24
 msgid "Time Conversion"
@@ -5781,7 +5784,7 @@ msgstr "Konnte diese E-Mail-Adresse nicht verwenden."
 msgid ""
 "Your \"nickname\" can only contain \"a-z\", \"0-9\", \"-\", and \"_\", and "
 "must also begin with a letter."
-msgstr "Dein Spitzname darf nur aus Buchstaben und Zahlen (\"a-z\",\"0-9\", \"_\" und \"-\") bestehen, außerdem muss er mit einem Buchstaben beginnen."
+msgstr "Dein Spitzname darf nur aus Buchstaben und Zahlen ("a-z","0-9", "_" und "-") bestehen, außerdem muss er mit einem Buchstaben beginnen."
 
 #: ../../include/user.php:137 ../../include/user.php:235
 msgid "Nickname is already registered. Please choose another."
@@ -5826,7 +5829,7 @@ msgstr "Nachricht/Beitrag"
 #: ../../include/conversation.php:292
 #, php-format
 msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr "%1$s hat %2$s\\s %3$s als Favorit markiert"
+msgstr "%1$s hat %2$s\s %3$s als Favorit markiert"
 
 #: ../../include/conversation.php:767
 msgid "remove"
@@ -6720,7 +6723,7 @@ msgstr "Bild/Foto"
 msgid ""
 "<span><a href=\"%s\" target=\"external-link\">%s</a> wrote the following <a "
 "href=\"%s\" target=\"external-link\">post</a>"
-msgstr "<span><a href=\"%s\" target=\"external-link\">%s</a> schrieb den folgenden <a href=\"%s\" target=\"external-link\">Beitrag</a>"
+msgstr "<span><a href="%s" target="external-link">%s</a> schrieb den folgenden <a href="%s" target="external-link">Beitrag</a>"
 
 #: ../../include/bbcode.php:584 ../../include/bbcode.php:604
 msgid "$1 wrote:"
@@ -7323,3 +7326,12 @@ msgstr "Kontakt löschen"
 #, php-format
 msgid "Cannot locate DNS info for database server '%s'"
 msgstr "Kann die DNS Informationen für den Datenbankserver '%s' nicht ermitteln."
+
+#: ../../mod/wall_attach:75
+msgid "Sorry, maybe your upload is bigger than the PHP configuration allows"
+msgstr "Leider ist Dein Upload evtl. größer als die PHP-Konfiguration erlaubt"
+
+#: ../../mod/wall_attach:75
+msgid "Or - did you try to upload an empty file?"
+msgstr "Oder hast Du versucht, eine leere Datei hochzuladen?"
+
