@@ -2316,25 +2316,16 @@ a.mail-list-link {
         font-size: 20px;
 }
 
-.vevent {
+/*.vevent {
         border: 1px solid #CCCCCC;
-}
-.vevent .event-description, .vevent .event-location {
-        margin-left: 10px;
-        margin-right: 10px;
-}
-.vevent .event-start {
-        margin-left: 10px;
-        margin-right: 10px;
-}
+}*/
 
-#new-event-link {
-        margin-bottom: 10px;
-}
 
-.edit-event-link, .plink-event-link {
-        float: left;
-        margin-top: 4px;
+.vevent {
+	border: 1px solid #CCCCCC;
+	max-width: 600px;
+	position: relative;
+	margin-top: 4px;
         margin-right: 4px;
         margin-bottom: 15px;
 }
