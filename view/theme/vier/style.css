@@ -2316,11 +2316,6 @@ a.mail-list-link {
         font-size: 20px;
 }
 
-/*.vevent {
-        border: 1px solid #CCCCCC;
-}*/
-
-
 .vevent {
 	border: 1px solid #CCCCCC;
 	max-width: 600px;
