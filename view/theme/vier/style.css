@@ -2328,6 +2328,7 @@ a.mail-list-link {
 	margin-top: 4px;
         margin-right: 4px;
         margin-bottom: 15px;
+	padding: 5px;
 }
 
 .event-description:before {
