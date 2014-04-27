@@ -2317,10 +2317,10 @@ a.mail-list-link {
 }
 
 .vevent {
-	border: 1px solid #CCCCCC;
-	max-width: 600px;
-	position: relative;
-	margin-top: 4px;
+        border: 1px solid #CCCCCC;
+        max-width: 600px;
+        position: relative;
+        margin-top: 4px;
         margin-right: 4px;
         margin-bottom: 15px;
 }
