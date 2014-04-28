@@ -83,8 +83,8 @@
 		{{if $item.conv}}
 		<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" >
 			<a href='{{$item.conv.href}}' id='context-{{$item.id}}' title='{{$item.conv.title}}'>{{$item.conv.title}}</a>
-		{{/if}}
 		</div>
+		{{/if}}
 	</div>
 	
 	

@@ -29,7 +29,8 @@
 	{{$dislike}}	
 </div>
 {{/if}}
-<div class="wall-item-comment-wrapper">
+
+<div class="wall-item-comment-wrapper photo">
     {{$comments}}
 </div>
 
