@@ -1352,6 +1352,7 @@ h2 {
   width: calc(100% - 90px);
   border-bottom: 1px solid hsl(198, 21%, 79%);
 }
+
 .wall-item-container.comment .wall-item-content {
   max-width: 585px;
 }
@@ -1376,6 +1377,17 @@ h2 {
 .wall-item-comment-wrapper {
   margin: 1px 15px 1px 80px;
 }
+.wall-item-comment-wrapper.photo {
+  margin: 1px 15px 1px 0px;
+}
+.wall-item-comment-wrapper.photo .wall-item-container.comment {
+  margin-left: 0px;
+  width: 665px;
+  width: 100%;
+  border-bottom: 1px solid hsl(198, 21%, 79%);
+}
+
+
 .wall-item-comment-wrapper .comment-edit-photo {
   display: none;
 }
