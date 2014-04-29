@@ -1352,6 +1352,7 @@ h2 {
   width: calc(100% - 90px);
   border-bottom: 1px solid hsl(198, 21%, 79%);
 }
+
 .wall-item-container.comment .wall-item-content {
   max-width: 585px;
 }
@@ -1376,6 +1377,17 @@ h2 {
 .wall-item-comment-wrapper {
   margin: 1px 15px 1px 80px;
 }
+.wall-item-comment-wrapper.photo {
+  margin: 1px 15px 1px 0px;
+}
+.wall-item-comment-wrapper.photo .wall-item-container.comment {
+  margin-left: 0px;
+  width: 665px;
+  width: 100%;
+  border-bottom: 1px solid hsl(198, 21%, 79%);
+}
+
+
 .wall-item-comment-wrapper .comment-edit-photo {
   display: none;
 }
@@ -2318,7 +2330,13 @@ a.mail-list-link {
 
 .vevent {
         border: 1px solid #CCCCCC;
+        max-width: 600px;
+        position: relative;
+        margin-top: 4px;
+        margin-right: 4px;
+        margin-bottom: 15px;
 }
+
 .vevent .event-description, .vevent .event-location {
         margin-left: 10px;
         margin-right: 10px;

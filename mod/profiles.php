@@ -288,6 +288,10 @@ function profiles_post(&$a) {
 
 		$sexual = notags(trim($_POST['sexual']));
 		$homepage = notags(trim($_POST['homepage']));
+		if (strpos($homepage, 'http') !== 0) {
+		    // neither http nor https in URL, add them
+		    $homepage = 'http://'.$homepage;
+		}
 		$hometown = notags(trim($_POST['hometown']));
 		$politic = notags(trim($_POST['politic']));
 		$religion = notags(trim($_POST['religion']));

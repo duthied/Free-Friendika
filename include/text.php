@@ -218,14 +218,16 @@ function xmlify($str) {
 				break;
 		}	
 	}*/
-
+	/*
 	$buffer = mb_ereg_replace("&", "&amp;", $str);
 	$buffer = mb_ereg_replace("'", "&apos;", $buffer);
-	$buffer = mb_ereg_replace("\"", "&quot;", $buffer);
+	$buffer = mb_ereg_replace('"', "&quot;", $buffer);
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
-
+	*/
+	$buffer = htmlspecialchars($str, ENT_QUOTES);
 	$buffer = trim($buffer);
+	
 	return($buffer);
 }}
 
@@ -238,11 +240,13 @@ if(! function_exists('unxmlify')) {
 function unxmlify($s) {
 //	$ret = str_replace('&amp;','&', $s);
 //	$ret = str_replace(array('&lt;','&gt;','&quot;','&apos;'),array('<','>','"',"'"),$ret);
-	$ret = mb_ereg_replace('&amp;', '&', $s);
+	/*$ret = mb_ereg_replace('&amp;', '&', $s);
 	$ret = mb_ereg_replace('&apos;', "'", $ret);
 	$ret = mb_ereg_replace('&quot;', '"', $ret);
 	$ret = mb_ereg_replace('&lt;', "<", $ret);
 	$ret = mb_ereg_replace('&gt;', ">", $ret);
+	*/
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;	
 }}
 
@@ -1129,7 +1133,7 @@ function smilies($s, $sample = false) {
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/like.gif" alt=":like" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/dislike.gif" alt=":dislike" />',
 		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . $a->get_baseurl() . '/images/friendica-16.png" alt="~friendica" /></a>',
-		'<a href="http://friendica.com">red <img class="smiley" src="' . $a->get_baseurl() . '/images/rhash-16.png" alt="red" /></a>'
+		'<a href="http://redmatrix.me/">red <img class="smiley" src="' . $a->get_baseurl() . '/images/rhash-16.png" alt="red" /></a>'
 	);
 
 	$params = array('texts' => $texts, 'icons' => $icons, 'string' => $s);
