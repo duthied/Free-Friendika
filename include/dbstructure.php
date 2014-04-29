@@ -142,7 +142,7 @@ function update_structure($a) {
 	}
 }
 
-function db_field_command($parameters) {
+function db_field_command($parameters, $create = true) {
 	$fieldstruct = $parameters["type"];
 
 	if ($parameters["not null"])
@@ -154,7 +154,7 @@ function db_field_command($parameters) {
 	if ($parameters["extra"] != "")
 		$fieldstruct .= " ".$parameters["extra"];
 
-	if ($parameters["primary"] != "")
+	if (($parameters["primary"] != "") AND $create)
 		$fieldstruct .= " PRIMARY KEY";
 
 	return($fieldstruct);
@@ -181,7 +181,7 @@ function db_add_table_field($name, $fieldname, $parameters) {
 }
 
 function db_modify_table_field($name, $fieldname, $parameters) {
-	$sql = sprintf("ALTER TABLE `%s` MODIFY `%s` %s", dbesc($name), dbesc($fieldname), db_field_command($parameters));
+	$sql = sprintf("ALTER TABLE `%s` MODIFY `%s` %s", dbesc($name), dbesc($fieldname), db_field_command($parameters, false));
 	echo $sql.";\n";
 	//$ret = q($sql);
 }
@@ -292,8 +292,8 @@ function db_definition() {
 					"client_id" => array("type" => "varchar(20)", "not null" => "1", "primary" => "1"),
 					"pw" => array("type" => "varchar(20)", "not null" => "1"),
 					"redirect_uri" => array("type" => "varchar(200)", "not null" => "1"),
-					"name" => array("type" => "varchar(128)"),
-					"icon" => array("type" => "varchar(255)"),
+					"name" => array("type" => "text"),
+					"icon" => array("type" => "text"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
@@ -392,162 +392,6 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					)
-			);
-	$db["dav_addressbookobjects"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"addressbook_id" => array("type" => "int(11) unsigned", "not null" => "1"),
-					"contact" => array("type" => "int(11)"),
-					"carddata" => array("type" => "mediumtext"),
-					"uri" => array("type" => "varchar(100)"),
-					"lastmodified" => array("type" => "timestamp"),
-					"needs_rebuild" => array("type" => "tinyint(4)", "not null" => "1", "default" => "0"),
-					"manually_deleted" => array("type" => "tinyint(4)", "not null" => "1", "default" => "0"),
-					"etag" => array("type" => "varchar(15)", "not null" => "1"),
-					"size" => array("type" => "int(10) unsigned", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"namespace" => array("addressbook_id","contact"),
-					"contact" => array("contact"),
-					)
-			);
-	$db["dav_addressbooks"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"namespace" => array("type" => "mediumint(9)", "not null" => "1"),
-					"namespace_id" => array("type" => "int(11) unsigned", "not null" => "1"),
-					"displayname" => array("type" => "varchar(200)", "not null" => "1"),
-					"description" => array("type" => "varchar(500)"),
-					"needs_rebuild" => array("type" => "tinyint(4)", "not null" => "1", "default" => "1"),
-					"uri" => array("type" => "varchar(50)", "not null" => "1"),
-					"ctag" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
-	$db["dav_cal_virtual_object_cache"] = array(
-			"fields" => array(
-					"id" => array("type" => "bigint(20) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"calendar_id" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"date" => array("type" => "timestamp", "not null" => "1", "default" => "CURRENT_TIMESTAMP"),
-					"data_uri" => array("type" => "char(80)", "not null" => "1"),
-					"data_summary" => array("type" => "varchar(1000)", "not null" => "1"),
-					"data_location" => array("type" => "varchar(1000)", "not null" => "1"),
-					"data_start" => array("type" => "timestamp", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"data_end" => array("type" => "timestamp", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"data_allday" => array("type" => "tinyint(4)", "not null" => "1"),
-					"data_type" => array("type" => "varchar(20)", "not null" => "1"),
-					"calendardata" => array("type" => "text", "not null" => "1"),
-					"size" => array("type" => "int(11)", "not null" => "1"),
-					"etag" => array("type" => "varchar(15)", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"data_uri" => array("data_uri"),
-					"ref_type" => array("calendar_id","data_end"),
-					)
-			);
-	$db["dav_cal_virtual_object_sync"] = array(
-			"fields" => array(
-					"calendar_id" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1"),
-					"date" => array("type" => "timestamp", "not null" => "1", "default" => "CURRENT_TIMESTAMP"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("calendar_id"),
-					)
-			);
-	$db["dav_caldav_log"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "mediumint(9)", "not null" => "1"),
-					"ip" => array("type" => "varchar(15)", "not null" => "1"),
-					"user_agent" => array("type" => "varchar(100)", "not null" => "1"),
-					"date" => array("type" => "timestamp", "not null" => "1", "default" => "CURRENT_TIMESTAMP"),
-					"method" => array("type" => "varchar(10)", "not null" => "1"),
-					"url" => array("type" => "varchar(100)", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"mitglied" => array("uid"),
-					)
-			);
-	$db["dav_calendarobjects"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"calendar_id" => array("type" => "int(11)", "not null" => "1"),
-					"calendardata" => array("type" => "text"),
-					"uri" => array("type" => "varchar(200)", "not null" => "1"),
-					"lastmodified" => array("type" => "timestamp"),
-					"componentType" => array("type" => "enum('VEVENT','VTODO')", "not null" => "1", "default" => "VEVENT"),
-					"firstOccurence" => array("type" => "timestamp", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"lastOccurence" => array("type" => "timestamp", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"etag" => array("type" => "varchar(15)", "not null" => "1"),
-					"size" => array("type" => "int(10) unsigned", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uri" => array("uri"),
-					"calendar_id" => array("calendar_id"),
-					)
-			);
-	$db["dav_calendars"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"namespace" => array("type" => "mediumint(9)", "not null" => "1"),
-					"namespace_id" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"calendarorder" => array("type" => "int(11)", "not null" => "1", "default" => "1"),
-					"calendarcolor" => array("type" => "char(6)", "not null" => "1", "default" => "5858FF"),
-					"displayname" => array("type" => "varchar(200)", "not null" => "1"),
-					"timezone" => array("type" => "text", "not null" => "1"),
-					"description" => array("type" => "varchar(500)", "not null" => "1"),
-					"uri" => array("type" => "varchar(50)", "not null" => "1"),
-					"has_vevent" => array("type" => "tinyint(4)", "not null" => "1", "default" => "1"),
-					"has_vtodo" => array("type" => "tinyint(4)", "not null" => "1", "default" => "1"),
-					"ctag" => array("type" => "int(10) unsigned", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"namespace" => array("namespace","namespace_id","uri"),
-					"uri" => array("uri"),
-					)
-			);
-	$db["dav_jqcalendar"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"ical_recurr_uri" => array("type" => "varchar(100)"),
-					"calendar_id" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"calendarobject_id" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"Summary" => array("type" => "varchar(100)", "not null" => "1"),
-					"StartTime" => array("type" => "timestamp"),
-					"EndTime" => array("type" => "timestamp"),
-					"IsEditable" => array("type" => "tinyint(3) unsigned", "not null" => "1"),
-					"IsAllDayEvent" => array("type" => "tinyint(4)", "not null" => "1"),
-					"IsRecurring" => array("type" => "tinyint(4)", "not null" => "1"),
-					"Color" => array("type" => "char(6)"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"calendarByStart" => array("calendar_id","StartTime"),
-					"calendarobject_id" => array("calendarobject_id","ical_recurr_uri"),
-					)
-			);
-	$db["dav_notifications"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"ical_recurr_uri" => array("type" => "varchar(100)"),
-					"calendar_id" => array("type" => "int(11)", "not null" => "1"),
-					"calendarobject_id" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"action" => array("type" => "enum('email','display')", "not null" => "1", "default" => "email"),
-					"alert_date" => array("type" => "timestamp", "not null" => "1", "default" => "CURRENT_TIMESTAMP"),
-					"notified" => array("type" => "tinyint(4)", "not null" => "1", "default" => "0"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"notified" => array("notified","alert_date"),
-					"calendar_id" => array("calendar_id","calendarobject_id"),
 					)
 			);
 	$db["deliverq"] = array(
@@ -806,7 +650,7 @@ function db_definition() {
 					"postopts" => array("type" => "text", "not null" => "1"),
 					"plink" => array("type" => "char(255)", "not null" => "1"),
 					"resource-id" => array("type" => "char(255)", "not null" => "1"),
-					"event-id" => array("type" => "int(10) unsigned", "not null" => "1"),
+					"event-id" => array("type" => "int(11)", "not null" => "1"),
 					"tag" => array("type" => "mediumtext", "not null" => "1"),
 					"attach" => array("type" => "mediumtext", "not null" => "1"),
 					"inform" => array("type" => "mediumtext", "not null" => "1"),
@@ -903,7 +747,7 @@ function db_definition() {
 					"from-photo" => array("type" => "char(255)", "not null" => "1"),
 					"from-url" => array("type" => "char(255)", "not null" => "1"),
 					"contact-id" => array("type" => "char(255)", "not null" => "1"),
-					"convid" => array("type" => "int(10) unsigned", "not null" => "1"),
+					"convid" => array("type" => "int(11) unsigned", "not null" => "1"),
 					"title" => array("type" => "char(255)", "not null" => "1"),
 					"body" => array("type" => "mediumtext", "not null" => "1"),
 					"seen" => array("type" => "tinyint(1)", "not null" => "1"),
@@ -1008,7 +852,7 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"contact-id" => array("type" => "int(10) unsigned", "not null" => "1"),
+					"contact-id" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"guid" => array("type" => "char(64)", "not null" => "1"),
 					"resource-id" => array("type" => "char(255)", "not null" => "1"),
 					"created" => array("type" => "datetime", "not null" => "1"),
@@ -1086,7 +930,6 @@ function db_definition() {
 					"hometown" => array("type" => "char(255)", "not null" => "1"),
 					"gender" => array("type" => "char(32)", "not null" => "1"),
 					"marital" => array("type" => "char(255)", "not null" => "1"),
-					"showwith" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"with" => array("type" => "text", "not null" => "1"),
 					"howlong" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"sexual" => array("type" => "char(255)", "not null" => "1"),
@@ -1122,7 +965,7 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1"),
-					"cid" => array("type" => "int(10) unsigned", "not null" => "1"),
+					"cid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"dfrn_id" => array("type" => "char(255)", "not null" => "1"),
 					"sec" => array("type" => "char(255)", "not null" => "1"),
 					"expire" => array("type" => "int(11)", "not null" => "1"),
@@ -1176,51 +1019,6 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					)
-			);
-	$db["retriever_item"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"item-uri" => array("type" => "varchar(800)", "not null" => "1"),
-					"item-uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
-					"contact-id" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
-					"resource" => array("type" => "int(11)", "not null" => "1"),
-					"parent" => array("type" => "int(11)", "not null" => "1"),
-					"finished" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"resource" => array("resource"),
-					"all" => array("item-uri(767)","item-uid","contact-id"),
-					)
-			);
-	$db["retriever_resource"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"type" => array("type" => "char(255)", "not null" => "1"),
-					"binary" => array("type" => "int(1)", "not null" => "1", "default" => "0"),
-					"url" => array("type" => "varchar(800)", "not null" => "1"),
-					"created" => array("type" => "timestamp", "not null" => "1", "default" => "CURRENT_TIMESTAMP"),
-					"completed" => array("type" => "timestamp"),
-					"last-try" => array("type" => "timestamp"),
-					"num-tries" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"data" => array("type" => "mediumtext", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
-	$db["retriever_rule"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(11)", "not null" => "1"),
-					"contact-id" => array("type" => "int(11)", "not null" => "1"),
-					"data" => array("type" => "mediumtext", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
-					"contact-id" => array("contact-id"),
 					)
 			);
 	$db["search"] = array(
@@ -1341,7 +1139,7 @@ function db_definition() {
 	$db["tokens"] = array(
 			"fields" => array(
 					"id" => array("type" => "varchar(40)", "not null" => "1", "primary" => "1"),
-					"secret" => array("type" => "varchar(40)", "not null" => "1"),
+					"secret" => array("type" => "text", "not null" => "1"),
 					"client_id" => array("type" => "varchar(20)", "not null" => "1"),
 					"expires" => array("type" => "int(11)", "not null" => "1"),
 					"scope" => array("type" => "varchar(200)", "not null" => "1"),
@@ -1415,15 +1213,4 @@ function db_definition() {
 					)
 			);
 	$db["userd"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"username" => array("type" => "char(255)", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"username" => array("username"),
-					)
-			);
-
-	return($db);
-}
+			"fields" =
