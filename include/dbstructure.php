@@ -1213,4 +1213,15 @@ function db_definition() {
 					)
 			);
 	$db["userd"] = array(
-			"fields" =
+			"fields" => array(
+					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
+					"username" => array("type" => "char(255)", "not null" => "1"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("id"),
+					"username" => array("username"),
+					)
+			);
+
+	return($db);
+}
