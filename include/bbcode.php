@@ -31,7 +31,10 @@ function bb_rearrange_link($shared) {
 	return($newshare);
 }
 
-function bb_remove_share_information($Text) {
+function bb_remove_share_information($Text, $plaintext = false) {
+	if ($plaintext)
+		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism","[bookmark=$1]$1[/bookmark]", $Text);
+
         $Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","bb_cleanup_share",$Text);
         return($Text);
 }
@@ -1070,3 +1073,4 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	return $Text;
 }
+?>
