@@ -58,6 +58,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
 				$data = parseurl_getsiteinfo($pictures[0][1], true);
+
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
 					if (isset($data["images"][0]))
@@ -67,6 +68,19 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 
 					$post["preview"] = $pictures[0][2];
 					$post["text"] = str_replace($pictures[0][0], "", $body);
+				} else {
+					$img_str = fetch_url($pictures[0][1]);
+
+					$tempfile = tempnam(get_config("system","temppath"), "cache");
+					file_put_contents($tempfile, $img_str);
+					$mime = image_type_to_mime_type(exif_imagetype($tempfile));
+					unlink($tempfile);
+					if (substr($mime, 0, 6) == "image/") {
+						$post["type"] = "photo";
+						$post["image"] = $pictures[0][1];
+						$post["preview"] = $pictures[0][2];
+						$post["text"] = str_replace($pictures[0][0], "", $body);
+					}
 				}
 			} elseif (count($pictures) > 1) {
 				$post["type"] = "link";
@@ -85,7 +99,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 				$post["image"] = $pictures[0][1];
 				$post["text"] = $body;
 			}
-		} else {
+		}
+		if (!isset($post["type"])) {
 			$post["type"] = "text";
 			$post["text"] = trim($body);
 		}
