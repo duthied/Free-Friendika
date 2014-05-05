@@ -22,10 +22,12 @@ function get_attached_data($body) {
 
 			$attacheddata = $data[2];
 
-			if (preg_match("/\[img\](.*?)\[\/img\]/ism", $attacheddata, $matches))
+			$URLSearchString = "^\[\]";
+
+			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches))
 				$post["image"] = $matches[1];
 
-			if (preg_match("/\[bookmark\=(.*?)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
+			if (preg_match("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
 				$post["url"] = $matches[1];
 				$post["title"] = $matches[2];
 			}
@@ -54,7 +56,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 
 	// if nothing is found, it maybe having an image.
 	if (!isset($post["type"])) {
-		if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures,  PREG_SET_ORDER)) {
+		$URLSearchString = "^\[\]";
+		if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures,  PREG_SET_ORDER)) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
 				$data = parseurl_getsiteinfo($pictures[0][1], true);
@@ -88,7 +91,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 				$post["image"] = $pictures[0][2];
 				$post["text"] = $body;
 			}
-		} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures,  PREG_SET_ORDER)) {
+		} elseif (preg_match_all("(\[img\]([$URLSearchString]*)\[\/img\])ism", $body, $pictures,  PREG_SET_ORDER)) {
 			if (count($pictures) == 1) {
 				$post["type"] = "photo";
 				$post["image"] = $pictures[0][1];
