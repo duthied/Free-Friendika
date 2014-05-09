@@ -189,9 +189,10 @@ class dba {
 
 		if(($result === true) || ($result === false))
 			return $result;
-
+    
 		if ($onlyquery) {
-			$this->result = $result;
+			$this->result = $r;       # this will store an PDOStatement Object in result
+      $this->result->execute(); # execute the Statement, to get its result
 			return true;
 		}
     
@@ -203,17 +204,17 @@ class dba {
 	}
 
 	public function qfetch() {
-  
-		if (!$this->result)
+
+		if (false === $this->result)
       return false;
-      
+
     return $this->result->fetch();
 
 	}
   
 	public function qclose() {
 		if ($this->result)
-      $this->result->closeCursor();
+      return $this->result->closeCursor();
 	}
 
 	public function dbg($dbg) {
@@ -337,4 +338,3 @@ if(! function_exists('dba_timer')) {
 function dba_timer() {
   return microtime(true);
 }}
-
