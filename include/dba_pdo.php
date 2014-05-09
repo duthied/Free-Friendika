@@ -1,12 +1,27 @@
 <?php
 
-# if PDO is avaible for mysql, use the new database abstraction
-if(class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
-  require_once("library/dddbl2/dddbl.php");
-  require_once("include/dba_pdo.php");
-}
-
 require_once('include/datetime.php');
+
+$objDDDBLResultHandler = new \DDDBL\DataObjectPool('Result-Handler');
+
+/**
+  * create handler, which returns just the PDOStatement object
+  * this allows usage of the cursor to scroll through
+  * big result-sets
+  *
+  **/
+$cloPDOStatementResultHandler = function(\DDDBL\Queue $objQueue) {
+
+  $objPDO = $objQueue->getState()->get('PDOStatement');
+  $objQueue->getState()->update(array('result' => $objPDO));
+  
+  # delete handler which closes the PDOStatement-cursor
+  # this will be done manual if using this handler
+  $objQueue->deleteHandler(QUEUE_CLOSE_CURSOR_POSITION);
+
+};
+
+$objDDDBLResultHandler->add('PDOStatement', array('HANDLER' => $cloPDOStatementResultHandler));
 
 /**
  *
@@ -25,12 +40,18 @@ class dba {
 	private $debug = 0;
 	private $db;
 	private $result;
-	public  $mysqli = true;
 	public  $connected = false;
 	public  $error = false;
 
 	function __construct($server,$user,$pass,$db,$install = false) {
 		global $a;
+    
+    # work around, to store the database - configuration in DDDBL
+    $objDataObjectPool = new \DDDBL\DataObjectPool('Database-Definition');
+    $objDataObjectPool->add('DEFAULT', array('CONNECTION' => "mysql:host=$server;dbname=$db",
+                                             'USER'       => $user,
+                                             'PASS'       => $pass,
+                                             'DEFAULT'    => true));
 
 		$stamp1 = microtime(true);
 
@@ -56,19 +77,14 @@ class dba {
 			}
 		}
 
-		if(class_exists('mysqli')) {
-			$this->db = @new mysqli($server,$user,$pass,$db);
-			if(! mysqli_connect_errno()) {
-				$this->connected = true;
-			}
-		}
-		else {
-			$this->mysqli = false;
-			$this->db = mysql_connect($server,$user,$pass);
-			if($this->db && mysql_select_db($db,$this->db)) {
-				$this->connected = true;
-			}
-		}
+    # etablish connection to database and store PDO object
+    \DDDBL\connect();
+    $this->db = \DDDBL\getDB();
+    
+    if(\DDDBL\isConnected()) {
+      $this->connected = true;
+    }
+  
 		if(! $this->connected) {
 			$this->db = null;
 			if(! $install)
@@ -84,6 +100,18 @@ class dba {
 
 	public function q($sql, $onlyquery = false) {
 		global $a;
+    
+    $strHandler = (true === $onlyquery) ? 'PDOStatement' : 'MULTI';
+    
+    $strQueryAlias = md5($sql);
+    $strSQLType    = strtoupper(strstr($sql, ' ', true));
+    
+    $objPreparedQueryPool = new \DDDBL\DataObjectPool('Query-Definition');
+    
+    # check if query do not exists till now, if so create its definition
+    if(!$objPreparedQueryPool->exists($strQueryAlias))
+      $objPreparedQueryPool->add($strQueryAlias, array('QUERY'   => $sql,
+                                                       'HANDLER' => $strHandler));
 
 		if((! $this->db) || (! $this->connected))
 			return false;
@@ -92,10 +120,17 @@ class dba {
 
 		$stamp1 = microtime(true);
 
-		if($this->mysqli)
-			$result = @$this->db->query($sql);
-		else
-			$result = @mysql_query($sql,$this->db);
+    try {
+      $r = \DDDBL\get($strQueryAlias);
+      
+      # bad workaround to emulate the bizzare behavior of mysql_query
+      if(in_array($strSQLType, array('INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'SET')))
+        $result = true;
+        
+    } catch (\Exception $objException) {
+      $result = false;
+      $intErrorCode = $objPreparedQueryPool->get($strQueryAlias)->get('PDOStatement')->errorCode();
+    }
 
 		$stamp2 = microtime(true);
 		$duration = (float)($stamp2-$stamp1);
@@ -113,12 +148,8 @@ class dba {
 			}
 		}
 
-		if($this->mysqli) {
-			if($this->db->errno)
-				$this->error = $this->db->error;
-		}
-		elseif(mysql_errno($this->db))
-				$this->error = mysql_error($this->db);
+		if($intErrorCode)
+      $this->error = $intErrorCode;
 
 		if(strlen($this->error)) {
 			logger('dba: ' . $this->error);
@@ -133,10 +164,8 @@ class dba {
 			elseif($result === true)
 				$mesg = 'true';
 			else {
-				if($this->mysqli)
-					$mesg = $result->num_rows . ' results' . EOL;
-    			else
-					$mesg = mysql_num_rows($result) . ' results' . EOL;
+        # this needs fixing, but is a bug itself
+				#$mesg = mysql_num_rows($result) . ' results' . EOL; 
 			}
 
 			$str =  'SQL = ' . printable($sql) . EOL . 'SQL returned ' . $mesg
@@ -160,28 +189,13 @@ class dba {
 
 		if(($result === true) || ($result === false))
 			return $result;
-
+    
 		if ($onlyquery) {
-			$this->result = $result;
+			$this->result = $r;       # this will store an PDOStatement Object in result
+      $this->result->execute(); # execute the Statement, to get its result
 			return true;
 		}
-
-		$r = array();
-		if($this->mysqli) {
-			if($result->num_rows) {
-				while($x = $result->fetch_array(MYSQLI_ASSOC))
-					$r[] = $x;
-				$result->free_result();
-			}
-		}
-		else {
-			if(mysql_num_rows($result)) {
-				while($x = mysql_fetch_array($result, MYSQL_ASSOC))
-					$r[] = $x;
-				mysql_free_result($result);
-			}
-		}
-
+    
 		//$a->save_timestamp($stamp1, "database");
 
 		if($this->debug)
@@ -190,27 +204,17 @@ class dba {
 	}
 
 	public function qfetch() {
-		$x = false;
 
-		if ($this->result)
-			if($this->mysqli) {
-				if($this->result->num_rows)
-					$x = $this->result->fetch_array(MYSQLI_ASSOC);
-			} else {
-				if(mysql_num_rows($this->result))
-					$x = mysql_fetch_array($this->result, MYSQL_ASSOC);
-			}
+		if (false === $this->result)
+      return false;
 
-		return($x);
+    return $this->result->fetch();
+
 	}
-
+  
 	public function qclose() {
 		if ($this->result)
-			if($this->mysqli) {
-				$this->result->free_result();
-			} else {
-				mysql_free_result($this->result);
-			}
+      return $this->result->closeCursor();
 	}
 
 	public function dbg($dbg) {
@@ -219,19 +223,17 @@ class dba {
 
 	public function escape($str) {
 		if($this->db && $this->connected) {
-			if($this->mysqli)
-				return @$this->db->real_escape_string($str);
-			else
-				return @mysql_real_escape_string($str,$this->db);
+      $strQuoted = $this->db->quote($str);
+      # this workaround is needed, because quote creates "'" and the beginning and the end
+      # of the string, which is correct. but until now the queries set this delimiter manually,
+      # so we must remove them from here and wait until everything uses prepared statements
+      return mb_substr($strQuoted, 1, mb_strlen($strQuoted) - 2); 
 		}
 	}
 
 	function __destruct() {
 		if ($this->db) 
-			if($this->mysqli)
-				$this->db->close();
-			else
-				mysql_close($this->db);
+		  \DDDBL\disconnect();
 	}
 }}
 
@@ -332,8 +334,7 @@ function dbesc_array(&$arr) {
 	}
 }}
 
-
+if(! function_exists('dba_timer')) {
 function dba_timer() {
-	return microtime(true);
-}
-
+  return microtime(true);
+}}
