@@ -386,22 +386,19 @@ function bb_ShareAttributesDiaspora($match) {
         if ($matches[1] != "")
                 $profile = $matches[1];
 
-	$posted = "";
-//	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-//	if ($matches[1] != "")
-//		$posted = " ".date("Y-m-d H:i", strtotime($matches[1]));
-//
-//	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-//	if ($matches[1] != "")
-//		$posted = " ".date("Y-m-d H:i", strtotime($matches[1]));
+        $link = "";
+        preg_match("/link='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
+
+        preg_match('/link="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $link = $matches[1];
 
 	$userid = GetProfileUsername($profile,$author);
 
 	$headline = '<div class="shared_header">';
 	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
-	//$headline .= sprintf(t('<span><b>'.
-	//		html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
-	//		'<a href="%s" target="_blank">%s</a>%s:</b></span>'), $profile, $userid, $posted);
         $headline .= "</div>";
 
 	$text = trim($match[1]);
@@ -410,7 +407,11 @@ function bb_ShareAttributesDiaspora($match) {
 		$text .= "<hr />";
 
 	$text .= $headline.'<blockquote class="shared_content">'.trim($match[3])."</blockquote><br />";
-	//$text .= $headline."<br />".trim($match[3])."<br />";
+
+	if ($link != "")
+		$text .= '<br /><a href="'.$link.'">[l]</a>';
+
+	//	$text .= '<br /><a href="'.$link.'">'.t("Link").' [l]</a>';
 
         return($text);
 }
