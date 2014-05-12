@@ -556,6 +556,9 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	if ($conv_id) {
 		/* if $conv_id is set, get unknow contacts in thread */ 
+		/* but first get know contacts url to filter them out */
+		function _contact_link($i){ return dbesc($i['link']); }
+		$known_contacts = array_map(_contact_link, $contacts);
 		$unknow_contacts=array();
 		$r = q("select 
 					`author-avatar`,`author-name`,`author-link`
@@ -563,10 +566,15 @@ function acl_lookup(&$a, $out_type = 'json') {
 				and (
 					`author-name` LIKE '%%%s%%' OR
 					`author-link` LIKE '%%%s%%'
-				)", 
+				) and 
+				`author-link` NOT IN ('%s')
+				GROUP BY `author-link`
+				ORDER BY `author-name` ASC
+				", 
 				intval($conv_id),
 				dbesc($search),
-				dbesc($search)
+				dbesc($search),
+				implode("','", $known_contacts)
 		);
 		if (is_array($r) && count($r)){
 			foreach($r as $row) {
