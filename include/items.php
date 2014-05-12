@@ -989,6 +989,21 @@ function item_store($arr,$force_parent = false) {
 	if(! x($arr,'type'))
 		$arr['type']      = 'remote';
 
+
+	
+	/* check for create  date and expire time */
+	$uid = intval($arr['uid']);
+	$r = q("SELECT expire FROM user WHERE expire != 0 AND uid = %d", $uid);
+	if(count($r)) {
+		$expire_interval = $r[0]['expire'];
+		$expire_date =  new DateTime( '- '.$expire_interval.' days', new DateTimeZone('UTC'));
+		$created_date = new DateTime($arr['created'], new DateTimeZone('UTC'));
+		if ($created_date < $expire_date) {
+			logger('item-store: item created ('.$arr['created'].') before expiration time ('.$expire_date->format(DateTime::W3C).'). ignored. ' . print_r($arr,true), LOGGER_DEBUG);
+			return 0;
+		}
+	}
+
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 
 	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
