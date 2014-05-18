@@ -1282,6 +1282,11 @@ h2 {
   transition: all 0.2s ease-in-out;
 }
 
+.toplevel_item:hover .togglecomment,
+.wall-item-container:hover .togglecomment {
+  color: #999;
+}
+
 .wall-item-container .wall-item-actions-author {
   width: 100%;
   margin-bottom: 0.3em;

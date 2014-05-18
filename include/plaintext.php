@@ -41,6 +41,22 @@ function get_attached_data($body) {
 	return($post);
 }
 
+function shortenmsg($msg, $limit) {
+	$lines = explode("\n", $msg);
+	$msg = "";
+	$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+	foreach ($lines AS $row=>$line) {
+		if (strlen(trim($msg."\n".$line)) <= $limit)
+			$msg = trim($msg."\n".$line);
+		// Is the new message empty by now or is it a reshared message?
+		elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
+			$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
+		else
+			break;
+	}
+	return($msg);
+}
+
 function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
@@ -159,18 +175,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 				$post["url"] = $b["plink"];
 			}
 
-			$lines = explode("\n", $msg);
-			$msg = "";
-			$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-			foreach ($lines AS $row=>$line) {
-				if (strlen(trim($msg."\n".$line)) <= $limit)
-					$msg = trim($msg."\n".$line);
-				// Is the new message empty by now or is it a reshared message?
-				elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
-					$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
-				else
-					break;
-			}
+			$msg = shortenmsg($msg, $limit);
 		}
 	}
 
