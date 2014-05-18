@@ -40,11 +40,11 @@ function bb_remove_share_information($Text, $plaintext = false) {
 }
 
 function bb_cleanup_share($shared) {
-        if ($shared[2] != "type-link")
-                return($shared[3]);
+	if (!in_array($shared[2], array("type-link", "type-video")))
+                return($shared[0]);
 
         if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-                return($shared[3]);
+                return($shared[0]);
 
         $title = "";
         $link = "";
@@ -746,9 +746,20 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Set up the parameters for a MAIL search string
 	$MAILSearchString = $URLSearchString;
 
+	// Remove all hashtag addresses
+	if (!$tryoembed OR $simplehtml)
+		$Text = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+
 	// Bookmarks in red - will be converted to bookmarks in friendica
 	$Text = preg_replace("/#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $Text);
 	$Text = preg_replace("/#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $Text);
+	$Text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
+				"[bookmark=$1]$2[/bookmark]", $Text);
+
+	if ($simplehtml == 2) {
+		$Text = preg_replace("/[^#@]\[url\=([^\]]*)\](.*?)\[\/url\]/ism",' $2 [url]$1[/url]',$Text);
+		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",' $2 [url]$1[/url]',$Text);
+	}
 
 	if ($simplehtml == 5)
 		$Text = preg_replace("/[^#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $Text);
@@ -1062,11 +1073,11 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	//	$Text = str_replace('<br /><ul','<ul ', $Text);
 
 	// Remove all hashtag addresses
-	if (!$tryoembed AND get_config("system", "remove_hashtags_on_export")) {
+/*	if (!$tryoembed AND get_config("system", "remove_hashtags_on_export")) {
 		$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 		$Text = preg_replace($pattern, '#$2', $Text);
 	}
-
+*/
 	call_hooks('bbcode',$Text);
 
 	$a->save_timestamp($stamp1, "parser");

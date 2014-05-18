@@ -114,11 +114,11 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	$message = str_replace("\r", "", $html);
 
 	// replace all hashtag addresses
-	if (get_config("system", "remove_hashtags_on_export")) {
+/*	if (get_config("system", "remove_hashtags_on_export")) {
 		$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 		$message = preg_replace($pattern, '#$2', $message);
 	}
-
+*/
 	$doc = new DOMDocument();
 	$doc->preserveWhiteSpace = false;
 
@@ -185,8 +185,8 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	node2bbcode($doc, 'h6', array(), "\n\n*", "*\n");
 
 	// Problem: there is no reliable way to detect if it is a link to a tag or profile
-	//node2bbcode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', '', true);
-	node2bbcode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '', true);
+	//node2bbcode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', ' ', true);
+	//node2bbcode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '', true);
 	//node2bbcode($doc, 'img', array('alt'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array(), '', '');
