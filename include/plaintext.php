@@ -168,6 +168,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 				// Is the new message empty by now or is it a reshared message?
 				elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
 					$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
+				else
+					break;
 			}
 		}
 	}
