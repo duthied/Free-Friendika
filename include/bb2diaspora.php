@@ -63,7 +63,8 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	/**
 	 * Transform #tags, strip off the [url] and replace spaces with underscore
 	 */
-	$Text = preg_replace_callback('/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', create_function('$match',
+	$URLSearchString = "^\[\]";
+	$Text = preg_replace_callback("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i", create_function('$match',
 		'return \'#\'. str_replace(\' \', \'_\', $match[2]);'
 	), $Text);
 
