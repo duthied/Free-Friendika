@@ -990,9 +990,9 @@ function item_store($arr,$force_parent = false) {
 		$arr['type']      = 'remote';
 
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
-
-	if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
-		$arr['body'] = strip_tags($arr['body']);
+	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
+	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
+	//	$arr['body'] = strip_tags($arr['body']);
 
 
 	if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
