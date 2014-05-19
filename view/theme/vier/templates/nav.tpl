@@ -113,7 +113,7 @@
 	<li><a href="{0}"><img data-src="{1}">{2} <span class="notif-when">{3}</span></a></li>
 </ul>
 <!--
-<div style="position: fixed; bottom: 61px; left: 220px;">{{$langselector}}</div>
+<div class="icon-flag" style="position: fixed; bottom: 10px; left: 20px; z-index:9;">{{$langselector}}</div>
 -->
 {{*
 

@@ -57,10 +57,20 @@ span.connector {
 .type-link img, .type-video img {
 }
 
+.type-video .embed_video {
+  margin: 0em;
+}
+
 .type-link span.oembed + br, .type-video span.oembed + br,
 .type-link a + br, .type-video a + br,
 .type-link img + br, .type-video img + br{
   display: none;
+}
+
+.embed_video {
+  float:left;
+  margin: 1em;
+  position: relative;
 }
 
 /* Shared Messages */

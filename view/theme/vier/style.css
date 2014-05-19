@@ -1282,6 +1282,11 @@ h2 {
   transition: all 0.2s ease-in-out;
 }
 
+.toplevel_item:hover .togglecomment,
+.wall-item-container:hover .togglecomment {
+  color: #999;
+}
+
 .wall-item-container .wall-item-actions-author {
   width: 100%;
   margin-bottom: 0.3em;
@@ -1737,7 +1742,7 @@ h2 {
   width: 780px;
 }
 #profile-jot-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 /** buttons **/
@@ -1899,7 +1904,7 @@ ul.tabs a {
     padding-right: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 
 div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
@@ -2147,6 +2152,7 @@ blockquote {
     /* font-size: large; */
     font-size: larger;
     font-weight: bold;
+    display: block;
 }
 
 /* ================== */

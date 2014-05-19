@@ -1107,8 +1107,29 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 }
 
 function original_url($url, $depth=1, $fetchbody = false) {
+
+	// Remove Analytics Data from Google and other tracking platforms
+	$urldata = parse_url($url);
+	if (is_string($urldata["query"])) {
+		$query = $urldata["query"];
+		parse_str($query, $querydata);
+
+		if (is_array($querydata))
+			foreach ($querydata AS $param=>$value)
+				if (in_array($param, array("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign",
+							"wt_mc", "pk_campaign", "pk_kwd", "mc_cid", "mc_eid",
+							"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term"))) {
+					$pair = $param."=".$value;
+					$url = str_replace($pair, "", $url);
+					$url = str_replace(array("?&", "&&"), array("?", ""), $url);
+				}
+
+		if (substr($url, -1, 1) == "?")
+			$url = substr($url, 0, -1);
+	}
+
         if ($depth > 10)
-                return($url);
+        	return($url);
 
         $url = trim($url, "'");
 
