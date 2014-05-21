@@ -60,7 +60,7 @@ function onepoll_run(&$argv, &$argc){
 	// Test
 	$lockpath = get_config('system','lockpath');
 	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id.'.lck');
+		$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id);
 		if($pidfile->is_already_running()) {
 			logger("onepoll: Already running for contact ".$contact_id);
 			exit;

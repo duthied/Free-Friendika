@@ -86,9 +86,15 @@ function queue_run(&$argv, &$argc){
 
 	$lockpath = get_config('system','lockpath');
 	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'queue.lck');
+		$pidfile = new pidfile($lockpath, 'queue');
 		if($pidfile->is_already_running()) {
 			logger("queue: Already running");
+			if ($pidfile->running_time() > 9*60) {
+				$pidfile->kill();
+				logger("queue: killed stale process");
+				// Calling a new instance
+				proc_run('php',"include/queue.php");
+			}
 			return;
 		}
 	}
@@ -105,8 +111,6 @@ function queue_run(&$argv, &$argc){
 	$deadguys = array();
 
 	logger('queue: start');
-
-	set_time_limit(9*60*60); // Setting the maximum execution time for queue job to 9 minutes.
 
 	handle_pubsubhubbub();
 
