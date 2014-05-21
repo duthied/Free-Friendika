@@ -106,6 +106,8 @@ function queue_run(&$argv, &$argc){
 
 	logger('queue: start');
 
+	set_time_limit(9*60*60); // Setting the maximum execution time for queue job to 9 minutes.
+
 	handle_pubsubhubbub();
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));

@@ -50,10 +50,13 @@ function cronhooks_run(&$argv, &$argc){
 
 	logger('cronhooks: start');
 
-
 	$d = datetime_convert();
 
+	set_time_limit(9*60*60); // Setting the maximum execution time for cronjobs to 9 minutes.
+
 	call_hooks('cron', $d);
+
+	logger('cronhooks: end');
 
 	return;
 }
