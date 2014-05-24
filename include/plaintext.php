@@ -9,6 +9,10 @@ function get_attached_data($body) {
  - description:
  - (thumbnail)
 */
+
+	// Simplify image codes
+	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+
 	$post = array();
 
 	if (preg_match_all("(\[class=(.*?)\](.*?)\[\/class\])ism",$body, $attached,  PREG_SET_ORDER)) {
@@ -38,40 +42,11 @@ function get_attached_data($body) {
 
 		}
 	}
-	return($post);
-}
-
-function shortenmsg($msg, $limit) {
-	$lines = explode("\n", $msg);
-	$msg = "";
-	$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-	foreach ($lines AS $row=>$line) {
-		if (strlen(trim($msg."\n".$line)) <= $limit)
-			$msg = trim($msg."\n".$line);
-		// Is the new message empty by now or is it a reshared message?
-		elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
-			$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
-		else
-			break;
-	}
-	return($msg);
-}
-
-function plaintext($a, $b, $limit = 0, $includedlinks = false) {
-	require_once("include/bbcode.php");
-	require_once("include/html2plain.php");
-	require_once("mod/parse_url.php");
-	require_once("include/network.php");
-
-	// Simplify image codes
-	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $b["body"]);
-
-	// At first look at data that is attached via "type-..." stuff
-	// This will hopefully replaced with a dedicated bbcode later
-	$post = get_attached_data($body);
 
 	// if nothing is found, it maybe having an image.
 	if (!isset($post["type"])) {
+		require_once("mod/parse_url.php");
+
 		$URLSearchString = "^\[\]";
 		if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures,  PREG_SET_ORDER)) {
 			if (count($pictures) == 1) {
@@ -124,6 +99,37 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 			$post["text"] = trim($body);
 		}
 	}
+
+	return($post);
+}
+
+function shortenmsg($msg, $limit, $twitter = false) {
+	// To-Do:
+	// For Twitter URLs aren't shortened, but they have to be calculated as if.
+
+	$lines = explode("\n", $msg);
+	$msg = "";
+	$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+	foreach ($lines AS $row=>$line) {
+		if (strlen(trim($msg."\n".$line)) <= $limit)
+			$msg = trim($msg."\n".$line);
+		// Is the new message empty by now or is it a reshared message?
+		elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
+			$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
+		else
+			break;
+	}
+	return($msg);
+}
+
+function plaintext($a, $b, $limit = 0, $includedlinks = false) {
+	require_once("include/bbcode.php");
+	require_once("include/html2plain.php");
+	require_once("include/network.php");
+
+	// At first look at data that is attached via "type-..." stuff
+	// This will hopefully replaced with a dedicated bbcode later
+	$post = get_attached_data($b["body"]);
 
 	if (($b["title"] != "") AND ($post["text"] != ""))
 		$post["text"] = trim($b["title"]."\n\n".$post["text"]);
