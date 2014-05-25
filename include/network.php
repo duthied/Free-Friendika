@@ -122,13 +122,14 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 
 if(! function_exists('post_url')) {
 function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) {
-
 	$stamp1 = microtime(true);
 
 	$a = get_app();
 	$ch = curl_init($url);
 	if(($redirects > 8) || (! $ch))
 		return false;
+
+	logger("post_url: start ".$url, LOGGER_DATA);
 
 	curl_setopt($ch, CURLOPT_HEADER, true);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
@@ -178,6 +179,8 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	$curl_info = curl_getinfo($ch);
 	$http_code = $curl_info['http_code'];
 
+	logger("post_url: result ".$http_code." - ".$url, LOGGER_DATA);
+
 	$header = '';
 
 	// Pull out multiple headers, e.g. proxy and continuation headers
@@ -190,16 +193,18 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	}
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-        $matches = array();
-        preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-        $newurl = trim(array_pop($matches));
+		$matches = array();
+		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
+		$newurl = trim(array_pop($matches));
 		if(strpos($newurl,'/') === 0)
 			$newurl = $old_location_info["scheme"] . "://" . $old_location_info["host"] . $newurl;
-        if (filter_var($newurl, FILTER_VALIDATE_URL)) {
-            $redirects++;
-            return fetch_url($newurl,false,$redirects,$timeout);
-        }
-    }
+		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
+			$redirects++;
+			logger("post_url: redirect ".$url." to ".$newurl);
+			return post_url($newurl,$params, $headers, $redirects, $timeout);
+			//return fetch_url($newurl,false,$redirects,$timeout);
+		}
+	}
 	$a->set_curl_code($http_code);
 	$body = substr($s,strlen($header));
 
@@ -208,6 +213,8 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	curl_close($ch);
 
 	$a->save_timestamp($stamp1, "network");
+
+	logger("post_url: end ".$url, LOGGER_DATA);
 
 	return($body);
 }}

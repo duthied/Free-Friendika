@@ -43,9 +43,15 @@ function poller_run(&$argv, &$argc){
 
 	$lockpath = get_config('system','lockpath');
 	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'poller.lck');
+		$pidfile = new pidfile($lockpath, 'poller');
 		if($pidfile->is_already_running()) {
 			logger("poller: Already running");
+			if ($pidfile->running_time() > 9*60) {
+                                $pidfile->kill();
+                                logger("poller: killed stale process");
+                                // Calling a new instance
+                                proc_run('php','include/poller.php');
+                        }
 			exit;
 		}
 	}

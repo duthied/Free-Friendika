@@ -37,9 +37,15 @@ function cronhooks_run(&$argv, &$argc){
 
 	$lockpath = get_config('system','lockpath');
 	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'cron.lck');
+		$pidfile = new pidfile($lockpath, 'cronhooks');
 		if($pidfile->is_already_running()) {
 			logger("cronhooks: Already running");
+			if ($pidfile->running_time() > 9*60) {
+                                $pidfile->kill();
+                                logger("cronhooks: killed stale process");
+				// Calling a new instance
+				proc_run('php','include/cronhooks.php');
+                        }
 			exit;
 		}
 	}
@@ -50,10 +56,11 @@ function cronhooks_run(&$argv, &$argc){
 
 	logger('cronhooks: start');
 
-
 	$d = datetime_convert();
 
 	call_hooks('cron', $d);
+
+	logger('cronhooks: end');
 
 	return;
 }

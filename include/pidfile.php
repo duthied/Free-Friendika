@@ -28,5 +28,14 @@ class pidfile {
 	public function is_already_running() {
 		return $this->_running;
 	}
+
+	public function running_time() {
+		return(time() - filectime($this->_file));
+	}
+
+	public function kill() {
+		if (file_exists($this->_file))
+			return(posix_kill(file_get_contents($this->_file), SIGTERM));
+	}
 }
 ?>
