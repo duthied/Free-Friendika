@@ -50,7 +50,7 @@ function completeurl($url, $scheme) {
         return($complete);
 }
 
-function parseurl_getsiteinfo($url, $no_guessing = false) {
+function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
 
 	$siteinfo = array();
 
@@ -82,12 +82,14 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 		return($siteinfo);
 	}
 
-	require_once("include/oembed.php");
+	if ($do_oembed) {
+		require_once("include/oembed.php");
 
-	$oembed_data = oembed_fetch_url($url);
+		$oembed_data = oembed_fetch_url($url);
 
-	if ($oembed_data->type != "error")
-		$siteinfo["type"] = $oembed_data->type;
+		if ($oembed_data->type != "error")
+			$siteinfo["type"] = $oembed_data->type;
+	}
 
 	// Fetch the first mentioned charset. Can be in body or header
 	$charset = "";
@@ -217,7 +219,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false) {
 			}
 	}
 
-	if ($oembed_data->type == "link") {
+	if (isset($oembed_data) AND ($oembed_data->type == "link")) {
 		if (isset($oembed_data->title) AND (trim($oembed_data->title) != ""))
 			$siteinfo["title"] = $oembed_data->title;
 		if (isset($oembed_data->description) AND (trim($oembed_data->description) != ""))
