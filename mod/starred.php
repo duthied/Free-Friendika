@@ -3,6 +3,8 @@
 
 function starred_init(&$a) {
 
+	require_once("include/threads.php");
+
 	$starred = 0;
 
 	if(! local_user())
@@ -27,7 +29,9 @@ function starred_init(&$a) {
 		intval(local_user()),
 		intval($message_id)
 	);
- 
+
+	update_thread($message_id);
+
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 	if($return_path) {
