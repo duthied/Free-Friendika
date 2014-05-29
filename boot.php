@@ -428,6 +428,8 @@ if(! class_exists('App')) {
 
 			global $default_timezone, $argv, $argc;
 
+			$hostname = "";
+
 			if (file_exists(".htpreconfig.php"))
 				@include(".htpreconfig.php");
 
@@ -622,11 +624,16 @@ if(! class_exists('App')) {
 			if($parsed) {
 				$this->scheme = $parsed['scheme'];
 
-				$this->hostname = $parsed['host'];
+				$hostname = $parsed['host'];
 				if(x($parsed,'port'))
-					$this->hostname .= ':' . $parsed['port'];
+					$hostname .= ':' . $parsed['port'];
 				if(x($parsed,'path'))
 					$this->path = trim($parsed['path'],'\\/');
+
+				if (file_exists(".htpreconfig.php"))
+					@include(".htpreconfig.php");
+
+				$this->hostname = $hostname;
 			}
 
 		}

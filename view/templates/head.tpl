@@ -43,6 +43,14 @@
 	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
+	function commentExpand(id) {
+		$("#comment-edit-text-" + id).value = '';
+		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
+		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
+		$("#mod-cmnt-wrap-" + id).show();
+		openMenu("comment-edit-submit-wrapper-" + id);
+		return true;
+	}
 	function commentOpen(obj,id) {
 		if(obj.value == '{{$comment}}') {
 			obj.value = '';

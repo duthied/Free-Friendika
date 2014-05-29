@@ -167,6 +167,7 @@ function html2bbcode($message)
 	// Test
 	//node2bbcode($doc, 'span', array('class'=>'/([\w ]+)/'), '[class=$1]', '[/class]');
 	node2bbcode($doc, 'span', array('class'=>'type-link'), '[class=type-link]', '[/class]');
+	node2bbcode($doc, 'span', array('class'=>'type-video'), '[class=type-video]', '[/class]');
 
 	node2bbcode($doc, 'strong', array(), '[b]', '[/b]');
 	node2bbcode($doc, 'em', array(), '[i]', '[/i]');
