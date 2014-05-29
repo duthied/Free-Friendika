@@ -36,7 +36,7 @@
   font-size: 1.2em;
 }
 .icon.s22 {
-  font-size: 1.37em;
+  font-size: 1.2em;
 }
 .icon.s48 {
   font-size: 2em;
@@ -60,7 +60,8 @@ a .icon {
 /* makes the font 33% larger relative to the icon container */
 .icon-large:before {
   vertical-align: top;
-  font-size: 1.3333333333333333em;
+/*  font-size: 1.3333333333333333em; */
+  font-size: 1.2em;
 }
 .btn .icon {
   /* keeps button heights with and without icons the same */
