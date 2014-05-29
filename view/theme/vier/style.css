@@ -1728,6 +1728,13 @@ h2 {
   margin-left: 15px;
   cursor: pointer;
 }
+#profile-smiley-wrapper {
+  float: left;
+  margin-left: 15px;
+  cursor: pointer;
+  margin-top: 3px;
+  height: 10px;
+}
 #jot-perms-icon {
   float: right;
   margin-left: 15px;
