@@ -1125,6 +1125,7 @@ function original_url($url, $depth=1, $fetchbody = false) {
 			foreach ($querydata AS $param=>$value)
 				if (in_array($param, array("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign",
 							"wt_mc", "pk_campaign", "pk_kwd", "mc_cid", "mc_eid",
+							"fb_action_ids", "fb_action_types", "fb_ref",
 							"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term"))) {
 					$pair = $param."=".$value;
 					$url = str_replace($pair, "", $url);
