@@ -454,10 +454,9 @@ function bb_ShareAttributesForExport($match) {
 	$userid = GetProfileUsername($profile,$author);
 
 	$headline = '<div class="shared_header">';
-	$headline .= sprintf(t('<span><b>'.
-			html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').
-			'<a href="%s" target="_blank">%s</a>%s:</b></span>'), $link, $userid, $posted);
-        $headline .= "</div>";
+	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+	$headline .= sprintf(t('<a href="%1$s" target="_blank">%2$s</a> %3$s'), $link, $userid, $posted);
+        $headline .= ":</b></span></div>";
 
 	$text = trim($match[1]);
 

@@ -405,6 +405,7 @@ function admin_page_site_post(&$a){
 	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('config','sitename',$sitename);
+	set_config('system','suppress_language',$suppress_language);
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
 		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
