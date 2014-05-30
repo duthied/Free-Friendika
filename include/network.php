@@ -1126,9 +1126,20 @@ function original_url($url, $depth=1, $fetchbody = false) {
 				if (in_array($param, array("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign",
 							"wt_mc", "pk_campaign", "pk_kwd", "mc_cid", "mc_eid",
 							"fb_action_ids", "fb_action_types", "fb_ref",
+							"awesm",
 							"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term"))) {
+
+					$pair = $param."=".urlencode($value);
+					$url = str_replace($pair, "", $url);
+
+					// Second try: if the url isn't encoded completely
+					$pair = $param."=".str_replace(" ", "+", $value);
+					$url = str_replace($pair, "", $url);
+
+					// Third try: Maybey the url isn't encoded at all
 					$pair = $param."=".$value;
 					$url = str_replace($pair, "", $url);
+
 					$url = str_replace(array("?&", "&&"), array("?", ""), $url);
 				}
 

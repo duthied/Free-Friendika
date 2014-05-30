@@ -355,13 +355,14 @@ function admin_page_site_post(&$a){
 	$use_fulltext_engine	=	((x($_POST,'use_fulltext_engine'))	? True   					: False);
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
+	$max_comments		=	((x($_POST,'max_comments'))		? intval($_POST['max_comments'])		: 0);
 	$lockpath		=	((x($_POST,'lockpath'))			? notags(trim($_POST['lockpath']))		: '');
 	$temppath		=	((x($_POST,'temppath'))			? notags(trim($_POST['temppath']))		: '');
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
-			q("update `contact` set 
+			q("update `contact` set
 				`url`     = replace(`url`    , 'http:' , 'https:'),
 				`photo`   = replace(`photo`  , 'http:' , 'https:'),
 				`thumb`   = replace(`thumb`  , 'http:' , 'https:'),
@@ -478,6 +479,7 @@ function admin_page_site_post(&$a){
 	set_config('system','use_fulltext_engine', $use_fulltext_engine);
 	set_config('system','itemcache', $itemcache);
 	set_config('system','itemcache_duration', $itemcache_duration);
+	set_config('system','max_comments', $max_comments);
 	set_config('system','lockpath', $lockpath);
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
@@ -630,12 +632,13 @@ function admin_page_site(&$a) {
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),
 		'$itemcache'		=> array('itemcache', t("Path to item cache"), get_config('system','itemcache'), "The item caches buffers generated bbcode and external images."),
 		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), get_config('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day).")),
+		'$max_comments' 	=> array('max_comments', t("Maximum numbers of comments per post"), get_config('system','max_comments'), t("How much comments should be shown for each post? Default value is 100.")),
 		'$lockpath'		=> array('lockpath', t("Path for lock file"), get_config('system','lockpath'), "The lock file is used to avoid multiple pollers at one time. Only define a folder here."),
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), "If you have a restricted system where the webserver can't access the system temp path, enter another path here."),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
-		
+
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-		
+
         '$form_security_token' => get_form_security_token("admin_site"),
 
 	));

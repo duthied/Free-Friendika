@@ -438,6 +438,12 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
 
+	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
+		logger("get_atom_elements: detected app.net posting: ".print_r($res, true), LOGGER_DEBUG);
+		$res['title'] = "";
+		$res['body'] = nl2br($res['body']);
+	}
+
 	// removing the content of the title if its identically to the body
 	// This helps with auto generated titles e.g. from tumblr
 	if (title_is_body($res["title"], $res["body"]))
@@ -860,6 +866,9 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		$res["title"] = "";
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
 		$res["body"] = add_page_info_to_body($res["body"]);
+	elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
+		$res["body"] = add_page_info_to_body($res["body"]);
+	}
 
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 

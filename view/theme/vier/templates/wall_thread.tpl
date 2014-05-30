@@ -99,7 +99,7 @@
 			{{if $item.threaded}}
 			{{/if}}
 			{{if $item.comment}}
-				<span id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="commentExpand({{$item.id}}); openClose('item-comments-{{$item.id}}');"><i class="icon-reply"></i></span>
+				<span id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="icon-reply"></i></span>
 			{{/if}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
