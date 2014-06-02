@@ -4102,7 +4102,7 @@ function item_getfeedattach($item) {
 
 
 
-function item_expire($uid,$days) {
+function item_expire($uid, $days, $network = "", $force = false) {
 
 	if((! $uid) || ($days < 1))
 		return;
@@ -4113,9 +4113,17 @@ function item_expire($uid,$days) {
 	$expire_network_only = get_pconfig($uid,'expire','network_only');
 	$sql_extra = ((intval($expire_network_only)) ? " AND wall = 0 " : "");
 
+	if ($network != "") {
+		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($network));
+		// There is an index "uid_network_received" but not "uid_network_created"
+		// This avoids the creation of another index just for one purpose.
+		// And it doesn't really matter wether to look at "received" or "created"
+		$range = "AND `received` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+	} else
+		$range = "AND `created` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+
 	$r = q("SELECT * FROM `item`
-		WHERE `uid` = %d
-		AND `created` < UTC_TIMESTAMP() - INTERVAL %d DAY
+		WHERE `uid` = %d $range
 		AND `id` = `parent`
 		$sql_extra
 		AND `deleted` = 0",
@@ -4128,6 +4136,10 @@ function item_expire($uid,$days) {
 
 	$expire_items = get_pconfig($uid, 'expire','items');
 	$expire_items = (($expire_items===false)?1:intval($expire_items)); // default if not set: 1
+
+	// Forcing expiring of items - but not notes and marked items
+	if ($force)
+		$expire_items = true;
 
 	$expire_notes = get_pconfig($uid, 'expire','notes');
 	$expire_notes = (($expire_notes===false)?1:intval($expire_notes)); // default if not set: 1
