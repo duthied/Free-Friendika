@@ -1000,6 +1000,10 @@ if(! function_exists('update_db')) {
 
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
 
+					// Compare the current structure with the defined structure
+					require_once("include/dbstructure.php");
+					update_structure(false, true);
+
 					for($x = $stored; $x < $current; $x ++) {
 						if(function_exists('update_' . $x)) {
 
