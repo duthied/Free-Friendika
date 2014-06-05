@@ -1869,13 +1869,18 @@ h2 {
 ul.tabs {
   list-style-type: none;
   padding-bottom: 10px;
-  padding-left: 0px;
+  padding-left: 10px;
+  padding-top: 0px;
   margin-bottom: 5px;
-  line-height: 27px;
-  height: 27px;
-  font-size: 11px;
+  line-height: 28px;
+  height: 20px;
+/*  font-size: 11px; */
+  font-size: 13px;
   font-weight: bold;
   /* margin-bottom: 30px; */
+  background-color: #FAFAFA;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
+  border-bottom: 1px solid #D2D2D2;
 }
 ul.tabs li {
   float: left;
@@ -1890,13 +1895,16 @@ ul.tabs a {
     display: block;
     float: left;
     padding-bottom: 0px;
-    padding: 0px 12px 0px 12px;
-    color: #444;
+    padding: 0px;
+/*    padding: 0px 12px 0px 12px; */
+/*    color: #444; */
+    color: darkgrey;
 }
 
 ul.tabs a {
-    box-shadow: 1px 2px 0px 0px #D8D8D8;
-    margin-right: 5px;
+/*    box-shadow: 1px 2px 0px 0px #D8D8D8; */
+    margin-right: 15px;
+    margin-left: 5px;
 }
 
 #birthday-notice, #event-notice {
@@ -1919,25 +1927,31 @@ div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
     color: black;
 }
 
-div.pager, .birthday-notice, ul.tabs a, .comment-edit-submit-wrapper .fakelink {
-    border: 1px solid lightgray;
+div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
+/*    border: 1px solid lightgray; */
     background: #F2F2F2;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
 ul.tabs a:hover {
-    color: #333;
+/*    color: #333; */
+    color: grey;
 }
 
 #event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
     color: black;
 }
 
-ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
+ul.tabs a:hover, ul.tabs li .active {
+    border-bottom: 2px solid #244C5E;
+    text-decoration: none;
+}
+
+#event-notice:hover, #birthday-notice:hover, .comment-edit-submit-wrapper .fakelink:hover {
     background-color: #e5e5e5;
     text-decoration: none;
-    border: 1px solid darkgray;
+/*    border: 1px solid darkgray; */
 }
 
 .comment-edit-bb {
