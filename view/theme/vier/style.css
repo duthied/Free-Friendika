@@ -1901,10 +1901,10 @@ ul.tabs li {
 
 ul.tabs a, div.pager a {
     /* min-width: 34px; */
-    display: block;
-    float: left;
-    padding-bottom: 0px;
+/*    display: block;
+    float: left; */
     padding: 0px;
+    padding-bottom: 6px;
 /*    padding: 0px 12px 0px 12px; */
 /*    color: #444; */
     color: darkgrey;
@@ -1960,6 +1960,7 @@ ul.tabs a:hover {
   border-bottom: 2px solid #244C5E;
   text-decoration: none;
   color: grey;
+  padding-bottom: 6px;
 }
 
 ul.tabs li .active, span.pager_current a {
