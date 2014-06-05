@@ -88,7 +88,8 @@ function network_to_name($s) {
 		NETWORK_PUMPIO   => t('pump.io'),
 		NETWORK_TWITTER  => t('Twitter'),
 		NETWORK_DIASPORA2 => t('Diaspora Connector'),
-		NETWORK_STATUSNET => t('Statusnet')
+		NETWORK_STATUSNET => t('Statusnet'),
+		NETWORK_APPNET => t('App.net')
 	);
 
 	call_hooks('network_to_name', $nets);
