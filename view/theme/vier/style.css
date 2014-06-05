@@ -193,26 +193,35 @@ img {
   margin-bottom: 5px;
 }
 
+div.pager a {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+ 
+span.pager_first a, span.pager_n a, 
+span.pager_last a, span.pager_prev a, span.pager_next a {
+  color: darkgrey;
+}
+
 div.pager {
-/* .birthday-notice { */
+  clear: left;
   text-align: center;
+/*
   height: 1.2em;
   padding-bottom: 12px;
   color: black;
-  /*-webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;*/
   background-color: #f2f2f2;
-  clear: left;
   margin-top: 5px;
   padding: 1%;
   height: 1em;
   margin-bottom: 5px;
-}*/
+*/
+}
 
-.birthday-notice {
+.birthday-notice, .event-notice {
   margin-top: 5px;
   margin-bottom: 5px;
+  background-color: #FAFAFA;
 }
 
 #live-network {
@@ -1866,7 +1875,7 @@ h2 {
 }
 /** /acl **/
 /** tab buttons **/
-ul.tabs {
+div.pager, ul.tabs {
   list-style-type: none;
   padding-bottom: 10px;
   padding-left: 10px;
@@ -1890,7 +1899,7 @@ ul.tabs li {
   border-bottom: 1px solid #005c94;
 }*/
 
-ul.tabs a {
+ul.tabs a, div.pager a {
     /* min-width: 34px; */
     display: block;
     float: left;
@@ -1922,34 +1931,46 @@ ul.tabs a {
     margin-bottom: 0px;
 }
 
-div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
+.birthday-notice, .event-notice  {
+    padding: 2px 7px 2px 7px;
+    color: darkgray;
+   font-weight: bold;
+}
+.comment-edit-submit-wrapper .fakelink {
     padding: 2px 7px 2px 7px;
     color: black;
 }
 
-div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
+.comment-edit-submit-wrapper .fakelink {
 /*    border: 1px solid lightgray; */
     background: #F2F2F2;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
-ul.tabs a:hover {
-/*    color: #333; */
-    color: grey;
-}
-
-#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
+#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, 
+.comment-edit-submit-wrapper .fakelink:hover {
     color: black;
 }
 
-ul.tabs a:hover, ul.tabs li .active {
-    border-bottom: 2px solid #244C5E;
-    text-decoration: none;
+span.pager_current, span.pager_n a:hover, 
+span.pager_first a:hover, span.pager_last a:hover, 
+span.pager_prev a:hover, span.pager_next a:hover,
+ul.tabs a:hover {
+  border-bottom: 2px solid #244C5E;
+  text-decoration: none;
+  color: grey;
+}
+
+ul.tabs li .active, span.pager_current a {
+  border-bottom: 2px solid #244C5E;
+  text-decoration: none;
+  color: black;
 }
 
 #event-notice:hover, #birthday-notice:hover, .comment-edit-submit-wrapper .fakelink:hover {
-    background-color: #e5e5e5;
+/*    background-color: #e5e5e5; */
+  color: grey;
     text-decoration: none;
 /*    border: 1px solid darkgray; */
 }
@@ -2091,8 +2112,10 @@ aside form .field label {
 /* contacts */
 .contact-entry-wrapper {
   width: 120px;
-  height: 120px;
+  height: 130px;
   float: left;
+  overflow: hidden;
+  margin-left: 5px;
 }
 /* photo */
 .lframe {
