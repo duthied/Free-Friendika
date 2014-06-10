@@ -608,6 +608,10 @@ function GetProfileUsername($profile, $username) {
 	if ($twitter != $profile)
 		return($username." (".$twitter.")");
 
+	$appnet = preg_replace("=https?://alpha.app.net/(.*)=ism", "$1@alpha.app.net", $profile);
+	if ($appnet != $profile)
+		return($username." (".$appnet.")");
+
 	$gplus = preg_replace("=https?://plus.google.com/(.*)=ism", "$1@plus.google.com", $profile);
 	if ($gplus != $profile)
 		return($username." (".$gplus.")");
@@ -634,7 +638,7 @@ function GetProfileUsername($profile, $username) {
 	// pumpio (http://host.name/user)
 	$rest = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$3", $profile);
 	if ($rest == "") {
-		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "*$2@$1*", $profile);
+		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$2@$1", $profile);
 		if ($pumpio != $profile)
 			return($username." (".$pumpio.")");
 	}
@@ -898,8 +902,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// Check for sized text
         // [size=50] --> font-size: 50px (with the unit).
-	$Text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1px;\">$2</span>",$Text);
-	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1;\">$2</span>",$Text);
+	$Text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1px; line-height: initial;\">$2</span>",$Text);
+	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1; line-height: initial;\">$2</span>",$Text);
 
 	// Check for centered text
 	$Text = preg_replace("(\[center\](.*?)\[\/center\])ism","<div style=\"text-align:center;\">$1</div>",$Text);
