@@ -200,7 +200,7 @@ div.pager a {
  
 span.pager_first a, span.pager_n a, 
 span.pager_last a, span.pager_prev a, span.pager_next a {
-  color: darkgrey;
+  color: darkgray;
 }
 
 div.pager {
@@ -221,7 +221,7 @@ div.pager {
 .birthday-notice, .event-notice {
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FAFAFA;
+  background-color: #F5F5F5;
 }
 
 #live-network {
@@ -392,7 +392,8 @@ code {
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
-  background-color: #e5e5e5;
+/*  background-color: #e5e5e5; */
+  background-color: #F5F5F5;
 }
 
 #message-new a {
@@ -1907,7 +1908,7 @@ ul.tabs a, div.pager a {
     padding-bottom: 6px;
 /*    padding: 0px 12px 0px 12px; */
 /*    color: #444; */
-    color: darkgrey;
+    color: darkgray;
 }
 
 ul.tabs a {
@@ -1933,7 +1934,7 @@ ul.tabs a {
 
 .birthday-notice, .event-notice  {
     padding: 2px 7px 2px 7px;
-    color: darkgray;
+    color: darkgrey;
    font-weight: bold;
 }
 .comment-edit-submit-wrapper .fakelink {
@@ -2115,7 +2116,7 @@ aside form .field label {
   width: 120px;
   height: 130px;
   float: left;
-  overflow: hidden;
+/*  overflow: hidden; */
   margin-left: 5px;
 }
 /* photo */

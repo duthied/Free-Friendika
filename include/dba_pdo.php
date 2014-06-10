@@ -100,7 +100,7 @@ class dba {
 
 	public function q($sql, $onlyquery = false) {
 		global $a;
-    
+
     $strHandler = (true === $onlyquery) ? 'PDOStatement' : 'MULTI';
     
     $strQueryAlias = md5($sql);
