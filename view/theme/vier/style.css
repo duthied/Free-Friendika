@@ -2316,6 +2316,7 @@ a.mail-list-link {
         margin-top: 4px;
         margin-right: 4px;
         margin-bottom: 15px;
+        border-radius: 5px;
 }
 
 .vevent .event-description, .vevent .event-location {
