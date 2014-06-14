@@ -6,73 +6,84 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 	$Text = preg_replace_callback("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
 		function ($match) use ($plaintext){
 
-		        $attributes = $match[1];
+			$attributes = $match[1];
 
-		        $type = "";
-		        preg_match("/type='(.*?)'/ism", $attributes, $matches);
-		        if ($matches[1] != "")
-		                $type = $matches[1];
+			$type = "";
+			preg_match("/type='(.*?)'/ism", $attributes, $matches);
+			if ($matches[1] != "")
+				$type = $matches[1];
 
-		        preg_match('/type="(.*?)"/ism', $attributes, $matches);
-		        if ($matches[1] != "")
-		                $type = $matches[1];
+			preg_match('/type="(.*?)"/ism', $attributes, $matches);
+			if ($matches[1] != "")
+				$type = $matches[1];
 
-		        if ($type == "")
-		                return($match[0]);
+			if ($type == "")
+				return($match[0]);
 
-		        if (!in_array($type, array("link", "audio", "video")))
-		                return($match[0]);
+			if (!in_array($type, array("link", "audio", "video")))
+				return($match[0]);
 
-		        $url = "";
-		        preg_match("/url='(.*?)'/ism", $attributes, $matches);
-		        if ($matches[1] != "")
-		                $url = $matches[1];
+			$url = "";
+			preg_match("/url='(.*?)'/ism", $attributes, $matches);
+			if ($matches[1] != "")
+				$url = $matches[1];
 
-		        preg_match('/url="(.*?)"/ism', $attributes, $matches);
-		        if ($matches[1] != "")
-		                $url = $matches[1];
+			preg_match('/url="(.*?)"/ism', $attributes, $matches);
+			if ($matches[1] != "")
+				$url = $matches[1];
 
-		        $title = "";
-		        preg_match("/title='(.*?)'/ism", $attributes, $matches);
-		        if ($matches[1] != "")
-		                $title = $matches[1];
+			$title = "";
+			preg_match("/title='(.*?)'/ism", $attributes, $matches);
+			if ($matches[1] != "")
+				$title = $matches[1];
 
-		        preg_match('/title="(.*?)"/ism', $attributes, $matches);
-		        if ($matches[1] != "")
-		                $title = $matches[1];
+			preg_match('/title="(.*?)"/ism', $attributes, $matches);
+			if ($matches[1] != "")
+				$title = $matches[1];
 
-		        $image = "";
-		        preg_match("/image='(.*?)'/ism", $attributes, $matches);
-		        if ($matches[1] != "")
-		                $image = $matches[1];
+			$image = "";
+			preg_match("/image='(.*?)'/ism", $attributes, $matches);
+			if ($matches[1] != "")
+				$image = $matches[1];
 
-		        preg_match('/image="(.*?)"/ism', $attributes, $matches);
-		        if ($matches[1] != "")
-		                $image = $matches[1];
+			preg_match('/image="(.*?)"/ism', $attributes, $matches);
+			if ($matches[1] != "")
+				$image = $matches[1];
+
+			$preview = "";
+			preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+			if ($matches[1] != "")
+				$preview = $matches[1];
+
+			preg_match('/preview="(.*?)"/ism', $attributes, $matches);
+			if ($matches[1] != "")
+				$preview = $matches[1];
 
 			if ($plaintext)
 				$text = sprintf('<a href="%s" target="_blank">%s</a>', $url, $title);
 			else {
-			        $text = sprintf('<span class="type-%s">', $type);
+				$text = sprintf('<span class="type-%s">', $type);
 
-			        $bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $url, $title), $title, $url);
+				$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $url, $title), $title, $url);
 				if ($tryoembed)
-				        $oembed = tryoembed($bookmark);
+					$oembed = tryoembed($bookmark);
 				else
 					$oembed = $bookmark[0];
 
-			        if (($image != "") AND !strstr(strtolower($oembed), "<img "))
-			                $text .= sprintf('<img src="%s" alt="%s" />', $image, $title); // To-Do: Anführungszeichen in "alt"
+				if (($image != "") AND !strstr(strtolower($oembed), "<img "))
+					$text .= sprintf('<img src="%s" alt="%s" class="attachment-image" />', $image, $title); // To-Do: Anführungszeichen in "alt"
+				elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
+					$text .= sprintf('<img src="%s" alt="%s" class="attachment-preview" />', $preview, $title); // To-Do: Anführungszeichen in "alt"
 
-			        $text .= $oembed;
+				$text .= $oembed;
 
-			        $text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[2]));
+				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[2]));
 			}
 
-		        return($text);
+			return($text);
 		},$Text);
 
-        return($Text);
+	return($Text);
 }
 
 function bb_rearrange_link($shared) {
@@ -104,37 +115,43 @@ function bb_rearrange_link($shared) {
 	return($newshare);
 }
 
-function bb_remove_share_information($Text, $plaintext = false) {
-	if ($plaintext)
-		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism","[bookmark=$1]$1[/bookmark]", $Text);
-
-        $Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","bb_cleanup_share",$Text);
-        return($Text);
+function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
+	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism",
+		function ($match) use ($plaintext, $nolink){
+			return(bb_cleanup_share($match, $plaintext, $nolink));
+		},$Text);
+	return($Text);
 }
 
-function bb_cleanup_share($shared) {
+function bb_cleanup_share($shared, $plaintext, $nolink) {
 	if (!in_array($shared[2], array("type-link", "type-video")))
-                return($shared[0]);
+		return($shared[0]);
 
-        if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-                return($shared[0]);
+	if ($plaintext)
+		$shared[3] = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism","[bookmark=$1]$1[/bookmark]", $shared[3]);
 
-        $title = "";
-        $link = "";
+	if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+		return($shared[0]);
 
-        if (isset($bookmark[2][0]))
-                $title = $bookmark[2][0];
+	if ($nolink)
+		return(trim($shared[1]));
 
-        if (isset($bookmark[1][0]))
-                $link = $bookmark[1][0];
+	$title = "";
+	$link = "";
 
-        if (strpos($shared[1],$title) !== false)
-                $title = "";
+	if (isset($bookmark[2][0]))
+		$title = $bookmark[2][0];
+
+	if (isset($bookmark[1][0]))
+		$link = $bookmark[1][0];
+
+	if (strpos($shared[1],$title) !== false)
+		$title = "";
 
 //        if (strpos($shared[1],$link) !== false)
 //                $link = "";
 
-        $text = trim($shared[1]);
+	$text = trim($shared[1]);
 
 	if (($text == "") AND ($title != "") AND ($link == ""))
 		$text .= "\n\n".trim($title);
@@ -144,7 +161,7 @@ function bb_cleanup_share($shared) {
 	elseif (($link != ""))
 		$text .= "\n".trim($link);
 
-        return(trim($text));
+	return(trim($text));
 }
 
 
@@ -274,7 +291,7 @@ function get_bb_tag_pos($s, $name, $occurance = 1) {
 		return false;
 
 	$res = array( 'start' => array('open' => $start_open, 'close' => $start_close),
-	              'end' => array('open' => $end_open, 'close' => $end_open + strlen('[/' . $name . ']')) );
+		      'end' => array('open' => $end_open, 'close' => $end_open + strlen('[/' . $name . ']')) );
 	if( $start_equal !== false)
 		$res['start']['equal'] = $start_equal + 1;
 
@@ -364,45 +381,46 @@ function bb_replace_images($body, $images) {
 	return $newbody;
 }}
 
+/*
 function bb_ShareAttributes($match) {
 
-        $attributes = $match[1];
+	$attributes = $match[1];
 
-        $author = "";
-        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $author = $matches[1];
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
 
-        $link = "";
-        preg_match("/link='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
-        preg_match('/link="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
-        $avatar = "";
-        preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $avatar = $matches[1];
+	$avatar = "";
+	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
 
-        preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $avatar = $matches[1];
+	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
 
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
 	$posted = "";
 
@@ -422,57 +440,57 @@ function bb_ShareAttributes($match) {
 	}
 
 	$headline = '<div class="shared_header">';
-        //$headline = '<br /><div class="shared_header">';
+	//$headline = '<br /><div class="shared_header">';
 
 	if ($avatar != "")
 		$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
 
 	$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
 
-        $headline .= "</div>";
+	$headline .= "</div>";
 
-        $text = $headline.'<blockquote class="shared_content">'.trim($match[2])."</blockquote>";
+	$text = $headline.'<blockquote class="shared_content">'.trim($match[2])."</blockquote>";
 
-        return($text);
+	return($text);
 }
 
 // Escpecially for Diaspora (there mustn't be links in the share information)
 function bb_ShareAttributesDiaspora($match) {
 
-        $attributes = $match[2];
+	$attributes = $match[2];
 
-        $author = "";
-        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $author = $matches[1];
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
 
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        $link = "";
-        preg_match("/link='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
-        preg_match('/link="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
 	$userid = GetProfileUsername($profile,$author);
 
 	$headline = '<div class="shared_header">';
 	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
-        $headline .= "</div>";
+	$headline .= "</div>";
 
 	$text = trim($match[1]);
 
@@ -486,40 +504,40 @@ function bb_ShareAttributesDiaspora($match) {
 
 	//	$text .= '<br /><a href="'.$link.'">'.t("Link").' [l]</a>';
 
-        return($text);
+	return($text);
 }
 
 // Optimized for Libertree, Wordpress, Tumblr, ...
 function bb_ShareAttributesForExport($match) {
 
-        $attributes = $match[2];
+	$attributes = $match[2];
 
-        $author = "";
-        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $author = $matches[1];
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
 
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        $link = "";
-        preg_match("/link='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
-        preg_match('/link="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $link = $matches[1];
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
 
 	if ($link == "")
 		$link = $profile;
@@ -529,7 +547,7 @@ function bb_ShareAttributesForExport($match) {
 	$headline = '<div class="shared_header">';
 	$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 	$headline .= sprintf(t('<a href="%1$s" target="_blank">%2$s</a> %3$s'), $link, $userid, $posted);
-        $headline .= ":</b></span></div>";
+	$headline .= ":</b></span></div>";
 
 	$text = trim($match[1]);
 
@@ -538,68 +556,186 @@ function bb_ShareAttributesForExport($match) {
 
 	$text .= $headline.'<blockquote class="shared_content">'.trim($match[3])."</blockquote><br />";
 
-        return($text);
+	return($text);
 }
 
 // Still in use?
 function bb_ShareAttributesSimple($match) {
 
-        $attributes = $match[1];
+	$attributes = $match[1];
 
-        $author = "";
-        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $author = $matches[1];
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
 
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
 	$userid = GetProfileUsername($profile,$author);
 
-        $text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />»".$match[2]."«";
+	$text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />»".$match[2]."«";
 
-        return($text);
+	return($text);
 }
 
 // Used for text exports (Twitter, Facebook, Google+)
 function bb_ShareAttributesSimple2($match) {
 
-        $attributes = $match[1];
+	$attributes = $match[1];
 
-        $author = "";
-        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $author = $matches[1];
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
 
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
 	$userid = GetProfileUsername($profile,$author);
 
-        //$text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />".$match[2];
-        $text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid.": <br />".$match[2];
+	//$text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />".$match[2];
+	$text = "<br />".html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid.": <br />".$match[2];
 
-        return($text);
+	return($text);
+}
+*/
+function bb_ShareAttributes($share, $simplehtml) {
+	$attributes = $share[2];
+
+	$author = "";
+	preg_match("/author='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+
+	preg_match('/author="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$author = $matches[1];
+
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
+
+	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
+
+	$avatar = "";
+	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
+
+	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$avatar = $matches[1];
+
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
+	$posted = "";
+
+	$itemcache = get_config("system","itemcache");
+
+	// relative dates only make sense when they aren't cached
+	if ($itemcache == "") {
+		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
+		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
+		$reldate = (($posted) ? " " . relative_date($posted) : '');
+	}
+
+	$userid = GetProfileUsername($profile,$author);
+
+	$preshare = trim($share[1]);
+
+	if ($preshare != "")
+		$preshare .= "<br /><br />";
+
+	switch ($simplehtml) {
+		case 1:
+			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />»".$share[3]."«";
+			break;
+		case 2:
+			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid.": <br />".$share[3];
+			break;
+		case 3:
+			$headline = '<div class="shared_header">';
+			$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
+			$headline .= "</div>";
+
+			$text = trim($share[1]);
+
+			if ($text != "")
+				$text .= "<hr />";
+
+			$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
+
+			if ($link != "")
+				$text .= '<br /><a href="'.$link.'">[l]</a>';
+			break;
+		case 4:
+			$headline = '<div class="shared_header">';
+			$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+			$headline .= sprintf(t('<a href="%1$s" target="_blank">%2$s</a> %3$s'), $link, $userid, $posted);
+			$headline .= ":</b></span></div>";
+
+			$text = trim($share[1]);
+
+			if ($text != "")
+				$text .= "<hr />";
+
+			$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
+
+			break;
+		case 5:
+			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid.": <br />".$share[3];
+			break;
+		case 6:
+			$text = $preshare."&gt;&gt; ".$userid.": <br />".$share[3];
+			break;
+		default:
+			$headline = trim($share[1]).'<div class="shared_header">';
+			if ($avatar != "")
+				$headline .= '<img src="'.$avatar.'" height="32" width="32" >';
+
+			$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
+			$headline .= "</div>";
+			$text = $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote>";
+			break;
+	}
+	return($text);
 }
 
 function GetProfileUsername($profile, $username) {
@@ -685,6 +821,13 @@ function bb_RemovePictureLinks($match) {
 		Cache::set($match[1],$text);
 	}
 	return($text);
+}
+
+function bb_expand_links($match) {
+	if (stristr($match[2], $match[3]) OR ($match[2] == $match[3]))
+		return ($match[1]."[url]".$match[2]."[/url]");
+	else
+		return ($match[1].$match[3]." [url]".$match[2]."[/url]");
 }
 
 function bb_CleanPictureLinksSub($match) {
@@ -836,8 +979,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
 				"[bookmark=$1]$2[/bookmark]", $Text);
 
-	if ($simplehtml == 2) {
-		$Text = preg_replace("/[^#@]\[url\=([^\]]*)\](.*?)\[\/url\]/ism",' $2 [url]$1[/url]',$Text);
+	if (in_array($simplehtml, array(2, 6))) {
+		$Text = preg_replace_callback("/([^#@])\[url\=([^\]]*)\](.*?)\[\/url\]/ism","bb_expand_links",$Text);
+		//$Text = preg_replace("/[^#@]\[url\=([^\]]*)\](.*?)\[\/url\]/ism",' $2 [url]$1[/url]',$Text);
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",' $2 [url]$1[/url]',$Text);
 	}
 
@@ -901,7 +1045,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("(\[color=(.*?)\](.*?)\[\/color\])ism","<span style=\"color: $1;\">$2</span>",$Text);
 
 	// Check for sized text
-        // [size=50] --> font-size: 50px (with the unit).
+	// [size=50] --> font-size: 50px (with the unit).
 	$Text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1px; line-height: initial;\">$2</span>",$Text);
 	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1; line-height: initial;\">$2</span>",$Text);
 
@@ -917,7 +1061,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Check for CSS classes
 	$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_cleanclass",$Text);
 
- 	// handle nested lists
+	// handle nested lists
 	$endlessloop = 0;
 
 	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
@@ -978,8 +1122,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$endlessloop = 0;
 	while ((strpos($Text, "[/spoiler]")!== false)  and (strpos($Text, "[spoiler=") !== false) and (++$endlessloop < 20))
 		$Text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-        	                     "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
-                	             $Text);
+				     "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
+				     $Text);
 
 	// Declare the format for [quote] layout
 	$QuoteLayout = '<blockquote>$1</blockquote>';
@@ -998,8 +1142,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$endlessloop = 0;
 	while ((strpos($Text, "[/quote]")!== false)  and (strpos($Text, "[quote=") !== false) and (++$endlessloop < 20))
 		$Text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
-        	                     "<br /><strong class=".'"author"'.">" . $t_wrote . "</strong><blockquote>$2</blockquote>",
-                	             $Text);
+				     "<br /><strong class=".'"author"'.">" . $t_wrote . "</strong><blockquote>$2</blockquote>",
+				     $Text);
 
 	// [img=widthxheight]image source[/img]
 	//$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="height: $2px; width: $1px;" >', $Text);
@@ -1012,6 +1156,11 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . t('Image/photo') . '" />', $Text);
 
 	// Shared content
+	$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
+		function ($match) use ($simplehtml){
+			return(bb_ShareAttributes($match, $simplehtml));
+		},$Text);
+/*
 	if (!$simplehtml)
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributes",$Text);
 	elseif ($simplehtml == 1)
@@ -1022,6 +1171,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesDiaspora",$Text);
 	elseif ($simplehtml == 4)
 		$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism","bb_ShareAttributesForExport",$Text);
+*/
 
 	$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br />', $Text);
 	$Text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism",'<br/><img src="' .$a->get_baseurl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . '$1' . ' ' . t('Encrypted content') . '" /><br />', $Text);
