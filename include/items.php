@@ -884,7 +884,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function add_page_info($url, $no_photos = false) {
+function add_page_info($url, $no_photos = false, $photo = "") {
         require_once("mod/parse_url.php");
         $data = parseurl_getsiteinfo($url, true);
 
@@ -905,7 +905,9 @@ function add_page_info($url, $no_photos = false) {
         if (($data["type"] != "photo") AND is_string($data["title"]))
                 $text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
 
-        if (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
+        if (($data["type"] != "video") AND ($photo != ""))
+                $text .= '[img]'.$photo.'[/img]';
+        elseif (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
                 $imagedata = $data["images"][0];
                 $text .= '[img]'.$imagedata["src"].'[/img]';
         }

@@ -122,7 +122,7 @@ function shortenmsg($msg, $limit, $twitter = false) {
 	return($msg);
 }
 
-function plaintext($a, $b, $limit = 0, $includedlinks = false) {
+function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
 	require_once("include/network.php");
@@ -136,7 +136,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false) {
 	elseif ($b["title"] != "")
 		$post["text"] = trim($b["title"]);
 
-	$html = bbcode($post["text"], false, false, 2);
+	$html = bbcode($post["text"], false, false, $htmlmode);
 	$msg = html2plain($html, 0, true);
 	$msg = trim(html_entity_decode($msg,ENT_QUOTES,'UTF-8'));
 

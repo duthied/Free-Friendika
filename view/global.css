@@ -33,13 +33,23 @@ span.connector {
     clear: both;
     visibility: hidden;
 }
+
 .wall-item-container .wall-item-content .type-link img,
-.type-link img, .type-video img {
+.type-link img, .type-video img, img.attachment-preview {
   max-width: 160px;
   max-height: 160px;
   float: left;
   margin-right: 10px;
 }
+
+.wall-item-container .wall-item-content .type-link img.attachment-image,
+.type-link img.attachment-image, .type-video img.attachment-image  {
+  max-width: 640px;
+  max-height: initial;
+  float: initial;
+  margin-right: 0px;
+}
+
 .type-link blockquote, .type-video blockquote {
   margin-left: 0px;
   max-height: 160px;
