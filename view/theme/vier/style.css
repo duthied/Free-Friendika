@@ -1439,6 +1439,7 @@ h2 {
   border: 1px solid #DDD;
   padding: 0.3em;
   margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 #profile-jot-form #jot-title, #profile-jot-form #jot-category {
