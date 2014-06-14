@@ -519,7 +519,7 @@ nav {
 }
 
 nav .icon {
-  color: #ccc;
+  color: #fff;
 }
 
 nav a:active,
@@ -528,7 +528,7 @@ nav a:link,
 nav a {
   text-decoration: none;
   outline: none;
-  color: #ccc;
+  color: #fff;
   padding-bottom: 8px;
   padding-top: 8px;
 }
