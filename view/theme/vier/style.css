@@ -1423,6 +1423,7 @@ h2 {
 
 #profile-jot-form {
   box-shadow: 1px 2px 0px 0px #D8D8D8;
+  border-radius: 10px;
   background-color: #fafafa;
   padding: 10px;
 }
