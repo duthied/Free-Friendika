@@ -1920,6 +1920,7 @@ ul.tabs a {
 div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
     padding: 2px 7px 2px 7px;
     color: black;
+	border-radius: 5px;
 }
 
 div.pager, .birthday-notice, ul.tabs a, .comment-edit-submit-wrapper .fakelink {
