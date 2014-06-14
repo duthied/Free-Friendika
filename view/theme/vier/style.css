@@ -193,26 +193,35 @@ img {
   margin-bottom: 5px;
 }
 
+div.pager a {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+ 
+span.pager_first a, span.pager_n a, 
+span.pager_last a, span.pager_prev a, span.pager_next a {
+  color: darkgray;
+}
+
 div.pager {
-/* .birthday-notice { */
+  clear: left;
   text-align: center;
+/*
   height: 1.2em;
   padding-bottom: 12px;
   color: black;
-  /*-webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;*/
   background-color: #f2f2f2;
-  clear: left;
   margin-top: 5px;
   padding: 1%;
   height: 1em;
   margin-bottom: 5px;
-}*/
+*/
+}
 
-.birthday-notice {
+.birthday-notice, .event-notice {
   margin-top: 5px;
   margin-bottom: 5px;
+  background-color: #F5F5F5;
 }
 
 #live-network {
@@ -383,7 +392,8 @@ code {
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
-  background-color: #e5e5e5;
+/*  background-color: #e5e5e5; */
+  background-color: #F5F5F5;
 }
 
 #message-new a {
@@ -1866,16 +1876,21 @@ h2 {
 }
 /** /acl **/
 /** tab buttons **/
-ul.tabs {
+div.pager, ul.tabs {
   list-style-type: none;
   padding-bottom: 10px;
-  padding-left: 0px;
+  padding-left: 10px;
+  padding-top: 0px;
   margin-bottom: 5px;
-  line-height: 27px;
-  height: 27px;
-  font-size: 11px;
+  line-height: 28px;
+  height: 20px;
+/*  font-size: 11px; */
+  font-size: 13px;
   font-weight: bold;
   /* margin-bottom: 30px; */
+  background-color: #FAFAFA;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
+  border-bottom: 1px solid #D2D2D2;
 }
 ul.tabs li {
   float: left;
@@ -1885,18 +1900,21 @@ ul.tabs li {
   border-bottom: 1px solid #005c94;
 }*/
 
-ul.tabs a {
+ul.tabs a, div.pager a {
     /* min-width: 34px; */
-    display: block;
-    float: left;
-    padding-bottom: 0px;
-    padding: 0px 12px 0px 12px;
-    color: #444;
+/*    display: block;
+    float: left; */
+    padding: 0px;
+    padding-bottom: 6px;
+/*    padding: 0px 12px 0px 12px; */
+/*    color: #444; */
+    color: darkgray;
 }
 
 ul.tabs a {
-    box-shadow: 1px 2px 0px 0px #D8D8D8;
-    margin-right: 5px;
+/*    box-shadow: 1px 2px 0px 0px #D8D8D8; */
+    margin-right: 15px;
+    margin-left: 5px;
 }
 
 #birthday-notice, #event-notice {
@@ -1914,30 +1932,49 @@ ul.tabs a {
     margin-bottom: 0px;
 }
 
-div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
+.birthday-notice, .event-notice  {
+    padding: 2px 7px 2px 7px;
+    color: darkgrey;
+   font-weight: bold;
+}
+.comment-edit-submit-wrapper .fakelink {
     padding: 2px 7px 2px 7px;
     color: black;
 }
 
-div.pager, .birthday-notice, ul.tabs a, .comment-edit-submit-wrapper .fakelink {
-    border: 1px solid lightgray;
+.comment-edit-submit-wrapper .fakelink {
+/*    border: 1px solid lightgray; */
     background: #F2F2F2;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
-ul.tabs a:hover {
-    color: #333;
-}
-
-#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
+#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, 
+.comment-edit-submit-wrapper .fakelink:hover {
     color: black;
 }
 
-ul.tabs a:hover, #event-notice:hover, #birthday-notice:hover, ul.tabs li .active, .comment-edit-submit-wrapper .fakelink:hover {
-    background-color: #e5e5e5;
+span.pager_current, span.pager_n a:hover, 
+span.pager_first a:hover, span.pager_last a:hover, 
+span.pager_prev a:hover, span.pager_next a:hover,
+ul.tabs a:hover {
+  border-bottom: 2px solid #244C5E;
+  text-decoration: none;
+  color: grey;
+  padding-bottom: 6px;
+}
+
+ul.tabs li .active, span.pager_current a {
+  border-bottom: 2px solid #244C5E;
+  text-decoration: none;
+  color: black;
+}
+
+#event-notice:hover, #birthday-notice:hover, .comment-edit-submit-wrapper .fakelink:hover {
+/*    background-color: #e5e5e5; */
+  color: grey;
     text-decoration: none;
-    border: 1px solid darkgray;
+/*    border: 1px solid darkgray; */
 }
 
 .comment-edit-bb {
@@ -2077,8 +2114,10 @@ aside form .field label {
 /* contacts */
 .contact-entry-wrapper {
   width: 120px;
-  height: 120px;
+  height: 130px;
   float: left;
+/*  overflow: hidden; */
+  margin-left: 5px;
 }
 /* photo */
 .lframe {

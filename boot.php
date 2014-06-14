@@ -143,6 +143,7 @@ define ( 'NETWORK_PUMPIO',           'pump');    // pump.io
 define ( 'NETWORK_TWITTER',          'twit');    // Twitter
 define ( 'NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
+define ( 'NETWORK_APPNET',           'apdn');    // app.net
 
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 
@@ -169,6 +170,7 @@ $netgroup_ids = array(
 	NETWORK_TWITTER  => (-14),
 	NETWORK_DIASPORA2 => (-15),
 	NETWORK_STATUSNET => (-16),
+	NETWORK_APPNET => (-17),
 
 	NETWORK_PHANTOM  => (-127),
 );
@@ -999,6 +1001,10 @@ if(! function_exists('update_db')) {
 				// file may not be here yet. This can happen on a very busy site.
 
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
+
+					// Compare the current structure with the defined structure
+					require_once("include/dbstructure.php");
+					update_structure(false, true);
 
 					for($x = $stored; $x < $current; $x ++) {
 						if(function_exists('update_' . $x)) {

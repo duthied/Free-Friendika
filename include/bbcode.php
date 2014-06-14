@@ -2,6 +2,79 @@
 require_once("include/oembed.php");
 require_once('include/event.php');
 
+function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
+	$Text = preg_replace_callback("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
+		function ($match) use ($plaintext){
+
+		        $attributes = $match[1];
+
+		        $type = "";
+		        preg_match("/type='(.*?)'/ism", $attributes, $matches);
+		        if ($matches[1] != "")
+		                $type = $matches[1];
+
+		        preg_match('/type="(.*?)"/ism', $attributes, $matches);
+		        if ($matches[1] != "")
+		                $type = $matches[1];
+
+		        if ($type == "")
+		                return($match[0]);
+
+		        if (!in_array($type, array("link", "audio", "video")))
+		                return($match[0]);
+
+		        $url = "";
+		        preg_match("/url='(.*?)'/ism", $attributes, $matches);
+		        if ($matches[1] != "")
+		                $url = $matches[1];
+
+		        preg_match('/url="(.*?)"/ism', $attributes, $matches);
+		        if ($matches[1] != "")
+		                $url = $matches[1];
+
+		        $title = "";
+		        preg_match("/title='(.*?)'/ism", $attributes, $matches);
+		        if ($matches[1] != "")
+		                $title = $matches[1];
+
+		        preg_match('/title="(.*?)"/ism', $attributes, $matches);
+		        if ($matches[1] != "")
+		                $title = $matches[1];
+
+		        $image = "";
+		        preg_match("/image='(.*?)'/ism", $attributes, $matches);
+		        if ($matches[1] != "")
+		                $image = $matches[1];
+
+		        preg_match('/image="(.*?)"/ism', $attributes, $matches);
+		        if ($matches[1] != "")
+		                $image = $matches[1];
+
+			if ($plaintext)
+				$text = sprintf('<a href="%s" target="_blank">%s</a>', $url, $title);
+			else {
+			        $text = sprintf('<span class="type-%s">', $type);
+
+			        $bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $url, $title), $title, $url);
+				if ($tryoembed)
+				        $oembed = tryoembed($bookmark);
+				else
+					$oembed = $bookmark[0];
+
+			        if (($image != "") AND !strstr(strtolower($oembed), "<img "))
+			                $text .= sprintf('<img src="%s" alt="%s" />', $image, $title); // To-Do: Anführungszeichen in "alt"
+
+			        $text .= $oembed;
+
+			        $text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[2]));
+			}
+
+		        return($text);
+		},$Text);
+
+        return($Text);
+}
+
 function bb_rearrange_link($shared) {
 	if ($shared[1] != "type-link")
 		return($shared[0]);
@@ -535,6 +608,10 @@ function GetProfileUsername($profile, $username) {
 	if ($twitter != $profile)
 		return($username." (".$twitter.")");
 
+	$appnet = preg_replace("=https?://alpha.app.net/(.*)=ism", "$1@alpha.app.net", $profile);
+	if ($appnet != $profile)
+		return($username." (".$appnet.")");
+
 	$gplus = preg_replace("=https?://plus.google.com/(.*)=ism", "$1@plus.google.com", $profile);
 	if ($gplus != $profile)
 		return($username." (".$gplus.")");
@@ -561,7 +638,7 @@ function GetProfileUsername($profile, $username) {
 	// pumpio (http://host.name/user)
 	$rest = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$3", $profile);
 	if ($rest == "") {
-		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "*$2@$1*", $profile);
+		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$2@$1", $profile);
 		if ($pumpio != $profile)
 			return($username." (".$pumpio.")");
 	}
@@ -706,6 +783,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/\n\[code\]/ism", "[code]", $Text);
 	$Text = preg_replace("/\[\/code\]\n/ism", "[/code]", $Text);
 
+	// Handle attached links or videos
+	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
+
 	// Rearrange shared links
 	if (get_config("system", "rearrange_shared_links") AND (!$simplehtml OR $tryoembed))
 		$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_rearrange_link",$Text);
@@ -822,8 +902,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// Check for sized text
         // [size=50] --> font-size: 50px (with the unit).
-	$Text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1px;\">$2</span>",$Text);
-	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1;\">$2</span>",$Text);
+	$Text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1px; line-height: initial;\">$2</span>",$Text);
+	$Text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism","<span style=\"font-size: $1; line-height: initial;\">$2</span>",$Text);
 
 	// Check for centered text
 	$Text = preg_replace("(\[center\](.*?)\[\/center\])ism","<div style=\"text-align:center;\">$1</div>",$Text);

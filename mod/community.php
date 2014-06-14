@@ -90,11 +90,32 @@ function community_content(&$a, $update = 0) {
 		return $o;
 	}
 
+	$maxpostperauthor = get_config('system','max_author_posts_community_page');
+
+	if ($maxpostperauthor != 0) {
+		$previousauthor = "";
+		$numposts = 0;
+		$s = array();
+
+		foreach ($r AS $row=>$item) {
+			if ($previousauthor == $item["author-link"])
+				++$numposts;
+			else
+				$numposts = 0;
+
+			$previousauthor = $item["author-link"];
+
+			if ($numposts < $maxpostperauthor)
+				$s[] = $item;
+		}
+	} else
+		$s = $r;
+
 	// we behave the same in message lists as the search module
 
-	$o .= conversation($a,$r,'community',$update);
+	$o .= conversation($a,$s,'community',$update);
 
-	if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+	if(get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
 	        $o .= alt_pager($a,count($r));
 	}
 	else {

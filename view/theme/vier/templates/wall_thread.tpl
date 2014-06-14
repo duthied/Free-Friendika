@@ -99,7 +99,7 @@
 			{{if $item.threaded}}
 			{{/if}}
 			{{if $item.comment}}
-				<span id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="icon-reply"></i></span>
+				<span id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-reply"></i></span>
 			{{/if}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
@@ -122,7 +122,7 @@
                                 <a href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="icon-folder-close icon-large"></i></a>
 			{{/if}}
 			</div>
-			<div class="wall-item-location">{{$item.location}} {{$item.postopts}}</div>				
+			<div class="wall-item-location">{{$item.location}} {{$item.postopts}}</div>
 			<div class="wall-item-actions-tools">
 
 				{{if $item.drop.pagedrop}}
