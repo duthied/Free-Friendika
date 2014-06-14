@@ -732,9 +732,10 @@ ul.menu-popup {
   margin: 0px;
   padding: 0px;
   list-style: none;
-  border: 3px solid #364e59;
+  border: 1px solid #364e59;
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
 }
 ul.menu-popup a {
   display: block;
