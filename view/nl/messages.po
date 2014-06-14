@@ -5,16 +5,16 @@
 # Translators:
 # eddy2508 <eddy@naasthetnet.nl>, 2013
 # eddy2508 <eddy@naasthetnet.nl>, 2013
-# gertc <gcauwenberg@gmail.com>, 2013
-# gertc <gcauwenberg@gmail.com>, 2013
-# jeroenpraat <>, 2012-2013
+# Gert Cauwenberg <gcauwenberg@gmail.com>, 2013
+# Gert Cauwenberg <gcauwenberg@gmail.com>, 2013
+# jeroenpraat <>, 2012-2014
 # jeroenpraat <>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-05-16 11:05+0200\n"
-"PO-Revision-Date: 2014-05-18 22:32+0000\n"
+"PO-Revision-Date: 2014-06-09 22:13+0000\n"
 "Last-Translator: jeroenpraat <>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/friendica/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -754,12 +754,12 @@ msgstr "status"
 #: ../../include/diaspora.php:1924 ../../include/conversation.php:137
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
-msgstr "%1$s vind %3$s van %2$s leuk"
+msgstr "%1$s vindt het %3$s van %2$s leuk"
 
 #: ../../mod/like.php:169 ../../include/conversation.php:140
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
-msgstr "%1$s vind %3$s van %2$s niet leuk"
+msgstr "%1$s vindt het %3$s van %2$s niet leuk"
 
 #: ../../mod/openid.php:24
 msgid "OpenID protocol error. No ID returned."
@@ -872,15 +872,15 @@ msgstr "Item niet gevonden."
 
 #: ../../mod/admin.php:188 ../../mod/admin.php:855
 msgid "Normal Account"
-msgstr "Normale Account"
+msgstr "Normaal account"
 
 #: ../../mod/admin.php:189 ../../mod/admin.php:856
 msgid "Soapbox Account"
-msgstr "Zeepkist Account"
+msgstr "Zeepkist-account"
 
 #: ../../mod/admin.php:190 ../../mod/admin.php:857
 msgid "Community/Celebrity Account"
-msgstr "Gemeenschap/Beroemdheid Account"
+msgstr "Account voor een groep/forum of beroemdheid"
 
 #: ../../mod/admin.php:191 ../../mod/admin.php:858
 msgid "Automatic Friend Account"
@@ -892,7 +892,7 @@ msgstr "Blog Account"
 
 #: ../../mod/admin.php:193
 msgid "Private Forum"
-msgstr "Privé Forum"
+msgstr "Privéforum/-groep"
 
 #: ../../mod/admin.php:212
 msgid "Message queues"
@@ -993,7 +993,7 @@ msgstr "Zelf-ondertekend certificaat, gebruik SSL alleen voor lokale links (afge
 #: ../../mod/settings.php:719 ../../mod/settings.php:793
 #: ../../mod/settings.php:872 ../../mod/settings.php:1104
 msgid "Save Settings"
-msgstr ""
+msgstr "Instellingen opslaan"
 
 #: ../../mod/admin.php:575 ../../mod/register.php:265
 msgid "Registration"
@@ -1304,12 +1304,12 @@ msgstr "Gebruik PHP UTF8 reguliere uitdrukkingen"
 
 #: ../../mod/admin.php:616
 msgid "Show Community Page"
-msgstr "Toon Gemeenschapspagina"
+msgstr "Toon forum/groepspagina"
 
 #: ../../mod/admin.php:616
 msgid ""
 "Display a Community page showing all recent public postings on this site."
-msgstr "Toon een gemeenschapspagina die alle recente openbare berichten op deze website toont."
+msgstr "Toon een forum/groepspagina die alle recente openbare berichten op deze website toont."
 
 #: ../../mod/admin.php:617
 msgid "Enable OStatus support"
@@ -1540,7 +1540,7 @@ msgstr "Gebruiker '%s' geblokkeerd"
 
 #: ../../mod/admin.php:902
 msgid "Add User"
-msgstr ""
+msgstr "Gebruiker toevoegen"
 
 #: ../../mod/admin.php:903
 msgid "select all"
@@ -1598,7 +1598,7 @@ msgstr "Account verlopen"
 
 #: ../../mod/admin.php:917
 msgid "New User"
-msgstr ""
+msgstr "Nieuwe gebruiker"
 
 #: ../../mod/admin.php:918 ../../mod/admin.php:919
 msgid "Register date"
@@ -1614,7 +1614,7 @@ msgstr "Laatste item"
 
 #: ../../mod/admin.php:918
 msgid "Deleted since"
-msgstr ""
+msgstr "Verwijderd sinds"
 
 #: ../../mod/admin.php:919 ../../mod/settings.php:36
 msgid "Account"
@@ -1634,19 +1634,19 @@ msgstr "De gebruiker {0} zal verwijderd worden!\\n\\nAlles wat deze gebruiker ge
 
 #: ../../mod/admin.php:932
 msgid "Name of the new user."
-msgstr ""
+msgstr "Naam van nieuwe gebruiker"
 
 #: ../../mod/admin.php:933
 msgid "Nickname"
-msgstr ""
+msgstr "Bijnaam"
 
 #: ../../mod/admin.php:933
 msgid "Nickname of the new user."
-msgstr ""
+msgstr "Bijnaam van nieuwe gebruiker"
 
 #: ../../mod/admin.php:934
 msgid "Email address of the new user."
-msgstr ""
+msgstr "E-mailadres van nieuwe gebruiker"
 
 #: ../../mod/admin.php:967
 #, php-format
@@ -2886,7 +2886,7 @@ msgstr "Antwoorden of 'vind ik leuk's op je openbare posts <strong>kunnen</stron
 
 #: ../../mod/contacts.php:498
 msgid "Notification for new posts"
-msgstr ""
+msgstr "Meldingen voor nieuwe berichten"
 
 #: ../../mod/contacts.php:498
 msgid "Send a notification of every new post of this contact"
@@ -3386,11 +3386,11 @@ msgstr "Extra functies"
 
 #: ../../mod/settings.php:46
 msgid "Display"
-msgstr ""
+msgstr "Weergave"
 
 #: ../../mod/settings.php:52 ../../mod/settings.php:775
 msgid "Social Networks"
-msgstr ""
+msgstr "Sociale netwerken"
 
 #: ../../mod/settings.php:62 ../../include/nav.php:167
 msgid "Delegations"
@@ -3470,11 +3470,11 @@ msgstr "Kan niet veranderen naar die e-mail."
 
 #: ../../mod/settings.php:501
 msgid "Private forum has no privacy permissions. Using default privacy group."
-msgstr "Privéforum heeft geen privacyrechten . De standaard privacygroep wordt gebruikt."
+msgstr "Privéforum/-groep heeft geen privacyrechten. De standaard privacygroep wordt gebruikt."
 
 #: ../../mod/settings.php:505
 msgid "Private forum has no privacy permissions and no default privacy group."
-msgstr "Privéforum heeft geen privacyrechten en geen standaard privacygroep."
+msgstr "Privéforum/-groep heeft geen privacyrechten en geen standaard privacygroep."
 
 #: ../../mod/settings.php:535
 msgid "Settings updated."
@@ -3666,19 +3666,19 @@ msgstr ""
 
 #: ../../mod/settings.php:883
 msgid "Infinite scroll"
-msgstr ""
+msgstr "Oneindig scrollen"
 
 #: ../../mod/settings.php:960
 msgid "User Types"
-msgstr ""
+msgstr "Gebruikerstypes"
 
 #: ../../mod/settings.php:961
 msgid "Community Types"
-msgstr ""
+msgstr "Forum/groepstypes"
 
 #: ../../mod/settings.php:962
 msgid "Normal Account Page"
-msgstr "Normale account pagina"
+msgstr "Normale accountpagina"
 
 #: ../../mod/settings.php:963
 msgid "This account is a normal personal profile"
@@ -3686,7 +3686,7 @@ msgstr "Deze account is een normaal persoonlijk profiel"
 
 #: ../../mod/settings.php:966
 msgid "Soapbox Page"
-msgstr "Zeepkist pagina"
+msgstr "Zeepkist-pagina"
 
 #: ../../mod/settings.php:967
 msgid "Automatically approve all connection/friend requests as read-only fans"
@@ -3694,7 +3694,7 @@ msgstr "Keur automatisch alle vriendschaps-/connectieverzoeken goed als fans met
 
 #: ../../mod/settings.php:970
 msgid "Community Forum/Celebrity Account"
-msgstr "Gemeenschapsforum/Account van beroemdheid"
+msgstr "Forum/groeps- of beroemdheid-account"
 
 #: ../../mod/settings.php:971
 msgid ""
@@ -3911,7 +3911,7 @@ msgstr "Een vriendschapsverzoek accepteren"
 
 #: ../../mod/settings.php:1164
 msgid "joining a forum/community"
-msgstr "Lid worden van een forum of gemeenschap"
+msgstr "Lid worden van een groep/forum"
 
 #: ../../mod/settings.php:1165
 msgid "making an <em>interesting</em> profile change"
@@ -4378,7 +4378,7 @@ msgstr "Niet beschikbaar"
 #: ../../mod/community.php:32 ../../view/theme/diabook/theme.php:129
 #: ../../include/nav.php:128
 msgid "Community"
-msgstr "Gemeenschap"
+msgstr "Website"
 
 #: ../../mod/filer.php:30 ../../include/conversation.php:1004
 #: ../../include/conversation.php:1022
@@ -4471,7 +4471,7 @@ msgstr "Beheer Identiteiten en/of Pagina's"
 msgid ""
 "Toggle between different identities or community/group pages which share "
 "your account details or which you have been granted \"manage\" permissions"
-msgstr "Wissel tussen verschillende identiteiten of groeppagina's die jouw accountdetails delen of waar je \"beheerdersrechten\" hebt gekregen."
+msgstr "Wissel tussen verschillende identiteiten of forum/groeppagina's die jouw accountdetails delen of waar je \"beheerdersrechten\" hebt gekregen."
 
 #: ../../mod/manage.php:108
 msgid "Select an identity to manage: "
@@ -5289,13 +5289,13 @@ msgstr "Jouw persoonlijke foto's"
 #: ../../view/theme/diabook/theme.php:624
 #: ../../view/theme/diabook/config.php:158
 msgid "Community Pages"
-msgstr "Gemeenschapspagina's"
+msgstr "Forum/groepspagina's"
 
 #: ../../view/theme/diabook/theme.php:391
 #: ../../view/theme/diabook/theme.php:626
 #: ../../view/theme/diabook/config.php:160
 msgid "Community Profiles"
-msgstr "Gemeenschapsprofielen"
+msgstr "Forum/groepsprofielen"
 
 #: ../../view/theme/diabook/theme.php:412
 #: ../../view/theme/diabook/theme.php:630
@@ -5913,27 +5913,27 @@ msgstr "gepord"
 
 #: ../../include/text.php:1006
 msgid "slap"
-msgstr ""
+msgstr "slaan"
 
 #: ../../include/text.php:1006
 msgid "slapped"
-msgstr ""
+msgstr "geslagen"
 
 #: ../../include/text.php:1007
 msgid "finger"
-msgstr ""
+msgstr "finger"
 
 #: ../../include/text.php:1007
 msgid "fingered"
-msgstr ""
+msgstr "gerfingerd"
 
 #: ../../include/text.php:1008
 msgid "rebuff"
-msgstr ""
+msgstr "afpoeieren"
 
 #: ../../include/text.php:1008
 msgid "rebuffed"
-msgstr ""
+msgstr "afgepoeierd"
 
 #: ../../include/text.php:1022
 msgid "happy"
@@ -5945,7 +5945,7 @@ msgstr "Verdrietig"
 
 #: ../../include/text.php:1024
 msgid "mellow"
-msgstr ""
+msgstr "mellow"
 
 #: ../../include/text.php:1025
 msgid "tired"
@@ -5953,7 +5953,7 @@ msgstr "vermoeid"
 
 #: ../../include/text.php:1026
 msgid "perky"
-msgstr ""
+msgstr "parmantig"
 
 #: ../../include/text.php:1027
 msgid "angry"
@@ -5961,7 +5961,7 @@ msgstr "boos"
 
 #: ../../include/text.php:1028
 msgid "stupified"
-msgstr ""
+msgstr "verbijsterd"
 
 #: ../../include/text.php:1029
 msgid "puzzled"
@@ -5989,15 +5989,15 @@ msgstr "verveeld"
 
 #: ../../include/text.php:1035
 msgid "anxious"
-msgstr ""
+msgstr "bezorgd"
 
 #: ../../include/text.php:1036
 msgid "cranky"
-msgstr ""
+msgstr "humeurig "
 
 #: ../../include/text.php:1037
 msgid "disturbed"
-msgstr ""
+msgstr "verontrust"
 
 #: ../../include/text.php:1038
 msgid "frustrated"
@@ -6122,7 +6122,7 @@ msgstr "Item bewaard"
 #: ../../include/api.php:263 ../../include/api.php:274
 #: ../../include/api.php:375
 msgid "User not found."
-msgstr ""
+msgstr "Gebruiker niet gevonden"
 
 #: ../../include/api.php:1123
 msgid "There is no status with this id."
@@ -6351,11 +6351,11 @@ msgstr "Afwijkend"
 
 #: ../../include/profile_selectors.php:23
 msgid "Fetish"
-msgstr ""
+msgstr "Fetisj"
 
 #: ../../include/profile_selectors.php:23
 msgid "Oodles"
-msgstr ""
+msgstr "Veel"
 
 #: ../../include/profile_selectors.php:23
 msgid "Nonsexual"
@@ -6383,7 +6383,7 @@ msgstr "Verliefd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Infatuated"
-msgstr ""
+msgstr "Smoorverliefd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Dating"
@@ -6408,7 +6408,7 @@ msgstr "Vriendschap plus"
 
 #: ../../include/profile_selectors.php:42
 msgid "Casual"
-msgstr ""
+msgstr "Ongebonden/vluchtig"
 
 #: ../../include/profile_selectors.php:42
 msgid "Engaged"
@@ -6420,7 +6420,7 @@ msgstr "Getrouwd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Imaginarily married"
-msgstr ""
+msgstr "Denkbeeldig getrouwd"
 
 #: ../../include/profile_selectors.php:42
 msgid "Partners"
@@ -6432,7 +6432,7 @@ msgstr "Samenwonend"
 
 #: ../../include/profile_selectors.php:42
 msgid "Common law"
-msgstr ""
+msgstr "Common-law-huwelijk"
 
 #: ../../include/profile_selectors.php:42
 msgid "Happy"
@@ -6452,7 +6452,7 @@ msgstr "Bedrogen"
 
 #: ../../include/profile_selectors.php:42
 msgid "Separated"
-msgstr ""
+msgstr "Uit elkaar"
 
 #: ../../include/profile_selectors.php:42
 msgid "Unstable"
@@ -6464,11 +6464,11 @@ msgstr "Gescheiden"
 
 #: ../../include/profile_selectors.php:42
 msgid "Imaginarily divorced"
-msgstr ""
+msgstr "Denkbeeldig gescheiden"
 
 #: ../../include/profile_selectors.php:42
 msgid "Widowed"
-msgstr ""
+msgstr "Weduwnaar/weduwe"
 
 #: ../../include/profile_selectors.php:42
 msgid "Uncertain"
@@ -6594,12 +6594,12 @@ msgstr "Aanstoten"
 #: ../../include/conversation.php:942
 #, php-format
 msgid "%s likes this."
-msgstr "%s vind dit leuk."
+msgstr "%s vindt dit leuk."
 
 #: ../../include/conversation.php:942
 #, php-format
 msgid "%s doesn't like this."
-msgstr "%s vind dit niet leuk."
+msgstr "%s vindt dit niet leuk."
 
 #: ../../include/conversation.php:947
 #, php-format
@@ -6623,12 +6623,12 @@ msgstr ", en %d andere mensen"
 #: ../../include/conversation.php:972
 #, php-format
 msgid "%s like this."
-msgstr "%s vind dit leuk."
+msgstr "%s vindt dit leuk."
 
 #: ../../include/conversation.php:972
 #, php-format
 msgid "%s don't like this."
-msgstr "%s vind dit niet leuk."
+msgstr "%s vindt dit niet leuk."
 
 #: ../../include/conversation.php:999 ../../include/conversation.php:1017
 msgid "Visible to <strong>everybody</strong>"
@@ -6780,7 +6780,7 @@ msgstr "Personengids"
 
 #: ../../include/nav.php:132
 msgid "Information"
-msgstr ""
+msgstr "Informatie"
 
 #: ../../include/nav.php:132
 msgid "Information about this friendica instance"
@@ -6864,7 +6864,7 @@ msgstr "Onmiddellijk blokkeren"
 
 #: ../../include/contact_selectors.php:34
 msgid "Shady, spammer, self-marketer"
-msgstr ""
+msgstr "Onbetrouwbaar, spammer, zelfpromotor"
 
 #: ../../include/contact_selectors.php:35
 msgid "Known to me, but no opinion"
@@ -6916,19 +6916,19 @@ msgstr "Google+"
 
 #: ../../include/contact_selectors.php:88
 msgid "pump.io"
-msgstr ""
+msgstr "pump.io"
 
 #: ../../include/contact_selectors.php:89
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: ../../include/contact_selectors.php:90
 msgid "Diaspora Connector"
-msgstr ""
+msgstr "Diaspora-connector"
 
 #: ../../include/contact_selectors.php:91
 msgid "Statusnet"
-msgstr ""
+msgstr "Statusnet"
 
 #: ../../include/enotify.php:16
 msgid "Friendica Notification"
@@ -7273,7 +7273,7 @@ msgstr ""
 
 #: ../../include/Contact.php:234
 msgid "Drop Contact"
-msgstr ""
+msgstr "Verwijder contact"
 
 #: ../../include/datetime.php:43 ../../include/datetime.php:45
 msgid "Miscellaneous"
