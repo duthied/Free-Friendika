@@ -14,15 +14,27 @@ code {
   border-radius: 5px;
 }
 
+header #banner a,
+header #banner a:active,
+header #banner a:visited,
+header #banner a:link,
+header #banner a:hover {
+  color: #737373;
+}
+
+nav {
+   background: #eeeeee;
+}
+
 nav .icon {
-  color: #fff;
+  color: #737373;
 }
 
 nav a:active,
 nav a:visited,
 nav a:link,
 nav a {
-  color: #fff;
+  color: #737373;
 }
 
 nav #search-box #search-text {
