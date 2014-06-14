@@ -1904,6 +1904,7 @@ ul.tabs a {
 #birthday-notice, #event-notice {
     box-shadow: 1px 2px 0px 0px #D8D8D8;
     margin-bottom: 5px;
+	border-radius: 5px;
 }
 
 #birthday-wrapper, #event-wrapper {
