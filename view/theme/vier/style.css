@@ -1895,6 +1895,7 @@ ul.tabs a {
     padding-bottom: 0px;
     padding: 0px 12px 0px 12px;
     color: #444;
+	border-radius: 5px;
 }
 
 ul.tabs a {
