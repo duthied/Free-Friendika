@@ -575,6 +575,7 @@ nav #search-box #search-text {
   width: 150px;
   max-width: 150px;
   background-color: #eee;
+  border-radius: 5px;
 }
 
 nav .nav-menu-icon {
