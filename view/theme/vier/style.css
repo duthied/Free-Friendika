@@ -1082,6 +1082,7 @@ section.minimal {
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */
   border-bottom: 1px solid #D2D2D2;
+  border-radius: 10px;
   position: relative;
   padding: 5px;
   margin-bottom: 10px;
