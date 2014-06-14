@@ -2577,6 +2577,7 @@ a.mail-list-link {
   width: 100%;
   height: auto;
   overflow: hidden;
+  border-radius: 5px;
 }
 .mail-list-wrapper span {
   display: block;
