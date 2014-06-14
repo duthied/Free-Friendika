@@ -1366,6 +1366,7 @@ h2 {
   font-size: 13px;
   color: #999999;
   border: 1px solid #DDD;
+  border-radius: 5px;
   padding: 0.3em;
 }
 .wall-item-comment-wrapper .comment-edit-text-full {
