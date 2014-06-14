@@ -217,7 +217,6 @@ div.pager {
 
 #live-network {
 /*  border-bottom: 1px solid #BDCDD4; */
-  border-bottom: 1px solid #D2D2D2;
   width: 100%;
   height: 10px;
 }
@@ -326,12 +325,12 @@ code {
   white-space: pre;
   display: block;
   overflow: auto;
-  border: 1px solid #444;
   background: #EEE;
   color: #444;
   padding: 10px;
   margin-top: 20px;
   max-width: 640px;
+  border-radius: 5px;
 }
 #panel {
   position: absolute;
@@ -520,7 +519,7 @@ nav {
 }
 
 nav .icon {
-  color: #ccc;
+  color: #fff;
 }
 
 nav a:active,
@@ -529,7 +528,7 @@ nav a:link,
 nav a {
   text-decoration: none;
   outline: none;
-  color: #ccc;
+  color: #fff;
   padding-bottom: 8px;
   padding-top: 8px;
 }
@@ -575,6 +574,7 @@ nav #search-box #search-text {
   width: 150px;
   max-width: 150px;
   background-color: #eee;
+  border-radius: 5px;
 }
 
 nav .nav-menu-icon {
@@ -731,9 +731,10 @@ ul.menu-popup {
   margin: 0px;
   padding: 0px;
   list-style: none;
-  border: 3px solid #364e59;
+  border: 1px solid #364e59;
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
 }
 ul.menu-popup a {
   display: block;
@@ -1082,6 +1083,7 @@ section.minimal {
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */
   border-bottom: 1px solid #D2D2D2;
+  border-radius: 10px;
   position: relative;
   padding: 5px;
   margin-bottom: 10px;
@@ -1364,6 +1366,7 @@ h2 {
   font-size: 13px;
   color: #999999;
   border: 1px solid #DDD;
+  border-radius: 5px;
   padding: 0.3em;
 }
 .wall-item-comment-wrapper .comment-edit-text-full {
@@ -1422,6 +1425,7 @@ h2 {
 
 #profile-jot-form {
   box-shadow: 1px 2px 0px 0px #D8D8D8;
+  border-radius: 10px;
   background-color: #fafafa;
   padding: 10px;
 }
@@ -1436,6 +1440,7 @@ h2 {
   border: 1px solid #DDD;
   padding: 0.3em;
   margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 #profile-jot-form #jot-title, #profile-jot-form #jot-category {
@@ -1892,6 +1897,7 @@ ul.tabs a {
     padding-bottom: 0px;
     padding: 0px 12px 0px 12px;
     color: #444;
+	border-radius: 5px;
 }
 
 ul.tabs a {
@@ -1902,6 +1908,7 @@ ul.tabs a {
 #birthday-notice, #event-notice {
     box-shadow: 1px 2px 0px 0px #D8D8D8;
     margin-bottom: 5px;
+	border-radius: 5px;
 }
 
 #birthday-wrapper, #event-wrapper {
@@ -1917,6 +1924,7 @@ ul.tabs a {
 div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
     padding: 2px 7px 2px 7px;
     color: black;
+	border-radius: 5px;
 }
 
 div.pager, .birthday-notice, ul.tabs a, .comment-edit-submit-wrapper .fakelink {
@@ -2310,6 +2318,7 @@ a.mail-list-link {
         margin-top: 4px;
         margin-right: 4px;
         margin-bottom: 15px;
+        border-radius: 5px;
 }
 
 .vevent .event-description, .vevent .event-location {
@@ -2571,6 +2580,7 @@ a.mail-list-link {
   width: 100%;
   height: auto;
   overflow: hidden;
+  border-radius: 5px;
 }
 .mail-list-wrapper span {
   display: block;
