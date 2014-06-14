@@ -1653,7 +1653,7 @@
 					'[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism",'[url=$1]$1[/url]',$bbcode);
 
-		$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+		$bbcode = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
 					'[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]', $bbcode);
 		$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism",'[url=$1]$1[/url]',$bbcode);
 
