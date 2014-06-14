@@ -260,9 +260,7 @@ body {
   line-height: 19.5px; */
   font-weight: 400;
   font-style: normal;
-  /* background-color: #ffffff; */
-  /* background-color: #FAFAFA; */
-  background-color: rgb(229, 229, 229);
+  background-color: #eeeeee
   color: #2d2d2d;
   margin: 0px 0px 0px 0px;
   display: table;
@@ -619,7 +617,7 @@ nav .nav-menu {
 }*/
 
 nav .nav-menu.selected {
-  border-bottom: 3px solid #9eabb0;
+  border-bottom: 3px solid #eeeeee;
  /*  background-color: #364E59; */
 }
 
