@@ -5,6 +5,10 @@ body {
   background-color: #eeeeee !important;
 }
 
+header #banner #logo-text {
+  margin-left: 7px;
+}
+
 #live-network {
   border-bottom: none !important;
 }
