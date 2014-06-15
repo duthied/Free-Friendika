@@ -1,0 +1,87 @@
+/* "Breathe" style for friendica theme "Vier"
+ * silke june 2014 */
+
+body {
+  background-color: #eeeeee !important;
+}
+
+#live-network {
+  border-bottom: none !important;
+}
+
+code {
+  border: none;
+  border-radius: 5px;
+}
+
+header #banner a,
+header #banner a:active,
+header #banner a:visited,
+header #banner a:link,
+header #banner a:hover {
+  color: #737373;
+}
+
+nav {
+   background: #eeeeee;
+}
+
+nav .icon {
+  color: #737373;
+}
+
+nav a:active,
+nav a:visited,
+nav a:link,
+nav a {
+  color: #737373;
+}
+
+nav #search-box #search-text {
+  border-radius: 5px;
+}
+
+nav .nav-menu.selected {
+  border-bottom: 3px solid #737373;
+}
+
+ul.menu-popup {
+  border: 1px solid #364e59;
+  border-radius: 5px;
+}
+
+.tread-wrapper {
+  border-radius: 10px;
+}
+
+.wall-item-comment-wrapper textarea {
+  border-radius: 5px;
+}
+
+#profile-jot-form {
+  border-radius: 10px;
+}
+
+#profile-jot-form #profile-jot-text {
+  border-radius: 5px;
+}
+
+ul.tabs a {
+  border-radius: 5px;
+}
+
+#birthday-notice, #event-notice {
+  border-radius: 5px;
+}
+
+div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
+  border-radius: 5px;
+}
+
+.vevent {
+  border-radius: 5px;
+}
+
+.mail-list-wrapper {
+  border-radius: 5px;
+}
