@@ -37,6 +37,7 @@ nav .icon {
 nav a:active,
 nav a:visited,
 nav a:link,
+nav a:hover .icon,
 nav a {
   color: #737373;
 }
