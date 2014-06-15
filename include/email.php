@@ -82,10 +82,6 @@ function email_get_msg($mbox,$uid, $reply) {
 	if(! $struc)
 		return $ret;
 
-	// for testing purposes: Collect imported mails
-	// $file = tempnam("/tmp/friendica2/", "mail-in-");
-	// file_put_contents($file, json_encode($struc));
-
 	if(! $struc->parts) {
 		$ret['body'] = email_get_part($mbox,$uid,$struc,0, 'html');
 		$html = $ret['body'];
@@ -137,10 +133,6 @@ function email_get_part($mbox,$uid,$p,$partno, $subtype) {
 	$data = ($partno)
 		? @imap_fetchbody($mbox,$uid,$partno, FT_UID|FT_PEEK)
 	: @imap_body($mbox,$uid,FT_UID|FT_PEEK);
-
-	// for testing purposes: Collect imported mails
-	// $file = tempnam("/tmp/friendica2/", "mail-body-");
-	// file_put_contents($file, $data);
 
 	// Any part may be encoded, even plain text messages, so check everything.
 	if ($p->encoding==4)

@@ -874,21 +874,15 @@ function get_atom_elements($feed, $item, $contact = array()) {
 
 	call_hooks('parse_atom', $arr);
 
-	//if (($res["title"] != "") or (strpos($res["body"], "RT @") > 0)) {
-	//if (strpos($res["body"], "RT @") !== false) {
-	/*if (strpos($res["body"], "@") !== false) {
-		$debugfile = tempnam("/var/www/virtual/pirati.ca/phptmp/", "item-res2-");
-		file_put_contents($debugfile, serialize($arr));
-	}*/
-
 	return $res;
 }
 
 function add_page_info($url, $no_photos = false, $photo = "") {
-        require_once("mod/parse_url.php");
-        $data = parseurl_getsiteinfo($url, true);
+	require_once("mod/parse_url.php");
 
-        logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+	$data = parseurl_getsiteinfo($url, true);
+
+	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
 
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
@@ -896,53 +890,53 @@ function add_page_info($url, $no_photos = false, $photo = "") {
 		is_string($data["text"]) AND (sizeof($data["images"]) > 0))
 		$data["type"] = "link";
 
-        if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $url))
-                return("");
+	if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $url))
+		return("");
 
 	if ($no_photos AND ($data["type"] == "photo"))
 		return("");
 
-        if (($data["type"] != "photo") AND is_string($data["title"]))
-                $text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
+	if (($data["type"] != "photo") AND is_string($data["title"]))
+		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
 
-        if (($data["type"] != "video") AND ($photo != ""))
-                $text .= '[img]'.$photo.'[/img]';
-        elseif (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
-                $imagedata = $data["images"][0];
-                $text .= '[img]'.$imagedata["src"].'[/img]';
-        }
+	if (($data["type"] != "video") AND ($photo != ""))
+		$text .= '[img]'.$photo.'[/img]';
+	elseif (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
+		$imagedata = $data["images"][0];
+		$text .= '[img]'.$imagedata["src"].'[/img]';
+	}
 
-        if (($data["type"] != "photo") AND is_string($data["text"]))
-                $text .= "[quote]".$data["text"]."[/quote]";
+	if (($data["type"] != "photo") AND is_string($data["text"]))
+		$text .= "[quote]".$data["text"]."[/quote]";
 
-        return("\n[class=type-".$data["type"]."]".$text."[/class]");
+	return("\n[class=type-".$data["type"]."]".$text."[/class]");
 }
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 
-        logger('add_page_info_to_body: fetch page info for body '.$body, LOGGER_DEBUG);
+	logger('add_page_info_to_body: fetch page info for body '.$body, LOGGER_DEBUG);
 
-        $URLSearchString = "^\[\]";
+	$URLSearchString = "^\[\]";
 
-        // Adding these spaces is a quick hack due to my problems with regular expressions :)
-        preg_match("/[^!#@]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
+	// Adding these spaces is a quick hack due to my problems with regular expressions :)
+	preg_match("/[^!#@]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
 
-        if (!$matches)
-                preg_match("/[^!#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
+	if (!$matches)
+		preg_match("/[^!#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", " ".$body, $matches);
 
 	// Convert urls without bbcode elements
 	if (!$matches AND $texturl) {
 		preg_match("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", " ".$body, $matches);
 
 		// Yeah, a hack. I really hate regular expressions :)
-	        if ($matches)
-        	        $matches[1] = $matches[2];
+		if ($matches)
+			$matches[1] = $matches[2];
 	}
 
-        if ($matches)
-                $body .= add_page_info($matches[1], $no_photos);
+	if ($matches)
+		$body .= add_page_info($matches[1], $no_photos);
 
-        return $body;
+	return $body;
 }
 
 function encode_rel_links($links) {
@@ -985,7 +979,7 @@ function item_store($arr,$force_parent = false) {
 
 	if (isset($arr["ostatus_conversation"])) {
 		$ostatus_conversation = $arr["ostatus_conversation"];
-	        unset($arr["ostatus_conversation"]);
+		unset($arr["ostatus_conversation"]);
 	}
 
 	if(x($arr, 'gravity'))
@@ -1247,7 +1241,7 @@ function item_store($arr,$force_parent = false) {
 			if(count($r)) {
 				logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 				$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
-                			intval($arr['uid']));
+					intval($arr['uid']));
 
 				$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
 					intval($current_post),
@@ -1292,7 +1286,7 @@ function item_store($arr,$force_parent = false) {
 	if((! $parent_id) || ($arr['parent-uri'] === $arr['uri']))
 		$parent_id = $current_post;
 
- 	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid))
+	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid))
 		$private = 1;
 	else
 		$private = $arr['private'];
@@ -1315,14 +1309,14 @@ function item_store($arr,$force_parent = false) {
 	if ($ostatus_conversation)
 		complete_conversation($current_post, $ostatus_conversation);
 
-        $arr['id'] = $current_post;
-        $arr['parent'] = $parent_id;
-        $arr['allow_cid'] = $allow_cid;
-        $arr['allow_gid'] = $allow_gid;
-        $arr['deny_cid'] = $deny_cid;
-        $arr['deny_gid'] = $deny_gid;
-        $arr['private'] = $private;
-        $arr['deleted'] = $parent_deleted;
+	$arr['id'] = $current_post;
+	$arr['parent'] = $parent_id;
+	$arr['allow_cid'] = $allow_cid;
+	$arr['allow_gid'] = $allow_gid;
+	$arr['deny_cid'] = $deny_cid;
+	$arr['deny_gid'] = $deny_gid;
+	$arr['private'] = $private;
+	$arr['deleted'] = $parent_deleted;
 
 	// update the commented timestamp on the parent
 
@@ -1800,10 +1794,10 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
   */
 function edited_timestamp_is_newer($existing, $update) {
     if (!x($existing,'edited') || !$existing['edited']) {
-        return true;
+	return true;
     }
     if (!x($update,'edited') || !$update['edited']) {
-        return false;
+	return false;
     }
     $existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
     $update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
@@ -1996,7 +1990,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
 				intval($contact['uid']),
-			 	intval($contact['id']),
+				intval($contact['id']),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert('UTC','UTC', $birthday)),
@@ -2158,7 +2152,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 		logger('consume_feed: feed item count = ' . $feed->get_item_quantity());
 
-        // in inverse date order
+	// in inverse date order
 		if ($datedir)
 			$items = array_reverse($feed->get_items());
 		else
@@ -3594,16 +3588,16 @@ function local_delivery($importer,$data) {
 
 					$links = parse_xml_string("<links>".unxmlify($xo->link)."</links>",false);
 
-			        foreach($links->link as $l) {
-            			$atts = $l->attributes();
-            			switch($atts['rel']) {
-                			case "alternate":
+				foreach($links->link as $l) {
+				$atts = $l->attributes();
+				switch($atts['rel']) {
+					case "alternate":
 								$Blink = $atts['href'];
 								break;
 							default:
 								break;
-			            }
-        			}
+				    }
+				}
 					if($Blink && link_compare($Blink,$a->get_baseurl() . '/profile/' . $importer['nickname'])) {
 
 						// send a notification
@@ -4457,7 +4451,7 @@ function posted_dates($uid,$wall) {
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');
 		$end_month = datetime_convert('','',$dend,'Y-m-d');
 		$str = day_translate(datetime_convert('','',$dnow,'F Y'));
- 		$ret[] = array($str,$end_month,$start_month);
+		$ret[] = array($str,$end_month,$start_month);
 		$dnow = datetime_convert('','',$dnow . ' -1 month', 'Y-m-d');
 	}
 	return $ret;

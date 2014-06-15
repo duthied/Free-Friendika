@@ -786,10 +786,6 @@ function notifier_run(&$argv, &$argc){
 						//if($reply_to)
 						//	$headers .= 'Reply-to: ' . $reply_to . "\n";
 
-						// for testing purposes: Collect exported mails
-						//$file = tempnam("/tmp/friendica/", "mail-out2-");
-						//file_put_contents($file, json_encode($it));
-
 						$headers .= 'Message-Id: <' . iri2msgid($it['uri']) . '>' . "\n";
 
 						if($it['uri'] !== $it['parent-uri']) {
