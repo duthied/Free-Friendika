@@ -11,6 +11,9 @@ function theme_content(&$a){
 
 	$style = get_pconfig(local_user(), 'vier', 'style');
 
+	if ($style == "")
+		$style = get_config('vier', 'style');
+
 	return vier_form($a,$style);
 }
 
