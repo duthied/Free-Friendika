@@ -755,3 +755,23 @@ function import_profile_photo($photo,$uid,$cid) {
     return(array($photo,$thumb,$micro));
 
 }
+
+function get_photo_info($url) {
+	$data = array();
+
+	$data = Cache::get($url);
+
+	if (is_null($data)) {
+		$img_str = fetch_url($url, true, $redirects, 4);
+
+		$tempfile = tempnam(get_config("system","temppath"), "cache");
+		file_put_contents($tempfile, $img_str);
+		$data = getimagesize($tempfile);
+		unlink($tempfile);
+
+		Cache::set($url, serialize($data));
+	} else
+		$data = unserialize($data);
+
+	return $data;
+}

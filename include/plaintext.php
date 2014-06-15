@@ -46,6 +46,7 @@ function get_attached_data($body) {
 	// if nothing is found, it maybe having an image.
 	if (!isset($post["type"])) {
 		require_once("mod/parse_url.php");
+		require_once("include/Photo.php");
 
 		$URLSearchString = "^\[\]";
 		if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures,  PREG_SET_ORDER)) {
@@ -64,12 +65,8 @@ function get_attached_data($body) {
 					$post["text"] = str_replace($pictures[0][0], "", $body);
 				} else {
 					$img_str = fetch_url($pictures[0][1]);
-
-					$tempfile = tempnam(get_config("system","temppath"), "cache");
-					file_put_contents($tempfile, $img_str);
-					$mime = image_type_to_mime_type(exif_imagetype($tempfile));
-					unlink($tempfile);
-					if (substr($mime, 0, 6) == "image/") {
+					$imgdata = get_photo_info($img_str);
+					if (substr($imgdata["mime"], 0, 6) == "image/") {
 						$post["type"] = "photo";
 						$post["image"] = $pictures[0][1];
 						$post["preview"] = $pictures[0][2];
