@@ -50,6 +50,14 @@ nav .nav-menu.selected {
   border-bottom: 3px solid #737373;
 }
 
+nav .nav-menu-icon.selected {
+  background-color: #eeeeee;
+}
+
+nav #nav-notifications-linkmenu.on .icon.s22.notify, nav #nav-notifications-linkmenu.selected .icon.s22.notify {
+  color: #737373;
+}
+
 ul.menu-popup {
   border: 1px solid #364e59;
   border-radius: 5px;
@@ -76,8 +84,21 @@ ul.menu-popup {
   border-radius: 5px;
 }
 
+ul.tabs {
+  background-color: #eeeeee;
+}
+
 ul.tabs a {
-  border-radius: 5px;
+  color: #737373;
+}
+
+#event-notice:hover, #birthday-notice:hover, ul.tabs li .active,
+.comment-edit-submit-wrapper .fakelink:hover {
+    color: #737373;
+}
+
+ul.tabs li .active {
+  border-bottom: 3x solid #737373;
 }
 
 #birthday-notice, #event-notice {
@@ -86,6 +107,11 @@ ul.tabs a {
 
 div.pager, .birthday-notice, .comment-edit-submit-wrapper .fakelink {
   border-radius: 5px;
+}
+
+div.pager, ul.tabs {
+  box-shadow: none;
+  border-bottom: none;
 }
 
 .vevent {
