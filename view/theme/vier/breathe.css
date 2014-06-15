@@ -55,6 +55,11 @@ ul.menu-popup {
   border-radius: 5px;
 }
 
+.contact-photo-menu {
+  border: 1px solid #364e59;
+  border-radius: 5px;
+}
+
 .tread-wrapper {
   border-radius: 10px;
 }
