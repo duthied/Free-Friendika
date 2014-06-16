@@ -15,9 +15,6 @@ function dbstructure_run(&$argv, &$argc) {
 			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	load_config('config');
-	load_config('system');
-
 	update_structure(true, true);
 }
 
@@ -115,11 +112,11 @@ function update_structure($verbose, $action) {
 	// Compare it
 	foreach ($definition AS $name => $structure) {
 		$sql3="";
-		if (!isset($database[$name]))
+		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action);
                         if(false === $r)
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
-		else {
+		} else {
 			// Compare the field structure field by field
 			foreach ($structure["fields"] AS $fieldname => $parameters) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
@@ -155,14 +152,17 @@ function update_structure($verbose, $action) {
 				}
 
 		// Create the index
-		foreach ($structure["indexes"] AS $indexname => $fieldnames)
+		foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 			if (!isset($database[$name]["indexes"][$indexname])) {
 				$sql2=db_create_index($indexname, $fieldnames);
-				if ($sql3 == "")
-					$sql3 = "ALTER TABLE `".$name."` ".$sql2;
-				else
-					$sql3 .= ", ".$sql2;
+				if ($sql2 != "") {
+					if ($sql3 == "")
+						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+					else
+						$sql3 .= ", ".$sql2;
+				}
 			}
+		}
 
 		if ($sql3 != "") {
 			$sql3 .= ";";
@@ -212,7 +212,7 @@ function db_create_table($name, $fields, $verbose, $action) {
 		$sql .= "`".dbesc($fieldname)."` ".db_field_command($field);
 	}
 
-	$sql = sprintf("ADD TABLE IF NOT EXISTS `%s` (\n", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
 
 	if ($verbose)
 		echo $sql.";\n";

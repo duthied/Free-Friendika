@@ -49,8 +49,8 @@ function networks_widget($baseurl,$selected = '') {
 
 	if(! feature_enabled(local_user(),'networks'))
 		return '';
-	
-	$r = q("select distinct(network) from contact where uid = %d and self = 0",
+
+	$r = q("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = %d AND `self` = 0 ORDER BY `network`",
 		intval(local_user())
 	);
 
