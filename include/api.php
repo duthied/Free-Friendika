@@ -710,6 +710,8 @@
 		if($parent)
 			$_REQUEST['type'] = 'net-comment';
 		else {
+//			logger("api_statuses_update: upload ".print_r($_FILES, true)." ".print_r($_POST, true)." ".print_r($_GET, true), LOGGER_DEBUG);
+//die("blubb");
 			$_REQUEST['type'] = 'wall';
 			if(x($_FILES,'media')) {
 				// upload the image if we have one
@@ -1630,6 +1632,8 @@
 		if ($include_entities != "true")
 			return array();
 
+		$a = get_app();
+
 		$bbcode = bb_CleanPictureLinks($bbcode);
 
 		// Change pure links in text to bbcode uris
@@ -1708,6 +1712,9 @@
 		//$entities["media"] = array();
 		$offset = 0;
 
+		$result = q("SELECT `installed` FROM `addon` WHERE `name` = 'privacy_image_cache' AND `installed`");
+		$image_cache = (count($result) > 0);
+
 		foreach ($ordered_images AS $url) {
 			$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url);
 			$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
@@ -1717,24 +1724,47 @@
 
 			$start = iconv_strpos($text, $url, $offset, "UTF-8");
 			if (!($start === false)) {
-				$redirects = 0;
-				$img_str = fetch_url($url,true, $redirects, 10);
-				$image = @imagecreatefromstring($img_str);
+				require_once("include/Photo.php");
+				$image = get_photo_info($url);
 				if ($image) {
+					// If privacy_image_cache is activated, then use the following sizes:
+					// thumb  (150), small (340), medium (600) and large (1024)
+					if ($image_cache) {
+						require_once("addon/privacy_image_cache/privacy_image_cache.php");
+						$media_url = $a->get_baseurl()."/privacy_image_cache/".privacy_image_cache_cachename($url);
+
+						$sizes = array();
+						$scale = scale_image($image[0], $image[1], 150);
+						$sizes["thumb"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
+
+						if (($image[0] > 150) OR ($image[1] > 150)) {
+							$scale = scale_image($image[0], $image[1], 340);
+							$sizes["small"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
+						}
+
+						$scale = scale_image($image[0], $image[1], 600);
+						$sizes["medium"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
+
+						if (($image[0] > 600) OR ($image[1] > 600)) {
+							$scale = scale_image($image[0], $image[1], 1024);
+							$sizes["large"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
+						}
+					} else {
+						$media_url = $url;
+						$sizes["medium"] = array("w" => $image[0], "h" => $image[1], "resize" => "fit");
+					}
+
 					$entities["media"][] = array(
 								"id" => $start+1,
 								"id_str" => (string)$start+1,
 								"indices" => array($start, $start+strlen($url)),
-								"media_url" => $url,
-								"media_url_https" => $url,
+								"media_url" => normalise_link($media_url),
+								"media_url_https" => $media_url,
 								"url" => $url,
 								"display_url" => $display_url,
 								"expanded_url" => $url,
 								"type" => "photo",
-								"sizes" => array("medium" => array(
-												"w" => imagesx($image),
-												"h" => imagesy($image),
-												"resize" => "fit")));
+								"sizes" => $sizes);
 				}
 				$offset = $start + 1;
 			}
