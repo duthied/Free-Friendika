@@ -1619,20 +1619,32 @@
 		return $ret;
 	}
 
-	function api_get_entitities($text, $bbcode) {
+	function api_get_entitities(&$text, $bbcode) {
 		/*
 		To-Do:
 		* Links at the first character of the post
-		* different sizes of pictures
-		* caching picture data (using the id for that?) (See privacy_image_cache)
 		*/
+
+		$a = get_app();
+
+		$result = q("SELECT `installed` FROM `addon` WHERE `name` = 'privacy_image_cache' AND `installed`");
+		$image_cache = (count($result) > 0);
 
 		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
-		if ($include_entities != "true")
-			return array();
+		if ($include_entities != "true") {
+			if ($image_cache) {
+				require_once("addon/privacy_image_cache/privacy_image_cache.php");
 
-		$a = get_app();
+				preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
+
+				foreach ($images[1] AS $image) {
+					$replace = $a->get_baseurl()."/privacy_image_cache/".privacy_image_cache_cachename($image);
+					$text = str_replace($image, $replace, $text);
+				}
+			}
+			return array();
+		}
 
 		$bbcode = bb_CleanPictureLinks($bbcode);
 
@@ -1711,9 +1723,6 @@
 		}
 		//$entities["media"] = array();
 		$offset = 0;
-
-		$result = q("SELECT `installed` FROM `addon` WHERE `name` = 'privacy_image_cache' AND `installed`");
-		$image_cache = (count($result) > 0);
 
 		foreach ($ordered_images AS $url) {
 			$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url);
