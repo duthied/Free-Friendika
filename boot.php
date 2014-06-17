@@ -693,6 +693,14 @@ if(! class_exists('App')) {
 			else
 				$stylesheet = '$stylesheet';
 
+			$shortcut_icon = get_config("system", "shortcut_icon");
+			if ($shortcut_icon == "")
+				$shortcut_icon = $this->get_baseurl()."/images/friendica-32.png";
+
+			$touch_icon = get_config("system", "touch_icon");
+			if ($touch_icon == "")
+				$touch_icon = $this->get_baseurl()."/images/friendica-128.png";
+
 			$tpl = get_markup_template('head.tpl');
 			$this->page['htmlhead'] = replace_macros($tpl,array(
 				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
@@ -703,6 +711,8 @@ if(! class_exists('App')) {
 				'$showmore' => t('show more'),
 				'$showfewer' => t('show fewer'),
 				'$update_interval' => $interval,
+				'$shortcut_icon' => $shortcut_icon,
+				'$touch_icon' => $touch_icon,
 				'$stylesheet' => $stylesheet
 			)) . $this->page['htmlhead'];
 		}
