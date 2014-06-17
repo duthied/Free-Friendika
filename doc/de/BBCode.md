@@ -96,7 +96,7 @@ Block Tags
 [/ol]</pre>
 <ul class="listdecimal" style="list-style-type: decimal;"><li>Erstes Listenelement<br></li><li> Zweites Listenelement</li></ul>
 
-F&uuml;r weitere Optionen von sortierten Listen kann man den Stiel der Numerierung der Liste definieren:
+F&uuml;r weitere Optionen von sortierten Listen kann man den Stil der Numerierung der Liste definieren:
 <pre>[list=1]</pre> : dezimal
 
 <pre>[list=i]</pre> : r&ouml;misch, Kleinbuchstaben
