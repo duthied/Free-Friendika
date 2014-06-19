@@ -100,6 +100,7 @@ if(! function_exists('load_translation_table')) {
 function load_translation_table($lang) {
 	global $a;
 
+	$a->strings = array();
 	// load enabled plugins strings
 	$plugins = q("SELECT name FROM addon WHERE installed=1;");
 	if ($plugins!==false) {
@@ -111,7 +112,6 @@ function load_translation_table($lang) {
 		}
 	}
 	
-	$a->strings = array();
 	if(file_exists("view/$lang/strings.php")) {
 		include("view/$lang/strings.php");
 	}
