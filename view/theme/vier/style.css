@@ -19,6 +19,10 @@ img {
 /*        width: 80%;*/
 }
 
+#adminpage .screenshot img {
+  width: 640px;
+}
+
 #pending-update {
         float:right;
         color: #ffffff;

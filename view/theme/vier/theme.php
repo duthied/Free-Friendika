@@ -1,11 +1,11 @@
 <?php
 /**
  * Name: Vier
- * Version: 0.9
+ * Version: 1.1
  * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
  * Author: Ike <http://pirati.ca/profile/heluecht>
  * Maintainer: Ike <http://pirati.ca/profile/heluecht>
- * Description: "Vier" uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
+ * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
  */
 
 function vier_init(&$a) {
