@@ -18,8 +18,8 @@ hostname        = "vaprobash.dev"
 #   172.16.0.1  - 172.31.255.254
 #   192.168.0.1 - 192.168.255.254
 server_ip             = "192.168.22.10"
-server_memory         = "384" # MB
-server_swap           = "768" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
+server_memory         = "400" # MB
+server_swap           = "800" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
 server_timezone       = "UTC"
 
 # Database Configuration
@@ -252,8 +252,8 @@ Vagrant.configure("2") do |config|
   # Install Screen
   # config.vm.provision "shell", path: "#{github_url}/scripts/screen.sh"
 
-  # Install Mailcatcher
-  config.vm.provision "shell", path: "#{github_url}/scripts/mailcatcher.sh"
+  # Install config Mailcatcher
+  # ls -config.vm.provision "shell", path: "#{github_url}/scripts/mailcatcher.sh"
 
   # Install git-ftp
   # config.vm.provision "shell", path: "#{github_url}/scripts/git-ftp.sh", privileged: false

@@ -8,6 +8,13 @@
 rm -rf /var/www/
 ln -fs /vagrant /var/www
 
+#delete .htconfig.php file if it exists to have a fresh friendica 
+#installation
+if [ -f /vagrant/.htconfig.php ]
+  then
+    rm /vagrant/.htconfig.php
+fi
+
 #create the friendica database
 echo "create database friendica" | mysql -u root -proot
 
@@ -16,5 +23,5 @@ echo "*/10 * * * * cd /vagrant; /usr/bin/php include/poller.php" >> friendicacro
 crontab friendicacron
 rm friendicacron
 
-#Optional: checkout addon repository
+#Optional: checkout addon repositroy
 #git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
