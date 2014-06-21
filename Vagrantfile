@@ -18,8 +18,8 @@ hostname        = "vaprobash.dev"
 #   172.16.0.1  - 172.31.255.254
 #   192.168.0.1 - 192.168.255.254
 server_ip             = "192.168.22.10"
-server_memory         = "400" # MB
-server_swap           = "800" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
+server_memory         = "384" # MB
+server_swap           = "768" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
 server_timezone       = "UTC"
 
 # Database Configuration
@@ -28,7 +28,7 @@ mysql_version         = "5.5"    # Options: 5.5 | 5.6
 mysql_enable_remote   = "false"  # remote access enabled when true
 pgsql_root_password   = "root"   # We'll assume user "root"
 
-# Languages and Packages
+# Languages and Packages6
 ruby_version          = "latest" # Choose what ruby version should be installed (will also be the default version)
 ruby_gems             = [        # List any Ruby Gems that you want to install
   #"jekyll",
@@ -76,12 +76,6 @@ Vagrant.configure("2") do |config|
 
   # Create a static IP
   config.vm.network :private_network, ip: server_ip
-
-  # Use NFS for the shared folder
-  config.vm.synced_folder ".", "/vagrant",
-            id: "core",
-            :nfs => true,
-            :mount_options => ['nolock,vers=3,udp,noatime']
 
   # If using VirtualBox
   config.vm.provider :virtualbox do |vb|
@@ -253,7 +247,7 @@ Vagrant.configure("2") do |config|
   # config.vm.provision "shell", path: "#{github_url}/scripts/screen.sh"
 
   # Install config Mailcatcher
-  # ls -config.vm.provision "shell", path: "#{github_url}/scripts/mailcatcher.sh"
+  # config.vm.provision "shell", path: "#{github_url}/scripts/mailcatcher.sh"
 
   # Install git-ftp
   # config.vm.provision "shell", path: "#{github_url}/scripts/git-ftp.sh", privileged: false
