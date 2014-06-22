@@ -354,7 +354,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"access" => array("cat","k"),
+					"access" => array("cat(30)","k(30)"),
 					)
 			);
 	$database["contact"] = array(
@@ -638,7 +638,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"hook_file_function" => array("hook","file","function"),
+					"hook_file_function" => array("hook(30)","file(60)","function(30)"),
 					)
 			);
 	$database["intro"] = array(
@@ -890,7 +890,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"access" => array("uid","cat","k"),
+					"access" => array("uid","cat(30)","k(30)"),
 					)
 			);
 	$database["photo"] = array(
