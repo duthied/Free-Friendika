@@ -35,3 +35,6 @@ report/
 /privacy_image_cache/
 /photo/
 nbproject
+
+#ignore vagrant dir
+.vagrant/
