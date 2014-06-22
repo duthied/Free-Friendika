@@ -764,7 +764,7 @@ function get_photo_info($url) {
 	if (is_null($data)) {
 		$img_str = fetch_url($url, true, $redirects, 4);
 
-		$tempfile = tempnam(get_config("system","temppath"), "cache");
+		$tempfile = tempnam(get_temppath(), "cache");
 		file_put_contents($tempfile, $img_str);
 		$data = getimagesize($tempfile);
 		unlink($tempfile);

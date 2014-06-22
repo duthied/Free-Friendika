@@ -424,7 +424,7 @@ function bb_ShareAttributes($match) {
 
 	$posted = "";
 
-	$itemcache = get_config("system","itemcache");
+	$itemcache = get_itemcachepath();
 
 	// relative dates only make sense when they aren't cached
 	if ($itemcache == "") {
@@ -661,7 +661,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 	$posted = "";
 
-	$itemcache = get_config("system","itemcache");
+	$itemcache = get_itemcachepath();
 
 	// relative dates only make sense when they aren't cached
 	if ($itemcache == "") {
@@ -949,8 +949,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// removing multiplicated newlines
 	if (get_config("system", "remove_multiplicated_lines")) {
-		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n");
-		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]");
+		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ");
+		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ");
 		do {
 			$oldtext = $Text;
 			$Text = str_replace($search, $replace, $Text);

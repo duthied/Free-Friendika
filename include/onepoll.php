@@ -58,7 +58,7 @@ function onepoll_run(&$argv, &$argc){
 	}
 
 	// Test
-	$lockpath = get_config('system','lockpath');
+	$lockpath = get_lockpath();
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id);
 		if($pidfile->is_already_running()) {

@@ -2160,7 +2160,7 @@ function random_digits($digits) {
 }
 
 function get_cachefile($file, $writemode = true) {
-	$cache = get_config("system","itemcache");
+	$cache = get_itemcachepath();
 
 	if ((! $cache) || (! is_dir($cache)))
 		return("");
@@ -2181,7 +2181,7 @@ function get_cachefile($file, $writemode = true) {
 
 function clear_cache($basepath = "", $path = "") {
 	if ($path == "") {
-		$basepath = get_config('system','itemcache');
+		$basepath = get_itemcachepath();
 		$path = $basepath;
 	}
 
@@ -2207,6 +2207,63 @@ function clear_cache($basepath = "", $path = "") {
 		closedir($dh);
 	}
 	}
+}
+
+function get_itemcachepath() {
+	// Checking, if the cache is deactivated
+	$cachetime = (int)get_config('system','itemcache_duration');
+	if ($cachetime < 0)
+		return "";
+
+	$itemcache = get_config('system','itemcache');
+	if (($itemcache != "") AND is_dir($itemcache) AND is_writable($itemcache))
+		return($itemcache);
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$itemcache = $temppath."/itemcache";
+		mkdir($itemcache);
+
+		if (is_dir($itemcache) AND is_writable($itemcache)) {
+			set_config("system", "itemcache", $itemcache);
+			return($itemcache);
+		}
+	}
+	return "";
+}
+
+function get_lockpath() {
+	$lockpath = get_config('system','lockpath');
+	if (($lockpath != "") AND is_dir($lockpath) AND is_writable($lockpath))
+		return($lockpath);
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$lockpath = $temppath."/lock";
+		mkdir($lockpath);
+
+		if (is_dir($lockpath) AND is_writable($lockpath)) {
+			set_config("system", "lockpath", $lockpath);
+			return($lockpath);
+		}
+	}
+	return "";
+}
+
+function get_temppath() {
+	$temppath = get_config("system","temppath");
+	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
+		return($temppath);
+
+	$temppath = sys_get_temp_dir();
+	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
+		set_config("system", "temppath", $temppath);
+		return($temppath);
+	}
+
+	return("");
 }
 
 function set_template_engine(&$a, $engine = 'internal') {
