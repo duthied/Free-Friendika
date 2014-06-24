@@ -693,6 +693,14 @@ if(! class_exists('App')) {
 			else
 				$stylesheet = '$stylesheet';
 
+			$shortcut_icon = get_config("system", "shortcut_icon");
+			if ($shortcut_icon == "")
+				$shortcut_icon = $this->get_baseurl()."/images/friendica-32.png";
+
+			$touch_icon = get_config("system", "touch_icon");
+			if ($touch_icon == "")
+				$touch_icon = $this->get_baseurl()."/images/friendica-128.png";
+
 			$tpl = get_markup_template('head.tpl');
 			$this->page['htmlhead'] = replace_macros($tpl,array(
 				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
@@ -703,6 +711,8 @@ if(! class_exists('App')) {
 				'$showmore' => t('show more'),
 				'$showfewer' => t('show fewer'),
 				'$update_interval' => $interval,
+				'$shortcut_icon' => $shortcut_icon,
+				'$touch_icon' => $touch_icon,
 				'$stylesheet' => $stylesheet
 			)) . $this->page['htmlhead'];
 		}
@@ -2150,7 +2160,7 @@ function random_digits($digits) {
 }
 
 function get_cachefile($file, $writemode = true) {
-	$cache = get_config("system","itemcache");
+	$cache = get_itemcachepath();
 
 	if ((! $cache) || (! is_dir($cache)))
 		return("");
@@ -2171,7 +2181,7 @@ function get_cachefile($file, $writemode = true) {
 
 function clear_cache($basepath = "", $path = "") {
 	if ($path == "") {
-		$basepath = get_config('system','itemcache');
+		$basepath = get_itemcachepath();
 		$path = $basepath;
 	}
 
@@ -2197,6 +2207,63 @@ function clear_cache($basepath = "", $path = "") {
 		closedir($dh);
 	}
 	}
+}
+
+function get_itemcachepath() {
+	// Checking, if the cache is deactivated
+	$cachetime = (int)get_config('system','itemcache_duration');
+	if ($cachetime < 0)
+		return "";
+
+	$itemcache = get_config('system','itemcache');
+	if (($itemcache != "") AND is_dir($itemcache) AND is_writable($itemcache))
+		return($itemcache);
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$itemcache = $temppath."/itemcache";
+		mkdir($itemcache);
+
+		if (is_dir($itemcache) AND is_writable($itemcache)) {
+			set_config("system", "itemcache", $itemcache);
+			return($itemcache);
+		}
+	}
+	return "";
+}
+
+function get_lockpath() {
+	$lockpath = get_config('system','lockpath');
+	if (($lockpath != "") AND is_dir($lockpath) AND is_writable($lockpath))
+		return($lockpath);
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$lockpath = $temppath."/lock";
+		mkdir($lockpath);
+
+		if (is_dir($lockpath) AND is_writable($lockpath)) {
+			set_config("system", "lockpath", $lockpath);
+			return($lockpath);
+		}
+	}
+	return "";
+}
+
+function get_temppath() {
+	$temppath = get_config("system","temppath");
+	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
+		return($temppath);
+
+	$temppath = sys_get_temp_dir();
+	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
+		set_config("system", "temppath", $temppath);
+		return($temppath);
+	}
+
+	return("");
 }
 
 function set_template_engine(&$a, $engine = 'internal') {

@@ -84,7 +84,7 @@ function queue_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	$lockpath = get_config('system','lockpath');
+	$lockpath = get_lockpath();
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'queue');
 		if($pidfile->is_already_running()) {

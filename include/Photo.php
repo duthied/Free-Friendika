@@ -19,34 +19,34 @@ class Photo {
      * supported mimetypes and corresponding file extensions
      */
     static function supportedTypes() {
-        if(class_exists('Imagick')) {
-            /**
-             * Imagick::queryFormats won't help us a lot there...
-             * At least, not yet, other parts of friendica uses this array
-             */
-            $t = array(
-                'image/jpeg' => 'jpg',
-                'image/png' => 'png',
-                'image/gif' => 'gif'
-            );
-        } else {
-            $t = array();
-            $t['image/jpeg'] ='jpg';
-            if (imagetypes() & IMG_PNG) $t['image/png'] = 'png';
-        }
+	if(class_exists('Imagick')) {
+	    /**
+	     * Imagick::queryFormats won't help us a lot there...
+	     * At least, not yet, other parts of friendica uses this array
+	     */
+	    $t = array(
+		'image/jpeg' => 'jpg',
+		'image/png' => 'png',
+		'image/gif' => 'gif'
+	    );
+	} else {
+	    $t = array();
+	    $t['image/jpeg'] ='jpg';
+	    if (imagetypes() & IMG_PNG) $t['image/png'] = 'png';
+	}
 
-        return $t;
+	return $t;
     }
 
     public function __construct($data, $type=null) {
-        $this->imagick = class_exists('Imagick');
-        $this->types = $this->supportedTypes();
-        if (!array_key_exists($type,$this->types)){
-            $type='image/jpeg';
-        }
-        $this->type = $type;
+	$this->imagick = class_exists('Imagick');
+	$this->types = $this->supportedTypes();
+	if (!array_key_exists($type,$this->types)){
+	    $type='image/jpeg';
+	}
+	$this->type = $type;
 
-        if($this->is_imagick() && $this->load_data($data)) {
+	if($this->is_imagick() && $this->load_data($data)) {
 			return true;
 		} else {
 			// Failed to load with Imagick, fallback
@@ -56,36 +56,36 @@ class Photo {
     }
 
     public function __destruct() {
-        if($this->image) {
-            if($this->is_imagick()) {
-                $this->image->clear();
-                $this->image->destroy();
-                return;
-            }
-            imagedestroy($this->image);
-        }
+	if($this->image) {
+	    if($this->is_imagick()) {
+		$this->image->clear();
+		$this->image->destroy();
+		return;
+	    }
+	    imagedestroy($this->image);
+	}
     }
 
     public function is_imagick() {
-        return $this->imagick;
+	return $this->imagick;
     }
 
     /**
      * Maps Mime types to Imagick formats
      */
     public function get_FormatsMap() {
-        $m = array(
-            'image/jpeg' => 'JPG',
-            'image/png' => 'PNG',
-            'image/gif' => 'GIF'
-        );
-        return $m;
+	$m = array(
+	    'image/jpeg' => 'JPG',
+	    'image/png' => 'PNG',
+	    'image/gif' => 'GIF'
+	);
+	return $m;
     }
 
     private function load_data($data) {
 		if($this->is_imagick()) {
 			$this->image = new Imagick();
-            try {
+	    try {
 				$this->image->readImageBlob($data);
 			}
 			catch (Exception $e) {
@@ -93,41 +93,41 @@ class Photo {
 				return false;
 			}
 
-            /**
-             * Setup the image to the format it will be saved to
-             */
-            $map = $this->get_FormatsMap();
-            $format = $map[$type];
-            $this->image->setFormat($format);
+	    /**
+	     * Setup the image to the format it will be saved to
+	     */
+	    $map = $this->get_FormatsMap();
+	    $format = $map[$type];
+	    $this->image->setFormat($format);
 
-            // Always coalesce, if it is not a multi-frame image it won't hurt anyway
-            $this->image = $this->image->coalesceImages();
+	    // Always coalesce, if it is not a multi-frame image it won't hurt anyway
+	    $this->image = $this->image->coalesceImages();
 
-            /**
-             * setup the compression here, so we'll do it only once
-             */
-            switch($this->getType()){
-                case "image/png":
-                    $quality = get_config('system','png_quality');
-                    if((! $quality) || ($quality > 9))
-                        $quality = PNG_QUALITY;
-                    /**
-                     * From http://www.imagemagick.org/script/command-line-options.php#quality:
-                     *
-                     * 'For the MNG and PNG image formats, the quality value sets
-                     * the zlib compression level (quality / 10) and filter-type (quality % 10).
-                     * The default PNG "quality" is 75, which means compression level 7 with adaptive PNG filtering,
-                     * unless the image has a color map, in which case it means compression level 7 with no PNG filtering'
-                     */
-                    $quality = $quality * 10;
-                    $this->image->setCompressionQuality($quality);
-                    break;
-                case "image/jpeg":
-                    $quality = get_config('system','jpeg_quality');
-                    if((! $quality) || ($quality > 100))
-                        $quality = JPEG_QUALITY;
-                    $this->image->setCompressionQuality($quality);
-            }
+	    /**
+	     * setup the compression here, so we'll do it only once
+	     */
+	    switch($this->getType()){
+		case "image/png":
+		    $quality = get_config('system','png_quality');
+		    if((! $quality) || ($quality > 9))
+			$quality = PNG_QUALITY;
+		    /**
+		     * From http://www.imagemagick.org/script/command-line-options.php#quality:
+		     *
+		     * 'For the MNG and PNG image formats, the quality value sets
+		     * the zlib compression level (quality / 10) and filter-type (quality % 10).
+		     * The default PNG "quality" is 75, which means compression level 7 with adaptive PNG filtering,
+		     * unless the image has a color map, in which case it means compression level 7 with no PNG filtering'
+		     */
+		    $quality = $quality * 10;
+		    $this->image->setCompressionQuality($quality);
+		    break;
+		case "image/jpeg":
+		    $quality = get_config('system','jpeg_quality');
+		    if((! $quality) || ($quality > 100))
+			$quality = JPEG_QUALITY;
+		    $this->image->setCompressionQuality($quality);
+	    }
 
 			// The 'width' and 'height' properties are only used by non-Imagick routines.
 			$this->width  = $this->image->getImageWidth();
@@ -153,117 +153,117 @@ class Photo {
 	}
 
     public function is_valid() {
-        if($this->is_imagick())
-            return ($this->image !== FALSE);
-        return $this->valid;
+	if($this->is_imagick())
+	    return ($this->image !== FALSE);
+	return $this->valid;
     }
 
     public function getWidth() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick())
-            return $this->image->getImageWidth();
-        return $this->width;
+	if($this->is_imagick())
+	    return $this->image->getImageWidth();
+	return $this->width;
     }
 
     public function getHeight() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick())
-            return $this->image->getImageHeight();
-        return $this->height;
+	if($this->is_imagick())
+	    return $this->image->getImageHeight();
+	return $this->height;
     }
 
     public function getImage() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick()) {
-            /* Clean it */
-            $this->image = $this->image->deconstructImages();
-            return $this->image;
-        }
-        return $this->image;
+	if($this->is_imagick()) {
+	    /* Clean it */
+	    $this->image = $this->image->deconstructImages();
+	    return $this->image;
+	}
+	return $this->image;
     }
 
     public function getType() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        return $this->type;
+	return $this->type;
     }
 
     public function getExt() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        return $this->types[$this->getType()];
+	return $this->types[$this->getType()];
     }
 
     public function scaleImage($max) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        $width = $this->getWidth();
-        $height = $this->getHeight();
+	$width = $this->getWidth();
+	$height = $this->getHeight();
 
-        $dest_width = $dest_height = 0;
+	$dest_width = $dest_height = 0;
 
-        if((! $width)|| (! $height))
-            return FALSE;
+	if((! $width)|| (! $height))
+	    return FALSE;
 
-        if($width > $max && $height > $max) {
+	if($width > $max && $height > $max) {
 
 			// very tall image (greater than 16:9)
 			// constrain the width - let the height float.
 
 			if((($height * 9) / 16) > $width) {
 				$dest_width = $max;
-     	        $dest_height = intval(( $height * $max ) / $width);
+		$dest_height = intval(( $height * $max ) / $width);
 			}
 
 			// else constrain both dimensions
 
 			elseif($width > $height) {
-                $dest_width = $max;
-                $dest_height = intval(( $height * $max ) / $width);
-            }
-            else {
-                $dest_width = intval(( $width * $max ) / $height);
-                $dest_height = $max;
-            }
-        }
-        else {
-            if( $width > $max ) {
-                $dest_width = $max;
-                $dest_height = intval(( $height * $max ) / $width);
-            }
-            else {
-                if( $height > $max ) {
+		$dest_width = $max;
+		$dest_height = intval(( $height * $max ) / $width);
+	    }
+	    else {
+		$dest_width = intval(( $width * $max ) / $height);
+		$dest_height = $max;
+	    }
+	}
+	else {
+	    if( $width > $max ) {
+		$dest_width = $max;
+		$dest_height = intval(( $height * $max ) / $width);
+	    }
+	    else {
+		if( $height > $max ) {
 
 					// very tall image (greater than 16:9)
 					// but width is OK - don't do anything
 
 					if((($height * 9) / 16) > $width) {
 						$dest_width = $width;
-     	        		$dest_height = $height;
+				$dest_height = $height;
 					}
 					else {
-	                    $dest_width = intval(( $width * $max ) / $height);
-    	                $dest_height = $max;
+			    $dest_width = intval(( $width * $max ) / $height);
+			$dest_height = $max;
 					}
-                }
-                else {
-                    $dest_width = $width;
-                    $dest_height = $height;
-                }
-            }
-        }
+		}
+		else {
+		    $dest_width = $width;
+		    $dest_height = $height;
+		}
+	    }
+	}
 
 
-        if($this->is_imagick()) {
+	if($this->is_imagick()) {
 			/**
 			 * If it is not animated, there will be only one iteration here,
 			 * so don't bother checking
@@ -283,207 +283,207 @@ class Photo {
 			$this->height = $this->image->getImageHeight();
 
 			return;
-        }
+	}
 
 
-        $dest = imagecreatetruecolor( $dest_width, $dest_height );
-        imagealphablending($dest, false);
-        imagesavealpha($dest, true);
-        if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-        imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
-        if($this->image)
-            imagedestroy($this->image);
-        $this->image = $dest;
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+	$dest = imagecreatetruecolor( $dest_width, $dest_height );
+	imagealphablending($dest, false);
+	imagesavealpha($dest, true);
+	if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+	imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
+	if($this->image)
+	    imagedestroy($this->image);
+	$this->image = $dest;
+	$this->width  = imagesx($this->image);
+	$this->height = imagesy($this->image);
     }
 
     public function rotate($degrees) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick()) {
-            $this->image->setFirstIterator();
-            do {
-                $this->image->rotateImage(new ImagickPixel(), -$degrees); // ImageMagick rotates in the opposite direction of imagerotate()
-            } while ($this->image->nextImage());
-            return;
-        }
+	if($this->is_imagick()) {
+	    $this->image->setFirstIterator();
+	    do {
+		$this->image->rotateImage(new ImagickPixel(), -$degrees); // ImageMagick rotates in the opposite direction of imagerotate()
+	    } while ($this->image->nextImage());
+	    return;
+	}
 
-        $this->image  = imagerotate($this->image,$degrees,0);
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+	$this->image  = imagerotate($this->image,$degrees,0);
+	$this->width  = imagesx($this->image);
+	$this->height = imagesy($this->image);
     }
 
     public function flip($horiz = true, $vert = false) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick()) {
-            $this->image->setFirstIterator();
-            do {
-                if($horiz) $this->image->flipImage();
-                if($vert) $this->image->flopImage();
-            } while ($this->image->nextImage());
-            return;
-        }
+	if($this->is_imagick()) {
+	    $this->image->setFirstIterator();
+	    do {
+		if($horiz) $this->image->flipImage();
+		if($vert) $this->image->flopImage();
+	    } while ($this->image->nextImage());
+	    return;
+	}
 
-        $w = imagesx($this->image);
-        $h = imagesy($this->image);
-        $flipped = imagecreate($w, $h);
-        if($horiz) {
-            for ($x = 0; $x < $w; $x++) {
-                imagecopy($flipped, $this->image, $x, 0, $w - $x - 1, 0, 1, $h);
-            }
-        }
-        if($vert) {
-            for ($y = 0; $y < $h; $y++) {
-                imagecopy($flipped, $this->image, 0, $y, 0, $h - $y - 1, $w, 1);
-            }
-        }
-        $this->image = $flipped;
+	$w = imagesx($this->image);
+	$h = imagesy($this->image);
+	$flipped = imagecreate($w, $h);
+	if($horiz) {
+	    for ($x = 0; $x < $w; $x++) {
+		imagecopy($flipped, $this->image, $x, 0, $w - $x - 1, 0, 1, $h);
+	    }
+	}
+	if($vert) {
+	    for ($y = 0; $y < $h; $y++) {
+		imagecopy($flipped, $this->image, 0, $y, 0, $h - $y - 1, $w, 1);
+	    }
+	}
+	$this->image = $flipped;
     }
 
     public function orient($filename) {
-        // based off comment on http://php.net/manual/en/function.imagerotate.php
+	// based off comment on http://php.net/manual/en/function.imagerotate.php
 
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if( (! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg') )
-            return;
+	if( (! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg') )
+	    return;
 
-        $exif = @exif_read_data($filename);
+	$exif = @exif_read_data($filename);
 
 		if(! $exif)
 			return;
 
-        $ort = $exif['Orientation'];
+	$ort = $exif['Orientation'];
 
-        switch($ort)
-        {
-            case 1: // nothing
-                break;
+	switch($ort)
+	{
+	    case 1: // nothing
+		break;
 
-            case 2: // horizontal flip
-                $this->flip();
-                break;
+	    case 2: // horizontal flip
+		$this->flip();
+		break;
 
-            case 3: // 180 rotate left
-                $this->rotate(180);
-                break;
+	    case 3: // 180 rotate left
+		$this->rotate(180);
+		break;
 
-            case 4: // vertical flip
-                $this->flip(false, true);
-                break;
+	    case 4: // vertical flip
+		$this->flip(false, true);
+		break;
 
-            case 5: // vertical flip + 90 rotate right
-                $this->flip(false, true);
-                $this->rotate(-90);
-                break;
+	    case 5: // vertical flip + 90 rotate right
+		$this->flip(false, true);
+		$this->rotate(-90);
+		break;
 
-            case 6: // 90 rotate right
-                $this->rotate(-90);
-                break;
+	    case 6: // 90 rotate right
+		$this->rotate(-90);
+		break;
 
-            case 7: // horizontal flip + 90 rotate right
-                $this->flip();
-                $this->rotate(-90);
-                break;
+	    case 7: // horizontal flip + 90 rotate right
+		$this->flip();
+		$this->rotate(-90);
+		break;
 
-            case 8:    // 90 rotate left
-                $this->rotate(90);
-                break;
-        }
+	    case 8:    // 90 rotate left
+		$this->rotate(90);
+		break;
+	}
     }
 
 
 
     public function scaleImageUp($min) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
 
-        $width = $this->getWidth();
-        $height = $this->getHeight();
+	$width = $this->getWidth();
+	$height = $this->getHeight();
 
-        $dest_width = $dest_height = 0;
+	$dest_width = $dest_height = 0;
 
-        if((! $width)|| (! $height))
-            return FALSE;
+	if((! $width)|| (! $height))
+	    return FALSE;
 
-        if($width < $min && $height < $min) {
-            if($width > $height) {
-                $dest_width = $min;
-                $dest_height = intval(( $height * $min ) / $width);
-            }
-            else {
-                $dest_width = intval(( $width * $min ) / $height);
-                $dest_height = $min;
-            }
-        }
-        else {
-            if( $width < $min ) {
-                $dest_width = $min;
-                $dest_height = intval(( $height * $min ) / $width);
-            }
-            else {
-                if( $height < $min ) {
-                    $dest_width = intval(( $width * $min ) / $height);
-                    $dest_height = $min;
-                }
-                else {
-                    $dest_width = $width;
-                    $dest_height = $height;
-                }
-            }
-        }
+	if($width < $min && $height < $min) {
+	    if($width > $height) {
+		$dest_width = $min;
+		$dest_height = intval(( $height * $min ) / $width);
+	    }
+	    else {
+		$dest_width = intval(( $width * $min ) / $height);
+		$dest_height = $min;
+	    }
+	}
+	else {
+	    if( $width < $min ) {
+		$dest_width = $min;
+		$dest_height = intval(( $height * $min ) / $width);
+	    }
+	    else {
+		if( $height < $min ) {
+		    $dest_width = intval(( $width * $min ) / $height);
+		    $dest_height = $min;
+		}
+		else {
+		    $dest_width = $width;
+		    $dest_height = $height;
+		}
+	    }
+	}
 
-        if($this->is_imagick())
-            return $this->scaleImage($dest_width,$dest_height);
+	if($this->is_imagick())
+	    return $this->scaleImage($dest_width,$dest_height);
 
-        $dest = imagecreatetruecolor( $dest_width, $dest_height );
-        imagealphablending($dest, false);
-        imagesavealpha($dest, true);
-        if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-        imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
-        if($this->image)
-            imagedestroy($this->image);
-        $this->image = $dest;
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+	$dest = imagecreatetruecolor( $dest_width, $dest_height );
+	imagealphablending($dest, false);
+	imagesavealpha($dest, true);
+	if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+	imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
+	if($this->image)
+	    imagedestroy($this->image);
+	$this->image = $dest;
+	$this->width  = imagesx($this->image);
+	$this->height = imagesy($this->image);
     }
 
 
 
     public function scaleImageSquare($dim) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick()) {
-            $this->image->setFirstIterator();
-            do {
-                $this->image->scaleImage($dim, $dim);
-            } while ($this->image->nextImage());
-            return;
-        }
+	if($this->is_imagick()) {
+	    $this->image->setFirstIterator();
+	    do {
+		$this->image->scaleImage($dim, $dim);
+	    } while ($this->image->nextImage());
+	    return;
+	}
 
-        $dest = imagecreatetruecolor( $dim, $dim );
-        imagealphablending($dest, false);
-        imagesavealpha($dest, true);
-        if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-        imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dim, $dim, $this->width, $this->height);
-        if($this->image)
-            imagedestroy($this->image);
-        $this->image = $dest;
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+	$dest = imagecreatetruecolor( $dim, $dim );
+	imagealphablending($dest, false);
+	imagesavealpha($dest, true);
+	if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+	imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dim, $dim, $this->width, $this->height);
+	if($this->image)
+	    imagedestroy($this->image);
+	$this->image = $dest;
+	$this->width  = imagesx($this->image);
+	$this->height = imagesy($this->image);
     }
 
 
     public function cropImage($max,$x,$y,$w,$h) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
 		if($this->is_imagick()) {
 			$this->image->setFirstIterator();
@@ -499,152 +499,152 @@ class Photo {
 			return $this->scaleImage($max);
 		}
 
-        $dest = imagecreatetruecolor( $max, $max );
-        imagealphablending($dest, false);
-        imagesavealpha($dest, true);
-        if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-        imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $max, $max, $w, $h);
-        if($this->image)
-            imagedestroy($this->image);
-        $this->image = $dest;
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+	$dest = imagecreatetruecolor( $max, $max );
+	imagealphablending($dest, false);
+	imagesavealpha($dest, true);
+	if ($this->type=='image/png') imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+	imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $max, $max, $w, $h);
+	if($this->image)
+	    imagedestroy($this->image);
+	$this->image = $dest;
+	$this->width  = imagesx($this->image);
+	$this->height = imagesy($this->image);
     }
 
     public function saveImage($path) {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        $string = $this->imageString();
-        file_put_contents($path, $string);
+	$string = $this->imageString();
+	file_put_contents($path, $string);
     }
 
     public function imageString() {
-        if(!$this->is_valid())
-            return FALSE;
+	if(!$this->is_valid())
+	    return FALSE;
 
-        if($this->is_imagick()) {
-            /* Clean it */
-            $this->image = $this->image->deconstructImages();
-            $string = $this->image->getImagesBlob();
-            return $string;
-        }
+	if($this->is_imagick()) {
+	    /* Clean it */
+	    $this->image = $this->image->deconstructImages();
+	    $string = $this->image->getImagesBlob();
+	    return $string;
+	}
 
-        $quality = FALSE;
+	$quality = FALSE;
 
-        ob_start();
+	ob_start();
 
 	// Enable interlacing
 	imageinterlace($this->image, true);
 
-        switch($this->getType()){
-            case "image/png":
-                $quality = get_config('system','png_quality');
-                if((! $quality) || ($quality > 9))
-                    $quality = PNG_QUALITY;
-                imagepng($this->image,NULL, $quality);
-                break;
-            case "image/jpeg":
-                $quality = get_config('system','jpeg_quality');
-                if((! $quality) || ($quality > 100))
-                    $quality = JPEG_QUALITY;
-                imagejpeg($this->image,NULL,$quality);
-        }
-        $string = ob_get_contents();
-        ob_end_clean();
+	switch($this->getType()){
+	    case "image/png":
+		$quality = get_config('system','png_quality');
+		if((! $quality) || ($quality > 9))
+		    $quality = PNG_QUALITY;
+		imagepng($this->image,NULL, $quality);
+		break;
+	    case "image/jpeg":
+		$quality = get_config('system','jpeg_quality');
+		if((! $quality) || ($quality > 100))
+		    $quality = JPEG_QUALITY;
+		imagejpeg($this->image,NULL,$quality);
+	}
+	$string = ob_get_contents();
+	ob_end_clean();
 
-        return $string;
+	return $string;
     }
 
 
 
     public function store($uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '') {
 
-        $r = q("select `guid` from photo where `resource-id` = '%s' and `guid` != '' limit 1",
-            dbesc($rid)
-        );
-        if(count($r))
-            $guid = $r[0]['guid'];
-        else
-            $guid = get_guid();
+	$r = q("select `guid` from photo where `resource-id` = '%s' and `guid` != '' limit 1",
+	    dbesc($rid)
+	);
+	if(count($r))
+	    $guid = $r[0]['guid'];
+	else
+	    $guid = get_guid();
 
-        $x = q("select id from photo where `resource-id` = '%s' and uid = %d and `contact-id` = %d and `scale` = %d limit 1",
-                dbesc($rid),
-                intval($uid),
-                intval($cid),
-                intval($scale)
-        );
-        if(count($x)) {
-            $r = q("UPDATE `photo`
-                set `uid` = %d,
-                `contact-id` = %d,
-                `guid` = '%s',
-                `resource-id` = '%s',
-                `created` = '%s',
-                `edited` = '%s',
-                `filename` = '%s',
-                `type` = '%s',
-                `album` = '%s',
-                `height` = %d,
-                `width` = %d,
+	$x = q("select id from photo where `resource-id` = '%s' and uid = %d and `contact-id` = %d and `scale` = %d limit 1",
+		dbesc($rid),
+		intval($uid),
+		intval($cid),
+		intval($scale)
+	);
+	if(count($x)) {
+	    $r = q("UPDATE `photo`
+		set `uid` = %d,
+		`contact-id` = %d,
+		`guid` = '%s',
+		`resource-id` = '%s',
+		`created` = '%s',
+		`edited` = '%s',
+		`filename` = '%s',
+		`type` = '%s',
+		`album` = '%s',
+		`height` = %d,
+		`width` = %d,
 				`datasize` = %d,
-                `data` = '%s',
-                `scale` = %d,
-                `profile` = %d,
-                `allow_cid` = '%s',
-                `allow_gid` = '%s',
-                `deny_cid` = '%s',
-                `deny_gid` = '%s'
-                where id = %d",
+		`data` = '%s',
+		`scale` = %d,
+		`profile` = %d,
+		`allow_cid` = '%s',
+		`allow_gid` = '%s',
+		`deny_cid` = '%s',
+		`deny_gid` = '%s'
+		where id = %d",
 
-                intval($uid),
-                intval($cid),
-                dbesc($guid),
-                dbesc($rid),
-                dbesc(datetime_convert()),
-                dbesc(datetime_convert()),
-                dbesc(basename($filename)),
-                dbesc($this->getType()),
-                dbesc($album),
-                intval($this->getHeight()),
-                intval($this->getWidth()),
+		intval($uid),
+		intval($cid),
+		dbesc($guid),
+		dbesc($rid),
+		dbesc(datetime_convert()),
+		dbesc(datetime_convert()),
+		dbesc(basename($filename)),
+		dbesc($this->getType()),
+		dbesc($album),
+		intval($this->getHeight()),
+		intval($this->getWidth()),
 				dbesc(strlen($this->imageString())),
-                dbesc($this->imageString()),
-                intval($scale),
-                intval($profile),
-                dbesc($allow_cid),
-                dbesc($allow_gid),
-                dbesc($deny_cid),
-                dbesc($deny_gid),
-                intval($x[0]['id'])
-            );
-        }
-        else {
-            $r = q("INSERT INTO `photo`
-                ( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
-                VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s' )",
-                intval($uid),
-                intval($cid),
-                dbesc($guid),
-                dbesc($rid),
-                dbesc(datetime_convert()),
-                dbesc(datetime_convert()),
-                dbesc(basename($filename)),
-                dbesc($this->getType()),
-                dbesc($album),
-                intval($this->getHeight()),
-                intval($this->getWidth()),
+		dbesc($this->imageString()),
+		intval($scale),
+		intval($profile),
+		dbesc($allow_cid),
+		dbesc($allow_gid),
+		dbesc($deny_cid),
+		dbesc($deny_gid),
+		intval($x[0]['id'])
+	    );
+	}
+	else {
+	    $r = q("INSERT INTO `photo`
+		( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
+		VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s' )",
+		intval($uid),
+		intval($cid),
+		dbesc($guid),
+		dbesc($rid),
+		dbesc(datetime_convert()),
+		dbesc(datetime_convert()),
+		dbesc(basename($filename)),
+		dbesc($this->getType()),
+		dbesc($album),
+		intval($this->getHeight()),
+		intval($this->getWidth()),
 				dbesc(strlen($this->imageString())),
-                dbesc($this->imageString()),
-                intval($scale),
-                intval($profile),
-                dbesc($allow_cid),
-                dbesc($allow_gid),
-                dbesc($deny_cid),
-                dbesc($deny_gid)
-            );
-        }
-        return $r;
+		dbesc($this->imageString()),
+		intval($scale),
+		intval($profile),
+		dbesc($allow_cid),
+		dbesc($allow_gid),
+		dbesc($deny_cid),
+		dbesc($deny_gid)
+	    );
+	}
+	return $r;
     }
 }}
 
@@ -659,35 +659,35 @@ function guess_image_type($filename, $fromcurl=false) {
     logger('Photo: guess_image_type: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
     $type = null;
     if ($fromcurl) {
-        $a = get_app();
-        $headers=array();
-        $h = explode("\n",$a->get_curl_headers());
-        foreach ($h as $l) {
-            list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-            $headers[$k] = $v;
-        }
-        if (array_key_exists('Content-Type', $headers))
-            $type = $headers['Content-Type'];
+	$a = get_app();
+	$headers=array();
+	$h = explode("\n",$a->get_curl_headers());
+	foreach ($h as $l) {
+	    list($k,$v) = array_map("trim", explode(":", trim($l), 2));
+	    $headers[$k] = $v;
+	}
+	if (array_key_exists('Content-Type', $headers))
+	    $type = $headers['Content-Type'];
     }
     if (is_null($type)){
-        // Guessing from extension? Isn't that... dangerous?
-        if(class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
-            /**
-             * Well, this not much better,
-             * but at least it comes from the data inside the image,
-             * we won't be tricked by a manipulated extension
-             */
-            $image = new Imagick($filename);
-            $type = $image->getImageMimeType();
-            $image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
-        } else {
-            $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $types = Photo::supportedTypes();
-            $type = "image/jpeg";
-            foreach ($types as $m=>$e){
-                if ($ext==$e) $type = $m;
-            }
-        }
+	// Guessing from extension? Isn't that... dangerous?
+	if(class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
+	    /**
+	     * Well, this not much better,
+	     * but at least it comes from the data inside the image,
+	     * we won't be tricked by a manipulated extension
+	     */
+	    $image = new Imagick($filename);
+	    $type = $image->getImageMimeType();
+	    $image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
+	} else {
+	    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+	    $types = Photo::supportedTypes();
+	    $type = "image/jpeg";
+	    foreach ($types as $m=>$e){
+		if ($ext==$e) $type = $m;
+	    }
+	}
     }
     logger('Photo: guess_image_type: type='.$type, LOGGER_DEBUG);
     return $type;
@@ -699,14 +699,14 @@ function import_profile_photo($photo,$uid,$cid) {
     $a = get_app();
 
     $r = q("select `resource-id` from photo where `uid` = %d and `contact-id` = %d and `scale` = 4 and `album` = 'Contact Photos' limit 1",
-        intval($uid),
-        intval($cid)
+	intval($uid),
+	intval($cid)
     );
     if(count($r) && strlen($r[0]['resource-id'])) {
-        $hash = $r[0]['resource-id'];
+	$hash = $r[0]['resource-id'];
     }
     else {
-        $hash = photo_new_resource();
+	$hash = photo_new_resource();
     }
 
     $photo_failure = false;
@@ -718,38 +718,38 @@ function import_profile_photo($photo,$uid,$cid) {
     $img = new Photo($img_str, $type);
     if($img->is_valid()) {
 
-        $img->scaleImageSquare(175);
+	$img->scaleImageSquare(175);
 
-        $r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4 );
+	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4 );
 
-        if($r === false)
-            $photo_failure = true;
+	if($r === false)
+	    $photo_failure = true;
 
-        $img->scaleImage(80);
+	$img->scaleImage(80);
 
-        $r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5 );
+	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5 );
 
-        if($r === false)
-            $photo_failure = true;
+	if($r === false)
+	    $photo_failure = true;
 
-        $img->scaleImage(48);
+	$img->scaleImage(48);
 
-        $r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6 );
+	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6 );
 
-        if($r === false)
-            $photo_failure = true;
+	if($r === false)
+	    $photo_failure = true;
 
-        $photo = $a->get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt();
-        $thumb = $a->get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt();
-        $micro = $a->get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt();
+	$photo = $a->get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt();
+	$thumb = $a->get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt();
+	$micro = $a->get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt();
     }
     else
-        $photo_failure = true;
+	$photo_failure = true;
 
     if($photo_failure) {
-        $photo = $a->get_baseurl() . '/images/person-175.jpg';
-        $thumb = $a->get_baseurl() . '/images/person-80.jpg';
-        $micro = $a->get_baseurl() . '/images/person-48.jpg';
+	$photo = $a->get_baseurl() . '/images/person-175.jpg';
+	$thumb = $a->get_baseurl() . '/images/person-80.jpg';
+	$micro = $a->get_baseurl() . '/images/person-48.jpg';
     }
 
     return(array($photo,$thumb,$micro));
@@ -764,7 +764,7 @@ function get_photo_info($url) {
 	if (is_null($data)) {
 		$img_str = fetch_url($url, true, $redirects, 4);
 
-		$tempfile = tempnam(get_config("system","temppath"), "cache");
+		$tempfile = tempnam(get_temppath(), "cache");
 		file_put_contents($tempfile, $img_str);
 		$data = getimagesize($tempfile);
 		unlink($tempfile);
@@ -774,4 +774,53 @@ function get_photo_info($url) {
 		$data = unserialize($data);
 
 	return $data;
+}
+
+function scale_image($width, $height, $max) {
+
+	$dest_width = $dest_height = 0;
+
+	if((!$width) || (!$height))
+		return FALSE;
+
+	if($width > $max && $height > $max) {
+
+		// very tall image (greater than 16:9)
+		// constrain the width - let the height float.
+
+		if((($height * 9) / 16) > $width) {
+			$dest_width = $max;
+			$dest_height = intval(( $height * $max ) / $width);
+		} elseif($width > $height) {
+			// else constrain both dimensions
+			$dest_width = $max;
+			$dest_height = intval(( $height * $max ) / $width);
+		}  else {
+			$dest_width = intval(( $width * $max ) / $height);
+			$dest_height = $max;
+		}
+	} else {
+		if( $width > $max ) {
+			$dest_width = $max;
+			$dest_height = intval(( $height * $max ) / $width);
+		}  else {
+			if( $height > $max ) {
+
+				// very tall image (greater than 16:9)
+				// but width is OK - don't do anything
+
+				if((($height * 9) / 16) > $width) {
+					$dest_width = $width;
+					$dest_height = $height;
+				} else {
+					$dest_width = intval(( $width * $max ) / $height);
+					$dest_height = $max;
+				}
+			} else {
+				$dest_width = $width;
+				$dest_height = $height;
+			}
+		}
+	}
+	return array("width" => $dest_width, "height" => $dest_height);
 }

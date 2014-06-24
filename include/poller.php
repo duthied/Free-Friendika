@@ -41,7 +41,7 @@ function poller_run(&$argv, &$argc){
 		}
 	}
 
-	$lockpath = get_config('system','lockpath');
+	$lockpath = get_lockpath();
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'poller');
 		if($pidfile->is_already_running()) {

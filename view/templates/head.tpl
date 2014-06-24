@@ -13,9 +13,13 @@
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
+<!--
 <link rel="shortcut icon" href="{{$baseurl}}/images/friendica-32.png" />
-
 <link rel="apple-touch-icon" href="{{$baseurl}}/images/friendica-128.png"/>
+-->
+<link rel="shortcut icon" href="{{$shortcut_icon}}" />
+<link rel="apple-touch-icon" href="{{$touch_icon}}"/>
+
 <meta name="apple-mobile-web-app-capable" content="yes" /> 
 
 
