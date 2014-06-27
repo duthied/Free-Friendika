@@ -76,8 +76,9 @@ function nav_info(&$a) {
 		$nav['usermenu'][] = Array('profile/' . $a->user['nickname'], t('Status'), "", t('Your posts and conversations'));
 		$nav['usermenu'][] = Array('profile/' . $a->user['nickname']. '?tab=profile', t('Profile'), "", t('Your profile page'));
 		$nav['usermenu'][] = Array('photos/' . $a->user['nickname'], t('Photos'), "", t('Your photos'));
+		$nav['usermenu'][] = Array('videos/' . $a->user['nickname'], t('Videos'), "", t('Your videos'));
 		$nav['usermenu'][] = Array('events/', t('Events'), "", t('Your events'));
-		$nav['usermenu'][] = Array('notes/', t('Personal notes'), "", t('Your personal photos'));
+		$nav['usermenu'][] = Array('notes/', t('Personal notes'), "", t('Your personal notes'));
 
 		// user info
 		$r = q("SELECT micro FROM contact WHERE uid=%d AND self=1", intval($a->user['uid']));
@@ -165,11 +166,12 @@ function nav_info(&$a) {
 		}
 
 		$nav['delegations'] = Array('delegate', t('Delegations'), "", t('Delegate Page Management'));
-
+		
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account settings'));
+		
 		if(feature_enabled(local_user(),'multi_profiles'))
 			$nav['profiles'] = array('profiles', t('Profiles'),"", t('Manage/Edit Profiles'));
-
+		
 		$nav['contacts'] = array('contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
 	}
 
