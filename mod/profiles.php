@@ -610,6 +610,13 @@ function profiles_content(&$a) {
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
 		$hide_friends = replace_macros($opt_tpl,array(
+			'$yesno' => array(
+				'hide-friends', //Name
+				t('Hide contacts and friends:'), //Label
+				!!$r[0]['hide-friends'], //Value
+				'', //Help string
+				array(t('No'),t('Yes')) //Off - On strings
+			),
 			'$desc' => t('Hide your contact/friend list from viewers of this profile?'),
 			'$yes_str' => t('Yes'),
 			'$no_str' => t('No'),
@@ -627,6 +634,7 @@ function profiles_content(&$a) {
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = get_markup_template("profile_edit.tpl");
 		$o .= replace_macros($tpl,array(
+			'$multi_profiles' => feature_enabled(local_user(),'multi_profiles'),
 			'$form_security_token' => get_form_security_token("profile_edit"),
 			'$profile_clone_link' => 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone"),
 			'$profile_drop_link' => 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
