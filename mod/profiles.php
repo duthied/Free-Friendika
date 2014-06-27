@@ -137,6 +137,8 @@ function profiles_init(&$a) {
 
 		profile_load($a,$a->user['nickname'],$r[0]['id']);
 	}
+	
+	
 
 }
 
@@ -636,6 +638,7 @@ function profiles_content(&$a) {
 		$o .= replace_macros($tpl,array(
 			'$multi_profiles' => feature_enabled(local_user(),'multi_profiles'),
 			'$form_security_token' => get_form_security_token("profile_edit"),
+			'$form_security_token_photo' => get_form_security_token("profile_photo"),
 			'$profile_clone_link' => 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone"),
 			'$profile_drop_link' => 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 			'$banner' => t('Edit Profile Details'),
@@ -645,6 +648,15 @@ function profiles_content(&$a) {
 			'$cr_prof' => t('Create a new profile using these settings'),
 			'$cl_prof' => t('Clone this profile'),
 			'$del_prof' => t('Delete this profile'),
+			'$lbl_basic_section' => t('Edit basic information'),
+			'$lbl_picture_section' => t('Edit profile picture'),
+			'$lbl_location_section' => t('Edit location'),
+			'$lbl_contacting_section' => t('Edit contacting information'),
+			'$lbl_status_section' => t('Edit status information'),
+			'$lbl_about_section' => t('Edit additional information'),
+			'$lbl_interests_section' => t('Edit interests'),
+			'$lbl_keywords_section' => t('Edit keywords'),
+			'$lbl_profile_photo' => t('Upload Profile Photo'),
 			'$lbl_profname' => t('Profile Name:'),
 			'$lbl_fullname' => t('Your Full Name:'),
 			'$lbl_title' => t('Title/Description:'),
