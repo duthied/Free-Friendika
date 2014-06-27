@@ -726,12 +726,26 @@ function profiles_content(&$a) {
 
 		return $o;
 	}
+	
+	//Profiles list.
 	else {
-
+		
+		//If we don't support multi profiles, don't display this list.
+		if(!feature_enabled(local_user(),'multi_profiles')){
+			$r = q(
+				"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
+				local_user()
+			);
+			if(count($r)){
+				//Go to the default profile.
+				goaway($a->get_baseurl(true) . '/profiles/'.$r[0]['id']);
+			}
+		}
+		
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user());
 		if(count($r)) {
-
+			
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
 			$o .= replace_macros($tpl_header,array(
 				'$header' => t('Edit/Manage Profiles'),
@@ -739,10 +753,10 @@ function profiles_content(&$a) {
 				'$cr_new' => t('Create New Profile'),
 				'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new")
 			));
-
-
+			
+			
 			$tpl = get_markup_template('profile_entry.tpl');
-
+			
 			foreach($r as $rr) {
 				$o .= replace_macros($tpl, array(
 					'$photo' => $a->get_cached_avatar_image($rr['thumb']),
