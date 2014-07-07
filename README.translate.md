@@ -4,7 +4,7 @@ Friendica translations
 Translation Process
 -------------------
 
-The strings used in the UI of Friendica is translated at Transifex [1] and then
+The strings used in the UI of Friendica is translated at [Transifex] [1] and then
 included in the git repository at github. If you want to help with translation
 for any language, be it correcting terms or translating friendica to a
 currently not supported language, please register an account at transifex.com
@@ -94,5 +94,5 @@ pointing to
 Links
 -----
 
-[1]   https://www.transifex.com/projects/p/friendica/
+[1]:   https://www.transifex.com/projects/p/friendica/
 
