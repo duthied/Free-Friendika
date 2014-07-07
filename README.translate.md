@@ -4,7 +4,7 @@ Friendica translations
 Translation Process
 -------------------
 
-The strings used in the UI of Friendica is translated at Transifex [1] and then
+The strings used in the UI of Friendica is translated at [Transifex] [1] and then
 included in the git repository at github. If you want to help with translation
 for any language, be it correcting terms or translating friendica to a
 currently not supported language, please register an account at transifex.com
@@ -17,12 +17,13 @@ others can use them.
 
 We do not include every translation from transifex in the source tree to avoid
 a scattered and disturbed overall experience. As an uneducated guess we have a
-lower limit of 50% translated strings before we include the language. This
-limit is judging only by the amount of translated strings under the assumption
-that the most prominent strings for the UI will be translated first by a
-translation team. If you feel your translation useable before this limit,
-please contact us and we will probably include your teams work in the source
-tree.
+lower limit of 50% translated strings before we include the language (for the
+core message.po file, addont translation will be included once all strings of
+an addon are translated. This limit is judging only by the amount of translated
+strings under the assumption that the most prominent strings for the UI will be
+translated first by a translation team. If you feel your translation useable
+before this limit, please contact us and we will probably include your teams
+work in the source tree.
 
 If you want to get your work into the source tree yourself, feel free to do so
 and contact us with and question that arises. The process is simple and
@@ -93,5 +94,5 @@ pointing to
 Links
 -----
 
-[1]   https://www.transifex.com/projects/p/friendica/
+[1]:   https://www.transifex.com/projects/p/friendica/
 
