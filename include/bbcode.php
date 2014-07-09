@@ -485,7 +485,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
 			break;
 		case 6:
-			$text = $preshare."&gt;&gt; ".$userid_compact.": <br />".$share[3];
+			$text = $preshare."&gt;&gt; @".$userid_compact.": <br />".$share[3];
 			break;
 		case 7:
 			$text = $preshare."RD @".$userid_compact." ".$share[3];
