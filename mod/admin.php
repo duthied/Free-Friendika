@@ -33,7 +33,7 @@ function admin_post(&$a){
 				admin_page_users_post($a);
 				break;
 			case 'plugins':
-				if ($a->argc > 2 && 
+				if ($a->argc > 2 &&
 					is_file("addon/".$a->argv[2]."/".$a->argv[2].".php")){
 						@include_once("addon/".$a->argv[2]."/".$a->argv[2].".php");
 						if(function_exists($a->argv[2].'_plugin_admin_post')) {
@@ -122,7 +122,7 @@ function admin_content(&$a) {
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
-			'$admin' => $aside, 
+			'$admin' => $aside,
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
 			'$logtxt' => t('Logs'),
@@ -168,13 +168,13 @@ function admin_content(&$a) {
 	}
 
 	if(is_ajax()) {
-		echo $o; 
+		echo $o;
 		killme();
 		return '';
 	} else {
 		return $o;
 	}
-} 
+}
 
 
 /**
@@ -242,35 +242,35 @@ function admin_page_site_post(&$a){
 	if (x($_POST,'relocate') && x($_POST,'relocate_url') && $_POST['relocate_url']!=""){
 		$new_url = $_POST['relocate_url'];
 		$new_url = rtrim($new_url,"/");
-		
+
 		$parsed = @parse_url($new_url);
 		if (!$parsed || (!x($parsed,'host') || !x($parsed,'scheme'))) {
 			notice(t("Can not parse base url. Must have at least <scheme>://<domain>"));
 			goaway($a->get_baseurl(true) . '/admin/site' );
 		}
-		
+
 		/* steps:
 		 * replace all "baseurl" to "new_url" in config, profile, term, items and contacts
 		 * send relocate for every local user
 		 * */
-		
+
 		$old_url = $a->get_baseurl(true);
-		
+
 		function update_table($table_name, $fields, $old_url, $new_url) {
 			global $db, $a;
-			
+
 			$dbold = dbesc($old_url);
 			$dbnew = dbesc($new_url);
-			
+
 			$upd = array();
 			foreach ($fields as $f) {
 				$upd[] = "`$f` = REPLACE(`$f`, '$dbold', '$dbnew')";
 			}
-			
+
 			$upds = implode(", ", $upd);
-			
-			
-			
+
+
+
 			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
 			$r = q($q);
 			if (!$r) {
@@ -278,30 +278,31 @@ function admin_page_site_post(&$a){
 				goaway($a->get_baseurl(true) . '/admin/site' );
 			}
 		}
-		
+
 		// update tables
 		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
 		update_table("term", array('url'), $old_url, $new_url);
 		update_table("contact", array('photo','thumb','micro','url','nurl','request','notify','poll','confirm','poco'), $old_url, $new_url);
+		update_table("unique_contacts", array('url'), $old_url, $new_url);
 		update_table("item", array('owner-link','owner-avatar','author-name','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
 
 		// update config
 		$a->set_baseurl($new_url);
 	 	set_config('system','url',$new_url);
-		
+
 		// send relocate
 		$users = q("SELECT uid FROM user WHERE account_removed = 0 AND account_expired = 0");
-		
+
 		foreach ($users as $user) {
 			proc_run('php', 'include/notifier.php', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");
-		
+
 		goaway($a->get_baseurl(true) . '/admin/site' );
 	}
 	// end relocate
-	
+
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
 	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
@@ -374,14 +375,14 @@ function admin_page_site_post(&$a){
 				`poco`    = replace(`poco`   , 'http:' , 'https:')
 				where `self` = 1"
 			);
-			q("update `profile` set 
+			q("update `profile` set
 				`photo`   = replace(`photo`  , 'http:' , 'https:'),
 				`thumb`   = replace(`thumb`  , 'http:' , 'https:')
 				where 1 "
 			);
 		}
 		elseif($ssl_policy == SSL_POLICY_SELFSIGN) {
-			q("update `contact` set 
+			q("update `contact` set
 				`url`     = replace(`url`    , 'https:' , 'http:'),
 				`photo`   = replace(`photo`  , 'https:' , 'http:'),
 				`thumb`   = replace(`thumb`  , 'https:' , 'http:'),
@@ -393,7 +394,7 @@ function admin_page_site_post(&$a){
 				`poco`    = replace(`poco`   , 'https:' , 'http:')
 				where `self` = 1"
 			);
-			q("update `profile` set 
+			q("update `profile` set
 				`photo`   = replace(`photo`  , 'https:' , 'http:'),
 				`thumb`   = replace(`thumb`  , 'https:' , 'http:')
 				where 1 "
@@ -566,7 +567,7 @@ function admin_page_site(&$a) {
 		REGISTER_CLOSED => t("Closed"),
 		REGISTER_APPROVE => t("Requires approval"),
 		REGISTER_OPEN => t("Open")
-	); 
+	);
 
 	$ssl_choices = array(
 		SSL_POLICY_NONE => t("No SSL policy, links will track page SSL state"),
@@ -670,7 +671,7 @@ function admin_page_dbsync(&$a) {
 		if(function_exists($func)) {
 			$retval = $func();
 			if($retval === UPDATE_FAILED) {
-				$o .= sprintf( t('Executing %s failed. Check system logs.'), $func); 
+				$o .= sprintf( t('Executing %s failed. Check system logs.'), $func);
 			}
 			elseif($retval === UPDATE_SUCCESS) {
 				$o .= sprintf( t('Update %s was successfully applied.', $func));
@@ -918,9 +919,9 @@ function admin_page_users(&$a){
 		'$delete' => t('Delete'),
 		'$block' => t('Block'),
 		'$unblock' => t('Unblock'),
-        '$siteadmin' => t('Site admin'),
-        '$accountexpired' => t('Account expired'),
-		
+		'$siteadmin' => t('Site admin'),
+		'$accountexpired' => t('Account expired'),
+
 		'$h_users' => t('Users'),
 		'$h_newuser' => t('New User'),
 		'$th_deleted' => array( t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Deleted since') ),
@@ -929,7 +930,7 @@ function admin_page_users(&$a){
 		'$confirm_delete_multi' => t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
 		'$confirm_delete' => t('The user {0} will be deleted!\n\nEverything this user has posted on this site will be permanently deleted!\n\nAre you sure?'),
 
-        '$form_security_token' => get_form_security_token("admin_users"),
+		'$form_security_token' => get_form_security_token("admin_users"),
 
 		// values //
 		'$baseurl' => $a->get_baseurl(true),
@@ -937,9 +938,9 @@ function admin_page_users(&$a){
 		'$pending' => $pending,
 		'deleted' => $deleted,
 		'$users' => $users,
-		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")), 
-    '$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")), 
-    '$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
+		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")),
+		'$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")),
+		'$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
 	));
 	$o .= paginate($a);
 	return $o;
@@ -1280,7 +1281,7 @@ function admin_page_themes(&$a){
  *
  * @param App $a
  */
- 
+
 function admin_page_logs_post(&$a) {
 	if (x($_POST,"page_logs")) {
         check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
