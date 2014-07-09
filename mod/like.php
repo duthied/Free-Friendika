@@ -136,6 +136,9 @@ function like_content(&$a) {
 		// Save the author information for the unlike in case we need to relay to Diaspora
 		store_diaspora_like_retract_sig($activity, $item, $like_item, $contact);
 
+		// if no auto update is enabled, then disable it temporarily
+		if (get_pconfig($owner_uid, "system", "no_auto_update") == 1)
+			set_pconfig($owner_uid, "system", "no_auto_update", -1);
 
 //		proc_run('php',"include/notifier.php","like","$post_id"); // $post_id isn't defined here!
 		$like_item_id = $like_item['id'];
@@ -148,7 +151,7 @@ function like_content(&$a) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE ); 
+	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
@@ -219,6 +222,9 @@ EOT;
 	// Save the author information for the like in case we need to relay to Diaspora
 	store_diaspora_like_sig($activity, $post_type, $contact, $post_id);
 
+	// if no auto update is enabled, then disable it temporarily
+	if (get_pconfig($owner_uid, "system", "no_auto_update") == 1)
+		set_pconfig($owner_uid, "system", "no_auto_update", -1);
 
 	$arr['id'] = $post_id;
 

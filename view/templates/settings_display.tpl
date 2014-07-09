@@ -16,6 +16,7 @@
 {{include file="field_checkbox.tpl" field=$nosmile}}
 {{include file="field_checkbox.tpl" field=$noinfo}}
 {{include file="field_checkbox.tpl" field=$infinite_scroll}}
+{{include file="field_checkbox.tpl" field=$no_auto_update}}
 
 
 <div class="settings-submit-wrapper" >
