@@ -1293,7 +1293,7 @@ if(! function_exists('prepare_body')) {
  * @hook prepare_body ('item'=>item array, 'html'=>body string) after first bbcode to html
  * @hook prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
  */
-function prepare_body(&$item,$attach = false) {
+function prepare_body(&$item,$attach = false, $preview = false) {
 
 	$a = get_app();
 	call_hooks('prepare_body_init', $item);
@@ -1353,7 +1353,7 @@ function prepare_body(&$item,$attach = false) {
 	}
 
 
-	$prep_arr = array('item' => $item, 'html' => $s);
+	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);
 	$s = $prep_arr['html'];
 
