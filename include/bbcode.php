@@ -488,10 +488,10 @@ function bb_ShareAttributes($share, $simplehtml) {
 			$text = $preshare."&gt;&gt; ".$userid_compact.": <br />".$share[3];
 			break;
 		case 7:
-			$text = $preshare."RD ".$userid_compact." ".$share[3];
+			$text = $preshare."RD @".$userid_compact." ".$share[3];
 			break;
 		case 8:
-			$text = $preshare."RT ".$userid_compact." ".$share[3];
+			$text = $preshare."RT @".$userid_compact." ".$share[3];
 			break;
 		default:
 			$headline = trim($share[1]).'<div class="shared_header">';
