@@ -1868,8 +1868,12 @@ function diaspora_like($importer,$xml,$msg) {
 		$parent_author_signature = base64_decode($parent_author_signature);
 
 		if(! rsa_verify($signed_data,$parent_author_signature,$key,'sha256')) {
-			logger('diaspora_like: top-level owner verification failed.');
-			return;
+			if (intval(get_config('system','ignore_diaspora_like_signature')))
+				logger('diaspora_like: top-level owner verification failed. Proceeding anyway.');
+			else {
+				logger('diaspora_like: top-level owner verification failed.');
+				return;
+			}
 		}
 	}
 	else {
@@ -1881,8 +1885,12 @@ function diaspora_like($importer,$xml,$msg) {
 		$author_signature = base64_decode($author_signature);
 
 		if(! rsa_verify($signed_data,$author_signature,$key,'sha256')) {
-			logger('diaspora_like: like creator verification failed.');
-			return;
+			if (intval(get_config('system','ignore_diaspora_like_signature')))
+				logger('diaspora_like: like creator verification failed. Proceeding anyway');
+			else {
+				logger('diaspora_like: like creator verification failed.');
+				return;
+			}
 		}
 	}
 
