@@ -1,6 +1,5 @@
 <?php
 
-
 function display_init(&$a) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -8,6 +7,33 @@ function display_init(&$a) {
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
+
+	// If there is only one parameter, then check if this parameter could be a guid
+	if ($a->argc == 2) {
+		$nick = "";
+
+		// Does the local user have this item?
+		if (local_user()) {
+			$r = q("SELECT `id` FROM `item`
+				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
+			if (count($r))
+				$nick = $a->user["nickname"];
+		}
+
+		// Or is it anywhere on the server?
+		if ($nick == "") {
+			$r = q("SELECT `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+					AND `item`.`private` = 0 AND `item`.`wall` = 1
+					AND `item`.`guid` = '%s'", $a->argv[1]);
+			if (count($r))
+				$nick = $r[0]["nickname"];
+		}
+	}
+
 	profile_load($a,$nick);
 
 }
@@ -44,6 +70,33 @@ function display_content(&$a, $update = 0) {
 	}
 	else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
+
+		if ($a->argc == 2) {
+			$nick = "";
+
+			if (local_user()) {
+				$r = q("SELECT `id` FROM `item`
+					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+						AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
+				if (count($r)) {
+					$item_id = $r[0]["id"];
+					$nick = $a->user["nickname"];
+				}
+			}
+
+			if ($nick == "") {
+				$r = q("SELECT `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+						AND `item`.`private` = 0 AND `item`.`wall` = 1
+						AND `item`.`guid` = '%s'", $a->argv[1]);
+				if (count($r)) {
+					$item_id = $r[0]["id"];
+					$nick = $r[0]["nickname"];
+				}
+			}
+		}
 	}
 
 	if(! $item_id) {

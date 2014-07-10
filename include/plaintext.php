@@ -95,6 +95,12 @@ function get_attached_data($body) {
 			$post["type"] = "text";
 			$post["text"] = trim($body);
 		}
+	} elseif (isset($post["url"]) AND ($post["type"] == "video")) {
+		require_once("mod/parse_url.php");
+		$data = parseurl_getsiteinfo($post["url"], true);
+
+		if (isset($data["images"][0]))
+			$post["image"] = $data["images"][0]["src"];
 	}
 
 	return($post);

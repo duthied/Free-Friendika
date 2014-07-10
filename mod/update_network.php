@@ -13,8 +13,14 @@ function update_network_content(&$a) {
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
 
+	$no_auto_update = get_pconfig($profile_uid, "system", "no_auto_update");
+	if ($no_auto_update <= 0) {
+		$text = network_content($a,$profile_uid);
+		if ($no_auto_update < 0)
+			set_pconfig($profile_uid, "system", "no_auto_update", 1);
+	} else
+		$text = "";
 
-	$text = network_content($a,$profile_uid);
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);

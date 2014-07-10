@@ -1011,6 +1011,19 @@ function item_store($arr,$force_parent = false) {
 		}
 	}
 
+	// If there is no guid then take the same guid that was taken before for the same uri
+	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "")) {
+		logger('item_store: checking for an existing guid for uri '.$arr['uri'], LOGGER_DEBUG);
+		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `guid` != '' LIMIT 1",
+			dbesc(trim($arr['uri']))
+		);
+
+		if(count($r)) {
+			$arr['guid'] = $r[0]["guid"];
+			logger('item_store: found guid '.$arr['guid'].' for uri '.$arr['uri'], LOGGER_DEBUG);
+		}
+	}
+
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))

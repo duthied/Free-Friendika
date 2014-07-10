@@ -620,7 +620,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$likebuttons = false;
 				$shareable = false;
 
-				$body = prepare_body($item,true);
+				$body = prepare_body($item,true, $preview);
 
 
 				list($categories, $folders) = get_cats_and_terms($item);
@@ -685,7 +685,8 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
+					//'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/'.$item['guid'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,

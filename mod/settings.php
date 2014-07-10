@@ -268,6 +268,7 @@ function settings_post(&$a) {
 		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
 		$noinfo = ((x($_POST,'noinfo')) ? intval($_POST['noinfo'])  : 0);
 		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
+		$no_auto_update = ((x($_POST,'no_auto_update')) ? intval($_POST['no_auto_update'])  : 0);
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
 		$browser_update   = $browser_update * 1000;
 		if($browser_update < 10000)
@@ -291,6 +292,7 @@ function settings_post(&$a) {
 		set_pconfig(local_user(),'system','no_smilies',$nosmile);
 		set_pconfig(local_user(),'system','ignore_info',$noinfo);
 		set_pconfig(local_user(),'system','infinite_scroll',$infinite_scroll);
+		set_pconfig(local_user(),'system','no_auto_update',$no_auto_update);
 
 
 		if ($theme == $a->user['theme']){
@@ -859,6 +861,9 @@ function settings_content(&$a) {
 		$infinite_scroll = get_pconfig(local_user(),'system','infinite_scroll');
 		$infinite_scroll = (($infinite_scroll===false)? '0': $infinite_scroll); // default if not set: 0
 
+		$no_auto_update = get_pconfig(local_user(),'system','no_auto_update');
+		$no_auto_update = (($no_auto_update===false)? '0': $no_auto_update); // default if not set: 0
+
 		$theme_config = "";
 		if( ($themeconfigfile = get_theme_config_file($theme_selected)) != null){
 			require_once($themeconfigfile);
@@ -881,6 +886,7 @@ function settings_content(&$a) {
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
 			'$noinfo'	=> array('noinfo', t("Don't show notices"), $noinfo, ''),
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
+			'$no_auto_update'	=> array('no_auto_update', t("Disable automatic network update"), $no_auto_update, ''),
 
 			'$theme_config' => $theme_config,
 		));
