@@ -126,6 +126,7 @@ class dba {
       # bad workaround to emulate the bizzare behavior of mysql_query
       if(in_array($strSQLType, array('INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'SET')))
         $result = true;
+      $intErrorCode = false;
         
     } catch (\Exception $objException) {
       $result = false;
