@@ -65,25 +65,7 @@ function community_content(&$a, $update = 0) {
 
 	}
 
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`, `user`.`hidewall`
-		FROM `thread` FORCE INDEX (`wall_private_received`)
-		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND `user`.`hidewall` = 0
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
-		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
-		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
-		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
-
-	);
+	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);
@@ -93,21 +75,27 @@ function community_content(&$a, $update = 0) {
 	$maxpostperauthor = get_config('system','max_author_posts_community_page');
 
 	if ($maxpostperauthor != 0) {
+		$count = 1;
 		$previousauthor = "";
 		$numposts = 0;
 		$s = array();
 
-		foreach ($r AS $row=>$item) {
-			if ($previousauthor == $item["author-link"])
-				++$numposts;
-			else
-				$numposts = 0;
+		do {
+			foreach ($r AS $row=>$item) {
+				if ($previousauthor == $item["author-link"])
+					++$numposts;
+				else
+					$numposts = 0;
 
-			$previousauthor = $item["author-link"];
+				$previousauthor = $item["author-link"];
 
-			if ($numposts < $maxpostperauthor)
-				$s[] = $item;
-		}
+				if (($numposts < $maxpostperauthor) AND (sizeof($s) < $a->pager['itemspage']))
+					$s[] = $item;
+			}
+			if ((sizeof($s) < $a->pager['itemspage']))
+				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage']);
+
+		} while ((sizeof($s) < $a->pager['itemspage']) AND (++$count < 50) AND (sizeof($r) > 0));
 	} else
 		$s = $r;
 
@@ -125,3 +113,26 @@ function community_content(&$a, $update = 0) {
 	return $o;
 }
 
+function community_getitems($start, $itemspage) {
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
+		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
+		`user`.`nickname`, `user`.`hidewall`
+		FROM `thread` FORCE INDEX (`wall_private_received`)
+		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND `user`.`hidewall` = 0
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
+		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
+		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
+		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
+		intval($start),
+		intval($itemspage)
+	);
+
+	return($r);
+
+}

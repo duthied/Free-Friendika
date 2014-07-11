@@ -66,7 +66,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch,CURLOPT_USERAGENT,' Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0');
+	//curl_setopt($ch,CURLOPT_USERAGENT,' Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0');
+	curl_setopt($ch,CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);
