@@ -50,9 +50,14 @@ function completeurl($url, $scheme) {
         return($complete);
 }
 
-function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
+function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 
 	$siteinfo = array();
+
+	if ($count > 10) {
+		logger("parseurl_getsiteinfo: Endless loop detected for ".$url, LOGGER_DEBUG);
+		return($siteinfo);
+	}
 
 	$url = trim($url, "'");
 	$url = trim($url, '"');
@@ -77,9 +82,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
 	if ((($curl_info['http_code'] == "301") OR ($curl_info['http_code'] == "302") OR ($curl_info['http_code'] == "303") OR ($curl_info['http_code'] == "307"))
 		AND (($curl_info['redirect_url'] != "") OR ($curl_info['location'] != ""))) {
 		if ($curl_info['redirect_url'] != "")
-			$siteinfo = parseurl_getsiteinfo($curl_info['redirect_url']);
+			$siteinfo = parseurl_getsiteinfo($curl_info['redirect_url'], $no_guessing, $do_oembed, ++$count);
 		else
-			$siteinfo = parseurl_getsiteinfo($curl_info['location']);
+			$siteinfo = parseurl_getsiteinfo($curl_info['location'], $no_guessing, $do_oembed, ++$count);
 		return($siteinfo);
 	}
 
@@ -143,7 +148,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
                                         $content = substr($value, 4);
                         }
                         if ($content != "") {
-                                $siteinfo = parseurl_getsiteinfo($content);
+                                $siteinfo = parseurl_getsiteinfo($content, $no_guessing, $do_oembed, ++$count);
                                 return($siteinfo);
                         }
                 }
@@ -220,7 +225,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true) {
 			}
 	}
 
-	if (isset($oembed_data) AND ($oembed_data->type == "link")) {
+	if (isset($oembed_data) AND ($oembed_data->type == "link") AND ($siteinfo["type"] != "photo")) {
 		if (isset($oembed_data->title) AND (trim($oembed_data->title) != ""))
 			$siteinfo["title"] = $oembed_data->title;
 		if (isset($oembed_data->description) AND (trim($oembed_data->description) != ""))
