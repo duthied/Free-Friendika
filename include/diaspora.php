@@ -872,7 +872,8 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['wall'] = 0;
-	$datarray['network']  = NETWORK_DIASPORA;
+	$datarray['network'] = NETWORK_DIASPORA;
+	$datarray['verb'] = ACTIVITY_POST;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
 	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
@@ -1346,6 +1347,7 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
 	$datarray['network']  = NETWORK_DIASPORA;
+	$datarray['verb'] = ACTIVITY_POST;
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
 	$datarray['uri'] = $message_id;

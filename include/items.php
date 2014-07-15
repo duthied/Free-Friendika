@@ -678,6 +678,8 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	if($rawgeo)
 		$res['coord'] = unxmlify($rawgeo[0]['data']);
 
+	if ($contact["network"] == NETWORK_FEED)
+		$res['verb'] = ACTIVITY_POST;
 
 	$rawverb = $item->get_item_tags(NAMESPACE_ACTIVITY, 'verb');
 
