@@ -1629,10 +1629,11 @@ function get_plink($item) {
 
 	if ($a->user['nickname'] != "") {
 		$ret = array(
-				'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
+				//'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
+				'href' => $a->get_baseurl()."/display/".$item['guid'],
+				'orig' => $a->get_baseurl()."/display/".$item['guid'],
 				'title' => t('link to source'),
 			);
-		$ret["orig"] = $ret["href"];
 
 		if (x($item,'plink'))
 			$ret["href"] = $item['plink'];
