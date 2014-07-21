@@ -1373,12 +1373,13 @@ function diaspora_comment($importer,$xml,$msg) {
 
 	$message_id = item_store($datarray);
 
-	if($message_id) {
-		q("update item set plink = '%s' where id = %d",
-			dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-			intval($message_id)
-		);
-	}
+	//if($message_id) {
+		//q("update item set plink = '%s' where id = %d",
+		//	//dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+		//	dbesc($a->get_baseurl().'/display/'.$datarray['guid']),
+		//	intval($message_id)
+		//);
+	//}
 
 	if(($parent_item['origin']) && (! $parent_author_signature)) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
@@ -1422,7 +1423,8 @@ function diaspora_comment($importer,$xml,$msg) {
 				'to_email'     => $importer['email'],
 				'uid'          => $importer['uid'],
 				'item'         => $datarray,
-				'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id,
+				//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id,
+				'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -1957,7 +1959,8 @@ EOT;
 
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $parent_item['author-link'] . ']' . $parent_item['author-name'] . '[/url]';
-	$plink = '[url=' . $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $parent_item['id'] . ']' . $post_type . '[/url]';
+	//$plink = '[url=' . $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $parent_item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url='.$a->get_baseurl().'/display/'.$guid.']'.$post_type.'[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['app']  = 'Diaspora';
@@ -1973,12 +1976,13 @@ EOT;
 	$message_id = item_store($arr);
 
 
-	if($message_id) {
-		q("update item set plink = '%s' where id = %d",
-			dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-			intval($message_id)
-		);
-	}
+	//if($message_id) {
+	//	q("update item set plink = '%s' where id = %d",
+	//		//dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+	//		dbesc($a->get_baseurl().'/display/'.$guid),
+	//		intval($message_id)
+	//	);
+	//}
 
 	if(! $parent_author_signature) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",

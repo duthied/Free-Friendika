@@ -268,10 +268,13 @@ define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
 
+define ( 'ACTIVITY_OBJ_BOOKMARK', NAMESPACE_ACTIVITY_SCHEMA . 'bookmark' );
 define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
 define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
 define ( 'ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person' );
+define ( 'ACTIVITY_OBJ_IMAGE',   NAMESPACE_ACTIVITY_SCHEMA . 'image' );
 define ( 'ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo' );
+define ( 'ACTIVITY_OBJ_VIDEO',   NAMESPACE_ACTIVITY_SCHEMA . 'video' );
 define ( 'ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo' );
 define ( 'ACTIVITY_OBJ_ALBUM',   NAMESPACE_ACTIVITY_SCHEMA . 'photo-album' );
 define ( 'ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event' );
@@ -1130,8 +1133,24 @@ if(! function_exists('check_plugins')) {
 	}
 }
 
-
 function get_guid($size=16) {
+	$exists = true; // assume by default that we don't have a unique guid
+	do {
+		$prefix = "";
+		while (strlen($prefix) < ($size - 13))
+			$prefix .= mt_rand();
+
+		$s = substr(uniqid($prefix), -$size);
+
+		$r = q("select id from guid where guid = '%s' limit 1", dbesc($s));
+		if(! count($r))
+			$exists = false;
+	} while($exists);
+	q("insert into guid (guid) values ('%s') ", dbesc($s));
+	return $s;
+}
+
+/*function get_guid($size=16) {
 	$exists = true; // assume by default that we don't have a unique guid
 	do {
 		$s = random_string($size);
@@ -1141,7 +1160,7 @@ function get_guid($size=16) {
 	} while($exists);
 	q("insert into guid ( guid ) values ( '%s' ) ", dbesc($s));
 	return $s;
-}
+}*/
 
 
 // wrapper for adding a login box. If $register == true provide a registration

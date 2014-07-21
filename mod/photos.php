@@ -341,7 +341,6 @@ function photos_post(&$a) {
 
 	if(($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
 
-
 		$desc        = ((x($_POST,'desc'))    ? notags(trim($_POST['desc']))    : '');
 		$rawtags     = ((x($_POST,'newtag'))  ? notags(trim($_POST['newtag']))  : '');
 		$item_id     = ((x($_POST,'item_id')) ? intval($_POST['item_id'])       : 0);
@@ -436,19 +435,19 @@ function photos_post(&$a) {
 		$visibility = 0;
 		if($p[0]['desc'] !== $desc || strlen($rawtags))
 			$visibility = 1;
-		
+
 		if(! $item_id) {
 
 			// Create item container
 
 			$title = '';
 			$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
-			
+
 			$arr = array();
 
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
-			$arr['parent-uri']    = $uri; 
+			$arr['parent-uri']    = $uri;
 			$arr['type']          = 'photo';
 			$arr['wall']          = 1;
 			$arr['resource-id']   = $p[0]['resource-id'];
@@ -586,14 +585,17 @@ function photos_post(&$a) {
 							if(strlen($str_tags))
 								$str_tags .= ',';
 							$profile = str_replace(',','%2c',$profile);
-							$str_tags .= '@[url=' . $profile . ']' . $newname	. '[/url]';
+							$str_tags .= '@[url='.$profile.']'.$newname.'[/url]';
 						}
+					} elseif (strpos($tag,'#') === 0) {
+						$tagname = substr($tag, 1);
+						$str_tags .= '#[url='.$a->get_baseurl()."/search?tag=".$tagname.']'.$tagname.'[/url]';
 					}
 				}
 			}
 
 			$newtag = $old_tag;
-			if(strlen($newtag) && strlen($str_tags)) 
+			if(strlen($newtag) && strlen($str_tags))
 				$newtag .= ',';
 			$newtag .= $str_tags;
 
@@ -672,11 +674,11 @@ function photos_post(&$a) {
 
 					$item_id = item_store($arr);
 					if($item_id) {
-						q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-							dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-							intval($page_owner_uid),
-							intval($item_id)
-						);
+						//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
+						//	dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
+						//	intval($page_owner_uid),
+						//	intval($item_id)
+						//);
 
 						proc_run('php',"include/notifier.php","tag","$item_id");
 					}
@@ -880,13 +882,13 @@ function photos_post(&$a) {
 
 	$item_id = item_store($arr);
 
-	if($item_id) {
-		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-			dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-			intval($page_owner_uid),
-			intval($item_id)
-		);
-	}
+	//if($item_id) {
+	//	q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
+	//		dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
+	//		intval($page_owner_uid),
+	//		intval($item_id)
+	//	);
+	//}
 
 	if($visible)
 		proc_run('php', "include/notifier.php", 'wall-new', $item_id);

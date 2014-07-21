@@ -331,6 +331,7 @@ function onepoll_run(&$argv, &$argc){
 
 						$datarray = array();
 						$datarray['verb'] = ACTIVITY_POST;
+						$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
 	//					$meta = email_msg_meta($mbox,$msg_uid);
 	//					$headers = email_msg_headers($mbox,$msg_uid);
 
