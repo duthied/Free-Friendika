@@ -53,7 +53,6 @@ function get_attached_data($body) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
 				$data = parseurl_getsiteinfo($pictures[0][1], true);
-
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
 					if (isset($data["images"][0]))
@@ -64,8 +63,7 @@ function get_attached_data($body) {
 					$post["preview"] = $pictures[0][2];
 					$post["text"] = str_replace($pictures[0][0], "", $body);
 				} else {
-					$img_str = fetch_url($pictures[0][1]);
-					$imgdata = get_photo_info($img_str);
+					$imgdata = get_photo_info($pictures[0][1]);
 					if (substr($imgdata["mime"], 0, 6) == "image/") {
 						$post["type"] = "photo";
 						$post["image"] = $pictures[0][1];

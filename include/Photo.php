@@ -824,3 +824,147 @@ function scale_image($width, $height, $max) {
 	}
 	return array("width" => $dest_width, "height" => $dest_height);
 }
+
+function store_photo($a, $uid, $imagedata = "", $url = "") {
+	$r = q("SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
+		WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
+		intval($uid));
+
+	if(!count($r)) {
+		logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
+		return(array());
+	}
+
+	$page_owner_nick  = $r[0]['nickname'];
+
+//	To-Do:
+//	$default_cid      = $r[0]['id'];
+//	$community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+
+	if ((strlen($imagedata) == 0) AND ($url == "")) {
+		logger("No image data and no url provided", LOGGER_DEBUG);
+		return(array());
+	} elseif (strlen($imagedata) == 0) {
+		logger("Uploading picture from ".$url, LOGGER_DEBUG);
+		$imagedata = @file_get_contents($url);
+	}
+
+	$maximagesize = get_config('system','maximagesize');
+
+        if(($maximagesize) && (strlen($imagedata) > $maximagesize)) {
+		logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
+		return(array());
+        }
+
+/*
+        $r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+                intval($uid)
+        );
+
+        $limit = service_class_fetch($uid,'photo_upload_limit');
+
+        if(($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
+		logger("Image exceeds personal limit of uid ".$uid, LOGGER_DEBUG);
+		return(array());
+        }
+*/
+
+	$tempfile = tempnam(get_temppath(), "cache");
+	file_put_contents($tempfile, $imagedata);
+	$data = getimagesize($tempfile);
+
+	if (!isset($data["mime"])) {
+		unlink($tempfile);
+		logger("File is no picture", LOGGER_DEBUG);
+		return(array());
+	}
+
+	$ph = new Photo($imagedata, $data["mime"]);
+
+	if(!$ph->is_valid()) {
+		unlink($tempfile);
+		logger("Picture is no valid picture", LOGGER_DEBUG);
+		return(array());
+	}
+
+	$ph->orient($tempfile);
+	unlink($tempfile);
+
+	$max_length = get_config('system','max_image_length');
+	if(! $max_length)
+		$max_length = MAX_IMAGE_LENGTH;
+	if($max_length > 0)
+		$ph->scaleImage($max_length);
+
+	$width = $ph->getWidth();
+	$height = $ph->getHeight();
+
+	$hash = photo_new_resource();
+
+	$smallest = 0;
+
+	// Pictures are always public by now
+	//$defperm = '<'.$default_cid.'>';
+	$defperm = "";
+	$visitor   = 0;
+
+	$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 0, 0, $defperm);
+
+	if(!$r) {
+		logger("Picture couldn't be stored", LOGGER_DEBUG);
+		return(array());
+	}
+
+	$image = array("page" => $a->get_baseurl().'/photos/'.$page_owner_nick.'/image/'.$hash,
+			"full" => $a->get_baseurl()."/photo/{$hash}-0.".$ph->getExt());
+
+	if($width > 800 || $height > 800)
+		$image["large"] = $a->get_baseurl()."/photo/{$hash}-0.".$ph->getExt();
+
+	if($width > 640 || $height > 640) {
+		$ph->scaleImage(640);
+		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 1, 0, $defperm);
+		if($r)
+			$image["medium"] = $a->get_baseurl()."/photo/{$hash}-1.".$ph->getExt();
+	}
+
+	if($width > 320 || $height > 320) {
+		$ph->scaleImage(320);
+		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 2, 0, $defperm);
+		if($r)
+			$image["small"] = $a->get_baseurl()."/photo/{$hash}-2.".$ph->getExt();
+	}
+
+	if($width > 160 AND $height > 160) {
+		$x = 0;
+		$y = 0;
+
+		$min = $ph->getWidth();
+		if ($min > 160)
+			$x = ($min - 160) / 2;
+
+		if ($ph->getHeight() < $min) {
+			$min = $ph->getHeight();
+			if ($min > 160)
+				$y = ($min - 160) / 2;
+		}
+
+		$min = 160;
+		$ph->cropImage(160, $x, $y, $min, $min);
+
+		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 3, 0, $defperm);
+		if($r)
+			$image["thumb"] = $a->get_baseurl()."/photo/{$hash}-3.".$ph->getExt();
+	}
+
+	if (isset($image["thumb"]))
+		$image["preview"] = $image["thumb"];
+
+	if (isset($image["small"]))
+		$image["preview"] = $image["small"];
+
+	if (isset($image["medium"]))
+		$image["preview"] = $image["medium"];
+
+	return($image);
+}
