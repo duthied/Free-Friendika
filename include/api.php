@@ -769,7 +769,7 @@
 			$in_reply_to_status_id_str = NULL;
 			$in_reply_to_user_id_str = NULL;
 			$in_reply_to_screen_name = NULL;
-			if ($lastwall['parent']!=$lastwall['id']) {
+			if (intval($lastwall['parent']) != intval($lastwall['id'])) {
 				$in_reply_to_status_id= intval($lastwall['parent']);
 				$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
 
@@ -782,6 +782,18 @@
 					$in_reply_to_user_id = intval($r[0]['id']);
 					$in_reply_to_user_id_str = (string) intval($r[0]['id']);
 				}
+			}
+
+			// There seems to be situation, where both fields are identical:
+			// https://github.com/friendica/friendica/issues/1010
+			// This is a bugfix for that.
+			if (intval($in_reply_to_status_id) == intval($lastwall['id'])) {
+				logger('api_status_show: this message should never appear: id: '.$lastwall['id'].' similar to reply-to: '.$in_reply_to_status_id, LOGGER_DEBUG);
+				$in_reply_to_status_id = NULL;
+				$in_reply_to_user_id = NULL;
+				$in_reply_to_status_id_str = NULL;
+				$in_reply_to_user_id_str = NULL;
+				$in_reply_to_screen_name = NULL;
 			}
 
 			$status_info = array(

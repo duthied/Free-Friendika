@@ -678,8 +678,10 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	if($rawgeo)
 		$res['coord'] = unxmlify($rawgeo[0]['data']);
 
-	if ($contact["network"] == NETWORK_FEED)
+	if ($contact["network"] == NETWORK_FEED) {
 		$res['verb'] = ACTIVITY_POST;
+		$res['object-type'] = ACTIVITY_OBJ_NOTE;
+	}
 
 	$rawverb = $item->get_item_tags(NAMESPACE_ACTIVITY, 'verb');
 
@@ -866,6 +868,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
 		$res["body"] = $res["title"].add_page_info($res['plink']);
 		$res["title"] = "";
+		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
 		$res["body"] = add_page_info_to_body($res["body"]);
 	elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
@@ -1093,8 +1096,13 @@ function item_store($arr,$force_parent = false) {
 	$arr['attach']        = ((x($arr,'attach'))        ? notags(trim($arr['attach']))        : '');
 	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
-	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid());
+	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(30));
 	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
+
+	if ($arr['plink'] == "") {
+		$a = get_app();
+		$arr['plink'] = $a->get_baseurl().'/display/'.$arr['guid'];
+	}
 
 	if ($arr['network'] == "") {
 		$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -1274,7 +1282,8 @@ function item_store($arr,$force_parent = false) {
 					'to_email'     => $u[0]['email'],
 					'uid'          => $u[0]['uid'],
 					'item'         => $item[0],
-					'link'         => $a->get_baseurl().'/display/'.$u[0]['nickname'].'/'.$current_post,
+					//'link'         => $a->get_baseurl().'/display/'.$u[0]['nickname'].'/'.$current_post,
+					'link'         => $a->get_baseurl().'/display/'.$arr['guid'],
 					'source_name'  => $item[0]['author-name'],
 					'source_link'  => $item[0]['author-link'],
 					'source_photo' => $item[0]['author-avatar'],
@@ -1395,6 +1404,15 @@ function item_store($arr,$force_parent = false) {
 
 	return $current_post;
 }
+
+function get_item_guid($id) {
+	$r = q("SELECT `guid` FROM `item` WHERE `id` = %d LIMIT 1", intval($id));
+	if (count($r))
+		return($r[0]["guid"]);
+	else
+		return("");
+}
+
 // return - test
 function get_item_contact($item,$contacts) {
 	if(! count($contacts) || (! is_array($item)))
@@ -1494,7 +1512,8 @@ function tag_deliver($uid,$item_id) {
 		'to_email'     => $u[0]['email'],
 		'uid'          => $u[0]['uid'],
 		'item'         => $item,
-		'link'         => $a->get_baseurl() . '/display/' . $u[0]['nickname'] . '/' . $item['id'],
+		//'link'         => $a->get_baseurl() . '/display/' . $u[0]['nickname'] . '/' . $item['id'],
+		'link'         => $a->get_baseurl() . '/display/'.get_item_guid($item['id']),
 		'source_name'  => $item['author-name'],
 		'source_link'  => $item['author-link'],
 		'source_photo' => $photo,
@@ -3309,7 +3328,8 @@ function local_delivery($importer,$data) {
 								'to_email'     => $importer['email'],
 								'uid'          => $importer['importer_uid'],
 								'item'         => $datarray,
-								'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+								//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+								'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
 								'source_name'  => stripslashes($datarray['author-name']),
 								'source_link'  => $datarray['author-link'],
 								'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
@@ -3473,7 +3493,8 @@ function local_delivery($importer,$data) {
 									'to_email'     => $importer['email'],
 									'uid'          => $importer['importer_uid'],
 									'item'         => $datarray,
-									'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+									//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+									'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
 									'source_name'  => stripslashes($datarray['author-name']),
 									'source_link'  => $datarray['author-link'],
 									'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
@@ -3626,7 +3647,8 @@ function local_delivery($importer,$data) {
 							'to_email'     => $importer['email'],
 							'uid'          => $importer['importer_uid'],
 							'item'         => $datarray,
-							'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+							//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
+							'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
 							'source_name'  => stripslashes($datarray['author-name']),
 							'source_link'  => $datarray['author-link'],
 							'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
@@ -3717,7 +3739,8 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				group_add_member($r[0]['uid'],'',$contact_record['id'],$r[0]['def_gid']);
 			}
 
-			if(($r[0]['notify-flags'] & NOTIFY_INTRO) && ($r[0]['page-flags'] == PAGE_NORMAL)) {
+			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
+				(($r[0]['page-flags'] == PAGE_NORMAL) OR ($r[0]['page-flags'] == PAGE_SOAPBOX))) {
 				$email_tpl = get_intltext_template('follow_notify_eml.tpl');
 				$email = replace_macros($email_tpl, array(
 					'$requestor' => ((strlen($name)) ? $name : t('[Name Withheld]')),

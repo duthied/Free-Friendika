@@ -138,10 +138,10 @@ EOT;
 
 	$post_id = item_store($arr);
 
-	q("UPDATE `item` set plink = '%s' where id = %d",
-		dbesc($a->get_baseurl() . '/display/' . $owner_nick . '/' . $post_id),
-		intval($post_id)
-	);
+//	q("UPDATE `item` set plink = '%s' where id = %d",
+//		dbesc($a->get_baseurl() . '/display/' . $owner_nick . '/' . $post_id),
+//		intval($post_id)
+//	);
 
 
 	if(! $item['visible']) {

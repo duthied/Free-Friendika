@@ -558,10 +558,10 @@ function profile_activity($changed, $value) {
 	if($i) {
 
 		// give it a permanent link
-		q("update item set plink = '%s' where id = %d",
-			dbesc($a->get_baseurl() . '/display/' . $a->user['nickname'] . '/' . $i),
-			intval($i)
-		);
+		//q("update item set plink = '%s' where id = %d",
+		//	dbesc($a->get_baseurl() . '/display/' . $a->user['nickname'] . '/' . $i),
+		//	intval($i)
+		//);
 
 	   	proc_run('php',"include/notifier.php","activity","$i");
 

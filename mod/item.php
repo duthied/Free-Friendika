@@ -203,9 +203,9 @@ function item_post(&$a) {
 		$private           = $orig_post['private'];
 		$pubmail_enable    = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
+		$guid              = $orig_post['guid'];
 
-	}
-	else {
+	} else {
 
 		// if coming from the API and no privacy settings are set, 
 		// use the user default permissions - as they won't have
@@ -238,6 +238,7 @@ function item_post(&$a) {
 		$emailcc           = notags(trim($_REQUEST['emailcc']));
 		$body              = escape_tags(trim($_REQUEST['body']));
 		$network           = notags(trim($_REQUEST['network']));
+		$guid              = get_guid(32);
 
 
 		$naked_body = preg_replace('/\[(.+?)\]/','',$body);
@@ -629,6 +630,7 @@ function item_post(&$a) {
 	$datarray['commented']     = datetime_convert();
 	$datarray['received']      = datetime_convert();
 	$datarray['changed']       = datetime_convert();
+	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;
 	$datarray['title']         = $title;
 	$datarray['body']          = $body;
@@ -664,8 +666,6 @@ function item_post(&$a) {
 
 	if($orig_post)
 		$datarray['edit']      = true;
-	else
-		$datarray['guid']      = get_guid();
 
 	// preview mode - prepare the body for display and send it via json
 
@@ -823,7 +823,8 @@ function item_post(&$a) {
 					'to_email'     => $user['email'],
 					'uid'          => $user['uid'],
 					'item'         => $datarray,
-					'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
+					//'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
+					'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
 					'source_name'  => $datarray['author-name'],
 					'source_link'  => $datarray['author-link'],
 					'source_photo' => $datarray['author-avatar'],
@@ -851,7 +852,8 @@ function item_post(&$a) {
 					'to_email'     => $user['email'],
 					'uid'          => $user['uid'],
 					'item'         => $datarray,
-					'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
+					//'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
+					'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
 					'source_name'  => $datarray['author-name'],
 					'source_link'  => $datarray['author-link'],
 					'source_photo' => $datarray['author-avatar'],
@@ -870,7 +872,8 @@ function item_post(&$a) {
 			WHERE `id` = %d",
 			intval($parent),
 			dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
-			dbesc($a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id),
+			//dbesc($a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id),
+			dbesc($a->get_baseurl().'/display/'.$datarray['guid']),
 			dbesc(datetime_convert()),
 			intval($post_id)
 		);
@@ -903,7 +906,8 @@ function item_post(&$a) {
 	update_thread($parent);
 
 	$datarray['id']    = $post_id;
-	$datarray['plink'] = $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id;
+	//$datarray['plink'] = $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id;
+	$datarray['plink'] = $a->get_baseurl().'/display/'.$datarray['guid'];
 
 	call_hooks('post_local_end', $datarray);
 
