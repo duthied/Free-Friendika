@@ -166,12 +166,12 @@ function nav_info(&$a) {
 		}
 
 		$nav['delegations'] = Array('delegate', t('Delegations'), "", t('Delegate Page Management'));
-		
+
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account settings'));
-		
+
 		if(feature_enabled(local_user(),'multi_profiles'))
 			$nav['profiles'] = array('profiles', t('Profiles'),"", t('Manage/Edit Profiles'));
-		
+
 		$nav['contacts'] = array('contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
 	}
 
