@@ -45,7 +45,7 @@ class Item extends BaseObject {
 				}
 			}
 		}
-		
+
 		$this->writable = ($this->get_data_value('writable') || $this->get_data_value('self'));
 
 		$ssl_state = ((local_user()) ? true : false);
@@ -304,6 +304,7 @@ class Item extends BaseObject {
 			'body' => $body_e,
 			'text' => $text_e,
 			'id' => $this->get_id(),
+			'guid' => $item['guid'],
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
@@ -396,7 +397,7 @@ class Item extends BaseObject {
 
 		return $result;
 	}
-	
+
 	public function get_id() {
 		return $this->get_data_value('id');
 	}
@@ -427,7 +428,7 @@ class Item extends BaseObject {
 		if(activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE)) {
 			return false;
 		}
-		
+
 		$item->set_parent($this);
 		$this->children[] = $item;
 		return end($this->children);

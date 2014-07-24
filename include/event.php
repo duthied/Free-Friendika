@@ -385,13 +385,18 @@ function event_store($arr) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($arr['uid'])
 		);
-		if(count($r))
-			$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
+		//if(count($r))
+		//	$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
 		if($item_id) {
-			q("UPDATE `item` SET `plink` = '%s', `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
-				dbesc($plink),
+			//q("UPDATE `item` SET `plink` = '%s', `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
+			//	dbesc($plink),
+			//	intval($event['id']),
+			//	intval($arr['uid']),
+			//	intval($item_id)
+			//);
+			q("UPDATE `item` SET `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
 				intval($event['id']),
 				intval($arr['uid']),
 				intval($item_id)

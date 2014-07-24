@@ -970,15 +970,15 @@ function settings_content(&$a) {
 									($a->user['page-flags'] == PAGE_NORMAL)),
 
 		'$page_soapbox' 	=> array('page-flags', t('Soapbox Page'), PAGE_SOAPBOX,
-									t('Automatically approve all connection/friend requests as read-only fans'), 
+									t('Automatically approve all connection/friend requests as read-only fans'),
 									($a->user['page-flags'] == PAGE_SOAPBOX)),
 
 		'$page_community'	=> array('page-flags', t('Community Forum/Celebrity Account'), PAGE_COMMUNITY,
-									t('Automatically approve all connection/friend requests as read-write fans'), 
+									t('Automatically approve all connection/friend requests as read-write fans'),
 									($a->user['page-flags'] == PAGE_COMMUNITY)),
 
 		'$page_freelove' 	=> array('page-flags', t('Automatic Friend Page'), PAGE_FREELOVE,
-									t('Automatically approve all connection/friend requests as friends'), 
+									t('Automatically approve all connection/friend requests as friends'),
 									($a->user['page-flags'] == PAGE_FREELOVE)),
 
 		'$page_prvgroup' 	=> array('page-flags', t('Private Forum [Experimental]'), PAGE_PRVGROUP,

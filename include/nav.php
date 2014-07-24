@@ -148,7 +148,7 @@ function nav_info(&$a) {
 
 		/* only show friend requests for normal pages. Other page types have automatic friendship. */
 
-		if($_SESSION['page_flags'] == PAGE_NORMAL || $_SESSION['page_flags'] == PAGE_PRVGROUP) {
+		if($_SESSION['page_flags'] == PAGE_NORMAL || $_SESSION['page_flags'] == PAGE_SOAPBOX || $_SESSION['page_flags'] == PAGE_PRVGROUP) {
 			$nav['introductions'] = array('notifications/intros',	t('Introductions'), "", t('Friend Requests'));
 			$nav['notifications'] = array('notifications',	t('Notifications'), "", t('Notifications'));
 			$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
@@ -166,12 +166,12 @@ function nav_info(&$a) {
 		}
 
 		$nav['delegations'] = Array('delegate', t('Delegations'), "", t('Delegate Page Management'));
-		
+
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account settings'));
-		
+
 		if(feature_enabled(local_user(),'multi_profiles'))
 			$nav['profiles'] = array('profiles', t('Profiles'),"", t('Manage/Edit Profiles'));
-		
+
 		$nav['contacts'] = array('contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
 	}
 
