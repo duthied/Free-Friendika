@@ -100,7 +100,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	// Fetch the first mentioned charset. Can be in body or header
 	$charset = "";
 	if (preg_match('/charset=(.*?)['."'".'"\s\n]/', $header, $matches))
-		$charset = trim(array_pop($matches));
+		$charset = trim(trim(trim(array_pop($matches)), ';,'));
 
 	if ($charset == "")
 		$charset = "utf-8";
@@ -112,7 +112,12 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	else
 		$body = $header;
 
-	$body = mb_convert_encoding($body, "UTF-8", $charset);
+	if (($charset != '') AND (strtoupper($charset) != "UTF-8")) {
+		logger("parseurl_getsiteinfo: detected charset ".$charset, LOGGER_DEBUG);
+		//$body = mb_convert_encoding($body, "UTF-8", $charset);
+		$body = iconv($charset, "UTF-8//TRANSLIT", $body);
+	}
+
 	$body = mb_convert_encoding($body, 'HTML-ENTITIES', "UTF-8");
 
 	$doc = new DOMDocument();

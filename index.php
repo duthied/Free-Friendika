@@ -432,7 +432,7 @@ else
 $a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
 //$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
 
-if (($_GET["mode"] == "raw") OR ($_GET["mode"] == "minimal")) {
+if (isset($_GET["mode"]) AND (($_GET["mode"] == "raw") OR ($_GET["mode"] == "minimal"))) {
 	$doc = new DOMDocument();
 
 	$target = new DOMDocument();
@@ -455,7 +455,7 @@ if (($_GET["mode"] == "raw") OR ($_GET["mode"] == "minimal")) {
 	}
 }
 
-if ($_GET["mode"] == "raw") {
+if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 
 	header("Content-type: text/html; charset=utf-8");
 
@@ -528,7 +528,7 @@ $profile = $a->profile;
 header("Content-type: text/html; charset=utf-8");
 
 
-if ($_GET["mode"] == "minimal") {
+if (isset($_GET["mode"]) AND ($_GET["mode"] == "minimal")) {
 	//$page['content'] = substr($target->saveHTML(), 6, -8)."\n\n".
 	//			'<div id="conversation-end"></div>'."\n\n";
 

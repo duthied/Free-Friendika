@@ -182,13 +182,13 @@ class dba {
 		 * These usually indicate SQL syntax errors that need to be resolved.
 		 */
 
-		if($result === false) {
+		if(isset($result) AND ($result === false)) {
 			logger('dba: ' . printable($sql) . ' returned false.' . "\n" . $this->error);
 			if(file_exists('dbfail.out'))
 				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
 		}
 
-		if(($result === true) || ($result === false))
+		if(isset($result) AND (($result === true) || ($result === false)))
 			return $result;
     
 		if ($onlyquery) {

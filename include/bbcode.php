@@ -452,7 +452,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 		case 2:
 			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
 			break;
-		case 3:
+		case 3: // Diaspora
 			$headline = '<div class="shared_header">';
 			$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
 			$headline .= "</div>";
@@ -484,14 +484,20 @@ function bb_ShareAttributes($share, $simplehtml) {
 		case 5:
 			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
 			break;
-		case 6:
+		case 6: // app.net
 			$text = $preshare."&gt;&gt; @".$userid_compact.": <br />".$share[3];
 			break;
-		case 7:
+		case 7: // statusnet/GNU Social
 			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8')." @".$userid_compact.": ".$share[3];
 			break;
-		case 8:
+		case 8: // twitter
 			$text = $preshare."RT @".$userid_compact.": ".$share[3];
+			break;
+		case 9: // Google+/Facebook
+			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
+
+			if ($link != "")
+				$text .= "<br /><br />".$link;
 			break;
 		default:
 			$headline = trim($share[1]).'<div class="shared_header">';
@@ -775,7 +781,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
 				"[bookmark=$1]$2[/bookmark]", $Text);
 
-	if (in_array($simplehtml, array(2, 6, 7, 8))) {
+	if (in_array($simplehtml, array(2, 6, 7, 8, 9))) {
 		$Text = preg_replace_callback("/([^#@])\[url\=([^\]]*)\](.*?)\[\/url\]/ism","bb_expand_links",$Text);
 		//$Text = preg_replace("/[^#@]\[url\=([^\]]*)\](.*?)\[\/url\]/ism",' $2 [url]$1[/url]',$Text);
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",' $2 [url]$1[/url]',$Text);

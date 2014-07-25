@@ -655,7 +655,7 @@ function attribute_contains($attr,$s) {
 if(! function_exists('logger')) {
 /* setup int->string log level map */
 $LOGGER_LEVELS = array();
-	
+
 /**
  * log levels:
  * LOGGER_NORMAL (default)
@@ -663,7 +663,7 @@ $LOGGER_LEVELS = array();
  * LOGGER_DEBUG
  * LOGGER_DATA
  * LOGGER_ALL
- * 
+ *
  * @global App $a
  * @global dba $db
  * @param string $msg
@@ -674,15 +674,16 @@ function logger($msg,$level = 0) {
 	global $a;
 	global $db;
 	global $LOGGER_LEVELS;
-	
+
 	if(($a->module == 'install') || (! ($db && $db->connected))) return;
 
-    if (count($LOGGER_LEVEL)==0){
-        foreach (get_defined_constants() as $k=>$v){
-            if (substr($k,0,7)=="LOGGER_") $LOGGER_LEVELS[$v] = substr($k,7,7);
-        }        
-    }
-    
+	if (count($LOGGER_LEVELS)==0){
+		foreach (get_defined_constants() as $k=>$v){
+			if (substr($k,0,7)=="LOGGER_")
+				$LOGGER_LEVELS[$v] = substr($k,7,7);
+		}
+	}
+
 	$debugging = get_config('system','debugging');
 	$loglevel  = intval(get_config('system','loglevel'));
 	$logfile   = get_config('system','logfile');

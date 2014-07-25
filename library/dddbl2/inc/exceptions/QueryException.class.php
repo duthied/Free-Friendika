@@ -19,7 +19,7 @@ class QueryException extends \Exception {
     * and print them as exception
     *
     **/
-    public function __construct(\PDOStatement $objPDO, $arrQueryDefinition) {
+    public function __construct(\PDOStatement $objPDO, array $arrQueryDefinition) {
         
         $strMessage = self::createErrorMessage($objPDO, $arrQueryDefinition);
         
@@ -38,7 +38,7 @@ class QueryException extends \Exception {
     * and query definition
     *
     **/
-    private function createErrorMessage($objPDO, $arrQueryDefinition) {
+    private function createErrorMessage(\PDOStatement $objPDO, array $arrQueryDefinition) {
       
       $strMessage  = self::flattenQueryErrorInfo($objPDO);
       $strMessage .= self::flattenQueryDefiniton($arrQueryDefinition);
@@ -57,7 +57,7 @@ class QueryException extends \Exception {
     * from the driver specific error message
     *
     **/
-    private function flattenQueryErrorInfo($objPDO) {
+    private function flattenQueryErrorInfo(\PDOStatement $objPDO) {
     
       $arrErrorInfo = $objPDO->errorInfo();
       
@@ -76,16 +76,18 @@ class QueryException extends \Exception {
     * 
     * @return (string) a text version of the query definition
     * 
-    * create an text, which contains all information 
-    * of the query definition
+    * create an text, which contains all *scalar* information 
+    * of the query definition. if there are non-scalar information
+    * added, the will be excluded from output
     *
     **/
-    private function flattenQueryDefiniton($arrQueryDefinition) {
+    private function flattenQueryDefiniton(array $arrQueryDefinition) {
       
       $strMessage = "\nQuery-Definiton:\n";
       
       foreach($arrQueryDefinition AS $strKeyword => $strContent)
-        $strMessage .= "$strKeyword: $strContent\n";
+        if(is_scalar($strContent))
+          $strMessage .= "$strKeyword: $strContent\n";
       
       return $strMessage . "\n";
       
