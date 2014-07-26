@@ -59,11 +59,11 @@ function ping_init(&$a) {
 		$home = 0;
 		$network = 0;
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`, 
-				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`, 
-				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink` 
+		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
+				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
+				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink`
 				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND 
+				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `pitem`.`parent` != 0
 				ORDER BY `item`.`created` DESC",
 			intval(local_user())
@@ -109,14 +109,14 @@ function ping_init(&$a) {
 			}
 		}
 
-		$intros1 = q("SELECT  `intro`.`id`, `intro`.`datetime`, 
-			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo` 
+		$intros1 = q("SELECT  `intro`.`id`, `intro`.`datetime`,
+			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
 			FROM `intro` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`fid`!=0",
 			intval(local_user())
 		);
-		$intros2 = q("SELECT `intro`.`id`, `intro`.`datetime`, 
-			`contact`.`name`, `contact`.`url`, `contact`.`photo` 
+		$intros2 = q("SELECT `intro`.`id`, `intro`.`datetime`,
+			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` LEFT JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
 			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`contact-id`!=0",
 			intval(local_user())

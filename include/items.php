@@ -1413,6 +1413,41 @@ function get_item_guid($id) {
 		return("");
 }
 
+function get_item_id($guid, $uid = 0) {
+
+	$nick = "";
+	$id = 0;
+
+	if ($uid == 0)
+		$uid == local_user();
+
+	// Does the given user have this item?
+	if ($uid) {
+		$r = q("SELECT `item`.`id`, `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+			WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				AND `item`.`guid` = '%s' AND `item`.`uid` = %d", dbesc($guid), intval($uid));
+		if (count($r)) {
+			$id = $r[0]["id"];
+			$nick = $r[0]["nickname"];
+		}
+	}
+
+	// Or is it anywhere on the server?
+	if ($nick == "") {
+		$r = q("SELECT `item`.`id`, `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+			WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+				AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+				AND `item`.`private` = 0 AND `item`.`wall` = 1
+				AND `item`.`guid` = '%s'", dbesc($guid));
+		if (count($r)) {
+			$id = $r[0]["id"];
+			$nick = $r[0]["nickname"];
+		}
+	}
+	return(array("nick" => $nick, "id" => $id));
+}
+
 // return - test
 function get_item_contact($item,$contacts) {
 	if(! count($contacts) || (! is_array($item)))
