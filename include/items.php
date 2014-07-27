@@ -944,11 +944,12 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 	// Remove the link from the body if the link is attached at the end of the post
 	if (isset($footer) AND (trim($footer) != "") AND (strpos($footer, $matches[1]))) {
 		$removedlink = trim(str_replace($matches[1], "", $body));
-		if (strstr($body, $removedlink))
+		if (($removedlink == "") OR strstr($body, $removedlink))
 			$body = $removedlink;
 
-		$removedlink = trim(str_replace("[url]".$matches[1]."[/url]", "", $body));
-		if (strstr($body, $removedlink))
+		$url = str_replace(array('/', '.'), array('\/', '\.'), $matches[1]);
+		$removedlink = preg_replace("/\[url\=".$url."\](.*?)\[\/url\]/ism", '', $body);
+		if (($removedlink == "") OR strstr($body, $removedlink))
 			$body = $removedlink;
 	}
 
