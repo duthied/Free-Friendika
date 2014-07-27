@@ -64,7 +64,7 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 			else {
 				$text = sprintf('<span class="type-%s">', $type);
 
-				$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $url, $title), $title, $url);
+				$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $url, $title), $url, $title);
 				if ($tryoembed)
 					$oembed = tryoembed($bookmark);
 				else
@@ -197,7 +197,8 @@ function stripcode_br_cb($s) {
 }
 
 function tryoembed($match){
-	$url = ((count($match)==2)?$match[1]:$match[2]);
+	//$url = ((count($match)==2)?$match[1]:$match[2]);
+	$url = $match[1];
 
 	// Always embed the SSL version
 	$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
@@ -206,6 +207,9 @@ function tryoembed($match){
 	//logger("tryoembed: $url");
 
 	$o = oembed_fetch_url($url);
+
+	if (isset($match[2]))
+		$o->title = $match[2];
 
 	//echo "<pre>"; var_dump($match, $url, $o); killme();
 
@@ -792,7 +796,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// Perform URL Search
 	if ($tryoembed)
-		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\].*?\[\/bookmark\]/ism",'tryoembed',$Text);
+		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'tryoembed',$Text);
 
 	if ($simplehtml == 5)
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url]$1[/url]',$Text);
