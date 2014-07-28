@@ -1127,9 +1127,11 @@
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item`, `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id`
+			AND `contact`.`id` = `item`.`contact-id` AND `item`.`uid` = %d AND `item`.`verb` = '%s'
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra",
+			intval(api_user()),
+			dbesc(ACTIVITY_POST),
 			intval($id)
 		);
 

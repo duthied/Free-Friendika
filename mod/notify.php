@@ -17,6 +17,20 @@ function notify_init(&$a) {
 				dbesc($r[0]['otype']),
 				intval(local_user())
 			);
+
+			// Friendica-Client
+			$friendicamobile = ($_SERVER['HTTP_USER_AGENT'] == "Apache-HttpClient/UNAVAILABLE (java 1.4)");
+
+			// The friendica client has problems with the GUID. this is some workaround
+			if ($friendicamobile) {
+				require_once("include/items.php");
+				$urldata = parse_url($r[0]['link']);
+				$guid = basename($urldata["path"]);
+				$itemdata = get_item_id($guid, local_user());
+				if ($itemdata["id"] != 0)
+					$r[0]['link'] = $a->get_baseurl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
+			}
+
 			goaway($r[0]['link']);
 		}
 
