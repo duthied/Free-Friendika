@@ -101,7 +101,8 @@ function photo_init(&$a) {
 			$photo = substr($photo,0,-2);
 		}
 
-		$r = q("SELECT `uid` FROM `photo` WHERE `resource-id` = '%s' AND `scale` = %d LIMIT 1",
+        // check if the photo exists and get the owner of the photo
+		$r = q("SELECT `uid` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
 			dbesc($photo),
 			intval($resolution)
 		);
@@ -111,7 +112,7 @@ function photo_init(&$a) {
 
 			// Now we'll see if we can access the photo
 
-			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` = %d $sql_extra LIMIT 1",
+			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` <= %d $sql_extra ORDER BY scale DESC LIMIT 1",
 				dbesc($photo),
 				intval($resolution)
 			);
@@ -119,28 +120,16 @@ function photo_init(&$a) {
 			$public = ($r[0]['allow_cid'] == '') AND ($r[0]['allow_gid'] == '') AND ($r[0]['deny_cid']  == '') AND ($r[0]['deny_gid']  == '');
 
 			if(count($r)) {
+                $resolution = $r[0]['scale'];
 				$data = $r[0]['data'];
 				$mimetype = $r[0]['type'];
 			}
 			else {
-
-				// Does the picture exist? It may be a remote person with no credentials,
-				// but who should otherwise be able to view it. Show a default image to let 
-				// them know permissions was denied. It may be possible to view the image 
-				// through an authenticated profile visit.
-				// There won't be many completely unauthorised people seeing this because
-				// they won't have the photo link, so there's a reasonable chance that the person
-				// might be able to obtain permission to view it.
- 
-				$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` = %d LIMIT 1",
-					dbesc($photo),
-					intval($resolution)
-				);
-				if(count($r)) {
-					$data = file_get_contents('images/nosign.jpg');
-					$mimetype = 'image/jpeg';
-					$prvcachecontrol = true;
-				}
+                // The picure exists. We already checked with the first query.
+                // obviously, this is not an authorized viev!
+                $data = file_get_contents('images/nosign.jpg');
+                $mimetype = 'image/jpeg';
+                $prvcachecontrol = true;
 			}
 		}
 	}
