@@ -14,7 +14,7 @@ function update_network_content(&$a) {
 	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
 
 	$no_auto_update = get_pconfig($profile_uid, "system", "no_auto_update");
-	if ($no_auto_update <= 0) {
+	if (($no_auto_update <= 0) OR ($_GET['top'] == 1)) {
 		$text = network_content($a,$profile_uid);
 		if ($no_auto_update < 0)
 			set_pconfig($profile_uid, "system", "no_auto_update", 1);

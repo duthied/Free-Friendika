@@ -302,7 +302,7 @@
 
 		in_progress = true;
 		var udargs = ((netargs.length) ? '/' + netargs : '');
-		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0);
+		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0) + '&top=' + ($(document).scrollTop() != 0 ? '0' : '1');
 
 		$.get(update_url,function(data) {
 			in_progress = false;
