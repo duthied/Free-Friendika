@@ -911,10 +911,6 @@ function item_post(&$a) {
 
 	call_hooks('post_local_end', $datarray);
 
-	// if no auto update is enabled, then disable it temporarily
-	if (get_pconfig($profile_uid, "system", "no_auto_update") == 1)
-		set_pconfig($profile_uid, "system", "no_auto_update", -1);
-
 	if(strlen($emailcc) && $profile_uid == local_user()) {
 		$erecips = explode(',', $emailcc);
 		if(count($erecips)) {
