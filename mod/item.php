@@ -77,8 +77,11 @@ function item_post(&$a) {
 	$thr_parent = '';
 	$parid = 0;
 	$r = false;
+	$objecttype = null;
 
 	if($parent || $parent_uri) {
+
+		$objecttype = ACTIVITY_OBJ_COMMENT;
 
 		if(! x($_REQUEST,'type'))
 			$_REQUEST['type'] = 'net-comment';
@@ -195,6 +198,7 @@ function item_post(&$a) {
 		$location          = $orig_post['location'];
 		$coord             = $orig_post['coord'];
 		$verb              = $orig_post['verb'];
+		$objecttype        = $orig_post['object-type'];
 		$emailcc           = $orig_post['emailcc'];
 		$app			   = $orig_post['app'];
 		$categories        = $orig_post['file'];
@@ -425,6 +429,9 @@ function item_post(&$a) {
 	if((! $preview) && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
 		$images = $match[2];
 		if(count($images)) {
+
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+
 			foreach($images as $image) {
 				if(! stristr($image,$a->get_baseurl() . '/photo/'))
 					continue;
@@ -494,6 +501,7 @@ function item_post(&$a) {
 
 	$bookmark = 0;
 	if(preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$body,$match,PREG_SET_ORDER)) {
+		$objecttype = ACTIVITY_OBJ_BOOKMARK;
 		$bookmark = 1;
 	}
 
@@ -509,6 +517,20 @@ function item_post(&$a) {
 	$body = scale_external_images($body,false);
 
 
+	// Setting the object type if not defined before
+	if (!$objecttype) {
+		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
+		require_once("include/plaintext.php");
+		$objectdata = get_attached_data($body);
+
+		if ($post["type"] == "link")
+			$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		elseif ($post["type"] == "video")
+			$objecttype = ACTIVITY_OBJ_VIDEO;
+		elseif ($post["type"] == "photo")
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+
+	}
 
 	/**
 	 * Look for any tags and linkify them
@@ -641,6 +663,7 @@ function item_post(&$a) {
 	$datarray['file']          = $categories;
 	$datarray['inform']        = $inform;
 	$datarray['verb']          = $verb;
+	$datarray['object-type']   = $objecttype;
 	$datarray['allow_cid']     = $str_contact_allow;
 	$datarray['allow_gid']     = $str_group_allow;
 	$datarray['deny_cid']      = $str_contact_deny;
@@ -728,8 +751,8 @@ function item_post(&$a) {
 
 	$r = q("INSERT INTO `item` (`guid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
 		`author-name`, `author-link`, `author-avatar`, `created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, 
-		`tag`, `inform`, `verb`, `postopts`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file` )
-		VALUES( '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
+		`tag`, `inform`, `verb`, `object-type`, `postopts`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file` )
+		VALUES( '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
 		dbesc($datarray['guid']),
 		intval($datarray['uid']),
 		dbesc($datarray['type']),
@@ -758,6 +781,7 @@ function item_post(&$a) {
 		dbesc($datarray['tag']),
 		dbesc($datarray['inform']),
 		dbesc($datarray['verb']),
+		dbesc($datarray['object-type']),
 		dbesc($datarray['postopts']),
 		dbesc($datarray['allow_cid']),
 		dbesc($datarray['allow_gid']),
