@@ -21,6 +21,7 @@
 	var src = null;
 	var prev = null;
 	var livetime = null;
+	var force_update = false;
 	var msie = false;
 	var stopped = false;
 	var totStopped = false;
@@ -301,11 +302,16 @@
 		prev = 'live-' + src;
 
 		in_progress = true;
+
+		if ($(document).scrollTop() == 0)
+			force_update = true;
+
 		var udargs = ((netargs.length) ? '/' + netargs : '');
-		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0);
+		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0) + '&force=' + ((force_update) ? 1 : 0);
 
 		$.get(update_url,function(data) {
 			in_progress = false;
+			force_update = false;
 			//			$('.collapsed-comments',data).each(function() {
 			//	var ident = $(this).attr('id');
 			//	var is_hidden = $('#' + ident).is(':hidden');
@@ -414,6 +420,7 @@
 		$('#like-rotator-' + ident.toString()).show();
 		$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
 		liking = 1;
+		force_update = true;
 	}
 
 	function dosubthread(ident) {
@@ -505,6 +512,7 @@
 						commentClose(tarea,id);
 					if(timer) clearTimeout(timer);
 					timer = setTimeout(NavUpdate,10);
+					force_update = true;
 				}
 				if(data.reload) {
 					window.location.href=data.reload;
@@ -637,6 +645,7 @@ function notifyMarkAll() {
 	$.get('notify/mark/all', function(data) {
 		if(timer) clearTimeout(timer);
 		timer = setTimeout(NavUpdate,1000);
+		force_update = true;
 	});
 }
 

@@ -886,7 +886,7 @@ function settings_content(&$a) {
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
 			'$noinfo'	=> array('noinfo', t("Don't show notices"), $noinfo, ''),
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
-			'$no_auto_update'	=> array('no_auto_update', t("Disable automatic network update"), $no_auto_update, ''),
+			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),
 
 			'$theme_config' => $theme_config,
 		));

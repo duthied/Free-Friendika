@@ -404,8 +404,8 @@ intval($params['uid']), LOGGER_DEBUG);
 
 		$textversion = strip_tags(html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n"), "\n",
 			$body))),ENT_QUOTES,'UTF-8'));
-		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r","\\n\\n" ,"\\n"), 
-			"<br />\n",$body))));
+		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r","\\n\\n" ,"\\n"),
+			"<br />\n",$body))),ENT_QUOTES,'UTF-8');
 
 		$datarray = array();
 		$datarray['banner'] = $banner;

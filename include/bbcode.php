@@ -595,7 +595,7 @@ function bb_RemovePictureLinks($match) {
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
@@ -643,7 +643,7 @@ function bb_CleanPictureLinksSub($match) {
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Friendica)");
+		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
@@ -1069,25 +1069,26 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	if($saved_image)
 		$Text = bb_replace_images($Text, $saved_image);
 
-	// Clean up the HTML by loading and saving the HTML with the DOM
-	// Only do it when it has to be done - for performance reasons
-	// Update: Now it is done every time - since bad structured html can break a whole page
-	//if (!$tryoembed) {
-	//	$doc = new DOMDocument();
-	//	$doc->preserveWhiteSpace = false;
+	// Clean up the HTML by loading and saving the HTML with the DOM.
+	// Bad structured html can break a whole page.
+	// For performance reasons do it only with ativated item cache or at export.
+	if (!$tryoembed OR (get_itemcachepath() != "")) {
+		$doc = new DOMDocument();
+		$doc->preserveWhiteSpace = false;
 
-	//	$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
+		//$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
 
-	//	$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
-	//	@$doc->loadHTML($doctype."<html><body>".$Text."</body></html>");
+		$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
+		$encoding = '<?xml encoding="UTF-8">';
+		@$doc->loadHTML($encoding.$doctype."<html><body>".$Text."</body></html>");
+		$doc->encoding = 'UTF-8';
+		$Text = $doc->saveHTML();
+		$Text = str_replace(array("<html><body>", "</body></html>", $doctype, $encoding), array("", "", "", ""), $Text);
 
-	//	$Text = $doc->saveHTML();
-	//	$Text = str_replace(array("<html><body>", "</body></html>", $doctype), array("", "", ""), $Text);
+		$Text = str_replace('<br></li>','</li>', $Text);
 
-	//	$Text = str_replace('<br></li>','</li>', $Text);
-
-	//	$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
-	//}
+		//$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
+	}
 
 	// Clean up some useless linebreaks in lists
 	//$Text = str_replace('<br /><ul','<ul ', $Text);

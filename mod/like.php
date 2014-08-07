@@ -136,10 +136,6 @@ function like_content(&$a) {
 		// Save the author information for the unlike in case we need to relay to Diaspora
 		store_diaspora_like_retract_sig($activity, $item, $like_item, $contact);
 
-		// if no auto update is enabled, then disable it temporarily
-		if (get_pconfig($owner_uid, "system", "no_auto_update") == 1)
-			set_pconfig($owner_uid, "system", "no_auto_update", -1);
-
 //		proc_run('php',"include/notifier.php","like","$post_id"); // $post_id isn't defined here!
 		$like_item_id = $like_item['id'];
 		proc_run('php',"include/notifier.php","like","$like_item_id");
@@ -221,10 +217,6 @@ EOT;
 
 	// Save the author information for the like in case we need to relay to Diaspora
 	store_diaspora_like_sig($activity, $post_type, $contact, $post_id);
-
-	// if no auto update is enabled, then disable it temporarily
-	if (get_pconfig($owner_uid, "system", "no_auto_update") == 1)
-		set_pconfig($owner_uid, "system", "no_auto_update", -1);
 
 	$arr['id'] = $post_id;
 
