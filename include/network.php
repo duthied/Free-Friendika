@@ -72,8 +72,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
 	$http_code = $curl_info['http_code'];
-	logger('fetch_url '.$url.': '.$http_code." *".$s."*", LOGGER_DEBUG);
-	//logger('fetch_url:' . $http_code . ' data: ' . $s);
+	logger('fetch_url '.$url.': '.$http_code." ".$s, LOGGER_DATA);
 	$header = '';
 
 	// Pull out multiple headers, e.g. proxy and continuation headers
