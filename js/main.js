@@ -307,7 +307,7 @@
 			force_update = true;
 
 		var udargs = ((netargs.length) ? '/' + netargs : '');
-		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0) + '&force=' + (force_update ? '1' : '0');
+		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0) + '&force=' + ((force_update) ? 1 : 0);
 
 		$.get(update_url,function(data) {
 			in_progress = false;
