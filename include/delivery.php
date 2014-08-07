@@ -186,29 +186,29 @@ function delivery_run(&$argv, &$argc){
 			// in the URI, AND it was a comment (not top_level) AND the parent originated elsewhere.
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
- 	
+
 			// expire sends an entire group of expire messages and cannot be forwarded.
-			// However the conversation owner will be a part of the conversation and will 
+			// However the conversation owner will be a part of the conversation and will
 			// be notified during this run.
 			// Other DFRN conversation members will be alerted during polled updates.
 
 			// Diaspora members currently are not notified of expirations, and other networks have
-			// either limited or no ability to process deletions. We should at least fix Diaspora 
+			// either limited or no ability to process deletions. We should at least fix Diaspora
 			// by stringing togther an array of retractions and sending them onward.
-		 
-  	
+
+
 		$localhost = $a->get_hostname();
 		if(strpos($localhost,':'))
 			$localhost = substr($localhost,0,strpos($localhost,':'));
 
 		/**
 		 *
-		 * Be VERY CAREFUL if you make any changes to the following line. Seemingly innocuous changes 
-		 * have been known to cause runaway conditions which affected several servers, along with 
-		 * permissions issues. 
+		 * Be VERY CAREFUL if you make any changes to the following line. Seemingly innocuous changes
+		 * have been known to cause runaway conditions which affected several servers, along with
+		 * permissions issues.
 		 *
 		 */
- 
+
 		if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
 			logger('relay denied for delivery agent.');
 
@@ -216,9 +216,9 @@ function delivery_run(&$argv, &$argc){
 			continue;
 		}
 
-		if((strlen($parent['allow_cid'])) 
-			|| (strlen($parent['allow_gid'])) 
-			|| (strlen($parent['deny_cid'])) 
+		if((strlen($parent['allow_cid']))
+			|| (strlen($parent['allow_gid']))
+			|| (strlen($parent['deny_cid']))
 			|| (strlen($parent['deny_gid']))) {
 			$public_message = false; // private recipients, not public
 		}
@@ -229,7 +229,7 @@ function delivery_run(&$argv, &$argc){
 
 		if(count($r))
 			$contact = $r[0];
-	
+
 		$hubxml = feed_hublinks();
 
 		logger('notifier: slaps: ' . print_r($slaps,true), LOGGER_DATA);
@@ -297,7 +297,7 @@ function delivery_run(&$argv, &$argc){
 				}
 
 				$atom .= '</feed>' . "\r\n";
-	
+
 				logger('notifier: ' . $atom, LOGGER_DATA);
 				$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));
 
@@ -311,15 +311,15 @@ function delivery_run(&$argv, &$argc){
 					else
 						$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($contact['dfrn-id']));
 
-					$x = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`, 
-						`contact`.`pubkey` AS `cpubkey`, 
-						`contact`.`prvkey` AS `cprvkey`, 
-						`contact`.`thumb` AS `thumb`, 
+					$x = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`,
+						`contact`.`pubkey` AS `cpubkey`,
+						`contact`.`prvkey` AS `cprvkey`,
+						`contact`.`thumb` AS `thumb`,
 						`contact`.`url` as `url`,
 						`contact`.`name` as `senderName`,
-						`user`.* 
-						FROM `contact` 
-						INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` 
+						`user`.*
+						FROM `contact`
+						INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 						WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 						AND `contact`.`network` = '%s' AND `user`.`nickname` = '%s'
 						$sql_extra
@@ -390,7 +390,7 @@ function delivery_run(&$argv, &$argc){
 						if(! $item_contact)
 							continue;
 
-						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire)) 
+						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
 							$slaps[] = atom_entry($item,'html',null,$owner,true);
 					}
 
@@ -426,7 +426,7 @@ function delivery_run(&$argv, &$argc){
 				if($cmd === 'wall-new' || $cmd === 'comment-new') {
 
 					$it = null;
-					if($cmd === 'wall-new') 
+					if($cmd === 'wall-new')
 						$it = $items[0];
 					else {
 						$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -509,7 +509,7 @@ function delivery_run(&$argv, &$argc){
 			case NETWORK_DIASPORA :
 				if($public_message)
 					$loc = 'public batch ' . $contact['batch'];
-				else 
+				else
 					$loc = $contact['name'];
 
 				logger('delivery: diaspora batch deliver: ' . $loc);
