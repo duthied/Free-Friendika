@@ -1076,7 +1076,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$doc = new DOMDocument();
 		$doc->preserveWhiteSpace = false;
 
-		//$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
+		$Text = mb_convert_encoding($Text, 'HTML-ENTITIES', "UTF-8");
 
 		$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
 		$encoding = '<?xml encoding="UTF-8">';
