@@ -847,8 +847,7 @@ function item_post(&$a) {
 					'to_email'     => $user['email'],
 					'uid'          => $user['uid'],
 					'item'         => $datarray,
-					//'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
-					'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
+					'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
 					'source_name'  => $datarray['author-name'],
 					'source_link'  => $datarray['author-link'],
 					'source_photo' => $datarray['author-avatar'],
@@ -876,8 +875,7 @@ function item_post(&$a) {
 					'to_email'     => $user['email'],
 					'uid'          => $user['uid'],
 					'item'         => $datarray,
-					//'link'		   => $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id,
-					'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
+					'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
 					'source_name'  => $datarray['author-name'],
 					'source_link'  => $datarray['author-link'],
 					'source_photo' => $datarray['author-avatar'],
@@ -896,8 +894,7 @@ function item_post(&$a) {
 			WHERE `id` = %d",
 			intval($parent),
 			dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
-			//dbesc($a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id),
-			dbesc($a->get_baseurl().'/display/'.$datarray['guid']),
+			dbesc($a->get_baseurl().'/display/'.urlencode($datarray['guid'])),
 			dbesc(datetime_convert()),
 			intval($post_id)
 		);
@@ -930,8 +927,7 @@ function item_post(&$a) {
 	update_thread($parent);
 
 	$datarray['id']    = $post_id;
-	//$datarray['plink'] = $a->get_baseurl() . '/display/' . $user['nickname'] . '/' . $post_id;
-	$datarray['plink'] = $a->get_baseurl().'/display/'.$datarray['guid'];
+	$datarray['plink'] = $a->get_baseurl().'/display/'.urlencode($datarray['guid']);
 
 	call_hooks('post_local_end', $datarray);
 

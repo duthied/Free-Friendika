@@ -1423,8 +1423,7 @@ function diaspora_comment($importer,$xml,$msg) {
 				'to_email'     => $importer['email'],
 				'uid'          => $importer['uid'],
 				'item'         => $datarray,
-				//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id,
-				'link'		   => $a->get_baseurl().'/display/'.$datarray['guid'],
+				'link'		   => $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -1960,7 +1959,7 @@ EOT;
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $parent_item['author-link'] . ']' . $parent_item['author-name'] . '[/url]';
 	//$plink = '[url=' . $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $parent_item['id'] . ']' . $post_type . '[/url]';
-	$plink = '[url='.$a->get_baseurl().'/display/'.$guid.']'.$post_type.'[/url]';
+	$plink = '[url='.$a->get_baseurl().'/display/'.urlencode($guid).']'.$post_type.'[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['app']  = 'Diaspora';
