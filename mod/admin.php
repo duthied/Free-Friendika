@@ -360,6 +360,7 @@ function admin_page_site_post(&$a){
 	$temppath		=	((x($_POST,'temppath'))			? notags(trim($_POST['temppath']))		: '');
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
+	$enable_noscrape = ((x($_POST,'enable_noscrape')) ? true : false);
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -483,6 +484,7 @@ function admin_page_site_post(&$a){
 	set_config('system','lockpath', $lockpath);
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
+	set_config('system','enable_noscrape', $enable_noscrape);
 
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
@@ -643,8 +645,9 @@ function admin_page_site(&$a) {
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-
-        '$form_security_token' => get_form_security_token("admin_site"),
+		
+		'$enable_noscrape'=> array('enable_noscrape', t("Enable noscrape"), get_config('system','enable_noscrape'), t("The noscrape feature speeds up directory submissions by using JSON data instead of HTML scraping.")),
+    '$form_security_token' => get_form_security_token("admin_site")
 
 	));
 
