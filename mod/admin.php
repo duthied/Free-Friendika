@@ -362,6 +362,7 @@ function admin_page_site_post(&$a){
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
+	$enable_noscrape = ((x($_POST,'enable_noscrape')) ? true : false);
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -486,6 +487,7 @@ function admin_page_site_post(&$a){
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
 	set_config('system','proxy_disabled', $proxy_disabled);
+	set_config('system','enable_noscrape', $enable_noscrape);
 
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
@@ -647,8 +649,9 @@ function admin_page_site(&$a) {
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-
-        '$form_security_token' => get_form_security_token("admin_site"),
+		
+		'$enable_noscrape'=> array('enable_noscrape', t("Enable noscrape"), get_config('system','enable_noscrape'), t("The noscrape feature speeds up directory submissions by using JSON data instead of HTML scraping.")),
+    '$form_security_token' => get_form_security_token("admin_site")
 
 	));
 

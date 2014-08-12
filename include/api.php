@@ -2311,6 +2311,48 @@
 	api_register_func('api/oauth/request_token', 'api_oauth_request_token', false);
 	api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
 
+
+	function api_fr_photos_list(&$a,$type) {
+		if (api_user()===false) return false;
+		$r = q("select distinct `resource-id` from photo where uid = %d and album != 'Contact Photos' ",
+			intval(local_user())
+		);
+		if($r) {
+			$ret = array();
+			foreach($r as $rr)
+				$ret[] = $rr['resource-id'];
+			header("Content-type: application/json");
+			echo json_encode($ret);
+		}
+		killme();
+	}
+
+	function api_fr_photo_detail(&$a,$type) {
+		if (api_user()===false) return false;
+		if(! $_REQUEST['photo_id']) return false;
+		$scale = ((array_key_exists('scale',$_REQUEST)) ? intval($_REQUEST['scale']) : 0);
+ 		$r = q("select * from photo where uid = %d and `resource-id` = '%s' and scale = %d limit 1",
+			intval(local_user()),
+			dbesc($_REQUEST['photo_id']),
+			intval($scale)
+		);
+		if($r) {
+			header("Content-type: application/json");
+			$r[0]['data'] = base64_encode($r[0]['data']);
+			echo json_encode($r[0]);
+		}
+
+		killme();	
+	}
+
+	api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
+	api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
+
+
+
+
+
+
 function api_share_as_retweet($a, $uid, &$item) {
 	$body = trim($item["body"]);
 

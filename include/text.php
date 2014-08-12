@@ -6,8 +6,8 @@ require_once("include/friendica_smarty.php");
 if(! function_exists('replace_macros')) {
 /**
  * This is our template processor
- * 
- * @param string|FriendicaSmarty $s the string requiring macro substitution, 
+ *
+ * @param string|FriendicaSmarty $s the string requiring macro substitution,
  *									or an instance of FriendicaSmarty
  * @param array $r key value pairs (search => replace)
  * @return string substituted string
@@ -52,13 +52,13 @@ if(! function_exists('notags')) {
  * The high bit hack only involved some old IE browser, forget which (IE5/Mac?)
  * that had an XSS attack vector due to stripping the high-bit on an 8-bit character
  * after cleansing, and angle chars with the high bit set could get through as markup.
- * 
- * This is now disabled because it was interfering with some legitimate unicode sequences 
- * and hopefully there aren't a lot of those browsers left. 
+ *
+ * This is now disabled because it was interfering with some legitimate unicode sequences
+ * and hopefully there aren't a lot of those browsers left.
  *
  * Use this on any text input where angle chars are not valid or permitted
  * They will be replaced with safer brackets. This may be filtered further
- * if these are not allowed either.   
+ * if these are not allowed either.
  *
  * @param string $string Input string
  * @return string Filtered string
@@ -86,12 +86,12 @@ function escape_tags($string) {
 }}
 
 
-// generate a string that's random, but usually pronounceable. 
+// generate a string that's random, but usually pronounceable.
 // used to generate initial passwords
 
 if(! function_exists('autoname')) {
 /**
- * generate a string that's random, but usually pronounceable. 
+ * generate a string that's random, but usually pronounceable.
  * used to generate initial passwords
  * @param int $len
  * @return string
@@ -101,7 +101,7 @@ function autoname($len) {
 	if($len <= 0)
 		return '';
 
-	$vowels = array('a','a','ai','au','e','e','e','ee','ea','i','ie','o','ou','u'); 
+	$vowels = array('a','a','ai','au','e','e','e','ee','ea','i','ie','o','ou','u');
 	if(mt_rand(0,5) == 4)
 		$vowels[] = 'y';
 
@@ -145,7 +145,7 @@ function autoname($len) {
 	for ($x = 0; $x < $len; $x ++) {
   		$r = mt_rand(0,count($table) - 1);
   		$word .= $table[$r];
-  
+
   		if($table == $vowels)
     			$table = array_merge($cons,$midcons);
   		else
@@ -162,7 +162,7 @@ function autoname($len) {
   		}
 	}
 	if(substr($word,-1) == 'q')
-		$word = substr($word,0,-1);    
+		$word = substr($word,0,-1);
 	return $word;
 }}
 
@@ -178,11 +178,11 @@ if(! function_exists('xmlify')) {
  */
 function xmlify($str) {
 /*	$buffer = '';
-	
+
 	$len = mb_strlen($str);
 	for($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
-        
+
 		switch( $char ) {
 
 			case "\r" :
@@ -208,7 +208,7 @@ function xmlify($str) {
 			default :
 				$buffer .= $char;
 				break;
-		}	
+		}
 	}*/
 	/*
 	$buffer = mb_ereg_replace("&", "&amp;", $str);
@@ -219,7 +219,7 @@ function xmlify($str) {
 	*/
 	$buffer = htmlspecialchars($str, ENT_QUOTES);
 	$buffer = trim($buffer);
-	
+
 	return($buffer);
 }}
 
@@ -239,7 +239,7 @@ function unxmlify($s) {
 	$ret = mb_ereg_replace('&gt;', ">", $ret);
 	*/
 	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
-	return $ret;	
+	return $ret;
 }}
 
 if(! function_exists('hex2bin')) {
@@ -287,7 +287,7 @@ function paginate_data(&$a, $count=null) {
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
 
-		$d[$name] = array('url'=>$url, 'text'=>$text, 'class'=>$class); 
+		$d[$name] = array('url'=>$url, 'text'=>$text, 'class'=>$class);
 	}
 
 	if (!is_null($count)){
@@ -355,9 +355,9 @@ if(! function_exists('paginate')) {
  * Then call paginate($a) after the end of the display loop to insert the pager block on the page
  * (assuming there are enough items to paginate).
  * When using with SQL, the setting LIMIT %d, %d => $a->pager['start'],$a->pager['itemspage']
- * will limit the results to the correct items for the current page. 
- * The actual page handling is then accomplished at the application layer. 
- * 
+ * will limit the results to the correct items for the current page.
+ * The actual page handling is then accomplished at the application layer.
+ *
  * @param App $a App instance
  * @return string html for pagination #FIXME remove html
  */
@@ -406,11 +406,11 @@ function expand_acl($s) {
 		}
 	}
 	return $ret;
-}}		
+}}
 
 if(! function_exists('sanitise_acl')) {
 /**
- * Wrap ACL elements in angle brackets for storage 
+ * Wrap ACL elements in angle brackets for storage
  * @param string $item
  */
 function sanitise_acl(&$item) {
@@ -424,10 +424,10 @@ function sanitise_acl(&$item) {
 if(! function_exists('perms2str')) {
 /**
  * Convert an ACL array to a storable string
- * 
+ *
  * Normally ACL permissions will be an array.
  * We'll also allow a comma-separated string.
- * 
+ *
  * @param string|array $p
  * @return string
  */
@@ -450,7 +450,7 @@ if(! function_exists('item_new_uri')) {
 /**
  * generate a guaranteed unique (for this domain) item ID for ATOM
  * safe from birthday paradox
- * 
+ *
  * @param string $hostname
  * @param int $uid
  * @return string
@@ -506,7 +506,7 @@ if(! function_exists('load_view_file')) {
  * @global App $a
  * @param string $s view name
  * @return string
- */	
+ */
 function load_view_file($s) {
 	global $lang, $a;
 	if(! isset($lang))
@@ -539,7 +539,7 @@ if(! function_exists('get_intltext_template')) {
 /**
  * load a view template, checking for alternate
  * languages before falling back to the default
- * 
+ *
  * @global string $lang
  * @param string $s view path
  * @return string
@@ -576,7 +576,7 @@ function get_intltext_template($s) {
 if(! function_exists('get_markup_template')) {
 /**
  * load template $s
- * 
+ *
  * @param string $s
  * @param string $root
  * @return string
@@ -591,15 +591,15 @@ function get_markup_template($s, $root = '') {
 	} catch (Exception $e) {
 		echo "<pre><b>".__function__."</b>: ".$e->getMessage()."</pre>"; killme();
 	}
-	
+
 	$a->save_timestamp($stamp1, "file");
-	
+
 	return $template;
 }}
 
 if(! function_exists("get_template_file")) {
 /**
- * 
+ *
  * @param App $a
  * @param string $filename
  * @param string $root
@@ -636,11 +636,11 @@ if(! function_exists('attribute_contains')) {
  *  an attribute foobar="class1 class2 class3"
  *  and you want to find out if it contains 'class3'.
  *  you can't use a normal sub string search because you
- *  might match 'notclass3' and a regex to do the job is 
- *  possible but a bit complicated. 
- *  pass the attribute string as $attr and the attribute you 
+ *  might match 'notclass3' and a regex to do the job is
+ *  possible but a bit complicated.
+ *  pass the attribute string as $attr and the attribute you
  *  are looking for as $s - returns true if found, otherwise false
- * 
+ *
  * @param string $attr attribute value
  * @param string $s string to search
  * @return boolean True if found, False otherwise
@@ -691,9 +691,9 @@ function logger($msg,$level = 0) {
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
 		return;
 
-	$callers = debug_backtrace(); 
-	$logline =  sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n", 
-				 datetime_convert(), 
+	$callers = debug_backtrace();
+	$logline =  sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
+				 datetime_convert(),
 				 session_id(),
 				 $LOGGER_LEVELS[$level],
 				 basename($callers[0]['file']),
@@ -701,7 +701,7 @@ function logger($msg,$level = 0) {
 				 $callers[1]['function'],
 				 $msg
 				);
-	
+
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
 	$a->save_timestamp($stamp1, "file");
@@ -712,7 +712,7 @@ function logger($msg,$level = 0) {
 if(! function_exists('activity_match')) {
 /**
  * Compare activity uri. Knows about activity namespace.
- * 
+ *
  * @param string $haystack
  * @param string $needle
  * @return boolean
@@ -727,12 +727,12 @@ function activity_match($haystack,$needle) {
 if(! function_exists('get_tags')) {
 /**
  * Pull out all #hashtags and @person tags from $s;
- * We also get @person@domain.com - which would make 
+ * We also get @person@domain.com - which would make
  * the regex quite complicated as tags can also
  * end a sentence. So we'll run through our results
  * and strip the period from any tags which end with one.
  * Returns array of tags found, or empty array.
- * 
+ *
  * @param string $s
  * @return array
  */
@@ -788,18 +788,18 @@ function get_tags($s) {
 }}
 
 
-// 
+//
 
 if(! function_exists('qp')) {
 /**
  * quick and dirty quoted_printable encoding
- * 
+ *
  * @param string $s
  * @return string
- */	
+ */
 function qp($s) {
 return str_replace ("%","=",rawurlencode($s));
-}} 
+}}
 
 
 
@@ -827,7 +827,7 @@ function get_mentions($item) {
 if(! function_exists('contact_block')) {
 /**
  * Get html for contact block.
- * 
+ *
  * @template contact_block.tpl
  * @hook contact_block_end (contacts=>array, output=>string)
  * @return string
@@ -853,7 +853,7 @@ function contact_block() {
 	if(! $total) {
 		$contacts = t('No contacts');
 		$micropro = Null;
-		
+
 	} else {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
@@ -867,7 +867,7 @@ function contact_block() {
 			}
 		}
 	}
-	
+
 	$tpl = get_markup_template('contact_block.tpl');
 	$o = replace_macros($tpl, array(
 		'$contacts' => $contacts,
@@ -885,7 +885,7 @@ function contact_block() {
 
 if(! function_exists('micropro')) {
 /**
- * 
+ *
  * @param array $contact
  * @param boolean $redirect
  * @param string $class
@@ -916,19 +916,19 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	if($click)
 		$url = '';
 	if($textmode) {
-		return '<div class="contact-block-textdiv' . $class . '"><a class="contact-block-link' . $class . $sparkle 
+		return '<div class="contact-block-textdiv' . $class . '"><a class="contact-block-link' . $class . $sparkle
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click
-			. '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name'] 
+			. '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
 			. '" >'. $contact['name'] . '</a></div>' . "\r\n";
 	}
 	else {
-		return '<div class="contact-block-div' . $class . '"><a class="contact-block-link' . $class . $sparkle 
+		return '<div class="contact-block-div' . $class . '"><a class="contact-block-link' . $class . $sparkle
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
-			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="' 
-			. $contact['micro'] . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name'] 
+			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
+			. $contact['micro'] . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
 			. '" /></a></div>' . "\r\n";
 	}
 }}
@@ -938,7 +938,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 if(! function_exists('search')) {
 /**
  * search box
- * 
+ *
  * @param string $s search query
  * @param string $id html id
  * @param string $url search url
@@ -950,9 +950,9 @@ function search($s,$id='search-box',$url='/search',$save = false) {
 	$o  = '<div id="' . $id . '">';
 	$o .= '<form action="' . $a->get_baseurl((stristr($url,'network')) ? true : false) . $url . '" method="get" >';
 	$o .= '<input type="text" name="search" id="search-text" placeholder="' . t('Search') . '" value="' . $s .'" />';
-	$o .= '<input type="submit" name="submit" id="search-submit" value="' . t('Search') . '" />'; 
+	$o .= '<input type="submit" name="submit" id="search-submit" value="' . t('Search') . '" />';
 	if($save)
-		$o .= '<input type="submit" name="save" id="search-save" value="' . t('Save') . '" />'; 
+		$o .= '<input type="submit" name="save" id="search-save" value="' . t('Save') . '" />';
 	$o .= '</form></div>';
 	return $o;
 }}
@@ -960,7 +960,7 @@ function search($s,$id='search-box',$url='/search',$save = false) {
 if(! function_exists('valid_email')) {
 /**
  * Check if $x is a valid email string
- * 
+ *
  * @param string $x
  * @return boolean
  */
@@ -996,7 +996,7 @@ function linkify($s) {
  * @hook poke_verbs pokes array
  */
 function get_poke_verbs() {
-	
+
 	// index is present tense verb
 	// value is array containing past tense verb, translation of present, translation of past
 
@@ -1018,7 +1018,7 @@ function get_poke_verbs() {
  * @hook mood_verbs moods array
  */
 function get_mood_verbs() {
-	
+
 	$arr = array(
 		'happy'      => t('happy'),
 		'sad'        => t('sad'),
@@ -1053,10 +1053,10 @@ if(! function_exists('smilies')) {
  * Replaces text emoticons with graphical images
  *
  * It is expected that this function will be called using HTML text.
- * We will escape text between HTML pre and code blocks from being 
- * processed. 
- * 
- * At a higher level, the bbcode [nosmile] tag can be used to prevent this 
+ * We will escape text between HTML pre and code blocks from being
+ * processed.
+ *
+ * At a higher level, the bbcode [nosmile] tag can be used to prevent this
  * function from being executed by the prepare_text() routine when preparing
  * bbcode source for HTML display
  *
@@ -1068,43 +1068,43 @@ if(! function_exists('smilies')) {
 function smilies($s, $sample = false) {
 	$a = get_app();
 
-	if(intval(get_config('system','no_smilies')) 
+	if(intval(get_config('system','no_smilies'))
 		|| (local_user() && intval(get_pconfig(local_user(),'system','no_smilies'))))
 		return $s;
 
 	$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','smile_encode',$s);
 	$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','smile_encode',$s);
 
-	$texts =  array( 
-		'&lt;3', 
-		'&lt;/3', 
-		'&lt;\\3', 
-		':-)', 
-		';-)', 
-		':-(', 
-		':-P', 
-		':-p', 
-		':-"', 
-		':-&quot;', 
-		':-x', 
-		':-X', 
-		':-D', 
-		'8-|', 
-		'8-O', 
-		':-O', 
-		'\\o/', 
-		'o.O', 
-		'O.o', 
-		'o_O', 
-		'O_o', 
-		":'(", 
-		":-!", 
-		":-/", 
-		":-[", 
+	$texts =  array(
+		'&lt;3',
+		'&lt;/3',
+		'&lt;\\3',
+		':-)',
+		';-)',
+		':-(',
+		':-P',
+		':-p',
+		':-"',
+		':-&quot;',
+		':-x',
+		':-X',
+		':-D',
+		'8-|',
+		'8-O',
+		':-O',
+		'\\o/',
+		'o.O',
+		'O.o',
+		'o_O',
+		'O_o',
+		":'(",
+		":-!",
+		":-/",
+		":-[",
 		"8-)",
-		':beer', 
-		':homebrew', 
-		':coffee', 
+		':beer',
+		':homebrew',
+		':coffee',
 		':facepalm',
 		':like',
 		':dislike',
@@ -1129,7 +1129,7 @@ function smilies($s, $sample = false) {
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-laughing.gif" alt=":-D" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt="8-|" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt="8-O" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt=":-O" />',                
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt=":-O" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="o.O" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="O.o" />',
@@ -1182,7 +1182,7 @@ function smile_decode($m) {
 
 /**
  * expand <3333 to the correct number of hearts
- * 
+ *
  * @param string $x
  * @return string
  */
@@ -1201,7 +1201,7 @@ function preg_heart($x) {
 if(! function_exists('day_translate')) {
 /**
  * Translate days and months names
- * 
+ *
  * @param string $s
  * @return string
  */
@@ -1221,7 +1221,7 @@ function day_translate($s) {
 if(! function_exists('normalise_link')) {
 /**
  * Normalize url
- * 
+ *
  * @param string $url
  * @return string
  */
@@ -1235,15 +1235,15 @@ function normalise_link($url) {
 if(! function_exists('link_compare')) {
 /**
  * Compare two URLs to see if they are the same, but ignore
- * slight but hopefully insignificant differences such as if one 
- * is https and the other isn't, or if one is www.something and 
+ * slight but hopefully insignificant differences such as if one
+ * is https and the other isn't, or if one is www.something and
  * the other isn't - and also ignore case differences.
  *
  * @param string $a first url
  * @param string $b second url
  * @return boolean True if the URLs match, otherwise False
  *
- */	
+ */
 function link_compare($a,$b) {
 	if(strcasecmp(normalise_link($a),normalise_link($b)) === 0)
 		return true;
@@ -1254,7 +1254,7 @@ function link_compare($a,$b) {
 if(! function_exists('redir_private_images')) {
 /**
  * Find any non-embedded images in private items and add redir links to them
- * 
+ *
  * @param App $a
  * @param array $item
  */
@@ -1286,7 +1286,7 @@ if(! function_exists('prepare_body')) {
 /**
  * Given an item array, convert the body element from bbcode to html and add smilie icons.
  * If attach is true, also add icons for item attachments
- * 
+ *
  * @param array $item
  * @param boolean $attach
  * @return string item body html
@@ -1473,6 +1473,13 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		$s = substr($s, 0, $pos).$authorreplace.substr($s, $pos+strlen($authorsearch));
 	}
 
+    // replace friendica image url size with theme preference
+    if (x($a->theme_info,'item_image_size')){
+        $ps = $a->theme_info['item_image_size'];
+
+        $s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|',"$1-".$ps, $s);
+    }
+
 	$prep_arr = array('item' => $item, 'html' => $s);
 	call_hooks('prepare_body_final', $prep_arr);
 
@@ -1483,7 +1490,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 if(! function_exists('prepare_text')) {
 /**
  * Given a text string, convert from bbcode to html and add smilie icons.
- * 
+ *
  * @param string $text
  * @return string
  */
@@ -1503,10 +1510,10 @@ function prepare_text($text) {
 
 /**
  * return array with details for categories and folders for an item
- * 
+ *
  * @param array $item
  * @return array
- * 
+ *
   * [
  *      [ // categories array
  *          {
@@ -1524,7 +1531,7 @@ function prepare_text($text) {
  *               'first': 'is the first in this array? true/false',
  *               'last': 'is the last in this array? true/false',
  *           } ,
- *           ....       
+ *           ....
  *       ]
  *  ]
  */
@@ -1549,7 +1556,7 @@ function get_cats_and_terms($item) {
         }
     }
     if (count($categories)) $categories[count($categories)-1]['last'] = true;
-    
+
 
 	if(local_user() == $item['uid']) {
 	    $matches = false; $first = true;
@@ -1614,10 +1621,10 @@ function feed_salmonlinks($nick) {
 
 	$salmon  = '<link rel="salmon" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ;
 
-	// old style links that status.net still needed as of 12/2010 
+	// old style links that status.net still needed as of 12/2010
 
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-replies" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ; 
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-mention" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ; 
+	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-replies" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ;
+	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-mention" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ;
 	return $salmon;
 }}
 
@@ -1672,17 +1679,17 @@ if(! function_exists('lang_selector')) {
 /**
  * get html for language selector
  * @global string $lang
- * @return string 
+ * @return string
  * @template lang_selector.tpl
  */
 function lang_selector() {
 	global $lang;
-	
+
 	$langs = glob('view/*/strings.php');
-	
+
 	$lang_options = array();
 	$selected = "";
-	
+
 	if(is_array($langs) && count($langs)) {
 		$langs[] = '';
 		if(! in_array('view/en/strings.php',$langs))
@@ -1700,11 +1707,11 @@ function lang_selector() {
 		}
 	}
 
-	$tpl = get_markup_template("lang_selector.tpl");	
+	$tpl = get_markup_template("lang_selector.tpl");
 	$o = replace_macros($tpl, array(
 		'$title' => t('Select an alternate language'),
 		'$langs' => array($lang_options, $selected),
-		
+
 	));
 	return $o;
 }}
@@ -1792,7 +1799,7 @@ function base64url_decode($s) {
 if (!function_exists('str_getcsv')) {
 	/**
 	 * Parse csv string
-	 * 
+	 *
 	 * @param string $input
 	 * @param string $delimiter
 	 * @param string $enclosure
@@ -1837,13 +1844,13 @@ if (!function_exists('str_getcsv')) {
                         }
                     } else {
                         $line = preg_split("/".$delimiter."/",$line);
-   
+
                         /*
                          * Validating against pesky extra line breaks creating false rows.
                          */
                         if (is_array($line) && !empty($line[0])) {
                             $output[$line_num] = $line;
-                        } 
+                        }
                     }
                 }
                 return $output;
@@ -1854,7 +1861,7 @@ if (!function_exists('str_getcsv')) {
             return false;
         }
     }
-} 
+}
 
 /**
  * return div element with class 'clear'
@@ -1878,7 +1885,7 @@ function bb_translate_video($s) {
 				$s = str_replace($mtch[0],'[vimeo]' . $mtch[1] . '[/vimeo]',$s);
 		}
 	}
-	return $s;	
+	return $s;
 }
 
 function html2bb_video($s) {
@@ -1909,7 +1916,7 @@ function array_xmlify($val){
 
 /**
  * transorm link href and img src from relative to absolute
- * 
+ *
  * @param string $text
  * @param string $base base url
  * @return string
@@ -1922,7 +1929,7 @@ function reltoabs($text, $base)
   $base = rtrim($base,'/');
 
   $base2 = $base . "/";
- 	
+
   // Replace links
   $pattern = "/<a([^>]*) href=\"(?!http|https|\/)([^\"]*)\"/";
   $replace = "<a\${1} href=\"" . $base2 . "\${2}\"";
@@ -1935,11 +1942,11 @@ function reltoabs($text, $base)
   // Replace images
   $pattern = "/<img([^>]*) src=\"(?!http|https|\/)([^\"]*)\"/";
   $replace = "<img\${1} src=\"" . $base2 . "\${2}\"";
-  $text = preg_replace($pattern, $replace, $text); 
+  $text = preg_replace($pattern, $replace, $text);
 
   $pattern = "/<img([^>]*) src=\"(?!http|https)([^\"]*)\"/";
   $replace = "<img\${1} src=\"" . $base . "\${2}\"";
-  $text = preg_replace($pattern, $replace, $text); 
+  $text = preg_replace($pattern, $replace, $text);
 
 
   // Done
@@ -1948,7 +1955,7 @@ function reltoabs($text, $base)
 
 /**
  * get translated item type
- * 
+ *
  * @param array $itme
  * @return string
  */
@@ -1967,7 +1974,7 @@ function item_post_type($item) {
 // post categories and "save to file" use the same item.file table for storage.
 // We will differentiate the different uses by wrapping categories in angle brackets
 // and save to file categories in square brackets.
-// To do this we need to escape these characters if they appear in our tag. 
+// To do this we need to escape these characters if they appear in our tag.
 
 function file_tag_encode($s) {
 	return str_replace(array('<','>','[',']'),array('%3c','%3e','%5b','%5d'),$s);
