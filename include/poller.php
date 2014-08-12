@@ -134,6 +134,16 @@ function poller_run(&$argv, &$argc){
 		// clear smarty cache
 		clear_cache($a->get_basepath()."/view/smarty3/compiled", $a->get_basepath()."/view/smarty3/compiled");
 
+		// clear cache for image proxy
+		if (!get_config("system", "proxy_disabled")) {
+			clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
+
+			$cachetime = get_config('system','proxy_cache_time');
+			if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
+
+			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
+		}
+
 		set_config('system','cache_last_cleared', time());
 	}
 

@@ -188,6 +188,8 @@ function ping_init(&$a) {
 
 
 		function xmlize($href, $name, $url, $photo, $date, $seen, $message){
+			require_once("mod/proxy.php");
+			$photo = proxy_url($photo);
 			$data = array('href' => &$href, 'name' => &$name, 'url'=>&$url, 'photo'=>&$photo, 'date'=>&$date, 'seen'=>&$seen, 'messsage'=>&$message);
 			call_hooks('ping_xmlize', $data);
 			$notsxml = '<note href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" >%s</note>';

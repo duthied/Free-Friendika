@@ -370,6 +370,7 @@ if(!function_exists('conversation')) {
 function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 	require_once('include/bbcode.php');
+	require_once('mod/proxy.php');
 
 	$ssl_state = ((local_user()) ? true : false);
 
@@ -656,7 +657,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => $profile_avatar,
+					'thumb' => proxy_url($profile_avatar),
 					'title' => $item['title_e'],
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -675,7 +676,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => $owner_photo,
+					'owner_photo' => proxy_url($owner_photo),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
