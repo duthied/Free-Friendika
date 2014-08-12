@@ -1117,7 +1117,7 @@ function item_store($arr,$force_parent = false) {
 
 	if ($arr['plink'] == "") {
 		$a = get_app();
-		$arr['plink'] = $a->get_baseurl().'/display/'.$arr['guid'];
+		$arr['plink'] = $a->get_baseurl().'/display/'.urlencode($arr['guid']);
 	}
 
 	if ($arr['network'] == "") {
@@ -1298,8 +1298,7 @@ function item_store($arr,$force_parent = false) {
 					'to_email'     => $u[0]['email'],
 					'uid'          => $u[0]['uid'],
 					'item'         => $item[0],
-					//'link'         => $a->get_baseurl().'/display/'.$u[0]['nickname'].'/'.$current_post,
-					'link'         => $a->get_baseurl().'/display/'.$arr['guid'],
+					'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
 					'source_name'  => $item[0]['author-name'],
 					'source_link'  => $item[0]['author-link'],
 					'source_photo' => $item[0]['author-avatar'],
@@ -1563,8 +1562,7 @@ function tag_deliver($uid,$item_id) {
 		'to_email'     => $u[0]['email'],
 		'uid'          => $u[0]['uid'],
 		'item'         => $item,
-		//'link'         => $a->get_baseurl() . '/display/' . $u[0]['nickname'] . '/' . $item['id'],
-		'link'         => $a->get_baseurl() . '/display/'.get_item_guid($item['id']),
+		'link'         => $a->get_baseurl() . '/display/'.urlencode(get_item_guid($item['id'])),
 		'source_name'  => $item['author-name'],
 		'source_link'  => $item['author-link'],
 		'source_photo' => $photo,
@@ -3379,8 +3377,7 @@ function local_delivery($importer,$data) {
 								'to_email'     => $importer['email'],
 								'uid'          => $importer['importer_uid'],
 								'item'         => $datarray,
-								//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
-								'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
+								'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
 								'source_name'  => stripslashes($datarray['author-name']),
 								'source_link'  => $datarray['author-link'],
 								'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
@@ -3544,8 +3541,7 @@ function local_delivery($importer,$data) {
 									'to_email'     => $importer['email'],
 									'uid'          => $importer['importer_uid'],
 									'item'         => $datarray,
-									//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
-									'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
+									'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
 									'source_name'  => stripslashes($datarray['author-name']),
 									'source_link'  => $datarray['author-link'],
 									'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
@@ -3698,8 +3694,7 @@ function local_delivery($importer,$data) {
 							'to_email'     => $importer['email'],
 							'uid'          => $importer['importer_uid'],
 							'item'         => $datarray,
-							//'link'		   => $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $posted_id,
-							'link'		   => $a->get_baseurl().'/display/'.get_item_guid($posted_id),
+							'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
 							'source_name'  => stripslashes($datarray['author-name']),
 							'source_link'  => $datarray['author-link'],
 							'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
