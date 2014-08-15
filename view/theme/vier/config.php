@@ -44,7 +44,8 @@ function vier_form(&$a, $style){
 		"shadow"=>"Shadow",
 		"flat"=>"Flat",
 		"netcolour"=>"Coloured Networks",
-		"breathe"=>"Breathe"
+		"breathe"=>"Breathe",
+		"plus"=>"Plus"
 	);
 	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(

@@ -140,7 +140,8 @@ li.icon.icon-large:before {
 .icon-bookmark:before             { content: "\f02e"; }
 .icon-print:before                { content: "\f02f"; }
 
-.icon.camera:before               { content: "\f030"; }
+.icon-camera:before               { content: "\f030"; }
+.icon.camera:before               { content: "\f03e"; }
 .icon-font:before                 { content: "\f031"; }
 .icon-bold:before                 { content: "\f032"; }
 .icon-italic:before               { content: "\f033"; }
@@ -198,7 +199,7 @@ li.icon.icon-large:before {
 .icon.add:before                  { content: "\f067"; }
 .icon-minus:before                { content: "\f068"; }
 .icon-asterisk:before             { content: "\f069"; }
-.icon.notify:before               { content: "\f06a"; }
+.icon.exclamation:before          { content: "\f06a"; }
 .icon-gift:before                 { content: "\f06b"; }
 .icon-leaf:before                 { content: "\f06c"; }
 .icon-fire:before                 { content: "\f06d"; }
@@ -254,7 +255,7 @@ li.icon.icon-large:before {
 
 .icon-hdd:before                  { content: "\f0a0"; }
 .icon-bullhorn:before             { content: "\f0a1"; }
-.icon-bell:before                 { content: "\f0a2"; }
+.icon.notify:before               { content: "\f0a2"; }
 .icon-certificate:before          { content: "\f0a3"; }
 .icon-hand-right:before           { content: "\f0a4"; }
 .icon-hand-left:before            { content: "\f0a5"; }

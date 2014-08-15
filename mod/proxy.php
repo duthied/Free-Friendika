@@ -47,7 +47,7 @@ function proxy_init() {
 	$direct_cache = (is_dir($_SERVER["DOCUMENT_ROOT"]."/proxy") AND is_writable($_SERVER["DOCUMENT_ROOT"]."/proxy"));
 
 	// Look for filename in the arguments
-	if (isset($a->argv[1]) OR isset($a->argv[2]) OR isset($a->argv[3])) {
+	if ((isset($a->argv[1]) OR isset($a->argv[2]) OR isset($a->argv[3])) AND !isset($_REQUEST["url"])) {
 		if (isset($a->argv[3]))
 			$url = $a->argv[3];
 		elseif (isset($a->argv[2]))
@@ -78,7 +78,8 @@ function proxy_init() {
 
 		if ($url)
 			$_REQUEST['url'] = $url;
-	}
+	} else
+		$direct_cache = false;
 
 	if (!$direct_cache) {
 		$urlhash = 'pic:' . sha1($_REQUEST['url']);
@@ -210,11 +211,16 @@ function proxy_init() {
 function proxy_url($url, $writemode = false) {
 	global $_SERVER;
 
-	// Only continue if it isn't a local image and the isn't deactivated
-	if (get_config("system", "proxy_disabled") OR proxy_is_local_image($url))
-		return($url);
-
 	$a = get_app();
+
+	// Only continue if it isn't a local image and the isn't deactivated
+	if (proxy_is_local_image($url)) {
+		$url = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $url);
+		return($url);
+	}
+
+	if (get_config("system", "proxy_disabled"))
+		return($url);
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
 	$basepath = $_SERVER["DOCUMENT_ROOT"]."/proxy";
@@ -246,8 +252,11 @@ function proxy_url($url, $writemode = false) {
 	$proxypath = $a->get_baseurl()."/proxy/".$path;
 
 	// Too long files aren't supported by Apache
-	if (strlen($proxypath) > 250)
-		return ($url);
+	// Writemode in combination with long files shouldn't be possible
+	if ((strlen($proxypath) > 250) AND $writemode)
+		return (hash("md5", $url));
+	elseif (strlen($proxypath) > 250)
+		return ($a->get_baseurl()."/proxy/".hash("md5", $url)."?url=".urlencode($url));
 	elseif ($writemode)
 		return ($path);
 	else
@@ -303,5 +312,8 @@ function proxy_img_cb($matches) {
 }
 
 function proxy_parse_html($html) {
+	$a = get_app();
+	$html = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $html);
+
 	return preg_replace_callback("/(<img [^>]*src *= *[\"'])([^\"']+)([\"'][^>]*>)/siU", "proxy_img_cb", $html);
 }
