@@ -11,11 +11,11 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 			$type = "";
 			preg_match("/type='(.*?)'/ism", $attributes, $matches);
 			if ($matches[1] != "")
-				$type = $matches[1];
+				$type = strtolower($matches[1]);
 
 			preg_match('/type="(.*?)"/ism', $attributes, $matches);
 			if ($matches[1] != "")
-				$type = $matches[1];
+				$type = strtolower($matches[1]);
 
 			if ($type == "")
 				return($match[0]);
@@ -42,22 +42,26 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				$title = $matches[1];
 
 			$image = "";
-			preg_match("/image='(.*?)'/ism", $attributes, $matches);
-			if ($matches[1] != "")
-				$image = $matches[1];
+			if ($type != "video") {
+				preg_match("/image='(.*?)'/ism", $attributes, $matches);
+				if ($matches[1] != "")
+					$image = $matches[1];
 
-			preg_match('/image="(.*?)"/ism', $attributes, $matches);
-			if ($matches[1] != "")
-				$image = $matches[1];
+				preg_match('/image="(.*?)"/ism', $attributes, $matches);
+				if ($matches[1] != "")
+					$image = $matches[1];
+			}
 
 			$preview = "";
-			preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-			if ($matches[1] != "")
-				$preview = $matches[1];
+			if ($type != "video") {
+				preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+				if ($matches[1] != "")
+					$preview = $matches[1];
 
-			preg_match('/preview="(.*?)"/ism', $attributes, $matches);
-			if ($matches[1] != "")
-				$preview = $matches[1];
+				preg_match('/preview="(.*?)"/ism', $attributes, $matches);
+				if ($matches[1] != "")
+					$preview = $matches[1];
+			}
 
 			if ($plaintext)
 				$text = sprintf('<a href="%s" target="_blank">%s</a>', $url, $title);
@@ -155,6 +159,10 @@ function bb_cleanup_share($shared, $plaintext, $nolink) {
 
 	if (($text == "") AND ($title != "") AND ($link == ""))
 		$text .= "\n\n".trim($title);
+
+	// If the link already is included in the post, don't add it again
+	if (($link != "") AND strpos($text, $link))
+		return(trim($text));
 
 	if (($link != "") AND ($title != ""))
 		$text .= "\n[url=".trim($link)."]".trim($title)."[/url]";
