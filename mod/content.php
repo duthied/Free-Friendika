@@ -307,8 +307,8 @@ function content_content(&$a, $update = 0) {
 
 function render_content(&$a, $items, $mode, $update, $preview = false) {
 
-
 	require_once('include/bbcode.php');
+	require_once('mod/proxy.php');
 
 	$ssl_state = ((local_user()) ? true : false);
 
@@ -361,8 +361,8 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 
 	$alike = array();
 	$dlike = array();
-	
-	
+
+
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
@@ -412,7 +412,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				if($sp)
 					$sparkle = ' sparkle';
 				else
-					$profile_link = zrl($profile_link);					
+					$profile_link = zrl($profile_link);
 
 				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
 				if(($normalised != 'mailbox') && (x($a->contacts[$normalised])))
@@ -440,7 +440,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 
 				$star = false;
 				$isstarred = "unstarred";
-				
+
 				$lock = false;
 				$likebuttons = false;
 				$shareable = false;
@@ -463,7 +463,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					$location_e = $location;
 					$owner_name_e = $owner_name;
 				}
-				
+
 				//$tmp_item = replace_macros($tpl,array(
 				$tmp_item = array(
 					'template' => $tpl,
@@ -474,7 +474,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'name' => $name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => $profile_avatar,
+					'thumb' => proxy_url($profile_avatar),
 					'title' => $title_e,
 					'body' => $body_e,
 					'text' => $text_e,
@@ -483,7 +483,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => $owner_photo,
+					'owner_photo' => proxy_url($owner_photo),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
@@ -591,7 +591,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					$comments_seen ++;
 					$comment_lastcollapsed  = false;
 					$comment_firstcollapsed = false;
-				}	
+				}
 
 				$override_comment_box = ((($page_writeable) && ($item_writeable)) ? true : false);
 				$show_comment_box = ((($page_writeable) && ($item_writeable) && ($comments_seen == $comments[$item['parent']])) ? true : false);
@@ -783,7 +783,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				if($sp)
 					$sparkle = ' sparkle';
 				else
-					$profile_link = zrl($profile_link);					
+					$profile_link = zrl($profile_link);
 
 				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
 				if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
@@ -843,7 +843,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'comment_lastcollapsed' => $comment_lastcollapsed,
 					// template to use to render item (wall, walltowall, search)
 					'template' => $template,
-					
+
 					'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 					'tags' => $tags,
 					'body' => $body_e,
@@ -857,7 +857,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
 					'name' => $name_e,
-					'thumb' => $profile_avatar,
+					'thumb' => proxy_url($profile_avatar),
 					'osparkle' => $osparkle,
 					'sparkle' => $sparkle,
 					'title' => $title_e,
@@ -867,7 +867,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => $indent,
 					'shiny' => $shiny,
 					'owner_url' => $owner_url,
-					'owner_photo' => $owner_photo,
+					'owner_photo' => proxy_url($owner_photo),
 					'owner_name' => $owner_name_e,
 					'plink' => get_plink($item),
 					'edpost' => $edpost,

@@ -1641,21 +1641,16 @@
 
 		$a = get_app();
 
-		$result = q("SELECT `installed` FROM `addon` WHERE `name` = 'privacy_image_cache' AND `installed`");
-		$image_cache = (count($result) > 0);
-
 		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
 		if ($include_entities != "true") {
-			if ($image_cache) {
-				require_once("addon/privacy_image_cache/privacy_image_cache.php");
+			require_once("mod/proxy.php");
 
-				preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
+			preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
-				foreach ($images[1] AS $image) {
-					$replace = $a->get_baseurl()."/privacy_image_cache/".privacy_image_cache_cachename($image);
-					$text = str_replace($image, $replace, $text);
-				}
+			foreach ($images[1] AS $image) {
+				$replace = proxy_url($image);
+				$text = str_replace($image, $replace, $text);
 			}
 			return array();
 		}
@@ -1750,11 +1745,11 @@
 				require_once("include/Photo.php");
 				$image = get_photo_info($url);
 				if ($image) {
-					// If privacy_image_cache is activated, then use the following sizes:
+					// If image cache is activated, then use the following sizes:
 					// thumb  (150), small (340), medium (600) and large (1024)
-					if ($image_cache) {
-						require_once("addon/privacy_image_cache/privacy_image_cache.php");
-						$media_url = $a->get_baseurl()."/privacy_image_cache/".privacy_image_cache_cachename($url);
+					if (!get_config("system", "proxy_disabled")) {
+						require_once("mod/proxy.php");
+						$media_url = proxy_url($url);
 
 						$sizes = array();
 						$scale = scale_image($image[0], $image[1], 150);

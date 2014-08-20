@@ -40,7 +40,7 @@ function cronhooks_run(&$argv, &$argc){
 		$pidfile = new pidfile($lockpath, 'cronhooks');
 		if($pidfile->is_already_running()) {
 			logger("cronhooks: Already running");
-			if ($pidfile->running_time() > 9*60) {
+			if ($pidfile->running_time() > 19*60) {
                                 $pidfile->kill();
                                 logger("cronhooks: killed stale process");
 				// Calling a new instance

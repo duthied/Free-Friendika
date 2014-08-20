@@ -1353,6 +1353,8 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		$s = prepare_text($item['body']);
 	}
 
+	require_once("mod/proxy.php");
+	$s = proxy_parse_html($s);
 
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);

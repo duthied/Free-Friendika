@@ -81,6 +81,8 @@ class Item extends BaseObject {
 	 *      _ false on failure
 	 */
 	public function get_template_data($alike, $dlike, $thread_level=1) {
+		require_once("mod/proxy.php");
+
 		$result = array();
 
 		$a = $this->get_app();
@@ -314,7 +316,7 @@ class Item extends BaseObject {
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name' => $name_e,
-			'thumb' => $profile_avatar,
+			'thumb' => proxy_url($profile_avatar),
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => $title_e,
@@ -327,7 +329,7 @@ class Item extends BaseObject {
 			'indent' => $indent,
 			'shiny' => $shiny,
 			'owner_url' => $this->get_owner_url(),
-			'owner_photo' => $this->get_owner_photo(),
+			'owner_photo' => proxy_url($this->get_owner_photo()),
 			'owner_name' => $owner_name_e,
 			'plink' => get_plink($item),
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
@@ -687,7 +689,7 @@ class Item extends BaseObject {
 		$a = $this->get_app();
 		$conv = $this->get_conversation();
 		$this->wall_to_wall = false;
-		
+
 		if($this->is_toplevel()) {
 			if( (! $this->get_data_value('self')) && ($conv->get_mode() !== 'profile')) {
 				if($this->get_data_value('wall')) {

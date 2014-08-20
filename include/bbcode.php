@@ -145,7 +145,7 @@ function bb_cleanup_share($shared, $plaintext, $nolink) {
 	if (isset($bookmark[1][0]))
 		$link = $bookmark[1][0];
 
-	if (strpos($shared[1],$title) !== false)
+	if (($title != "") AND (strpos($shared[1],$title) !== false))
 		$title = "";
 
 //        if (strpos($shared[1],$link) !== false)
