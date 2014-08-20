@@ -167,7 +167,7 @@ function profiles_post(&$a) {
 
 		$profile_name = notags(trim($_POST['profile_name']));
 		if(! strlen($profile_name)) {
-			notify( t('Profile Name is required.') . EOL);
+			notice( t('Profile Name is required.') . EOL);
 			return;
 		}
 
