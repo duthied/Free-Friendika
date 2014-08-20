@@ -6,6 +6,8 @@
 
 <h1>{{$header}}</h1>
 
+{{if $myaddr}}
+{{else}}
 <p id="dfrn-request-intro">
 {{$page_desc}}<br />
 <ul id="dfrn-request-networks">
@@ -19,12 +21,17 @@
 <p>
 {{$desc}}
 </p>
+{{/if}}
 
 <form action="dfrn_request/{{$nickname}}" method="post" />
 
 <div id="dfrn-request-url-wrapper" >
 	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>
+	{{if $myaddr}}
+		{{$myaddr}}
+	{{else}}
 	<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
+	{{/if}}
 	<div id="dfrn-request-url-end"></div>
 </div>
 
@@ -34,7 +41,8 @@
 
 <div id="dfrn-request-info-wrapper" >
 
-
+{{include file="field_yesno.tpl" field=$does_know_you}}
+<!--
 <p id="doiknowyou">
 {{$does_know}}
 </p>
@@ -51,7 +59,7 @@
 
 		<div id="dfrn-request-knowyou-end"></div>
 		</div>
-
+-->
 
 <p id="dfrn-request-message-desc">
 {{$add_note}}
