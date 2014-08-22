@@ -87,6 +87,21 @@ div.jGrowl div.info {
   background: #fff url("../../../images/icons/48/info.png") no-repeat 5px center;
 }
 
+div.jGrowl div.notice {
+  color: #737373;
+}
+div.jGrowl div.info {
+  color: #737373;
+}
+
+.birthday-notice, .event-notice {
+  font-weight: initial;
+}
+
+div.pager, ul.tabs {
+  font-weight: initial;
+}
+
 nav .nav-menu-icon.selected {
   background-color: #fff;
 }

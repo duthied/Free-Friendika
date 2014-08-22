@@ -1482,12 +1482,11 @@ if(! function_exists('profile_sidebar')) {
 
 		call_hooks('profile_sidebar_enter', $profile);
 
-	
+
 		// don't show connect link to yourself
 		$connect = (($profile['uid'] != local_user()) ? t('Connect')  : False);
 
 		// don't show connect link to authenticated visitors either
-
 		if(remote_user() && count($_SESSION['remote'])) {
 			foreach($_SESSION['remote'] as $visitor) {
 				if($visitor['uid'] == $profile['uid']) {
@@ -1497,20 +1496,28 @@ if(! function_exists('profile_sidebar')) {
 			}
 		}
 
+		// Is the local user already connected to that user?
+		if ($connect AND local_user()) {
+			$profile_url = normalise_link($a->get_baseurl()."/profile/".$profile["nickname"]);
+
+			$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
+				local_user(), $profile_url);
+			if (count($r))
+				$connect = false;
+		}
+
 		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
 			$wallmessage = t('Message');
 		else
 			$wallmessage = false;
 
-
-
 		// show edit profile to yourself
 		if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
 			$profile['edit'] = array($a->get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
-		
+
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 					local_user());
-		
+
 			$profile['menu'] = array(
 				'chg_photo' => t('Change profile photo'),
 				'cr_new' => t('Create New Profile'),
@@ -1535,18 +1542,15 @@ if(! function_exists('profile_sidebar')) {
 
 			}
 		}
-        if ($profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
-            $profile['edit'] = array($a->get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
-        	$profile['menu'] = array(
+		if ($profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
+			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
+			$profile['menu'] = array(
 				'chg_photo' => t('Change profile photo'),
 				'cr_new' => null,
 				'entries' => array(),
 			);
-        }
+		}
 
-
-
-	
 		if((x($profile,'address') == 1)
 				|| (x($profile,'locality') == 1)
 				|| (x($profile,'region') == 1)

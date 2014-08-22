@@ -111,9 +111,9 @@ function dfrn_request_post(&$a) {
 					 */
 
 					require_once('include/Scrape.php');
-	
+
 					$parms = scrape_dfrn($dfrn_url);
-	
+
 					if(! count($parms)) {
 						notice( t('Profile location is not valid or does not contain profile information.') . EOL );
 						return;
@@ -123,7 +123,7 @@ function dfrn_request_post(&$a) {
 							notice( t('Warning: profile location has no identifiable owner name.') . EOL );
 						if(! x($parms,'photo'))
 							notice( t('Warning: profile location has no profile photo.') . EOL );
-						$invalid = validate_dfrn($parms);		
+						$invalid = validate_dfrn($parms);
 						if($invalid) {
 							notice( sprintf( tt("%d required parameter was not found at the given location",
 												"%d required parameters were not found at the given location",
@@ -194,7 +194,7 @@ function dfrn_request_post(&$a) {
 
 				if(strlen($dfrn_request) && strlen($confirm_key))
 					$s = fetch_url($dfrn_request . '?confirm_key=' . $confirm_key);
-				
+
 				// (ignore reply, nothing we can do it failed)
 
 				goaway(zrl($dfrn_url));
@@ -432,7 +432,7 @@ function dfrn_request_post(&$a) {
 				dbesc(datetime_convert()),
 				1
 			);
-				
+
 			// Next send an email verify form to the requestor.
 
 		}
@@ -585,7 +585,7 @@ function dfrn_request_post(&$a) {
 					dbesc(datetime_convert())
 				);
 			}
-	
+
 			// This notice will only be seen by the requestor if the requestor and requestee are on the same server.
 
 			if(! $failed) 
@@ -768,26 +768,21 @@ function dfrn_request_content(&$a) {
 		 * Try to auto-fill the profile address
 		 */
 
-		if(local_user()) {
+		// At first look if an address was provided
+		// Otherwise take the local address
+		if (x($_GET,'addr') AND ($_GET['addr'] != ""))
+			$myaddr = hex2bin($_GET['addr']);
+		elseif (x($_GET,'address') AND ($_GET['address'] != ""))
+			$myaddr = $_GET['address'];
+		elseif(local_user()) {
 			if(strlen($a->path)) {
 				$myaddr = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
 			}
 			else {
 				$myaddr = $a->user['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
 			}
-		}
-		elseif(x($_GET,'addr')) {
-			$myaddr = hex2bin($_GET['addr']);
-		}
-		else {
-			/* $_GET variables are already urldecoded */ 
-			$myaddr = ((x($_GET,'address')) ? $_GET['address'] : '');
-		}
-
-		// last, try a zrl
-		if(! strlen($myaddr))
+		} else	// last, try a zrl
 			$myaddr = get_my_url();
-
 
 		$target_addr = $a->profile['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
 
@@ -805,9 +800,6 @@ function dfrn_request_content(&$a) {
 		else
 			$tpl = get_markup_template('auto_request.tpl');
 
-	#	$page_desc = sprintf( t('Diaspora members: Please do not use this form. Instead, enter "%s" into your Diaspora search bar.'), 
-	#		$target_addr) . EOL . EOL;
-
 		$page_desc .= t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
 		// see if we are allowed to have NETWORK_MAIL2 contacts
@@ -824,7 +816,9 @@ function dfrn_request_content(&$a) {
 				$mail_disabled = 1;
 		}
 
-		$emailnet = (($mail_disabled) ? '' : t("<strike>Connect as an email follower</strike> \x28Coming soon\x29"));
+		// "coming soon" is disabled for now
+		//$emailnet = (($mail_disabled) ? '' : t("<strike>Connect as an email follower</strike> \x28Coming soon\x29"));
+		$emailnet = "";
 
 		$invite_desc = t('If you are not yet a member of the free social web, <a href="http://dir.friendica.com/siteinfo">follow this link to find a public Friendica site and join us today</a>.');
 
@@ -832,9 +826,10 @@ function dfrn_request_content(&$a) {
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
 			'$pls_answer' => t('Please answer the following:'),
-			'$does_know' => sprintf( t('Does %s know you?'),$a->profile['name']),
+			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$a->profile['name']), false, '', array(t('No'),t('Yes'))),
+			/*'$does_know' => sprintf( t('Does %s know you?'),$a->profile['name']),
 			'$yes' => t('Yes'),
-			'$no' => t('No'),
+			'$no' => t('No'), */
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => t('Friendica'),

@@ -28,6 +28,13 @@ function notification($params) {
 	$sender_email = t('noreply') . '@' . $hostname;
 	$additional_mail_header = "";
 
+	$additional_mail_header .= "Precedence: list\n";
+	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
+	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
+	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
+	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
+	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
+
 	if(array_key_exists('item',$params)) {
 		$title = $params['item']['title'];
 		$body = $params['item']['body'];
@@ -216,7 +223,7 @@ function notification($params) {
 									$itemlink,
 									'[url=' . $params['item']['url'] . ']' . $params['item']['name'] . '[/url]',
 									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]'); 
-									
+
 		$body = t('Name:') . ' ' . $params['item']['name'] . "\n";
 		$body .= t('Photo:') . ' ' . $params['item']['photo'] . "\n";
 		$body .= sprintf( t('You may visit their profile at %s'),$params['item']['url']);
@@ -245,7 +252,7 @@ function notification($params) {
 		'hsitelink' => $hsitelink,
 		'itemlink'  => $itemlink
 	);
-		
+
 	call_hooks('enotify',$h);
 
 	$subject   = $h['subject'];
@@ -367,39 +374,36 @@ function notification($params) {
 
 		logger('notification: sending notification email');
 
-		$id_for_parent = "${params['parent']}@${hostname}";
+		if (isset($params['parent']) AND (intval($params['parent']) != 0)) {
+			$id_for_parent = $params['parent']."@".$hostname;
 
-		// Is this the first email notification for this parent item and user?
+			// Is this the first email notification for this parent item and user?
 
-		$r = q("select `id` from `notify-threads` where `master-parent-item` = %d and `receiver-uid` = %d limit 1",
-			intval($params['parent']),
-			intval($params['uid']) );
-
-		// If so, create the record of it and use a message-id smtp header.
-
-		if(!$r) {
-			logger("notify_id:" . intval($notify_id). ", parent: " . intval($params['parent']) . "uid: " .
-intval($params['uid']), LOGGER_DEBUG);
-			$r = q("insert into `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
-				values(%d,%d,%d,%d)",
-				intval($notify_id),
+			$r = q("select `id` from `notify-threads` where `master-parent-item` = %d and `receiver-uid` = %d limit 1",
 				intval($params['parent']),
-				intval($params['uid']), 
-				0 );
+				intval($params['uid']) );
 
-			$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
-			$log_msg = "include/enotify: No previous notification found for this parent:\n" . 
-					"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
-			logger($log_msg, LOGGER_DEBUG);
+			// If so, create the record of it and use a message-id smtp header.
+
+			if(!$r) {
+				logger("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), LOGGER_DEBUG);
+				$r = q("insert into `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
+					values(%d,%d,%d,%d)",
+					intval($notify_id),
+					intval($params['parent']),
+					intval($params['uid']), 
+					0 );
+
+				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
+				$log_msg = "include/enotify: No previous notification found for this parent:\n" . 
+						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
+				logger($log_msg, LOGGER_DEBUG);
+			} else {
+				// If not, just "follow" the thread.
+				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
+				logger("include/enotify: There's already a notification for this parent:\n" . print_r($r, true), LOGGER_DEBUG);
+			}
 		}
-
-		// If not, just "follow" the thread.
-
-		else {
-			$additional_mail_header = "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
-			logger("include/enotify: There's already a notification for this parent:\n" . print_r($r, true), LOGGER_DEBUG);
-		}
-
 
 
 		$textversion = strip_tags(html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n"), "\n",

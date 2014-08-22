@@ -1567,7 +1567,8 @@ function tag_deliver($uid,$item_id) {
 		'source_link'  => $item['author-link'],
 		'source_photo' => $photo,
 		'verb'         => ACTIVITY_TAG,
-		'otype'        => 'item'
+		'otype'        => 'item',
+		'parent'       => $item['parent']
 	));
 
 
@@ -1970,7 +1971,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	}
 
 	if((is_array($contact)) && ($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $contact['avatar-date'])) {
-		logger('consume_feed: Updating photo for ' . $contact['name']);
+		logger('consume_feed: Updating photo for '.$contact['name'].' from '.$photo_url.' uid: '.$contact['uid']);
 		require_once("include/Photo.php");
 		$photo_failure = false;
 		$have_photo = false;
