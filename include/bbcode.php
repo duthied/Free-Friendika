@@ -77,9 +77,9 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 					$oembed = $bookmark[0];
 
 				if (($image != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $url, $image, $title);
+					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
 				elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a>', $url, $preview, $title);
+					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
 
 				$text .= $oembed;
 
