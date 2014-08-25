@@ -1487,6 +1487,15 @@ if(! function_exists('profile_sidebar')) {
 
 		$profile['picdate'] = urlencode($profile['picdate']);
 
+		if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
+			require_once('include/contact_selectors.php');
+			if ($profile['url'] != "")
+				$profile['network_name'] = '<a href="'.$profile['url'].'">'.network_to_name($profile['network'])."</a>";
+			else
+				$profile['network_name'] = network_to_name($profile['network']);
+		} else
+			$profile['network_name'] = "";
+
 		call_hooks('profile_sidebar_enter', $profile);
 
 
@@ -1626,6 +1635,7 @@ if(! function_exists('profile_sidebar')) {
 			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
+			'$network' =>  t('Network:'),
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
 		));
