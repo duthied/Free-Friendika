@@ -180,7 +180,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 			if (!isset($post["url"])) {
 				$limit = $limit - 23;
 				$post["url"] = $b["plink"];
-			}
+			} elseif (strpos($b["body"], "[share") !== false)
+				$post["url"] = $b["plink"];
 
 			$msg = shortenmsg($msg, $limit);
 		}
