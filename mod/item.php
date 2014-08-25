@@ -573,7 +573,7 @@ function item_post(&$a) {
 			if($fullnametagged)
 				continue;
 
-			$success = handle_tag($a, $body, $inform, $str_tags, (local_user()) ? local_user() : $profile_uid , $tag); 
+			$success = handle_tag($a, $body, $inform, $str_tags, (local_user()) ? local_user() : $profile_uid , $tag, $network);
 			if($success['replaced'])
 				$tagged[] = $tag;
 			if(is_array($success['contact']) && intval($success['contact']['prv'])) {
@@ -1040,12 +1040,12 @@ function item_content(&$a) {
  *
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
+function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
 
 	$replaced = false;
 	$r = null;
 
-	//is it a hash tag? 
+	//is it a hash tag?
 	if(strpos($tag,'#') === 0) {
 		//if the tag is replaced...
 		if(strpos($tag,'[url='))
@@ -1068,15 +1068,15 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 		}
 		return $replaced;
 	}
-	//is it a person tag? 
+	//is it a person tag?
 	if(strpos($tag,'@') === 0) {
-		//is it already replaced? 
+		//is it already replaced?
 		if(strpos($tag,'[url='))
 			return $replaced;
 		$stat = false;
 		//get the person's name
 		$name = substr($tag,1);
-		//is it a link or a full dfrn address? 
+		//is it a link or a full dfrn address?
 		if((strpos($name,'@')) || (strpos($name,'http://'))) {
 			$newname = $name;
 			//get the profile links
@@ -1093,7 +1093,9 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 					}
 				}
 			}
-		} else { //if it is a name rather than an address
+		} elseif (($network != NETWORK_OSTATUS) AND ($network != NETWORK_TWITTER) AND
+			($network != NETWORK_STATUSNET) AND ($network != NETWORK_APPNET)) {
+			//if it is a name rather than an address
 			$newname = $name;
 			$alias = '';
 			$tagcid = 0;
@@ -1116,11 +1118,33 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 			else {
 				$newname = str_replace('_',' ',$name);
 
-				//select someone from this user's contacts by name
-				$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($newname),
-						intval($profile_uid)
-				);
+				// At first try to fetch a contact according to the given network
+				if ($network != "") {
+					//select someone from this user's contacts by name
+					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
+							dbesc($newname),
+							dbesc($network),
+							intval($profile_uid)
+					);
+					if(! $r) {
+						//select someone by attag or nick and the name passed in
+						$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+								dbesc($name),
+								dbesc($name),
+								dbesc($network),
+								intval($profile_uid)
+						);
+					}
+				} else
+					$r = false;
+
+				if(! $r) {
+					//select someone from this user's contacts by name
+					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+							dbesc($newname),
+							intval($profile_uid)
+					);
+				}
 
 				if(! $r) {
 					//select someone by attag or nick and the name passed in
@@ -1179,10 +1203,10 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 					$str_tags .= ',';
 				$str_tags .= $newtag;
 			}
-	
+
 			// Status.Net seems to require the numeric ID URL in a mention if the person isn't
 			// subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
-	
+
 			if(strlen($alias)) {
 				$newtag = '@[url=' . $alias . ']' . $newname	. '[/url]';
 				if(! stristr($str_tags,$newtag)) {
@@ -1194,7 +1218,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag) {
 		}
 	}
 
-	return array('replaced' => $replaced, 'contact' => $r[0]);	
+	return array('replaced' => $replaced, 'contact' => $r[0]);
 }
 
 

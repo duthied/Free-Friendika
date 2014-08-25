@@ -10,9 +10,12 @@
 				
 	
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
-	<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
 
-
+	{{if $profile.picdate}}
+		<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
+        {{else}}
+		<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}" alt="{{$profile.name}}"></div>
+        {{/if}}
 
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 

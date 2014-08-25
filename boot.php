@@ -768,8 +768,8 @@ if(! class_exists('App')) {
 				if(! count($r)){
 					$this->cached_profile_image[$avatar_image] = $avatar_image;
 				} else {
-					$this->cached_profile_picdate[$common_filename] = "?rev=" . urlencode($r[0]['picdate']);
-  					$this->cached_profile_image[$avatar_image] = $avatar_image . $this->cached_profile_picdate[$common_filename];
+					$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
+					$this->cached_profile_image[$avatar_image] = $avatar_image.$this->cached_profile_picdate[$common_filename];
 				}
 			}
 			return $this->cached_profile_image[$avatar_image];
@@ -1345,7 +1345,7 @@ if(! function_exists('get_max_import_size')) {
  */
 
 if(! function_exists('profile_load')) {
-	function profile_load(&$a, $nickname, $profile = 0) {
+	function profile_load(&$a, $nickname, $profile = 0, $profiledata = array()) {
 
 		$user = q("select uid from user where nickname = '%s' limit 1",
 			dbesc($nickname)
@@ -1410,9 +1410,10 @@ if(! function_exists('profile_load')) {
 		$a->profile = $r[0];
 
 		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
-
+		$a->profile['network'] = NETWORK_DFRN;
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
+
 		$_SESSION['theme'] = $a->profile['theme'];
 		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
@@ -1430,7 +1431,7 @@ if(! function_exists('profile_load')) {
 		if(! (x($a->page,'aside')))
 			$a->page['aside'] = '';
 
-		if(local_user() && local_user() == $a->profile['uid']) {
+		if(local_user() && local_user() == $a->profile['uid'] && $profiledata) {
 			$a->page['aside'] .= replace_macros(get_markup_template('profile_edlink.tpl'),array(
 				'$editprofile' => t('Edit profile'),
 				'$profid' => $a->profile['id']
@@ -1439,7 +1440,14 @@ if(! function_exists('profile_load')) {
 
 		$block = (((get_config('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
 
-		$a->page['aside'] .= profile_sidebar($a->profile, $block);
+		// To-Do:
+		// By now, the contact block isn't shown, when a different profile is given
+		// But: When this profile was on the same server, then we could display the contacts
+		if ($profiledata)
+			$a->page['aside'] .= profile_sidebar($profiledata, true);
+		else
+			$a->page['aside'] .= profile_sidebar($a->profile, $block);
+
 
 		/*if(! $block)
 		 $a->page['aside'] .= contact_block();*/
@@ -1467,7 +1475,6 @@ if(! function_exists('profile_load')) {
 
 if(! function_exists('profile_sidebar')) {
 	function profile_sidebar($profile, $block = 0) {
-
 		$a = get_app();
 
 		$o = '';
@@ -1498,13 +1505,22 @@ if(! function_exists('profile_sidebar')) {
 
 		// Is the local user already connected to that user?
 		if ($connect AND local_user()) {
-			$profile_url = normalise_link($a->get_baseurl()."/profile/".$profile["nickname"]);
+			if (isset($profile["url"]))
+				$profile_url = normalise_link($profile["url"]);
+			else
+				$profile_url = normalise_link($a->get_baseurl()."/profile/".$profile["nickname"]);
 
 			$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
 				local_user(), $profile_url);
 			if (count($r))
 				$connect = false;
 		}
+
+		if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
+				$connect = false;
+
+		if (isset($profile['remoteconnect']))
+			$remoteconnect = $profile['remoteconnect'];
 
 		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
 			$wallmessage = t('Message');
@@ -1514,7 +1530,6 @@ if(! function_exists('profile_sidebar')) {
 		// show edit profile to yourself
 		if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
 			$profile['edit'] = array($a->get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
-
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 					local_user());
 
@@ -1604,6 +1619,7 @@ if(! function_exists('profile_sidebar')) {
 		$o .= replace_macros($tpl, array(
 			'$profile' => $p,
 			'$connect'  => $connect,
+			'$remoteconnect'  => $remoteconnect,
 			'$wallmessage' => $wallmessage,
 			'$location' => $location,
 			'$gender'   => $gender,

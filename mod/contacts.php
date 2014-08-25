@@ -37,7 +37,10 @@ function contacts_init(&$a) {
 	}
 	else {
 		$vcard_widget = '';
-		$follow_widget = follow_widget();
+		if (isset($_GET['add']))
+			$follow_widget = follow_widget($_GET['add']);
+		else
+			$follow_widget = follow_widget();
 	}
 
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);

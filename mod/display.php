@@ -7,34 +7,106 @@ function display_init(&$a) {
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
+	$profiledata = array();
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
 		$nick = "";
+		$itemuid = 0;
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = q("SELECT `id` FROM `item`
+			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network` FROM `item`
 				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 					AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
-			if (count($r))
+			if (count($r)) {
 				$nick = $a->user["nickname"];
+				$itemuid = local_user();
+			}
 		}
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = q("SELECT `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+			$r = q("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`
+				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND `item`.`private` = 0 AND `item`.`wall` = 1
+					AND `item`.`private` = 0
 					AND `item`.`guid` = '%s'", $a->argv[1]);
-			if (count($r))
+				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+			if (count($r)) {
 				$nick = $r[0]["nickname"];
+				$itemuid = $r[0]["uid"];
+			}
+		}
+		if (count($r)) {
+			if ($r[0]["id"] != $r[0]["parent"])
+				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network` FROM `item`
+					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+						AND `id` = %d", $r[0]["parent"]);
+
+			if (!strstr(normalise_link($r[0]["author-link"]), normalise_link($a->get_baseurl()))) {
+				require_once("mod/proxy.php");
+				require_once("include/bbcode.php");
+				$profiledata["uid"] = -1;
+				$profiledata["nickname"] = $r[0]["author-name"];
+				$profiledata["name"] = $r[0]["author-name"];
+				$profiledata["picdate"] = "";
+				$profiledata["photo"] = proxy_url($r[0]["author-avatar"]);
+				$profiledata["url"] = $r[0]["author-link"];
+				$profiledata["network"] = $r[0]["network"];
+
+				// Fetching profile data from unique contacts
+				// To-do: Extend "unique contacts" table for further contact data like location, ...
+				$r = q("SELECT `avatar`, `nick` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+				if (count($r)) {
+					$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+					if ($r[0]["nick"] != "")
+						$profiledata["nickname"] = $r[0]["nick"];
+				} else {
+					// Is this case possible?
+					// Fetching further contact data from the contact table, when it isn't available in the "unique contacts"
+					$r = q("SELECT `photo`, `nick` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+						normalise_link($profiledata["url"]), $itemuid);
+					if (count($r)) {
+						$profiledata["photo"] = proxy_url($r[0]["photo"]);
+						if ($r[0]["nick"] != "")
+							$profiledata["nickname"] = $r[0]["nick"];
+					}
+				}
+
+				if (local_user()) {
+					if ($profiledata["network"] == NETWORK_DFRN) {
+						$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"])."&addr=".bin2hex($a->get_baseurl()."/profile/".$a->user["nickname"]);
+						$profiledata["remoteconnect"] = $connect;
+					} elseif ($profiledata["network"] == NETWORK_DIASPORA)
+						$profiledata["remoteconnect"] = $a->get_baseurl()."/contacts?add=".GetProfileUsername($profiledata["url"], "", true);
+				} elseif ($profiledata["network"] == NETWORK_DFRN) {
+					$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
+					$profiledata["remoteconnect"] = $connect;
+				}
+			} else {
+				$nickname = str_replace(normalise_link($a->get_baseurl())."/profile/", "", normalise_link($r[0]["author-link"]));
+
+				if (($nickname != $a->user["nickname"])) {
+					$profiledata["url"] = $r[0]["author-link"];
+
+					$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
+						dbesc($nickname)
+					);
+					if (count($r))
+						$profiledata = $r[0];
+					$profiledata["network"] = NETWORK_DFRN;
+				}
+			}
 		}
 	}
 
-	profile_load($a,$nick);
+	profile_load($a, $nick, 0, $profiledata);
 
 }
 
@@ -89,8 +161,9 @@ function display_content(&$a, $update = 0) {
 					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND `item`.`private` = 0 AND `item`.`wall` = 1
+						AND `item`.`private` = 0
 						AND `item`.`guid` = '%s'", $a->argv[1]);
+					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];

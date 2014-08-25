@@ -691,9 +691,8 @@ class Item extends BaseObject {
 		$this->wall_to_wall = false;
 
 		if($this->is_toplevel()) {
-			if( (! $this->get_data_value('self')) && ($conv->get_mode() !== 'profile')) {
-				if($this->get_data_value('wall')) {
-
+			if($conv->get_mode() !== 'profile') {
+				if($this->get_data_value('wall') AND !$this->get_data_value('self')) {
 					// On the network page, I am the owner. On the display page it will be the profile owner.
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
@@ -708,6 +707,7 @@ class Item extends BaseObject {
 					$owner_linkmatch = (($this->get_data_value('owner-link')) && link_compare($this->get_data_value('owner-link'),$this->get_data_value('author-link')));
 					$alias_linkmatch = (($this->get_data_value('alias')) && link_compare($this->get_data_value('alias'),$this->get_data_value('author-link')));
 					$owner_namematch = (($this->get_data_value('owner-name')) && $this->get_data_value('owner-name') == $this->get_data_value('author-name'));
+
 					if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
 
 						// The author url doesn't match the owner (typically the contact)
@@ -718,7 +718,7 @@ class Item extends BaseObject {
 						// well that it's the same Bob Smith. 
 
 						// But it could be somebody else with the same name. It just isn't highly likely. 
-						
+
 
 						$this->owner_photo = $this->get_data_value('owner-avatar');
 						$this->owner_name = $this->get_data_value('owner-name');
