@@ -41,6 +41,8 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 			if ($matches[1] != "")
 				$title = $matches[1];
 
+			$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+
 			$image = "";
 			if ($type != "video") {
 				preg_match("/image='(.*?)'/ism", $attributes, $matches);
@@ -75,9 +77,9 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 					$oembed = $bookmark[0];
 
 				if (($image != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<img src="%s" alt="%s" class="attachment-image" />', $image, $title); // To-Do: Anführungszeichen in "alt"
+					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
 				elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<img src="%s" alt="%s" class="attachment-preview" />', $preview, $title); // To-Do: Anführungszeichen in "alt"
+					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
 
 				$text .= $oembed;
 
@@ -90,7 +92,7 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 	return($Text);
 }
 
-function bb_rearrange_link($shared) {
+/* function bb_rearrange_link($shared) {
 	if ($shared[1] != "type-link")
 		return($shared[0]);
 
@@ -117,6 +119,66 @@ function bb_rearrange_link($shared) {
 	$newshare = "[class=type-link]".$newshare."[/class]";
 
 	return($newshare);
+} */
+
+function bb_rearrange_share($shared) {
+	if (!in_array(strtolower($shared[2]), array("type-link", "type-audio", "type-video")))
+		return($shared[0]);
+
+	if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
+		return($shared[0]);
+
+	$type = substr(trim(strtolower($shared[2])), 5);
+
+	$title = "";
+	$url = "";
+	$preview = "";
+	$description = "";
+
+	if (isset($bookmark[2][0]))
+		$title = $bookmark[2][0];
+
+	if (isset($bookmark[1][0]))
+		$url = $bookmark[1][0];
+
+	$cleanedshare = trim($shared[3]);
+	$cleanedshare = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $cleanedshare);
+	preg_match("/\[img\](.*?)\[\/img\]/ism", $cleanedshare, $matches);
+
+	if ($matches)
+		$preview = trim($matches[1]);
+
+	preg_match("/\[quote\](.*?)\[\/quote\]/ism", $cleanedshare, $matches);
+	if ($matches)
+		$description = trim($matches[1]);
+
+	$url = htmlentities($url, ENT_QUOTES, 'UTF-8', false);
+	$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+	$preview = htmlentities($preview, ENT_QUOTES, 'UTF-8', false);
+
+	$Text = trim($shared[1])."\n[attachment type='".$type."'";
+
+	if ($url != "")
+		$Text .= " url='".$url."'";
+	if ($title != "")
+		$Text .= " title='".$title."'";
+	if ($preview != "") {
+		require_once("include/Photo.php");
+		$picturedata = get_photo_info($preview);
+//                echo $preview."*".print_r($picturedata, true)."*";
+		if (count($picturedata) > 0) {
+			// if the preview picture is larger than 500 pixels then show it in a larger mode
+			// But only, if the picture isn't higher than large (To prevent huge posts)
+			if (($picturedata[0] >= 500) AND ($picturedata[0] >= $picturedata[1]))
+				$Text .= " image='".$preview."'";
+			else
+				$Text .= " preview='".$preview."'";
+		} else
+			$Text .= " preview='".$preview."'";
+	}
+	$Text .= "]".$description."[/attachment]";
+
+	return($Text);
 }
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
@@ -740,12 +802,15 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("/\n\[code\]/ism", "[code]", $Text);
 	$Text = preg_replace("/\[\/code\]\n/ism", "[/code]", $Text);
 
+	// Rearrange shares to attachments
+	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism", "bb_rearrange_share",$Text);
+
 	// Handle attached links or videos
 	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
 
 	// Rearrange shared links
-	if (get_config("system", "rearrange_shared_links") AND (!$simplehtml OR $tryoembed))
-		$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_rearrange_link",$Text);
+//	if (get_config("system", "rearrange_shared_links") AND (!$simplehtml OR $tryoembed))
+//		$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_rearrange_link",$Text);
 
 	// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 	if (!$tryoembed)

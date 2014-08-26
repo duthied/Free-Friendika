@@ -898,6 +898,10 @@ aside .vcard dd {
   margin-left: 4px;
   /* width: 60%; */
 }
+aside #profile-photo-wrapper img {
+  width: 175px;
+}
+
 aside #profile-extra-links ul {
   padding: 0px;
   margin: 0px;

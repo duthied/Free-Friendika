@@ -23,15 +23,20 @@
 			</ul>
 			</div>
 		{{else}}
-			<div class="profile-edit-side-div"><a class="profile-edit-side-link icon edit" title="{{$editprofile}}" href="profiles" ></a></div>
+			{{if $profile.menu}}
+				<div class="profile-edit-side-div"><a class="profile-edit-side-link icon edit" title="{{$editprofile}}" href="profiles" ></a></div>
+			{{/if}}
 		{{/if}}
 	</div>
 
-
-	<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
+	{{if $profile.picdate}}
+		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
+	{{else}}
+		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></div>
+	{{/if}}
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
-
+	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt><br> 
 		<dd class="adr">
@@ -59,7 +64,11 @@
 	<div id="profile-extra-links">
 		<ul>
 			{{if $connect}}
-				<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
+				{{if $remoteconnect}}
+					<li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
+				{{else}}
+					<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
+				{{/if}}
 			{{/if}}
 		</ul>
 	</div>

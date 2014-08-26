@@ -44,7 +44,8 @@ span.connector {
 
 .wall-item-container .wall-item-content .type-link img.attachment-image,
 .type-link img.attachment-image, .type-video img.attachment-image  {
-  max-width: 640px;
+  /* max-width: 640px; */
+  max-width: 100%;
   max-height: initial;
   float: initial;
   margin-right: 0px;
