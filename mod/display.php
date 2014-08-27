@@ -33,7 +33,7 @@ function display_init(&$a) {
 				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND `item`.`private` = 0
+					AND `item`.`private` = 0 AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", $a->argv[1]);
 				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 			if (count($r)) {
@@ -65,6 +65,10 @@ function display_init(&$a) {
 				} else
 					$profiledata = array();
 			}
+		} else {
+			$a->error = 404;
+			notice( t('Item not found.') . EOL);
+			return;
 		}
 	}
 
@@ -220,7 +224,7 @@ function display_content(&$a, $update = 0) {
 					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND `item`.`private` = 0
+						AND `item`.`private` = 0  AND NOT `user`.`hidewall`
 						AND `item`.`guid` = '%s'", $a->argv[1]);
 					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 				if (count($r)) {

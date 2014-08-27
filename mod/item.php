@@ -736,7 +736,7 @@ function item_post(&$a) {
 		update_thread($post_id);
 
 		// update filetags in pconfig
-                file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		proc_run('php', "include/notifier.php", 'edit_post', "$post_id");
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
@@ -792,8 +792,8 @@ function item_post(&$a) {
 		dbesc($datarray['attach']),
 		intval($datarray['bookmark']),
 		intval($datarray['origin']),
-	        intval($datarray['moderated']),
-	        dbesc($datarray['file'])
+		intval($datarray['moderated']),
+		dbesc($datarray['file'])
 	       );
 
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
@@ -804,7 +804,7 @@ function item_post(&$a) {
 		add_thread($post_id);
 
 		// update filetags in pconfig
-                file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		// Store the fresh generated item into the cache
 		$cachefile = get_cachefile($datarray["guid"]."-".hash("md5", $datarray['body']));
@@ -942,25 +942,25 @@ function item_post(&$a) {
 					. '<br />';
 				$disclaimer .= sprintf( t('You may visit them online at %s'), $a->get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL; 
-                                if (!$datarray['title']=='') {
-                                    $subject = email_header_encode($datarray['title'],'UTF-8');
-                                } else {
+				if (!$datarray['title']=='') {
+				    $subject = email_header_encode($datarray['title'],'UTF-8');
+				} else {
 				    $subject = email_header_encode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'),$a->user['username']),'UTF-8');
-                                }
+				}
 				$link = '<a href="' . $a->get_baseurl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-                                include_once('include/html2plain.php');
-                                $params = array (
-                                    'fromName' => $a->user['username'],
-                                    'fromEmail' => $a->user['email'],
-                                    'toEmail' => $addr,
-                                    'replyTo' => $a->user['email'],
-                                    'messageSubject' => $subject,
-                                    'htmlVersion' => $message,
-                                    'textVersion' => html2plain($html.$disclaimer),
-                                );
-                                enotify::send($params);
+				include_once('include/html2plain.php');
+				$params = array (
+				    'fromName' => $a->user['username'],
+				    'fromEmail' => $a->user['email'],
+				    'toEmail' => $addr,
+				    'replyTo' => $a->user['email'],
+				    'messageSubject' => $subject,
+				    'htmlVersion' => $message,
+				    'textVersion' => html2plain($html.$disclaimer),
+				);
+				enotify::send($params);
 			}
 		}
 	}
