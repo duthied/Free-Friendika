@@ -152,9 +152,9 @@ function bb_rearrange_share($shared) {
 	if ($matches)
 		$description = trim($matches[1]);
 
-	$url = htmlentities($url, ENT_QUOTES, 'UTF-8', false);
-	$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
-	$preview = htmlentities($preview, ENT_QUOTES, 'UTF-8', false);
+	$url = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($url, ENT_QUOTES, 'UTF-8', false));
+	$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($title, ENT_QUOTES, 'UTF-8', false));
+	$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($preview, ENT_QUOTES, 'UTF-8', false));
 
 	$Text = trim($shared[1])."\n[attachment type='".$type."'";
 
@@ -165,7 +165,7 @@ function bb_rearrange_share($shared) {
 	if ($preview != "") {
 		require_once("include/Photo.php");
 		$picturedata = get_photo_info($preview);
-//                echo $preview."*".print_r($picturedata, true)."*";
+
 		if (count($picturedata) > 0) {
 			// if the preview picture is larger than 500 pixels then show it in a larger mode
 			// But only, if the picture isn't higher than large (To prevent huge posts)
@@ -280,8 +280,6 @@ function tryoembed($match){
 
 	if (isset($match[2]))
 		$o->title = $match[2];
-
-	//echo "<pre>"; var_dump($match, $url, $o); killme();
 
 	if ($o->type=="error") return $match[0];
 
