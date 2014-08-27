@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1170 );
+define( 'UPDATE_VERSION' , 1171 );
 
 /**
  *
@@ -1597,5 +1597,12 @@ function update_1169() {
 
 	proc_run('php',"include/threadupdate.php");
 
+	return UPDATE_SUCCESS;
+}
+
+function update_1170() {
+	$r = q("ALTER TABLE `guid` CHANGE `guid` `guid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	if (!$r)
+		return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }
