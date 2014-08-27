@@ -29,6 +29,7 @@
 	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>
 	{{if $myaddr}}
 		{{$myaddr}}
+		<input type="hidden" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
 	{{else}}
 	<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
 	{{/if}}
