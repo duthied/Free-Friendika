@@ -175,13 +175,16 @@ function oembed_format_object($j){
 
 				$embedlink .= $j->author_name;
 			}
+			if (trim($embedlink) == "")
+				$embedlink = $embedurl;
+
 			$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
 		}
 		//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
 		//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
 	} else {
 		// add <a> for html2bbcode conversion
-		$ret .= "<a href='$embedurl' rel='oembed'></a>";
+		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
 	}
 	$ret.="<br style='clear:left'></span>";
 	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
