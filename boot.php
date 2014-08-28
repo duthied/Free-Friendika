@@ -1414,7 +1414,9 @@ if(! function_exists('profile_load')) {
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
 
-		$_SESSION['theme'] = $a->profile['theme'];
+		if (!$profiledata)
+			$_SESSION['theme'] = $a->profile['theme'];
+
 		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
 		/**

@@ -55,7 +55,7 @@ function nav_info(&$a) {
 	 */
 
 	$myident = ((is_array($a->user) && isset($a->user['nickname'])) ? $a->user['nickname'] . '@' : '');
-		
+
 	$sitelocation = $myident . substr($a->get_baseurl($ssl_state),strpos($a->get_baseurl($ssl_state),'//') + 2 );
 
 
@@ -86,7 +86,7 @@ function nav_info(&$a) {
 			'icon' => (count($r) ? $a->get_cached_avatar_image($r[0]['micro']) : $a->get_baseurl($ssl_state)."/images/person-48.jpg"),
 			'name' => $a->user['username'],
 		);
-		
+
 	}
 	else {
 		$nav['login'] = Array('login',t('Login'), ($a->module == 'login'?'selected':''), t('Sign in'));
@@ -101,7 +101,7 @@ function nav_info(&$a) {
 	if(! $homelink)
 		$homelink = ((x($_SESSION,'visitor_home')) ? $_SESSION['visitor_home'] : '');
 
-	if(($a->module != 'home') && (! (local_user()))) 
+	if(($a->module != 'home') && (! (local_user())))
 		$nav['home'] = array($homelink, t('Home'), "", t('Home Page'));
 
 
