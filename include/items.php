@@ -989,6 +989,8 @@ function item_store($arr,$force_parent = false, $notify = false) {
 	if ($notify) {
 		$arr['wall'] = 1;
 		$arr['type'] = 'wall';
+		$arr['origin'] = 1;
+		$arr['last-child'] = 1;
 		$arr['network'] = NETWORK_DFRN;
 	}
 
