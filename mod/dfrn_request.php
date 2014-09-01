@@ -183,7 +183,9 @@ function dfrn_request_post(&$a) {
 						require_once('include/group.php');
 						group_add_member(local_user(),'',$r[0]['id'],$g[0]['def_gid']);
 					}
-				}
+					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
+				} else
+					$forwardurl = $a->get_baseurl()."/contacts";
 
 				/**
 				 * Allow the blocked remote notification to complete
@@ -197,7 +199,8 @@ function dfrn_request_post(&$a) {
 
 				// (ignore reply, nothing we can do it failed)
 
-				goaway(zrl($dfrn_url));
+				// Old: goaway(zrl($dfrn_url));
+				goaway($forwardurl);
 				return; // NOTREACHED
 
 			}

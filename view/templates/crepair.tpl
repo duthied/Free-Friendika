@@ -39,7 +39,7 @@
 <div class="clear"></div>
 {{if $allow_remote_self eq 1}}
 <h4>{{$label_remote_self}}</h4>
-{{include file="field_checkbox.tpl" field=$remote_self}}
+{{include file="field_select.tpl" field=$remote_self}}
 {{/if}}
 
 <input type="submit" name="submit" value="{{$lbl_submit}}" />
