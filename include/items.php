@@ -2552,6 +2552,13 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					$datarray['owner-avatar'] = $contact['thumb'];
 				}
 
+				// We've allowed "followers" to reach this point so we can decide if they are
+				// posting an @-tag delivery, which followers are allowed to do for certain
+				// page types. Now that we've parsed the post, let's check if it is legit. Otherwise ignore it.
+
+				if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
+					continue;
+
 				// This is my contact on another system, but it's really me.
 				// Turn this into a wall post.
 
@@ -2569,14 +2576,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					}
 				} else
 					$notify = false;
-
-				// We've allowed "followers" to reach this point so we can decide if they are
-				// posting an @-tag delivery, which followers are allowed to do for certain
-				// page types. Now that we've parsed the post, let's check if it is legit. Otherwise ignore it.
-
-				if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
-					continue;
-
 
 				$r = item_store($datarray, false, $notify);
 				continue;
@@ -3646,16 +3645,6 @@ function local_delivery($importer,$data) {
 				continue;
 			}
 
-			// This is my contact on another system, but it's really me.
-			// Turn this into a wall post.
-
-			if($importer['remote_self']) {
-				$datarray['wall'] = 1;
-				$notify = true;
-			} else
-				$notify = false;
-
-
 			$datarray['parent-uri'] = $item_id;
 			$datarray['uid'] = $importer['importer_uid'];
 			$datarray['contact-id'] = $importer['id'];
@@ -3674,6 +3663,21 @@ function local_delivery($importer,$data) {
 
 			if(($importer['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['importer_uid'],$datarray)))
 				continue;
+
+			// This is my contact on another system, but it's really me.
+			// Turn this into a wall post.
+
+			if($importer['remote_self']) {
+				$datarray['wall'] = 1;
+
+				// Test
+				$datarray['author-name']   = $datarray['owner-name'];
+				$datarray['author-link']   = $datarray['owner-link'];
+				$datarray['author-avatar'] = $datarray['owner-avatar'];
+
+				$notify = true;
+			} else
+				$notify = false;
 
 			$posted_id = item_store($datarray, false, $notify);
 
