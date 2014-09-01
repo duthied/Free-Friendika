@@ -172,10 +172,10 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 			$msg = str_replace("  ", " ", $msg);
 
 		// Twitter is using its own limiter, so we always assume that shortened links will have this length
-		if (strlen($link) > 0)
+		if (iconv_strlen($link, "UTF-8") > 0)
 			$limit = $limit - 23;
 
-		if (strlen($msg) > $limit) {
+		if (iconv_strlen($msg, "UTF-8") > $limit) {
 
 			if (!isset($post["url"])) {
 				$limit = $limit - 23;
