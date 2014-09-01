@@ -2565,10 +2565,21 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				if($contact['remote_self']) {
 					$datarray['wall'] = 1;
 
-					// Test
-					$datarray['author-name']   = $datarray['owner-name'];
-					$datarray['author-link']   = $datarray['owner-link'];
-					$datarray['author-avatar'] = $datarray['owner-avatar'];
+					if ($contact['remote_self'] == 2) {
+						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
+						if (count($r)) {
+							$datarray['contact-id'] = $r[0]["id"];
+							$datarray['network'] = $r[0]["network"];
+
+							$datarray['owner-name'] = $r[0]["name"];
+							$datarray['owner-link'] = $r[0]["url"];
+							$datarray['owner-avatar'] = $r[0]["photo"];
+
+							$datarray['author-name']   = $datarray['owner-name'];
+							$datarray['author-link']   = $datarray['owner-link'];
+							$datarray['author-avatar'] = $datarray['owner-avatar'];
+						}
+					}
 
 					$notify = true;
 					if($contact['network'] === NETWORK_FEED) {
@@ -3670,10 +3681,22 @@ function local_delivery($importer,$data) {
 			if($importer['remote_self']) {
 				$datarray['wall'] = 1;
 
-				// Test
-				$datarray['author-name']   = $datarray['owner-name'];
-				$datarray['author-link']   = $datarray['owner-link'];
-				$datarray['author-avatar'] = $datarray['owner-avatar'];
+				if ($importer['remote_self'] == 2) {
+					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+						intval($importer['importer_uid']));
+					if (count($r)) {
+						$datarray['contact-id'] = $r[0]["id"];
+						$datarray['network'] = $r[0]["network"];
+
+						$datarray['owner-name'] = $r[0]["name"];
+						$datarray['owner-link'] = $r[0]["url"];
+						$datarray['owner-avatar'] = $r[0]["photo"];
+
+						$datarray['author-name']   = $datarray['owner-name'];
+						$datarray['author-link']   = $datarray['owner-link'];
+						$datarray['author-avatar'] = $datarray['owner-avatar'];
+					}
+				}
 
 				$notify = true;
 			} else
