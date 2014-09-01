@@ -985,6 +985,13 @@ function encode_rel_links($links) {
 
 function item_store($arr,$force_parent = false, $notify = false) {
 
+	// If it is a posting where users should get notifications, then define it as wall posting
+	if ($notify) {
+		$arr['wall'] = 1;
+		$arr['type'] = 'wall';
+		$arr['network'] = NETWORK_DFRN;
+	}
+
 	// If a Diaspora signature structure was passed in, pull it out of the
 	// item array and set it aside for later storage.
 
@@ -2563,13 +2570,10 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Turn this into a wall post.
 
 				if($contact['remote_self']) {
-					$datarray['wall'] = 1;
-
 					if ($contact['remote_self'] == 2) {
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 						if (count($r)) {
 							$datarray['contact-id'] = $r[0]["id"];
-							$datarray['network'] = $r[0]["network"];
 
 							$datarray['owner-name'] = $r[0]["name"];
 							$datarray['owner-link'] = $r[0]["url"];
@@ -3679,14 +3683,11 @@ function local_delivery($importer,$data) {
 			// Turn this into a wall post.
 
 			if($importer['remote_self']) {
-				$datarray['wall'] = 1;
-
 				if ($importer['remote_self'] == 2) {
 					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
 						intval($importer['importer_uid']));
 					if (count($r)) {
 						$datarray['contact-id'] = $r[0]["id"];
-						$datarray['network'] = $r[0]["network"];
 
 						$datarray['owner-name'] = $r[0]["name"];
 						$datarray['owner-link'] = $r[0]["url"];
