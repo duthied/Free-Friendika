@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1171 );
+define( 'UPDATE_VERSION' , 1172 );
 
 /**
  *
@@ -1606,3 +1606,11 @@ function update_1170() {
 		return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }
+
+function update_1171() {
+	$r = q("ALTER TABLE `item` CHANGE `guid` `guid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
