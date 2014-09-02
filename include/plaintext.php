@@ -116,7 +116,7 @@ function shortenmsg($msg, $limit, $twitter = false) {
 			$msg = trim($msg."\n".$line);
 		// Is the new message empty by now or is it a reshared message?
 		elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
-			$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
+			$msg = iconv_substr(iconv_substr(trim($msg."\n".$line), 0, $limit, "UTF-8"), 0, -3, "UTF-8")."...";
 		else
 			break;
 	}
