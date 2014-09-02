@@ -117,6 +117,16 @@ function update_structure($verbose, $action) {
                         if(false === $r)
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 		} else {
+			// Drop the index if it isn't present in the definition
+			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames)
+				if (!isset($structure["indexes"][$indexname])) {
+					$sql2=db_drop_index($indexname);
+					if ($sql3 == "")
+						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+					else
+						$sql3 .= ", ".$sql2;
+				}
+
 			// Compare the field structure field by field
 			foreach ($structure["fields"] AS $fieldname => $parameters) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
@@ -140,16 +150,6 @@ function update_structure($verbose, $action) {
 				}
 			}
 		}
-		// Drop the index if it isn't present in the definition
-		if (isset($database[$name]))
-			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames)
-				if (!isset($structure["indexes"][$indexname])) {
-					$sql2=db_drop_index($indexname);
-					if ($sql3 == "")
-						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
-					else
-						$sql3 .= ", ".$sql2;
-				}
 
 		// Create the index
 		foreach ($structure["indexes"] AS $indexname => $fieldnames) {
@@ -354,7 +354,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"access" => array("cat(30)","k(30)"),
+					"cat_k" => array("cat(30)","k(30)"),
 					)
 			);
 	$database["contact"] = array(
@@ -890,7 +890,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"access" => array("uid","cat(30)","k(30)"),
+					"uid_cat_k" => array("uid","cat(30)","k(30)"),
 					)
 			);
 	$database["photo"] = array(
