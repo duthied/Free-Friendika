@@ -957,11 +957,16 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 			$image["thumb"] = $a->get_baseurl()."/photo/{$hash}-3.".$ph->getExt();
 	}
 
-	if (isset($image["thumb"]))
-		$image["preview"] = $image["thumb"];
+	// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
+	$image["preview"] = $image["full"];
 
-	if (isset($image["small"]))
-		$image["preview"] = $image["small"];
+	// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
+	//if (isset($image["thumb"]))
+	//	$image["preview"] = $image["thumb"];
+
+	// Unsure, if this should be activated or deactivated
+	//if (isset($image["small"]))
+	//	$image["preview"] = $image["small"];
 
 	if (isset($image["medium"]))
 		$image["preview"] = $image["medium"];

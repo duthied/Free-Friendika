@@ -116,7 +116,7 @@ function shortenmsg($msg, $limit, $twitter = false) {
 			$msg = trim($msg."\n".$line);
 		// Is the new message empty by now or is it a reshared message?
 		elseif (($msg == "") OR (($row == 1) AND (substr($msg, 0, 4) == $recycle)))
-			$msg = substr(substr(trim($msg."\n".$line), 0, $limit), 0, -3)."...";
+			$msg = iconv_substr(iconv_substr(trim($msg."\n".$line), 0, $limit, "UTF-8"), 0, -3, "UTF-8")."...";
 		else
 			break;
 	}
@@ -172,10 +172,10 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 			$msg = str_replace("  ", " ", $msg);
 
 		// Twitter is using its own limiter, so we always assume that shortened links will have this length
-		if (strlen($link) > 0)
+		if (iconv_strlen($link, "UTF-8") > 0)
 			$limit = $limit - 23;
 
-		if (strlen($msg) > $limit) {
+		if (iconv_strlen($msg, "UTF-8") > $limit) {
 
 			if (!isset($post["url"])) {
 				$limit = $limit - 23;
