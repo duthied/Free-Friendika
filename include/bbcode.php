@@ -152,9 +152,9 @@ function bb_rearrange_share($shared) {
 	if ($matches)
 		$description = trim($matches[1]);
 
-	$url = htmlentities($url, ENT_QUOTES, 'UTF-8', false);
-	$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
-	$preview = htmlentities($preview, ENT_QUOTES, 'UTF-8', false);
+	$url = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($url, ENT_QUOTES, 'UTF-8', false));
+	$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($title, ENT_QUOTES, 'UTF-8', false));
+	$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($preview, ENT_QUOTES, 'UTF-8', false));
 
 	$Text = trim($shared[1])."\n[attachment type='".$type."'";
 
@@ -165,7 +165,7 @@ function bb_rearrange_share($shared) {
 	if ($preview != "") {
 		require_once("include/Photo.php");
 		$picturedata = get_photo_info($preview);
-//                echo $preview."*".print_r($picturedata, true)."*";
+
 		if (count($picturedata) > 0) {
 			// if the preview picture is larger than 500 pixels then show it in a larger mode
 			// But only, if the picture isn't higher than large (To prevent huge posts)
@@ -280,8 +280,6 @@ function tryoembed($match){
 
 	if (isset($match[2]))
 		$o->title = $match[2];
-
-	//echo "<pre>"; var_dump($match, $url, $o); killme();
 
 	if ($o->type=="error") return $match[0];
 
@@ -586,11 +584,13 @@ function bb_ShareAttributes($share, $simplehtml) {
 	return($text);
 }
 
-function GetProfileUsername($profile, $username, $compact = false) {
+function GetProfileUsername($profile, $username, $compact = false, $getnetwork = false) {
 
 	$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1@twitter.com", $profile);
 	if ($twitter != $profile) {
-		if ($compact)
+		if ($getnetwork)
+			return(NETWORK_TWITTER);
+		elseif ($compact)
 			return($twitter);
 		else
 			return($username." (".$twitter.")");
@@ -598,7 +598,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 
 	$appnet = preg_replace("=https?://alpha.app.net/(.*)=ism", "$1@alpha.app.net", $profile);
 	if ($appnet != $profile) {
-		if ($compact)
+		if ($getnetwork)
+			return(NETWORK_APPNET);
+		elseif ($compact)
 			return($appnet);
 		else
 			return($username." (".$appnet.")");
@@ -606,7 +608,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 
 	$gplus = preg_replace("=https?://plus.google.com/(.*)=ism", "$1@plus.google.com", $profile);
 	if ($gplus != $profile) {
-		if ($compact)
+		if ($getnetwork)
+			return(NETWORK_GPLUS);
+		elseif ($compact)
 			return($gplususername." (".$username.")");
 		else
 			return($username." (".$gplus.")");
@@ -614,7 +618,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 
 	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2@$1", $profile);
 	if ($friendica != $profile) {
-		if ($compact)
+		if ($getnetwork)
+			return(NETWORK_DFRN);
+		elseif ($compact)
 			return($friendica);
 		else
 			return($username." (".$friendica.")");
@@ -622,7 +628,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 
 	$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
 	if ($diaspora != $profile) {
-		if ($compact)
+		if ($getnetwork)
+			return(NETWORK_DIASPORA);
+		elseif ($compact)
 			return($diaspora);
 		else
 			return($username." (".$diaspora.")");
@@ -635,7 +643,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 			$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 			$user = json_decode($UserData);
 			if ($user) {
-				if ($compact)
+				if ($getnetwork)
+					return(NETWORK_STATUSNET);
+				elseif ($compact)
 					return($user->screen_name."@".$StatusnetHost);
 				else
 					return($username." (".$user->screen_name."@".$StatusnetHost.")");
@@ -648,7 +658,9 @@ function GetProfileUsername($profile, $username, $compact = false) {
 	if ($rest == "") {
 		$pumpio = preg_replace("=https?://([\.\w]+)/([\.\w]+)(.*)=ism", "$2@$1", $profile);
 		if ($pumpio != $profile) {
-			if ($compact)
+			if ($getnetwork)
+				return(NETWORK_PUMPIO);
+			elseif ($compact)
 				return($pumpio);
 			else
 				return($username." (".$pumpio.")");

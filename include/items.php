@@ -983,7 +983,16 @@ function encode_rel_links($links) {
 
 
 
-function item_store($arr,$force_parent = false) {
+function item_store($arr,$force_parent = false, $notify = false) {
+
+	// If it is a posting where users should get notifications, then define it as wall posting
+	if ($notify) {
+		$arr['wall'] = 1;
+		$arr['type'] = 'wall';
+		$arr['origin'] = 1;
+		$arr['last-child'] = 1;
+		$arr['network'] = NETWORK_DFRN;
+	}
 
 	// If a Diaspora signature structure was passed in, pull it out of the
 	// item array and set it aside for later storage.
@@ -1144,6 +1153,7 @@ function item_store($arr,$force_parent = false) {
 		$allow_gid = $arr['allow_gid'];
 		$deny_cid  = $arr['deny_cid'];
 		$deny_gid  = $arr['deny_gid'];
+		$notify_type = 'wall-new';
 	}
 	else {
 
@@ -1180,6 +1190,7 @@ function item_store($arr,$force_parent = false) {
 			$deny_cid       = $r[0]['deny_cid'];
 			$deny_gid       = $r[0]['deny_gid'];
 			$arr['wall']    = $r[0]['wall'];
+			$notify_type    = 'comment-new';
 
 			// if the parent is private, force privacy for the entire conversation
 			// This differs from the above settings as it subtly allows comments from
@@ -1416,6 +1427,9 @@ function item_store($arr,$force_parent = false) {
 
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
+
+	if ($notify)
+		proc_run('php', "include/notifier.php", $notify_type, $current_post);
 
 	return $current_post;
 }
@@ -2532,16 +2546,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				if($contact['network'] === NETWORK_FEED)
 					$datarray['private'] = 2;
 
-				// This is my contact on another system, but it's really me.
-				// Turn this into a wall post.
-
-				if($contact['remote_self']) {
-					$datarray['wall'] = 1;
-					if($contact['network'] === NETWORK_FEED) {
-						$datarray['private'] = 0;
-					}
-				}
-
 				$datarray['parent-uri'] = $item_id;
 				$datarray['uid'] = $importer['uid'];
 				$datarray['contact-id'] = $contact['id'];
@@ -2564,8 +2568,33 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
 					continue;
 
+				// This is my contact on another system, but it's really me.
+				// Turn this into a wall post.
 
-				$r = item_store($datarray);
+				if($contact['remote_self']) {
+					if ($contact['remote_self'] == 2) {
+						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
+						if (count($r)) {
+							$datarray['contact-id'] = $r[0]["id"];
+
+							$datarray['owner-name'] = $r[0]["name"];
+							$datarray['owner-link'] = $r[0]["url"];
+							$datarray['owner-avatar'] = $r[0]["photo"];
+
+							$datarray['author-name']   = $datarray['owner-name'];
+							$datarray['author-link']   = $datarray['owner-link'];
+							$datarray['author-avatar'] = $datarray['owner-avatar'];
+						}
+					}
+
+					$notify = true;
+					if($contact['network'] === NETWORK_FEED) {
+						$datarray['private'] = 0;
+					}
+				} else
+					$notify = false;
+
+				$r = item_store($datarray, false, $notify);
 				continue;
 
 			}
@@ -3633,12 +3662,6 @@ function local_delivery($importer,$data) {
 				continue;
 			}
 
-			// This is my contact on another system, but it's really me.
-			// Turn this into a wall post.
-
-			if($importer['remote_self'])
-				$datarray['wall'] = 1;
-
 			$datarray['parent-uri'] = $item_id;
 			$datarray['uid'] = $importer['importer_uid'];
 			$datarray['contact-id'] = $importer['id'];
@@ -3658,7 +3681,31 @@ function local_delivery($importer,$data) {
 			if(($importer['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['importer_uid'],$datarray)))
 				continue;
 
-			$posted_id = item_store($datarray);
+			// This is my contact on another system, but it's really me.
+			// Turn this into a wall post.
+
+			if($importer['remote_self']) {
+				if ($importer['remote_self'] == 2) {
+					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+						intval($importer['importer_uid']));
+					if (count($r)) {
+						$datarray['contact-id'] = $r[0]["id"];
+
+						$datarray['owner-name'] = $r[0]["name"];
+						$datarray['owner-link'] = $r[0]["url"];
+						$datarray['owner-avatar'] = $r[0]["photo"];
+
+						$datarray['author-name']   = $datarray['owner-name'];
+						$datarray['author-link']   = $datarray['owner-link'];
+						$datarray['author-avatar'] = $datarray['owner-avatar'];
+					}
+				}
+
+				$notify = true;
+			} else
+				$notify = false;
+
+			$posted_id = item_store($datarray, false, $notify);
 
 			if(stristr($datarray['verb'],ACTIVITY_POKE)) {
 				$verb = urldecode(substr($datarray['verb'],strpos($datarray['verb'],'#')+1));
