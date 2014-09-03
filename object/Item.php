@@ -101,6 +101,7 @@ class Item extends BaseObject {
 		$buttons = '';
 		$dropping = false;
 		$star = false;
+		$ignore = false;
 		$isstarred = "unstarred";
 		$indent = '';
 		$shiny = '';
@@ -197,6 +198,14 @@ class Item extends BaseObject {
 					'classdo' => (($item['starred']) ? "hidden" : ""),
 					'classundo' => (($item['starred']) ? "" : "hidden"),
 					'starred' =>  t('starred'),
+				);
+				$ignore = array(
+					'do' => t("ignore thread"),
+					'undo' => t("unignore thread"),
+					'toggle' => t("toggle ignore status"),
+					'classdo' => (($item['starred']) ? "hidden" : ""),
+					'classundo' => (($item['starred']) ? "" : "hidden"),
+					'ignored' =>  t('ignored'),
 				);
 				$tagger = '';
 				if(feature_enabled($conv->get_profile_owner(),'commtag')) {
@@ -335,6 +344,8 @@ class Item extends BaseObject {
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
 			'isstarred' => $isstarred,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts')) ? $star : ''),
+			/* 'ignore'      => ((feature_enabled($conv->get_profile_owner(),'ignore_posts')) ? $ignore : ''), */
+			'ignore'      => $ignore,
 			'tagger'	=> $tagger,
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing')) ? $filer : ''),
 			'drop' => $drop,

@@ -441,13 +441,33 @@
 				$('#star-' + ident).addClass('hidden');
 				$('#unstar-' + ident).removeClass('hidden');
 			}
-			else {			
+			else {
 				$('#starred-' + ident).addClass('unstarred');
 				$('#starred-' + ident).removeClass('starred');
 				$('#star-' + ident).removeClass('hidden');
 				$('#unstar-' + ident).addClass('hidden');
 			}
-			$('#like-rotator-' + ident).hide();	
+			$('#like-rotator-' + ident).hide();
+		});
+	}
+
+	function doignore(ident) {
+		ident = ident.toString();
+		$('#like-rotator-' + ident).show();
+		$.get('ignored/' + ident, function(data) {
+			if(data.match(/1/)) {
+				$('#ignored-' + ident).addClass('ignored');
+				$('#ignored-' + ident).removeClass('unignored');
+				$('#ignore-' + ident).addClass('hidden');
+				$('#unignore-' + ident).removeClass('hidden');
+			}
+			else {
+				$('#ignored-' + ident).addClass('unignored');
+				$('#ignored-' + ident).removeClass('ignored');
+				$('#ignore-' + ident).removeClass('hidden');
+				$('#unignore-' + ident).addClass('hidden');
+			}
+			$('#like-rotator-' + ident).hide();
 		});
 	}
 

@@ -95,6 +95,8 @@ function update_structure($verbose, $action) {
 
 	$errors = false;
 
+	logger('updating structure', LOGGER_DEBUG);
+
 	// Get the current structure
 	$database = array();
 
@@ -130,7 +132,7 @@ function update_structure($verbose, $action) {
 			// Compare the field structure field by field
 			foreach ($structure["fields"] AS $fieldname => $parameters) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
-					$sql2=db_add_table_field($name, $fieldname, $parameters);
+					$sql2=db_add_table_field($fieldname, $parameters);
 					if ($sql3 == "")
 						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 					else
@@ -1160,6 +1162,7 @@ function db_definition() {
 					"visible" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"spam" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"starred" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"ignored" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"bookmark" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"unseen" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"deleted" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),

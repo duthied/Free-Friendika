@@ -14,7 +14,7 @@ require_once('include/features.php');
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_VERSION',      '3.2.1753' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1170      );
+define ( 'DB_UPDATE_VERSION',      1171      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -1016,8 +1016,16 @@ if(! function_exists('update_db')) {
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
 
 					// Compare the current structure with the defined structure
+
+					$t = get_config('database','dbupdate_'.DB_UPDATE_VERSION);
+					if($t !== false)
+						break;
+					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
+
 					require_once("include/dbstructure.php");
 					update_structure(false, true);
+
+					set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
 
 					for($x = $stored; $x < $current; $x ++) {
 						if(function_exists('update_' . $x)) {
@@ -1058,11 +1066,13 @@ if(! function_exists('update_db')) {
 								//try the logger
 								logger('CRITICAL: Update Failed: '. $x);
 								break;
-							}
-							else {
+							} else {
 								set_config('database','update_' . $x, 'success');
 								set_config('system','build', $x + 1);
 							}
+						} else {
+							set_config('database','update_' . $x, 'success');
+							set_config('system','build', $x + 1);
 						}
 					}
 				}
