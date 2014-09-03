@@ -4566,13 +4566,9 @@ function posted_dates($uid,$wall) {
 	if(! $dthen)
 		return array();
 
-	// If it's near the end of a long month, backup to the 28th so that in
-	// consecutive loops we'll always get a whole month difference.
-
-	if(intval(substr($dnow,8)) > 28)
-		$dnow = substr($dnow,0,8) . '28';
-	if(intval(substr($dthen,8)) > 28)
-		$dnow = substr($dthen,0,8) . '28';
+	// Set the start and end date to the beginning of the month
+	$dnow = substr($dnow,0,8).'01';
+	$dthen = substr($dthen,0,8).'01';
 
 	$ret = array();
 	// Starting with the current month, get the first and last days of every
