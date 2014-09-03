@@ -199,14 +199,21 @@ class Item extends BaseObject {
 					'classundo' => (($item['starred']) ? "" : "hidden"),
 					'starred' =>  t('starred'),
 				);
-				$ignore = array(
-					'do' => t("ignore thread"),
-					'undo' => t("unignore thread"),
-					'toggle' => t("toggle ignore status"),
-					'classdo' => (($item['starred']) ? "hidden" : ""),
-					'classundo' => (($item['starred']) ? "" : "hidden"),
-					'ignored' =>  t('ignored'),
+				$r = q("SELECT `ignored` FROM `thread` WHERE `uid` = %d AND `iid` = %d LIMIT 1",
+					intval($item['uid']),
+					intval($item['id'])
 				);
+				if (count($r)) {
+					$ignore = array(
+						'do' => t("ignore thread"),
+						'undo' => t("unignore thread"),
+						'toggle' => t("toggle ignore status"),
+						'classdo' => (($r[0]['ignored']) ? "hidden" : ""),
+						'classundo' => (($r[0]['ignored']) ? "" : "hidden"),
+						'ignored' =>  t('ignored'),
+					);
+				}
+
 				$tagger = '';
 				if(feature_enabled($conv->get_profile_owner(),'commtag')) {
 					$tagger = array(
@@ -344,8 +351,7 @@ class Item extends BaseObject {
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
 			'isstarred' => $isstarred,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts')) ? $star : ''),
-			/* 'ignore'      => ((feature_enabled($conv->get_profile_owner(),'ignore_posts')) ? $ignore : ''), */
-			'ignore'      => $ignore,
+			'ignore'      => ((feature_enabled($conv->get_profile_owner(),'ignore_posts')) ? $ignore : ''),
 			'tagger'	=> $tagger,
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing')) ? $filer : ''),
 			'drop' => $drop,
