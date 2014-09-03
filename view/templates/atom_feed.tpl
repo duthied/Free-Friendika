@@ -19,6 +19,7 @@
   <title>{{$feed_title}}</title>
   <generator uri="http://friendica.com" version="{{$version}}">Friendica</generator>
   <link rel="license" href="http://creativecommons.org/licenses/by/3.0/" />
+  <link rel="alternate" type="text/html" href="{{$alternatelink}}" />
   {{$hub}}
   {{$salmon}}
   {{$community}}

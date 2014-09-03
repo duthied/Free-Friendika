@@ -163,6 +163,11 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 
 	$salmon = feed_salmonlinks($owner_nick);
 
+	$alternatelink = $owner['url'];
+
+	if(isset($category))
+		$alternatelink .= "/category/".$category;
+
 	$atom .= replace_macros($feed_template, array(
 		'$version'      => xmlify(FRIENDICA_VERSION),
 		'$feed_id'      => xmlify($a->get_baseurl() . '/profile/' . $owner_nick),
@@ -170,6 +175,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 		'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now' , ATOM_TIME)) ,
 		'$hub'          => $hubxml,
 		'$salmon'       => $salmon,
+		'$alternatelink' => xmlify($alternatelink),
 		'$name'         => xmlify($owner['name']),
 		'$profile_page' => xmlify($owner['url']),
 		'$photo'        => xmlify($owner['photo']),
