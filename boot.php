@@ -1023,9 +1023,28 @@ if(! function_exists('update_db')) {
 					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
 
 					require_once("include/dbstructure.php");
-					update_structure(false, true);
-
-					set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
+					$retval = update_structure(false, true);
+					if($retval) {
+						//send the administrator an e-mail
+						$email_tpl = get_intltext_template("update_fail_eml.tpl");
+						$email_msg = replace_macros($email_tpl, array(
+							'$sitename' => $a->config['sitename'],
+							'$siteurl' =>  $a->get_baseurl(),
+							'$update' => DB_UPDATE_VERSION,
+							'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
+						));
+						$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
+						require_once('include/email.php');
+						$subject = email_header_encode($subject,'UTF-8');
+						mail($a->config['admin_email'], $subject, $email_msg,
+							'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
+							.'Content-type: text/plain; charset=UTF-8'."\n"
+							.'Content-transfer-encoding: 8bit');
+						//try the logger
+						logger("CRITICAL: Database structure update failed: ".$retval);
+						break;
+					} else
+						set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
 
 					for($x = $stored; $x < $current; $x ++) {
 						if(function_exists('update_' . $x)) {

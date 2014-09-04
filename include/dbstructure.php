@@ -175,7 +175,7 @@ function update_structure($verbose, $action) {
 			if ($action) {
 				$r = @$db->q($sql3);
 				if(false === $r)
-					$errors .=  t('Errors encountered performing database changes.').$sql3.EOL;
+					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
 			}
 		}
 	}
