@@ -137,6 +137,8 @@ function profiles_init(&$a) {
 
 		profile_load($a,$a->user['nickname'],$r[0]['id']);
 	}
+	
+	
 
 }
 
@@ -636,6 +638,7 @@ function profiles_content(&$a) {
 		$o .= replace_macros($tpl,array(
 			'$multi_profiles' => feature_enabled(local_user(),'multi_profiles'),
 			'$form_security_token' => get_form_security_token("profile_edit"),
+			'$form_security_token_photo' => get_form_security_token("profile_photo"),
 			'$profile_clone_link' => 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone"),
 			'$profile_drop_link' => 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 			'$banner' => t('Edit Profile Details'),
@@ -645,6 +648,14 @@ function profiles_content(&$a) {
 			'$cr_prof' => t('Create a new profile using these settings'),
 			'$cl_prof' => t('Clone this profile'),
 			'$del_prof' => t('Delete this profile'),
+			'$lbl_basic_section' => t('Basic information'),
+			'$lbl_picture_section' => t('Profile picture'),
+			'$lbl_location_section' => t('Location'),
+			'$lbl_preferences_section' => t('Preferences'),
+			'$lbl_status_section' => t('Status information'),
+			'$lbl_about_section' => t('Additional information'),
+			'$lbl_interests_section' => t('Interests'),
+			'$lbl_profile_photo' => t('Upload Profile Photo'),
 			'$lbl_profname' => t('Profile Name:'),
 			'$lbl_fullname' => t('Your Full Name:'),
 			'$lbl_title' => t('Title/Description:'),
@@ -726,12 +737,26 @@ function profiles_content(&$a) {
 
 		return $o;
 	}
+	
+	//Profiles list.
 	else {
-
+		
+		//If we don't support multi profiles, don't display this list.
+		if(!feature_enabled(local_user(),'multi_profiles')){
+			$r = q(
+				"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
+				local_user()
+			);
+			if(count($r)){
+				//Go to the default profile.
+				goaway($a->get_baseurl(true) . '/profiles/'.$r[0]['id']);
+			}
+		}
+		
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user());
 		if(count($r)) {
-
+			
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
 			$o .= replace_macros($tpl_header,array(
 				'$header' => t('Edit/Manage Profiles'),
@@ -739,10 +764,10 @@ function profiles_content(&$a) {
 				'$cr_new' => t('Create New Profile'),
 				'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new")
 			));
-
-
+			
+			
 			$tpl = get_markup_template('profile_entry.tpl');
-
+			
 			foreach($r as $rr) {
 				$o .= replace_macros($tpl, array(
 					'$photo' => $a->get_cached_avatar_image($rr['thumb']),
