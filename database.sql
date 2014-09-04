@@ -507,7 +507,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 
 CREATE TABLE IF NOT EXISTS `item` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` char(64) NOT NULL,
+  `guid` char(255) NOT NULL,
   `uri` char(255) CHARACTER SET ascii NOT NULL,
   `uid` int(10) unsigned NOT NULL DEFAULT '0',
   `contact-id` int(10) unsigned NOT NULL DEFAULT '0',

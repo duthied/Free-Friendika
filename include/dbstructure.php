@@ -623,7 +623,7 @@ function db_definition() {
 	$database["guid"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"guid" => array("type" => "varchar(64)", "not null" => "1"),
+					"guid" => array("type" => "varchar(255)", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -664,7 +664,7 @@ function db_definition() {
 	$database["item"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"guid" => array("type" => "varchar(64)", "not null" => "1"),
+					"guid" => array("type" => "varchar(255)", "not null" => "1"),
 					"uri" => array("type" => "varchar(255)", "not null" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"contact-id" => array("type" => "int(11)", "not null" => "1"),

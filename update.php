@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1171 );
+define( 'UPDATE_VERSION' , 1173 );
 
 /**
  *
@@ -32,6 +32,8 @@ define( 'UPDATE_VERSION' , 1171 );
  *    3. Increment the DB_UPDATE_VERSION in boot.php *AND* the UPDATE_VERSION in this file to match it
  *    4. TEST the upgrade prior to checkin and filing a pull request.
  *
+ * IMPORTANT!
+ * NEVER do a database change anymore in the update functions! Only do this in the file include/dbstructure.php!
  */
 
 
@@ -1599,3 +1601,27 @@ function update_1169() {
 
 	return UPDATE_SUCCESS;
 }
+
+function update_1170() {
+	$r = q("ALTER TABLE `guid` CHANGE `guid` `guid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+function update_1171() {
+	$r = q("ALTER TABLE `item` CHANGE `guid` `guid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	if (!$r)
+		return UPDATE_FAILED;
+	return UPDATE_SUCCESS;
+}
+
+/*
+==========
+ATTENTION!
+==========
+
+All following update functions are ONLY for jobs that need to run AFTER the database changes are applied.
+
+Database changes are ONLY applied in the file include/dbstructure.php.
+*/
