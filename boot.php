@@ -14,7 +14,7 @@ require_once('include/features.php');
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_VERSION',      '3.2.1753' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1172      );
+define ( 'DB_UPDATE_VERSION',      1173      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -1016,8 +1016,35 @@ if(! function_exists('update_db')) {
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
 
 					// Compare the current structure with the defined structure
+
+					$t = get_config('database','dbupdate_'.DB_UPDATE_VERSION);
+					if($t !== false)
+						break;
+					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
+
 					require_once("include/dbstructure.php");
-					update_structure(false, true);
+					$retval = update_structure(false, true);
+					if($retval) {
+						//send the administrator an e-mail
+						$email_tpl = get_intltext_template("update_fail_eml.tpl");
+						$email_msg = replace_macros($email_tpl, array(
+							'$sitename' => $a->config['sitename'],
+							'$siteurl' =>  $a->get_baseurl(),
+							'$update' => DB_UPDATE_VERSION,
+							'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
+						));
+						$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
+						require_once('include/email.php');
+						$subject = email_header_encode($subject,'UTF-8');
+						mail($a->config['admin_email'], $subject, $email_msg,
+							'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
+							.'Content-type: text/plain; charset=UTF-8'."\n"
+							.'Content-transfer-encoding: 8bit');
+						//try the logger
+						logger("CRITICAL: Database structure update failed: ".$retval);
+						break;
+					} else
+						set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
 
 					for($x = $stored; $x < $current; $x ++) {
 						if(function_exists('update_' . $x)) {
@@ -1058,11 +1085,13 @@ if(! function_exists('update_db')) {
 								//try the logger
 								logger('CRITICAL: Update Failed: '. $x);
 								break;
-							}
-							else {
+							} else {
 								set_config('database','update_' . $x, 'success');
 								set_config('system','build', $x + 1);
 							}
+						} else {
+							set_config('database','update_' . $x, 'success');
+							set_config('system','build', $x + 1);
 						}
 					}
 				}

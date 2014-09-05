@@ -63,6 +63,15 @@ function notification($params) {
 
 		$parent_id = $params['parent'];
 
+		$p = q("SELECT `ignored` FROM `thread` WHERE `iid` = %d AND `uid` = %d LIMIT 1",
+			intval($parent_id),
+			intval($params['uid'])
+		);
+		if ($p AND count($p) AND ($p[0]["ignored"])) {
+			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
+			return;
+		}
+
 		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
 
@@ -117,11 +126,11 @@ function notification($params) {
 
 		// Some mail softwares relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
-		// Before this we have the name of the replier on the subject rendering 
+		// Before this we have the name of the replier on the subject rendering
 		// differents subjects for messages on the same thread.
 
 		$subject = sprintf( t('[Friendica:Notify] Comment to conversation #%1$d by %2$s'), $parent_id, $params['source_name']);
-		$preamble = sprintf( t('%s commented on an item/conversation you have been following.'), $params['source_name']); 
+		$preamble = sprintf( t('%s commented on an item/conversation you have been following.'), $params['source_name']);
 		$epreamble = $dest_str;
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
@@ -175,9 +184,9 @@ function notification($params) {
 
 		$subject =	sprintf( t('[Friendica:Notify] %1$s poked you') , $params['source_name']);
 		$preamble = sprintf( t('%1$s poked you at %2$s') , $params['source_name'], $sitename);
-		$epreamble = sprintf( t('%1$s [url=%2$s]poked you[/url].') , 
+		$epreamble = sprintf( t('%1$s [url=%2$s]poked you[/url].') ,
 								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-								$params['link']); 
+								$params['link']);
 
 		$subject = str_replace('poked', t($params['activity']), $subject);
 		$preamble = str_replace('poked', t($params['activity']), $preamble);
@@ -194,7 +203,7 @@ function notification($params) {
 		$preamble = sprintf( t('%1$s tagged your post at %2$s') , $params['source_name'], $sitename);
 		$epreamble = sprintf( t('%1$s tagged [url=%2$s]your post[/url]') ,
 								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-								$itemlink); 
+								$itemlink);
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -204,10 +213,10 @@ function notification($params) {
 
 	if($params['type'] == NOTIFY_INTRO) {
 		$subject = sprintf( t('[Friendica:Notify] Introduction received'));
-		$preamble = sprintf( t('You\'ve received an introduction from \'%1$s\' at %2$s'), $params['source_name'], $sitename); 
+		$preamble = sprintf( t('You\'ve received an introduction from \'%1$s\' at %2$s'), $params['source_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [url=%1$s]an introduction[/url] from %2$s.'),
 								$itemlink,
-								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]'); 
+								'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
 		$body = sprintf( t('You may visit their profile at %s'),$params['source_link']);
 
 		$sitelink = t('Please visit %s to approve or reject the introduction.');
@@ -218,11 +227,11 @@ function notification($params) {
 
 	if($params['type'] == NOTIFY_SUGGEST) {
 		$subject = sprintf( t('[Friendica:Notify] Friend suggestion received'));
-		$preamble = sprintf( t('You\'ve received a friend suggestion from \'%1$s\' at %2$s'), $params['source_name'], $sitename); 
+		$preamble = sprintf( t('You\'ve received a friend suggestion from \'%1$s\' at %2$s'), $params['source_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s.'),
 									$itemlink,
 									'[url=' . $params['item']['url'] . ']' . $params['item']['name'] . '[/url]',
-									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]'); 
+									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
 
 		$body = t('Name:') . ' ' . $params['item']['name'] . "\n";
 		$body .= t('Photo:') . ' ' . $params['item']['photo'] . "\n";
@@ -242,11 +251,11 @@ function notification($params) {
 	}
 
 	$h = array(
-		'params'    => $params, 
+		'params'    => $params,
 		'subject'   => $subject,
-		'preamble'  => $preamble, 
-		'epreamble' => $epreamble, 
-		'body'      => $body, 
+		'preamble'  => $preamble,
+		'epreamble' => $epreamble,
+		'body'      => $body,
 		'sitelink'  => $sitelink,
 		'tsitelink' => $tsitelink,
 		'hsitelink' => $hsitelink,
@@ -290,7 +299,7 @@ function notification($params) {
 	$datarray['verb']  = $params['verb'];
 	$datarray['otype'] = $params['otype'];
 	$datarray['abort'] = false;
- 
+
 	call_hooks('enotify_store', $datarray);
 
 	if($datarray['abort']) {
@@ -391,11 +400,11 @@ function notification($params) {
 					values(%d,%d,%d,%d)",
 					intval($notify_id),
 					intval($params['parent']),
-					intval($params['uid']), 
+					intval($params['uid']),
 					0 );
 
 				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
-				$log_msg = "include/enotify: No previous notification found for this parent:\n" . 
+				$log_msg = "include/enotify: No previous notification found for this parent:\n" .
 						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				logger($log_msg, LOGGER_DEBUG);
 			} else {
@@ -461,7 +470,7 @@ function notification($params) {
 			'$htmlversion'	=> $datarray['htmlversion'],
 			'$content_allowed'	=> $content_allowed,
 		));
-		
+
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_text.tpl');
 		$email_text_body = replace_macros($tpl,array(
@@ -479,7 +488,7 @@ function notification($params) {
 			'$thanks'       => $datarray['thanks'],
 			'$site_admin'   => $datarray['site_admin'],
 			'$title'		=> $datarray['title'],
-			'$textversion'	=> $datarray['textversion'],	
+			'$textversion'	=> $datarray['textversion'],
 			'$content_allowed'	=> $content_allowed,
 		));
 
@@ -520,9 +529,9 @@ class enotify {
 	 */
 	static public function send($params) {
 
-		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8'); 
+		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
 		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
-		
+
 		// generate a mime boundary
 		$mimeBoundary   =rand(0,9)."-"
 				.rand(10000000000,9999999999)."-"
@@ -532,7 +541,7 @@ class enotify {
 		// generate a multipart/alternative message header
 		$messageHeader =
 			$params['additionalMailHeader'] .
-			"From: $fromName <{$params['fromEmail']}>\n" . 
+			"From: $fromName <{$params['fromEmail']}>\n" .
 			"Reply-To: $fromName <{$params['replyTo']}>\n" .
 			"MIME-Version: 1.0\n" .
 			"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";

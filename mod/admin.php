@@ -649,7 +649,7 @@ function admin_page_site(&$a) {
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-		
+
 		'$enable_noscrape'=> array('enable_noscrape', t("Enable noscrape"), get_config('system','enable_noscrape'), t("The noscrape feature speeds up directory submissions by using JSON data instead of HTML scraping.")),
     '$form_security_token' => get_form_security_token("admin_site")
 
@@ -671,23 +671,37 @@ function admin_page_dbsync(&$a) {
 		goaway($a->get_baseurl(true) . '/admin/dbsync');
 	}
 
-	if($a->argc > 2 && intval($a->argv[2])) {
+	if(($a->argc > 2) AND (intval($a->argv[2]) OR ($a->argv[2] === 'check'))) {
+		require_once("include/dbstructure.php");
+		$retval = update_structure(false, true);
+		if (!$retval) {
+			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION)."<br />";
+			set_config('database', 'dbupdate_'.DB_UPDATE_VERSION, 'success');
+		} else
+			$o .= sprintf(t("Executing of database structure update %s failed with error: %s"),
+					DB_UPDATE_VERSION, $retval)."<br />";
+		if ($a->argv[2] === 'check')
+			return $o;
+	}
+
+	if ($a->argc > 2 && intval($a->argv[2])) {
 		require_once('update.php');
 		$func = 'update_' . intval($a->argv[2]);
 		if(function_exists($func)) {
 			$retval = $func();
 			if($retval === UPDATE_FAILED) {
-				$o .= sprintf( t('Executing %s failed. Check system logs.'), $func);
+				$o .= sprintf(t("Executing %s failed with error: %s"), $func, $retval);
 			}
 			elseif($retval === UPDATE_SUCCESS) {
-				$o .= sprintf( t('Update %s was successfully applied.', $func));
+				$o .= sprintf(t('Update %s was successfully applied.', $func));
 				set_config('database',$func, 'success');
 			}
 			else
-				$o .= sprintf( t('Update %s did not return a status. Unknown if it succeeded.'), $func);
+				$o .= sprintf(t('Update %s did not return a status. Unknown if it succeeded.'), $func);
+		} else {
+			$o .= sprintf(t('There was no additional update function %s that needed to be called.'), $func)."<br />";
+			set_config('database',$func, 'success');
 		}
-		else
-			$o .= sprintf( t('Update function %s could not be found.'), $func);
 		return $o;
 	}
 
@@ -701,17 +715,22 @@ function admin_page_dbsync(&$a) {
 			$failed[] = $upd;
 		}
 	}
-	if(! count($failed))
-		return '<h3>' . t('No failed updates.') . '</h3>';
-
-	$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
-		'$base' => $a->get_baseurl(true),
-		'$banner' => t('Failed Updates'),
-		'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
-		'$mark' => t('Mark success (if update was manually applied)'),
-		'$apply' => t('Attempt to execute this update step automatically'),
-		'$failed' => $failed
-	));
+	if(! count($failed)) {
+		$o = replace_macros(get_markup_template('structure_check.tpl'),array(
+			'$base' => $a->get_baseurl(true),
+			'$banner' => t('No failed updates.'),
+			'$check' => t('Check database structure'),
+		));
+	} else {
+		$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
+			'$base' => $a->get_baseurl(true),
+			'$banner' => t('Failed Updates'),
+			'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
+			'$mark' => t('Mark success (if update was manually applied)'),
+			'$apply' => t('Attempt to execute this update step automatically'),
+			'$failed' => $failed
+		));
+	}
 
 	return $o;
 

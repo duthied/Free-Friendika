@@ -60,6 +60,7 @@ function get_features() {
 			array('filing',         t('Saved Folders'),				t('Ability to file posts under folders')),
 			array('dislike',        t('Dislike Posts'),				t('Ability to dislike posts/comments')),
 			array('star_posts',     t('Star Posts'),				t('Ability to mark special posts with a star indicator')),
+			array('ignore_posts',   t('Mute Post Notifications'),			t('Ability to mute notifications for a thread')),
 		),
 	);
 

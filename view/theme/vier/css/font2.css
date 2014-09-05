@@ -253,9 +253,13 @@ li.icon.icon-large:before {
 .icon-credit-card:before          { content: "\f09d"; }
 .icon-rss:before                  { content: "\f09e"; }
 
+.icon-bell-slash:before           { content: "\f1f6"; }
+.icon-bell-slash-o:before         { content: "\f1f7"; }
+
 .icon-hdd:before                  { content: "\f0a0"; }
 .icon-bullhorn:before             { content: "\f0a1"; }
 .icon.notify:before               { content: "\f0a2"; }
+.icon.notify.show:before          { content: "\f0f3"; }
 .icon-certificate:before          { content: "\f0a3"; }
 .icon-hand-right:before           { content: "\f0a4"; }
 .icon-hand-left:before            { content: "\f0a5"; }
