@@ -246,6 +246,10 @@ div.pager {
   float: left;
 }
 
+#contacts-actions {
+  clear: both;
+}
+
 #contact-edit-drop-link-end {
   /* clear: both; */
 }
