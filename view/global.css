@@ -122,3 +122,7 @@ blockquote.shared_content {
   color: #000;
   border: none;
 }
+
+.settings-heading {
+	cursor: pointer;
+}
