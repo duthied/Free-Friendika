@@ -246,6 +246,10 @@ div.pager {
   float: left;
 }
 
+#contacts-actions {
+  clear: both;
+}
+
 #contact-edit-drop-link-end {
   /* clear: both; */
 }
@@ -2723,4 +2727,3 @@ a.mail-list-link {
 .mail-conv-delete-icon {
         border: none;
 }
-

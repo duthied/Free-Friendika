@@ -19,6 +19,12 @@
 			}
 
 		}).trigger('change');
+		
+		$('.settings-block').hide();
+		$('.settings-heading').click(function(){
+			$('.settings-block').hide();
+			$(this).next('.settings-block').toggle();
+		});
 
 	});
 
