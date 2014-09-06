@@ -77,13 +77,45 @@ function wall_upload_post(&$a) {
 		$filetype = $_FILES['userfile']['type'];
 	}
 	elseif(x($_FILES,'media')) {
-		$src = $_FILES['media']['tmp_name'];
-		$filename = basename($_FILES['media']['name']);
-		$filesize = intval($_FILES['media']['size']);
-		$filetype = $_FILES['media']['type'];
+		if (is_array($_FILES['media']['tmp_name']))
+			$src = $_FILES['media']['tmp_name'][0];
+		else
+			$src = $_FILES['media']['tmp_name'];
+
+		if (is_array($_FILES['media']['name']))
+			$filename = basename($_FILES['media']['name'][0]);
+		else
+			$filename = basename($_FILES['media']['name']);
+
+		if (is_array($_FILES['media']['size']))
+			$filesize = intval($_FILES['media']['size'][0]);
+		else
+			$filesize = intval($_FILES['media']['size']);
+
+		if (is_array($_FILES['media']['type']))
+			$filetype = $_FILES['media']['type'][0];
+		else
+			$filetype = $_FILES['media']['type'];
 	}
-	
-    if ($filetype=="") $filetype=guess_image_type($filename);
+
+	// This is a special treatment for picture upload from Twidere
+	if (($filename == "octet-stream") AND ($filetype != "")) {
+		$filename = $filetype;
+		$filetype = "";
+	}
+
+	if ($filetype=="")
+		$filetype=guess_image_type($filename);
+
+	// If there is a temp name, then do a manual check
+	// This is more reliable than the provided value
+	$imagedata = getimagesize($src);
+	if ($imagedata)
+		$filetype = $imagedata['mime'];
+
+	logger("File upload src: ".$src." - filename: ".$filename.
+		" - size: ".$filesize." - type: ".$filetype, LOGGER_DEBUG);
+
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
@@ -120,14 +152,16 @@ function wall_upload_post(&$a) {
 	$max_length = get_config('system','max_image_length');
 	if(! $max_length)
 		$max_length = MAX_IMAGE_LENGTH;
-	if($max_length > 0)
+	if($max_length > 0) {
 		$ph->scaleImage($max_length);
+		logger("File upload: Scaling picture to new size ".$max_length, LOGGER_DEBUG);
+	}
 
 	$width = $ph->getWidth();
 	$height = $ph->getHeight();
 
 	$hash = photo_new_resource();
-	
+
 	$smallest = 0;
 
 	$defperm = '<' . $default_cid . '>';
@@ -142,14 +176,14 @@ function wall_upload_post(&$a) {
 	if($width > 640 || $height > 640) {
 		$ph->scaleImage(640);
 		$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, t('Wall Photos'), 1, 0, $defperm);
-		if($r) 
+		if($r)
 			$smallest = 1;
 	}
 
 	if($width > 320 || $height > 320) {
 		$ph->scaleImage(320);
 		$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, t('Wall Photos'), 2, 0, $defperm);
-		if($r)
+		if($r AND ($smallest == 0))
 			$smallest = 2;
 	}
 
@@ -168,7 +202,7 @@ function wall_upload_post(&$a) {
 		}
 	}
 	else {
-		$m = '[url=' . $a->get_baseurl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . $a->get_baseurl() . "/photo/{$hash}-{$smallest}.".$ph->getExt()."[/img][/url]";
+		$m = '[url='.$a->get_baseurl().'/photos/'.$page_owner_nick.'/image/'.$hash.'][img]'.$a->get_baseurl()."/photo/{$hash}-{$smallest}.".$ph->getExt()."[/img][/url]";
 		return($m);
 	}
 /* mod Waitman Gobble NO WARRANTY */
