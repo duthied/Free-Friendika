@@ -11,7 +11,7 @@ function update_display_content(&$a) {
 
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
-	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
+	echo "<section>";
 
 
 	$text = display_content($a,$profile_uid);
@@ -31,7 +31,7 @@ function update_display_content(&$a) {
 
 
 	echo str_replace("\t",'       ',$text);
-	echo (($_GET['msie'] == 1) ? '</div>' : '</section>');
+	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
 
