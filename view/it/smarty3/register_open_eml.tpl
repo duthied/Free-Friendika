@@ -1,12 +1,12 @@
 
-Ciao $[username],
-	Grazie per aver effettuato la registrazione a $[sitename]. Il tuo account è stato creato. 
+Ciao {{$username}},
+	Grazie per aver effettuato la registrazione a {{$sitename}}. Il tuo account è stato creato. 
 I dettagli di accesso sono i seguenti
 
 
-Sito:»$[siteurl]
-Nome utente:»$[email]
-Password:»$[password]
+Sito:»{{$siteurl}}
+Nome utente:»{{$email}}
+Password:»{{$password}}
 
 Puoi cambiare la tua password dalla pagina "Impostazioni" del tuo profilo dopo aver effettuato l'accesso 
 .
@@ -26,9 +26,9 @@ Se  ancora non conosci nessuno qui, potrebbe esserti di aiuto
 per farti nuovi e interessanti amici.  
 
 
-Grazie. Siamo contenti di darti il benvenuto su $[sitename]
+Grazie. Siamo contenti di darti il benvenuto su {{$sitename}}
 
 Saluti,
-	l'amministratore di $[sitename]
+	l'amministratore di {{$sitename}}
 
  

@@ -1,17 +1,17 @@
 
-Ciao $[myname],
+Ciao {{$myname}},
 
-Hai appena ricevuto una richiesta di connessione su $[sitename] 
+Hai appena ricevuto una richiesta di connessione su {{$sitename}} 
 
-da '$[requestor]'.
+da '{{$requestor}}'.
 
-Puoi visitare il suo profilo su $[url].
+Puoi visitare il suo profilo su {{$url}}.
 
 Accedi al tuo sito per vedere la richiesta completa 
 e approva o ignora/annulla la richiesta.
 
-$[siteurl]
+{{$siteurl}}
 
 Saluti,
 
-	l'amministratore di $[sitename]
+	l'amministratore di {{$sitename}}

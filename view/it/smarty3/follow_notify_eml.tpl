@@ -1,14 +1,14 @@
 
-Ciao $[myname],
+Ciao {{$myname}},
 
-Un nuovo utente ha iniziato a seguirti su $[sitename] - '$[requestor]'.
+Un nuovo utente ha iniziato a seguirti su {{$sitename}} - '{{$requestor}}'.
 
-Puoi vedere il suo profilo su $[url].
+Puoi vedere il suo profilo su {{$url}}.
 
 Accedi sul tuo sito per approvare o ignorare la richiesta.
 
-$[siteurl]
+{{$siteurl}}
 
 Saluti,
 
-	L'amministratore di $[sitename]
+	L'amministratore di {{$sitename}}

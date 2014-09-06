@@ -1,12 +1,12 @@
-Ciao $[username],
-	l'amministratore di {{$sitename}} ha creato un account per te.
+Ciao {{$username}},
+	l'amministratore di {{{{$sitename}}}} ha creato un account per te.
 
 I dettagli di accesso sono i seguenti
 
 
-Sito:»$[siteurl]
-Soprannome:»$[email]
-Password:»$[password]
+Sito:»{{$siteurl}}
+Soprannome:»{{$email}}
+Password:»{{$password}}
 
 Puoi cambiare la tua password dalla pagina "Impostazioni" del tuo profilo dopo aver effettuato l'accesso 
  
@@ -26,7 +26,7 @@ Se non  ancora non conosci nessuno qui, posso essere d'aiuto
 per farti nuovi e interessanti amici.  
 
 
-Grazie. Siamo contenti di darti il benvenuto su $[sitename]
+Grazie. Siamo contenti di darti il benvenuto su {{$sitename}}
 
 Saluti,
-	l'amministratore di $[sitename]
+	l'amministratore di {{$sitename}}
