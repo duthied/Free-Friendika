@@ -28,7 +28,7 @@ function last_error() {
 
 /**
  * Remove columns from array $arr that aren't in table $table
- * 
+ *
  * @param string $table Table name
  * @param array &$arr Column=>Value array from json (by ref)
  */
@@ -51,7 +51,7 @@ function check_cols($table, &$arr) {
 
 /**
  * Import data into table $table
- * 
+ *
  * @param string $table Table name
  * @param array $arr Column=>Value array from json
  */
@@ -162,7 +162,7 @@ function import_account(&$a, $file) {
 		foreach ($profile as $k => &$v) {
 			$v = str_replace($oldbaseurl, $newbaseurl, $v);
 			foreach (array("profile", "avatar") as $k)
-				$v = str_replace($newbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
+				$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
 		}
 		$profile['uid'] = $newuid;
 		$r = db_import_assoc('profile', $profile);
@@ -180,14 +180,14 @@ function import_account(&$a, $file) {
 			foreach ($contact as $k => &$v) {
 				$v = str_replace($oldbaseurl, $newbaseurl, $v);
 				foreach (array("profile", "avatar", "micro") as $k)
-					$v = str_replace($newbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
+					$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
 			}
 		}
 		if ($contact['uid'] == $olduid && $contact['self'] == '0') {
 			// set contacts 'avatar-date' to "0000-00-00 00:00:00" to let poller to update urls
 			$contact["avatar-date"] = "0000-00-00 00:00:00" ;
-		
-		
+
+
 			switch ($contact['network']) {
 				case NETWORK_DFRN:
 					//  send relocate message (below)

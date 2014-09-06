@@ -120,16 +120,16 @@ function photo_init(&$a) {
 			$public = ($r[0]['allow_cid'] == '') AND ($r[0]['allow_gid'] == '') AND ($r[0]['deny_cid']  == '') AND ($r[0]['deny_gid']  == '');
 
 			if(count($r)) {
-                $resolution = $r[0]['scale'];
+				$resolution = $r[0]['scale'];
 				$data = $r[0]['data'];
 				$mimetype = $r[0]['type'];
-			}
-			else {
-                // The picure exists. We already checked with the first query.
-                // obviously, this is not an authorized viev!
-                $data = file_get_contents('images/nosign.jpg');
-                $mimetype = 'image/jpeg';
-                $prvcachecontrol = true;
+			} else {
+				// The picure exists. We already checked with the first query.
+				// obviously, this is not an authorized viev!
+				$data = file_get_contents('images/nosign.jpg');
+				$mimetype = 'image/jpeg';
+				$prvcachecontrol = true;
+				$public = false;
 			}
 		}
 	}

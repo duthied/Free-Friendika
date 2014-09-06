@@ -3,16 +3,16 @@
 # This file is distributed under the same license as the Friendica package.
 # 
 # Translators:
-# matthew_exon <transifex.mexon@spamgourmet.com>, 2013-2014
+# Matthew Exon <transifex.mexon@spamgourmet.com>, 2013-2014
 # Mike Macgirvin, 2010
-# matthew_exon <transifex.mexon@spamgourmet.com>, 2012-2013
+# Matthew Exon <transifex.mexon@spamgourmet.com>, 2012-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-26 09:22+0200\n"
-"PO-Revision-Date: 2014-04-28 04:03+0000\n"
-"Last-Translator: matthew_exon <transifex.mexon@spamgourmet.com>\n"
+"POT-Creation-Date: 2014-08-10 15:13+0200\n"
+"PO-Revision-Date: 2014-08-11 09:48+0000\n"
+"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,75 +24,76 @@ msgstr ""
 msgid "This entry was edited"
 msgstr "这个文章被编辑了"
 
-#: ../../object/Item.php:113 ../../mod/content.php:619
-#: ../../mod/photos.php:1355
+#: ../../object/Item.php:113 ../../mod/content.php:620
+#: ../../mod/photos.php:1357
 msgid "Private Message"
 msgstr "私人的新闻"
 
 #: ../../object/Item.php:117 ../../mod/editpost.php:109
-#: ../../mod/content.php:727 ../../mod/settings.php:670
+#: ../../mod/content.php:728 ../../mod/settings.php:673
 msgid "Edit"
 msgstr "编辑"
 
 #: ../../object/Item.php:126 ../../mod/content.php:437
-#: ../../mod/content.php:739 ../../include/conversation.php:612
+#: ../../mod/content.php:740 ../../mod/photos.php:1651
+#: ../../include/conversation.php:612
 msgid "Select"
 msgstr "选择"
 
-#: ../../object/Item.php:127 ../../mod/admin.php:908 ../../mod/content.php:438
-#: ../../mod/content.php:740 ../../mod/contacts.php:703
-#: ../../mod/settings.php:671 ../../mod/group.php:171
-#: ../../mod/photos.php:1646 ../../include/conversation.php:613
+#: ../../object/Item.php:127 ../../mod/admin.php:922 ../../mod/content.php:438
+#: ../../mod/content.php:741 ../../mod/contacts.php:703
+#: ../../mod/settings.php:674 ../../mod/group.php:171
+#: ../../mod/photos.php:1652 ../../include/conversation.php:613
 msgid "Delete"
 msgstr "删除"
 
-#: ../../object/Item.php:130 ../../mod/content.php:762
+#: ../../object/Item.php:130 ../../mod/content.php:763
 msgid "save to folder"
 msgstr "保存在文件夹"
 
-#: ../../object/Item.php:192 ../../mod/content.php:752
+#: ../../object/Item.php:192 ../../mod/content.php:753
 msgid "add star"
 msgstr "加星"
 
-#: ../../object/Item.php:193 ../../mod/content.php:753
+#: ../../object/Item.php:193 ../../mod/content.php:754
 msgid "remove star"
 msgstr "消星"
 
-#: ../../object/Item.php:194 ../../mod/content.php:754
+#: ../../object/Item.php:194 ../../mod/content.php:755
 msgid "toggle star status"
 msgstr "转变星现状"
 
-#: ../../object/Item.php:197 ../../mod/content.php:757
+#: ../../object/Item.php:197 ../../mod/content.php:758
 msgid "starred"
 msgstr "被贴星"
 
-#: ../../object/Item.php:202 ../../mod/content.php:758
+#: ../../object/Item.php:202 ../../mod/content.php:759
 msgid "add tag"
 msgstr "加标签"
 
-#: ../../object/Item.php:213 ../../mod/content.php:683
-#: ../../mod/photos.php:1538
+#: ../../object/Item.php:213 ../../mod/content.php:684
+#: ../../mod/photos.php:1540
 msgid "I like this (toggle)"
 msgstr "我喜欢这(交替)"
 
-#: ../../object/Item.php:213 ../../mod/content.php:683
+#: ../../object/Item.php:213 ../../mod/content.php:684
 msgid "like"
 msgstr "喜欢"
 
-#: ../../object/Item.php:214 ../../mod/content.php:684
-#: ../../mod/photos.php:1539
+#: ../../object/Item.php:214 ../../mod/content.php:685
+#: ../../mod/photos.php:1541
 msgid "I don't like this (toggle)"
 msgstr "我不喜欢这(交替)"
 
-#: ../../object/Item.php:214 ../../mod/content.php:684
+#: ../../object/Item.php:214 ../../mod/content.php:685
 msgid "dislike"
 msgstr "讨厌"
 
-#: ../../object/Item.php:216 ../../mod/content.php:686
+#: ../../object/Item.php:216 ../../mod/content.php:687
 msgid "Share this"
 msgstr "分享这个"
 
-#: ../../object/Item.php:216 ../../mod/content.php:686
+#: ../../object/Item.php:216 ../../mod/content.php:687
 msgid "share"
 msgstr "分享"
 
@@ -104,128 +105,130 @@ msgstr "种类："
 msgid "Filed under:"
 msgstr "归档在："
 
-#: ../../object/Item.php:307 ../../object/Item.php:308
-#: ../../mod/content.php:471 ../../mod/content.php:851
-#: ../../mod/content.php:852 ../../include/conversation.php:653
+#: ../../object/Item.php:308 ../../object/Item.php:309
+#: ../../mod/content.php:471 ../../mod/content.php:852
+#: ../../mod/content.php:853 ../../include/conversation.php:653
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "看%s的简介@ %s"
 
-#: ../../object/Item.php:309 ../../mod/content.php:853
+#: ../../object/Item.php:310 ../../mod/content.php:854
 msgid "to"
 msgstr "至"
 
-#: ../../object/Item.php:310
+#: ../../object/Item.php:311
 msgid "via"
 msgstr "经过"
 
-#: ../../object/Item.php:311 ../../mod/content.php:854
+#: ../../object/Item.php:312 ../../mod/content.php:855
 msgid "Wall-to-Wall"
 msgstr "从墙到墙"
 
-#: ../../object/Item.php:312 ../../mod/content.php:855
+#: ../../object/Item.php:313 ../../mod/content.php:856
 msgid "via Wall-To-Wall:"
 msgstr "通过从墙到墙"
 
-#: ../../object/Item.php:321 ../../mod/content.php:481
-#: ../../mod/content.php:863 ../../include/conversation.php:673
+#: ../../object/Item.php:322 ../../mod/content.php:481
+#: ../../mod/content.php:864 ../../include/conversation.php:673
 #, php-format
 msgid "%s from %s"
 msgstr "%s从%s"
 
-#: ../../object/Item.php:341 ../../object/Item.php:657 ../../boot.php:693
-#: ../../mod/content.php:708 ../../mod/photos.php:1560
-#: ../../mod/photos.php:1604 ../../mod/photos.php:1687
+#: ../../object/Item.php:342 ../../object/Item.php:658 ../../boot.php:713
+#: ../../mod/content.php:709 ../../mod/photos.php:1562
+#: ../../mod/photos.php:1606 ../../mod/photos.php:1694
 msgid "Comment"
 msgstr "评论"
 
-#: ../../object/Item.php:344 ../../mod/wallmessage.php:156
-#: ../../mod/editpost.php:124 ../../mod/content.php:498
-#: ../../mod/content.php:882 ../../mod/message.php:334
-#: ../../mod/message.php:565 ../../mod/photos.php:1541
-#: ../../include/conversation.php:690 ../../include/conversation.php:1102
+#: ../../object/Item.php:345 ../../mod/wallmessage.php:156
+#: ../../mod/editpost.php:124 ../../mod/content.php:499
+#: ../../mod/content.php:883 ../../mod/message.php:334
+#: ../../mod/message.php:565 ../../mod/photos.php:1543
+#: ../../include/conversation.php:691 ../../include/conversation.php:1108
 msgid "Please wait"
 msgstr "请等一下"
 
-#: ../../object/Item.php:367 ../../mod/content.php:602
+#: ../../object/Item.php:368 ../../mod/content.php:603
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%d评论"
 
-#: ../../object/Item.php:369 ../../object/Item.php:382
-#: ../../mod/content.php:604 ../../include/text.php:1946
+#: ../../object/Item.php:370 ../../object/Item.php:383
+#: ../../mod/content.php:605 ../../include/text.php:1968
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] "评论"
 
-#: ../../object/Item.php:370 ../../boot.php:694 ../../mod/content.php:605
+#: ../../object/Item.php:371 ../../boot.php:714 ../../mod/content.php:606
 #: ../../include/contact_widgets.php:204
 msgid "show more"
 msgstr "看多"
 
-#: ../../object/Item.php:655 ../../mod/content.php:706
-#: ../../mod/photos.php:1558 ../../mod/photos.php:1602
-#: ../../mod/photos.php:1685
+#: ../../object/Item.php:656 ../../mod/content.php:707
+#: ../../mod/photos.php:1560 ../../mod/photos.php:1604
+#: ../../mod/photos.php:1692
 msgid "This is you"
 msgstr "这是你"
 
-#: ../../object/Item.php:658 ../../view/theme/perihel/config.php:95
+#: ../../object/Item.php:659 ../../view/theme/perihel/config.php:95
 #: ../../view/theme/diabook/theme.php:633
 #: ../../view/theme/diabook/config.php:148
 #: ../../view/theme/quattro/config.php:64 ../../view/theme/dispy/config.php:70
-#: ../../view/theme/clean/config.php:71
+#: ../../view/theme/clean/config.php:79
+#: ../../view/theme/_clean_repo/config.php:79
 #: ../../view/theme/cleanzero/config.php:80
-#: ../../view/theme/vier/config.php:47 ../../mod/mood.php:137
+#: ../../view/theme/vier/config.php:51
+#: ../../view/theme/vier-mobil/config.php:47 ../../mod/mood.php:137
 #: ../../mod/install.php:248 ../../mod/install.php:286
-#: ../../mod/crepair.php:171 ../../mod/content.php:709
-#: ../../mod/contacts.php:464 ../../mod/profiles.php:634
+#: ../../mod/crepair.php:171 ../../mod/content.php:710
+#: ../../mod/contacts.php:464 ../../mod/profiles.php:642
 #: ../../mod/message.php:335 ../../mod/message.php:564
-#: ../../mod/localtime.php:45 ../../mod/photos.php:1082
-#: ../../mod/photos.php:1203 ../../mod/photos.php:1510
-#: ../../mod/photos.php:1561 ../../mod/photos.php:1605
-#: ../../mod/photos.php:1688 ../../mod/poke.php:199 ../../mod/events.php:478
+#: ../../mod/localtime.php:45 ../../mod/photos.php:1084
+#: ../../mod/photos.php:1205 ../../mod/photos.php:1512
+#: ../../mod/photos.php:1563 ../../mod/photos.php:1607
+#: ../../mod/photos.php:1695 ../../mod/poke.php:199 ../../mod/events.php:478
 #: ../../mod/fsuggest.php:107 ../../mod/invite.php:140
 #: ../../mod/manage.php:110
 msgid "Submit"
 msgstr "提交"
 
-#: ../../object/Item.php:659 ../../mod/content.php:710
+#: ../../object/Item.php:660 ../../mod/content.php:711
 msgid "Bold"
 msgstr "粗体字 "
 
-#: ../../object/Item.php:660 ../../mod/content.php:711
+#: ../../object/Item.php:661 ../../mod/content.php:712
 msgid "Italic"
 msgstr "斜体 "
 
-#: ../../object/Item.php:661 ../../mod/content.php:712
+#: ../../object/Item.php:662 ../../mod/content.php:713
 msgid "Underline"
 msgstr "下划线"
 
-#: ../../object/Item.php:662 ../../mod/content.php:713
+#: ../../object/Item.php:663 ../../mod/content.php:714
 msgid "Quote"
 msgstr "引语"
 
-#: ../../object/Item.php:663 ../../mod/content.php:714
+#: ../../object/Item.php:664 ../../mod/content.php:715
 msgid "Code"
 msgstr "源代码"
 
-#: ../../object/Item.php:664 ../../mod/content.php:715
+#: ../../object/Item.php:665 ../../mod/content.php:716
 msgid "Image"
 msgstr "图片"
 
-#: ../../object/Item.php:665 ../../mod/content.php:716
+#: ../../object/Item.php:666 ../../mod/content.php:717
 msgid "Link"
 msgstr "环节"
 
-#: ../../object/Item.php:666 ../../mod/content.php:717
+#: ../../object/Item.php:667 ../../mod/content.php:718
 msgid "Video"
 msgstr "录像"
 
-#: ../../object/Item.php:667 ../../mod/editpost.php:145
-#: ../../mod/content.php:718 ../../mod/photos.php:1562
-#: ../../mod/photos.php:1606 ../../mod/photos.php:1689
-#: ../../include/conversation.php:1119
+#: ../../object/Item.php:668 ../../mod/editpost.php:145
+#: ../../mod/content.php:719 ../../mod/photos.php:1564
+#: ../../mod/photos.php:1608 ../../mod/photos.php:1696
+#: ../../include/conversation.php:1125
 msgid "Preview"
 msgstr "预演"
 
@@ -245,7 +248,7 @@ msgstr "页发现。"
 msgid "Permission denied"
 msgstr "权限不够"
 
-#: ../../index.php:360 ../../mod/mood.php:114 ../../mod/display.php:266
+#: ../../index.php:360 ../../mod/mood.php:114 ../../mod/display.php:319
 #: ../../mod/register.php:41 ../../mod/dfrn_confirm.php:53
 #: ../../mod/api.php:26 ../../mod/api.php:31 ../../mod/wallmessage.php:9
 #: ../../mod/wallmessage.php:33 ../../mod/wallmessage.php:79
@@ -253,20 +256,20 @@ msgstr "权限不够"
 #: ../../mod/network.php:4 ../../mod/install.php:151 ../../mod/editpost.php:10
 #: ../../mod/attach.php:33 ../../mod/regmod.php:118 ../../mod/crepair.php:117
 #: ../../mod/uimport.php:23 ../../mod/notes.php:20 ../../mod/contacts.php:246
-#: ../../mod/settings.php:101 ../../mod/settings.php:590
-#: ../../mod/settings.php:595 ../../mod/profiles.php:146
+#: ../../mod/settings.php:102 ../../mod/settings.php:593
+#: ../../mod/settings.php:598 ../../mod/profiles.php:146
 #: ../../mod/profiles.php:575 ../../mod/group.php:19 ../../mod/follow.php:9
 #: ../../mod/message.php:38 ../../mod/message.php:174
 #: ../../mod/viewcontacts.php:22 ../../mod/photos.php:134
-#: ../../mod/photos.php:1048 ../../mod/wall_attach.php:55
+#: ../../mod/photos.php:1050 ../../mod/wall_attach.php:55
 #: ../../mod/poke.php:135 ../../mod/wall_upload.php:66
 #: ../../mod/profile_photo.php:19 ../../mod/profile_photo.php:169
 #: ../../mod/profile_photo.php:180 ../../mod/profile_photo.php:193
 #: ../../mod/events.php:140 ../../mod/delegate.php:6 ../../mod/nogroup.php:25
-#: ../../mod/fsuggest.php:78 ../../mod/item.php:145 ../../mod/item.php:161
+#: ../../mod/fsuggest.php:78 ../../mod/item.php:148 ../../mod/item.php:164
 #: ../../mod/notifications.php:66 ../../mod/invite.php:15
 #: ../../mod/invite.php:101 ../../mod/manage.php:96 ../../mod/allfriends.php:9
-#: ../../wall_attach.php:55 ../../include/items.php:4373
+#: ../../include/items.php:4496
 msgid "Permission denied."
 msgstr "权限不够。"
 
@@ -276,18 +279,18 @@ msgstr "交替手机"
 
 #: ../../view/theme/perihel/theme.php:33
 #: ../../view/theme/diabook/theme.php:123 ../../mod/notifications.php:93
-#: ../../include/nav.php:104 ../../include/nav.php:145
+#: ../../include/nav.php:105 ../../include/nav.php:146
 msgid "Home"
 msgstr "主页"
 
 #: ../../view/theme/perihel/theme.php:33
 #: ../../view/theme/diabook/theme.php:123 ../../include/nav.php:76
-#: ../../include/nav.php:145
+#: ../../include/nav.php:146
 msgid "Your posts and conversations"
 msgstr "你的消息和交谈"
 
 #: ../../view/theme/perihel/theme.php:34
-#: ../../view/theme/diabook/theme.php:124 ../../boot.php:1979
+#: ../../view/theme/diabook/theme.php:124 ../../boot.php:2021
 #: ../../mod/newmember.php:32 ../../mod/profperm.php:103
 #: ../../include/nav.php:77 ../../include/profile_advanced.php:7
 #: ../../include/profile_advanced.php:84
@@ -300,7 +303,7 @@ msgid "Your profile page"
 msgstr "你的简介页"
 
 #: ../../view/theme/perihel/theme.php:35
-#: ../../view/theme/diabook/theme.php:126 ../../boot.php:1986
+#: ../../view/theme/diabook/theme.php:126 ../../boot.php:2028
 #: ../../mod/fbrowser.php:25 ../../include/nav.php:78
 msgid "Photos"
 msgstr "照片"
@@ -311,29 +314,29 @@ msgid "Your photos"
 msgstr "你的照片"
 
 #: ../../view/theme/perihel/theme.php:36
-#: ../../view/theme/diabook/theme.php:127 ../../boot.php:2003
-#: ../../mod/events.php:370 ../../include/nav.php:79
+#: ../../view/theme/diabook/theme.php:127 ../../boot.php:2045
+#: ../../mod/events.php:370 ../../include/nav.php:80
 msgid "Events"
 msgstr "事件"
 
 #: ../../view/theme/perihel/theme.php:36
-#: ../../view/theme/diabook/theme.php:127 ../../include/nav.php:79
+#: ../../view/theme/diabook/theme.php:127 ../../include/nav.php:80
 msgid "Your events"
 msgstr "你的项目"
 
 #: ../../view/theme/perihel/theme.php:37
-#: ../../view/theme/diabook/theme.php:128 ../../include/nav.php:80
+#: ../../view/theme/diabook/theme.php:128 ../../include/nav.php:81
 msgid "Personal notes"
 msgstr "私人的便条"
 
 #: ../../view/theme/perihel/theme.php:37
-#: ../../view/theme/diabook/theme.php:128 ../../include/nav.php:80
+#: ../../view/theme/diabook/theme.php:128
 msgid "Your personal photos"
 msgstr "你私人的照片"
 
 #: ../../view/theme/perihel/theme.php:38
 #: ../../view/theme/diabook/theme.php:129 ../../mod/community.php:32
-#: ../../include/nav.php:128
+#: ../../include/nav.php:129
 msgid "Community"
 msgstr "社会"
 
@@ -352,9 +355,11 @@ msgstr "著"
 #: ../../view/theme/perihel/config.php:97
 #: ../../view/theme/diabook/config.php:150
 #: ../../view/theme/quattro/config.php:66 ../../view/theme/dispy/config.php:72
-#: ../../view/theme/clean/config.php:73
+#: ../../view/theme/clean/config.php:81
+#: ../../view/theme/_clean_repo/config.php:81
 #: ../../view/theme/cleanzero/config.php:82
-#: ../../view/theme/vier/config.php:49
+#: ../../view/theme/vier/config.php:53
+#: ../../view/theme/vier-mobil/config.php:49
 msgid "Theme settings"
 msgstr "主题设置"
 
@@ -377,7 +382,7 @@ msgid "Set resolution for middle column"
 msgstr "决定中栏的显示分辨率列表"
 
 #: ../../view/theme/diabook/theme.php:125 ../../mod/contacts.php:688
-#: ../../include/nav.php:173
+#: ../../include/nav.php:175
 msgid "Contacts"
 msgstr "熟人"
 
@@ -411,28 +416,28 @@ msgid "Last likes"
 msgstr "上次喜欢"
 
 #: ../../view/theme/diabook/theme.php:463 ../../include/conversation.php:118
-#: ../../include/conversation.php:246 ../../include/text.php:1940
+#: ../../include/conversation.php:246 ../../include/text.php:1962
 msgid "event"
 msgstr "项目"
 
 #: ../../view/theme/diabook/theme.php:466
 #: ../../view/theme/diabook/theme.php:475 ../../mod/tagger.php:62
-#: ../../mod/like.php:150 ../../mod/like.php:321 ../../mod/subthread.php:87
+#: ../../mod/like.php:149 ../../mod/like.php:319 ../../mod/subthread.php:87
 #: ../../include/conversation.php:121 ../../include/conversation.php:130
 #: ../../include/conversation.php:249 ../../include/conversation.php:258
-#: ../../include/diaspora.php:1908
+#: ../../include/diaspora.php:1920
 msgid "status"
 msgstr "现状"
 
 #: ../../view/theme/diabook/theme.php:471 ../../mod/tagger.php:62
-#: ../../mod/like.php:150 ../../mod/subthread.php:87
+#: ../../mod/like.php:149 ../../mod/subthread.php:87
 #: ../../include/conversation.php:126 ../../include/conversation.php:254
-#: ../../include/text.php:1942 ../../include/diaspora.php:1908
+#: ../../include/text.php:1964 ../../include/diaspora.php:1920
 msgid "photo"
 msgstr "照片"
 
-#: ../../view/theme/diabook/theme.php:480 ../../mod/like.php:167
-#: ../../include/conversation.php:137 ../../include/diaspora.php:1924
+#: ../../view/theme/diabook/theme.php:480 ../../mod/like.php:166
+#: ../../include/conversation.php:137 ../../include/diaspora.php:1936
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
 msgstr "%1$s喜欢%2$s的%3$s"
@@ -444,15 +449,15 @@ msgid "Last photos"
 msgstr "上次照片"
 
 #: ../../view/theme/diabook/theme.php:499 ../../mod/photos.php:60
-#: ../../mod/photos.php:155 ../../mod/photos.php:1062
-#: ../../mod/photos.php:1187 ../../mod/photos.php:1210
-#: ../../mod/photos.php:1751 ../../mod/photos.php:1763
+#: ../../mod/photos.php:155 ../../mod/photos.php:1064
+#: ../../mod/photos.php:1189 ../../mod/photos.php:1212
+#: ../../mod/photos.php:1758 ../../mod/photos.php:1770
 msgid "Contact Photos"
 msgstr "熟人照片"
 
 #: ../../view/theme/diabook/theme.php:500 ../../mod/photos.php:155
-#: ../../mod/photos.php:729 ../../mod/photos.php:1187
-#: ../../mod/photos.php:1210 ../../mod/profile_photo.php:74
+#: ../../mod/photos.php:731 ../../mod/photos.php:1189
+#: ../../mod/photos.php:1212 ../../mod/profile_photo.php:74
 #: ../../mod/profile_photo.php:81 ../../mod/profile_photo.php:88
 #: ../../mod/profile_photo.php:204 ../../mod/profile_photo.php:296
 #: ../../mod/profile_photo.php:305 ../../include/user.php:334
@@ -489,8 +494,8 @@ msgstr "邀请朋友们"
 
 #: ../../view/theme/diabook/theme.php:544
 #: ../../view/theme/diabook/theme.php:648 ../../mod/newmember.php:22
-#: ../../mod/admin.php:1005 ../../mod/admin.php:1213 ../../mod/settings.php:84
-#: ../../include/nav.php:169
+#: ../../mod/admin.php:1019 ../../mod/admin.php:1238 ../../mod/settings.php:85
+#: ../../include/nav.php:170
 msgid "Settings"
 msgstr "配置"
 
@@ -550,7 +555,8 @@ msgstr "左边"
 msgid "Center"
 msgstr "中间"
 
-#: ../../view/theme/quattro/config.php:68 ../../view/theme/clean/config.php:76
+#: ../../view/theme/quattro/config.php:68 ../../view/theme/clean/config.php:84
+#: ../../view/theme/_clean_repo/config.php:84
 #: ../../view/theme/cleanzero/config.php:86
 msgid "Color scheme"
 msgstr " 色彩设计"
@@ -567,36 +573,53 @@ msgstr "文本区字体大小"
 msgid "Set colour scheme"
 msgstr "选择色彩设计"
 
-#: ../../view/theme/clean/config.php:54 ../../include/user.php:246
-#: ../../include/text.php:1676
+#: ../../view/theme/clean/config.php:56
+#: ../../view/theme/_clean_repo/config.php:56 ../../include/user.php:246
+#: ../../include/text.php:1698
 msgid "default"
 msgstr "默认"
 
-#: ../../view/theme/clean/config.php:74
-msgid "Background Image"
-msgstr "背景图片"
+#: ../../view/theme/clean/config.php:57
+#: ../../view/theme/_clean_repo/config.php:57
+msgid "dark"
+msgstr ""
 
-#: ../../view/theme/clean/config.php:74
+#: ../../view/theme/clean/config.php:58
+#: ../../view/theme/_clean_repo/config.php:58
+msgid "black"
+msgstr ""
+
+#: ../../view/theme/clean/config.php:82
+#: ../../view/theme/_clean_repo/config.php:82
+msgid "Background Image"
+msgstr ""
+
+#: ../../view/theme/clean/config.php:82
+#: ../../view/theme/_clean_repo/config.php:82
 msgid ""
 "The URL to a picture (e.g. from your photo album) that should be used as "
 "background image."
-msgstr "图片的URL(比如在您的相册)要当背景图片用。"
+msgstr ""
 
-#: ../../view/theme/clean/config.php:75
+#: ../../view/theme/clean/config.php:83
+#: ../../view/theme/_clean_repo/config.php:83
 msgid "Background Color"
-msgstr "背景颜色"
+msgstr ""
 
-#: ../../view/theme/clean/config.php:75
+#: ../../view/theme/clean/config.php:83
+#: ../../view/theme/_clean_repo/config.php:83
 msgid "HEX value for the background color. Don't include the #"
-msgstr "北京颜色的十六进制的数码。别打＃。"
+msgstr ""
 
-#: ../../view/theme/clean/config.php:77
+#: ../../view/theme/clean/config.php:85
+#: ../../view/theme/_clean_repo/config.php:85
 msgid "font size"
-msgstr "字体尺寸"
+msgstr ""
 
-#: ../../view/theme/clean/config.php:77
+#: ../../view/theme/clean/config.php:85
+#: ../../view/theme/_clean_repo/config.php:85
 msgid "base font size for your interface"
-msgstr "您的界面基础字体尺寸"
+msgstr ""
 
 #: ../../view/theme/cleanzero/config.php:83
 msgid "Set resize level for images in posts and comments (width and height)"
@@ -606,214 +629,215 @@ msgstr "选择图片在文章和评论的重设尺寸（宽和高）"
 msgid "Set theme width"
 msgstr "选择主题宽"
 
-#: ../../view/theme/vier/config.php:50
+#: ../../view/theme/vier/config.php:54
+#: ../../view/theme/vier-mobil/config.php:50
 msgid "Set style"
 msgstr "选择款式"
 
-#: ../../boot.php:692
+#: ../../boot.php:712
 msgid "Delete this item?"
 msgstr "删除这个项目？"
 
-#: ../../boot.php:695
+#: ../../boot.php:715
 msgid "show fewer"
 msgstr "显示更小"
 
-#: ../../boot.php:1023
+#: ../../boot.php:1049
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "更新%s美通过。看错误记录。"
 
-#: ../../boot.php:1025
+#: ../../boot.php:1051
 #, php-format
 msgid "Update Error at %s"
 msgstr "更新错误在%s"
 
-#: ../../boot.php:1135
+#: ../../boot.php:1177
 msgid "Create a New Account"
 msgstr "创造新的账户"
 
-#: ../../boot.php:1136 ../../mod/register.php:279 ../../include/nav.php:108
+#: ../../boot.php:1178 ../../mod/register.php:279 ../../include/nav.php:109
 msgid "Register"
 msgstr "注册"
 
-#: ../../boot.php:1160 ../../include/nav.php:73
+#: ../../boot.php:1202 ../../include/nav.php:73
 msgid "Logout"
 msgstr "注销"
 
-#: ../../boot.php:1161 ../../include/nav.php:91
+#: ../../boot.php:1203 ../../include/nav.php:92
 msgid "Login"
 msgstr "登录"
 
-#: ../../boot.php:1163
+#: ../../boot.php:1205
 msgid "Nickname or Email address: "
 msgstr "绰号或电子邮件地址: "
 
-#: ../../boot.php:1164
+#: ../../boot.php:1206
 msgid "Password: "
 msgstr "密码: "
 
-#: ../../boot.php:1165
+#: ../../boot.php:1207
 msgid "Remember me"
 msgstr "记住我"
 
-#: ../../boot.php:1168
+#: ../../boot.php:1210
 msgid "Or login using OpenID: "
 msgstr "或者用OpenID登记："
 
-#: ../../boot.php:1174
+#: ../../boot.php:1216
 msgid "Forgot your password?"
 msgstr "忘记你的密码吗？"
 
-#: ../../boot.php:1175 ../../mod/lostpass.php:84
+#: ../../boot.php:1217 ../../mod/lostpass.php:84
 msgid "Password Reset"
 msgstr "复位密码"
 
-#: ../../boot.php:1177
+#: ../../boot.php:1219
 msgid "Website Terms of Service"
 msgstr "网站的各项规定"
 
-#: ../../boot.php:1178
+#: ../../boot.php:1220
 msgid "terms of service"
 msgstr "各项规定"
 
-#: ../../boot.php:1180
+#: ../../boot.php:1222
 msgid "Website Privacy Policy"
 msgstr "网站隐私政策"
 
-#: ../../boot.php:1181
+#: ../../boot.php:1223
 msgid "privacy policy"
 msgstr "隐私政策"
 
-#: ../../boot.php:1314
+#: ../../boot.php:1356
 msgid "Requested account is not available."
 msgstr "要求的账户不可用。"
 
-#: ../../boot.php:1353 ../../mod/profile.php:21
+#: ../../boot.php:1395 ../../mod/profile.php:21
 msgid "Requested profile is not available."
 msgstr "要求的简介联系不上的。"
 
-#: ../../boot.php:1393 ../../boot.php:1497
+#: ../../boot.php:1435 ../../boot.php:1539
 msgid "Edit profile"
 msgstr "修改简介"
 
-#: ../../boot.php:1445 ../../mod/suggest.php:88 ../../mod/match.php:58
+#: ../../boot.php:1487 ../../mod/suggest.php:88 ../../mod/match.php:58
 #: ../../include/contact_widgets.php:9
 msgid "Connect"
 msgstr "连接"
 
-#: ../../boot.php:1459
+#: ../../boot.php:1501
 msgid "Message"
 msgstr "通知"
 
-#: ../../boot.php:1467 ../../include/nav.php:171
+#: ../../boot.php:1509 ../../include/nav.php:173
 msgid "Profiles"
 msgstr "简介"
 
-#: ../../boot.php:1467
+#: ../../boot.php:1509
 msgid "Manage/edit profiles"
 msgstr "管理/修改简介"
 
-#: ../../boot.php:1473 ../../boot.php:1499 ../../mod/profiles.php:730
+#: ../../boot.php:1515 ../../boot.php:1541 ../../mod/profiles.php:738
 msgid "Change profile photo"
 msgstr "换简介照片"
 
-#: ../../boot.php:1474 ../../mod/profiles.php:731
+#: ../../boot.php:1516 ../../mod/profiles.php:739
 msgid "Create New Profile"
 msgstr "创造新的简介"
 
-#: ../../boot.php:1484 ../../mod/profiles.php:742
+#: ../../boot.php:1526 ../../mod/profiles.php:750
 msgid "Profile Image"
 msgstr "简介图像"
 
-#: ../../boot.php:1487 ../../mod/profiles.php:744
+#: ../../boot.php:1529 ../../mod/profiles.php:752
 msgid "visible to everybody"
 msgstr "给打假可见的"
 
-#: ../../boot.php:1488 ../../mod/profiles.php:745
+#: ../../boot.php:1530 ../../mod/profiles.php:753
 msgid "Edit visibility"
 msgstr "修改能见度"
 
-#: ../../boot.php:1513 ../../mod/directory.php:134 ../../mod/events.php:471
-#: ../../include/event.php:40 ../../include/bb2diaspora.php:155
+#: ../../boot.php:1555 ../../mod/directory.php:134 ../../mod/events.php:471
+#: ../../include/event.php:40 ../../include/bb2diaspora.php:156
 msgid "Location:"
 msgstr "位置:"
 
-#: ../../boot.php:1515 ../../mod/directory.php:136
+#: ../../boot.php:1557 ../../mod/directory.php:136
 #: ../../include/profile_advanced.php:17
 msgid "Gender:"
 msgstr "性别:"
 
-#: ../../boot.php:1518 ../../mod/directory.php:138
+#: ../../boot.php:1560 ../../mod/directory.php:138
 #: ../../include/profile_advanced.php:37
 msgid "Status:"
 msgstr "现状:"
 
-#: ../../boot.php:1520 ../../mod/directory.php:140
+#: ../../boot.php:1562 ../../mod/directory.php:140
 #: ../../include/profile_advanced.php:48
 msgid "Homepage:"
 msgstr "主页:"
 
-#: ../../boot.php:1596 ../../boot.php:1682
+#: ../../boot.php:1638 ../../boot.php:1724
 msgid "g A l F d"
 msgstr "g A l d F"
 
-#: ../../boot.php:1597 ../../boot.php:1683
+#: ../../boot.php:1639 ../../boot.php:1725
 msgid "F d"
 msgstr "F d"
 
-#: ../../boot.php:1642 ../../boot.php:1723
+#: ../../boot.php:1684 ../../boot.php:1765
 msgid "[today]"
 msgstr "[今天]"
 
-#: ../../boot.php:1654
+#: ../../boot.php:1696
 msgid "Birthday Reminders"
 msgstr "提醒生日"
 
-#: ../../boot.php:1655
+#: ../../boot.php:1697
 msgid "Birthdays this week:"
 msgstr "这周的生日:"
 
-#: ../../boot.php:1716
+#: ../../boot.php:1758
 msgid "[No description]"
 msgstr "[无描述]"
 
-#: ../../boot.php:1734
+#: ../../boot.php:1776
 msgid "Event Reminders"
 msgstr "事件提醒"
 
-#: ../../boot.php:1735
+#: ../../boot.php:1777
 msgid "Events this week:"
 msgstr "这周的事件:"
 
-#: ../../boot.php:1972 ../../include/nav.php:76
+#: ../../boot.php:2014 ../../include/nav.php:76
 msgid "Status"
 msgstr "现状"
 
-#: ../../boot.php:1975
+#: ../../boot.php:2017
 msgid "Status Messages and Posts"
 msgstr "现状通知和文章"
 
-#: ../../boot.php:1982
+#: ../../boot.php:2024
 msgid "Profile Details"
 msgstr "简介内容"
 
-#: ../../boot.php:1989 ../../mod/photos.php:52
+#: ../../boot.php:2031 ../../mod/photos.php:52
 msgid "Photo Albums"
 msgstr "相册"
 
-#: ../../boot.php:1993 ../../boot.php:1996
+#: ../../boot.php:2035 ../../boot.php:2038 ../../include/nav.php:79
 msgid "Videos"
 msgstr "视频"
 
-#: ../../boot.php:2006
+#: ../../boot.php:2048
 msgid "Events and Calendar"
 msgstr "项目和日历"
 
-#: ../../boot.php:2010 ../../mod/notes.php:44
+#: ../../boot.php:2052 ../../mod/notes.php:44
 msgid "Personal Notes"
 msgstr "私人便条"
 
-#: ../../boot.php:2013
+#: ../../boot.php:2055
 msgid "Only You Can See This"
 msgstr "只您许看这个"
 
@@ -830,26 +854,26 @@ msgstr "心情"
 msgid "Set your current mood and tell your friends"
 msgstr "选择现在的心情而告诉朋友们"
 
-#: ../../mod/display.php:19 ../../mod/_search.php:89
+#: ../../mod/display.php:45 ../../mod/_search.php:89
 #: ../../mod/directory.php:31 ../../mod/search.php:89
 #: ../../mod/dfrn_request.php:761 ../../mod/community.php:18
-#: ../../mod/viewcontacts.php:17 ../../mod/photos.php:918
+#: ../../mod/viewcontacts.php:17 ../../mod/photos.php:920
 #: ../../mod/videos.php:115
 msgid "Public access denied."
 msgstr "公众看拒绝"
 
-#: ../../mod/display.php:51 ../../mod/display.php:270 ../../mod/decrypt.php:15
-#: ../../mod/admin.php:163 ../../mod/admin.php:953 ../../mod/admin.php:1153
-#: ../../mod/notice.php:15 ../../mod/viewsrc.php:15
-#: ../../include/items.php:4177
+#: ../../mod/display.php:104 ../../mod/display.php:323
+#: ../../mod/decrypt.php:15 ../../mod/admin.php:164 ../../mod/admin.php:967
+#: ../../mod/admin.php:1178 ../../mod/notice.php:15 ../../mod/viewsrc.php:15
+#: ../../include/items.php:4300
 msgid "Item not found."
 msgstr "项目找不到。"
 
-#: ../../mod/display.php:99 ../../mod/profile.php:155
+#: ../../mod/display.php:152 ../../mod/profile.php:155
 msgid "Access to this profile has been restricted."
 msgstr "使用权这个简介被限制了."
 
-#: ../../mod/display.php:263
+#: ../../mod/display.php:316
 msgid "Item has been removed."
 msgstr "项目被删除了。"
 
@@ -857,35 +881,35 @@ msgstr "项目被删除了。"
 msgid "Access denied."
 msgstr "没有用权。"
 
-#: ../../mod/friendica.php:58
+#: ../../mod/friendica.php:62
 msgid "This is Friendica, version"
 msgstr "这是Friendica，版本"
 
-#: ../../mod/friendica.php:59
+#: ../../mod/friendica.php:63
 msgid "running at web location"
 msgstr "运作再网址"
 
-#: ../../mod/friendica.php:61
+#: ../../mod/friendica.php:65
 msgid ""
 "Please visit <a href=\"http://friendica.com\">Friendica.com</a> to learn "
 "more about the Friendica project."
 msgstr "请看<a href=\"http://friendica.com\">Friendica.com</a>发现多关于Friendica工程。"
 
-#: ../../mod/friendica.php:63
+#: ../../mod/friendica.php:67
 msgid "Bug reports and issues: please visit"
 msgstr "问题报案：请去"
 
-#: ../../mod/friendica.php:64
+#: ../../mod/friendica.php:68
 msgid ""
 "Suggestions, praise, donations, etc. - please email \"Info\" at Friendica - "
 "dot com"
 msgstr "建议，夸奖，捐赠，等－请发邮件到「 Info」在Friendica点com"
 
-#: ../../mod/friendica.php:78
+#: ../../mod/friendica.php:82
 msgid "Installed plugins/addons/apps:"
 msgstr "安装的插件／加件／应用："
 
-#: ../../mod/friendica.php:91
+#: ../../mod/friendica.php:95
 msgid "No installed plugins/addons/apps"
 msgstr "没有安装的插件／应用"
 
@@ -894,7 +918,7 @@ msgstr "没有安装的插件／应用"
 msgid "%1$s welcomes %2$s"
 msgstr "%1$s欢迎%2$s"
 
-#: ../../mod/register.php:92 ../../mod/admin.php:735 ../../mod/regmod.php:54
+#: ../../mod/register.php:92 ../../mod/admin.php:749 ../../mod/regmod.php:54
 #, php-format
 msgid "Registration details for %s"
 msgstr "注册信息为%s"
@@ -949,26 +973,27 @@ msgstr "放您的简介再员目录？"
 
 #: ../../mod/register.php:243 ../../mod/api.php:105 ../../mod/suggest.php:29
 #: ../../mod/dfrn_request.php:836 ../../mod/contacts.php:326
-#: ../../mod/settings.php:998 ../../mod/settings.php:1004
-#: ../../mod/settings.php:1012 ../../mod/settings.php:1016
-#: ../../mod/settings.php:1021 ../../mod/settings.php:1027
-#: ../../mod/settings.php:1033 ../../mod/settings.php:1039
-#: ../../mod/settings.php:1069 ../../mod/settings.php:1070
-#: ../../mod/settings.php:1071 ../../mod/settings.php:1072
-#: ../../mod/settings.php:1073 ../../mod/profiles.php:614
-#: ../../mod/message.php:209 ../../include/items.php:4218
+#: ../../mod/settings.php:1007 ../../mod/settings.php:1013
+#: ../../mod/settings.php:1021 ../../mod/settings.php:1025
+#: ../../mod/settings.php:1030 ../../mod/settings.php:1036
+#: ../../mod/settings.php:1042 ../../mod/settings.php:1048
+#: ../../mod/settings.php:1078 ../../mod/settings.php:1079
+#: ../../mod/settings.php:1080 ../../mod/settings.php:1081
+#: ../../mod/settings.php:1082 ../../mod/profiles.php:618
+#: ../../mod/profiles.php:621 ../../mod/message.php:209
+#: ../../include/items.php:4341
 msgid "Yes"
 msgstr "是"
 
 #: ../../mod/register.php:244 ../../mod/api.php:106
-#: ../../mod/dfrn_request.php:837 ../../mod/settings.php:998
-#: ../../mod/settings.php:1004 ../../mod/settings.php:1012
-#: ../../mod/settings.php:1016 ../../mod/settings.php:1021
-#: ../../mod/settings.php:1027 ../../mod/settings.php:1033
-#: ../../mod/settings.php:1039 ../../mod/settings.php:1069
-#: ../../mod/settings.php:1070 ../../mod/settings.php:1071
-#: ../../mod/settings.php:1072 ../../mod/settings.php:1073
-#: ../../mod/profiles.php:615
+#: ../../mod/dfrn_request.php:837 ../../mod/settings.php:1007
+#: ../../mod/settings.php:1013 ../../mod/settings.php:1021
+#: ../../mod/settings.php:1025 ../../mod/settings.php:1030
+#: ../../mod/settings.php:1036 ../../mod/settings.php:1042
+#: ../../mod/settings.php:1048 ../../mod/settings.php:1078
+#: ../../mod/settings.php:1079 ../../mod/settings.php:1080
+#: ../../mod/settings.php:1081 ../../mod/settings.php:1082
+#: ../../mod/profiles.php:618 ../../mod/profiles.php:622
 msgid "No"
 msgstr "否"
 
@@ -980,7 +1005,7 @@ msgstr "会员身份在这个网站是光通过邀请。"
 msgid "Your invitation ID: "
 msgstr "您邀请ID："
 
-#: ../../mod/register.php:265 ../../mod/admin.php:573
+#: ../../mod/register.php:265 ../../mod/admin.php:585
 msgid "Registration"
 msgstr "注册"
 
@@ -1223,7 +1248,7 @@ msgstr "没有接受者。"
 #: ../../mod/wallmessage.php:127 ../../mod/wallmessage.php:135
 #: ../../mod/message.php:283 ../../mod/message.php:291
 #: ../../mod/message.php:466 ../../mod/message.php:474
-#: ../../include/conversation.php:1000 ../../include/conversation.php:1018
+#: ../../include/conversation.php:1001 ../../include/conversation.php:1019
 msgid "Please enter a link URL:"
 msgstr "请输入环节URL："
 
@@ -1255,13 +1280,13 @@ msgstr "你的消息："
 
 #: ../../mod/wallmessage.php:154 ../../mod/editpost.php:110
 #: ../../mod/message.php:332 ../../mod/message.php:562
-#: ../../include/conversation.php:1084
+#: ../../include/conversation.php:1090
 msgid "Upload photo"
 msgstr "上传照片"
 
 #: ../../mod/wallmessage.php:155 ../../mod/editpost.php:114
 #: ../../mod/message.php:333 ../../mod/message.php:563
-#: ../../include/conversation.php:1088
+#: ../../include/conversation.php:1094
 msgid "Insert web link"
 msgstr "插入网页环节"
 
@@ -1461,11 +1486,11 @@ msgstr "您真的想删除这个建议吗？"
 
 #: ../../mod/suggest.php:32 ../../mod/editpost.php:148
 #: ../../mod/dfrn_request.php:848 ../../mod/contacts.php:329
-#: ../../mod/settings.php:609 ../../mod/settings.php:635
+#: ../../mod/settings.php:612 ../../mod/settings.php:638
 #: ../../mod/message.php:212 ../../mod/photos.php:203 ../../mod/photos.php:292
 #: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/fbrowser.php:81
-#: ../../mod/fbrowser.php:116 ../../include/conversation.php:1122
-#: ../../include/items.php:4221
+#: ../../mod/fbrowser.php:116 ../../include/conversation.php:1128
+#: ../../include/items.php:4344
 msgid "Cancel"
 msgstr "退消"
 
@@ -1602,7 +1627,7 @@ msgid ""
 msgstr "您可能要手工地进口文件「database.sql」用phpmyadmin或mysql。"
 
 #: ../../mod/install.php:139 ../../mod/install.php:206
-#: ../../mod/install.php:521
+#: ../../mod/install.php:525
 msgid "Please see the file \"INSTALL.txt\"."
 msgstr "请看文件「INSTALL.txt」"
 
@@ -1864,15 +1889,11 @@ msgid ""
 "server root."
 msgstr "数据库设置文件「.htconfig.php」不能被写。请把包括的正文造成设置文件在网服务器子目录。"
 
-#: ../../mod/install.php:508
-msgid "Errors encountered creating database tables."
-msgstr "造成数据库列表相遇错误。"
-
-#: ../../mod/install.php:519
+#: ../../mod/install.php:523
 msgid "<h1>What next</h1>"
 msgstr "<h1>下步是什么</h1>"
 
-#: ../../mod/install.php:520
+#: ../../mod/install.php:524
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "poller."
@@ -1882,419 +1903,419 @@ msgstr "重要：您要[手工地]准备安排的任务给喂器。"
 msgid "Theme settings updated."
 msgstr "主题设置更新了。"
 
-#: ../../mod/admin.php:101 ../../mod/admin.php:571
+#: ../../mod/admin.php:102 ../../mod/admin.php:583
 msgid "Site"
 msgstr "网站"
 
-#: ../../mod/admin.php:102 ../../mod/admin.php:899 ../../mod/admin.php:914
+#: ../../mod/admin.php:103 ../../mod/admin.php:913 ../../mod/admin.php:928
 msgid "Users"
 msgstr "用户"
 
-#: ../../mod/admin.php:103 ../../mod/admin.php:1003 ../../mod/admin.php:1045
-#: ../../mod/settings.php:56
+#: ../../mod/admin.php:104 ../../mod/admin.php:1017 ../../mod/admin.php:1070
+#: ../../mod/settings.php:57
 msgid "Plugins"
 msgstr "插件"
 
-#: ../../mod/admin.php:104 ../../mod/admin.php:1211 ../../mod/admin.php:1245
+#: ../../mod/admin.php:105 ../../mod/admin.php:1236 ../../mod/admin.php:1270
 msgid "Themes"
 msgstr "主题"
 
-#: ../../mod/admin.php:105
+#: ../../mod/admin.php:106
 msgid "DB updates"
 msgstr "数据库更新"
 
-#: ../../mod/admin.php:120 ../../mod/admin.php:127 ../../mod/admin.php:1332
+#: ../../mod/admin.php:121 ../../mod/admin.php:128 ../../mod/admin.php:1357
 msgid "Logs"
 msgstr "记录"
 
-#: ../../mod/admin.php:125 ../../include/nav.php:180
+#: ../../mod/admin.php:126 ../../include/nav.php:182
 msgid "Admin"
 msgstr "管理"
 
-#: ../../mod/admin.php:126
+#: ../../mod/admin.php:127
 msgid "Plugin Features"
 msgstr "插件特点"
 
-#: ../../mod/admin.php:128
+#: ../../mod/admin.php:129
 msgid "User registrations waiting for confirmation"
 msgstr "用户注册等确认"
 
-#: ../../mod/admin.php:187 ../../mod/admin.php:853
+#: ../../mod/admin.php:188 ../../mod/admin.php:867
 msgid "Normal Account"
 msgstr "正常帐户"
 
-#: ../../mod/admin.php:188 ../../mod/admin.php:854
+#: ../../mod/admin.php:189 ../../mod/admin.php:868
 msgid "Soapbox Account"
 msgstr "演讲台帐户"
 
-#: ../../mod/admin.php:189 ../../mod/admin.php:855
+#: ../../mod/admin.php:190 ../../mod/admin.php:869
 msgid "Community/Celebrity Account"
 msgstr "社会／名人帐户"
 
-#: ../../mod/admin.php:190 ../../mod/admin.php:856
+#: ../../mod/admin.php:191 ../../mod/admin.php:870
 msgid "Automatic Friend Account"
 msgstr "自动朋友帐户"
 
-#: ../../mod/admin.php:191
+#: ../../mod/admin.php:192
 msgid "Blog Account"
 msgstr "博客账户"
 
-#: ../../mod/admin.php:192
+#: ../../mod/admin.php:193
 msgid "Private Forum"
 msgstr "私人评坛"
 
-#: ../../mod/admin.php:211
+#: ../../mod/admin.php:212
 msgid "Message queues"
 msgstr "通知排队"
 
-#: ../../mod/admin.php:216 ../../mod/admin.php:570 ../../mod/admin.php:898
-#: ../../mod/admin.php:1002 ../../mod/admin.php:1044 ../../mod/admin.php:1210
-#: ../../mod/admin.php:1244 ../../mod/admin.php:1331
+#: ../../mod/admin.php:217 ../../mod/admin.php:582 ../../mod/admin.php:912
+#: ../../mod/admin.php:1016 ../../mod/admin.php:1069 ../../mod/admin.php:1235
+#: ../../mod/admin.php:1269 ../../mod/admin.php:1356
 msgid "Administration"
 msgstr "管理"
 
-#: ../../mod/admin.php:217
+#: ../../mod/admin.php:218
 msgid "Summary"
 msgstr "总算"
 
-#: ../../mod/admin.php:219
+#: ../../mod/admin.php:220
 msgid "Registered users"
 msgstr "注册的用户"
 
-#: ../../mod/admin.php:221
+#: ../../mod/admin.php:222
 msgid "Pending registrations"
 msgstr "未决的注册"
 
-#: ../../mod/admin.php:222
+#: ../../mod/admin.php:223
 msgid "Version"
 msgstr "版本"
 
-#: ../../mod/admin.php:224
+#: ../../mod/admin.php:225
 msgid "Active plugins"
 msgstr "活跃的插件"
 
-#: ../../mod/admin.php:247
+#: ../../mod/admin.php:248
 msgid "Can not parse base url. Must have at least <scheme>://<domain>"
 msgstr "不能分析基础URL。至少要<scheme>://<domain>"
 
-#: ../../mod/admin.php:483
+#: ../../mod/admin.php:490
 msgid "Site settings updated."
 msgstr "网站设置更新了。"
 
-#: ../../mod/admin.php:512 ../../mod/settings.php:822
+#: ../../mod/admin.php:519 ../../mod/settings.php:825
 msgid "No special theme for mobile devices"
 msgstr "没专门适合手机的主题"
 
-#: ../../mod/admin.php:529 ../../mod/contacts.php:408
+#: ../../mod/admin.php:536 ../../mod/contacts.php:408
 msgid "Never"
 msgstr "从未"
 
-#: ../../mod/admin.php:530
+#: ../../mod/admin.php:537
 msgid "At post arrival"
 msgstr "收件的时候"
 
-#: ../../mod/admin.php:531 ../../include/contact_selectors.php:56
+#: ../../mod/admin.php:538 ../../include/contact_selectors.php:56
 msgid "Frequently"
 msgstr "时常"
 
-#: ../../mod/admin.php:532 ../../include/contact_selectors.php:57
+#: ../../mod/admin.php:539 ../../include/contact_selectors.php:57
 msgid "Hourly"
 msgstr "每小时"
 
-#: ../../mod/admin.php:533 ../../include/contact_selectors.php:58
+#: ../../mod/admin.php:540 ../../include/contact_selectors.php:58
 msgid "Twice daily"
 msgstr "每日两次"
 
-#: ../../mod/admin.php:534 ../../include/contact_selectors.php:59
+#: ../../mod/admin.php:541 ../../include/contact_selectors.php:59
 msgid "Daily"
 msgstr "每日"
 
-#: ../../mod/admin.php:539
+#: ../../mod/admin.php:546
 msgid "Multi user instance"
 msgstr "多用户网站"
 
-#: ../../mod/admin.php:557
+#: ../../mod/admin.php:569
 msgid "Closed"
 msgstr "关闭"
 
-#: ../../mod/admin.php:558
+#: ../../mod/admin.php:570
 msgid "Requires approval"
 msgstr "要批准"
 
-#: ../../mod/admin.php:559
+#: ../../mod/admin.php:571
 msgid "Open"
 msgstr "打开"
 
-#: ../../mod/admin.php:563
+#: ../../mod/admin.php:575
 msgid "No SSL policy, links will track page SSL state"
 msgstr "没SSL方针，环节将追踪页SSL现状"
 
-#: ../../mod/admin.php:564
+#: ../../mod/admin.php:576
 msgid "Force all links to use SSL"
 msgstr "让所有的环节用SSL"
 
-#: ../../mod/admin.php:565
+#: ../../mod/admin.php:577
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr "自签证书，用SSL再光本地环节（劝止的）"
 
-#: ../../mod/admin.php:572 ../../mod/admin.php:1046 ../../mod/admin.php:1246
-#: ../../mod/admin.php:1333 ../../mod/settings.php:608
-#: ../../mod/settings.php:718 ../../mod/settings.php:792
-#: ../../mod/settings.php:871 ../../mod/settings.php:1101
+#: ../../mod/admin.php:584 ../../mod/admin.php:1071 ../../mod/admin.php:1271
+#: ../../mod/admin.php:1358 ../../mod/settings.php:611
+#: ../../mod/settings.php:721 ../../mod/settings.php:795
+#: ../../mod/settings.php:877 ../../mod/settings.php:1110
 msgid "Save Settings"
 msgstr "保存设置"
 
-#: ../../mod/admin.php:574
+#: ../../mod/admin.php:586
 msgid "File upload"
 msgstr "文件上传"
 
-#: ../../mod/admin.php:575
+#: ../../mod/admin.php:587
 msgid "Policies"
 msgstr "政策"
 
-#: ../../mod/admin.php:576
+#: ../../mod/admin.php:588
 msgid "Advanced"
 msgstr "高等"
 
-#: ../../mod/admin.php:577
+#: ../../mod/admin.php:589
 msgid "Performance"
 msgstr "性能"
 
-#: ../../mod/admin.php:578
+#: ../../mod/admin.php:590
 msgid ""
 "Relocate - WARNING: advanced function. Could make this server unreachable."
 msgstr "调动：注意先进的功能。能吧服务器使不能联系。"
 
-#: ../../mod/admin.php:581
+#: ../../mod/admin.php:593
 msgid "Site name"
 msgstr "网页名字"
 
-#: ../../mod/admin.php:582
+#: ../../mod/admin.php:594
 msgid "Banner/Logo"
 msgstr "标题/标志"
 
-#: ../../mod/admin.php:583
+#: ../../mod/admin.php:595
 msgid "Additional Info"
 msgstr "别的消息"
 
-#: ../../mod/admin.php:583
+#: ../../mod/admin.php:595
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at dir.friendica.com/siteinfo."
 msgstr "公共服务器：您会这里添加消息要列在dir.friendica.com/siteinfo。"
 
-#: ../../mod/admin.php:584
+#: ../../mod/admin.php:596
 msgid "System language"
 msgstr "系统语言"
 
-#: ../../mod/admin.php:585
+#: ../../mod/admin.php:597
 msgid "System theme"
 msgstr "系统主题"
 
-#: ../../mod/admin.php:585
+#: ../../mod/admin.php:597
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a href='#' "
 "id='cnftheme'>change theme settings</a>"
 msgstr "默认系统主题－会被用户简介超驰－<a href='#' id='cnftheme'>把主题设置变化</a>"
 
-#: ../../mod/admin.php:586
+#: ../../mod/admin.php:598
 msgid "Mobile system theme"
 msgstr "手机系统主题"
 
-#: ../../mod/admin.php:586
+#: ../../mod/admin.php:598
 msgid "Theme for mobile devices"
 msgstr "主题适合手机"
 
-#: ../../mod/admin.php:587
+#: ../../mod/admin.php:599
 msgid "SSL link policy"
 msgstr "SSL环节方针"
 
-#: ../../mod/admin.php:587
+#: ../../mod/admin.php:599
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "决定产生的环节否则被强迫用SSL"
 
-#: ../../mod/admin.php:588
+#: ../../mod/admin.php:600
 msgid "Old style 'Share'"
 msgstr "老款式'分享'"
 
-#: ../../mod/admin.php:588
+#: ../../mod/admin.php:600
 msgid "Deactivates the bbcode element 'share' for repeating items."
 msgstr "为重复的项目吧bbcode“share”代码使不活跃"
 
-#: ../../mod/admin.php:589
+#: ../../mod/admin.php:601
 msgid "Hide help entry from navigation menu"
 msgstr "隐藏帮助在航行选单"
 
-#: ../../mod/admin.php:589
+#: ../../mod/admin.php:601
 msgid ""
 "Hides the menu entry for the Help pages from the navigation menu. You can "
 "still access it calling /help directly."
 msgstr "隐藏帮助项目在航行选单。您还能用它经过手动的输入「/help」"
 
-#: ../../mod/admin.php:590
+#: ../../mod/admin.php:602
 msgid "Single user instance"
 msgstr "单用户网站"
 
-#: ../../mod/admin.php:590
+#: ../../mod/admin.php:602
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "弄这网站多用户或单用户为选择的用户"
 
-#: ../../mod/admin.php:591
+#: ../../mod/admin.php:603
 msgid "Maximum image size"
 msgstr "图片最大尺寸"
 
-#: ../../mod/admin.php:591
+#: ../../mod/admin.php:603
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "最多上传照相的字节。默认是零，意思是无限。"
 
-#: ../../mod/admin.php:592
+#: ../../mod/admin.php:604
 msgid "Maximum image length"
 msgstr "最大图片大小"
 
-#: ../../mod/admin.php:592
+#: ../../mod/admin.php:604
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "最多像素在上传图片的长度。默认-1，意思是无限。"
 
-#: ../../mod/admin.php:593
+#: ../../mod/admin.php:605
 msgid "JPEG image quality"
 msgstr "JPEG图片质量"
 
-#: ../../mod/admin.php:593
+#: ../../mod/admin.php:605
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "上传的JPEG被用这质量［0－100］保存。默认100，最高。"
 
-#: ../../mod/admin.php:595
+#: ../../mod/admin.php:607
 msgid "Register policy"
 msgstr "注册政策"
 
-#: ../../mod/admin.php:596
+#: ../../mod/admin.php:608
 msgid "Maximum Daily Registrations"
 msgstr "一天最多注册"
 
-#: ../../mod/admin.php:596
+#: ../../mod/admin.php:608
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "如果注册上边许可的，这个选择一天最多新用户注册会接待。如果注册关闭了，这个设置没有印象。"
 
-#: ../../mod/admin.php:597
+#: ../../mod/admin.php:609
 msgid "Register text"
 msgstr "注册正文"
 
-#: ../../mod/admin.php:597
+#: ../../mod/admin.php:609
 msgid "Will be displayed prominently on the registration page."
 msgstr "被显著的在注册页表示。"
 
-#: ../../mod/admin.php:598
+#: ../../mod/admin.php:610
 msgid "Accounts abandoned after x days"
 msgstr "账户丢弃X天后"
 
-#: ../../mod/admin.php:598
+#: ../../mod/admin.php:610
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr "拒绝浪费系统资源看外网站找丢弃的账户。输入0为无时限。"
 
-#: ../../mod/admin.php:599
+#: ../../mod/admin.php:611
 msgid "Allowed friend domains"
 msgstr "允许的朋友域"
 
-#: ../../mod/admin.php:599
+#: ../../mod/admin.php:611
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr "逗号分隔的域名许根这个网站结友谊。通配符行。空的允许所有的域名。"
 
-#: ../../mod/admin.php:600
+#: ../../mod/admin.php:612
 msgid "Allowed email domains"
 msgstr "允许的电子邮件域"
 
-#: ../../mod/admin.php:600
+#: ../../mod/admin.php:612
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr "逗号分隔的域名可接受在邮件地址为这网站的注册。通配符行。空的允许所有的域名。"
 
-#: ../../mod/admin.php:601
+#: ../../mod/admin.php:613
 msgid "Block public"
 msgstr "拦公开"
 
-#: ../../mod/admin.php:601
+#: ../../mod/admin.php:613
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr "拦公开看什么否则空开的私页在这网站除了您登录的时候以外。"
 
-#: ../../mod/admin.php:602
+#: ../../mod/admin.php:614
 msgid "Force publish"
 msgstr "需要出版"
 
-#: ../../mod/admin.php:602
+#: ../../mod/admin.php:614
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr "让所有这网站的的简介表明在网站目录。"
 
-#: ../../mod/admin.php:603
+#: ../../mod/admin.php:615
 msgid "Global directory update URL"
 msgstr "综合目录更新URL"
 
-#: ../../mod/admin.php:603
+#: ../../mod/admin.php:615
 msgid ""
 "URL to update the global directory. If this is not set, the global directory"
 " is completely unavailable to the application."
 msgstr "URL为更新综合目录。如果没有，这个应用用不了综合目录。"
 
-#: ../../mod/admin.php:604
+#: ../../mod/admin.php:616
 msgid "Allow threaded items"
 msgstr "允许线绳项目"
 
-#: ../../mod/admin.php:604
+#: ../../mod/admin.php:616
 msgid "Allow infinite level threading for items on this site."
 msgstr "允许无限水平线绳为这网站的项目。"
 
-#: ../../mod/admin.php:605
+#: ../../mod/admin.php:617
 msgid "Private posts by default for new users"
 msgstr "新用户默认写私人文章"
 
-#: ../../mod/admin.php:605
+#: ../../mod/admin.php:617
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr "默认新用户文章批准使默认隐私组，没有公开。"
 
-#: ../../mod/admin.php:606
+#: ../../mod/admin.php:618
 msgid "Don't include post content in email notifications"
 msgstr "别包含文章内容在邮件消息"
 
-#: ../../mod/admin.php:606
+#: ../../mod/admin.php:618
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr "别包含文章／谈论／私消息／等的内容在文件消息被这个网站寄出，为了隐私。"
 
-#: ../../mod/admin.php:607
+#: ../../mod/admin.php:619
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr "不允许插件的公众使用权在应用选单。"
 
-#: ../../mod/admin.php:607
+#: ../../mod/admin.php:619
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr "复选这个框为把应用选内插件限制仅成员"
 
-#: ../../mod/admin.php:608
+#: ../../mod/admin.php:620
 msgid "Don't embed private images in posts"
 msgstr "别嵌入私人图案在文章里"
 
-#: ../../mod/admin.php:608
+#: ../../mod/admin.php:620
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -2302,499 +2323,517 @@ msgid ""
 "while."
 msgstr "别把复制嵌入的照相代替本网站的私人照相在文章里。结果是收包括私人照相的熟人要认证才卸载个张照片，会花许久。"
 
-#: ../../mod/admin.php:609
+#: ../../mod/admin.php:621
 msgid "Allow Users to set remote_self"
 msgstr "允许用户用遥远的自身"
 
-#: ../../mod/admin.php:609
+#: ../../mod/admin.php:621
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr "选择这个之后，用户们允许表明熟人当遥远的自身在熟人修理页。遥远的自身所有文章被复制到用户文章流。"
 
-#: ../../mod/admin.php:610
+#: ../../mod/admin.php:622
 msgid "Block multiple registrations"
 msgstr "拦一人多注册"
 
-#: ../../mod/admin.php:610
+#: ../../mod/admin.php:622
 msgid "Disallow users to register additional accounts for use as pages."
 msgstr "不允许用户注册别的账户为当页。"
 
-#: ../../mod/admin.php:611
+#: ../../mod/admin.php:623
 msgid "OpenID support"
 msgstr "OpenID支持"
 
-#: ../../mod/admin.php:611
+#: ../../mod/admin.php:623
 msgid "OpenID support for registration and logins."
 msgstr "OpenID支持注册和登录。"
 
-#: ../../mod/admin.php:612
+#: ../../mod/admin.php:624
 msgid "Fullname check"
 msgstr "全名核实"
 
-#: ../../mod/admin.php:612
+#: ../../mod/admin.php:624
 msgid ""
 "Force users to register with a space between firstname and lastname in Full "
 "name, as an antispam measure"
 msgstr "让用户注册的时候放空格姓名中间，省得垃圾注册。"
 
-#: ../../mod/admin.php:613
+#: ../../mod/admin.php:625
 msgid "UTF-8 Regular expressions"
 msgstr "UTF-8正则表达式"
 
-#: ../../mod/admin.php:613
+#: ../../mod/admin.php:625
 msgid "Use PHP UTF8 regular expressions"
 msgstr "用PHP UTF8正则表达式"
 
-#: ../../mod/admin.php:614
+#: ../../mod/admin.php:626
 msgid "Show Community Page"
 msgstr "表示社会页"
 
-#: ../../mod/admin.php:614
+#: ../../mod/admin.php:626
 msgid ""
 "Display a Community page showing all recent public postings on this site."
 msgstr "表示社会页表明这网站所有最近公开的文章"
 
-#: ../../mod/admin.php:615
+#: ../../mod/admin.php:627
 msgid "Enable OStatus support"
 msgstr "使OStatus支持可用"
 
-#: ../../mod/admin.php:615
+#: ../../mod/admin.php:627
 msgid ""
 "Provide built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
 msgstr "提供OStatus（StatusNet，GNU Social，等）兼容性。所有OStatus的交通是公开的，所以私事警告偶尔来表示。"
 
-#: ../../mod/admin.php:616
+#: ../../mod/admin.php:628
 msgid "OStatus conversation completion interval"
 msgstr "OStatus对话完成间隔"
 
-#: ../../mod/admin.php:616
+#: ../../mod/admin.php:628
 msgid ""
 "How often shall the poller check for new entries in OStatus conversations? "
 "This can be a very ressource task."
 msgstr "喂器要多久查一次新文章在OStatus交流？这会花许多系统资源。"
 
-#: ../../mod/admin.php:617
+#: ../../mod/admin.php:629
 msgid "Enable Diaspora support"
 msgstr "使Diaspora支持能够"
 
-#: ../../mod/admin.php:617
+#: ../../mod/admin.php:629
 msgid "Provide built-in Diaspora network compatibility."
 msgstr "提供内装Diaspora网络兼容。"
 
-#: ../../mod/admin.php:618
+#: ../../mod/admin.php:630
 msgid "Only allow Friendica contacts"
 msgstr "只许Friendica熟人"
 
-#: ../../mod/admin.php:618
+#: ../../mod/admin.php:630
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
 msgstr "所有的熟人要用Friendica协议 。别的内装的沟通协议都不能用。"
 
-#: ../../mod/admin.php:619
+#: ../../mod/admin.php:631
 msgid "Verify SSL"
 msgstr "证实"
 
-#: ../../mod/admin.php:619
+#: ../../mod/admin.php:631
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr "你想的话，您会使严格证书核实可用。意思是您不能根自签的SSL网站交流。"
 
-#: ../../mod/admin.php:620
+#: ../../mod/admin.php:632
 msgid "Proxy user"
 msgstr "代理用户"
 
-#: ../../mod/admin.php:621
+#: ../../mod/admin.php:633
 msgid "Proxy URL"
 msgstr "代理URL"
 
-#: ../../mod/admin.php:622
+#: ../../mod/admin.php:634
 msgid "Network timeout"
 msgstr "网络超时"
 
-#: ../../mod/admin.php:622
+#: ../../mod/admin.php:634
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr "输入秒数。输入零为无限（不推荐的）。"
 
-#: ../../mod/admin.php:623
+#: ../../mod/admin.php:635
 msgid "Delivery interval"
 msgstr "传送间隔"
 
-#: ../../mod/admin.php:623
+#: ../../mod/admin.php:635
 msgid ""
 "Delay background delivery processes by this many seconds to reduce system "
 "load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 "
 "for large dedicated servers."
 msgstr "把背景传送过程耽误这多秒为减少系统工作量。推荐：4－5在共用服务器，2－3在私人服务器。0－1在大专门服务器。"
 
-#: ../../mod/admin.php:624
+#: ../../mod/admin.php:636
 msgid "Poll interval"
 msgstr "检查时间"
 
-#: ../../mod/admin.php:624
+#: ../../mod/admin.php:636
 msgid ""
 "Delay background polling processes by this many seconds to reduce system "
 "load. If 0, use delivery interval."
 msgstr "把背景检查行程耽误这数秒为减少系统负荷。如果是0,用发布时间。"
 
-#: ../../mod/admin.php:625
+#: ../../mod/admin.php:637
 msgid "Maximum Load Average"
 msgstr "最大负荷平均"
 
-#: ../../mod/admin.php:625
+#: ../../mod/admin.php:637
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default 50."
 msgstr "系统负荷平均以上转播和检查行程会被耽误－默认50。"
 
-#: ../../mod/admin.php:627
+#: ../../mod/admin.php:639
 msgid "Use MySQL full text engine"
 msgstr "用MySQL全正文机车"
 
-#: ../../mod/admin.php:627
+#: ../../mod/admin.php:639
 msgid ""
 "Activates the full text engine. Speeds up search - but can only search for "
 "four and more characters."
 msgstr "使全正文机车可用。把搜索催－可是只能搜索4字以上"
 
-#: ../../mod/admin.php:628
+#: ../../mod/admin.php:640
 msgid "Suppress Language"
 msgstr "封锁语言"
 
-#: ../../mod/admin.php:628
+#: ../../mod/admin.php:640
 msgid "Suppress language information in meta information about a posting."
 msgstr "遗漏语言消息从文章的描述"
 
-#: ../../mod/admin.php:629
+#: ../../mod/admin.php:641
 msgid "Path to item cache"
 msgstr "路线到项目缓存"
 
-#: ../../mod/admin.php:630
+#: ../../mod/admin.php:642
 msgid "Cache duration in seconds"
 msgstr "缓存时间秒"
 
-#: ../../mod/admin.php:630
+#: ../../mod/admin.php:642
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
-" day)."
-msgstr "缓存文件应该保存多久？默认是86400秒（一天）。"
+" day). To disable the item cache, set the value to -1."
+msgstr ""
 
-#: ../../mod/admin.php:631
+#: ../../mod/admin.php:643
+msgid "Maximum numbers of comments per post"
+msgstr ""
+
+#: ../../mod/admin.php:643
+msgid "How much comments should be shown for each post? Default value is 100."
+msgstr ""
+
+#: ../../mod/admin.php:644
 msgid "Path for lock file"
 msgstr "路线到锁文件"
 
-#: ../../mod/admin.php:632
+#: ../../mod/admin.php:645
 msgid "Temp path"
 msgstr "临时文件路线"
 
-#: ../../mod/admin.php:633
+#: ../../mod/admin.php:646
 msgid "Base path to installation"
 msgstr "基础安装路线"
 
-#: ../../mod/admin.php:635
+#: ../../mod/admin.php:648
 msgid "New base url"
 msgstr "新基础URL"
 
-#: ../../mod/admin.php:653
+#: ../../mod/admin.php:650
+msgid "Enable noscrape"
+msgstr ""
+
+#: ../../mod/admin.php:650
+msgid ""
+"The noscrape feature speeds up directory submissions by using JSON data "
+"instead of HTML scraping."
+msgstr ""
+
+#: ../../mod/admin.php:667
 msgid "Update has been marked successful"
 msgstr "更新当成功标签了"
 
-#: ../../mod/admin.php:663
+#: ../../mod/admin.php:677
 #, php-format
 msgid "Executing %s failed. Check system logs."
 msgstr "把%s实行没通过了。看系统记录。"
 
-#: ../../mod/admin.php:666
+#: ../../mod/admin.php:680
 #, php-format
 msgid "Update %s was successfully applied."
 msgstr "把%s更新成功地实行。"
 
-#: ../../mod/admin.php:670
+#: ../../mod/admin.php:684
 #, php-format
 msgid "Update %s did not return a status. Unknown if it succeeded."
 msgstr "%s更新没回答现状。不知道是否成功。"
 
-#: ../../mod/admin.php:673
+#: ../../mod/admin.php:687
 #, php-format
 msgid "Update function %s could not be found."
 msgstr "找不到更新功能%s。"
 
-#: ../../mod/admin.php:688
+#: ../../mod/admin.php:702
 msgid "No failed updates."
 msgstr "没有不通过地更新。"
 
-#: ../../mod/admin.php:692
+#: ../../mod/admin.php:706
 msgid "Failed Updates"
 msgstr "没通过的更新"
 
-#: ../../mod/admin.php:693
+#: ../../mod/admin.php:707
 msgid ""
 "This does not include updates prior to 1139, which did not return a status."
 msgstr "这个不包括1139号更新之前，它们没回答装线。"
 
-#: ../../mod/admin.php:694
+#: ../../mod/admin.php:708
 msgid "Mark success (if update was manually applied)"
 msgstr "标注成功（如果手动地把更新实行了）"
 
-#: ../../mod/admin.php:695
+#: ../../mod/admin.php:709
 msgid "Attempt to execute this update step automatically"
 msgstr "试图自动地把这步更新实行"
 
-#: ../../mod/admin.php:741
+#: ../../mod/admin.php:755
 msgid "Registration successful. Email send to user"
 msgstr "注册成功。邮件寄给用户。"
 
-#: ../../mod/admin.php:751
+#: ../../mod/admin.php:765
 #, php-format
 msgid "%s user blocked/unblocked"
 msgid_plural "%s users blocked/unblocked"
 msgstr[0] "%s用户拦／不拦了"
 
-#: ../../mod/admin.php:758
+#: ../../mod/admin.php:772
 #, php-format
 msgid "%s user deleted"
 msgid_plural "%s users deleted"
 msgstr[0] "%s用户删除了"
 
-#: ../../mod/admin.php:797
+#: ../../mod/admin.php:811
 #, php-format
 msgid "User '%s' deleted"
 msgstr "用户「%s」删除了"
 
-#: ../../mod/admin.php:805
+#: ../../mod/admin.php:819
 #, php-format
 msgid "User '%s' unblocked"
 msgstr "用户「%s」无拦了"
 
-#: ../../mod/admin.php:805
+#: ../../mod/admin.php:819
 #, php-format
 msgid "User '%s' blocked"
 msgstr "用户「%s」拦了"
 
-#: ../../mod/admin.php:900
+#: ../../mod/admin.php:914
 msgid "Add User"
 msgstr "添加用户"
 
-#: ../../mod/admin.php:901
+#: ../../mod/admin.php:915
 msgid "select all"
 msgstr "都选"
 
-#: ../../mod/admin.php:902
+#: ../../mod/admin.php:916
 msgid "User registrations waiting for confirm"
 msgstr "用户注册等待确认"
 
-#: ../../mod/admin.php:903
+#: ../../mod/admin.php:917
 msgid "User waiting for permanent deletion"
 msgstr "用户等待长久删除"
 
-#: ../../mod/admin.php:904
+#: ../../mod/admin.php:918
 msgid "Request date"
 msgstr "要求日期"
 
-#: ../../mod/admin.php:904 ../../mod/admin.php:916 ../../mod/admin.php:917
-#: ../../mod/admin.php:930 ../../mod/crepair.php:150
-#: ../../mod/settings.php:610 ../../mod/settings.php:636
+#: ../../mod/admin.php:918 ../../mod/admin.php:930 ../../mod/admin.php:931
+#: ../../mod/admin.php:944 ../../mod/crepair.php:150
+#: ../../mod/settings.php:613 ../../mod/settings.php:639
 msgid "Name"
 msgstr "名字"
 
-#: ../../mod/admin.php:904 ../../mod/admin.php:916 ../../mod/admin.php:917
-#: ../../mod/admin.php:932 ../../include/contact_selectors.php:79
+#: ../../mod/admin.php:918 ../../mod/admin.php:930 ../../mod/admin.php:931
+#: ../../mod/admin.php:946 ../../include/contact_selectors.php:79
 #: ../../include/contact_selectors.php:86
 msgid "Email"
 msgstr "电子邮件"
 
-#: ../../mod/admin.php:905
+#: ../../mod/admin.php:919
 msgid "No registrations."
 msgstr "没有注册。"
 
-#: ../../mod/admin.php:906 ../../mod/notifications.php:161
+#: ../../mod/admin.php:920 ../../mod/notifications.php:161
 #: ../../mod/notifications.php:208
 msgid "Approve"
 msgstr "批准"
 
-#: ../../mod/admin.php:907
+#: ../../mod/admin.php:921
 msgid "Deny"
 msgstr "否定"
 
-#: ../../mod/admin.php:909 ../../mod/contacts.php:431
+#: ../../mod/admin.php:923 ../../mod/contacts.php:431
 #: ../../mod/contacts.php:490 ../../mod/contacts.php:700
 msgid "Block"
 msgstr "拦"
 
-#: ../../mod/admin.php:910 ../../mod/contacts.php:431
+#: ../../mod/admin.php:924 ../../mod/contacts.php:431
 #: ../../mod/contacts.php:490 ../../mod/contacts.php:700
 msgid "Unblock"
 msgstr "不拦"
 
-#: ../../mod/admin.php:911
+#: ../../mod/admin.php:925
 msgid "Site admin"
 msgstr "网站管理员"
 
-#: ../../mod/admin.php:912
+#: ../../mod/admin.php:926
 msgid "Account expired"
 msgstr "帐户过期了"
 
-#: ../../mod/admin.php:915
+#: ../../mod/admin.php:929
 msgid "New User"
 msgstr "新用户"
 
-#: ../../mod/admin.php:916 ../../mod/admin.php:917
+#: ../../mod/admin.php:930 ../../mod/admin.php:931
 msgid "Register date"
 msgstr "注册日期"
 
-#: ../../mod/admin.php:916 ../../mod/admin.php:917
+#: ../../mod/admin.php:930 ../../mod/admin.php:931
 msgid "Last login"
 msgstr "上次登录"
 
-#: ../../mod/admin.php:916 ../../mod/admin.php:917
+#: ../../mod/admin.php:930 ../../mod/admin.php:931
 msgid "Last item"
 msgstr "上项目"
 
-#: ../../mod/admin.php:916
+#: ../../mod/admin.php:930
 msgid "Deleted since"
 msgstr "删除从"
 
-#: ../../mod/admin.php:917 ../../mod/settings.php:35
+#: ../../mod/admin.php:931 ../../mod/settings.php:36
 msgid "Account"
 msgstr "帐户"
 
-#: ../../mod/admin.php:919
+#: ../../mod/admin.php:933
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
 msgstr "特定的用户被删除！\\n\\n什么这些用户放在这个网站被永远删除！\\n\\n您肯定吗？"
 
-#: ../../mod/admin.php:920
+#: ../../mod/admin.php:934
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
 msgstr "用户{0}将被删除！\\n\\n什么这个用户放在这个网站被永远删除！\\n\\n您肯定吗？"
 
-#: ../../mod/admin.php:930
+#: ../../mod/admin.php:944
 msgid "Name of the new user."
 msgstr "新用户的名"
 
-#: ../../mod/admin.php:931
+#: ../../mod/admin.php:945
 msgid "Nickname"
 msgstr "昵称"
 
-#: ../../mod/admin.php:931
+#: ../../mod/admin.php:945
 msgid "Nickname of the new user."
 msgstr "新用户的昵称"
 
-#: ../../mod/admin.php:932
+#: ../../mod/admin.php:946
 msgid "Email address of the new user."
 msgstr "新用户的邮件地址"
 
-#: ../../mod/admin.php:965
+#: ../../mod/admin.php:979
 #, php-format
 msgid "Plugin %s disabled."
 msgstr "使插件%s不能用。"
 
-#: ../../mod/admin.php:969
+#: ../../mod/admin.php:983
 #, php-format
 msgid "Plugin %s enabled."
 msgstr "使插件%s能用。"
 
-#: ../../mod/admin.php:979 ../../mod/admin.php:1182
+#: ../../mod/admin.php:993 ../../mod/admin.php:1207
 msgid "Disable"
 msgstr "使不能用"
 
-#: ../../mod/admin.php:981 ../../mod/admin.php:1184
+#: ../../mod/admin.php:995 ../../mod/admin.php:1209
 msgid "Enable"
 msgstr "使能用"
 
-#: ../../mod/admin.php:1004 ../../mod/admin.php:1212
+#: ../../mod/admin.php:1018 ../../mod/admin.php:1237
 msgid "Toggle"
 msgstr "肘节"
 
-#: ../../mod/admin.php:1012 ../../mod/admin.php:1222
+#: ../../mod/admin.php:1026 ../../mod/admin.php:1247
 msgid "Author: "
 msgstr "作家："
 
-#: ../../mod/admin.php:1013 ../../mod/admin.php:1223
+#: ../../mod/admin.php:1027 ../../mod/admin.php:1248
 msgid "Maintainer: "
 msgstr "保持员："
 
-#: ../../mod/admin.php:1142
+#: ../../mod/admin.php:1167
 msgid "No themes found."
 msgstr "找不到主题。"
 
-#: ../../mod/admin.php:1204
+#: ../../mod/admin.php:1229
 msgid "Screenshot"
 msgstr "截图"
 
-#: ../../mod/admin.php:1250
+#: ../../mod/admin.php:1275
 msgid "[Experimental]"
 msgstr "［试验］"
 
-#: ../../mod/admin.php:1251
+#: ../../mod/admin.php:1276
 msgid "[Unsupported]"
 msgstr "［没支持］"
 
-#: ../../mod/admin.php:1278
+#: ../../mod/admin.php:1303
 msgid "Log settings updated."
 msgstr "日志设置更新了。"
 
-#: ../../mod/admin.php:1334
+#: ../../mod/admin.php:1359
 msgid "Clear"
 msgstr "清理出"
 
-#: ../../mod/admin.php:1340
+#: ../../mod/admin.php:1365
 msgid "Enable Debugging"
 msgstr "把调试使可用的"
 
-#: ../../mod/admin.php:1341
+#: ../../mod/admin.php:1366
 msgid "Log file"
 msgstr "记录文件"
 
-#: ../../mod/admin.php:1341
+#: ../../mod/admin.php:1366
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr "必要被网页服务器可写的。相对Friendica主文件夹。"
 
-#: ../../mod/admin.php:1342
+#: ../../mod/admin.php:1367
 msgid "Log level"
 msgstr "记录水平"
 
-#: ../../mod/admin.php:1391 ../../mod/contacts.php:487
+#: ../../mod/admin.php:1416 ../../mod/contacts.php:487
 msgid "Update now"
 msgstr "现在更新"
 
-#: ../../mod/admin.php:1392
+#: ../../mod/admin.php:1417
 msgid "Close"
 msgstr "关闭"
 
-#: ../../mod/admin.php:1398
+#: ../../mod/admin.php:1423
 msgid "FTP Host"
 msgstr "FTP主机"
 
-#: ../../mod/admin.php:1399
+#: ../../mod/admin.php:1424
 msgid "FTP Path"
 msgstr "FTP目录"
 
-#: ../../mod/admin.php:1400
+#: ../../mod/admin.php:1425
 msgid "FTP User"
 msgstr "FTP用户"
 
-#: ../../mod/admin.php:1401
+#: ../../mod/admin.php:1426
 msgid "FTP Password"
 msgstr "FTP密码"
 
-#: ../../mod/_search.php:99 ../../mod/search.php:99 ../../include/text.php:938
-#: ../../include/text.php:939 ../../include/nav.php:118
+#: ../../mod/_search.php:99 ../../mod/search.php:99 ../../include/text.php:952
+#: ../../include/text.php:953 ../../include/nav.php:119
 msgid "Search"
 msgstr "搜索"
 
 #: ../../mod/_search.php:180 ../../mod/_search.php:206
 #: ../../mod/search.php:170 ../../mod/search.php:196
-#: ../../mod/community.php:62 ../../mod/community.php:89
+#: ../../mod/community.php:62 ../../mod/community.php:71
 msgid "No results."
 msgstr "没有结果"
 
@@ -2819,75 +2858,75 @@ msgstr "项目没找到"
 msgid "Edit post"
 msgstr "编辑文章"
 
-#: ../../mod/editpost.php:111 ../../include/conversation.php:1085
+#: ../../mod/editpost.php:111 ../../include/conversation.php:1091
 msgid "upload photo"
 msgstr "上传照片"
 
-#: ../../mod/editpost.php:112 ../../include/conversation.php:1086
+#: ../../mod/editpost.php:112 ../../include/conversation.php:1092
 msgid "Attach file"
 msgstr "附上文件"
 
-#: ../../mod/editpost.php:113 ../../include/conversation.php:1087
+#: ../../mod/editpost.php:113 ../../include/conversation.php:1093
 msgid "attach file"
 msgstr "附上文件"
 
-#: ../../mod/editpost.php:115 ../../include/conversation.php:1089
+#: ../../mod/editpost.php:115 ../../include/conversation.php:1095
 msgid "web link"
 msgstr "网页环节"
 
-#: ../../mod/editpost.php:116 ../../include/conversation.php:1090
+#: ../../mod/editpost.php:116 ../../include/conversation.php:1096
 msgid "Insert video link"
 msgstr "插入视频环节"
 
-#: ../../mod/editpost.php:117 ../../include/conversation.php:1091
+#: ../../mod/editpost.php:117 ../../include/conversation.php:1097
 msgid "video link"
 msgstr "视频环节"
 
-#: ../../mod/editpost.php:118 ../../include/conversation.php:1092
+#: ../../mod/editpost.php:118 ../../include/conversation.php:1098
 msgid "Insert audio link"
 msgstr "插入录音环节"
 
-#: ../../mod/editpost.php:119 ../../include/conversation.php:1093
+#: ../../mod/editpost.php:119 ../../include/conversation.php:1099
 msgid "audio link"
 msgstr "录音环节"
 
-#: ../../mod/editpost.php:120 ../../include/conversation.php:1094
+#: ../../mod/editpost.php:120 ../../include/conversation.php:1100
 msgid "Set your location"
 msgstr "设定您的位置"
 
-#: ../../mod/editpost.php:121 ../../include/conversation.php:1095
+#: ../../mod/editpost.php:121 ../../include/conversation.php:1101
 msgid "set location"
 msgstr "指定位置"
 
-#: ../../mod/editpost.php:122 ../../include/conversation.php:1096
+#: ../../mod/editpost.php:122 ../../include/conversation.php:1102
 msgid "Clear browser location"
 msgstr "清空浏览器位置"
 
-#: ../../mod/editpost.php:123 ../../include/conversation.php:1097
+#: ../../mod/editpost.php:123 ../../include/conversation.php:1103
 msgid "clear location"
 msgstr "清理出位置"
 
-#: ../../mod/editpost.php:125 ../../include/conversation.php:1103
+#: ../../mod/editpost.php:125 ../../include/conversation.php:1109
 msgid "Permission settings"
 msgstr "权设置"
 
-#: ../../mod/editpost.php:133 ../../include/conversation.php:1112
+#: ../../mod/editpost.php:133 ../../include/conversation.php:1118
 msgid "CC: email addresses"
 msgstr "抄送: 电子邮件地址"
 
-#: ../../mod/editpost.php:134 ../../include/conversation.php:1113
+#: ../../mod/editpost.php:134 ../../include/conversation.php:1119
 msgid "Public post"
 msgstr "公开的消息"
 
-#: ../../mod/editpost.php:137 ../../include/conversation.php:1099
+#: ../../mod/editpost.php:137 ../../include/conversation.php:1105
 msgid "Set title"
 msgstr "指定标题"
 
-#: ../../mod/editpost.php:139 ../../include/conversation.php:1101
+#: ../../mod/editpost.php:139 ../../include/conversation.php:1107
 msgid "Categories (comma-separated list)"
 msgstr "种类（逗号分隔单）"
 
-#: ../../mod/editpost.php:140 ../../include/conversation.php:1115
+#: ../../mod/editpost.php:140 ../../include/conversation.php:1121
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "比如: li@example.com, wang@example.com"
 
@@ -2929,7 +2968,7 @@ msgstr "网站目录"
 msgid "Find"
 msgstr "搜索"
 
-#: ../../mod/directory.php:111 ../../mod/profiles.php:690
+#: ../../mod/directory.php:111 ../../mod/profiles.php:698
 msgid "Age: "
 msgstr "年纪："
 
@@ -3058,7 +3097,7 @@ msgstr "摇隐私信息无效"
 msgid "Visible to:"
 msgstr "可见给："
 
-#: ../../mod/notes.php:63 ../../mod/filer.php:31 ../../include/text.php:941
+#: ../../mod/notes.php:63 ../../mod/filer.php:31 ../../include/text.php:955
 msgid "Save"
 msgstr "保存"
 
@@ -3066,7 +3105,7 @@ msgstr "保存"
 msgid "Help:"
 msgstr "帮助："
 
-#: ../../mod/help.php:84 ../../include/nav.php:113
+#: ../../mod/help.php:84 ../../include/nav.php:114
 msgid "Help"
 msgstr "帮助"
 
@@ -3190,7 +3229,7 @@ msgstr "请确认您的介绍／联络要求给%s。"
 msgid "Confirm"
 msgstr "确认"
 
-#: ../../mod/dfrn_request.php:716 ../../include/items.php:3686
+#: ../../mod/dfrn_request.php:716 ../../include/items.php:3797
 msgid "[Name Withheld]"
 msgstr "[名字拒给]"
 
@@ -3242,7 +3281,7 @@ msgstr "Friendica"
 msgid "StatusNet/Federated Social Web"
 msgstr "StatusNet／联合社会化网"
 
-#: ../../mod/dfrn_request.php:842 ../../mod/settings.php:730
+#: ../../mod/dfrn_request.php:842 ../../mod/settings.php:733
 #: ../../include/contact_selectors.php:80
 msgid "Diaspora"
 msgstr "Diaspora"
@@ -3262,13 +3301,13 @@ msgstr "您的同一个人地址："
 msgid "Submit Request"
 msgstr "提交要求"
 
-#: ../../mod/update_profile.php:41 ../../mod/update_network.php:22
+#: ../../mod/update_profile.php:41 ../../mod/update_network.php:25
 #: ../../mod/update_display.php:22 ../../mod/update_community.php:18
 #: ../../mod/update_notes.php:41
 msgid "[Embedded content - reload page to view]"
 msgstr "[嵌入内容－重新加载页为看]"
 
-#: ../../mod/content.php:496 ../../include/conversation.php:688
+#: ../../mod/content.php:497 ../../include/conversation.php:689
 msgid "View in context"
 msgstr "看在上下文"
 
@@ -3578,609 +3617,621 @@ msgstr "编熟人"
 msgid "Search your contacts"
 msgstr "搜索您的熟人"
 
-#: ../../mod/contacts.php:699 ../../mod/settings.php:131
-#: ../../mod/settings.php:634
+#: ../../mod/contacts.php:699 ../../mod/settings.php:132
+#: ../../mod/settings.php:637
 msgid "Update"
 msgstr "更新"
 
-#: ../../mod/settings.php:28 ../../mod/photos.php:80
+#: ../../mod/settings.php:29 ../../mod/photos.php:80
 msgid "everybody"
 msgstr "每人"
 
-#: ../../mod/settings.php:40
+#: ../../mod/settings.php:41
 msgid "Additional features"
 msgstr "附加的特点"
 
-#: ../../mod/settings.php:45
+#: ../../mod/settings.php:46
 msgid "Display"
 msgstr "显示"
 
-#: ../../mod/settings.php:51 ../../mod/settings.php:774
+#: ../../mod/settings.php:52 ../../mod/settings.php:777
 msgid "Social Networks"
 msgstr "社会化网络"
 
-#: ../../mod/settings.php:61 ../../include/nav.php:167
+#: ../../mod/settings.php:62 ../../include/nav.php:168
 msgid "Delegations"
 msgstr "代表"
 
-#: ../../mod/settings.php:66
+#: ../../mod/settings.php:67
 msgid "Connected apps"
 msgstr "连接着应用"
 
-#: ../../mod/settings.php:71 ../../mod/uexport.php:85
+#: ../../mod/settings.php:72 ../../mod/uexport.php:85
 msgid "Export personal data"
 msgstr "出口私人信息"
 
-#: ../../mod/settings.php:76
+#: ../../mod/settings.php:77
 msgid "Remove account"
 msgstr "删除账户"
 
-#: ../../mod/settings.php:128
+#: ../../mod/settings.php:129
 msgid "Missing some important data!"
 msgstr "有的重要信息失踪的！"
 
-#: ../../mod/settings.php:237
+#: ../../mod/settings.php:238
 msgid "Failed to connect with email account using the settings provided."
 msgstr "不能连接电子邮件账户用输入的设置。"
 
-#: ../../mod/settings.php:242
+#: ../../mod/settings.php:243
 msgid "Email settings updated."
 msgstr "电子邮件设置更新了"
 
-#: ../../mod/settings.php:257
+#: ../../mod/settings.php:258
 msgid "Features updated"
 msgstr "特点更新了"
 
-#: ../../mod/settings.php:318
+#: ../../mod/settings.php:321
 msgid "Relocate message has been send to your contacts"
 msgstr "调动信息寄给您的熟人"
 
-#: ../../mod/settings.php:332
+#: ../../mod/settings.php:335
 msgid "Passwords do not match. Password unchanged."
 msgstr "密码们不相配。密码没未改变的。"
 
-#: ../../mod/settings.php:337
+#: ../../mod/settings.php:340
 msgid "Empty passwords are not allowed. Password unchanged."
 msgstr "空的密码禁止。密码没未改变的。"
 
-#: ../../mod/settings.php:345
+#: ../../mod/settings.php:348
 msgid "Wrong password."
 msgstr "密码不正确。"
 
-#: ../../mod/settings.php:356
+#: ../../mod/settings.php:359
 msgid "Password changed."
 msgstr "密码变化了。"
 
-#: ../../mod/settings.php:358
+#: ../../mod/settings.php:361
 msgid "Password update failed. Please try again."
 msgstr "密码更新失败了。请再试。"
 
-#: ../../mod/settings.php:423
+#: ../../mod/settings.php:426
 msgid " Please use a shorter name."
 msgstr "请用短一点个名。"
 
-#: ../../mod/settings.php:425
+#: ../../mod/settings.php:428
 msgid " Name too short."
 msgstr "名字太短。"
 
-#: ../../mod/settings.php:434
+#: ../../mod/settings.php:437
 msgid "Wrong Password"
 msgstr "密码不正确"
 
-#: ../../mod/settings.php:439
+#: ../../mod/settings.php:442
 msgid " Not valid email."
 msgstr " 电子邮件地址无效."
 
-#: ../../mod/settings.php:445
+#: ../../mod/settings.php:448
 msgid " Cannot change to that email."
 msgstr "不能变化到这个邮件地址。"
 
-#: ../../mod/settings.php:500
+#: ../../mod/settings.php:503
 msgid "Private forum has no privacy permissions. Using default privacy group."
 msgstr "私人评坛没有隐私批准。默认隐私组用者。"
 
-#: ../../mod/settings.php:504
+#: ../../mod/settings.php:507
 msgid "Private forum has no privacy permissions and no default privacy group."
 msgstr "私人评坛没有隐私批准或默认隐私组。"
 
-#: ../../mod/settings.php:534
+#: ../../mod/settings.php:537
 msgid "Settings updated."
 msgstr "设置跟新了"
 
-#: ../../mod/settings.php:607 ../../mod/settings.php:633
-#: ../../mod/settings.php:669
+#: ../../mod/settings.php:610 ../../mod/settings.php:636
+#: ../../mod/settings.php:672
 msgid "Add application"
 msgstr "加入应用"
 
-#: ../../mod/settings.php:611 ../../mod/settings.php:637
+#: ../../mod/settings.php:614 ../../mod/settings.php:640
 msgid "Consumer Key"
 msgstr "钥匙(Consumer Key)"
 
-#: ../../mod/settings.php:612 ../../mod/settings.php:638
+#: ../../mod/settings.php:615 ../../mod/settings.php:641
 msgid "Consumer Secret"
 msgstr "密码(Consumer Secret)"
 
-#: ../../mod/settings.php:613 ../../mod/settings.php:639
+#: ../../mod/settings.php:616 ../../mod/settings.php:642
 msgid "Redirect"
 msgstr "重定向"
 
-#: ../../mod/settings.php:614 ../../mod/settings.php:640
+#: ../../mod/settings.php:617 ../../mod/settings.php:643
 msgid "Icon url"
 msgstr "图符URL"
 
-#: ../../mod/settings.php:625
+#: ../../mod/settings.php:628
 msgid "You can't edit this application."
 msgstr "您不能编辑这个应用。"
 
-#: ../../mod/settings.php:668
+#: ../../mod/settings.php:671
 msgid "Connected Apps"
 msgstr "连接着应用"
 
-#: ../../mod/settings.php:672
+#: ../../mod/settings.php:675
 msgid "Client key starts with"
 msgstr "客户钥匙头字是"
 
-#: ../../mod/settings.php:673
+#: ../../mod/settings.php:676
 msgid "No name"
 msgstr "无名"
 
-#: ../../mod/settings.php:674
+#: ../../mod/settings.php:677
 msgid "Remove authorization"
 msgstr "撤消权能"
 
-#: ../../mod/settings.php:686
+#: ../../mod/settings.php:689
 msgid "No Plugin settings configured"
 msgstr "没插件设置配置了"
 
-#: ../../mod/settings.php:694
+#: ../../mod/settings.php:697
 msgid "Plugin Settings"
 msgstr "插件设置"
 
-#: ../../mod/settings.php:708
+#: ../../mod/settings.php:711
 msgid "Off"
 msgstr "关"
 
-#: ../../mod/settings.php:708
+#: ../../mod/settings.php:711
 msgid "On"
 msgstr "开"
 
-#: ../../mod/settings.php:716
+#: ../../mod/settings.php:719
 msgid "Additional Features"
 msgstr "附加的特点"
 
-#: ../../mod/settings.php:730 ../../mod/settings.php:731
+#: ../../mod/settings.php:733 ../../mod/settings.php:734
 #, php-format
 msgid "Built-in support for %s connectivity is %s"
 msgstr "包括的支持为%s连通性是%s"
 
-#: ../../mod/settings.php:730 ../../mod/settings.php:731
+#: ../../mod/settings.php:733 ../../mod/settings.php:734
 msgid "enabled"
 msgstr "能够做的"
 
-#: ../../mod/settings.php:730 ../../mod/settings.php:731
+#: ../../mod/settings.php:733 ../../mod/settings.php:734
 msgid "disabled"
 msgstr "使不能用"
 
-#: ../../mod/settings.php:731
+#: ../../mod/settings.php:734
 msgid "StatusNet"
 msgstr "StatusNet"
 
-#: ../../mod/settings.php:767
+#: ../../mod/settings.php:770
 msgid "Email access is disabled on this site."
 msgstr "这个网站没有邮件使用权"
 
-#: ../../mod/settings.php:779
+#: ../../mod/settings.php:782
 msgid "Email/Mailbox Setup"
 msgstr "邮件收件箱设置"
 
-#: ../../mod/settings.php:780
+#: ../../mod/settings.php:783
 msgid ""
 "If you wish to communicate with email contacts using this service "
 "(optional), please specify how to connect to your mailbox."
 msgstr "如果您想用这股服务(可选的)跟邮件熟人交流，请指定怎么连通您的收件箱。"
 
-#: ../../mod/settings.php:781
+#: ../../mod/settings.php:784
 msgid "Last successful email check:"
 msgstr "上个成功收件箱检查："
 
-#: ../../mod/settings.php:783
+#: ../../mod/settings.php:786
 msgid "IMAP server name:"
 msgstr "IMAP服务器名字："
 
-#: ../../mod/settings.php:784
+#: ../../mod/settings.php:787
 msgid "IMAP port:"
 msgstr "IMAP服务器端口："
 
-#: ../../mod/settings.php:785
+#: ../../mod/settings.php:788
 msgid "Security:"
 msgstr "安全："
 
-#: ../../mod/settings.php:785 ../../mod/settings.php:790
+#: ../../mod/settings.php:788 ../../mod/settings.php:793
 msgid "None"
 msgstr "没有"
 
-#: ../../mod/settings.php:786
+#: ../../mod/settings.php:789
 msgid "Email login name:"
 msgstr "邮件登记名："
 
-#: ../../mod/settings.php:787
+#: ../../mod/settings.php:790
 msgid "Email password:"
 msgstr "邮件密码："
 
-#: ../../mod/settings.php:788
+#: ../../mod/settings.php:791
 msgid "Reply-to address:"
 msgstr "回答地址："
 
-#: ../../mod/settings.php:789
+#: ../../mod/settings.php:792
 msgid "Send public posts to all email contacts:"
 msgstr "发公开的文章给所有的邮件熟人："
 
-#: ../../mod/settings.php:790
+#: ../../mod/settings.php:793
 msgid "Action after import:"
 msgstr "进口后行动："
 
-#: ../../mod/settings.php:790
+#: ../../mod/settings.php:793
 msgid "Mark as seen"
 msgstr "标注看过"
 
-#: ../../mod/settings.php:790
+#: ../../mod/settings.php:793
 msgid "Move to folder"
 msgstr "搬到文件夹"
 
-#: ../../mod/settings.php:791
+#: ../../mod/settings.php:794
 msgid "Move to folder:"
 msgstr "搬到文件夹："
 
-#: ../../mod/settings.php:869
+#: ../../mod/settings.php:875
 msgid "Display Settings"
 msgstr "表示设置"
 
-#: ../../mod/settings.php:875 ../../mod/settings.php:889
+#: ../../mod/settings.php:881 ../../mod/settings.php:896
 msgid "Display Theme:"
 msgstr "显示主题："
 
-#: ../../mod/settings.php:876
+#: ../../mod/settings.php:882
 msgid "Mobile Theme:"
 msgstr "手机主题："
 
-#: ../../mod/settings.php:877
+#: ../../mod/settings.php:883
 msgid "Update browser every xx seconds"
 msgstr "更新游览器每XX秒"
 
-#: ../../mod/settings.php:877
+#: ../../mod/settings.php:883
 msgid "Minimum of 10 seconds, no maximum"
 msgstr "最小10秒，没有上限"
 
-#: ../../mod/settings.php:878
+#: ../../mod/settings.php:884
 msgid "Number of items to display per page:"
 msgstr "每页表示多少项目："
 
-#: ../../mod/settings.php:878 ../../mod/settings.php:879
+#: ../../mod/settings.php:884 ../../mod/settings.php:885
 msgid "Maximum of 100 items"
 msgstr "最多100项目"
 
-#: ../../mod/settings.php:879
+#: ../../mod/settings.php:885
 msgid "Number of items to display per page when viewed from mobile device:"
 msgstr "用手机看一页展示多少项目："
 
-#: ../../mod/settings.php:880
+#: ../../mod/settings.php:886
 msgid "Don't show emoticons"
 msgstr "别表示请表符号"
 
-#: ../../mod/settings.php:881
+#: ../../mod/settings.php:887
 msgid "Don't show notices"
 msgstr "别表提示"
 
-#: ../../mod/settings.php:882
+#: ../../mod/settings.php:888
 msgid "Infinite scroll"
 msgstr "无限的滚动"
 
-#: ../../mod/settings.php:959
+#: ../../mod/settings.php:889
+msgid "Automatic updates only at the top of the network page"
+msgstr ""
+
+#: ../../mod/settings.php:966
+msgid "User Types"
+msgstr ""
+
+#: ../../mod/settings.php:967
+msgid "Community Types"
+msgstr ""
+
+#: ../../mod/settings.php:968
 msgid "Normal Account Page"
 msgstr "平常账户页"
 
-#: ../../mod/settings.php:960
+#: ../../mod/settings.php:969
 msgid "This account is a normal personal profile"
 msgstr "这个帐户是正常私人简介"
 
-#: ../../mod/settings.php:963
+#: ../../mod/settings.php:972
 msgid "Soapbox Page"
 msgstr "演讲台页"
 
-#: ../../mod/settings.php:964
+#: ../../mod/settings.php:973
 msgid "Automatically approve all connection/friend requests as read-only fans"
 msgstr "自动批准所有联络／友谊要求当只看的迷"
 
-#: ../../mod/settings.php:967
+#: ../../mod/settings.php:976
 msgid "Community Forum/Celebrity Account"
 msgstr "社会评坛／名人账户"
 
-#: ../../mod/settings.php:968
+#: ../../mod/settings.php:977
 msgid ""
 "Automatically approve all connection/friend requests as read-write fans"
 msgstr "自动批准所有联络／友谊要求当看写的迷"
 
-#: ../../mod/settings.php:971
+#: ../../mod/settings.php:980
 msgid "Automatic Friend Page"
 msgstr "自动朋友页"
 
-#: ../../mod/settings.php:972
+#: ../../mod/settings.php:981
 msgid "Automatically approve all connection/friend requests as friends"
 msgstr "自动批准所有联络／友谊要求当朋友"
 
-#: ../../mod/settings.php:975
+#: ../../mod/settings.php:984
 msgid "Private Forum [Experimental]"
 msgstr "隐私评坛［实验性的 ］"
 
-#: ../../mod/settings.php:976
+#: ../../mod/settings.php:985
 msgid "Private forum - approved members only"
 msgstr "隐私评坛－只批准的成员"
 
-#: ../../mod/settings.php:988
+#: ../../mod/settings.php:997
 msgid "OpenID:"
 msgstr "OpenID:"
 
-#: ../../mod/settings.php:988
+#: ../../mod/settings.php:997
 msgid "(Optional) Allow this OpenID to login to this account."
 msgstr "(可选的)许这个OpenID这个账户登记。"
 
-#: ../../mod/settings.php:998
+#: ../../mod/settings.php:1007
 msgid "Publish your default profile in your local site directory?"
 msgstr "出版您默认简介在您当地的网站目录？"
 
-#: ../../mod/settings.php:1004
+#: ../../mod/settings.php:1013
 msgid "Publish your default profile in the global social directory?"
 msgstr "出版您默认简介在综合社会目录？"
 
-#: ../../mod/settings.php:1012
+#: ../../mod/settings.php:1021
 msgid "Hide your contact/friend list from viewers of your default profile?"
 msgstr "藏起来  发现您的熟人／朋友单不让这个简介看着看？\n "
 
-#: ../../mod/settings.php:1016
+#: ../../mod/settings.php:1025 ../../include/conversation.php:1056
 msgid "Hide your profile details from unknown viewers?"
 msgstr "使简介信息给陌生的看着看不了？"
 
-#: ../../mod/settings.php:1021
+#: ../../mod/settings.php:1030
 msgid "Allow friends to post to your profile page?"
 msgstr "允许朋友们贴文章在您的简介页？"
 
-#: ../../mod/settings.php:1027
+#: ../../mod/settings.php:1036
 msgid "Allow friends to tag your posts?"
 msgstr "允许朋友们标签您的文章？"
 
-#: ../../mod/settings.php:1033
+#: ../../mod/settings.php:1042
 msgid "Allow us to suggest you as a potential friend to new members?"
 msgstr "允许我们建议您潜力朋友给新成员？"
 
-#: ../../mod/settings.php:1039
+#: ../../mod/settings.php:1048
 msgid "Permit unknown people to send you private mail?"
 msgstr "允许生人寄给您私人邮件？"
 
-#: ../../mod/settings.php:1047
+#: ../../mod/settings.php:1056
 msgid "Profile is <strong>not published</strong>."
 msgstr "简介是<strong>没出版</strong>"
 
-#: ../../mod/settings.php:1050 ../../mod/profile_photo.php:248
+#: ../../mod/settings.php:1059 ../../mod/profile_photo.php:248
 msgid "or"
 msgstr "或者"
 
-#: ../../mod/settings.php:1055
+#: ../../mod/settings.php:1064
 msgid "Your Identity Address is"
 msgstr "您的同一个人地址是"
 
-#: ../../mod/settings.php:1066
+#: ../../mod/settings.php:1075
 msgid "Automatically expire posts after this many days:"
 msgstr "自动地过期文章这数天："
 
-#: ../../mod/settings.php:1066
+#: ../../mod/settings.php:1075
 msgid "If empty, posts will not expire. Expired posts will be deleted"
 msgstr "如果空的，文章不会过期。过期的文章被删除"
 
-#: ../../mod/settings.php:1067
+#: ../../mod/settings.php:1076
 msgid "Advanced expiration settings"
 msgstr "先进的过期设置"
 
-#: ../../mod/settings.php:1068
+#: ../../mod/settings.php:1077
 msgid "Advanced Expiration"
 msgstr "先进的过期"
 
-#: ../../mod/settings.php:1069
+#: ../../mod/settings.php:1078
 msgid "Expire posts:"
 msgstr "把文章过期："
 
-#: ../../mod/settings.php:1070
+#: ../../mod/settings.php:1079
 msgid "Expire personal notes:"
 msgstr "把私人便条过期："
 
-#: ../../mod/settings.php:1071
+#: ../../mod/settings.php:1080
 msgid "Expire starred posts:"
 msgstr "把星的文章过期："
 
-#: ../../mod/settings.php:1072
+#: ../../mod/settings.php:1081
 msgid "Expire photos:"
 msgstr "把照片过期："
 
-#: ../../mod/settings.php:1073
+#: ../../mod/settings.php:1082
 msgid "Only expire posts by others:"
 msgstr "只别人的文章过期："
 
-#: ../../mod/settings.php:1099
+#: ../../mod/settings.php:1108
 msgid "Account Settings"
 msgstr "帐户设置"
 
-#: ../../mod/settings.php:1107
+#: ../../mod/settings.php:1116
 msgid "Password Settings"
 msgstr "密码设置"
 
-#: ../../mod/settings.php:1108
+#: ../../mod/settings.php:1117
 msgid "New Password:"
 msgstr "新密码："
 
-#: ../../mod/settings.php:1109
+#: ../../mod/settings.php:1118
 msgid "Confirm:"
 msgstr "确认："
 
-#: ../../mod/settings.php:1109
+#: ../../mod/settings.php:1118
 msgid "Leave password fields blank unless changing"
 msgstr "非变化留空密码栏"
 
-#: ../../mod/settings.php:1110
+#: ../../mod/settings.php:1119
 msgid "Current Password:"
 msgstr "目前密码："
 
-#: ../../mod/settings.php:1110 ../../mod/settings.php:1111
+#: ../../mod/settings.php:1119 ../../mod/settings.php:1120
 msgid "Your current password to confirm the changes"
 msgstr "您目前密码为确认变化"
 
-#: ../../mod/settings.php:1111
+#: ../../mod/settings.php:1120
 msgid "Password:"
 msgstr "密码："
 
-#: ../../mod/settings.php:1115
+#: ../../mod/settings.php:1124
 msgid "Basic Settings"
 msgstr "基础设置"
 
-#: ../../mod/settings.php:1116 ../../include/profile_advanced.php:15
+#: ../../mod/settings.php:1125 ../../include/profile_advanced.php:15
 msgid "Full Name:"
 msgstr "全名："
 
-#: ../../mod/settings.php:1117
+#: ../../mod/settings.php:1126
 msgid "Email Address:"
 msgstr "电子邮件地址:"
 
-#: ../../mod/settings.php:1118
+#: ../../mod/settings.php:1127
 msgid "Your Timezone:"
 msgstr "您的时区："
 
-#: ../../mod/settings.php:1119
+#: ../../mod/settings.php:1128
 msgid "Default Post Location:"
 msgstr "默认文章位置："
 
-#: ../../mod/settings.php:1120
+#: ../../mod/settings.php:1129
 msgid "Use Browser Location:"
 msgstr "用游览器位置："
 
-#: ../../mod/settings.php:1123
+#: ../../mod/settings.php:1132
 msgid "Security and Privacy Settings"
 msgstr "安全和隐私设置"
 
-#: ../../mod/settings.php:1125
+#: ../../mod/settings.php:1134
 msgid "Maximum Friend Requests/Day:"
 msgstr "最多友谊要求个天："
 
-#: ../../mod/settings.php:1125 ../../mod/settings.php:1155
+#: ../../mod/settings.php:1134 ../../mod/settings.php:1164
 msgid "(to prevent spam abuse)"
 msgstr "(为防止垃圾邮件滥用)"
 
-#: ../../mod/settings.php:1126
+#: ../../mod/settings.php:1135
 msgid "Default Post Permissions"
 msgstr "默认文章准许"
 
-#: ../../mod/settings.php:1127
+#: ../../mod/settings.php:1136
 msgid "(click to open/close)"
 msgstr "（点击为打开/关闭）"
 
-#: ../../mod/settings.php:1136 ../../mod/photos.php:1144
-#: ../../mod/photos.php:1515
+#: ../../mod/settings.php:1145 ../../mod/photos.php:1146
+#: ../../mod/photos.php:1517
 msgid "Show to Groups"
 msgstr "给组表示"
 
-#: ../../mod/settings.php:1137 ../../mod/photos.php:1145
-#: ../../mod/photos.php:1516
+#: ../../mod/settings.php:1146 ../../mod/photos.php:1147
+#: ../../mod/photos.php:1518
 msgid "Show to Contacts"
 msgstr "给熟人表示"
 
-#: ../../mod/settings.php:1138
+#: ../../mod/settings.php:1147
 msgid "Default Private Post"
 msgstr "默认私人文章"
 
-#: ../../mod/settings.php:1139
+#: ../../mod/settings.php:1148
 msgid "Default Public Post"
 msgstr "默认公开文章"
 
-#: ../../mod/settings.php:1143
+#: ../../mod/settings.php:1152
 msgid "Default Permissions for New Posts"
 msgstr "默认权利为新文章"
 
-#: ../../mod/settings.php:1155
+#: ../../mod/settings.php:1164
 msgid "Maximum private messages per day from unknown people:"
 msgstr "一天最多从生人私人邮件："
 
-#: ../../mod/settings.php:1158
+#: ../../mod/settings.php:1167
 msgid "Notification Settings"
 msgstr "消息设置"
 
-#: ../../mod/settings.php:1159
+#: ../../mod/settings.php:1168
 msgid "By default post a status message when:"
 msgstr "默认地发现状通知如果："
 
-#: ../../mod/settings.php:1160
+#: ../../mod/settings.php:1169
 msgid "accepting a friend request"
 msgstr "接受朋友邀请"
 
-#: ../../mod/settings.php:1161
+#: ../../mod/settings.php:1170
 msgid "joining a forum/community"
 msgstr "加入评坛／社会"
 
-#: ../../mod/settings.php:1162
+#: ../../mod/settings.php:1171
 msgid "making an <em>interesting</em> profile change"
 msgstr "把简介有意思地变修改"
 
-#: ../../mod/settings.php:1163
+#: ../../mod/settings.php:1172
 msgid "Send a notification email when:"
 msgstr "发一个消息要是："
 
-#: ../../mod/settings.php:1164
+#: ../../mod/settings.php:1173
 msgid "You receive an introduction"
 msgstr "你受到一个介绍"
 
-#: ../../mod/settings.php:1165
+#: ../../mod/settings.php:1174
 msgid "Your introductions are confirmed"
 msgstr "你的介绍确认了"
 
-#: ../../mod/settings.php:1166
+#: ../../mod/settings.php:1175
 msgid "Someone writes on your profile wall"
 msgstr "某人写在你的简历墙"
 
-#: ../../mod/settings.php:1167
+#: ../../mod/settings.php:1176
 msgid "Someone writes a followup comment"
 msgstr "某人写一个后续的评论"
 
-#: ../../mod/settings.php:1168
+#: ../../mod/settings.php:1177
 msgid "You receive a private message"
 msgstr "你受到一个私消息"
 
-#: ../../mod/settings.php:1169
+#: ../../mod/settings.php:1178
 msgid "You receive a friend suggestion"
 msgstr "你受到一个朋友建议"
 
-#: ../../mod/settings.php:1170
+#: ../../mod/settings.php:1179
 msgid "You are tagged in a post"
 msgstr "你被在新闻标签"
 
-#: ../../mod/settings.php:1171
+#: ../../mod/settings.php:1180
 msgid "You are poked/prodded/etc. in a post"
 msgstr "您在文章被戳"
 
-#: ../../mod/settings.php:1174
+#: ../../mod/settings.php:1183
 msgid "Advanced Account/Page Type Settings"
 msgstr "专家账户／页种设置"
 
-#: ../../mod/settings.php:1175
+#: ../../mod/settings.php:1184
 msgid "Change the behaviour of this account for special situations"
 msgstr "把这个账户特别情况的时候行动变化"
 
-#: ../../mod/settings.php:1178
+#: ../../mod/settings.php:1187
 msgid "Relocate"
 msgstr "调动"
 
-#: ../../mod/settings.php:1179
+#: ../../mod/settings.php:1188
 msgid ""
 "If you have moved this profile from another server, and some of your "
 "contacts don't receive your updates, try pushing this button."
 msgstr "如果您调动这个简介从别的服务器但有的熟人没收到您的更新，尝试按这个钮。"
 
-#: ../../mod/settings.php:1180
+#: ../../mod/settings.php:1189
 msgid "Resend relocate message to contacts"
 msgstr "把调动信息寄给熟人"
 
@@ -4283,186 +4334,190 @@ msgstr " - 看 %1$s的%2$s"
 msgid "%1$s has an updated %2$s, changing %3$s."
 msgstr "%1$s有更新的%2$s，修改%3$s."
 
-#: ../../mod/profiles.php:613
+#: ../../mod/profiles.php:615
+msgid "Hide contacts and friends:"
+msgstr ""
+
+#: ../../mod/profiles.php:620
 msgid "Hide your contact/friend list from viewers of this profile?"
 msgstr "藏起来发现您的熟人／朋友单不让这个简介看着看？"
 
-#: ../../mod/profiles.php:633
+#: ../../mod/profiles.php:641
 msgid "Edit Profile Details"
 msgstr "剪辑简介消息"
 
-#: ../../mod/profiles.php:635
+#: ../../mod/profiles.php:643
 msgid "Change Profile Photo"
 msgstr "改变简介照片"
 
-#: ../../mod/profiles.php:636
+#: ../../mod/profiles.php:644
 msgid "View this profile"
 msgstr "看这个简介"
 
-#: ../../mod/profiles.php:637
+#: ../../mod/profiles.php:645
 msgid "Create a new profile using these settings"
 msgstr "造成新的简介用这些设置"
 
-#: ../../mod/profiles.php:638
+#: ../../mod/profiles.php:646
 msgid "Clone this profile"
 msgstr "复制这个简介"
 
-#: ../../mod/profiles.php:639
+#: ../../mod/profiles.php:647
 msgid "Delete this profile"
 msgstr "删除这个简介"
 
-#: ../../mod/profiles.php:640
+#: ../../mod/profiles.php:648
 msgid "Profile Name:"
 msgstr "简介名："
 
-#: ../../mod/profiles.php:641
+#: ../../mod/profiles.php:649
 msgid "Your Full Name:"
 msgstr "你的全名："
 
-#: ../../mod/profiles.php:642
+#: ../../mod/profiles.php:650
 msgid "Title/Description:"
 msgstr "标题／描述："
 
-#: ../../mod/profiles.php:643
+#: ../../mod/profiles.php:651
 msgid "Your Gender:"
 msgstr "你的性："
 
-#: ../../mod/profiles.php:644
+#: ../../mod/profiles.php:652
 #, php-format
 msgid "Birthday (%s):"
 msgstr "生日(%s):"
 
-#: ../../mod/profiles.php:645
+#: ../../mod/profiles.php:653
 msgid "Street Address:"
 msgstr "地址："
 
-#: ../../mod/profiles.php:646
+#: ../../mod/profiles.php:654
 msgid "Locality/City:"
 msgstr "现场／城市："
 
-#: ../../mod/profiles.php:647
+#: ../../mod/profiles.php:655
 msgid "Postal/Zip Code:"
 msgstr "邮政编码："
 
-#: ../../mod/profiles.php:648
+#: ../../mod/profiles.php:656
 msgid "Country:"
 msgstr "国家："
 
-#: ../../mod/profiles.php:649
+#: ../../mod/profiles.php:657
 msgid "Region/State:"
 msgstr "区域／省"
 
-#: ../../mod/profiles.php:650
+#: ../../mod/profiles.php:658
 msgid "<span class=\"heart\">&hearts;</span> Marital Status:"
 msgstr "<span class=\"heart\">&hearts;</span>婚姻状况："
 
-#: ../../mod/profiles.php:651
+#: ../../mod/profiles.php:659
 msgid "Who: (if applicable)"
 msgstr "谁：（要是使用）"
 
-#: ../../mod/profiles.php:652
+#: ../../mod/profiles.php:660
 msgid "Examples: cathy123, Cathy Williams, cathy@example.com"
 msgstr "比如：limou，李某，limou＠example。com"
 
-#: ../../mod/profiles.php:653
+#: ../../mod/profiles.php:661
 msgid "Since [date]:"
 msgstr "追溯［日期］："
 
-#: ../../mod/profiles.php:654 ../../include/profile_advanced.php:46
+#: ../../mod/profiles.php:662 ../../include/profile_advanced.php:46
 msgid "Sexual Preference:"
 msgstr "性取向"
 
-#: ../../mod/profiles.php:655
+#: ../../mod/profiles.php:663
 msgid "Homepage URL:"
 msgstr "主页URL："
 
-#: ../../mod/profiles.php:656 ../../include/profile_advanced.php:50
+#: ../../mod/profiles.php:664 ../../include/profile_advanced.php:50
 msgid "Hometown:"
 msgstr "故乡："
 
-#: ../../mod/profiles.php:657 ../../include/profile_advanced.php:54
+#: ../../mod/profiles.php:665 ../../include/profile_advanced.php:54
 msgid "Political Views:"
 msgstr "政治观念："
 
-#: ../../mod/profiles.php:658
+#: ../../mod/profiles.php:666
 msgid "Religious Views:"
 msgstr " 宗教信仰 ："
 
-#: ../../mod/profiles.php:659
+#: ../../mod/profiles.php:667
 msgid "Public Keywords:"
 msgstr "公开关键字 ："
 
-#: ../../mod/profiles.php:660
+#: ../../mod/profiles.php:668
 msgid "Private Keywords:"
 msgstr "私人关键字"
 
-#: ../../mod/profiles.php:661 ../../include/profile_advanced.php:62
+#: ../../mod/profiles.php:669 ../../include/profile_advanced.php:62
 msgid "Likes:"
 msgstr "喜欢："
 
-#: ../../mod/profiles.php:662 ../../include/profile_advanced.php:64
+#: ../../mod/profiles.php:670 ../../include/profile_advanced.php:64
 msgid "Dislikes:"
 msgstr "不喜欢："
 
-#: ../../mod/profiles.php:663
+#: ../../mod/profiles.php:671
 msgid "Example: fishing photography software"
 msgstr "例如：钓鱼 照片 软件"
 
-#: ../../mod/profiles.php:664
+#: ../../mod/profiles.php:672
 msgid "(Used for suggesting potential friends, can be seen by others)"
 msgstr "(用于建议可能的朋友们，会被别人看)"
 
-#: ../../mod/profiles.php:665
+#: ../../mod/profiles.php:673
 msgid "(Used for searching profiles, never shown to others)"
 msgstr "(用于搜索简介，没有给别人看)"
 
-#: ../../mod/profiles.php:666
+#: ../../mod/profiles.php:674
 msgid "Tell us about yourself..."
 msgstr "给我们自我介绍..."
 
-#: ../../mod/profiles.php:667
+#: ../../mod/profiles.php:675
 msgid "Hobbies/Interests"
 msgstr "爱好／兴趣"
 
-#: ../../mod/profiles.php:668
+#: ../../mod/profiles.php:676
 msgid "Contact information and Social Networks"
 msgstr "熟人信息和社会化网络"
 
-#: ../../mod/profiles.php:669
+#: ../../mod/profiles.php:677
 msgid "Musical interests"
 msgstr "音乐兴趣"
 
-#: ../../mod/profiles.php:670
+#: ../../mod/profiles.php:678
 msgid "Books, literature"
 msgstr "书，文学"
 
-#: ../../mod/profiles.php:671
+#: ../../mod/profiles.php:679
 msgid "Television"
 msgstr "电视"
 
-#: ../../mod/profiles.php:672
+#: ../../mod/profiles.php:680
 msgid "Film/dance/culture/entertainment"
 msgstr "电影／跳舞／文化／娱乐"
 
-#: ../../mod/profiles.php:673
+#: ../../mod/profiles.php:681
 msgid "Love/romance"
 msgstr "爱情／浪漫"
 
-#: ../../mod/profiles.php:674
+#: ../../mod/profiles.php:682
 msgid "Work/employment"
 msgstr "工作"
 
-#: ../../mod/profiles.php:675
+#: ../../mod/profiles.php:683
 msgid "School/education"
 msgstr "学院／教育"
 
-#: ../../mod/profiles.php:680
+#: ../../mod/profiles.php:688
 msgid ""
 "This is your <strong>public</strong> profile.<br />It <strong>may</strong> "
 "be visible to anybody using the internet."
 msgstr "这是你的<strong>公开的</strong>简介。<br />它<strong>可能</strong>被所有的因特网用的看到。"
 
-#: ../../mod/profiles.php:729
+#: ../../mod/profiles.php:737
 msgid "Edit/Manage Profiles"
 msgstr "编辑／管理简介"
 
@@ -4570,15 +4625,15 @@ msgstr "不可用的"
 msgid "Contact added"
 msgstr "熟人添了"
 
-#: ../../mod/notify.php:61 ../../mod/notifications.php:332
+#: ../../mod/notify.php:75 ../../mod/notifications.php:336
 msgid "No more system notifications."
 msgstr "没别系统通知。"
 
-#: ../../mod/notify.php:65 ../../mod/notifications.php:336
+#: ../../mod/notify.php:79 ../../mod/notifications.php:340
 msgid "System Notifications"
 msgstr "系统通知"
 
-#: ../../mod/message.php:9 ../../include/nav.php:161
+#: ../../mod/message.php:9 ../../include/nav.php:162
 msgid "New Message"
 msgstr "新的消息"
 
@@ -4587,7 +4642,7 @@ msgid "Unable to locate contact information."
 msgstr "找不到熟人信息。"
 
 #: ../../mod/message.php:182 ../../mod/notifications.php:103
-#: ../../include/nav.php:158
+#: ../../include/nav.php:159
 msgid "Messages"
 msgstr "消息"
 
@@ -4654,7 +4709,7 @@ msgstr "没可用的安全交通。您<strong>可能</strong>会在发送人的�
 msgid "Send Reply"
 msgstr "发回答"
 
-#: ../../mod/like.php:169 ../../include/conversation.php:140
+#: ../../mod/like.php:168 ../../include/conversation.php:140
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
 msgstr "%1$s不喜欢%2$s的%3$s"
@@ -4664,7 +4719,7 @@ msgid "Post successful."
 msgstr "评论发表了。"
 
 #: ../../mod/localtime.php:12 ../../include/event.php:11
-#: ../../include/bb2diaspora.php:133
+#: ../../include/bb2diaspora.php:134
 msgid "l F d, Y \\@ g:i A"
 msgstr "l F d, Y \\@ g:i A"
 
@@ -4697,8 +4752,8 @@ msgstr "装换的当地时间：%s"
 msgid "Please select your timezone:"
 msgstr "请选择你的时区:"
 
-#: ../../mod/filer.php:30 ../../include/conversation.php:1004
-#: ../../include/conversation.php:1022
+#: ../../mod/filer.php:30 ../../include/conversation.php:1005
+#: ../../include/conversation.php:1023
 msgid "Save to Folder:"
 msgstr "保存再文件夹："
 
@@ -4726,7 +4781,7 @@ msgstr "所有熟人(跟安全地简介使用权)"
 msgid "No contacts."
 msgstr "没有熟人。"
 
-#: ../../mod/viewcontacts.php:76 ../../include/text.php:861
+#: ../../mod/viewcontacts.php:76 ../../include/text.php:875
 msgid "View Contacts"
 msgstr "看熟人"
 
@@ -4738,7 +4793,7 @@ msgstr "搜索人物"
 msgid "No matches"
 msgstr "没有结果"
 
-#: ../../mod/photos.php:67 ../../mod/photos.php:1226 ../../mod/photos.php:1810
+#: ../../mod/photos.php:67 ../../mod/photos.php:1228 ../../mod/photos.php:1817
 msgid "Upload New Photos"
 msgstr "上传新照片"
 
@@ -4750,7 +4805,7 @@ msgstr "熟人信息不可用"
 msgid "Album not found."
 msgstr "取回不了相册."
 
-#: ../../mod/photos.php:188 ../../mod/photos.php:200 ../../mod/photos.php:1204
+#: ../../mod/photos.php:188 ../../mod/photos.php:200 ../../mod/photos.php:1206
 msgid "Delete Album"
 msgstr "删除相册"
 
@@ -4758,7 +4813,7 @@ msgstr "删除相册"
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr "您真的想删除这个相册和所有里面的照相吗？"
 
-#: ../../mod/photos.php:278 ../../mod/photos.php:289 ../../mod/photos.php:1511
+#: ../../mod/photos.php:278 ../../mod/photos.php:289 ../../mod/photos.php:1513
 msgid "Delete Photo"
 msgstr "删除照片"
 
@@ -4766,182 +4821,181 @@ msgstr "删除照片"
 msgid "Do you really want to delete this photo?"
 msgstr "您真的想删除这个照相吗？"
 
-#: ../../mod/photos.php:660
+#: ../../mod/photos.php:662
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr "%1$s被%3$s标签在%2$s"
 
-#: ../../mod/photos.php:660
+#: ../../mod/photos.php:662
 msgid "a photo"
 msgstr "一张照片"
 
-#: ../../mod/photos.php:765
+#: ../../mod/photos.php:767
 msgid "Image exceeds size limit of "
 msgstr "图片超出最大尺寸"
 
-#: ../../mod/photos.php:773
+#: ../../mod/photos.php:775
 msgid "Image file is empty."
 msgstr "图片文件空的。"
 
-#: ../../mod/photos.php:805 ../../mod/wall_upload.php:112
+#: ../../mod/photos.php:807 ../../mod/wall_upload.php:112
 #: ../../mod/profile_photo.php:153
 msgid "Unable to process image."
 msgstr "处理不了图像."
 
-#: ../../mod/photos.php:832 ../../mod/wall_upload.php:138
+#: ../../mod/photos.php:834 ../../mod/wall_upload.php:138
 #: ../../mod/profile_photo.php:301
 msgid "Image upload failed."
 msgstr "图像上载失败了."
 
-#: ../../mod/photos.php:928
+#: ../../mod/photos.php:930
 msgid "No photos selected"
 msgstr "没有照片挑选了"
 
-#: ../../mod/photos.php:1029 ../../mod/videos.php:226
+#: ../../mod/photos.php:1031 ../../mod/videos.php:226
 msgid "Access to this item is restricted."
 msgstr "这个项目使用权限的。"
 
-#: ../../mod/photos.php:1092
+#: ../../mod/photos.php:1094
 #, php-format
 msgid "You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."
 msgstr "您用%2$.2f兆字节的%1$.2f兆字节照片存储。"
 
-#: ../../mod/photos.php:1127
+#: ../../mod/photos.php:1129
 msgid "Upload Photos"
 msgstr "上传照片"
 
-#: ../../mod/photos.php:1131 ../../mod/photos.php:1199
+#: ../../mod/photos.php:1133 ../../mod/photos.php:1201
 msgid "New album name: "
 msgstr "新册名："
 
-#: ../../mod/photos.php:1132
+#: ../../mod/photos.php:1134
 msgid "or existing album name: "
 msgstr "或现有册名"
 
-#: ../../mod/photos.php:1133
+#: ../../mod/photos.php:1135
 msgid "Do not show a status post for this upload"
 msgstr "别显示现状报到关于这个上传"
 
-#: ../../mod/photos.php:1135 ../../mod/photos.php:1506
+#: ../../mod/photos.php:1137 ../../mod/photos.php:1508
 msgid "Permissions"
 msgstr "权利"
 
-#: ../../mod/photos.php:1146
+#: ../../mod/photos.php:1148
 msgid "Private Photo"
 msgstr "私人照相"
 
-#: ../../mod/photos.php:1147
+#: ../../mod/photos.php:1149
 msgid "Public Photo"
 msgstr "公开照相"
 
-#: ../../mod/photos.php:1214
+#: ../../mod/photos.php:1216
 msgid "Edit Album"
 msgstr "编照片册"
 
-#: ../../mod/photos.php:1220
+#: ../../mod/photos.php:1222
 msgid "Show Newest First"
 msgstr "先表示最新的"
 
-#: ../../mod/photos.php:1222
+#: ../../mod/photos.php:1224
 msgid "Show Oldest First"
 msgstr "先表示最老的"
 
-#: ../../mod/photos.php:1255 ../../mod/photos.php:1793
+#: ../../mod/photos.php:1257 ../../mod/photos.php:1800
 msgid "View Photo"
 msgstr "看照片"
 
-#: ../../mod/photos.php:1290
+#: ../../mod/photos.php:1292
 msgid "Permission denied. Access to this item may be restricted."
 msgstr "无权利。用这个项目可能受限制。"
 
-#: ../../mod/photos.php:1292
+#: ../../mod/photos.php:1294
 msgid "Photo not available"
 msgstr "照片不可获得的 "
 
-#: ../../mod/photos.php:1348
+#: ../../mod/photos.php:1350
 msgid "View photo"
 msgstr "看照片"
 
-#: ../../mod/photos.php:1348
+#: ../../mod/photos.php:1350
 msgid "Edit photo"
 msgstr "编辑照片"
 
-#: ../../mod/photos.php:1349
+#: ../../mod/photos.php:1351
 msgid "Use as profile photo"
 msgstr "用为资料图"
 
-#: ../../mod/photos.php:1374
+#: ../../mod/photos.php:1376
 msgid "View Full Size"
 msgstr "看全尺寸"
 
-#: ../../mod/photos.php:1453
+#: ../../mod/photos.php:1455
 msgid "Tags: "
 msgstr "标签："
 
-#: ../../mod/photos.php:1456
+#: ../../mod/photos.php:1458
 msgid "[Remove any tag]"
 msgstr "[删除任何标签]"
 
-#: ../../mod/photos.php:1496
+#: ../../mod/photos.php:1498
 msgid "Rotate CW (right)"
 msgstr "顺时针地转动（左）"
 
-#: ../../mod/photos.php:1497
+#: ../../mod/photos.php:1499
 msgid "Rotate CCW (left)"
 msgstr "反顺时针地转动（右）"
 
-#: ../../mod/photos.php:1499
+#: ../../mod/photos.php:1501
 msgid "New album name"
 msgstr "新册名"
 
-#: ../../mod/photos.php:1502
+#: ../../mod/photos.php:1504
 msgid "Caption"
 msgstr "字幕"
 
-#: ../../mod/photos.php:1504
+#: ../../mod/photos.php:1506
 msgid "Add a Tag"
 msgstr "加标签"
 
-#: ../../mod/photos.php:1508
+#: ../../mod/photos.php:1510
 msgid ""
 "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr "例子：@zhang, @Zhang_San, @li@example.com, #Beijing, #ktv"
 
-#: ../../mod/photos.php:1517
+#: ../../mod/photos.php:1519
 msgid "Private photo"
 msgstr "私人照相"
 
-#: ../../mod/photos.php:1518
+#: ../../mod/photos.php:1520
 msgid "Public photo"
 msgstr "公开照相"
 
-#: ../../mod/photos.php:1540 ../../include/conversation.php:1083
+#: ../../mod/photos.php:1542 ../../include/conversation.php:1089
 msgid "Share"
 msgstr "分享"
 
-#: ../../mod/photos.php:1799 ../../mod/videos.php:308
+#: ../../mod/photos.php:1806 ../../mod/videos.php:308
 msgid "View Album"
 msgstr "看照片册"
 
-#: ../../mod/photos.php:1808
+#: ../../mod/photos.php:1815
 msgid "Recent Photos"
 msgstr "最近的照片"
 
-#: ../../mod/wall_attach.php:75 ../../wall_attach.php:75
+#: ../../mod/wall_attach.php:75
 msgid "Sorry, maybe your upload is bigger than the PHP configuration allows"
 msgstr "不好意思，可能你上传的是PHP设置允许的大"
 
-#: ../../mod/wall_attach.php:75 ../../wall_attach.php:75
+#: ../../mod/wall_attach.php:75
 msgid "Or - did you try to upload an empty file?"
 msgstr "或者，你是不是上传空的文件？"
 
-#: ../../mod/wall_attach.php:81 ../../wall_attach.php:81
+#: ../../mod/wall_attach.php:81
 #, php-format
 msgid "File exceeds size limit of %d"
 msgstr "文件数目超过最多%d"
 
 #: ../../mod/wall_attach.php:122 ../../mod/wall_attach.php:133
-#: ../../wall_attach.php:122 ../../wall_attach.php:133
 msgid "File upload failed."
 msgstr "文件上传失败。"
 
@@ -4949,7 +5003,7 @@ msgstr "文件上传失败。"
 msgid "No videos selected"
 msgstr "没选择的视频"
 
-#: ../../mod/videos.php:301 ../../include/text.php:1387
+#: ../../mod/videos.php:301 ../../include/text.php:1401
 msgid "View Video"
 msgstr "看视频"
 
@@ -5021,7 +5075,9 @@ msgid "Image exceeds size limit of %d"
 msgstr "图像超标最大极限尺寸 %d"
 
 #: ../../mod/wall_upload.php:135 ../../mod/wall_upload.php:144
-#: ../../mod/wall_upload.php:151 ../../mod/item.php:455
+#: ../../mod/wall_upload.php:151 ../../mod/item.php:463
+#: ../../include/Photo.php:911 ../../include/Photo.php:926
+#: ../../include/Photo.php:933 ../../include/Photo.php:955
 #: ../../include/message.php:144
 msgid "Wall Photos"
 msgstr "墙照片"
@@ -5138,8 +5194,8 @@ msgstr "l, F j"
 msgid "Edit event"
 msgstr "编项目"
 
-#: ../../mod/events.php:335 ../../include/text.php:1620
-#: ../../include/text.php:1631
+#: ../../mod/events.php:335 ../../include/text.php:1643
+#: ../../include/text.php:1653
 msgid "link to source"
 msgstr "链接到来源"
 
@@ -5200,7 +5256,7 @@ msgstr "分享这个项目"
 msgid "No potential page delegates located."
 msgstr "找不到可能代表页人。"
 
-#: ../../mod/delegate.php:124 ../../include/nav.php:167
+#: ../../mod/delegate.php:124 ../../include/nav.php:168
 msgid "Delegate Page Management"
 msgstr "页代表管理"
 
@@ -5243,17 +5299,17 @@ msgstr "文件"
 msgid "System down for maintenance"
 msgstr "系统关闭为了维持"
 
-#: ../../mod/removeme.php:45 ../../mod/removeme.php:48
+#: ../../mod/removeme.php:46 ../../mod/removeme.php:49
 msgid "Remove My Account"
 msgstr "删除我的账户"
 
-#: ../../mod/removeme.php:46
+#: ../../mod/removeme.php:47
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
 msgstr "这要完全删除您的账户。这一做过，就不能恢复。"
 
-#: ../../mod/removeme.php:47
+#: ../../mod/removeme.php:48
 msgid "Please enter your password for verification:"
 msgstr "请输入密码为确认："
 
@@ -5270,37 +5326,37 @@ msgstr "建议朋友们"
 msgid "Suggest a friend for %s"
 msgstr "建议朋友给%s"
 
-#: ../../mod/item.php:110
+#: ../../mod/item.php:113
 msgid "Unable to locate original post."
 msgstr "找不到当初的新闻"
 
-#: ../../mod/item.php:319
+#: ../../mod/item.php:324
 msgid "Empty post discarded."
 msgstr "空心的新闻丢弃了"
 
-#: ../../mod/item.php:891
+#: ../../mod/item.php:918
 msgid "System error. Post not saved."
 msgstr "系统错误。x"
 
-#: ../../mod/item.php:917
+#: ../../mod/item.php:945
 #, php-format
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social "
 "network."
 msgstr "这个新闻是由%s，Friendica社会化网络成员之一，发给你。"
 
-#: ../../mod/item.php:919
+#: ../../mod/item.php:947
 #, php-format
 msgid "You may visit them online at %s"
 msgstr "你可以网上拜访他在%s"
 
-#: ../../mod/item.php:920
+#: ../../mod/item.php:948
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
 msgstr "你不想受到这些新闻的话，请回答这个新闻给发者联系。"
 
-#: ../../mod/item.php:924
+#: ../../mod/item.php:952
 #, php-format
 msgid "%s posted an update."
 msgstr "%s贴上一个新闻。"
@@ -5377,11 +5433,11 @@ msgstr "丢弃"
 msgid "System"
 msgstr "系统"
 
-#: ../../mod/notifications.php:83 ../../include/nav.php:142
+#: ../../mod/notifications.php:83 ../../include/nav.php:143
 msgid "Network"
 msgstr "网络"
 
-#: ../../mod/notifications.php:98 ../../include/nav.php:151
+#: ../../mod/notifications.php:98 ../../include/nav.php:152
 msgid "Introductions"
 msgstr "介绍"
 
@@ -5454,60 +5510,60 @@ msgstr "新关注者："
 msgid "No introductions."
 msgstr "没有介绍。"
 
-#: ../../mod/notifications.php:220 ../../include/nav.php:152
+#: ../../mod/notifications.php:220 ../../include/nav.php:153
 msgid "Notifications"
 msgstr "通知"
 
-#: ../../mod/notifications.php:257 ../../mod/notifications.php:382
-#: ../../mod/notifications.php:469
+#: ../../mod/notifications.php:258 ../../mod/notifications.php:387
+#: ../../mod/notifications.php:478
 #, php-format
 msgid "%s liked %s's post"
 msgstr "%s喜欢了%s的消息"
 
-#: ../../mod/notifications.php:266 ../../mod/notifications.php:391
-#: ../../mod/notifications.php:478
+#: ../../mod/notifications.php:268 ../../mod/notifications.php:397
+#: ../../mod/notifications.php:488
 #, php-format
 msgid "%s disliked %s's post"
 msgstr "%s不喜欢了%s的消息"
 
-#: ../../mod/notifications.php:280 ../../mod/notifications.php:405
-#: ../../mod/notifications.php:492
+#: ../../mod/notifications.php:283 ../../mod/notifications.php:412
+#: ../../mod/notifications.php:503
 #, php-format
 msgid "%s is now friends with %s"
 msgstr "%s成为%s的朋友"
 
-#: ../../mod/notifications.php:287 ../../mod/notifications.php:412
+#: ../../mod/notifications.php:290 ../../mod/notifications.php:419
 #, php-format
 msgid "%s created a new post"
 msgstr "%s造成新文章"
 
-#: ../../mod/notifications.php:288 ../../mod/notifications.php:413
-#: ../../mod/notifications.php:501
+#: ../../mod/notifications.php:291 ../../mod/notifications.php:420
+#: ../../mod/notifications.php:513
 #, php-format
 msgid "%s commented on %s's post"
 msgstr "%s便条%s的文章"
 
-#: ../../mod/notifications.php:302
+#: ../../mod/notifications.php:306
 msgid "No more network notifications."
 msgstr "没有别的网络通信。"
 
-#: ../../mod/notifications.php:306
+#: ../../mod/notifications.php:310
 msgid "Network Notifications"
 msgstr "网络通知"
 
-#: ../../mod/notifications.php:427
+#: ../../mod/notifications.php:435
 msgid "No more personal notifications."
 msgstr "没有别的私人通信。"
 
-#: ../../mod/notifications.php:431
+#: ../../mod/notifications.php:439
 msgid "Personal Notifications"
 msgstr "私人通知"
 
-#: ../../mod/notifications.php:508
+#: ../../mod/notifications.php:520
 msgid "No more home notifications."
 msgstr "没有别的家通信。"
 
-#: ../../mod/notifications.php:512
+#: ../../mod/notifications.php:524
 msgid "Home Notifications"
 msgstr "主页通知"
 
@@ -5688,15 +5744,15 @@ msgstr "一切"
 msgid "Categories"
 msgstr "种类"
 
-#: ../../include/plugin.php:454 ../../include/plugin.php:456
+#: ../../include/plugin.php:455 ../../include/plugin.php:457
 msgid "Click here to upgrade."
 msgstr "这里点击为更新。"
 
-#: ../../include/plugin.php:462
+#: ../../include/plugin.php:463
 msgid "This action exceeds the limits set by your subscription plan."
 msgstr "这个行动超过您订阅的限制。"
 
-#: ../../include/plugin.php:467
+#: ../../include/plugin.php:468
 msgid "This action is not available under your subscription plan."
 msgstr "这个行动在您的订阅不可用的。"
 
@@ -5705,25 +5761,30 @@ msgstr "这个行动在您的订阅不可用的。"
 msgid "User not found."
 msgstr "找不到用户"
 
-#: ../../include/api.php:1123
+#: ../../include/api.php:1139
 msgid "There is no status with this id."
 msgstr "没有什么状态跟这个ID"
 
-#: ../../include/api.php:1193
+#: ../../include/api.php:1209
 msgid "There is no conversation with this id."
 msgstr "没有这个ID的对话"
 
-#: ../../include/network.php:886
+#: ../../include/network.php:892
 msgid "view full size"
 msgstr "看全尺寸"
 
-#: ../../include/event.php:20 ../../include/bb2diaspora.php:139
+#: ../../include/event.php:20 ../../include/bb2diaspora.php:140
 msgid "Starts:"
 msgstr "开始："
 
-#: ../../include/event.php:30 ../../include/bb2diaspora.php:147
+#: ../../include/event.php:30 ../../include/bb2diaspora.php:148
 msgid "Finishes:"
 msgstr "结束："
+
+#: ../../include/dba_pdo.php:72 ../../include/dba.php:51
+#, php-format
+msgid "Cannot locate DNS info for database server '%s'"
+msgstr "找不到DNS信息为数据库服务器「%s」"
 
 #: ../../include/notifier.php:774 ../../include/delivery.php:456
 msgid "(no subject)"
@@ -5822,7 +5883,7 @@ msgstr "朋友"
 msgid "%1$s poked %2$s"
 msgstr "%1$s把%2$s戳"
 
-#: ../../include/conversation.php:211 ../../include/text.php:990
+#: ../../include/conversation.php:211 ../../include/text.php:1004
 msgid "poked"
 msgstr "戳了"
 
@@ -5835,129 +5896,134 @@ msgstr "文章／项目"
 msgid "%1$s marked %2$s's %3$s as favorite"
 msgstr "%1$s标注%2$s的%3$s为偏爱"
 
-#: ../../include/conversation.php:770
+#: ../../include/conversation.php:771
 msgid "remove"
 msgstr "删除"
 
-#: ../../include/conversation.php:774
+#: ../../include/conversation.php:775
 msgid "Delete Selected Items"
 msgstr "删除选的项目"
 
-#: ../../include/conversation.php:873
+#: ../../include/conversation.php:874
 msgid "Follow Thread"
 msgstr "关注线绳"
 
-#: ../../include/conversation.php:874 ../../include/Contact.php:229
+#: ../../include/conversation.php:875 ../../include/Contact.php:229
 msgid "View Status"
 msgstr "看现状"
 
-#: ../../include/conversation.php:875 ../../include/Contact.php:230
+#: ../../include/conversation.php:876 ../../include/Contact.php:230
 msgid "View Profile"
 msgstr "看简介"
 
-#: ../../include/conversation.php:876 ../../include/Contact.php:231
+#: ../../include/conversation.php:877 ../../include/Contact.php:231
 msgid "View Photos"
 msgstr "看照片"
 
-#: ../../include/conversation.php:877 ../../include/Contact.php:232
+#: ../../include/conversation.php:878 ../../include/Contact.php:232
 #: ../../include/Contact.php:255
 msgid "Network Posts"
 msgstr "网络文章"
 
-#: ../../include/conversation.php:878 ../../include/Contact.php:233
+#: ../../include/conversation.php:879 ../../include/Contact.php:233
 #: ../../include/Contact.php:255
 msgid "Edit Contact"
 msgstr "编辑熟人"
 
-#: ../../include/conversation.php:879 ../../include/Contact.php:235
+#: ../../include/conversation.php:880 ../../include/Contact.php:235
 #: ../../include/Contact.php:255
 msgid "Send PM"
 msgstr "法私人的新闻"
 
-#: ../../include/conversation.php:880 ../../include/Contact.php:228
+#: ../../include/conversation.php:881 ../../include/Contact.php:228
 msgid "Poke"
 msgstr "戳"
 
-#: ../../include/conversation.php:942
+#: ../../include/conversation.php:943
 #, php-format
 msgid "%s likes this."
 msgstr "%s喜欢这个."
 
-#: ../../include/conversation.php:942
+#: ../../include/conversation.php:943
 #, php-format
 msgid "%s doesn't like this."
 msgstr "%s没有喜欢这个."
 
-#: ../../include/conversation.php:947
+#: ../../include/conversation.php:948
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
 msgstr "<span  %1$s>%2$d人们</span>喜欢这个"
 
-#: ../../include/conversation.php:950
+#: ../../include/conversation.php:951
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
 msgstr "<span  %1$s>%2$d人们</span>不喜欢这个"
 
-#: ../../include/conversation.php:964
+#: ../../include/conversation.php:965
 msgid "and"
 msgstr "和"
 
-#: ../../include/conversation.php:970
+#: ../../include/conversation.php:971
 #, php-format
 msgid ", and %d other people"
 msgstr "，和%d别人"
 
-#: ../../include/conversation.php:972
+#: ../../include/conversation.php:973
 #, php-format
 msgid "%s like this."
 msgstr "%s喜欢这个"
 
-#: ../../include/conversation.php:972
+#: ../../include/conversation.php:973
 #, php-format
 msgid "%s don't like this."
 msgstr "%s不喜欢这个"
 
-#: ../../include/conversation.php:999 ../../include/conversation.php:1017
+#: ../../include/conversation.php:1000 ../../include/conversation.php:1018
 msgid "Visible to <strong>everybody</strong>"
 msgstr "<strong>大家</strong>可见的"
 
-#: ../../include/conversation.php:1001 ../../include/conversation.php:1019
+#: ../../include/conversation.php:1002 ../../include/conversation.php:1020
 msgid "Please enter a video link/URL:"
 msgstr "请输入视频连接／URL："
 
-#: ../../include/conversation.php:1002 ../../include/conversation.php:1020
+#: ../../include/conversation.php:1003 ../../include/conversation.php:1021
 msgid "Please enter an audio link/URL:"
 msgstr "请输入音响连接／URL："
 
-#: ../../include/conversation.php:1003 ../../include/conversation.php:1021
+#: ../../include/conversation.php:1004 ../../include/conversation.php:1022
 msgid "Tag term:"
 msgstr "标签:"
 
-#: ../../include/conversation.php:1005 ../../include/conversation.php:1023
+#: ../../include/conversation.php:1006 ../../include/conversation.php:1024
 msgid "Where are you right now?"
 msgstr "你在哪里?"
 
-#: ../../include/conversation.php:1006
+#: ../../include/conversation.php:1007
 msgid "Delete item(s)?"
 msgstr "把项目删除吗？"
 
-#: ../../include/conversation.php:1048
+#: ../../include/conversation.php:1050
 msgid "Post to Email"
 msgstr "电邮发布"
 
-#: ../../include/conversation.php:1104
+#: ../../include/conversation.php:1055
+#, php-format
+msgid "Connectors disabled, since \"%s\" is enabled."
+msgstr ""
+
+#: ../../include/conversation.php:1110
 msgid "permissions"
 msgstr "权利"
 
-#: ../../include/conversation.php:1128
+#: ../../include/conversation.php:1134
 msgid "Post to Groups"
 msgstr "发到组"
 
-#: ../../include/conversation.php:1129
+#: ../../include/conversation.php:1135
 msgid "Post to Contacts"
 msgstr "发到熟人"
 
-#: ../../include/conversation.php:1130
+#: ../../include/conversation.php:1136
 msgid "Private post"
 msgstr "私人文章"
 
@@ -6000,261 +6066,261 @@ msgstr[0] "%d熟人没进口了"
 msgid "Done. You can now login with your username and password"
 msgstr "完了。您现在会用您用户名和密码登录"
 
-#: ../../include/text.php:304
+#: ../../include/text.php:296
 msgid "newer"
 msgstr "更新"
 
-#: ../../include/text.php:306
+#: ../../include/text.php:298
 msgid "older"
 msgstr "更旧"
 
-#: ../../include/text.php:311
+#: ../../include/text.php:303
 msgid "prev"
 msgstr "上个"
 
-#: ../../include/text.php:313
+#: ../../include/text.php:305
 msgid "first"
 msgstr "首先"
 
-#: ../../include/text.php:345
+#: ../../include/text.php:337
 msgid "last"
 msgstr "最后"
 
-#: ../../include/text.php:348
+#: ../../include/text.php:340
 msgid "next"
 msgstr "下个"
 
-#: ../../include/text.php:840
+#: ../../include/text.php:854
 msgid "No contacts"
 msgstr "没有熟人"
 
-#: ../../include/text.php:849
+#: ../../include/text.php:863
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
 msgstr[0] "%d熟人"
 
-#: ../../include/text.php:990
+#: ../../include/text.php:1004
 msgid "poke"
 msgstr "戳"
 
-#: ../../include/text.php:991
+#: ../../include/text.php:1005
 msgid "ping"
 msgstr "砰"
 
-#: ../../include/text.php:991
+#: ../../include/text.php:1005
 msgid "pinged"
 msgstr "砰了"
 
-#: ../../include/text.php:992
+#: ../../include/text.php:1006
 msgid "prod"
 msgstr "柔戳"
 
-#: ../../include/text.php:992
+#: ../../include/text.php:1006
 msgid "prodded"
 msgstr "柔戳了"
 
-#: ../../include/text.php:993
+#: ../../include/text.php:1007
 msgid "slap"
 msgstr "掌击"
 
-#: ../../include/text.php:993
+#: ../../include/text.php:1007
 msgid "slapped"
 msgstr "掌击了"
 
-#: ../../include/text.php:994
+#: ../../include/text.php:1008
 msgid "finger"
 msgstr "指"
 
-#: ../../include/text.php:994
+#: ../../include/text.php:1008
 msgid "fingered"
 msgstr "指了"
 
-#: ../../include/text.php:995
+#: ../../include/text.php:1009
 msgid "rebuff"
 msgstr "窝脖儿"
 
-#: ../../include/text.php:995
+#: ../../include/text.php:1009
 msgid "rebuffed"
 msgstr "窝脖儿了"
 
-#: ../../include/text.php:1009
+#: ../../include/text.php:1023
 msgid "happy"
 msgstr "开心"
 
-#: ../../include/text.php:1010
+#: ../../include/text.php:1024
 msgid "sad"
 msgstr "伤心"
 
-#: ../../include/text.php:1011
+#: ../../include/text.php:1025
 msgid "mellow"
 msgstr "轻松"
 
-#: ../../include/text.php:1012
+#: ../../include/text.php:1026
 msgid "tired"
 msgstr "累"
 
-#: ../../include/text.php:1013
+#: ../../include/text.php:1027
 msgid "perky"
 msgstr "机敏"
 
-#: ../../include/text.php:1014
+#: ../../include/text.php:1028
 msgid "angry"
 msgstr "生气"
 
-#: ../../include/text.php:1015
+#: ../../include/text.php:1029
 msgid "stupified"
 msgstr "麻醉"
 
-#: ../../include/text.php:1016
+#: ../../include/text.php:1030
 msgid "puzzled"
 msgstr "纳闷"
 
-#: ../../include/text.php:1017
+#: ../../include/text.php:1031
 msgid "interested"
 msgstr "有兴趣"
 
-#: ../../include/text.php:1018
+#: ../../include/text.php:1032
 msgid "bitter"
 msgstr "苦"
 
-#: ../../include/text.php:1019
+#: ../../include/text.php:1033
 msgid "cheerful"
 msgstr "快乐"
 
-#: ../../include/text.php:1020
+#: ../../include/text.php:1034
 msgid "alive"
 msgstr "活着"
 
-#: ../../include/text.php:1021
+#: ../../include/text.php:1035
 msgid "annoyed"
 msgstr "被烦恼"
 
-#: ../../include/text.php:1022
+#: ../../include/text.php:1036
 msgid "anxious"
 msgstr "心焦"
 
-#: ../../include/text.php:1023
+#: ../../include/text.php:1037
 msgid "cranky"
 msgstr "不稳"
 
-#: ../../include/text.php:1024
+#: ../../include/text.php:1038
 msgid "disturbed"
 msgstr "不安"
 
-#: ../../include/text.php:1025
+#: ../../include/text.php:1039
 msgid "frustrated"
 msgstr "被作梗"
 
-#: ../../include/text.php:1026
+#: ../../include/text.php:1040
 msgid "motivated"
 msgstr "士气高涨"
 
-#: ../../include/text.php:1027
+#: ../../include/text.php:1041
 msgid "relaxed"
 msgstr "轻松"
 
-#: ../../include/text.php:1028
+#: ../../include/text.php:1042
 msgid "surprised"
 msgstr "诧异"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Monday"
 msgstr "星期一"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Tuesday"
 msgstr "星期二"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Wednesday"
 msgstr "星期三"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Thursday"
 msgstr "星期四"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Friday"
 msgstr "星期五"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Saturday"
 msgstr "星期六"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1210
 msgid "Sunday"
 msgstr "星期天"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "January"
 msgstr "一月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "February"
 msgstr "二月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "March"
 msgstr "三月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "April"
 msgstr "四月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "May"
 msgstr "五月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "June"
 msgstr "六月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "July"
 msgstr "七月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "August"
 msgstr "八月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "September"
 msgstr "九月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "October"
 msgstr "十月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "November"
 msgstr "十一月"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1214
 msgid "December"
 msgstr "十二月"
 
-#: ../../include/text.php:1419
+#: ../../include/text.php:1433
 msgid "bytes"
 msgstr "字节"
 
-#: ../../include/text.php:1443 ../../include/text.php:1455
+#: ../../include/text.php:1457 ../../include/text.php:1469
 msgid "Click to open/close"
 msgstr "点击为开关"
 
-#: ../../include/text.php:1688
+#: ../../include/text.php:1710
 msgid "Select an alternate language"
 msgstr "选择别的语言"
 
-#: ../../include/text.php:1944
+#: ../../include/text.php:1966
 msgid "activity"
 msgstr "活动"
 
-#: ../../include/text.php:1947
+#: ../../include/text.php:1969
 msgid "post"
 msgstr "文章"
 
-#: ../../include/text.php:2115
+#: ../../include/text.php:2137
 msgid "Item filed"
 msgstr "把项目归档了"
 
@@ -6557,119 +6623,127 @@ msgstr "[无题目]"
 msgid "End this session"
 msgstr "结束这段时间"
 
-#: ../../include/nav.php:91
+#: ../../include/nav.php:79
+msgid "Your videos"
+msgstr ""
+
+#: ../../include/nav.php:81
+msgid "Your personal notes"
+msgstr ""
+
+#: ../../include/nav.php:92
 msgid "Sign in"
 msgstr "登记"
 
-#: ../../include/nav.php:104
+#: ../../include/nav.php:105
 msgid "Home Page"
 msgstr "主页"
 
-#: ../../include/nav.php:108
+#: ../../include/nav.php:109
 msgid "Create an account"
 msgstr "注册"
 
-#: ../../include/nav.php:113
+#: ../../include/nav.php:114
 msgid "Help and documentation"
 msgstr "帮助证件"
 
-#: ../../include/nav.php:116
+#: ../../include/nav.php:117
 msgid "Apps"
 msgstr "应用程序"
 
-#: ../../include/nav.php:116
+#: ../../include/nav.php:117
 msgid "Addon applications, utilities, games"
 msgstr "可加的应用，设施，游戏"
 
-#: ../../include/nav.php:118
+#: ../../include/nav.php:119
 msgid "Search site content"
 msgstr "搜索网站内容"
 
-#: ../../include/nav.php:128
+#: ../../include/nav.php:129
 msgid "Conversations on this site"
 msgstr "这个网站的交谈"
 
-#: ../../include/nav.php:130
+#: ../../include/nav.php:131
 msgid "Directory"
 msgstr "名录"
 
-#: ../../include/nav.php:130
+#: ../../include/nav.php:131
 msgid "People directory"
 msgstr "人物名录"
 
-#: ../../include/nav.php:132
+#: ../../include/nav.php:133
 msgid "Information"
 msgstr "资料"
 
-#: ../../include/nav.php:132
+#: ../../include/nav.php:133
 msgid "Information about this friendica instance"
 msgstr "资料关于这个Friendica服务器"
 
-#: ../../include/nav.php:142
+#: ../../include/nav.php:143
 msgid "Conversations from your friends"
 msgstr "从你朋友们的交谈"
 
-#: ../../include/nav.php:143
+#: ../../include/nav.php:144
 msgid "Network Reset"
 msgstr "网络重设"
 
-#: ../../include/nav.php:143
+#: ../../include/nav.php:144
 msgid "Load Network page with no filters"
 msgstr "表示网络页无滤器"
 
-#: ../../include/nav.php:151
+#: ../../include/nav.php:152
 msgid "Friend Requests"
 msgstr "友谊邀请"
 
-#: ../../include/nav.php:153
+#: ../../include/nav.php:154
 msgid "See all notifications"
 msgstr "看所有的通知"
 
-#: ../../include/nav.php:154
+#: ../../include/nav.php:155
 msgid "Mark all system notifications seen"
 msgstr "记号各系统通知看过的"
 
-#: ../../include/nav.php:158
+#: ../../include/nav.php:159
 msgid "Private mail"
 msgstr "私人的邮件"
 
-#: ../../include/nav.php:159
+#: ../../include/nav.php:160
 msgid "Inbox"
 msgstr "收件箱"
 
-#: ../../include/nav.php:160
+#: ../../include/nav.php:161
 msgid "Outbox"
 msgstr "发件箱"
 
-#: ../../include/nav.php:164
+#: ../../include/nav.php:165
 msgid "Manage"
 msgstr "代用户"
 
-#: ../../include/nav.php:164
+#: ../../include/nav.php:165
 msgid "Manage other pages"
 msgstr "管理别的页"
 
-#: ../../include/nav.php:169
+#: ../../include/nav.php:170
 msgid "Account settings"
 msgstr "帐户配置"
 
-#: ../../include/nav.php:171
+#: ../../include/nav.php:173
 msgid "Manage/Edit Profiles"
 msgstr "管理／编辑简介"
 
-#: ../../include/nav.php:173
+#: ../../include/nav.php:175
 msgid "Manage/edit friends and contacts"
 msgstr "管理/编朋友们和熟人们"
 
-#: ../../include/nav.php:180
+#: ../../include/nav.php:182
 msgid "Site setup and configuration"
 msgstr "网站开办和配置"
 
-#: ../../include/nav.php:184
+#: ../../include/nav.php:186
 msgid "Navigation"
 msgstr "航行"
 
-#: ../../include/nav.php:184
+#: ../../include/nav.php:186
 msgid "Site map"
 msgstr "网站地图"
 
@@ -6738,27 +6812,28 @@ msgstr "工作"
 msgid "School/education:"
 msgstr "学院／教育"
 
-#: ../../include/bbcode.php:284 ../../include/bbcode.php:917
-#: ../../include/bbcode.php:918
+#: ../../include/bbcode.php:381 ../../include/bbcode.php:961
+#: ../../include/bbcode.php:962
 msgid "Image/photo"
 msgstr "图像／照片"
 
-#: ../../include/bbcode.php:354
+#: ../../include/bbcode.php:477
+#, php-format
+msgid "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
+msgstr ""
+
+#: ../../include/bbcode.php:511
 #, php-format
 msgid ""
 "<span><a href=\"%s\" target=\"_blank\">%s</a> wrote the following <a "
 "href=\"%s\" target=\"_blank\">post</a>"
 msgstr "<span><a href=\"%s\" target=\"_blank\">%s</a>写了下面的<a href=\"%s\" target=\"_blank\">消息</a>"
 
-#: ../../include/bbcode.php:453
-msgid "<span><b>"
-msgstr "<span><b>"
-
-#: ../../include/bbcode.php:881 ../../include/bbcode.php:901
+#: ../../include/bbcode.php:925 ../../include/bbcode.php:945
 msgid "$1 wrote:"
 msgstr "$1写："
 
-#: ../../include/bbcode.php:932 ../../include/bbcode.php:933
+#: ../../include/bbcode.php:970 ../../include/bbcode.php:971
 msgid "Encrypted content"
 msgstr "加密的内容"
 
@@ -6838,6 +6913,10 @@ msgstr "Diaspora连接"
 msgid "Statusnet"
 msgstr "Statusnet"
 
+#: ../../include/contact_selectors.php:92
+msgid "App.net"
+msgstr ""
+
 #: ../../include/datetime.php:43 ../../include/datetime.php:45
 msgid "Miscellaneous"
 msgstr "形形色色"
@@ -6911,12 +6990,12 @@ msgstr "秒"
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s以前"
 
-#: ../../include/datetime.php:472 ../../include/items.php:1964
+#: ../../include/datetime.php:472 ../../include/items.php:2071
 #, php-format
 msgid "%s's birthday"
 msgstr "%s的生日"
 
-#: ../../include/datetime.php:473 ../../include/items.php:1965
+#: ../../include/datetime.php:473 ../../include/items.php:2072
 #, php-format
 msgid "Happy Birthday %s"
 msgstr "生日快乐%s"
@@ -7082,35 +7161,43 @@ msgstr "能把优秀文章跟星标注"
 msgid "Sharing notification from Diaspora network"
 msgstr "分享通知从Diaspora网络"
 
-#: ../../include/diaspora.php:2299
+#: ../../include/diaspora.php:2313
 msgid "Attachments:"
 msgstr "附件："
+
+#: ../../include/dbstructure.php:118
+msgid "Errors encountered creating database tables."
+msgstr "造成数据库列表相遇错误。"
+
+#: ../../include/dbstructure.php:176
+msgid "Errors encountered performing database changes."
+msgstr ""
 
 #: ../../include/acl_selectors.php:326
 msgid "Visible to everybody"
 msgstr "任何人可见的"
 
-#: ../../include/items.php:3693
+#: ../../include/items.php:3804
 msgid "A new person is sharing with you at "
 msgstr "一位新人给你分享在"
 
-#: ../../include/items.php:3693
+#: ../../include/items.php:3804
 msgid "You have a new follower at "
 msgstr "你有新的关注者在"
 
-#: ../../include/items.php:4216
+#: ../../include/items.php:4339
 msgid "Do you really want to delete this item?"
 msgstr "您真的想删除这个项目吗？"
 
-#: ../../include/items.php:4443
+#: ../../include/items.php:4566
 msgid "Archives"
 msgstr "档案"
 
-#: ../../include/oembed.php:174
+#: ../../include/oembed.php:200
 msgid "Embedded content"
 msgstr "嵌入内容"
 
-#: ../../include/oembed.php:183
+#: ../../include/oembed.php:209
 msgid "Embedding disabled"
 msgstr "嵌入不能用"
 
@@ -7367,8 +7454,3 @@ msgstr "结束关注了"
 #: ../../include/Contact.php:234
 msgid "Drop Contact"
 msgstr "删除熟人"
-
-#: ../../include/dba.php:45
-#, php-format
-msgid "Cannot locate DNS info for database server '%s'"
-msgstr "找不到DNS信息为数据库服务器「%s」"
