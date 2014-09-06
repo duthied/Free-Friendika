@@ -30,7 +30,7 @@
 <script type="text/javascript" src="{{$baseurl}}/js/modernizr.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.js" ></script>
 <!-- <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>-->
-<script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.2.1.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/fk.autocomplete.js" ></script>
 {{*<!--<script type="text/javascript" src="{{$baseurl}}/library/fancybox/jquery.fancybox.pack.js"></script>-->*}}
