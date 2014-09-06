@@ -15,6 +15,33 @@ function notification($params) {
 	push_lang($params['language']);
 
 
+	$banner = t('Friendica Notification');
+	$product = FRIENDICA_PLATFORM;
+	$siteurl = $a->get_baseurl(true);
+	$thanks = t('Thank You,');
+	$sitename = $a->config['sitename'];
+	$site_admin = sprintf( t('%s Administrator'), $sitename);
+
+	$sender_name = $product;
+	$hostname = $a->get_hostname();
+	if(strpos($hostname,':'))
+		$hostname = substr($hostname,0,strpos($hostname,':'));
+
+	$sender_email = t('noreply') . '@' . $hostname;
+
+	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
+	// the database, and an email is sent if applicable.
+	// default, if not specified: true
+	$show_in_notification_page = ((x($params,'show_in_notification_page'))	?	$params['show_in_notification_page']:True);
+
+	$additional_mail_header = "";
+	$additional_mail_header .= "Precedence: list\n";
+	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
+	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
+	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
+	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
+	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
+
 
 	if(array_key_exists('item',$params)) {
 		$title = $params['item']['title'];
@@ -204,6 +231,29 @@ function notification($params) {
 		$tsitelink = sprintf( $sitelink, $siteurl );
 		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 		$itemlink =  $params['link'];
+
+		switch ($params['verb']) {
+			case ACTIVITY_FRIEND:
+				// someone started to share with user (mostly OStatus)
+				$subject = sprintf( t('[Friendica:Notify] A new person is sharing with you'));
+				$preamble = sprintf( t('%1$s is sharing with you at %2$s'), $params['source_name'], $sitename);
+				$epreamble = sprintf( t('%1$s is sharing with you at %2$s'),
+										'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+										$sitename);
+				break;
+			case ACTIVITY_FOLLOW:
+				// someone started to follow the user (mostly OStatus)
+				$subject = sprintf( t('[Friendica:Notify] You have a new follower'));
+				$preamble = sprintf( t('You have a new follower at %2$s : %1$s'), $params['source_name'], $sitename);
+				$epreamble = sprintf( t('You have a new follower at %2$s : %1$s'),
+										'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+										$sitename);
+				break;
+			default:
+				break;
+		}
+
+
 	}
 
 	if($params['type'] == NOTIFY_SUGGEST) {
@@ -225,40 +275,49 @@ function notification($params) {
 	}
 
 	if($params['type'] == NOTIFY_CONFIRM) {
+		if ($params['verb'] == ACTIVITY_FRIEND ){ // mutual connection
+			$subject = sprintf( t('[Friendica:Notify] Connection accepted'));
+			$preamble = sprintf( t('\'%1$s\' has acepted your connection request at %2$s'), $params['source_name'], $sitename);
+			$epreamble = sprintf( t('%2$s has accepted your [url=%1$s]connection request[/url].'),
+									$itemlink,
+									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
+			$body =  t('You are now mutual friends and may exchange status updates, photos, and email
+	without restriction.');
+
+			$sitelink = t('Please visit %s  if you wish to make any changes to this relationship.');
+			$tsitelink = sprintf( $sitelink, $siteurl );
+			$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
+			$itemlink =  $params['link'];
+		} else { // ACTIVITY_FOLLOW
+			$subject = sprintf( t('[Friendica:Notify] Connection accepted'));
+			$preamble = sprintf( t('\'%1$s\' has acepted your connection request at %2$s'), $params['source_name'], $sitename);
+			$epreamble = sprintf( t('%2$s has accepted your [url=%1$s]connection request[/url].'),
+									$itemlink,
+									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
+			$body =  sprintf(t('\'%1$s\' has chosen to accept you a "fan", which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.'), $params['source_name']);
+			$body .= "\n\n";
+			$body .= sprintf(t('\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future. '), $params['source_name']);
+
+			$sitelink = t('Please visit %s  if you wish to make any changes to this relationship.');
+			$tsitelink = sprintf( $sitelink, $siteurl );
+			$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
+			$itemlink =  $params['link'];
+		}
+
 	}
 
 	if($params['type'] == NOTIFY_SYSTEM) {
-
+			$subject = $params['subject'];
+			$preamble = $params['preamble'];
+			$epreamble = $params['epreamble'];
+			$body =  $params['body'];
+			$sitelink = "";
+			$tsitelink = "";
+			$hsitelink = "";
+			$itemlink =  "";
 	}
 
 
-	/*$email = prepare_notificaion_mail($params, $subject, $preamble, $body, $sitelink, $tsitelink, $hsitelink, $itemlink);
-	if ($email) Emailer::send($email);
-	pop_lang();*/
-
-
-	$banner = t('Friendica Notification');
-	$product = FRIENDICA_PLATFORM;
-	$siteurl = $a->get_baseurl(true);
-	$thanks = t('Thank You,');
-	$sitename = $a->config['sitename'];
-	$site_admin = sprintf( t('%s Administrator'), $sitename);
-
-	$sender_name = $product;
-	$hostname = $a->get_hostname();
-	if(strpos($hostname,':'))
-		$hostname = substr($hostname,0,strpos($hostname,':'));
-
-	$sender_email = t('noreply') . '@' . $hostname;
-
-
-	$additional_mail_header = "";
-	$additional_mail_header .= "Precedence: list\n";
-	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
-	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
-	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
-	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
 
 	$h = array(
 		'params'    => $params,
@@ -284,103 +343,104 @@ function notification($params) {
 	$itemlink  = $h['itemlink'];
 
 
+	if ($show_in_notification_page) {
 
-	do {
-		$dups = false;
-		$hash = random_string();
-        $r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
-			dbesc($hash));
-		if(count($r))
-			$dups = true;
-	} while($dups == true);
+		do {
+			$dups = false;
+			$hash = random_string();
+			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
+				dbesc($hash));
+			if(count($r))
+				$dups = true;
+		} while($dups == true);
 
 
-	$datarray = array();
-	$datarray['hash']  = $hash;
-	$datarray['name']  = $params['source_name'];
-	$datarray['url']   = $params['source_link'];
-	$datarray['photo'] = $params['source_photo'];
-	$datarray['date']  = datetime_convert();
-	$datarray['uid']   = $params['uid'];
-	$datarray['link']  = $itemlink;
-	$datarray['parent'] = $parent_id;
-	$datarray['type']  = $params['type'];
-	$datarray['verb']  = $params['verb'];
-	$datarray['otype'] = $params['otype'];
-	$datarray['abort'] = false;
+		$datarray = array();
+		$datarray['hash']  = $hash;
+		$datarray['name']  = $params['source_name'];
+		$datarray['url']   = $params['source_link'];
+		$datarray['photo'] = $params['source_photo'];
+		$datarray['date']  = datetime_convert();
+		$datarray['uid']   = $params['uid'];
+		$datarray['link']  = $itemlink;
+		$datarray['parent'] = $parent_id;
+		$datarray['type']  = $params['type'];
+		$datarray['verb']  = $params['verb'];
+		$datarray['otype'] = $params['otype'];
+		$datarray['abort'] = false;
 
-	call_hooks('enotify_store', $datarray);
+		call_hooks('enotify_store', $datarray);
 
-	if($datarray['abort']) {
-		pop_lang();
-		return False;
-	}
-
-	// create notification entry in DB
-
-	$r = q("insert into notify (hash,name,url,photo,date,uid,link,parent,type,verb,otype)
-		values('%s','%s','%s','%s','%s',%d,'%s',%d,%d,'%s','%s')",
-		dbesc($datarray['hash']),
-		dbesc($datarray['name']),
-		dbesc($datarray['url']),
-		dbesc($datarray['photo']),
-		dbesc($datarray['date']),
-		intval($datarray['uid']),
-		dbesc($datarray['link']),
-		intval($datarray['parent']),
-		intval($datarray['type']),
-		dbesc($datarray['verb']),
-		dbesc($datarray['otype'])
-	);
-
-	$r = q("select id from notify where hash = '%s' and uid = %d limit 1",
-		dbesc($hash),
-		intval($params['uid'])
-	);
-	if($r)
-		$notify_id = $r[0]['id'];
-	else {
-		pop_lang();
-		return False;
-	}
-
-	// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
-	// After we've stored everything, look again to see if there are any duplicates and if so remove them
-
-	$p = null;
-	$p = q("select id from notify where ( type = %d or type = %d ) and link = '%s' and uid = %d order by id",
-		intval(NOTIFY_TAGSELF),
-		intval(NOTIFY_COMMENT),
-		dbesc($params['link']),
-		intval($params['uid'])
-	);
-	if($p && (count($p) > 1)) {
-		for ($d = 1; $d < count($p); $d ++) {
-			q("delete from notify where id = %d",
-				intval($p[$d]['id'])
-			);
-		}
-
-		// only continue on if we stored the first one
-
-		if($notify_id != $p[0]['id']) {
+		if($datarray['abort']) {
 			pop_lang();
 			return False;
 		}
+
+		// create notification entry in DB
+
+		$r = q("insert into notify (hash,name,url,photo,date,uid,link,parent,type,verb,otype)
+			values('%s','%s','%s','%s','%s',%d,'%s',%d,%d,'%s','%s')",
+			dbesc($datarray['hash']),
+			dbesc($datarray['name']),
+			dbesc($datarray['url']),
+			dbesc($datarray['photo']),
+			dbesc($datarray['date']),
+			intval($datarray['uid']),
+			dbesc($datarray['link']),
+			intval($datarray['parent']),
+			intval($datarray['type']),
+			dbesc($datarray['verb']),
+			dbesc($datarray['otype'])
+		);
+
+		$r = q("select id from notify where hash = '%s' and uid = %d limit 1",
+			dbesc($hash),
+			intval($params['uid'])
+		);
+		if($r)
+			$notify_id = $r[0]['id'];
+		else {
+			pop_lang();
+			return False;
+		}
+
+		// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
+		// After we've stored everything, look again to see if there are any duplicates and if so remove them
+
+		$p = null;
+		$p = q("select id from notify where ( type = %d or type = %d ) and link = '%s' and uid = %d order by id",
+			intval(NOTIFY_TAGSELF),
+			intval(NOTIFY_COMMENT),
+			dbesc($params['link']),
+			intval($params['uid'])
+		);
+		if($p && (count($p) > 1)) {
+			for ($d = 1; $d < count($p); $d ++) {
+				q("delete from notify where id = %d",
+					intval($p[$d]['id'])
+				);
+			}
+
+			// only continue on if we stored the first one
+
+			if($notify_id != $p[0]['id']) {
+				pop_lang();
+				return False;
+			}
+		}
+
+
+		$itemlink = $a->get_baseurl() . '/notify/view/' . $notify_id;
+		$msg = replace_macros($epreamble,array('$itemlink' => $itemlink));
+		$r = q("update notify set msg = '%s' where id = %d and uid = %d",
+			dbesc($msg),
+			intval($notify_id),
+			intval($params['uid'])
+		);
+
 	}
 
-
-	$itemlink = $a->get_baseurl() . '/notify/view/' . $notify_id;
-	$msg = replace_macros($epreamble,array('$itemlink' => $itemlink));
-	$r = q("update notify set msg = '%s' where id = %d and uid = %d",
-		dbesc($msg),
-		intval($notify_id),
-		intval($params['uid'])
-	);
-
-
 	// send email notification if notification preferences permit
-
 	if((intval($params['notify_flags']) & intval($params['type'])) || $params['type'] == NOTIFY_SYSTEM) {
 
 		logger('notification: sending notification email');
