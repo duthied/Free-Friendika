@@ -6,7 +6,7 @@
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 <h3 class="settings-heading">{{$h_pass}}</h3>
-
+<div class="settings-block">
 {{include file="field_password.tpl" field=$password1}}
 {{include file="field_password.tpl" field=$password2}}
 {{include file="field_password.tpl" field=$password3}}
@@ -18,9 +18,10 @@
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
-
+</div>
 
 <h3 class="settings-heading">{{$h_basic}}</h3>
+<div class="settings-block">
 
 {{include file="field_input.tpl" field=$username}}
 {{include file="field_input.tpl" field=$email}}
@@ -33,10 +34,11 @@
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
+</div>
 
 
 <h3 class="settings-heading">{{$h_prv}}</h3>
-
+<div class="settings-block">
 
 <input type="hidden" name="visibility" value="{{$visibility}}" />
 
@@ -102,10 +104,13 @@
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
+</div>
+
 
 
 
 <h3 class="settings-heading">{{$h_not}}</h3>
+<div class="settings-block">
 <div id="settings-notifications">
 
 <div id="settings-activity-desc">{{$activity_options}}</div>
@@ -133,9 +138,11 @@
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
+</div>
 
 
 <h3 class="settings-heading">{{$h_advn}}</h3>
+<div class="settings-block">
 <div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
 {{$pagetype}}
@@ -143,12 +150,15 @@
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
+</div>
 
 <h3 class="settings-heading">{{$relocate}}</h3>
+<div class="settings-block">
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
 <div class="settings-submit-wrapper" >
 <input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button}}" />
+</div>
 </div>
 
 

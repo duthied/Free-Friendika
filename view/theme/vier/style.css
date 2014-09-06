@@ -246,6 +246,10 @@ div.pager {
   float: left;
 }
 
+#contacts-actions {
+  clear: both;
+}
+
 #contact-edit-drop-link-end {
   /* clear: both; */
 }
@@ -2724,3 +2728,6 @@ a.mail-list-link {
         border: none;
 }
 
+.settings-heading {
+	cursor: pointer;
+}
