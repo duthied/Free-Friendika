@@ -1,10 +1,12 @@
 <?php
-
+require_once('include/Emailer.php');
 require_once('include/email.php');
+require_once('include/bbcode.php');
+require_once('include/html2bbcode.php');
 
 function notification($params) {
 
-	logger('notification: entry', LOGGER_DEBUG);
+	#logger('notification()', LOGGER_DEBUG);
 
 	$a = get_app();
 
@@ -13,27 +15,6 @@ function notification($params) {
 	push_lang($params['language']);
 
 
-	$banner = t('Friendica Notification');
-	$product = FRIENDICA_PLATFORM;
-	$siteurl = $a->get_baseurl(true);
-	$thanks = t('Thank You,');
-	$sitename = $a->config['sitename'];
-	$site_admin = sprintf( t('%s Administrator'), $sitename);
-
-	$sender_name = $product;
-	$hostname = $a->get_hostname();
-	if(strpos($hostname,':'))
-		$hostname = substr($hostname,0,strpos($hostname,':'));
-
-	$sender_email = t('noreply') . '@' . $hostname;
-	$additional_mail_header = "";
-
-	$additional_mail_header .= "Precedence: list\n";
-	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
-	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
-	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
-	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
 
 	if(array_key_exists('item',$params)) {
 		$title = $params['item']['title'];
@@ -250,6 +231,35 @@ function notification($params) {
 
 	}
 
+
+	/*$email = prepare_notificaion_mail($params, $subject, $preamble, $body, $sitelink, $tsitelink, $hsitelink, $itemlink);
+	if ($email) Emailer::send($email);
+	pop_lang();*/
+
+
+	$banner = t('Friendica Notification');
+	$product = FRIENDICA_PLATFORM;
+	$siteurl = $a->get_baseurl(true);
+	$thanks = t('Thank You,');
+	$sitename = $a->config['sitename'];
+	$site_admin = sprintf( t('%s Administrator'), $sitename);
+
+	$sender_name = $product;
+	$hostname = $a->get_hostname();
+	if(strpos($hostname,':'))
+		$hostname = substr($hostname,0,strpos($hostname,':'));
+
+	$sender_email = t('noreply') . '@' . $hostname;
+
+
+	$additional_mail_header = "";
+	$additional_mail_header .= "Precedence: list\n";
+	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
+	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
+	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
+	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
+	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
+
 	$h = array(
 		'params'    => $params,
 		'subject'   => $subject,
@@ -274,7 +284,6 @@ function notification($params) {
 	$itemlink  = $h['itemlink'];
 
 
-	require_once('include/html2bbcode.php');
 
 	do {
 		$dups = false;
@@ -304,7 +313,7 @@ function notification($params) {
 
 	if($datarray['abort']) {
 		pop_lang();
-		return;
+		return False;
 	}
 
 	// create notification entry in DB
@@ -332,7 +341,7 @@ function notification($params) {
 		$notify_id = $r[0]['id'];
 	else {
 		pop_lang();
-		return;
+		return False;
 	}
 
 	// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
@@ -356,15 +365,9 @@ function notification($params) {
 
 		if($notify_id != $p[0]['id']) {
 			pop_lang();
-			return;
+			return False;
 		}
 	}
-
-
-
-
-
-
 
 
 	$itemlink = $a->get_baseurl() . '/notify/view/' . $notify_id;
@@ -378,7 +381,6 @@ function notification($params) {
 
 	// send email notification if notification preferences permit
 
-	require_once('include/bbcode.php');
 	if((intval($params['notify_flags']) & intval($params['type'])) || $params['type'] == NOTIFY_SYSTEM) {
 
 		logger('notification: sending notification email');
@@ -410,7 +412,7 @@ function notification($params) {
 			} else {
 				// If not, just "follow" the thread.
 				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
-				logger("include/enotify: There's already a notification for this parent:\n" . print_r($r, true), LOGGER_DEBUG);
+				logger("There's already a notification for this parent:\n" . print_r($r, true), LOGGER_DEBUG);
 			}
 		}
 
@@ -494,9 +496,9 @@ function notification($params) {
 
 //		logger('text: ' . $email_text_body);
 
-		// use the EmailNotification library to send the message
+		// use the Emailer class to send the message
 
-		enotify::send(array(
+		Emailer::send(array(
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
 			'replyTo' => $sender_email,
@@ -506,69 +508,11 @@ function notification($params) {
 			'textVersion' => $email_text_body,
 			'additionalMailHeader' => $datarray['headers'],
 		));
+        return True;
 	}
 
-	pop_lang();
+    return False;
 
 }
 
-require_once('include/email.php');
-
-class enotify {
-	/**
-	 * Send a multipart/alternative message with Text and HTML versions
-	 *
-	 * @param fromName			name of the sender
-	 * @param fromEmail			email fo the sender
-	 * @param replyTo			replyTo address to direct responses
-	 * @param toEmail			destination email address
-	 * @param messageSubject	subject of the message
-	 * @param htmlVersion		html version of the message
-	 * @param textVersion		text only version of the message
-	 * @param additionalMailHeader	additions to the smtp mail header
-	 */
-	static public function send($params) {
-
-		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
-		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
-
-		// generate a mime boundary
-		$mimeBoundary   =rand(0,9)."-"
-				.rand(10000000000,9999999999)."-"
-				.rand(10000000000,9999999999)."=:"
-				.rand(10000,99999);
-
-		// generate a multipart/alternative message header
-		$messageHeader =
-			$params['additionalMailHeader'] .
-			"From: $fromName <{$params['fromEmail']}>\n" .
-			"Reply-To: $fromName <{$params['replyTo']}>\n" .
-			"MIME-Version: 1.0\n" .
-			"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
-
-		// assemble the final multipart message body with the text and html types included
-		$textBody	=	chunk_split(base64_encode($params['textVersion']));
-		$htmlBody	=	chunk_split(base64_encode($params['htmlVersion']));
-		$multipartMessageBody =
-			"--" . $mimeBoundary . "\n" .					// plain text section
-			"Content-Type: text/plain; charset=UTF-8\n" .
-			"Content-Transfer-Encoding: base64\n\n" .
-			$textBody . "\n" .
-			"--" . $mimeBoundary . "\n" .					// text/html section
-			"Content-Type: text/html; charset=UTF-8\n" .
-			"Content-Transfer-Encoding: base64\n\n" .
-			$htmlBody . "\n" .
-			"--" . $mimeBoundary . "--\n";					// message ending
-
-		// send the message
-		$res = mail(
-			$params['toEmail'],	 									// send to address
-			$messageSubject,								// subject
-			$multipartMessageBody,	 						// message body
-			$messageHeader									// message headers
-		);
-		logger("notification: enotify::send header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
-		logger("notification: enotify::send returns " . $res, LOGGER_DEBUG);
-	}
-}
 ?>

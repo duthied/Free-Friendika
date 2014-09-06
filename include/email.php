@@ -249,6 +249,12 @@ function email_header_encode($in_str, $charset) {
     return $out_str;
 }
 
+/**
+ * email_send is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
+ * (not to notify the user, but to send items to email contacts
+ *
+ * TODO: this could be changed to use the Emailer class
+ */
 function email_send($addr, $subject, $headers, $item) {
 	//$headers .= 'MIME-Version: 1.0' . "\n";
 	//$headers .= 'Content-Type: text/html; charset=UTF-8' . "\n";
