@@ -106,7 +106,7 @@ function editpost_content(&$a) {
 	$o .= replace_macros($tpl,array(
 		'$return_path' => $_SESSION['return_url'],
 		'$action' => 'item',
-		'$share' => t('Edit'),
+		'$share' => t('Save'),
 		'$upload' => t('Upload photo'),
 		'$shortupload' => t('upload photo'),
 		'$attach' => t('Attach file'),
