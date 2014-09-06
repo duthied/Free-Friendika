@@ -2728,3 +2728,6 @@ a.mail-list-link {
         border: none;
 }
 
+.settings-heading {
+	cursor: pointer;
+}
