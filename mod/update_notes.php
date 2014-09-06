@@ -16,11 +16,7 @@ function update_notes_content(&$a) {
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
 
-	/**
-	 * We can remove this hack once Internet Explorer recognises HTML5 natively
-	 */
-
-	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
+	echo "<section>";
 
 	/**
 	 *
@@ -53,7 +49,7 @@ function update_notes_content(&$a) {
 	 */
 
 	echo str_replace("\t",'       ',$text);
-	echo (($_GET['msie'] == 1) ? '</div>' : '</section>');
+	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
 
