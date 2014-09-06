@@ -145,6 +145,14 @@ function crepair_content(&$a) {
 
 	$o .= EOL . '<a href="contacts/' . $cid . '">' . t('Return to contact editor') . '</a>' . EOL;
 
+	$allow_remote_self = get_config('system','allow_users_remote_self');
+
+	// Disable remote self for everything except feeds.
+	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
+	// Problem is, you couldn't reply to both networks.
+	if ($contact['network'] != NETWORK_FEED)
+		$allow_remote_self = false;
+
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
 		'$label_name' => t('Name'),
@@ -157,7 +165,7 @@ function crepair_content(&$a) {
 		'$label_poll' => t('Poll/Feed URL'),
 		'$label_photo' => t('New photo from this URL'),
 		'$label_remote_self' => t('Remote Self'),
-		'$allow_remote_self' => get_config('system','allow_users_remote_self'),
+		'$allow_remote_self' => $allow_remote_self,
 		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'), array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'), '2'=>t('Mirror as my own posting'))),
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],
