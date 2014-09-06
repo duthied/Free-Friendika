@@ -15,6 +15,9 @@ if [ -f /vagrant/.htconfig.php ]
     rm /vagrant/.htconfig.php
 fi
 
+#change ownership of dir where sessions are stored
+chown -R www-data:www-data /var/lib/php5
+
 #create the friendica database
 echo "create database friendica" | mysql -u root -proot
 
