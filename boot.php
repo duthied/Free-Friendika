@@ -507,13 +507,20 @@ if(! class_exists('App')) {
 
 			set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
-			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
+			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
+				$this->query_string = substr($_SERVER['QUERY_STRING'],9);
+				// removing trailing / - maybe a nginx problem
+				if (substr($this->query_string, 0, 1) == "/")
+					$this->query_string = substr($this->query_string, 1);
+			} elseif((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
 				$this->query_string = substr($_SERVER['QUERY_STRING'],2);
 				// removing trailing / - maybe a nginx problem
 				if (substr($this->query_string, 0, 1) == "/")
 					$this->query_string = substr($this->query_string, 1);
 			}
-			if(x($_GET,'q'))
+			if (x($_GET,'pagename'))
+				$this->cmd = trim($_GET['pagename'],'/\\');
+			elseif (x($_GET,'q'))
 				$this->cmd = trim($_GET['q'],'/\\');
 
 			// unix style "homedir"
@@ -1019,7 +1026,8 @@ if(! function_exists('update_db')) {
 
 					$t = get_config('database','dbupdate_'.DB_UPDATE_VERSION);
 					if($t !== false)
-						break;
+						return;
+
 					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
 
 					require_once("include/dbstructure.php");
