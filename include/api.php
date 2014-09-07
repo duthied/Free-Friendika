@@ -122,7 +122,6 @@
 
 		// preset
 		$type="json";
-
 		foreach ($API as $p=>$info){
 			if (strpos($a->query_string, $p)===0){
 				$called_api= explode("/",$p);
@@ -935,6 +934,35 @@
 
 	}
 	api_register_func('api/users/show','api_users_show');
+
+
+	function api_users_search(&$a, $type) {
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+
+		$userlist = array();
+
+		if (isset($_GET["q"])) {
+			$r = q("SELECT id FROM unique_contacts WHERE name='%s'", dbesc($_GET["q"]));
+			if (!count($r))
+				$r = q("SELECT id FROM unique_contacts WHERE nick='%s'", dbesc($_GET["q"]));
+
+			if (count($r)) {
+				foreach ($r AS $user) {
+					$user_info = api_get_user($a, $user["id"]);
+					//echo print_r($user_info, true)."\n";
+					$userdata = api_apply_template("user", $type, array('user' => $user_info));
+					$userlist[] = $userdata["user"];
+				}
+				$userlist = array("users" => $userlist);
+			} else
+				die(api_error($a, $type, t("User not found.")));
+		} else
+			die(api_error($a, $type, t("User not found.")));
+
+		return ($userlist);
+	}
+
+	api_register_func('api/users/search','api_users_search');
 
 	/**
 	 *
