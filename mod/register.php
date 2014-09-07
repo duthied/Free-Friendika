@@ -1,6 +1,6 @@
 <?php
 
-require_once('include/email.php');
+require_once('include/enotify.php');
 require_once('include/bbcode.php');
 require_once('include/user.php');
 
@@ -112,45 +112,39 @@ function register_post(&$a) {
 			dbesc($lang)
 		);
 
-		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
-
-		$r = q("SELECT `language` FROM `user` WHERE `email` = '%s' LIMIT 1",
-			//dbesc($a->config['admin_email'])
-			dbesc($adminlist[0])
-		);
-		if(count($r))
-			push_lang($r[0]['language']);
-		else
-			push_lang('en');
-
+		// invite system
 		if($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
 			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
 		}
 
-		$email_tpl = get_intltext_template("register_verify_eml.tpl");
-		$email_tpl = replace_macros($email_tpl, array(
-				'$sitename' => $a->config['sitename'],
-				'$siteurl' =>  $a->get_baseurl(),
-				'$username' => $user['username'],
-				'$email' => $user['email'],
-				'$password' => $result['password'],
-				'$uid' => $user['uid'],
-				'$hash' => $hash
-		 ));
+		// send email to admins
+		$admin_mail_list = "'".implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email']))))."'";
+		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s) LIMIT 1",
+			$admin_mail_list
+		);
 
-		$res = mail($a->config['admin_email'], email_header_encode( sprintf(t('Registration request at %s'), $a->config['sitename']),'UTF-8'),
-			$email_tpl,
-				'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
 
-		pop_lang();
-
-		if($res) {
-			info( t('Your registration is pending approval by the site owner.') . EOL ) ;
-			goaway(z_root());
+		foreach ($adminlist as $admin) {
+			notification(array(
+				'type' => NOTIFY_SYSTEM,
+				'event' => 'SYSTEM_REGISTER_REQUEST',
+				'source_name' => $user['username'],
+				'source_mail' => $user['email'],
+				'source_nick' => $user['nickname'],
+				'source_link' => $a->get_baseurl()."/admin/users/",
+				'link' => $a->get_baseurl()."/admin/users/",
+				'source_photo' => $a->get_baseurl() . "/photo/avatar/".$user['uid'].".jpg",
+				'to_email' => $admin['mail'],
+				'uid' => $admin['uid'],
+				'language' => ($admin['language']?$admin['language']:'en'))
+			);
 		}
+
+
+		info( t('Your registration is pending approval by the site owner.') . EOL ) ;
+		goaway(z_root());
+
 
 	}
 

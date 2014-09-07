@@ -308,7 +308,24 @@ function notification($params) {
 	}
 
 	if($params['type'] == NOTIFY_SYSTEM) {
-		//I have yet to find what system notificatons are...
+		switch($params['event']) {
+			case "SYSTEM_REGISTER_REQUEST":
+				$subject = sprintf( t('[Friendica System:Notify] registration request'));
+				$preamble = sprintf( t('You\'ve received a registration request from \'%1$s\' at %2$s'), $params['source_name'], $sitename);
+				$epreamble = sprintf( t('You\'ve received a registration request [url=%1$s]an introduction[/url] from %2$s.'),
+										$itemlink,
+										'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
+				$body = sprintf( t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s (%4$s)'),
+									$params['source_name'], $siteurl, $params['source_mail'], $params['source_nick']);
+
+				$sitelink = t('Please visit %s to approve or reject the request.');
+				$tsitelink = sprintf( $sitelink, $params['link'] );
+				$hsitelink = sprintf( $sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a>');
+				$itemlink =  $params['link'];
+				break;
+			case "SYSTEM_DB_UPDATE_FAIL":
+				break;
+		}
 	}
 
 	if ($params['type'] == "SYSTEM_EMAIL"){
@@ -360,6 +377,7 @@ function notification($params) {
 
 
 	if ($show_in_notification_page) {
+		logger("adding notification entry", LOGGER_DEBUG);
 		do {
 			$dups = false;
 			$hash = random_string();
