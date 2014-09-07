@@ -101,10 +101,6 @@
 		});
 		
 		// fancyboxes
-		/*$("a.popupbox").fancybox({
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic'
-		});*/
 		$("a.popupbox").colorbox({
 			'inline' : true,
 			'transition' : 'elastic'
