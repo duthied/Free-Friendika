@@ -6,7 +6,7 @@
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 <h3 class="settings-heading">{{$h_pass}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 {{include file="field_password.tpl" field=$password1}}
 {{include file="field_password.tpl" field=$password2}}
 {{include file="field_password.tpl" field=$password3}}
@@ -21,7 +21,7 @@
 </div>
 
 <h3 class="settings-heading">{{$h_basic}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 
 {{include file="field_input.tpl" field=$username}}
 {{include file="field_input.tpl" field=$email}}
@@ -38,7 +38,7 @@
 
 
 <h3 class="settings-heading">{{$h_prv}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 
 <input type="hidden" name="visibility" value="{{$visibility}}" />
 
@@ -110,7 +110,7 @@
 
 
 <h3 class="settings-heading">{{$h_not}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 <div id="settings-notifications">
 
 <div id="settings-activity-desc">{{$activity_options}}</div>
@@ -142,7 +142,7 @@
 
 
 <h3 class="settings-heading">{{$h_advn}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
 {{$pagetype}}
@@ -153,7 +153,7 @@
 </div>
 
 <h3 class="settings-heading">{{$relocate}}</h3>
-<div class="settings-block">
+<div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
 <div class="settings-submit-wrapper" >
