@@ -250,6 +250,7 @@ function notification($params) {
 										$sitename);
 				break;
 			default:
+				// ACTIVITY_REQ_FRIEND is default activity for notifications
 				break;
 		}
 
@@ -307,14 +308,28 @@ function notification($params) {
 	}
 
 	if($params['type'] == NOTIFY_SYSTEM) {
+		//I have yet to find what system notificatons are...
+	}
+
+	if ($params['type'] == "SYSTEM_EMAIL"){
+		// not part of the notifications.
+		// it just send a mail to the user.
+		// It will be used by the system to send emails to users (like
+		// password reset, invitations and so) using one look (but without
+		// add a notification to the user, with could be inexistent)
 			$subject = $params['subject'];
 			$preamble = $params['preamble'];
-			$epreamble = $params['epreamble'];
+			if (x($params,'epreamble')){
+				$epreamble = $params['epreamble'];
+			} else {
+				$epreamble = str_replace("\n","<br>\n",$preamble);
+			}
 			$body =  $params['body'];
 			$sitelink = "";
 			$tsitelink = "";
 			$hsitelink = "";
 			$itemlink =  "";
+			$show_in_notification_page = false;
 	}
 
 
@@ -343,8 +358,8 @@ function notification($params) {
 	$itemlink  = $h['itemlink'];
 
 
-	if ($show_in_notification_page) {
 
+	if ($show_in_notification_page) {
 		do {
 			$dups = false;
 			$hash = random_string();
@@ -441,9 +456,11 @@ function notification($params) {
 	}
 
 	// send email notification if notification preferences permit
-	if((intval($params['notify_flags']) & intval($params['type'])) || $params['type'] == NOTIFY_SYSTEM) {
+	if((intval($params['notify_flags']) & intval($params['type']))
+		|| $params['type'] == NOTIFY_SYSTEM
+		|| $params['type'] == "SYSTEM_EMAIL") {
 
-		logger('notification: sending notification email');
+		logger('sending notification email');
 
 		if (isset($params['parent']) AND (intval($params['parent']) != 0)) {
 			$id_for_parent = $params['parent']."@".$hostname;
@@ -477,10 +494,12 @@ function notification($params) {
 		}
 
 
-		$textversion = strip_tags(html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n"), "\n",
-			$body))),ENT_QUOTES,'UTF-8'));
+		// textversion keeps linebreaks
+		$textversion = strip_tags(str_replace("<br>","\n",html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n"), "\n",
+			$body))),ENT_QUOTES,'UTF-8')));
 		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r","\\n\\n" ,"\\n"),
 			"<br />\n",$body))),ENT_QUOTES,'UTF-8');
+
 
 		$datarray = array();
 		$datarray['banner'] = $banner;
