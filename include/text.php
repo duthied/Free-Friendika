@@ -1503,7 +1503,7 @@ function prepare_text($text) {
 	else
 		$s = smilies(bbcode($text));
 
-	return $s;
+	return trim($s);
 }}
 
 
