@@ -123,6 +123,6 @@ blockquote.shared_content {
   border: none;
 }
 
-.settings-heading {
-	cursor: pointer;
+.settings-heading a:after{
+  content: ' »';
 }
