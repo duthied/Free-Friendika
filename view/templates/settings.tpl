@@ -5,7 +5,7 @@
 <form action="settings" id="settings-form" method="post" autocomplete="off" >
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
-<h3 class="settings-heading">{{$h_pass}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$h_pass}}</a></h3>
 <div class="settings-content-block">
 {{include file="field_password.tpl" field=$password1}}
 {{include file="field_password.tpl" field=$password2}}
@@ -20,7 +20,7 @@
 </div>
 </div>
 
-<h3 class="settings-heading">{{$h_basic}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$h_basic}}</a></h3>
 <div class="settings-content-block">
 
 {{include file="field_input.tpl" field=$username}}
@@ -37,7 +37,7 @@
 </div>
 
 
-<h3 class="settings-heading">{{$h_prv}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$h_prv}}</a></h3>
 <div class="settings-content-block">
 
 <input type="hidden" name="visibility" value="{{$visibility}}" />
@@ -109,7 +109,7 @@
 
 
 
-<h3 class="settings-heading">{{$h_not}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$h_not}}</a></h3>
 <div class="settings-content-block">
 <div id="settings-notifications">
 
@@ -141,7 +141,7 @@
 </div>
 
 
-<h3 class="settings-heading">{{$h_advn}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$h_advn}}</a></h3>
 <div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
@@ -152,7 +152,7 @@
 </div>
 </div>
 
-<h3 class="settings-heading">{{$relocate}}</h3>
+<h3 class="settings-heading"><a href="javascript:;">{{$relocate}}</a></h3>
 <div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
