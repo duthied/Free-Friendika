@@ -43,6 +43,11 @@ function clean_form(&$a, &$colorset, $user){
     $colorset = array(
 	'default'=>t('default'), 
         'greenzero'=>t('greenzero'),
+        'purplezero'=>t('purplezero'),
+        'easterbunny'=>t('easterbunny'),
+        'darkzero'=>t('darkzero'),
+        'comix'=>t('comix'),
+        'slackr'=>t('slackr'),
     );
     if ($user) {
         $color = get_pconfig(local_user(), 'duepuntozero', 'colorset');
@@ -54,7 +59,7 @@ function clean_form(&$a, &$colorset, $user){
         '$submit' => t('Submit'),
         '$baseurl' => $a->get_baseurl(),
         '$title' => t("Theme settings"),
-        '$colorset' => array('duepuntozero_colorset', t('Color scheme'), $color, '', $colorset),
+        '$colorset' => array('duepuntozero_colorset', t('Variations'), $color, '', $colorset),
     ));
     return $o;
 }
