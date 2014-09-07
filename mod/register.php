@@ -2,6 +2,7 @@
 
 require_once('include/email.php');
 require_once('include/bbcode.php');
+require_once('include/user.php');
 
 if(! function_exists('register_post')) {
 function register_post(&$a) {
@@ -45,7 +46,7 @@ function register_post(&$a) {
 		$verified = 0;
 		break;
 	}
-    
+
 
 	require_once('include/user.php');
 
@@ -62,7 +63,7 @@ function register_post(&$a) {
 	}
 
 	$user = $result['user'];
- 
+
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = $a->get_baseurl() . '/profile/' . $user['nickname'];
 		proc_run('php',"include/directory.php","$url");
@@ -80,20 +81,12 @@ function register_post(&$a) {
 			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
 		}
 
-		$email_tpl = get_intltext_template("register_open_eml.tpl");
-		$email_tpl = replace_macros($email_tpl, array(
-				'$sitename' => $a->config['sitename'],
-				'$siteurl' =>  $a->get_baseurl(),
-				'$username' => $user['username'],
-				'$email' => $user['email'],
-				'$password' => $result['password'],
-				'$uid' => $user['uid'] ));
-
-		$res = mail($user['email'], email_header_encode( sprintf( t('Registration details for %s'), $a->config['sitename']),'UTF-8'),
-			$email_tpl, 
-				'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
+		send_register_open_eml(
+			$user['email'],
+			$a->config['sitename'],
+			$a->get_baseurl(),
+			$user['username'],
+			$result['password']);
 
 
 		if($res) {

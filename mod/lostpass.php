@@ -2,6 +2,7 @@
 
 require_once('include/email.php');
 require_once('include/enotify.php');
+require_once('include/text.php');
 
 function lostpass_post(&$a) {
 

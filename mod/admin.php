@@ -4,6 +4,8 @@
   * Friendica admin
   */
 require_once("include/remoteupdate.php");
+require_once("include/enotify.php");
+require_once("include/text.php");
 
 
 /**
@@ -752,7 +754,7 @@ function admin_page_users_post(&$a){
 
 	if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');
-		require_once('include/email.php');
+
 		$result = create_user( array('username'=>$nu_name, 'email'=>$nu_email, 'nickname'=>$nu_nickname, 'verified'=>1)  );
 		if(! $result['success']) {
 			notice($result['message']);
@@ -761,7 +763,7 @@ function admin_page_users_post(&$a){
 		$nu = $result['user'];
 		$preamble = deindent(t('
 			Dear %1$s,
-				the administrator of %2$s has set up an account for you.');
+				the administrator of %2$s has set up an account for you.'));
 		$body = deindent(t('
 			The login details are as follows:
 
@@ -786,7 +788,7 @@ function admin_page_users_post(&$a){
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
-			Thank you and welcome to %4$s.');
+			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $nu['username'], $a->config['sitename']);
 		$body = sprintf($body, $a->get_baseurl(), $nu['email'], $result['password'], $a->config['sitename']);
