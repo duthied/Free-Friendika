@@ -382,7 +382,7 @@ function send_register_open_eml($email, $sitename, $siteurl, $username, $passwor
 		The login details are as follows:
 			Site Location:	%3$s
 			Login Name:	%1$s
-			Password:	%5$
+			Password:	%5$s
 
 		You may change your password from your account "Settings" page after logging
 		in.
@@ -407,7 +407,7 @@ function send_register_open_eml($email, $sitename, $siteurl, $username, $passwor
 		$preamble = sprintf($preamble, $username, $sitename);
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
 
-		notification(array(
+		return notification(array(
 			'type' => "SYSTEM_EMAIL",
 			'to_email' => $email,
 			'subject'=> sprintf( t('Registration details for %s'), $sitename),

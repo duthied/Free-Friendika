@@ -57,6 +57,7 @@ class Emailer {
 		);
 		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
 		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
+		return $res;
 	}
 }
 ?>

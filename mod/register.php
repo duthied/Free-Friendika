@@ -81,20 +81,25 @@ function register_post(&$a) {
 			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
 		}
 
-		send_register_open_eml(
+		$res = send_register_open_eml(
 			$user['email'],
 			$a->config['sitename'],
 			$a->get_baseurl(),
 			$user['username'],
 			$result['password']);
 
-
 		if($res) {
 			info( t('Registration successful. Please check your email for further instructions.') . EOL ) ;
 			goaway(z_root());
 		}
 		else {
-			notice( t('Failed to send email message. Here is the message that failed.') . $email_tpl . EOL );
+			notice(
+				sprintf(
+					t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.'),
+					 $user['email'],
+					 $result['password']
+					 ). EOL
+			);
 		}
 	}
 	elseif($a->config['register_policy'] == REGISTER_APPROVE) {

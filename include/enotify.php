@@ -595,7 +595,7 @@ function notification($params) {
 
 		// use the Emailer class to send the message
 
-		Emailer::send(array(
+		return Emailer::send(array(
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
 			'replyTo' => $sender_email,
@@ -605,7 +605,6 @@ function notification($params) {
 			'textVersion' => $email_text_body,
 			'additionalMailHeader' => $datarray['headers'],
 		));
-        return True;
 	}
 
     return False;
