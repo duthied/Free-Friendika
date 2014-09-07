@@ -27,7 +27,10 @@
 <!--[if IE]>
 <script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
+<script type="text/javascript" src="{{$baseurl}}/js/modernizr.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.js" ></script>
+<!-- <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>-->
+<script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/fk.autocomplete.js" ></script>
 {{*<!--<script type="text/javascript" src="{{$baseurl}}/library/fancybox/jquery.fancybox.pack.js"></script>-->*}}

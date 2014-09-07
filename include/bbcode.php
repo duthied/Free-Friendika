@@ -674,10 +674,12 @@ function bb_RemovePictureLinks($match) {
 	$text = Cache::get($match[1]);
 
 	if(is_null($text)){
+		$a = get_app();
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
@@ -722,10 +724,12 @@ function bb_CleanPictureLinksSub($match) {
 	$text = Cache::get($match[1]);
 
 	if(is_null($text)){
+		$a = get_app();
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 

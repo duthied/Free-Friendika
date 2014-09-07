@@ -11,7 +11,7 @@ function update_network_content(&$a) {
 
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
-	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
+	echo "<section>";
 
 	if (!get_pconfig($profile_uid, "system", "no_auto_update") OR ($_GET['force'] == 1))
 		$text = network_content($a,$profile_uid);
@@ -34,7 +34,7 @@ function update_network_content(&$a) {
 
 
 	echo str_replace("\t",'       ',$text);
-	echo (($_GET['msie'] == 1) ? '</div>' : '</section>');
+	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
 

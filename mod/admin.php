@@ -1203,9 +1203,11 @@ function admin_page_themes(&$a){
 		foreach($files as $file) {
 			$f = basename($file);
 			$is_experimental = intval(file_exists($file . '/experimental'));
-			$is_supported = 1-(intval(file_exists($file . '/unsupported'))); // Is not used yet
+			$is_supported = 1-(intval(file_exists($file . '/unsupported')));
 			$is_allowed = intval(in_array($f,$allowed_themes));
-			$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
+
+			if ($is_allowed OR $is_supported OR get_config("system", "show_unsupported_themes"))
+				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
 		}
 	}
 
