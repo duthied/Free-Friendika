@@ -1,6 +1,9 @@
 <?php
 require_once("boot.php");
 require_once("include/text.php");
+
+define('NEW_UPDATE_ROUTINE_VERSION', 1170);
+
 /*
  * send the email and do what is needed to do on update fails
  *
@@ -24,7 +27,7 @@ function update_fail($update_id, $error_message){
 			The friendica developers released update %s recently,
 			but when I tried to install it, something went terribly wrong.
 			This needs to be fixed soon and I can't do it alone. Please contact a
-			friendica developer if you can not help me on your own. My database might be invalid.");
+			friendica developer if you can not help me on your own. My database might be invalid."));
 		$body = t("The error message is\n[pre]%s[/pre]");
 		$preamble = sprintf($preamble, $update_id);
 		$body = sprintf($body, $error_message);
@@ -62,27 +65,6 @@ function update_fail($update_id, $error_message){
 	break;
 }
 
-function dbstructure_run(&$argv, &$argc) {
-	global $a, $db;
-
-	if(is_null($a)){
-		$a = new App;
-	}
-
-	if(is_null($db)) {
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-			unset($db_host, $db_user, $db_pass, $db_data);
-	}
-
-	update_structure(true, true);
-}
-
-if (array_search(__file__,get_included_files())===0){
-	dbstructure_run($argv,$argc);
-	killme();
-}
 
 function table_structure($table) {
 	$structures = q("DESCRIBE `%s`", $table);
@@ -1333,4 +1315,30 @@ function db_definition() {
 			);
 
 	return($database);
+}
+
+
+/*
+ * run from command line
+ */
+function dbstructure_run(&$argv, &$argc) {
+	global $a, $db;
+
+	if(is_null($a)){
+		$a = new App;
+	}
+
+	if(is_null($db)) {
+		@include(".htconfig.php");
+		require_once("include/dba.php");
+		$db = new dba($db_host, $db_user, $db_pass, $db_data);
+			unset($db_host, $db_user, $db_pass, $db_data);
+	}
+
+	update_structure(true, true);
+}
+
+if (array_search(__file__,get_included_files())===0){
+	dbstructure_run($argv,$argc);
+	killme();
 }

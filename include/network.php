@@ -2,7 +2,7 @@
 
 
 // curl wrapper. If binary flag is true, return binary
-// results. 
+// results.
 
 // Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
 // to preserve cookies from one request to the next.
@@ -24,7 +24,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar);
 	}
 
-//  These settings aren't needed. We're following the location already. 
+//  These settings aren't needed. We're following the location already.
 //	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 //	@curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
@@ -219,8 +219,8 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 }}
 
 // Generic XML return
-// Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable 
-// of $st and an optional text <message> of $message and terminates the current process. 
+// Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
+// of $st and an optional text <message> of $message and terminates the current process.
 
 if(! function_exists('xml_status')) {
 function xml_status($st, $message = '') {
@@ -246,7 +246,7 @@ function http_status_exit($val) {
 	if($val >= 200 && $val < 300)
 		$err = 'OK';
 
-	logger('http_status_exit ' . $val);	
+	logger('http_status_exit ' . $val);
 	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 	killme();
 
@@ -298,16 +298,16 @@ function convert_xml_element_to_array($xml_element, &$recursion_depth=0) {
         }
 }}
 
-// Given an email style address, perform webfinger lookup and 
+// Given an email style address, perform webfinger lookup and
 // return the resulting DFRN profile URL, or if no DFRN profile URL
-// is located, returns an OStatus subscription template (prefixed 
+// is located, returns an OStatus subscription template (prefixed
 // with the string 'stat:' to identify it as on OStatus template).
 // If this isn't an email style address just return $s.
 // Return an empty string if email-style addresses but webfinger fails,
-// or if the resultant personal XRD doesn't contain a supported 
+// or if the resultant personal XRD doesn't contain a supported
 // subscription/friend-request attribute.
 
-// amended 7/9/2011 to return an hcard which could save potentially loading 
+// amended 7/9/2011 to return an hcard which could save potentially loading
 // a lengthy content page to scrape dfrn attributes
 
 if(! function_exists('webfinger_dfrn')) {
@@ -332,7 +332,7 @@ function webfinger_dfrn($s,&$hcard) {
 	return $profile_link;
 }}
 
-// Given an email style address, perform webfinger lookup and 
+// Given an email style address, perform webfinger lookup and
 // return the array of link attributes from the personal XRD file.
 // On error/failure return an empty array.
 
@@ -374,7 +374,7 @@ function lrdd($uri, $debug = false) {
 	// All we have is an email address. Resource-priority is irrelevant
 	// because our URI isn't directly resolvable.
 
-	if(strstr($uri,'@')) {	
+	if(strstr($uri,'@')) {
 		return(webfinger($uri));
 	}
 
@@ -418,7 +418,7 @@ function lrdd($uri, $debug = false) {
 		foreach($properties as $prop)
 			if((string) $prop['@attributes'] === 'http://lrdd.net/priority/resource')
 				$priority = 'resource';
-	} 
+	}
 
 	// save the links in case we need them
 
@@ -449,7 +449,7 @@ function lrdd($uri, $debug = false) {
 		$tpl = '';
 
 	if($priority === 'host') {
-		if(strlen($tpl)) 
+		if(strlen($tpl))
 			$pxrd = str_replace('{uri}', urlencode($uri), $tpl);
 		elseif(isset($href))
 			$pxrd = $href;
@@ -623,6 +623,9 @@ function fetch_xrd_links($url) {
 
 if(! function_exists('validate_url')) {
 function validate_url(&$url) {
+
+	if(get_config('system','disable_url_validation'))
+		return true;
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
@@ -688,7 +691,7 @@ function allowed_url($url) {
 		foreach($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if(($fnmatch && fnmatch($pat,$host)) || ($pat == $host)) {
-				$found = true; 
+				$found = true;
 				break;
 			}
 		}
@@ -722,7 +725,7 @@ function allowed_email($email) {
 		foreach($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if(($fnmatch && fnmatch($pat,$domain)) || ($pat == $domain)) {
-				$found = true; 
+				$found = true;
 				break;
 			}
 		}
@@ -888,7 +891,7 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 						$new_height = $ph->getHeight();
 						logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
 						$s = str_replace($mtch[0],'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
-							. "\n" . (($include_link) 
+							. "\n" . (($include_link)
 								? '[url=' . $mtch[1] . ']' . t('view full size') . '[/url]' . "\n"
 								: ''),$s);
 						logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
@@ -928,8 +931,8 @@ function fix_contact_ssl_policy(&$contact,$new_policy) {
 	}
 
 	if($ssl_changed) {
-		q("update contact set 
-			url = '%s', 
+		q("update contact set
+			url = '%s',
 			request = '%s',
 			notify = '%s',
 			poll = '%s',
@@ -984,7 +987,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 		return array();
 	}
 
-    xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8"); 
+    xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8");
 	// http://minutillo.com/steve/weblog/2004/6/17/php-xml-and-character-encodings-a-tale-of-sadness-rage-and-data-loss
     xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
     xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);

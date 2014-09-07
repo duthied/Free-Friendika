@@ -11,6 +11,9 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
+require_once('update.php');
+require_once('include/dbstructure.php');
+
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_VERSION',      '3.2.1753' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
@@ -1003,7 +1006,6 @@ if(! function_exists('check_url')) {
 
 if(! function_exists('update_db')) {
 	function update_db(&$a) {
-
 		$build = get_config('system','build');
 		if(! x($build))
 			$build = set_config('system','build',DB_UPDATE_VERSION);
@@ -1011,21 +1013,17 @@ if(! function_exists('update_db')) {
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
-			if(($stored < $current) && file_exists('update.php')) {
-
+			if($stored < $current) {
 				load_config('database');
 
 				// We're reporting a different version than what is currently installed.
 				// Run any existing update scripts to bring the database up to current.
-
-				require_once('update.php');
 
 				// make sure that boot.php and update.php are the same release, we might be
 				// updating right this very second and the correct version of the update.php
 				// file may not be here yet. This can happen on a very busy site.
 
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
-
 					// Compare the current structure with the defined structure
 
 					$t = get_config('database','dbupdate_'.DB_UPDATE_VERSION);
@@ -1034,59 +1032,80 @@ if(! function_exists('update_db')) {
 
 					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
 
-					require_once("include/dbstructure.php");
+					// run old update routine (wich could modify the schema and
+					// conflits with new routine)
+					for ($x = $stored; $x < NEW_UPDATE_ROUTINE_VERSION; $x++) {
+						$r = run_update_function($x);
+						if (!$r) break;
+					}
+					if ($stored < NEW_UPDATE_ROUTINE_VERSION) $stored = NEW_UPDATE_ROUTINE_VERSION;
+
+
+					// run new update routine
+					// it update the structure in one call
 					$retval = update_structure(false, true);
 					if($retval) {
 						update_fail(
 							DB_UPDATE_VERSION,
-							sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
+							$retval
 						);
-						break;
+						return;
 					} else {
 						set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
 					}
 
+					// run any left update_nnnn functions in update.php
 					for($x = $stored; $x < $current; $x ++) {
-						if(function_exists('update_' . $x)) {
-
-							// There could be a lot of processes running or about to run.
-							// We want exactly one process to run the update command.
-							// So store the fact that we're taking responsibility
-							// after first checking to see if somebody else already has.
-
-							// If the update fails or times-out completely you may need to
-							// delete the config entry to try again.
-
-							$t = get_config('database','update_' . $x);
-							if($t !== false)
-								break;
-							set_config('database','update_' . $x, time());
-
-							// call the specific update
-
-							$func = 'update_' . $x;
-							$retval = $func();
-							if($retval) {
-								//send the administrator an e-mail
-								update_fail(
-									$x,
-									sprintf(t('Update %s failed. See error logs.'), $x)
-								);
-								break;
-							} else {
-								set_config('database','update_' . $x, 'success');
-								set_config('system','build', $x + 1);
-							}
-						} else {
-							set_config('database','update_' . $x, 'success');
-							set_config('system','build', $x + 1);
-						}
+						$r = run_update_function($x);
+						if (!$r) break;
 					}
 				}
 			}
 		}
 
 		return;
+	}
+}
+if(!function_exists('run_update_function')){
+	function run_update_function($x) {
+		if(function_exists('update_' . $x)) {
+
+			// There could be a lot of processes running or about to run.
+			// We want exactly one process to run the update command.
+			// So store the fact that we're taking responsibility
+			// after first checking to see if somebody else already has.
+
+			// If the update fails or times-out completely you may need to
+			// delete the config entry to try again.
+
+			$t = get_config('database','update_' . $x);
+			if($t !== false)
+				return false;
+			set_config('database','update_' . $x, time());
+
+			// call the specific update
+
+			$func = 'update_' . $x;
+			$retval = $func();
+
+			if($retval) {
+				//send the administrator an e-mail
+				update_fail(
+					$x,
+					sprintf(t('Update %s failed. See error logs.'), $x)
+				);
+				return false;
+			} else {
+				set_config('database','update_' . $x, 'success');
+				set_config('system','build', $x + 1);
+				return true;
+			}
+		} else {
+			set_config('database','update_' . $x, 'success');
+			set_config('system','build', $x + 1);
+			return true;
+		}
+		return true;
 	}
 }
 
