@@ -30,7 +30,6 @@ else if ($style == "plus")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/plus.css" type="text/css" media="screen"/>'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
-<script type="text/javascript" src="$baseurl/view/theme/vier/js/jquery.divgrow-1.3.1.f1.min.js"></script>
 <script>
 
 function collapseHeight(elems) {
