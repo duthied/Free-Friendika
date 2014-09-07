@@ -759,24 +759,45 @@ function admin_page_users_post(&$a){
 			return;
 		}
 		$nu = $result['user'];
+		$preamble = deindent(t('
+			Dear %1$s,
+				the administrator of %2$s has set up an account for you.');
+		$body = deindent(t('
+			The login details are as follows:
 
-		$email_tpl = get_intltext_template("register_adminadd_eml.tpl");
-		$email_tpl = replace_macros($email_tpl, array(
-			'$sitename' => $a->config['sitename'],
-			'$siteurl' =>  $a->get_baseurl(),
-			'$username' => $nu['username'],
-			'$email' => $nu['email'],
-			'$password' => $result['password'],
-			'$uid' => $nu['uid'] ));
+			Site Location:	%1$s
+			Login Name:		%2$s
+			Password:		%3$s
 
-		$res = mail($nu['email'], email_header_encode( sprintf( t('Registration details for %s'), $a->config['sitename']),'UTF-8'),
-			$email_tpl,
-			'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-			. 'Content-type: text/plain; charset=UTF-8' . "\n"
-			. 'Content-transfer-encoding: 8bit' );
-		if ($res) {
-			info( t('Registration successful. Email send to user').EOL );
-		}
+			You may change your password from your account "Settings" page after logging
+			in.
+
+			Please take a few moments to review the other account settings on that page.
+
+			You may also wish to add some basic information to your default profile
+			(on the "Profiles" page) so that other people can easily find you.
+
+			We recommend setting your full name, adding a profile photo,
+			adding some profile "keywords" (very useful in making new friends) - and
+			perhaps what country you live in; if you do not wish to be more specific
+			than that.
+
+			We fully respect your right to privacy, and none of these items are necessary.
+			If you are new and do not know anybody here, they may help
+			you to make some new and interesting friends.
+
+			Thank you and welcome to %4$s.');
+
+		$preamble = sprintf($preamble, $nu['username'], $a->config['sitename']);
+		$body = sprintf($body, $a->get_baseurl(), $nu['email'], $result['password'], $a->config['sitename']);
+
+		notification(array(
+			'type' => "SYSTEM_EMAIL",
+			'to_email' => $email,
+			'subject'=> sprintf( t('Registration details for %s'), $a->config['sitename']),
+			'preamble'=> $preamble,
+			'body' => $body));
+
 	}
 
 	if (x($_POST,'page_users_block')){
