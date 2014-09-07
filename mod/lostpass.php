@@ -38,28 +38,29 @@ function lostpass_post(&$a) {
 	$siteurl = $a->get_baseurl();
 	$resetlink = $a->get_baseurl() . '/lostpass?verify=' . $new_password;
 
-	$preamble = t('Dear %1$s,
-	A request was recently received at "%2$s" to reset your account
-password. In order to confirm this request, please select the verification link
-below or paste it into your web browser address bar.
+	$preamble = deindent(t('
+		Dear %1$s,
+			A request was recently received at "%2$s" to reset your account
+		password. In order to confirm this request, please select the verification link
+		below or paste it into your web browser address bar.
 
-If you did NOT request this change, please DO NOT follow the link
-provided and ignore and/or delete this email.
+		If you did NOT request this change, please DO NOT follow the link
+		provided and ignore and/or delete this email.
 
-Your password will not be changed unless we can verify that you
-issued this request.');
-	$body = t('Follow this link to verify your identity:
+		Your password will not be changed unless we can verify that you
+		issued this request.'));
+	$body = deindent(t('
+		Follow this link to verify your identity:
 
-%1$s
+		%1$s
 
-You will then receive a follow-up message containing the new password.
+		You will then receive a follow-up message containing the new password.
+		You may change that password from your account settings page after logging in.
 
-You may change that password from your account settings page after logging in.
+		The login details are as follows:
 
-The login details are as follows:
-
-Site Location:	%2$s
-Login Name:	%3$s');
+		Site Location:	%2$s
+		Login Name:	%3$s'));
 
 	$preamble = sprintf($preamble, $username, $sitename);
 	$body = sprintf($body, $resetlink, $siteurl, $email);
@@ -70,7 +71,6 @@ Login Name:	%3$s');
 		'subject'=> sprintf( t('Password reset requested at %s'),$sitename),
 		'preamble'=> $preamble,
 		'body' => $body));
-
 
 	goaway(z_root());
 
@@ -88,9 +88,8 @@ function lostpass_content(&$a) {
 			dbesc($hash)
 		);
 		if(! count($r)) {
-			notice( t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.") . EOL);
-			goaway(z_root());
-			return;
+			$o =  t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.");
+			return $o;
 		}
 		$uid = $r[0]['uid'];
 		$username = $r[0]['username'];
@@ -119,22 +118,34 @@ function lostpass_content(&$a) {
 				info("Your password has been reset." . EOL);
 
 
+			$sitename = $a->config['sitename'];
+			$siteurl = $a->get_baseurl();
+			// $username, $email, $new_password
+			$preamble = deindent(t('
+				Dear %1$s,
+					Your password has been changed as requested. Please retain this
+				information for your records (or change your password immediately to
+				something that you will remember).
+			'));
+			$body = deindent(t('
+				Your login details are as follows:
 
-			$email_tpl = get_intltext_template("passchanged_eml.tpl");
-			$email_tpl = replace_macros($email_tpl, array(
-			'$sitename' => $a->config['sitename'],
-			'$siteurl' =>  $a->get_baseurl(),
-			'$username' => $username,
-			'$email' => $email,
-			'$new_password' => $new_password,
-			'$uid' => $newuid ));
+				Site Location:	%1$s
+				Login Name:	%2$s
+				Password:	%3$s
 
-			$subject = sprintf( t('Your password has been changed at %s'), $a->config['sitename']);
+				You may change that password from your account settings page after logging in.
+			'));
 
-			$res = mail($email, email_header_encode( $subject, 'UTF-8'), $email_tpl,
-				'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
+			$preamble = sprintf($preamble, $username);
+			$body = sprintf($body, $siteurl, $email, $new_password);
+
+			notification(array(
+				'type' => "SYSTEM_EMAIL",
+				'to_email' => $email,
+				'subject'=> sprintf( t('Your password has been changed at %s'),$sitename),
+				'preamble'=> $preamble,
+				'body' => $body));
 
 			return $o;
 		}
