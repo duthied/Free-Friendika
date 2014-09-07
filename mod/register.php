@@ -120,7 +120,7 @@ function register_post(&$a) {
 
 		// send email to admins
 		$admin_mail_list = "'".implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email']))))."'";
-		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s) LIMIT 1",
+		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
 			$admin_mail_list
 		);
 

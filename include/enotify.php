@@ -312,7 +312,7 @@ function notification($params) {
 			case "SYSTEM_REGISTER_REQUEST":
 				$subject = sprintf( t('[Friendica System:Notify] registration request'));
 				$preamble = sprintf( t('You\'ve received a registration request from \'%1$s\' at %2$s'), $params['source_name'], $sitename);
-				$epreamble = sprintf( t('You\'ve received a registration request [url=%1$s]an introduction[/url] from %2$s.'),
+				$epreamble = sprintf( t('You\'ve received a [url=%1$s]registration request[/url] from %2$s.'),
 										$itemlink,
 										'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
 				$body = sprintf( t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s (%4$s)'),
