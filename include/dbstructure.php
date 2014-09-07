@@ -24,7 +24,7 @@ function update_fail($update_id, $error_message){
 			The friendica developers released update %s recently,
 			but when I tried to install it, something went terribly wrong.
 			This needs to be fixed soon and I can't do it alone. Please contact a
-			friendica developer if you can not help me on your own. My database might be invalid.");
+			friendica developer if you can not help me on your own. My database might be invalid."));
 		$body = t("The error message is\n[pre]%s[/pre]");
 		$preamble = sprintf($preamble, $update_id);
 		$body = sprintf($body, $error_message);
