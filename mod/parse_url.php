@@ -52,6 +52,8 @@ function completeurl($url, $scheme) {
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 
+	$a = get_app();
+
 	$siteinfo = array();
 
 	if ($count > 10) {
@@ -71,7 +73,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch,CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);

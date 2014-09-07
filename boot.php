@@ -872,6 +872,10 @@ if(! class_exists('App')) {
 			$this->performance["markstart"] = microtime(true) - $this->performance["markstart"] - $this->performance["marktime"];
 		}
 
+		function get_useragent() {
+			return(FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
+		}
+
 	}
 }
 
