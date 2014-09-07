@@ -1,5 +1,66 @@
 <?php
 require_once("boot.php");
+require_once("include/text.php");
+/*
+ * send the email and do what is needed to do on update fails
+ *
+ * @param update_id		(int) number of failed update
+ * @param error_message	(str) error message
+ */
+function update_fail($update_id, $error_message){
+	//send the administrators an e-mail
+	$admin_mail_list = "'".implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email']))))."'";
+	$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
+		$admin_mail_list
+	);
+
+	// every admin could had different language
+
+	foreach ($adminlist as $admin) {
+		$lang = (($admin['language'])?$admin['language']:'en');
+		push_lang($lang);
+
+		$preamble = deindent(t("
+			The friendica developers released update %s recently,
+			but when I tried to install it, something went terribly wrong.
+			This needs to be fixed soon and I can't do it alone. Please contact a
+			friendica developer if you can not help me on your own. My database might be invalid.");
+		$body = t("The error message is\n[pre]%s[/pre]");
+		$preamble = sprintf($preamble, $update_id);
+		$body = sprintf($body, $error_message);
+
+		notification(array(
+			'type' => "SYSTEM_EMAIL",
+			'to_email' => $admin['email'],
+			'preamble' => $preamble,
+			'body' => $body,
+			'language' => $lang,
+		));
+	}
+
+
+
+
+	/*
+	$email_tpl = get_intltext_template("update_fail_eml.tpl");
+	$email_msg = replace_macros($email_tpl, array(
+		'$sitename' => $a->config['sitename'],
+		'$siteurl' =>  $a->get_baseurl(),
+		'$update' => DB_UPDATE_VERSION,
+		'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
+	));
+	$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
+	require_once('include/email.php');
+	$subject = email_header_encode($subject,'UTF-8');
+	mail($a->config['admin_email'], $subject, $email_msg,
+		'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
+		.'Content-type: text/plain; charset=UTF-8'."\n"
+		.'Content-transfer-encoding: 8bit');
+	*/
+	//try the logger
+	logger("CRITICAL: Database structure update failed: ".$retval);
+	break;
+}
 
 function dbstructure_run(&$argv, &$argc) {
 	global $a, $db;

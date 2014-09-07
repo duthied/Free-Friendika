@@ -3828,6 +3828,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				dbesc(datetime_convert())
 			);
 		}
+
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($importer['uid'])
 		);
@@ -3841,20 +3842,24 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				(($r[0]['page-flags'] == PAGE_NORMAL) OR ($r[0]['page-flags'] == PAGE_SOAPBOX))) {
-				$email_tpl = get_intltext_template('follow_notify_eml.tpl');
-				$email = replace_macros($email_tpl, array(
-					'$requestor' => ((strlen($name)) ? $name : t('[Name Withheld]')),
-					'$url' => $url,
-					'$myname' => $r[0]['username'],
-					'$siteurl' => $a->get_baseurl(),
-					'$sitename' => $a->config['sitename']
+
+
+
+				notification(array(
+					'type'         => NOTIFY_INTRO,
+					'notify_flags' => $r[0]['notify-flags'],
+					'language'     => $r[0]['language'],
+					'to_name'      => $r[0]['username'],
+					'to_email'     => $r[0]['email'],
+					'uid'          => $r[0]['uid'],
+					'link'		   => $a->get_baseurl() . '/notifications/intro',
+					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : t('[Name Withheld]')),
+					'source_link'  => $contact_record['url'],
+					'source_photo' => $contact_record['photo'],
+					'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
+					'otype'        => 'intro'
 				));
-				$res = mail($r[0]['email'],
-					email_header_encode((($sharing) ? t('A new person is sharing with you at ') : t("You have a new follower at ")) . $a->config['sitename'],'UTF-8'),
-					$email,
-					'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-					. 'Content-type: text/plain; charset=UTF-8' . "\n"
-					. 'Content-transfer-encoding: 8bit' );
+
 
 			}
 		}

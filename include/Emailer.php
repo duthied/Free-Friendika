@@ -2,7 +2,7 @@
 
 require_once('include/email.php');
 
-class EmailNotification {
+class Emailer {
 	/**
 	 * Send a multipart/alternative message with Text and HTML versions
 	 *
@@ -13,13 +13,13 @@ class EmailNotification {
 	 * @param messageSubject	subject of the message
 	 * @param htmlVersion		html version of the message
 	 * @param textVersion		text only version of the message
+	 * @param additionalMailHeader	additions to the smtp mail header
 	 */
-	static public function sendTextHtmlEmail($fromName,$fromEmail,$replyTo,$toEmail,$messageSubject,$htmlVersion,$textVersion) {
+	static public function send($params) {
 
-		$fromName = email_header_encode($fromName,'UTF-8'); 
-		$messageSubject = email_header_encode($messageSubject,'UTF-8');
-		
-		
+		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
+		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
+
 		// generate a mime boundary
 		$mimeBoundary   =rand(0,9)."-"
 				.rand(10000000000,9999999999)."-"
@@ -28,14 +28,15 @@ class EmailNotification {
 
 		// generate a multipart/alternative message header
 		$messageHeader =
-			"From: {$fromName} <{$fromEmail}>\n" . 
-			"Reply-To: {$replyTo}\n" .
+			$params['additionalMailHeader'] .
+			"From: $fromName <{$params['fromEmail']}>\n" .
+			"Reply-To: $fromName <{$params['replyTo']}>\n" .
 			"MIME-Version: 1.0\n" .
 			"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
-		$textBody	=	chunk_split(base64_encode($textVersion));
-		$htmlBody	=	chunk_split(base64_encode($htmlVersion));
+		$textBody	=	chunk_split(base64_encode($params['textVersion']));
+		$htmlBody	=	chunk_split(base64_encode($params['htmlVersion']));
 		$multipartMessageBody =
 			"--" . $mimeBoundary . "\n" .					// plain text section
 			"Content-Type: text/plain; charset=UTF-8\n" .
@@ -49,12 +50,13 @@ class EmailNotification {
 
 		// send the message
 		$res = mail(
-			$toEmail,	 									// send to address
+			$params['toEmail'],	 									// send to address
 			$messageSubject,								// subject
 			$multipartMessageBody,	 						// message body
 			$messageHeader									// message headers
 		);
-		logger("sendTextHtmlEmail: END");
+		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
+		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
 	}
 }
 ?>
