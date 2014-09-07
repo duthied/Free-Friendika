@@ -35,7 +35,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 	}
 
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+	@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
 
 	if(intval($timeout)) {
@@ -134,7 +134,7 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	curl_setopt($ch, CURLOPT_POST,1);
 	curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
 	if(intval($timeout)) {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
@@ -1114,6 +1114,8 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 
 function original_url($url, $depth=1, $fetchbody = false) {
 
+	$a = get_app();
+
 	// Remove Analytics Data from Google and other tracking platforms
 	$urldata = parse_url($url);
 	if (is_string($urldata["query"])) {
@@ -1163,7 +1165,7 @@ function original_url($url, $depth=1, $fetchbody = false) {
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
         $header = curl_exec($ch);
         $curl_info = @curl_getinfo($ch);
