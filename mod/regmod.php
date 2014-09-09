@@ -1,6 +1,7 @@
 <?php
 
 require_once('include/enotify.php');
+require_once('include/user.php');
 
 function user_allow($hash) {
 
@@ -119,10 +120,14 @@ function regmod_content(&$a) {
 
 
 	if($cmd === 'deny') {
-		if (!user_deny($hash)) killme();
+		user_deny($hash);
+		goaway("/admin/users/");
+		killme();
 	}
 
 	if($cmd === 'allow') {
-		if (!user_allow($hash)) killme();
+		user_allow($hash);
+		goaway("/admin/users/");
+		killme();
 	}
 }
