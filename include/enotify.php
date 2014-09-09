@@ -320,7 +320,7 @@ function notification($params) {
 
 				$sitelink = t('Please visit %s to approve or reject the request.');
 				$tsitelink = sprintf( $sitelink, $params['link'] );
-				$hsitelink = sprintf( $sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a>');
+				$hsitelink = sprintf( $sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 				$itemlink =  $params['link'];
 				break;
 			case "SYSTEM_DB_UPDATE_FAIL":
@@ -336,11 +336,6 @@ function notification($params) {
 		// add a notification to the user, with could be inexistent)
 			$subject = $params['subject'];
 			$preamble = $params['preamble'];
-			if (x($params,'epreamble')){
-				$epreamble = $params['epreamble'];
-			} else {
-				$epreamble = str_replace("\n","<br>\n",$preamble);
-			}
 			$body =  $params['body'];
 			$sitelink = "";
 			$tsitelink = "";
@@ -554,7 +549,7 @@ function notification($params) {
 		$email_html_body = replace_macros($tpl,array(
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
-			'$preamble'     => $datarray['preamble'],
+			'$preamble'     => str_replace("\n","<br>\n",$datarray['preamble']),
 			'$sitename'     => $datarray['sitename'],
 			'$siteurl'      => $datarray['siteurl'],
 			'$source_name'  => $datarray['source_name'],

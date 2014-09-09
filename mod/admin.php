@@ -795,7 +795,7 @@ function admin_page_users_post(&$a){
 
 		notification(array(
 			'type' => "SYSTEM_EMAIL",
-			'to_email' => $email,
+			'to_email' => $nu['email'],
 			'subject'=> sprintf( t('Registration details for %s'), $a->config['sitename']),
 			'preamble'=> $preamble,
 			'body' => $body));

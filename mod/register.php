@@ -48,8 +48,6 @@ function register_post(&$a) {
 	}
 
 
-	require_once('include/user.php');
-
 	$arr = $_POST;
 
 	$arr['blocked'] = $blocked;
@@ -140,7 +138,7 @@ function register_post(&$a) {
 				'source_link' => $a->get_baseurl()."/admin/users/",
 				'link' => $a->get_baseurl()."/admin/users/",
 				'source_photo' => $a->get_baseurl() . "/photo/avatar/".$user['uid'].".jpg",
-				'to_email' => $admin['mail'],
+				'to_email' => $admin['email'],
 				'uid' => $admin['uid'],
 				'language' => ($admin['language']?$admin['language']:'en'))
 			);
