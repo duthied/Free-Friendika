@@ -542,7 +542,8 @@ function notification($params) {
 		call_hooks('enotify_mail', $datarray);
 
 		// check whether sending post content in email notifications is allowed
-		$content_allowed = !get_config('system','enotify_no_content');
+		// always true for "SYSTEM_EMAIL"
+		$content_allowed = ((!get_config('system','enotify_no_content')) || ($params['type'] == "SYSTEM_EMAIL"));
 
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_html.tpl');
