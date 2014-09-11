@@ -60,12 +60,14 @@ function crepair_post(&$a) {
 	$attag   = ((x($_POST,'attag')) ? $_POST['attag'] : '');
 	$photo   = ((x($_POST,'photo')) ? $_POST['photo'] : '');
 	$remote_self = ((x($_POST,'remote_self')) ? $_POST['remote_self'] : false);
+	$nurl    = normalise_link($url);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `nurl` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
 		WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc($nick),
 		dbesc($url),
+		dbesc($nurl),
 		dbesc($request),
 		dbesc($confirm),
 		dbesc($notify),
