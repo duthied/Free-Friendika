@@ -33,6 +33,7 @@ Friendica Documentation and Resources
 * [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
 * [Developers](help/Developers)
+* [Twitter/StatusNet API Functions](help/api)
 
 
 **External Resources**
