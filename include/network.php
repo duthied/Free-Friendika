@@ -71,6 +71,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
+	@curl_close($ch);
 	$http_code = $curl_info['http_code'];
 	logger('fetch_url '.$url.': '.$http_code." ".$s, LOGGER_DATA);
 	$header = '';
@@ -110,7 +111,6 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 
 	$body = substr($s,strlen($header));
 	$a->set_curl_headers($header);
-	@curl_close($ch);
 
 	$a->save_timestamp($stamp1, "network");
 
