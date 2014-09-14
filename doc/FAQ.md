@@ -12,7 +12,7 @@ User
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
-* **[Are there any clients for friendica I can use](help/FAQ#clients)**
+* **[Are there any clients for friendica I can use?](help/FAQ#clients)**
 * **[Where I can find help?](help/FAQ#help)**
 
 Admins
@@ -133,7 +133,7 @@ RSS feed of the conversations at your site
 
 <a name="clients"></a>
 
-**Are there any clients for friendica I can use**
+**Are there any clients for friendica I can use?**
 
 Friendica is using a [Twitter/StatusNet compatible API](help/api), which means you can use any Twitter/StatusNet/GNU Social client for your plattform as long as you can change the API path in its settings. Here is a list of known working clients
 
