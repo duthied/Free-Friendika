@@ -12,6 +12,7 @@ User
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
+* **[Are there any clients for friendica I can use?](help/FAQ#clients)**
 * **[Where I can find help?](help/FAQ#help)**
 
 Admins
@@ -129,6 +130,27 @@ RSS feed of the conversations at your site
 	Example: Friendica Support 
 	
 	https://helpers.pyxis.uberspace.de/dfrn_poll/helpers/converse
+
+<a name="clients"></a>
+
+**Are there any clients for friendica I can use?**
+
+Friendica is using a [Twitter/StatusNet compatible API](help/api), which means you can use any Twitter/StatusNet/GNU Social client for your plattform as long as you can change the API path in its settings. Here is a list of known working clients
+
+* Android
+  * Friendica Client for Android
+  * AndStatus
+  * Twidere
+  * Mustard and Mustard-Mod
+* Linux
+  * Hotot
+  * Choqok
+* MacOS X
+  * Hotot
+* Windows
+  * Hotot
+
+Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
 <a name="help"></a>
 
