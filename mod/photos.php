@@ -1183,7 +1183,7 @@ function photos_content(&$a) {
 			intval($a->pager['itemspage'])
 		);
 
-		$o .= '<h3>' . $album . '</h3>';
+		$o .= '<h3 id="photo-album-title">' . $album . '</h3>';
 
 		if($cmd === 'edit') {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
