@@ -1,4 +1,10 @@
 <?php
+require_once('mod/settings.php');
+
+function delegate_init(&$a) {
+	return settings_init($a);
+}
+
 
 function delegate_content(&$a) {
 
