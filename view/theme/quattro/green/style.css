@@ -64,6 +64,9 @@
 .icon.type-unkn {
   background-image: url("../../../images/icons/22/zip.png");
 }
+.icon.type-application {
+  background-image: url("../../../images/icons/22/zip.png");
+}
 .icon.type-audio {
   background-image: url("../../../images/icons/22/audio.png");
 }
@@ -132,6 +135,9 @@
   background-image: url("../../../images/icons/10/plugin.png");
 }
 .icon.s10.type-unkn {
+  background-image: url("../../../images/icons/10/zip.png");
+}
+.icon.s10.type-application {
   background-image: url("../../../images/icons/10/zip.png");
 }
 .icon.s10.type-audio {
@@ -204,6 +210,9 @@
 .icon.s16.type-unkn {
   background-image: url("../../../images/icons/16/zip.png");
 }
+.icon.s16.type-application {
+  background-image: url("../../../images/icons/16/zip.png");
+}
 .icon.s16.type-audio {
   background-image: url("../../../images/icons/16/audio.png");
 }
@@ -274,6 +283,9 @@
 .icon.s22.type-unkn {
   background-image: url("../../../images/icons/22/zip.png");
 }
+.icon.s22.type-application {
+  background-image: url("../../../images/icons/22/zip.png");
+}
 .icon.s22.type-audio {
   background-image: url("../../../images/icons/22/audio.png");
 }
@@ -342,6 +354,9 @@
   background-image: url("../../../images/icons/48/plugin.png");
 }
 .icon.s48.type-unkn {
+  background-image: url("../../../images/icons/48/zip.png");
+}
+.icon.s48.type-application {
   background-image: url("../../../images/icons/48/zip.png");
 }
 .icon.s48.type-audio {
@@ -476,6 +491,19 @@ div.jGrowl div.info {
   background: #364e59 url("../../../images/icons/48/info.png") no-repeat 5px center;
   color: #ffffff;
   padding-left: 58px;
+}
+/* notifications page */
+.notif-item {
+  padding: 0.5em;
+}
+.notif-item:nth-child(even) {
+  background-color: #ddffdd;
+}
+.notif-item:nth-child(odd) {
+  background-color: #ffffff;
+}
+.notif-item .notif-image {
+  width: 16px;
 }
 /* header */
 header {
@@ -1272,7 +1300,7 @@ section {
   width: 25px;
   height: 25px;
 }
-/* reshare */
+/* reshare e embed */
 .wall-item-container .wall-item-content .type-link img,
 .type-link img {
   max-width: 160px;
@@ -1280,10 +1308,21 @@ section {
   float: left;
   margin-right: 10px;
 }
+.wall-item-container .wall-item-content .type-link img.attachment-image,
+.type-link img.attachment-image {
+  max-width: 650px;
+  max-height: inital;
+  float: none;
+  margin-right: 0px;
+}
 .type-link blockquote {
-  margin-left: 160px;
+  margin: 1em 0px;
   max-height: 160px;
   overflow: hidden;
+  padding-left: 1em;
+}
+.type-video blockquote {
+  padding-left: 1em;
 }
 .shared_header {
   height: 32px;
@@ -1305,6 +1344,13 @@ blockquote.shared_content {
   margin-left: 32px;
   color: #000;
   border: none;
+}
+.oembed.video > a.embed_video {
+  display: block;
+  float: none;
+}
+.oembed.video > a.embed_video > div {
+  background: rgba(255, 255, 255, 0.36) url(../../../images/icons/48/play.png) no-repeat center center !important;
 }
 /* threaded comments */
 .children {
@@ -1397,7 +1443,30 @@ span[id^="showmore-wrap"] {
   display: block;
 }
 #contacts-actions {
-  clear: both;
+  position: absolute;
+  left: 800px;
+  width: 200px;
+  background-color: #ffffff;
+  border: 2px solid #364e59;
+  display: none;
+}
+#contacts-actions .batch-action {
+  display: block;
+  width: 100%;
+  background-color: #ffffff;
+  border: 0px;
+  color: #2d2d2d;
+  text-align: left;
+  padding: 5px 10px;
+  font-size: 11px;
+}
+#contacts-actions .batch-action:hover {
+  background-color: #ccff42;
+}
+@media (max-width: 1000px) {
+  #contacts-actions {
+    left: 40px;
+  }
 }
 .contact-photo {
   width: 48px;
@@ -1916,6 +1985,11 @@ ul.tabs li .active {
   background: url("../../../images/icons/16/user.png") no-repeat left center;
   padding-left: 18px;
 }
+#photo-top-upload-link,
+.photos-upload-link {
+  margin: 1em 0px;
+  display: block;
+}
 .photos-upload-link a,
 #photo-top-upload-link {
   background: url("../../../images/icons/16/add.png") no-repeat left center;
@@ -1981,10 +2055,8 @@ ul.tabs li .active {
   background: url("../../../images/icons/22/image.png") no-repeat top left;
   padding-left: 23px;
   min-height: 22px;
-}
-#photo-album-title a {
-  display: block;
-  padding-top: 5px;
+  padding-top: 6px;
+  /* a { display: block;}*/
 }
 #photo-caption {
   display: block;
