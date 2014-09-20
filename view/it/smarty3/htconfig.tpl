@@ -55,7 +55,7 @@
 
 // PuSH - aka pubsubhubbub URL. This makes delivery of public posts as fast as private posts
 
-{{$a}}->config['system']['huburl'] = 'http://pubsubhubbub.appspot.com';
+{{$a}}->config['system']['huburl'] = '[internal]';
 
 // Server-to-server private message encryption (RINO) is allowed by default. 
 // Encryption will only be provided if this setting is true and the

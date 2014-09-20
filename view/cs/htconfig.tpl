@@ -58,7 +58,7 @@ $a->config['system']['directory_search_url'] = 'http://dir.friendica.com/directo
 
 // PuSH - také zvaný jako  pubsubhubbub URL. Tímto zajistíte doručování veřejných přízpěvků stejně rychle jako těch soukromých
 
-$a->config['system']['huburl'] = 'http://pubsubhubbub.appspot.com';
+$a->config['system']['huburl'] = '[internal]';
 
 // Server-to-server private message encryption (RINO) je defaultně povolen. 
 // Šifrování bude zajištěno pouze pokud je toto nastaveno na true a
