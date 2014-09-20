@@ -70,7 +70,7 @@ load_translation_table($lang);
  *
  * The order of these may be important so use caution if you think they're all
  * intertwingled with no logical order and decide to sort it out. Some of the
- * dependencies have changed, but at least at one time in the recent past - the 
+ * dependencies have changed, but at least at one time in the recent past - the
  * order was critical to everything working properly
  *
  */
@@ -103,7 +103,7 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  * For Mozilla auth manager - still needs sorting, and this might conflict with LRDD header.
  * Apache/PHP lumps the Link: headers into one - and other services might not be able to parse it
- * this way. There's a PHP flag to link the headers because by default this will over-write any other 
+ * this way. There's a PHP flag to link the headers because by default this will over-write any other
  * link header.
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
@@ -131,14 +131,16 @@ if(! x($_SESSION,'sysmsg_info'))
 	$_SESSION['sysmsg_info'] = array();
 
 /*
- * check_config() is responsible for running update scripts. These automatically 
+ * check_config() is responsible for running update scripts. These automatically
  * update the DB schema whenever we push a new one out. It also checks to see if
- * any plugins have been added or removed and reacts accordingly. 
+ * any plugins have been added or removed and reacts accordingly.
  */
 
-if($install)
+// in install mode, any url loads install module
+// but we need "view" module for stylesheet
+if($install && $a->module!="view")
 	$a->module = 'install';
-elseif($maintenance)
+elseif($maintenance && $a->module!="view")
 	$a->module = 'maintenance';
 else {
 	check_url($a);
@@ -167,13 +169,13 @@ if((local_user()) || (! $privateapps === "1"))
  * and use it for handling our URL request.
  * The module file contains a few functions that we call in various circumstances
  * and in the following order:
- * 
+ *
  * "module"_init
  * "module"_post (only called if there are $_POST variables)
  * "module"_afterpost
  * "module"_content - the string return of this function contains our page body
  *
- * Modules which emit other serialisations besides HTML (XML,JSON, etc.) should do 
+ * Modules which emit other serialisations besides HTML (XML,JSON, etc.) should do
  * so within the module init and/or post functions and then invoke killme() to terminate
  * further processing.
  */
@@ -222,8 +224,8 @@ if(strlen($a->module)) {
 	 *
 	 * The URL provided does not resolve to a valid module.
 	 *
-	 * On Dreamhost sites, quite often things go wrong for no apparent reason and they send us to '/internal_error.html'. 
-	 * We don't like doing this, but as it occasionally accounts for 10-20% or more of all site traffic - 
+	 * On Dreamhost sites, quite often things go wrong for no apparent reason and they send us to '/internal_error.html'.
+	 * We don't like doing this, but as it occasionally accounts for 10-20% or more of all site traffic -
 	 * we are going to trap this and redirect back to the requested page. As long as you don't have a critical error on your page
 	 * this will often succeed and eventually do the right thing.
 	 *
@@ -365,7 +367,7 @@ if(stristr( implode("",$_SESSION['sysmsg']), t('Permission denied'))) {
  * Report anything which needs to be communicated in the notification area (before the main body)
  *
  */
-	
+
 /*if(x($_SESSION,'sysmsg')) {
 	$a->page['content'] = "<div id=\"sysmsg\" class=\"error-message\">{$_SESSION['sysmsg']}</div>\r\n"
 		. ((x($a->page,'content')) ? $a->page['content'] : '');
@@ -534,7 +536,7 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "minimal")) {
 
 	require "view/minimal.php";
 } else {
-	$template = 'view/theme/' . current_theme() . '/' 
+	$template = 'view/theme/' . current_theme() . '/'
 		. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
 
 	if(file_exists($template))
