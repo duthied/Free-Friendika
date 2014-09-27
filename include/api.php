@@ -726,6 +726,9 @@
 
 		$_REQUEST['api_source'] = true;
 
+		if (!isset($_REQUEST["source"]) OR ($_REQUEST["source"] == ""))
+			$_REQUEST["source"] = "api";
+
 		// call out normal post function
 
 		require_once('mod/item.php');
@@ -1299,6 +1302,9 @@
 			$_REQUEST['profile_uid'] = api_user();
 			$_REQUEST['type'] = 'wall';
 			$_REQUEST['api_source'] = true;
+
+			if (!isset($_REQUEST["source"]) OR ($_REQUEST["source"] == ""))
+				$_REQUEST["source"] = "api";
 
 			require_once('mod/item.php');
 			item_post($a);

@@ -1938,6 +1938,7 @@ function edited_timestamp_is_newer($existing, $update) {
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
 
 	require_once('library/simplepie/simplepie.inc');
+	require_once('include/contact_selectors.php');
 
 	if(! strlen($xml)) {
 		logger('consume_feed: empty input');
@@ -2592,6 +2593,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							$datarray['author-avatar'] = $datarray['owner-avatar'];
 						}
 					}
+
+					if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+						$datarray["app"] = network_to_name($contact['network']);
 
 					$notify = true;
 					if($contact['network'] === NETWORK_FEED) {
