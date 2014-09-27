@@ -1393,7 +1393,7 @@
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention`)
+			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
