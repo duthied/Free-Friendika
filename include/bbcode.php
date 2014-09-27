@@ -534,10 +534,14 @@ function bb_ShareAttributes($share, $simplehtml) {
 			if ($text != "")
 				$text .= "<hr />";
 
-			$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
+			if (substr(normalise_link($link), 0, 19) != "http://twitter.com/") {
+				$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
 
-			if ($link != "")
-				$text .= '<br /><a href="'.$link.'">[l]</a>';
+				if ($link != "")
+					$text .= '<br /><a href="'.$link.'">[l]</a>';
+			} else
+				$text .= '<br /><a href="'.$link.'">'.$link.'</a>';
+
 			break;
 		case 4:
 			$headline = '<div class="shared_header">';
