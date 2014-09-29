@@ -26,6 +26,19 @@
 		return false;
 	}
 
+	function api_source() {
+		if (requestdata('source'))
+			return (requestdata('source'));
+
+		// Support for known clients that doesn't send a source name
+		if (strstr($_SERVER['HTTP_USER_AGENT'], "Twidere"))
+			return ("Twidere");
+
+		logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+
+		return ("api");
+	}
+
 	function api_date($str){
 		//Wed May 23 06:01:13 +0000 2007
 		return datetime_convert('UTC', 'UTC', $str, "D M d H:i:s +0000 Y" );
@@ -709,8 +722,6 @@
 		if($parent)
 			$_REQUEST['type'] = 'net-comment';
 		else {
-//			logger("api_statuses_update: upload ".print_r($_FILES, true)." ".print_r($_POST, true)." ".print_r($_GET, true), LOGGER_DEBUG);
-//die("blubb");
 			$_REQUEST['type'] = 'wall';
 			if(x($_FILES,'media')) {
 				// upload the image if we have one
@@ -726,8 +737,8 @@
 
 		$_REQUEST['api_source'] = true;
 
-		if (!isset($_REQUEST["source"]) OR ($_REQUEST["source"] == ""))
-			$_REQUEST["source"] = "api";
+		if (!x($_REQUEST, "source"))
+			$_REQUEST["source"] = api_source();
 
 		// call out normal post function
 
@@ -1303,8 +1314,8 @@
 			$_REQUEST['type'] = 'wall';
 			$_REQUEST['api_source'] = true;
 
-			if (!isset($_REQUEST["source"]) OR ($_REQUEST["source"] == ""))
-				$_REQUEST["source"] = "api";
+			if (!x($_REQUEST, "source"))
+				$_REQUEST["source"] = api_source();
 
 			require_once('mod/item.php');
 			item_post($a);
