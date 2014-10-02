@@ -508,7 +508,7 @@ if(! class_exists('App')) {
 				$argc --;
 			}
 
-			set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
+			#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
 			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
 				$this->query_string = substr($_SERVER['QUERY_STRING'],9);
