@@ -872,7 +872,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink']);
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", true);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
@@ -888,7 +888,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "") {
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false) {
 	require_once("mod/parse_url.php");
 
 	$data = parseurl_getsiteinfo($url, true);
@@ -920,7 +920,12 @@ function add_page_info($url, $no_photos = false, $photo = "") {
 	if (($data["type"] != "photo") AND is_string($data["text"]))
 		$text .= "[quote]".$data["text"]."[/quote]";
 
-	return("\n[class=type-".$data["type"]."]".$text."[/class]");
+	$hashtags = "";
+	if ($keywords AND isset($data["keywords"]))
+		foreach ($data["keywords"] AS $keyword)
+			$hashtags .= "#".str_replace(" ", "", $keyword)." ";
+
+	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
 }
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {

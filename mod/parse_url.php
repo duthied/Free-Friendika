@@ -205,9 +205,21 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				case "dc.description":
 					$siteinfo["text"] = $attr["content"];
 					break;
+				case "keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
+				case "news_keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
 			}
 		if ($siteinfo["type"] == "summary")
 			$siteinfo["type"] = "link";
+	}
+
+	if (isset($keywords)) {
+		$siteinfo["keywords"] = array();
+		foreach ($keywords as $keyword)
+			$siteinfo["keywords"][] = trim($keyword);
 	}
 
 	//$list = $xpath->query("head/meta[@property]");
