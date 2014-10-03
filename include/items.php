@@ -908,7 +908,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 		return("");
 
 	if (($data["type"] != "photo") AND is_string($data["title"]))
-		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
+		$text .= "[bookmark=".$data["url"]."]".trim($data["title"])."[/bookmark]";
 
 	if (($data["type"] != "video") AND ($photo != ""))
 		$text .= '[img]'.$photo.'[/img]';
@@ -921,9 +921,14 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 		$text .= "[quote]".$data["text"]."[/quote]";
 
 	$hashtags = "";
-	if ($keywords AND isset($data["keywords"]))
-		foreach ($data["keywords"] AS $keyword)
-			$hashtags .= "#".str_replace(" ", "", $keyword)." ";
+	if ($keywords AND isset($data["keywords"])) {
+		$a = get_app();
+		$hashtags = "\n";
+		foreach ($data["keywords"] AS $keyword) {
+			$hashtag = str_replace(" ", "", $keyword);
+			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
+		}
+	}
 
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
 }

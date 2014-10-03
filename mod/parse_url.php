@@ -51,6 +51,7 @@ function completeurl($url, $scheme) {
 }
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
+	require_once("include/network.php");
 
 	$a = get_app();
 
@@ -63,6 +64,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	$url = trim($url, "'");
 	$url = trim($url, '"');
+
+	$url = original_url($url);
+
 	$siteinfo["url"] = $url;
 	$siteinfo["type"] = "link";
 
