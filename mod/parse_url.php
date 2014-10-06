@@ -51,6 +51,7 @@ function completeurl($url, $scheme) {
 }
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
+	require_once("include/network.php");
 
 	$a = get_app();
 
@@ -63,6 +64,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	$url = trim($url, "'");
 	$url = trim($url, '"');
+
+	$url = original_url($url);
+
 	$siteinfo["url"] = $url;
 	$siteinfo["type"] = "link";
 
@@ -205,9 +209,21 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				case "dc.description":
 					$siteinfo["text"] = $attr["content"];
 					break;
+				case "keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
+				case "news_keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
 			}
 		if ($siteinfo["type"] == "summary")
 			$siteinfo["type"] = "link";
+	}
+
+	if (isset($keywords)) {
+		$siteinfo["keywords"] = array();
+		foreach ($keywords as $keyword)
+			$siteinfo["keywords"][] = trim($keyword);
 	}
 
 	//$list = $xpath->query("head/meta[@property]");
