@@ -34,7 +34,7 @@
 
 	<dl>
 		<dt>{{$version.0}}</dt>
-		<dd>{{$version.1}} - {{$build}}</dt>
+		<dd> {{$platform}} '{{$codename}}' {{$version.1}} - {{$build}}</dt>
 	</dl>
 
 
