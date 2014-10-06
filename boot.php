@@ -15,7 +15,8 @@ require_once('update.php');
 require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.3rc' );
+define ( 'FRIENDICA_CODENAME',	'Ginger');
+define ( 'FRIENDICA_VERSION',      '3.3' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1173      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -876,7 +877,7 @@ if(! class_exists('App')) {
 		}
 
 		function get_useragent() {
-			return(FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
+			return(FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
 		}
 
 	}
