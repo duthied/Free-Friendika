@@ -34,6 +34,7 @@ Friendica Documentation and Resources
 * [Using SSL with Friendica](help/SSL)
 * [Developers](help/Developers)
 * [Twitter/StatusNet API Functions](help/api)
+* [Translation of Friendica](help/translations)
 
 
 **External Resources**
