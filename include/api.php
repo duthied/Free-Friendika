@@ -166,7 +166,10 @@
 					case "json":
 						header ("Content-Type: application/json");
 						foreach($r as $rr)
-							return json_encode($rr);
+							$json = json_encode($rr);
+							if ($_GET['callback'])
+								$json = $_GET['callback']."(".$json.")";
+							return $json;							
 						break;
 					case "rss":
 						header ("Content-Type: application/rss+xml");
