@@ -2295,12 +2295,10 @@
 				$recipient = $user_info;
 				$sender = api_get_user($a,normalise_link($item['contact-url']));
 			}
-			elseif ($box == "sentbox" || $item['from-url'] != $profile_url){
+			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
 				$recipient = api_get_user($a,normalise_link($item['contact-url']));
 				$sender = $user_info;
-
 			}
-
 			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
 
