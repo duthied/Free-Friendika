@@ -166,7 +166,10 @@
 					case "json":
 						header ("Content-Type: application/json");
 						foreach($r as $rr)
-							return json_encode($rr);
+							$json = json_encode($rr);
+							if ($_GET['callback'])
+								$json = $_GET['callback']."(".$json.")";
+							return $json;							
 						break;
 					case "rss":
 						header ("Content-Type: application/rss+xml");
@@ -2292,12 +2295,10 @@
 				$recipient = $user_info;
 				$sender = api_get_user($a,normalise_link($item['contact-url']));
 			}
-			elseif ($box == "sentbox" || $item['from-url'] != $profile_url){
+			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
 				$recipient = api_get_user($a,normalise_link($item['contact-url']));
 				$sender = $user_info;
-
 			}
-
 			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
 
