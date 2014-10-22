@@ -16,9 +16,10 @@ function network_init(&$a) {
 		}
 	}
 
-    // convert query string to array and remove first element (which is friendica args)
+    // convert query string to array. remove friendica args
     $query_array = array();
-    parse_str($a->query_string, $query_array);
+    $query_string = str_replace($a->cmd."?", "", $a->query_string);
+    parse_str($query_string, $query_array);
     array_shift($query_array);
 
 	// fetch last used network view and redirect if needed
@@ -300,8 +301,8 @@ function network_content(&$a, $update = 0) {
 		return login(false);
 	}
 
+	// TODO:is this really necessary? $a is already available to hooks
 	$arr = array('query' => $a->query_string);
-
 	call_hooks('network_content_init', $arr);
 
 
