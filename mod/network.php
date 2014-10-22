@@ -297,7 +297,7 @@ function network_content(&$a, $update = 0) {
 
 	if(! local_user()) {
 		$_SESSION['return_url'] = $a->query_string;
-    	return login(false);
+		return login(false);
 	}
 
 	$arr = array('query' => $a->query_string);
