@@ -2589,7 +2589,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Turn this into a wall post.
 
 				if($contact['remote_self']) {
-					if ($contact['remote_self'] == 2) {
+					if ($contact['remote_self'] == 1)
+						$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
+					elseif ($contact['remote_self'] == 2) {
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 						if (count($r)) {
 							$datarray['contact-id'] = $r[0]["id"];
@@ -2602,14 +2604,16 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 							$datarray['author-link']   = $datarray['owner-link'];
 							$datarray['author-avatar'] = $datarray['owner-avatar'];
 						}
+						$notify = true;
 					}
 
 					if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
 						$datarray["app"] = network_to_name($contact['network']);
 
-					$notify = true;
-					if($contact['network'] === NETWORK_FEED) {
+					if ($contact['network'] === NETWORK_FEED)
 						$datarray['private'] = 0;
+					elseif ($contact['network'] === NETWORK_DFRN) {
+						// To-Do: Neue GUID oder sowas
 					}
 				} else
 					$notify = false;
