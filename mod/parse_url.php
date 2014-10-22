@@ -333,6 +333,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	logger("parseurl_getsiteinfo: Siteinfo for ".$url." ".print_r($siteinfo, true), LOGGER_DEBUG);
 
+	call_hooks('getsiteinfo', $siteinfo);
+
 	return($siteinfo);
 }
 
@@ -409,6 +411,13 @@ function parse_url_content(&$a) {
 	}
 
 	$siteinfo = parseurl_getsiteinfo($url);
+
+//	if ($textmode) {
+//		require_once("include/items.php");
+//
+//		echo add_page_info_data($siteinfo);
+//		killme();
+//	}
 
 	$url= $siteinfo["url"];
 

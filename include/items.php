@@ -888,12 +888,8 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false) {
-	require_once("mod/parse_url.php");
-
-	$data = parseurl_getsiteinfo($url, true);
-
-	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+function add_page_info_data($data) {
+	call_hooks('page_info_data', $data);
 
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
@@ -921,7 +917,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 		$text .= "[quote]".$data["text"]."[/quote]";
 
 	$hashtags = "";
-	if ($keywords AND isset($data["keywords"])) {
+	if (isset($data["keywords"]) AND count($data["keywords"])) {
 		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
@@ -931,6 +927,21 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 	}
 
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
+}
+
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false) {
+	require_once("mod/parse_url.php");
+
+	$data = parseurl_getsiteinfo($url, true);
+
+	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+
+	if (!$keywords AND isset($data["keywords"]))
+		unset($data["keywords"]);
+
+	$text = add_page_info_data($data);
+
+	return($text);
 }
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
