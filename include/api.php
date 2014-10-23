@@ -1906,22 +1906,22 @@
 			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
 			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
 			$statusbody = trim(html2plain($html, 0));
-
+			
+			// handle data: images
+			$statusbody = api_format_items_embeded_images($item,$statusbody);
+			
 			$statustitle = trim($item['title']);
 
 			if (($statustitle != '') and (strpos($statusbody, $statustitle) !== false))
 				$statustext = trim($statusbody);
 			else
 				$statustext = trim($statustitle."\n\n".$statusbody);
-
+				
 			if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
 				$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
 			$statushtml = trim(bbcode($item['body'], false, false));
 			
-			// handle data: images
-			
-			$statustext = api_format_items_embeded_images($item,$statustext);
 			
 			$status = array(
 				'text'		=> $statustext,
