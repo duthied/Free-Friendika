@@ -502,7 +502,8 @@ function contacts_content(&$a) {
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
 			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
-			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), ($contact['fetch_further_information'] == 1), t('Fetch further information for feeds')),
+			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
+								array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords'))),
 			'$photo' => $contact['photo'],
 			'$name' => $contact['name'],
 			'$dir_icon' => $dir_icon,
@@ -684,10 +685,10 @@ function contacts_content(&$a) {
 			);
 		}
 
-		
+
 
 	}
-	
+
 	$tpl = get_markup_template("contacts-template.tpl");
 	$o .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
