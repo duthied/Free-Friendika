@@ -2246,13 +2246,6 @@
 	function api_direct_messages_box(&$a, $type, $box) {
 		if (api_user()===false) return false;
 
-		unset($_REQUEST["user_id"]);
-		unset($_GET["user_id"]);
-
-		unset($_REQUEST["screen_name"]);
-		unset($_GET["screen_name"]);
-
-		$user_info = api_get_user($a);
 
 		// params
 		$count = (x($_GET,'count')?$_GET['count']:20);
@@ -2262,11 +2255,25 @@
 		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 
-		$start = $page*$count;
+		$user_id = (x($_REQUEST,'user_id')?$_REQUEST['user_id']:"");
+		$screen_name = (x($_REQUEST,'screen_name')?$_REQUEST['screen_name']:"");
 
+		//  caller user info
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
+		$user_info = api_get_user($a);
 		//$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
 		$profile_url = $user_info["url"];
 
+
+		// pagination
+		$start = $page*$count;
+
+		// filters
 		if ($box=="sentbox") {
 			$sql_extra = "`mail`.`from-url`='".dbesc( $profile_url )."'";
 		}
@@ -2283,11 +2290,19 @@
 		if ($max_id > 0)
 			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
 
+		if ($user_id !="") {
+			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
+		} 
+		elseif($screen_name !=""){
+			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		}
+
 		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
 				intval(api_user()),
 				intval($since_id),
 				intval($start),	intval($count)
 		);
+	
 
 		$ret = Array();
 		foreach($r as $item) {
@@ -2298,6 +2313,7 @@
 			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
 				$recipient = api_get_user($a,normalise_link($item['contact-url']));
 				$sender = $user_info;
+
 			}
 			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
