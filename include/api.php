@@ -1838,7 +1838,17 @@
 
 		return($entities);
 	}
-
+	function api_format_items_embeded_images($item, $text){
+		$a = get_app();
+		$text = preg_replace_callback(
+				"|data:image/([^;]+)[^=]+=*|m",
+				function($match) use ($a, $item) {
+					return $a->get_baseurl()."/display/".$item['guid'];
+				},
+				$text);
+		return $text;
+	}
+	
 	function api_format_items($r,$user_info, $filter_user = false) {
 
 		$a = get_app();
@@ -1907,6 +1917,12 @@
 			if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
 				$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
+			$statushtml = trim(bbcode($item['body'], false, false));
+			
+			// handle data: images
+			
+			$statustext = api_format_items_embeded_images($item,$statustext);
+			
 			$status = array(
 				'text'		=> $statustext,
 				'truncated' => False,
@@ -1924,7 +1940,7 @@
 				//'attachments' => array(),
 				'user' =>  $status_user ,
 				//'entities' => NULL,
-				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
+				'statusnet_html'		=> $statushtml,
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
 
@@ -2409,9 +2425,6 @@
 
 	api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
 	api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
-
-
-
 
 
 
