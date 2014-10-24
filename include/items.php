@@ -872,7 +872,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", true);
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2));
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
