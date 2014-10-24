@@ -616,6 +616,10 @@ if(! class_exists('App')) {
 			return($basepath);
 		}
 
+		function get_scheme() {
+			return($this->scheme);
+		}
+
 		function get_baseurl($ssl = false) {
 
 			$scheme = $this->scheme;
