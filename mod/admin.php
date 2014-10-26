@@ -354,6 +354,7 @@ function admin_page_site_post(&$a){
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))		:  0);
 	$diaspora_enabled	=	((x($_POST,'diaspora_enabled'))		? True   					: False);
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
+	$force_ssl		=	((x($_POST,'force_ssl'))		? True   					: False);
 	$old_share		=	((x($_POST,'old_share'))		? True   					: False);
 	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
 	$suppress_language	=	((x($_POST,'suppress_language'))	? True   					: False);
@@ -481,6 +482,7 @@ function admin_page_site_post(&$a){
 	set_config('system','diaspora_enabled', $diaspora_enabled);
 	set_config('config','private_addons', $private_addons);
 
+	set_config('system','force_ssl', $force_ssl);
 	set_config('system','old_share', $old_share);
 	set_config('system','hide_help', $hide_help);
 	set_config('system','use_fulltext_engine', $use_fulltext_engine);
@@ -603,6 +605,7 @@ function admin_page_site(&$a) {
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
 		'$ssl_policy'		=> array('ssl_policy', t("SSL link policy"), (string) intval(get_config('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices),
+		'$force_ssl'		=> array('force_ssl', t("Force SSL"), get_config('system','force_ssl'), t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")),
 		'$old_share'		=> array('old_share', t("Old style 'Share'"), get_config('system','old_share'), t("Deactivates the bbcode element 'share' for repeating items.")),
 		'$hide_help'		=> array('hide_help', t("Hide help entry from navigation menu"), get_config('system','hide_help'), t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")),
 		'$singleuser' 		=> array('singleuser', t("Single user instance"), get_config('system','singleuser'), t("Make this instance multi-user or single-user for the named user"), $user_names),

@@ -53,8 +53,8 @@ if(!$install) {
 	load_config('config');
 	load_config('system');
 
-	if ((intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
-		($a->get_scheme() == "http") AND
+	if (get_config('system','force_ssl') AND ($a->get_scheme() == "http") AND
+		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr($a->get_baseurl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
 		header("location: ".$a->get_baseurl()."/".$a->query_string);
