@@ -51,6 +51,7 @@ do
 	if [ ! -d "$f" ]
 	then
 		xgettext $KEYWORDS $OPTS -j -o "$OUTFILE" --from-code=UTF-8 "$f"
+		sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
 	fi
 done
 
