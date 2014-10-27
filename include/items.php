@@ -2599,8 +2599,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// This is my contact on another system, but it's really me.
 				// Turn this into a wall post.
 
-				if($contact['remote_self']) {
+				if($contact['remote_self'] AND (($contact['network'] === NETWORK_FEED) OR !$datarray['private'])) {
 					if ($contact['remote_self'] == 1)
+						// Prevent that forwarded posts will be forwarded again
 						$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
 					elseif ($contact['remote_self'] == 2) {
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
@@ -2618,14 +2619,27 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						$notify = true;
 					}
 
-					if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
-						$datarray["app"] = network_to_name($contact['network']);
-
 					if ($contact['network'] === NETWORK_FEED)
 						$datarray['private'] = 0;
-					elseif ($contact['network'] === NETWORK_DFRN) {
-						// To-Do: Neue GUID oder sowas
+					elseif ($notify) {
+						// At first store the original post
+						$r = item_store($datarray, false, false);
+
+						// Then create a new guid and uri and post it again as a forwarded post
+						$datarray["guid"] = get_guid(32);
+						$datarray["uri"] = item_new_uri($a->get_hostname(),$importer['uid']);
+						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
+						if (count($r)) {
+							$datarray['contact-id'] = $r[0]["id"];
+
+							$datarray['owner-name'] = $r[0]["name"];
+							$datarray['owner-link'] = $r[0]["url"];
+							$datarray['owner-avatar'] = $r[0]["photo"];
+						}
 					}
+
+					if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+						$datarray["app"] = network_to_name($contact['network']);
 				} else
 					$notify = false;
 
