@@ -2601,17 +2601,19 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				if($contact['remote_self'] AND (($contact['network'] === NETWORK_FEED) OR !$datarray['private'])) {
 					logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
-					if ($contact['remote_self'] == 1)
+					if ($contact['remote_self'] == 1) {
 						// Prevent that forwarded posts will be forwarded again
 						$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
-					elseif ($contact['remote_self'] == 2) {
+						if ($datarray["app"] == $a->get_hostname())
+							$notify = false;
+					} elseif ($contact['remote_self'] == 2) {
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 						if (count($r)) {
 							$datarray['contact-id'] = $r[0]["id"];
 
 							$datarray['owner-name'] = $r[0]["name"];
 							$datarray['owner-link'] = $r[0]["url"];
-							$datarray['owner-avatar'] = $r[0]["photo"];
+							$datarray['owner-avatar'] = $r[0]["avatar"];
 
 							$datarray['author-name']   = $datarray['owner-name'];
 							$datarray['author-link']   = $datarray['owner-link'];
@@ -2630,15 +2632,23 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 						// Create a new guid and uri and post it as a forwarded post
 						$datarray2["guid"] = get_guid(32);
+						unset($datarray2["plink"]);
 						$datarray2["uri"] = item_new_uri($a->get_hostname(),$importer['uid']);
 						$datarray2["parent-uri"] = $datarray2["uri"];
+						$datarray2["extid"] = NETWORK_DFRN;
+						$urlpart = parse_url($datarray['author-link']);
+						$datarray2["app"] = $urlpart["host"];
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 						if (count($r)) {
 							$datarray2['contact-id'] = $r[0]["id"];
 
 							$datarray2['owner-name'] = $r[0]["name"];
 							$datarray2['owner-link'] = $r[0]["url"];
-							$datarray2['owner-avatar'] = $r[0]["photo"];
+							$datarray2['owner-avatar'] = $r[0]["avatar"];
+
+							$datarray2['author-name']   = $datarray2['owner-name'];
+							$datarray2['author-link']   = $datarray2['owner-link'];
+							$datarray2['author-avatar'] = $datarray2['owner-avatar'];
 						}
 
 						// Store the forwarded post
@@ -2663,7 +2673,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 function local_delivery($importer,$data) {
 	$a = get_app();
 
-    logger(__function__, LOGGER_TRACE);
+	logger(__function__, LOGGER_TRACE);
 
 	if($importer['readonly']) {
 		// We aren't receiving stuff from this person. But we will quietly ignore them
@@ -3744,10 +3754,12 @@ function local_delivery($importer,$data) {
 
 			if($importer['remote_self'] AND (($importer['network'] === NETWORK_FEED) OR !$datarray['private'])) {
 				logger('remote-self start - Contact '.$importer['url'].' - '.$importer['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
-				if ($importer['remote_self'] == 1)
+				if ($importer['remote_self'] == 1) {
 					// Prevent that forwarded posts will be forwarded again
 					$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
-				elseif ($importer['remote_self'] == 2) {
+					if ($datarray["app"] == $a->get_hostname())
+						$notify = false;
+				} elseif ($importer['remote_self'] == 2) {
 					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
 						intval($importer['importer_uid']));
 					if (count($r)) {
@@ -3755,7 +3767,7 @@ function local_delivery($importer,$data) {
 
 						$datarray['owner-name'] = $r[0]["name"];
 						$datarray['owner-link'] = $r[0]["url"];
-						$datarray['owner-avatar'] = $r[0]["photo"];
+						$datarray['owner-avatar'] = $r[0]["avatar"];
 
 						$datarray['author-name']   = $datarray['owner-name'];
 						$datarray['author-link']   = $datarray['owner-link'];
@@ -3764,8 +3776,8 @@ function local_delivery($importer,$data) {
 					$notify = true;
 				}
 
-				if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
-					$datarray["app"] = network_to_name($importer['network']);
+				//if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+				//	$datarray["app"] = network_to_name($importer['network']);
 
 				if ($importer['network'] === NETWORK_FEED)
 					$datarray['private'] = 0;
@@ -3773,15 +3785,23 @@ function local_delivery($importer,$data) {
 					$datarray2 = $datarray;
 					// Create a new guid and uri and post it as a forwarded post
 					$datarray2["guid"] = get_guid(32);
+					unset($datarray2["plink"]);
 					$datarray2["uri"] = item_new_uri($a->get_hostname(),$importer['uid']);
 					$datarray2["parent-uri"] = $datarray2["uri"];
+					$datarray2["extid"] = NETWORK_DFRN;
+					$urlpart = parse_url($datarray['author-link']);
+					$datarray2["app"] = $urlpart["host"];
 					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 					if (count($r)) {
 						$datarray2['contact-id'] = $r[0]["id"];
 
 						$datarray2['owner-name'] = $r[0]["name"];
 						$datarray2['owner-link'] = $r[0]["url"];
-						$datarray2['owner-avatar'] = $r[0]["photo"];
+						$datarray2['owner-avatar'] = $r[0]["avatar"];
+
+						$datarray2['author-name']   = $datarray2['owner-name'];
+						$datarray2['author-link']   = $datarray2['owner-link'];
+						$datarray2['author-avatar'] = $datarray2['owner-avatar'];
 					}
 
 					// Store the forwarded post
