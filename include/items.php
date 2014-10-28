@@ -2600,6 +2600,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				// Turn this into a wall post.
 
 				if($contact['remote_self'] AND (($contact['network'] === NETWORK_FEED) OR !$datarray['private'])) {
+					logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
 					if ($contact['remote_self'] == 1)
 						// Prevent that forwarded posts will be forwarded again
 						$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
@@ -2630,6 +2631,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						// Create a new guid and uri and post it as a forwarded post
 						$datarray2["guid"] = get_guid(32);
 						$datarray2["uri"] = item_new_uri($a->get_hostname(),$importer['uid']);
+						$datarray2["parent-uri"] = $datarray2["uri"];
 						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
 						if (count($r)) {
 							$datarray2['contact-id'] = $r[0]["id"];
@@ -2641,6 +2643,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 						// Store the forwarded post
 						$r = item_store($datarray2, false, true);
+						logger('remote-self forwarded post - Contact '.$contact['url'].' return '.$r.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
 
 						// Let the original item just be a regular item
 						$notify = false;
@@ -2649,6 +2652,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					$notify = false;
 
 				$r = item_store($datarray, false, $notify);
+				logger('Stored - Contact '.$contact['url'].' Notify '.$notify.' return '.$r.' Item '.print_r($datarray, true), LOGGER_DEBUG);
 				continue;
 
 			}
@@ -3738,8 +3742,12 @@ function local_delivery($importer,$data) {
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
 
-			if($importer['remote_self']) {
-				if ($importer['remote_self'] == 2) {
+			if($importer['remote_self'] AND (($importer['network'] === NETWORK_FEED) OR !$datarray['private'])) {
+				logger('remote-self start - Contact '.$importer['url'].' - '.$importer['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
+				if ($importer['remote_self'] == 1)
+					// Prevent that forwarded posts will be forwarded again
+					$notify = (normalise_link($datarray['author-link']) == normalise_link($datarray['owner-link']));
+				elseif ($importer['remote_self'] == 2) {
 					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
 						intval($importer['importer_uid']));
 					if (count($r)) {
@@ -3753,9 +3761,36 @@ function local_delivery($importer,$data) {
 						$datarray['author-link']   = $datarray['owner-link'];
 						$datarray['author-avatar'] = $datarray['owner-avatar'];
 					}
+					$notify = true;
 				}
 
-				$notify = true;
+				if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+					$datarray["app"] = network_to_name($importer['network']);
+
+				if ($importer['network'] === NETWORK_FEED)
+					$datarray['private'] = 0;
+				elseif ($notify) {
+					$datarray2 = $datarray;
+					// Create a new guid and uri and post it as a forwarded post
+					$datarray2["guid"] = get_guid(32);
+					$datarray2["uri"] = item_new_uri($a->get_hostname(),$importer['uid']);
+					$datarray2["parent-uri"] = $datarray2["uri"];
+					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
+					if (count($r)) {
+						$datarray2['contact-id'] = $r[0]["id"];
+
+						$datarray2['owner-name'] = $r[0]["name"];
+						$datarray2['owner-link'] = $r[0]["url"];
+						$datarray2['owner-avatar'] = $r[0]["photo"];
+					}
+
+					// Store the forwarded post
+					$r = item_store($datarray2, false, true);
+					logger('remote-self forwarded post - Contact '.$importer['url'].' return '.$r.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
+
+					// Let the original item just be a regular item
+					$notify = false;
+				}
 			} else
 				$notify = false;
 
