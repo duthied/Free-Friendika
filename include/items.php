@@ -2616,7 +2616,7 @@ function item_is_remote_self($contact, &$datarray) {
 		return false;
 
 	// Prevent the forwarding of posts that are forwarded
-	if ($datarray["extid"] == NETWORK_DFRN)
+	if (in_array($datarray["extid"], array(NETWORK_DFRN, NETWORK_DIASPORA)))
 		return false;
 
 	// Prevent to forward already forwarded posts

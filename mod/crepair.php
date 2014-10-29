@@ -152,12 +152,12 @@ function crepair_content(&$a) {
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 	// Problem is, you couldn't reply to both networks.
-	if (!in_array($contact['network'], array(NETWORK_FEED, NETWORK_DFRN)))
+	if (!in_array($contact['network'], array(NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA)))
 		$allow_remote_self = false;
 
 	if ($contact['network'] == NETWORK_FEED)
 		$remote_self_options = array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'), '2'=>t('Mirror as my own posting'));
-		elseif ($contact['network'] == NETWORK_DFRN)
+	else
 		$remote_self_options = array('0'=>t('No mirroring'), '2'=>t('Mirror as my own posting'));
 
 	$tpl = get_markup_template('crepair.tpl');
