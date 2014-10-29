@@ -2615,6 +2615,10 @@ function item_is_remote_self($contact, &$datarray) {
 	if (!$contact['remote_self'])
 		return false;
 
+	// Prevent the forwarding of posts that are forwarded
+	if ($datarray["extid"] == NETWORK_DFRN)
+		return false;
+
 	// Prevent to forward already forwarded posts
 	if ($datarray["app"] == $a->get_hostname())
 		return false;
