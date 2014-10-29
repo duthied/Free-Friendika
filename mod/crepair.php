@@ -157,8 +157,8 @@ function crepair_content(&$a) {
 
 	if ($contact['network'] == NETWORK_FEED)
 		$remote_self_options = array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'), '2'=>t('Mirror as my own posting'));
-	elseif ($contact['network'] == NETWORK_DFRN)
-		$remote_self_options = array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'));
+		elseif ($contact['network'] == NETWORK_DFRN)
+		$remote_self_options = array('0'=>t('No mirroring'), '2'=>t('Mirror as my own posting'));
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
