@@ -152,8 +152,13 @@ function crepair_content(&$a) {
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 	// Problem is, you couldn't reply to both networks.
-	if ($contact['network'] != NETWORK_FEED)
+	if (!in_array($contact['network'], array(NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA)))
 		$allow_remote_self = false;
+
+	if ($contact['network'] == NETWORK_FEED)
+		$remote_self_options = array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'), '2'=>t('Mirror as my own posting'));
+	else
+		$remote_self_options = array('0'=>t('No mirroring'), '2'=>t('Mirror as my own posting'));
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
@@ -168,7 +173,7 @@ function crepair_content(&$a) {
 		'$label_photo' => t('New photo from this URL'),
 		'$label_remote_self' => t('Remote Self'),
 		'$allow_remote_self' => $allow_remote_self,
-		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'), array('0'=>t('No mirroring'), '1'=>t('Mirror as forwarded posting'), '2'=>t('Mirror as my own posting'))),
+		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'), $remote_self_options),
 		'$contact_name' => $contact['name'],
 		'$contact_nick' => $contact['nick'],
 		'$contact_id'   => $contact['id'],
