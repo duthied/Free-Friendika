@@ -462,6 +462,7 @@ function db_definition() {
 					"bd" => array("type" => "date", "not null" => "1"),
 					"notify_new_posts" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"fetch_further_information" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"ffi_keyword_blacklist" => array("type" => "mediumtext", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

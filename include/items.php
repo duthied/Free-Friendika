@@ -872,7 +872,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2));
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
@@ -921,7 +921,8 @@ function add_page_info_data($data) {
 		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
-			$hashtag = str_replace(" ", "", $keyword);
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
+						array("","", "", "", "", ""), $keyword);
 			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
 		}
 	}
@@ -929,7 +930,7 @@ function add_page_info_data($data) {
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false) {
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	require_once("mod/parse_url.php");
 
 	$data = parseurl_getsiteinfo($url, true);
@@ -938,6 +939,16 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 
 	if (!$keywords AND isset($data["keywords"]))
 		unset($data["keywords"]);
+
+	if (($keyword_blacklist != "") AND isset($data["keywords"])) {
+		$list = explode(",", $keyword_blacklist);
+		foreach ($list AS $keyword) {
+			$keyword = trim($keyword);
+			$index = array_search($keyword, $data["keywords"]);
+			if ($index !== false)
+				unset($data["keywords"][$index]);
+		}
+	}
 
 	$text = add_page_info_data($data);
 
