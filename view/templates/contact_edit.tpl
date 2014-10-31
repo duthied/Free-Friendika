@@ -67,6 +67,7 @@
 	<div id="contact-edit-end" ></div>
 	{{include file="field_checkbox.tpl" field=$notify}}
 	{{include file="field_select.tpl" field=$fetch_further_information}}
+	{{if $fetch_further_information.2 == 2 }} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
 	{{include file="field_checkbox.tpl" field=$hidden}}
 
 <div id="contact-edit-info-wrapper">
