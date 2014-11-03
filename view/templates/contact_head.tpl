@@ -14,6 +14,7 @@ tinyMCE.init({
 	theme_advanced_toolbar_location : "top",
 	theme_advanced_toolbar_align : "center",
 	theme_advanced_styles : "blockquote,code",
+	theme_advanced_resizing : true,
 	gecko_spellcheck : true,
 	entity_encoding : "raw",
 	add_unload_trigger : false,
