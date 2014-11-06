@@ -16,9 +16,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',	'Ginger');
-define ( 'FRIENDICA_VERSION',      '3.3' );
+define ( 'FRIENDICA_VERSION',      '3.3.1' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1173      );
+define ( 'DB_UPDATE_VERSION',      1174      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -522,21 +522,28 @@ if(! class_exists('App')) {
 				if (substr($this->query_string, 0, 1) == "/")
 					$this->query_string = substr($this->query_string, 1);
 			}
+                        
 			if (x($_GET,'pagename'))
 				$this->cmd = trim($_GET['pagename'],'/\\');
 			elseif (x($_GET,'q'))
 				$this->cmd = trim($_GET['q'],'/\\');
-
+                            
+                        
+                        // fix query_string
+                        $this->query_string = str_replace($this->cmd."&",$this->cmd."?", $this->query_string);
+                        
+                        
 			// unix style "homedir"
-
+                        
 			if(substr($this->cmd,0,1) === '~')
-				$this->cmd = 'profile/' . substr($this->cmd,1);
-
+                        	$this->cmd = 'profile/' . substr($this->cmd,1);
+                        
 			// Diaspora style profile url
 
 			if(substr($this->cmd,0,2) === 'u/')
 				$this->cmd = 'profile/' . substr($this->cmd,2);
 
+                                
 			/**
 			 *
 			 * Break the URL path into C style argc/argv style arguments for our
@@ -607,6 +614,10 @@ if(! class_exists('App')) {
 				$basepath = $_SERVER["PWD"];
 
 			return($basepath);
+		}
+
+		function get_scheme() {
+			return($this->scheme);
 		}
 
 		function get_baseurl($ssl = false) {

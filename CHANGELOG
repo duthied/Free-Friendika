@@ -1,0 +1,29 @@
+Version 3.3.1
+
+	JSONP support for API (fabrixxm)
+	Fixed small bug in direct messages API (fabrixxm)
+	More filter for direct messages API (fabrixxm)
+	New hooks "getsiteinfo", "page_info_data" (annando)
+	Better loop post prevention (annando)
+	Via API, replace data: uri images in plain text version with link to post. (issue #1134) (fabrixxm)
+	Set default location to empty for new users. Suppress warning on user creation (issue #1193) (fabrixxm)
+	Correctly build urls with queries (issue #1190) (fabrixxm)
+	Optionally use keywords in feed as post tags with "remote self" (annando)
+	A blacklist of keywords to not use can be defined (annando)
+	"remote self" works also with Friendica and Diaspora contacts (annando)
+	Show exact post time after 12 hours (FX7)
+	Optionally redirect from non-SSL to SSL (annando)
+	Translation updates
+	Added CHANGELOG
+
+Version 3.3
+
+	See http://friendica.com/node/64
+
+Version 3.2
+
+	See http://friendica.com/node/61
+
+Version 3.1
+
+	See http://friendica.com/node/58

@@ -872,7 +872,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", true);
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
@@ -888,12 +888,8 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false) {
-	require_once("mod/parse_url.php");
-
-	$data = parseurl_getsiteinfo($url, true);
-
-	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+function add_page_info_data($data) {
+	call_hooks('page_info_data', $data);
 
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
@@ -921,16 +917,42 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false)
 		$text .= "[quote]".$data["text"]."[/quote]";
 
 	$hashtags = "";
-	if ($keywords AND isset($data["keywords"])) {
+	if (isset($data["keywords"]) AND count($data["keywords"])) {
 		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
-			$hashtag = str_replace(" ", "", $keyword);
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
+						array("","", "", "", "", ""), $keyword);
 			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
 		}
 	}
 
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
+}
+
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	require_once("mod/parse_url.php");
+
+	$data = parseurl_getsiteinfo($url, true);
+
+	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+
+	if (!$keywords AND isset($data["keywords"]))
+		unset($data["keywords"]);
+
+	if (($keyword_blacklist != "") AND isset($data["keywords"])) {
+		$list = explode(",", $keyword_blacklist);
+		foreach ($list AS $keyword) {
+			$keyword = trim($keyword);
+			$index = array_search($keyword, $data["keywords"]);
+			if ($index !== false)
+				unset($data["keywords"][$index]);
+		}
+	}
+
+	$text = add_page_info_data($data);
+
+	return($text);
 }
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
@@ -2587,34 +2609,10 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				// This is my contact on another system, but it's really me.
 				// Turn this into a wall post.
-
-				if($contact['remote_self']) {
-					if ($contact['remote_self'] == 2) {
-						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
-						if (count($r)) {
-							$datarray['contact-id'] = $r[0]["id"];
-
-							$datarray['owner-name'] = $r[0]["name"];
-							$datarray['owner-link'] = $r[0]["url"];
-							$datarray['owner-avatar'] = $r[0]["photo"];
-
-							$datarray['author-name']   = $datarray['owner-name'];
-							$datarray['author-link']   = $datarray['owner-link'];
-							$datarray['author-avatar'] = $datarray['owner-avatar'];
-						}
-					}
-
-					if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
-						$datarray["app"] = network_to_name($contact['network']);
-
-					$notify = true;
-					if($contact['network'] === NETWORK_FEED) {
-						$datarray['private'] = 0;
-					}
-				} else
-					$notify = false;
+				$notify = item_is_remote_self($contact, $datarray);
 
 				$r = item_store($datarray, false, $notify);
+				logger('Stored - Contact '.$contact['url'].' Notify '.$notify.' return '.$r.' Item '.print_r($datarray, true), LOGGER_DEBUG);
 				continue;
 
 			}
@@ -2622,10 +2620,69 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	}
 }
 
+function item_is_remote_self($contact, &$datarray) {
+	$a = get_app();
+
+	if (!$contact['remote_self'])
+		return false;
+
+	// Prevent the forwarding of posts that are forwarded
+	if ($datarray["extid"] == NETWORK_DFRN)
+		return false;
+
+	// Prevent to forward already forwarded posts
+	if ($datarray["app"] == $a->get_hostname())
+		return false;
+
+	if (($contact['network'] != NETWORK_FEED) AND $datarray['private'])
+		return false;
+
+	$datarray2 = $datarray;
+	logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
+	if ($contact['remote_self'] == 2) {
+		$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+			intval($contact['uid']));
+		if (count($r)) {
+			$datarray['contact-id'] = $r[0]["id"];
+
+			$datarray['owner-name'] = $r[0]["name"];
+			$datarray['owner-link'] = $r[0]["url"];
+			$datarray['owner-avatar'] = $r[0]["avatar"];
+
+			$datarray['author-name']   = $datarray['owner-name'];
+			$datarray['author-link']   = $datarray['owner-link'];
+			$datarray['author-avatar'] = $datarray['owner-avatar'];
+		}
+
+		if ($contact['network'] != NETWORK_FEED) {
+			$datarray["guid"] = get_guid(32);
+			unset($datarray["plink"]);
+			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid']);
+			$datarray["parent-uri"] = $datarray["uri"];
+			$datarray["extid"] = $contact['network'];
+			$urlpart = parse_url($datarray2['author-link']);
+			$datarray["app"] = $urlpart["host"];
+		} else
+			$datarray['private'] = 0;
+	}
+
+	//if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+	//	$datarray["app"] = network_to_name($contact['network']);
+
+	if ($contact['network'] != NETWORK_FEED) {
+		// Store the original post
+		$r = item_store($datarray2, false, false);
+		logger('remote-self post original item - Contact '.$contact['url'].' return '.$r.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
+	} else
+		$datarray["app"] = "Feed";
+
+	return true;
+}
+
 function local_delivery($importer,$data) {
 	$a = get_app();
 
-    logger(__function__, LOGGER_TRACE);
+	logger(__function__, LOGGER_TRACE);
 
 	if($importer['readonly']) {
 		// We aren't receiving stuff from this person. But we will quietly ignore them
@@ -3703,27 +3760,7 @@ function local_delivery($importer,$data) {
 
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
-
-			if($importer['remote_self']) {
-				if ($importer['remote_self'] == 2) {
-					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
-						intval($importer['importer_uid']));
-					if (count($r)) {
-						$datarray['contact-id'] = $r[0]["id"];
-
-						$datarray['owner-name'] = $r[0]["name"];
-						$datarray['owner-link'] = $r[0]["url"];
-						$datarray['owner-avatar'] = $r[0]["photo"];
-
-						$datarray['author-name']   = $datarray['owner-name'];
-						$datarray['author-link']   = $datarray['owner-link'];
-						$datarray['author-avatar'] = $datarray['owner-avatar'];
-					}
-				}
-
-				$notify = true;
-			} else
-				$notify = false;
+			$notify = item_is_remote_self($importer, $datarray);
 
 			$posted_id = item_store($datarray, false, $notify);
 
