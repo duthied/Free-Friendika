@@ -308,6 +308,7 @@ function admin_page_site_post(&$a){
 	// end relocate
 
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
+	$hostname 		=	((x($_POST,'hostname'))			? notags(trim($_POST['hostname']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
 	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
 	$language		=	((x($_POST,'language'))			? notags(trim($_POST['language']))		: '');
@@ -413,6 +414,7 @@ function admin_page_site_post(&$a){
 	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('config','sitename',$sitename);
+	set_config('config','hostname',$hostname);
 	set_config('system','suppress_language',$suppress_language);
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
@@ -585,6 +587,9 @@ function admin_page_site(&$a) {
 		SSL_POLICY_SELFSIGN => t("Self-signed certificate, use SSL for local links only (discouraged)")
 	);
 
+	if ($a->config['hostname'] == "")
+		$a->config['hostname'] = $a->get_hostname();
+
 	$t = get_markup_template("admin_site.tpl");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -599,6 +604,7 @@ function admin_page_site(&$a) {
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
+		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$info'	=> array('info',t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at dir.friendica.com/siteinfo.')),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),

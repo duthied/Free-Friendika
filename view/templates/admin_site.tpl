@@ -45,6 +45,7 @@
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 	{{include file="field_input.tpl" field=$sitename}}
+	{{include file="field_input.tpl" field=$hostname}}
 	{{include file="field_textarea.tpl" field=$banner}}
 	{{include file="field_textarea.tpl" field=$info}}
 	{{include file="field_select.tpl" field=$language}}
