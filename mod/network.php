@@ -16,11 +16,11 @@ function network_init(&$a) {
 		}
 	}
 
-    // convert query string to array. remove friendica args
-    $query_array = array();
-    $query_string = str_replace($a->cmd."?", "", $a->query_string);
-    parse_str($query_string, $query_array);
-    array_shift($query_array);
+	// convert query string to array. remove friendica args
+	$query_array = array();
+	$query_string = str_replace($a->cmd."?", "", $a->query_string);
+	parse_str($query_string, $query_array);
+	array_shift($query_array);
 
 	// fetch last used network view and redirect if needed
 	if(! $is_a_date_query) {
@@ -73,11 +73,11 @@ function network_init(&$a) {
 
 			$net_baseurl .= $tab_baseurls[$k];
 
-            // parse out tab queries
-            $dest_qa = array();
-            $dest_qs = $tab_args[$k];
-            parse_str( $dest_qs, $dest_qa);
-            $net_args = array_merge($net_args, $dest_qa);
+			// parse out tab queries
+			$dest_qa = array();
+			$dest_qs = $tab_args[$k];
+			parse_str( $dest_qs, $dest_qa);
+			$net_args = array_merge($net_args, $dest_qa);
 		}
 		else if($sel_tabs[4] === 'active') {
 			// The '/new' tab is selected
