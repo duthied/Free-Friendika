@@ -1161,6 +1161,11 @@ function item_store($arr,$force_parent = false, $notify = false) {
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(30));
 	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
+	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
+	$arr['resource-id']   = ((x($arr,'resource-id'))   ? trim($arr['resource-id'])           : '');
+	$arr['event-id']      = ((x($arr,'event-id'))      ? intval($arr['event-id'])            : 0 );
+	$arr['inform']        = ((x($arr,'inform'))        ? trim($arr['inform'])                : '');
+	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
 	if ($arr['plink'] == "") {
 		$a = get_app();
