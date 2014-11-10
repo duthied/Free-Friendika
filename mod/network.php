@@ -16,12 +16,13 @@ function network_init(&$a) {
 		}
 	}
 
-    // convert query string to array. remove friendica args
-    $query_array = array();
-    $query_string = str_replace($a->cmd."?", "", $a->query_string);
-    parse_str($query_string, $query_array);
-    array_shift($query_array);
+	// convert query string to array. remove friendica args
+	$query_array = array();
+	$query_string = str_replace($a->cmd."?", "", $a->query_string);
+	parse_str($query_string, $query_array);
+	array_shift($query_array);
 
+	
 	// fetch last used network view and redirect if needed
 	if(! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
@@ -44,7 +45,7 @@ function network_init(&$a) {
 		else if($sel_groups !== false) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
-
+		
 		if($remember_tab) {
 			// redirect if current selected tab is '/network' and
 			// last selected tab is _not_ '/network?f=&order=comment'.
@@ -73,11 +74,11 @@ function network_init(&$a) {
 
 			$net_baseurl .= $tab_baseurls[$k];
 
-            // parse out tab queries
-            $dest_qa = array();
-            $dest_qs = $tab_args[$k];
-            parse_str( $dest_qs, $dest_qa);
-            $net_args = array_merge($net_args, $dest_qa);
+			// parse out tab queries
+			$dest_qa = array();
+			$dest_qs = $tab_args[$k];
+			parse_str( $dest_qs, $dest_qa);
+			$net_args = array_merge($net_args, $dest_qa);
 		}
 		else if($sel_tabs[4] === 'active') {
 			// The '/new' tab is selected
@@ -87,16 +88,20 @@ function network_init(&$a) {
 		if($remember_net) {
 			$net_args['nets'] = $last_sel_nets;
 		}
-
+		else if($sel_nets!==false) {
+			$net_args['nets'] = $sel_nets;
+		}
+		
 		if($remember_tab || $remember_net || $remember_group) {
 			$net_args = array_merge($query_array, $net_args);
 			$net_queries = build_querystring($net_args);
-
+			
 			$redir_url = ($net_queries ? $net_baseurl."?".$net_queries : $net_baseurl);
+			
 			goaway($a->get_baseurl() . $redir_url);
 		}
 	}
-
+	
 	if(x($_GET['nets']) && $_GET['nets'] === 'all')
 		unset($_GET['nets']);
 
