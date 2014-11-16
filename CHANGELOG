@@ -1,3 +1,9 @@
+Version 3.3.2
+
+	Set default value for all not-null fields (fixes SQL warinigs) (annando)
+	Fix item filters in network page (issue #1222) (fabrixxm)
+	Remove reference to an ex Friendica hub from documentation (beardyunixer, tobiasd)
+
 Version 3.3.1
 
 	JSONP support for API (fabrixxm)
