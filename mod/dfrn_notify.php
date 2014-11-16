@@ -193,7 +193,7 @@ function dfrn_notify_content(&$a) {
 		$r = q("DELETE FROM `challenge` WHERE `expire` < " . intval(time()));
 
 		$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
-			VALUES( '%s', '%s', %d ) ",
+			VALUES( '%s', '%s', %d, '%s', '%s' ) ",
 			dbesc($hash),
 			dbesc($dfrn_id),
 			intval(time() + 90 ),
