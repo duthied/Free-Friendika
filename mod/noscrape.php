@@ -2,7 +2,7 @@
 
 function noscrape_init(&$a) {
 	
-	if(!get_config('system','enable_noscrape'))
+	if(get_config('system','disable_noscrape'))
 		killme();
 	
 	if($a->argc > 1)

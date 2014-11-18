@@ -34,7 +34,6 @@
 	var src = null;
 	var prev = null;
 	var livetime = null;
-	var msie = false;
 	var stopped = false;
 	var totStopped = false;
 	var timer = null;
@@ -49,9 +48,7 @@
 	$(function() {
 		$.ajaxSetup({cache: false});
 
-		msie = $.browser.msie ;
-		
-		collapseHeight();
+		//collapseHeight();
 
 		/* setup tooltips *//*
 		$("a,.tt").each(function(){
@@ -306,7 +303,7 @@
 
 		in_progress = true;
 		var udargs = ((netargs.length) ? '/' + netargs : '');
-		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0);
+		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page;
 
 		$.get(update_url,function(data) {
 			in_progress = false;
@@ -405,12 +402,10 @@
 			elemName = elems + ' ' + elemName;
 		}
 		$(elemName).each(function() {
-			if($(this).height() > 350) {
-				$('html').height($('html').height());
-				$(this).divgrow({ initialHeight: 300, showBrackets: false, speed: 0 });
-				$(this).addClass('divmore');
-				$('html').height('auto');
-			}
+			$('html').height($('html').height());
+			$(this).readmore({maxheight:350 , moreLink:'<a href="#" class="showmore">+ Show more</a>', lessLink:'<a href="#" class="showmore">+ Show less</a>'});
+			$(this).addClass('divmore');
+			$('html').height('auto');
 		});
 	}
 

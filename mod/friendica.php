@@ -41,7 +41,7 @@ function friendica_init(&$a) {
 		);
 		
 		//Enable noscrape?
-		if(!!get_config('system','enable_noscrape'))
+		if(!get_config('system','disable_noscrape'))
 			$data['no_scrape_url'] = $a->get_baseurl().'/noscrape';
 
 		echo json_encode($data);

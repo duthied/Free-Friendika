@@ -20,7 +20,7 @@ function update_profile_content(&$a) {
 	 * We can remove this hack once Internet Explorer recognises HTML5 natively
 	 */
 
-	echo (($_GET['msie'] == 1) ? '<div>' : '<section>');
+	echo "<section>";
 
 	/**
 	 *
@@ -53,7 +53,7 @@ function update_profile_content(&$a) {
 	 */
 
 	echo str_replace("\t",'       ',$text);
-	echo (($_GET['msie'] == 1) ? '</div>' : '</section>');
+	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
 

@@ -174,9 +174,9 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	$a->page['htmlhead'] .= sprintf('<script type="text/javascript" src="%s" ></script>', $imageresizeJS);
 	//load jquery.ui.js
 	if($ccCookie != "9") {
-	$jqueryuiJS = $a->get_baseurl($ssl_state)."/view/theme/diabook/js/jquery-ui-1.8.20.custom.min.js";
+	$jqueryuiJS = $a->get_baseurl($ssl_state)."/view/theme/diabook/js/jquery-ui.min.js";
 	$a->page['htmlhead'] .= sprintf('<script type="text/javascript" src="%s" ></script>', $jqueryuiJS);
-	$jqueryuicssJS = $a->get_baseurl($ssl_state)."/view/theme/diabook/jquery-ui-1.8.20.custom.css";
+	$jqueryuicssJS = $a->get_baseurl($ssl_state)."/view/theme/diabook/jquery-ui.min.css";
 	$a->page['htmlhead'] .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $jqueryuicssJS);
 	}
 	

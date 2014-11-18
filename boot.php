@@ -11,10 +11,14 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 
+require_once('update.php');
+require_once('include/dbstructure.php');
+
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_VERSION',      '3.2.1753' );
+define ( 'FRIENDICA_CODENAME',	'Ginger');
+define ( 'FRIENDICA_VERSION',      '3.3.1' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1173      );
+define ( 'DB_UPDATE_VERSION',      1175      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -505,26 +509,40 @@ if(! class_exists('App')) {
 				$argc --;
 			}
 
-			set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
+			#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
-			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
+			if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
+				$this->query_string = substr($_SERVER['QUERY_STRING'],9);
+				// removing trailing / - maybe a nginx problem
+				if (substr($this->query_string, 0, 1) == "/")
+					$this->query_string = substr($this->query_string, 1);
+			} elseif((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
 				$this->query_string = substr($_SERVER['QUERY_STRING'],2);
 				// removing trailing / - maybe a nginx problem
 				if (substr($this->query_string, 0, 1) == "/")
 					$this->query_string = substr($this->query_string, 1);
 			}
-			if(x($_GET,'q'))
+
+			if (x($_GET,'pagename'))
+				$this->cmd = trim($_GET['pagename'],'/\\');
+			elseif (x($_GET,'q'))
 				$this->cmd = trim($_GET['q'],'/\\');
+
+
+                        // fix query_string
+                        $this->query_string = str_replace($this->cmd."&",$this->cmd."?", $this->query_string);
+
 
 			// unix style "homedir"
 
 			if(substr($this->cmd,0,1) === '~')
-				$this->cmd = 'profile/' . substr($this->cmd,1);
+                        	$this->cmd = 'profile/' . substr($this->cmd,1);
 
 			// Diaspora style profile url
 
 			if(substr($this->cmd,0,2) === 'u/')
 				$this->cmd = 'profile/' . substr($this->cmd,2);
+
 
 			/**
 			 *
@@ -598,6 +616,10 @@ if(! class_exists('App')) {
 			return($basepath);
 		}
 
+		function get_scheme() {
+			return($this->scheme);
+		}
+
 		function get_baseurl($ssl = false) {
 
 			$scheme = $this->scheme;
@@ -616,6 +638,9 @@ if(! class_exists('App')) {
 						$scheme = 'http';
 				}
 			}
+
+			if (get_config('config','hostname') != "")
+				$this->hostname = get_config('config','hostname');
 
 			$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 			return $this->baseurl;
@@ -638,12 +663,19 @@ if(! class_exists('App')) {
 				if (file_exists(".htpreconfig.php"))
 					@include(".htpreconfig.php");
 
-				$this->hostname = $hostname;
+				if (get_config('config','hostname') != "")
+					$this->hostname = get_config('config','hostname');
+
+				if (!isset($this->hostname) OR ($this->hostname == ""))
+					$this->hostname = $hostname;
 			}
 
 		}
 
 		function get_hostname() {
+			if (get_config('config','hostname') != "")
+				$this->hostname = get_config('config','hostname');
+
 			return $this->hostname;
 		}
 
@@ -789,7 +821,7 @@ if(! class_exists('App')) {
 			}
 	 		if ($name===""){
  				echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
-				killme(); 
+				killme();
  			}
 			$this->template_engines[$name] = $class;
 		}
@@ -797,7 +829,7 @@ if(! class_exists('App')) {
 		/**
 		 * return template engine instance. If $name is not defined,
 		 * return engine defined by theme, or default
-		 * 
+		 *
 		 * @param strin $name Template engine name
 		 * @return object Template Engine instance
 		 */
@@ -863,6 +895,10 @@ if(! class_exists('App')) {
 		function mark_timestamp($mark) {
 			//$this->performance["markstart"] -= microtime(true) - $this->performance["marktime"];
 			$this->performance["markstart"] = microtime(true) - $this->performance["markstart"] - $this->performance["marktime"];
+		}
+
+		function get_useragent() {
+			return(FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
 		}
 
 	}
@@ -992,7 +1028,6 @@ if(! function_exists('check_url')) {
 
 if(! function_exists('update_db')) {
 	function update_db(&$a) {
-
 		$build = get_config('system','build');
 		if(! x($build))
 			$build = set_config('system','build',DB_UPDATE_VERSION);
@@ -1000,105 +1035,99 @@ if(! function_exists('update_db')) {
 		if($build != DB_UPDATE_VERSION) {
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
-			if(($stored < $current) && file_exists('update.php')) {
-
+			if($stored < $current) {
 				load_config('database');
 
 				// We're reporting a different version than what is currently installed.
 				// Run any existing update scripts to bring the database up to current.
-
-				require_once('update.php');
 
 				// make sure that boot.php and update.php are the same release, we might be
 				// updating right this very second and the correct version of the update.php
 				// file may not be here yet. This can happen on a very busy site.
 
 				if(DB_UPDATE_VERSION == UPDATE_VERSION) {
-
 					// Compare the current structure with the defined structure
 
 					$t = get_config('database','dbupdate_'.DB_UPDATE_VERSION);
 					if($t !== false)
-						break;
+						return;
+
 					set_config('database','dbupdate_'.DB_UPDATE_VERSION, time());
 
-					require_once("include/dbstructure.php");
+					// run old update routine (wich could modify the schema and
+					// conflits with new routine)
+					for ($x = $stored; $x < NEW_UPDATE_ROUTINE_VERSION; $x++) {
+						$r = run_update_function($x);
+						if (!$r) break;
+					}
+					if ($stored < NEW_UPDATE_ROUTINE_VERSION) $stored = NEW_UPDATE_ROUTINE_VERSION;
+
+
+					// run new update routine
+					// it update the structure in one call
 					$retval = update_structure(false, true);
 					if($retval) {
-						//send the administrator an e-mail
-						$email_tpl = get_intltext_template("update_fail_eml.tpl");
-						$email_msg = replace_macros($email_tpl, array(
-							'$sitename' => $a->config['sitename'],
-							'$siteurl' =>  $a->get_baseurl(),
-							'$update' => DB_UPDATE_VERSION,
-							'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
-						));
-						$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
-						require_once('include/email.php');
-						$subject = email_header_encode($subject,'UTF-8');
-						mail($a->config['admin_email'], $subject, $email_msg,
-							'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
-							.'Content-type: text/plain; charset=UTF-8'."\n"
-							.'Content-transfer-encoding: 8bit');
-						//try the logger
-						logger("CRITICAL: Database structure update failed: ".$retval);
-						break;
-					} else
+						update_fail(
+							DB_UPDATE_VERSION,
+							$retval
+						);
+						return;
+					} else {
 						set_config('database','dbupdate_'.DB_UPDATE_VERSION, 'success');
+					}
 
+					// run any left update_nnnn functions in update.php
 					for($x = $stored; $x < $current; $x ++) {
-						if(function_exists('update_' . $x)) {
-
-							// There could be a lot of processes running or about to run.
-							// We want exactly one process to run the update command.
-							// So store the fact that we're taking responsibility
-							// after first checking to see if somebody else already has.
-
-							// If the update fails or times-out completely you may need to
-							// delete the config entry to try again.
-
-							$t = get_config('database','update_' . $x);
-							if($t !== false)
-								break;
-							set_config('database','update_' . $x, time());
-
-							// call the specific update
-
-							$func = 'update_' . $x;
-							$retval = $func();
-							if($retval) {
-								//send the administrator an e-mail
-								$email_tpl = get_intltext_template("update_fail_eml.tpl");
-								$email_msg = replace_macros($email_tpl, array(
-									'$sitename' => $a->config['sitename'],
-									'$siteurl' =>  $a->get_baseurl(),
-									'$update' => $x,
-									'$error' => sprintf( t('Update %s failed. See error logs.'), $x)
-								));
-								$subject=sprintf(t('Update Error at %s'), $a->get_baseurl());
-								require_once('include/email.php');
-								$subject = email_header_encode($subject,'UTF-8');
-								mail($a->config['admin_email'], $subject, $email_msg,
-									'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-									. 'Content-type: text/plain; charset=UTF-8' . "\n"
-									. 'Content-transfer-encoding: 8bit' );
-								//try the logger
-								logger('CRITICAL: Update Failed: '. $x);
-								break;
-							} else {
-								set_config('database','update_' . $x, 'success');
-								set_config('system','build', $x + 1);
-							}
-						} else {
-							set_config('database','update_' . $x, 'success');
-							set_config('system','build', $x + 1);
-						}
+						$r = run_update_function($x);
+						if (!$r) break;
 					}
 				}
 			}
 		}
 
 		return;
+	}
+}
+if(!function_exists('run_update_function')){
+	function run_update_function($x) {
+		if(function_exists('update_' . $x)) {
+
+			// There could be a lot of processes running or about to run.
+			// We want exactly one process to run the update command.
+			// So store the fact that we're taking responsibility
+			// after first checking to see if somebody else already has.
+
+			// If the update fails or times-out completely you may need to
+			// delete the config entry to try again.
+
+			$t = get_config('database','update_' . $x);
+			if($t !== false)
+				return false;
+			set_config('database','update_' . $x, time());
+
+			// call the specific update
+
+			$func = 'update_' . $x;
+			$retval = $func();
+
+			if($retval) {
+				//send the administrator an e-mail
+				update_fail(
+					$x,
+					sprintf(t('Update %s failed. See error logs.'), $x)
+				);
+				return false;
+			} else {
+				set_config('database','update_' . $x, 'success');
+				set_config('system','build', $x + 1);
+				return true;
+			}
+		} else {
+			set_config('database','update_' . $x, 'success');
+			set_config('system','build', $x + 1);
+			return true;
+		}
+		return true;
 	}
 }
 
@@ -1209,7 +1238,7 @@ if(! function_exists('login')) {
 		}
 
 		$noid = get_config('system','no_openid');
-	
+
 		$dest_url = $a->get_baseurl(true) . '/' . $a->query_string;
 
 		if(local_user()) {
@@ -1230,18 +1259,18 @@ if(! function_exists('login')) {
 			'$dest_url'     => $dest_url,
 			'$logout'       => t('Logout'),
 			'$login'        => t('Login'),
-	
+
 			'$lname'	 	=> array('username', t('Nickname or Email address: ') , '', ''),
 			'$lpassword' 	=> array('password', t('Password: '), '', ''),
 			'$lremember'	=> array('remember', t('Remember me'), 0,  ''),
-	
+
 			'$openid'		=> !$noid,
 			'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
-	
+
 			'$hiddens'      => $hiddens,
-	
+
 			'$register'     => $reg,
-	
+
 			'$lostpass'     => t('Forgot your password?'),
 			'$lostlink'     => t('Password Reset'),
 
@@ -1304,9 +1333,9 @@ if(! function_exists('remote_user')) {
 if(! function_exists('notice')) {
 	/**
 	 * Show an error message to user.
-	 * 
+	 *
 	 * This function save text in session, to be shown to the user at next page load
-	 * 
+	 *
 	 * @param string $s - Text of notice
 	 */
 	function notice($s) {
@@ -1319,9 +1348,9 @@ if(! function_exists('notice')) {
 if(! function_exists('info')) {
 	/**
 	 * Show an info message to user.
-	 * 
+	 *
 	 * This function save text in session, to be shown to the user at next page load
-	 * 
+	 *
 	 * @param string $s - Text of notice
 	 */
 	function info($s) {
@@ -1745,7 +1774,7 @@ if(! function_exists('get_birthdays')) {
 					$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ?  ' ' . t('[today]') : '');
 					$rr['startime'] = Null;
 					$rr['today'] = $today;
-	
+
 				}
 			}
 		}
@@ -1820,7 +1849,7 @@ if(! function_exists('get_events')) {
 
 				$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
-				
+
 				$rr['link'] = $md;
 				$rr['title'] = $title;
 				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
@@ -1880,7 +1909,7 @@ if(! function_exists('proc_run')) {
 		}
 
 		$args = $newargs;
-		
+
 		$arr = array('args' => $args, 'run_cmd' => true);
 
 		call_hooks("proc_run", $arr);
@@ -1889,14 +1918,14 @@ if(! function_exists('proc_run')) {
 
 		if(count($args) && $args[0] === 'php')
 			$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
-        
+
         // add baseurl to args. cli scripts can't construct it
         $args[] = $a->get_baseurl();
-        
+
         for($x = 0; $x < count($args); $x ++)
 			$args[$x] = escapeshellarg($args[$x]);
 
-        
+
 
 		$cmdline = implode($args," ");
 		if(get_config('system','proc_windows'))
@@ -1909,9 +1938,9 @@ if(! function_exists('proc_run')) {
 if(! function_exists('current_theme')) {
 	function current_theme(){
 		$app_base_themes = array('duepuntozero', 'dispy', 'quattro');
-	
+
 		$a = get_app();
-	
+
 //		$mobile_detect = new Mobile_Detect();
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 		$is_mobile = $a->is_mobile || $a->is_tablet;
@@ -1941,17 +1970,17 @@ if(! function_exists('current_theme')) {
 				(file_exists('view/theme/' . $theme_name . '/style.css') ||
 						file_exists('view/theme/' . $theme_name . '/style.php')))
 			return($theme_name);
-	
+
 		foreach($app_base_themes as $t) {
 			if(file_exists('view/theme/' . $t . '/style.css')||
 					file_exists('view/theme/' . $t . '/style.php'))
 				return($t);
 		}
-	
+
 		$fallback = array_merge(glob('view/theme/*/style.css'),glob('view/theme/*/style.php'));
 		if(count($fallback))
 			return (str_replace('view/theme/','', substr($fallback[0],0,-10)));
-	
+
 	}
 }
 
@@ -1991,7 +2020,7 @@ if(! function_exists('feed_birthday')) {
 		 *
 		 */
 
-	
+
 		$birthday = '';
 
 		if(! strlen($tz))
@@ -2061,13 +2090,13 @@ if(! function_exists('load_contact_links')) {
 if(! function_exists('profile_tabs')){
 	function profile_tabs($a, $is_owner=False, $nickname=Null){
 		//echo "<pre>"; var_dump($a->user); killme();
-	
+
 		if (is_null($nickname))
 			$nickname  = $a->user['nickname'];
-		
+
 		if(x($_GET,'tab'))
 			$tab = notags(trim($_GET['tab']));
-	
+
 		$url = $a->get_baseurl() . '/profile/' . $nickname;
 
 		$tabs = array(
@@ -2100,7 +2129,7 @@ if(! function_exists('profile_tabs')){
 				'id' => 'video-tab',
 			),
 		);
-	
+
 		if ($is_owner){
 			$tabs[] = array(
 				'label' => t('Events'),
@@ -2121,7 +2150,7 @@ if(! function_exists('profile_tabs')){
 
 		$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
 		call_hooks('profile_tabs', $arr);
-	
+
 		$tpl = get_markup_template('common_tabs.tpl');
 
 		return replace_macros($tpl,array('$tabs' => $arr['tabs']));
@@ -2160,28 +2189,28 @@ function zrl($s,$force = false) {
 /**
 * returns querystring as string from a mapped array
 *
-* @param params Array 
+* @param params Array
 * @return string
 */
-function build_querystring($params, $name=null) { 
-    $ret = ""; 
+function build_querystring($params, $name=null) {
+    $ret = "";
     foreach($params as $key=>$val) {
-        if(is_array($val)) { 
+        if(is_array($val)) {
             if($name==null) {
-                $ret .= build_querystring($val, $key); 
+                $ret .= build_querystring($val, $key);
             } else {
-                $ret .= build_querystring($val, $name."[$key]");    
+                $ret .= build_querystring($val, $name."[$key]");
             }
         } else {
             $val = urlencode($val);
             if($name!=null) {
-                $ret.=$name."[$key]"."=$val&"; 
+                $ret.=$name."[$key]"."=$val&";
             } else {
-                $ret.= "$key=$val&"; 
+                $ret.= "$key=$val&";
             }
-        } 
-    } 
-    return $ret;    
+        }
+    }
+    return $ret;
 }
 
 function explode_querystring($query) {

@@ -70,19 +70,6 @@ This plugin reduces the database load massively. Downside: You can't see the tot
 
 Go to the admin settings of "altpager" and set it to "global".
 
-###Privacy Image Cache
-
-**Description**
-
-This plugin pre-fetches external content and stores it in the cache. Besides speeding up the page rendering it is also good for the privacy of your users, since embedded pictures are loaded from your site and not from a foreign site (that could spy on the IP addresses).
-
-Additionally it helps with content from external sites that have slow performance or aren not online all the time.
-
-**Administration**
-
-Please create a folder named "privacy_image_cache" and "photo" in your web root. If these folders exists then the cached files will be stored there. This has the great advantage that your web server will fetch the files directly from there.
-
-
 ###rendertime
 
 This plugin doesn't speed up your system. It helps analyzing your bottlenecks.

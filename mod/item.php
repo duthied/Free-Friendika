@@ -137,6 +137,7 @@ function item_post(&$a) {
 	$profile_uid = ((x($_REQUEST,'profile_uid')) ? intval($_REQUEST['profile_uid']) : 0);
 	$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
 	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])  : '');
+	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])  : '');
 
 	$allow_moderated = false;
 
@@ -200,7 +201,7 @@ function item_post(&$a) {
 		$verb              = $orig_post['verb'];
 		$objecttype        = $orig_post['object-type'];
 		$emailcc           = $orig_post['emailcc'];
-		$app			   = $orig_post['app'];
+		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
 		$title             = notags(trim($_REQUEST['title']));
 		$body              = escape_tags(trim($_REQUEST['body']));
@@ -208,6 +209,7 @@ function item_post(&$a) {
 		$pubmail_enable    = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
 		$guid              = $orig_post['guid'];
+		$extid             = $orig_post['extid'];
 
 	} else {
 
@@ -652,6 +654,7 @@ function item_post(&$a) {
 	$datarray['commented']     = datetime_convert();
 	$datarray['received']      = datetime_convert();
 	$datarray['changed']       = datetime_convert();
+	$datarray['extid']         = $extid;
 	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;
 	$datarray['title']         = $title;
@@ -749,11 +752,12 @@ function item_post(&$a) {
 		$post_id = 0;
 
 
-	$r = q("INSERT INTO `item` (`guid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
+	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
 		`author-name`, `author-link`, `author-avatar`, `created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, 
 		`tag`, `inform`, `verb`, `object-type`, `postopts`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file` )
-		VALUES( '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
+		VALUES( '%s', '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
 		dbesc($datarray['guid']),
+		dbesc($datarray['extid']),
 		intval($datarray['uid']),
 		dbesc($datarray['type']),
 		intval($datarray['wall']),
@@ -807,7 +811,7 @@ function item_post(&$a) {
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		// Store the fresh generated item into the cache
-		$cachefile = get_cachefile($datarray["guid"]."-".hash("md5", $datarray['body']));
+		$cachefile = get_cachefile(urlencode($datarray["guid"])."-".hash("md5", $datarray['body']));
 
 		if (($cachefile != '') AND !file_exists($cachefile)) {
 			$s = prepare_text($datarray['body']);

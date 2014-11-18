@@ -99,11 +99,11 @@ function notifications_content(&$a) {
 			'url' => $a->get_baseurl(true) . '/notifications/intros',
 			'sel'=> (($a->argv[1] == 'intros') ? 'active' : ''),
 		),
-		array(
+		/*array(
 			'label' => t('Messages'),
 			'url' => $a->get_baseurl(true) . '/message',
 			'sel'=> '',
-		),
+		),*/ /*while I can have notifications for messages, this tablist is not place for message page link */
 	);
 
 	$o = "";

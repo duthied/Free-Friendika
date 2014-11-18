@@ -33,7 +33,6 @@
 	var src = null;
 	var prev = null;
 	var livetime = null;
-	var msie = false;
 	var stopped = false;
 	var totStopped = false;
 	var timer = null;
@@ -48,8 +47,6 @@
 	$(function() {
 		$.ajaxSetup({cache: false});
 
-		msie = $.browser.msie ;
-		
 		collapseHeight();
 		
 		/* setup tooltips *//*
@@ -298,7 +295,7 @@
 
 		in_progress = true;
 		var udargs = ((netargs.length) ? '/' + netargs : '');
-		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&msie=' + ((msie) ? 1 : 0);
+		var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page;
 
 		$.get(update_url,function(data) {
 			in_progress = false;

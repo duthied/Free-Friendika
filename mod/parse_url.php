@@ -51,6 +51,9 @@ function completeurl($url, $scheme) {
 }
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
+	require_once("include/network.php");
+
+	$a = get_app();
 
 	$siteinfo = array();
 
@@ -61,6 +64,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	$url = trim($url, "'");
 	$url = trim($url, '"');
+
+	$url = original_url($url);
+
 	$siteinfo["url"] = $url;
 	$siteinfo["type"] = "link";
 
@@ -71,7 +77,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch,CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION.")");
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);
@@ -184,6 +190,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				case "twitter:image":
 					$siteinfo["image"] = $attr["content"];
 					break;
+				case "twitter:image:src":
+					$siteinfo["image"] = $attr["content"];
+					break;
 				case "twitter:card":
 					if (($siteinfo["type"] == "") OR ($attr["content"] == "photo"))
 						$siteinfo["type"] = $attr["content"];
@@ -200,9 +209,21 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				case "dc.description":
 					$siteinfo["text"] = $attr["content"];
 					break;
+				case "keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
+				case "news_keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
 			}
 		if ($siteinfo["type"] == "summary")
 			$siteinfo["type"] = "link";
+	}
+
+	if (isset($keywords)) {
+		$siteinfo["keywords"] = array();
+		foreach ($keywords as $keyword)
+			$siteinfo["keywords"][] = trim($keyword);
 	}
 
 	//$list = $xpath->query("head/meta[@property]");
@@ -312,6 +333,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	logger("parseurl_getsiteinfo: Siteinfo for ".$url." ".print_r($siteinfo, true), LOGGER_DEBUG);
 
+	call_hooks('getsiteinfo', $siteinfo);
+
 	return($siteinfo);
 }
 
@@ -388,6 +411,13 @@ function parse_url_content(&$a) {
 	}
 
 	$siteinfo = parseurl_getsiteinfo($url);
+
+//	if ($textmode) {
+//		require_once("include/items.php");
+//
+//		echo add_page_info_data($siteinfo);
+//		killme();
+//	}
 
 	$url= $siteinfo["url"];
 

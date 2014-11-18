@@ -872,7 +872,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink']);
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
@@ -888,12 +888,8 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	return $res;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "") {
-	require_once("mod/parse_url.php");
-
-	$data = parseurl_getsiteinfo($url, true);
-
-	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+function add_page_info_data($data) {
+	call_hooks('page_info_data', $data);
 
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
@@ -908,7 +904,7 @@ function add_page_info($url, $no_photos = false, $photo = "") {
 		return("");
 
 	if (($data["type"] != "photo") AND is_string($data["title"]))
-		$text .= "[bookmark=".$url."]".trim($data["title"])."[/bookmark]";
+		$text .= "[bookmark=".$data["url"]."]".trim($data["title"])."[/bookmark]";
 
 	if (($data["type"] != "video") AND ($photo != ""))
 		$text .= '[img]'.$photo.'[/img]';
@@ -920,7 +916,43 @@ function add_page_info($url, $no_photos = false, $photo = "") {
 	if (($data["type"] != "photo") AND is_string($data["text"]))
 		$text .= "[quote]".$data["text"]."[/quote]";
 
-	return("\n[class=type-".$data["type"]."]".$text."[/class]");
+	$hashtags = "";
+	if (isset($data["keywords"]) AND count($data["keywords"])) {
+		$a = get_app();
+		$hashtags = "\n";
+		foreach ($data["keywords"] AS $keyword) {
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
+						array("","", "", "", "", ""), $keyword);
+			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
+		}
+	}
+
+	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
+}
+
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	require_once("mod/parse_url.php");
+
+	$data = parseurl_getsiteinfo($url, true);
+
+	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+
+	if (!$keywords AND isset($data["keywords"]))
+		unset($data["keywords"]);
+
+	if (($keyword_blacklist != "") AND isset($data["keywords"])) {
+		$list = explode(",", $keyword_blacklist);
+		foreach ($list AS $keyword) {
+			$keyword = trim($keyword);
+			$index = array_search($keyword, $data["keywords"]);
+			if ($index !== false)
+				unset($data["keywords"][$index]);
+		}
+	}
+
+	$text = add_page_info_data($data);
+
+	return($text);
 }
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
@@ -1129,6 +1161,11 @@ function item_store($arr,$force_parent = false, $notify = false) {
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(30));
 	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
+	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
+	$arr['resource-id']   = ((x($arr,'resource-id'))   ? trim($arr['resource-id'])           : '');
+	$arr['event-id']      = ((x($arr,'event-id'))      ? intval($arr['event-id'])            : 0 );
+	$arr['inform']        = ((x($arr,'inform'))        ? trim($arr['inform'])                : '');
+	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
 	if ($arr['plink'] == "") {
 		$a = get_app();
@@ -1412,7 +1449,7 @@ function item_store($arr,$force_parent = false, $notify = false) {
 	if (!$deleted) {
 
 		// Store the fresh generated item into the cache
-		$cachefile = get_cachefile($arr["guid"]."-".hash("md5", $arr['body']));
+		$cachefile = get_cachefile(urlencode($arr["guid"])."-".hash("md5", $arr['body']));
 
 		if (($cachefile != '') AND !file_exists($cachefile)) {
 			$s = prepare_text($arr['body']);
@@ -1938,6 +1975,7 @@ function edited_timestamp_is_newer($existing, $update) {
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
 
 	require_once('library/simplepie/simplepie.inc');
+	require_once('include/contact_selectors.php');
 
 	if(! strlen($xml)) {
 		logger('consume_feed: empty input');
@@ -2576,31 +2614,10 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				// This is my contact on another system, but it's really me.
 				// Turn this into a wall post.
-
-				if($contact['remote_self']) {
-					if ($contact['remote_self'] == 2) {
-						$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`", intval($importer['uid']));
-						if (count($r)) {
-							$datarray['contact-id'] = $r[0]["id"];
-
-							$datarray['owner-name'] = $r[0]["name"];
-							$datarray['owner-link'] = $r[0]["url"];
-							$datarray['owner-avatar'] = $r[0]["photo"];
-
-							$datarray['author-name']   = $datarray['owner-name'];
-							$datarray['author-link']   = $datarray['owner-link'];
-							$datarray['author-avatar'] = $datarray['owner-avatar'];
-						}
-					}
-
-					$notify = true;
-					if($contact['network'] === NETWORK_FEED) {
-						$datarray['private'] = 0;
-					}
-				} else
-					$notify = false;
+				$notify = item_is_remote_self($contact, $datarray);
 
 				$r = item_store($datarray, false, $notify);
+				logger('Stored - Contact '.$contact['url'].' Notify '.$notify.' return '.$r.' Item '.print_r($datarray, true), LOGGER_DEBUG);
 				continue;
 
 			}
@@ -2608,10 +2625,69 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	}
 }
 
+function item_is_remote_self($contact, &$datarray) {
+	$a = get_app();
+
+	if (!$contact['remote_self'])
+		return false;
+
+	// Prevent the forwarding of posts that are forwarded
+	if ($datarray["extid"] == NETWORK_DFRN)
+		return false;
+
+	// Prevent to forward already forwarded posts
+	if ($datarray["app"] == $a->get_hostname())
+		return false;
+
+	if (($contact['network'] != NETWORK_FEED) AND $datarray['private'])
+		return false;
+
+	$datarray2 = $datarray;
+	logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
+	if ($contact['remote_self'] == 2) {
+		$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+			intval($contact['uid']));
+		if (count($r)) {
+			$datarray['contact-id'] = $r[0]["id"];
+
+			$datarray['owner-name'] = $r[0]["name"];
+			$datarray['owner-link'] = $r[0]["url"];
+			$datarray['owner-avatar'] = $r[0]["avatar"];
+
+			$datarray['author-name']   = $datarray['owner-name'];
+			$datarray['author-link']   = $datarray['owner-link'];
+			$datarray['author-avatar'] = $datarray['owner-avatar'];
+		}
+
+		if ($contact['network'] != NETWORK_FEED) {
+			$datarray["guid"] = get_guid(32);
+			unset($datarray["plink"]);
+			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid']);
+			$datarray["parent-uri"] = $datarray["uri"];
+			$datarray["extid"] = $contact['network'];
+			$urlpart = parse_url($datarray2['author-link']);
+			$datarray["app"] = $urlpart["host"];
+		} else
+			$datarray['private'] = 0;
+	}
+
+	//if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
+	//	$datarray["app"] = network_to_name($contact['network']);
+
+	if ($contact['network'] != NETWORK_FEED) {
+		// Store the original post
+		$r = item_store($datarray2, false, false);
+		logger('remote-self post original item - Contact '.$contact['url'].' return '.$r.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
+	} else
+		$datarray["app"] = "Feed";
+
+	return true;
+}
+
 function local_delivery($importer,$data) {
 	$a = get_app();
 
-    logger(__function__, LOGGER_TRACE);
+	logger(__function__, LOGGER_TRACE);
 
 	if($importer['readonly']) {
 		// We aren't receiving stuff from this person. But we will quietly ignore them
@@ -3689,27 +3765,7 @@ function local_delivery($importer,$data) {
 
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
-
-			if($importer['remote_self']) {
-				if ($importer['remote_self'] == 2) {
-					$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
-						intval($importer['importer_uid']));
-					if (count($r)) {
-						$datarray['contact-id'] = $r[0]["id"];
-
-						$datarray['owner-name'] = $r[0]["name"];
-						$datarray['owner-link'] = $r[0]["url"];
-						$datarray['owner-avatar'] = $r[0]["photo"];
-
-						$datarray['author-name']   = $datarray['owner-name'];
-						$datarray['author-link']   = $datarray['owner-link'];
-						$datarray['author-avatar'] = $datarray['owner-avatar'];
-					}
-				}
-
-				$notify = true;
-			} else
-				$notify = false;
+			$notify = item_is_remote_self($importer, $datarray);
 
 			$posted_id = item_store($datarray, false, $notify);
 
@@ -3828,6 +3884,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				dbesc(datetime_convert())
 			);
 		}
+
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($importer['uid'])
 		);
@@ -3841,20 +3898,24 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				(($r[0]['page-flags'] == PAGE_NORMAL) OR ($r[0]['page-flags'] == PAGE_SOAPBOX))) {
-				$email_tpl = get_intltext_template('follow_notify_eml.tpl');
-				$email = replace_macros($email_tpl, array(
-					'$requestor' => ((strlen($name)) ? $name : t('[Name Withheld]')),
-					'$url' => $url,
-					'$myname' => $r[0]['username'],
-					'$siteurl' => $a->get_baseurl(),
-					'$sitename' => $a->config['sitename']
+
+
+
+				notification(array(
+					'type'         => NOTIFY_INTRO,
+					'notify_flags' => $r[0]['notify-flags'],
+					'language'     => $r[0]['language'],
+					'to_name'      => $r[0]['username'],
+					'to_email'     => $r[0]['email'],
+					'uid'          => $r[0]['uid'],
+					'link'		   => $a->get_baseurl() . '/notifications/intro',
+					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : t('[Name Withheld]')),
+					'source_link'  => $contact_record['url'],
+					'source_photo' => $contact_record['photo'],
+					'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
+					'otype'        => 'intro'
 				));
-				$res = mail($r[0]['email'],
-					email_header_encode((($sharing) ? t('A new person is sharing with you at ') : t("You have a new follower at ")) . $a->config['sitename'],'UTF-8'),
-					$email,
-					'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-					. 'Content-type: text/plain; charset=UTF-8' . "\n"
-					. 'Content-transfer-encoding: 8bit' );
+
 
 			}
 		}

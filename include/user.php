@@ -6,6 +6,7 @@ require_once('include/plugin.php');
 require_once('include/text.php');
 require_once('include/pgettext.php');
 require_once('include/datetime.php');
+require_once('include/enotify.php');
 
 
 function create_user($arr) {
@@ -44,7 +45,7 @@ function create_user($arr) {
 			$result['message'] .= t('Invitation could not be verified.') . EOL;
 			return $result;
 		}
-	} 
+	}
 
 	if((! x($username)) || (! x($email)) || (! x($nickname))) {
 		if($openid_url) {
@@ -57,17 +58,17 @@ function create_user($arr) {
 			require_once('library/openid.php');
 			$openid = new LightOpenID;
 			$openid->identity = $openid_url;
-			$openid->returnUrl = $a->get_baseurl() . '/openid'; 
+			$openid->returnUrl = $a->get_baseurl() . '/openid';
 			$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');
 			$openid->optional = array('namePerson/first','media/image/aspect11','media/image/default');
-			try {			
+			try {
 				$authurl = $openid->authUrl();
 			} catch (Exception $e){
-				$result['message'] .= t("We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID."). EOL . EOL . t("The error message was:") . $e->getMessage() . EOL; 
+				$result['message'] .= t("We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID."). EOL . EOL . t("The error message was:") . $e->getMessage() . EOL;
 				return $result;
 			}
 			goaway($authurl);
-			// NOTREACHED	
+			// NOTREACHED
 		}
 
 		notice( t('Please enter the required information.') . EOL );
@@ -90,12 +91,12 @@ function create_user($arr) {
 
 	// I don't really like having this rule, but it cuts down
 	// on the number of auto-registrations by Russian spammers
-	
+
 	//  Using preg_match was completely unreliable, due to mixed UTF-8 regex support
 	//	$no_utf = get_config('system','no_utf');
-	//	$pat = (($no_utf) ? '/^[a-zA-Z]* [a-zA-Z]*$/' : '/^\p{L}* \p{L}*$/u' ); 
+	//	$pat = (($no_utf) ? '/^[a-zA-Z]* [a-zA-Z]*$/' : '/^\p{L}* \p{L}*$/u' );
 
-	// So now we are just looking for a space in the full name. 
+	// So now we are just looking for a space in the full name.
 
 	$loose_reg = get_config('system','no_regfullname');
 	if(! $loose_reg) {
@@ -182,14 +183,14 @@ function create_user($arr) {
 	 * will take several minutes each to process.
 	 *
 	 */
-	
+
 	$sres    = new_keypair(512);
 	$sprvkey = $sres['prvkey'];
 	$spubkey = $sres['pubkey'];
 
 	$r = q("INSERT INTO `user` ( `guid`, `username`, `password`, `email`, `openid`, `nickname`,
-		`pubkey`, `prvkey`, `spubkey`, `sprvkey`, `register_date`, `verified`, `blocked`, `timezone`, `service_class` )
-		VALUES ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, 'UTC', '%s' )",
+		`pubkey`, `prvkey`, `spubkey`, `sprvkey`, `register_date`, `verified`, `blocked`, `timezone`, `service_class`, `default-location` )
+		VALUES ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, 'UTC', '%s', '' )",
 		dbesc(generate_user_guid()),
 		dbesc($username),
 		dbesc($new_password_encoded),
@@ -207,7 +208,7 @@ function create_user($arr) {
 	);
 
 	if($r) {
-		$r = q("SELECT * FROM `user` 
+		$r = q("SELECT * FROM `user`
 			WHERE `username` = '%s' AND `password` = '%s' LIMIT 1",
 			dbesc($username),
 			dbesc($new_password_encoded)
@@ -220,10 +221,10 @@ function create_user($arr) {
 	else {
 		$result['message'] .=  t('An error occurred during registration. Please try again.') . EOL ;
 		return $result;
-	} 		
+	}
 
 	/**
-	 * if somebody clicked submit twice very quickly, they could end up with two accounts 
+	 * if somebody clicked submit twice very quickly, they could end up with two accounts
 	 * due to race condition. Remove this one.
 	 */
 
@@ -281,8 +282,8 @@ function create_user($arr) {
 			dbesc(datetime_convert())
 		);
 
-		// Create a group with no members. This allows somebody to use it 
-		// right away as a default group for new contacts. 
+		// Create a group with no members. This allows somebody to use it
+		// right away as a default group for new contacts.
 
 		require_once('include/group.php');
 		group_add($newuid, t('Friends'));
@@ -323,7 +324,7 @@ function create_user($arr) {
 		// guess mimetype from headers or filename
 		$type = guess_image_type($photo,true);
 
-		
+
 		$img = new Photo($img_str, $type);
 		if($img->is_valid()) {
 
@@ -364,4 +365,52 @@ function create_user($arr) {
 	$result['user'] = $u;
 	return $result;
 
+}
+
+
+/*
+ * send registration confirmation.
+ * It's here as a function because the mail is sent
+ * from different parts
+ */
+function send_register_open_eml($email, $sitename, $siteurl, $username, $password){
+	$preamble = deindent(t('
+		Dear %1$s,
+			Thank you for registering at %2$s. Your account has been created.
+	'));
+	$body = deindent(t('
+		The login details are as follows:
+			Site Location:	%3$s
+			Login Name:	%1$s
+			Password:	%5$s
+
+		You may change your password from your account "Settings" page after logging
+		in.
+
+		Please take a few moments to review the other account settings on that page.
+
+		You may also wish to add some basic information to your default profile
+		(on the "Profiles" page) so that other people can easily find you.
+
+		We recommend setting your full name, adding a profile photo,
+		adding some profile "keywords" (very useful in making new friends) - and
+		perhaps what country you live in; if you do not wish to be more specific
+		than that.
+
+		We fully respect your right to privacy, and none of these items are necessary.
+		If you are new and do not know anybody here, they may help
+		you to make some new and interesting friends.
+
+
+		Thank you and welcome to %2$s.'));
+
+		$preamble = sprintf($preamble, $username, $sitename);
+		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
+
+		return notification(array(
+			'type' => "SYSTEM_EMAIL",
+			'to_email' => $email,
+			'subject'=> sprintf( t('Registration details for %s'), $sitename),
+			'preamble'=> $preamble,
+			'body' => $body));
 }

@@ -160,6 +160,8 @@ function contacts_post(&$a) {
 
 	$fetch_further_information = intval($_POST['fetch_further_information']);
 
+	$ffi_keyword_blacklist = fix_mce_lf(escape_tags(trim($_POST['ffi_keyword_blacklist'])));
+
 	$priority = intval($_POST['poll']);
 	if($priority > 5 || $priority < 0)
 		$priority = 0;
@@ -167,13 +169,15 @@ function contacts_post(&$a) {
 	$info = fix_mce_lf(escape_tags(trim($_POST['info'])));
 
 	$r = q("UPDATE `contact` SET `profile-id` = %d, `priority` = %d , `info` = '%s',
-		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d WHERE `id` = %d AND `uid` = %d",
+		`hidden` = %d, `notify_new_posts` = %d, `fetch_further_information` = %d,
+		`ffi_keyword_blacklist` = '%s' WHERE `id` = %d AND `uid` = %d",
 		intval($profile_id),
 		intval($priority),
 		dbesc($info),
 		intval($hidden),
 		intval($notify),
 		intval($fetch_further_information),
+		dbesc($ffi_keyword_blacklist),
 		intval($contact_id),
 		intval(local_user())
 	);
@@ -388,7 +392,7 @@ function contacts_content(&$a) {
 				$dir_icon = 'images/larrow.gif';
 				$relation_text = t('You are sharing with %s');
 				break;
-	
+
 			case CONTACT_IS_SHARING;
 				$dir_icon = 'images/rarrow.gif';
 				$relation_text = t('%s is sharing with you');
@@ -502,7 +506,10 @@ function contacts_content(&$a) {
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
 			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
-			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), ($contact['fetch_further_information'] == 1), t('Fetch further information for feeds')),
+			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
+								array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords'))),
+			'$ffi_keyword_blacklist' => $contact['ffi_keyword_blacklist'],
+			'$ffi_keyword_blacklist' => array('ffi_keyword_blacklist', t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')),
 			'$photo' => $contact['photo'],
 			'$name' => $contact['name'],
 			'$dir_icon' => $dir_icon,
@@ -684,10 +691,10 @@ function contacts_content(&$a) {
 			);
 		}
 
-		
+
 
 	}
-	
+
 	$tpl = get_markup_template("contacts-template.tpl");
 	$o .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
