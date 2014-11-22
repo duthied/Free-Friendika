@@ -169,7 +169,7 @@
 							$json = json_encode($rr);
 							if ($_GET['callback'])
 								$json = $_GET['callback']."(".$json.")";
-							return $json;							
+							return $json;
 						break;
 					case "rss":
 						header ("Content-Type: application/rss+xml");
@@ -681,6 +681,7 @@
 			logger('api_statuses_update: no user');
 			return false;
 		}
+
 		$user_info = api_get_user($a);
 
 		// convert $_POST array items to the form we use for web posts.
@@ -725,6 +726,64 @@
 		if($parent)
 			$_REQUEST['type'] = 'net-comment';
 		else {
+			// Check for throttling (maximum posts per day, week and month)
+			$throttle_day = get_config('system','throttle_limit_day');
+			if ($throttle_day > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60);
+
+				$r = q("SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_day = $r[0]["posts_day"];
+				else
+					$posts_day = 0;
+
+				if ($posts_day > $throttle_day) {
+					logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+				}
+			}
+
+			$throttle_week = get_config('system','throttle_limit_week');
+			if ($throttle_week > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*7);
+
+				$r = q("SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_week = $r[0]["posts_week"];
+				else
+					$posts_week = 0;
+
+				if ($posts_week > $throttle_week) {
+					logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+				}
+			}
+
+			$throttle_month = get_config('system','throttle_limit_month');
+			if ($throttle_month > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*30);
+
+				$r = q("SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_month = $r[0]["posts_month"];
+				else
+					$posts_month = 0;
+
+				if ($posts_month > $throttle_month) {
+					logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+				}
+			}
+
 			$_REQUEST['type'] = 'wall';
 			if(x($_FILES,'media')) {
 				// upload the image if we have one
