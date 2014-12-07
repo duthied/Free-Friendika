@@ -3,10 +3,10 @@ require_once("include/oembed.php");
 require_once('include/event.php');
 
 function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
-	$Text = preg_replace_callback("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
+	$Text = preg_replace_callback("/(.*?)\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
 		function ($match) use ($plaintext){
 
-			$attributes = $match[1];
+			$attributes = $match[2];
 
 			$type = "";
 			preg_match("/type='(.*?)'/ism", $attributes, $matches);
@@ -65,6 +65,11 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 					$preview = $matches[1];
 			}
 
+			if (((strpos($match[1], "[img=") !== false) OR (strpos($match[1], "[img]") !== false)) AND ($image != "")) {
+				$preview = $image;
+				$image = "";
+			}
+
 			if ($plaintext)
 				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);
 			else {
@@ -83,10 +88,10 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 
 				$text .= $oembed;
 
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[2]));
+				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
 			}
 
-			return($text);
+			return($match[1].$text);
 		},$Text);
 
 	return($Text);
