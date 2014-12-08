@@ -263,11 +263,6 @@ function scrape_feed($url) {
 	}
 
 	try {
-		// Cleanup invalid HTML
-		$doc = new DOMDocument();
-		@$doc->loadHTML($s);
-                $s = $doc->saveHTML();
-
 		$dom = HTML5_Parser::parse($s);
 	} catch (DOMException $e) {
 		logger('scrape_feed: parse error: ' . $e);

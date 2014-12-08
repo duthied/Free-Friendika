@@ -17,6 +17,12 @@ class HTML5_Parser
      * @return Parsed HTML as DOMDocument
      */
     static public function parse($text, $builder = null) {
+
+	// Cleanup invalid HTML
+	$doc = new DOMDocument();
+	@$doc->loadHTML($text);
+	$text = $doc->saveHTML();
+
         $tokenizer = new HTML5_Tokenizer($text, $builder);
         $tokenizer->parse();
         return $tokenizer->save();
