@@ -187,6 +187,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				case "description":
 					$siteinfo["text"] = $attr["content"];
 					break;
+				case "thumbnail":
+					$siteinfo["image"] = $attr["content"];
+					break;
 				case "twitter:image":
 					$siteinfo["image"] = $attr["content"];
 					break;
@@ -420,6 +423,12 @@ function parse_url_content(&$a) {
 //	}
 
 	$url= $siteinfo["url"];
+
+	// If the link contains BBCode stuff, make a short link out of this to avoid parsing problems
+	if (strpos($url, '[') OR strpos($url, ']')) {
+		require_once("include/network.php");
+		$url = short_link($url);
+	}
 
 	$sitedata = "";
 
