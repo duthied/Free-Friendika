@@ -62,7 +62,7 @@ ACL.prototype.add_mention = function(id) {
 		that.element.val( searchText + that.element.val() );
 	} else {
 		if ( tinyMCE.activeEditor.getContent({format : 'raw'}).search(searchText) >= 0 ) return;
-		tinyMCE.activeEditor.dom.add(tinyMCE.activeEditor.getBody(), 'span', {}, searchText);
+		tinyMCE.activeEditor.dom.add(tinyMCE.activeEditor.getBody(), 'dummy', {}, searchText);
 	}
 }
 

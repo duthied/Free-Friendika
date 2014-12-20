@@ -872,9 +872,18 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, "", ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
+		$preview = "";
+
+		// Handle enclosures and treat them as preview picture
+		if (isset($attach))
+			foreach ($attach AS $attachment)
+				if ($attachment->type == "image/jpeg")
+					$preview = $attachment->link;
+
+		$res["body"] = $res["title"].add_page_info($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
+		unset($res["attach"]);
 	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
 		$res["body"] = add_page_info_to_body($res["body"]);
 	elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
@@ -902,6 +911,12 @@ function add_page_info_data($data) {
 
 	if ($no_photos AND ($data["type"] == "photo"))
 		return("");
+
+	// If the link contains BBCode stuff, make a short link out of this to avoid parsing problems
+	if (strpos($data["url"], '[') OR strpos($data["url"], ']')) {
+		require_once("include/network.php");
+		$data["url"] = short_link($data["url"]);
+	}
 
 	if (($data["type"] != "photo") AND is_string($data["title"]))
 		$text .= "[bookmark=".$data["url"]."]".trim($data["title"])."[/bookmark]";
@@ -934,6 +949,9 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 	require_once("mod/parse_url.php");
 
 	$data = parseurl_getsiteinfo($url, true);
+
+	if ($photo != "")
+		$data["images"][0]["src"] = $photo;
 
 	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
 
