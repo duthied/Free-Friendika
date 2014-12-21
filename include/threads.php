@@ -35,11 +35,16 @@ function add_thread($itemid, $onlyshadow = false) {
 	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED, "")))
 		return;
 
-	// Check, if hide-friends is activated - then don't do a shadow entry
-	// Only do this check if the post isn't a wall post
+	// Only do these checks if the post isn't a wall post
 	if (!$item["wall"]) {
+		// Check, if hide-friends is activated - then don't do a shadow entry
 		$r = q("SELECT `hide-friends` FROM `profile` WHERE `is-default` AND `uid` = %d AND NOT `hide-friends`",
 			$item['uid']);
+		if (!count($r))
+			return;
+		// Check if the contact is hidden or blocked
+		$r = q("SELECT `id` FROM `contact` WHERE NOT `hidden` AND NOT `blocked` AND `id` = %d",
+			$item['contact-id']);
 		if (!count($r))
 			return;
 	}
