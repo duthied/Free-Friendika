@@ -129,7 +129,7 @@ function community_getitems($start, $itemspage) {
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND (`contact`.`self` OR `contact`.`remote_self`)
+		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
 		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
 		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
 		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
