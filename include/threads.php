@@ -1,5 +1,5 @@
 <?php
-function add_thread($itemid) {
+function add_thread($itemid, $onlyshadow = false) {
 	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`,
 			`deleted`, `origin`, `forum_mode`, `mention`, `network`  FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
@@ -9,13 +9,15 @@ function add_thread($itemid) {
 	$item = $items[0];
 	$item['iid'] = $itemid;
 
-	$result = dbq("INSERT INTO `thread` (`"
-			.implode("`, `", array_keys($item))
-			."`) VALUES ('"
-			.implode("', '", array_values($item))
-			."')");
+	if (!$onlyshadow) {
+		$result = dbq("INSERT INTO `thread` (`"
+				.implode("`, `", array_keys($item))
+				."`) VALUES ('"
+				.implode("', '", array_values($item))
+				."')");
 
-	logger("add_thread: Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
+		logger("add_thread: Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
+	}
 
 	// Store a shadow copy of public items for displaying a global community page?
 	if (!get_config('system', 'global_community'))
@@ -25,11 +27,22 @@ function add_thread($itemid) {
 	if (($itemid == 0) OR ($item['uid'] == 0))
 		return;
 
-	// Check, if hide-friends is activated - then don't do a shadow entry
-	$r = q("SELECT `hide-friends` FROM `profile` WHERE `is-default` AND `uid` = %d AND NOT `hide-friends`",
-		$item['uid']);
-	if (!count($r))
+	// Is it a visible public post?
+	if (!$item["visible"] OR $item["deleted"] OR $item["moderated"] OR $item["private"])
 		return;
+
+	// is it an entry from a connector? Only add an entry for natively connected networks
+	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED, "")))
+		return;
+
+	// Check, if hide-friends is activated - then don't do a shadow entry
+	// Only do this check if the post isn't a wall post
+	if (!$item["wall"]) {
+		$r = q("SELECT `hide-friends` FROM `profile` WHERE `is-default` AND `uid` = %d AND NOT `hide-friends`",
+			$item['uid']);
+		if (!count($r))
+			return;
+	}
 
 	// Only add a shadow, if the profile isn't hidden
 	$r = q("SELECT `uid` FROM `user` where `uid` = %d AND NOT `hidewall`", $item['uid']);
@@ -39,10 +52,8 @@ function add_thread($itemid) {
 	$item = q("SELECT * FROM `item` WHERE `id` = %d",
 		intval($itemid));
 
-	if (count($item) AND ($item[0]["visible"] == 1) AND ($item[0]["deleted"] == 0) AND
-		(($item[0]["id"] == $item[0]["parent"]) OR ($item[0]["parent"] == 0)) AND
-		($item[0]["moderated"] == 0) AND ($item[0]["allow_cid"] == '')  AND ($item[0]["allow_gid"] == '') AND
-		($item[0]["deny_cid"] == '') AND ($item[0]["deny_gid"] == '') AND ($item[0]["private"] == 0)) {
+	if (count($item) AND ($item[0]["allow_cid"] == '')  AND ($item[0]["allow_gid"] == '') AND
+		($item[0]["deny_cid"] == '') AND ($item[0]["deny_gid"] == '')) {
 
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1",
 			dbesc($item['uri']));
@@ -53,8 +64,8 @@ function add_thread($itemid) {
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
 			$item[0]['contact-id'] = 0;
+			$public_shadow = item_store($item[0], false, false, true);
 
-			$public_shadow = item_store($item[0],false);
 			logger("add_thread: Stored public shadow for post ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
 		}
 	}
@@ -186,5 +197,22 @@ function update_threads_mention() {
 		foreach ($parents AS $parent)
 			q("UPDATE `thread` SET `mention` = 1 WHERE `iid` = %d", $parent["parent"]);
 	}
+}
+
+
+function update_shadow_copy() {
+	global $db;
+
+	logger("start");
+
+	$messages = $db->q(sprintf("SELECT `iid` FROM `thread` WHERE `uid` != 0 AND `network` IN ('', '%s', '%s', '%s', '%s')
+					AND `visible` AND NOT `deleted` AND NOT `moderated` AND NOT `private` ORDER BY `created`",
+				NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS), true);
+
+	logger("fetched messages: ".count($messages));
+	while ($message = $db->qfetch())
+		add_thread($message["iid"], true);
+
+	$db->qclose();
 }
 ?>
