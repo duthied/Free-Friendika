@@ -17,7 +17,11 @@ function add_thread($itemid) {
 
 	logger("add_thread: Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
-	// Adding a shadow item entry
+	// Store a shadow copy of public items for displaying a global community page?
+	if (!get_config('system', 'global_community'))
+		return;
+
+	// is it already a copy?
 	if (($itemid == 0) OR ($item['uid'] == 0))
 		return;
 
@@ -139,7 +143,7 @@ function delete_thread($itemid) {
 
 	logger("delete_thread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
-	if ($count($item)) {
+	if (count($item)) {
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT (`uid` IN (%d, 0))",
 				dbesc($item["uri"]),
 				intval($item["uid"])
