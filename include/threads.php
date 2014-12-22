@@ -32,7 +32,7 @@ function add_thread($itemid, $onlyshadow = false) {
 		return;
 
 	// is it an entry from a connector? Only add an entry for natively connected networks
-	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED, "")))
+	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
 		return;
 
 	// Only do these checks if the post isn't a wall post
@@ -210,9 +210,9 @@ function update_shadow_copy() {
 
 	logger("start");
 
-	$messages = $db->q(sprintf("SELECT `iid` FROM `thread` WHERE `uid` != 0 AND `network` IN ('', '%s', '%s', '%s', '%s')
+	$messages = $db->q(sprintf("SELECT `iid` FROM `thread` WHERE `uid` != 0 AND `network` IN ('', '%s', '%s', '%s')
 					AND `visible` AND NOT `deleted` AND NOT `moderated` AND NOT `private` ORDER BY `created`",
-				NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS), true);
+				NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS), true);
 
 	logger("fetched messages: ".count($messages));
 	while ($message = $db->qfetch())
