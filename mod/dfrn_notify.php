@@ -175,6 +175,8 @@ function dfrn_notify_content(&$a) {
 
 		$dfrn_id = notags(trim($_GET['dfrn_id']));
 		$dfrn_version = (float) $_GET['dfrn_version'];
+		$type = "";
+		$last_update = "";
 
 		logger('dfrn_notify: new notification dfrn_id=' . $dfrn_id);
 
@@ -190,11 +192,13 @@ function dfrn_notify_content(&$a) {
 
 		$r = q("DELETE FROM `challenge` WHERE `expire` < " . intval(time()));
 
-		$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` )
-			VALUES( '%s', '%s', %d ) ",
+		$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
+			VALUES( '%s', '%s', %d, '%s', '%s' ) ",
 			dbesc($hash),
 			dbesc($dfrn_id),
-			intval(time() + 90 )
+			intval(time() + 90 ),
+			dbesc($type),
+			dbesc($last_update)
 		);
 
 		logger('dfrn_notify: challenge=' . $hash, LOGGER_DEBUG );

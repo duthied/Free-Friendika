@@ -56,6 +56,8 @@ function diaspora2bb($s) {
 
 function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
+	$OriginalText = $Text;
+
 	// Since Diaspora is creating a summary for links, this function removes them before posting
 	if ($fordiaspora)
 		$Text = bb_remove_share_information($Text);
@@ -73,9 +75,20 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
 
 	// Convert it to HTML - don't try oembed
-	if ($fordiaspora)
+	if ($fordiaspora) {
 		$Text = bbcode($Text, $preserve_nl, false, 3);
-	else {
+
+		// Add all tags that maybe were removed
+		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",$OriginalText, $tags)) {
+			$tagline = "";
+			foreach($tags[2] as $tag)
+				if (!strpos($Text, "#".$tag))
+					$tagline .= "#".$tag." ";
+
+			$Text = $Text."<br />".$tagline;
+		}
+
+	} else {
 		$Text = bbcode($Text, $preserve_nl, false, 4);
 		// Libertree doesn't convert a harizontal rule if there isn't a linefeed
 		$Text = str_replace("<hr />", "<br /><hr />", $Text);

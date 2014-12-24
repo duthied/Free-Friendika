@@ -389,7 +389,7 @@ function dfrn_poll_content(&$a) {
 	$sec             = ((x($_GET,'sec'))             ? $_GET['sec']                  : '');
 	$dfrn_version    = ((x($_GET,'dfrn_version'))    ? (float) $_GET['dfrn_version'] : 2.0);
 	$perm            = ((x($_GET,'perm'))            ? $_GET['perm']                 : 'r');
-	$quiet			 = ((x($_GET,'quiet'))			 ? true							 : false);
+	$quiet		 = ((x($_GET,'quiet'))           ? true	                         : false);
 
 	$direction = (-1);
 	if(strpos($dfrn_id,':') == 1) {

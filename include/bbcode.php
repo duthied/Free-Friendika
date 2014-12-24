@@ -3,10 +3,10 @@ require_once("include/oembed.php");
 require_once('include/event.php');
 
 function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
-	$Text = preg_replace_callback("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
+	$Text = preg_replace_callback("/(.*?)\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
 		function ($match) use ($plaintext){
 
-			$attributes = $match[1];
+			$attributes = $match[2];
 
 			$type = "";
 			preg_match("/type='(.*?)'/ism", $attributes, $matches);
@@ -65,8 +65,13 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 					$preview = $matches[1];
 			}
 
+			if (((strpos($match[1], "[img=") !== false) OR (strpos($match[1], "[img]") !== false)) AND ($image != "")) {
+				$preview = $image;
+				$image = "";
+			}
+
 			if ($plaintext)
-				$text = sprintf('<a href="%s" target="_blank">%s</a>', $url, $title);
+				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);
 			else {
 				$text = sprintf('<span class="type-%s">', $type);
 
@@ -83,43 +88,14 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 
 				$text .= $oembed;
 
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[2]));
+				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
 			}
 
-			return($text);
+			return($match[1].$text);
 		},$Text);
 
 	return($Text);
 }
-
-/* function bb_rearrange_link($shared) {
-	if ($shared[1] != "type-link")
-		return($shared[0]);
-
-	$newshare = trim($shared[2]);
-	$newshare = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $newshare);
-
-	if (!strpos($shared[0], "[bookmark"))
-		$newshare = preg_replace("/\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $newshare, 1);
-
-	preg_match("/\[img\](.*?)\[\/img\]/ism", $newshare, $matches);
-
-	if ($matches) {
-		$newshare = str_replace($matches[0], '', $newshare);
-		$newshare = "[img]".$matches[1]."[/img]\n".$newshare;
-	}
-
-	$search = array("\n\n", "\n ", " \n");
-	$replace = array("\n", "\n", "\n");
-	do {
-		$oldtext = $newshare;
-		$newshare = str_replace($search, $replace, $newshare);
-	} while ($oldtext != $newshare);
-
-	$newshare = "[class=type-link]".$newshare."[/class]";
-
-	return($newshare);
-} */
 
 function bb_rearrange_share($shared) {
 	if (!in_array(strtolower($shared[2]), array("type-link", "type-audio", "type-video")))
@@ -211,7 +187,8 @@ function bb_cleanup_share($shared, $plaintext, $nolink) {
 	if (isset($bookmark[1][0]))
 		$link = $bookmark[1][0];
 
-	if (($title != "") AND (strpos($shared[1],$title) !== false))
+	if (($title != "") AND ((strpos($shared[1],$title) !== false) OR
+		(similar_text($shared[1],$title) / strlen($title)) > 0.9))
 		$title = "";
 
 //        if (strpos($shared[1],$link) !== false)
@@ -825,13 +802,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Rearrange shares to attachments
 	$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism", "bb_rearrange_share",$Text);
 
-	// Handle attached links or videos
-	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
-
-	// Rearrange shared links
-//	if (get_config("system", "rearrange_shared_links") AND (!$simplehtml OR $tryoembed))
-//		$Text = preg_replace_callback("(\[class=(.*?)\](.*?)\[\/class\])ism","bb_rearrange_link",$Text);
-
 	// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 	if (!$tryoembed)
 		$Text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","\n[share$1$2]$3[/share]",$Text);
@@ -848,20 +818,21 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// removing multiplicated newlines
 	if (get_config("system", "remove_multiplicated_lines")) {
-		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ");
-		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ");
+		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n");
+		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]");
 		do {
 			$oldtext = $Text;
 			$Text = str_replace($search, $replace, $Text);
 		} while ($oldtext != $Text);
 	}
 
+	// Handle attached links or videos
+	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
+
 	$Text = str_replace(array("\r","\n"), array('<br />','<br />'), $Text);
 
 	if($preserve_nl)
 		$Text = str_replace(array("\n","\r"), array('',''),$Text);
-
-
 
 	// Set up the parameters for a URL search string
 	$URLSearchString = "^\[\]";
