@@ -1242,14 +1242,11 @@ function photos_content(&$a) {
 					$desc_e = $rr['desc'];
 				}
 				
-				$rel=("photo");
-
 				$photos[] = array(
 					'id' => $rr['id'],
 					'twist' => ' ' . $twist . rand(2,4),
 					'link' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
 						. (($_GET['order'] === 'posted') ? '?f=&order=posted' : ''),
-					'rel' => $rel,
 					'title' => t('View Photo'),
 					'src' => $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
 					'alt' => $imgalt_e,
