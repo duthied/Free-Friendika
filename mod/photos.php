@@ -1267,7 +1267,6 @@ function photos_content(&$a) {
 			));
 
 		$o .= '<div id="photo-album-end"></div>';
-		$o .= paginate($a);
 
 		return $o;
 
