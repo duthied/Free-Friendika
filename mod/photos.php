@@ -1183,8 +1183,6 @@ function photos_content(&$a) {
 			intval($a->pager['itemspage'])
 		);
 
-		$o .= '<h3 id="photo-album-title">' . $album . '</h3>';
-
 		if($cmd === 'edit') {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if($can_post) {
@@ -1266,7 +1264,7 @@ function photos_content(&$a) {
 				'$edit' => $edit
 			));
 
-		$o .= '<div id="photo-album-end"></div>';
+		$o .= paginate($a);
 
 		return $o;
 
