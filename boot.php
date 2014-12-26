@@ -15,8 +15,8 @@ require_once('update.php');
 require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_CODENAME',	'Ginger');
-define ( 'FRIENDICA_VERSION',      '3.3.1' );
+define ( 'FRIENDICA_CODENAME',     'Ginger');
+define ( 'FRIENDICA_VERSION',      '3.3.2' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1175      );
 define ( 'EOL',                    "<br />\r\n"     );
