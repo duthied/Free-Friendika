@@ -35,7 +35,7 @@ function settings_init(&$a) {
 		array(
 			'label'	=> t('Account'),
 			'url' 	=> $a->get_baseurl(true).'/settings',
-			'selected'	=> (($a->argc == 1)?'active':''),
+			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
 		),
 		array(
 			'label'	=> t('Additional features'),
@@ -61,7 +61,7 @@ function settings_init(&$a) {
 		array(
 			'label'	=> t('Delegations'),
 			'url' 	=> $a->get_baseurl(true).'/delegate',
-			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
+			'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
 		),
 		array(
 			'label' => t('Connected apps'),
@@ -71,12 +71,12 @@ function settings_init(&$a) {
 		array(
 			'label' => t('Export personal data'),
 			'url' => $a->get_baseurl(true) . '/uexport',
-			'selected' => ''
+			'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
 		),
 		array(
 			'label' => t('Remove account'),
 			'url' => $a->get_baseurl(true) . '/removeme',
-			'selected' => ''
+			'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
 		)
 	);
 
@@ -1022,7 +1022,7 @@ function settings_content(&$a) {
 	));
 
 	$hide_wall = replace_macros($opt_tpl,array(
-			'$field' 	=> array('hidewall',  t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], '', array(t('No'),t('Yes'))),
+			'$field' 	=> array('hidewall',  t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], t("If enabled, posting public messages to Diaspora and other networks isn't possible."), array(t('No'),t('Yes'))),
 
 	));
 

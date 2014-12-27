@@ -20,10 +20,10 @@
 
 		}).trigger('change');
 		
-		$('.settings-block').hide();
+		$('.settings-content-block').hide();
 		$('.settings-heading').click(function(){
-			$('.settings-block').hide();
-			$(this).next('.settings-block').toggle();
+			$('.settings-content-block').hide();
+			$(this).next('.settings-content-block').toggle();
 		});
 
 	});

@@ -1,6 +1,7 @@
 <?php
 
-require_once('include/email.php');
+require_once('include/enotify.php');
+require_once('include/user.php');
 
 function user_allow($hash) {
 
@@ -41,21 +42,12 @@ function user_allow($hash) {
 
 	push_lang($register[0]['language']);
 
-	$email_tpl = get_intltext_template("register_open_eml.tpl");
-	$email_tpl = replace_macros($email_tpl, array(
-			'$sitename' => $a->config['sitename'],
-			'$siteurl' =>  $a->get_baseurl(),
-			'$username' => $user[0]['username'],
-			'$email' => $user[0]['email'],
-			'$password' => $register[0]['password'],
-			'$uid' => $user[0]['uid']
-	));
-
-	$res = mail($user[0]['email'], email_header_encode( sprintf(t('Registration details for %s'), $a->config['sitename']), 'UTF-8'),
-		$email_tpl,
-			'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
-			. 'Content-type: text/plain; charset=UTF-8' . "\n"
-			. 'Content-transfer-encoding: 8bit' );
+	send_register_open_eml(
+		$user[0]['email'],
+		$a->config['sitename'],
+		$a->get_baseurl(),
+		$user[0]['username'],
+		$register[0]['password']);
 
 	pop_lang();
 
@@ -128,10 +120,14 @@ function regmod_content(&$a) {
 
 
 	if($cmd === 'deny') {
-		if (!user_deny($hash)) killme();
+		user_deny($hash);
+		goaway("/admin/users/");
+		killme();
 	}
 
 	if($cmd === 'allow') {
-		if (!user_allow($hash)) killme();
+		user_allow($hash);
+		goaway("/admin/users/");
+		killme();
 	}
 }

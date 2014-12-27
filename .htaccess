@@ -12,7 +12,7 @@ Deny from all
   # Protect repository directory from browsing
   RewriteRule "(^|/)\.git" - [F]
 
-  # Rewrite current-style URLs of the form 'index.php?q=x'.
+  # Rewrite current-style URLs of the form 'index.php?pagename=x'.
   # Also place auth information into REMOTE_USER for sites running
   # in CGI mode.
 
@@ -28,7 +28,7 @@ Deny from all
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.php?q=$1 [E=REMOTE_USER:%{HTTP:Authorization},L,QSA]
+  RewriteRule ^(.*)$ index.php?pagename=$1 [E=REMOTE_USER:%{HTTP:Authorization},L,QSA]
 
 </IfModule>
 

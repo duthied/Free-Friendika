@@ -1330,8 +1330,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['mentions'] = $mentions;
 
 
-	//$cachefile = get_cachefile($item["guid"]."-".strtotime($item["edited"])."-".hash("crc32", $item['body']));
-	$cachefile = get_cachefile($item["guid"]."-".hash("md5", $item['body']));
+	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
 
 	if (($cachefile != '')) {
 		if (file_exists($cachefile)) {
@@ -1503,7 +1502,7 @@ function prepare_text($text) {
 	else
 		$s = smilies(bbcode($text));
 
-	return $s;
+	return trim($s);
 }}
 
 
@@ -2228,4 +2227,23 @@ function is_a_date_arg($s) {
 		}
 	}
 	return false;
+}
+
+/**
+ * remove intentation from a text
+ */
+function deindent($text, $chr="[\t ]", $count=NULL) {
+	$text = fix_mce_lf($text);
+	$lines = explode("\n", $text);
+	if (is_null($count)) {
+		$m = array();
+		$k=0; while($k<count($lines) && strlen($lines[$k])==0) $k++;
+		preg_match("|^".$chr."*|", $lines[$k], $m);
+		$count = strlen($m[0]);
+	}
+	for ($k=0; $k<count($lines); $k++){
+		$lines[$k] = preg_replace("|^".$chr."{".$count."}|", "", $lines[$k]);
+	}
+
+	return implode("\n", $lines);
 }

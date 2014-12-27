@@ -1,10 +1,15 @@
 <?php
 
 # if PDO is avaible for mysql, use the new database abstraction
+# TODO: PDO is disabled for release 3.3. We need to investigate why
+# the update from 3.2 fails with pdo
+/*
 if(class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
   require_once("library/dddbl2/dddbl.php");
   require_once("include/dba_pdo.php");
 }
+*/
+
 
 require_once('include/datetime.php');
 
@@ -14,12 +19,12 @@ require_once('include/datetime.php');
  *
  * For debugging, insert 'dbg(1);' anywhere in the program flow.
  * dbg(0); will turn it off. Logging is performed at LOGGER_DATA level.
- * When logging, all binary info is converted to text and html entities are escaped so that 
+ * When logging, all binary info is converted to text and html entities are escaped so that
  * the debugging stream is safe to view within both terminals and web pages.
  *
  */
- 
-if(! class_exists('dba')) { 
+
+if(! class_exists('dba')) {
 class dba {
 
 	private $debug = 0;
@@ -227,7 +232,7 @@ class dba {
 	}
 
 	function __destruct() {
-		if ($this->db) 
+		if ($this->db)
 			if($this->mysqli)
 				$this->db->close();
 			else
@@ -245,14 +250,14 @@ function printable($s) {
 }}
 
 // Procedural functions
-if(! function_exists('dbg')) { 
+if(! function_exists('dbg')) {
 function dbg($state) {
 	global $db;
 	if($db)
 	$db->dbg($state);
 }}
 
-if(! function_exists('dbesc')) { 
+if(! function_exists('dbesc')) {
 function dbesc($str) {
 	global $db;
 	if($db && $db->connected)
@@ -268,7 +273,7 @@ function dbesc($str) {
 // Example: $r = q("SELECT * FROM `%s` WHERE `uid` = %d",
 //                   'user', 1);
 
-if(! function_exists('q')) { 
+if(! function_exists('q')) {
 function q($sql) {
 
 	global $db;
@@ -285,12 +290,12 @@ function q($sql) {
 
 	/**
 	 *
-	 * This will happen occasionally trying to store the 
-	 * session data after abnormal program termination 
+	 * This will happen occasionally trying to store the
+	 * session data after abnormal program termination
 	 *
 	 */
 	logger('dba: no database: ' . print_r($args,true));
-	return false; 
+	return false;
 
 }}
 
@@ -300,7 +305,7 @@ function q($sql) {
  *
  */
 
-if(! function_exists('dbq')) { 
+if(! function_exists('dbq')) {
 function dbq($sql) {
 
 	global $db;
@@ -312,10 +317,10 @@ function dbq($sql) {
 }}
 
 
-// Caller is responsible for ensuring that any integer arguments to 
+// Caller is responsible for ensuring that any integer arguments to
 // dbesc_array are actually integers and not malformed strings containing
-// SQL injection vectors. All integer array elements should be specifically 
-// cast to int to avoid trouble. 
+// SQL injection vectors. All integer array elements should be specifically
+// cast to int to avoid trouble.
 
 
 if(! function_exists('dbesc_array_cb')) {

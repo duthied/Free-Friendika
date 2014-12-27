@@ -6,8 +6,8 @@
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 {{foreach $features as $f}}
-<h3 class="settings-heading">{{$f.0}}</h3>
-<div class="settings-block">
+<h3 class="settings-heading"><a href="javascript:;">{{$f.0}}</a></h3>
+<div class="settings-content-block">
 
 {{foreach $f.1 as $fcat}}
 	{{include file="field_yesno.tpl" field=$fcat}}

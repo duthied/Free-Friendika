@@ -1468,7 +1468,7 @@ input#dfrn-url {
 	overflow: hidden;
 }
 
-.divgrow-showmore {
+.showmore {
 	display: block;
 	clear: both;
 	text-align: center;

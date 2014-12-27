@@ -26,6 +26,19 @@
 		return false;
 	}
 
+	function api_source() {
+		if (requestdata('source'))
+			return (requestdata('source'));
+
+		// Support for known clients that doesn't send a source name
+		if (strstr($_SERVER['HTTP_USER_AGENT'], "Twidere"))
+			return ("Twidere");
+
+		logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+
+		return ("api");
+	}
+
 	function api_date($str){
 		//Wed May 23 06:01:13 +0000 2007
 		return datetime_convert('UTC', 'UTC', $str, "D M d H:i:s +0000 Y" );
@@ -122,7 +135,6 @@
 
 		// preset
 		$type="json";
-
 		foreach ($API as $p=>$info){
 			if (strpos($a->query_string, $p)===0){
 				$called_api= explode("/",$p);
@@ -154,7 +166,10 @@
 					case "json":
 						header ("Content-Type: application/json");
 						foreach($r as $rr)
-							return json_encode($rr);
+							$json = json_encode($rr);
+							if ($_GET['callback'])
+								$json = $_GET['callback']."(".$json.")";
+							return $json;
 						break;
 					case "rss":
 						header ("Content-Type: application/rss+xml");
@@ -666,6 +681,7 @@
 			logger('api_statuses_update: no user');
 			return false;
 		}
+
 		$user_info = api_get_user($a);
 
 		// convert $_POST array items to the form we use for web posts.
@@ -710,8 +726,64 @@
 		if($parent)
 			$_REQUEST['type'] = 'net-comment';
 		else {
-//			logger("api_statuses_update: upload ".print_r($_FILES, true)." ".print_r($_POST, true)." ".print_r($_GET, true), LOGGER_DEBUG);
-//die("blubb");
+			// Check for throttling (maximum posts per day, week and month)
+			$throttle_day = get_config('system','throttle_limit_day');
+			if ($throttle_day > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60);
+
+				$r = q("SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_day = $r[0]["posts_day"];
+				else
+					$posts_day = 0;
+
+				if ($posts_day > $throttle_day) {
+					logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+				}
+			}
+
+			$throttle_week = get_config('system','throttle_limit_week');
+			if ($throttle_week > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*7);
+
+				$r = q("SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_week = $r[0]["posts_week"];
+				else
+					$posts_week = 0;
+
+				if ($posts_week > $throttle_week) {
+					logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+				}
+			}
+
+			$throttle_month = get_config('system','throttle_limit_month');
+			if ($throttle_month > 0) {
+				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*30);
+
+				$r = q("SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
+					AND `created` > '%s' AND `id` = `parent`",
+					intval(api_user()), dbesc($datefrom));
+
+				if ($r)
+					$posts_month = $r[0]["posts_month"];
+				else
+					$posts_month = 0;
+
+				if ($posts_month > $throttle_month) {
+					logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+					die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+				}
+			}
+
 			$_REQUEST['type'] = 'wall';
 			if(x($_FILES,'media')) {
 				// upload the image if we have one
@@ -726,6 +798,9 @@
 		// set this so that the item_post() function is quiet and doesn't redirect or emit json
 
 		$_REQUEST['api_source'] = true;
+
+		if (!x($_REQUEST, "source"))
+			$_REQUEST["source"] = api_source();
 
 		// call out normal post function
 
@@ -935,6 +1010,35 @@
 
 	}
 	api_register_func('api/users/show','api_users_show');
+
+
+	function api_users_search(&$a, $type) {
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+
+		$userlist = array();
+
+		if (isset($_GET["q"])) {
+			$r = q("SELECT id FROM unique_contacts WHERE name='%s'", dbesc($_GET["q"]));
+			if (!count($r))
+				$r = q("SELECT id FROM unique_contacts WHERE nick='%s'", dbesc($_GET["q"]));
+
+			if (count($r)) {
+				foreach ($r AS $user) {
+					$user_info = api_get_user($a, $user["id"]);
+					//echo print_r($user_info, true)."\n";
+					$userdata = api_apply_template("user", $type, array('user' => $user_info));
+					$userlist[] = $userdata["user"];
+				}
+				$userlist = array("users" => $userlist);
+			} else
+				die(api_error($a, $type, t("User not found.")));
+		} else
+			die(api_error($a, $type, t("User not found.")));
+
+		return ($userlist);
+	}
+
+	api_register_func('api/users/search','api_users_search');
 
 	/**
 	 *
@@ -1272,6 +1376,9 @@
 			$_REQUEST['type'] = 'wall';
 			$_REQUEST['api_source'] = true;
 
+			if (!x($_REQUEST, "source"))
+				$_REQUEST["source"] = api_source();
+
 			require_once('mod/item.php');
 			item_post($a);
 		}
@@ -1359,7 +1466,7 @@
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention`)
+			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -1790,7 +1897,17 @@
 
 		return($entities);
 	}
-
+	function api_format_items_embeded_images($item, $text){
+		$a = get_app();
+		$text = preg_replace_callback(
+				"|data:image/([^;]+)[^=]+=*|m",
+				function($match) use ($a, $item) {
+					return $a->get_baseurl()."/display/".$item['guid'];
+				},
+				$text);
+		return $text;
+	}
+	
 	function api_format_items($r,$user_info, $filter_user = false) {
 
 		$a = get_app();
@@ -1848,17 +1965,23 @@
 			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
 			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
 			$statusbody = trim(html2plain($html, 0));
-
+			
+			// handle data: images
+			$statusbody = api_format_items_embeded_images($item,$statusbody);
+			
 			$statustitle = trim($item['title']);
 
 			if (($statustitle != '') and (strpos($statusbody, $statustitle) !== false))
 				$statustext = trim($statusbody);
 			else
 				$statustext = trim($statustitle."\n\n".$statusbody);
-
+				
 			if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
 				$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
+			$statushtml = trim(bbcode($item['body'], false, false));
+			
+			
 			$status = array(
 				'text'		=> $statustext,
 				'truncated' => False,
@@ -1876,7 +1999,7 @@
 				//'attachments' => array(),
 				'user' =>  $status_user ,
 				//'entities' => NULL,
-				'statusnet_html'		=> trim(bbcode($item['body'], false, false)),
+				'statusnet_html'		=> $statushtml,
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
 
@@ -2198,13 +2321,6 @@
 	function api_direct_messages_box(&$a, $type, $box) {
 		if (api_user()===false) return false;
 
-		unset($_REQUEST["user_id"]);
-		unset($_GET["user_id"]);
-
-		unset($_REQUEST["screen_name"]);
-		unset($_GET["screen_name"]);
-
-		$user_info = api_get_user($a);
 
 		// params
 		$count = (x($_GET,'count')?$_GET['count']:20);
@@ -2214,11 +2330,25 @@
 		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
 		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
 
-		$start = $page*$count;
+		$user_id = (x($_REQUEST,'user_id')?$_REQUEST['user_id']:"");
+		$screen_name = (x($_REQUEST,'screen_name')?$_REQUEST['screen_name']:"");
 
+		//  caller user info
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
+		$user_info = api_get_user($a);
 		//$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
 		$profile_url = $user_info["url"];
 
+
+		// pagination
+		$start = $page*$count;
+
+		// filters
 		if ($box=="sentbox") {
 			$sql_extra = "`mail`.`from-url`='".dbesc( $profile_url )."'";
 		}
@@ -2235,11 +2365,19 @@
 		if ($max_id > 0)
 			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
 
+		if ($user_id !="") {
+			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
+		} 
+		elseif($screen_name !=""){
+			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		}
+
 		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
 				intval(api_user()),
 				intval($since_id),
 				intval($start),	intval($count)
 		);
+	
 
 		$ret = Array();
 		foreach($r as $item) {
@@ -2247,12 +2385,11 @@
 				$recipient = $user_info;
 				$sender = api_get_user($a,normalise_link($item['contact-url']));
 			}
-			elseif ($box == "sentbox" || $item['from-url'] != $profile_url){
+			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
 				$recipient = api_get_user($a,normalise_link($item['contact-url']));
 				$sender = $user_info;
 
 			}
-
 			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
 
@@ -2347,9 +2484,6 @@
 
 	api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
 	api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
-
-
-
 
 
 

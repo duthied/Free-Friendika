@@ -80,19 +80,23 @@
  		}
  		}
 		$('a[rel^=#]').click(function(e){
+			e.preventDefault();
+			var parent = $(this).parent();
+			var isSelected = (last_popup_button && parent.attr('id') == last_popup_button.attr('id'));
 			close_last_popup_menu();
+			if(isSelected) return false;
 			menu = $( $(this).attr('rel') );
 			e.preventDefault();
 			e.stopPropagation();
 			if (menu.attr('popup')=="false") return false;
-			$(this).parent().toggleClass("selected");
+			parent.toggleClass("selected");
 			menu.toggle();
 			if (menu.css("display") == "none") {
 				last_popup_menu = null;
 				last_popup_button = null;
 			} else {
 				last_popup_menu = menu;
-				last_popup_button = $(this).parent();
+				last_popup_button = parent;
 			}
 			return false;
 		});
@@ -101,10 +105,6 @@
 		});
 		
 		// fancyboxes
-		/*$("a.popupbox").fancybox({
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic'
-		});*/
 		$("a.popupbox").colorbox({
 			'inline' : true,
 			'transition' : 'elastic'
@@ -703,6 +703,7 @@ function setupFieldRichtext(){
 		theme_advanced_toolbar_location : "top",
 		theme_advanced_toolbar_align : "center",
 		theme_advanced_blockformats : "blockquote,code",
+		theme_advanced_resizing : true,
 		paste_text_sticky : true,
 		entity_encoding : "raw",
 		add_unload_trigger : false,

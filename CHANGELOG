@@ -1,0 +1,126 @@
+Version 3.3.2
+
+	Set default value for all not-null fields (fixes SQL warinigs) (annando)
+	Fix item filters in network page (issue #1222) (fabrixxm)
+	Remove reference to an ex Friendica hub from documentation (beardyunixer, tobiasd)
+	API throttling (annando)
+	Use a san-serif font in breathe style of vier theme (silke)
+	Prevent BBCode parsing problems with URLs (annando)
+	Add back tags to posts to Diaspora (annando)
+	Better display of pictures in posts (annando)
+	Fix out of control gprobe process (annando)
+
+Version 3.3.1
+
+	JSONP support for API (fabrixxm)
+	Fixed small bug in direct messages API (fabrixxm)
+	More filter for direct messages API (fabrixxm)
+	New hooks "getsiteinfo", "page_info_data" (annando)
+	Better loop post prevention (annando)
+	Via API, replace data: uri images in plain text version with link to post. (issue #1134) (fabrixxm)
+	Set default location to empty for new users. Suppress warning on user creation (issue #1193) (fabrixxm)
+	Correctly build urls with queries (issue #1190) (fabrixxm)
+	Optionally use keywords in feed as post tags with "remote self" (annando)
+	A blacklist of keywords to not use can be defined (annando)
+	"remote self" works also with Friendica and Diaspora contacts (annando)
+	Show exact post time after 12 hours (FX7)
+	Optionally redirect from non-SSL to SSL (annando)
+	Translation updates
+	Added CHANGELOG
+
+Version 3.3
+
+	API
+	added support in the API to allow image uploads from Twidere
+	support for the diaspora app in Firefox
+	
+	Themes 
+	Stopped support of unmaintained themes. They will continue to work if enabled but are no longer displayed in the list of themes.
+	Merged all "zero" themes into a theme with variations. 
+	new default avatar by Andi Stadler
+	
+	Usability
+	network page as default page after login
+	sections on users' settings page are now collapsable
+	automatic updating the network stream was improved
+	
+	Interaction
+	ignoring of threads
+	for selected contects one can now get notifications when they post something, useful e.g. for forums
+	After a new friendica contact is added, the user is directed to the contact page of the new contact. (Instead of the remote profile)
+	many improvement on all connectors, new app.net connector
+	the algorithm for shortening postings when posting to limited platforms was improved
+	improvements for the remote_self functionality for RSS/Atom feeds were done
+	
+	System stuff 
+	no more apc support due problems with PHP 5.5
+	privacy image cache moved from an addon into the core
+	updated the following libraries: smarty 3.1.19, fullcalendar 1.6.4, jquery 1.11, jgrowl 1.3.0
+	added modernizer 2.8.3, better browser support
+	updates to the DB structure for better performance
+	preperations to use PDO in a later release
+	new notification system
+	web interface translations updated, addon translations now also possible separately from the main UI and done for CS, IT, RO, DE
+	vagrant support added for developers
+	some bugs were fixed for the profile import function
+	BBCode handling and reformatting to e.g. markdown was improved
+	Internal PusH server for communication with OStatus contacts
+	
+	Addons 
+	translation now done at transifex as well
+	"newmemberwidget" adds widget with help links + welcome message to sidebar of network tab for new members
+	new statistics addon to take part in the Diaspora* survey
+	new bidirectional connector for app.net
+	new relay connector for Diaspora*
+	new connector for the buffer service
+	improvements for the connectors with Twitter, StatusNet/GNU Social, pump.io, google+ and facebook
+	improvements to the cal and jappix-mini addons
+	
+	Change in the structure of the git repo
+	The "master" branch will now contain stable stuff and hotfixes.
+	The new "develop" branch will contain the latest changes. 
+
+Version 3.2
+
+	LICENSE change from Friendica uses now the AGPL
+	Language updates: PT_BR, RU, NB_NO, DE, PL, CS, ZH-CN, IT, CA, FR, NL
+	new languages: BG
+	added a README.translate and updates to the translation utils
+	addons are now translated separately
+	Theme updates: vier, smoothly, diabook, decaf-mobile, dispy, frost, frost-mobile, quattro
+	Bug fixes: #516, #517, #525, #476, #540, #546, #712, #728
+	sample nginx and lighttpd config
+	new default templating engine: smarty3
+	new share element
+	maintenance mode for longer running upgrade tasks
+	small fixed
+		edit profile photo link
+		better caching of pictures
+		threadening for outgoing emails
+		mail import
+		oembed thumbnails
+		SN subscriptions & more SN like behaviour if snautofollow addon is used
+		collect content of SN discussion threads
+		communication with Diaspora*
+		usage of the API
+		search improvements
+		MIME types for attachments
+		support Open Graph and Dublin Core when showing single items
+		better use of APC if present
+		use https versions of videos from youtube and vimeo to make firefox happy
+	fixes to the documentation
+	if a home.html is there, home.css is used as well
+	update included TinyMCE to version 3.5.8, fancybox
+	made more options available in the admin panel that were hidden before
+	show the admin information about when accounts expire in the admin panel
+	improving the install.php script
+	addons now can be members only
+	item object now contains the "edited" information left for the theme designers to show this info in a pretty way
+	improvments to the user-import from exported account files
+	It's now possible to authenticate an ejabberd server against friendica.
+	bugtracker moved to github
+	improvements to MySQL queries
+
+Version 3.1
+
+	See http://friendica.com/node/58

@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1173 );
+define( 'UPDATE_VERSION' , 1175 );
 
 /**
  *
@@ -48,13 +48,13 @@ function update_1000() {
 
 	q("ALTER TABLE `intro` ADD `duplex` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `knowyou` ");
 	q("ALTER TABLE `contact` ADD `duplex` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `rel` ");
- 	q("ALTER TABLE `contact` CHANGE `issued-pubkey` `issued-pubkey` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");  
+ 	q("ALTER TABLE `contact` CHANGE `issued-pubkey` `issued-pubkey` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 	q("ALTER TABLE `contact` ADD `term-date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `avatar-date`");
 }
 
 function update_1001() {
 	q("ALTER TABLE `item` ADD `wall` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `type` ");
-	q("ALTER TABLE `item` ADD INDEX ( `wall` )");  
+	q("ALTER TABLE `item` ADD INDEX ( `wall` )");
 }
 
 function update_1002() {
@@ -65,7 +65,7 @@ function update_1003() {
 	q("ALTER TABLE `contact` DROP `issued-pubkey` , DROP `ret-id` , DROP `ret-pubkey` ");
 	q("ALTER TABLE `contact` ADD `usehub` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `ret-aes`");
 	q("ALTER TABLE `contact` ADD `hub-verify` CHAR( 255 ) NOT NULL AFTER `usehub`");
-	q("ALTER TABLE `contact` ADD INDEX ( `uid` ) ,  ADD INDEX ( `self` ),  ADD INDEX ( `issued-id` ),  ADD INDEX ( `dfrn-id` )"); 
+	q("ALTER TABLE `contact` ADD INDEX ( `uid` ) ,  ADD INDEX ( `self` ),  ADD INDEX ( `issued-id` ),  ADD INDEX ( `dfrn-id` )");
 	q("ALTER TABLE `contact` ADD INDEX ( `blocked` ),   ADD INDEX ( `readonly` )");
 }
 
@@ -104,7 +104,7 @@ function update_1006() {
 
 function update_1007() {
 	q("ALTER TABLE `user` ADD `page-flags` INT NOT NULL DEFAULT '0' AFTER `notify-flags`");
-	q("ALTER TABLE `user` ADD INDEX ( `nickname` )");  
+	q("ALTER TABLE `user` ADD INDEX ( `nickname` )");
 }
 
 function update_1008() {
@@ -137,9 +137,9 @@ function update_1012() {
 }
 
 function update_1013() {
-	q("ALTER TABLE `item` ADD `target-type` CHAR( 255 ) NOT NULL 
+	q("ALTER TABLE `item` ADD `target-type` CHAR( 255 ) NOT NULL
 		AFTER `object` , ADD `target` TEXT NOT NULL AFTER `target-type`");
-} 
+}
 
 function update_1014() {
 	require_once('include/Photo.php');
@@ -156,7 +156,7 @@ function update_1014() {
 	}
 	$r = q("SELECT * FROM `contact` WHERE 1");
 	if(count($r)) {
-		foreach($r as $rr) {		
+		foreach($r as $rr) {
 			if(stristr($rr['thumb'],'avatar'))
 				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('avatar','micro',$rr['thumb'])),
@@ -269,7 +269,7 @@ function update_1027() {
 	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 	`name` CHAR( 255 ) NOT NULL ,
 	`version` CHAR( 255 ) NOT NULL ,
-	`installed` TINYINT( 1 ) NOT NULL DEFAULT '0' 
+	`installed` TINYINT( 1 ) NOT NULL DEFAULT '0'
 	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
 }
 
@@ -319,7 +319,7 @@ function update_1031() {
 		}
 	}
 }
-	
+
 function update_1032() {
 	q("ALTER TABLE `profile` ADD `pdesc` CHAR( 255 ) NOT NULL AFTER `name` ");
 }
@@ -335,11 +335,11 @@ function update_1033() {
 
 function update_1034() {
 
-	// If you have any of these parent-less posts they can cause problems, and 
+	// If you have any of these parent-less posts they can cause problems, and
 	// we need to delete them. You can't see them anyway.
-	// Legitimate items will usually get re-created on the next 
+	// Legitimate items will usually get re-created on the next
 	// pull from the hub.
-	// But don't get rid of a post that may have just come in 
+	// But don't get rid of a post that may have just come in
 	// and may not yet have the parent id set.
 
 	q("DELETE FROM `item` WHERE `parent` = 0 AND `created` < UTC_TIMESTAMP() - INTERVAL 2 MINUTE");
@@ -557,7 +557,7 @@ function update_1068() {
 	`url` CHAR( 255 ) NOT NULL ,
 	`photo` CHAR( 255 ) NOT NULL ,
 	`note` TEXT NOT NULL ,
-	`created` DATETIME NOT NULL 
+	`created` DATETIME NOT NULL
 	) ENGINE = MYISAM DEFAULT CHARSET=utf8");
 
 }
@@ -633,7 +633,7 @@ function update_1076() {
 }
 
 // There was a typo in 1076 so we'll try again in 1077 to make sure
-// We'll also make it big enough to allow for future growth, I seriously 
+// We'll also make it big enough to allow for future growth, I seriously
 // doubt Diaspora will be able to leave guids at 16 bytes,
 // and we can also use the same structure for our own larger guids
 
@@ -641,7 +641,7 @@ function update_1077() {
 	q("CREATE TABLE IF NOT EXISTS `guid` ( `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 		`guid` CHAR( 16 ) NOT NULL , INDEX ( `guid` ) ) ENGINE = MYISAM ");
 
-	q("ALTER TABLE `guid` CHANGE `guid` `guid` CHAR( 64 ) NOT NULL"); 
+	q("ALTER TABLE `guid` CHANGE `guid` `guid` CHAR( 64 ) NOT NULL");
 }
 
 function update_1078() {
@@ -667,7 +667,7 @@ function update_1079() {
 	ADD `network` CHAR( 32 ) NOT NULL ,
 	ADD `alias` CHAR( 255 ) NOT NULL ,
 	ADD `pubkey` TEXT NOT NULL ,
-	ADD INDEX ( `addr` ) , 
+	ADD INDEX ( `addr` ) ,
 	ADD INDEX ( `network` ) ");
 
 }
@@ -802,24 +802,24 @@ function update_1096() {
 }
 
 function update_1097() {
-	q("ALTER TABLE `queue` 
-		ADD INDEX (`cid`), 
-		ADD INDEX (`created`), 
-		ADD INDEX (`last`), 
-		ADD INDEX (`network`), 
-		ADD INDEX (`batch`) 
+	q("ALTER TABLE `queue`
+		ADD INDEX (`cid`),
+		ADD INDEX (`created`),
+		ADD INDEX (`last`),
+		ADD INDEX (`network`),
+		ADD INDEX (`batch`)
 	");
 }
 
 function update_1098() {
-	q("ALTER TABLE `contact` 
-		ADD INDEX (`network`), 
-		ADD INDEX (`name`), 
-		ADD INDEX (`nick`), 
-		ADD INDEX (`attag`), 
+	q("ALTER TABLE `contact`
+		ADD INDEX (`network`),
+		ADD INDEX (`name`),
+		ADD INDEX (`nick`),
+		ADD INDEX (`attag`),
 		ADD INDEX (`url`),
-		ADD INDEX (`addr`), 
-		ADD INDEX (`batch`) 
+		ADD INDEX (`addr`),
+		ADD INDEX (`batch`)
 	");
 }
 
@@ -843,7 +843,7 @@ function update_1099() {
 	q("ALTER TABLE `gcontact` ADD INDEX (`nurl`) ");
 	q("ALTER TABLE `glink` ADD INDEX (`cid`), ADD INDEX (`uid`), ADD INDEX (`gcid`), ADD INDEX (`updated`) ");
 
-	q("ALTER TABLE `contact` ADD `poco` TEXT NOT NULL AFTER `confirm` "); 
+	q("ALTER TABLE `contact` ADD `poco` TEXT NOT NULL AFTER `confirm` ");
 
 }
 
@@ -859,7 +859,7 @@ function update_1100() {
 			q("update contact set nurl = '%s' where id = %d",
 				dbesc(normalise_link($rr['url'])),
 				intval($rr['id'])
-			); 
+			);
 		}
 	}
 }
@@ -876,18 +876,18 @@ function update_1101() {
 }
 
 function update_1102() {
-	q("ALTER TABLE `clients` ADD `name` TEXT NULL DEFAULT NULL AFTER `redirect_uri` "); 
-	q("ALTER TABLE `clients` ADD `icon` TEXT NULL DEFAULT NULL AFTER `name` "); 
-	q("ALTER TABLE `clients` ADD `uid` INT NOT NULL DEFAULT 0 AFTER `icon` "); 
+	q("ALTER TABLE `clients` ADD `name` TEXT NULL DEFAULT NULL AFTER `redirect_uri` ");
+	q("ALTER TABLE `clients` ADD `icon` TEXT NULL DEFAULT NULL AFTER `name` ");
+	q("ALTER TABLE `clients` ADD `uid` INT NOT NULL DEFAULT 0 AFTER `icon` ");
 
-	q("ALTER TABLE `tokens` ADD `secret` TEXT NOT NULL AFTER `id` "); 
-	q("ALTER TABLE `tokens` ADD `uid` INT NOT NULL AFTER `scope` "); 
+	q("ALTER TABLE `tokens` ADD `secret` TEXT NOT NULL AFTER `id` ");
+	q("ALTER TABLE `tokens` ADD `uid` INT NOT NULL AFTER `scope` ");
 }
 
 
 function update_1103() {
 //	q("ALTER TABLE `item` ADD INDEX ( `wall` ) ");
-	q("ALTER TABLE `item` ADD FULLTEXT ( `tag` ) "); 
+	q("ALTER TABLE `item` ADD FULLTEXT ( `tag` ) ");
 	q("ALTER TABLE `contact` ADD INDEX ( `pending` ) ");
 	q("ALTER TABLE `user` ADD INDEX ( `hidewall` ) ");
 	q("ALTER TABLE `user` ADD INDEX ( `blockwall` ) ");
@@ -924,7 +924,7 @@ function update_1107() {
 
 }
 
-function update_1108() { 
+function update_1108() {
 	q("ALTER TABLE `contact` ADD `hidden` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `writable` ,
 ADD INDEX ( `hidden` ) ");
 
@@ -993,8 +993,8 @@ INDEX ( `stat` )
 }
 
 function update_1115() {
-	q("ALTER TABLE `item` ADD `moderated` 
-		TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `pubmail`, 
+	q("ALTER TABLE `item` ADD `moderated`
+		TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `pubmail`,
 		ADD INDEX (`moderated`) ");
 }
 
@@ -1149,16 +1149,16 @@ function update_1134() {
 }
 
 function update_1135() {
-	//there can't be indexes with more than 1000 bytes in mysql, 
+	//there can't be indexes with more than 1000 bytes in mysql,
 	//so change charset to be smaller
 	q("ALTER TABLE `config` CHANGE `cat` `cat` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL ,
-CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL"); 
-	
+CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL");
+
 	//same thing for pconfig
 	q("ALTER TABLE `pconfig` CHANGE `cat` `cat` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL ,
-	CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL"); 
+	CHANGE `k` `k` CHAR( 255 ) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL");
 	// faulty update merged forward. Bad update in 1134 caused duplicate k,cat pairs
-	// these have to be cleared before the unique keys can be added.	
+	// these have to be cleared before the unique keys can be added.
 }
 
 function update_1136() {
@@ -1184,7 +1184,7 @@ function update_1136() {
 			}
 		}
 	}
-			
+
 	$arr = array();
 	$r = q("select * from pconfig where 1 order by id desc");
 	if(count($r)) {
@@ -1203,8 +1203,8 @@ function update_1136() {
 			}
 		}
 	}
-	q("ALTER TABLE `config` ADD UNIQUE `access` ( `cat` , `k` ) "); 
-	q("ALTER TABLE `pconfig` ADD UNIQUE `access` ( `uid` , `cat` , `k` )"); 
+	q("ALTER TABLE `config` ADD UNIQUE `access` ( `cat` , `k` ) ");
+	q("ALTER TABLE `pconfig` ADD UNIQUE `access` ( `uid` , `cat` , `k` )");
 
 }
 
@@ -1278,7 +1278,7 @@ function update_1146() {
 function update_1147() {
 	$r1 = q("ALTER TABLE `sign` ALTER `iid` SET DEFAULT '0'");
 	$r2 = q("ALTER TABLE `sign` ADD `retract_iid` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `iid`");
-	$r3 = q("ALTER TABLE `sign` ADD INDEX ( `retract_iid` )");  
+	$r3 = q("ALTER TABLE `sign` ADD INDEX ( `retract_iid` )");
 	if((! $r1) || (! $r2) || (! $r3))
 		return UPDATE_FAILED ;
 	return UPDATE_SUCCESS ;
@@ -1327,7 +1327,7 @@ function update_1152() {
 		`otype` TINYINT( 3 ) UNSIGNED NOT NULL ,
 		`type` TINYINT( 3 ) UNSIGNED NOT NULL ,
 		`term` CHAR( 255 ) NOT NULL ,
-		`url` CHAR( 255 ) NOT NULL, 
+		`url` CHAR( 255 ) NOT NULL,
 		KEY `oid` ( `oid` ),
 		KEY `otype` ( `otype` ),
 		KEY `type`  ( `type` ),
@@ -1340,7 +1340,7 @@ function update_1152() {
 
 function update_1153() {
 	$r = q("ALTER TABLE `hook` ADD `priority` INT(11) UNSIGNED NOT NULL DEFAULT '0'");
-	
+
 	if(!$r) return UPDATE_FAILED;
 	return UPDATE_SUCCESS;
 }
@@ -1448,11 +1448,9 @@ function update_1162() {
 function update_1163() {
 	set_config('system', 'maintenance', 1);
 
-	$r = q("ALTER TABLE `item` ADD `network` char(32) NOT NULL,
-		ADD INDEX (`network`)");
+	$r = q("ALTER TABLE `item` ADD `network` char(32) NOT NULL");
 
 	set_config('system', 'maintenance', 0);
-
 	if(!$r)
 		return UPDATE_FAILED;
 

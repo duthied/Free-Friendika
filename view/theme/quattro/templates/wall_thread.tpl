@@ -22,12 +22,12 @@
 {{if $item.thread_level!=1}}<div class="children">{{/if}}
 
 <div class="wall-item-decor">
-	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
+	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
 	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}	
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}}" id="item-{{$item.id}}">
+<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}}" id="item-{{$item.guid}}">
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}"

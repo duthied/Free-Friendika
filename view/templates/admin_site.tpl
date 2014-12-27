@@ -45,12 +45,14 @@
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 	{{include file="field_input.tpl" field=$sitename}}
+	{{include file="field_input.tpl" field=$hostname}}
 	{{include file="field_textarea.tpl" field=$banner}}
 	{{include file="field_textarea.tpl" field=$info}}
 	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
 	{{include file="field_select.tpl" field=$theme_mobile}}
 	{{include file="field_select.tpl" field=$ssl_policy}}
+	{{if $ssl_policy.2 == 1}}{{include file="field_checkbox.tpl" field=$force_ssl}}{{/if}}
 	{{include file="field_checkbox.tpl" field=$old_share}}
 	{{include file="field_checkbox.tpl" field=$hide_help}}
 	{{include file="field_select.tpl" field=$singleuser}}
@@ -108,7 +110,7 @@
 	{{include file="field_checkbox.tpl" field=$suppress_language}}
 
 	<h3>{{$performance}}</h3>
-	{{include file="field_checkbox.tpl" field=$enable_noscrape}}
+	{{include file="field_checkbox.tpl" field=$disable_noscrape}}
 	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}
 	{{include file="field_input.tpl" field=$itemcache}}
 	{{include file="field_input.tpl" field=$itemcache_duration}}

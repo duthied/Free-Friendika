@@ -33,6 +33,8 @@ Friendica - Dokumentation und Ressourcen
 * [Nachrichtenfluss](help/Message-Flow)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
 * [Entwickler](help/Developers)
+* [Twitter/StatusNet API Functions](help/api) (EN)
+* [Translation of Friendica](help/translations) (EN)
 
 
 **Externe Ressourcen**

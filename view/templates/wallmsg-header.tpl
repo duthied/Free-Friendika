@@ -17,6 +17,7 @@ if(plaintext != 'none') {
 		theme_advanced_toolbar_location : "top",
 		theme_advanced_toolbar_align : "center",
 		theme_advanced_blockformats : "blockquote,code",
+		theme_advanced_resizing : true,
 		gecko_spellcheck : true,
 		paste_text_sticky : true,
 		entity_encoding : "raw",

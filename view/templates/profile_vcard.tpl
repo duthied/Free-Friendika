@@ -40,8 +40,12 @@
 	<div id="profile-extra-links">
 		<ul>
 			{{if $connect}}
-				<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
-			{{/if}}
+                                {{if $remoteconnect}}
+                                        <li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
+                                {{else}}
+                                        <li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
+                                {{/if}}
+                        {{/if}}
 			{{if $wallmessage}}
 				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
 			{{/if}}
