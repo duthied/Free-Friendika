@@ -1,7 +1,7 @@
 Friendica Documentation and Resources
 =====================================
 
-**Contents**
+**User Manual**
 
 * General functions - first steps
 	* [Account Basics](help/Account-Basics)
@@ -19,12 +19,11 @@ Friendica Documentation and Resources
 	* [Chats](help/Chats)
 * Further information
 	* [Improve Performance](help/Improve-Performance)
-	* [Move Account](help/Move-Account)
-	* [Remove Account](help/Remove-Account)
-	* [Bugs and Issues](help/Bugs-and-Issues)
+	* [Move your account](help/Move-Account)
+	* [Delete your account](help/Remove-Account)
 	* [Frequently asked questions (FAQ)](help/FAQ)
 
-**Technical Documentation**
+**Admin Manual**
 
 * [Install](help/Install)
 * [Settings](help/Settings)
@@ -32,10 +31,14 @@ Friendica Documentation and Resources
 * [Installing Connectors (Facebook/Twitter/StatusNet)](help/Installing-Connectors)
 * [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
-* [Developers](help/Developers)
 * [Twitter/StatusNet API Functions](help/api)
-* [Translation of Friendica](help/translations)
 
+**Developer Manual**
+
+* [Where to get started?](help/Developers-Intro)
+* [Help on Github](help/Github)
+* [How to translate Friendica](help/translations)
+* [Bugs and Issues](help/Bugs-and-Issues)
 
 **External Resources**
 
