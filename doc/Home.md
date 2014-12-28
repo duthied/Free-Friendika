@@ -10,7 +10,7 @@ Friendica Documentation and Resources
         * [BBCode tag reference](help/BBCode)
 	* [Comment, sort and delete posts](help/Text_comment)
 	* [Profiles](help/Profiles)
-* You and other user
+* You and other users
 	* [Connectors](help/Connectors)
 	* [Making Friends](help/Making-Friends)
 	* [Groups and Privacy](help/Groups-and-Privacy)
