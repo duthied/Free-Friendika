@@ -14,6 +14,7 @@ class Emailer {
 	 * @param htmlVersion		html version of the message
 	 * @param textVersion		text only version of the message
 	 * @param additionalMailHeader	additions to the smtp mail header
+	 * @param optional uid      user id of the destination user
 	 */
 	static public function send($params) {
 

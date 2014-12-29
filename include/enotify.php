@@ -598,6 +598,7 @@ function notification($params) {
 		// use the Emailer class to send the message
 
 		return Emailer::send(array(
+			'uid' => $params['uid'],
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
 			'replyTo' => $sender_email,
