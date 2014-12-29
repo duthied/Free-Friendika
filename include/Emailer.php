@@ -63,7 +63,7 @@ class Emailer {
 			$hookdata['to'],							// send to address
 			$hookdata['subject'],						// subject
 			$hookdata['body'], 	 						// message body
-			$hookdata['headers'],						// message headers
+			$hookdata['headers']						// message headers
 		);
 		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
 		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
