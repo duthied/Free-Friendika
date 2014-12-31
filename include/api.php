@@ -197,6 +197,7 @@
 	}
 
 	function api_error(&$a, $type, $error) {
+		# TODO:  https://dev.twitter.com/overview/api/response-codes
 		$r = "<status><error>".$error."</error><request>".$a->query_string."</request></status>";
 		switch($type){
 			case "xml":
@@ -884,7 +885,7 @@
 				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
-				'favorited' => false,
+				'favorited' => $lastwall['starred'] ? true : false,
 				// attachments
 				'user' => $user_info,
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
@@ -983,7 +984,7 @@
 				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
-				'favorited' => false,
+				'favorited' => $lastwall['starred'] ? true : false,
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
@@ -1102,9 +1103,9 @@
 
 		// We aren't going to try to figure out at the item, group, and page
 		// level which items you've seen and which you haven't. If you're looking
-		// at the network timeline just mark everything seen. 
+		// at the network timeline just mark everything seen.
 
-		$r = q("UPDATE `item` SET `unseen` = 0 
+		$r = q("UPDATE `item` SET `unseen` = 0
 			WHERE `unseen` = 1 AND `uid` = %d",
 			//intval($user_info['uid'])
 			intval(api_user())
@@ -1198,7 +1199,7 @@
 	api_register_func('api/statuses/public_timeline','api_statuses_public_timeline', true);
 
 	/**
-	 * 
+	 *
 	 */
 	function api_statuses_show(&$a, $type){
 		if (api_user()===false) return false;
@@ -1419,9 +1420,9 @@
 	api_register_func('api/statuses/destroy','api_statuses_destroy', true);
 
 	/**
-	 * 
+	 *
 	 * http://developer.twitter.com/doc/get/statuses/mentions
-	 * 
+	 *
 	 */
 	function api_statuses_mentions(&$a, $type){
 		if (api_user()===false) return false;
@@ -1568,6 +1569,66 @@
 	api_register_func('api/statuses/user_timeline','api_statuses_user_timeline', true);
 
 
+	/**
+	 * Star/unstar an item
+	 * param: id : id of the item
+	 *
+	 * api v1 : https://web.archive.org/web/20131019055350/https://dev.twitter.com/docs/api/1/post/favorites/create/%3Aid
+	 */
+	function api_favorites_create_destroy(&$a, $type){
+		if (api_user()===false) return false;
+
+		# for versioned api.
+		# TODO: we need a better global soluton
+		$action_argv_id=2;
+		if ($a->argv[1]=="1.1") $action_argv_id=3;
+
+		if ($a->argc<=$action_argv_id) die(api_error($a, $type, t("Invalid request.")));
+		$action = str_replace(".".$type,"",$a->argv[$action_argv_id]);
+		if ($a->argc==$action_argv_id+2) {
+			$itemid = intval($a->argv[$action_argv_id+1]);
+		} else {
+			$itemid = intval($_REQUEST['id']);
+		}
+		if ($action!="create" && $action!="destroy") die(api_error($a, $type, t("Invalid action. ".$action)));
+
+		$item = q("SELECT * FROM item WHERE id=%d AND uid=%d",
+				$itemid, api_user());
+
+		if ($item===false || count($item)==0) die(api_error($a, $type, t("Invalid item.")));
+
+		switch($action){
+			case "create":
+				$r = q("UPDATE item SET starred=1 WHERE id=%d AND uid=%d",
+						$itemid, api_user());
+				$item[0]['starred']=1;
+				break;
+			case "destroy":
+				$r = q("UPDATE item SET starred=0 WHERE id=%d AND uid=%d",
+						$itemid, api_user());
+				$item[0]['starred']=0;
+				break;
+		}
+
+		if ($r===false) die(api_error($a, $type, t("DB error")));
+
+
+		$user_info = api_get_user($a);
+		$ret = api_format_items($item,$user_info)[0];
+
+		$data = array('$status' => $ret);
+		switch($type){
+			case "atom":
+			case "rss":
+				$data = api_rss_extra($a, $data, $user_info);
+		}
+
+		return  api_apply_template("status", $type, $data);
+	}
+
+	api_register_func('api/favorites/create', 'api_favorites_create_destroy', true);
+	api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true);
+
 	function api_favorites(&$a, $type){
 		global $called_api;
 
@@ -1603,7 +1664,7 @@
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 				FROM `item`, `contact`
-				WHERE `item`.`uid` = %d AND `verb` = '%s'
+				WHERE `item`.`uid` = %d
 				AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 				AND `item`.`starred` = 1
 				AND `contact`.`id` = `item`.`contact-id`
@@ -1612,7 +1673,6 @@
 				AND `item`.`id`>%d
 				ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 				intval(api_user()),
-				dbesc(ACTIVITY_POST),
 				intval($since_id),
 				intval($start),	intval($count)
 			);
@@ -1632,6 +1692,9 @@
 	}
 
 	api_register_func('api/favorites','api_favorites', true);
+
+
+
 
 	function api_format_as($a, $ret, $user_info) {
 
@@ -1907,7 +1970,7 @@
 				$text);
 		return $text;
 	}
-	
+
 	function api_format_items($r,$user_info, $filter_user = false) {
 
 		$a = get_app();
@@ -1965,23 +2028,23 @@
 			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
 			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
 			$statusbody = trim(html2plain($html, 0));
-			
+
 			// handle data: images
 			$statusbody = api_format_items_embeded_images($item,$statusbody);
-			
+
 			$statustitle = trim($item['title']);
 
 			if (($statustitle != '') and (strpos($statusbody, $statustitle) !== false))
 				$statustext = trim($statusbody);
 			else
 				$statustext = trim($statustitle."\n\n".$statusbody);
-				
+
 			if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
 				$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
 			$statushtml = trim(bbcode($item['body'], false, false));
-			
-			
+
+
 			$status = array(
 				'text'		=> $statustext,
 				'truncated' => False,
@@ -2367,7 +2430,7 @@
 
 		if ($user_id !="") {
 			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
-		} 
+		}
 		elseif($screen_name !=""){
 			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
 		}
@@ -2377,7 +2440,7 @@
 				intval($since_id),
 				intval($start),	intval($count)
 		);
-	
+
 
 		$ret = Array();
 		foreach($r as $item) {
@@ -2479,7 +2542,7 @@
 			echo json_encode($r[0]);
 		}
 
-		killme();	
+		killme();
 	}
 
 	api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
@@ -2697,9 +2760,6 @@ function api_best_nickname(&$contacts) {
 
 /*
 Not implemented by now:
-favorites
-favorites/create
-favorites/destroy
 statuses/retweets_of_me
 friendships/create
 friendships/destroy
