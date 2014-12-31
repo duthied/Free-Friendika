@@ -886,11 +886,14 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $lastwall['starred'] ? true : false,
-				// attachments
+				'attachments' => api_get_attachments($lastwall['body']),
 				'user' => $user_info,
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
+
+			if (!$status_info["attachments"])
+				unset($status_info["attachments"]);
 
 			if ($lastwall['title'] != "")
 				$status_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$status_info['statusnet_html'];
@@ -985,9 +988,13 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $lastwall['starred'] ? true : false,
+				'attachments' => api_get_attachments($lastwall['body']),
 				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
+
+			if (!$user_info["attachments"])
+				unset($user_info["attachments"]);
 
 			if ($lastwall['title'] != "")
 				$user_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$user_info['statusnet_html'];
@@ -1803,6 +1810,30 @@
 		return $ret;
 	}
 
+	function api_get_attachments($text) {
+
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
+
+		$URLSearchString = "^\[\]";
+		$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
+
+		if (!$ret)
+			return false;
+
+		require_once("include/Photo.php");
+
+		$attachments = array();
+
+		foreach ($images[1] AS $image) {
+			$imagedata = get_photo_info($image);
+
+			if ($imagedata)
+				$attachments[] = array("url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]);
+		}
+
+		return $attachments;
+	}
+
 	function api_get_entitities(&$text, $bbcode) {
 		/*
 		To-Do:
@@ -2059,12 +2090,15 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,
-				//'attachments' => array(),
+				'attachments' => api_get_attachments($item["body"]),
 				'user' =>  $status_user ,
 				//'entities' => NULL,
 				'statusnet_html'		=> $statushtml,
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
+
+			if (!$status["attachments"])
+				unset($status["attachments"]);
 
 			if ($item['title'] != "")
 				$status['statusnet_html'] = "<h4>".bbcode($item['title'])."</h4>\n".$status['statusnet_html'];
