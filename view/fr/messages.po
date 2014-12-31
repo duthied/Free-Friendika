@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-10-22 10:05+0200\n"
-"PO-Revision-Date: 2014-12-28 20:01+0000\n"
+"PO-Revision-Date: 2014-12-30 15:30+0000\n"
 "Last-Translator: Sylvain Lagacé\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1339,7 +1339,7 @@ msgstr "Fourni nativement la compatibilité avec OStatus (StatusNet, GNU Social 
 
 #: ../../mod/admin.php:634
 msgid "OStatus conversation completion interval"
-msgstr ""
+msgstr "Achèvement de l'intervalle de conversation OStatus "
 
 #: ../../mod/admin.php:634
 msgid ""
@@ -1452,7 +1452,7 @@ msgstr "Durée du cache en secondes"
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day). To disable the item cache, set the value to -1."
-msgstr ""
+msgstr "Combien de temps les fichiers de cache doivent être maintenu? La valeur par défaut est 86400 secondes (une journée). Pour désactiver le cache de l'item, définissez la valeur à -1."
 
 #: ../../mod/admin.php:649
 msgid "Maximum numbers of comments per post"
@@ -1476,13 +1476,13 @@ msgstr "Chemin de base de l'installation"
 
 #: ../../mod/admin.php:653
 msgid "Disable picture proxy"
-msgstr ""
+msgstr "Désactiver le proxy image "
 
 #: ../../mod/admin.php:653
 msgid ""
 "The picture proxy increases performance and privacy. It shouldn't be used on"
 " systems with very low bandwith."
-msgstr ""
+msgstr "Le proxy d'image augmente les performances et l'intimité. Il ne devrait pas être utilisé sur des systèmes avec une très faible bande passante."
 
 #: ../../mod/admin.php:655
 msgid "New base url"
@@ -1490,14 +1490,14 @@ msgstr "Nouvelle URL de base"
 
 #: ../../mod/admin.php:657
 msgid "Disable noscrape"
-msgstr ""
+msgstr "Désactiver le noscrape"
 
 #: ../../mod/admin.php:657
 msgid ""
 "The noscrape feature speeds up directory submissions by using JSON data "
 "instead of HTML scraping. Disabling it will cause higher load on your server"
 " and the directory server."
-msgstr ""
+msgstr "La fonction de noscrape accélère les répertoires de mémoire en utilisant des données JSON lieu de grattage HTML. En le désactivant il entraîne une charge plus élevée sur votre serveur et le serveur d'annuaire."
 
 #: ../../mod/admin.php:674
 msgid "Update has been marked successful"
@@ -1506,17 +1506,17 @@ msgstr "Mise-à-jour validée comme 'réussie'"
 #: ../../mod/admin.php:682
 #, php-format
 msgid "Database structure update %s was successfully applied."
-msgstr ""
+msgstr "La structure de base de données pour la mise à jour %s a été appliquée avec succès."
 
 #: ../../mod/admin.php:685
 #, php-format
 msgid "Executing of database structure update %s failed with error: %s"
-msgstr ""
+msgstr "L'exécution de la mise à jour %s pour la structure de base de données a échoué avec l'erreur: %s"
 
 #: ../../mod/admin.php:697
 #, php-format
 msgid "Executing %s failed with error: %s"
-msgstr ""
+msgstr "L'exécution %s a échoué avec l'erreur: %s"
 
 #: ../../mod/admin.php:700
 #, php-format
@@ -1531,7 +1531,7 @@ msgstr "La mise-à-jour %s n'a pas retourné de détails. Impossible de savoir s
 #: ../../mod/admin.php:706
 #, php-format
 msgid "There was no additional update function %s that needed to be called."
-msgstr ""
+msgstr "Il n'y avait aucune fonction supplémentaire de mise à jour %s qui devait être appelé"
 
 #: ../../mod/admin.php:725
 msgid "No failed updates."
@@ -3044,11 +3044,11 @@ msgstr "Notification des nouvelles publications"
 
 #: ../../mod/contacts.php:504
 msgid "Send a notification of every new post of this contact"
-msgstr ""
+msgstr "Envoyer une notification de chaque nouveau message en provenance de ce contact"
 
 #: ../../mod/contacts.php:505
 msgid "Fetch further information for feeds"
-msgstr ""
+msgstr "Chercher plus d'informations pour les flux"
 
 #: ../../mod/contacts.php:556
 msgid "Suggestions"
@@ -3817,11 +3817,11 @@ msgstr "Ne pas afficher les émoticônes (smileys grahiques)"
 
 #: ../../mod/settings.php:887
 msgid "Don't show notices"
-msgstr ""
+msgstr "Ne plus afficher les avis"
 
 #: ../../mod/settings.php:888
 msgid "Infinite scroll"
-msgstr ""
+msgstr "Défilement infini"
 
 #: ../../mod/settings.php:889
 msgid "Automatic updates only at the top of the network page"
