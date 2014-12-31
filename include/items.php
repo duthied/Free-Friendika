@@ -1044,7 +1044,7 @@ function encode_rel_links($links) {
 
 
 
-function item_store($arr,$force_parent = false, $notify = false) {
+function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
 	// If it is a posting where users should get notifications, then define it as wall posting
 	if ($notify) {
@@ -1469,7 +1469,7 @@ function item_store($arr,$force_parent = false, $notify = false) {
 
 	// current post can be deleted if is for a communuty page and no mention are
 	// in it.
-	if (!$deleted) {
+	if (!$deleted AND !$dontcache) {
 
 		// Store the fresh generated item into the cache
 		$cachefile = get_cachefile(urlencode($arr["guid"])."-".hash("md5", $arr['body']));
@@ -1491,7 +1491,7 @@ function item_store($arr,$force_parent = false, $notify = false) {
 		}
 	}
 
-	create_tags_from_item($current_post);
+	create_tags_from_item($current_post, $dontcache);
 	create_files_from_item($current_post);
 
 	if ($notify)
