@@ -1592,7 +1592,6 @@
 		} else {
 			$itemid = intval($_REQUEST['id']);
 		}
-		if ($action!="create" && $action!="destroy") die(api_error($a, $type, t("Invalid action. ".$action)));
 
 		$item = q("SELECT * FROM item WHERE id=%d AND uid=%d",
 				$itemid, api_user());
@@ -1601,16 +1600,19 @@
 
 		switch($action){
 			case "create":
-				$r = q("UPDATE item SET starred=1 WHERE id=%d AND uid=%d",
-						$itemid, api_user());
 				$item[0]['starred']=1;
 				break;
 			case "destroy":
-				$r = q("UPDATE item SET starred=0 WHERE id=%d AND uid=%d",
-						$itemid, api_user());
 				$item[0]['starred']=0;
 				break;
+			default:
+				die(api_error($a, $type, t("Invalid action. ".$action)));
 		}
+		$r = q("UPDATE item SET starred=%d WHERE id=%d AND uid=%d",
+				$item[0]['starred'], $itemid, api_user());
+
+		q("UPDATE thread SET starred=%d WHERE iid=%d AND uid=%d",
+			$item[0]['starred'], $itemid, api_user());
 
 		if ($r===false) die(api_error($a, $type, t("DB error")));
 
@@ -1625,7 +1627,7 @@
 				$data = api_rss_extra($a, $data, $user_info);
 		}
 
-		return  api_apply_template("status", $type, $data);
+		return api_apply_template("status", $type, $data);
 	}
 
 	api_register_func('api/favorites/create', 'api_favorites_create_destroy', true);
