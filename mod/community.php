@@ -114,6 +114,10 @@ function community_content(&$a, $update = 0) {
 }
 
 function community_getitems($start, $itemspage) {
+	// Work in progress
+	if (get_config('system', 'global_community'))
+		return(community_getpublicitems($start, $itemspage));
+
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
@@ -129,6 +133,22 @@ function community_getitems($start, $itemspage) {
 		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
 		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
 		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
+		intval($start),
+		intval($itemspage)
+	);
+
+	return($r);
+
+}
+
+function community_getpublicitems($start, $itemspage) {
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+			`author-name` AS `name`, `owner-avatar` AS `photo`,
+			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+		FROM `item` WHERE `item`.`uid` = 0
+		AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
+		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
+		ORDER BY `item`.`received` DESC LIMIT %d, %d",
 		intval($start),
 		intval($itemspage)
 	);
