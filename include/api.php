@@ -872,8 +872,10 @@
 				$in_reply_to_screen_name = NULL;
 			}
 
+			$converted = api_convert_item($item);
+
 			$status_info = array(
-				'text' => trim(html2plain(bbcode(api_clean_plain_items($lastwall['body']), false, false, 2, true), 0)),
+				'text' => $converted["text"],
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
@@ -886,18 +888,16 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $lastwall['starred'] ? true : false,
-				// attachments
 				'user' => $user_info,
-				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
+				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
-			if ($lastwall['title'] != "")
-				$status_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$status_info['statusnet_html'];
+			if (count($converted["attachments"]) > 0)
+				$status_info["attachments"] = $converted["attachments"];
 
-			$entities = api_get_entitities($status_info['text'], $lastwall['body']);
-			if (count($entities) > 0)
-				$status_info['entities'] = $entities;
+			if (count($converted["entities"]) > 0)
+				$status_info["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($status["source"] == 'web'))
 				$status_info["source"] = network_to_name($lastwall['item_network']);
@@ -971,8 +971,11 @@
 					}
 				}
 			}
+
+			$converted = api_convert_item($item);
+
 			$user_info['status'] = array(
-				'text' => trim(html2plain(bbcode(api_clean_plain_items($lastwall['body']), false, false, 2, true), 0)),
+				'text' => $converted["text"],
 				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
@@ -985,16 +988,15 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $lastwall['starred'] ? true : false,
-				'statusnet_html'		=> trim(bbcode($lastwall['body'], false, false)),
+				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
 
-			if ($lastwall['title'] != "")
-				$user_info['statusnet_html'] = "<h4>".bbcode($lastwall['title'])."</h4>\n".$user_info['statusnet_html'];
+			if (count($converted["attachments"]) > 0)
+				$user_info["status"]["attachments"] = $converted["attachments"];
 
-			$entities = api_get_entitities($user_info['text'], $lastwall['body']);
-			if (count($entities) > 0)
-				$user_info['entities'] = $entities;
+			if (count($converted["entities"]) > 0)
+				$user_info["status"]["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($user_info["status"]["source"] == 'web'))
 				$user_info["status"]["source"] = network_to_name($lastwall['item_network']);
@@ -1803,6 +1805,67 @@
 		return $ret;
 	}
 
+	function api_convert_item($item) {
+
+		$body = $item['body'];
+		$attachments = api_get_attachments($body);
+
+		// Workaround for ostatus messages where the title is identically to the body
+		$html = bbcode(api_clean_plain_items($body), false, false, 2, true);
+		$statusbody = trim(html2plain($html, 0));
+
+		// handle data: images
+		$statusbody = api_format_items_embeded_images($item,$statusbody);
+
+		$statustitle = trim($item['title']);
+
+		if (($statustitle != '') and (strpos($statusbody, $statustitle) !== false))
+			$statustext = trim($statusbody);
+		else
+			$statustext = trim($statustitle."\n\n".$statusbody);
+
+		if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
+			$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
+
+		$statushtml = trim(bbcode($body, false, false));
+
+		if ($item['title'] != "")
+			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
+
+		$entities = api_get_entitities($statustext, $body);
+
+		return(array("text" => $statustext, "html" => $statushtml, "attachments" => $attachments, "entities" => $entities));
+	}
+
+	function api_get_attachments(&$body) {
+
+		$text = $body;
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
+
+		$URLSearchString = "^\[\]";
+		$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
+
+		if (!$ret)
+			return false;
+
+		require_once("include/Photo.php");
+
+		$attachments = array();
+
+		foreach ($images[1] AS $image) {
+			$imagedata = get_photo_info($image);
+
+			if ($imagedata)
+				$attachments[] = array("url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]);
+		}
+
+		if (strstr($_SERVER['HTTP_USER_AGENT'], "AndStatus"))
+			foreach ($images[0] AS $orig)
+				$body = str_replace($orig, "", $body);
+
+		return $attachments;
+	}
+
 	function api_get_entitities(&$text, $bbcode) {
 		/*
 		To-Do:
@@ -2024,29 +2087,10 @@
 				$in_reply_to_status_id_str = NULL;
 			}
 
-			// Workaround for ostatus messages where the title is identically to the body
-			//$statusbody = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 5, true), 0));
-			$html = bbcode(api_clean_plain_items($item['body']), false, false, 2, true);
-			$statusbody = trim(html2plain($html, 0));
-
-			// handle data: images
-			$statusbody = api_format_items_embeded_images($item,$statusbody);
-
-			$statustitle = trim($item['title']);
-
-			if (($statustitle != '') and (strpos($statusbody, $statustitle) !== false))
-				$statustext = trim($statusbody);
-			else
-				$statustext = trim($statustitle."\n\n".$statusbody);
-
-			if (($item["network"] == NETWORK_FEED) and (strlen($statustext)> 1000))
-				$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
-
-			$statushtml = trim(bbcode($item['body'], false, false));
-
+			$converted = api_convert_item($item);
 
 			$status = array(
-				'text'		=> $statustext,
+				'text'		=> $converted["text"],
 				'truncated' => False,
 				'created_at'=> api_date($item['created']),
 				'in_reply_to_status_id' => $in_reply_to_status_id,
@@ -2059,19 +2103,17 @@
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,
-				//'attachments' => array(),
 				'user' =>  $status_user ,
 				//'entities' => NULL,
-				'statusnet_html'		=> $statushtml,
+				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $item['parent'],
 			);
 
-			if ($item['title'] != "")
-				$status['statusnet_html'] = "<h4>".bbcode($item['title'])."</h4>\n".$status['statusnet_html'];
+			if (count($converted["attachments"]) > 0)
+				$status["attachments"] = $converted["attachments"];
 
-			$entities = api_get_entitities($status['text'], $item['body']);
-			if (count($entities) > 0)
-				$status['entities'] = $entities;
+			if (count($converted["entities"]) > 0)
+				$status["entities"] = $converted["entities"];
 
 			if (($item['item_network'] != "") AND ($status["source"] == 'web'))
 				$status["source"] = network_to_name($item['item_network']);
