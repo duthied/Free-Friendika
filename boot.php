@@ -2388,3 +2388,11 @@ if(!function_exists('exif_imagetype')) {
                 return($size[2]);
         }
 }
+
+// See https://github.com/friendica/friendica/issues/1218
+// Try to get the values for $argv and $argc via the $_SERVER array
+if (!isset($argv) && array_key_exists('argv', $_SERVER))
+	$argv = $_SERVER['argv'];
+
+if (!isset($argc) && array_key_exists('argc', $_SERVER))
+	$argv = $_SERVER['argc'];

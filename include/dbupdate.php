@@ -8,7 +8,7 @@ function dbupdate_run(&$argv, &$argc) {
 	if(is_null($a)){
 		$a = new App;
 	}
-  
+
 	if(is_null($db)) {
 		@include(".htconfig.php");
 		require_once("include/dba.php");
@@ -26,4 +26,3 @@ if (array_search(__file__,get_included_files())===0){
   dbupdate_run($argv,$argc);
   killme();
 }
-
