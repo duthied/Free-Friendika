@@ -2395,4 +2395,4 @@ if (!isset($argv) && array_key_exists('argv', $_SERVER))
 	$argv = $_SERVER['argv'];
 
 if (!isset($argc) && array_key_exists('argc', $_SERVER))
-	$argv = $_SERVER['argc'];
+	$argc = $_SERVER['argc'];
