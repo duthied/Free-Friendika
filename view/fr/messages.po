@@ -9,7 +9,7 @@
 # Lionel Triay <zapimax38@free.fr>, 2013
 # Marquis_de_Carabas <olivier@free-beer.ch>, 2012
 # Olivier <olivier+transifex@migeot.org>, 2011-2012
-# Sylvain Lagacé, 2014
+# Sylvain Lagacé, 2014-2015
 # tomamplius <thomas@lgy.fr>, 2014
 # Tubuntu <tubuntu@testimonium.be>, 2013-2014
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-10-22 10:05+0200\n"
-"PO-Revision-Date: 2014-12-30 15:30+0000\n"
+"PO-Revision-Date: 2015-01-02 00:18+0000\n"
 "Last-Translator: Sylvain Lagacé\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -3194,7 +3194,7 @@ msgstr "Fichier du compte"
 msgid ""
 "To export your account, go to \"Settings->Export your personal data\" and "
 "select \"Export account\""
-msgstr ""
+msgstr "Pour exporter votre compte, allez dans \"Paramètres> Exporter vos données personnelles\" et sélectionnez \"exportation de compte\""
 
 #: ../../mod/subthread.php:103
 #, php-format
@@ -3829,11 +3829,11 @@ msgstr ""
 
 #: ../../mod/settings.php:966
 msgid "User Types"
-msgstr ""
+msgstr "Types d'utilisateurs"
 
 #: ../../mod/settings.php:967
 msgid "Community Types"
-msgstr ""
+msgstr "Genre de communautés"
 
 #: ../../mod/settings.php:968
 msgid "Normal Account Page"
@@ -4247,7 +4247,7 @@ msgstr "%1$s a mis à jour son %2$s, en modifiant %3$s."
 
 #: ../../mod/profiles.php:617
 msgid "Hide contacts and friends:"
-msgstr ""
+msgstr "Cacher mes contacts et amis:"
 
 #: ../../mod/profiles.php:622
 msgid "Hide your contact/friend list from viewers of this profile?"
@@ -4279,23 +4279,23 @@ msgstr "Supprimer ce profil"
 
 #: ../../mod/profiles.php:651
 msgid "Basic information"
-msgstr ""
+msgstr "Information de base"
 
 #: ../../mod/profiles.php:652
 msgid "Profile picture"
-msgstr ""
+msgstr "Image de profil"
 
 #: ../../mod/profiles.php:654
 msgid "Preferences"
-msgstr ""
+msgstr "Préférences"
 
 #: ../../mod/profiles.php:655
 msgid "Status information"
-msgstr ""
+msgstr "Information sur le statut"
 
 #: ../../mod/profiles.php:656
 msgid "Additional information"
-msgstr ""
+msgstr "Information additionnelle"
 
 #: ../../mod/profiles.php:659
 msgid "Profile Name:"
