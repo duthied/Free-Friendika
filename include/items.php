@@ -1343,6 +1343,16 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
+		// Set "success_update" to the date of the last time we heard from this contact
+		// This can be used to filter for inactive contacts and poco.
+		// Only do this for public postings to avoid privacy problems, since poco data is public.
+		// Don't set this value if it isn't from the owner (could be an author that we don't know)
+		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
+			$r = q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
+				intval($arr['contact-id'])
+			);
+
 		// Only check for notifications on start posts
 		if ($arr['parent-uri'] === $arr['uri']) {
 			add_thread($r[0]['id']);

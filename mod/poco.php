@@ -30,7 +30,7 @@ function poco_init(&$a) {
 		$justme = true;
 	if($a->argc > 4 && intval($a->argv[4]) && $justme == false)
 		$cid = intval($a->argv[4]);
- 		
+ 
 
 	if(! $system_mode) {
 		$r = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
@@ -106,6 +106,7 @@ function poco_init(&$a) {
 		'id' => false,
 		'displayName' => false,
 		'urls' => false,
+		'updated' => false,
 		'preferredUsername' => false,
 		'photos' => false
 	);
@@ -130,10 +131,24 @@ function poco_init(&$a) {
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))
-						$entry['urls'][] = array('value' => 'acct:' . $rr['addr'], 'type' => 'webfinger');  
+						$entry['urls'][] = array('value' => 'acct:' . $rr['addr'], 'type' => 'webfinger');
 				}
 				if($fields_ret['preferredUsername'])
 					$entry['preferredUsername'] = $rr['nick'];
+				if($fields_ret['updated']) {
+					$entry['updated'] = $rr['success_update'];
+
+					if ($rr['name-date'] > $entry['updated'])
+						$entry['updated'] = $rr['name-date'];
+
+					if ($rr['uri-date'] > $entry['updated'])
+						$entry['updated'] = $rr['uri-date'];
+
+					if ($rr['avatar-date'] > $entry['updated'])
+						$entry['updated'] = $rr['avatar-date'];
+
+					$entry['updated'] = date("c", strtotime($entry['updated']));
+				}
 				if($fields_ret['photos'])
 					$entry['photos'] = array(array('value' => $rr['photo'], 'type' => 'profile'));
 				$ret['entry'][] = $entry;
@@ -153,7 +168,7 @@ function poco_init(&$a) {
 	if($format === 'json') {
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();	
+		killme();
 	}
 	else
 		http_status_exit(500);

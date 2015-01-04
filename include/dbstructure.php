@@ -616,6 +616,7 @@ function db_definition() {
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

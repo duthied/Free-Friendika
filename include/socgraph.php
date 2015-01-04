@@ -39,7 +39,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos' : '?fields=displayName,urls,photos') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos' : '?fields=displayName,urls,photos,updated') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -67,6 +67,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$profile_photo = '';
 		$connect_url = '';
 		$name = '';
+		$updated = '0000-00-00 00:00:00';
 
 		$name = $entry->displayName;
 
@@ -82,7 +83,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 				}
 			}
 		}
-		if(isset($entry->photos)) { 
+		if(isset($entry->photos)) {
 			foreach($entry->photos as $photo) {
 				if($photo->type == 'profile') {
 					$profile_photo = $photo->value;
@@ -90,6 +91,9 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 				}
 			}
 		}
+
+		if(isset($entry->updated))
+			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
 
 		if((! $name) || (! $profile_url) || (! $profile_photo))
 			continue;
@@ -101,25 +105,27 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(count($x)) {
 			$gcid = $x[0]['id'];
 
-			if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo) {
-				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s'
+			if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
+				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
 					where `nurl` = '%s'",
 					dbesc($name),
 					dbesc($profile_photo),
 					dbesc($connect_url),
 					dbesc($profile_url),
+					dbesc($updated),
 					dbesc(normalise_link($profile_url))
 				);
 			}
 		}
 		else {
-			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`)
+			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`, `updated`)
 				values ( '%s', '%s', '%s', '%s','%s') ",
 				dbesc($name),
 				dbesc($profile_url),
 				dbesc(normalise_link($profile_url)),
 				dbesc($profile_photo),
-				dbesc($connect_url)
+				dbesc($connect_url),
+				dbesc($updated)
 			);
 			$x = q("select * from `gcontact` where `nurl` = '%s' limit 1",
 				dbesc(normalise_link($profile_url))
