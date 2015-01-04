@@ -41,7 +41,9 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 			if ($matches[1] != "")
 				$title = $matches[1];
 
-			$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+			//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+			$title = bbcode(html_entity_decode($title), false, false, true);
+			$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
 
 			$image = "";
 			if ($type != "video") {
@@ -1171,6 +1173,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$a->save_timestamp($stamp1, "parser");
 
-	return $Text;
+	return trim($Text);
 }
 ?>

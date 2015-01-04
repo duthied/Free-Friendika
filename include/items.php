@@ -2668,14 +2668,14 @@ function item_is_remote_self($contact, &$datarray) {
 	$datarray2 = $datarray;
 	logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
 	if ($contact['remote_self'] == 2) {
-		$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+		$r = q("SELECT `id`,`url`,`name`,`thumb` FROM `contact` WHERE `uid` = %d AND `self`",
 			intval($contact['uid']));
 		if (count($r)) {
 			$datarray['contact-id'] = $r[0]["id"];
 
 			$datarray['owner-name'] = $r[0]["name"];
 			$datarray['owner-link'] = $r[0]["url"];
-			$datarray['owner-avatar'] = $r[0]["avatar"];
+			$datarray['owner-avatar'] = $r[0]["thumb"];
 
 			$datarray['author-name']   = $datarray['owner-name'];
 			$datarray['author-link']   = $datarray['owner-link'];
