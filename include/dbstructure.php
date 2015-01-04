@@ -823,6 +823,7 @@ function db_definition() {
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"name" => array("type" => "varchar(128)", "not null" => "1", "default" => ""),
 					"locked" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"created" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
