@@ -1339,6 +1339,6 @@ function dbstructure_run(&$argv, &$argc) {
 }
 
 if (array_search(__file__,get_included_files())===0){
-	dbstructure_run($argv,$argc);
+	dbstructure_run($_SERVER["argv"],$_SERVER["argc"]);
 	killme();
 }

@@ -435,7 +435,7 @@ if(! class_exists('App')) {
 
 		function __construct() {
 
-			global $default_timezone, $argv, $argc;
+			global $default_timezone;
 
 			$hostname = "";
 
@@ -504,9 +504,9 @@ if(! class_exists('App')) {
 			if ($hostname != "")
 				$this->hostname = $hostname;
 
-			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
-				$this->set_baseurl(array_pop($argv) );
-				$argc --;
+			if (is_array($_SERVER["argv"]) && $_SERVER["argc"]>1 && substr(end($_SERVER["argv"]), 0, 4)=="http" ) {
+				$this->set_baseurl(array_pop($_SERVER["argv"]) );
+				$_SERVER["argc"] --;
 			}
 
 			#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
@@ -2388,11 +2388,3 @@ if(!function_exists('exif_imagetype')) {
                 return($size[2]);
         }
 }
-
-// See https://github.com/friendica/friendica/issues/1218
-// Try to get the values for $argv and $argc via the $_SERVER array
-if (!isset($argv) && array_key_exists('argv', $_SERVER))
-	$argv = $_SERVER['argv'];
-
-if (!isset($argc) && array_key_exists('argc', $_SERVER))
-	$argc = $_SERVER['argc'];
