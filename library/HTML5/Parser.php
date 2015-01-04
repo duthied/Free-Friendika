@@ -20,7 +20,12 @@ class HTML5_Parser
 
 	// Cleanup invalid HTML
 	$doc = new DOMDocument();
-	@$doc->loadHTML($text);
+
+	if (mb_detect_encoding($text, "UTF-8", true) == "UTF-8")
+		@$doc->loadHTML('<?xml encoding="UTF-8" ?>'.$text);
+	else
+		@$doc->loadHTML($text);
+
 	$text = $doc->saveHTML();
 
         $tokenizer = new HTML5_Tokenizer($text, $builder);
