@@ -73,7 +73,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, 1);
-	curl_setopt($ch, CURLOPT_NOBODY, 0);
+	curl_setopt($ch, CURLOPT_NOBODY, 1);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -92,6 +92,28 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 			$siteinfo = parseurl_getsiteinfo($curl_info['location'], $no_guessing, $do_oembed, ++$count);
 		return($siteinfo);
 	}
+
+	// if the file is too large then exit
+	if ($curl_info["download_content_length"] > 1000000)
+		return($siteinfo);
+
+	// if it isn't a HTML file then exit
+	if (($curl_info["content_type"] != "") AND !strstr(strtolower($curl_info["content_type"]),"html"))
+		return($siteinfo);
+
+	// Now fetch the body as well
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 1);
+	curl_setopt($ch, CURLOPT_NOBODY, 0);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+
+	$header = curl_exec($ch);
+	$curl_info = @curl_getinfo($ch);
+        $http_code = $curl_info['http_code'];
+	curl_close($ch);
 
 	if ($do_oembed) {
 		require_once("include/oembed.php");
