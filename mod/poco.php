@@ -12,7 +12,7 @@ function poco_init(&$a) {
 		$user = notags(trim($a->argv[1]));
 	}
 	if(! x($user)) {
-		$c = q("select * from pconfig where cat = 'system' and k = 'suggestme' and v = 1");
+		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
 		if(! count($c))
 			http_status_exit(401);
 		$system_mode = true;
@@ -30,7 +30,7 @@ function poco_init(&$a) {
 		$justme = true;
 	if($a->argc > 4 && intval($a->argv[4]) && $justme == false)
 		$cid = intval($a->argv[4]);
- 
+
 
 	if(! $system_mode) {
 		$r = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
@@ -44,21 +44,28 @@ function poco_init(&$a) {
 	}
 
 	if($justme)
-		$sql_extra = " and `contact`.`self` = 1 ";
+		$sql_extra = " AND `contact`.`self` = 1 ";
 	else
-		$sql_extra = " and `contact`.`self` = 0 ";
+		$sql_extra = " AND `contact`.`self` = 0 ";
 
 	if($cid)
-		$sql_extra = sprintf(" and `contact`.`id` = %d ",intval($cid));
+		$sql_extra = sprintf(" AND `contact`.`id` = %d ",intval($cid));
 
 	if($system_mode) {
-		$r = q("SELECT count(*) as `total` from `contact` where self = 1 
-			and uid in (select uid from pconfig where cat = 'system' and k = 'suggestme' and v = 1) ");
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '')
+			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
+			);
 	}
 	else {
-		$r = q("SELECT count(*) as `total` from `contact` where `uid` = %d and blocked = 0 and pending = 0 and hidden = 0 and archive = 0
-			$sql_extra ",
-			intval($user['uid'])
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s', '') $sql_extra",
+			intval($user['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
 		);
 	}
 	if(count($r))
@@ -73,17 +80,22 @@ function poco_init(&$a) {
 
 
 	if($system_mode) {
-		$r = q("SELECT * from contact where self = 1 
-			and uid in (select uid from pconfig where cat = 'system' and k = 'suggestme' and v = 1) limit %d, %d ",
+		$r = q("SELECT * FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '')
+			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	}
 	else {
-
-		$r = q("SELECT * from `contact` where `uid` = %d and blocked = 0 and pending = 0 and hidden = 0 and archive = 0
-			$sql_extra LIMIT %d, %d",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
