@@ -12,25 +12,28 @@
 	
 	$a = new App();
 
+	if(x($a->config,'php_path'))
+		$phpath = $a->config['php_path'];
+	else
+		$phpath = 'php';
+
+
 	echo "Directory: mod\n";
 	$files = glob('mod/*.php');
 	foreach($files as $file) {
-		echo $file . "\n";
-		include_once($file);
+        passthru("$phpath -l $file", $ret); $ret===0 or die();
 	}
 
 	echo "Directory: include\n";
 	$files = glob('include/*.php');
 	foreach($files as $file) {
-		echo $file . "\n";
-		include_once($file);
+        passthru("$phpath -l $file", $ret); $ret===0 or die();
 	}
     
     echo "Directory: object\n";
 	$files = glob('object/*.php');
 	foreach($files as $file) {
-		echo $file . "\n";
-		include_once($file);
+        passthru("$phpath -l $file", $ret); $ret===0 or die();
 	}
 
 	echo "Directory: addon\n";
@@ -40,26 +43,17 @@
 		$addon = basename($dir);
 		$files = glob($dir . '/' . $addon . '.php');
 		foreach($files as $file) {
-			echo $file . "\n";
-			include_once($file);
+            passthru("$phpath -l $file", $ret); $ret===0 or die();
 		}
 	}
 
-	if(x($a->config,'php_path'))
-		$phpath = $a->config['php_path'];
-	else
-		$phpath = 'php';
 
 	echo "String files\n";
 
 	echo 'util/strings.php' . "\n";
-	include_once('util/strings.php');
-	echo count($a->strings) . ' strings' . "\n";
+    passthru("$phpath -l util/strings.php", $ret); $ret===0 or die();
 
 	$files = glob('view/*/strings.php');
-
 	foreach($files as $file) {
-		echo $file . "\n";
-	passthru($phpath . ' util/typohelper.php ' . $file);
-//		include_once($file);
+        passthru("$phpath -l $file", $ret); $ret===0 or die();
 	}
