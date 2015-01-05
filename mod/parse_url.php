@@ -93,6 +93,15 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 		return($siteinfo);
 	}
 
+	if ($do_oembed) {
+		require_once("include/oembed.php");
+
+		$oembed_data = oembed_fetch_url($url);
+
+		if ($oembed_data->type != "error")
+			$siteinfo["type"] = $oembed_data->type;
+	}
+
 	// if the file is too large then exit
 	if ($curl_info["download_content_length"] > 1000000)
 		return($siteinfo);
@@ -114,15 +123,6 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	$curl_info = @curl_getinfo($ch);
         $http_code = $curl_info['http_code'];
 	curl_close($ch);
-
-	if ($do_oembed) {
-		require_once("include/oembed.php");
-
-		$oembed_data = oembed_fetch_url($url);
-
-		if ($oembed_data->type != "error")
-			$siteinfo["type"] = $oembed_data->type;
-	}
 
 	// Fetch the first mentioned charset. Can be in body or header
 	$charset = "";

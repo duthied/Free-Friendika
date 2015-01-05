@@ -1348,7 +1348,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		// Only do this for public postings to avoid privacy problems, since poco data is public.
 		// Don't set this value if it isn't from the owner (could be an author that we don't know)
 		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
-			$r = q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+			q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
