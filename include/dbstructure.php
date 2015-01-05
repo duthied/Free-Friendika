@@ -413,6 +413,8 @@ function db_definition() {
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "text", "not null" => "1"),
 					"thumb" => array("type" => "text", "not null" => "1"),
