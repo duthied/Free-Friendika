@@ -95,45 +95,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(isset($entry->updated))
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
 
-		if((! $name) || (! $profile_url) || (! $profile_photo))
-			continue;
-
-		$gcid = poco_check($profile_url, $name, $profile_photo, $connect_url, $updated);
-
-		if(! $gcid)
-			return;
-
-		$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
-			intval($cid),
-			intval($uid),
-			intval($gcid),
-			intval($zcid)
-		);
-		if(! count($r)) {
-			q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
-				intval($cid),
-				intval($uid),
-				intval($gcid),
-				intval($zcid),
-				dbesc(datetime_convert())
-			);
-		}
-		else {
-			q("UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
-				dbesc(datetime_convert()),
-				intval($cid),
-				intval($uid),
-				intval($gcid),
-				intval($zcid)
-			);
-		}
-
-		// For unknown reasons there are sometimes duplicates
-		q("DELETE FROM `gcontact` WHERE `nurl` = '%s' AND `id` != %d AND
-			NOT EXISTS (SELECT `gcid` FROM `glink` WHERE `gcid` = `gcontact`.`id`)",
-			dbesc(normalise_link($profile_url)),
-			intval($gcid)
-		);
+		poco_check($profile_url, $name, $profile_photo, $connect_url, $updated, $cid, $uid, $zcid);
 
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
@@ -146,7 +108,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
-function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated) {
+function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
 	$gcid = "";
 
 	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
@@ -188,6 +150,41 @@ function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated)
 		if(count($x))
 			$gcid = $x[0]['id'];
 	}
+
+	if(! $gcid)
+		return $gcid;
+
+	$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
+		intval($cid),
+		intval($uid),
+		intval($gcid),
+		intval($zcid)
+	);
+	if(! count($r)) {
+		q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
+			intval($cid),
+			intval($uid),
+			intval($gcid),
+			intval($zcid),
+			dbesc(datetime_convert())
+		);
+	} else {
+		q("UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
+			dbesc(datetime_convert()),
+			intval($cid),
+			intval($uid),
+			intval($gcid),
+			intval($zcid)
+		);
+	}
+
+	// For unknown reasons there are sometimes duplicates
+	q("DELETE FROM `gcontact` WHERE `nurl` = '%s' AND `id` != %d AND
+		NOT EXISTS (SELECT `gcid` FROM `glink` WHERE `gcid` = `gcontact`.`id`)",
+		dbesc(normalise_link($profile_url)),
+		intval($gcid)
+	);
+
 	return $gcid;
 }
 
