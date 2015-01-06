@@ -153,6 +153,8 @@ function delete_thread_uri($itemuri, $uid) {
 }
 
 function delete_thread($itemid) {
+	// To-Do:
+	// There is no "uri" in the thread table ...
 	$item = q("SELECT `uri`, `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
 
 	$result = q("DELETE FROM `thread` WHERE `iid` = %d", intval($itemid));

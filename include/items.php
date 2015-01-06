@@ -1348,7 +1348,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
 		if (!$arr['private'] AND in_array($arr["network"],
 			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
-			poco_check($arr["author-link"], $arr["author-name"], $arr["author-avatar"], "", $arr["received"]);
+			poco_check($arr["author-link"], $arr["author-name"], $arr["author-avatar"], "", $arr["received"], $arr['contact-id'], $arr['uid']);
 
 		// Set "success_update" to the date of the last time we heard from this contact
 		// This can be used to filter for inactive contacts and poco.
