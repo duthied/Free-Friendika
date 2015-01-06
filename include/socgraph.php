@@ -98,40 +98,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if((! $name) || (! $profile_url) || (! $profile_photo))
 			continue;
 
-		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-			dbesc(normalise_link($profile_url))
-		);
+		$gcid = poco_check($profile_url, $name, $profile_photo, $connect_url, $updated);
 
-		if(count($x)) {
-			$gcid = $x[0]['id'];
-
-			if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
-					where `nurl` = '%s'",
-					dbesc($name),
-					dbesc($profile_photo),
-					dbesc($connect_url),
-					dbesc($profile_url),
-					dbesc($updated),
-					dbesc(normalise_link($profile_url))
-				);
-			}
-		} else {
-			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`, `updated`)
-				values ( '%s', '%s', '%s', '%s','%s') ",
-				dbesc($name),
-				dbesc($profile_url),
-				dbesc(normalise_link($profile_url)),
-				dbesc($profile_photo),
-				dbesc($connect_url),
-				dbesc($updated)
-			);
-			$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-				dbesc(normalise_link($profile_url))
-			);
-			if(count($x))
-				$gcid = $x[0]['id'];
-		}
 		if(! $gcid)
 			return;
 
@@ -178,6 +146,50 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
+function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated) {
+	$gcid = "";
+
+	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
+		return $gcid;
+
+	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
+
+	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+		dbesc(normalise_link($profile_url))
+	);
+
+	if(count($x)) {
+		$gcid = $x[0]['id'];
+
+		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
+			q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
+				where `nurl` = '%s'",
+				dbesc($name),
+				dbesc($profile_photo),
+				dbesc($connect_url),
+				dbesc($profile_url),
+				dbesc($updated),
+				dbesc(normalise_link($profile_url))
+			);
+		}
+	} else {
+		q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`, `updated`)
+			values ('%s', '%s', '%s', '%s','%s', '%s')",
+			dbesc($name),
+			dbesc($profile_url),
+			dbesc(normalise_link($profile_url)),
+			dbesc($profile_photo),
+			dbesc($connect_url),
+			dbesc($updated)
+		);
+		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+			dbesc(normalise_link($profile_url))
+		);
+		if(count($x))
+			$gcid = $x[0]['id'];
+	}
+	return $gcid;
+}
 
 function count_common_friends($uid,$cid) {
 

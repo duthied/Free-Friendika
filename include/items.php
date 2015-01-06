@@ -11,6 +11,7 @@ require_once('include/text.php');
 require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
+require_once('include/socgraph.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -1342,6 +1343,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if(count($r)) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
+
+		// Add every contact to the global contact table
+		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
+		if (!$arr['private'] AND in_array($arr["network"],
+			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
+			poco_check($arr["author-link"], $arr["author-name"], $arr["author-avatar"], "", $arr["received"]);
 
 		// Set "success_update" to the date of the last time we heard from this contact
 		// This can be used to filter for inactive contacts and poco.
