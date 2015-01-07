@@ -94,7 +94,7 @@ function display_fetchauthor($a, $item) {
 		normalise_link($profiledata["url"]), $item["uid"]);
 	if (count($r)) {
 		$profiledata["photo"] = proxy_url($r[0]["photo"]);
-		$profiledata["address"] = $r[0]["location"];
+		$profiledata["address"] = bbcode($r[0]["location"]);
 		$profiledata["about"] = bbcode($r[0]["about"]);
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];

@@ -2161,7 +2161,7 @@ function diaspora_profile($importer,$xml,$msg) {
 	$name = unxmlify($xml->first_name) . ((strlen($xml->last_name)) ? ' ' . unxmlify($xml->last_name) : '');
 	$image_url = unxmlify($xml->image_url);
 	$birthday = unxmlify($xml->birthday);
-	$location = unxmlify($xml->location);
+	$location = diaspora2bb(unxmlify($xml->location));
 	$about = diaspora2bb(unxmlify($xml->bio));
 
 
