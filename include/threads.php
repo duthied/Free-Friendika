@@ -149,28 +149,26 @@ function delete_thread_uri($itemuri, $uid) {
 
 	if(count($messages))
 		foreach ($messages as $message)
-			delete_thread($message["id"]);
+			delete_thread($message["id"], $itemuri);
 }
 
-function delete_thread($itemid) {
-	// To-Do:
-	// There is no "uri" in the thread table ...
-	$item = q("SELECT `uri`, `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
+function delete_thread($itemid, $itemuri = "") {
+	$item = q("SELECT `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
 
 	$result = q("DELETE FROM `thread` WHERE `iid` = %d", intval($itemid));
 
 	logger("delete_thread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
-	if (count($item)) {
+	if ($itemuri != "") {
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT (`uid` IN (%d, 0))",
-				dbesc($item["uri"]),
+				dbesc($itemuri),
 				intval($item["uid"])
 			);
 		if (!count($r)) {
 			$r = q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = 0)",
-				dbesc($item["uri"])
+				dbesc($itemuri)
 			);
-			logger("delete_thread: Deleted shadow for item ".$item["uri"]." - ".print_r($result, true), LOGGER_DEBUG);
+			logger("delete_thread: Deleted shadow for item ".$itemuri." - ".print_r($result, true), LOGGER_DEBUG);
 		}
 	}
 }

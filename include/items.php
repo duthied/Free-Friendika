@@ -4509,7 +4509,7 @@ function drop_item($id,$interactive = true) {
 		);
 		create_tags_from_item($item['id']);
 		create_files_from_item($item['id']);
-		delete_thread($item['id']);
+		delete_thread($item['id'], $item['parent-uri']);
 
 		// clean up categories and tags so they don't end up as orphans
 

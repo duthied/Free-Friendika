@@ -1649,8 +1649,10 @@ if(! function_exists('profile_sidebar')) {
 
 		$homepage = ((x($profile,'homepage') == 1) ?  t('Homepage:') : False);
 
+		$about = ((x($profile,'about') == 1) ?  t('About:') : False);
+
 		if(($profile['hidewall'] || $block) && (! local_user()) && (! remote_user())) {
-			$location = $pdesc = $gender = $marital = $homepage = False;
+			$location = $pdesc = $gender = $marital = $homepage = $about = False;
 		}
 
 		$firstname = ((strpos($profile['name'],' '))
@@ -1695,6 +1697,7 @@ if(! function_exists('profile_sidebar')) {
 			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
+			'$about' => $about,
 			'$network' =>  t('Network:'),
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
