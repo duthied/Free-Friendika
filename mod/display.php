@@ -88,7 +88,6 @@ function display_fetchauthor($a, $item) {
 	$profiledata["photo"] = proxy_url($item["author-avatar"]);
 	$profiledata["url"] = $item["author-link"];
 	$profiledata["network"] = $item["network"];
-	$profiledata["address"] = "Ort".print_r($item, true);
 
 	// Fetching further contact data from the contact table
 	$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
@@ -96,7 +95,7 @@ function display_fetchauthor($a, $item) {
 	if (count($r)) {
 		$profiledata["photo"] = proxy_url($r[0]["photo"]);
 		$profiledata["address"] = $r[0]["location"];
-		$profiledata["about"] = $r[0]["about"];
+		$profiledata["about"] = bbcode($r[0]["about"]);
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];
 	} else {
