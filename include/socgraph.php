@@ -316,7 +316,7 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(! $uid)
 		return array();
 
-	$network = array("", NETWORK_DFRN);
+	$network = array(NETWORK_DFRN);
 
 	if (get_config('system','diaspora_enabled'))
 		$network[] = NETWORK_DIASPORA;
@@ -325,7 +325,8 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		$network[] = NETWORK_OSTATUS;
 
 	$sql_network = implode("', '", $network);
-	$sql_network = substr($sql_network, 2)."', ''";
+	//$sql_network = "'".$sql_network."', ''";
+	$sql_network = "'".$sql_network."'";
 
 	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
 		INNER JOIN glink on glink.gcid = gcontact.id
