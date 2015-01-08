@@ -12,10 +12,10 @@ require_once('include/datetime.php');
  *
  * Once the global contact is stored add (if necessary) the contact linkage which associates
  * the given uid, cid to the global contact entry. There can be many uid/cid combinations
- * pointing to the same global contact id. 
+ * pointing to the same global contact id.
  *
  */
- 
+
 
 
 
@@ -39,7 +39,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos' : '?fields=displayName,urls,photos,updated') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network' : '?fields=displayName,urls,photos,updated,network') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -67,6 +67,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$profile_photo = '';
 		$connect_url = '';
 		$name = '';
+		$network = '';
 		$updated = '0000-00-00 00:00:00';
 
 		$name = $entry->displayName;
@@ -95,7 +96,10 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(isset($entry->updated))
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
 
-		poco_check($profile_url, $name, $profile_photo, $connect_url, $updated, $cid, $uid, $zcid);
+		if(isset($entry->network))
+			$network = $entry->network;
+
+		poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid, $uid, $zcid);
 
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
@@ -108,7 +112,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
-function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
+function poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
 	$gcid = "";
 
 	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
@@ -124,9 +128,10 @@ function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated,
 		$gcid = $x[0]['id'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
+			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
 				where `nurl` = '%s'",
 				dbesc($name),
+				dbesc($network),
 				dbesc($profile_photo),
 				dbesc($connect_url),
 				dbesc($profile_url),
@@ -135,9 +140,10 @@ function poco_check($profile_url, $name, $profile_photo, $connect_url, $updated,
 			);
 		}
 	} else {
-		q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`, `updated`)
-			values ('%s', '%s', '%s', '%s','%s', '%s')",
+		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`)
+			values ('%s', '%s', '%s', '%s', '%s','%s', '%s')",
 			dbesc($name),
+			dbesc($network),
 			dbesc($profile_url),
 			dbesc(normalise_link($profile_url)),
 			dbesc($profile_photo),
@@ -213,9 +219,9 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 	if($shuffle)
 		$sql_extra = " order by rand() ";
 	else
-		$sql_extra = " order by `gcontact`.`name` asc "; 
+		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`cid` = %d and `glink`.`uid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) 
@@ -235,7 +241,7 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 
 function count_common_friends_zcid($uid,$zcid) {
 
-	$r = q("SELECT count(*) as `total` 
+	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`zcid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
@@ -254,9 +260,9 @@ function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = fal
 	if($shuffle)
 		$sql_extra = " order by rand() ";
 	else
-		$sql_extra = " order by `gcontact`.`name` asc "; 
+		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`zcid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) 
@@ -290,9 +296,9 @@ function count_all_friends($uid,$cid) {
 
 function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d 
+		where `glink`.`cid` = %d and `glink`.`uid` = %d
 		order by `gcontact`.`name` asc LIMIT %d, %d ",
 		intval($cid),
 		intval($uid),
@@ -310,17 +316,30 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(! $uid)
 		return array();
 
+	$network = array("", NETWORK_DFRN);
+
+	if (get_config('system','diaspora_enabled'))
+		$network[] = NETWORK_DIASPORA;
+
+	if (!get_config('system','ostatus_disabled'))
+		$network[] = NETWORK_OSTATUS;
+
+	$sql_network = implode("', '", $network);
+	$sql_network = substr($sql_network, 2)."', ''";
+
 	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
 		INNER JOIN glink on glink.gcid = gcontact.id
 		where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
 		and not gcontact.name in ( select name from contact where uid = %d )
 		and not gcontact.id in ( select gcid from gcign where uid = %d )
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`network` IN (%s)
 		group by glink.gcid order by gcontact.updated desc,total desc limit %d, %d ",
 		intval($uid),
 		intval($uid),
 		intval($uid),
 		intval($uid),
+		$sql_network,
 		intval($start),
 		intval($limit)
 	);
@@ -334,10 +353,12 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		and not gcontact.name in ( select name from contact where uid = %d )
 		and not gcontact.id in ( select gcid from gcign where uid = %d )
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`network` IN (%s)
 		order by rand() limit %d, %d ",
 		intval($uid),
 		intval($uid),
 		intval($uid),
+		$sql_network,
 		intval($start),
 		intval($limit)
 	);

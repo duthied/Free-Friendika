@@ -52,20 +52,22 @@ function poco_init(&$a) {
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ",intval($cid));
 
 	if($system_mode) {
-		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '')
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET)
 			);
 	}
 	else {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '') $sql_extra",
+			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET)
 		);
 	}
 	if(count($r))
@@ -80,22 +82,24 @@ function poco_init(&$a) {
 
 
 	if($system_mode) {
-		$r = q("SELECT * FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '')
+		$r = q("SELECT * FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	}
 	else {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
+			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
@@ -120,7 +124,8 @@ function poco_init(&$a) {
 		'urls' => false,
 		'updated' => false,
 		'preferredUsername' => false,
-		'photos' => false
+		'photos' => false,
+		'network' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -163,6 +168,11 @@ function poco_init(&$a) {
 				}
 				if($fields_ret['photos'])
 					$entry['photos'] = array(array('value' => $rr['photo'], 'type' => 'profile'));
+				if($fields_ret['network']) {
+					$entry['network'] = $rr['network'];
+					if ($entry['network'] == NETWORK_STATUSNET)
+						$entry['network'] = NETWORK_OSTATUS;
+				}
 				$ret['entry'][] = $entry;
 			}
 		}
