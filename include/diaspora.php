@@ -2213,6 +2213,21 @@ function diaspora_profile($importer,$xml,$msg) {
 		intval($importer['uid'])
 	);
 
+	$profileurl = "";
+	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
+			dbesc(normalise_link($contact['url'])));
+
+	if (count($author) == 0) {
+		q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`, `location`, `about`) VALUES ('%s', '%s', '%s', '%s', '%s')",
+			dbesc(normalise_link($contact['url'])), dbesc($name), dbesc($location), dbesc($about), dbesc($images[0]));
+
+		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+			dbesc(normalise_link($contact['url'])));
+	} else if (normalise_link($contact['url']).$name.$location.$about != normalise_link($author[0]["url"]).$author[0]["name"].$author[0]["location"].$author[0]["about"]) {
+		q("UPDATE unique_contacts SET name = '%s', avatar = '%s', `location` = '%s', `about` = '%s' WHERE url = '%s'",
+		dbesc($name), dbesc($images[0]), dbesc($location), dbesc($about), dbesc(normalise_link($contact['url'])));
+	}
+
 /*	if($r) {
 		if($oldphotos) {
 			foreach($oldphotos as $ph) {

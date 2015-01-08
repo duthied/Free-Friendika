@@ -98,14 +98,19 @@ function display_fetchauthor($a, $item) {
 		$profiledata["about"] = bbcode($r[0]["about"]);
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];
-	} else {
-		// Fetching profile data from unique contacts
-		$r = q("SELECT `avatar`, `nick` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
-		if (count($r)) {
+	}
+
+	// Fetching profile data from unique contacts
+	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+	if (count($r)) {
+		if ($profiledata["photo"] == "")
 			$profiledata["photo"] = proxy_url($r[0]["avatar"]);
-			if ($r[0]["nick"] != "")
-				$profiledata["nickname"] = $r[0]["nick"];
-		}
+		if ($profiledata["address"] == "")
+			$profiledata["address"] = bbcode($r[0]["location"]);
+		if ($profiledata["about"] == "")
+			$profiledata["about"] = bbcode($r[0]["about"]);
+		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
+			$profiledata["nickname"] = $r[0]["nick"];
 	}
 
 	// Check for a repeated message
@@ -158,6 +163,21 @@ function display_fetchauthor($a, $item) {
 
 		$profiledata["nickname"] = $profiledata["name"];
 		$profiledata["network"] = GetProfileUsername($profiledata["url"], "", false, true);
+
+		$profiledata["address"] = "";
+		$profiledata["about"] = "";
+
+		// Fetching profile data from unique contacts
+		if ($profiledata["url"] != "") {
+			$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+			if (count($r)) {
+				$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+				$profiledata["address"] = bbcode($r[0]["location"]);
+				$profiledata["about"] = bbcode($r[0]["about"]);
+				if ($r[0]["nick"] != "")
+					$profiledata["nickname"] = $r[0]["nick"];
+			}
+		}
 	}
 
 	if (local_user()) {

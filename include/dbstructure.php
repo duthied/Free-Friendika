@@ -1251,6 +1251,8 @@ function db_definition() {
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
