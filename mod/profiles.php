@@ -137,8 +137,8 @@ function profiles_init(&$a) {
 
 		profile_load($a,$a->user['nickname'],$r[0]['id']);
 	}
-	
-	
+
+
 
 }
 
@@ -193,7 +193,7 @@ function profiles_post(&$a) {
 		$dob = '0000-00-00';
 		$dob = sprintf('%04d-%02d-%02d',$year,$month,$day);
 
-			
+
 		$name = notags(trim($_POST['name']));
 
 		if(! strlen($name)) {
@@ -223,7 +223,7 @@ function profiles_post(&$a) {
 			$howlong = '0000-00-00 00:00:00';
 		else
 			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
- 
+
 		// linkify the relationship target if applicable
 
 		$withchanged = false;
@@ -277,7 +277,7 @@ function profiles_post(&$a) {
 						$newname = $r[0]['name'];
 					}
 				}
-	
+
 				if($prf) {
 					$with = str_replace($lookup,'<a href="' . $prf . '">' . $newname	. '</a>', $with);
 					if(strpos($with,'@') === 0)
@@ -468,6 +468,13 @@ function profiles_post(&$a) {
 		}
 
 		if($is_default) {
+
+			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s' WHERE `self` = 1 AND `uid` = %d",
+				dbesc($about),
+				dbesc($locality),
+				intval(local_user())
+			);
+
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory_submit_url')))
