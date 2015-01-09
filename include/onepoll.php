@@ -586,8 +586,8 @@ function onepoll_run(&$argv, &$argc){
 
 	// load current friends if possible.
 
-	if($contact['poco']) {	
-		$r = q("SELECT count(*) as total from glink 
+	if($contact['poco']) {
+		$r = q("SELECT count(*) as total from glink
 			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
@@ -602,6 +602,6 @@ function onepoll_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  onepoll_run($argv,$argc);
+  onepoll_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

@@ -55,6 +55,6 @@ function expire_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  expire_run($argv,$argc);
+  expire_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

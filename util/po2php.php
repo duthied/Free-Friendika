@@ -8,7 +8,7 @@ function po2php_run(&$argv, &$argc) {
 		print "Usage: ".$argv[0]." <file.po>\n\n";
 		return;
 	}
-	
+
 	$pofile = $argv[1];
 	$outfile = dirname($pofile)."/strings.php";
 
@@ -23,11 +23,11 @@ function po2php_run(&$argv, &$argc) {
 		print "Unable to find '$pofile'\n";
 		return;
 	}
-	
+
 	print "Out to '$outfile'\n";
-	
+
 	$out="<?php\n\n";
-	
+
 	$infile = file($pofile);
 	$k="";
 	$v="";
@@ -53,14 +53,14 @@ function po2php_run(&$argv, &$argc) {
 			$out .= '	return '.$cond.';'."\n";
 			$out .= '}}'."\n";
 		}
-		
+
 
 
 
 		if ($k!="" && substr($l,0,7)=="msgstr "){
 			if ($ink) { $ink = False; $out .= '$a->strings["'.$k.'"] = '; }
 			if ($inv) { $inv = False; $out .= '"'.$v.'"'; }
-			
+
 			$v = substr($l,8,$len-10);
 			$v = preg_replace_callback($escape_s_exp,'escape_s',$v);
 			$inv = True;
@@ -69,28 +69,28 @@ function po2php_run(&$argv, &$argc) {
 		if ($k!="" && substr($l,0,7)=="msgstr["){
 			if ($ink) { $ink = False; $out .= '$a->strings["'.$k.'"] = '; }
 			if ($inv) {	$inv = False; $out .= '"'.$v.'"'; }
-						
+
 			if (!$arr) {
 				$arr=True;
 				$out .= "array(\n";
 			}
 			$match=Array();
 			preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
-			$out .= "\t". 
+			$out .= "\t".
 				preg_replace_callback($escape_s_exp,'escape_s',$match[1])
 				." => "
 				.preg_replace_callback($escape_s_exp,'escape_s',$match[2]) .",\n";
 		}
-	
+
 		if (substr($l,0,6)=="msgid_") { $ink = False; $out .= '$a->strings["'.$k.'"] = '; };
 
 
 		if ($ink) {
-			$k .= trim($l,"\"\r\n"); 
+			$k .= trim($l,"\"\r\n");
 			$k = preg_replace_callback($escape_s_exp,'escape_s',$k);
 			//$out .= '$a->strings['.$k.'] = ';
 		}
-		
+
 		if (substr($l,0,6)=="msgid "){
 			if ($inv) {	$inv = False; $out .= '"'.$v.'"'; }
 			if ($k!="") $out .= $arr?");\n":";\n";
@@ -101,28 +101,28 @@ function po2php_run(&$argv, &$argc) {
 			} else {
 				$k = "";
 			}
-			
+
 			$k = preg_replace_callback($escape_s_exp,'escape_s',$k);
 			$ink = True;
 		}
-		
+
 		if ($inv && substr($l,0,6)!="msgstr") {
-			$v .= trim($l,"\"\r\n"); 
+			$v .= trim($l,"\"\r\n");
 			$v = preg_replace_callback($escape_s_exp,'escape_s',$v);
 			//$out .= '$a->strings['.$k.'] = ';
 		}
-	
-		
+
+
 	}
 
 	if ($inv) {	$inv = False; $out .= '"'.$v.'"'; }
 	if ($k!="") $out .= $arr?");\n":";\n";
-	
+
 	$out = str_replace(DQ_ESCAPE, '\"', $out);
 	file_put_contents($outfile, $out);
-	
+
 }
 
 if (array_search(__file__,get_included_files())===0){
-  po2php_run($argv,$argc);
+  po2php_run($_SERVER["argv"],$_SERVER["argc"]);
 }
