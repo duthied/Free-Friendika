@@ -55,6 +55,8 @@
 
 	{{if $homepage}}<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt><dd class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me" target="_blank">{{$profile.homepage}}</a></dd></dl>{{/if}}
 
+	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about}}</dd></dl>{{/if}}
+
 	{{include file="diaspora_vcard.tpl"}}
 	
 	<div id="profile-extra-links">

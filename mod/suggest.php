@@ -44,12 +44,14 @@ function suggest_init(&$a) {
 	}
 
 }
-		
+
 
 
 
 
 function suggest_content(&$a) {
+
+	require_once("mod/proxy.php");
 
 	$o = '';
 	if(! local_user()) {
@@ -82,7 +84,7 @@ function suggest_content(&$a) {
 		$o .= replace_macros($tpl,array(
 			'$url' => zrl($rr['url']),
 			'$name' => $rr['name'],
-			'$photo' => $rr['photo'],
+			'$photo' => proxy_url($rr['photo']),
 			'$ignlnk' => $a->get_baseurl() . '/suggest?ignore=' . $rr['id'],
 			'$ignid' => $rr['id'],
 			'$conntxt' => t('Connect'),

@@ -413,6 +413,8 @@ function db_definition() {
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "text", "not null" => "1"),
 					"thumb" => array("type" => "text", "not null" => "1"),
@@ -616,6 +618,8 @@ function db_definition() {
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1248,6 +1252,8 @@ function db_definition() {
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

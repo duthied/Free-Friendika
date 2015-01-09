@@ -11,6 +11,7 @@ require_once('include/text.php');
 require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
+require_once('include/socgraph.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -1342,6 +1343,22 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if(count($r)) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
+
+		// Add every contact to the global contact table
+		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
+		if (!$arr['private'] AND in_array($arr["network"],
+			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
+			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", $arr["received"], $arr['contact-id'], $arr['uid']);
+
+		// Set "success_update" to the date of the last time we heard from this contact
+		// This can be used to filter for inactive contacts and poco.
+		// Only do this for public postings to avoid privacy problems, since poco data is public.
+		// Don't set this value if it isn't from the owner (could be an author that we don't know)
+		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
+			q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
+				intval($arr['contact-id'])
+			);
 
 		// Only check for notifications on start posts
 		if ($arr['parent-uri'] === $arr['uri']) {
@@ -4492,7 +4509,7 @@ function drop_item($id,$interactive = true) {
 		);
 		create_tags_from_item($item['id']);
 		create_files_from_item($item['id']);
-		delete_thread($item['id']);
+		delete_thread($item['id'], $item['parent-uri']);
 
 		// clean up categories and tags so they don't end up as orphans
 

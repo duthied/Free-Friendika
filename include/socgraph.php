@@ -12,10 +12,10 @@ require_once('include/datetime.php');
  *
  * Once the global contact is stored add (if necessary) the contact linkage which associates
  * the given uid, cid to the global contact entry. There can be many uid/cid combinations
- * pointing to the same global contact id. 
+ * pointing to the same global contact id.
  *
  */
- 
+
 
 
 
@@ -39,7 +39,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos' : '?fields=displayName,urls,photos') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network' : '?fields=displayName,urls,photos,updated,network') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -67,6 +67,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$profile_photo = '';
 		$connect_url = '';
 		$name = '';
+		$network = '';
+		$updated = '0000-00-00 00:00:00';
 
 		$name = $entry->displayName;
 
@@ -82,7 +84,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 				}
 			}
 		}
-		if(isset($entry->photos)) { 
+		if(isset($entry->photos)) {
 			foreach($entry->photos as $photo) {
 				if($photo->type == 'profile') {
 					$profile_photo = $photo->value;
@@ -91,74 +93,18 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			}
 		}
 
-		if((! $name) || (! $profile_url) || (! $profile_photo))
-			continue;
+		if(isset($entry->updated))
+			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
 
-		$x = q("select * from `gcontact` where `nurl` = '%s' limit 1",
-			dbesc(normalise_link($profile_url))
-		);
+		if(isset($entry->network))
+			$network = $entry->network;
 
-		if(count($x)) {
-			$gcid = $x[0]['id'];
-
-			if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo) {
-				q("update gcontact set `name` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s'
-					where `nurl` = '%s'",
-					dbesc($name),
-					dbesc($profile_photo),
-					dbesc($connect_url),
-					dbesc($profile_url),
-					dbesc(normalise_link($profile_url))
-				);
-			}
-		}
-		else {
-			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`,`connect`)
-				values ( '%s', '%s', '%s', '%s','%s') ",
-				dbesc($name),
-				dbesc($profile_url),
-				dbesc(normalise_link($profile_url)),
-				dbesc($profile_photo),
-				dbesc($connect_url)
-			);
-			$x = q("select * from `gcontact` where `nurl` = '%s' limit 1",
-				dbesc(normalise_link($profile_url))
-			);
-			if(count($x))
-				$gcid = $x[0]['id'];
-		}
-		if(! $gcid)
-			return;
-
-		$r = q("select * from glink where `cid` = %d and `uid` = %d and `gcid` = %d and `zcid` = %d limit 1",
-			intval($cid),
-			intval($uid),
-			intval($gcid),
-			intval($zcid)
-		);
-		if(! count($r)) {
-			q("insert into glink ( `cid`,`uid`,`gcid`,`zcid`, `updated`) values (%d,%d,%d,%d, '%s') ",
-				intval($cid),
-				intval($uid),
-				intval($gcid),
-				intval($zcid),
-				dbesc(datetime_convert())
-			);
-		}
-		else {
-			q("update glink set updated = '%s' where `cid` = %d and `uid` = %d and `gcid` = %d and zcid = %d",
-				dbesc(datetime_convert()),
-				intval($cid),
-				intval($uid),
-				intval($gcid),
-				intval($zcid)
-			);
-		}
+		poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid, $uid, $zcid);
 
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
 
-	q("delete from glink where `cid` = %d and `uid` = %d and `zcid` = %d and `updated` < UTC_TIMESTAMP - INTERVAL 2 DAY",
+	q("DELETE FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `zcid` = %d AND `updated` < UTC_TIMESTAMP - INTERVAL 2 DAY",
 		intval($cid),
 		intval($uid),
 		intval($zcid)
@@ -166,6 +112,87 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
+function poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
+	$gcid = "";
+
+	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
+		return $gcid;
+
+	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
+
+	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+		dbesc(normalise_link($profile_url))
+	);
+
+	if(count($x)) {
+		$gcid = $x[0]['id'];
+
+		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
+			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
+				where `nurl` = '%s'",
+				dbesc($name),
+				dbesc($network),
+				dbesc($profile_photo),
+				dbesc($connect_url),
+				dbesc($profile_url),
+				dbesc($updated),
+				dbesc(normalise_link($profile_url))
+			);
+		}
+	} else {
+		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`)
+			values ('%s', '%s', '%s', '%s', '%s','%s', '%s')",
+			dbesc($name),
+			dbesc($network),
+			dbesc($profile_url),
+			dbesc(normalise_link($profile_url)),
+			dbesc($profile_photo),
+			dbesc($connect_url),
+			dbesc($updated)
+		);
+		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+			dbesc(normalise_link($profile_url))
+		);
+		if(count($x))
+			$gcid = $x[0]['id'];
+	}
+
+	if(! $gcid)
+		return $gcid;
+
+	$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
+		intval($cid),
+		intval($uid),
+		intval($gcid),
+		intval($zcid)
+	);
+	if(! count($r)) {
+		q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
+			intval($cid),
+			intval($uid),
+			intval($gcid),
+			intval($zcid),
+			dbesc(datetime_convert())
+		);
+	} else {
+		q("UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
+			dbesc(datetime_convert()),
+			intval($cid),
+			intval($uid),
+			intval($gcid),
+			intval($zcid)
+		);
+	}
+
+	// For unknown reasons there are sometimes duplicates
+	q("DELETE FROM `gcontact` WHERE `nurl` = '%s' AND `id` != %d AND
+		NOT EXISTS (SELECT `gcid` FROM `glink` WHERE `gcid` = `gcontact`.`id`)",
+		dbesc(normalise_link($profile_url)),
+		intval($gcid)
+	);
+
+	return $gcid;
+}
 
 function count_common_friends($uid,$cid) {
 
@@ -192,9 +219,9 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 	if($shuffle)
 		$sql_extra = " order by rand() ";
 	else
-		$sql_extra = " order by `gcontact`.`name` asc "; 
+		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`cid` = %d and `glink`.`uid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) 
@@ -214,7 +241,7 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 
 function count_common_friends_zcid($uid,$zcid) {
 
-	$r = q("SELECT count(*) as `total` 
+	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`zcid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
@@ -233,9 +260,9 @@ function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = fal
 	if($shuffle)
 		$sql_extra = " order by rand() ";
 	else
-		$sql_extra = " order by `gcontact`.`name` asc "; 
+		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		where `glink`.`zcid` = %d
 		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) 
@@ -269,9 +296,9 @@ function count_all_friends($uid,$cid) {
 
 function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
-	$r = q("SELECT `gcontact`.* 
+	$r = q("SELECT `gcontact`.*
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d 
+		where `glink`.`cid` = %d and `glink`.`uid` = %d
 		order by `gcontact`.`name` asc LIMIT %d, %d ",
 		intval($cid),
 		intval($uid),
@@ -289,16 +316,31 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(! $uid)
 		return array();
 
-	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact 
-		INNER JOIN glink on glink.gcid = gcontact.id 
+	$network = array(NETWORK_DFRN);
+
+	if (get_config('system','diaspora_enabled'))
+		$network[] = NETWORK_DIASPORA;
+
+	if (!get_config('system','ostatus_disabled'))
+		$network[] = NETWORK_OSTATUS;
+
+	$sql_network = implode("', '", $network);
+	//$sql_network = "'".$sql_network."', ''";
+	$sql_network = "'".$sql_network."'";
+
+	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
+		INNER JOIN glink on glink.gcid = gcontact.id
 		where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
 		and not gcontact.name in ( select name from contact where uid = %d )
 		and not gcontact.id in ( select gcid from gcign where uid = %d )
-		group by glink.gcid order by total desc limit %d, %d ",
+		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`network` IN (%s)
+		group by glink.gcid order by gcontact.updated desc,total desc limit %d, %d ",
 		intval($uid),
 		intval($uid),
 		intval($uid),
 		intval($uid),
+		$sql_network,
 		intval($start),
 		intval($limit)
 	);
@@ -306,22 +348,30 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(count($r) && count($r) >= ($limit -1))
 		return $r;
 
-	$r2 = q("SELECT gcontact.* from gcontact 
-		INNER JOIN glink on glink.gcid = gcontact.id 
+	$r2 = q("SELECT gcontact.* from gcontact
+		INNER JOIN glink on glink.gcid = gcontact.id
 		where glink.uid = 0 and glink.cid = 0 and glink.zcid = 0 and not gcontact.nurl in ( select nurl from contact where uid = %d )
 		and not gcontact.name in ( select name from contact where uid = %d )
 		and not gcontact.id in ( select gcid from gcign where uid = %d )
+		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`network` IN (%s)
 		order by rand() limit %d, %d ",
 		intval($uid),
 		intval($uid),
 		intval($uid),
+		$sql_network,
 		intval($start),
 		intval($limit)
 	);
 
+	$list = array();
+	foreach ($r2 AS $suggestion)
+		$list[$suggestion["nurl"]] = $suggestion;
 
-	return array_merge($r,$r2);
+	foreach ($r AS $suggestion)
+		$list[$suggestion["nurl"]] = $suggestion;
 
+	return $list;
 }
 
 function update_suggestions() {

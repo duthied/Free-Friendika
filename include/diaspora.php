@@ -2028,7 +2028,7 @@ function diaspora_retraction($importer,$xml) {
 					dbesc(datetime_convert()),
 					intval($r[0]['id'])
 				);
-				delete_thread($r[0]['id']);
+				delete_thread($r[0]['id'], $r[0]['parent-uri']);
 			}
 		}
 	}
@@ -2101,7 +2101,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 					dbesc(datetime_convert()),
 					intval($r[0]['id'])
 				);
-				delete_thread($r[0]['id']);
+				delete_thread($r[0]['id'], $r[0]['parent-uri']);
 
 				// Now check if the retraction needs to be relayed by us
 				//
@@ -2161,14 +2161,15 @@ function diaspora_profile($importer,$xml,$msg) {
 	$name = unxmlify($xml->first_name) . ((strlen($xml->last_name)) ? ' ' . unxmlify($xml->last_name) : '');
 	$image_url = unxmlify($xml->image_url);
 	$birthday = unxmlify($xml->birthday);
+	$location = diaspora2bb(unxmlify($xml->location));
+	$about = diaspora2bb(unxmlify($xml->bio));
 
 
 	$handle_parts = explode("@", $diaspora_handle);
 	if($name === '') {
 		$name = $handle_parts[0];
 	}
-	
-	 
+
 	if( preg_match("|^https?://|", $image_url) === 0) {
 		$image_url = "http://" . $handle_parts[1] . $image_url;
 	}
@@ -2182,8 +2183,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	require_once('include/Photo.php');
 
 	$images = import_profile_photo($image_url,$importer['uid'],$contact['id']);
-	
-	// Generic birthday. We don't know the timezone. The year is irrelevant. 
+
+	// Generic birthday. We don't know the timezone. The year is irrelevant.
 
 	$birthday = str_replace('1000','1901',$birthday);
 
@@ -2196,9 +2197,9 @@ function diaspora_profile($importer,$xml,$msg) {
 		$birthday = $contact['bd'];
 
 	// TODO: update name on item['author-name'] if the name changed. See consume_feed()
-	// Not doing this currently because D* protocol is scheduled for revision soon. 
+	// Not doing this currently because D* protocol is scheduled for revision soon.
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc(datetime_convert()),
 		dbesc($images[0]),
@@ -2206,9 +2207,26 @@ function diaspora_profile($importer,$xml,$msg) {
 		dbesc($images[2]),
 		dbesc(datetime_convert()),
 		dbesc($birthday),
+		dbesc($location),
+		dbesc($about),
 		intval($contact['id']),
 		intval($importer['uid'])
-	); 
+	);
+
+	$profileurl = "";
+	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
+			dbesc(normalise_link($contact['url'])));
+
+	if (count($author) == 0) {
+		q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`, `location`, `about`) VALUES ('%s', '%s', '%s', '%s', '%s')",
+			dbesc(normalise_link($contact['url'])), dbesc($name), dbesc($location), dbesc($about), dbesc($images[0]));
+
+		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+			dbesc(normalise_link($contact['url'])));
+	} else if (normalise_link($contact['url']).$name.$location.$about != normalise_link($author[0]["url"]).$author[0]["name"].$author[0]["location"].$author[0]["about"]) {
+		q("UPDATE unique_contacts SET name = '%s', avatar = '%s', `location` = '%s', `about` = '%s' WHERE url = '%s'",
+		dbesc($name), dbesc($images[0]), dbesc($location), dbesc($about), dbesc(normalise_link($contact['url'])));
+	}
 
 /*	if($r) {
 		if($oldphotos) {
