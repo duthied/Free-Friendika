@@ -5,16 +5,16 @@ require_once('include/html2plain.php');
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
- * big problems on shared hosting systems, where the process might get killed by the 
- * hosting provider and nothing would get delivered. 
+ * big problems on shared hosting systems, where the process might get killed by the
+ * hosting provider and nothing would get delivered.
  * It now only delivers one message under certain cases, and invokes a queued
- * delivery mechanism (include/deliver.php) to deliver individual contacts at 
+ * delivery mechanism (include/deliver.php) to deliver individual contacts at
  * controlled intervals.
  * This has a much better chance of surviving random processes getting killed
- * by the hosting provider. 
+ * by the hosting provider.
  * A lot of this code is duplicated in include/deliver.php until we have time to go back
- * and re-structure the delivery procedure based on the obstacles that have been thrown at 
- * us by hosting providers. 
+ * and re-structure the delivery procedure based on the obstacles that have been thrown at
+ * us by hosting providers.
  */
 
 /*
@@ -50,7 +50,7 @@ function notifier_run(&$argv, &$argc){
 	if(is_null($a)){
 		$a = new App;
 	}
-  
+
 	if(is_null($db)) {
 		@include(".htconfig.php");
 		require_once("include/dba.php");
@@ -946,7 +946,7 @@ function notifier_run(&$argv, &$argc){
 				}
 
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
-					logger('notifier: delivery agent: ' . $rr['name'] . ' ' . $rr['id']); 
+					logger('notifier: delivery agent: ' . $rr['name'] . ' ' . $rr['id']);
 					proc_run('php','include/delivery.php',$cmd,$item_id,$rr['id']);
 					if($interval)
 						@time_sleep_until(microtime(true) + (float) $interval);
@@ -966,7 +966,7 @@ function notifier_run(&$argv, &$argc){
 					if ($h === '[internal]') {
 						// Set push flag for PuSH subscribers to this topic,
 						// they will be notified in queue.php
-						q("UPDATE `push_subscriber` SET `push` = 1 " . 
+						q("UPDATE `push_subscriber` SET `push` = 1 " .
 						  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
 					} else {
 
@@ -1001,6 +1001,6 @@ function notifier_run(&$argv, &$argc){
 
 
 if (array_search(__file__,get_included_files())===0){
-  notifier_run($argv,$argc);
+  notifier_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

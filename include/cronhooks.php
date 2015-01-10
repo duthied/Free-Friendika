@@ -66,6 +66,6 @@ function cronhooks_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  cronhooks_run($argv,$argc);
+  cronhooks_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }
