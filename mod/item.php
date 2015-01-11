@@ -90,14 +90,14 @@ function item_post(&$a) {
 			$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
 				intval($parent)
 			);
-		}
-		elseif($parent_uri && local_user()) {
+		} elseif($parent_uri && local_user()) {
 			// This is coming from an API source, and we are logged in
 			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($parent_uri),
 				intval(local_user())
 			);
 		}
+
 		// if this isn't the real parent of the conversation, find it
 		if($r !== false && count($r)) {
 			$parid = $r[0]['parent'];
@@ -127,8 +127,27 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if(count($r))
+			if(count($r)) {
 				$parent_contact = $r[0];
+
+				// If the contact id doesn't fit with the contact, then set the contact to null
+				$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
+				if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
+					AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
+					$parent_contact = null;
+
+					require_once("include/Scrape.php");
+					$probed_contact = probe_url($thrparent[0]["author-link"]);
+					if ($probed_contact["network"] != NETWORK_FEED) {
+						$parent_contact = $probed_contact;
+						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
+						$parent_contact["thumb"] = $probed_contact["photo"];
+						$parent_contact["micro"] = $probed_contact["photo"];
+					}
+					logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
+				} else
+					logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
+			}
 		}
 	}
 

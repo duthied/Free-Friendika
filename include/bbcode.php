@@ -697,7 +697,7 @@ function bb_RemovePictureLinks($match) {
 }
 
 function bb_expand_links($match) {
-	if (stristr($match[2], $match[3]) OR ($match[2] == $match[3]))
+	if (($match[3] == "") OR ($match[2] == $match[3]) OR stristr($match[2], $match[3]))
 		return ($match[1]."[url]".$match[2]."[/url]");
 	else
 		return ($match[1].$match[3]." [url]".$match[2]."[/url]");
