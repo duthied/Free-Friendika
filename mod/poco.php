@@ -1,6 +1,7 @@
 <?php
 
 function poco_init(&$a) {
+	require_once("include/bbcode.php");
 
 	$system_mode = false;
 
@@ -125,6 +126,8 @@ function poco_init(&$a) {
 		'updated' => false,
 		'preferredUsername' => false,
 		'photos' => false,
+		'aboutMe' => false,
+		'currentLocation' => false,
 		'network' => false
 	);
 
@@ -145,6 +148,10 @@ function poco_init(&$a) {
 					$entry['id'] = $rr['id'];
 				if($fields_ret['displayName'])
 					$entry['displayName'] = $rr['name'];
+				if($fields_ret['aboutMe'])
+					$entry['aboutMe'] = bbcode($rr['about'], false, false);
+				if($fields_ret['currentLocation'])
+					$entry['currentLocation'] = $rr['location'];
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))
@@ -172,6 +179,8 @@ function poco_init(&$a) {
 					$entry['network'] = $rr['network'];
 					if ($entry['network'] == NETWORK_STATUSNET)
 						$entry['network'] = NETWORK_OSTATUS;
+					if (($entry['network'] == "") AND ($rr['self']))
+						$entry['network'] = NETWORK_DFRN;
 				}
 				$ret['entry'][] = $entry;
 			}
