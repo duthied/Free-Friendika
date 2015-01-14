@@ -59,7 +59,7 @@ After your first login, please visit the 'Settings' page from the top menu bar a
 
 **Getting Started**
 
-A ['Tips for New Members'](newmember) link will show up on your home page for two weeks to provide some important Getting Started information.
+A ['Tips for New Members'](newmember) link will show up on your network and home pages for two weeks to provide some important Getting Started information.
 
 
 **Retrieving Personal Data**
