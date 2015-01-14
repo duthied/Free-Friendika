@@ -24,13 +24,5 @@ Please pull in any changes from the project repository and merge them with your 
 
 Also - **test your changes**. Don't assume that a simple fix won't break something else. If possible get an experienced Friendica developer to review the code. 
 
-**Vagrant**
-
-[Vagrant](https://www.vagrantup.com/) is a virtualization solution for developers. No need to setup up a webserver etc. before actually starting. Vagrant creates a virtual machine (an Ubuntu 12.04) for you that you can just run inside VirtualBox and start to work directly on Friendica. What you need to do:
-
-1. Install VirtualBox and vagrant.
-2. git clone Friendica (note the Vagrantfile inside).
-3. Run vagrant up, have some patience.
-4. Run vagrant ssh to log into the virtual machine.
-5. It depends on the network setup of your host and virtual box guest how you reach the friendica web interface of the VM.
+Check out how to work with [our Vagrant](help/Vagrant) to save a lot of setup time!
 

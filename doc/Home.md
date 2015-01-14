@@ -37,6 +37,7 @@ Friendica Documentation and Resources
 
 * [Where to get started?](help/Developers-Intro)
 * [Help on Github](help/Github)
+* [Help on Vagrant](help/Vagrant)
 * [How to translate Friendica](help/translations)
 * [Bugs and Issues](help/Bugs-and-Issues)
 
