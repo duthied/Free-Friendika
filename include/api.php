@@ -96,24 +96,49 @@
 		}
 
 		$user = $_SERVER['PHP_AUTH_USER'];
-		$encrypted = hash('whirlpool',trim($_SERVER['PHP_AUTH_PW']));
+		$password = $_SERVER['PHP_AUTH_PW'];
+		$encrypted = hash('whirlpool',trim($password));
 
 
 		/**
 		 *  next code from mod/auth.php. needs better solution
 		 */
+		$record = null;
 
-		// process normal login request
-
-		$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
-			AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
-			dbesc(trim($user)),
-			dbesc(trim($user)),
-			dbesc($encrypted)
+		$addon_auth = array(
+			'username' => trim($user), 
+			'password' => trim($password),
+			'authenticated' => 0,
+			'user_record' => null
 		);
-		if(count($r)){
-			$record = $r[0];
-		} else {
+
+		/**
+		 *
+		 * A plugin indicates successful login by setting 'authenticated' to non-zero value and returning a user record
+		 * Plugins should never set 'authenticated' except to indicate success - as hooks may be chained
+		 * and later plugins should not interfere with an earlier one that succeeded.
+		 *
+		 */
+
+		call_hooks('authenticate', $addon_auth);
+
+		if(($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+			$record = $addon_auth['user_record'];
+		}
+		else {
+			// process normal login request
+
+			$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
+				AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+				dbesc(trim($user)),
+				dbesc(trim($user)),
+				dbesc($encrypted)
+			);
+			if(count($r))
+				$record = $r[0];
+		}
+
+		if((! $record) || (! count($record))) {
 			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
 			header('HTTP/1.0 401 Unauthorized');
