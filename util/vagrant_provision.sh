@@ -28,6 +28,8 @@ sudo openssl x509 -req -days 365 -in "$SSL_DIR/xip.io.csr" -signkey "$SSL_DIR/xi
 
 #Install apache2
 echo ">>> Installing Apache2 webserver"
+# The package python-software-properties provides add-apt-repository on Ubuntu Precise Server
+sudo apt-get install python-software-properties
 sudo add-apt-repository -y ppa:ondrej/apache2
 sudo apt-key update
 sudo apt-get update
