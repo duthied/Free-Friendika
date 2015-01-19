@@ -131,7 +131,7 @@
 
 <div id="profile-edit-homepage-wrapper" >
 <label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$lbl_homepage}} </label>
-<input type="text" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage}}" />
+<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage}}" />
 </div>
 <div id="profile-edit-homepage-end"></div>
 
