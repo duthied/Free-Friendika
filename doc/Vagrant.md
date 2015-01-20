@@ -13,3 +13,11 @@ Vagrant for Friendica Developers
 6. Work on Friendica's code in your git clone on your machine (not in the VM).
 7. Check the changes in your browser in the VM. Debug via the "vagrant ssh" login.
 8. Commit and push your changes directly back to Github.
+
+If you want to stop vagrant after finishing your work, run the following command
+
+		$> vagrant halt
+
+in the development directory.
+
+For further documentation of vagrant, please see [the vagrant*docs*](https://docs.vagrantup.com/v2/).
