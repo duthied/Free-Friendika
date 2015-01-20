@@ -19,7 +19,7 @@ Templates that are only used by addons shall be placed in the
 
 directory.
 
-To render a template use the function *get_markup_template* to load the template and *replace_macros* to replace the markros/variables in the just loaded template file.
+To render a template use the function *get_markup_template* to load the template and *replace_macros* to replace the macros/variables in the just loaded template file.
 
 		$tpl = get_markup_template('install_settings.tpl');
         $o .= replace_macros($tpl, array( ... ));
@@ -105,7 +105,7 @@ An input box (see above) but prepared for special CSS styling for openID input. 
 
 ### field_password.tpl
 
-A single line input field (see above) for texttual input. The characters typed in will not be shown by the browser. Field parameter:
+A single line input field (see above) for textual input. The characters typed in will not be shown by the browser. Field parameter:
 
 0. Name of the field,
 1. Label for the field,
