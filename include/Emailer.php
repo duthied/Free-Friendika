@@ -20,6 +20,11 @@ class Emailer {
 
 		call_hooks('emailer_send_prepare', $params);
 
+		$email_textonly = False;
+		if (x($params,"uid")) {
+			$email_textonly = get_pconfig($params['uid'], "system", "email_textonly");
+		}
+
 		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
 		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
 
@@ -44,11 +49,16 @@ class Emailer {
 			"--" . $mimeBoundary . "\n" .					// plain text section
 			"Content-Type: text/plain; charset=UTF-8\n" .
 			"Content-Transfer-Encoding: base64\n\n" .
-			$textBody . "\n" .
-			"--" . $mimeBoundary . "\n" .					// text/html section
-			"Content-Type: text/html; charset=UTF-8\n" .
-			"Content-Transfer-Encoding: base64\n\n" .
-			$htmlBody . "\n" .
+			$textBody . "\n";
+
+		if (!$email_textonly && !is_null($htmlBody)){
+			$multipartMessageBody .=
+				"--" . $mimeBoundary . "\n" .				// text/html section
+				"Content-Type: text/html; charset=UTF-8\n" .
+				"Content-Transfer-Encoding: base64\n\n" .
+				$htmlBody . "\n";
+		}
+		$multipartMessageBody .=
 			"--" . $mimeBoundary . "--\n";					// message ending
 
 		// send the message
@@ -58,6 +68,7 @@ class Emailer {
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader
 		);
+		echo "<pre>"; var_dump($hookdata); killme();
 		call_hooks("emailer_send", $hookdata);
 		$res = mail(
 			$hookdata['to'],							// send to address
