@@ -55,7 +55,7 @@ function notifier_run(&$argv, &$argc){
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		        unset($db_host, $db_user, $db_pass, $db_data);
+			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
 	require_once("include/session.php");
@@ -110,10 +110,11 @@ function notifier_run(&$argv, &$argc){
 		$recipients[] = $message[0]['contact-id'];
 		$item = $message[0];
 
-	} elseif($cmd === 'expire') {
+	}
+	elseif($cmd === 'expire') {
 		$normal_mode = false;
 		$expire = true;
-		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
+		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1 
 			AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 10 MINUTE",
 			intval($item_id)
 		);
@@ -121,7 +122,8 @@ function notifier_run(&$argv, &$argc){
 		$item_id = 0;
 		if(! count($items))
 			return;
-	} elseif($cmd === 'suggest') {
+	}
+	elseif($cmd === 'suggest') {
 		$normal_mode = false;
 		$fsuggest = true;
 
@@ -176,7 +178,7 @@ function notifier_run(&$argv, &$argc){
 		if(! $parent_id)
 			return;
 
-		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
+		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer` 
 			FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
 			intval($parent_id)
 		);
@@ -290,8 +292,28 @@ function notifier_run(&$argv, &$argc){
 			$followup = true;
 			$public_message = false; // not public
 			$conversant_str = dbesc($parent['contact-id']);
-		}
-		else {
+			$recipients = array($parent['contact-id']);
+
+			if ($parent['network'] == NETWORK_OSTATUS) {
+
+				// Check if the recipient isn't in your contact list
+				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
+				if (count($r)) {
+					$url_recipients = array();
+
+					$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
+					if (count($thrparent) AND (normalise_link($r[0]["url"]) != normalise_link($thrparent[0]["author-link"]))) {
+						require_once("include/Scrape.php");
+						$probed_contact = probe_url($thrparent[0]["author-link"]);
+						if ($probed_contact["notify"] != "") {
+							logger('scrape data for slapper: '.print_r($probed_contact, true));
+							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+						}
+					}
+				}
+				logger("url_recipients".print_r($url_recipients,true));
+			}
+		} else {
 			$followup = false;
 
 			// don't send deletions onward for other people's stuff
@@ -437,8 +459,8 @@ function notifier_run(&$argv, &$argc){
 			set_config('system','site_pubkey', $res['pubkey']);
 		}
 
-		$rp = q("SELECT `resource-id` , `scale`, type FROM `photo`
-				WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
+		$rp = q("SELECT `resource-id` , `scale`, type FROM `photo` 
+						WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
 		$photos = array();
 		$ext = Photo::supportedTypes();
 		foreach($rp as $p){
@@ -446,19 +468,19 @@ function notifier_run(&$argv, &$argc){
 		}
 		unset($rp, $ext);
 
-	        $atom .= replace_macros($sugg_template, array(
-				'$name' => xmlify($owner['name']),
-				'$photo' => xmlify($photos[4]),
-				'$thumb' => xmlify($photos[5]),
-				'$micro' => xmlify($photos[6]),
-				'$url' => xmlify($owner['url']),
-				'$request' => xmlify($owner['request']),
-				'$confirm' => xmlify($owner['confirm']),
-				'$notify' => xmlify($owner['notify']),
-				'$poll' => xmlify($owner['poll']),
-				'$sitepubkey' => xmlify(get_config('system','site_pubkey')),
-				//'$pubkey' => xmlify($owner['pubkey']),
-				//'$prvkey' => xmlify($owner['prvkey']),
+		$atom .= replace_macros($sugg_template, array(
+					'$name' => xmlify($owner['name']),
+					'$photo' => xmlify($photos[4]),
+					'$thumb' => xmlify($photos[5]),
+					'$micro' => xmlify($photos[6]),
+					'$url' => xmlify($owner['url']),
+					'$request' => xmlify($owner['request']),
+					'$confirm' => xmlify($owner['confirm']),
+					'$notify' => xmlify($owner['notify']),
+					'$poll' => xmlify($owner['poll']),
+					'$sitepubkey' => xmlify(get_config('system','site_pubkey')),
+					//'$pubkey' => xmlify($owner['pubkey']),
+					//'$prvkey' => xmlify($owner['prvkey']),
 			));
 		$recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
 		unset($photos);
@@ -497,8 +519,7 @@ function notifier_run(&$argv, &$argc){
 
 				    if($item_id == $item['id'] || $item['id'] == $item['parent'])
 						$atom .= atom_entry($item,'text',null,$owner,true);
-				}
-				else
+				} else
 					$atom .= atom_entry($item,'text',null,$owner,true);
 
 				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
@@ -517,8 +538,8 @@ function notifier_run(&$argv, &$argc){
 	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 
 	if(! $mail_disabled) {
-		if((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid'])) 
-			&& (! strlen($target_item['deny_cid'])) && (! strlen($target_item['deny_gid'])) 
+		if((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid']))
+			&& (! strlen($target_item['deny_cid'])) && (! strlen($target_item['deny_gid']))
 			&& (intval($target_item['pubmail']))) {
 			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `network` = '%s'",
 				intval($uid),
@@ -541,7 +562,7 @@ function notifier_run(&$argv, &$argc){
 	else
 		$r = q("SELECT * FROM `contact` WHERE `id` IN ( %s ) AND `blocked` = 0 AND `pending` = 0 ",
 			dbesc($recip_str)
-	);
+		);
 
 
 	require_once('include/salmon.php');
@@ -691,33 +712,13 @@ function notifier_run(&$argv, &$argc){
 					if(get_config('system','ostatus_disabled') || get_config('system','dfrn_only'))
 						break;
 
-					$ostatus_contact = $contact;
-
-					// If the contact doesn't fit with the contact, then fetch the correct contact
-					// This is more a test than a good solution. The whole OStatus stuff needs a rework.
-					if ($followup) {
-						$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
-						if (count($thrparent) AND (normalise_link($contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-							require_once("include/Scrape.php");
-							$probed_contact = probe_url($thrparent[0]["author-link"]);
-							if ($probed_contact["network"] != NETWORK_FEED) {
-								$ostatus_contact = $probed_contact;
-								$ostatus_contact["nurl"] = normalise_link($probed_contact["url"]);
-								$ostatus_contact["thumb"] = $probed_contact["photo"];
-								$ostatus_contact["micro"] = $probed_contact["photo"];
-							}
-							logger('scrape data for slapper: '.print_r($ostatus_contact, true));
-						}
-					}
-
-					if($followup && $ostatus_contact['notify']) {
-
-						logger('notifier: slapdelivery: ' . $ostatus_contact['name']);
-						$deliver_status = slapper($owner,$ostatus_contact['notify'],$slap);
+					if($followup && $contact['notify']) {
+						logger('notifier: slapdelivery: ' . $contact['name']);
+						$deliver_status = slapper($owner,$contact['notify'],$slap);
 
 						if($deliver_status == (-1)) {
 							// queue message for redelivery
-							add_to_queue($ostatus_contact['id'],NETWORK_OSTATUS,$slap);
+							add_to_queue($contact['id'],NETWORK_OSTATUS,$slap);
 						}
 					} else {
 
@@ -1012,6 +1013,6 @@ function notifier_run(&$argv, &$argc){
 
 
 if (array_search(__file__,get_included_files())===0){
-  notifier_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
+	notifier_run($_SERVER["argv"],$_SERVER["argc"]);
+	killme();
 }

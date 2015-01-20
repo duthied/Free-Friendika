@@ -76,13 +76,14 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	return($replace);
 }
 
+if(!function_exists('deletenode')) {
 function deletenode(&$doc, $node)
 {
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//".$node);
 	foreach ($list as $child)
 		$child->parentNode->removeChild($child);
-}
+}}
 
 function html2bbcode($message)
 {
