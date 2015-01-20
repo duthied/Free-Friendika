@@ -1184,7 +1184,7 @@ function settings_content(&$a) {
 
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
-									t('Send only text notification emails body, without the html part')),
+									t('Send text only notification emails, without the html part')),
 
 		'$h_advn' => t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => t('Change the behaviour of this account for special situations'),
