@@ -882,6 +882,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 					$preview = $attachment->link;
 
 		$res["body"] = $res["title"].add_page_info($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
+		$res["tag"] = add_page_keywords($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 		unset($res["attach"]);
@@ -946,7 +947,7 @@ function add_page_info_data($data) {
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	require_once("mod/parse_url.php");
 
 	$data = Cache::get("parse_url:".$url);
@@ -959,7 +960,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 	if ($photo != "")
 		$data["images"][0]["src"] = $photo;
 
-	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+	logger('fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
 
 	if (!$keywords AND isset($data["keywords"]))
 		unset($data["keywords"]);
@@ -973,6 +974,32 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 				unset($data["keywords"][$index]);
 		}
 	}
+
+	return($data);
+}
+
+function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
+
+	$tags = "";
+	if (isset($data["keywords"]) AND count($data["keywords"])) {
+		$a = get_app();
+		foreach ($data["keywords"] AS $keyword) {
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
+						array("","", "", "", "", ""), $keyword);
+
+			if ($tags != "")
+				$tags .= ",";
+
+			$tags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url]";
+		}
+	}
+
+	return($tags);
+}
+
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
 
 	$text = add_page_info_data($data);
 
@@ -4071,6 +4098,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	else
 		$body = $item['body'];
 
+
 	$o = "\r\n\r\n<entry>\r\n";
 
 	if(is_array($author))
@@ -4085,13 +4113,22 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
 	}
 
+	$htmlbody = $body;
+
+	if ($item['title'] != "")
+		$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
+
+	$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
+
 	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
 	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
 	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 	$o .= '<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>' . "\r\n";
-	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? bbcode($body) : $body)) . '</content>' . "\r\n";
+	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>' . "\r\n";
 	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />' . "\r\n";
+
+
 	if($comment)
 		$o .= '<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>' . "\r\n";
 

@@ -343,6 +343,12 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	if(! $url)
 		return $result;
 
+	$result = Cache::get("probe_url:".$mode.":".$url);
+	if (!is_null($result)) {
+                $result = unserialize($result);
+		return $result;
+	}
+
 	$network = null;
 	$diaspora = false;
 	$diaspora_base = '';
@@ -400,6 +406,9 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					else
 						$pubkey = $diaspora_key;
 					$diaspora = true;
+				}
+				if($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') {
+					$diaspora = false;
 				}
 			}
 
@@ -758,6 +767,8 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		if ($result2['network'] != "")
 			$result = $result2;
 	}
+
+	Cache::set("probe_url:".$mode.":".$url,serialize($result));
 
 	return $result;
 }

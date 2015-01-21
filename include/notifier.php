@@ -55,7 +55,7 @@ function notifier_run(&$argv, &$argc){
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		        unset($db_host, $db_user, $db_pass, $db_data);
+			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
 	require_once("include/session.php");
@@ -90,7 +90,7 @@ function notifier_run(&$argv, &$argc){
 	$expire = false;
 	$mail = false;
 	$fsuggest = false;
-    $relocate = false;
+	$relocate = false;
 	$top_level = false;
 	$recipients = array();
 	$url_recipients = array();
@@ -135,8 +135,7 @@ function notifier_run(&$argv, &$argc){
 		$uid = $suggest[0]['uid'];
 		$recipients[] = $suggest[0]['cid'];
 		$item = $suggest[0];
-	}
-	elseif($cmd === 'removeme') {
+	} elseif($cmd === 'removeme') {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($item_id));
 		if (! $r)
 			return;
@@ -156,13 +155,11 @@ function notifier_run(&$argv, &$argc){
 			terminate_friendship($user, $self, $contact);
 		}
 		return;
-	}
-    elseif($cmd === 'relocate') {
-        $normal_mode = false;
+	} elseif($cmd === 'relocate') {
+		$normal_mode = false;
 		$relocate = true;
-        $uid = $item_id;
-    }
-	else {
+		$uid = $item_id;
+	} else {
 		// find ancestors
 		$r = q("SELECT * FROM `item` WHERE `id` = %d and visible = 1 and moderated = 0 LIMIT 1",
 			intval($item_id)
@@ -204,10 +201,10 @@ function notifier_run(&$argv, &$argc){
 
 	}
 
-	$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`, 
-		`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`, 
+	$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+		`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 		`user`.`page-flags`, `user`.`prvnets`
-		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
+		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 		WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 		intval($uid)
 	);
@@ -295,8 +292,28 @@ function notifier_run(&$argv, &$argc){
 			$followup = true;
 			$public_message = false; // not public
 			$conversant_str = dbesc($parent['contact-id']);
-		}
-		else {
+			$recipients = array($parent['contact-id']);
+
+			if ($parent['network'] == NETWORK_OSTATUS) {
+
+				// Check if the recipient isn't in your contact list
+				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
+				if (count($r)) {
+					$url_recipients = array();
+
+					$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
+					if (count($thrparent) AND (normalise_link($r[0]["url"]) != normalise_link($thrparent[0]["author-link"]))) {
+						require_once("include/Scrape.php");
+						$probed_contact = probe_url($thrparent[0]["author-link"]);
+						if ($probed_contact["notify"] != "") {
+							logger('scrape data for slapper: '.print_r($probed_contact, true));
+							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+						}
+					}
+				}
+				logger("url_recipients".print_r($url_recipients,true));
+			}
+		} else {
 			$followup = false;
 
 			// don't send deletions onward for other people's stuff
@@ -306,9 +323,9 @@ function notifier_run(&$argv, &$argc){
 				return;
 			}
 
-			if((strlen($parent['allow_cid'])) 
-				|| (strlen($parent['allow_gid'])) 
-				|| (strlen($parent['deny_cid'])) 
+			if((strlen($parent['allow_cid']))
+				|| (strlen($parent['allow_gid']))
+				|| (strlen($parent['deny_cid']))
 				|| (strlen($parent['deny_gid']))) {
 				$public_message = false; // private recipients, not public
 			}
@@ -410,8 +427,7 @@ function notifier_run(&$argv, &$argc){
 			'$content'      => xmlify($body),
 			'$parent_id'    => xmlify($item['parent-uri'])
 		));
-	}
-	elseif($fsuggest) {
+	} elseif($fsuggest) {
 		$public_message = false;  // suggestions are not public
 
 		$sugg_template = get_markup_template('atom_suggest.tpl');
@@ -430,9 +446,8 @@ function notifier_run(&$argv, &$argc){
 			intval($item['id'])
 		);
 
-	}
-    elseif($relocate) {
-        $public_message = false;  // suggestions are not public
+	} elseif($relocate) {
+		$public_message = false;  // suggestions are not public
 
 		$sugg_template = get_markup_template('atom_relocate.tpl');
 
@@ -453,24 +468,23 @@ function notifier_run(&$argv, &$argc){
 		}
 		unset($rp, $ext);
 
-        $atom .= replace_macros($sugg_template, array(
-            '$name' => xmlify($owner['name']),
-            '$photo' => xmlify($photos[4]),
-            '$thumb' => xmlify($photos[5]),
-            '$micro' => xmlify($photos[6]),
-            '$url' => xmlify($owner['url']),
-            '$request' => xmlify($owner['request']),
-            '$confirm' => xmlify($owner['confirm']),
-            '$notify' => xmlify($owner['notify']),
-            '$poll' => xmlify($owner['poll']),
-            '$sitepubkey' => xmlify(get_config('system','site_pubkey')),
-            //'$pubkey' => xmlify($owner['pubkey']),
-            //'$prvkey' => xmlify($owner['prvkey']),
-		)); 
-        $recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
+		$atom .= replace_macros($sugg_template, array(
+					'$name' => xmlify($owner['name']),
+					'$photo' => xmlify($photos[4]),
+					'$thumb' => xmlify($photos[5]),
+					'$micro' => xmlify($photos[6]),
+					'$url' => xmlify($owner['url']),
+					'$request' => xmlify($owner['request']),
+					'$confirm' => xmlify($owner['confirm']),
+					'$notify' => xmlify($owner['notify']),
+					'$poll' => xmlify($owner['poll']),
+					'$sitepubkey' => xmlify(get_config('system','site_pubkey')),
+					//'$pubkey' => xmlify($owner['pubkey']),
+					//'$prvkey' => xmlify($owner['prvkey']),
+			));
+		$recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
 		unset($photos);
-    }
-	else {
+	} else {
 		if($followup) {
 			foreach($items as $item) {  // there is only one item
 				if(! $item['parent'])
@@ -481,8 +495,7 @@ function notifier_run(&$argv, &$argc){
 					$atom .= atom_entry($item,'text',null,$owner,false);
 				}
 			}
-		}
-		else {
+		} else {
 			foreach($items as $item) {
 
 				if(! $item['parent'])
@@ -506,11 +519,10 @@ function notifier_run(&$argv, &$argc){
 
 				    if($item_id == $item['id'] || $item['id'] == $item['parent'])
 						$atom .= atom_entry($item,'text',null,$owner,true);
-				}
-				else
+				} else
 					$atom .= atom_entry($item,'text',null,$owner,true);
 
-				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire)) 
+				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
 					$slaps[] = atom_entry($item,'html',null,$owner,true);
 			}
 		}
@@ -526,8 +538,8 @@ function notifier_run(&$argv, &$argc){
 	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 
 	if(! $mail_disabled) {
-		if((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid'])) 
-			&& (! strlen($target_item['deny_cid'])) && (! strlen($target_item['deny_gid'])) 
+		if((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid']))
+			&& (! strlen($target_item['deny_cid'])) && (! strlen($target_item['deny_gid']))
 			&& (intval($target_item['pubmail']))) {
 			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `network` = '%s'",
 				intval($uid),
@@ -545,12 +557,12 @@ function notifier_run(&$argv, &$argc){
 	else
 		$recip_str = implode(', ', $recipients);
 
-    if ($relocate)
-        $r = $recipients_relocate;
-    else
-        $r = q("SELECT * FROM `contact` WHERE `id` IN ( %s ) AND `blocked` = 0 AND `pending` = 0 ",
-            dbesc($recip_str)
-        );
+	if ($relocate)
+		$r = $recipients_relocate;
+	else
+		$r = q("SELECT * FROM `contact` WHERE `id` IN ( %s ) AND `blocked` = 0 AND `pending` = 0 ",
+			dbesc($recip_str)
+		);
 
 
 	require_once('include/salmon.php');
@@ -1001,6 +1013,6 @@ function notifier_run(&$argv, &$argc){
 
 
 if (array_search(__file__,get_included_files())===0){
-  notifier_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
+	notifier_run($_SERVER["argv"],$_SERVER["argc"]);
+	killme();
 }

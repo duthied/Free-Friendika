@@ -407,19 +407,19 @@ function contacts_content(&$a) {
 			$url = "redir/{$contact['id']}";
 			$sparkle = ' class="sparkle" ';
 		}
-		else { 
+		else {
 			$url = $contact['url'];
 			$sparkle = '';
 		}
 
 		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00') 
-				? t('Never') 
+		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00')
+				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
 		if($contact['last-update'] !== '0000-00-00 00:00:00')
-			$last_update .= ' ' . (($contact['last-update'] == $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
+			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
@@ -430,7 +430,7 @@ function contacts_content(&$a) {
 		$common = count_common_friends(local_user(),$contact['id']);
 		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
-		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : ''); 
+		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
 		$x = count_all_friends(local_user(), $contact['id']);
 		$all_friends = (($x) ? t('View all contacts') : '');
@@ -668,7 +668,7 @@ function contacts_content(&$a) {
 				$url = "redir/{$rr['id']}";
 				$sparkle = ' class="sparkle" ';
 			}
-			else { 
+			else {
 				$url = $rr['url'];
 				$sparkle = '';
 			}
@@ -681,7 +681,7 @@ function contacts_content(&$a) {
 				'id' => $rr['id'],
 				'alt_text' => $alt_text,
 				'dir_icon' => $dir_icon,
-				'thumb' => $rr['thumb'], 
+				'thumb' => $rr['thumb'],
 				'name' => $rr['name'],
 				'username' => $rr['name'],
 				'sparkle' => $sparkle,
