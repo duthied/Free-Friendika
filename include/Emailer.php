@@ -68,7 +68,7 @@ class Emailer {
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader
 		);
-		echo "<pre>"; var_dump($hookdata); killme();
+		//echo "<pre>"; var_dump($hookdata); killme();
 		call_hooks("emailer_send", $hookdata);
 		$res = mail(
 			$hookdata['to'],							// send to address
