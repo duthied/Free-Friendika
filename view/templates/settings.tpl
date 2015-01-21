@@ -86,7 +86,7 @@
 	<div id="settings-default-perms-menu-end"></div>
 
 	<div id="settings-default-perms-select" style="display: none; margin-bottom: 20px" >
-	
+
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
 			{{$aclselect}}
@@ -132,6 +132,8 @@
 {{include file="field_intcheckbox.tpl" field=$notify7}}
 {{include file="field_intcheckbox.tpl" field=$notify8}}
 </div>
+
+{{include file="field_checkbox.tpl" field=$email_textonly}}
 
 </div>
 
