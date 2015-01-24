@@ -1126,7 +1126,7 @@ function settings_content(&$a) {
 
 		'$h_basic' 	=> t('Basic Settings'),
 		'$username' => array('username',  t('Full Name:'), $username,''),
-		'$email' 	=> array('email', t('Email Address:'), $email, ''),
+		'$email' 	=> array('email', t('Email Address:'), $email, '', '', '', 'email'),
 		'$timezone' => array('timezone_select' , t('Your Timezone:'), select_timezone($timezone), ''),
 		'$defloc'	=> array('defloc', t('Default Post Location:'), $defloc, ''),
 		'$allowloc' => array('allow_location', t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''),
