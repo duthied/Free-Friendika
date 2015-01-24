@@ -2067,7 +2067,7 @@
 		$ret = Array();
 
 		foreach($r as $item) {
-			api_share_as_retweet($a, api_user(), $item);
+			api_share_as_retweet($item);
 
 			localize_item($item);
 			$status_user = api_item_get_user($a,$item);
@@ -2619,7 +2619,7 @@
 
 
 
-function api_share_as_retweet($a, $uid, &$item) {
+function api_share_as_retweet(&$item) {
 	$body = trim($item["body"]);
 
 	// Skip if it isn't a pure repeated messages
@@ -2663,6 +2663,15 @@ function api_share_as_retweet($a, $uid, &$item) {
 	if ($matches[1] != "")
 		$avatar = $matches[1];
 
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
 	$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$2",$body);
 
 	if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
@@ -2672,6 +2681,7 @@ function api_share_as_retweet($a, $uid, &$item) {
 	$item["author-name"] = $author;
 	$item["author-link"] = $profile;
 	$item["author-avatar"] = $avatar;
+	$item["plink"] = $link;
 
 	return(true);
 

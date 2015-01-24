@@ -908,6 +908,110 @@ function diaspora_post($importer,$xml,$msg) {
 
 }
 
+function diaspora_fetch_message($guid, $server, $level = 0) {
+
+	if ($level > 5)
+		return false;
+
+	$a = get_app();
+
+	// This will not work if the server is not a Diaspora server
+	$source_url = $server.'/p/'.$guid.'.xml';
+	$x = fetch_url($source_url);
+	if(!$x)
+		return false;
+
+	$x = str_replace(array('<activity_streams-photo>','</activity_streams-photo>'),array('<asphoto>','</asphoto>'),$x);
+	$source_xml = parse_xml_string($x,false);
+
+	$item = array();
+	$item["app"] = 'Diaspora';
+	$item["guid"] = $guid;
+	$body = "";
+
+	if ($source_xml->post->status_message->created_at)
+		$item["created"] = unxmlify($source_xml->post->status_message->created_at);
+
+	if ($source_xml->post->status_message->provider_display_name)
+		$item["app"] = unxmlify($source_xml->post->status_message->provider_display_name);
+
+	if ($source_xml->post->status_message->diaspora_handle)
+		$item["author"] = unxmlify($source_xml->post->status_message->diaspora_handle);
+
+	if ($source_xml->post->status_message->guid)
+		$item["guid"] = unxmlify($source_xml->post->status_message->guid);
+
+	$item["private"] = (unxmlify($source_xml->post->status_message->public) == 'false');
+
+	if(strlen($source_xml->post->asphoto->objectId) && ($source_xml->post->asphoto->objectId != 0) && ($source_xml->post->asphoto->image_url)) {
+		$body = '[url=' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '][img]' . notags(unxmlify($source_xml->post->asphoto->objectId)) . '[/img][/url]' . "\n";
+		$body = scale_external_images($body,false);
+	} elseif($source_xml->post->asphoto->image_url) {
+		$body = '[img]' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '[/img]' . "\n";
+		$body = scale_external_images($body);
+	} elseif($source_xml->post->status_message) {
+		$body = diaspora2bb($source_xml->post->status_message->raw_message);
+
+		// Checking for embedded pictures
+		if($source_xml->post->status_message->photo->remote_photo_path AND
+			$source_xml->post->status_message->photo->remote_photo_name) {
+
+			$remote_photo_path = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_path));
+			$remote_photo_name = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_name));
+
+			$body = '[img]'.$remote_photo_path.$remote_photo_name.'[/img]'."\n".$body;
+
+			logger('embedded picture link found: '.$body, LOGGER_DEBUG);
+		}
+
+		$body = scale_external_images($body);
+
+		// Add OEmbed and other information to the body
+		$body = add_page_info_to_body($body, false, true);
+	} elseif($source_xml->post->reshare) {
+		// Reshare of a reshare
+		return diaspora_fetch_message($source_xml->post->reshare->root_guid, $server, ++$level);
+	} else {
+		// Maybe it is a reshare of a photo that will be delivered at a later time (testing)
+		logger('no content found: '.print_r($source_xml,true));
+		$body = "";
+	}
+
+	if ($body == "")
+		return false;
+
+	$item["tag"] = '';
+
+	$tags = get_tags($body);
+
+	if(count($tags)) {
+		foreach($tags as $tag) {
+			if(strpos($tag,'#') === 0) {
+				if(strpos($tag,'[url='))
+					continue;
+
+				// don't link tags that are already embedded in links
+
+				if(preg_match('/\[(.*?)' . preg_quote($tag,'/') . '(.*?)\]/',$body))
+					continue;
+				if(preg_match('/\[(.*?)\]\((.*?)' . preg_quote($tag,'/') . '(.*?)\)/',$body))
+					continue;
+
+
+				$basetag = str_replace('_',' ',substr($tag,1));
+				$body = str_replace($tag,'#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]',$body);
+				if(strlen($item["tag"]))
+					$item["tag"] .= ',';
+				$item["tag"] .= '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
+				continue;
+			}
+		}
+	}
+
+	$item["body"] = $body;
+	return $item;
+}
+
 function diaspora_reshare($importer,$xml,$msg) {
 
 	logger('diaspora_reshare: init: ' . print_r($xml,true));
@@ -945,69 +1049,64 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$orig_author = notags(unxmlify($xml->root_diaspora_id));
 	$orig_guid = notags(unxmlify($xml->root_guid));
 
-	$source_url = 'https://' . substr($orig_author,strpos($orig_author,'@')+1) . '/p/' . $orig_guid . '.xml';
-	$orig_url = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
-	$x = fetch_url($source_url);
-	if(! $x)
-		$x = fetch_url(str_replace('https://','http://',$source_url));
-	if(! $x) {
-		logger('diaspora_reshare: unable to fetch source url ' . $source_url);
-		return;
+	$create_original_post = false;
+
+	// Do we already have this item?
+	$r = q("SELECT `body`, `tag`, `app`, `author-link`, `plink` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+		dbesc($orig_guid),
+		dbesc(NETWORK_DIASPORA)
+	);
+	if(count($r)) {
+		logger('reshared message '.orig_guid." reshared by ".$guid.' already exists on system: '.$orig_url);
+
+		// Maybe it is already a reshared item?
+		// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
+		require_once('include/api.php');
+		if (api_share_as_retweet($r[0]))
+			$r = array();
+		else
+			$orig_url = $a->get_baseurl().'/display/'.$orig_guid;
 	}
-	logger('diaspora_reshare: source: ' . $x);
 
-	$x = str_replace(array('<activity_streams-photo>','</activity_streams-photo>'),array('<asphoto>','</asphoto>'),$x);
-	$source_xml = parse_xml_string($x,false);
+	if (!count($r)) {
+		$body = "";
+		$str_tags = "";
+		$app = "";
 
-	if(strlen($source_xml->post->asphoto->objectId) && ($source_xml->post->asphoto->objectId != 0) && ($source_xml->post->asphoto->image_url)) {
-		$body = '[url=' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '][img]' . notags(unxmlify($source_xml->post->asphoto->objectId)) . '[/img][/url]' . "\n";
-		$body = scale_external_images($body,false);
-	}
-	elseif($source_xml->post->asphoto->image_url) {
-		$body = '[img]' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '[/img]' . "\n";
-		$body = scale_external_images($body);
-	}
-	elseif($source_xml->post->status_message) {
-		$body = diaspora2bb($source_xml->post->status_message->raw_message);
+		$orig_url = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
 
-		// Checking for embedded pictures
-		if($source_xml->post->status_message->photo->remote_photo_path AND
-			$source_xml->post->status_message->photo->remote_photo_name) {
+		$server = 'https://'.substr($orig_author,strpos($orig_author,'@')+1);
+		logger('1st try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
+		$item = diaspora_fetch_message($orig_guid, $server);
 
-			$remote_photo_path = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_path));
-			$remote_photo_name = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_name));
-
-			$body = '[img]'.$remote_photo_path.$remote_photo_name.'[/img]'."\n".$body;
-
-			logger('diaspora_reshare: embedded picture link found: '.$body, LOGGER_DEBUG);
+		if (!$item) {
+			$server = 'https://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1);
+			logger('2nd try: reshared message '.$orig_guid." reshared by ".$guid." will be fetched from sharer's server: ".$server);
+			$item = diaspora_fetch_message($orig_guid, $server);
+		}
+		if (!$item) {
+			$server = 'http://'.substr($orig_author,strpos($orig_author,'@')+1);
+			logger('3rd try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
+			$item = diaspora_fetch_message($orig_guid, $server);
+		}
+		if (!$item) {
+			$server = 'http://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1);
+			logger('4th try: reshared message '.$orig_guid." reshared by ".$guid." will be fetched from sharer's server: ".$server);
+			$item = diaspora_fetch_message($orig_guid, $server);
 		}
 
-		$body = scale_external_images($body);
-
-		// Add OEmbed and other information to the body
-		$body = add_page_info_to_body($body, false, true);
+		if ($item) {
+			$body = $item["body"];
+			$str_tags = $item["tag"];
+			$app = $item["app"];
+			$orig_created = $item["created"];
+			$orig_author = $item["author"];
+			$orig_guid = $item["guid"];
+			//$create_original_post = ($body != "");
+		}
 	}
-	else {
-		// Maybe it is a reshare of a photo that will be delivered at a later time (testing)
-		logger('diaspora_reshare: no reshare content found: ' . print_r($source_xml,true));
-		$body = "";
-		//return;
-	}
-
-	//if(! $body) {
-	//	logger('diaspora_reshare: empty body: source= ' . $x);
-	//	return;
-	//}
 
 	$person = find_diaspora_person_by_handle($orig_author);
-
-	/*if(is_array($person) && x($person,'name') && x($person,'url'))
-		$details = '[url=' . $person['url'] . ']' . $person['name'] . '[/url]';
-	else
-		$details = $orig_author;
-
-	$prefix = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $details . "\n";*/
-
 
 	// allocate a guid on our system - we aren't fixing any collisions.
 	// we're ignoring them
@@ -1025,34 +1124,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
 
 	$datarray = array();
-
-	$str_tags = '';
-
-	$tags = get_tags($body);
-
-	if(count($tags)) {
-		foreach($tags as $tag) {
-			if(strpos($tag,'#') === 0) {
-				if(strpos($tag,'[url='))
-					continue;
-
-				// don't link tags that are already embedded in links
-
-				if(preg_match('/\[(.*?)' . preg_quote($tag,'/') . '(.*?)\]/',$body))
-					continue;
-				if(preg_match('/\[(.*?)\]\((.*?)' . preg_quote($tag,'/') . '(.*?)\)/',$body))
-					continue;
-
-
-				$basetag = str_replace('_',' ',substr($tag,1));
-				$body = str_replace($tag,'#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]',$body);
-				if(strlen($str_tags))
-					$str_tags .= ',';
-				$str_tags .= '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
-				continue;
-			}
-		}
-	}
 
 	$plink = 'https://'.substr($diaspora_handle,strpos($diaspora_handle,'@')+1).'/posts/'.$guid;
 
@@ -1087,19 +1158,37 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 
 	$datarray['tag'] = $str_tags;
-	$datarray['app']  = 'Diaspora';
+	$datarray['app']  = $app;
 
 	// if empty content it might be a photo that hasn't arrived yet. If a photo arrives, we'll make it visible. (testing)
 	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
 
-	$message_id = item_store($datarray);
+	// Store the original item of a reshare
+	// Deactivated by now. Items without a matching contact can't be shown via "mod/display.php" by now.
+	if ($create_original_post) {
+		$datarray2 = $datarray;
 
-	//if($message_id) {
-	//	q("update item set plink = '%s' where id = %d",
-	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-	//		intval($message_id)
-	//	);
-	//}
+		$datarray2['uid'] = 0;
+		$datarray2['contact-id'] = 0;
+		$datarray2['guid'] = $orig_guid;
+		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_author.':'.$orig_guid;
+		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = datetime_convert('UTC','UTC',$orig_created);
+		$datarray2['plink'] = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
+
+		$datarray2['author-name'] = $person['name'];
+		$datarray2['author-link'] = $person['url'];
+		$datarray2['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
+		$datarray2['owner-name'] = $datarray2['author-name'];
+		$datarray2['owner-link'] = $datarray2['author-link'];
+		$datarray2['owner-avatar'] = $datarray2['author-avatar'];
+		$datarray2['body'] = $body;
+
+		$message_id = item_store($datarray2);
+
+		logger("Store original item ".$orig_guid." under message id ".$message_id);
+	}
+
+	$message_id = item_store($datarray);
 
 	return;
 
