@@ -1000,7 +1000,7 @@ function admin_page_users(&$a){
 		'$users' => $users,
 		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")),
 		'$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")),
-		'$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
+		'$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user."), '', '', 'email'),
 	));
 	$o .= paginate($a);
 	return $o;
