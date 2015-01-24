@@ -83,8 +83,9 @@ function poco_init(&$a) {
 
 
 	if($system_mode) {
-		$r = q("SELECT * FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
-			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation` FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
+			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
+			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS),
@@ -143,6 +144,12 @@ function poco_init(&$a) {
 	if(is_array($r)) {
 		if(count($r)) {
 			foreach($r as $rr) {
+				if (($rr['about'] == "") AND isset($rr['pabout']))
+					$rr['about'] = $rr['pabout'];
+
+				if (($rr['location'] == "") AND isset($rr['plocation']))
+					$rr['location'] = $rr['plocation'];
+
 				$entry = array();
 				if($fields_ret['id'])
 					$entry['id'] = $rr['id'];

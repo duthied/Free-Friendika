@@ -1350,6 +1350,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 
+	// Store the unescaped version
+	$unescaped = $arr;
+
 	dbesc_array($arr);
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
@@ -1360,10 +1363,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			. implode("', '", array_values($arr))
 			. "')" );
 
-	// find the item we just created
+	// And restore it
+	$arr = $unescaped;
 
+	// find the item we just created
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC ",
-		$arr['uri'],           // already dbesc'd
+		dbesc($arr['uri']),
 		intval($arr['uid'])
 	);
 
@@ -1374,8 +1379,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		// Add every contact to the global contact table
 		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
 		if (!$arr['private'] AND in_array($arr["network"],
-			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
-			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", $arr["received"], $arr['contact-id'], $arr['uid']);
+			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, ""))) {
+			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", $arr["received"], $arr["contact-id"], $arr["uid"]);
+
+			// Maybe its a body with a shared item? Then extract a global contact from it.
+			poco_contact_from_body($arr["body"], $arr["received"], $arr["contact-id"], $arr["uid"]);
+		}
 
 		// Set "success_update" to the date of the last time we heard from this contact
 		// This can be used to filter for inactive contacts and poco.
@@ -1437,7 +1446,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if(count($r) > 1) {
 		logger('item_store: duplicated post occurred. Removing duplicates.');
 		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `id` != %d ",
-			$arr['uri'],
+			dbesc($arr['uri']),
 			intval($arr['uid']),
 			intval($current_post)
 		);

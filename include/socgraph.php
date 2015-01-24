@@ -115,7 +115,22 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 function poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
 	$gcid = "";
 
-	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
+	if ($profile_url == "")
+		return $gcid;
+
+	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
+		require_once("include/Scrape.php");
+
+		$data = probe_url($profile_url, PROBE_DIASPORA);
+		$network = $data["network"];
+		$name = $data["name"];
+		$profile_photo = $data["photo"];
+	}
+
+	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
+		return $gcid;
+
+	if (($name == "") OR ($profile_photo == ""))
 		return $gcid;
 
 	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
@@ -192,6 +207,30 @@ function poco_check($profile_url, $name, $network, $profile_photo, $connect_url,
 	);
 
 	return $gcid;
+}
+
+function poco_contact_from_body($body, $created, $cid, $uid) {
+	preg_replace_callback("/\[share(.*?)\].*?\[\/share\]/ism",
+		function ($match) use ($created, $cid, $uid){
+			return(sub_poco_from_share($match, $created, $cid, $uid));
+		}, $body);
+}
+
+function sub_poco_from_share($share, $created, $cid, $uid) {
+        $profile = "";
+        preg_match("/profile='(.*?)'/ism", $share[1], $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        preg_match('/profile="(.*?)"/ism', $share[1], $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+	if ($profile == "")
+		return;
+
+	logger("prepare poco_check for profile ".$profile, LOGGER_DEBUG);
+        poco_check($profile, "", "", "", "", $created, $cid, $uid);
 }
 
 function count_common_friends($uid,$cid) {
