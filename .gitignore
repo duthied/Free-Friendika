@@ -40,5 +40,5 @@ nbproject
 #ignore vagrant dir
 .vagrant/
 
-#ignore test folder
-/test/
+#ignore local folder
+/local/
