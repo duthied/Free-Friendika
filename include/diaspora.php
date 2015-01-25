@@ -2252,7 +2252,19 @@ function diaspora_profile($importer,$xml,$msg) {
 	$birthday = unxmlify($xml->birthday);
 	$location = diaspora2bb(unxmlify($xml->location));
 	$about = diaspora2bb(unxmlify($xml->bio));
+	$gender = unxmlify($xml->gender);
+	$tags = unxmlify($xml->tag_string);
 
+	$tags = explode("#", $tags);
+
+	$keywords = array();
+	foreach ($tags as $tag) {
+		$tag = trim(strtolower($tag));
+		if ($tag != "")
+			$keywords[] = $tag;
+	}
+
+	$keywords = implode(", ", $keywords);
 
 	$handle_parts = explode("@", $diaspora_handle);
 	if($name === '') {
@@ -2288,7 +2300,7 @@ function diaspora_profile($importer,$xml,$msg) {
 	// TODO: update name on item['author-name'] if the name changed. See consume_feed()
 	// Not doing this currently because D* protocol is scheduled for revision soon.
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc(datetime_convert()),
 		dbesc($images[0]),
@@ -2298,9 +2310,17 @@ function diaspora_profile($importer,$xml,$msg) {
 		dbesc($birthday),
 		dbesc($location),
 		dbesc($about),
+		dbesc($keywords),
+		dbesc($gender),
 		intval($contact['id']),
 		intval($importer['uid'])
 	);
+
+	if (unxmlify($xml->searchable) == "true") {
+		require_once('include/socgraph.php');
+		poco_check($contact['url'], $name, NETWORK_DIASPORA, $images[0], $about, $location, $gender, $keywords, "",
+			datetime_convert(), $contact['id'], $importer['uid']);
+	}
 
 	$profileurl = "";
 	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",

@@ -39,7 +39,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -71,6 +71,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$updated = '0000-00-00 00:00:00';
 		$location = '';
 		$about = '';
+		$keywords = '';
+		$gender = '';
 
 		$name = $entry->displayName;
 
@@ -107,13 +109,24 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(isset($entry->aboutMe))
 			$about = $entry->aboutMe;
 
-		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $connect_url, $updated, $cid, $uid, $zcid);
+		if(isset($entry->gender))
+			$gender = $entry->gender;
 
-		if (($location != "") OR ($about != ""))
-			q("UPDATE `contact` SET `location` = '%s', `about` = '%s' WHERE `nurl` = '%s' AND NOT `self`",
+		if(isset($entry->tags))
+			$keywords = implode(", ", $entry->tags);
+
+		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
+
+		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
+		if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
+			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
 				dbesc($location),
 				dbesc($about),
-				dbesc(normalise_link($profile_url)));
+				dbesc($keywords),
+				dbesc($gender),
+				dbesc(normalise_link($profile_url)),
+				dbesc(NETWORK_DFRN));
 
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
@@ -126,7 +139,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
-function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
+function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
 	$gcid = "";
 
 	if ($profile_url == "")
@@ -162,8 +175,15 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($about == "") AND ($x[0]['about'] != ""))
 			$about = $x[0]['about'];
 
+		if (($gender == "") AND ($x[0]['gender'] != ""))
+			$gender = $x[0]['gender'];
+
+		if (($keywords == "") AND ($x[0]['keywords'] != ""))
+			$keywords = $x[0]['keywords'];
+
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s', `location` = '%s', `about` = '%s'
+			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
+				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
 				where `nurl` = '%s'",
 				dbesc($name),
 				dbesc($network),
@@ -173,12 +193,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($updated),
 				dbesc($location),
 				dbesc($about),
+				dbesc($keywords),
+				dbesc($gender),
 				dbesc(normalise_link($profile_url))
 			);
 		}
 	} else {
-		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`)
-			values ('%s', '%s', '%s', '%s', '%s','%s', '%s')",
+		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`, `keywords`, `gender`)
+			values ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s')",
 			dbesc($name),
 			dbesc($network),
 			dbesc($profile_url),
@@ -187,7 +209,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			dbesc($connect_url),
 			dbesc($updated),
 			dbesc($location),
-			dbesc($about)
+			dbesc($about),
+			dbesc($keywords),
+			dbesc($gender)
 		);
 		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 			dbesc(normalise_link($profile_url))
@@ -254,7 +278,7 @@ function sub_poco_from_share($share, $created, $cid, $uid) {
 		return;
 
 	logger("prepare poco_check for profile ".$profile, LOGGER_DEBUG);
-        poco_check($profile, "", "", "", "", "", "", $created, $cid, $uid);
+        poco_check($profile, "", "", "", "", "", "", "", "", $created, $cid, $uid);
 }
 
 function count_common_friends($uid,$cid) {

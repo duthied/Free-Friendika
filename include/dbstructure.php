@@ -415,6 +415,8 @@ function db_definition() {
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"about" => array("type" => "text", "not null" => "1"),
+					"keywords" => array("type" => "text", "not null" => "1"),
+					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "text", "not null" => "1"),
 					"thumb" => array("type" => "text", "not null" => "1"),
@@ -621,6 +623,8 @@ function db_definition() {
 					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"about" => array("type" => "text", "not null" => "1"),
+					"keywords" => array("type" => "text", "not null" => "1"),
+					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(

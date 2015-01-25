@@ -83,8 +83,9 @@ function poco_init(&$a) {
 
 
 	if($system_mode) {
-		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation` FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`
+			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
+			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -129,7 +130,9 @@ function poco_init(&$a) {
 		'photos' => false,
 		'aboutMe' => false,
 		'currentLocation' => false,
-		'network' => false
+		'network' => false,
+		'gender' => false,
+		'tags' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -150,6 +153,12 @@ function poco_init(&$a) {
 				if (($rr['location'] == "") AND isset($rr['plocation']))
 					$rr['location'] = $rr['plocation'];
 
+				if (($rr['gender'] == "") AND isset($rr['pgender']))
+					$rr['gender'] = $rr['pgender'];
+
+				if (($rr['keywords'] == "") AND isset($rr['pub_keywords']))
+					$rr['keywords'] = $rr['pub_keywords'];
+
 				$entry = array();
 				if($fields_ret['id'])
 					$entry['id'] = $rr['id'];
@@ -159,6 +168,8 @@ function poco_init(&$a) {
 					$entry['aboutMe'] = bbcode($rr['about'], false, false);
 				if($fields_ret['currentLocation'])
 					$entry['currentLocation'] = $rr['location'];
+				if($fields_ret['gender'])
+					$entry['gender'] = $rr['gender'];
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))
@@ -189,6 +200,20 @@ function poco_init(&$a) {
 					if (($entry['network'] == "") AND ($rr['self']))
 						$entry['network'] = NETWORK_DFRN;
 				}
+				if($fields_ret['tags']) {
+					$tags = str_replace(","," ",$rr['keywords']);
+					$tags = explode(" ", $tags);
+
+					$cleaned = array();
+					foreach ($tags as $tag) {
+						$tag = trim(strtolower($tag));
+						if ($tag != "")
+							$cleaned[] = $tag;
+					}
+
+					$entry['tags'] = array($cleaned);
+				}
+
 				$ret['entry'][] = $entry;
 			}
 		}

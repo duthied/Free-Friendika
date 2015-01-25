@@ -142,6 +142,22 @@ function profiles_init(&$a) {
 
 }
 
+function profile_clean_keywords($keywords) {
+	$keywords = str_replace(","," ",$keywords);
+	$keywords = explode(" ", $keywords);
+
+	$cleaned = array();
+	foreach ($keywords as $keyword) {
+		$keyword = trim(strtolower($keyword));
+		if ($keyword != "")
+			$cleaned[] = $keyword;
+	}
+
+	$keywords = implode(", ", $cleaned);
+
+	return $keywords;
+}
+
 function profiles_post(&$a) {
 
 	if(! local_user()) {
@@ -212,8 +228,8 @@ function profiles_post(&$a) {
 		$region = notags(trim($_POST['region']));
 		$postal_code = notags(trim($_POST['postal_code']));
 		$country_name = notags(trim($_POST['country_name']));
-		$pub_keywords = notags(trim($_POST['pub_keywords']));
-		$prv_keywords = notags(trim($_POST['prv_keywords']));
+		$pub_keywords = profile_clean_keywords(notags(trim($_POST['pub_keywords'])));
+		$prv_keywords = profile_clean_keywords(notags(trim($_POST['prv_keywords'])));
 		$marital = notags(trim($_POST['marital']));
 		$howlong = notags(trim($_POST['howlong']));
 
@@ -469,9 +485,10 @@ function profiles_post(&$a) {
 
 		if($is_default) {
 
-			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($about),
 				dbesc($locality),
+				dbesc($pub_keywords),
 				intval(local_user())
 			);
 
