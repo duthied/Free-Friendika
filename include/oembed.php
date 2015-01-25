@@ -110,6 +110,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 		}
 	}
 
+	call_hooks('oembed_fetch_url', $embedurl, $j);
+
 	return $j;
 }
 
