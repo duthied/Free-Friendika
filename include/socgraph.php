@@ -113,21 +113,23 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			$gender = $entry->gender;
 
 		if(isset($entry->tags))
-			$keywords = implode(", ", $entry->tags);
+			foreach($entry->tags as $tag)
+				$keywords = implode(", ", $tag);
 
-		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
+		if ($network != "") {
+			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
 
-		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
-		if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
-			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
-				WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
-				dbesc($location),
-				dbesc($about),
-				dbesc($keywords),
-				dbesc($gender),
-				dbesc(normalise_link($profile_url)),
-				dbesc(NETWORK_DFRN));
-
+			// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
+			if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
+				q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
+					WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
+					dbesc($location),
+					dbesc($about),
+					dbesc($keywords),
+					dbesc($gender),
+					dbesc(normalise_link($profile_url)),
+					dbesc(NETWORK_DFRN));
+		}
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
 

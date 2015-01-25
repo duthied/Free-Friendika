@@ -46,8 +46,8 @@ function poco_init(&$a) {
 
 	if($justme)
 		$sql_extra = " AND `contact`.`self` = 1 ";
-	else
-		$sql_extra = " AND `contact`.`self` = 0 ";
+//	else
+//		$sql_extra = " AND `contact`.`self` = 0 ";
 
 	if($cid)
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ",intval($cid));
