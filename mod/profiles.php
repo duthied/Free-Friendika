@@ -485,10 +485,11 @@ function profiles_post(&$a) {
 
 		if($is_default) {
 
-			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($about),
 				dbesc($locality),
 				dbesc($pub_keywords),
+				dbesc($gender),
 				intval(local_user())
 			);
 
