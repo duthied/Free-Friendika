@@ -619,6 +619,8 @@ function db_definition() {
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(

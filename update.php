@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1177 );
+define( 'UPDATE_VERSION' , 1178 );
 
 /**
  *
