@@ -149,6 +149,7 @@ function profile_clean_keywords($keywords) {
 	$cleaned = array();
 	foreach ($keywords as $keyword) {
 		$keyword = trim(strtolower($keyword));
+		$keyword = trim($keyword, "#");
 		if ($keyword != "")
 			$cleaned[] = $keyword;
 	}

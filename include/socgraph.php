@@ -116,20 +116,18 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			foreach($entry->tags as $tag)
 				$keywords = implode(", ", $tag);
 
-		if ($network != "") {
-			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
+		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
 
-			// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
-			if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
-				q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
-					WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
-					dbesc($location),
-					dbesc($about),
-					dbesc($keywords),
-					dbesc($gender),
-					dbesc(normalise_link($profile_url)),
-					dbesc(NETWORK_DFRN));
-		}
+		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
+		if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
+			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
+				dbesc($location),
+				dbesc($about),
+				dbesc($keywords),
+				dbesc($gender),
+				dbesc(normalise_link($profile_url)),
+				dbesc(NETWORK_DFRN));
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
 
@@ -147,6 +145,12 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if ($profile_url == "")
 		return $gcid;
 
+	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+		dbesc(normalise_link($profile_url))
+	);
+	if(count($x))
+		$network = $x[0]["network"];
+
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
 		require_once("include/Scrape.php");
 
@@ -156,17 +160,20 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$profile_photo = $data["photo"];
 	}
 
-	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
-		return $gcid;
+	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
+		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+			dbesc($network),
+			dbesc(normalise_link($profile_url))
+		);
+	}
 
 	if (($name == "") OR ($profile_photo == ""))
 		return $gcid;
 
-	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
+	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
+		return $gcid;
 
-	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-		dbesc(normalise_link($profile_url))
-	);
+	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
 	if(count($x)) {
 		$gcid = $x[0]['id'];
