@@ -22,7 +22,12 @@ function poco_init(&$a) {
 	$format = (($_GET['format']) ? $_GET['format'] : 'json');
 
 	$justme = false;
+	$global = false;
 
+	if($a->argc > 1 && $a->argv[1] === '@global') {
+		$global = true;
+		$update_limit = date("Y-m-d H:i:s", time() - 30 * 86400);
+	}
 	if($a->argc > 2 && $a->argv[2] === '@me')
 		$justme = true;
 	if($a->argc > 3 && $a->argv[3] === '@all')
@@ -33,7 +38,7 @@ function poco_init(&$a) {
 		$cid = intval($a->argv[4]);
 
 
-	if(! $system_mode) {
+	if(!$system_mode AND !$global) {
 		$r = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
@@ -52,7 +57,15 @@ function poco_init(&$a) {
 	if($cid)
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ",intval($cid));
 
-	if($system_mode) {
+	if(x($_GET,'updatedSince'))
+		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
+
+	if ($global) {
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `network` IN ('%s')",
+			dbesc($update_limit),
+			dbesc(NETWORK_DFRN)
+		);
+	} elseif($system_mode) {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
 			dbesc(NETWORK_DFRN),
@@ -60,8 +73,7 @@ function poco_init(&$a) {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_STATUSNET)
 			);
-	}
-	else {
+	} else {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
 			intval($user['uid']),
@@ -82,7 +94,14 @@ function poco_init(&$a) {
 	$itemsPerPage = ((x($_GET,'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
 
-	if($system_mode) {
+	if ($global) {
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') LIMIT %d, %d",
+			dbesc($update_limit),
+			dbesc(NETWORK_DFRN),
+			intval($startIndex),
+			intval($itemsPerPage)
+		);
+	} elseif($system_mode) {
 		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
@@ -94,8 +113,7 @@ function poco_init(&$a) {
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
-	}
-	else {
+	} else {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
@@ -107,13 +125,14 @@ function poco_init(&$a) {
 			intval($itemsPerPage)
 		);
 	}
+
 	$ret = array();
 	if(x($_GET,'sorted'))
-		$ret['sorted'] = 'false';
+		$ret['sorted'] = false;
 	if(x($_GET,'filtered'))
-		$ret['filtered'] = 'false';
-	if(x($_GET,'updatedSince'))
-		$ret['updateSince'] = 'false';
+		$ret['filtered'] = false;
+	if(x($_GET,'updatedSince') AND !$global)
+		$ret['updatedSince'] = false;
 
 	$ret['startIndex']   = (string) $startIndex;
 	$ret['itemsPerPage'] = (string) $itemsPerPage;
@@ -178,16 +197,19 @@ function poco_init(&$a) {
 				if($fields_ret['preferredUsername'])
 					$entry['preferredUsername'] = $rr['nick'];
 				if($fields_ret['updated']) {
-					$entry['updated'] = $rr['success_update'];
+					if (!$global) {
+						$entry['updated'] = $rr['success_update'];
 
-					if ($rr['name-date'] > $entry['updated'])
-						$entry['updated'] = $rr['name-date'];
+						if ($rr['name-date'] > $entry['updated'])
+							$entry['updated'] = $rr['name-date'];
 
-					if ($rr['uri-date'] > $entry['updated'])
-						$entry['updated'] = $rr['uri-date'];
+						if ($rr['uri-date'] > $entry['updated'])
+							$entry['updated'] = $rr['uri-date'];
 
-					if ($rr['avatar-date'] > $entry['updated'])
-						$entry['updated'] = $rr['avatar-date'];
+						if ($rr['avatar-date'] > $entry['updated'])
+							$entry['updated'] = $rr['avatar-date'];
+					} else
+						$entry['updated'] = $rr['updated'];
 
 					$entry['updated'] = date("c", strtotime($entry['updated']));
 				}
