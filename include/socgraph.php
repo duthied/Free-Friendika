@@ -39,7 +39,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network' : '?fields=displayName,urls,photos,updated,network') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -69,6 +69,10 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$name = '';
 		$network = '';
 		$updated = '0000-00-00 00:00:00';
+		$location = '';
+		$about = '';
+		$keywords = '';
+		$gender = '';
 
 		$name = $entry->displayName;
 
@@ -99,8 +103,31 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(isset($entry->network))
 			$network = $entry->network;
 
-		poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid, $uid, $zcid);
+		if(isset($entry->currentLocation))
+			$location = $entry->currentLocation;
 
+		if(isset($entry->aboutMe))
+			$about = $entry->aboutMe;
+
+		if(isset($entry->gender))
+			$gender = $entry->gender;
+
+		if(isset($entry->tags))
+			foreach($entry->tags as $tag)
+				$keywords = implode(", ", $tag);
+
+		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
+
+		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
+		if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
+			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
+				dbesc($location),
+				dbesc($about),
+				dbesc($keywords),
+				dbesc($gender),
+				dbesc(normalise_link($profile_url)),
+				dbesc(NETWORK_DFRN));
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
 
@@ -112,23 +139,60 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
-function poco_check($profile_url, $name, $network, $profile_photo, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
+function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
 	$gcid = "";
 
-	if (($profile_url == "") OR ($name == "") OR ($profile_photo == ""))
+	if ($profile_url == "")
 		return $gcid;
-
-	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
 	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url))
 	);
+	if(count($x))
+		$network = $x[0]["network"];
+
+	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
+		require_once("include/Scrape.php");
+
+		$data = probe_url($profile_url, PROBE_DIASPORA);
+		$network = $data["network"];
+		$name = $data["name"];
+		$profile_photo = $data["photo"];
+	}
+
+	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
+		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+			dbesc($network),
+			dbesc(normalise_link($profile_url))
+		);
+	}
+
+	if (($name == "") OR ($profile_photo == ""))
+		return $gcid;
+
+	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
+		return $gcid;
+
+	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
 	if(count($x)) {
 		$gcid = $x[0]['id'];
 
+		if (($location == "") AND ($x[0]['location'] != ""))
+			$location = $x[0]['location'];
+
+		if (($about == "") AND ($x[0]['about'] != ""))
+			$about = $x[0]['about'];
+
+		if (($gender == "") AND ($x[0]['gender'] != ""))
+			$gender = $x[0]['gender'];
+
+		if (($keywords == "") AND ($x[0]['keywords'] != ""))
+			$keywords = $x[0]['keywords'];
+
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `updated` = '%s'
+			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
+				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
 				where `nurl` = '%s'",
 				dbesc($name),
 				dbesc($network),
@@ -136,19 +200,27 @@ function poco_check($profile_url, $name, $network, $profile_photo, $connect_url,
 				dbesc($connect_url),
 				dbesc($profile_url),
 				dbesc($updated),
+				dbesc($location),
+				dbesc($about),
+				dbesc($keywords),
+				dbesc($gender),
 				dbesc(normalise_link($profile_url))
 			);
 		}
 	} else {
-		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`)
-			values ('%s', '%s', '%s', '%s', '%s','%s', '%s')",
+		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`, `keywords`, `gender`)
+			values ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s')",
 			dbesc($name),
 			dbesc($network),
 			dbesc($profile_url),
 			dbesc(normalise_link($profile_url)),
 			dbesc($profile_photo),
 			dbesc($connect_url),
-			dbesc($updated)
+			dbesc($updated),
+			dbesc($location),
+			dbesc($about),
+			dbesc($keywords),
+			dbesc($gender)
 		);
 		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 			dbesc(normalise_link($profile_url))
@@ -192,6 +264,30 @@ function poco_check($profile_url, $name, $network, $profile_photo, $connect_url,
 	);
 
 	return $gcid;
+}
+
+function poco_contact_from_body($body, $created, $cid, $uid) {
+	preg_replace_callback("/\[share(.*?)\].*?\[\/share\]/ism",
+		function ($match) use ($created, $cid, $uid){
+			return(sub_poco_from_share($match, $created, $cid, $uid));
+		}, $body);
+}
+
+function sub_poco_from_share($share, $created, $cid, $uid) {
+        $profile = "";
+        preg_match("/profile='(.*?)'/ism", $share[1], $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+        preg_match('/profile="(.*?)"/ism', $share[1], $matches);
+        if ($matches[1] != "")
+                $profile = $matches[1];
+
+	if ($profile == "")
+		return;
+
+	logger("prepare poco_check for profile ".$profile, LOGGER_DEBUG);
+        poco_check($profile, "", "", "", "", "", "", "", "", $created, $cid, $uid);
 }
 
 function count_common_friends($uid,$cid) {

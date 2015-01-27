@@ -345,7 +345,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 	$result = Cache::get("probe_url:".$mode.":".$url);
 	if (!is_null($result)) {
-                $result = unserialize($result);
+		$result = unserialize($result);
 		return $result;
 	}
 
@@ -356,6 +356,23 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	$diaspora_key = '';
 	$has_lrdd = false;
 	$email_conversant = false;
+	$connectornetworks = false;
+	$appnet = false;
+
+	if (strpos($url,'twitter.com')) {
+		$connectornetworks = true;
+		$network = NETWORK_TWITTER;
+	}
+
+	if (strpos($url,'www.facebook.com')) {
+		$connectornetworks = true;
+		$network = NETWORK_FACEBOOK;
+	}
+
+	if (strpos($url,'alpha.app.net')) {
+		$appnet = true;
+		$network = NETWORK_APPNET;
+	}
 
 	// Twitter is deactivated since twitter closed its old API
 	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
@@ -363,7 +380,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 	$at_addr = ((strpos($url,'@') !== false) ? true : false);
 
-	if((! $twitter) && (! $lastfm)) {
+	if((!$appnet) && (!$lastfm) && !$connectornetworks) {
 
 		if(strpos($url,'mailto:') !== false && $at_addr) {
 			$url = str_replace('mailto:','',$url);
@@ -606,11 +623,14 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			// Will leave it to others to figure out how to grab the avatar, which is on the $url page in the open graph meta links
 		}
 
-		if($twitter || ! $poll)
+		if($appnet || ! $poll)
 			$check_feed = true;
 		if((! isset($vcard)) || (! x($vcard,'fn')) || (! $profile))
 			$check_feed = true;
 		if(($at_addr) && (! count($links)))
+			$check_feed = false;
+
+		if ($connectornetworks)
 			$check_feed = false;
 
 		if($check_feed) {
