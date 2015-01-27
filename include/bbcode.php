@@ -619,6 +619,17 @@ function GetProfileUsername($profile, $username, $compact = false, $getnetwork =
 			return($username." (".$diaspora.")");
 	}
 
+	$red = preg_replace("=https?://(.*)/channel/(.*)=ism", "$2@$1", $profile);
+	if ($red != $profile) {
+		if ($getnetwork)
+			// red is identified as Diaspora - friendica can't connect directly to it
+			return(NETWORK_DIASPORA);
+		elseif ($compact)
+			return($red);
+		else
+			return($username." (".$red.")");
+	}
+
 	$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
 	if ($StatusnetHost != $profile) {
 		$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);

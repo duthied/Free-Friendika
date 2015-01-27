@@ -35,11 +35,12 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 				$selected = " selected=\"selected\" ";
 			else
 				$selected = '';
+
 			$trimmed = mb_substr($rr['name'],0,12);
 
 			$o .= "<option value=\"{$rr['id']}\" $selected title=\"{$rr['name']}\" >$trimmed</option>\r\n";
 		}
-	
+
 	}
 	$o .= "</select>\r\n";
 
@@ -89,13 +90,13 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 						$networks = array('dfrn','mail','dspr');
 					else
 						$networks = array('dfrn','face','mail','dspr','stat');
-					break;					
+					break;
 				default:
 					break;
 			}
 		}
 	}
-		
+
 	$x = array('options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks);
 
 	call_hooks('contact_select_options', $x);
@@ -117,15 +118,15 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 		$str_nets = implode(',',$x['networks']);
 		$sql_extra .= " AND `network` IN ( $str_nets ) ";
 	}
-	
+
 	$tabindex = (x($options, 'tabindex') ? "tabindex=\"" . $options["tabindex"] . "\"" : "");
 
 	if($x['single'])
 		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"" . $x['size'] . "\" $tabindex >\r\n";
-	else 
+	else
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"" . $x['size'] . "$\" $tabindex >\r\n";
 
-	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact` 
+	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 		$sql_extra
 		ORDER BY `name` ASC ",
@@ -150,7 +151,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 
 			$o .= "<option value=\"{$rr['id']}\" $selected title=\"{$rr['name']}|{$rr['url']}\" >$trimmed</option>\r\n";
 		}
-	
+
 	}
 
 	$o .= "</select>\r\n";
@@ -163,6 +164,8 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 
 
 function contact_select($selname, $selclass, $preselected = false, $size = 4, $privmail = false, $celeb = false, $privatenet = false, $tabindex = null) {
+
+	require_once("include/bbcode.php");
 
 	$a = get_app();
 
@@ -180,7 +183,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 	if($privmail) {
 		$sql_extra .= " AND `network` IN ( 'dfrn', 'dspr' ) ";
 	}
-	elseif($privatenet) {	
+	elseif($privatenet) {
 		$sql_extra .= " AND `network` IN ( 'dfrn', 'mail', 'face', 'dspr' ) ";
 	}
 
@@ -188,10 +191,10 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	if($privmail)
 		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\" $tabindex >\r\n";
-	else 
+	else
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"$size\" $tabindex >\r\n";
 
-	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact` 
+	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 		$sql_extra
 		ORDER BY `name` ASC ",
@@ -212,11 +215,14 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 			else
 				$selected = '';
 
-			$trimmed = mb_substr($rr['name'],0,20);
+			if($privmail)
+				$trimmed = GetProfileUsername($rr['url'], $rr['name'], false);
+			else
+				$trimmed = mb_substr($rr['name'],0,20);
 
 			$o .= "<option value=\"{$rr['id']}\" $selected title=\"{$rr['name']}|{$rr['url']}\" >$trimmed</option>\r\n";
 		}
-	
+
 	}
 
 	$o .= "</select>\r\n";

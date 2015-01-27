@@ -2243,6 +2243,10 @@ blockquote {
 #prof-separator { display: none;}
 */
 
+#message-to-select {
+  height: 150px;
+}
+
 #prvmail-upload {
   margin-left: 10px;
 }
