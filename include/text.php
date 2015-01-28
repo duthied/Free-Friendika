@@ -2,6 +2,7 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
+require_once("mod/proxy.php");
 
 if(! function_exists('replace_macros')) {
 /**
@@ -928,7 +929,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. $contact['micro'] . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
+			. proxy_url($contact['micro']) . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
 			. '" /></a></div>' . "\r\n";
 	}
 }}
