@@ -23,7 +23,7 @@ function notification($params) {
 	$site_admin = sprintf( t('%s Administrator'), $sitename);
 	$nickname = "";
 
-	$sender_name = $product;
+	$sender_name = $sitename;
 	$hostname = $a->get_hostname();
 	if(strpos($hostname,':'))
 		$hostname = substr($hostname,0,strpos($hostname,':'));
