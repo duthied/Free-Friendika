@@ -607,7 +607,7 @@ function admin_page_site(&$a) {
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
-		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], ""),
+		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], "The email address your server shall use to send notification emails from."),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$info'	=> array('info',t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at dir.friendica.com/siteinfo.')),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
