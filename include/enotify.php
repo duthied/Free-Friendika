@@ -27,8 +27,12 @@ function notification($params) {
 	$hostname = $a->get_hostname();
 	if(strpos($hostname,':'))
 		$hostname = substr($hostname,0,strpos($hostname,':'));
-
-	$sender_email = t('noreply') . '@' . $hostname;
+	
+	// $sender_email = t('noreply') . '@' . $hostname;
+	$sender_email = $a->config['sender_email'];
+	if (empty($sender_email)) {
+		$sender_email = t('noreply') . '@' . $hostname;
+	}
 
 	$user = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($params['uid']));
 	if ($user)
