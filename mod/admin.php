@@ -278,7 +278,7 @@ function admin_page_site_post(&$a){
 			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
 			$r = q($q);
 			if (!$r) {
-				notice( "Falied updating '$table_name': " . $db->error );
+				notice( "Failed updating '$table_name': " . $db->error );
 				goaway($a->get_baseurl(true) . '/admin/site' );
 			}
 		}
