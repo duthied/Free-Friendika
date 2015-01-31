@@ -28,7 +28,6 @@ function notification($params) {
 	if(strpos($hostname,':'))
 		$hostname = substr($hostname,0,strpos($hostname,':'));
 	
-	// $sender_email = t('noreply') . '@' . $hostname;
 	$sender_email = $a->config['sender_email'];
 	if (empty($sender_email)) {
 		$sender_email = t('noreply') . '@' . $hostname;
