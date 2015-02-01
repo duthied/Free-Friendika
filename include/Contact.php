@@ -312,15 +312,17 @@ function get_contact($url, $uid = 0) {
 			intval($uid));
 
 	if (!$contact)
-		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` = '%s' AND `uid` = %d",
+		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d",
+				dbesc($url),
 				dbesc(normalise_link($url)),
 				intval($uid));
 
 	if ($contact) {
 		$contactid = $contact[0]["id"];
 
-		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -2 days'));
-		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
+		// Update the contact every 7 days
+		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -7 days'));
+		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
 
 		if (!$update_photo)
 			return($contactid);
