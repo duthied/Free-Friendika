@@ -589,7 +589,7 @@ function diaspora_request($importer,$xml) {
 			intval($importer['uid'])
 		);
 
-		if((count($r)) && (! $r[0]['hide-friends']) && (! $contact['hidden'])) {
+		if((count($r)) && (!$r[0]['hide-friends']) && (!$contact['hidden']) && intval(get_pconfig($importer['uid'],'system','post_newfriend'))) {
 			require_once('include/items.php');
 
 			$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
