@@ -15,7 +15,7 @@ function user_remove($uid) {
 
 	call_hooks('remove_user',$r[0]);
 
-	// save username (actually the nickname as it is guaranteed 
+	// save username (actually the nickname as it is guaranteed
 	// unique), so it cannot be re-registered in the future.
 
 	q("insert into userd ( username ) values ( '%s' )",
@@ -191,7 +191,7 @@ if(! function_exists('contact_photo_menu')){
 function contact_photo_menu($contact) {
 
 	$a = get_app();
-	
+
 	$contact_url="";
 	$pm_url="";
 	$status_link="";
@@ -222,24 +222,24 @@ function contact_photo_menu($contact) {
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
 	$posts_link = $a->get_baseurl() . '/network/0?nets=all&cid=' . $contact['id'];
 	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
-	
+
 
 	$menu = Array(
 		'poke' => array(t("Poke"), $poke_link),
 		'status' => array(t("View Status"), $status_link),
 		'profile' => array(t("View Profile"), $profile_link),
-		'photos' => array(t("View Photos"), $photos_link),		
-		'network' => array(t("Network Posts"), $posts_link), 
+		'photos' => array(t("View Photos"), $photos_link),
+		'network' => array(t("Network Posts"), $posts_link),
 		'edit' => array(t("Edit Contact"), $contact_url),
 		'drop' => array(t("Drop Contact"), $contact_drop_link),
 		'pm' => array(t("Send PM"), $pm_url),
 	);
-	
-	
+
+
 	$args = array('contact' => $contact, 'menu' => &$menu);
-	
+
 	call_hooks('contact_photo_menu', $args);
-	
+
 /*	$o = "";
 	foreach($menu as $k=>$v){
 		if ($v!="") {
@@ -297,6 +297,7 @@ function get_contact($url, $uid = 0) {
 	require_once("include/Scrape.php");
 
 	$data = array();
+	$contactid = 0;
 
 	// is it an address in the format user@server.tld?
 	if (!strstr($url, "http") OR strstr($url, "@")) {
@@ -306,11 +307,24 @@ function get_contact($url, $uid = 0) {
 			return 0;
 	}
 
-	$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)),
 			intval($uid));
-	if ($contact)
-		return($contact[0]["id"]);
+
+	if (!$contact)
+		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` = '%s' AND `uid` = %d",
+				dbesc(normalise_link($url)),
+				intval($uid));
+
+	if ($contact) {
+		$contactid = $contact[0]["id"];
+
+		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -2 days'));
+		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
+
+		if (!$update_photo)
+			return($contactid);
+	}
 
 	if (!count($data))
 		$data = probe_url($url);
@@ -319,51 +333,65 @@ function get_contact($url, $uid = 0) {
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		return 0;
 
-	q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
-				`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
-				`batch`, `request`, `confirm`, `poco`,
-				`writable`, `blocked`, `readonly`, `pending`)
-				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
-		intval($uid),
-		dbesc(datetime_convert()),
-		dbesc($data["url"]),
-		dbesc(normalise_link($data["url"])),
-		dbesc($data["addr"]),
-		dbesc($data["alias"]),
-		dbesc($data["notify"]),
-		dbesc($data["poll"]),
-		dbesc($data["name"]),
-		dbesc($data["nick"]),
-		dbesc($data["photo"]),
-		dbesc($data["network"]),
-		dbesc($data["pubkey"]),
-		intval(CONTACT_IS_SHARING),
-		intval($data["priority"]),
-		dbesc($data["batch"]),
-		dbesc($data["request"]),
-		dbesc($data["confirm"]),
-		dbesc($data["poco"])
-	);
+	// tempory programming. Can be deleted after 2015-02-07
+	if (($data["alias"] == "") AND (normalise_link($data["url"]) != normalise_link($url)))
+		$data["alias"] = normalise_link($url);
 
-	$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
-			dbesc(normalise_link($url)),
-			intval($uid));
-	if (!$contact)
-		return 0;
+	if ($contactid == 0) {
+		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
+					`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
+					`batch`, `request`, `confirm`, `poco`,
+					`writable`, `blocked`, `readonly`, `pending`)
+					VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
+			intval($uid),
+			dbesc(datetime_convert()),
+			dbesc($data["url"]),
+			dbesc(normalise_link($data["url"])),
+			dbesc($data["addr"]),
+			dbesc($data["alias"]),
+			dbesc($data["notify"]),
+			dbesc($data["poll"]),
+			dbesc($data["name"]),
+			dbesc($data["nick"]),
+			dbesc($data["photo"]),
+			dbesc($data["network"]),
+			dbesc($data["pubkey"]),
+			intval(CONTACT_IS_SHARING),
+			intval($data["priority"]),
+			dbesc($data["batch"]),
+			dbesc($data["request"]),
+			dbesc($data["confirm"]),
+			dbesc($data["poco"])
+		);
+
+		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+				dbesc(normalise_link($data["url"])),
+				intval($uid));
+		if (!$contact)
+			return 0;
+
+		$contactid = $contact[0]["id"];
+	}
 
 	require_once("Photo.php");
 
-	$photos = import_profile_photo($data["photo"],$uid,$contact[0]["id"]);
+	$photos = import_profile_photo($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s',
+		`addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+		`name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
 		dbesc($photos[0]),
 		dbesc($photos[1]),
 		dbesc($photos[2]),
+		dbesc($data["addr"]),
+		dbesc($data["alias"]),
+		dbesc($data["name"]),
+		dbesc($data["nick"]),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
-		intval($contact[0]["id"])
+		intval($contactid)
 	);
 
-	return $contact[0]["id"];
+	return $contactid;
 }

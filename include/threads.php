@@ -66,9 +66,11 @@ function add_thread($itemid, $onlyshadow = false) {
 		if (!$r) {
 			// Preparing public shadow (removing user specific data)
 			require_once("include/items.php");
+			require_once("include/Contact.php");
+
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
-			$item[0]['contact-id'] = 0;
+			$item[0]['contact-id'] = get_contact($item[0]['author-link'], 0);
 			$public_shadow = item_store($item[0], false, false, true);
 
 			logger("add_thread: Stored public shadow for post ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
