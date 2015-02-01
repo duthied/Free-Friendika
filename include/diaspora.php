@@ -901,6 +901,60 @@ function diaspora_post($importer,$xml,$msg) {
 
 }
 
+function diaspora_store_by_guid($guid, $server) {
+	require_once("include/Contact.php");
+
+	$item = diaspora_fetch_message($guid, $server);
+
+	if (!$item)
+		return false;
+
+	$body = $item["body"];
+	$str_tags = $item["tag"];
+	$app = $item["app"];
+	$created = $item["created"];
+	$author = $item["author"];
+	$guid = $item["guid"];
+	$private = $item["private"];
+
+	$message_id = $author.':'.$guid;
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = 0 AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+		dbesc($message_id),
+		dbesc($guid)
+	);
+	if(count($r))
+                return true;
+
+	$person = find_diaspora_person_by_handle($author);
+
+        $datarray = array();
+
+	$datarray['uid'] = 0;
+	$datarray['contact-id'] = get_contact($person['url'], 0);
+	$datarray['wall'] = 0;
+	$datarray['network']  = NETWORK_DIASPORA;
+	$datarray['guid'] = $guid;
+	$datarray['uri'] = $datarray['parent-uri'] = $message_id;
+	$datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
+	$datarray['private'] = $private;
+	$datarray['parent'] = 0;
+	$datarray['plink'] = 'https://'.substr($author,strpos($author,'@')+1).'/posts/'.$guid;
+	$datarray['author-name'] = $person['name'];
+	$datarray['author-link'] = $person['url'];
+	$datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
+	$datarray['owner-name'] = $datarray['author-name'];
+	$datarray['owner-link'] = $datarray['author-link'];
+	$datarray['owner-avatar'] = $datarray['author-avatar'];
+	$datarray['body'] = $body;
+	$datarray['tag'] = $str_tags;
+	$datarray['app']  = $app;
+	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
+
+	$message_id = item_store($datarray);
+
+	return $message_id;
+}
+
 function diaspora_fetch_message($guid, $server, $level = 0) {
 
 	if ($level > 5)
