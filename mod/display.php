@@ -41,6 +41,18 @@ function display_init(&$a) {
 				$itemuid = $r[0]["uid"];
 			}
 		}
+
+		// Is it an item with uid=0?
+		if ($nick == "") {
+			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+				FROM `item` WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+					AND `item`.`private` = 0 AND `item`.`uid` = 0
+					AND `item`.`guid` = '%s'", $a->argv[1]);
+				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
 				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
@@ -250,6 +262,18 @@ function display_content(&$a, $update = 0) {
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
+				}
+			}
+			if ($nick == "") {
+				$r = q("SELECT `item`.`id` FROM `item`
+					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+						AND `item`.`private` = 0  AND `item`.`uid` = 0
+						AND `item`.`guid` = '%s'", $a->argv[1]);
+					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+				if (count($r)) {
+					$item_id = $r[0]["id"];
 				}
 			}
 		}

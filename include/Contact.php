@@ -293,3 +293,77 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
 	return $r;
 }
 
+function get_contact($url, $uid = 0) {
+	require_once("include/Scrape.php");
+
+	$data = array();
+
+	// is it an address in the format user@server.tld?
+	if (!strstr($url, "http") OR strstr($url, "@")) {
+		$data = probe_url($url);
+		$url = $data["url"];
+		if ($url == "")
+			return 0;
+	}
+
+	$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+			dbesc(normalise_link($url)),
+			intval($uid));
+	if ($contact)
+		return($contact[0]["id"]);
+
+	if (!count($data))
+		$data = probe_url($url);
+
+	// Does this address belongs to a valid network?
+	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+		return 0;
+
+	q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
+				`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
+				`batch`, `request`, `confirm`, `poco`,
+				`writable`, `blocked`, `readonly`, `pending`)
+				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
+		intval($uid),
+		dbesc(datetime_convert()),
+		dbesc($data["url"]),
+		dbesc(normalise_link($data["url"])),
+		dbesc($data["addr"]),
+		dbesc($data["alias"]),
+		dbesc($data["notify"]),
+		dbesc($data["poll"]),
+		dbesc($data["name"]),
+		dbesc($data["nick"]),
+		dbesc($data["photo"]),
+		dbesc($data["network"]),
+		dbesc($data["pubkey"]),
+		intval(CONTACT_IS_SHARING),
+		intval($data["priority"]),
+		dbesc($data["batch"]),
+		dbesc($data["request"]),
+		dbesc($data["confirm"]),
+		dbesc($data["poco"])
+	);
+
+	$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+			dbesc(normalise_link($url)),
+			intval($uid));
+	if (!$contact)
+		return 0;
+
+	require_once("Photo.php");
+
+	$photos = import_profile_photo($data["photo"],$uid,$contact[0]["id"]);
+
+	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+		dbesc($photos[0]),
+		dbesc($photos[1]),
+		dbesc($photos[2]),
+		dbesc(datetime_convert()),
+		dbesc(datetime_convert()),
+		dbesc(datetime_convert()),
+		intval($contact[0]["id"])
+	);
+
+	return $contact[0]["id"];
+}

@@ -1405,11 +1405,11 @@ if(! function_exists('get_max_import_size')) {
 if(! function_exists('profile_load')) {
 	function profile_load(&$a, $nickname, $profile = 0, $profiledata = array()) {
 
-		$user = q("select uid from user where nickname = '%s' limit 1",
+		$user = q("SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($nickname)
 		);
 
-		if(! ($user && count($user))) {
+		if(!$user && count($user) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested account is not available.') . EOL );
 			$a->error = 404;
@@ -1440,7 +1440,7 @@ if(! function_exists('profile_load')) {
 					intval($profile_int)
 			);
 		}
-		if((! $r) && (!  count($r))) {
+		if((!$r) && (!count($r))) {
 			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
@@ -1448,7 +1448,7 @@ if(! function_exists('profile_load')) {
 			);
 		}
 
-		if(($r === false) || (! count($r))) {
+		if(($r === false) || (!count($r)) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested profile is not available.') . EOL );
 			$a->error = 404;
@@ -1457,7 +1457,7 @@ if(! function_exists('profile_load')) {
 
 		// fetch user tags if this isn't the default profile
 
-		if(! $r[0]['is-default']) {
+		if(!$r[0]['is-default']) {
 			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
 					intval($r[0]['profile_uid'])
 			);

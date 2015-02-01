@@ -897,13 +897,6 @@ function diaspora_post($importer,$xml,$msg) {
 
 	$message_id = item_store($datarray);
 
-	//if($message_id) {
-	//	q("update item set plink = '%s' where id = %d",
-	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
-	//		intval($message_id)
-	//	);
-	//}
-
 	return;
 
 }
@@ -1102,7 +1095,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$orig_created = $item["created"];
 			$orig_author = $item["author"];
 			$orig_guid = $item["guid"];
-			//$create_original_post = ($body != "");
+			$create_original_post = ($body != "");
+			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
 		}
 	}
 
@@ -1164,12 +1158,13 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
 
 	// Store the original item of a reshare
-	// Deactivated by now. Items without a matching contact can't be shown via "mod/display.php" by now.
 	if ($create_original_post) {
+		require_once("include/Contact.php");
+
 		$datarray2 = $datarray;
 
 		$datarray2['uid'] = 0;
-		$datarray2['contact-id'] = 0;
+		$datarray2['contact-id'] = get_contact($person['url'], 0);
 		$datarray2['guid'] = $orig_guid;
 		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_author.':'.$orig_guid;
 		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = datetime_convert('UTC','UTC',$orig_created);
