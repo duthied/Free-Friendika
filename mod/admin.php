@@ -278,7 +278,7 @@ function admin_page_site_post(&$a){
 			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
 			$r = q($q);
 			if (!$r) {
-				notice( "Falied updating '$table_name': " . $db->error );
+				notice( "Failed updating '$table_name': " . $db->error );
 				goaway($a->get_baseurl(true) . '/admin/site' );
 			}
 		}
@@ -309,6 +309,7 @@ function admin_page_site_post(&$a){
 
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
 	$hostname 		=	((x($_POST,'hostname'))			? notags(trim($_POST['hostname']))		: '');
+	$sender_email	=	((x($_POST,'sender_email'))		? notags(trim($_POST['sender_email']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
 	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
 	$language		=	((x($_POST,'language'))			? notags(trim($_POST['language']))		: '');
@@ -415,6 +416,7 @@ function admin_page_site_post(&$a){
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('config','sitename',$sitename);
 	set_config('config','hostname',$hostname);
+	set_config('config','sender_email', $sender_email);
 	set_config('system','suppress_language',$suppress_language);
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
@@ -605,6 +607,7 @@ function admin_page_site(&$a) {
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
+		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], "The email address your server shall use to send notification emails from.", "", "", "email"),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$info'	=> array('info',t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at dir.friendica.com/siteinfo.')),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
