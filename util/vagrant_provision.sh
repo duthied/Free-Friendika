@@ -63,6 +63,13 @@ SQL="${Q1}${Q2}"
 $MYSQL -uroot -proot -e "$SQL"
 service mysql restart
 
+#configure rudimentary mail server (local delivery only)
+#add Friendica accounts for local user accounts, use email address like vagrant@friendica.dev, read the email with 'mail'.
+debconf-set-selections <<< "postfix postfix/mailname string friendica.dev"
+debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
+apt-get install -y postfix
+apt-get install mailutils
+
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
 sudo ln -fs /vagrant /var/www

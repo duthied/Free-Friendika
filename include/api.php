@@ -1643,7 +1643,8 @@
 
 
 		$user_info = api_get_user($a);
-		$ret = api_format_items($item,$user_info)[0];
+		$rets = api_format_items($item,$user_info);
+		$ret = $rets[0];
 
 		$data = array('$status' => $ret);
 		switch($type){
