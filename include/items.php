@@ -2715,6 +2715,10 @@ function item_is_remote_self($contact, &$datarray) {
 	if ($datarray["app"] == $a->get_hostname())
 		return false;
 
+	// Only forward posts
+	if ($datarray["verb"] != ACTIVITY_POST)
+		return false;
+
 	if (($contact['network'] != NETWORK_FEED) AND $datarray['private'])
 		return false;
 
