@@ -1,7 +1,7 @@
 <?php
 /**
  * Name: Vier
- * Version: 1.1
+ * Version: 1.2
  * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
  * Author: Ike <http://pirati.ca/profile/heluecht>
  * Maintainer: Ike <http://pirati.ca/profile/heluecht>

@@ -1,22 +1,10 @@
-
 <div class="vcard h-card">
 
 	<div class="tool">
 		<div class="fn label p-name">{{$profile.name}}</div>
 		{{if $profile.edit}}
 			<div class="action">
-			<a class="icon s16 edit ttright" href="#" rel="#profiles-menu" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
-			<ul id="profiles-menu" class="menu-popup">
-				{{foreach $profile.menu.entries as $e}}
-				<li>
-					<a href="profiles/{{$e.id}}"><img class="u-photo" src='{{$e.photo}}'>{{$e.profile_name}}</a>
-				</li>
-				{{/foreach}}
-				<li><a href="profile_photo" >{{$profile.menu.chg_photo}}</a></li>
-				<li><a href="profiles/new" id="profile-listing-new-link">{{$profile.menu.cr_new}}</a></li>
-				<li><a href="profiles" >{{$profile.edit.3}}</a></li>
-								
-			</ul>
+				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
 			</div>
 		{{else}}
 			{{if $profile.menu}}
@@ -24,6 +12,7 @@
 			{{/if}}
 		{{/if}}
 	</div>
+
 
 	{{if $profile.picdate}}
 		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
