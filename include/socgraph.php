@@ -20,9 +20,6 @@ require_once('include/datetime.php');
 
 
 function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
-
-	require_once("include/html2bbcode.php");
-
 	$a = get_app();
 
 	if($cid) {
@@ -110,7 +107,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			$location = $entry->currentLocation;
 
 		if(isset($entry->aboutMe))
-			$about = html2bbcode($entry->aboutMe);
+			$about = $entry->aboutMe;
 
 		if(isset($entry->gender))
 			$gender = $entry->gender;
