@@ -121,6 +121,8 @@ function admin_content(&$a) {
 	}
 
 	$aside['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
+	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', 'probe addresse', 'probe');
+	$aside['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', 'check webfinger', 'webfinger');
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
@@ -128,6 +130,7 @@ function admin_content(&$a) {
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
 			'$logtxt' => t('Logs'),
+			'$diagnosticstxt' => t('diagnostics'),
 			'$h_pending' => t('User registrations waiting for confirmation'),
 			'$admurl'=> $a->get_baseurl(true)."/admin/"
 	));
