@@ -848,7 +848,7 @@
 		// get last public wall message
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `i`.`author-link` AS `item-author`
 				FROM `item`, `item` as `i`
-				WHERE `item`.`contact-id` = %d
+				WHERE `item`.`contact-id` = %d AND `item`.`uid` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
 					AND `item`.`type`!='activity'
@@ -856,6 +856,7 @@
 				ORDER BY `item`.`created` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
+				intval(api_user()),
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url'])),
 				dbesc($user_info['url']),
