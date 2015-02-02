@@ -320,6 +320,7 @@ li.icon.icon-large:before {
 .icon-sitemap:before              { content: "\f0e8"; }
 .icon-umbrella:before             { content: "\f0e9"; }
 .icon-paste:before                { content: "\f0ea"; }
+.icon-sliders:before              { content: "\f1de"; }
 
 .icon-user-md:before              { content: "\f200"; }
 
