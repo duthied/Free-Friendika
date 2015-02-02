@@ -68,7 +68,7 @@ service mysql restart
 debconf-set-selections <<< "postfix postfix/mailname string friendica.dev"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
 apt-get install -y postfix
-apt-get install mailutils
+apt-get install mailutils libmailutils-dev
 
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
