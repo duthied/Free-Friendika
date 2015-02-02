@@ -67,8 +67,8 @@ service mysql restart
 #add Friendica accounts for local user accounts, use email address like vagrant@friendica.dev, read the email with 'mail'.
 debconf-set-selections <<< "postfix postfix/mailname string friendica.dev"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
-apt-get install -y postfix
-apt-get install mailutils libmailutils-dev
+sudo apt-get install -y postfix mailutils libmailutils-dev
+sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && sudo newaliases
 
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
