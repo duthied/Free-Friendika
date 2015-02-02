@@ -664,6 +664,12 @@ function GetProfileUsername($profile, $username, $compact = false, $getnetwork =
 	return($username);
 }
 
+function bb_DiasporaLinks($match) {
+	$a = get_app();
+
+	return "[url=".$a->get_baseurl()."/display/".$match[1]."]".$match[2]."[/url]";
+}
+
 function bb_RemovePictureLinks($match) {
 	$text = Cache::get($match[1]);
 
@@ -879,6 +885,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url]$1[/url]',$Text);
 	else
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",'[url=$1]$2[/url]',$Text);
+
+	// Handle Diaspora posts
+	$Text = preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi", 'bb_DiasporaLinks', $Text);
 
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 	if (!$forplaintext)
