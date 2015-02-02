@@ -952,6 +952,9 @@ function diaspora_store_by_guid($guid, $server) {
 
 	$message_id = item_store($datarray);
 
+	// To-Do:
+	// Looking if there is some subscribe mechanism in Diaspora to get all comments for this post
+
 	return $message_id;
 }
 
