@@ -3,6 +3,8 @@ Vagrant for Friendica Developers
 
 * [Home](help)
 
+**Getting started**
+
 [Vagrant](https://www.vagrantup.com/) is a virtualization solution for developers. No need to setup up a webserver, database etc. before actually starting. Vagrant creates a virtual machine (an Ubuntu 12.04) for you that you can just run inside VirtualBox and start to work directly on Friendica. What you need to do:
 
 1. Install VirtualBox and vagrant.
@@ -19,5 +21,19 @@ If you want to stop vagrant after finishing your work, run the following command
 		$> vagrant halt
 
 in the development directory.
+
+**Import test data**
+
+If you want some test data in your vagrant Friendica instance import the database dump friendica_test_data.sql like so (inside the VM):
+
+		$> mysql -u root -p friendica < /vagrant/friendica_test_data.sql
+
+You will then have the following accounts to login:
+
+  * admin, password admin
+  * friendica1, password friendica
+  * friendica2, password friendica2 and so on until friendica5
+  * friendica1 is connected to all others. friendica1 has two groups: group1 with friendica2 and friendica4, group2 with friendica3 and friendica5.
+  * friendica2 and friendica3 are conntected. friendica4 and friendica5 are connected. 
 
 For further documentation of vagrant, please see [the vagrant*docs*](https://docs.vagrantup.com/v2/).
