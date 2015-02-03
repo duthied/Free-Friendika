@@ -946,12 +946,11 @@ function diaspora_store_by_guid($guid, $server) {
 		dbesc($guid)
 	);
 	if(count($r))
-                return $r[0]["id"];
+		return $r[0]["id"];
 
 	$person = find_diaspora_person_by_handle($author);
 
         $datarray = array();
-
 	$datarray['uid'] = 0;
 	$datarray['contact-id'] = get_contact($person['url'], 0);
 	$datarray['wall'] = 0;
