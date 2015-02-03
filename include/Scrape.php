@@ -433,7 +433,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			// to a contact on incoming messages to prevent spam, and we won't know which one
 			// to match. So in case of two, one of them is stored as an alias. Only store URL's
 			// and not webfinger user@host aliases. If they've got more than two non-email style
-			// aliases, let's hope we're lucky and get one that matches the feed author-uri because 
+			// aliases, let's hope we're lucky and get one that matches the feed author-uri because
 			// otherwise we're screwed.
 
 			foreach($links as $link) {
@@ -448,6 +448,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					}
 				}
 			}
+
+			// If the profile is different from the url then the url is abviously an alias
+			if (($alias == "") AND ($profile != "") AND !$at_addr AND (normalise_link($profile) != normalise_link($url)))
+				$alias = $url;
 		}
 		elseif($mode == PROBE_NORMAL) {
 
