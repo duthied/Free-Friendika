@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 22:40+0100\n"
-"PO-Revision-Date: 2015-02-04 10:22+0000\n"
+"PO-Revision-Date: 2015-02-04 10:41+0000\n"
 "Last-Translator: gouttegd <damien+transifex@incenp.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -7586,17 +7586,17 @@ msgstr ""
 #: ../../include/enotify.php:324
 #, php-format
 msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
-msgstr ""
+msgstr "Vous avez reçu une [url=%1$s]demande de création de compte[/url] de %2$s."
 
 #: ../../include/enotify.php:327
 #, php-format
 msgid "Full Name:\t%1$s\\nSite Location:\t%2$s\\nLogin Name:\t%3$s (%4$s)"
-msgstr ""
+msgstr "Nom complet :\t%1$s\\nAdresse :\t%2$s\\nIdentifiant :\t%3$s (%4$s)"
 
 #: ../../include/enotify.php:330
 #, php-format
 msgid "Please visit %s to approve or reject the request."
-msgstr ""
+msgstr "Veuillez visiter %s pour approuver ou rejeter la demande."
 
 #: ../../include/oembed.php:212
 msgid "Embedded content"

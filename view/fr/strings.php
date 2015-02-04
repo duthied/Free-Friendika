@@ -1727,9 +1727,9 @@ $a->strings["'%1\$s' has chosen to accept you a \"fan\", which restricts some fo
 $a->strings["'%1\$s' may choose to extend this into a two-way or more permissive relationship in the future. "] = "";
 $a->strings["[Friendica System:Notify] registration request"] = "";
 $a->strings["You've received a registration request from '%1\$s' at %2\$s"] = "";
-$a->strings["You've received a [url=%1\$s]registration request[/url] from %2\$s."] = "";
-$a->strings["Full Name:\t%1\$s\\nSite Location:\t%2\$s\\nLogin Name:\t%3\$s (%4\$s)"] = "";
-$a->strings["Please visit %s to approve or reject the request."] = "";
+$a->strings["You've received a [url=%1\$s]registration request[/url] from %2\$s."] = "Vous avez reçu une [url=%1\$s]demande de création de compte[/url] de %2\$s.";
+$a->strings["Full Name:\t%1\$s\\nSite Location:\t%2\$s\\nLogin Name:\t%3\$s (%4\$s)"] = "Nom complet :\t%1\$s\\nAdresse :\t%2\$s\\nIdentifiant :\t%3\$s (%4\$s)";
+$a->strings["Please visit %s to approve or reject the request."] = "Veuillez visiter %s pour approuver ou rejeter la demande.";
 $a->strings["Embedded content"] = "Contenu incorporé";
 $a->strings["Embedding disabled"] = "Incorporation désactivée";
 $a->strings["Error decoding account file"] = "Une erreur a été détecté en décodant un fichier utilisateur";
