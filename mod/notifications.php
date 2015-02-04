@@ -185,7 +185,7 @@ function notifications_content(&$a) {
 						'$intro_id' => $rr['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
-						'$approve_as' => t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan" means that you allow to read but you do not want to read theirs. Approve as: '),
+						'$approve_as' => t('Choose "Friend" to allow to read and to subscribe to their posts. Choose "Fan" to allow to read if you do not want to read their posts. Approve as: '),
 						'$as_friend' => t('Friend'),
 						'$as_fan' => (($rr['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
 					));
