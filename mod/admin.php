@@ -121,7 +121,7 @@ function admin_content(&$a) {
 	}
 
 	$aside['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
-	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe addresse'), 'probe');
+	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
 	$aside['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
 
 	$t = get_markup_template("admin_aside.tpl");
