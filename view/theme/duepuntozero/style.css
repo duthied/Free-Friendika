@@ -1476,7 +1476,8 @@ blockquote.shared_content {
 .pager_last,
 .pager_prev,
 .pager_next,
-.pager_n {
+.pager_n,
+.scroll_loader_text {
 	border: 1px solid black;
 	background: #EEE;
 	padding: 4px;

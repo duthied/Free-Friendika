@@ -385,6 +385,18 @@ function alt_pager(&$a, $i) {
 
 }}
 
+if(! function_exists('scroll_loader')) {
+/**
+ * Loader for infinite scrolling
+ * @return string html for loader
+ */
+function scroll_loader() {
+	$tpl = get_markup_template("scroll_loader.tpl");
+	return replace_macros($tpl, array(
+		'wait' => t('Loading more entries...'),
+		'end' => t('The end')
+	));
+}}
 
 if(! function_exists('expand_acl')) {
 /**
