@@ -485,10 +485,25 @@ function profiles_post(&$a) {
 		}
 
 		if($is_default) {
+			$location = $locality;
+
+			if ($region != "") {
+				if ($location != "")
+					$location .= ", ";
+
+				$location .= $region;
+			}
+
+			if ($country_name != "") {
+				if ($location != "")
+					$location .= ", ";
+
+				$location .= $country_name;
+			}
 
 			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($about),
-				dbesc($locality),
+				dbesc($location),
 				dbesc($pub_keywords),
 				dbesc($gender),
 				intval(local_user())

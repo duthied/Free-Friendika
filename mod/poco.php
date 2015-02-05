@@ -102,7 +102,8 @@ function poco_init(&$a) {
 			intval($itemsPerPage)
 		);
 	} elseif($system_mode) {
-		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
+			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
@@ -151,7 +152,8 @@ function poco_init(&$a) {
 		'currentLocation' => false,
 		'network' => false,
 		'gender' => false,
-		'tags' => false
+		'tags' => false,
+		'address' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -169,8 +171,24 @@ function poco_init(&$a) {
 				if (($rr['about'] == "") AND isset($rr['pabout']))
 					$rr['about'] = $rr['pabout'];
 
-				if (($rr['location'] == "") AND isset($rr['plocation']))
-					$rr['location'] = $rr['plocation'];
+				if ($rr['location'] == "") {
+					if (isset($rr['plocation']))
+						$rr['location'] = $rr['plocation'];
+
+					if (isset($rr['pregion']) AND ($rr['pregion'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pregion'];
+					}
+
+					if (isset($rr['pcountry']) AND ($rr['pcountry'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pcountry'];
+					}
+				}
 
 				if (($rr['gender'] == "") AND isset($rr['pgender']))
 					$rr['gender'] = $rr['pgender'];
@@ -234,6 +252,26 @@ function poco_init(&$a) {
 					}
 
 					$entry['tags'] = array($cleaned);
+				}
+				if($fields_ret['address']) {
+					$entry['address'] = array();
+
+					// Deactivated. It just reveals too much data. (Although its from the default profile)
+					//if (isset($rr['paddress']))
+					//	 $entry['address']['streetAddress'] = $rr['paddress'];
+
+					if (isset($rr['plocation']))
+						 $entry['address']['locality'] = $rr['plocation'];
+
+					if (isset($rr['pregion']))
+						 $entry['address']['region'] = $rr['pregion'];
+
+					// See above
+					//if (isset($rr['ppostalcode']))
+					//	 $entry['address']['postalCode'] = $rr['ppostalcode'];
+
+					if (isset($rr['pcountry']))
+						 $entry['address']['country'] = $rr['pcountry'];
 				}
 
 				$ret['entry'][] = $entry;
