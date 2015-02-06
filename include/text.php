@@ -276,17 +276,17 @@ function paginate_data(&$a, $count=null) {
 	$stripped = trim($stripped,'/');
 	$pagenum = $a->pager['page'];
 
-	if (($a->page_offset != "") AND !strstr($stripped, "&offset="))
+	if (($a->page_offset != "") AND !preg_match('/[?&].offset=/', $stripped))
 		$stripped .= "&offset=".urlencode($a->page_offset);
-	if (!strpos($stripped, "?")) {
-		if ($pos = strpos($stripped, "&"))
-			$stripped = substr($stripped, 0, $pos)."?".substr($stripped, $pos + 1);
-	}
 
 	$url = $a->get_baseurl() . '/' . $stripped;
 
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
+		if (!strpos($url, "?")) {
+			if ($pos = strpos($url, "&"))
+				$url = substr($url, 0, $pos)."?".substr($url, $pos + 1);
+		}
 
 		$d[$name] = array('url'=>$url, 'text'=>$text, 'class'=>$class);
 	}
