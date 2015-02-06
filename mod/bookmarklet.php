@@ -32,7 +32,7 @@ function bookmarklet_content(&$a) {
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
-			'title' => $_REQUEST["title"],
+			'title' => trim($_REQUEST["title"], "*"),
 			'content' => $content
 		);
 		$o = status_editor($a,$x, 0, false);
