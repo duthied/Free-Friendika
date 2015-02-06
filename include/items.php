@@ -2093,9 +2093,16 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		if($elems['name'][0]['attribs'][NAMESPACE_DFRN]['updated']) {
 			$name_updated = $elems['name'][0]['attribs'][NAMESPACE_DFRN]['updated'];
 			$new_name = $elems['name'][0]['data'];
+
+			// Manually checking for changed contact names
+			if (($new_name != $contact['name']) AND ($new_name != "") AND ($name_updated <= $contact['name-date'])) {
+				$name_updated = date("c");
+				$photo_timestamp = date("c");
+			}
 		}
 		if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo') && ($elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated'])) {
-			$photo_timestamp = datetime_convert('UTC','UTC',$elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated']);
+			if ($photo_timestamp == "")
+				$photo_timestamp = datetime_convert('UTC','UTC',$elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated']);
 			$photo_url = $elems['link'][0]['attribs']['']['href'];
 		}
 
@@ -2812,9 +2819,16 @@ function local_delivery($importer,$data) {
 		if($elems['name'][0]['attribs'][NAMESPACE_DFRN]['updated']) {
 			$name_updated = $elems['name'][0]['attribs'][NAMESPACE_DFRN]['updated'];
 			$new_name = $elems['name'][0]['data'];
+
+			// Manually checking for changed contact names
+			if (($new_name != $importer['name']) AND ($new_name != "") AND ($name_updated <= $importer['name-date'])) {
+				$name_updated = date("c");
+				$photo_timestamp = date("c");
+			}
 		}
 		if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo') && ($elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated'])) {
-			$photo_timestamp = datetime_convert('UTC','UTC',$elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated']);
+			if ($photo_timestamp == "")
+				$photo_timestamp = datetime_convert('UTC','UTC',$elems['link'][0]['attribs'][NAMESPACE_DFRN]['updated']);
 			$photo_url = $elems['link'][0]['attribs']['']['href'];
 		}
 	}
