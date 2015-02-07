@@ -1,3 +1,32 @@
+Version 3.3.3
+    
+	More separation between php and html in photo album (issue #1258) (rabuzarus)
+	Enhanced community page shows pubblic posts from public contacts of public profiles (annando)
+	Support for IndieAuth/Web-sign-in (hauke)
+	New hooks "emailer_send_prepare" and "emailer_send" (fabrixxm)
+	New hook "oembed_fetch_url" (annando)
+	Add un/ignore function to quattro theme (tobiasd)
+	Enanched POCO data (annando)
+	Use HTML5 features to validate inputs in install wizard and in some settings fields (tobiasd)
+	Option to receive text-only notification emails (fabrixxm)
+	Better OStatus support (annando)
+	Share-it button support (annando)
+	More reliable reshare to Diaspora (annando)
+	Load more images via proxy (annando)
+	util/typo.php uses "php -l" insead of "eval()" to validate code (fabrixxm)
+	Use $_SERVER array in cli script instead of $argv/$argc (issue #1218) (annando)
+	Updated vagrant setup script (silke)
+	API: support to star/unstar items (fabrixxm)
+	API: attachments for better AndStatus support (annando)
+	Fix missing spaces in photo URLs (issue #920) (annando)
+	Fix avatar for "remote-self" items (annando)
+	Fix encodings issues with scrape functionality (annando)
+	Fix site info scaping when URL points to big file (annando)
+	Fix tools for translations (ddorian1)
+	Fix API login via LDAP (issue #1286) (fabrixxm)
+	Fix to link URL in tabs, pager (issues #1341, #1190) (ddorian1)
+	Better documentation for developers (silke)
+
 Version 3.3.2
 
 	Set default value for all not-null fields (fixes SQL warinigs) (annando)
