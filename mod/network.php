@@ -627,7 +627,7 @@ die("ss");
 
 	}
 	else {
-		if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
+		if(get_config('system', 'old_pager')) {
 		        $r = q("SELECT COUNT(*) AS `total`
 			        FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
 			        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -815,10 +815,9 @@ die("ss");
 	$o .= conversation($a,$items,$mode,$update);
 
 	if(!$update) {
-		if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+		if(!get_config('system', 'old_pager')) {
 		        $o .= alt_pager($a,count($items));
-		}
-		else {
+		} else {
 		        $o .= paginate($a);
 		}
 	}

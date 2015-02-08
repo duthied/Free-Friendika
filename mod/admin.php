@@ -372,6 +372,8 @@ function admin_page_site_post(&$a){
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
+	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
+
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -499,6 +501,7 @@ function admin_page_site_post(&$a){
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
 	set_config('system','proxy_disabled', $proxy_disabled);
+	set_config('system','old_pager', $old_pager);
 
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
@@ -664,6 +667,7 @@ function admin_page_site(&$a) {
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), "If you have a restricted system where the webserver can't access the system temp path, enter another path here."),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
+		'$old_pager'		=> array('old_pager', t("Enable old style pager"), get_config('system','old_pager'), t("The old style pager has page numbers but slows down massively the page speed.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
 	'$form_security_token' => get_form_security_token("admin_site")
