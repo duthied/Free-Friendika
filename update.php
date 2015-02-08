@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1178 );
+define( 'UPDATE_VERSION' , 1179 );
 
 /**
  *
@@ -1629,4 +1629,11 @@ function update_1177() {
 				intval($profile["uid"])
 			);
 	}
+}
+
+function update_1178() {
+	// Update the central item storage with uid=0
+	proc_run('php',"include/threadupdate.php");
+
+	return UPDATE_SUCCESS;
 }
