@@ -127,6 +127,11 @@ define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
 
+// Type of the community page
+define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
+define ( 'CP_USERS_ON_SERVER',     0 );
+define ( 'CP_GLOBAL_COMMUNITY',    1 );
+
 /**
  * Network and protocol family types
  */

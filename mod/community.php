@@ -19,7 +19,7 @@ function community_content(&$a, $update = 0) {
 		return;
 	}
 
-	if(get_config('system','no_community_page')) {
+	if(get_config('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
 		notice( t('Not available.') . EOL);
 		return;
 	}

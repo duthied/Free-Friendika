@@ -1632,6 +1632,9 @@ function update_1177() {
 }
 
 function update_1178() {
+	if (get_config('system','no_community_page'))
+		set_config('system','community_page_style', CP_NO_COMMUNITY_PAGE);
+
 	// Update the central item storage with uid=0
 	proc_run('php',"include/threadupdate.php");
 
