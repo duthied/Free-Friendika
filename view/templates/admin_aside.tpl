@@ -41,7 +41,7 @@
 </ul>
 
 <h4>{{$diagnosticstxt}}</h4>
-<ul class'admin linklist'>
+<ul class='admin linklist'>
 	<li class='admin link {{$admin.diagnostics_probe.2}}'><a href="{{$admin.diagnostics_probe.0}}">{{$admin.diagnostics_probe.1}}</a></li>
 	<li class='admin link {{$admin.diagnostics_webfinger.2}}'><a href="{{$admin.diagnostics_webfinger.0}}">{{$admin.diagnostics_webfinger.1}}</a></li>
 </ul>
