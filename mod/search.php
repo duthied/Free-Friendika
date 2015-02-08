@@ -130,8 +130,8 @@ function search_content(&$a) {
 	if($tag) {
 		$sql_extra = "";
 
-		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d) AS `term` ON `item`.`id` = `term`.`oid` ",
-					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` IN (%d, 0)) AS `term` ON `item`.`id` = `term`.`oid` ",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 
 		$sql_order = "`item`.`id`";
 	} else {
