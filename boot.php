@@ -1673,8 +1673,20 @@ if(! function_exists('profile_sidebar')) {
 
 		if (!$block){
 			$contact_block = contact_block();
-		}
 
+			if(is_array($a->profile) AND !$a->profile['hide-friends']) {
+				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+						AND `network` IN ('%s', '%s', '%s', '%s', '')",
+					intval($a->profile['uid']),
+					dbesc(NETWORK_DFRN),
+					dbesc(NETWORK_DIASPORA),
+					dbesc(NETWORK_OSTATUS),
+					dbesc(NETWORK_STATUSNET)
+				);
+				if(count($r))
+					$contacts = intval($r[0]['total']);
+			}
+		}
 
 		$p = array();
 		foreach($profile as $k => $v) {
@@ -1699,6 +1711,7 @@ if(! function_exists('profile_sidebar')) {
 			'$homepage' => $homepage,
 			'$about' => $about,
 			'$network' =>  t('Network:'),
+			'$contacts' => $contacts,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
 		));
