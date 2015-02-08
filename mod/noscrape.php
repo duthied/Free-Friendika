@@ -2,9 +2,6 @@
 
 function noscrape_init(&$a) {
 
-	if(get_config('system','disable_noscrape'))
-		killme();
-
 	if($a->argc > 1)
 		$which = $a->argv[1];
 	else
