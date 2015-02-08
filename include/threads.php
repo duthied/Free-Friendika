@@ -20,8 +20,8 @@ function add_thread($itemid, $onlyshadow = false) {
 	}
 
 	// Store a shadow copy of public items for displaying a global community page?
-	if (!get_config('system', 'global_community'))
-		return;
+	//if (!get_config('system', 'global_community'))
+	//	return;
 
 	// is it already a copy?
 	if (($itemid == 0) OR ($item['uid'] == 0))
