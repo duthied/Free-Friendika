@@ -44,7 +44,7 @@ function community_content(&$a, $update = 0) {
 	// Only public posts can be shown
 	// OR your own posts if you are a logged in member
 
-	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
+	if(get_config('system', 'old_pager')) {
 		$r = q("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -103,10 +103,9 @@ function community_content(&$a, $update = 0) {
 
 	$o .= conversation($a,$s,'community',$update);
 
-	if(get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+	if(!get_config('system', 'old_pager')) {
 	        $o .= alt_pager($a,count($r));
-	}
-	else {
+	} else {
 	        $o .= paginate($a);
 	}
 

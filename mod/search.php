@@ -150,7 +150,7 @@ function search_content(&$a) {
 	// OR your own posts if you are a logged in member
 	// No items will be shown if the member has a blocked profile wall.
 
-	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
+	if(get_config('system', 'old_pager')) {
 	        $r = q("SELECT distinct(`item`.`uri`) as `total`
 		        FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -205,10 +205,9 @@ function search_content(&$a) {
 
 	$o .= conversation($a,$r,'search',false);
 
-	if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+	if(!get_config('system', 'old_pager')) {
 	        $o .= alt_pager($a,count($r));
-	}
-	else {
+	} else {
 	        $o .= paginate($a);
 	}
 
