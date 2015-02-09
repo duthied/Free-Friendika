@@ -130,8 +130,8 @@ function search_content(&$a) {
 	if($tag) {
 		$sql_extra = "";
 
-		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d) AS `term` ON `item`.`id` = `term`.`oid` ",
-					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
+		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` IN (%d, 0)) AS `term` ON `item`.`id` = `term`.`oid` ",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 
 		$sql_order = "`item`.`id`";
 	} else {
@@ -154,14 +154,12 @@ function search_content(&$a) {
 	        $r = q("SELECT distinct(`item`.`uri`) as `total`
 		        FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0)
-			        OR ( `item`.`uid` = %d ))
+		        AND ((`item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid` = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `item`.`uid` = 0)
+			        OR (`item`.`uid` = %d))
 		        $sql_extra ",
 		        intval(local_user())
 	        );
-//		        $sql_extra group by `item`.`uri` ",
 
 	        if(count($r))
 		        $a->set_pager_total(count($r));
@@ -174,23 +172,21 @@ function search_content(&$a) {
 
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`, `user`.`uid`, `user`.`hidewall`
+		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 		FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 		WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-		AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0 ) 
-			OR ( `item`.`uid` = %d ))
-		$sql_extra GROUP BY `item`.`uri`
+		AND ((`item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid` = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `item`.`uid`=0)
+			OR `item`.`uid` = %d)
+		$sql_extra
+		GROUP BY `item`.`uri`
 		ORDER BY $sql_order DESC LIMIT %d , %d ",
 		intval(local_user()),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 
 	);
-//		group by `item`.`uri`
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);
