@@ -19,10 +19,6 @@ function add_thread($itemid, $onlyshadow = false) {
 		logger("add_thread: Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 	}
 
-	// Store a shadow copy of public items for displaying a global community page?
-	if (!get_config('system', 'global_community'))
-		return;
-
 	// is it already a copy?
 	if (($itemid == 0) OR ($item['uid'] == 0))
 		return;

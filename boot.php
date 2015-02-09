@@ -18,7 +18,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Ginger');
 define ( 'FRIENDICA_VERSION',      '3.3.3-RC' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1178      );
+define ( 'DB_UPDATE_VERSION',      1179      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -126,6 +126,11 @@ define ( 'PAGE_COMMUNITY',         2 );
 define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
+
+// Type of the community page
+define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
+define ( 'CP_USERS_ON_SERVER',     0 );
+define ( 'CP_GLOBAL_COMMUNITY',    1 );
 
 /**
  * Network and protocol family types

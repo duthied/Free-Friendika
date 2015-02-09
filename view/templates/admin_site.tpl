@@ -48,6 +48,8 @@
 	{{include file="field_input.tpl" field=$hostname}}
 	{{include file="field_input.tpl" field=$sender_email}}
 	{{include file="field_textarea.tpl" field=$banner}}
+	{{include file="field_input.tpl" field=$shortcut_icon}}
+	{{include file="field_input.tpl" field=$touch_icon}}
 	{{include file="field_textarea.tpl" field=$info}}
 	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
@@ -81,7 +83,8 @@
 	{{include file="field_input.tpl" field=$allowed_email}}
 	{{include file="field_checkbox.tpl" field=$block_public}}
 	{{include file="field_checkbox.tpl" field=$force_publish}}
-	{{include file="field_checkbox.tpl" field=$no_community_page}}
+	{{include file="field_select.tpl" field=$community_page_style}}
+	{{include file="field_input.tpl" field=$max_author_posts_community_page}}
 	{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
 	{{include file="field_select.tpl" field=$ostatus_poll_interval}}
 	{{include file="field_checkbox.tpl" field=$diaspora_enabled}}
@@ -109,9 +112,11 @@
 	{{include file="field_input.tpl" field=$temppath}}
 	{{include file="field_input.tpl" field=$basepath}}
 	{{include file="field_checkbox.tpl" field=$suppress_language}}
+	{{include file="field_checkbox.tpl" field=$suppress_tags}}
 
 	<h3>{{$performance}}</h3>
 	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}
+	{{include file="field_checkbox.tpl" field=$only_tag_search}}
 	{{include file="field_input.tpl" field=$itemcache}}
 	{{include file="field_input.tpl" field=$itemcache_duration}}
 	{{include file="field_input.tpl" field=$max_comments}}

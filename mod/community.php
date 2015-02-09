@@ -19,7 +19,7 @@ function community_content(&$a, $update = 0) {
 		return;
 	}
 
-	if(get_config('system','no_community_page')) {
+	if(get_config('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
 		notice( t('Not available.') . EOL);
 		return;
 	}
@@ -113,8 +113,7 @@ function community_content(&$a, $update = 0) {
 }
 
 function community_getitems($start, $itemspage) {
-	// Work in progress
-	if (get_config('system', 'global_community'))
+	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		return(community_getpublicitems($start, $itemspage));
 
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,

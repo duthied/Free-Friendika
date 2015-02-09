@@ -1183,12 +1183,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	//$Text = str_replace('<br /><li>','<li>', $Text);
 	//	$Text = str_replace('<br /><ul','<ul ', $Text);
 
-	// Remove all hashtag addresses
-/*	if (!$tryoembed AND get_config("system", "remove_hashtags_on_export")) {
-		$pattern = '/#<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
-		$Text = preg_replace($pattern, '#$2', $Text);
-	}
-*/
 	call_hooks('bbcode',$Text);
 
 	$a->save_timestamp($stamp1, "parser");
