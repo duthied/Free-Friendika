@@ -1499,7 +1499,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	create_tags_from_item($current_post, $dontcache);
+	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
 
 	// Only check for notifications on start posts
@@ -4668,8 +4668,8 @@ function drop_item($id,$interactive = true) {
 				dbesc($item['parent-uri']),
 				intval($item['uid'])
 			);
-			create_tags_from_item($item['parent-uri'], $item['uid']);
-			create_files_from_item($item['parent-uri'], $item['uid']);
+			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
+			create_files_from_itemuri($item['parent-uri'], $item['uid']);
 			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		}
