@@ -1395,50 +1395,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
-
-		// Only check for notifications on start posts
-		if ($arr['parent-uri'] === $arr['uri']) {
-			add_thread($r[0]['id']);
-			logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-
-			// Send a notification for every new post?
-			$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-				intval($arr['contact-id']),
-				intval($arr['uid'])
-			);
-
-			if(count($r)) {
-				logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-				$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
-					intval($arr['uid']));
-
-				$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
-					intval($current_post),
-					intval($arr['uid'])
-				);
-
-				$a = get_app();
-
-				require_once('include/enotify.php');
-				notification(array(
-					'type'         => NOTIFY_SHARE,
-					'notify_flags' => $u[0]['notify-flags'],
-					'language'     => $u[0]['language'],
-					'to_name'      => $u[0]['username'],
-					'to_email'     => $u[0]['email'],
-					'uid'          => $u[0]['uid'],
-					'item'         => $item[0],
-					'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
-					'source_name'  => $item[0]['author-name'],
-					'source_link'  => $item[0]['author-link'],
-					'source_photo' => $item[0]['author-avatar'],
-					'verb'         => ACTIVITY_TAG,
-					'otype'        => 'item'
-				));
-				logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-			}
-		}
-
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
@@ -1494,7 +1450,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		dbesc(datetime_convert()),
 		intval($parent_id)
 	);
-	update_thread($parent_id);
 
 	if($dsprsig) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
@@ -1546,6 +1501,50 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	create_tags_from_item($current_post, $dontcache);
 	create_files_from_item($current_post);
+
+	// Only check for notifications on start posts
+	if ($arr['parent-uri'] === $arr['uri']) {
+		add_thread($current_post);
+		logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+
+		// Send a notification for every new post?
+		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
+			intval($arr['contact-id']),
+			intval($arr['uid'])
+		);
+
+		if(count($r)) {
+			logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+			$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
+				intval($arr['uid']));
+
+			$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
+				intval($current_post),
+				intval($arr['uid'])
+			);
+
+			$a = get_app();
+
+			require_once('include/enotify.php');
+			notification(array(
+				'type'         => NOTIFY_SHARE,
+				'notify_flags' => $u[0]['notify-flags'],
+				'language'     => $u[0]['language'],
+				'to_name'      => $u[0]['username'],
+				'to_email'     => $u[0]['email'],
+				'uid'          => $u[0]['uid'],
+				'item'         => $item[0],
+				'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
+				'source_name'  => $item[0]['author-name'],
+				'source_link'  => $item[0]['author-link'],
+				'source_photo' => $item[0]['author-avatar'],
+				'verb'         => ACTIVITY_TAG,
+				'otype'        => 'item'
+			));
+			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+		}
+	} else
+		update_thread($parent_id);
 
 	if ($notify)
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
