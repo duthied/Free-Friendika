@@ -94,7 +94,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 			$newurl = $new_location_info["scheme"]."://".$new_location_info["host"].$old_location_info["path"];
 
 		$matches = array();
-		if (preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches)) {
+		if (preg_match('/(Location:|URI:)(.*?)\n/i', $header, $matches)) {
 			$newurl = trim(array_pop($matches));
 		}
 		if(strpos($newurl,'/') === 0)
