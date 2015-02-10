@@ -1480,16 +1480,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if (!$deleted AND !$dontcache) {
 
 		// Store the fresh generated item into the cache
-		$cachefile = get_cachefile(urlencode($arr["guid"])."-".hash("md5", $arr['body']));
-
-		if (($cachefile != '') AND !file_exists($cachefile)) {
-			$s = prepare_text($arr['body']);
-			$a = get_app();
-			$stamp1 = microtime(true);
-			file_put_contents($cachefile, $s);
-			$a->save_timestamp($stamp1, "file");
-			logger('item_store: put item '.$current_post.' into cachefile '.$cachefile);
-		}
+		put_item_in_cache($arr);
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {

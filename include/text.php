@@ -1281,6 +1281,18 @@ function redir_private_images($a, &$item) {
 
 }}
 
+function put_item_in_cache($item) {
+	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
+
+	if (($cachefile != '') AND !file_exists($cachefile)) {
+		$s = prepare_text($item['body']);
+		$a = get_app();
+		$stamp1 = microtime(true);
+		file_put_contents($cachefile, $s);
+		$a->save_timestamp($stamp1, "file");
+		logger('put item '.$item["guid"].' into cachefile '.$cachefile);
+	}
+}
 
 // Given an item array, convert the body element from bbcode to html and add smilie icons.
 // If attach is true, also add icons for item attachments
