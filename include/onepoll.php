@@ -176,7 +176,7 @@ function onepoll_run(&$argv, &$argc){
 			return;
 		}
 
-		if(! strstr($handshake_xml,'<?xml')) {
+		if(! strstr($handshake_xml,'<')) {
 			logger('poller: response from ' . $url . ' did not contain XML.');
 
 			mark_for_death($contact);
@@ -537,7 +537,7 @@ function onepoll_run(&$argv, &$argc){
 
 	if($xml) {
 		logger('poller: received xml : ' . $xml, LOGGER_DATA);
-		if((! strstr($xml,'<?xml')) && (! strstr($xml,'<rss'))) {
+		if(! strstr($xml,'<')) {
 			logger('poller: post_handshake: response from ' . $url . ' did not contain XML.');
 			$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
 				dbesc(datetime_convert()),
