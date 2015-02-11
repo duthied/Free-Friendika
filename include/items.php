@@ -1503,8 +1503,23 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			intval($arr['contact-id']),
 			intval($arr['uid'])
 		);
+		$send_notification = count($r);
 
-		if(count($r)) {
+		if (!$send_notification) {
+			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
+				intval(TERM_OBJ_POST), intval($current_post), intval(TERM_MENTION), intval($arr['uid']));
+
+			if (count($tags)) {
+				foreach ($tags AS $tag) {
+					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
+						normalise_link($tag["url"]), intval($arr['uid']));
+					if (count($r))
+						$send_notification = true;
+				}
+			}
+		}
+
+		if ($send_notification) {
 			logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 			$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
 				intval($arr['uid']));
