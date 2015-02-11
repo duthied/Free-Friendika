@@ -203,12 +203,11 @@ function localize_item(&$item){
 
 		// we can't have a translation string with three positions but no distinguishable text
 		// So here is the translate string.
-
 		$txt = t('%1$s poked %2$s');
-
+		
 		// now translate the verb
-
-		$txt = str_replace( t('poked'), t($verb), $txt);
+		$poked_t = trim(sprintf($txt, "",""));
+		$txt = str_replace( $poked_t, t($verb), $txt);
 
 		// then do the sprintf on the translation string
 
