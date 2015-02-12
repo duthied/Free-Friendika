@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-09 08:57+0100\n"
-"PO-Revision-Date: 2015-02-10 06:45+0000\n"
+"PO-Revision-Date: 2015-02-11 09:48+0000\n"
 "Last-Translator: Matthew Exon <transifex.mexon@spamgourmet.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -1948,7 +1948,7 @@ msgstr "本网站用户的公开文章"
 
 #: ../../mod/admin.php:564
 msgid "Global community page"
-msgstr ""
+msgstr "全球社会页"
 
 #: ../../mod/admin.php:570
 msgid "At post arrival"
@@ -2048,11 +2048,11 @@ msgstr "标题/标志"
 
 #: ../../mod/admin.php:633
 msgid "Shortcut icon"
-msgstr ""
+msgstr "捷径小图片"
 
 #: ../../mod/admin.php:634
 msgid "Touch icon"
-msgstr ""
+msgstr "触摸小图片"
 
 #: ../../mod/admin.php:635
 msgid "Additional Info"
@@ -2340,23 +2340,23 @@ msgstr "用PHP UTF8正则表达式"
 
 #: ../../mod/admin.php:667
 msgid "Community Page Style"
-msgstr ""
+msgstr "社会页款式"
 
 #: ../../mod/admin.php:667
 msgid ""
 "Type of community page to show. 'Global community' shows every public "
 "posting from an open distributed network that arrived on this server."
-msgstr ""
+msgstr "社会页种类将显示。“全球社会”显示所有公开的文章从某网络到达本服务器。"
 
 #: ../../mod/admin.php:668
 msgid "Posts per user on community page"
-msgstr ""
+msgstr "个用户文章数量在社会页"
 
 #: ../../mod/admin.php:668
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "'Global Community')"
-msgstr ""
+msgstr "一个用户最多文章在社会页。（无效在“全球社会”）"
 
 #: ../../mod/admin.php:669
 msgid "Enable OStatus support"
@@ -2474,11 +2474,11 @@ msgstr "遗漏语言消息从文章的描述"
 
 #: ../../mod/admin.php:683
 msgid "Suppress Tags"
-msgstr ""
+msgstr "压制标签"
 
 #: ../../mod/admin.php:683
 msgid "Suppress showing a list of hashtags at the end of the posting."
-msgstr ""
+msgstr "别显示主題標籤列表在文章后面。"
 
 #: ../../mod/admin.php:684
 msgid "Path to item cache"

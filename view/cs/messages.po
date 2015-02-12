@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-09 08:57+0100\n"
-"PO-Revision-Date: 2015-02-09 17:39+0000\n"
+"PO-Revision-Date: 2015-02-11 19:36+0000\n"
 "Last-Translator: Michal Šupler <msupler@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/projects/p/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -1949,7 +1949,7 @@ msgstr "Komunitní stránka neexistuje"
 
 #: ../../mod/admin.php:563
 msgid "Public postings from users of this site"
-msgstr ""
+msgstr "Počet veřejných příspěvků od uživatele na této stránce"
 
 #: ../../mod/admin.php:564
 msgid "Global community page"
@@ -2057,7 +2057,7 @@ msgstr "Ikona zkratky"
 
 #: ../../mod/admin.php:634
 msgid "Touch icon"
-msgstr ""
+msgstr "Dotyková ikona"
 
 #: ../../mod/admin.php:635
 msgid "Additional Info"
@@ -2351,17 +2351,17 @@ msgstr "Styl komunitní stránky"
 msgid ""
 "Type of community page to show. 'Global community' shows every public "
 "posting from an open distributed network that arrived on this server."
-msgstr ""
+msgstr "Typ komunitní stránky k zobrazení. 'Glogální komunita' zobrazuje každý veřejný příspěvek z otevřené distribuované sítě, která dorazí na tento server."
 
 #: ../../mod/admin.php:668
 msgid "Posts per user on community page"
-msgstr ""
+msgstr "Počet příspěvků na komunitní stránce"
 
 #: ../../mod/admin.php:668
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "'Global Community')"
-msgstr ""
+msgstr "Maximální počet příspěvků na uživatele na komunitní sptránce. (neplatí pro 'Globální komunitu')"
 
 #: ../../mod/admin.php:669
 msgid "Enable OStatus support"
@@ -2483,7 +2483,7 @@ msgstr "Potlačit štítky"
 
 #: ../../mod/admin.php:683
 msgid "Suppress showing a list of hashtags at the end of the posting."
-msgstr ""
+msgstr "Potlačit zobrazení listu hastagů na konci zprávy."
 
 #: ../../mod/admin.php:684
 msgid "Path to item cache"
@@ -2531,21 +2531,21 @@ msgstr "Obrázková proxi zvyšuje výkonnost a soukromí. Neměla by být použ
 
 #: ../../mod/admin.php:691
 msgid "Enable old style pager"
-msgstr ""
+msgstr "Aktivovat \"old style\" stránkování "
 
 #: ../../mod/admin.php:691
 msgid ""
 "The old style pager has page numbers but slows down massively the page "
 "speed."
-msgstr ""
+msgstr " \"old style\" stránkování zobrazuje čísla stránek ale značně zpomaluje rychlost stránky."
 
 #: ../../mod/admin.php:692
 msgid "Only search in tags"
-msgstr ""
+msgstr "Hledat pouze ve štítkách"
 
 #: ../../mod/admin.php:692
 msgid "On large systems the text search can slow down the system extremely."
-msgstr ""
+msgstr "Textové vyhledávání může u rozsáhlých systémů znamenat velmi citelné zpomalení systému."
 
 #: ../../mod/admin.php:694
 msgid "New base url"
@@ -2646,7 +2646,7 @@ msgid ""
 "\t\t\tyou to make some new and interesting friends.\n"
 "\n"
 "\t\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\t\tVaše přihlašovací údaje jsou následující:\n\n\t\t\tAdresa webu: \t%1$s\n\t\t\tpřihlašovací jméno:\t\t%2$s\n\t\t\theslo:\t\t%3$s\n\n\t\t\tHeslo si můžete změnit na stránce \"Nastavení\" vašeho účtu poté, co se přihlásíte.\n\n\t\t\tProsím věnujte pár chvil revizi dalšího nastavení vašeho účtu na dané stránce.\n\n\t\t\tTaké su můžete přidat nějaké základní informace do svého výchozího profilu (na stránce \"Profily\"), takže ostatní lidé vás snáze najdou. \n\n\t\t\tDoporučujeme Vám uvést celé jméno a i foto. Přidáním nějakých \"klíčových slov\" (velmi užitečné pro hledání nových přátel) a možná také zemi, ve které žijete, pokud nechcete být více konkrétní.\n\n\t\t\tPlně resepktujeme vaše právo na soukromí a nic z výše uvedeného není povinné. Pokud jste zde nový a neznáte zde nikoho, uvedením daných informací můžete získat nové přátele.\n\n\t\t\tDíky a vítejte na %4$s."
 
 #: ../../mod/admin.php:838 ../../include/user.php:413
 #, php-format
@@ -6880,7 +6880,7 @@ msgstr "Konverzace na tomto webu"
 
 #: ../../include/nav.php:131
 msgid "Conversations on the network"
-msgstr ""
+msgstr "Konverzace v síti"
 
 #: ../../include/nav.php:133
 msgid "Directory"
