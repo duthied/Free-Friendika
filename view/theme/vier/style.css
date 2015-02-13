@@ -203,7 +203,8 @@ div.pager a {
 }
  
 span.pager_first a, span.pager_n a, 
-span.pager_last a, span.pager_prev a, span.pager_next a {
+span.pager_last a, span.pager_prev a, span.pager_next a,
+span.scroll_loader_text {
   color: darkgray;
 }
 

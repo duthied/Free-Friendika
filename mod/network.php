@@ -815,7 +815,9 @@ die("ss");
 	$o .= conversation($a,$items,$mode,$update);
 
 	if(!$update) {
-		if(!get_config('system', 'old_pager')) {
+		if(get_pconfig(local_user(),'system','infinite_scroll')) {
+				$o .= scroll_loader();
+		} elseif(!get_config('system', 'old_pager')) {
 		        $o .= alt_pager($a,count($items));
 		} else {
 		        $o .= paginate($a);

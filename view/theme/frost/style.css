@@ -1782,7 +1782,8 @@ input#dfrn-url {
 .pager_last,
 .pager_prev,
 .pager_next,
-.pager_n {
+.pager_n,
+.scroll_loader_text {
 /*	background: #EEE;*/
 }
 
