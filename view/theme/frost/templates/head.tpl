@@ -8,6 +8,8 @@
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
+<script type="text/javascript" src="{{$baseurl}}/js/jquery.js" ></script>
+
 <link rel="shortcut icon" href="{{$baseurl}}/images/friendica-32.png" />
 <link rel="search"
          href="{{$baseurl}}/opensearch" 
