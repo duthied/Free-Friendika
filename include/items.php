@@ -1400,7 +1400,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 	if(count($r) > 1) {
-		logger('item_store: duplicated post occurred. Removing duplicates.');
+		logger('item_store: duplicated post occurred. Removing duplicates. uri = '.$arr['uri'].' uid = '.$arr['uid']);
 		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `id` != %d ",
 			dbesc($arr['uri']),
 			intval($arr['uid']),
