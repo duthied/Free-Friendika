@@ -22,6 +22,7 @@ require_once('library/langdet/Text/LanguageDetect.php');
 require_once('include/tags.php');
 require_once('include/files.php');
 require_once('include/threads.php');
+require_once('include/text.php');
 
 function item_post(&$a) {
 
@@ -824,21 +825,12 @@ function item_post(&$a) {
 	if(count($r)) {
 		$post_id = $r[0]['id'];
 		logger('mod_item: saved item ' . $post_id);
-		add_thread($post_id);
 
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		// Store the fresh generated item into the cache
-		$cachefile = get_cachefile(urlencode($datarray["guid"])."-".hash("md5", $datarray['body']));
-
-		if (($cachefile != '') AND !file_exists($cachefile)) {
-			$s = prepare_text($datarray['body']);
-			$stamp1 = microtime(true);
-			file_put_contents($cachefile, $s);
-			$a->save_timestamp($stamp1, "file");
-			logger('mod_item: put item '.$r[0]['id'].' into cachefile '.$cachefile);
-		}
+		put_item_in_cache($datarray);
 
 		if($parent) {
 
@@ -947,7 +939,8 @@ function item_post(&$a) {
 		dbesc(datetime_convert()),
 		intval($parent)
 	);
-	update_thread($parent);
+	if ($post_id != $parent)
+		update_thread($parent);
 
 	$datarray['id']    = $post_id;
 	$datarray['plink'] = $a->get_baseurl().'/display/'.urlencode($datarray['guid']);
@@ -990,7 +983,9 @@ function item_post(&$a) {
 
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
-	update_thread($post_id);
+
+	if ($post_id == $parent)
+		add_thread($post_id);
 
 	// This is a real juggling act on shared hosting services which kill your processes
 	// e.g. dreamhost. We used to start delivery to our native delivery agents in the background

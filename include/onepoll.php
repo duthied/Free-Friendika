@@ -284,13 +284,13 @@ function onepoll_run(&$argv, &$argc){
 	}
 	elseif($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
 
-		logger("onepoll: mail: Fetching", LOGGER_DEBUG);
+		logger("Mail: Fetching", LOGGER_DEBUG);
 
 		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 		if($mail_disabled)
 			return;
 
-		logger("onepoll: Mail: Enabled", LOGGER_DEBUG);
+		logger("Mail: Enabled", LOGGER_DEBUG);
 
 		$mbox = null;
 		$x = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1",
@@ -312,7 +312,9 @@ function onepoll_run(&$argv, &$argc){
 					intval($mailconf[0]['id']),
 					intval($importer_uid)
 				);
-			}
+				logger("Mail: Connected to " . $mailconf[0]['user']);
+			} else
+				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors()));
 		}
 		if($mbox) {
 
@@ -523,7 +525,10 @@ function onepoll_run(&$argv, &$argc){
 						}
 					}
 				}
-			}
+			} else
+				logger("Mail: no mails for ".$mailconf[0]['user']);
+
+			logger("Mail: closing connection for ".$mailconf[0]['user']);
 			imap_close($mbox);
 		}
 	}
