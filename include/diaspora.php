@@ -2398,7 +2398,7 @@ function diaspora_profile($importer,$xml,$msg) {
 	if (unxmlify($xml->searchable) == "true") {
 		require_once('include/socgraph.php');
 		poco_check($contact['url'], $name, NETWORK_DIASPORA, $images[0], $about, $location, $gender, $keywords, "",
-			datetime_convert(), $contact['id'], $importer['uid']);
+			datetime_convert(), 2, $contact['id'], $importer['uid']);
 	}
 
 	$profileurl = "";
