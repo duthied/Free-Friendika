@@ -374,6 +374,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		$network = NETWORK_APPNET;
 	}
 
+
 	// Twitter is deactivated since twitter closed its old API
 	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
 	$lastfm  = ((strpos($url,'last.fm/user') !== false) ? true : false);
@@ -526,8 +527,8 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 				if($j) {
 					$network = NETWORK_ZOT;
 					$vcard   = array(
-						'fn'    => $j->fullname, 
-						'nick'  => $j->nickname, 
+						'fn'    => $j->fullname,
+						'nick'  => $j->nickname,
 						'photo' => $j->photo
 					);
 					$profile  = $j->url;
@@ -569,6 +570,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			$network = NETWORK_DIASPORA;
 		elseif($has_lrdd)
 			$network  = NETWORK_OSTATUS;
+
+		if(strpos($url,'@'))
+			$addr = str_replace('acct:', '', $url);
+
 		$priority = 0;
 
 		if($hcard && ! $vcard) {
@@ -762,6 +767,22 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	if(($network === NETWORK_FEED) && ($poll) && (! x($vcard,'fn')))
 		$vcard['fn'] = $url;
 
+	if (($notify != "") AND ($poll != "")) {
+		$baseurl = matching($notify, $poll);
+
+		$baseurl2 = matching($baseurl, $profile);
+		if ($baseurl2 != "")
+			$baseurl = $baseurl2;
+	}
+
+	if (($baseurl == "") AND ($notify != ""))
+		$baseurl = matching($profile, $notify);
+
+	if (($baseurl == "") AND ($poll != ""))
+		$baseurl = matching($profile, $poll);
+
+	$baseurl = rtrim($baseurl, "/");
+
 	$vcard['fn'] = notags($vcard['fn']);
 	$vcard['nick'] = str_replace(' ','',notags($vcard['nick']));
 
@@ -780,14 +801,17 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	$result['network'] = $network;
 	$result['alias'] = $alias;
 	$result['pubkey'] = $pubkey;
+	$result['baseurl'] = $baseurl;
 
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
 
 	// Trying if it maybe a diaspora account
-	if ($result['network'] == NETWORK_FEED) {
+	//if (($result['network'] == NETWORK_FEED) OR (($result['addr'] == "") AND ($result['network'] != NETWORK_OSTATUS))) {
+	if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
 		require_once('include/bbcode.php');
 		$address = GetProfileUsername($url, "", true);
 		$result2 = probe_url($address, $mode);
+		//$result2 = probe_url($address, PROBE_DIASPORA);
 		if ($result2['network'] != "")
 			$result = $result2;
 	}
@@ -795,4 +819,21 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	Cache::set("probe_url:".$mode.":".$url,serialize($result));
 
 	return $result;
+}
+
+function matching($part1, $part2) {
+	$len = min(strlen($part1), strlen($part2));
+
+	$match = "";
+	$matching = true;
+	$i = 0;
+	while (($i <= $len) AND $matching) {
+		if (substr($part1, $i, 1) == substr($part2, $i, 1))
+			$match .= substr($part1, $i, 1);
+		else
+			$matching = false;
+
+		$i++;
+	}
+	return($match);
 }

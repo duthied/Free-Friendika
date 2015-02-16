@@ -1376,9 +1376,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
-		// Add every contact to the global contact table
-		poco_store($arr);
-
 /*
 		// Is it a global copy?
 		$store_gcontact = ($arr["uid"] == 0);
@@ -1511,7 +1508,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	$deleted = tag_deliver($arr['uid'],$current_post);
 
-	// current post can be deleted if is for a communuty page and no mention are
+	// current post can be deleted if is for a community page and no mention are
 	// in it.
 	if (!$deleted AND !$dontcache) {
 
@@ -1521,10 +1518,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
 			call_hooks('post_remote_end', $r[0]);
-		} else {
+		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
-		}
 	}
+
+	// Add every contact of the post to the global contact table
+	poco_store($arr);
 
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);

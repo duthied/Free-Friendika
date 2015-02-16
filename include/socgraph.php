@@ -78,9 +78,6 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$gender = '';
 		$generation = 0;
 
-		if ($uid == 0)
-			$network = NETWORK_DFRN;
-
 		$name = $entry->displayName;
 
 		if(isset($entry->urls)) {
@@ -126,6 +123,10 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			foreach($entry->tags as $tag)
 				$keywords = implode(", ", $tag);
 
+		// If you query a Friendica server for its profiles, the network has to be Friendica
+		if ($uid == 0)
+			$network = NETWORK_DFRN;
+
 		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
 
 		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
@@ -151,6 +152,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid = 0, $uid = 0, $zcid = 0) {
 
+	$a = get_app();
+
 	// Generation:
 	//  0: No definition
 	//  1: Profiles on this server
@@ -163,15 +166,24 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if ($profile_url == "")
 		return $gcid;
 
-	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' LIMIT 1",
-		dbesc(normalise_link($profile_url))
+	// Don't store the statusnet connector as network
+	// We can't simply set this to NETWORK_OSTATUS since the connector could have fetched posts from friendica as well
+	if ($network == NETWORK_STATUSNET)
+		$network = "";
+
+	// The global contacts should contain the original picture, not the cached one
+	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link($a->get_baseurl()."/photo/")))
+		$profile_photo = "";
+
+	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
+		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 	);
 	if(count($r))
 		$network = $r[0]["network"];
 
-	if ($network == "") {
-		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' LIMIT 1",
-			dbesc($profile_url), dbesc(normalise_link($profile_url))
+	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
+		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
+			dbesc($profile_url), dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 		);
 		if(count($r)) {
 			$network = $r[0]["network"];
@@ -182,15 +194,16 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url))
 	);
-	if(count($x) AND ($network == ""))
+	if(count($x) AND ($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
 		$network = $x[0]["network"];
 
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
 		require_once("include/Scrape.php");
 
-		$data = probe_url($profile_url, PROBE_DIASPORA);
+		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];
+		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 	}
 
@@ -204,7 +217,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if (($name == "") OR ($profile_photo == ""))
 		return $gcid;
 
-	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
+	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		return $gcid;
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
@@ -333,11 +346,11 @@ function sub_poco_from_share($share, $created, $cid, $uid) {
 function poco_store($item) {
 
 	// Isn't it public?
-	if (!$item['private'])
+	if ($item['private'])
 		return;
 
 	// Or is it from a network where we don't store the global contacts?
-	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
+	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
 		return;
 
 	// Is it a global copy?
@@ -355,25 +368,34 @@ function poco_store($item) {
 	// "3" means: We don't know this contact directly (Maybe a reshared item)
 	$generation = 3;
 	$network = "";
+	$profile_url = $item["author-link"];
 
 	// Is it a user from our server?
 	$q = q("SELECT `id` FROM `contact` WHERE `self` AND `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($item["author-link"])));
 	if (count($q)) {
+		logger("Our user (generation 1): ".$item["author-link"], LOGGER_DEBUG);
 		$generation = 1;
 		$network = NETWORK_DFRN;
 	} else { // Is it a contact from a user on our server?
-		$q = q("SELECT `network` FROM `contact` WHERE `uid` != 0 AND `network` != ''
-			AND (`nurl` = '%s' OR `alias` IN ('%s', '%s')) LIMIT 1",
+		$q = q("SELECT `network`, `url` FROM `contact` WHERE `uid` != 0 AND `network` != ''
+			AND (`nurl` = '%s' OR `alias` IN ('%s', '%s')) AND `network` != '%s' LIMIT 1",
 			dbesc(normalise_link($item["author-link"])),
 			dbesc(normalise_link($item["author-link"])),
-			dbesc($item["author-link"]));
+			dbesc($item["author-link"]),
+			dbesc(NETWORK_STATUSNET));
 		if (count($q)) {
 			$generation = 2;
 			$network = $q[0]["network"];
+			$profile_url = $q[0]["url"];
+			logger("Known contact (generation 2): ".$profile_url, LOGGER_DEBUG);
 		}
 	}
-	poco_check($item["author-link"], $item["author-name"], $network, $item["author-avatar"], "", "", "", "", "", $item["received"], $generation, $item["contact-id"], $item["uid"]);
+
+	if ($generation == 3)
+		logger("Unknown contact (generation 3): ".$item["author-link"], LOGGER_DEBUG);
+
+	poco_check($profile_url, $item["author-name"], $network, $item["author-avatar"], "", "", "", "", "", $item["received"], $generation, $item["contact-id"], $item["uid"]);
 
 	// Maybe its a body with a shared item? Then extract a global contact from it.
 	poco_contact_from_body($item["body"], $item["received"], $item["contact-id"], $item["uid"]);
