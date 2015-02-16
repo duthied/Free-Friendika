@@ -73,7 +73,7 @@
 <div id="contact-edit-info-wrapper">
 <h4>{{$lbl_info1}}</h4>
 	<textarea id="contact-edit-info" rows="8" cols="60" name="info">{{$info}}</textarea>
-	<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
+	<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </div>
 <div id="contact-edit-info-end"></div>
 
@@ -85,7 +85,7 @@
 {{$profile_select}}
 <div id="contact-edit-profile-select-end"></div>
 
-<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
+<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 
 </form>
 </div>

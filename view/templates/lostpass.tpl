@@ -12,7 +12,7 @@
 </div>
 <div id="login-extra-end"></div>
 <div id="login-submit-wrapper" >
-        <input type="submit" name="submit" id="lostpass-submit-button" value="{{$submit}}" />
+        <input type="submit" name="submit" id="lostpass-submit-button" value="{{$submit|escape:'html'}}" />
 </div>
 <div id="login-submit-end"></div>
 </form>

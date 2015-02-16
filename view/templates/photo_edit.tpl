@@ -5,12 +5,12 @@
 	<input type="hidden" name="item_id" value="{{$item_id}}" />
 
 	<label id="photo-edit-albumname-label" for="photo-edit-albumname">{{$newalbum}}</label>
-	<input id="photo-edit-albumname" type="text" size="32" name="albname" value="{{$album}}" />
+	<input id="photo-edit-albumname" type="text" size="32" name="albname" value="{{$album|escape:'html'}}" />
 
 	<div id="photo-edit-albumname-end"></div>
 
 	<label id="photo-edit-caption-label" for="photo-edit-caption">{{$capt_label}}</label>
-	<input id="photo-edit-caption" type="text" size="84" name="desc" value="{{$caption}}" />
+	<input id="photo-edit-caption" type="text" size="84" name="desc" value="{{$caption|escape:'html'}}" />
 
 	<div id="photo-edit-caption-end"></div>
 
@@ -42,8 +42,8 @@
 	</div>
 	<div id="photo-edit-perms-end"></div>
 
-	<input id="photo-edit-submit-button" type="submit" name="submit" value="{{$submit}}" />
-	<input id="photo-edit-delete-button" type="submit" name="delete" value="{{$delete}}" onclick="return confirmDelete()"; />
+	<input id="photo-edit-submit-button" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+	<input id="photo-edit-delete-button" type="submit" name="delete" value="{{$delete|escape:'html'}}" onclick="return confirmDelete()"; />
 
 	<div id="photo-edit-end"></div>
 </form>
