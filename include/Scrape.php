@@ -806,12 +806,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
 
 	// Trying if it maybe a diaspora account
-	//if (($result['network'] == NETWORK_FEED) OR (($result['addr'] == "") AND ($result['network'] != NETWORK_OSTATUS))) {
 	if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
 		require_once('include/bbcode.php');
 		$address = GetProfileUsername($url, "", true);
 		$result2 = probe_url($address, $mode);
-		//$result2 = probe_url($address, PROBE_DIASPORA);
 		if ($result2['network'] != "")
 			$result = $result2;
 	}
