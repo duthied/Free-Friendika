@@ -16,7 +16,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 
 {{if $theme_config}}

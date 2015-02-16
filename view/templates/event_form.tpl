@@ -28,7 +28,7 @@
 <div id="event-adjust-break"></div>
 
 <div id="event-summary-text">{{$t_text}}</div>
-<input type="text" id="event-summary" name="summary" value="{{$t_orig}}" />
+<input type="text" id="event-summary" name="summary" value="{{$t_orig|escape:'html'}}" />
 
 
 <div id="event-desc-text">{{$d_text}}</div>
@@ -44,7 +44,7 @@
 {{$acl}}
 
 <div class="clear"></div>
-<input id="event-submit" type="submit" name="submit" value="{{$submit}}" />
+<input id="event-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </form>
 
 

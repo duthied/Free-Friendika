@@ -16,7 +16,7 @@
 {{/if}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -32,7 +32,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -102,7 +102,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -138,7 +138,7 @@
 </div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -150,7 +150,7 @@
 {{$pagetype}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -159,7 +159,7 @@
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button}}" />
+<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button|escape:'html'}}" />
 </div>
 </div>
 
