@@ -15,9 +15,9 @@
 
 
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></a></div>
 	{{/if}}
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
