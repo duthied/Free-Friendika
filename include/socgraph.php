@@ -157,7 +157,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
 		require_once("include/Scrape.php");
 
-		$data = probe_url($profile_url, PROBE_DIASPORA);
+		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];
 		$profile_photo = $data["photo"];
