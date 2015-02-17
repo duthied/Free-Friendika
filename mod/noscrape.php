@@ -33,12 +33,11 @@ function noscrape_init(&$a) {
 
 	if(is_array($a->profile) AND !$a->profile['hide-friends']) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-				AND `network` IN ('%s', '%s', '%s', '%s', '')",
+				AND `network` IN ('%s', '%s', '%s', '')",
 			intval($a->profile['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET)
+			dbesc(NETWORK_OSTATUS)
 		);
 		if(count($r))
 			$json_info["contacts"] = intval($r[0]['total']);
