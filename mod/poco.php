@@ -135,9 +135,9 @@ function poco_init(&$a) {
 	if(x($_GET,'updatedSince') AND !$global)
 		$ret['updatedSince'] = false;
 
-	$ret['startIndex']   = (string) $startIndex;
-	$ret['itemsPerPage'] = (string) $itemsPerPage;
-	$ret['totalResults'] = (string) $totalResults;
+	$ret['startIndex']   = (int) $startIndex;
+	$ret['itemsPerPage'] = (int) $itemsPerPage;
+	$ret['totalResults'] = (int) $totalResults;
 	$ret['entry']        = array();
 
 
@@ -153,7 +153,8 @@ function poco_init(&$a) {
 		'network' => false,
 		'gender' => false,
 		'tags' => false,
-		'address' => false
+		'address' => false,
+		'generation' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -168,6 +169,15 @@ function poco_init(&$a) {
 	if(is_array($r)) {
 		if(count($r)) {
 			foreach($r as $rr) {
+				if (!isset($rr['generation'])) {
+					if ($global)
+						$rr['generation'] = 3;
+					elseif ($system_mode)
+						$rr['generation'] = 1;
+					else
+						$rr['generation'] = 2;
+				}
+
 				if (($rr['about'] == "") AND isset($rr['pabout']))
 					$rr['about'] = $rr['pabout'];
 
@@ -198,7 +208,7 @@ function poco_init(&$a) {
 
 				$entry = array();
 				if($fields_ret['id'])
-					$entry['id'] = $rr['id'];
+					$entry['id'] = (int)$rr['id'];
 				if($fields_ret['displayName'])
 					$entry['displayName'] = $rr['name'];
 				if($fields_ret['aboutMe'])
@@ -207,6 +217,8 @@ function poco_init(&$a) {
 					$entry['currentLocation'] = $rr['location'];
 				if($fields_ret['gender'])
 					$entry['gender'] = $rr['gender'];
+				if($fields_ret['generation'])
+					$entry['generation'] = (int)$rr['generation'];
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))

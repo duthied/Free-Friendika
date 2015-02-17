@@ -1376,16 +1376,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
-		// Add every contact to the global contact table
-		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
-		if (!$arr['private'] AND in_array($arr["network"],
-			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, ""))) {
-			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", "", "", "", "", $arr["received"], $arr["contact-id"], $arr["uid"]);
-
-			// Maybe its a body with a shared item? Then extract a global contact from it.
-			poco_contact_from_body($arr["body"], $arr["received"], $arr["contact-id"], $arr["uid"]);
-		}
-
 		// Set "success_update" to the date of the last time we heard from this contact
 		// This can be used to filter for inactive contacts and poco.
 		// Only do this for public postings to avoid privacy problems, since poco data is public.
@@ -1395,56 +1385,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
-
-		// Only check for notifications on start posts
-		if ($arr['parent-uri'] === $arr['uri']) {
-			add_thread($r[0]['id']);
-			logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-
-			// Send a notification for every new post?
-			$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-				intval($arr['contact-id']),
-				intval($arr['uid'])
-			);
-
-			if(count($r)) {
-				logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-				$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
-					intval($arr['uid']));
-
-				$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
-					intval($current_post),
-					intval($arr['uid'])
-				);
-
-				$a = get_app();
-
-				require_once('include/enotify.php');
-				notification(array(
-					'type'         => NOTIFY_SHARE,
-					'notify_flags' => $u[0]['notify-flags'],
-					'language'     => $u[0]['language'],
-					'to_name'      => $u[0]['username'],
-					'to_email'     => $u[0]['email'],
-					'uid'          => $u[0]['uid'],
-					'item'         => $item[0],
-					'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
-					'source_name'  => $item[0]['author-name'],
-					'source_link'  => $item[0]['author-link'],
-					'source_photo' => $item[0]['author-avatar'],
-					'verb'         => ACTIVITY_TAG,
-					'otype'        => 'item'
-				));
-				logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-			}
-		}
-
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
 	}
 	if(count($r) > 1) {
-		logger('item_store: duplicated post occurred. Removing duplicates.');
+		logger('item_store: duplicated post occurred. Removing duplicates. uri = '.$arr['uri'].' uid = '.$arr['uid']);
 		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `id` != %d ",
 			dbesc($arr['uri']),
 			intval($arr['uid']),
@@ -1494,7 +1440,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		dbesc(datetime_convert()),
 		intval($parent_id)
 	);
-	update_thread($parent_id);
 
 	if($dsprsig) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
@@ -1520,32 +1465,84 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	$deleted = tag_deliver($arr['uid'],$current_post);
 
-	// current post can be deleted if is for a communuty page and no mention are
+	// current post can be deleted if is for a community page and no mention are
 	// in it.
 	if (!$deleted AND !$dontcache) {
 
 		// Store the fresh generated item into the cache
-		$cachefile = get_cachefile(urlencode($arr["guid"])."-".hash("md5", $arr['body']));
-
-		if (($cachefile != '') AND !file_exists($cachefile)) {
-			$s = prepare_text($arr['body']);
-			$a = get_app();
-			$stamp1 = microtime(true);
-			file_put_contents($cachefile, $s);
-			$a->save_timestamp($stamp1, "file");
-			logger('item_store: put item '.$current_post.' into cachefile '.$cachefile);
-		}
+		put_item_in_cache($arr);
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
 			call_hooks('post_remote_end', $r[0]);
-		} else {
+		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
-		}
 	}
 
-	create_tags_from_item($current_post, $dontcache);
+	// Add every contact of the post to the global contact table
+	poco_store($arr);
+
+	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
+
+	// Only check for notifications on start posts
+	if ($arr['parent-uri'] === $arr['uri']) {
+		add_thread($current_post);
+		logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+
+		// Send a notification for every new post?
+		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
+			intval($arr['contact-id']),
+			intval($arr['uid'])
+		);
+		$send_notification = count($r);
+
+		if (!$send_notification) {
+			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
+				intval(TERM_OBJ_POST), intval($current_post), intval(TERM_MENTION), intval($arr['uid']));
+
+			if (count($tags)) {
+				foreach ($tags AS $tag) {
+					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
+						normalise_link($tag["url"]), intval($arr['uid']));
+					if (count($r))
+						$send_notification = true;
+				}
+			}
+		}
+
+		if ($send_notification) {
+			logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+			$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
+				intval($arr['uid']));
+
+			$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
+				intval($current_post),
+				intval($arr['uid'])
+			);
+
+			$a = get_app();
+
+			require_once('include/enotify.php');
+			notification(array(
+				'type'         => NOTIFY_SHARE,
+				'notify_flags' => $u[0]['notify-flags'],
+				'language'     => $u[0]['language'],
+				'to_name'      => $u[0]['username'],
+				'to_email'     => $u[0]['email'],
+				'uid'          => $u[0]['uid'],
+				'item'         => $item[0],
+				'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
+				'source_name'  => $item[0]['author-name'],
+				'source_link'  => $item[0]['author-link'],
+				'source_photo' => $item[0]['author-avatar'],
+				'verb'         => ACTIVITY_TAG,
+				'otype'        => 'item'
+			));
+			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
+		}
+	} else
+		update_thread($parent_id);
 
 	if ($notify)
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
@@ -2078,6 +2075,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	$photo_timestamp = '';
 	$photo_url = '';
 	$birthday = '';
+	$contact_updated = '';
 
 	$hubs = $feed->get_links('hub');
 	logger('consume_feed: hubs: ' . print_r($hubs,true), LOGGER_DATA);
@@ -2113,6 +2111,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 	if((is_array($contact)) && ($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $contact['avatar-date'])) {
 		logger('consume_feed: Updating photo for '.$contact['name'].' from '.$photo_url.' uid: '.$contact['uid']);
+
+		$contact_updated = $photo_timestamp;
+
 		require_once("include/Photo.php");
 		$photo_failure = false;
 		$have_photo = false;
@@ -2170,6 +2171,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	}
 
 	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
+		if ($name_updated > $contact_updated)
+			$contact_updated = $name_updated;
+
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($contact['uid']),
 			intval($contact['id'])
@@ -2193,6 +2197,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			);
 		}
 	}
+
+	if ($contact_updated AND $new_name AND $photo_url)
+		poco_check($contact['url'], $new_name, NETWORK_DFRN, $photo_url, "", "", "", "", "", $contact_updated, 2, $contact['id'], $contact['uid']);
 
 	if(strlen($birthday)) {
 		if(substr($birthday,0,4) != $contact['bdyear']) {
@@ -2240,7 +2247,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 			$contact['bdyear'] = substr($birthday,0,4);
 		}
-
 	}
 
 	$community_page = 0;
@@ -2806,6 +2812,7 @@ function local_delivery($importer,$data) {
 	$new_name = '';
 	$photo_timestamp = '';
 	$photo_url = '';
+	$contact_updated = '';
 
 
 	$rawtags = $feed->get_feed_tags( NAMESPACE_DFRN, 'owner');
@@ -2834,6 +2841,9 @@ function local_delivery($importer,$data) {
 	}
 
 	if(($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
+
+		$contact_updated = $photo_timestamp;
+
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("include/Photo.php");
 		$photo_failure = false;
@@ -2892,6 +2902,9 @@ function local_delivery($importer,$data) {
 	}
 
 	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
+		if ($name_updated > $contact_updated)
+			$contact_updated = $name_updated;
+
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($importer['importer_uid']),
 			intval($importer['id'])
@@ -2916,7 +2929,8 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-
+	if ($contact_updated AND $new_name AND $photo_url)
+		poco_check($importer['url'], $new_name, NETWORK_DFRN, $photo_url, "", "", "", "", "", $contact_updated, 2, $importer['id'], $importer['importer_uid']);
 
 	// Currently unsupported - needs a lot of work
 	$reloc = $feed->get_feed_tags( NAMESPACE_DFRN, 'relocate' );
@@ -4669,8 +4683,8 @@ function drop_item($id,$interactive = true) {
 				dbesc($item['parent-uri']),
 				intval($item['uid'])
 			);
-			create_tags_from_item($item['parent-uri'], $item['uid']);
-			create_files_from_item($item['parent-uri'], $item['uid']);
+			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
+			create_files_from_itemuri($item['parent-uri'], $item['uid']);
 			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		}

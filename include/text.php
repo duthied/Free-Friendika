@@ -385,6 +385,18 @@ function alt_pager(&$a, $i) {
 
 }}
 
+if(! function_exists('scroll_loader')) {
+/**
+ * Loader for infinite scrolling
+ * @return string html for loader
+ */
+function scroll_loader() {
+	$tpl = get_markup_template("scroll_loader.tpl");
+	return replace_macros($tpl, array(
+		'wait' => t('Loading more entries...'),
+		'end' => t('The end')
+	));
+}}
 
 if(! function_exists('expand_acl')) {
 /**
@@ -1281,6 +1293,18 @@ function redir_private_images($a, &$item) {
 
 }}
 
+function put_item_in_cache($item) {
+	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
+
+	if (($cachefile != '') AND !file_exists($cachefile)) {
+		$s = prepare_text($item['body']);
+		$a = get_app();
+		$stamp1 = microtime(true);
+		file_put_contents($cachefile, $s);
+		$a->save_timestamp($stamp1, "file");
+		logger('put item '.$item["guid"].' into cachefile '.$cachefile);
+	}
+}
 
 // Given an item array, convert the body element from bbcode to html and add smilie icons.
 // If attach is true, also add icons for item attachments

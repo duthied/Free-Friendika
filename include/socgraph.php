@@ -42,7 +42,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 	if(! $url)
 		return;
 
-	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender') ;
+	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation') ;
 
 	logger('poco_load: ' . $url, LOGGER_DEBUG);
 
@@ -76,6 +76,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		$about = '';
 		$keywords = '';
 		$gender = '';
+		$generation = 0;
 
 		$name = $entry->displayName;
 
@@ -115,11 +116,18 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		if(isset($entry->gender))
 			$gender = $entry->gender;
 
+		if(isset($entry->generation) AND ($entry->generation > 0))
+			$generation = ++$entry->generation;
+
 		if(isset($entry->tags))
 			foreach($entry->tags as $tag)
 				$keywords = implode(", ", $tag);
 
-		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid, $uid, $zcid);
+		// If you query a Friendica server for its profiles, the network has to be Friendica
+		if ($uid == 0)
+			$network = NETWORK_DFRN;
+
+		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
 
 		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
 		if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
@@ -142,24 +150,60 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 }
 
-function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $cid = 0, $uid = 0, $zcid = 0) {
+function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid = 0, $uid = 0, $zcid = 0) {
+
+	$a = get_app();
+
+	// Generation:
+	//  0: No definition
+	//  1: Profiles on this server
+	//  2: Contacts of profiles on this server
+	//  3: Contacts of contacts of profiles on this server
+	//  4: ...
+
 	$gcid = "";
 
 	if ($profile_url == "")
 		return $gcid;
 
+	// Don't store the statusnet connector as network
+	// We can't simply set this to NETWORK_OSTATUS since the connector could have fetched posts from friendica as well
+	if ($network == NETWORK_STATUSNET)
+		$network = "";
+
+	// The global contacts should contain the original picture, not the cached one
+	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link($a->get_baseurl()."/photo/")))
+		$profile_photo = "";
+
+	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
+		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
+	);
+	if(count($r))
+		$network = $r[0]["network"];
+
+	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
+		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
+			dbesc($profile_url), dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
+		);
+		if(count($r)) {
+			$network = $r[0]["network"];
+			$profile_url = $r[0]["url"];
+		}
+	}
+
 	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url))
 	);
-	if(count($x))
+	if(count($x) AND ($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
 		$network = $x[0]["network"];
 
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
 		require_once("include/Scrape.php");
 
-		$data = probe_url($profile_url, PROBE_DIASPORA);
+		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];
+		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 	}
 
@@ -173,10 +217,10 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if (($name == "") OR ($profile_photo == ""))
 		return $gcid;
 
-	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_STATUSNET)))
+	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		return $gcid;
 
-	logger("profile-check URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
+	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
 	if(count($x)) {
 		$gcid = $x[0]['id'];
@@ -193,10 +237,13 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($keywords == "") AND ($x[0]['keywords'] != ""))
 			$keywords = $x[0]['keywords'];
 
+		if (($generation == 0) AND ($x[0]['generation'] > 0))
+			$generation = $x[0]['generation'];
+
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("update gcontact set `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
-				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
-				where `nurl` = '%s'",
+			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
+				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
+				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
 				dbesc($network),
 				dbesc($profile_photo),
@@ -207,12 +254,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($about),
 				dbesc($keywords),
 				dbesc($gender),
+				intval($generation),
+				intval($generation),
 				dbesc(normalise_link($profile_url))
 			);
 		}
 	} else {
-		q("insert into `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`, `keywords`, `gender`)
-			values ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s')",
+		q("INSERT INTO `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($network),
 			dbesc($profile_url),
@@ -223,7 +272,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			dbesc($location),
 			dbesc($about),
 			dbesc($keywords),
-			dbesc($gender)
+			dbesc($gender),
+			intval($generation)
 		);
 		$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 			dbesc(normalise_link($profile_url))
@@ -290,7 +340,65 @@ function sub_poco_from_share($share, $created, $cid, $uid) {
 		return;
 
 	logger("prepare poco_check for profile ".$profile, LOGGER_DEBUG);
-        poco_check($profile, "", "", "", "", "", "", "", "", $created, $cid, $uid);
+        poco_check($profile, "", "", "", "", "", "", "", "", $created, 3, $cid, $uid);
+}
+
+function poco_store($item) {
+
+	// Isn't it public?
+	if ($item['private'])
+		return;
+
+	// Or is it from a network where we don't store the global contacts?
+	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, "")))
+		return;
+
+	// Is it a global copy?
+	$store_gcontact = ($item["uid"] == 0);
+
+	// Is it a comment on a global copy?
+	if (!$store_gcontact AND ($item["uri"] != $item["parent-uri"])) {
+		$q = q("SELECT `id` FROM `item` WHERE `uri`='%s' AND `uid` = 0", $item["parent-uri"]);
+		$store_gcontact = count($q);
+	}
+
+	if (!$store_gcontact)
+		return;
+
+	// "3" means: We don't know this contact directly (Maybe a reshared item)
+	$generation = 3;
+	$network = "";
+	$profile_url = $item["author-link"];
+
+	// Is it a user from our server?
+	$q = q("SELECT `id` FROM `contact` WHERE `self` AND `nurl` = '%s' LIMIT 1",
+		dbesc(normalise_link($item["author-link"])));
+	if (count($q)) {
+		logger("Our user (generation 1): ".$item["author-link"], LOGGER_DEBUG);
+		$generation = 1;
+		$network = NETWORK_DFRN;
+	} else { // Is it a contact from a user on our server?
+		$q = q("SELECT `network`, `url` FROM `contact` WHERE `uid` != 0 AND `network` != ''
+			AND (`nurl` = '%s' OR `alias` IN ('%s', '%s')) AND `network` != '%s' LIMIT 1",
+			dbesc(normalise_link($item["author-link"])),
+			dbesc(normalise_link($item["author-link"])),
+			dbesc($item["author-link"]),
+			dbesc(NETWORK_STATUSNET));
+		if (count($q)) {
+			$generation = 2;
+			$network = $q[0]["network"];
+			$profile_url = $q[0]["url"];
+			logger("Known contact (generation 2): ".$profile_url, LOGGER_DEBUG);
+		}
+	}
+
+	if ($generation == 3)
+		logger("Unknown contact (generation 3): ".$item["author-link"], LOGGER_DEBUG);
+
+	poco_check($profile_url, $item["author-name"], $network, $item["author-avatar"], "", "", "", "", "", $item["received"], $generation, $item["contact-id"], $item["uid"]);
+
+	// Maybe its a body with a shared item? Then extract a global contact from it.
+	poco_contact_from_body($item["body"], $item["received"], $item["contact-id"], $item["uid"]);
 }
 
 function count_common_friends($uid,$cid) {
