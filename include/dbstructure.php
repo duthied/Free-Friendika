@@ -626,6 +626,7 @@ function db_definition() {
 					"keywords" => array("type" => "text", "not null" => "1"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

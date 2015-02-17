@@ -1376,16 +1376,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
-		// Add every contact to the global contact table
-		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
-		if (!$arr['private'] AND in_array($arr["network"],
-			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, ""))) {
-			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", "", "", "", "", $arr["received"], $arr["contact-id"], $arr["uid"]);
-
-			// Maybe its a body with a shared item? Then extract a global contact from it.
-			poco_contact_from_body($arr["body"], $arr["received"], $arr["contact-id"], $arr["uid"]);
-		}
-
 		// Set "success_update" to the date of the last time we heard from this contact
 		// This can be used to filter for inactive contacts and poco.
 		// Only do this for public postings to avoid privacy problems, since poco data is public.
@@ -1475,7 +1465,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	$deleted = tag_deliver($arr['uid'],$current_post);
 
-	// current post can be deleted if is for a communuty page and no mention are
+	// current post can be deleted if is for a community page and no mention are
 	// in it.
 	if (!$deleted AND !$dontcache) {
 
@@ -1485,10 +1475,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
 			call_hooks('post_remote_end', $r[0]);
-		} else {
+		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
-		}
 	}
+
+	// Add every contact of the post to the global contact table
+	poco_store($arr);
 
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
@@ -2083,6 +2075,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	$photo_timestamp = '';
 	$photo_url = '';
 	$birthday = '';
+	$contact_updated = '';
 
 	$hubs = $feed->get_links('hub');
 	logger('consume_feed: hubs: ' . print_r($hubs,true), LOGGER_DATA);
@@ -2118,6 +2111,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 	if((is_array($contact)) && ($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $contact['avatar-date'])) {
 		logger('consume_feed: Updating photo for '.$contact['name'].' from '.$photo_url.' uid: '.$contact['uid']);
+
+		$contact_updated = $photo_timestamp;
+
 		require_once("include/Photo.php");
 		$photo_failure = false;
 		$have_photo = false;
@@ -2175,6 +2171,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	}
 
 	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
+		if ($name_updated > $contact_updated)
+			$contact_updated = $name_updated;
+
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($contact['uid']),
 			intval($contact['id'])
@@ -2198,6 +2197,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			);
 		}
 	}
+
+	if ($contact_updated AND $new_name AND $photo_url)
+		poco_check($contact['url'], $new_name, NETWORK_DFRN, $photo_url, "", "", "", "", "", $contact_updated, 2, $contact['id'], $contact['uid']);
 
 	if(strlen($birthday)) {
 		if(substr($birthday,0,4) != $contact['bdyear']) {
@@ -2245,7 +2247,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 			$contact['bdyear'] = substr($birthday,0,4);
 		}
-
 	}
 
 	$community_page = 0;
@@ -2811,6 +2812,7 @@ function local_delivery($importer,$data) {
 	$new_name = '';
 	$photo_timestamp = '';
 	$photo_url = '';
+	$contact_updated = '';
 
 
 	$rawtags = $feed->get_feed_tags( NAMESPACE_DFRN, 'owner');
@@ -2839,6 +2841,9 @@ function local_delivery($importer,$data) {
 	}
 
 	if(($photo_timestamp) && (strlen($photo_url)) && ($photo_timestamp > $importer['avatar-date'])) {
+
+		$contact_updated = $photo_timestamp;
+
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("include/Photo.php");
 		$photo_failure = false;
@@ -2897,6 +2902,9 @@ function local_delivery($importer,$data) {
 	}
 
 	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
+		if ($name_updated > $contact_updated)
+			$contact_updated = $name_updated;
+
 		$r = q("select * from contact where uid = %d and id = %d limit 1",
 			intval($importer['importer_uid']),
 			intval($importer['id'])
@@ -2921,7 +2929,8 @@ function local_delivery($importer,$data) {
 		}
 	}
 
-
+	if ($contact_updated AND $new_name AND $photo_url)
+		poco_check($importer['url'], $new_name, NETWORK_DFRN, $photo_url, "", "", "", "", "", $contact_updated, 2, $importer['id'], $importer['importer_uid']);
 
 	// Currently unsupported - needs a lot of work
 	$reloc = $feed->get_feed_tags( NAMESPACE_DFRN, 'relocate' );
