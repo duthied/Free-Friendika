@@ -9,7 +9,7 @@
 
 <div id="poke-recip-label">{{$clabel}}</div>
 <br />
-<input id="poke-recip" type="text" size="64" maxlength="255" value="{{$name}}" name="pokename" autocomplete="off" />
+<input id="poke-recip" type="text" size="64" maxlength="255" value="{{$name|escape:'html'}}" name="pokename" autocomplete="off" />
 <input id="poke-recip-complete" type="hidden" value="{{$id}}" name="cid" />
 <input id="poke-parent" type="hidden" value="{{$parent}}" name="parent" />
 <br />
@@ -28,6 +28,6 @@
 <input type="checkbox" name="private" {{if $parent}}disabled="disabled"{{/if}} value="1" />
 <br />
 <br />
-<input type="submit" name="submit" value="{{$submit}}" />
+<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </form>
 

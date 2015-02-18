@@ -61,7 +61,7 @@
 	{{include file="field_select.tpl" field=$singleuser}}
 
 	
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$registration}}</h3>
 	{{include file="field_input.tpl" field=$register_text}}
@@ -71,7 +71,7 @@
 	{{include file="field_checkbox.tpl" field=$no_openid}}
 	{{include file="field_checkbox.tpl" field=$no_regfullname}}
 	
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$upload}}</h3>
 	{{include file="field_input.tpl" field=$maximagesize}}
@@ -96,7 +96,7 @@
 	{{include file="field_checkbox.tpl" field=$private_addons}}	
 	{{include file="field_checkbox.tpl" field=$disable_embedded}}
 	{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$advanced}}</h3>
 	{{include file="field_checkbox.tpl" field=$no_utf}}
@@ -122,7 +122,7 @@
 	{{include file="field_input.tpl" field=$max_comments}}
 	{{include file="field_checkbox.tpl" field=$proxy_disabled}}
 	{{include file="field_checkbox.tpl" field=$old_pager}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>
 	
@@ -131,8 +131,8 @@
 	<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 	<h3>{{$relocate}}</h3>
 	{{include file="field_input.tpl" field=$relocate_url}}
-	<input type="hidden" name="page_site" value="{{$submit}}">
-	<div class="submit"><input type="submit" name="relocate" value="{{$submit}}" /></div>
+	<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
+	<div class="submit"><input type="submit" name="relocate" value="{{$submit|escape:'html'}}" /></div>
 	</form>
 	
 </div>
