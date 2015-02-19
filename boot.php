@@ -1680,6 +1680,11 @@ if(! function_exists('profile_sidebar')) {
 			$contact_block = contact_block();
 
 			if(is_array($a->profile) AND !$a->profile['hide-friends']) {
+				$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
+					intval($a->profile['uid']));
+				if(count($r))
+					$updated =  date("c", strtotime($r[0]['updated']));
+
 				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 						AND `network` IN ('%s', '%s', '%s', '')",
 					intval($profile['uid']),
@@ -1716,6 +1721,7 @@ if(! function_exists('profile_sidebar')) {
 			'$about' => $about,
 			'$network' =>  t('Network:'),
 			'$contacts' => $contacts,
+			'$updated' => $updated,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
 		));
