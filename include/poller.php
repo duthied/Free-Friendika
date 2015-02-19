@@ -84,8 +84,8 @@ function poller_run(&$argv, &$argc){
 
 	// expire any expired accounts
 
-	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0 
-		AND `account_expires_on` != '0000-00-00 00:00:00' 
+	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
+		AND `account_expires_on` != '0000-00-00 00:00:00'
 		AND `account_expires_on` < UTC_TIMESTAMP() ");
 
 	// delete user and contact records for recently removed accounts
@@ -179,7 +179,7 @@ function poller_run(&$argv, &$argc){
 	}
 
 	$interval = intval(get_config('system','poll_interval'));
-	if(! $interval) 
+	if(! $interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
 	$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
@@ -192,26 +192,27 @@ function poller_run(&$argv, &$argc){
 		proc_run('php','include/cronhooks.php');
 
 	// Only poll from those with suitable relationships,
-	// and which have a polling address and ignore Diaspora since 
+	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
-	$abandon_sql = (($abandon_days) 
-		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days)) 
-		: '' 
+	$abandon_sql = (($abandon_days)
+		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
+		: ''
 	);
 
-	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
-		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
-		AND NOT `network` IN ( '%s', '%s', '%s' )
-		$sql_extra 
-		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0 
-		AND `contact`.`archive` = 0 
-		AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $abandon_sql ORDER BY RAND()",
+	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+		WHERE `rel` IN (%d, %d) AND `poll` != '' AND `network` IN ('%s', '%s', '%s', '%s', '%s', '%s')
+		$sql_extra
+		AND NOT `self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly` AND NOT `contact`.`archive`
+		AND NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
-		dbesc(NETWORK_DIASPORA),
-		dbesc(NETWORK_FACEBOOK),
-		dbesc(NETWORK_PUMPIO)
+		dbesc(NETWORK_DFRN),
+		dbesc(NETWORK_ZOT),
+		dbesc(NETWORK_OSTATUS),
+		dbesc(NETWORK_FEED),
+		dbesc(NETWORK_MAIL),
+		dbesc(NETWORK_MAIL2)
 	);
 
 	if(! count($contacts)) {
@@ -228,6 +229,8 @@ function poller_run(&$argv, &$argc){
 			continue;
 
 		foreach($res as $contact) {
+
+			logger("Check for polling ".$contact["uid"]." ".$contact["id"]." ".$contact["network"]." ".$contact["nick"]);
 
 			$xml = false;
 
@@ -291,21 +294,20 @@ function poller_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if((! $update) && (! $force))
+				if((!$update) && (!$force))
 					continue;
 			}
 
-			// Don't run onepoll.php if the contact isn't pollable
-			// This check also is inside the onepoll.php - but this will reduce the load
-			if (in_array($contact["rel"], array(CONTACT_IS_SHARING, CONTACT_IS_FRIEND)) AND ($contact["poll"] != "")
-				AND !in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_FACEBOOK, NETWORK_PUMPIO, NETWORK_TWITTER, NETWORK_APPNET))
-				AND !$contact["self"] AND !$contact["blocked"] AND !$contact["readonly"] AND !$contact["archive"])
-				proc_run('php','include/onepoll.php',$contact['id']);
+			logger("Polling ".$contact["uid"]." ".$contact["id"]." ".$contact["network"]." ".$contact["nick"]);
+
+			proc_run('php','include/onepoll.php',$contact['id']);
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
+
+	logger('poller: end');
 
 	return;
 }
