@@ -210,7 +210,7 @@
 			});
 			eSysmsg.children("info").each(function(){
 				text = $(this).text();
-				$.jGrowl(text, { sticky: false, theme: 'info', life: 10000 });
+				$.jGrowl(text, { sticky: false, theme: 'info', life: 5000 });
 			});
 			
 		});
@@ -290,7 +290,7 @@
 			if(livetime) {
 				clearTimeout(livetime);
 			}
-			livetime = setTimeout(liveUpdate, 10000);
+			livetime = setTimeout(liveUpdate, 5000);
 			return;
 		}
 		if(livetime != null)
