@@ -230,8 +230,6 @@ function poller_run(&$argv, &$argc){
 
 		foreach($res as $contact) {
 
-			logger("Check for polling ".$contact["uid"]." ".$contact["id"]." ".$contact["network"]." ".$contact["nick"]);
-
 			$xml = false;
 
 			if($manual_id)
@@ -243,7 +241,7 @@ function poller_run(&$argv, &$argc){
 			if(!get_config('system','ostatus_use_priority') and ($contact['network'] === NETWORK_OSTATUS))
 				$contact['priority'] = 2;
 
-			if($contact['priority'] || $contact['subhub']) {
+			if(($contact['priority'] || $contact['subhub']) AND ($contact['network'] != NETWORK_FEED)) {
 
 				$hub_update = true;
 				$update     = false;
