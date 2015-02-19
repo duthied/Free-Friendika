@@ -284,7 +284,7 @@ function poller_run(&$argv, &$argc){
 					continue;
 			}
 
-			logger("Polling ".$contact["uid"]." ".$contact["id"]." ".$contact["network"]." ".$contact["nick"]);
+			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
 			proc_run('php','include/onepoll.php',$contact['id']);
 
