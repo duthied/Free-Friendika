@@ -159,7 +159,6 @@ function poller_run(&$argv, &$argc){
 
 	$manual_id  = 0;
 	$generation = 0;
-	$hub_update = false;
 	$force      = false;
 	$restart    = false;
 
@@ -235,35 +234,24 @@ function poller_run(&$argv, &$argc){
 			if($manual_id)
 				$contact['last-update'] = '0000-00-00 00:00:00';
 
-			if($contact['network'] === NETWORK_DFRN)
+			if(in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS)))
 				$contact['priority'] = 2;
 
-			if(!get_config('system','ostatus_use_priority') and ($contact['network'] === NETWORK_OSTATUS))
-				$contact['priority'] = 2;
-
-			if(($contact['priority'] || $contact['subhub']) AND ($contact['network'] != NETWORK_FEED)) {
-
-				$hub_update = true;
-				$update     = false;
-
-				$t = $contact['last-update'];
-
+			if($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				// We should be getting everything via a hub. But just to be sure, let's check once a day.
 				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
 				// This also lets us update our subscription to the hub, and add or replace hubs in case it
 				// changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
 
+				$poll_interval = get_config('system','pushpoll_frequency');
+				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+			}
 
-				if($contact['subhub']) {
-					$poll_interval = get_config('system','pushpoll_frequency');
-					$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
-					$hub_update = false;
+			if($contact['priority'] AND !$force) {
 
-					if((datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day")) || $force)
-							$hub_update = true;
-				}
-				else
-					$hub_update = false;
+				$update     = false;
+
+				$t = $contact['last-update'];
 
 				/**
 				 * Based on $contact['priority'], should we poll this site now? Or later?
@@ -292,7 +280,7 @@ function poller_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if((!$update) && (!$force))
+				if(!$update)
 					continue;
 			}
 
