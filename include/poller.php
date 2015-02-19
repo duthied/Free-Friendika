@@ -1,4 +1,14 @@
 <?php
+if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
+	$directory = dirname($_SERVER["argv"][0]);
+
+	if (substr($directory, 0, 1) != "/")
+		$directory = $_SERVER["PWD"]."/".$directory;
+
+	$directory = realpath($directory."/..");
+
+	chdir($directory);
+}
 
 require_once("boot.php");
 
