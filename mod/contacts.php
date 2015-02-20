@@ -44,6 +44,9 @@ function contacts_init(&$a) {
 			$follow_widget = follow_widget();
 	}
 
+	if ($_GET['nets'] == "all")
+		$_GET['nets'] = "";
+
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
 	$findpeople_widget .= findpeople_widget();
 	$networks_widget .= networks_widget('contacts',$_GET['nets']);
