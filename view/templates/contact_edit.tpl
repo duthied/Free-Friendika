@@ -16,7 +16,9 @@
 	<div id="contact-edit-nav-wrapper" >
 		<div id="contact-edit-links">
 			<ul>
-				<li><div id="contact-edit-rel">{{$relation_text}}</div></li>
+				{{if $relation_text}}
+					<li><div id="contact-edit-rel">{{$relation_text}}</div></li>
+				{{/if}}
 				<li><div id="contact-edit-nettype">{{$nettype}}</div></li>
 				{{if $lost_contact}}
 					<li><div id="lost-contact-message">{{$lost_contact}}</div></li>

@@ -405,6 +405,9 @@ function contacts_content(&$a) {
 				break;
 		}
 
+		if(!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+				$relation_text = "";
+
 		$relation_text = sprintf($relation_text,$contact['name']);
 
 		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
