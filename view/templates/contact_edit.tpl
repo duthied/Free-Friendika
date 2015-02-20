@@ -58,16 +58,21 @@
 <form action="contacts/{{$contact_id}}" method="post" >
 <input type="hidden" name="contact_id" value="{{$contact_id}}">
 
-	{{if $poll_enabled}}
-		<div id="contact-edit-poll-wrapper">
+	<div id="contact-edit-poll-wrapper">
+		{{if $poll_enabled}}
 			<div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
-			<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}} <span id="contact-edit-update-now" class="button"><a href="contacts/{{$contact_id}}/update" >{{$udnow}}</a></span>
-		</div>
-	{{/if}}
+			{{if $poll_interval}}
+				<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
+			{{/if}}
+			<span id="contact-edit-update-now" class="button"><a href="contacts/{{$contact_id}}/update" >{{$udnow}}</a></span>
+		{{/if}}
+	</div>
 	<div id="contact-edit-end" ></div>
 	{{include file="field_checkbox.tpl" field=$notify}}
-	{{include file="field_select.tpl" field=$fetch_further_information}}
-	{{if $fetch_further_information.2 == 2 }} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+	{{if $fetch_further_information}}
+		{{include file="field_select.tpl" field=$fetch_further_information}}
+		{{if $fetch_further_information.2 == 2 }} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+	{{/if}}
 	{{include file="field_checkbox.tpl" field=$hidden}}
 
 <div id="contact-edit-info-wrapper">
