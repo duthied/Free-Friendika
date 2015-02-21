@@ -44,6 +44,9 @@ function contacts_init(&$a) {
 			$follow_widget = follow_widget();
 	}
 
+	if ($_GET['nets'] == "all")
+		$_GET['nets'] = "";
+
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
 	$findpeople_widget .= findpeople_widget();
 	$networks_widget .= networks_widget('contacts',$_GET['nets']);
@@ -402,6 +405,9 @@ function contacts_content(&$a) {
 				break;
 		}
 
+		if(!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+				$relation_text = "";
+
 		$relation_text = sprintf($relation_text,$contact['name']);
 
 		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
@@ -424,7 +430,7 @@ function contacts_content(&$a) {
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
-		$poll_enabled = (($contact['network'] !== NETWORK_DIASPORA) ? true : false);
+		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network']));
 
@@ -469,6 +475,13 @@ function contacts_content(&$a) {
 
 		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
+		if ($contact['network'] == NETWORK_FEED)
+			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
+									array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords')));
+
+		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
+			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
+
 		$o .= replace_macros($tpl, array(
 			'$header' => t('Contact Editor'),
 			'$tab_str' => $tab_str,
@@ -489,7 +502,7 @@ function contacts_content(&$a) {
 			'$lblsuggest' => $lblsuggest,
 			'$delete' => t('Delete contact'),
 			'$nettype' => $nettype,
-			'$poll_interval' => contact_poll_interval($contact['priority'],(! $poll_enabled)),
+			'$poll_interval' => $poll_interval,
 			'$poll_enabled' => $poll_enabled,
 			'$lastupdtext' => t('Last update:'),
 			'$lost_contact' => $lost_contact,
@@ -507,8 +520,7 @@ function contacts_content(&$a) {
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
 			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
-			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
-								array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords'))),
+			'$fetch_further_information' => $fetch_further_information,
 			'$ffi_keyword_blacklist' => $contact['ffi_keyword_blacklist'],
 			'$ffi_keyword_blacklist' => array('ffi_keyword_blacklist', t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')),
 			'$photo' => $contact['photo'],
