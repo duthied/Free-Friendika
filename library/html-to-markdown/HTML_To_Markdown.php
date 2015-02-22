@@ -4,7 +4,7 @@
  *
  * A helper class to convert HTML to Markdown.
  *
- * @version 2.1.2
+ * @version 2.2.1
  * @author Nick Cernis <nick@cern.is>
  * @link https://github.com/nickcernis/html2markdown/ Latest version on GitHub.
  * @link http://twitter.com/nickcernis Nick on twitter.
@@ -97,7 +97,7 @@ class HTML_To_Markdown
      *
      * Is the node a child of the given parent tag?
      *
-     * @param $parent_name string The name of the parent node to search for (e.g. 'code')
+     * @param $parent_name string|array The name of the parent node(s) to search for e.g. 'code' or array('pre', 'code')
      * @param $node
      * @return bool
      */
@@ -107,6 +107,9 @@ class HTML_To_Markdown
             if (is_null($p))
                 return false;
 
+            if ( is_array($parent_name) && in_array($p->nodeName, $parent_name) )
+                return true;
+            
             if ($p->nodeName == $parent_name)
                 return true;
         }
@@ -127,7 +130,7 @@ class HTML_To_Markdown
     private function convert_children($node)
     {
         // Don't convert HTML code inside <code> and <pre> blocks to Markdown - that should stay as HTML
-        if (self::is_child_of('pre', $node) || self::is_child_of('code', $node))
+        if (self::is_child_of(array('pre', 'code'), $node))
             return;
 
         // If the node has children, convert those to Markdown first
@@ -388,6 +391,9 @@ class HTML_To_Markdown
             $markdown = '[' . $text . '](' . $href . ')';
         }
 
+        if (! $href)
+            $markdown = html_entity_decode($node->C14N());
+
         // Append a space if the node after this one is also an anchor
         $next_node_name = $this->get_next_node_name($node);
 
@@ -437,7 +443,7 @@ class HTML_To_Markdown
 
         $markdown = '';
 
-        $code_content = html_entity_decode($this->document->saveHTML($node));
+        $code_content = html_entity_decode($node->C14N());
         $code_content = str_replace(array("<code>", "</code>"), "", $code_content);
         $code_content = str_replace(array("<pre>", "</pre>"), "", $code_content);
 
