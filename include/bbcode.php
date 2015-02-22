@@ -168,6 +168,8 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 }
 
 function bb_cleanup_share($shared, $plaintext, $nolink) {
+	$shared[1] = trim($shared[1]);
+
 	if (!in_array($shared[2], array("type-link", "type-video")))
 		return($shared[0]);
 
@@ -178,7 +180,7 @@ function bb_cleanup_share($shared, $plaintext, $nolink) {
 		return($shared[0]);
 
 	if ($nolink)
-		return(trim($shared[1]));
+		return($shared[1]);
 
 	$title = "";
 	$link = "";
@@ -188,6 +190,9 @@ function bb_cleanup_share($shared, $plaintext, $nolink) {
 
 	if (isset($bookmark[1][0]))
 		$link = $bookmark[1][0];
+
+	if (($title != "") AND (strpos($title, $shared[1]) !== false))
+		$shared[1] = $title;
 
 	if (($title != "") AND ((strpos($shared[1],$title) !== false) OR
 		(similar_text($shared[1],$title) / strlen($title)) > 0.9))
