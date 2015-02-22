@@ -22,7 +22,7 @@ function network_init(&$a) {
 	parse_str($query_string, $query_array);
 	array_shift($query_array);
 
-	
+
 	// fetch last used network view and redirect if needed
 	if(! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
@@ -708,12 +708,12 @@ die("ss");
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
-				(`item`.`deleted` = 0 OR `item`.`verb` = '" . ACTIVITY_LIKE ."' OR `item`.`verb` = '" . ACTIVITY_DISLIKE . "')
+				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 				and `item`.`moderated` = 0 and `item`.`unseen` = 1
 				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
 				intval(local_user())
 			);
+			//	(`item`.`deleted` = 0 OR `item`.`verb` = '" . ACTIVITY_LIKE ."' OR `item`.`verb` = '" . ACTIVITY_DISLIKE . "')
 		} else {
 			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
