@@ -185,7 +185,7 @@ function notifications_content(&$a) {
 						'$intro_id' => $rr['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
-						'$approve_as' => t('Approve as: '),
+						'$approve_as' => t('Choose "Friend" to allow to read and to subscribe to their posts. Choose "Fan" to allow to read if you do not want to read their posts. Approve as: '),
 						'$as_friend' => t('Friend'),
 						'$as_fan' => (($rr['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
 					));
