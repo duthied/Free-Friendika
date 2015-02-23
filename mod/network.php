@@ -705,15 +705,19 @@ die("ss");
 
 		// Fetch a page full of parent items for this page
 		if($update) {
+			if (!get_config("system", "like_no_comment"))
+				$sql_extra4 = "(`item`.`deleted` = 0 OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."')";
+			else
+				$sql_extra4 = "`item`.`deleted` = 0";
+
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-				and `item`.`moderated` = 0 and `item`.`unseen` = 1
+				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND $sql_extra4
+				AND `item`.`moderated` = 0 AND `item`.`unseen` = 1
 				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
 				intval(local_user())
 			);
-			//	(`item`.`deleted` = 0 OR `item`.`verb` = '" . ACTIVITY_LIKE ."' OR `item`.`verb` = '" . ACTIVITY_DISLIKE . "')
 		} else {
 			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`

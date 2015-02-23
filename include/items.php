@@ -1435,7 +1435,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	// update the commented timestamp on the parent
 	// Only update "commented" if it is really a comment
-	if ($arr['verb'] == ACTIVITY_POST)
+	if (($arr['verb'] == ACTIVITY_POST) OR !get_config("system", "like_no_comment"))
 		q("UPDATE `item` SET `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
