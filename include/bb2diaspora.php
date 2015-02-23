@@ -6,7 +6,6 @@ require_once("library/markdown.php");
 require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
 require_once("library/html-to-markdown/HTML_To_Markdown.php");
-//require_once("include/markdownify/markdownify.php");
 
 
 // we don't want to support a bbcode specific markdown interpreter
@@ -20,9 +19,6 @@ function diaspora2bb($s) {
 
 	// Simply remove cr.
 	$s = str_replace("\r","",$s);
-
-	// <br/> is invalid. Replace it with the valid expression
-	//$s = str_replace(array("<br/>", "</p>", "<p>", '<p dir="ltr">'),array("<br />", "<br />", "<br />", "<br />"),$s);
 
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/','&#35;$1',$s);
@@ -89,45 +85,19 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 			$Text = $Text."<br />".$tagline;
 		}
 
-	} else {
+	} else
 		$Text = bbcode($Text, $preserve_nl, false, 4);
 
-		// Libertree doesn't convert a harizontal rule if there isn't a linefeed
-		//$Text = str_replace(array("<hr />", "<hr>"), array("<br /><hr />", "<br><hr>"), $Text);
-	}
+	// If a link is followed by a quote then there should be a newline before it
+	// Maybe we should make this newline at every time before a quote.
+	$Text = str_replace(array("</a><blockquote>"), array("</a><br><blockquote>"), $Text);
 
 	// Now convert HTML to Markdown
 	$Text = new HTML_To_Markdown($Text);
 
-/*
-	//$md = new Markdownify(false, false, false);
-	//$Text = $md->parseString($Text);
-
-	// The Markdownify converter converts underscores '_' in URLs to '\_', which
-	// messes up the URL. Manually fix these
-	$count = 1;
-	$pos = bb_find_open_close($Text, '[', ']', $count);
-	while($pos !== false) {
-		$start = substr($Text, 0, $pos['start']);
-		$subject = substr($Text, $pos['start'], $pos['end'] - $pos['start'] + 1);
-		$end = substr($Text, $pos['end'] + 1);
-
-		$subject = str_replace('\_', '_', $subject);
-		$Text = $start . $subject . $end;
-
-		$count++;
-		$pos = bb_find_open_close($Text, '[', ']', $count);
-	}
-
-	// If the text going into bbcode() has a plain URL in it, i.e.
-	// with no [url] tags around it, it will come out of parseString()
-	// looking like: <http://url.com>, which gets removed by strip_tags().
-	// So take off the angle brackets of any such URL
-	$Text = preg_replace("/<http(.*?)>/is", "http$1", $Text);
-
-	// Remove all unconverted tags
-	$Text = strip_tags($Text);
-*/
+	// Libertree has a problem with escaped hashtags - Diaspora doesn't seem to.
+	if (!$fordiaspora)
+		$Text = str_replace(array('\#'), array('#'), $Text);
 
 	// Remove any leading or trailing whitespace, as this will mess up
 	// the Diaspora signature verification and cause the item to disappear
