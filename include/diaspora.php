@@ -834,6 +834,7 @@ function diaspora_post($importer,$xml,$msg) {
 	$str_tags = '';
 
 	$tags = get_tags($body);
+	rsort($tags);
 
 	if(count($tags)) {
 		foreach($tags as $tag) {
@@ -843,9 +844,9 @@ function diaspora_post($importer,$xml,$msg) {
 
 				// don't link tags that are already embedded in links
 
-				if(preg_match('/\[(.*?)' . preg_quote($tag,'/') . '(.*?)\]/',$body))
+				if(preg_match('/\[(\S*?)' . preg_quote($tag,'/') . '(\S*?)\]/',$body))
 					continue;
-				if(preg_match('/\[(.*?)\]\((.*?)' . preg_quote($tag,'/') . '(.*?)\)/',$body))
+				if(preg_match('/\[(\S*?)\]\((\S*?)' . preg_quote($tag,'/') . '(\S*?)\)/',$body))
 					continue;
 
 				$basetag = str_replace('_',' ',substr($tag,1));
