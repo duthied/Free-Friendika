@@ -482,6 +482,9 @@ function contacts_content(&$a) {
 		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
 
+		if ($contact['network'] == NETWORK_DFRN)
+			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
+
 		$o .= replace_macros($tpl, array(
 			'$header' => t('Contact Editor'),
 			'$tab_str' => $tab_str,
@@ -509,7 +512,7 @@ function contacts_content(&$a) {
 			'$updpub' => t('Update public posts'),
 			'$last_update' => $last_update,
 			'$udnow' => t('Update now'),
-			'$profile_select' => contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false)),
+			'$profile_select' => $profile_select,
 			'$contact_id' => $contact['id'],
 			'$block_text' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
 			'$ignore_text' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
