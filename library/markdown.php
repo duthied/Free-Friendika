@@ -9,8 +9,15 @@ require_once("library/php-markdown/Michelf/MarkdownExtra.inc.php");
 use \Michelf\MarkdownExtra;
 
 function Markdown($text) {
+
+	$a = get_app();
+
+	$stamp1 = microtime(true);
+
 	# Read file and pass content through the Markdown parser
 	$html = MarkdownExtra::defaultTransform($text);
+
+	$a->save_timestamp($stamp1, "rendering");
 
 	return $html;
 }
