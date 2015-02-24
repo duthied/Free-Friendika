@@ -15,7 +15,7 @@ function onepoll_run(&$argv, &$argc){
 	if(is_null($a)) {
 		$a = new App;
 	}
-  
+
 	if(is_null($db)) {
 	    @include(".htconfig.php");
     	require_once("include/dba.php");
@@ -57,28 +57,30 @@ function onepoll_run(&$argv, &$argc){
 		return;
 	}
 
-	// Test
 	$lockpath = get_lockpath();
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id);
-		if($pidfile->is_already_running()) {
+		if ($pidfile->is_already_running()) {
 			logger("onepoll: Already running for contact ".$contact_id);
+			if ($pidfile->running_time() > 9*60) {
+				$pidfile->kill();
+				logger("killed stale process");
+			}
 			exit;
 		}
 	}
 
-
 	$d = datetime_convert();
 
 	// Only poll from those with suitable relationships,
-	// and which have a polling address and ignore Diaspora since 
+	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
-	$contacts = q("SELECT `contact`.* FROM `contact` 
+	$contacts = q("SELECT `contact`.* FROM `contact`
 		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
 		AND NOT `network` IN ( '%s', '%s', '%s' )
 		AND `contact`.`id` = %d
-		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0 
+		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0
 		AND `contact`.`archive` = 0 LIMIT 1",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
@@ -584,8 +586,8 @@ function onepoll_run(&$argv, &$argc){
 
 	// load current friends if possible.
 
-	if($contact['poco']) {	
-		$r = q("SELECT count(*) as total from glink 
+	if($contact['poco']) {
+		$r = q("SELECT count(*) as total from glink
 			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
@@ -600,6 +602,6 @@ function onepoll_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  onepoll_run($argv,$argc);
+  onepoll_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

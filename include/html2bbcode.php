@@ -16,7 +16,7 @@ function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 {
-	$savestart = str_replace('$', '%', $startbb);
+	$savestart = str_replace('$', '\x01', $startbb);
 	$replace = false;
 
 	$xpath = new DomXPath($doc);
@@ -37,7 +37,7 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 		foreach ($attributes as $attribute => $value) {
 
-			$startbb = str_replace('%'.++$i, '$1', $startbb);
+			$startbb = str_replace('\x01'.++$i, '$1', $startbb);
 
 			if (strpos('*'.$startbb, '$1') > 0) {
 
@@ -76,13 +76,14 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	return($replace);
 }
 
+if(!function_exists('deletenode')) {
 function deletenode(&$doc, $node)
 {
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//".$node);
 	foreach ($list as $child)
 		$child->parentNode->removeChild($child);
-}
+}}
 
 function html2bbcode($message)
 {

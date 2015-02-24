@@ -28,6 +28,8 @@ else if ($style == "breathe")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/breathe.css" type="text/css" media="screen"/>'."\n";
 else if ($style == "plus")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/plus.css" type="text/css" media="screen"/>'."\n";
+else if ($style == "dark")
+	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/dark.css" type="text/css" media="screen"/>'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
 <script type="text/javascript">

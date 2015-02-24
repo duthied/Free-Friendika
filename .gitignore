@@ -34,7 +34,11 @@ report/
 #ignore cache folders
 /privacy_image_cache/
 /photo/
+/proxy/
 nbproject
 
 #ignore vagrant dir
 .vagrant/
+
+#ignore local folder
+/local/

@@ -3,6 +3,7 @@
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
 require_once('include/contact_selectors.php');
+require_once('mod/proxy.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
@@ -73,12 +74,12 @@ function contacts_init(&$a) {
 function contacts_batch_actions(&$a){
 	$contacts_id = $_POST['contact_batch'];
 	if (!is_array($contacts_id)) return;
-	
+
 	$orig_records = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND `uid` = %d AND `self` = 0",
 		implode(",", $contacts_id),
 		intval(local_user())
 	);
-	
+
 	$count_actions=0;
 	foreach($orig_records as $orig_record) {
 		$contact_id = $orig_record['id'];
@@ -106,7 +107,7 @@ function contacts_batch_actions(&$a){
 	if ($count_actions>0) {
 		info ( sprintf( tt("%d contact edited.", "%d contacts edited", $count_actions), $count_actions) );
 	}
-	
+
 	if(x($_SESSION,'return_url'))
 		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
 	else
@@ -407,19 +408,19 @@ function contacts_content(&$a) {
 			$url = "redir/{$contact['id']}";
 			$sparkle = ' class="sparkle" ';
 		}
-		else { 
+		else {
 			$url = $contact['url'];
 			$sparkle = '';
 		}
 
 		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00') 
-				? t('Never') 
+		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00')
+				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
 		if($contact['last-update'] !== '0000-00-00 00:00:00')
-			$last_update .= ' ' . (($contact['last-update'] == $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
+			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
@@ -430,7 +431,7 @@ function contacts_content(&$a) {
 		$common = count_common_friends(local_user(),$contact['id']);
 		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
-		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : ''); 
+		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
 		$x = count_all_friends(local_user(), $contact['id']);
 		$all_friends = (($x) ? t('View all contacts') : '');
@@ -623,11 +624,11 @@ function contacts_content(&$a) {
 
 	if($nets)
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
- 
-	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : ''); 
 
-	
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` 
+	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
+
+
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
 	if(count($r)) {
@@ -668,7 +669,7 @@ function contacts_content(&$a) {
 				$url = "redir/{$rr['id']}";
 				$sparkle = ' class="sparkle" ';
 			}
-			else { 
+			else {
 				$url = $rr['url'];
 				$sparkle = '';
 			}
@@ -681,7 +682,7 @@ function contacts_content(&$a) {
 				'id' => $rr['id'],
 				'alt_text' => $alt_text,
 				'dir_icon' => $dir_icon,
-				'thumb' => $rr['thumb'], 
+				'thumb' => proxy_url($rr['thumb']),
 				'name' => $rr['name'],
 				'username' => $rr['name'],
 				'sparkle' => $sparkle,

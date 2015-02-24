@@ -24,7 +24,7 @@
 </div>
 
 <div id="invite-submit-wrapper">
-<input type="submit" name="submit" value="{{$submit}}" />
+<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </div>
 
 </div>

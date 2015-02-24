@@ -41,7 +41,9 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 			if ($matches[1] != "")
 				$title = $matches[1];
 
-			$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+			//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+			$title = bbcode(html_entity_decode($title), false, false, true);
+			$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
 
 			$image = "";
 			if ($type != "video") {
@@ -617,6 +619,17 @@ function GetProfileUsername($profile, $username, $compact = false, $getnetwork =
 			return($username." (".$diaspora.")");
 	}
 
+	$red = preg_replace("=https?://(.*)/channel/(.*)=ism", "$2@$1", $profile);
+	if ($red != $profile) {
+		if ($getnetwork)
+			// red is identified as Diaspora - friendica can't connect directly to it
+			return(NETWORK_DIASPORA);
+		elseif ($compact)
+			return($red);
+		else
+			return($username." (".$red.")");
+	}
+
 	$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
 	if ($StatusnetHost != $profile) {
 		$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
@@ -695,7 +708,7 @@ function bb_RemovePictureLinks($match) {
 }
 
 function bb_expand_links($match) {
-	if (stristr($match[2], $match[3]) OR ($match[2] == $match[3]))
+	if (($match[3] == "") OR ($match[2] == $match[3]) OR stristr($match[2], $match[3]))
 		return ($match[1]."[url]".$match[2]."[/url]");
 	else
 		return ($match[1].$match[3]." [url]".$match[2]."[/url]");
@@ -1171,6 +1184,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$a->save_timestamp($stamp1, "parser");
 
-	return $Text;
+	return trim($Text);
 }
 ?>

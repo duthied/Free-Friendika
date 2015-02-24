@@ -22,14 +22,14 @@
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});" >
 					<option value=""></option>
 				{{foreach $qcomment as $qc}}
-					<option value="{{$qc}}">{{$qc}}</option>				
+					<option value="{{$qc|escape:'html'}}">{{$qc}}</option>				
 				{{/foreach}}
 					</select>
 				{{/if}}
 
 				<div class="comment-edit-text-end"></div>
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;" >
-					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit}}" />
+					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit|escape:'html'}}" />
 					{{if $preview}}<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>{{/if}}
 					<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 				</div>

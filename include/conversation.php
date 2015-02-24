@@ -203,12 +203,11 @@ function localize_item(&$item){
 
 		// we can't have a translation string with three positions but no distinguishable text
 		// So here is the translate string.
-
 		$txt = t('%1$s poked %2$s');
-
+		
 		// now translate the verb
-
-		$txt = str_replace( t('poked'), t($verb), $txt);
+		$poked_t = trim(sprintf($txt, "",""));
+		$txt = str_replace( $poked_t, t($verb), $txt);
 
 		// then do the sprintf on the translation string
 
@@ -1102,16 +1101,16 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$shortsetloc' => t('set location'),
 		'$noloc' => t('Clear browser location'),
 		'$shortnoloc' => t('clear location'),
-		'$title' => "",
+		'$title' => $x['title'],
 		'$placeholdertitle' => t('Set title'),
-		'$category' => "",
+		'$category' => $x['category'],
 		'$placeholdercategory' => (feature_enabled(local_user(),'categories') ? t('Categories (comma-separated list)') : ''),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$shortpermset' => t('permissions'),
 		'$ptyp' => (($notes_cid) ? 'note' : 'wall'),
-		'$content' => '',
-		'$post_id' => '',
+		'$content' => $x['content'],
+		'$post_id' => $x['post_id'],
 		'$baseurl' => $a->get_baseurl(true),
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],

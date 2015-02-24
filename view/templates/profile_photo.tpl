@@ -17,7 +17,7 @@
 </select>
 
 <div id="profile-photo-submit-wrapper">
-<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
+<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit|escape:'html'}}">
 </div>
 
 </form>

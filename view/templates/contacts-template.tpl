@@ -6,8 +6,8 @@
 <div id="contacts-search-wrapper">
 <form id="contacts-search-form" action="{{$cmd}}" method="get" >
 <span class="contacts-search-desc">{{$desc}}</span>
-<input type="text" name="search" id="contacts-search" class="search-input" onfocus="this.select();" value="{{$search}}" />
-<input type="submit" name="submit" id="contacts-search-submit" value="{{$submit}}" />
+<input type="text" name="search" id="contacts-search" class="search-input" onfocus="this.select();" value="{{$search|escape:'html'}}" />
+<input type="submit" name="submit" id="contacts-search-submit" value="{{$submit|escape:'html'}}" />
 </form>
 </div>
 <div id="contacts-search-end"></div>
@@ -21,7 +21,7 @@
 <div id="contact-edit-end"></div>
 <div id="contacts-actions">
 {{foreach $batch_actions as $n=>$l}}
- <input class="batch-action" name="{{$n}}" value="{{$l}}" type="submit">
+ <input class="batch-action" name="{{$n}}" value="{{$l|escape:'html'}}" type="submit">
  {{/foreach}}
  </div>
 </form>

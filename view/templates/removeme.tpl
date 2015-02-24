@@ -14,7 +14,7 @@
 </div>
 <div id="remove-account-pass-end"></div>
 
-<input type="submit" name="submit" value="{{$submit}}" />
+<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 
 </form>
 </div>

@@ -565,6 +565,6 @@ function delivery_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  delivery_run($argv,$argc);
+  delivery_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }
