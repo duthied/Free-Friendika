@@ -651,7 +651,7 @@ function validate_email($addr) {
 		return false;
 	$h = substr($addr,strpos($addr,'@') + 1);
 
-	if(($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+	if(($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
 		return true;
 	}
 	return false;
@@ -1159,13 +1159,8 @@ function original_url($url, $depth=1, $fetchbody = false) {
         $siteinfo = array();
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-
-        if ($fetchbody)
-                curl_setopt($ch, CURLOPT_NOBODY, 0);
-        else
-                curl_setopt($ch, CURLOPT_NOBODY, 1);
-
+	curl_setopt($ch, CURLOPT_HEADER, 1);
+	curl_setopt($ch, CURLOPT_NOBODY, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
@@ -1183,16 +1178,33 @@ function original_url($url, $depth=1, $fetchbody = false) {
                         return(original_url($curl_info['location'], ++$depth, $fetchbody));
         }
 
-        $pos = strpos($header, "\r\n\r\n");
+	// Check for redirects in the meta elements of the body if there are no redirects in the header.
+	if (!$fetchbody)
+		return(original_url($url, ++$depth, true));
 
-        if ($pos)
-                $body = trim(substr($header, $pos));
-        else
-                $body = $header;
+	// if the file is too large then exit
+	if ($curl_info["download_content_length"] > 1000000)
+		return($url);
+
+	// if it isn't a HTML file then exit
+	if (($curl_info["content_type"] != "") AND !strstr(strtolower($curl_info["content_type"]),"html"))
+		return($url);
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_NOBODY, 0);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+
+	$body = curl_exec($ch);
+	curl_close($ch);
 
         if (trim($body) == "")
-                return(original_url($url, ++$depth, true));
+		return($url);
 
+	// Check for redirect in meta elements
         $doc = new DOMDocument();
         @$doc->loadHTML($body);
 

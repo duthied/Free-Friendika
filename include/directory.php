@@ -46,6 +46,6 @@ function directory_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  directory_run($argv,$argc);
+  directory_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

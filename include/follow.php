@@ -37,7 +37,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 	call_hooks('follow', $arr);
 
-	if(x($arr['contact'],'name')) 
+	if(x($arr['contact'],'name'))
 		$ret = $arr['contact'];
 	else
 		$ret = probe_url($url);
@@ -73,7 +73,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 
 	// do we have enough information?
-	
+
 	if(! ((x($ret,'name')) && (x($ret,'poll')) && ((x($ret,'url')) || (x($ret,'addr'))))) {
 		$result['message'] .=  t('The profile address specified does not provide adequate information.') . EOL;
 		if(! x($ret,'poll'))
@@ -120,11 +120,11 @@ function new_contact($uid,$url,$interactive = false) {
 	// the poll url is more reliable than the profile url, as we may have
 	// indirect links or webfinger links
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` = '%s' AND `network` = '%s' LIMIT 1",
 		intval($uid),
-		dbesc($ret['poll'])
+		dbesc($ret['poll']),
+		dbesc($ret['network'])
 	);
-
 
 	if(count($r)) {
 		// update contact
@@ -169,10 +169,10 @@ function new_contact($uid,$url,$interactive = false) {
 		if($ret['network'] === NETWORK_DIASPORA)
 			$new_relation = CONTACT_IS_FOLLOWER;
 
-		// create contact record 
-		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
+		// create contact record
+		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network`, `pubkey`, `rel`, `priority`,
 			`writable`, `hidden`, `blocked`, `readonly`, `pending`, `subhub` )
-			VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, 0, 0, 0, %d ) ",
+			VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, 0, 0, 0, %d ) ",
 			intval($uid),
 			dbesc(datetime_convert()),
 			dbesc($ret['url']),
@@ -185,7 +185,6 @@ function new_contact($uid,$url,$interactive = false) {
 			dbesc($ret['poco']),
 			dbesc($ret['name']),
 			dbesc($ret['nick']),
-			dbesc($ret['photo']),
 			dbesc($ret['network']),
 			dbesc($ret['pubkey']),
 			intval($new_relation),
@@ -196,8 +195,9 @@ function new_contact($uid,$url,$interactive = false) {
 		);
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
+	$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
 		dbesc($ret['url']),
+		dbesc($ret['network']),
 		intval($uid)
 	);
 
@@ -228,8 +228,7 @@ function new_contact($uid,$url,$interactive = false) {
 			`name-date` = '%s',
 			`uri-date` = '%s',
 			`avatar-date` = '%s'
-			WHERE `id` = %d
-		",
+			WHERE `id` = %d",
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),

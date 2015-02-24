@@ -96,24 +96,49 @@
 		}
 
 		$user = $_SERVER['PHP_AUTH_USER'];
-		$encrypted = hash('whirlpool',trim($_SERVER['PHP_AUTH_PW']));
+		$password = $_SERVER['PHP_AUTH_PW'];
+		$encrypted = hash('whirlpool',trim($password));
 
 
 		/**
 		 *  next code from mod/auth.php. needs better solution
 		 */
+		$record = null;
 
-		// process normal login request
-
-		$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
-			AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
-			dbesc(trim($user)),
-			dbesc(trim($user)),
-			dbesc($encrypted)
+		$addon_auth = array(
+			'username' => trim($user), 
+			'password' => trim($password),
+			'authenticated' => 0,
+			'user_record' => null
 		);
-		if(count($r)){
-			$record = $r[0];
-		} else {
+
+		/**
+		 *
+		 * A plugin indicates successful login by setting 'authenticated' to non-zero value and returning a user record
+		 * Plugins should never set 'authenticated' except to indicate success - as hooks may be chained
+		 * and later plugins should not interfere with an earlier one that succeeded.
+		 *
+		 */
+
+		call_hooks('authenticate', $addon_auth);
+
+		if(($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+			$record = $addon_auth['user_record'];
+		}
+		else {
+			// process normal login request
+
+			$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
+				AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+				dbesc(trim($user)),
+				dbesc(trim($user)),
+				dbesc($encrypted)
+			);
+			if(count($r))
+				$record = $r[0];
+		}
+
+		if((! $record) || (! count($record))) {
 			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
 			header('HTTP/1.0 401 Unauthorized');
@@ -1618,7 +1643,8 @@
 
 
 		$user_info = api_get_user($a);
-		$ret = api_format_items($item,$user_info)[0];
+		$rets = api_format_items($item,$user_info);
+		$ret = $rets[0];
 
 		$data = array('$status' => $ret);
 		switch($type){
@@ -2042,7 +2068,7 @@
 		$ret = Array();
 
 		foreach($r as $item) {
-			api_share_as_retweet($a, api_user(), $item);
+			api_share_as_retweet($item);
 
 			localize_item($item);
 			$status_user = api_item_get_user($a,$item);
@@ -2594,7 +2620,7 @@
 
 
 
-function api_share_as_retweet($a, $uid, &$item) {
+function api_share_as_retweet(&$item) {
 	$body = trim($item["body"]);
 
 	// Skip if it isn't a pure repeated messages
@@ -2638,6 +2664,15 @@ function api_share_as_retweet($a, $uid, &$item) {
 	if ($matches[1] != "")
 		$avatar = $matches[1];
 
+	$link = "";
+	preg_match("/link='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
+	preg_match('/link="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$link = $matches[1];
+
 	$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$2",$body);
 
 	if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
@@ -2647,6 +2682,7 @@ function api_share_as_retweet($a, $uid, &$item) {
 	$item["author-name"] = $author;
 	$item["author-link"] = $profile;
 	$item["author-avatar"] = $avatar;
+	$item["plink"] = $link;
 
 	return(true);
 

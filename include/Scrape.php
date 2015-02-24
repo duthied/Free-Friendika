@@ -343,6 +343,12 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	if(! $url)
 		return $result;
 
+	$result = Cache::get("probe_url:".$mode.":".$url);
+	if (!is_null($result)) {
+		$result = unserialize($result);
+		return $result;
+	}
+
 	$network = null;
 	$diaspora = false;
 	$diaspora_base = '';
@@ -350,6 +356,23 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	$diaspora_key = '';
 	$has_lrdd = false;
 	$email_conversant = false;
+	$connectornetworks = false;
+	$appnet = false;
+
+	if (strpos($url,'twitter.com')) {
+		$connectornetworks = true;
+		$network = NETWORK_TWITTER;
+	}
+
+	if (strpos($url,'www.facebook.com')) {
+		$connectornetworks = true;
+		$network = NETWORK_FACEBOOK;
+	}
+
+	if (strpos($url,'alpha.app.net')) {
+		$appnet = true;
+		$network = NETWORK_APPNET;
+	}
 
 	// Twitter is deactivated since twitter closed its old API
 	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
@@ -357,7 +380,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 	$at_addr = ((strpos($url,'@') !== false) ? true : false);
 
-	if((! $twitter) && (! $lastfm)) {
+	if((!$appnet) && (!$lastfm) && !$connectornetworks) {
 
 		if(strpos($url,'mailto:') !== false && $at_addr) {
 			$url = str_replace('mailto:','',$url);
@@ -400,6 +423,9 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					else
 						$pubkey = $diaspora_key;
 					$diaspora = true;
+				}
+				if($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') {
+					$diaspora = false;
 				}
 			}
 
@@ -597,11 +623,14 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			// Will leave it to others to figure out how to grab the avatar, which is on the $url page in the open graph meta links
 		}
 
-		if($twitter || ! $poll)
+		if($appnet || ! $poll)
 			$check_feed = true;
 		if((! isset($vcard)) || (! x($vcard,'fn')) || (! $profile))
 			$check_feed = true;
 		if(($at_addr) && (! count($links)))
+			$check_feed = false;
+
+		if ($connectornetworks)
 			$check_feed = false;
 
 		if($check_feed) {
@@ -749,6 +778,17 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	$result['pubkey'] = $pubkey;
 
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
+
+	// Trying if it maybe a diaspora account
+	if ($result['network'] == NETWORK_FEED) {
+		require_once('include/bbcode.php');
+		$address = GetProfileUsername($url, "", true);
+		$result2 = probe_url($address, $mode);
+		if ($result2['network'] != "")
+			$result = $result2;
+	}
+
+	Cache::set("probe_url:".$mode.":".$url,serialize($result));
 
 	return $result;
 }

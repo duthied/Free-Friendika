@@ -16,6 +16,6 @@
 </select>
 <br />
 <br />
-<input type="submit" name="submit" value="{{$submit}}" />
+<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </form>
 

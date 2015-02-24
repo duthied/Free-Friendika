@@ -11,6 +11,7 @@ require_once('include/text.php');
 require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
+require_once('include/socgraph.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
@@ -881,6 +882,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 					$preview = $attachment->link;
 
 		$res["body"] = $res["title"].add_page_info($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
+		$res["tag"] = add_page_keywords($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
 		$res["title"] = "";
 		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 		unset($res["attach"]);
@@ -945,7 +947,7 @@ function add_page_info_data($data) {
 	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	require_once("mod/parse_url.php");
 
 	$data = Cache::get("parse_url:".$url);
@@ -958,7 +960,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 	if ($photo != "")
 		$data["images"][0]["src"] = $photo;
 
-	logger('add_page_info: fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
+	logger('fetch page info for '.$url.' '.print_r($data, true), LOGGER_DEBUG);
 
 	if (!$keywords AND isset($data["keywords"]))
 		unset($data["keywords"]);
@@ -972,6 +974,32 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 				unset($data["keywords"][$index]);
 		}
 	}
+
+	return($data);
+}
+
+function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
+
+	$tags = "";
+	if (isset($data["keywords"]) AND count($data["keywords"])) {
+		$a = get_app();
+		foreach ($data["keywords"] AS $keyword) {
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
+						array("","", "", "", "", ""), $keyword);
+
+			if ($tags != "")
+				$tags .= ",";
+
+			$tags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url]";
+		}
+	}
+
+	return($tags);
+}
+
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
 
 	$text = add_page_info_data($data);
 
@@ -1322,6 +1350,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 
+	// Store the unescaped version
+	$unescaped = $arr;
+
 	dbesc_array($arr);
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
@@ -1332,16 +1363,38 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			. implode("', '", array_values($arr))
 			. "')" );
 
-	// find the item we just created
+	// And restore it
+	$arr = $unescaped;
 
+	// find the item we just created
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC ",
-		$arr['uri'],           // already dbesc'd
+		dbesc($arr['uri']),
 		intval($arr['uid'])
 	);
 
 	if(count($r)) {
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
+
+		// Add every contact to the global contact table
+		// Contacts from the statusnet connector are also added since you could add them in OStatus as well.
+		if (!$arr['private'] AND in_array($arr["network"],
+			array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_STATUSNET, ""))) {
+			poco_check($arr["author-link"], $arr["author-name"], $arr["network"], $arr["author-avatar"], "", "", "", "", "", $arr["received"], $arr["contact-id"], $arr["uid"]);
+
+			// Maybe its a body with a shared item? Then extract a global contact from it.
+			poco_contact_from_body($arr["body"], $arr["received"], $arr["contact-id"], $arr["uid"]);
+		}
+
+		// Set "success_update" to the date of the last time we heard from this contact
+		// This can be used to filter for inactive contacts and poco.
+		// Only do this for public postings to avoid privacy problems, since poco data is public.
+		// Don't set this value if it isn't from the owner (could be an author that we don't know)
+		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
+			q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
+				intval($arr['contact-id'])
+			);
 
 		// Only check for notifications on start posts
 		if ($arr['parent-uri'] === $arr['uri']) {
@@ -1393,7 +1446,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if(count($r) > 1) {
 		logger('item_store: duplicated post occurred. Removing duplicates.');
 		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `id` != %d ",
-			$arr['uri'],
+			dbesc($arr['uri']),
 			intval($arr['uid']),
 			intval($current_post)
 		);
@@ -2668,14 +2721,14 @@ function item_is_remote_self($contact, &$datarray) {
 	$datarray2 = $datarray;
 	logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
 	if ($contact['remote_self'] == 2) {
-		$r = q("SELECT `id`,`url`,`name`,`photo`,`network` FROM `contact` WHERE `uid` = %d AND `self`",
+		$r = q("SELECT `id`,`url`,`name`,`thumb` FROM `contact` WHERE `uid` = %d AND `self`",
 			intval($contact['uid']));
 		if (count($r)) {
 			$datarray['contact-id'] = $r[0]["id"];
 
 			$datarray['owner-name'] = $r[0]["name"];
 			$datarray['owner-link'] = $r[0]["url"];
-			$datarray['owner-avatar'] = $r[0]["avatar"];
+			$datarray['owner-avatar'] = $r[0]["thumb"];
 
 			$datarray['author-name']   = $datarray['owner-name'];
 			$datarray['author-link']   = $datarray['owner-link'];
@@ -4054,6 +4107,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	else
 		$body = $item['body'];
 
+
 	$o = "\r\n\r\n<entry>\r\n";
 
 	if(is_array($author))
@@ -4068,13 +4122,22 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
 	}
 
+	$htmlbody = $body;
+
+	if ($item['title'] != "")
+		$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
+
+	$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
+
 	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
 	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
 	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 	$o .= '<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>' . "\r\n";
-	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? bbcode($body) : $body)) . '</content>' . "\r\n";
+	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>' . "\r\n";
 	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />' . "\r\n";
+
+
 	if($comment)
 		$o .= '<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>' . "\r\n";
 
@@ -4492,7 +4555,7 @@ function drop_item($id,$interactive = true) {
 		);
 		create_tags_from_item($item['id']);
 		create_files_from_item($item['id']);
-		delete_thread($item['id']);
+		delete_thread($item['id'], $item['parent-uri']);
 
 		// clean up categories and tags so they don't end up as orphans
 

@@ -16,9 +16,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Ginger');
-define ( 'FRIENDICA_VERSION',      '3.3.2' );
+define ( 'FRIENDICA_VERSION',      '3.3.3' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1175      );
+define ( 'DB_UPDATE_VERSION',      1178      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -435,7 +435,7 @@ if(! class_exists('App')) {
 
 		function __construct() {
 
-			global $default_timezone, $argv, $argc;
+			global $default_timezone;
 
 			$hostname = "";
 
@@ -504,9 +504,9 @@ if(! class_exists('App')) {
 			if ($hostname != "")
 				$this->hostname = $hostname;
 
-			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
-				$this->set_baseurl(array_pop($argv) );
-				$argc --;
+			if (is_array($_SERVER["argv"]) && $_SERVER["argc"]>1 && substr(end($_SERVER["argv"]), 0, 4)=="http" ) {
+				$this->set_baseurl(array_pop($_SERVER["argv"]) );
+				$_SERVER["argc"] --;
 			}
 
 			#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
@@ -1649,8 +1649,10 @@ if(! function_exists('profile_sidebar')) {
 
 		$homepage = ((x($profile,'homepage') == 1) ?  t('Homepage:') : False);
 
+		$about = ((x($profile,'about') == 1) ?  t('About:') : False);
+
 		if(($profile['hidewall'] || $block) && (! local_user()) && (! remote_user())) {
-			$location = $pdesc = $gender = $marital = $homepage = False;
+			$location = $pdesc = $gender = $marital = $homepage = $about = False;
 		}
 
 		$firstname = ((strpos($profile['name'],' '))
@@ -1695,6 +1697,7 @@ if(! function_exists('profile_sidebar')) {
 			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
+			'$about' => $about,
 			'$network' =>  t('Network:'),
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
@@ -2071,7 +2074,7 @@ if(! function_exists('load_contact_links')) {
 		if(! $uid || x($a->contacts,'empty'))
 			return;
 
-		$r = q("SELECT `id`,`network`,`url`,`thumb` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 ",
+		$r = q("SELECT `id`,`network`,`url`,`thumb` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
 				intval($uid)
 		);
 		if(count($r)) {

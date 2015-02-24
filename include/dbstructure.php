@@ -413,6 +413,10 @@ function db_definition() {
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
+					"keywords" => array("type" => "text", "not null" => "1"),
+					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "text", "not null" => "1"),
 					"thumb" => array("type" => "text", "not null" => "1"),
@@ -616,6 +620,12 @@ function db_definition() {
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
+					"keywords" => array("type" => "text", "not null" => "1"),
+					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -823,6 +833,7 @@ function db_definition() {
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"name" => array("type" => "varchar(128)", "not null" => "1", "default" => ""),
 					"locked" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"created" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1247,6 +1258,8 @@ function db_definition() {
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"about" => array("type" => "text", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1339,6 +1352,6 @@ function dbstructure_run(&$argv, &$argc) {
 }
 
 if (array_search(__file__,get_included_files())===0){
-	dbstructure_run($argv,$argc);
+	dbstructure_run($_SERVER["argv"],$_SERVER["argc"]);
 	killme();
 }

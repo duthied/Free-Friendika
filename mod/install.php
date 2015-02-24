@@ -231,11 +231,11 @@ function install_content(&$a) {
 
 				'$status' => $wizard_status,
 
-				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, ''),
-				'$dbuser' => array('dbuser', t('Database Login Name'), $dbuser, ''),
-				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, ''),
-				'$dbdata' => array('dbdata', t('Database Name'), $dbdata, ''),
-				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.')),
+				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, '', 'required'),
+				'$dbuser' => array('dbuser', t('Database Login Name'), $dbuser, '', 'required', 'autofocus'),
+				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, '', 'required'),
+				'$dbdata' => array('dbdata', t('Database Name'), $dbdata, '', 'required'),
+				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'),
 
 
 
@@ -274,7 +274,7 @@ function install_content(&$a) {
 				'$dbdata' => $dbdata,
 				'$phpath' => $phpath,
 
-				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.')),
+				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'),
 
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
