@@ -17,7 +17,7 @@ function Markdown($text) {
 	# Read file and pass content through the Markdown parser
 	$html = MarkdownExtra::defaultTransform($text);
 
-	$a->save_timestamp($stamp1, "rendering");
+	$a->save_timestamp($stamp1, "parser");
 
 	return $html;
 }
