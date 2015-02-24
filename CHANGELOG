@@ -25,6 +25,11 @@ Version 3.3.3
 	Fix tools for translations (ddorian1)
 	Fix API login via LDAP (issue #1286) (fabrixxm)
 	Fix to link URL in tabs, pager (issues #1341, #1190) (ddorian1)
+	Fix poke activities translation (fabrixxm)
+	Fix html escaping in templates (fabrixxm)
+	Fix Friendica contacts shown as Diaspora contacts via Poco (annando)
+	Fix shared contacts wrong linking (issue #1388) (annando)
+	Fix email validation (ddorian1)
 	Better documentation for developers (silke)
 
 Version 3.3.2
