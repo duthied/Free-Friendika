@@ -17,23 +17,11 @@ function diaspora2bb($s) {
 
 	$s = html_entity_decode($s,ENT_COMPAT,'UTF-8');
 
-	// Simply remove cr.
+	// Remove CR to avoid problems with following code
 	//$s = str_replace("\r","",$s);
-/*
-	// The parser has problems with unbalanced HTML elements
-	$doc = new DOMDocument();
-	$doc->preserveWhiteSpace = false;
-	$s = mb_convert_encoding($s, 'HTML-ENTITIES', "UTF-8");
-	$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
-	$encoding = '<?xml encoding="UTF-8">';
-	@$doc->loadHTML($encoding.$doctype."<html><body>".$s."</body></html>");
-	$doc->encoding = 'UTF-8';
-	$s = $doc->saveHTML();
-	$s = str_replace(array("<html><body>", "</body></html>", $doctype, $encoding), array("", "", "", ""), $s);
-*/
 
-	// The parser has problems with unbalanced html elements
-	$s = str_replace(array("<br/>", "</p>", "<p>", '<p dir="ltr">'),array("<br />", "<br />", "<br />", "<br />"),$s);
+	// The parser cannot handle paragraphs correctly
+	$s = str_replace(array("</p>", "<p>", '<p dir="ltr">'),array("<br>", "<br>", "<br>"),$s);
 
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/','&#35;$1',$s);
@@ -116,9 +104,8 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	$a->save_timestamp($stamp1, "parser");
 
-	// Libertree has a problem with escaped hashtags - Diaspora doesn't seem to.
-	if (!$fordiaspora)
-		$Text = str_replace(array('\#'), array('#'), $Text);
+	// Libertree has a problem with escaped hashtags.
+	$Text = str_replace(array('\#'), array('#'), $Text);
 
 	// Remove any leading or trailing whitespace, as this will mess up
 	// the Diaspora signature verification and cause the item to disappear
