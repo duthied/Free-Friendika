@@ -1434,12 +1434,18 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['deleted'] = $parent_deleted;
 
 	// update the commented timestamp on the parent
-
-	q("UPDATE `item` set `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval($parent_id)
-	);
+	// Only update "commented" if it is really a comment
+	if (($arr['verb'] == ACTIVITY_POST) OR !get_config("system", "like_no_comment"))
+		q("UPDATE `item` SET `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($parent_id)
+		);
+	else
+		q("UPDATE `item` SET `changed` = '%s' WHERE `id` = %d",
+			dbesc(datetime_convert()),
+			intval($parent_id)
+		);
 
 	if($dsprsig) {
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
