@@ -163,6 +163,7 @@ function oembed_format_object($j){
 
 	// add link to source if not present in "rich" type
 	if ($j->type!='rich' || !strpos($j->html,$embedurl) ){
+		$ret .= "<h5>";
 		if (isset($j->title)) {
 			if (isset($j->provider_name))
 				$ret .= $j->provider_name.": ";
@@ -189,11 +190,12 @@ function oembed_format_object($j){
 		}
 		//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
 		//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
+		$ret .= "</h5>";
 	} else {
 		// add <a> for html2bbcode conversion
 		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
+		$ret.="<br style='clear:left'></span>";
 	}
-	$ret.="<br style='clear:left'></span>";
 	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
 }
 
