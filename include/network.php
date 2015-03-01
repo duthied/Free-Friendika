@@ -34,6 +34,11 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		));
 	}
 
+	// There are many servers out there that don't have valid certificates
+	// We have to disable the checks :-(
+	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false);
+	@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,false);
+
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
