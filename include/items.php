@@ -1239,6 +1239,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
+	// Check for hashtags in the body and repair or add hashtag links
+	item_body_set_hashtags($arr);
+
 	$arr['thr-parent'] = $arr['parent-uri'];
 	if($arr['parent-uri'] === $arr['uri']) {
 		$parent_id = 0;
@@ -1554,6 +1557,64 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
 
 	return $current_post;
+}
+
+function item_body_set_hashtags(&$item) {
+
+	$tags = get_tags($item["body"]);
+
+	// No hashtags?
+	if(!count($tags))
+		return(false);
+
+	// This sorting is important when there are hashtags that are part of other hashtags
+	// Otherwise there could be problems with hashtags like #test and #test2
+	rsort($tags);
+
+	$a = get_app();
+
+	$URLSearchString = "^\[\]";
+
+	// All hashtags should point to the home server
+	$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+			"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
+
+	$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+			"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
+
+	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
+	$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+		function ($match){
+			return("[url=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/url]");
+		},$item["body"]);
+
+	$item["body"] = preg_replace_callback("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",
+		function ($match){
+			return("[bookmark=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/bookmark]");
+		},$item["body"]);
+
+	$item["body"] = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+		function ($match){
+			return("[attachment ".str_replace("#", "&num;", $match[1])."]".$match[2]."[/attachment]");
+		},$item["body"]);
+
+	// Repair recursive urls
+	$item["body"] = preg_replace("/&num;\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+			"&num;$2", $item["body"]);
+
+	foreach($tags as $tag) {
+		if(strpos($tag,'#') !== 0)
+			continue;
+
+		if(strpos($tag,'[url='))
+			continue;
+
+		$basetag = str_replace('_',' ',substr($tag,1));
+		$item["body"] = str_replace($tag,'#[url='.$a->get_baseurl().'/search?tag='.rawurlencode($basetag).']'.$basetag.'[/url]', $item["body"]);
+	}
+
+	// Convert back the masked hashtags
+	$item["body"] = str_replace("&num;", "#", $item["body"]);
 }
 
 function get_item_guid($id) {

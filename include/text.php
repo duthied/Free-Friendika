@@ -752,6 +752,9 @@ if(! function_exists('get_tags')) {
 function get_tags($s) {
 	$ret = array();
 
+	// Convert hashtag links to hashtags
+	$s = preg_replace("/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism", "#$2", $s);
+
 	// ignore anything in a code block
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
 
