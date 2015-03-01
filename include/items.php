@@ -1610,7 +1610,16 @@ function item_body_set_hashtags(&$item) {
 			continue;
 
 		$basetag = str_replace('_',' ',substr($tag,1));
-		$item["body"] = str_replace($tag,'#[url='.$a->get_baseurl().'/search?tag='.rawurlencode($basetag).']'.$basetag.'[/url]', $item["body"]);
+
+		$newtag = '#[url='.$a->get_baseurl().'/search?tag='.rawurlencode($basetag).']'.$basetag.'[/url]';
+
+		$item["body"] = str_replace($tag, $newtag, $item["body"]);
+
+		if(!stristr($item["tag"],"/search?tag=".$basetag."]".$basetag."[/url]")) {
+			if(strlen($item["tag"]))
+				$item["tag"] = ','.$item["tag"];
+			$item["tag"] = $newtag.$item["tag"];
+		}
 	}
 
 	// Convert back the masked hashtags

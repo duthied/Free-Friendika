@@ -833,32 +833,6 @@ function diaspora_post($importer,$xml,$msg) {
 
 	$str_tags = '';
 
-	$tags = get_tags($body);
-	rsort($tags);
-
-	if(count($tags)) {
-		foreach($tags as $tag) {
-			if(strpos($tag,'#') === 0) {
-				if(strpos($tag,'[url='))
-					continue;
-
-				// don't link tags that are already embedded in links
-
-				if(preg_match('/\[(\S*?)' . preg_quote($tag,'/') . '(\S*?)\]/',$body))
-					continue;
-				if(preg_match('/\[(\S*?)\]\((\S*?)' . preg_quote($tag,'/') . '(\S*?)\)/',$body))
-					continue;
-
-				$basetag = str_replace('_',' ',substr($tag,1));
-				$body = str_replace($tag,'#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]',$body);
-				if(strlen($str_tags))
-					$str_tags .= ',';
-				$str_tags .= '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
-				continue;
-			}
-		}
-	}
-
 	$cnt = preg_match_all('/@\[url=(.*?)\[\/url\]/ism',$body,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
@@ -1055,34 +1029,8 @@ function diaspora_fetch_message($guid, $server, $level = 0) {
 		return false;
 
 	$item["tag"] = '';
-
-	$tags = get_tags($body);
-
-	if(count($tags)) {
-		foreach($tags as $tag) {
-			if(strpos($tag,'#') === 0) {
-				if(strpos($tag,'[url='))
-					continue;
-
-				// don't link tags that are already embedded in links
-
-				if(preg_match('/\[(.*?)' . preg_quote($tag,'/') . '(.*?)\]/',$body))
-					continue;
-				if(preg_match('/\[(.*?)\]\((.*?)' . preg_quote($tag,'/') . '(.*?)\)/',$body))
-					continue;
-
-
-				$basetag = str_replace('_',' ',substr($tag,1));
-				$body = str_replace($tag,'#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]',$body);
-				if(strlen($item["tag"]))
-					$item["tag"] .= ',';
-				$item["tag"] .= '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
-				continue;
-			}
-		}
-	}
-
 	$item["body"] = $body;
+
 	return $item;
 }
 
@@ -1482,34 +1430,6 @@ function diaspora_comment($importer,$xml,$msg) {
 
 	$datarray = array();
 
-	$str_tags = '';
-
-	$tags = get_tags($body);
-
-	if(count($tags)) {
-		foreach($tags as $tag) {
-			if(strpos($tag,'#') === 0) {
-				if(strpos($tag,'[url='))
-					continue;
-
-				// don't link tags that are already embedded in links
-
-				if(preg_match('/\[(.*?)' . preg_quote($tag,'/') . '(.*?)\]/',$body))
-					continue;
-				if(preg_match('/\[(.*?)\]\((.*?)' . preg_quote($tag,'/') . '(.*?)\)/',$body))
-					continue;
-
-
-				$basetag = str_replace('_',' ',substr($tag,1));
-				$body = str_replace($tag,'#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]',$body);
-				if(strlen($str_tags))
-					$str_tags .= ',';
-				$str_tags .= '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
-				continue;
-			}
-		}
-	}
-
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
 	$datarray['type'] = 'remote-comment';
@@ -1533,7 +1453,6 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['author-link'] = $person['url'];
 	$datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
 	$datarray['body'] = $body;
-	$datarray['tag'] = $str_tags;
 
 	// We can't be certain what the original app is if the message is relayed.
 	if(($parent_item['origin']) && (! $parent_author_signature))

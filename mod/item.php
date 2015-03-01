@@ -23,6 +23,7 @@ require_once('include/tags.php');
 require_once('include/files.php');
 require_once('include/threads.php');
 require_once('include/text.php');
+require_once('include/items.php');
 
 function item_post(&$a) {
 
@@ -34,7 +35,6 @@ function item_post(&$a) {
 	$uid = local_user();
 
 	if(x($_REQUEST,'dropitems')) {
-		require_once('include/items.php');
 		$arr_drop = explode(',',$_REQUEST['dropitems']);
 		drop_items($arr_drop);
 		$json = array('success' => 1);
@@ -569,7 +569,7 @@ function item_post(&$a) {
 	 * and we are replying, and there isn't one already
 	 */
 
-	if(($parent_contact) && ($parent_contact['network'] === NETWORK_OSTATUS) 
+	if(($parent_contact) && ($parent_contact['network'] === NETWORK_OSTATUS)
 		&& ($parent_contact['nick']) && (! in_array('@' . $parent_contact['nick'],$tags))) {
 		$body = '@' . $parent_contact['nick'] . ' ' . $body;
 		$tags[] = '@' . $parent_contact['nick'];
@@ -581,6 +581,9 @@ function item_post(&$a) {
 
 	if(count($tags)) {
 		foreach($tags as $tag) {
+
+			if(strpos($tag,'#') === 0)
+				continue;
 
 			// If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
 			// Robert Johnson should be first in the $tags array
@@ -712,6 +715,9 @@ function item_post(&$a) {
 
 	if($orig_post)
 		$datarray['edit']      = true;
+
+	// Search for hashtags
+	item_body_set_hashtags($datarray);
 
 	// preview mode - prepare the body for display and send it via json
 
@@ -1035,10 +1041,9 @@ function item_content(&$a) {
 
 	$o = '';
 	if(($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		require_once('include/items.php'); 
 		$o = drop_item($a->argv[2], !is_ajax());
 		if (is_ajax()){
-			// ajax return: [<item id>, 0 (no perm) | <owner id>] 
+			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode(array(intval($a->argv[2]), intval($o)));
 			killme();
 		}
@@ -1047,9 +1052,9 @@ function item_content(&$a) {
 }
 
 /**
- * This function removes the tag $tag from the text $body and replaces it with 
- * the appropiate link. 
- * 
+ * This function removes the tag $tag from the text $body and replaces it with
+ * the appropiate link.
+ *
  * @param unknown_type $body the text to replace the tag in
  * @param unknown_type $inform a comma-seperated string containing everybody to inform
  * @param unknown_type $str_tags string to add the tag to
@@ -1063,29 +1068,6 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 	$replaced = false;
 	$r = null;
 
-	//is it a hash tag?
-	if(strpos($tag,'#') === 0) {
-		//if the tag is replaced...
-		if(strpos($tag,'[url='))
-			//...do nothing
-			return $replaced;
-		//base tag has the tags name only
-		$basetag = str_replace('_',' ',substr($tag,1));
-		//create text for link
-		$newtag = '#[url=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
-		//replace tag by the link
-		$body = str_replace($tag, $newtag, $body);
-		$replaced = true;
-
-		//is the link already in str_tags?
-		if(! stristr($str_tags,$newtag)) {
-			//append or set str_tags
-			if(strlen($str_tags))
-				$str_tags .= ',';
-			$str_tags .= $newtag;
-		}
-		return $replaced;
-	}
 	//is it a person tag?
 	if(strpos($tag,'@') === 0) {
 		//is it already replaced?
