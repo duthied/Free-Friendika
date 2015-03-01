@@ -283,10 +283,6 @@ body {
   display: table;
 }
 
-h4 {
-  font-size: 1.1em;
-}
-
 a {
 	color: #36C;
 	/* color: #3e3e8c; */
@@ -1202,10 +1198,6 @@ section.minimal {
   width: 350px;
   float: left;
   font-size: 12px;
-}}
-
-h2 {
-  line-height: normal;
 }
 
 .wall-item-container .wall-item-content {
