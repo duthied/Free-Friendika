@@ -20,6 +20,8 @@ function diaspora2bb($s) {
 	// Remove CR to avoid problems with following code
 	//$s = str_replace("\r","",$s);
 
+	$s = str_replace("\n"," \n",$s);
+
 	// The parser cannot handle paragraphs correctly
 	$s = str_replace(array("</p>", "<p>", '<p dir="ltr">'),array("<br>", "<br>", "<br>"),$s);
 
