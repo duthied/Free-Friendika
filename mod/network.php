@@ -708,7 +708,7 @@ die("ss");
 			if (!get_config("system", "like_no_comment"))
 				$sql_extra4 = "(`item`.`deleted` = 0 OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."')";
 			else
-				$sql_extra4 = "`item`.`deleted` = 0";
+				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
 
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`

@@ -18,7 +18,7 @@ function diaspora2bb($s) {
 	$s = html_entity_decode($s,ENT_COMPAT,'UTF-8');
 
 	// Remove CR to avoid problems with following code
-	//$s = str_replace("\r","",$s);
+	$s = str_replace("\r","",$s);
 
 	$s = str_replace("\n"," \n",$s);
 
