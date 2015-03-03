@@ -1576,11 +1576,11 @@ function item_body_set_hashtags(&$item) {
 	$URLSearchString = "^\[\]";
 
 	// All hashtags should point to the home server
-	$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-			"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
+	//$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+	//		"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
 
-	$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-			"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
+	//$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+	//		"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
 
 	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
 	$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
