@@ -184,12 +184,8 @@ function search_content(&$a) {
 	logger("Start Conversation");
 	$o .= conversation($a,$r,'search',false);
 
-	logger("Start Pager");
-	if(!get_config('system', 'old_pager')) {
-	        $o .= alt_pager($a,count($r));
-	} else {
-	        $o .= paginate($a);
-	}
+	$o .= alt_pager($a,count($r));
+
 	logger("Done");
 
 	return $o;
