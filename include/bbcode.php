@@ -681,12 +681,16 @@ function bb_RemovePictureLinks($match) {
 	if(is_null($text)){
 		$a = get_app();
 
+		$stamp1 = microtime(true);
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
+
+		$a->save_timestamp($stamp1, "network");
 
 		if (substr($curl_info["content_type"], 0, 6) == "image/")
 			$text = "[url=".$match[1]."]".$match[1]."[/url]";
@@ -731,12 +735,16 @@ function bb_CleanPictureLinksSub($match) {
 	if(is_null($text)){
 		$a = get_app();
 
+		$stamp1 = microtime(true);
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
+
+		$a->save_timestamp($stamp1, "network");
 
 		// if its a link to a picture then embed this picture
 		if (substr($curl_info["content_type"], 0, 6) == "image/")
