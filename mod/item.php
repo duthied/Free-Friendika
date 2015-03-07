@@ -746,14 +746,18 @@ function item_post(&$a) {
 		killme();
 	}
 
+	// Fill the cache field
+	put_item_in_cache($datarray);
 
 	if($orig_post) {
-		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
+		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($datarray['title']),
 			dbesc($datarray['body']),
 			dbesc($datarray['tag']),
 			dbesc($datarray['attach']),
 			dbesc($datarray['file']),
+			dbesc($datarray['rendered-html']),
+			dbesc($datarray['rendered-hash']),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($post_id),
@@ -778,10 +782,10 @@ function item_post(&$a) {
 		$post_id = 0;
 
 
-	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, 
-		`author-name`, `author-link`, `author-avatar`, `created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, 
-		`tag`, `inform`, `verb`, `object-type`, `postopts`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file` )
-		VALUES( '%s', '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s' )",
+	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, `author-name`, `author-link`, `author-avatar`,
+		`created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, `tag`, `inform`, `verb`, `object-type`, `postopts`,
+		`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`, `rendered-html`, `rendered-hash`)
+		VALUES( '%s', '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
 		dbesc($datarray['guid']),
 		dbesc($datarray['extid']),
 		intval($datarray['uid']),
@@ -823,119 +827,120 @@ function item_post(&$a) {
 		intval($datarray['bookmark']),
 		intval($datarray['origin']),
 		intval($datarray['moderated']),
-		dbesc($datarray['file'])
+		dbesc($datarray['file']),
+		dbesc($datarray['rendered-html']),
+		dbesc($datarray['rendered-hash'])
 	       );
 
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 		dbesc($datarray['uri']));
-	if(count($r)) {
-		$post_id = $r[0]['id'];
-		logger('mod_item: saved item ' . $post_id);
-
-		// update filetags in pconfig
-		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
-
-		// Store the fresh generated item into the cache
-		put_item_in_cache($datarray);
-
-		if($parent) {
-
-			// This item is the last leaf and gets the comment box, clear any ancestors
-			$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent` = %d ",
-				dbesc(datetime_convert()),
-				intval($parent)
-			);
-			update_thread($parent, true);
-
-			// Inherit ACLs from the parent item.
-
-			$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
-				WHERE `id` = %d",
-				dbesc($parent_item['allow_cid']),
-				dbesc($parent_item['allow_gid']),
-				dbesc($parent_item['deny_cid']),
-				dbesc($parent_item['deny_gid']),
-				intval($parent_item['private']),
-				intval($post_id)
-			);
-
-			if($contact_record != $author) {
-				notification(array(
-					'type'         => NOTIFY_COMMENT,
-					'notify_flags' => $user['notify-flags'],
-					'language'     => $user['language'],
-					'to_name'      => $user['username'],
-					'to_email'     => $user['email'],
-					'uid'          => $user['uid'],
-					'item'         => $datarray,
-					'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
-					'source_name'  => $datarray['author-name'],
-					'source_link'  => $datarray['author-link'],
-					'source_photo' => $datarray['author-avatar'],
-					'verb'         => ACTIVITY_POST,
-					'otype'        => 'item',
-					'parent'       => $parent,
-					'parent_uri'   => $parent_item['uri']
-				));
-
-			}
-
-
-			// Store the comment signature information in case we need to relay to Diaspora
-			store_diaspora_comment_sig($datarray, $author, ($self ? $a->user['prvkey'] : false), $parent_item, $post_id);
-
-		} else {
-			$parent = $post_id;
-
-			if($contact_record != $author) {
-				notification(array(
-					'type'         => NOTIFY_WALL,
-					'notify_flags' => $user['notify-flags'],
-					'language'     => $user['language'],
-					'to_name'      => $user['username'],
-					'to_email'     => $user['email'],
-					'uid'          => $user['uid'],
-					'item'         => $datarray,
-					'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
-					'source_name'  => $datarray['author-name'],
-					'source_link'  => $datarray['author-link'],
-					'source_photo' => $datarray['author-avatar'],
-					'verb'         => ACTIVITY_POST,
-					'otype'        => 'item'
-				));
-			}
-		}
-
-		// fallback so that parent always gets set to non-zero.
-
-		if(! $parent)
-			$parent = $post_id;
-
-		$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `plink` = '%s', `changed` = '%s', `last-child` = 1, `visible` = 1
-			WHERE `id` = %d",
-			intval($parent),
-			dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
-			dbesc($a->get_baseurl().'/display/'.urlencode($datarray['guid'])),
-			dbesc(datetime_convert()),
-			intval($post_id)
-		);
-
-		// photo comments turn the corresponding item visible to the profile wall
-		// This way we don't see every picture in your new photo album posted to your wall at once.
-		// They will show up as people comment on them.
-
-		if(! $parent_item['visible']) {
-			$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
-				intval($parent_item['id'])
-			);
-			update_thread($parent_item['id']);
-		}
-	}
-	else {
+	if(!count($r)) {
 		logger('mod_item: unable to retrieve post that was just stored.');
 		notice( t('System error. Post not saved.') . EOL);
 		goaway($a->get_baseurl() . "/" . $return_path );
 		// NOTREACHED
+	}
+
+	$post_id = $r[0]['id'];
+	logger('mod_item: saved item ' . $post_id);
+
+	$datarray["id"] = $post_id;
+	$datarray["plink"] = $a->get_baseurl().'/display/'.urlencode($datarray["guid"]);
+
+	// update filetags in pconfig
+	file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+
+	if($parent) {
+
+		// This item is the last leaf and gets the comment box, clear any ancestors
+		$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent` = %d ",
+			dbesc(datetime_convert()),
+			intval($parent)
+		);
+		update_thread($parent, true);
+
+		// Inherit ACLs from the parent item.
+
+		$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
+			WHERE `id` = %d",
+			dbesc($parent_item['allow_cid']),
+			dbesc($parent_item['allow_gid']),
+			dbesc($parent_item['deny_cid']),
+			dbesc($parent_item['deny_gid']),
+			intval($parent_item['private']),
+			intval($post_id)
+		);
+
+		if($contact_record != $author) {
+			notification(array(
+				'type'         => NOTIFY_COMMENT,
+				'notify_flags' => $user['notify-flags'],
+				'language'     => $user['language'],
+				'to_name'      => $user['username'],
+				'to_email'     => $user['email'],
+				'uid'          => $user['uid'],
+				'item'         => $datarray,
+				'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
+				'source_name'  => $datarray['author-name'],
+				'source_link'  => $datarray['author-link'],
+				'source_photo' => $datarray['author-avatar'],
+				'verb'         => ACTIVITY_POST,
+				'otype'        => 'item',
+				'parent'       => $parent,
+				'parent_uri'   => $parent_item['uri']
+			));
+
+		}
+
+
+		// Store the comment signature information in case we need to relay to Diaspora
+		store_diaspora_comment_sig($datarray, $author, ($self ? $a->user['prvkey'] : false), $parent_item, $post_id);
+
+	} else {
+		$parent = $post_id;
+
+		if($contact_record != $author) {
+			notification(array(
+				'type'         => NOTIFY_WALL,
+				'notify_flags' => $user['notify-flags'],
+				'language'     => $user['language'],
+				'to_name'      => $user['username'],
+				'to_email'     => $user['email'],
+				'uid'          => $user['uid'],
+				'item'         => $datarray,
+				'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
+				'source_name'  => $datarray['author-name'],
+				'source_link'  => $datarray['author-link'],
+				'source_photo' => $datarray['author-avatar'],
+				'verb'         => ACTIVITY_POST,
+				'otype'        => 'item'
+			));
+		}
+	}
+
+	// fallback so that parent always gets set to non-zero.
+
+	if(! $parent)
+		$parent = $post_id;
+
+	$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `plink` = '%s', `changed` = '%s', `last-child` = 1, `visible` = 1
+		WHERE `id` = %d",
+		intval($parent),
+		dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
+		dbesc($a->get_baseurl().'/display/'.urlencode($datarray['guid'])),
+		dbesc(datetime_convert()),
+		intval($post_id)
+	);
+
+	// photo comments turn the corresponding item visible to the profile wall
+	// This way we don't see every picture in your new photo album posted to your wall at once.
+	// They will show up as people comment on them.
+
+	if(! $parent_item['visible']) {
+		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
+			intval($parent_item['id'])
+		);
+		update_thread($parent_item['id']);
 	}
 
 	// update the commented timestamp on the parent
@@ -947,9 +952,6 @@ function item_post(&$a) {
 	);
 	if ($post_id != $parent)
 		update_thread($parent);
-
-	$datarray['id']    = $post_id;
-	$datarray['plink'] = $a->get_baseurl().'/display/'.urlencode($datarray['guid']);
 
 	call_hooks('post_local_end', $datarray);
 

@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1180 );
+define( 'UPDATE_VERSION' , 1181 );
 
 /**
  *
@@ -1637,6 +1637,14 @@ function update_1178() {
 
 	// Update the central item storage with uid=0
 	proc_run('php',"include/threadupdate.php");
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1180() {
+
+	// Fill the new fields in the term table.
+	proc_run('php',"include/tagupdate.php");
 
 	return UPDATE_SUCCESS;
 }

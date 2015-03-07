@@ -870,13 +870,6 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 			if(! $i)
 				return $srctext;
 
-			$cachefile = get_cachefile(hash("md5", $scaled));
-			if ($cachefile != '') {
-				$stamp1 = microtime(true);
-				file_put_contents($cachefile, $i);
-				$a->save_timestamp($stamp1, "file");
-			}
-
 			// guess mimetype from headers or filename
 			$type = guess_image_type($mtch[1],true);
 

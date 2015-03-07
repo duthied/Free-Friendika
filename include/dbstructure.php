@@ -776,6 +776,8 @@ function db_definition() {
 					"last-child" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "1"),
 					"mention" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"rendered-hash" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"rendered-html" => array("type" => "mediumtext", "not null" => "1"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1188,6 +1190,9 @@ function db_definition() {
 					"type" => array("type" => "tinyint(3) unsigned", "not null" => "1", "default" => "0"),
 					"term" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"received" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"aid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					),
@@ -1196,7 +1201,7 @@ function db_definition() {
 					"oid_otype_type_term" => array("oid","otype","type","term"),
 					"uid_term_tid" => array("uid","term","tid"),
 					"type_term" => array("type","term"),
-					"uid_otype_type_term_tid" => array("uid","otype","type","term","tid"),
+					"uid_otype_type_term_created" => array("uid","otype","type","term","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
 					)
 			);

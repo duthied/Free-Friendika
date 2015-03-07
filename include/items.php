@@ -1346,6 +1346,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 
+	// Fill the cache field
+	put_item_in_cache($arr);
+
 	call_hooks('post_remote',$arr);
 
 	if(x($arr,'cancel')) {
@@ -1477,9 +1480,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// current post can be deleted if is for a community page and no mention are
 	// in it.
 	if (!$deleted AND !$dontcache) {
-
-		// Store the fresh generated item into the cache
-		put_item_in_cache($arr);
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
