@@ -1346,6 +1346,17 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 
+	// Is this item available in the global items (with uid=0)?
+	if ($arr["uid"] == 0) {
+		$arr["global"] = true;
+
+		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($arr["guid"]));
+	}  else {
+		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `guid` = '%s'", dbesc($arr["guid"]));
+
+		$arr["global"] = (count($isglobal) > 0);
+	}
+
 	// Fill the cache field
 	put_item_in_cache($arr);
 

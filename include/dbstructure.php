@@ -778,6 +778,7 @@ function db_definition() {
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"rendered-hash" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"rendered-html" => array("type" => "mediumtext", "not null" => "1"),
+					"global" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

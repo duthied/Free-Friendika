@@ -143,8 +143,8 @@ function search_content(&$a) {
 				INNER JOIN `item` ON `item`.`id`=`term`.`oid`
 				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND `term`.`uid` IN (%d,0) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' AND `term`.`guid` != ''
-			GROUP BY `term`.`guid` ORDER BY term.created DESC LIMIT %d , %d ",
+				AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
+			ORDER BY term.created DESC LIMIT %d , %d ",
 				intval(local_user()), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	} else {

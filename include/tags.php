@@ -112,8 +112,7 @@ function create_tags_from_itemuri($itemuri, $uid) {
 function update_items() {
 	global $db;
 
-//        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1 AND `term`.`guid` = ''", true);
-        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1", true);
+        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1 AND `term`.`guid` = ''", true);
 
         logger("fetched messages: ".count($messages));
         while ($message = $db->qfetch()) {
@@ -129,12 +128,21 @@ function update_items() {
 
 			$global = (count($isglobal) > 0);
 		}
-echo $message["created"]." - ".$message["guid"]."\n";
+
 		q("UPDATE `term` SET `guid` = '%s', `created` = '%s', `received` = '%s', `global` = %d WHERE `otype` = %d AND `oid` = %d",
 			dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]),
 			intval($global), intval(TERM_OBJ_POST), intval($message["oid"]));
 	}
 
         $db->qclose();
+
+	$messages = $db->q("SELECT `guid` FROM `item` WHERE `uid` = 0", true);
+
+	logger("fetched messages: ".count($messages));
+	while ($message = $db->qfetch()) {
+		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($message["guid"]));
+	}
+
+	$db->qclose();
 }
 ?>
