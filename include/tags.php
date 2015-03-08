@@ -69,10 +69,22 @@ function create_tags_from_item($itemid) {
 			$term = $tag;
 		}
 
-		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `guid`, `created`, `received`)
-				VALUES (%d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s')",
-			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval($type),
-			dbesc($term), dbesc($link), dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]));
+		if ($message["uid"] == 0) {
+			$global = true;
+
+			q("UPDATE `term` SET `global` = 1 WHERE `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+		} else {
+			$isglobal = q("SELECT `global` FROM `term` WHERE `uid` = 0 AND `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+
+			$global = (count($isglobal) > 0);
+		}
+
+		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `guid`, `created`, `received`, `global`)
+				VALUES (%d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', %d)",
+			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval($type), dbesc($term),
+			dbesc($link), dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]), intval($global));
 
 		// Search for mentions
 		if ((substr($tag, 0, 1) == '@') AND (strpos($link, $profile_base_friendica) OR strpos($link, $profile_base_diaspora))) {
@@ -100,13 +112,27 @@ function create_tags_from_itemuri($itemuri, $uid) {
 function update_items() {
 	global $db;
 
-        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1 AND `term`.`guid` = ''", true);
+//        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1 AND `term`.`guid` = ''", true);
+        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1", true);
 
         logger("fetched messages: ".count($messages));
         while ($message = $db->qfetch()) {
-		q("UPDATE `term` SET `guid` = '%s', `created` = '%s', `received` = '%s' WHERE `otype` = %d AND `oid` = %d",
+
+		if ($message["uid"] == 0) {
+			$global = true;
+
+			q("UPDATE `term` SET `global` = 1 WHERE `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+		} else {
+			$isglobal = q("SELECT `global` FROM `term` WHERE `uid` = 0 AND `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+
+			$global = (count($isglobal) > 0);
+		}
+echo $message["created"]." - ".$message["guid"]."\n";
+		q("UPDATE `term` SET `guid` = '%s', `created` = '%s', `received` = '%s', `global` = %d WHERE `otype` = %d AND `oid` = %d",
 			dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]),
-			intval(TERM_OBJ_POST), intval($message["oid"]));
+			intval($global), intval(TERM_OBJ_POST), intval($message["oid"]));
 	}
 
         $db->qclose();

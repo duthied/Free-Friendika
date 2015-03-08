@@ -1193,6 +1193,7 @@ function db_definition() {
 					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"received" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"global" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"aid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					),
@@ -1203,6 +1204,7 @@ function db_definition() {
 					"type_term" => array("type","term"),
 					"uid_otype_type_term_created" => array("uid","otype","type","term","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
+					"guid" => array("guid"),
 					)
 			);
 	$database["thread"] = array(
