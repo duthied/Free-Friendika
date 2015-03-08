@@ -133,7 +133,7 @@ function search_content(&$a) {
 	// No items will be shown if the member has a blocked profile wall.
 
 	if($tag) {
-		logger("Start tag search for '".$search."'");
+		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
 		$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
@@ -148,7 +148,7 @@ function search_content(&$a) {
 				intval(local_user()), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	} else {
-		logger("Start fulltext search for '".$search."'");
+		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
 		if (get_config('system','use_fulltext_engine')) {
 			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
@@ -181,12 +181,12 @@ function search_content(&$a) {
 	else
 		$o .= '<h2>Search results for: ' . $search . '</h2>';
 
-	logger("Start Conversation");
+	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
 	$o .= conversation($a,$r,'search',false);
 
 	$o .= alt_pager($a,count($r));
 
-	logger("Done");
+	logger("Done '".$search."'", LOGGER_DEBUG);
 
 	return $o;
 }
