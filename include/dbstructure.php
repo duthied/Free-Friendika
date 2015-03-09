@@ -1203,7 +1203,7 @@ function db_definition() {
 					"oid_otype_type_term" => array("oid","otype","type","term"),
 					"uid_term_tid" => array("uid","term","tid"),
 					"type_term" => array("type","term"),
-					"uid_otype_type_term_created" => array("uid","otype","type","term","created"),
+					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
 					"guid" => array("guid"),
 					)
