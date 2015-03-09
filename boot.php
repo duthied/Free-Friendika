@@ -1196,35 +1196,24 @@ if(! function_exists('check_plugins')) {
 	}
 }
 
-function get_guid($size=16) {
-	$exists = true; // assume by default that we don't have a unique guid
-	do {
-		$prefix = "";
-		while (strlen($prefix) < ($size - 13))
-			$prefix .= mt_rand();
+function get_guid($size=16, $prefix = "") {
 
-		$s = substr(uniqid($prefix), -$size);
+	if ($prefix == "") {
+		$a = get_app();
+		$prefix = hash("crc32", $a->get_hostname());
+	}
 
-		$r = q("select id from guid where guid = '%s' limit 1", dbesc($s));
-		if(! count($r))
-			$exists = false;
-	} while($exists);
-	q("insert into guid (guid) values ('%s') ", dbesc($s));
-	return $s;
+	while (strlen($prefix) < ($size - 13))
+		$prefix .= mt_rand();
+
+	if ($size >= 24) {
+		$prefix = substr($prefix, 0, $size - 22);
+		return(str_replace(".", "", uniqid($prefix, true)));
+	} else {
+		$prefix = substr($prefix, 0, $size - 13);
+		return(uniqid($prefix));
+	}
 }
-
-/*function get_guid($size=16) {
-	$exists = true; // assume by default that we don't have a unique guid
-	do {
-		$s = random_string($size);
-		$r = q("select id from guid where guid = '%s' limit 1", dbesc($s));
-		if(! count($r))
-			$exists = false;
-	} while($exists);
-	q("insert into guid ( guid ) values ( '%s' ) ", dbesc($s));
-	return $s;
-}*/
-
 
 // wrapper for adding a login box. If $register == true provide a registration
 // link. This will most always depend on the value of $a->config['register_policy'].
