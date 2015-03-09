@@ -1167,6 +1167,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$prefix = "[share author='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$person['name']).
 				"' profile='".$person['url'].
 				"' avatar='".((x($person,'thumb')) ? $person['thumb'] : $person['photo']).
+				"' guid='".$orig_guid.
+				"' posted='".$orig_created.
 				"' link='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$orig_url)."']";
 		$datarray['author-name'] = $contact['name'];
 		$datarray['author-link'] = $contact['url'];

@@ -261,43 +261,43 @@ function http_status_exit($val) {
 if(! function_exists('convert_xml_element_to_array')) {
 function convert_xml_element_to_array($xml_element, &$recursion_depth=0) {
 
-        // If we're getting too deep, bail out
-        if ($recursion_depth > 512) {
-                return(null);
-        }
+	// If we're getting too deep, bail out
+	if ($recursion_depth > 512) {
+		return(null);
+	}
 
-        if (!is_string($xml_element) &&
-        !is_array($xml_element) &&
-        (get_class($xml_element) == 'SimpleXMLElement')) {
-                $xml_element_copy = $xml_element;
-                $xml_element = get_object_vars($xml_element);
-        }
+	if (!is_string($xml_element) &&
+	!is_array($xml_element) &&
+	(get_class($xml_element) == 'SimpleXMLElement')) {
+		$xml_element_copy = $xml_element;
+		$xml_element = get_object_vars($xml_element);
+	}
 
-        if (is_array($xml_element)) {
-                $result_array = array();
-                if (count($xml_element) <= 0) {
-                        return (trim(strval($xml_element_copy)));
-                }
+	if (is_array($xml_element)) {
+		$result_array = array();
+		if (count($xml_element) <= 0) {
+			return (trim(strval($xml_element_copy)));
+		}
 
-                foreach($xml_element as $key=>$value) {
+		foreach($xml_element as $key=>$value) {
 
-                        $recursion_depth++;
-                        $result_array[strtolower($key)] =
-                convert_xml_element_to_array($value, $recursion_depth);
-                        $recursion_depth--;
-                }
-                if ($recursion_depth == 0) {
-                        $temp_array = $result_array;
-                        $result_array = array(
-                                strtolower($xml_element_copy->getName()) => $temp_array,
-                        );
-                }
+			$recursion_depth++;
+			$result_array[strtolower($key)] =
+		convert_xml_element_to_array($value, $recursion_depth);
+			$recursion_depth--;
+		}
+		if ($recursion_depth == 0) {
+			$temp_array = $result_array;
+			$result_array = array(
+				strtolower($xml_element_copy->getName()) => $temp_array,
+			);
+		}
 
-                return ($result_array);
+		return ($result_array);
 
-        } else {
-                return (trim(strval($xml_element)));
-        }
+	} else {
+		return (trim(strval($xml_element)));
+	}
 }}
 
 // Given an email style address, perform webfinger lookup and
@@ -870,13 +870,6 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 			if(! $i)
 				return $srctext;
 
-			$cachefile = get_cachefile(hash("md5", $scaled));
-			if ($cachefile != '') {
-				$stamp1 = microtime(true);
-				file_put_contents($cachefile, $i);
-				$a->save_timestamp($stamp1, "file");
-			}
-
 			// guess mimetype from headers or filename
 			$type = guess_image_type($mtch[1],true);
 
@@ -971,8 +964,8 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
     if(!$contents) return array();
 
     if(!function_exists('xml_parser_create')) {
-        logger('xml2array: parser function missing');
-        return array();
+	logger('xml2array: parser function missing');
+	return array();
     }
 
 
@@ -1015,29 +1008,29 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
     // Go through the tags.
     $repeated_tag_index = array(); // Multiple tags with same name will be turned into an array
     foreach($xml_values as $data) {
-        unset($attributes,$value); // Remove existing values, or there will be trouble
+	unset($attributes,$value); // Remove existing values, or there will be trouble
 
-        // This command will extract these variables into the foreach scope
-        // tag(string), type(string), level(int), attributes(array).
-        extract($data); // We could use the array by itself, but this cooler.
+	// This command will extract these variables into the foreach scope
+	// tag(string), type(string), level(int), attributes(array).
+	extract($data); // We could use the array by itself, but this cooler.
 
-        $result = array();
-        $attributes_data = array();
+	$result = array();
+	$attributes_data = array();
 
-        if(isset($value)) {
-            if($priority == 'tag') $result = $value;
-            else $result['value'] = $value; // Put the value in a assoc array if we are in the 'Attribute' mode
-        }
+	if(isset($value)) {
+	    if($priority == 'tag') $result = $value;
+	    else $result['value'] = $value; // Put the value in a assoc array if we are in the 'Attribute' mode
+	}
 
-        //Set the attributes too.
-        if(isset($attributes) and $get_attributes) {
-            foreach($attributes as $attr => $val) {
-                if($priority == 'tag') $attributes_data[$attr] = $val;
-                else $result['@attributes'][$attr] = $val; // Set all the attributes in a array called 'attr'
-            }
-        }
+	//Set the attributes too.
+	if(isset($attributes) and $get_attributes) {
+	    foreach($attributes as $attr => $val) {
+		if($priority == 'tag') $attributes_data[$attr] = $val;
+		else $result['@attributes'][$attr] = $val; // Set all the attributes in a array called 'attr'
+	    }
+	}
 
-        // See tag status and do the needed.
+	// See tag status and do the needed.
 		if($namespaces && strpos($tag,':')) {
 			$namespc = substr($tag,0,strrpos($tag,':'));
 			$tag = strtolower(substr($tag,strlen($namespc)+1));
@@ -1046,72 +1039,72 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 		$tag = strtolower($tag);
 
 		if($type == "open") {   // The starting of the tag '<tag>'
-            $parent[$level-1] = &$current;
-            if(!is_array($current) or (!in_array($tag, array_keys($current)))) { // Insert New tag
-                $current[$tag] = $result;
-                if($attributes_data) $current[$tag. '_attr'] = $attributes_data;
-                $repeated_tag_index[$tag.'_'.$level] = 1;
+	    $parent[$level-1] = &$current;
+	    if(!is_array($current) or (!in_array($tag, array_keys($current)))) { // Insert New tag
+		$current[$tag] = $result;
+		if($attributes_data) $current[$tag. '_attr'] = $attributes_data;
+		$repeated_tag_index[$tag.'_'.$level] = 1;
 
-                $current = &$current[$tag];
+		$current = &$current[$tag];
 
-            } else { // There was another element with the same tag name
+	    } else { // There was another element with the same tag name
 
-                if(isset($current[$tag][0])) { // If there is a 0th element it is already an array
-                    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
-                    $repeated_tag_index[$tag.'_'.$level]++;
-                } else { // This section will make the value an array if multiple tags with the same name appear together
-                    $current[$tag] = array($current[$tag],$result); // This will combine the existing item and the new item together to make an array
-                    $repeated_tag_index[$tag.'_'.$level] = 2;
+		if(isset($current[$tag][0])) { // If there is a 0th element it is already an array
+		    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
+		    $repeated_tag_index[$tag.'_'.$level]++;
+		} else { // This section will make the value an array if multiple tags with the same name appear together
+		    $current[$tag] = array($current[$tag],$result); // This will combine the existing item and the new item together to make an array
+		    $repeated_tag_index[$tag.'_'.$level] = 2;
 
-                    if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
-                        $current[$tag]['0_attr'] = $current[$tag.'_attr'];
-                        unset($current[$tag.'_attr']);
-                    }
+		    if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
+			$current[$tag]['0_attr'] = $current[$tag.'_attr'];
+			unset($current[$tag.'_attr']);
+		    }
 
-                }
-                $last_item_index = $repeated_tag_index[$tag.'_'.$level]-1;
-                $current = &$current[$tag][$last_item_index];
-            }
+		}
+		$last_item_index = $repeated_tag_index[$tag.'_'.$level]-1;
+		$current = &$current[$tag][$last_item_index];
+	    }
 
-        } elseif($type == "complete") { // Tags that ends in 1 line '<tag />'
-            //See if the key is already taken.
-            if(!isset($current[$tag])) { //New Key
-                $current[$tag] = $result;
-                $repeated_tag_index[$tag.'_'.$level] = 1;
-                if($priority == 'tag' and $attributes_data) $current[$tag. '_attr'] = $attributes_data;
+	} elseif($type == "complete") { // Tags that ends in 1 line '<tag />'
+	    //See if the key is already taken.
+	    if(!isset($current[$tag])) { //New Key
+		$current[$tag] = $result;
+		$repeated_tag_index[$tag.'_'.$level] = 1;
+		if($priority == 'tag' and $attributes_data) $current[$tag. '_attr'] = $attributes_data;
 
-            } else { // If taken, put all things inside a list(array)
-                if(isset($current[$tag][0]) and is_array($current[$tag])) { // If it is already an array...
+	    } else { // If taken, put all things inside a list(array)
+		if(isset($current[$tag][0]) and is_array($current[$tag])) { // If it is already an array...
 
-                    // ...push the new element into that array.
-                    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
+		    // ...push the new element into that array.
+		    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
 
-                    if($priority == 'tag' and $get_attributes and $attributes_data) {
-                        $current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
-                    }
-                    $repeated_tag_index[$tag.'_'.$level]++;
+		    if($priority == 'tag' and $get_attributes and $attributes_data) {
+			$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
+		    }
+		    $repeated_tag_index[$tag.'_'.$level]++;
 
-                } else { // If it is not an array...
-                    $current[$tag] = array($current[$tag],$result); //...Make it an array using using the existing value and the new value
-                    $repeated_tag_index[$tag.'_'.$level] = 1;
-                    if($priority == 'tag' and $get_attributes) {
-                        if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
+		} else { // If it is not an array...
+		    $current[$tag] = array($current[$tag],$result); //...Make it an array using using the existing value and the new value
+		    $repeated_tag_index[$tag.'_'.$level] = 1;
+		    if($priority == 'tag' and $get_attributes) {
+			if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
 
-                            $current[$tag]['0_attr'] = $current[$tag.'_attr'];
-                            unset($current[$tag.'_attr']);
-                        }
+			    $current[$tag]['0_attr'] = $current[$tag.'_attr'];
+			    unset($current[$tag.'_attr']);
+			}
 
-                        if($attributes_data) {
-                            $current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
-                        }
-                    }
-                    $repeated_tag_index[$tag.'_'.$level]++; // 0 and 1 indexes are already taken
-                }
-            }
+			if($attributes_data) {
+			    $current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
+			}
+		    }
+		    $repeated_tag_index[$tag.'_'.$level]++; // 0 and 1 indexes are already taken
+		}
+	    }
 
-        } elseif($type == 'close') { // End of tag '</tag>'
-            $current = &$parent[$level-1];
-        }
+	} elseif($type == 'close') { // End of tag '</tag>'
+	    $current = &$parent[$level-1];
+	}
     }
 
     return($xml_array);
@@ -1153,32 +1146,36 @@ function original_url($url, $depth=1, $fetchbody = false) {
 			$url = substr($url, 0, -1);
 	}
 
-        if ($depth > 10)
-        	return($url);
+	if ($depth > 10)
+		return($url);
 
-        $url = trim($url, "'");
+	$url = trim($url, "'");
 
-        $siteinfo = array();
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
+	$stamp1 = microtime(true);
+
+	$siteinfo = array();
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, 1);
 	curl_setopt($ch, CURLOPT_NOBODY, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
-        $header = curl_exec($ch);
-        $curl_info = @curl_getinfo($ch);
-        $http_code = $curl_info['http_code'];
-        curl_close($ch);
+	$header = curl_exec($ch);
+	$curl_info = @curl_getinfo($ch);
+	$http_code = $curl_info['http_code'];
+	curl_close($ch);
 
-        if ((($curl_info['http_code'] == "301") OR ($curl_info['http_code'] == "302"))
-                AND (($curl_info['redirect_url'] != "") OR ($curl_info['location'] != ""))) {
-                if ($curl_info['redirect_url'] != "")
-                        return(original_url($curl_info['redirect_url'], ++$depth, $fetchbody));
-                else
-                        return(original_url($curl_info['location'], ++$depth, $fetchbody));
-        }
+	$a->save_timestamp($stamp1, "network");
+
+	if ((($curl_info['http_code'] == "301") OR ($curl_info['http_code'] == "302"))
+		AND (($curl_info['redirect_url'] != "") OR ($curl_info['location'] != ""))) {
+		if ($curl_info['redirect_url'] != "")
+			return(original_url($curl_info['redirect_url'], ++$depth, $fetchbody));
+		else
+			return(original_url($curl_info['location'], ++$depth, $fetchbody));
+	}
 
 	// Check for redirects in the meta elements of the body if there are no redirects in the header.
 	if (!$fetchbody)
@@ -1192,6 +1189,8 @@ function original_url($url, $depth=1, $fetchbody = false) {
 	if (($curl_info["content_type"] != "") AND !strstr(strtolower($curl_info["content_type"]),"html"))
 		return($url);
 
+	$stamp1 = microtime(true);
+
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -1203,33 +1202,35 @@ function original_url($url, $depth=1, $fetchbody = false) {
 	$body = curl_exec($ch);
 	curl_close($ch);
 
-        if (trim($body) == "")
+	$a->save_timestamp($stamp1, "network");
+
+	if (trim($body) == "")
 		return($url);
 
 	// Check for redirect in meta elements
-        $doc = new DOMDocument();
-        @$doc->loadHTML($body);
+	$doc = new DOMDocument();
+	@$doc->loadHTML($body);
 
-        $xpath = new DomXPath($doc);
+	$xpath = new DomXPath($doc);
 
-        $list = $xpath->query("//meta[@content]");
-        foreach ($list as $node) {
-                $attr = array();
-                if ($node->attributes->length)
-                        foreach ($node->attributes as $attribute)
-                                $attr[$attribute->name] = $attribute->value;
+	$list = $xpath->query("//meta[@content]");
+	foreach ($list as $node) {
+		$attr = array();
+		if ($node->attributes->length)
+			foreach ($node->attributes as $attribute)
+				$attr[$attribute->name] = $attribute->value;
 
-                if (@$attr["http-equiv"] == 'refresh') {
-                        $path = $attr["content"];
-                        $pathinfo = explode(";", $path);
-                        $content = "";
-                        foreach ($pathinfo AS $value)
-                                if (substr(strtolower($value), 0, 4) == "url=")
-                                        return(original_url(substr($value, 4), ++$depth));
-                }
-        }
+		if (@$attr["http-equiv"] == 'refresh') {
+			$path = $attr["content"];
+			$pathinfo = explode(";", $path);
+			$content = "";
+			foreach ($pathinfo AS $value)
+				if (substr(strtolower($value), 0, 4) == "url=")
+					return(original_url(substr($value, 4), ++$depth));
+		}
+	}
 
-        return($url);
+	return($url);
 }
 
 if (!function_exists('short_link')) {

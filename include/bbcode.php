@@ -681,12 +681,16 @@ function bb_RemovePictureLinks($match) {
 	if(is_null($text)){
 		$a = get_app();
 
+		$stamp1 = microtime(true);
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
+
+		$a->save_timestamp($stamp1, "network");
 
 		if (substr($curl_info["content_type"], 0, 6) == "image/")
 			$text = "[url=".$match[1]."]".$match[1]."[/url]";
@@ -731,12 +735,16 @@ function bb_CleanPictureLinksSub($match) {
 	if(is_null($text)){
 		$a = get_app();
 
+		$stamp1 = microtime(true);
+
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
+
+		$a->save_timestamp($stamp1, "network");
 
 		// if its a link to a picture then embed this picture
 		if (substr($curl_info["content_type"], 0, 6) == "image/")
@@ -778,8 +786,6 @@ function bb_CleanPictureLinks($text) {
 	// extended to work with Mistpark/Friendica - Mike Macgirvin
 
 function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = false, $forplaintext = false) {
-
-	$stamp1 = microtime(true);
 
 	$a = get_app();
 
@@ -1113,8 +1119,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 					'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $Text);
 
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text); 
-		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text); 
+		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text);
+		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text);
 	}
 
 	$Text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism",'[vimeo]$1[/vimeo]',$Text); 
@@ -1127,7 +1133,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 					'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $Text);
 
 //	$Text = preg_replace("/\[youtube\](.*?)\[\/youtube\]/", '<object width="425" height="350" type="application/x-shockwave-flash" data="http://www.youtube.com/v/$1" ><param name="movie" value="http://www.youtube.com/v/$1"></param><!--[if IE]><embed src="http://www.youtube.com/v/$1" type="application/x-shockwave-flash" width="425" height="350" /><![endif]--></object>', $Text);
-
 
 	// oembed tag
 	$Text = oembed_bbcode2html($Text);
@@ -1199,8 +1204,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	//	$Text = str_replace('<br /><ul','<ul ', $Text);
 
 	call_hooks('bbcode',$Text);
-
-	$a->save_timestamp($stamp1, "parser");
 
 	return trim($Text);
 }

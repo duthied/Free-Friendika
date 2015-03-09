@@ -88,9 +88,6 @@ function deletenode(&$doc, $node)
 function html2bbcode($message)
 {
 
-	//$file = tempnam("/tmp/", "html");
-	//file_put_contents($file, $message);
-
 	$message = str_replace("\r", "", $message);
 
 	$message = str_replace(array(

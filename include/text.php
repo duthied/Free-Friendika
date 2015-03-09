@@ -1296,16 +1296,26 @@ function redir_private_images($a, &$item) {
 
 }}
 
-function put_item_in_cache($item) {
-	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
+function put_item_in_cache(&$item, $update = false) {
 
-	if (($cachefile != '') AND !file_exists($cachefile)) {
-		$s = prepare_text($item['body']);
+	if (($item["rendered-hash"] != hash("md5", $item["body"])) OR ($item["rendered-hash"] == "") OR
+		($item["rendered-html"] == "") OR get_config("system", "ignore_cache")) {
+
+		// The function "redir_private_images" changes the body.
+		// I'm not sure if we should store it permanently, so we save the old value.
+		$body = $item["body"];
+
 		$a = get_app();
-		$stamp1 = microtime(true);
-		file_put_contents($cachefile, $s);
-		$a->save_timestamp($stamp1, "file");
-		logger('put item '.$item["guid"].' into cachefile '.$cachefile);
+		redir_private_images($a, $item);
+
+		$item["rendered-html"] = prepare_text($item["body"]);
+		$item["rendered-hash"] = hash("md5", $item["body"]);
+		$item["body"] = $body;
+
+		if ($update AND ($item["id"] != 0)) {
+			q("UPDATE `item` SET `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
+				dbesc($item["rendered-html"]), dbesc($item["rendered-hash"]), intval($item["id"]));
+		}
 	}
 }
 
@@ -1359,28 +1369,8 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
-
-	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
-
-	if (($cachefile != '')) {
-		if (file_exists($cachefile)) {
-			$stamp1 = microtime(true);
-			$s = file_get_contents($cachefile);
-			$a->save_timestamp($stamp1, "file");
-		} else {
-			redir_private_images($a, $item);
-			$s = prepare_text($item['body']);
-
-			$stamp1 = microtime(true);
-			file_put_contents($cachefile, $s);
-			$a->save_timestamp($stamp1, "file");
-
-			logger('prepare_body: put item '.$item["id"].' into cachefile '.$cachefile);
-		}
-	} else {
-		redir_private_images($a, $item);
-		$s = prepare_text($item['body']);
-	}
+	put_item_in_cache($item, true);
+	$s = $item["rendered-html"];
 
 	require_once("mod/proxy.php");
 	$s = proxy_parse_html($s);

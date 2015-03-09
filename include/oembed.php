@@ -11,7 +11,6 @@ function oembed_replacecb($matches){
 
 
 function oembed_fetch_url($embedurl, $no_rich_type = false){
-
 	$embedurl = trim($embedurl, "'");
 	$embedurl = trim($embedurl, '"');
 
