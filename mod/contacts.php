@@ -32,7 +32,8 @@ function contacts_init(&$a) {
 			$a->data['contact'] = $r[0];
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => $a->data['contact']['name'],
-				'$photo' => $a->data['contact']['photo']
+				'$photo' => $a->data['contact']['photo'],
+			        '$url' => $a->data['contact']['url']
 			));
 			$follow_widget = '';
 	}
