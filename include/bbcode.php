@@ -42,7 +42,7 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				$title = $matches[1];
 
 			//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
-			$title = bbcode(html_entity_decode($title), false, false, true);
+			$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
 			$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
 
 			$image = "";
