@@ -143,7 +143,7 @@ function community_getpublicitems($start, $itemspage) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` WHERE `item`.`uid` = 0
+		FROM `item` WHERE `item`.`uid` = 0 AND `item`.`id` = `item`.`parent`
 		AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
 		ORDER BY `item`.`received` DESC LIMIT %d, %d",
