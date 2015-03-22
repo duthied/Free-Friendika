@@ -1561,8 +1561,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			));
 			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 		}
-	} else
+	} else {
 		update_thread($parent_id);
+		add_shadow_entry($arr);
+	}
 
 	if ($notify)
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
