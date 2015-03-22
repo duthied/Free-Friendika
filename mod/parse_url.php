@@ -471,10 +471,7 @@ function parse_url_content(&$a) {
 
 	$sitedata = "";
 
-	if($siteinfo["title"] == "") {
-		$sitedata .= sprintf($template,$url,$url,'') . $str_tags;
-		#killme();
-	} else {
+	if($siteinfo["title"] != "") {
 		$text = $siteinfo["text"];
 		$title = $siteinfo["title"];
 	}
