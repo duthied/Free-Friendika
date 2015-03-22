@@ -37,6 +37,9 @@ function create_tags_from_item($itemid) {
 
 	$data = " ".$message["title"]." ".$message["body"]." ".$tags." ";
 
+	// ignore anything in a code block
+	$data = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$data);
+
 	$tags = array();
 
 	$pattern = "/\W\#([^\[].*?)[\s'\".,:;\?!\[\]\/]/ism";
