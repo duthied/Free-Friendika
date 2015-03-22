@@ -407,6 +407,15 @@ function parse_url_content(&$a) {
 		}
 	}
 
+	// add url scheme if missing
+	$arrurl = parse_url($url);
+	if (!x($arrurl, 'scheme')) {
+		if (x($arrurl, 'host'))
+			$url = "http:".$url;
+		else
+			$url = "http://".$url;
+	}
+
 	logger('parse_url: ' . $url);
 
 	if($textmode)
@@ -464,7 +473,7 @@ function parse_url_content(&$a) {
 
 	if($siteinfo["title"] == "") {
 		$sitedata .= sprintf($template,$url,$url,'') . $str_tags;
-		killme();
+		#killme();
 	} else {
 		$text = $siteinfo["text"];
 		$title = $siteinfo["title"];
