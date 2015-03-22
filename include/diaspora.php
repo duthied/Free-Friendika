@@ -6,6 +6,7 @@ require_once('include/bb2diaspora.php');
 require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 require_once('include/lock.php');
+require_once('include/threads.php');
 
 function diaspora_dispatch_public($msg) {
 
@@ -1855,11 +1856,12 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 	                                   array($remote_photo_name, 'scaled_full_' . $remote_photo_name));
 
 	if(strpos($parent_item['body'],$link_text) === false) {
-		$r = q("update item set `body` = '%s', `visible` = 1 where `id` = %d and `uid` = %d",
+		$r = q("UPDATE `item` SET `body` = '%s', `visible` = 1 WHERE `id` = %d AND `uid` = %d",
 			dbesc($link_text . $parent_item['body']),
 			intval($parent_item['id']),
 			intval($parent_item['uid'])
 		);
+		update_thread($parent_item['id']);
 	}
 
 	return;
