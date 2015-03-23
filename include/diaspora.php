@@ -1936,7 +1936,7 @@ function diaspora_like($importer,$xml,$msg) {
 	if($positive === 'false') {
 		logger('diaspora_like: received a like with positive set to "false"');
 		logger('diaspora_like: unlike received with no corresponding like...ignoring');
-		return;	
+		return;
 	}
 
 
@@ -1952,26 +1952,28 @@ function diaspora_like($importer,$xml,$msg) {
 	     who sent the salmon
 	*/
 
-	$signed_data = $guid . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $diaspora_handle;
+	// Diaspora has changed the way they are signing the likes.
+	// Just to make sure that we don't miss any likes we will check the old and the current way.
+	$old_signed_data = $guid . ';' . $target_type . ';' . $parent_guid . ';' . $positive . ';' . $diaspora_handle;
+
+	$signed_data = $positive . ';' . $guid . ';' . $target_type . ';' . $parent_guid . ';' . $diaspora_handle;
+
 	$key = $msg['key'];
 
-	if($parent_author_signature) {
+	if ($parent_author_signature) {
 		// If a parent_author_signature exists, then we've received the like
 		// relayed from the top-level post owner. There's no need to check the
 		// author_signature if the parent_author_signature is valid
 
 		$parent_author_signature = base64_decode($parent_author_signature);
 
-		if(! rsa_verify($signed_data,$parent_author_signature,$key,'sha256')) {
-			if (intval(get_config('system','ignore_diaspora_like_signature')))
-				logger('diaspora_like: top-level owner verification failed. Proceeding anyway.');
-			else {
-				logger('diaspora_like: top-level owner verification failed.');
-				return;
-			}
+		if (!rsa_verify($signed_data,$parent_author_signature,$key,'sha256') AND
+			!rsa_verify($old_signed_data,$parent_author_signature,$key,'sha256')) {
+
+			logger('diaspora_like: top-level owner verification failed.');
+			return;
 		}
-	}
-	else {
+	} else {
 		// If there's no parent_author_signature, then we've received the like
 		// from the like creator. In that case, the person is "like"ing
 		// our post, so he/she must be a contact of ours and his/her public key
@@ -1979,13 +1981,11 @@ function diaspora_like($importer,$xml,$msg) {
 
 		$author_signature = base64_decode($author_signature);
 
-		if(! rsa_verify($signed_data,$author_signature,$key,'sha256')) {
-			if (intval(get_config('system','ignore_diaspora_like_signature')))
-				logger('diaspora_like: like creator verification failed. Proceeding anyway');
-			else {
-				logger('diaspora_like: like creator verification failed.');
-				return;
-			}
+		if (!rsa_verify($signed_data,$author_signature,$key,'sha256') AND
+			!rsa_verify($old_signed_data,$author_signature,$key,'sha256')) {
+
+			logger('diaspora_like: like creator verification failed.');
+			return;
 		}
 	}
 
