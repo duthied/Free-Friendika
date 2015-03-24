@@ -364,17 +364,6 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		$network = NETWORK_TWITTER;
 	}
 
-	if (strpos($url,'www.facebook.com')) {
-		$connectornetworks = true;
-		$network = NETWORK_FACEBOOK;
-	}
-
-	if (strpos($url,'alpha.app.net')) {
-		$appnet = true;
-		$network = NETWORK_APPNET;
-	}
-
-
 	// Twitter is deactivated since twitter closed its old API
 	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
 	$lastfm  = ((strpos($url,'last.fm/user') !== false) ? true : false);
