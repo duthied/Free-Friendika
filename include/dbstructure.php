@@ -106,29 +106,17 @@ function table_structure($table) {
 }
 
 function print_structure($database) {
+	echo "-- ------------------------------------------\n";
+	echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
+	echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
+	echo "-- ------------------------------------------\n\n\n";
 	foreach ($database AS $name => $structure) {
-		echo "\t".'$database["'.$name."\"] = array(\n";
+		echo "--\n";
+		echo "-- TABLE $name\n";
+		echo "--\n";
+		db_create_table($name, $structure['fields'], true, false, $structure["indexes"]);
 
-		echo "\t\t\t".'"fields" => array('."\n";
-		foreach ($structure["fields"] AS $fieldname => $parameters) {
-			echo "\t\t\t\t\t".'"'.$fieldname.'" => array(';
-
-			$data = "";
-			foreach ($parameters AS $name => $value) {
-				if ($data != "")
-					$data .= ", ";
-				$data .= '"'.$name.'" => "'.$value.'"';
-			}
-
-			echo $data."),\n";
-		}
-		echo "\t\t\t\t\t),\n";
-		echo "\t\t\t".'"indexes" => array('."\n";
-		foreach ($structure["indexes"] AS $indexname => $fieldnames) {
-			echo "\t\t\t\t\t".'"'.$indexname.'" => array("'.implode($fieldnames, '","').'"'."),\n";
-		}
-		echo "\t\t\t\t\t)\n";
-		echo "\t\t\t);\n";
+		echo "\n";
 	}
 }
 
@@ -243,7 +231,7 @@ function db_field_command($parameters, $create = true) {
 	return($fieldstruct);
 }
 
-function db_create_table($name, $fields, $verbose, $action) {
+function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	global $a, $db;
 
 	$r = true;
@@ -253,7 +241,13 @@ function db_create_table($name, $fields, $verbose, $action) {
 		if ($sql != "")
 			$sql .= ",\n";
 
-		$sql .= "`".dbesc($fieldname)."` ".db_field_command($field);
+		$sql .= "\t`".dbesc($fieldname)."` ".db_field_command($field);
+	}
+
+	if (!is_null($indexes)) {
+		foreach ($indexes AS $indexname => $fieldnames) {
+			$sql .= "\t".db_create_index($indexname, $fieldnames, "")."\n";
+		}
 	}
 
 	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
@@ -282,7 +276,7 @@ function db_drop_index($indexname) {
 	return($sql);
 }
 
-function db_create_index($indexname, $fieldnames) {
+function db_create_index($indexname, $fieldnames, $method="ADD") {
 
 	if ($indexname == "PRIMARY")
 		return;
@@ -298,7 +292,13 @@ function db_create_index($indexname, $fieldnames) {
 			$names .= "`".dbesc($fieldname)."`";
 	}
 
-	$sql = sprintf("ADD INDEX `%s` (%s)", dbesc($indexname), $names);
+	$method = strtoupper(trim($method));
+	if ($method!="" && $method!="ADD") {
+		throw new Exception("Invalid parameter 'method' in db_create_index(): '$method'");
+		killme();
+	}
+
+	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
 }
 
@@ -1357,7 +1357,29 @@ function dbstructure_run(&$argv, &$argc) {
 			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	update_structure(true, true);
+	if ($argc==2) {
+		switch ($argv[1]) {
+			case "update":
+				update_structure(true, true);
+				return;
+			case "dumpsql":
+				print_structure(db_definition());
+				return;
+		}
+	}
+
+
+	// print help
+	echo $argv[0]." <command>\n";
+	echo "\n";
+	echo "commands:\n";
+	echo "update		update database schema\n";
+	echo "dumpsql		dump database schema\n";
+	return;
+
+
+
+
 }
 
 if (array_search(__file__,get_included_files())===0){
