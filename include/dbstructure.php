@@ -219,9 +219,13 @@ function db_field_command($parameters, $create = true) {
 	if ($parameters["not null"])
 		$fieldstruct .= " NOT NULL";
 
-	if (isset($parameters["default"]))
-		$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
-
+	if (isset($parameters["default"])){
+		if (strpos(strtolower($parameters["type"]),"int")!==false) {
+			$fieldstruct .= " DEFAULT ".$parameters["default"];
+		} else {
+			$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
+		}
+	}
 	if ($parameters["extra"] != "")
 		$fieldstruct .= " ".$parameters["extra"];
 
@@ -237,20 +241,22 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	$r = true;
 
 	$sql = "";
+	$sql_rows = array();
 	foreach($fields AS $fieldname => $field) {
-		if ($sql != "")
-			$sql .= ",\n";
-
-		$sql .= "\t`".dbesc($fieldname)."` ".db_field_command($field);
+		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
 	}
 
 	if (!is_null($indexes)) {
+
 		foreach ($indexes AS $indexname => $fieldnames) {
-			$sql .= "\t".db_create_index($indexname, $fieldnames, "")."\n";
+			$sql_index = db_create_index($indexname, $fieldnames, "");
+			if (!is_null($sql_index)) $sql_rows[] = $sql_index;
 		}
 	}
 
-	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
+	$sql = implode(",\n\t", $sql_rows);
+
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
 
 	if ($verbose)
 		echo $sql.";\n";
