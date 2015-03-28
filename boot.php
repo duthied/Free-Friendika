@@ -2181,6 +2181,20 @@ function get_my_url() {
 function zrl_init(&$a) {
 	$tmp_str = get_my_url();
 	if(validate_url($tmp_str)) {
+
+		// Is it a DDoS attempt?
+		// The check fetches the cached value from gprobe to reduce the load for this system
+		$urlparts = parse_url($url);
+
+		$result = Cache::get("gprobe:".$urlparts["host"]);
+		if (!is_null($result)) {
+			$result = unserialize($result);
+			if ($result["network"] == NETWORK_FEED) {
+				logger("DDoS attempt detected for ".$urlparts["host"], LOGGER_DEBUG);
+				return;
+			}
+		}
+
 		proc_run('php','include/gprobe.php',bin2hex($tmp_str));
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init',$arr);

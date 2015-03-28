@@ -41,7 +41,23 @@ function gprobe_run(&$argv, &$argc){
 
 	if(! count($r)) {
 
+		// Is it a DDoS attempt?
+		$urlparts = parse_url($url);
+
+		$result = Cache::get("gprobe:".$urlparts["host"]);
+		if (!is_null($result)) {
+			$result = unserialize($result);
+			if ($result["network"] == NETWORK_FEED) {
+				logger("DDoS attempt detected for ".$urlparts["host"], LOGGER_DEBUG);
+				return;
+			}
+		}
+
 		$arr = probe_url($url);
+
+		if (is_null($result))
+			Cache::set("gprobe:".$urlparts["host"],serialize($arr));
+
 		if(count($arr) && x($arr,'network') && $arr['network'] === NETWORK_DFRN) {
 			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`)
 				values ( '%s', '%s', '%s', '%s') ",
