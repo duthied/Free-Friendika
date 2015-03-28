@@ -2184,13 +2184,13 @@ function zrl_init(&$a) {
 
 		// Is it a DDoS attempt?
 		// The check fetches the cached value from gprobe to reduce the load for this system
-		$urlparts = parse_url($url);
+		$urlparts = parse_url($tmp_str);
 
 		$result = Cache::get("gprobe:".$urlparts["host"]);
 		if (!is_null($result)) {
 			$result = unserialize($result);
 			if ($result["network"] == NETWORK_FEED) {
-				logger("DDoS attempt detected for ".$urlparts["host"], LOGGER_DEBUG);
+				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
 				return;
 			}
 		}

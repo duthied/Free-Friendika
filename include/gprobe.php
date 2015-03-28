@@ -48,7 +48,7 @@ function gprobe_run(&$argv, &$argc){
 		if (!is_null($result)) {
 			$result = unserialize($result);
 			if ($result["network"] == NETWORK_FEED) {
-				logger("DDoS attempt detected for ".$urlparts["host"], LOGGER_DEBUG);
+				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
 				return;
 			}
 		}
