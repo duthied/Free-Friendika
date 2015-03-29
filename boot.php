@@ -2175,7 +2175,7 @@ function zrl_init(&$a) {
 	}
 }
 
-function zrl($s,$force = false) {
+function zrl($s,$force = false) {i
 	if(! strlen($s))
 		return $s;
 	if((! strpos($s,'/profile/')) && (! $force))
@@ -2335,7 +2335,9 @@ function get_itemcachepath() {
 
 	if ($temppath != "") {
 		$itemcache = $temppath."/itemcache";
-		mkdir($itemcache);
+		if(!file_exists($itemcache) && !is_dir($itemcache)) {
+			mkdir($itemcache);
+		}
 
 		if (is_dir($itemcache) AND is_writable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);
