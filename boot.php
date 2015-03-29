@@ -2175,7 +2175,7 @@ function zrl_init(&$a) {
 	}
 }
 
-function zrl($s,$force = false) {i
+function zrl($s,$force = false) {
 	if(! strlen($s))
 		return $s;
 	if((! strpos($s,'/profile/')) && (! $force))
