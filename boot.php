@@ -2361,7 +2361,9 @@ function get_itemcachepath() {
 
 	if ($temppath != "") {
 		$itemcache = $temppath."/itemcache";
-		mkdir($itemcache);
+		if(!file_exists($itemcache) && !is_dir($itemcache)) {
+			mkdir($itemcache);
+		}
 
 		if (is_dir($itemcache) AND is_writable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);
