@@ -1830,11 +1830,11 @@ if(! function_exists('get_events')) {
 		$bd_short = t('F d');
 
 		$r = q("SELECT `event`.* FROM `event`
-				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` > '%s'
+				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
 				ORDER BY `start` ASC ",
 				intval(local_user()),
 				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
-				dbesc(datetime_convert('UTC','UTC','now - 1 days'))
+				dbesc(date("Y-m-d 00:00:00"))
 		);
 
 		if($r && count($r)) {
