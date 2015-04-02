@@ -22,6 +22,7 @@ Version 3.4
 	Fix warning trying to creating already existing itemcache dir (pztrn)
 	Send update to directory when account is removed (issue #1038) (annando)
 	Fix settings page's aside menu visibility (issue #1459) (fabrixxm)
+	Don't show past events in event reminder in profile page (issue #1306) (annando)
 
 Version 3.3.3
 
