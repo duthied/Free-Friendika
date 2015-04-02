@@ -1830,10 +1830,10 @@ if(! function_exists('get_events')) {
 		$bd_short = t('F d');
 
 		$r = q("SELECT `event`.* FROM `event`
-				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` > '%s'
+				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
+				dbesc(datetime_convert('UTC','UTC','now + 7 days')),
 				dbesc(datetime_convert('UTC','UTC','now - 1 days'))
 		);
 
@@ -1850,6 +1850,7 @@ if(! function_exists('get_events')) {
 			}
 			$classtoday = (($istoday) ? 'event-today' : '');
 
+			$skip = 0;
 
 			foreach($r as &$rr) {
 				if($rr['adjust'])
@@ -1863,6 +1864,12 @@ if(! function_exists('get_events')) {
 					$title = t('[No description]');
 
 				$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
+
+				if(substr($strt,0,10) < datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
+					$skip++;
+					continue;
+				}
+
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
 
 				$rr['link'] = $md;
@@ -1877,7 +1884,7 @@ if(! function_exists('get_events')) {
 		return replace_macros($tpl, array(
 			'$baseurl' => $a->get_baseurl(),
 			'$classtoday' => $classtoday,
-			'$count' => count($r),
+			'$count' => count($r) - $skip,
 			'$event_reminders' => t('Event Reminders'),
 			'$event_title' => t('Events this week:'),
 			'$events' => $r,
