@@ -30,8 +30,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-09 08:57+0100\n"
-"PO-Revision-Date: 2015-03-29 16:39+0000\n"
-"Last-Translator: silke m <silke@silkemeyer.net>\n"
+"PO-Revision-Date: 2015-04-01 13:21+0000\n"
+"Last-Translator: Frank Dieckmann <frank@lumina-verte.org>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -496,7 +496,7 @@ msgstr "Verwalte Identitäten und/oder Seiten"
 msgid ""
 "Toggle between different identities or community/group pages which share "
 "your account details or which you have been granted \"manage\" permissions"
-msgstr "Zwischen verschiedenen Identitäten oder Gemeinschafts-/Gruppenseiten wechseln, die deine Kontoinformationen teilen oder zu denen du „Verwalten“-Befugnisse bekommen hast."
+msgstr "Zwischen verschiedenen Identitäten oder Gemeinschafts-/Gruppenseiten wechseln, die deine Kontoinformationen teilen oder zu denen Du „Verwalten“-Befugnisse bekommen hast."
 
 #: ../../mod/manage.php:108
 msgid "Select an identity to manage: "
@@ -613,7 +613,7 @@ msgid ""
 " directory listing is like having an unlisted phone number. In general, you "
 "should probably publish your listing - unless all of your friends and "
 "potential friends know exactly how to find you."
-msgstr "Überprüfe die restlichen Einstellungen, insbesondere die Einstellungen zur Privatsphäre. Wenn du dein Profil nicht veröffentlichst, ist das als wenn du deine Telefonnummer nicht ins Telefonbuch einträgst. Im Allgemeinen solltest du es veröffentlichen - außer all deine Freunde und potentiellen Freunde wissen genau, wie sie dich finden können."
+msgstr "Überprüfe die restlichen Einstellungen, insbesondere die Einstellungen zur Privatsphäre. Wenn Du dein Profil nicht veröffentlichst, ist das als wenn Du deine Telefonnummer nicht ins Telefonbuch einträgst. Im Allgemeinen solltest Du es veröffentlichen - außer all deine Freunde und potentiellen Freunde wissen genau, wie sie dich finden können."
 
 #: ../../mod/newmember.php:36 ../../mod/profile_photo.php:244
 #: ../../mod/profiles.php:699
@@ -625,7 +625,7 @@ msgid ""
 "Upload a profile photo if you have not done so already. Studies have shown "
 "that people with real photos of themselves are ten times more likely to make"
 " friends than people who do not."
-msgstr "Lade ein Profilbild hoch falls du es noch nicht getan hast. Studien haben gezeigt, dass es zehnmal wahrscheinlicher ist neue Freunde zu finden, wenn du ein Bild von dir selbst verwendest, als wenn du dies nicht tust."
+msgstr "Lade ein Profilbild hoch falls Du es noch nicht getan hast. Studien haben gezeigt, dass es zehnmal wahrscheinlicher ist neue Freunde zu finden, wenn Du ein Bild von dir selbst verwendest, als wenn Du dies nicht tust."
 
 #: ../../mod/newmember.php:38
 msgid "Edit Your Profile"
@@ -662,7 +662,7 @@ msgstr "Facebook"
 msgid ""
 "Authorise the Facebook Connector if you currently have a Facebook account "
 "and we will (optionally) import all your Facebook friends and conversations."
-msgstr "Richte die Verbindung zu Facebook ein, wenn du im Augenblick ein Facebook-Konto hast, und (optional) deine Facebook-Freunde und -Unterhaltungen importieren willst."
+msgstr "Richte die Verbindung zu Facebook ein, wenn Du im Augenblick ein Facebook-Konto hast, und (optional) deine Facebook-Freunde und -Unterhaltungen importieren willst."
 
 #: ../../mod/newmember.php:51
 msgid ""
@@ -679,7 +679,7 @@ msgid ""
 "Enter your email access information on your Connector Settings page if you "
 "wish to import and interact with friends or mailing lists from your email "
 "INBOX"
-msgstr "Gib deine E-Mail-Zugangsinformationen auf der Connector-Einstellungsseite ein, falls du E-Mails aus deinem Posteingang importieren und mit Freunden und Mailinglisten interagieren willlst."
+msgstr "Gib deine E-Mail-Zugangsinformationen auf der Connector-Einstellungsseite ein, falls Du E-Mails aus deinem Posteingang importieren und mit Freunden und Mailinglisten interagieren willlst."
 
 #: ../../mod/newmember.php:58
 msgid "Go to Your Contacts Page"
@@ -690,7 +690,7 @@ msgid ""
 "Your Contacts page is your gateway to managing friendships and connecting "
 "with friends on other networks. Typically you enter their address or site "
 "URL in the <em>Add New Contact</em> dialog."
-msgstr "Die Kontakte-Seite ist die Einstiegsseite, von der aus du Kontakte verwalten und dich mit Freunden in anderen Netzwerken verbinden kannst. Normalerweise gibst du dazu einfach ihre Adresse oder die URL der Seite im Kasten <em>Neuen Kontakt hinzufügen</em> ein."
+msgstr "Die Kontakte-Seite ist die Einstiegsseite, von der aus Du Kontakte verwalten und dich mit Freunden in anderen Netzwerken verbinden kannst. Normalerweise gibst Du dazu einfach ihre Adresse oder die URL der Seite im Kasten <em>Neuen Kontakt hinzufügen</em> ein."
 
 #: ../../mod/newmember.php:60
 msgid "Go to Your Site's Directory"
@@ -701,7 +701,7 @@ msgid ""
 "The Directory page lets you find other people in this network or other "
 "federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on "
 "their profile page. Provide your own Identity Address if requested."
-msgstr "Über die Verzeichnisseite kannst du andere Personen auf diesem Server oder anderen verknüpften Seiten finden. Halte nach einem <em>Verbinden</em> oder <em>Folgen</em> Link auf deren Profilseiten Ausschau und gib deine eigene Profiladresse an, falls du danach gefragt wirst."
+msgstr "Über die Verzeichnisseite kannst Du andere Personen auf diesem Server oder anderen verknüpften Seiten finden. Halte nach einem <em>Verbinden</em> oder <em>Folgen</em> Link auf deren Profilseiten Ausschau und gib deine eigene Profiladresse an, falls Du danach gefragt wirst."
 
 #: ../../mod/newmember.php:62
 msgid "Finding New People"
@@ -729,7 +729,7 @@ msgid ""
 "Once you have made some friends, organize them into private conversation "
 "groups from the sidebar of your Contacts page and then you can interact with"
 " each group privately on your Network page."
-msgstr "Sobald du einige Freunde gefunden hast, organisiere sie in Gruppen zur privaten Kommunikation im Seitenmenü der Kontakte-Seite. Du kannst dann mit jeder dieser Gruppen von der Netzwerkseite aus privat interagieren."
+msgstr "Sobald Du einige Freunde gefunden hast, organisiere sie in Gruppen zur privaten Kommunikation im Seitenmenü der Kontakte-Seite. Du kannst dann mit jeder dieser Gruppen von der Netzwerkseite aus privat interagieren."
 
 #: ../../mod/newmember.php:73
 msgid "Why Aren't My Posts Public?"
@@ -946,7 +946,7 @@ msgstr "Du kannst sie online unter %s besuchen"
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
-msgstr "Falls du diese Beiträge nicht erhalten möchtest, kontaktiere bitte den Autor, indem du auf diese Nachricht antwortest."
+msgstr "Falls Du diese Beiträge nicht erhalten möchtest, kontaktiere bitte den Autor, indem Du auf diese Nachricht antwortest."
 
 #: ../../mod/item.php:971
 #, php-format
@@ -1179,7 +1179,7 @@ msgid ""
 "\n"
 "\t\tYour password will not be changed unless we can verify that you\n"
 "\t\tissued this request."
-msgstr "\nHallo %1$s,\n\nAuf \"%2$s\" ist eine Anfrage auf das Zurücksetzen deines Passworts gesteööt\nworden. Um diese Anfrage zu verifizieren folge bitte dem unten stehenden\nLink oder kopiere ihn und füge ihn in die Addressleiste deines Browsers ein.\n\nSolltest du die Anfrage NICHT gemacht haben, ignoriere und/oder lösche diese\nEmail bitte.\n\nDein Passwort wird nicht geändern solange wir nicht verifiziert haben, dass\ndu diese Änderung angefragt hast."
+msgstr "\nHallo %1$s,\n\nAuf \"%2$s\" ist eine Anfrage auf das Zurücksetzen deines Passworts gesteööt\nworden. Um diese Anfrage zu verifizieren folge bitte dem unten stehenden\nLink oder kopiere ihn und füge ihn in die Addressleiste deines Browsers ein.\n\nSolltest Du die Anfrage NICHT gemacht haben, ignoriere und/oder lösche diese\nEmail bitte.\n\nDein Passwort wird nicht geändern solange wir nicht verifiziert haben, dass\nDu diese Änderung angefragt hast."
 
 #: ../../mod/lostpass.php:53
 #, php-format
@@ -1196,7 +1196,7 @@ msgid ""
 "\n"
 "\t\tSite Location:\t%2$s\n"
 "\t\tLogin Name:\t%3$s"
-msgstr "\nUm deine Identität zu verifizieren folge bitte dem folgenden Link:\n\n%1$s\n\nDu wirst eine weitere Email mit deinem neuen Passwort erhalten. Sobald du dich\nangemeldet hast, kannst du dein Passwort in den Einstellungen ändern.\n\nDie Anmeldedetails sind die folgenden:\n\nAdresse der Seite:\t%2$s\nBenutzername:\t%3$s"
+msgstr "\nUm deine Identität zu verifizieren folge bitte dem folgenden Link:\n\n%1$s\n\nDu wirst eine weitere Email mit deinem neuen Passwort erhalten. Sobald Du dich\nangemeldet hast, kannst Du dein Passwort in den Einstellungen ändern.\n\nDie Anmeldedetails sind die folgenden:\n\nAdresse der Seite:\t%2$s\nBenutzername:\t%3$s"
 
 #: ../../mod/lostpass.php:72
 #, php-format
@@ -1207,7 +1207,7 @@ msgstr "Anfrage zum Zurücksetzen des Passworts auf %s erhalten"
 msgid ""
 "Request could not be verified. (You may have previously submitted it.) "
 "Password reset failed."
-msgstr "Anfrage konnte nicht verifiziert werden. (Eventuell hast du bereits eine ähnliche Anfrage gestellt.) Zurücksetzen des Passworts gescheitert."
+msgstr "Anfrage konnte nicht verifiziert werden. (Eventuell hast Du bereits eine ähnliche Anfrage gestellt.) Zurücksetzen des Passworts gescheitert."
 
 #: ../../mod/lostpass.php:109 ../../boot.php:1280
 msgid "Password Reset"
@@ -1233,7 +1233,7 @@ msgstr "hier klicken, um dich anzumelden"
 msgid ""
 "Your password may be changed from the <em>Settings</em> page after "
 "successful login."
-msgstr "Du kannst das Passwort in den <em>Einstellungen</em> ändern, sobald du dich erfolgreich angemeldet hast."
+msgstr "Du kannst das Passwort in den <em>Einstellungen</em> ändern, sobald Du dich erfolgreich angemeldet hast."
 
 #: ../../mod/lostpass.php:125
 #, php-format
@@ -1244,7 +1244,7 @@ msgid ""
 "\t\t\t\tinformation for your records (or change your password immediately to\n"
 "\t\t\t\tsomething that you will remember).\n"
 "\t\t\t"
-msgstr "\nHallo %1$s,\n\ndein Passwort wurde wie gewünscht geändert. Bitte bewahre diese Informationen gut auf (oder ändere dein Passwort zu etwas, das du dir leicht merken kannst)."
+msgstr "\nHallo %1$s,\n\ndein Passwort wurde wie gewünscht geändert. Bitte bewahre diese Informationen gut auf (oder ändere dein Passwort zu etwas, das Du dir leicht merken kannst)."
 
 #: ../../mod/lostpass.php:131
 #, php-format
@@ -1267,7 +1267,7 @@ msgstr "Auf %s wurde dein Passwort geändert"
 
 #: ../../mod/lostpass.php:159
 msgid "Forgot your Password?"
-msgstr "Hast du dein Passwort vergessen?"
+msgstr "Hast Du dein Passwort vergessen?"
 
 #: ../../mod/lostpass.php:160
 msgid ""
@@ -1602,7 +1602,7 @@ msgstr "Nachrichten"
 
 #: ../../mod/message.php:207
 msgid "Do you really want to delete this message?"
-msgstr "Möchtest du wirklich diese Nachricht löschen?"
+msgstr "Möchtest Du wirklich diese Nachricht löschen?"
 
 #: ../../mod/message.php:227
 msgid "Message deleted."
@@ -1675,7 +1675,7 @@ msgstr "Du und %s"
 #: ../../mod/message.php:384
 #, php-format
 msgid "%s and You"
-msgstr "%s und du"
+msgstr "%s und Du"
 
 #: ../../mod/message.php:405 ../../mod/message.php:546
 msgid "Delete conversation"
@@ -1704,7 +1704,7 @@ msgstr "Nachricht löschen"
 msgid ""
 "No secure communications available. You <strong>may</strong> be able to "
 "respond from the sender's profile page."
-msgstr "Sichere Kommunikation ist nicht verfügbar. <strong>Eventuell</strong> kannst du auf der Profilseite des Absenders antworten."
+msgstr "Sichere Kommunikation ist nicht verfügbar. <strong>Eventuell</strong> kannst Du auf der Profilseite des Absenders antworten."
 
 #: ../../mod/message.php:552
 msgid "Send Reply"
@@ -1732,13 +1732,13 @@ msgstr "Kontakteinstellungen reparieren"
 msgid ""
 "<strong>WARNING: This is highly advanced</strong> and if you enter incorrect"
 " information your communications with this contact may stop working."
-msgstr "<strong>ACHTUNG: Das sind Experten-Einstellungen!</strong> Wenn du etwas Falsches eingibst, funktioniert die Kommunikation mit diesem Kontakt evtl. nicht mehr."
+msgstr "<strong>ACHTUNG: Das sind Experten-Einstellungen!</strong> Wenn Du etwas Falsches eingibst, funktioniert die Kommunikation mit diesem Kontakt evtl. nicht mehr."
 
 #: ../../mod/crepair.php:142
 msgid ""
 "Please use your browser 'Back' button <strong>now</strong> if you are "
 "uncertain what to do on this page."
-msgstr "Bitte nutze den Zurück-Button deines Browsers <strong>jetzt</strong>, wenn du dir unsicher bist, was du tun willst."
+msgstr "Bitte nutze den Zurück-Button deines Browsers <strong>jetzt</strong>, wenn Du dir unsicher bist, was Du tun willst."
 
 #: ../../mod/crepair.php:148
 msgid "Return to contact editor"
@@ -2084,7 +2084,7 @@ msgstr "Zusätzliche Informationen"
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at dir.friendica.com/siteinfo."
-msgstr "Für öffentliche Server kannst du hier zusätzliche Informationen angeben, die dann auf dir.friendica.com/siteinfo angezeigt werden."
+msgstr "Für öffentliche Server kannst Du hier zusätzliche Informationen angeben, die dann auf dir.friendica.com/siteinfo angezeigt werden."
 
 #: ../../mod/admin.php:636
 msgid "System language"
@@ -2663,7 +2663,7 @@ msgid ""
 "\t\t\tyou to make some new and interesting friends.\n"
 "\n"
 "\t\t\tThank you and welcome to %4$s."
-msgstr "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%1$s\n\tBenutzernamename:\t%2$s\n\tPasswort:\t%3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich\nangemeldet hast.\n\nBitte nimm dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst du ja auch einige Informationen über dich in deinem\nProfil veröffentlichen, damit andere Leute dich einfacher finden können.\nBearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir\npassendes Profilbild zu wählen, damit dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.\n\nWir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDanke für deine Aufmerksamkeit und willkommen auf %4$s."
+msgstr "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%1$s\n\tBenutzernamename:\t%2$s\n\tPasswort:\t%3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald Du dich\nangemeldet hast.\n\nBitte nimm dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst Du ja auch einige Informationen über dich in deinem\nProfil veröffentlichen, damit andere Leute dich einfacher finden können.\nBearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir\npassendes Profilbild zu wählen, damit dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn Du auf deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.\n\nWir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn Du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDanke für deine Aufmerksamkeit und willkommen auf %4$s."
 
 #: ../../mod/admin.php:838 ../../include/user.php:413
 #, php-format
@@ -2769,13 +2769,13 @@ msgstr "Nutzerkonto"
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Die markierten Nutzer werden gelöscht!\\n\\nAlle Beiträge, die diese Nutzer auf dieser Seite veröffentlicht haben, werden permanent gelöscht!\\n\\nBist du sicher?"
+msgstr "Die markierten Nutzer werden gelöscht!\\n\\nAlle Beiträge, die diese Nutzer auf dieser Seite veröffentlicht haben, werden permanent gelöscht!\\n\\nBist Du sicher?"
 
 #: ../../mod/admin.php:1019
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
-msgstr "Der Nutzer {0} wird gelöscht!\\n\\nAlles was dieser Nutzer auf dieser Seite veröffentlicht hat, wird permanent gelöscht!\\n\\nBist du sicher?"
+msgstr "Der Nutzer {0} wird gelöscht!\\n\\nAlles was dieser Nutzer auf dieser Seite veröffentlicht hat, wird permanent gelöscht!\\n\\nBist Du sicher?"
 
 #: ../../mod/admin.php:1029
 msgid "Name of the new user."
@@ -3152,7 +3152,7 @@ msgstr "Teilen"
 #: ../../mod/photos.php:1606 ../../mod/photos.php:1694
 #: ../../object/Item.php:675
 msgid "This is you"
-msgstr "Das bist du"
+msgstr "Das bist Du"
 
 #: ../../mod/content.php:709 ../../mod/photos.php:1564
 #: ../../mod/photos.php:1608 ../../mod/photos.php:1696 ../../boot.php:750
@@ -3274,7 +3274,7 @@ msgstr "Die Datenbank deiner Friendicaseite wurde installiert."
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
-msgstr "Möglicherweise musst du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren."
+msgstr "Möglicherweise musst Du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren."
 
 #: ../../mod/install.php:139 ../../mod/install.php:206
 #: ../../mod/install.php:525
@@ -3303,13 +3303,13 @@ msgstr "Um Friendica installieren zu können, müssen wir wissen, wie wir mit de
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
-msgstr "Bitte kontaktiere den Hosting Provider oder den Administrator der Seite, falls du Fragen zu diesen Einstellungen haben solltest."
+msgstr "Bitte kontaktiere den Hosting Provider oder den Administrator der Seite, falls Du Fragen zu diesen Einstellungen haben solltest."
 
 #: ../../mod/install.php:230
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
-msgstr "Die Datenbank, die du unten angibst, sollte bereits existieren. Ist dies noch nicht der Fall, erzeuge sie bitte bevor du mit der Installation fortfährst."
+msgstr "Die Datenbank, die Du unten angibst, sollte bereits existieren. Ist dies noch nicht der Fall, erzeuge sie bitte bevor Du mit der Installation fortfährst."
 
 #: ../../mod/install.php:234
 msgid "Database Server Name"
@@ -3335,7 +3335,7 @@ msgstr "E-Mail-Adresse des Administrators"
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
-msgstr "Die E-Mail-Adresse, die in deinem Friendica-Account eingetragen ist, muss mit dieser Adresse übereinstimmen, damit du das Admin-Panel benutzen kannst."
+msgstr "Die E-Mail-Adresse, die in deinem Friendica-Account eingetragen ist, muss mit dieser Adresse übereinstimmen, damit Du das Admin-Panel benutzen kannst."
 
 #: ../../mod/install.php:242 ../../mod/install.php:280
 msgid "Please select a default timezone for your website"
@@ -3354,7 +3354,7 @@ msgid ""
 "If you don't have a command line version of PHP installed on server, you "
 "will not be able to run background polling via cron. See <a "
 "href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>"
-msgstr "Wenn du keine Kommandozeilen Version von PHP auf deinem Server installiert hast, kannst du keine Hintergrundprozesse via cron starten. Siehe <a href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>"
+msgstr "Wenn Du keine Kommandozeilen Version von PHP auf deinem Server installiert hast, kannst Du keine Hintergrundprozesse via cron starten. Siehe <a href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>"
 
 #: ../../mod/install.php:326
 msgid "PHP executable path"
@@ -3472,19 +3472,19 @@ msgstr "Der Installationswizard muss in der Lage sein, eine Datei im Stammverzei
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
-msgstr "In den meisten Fällen ist dies ein Problem mit den Schreibrechten. Der Webserver könnte keine Schreiberlaubnis haben, selbst wenn du sie hast."
+msgstr "In den meisten Fällen ist dies ein Problem mit den Schreibrechten. Der Webserver könnte keine Schreiberlaubnis haben, selbst wenn Du sie hast."
 
 #: ../../mod/install.php:440
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named .htconfig.php in your Friendica top folder."
-msgstr "Nachdem du alles ausgefüllt hast, erhältst du einen Text, den du in eine Datei namens .htconfig.php in deinem Friendica-Wurzelverzeichnis kopieren musst."
+msgstr "Nachdem Du alles ausgefüllt hast, erhältst Du einen Text, den Du in eine Datei namens .htconfig.php in deinem Friendica-Wurzelverzeichnis kopieren musst."
 
 #: ../../mod/install.php:441
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation."
 " Please see the file \"INSTALL.txt\" for instructions."
-msgstr "Alternativ kannst du diesen Schritt aber auch überspringen und die Installation manuell durchführen. Eine Anleitung dazu (Englisch) findest du in der Datei INSTALL.txt."
+msgstr "Alternativ kannst Du diesen Schritt aber auch überspringen und die Installation manuell durchführen. Eine Anleitung dazu (Englisch) findest Du in der Datei INSTALL.txt."
 
 #: ../../mod/install.php:444
 msgid ".htconfig.php is writable"
@@ -3513,7 +3513,7 @@ msgstr "Bitte stelle sicher, dass der Nutzer unter dem der Webserver läuft (z.B
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
-msgstr "Hinweis: aus Sicherheitsgründen solltest du dem Webserver nur Schreibrechte für view/smarty3/ geben -- Nicht den Templatedateien (.tpl) die sie enthalten."
+msgstr "Hinweis: aus Sicherheitsgründen solltest Du dem Webserver nur Schreibrechte für view/smarty3/ geben -- Nicht den Templatedateien (.tpl) die sie enthalten."
 
 #: ../../mod/install.php:460
 msgid "view/smarty3 is writable"
@@ -3563,7 +3563,7 @@ msgstr "Kein Empfänger."
 msgid ""
 "If you wish for %s to respond, please check that the privacy settings on "
 "your site allow private mail from unknown senders."
-msgstr "Wenn du möchtest, dass %s dir antworten kann, überprüfe deine Privatsphären-Einstellungen und erlaube private Nachrichten von unbekannten Absendern."
+msgstr "Wenn Du möchtest, dass %s dir antworten kann, überprüfe deine Privatsphären-Einstellungen und erlaube private Nachrichten von unbekannten Absendern."
 
 #: ../../mod/help.php:79
 msgid "Help:"
@@ -3842,7 +3842,7 @@ msgstr "E-Mail/Postfach-Einstellungen"
 msgid ""
 "If you wish to communicate with email contacts using this service "
 "(optional), please specify how to connect to your mailbox."
-msgstr "Wenn du mit E-Mail-Kontakten über diesen Service kommunizieren möchtest (optional), gib bitte die Einstellungen für dein Postfach an."
+msgstr "Wenn Du mit E-Mail-Kontakten über diesen Service kommunizieren möchtest (optional), gib bitte die Einstellungen für dein Postfach an."
 
 #: ../../mod/settings.php:787
 msgid "Last successful email check:"
@@ -3942,7 +3942,7 @@ msgstr "Endloses Scrollen"
 
 #: ../../mod/settings.php:892
 msgid "Automatic updates only at the top of the network page"
-msgstr "Automatische Updates nur, wenn du oben auf der Netzwerkseite bist."
+msgstr "Automatische Updates nur, wenn Du oben auf der Netzwerkseite bist."
 
 #: ../../mod/settings.php:969
 msgid "User Types"
@@ -4113,7 +4113,7 @@ msgstr "Bestätigen:"
 
 #: ../../mod/settings.php:1121
 msgid "Leave password fields blank unless changing"
-msgstr "Lass die Passwort-Felder leer, außer du willst das Passwort ändern"
+msgstr "Lass die Passwort-Felder leer, außer Du willst das Passwort ändern"
 
 #: ../../mod/settings.php:1122
 msgid "Current Password:"
@@ -4207,15 +4207,15 @@ msgstr "Standardmäßig eine Statusnachricht posten, wenn:"
 
 #: ../../mod/settings.php:1172
 msgid "accepting a friend request"
-msgstr "– du eine Kontaktanfrage akzeptierst"
+msgstr "– Du eine Kontaktanfrage akzeptierst"
 
 #: ../../mod/settings.php:1173
 msgid "joining a forum/community"
-msgstr "– du einem Forum/einer Gemeinschaftsseite beitrittst"
+msgstr "– Du einem Forum/einer Gemeinschaftsseite beitrittst"
 
 #: ../../mod/settings.php:1174
 msgid "making an <em>interesting</em> profile change"
-msgstr "– du eine <em>interessante</em> Änderung an deinem Profil durchführst"
+msgstr "– Du eine <em>interessante</em> Änderung an deinem Profil durchführst"
 
 #: ../../mod/settings.php:1175
 msgid "Send a notification email when:"
@@ -4223,7 +4223,7 @@ msgstr "Benachrichtigungs-E-Mail senden wenn:"
 
 #: ../../mod/settings.php:1176
 msgid "You receive an introduction"
-msgstr "– du eine Kontaktanfrage erhältst"
+msgstr "– Du eine Kontaktanfrage erhältst"
 
 #: ../../mod/settings.php:1177
 msgid "Your introductions are confirmed"
@@ -4239,19 +4239,19 @@ msgstr "– jemand auch einen Kommentar verfasst"
 
 #: ../../mod/settings.php:1180
 msgid "You receive a private message"
-msgstr "– du eine private Nachricht erhältst"
+msgstr "– Du eine private Nachricht erhältst"
 
 #: ../../mod/settings.php:1181
 msgid "You receive a friend suggestion"
-msgstr "– du eine Empfehlung erhältst"
+msgstr "– Du eine Empfehlung erhältst"
 
 #: ../../mod/settings.php:1182
 msgid "You are tagged in a post"
-msgstr "– du in einem Beitrag erwähnt wirst"
+msgstr "– Du in einem Beitrag erwähnt wirst"
 
 #: ../../mod/settings.php:1183
 msgid "You are poked/prodded/etc. in a post"
-msgstr "– du von jemandem angestupst oder sonstwie behandelt wirst"
+msgstr "– Du von jemandem angestupst oder sonstwie behandelt wirst"
 
 #: ../../mod/settings.php:1185
 msgid "Text-only notification emails"
@@ -4277,7 +4277,7 @@ msgstr "Umziehen"
 msgid ""
 "If you have moved this profile from another server, and some of your "
 "contacts don't receive your updates, try pushing this button."
-msgstr "Wenn du dein Profil von einem anderen Server umgezogen hast und einige deiner Kontakte deine Beiträge nicht erhalten, verwende diesen Button."
+msgstr "Wenn Du dein Profil von einem anderen Server umgezogen hast und einige deiner Kontakte deine Beiträge nicht erhalten, verwende diesen Button."
 
 #: ../../mod/settings.php:1195
 msgid "Resend relocate message to contacts"
@@ -4354,7 +4354,7 @@ msgstr "Du hast dich hier bereits vorgestellt."
 #: ../../mod/dfrn_request.php:480
 #, php-format
 msgid "Apparently you are already friends with %s."
-msgstr "Es scheint so, als ob du bereits mit %s befreundet bist."
+msgstr "Es scheint so, als ob Du bereits mit %s befreundet bist."
 
 #: ../../mod/dfrn_request.php:501
 msgid "Invalid profile URL."
@@ -4376,7 +4376,7 @@ msgstr "Bitte melde dich an, um die Kontaktanfrage zu bestätigen."
 msgid ""
 "Incorrect identity currently logged in. Please login to "
 "<strong>this</strong> profile."
-msgstr "Momentan bist du mit einer anderen Identität angemeldet. Bitte melde Dich mit <strong>diesem</strong> Profil an."
+msgstr "Momentan bist Du mit einer anderen Identität angemeldet. Bitte melde Dich mit <strong>diesem</strong> Profil an."
 
 #: ../../mod/dfrn_request.php:671
 msgid "Hide this contact"
@@ -4407,7 +4407,7 @@ msgid ""
 "If you are not yet a member of the free social web, <a "
 "href=\"http://dir.friendica.com/siteinfo\">follow this link to find a public"
 " Friendica site and join us today</a>."
-msgstr "Wenn du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href=\"http://dir.friendica.com/siteinfo\">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
+msgstr "Wenn Du noch kein Mitglied dieses freien sozialen Netzwerks bist, <a href=\"http://dir.friendica.com/siteinfo\">folge diesem Link</a> um einen öffentlichen Friendica-Server zu finden und beizutreten."
 
 #: ../../mod/dfrn_request.php:827
 msgid "Friend/Connection Request"
@@ -4485,13 +4485,13 @@ msgstr "Die maximale Anzahl täglicher Registrierungen auf dieser Seite wurde ü
 msgid ""
 "You may (optionally) fill in this form via OpenID by supplying your OpenID "
 "and clicking 'Register'."
-msgstr "Du kannst dieses Formular auch (optional) mit deiner OpenID ausfüllen, indem du deine OpenID angibst und 'Registrieren' klickst."
+msgstr "Du kannst dieses Formular auch (optional) mit deiner OpenID ausfüllen, indem Du deine OpenID angibst und 'Registrieren' klickst."
 
 #: ../../mod/register.php:215
 msgid ""
 "If you are not familiar with OpenID, please leave that field blank and fill "
 "in the rest of the items."
-msgstr "Wenn du nicht mit OpenID vertraut bist, lass dieses Feld bitte leer und fülle die restlichen Felder aus."
+msgstr "Wenn Du nicht mit OpenID vertraut bist, lass dieses Feld bitte leer und fülle die restlichen Felder aus."
 
 #: ../../mod/register.php:216
 msgid "Your OpenID (optional): "
@@ -4606,7 +4606,7 @@ msgid ""
 "Delegates are able to manage all aspects of this account/page except for "
 "basic account settings. Please do not delegate your personal account to "
 "anybody that you do not trust completely."
-msgstr "Bevollmächtigte sind in der Lage, alle Aspekte dieses Kontos/dieser Seite zu verwalten, abgesehen von den Grundeinstellungen des Kontos. Bitte gib niemandem eine Bevollmächtigung für deinen privaten Account, dem du nicht absolut vertraust!"
+msgstr "Bevollmächtigte sind in der Lage, alle Aspekte dieses Kontos/dieser Seite zu verwalten, abgesehen von den Grundeinstellungen des Kontos. Bitte gib niemandem eine Bevollmächtigung für deinen privaten Account, dem Du nicht absolut vertraust!"
 
 #: ../../mod/delegate.php:133
 msgid "Existing Page Managers"
@@ -4672,7 +4672,7 @@ msgstr "Wähle deine aktuelle Stimmung und erzähle sie deinen Freunden"
 
 #: ../../mod/suggest.php:27
 msgid "Do you really want to delete this suggestion?"
-msgstr "Möchtest du wirklich diese Empfehlung löschen?"
+msgstr "Möchtest Du wirklich diese Empfehlung löschen?"
 
 #: ../../mod/suggest.php:68 ../../include/contact_widgets.php:35
 #: ../../view/theme/diabook/theme.php:527
@@ -5143,7 +5143,7 @@ msgstr "Bitte melde dich an um fortzufahren."
 msgid ""
 "Do you want to authorize this application to access your posts and contacts,"
 " and/or create new posts for you?"
-msgstr "Möchtest du dieser Anwendung den Zugriff auf deine Beiträge und Kontakte, sowie das Erstellen neuer Beiträge in deinem Namen gestatten?"
+msgstr "Möchtest Du dieser Anwendung den Zugriff auf deine Beiträge und Kontakte, sowie das Erstellen neuer Beiträge in deinem Namen gestatten?"
 
 #: ../../mod/lockview.php:31 ../../mod/lockview.php:39
 msgid "Remote privacy information not available."
@@ -5205,7 +5205,7 @@ msgstr "Empfänger"
 
 #: ../../mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
-msgstr "Was willst du mit dem Empfänger machen:"
+msgstr "Was willst Du mit dem Empfänger machen:"
 
 #: ../../mod/poke.php:198
 msgid "Make this post private"
@@ -5250,7 +5250,7 @@ msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
 "other sites can all connect with each other, as well as with members of many"
 " other social networks."
-msgstr "Besuche %s für eine Liste der öffentlichen Server, denen du beitreten kannst. Friendica Mitglieder unterschiedlicher Server können sich sowohl alle miteinander verbinden, als auch mit Mitgliedern anderer Sozialer Netzwerke."
+msgstr "Besuche %s für eine Liste der öffentlichen Server, denen Du beitreten kannst. Friendica Mitglieder unterschiedlicher Server können sich sowohl alle miteinander verbinden, als auch mit Mitgliedern anderer Sozialer Netzwerke."
 
 #: ../../mod/invite.php:122
 #, php-format
@@ -5266,7 +5266,7 @@ msgid ""
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks. See %s for a list of alternate Friendica "
 "sites you can join."
-msgstr "Friendica Server verbinden sich alle untereinander, um ein großes datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Sie können sich auch mit vielen üblichen Sozialen Netzwerken verbinden. Besuche %s für eine Liste alternativer Friendica Server, denen du beitreten kannst."
+msgstr "Friendica Server verbinden sich alle untereinander, um ein großes datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Sie können sich auch mit vielen üblichen Sozialen Netzwerken verbinden. Besuche %s für eine Liste alternativer Friendica Server, denen Du beitreten kannst."
 
 #: ../../mod/invite.php:126
 msgid ""
@@ -5295,7 +5295,7 @@ msgstr "Du benötigst den folgenden Einladungscode: $invite_code"
 #: ../../mod/invite.php:137
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
-msgstr "Sobald du registriert bist, kontaktiere mich bitte auf meiner Profilseite:"
+msgstr "Sobald Du registriert bist, kontaktiere mich bitte auf meiner Profilseite:"
 
 #: ../../mod/invite.php:139
 msgid ""
@@ -5332,7 +5332,7 @@ msgstr "Album löschen"
 
 #: ../../mod/photos.php:198
 msgid "Do you really want to delete this photo album and all its photos?"
-msgstr "Möchtest du wirklich dieses Foto-Album und all seine Foto löschen?"
+msgstr "Möchtest Du wirklich dieses Foto-Album und all seine Foto löschen?"
 
 #: ../../mod/photos.php:278 ../../mod/photos.php:289 ../../mod/photos.php:1515
 msgid "Delete Photo"
@@ -5340,7 +5340,7 @@ msgstr "Foto löschen"
 
 #: ../../mod/photos.php:287
 msgid "Do you really want to delete this photo?"
-msgstr "Möchtest du wirklich dieses Foto löschen?"
+msgstr "Möchtest Du wirklich dieses Foto löschen?"
 
 #: ../../mod/photos.php:662
 #, php-format
@@ -5511,7 +5511,7 @@ msgid ""
 "You need to export your account from the old server and upload it here. We "
 "will recreate your old account here with all your contacts. We will try also"
 " to inform your friends that you moved here."
-msgstr "Du musst deinen Account vom alten Server exportieren und hier hochladen. Wir stellen deinen alten Account mit all deinen Kontakten wieder her. Wir werden auch versuchen all deine Freunde darüber zu informieren, dass du hierher umgezogen bist."
+msgstr "Du musst deinen Account vom alten Server exportieren und hier hochladen. Wir stellen deinen alten Account mit all deinen Kontakten wieder her. Wir werden auch versuchen all deine Freunde darüber zu informieren, dass Du hierher umgezogen bist."
 
 #: ../../mod/uimport.php:69
 msgid ""
@@ -5673,7 +5673,7 @@ msgstr "Ereignisse und Kalender"
 
 #: ../../boot.php:2153
 msgid "Only You Can See This"
-msgstr "Nur du kannst das sehen"
+msgstr "Nur Du kannst das sehen"
 
 #: ../../object/Item.php:94
 msgid "This entry was edited"
@@ -5715,7 +5715,7 @@ msgid ""
 "\t\t\tbut when I tried to install it, something went terribly wrong.\n"
 "\t\t\tThis needs to be fixed soon and I can't do it alone. Please contact a\n"
 "\t\t\tfriendica developer if you can not help me on your own. My database might be invalid."
-msgstr "\nDie Friendica-Entwickler haben vor kurzem das Update %s veröffentlicht, aber bei der Installation ging etwas schrecklich schief.\n\nDas Problem sollte so schnell wie möglich gelöst werden, aber ich schaffe es nicht alleine. Bitte kontaktiere einen Friendica-Entwickler falls du mir nicht alleine helfen kannst. Meine Datenbank könnte ungültig sein."
+msgstr "\nDie Friendica-Entwickler haben vor kurzem das Update %s veröffentlicht, aber bei der Installation ging etwas schrecklich schief.\n\nDas Problem sollte so schnell wie möglich gelöst werden, aber ich schaffe es nicht alleine. Bitte kontaktiere einen Friendica-Entwickler falls Du mir nicht alleine helfen kannst. Meine Datenbank könnte ungültig sein."
 
 #: ../../include/dbstructure.php:31
 #, php-format
@@ -5740,7 +5740,7 @@ msgstr "Abgemeldet."
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
-msgstr "Beim Versuch dich mit der von dir angegebenen OpenID anzumelden trat ein Problem auf. Bitte überprüfe, dass du die OpenID richtig geschrieben hast."
+msgstr "Beim Versuch dich mit der von dir angegebenen OpenID anzumelden trat ein Problem auf. Bitte überprüfe, dass Du die OpenID richtig geschrieben hast."
 
 #: ../../include/auth.php:128 ../../include/user.php:67
 msgid "The error message was:"
@@ -5896,7 +5896,7 @@ msgstr "Netzwerk-Reiter: Persönlich"
 
 #: ../../include/features.php:48
 msgid "Enable tab to display only Network posts that you've interacted on"
-msgstr "Aktiviert einen Netzwerk-Reiter in dem Nachrichten angezeigt werden mit denen du interagiert hast"
+msgstr "Aktiviert einen Netzwerk-Reiter in dem Nachrichten angezeigt werden mit denen Du interagiert hast"
 
 #: ../../include/features.php:49
 msgid "Network New Tab"
@@ -6038,7 +6038,7 @@ msgid ""
 "A deleted group with this name was revived. Existing item permissions "
 "<strong>may</strong> apply to this group and any future members. If this is "
 "not what you intended, please create another group with a different name."
-msgstr "Eine gelöschte Gruppe mit diesem Namen wurde wiederbelebt. Bestehende Berechtigungseinstellungen <strong>könnten</strong> auf diese Gruppe oder zukünftige Mitglieder angewandt werden. Falls du dies nicht möchtest, erstelle bitte eine andere Gruppe mit einem anderen Namen."
+msgstr "Eine gelöschte Gruppe mit diesem Namen wurde wiederbelebt. Bestehende Berechtigungseinstellungen <strong>könnten</strong> auf diese Gruppe oder zukünftige Mitglieder angewandt werden. Falls Du dies nicht möchtest, erstelle bitte eine andere Gruppe mit einem anderen Namen."
 
 #: ../../include/group.php:207
 msgid "Default privacy group for new contacts"
@@ -6314,7 +6314,7 @@ msgstr "Tag:"
 
 #: ../../include/conversation.php:1007 ../../include/conversation.php:1025
 msgid "Where are you right now?"
-msgstr "Wo hältst du dich jetzt gerade auf?"
+msgstr "Wo hältst Du dich jetzt gerade auf?"
 
 #: ../../include/conversation.php:1008
 msgid "Delete item(s)?"
@@ -7129,7 +7129,7 @@ msgid ""
 "\n"
 "\n"
 "\t\tThank you and welcome to %2$s."
-msgstr "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%3$s\n\tBenutzernamename:\t%1$s\n\tPasswort:\t%5$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich\nangemeldet hast.\n\nBitte nimm dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst du ja auch einige Informationen über dich in deinem\nProfil veröffentlichen, damit andere Leute dich einfacher finden können.\nBearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir\npassendes Profilbild zu wählen, damit dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.\n\nWir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDanke für deine Aufmerksamkeit und willkommen auf %2$s."
+msgstr "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%3$s\n\tBenutzernamename:\t%1$s\n\tPasswort:\t%5$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald Du dich\nangemeldet hast.\n\nBitte nimm dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst Du ja auch einige Informationen über dich in deinem\nProfil veröffentlichen, damit andere Leute dich einfacher finden können.\nBearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir\npassendes Profilbild zu wählen, damit dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn Du auf deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.\n\nWir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn Du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDanke für deine Aufmerksamkeit und willkommen auf %2$s."
 
 #: ../../include/diaspora.php:703
 msgid "Sharing notification from Diaspora network"
@@ -7141,7 +7141,7 @@ msgstr "Anhänge:"
 
 #: ../../include/items.php:4555
 msgid "Do you really want to delete this item?"
-msgstr "Möchtest du wirklich dieses Item löschen?"
+msgstr "Möchtest Du wirklich dieses Item löschen?"
 
 #: ../../include/items.php:4778
 msgid "Archives"
@@ -7440,7 +7440,7 @@ msgstr "[Friendica-Meldung] Kommentar zum Beitrag #%1$d von %2$s"
 #: ../../include/enotify.php:150
 #, php-format
 msgid "%s commented on an item/conversation you have been following."
-msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
+msgstr "%s hat einen Beitrag kommentiert, dem Du folgst."
 
 #: ../../include/enotify.php:153 ../../include/enotify.php:168
 #: ../../include/enotify.php:181 ../../include/enotify.php:194
@@ -7541,7 +7541,7 @@ msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
 #: ../../include/enotify.php:237 ../../include/enotify.php:279
 #, php-format
 msgid "You may visit their profile at %s"
-msgstr "Hier kannst du das Profil betrachten: %s"
+msgstr "Hier kannst Du das Profil betrachten: %s"
 
 #: ../../include/enotify.php:239
 #, php-format
@@ -7617,7 +7617,7 @@ msgstr "Ihr seit nun beidseitige Freunde und könnt Statusmitteilungen, Bilder u
 #: ../../include/enotify.php:297 ../../include/enotify.php:311
 #, php-format
 msgid "Please visit %s  if you wish to make any changes to this relationship."
-msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
+msgstr "Bitte besuche %s, wenn Du Änderungen an eurer Beziehung vornehmen willst."
 
 #: ../../include/enotify.php:307
 #, php-format
