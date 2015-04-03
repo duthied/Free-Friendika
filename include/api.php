@@ -1129,15 +1129,14 @@
 
 		$ret = api_format_items($r,$user_info);
 
-		// We aren't going to try to figure out at the item, group, and page
-		// level which items you've seen and which you haven't. If you're looking
-		// at the network timeline just mark everything seen.
+		// Set all posts from the query above to seen
+		$idarray = array();
+		foreach ($r AS $item)
+			$idarray[] = intval($item["id"]);
 
-		$r = q("UPDATE `item` SET `unseen` = 0
-			WHERE `unseen` = 1 AND `uid` = %d",
-			//intval($user_info['uid'])
-			intval(api_user())
-		);
+		$idlist = implode(",", $idarray);
+
+		$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
 
 
 		$data = array('$statuses' => $ret);
