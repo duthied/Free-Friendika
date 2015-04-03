@@ -509,9 +509,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
 			break;
 		case 3: // Diaspora
-			$headline = '<div class="shared_header">';
-			$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b></span>';
-			$headline .= "</div>";
+			$headline .= '<b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b><br />';
 
 			$text = trim($share[1]);
 
@@ -519,7 +517,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 				$text .= "<hr />";
 
 			if (substr(normalise_link($link), 0, 19) != "http://twitter.com/") {
-				$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
+				$text .= $headline.'<blockquote>'.trim($share[3])."</blockquote><br />";
 
 				if ($link != "")
 					$text .= '<br /><a href="'.$link.'">[l]</a>';
