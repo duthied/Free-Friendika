@@ -2512,6 +2512,26 @@ function diaspora_is_reshare($body) {
         if ($body == $attributes)
                 return(false);
 
+        $guid = "";
+        preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $guid = $matches[1];
+
+        preg_match('/guid="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $guid = $matches[1];
+
+	if ($guid != "") {
+		$r = q("SELECT `contact-id` FROM `item` WHERE `guid` = '%s' AND `network` IN ('%s', '%s') LIMIT 1",
+			dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
+		if ($r) {
+			$ret= array();
+			$ret["root_handle"] = diaspora_handle_from_contact($r[0]["contact-id"]);
+			$ret["root_guid"] = $guid;
+			return($ret);
+		}
+	}
+
         $profile = "";
         preg_match("/profile='(.*?)'/ism", $attributes, $matches);
         if ($matches[1] != "")
