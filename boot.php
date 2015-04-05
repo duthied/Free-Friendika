@@ -15,8 +15,8 @@ require_once('update.php');
 require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_CODENAME',     'Ginger');
-define ( 'FRIENDICA_VERSION',      '3.3.3' );
+define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
+define ( 'FRIENDICA_VERSION',      '3.4.0' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1182      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -1830,10 +1830,10 @@ if(! function_exists('get_events')) {
 		$bd_short = t('F d');
 
 		$r = q("SELECT `event`.* FROM `event`
-				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` > '%s'
+				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
+				dbesc(datetime_convert('UTC','UTC','now + 7 days')),
 				dbesc(datetime_convert('UTC','UTC','now - 1 days'))
 		);
 
@@ -1850,6 +1850,7 @@ if(! function_exists('get_events')) {
 			}
 			$classtoday = (($istoday) ? 'event-today' : '');
 
+			$skip = 0;
 
 			foreach($r as &$rr) {
 				if($rr['adjust'])
@@ -1863,6 +1864,12 @@ if(! function_exists('get_events')) {
 					$title = t('[No description]');
 
 				$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
+
+				if(substr($strt,0,10) < datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
+					$skip++;
+					continue;
+				}
+
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
 
 				$rr['link'] = $md;
@@ -1877,7 +1884,7 @@ if(! function_exists('get_events')) {
 		return replace_macros($tpl, array(
 			'$baseurl' => $a->get_baseurl(),
 			'$classtoday' => $classtoday,
-			'$count' => count($r),
+			'$count' => count($r) - $skip,
 			'$event_reminders' => t('Event Reminders'),
 			'$event_title' => t('Events this week:'),
 			'$events' => $r,
@@ -2181,6 +2188,20 @@ function get_my_url() {
 function zrl_init(&$a) {
 	$tmp_str = get_my_url();
 	if(validate_url($tmp_str)) {
+
+		// Is it a DDoS attempt?
+		// The check fetches the cached value from gprobe to reduce the load for this system
+		$urlparts = parse_url($tmp_str);
+
+		$result = Cache::get("gprobe:".$urlparts["host"]);
+		if (!is_null($result)) {
+			$result = unserialize($result);
+			if ($result["network"] == NETWORK_FEED) {
+				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
+				return;
+			}
+		}
+
 		proc_run('php','include/gprobe.php',bin2hex($tmp_str));
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init',$arr);
@@ -2347,7 +2368,9 @@ function get_itemcachepath() {
 
 	if ($temppath != "") {
 		$itemcache = $temppath."/itemcache";
-		mkdir($itemcache);
+		if(!file_exists($itemcache) && !is_dir($itemcache)) {
+			mkdir($itemcache);
+		}
 
 		if (is_dir($itemcache) AND is_writable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);

@@ -18,25 +18,24 @@ Remember the questions you had when you first tried Friendica? A good place to s
 
 **Translations**
 
-The documentation contains help on how to translate Friendica in the /help/translations page.
-
-* Check if the user interface has already been translated to your language.
-* If not, we might want to start with translating the /help pages.
+The documentation contains help on how to translate Friendica in the [at Transifex](/help/translations) where the UI is translated.
+If you don't want to translate the UI, or it is already done to your satisfaction, you might want to work on the translation of the /help files?
 
 **Design**
 
 Are you good at designing things? If you have seen Friendica you probably have ideas to improve it, haven't you?
 
+* If you would like to work with us on enhancing the user interface, please join the [UX Watchdogs forum](https://fc.oscp.info/profile/ux-watchdogs)
 * Make plans for a better Friendica interface design and share them with us.
 * Tell us if you are able to realize your ideas or what kind of help you need. We can't promise we have the right skills in the group but we'll try.
 * Choose a thing to start with, e.g. work on the icon set of your favourite theme
 
 **Programming**
 
-* **Issues:** Have a look at our issue tracker on gihub!
+* **Issues:** Have a look at our [issue tracker](https://github.com/friendica/friendica) on gihub!
 	* Try to reproduce a bug that needs more inquries and write down what you find out.
 	* If a bug looks fixed, ask the bug reporters for feedback to find out if the bug can be closed.
-	* Fix a bug if you can.
+	* Fix a bug if you can. Please make the pull request against the *develop* branch of the repository.
 
 * **Web interface:** The thing many people want most is a better interface, preferably a responsive Friendica theme. This is a piece of work! If you want to get involved here:
 	* Look at the first steps that were made (e.g. the clean theme). Ask us to find out whom to talk to about their experiences.

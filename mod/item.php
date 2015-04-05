@@ -233,11 +233,11 @@ function item_post(&$a) {
 
 	} else {
 
-		// if coming from the API and no privacy settings are set, 
+		// if coming from the API and no privacy settings are set,
 		// use the user default permissions - as they won't have
 		// been supplied via a form.
 
-		if(($api_source) 
+		if(($api_source)
 			&& (! array_key_exists('contact_allow',$_REQUEST))
 			&& (! array_key_exists('group_allow',$_REQUEST))
 			&& (! array_key_exists('contact_deny',$_REQUEST))
@@ -365,7 +365,7 @@ function item_post(&$a) {
 
 	// Work around doubled linefeeds in Tinymce 3.5b2
 	// First figure out if it's a status post that would've been
-	// created using tinymce. Otherwise leave it alone. 
+	// created using tinymce. Otherwise leave it alone.
 
 /*	$plaintext = (local_user() ? intval(get_pconfig(local_user(),'system','plaintext')) || !feature_enabled($profile_uid,'richtext') : 0);
 	if((! $parent) && (! $api_source) && (! $plaintext)) {
@@ -534,7 +534,7 @@ function item_post(&$a) {
 	 * Fold multi-line [code] sequences
 	 */
 
-	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body); 
+	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
 	$body = scale_external_images($body,false);
 
@@ -627,7 +627,7 @@ function item_post(&$a) {
 			if(count($r)) {
 				if(strlen($attachments))
 					$attachments .= ',';
-				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]'; 
+				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
 			}
 			$body = str_replace($match[1],'',$body);
 		}
@@ -646,7 +646,7 @@ function item_post(&$a) {
 
 	$gravity = (($parent) ? 6 : 0 );
 
-	// even if the post arrived via API we are considering that it 
+	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
 
 	$origin = ((x($_REQUEST,'origin')) ? intval($_REQUEST['origin']) : 1);
@@ -962,10 +962,10 @@ function item_post(&$a) {
 				$addr = trim($recip);
 				if(! strlen($addr))
 					continue;
-				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'),$a->user['username']) 
+				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'),$a->user['username'])
 					. '<br />';
 				$disclaimer .= sprintf( t('You may visit them online at %s'), $a->get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
-				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL; 
+				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 				    $subject = email_header_encode($datarray['title'],'UTF-8');
 				} else {
@@ -984,7 +984,7 @@ function item_post(&$a) {
 				    'htmlVersion' => $message,
 				    'textVersion' => html2plain($html.$disclaimer),
 				);
-				enotify::send($params);
+				Emailer::send($params);
 			}
 		}
 	}

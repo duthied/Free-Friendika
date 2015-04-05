@@ -46,6 +46,10 @@ function user_remove($uid) {
 	// q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
 	proc_run('php', "include/notifier.php", "removeme", $uid);
+
+	// Send an update to the directory
+	proc_run('php', "include/directory.php", $r[0]['url']);
+
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);
