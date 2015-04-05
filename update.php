@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1178 );
+define( 'UPDATE_VERSION' , 1182 );
 
 /**
  *
@@ -1629,4 +1629,22 @@ function update_1177() {
 				intval($profile["uid"])
 			);
 	}
+}
+
+function update_1178() {
+	if (get_config('system','no_community_page'))
+		set_config('system','community_page_style', CP_NO_COMMUNITY_PAGE);
+
+	// Update the central item storage with uid=0
+	proc_run('php',"include/threadupdate.php");
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1180() {
+
+	// Fill the new fields in the term table.
+	proc_run('php',"include/tagupdate.php");
+
+	return UPDATE_SUCCESS;
 }

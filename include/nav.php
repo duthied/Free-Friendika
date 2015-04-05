@@ -125,8 +125,10 @@ function nav_info(&$a) {
 		if(strlen($gdir))
 			$gdirpath = $gdir;
 	}
-	elseif(! get_config('system','no_community_page'))
+	elseif(get_config('system','community_page_style') == CP_USERS_ON_SERVER)
 		$nav['community'] = array('community', t('Community'), "", t('Conversations on this site'));
+	elseif(get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
+		$nav['community'] = array('community', t('Community'), "", t('Conversations on the network'));
 
 	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory'));
 

@@ -246,7 +246,7 @@ function profile_content(&$a, $update = 0) {
 			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 		}
 
-		if( (! get_config('alt_pager', 'global')) && (! get_pconfig($a->profile['profile_uid'],'system','alt_pager')) ) {
+		if(get_config('system', 'old_pager')) {
 		    $r = q("SELECT COUNT(*) AS `total`
 			    FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 			    $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
@@ -331,7 +331,7 @@ function profile_content(&$a, $update = 0) {
 
 
 	if($is_owner) {
-		$r = q("UPDATE `item` SET `unseen` = 0 
+		$r = q("UPDATE `item` SET `unseen` = 0
 			WHERE `wall` = 1 AND `unseen` = 1 AND `uid` = %d",
 			intval(local_user())
 		);
@@ -340,10 +340,9 @@ function profile_content(&$a, $update = 0) {
 	$o .= conversation($a,$items,'profile',$update);
 
 	if(! $update) {
-		if( get_config('alt_pager', 'global') || get_pconfig($a->profile['profile_uid'],'system','alt_pager') ) {
+		if(!get_config('system', 'old_pager')) {
 			$o .= alt_pager($a,count($items));
-		}
-		else {
+		} else {
 			$o .= paginate($a);
 		}
 	}

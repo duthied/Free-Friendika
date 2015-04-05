@@ -285,7 +285,7 @@
 			if(livetime) {
 				clearTimeout(livetime);
 			}
-			livetime = setTimeout(liveUpdate, 10000);
+			livetime = setTimeout(liveUpdate, 5000);
 			return;
 		}
 		if(livetime != null)

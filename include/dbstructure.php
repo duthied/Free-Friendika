@@ -106,29 +106,17 @@ function table_structure($table) {
 }
 
 function print_structure($database) {
+	echo "-- ------------------------------------------\n";
+	echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
+	echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
+	echo "-- ------------------------------------------\n\n\n";
 	foreach ($database AS $name => $structure) {
-		echo "\t".'$database["'.$name."\"] = array(\n";
+		echo "--\n";
+		echo "-- TABLE $name\n";
+		echo "--\n";
+		db_create_table($name, $structure['fields'], true, false, $structure["indexes"]);
 
-		echo "\t\t\t".'"fields" => array('."\n";
-		foreach ($structure["fields"] AS $fieldname => $parameters) {
-			echo "\t\t\t\t\t".'"'.$fieldname.'" => array(';
-
-			$data = "";
-			foreach ($parameters AS $name => $value) {
-				if ($data != "")
-					$data .= ", ";
-				$data .= '"'.$name.'" => "'.$value.'"';
-			}
-
-			echo $data."),\n";
-		}
-		echo "\t\t\t\t\t),\n";
-		echo "\t\t\t".'"indexes" => array('."\n";
-		foreach ($structure["indexes"] AS $indexname => $fieldnames) {
-			echo "\t\t\t\t\t".'"'.$indexname.'" => array("'.implode($fieldnames, '","').'"'."),\n";
-		}
-		echo "\t\t\t\t\t)\n";
-		echo "\t\t\t);\n";
+		echo "\n";
 	}
 }
 
@@ -231,9 +219,13 @@ function db_field_command($parameters, $create = true) {
 	if ($parameters["not null"])
 		$fieldstruct .= " NOT NULL";
 
-	if (isset($parameters["default"]))
-		$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
-
+	if (isset($parameters["default"])){
+		if (strpos(strtolower($parameters["type"]),"int")!==false) {
+			$fieldstruct .= " DEFAULT ".$parameters["default"];
+		} else {
+			$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
+		}
+	}
 	if ($parameters["extra"] != "")
 		$fieldstruct .= " ".$parameters["extra"];
 
@@ -243,20 +235,28 @@ function db_field_command($parameters, $create = true) {
 	return($fieldstruct);
 }
 
-function db_create_table($name, $fields, $verbose, $action) {
+function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	global $a, $db;
 
 	$r = true;
 
 	$sql = "";
+	$sql_rows = array();
 	foreach($fields AS $fieldname => $field) {
-		if ($sql != "")
-			$sql .= ",\n";
-
-		$sql .= "`".dbesc($fieldname)."` ".db_field_command($field);
+		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
 	}
 
-	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
+	if (!is_null($indexes)) {
+
+		foreach ($indexes AS $indexname => $fieldnames) {
+			$sql_index = db_create_index($indexname, $fieldnames, "");
+			if (!is_null($sql_index)) $sql_rows[] = $sql_index;
+		}
+	}
+
+	$sql = implode(",\n\t", $sql_rows);
+
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
 
 	if ($verbose)
 		echo $sql.";\n";
@@ -282,7 +282,7 @@ function db_drop_index($indexname) {
 	return($sql);
 }
 
-function db_create_index($indexname, $fieldnames) {
+function db_create_index($indexname, $fieldnames, $method="ADD") {
 
 	if ($indexname == "PRIMARY")
 		return;
@@ -298,7 +298,13 @@ function db_create_index($indexname, $fieldnames) {
 			$names .= "`".dbesc($fieldname)."`";
 	}
 
-	$sql = sprintf("ADD INDEX `%s` (%s)", dbesc($indexname), $names);
+	$method = strtoupper(trim($method));
+	if ($method!="" && $method!="ADD") {
+		throw new Exception("Invalid parameter 'method' in db_create_index(): '$method'");
+		killme();
+	}
+
+	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
 }
 
@@ -626,6 +632,7 @@ function db_definition() {
 					"keywords" => array("type" => "text", "not null" => "1"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -775,6 +782,9 @@ function db_definition() {
 					"last-child" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "1"),
 					"mention" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"rendered-hash" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"rendered-html" => array("type" => "mediumtext", "not null" => "1"),
+					"global" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1187,6 +1197,10 @@ function db_definition() {
 					"type" => array("type" => "tinyint(3) unsigned", "not null" => "1", "default" => "0"),
 					"term" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"received" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"global" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"aid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					),
@@ -1195,8 +1209,9 @@ function db_definition() {
 					"oid_otype_type_term" => array("oid","otype","type","term"),
 					"uid_term_tid" => array("uid","term","tid"),
 					"type_term" => array("type","term"),
-					"uid_otype_type_term_tid" => array("uid","otype","type","term","tid"),
+					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
+					"guid" => array("guid"),
 					)
 			);
 	$database["thread"] = array(
@@ -1348,7 +1363,29 @@ function dbstructure_run(&$argv, &$argc) {
 			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	update_structure(true, true);
+	if ($argc==2) {
+		switch ($argv[1]) {
+			case "update":
+				update_structure(true, true);
+				return;
+			case "dumpsql":
+				print_structure(db_definition());
+				return;
+		}
+	}
+
+
+	// print help
+	echo $argv[0]." <command>\n";
+	echo "\n";
+	echo "commands:\n";
+	echo "update		update database schema\n";
+	echo "dumpsql		dump database schema\n";
+	return;
+
+
+
+
 }
 
 if (array_search(__file__,get_included_files())===0){

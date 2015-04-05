@@ -102,7 +102,8 @@ function poco_init(&$a) {
 			intval($itemsPerPage)
 		);
 	} elseif($system_mode) {
-		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
+			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
@@ -134,9 +135,9 @@ function poco_init(&$a) {
 	if(x($_GET,'updatedSince') AND !$global)
 		$ret['updatedSince'] = false;
 
-	$ret['startIndex']   = (string) $startIndex;
-	$ret['itemsPerPage'] = (string) $itemsPerPage;
-	$ret['totalResults'] = (string) $totalResults;
+	$ret['startIndex']   = (int) $startIndex;
+	$ret['itemsPerPage'] = (int) $itemsPerPage;
+	$ret['totalResults'] = (int) $totalResults;
 	$ret['entry']        = array();
 
 
@@ -151,7 +152,9 @@ function poco_init(&$a) {
 		'currentLocation' => false,
 		'network' => false,
 		'gender' => false,
-		'tags' => false
+		'tags' => false,
+		'address' => false,
+		'generation' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -166,11 +169,36 @@ function poco_init(&$a) {
 	if(is_array($r)) {
 		if(count($r)) {
 			foreach($r as $rr) {
+				if (!isset($rr['generation'])) {
+					if ($global)
+						$rr['generation'] = 3;
+					elseif ($system_mode)
+						$rr['generation'] = 1;
+					else
+						$rr['generation'] = 2;
+				}
+
 				if (($rr['about'] == "") AND isset($rr['pabout']))
 					$rr['about'] = $rr['pabout'];
 
-				if (($rr['location'] == "") AND isset($rr['plocation']))
-					$rr['location'] = $rr['plocation'];
+				if ($rr['location'] == "") {
+					if (isset($rr['plocation']))
+						$rr['location'] = $rr['plocation'];
+
+					if (isset($rr['pregion']) AND ($rr['pregion'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pregion'];
+					}
+
+					if (isset($rr['pcountry']) AND ($rr['pcountry'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pcountry'];
+					}
+				}
 
 				if (($rr['gender'] == "") AND isset($rr['pgender']))
 					$rr['gender'] = $rr['pgender'];
@@ -180,7 +208,7 @@ function poco_init(&$a) {
 
 				$entry = array();
 				if($fields_ret['id'])
-					$entry['id'] = $rr['id'];
+					$entry['id'] = (int)$rr['id'];
 				if($fields_ret['displayName'])
 					$entry['displayName'] = $rr['name'];
 				if($fields_ret['aboutMe'])
@@ -189,6 +217,8 @@ function poco_init(&$a) {
 					$entry['currentLocation'] = $rr['location'];
 				if($fields_ret['gender'])
 					$entry['gender'] = $rr['gender'];
+				if($fields_ret['generation'])
+					$entry['generation'] = (int)$rr['generation'];
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))
@@ -234,6 +264,26 @@ function poco_init(&$a) {
 					}
 
 					$entry['tags'] = array($cleaned);
+				}
+				if($fields_ret['address']) {
+					$entry['address'] = array();
+
+					// Deactivated. It just reveals too much data. (Although its from the default profile)
+					//if (isset($rr['paddress']))
+					//	 $entry['address']['streetAddress'] = $rr['paddress'];
+
+					if (isset($rr['plocation']))
+						 $entry['address']['locality'] = $rr['plocation'];
+
+					if (isset($rr['pregion']))
+						 $entry['address']['region'] = $rr['pregion'];
+
+					// See above
+					//if (isset($rr['ppostalcode']))
+					//	 $entry['address']['postalCode'] = $rr['ppostalcode'];
+
+					if (isset($rr['pcountry']))
+						 $entry['address']['country'] = $rr['pcountry'];
 				}
 
 				$ret['entry'][] = $entry;

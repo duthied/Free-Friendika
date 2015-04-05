@@ -364,16 +364,6 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		$network = NETWORK_TWITTER;
 	}
 
-	if (strpos($url,'www.facebook.com')) {
-		$connectornetworks = true;
-		$network = NETWORK_FACEBOOK;
-	}
-
-	if (strpos($url,'alpha.app.net')) {
-		$appnet = true;
-		$network = NETWORK_APPNET;
-	}
-
 	// Twitter is deactivated since twitter closed its old API
 	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
 	$lastfm  = ((strpos($url,'last.fm/user') !== false) ? true : false);
@@ -433,7 +423,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			// to a contact on incoming messages to prevent spam, and we won't know which one
 			// to match. So in case of two, one of them is stored as an alias. Only store URL's
 			// and not webfinger user@host aliases. If they've got more than two non-email style
-			// aliases, let's hope we're lucky and get one that matches the feed author-uri because 
+			// aliases, let's hope we're lucky and get one that matches the feed author-uri because
 			// otherwise we're screwed.
 
 			foreach($links as $link) {
@@ -448,6 +438,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					}
 				}
 			}
+
+			// If the profile is different from the url then the url is abviously an alias
+			if (($alias == "") AND ($profile != "") AND !$at_addr AND (normalise_link($profile) != normalise_link($url)))
+				$alias = $url;
 		}
 		elseif($mode == PROBE_NORMAL) {
 
@@ -522,8 +516,8 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 				if($j) {
 					$network = NETWORK_ZOT;
 					$vcard   = array(
-						'fn'    => $j->fullname, 
-						'nick'  => $j->nickname, 
+						'fn'    => $j->fullname,
+						'nick'  => $j->nickname,
 						'photo' => $j->photo
 					);
 					$profile  = $j->url;
@@ -565,6 +559,10 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			$network = NETWORK_DIASPORA;
 		elseif($has_lrdd)
 			$network  = NETWORK_OSTATUS;
+
+		if(strpos($url,'@'))
+			$addr = str_replace('acct:', '', $url);
+
 		$priority = 0;
 
 		if($hcard && ! $vcard) {
@@ -758,6 +756,22 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	if(($network === NETWORK_FEED) && ($poll) && (! x($vcard,'fn')))
 		$vcard['fn'] = $url;
 
+	if (($notify != "") AND ($poll != "")) {
+		$baseurl = matching($notify, $poll);
+
+		$baseurl2 = matching($baseurl, $profile);
+		if ($baseurl2 != "")
+			$baseurl = $baseurl2;
+	}
+
+	if (($baseurl == "") AND ($notify != ""))
+		$baseurl = matching($profile, $notify);
+
+	if (($baseurl == "") AND ($poll != ""))
+		$baseurl = matching($profile, $poll);
+
+	$baseurl = rtrim($baseurl, "/");
+
 	$vcard['fn'] = notags($vcard['fn']);
 	$vcard['nick'] = str_replace(' ','',notags($vcard['nick']));
 
@@ -776,11 +790,12 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	$result['network'] = $network;
 	$result['alias'] = $alias;
 	$result['pubkey'] = $pubkey;
+	$result['baseurl'] = $baseurl;
 
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
 
 	// Trying if it maybe a diaspora account
-	if ($result['network'] == NETWORK_FEED) {
+	if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
 		require_once('include/bbcode.php');
 		$address = GetProfileUsername($url, "", true);
 		$result2 = probe_url($address, $mode);
@@ -791,4 +806,21 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	Cache::set("probe_url:".$mode.":".$url,serialize($result));
 
 	return $result;
+}
+
+function matching($part1, $part2) {
+	$len = min(strlen($part1), strlen($part2));
+
+	$match = "";
+	$matching = true;
+	$i = 0;
+	while (($i <= $len) AND $matching) {
+		if (substr($part1, $i, 1) == substr($part2, $i, 1))
+			$match .= substr($part1, $i, 1);
+		else
+			$matching = false;
+
+		$i++;
+	}
+	return($match);
 }

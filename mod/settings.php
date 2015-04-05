@@ -16,6 +16,11 @@ function get_theme_config_file($theme){
 
 function settings_init(&$a) {
 
+	if(! local_user()) {
+		notice( t('Permission denied.') . EOL );
+		return;
+	}
+
 	// APC deactivated, since there are problems with PHP 5.5
 	//if (function_exists("apc_delete")) {
 	//	$toDelete = new APCIterator('user', APC_ITER_VALUE);
@@ -593,7 +598,7 @@ function settings_content(&$a) {
 	nav_set_selected('settings');
 
 	if(! local_user()) {
-		notice( t('Permission denied.') . EOL );
+		#notice( t('Permission denied.') . EOL );
 		return;
 	}
 

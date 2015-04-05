@@ -1,22 +1,10 @@
-
 <div class="vcard h-card">
 
 	<div class="tool">
 		<div class="fn label p-name">{{$profile.name}}</div>
 		{{if $profile.edit}}
 			<div class="action">
-			<a class="icon s16 edit ttright" href="#" rel="#profiles-menu" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
-			<ul id="profiles-menu" class="menu-popup">
-				{{foreach $profile.menu.entries as $e}}
-				<li>
-					<a href="profiles/{{$e.id}}"><img class="u-photo" src='{{$e.photo}}'>{{$e.profile_name}}</a>
-				</li>
-				{{/foreach}}
-				<li><a href="profile_photo" >{{$profile.menu.chg_photo}}</a></li>
-				<li><a href="profiles/new" id="profile-listing-new-link">{{$profile.menu.cr_new}}</a></li>
-				<li><a href="profiles" >{{$profile.edit.3}}</a></li>
-								
-			</ul>
+				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
 			</div>
 		{{else}}
 			{{if $profile.menu}}
@@ -25,10 +13,11 @@
 		{{/if}}
 	</div>
 
+
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></a></div>
 	{{/if}}
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
@@ -50,6 +39,10 @@
 	{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="x-gender">{{$profile.gender}}</dd></dl>{{/if}}
 	
 	{{if $profile.pubkey}}<div class="key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
+
+	{{if $contacts}}<div class="contacts" style="display:none;">{{$contacts}}</div>{{/if}}
+
+	{{if $updated}}<div class="updated" style="display:none;">{{$updated}}</div>{{/if}}
 
 	{{if $marital}}<dl class="marital"><dt class="marital-label"><span class="heart">&hearts;</span>{{$marital}}</dt><dd class="marital-text">{{$profile.marital}}</dd></dl>{{/if}}
 

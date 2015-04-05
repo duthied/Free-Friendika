@@ -1,9 +1,10 @@
 <?php
 /**
  * Name: Vier
- * Version: 1.1
+ * Version: 1.2
  * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
  * Author: Ike <http://pirati.ca/profile/heluecht>
+ * Author: Beanow <https://fc.oscp.info/profile/beanow>
  * Maintainer: Ike <http://pirati.ca/profile/heluecht>
  * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
  */
@@ -19,6 +20,9 @@ $style = get_pconfig(local_user(), 'vier', 'style');
 
 if ($style == "")
 	$style = get_config('vier', 'style');
+
+if ($style == "")
+	$style = "plus";
 
 if ($style == "flat")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/flat.css" type="text/css" media="screen"/>'."\n";

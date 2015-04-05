@@ -733,8 +733,7 @@
 				$_REQUEST['body'] = html2bbcode($txt);
 			}
 
-		}
-		else
+		} else
 			$_REQUEST['body'] = requestdata('status');
 
 		$_REQUEST['title'] = requestdata('title');
@@ -811,14 +810,15 @@
 			}
 
 			$_REQUEST['type'] = 'wall';
-			if(x($_FILES,'media')) {
-				// upload the image if we have one
-				$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-				require_once('mod/wall_upload.php');
-				$media = wall_upload_post($a);
-				if(strlen($media)>0)
-					$_REQUEST['body'] .= "\n\n".$media;
-			}
+		}
+
+		if(x($_FILES,'media')) {
+			// upload the image if we have one
+			$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
+			require_once('mod/wall_upload.php');
+			$media = wall_upload_post($a);
+			if(strlen($media)>0)
+				$_REQUEST['body'] .= "\n\n".$media;
 		}
 
 		// set this so that the item_post() function is quiet and doesn't redirect or emit json
@@ -848,7 +848,7 @@
 		// get last public wall message
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `i`.`author-link` AS `item-author`
 				FROM `item`, `item` as `i`
-				WHERE `item`.`contact-id` = %d
+				WHERE `item`.`contact-id` = %d AND `item`.`uid` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
 					AND `item`.`type`!='activity'
@@ -856,6 +856,7 @@
 				ORDER BY `item`.`created` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
+				intval(api_user()),
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url'])),
 				dbesc($user_info['url']),
@@ -1128,15 +1129,14 @@
 
 		$ret = api_format_items($r,$user_info);
 
-		// We aren't going to try to figure out at the item, group, and page
-		// level which items you've seen and which you haven't. If you're looking
-		// at the network timeline just mark everything seen.
+		// Set all posts from the query above to seen
+		$idarray = array();
+		foreach ($r AS $item)
+			$idarray[] = intval($item["id"]);
 
-		$r = q("UPDATE `item` SET `unseen` = 0
-			WHERE `unseen` = 1 AND `uid` = %d",
-			//intval($user_info['uid'])
-			intval(api_user())
-		);
+		$idlist = implode(",", $idarray);
+
+		$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
 
 
 		$data = array('$statuses' => $ret);

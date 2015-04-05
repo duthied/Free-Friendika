@@ -19,10 +19,6 @@ function add_thread($itemid, $onlyshadow = false) {
 		logger("add_thread: Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 	}
 
-	// Store a shadow copy of public items for displaying a global community page?
-	if (!get_config('system', 'global_community'))
-		return;
-
 	// is it already a copy?
 	if (($itemid == 0) OR ($item['uid'] == 0))
 		return;
@@ -66,14 +62,45 @@ function add_thread($itemid, $onlyshadow = false) {
 		if (!$r) {
 			// Preparing public shadow (removing user specific data)
 			require_once("include/items.php");
+			require_once("include/Contact.php");
+
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
-			$item[0]['contact-id'] = 0;
+			$item[0]['contact-id'] = get_contact($item[0]['author-link'], 0);
 			$public_shadow = item_store($item[0], false, false, true);
 
 			logger("add_thread: Stored public shadow for post ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
 		}
 	}
+}
+
+function add_shadow_entry($item) {
+
+	// Is this a shadow entry?
+	if ($item['uid'] == 0)
+		return;
+
+	// Is there a shadow parent?
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['parent-uri']));
+	if (!count($r))
+		return;
+
+	// Is there already a shadow entry?
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
+
+	if (count($r))
+		return;
+
+	// Preparing public shadow (removing user specific data)
+	require_once("include/items.php");
+	require_once("include/Contact.php");
+
+	unset($item['id']);
+	$item['uid'] = 0;
+	$item['contact-id'] = get_contact($item['author-link'], 0);
+	$public_shadow = item_store($item, false, false, true);
+
+	logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);
 }
 
 function update_thread_uri($itemuri, $uid) {

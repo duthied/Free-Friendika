@@ -127,70 +127,48 @@ function search_content(&$a) {
 	if (get_config('system','only_tag_search'))
 		$tag = true;
 
-	if($tag) {
-		$sql_extra = "";
-
-		$sql_table = sprintf("`item` INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d) AS `term` ON `item`.`id` = `term`.`oid` ",
-					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
-
-		$sql_order = "`item`.`id`";
-	} else {
-		if (get_config('system','use_fulltext_engine')) {
-			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
-		} else {
-			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-		}
-		$sql_table = "`item`";
-		$sql_order = "`item`.`id`";
-		//$sql_order = "`item`.`received`";
-	}
-
 	// Here is the way permissions work in the search module...
 	// Only public posts can be shown
 	// OR your own posts if you are a logged in member
 	// No items will be shown if the member has a blocked profile wall.
 
-	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
-	        $r = q("SELECT distinct(`item`.`uri`) as `total`
-		        FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-		        WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-		        AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0)
-			        OR ( `item`.`uid` = %d ))
-		        $sql_extra ",
-		        intval(local_user())
-	        );
-//		        $sql_extra group by `item`.`uri` ",
+	if($tag) {
+		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-	        if(count($r))
-		        $a->set_pager_total(count($r));
+		$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
+				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			FROM `term`
+				INNER JOIN `item` ON `item`.`id`=`term`.`oid`
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+				AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
+			ORDER BY term.created DESC LIMIT %d , %d ",
+				intval(local_user()), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
+				intval($a->pager['start']), intval($a->pager['itemspage']));
+	} else {
+		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
-	        if(! count($r)) {
-		        info( t('No results.') . EOL);
-		        return $o;
-	        }
+		if (get_config('system','use_fulltext_engine')) {
+			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
+		} else {
+			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
+		}
+
+		$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
+				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			FROM `item`
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+				AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND (`item`.`private` OR NOT `item`.`network` IN ('%s', '%s', '%s'))))
+				$sql_extra
+			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d ",
+				intval(local_user()), dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
-
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`, `user`.`uid`, `user`.`hidewall`
-		FROM $sql_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-		WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-		AND (( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' AND `item`.`private` = 0 AND `user`.`hidewall` = 0 ) 
-			OR ( `item`.`uid` = %d ))
-		$sql_extra GROUP BY `item`.`uri`
-		ORDER BY $sql_order DESC LIMIT %d , %d ",
-		intval(local_user()),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
-
-	);
-//		group by `item`.`uri`
 
 	if(! count($r)) {
 		info( t('No results.') . EOL);
@@ -203,14 +181,12 @@ function search_content(&$a) {
 	else
 		$o .= '<h2>Search results for: ' . $search . '</h2>';
 
+	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
 	$o .= conversation($a,$r,'search',false);
 
-	if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
-	        $o .= alt_pager($a,count($r));
-	}
-	else {
-	        $o .= paginate($a);
-	}
+	$o .= alt_pager($a,count($r));
+
+	logger("Done '".$search."'", LOGGER_DEBUG);
 
 	return $o;
 }

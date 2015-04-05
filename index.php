@@ -115,7 +115,6 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
  *
-
  */
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
@@ -498,30 +497,38 @@ $(document).ready(function() {
 });
 
 function loadcontent() {
-	//$("div.loader").show();
+	if (lockLoadContent) return;
+	lockLoadContent = true;
+
+	$("#scroll-loader").fadeIn('normal');
 
 	num+=1;
 
 	console.log('Loading page ' + num);
 
 	$.get('/network?mode=raw$reload_uri&page=' + num, function(data) {
-		$(data).insertBefore('#conversation-end');
+		$("#scroll-loader").hide();
+		if ($(data).length > 0) {
+			$(data).insertBefore('#conversation-end');
+			lockLoadContent = false;
+		} else {
+			$("#scroll-end").fadeIn('normal');
+		}
 	});
-
-	//$("div.loader").fadeOut('normal');
 }
 
 var num = $pageno;
+var lockLoadContent = false;
 
 $(window).scroll(function(e){
 
 	if ($(document).height() != $(window).height()) {
 		// First method that is expected to work - but has problems with Chrome
-		if ($(window).scrollTop() == $(document).height() - $(window).height())
+		if ($(window).scrollTop() > ($(document).height() - $(window).height() * 1.5))
 			loadcontent();
 	} else {
 		// This method works with Chrome - but seems to be much slower in Firefox
-		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height()))
+		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height() * 1.5))
 			loadcontent();
 	}
 });
