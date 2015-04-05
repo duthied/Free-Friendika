@@ -17,6 +17,6 @@
 
 
 <div id="dfrn-request-homecoming-submit-wrapper" >
-<input id="dfrn-request-homecoming-submit" type="submit" name="submit" value="{{$submit}}" />
+<input id="dfrn-request-homecoming-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </div>
 </form>

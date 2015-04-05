@@ -16,7 +16,7 @@ function display_init(&$a) {
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body` FROM `item`
+			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
 				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 					AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
 			if (count($r)) {
@@ -41,9 +41,21 @@ function display_init(&$a) {
 				$itemuid = $r[0]["uid"];
 			}
 		}
+
+		// Is it an item with uid=0?
+		if ($nick == "") {
+			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+				FROM `item` WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+					AND `item`.`private` = 0 AND `item`.`uid` = 0
+					AND `item`.`guid` = '%s'", $a->argv[1]);
+				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
-				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body` FROM `item`
+				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
 					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 						AND `id` = %d", $r[0]["parent"]);
 
@@ -89,23 +101,28 @@ function display_fetchauthor($a, $item) {
 	$profiledata["url"] = $item["author-link"];
 	$profiledata["network"] = $item["network"];
 
-	// Fetching profile data from unique contacts
-	// To-do: Extend "unique contacts" table for further contact data like location, ...
-	$r = q("SELECT `avatar`, `nick` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+	// Fetching further contact data from the contact table
+	$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		normalise_link($profiledata["url"]), $item["uid"]);
 	if (count($r)) {
-		$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+		$profiledata["photo"] = proxy_url($r[0]["photo"]);
+		$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
+		$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];
-	} else {
-		// Is this case possible?
-		// Fetching further contact data from the contact table, when it isn't available in the "unique contacts"
-		$r = q("SELECT `photo`, `nick` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
-			normalise_link($profiledata["url"]), $itemuid);
-		if (count($r)) {
-			$profiledata["photo"] = proxy_url($r[0]["photo"]);
-			if ($r[0]["nick"] != "")
-				$profiledata["nickname"] = $r[0]["nick"];
-		}
+	}
+
+	// Fetching profile data from unique contacts
+	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+	if (count($r)) {
+		if ($profiledata["photo"] == "")
+			$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+		if ($profiledata["address"] == "")
+			$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
+		if ($profiledata["about"] == "")
+			$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
+		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
+			$profiledata["nickname"] = $r[0]["nick"];
 	}
 
 	// Check for a repeated message
@@ -158,6 +175,21 @@ function display_fetchauthor($a, $item) {
 
 		$profiledata["nickname"] = $profiledata["name"];
 		$profiledata["network"] = GetProfileUsername($profiledata["url"], "", false, true);
+
+		$profiledata["address"] = "";
+		$profiledata["about"] = "";
+
+		// Fetching profile data from unique contacts
+		if ($profiledata["url"] != "") {
+			$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+			if (count($r)) {
+				$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+				$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
+				$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
+				if ($r[0]["nick"] != "")
+					$profiledata["nickname"] = $r[0]["nick"];
+			}
+		}
 	}
 
 	if (local_user()) {
@@ -230,6 +262,18 @@ function display_content(&$a, $update = 0) {
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
+				}
+			}
+			if ($nick == "") {
+				$r = q("SELECT `item`.`id` FROM `item`
+					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+						AND `item`.`private` = 0  AND `item`.`uid` = 0
+						AND `item`.`guid` = '%s'", $a->argv[1]);
+					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+				if (count($r)) {
+					$item_id = $r[0]["id"];
 				}
 			}
 		}

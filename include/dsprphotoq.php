@@ -45,6 +45,6 @@ function dsprphotoq_run($argv, $argc){
 
 
 if (array_search(__file__,get_included_files())===0){
-  dsprphotoq_run($argv,$argc);
+  dsprphotoq_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

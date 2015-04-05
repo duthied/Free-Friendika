@@ -1,4 +1,14 @@
 <?php
+if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
+	$directory = dirname($_SERVER["argv"][0]);
+
+	if (substr($directory, 0, 1) != "/")
+		$directory = $_SERVER["PWD"]."/".$directory;
+
+	$directory = realpath($directory."/..");
+
+	chdir($directory);
+}
 
 require_once("boot.php");
 
@@ -74,8 +84,8 @@ function poller_run(&$argv, &$argc){
 
 	// expire any expired accounts
 
-	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0 
-		AND `account_expires_on` != '0000-00-00 00:00:00' 
+	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
+		AND `account_expires_on` != '0000-00-00 00:00:00'
 		AND `account_expires_on` < UTC_TIMESTAMP() ");
 
 	// delete user and contact records for recently removed accounts
@@ -149,7 +159,6 @@ function poller_run(&$argv, &$argc){
 
 	$manual_id  = 0;
 	$generation = 0;
-	$hub_update = false;
 	$force      = false;
 	$restart    = false;
 
@@ -169,7 +178,7 @@ function poller_run(&$argv, &$argc){
 	}
 
 	$interval = intval(get_config('system','poll_interval'));
-	if(! $interval) 
+	if(! $interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
 	$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
@@ -182,26 +191,27 @@ function poller_run(&$argv, &$argc){
 		proc_run('php','include/cronhooks.php');
 
 	// Only poll from those with suitable relationships,
-	// and which have a polling address and ignore Diaspora since 
+	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
-	$abandon_sql = (($abandon_days) 
-		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days)) 
-		: '' 
+	$abandon_sql = (($abandon_days)
+		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
+		: ''
 	);
 
-	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
-		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
-		AND NOT `network` IN ( '%s', '%s', '%s' )
-		$sql_extra 
-		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0 
-		AND `contact`.`archive` = 0 
-		AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $abandon_sql ORDER BY RAND()",
+	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+		WHERE `rel` IN (%d, %d) AND `poll` != '' AND `network` IN ('%s', '%s', '%s', '%s', '%s', '%s')
+		$sql_extra
+		AND NOT `self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly` AND NOT `contact`.`archive`
+		AND NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
-		dbesc(NETWORK_DIASPORA),
-		dbesc(NETWORK_FACEBOOK),
-		dbesc(NETWORK_PUMPIO)
+		dbesc(NETWORK_DFRN),
+		dbesc(NETWORK_ZOT),
+		dbesc(NETWORK_OSTATUS),
+		dbesc(NETWORK_FEED),
+		dbesc(NETWORK_MAIL),
+		dbesc(NETWORK_MAIL2)
 	);
 
 	if(! count($contacts)) {
@@ -224,45 +234,34 @@ function poller_run(&$argv, &$argc){
 			if($manual_id)
 				$contact['last-update'] = '0000-00-00 00:00:00';
 
-			if($contact['network'] === NETWORK_DFRN)
+			if(in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS)))
 				$contact['priority'] = 2;
 
-			if(!get_config('system','ostatus_use_priority') and ($contact['network'] === NETWORK_OSTATUS))
-				$contact['priority'] = 2;
+			if($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+				// We should be getting everything via a hub. But just to be sure, let's check once a day.
+				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
+				// This also lets us update our subscription to the hub, and add or replace hubs in case it
+				// changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
 
-			if($contact['priority'] || $contact['subhub']) {
+				$poll_interval = get_config('system','pushpoll_frequency');
+				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+			}
 
-				$hub_update = true;
+			if($contact['priority'] AND !$force) {
+
 				$update     = false;
 
 				$t = $contact['last-update'];
 
-				// We should be getting everything via a hub. But just to be sure, let's check once a day.
-				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
-				// This also lets us update our subscription to the hub, and add or replace hubs in case it
-				// changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'. 
-
-
-				if($contact['subhub']) {
-					$poll_interval = get_config('system','pushpoll_frequency');
-					$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
-					$hub_update = false;
-	
-					if((datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day")) || $force)
-							$hub_update = true;
-				}
-				else
-					$hub_update = false;
-
 				/**
 				 * Based on $contact['priority'], should we poll this site now? Or later?
-				 */			
+				 */
 
 				switch ($contact['priority']) {
 					case 5:
 						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month"))
 							$update = true;
-						break;					
+						break;
 					case 4:
 						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week"))
 							$update = true;
@@ -281,20 +280,25 @@ function poller_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if((! $update) && (! $force))
+				if(!$update)
 					continue;
 			}
 
+			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
+
 			proc_run('php','include/onepoll.php',$contact['id']);
+
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
 
+	logger('poller: end');
+
 	return;
 }
 
 if (array_search(__file__,get_included_files())===0){
-  poller_run($argv,$argc);
+  poller_run($_SERVER["argv"],$_SERVER["argc"]);
   killme();
 }

@@ -13,6 +13,8 @@ function viewcontacts_init(&$a) {
 
 function viewcontacts_content(&$a) {
 
+	require_once("mod/proxy.php");
+
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
@@ -21,7 +23,7 @@ function viewcontacts_content(&$a) {
 	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
 		notice( t('Permission denied.') . EOL);
 		return;
-	} 
+	}
 
 
 	$r = q("SELECT COUNT(*) as `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ",
@@ -60,7 +62,7 @@ function viewcontacts_content(&$a) {
 		$contacts[] = array(
 			'id' => $rr['id'],
 			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
-			'thumb' => $rr['thumb'], 
+			'thumb' => proxy_url($rr['thumb']),
 			'name' => substr($rr['name'],0,20),
 			'username' => $rr['name'],
 			'url' => $url,

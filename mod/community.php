@@ -19,7 +19,7 @@ function community_content(&$a, $update = 0) {
 		return;
 	}
 
-	if(get_config('system','no_community_page')) {
+	if(get_config('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
 		notice( t('Not available.') . EOL);
 		return;
 	}
@@ -44,7 +44,7 @@ function community_content(&$a, $update = 0) {
 	// Only public posts can be shown
 	// OR your own posts if you are a logged in member
 
-	if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
+	if(get_config('system', 'old_pager')) {
 		$r = q("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -103,10 +103,9 @@ function community_content(&$a, $update = 0) {
 
 	$o .= conversation($a,$s,'community',$update);
 
-	if(get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+	if(!get_config('system', 'old_pager')) {
 	        $o .= alt_pager($a,count($r));
-	}
-	else {
+	} else {
 	        $o .= paginate($a);
 	}
 
@@ -114,6 +113,9 @@ function community_content(&$a, $update = 0) {
 }
 
 function community_getitems($start, $itemspage) {
+	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
+		return(community_getpublicitems($start, $itemspage));
+
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
@@ -129,6 +131,22 @@ function community_getitems($start, $itemspage) {
 		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
 		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
 		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
+		intval($start),
+		intval($itemspage)
+	);
+
+	return($r);
+
+}
+
+function community_getpublicitems($start, $itemspage) {
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+			`author-name` AS `name`, `owner-avatar` AS `photo`,
+			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+		FROM `item` WHERE `item`.`uid` = 0 AND `item`.`id` = `item`.`parent`
+		AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
+		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
+		ORDER BY `item`.`received` DESC LIMIT %d, %d",
 		intval($start),
 		intval($itemspage)
 	);

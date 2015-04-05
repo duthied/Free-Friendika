@@ -5,11 +5,11 @@
 
 <div id="profile-edit-links">
 <ul>
-<li><a href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}">{{$profpic}}</a></li>
-<li><a href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
-<li><a href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof}}">{{$cl_prof}}</a></li>
+<li><a href="profile_photo" id="profile-photo_upload-link" title="{{$profpic|escape:'html'}}">{{$profpic}}</a></li>
+<li><a href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof|escape:'html'}}">{{$viewprof}}</a></li>
+<li><a href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof|escape:'html'}}">{{$cl_prof}}</a></li>
 <li></li>
-<li><a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" {{$disabled}} >{{$del_prof}}</a></li>
+<li><a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof|escape:'html'}}" {{$disabled}} >{{$del_prof}}</a></li>
 
 </ul>
 </div>
@@ -23,19 +23,19 @@
 
 <div id="profile-edit-profile-name-wrapper" >
 <label id="profile-edit-profile-name-label" for="profile-edit-profile-name" >{{$lbl_profname}} </label>
-<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name}}" /><div class="required">*</div>
+<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name|escape:'html'}}" /><div class="required">*</div>
 </div>
 <div id="profile-edit-profile-name-end"></div>
 
 <div id="profile-edit-name-wrapper" >
 <label id="profile-edit-name-label" for="profile-edit-name" >{{$lbl_fullname}} </label>
-<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name}}" />
+<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name|escape:'html'}}" />
 </div>
 <div id="profile-edit-name-end"></div>
 
 <div id="profile-edit-pdesc-wrapper" >
 <label id="profile-edit-pdesc-label" for="profile-edit-pdesc" >{{$lbl_title}} </label>
-<input type="text" size="32" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc}}" />
+<input type="text" size="32" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc|escape:'html'}}" />
 </div>
 <div id="profile-edit-pdesc-end"></div>
 
@@ -64,20 +64,20 @@
 
 <div id="profile-edit-address-wrapper" >
 <label id="profile-edit-address-label" for="profile-edit-address" >{{$lbl_address}} </label>
-<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address}}" />
+<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address|escape:'html'}}" />
 </div>
 <div id="profile-edit-address-end"></div>
 
 <div id="profile-edit-locality-wrapper" >
 <label id="profile-edit-locality-label" for="profile-edit-locality" >{{$lbl_city}} </label>
-<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality}}" />
+<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality|escape:'html'}}" />
 </div>
 <div id="profile-edit-locality-end"></div>
 
 
 <div id="profile-edit-postal-code-wrapper" >
 <label id="profile-edit-postal-code-label" for="profile-edit-postal-code" >{{$lbl_zip}} </label>
-<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code}}" />
+<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code|escape:'html'}}" />
 </div>
 <div id="profile-edit-postal-code-end"></div>
 
@@ -101,7 +101,7 @@
 
 <div id="profile-edit-hometown-wrapper" >
 <label id="profile-edit-hometown-label" for="profile-edit-hometown" >{{$lbl_hometown}} </label>
-<input type="text" size="32" name="hometown" id="profile-edit-hometown" value="{{$hometown}}" />
+<input type="text" size="32" name="hometown" id="profile-edit-hometown" value="{{$hometown|escape:'html'}}" />
 </div>
 <div id="profile-edit-hometown-end"></div>
 
@@ -117,7 +117,7 @@
 <label id="profile-edit-with-label" for="profile-edit-with" > {{$lbl_with}} </label>
 <input type="text" size="32" name="with" id="profile-edit-with" title="{{$lbl_ex1}}" value="{{$with}}" />
 <label id="profile-edit-howlong-label" for="profile-edit-howlong" > {{$lbl_howlong}} </label>
-<input type="text" size="32" name="howlong" id="profile-edit-howlong" title="{{$lbl_howlong}}" value="{{$howlong}}" />
+<input type="text" size="32" name="howlong" id="profile-edit-howlong" title="{{$lbl_howlong}}" value="{{$howlong|escape:'html'}}" />
 
 <div id="profile-edit-marital-end"></div>
 
@@ -131,31 +131,31 @@
 
 <div id="profile-edit-homepage-wrapper" >
 <label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$lbl_homepage}} </label>
-<input type="text" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage}}" />
+<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage|escape:'html'}}" />
 </div>
 <div id="profile-edit-homepage-end"></div>
 
 <div id="profile-edit-politic-wrapper" >
 <label id="profile-edit-politic-label" for="profile-edit-politic" >{{$lbl_politic}} </label>
-<input type="text" size="32" name="politic" id="profile-edit-politic" value="{{$politic}}" />
+<input type="text" size="32" name="politic" id="profile-edit-politic" value="{{$politic|escape:'html'}}" />
 </div>
 <div id="profile-edit-politic-end"></div>
 
 <div id="profile-edit-religion-wrapper" >
 <label id="profile-edit-religion-label" for="profile-edit-religion" >{{$lbl_religion}} </label>
-<input type="text" size="32" name="religion" id="profile-edit-religion" value="{{$religion}}" />
+<input type="text" size="32" name="religion" id="profile-edit-religion" value="{{$religion|escape:'html'}}" />
 </div>
 <div id="profile-edit-religion-end"></div>
 
 <div id="profile-edit-pubkeywords-wrapper" >
 <label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords" >{{$lbl_pubkey}} </label>
-<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords}}" />
+<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords|escape:'html'}}" />
 </div><div id="profile-edit-pubkeywords-desc">{{$lbl_pubdsc}}</div>
 <div id="profile-edit-pubkeywords-end"></div>
 
 <div id="profile-edit-prvkeywords-wrapper" >
 <label id="profile-edit-prvkeywords-label" for="profile-edit-prvkeywords" >{{$lbl_prvkey}} </label>
-<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords}}" />
+<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords|escape:'html'}}" />
 </div><div id="profile-edit-prvkeywords-desc">{{$lbl_prvdsc}}</div>
 <div id="profile-edit-prvkeywords-end"></div>
 

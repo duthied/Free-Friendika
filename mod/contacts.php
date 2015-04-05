@@ -3,6 +3,7 @@
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
 require_once('include/contact_selectors.php');
+require_once('mod/proxy.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
@@ -31,7 +32,8 @@ function contacts_init(&$a) {
 			$a->data['contact'] = $r[0];
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => $a->data['contact']['name'],
-				'$photo' => $a->data['contact']['photo']
+				'$photo' => $a->data['contact']['photo'],
+			        '$url' => ($a->data['contact']['network'] == 'dfrn') ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
 			$follow_widget = '';
 	}
@@ -42,6 +44,9 @@ function contacts_init(&$a) {
 		else
 			$follow_widget = follow_widget();
 	}
+
+	if ($_GET['nets'] == "all")
+		$_GET['nets'] = "";
 
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
 	$findpeople_widget .= findpeople_widget();
@@ -73,12 +78,12 @@ function contacts_init(&$a) {
 function contacts_batch_actions(&$a){
 	$contacts_id = $_POST['contact_batch'];
 	if (!is_array($contacts_id)) return;
-	
+
 	$orig_records = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND `uid` = %d AND `self` = 0",
 		implode(",", $contacts_id),
 		intval(local_user())
 	);
-	
+
 	$count_actions=0;
 	foreach($orig_records as $orig_record) {
 		$contact_id = $orig_record['id'];
@@ -106,7 +111,7 @@ function contacts_batch_actions(&$a){
 	if ($count_actions>0) {
 		info ( sprintf( tt("%d contact edited.", "%d contacts edited", $count_actions), $count_actions) );
 	}
-	
+
 	if(x($_SESSION,'return_url'))
 		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
 	else
@@ -401,36 +406,39 @@ function contacts_content(&$a) {
 				break;
 		}
 
+		if(!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+				$relation_text = "";
+
 		$relation_text = sprintf($relation_text,$contact['name']);
 
 		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
 			$url = "redir/{$contact['id']}";
 			$sparkle = ' class="sparkle" ';
 		}
-		else { 
+		else {
 			$url = $contact['url'];
 			$sparkle = '';
 		}
 
 		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00') 
-				? t('Never') 
+		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00')
+				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
 		if($contact['last-update'] !== '0000-00-00 00:00:00')
-			$last_update .= ' ' . (($contact['last-update'] == $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
+			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
-		$poll_enabled = (($contact['network'] !== NETWORK_DIASPORA) ? true : false);
+		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network']));
 
 		$common = count_common_friends(local_user(),$contact['id']);
 		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
-		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : ''); 
+		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
 		$x = count_all_friends(local_user(), $contact['id']);
 		$all_friends = (($x) ? t('View all contacts') : '');
@@ -468,6 +476,16 @@ function contacts_content(&$a) {
 
 		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
+		if ($contact['network'] == NETWORK_FEED)
+			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
+									array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords')));
+
+		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
+			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
+
+		if ($contact['network'] == NETWORK_DFRN)
+			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
+
 		$o .= replace_macros($tpl, array(
 			'$header' => t('Contact Editor'),
 			'$tab_str' => $tab_str,
@@ -488,14 +506,14 @@ function contacts_content(&$a) {
 			'$lblsuggest' => $lblsuggest,
 			'$delete' => t('Delete contact'),
 			'$nettype' => $nettype,
-			'$poll_interval' => contact_poll_interval($contact['priority'],(! $poll_enabled)),
+			'$poll_interval' => $poll_interval,
 			'$poll_enabled' => $poll_enabled,
 			'$lastupdtext' => t('Last update:'),
 			'$lost_contact' => $lost_contact,
 			'$updpub' => t('Update public posts'),
 			'$last_update' => $last_update,
 			'$udnow' => t('Update now'),
-			'$profile_select' => contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false)),
+			'$profile_select' => $profile_select,
 			'$contact_id' => $contact['id'],
 			'$block_text' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
 			'$ignore_text' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
@@ -506,8 +524,7 @@ function contacts_content(&$a) {
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
 			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
-			'$fetch_further_information' => array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
-								array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords'))),
+			'$fetch_further_information' => $fetch_further_information,
 			'$ffi_keyword_blacklist' => $contact['ffi_keyword_blacklist'],
 			'$ffi_keyword_blacklist' => array('ffi_keyword_blacklist', t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')),
 			'$photo' => $contact['photo'],
@@ -623,11 +640,11 @@ function contacts_content(&$a) {
 
 	if($nets)
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
- 
-	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : ''); 
 
-	
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` 
+	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
+
+
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
 	if(count($r)) {
@@ -668,7 +685,7 @@ function contacts_content(&$a) {
 				$url = "redir/{$rr['id']}";
 				$sparkle = ' class="sparkle" ';
 			}
-			else { 
+			else {
 				$url = $rr['url'];
 				$sparkle = '';
 			}
@@ -681,7 +698,7 @@ function contacts_content(&$a) {
 				'id' => $rr['id'],
 				'alt_text' => $alt_text,
 				'dir_icon' => $dir_icon,
-				'thumb' => $rr['thumb'], 
+				'thumb' => proxy_url($rr['thumb']),
 				'name' => $rr['name'],
 				'username' => $rr['name'],
 				'sparkle' => $sparkle,

@@ -16,7 +16,7 @@
 
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
-<input type="hidden" name="phpath" value="{{$phpath}}" />
+<input type="hidden" name="phpath" value="{{$phpath|escape:'html'}}" />
 <input type="hidden" name="pass" value="3" />
 
 {{include file="field_input.tpl" field=$dbhost}}
@@ -25,7 +25,7 @@
 {{include file="field_input.tpl" field=$dbdata}}
 
 
-<input id="install-submit" type="submit" name="submit" value="{{$submit}}" /> 
+<input id="install-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" /> 
 
 </form>
 

@@ -1,9 +1,10 @@
 <?php
 /**
  * Name: Vier
- * Version: 1.1
+ * Version: 1.2
  * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
  * Author: Ike <http://pirati.ca/profile/heluecht>
+ * Author: Beanow <https://fc.oscp.info/profile/beanow>
  * Maintainer: Ike <http://pirati.ca/profile/heluecht>
  * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
  */
@@ -20,6 +21,9 @@ $style = get_pconfig(local_user(), 'vier', 'style');
 if ($style == "")
 	$style = get_config('vier', 'style');
 
+if ($style == "")
+	$style = "plus";
+
 if ($style == "flat")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/flat.css" type="text/css" media="screen"/>'."\n";
 else if ($style == "netcolour")
@@ -28,6 +32,8 @@ else if ($style == "breathe")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/breathe.css" type="text/css" media="screen"/>'."\n";
 else if ($style == "plus")
 	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/plus.css" type="text/css" media="screen"/>'."\n";
+else if ($style == "dark")
+	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/dark.css" type="text/css" media="screen"/>'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
 <script type="text/javascript">

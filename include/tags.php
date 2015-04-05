@@ -9,7 +9,7 @@ function create_tags_from_item($itemid) {
 
 	$searchpath = $a->get_baseurl()."/search?tag=";
 
-	$messages = q("SELECT `guid`, `uid`, `id`, `edited`, `deleted`, `title`, `body`, `tag`, `parent` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
+	$messages = q("SELECT `guid`, `uid`, `id`, `edited`, `deleted`, `created`, `received`, `title`, `body`, `tag`, `parent` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
 
 	if (!$messages)
 		return;
@@ -26,16 +26,6 @@ function create_tags_from_item($itemid) {
 	if ($message["deleted"])
 		return;
 
-	$cachefile = get_cachefile(urlencode($message["guid"])."-".hash("md5", $message['body']));
-
-	if (($cachefile != '') AND !file_exists($cachefile)) {
-		$s = prepare_text($message['body']);
-		$stamp1 = microtime(true);
-		file_put_contents($cachefile, $s);
-		$a->save_timestamp($stamp1, "file");
-		logger('create_tags_from_item: put item '.$message["id"].' into cachefile '.$cachefile);
-	}
-
 	$taglist = explode(",", $message["tag"]);
 
 	$tags = "";
@@ -46,6 +36,9 @@ function create_tags_from_item($itemid) {
 			$tags .= " #".trim($tag);
 
 	$data = " ".$message["title"]." ".$message["body"]." ".$tags." ";
+
+	// ignore anything in a code block
+	$data = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$data);
 
 	$tags = array();
 
@@ -79,8 +72,22 @@ function create_tags_from_item($itemid) {
 			$term = $tag;
 		}
 
-		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`) VALUES (%d, %d, %d, %d, '%s', '%s')",
-			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval($type), dbesc($term), dbesc($link));
+		if ($message["uid"] == 0) {
+			$global = true;
+
+			q("UPDATE `term` SET `global` = 1 WHERE `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+		} else {
+			$isglobal = q("SELECT `global` FROM `term` WHERE `uid` = 0 AND `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+
+			$global = (count($isglobal) > 0);
+		}
+
+		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `guid`, `created`, `received`, `global`)
+				VALUES (%d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', %d)",
+			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval($type), dbesc($term),
+			dbesc($link), dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]), intval($global));
 
 		// Search for mentions
 		if ((substr($tag, 0, 1) == '@') AND (strpos($link, $profile_base_friendica) OR strpos($link, $profile_base_diaspora))) {
@@ -106,10 +113,39 @@ function create_tags_from_itemuri($itemuri, $uid) {
 }
 
 function update_items() {
-	//$messages = q("SELECT `id` FROM `item` where tag !='' ORDER BY `created` DESC limit 10");
-	$messages = q("SELECT `id` FROM `item` where tag !=''");
+	global $db;
 
-	foreach ($messages as $message)
-		create_tags_from_item($message["id"]);
+        $messages = $db->q("SELECT `oid`,`item`.`guid`, `item`.`created`, `item`.`received` FROM `term` INNER JOIN `item` ON `item`.`id`=`term`.`oid` WHERE `term`.`otype` = 1 AND `term`.`guid` = ''", true);
+
+        logger("fetched messages: ".count($messages));
+        while ($message = $db->qfetch()) {
+
+		if ($message["uid"] == 0) {
+			$global = true;
+
+			q("UPDATE `term` SET `global` = 1 WHERE `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+		} else {
+			$isglobal = q("SELECT `global` FROM `term` WHERE `uid` = 0 AND `otype` = %d AND `guid` = '%s'",
+				intval(TERM_OBJ_POST), dbesc($message["guid"]));
+
+			$global = (count($isglobal) > 0);
+		}
+
+		q("UPDATE `term` SET `guid` = '%s', `created` = '%s', `received` = '%s', `global` = %d WHERE `otype` = %d AND `oid` = %d",
+			dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]),
+			intval($global), intval(TERM_OBJ_POST), intval($message["oid"]));
+	}
+
+        $db->qclose();
+
+	$messages = $db->q("SELECT `guid` FROM `item` WHERE `uid` = 0", true);
+
+	logger("fetched messages: ".count($messages));
+	while ($message = $db->qfetch()) {
+		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($message["guid"]));
+	}
+
+	$db->qclose();
 }
 ?>

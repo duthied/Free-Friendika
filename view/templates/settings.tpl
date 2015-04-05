@@ -16,7 +16,7 @@
 {{/if}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -32,7 +32,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -86,7 +86,7 @@
 	<div id="settings-default-perms-menu-end"></div>
 
 	<div id="settings-default-perms-select" style="display: none; margin-bottom: 20px" >
-	
+
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
 			{{$aclselect}}
@@ -102,7 +102,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -133,10 +133,12 @@
 {{include file="field_intcheckbox.tpl" field=$notify8}}
 </div>
 
+{{include file="field_checkbox.tpl" field=$email_textonly}}
+
 </div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -148,7 +150,7 @@
 {{$pagetype}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 </div>
 </div>
 
@@ -157,7 +159,7 @@
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button}}" />
+<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button|escape:'html'}}" />
 </div>
 </div>
 

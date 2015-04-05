@@ -11,7 +11,6 @@ function oembed_replacecb($matches){
 
 
 function oembed_fetch_url($embedurl, $no_rich_type = false){
-
 	$embedurl = trim($embedurl, "'");
 	$embedurl = trim($embedurl, '"');
 
@@ -78,6 +77,11 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	if (!is_object($j))
 		return false;
 
+	// Always embed the SSL version
+	if (isset($j->html))
+		$j->html = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
+			array("https://www.youtube.com/", "https://player.vimeo.com/"), $j->html);
+
 	$j->embedurl = $embedurl;
 
 	// If fetching information doesn't work, then improve via internal functions
@@ -104,6 +108,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	        	$j->thumbnail_height = $data["images"][0]["height"];
 		}
 	}
+
+	call_hooks('oembed_fetch_url', $embedurl, $j);
 
 	return $j;
 }
@@ -156,6 +162,7 @@ function oembed_format_object($j){
 
 	// add link to source if not present in "rich" type
 	if ($j->type!='rich' || !strpos($j->html,$embedurl) ){
+		$ret .= "<h4>";
 		if (isset($j->title)) {
 			if (isset($j->provider_name))
 				$ret .= $j->provider_name.": ";
@@ -182,11 +189,12 @@ function oembed_format_object($j){
 		}
 		//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
 		//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
+		$ret .= "</h4>";
 	} else {
 		// add <a> for html2bbcode conversion
 		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
+		$ret.="<br style='clear:left'></span>";
 	}
-	$ret.="<br style='clear:left'></span>";
 	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
 }
 

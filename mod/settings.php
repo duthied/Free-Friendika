@@ -16,6 +16,11 @@ function get_theme_config_file($theme){
 
 function settings_init(&$a) {
 
+	if(! local_user()) {
+		notice( t('Permission denied.') . EOL );
+		return;
+	}
+
 	// APC deactivated, since there are problems with PHP 5.5
 	//if (function_exists("apc_delete")) {
 	//	$toDelete = new APCIterator('user', APC_ITER_VALUE);
@@ -395,6 +400,8 @@ function settings_post(&$a) {
 	$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
 	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 
+	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
+
 	$notify = 0;
 
 	if(x($_POST,'notify1'))
@@ -495,6 +502,7 @@ function settings_post(&$a) {
 	set_pconfig(local_user(),'system','post_joingroup', $post_joingroup);
 	set_pconfig(local_user(),'system','post_profilechange', $post_profilechange);
 
+	set_pconfig(local_user(),'system','email_textonly', $email_textonly);
 
 	if($page_flags == PAGE_PRVGROUP) {
 		$hidewall = 1;
@@ -505,7 +513,7 @@ function settings_post(&$a) {
 			}
 			else {
 				notice( t('Private forum has no privacy permissions and no default privacy group.') . EOL);
-			} 
+			}
 		}
 	}
 
@@ -590,7 +598,7 @@ function settings_content(&$a) {
 	nav_set_selected('settings');
 
 	if(! local_user()) {
-		notice( t('Permission denied.') . EOL );
+		#notice( t('Permission denied.') . EOL );
 		return;
 	}
 
@@ -656,7 +664,7 @@ function settings_content(&$a) {
 		}
 
 
-		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my 
+		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
 				FROM clients
 				LEFT JOIN tokens ON clients.client_id=tokens.client_id
 				WHERE clients.uid IN (%d,0)",
@@ -830,7 +838,7 @@ function settings_content(&$a) {
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
-				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){ 
+				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
 					if($is_mobile) {
 						$mobile_themes[$f]=$theme_name;
@@ -1022,7 +1030,7 @@ function settings_content(&$a) {
 	));
 
 	$hide_wall = replace_macros($opt_tpl,array(
-			'$field' 	=> array('hidewall',  t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], '', array(t('No'),t('Yes'))),
+			'$field' 	=> array('hidewall',  t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], t("If enabled, posting public messages to Diaspora and other networks isn't possible."), array(t('No'),t('Yes'))),
 
 	));
 
@@ -1078,8 +1086,8 @@ function settings_content(&$a) {
 		'items' => array('expire_items',  t("Expire posts:"), $expire_items, '', array(t('No'),t('Yes'))),
 		'notes' => array('expire_notes',  t("Expire personal notes:"), $expire_notes, '', array(t('No'),t('Yes'))),
 		'starred' => array('expire_starred',  t("Expire starred posts:"), $expire_starred, '', array(t('No'),t('Yes'))),
-		'photos' => array('expire_photos',  t("Expire photos:"), $expire_photos, '', array(t('No'),t('Yes'))),		
-		'network_only' => array('expire_network_only',  t("Only expire posts by others:"), $expire_network_only, '', array(t('No'),t('Yes'))),		
+		'photos' => array('expire_photos',  t("Expire photos:"), $expire_photos, '', array(t('No'),t('Yes'))),
+		'network_only' => array('expire_network_only',  t("Only expire posts by others:"), $expire_network_only, '', array(t('No'),t('Yes'))),
 	);
 
 	require_once('include/group.php');
@@ -1123,7 +1131,7 @@ function settings_content(&$a) {
 
 		'$h_basic' 	=> t('Basic Settings'),
 		'$username' => array('username',  t('Full Name:'), $username,''),
-		'$email' 	=> array('email', t('Email Address:'), $email, ''),
+		'$email' 	=> array('email', t('Email Address:'), $email, '', '', '', 'email'),
 		'$timezone' => array('timezone_select' , t('Your Timezone:'), select_timezone($timezone), ''),
 		'$defloc'	=> array('defloc', t('Default Post Location:'), $defloc, ''),
 		'$allowloc' => array('allow_location', t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''),
@@ -1175,10 +1183,13 @@ function settings_content(&$a) {
 		'$notify3'	=> array('notify3', t('Someone writes on your profile wall'), ($notify & NOTIFY_WALL), NOTIFY_WALL, ''),
 		'$notify4'	=> array('notify4', t('Someone writes a followup comment'), ($notify & NOTIFY_COMMENT), NOTIFY_COMMENT, ''),
 		'$notify5'	=> array('notify5', t('You receive a private message'), ($notify & NOTIFY_MAIL), NOTIFY_MAIL, ''),
-		'$notify6'  => array('notify6', t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, ''),		
-		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),		
-		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),		
+		'$notify6'  => array('notify6', t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, ''),
+		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
+		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
+		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
+									get_pconfig(local_user(),'system','email_textonly'),
+									t('Send text only notification emails, without the html part')),
 
 		'$h_advn' => t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => t('Change the behaviour of this account for special situations'),

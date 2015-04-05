@@ -15,7 +15,7 @@ function salmon_return($val) {
 	if($val >= 200 && $val < 300)
 		$err = 'OK';
 
-	logger('mod-salmon returns ' . $val);	
+	logger('mod-salmon returns ' . $val);
 	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 	killme();
 
@@ -50,7 +50,7 @@ function salmon_post(&$a) {
 		$base = $dom->env;
 	elseif($dom->data)
 		$base = $dom;
-	
+
 	if(! $base) {
 		logger('mod-salmon: unable to locate salmon data in xml ');
 		http_status_exit(400);
@@ -92,7 +92,7 @@ function salmon_post(&$a) {
 	// Create a fake feed wrapper so simplepie doesn't choke
 
 	$tpl = get_markup_template('fake_feed.tpl');
-	
+
 	$base = substr($data,strpos($data,'<entry'));
 
 	$feedxml = $tpl . $base . '</feed>';
@@ -100,7 +100,7 @@ function salmon_post(&$a) {
 	logger('mod-salmon: Processed feed: ' . $feedxml);
 
 	// Now parse it like a normal atom feed to scrape out the author URI
-	
+
     $feed = new SimplePie();
     $feed->set_raw_data($feedxml);
     $feed->enable_order_by_date(false);
@@ -192,7 +192,7 @@ function salmon_post(&$a) {
 				);
 			}
 		}
-	}	
+	}
 
 	// is this a follower? Or have we ignored the person?
 	// If so we can not accept this post.
@@ -223,7 +223,3 @@ function salmon_post(&$a) {
 
 	http_status_exit(200);
 }
-
-
-
-

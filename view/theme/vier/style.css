@@ -203,7 +203,8 @@ div.pager a {
 }
  
 span.pager_first a, span.pager_n a, 
-span.pager_last a, span.pager_prev a, span.pager_next a {
+span.pager_last a, span.pager_prev a, span.pager_next a,
+span.scroll_loader_text {
   color: darkgray;
 }
 
@@ -246,10 +247,6 @@ div.pager {
   float: left;
 }
 
-#contacts-actions {
-  clear: both;
-}
-
 #contact-edit-drop-link-end {
   /* clear: both; */
 }
@@ -284,10 +281,6 @@ body {
   color: #2d2d2d;
   margin: 0px 0px 0px 0px;
   display: table;
-}
-
-h4 {
-  font-size: 1.1em;
 }
 
 a {
@@ -539,6 +532,7 @@ nav {
 
 nav .icon {
   color: #ccc;
+  padding:0;
 }
 
 nav a:active,
@@ -674,8 +668,11 @@ nav #nav-help-link,
 nav #nav-search-link,
 nav #nav-directory-link,
 nav #nav-apps-link,
+nav #nav-apps-link,
+nav #nav-login-link,
 nav #nav-notifications-linkmenu,
 nav #nav-site-linkmenu,
+nav #nav-contacts-linkmenu,
 nav #nav-user-linklabel {
   float: right;
 }
@@ -688,6 +685,7 @@ nav #nav-search-link .menu-popup,
 nav #nav-directory-link .menu-popup,
 nav #nav-apps-link .menu-popup,
 nav #nav-notifications-linkmenu .menu-popup,
+nav #nav-contacts-linkmenu .menu-popup,
 nav #nav-site-linkmenu .menu-popup {
   right: 0px;
   left: auto;
@@ -708,6 +706,10 @@ nav #nav-user-linklabel.selected,
 nav #nav-apps-link.selected {
   background-color: #364e59;
   border-bottom-style: none;
+}
+
+nav #nav-notifications-linkmenu.on .icon-bell:before{
+  content: "\f0f3";
 }
 
 /* nav #nav-community-link { */
@@ -734,6 +736,10 @@ nav #nav-user-linkmenu {
 	/* border-bottom: 1px solid #364E59; */
 	/* margin: 0px 0px 2px 0px;
 	padding: 5px 10px; */
+}
+
+#mail-update {
+  top: 56px;
 }
 
 .notify-seen {
@@ -905,7 +911,6 @@ aside .vcard dd {
 aside #profile-photo-wrapper img {
   width: 175px;
 }
-
 aside #profile-extra-links ul {
   padding: 0px;
   margin: 0px;
@@ -1193,10 +1198,6 @@ section.minimal {
   width: 350px;
   float: left;
   font-size: 12px;
-}}
-
-h2 {
-  line-height: normal;
 }
 
 .wall-item-container .wall-item-content {
@@ -1995,7 +1996,6 @@ ul.tabs li .active, span.pager_current a {
 .comment-edit-bb a {
   color: #888;
   padding: 0px 5px 1px 5px;
-  cursor: pointer;
 }
 
 .comment-edit-bb a:hover {
@@ -2030,6 +2030,7 @@ ul.tabs li .active, span.pager_current a {
 .field .onoff {
   float: left;
   width: 80px;
+  margin-right:1em;
 }
 .field .onoff a {
   display: block;
@@ -2037,24 +2038,28 @@ ul.tabs li .active, span.pager_current a {
   background-image: url("../../../images/onoff.jpg");
   background-repeat: no-repeat;
   padding: 4px 2px 2px 2px;
+  font-size:14px;
   height: 16px;
+  line-height:16px;
   text-decoration: none;
+  text-align: center;
+  text-transform: uppercase;
+  border-radius:4px;
 }
 .field .onoff .off {
-  border-color: #666666;
-  padding-left: 40px;
+  border-color: #B0B0B0;
+  padding-left: 36px;
   background-position: left center;
   background-color: #cccccc;
-  color: #666666;
-  text-align: right;
+  color: #9C9C9C;
 }
 .field .onoff .on {
-  border-color: #204A87;
-  padding-right: 40px;
+  font-weight:bold;
+  border-color: #8EB8EE;
+  padding-right: 36px;
   background-position: right center;
   background-color: #D7E3F1;
-  color: #204A87;
-  text-align: left;
+  color: #36c;
 }
 .field .hidden {
   display: none!important;
@@ -2074,12 +2079,11 @@ aside form .field label {
         margin-bottom: 15px;
 }
 
-#profile-edit-links ul { margin: 20px; padding-bottom: 20px; list-style: none; }
+#profile-edit-links ul { margin: 0; padding:0 0 20px 0; list-style: none; }
 
 #profile-edit-links li {
   float: left;
   list-style: none;
-  margin-left: 10px;
 }
 
 .profile-edit-side-div {
@@ -2093,8 +2097,9 @@ aside form .field label {
 } */
 
 #register-form label,
-#profile-edit-form label {
-        width: 300px; float: left;
+#profile-edit-wrapper label {
+  width: 200px;
+  float: left;
 }
 
 .required {
@@ -2242,6 +2247,10 @@ blockquote {
 #group-separator,
 #prof-separator { display: none;}
 */
+
+#message-to-select {
+  height: 150px;
+}
 
 #prvmail-upload {
   margin-left: 10px;
@@ -2726,4 +2735,92 @@ a.mail-list-link {
 }
 .mail-conv-delete-icon {
         border: none;
+}
+
+.icon.tilted-icon{
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+  -webkit-transform: rotate(-20deg);
+  -moz-transform: rotate(-20deg);
+  -ms-transform: rotate(-20deg);
+  -o-transform: rotate(-20deg);
+  transform: rotate(-20deg);
+  font-size:115%; /* 5% less than normal icons, because the tilt takes up vertical space */
+  padding-top:1px;
+}
+
+#profile-edit-wrapper {
+    line-height: 30px;
+}
+#profile-edit-wrapper .field{
+  margin-bottom:0;
+  padding-bottom:0;
+}
+#profile-edit-wrapper input[type=text],
+#profile-edit-wrapper select{
+  width:250px;
+}
+#profile-edit-wrapper #profile-edit-dob select{
+  width:auto;
+}
+#profile-edit-wrapper,
+#profile-edit-wrapper .toggle-section-content{
+  margin-bottom:15px;
+}
+.profile-edit-submit-wrapper{
+  margin-top:15px;
+}
+#profile-edit-default-desc{
+  display:inline-block;
+  padding:15px;
+  width:auto;
+  border:1px solid #511919;
+}
+#profile-edit-wrapper .toggle-section-content{
+  background:#ededed;
+  max-width:599px;
+  padding:5px;
+}
+
+.btn{
+  outline:none;
+  -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  box-shadow:inset 0px 1px 0px 0px #ffffff;
+  background-color:#ededed;
+  -webkit-border-top-left-radius:0px;
+  -moz-border-radius-topleft:0px;
+  border-top-left-radius:0px;
+  -webkit-border-top-right-radius:0px;
+  -moz-border-radius-topright:0px;
+  border-top-right-radius:0px;
+  -webkit-border-bottom-right-radius:0px;
+  -moz-border-radius-bottomright:0px;
+  border-bottom-right-radius:0px;
+  -webkit-border-bottom-left-radius:0px;
+  -moz-border-radius-bottomleft:0px;
+  border-bottom-left-radius:0px;
+  text-indent:0;
+  border:1px solid #dcdcdc;
+  display:inline-block;
+  color:#777777;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  font-style:normal;
+  height:40px;
+  line-height:40px;
+  padding:0 15px;
+  text-align:center;
+  text-shadow:1px 1px 0px #ffffff;
+}
+  .btn:hover{
+    background-color:#e6e6e6;
+    text-decoration:none;
+  }
+  .btn:active{
+    position:relative;
+    top:1px;
+  }
+.profile-view-actions{
+  float:right;
 }

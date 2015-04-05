@@ -1,3 +1,65 @@
+Version 3.4
+
+	Optionally, "like" and "dislike" activities don't update thread timestamp (annando)
+	Updated markdown libraries (annando)
+	Updated jQuery (StefOfficiel)
+	Cache zrl verification requests to prevent DSoS (issue #1453) (annando)
+	"Verify SSL" options affects also VERIFYHOST (annando)
+	Better handling of hashtags (annando)
+	Updated translations (translation teams, tobias)
+	Access a contact directly from the contact-manager-page (FlxAlbroscheit)
+	Reworked GUID generation, remove db store (annando)
+	Improve search for tags and terms (annando)
+	Fix OAuth signature (thorsten23)
+	Fix utf8 characters in items (issue #1307) (hauke)
+	Ignore tag-likes char sequences in code blocks (issue #1041) (fabrixxm)
+	Fix sending email to CC recipients (issue #1437) (fabrixxm)
+	Fix signature check of likes from diaspora (issue #905) (mike, annando)
+	Fix pagination urls (issue #1341) (fabrixxm)
+	Add scheme if missing in "web link" dialog (issue #1362) (fabrixxm)
+	Don't detect Facebook and App.net RSS feeds as contacts (issue #1432) (annando)
+	Add cli command to generate database.sql from scheme description (issue #1370) (fabrixxm)
+	Fix warning trying to creating already existing itemcache dir (pztrn)
+	Send update to directory when account is removed (issue #1038) (annando)
+	Fix settings page's aside menu visibility (issue #1459) (fabrixxm)
+	Don't show past events in event reminder in profile page (issue #1306) (annando)
+	Add help text to explain the options for approving contacts (issue #1349) (silke)
+	API set as unseen only posts returned by the call (issue #1063) (annando)
+
+Version 3.3.3
+
+	More separation between php and html in photo album (issue #1258) (rabuzarus)
+	Enhanced community page shows public posts from public contacts of public profiles (annando)
+	Support for IndieAuth/Web-sign-in (hauke)
+	New hooks "emailer_send_prepare" and "emailer_send" (fabrixxm)
+	New hook "oembed_fetch_url" (annando)
+	Add un/ignore function to quattro theme (tobiasd)
+	Enhanced POCO data (annando)
+	Use HTML5 features to validate inputs in install wizard and in some settings fields (tobiasd)
+	Option to receive text-only notification emails (fabrixxm)
+	Better OStatus support (annando)
+	Share-it button support (annando)
+	More reliable reshare from Diaspora (annando)
+	Load more images via proxy (annando)
+	util/typo.php uses "php -l" insead of "eval()" to validate code (fabrixxm)
+	Use $_SERVER array in cli script instead of $argv/$argc (issue #1218) (annando)
+	Updated vagrant setup script (silke)
+	API: support to star/unstar items (fabrixxm)
+	API: attachments for better AndStatus support (annando)
+	Fix missing spaces in photo URLs (issue #920) (annando)
+	Fix avatar for "remote-self" items (annando)
+	Fix encodings issues with scrape functionality (annando)
+	Fix site info scraping when URL points to big file (annando)
+	Fix tools for translations (ddorian1)
+	Fix API login via LDAP (issue #1286) (fabrixxm)
+	Fix to link URL in tabs, pager (issues #1341, #1190) (ddorian1)
+	Fix poke activities translation (fabrixxm)
+	Fix html escaping in templates (fabrixxm)
+	Fix Friendica contacts shown as Diaspora contacts via Poco (annando)
+	Fix shared contacts wrong linking (issue #1388) (annando)
+	Fix email validation (ddorian1)
+	Better documentation for developers (silke)
+
 Version 3.3.2
 
 	Set default value for all not-null fields (fixes SQL warinigs) (annando)
@@ -33,17 +95,17 @@ Version 3.3
 	API
 	added support in the API to allow image uploads from Twidere
 	support for the diaspora app in Firefox
-	
-	Themes 
+
+	Themes
 	Stopped support of unmaintained themes. They will continue to work if enabled but are no longer displayed in the list of themes.
-	Merged all "zero" themes into a theme with variations. 
+	Merged all "zero" themes into a theme with variations.
 	new default avatar by Andi Stadler
-	
+
 	Usability
 	network page as default page after login
 	sections on users' settings page are now collapsable
 	automatic updating the network stream was improved
-	
+
 	Interaction
 	ignoring of threads
 	for selected contects one can now get notifications when they post something, useful e.g. for forums
@@ -51,8 +113,8 @@ Version 3.3
 	many improvement on all connectors, new app.net connector
 	the algorithm for shortening postings when posting to limited platforms was improved
 	improvements for the remote_self functionality for RSS/Atom feeds were done
-	
-	System stuff 
+
+	System stuff
 	no more apc support due problems with PHP 5.5
 	privacy image cache moved from an addon into the core
 	updated the following libraries: smarty 3.1.19, fullcalendar 1.6.4, jquery 1.11, jgrowl 1.3.0
@@ -65,8 +127,8 @@ Version 3.3
 	some bugs were fixed for the profile import function
 	BBCode handling and reformatting to e.g. markdown was improved
 	Internal PusH server for communication with OStatus contacts
-	
-	Addons 
+
+	Addons
 	translation now done at transifex as well
 	"newmemberwidget" adds widget with help links + welcome message to sidebar of network tab for new members
 	new statistics addon to take part in the Diaspora* survey
@@ -75,10 +137,10 @@ Version 3.3
 	new connector for the buffer service
 	improvements for the connectors with Twitter, StatusNet/GNU Social, pump.io, google+ and facebook
 	improvements to the cal and jappix-mini addons
-	
+
 	Change in the structure of the git repo
 	The "master" branch will now contain stable stuff and hotfixes.
-	The new "develop" branch will contain the latest changes. 
+	The new "develop" branch will contain the latest changes.
 
 Version 3.2
 

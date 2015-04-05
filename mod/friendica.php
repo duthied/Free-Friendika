@@ -38,11 +38,8 @@ function friendica_init(&$a) {
 			'site_name' => $a->config['sitename'],
 			'platform' => FRIENDICA_PLATFORM,
 			'info' => ((x($a->config,'info')) ? $a->config['info'] : ''),
+			'no_scrape_url' => $a->get_baseurl().'/noscrape'
 		);
-		
-		//Enable noscrape?
-		if(!get_config('system','disable_noscrape'))
-			$data['no_scrape_url'] = $a->get_baseurl().'/noscrape';
 
 		echo json_encode($data);
 		killme();

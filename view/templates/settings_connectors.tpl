@@ -32,7 +32,7 @@
 	{{include file="field_input.tpl" field=$mail_movetofolder}}
 
 	<div class="settings-submit-wrapper" >
-		<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit}}" />
+		<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 	</div>
 	</div>
 {{/if}}

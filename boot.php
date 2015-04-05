@@ -15,10 +15,10 @@ require_once('update.php');
 require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_CODENAME',     'Ginger');
-define ( 'FRIENDICA_VERSION',      '3.3.2' );
+define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
+define ( 'FRIENDICA_VERSION',      '3.4.0' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1175      );
+define ( 'DB_UPDATE_VERSION',      1182      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -126,6 +126,11 @@ define ( 'PAGE_COMMUNITY',         2 );
 define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
+
+// Type of the community page
+define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
+define ( 'CP_USERS_ON_SERVER',     0 );
+define ( 'CP_GLOBAL_COMMUNITY',    1 );
 
 /**
  * Network and protocol family types
@@ -435,7 +440,7 @@ if(! class_exists('App')) {
 
 		function __construct() {
 
-			global $default_timezone, $argv, $argc;
+			global $default_timezone;
 
 			$hostname = "";
 
@@ -504,9 +509,9 @@ if(! class_exists('App')) {
 			if ($hostname != "")
 				$this->hostname = $hostname;
 
-			if (is_array($argv) && $argc>1 && substr(end($argv), 0, 4)=="http" ) {
-				$this->set_baseurl(array_pop($argv) );
-				$argc --;
+			if (is_array($_SERVER["argv"]) && $_SERVER["argc"]>1 && substr(end($_SERVER["argv"]), 0, 4)=="http" ) {
+				$this->set_baseurl(array_pop($_SERVER["argv"]) );
+				$_SERVER["argc"] --;
 			}
 
 			#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
@@ -1191,35 +1196,24 @@ if(! function_exists('check_plugins')) {
 	}
 }
 
-function get_guid($size=16) {
-	$exists = true; // assume by default that we don't have a unique guid
-	do {
-		$prefix = "";
-		while (strlen($prefix) < ($size - 13))
-			$prefix .= mt_rand();
+function get_guid($size=16, $prefix = "") {
 
-		$s = substr(uniqid($prefix), -$size);
+	if ($prefix == "") {
+		$a = get_app();
+		$prefix = hash("crc32", $a->get_hostname());
+	}
 
-		$r = q("select id from guid where guid = '%s' limit 1", dbesc($s));
-		if(! count($r))
-			$exists = false;
-	} while($exists);
-	q("insert into guid (guid) values ('%s') ", dbesc($s));
-	return $s;
+	while (strlen($prefix) < ($size - 13))
+		$prefix .= mt_rand();
+
+	if ($size >= 24) {
+		$prefix = substr($prefix, 0, $size - 22);
+		return(str_replace(".", "", uniqid($prefix, true)));
+	} else {
+		$prefix = substr($prefix, 0, $size - 13);
+		return(uniqid($prefix));
+	}
 }
-
-/*function get_guid($size=16) {
-	$exists = true; // assume by default that we don't have a unique guid
-	do {
-		$s = random_string($size);
-		$r = q("select id from guid where guid = '%s' limit 1", dbesc($s));
-		if(! count($r))
-			$exists = false;
-	} while($exists);
-	q("insert into guid ( guid ) values ( '%s' ) ", dbesc($s));
-	return $s;
-}*/
-
 
 // wrapper for adding a login box. If $register == true provide a registration
 // link. This will most always depend on the value of $a->config['register_policy'].
@@ -1405,11 +1399,11 @@ if(! function_exists('get_max_import_size')) {
 if(! function_exists('profile_load')) {
 	function profile_load(&$a, $nickname, $profile = 0, $profiledata = array()) {
 
-		$user = q("select uid from user where nickname = '%s' limit 1",
+		$user = q("SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($nickname)
 		);
 
-		if(! ($user && count($user))) {
+		if(!$user && count($user) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested account is not available.') . EOL );
 			$a->error = 404;
@@ -1440,7 +1434,7 @@ if(! function_exists('profile_load')) {
 					intval($profile_int)
 			);
 		}
-		if((! $r) && (!  count($r))) {
+		if((!$r) && (!count($r))) {
 			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
@@ -1448,7 +1442,7 @@ if(! function_exists('profile_load')) {
 			);
 		}
 
-		if(($r === false) || (! count($r))) {
+		if(($r === false) || (!count($r)) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested profile is not available.') . EOL );
 			$a->error = 404;
@@ -1457,7 +1451,7 @@ if(! function_exists('profile_load')) {
 
 		// fetch user tags if this isn't the default profile
 
-		if(! $r[0]['is-default']) {
+		if(!$r[0]['is-default']) {
 			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
 					intval($r[0]['profile_uid'])
 			);
@@ -1649,8 +1643,10 @@ if(! function_exists('profile_sidebar')) {
 
 		$homepage = ((x($profile,'homepage') == 1) ?  t('Homepage:') : False);
 
+		$about = ((x($profile,'about') == 1) ?  t('About:') : False);
+
 		if(($profile['hidewall'] || $block) && (! local_user()) && (! remote_user())) {
-			$location = $pdesc = $gender = $marital = $homepage = False;
+			$location = $pdesc = $gender = $marital = $homepage = $about = False;
 		}
 
 		$firstname = ((strpos($profile['name'],' '))
@@ -1671,8 +1667,24 @@ if(! function_exists('profile_sidebar')) {
 
 		if (!$block){
 			$contact_block = contact_block();
-		}
 
+			if(is_array($a->profile) AND !$a->profile['hide-friends']) {
+				$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
+					intval($a->profile['uid']));
+				if(count($r))
+					$updated =  date("c", strtotime($r[0]['updated']));
+
+				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+						AND `network` IN ('%s', '%s', '%s', '')",
+					intval($profile['uid']),
+					dbesc(NETWORK_DFRN),
+					dbesc(NETWORK_DIASPORA),
+					dbesc(NETWORK_OSTATUS)
+				);
+				if(count($r))
+					$contacts = intval($r[0]['total']);
+			}
+		}
 
 		$p = array();
 		foreach($profile as $k => $v) {
@@ -1695,7 +1707,10 @@ if(! function_exists('profile_sidebar')) {
 			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
+			'$about' => $about,
 			'$network' =>  t('Network:'),
+			'$contacts' => $contacts,
+			'$updated' => $updated,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
 		));
@@ -1815,10 +1830,10 @@ if(! function_exists('get_events')) {
 		$bd_short = t('F d');
 
 		$r = q("SELECT `event`.* FROM `event`
-				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` > '%s'
+				WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
+				dbesc(datetime_convert('UTC','UTC','now + 7 days')),
 				dbesc(datetime_convert('UTC','UTC','now - 1 days'))
 		);
 
@@ -1835,6 +1850,7 @@ if(! function_exists('get_events')) {
 			}
 			$classtoday = (($istoday) ? 'event-today' : '');
 
+			$skip = 0;
 
 			foreach($r as &$rr) {
 				if($rr['adjust'])
@@ -1848,6 +1864,12 @@ if(! function_exists('get_events')) {
 					$title = t('[No description]');
 
 				$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
+
+				if(substr($strt,0,10) < datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
+					$skip++;
+					continue;
+				}
+
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
 
 				$rr['link'] = $md;
@@ -1862,7 +1884,7 @@ if(! function_exists('get_events')) {
 		return replace_macros($tpl, array(
 			'$baseurl' => $a->get_baseurl(),
 			'$classtoday' => $classtoday,
-			'$count' => count($r),
+			'$count' => count($r) - $skip,
 			'$event_reminders' => t('Event Reminders'),
 			'$event_title' => t('Events this week:'),
 			'$events' => $r,
@@ -2071,7 +2093,7 @@ if(! function_exists('load_contact_links')) {
 		if(! $uid || x($a->contacts,'empty'))
 			return;
 
-		$r = q("SELECT `id`,`network`,`url`,`thumb` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 ",
+		$r = q("SELECT `id`,`network`,`url`,`thumb` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
 				intval($uid)
 		);
 		if(count($r)) {
@@ -2166,6 +2188,20 @@ function get_my_url() {
 function zrl_init(&$a) {
 	$tmp_str = get_my_url();
 	if(validate_url($tmp_str)) {
+
+		// Is it a DDoS attempt?
+		// The check fetches the cached value from gprobe to reduce the load for this system
+		$urlparts = parse_url($tmp_str);
+
+		$result = Cache::get("gprobe:".$urlparts["host"]);
+		if (!is_null($result)) {
+			$result = unserialize($result);
+			if ($result["network"] == NETWORK_FEED) {
+				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
+				return;
+			}
+		}
+
 		proc_run('php','include/gprobe.php',bin2hex($tmp_str));
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init',$arr);
@@ -2332,7 +2368,9 @@ function get_itemcachepath() {
 
 	if ($temppath != "") {
 		$itemcache = $temppath."/itemcache";
-		mkdir($itemcache);
+		if(!file_exists($itemcache) && !is_dir($itemcache)) {
+			mkdir($itemcache);
+		}
 
 		if (is_dir($itemcache) AND is_writable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);

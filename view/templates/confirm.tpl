@@ -4,11 +4,11 @@
 
 	<span id="confirm-message">{{$message}}</span>
 	{{foreach $extra_inputs as $input}}
-	<input type="hidden" name="{{$input.name}}" value="{{$input.value}}" />
+	<input type="hidden" name="{{$input.name}}" value="{{$input.value|escape:'html'}}" />
 	{{/foreach}}
 
-	<input class="confirm-button" id="confirm-submit-button" type="submit" name="{{$confirm_name}}" value="{{$confirm}}" />
-	<input class="confirm-button" id="confirm-cancel-button" type="submit" name="canceled" value="{{$cancel}}" />
+	<input class="confirm-button" id="confirm-submit-button" type="submit" name="{{$confirm_name}}" value="{{$confirm|escape:'html'}}" />
+	<input class="confirm-button" id="confirm-cancel-button" type="submit" name="canceled" value="{{$cancel|escape:'html'}}" />
 
 </form>
 </center>

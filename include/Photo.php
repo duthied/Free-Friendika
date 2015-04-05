@@ -516,7 +516,12 @@ class Photo {
 	    return FALSE;
 
 	$string = $this->imageString();
+
+	$a = get_app();
+
+	$stamp1 = microtime(true);
 	file_put_contents($path, $string);
+	$a->save_timestamp($stamp1, "file");
     }
 
     public function imageString() {
@@ -764,10 +769,20 @@ function get_photo_info($url) {
 	if (is_null($data)) {
 		$img_str = fetch_url($url, true, $redirects, 4);
 
+		$filesize = strlen($img_str);
+
 		$tempfile = tempnam(get_temppath(), "cache");
+
+		$a = get_app();
+		$stamp1 = microtime(true);
 		file_put_contents($tempfile, $img_str);
+		$a->save_timestamp($stamp1, "file");
+
 		$data = getimagesize($tempfile);
 		unlink($tempfile);
+
+		if ($data)
+			$data["size"] = $filesize;
 
 		Cache::set($url, serialize($data));
 	} else
@@ -846,7 +861,10 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 		return(array());
 	} elseif (strlen($imagedata) == 0) {
 		logger("Uploading picture from ".$url, LOGGER_DEBUG);
+
+		$stamp1 = microtime(true);
 		$imagedata = @file_get_contents($url);
+		$a->save_timestamp($stamp1, "file");
 	}
 
 	$maximagesize = get_config('system','maximagesize');
@@ -870,7 +888,11 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 */
 
 	$tempfile = tempnam(get_temppath(), "cache");
+
+	$stamp1 = microtime(true);
 	file_put_contents($tempfile, $imagedata);
+	$a->save_timestamp($stamp1, "file");
+
 	$data = getimagesize($tempfile);
 
 	if (!isset($data["mime"])) {

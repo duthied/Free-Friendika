@@ -177,15 +177,19 @@ function notifications_content(&$a) {
 				$dfrn_text = '';
 
 				if($rr['network'] === NETWORK_DFRN || $rr['network'] === NETWORK_DIASPORA) {
-					if($rr['network'] === NETWORK_DFRN)
+					if($rr['network'] === NETWORK_DFRN) {
 						$knowyou = t('Claims to be known to you: ') . (($rr['knowyou']) ? t('yes') : t('no'));
-					else
+						$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan/Admirer" means that you allow to read but you do not want to read theirs. Approve as: ');
+					} else {
 						$knowyou = '';
+						$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
+					}
+
 					$dfrn_text = replace_macros($dfrn_tpl,array(
 						'$intro_id' => $rr['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
-						'$approve_as' => t('Approve as: '),
+						'$approve_as' => $helptext,
 						'$as_friend' => t('Friend'),
 						'$as_fan' => (($rr['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
 					));

@@ -2,6 +2,7 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
+require_once("mod/proxy.php");
 
 if(! function_exists('replace_macros')) {
 /**
@@ -269,23 +270,23 @@ if(! function_exists('paginate_data')) {
  * @return Array data for pagination template
  */
 function paginate_data(&$a, $count=null) {
-	$stripped = preg_replace('/(&page=[0-9]*)/','',$a->query_string);
+	$stripped = preg_replace('/([&?]page=[0-9]*)/','',$a->query_string);
 
 	$stripped = str_replace('q=','',$stripped);
 	$stripped = trim($stripped,'/');
 	$pagenum = $a->pager['page'];
 
-	if (($a->page_offset != "") AND !strstr($stripped, "&offset="))
+	if (($a->page_offset != "") AND !preg_match('/[?&].offset=/', $stripped))
 		$stripped .= "&offset=".urlencode($a->page_offset);
-	if (!strpos($stripped, "?")) {
-		if ($pos = strpos($stripped, "&"))
-			$stripped = substr($stripped, 0, $pos)."?".substr($stripped, $pos + 1);
-	}
 
 	$url = $a->get_baseurl() . '/' . $stripped;
 
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
+		if (!strpos($url, "?")) {
+			if ($pos = strpos($url, "&"))
+				$url = substr($url, 0, $pos)."?".substr($url, $pos + 1);
+		}
 
 		$d[$name] = array('url'=>$url, 'text'=>$text, 'class'=>$class);
 	}
@@ -384,6 +385,18 @@ function alt_pager(&$a, $i) {
 
 }}
 
+if(! function_exists('scroll_loader')) {
+/**
+ * Loader for infinite scrolling
+ * @return string html for loader
+ */
+function scroll_loader() {
+	$tpl = get_markup_template("scroll_loader.tpl");
+	return replace_macros($tpl, array(
+		'wait' => t('Loading more entries...'),
+		'end' => t('The end')
+	));
+}}
 
 if(! function_exists('expand_acl')) {
 /**
@@ -739,6 +752,9 @@ if(! function_exists('get_tags')) {
 function get_tags($s) {
 	$ret = array();
 
+	// Convert hashtag links to hashtags
+	$s = preg_replace("/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism", "#$2", $s);
+
 	// ignore anything in a code block
 	$s = preg_replace('/\[code\](.*?)\[\/code\]/sm','',$s);
 
@@ -928,7 +944,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. $contact['micro'] . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
+			. proxy_url($contact['micro']) . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
 			. '" /></a></div>' . "\r\n";
 	}
 }}
@@ -1109,7 +1125,8 @@ function smilies($s, $sample = false) {
 		':like',
 		':dislike',
                 '~friendica',
-                'red#'
+                'red#',
+		'red#matrix'
 
 	);
 
@@ -1147,7 +1164,8 @@ function smilies($s, $sample = false) {
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/like.gif" alt=":like" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/dislike.gif" alt=":dislike" />',
 		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . $a->get_baseurl() . '/images/friendica-16.png" alt="~friendica" /></a>',
-		'<a href="http://redmatrix.me/">red <img class="smiley" src="' . $a->get_baseurl() . '/images/rhash-16.png" alt="red" /></a>'
+		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . $a->get_baseurl() . '/images/rm-16.png" alt="red" />matrix</a>',
+		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . $a->get_baseurl() . '/images/rm-16.png" alt="red" />matrix</a>'
 	);
 
 	$params = array('texts' => $texts, 'icons' => $icons, 'string' => $s);
@@ -1278,6 +1296,28 @@ function redir_private_images($a, &$item) {
 
 }}
 
+function put_item_in_cache(&$item, $update = false) {
+
+	if (($item["rendered-hash"] != hash("md5", $item["body"])) OR ($item["rendered-hash"] == "") OR
+		($item["rendered-html"] == "") OR get_config("system", "ignore_cache")) {
+
+		// The function "redir_private_images" changes the body.
+		// I'm not sure if we should store it permanently, so we save the old value.
+		$body = $item["body"];
+
+		$a = get_app();
+		redir_private_images($a, $item);
+
+		$item["rendered-html"] = prepare_text($item["body"]);
+		$item["rendered-hash"] = hash("md5", $item["body"]);
+		$item["body"] = $body;
+
+		if ($update AND ($item["id"] != 0)) {
+			q("UPDATE `item` SET `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
+				dbesc($item["rendered-html"]), dbesc($item["rendered-hash"]), intval($item["id"]));
+		}
+	}
+}
 
 // Given an item array, convert the body element from bbcode to html and add smilie icons.
 // If attach is true, also add icons for item attachments
@@ -1329,28 +1369,8 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
-
-	$cachefile = get_cachefile(urlencode($item["guid"])."-".hash("md5", $item['body']));
-
-	if (($cachefile != '')) {
-		if (file_exists($cachefile)) {
-			$stamp1 = microtime(true);
-			$s = file_get_contents($cachefile);
-			$a->save_timestamp($stamp1, "file");
-		} else {
-			redir_private_images($a, $item);
-			$s = prepare_text($item['body']);
-
-			$stamp1 = microtime(true);
-			file_put_contents($cachefile, $s);
-			$a->save_timestamp($stamp1, "file");
-
-			logger('prepare_body: put item '.$item["id"].' into cachefile '.$cachefile);
-		}
-	} else {
-		redir_private_images($a, $item);
-		$s = prepare_text($item['body']);
-	}
+	put_item_in_cache($item, true);
+	$s = $item["rendered-html"];
 
 	require_once("mod/proxy.php");
 	$s = proxy_parse_html($s);

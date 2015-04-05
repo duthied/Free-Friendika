@@ -126,3 +126,39 @@ blockquote.shared_content {
 .settings-heading a:after{
   content: ' »';
 }
+
+/* headers */
+h1, h2, h3, h4, h5, h6 {
+  margin: 5px 0px 5px 0px;
+  font-weight: normal;
+  line-height: normal;
+  text-rendering: optimizelegibility;
+}
+
+h1 {
+  font-size: 31.5px;
+}
+
+h2 {
+  font-size: 24.5px;
+}
+
+h3 {
+  font-size: 20.5px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+h5 {
+  font-size: 16.5px;
+}
+
+h6 {
+  font-size: 14.95px;
+}
+
+span.oembed, h4 {
+  margin: 0px 0px 0px 0px;
+}

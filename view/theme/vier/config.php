@@ -14,6 +14,9 @@ function theme_content(&$a){
 	if ($style == "")
 		$style = get_config('vier', 'style');
 
+	if ($style == "")
+		$style = "plus";
+
 	return vier_form($a,$style);
 }
 
@@ -41,11 +44,12 @@ function theme_admin_post(&$a){
 
 function vier_form(&$a, $style){
 	$styles = array(
-		"shadow"=>"Shadow",
-		"flat"=>"Flat",
-		"netcolour"=>"Coloured Networks",
+		"plus"=>"Plus",
 		"breathe"=>"Breathe",
-		"plus"=>"Plus"
+		"dark"=>"Dark",
+		"shadow"=>"Shadow",
+		"netcolour"=>"Coloured Networks",
+		"flat"=>"Flat"
 	);
 	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(
