@@ -7,6 +7,7 @@ require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 require_once('include/lock.php');
 require_once('include/threads.php');
+require_once('mod/share.php');
 
 function diaspora_dispatch_public($msg) {
 
@@ -1165,12 +1166,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$datarray['owner-link'] = $contact['url'];
 	$datarray['owner-avatar'] = ((x($contact,'thumb')) ? $contact['thumb'] : $contact['photo']);
 	if (!intval(get_config('system','wall-to-wall_share'))) {
-		$prefix = "[share author='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$person['name']).
-				"' profile='".$person['url'].
-				"' avatar='".((x($person,'thumb')) ? $person['thumb'] : $person['photo']).
-				"' guid='".$orig_guid.
-				"' posted='".$orig_created.
-				"' link='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$orig_url)."']";
+		$prefix = share_header($person['name'], $person['url'], ((x($person,'thumb')) ? $person['thumb'] : $person['photo']), $orig_guid, $orig_created, $orig_url);
+
 		$datarray['author-name'] = $contact['name'];
 		$datarray['author-link'] = $contact['url'];
 		$datarray['author-avatar'] = $contact['thumb'];
@@ -1199,7 +1196,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray2['contact-id'] = get_contact($person['url'], 0);
 		$datarray2['guid'] = $orig_guid;
 		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_author.':'.$orig_guid;
-		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = datetime_convert('UTC','UTC',$orig_created);
+		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = $datarray2['commented'] = $datarray2['received'] = datetime_convert('UTC','UTC',$orig_created);
 		$datarray2['plink'] = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
 
 		$datarray2['author-name'] = $person['name'];
