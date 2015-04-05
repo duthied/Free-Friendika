@@ -7,6 +7,7 @@
 	require_once("include/conversation.php");
 	require_once("include/oauth.php");
 	require_once("include/html2plain.php");
+	require_once("mod/share.php");
 	/*
 	 * Twitter-Like API
 	 *
@@ -1389,10 +1390,8 @@
 					$pos = strpos($r[0]['body'], "[share");
 					$post = substr($r[0]['body'], $pos);
 				} else {
-					$post = "[share author='".str_replace("'", "&#039;", $r[0]['author-name']).
-							"' profile='".$r[0]['author-link'].
-							"' avatar='".$r[0]['author-avatar'].
-							"' link='".$r[0]['plink']."']";
+					$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+
 					$post .= $r[0]['body'];
 					$post .= "[/share]";
 				}
