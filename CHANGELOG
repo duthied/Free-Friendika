@@ -23,6 +23,8 @@ Version 3.4
 	Send update to directory when account is removed (issue #1038) (annando)
 	Fix settings page's aside menu visibility (issue #1459) (fabrixxm)
 	Don't show past events in event reminder in profile page (issue #1306) (annando)
+	Add help text to explain the options for approving contacts (issue #1349) (silke)
+	API set as unseen only posts returned by the call (issue #1063) (annando)
 
 Version 3.3.3
 
