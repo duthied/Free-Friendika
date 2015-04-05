@@ -839,7 +839,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			logger('get_atom_elements: fixing sender of repeated message.');
 
 			if (!intval(get_config('system','wall-to-wall_share'))) {
-				logger("Repeated data: ".print_r($child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10], true), LOGGER_DEBUG);
 				$prefix = share_header($name, $uri, $avatar, "", "", $orig_uri);
 
 				$res["body"] = $prefix.html2bbcode($message)."[/share]";
