@@ -270,7 +270,7 @@ if(! function_exists('paginate_data')) {
  * @return Array data for pagination template
  */
 function paginate_data(&$a, $count=null) {
-	$stripped = preg_replace('/(&page=[0-9]*)/','',$a->query_string);
+	$stripped = preg_replace('/([&?]page=[0-9]*)/','',$a->query_string);
 
 	$stripped = str_replace('q=','',$stripped);
 	$stripped = trim($stripped,'/');

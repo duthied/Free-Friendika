@@ -16,6 +16,11 @@ function get_theme_config_file($theme){
 
 function settings_init(&$a) {
 
+	if(! local_user()) {
+		notice( t('Permission denied.') . EOL );
+		return;
+	}
+
 	// APC deactivated, since there are problems with PHP 5.5
 	//if (function_exists("apc_delete")) {
 	//	$toDelete = new APCIterator('user', APC_ITER_VALUE);
@@ -593,7 +598,7 @@ function settings_content(&$a) {
 	nav_set_selected('settings');
 
 	if(! local_user()) {
-		notice( t('Permission denied.') . EOL );
+		#notice( t('Permission denied.') . EOL );
 		return;
 	}
 
@@ -1182,6 +1187,10 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
+		'$desktop_notifications' => t('Activate desktop notifications'),
+                '$desktop_notifications_note' => t('Note: This is an experimental feature, as being not supported by each browser'),
+                '$desktop_notifications_success_message' => t('You will now receive desktop notifications!'),
+                
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
 									t('Send text only notification emails, without the html part')),

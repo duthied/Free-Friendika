@@ -74,6 +74,35 @@ function add_thread($itemid, $onlyshadow = false) {
 	}
 }
 
+function add_shadow_entry($item) {
+
+	// Is this a shadow entry?
+	if ($item['uid'] == 0)
+		return;
+
+	// Is there a shadow parent?
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['parent-uri']));
+	if (!count($r))
+		return;
+
+	// Is there already a shadow entry?
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
+
+	if (count($r))
+		return;
+
+	// Preparing public shadow (removing user specific data)
+	require_once("include/items.php");
+	require_once("include/Contact.php");
+
+	unset($item['id']);
+	$item['uid'] = 0;
+	$item['contact-id'] = get_contact($item['author-link'], 0);
+	$public_shadow = item_store($item, false, false, true);
+
+	logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);
+}
+
 function update_thread_uri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 

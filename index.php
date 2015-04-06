@@ -129,7 +129,6 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
  *
-
  */
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
