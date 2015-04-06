@@ -105,8 +105,6 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	if (($curl_info["content_type"] != "") AND !strstr(strtolower($curl_info["content_type"]),"html"))
 		return($siteinfo);
 
-	$stamp1 = microtime(true);
-
 	if ($do_oembed) {
 		require_once("include/oembed.php");
 
@@ -124,6 +122,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 				$siteinfo["image"] = $oembed_data->thumbnail_url;
 		}
 	}
+
+	$stamp1 = microtime(true);
 
 	// Now fetch the body as well
 	$ch = curl_init();
