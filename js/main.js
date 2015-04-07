@@ -192,7 +192,7 @@
                                          // TODO (yet unsupported by most browsers): 
                                          // Implement notification.onclick()
                                          
-                                        notifyMarkAll();
+                                         // notifyMarkAll();
                                        }
 				});
 
