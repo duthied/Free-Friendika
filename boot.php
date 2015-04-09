@@ -1695,9 +1695,6 @@ if(! function_exists('profile_sidebar')) {
 		if($a->theme['template_engine'] === 'internal')
 			$location = template_escape($location);
 
-		if ($connect)
-			$_SESSION["fastlane"] = $p["url"];
-
 		$tpl = get_markup_template('profile_vcard.tpl');
 		$o .= replace_macros($tpl, array(
 			'$profile' => $p,
