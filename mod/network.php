@@ -469,7 +469,7 @@ function network_content(&$a, $update = 0) {
 		$content = "";
 
 		if ($cid) {
-			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`", $cid, local_user());
+			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`", intval($cid), intval(local_user()));
 			if ($contact)
 				$content = "@".$contact[0]["nick"]."+".$cid;
 		}
