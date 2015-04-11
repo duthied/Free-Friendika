@@ -181,12 +181,12 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 		$sql_extra .= sprintf(" AND `rel` = %d ", intval(CONTACT_IS_FRIEND));
 	}
 
-	if($privmail) {
-		$sql_extra .= " AND `network` IN ( NETWORK_DFRN, NETWORK_DIASPORA ) ";
-	}
-	elseif($privatenet) {
-		$sql_extra .= " AND `network` IN ( NETWORK_DFRN, NETWORK_MAIL, NETWORK_FACEBOOK, NETWORK_DIASPORA ) ";
-	}
+	if($privmail)
+		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s') ",
+					NETWORK_DFRN, NETWORK_DIASPORA);
+	elseif($privatenet)
+		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s', '%s', '%s') ",
+					NETWORK_DFRN, NETWORK_MAIL, NETWORK_FACEBOOK, NETWORK_DIASPORA);
 
 	$tabindex = ($tabindex > 0 ? "tabindex=\"$tabindex\"" : "");
 
