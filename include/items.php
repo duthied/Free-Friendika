@@ -1391,12 +1391,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
-		// Set "success_update" to the date of the last time we heard from this contact
-		// This can be used to filter for inactive contacts and poco.
+		// Set "success_update" and "last-item" to the date of the last time we heard from this contact
+		// This can be used to filter for inactive contacts.
 		// Only do this for public postings to avoid privacy problems, since poco data is public.
 		// Don't set this value if it isn't from the owner (could be an author that we don't know)
-		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
-			q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+
+		$update = (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])));
+
+		// Is it a forum? Then we don't care about the rules from above
+		if (!$update AND ($arr["network"] == NETWORK_DFRN) AND ($arr["parent-uri"] === $arr["uri"])) {
+			$isforum = q("SELECT `forum` FROM `contact` WHERE `id` = %d AND `forum`",
+					intval($arr['contact-id']));
+			if ($isforum)
+				$update = true;
+		}
+
+		if ($update)
+			q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
