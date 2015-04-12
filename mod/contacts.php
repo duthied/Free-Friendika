@@ -3,7 +3,9 @@
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
 require_once('include/contact_selectors.php');
+require_once('include/Scrape.php');
 require_once('mod/proxy.php');
+require_once('include/Photo.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
@@ -205,8 +207,70 @@ function contacts_post(&$a) {
 /*contact actions*/
 function _contact_update($contact_id) {
 	// pull feed and consume it, which should subscribe to the hub.
-	proc_run('php',"include/poller.php","$contact_id"); 
+	proc_run('php',"include/poller.php","$contact_id");
 }
+
+function _contact_update_profile($contact_id) {
+	$r = q("SELECT `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if (!$r)
+		return;
+
+	$data = probe_url($r[0]["url"]);
+
+	// "Feed" is mostly a sign of communication problems
+	if (($data["network"] == NETWORK_FEED) AND ($data["network"] != $r[0]["network"]))
+		return;
+
+	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
+				"poco", "network", "alias", "pubkey");
+	$update = array();
+
+	foreach($updatefields AS $field)
+		if (isset($data[$field]) AND ($data[$field] != ""))
+			$update[$field] = $data[$field];
+
+	$update["nurl"] = normalise_link($data["url"]);
+
+	$query = "";
+
+	if (isset($data["priority"]) AND ($data["priority"] != 0))
+		$query = "`priority` = ".intval($data["priority"]);
+
+	foreach($update AS $key => $value) {
+		if ($query != "")
+			$query .= ", ";
+
+		$query .= "`".$key."` = '".dbesc($value)."'";
+	}
+
+	if ($query == "")
+		return;
+
+	$r = q("UPDATE `contact` SET $query WHERE `id` = %d AND `uid` = %d",
+		intval($contact_id),
+		intval(local_user())
+	);
+
+	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
+
+	$r = q("UPDATE `contact` SET `photo` = '%s',
+			`thumb` = '%s',
+			`micro` = '%s',
+			`name-date` = '%s',
+			`uri-date` = '%s',
+			`avatar-date` = '%s'
+			WHERE `id` = %d",
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($contact_id)
+		);
+
+}
+
 function _contact_block($contact_id, $orig_record) {
 	$blocked = (($orig_record['blocked']) ? 0 : 1);
 	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d",
@@ -281,6 +345,12 @@ function contacts_content(&$a) {
 		if($cmd === 'update') {
 			_contact_update($contact_id);
 			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			// NOTREACHED
+		}
+
+		if($cmd === 'updateprofile') {
+			_contact_update_profile($contact_id);
+			goaway($a->get_baseurl(true) . '/crepair/' . $contact_id);
 			// NOTREACHED
 		}
 
@@ -734,7 +804,7 @@ function contacts_content(&$a) {
 		),
 		'$paginate' => paginate($a),
 
-	)); 
-	
+	));
+
 	return $o;
 }
