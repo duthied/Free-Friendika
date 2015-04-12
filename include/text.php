@@ -920,7 +920,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	if($redirect) {
 		$a = get_app();
 		$redirect_url = $a->get_baseurl() . '/redir/' . $contact['id'];
-		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === 'dfrn')) {
+		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
 			$url = $redirect_url;
 			$sparkle = ' sparkle';

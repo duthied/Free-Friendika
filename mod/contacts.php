@@ -33,7 +33,7 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => $a->data['contact']['name'],
 				'$photo' => $a->data['contact']['photo'],
-			        '$url' => ($a->data['contact']['network'] == 'dfrn') ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
+			        '$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
 			$follow_widget = '';
 	}
@@ -681,7 +681,7 @@ function contacts_content(&$a) {
 				default:
 					break;
 			}
-			if(($rr['network'] === 'dfrn') && ($rr['rel'])) {
+			if(($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
 				$url = "redir/{$rr['id']}";
 				$sparkle = ' class="sparkle" ';
 			}
