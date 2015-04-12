@@ -2680,7 +2680,7 @@
 	 * 		c_url: url of remote contact to auth to
 	 * 		url: string, url to redirect after auth
 	 */
-	function api_dfrn_remoteauth(&$a) {
+	function api_friendica_remoteauth(&$a) {
 		$url = ((x($_GET,'url')) ? $_GET['url'] : '');
 		$c_url = ((x($_GET,'c_url')) ? $_GET['c_url'] : '');
 
@@ -2729,7 +2729,7 @@
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 				. '&type=profile&sec=' . $sec . $dest . $quiet );
 	}
-	api_register_func('api/dfrn/remoteauth', 'api_dfrn_remoteauth', true);
+	api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
 
 
 
