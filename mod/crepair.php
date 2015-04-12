@@ -165,7 +165,7 @@ function crepair_content(&$a) {
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
 		'$update_profile' => update_profile,
-		'$udprofilenow' => t('Update profile now'),
+		'$udprofilenow' => t('Refetch contact data'),
 		'$label_name' => t('Name'),
 		'$label_nick' => t('Account Nickname'),
 		'$label_attag' => t('@Tagname - overrides Name/Nickname'),

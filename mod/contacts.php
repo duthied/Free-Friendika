@@ -211,11 +211,15 @@ function _contact_update($contact_id) {
 }
 
 function _contact_update_profile($contact_id) {
-	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	$r = q("SELECT `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
 	if (!$r)
 		return;
 
 	$data = probe_url($r[0]["url"]);
+
+	// "Feed" is mostly a sign of communication problems
+	if (($data["network"] == NETWORK_FEED) AND ($data["network"] != $r[0]["network"]))
+		return;
 
 	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
 				"poco", "network", "alias", "pubkey");
@@ -224,6 +228,8 @@ function _contact_update_profile($contact_id) {
 	foreach($updatefields AS $field)
 		if (isset($data[$field]) AND ($data[$field] != ""))
 			$update[$field] = $data[$field];
+
+	$update["nurl"] = normalise_link($data["url"]);
 
 	$query = "";
 
@@ -344,7 +350,7 @@ function contacts_content(&$a) {
 
 		if($cmd === 'updateprofile') {
 			_contact_update_profile($contact_id);
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway($a->get_baseurl(true) . '/crepair/' . $contact_id);
 			// NOTREACHED
 		}
 
