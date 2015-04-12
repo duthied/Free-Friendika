@@ -453,6 +453,7 @@ function db_definition() {
 					"uri-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"avatar-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"term-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"last-item" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"priority" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"blocked" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"readonly" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
