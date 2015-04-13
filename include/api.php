@@ -102,6 +102,9 @@
 		$password = $_SERVER['PHP_AUTH_PW'];
 		$encrypted = hash('whirlpool',trim($password));
 
+		// allow "user@server" login (but ignore 'server' part)
+		$at=strstr($user, "@", true);
+		if ( $at ) $user=$at;
 
 		/**
 		 *  next code from mod/auth.php. needs better solution
@@ -109,7 +112,7 @@
 		$record = null;
 
 		$addon_auth = array(
-			'username' => trim($user), 
+			'username' => trim($user),
 			'password' => trim($password),
 			'authenticated' => 0,
 			'user_record' => null
@@ -2666,6 +2669,70 @@
 
 
 
+	/**
+	 * similar as /mod/redir.php
+	 * redirect to 'url' after dfrn auth
+	 *
+	 * why this when there is mod/redir.php already?
+	 * This use api_user() and api_login()
+	 *
+	 * params
+	 * 		c_url: url of remote contact to auth to
+	 * 		url: string, url to redirect after auth
+	 */
+	function api_friendica_remoteauth(&$a) {
+		$url = ((x($_GET,'url')) ? $_GET['url'] : '');
+		$c_url = ((x($_GET,'c_url')) ? $_GET['c_url'] : '');
+
+		if ($url === '' || $c_url === '')
+			die((api_error($a, 'json', "Wrong parameters")));
+
+		$c_url = normalise_link($c_url);
+
+		// traditional DFRN
+
+		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `nurl` = '%s' LIMIT 1",
+			dbesc($c_url),
+			intval(api_user())
+		);
+
+		if ((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			die((api_error($a, 'json', "Unknown contact")));
+
+		$cid = $r[0]['id'];
+
+		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
+
+		if($r[0]['duplex'] && $r[0]['issued-id']) {
+			$orig_id = $r[0]['issued-id'];
+			$dfrn_id = '1:' . $orig_id;
+		}
+		if($r[0]['duplex'] && $r[0]['dfrn-id']) {
+			$orig_id = $r[0]['dfrn-id'];
+			$dfrn_id = '0:' . $orig_id;
+		}
+
+		$sec = random_string();
+
+		q("INSERT INTO `profile_check` ( `uid`, `cid`, `dfrn_id`, `sec`, `expire`)
+			VALUES( %d, %s, '%s', '%s', %d )",
+			intval(api_user()),
+			intval($cid),
+			dbesc($dfrn_id),
+			dbesc($sec),
+			intval(time() + 45)
+		);
+
+		logger($r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
+		$dest = (($url) ? '&destination_url=' . $url : '');
+		goaway ($r[0]['poll'] . '?dfrn_id=' . $dfrn_id
+				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
+				. '&type=profile&sec=' . $sec . $dest . $quiet );
+	}
+	api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
+
+
+
 function api_share_as_retweet(&$item) {
 	$body = trim($item["body"]);
 
@@ -2883,6 +2950,7 @@ function api_best_nickname(&$contacts) {
 	else
 		$contacts = array($contacts[0]);
 }
+
 
 /*
 Not implemented by now:

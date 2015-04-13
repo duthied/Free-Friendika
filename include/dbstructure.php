@@ -120,7 +120,7 @@ function print_structure($database) {
 	}
 }
 
-function update_structure($verbose, $action) {
+function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
 
 	$errors = false;
@@ -130,7 +130,8 @@ function update_structure($verbose, $action) {
 	// Get the current structure
 	$database = array();
 
-	$tables = q("show tables");
+	if (is_null($tables))
+		$tables = q("show tables");
 
 	foreach ($tables AS $table) {
 		$table = current($table);
@@ -139,7 +140,8 @@ function update_structure($verbose, $action) {
 	}
 
 	// Get the definition
-	$definition = db_definition();
+	if (is_null($definition))
+		$definition = db_definition();
 
 	// Compare it
 	foreach ($definition AS $name => $structure) {
