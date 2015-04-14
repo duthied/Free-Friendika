@@ -1567,7 +1567,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				'source_link'  => $item[0]['author-link'],
 				'source_photo' => $item[0]['author-avatar'],
 				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item'
+				'otype'        => 'item',
+				'parent'       => $arr['parent']
 			));
 			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 		}
@@ -4021,7 +4022,7 @@ function local_delivery($importer,$data) {
 							'verb'         => $datarray['verb'],
 							'otype'        => 'person',
 							'activity'     => $verb,
-
+							'parent'       => $datarray['parent']
 						));
 					}
 				}

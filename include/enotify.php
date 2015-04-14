@@ -63,6 +63,11 @@ function notification($params) {
 	// e.g. "your post", "David's photo", etc.
 	$possess_desc = t('%s <!item_type!>');
 
+	if (isset($params['parent']))
+		$parent_id = $params['parent'];
+	else
+		$parent_id = 0;
+
 	if($params['type'] == NOTIFY_MAIL) {
 
 		$subject = 	sprintf( t('[Friendica:Notify] New mail received at %s'),$sitename);
@@ -78,7 +83,7 @@ function notification($params) {
 	if($params['type'] == NOTIFY_COMMENT) {
 //		logger("notification: params = " . print_r($params, true), LOGGER_DEBUG);
 
-		$parent_id = $params['parent'];
+		//$parent_id = $params['parent'];
 
 		$p = q("SELECT `ignored` FROM `thread` WHERE `iid` = %d AND `uid` = %d LIMIT 1",
 			intval($parent_id),

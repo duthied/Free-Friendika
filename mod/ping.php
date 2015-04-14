@@ -22,23 +22,23 @@ function ping_init(&$a) {
 
 		$firehose = intval(get_pconfig(local_user(),'system','notify_full'));
 
-		$t = q("select count(*) as total from notify where uid = %d and seen = 0",
+		$t = q("select count(*) as `total` from `notify` where `uid` = %d and `seen` = 0 AND `msg` != ''",
 			intval(local_user())
 		);
 		if($t && intval($t[0]['total']) > 49) {
-			$z = q("select * from notify where uid = %d
+			$z = q("select * from notify where uid = %d AND `msg` != ''
 				and seen = 0 order by date desc limit 0, 50",
 				intval(local_user())
 			);
 			$sysnotify = $t[0]['total'];
 		}
 		else {
-			$z1 = q("select * from notify where uid = %d
+			$z1 = q("select * from notify where uid = %d AND `msg` != ''
 				and seen = 0 order by date desc limit 0, 50",
 				intval(local_user())
 			);
 
-			$z2 = q("select * from notify where uid = %d
+			$z2 = q("select * from notify where uid = %d AND `msg` != ''
 				and seen = 1 order by date desc limit 0, %d",
 				intval(local_user()),
 				intval(50 - intval($t[0]['total']))
