@@ -159,7 +159,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
-			}
+				}
 
 			// Compare the field structure field by field
 			foreach ($structure["fields"] AS $fieldname => $parameters) {
