@@ -925,6 +925,7 @@ function db_definition() {
 					"msg" => array("type" => "mediumtext", "not null" => "1"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"link" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"iid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"parent" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"seen" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
