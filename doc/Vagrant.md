@@ -3,7 +3,8 @@ Vagrant for Friendica Developers
 
 * [Home](help)
 
-**Getting started**
+Getting started
+---------------
 
 [Vagrant](https://www.vagrantup.com/) is a virtualization solution for developers.
 No need to setup up a webserver, database etc. before actually starting.
@@ -29,7 +30,8 @@ If you want to stop vagrant after finishing your work, run the following command
 
 in the development directory.
 
-**Import test data**
+Import test data
+----------------
 
 If you want some test data in your vagrant Friendica instance import the database dump friendica_test_data.sql like so (inside the VM):
 
