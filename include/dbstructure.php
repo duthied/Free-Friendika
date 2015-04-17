@@ -151,9 +151,9 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
                         if(false === $r)
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 		} else {
-			// Drop the index if it isn't present in the definition
+			// Drop the index if it isn't present in the definition and index name doesn't start with "local_"
 			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames)
-				if (!isset($structure["indexes"][$indexname])) {
+				if (!isset($structure["indexes"][$indexname]) && substring($indexname, 0, 5) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "")
 						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
