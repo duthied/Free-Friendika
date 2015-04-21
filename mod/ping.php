@@ -22,6 +22,10 @@ function ping_init(&$a) {
 
 		$firehose = intval(get_pconfig(local_user(),'system','notify_full'));
 
+/*
+select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THEN 1 ELSE item.visible END as vis, CASE notify.iid WHEN 0 THEN 0 ELSE item.deleted END as del from notify left join item on item.id = notify.iid where notify.uid=1 group by notify.parent order by notify.id desc limit 10;
+*/
+
 		$t = q("select count(*) as `total` from `notify` where `uid` = %d and `seen` = 0 AND `msg` != '' GROUP BY `parent`",
 			intval(local_user())
 		);

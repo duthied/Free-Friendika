@@ -3660,6 +3660,9 @@ function local_delivery($importer,$data) {
 				$parent = 0;
 
 				if($posted_id) {
+
+					$datarray["id"] = $posted_id;
+
 					$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($posted_id),
 						intval($importer['importer_uid'])
