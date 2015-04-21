@@ -12,6 +12,7 @@
 # Lionel Triay <zapimax38@free.fr>, 2013
 # Marquis_de_Carabas <olivier@free-beer.ch>, 2012
 # Olivier <olivier+transifex@migeot.org>, 2011-2012
+# StefOfficiel <pichard.stephane@free.fr>, 2015
 # Sylvain Lagacé, 2014-2015
 # tomamplius <thomas@lgy.fr>, 2014
 # Tubuntu <tubuntu@testimonium.be>, 2013-2015
@@ -20,8 +21,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-04-04 17:54+0200\n"
-"PO-Revision-Date: 2015-04-06 10:23+0000\n"
-"Last-Translator: Tubuntu <tubuntu@testimonium.be>\n"
+"PO-Revision-Date: 2015-04-14 10:22+0000\n"
+"Last-Translator: StefOfficiel <pichard.stephane@free.fr>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -417,7 +418,7 @@ msgstr "activ. mobile"
 #: ../../addon-wrk/openidserver/lib/render/trust.php:30
 #, php-format
 msgid "Do you wish to confirm your identity (<tt>%s</tt>) with <tt>%s</tt>"
-msgstr "Voulez-vous confirmer votre identité (<tt>%s</tt>) avec <tt>%s</tt>"
+msgstr "Voulez-vous confirmer votre identité (<tt>%s</tt>) avec <tt>%s</tt>e"
 
 #: ../../addon-wrk/openidserver/lib/render/trust.php:43
 #: ../../mod/dfrn_request.php:676
@@ -635,7 +636,7 @@ msgstr "Rappels d'événements"
 
 #: ../../boot.php:1889
 msgid "Events this week:"
-msgstr "Evénements cette semaine:"
+msgstr "Evénements cette semaine :"
 
 #: ../../boot.php:2126 ../../include/nav.php:76
 msgid "Status"
@@ -1198,7 +1199,7 @@ msgstr "Merci de visiter %s pour approuver ou rejeter l'introduction."
 
 #: ../../include/enotify.php:247
 msgid "[Friendica:Notify] A new person is sharing with you"
-msgstr ""
+msgstr "[Notification Friendica] Une nouvelle personne partage avec vous"
 
 #: ../../include/enotify.php:248 ../../include/enotify.php:249
 #, php-format
@@ -3084,7 +3085,7 @@ msgstr "ajouter une étiquette"
 #: ../../object/Item.php:231 ../../mod/photos.php:1542
 #: ../../mod/content.php:684
 msgid "I like this (toggle)"
-msgstr "J'aime (bascule)"
+msgstr "J'aime"
 
 #: ../../object/Item.php:231 ../../mod/content.php:684
 msgid "like"
@@ -3093,7 +3094,7 @@ msgstr "aime"
 #: ../../object/Item.php:232 ../../mod/photos.php:1543
 #: ../../mod/content.php:685
 msgid "I don't like this (toggle)"
-msgstr "Je n'aime pas (bascule)"
+msgstr "Je n'aime pas"
 
 #: ../../object/Item.php:232 ../../mod/content.php:685
 msgid "dislike"
@@ -6369,7 +6370,7 @@ msgstr "Envoyer des invitations"
 
 #: ../../mod/invite.php:133
 msgid "Enter email addresses, one per line:"
-msgstr "Entrez les adresses email, une par ligne:"
+msgstr "Entrez les adresses email, une par ligne :"
 
 #: ../../mod/invite.php:135
 msgid ""
@@ -6379,12 +6380,12 @@ msgstr "Vous êtes cordialement invité à me rejoindre sur Friendica, et nous a
 
 #: ../../mod/invite.php:137
 msgid "You will need to supply this invitation code: $invite_code"
-msgstr "Vous devrez fournir ce code d'invitation: $invite_code"
+msgstr "Vous devrez fournir ce code d'invitation : $invite_code"
 
 #: ../../mod/invite.php:137
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
-msgstr "Une fois inscrit, connectez-vous à la page de mon profil sur:"
+msgstr "Une fois inscrit, connectez-vous à la page de mon profil sur :"
 
 #: ../../mod/invite.php:139
 msgid ""
@@ -6502,7 +6503,7 @@ msgstr "Votre mot de passe a été modifié à %s"
 
 #: ../../mod/lostpass.php:159
 msgid "Forgot your Password?"
-msgstr "Mot de passe oublié?"
+msgstr "Mot de passe oublié ?"
 
 #: ../../mod/lostpass.php:160
 msgid ""
@@ -6512,7 +6513,7 @@ msgstr "Entrez votre adresse de courriel et validez pour réinitialiser votre mo
 
 #: ../../mod/lostpass.php:161
 msgid "Nickname or Email: "
-msgstr "Pseudo ou Courriel: "
+msgstr "Pseudo ou eMail : "
 
 #: ../../mod/lostpass.php:162
 msgid "Reset"
@@ -6528,7 +6529,7 @@ msgstr "Texte source (Diaspora) à convertir en BBcode :"
 
 #: ../../mod/babel.php:31
 msgid "Source input: "
-msgstr "Source input: "
+msgstr "Source input : "
 
 #: ../../mod/babel.php:35
 msgid "bb2html (raw HTML): "
@@ -6536,27 +6537,27 @@ msgstr "bb2html (HTML brut)"
 
 #: ../../mod/babel.php:39
 msgid "bb2html: "
-msgstr "bb2html: "
+msgstr "bb2html : "
 
 #: ../../mod/babel.php:43
 msgid "bb2html2bb: "
-msgstr "bb2html2bb: "
+msgstr "bb2html2bb : "
 
 #: ../../mod/babel.php:47
 msgid "bb2md: "
-msgstr "bb2md: "
+msgstr "bb2md : "
 
 #: ../../mod/babel.php:51
 msgid "bb2md2html: "
-msgstr "bb2md2html: "
+msgstr "bb2md2html : "
 
 #: ../../mod/babel.php:55
 msgid "bb2dia2bb: "
-msgstr "bb2dia2bb: "
+msgstr "bb2dia2bb : "
 
 #: ../../mod/babel.php:59
 msgid "bb2md2html2bb: "
-msgstr "bb2md2html2bb: "
+msgstr "bb2md2html2bb : "
 
 #: ../../mod/babel.php:69
 msgid "Source input (Diaspora format): "
@@ -6590,7 +6591,7 @@ msgstr "Ceci supprimera totalement votre compte. Cette opération est irréversi
 
 #: ../../mod/removeme.php:48
 msgid "Please enter your password for verification:"
-msgstr "Merci de saisir votre mot de passe pour vérification:"
+msgstr "Merci de saisir votre mot de passe pour vérification :"
 
 #: ../../mod/profperm.php:25 ../../mod/profperm.php:55
 msgid "Invalid profile identifier."
@@ -6618,7 +6619,7 @@ msgstr "Aucun mot-clé en correspondance. Merci d'ajouter des mots-clés à votr
 
 #: ../../mod/match.php:57
 msgid "is interested in:"
-msgstr "s'intéresse à:"
+msgstr "s'intéresse à :"
 
 #: ../../mod/events.php:66
 msgid "Event title and start time are required."
@@ -6659,7 +6660,7 @@ msgstr "Le format est %s %s. La date de début et le nom sont nécessaires."
 
 #: ../../mod/events.php:459
 msgid "Event Starts:"
-msgstr "Début de l'événement:"
+msgstr "Début de l'événement :"
 
 #: ../../mod/events.php:459 ../../mod/events.php:473
 msgid "Required"
@@ -6667,7 +6668,7 @@ msgstr "Requis"
 
 #: ../../mod/events.php:462
 msgid "Finish date/time is not known or not relevant"
-msgstr "Date/heure de fin inconnue ou sans objet"
+msgstr "Date / heure de fin inconnue ou sans objet"
 
 #: ../../mod/events.php:464
 msgid "Event Finishes:"
@@ -6851,7 +6852,7 @@ msgstr "Statut marital"
 
 #: ../../mod/profiles.php:344
 msgid "Romantic Partner"
-msgstr "Partenaire/conjoint"
+msgstr "Partenaire / conjoint"
 
 #: ../../mod/profiles.php:348
 msgid "Likes"
@@ -6863,7 +6864,7 @@ msgstr "Derniers \"Je n'aime pas\""
 
 #: ../../mod/profiles.php:356
 msgid "Work/Employment"
-msgstr "Travail/Occupation"
+msgstr "Travail / Occupation"
 
 #: ../../mod/profiles.php:359
 msgid "Religion"
@@ -6926,11 +6927,11 @@ msgstr "%1$s a mis à jour son %2$s, en modifiant %3$s."
 
 #: ../../mod/profiles.php:658
 msgid "Hide contacts and friends:"
-msgstr "Cacher mes contacts et amis:"
+msgstr "Cacher mes contacts et amis :"
 
 #: ../../mod/profiles.php:663
 msgid "Hide your contact/friend list from viewers of this profile?"
-msgstr "Cacher ma liste d'amis/contacts des visiteurs de ce profil?"
+msgstr "Cacher ma liste d'amis / contacts des visiteurs de ce profil ?"
 
 #: ../../mod/profiles.php:685
 msgid "Edit Profile Details"
@@ -6983,52 +6984,52 @@ msgstr "Téléverser une photo de profil"
 
 #: ../../mod/profiles.php:700
 msgid "Profile Name:"
-msgstr "Nom du profil:"
+msgstr "Nom du profil :"
 
 #: ../../mod/profiles.php:701
 msgid "Your Full Name:"
-msgstr "Votre nom complet:"
+msgstr "Votre nom complet :"
 
 #: ../../mod/profiles.php:702
 msgid "Title/Description:"
-msgstr "Titre/Description:"
+msgstr "Titre / Description :"
 
 #: ../../mod/profiles.php:703
 msgid "Your Gender:"
-msgstr "Votre genre:"
+msgstr "Votre genre :"
 
 #: ../../mod/profiles.php:704
 #, php-format
 msgid "Birthday (%s):"
-msgstr "Anniversaire (%s):"
+msgstr "Anniversaire (%s) :"
 
 #: ../../mod/profiles.php:705
 msgid "Street Address:"
-msgstr "Adresse postale:"
+msgstr "Adresse postale :"
 
 #: ../../mod/profiles.php:706
 msgid "Locality/City:"
-msgstr "Ville/Localité:"
+msgstr "Ville / Localité :"
 
 #: ../../mod/profiles.php:707
 msgid "Postal/Zip Code:"
-msgstr "Code postal:"
+msgstr "Code postal :"
 
 #: ../../mod/profiles.php:708
 msgid "Country:"
-msgstr "Pays:"
+msgstr "Pays :"
 
 #: ../../mod/profiles.php:709
 msgid "Region/State:"
-msgstr "Région/État:"
+msgstr "Région / État :"
 
 #: ../../mod/profiles.php:710
 msgid "<span class=\"heart\">&hearts;</span> Marital Status:"
-msgstr "<span class=\"heart\">&hearts;</span> Statut marital:"
+msgstr "<span class=\"heart\">&hearts;</span> Statut marital :"
 
 #: ../../mod/profiles.php:711
 msgid "Who: (if applicable)"
-msgstr "Qui: (si pertinent)"
+msgstr "Qui : (si pertinent)"
 
 #: ../../mod/profiles.php:712
 msgid "Examples: cathy123, Cathy Williams, cathy@example.com"
@@ -7036,27 +7037,27 @@ msgstr "Exemples: cathy123, Cathy Williams, cathy@example.com"
 
 #: ../../mod/profiles.php:713
 msgid "Since [date]:"
-msgstr "Depuis [date] :"
+msgstr "Depuis [date]  :"
 
 #: ../../mod/profiles.php:715
 msgid "Homepage URL:"
-msgstr "Page personnelle:"
+msgstr "Page personnelle :"
 
 #: ../../mod/profiles.php:718
 msgid "Religious Views:"
-msgstr "Opinions religieuses:"
+msgstr "Opinions religieuses :"
 
 #: ../../mod/profiles.php:719
 msgid "Public Keywords:"
-msgstr "Mots-clés publics:"
+msgstr "Mots-clés publics :"
 
 #: ../../mod/profiles.php:720
 msgid "Private Keywords:"
-msgstr "Mots-clés privés:"
+msgstr "Mots-clés privés :"
 
 #: ../../mod/profiles.php:723
 msgid "Example: fishing photography software"
-msgstr "Exemple: football dessin programmation"
+msgstr "Exemple : football dessin programmation"
 
 #: ../../mod/profiles.php:724
 msgid "(Used for suggesting potential friends, can be seen by others)"
@@ -7072,11 +7073,11 @@ msgstr "Parlez-nous de vous..."
 
 #: ../../mod/profiles.php:727
 msgid "Hobbies/Interests"
-msgstr "Passe-temps/Centres d'intérêt"
+msgstr "Passe-temps / Centres d'intérêt"
 
 #: ../../mod/profiles.php:728
 msgid "Contact information and Social Networks"
-msgstr "Coordonnées/Réseaux sociaux"
+msgstr "Coordonnées / Réseaux sociaux"
 
 #: ../../mod/profiles.php:729
 msgid "Musical interests"
@@ -7092,19 +7093,19 @@ msgstr "Télévision"
 
 #: ../../mod/profiles.php:732
 msgid "Film/dance/culture/entertainment"
-msgstr "Cinéma/Danse/Culture/Divertissement"
+msgstr "Cinéma / Danse / Culture / Divertissement"
 
 #: ../../mod/profiles.php:733
 msgid "Love/romance"
-msgstr "Amour/Romance"
+msgstr "Amour / Romance"
 
 #: ../../mod/profiles.php:734
 msgid "Work/employment"
-msgstr "Activité professionnelle/Occupation"
+msgstr "Activité professionnelle / Occupation"
 
 #: ../../mod/profiles.php:735
 msgid "School/education"
-msgstr "Études/Formation"
+msgstr "Études / Formation"
 
 #: ../../mod/profiles.php:740
 msgid ""
@@ -7114,11 +7115,11 @@ msgstr "Ceci est votre profil <strong>public</strong>.<br />Il <strong>peut</str
 
 #: ../../mod/profiles.php:750 ../../mod/directory.php:113
 msgid "Age: "
-msgstr "Age: "
+msgstr "Age : "
 
 #: ../../mod/profiles.php:803
 msgid "Edit/Manage Profiles"
-msgstr "Editer/gérer les profils"
+msgstr "Editer / gérer les profils"
 
 #: ../../mod/install.php:117
 msgid "Friendica Communications Server - Setup"
@@ -7305,28 +7306,28 @@ msgstr "Module mod_rewrite Apache"
 #: ../../mod/install.php:397
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
-msgstr "Erreur: Le module \"rewrite\" du serveur web Apache est requis mais pas installé."
+msgstr "Erreur : Le module \"rewrite\" du serveur web Apache est requis mais pas installé."
 
 #: ../../mod/install.php:405
 msgid "Error: libCURL PHP module required but not installed."
-msgstr "Erreur: Le module PHP \"libCURL\" est requis mais pas installé."
+msgstr "Erreur : Le module PHP \"libCURL\" est requis mais pas installé."
 
 #: ../../mod/install.php:409
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
-msgstr "Erreur: Le module PHP \"GD\" disposant du support JPEG est requis mais pas installé."
+msgstr "Erreur : Le module PHP \"GD\" disposant du support JPEG est requis mais pas installé."
 
 #: ../../mod/install.php:413
 msgid "Error: openssl PHP module required but not installed."
-msgstr "Erreur: Le module PHP \"openssl\" est requis mais pas installé."
+msgstr "Erreur : Le module PHP \"openssl\" est requis mais pas installé."
 
 #: ../../mod/install.php:417
 msgid "Error: mysqli PHP module required but not installed."
-msgstr "Erreur: Le module PHP \"mysqli\" est requis mais pas installé."
+msgstr "Erreur : Le module PHP \"mysqli\" est requis mais pas installé."
 
 #: ../../mod/install.php:421
 msgid "Error: mb_string PHP module required but not installed."
-msgstr "Erreur: le module PHP mb_string est requis mais pas installé."
+msgstr "Erreur : le module PHP mb_string est requis mais pas installé."
 
 #: ../../mod/install.php:438
 msgid ""
@@ -7409,11 +7410,11 @@ msgstr "<h1>Ensuite</h1>"
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "poller."
-msgstr "IMPORTANT: Vous devez configurer [manuellement] une tâche programmée pour le 'poller'."
+msgstr "IMPORTANT: Vous devez configurer [manuellement] une tâche programmée pour le \"poller\"."
 
 #: ../../mod/help.php:31
 msgid "Help:"
-msgstr "Aide:"
+msgstr "Aide :"
 
 #: ../../mod/crepair.php:106
 msgid "Contact settings applied."
@@ -7655,7 +7656,7 @@ msgstr "Une fois que vous avez trouvé quelques amis, organisez-les en groupes d
 
 #: ../../mod/newmember.php:73
 msgid "Why Aren't My Posts Public?"
-msgstr "Pourquoi mes éléments ne sont pas publics?"
+msgstr "Pourquoi mes éléments ne sont pas publics ?"
 
 #: ../../mod/newmember.php:73
 msgid ""
@@ -7724,7 +7725,7 @@ msgstr "Réponse du site distant incomprise."
 
 #: ../../mod/dfrn_confirm.php:249 ../../mod/dfrn_confirm.php:254
 msgid "Unexpected response from remote site: "
-msgstr "Réponse inattendue du site distant: "
+msgstr "Réponse inattendue du site distant : "
 
 #: ../../mod/dfrn_confirm.php:263
 msgid "Confirmation completed successfully."
@@ -7733,7 +7734,7 @@ msgstr "Confirmation achevée avec succès."
 #: ../../mod/dfrn_confirm.php:265 ../../mod/dfrn_confirm.php:279
 #: ../../mod/dfrn_confirm.php:286
 msgid "Remote site reported: "
-msgstr "Alerte du site distant: "
+msgstr "Alerte du site distant : "
 
 #: ../../mod/dfrn_confirm.php:277
 msgid "Temporary failure. Please wait and try again."
@@ -7898,7 +7899,7 @@ msgstr "Annuaire local"
 
 #: ../../mod/directory.php:116
 msgid "Gender: "
-msgstr "Genre: "
+msgstr "Genre : "
 
 #: ../../mod/directory.php:189
 msgid "No entries (some entries may be hidden)."

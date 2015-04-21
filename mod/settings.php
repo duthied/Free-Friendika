@@ -474,7 +474,7 @@ function settings_post(&$a) {
 	$str_contact_deny  = perms2str($_POST['contact_deny']);
 
 	$openidserver = $a->user['openidserver'];
-	$openid = normalise_openid($openid);
+	//$openid = normalise_openid($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 
@@ -1002,7 +1002,7 @@ function settings_content(&$a) {
 		$openid_field = false;
 	}
 	else {
-		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."));
+		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url");
 	}
 
 

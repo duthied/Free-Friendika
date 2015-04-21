@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-04-04 17:54+0200\n"
-"PO-Revision-Date: 2015-04-06 17:32+0000\n"
+"PO-Revision-Date: 2015-04-13 17:40+0000\n"
 "Last-Translator: Michal Šupler <msupler@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/projects/p/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -407,7 +407,7 @@ msgstr "přepnout mobil"
 #: ../../addon-wrk/openidserver/lib/render/trust.php:30
 #, php-format
 msgid "Do you wish to confirm your identity (<tt>%s</tt>) with <tt>%s</tt>"
-msgstr ""
+msgstr "Přejete si potvrdit vaši identitu (<tt>%s</tt>) s <tt>%s</tt>"
 
 #: ../../addon-wrk/openidserver/lib/render/trust.php:43
 #: ../../mod/dfrn_request.php:676
@@ -428,7 +428,7 @@ msgstr "Nezaslán žádný identifikátor"
 
 #: ../../addon-wrk/openidserver/lib/render/wronguser.php:5
 msgid "Requested identity don't match logged in user."
-msgstr ""
+msgstr "Požadovaná identita neodpovídá přihlášenému uživateli"
 
 #: ../../addon-wrk/openidserver/lib/render.php:27
 #, php-format
@@ -3393,14 +3393,14 @@ msgid ""
 "Shall your connection be bidirectional or not? \"Friend\" implies that you "
 "allow to read and you subscribe to their posts. \"Fan/Admirer\" means that "
 "you allow to read but you do not want to read theirs. Approve as: "
-msgstr ""
+msgstr "Má být vaše propojení oboustanné nebo ne? \"Přítel\" implikuje, že dovolíte čtení a přihlašování se k jejich příspěvkům. \"Fanoušek/Obdivovatel\" znamená, že umožníte čtení, ale už nebudete číst jejich příspěvky: Odsouhlasit jako: "
 
 #: ../../mod/notifications.php:185
 msgid ""
 "Shall your connection be bidirectional or not? \"Friend\" implies that you "
 "allow to read and you subscribe to their posts. \"Sharer\" means that you "
 "allow to read but you do not want to read theirs. Approve as: "
-msgstr ""
+msgstr "Má být vaše propojení oboustanné nebo ne? \"Přítel\" implikuje, že dovolíte čtení a vy budete přihlášen k odebírání jejich příspěvků. \"Sdíleč\" znamená, že umožníte čtení, ale už nebudete číst jejich příspěvky: Odsouhlasit jako: "
 
 #: ../../mod/notifications.php:193
 msgid "Friend"
