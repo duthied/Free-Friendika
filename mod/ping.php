@@ -29,6 +29,11 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 		$t = q("select count(*) as `total` from `notify` where `uid` = %d and `seen` = 0 AND `msg` != '' GROUP BY `parent`",
 			intval(local_user())
 		);
+
+		$z = ping_get_notifications(local_user());
+		$sysnotify = 0; // we will update this in a moment
+
+/*
 		if($t && intval($t[0]['total']) > 49) {
 			$z = q("select * from notify where uid = %d AND `msg` != ''
 				and seen = 0 GROUP BY `parent` order by date desc limit 0, 50",
@@ -50,7 +55,7 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 			$z = array_merge($z1,$z2);
 			$sysnotify = 0; // we will update this in a moment
 		}
-
+*/
 
 
 		$tags = array();
@@ -309,11 +314,56 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 		}
 		unset($_SESSION['sysmsg_info']);
 	}
-	
+
 	echo " </sysmsgs>";
 	echo"</result>
 	";
 
 	killme();
+}
+
+function ping_get_notifications($uid) {
+
+	$result = array();
+	$offset = 0;
+	$seen = false;
+	$seensql = "NOT";
+	$quit = false;
+
+	do {
+		$r = q("SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
+			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
+			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
+			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` DESC LIMIT %d, 50",
+			intval($uid), intval($offset)
+		);
+
+		if (!$r AND !$seen) {
+			$seen = true;
+			$seensql = "";
+			$offset = 0;
+		} elseif (!$r)
+			$quit = true;
+		else
+			$offset += 50;
+
+		foreach ($r AS $notification) {
+			if (is_null($notification["visible"]))
+				$notification["visible"] = true;
+
+			if (is_null($notification["spam"]))
+				$notification["spam"] = 0;
+
+			if (is_null($notification["deleted"]))
+				$notification["deleted"] = 0;
+
+			if ($notification["visible"] AND !$notification["spam"] AND
+				!$notification["deleted"] AND !is_array($result[$notification["parent"]]))
+				$result[$notification["parent"]] = $notification;
+		}
+
+	} while ((count($result) < 50) AND !$quit);
+
+	return($result);
 }
 
