@@ -311,6 +311,7 @@ function ping_get_notifications($uid) {
 	$offset = 0;
 	$seen = false;
 	$seensql = "NOT";
+	$order = "";
 	$quit = false;
 
 	do {
@@ -318,7 +319,7 @@ function ping_get_notifications($uid) {
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (%d, %d))
-			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` DESC LIMIT %d, 50",
+			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",
 			intval($uid),
 			intval(NOTIFY_INTRO),
 			intval(NOTIFY_MAIL),
@@ -328,6 +329,7 @@ function ping_get_notifications($uid) {
 		if (!$r AND !$seen) {
 			$seen = true;
 			$seensql = "";
+			$order = "DESC";
 			$offset = 0;
 		} elseif (!$r)
 			$quit = true;
