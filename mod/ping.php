@@ -22,41 +22,8 @@ function ping_init(&$a) {
 
 		$firehose = intval(get_pconfig(local_user(),'system','notify_full'));
 
-/*
-select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THEN 1 ELSE item.visible END as vis, CASE notify.iid WHEN 0 THEN 0 ELSE item.deleted END as del from notify left join item on item.id = notify.iid where notify.uid=1 group by notify.parent order by notify.id desc limit 10;
-*/
-
-		$t = q("select count(*) as `total` from `notify` where `uid` = %d and `seen` = 0 AND `msg` != '' GROUP BY `parent`",
-			intval(local_user())
-		);
-
 		$z = ping_get_notifications(local_user());
 		$sysnotify = 0; // we will update this in a moment
-
-/*
-		if($t && intval($t[0]['total']) > 49) {
-			$z = q("select * from notify where uid = %d AND `msg` != ''
-				and seen = 0 GROUP BY `parent` order by date desc limit 0, 50",
-				intval(local_user())
-			);
-			$sysnotify = $t[0]['total'];
-		}
-		else {
-			$z1 = q("select * from notify where uid = %d AND `msg` != ''
-				and seen = 0 GROUP BY `parent` order by date desc limit 0, 50",
-				intval(local_user())
-			);
-
-			$z2 = q("select * from notify where uid = %d AND `msg` != ''
-				and seen = 1 GROUP BY `parent` order by date desc limit 0, %d",
-				intval(local_user()),
-				intval(50 - intval($t[0]['total']))
-			);
-			$z = array_merge($z1,$z2);
-			$sysnotify = 0; // we will update this in a moment
-		}
-*/
-
 
 		$tags = array();
 		$comments = array();
@@ -137,13 +104,12 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 
 
 		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
-		$mails = q("SELECT *,  COUNT(*) AS `total` FROM `mail`
+		$mails = q("SELECT * FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
 			dbesc($myurl)
 		);
-		if($mails)
-			$mail = $mails[0]['total'];
+		$mail = count($mails);
 
 		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()){
 			$regs = q("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) as `total` FROM `contact` RIGHT JOIN `register` ON `register`.`uid`=`contact`.`uid` WHERE `contact`.`self`=1");
@@ -235,7 +201,24 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 				}
 			}
 
-			echo '	<notif count="'. $sysnotify .'">';
+			echo '	<notif count="'. ($sysnotify + $intro + $mail + $register) .'">';
+
+			if ($intro>0){
+				foreach ($intros as $i) {
+					echo xmlize( $a->get_baseurl().'/notifications/intros/'.$i['id'], $i['name'], $i['url'], $i['photo'], relative_date($i['datetime']), 'notify-unseen',t("{0} wants to be your friend") );
+				};
+			}
+			if ($mail>0){
+				foreach ($mails as $i) {
+					echo xmlize( $a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen',t("{0} sent you a message") );
+				};
+			}
+			if ($register>0){
+				foreach ($regs as $i) {
+					echo xmlize( $a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen',t("{0} requested registration") );
+				};
+			}
+
 			if(count($z)) {
 				foreach($z as $zz) {
 					echo xmlize($a->get_baseurl() . '/notify/view/' . $zz['id'], $zz['name'],$zz['url'],$zz['photo'],relative_date($zz['date']), ($zz['seen'] ? 'notify-seen' : 'notify-unseen'), ($zz['seen'] ? '' : '&rarr; ') .strip_tags(bbcode($zz['msg'])));
@@ -250,12 +233,12 @@ select notify.id, notify.type, iid, visible, deleted, CASE notify.iid WHEN 0 THE
 				};
 			}
 			if ($mail>0){
-				foreach ($mails as $i) { 
+				foreach ($mails as $i) {
 					echo xmlize( $a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen',t("{0} sent you a message") );
 				};
 			}
 			if ($register>0){
-				foreach ($regs as $i) { 
+				foreach ($regs as $i) {
 					echo xmlize( $a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen',t("{0} requested registration") );
 				};
 			}
@@ -334,8 +317,12 @@ function ping_get_notifications($uid) {
 		$r = q("SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
+			AND NOT (`notify`.`type` IN (%d, %d))
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` DESC LIMIT %d, 50",
-			intval($uid), intval($offset)
+			intval($uid),
+			intval(NOTIFY_INTRO),
+			intval(NOTIFY_MAIL),
+			intval($offset)
 		);
 
 		if (!$r AND !$seen) {
@@ -357,6 +344,12 @@ function ping_get_notifications($uid) {
 			if (is_null($notification["deleted"]))
 				$notification["deleted"] = 0;
 
+			// Replace the name with {0} but ensure to make that only once
+			// The {0} is used later and prints the name in bold.
+			$pos = strpos($notification["msg"],$notification['name']);
+			if ($pos !== false)
+				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification['name']));
+
 			if ($notification["visible"] AND !$notification["spam"] AND
 				!$notification["deleted"] AND !is_array($result[$notification["parent"]]))
 				$result[$notification["parent"]] = $notification;
@@ -366,4 +359,3 @@ function ping_get_notifications($uid) {
 
 	return($result);
 }
-
