@@ -1473,6 +1473,8 @@ function diaspora_comment($importer,$xml,$msg) {
 	DiasporaFetchGuid($datarray);
 	$message_id = item_store($datarray);
 
+	$datarray['id'] = $message_id;
+
 	//if($message_id) {
 		//q("update item set plink = '%s' where id = %d",
 		//	//dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
