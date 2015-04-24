@@ -779,6 +779,10 @@ function diaspora_post_allow($importer,$contact) {
 	return false;
 }
 
+function diaspora_is_redmatrix($url) {
+	return(strstr($url, "/channel/"));
+}
+
 function diaspora_plink($addr, $guid) {
 	$r = q("SELECT `url`, `nick` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
 
@@ -786,7 +790,7 @@ function diaspora_plink($addr, $guid) {
 	if (!$r)
 		return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
 
-	if (strstr($r[0]["url"], "/channel/"))
+	if (diaspora_is_redmatrix($r[0]["url"]))
 		return $r[0]["url"]."/?f=&mid=".$guid;
 
 	return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
@@ -841,7 +845,8 @@ function diaspora_post($importer,$xml,$msg) {
 	$body = diaspora2bb($xml->raw_message);
 
 	// Add OEmbed and other information to the body
-	$body = add_page_info_to_body($body, false, true);
+	if (!diaspora_is_redmatrix($contact['url']))
+		$body = add_page_info_to_body($body, false, true);
 
 	$datarray = array();
 
