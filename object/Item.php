@@ -82,6 +82,7 @@ class Item extends BaseObject {
 	 */
 	public function get_template_data($alike, $dlike, $thread_level=1) {
 		require_once("mod/proxy.php");
+		require_once("include/diaspora.php");
 
 		$result = array();
 
@@ -300,7 +301,7 @@ class Item extends BaseObject {
 
 		// Diaspora isn't able to do likes on comments - but red does
 		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
-			!strstr($item["owner-link"], "/channel/") AND isset($buttons["like"]))
+			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Facebook can like comments - but it isn't programmed in the connector yet.
