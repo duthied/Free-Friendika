@@ -13,7 +13,7 @@ function ping_init(&$a) {
 
 	if(local_user()){
 
-		// Different login session than the page that is calling us. 
+		// Different login session than the page that is calling us.
 
 		if(intval($_GET['uid']) && intval($_GET['uid']) != local_user()) {
 			echo '<invalid>1</invalid></result>';
@@ -22,7 +22,10 @@ function ping_init(&$a) {
 
 		$firehose = intval(get_pconfig(local_user(),'system','notify_full'));
 
-		$z = ping_get_notifications(local_user());
+		// Are the nofications calles from the regular process or via the friendica app?
+		$regularnotifications = (intval($_GET['uid']) AND intval($_GET['_']));
+
+		$z = ping_get_notifications(local_user(), $regularnotifications);
 		$sysnotify = 0; // we will update this in a moment
 
 		$tags = array();
@@ -305,7 +308,7 @@ function ping_init(&$a) {
 	killme();
 }
 
-function ping_get_notifications($uid) {
+function ping_get_notifications($uid, $regularnotifications) {
 
 	$result = array();
 	$offset = 0;
@@ -348,9 +351,12 @@ function ping_get_notifications($uid) {
 
 			// Replace the name with {0} but ensure to make that only once
 			// The {0} is used later and prints the name in bold.
+			// But don't do it for the android app.
 			$pos = strpos($notification["msg"],$notification['name']);
-			if ($pos !== false)
-				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification['name']));
+			if (($pos !== false) AND $regularnotifications)
+				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification["name"]));
+			else
+				$notification["msg"] = str_replace("{0}", $notification["name"], $notification["msg"]);
 
 			if ($notification["visible"] AND !$notification["spam"] AND
 				!$notification["deleted"] AND !is_array($result[$notification["parent"]]))
