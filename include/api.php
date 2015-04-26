@@ -1369,6 +1369,10 @@
 
 		logger('API: api_conversation_show: '.$id);
 
+		$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($id));
+		if ($r)
+			$id = $r[0]["parent"];
+
 		$sql_extra = '';
 
 		if ($max_id > 0)
