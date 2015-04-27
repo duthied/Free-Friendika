@@ -4110,9 +4110,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			}
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
-				(($r[0]['page-flags'] == PAGE_NORMAL) OR ($r[0]['page-flags'] == PAGE_SOAPBOX))) {
-
-
+				in_array($r[0]['page-flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
 
 				notification(array(
 					'type'         => NOTIFY_INTRO,
@@ -4128,7 +4126,6 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 					'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
 					'otype'        => 'intro'
 				));
-
 
 			}
 		}
