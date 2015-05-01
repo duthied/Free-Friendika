@@ -1,5 +1,6 @@
 <?php
 require_once("include/datetime.php");
+require_once('include/bbcode.php');
 
 
 function ping_init(&$a) {
@@ -191,8 +192,6 @@ function ping_init(&$a) {
 
 		$tot = $mail+$intro+$register+count($comments)+count($likes)+count($dislikes)+count($friends)+count($posts)+count($tags);
 
-		require_once('include/bbcode.php');
-
 		if($firehose) {
 			echo '	<notif count="'.$tot.'">';
 		}
@@ -208,17 +207,17 @@ function ping_init(&$a) {
 
 			if ($intro>0){
 				foreach ($intros as $i) {
-					echo xmlize( $a->get_baseurl().'/notifications/intros/'.$i['id'], $i['name'], $i['url'], $i['photo'], relative_date($i['datetime']), 'notify-unseen',t("{0} wants to be your friend") );
+					echo xmlize($a->get_baseurl().'/notifications/intros/'.$i['id'], $i['name'], $i['url'], $i['photo'], relative_date($i['datetime']), 'notify-unseen', "&rarr; ".t("{0} wants to be your friend"));
 				};
 			}
 			if ($mail>0){
 				foreach ($mails as $i) {
-					echo xmlize( $a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen',t("{0} sent you a message") );
+					echo xmlize($a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen',"&rarr; ".t("{0} sent you a message"));
 				};
 			}
 			if ($register>0){
 				foreach ($regs as $i) {
-					echo xmlize( $a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen',t("{0} requested registration") );
+					echo xmlize($a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen', "&rarr; ".t("{0} requested registration"));
 				};
 			}
 
@@ -348,6 +347,9 @@ function ping_get_notifications($uid, $regularnotifications) {
 
 			if (is_null($notification["deleted"]))
 				$notification["deleted"] = 0;
+
+			$notification["msg"] = strip_tags(bbcode($notification["msg"]));
+			$notification["name"] = strip_tags(bbcode($notification["name"]));
 
 			// Replace the name with {0} but ensure to make that only once
 			// The {0} is used later and prints the name in bold.
