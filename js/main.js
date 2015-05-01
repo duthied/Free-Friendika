@@ -1,3 +1,7 @@
+  function resizeIframe(obj) {
+    obj.style.height = 0;
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
 
   function openClose(theID) {
     if(document.getElementById(theID).style.display == "block") { 
