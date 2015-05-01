@@ -4,7 +4,7 @@ require_once('include/event.php');
 
 function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 	$Text = preg_replace_callback("/(.*?)\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
-		function ($match) use ($plaintext){
+		function ($match) use ($plaintext, $tryoembed){
 
 			$attributes = $match[2];
 
@@ -83,14 +83,18 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				else
 					$oembed = $bookmark[0];
 
-				if (($image != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
-				elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
+				if (strstr(strtolower($oembed), "<iframe "))
+					$text = $oembed;
+				else {
+					if (($image != "") AND !strstr(strtolower($oembed), "<img "))
+						$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
+					elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
+						$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
 
-				$text .= $oembed;
+					$text .= $oembed;
 
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
+					$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
+				}
 			}
 
 			return($match[1].$text);
