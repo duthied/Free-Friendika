@@ -1391,12 +1391,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
-		// Set "success_update" to the date of the last time we heard from this contact
-		// This can be used to filter for inactive contacts and poco.
+		// Set "success_update" and "last-item" to the date of the last time we heard from this contact
+		// This can be used to filter for inactive contacts.
 		// Only do this for public postings to avoid privacy problems, since poco data is public.
 		// Don't set this value if it isn't from the owner (could be an author that we don't know)
-		if (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])))
-			q("UPDATE `contact` SET `success_update` = '%s' WHERE `id` = %d",
+
+		$update = (!$arr['private'] AND (($arr["author-link"] === $arr["owner-link"]) OR ($arr["parent-uri"] === $arr["uri"])));
+
+		// Is it a forum? Then we don't care about the rules from above
+		if (!$update AND ($arr["network"] == NETWORK_DFRN) AND ($arr["parent-uri"] === $arr["uri"])) {
+			$isforum = q("SELECT `forum` FROM `contact` WHERE `id` = %d AND `forum`",
+					intval($arr['contact-id']));
+			if ($isforum)
+				$update = true;
+		}
+
+		if ($update)
+			q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
@@ -1555,7 +1567,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				'source_link'  => $item[0]['author-link'],
 				'source_photo' => $item[0]['author-avatar'],
 				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item'
+				'otype'        => 'item',
+				'parent'       => $arr['parent']
 			));
 			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
 		}
@@ -3647,6 +3660,9 @@ function local_delivery($importer,$data) {
 				$parent = 0;
 
 				if($posted_id) {
+
+					$datarray["id"] = $posted_id;
+
 					$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($posted_id),
 						intval($importer['importer_uid'])
@@ -4009,7 +4025,7 @@ function local_delivery($importer,$data) {
 							'verb'         => $datarray['verb'],
 							'otype'        => 'person',
 							'activity'     => $verb,
-
+							'parent'       => $datarray['parent']
 						));
 					}
 				}
@@ -4094,9 +4110,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			}
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
-				(($r[0]['page-flags'] == PAGE_NORMAL) OR ($r[0]['page-flags'] == PAGE_SOAPBOX))) {
-
-
+				in_array($r[0]['page-flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
 
 				notification(array(
 					'type'         => NOTIFY_INTRO,
@@ -4112,7 +4126,6 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 					'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
 					'otype'        => 'intro'
 				));
-
 
 			}
 		}
