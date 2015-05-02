@@ -53,12 +53,12 @@ if(!$install) {
 	load_config('config');
 	load_config('system');
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
+	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
+	if($maxsysload_frontend < 1)
+		$maxsysload_frontend = 50;
 	if(function_exists('sys_getloadavg')) {
 		$load = sys_getloadavg();
-		if(intval($load[0]) > $maxsysload) {
+		if(intval($load[0]) > $maxsysload_frontend) {
 			logger('system: load ' . $load[0] . ' too high. Service Temporarily Unavailable.');
 			header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
 			header('Retry-After: 300');
