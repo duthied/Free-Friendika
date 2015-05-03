@@ -603,7 +603,7 @@ function diaspora_request($importer,$xml) {
 			if(count($self) && $contact['rel'] == CONTACT_IS_FOLLOWER) {
 
 				$arr = array();
-				$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $importer['uid']); 
+				$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $importer['uid']);
 				$arr['uid'] = $importer['uid'];
 				$arr['contact-id'] = $self[0]['id'];
 				$arr['wall'] = 1;
@@ -827,18 +827,6 @@ function diaspora_post($importer,$xml,$msg) {
 		return;
 	}
 
-	// allocate a guid on our system - we aren't fixing any collisions.
-	// we're ignoring them
-
-	$g = q("select * from guid where guid = '%s' limit 1",
-		dbesc($guid)
-	);
-	if(! count($g)) {
-		q("insert into guid ( guid ) values ( '%s' )",
-			dbesc($guid)
-		);
-	}
-
 	$created = unxmlify($xml->created_at);
 	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
 
@@ -1041,10 +1029,10 @@ function diaspora_fetch_message($guid, $server, $level = 0) {
 	} else {
 		// Maybe it is a reshare of a photo that will be delivered at a later time (testing)
 		logger('no content found: '.print_r($source_xml,true));
-		$body = "";
+		return false;
 	}
 
-	if ($body == "")
+	if (trim($body) == "")
 		return false;
 
 	$item["tag"] = '';
@@ -1149,18 +1137,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 
 	$person = find_diaspora_person_by_handle($orig_author);
-
-	// allocate a guid on our system - we aren't fixing any collisions.
-	// we're ignoring them
-
-	$g = q("select * from guid where guid = '%s' limit 1",
-		dbesc($guid)
-	);
-	if(! count($g)) {
-		q("insert into guid ( guid ) values ( '%s' )",
-			dbesc($guid)
-		);
-	}
 
 	$created = unxmlify($xml->created_at);
 	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
@@ -1268,18 +1244,6 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	if(count($r)) {
 		logger('diaspora_asphoto: message exists: ' . $guid);
 		return;
-	}
-
-	// allocate a guid on our system - we aren't fixing any collisions.
-	// we're ignoring them
-
-	$g = q("select * from guid where guid = '%s' limit 1",
-		dbesc($guid)
-	);
-	if(! count($g)) {
-		q("insert into guid ( guid ) values ( '%s' )",
-			dbesc($guid)
-		);
 	}
 
 	$created = unxmlify($xml->created_at);
@@ -1683,7 +1647,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 			dbesc($person['name']),
 			dbesc($person['photo']),
 			dbesc($person['url']),
-			intval($contact['id']),	 
+			intval($contact['id']),
 			dbesc($subject),
 			dbesc($body),
 			0,
@@ -1705,7 +1669,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 			'language' => $importer['language'],
 			'to_name' => $importer['username'],
 			'to_email' => $importer['email'],
-			'uid' =>$importer['importer_uid'],
+			'uid' =>$importer['uid'],
 			'item' => array('subject' => $subject, 'body' => $body),
 			'source_name' => $person['name'],
 			'source_link' => $person['url'],
@@ -1852,7 +1816,7 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 		intval($importer['uid']),
 		dbesc($status_message_guid)
 	);
-	if(! count($r)) {
+	if(!count($r)) {
 		if($attempt <= 3) {
 			q("INSERT INTO dsprphotoq (uid, msg, attempt) VALUES (%d, '%s', %d)",
 			   intval($importer['uid']),
@@ -1860,6 +1824,20 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 			   intval($attempt + 1)
 			);
 		}
+
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = 0 AND `guid` = '%s' LIMIT 1", dbesc($status_message_guid));
+		if(!count($r)) {
+			// Fetching the missing item as a public shadow
+			// To-Do: Doing it for every post that is missing
+			$item = array();
+			$item["author-link"] = $contact['url'];
+			$item["owner-link"] = $contact['url'];
+
+			DiasporaFetchGuidSub($status_message_guid, $item);
+
+			logger("Storing missing item ".$status_message_guid." as public shadow", LOGGER_DEBUG);
+		}
+
 		logger('diaspora_photo: attempt = ' . $attempt . '; status message not found: ' . $status_message_guid . ' for photo: ' . $guid);
 		return;
 	}
