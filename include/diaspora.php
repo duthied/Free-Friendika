@@ -1081,7 +1081,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$create_original_post = false;
 
 	// Do we already have this item?
-	$r = q("SELECT `body`, `tag`, `app`, `author-link`, `plink` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+	$r = q("SELECT `body`, `tag`, `app`, `created`, `author-link`, `plink` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 		dbesc($orig_guid),
 		dbesc(NETWORK_DIASPORA)
 	);
@@ -1093,8 +1093,15 @@ function diaspora_reshare($importer,$xml,$msg) {
 		require_once('include/api.php');
 		if (api_share_as_retweet($r[0]))
 			$r = array();
-		else
-			$orig_url = $a->get_baseurl().'/display/'.$orig_guid;
+		else {
+			$body = $r[0]["body"];
+			$str_tags = $r[0]["tag"];
+			$app = $r[0]["app"];
+			$orig_created = $r[0]["created"];
+			$orig_author = $r[0]["author-link"];
+			$create_original_post = ($body != "");
+			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
+		}
 	}
 
 	if (!count($r)) {
