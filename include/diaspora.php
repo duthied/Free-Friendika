@@ -1086,7 +1086,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 		dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
-		logger('reshared message '.orig_guid." reshared by ".$guid.' already exists on system: '.$orig_url);
+		logger('reshared message '.$orig_guid." reshared by ".$guid.' already exists on system: '.$orig_url);
 
 		// Maybe it is already a reshared item?
 		// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
