@@ -58,7 +58,7 @@ function match_content(&$a) {
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
 					'$name' => $jj->name,
-					'$photo' => $jj->photo,
+					'$photo' => proxy_url($jj->photo),
 					'$inttxt' => ' ' . t('is interested in:'),
 					'$conntxt' => t('Connect'),
 					'$connlnk' => $connlnk,
