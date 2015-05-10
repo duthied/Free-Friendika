@@ -1237,6 +1237,18 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
+	if ($arr['guid'] != "") {
+		// Checking if there is already an item with the same guid
+		logger('checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);
+		$r = q("SELECT `guid` FROM `item` WHERE `guid` = '%s' AND `network` = '%s' AND `uid` = '%d' LIMIT 1",
+			dbesc($arr['guid']), dbesc($arr['network']), intval($arr['uid']));
+
+		if(count($r)) {
+			logger('found item with guid '.$arr['guid'].' for user '.$arr['uid'].' on network '.$arr['network'], LOGGER_DEBUG);
+			return 0;
+		}
+	}
+
 	// Check for hashtags in the body and repair or add hashtag links
 	item_body_set_hashtags($arr);
 
