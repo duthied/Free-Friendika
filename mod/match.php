@@ -1,5 +1,5 @@
 <?php
-
+include_once('include/text.php');
 
 function match_content(&$a) {
 
@@ -48,10 +48,10 @@ function match_content(&$a) {
 			
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
-			    $match_nurl = str_replace(array('https:','//www.'), array('http:','//'), $jj->url);
+			    $match_nurl = normalise_link($jj->url);
 			    $match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
 				intval(local_user()),
-				$match_nurl);
+				dbesc($match_nurl));
 			    if (!count($match)) {
 				
 				$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
