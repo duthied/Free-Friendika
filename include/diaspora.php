@@ -894,25 +894,24 @@ function DiasporaFetchGuid($item) {
 function DiasporaFetchGuidSub($match, $item) {
 	$a = get_app();
 
-	$author = parse_url($item["author-link"]);
-	$authorserver = $author["scheme"]."://".$author["host"];
-
-	$owner = parse_url($item["owner-link"]);
-	$ownerserver = $owner["scheme"]."://".$owner["host"];
-
-	if (!diaspora_store_by_guid($match[1], $authorserver))
-		diaspora_store_by_guid($match[1], $ownerserver);
+	if (!diaspora_store_by_guid($match[1], $item["author-link"]))
+		diaspora_store_by_guid($match[1], $item["owner-link"]);
 }
 
-function diaspora_store_by_guid($guid, $server) {
+function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	require_once("include/Contact.php");
 
-	logger("fetching item ".$guid." from ".$server, LOGGER_DEBUG);
+        $serverparts = parse_url($server);
+        $server = $serverparts["scheme"]."://".$serverparts["host"];
+
+	logger("Trying to fetch item ".$guid." from ".$server, LOGGER_DEBUG);
 
 	$item = diaspora_fetch_message($guid, $server);
 
 	if (!$item)
 		return false;
+
+	logger("Successfully fetched item ".$guid." from ".$server, LOGGER_DEBUG);
 
 	$body = $item["body"];
 	$str_tags = $item["tag"];
@@ -923,7 +922,8 @@ function diaspora_store_by_guid($guid, $server) {
 	$private = $item["private"];
 
 	$message_id = $author.':'.$guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = 0 AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+		intval($uid),
 		dbesc($message_id),
 		dbesc($guid)
 	);
@@ -933,8 +933,8 @@ function diaspora_store_by_guid($guid, $server) {
 	$person = find_diaspora_person_by_handle($author);
 
         $datarray = array();
-	$datarray['uid'] = 0;
-	$datarray['contact-id'] = get_contact($person['url'], 0);
+	$datarray['uid'] = $uid;
+	$datarray['contact-id'] = get_contact($person['url'], $uid);
 	$datarray['wall'] = 0;
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
@@ -953,6 +953,9 @@ function diaspora_store_by_guid($guid, $server) {
 	$datarray['tag'] = $str_tags;
 	$datarray['app']  = $app;
 	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
+
+	if ($datarray['contact-id'] == 0)
+		return false;
 
 	DiasporaFetchGuid($datarray);
 	$message_id = item_store($datarray);
@@ -1349,6 +1352,25 @@ function diaspora_comment($importer,$xml,$msg) {
 		intval($importer['uid']),
 		dbesc($parent_guid)
 	);
+
+	if(!count($r)) {
+		$result = diaspora_store_by_guid($parent_guid, $contact['url'], $importer['uid']);
+
+		if (!$result) {
+			$person = find_diaspora_person_by_handle($diaspora_handle);
+			$result = diaspora_store_by_guid($parent_guid, $person['url'], $importer['uid']);
+		}
+
+		if ($result) {
+			logger("Fetched missing item ".$parent_guid." - result: ".$result, LOGGER_DEBUG);
+
+			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+				intval($importer['uid']),
+				dbesc($parent_guid)
+			);
+		}
+	}
+
 	if(! count($r)) {
 		logger('diaspora_comment: parent item not found: parent: ' . $parent_guid . ' item: ' . $guid);
 		return;
@@ -1823,6 +1845,26 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 		intval($importer['uid']),
 		dbesc($status_message_guid)
 	);
+
+/*	deactivated by now since it can lead to multiplicated pictures in posts.
+	if(!count($r)) {
+		$result = diaspora_store_by_guid($status_message_guid, $contact['url'], $importer['uid']);
+
+		if (!$result) {
+			$person = find_diaspora_person_by_handle($diaspora_handle);
+			$result = diaspora_store_by_guid($status_message_guid, $person['url'], $importer['uid']);
+		}
+
+		if ($result) {
+			logger("Fetched missing item ".$status_message_guid." - result: ".$result, LOGGER_DEBUG);
+
+			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+				intval($importer['uid']),
+				dbesc($status_message_guid)
+			);
+		}
+	}
+*/
 	if(!count($r)) {
 		if($attempt <= 3) {
 			q("INSERT INTO dsprphotoq (uid, msg, attempt) VALUES (%d, '%s', %d)",
@@ -1830,19 +1872,6 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 			   dbesc(serialize($msg)),
 			   intval($attempt + 1)
 			);
-		}
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = 0 AND `guid` = '%s' LIMIT 1", dbesc($status_message_guid));
-		if(!count($r)) {
-			// Fetching the missing item as a public shadow
-			// To-Do: Doing it for every post that is missing
-			$item = array();
-			$item["author-link"] = $contact['url'];
-			$item["owner-link"] = $contact['url'];
-
-			DiasporaFetchGuidSub($status_message_guid, $item);
-
-			logger("Storing missing item ".$status_message_guid." as public shadow", LOGGER_DEBUG);
 		}
 
 		logger('diaspora_photo: attempt = ' . $attempt . '; status message not found: ' . $status_message_guid . ' for photo: ' . $guid);
@@ -1903,6 +1932,25 @@ function diaspora_like($importer,$xml,$msg) {
 		intval($importer['uid']),
 		dbesc($parent_guid)
 	);
+
+	if(!count($r)) {
+		$result = diaspora_store_by_guid($parent_guid, $contact['url'], $importer['uid']);
+
+		if (!$result) {
+			$person = find_diaspora_person_by_handle($diaspora_handle);
+			$result = diaspora_store_by_guid($parent_guid, $person['url'], $importer['uid']);
+		}
+
+		if ($result) {
+			logger("Fetched missing item ".$parent_guid." - result: ".$result, LOGGER_DEBUG);
+
+			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+				intval($importer['uid']),
+				dbesc($parent_guid)
+			);
+		}
+	}
+
 	if(! count($r)) {
 		logger('diaspora_like: parent item not found: ' . $guid);
 		return;
@@ -2965,5 +3013,3 @@ function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false)
 
 	return(($return_code) ? $return_code : (-1));
 }
-
-
