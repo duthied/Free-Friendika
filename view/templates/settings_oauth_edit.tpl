@@ -11,7 +11,7 @@
 {{include file="field_input.tpl" field=$icon}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
 <!-- <input type="submit" name="cancel" class="settings-submit" value="{{$cancel}}" /> -->
 </div>
 

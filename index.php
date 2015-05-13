@@ -53,6 +53,20 @@ if(!$install) {
 	load_config('config');
 	load_config('system');
 
+	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
+	if($maxsysload_frontend < 1)
+		$maxsysload_frontend = 50;
+	if(function_exists('sys_getloadavg')) {
+		$load = sys_getloadavg();
+		if(intval($load[0]) > $maxsysload_frontend) {
+			logger('system: load ' . $load[0] . ' too high. Service Temporarily Unavailable.');
+			header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
+			header('Retry-After: 300');
+			die("System is currently unavailable. Please try again later");
+		}
+	}
+
+
 	if (get_config('system','force_ssl') AND ($a->get_scheme() == "http") AND
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr($a->get_baseurl(), 0, 8) == "https://")) {
@@ -115,7 +129,6 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  * What we really need to do is output the raw headers ourselves so we can keep them separate.
  *
-
  */
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
@@ -498,30 +511,38 @@ $(document).ready(function() {
 });
 
 function loadcontent() {
-	//$("div.loader").show();
+	if (lockLoadContent) return;
+	lockLoadContent = true;
+
+	$("#scroll-loader").fadeIn('normal');
 
 	num+=1;
 
 	console.log('Loading page ' + num);
 
 	$.get('/network?mode=raw$reload_uri&page=' + num, function(data) {
-		$(data).insertBefore('#conversation-end');
+		$("#scroll-loader").hide();
+		if ($(data).length > 0) {
+			$(data).insertBefore('#conversation-end');
+			lockLoadContent = false;
+		} else {
+			$("#scroll-end").fadeIn('normal');
+		}
 	});
-
-	//$("div.loader").fadeOut('normal');
 }
 
 var num = $pageno;
+var lockLoadContent = false;
 
 $(window).scroll(function(e){
 
 	if ($(document).height() != $(window).height()) {
 		// First method that is expected to work - but has problems with Chrome
-		if ($(window).scrollTop() == $(document).height() - $(window).height())
+		if ($(window).scrollTop() > ($(document).height() - $(window).height() * 1.5))
 			loadcontent();
 	} else {
 		// This method works with Chrome - but seems to be much slower in Firefox
-		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height()))
+		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height() * 1.5))
 			loadcontent();
 	}
 });

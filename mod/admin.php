@@ -121,6 +121,8 @@ function admin_content(&$a) {
 	}
 
 	$aside['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
+	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
+	$aside['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
@@ -128,6 +130,7 @@ function admin_content(&$a) {
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
 			'$logtxt' => t('Logs'),
+			'$diagnosticstxt' => t('diagnostics'),
 			'$h_pending' => t('User registrations waiting for confirmation'),
 			'$admurl'=> $a->get_baseurl(true)."/admin/"
 	));
@@ -278,7 +281,7 @@ function admin_page_site_post(&$a){
 			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
 			$r = q($q);
 			if (!$r) {
-				notice( "Falied updating '$table_name': " . $db->error );
+				notice( "Failed updating '$table_name': " . $db->error );
 				goaway($a->get_baseurl(true) . '/admin/site' );
 			}
 		}
@@ -309,7 +312,10 @@ function admin_page_site_post(&$a){
 
 	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
 	$hostname 		=	((x($_POST,'hostname'))			? notags(trim($_POST['hostname']))		: '');
+	$sender_email		=	((x($_POST,'sender_email'))		? notags(trim($_POST['sender_email']))		: '');
 	$banner			=	((x($_POST,'banner'))      		? trim($_POST['banner'])			: false);
+	$shortcut_icon 		=	((x($_POST,'shortcut_icon'))		? notags(trim($_POST['shortcut_icon']))		: '');
+	$touch_icon 		=	((x($_POST,'touch_icon'))		? notags(trim($_POST['touch_icon']))		: '');
 	$info			=	((x($_POST,'info'))      		? trim($_POST['info'])			: false);
 	$language		=	((x($_POST,'language'))			? notags(trim($_POST['language']))		: '');
 	$theme			=	((x($_POST,'theme'))			? notags(trim($_POST['theme']))			: '');
@@ -341,7 +347,8 @@ function admin_page_site_post(&$a){
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
 	$no_regfullname		=	!((x($_POST,'no_regfullname'))		? True						: False);
 	$no_utf			=	!((x($_POST,'no_utf'))			? True						: False);
-	$no_community_page	=	!((x($_POST,'no_community_page'))	? True						: False);
+	$community_page_style	=	((x($_POST,'community_page_style'))	? intval(trim($_POST['community_page_style']))	: 0);
+	$max_author_posts_community_page	=	((x($_POST,'max_author_posts_community_page'))	? intval(trim($_POST['max_author_posts_community_page']))	: 0);
 
 	$verifyssl		=	((x($_POST,'verifyssl'))		? True						: False);
 	$proxyuser		=	((x($_POST,'proxyuser'))		? notags(trim($_POST['proxyuser']))		: '');
@@ -350,15 +357,17 @@ function admin_page_site_post(&$a){
 	$delivery_interval	=	((x($_POST,'delivery_interval'))	? intval(trim($_POST['delivery_interval']))	: 0);
 	$poll_interval		=	((x($_POST,'poll_interval'))		? intval(trim($_POST['poll_interval']))		: 0);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
+	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
-	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))		:  0);
+	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
 	$diaspora_enabled	=	((x($_POST,'diaspora_enabled'))		? True   					: False);
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
 	$force_ssl		=	((x($_POST,'force_ssl'))		? True   					: False);
 	$old_share		=	((x($_POST,'old_share'))		? True   					: False);
 	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
 	$suppress_language	=	((x($_POST,'suppress_language'))	? True   					: False);
+	$suppress_tags		=	((x($_POST,'suppress_tags'))		? True   					: False);
 	$use_fulltext_engine	=	((x($_POST,'use_fulltext_engine'))	? True   					: False);
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
@@ -368,7 +377,9 @@ function admin_page_site_post(&$a){
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
-	$disable_noscrape = ((x($_POST,'disable_noscrape')) ? true : false);
+	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
+	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
+
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -413,9 +424,14 @@ function admin_page_site_post(&$a){
 	set_config('system','delivery_interval',$delivery_interval);
 	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
+	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
 	set_config('config','sitename',$sitename);
 	set_config('config','hostname',$hostname);
+	set_config('config','sender_email', $sender_email);
 	set_config('system','suppress_language',$suppress_language);
+	set_config('system','suppress_tags',$suppress_tags);
+	set_config('system','shortcut_icon',$shortcut_icon);
+	set_config('system','touch_icon',$touch_icon);
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
 		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
@@ -472,7 +488,8 @@ function admin_page_site_post(&$a){
 	set_config('system','block_extended_register', $no_multi_reg);
 	set_config('system','no_openid', $no_openid);
 	set_config('system','no_regfullname', $no_regfullname);
-	set_config('system','no_community_page', $no_community_page);
+	set_config('system','community_page_style', $community_page_style);
+	set_config('system','max_author_posts_community_page', $max_author_posts_community_page);
 	set_config('system','no_utf', $no_utf);
 	set_config('system','verifyssl', $verifyssl);
 	set_config('system','proxyuser', $proxyuser);
@@ -480,7 +497,7 @@ function admin_page_site_post(&$a){
 	set_config('system','curl_timeout', $timeout);
 	set_config('system','dfrn_only', $dfrn_only);
 	set_config('system','ostatus_disabled', $ostatus_disabled);
-		set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
+	set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
 	set_config('system','diaspora_enabled', $diaspora_enabled);
 	set_config('config','private_addons', $private_addons);
 
@@ -495,7 +512,8 @@ function admin_page_site_post(&$a){
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
 	set_config('system','proxy_disabled', $proxy_disabled);
-	set_config('system','disable_noscrape', $disable_noscrape);
+	set_config('system','old_pager', $old_pager);
+	set_config('system','only_tag_search', $only_tag_search);
 
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
@@ -541,14 +559,21 @@ function admin_page_site(&$a) {
 		}
 		}
 
+		/* Community page style */
+		$community_page_style_choices = array(
+			CP_NO_COMMUNITY_PAGE => t("No community page"),
+			CP_USERS_ON_SERVER => t("Public postings from users of this site"),
+			CP_GLOBAL_COMMUNITY => t("Global community page")
+			);
+
 		/* OStatus conversation poll choices */
 		$ostatus_poll_choices = array(
-		"-2" => t("Never"),
-		"-1" => t("At post arrival"),
-		"0" => t("Frequently"),
-		"60" => t("Hourly"),
-		"720" => t("Twice daily"),
-		"1440" => t("Daily")
+			"-2" => t("Never"),
+			"-1" => t("At post arrival"),
+			"0" => t("Frequently"),
+			"60" => t("Hourly"),
+			"720" => t("Twice daily"),
+			"1440" => t("Daily")
 			);
 
 		/* get user names to make the install a personal install of X */
@@ -605,7 +630,10 @@ function admin_page_site(&$a) {
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
+		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], "The email address your server shall use to send notification emails from.", "", "", "email"),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
+		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), get_config('system','shortcut_icon'),  "Link to an icon that will be used for browsers."),
+		'$touch_icon'		=> array('touch_icon', t("Touch icon"), get_config('system','touch_icon'),  "Link to an icon that will be used for tablets and mobiles."),
 		'$info'	=> array('info',t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at dir.friendica.com/siteinfo.')),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
@@ -638,7 +666,8 @@ function admin_page_site(&$a) {
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !get_config('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !get_config('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
 		'$no_utf'		=> array('no_utf', t("UTF-8 Regular expressions"), !get_config('system','no_utf'), t("Use PHP UTF8 regular expressions")),
-		'$no_community_page' 	=> array('no_community_page', t("Show Community Page"), !get_config('system','no_community_page'), t("Display a Community page showing all recent public postings on this site.")),
+		'$community_page_style' => array('community_page_style', t("Community Page Style"), get_config('system','community_page_style'), t("Type of community page to show. 'Global community' shows every public posting from an open distributed network that arrived on this server."), $community_page_style_choices),
+		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), get_config('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !get_config('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
 		'$ostatus_poll_interval'	=> array('ostatus_poll_interval', t("OStatus conversation completion interval"), (string) intval(get_config('system','ostatus_poll_interval')), t("How often shall the poller check for new entries in OStatus conversations? This can be a very ressource task."), $ostatus_poll_choices),
 		'$diaspora_enabled' 	=> array('diaspora_enabled', t("Enable Diaspora support"), get_config('system','diaspora_enabled'), t("Provide built-in Diaspora network compatibility.")),
@@ -650,9 +679,11 @@ function admin_page_site(&$a) {
 		'$delivery_interval'	=> array('delivery_interval', t("Delivery interval"), (x(get_config('system','delivery_interval'))?get_config('system','delivery_interval'):2), t("Delay background delivery processes by this many seconds to reduce system load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 for large dedicated servers.")),
 		'$poll_interval'	=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
+		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),
+		'$suppress_tags'	=> array('suppress_tags', t("Suppress Tags"), get_config('system','suppress_tags'), t("Suppress showing a list of hashtags at the end of the posting.")),
 		'$itemcache'		=> array('itemcache', t("Path to item cache"), get_config('system','itemcache'), "The item caches buffers generated bbcode and external images."),
 		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), get_config('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")),
 		'$max_comments' 	=> array('max_comments', t("Maximum numbers of comments per post"), get_config('system','max_comments'), t("How much comments should be shown for each post? Default value is 100.")),
@@ -660,10 +691,10 @@ function admin_page_site(&$a) {
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), "If you have a restricted system where the webserver can't access the system temp path, enter another path here."),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
+		'$old_pager'		=> array('old_pager', t("Enable old style pager"), get_config('system','old_pager'), t("The old style pager has page numbers but slows down massively the page speed.")),
+		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-
-		'$disable_noscrape'=> array('disable_noscrape', t("Disable noscrape"), get_config('system','disable_noscrape'), t("The noscrape feature speeds up directory submissions by using JSON data instead of HTML scraping. Disabling it will cause higher load on your server and the directory server.")),
 	'$form_security_token' => get_form_security_token("admin_site")
 
 	));
@@ -1000,7 +1031,7 @@ function admin_page_users(&$a){
 		'$users' => $users,
 		'$newusername'  => array('new_user_name', t("Name"), '', t("Name of the new user.")),
 		'$newusernickname'  => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")),
-		'$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user.")),
+		'$newuseremail'  => array('new_user_email', t("Email"), '', t("Email address of the new user."), '', '', 'email'),
 	));
 	$o .= paginate($a);
 	return $o;

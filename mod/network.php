@@ -22,7 +22,7 @@ function network_init(&$a) {
 	parse_str($query_string, $query_array);
 	array_shift($query_array);
 
-	
+
 	// fetch last used network view and redirect if needed
 	if(! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
@@ -369,7 +369,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
 			'label' => t('Personal'),
-			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&conv=1',
+			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel' => $conv_active,
 			'title' => t('Posts that mention or involve you'),
 		);
@@ -387,7 +387,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'link_tab')) {
 		$tabs[] = array(
 			'label' => t('Shared Links'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&bmark=1',
+			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'=>$bookmarked_active,
 			'title'=> t('Interesting Links'),
 		);
@@ -396,7 +396,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'star_posts')) {
 		$tabs[] = array(
 			'label' => t('Starred'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '') . '&star=1',
+			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'=>$starred_active,
 			'title' => t('Favourite Posts'),
 		);
@@ -452,11 +452,6 @@ function network_content(&$a, $update = 0) {
 	}
 	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
-/*if ($update) {
-print_r($_GET);
-die("ss");
-}*/
-
 	if(! $update) {
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
@@ -471,6 +466,14 @@ die("ss");
 
 		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
+		$content = "";
+
+		if ($cid) {
+			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`", intval($cid), intval(local_user()));
+			if ($contact)
+				$content = "@".$contact[0]["nick"]."+".$cid;
+		}
+
 		$x = array(
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
@@ -483,6 +486,7 @@ die("ss");
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
+			'content' => $content,
 		);
 
 		$o .= status_editor($a,$x);
@@ -627,7 +631,7 @@ die("ss");
 
 	}
 	else {
-		if( (! get_config('alt_pager', 'global')) && (! get_pconfig(local_user(),'system','alt_pager')) ) {
+		if(get_config('system', 'old_pager')) {
 		        $r = q("SELECT COUNT(*) AS `total`
 			        FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
 			        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -705,12 +709,16 @@ die("ss");
 
 		// Fetch a page full of parent items for this page
 		if($update) {
+			if (!get_config("system", "like_no_comment"))
+				$sql_extra4 = "(`item`.`deleted` = 0 OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."')";
+			else
+				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
+
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
-				(`item`.`deleted` = 0 OR `item`.`verb` = '" . ACTIVITY_LIKE ."' OR `item`.`verb` = '" . ACTIVITY_DISLIKE . "')
-				and `item`.`moderated` = 0 and `item`.`unseen` = 1
+				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND $sql_extra4
+				AND `item`.`moderated` = 0 AND `item`.`unseen` = 1
 				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
 				intval(local_user())
 			);
@@ -815,10 +823,11 @@ die("ss");
 	$o .= conversation($a,$items,$mode,$update);
 
 	if(!$update) {
-		if( get_config('alt_pager', 'global') || get_pconfig(local_user(),'system','alt_pager') ) {
+		if(get_pconfig(local_user(),'system','infinite_scroll')) {
+				$o .= scroll_loader();
+		} elseif(!get_config('system', 'old_pager')) {
 		        $o .= alt_pager($a,count($items));
-		}
-		else {
+		} else {
 		        $o .= paginate($a);
 		}
 	}

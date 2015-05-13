@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1175 );
+define( 'UPDATE_VERSION' , 1184 );
 
 /**
  *
@@ -1609,3 +1609,42 @@ All following update functions are ONLY for jobs that need to run AFTER the data
 
 Database changes are ONLY applied in the file include/dbstructure.php.
 */
+
+function update_1177() {
+	require_once("mod/profiles.php");
+
+	$profiles = q("SELECT `uid`, `about`, `locality`, `pub_keywords`, `gender` FROM `profile` WHERE `is-default`");
+
+	foreach ($profiles AS $profile) {
+		if ($profile["about"].$profile["locality"].$profile["pub_keywords"].$profile["gender"] == "")
+			continue;
+
+		$profile["pub_keywords"] = profile_clean_keywords($profile["pub_keywords"]);
+
+		$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
+				dbesc($profile["about"]),
+				dbesc($profile["locality"]),
+				dbesc($profile["pub_keywords"]),
+				dbesc($profile["gender"]),
+				intval($profile["uid"])
+			);
+	}
+}
+
+function update_1178() {
+	if (get_config('system','no_community_page'))
+		set_config('system','community_page_style', CP_NO_COMMUNITY_PAGE);
+
+	// Update the central item storage with uid=0
+	proc_run('php',"include/threadupdate.php");
+
+	return UPDATE_SUCCESS;
+}
+
+function update_1180() {
+
+	// Fill the new fields in the term table.
+	proc_run('php',"include/tagupdate.php");
+
+	return UPDATE_SUCCESS;
+}

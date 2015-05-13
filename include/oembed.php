@@ -11,7 +11,6 @@ function oembed_replacecb($matches){
 
 
 function oembed_fetch_url($embedurl, $no_rich_type = false){
-
 	$embedurl = trim($embedurl, "'");
 	$embedurl = trim($embedurl, '"');
 
@@ -110,6 +109,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 		}
 	}
 
+	call_hooks('oembed_fetch_url', $embedurl, $j);
+
 	return $j;
 }
 
@@ -161,6 +162,7 @@ function oembed_format_object($j){
 
 	// add link to source if not present in "rich" type
 	if ($j->type!='rich' || !strpos($j->html,$embedurl) ){
+		$ret .= "<h4>";
 		if (isset($j->title)) {
 			if (isset($j->provider_name))
 				$ret .= $j->provider_name.": ";
@@ -187,19 +189,25 @@ function oembed_format_object($j){
 		}
 		//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
 		//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
+		$ret .= "</h4>";
 	} else {
 		// add <a> for html2bbcode conversion
 		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
+		$ret.="<br style='clear:left'></span>";
 	}
-	$ret.="<br style='clear:left'></span>";
 	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
 }
 
 function oembed_iframe($src,$width,$height) {
+
 	if(! $width || strstr($width,'%'))
 		$width = '640';
-	if(! $height || strstr($height,'%'))
+	if(! $height || strstr($height,'%')) {
 		$height = '300';
+		$resize = 'onload="resizeIframe(this);"';
+	} else
+		$resize = '';
+
 	// try and leave some room for the description line.
 	$height = intval($height) + 80;
 	$width  = intval($width) + 40;
@@ -207,7 +215,7 @@ function oembed_iframe($src,$width,$height) {
 	$a = get_app();
 
 	$s = $a->get_baseurl()."/oembed/".base64url_encode($src);
-	return '<iframe height="' . $height . '" width="' . $width . '" src="' . $s . '" frameborder="no" >' . t('Embedded content') . '</iframe>';
+	return '<iframe '.$resize.' class="embed_rich" height="'.$height.'" width="'.$width.'" src="'.$s.'" frameborder="no">'.t('Embedded content').'</iframe>';
 
 }
 

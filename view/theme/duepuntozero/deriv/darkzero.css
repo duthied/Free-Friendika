@@ -95,7 +95,7 @@ input#dfrn-url {
 	background-color: #222222;
 	color: #FFFFFF !important;
 }
-.pager_first a, .pager_last a, .pager_prev a, .pager_next a, .pager_n a, .pager_current {
+.pager_first a, .pager_last a, .pager_prev a, .pager_next a, .pager_n a, .pager_current, .scroll_loader_text {
     color: #000088;
 }
 

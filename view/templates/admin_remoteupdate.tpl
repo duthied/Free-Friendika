@@ -66,7 +66,7 @@
 			<h1>Friendica Update</h1>
 			<div class="panel_text"></div>
 			<div class="panel_actions">
-				<input type="button" value="{{$close}}" class="panel_action_close">
+				<input type="button" value="{{$close|escape:'html'}}" class="panel_action_close">
 			</div>
 		</div>
 	</div>
@@ -77,10 +77,10 @@
 	<dl> <dt>New version:</dt><dd>{{$remoteversion}}</dd> </dl>
 
 	<form id="remoteupdate_form" method="POST" action="{{$baseurl}}/admin/update">
-	<input type="hidden" name="{{$remotefile.0}}" value="{{$remotefile.2}}">
+	<input type="hidden" name="{{$remotefile.0}}" value="{{$remotefile.2|escape:'html'}}">
 
 	{{if $canwrite}}
-		<div class="submit"><input type="submit" name="remoteupdate" value="{{$submit}}" /></div>
+		<div class="submit"><input type="submit" name="remoteupdate" value="{{$submit|escape:'html'}}" /></div>
 	{{else}}
 		<h3>Your friendica installation is not writable by web server.</h3>
 		{{if $canftp}}
@@ -89,7 +89,7 @@
 			{{include file="field_input.tpl" field=$ftppath}}
 			{{include file="field_input.tpl" field=$ftpuser}}
 			{{include file="field_password.tpl" field=$ftppwd}}
-			<div class="submit"><input type="submit" name="remoteupdate" value="{{$submit}}" /></div>
+			<div class="submit"><input type="submit" name="remoteupdate" value="{{$submit|escape:'html'}}" /></div>
 		{{/if}}
 	{{/if}}
 	</form>

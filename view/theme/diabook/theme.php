@@ -408,7 +408,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	}}
 
 	// last 12 users
-	if($close_lastusers != "1") {
+	if(($close_lastusers != "1") AND !get_config('diabook','disable_features')) {
 	$aside['$lastusers_title'] = t('Last users');
 	$aside['$lastusers_items'] = array();
 	$sql_extra = "";
@@ -437,7 +437,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	}}
 
 	// last 10 liked items
-	if($close_lastlikes != "1") {
+	if(($close_lastlikes != "1") AND !get_config('diabook','disable_features')) {
 	$aside['$like_title'] = t('Last likes');
 	$aside['$like_items'] = array();
 	$r = q("SELECT `T1`.`created`, `T1`.`liker`, `T1`.`liker-link`, `item`.* FROM
@@ -482,7 +482,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	}}
 
 	// last 12 photos
-	if($close_lastphotos != "1") {
+	if(($close_lastphotos != "1")  AND !get_config('diabook','disable_features')) {
 	$aside['$photos_title'] = t('Last photos');
 	$aside['$photos_items'] = array();
 	$r = q("SELECT `photo`.`id`, `photo`.`resource-id`, `photo`.`scale`, `photo`.`desc`, `user`.`nickname`, `user`.`username` FROM

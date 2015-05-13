@@ -52,7 +52,7 @@
 <input type="hidden" name="width"  id="width" />
 
 <div id="crop-image-submit-wrapper" >
-<input type="submit" name="submit" value="{{$done}}" />
+<input type="submit" name="submit" value="{{$done|escape:'html'}}" />
 </div>
 
 </form>

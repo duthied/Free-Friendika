@@ -1886,7 +1886,8 @@ input#profile-jot-email {
 }*/
 
 .pager_prev a,
-.pager_next a {
+.pager_next a,
+.scroll_loader_text {
 	font-size: 1.5em;
 	padding: 0.2em 1em;
 	border: 1px solid #aaa;

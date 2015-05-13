@@ -137,9 +137,26 @@ function profiles_init(&$a) {
 
 		profile_load($a,$a->user['nickname'],$r[0]['id']);
 	}
-	
-	
 
+
+
+}
+
+function profile_clean_keywords($keywords) {
+	$keywords = str_replace(","," ",$keywords);
+	$keywords = explode(" ", $keywords);
+
+	$cleaned = array();
+	foreach ($keywords as $keyword) {
+		$keyword = trim(strtolower($keyword));
+		$keyword = trim($keyword, "#");
+		if ($keyword != "")
+			$cleaned[] = $keyword;
+	}
+
+	$keywords = implode(", ", $cleaned);
+
+	return $keywords;
 }
 
 function profiles_post(&$a) {
@@ -193,7 +210,7 @@ function profiles_post(&$a) {
 		$dob = '0000-00-00';
 		$dob = sprintf('%04d-%02d-%02d',$year,$month,$day);
 
-			
+
 		$name = notags(trim($_POST['name']));
 
 		if(! strlen($name)) {
@@ -212,8 +229,8 @@ function profiles_post(&$a) {
 		$region = notags(trim($_POST['region']));
 		$postal_code = notags(trim($_POST['postal_code']));
 		$country_name = notags(trim($_POST['country_name']));
-		$pub_keywords = notags(trim($_POST['pub_keywords']));
-		$prv_keywords = notags(trim($_POST['prv_keywords']));
+		$pub_keywords = profile_clean_keywords(notags(trim($_POST['pub_keywords'])));
+		$prv_keywords = profile_clean_keywords(notags(trim($_POST['prv_keywords'])));
 		$marital = notags(trim($_POST['marital']));
 		$howlong = notags(trim($_POST['howlong']));
 
@@ -223,7 +240,7 @@ function profiles_post(&$a) {
 			$howlong = '0000-00-00 00:00:00';
 		else
 			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
- 
+
 		// linkify the relationship target if applicable
 
 		$withchanged = false;
@@ -277,7 +294,7 @@ function profiles_post(&$a) {
 						$newname = $r[0]['name'];
 					}
 				}
-	
+
 				if($prf) {
 					$with = str_replace($lookup,'<a href="' . $prf . '">' . $newname	. '</a>', $with);
 					if(strpos($with,'@') === 0)
@@ -468,6 +485,30 @@ function profiles_post(&$a) {
 		}
 
 		if($is_default) {
+			$location = $locality;
+
+			if ($region != "") {
+				if ($location != "")
+					$location .= ", ";
+
+				$location .= $region;
+			}
+
+			if ($country_name != "") {
+				if ($location != "")
+					$location .= ", ";
+
+				$location .= $country_name;
+			}
+
+			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
+				dbesc($about),
+				dbesc($location),
+				dbesc($pub_keywords),
+				dbesc($gender),
+				intval(local_user())
+			);
+
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory_submit_url')))

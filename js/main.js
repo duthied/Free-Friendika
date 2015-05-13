@@ -1,3 +1,7 @@
+  function resizeIframe(obj) {
+    obj.style.height = 0;
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
 
   function openClose(theID) {
     if(document.getElementById(theID).style.display == "block") { 
@@ -182,6 +186,18 @@
 					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
 					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
 					nnm.append(html);
+					
+					if(e.text().search('&rarr;') == 0) {
+                                         var notification = new Notification(document.title, {
+                                          body: e.text().replace('&rarr; ',''),
+                                          icon: e.attr('photo')
+                                         });
+   
+                                         // TODO (yet unsupported by most browsers): 
+                                         // Implement notification.onclick()
+                                         
+                                         // notifyMarkAll();
+                                       }
 				});
 
 				$("img[data-src]", nnm).each(function(i, el){
@@ -210,7 +226,7 @@
 			});
 			eSysmsg.children("info").each(function(){
 				text = $(this).text();
-				$.jGrowl(text, { sticky: false, theme: 'info', life: 10000 });
+				$.jGrowl(text, { sticky: false, theme: 'info', life: 5000 });
 			});
 			
 		});
@@ -290,7 +306,7 @@
 			if(livetime) {
 				clearTimeout(livetime);
 			}
-			livetime = setTimeout(liveUpdate, 10000);
+			livetime = setTimeout(liveUpdate, 5000);
 			return;
 		}
 		if(livetime != null)

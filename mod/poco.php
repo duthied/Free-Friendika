@@ -1,6 +1,7 @@
 <?php
 
 function poco_init(&$a) {
+	require_once("include/bbcode.php");
 
 	$system_mode = false;
 
@@ -12,7 +13,7 @@ function poco_init(&$a) {
 		$user = notags(trim($a->argv[1]));
 	}
 	if(! x($user)) {
-		$c = q("select * from pconfig where cat = 'system' and k = 'suggestme' and v = 1");
+		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
 		if(! count($c))
 			http_status_exit(401);
 		$system_mode = true;
@@ -21,7 +22,12 @@ function poco_init(&$a) {
 	$format = (($_GET['format']) ? $_GET['format'] : 'json');
 
 	$justme = false;
+	$global = false;
 
+	if($a->argc > 1 && $a->argv[1] === '@global') {
+		$global = true;
+		$update_limit = date("Y-m-d H:i:s", time() - 30 * 86400);
+	}
 	if($a->argc > 2 && $a->argv[2] === '@me')
 		$justme = true;
 	if($a->argc > 3 && $a->argv[3] === '@all')
@@ -30,9 +36,9 @@ function poco_init(&$a) {
 		$justme = true;
 	if($a->argc > 4 && intval($a->argv[4]) && $justme == false)
 		$cid = intval($a->argv[4]);
- 		
 
-	if(! $system_mode) {
+
+	if(!$system_mode AND !$global) {
 		$r = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
@@ -44,21 +50,37 @@ function poco_init(&$a) {
 	}
 
 	if($justme)
-		$sql_extra = " and `contact`.`self` = 1 ";
-	else
-		$sql_extra = " and `contact`.`self` = 0 ";
+		$sql_extra = " AND `contact`.`self` = 1 ";
+//	else
+//		$sql_extra = " AND `contact`.`self` = 0 ";
 
 	if($cid)
-		$sql_extra = sprintf(" and `contact`.`id` = %d ",intval($cid));
+		$sql_extra = sprintf(" AND `contact`.`id` = %d ",intval($cid));
 
-	if($system_mode) {
-		$r = q("SELECT count(*) as `total` from `contact` where self = 1 
-			and uid in (select uid from pconfig where cat = 'system' and k = 'suggestme' and v = 1) ");
-	}
-	else {
-		$r = q("SELECT count(*) as `total` from `contact` where `uid` = %d and blocked = 0 and pending = 0 and hidden = 0 and archive = 0
-			$sql_extra ",
-			intval($user['uid'])
+	if(x($_GET,'updatedSince'))
+		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
+
+	if ($global) {
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `network` IN ('%s')",
+			dbesc($update_limit),
+			dbesc(NETWORK_DFRN)
+		);
+	} elseif($system_mode) {
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
+			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET)
+			);
+	} else {
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
+			intval($user['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET)
 		);
 	}
 	if(count($r))
@@ -72,33 +94,50 @@ function poco_init(&$a) {
 	$itemsPerPage = ((x($_GET,'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
 
-	if($system_mode) {
-		$r = q("SELECT * from contact where self = 1 
-			and uid in (select uid from pconfig where cat = 'system' and k = 'suggestme' and v = 1) limit %d, %d ",
+	if ($global) {
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') LIMIT %d, %d",
+			dbesc($update_limit),
+			dbesc(NETWORK_DFRN),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
-	}
-	else {
-
-		$r = q("SELECT * from `contact` where `uid` = %d and blocked = 0 and pending = 0 and hidden = 0 and archive = 0
-			$sql_extra LIMIT %d, %d",
+	} elseif($system_mode) {
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
+			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
+			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
+			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
+			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET),
+			intval($startIndex),
+			intval($itemsPerPage)
+		);
+	} else {
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_STATUSNET),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	}
+
 	$ret = array();
 	if(x($_GET,'sorted'))
-		$ret['sorted'] = 'false';
+		$ret['sorted'] = false;
 	if(x($_GET,'filtered'))
-		$ret['filtered'] = 'false';
-	if(x($_GET,'updatedSince'))
-		$ret['updateSince'] = 'false';
+		$ret['filtered'] = false;
+	if(x($_GET,'updatedSince') AND !$global)
+		$ret['updatedSince'] = false;
 
-	$ret['startIndex']   = (string) $startIndex;
-	$ret['itemsPerPage'] = (string) $itemsPerPage;
-	$ret['totalResults'] = (string) $totalResults;
+	$ret['startIndex']   = (int) $startIndex;
+	$ret['itemsPerPage'] = (int) $itemsPerPage;
+	$ret['totalResults'] = (int) $totalResults;
 	$ret['entry']        = array();
 
 
@@ -106,8 +145,16 @@ function poco_init(&$a) {
 		'id' => false,
 		'displayName' => false,
 		'urls' => false,
+		'updated' => false,
 		'preferredUsername' => false,
-		'photos' => false
+		'photos' => false,
+		'aboutMe' => false,
+		'currentLocation' => false,
+		'network' => false,
+		'gender' => false,
+		'tags' => false,
+		'address' => false,
+		'generation' => false
 	);
 
 	if((! x($_GET,'fields')) || ($_GET['fields'] === '@all'))
@@ -122,20 +169,123 @@ function poco_init(&$a) {
 	if(is_array($r)) {
 		if(count($r)) {
 			foreach($r as $rr) {
+				if (!isset($rr['generation'])) {
+					if ($global)
+						$rr['generation'] = 3;
+					elseif ($system_mode)
+						$rr['generation'] = 1;
+					else
+						$rr['generation'] = 2;
+				}
+
+				if (($rr['about'] == "") AND isset($rr['pabout']))
+					$rr['about'] = $rr['pabout'];
+
+				if ($rr['location'] == "") {
+					if (isset($rr['plocation']))
+						$rr['location'] = $rr['plocation'];
+
+					if (isset($rr['pregion']) AND ($rr['pregion'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pregion'];
+					}
+
+					if (isset($rr['pcountry']) AND ($rr['pcountry'] != "")) {
+						if ($rr['location'] != "")
+							$rr['location'] .= ", ";
+
+						$rr['location'] .= $rr['pcountry'];
+					}
+				}
+
+				if (($rr['gender'] == "") AND isset($rr['pgender']))
+					$rr['gender'] = $rr['pgender'];
+
+				if (($rr['keywords'] == "") AND isset($rr['pub_keywords']))
+					$rr['keywords'] = $rr['pub_keywords'];
+
 				$entry = array();
 				if($fields_ret['id'])
-					$entry['id'] = $rr['id'];
+					$entry['id'] = (int)$rr['id'];
 				if($fields_ret['displayName'])
 					$entry['displayName'] = $rr['name'];
+				if($fields_ret['aboutMe'])
+					$entry['aboutMe'] = bbcode($rr['about'], false, false);
+				if($fields_ret['currentLocation'])
+					$entry['currentLocation'] = $rr['location'];
+				if($fields_ret['gender'])
+					$entry['gender'] = $rr['gender'];
+				if($fields_ret['generation'])
+					$entry['generation'] = (int)$rr['generation'];
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['url'], 'type' => 'profile'));
 					if($rr['addr'] && ($rr['network'] !== NETWORK_MAIL))
-						$entry['urls'][] = array('value' => 'acct:' . $rr['addr'], 'type' => 'webfinger');  
+						$entry['urls'][] = array('value' => 'acct:' . $rr['addr'], 'type' => 'webfinger');
 				}
 				if($fields_ret['preferredUsername'])
 					$entry['preferredUsername'] = $rr['nick'];
+				if($fields_ret['updated']) {
+					if (!$global) {
+						$entry['updated'] = $rr['success_update'];
+
+						if ($rr['name-date'] > $entry['updated'])
+							$entry['updated'] = $rr['name-date'];
+
+						if ($rr['uri-date'] > $entry['updated'])
+							$entry['updated'] = $rr['uri-date'];
+
+						if ($rr['avatar-date'] > $entry['updated'])
+							$entry['updated'] = $rr['avatar-date'];
+					} else
+						$entry['updated'] = $rr['updated'];
+
+					$entry['updated'] = date("c", strtotime($entry['updated']));
+				}
 				if($fields_ret['photos'])
 					$entry['photos'] = array(array('value' => $rr['photo'], 'type' => 'profile'));
+				if($fields_ret['network']) {
+					$entry['network'] = $rr['network'];
+					if ($entry['network'] == NETWORK_STATUSNET)
+						$entry['network'] = NETWORK_OSTATUS;
+					if (($entry['network'] == "") AND ($rr['self']))
+						$entry['network'] = NETWORK_DFRN;
+				}
+				if($fields_ret['tags']) {
+					$tags = str_replace(","," ",$rr['keywords']);
+					$tags = explode(" ", $tags);
+
+					$cleaned = array();
+					foreach ($tags as $tag) {
+						$tag = trim(strtolower($tag));
+						if ($tag != "")
+							$cleaned[] = $tag;
+					}
+
+					$entry['tags'] = array($cleaned);
+				}
+				if($fields_ret['address']) {
+					$entry['address'] = array();
+
+					// Deactivated. It just reveals too much data. (Although its from the default profile)
+					//if (isset($rr['paddress']))
+					//	 $entry['address']['streetAddress'] = $rr['paddress'];
+
+					if (isset($rr['plocation']))
+						 $entry['address']['locality'] = $rr['plocation'];
+
+					if (isset($rr['pregion']))
+						 $entry['address']['region'] = $rr['pregion'];
+
+					// See above
+					//if (isset($rr['ppostalcode']))
+					//	 $entry['address']['postalCode'] = $rr['ppostalcode'];
+
+					if (isset($rr['pcountry']))
+						 $entry['address']['country'] = $rr['pcountry'];
+				}
+
 				$ret['entry'][] = $entry;
 			}
 		}
@@ -153,7 +303,7 @@ function poco_init(&$a) {
 	if($format === 'json') {
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();	
+		killme();
 	}
 	else
 		http_status_exit(500);

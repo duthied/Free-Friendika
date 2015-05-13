@@ -16,7 +16,7 @@ function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 {
-	$savestart = str_replace('$', '%', $startbb);
+	$savestart = str_replace('$', '\x01', $startbb);
 	$replace = false;
 
 	$xpath = new DomXPath($doc);
@@ -37,7 +37,7 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 		foreach ($attributes as $attribute => $value) {
 
-			$startbb = str_replace('%'.++$i, '$1', $startbb);
+			$startbb = str_replace('\x01'.++$i, '$1', $startbb);
 
 			if (strpos('*'.$startbb, '$1') > 0) {
 
@@ -76,19 +76,17 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	return($replace);
 }
 
+if(!function_exists('deletenode')) {
 function deletenode(&$doc, $node)
 {
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//".$node);
 	foreach ($list as $child)
 		$child->parentNode->removeChild($child);
-}
+}}
 
 function html2bbcode($message)
 {
-
-	//$file = tempnam("/tmp/", "html");
-	//file_put_contents($file, $message);
 
 	$message = str_replace("\r", "", $message);
 
@@ -206,12 +204,19 @@ function html2bbcode($message)
 	//node2bbcode($doc, 'tr', array(), "[tr]", "[/tr]");
 	//node2bbcode($doc, 'td', array(), "[td]", "[/td]");
 
-	node2bbcode($doc, 'h1', array(), "\n\n[size=xx-large][b]", "[/b][/size]\n");
-	node2bbcode($doc, 'h2', array(), "\n\n[size=x-large][b]", "[/b][/size]\n");
-	node2bbcode($doc, 'h3', array(), "\n\n[size=large][b]", "[/b][/size]\n");
-	node2bbcode($doc, 'h4', array(), "\n\n[size=medium][b]", "[/b][/size]\n");
-	node2bbcode($doc, 'h5', array(), "\n\n[size=small][b]", "[/b][/size]\n");
-	node2bbcode($doc, 'h6', array(), "\n\n[size=x-small][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h1', array(), "\n\n[size=xx-large][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h2', array(), "\n\n[size=x-large][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h3', array(), "\n\n[size=large][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h4', array(), "\n\n[size=medium][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h5', array(), "\n\n[size=small][b]", "[/b][/size]\n");
+	//node2bbcode($doc, 'h6', array(), "\n\n[size=x-small][b]", "[/b][/size]\n");
+
+	node2bbcode($doc, 'h1', array(), "\n\n[h1]", "[/h1]\n");
+	node2bbcode($doc, 'h2', array(), "\n\n[h2]", "[/h2]\n");
+	node2bbcode($doc, 'h3', array(), "\n\n[h3]", "[/h3]\n");
+	node2bbcode($doc, 'h4', array(), "\n\n[h4]", "[/h4]\n");
+	node2bbcode($doc, 'h5', array(), "\n\n[h5]", "[/h5]\n");
+	node2bbcode($doc, 'h6', array(), "\n\n[h6]", "[/h6]\n");
 
 	node2bbcode($doc, 'a', array('href'=>'/mailto:(.+)/'), '[mail=$1]', '[/mail]');
 	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
