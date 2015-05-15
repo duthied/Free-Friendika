@@ -745,9 +745,10 @@ function settings_content(&$a) {
 
 		$checked = ((get_pconfig(local_user(), 'system', 'no_intelligent_shortening')) ? ' checked="checked" ' : '');
 
-		$settings_connectors .= '<div id="general-shortening-wrapper">';
-		$settings_connectors .= '<label id="general-shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
+		$settings_connectors .= '<div id="no_intelligent_shortening" class="field checkbox">';
+		$settings_connectors .= '<label id="no_intelligent_shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
 		$settings_connectors .= '<input id="shortening-checkbox" type="checkbox" name="no_intelligent_shortening" value="1" ' . $checked . '/>';
+		$settings_connectors .= '<span class="field_help">'.t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.').'</span>';
 		$settings_connectors .= '</div>';
 
 		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
