@@ -133,7 +133,6 @@ Map
 <pre>[map=lat,long]</pre>
 
 You can embed maps from coordinates or addresses. 
-Nominatim will be used to convert address to coordinates.
 This require "openstreetmap" addon version 1.3 or newer.
 
 
