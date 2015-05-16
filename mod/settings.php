@@ -177,7 +177,9 @@ function settings_post(&$a) {
 
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
-		if(x($_POST, 'imap-submit')) {
+		if(x($_POST, 'general-submit')) {
+			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', $_POST['no_intelligent_shortening']);
+		} elseif(x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
 			$mail_port         = ((x($_POST,'mail_port')) ? $_POST['mail_port'] : '');
@@ -733,7 +735,25 @@ function settings_content(&$a) {
 
 	if(($a->argc > 1) && ($a->argv[1] === 'connectors')) {
 
-		$settings_connectors = "";
+		$settings_connectors = '<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+		$settings_connectors .= '<div id="settings_general_expanded" class="settings-block" style="display: none;">';
+		$settings_connectors .= '<span class="fakelink" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+
+		$checked = ((get_pconfig(local_user(), 'system', 'no_intelligent_shortening')) ? ' checked="checked" ' : '');
+
+		$settings_connectors .= '<div id="no_intelligent_shortening" class="field checkbox">';
+		$settings_connectors .= '<label id="no_intelligent_shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
+		$settings_connectors .= '<input id="shortening-checkbox" type="checkbox" name="no_intelligent_shortening" value="1" ' . $checked . '/>';
+		$settings_connectors .= '<span class="field_help">'.t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
+
+		$settings_connectors .= '</div><div class="clear"></div>';
 
 		call_hooks('connector_settings', $settings_connectors);
 

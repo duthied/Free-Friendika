@@ -182,6 +182,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 				$post["url"] = $b["plink"];
 			} elseif (strpos($b["body"], "[share") !== false)
 				$post["url"] = $b["plink"];
+			elseif (get_pconfig($b["uid"], "system", "no_intelligent_shortening"))
+				$post["url"] = $b["plink"];
 
 			$msg = shortenmsg($msg, $limit);
 		}
