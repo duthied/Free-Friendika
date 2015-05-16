@@ -2,7 +2,9 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
+require_once("include/map.php");
 require_once("mod/proxy.php");
+
 
 if(! function_exists('replace_macros')) {
 /**
@@ -1460,6 +1462,14 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		$as .= '<div class="clear"></div></div>';
 	}
 	$s = $s . $as;
+
+	// map
+	if(strpos($s,'<div class="map">') !== false && $item['coord']) {
+		$x = generate_map(trim($item['coord']));
+		if($x) {
+			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
+		}
+	}		
 
 
 	// Look for spoiler
