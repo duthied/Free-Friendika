@@ -10,15 +10,13 @@ if(! function_exists('fetch_url')) {
 function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_content=Null, $cookiejar = 0) {
 
 	$ret = z_fetch_url(
-		$url, 
-		$binary, 
-		$redirects, 
-		array('timeout'=>$timeout, 
+		$url,
+		$binary,
+		$redirects,
+		array('timeout'=>$timeout,
 		'accept_content'=>$accept_content,
 		'cookiejar'=>$cookiejar
 		));
-
-
 
 	return($ret['body']);
 }}
@@ -40,7 +38,7 @@ if(!function_exists('z_fetch_url')){
  *  * \b novalidate => do not validate SSL certs, default is to validate using our CA list
  *  * \b nobody => only return the header
  *	* \b cookiejar => path to cookie jar file
- * 
+ *
  * @return array an assoziative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
@@ -50,7 +48,7 @@ if(!function_exists('z_fetch_url')){
 function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 
 	$ret = array('return_code' => 0, 'success' => false, 'header' => "", 'body' => "");
-	
+
 
 	$stamp1 = microtime(true);
 
@@ -154,7 +152,7 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 			$redirects++;
 			@curl_close($ch);
-			return fetch_url($newurl,$binary,$redirects,$timeout,$accept_content,$cookiejar);
+			return z_fetch_url($newurl,$binary, $redirects, $opts);
 		}
 	}
 
@@ -182,9 +180,9 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		$ret['debug'] = $curl_info;
 	}
 	@curl_close($ch);
-	
+
 	$a->save_timestamp($stamp1, "network");
-	
+
 	return($ret);
 
 }}
