@@ -43,7 +43,7 @@ function format_event_html($ev) {
 			. bbcode($ev['location']) 
 			. '</span></p>' . "\r\n";
 		
-		if (str_pos("[map", $ev['location'])==0) {
+		if (strpos($ev['location'], "[map")===False) {
 			$map = generate_named_map($ev['location']);
 			if ($map!==$ev['location']) $o.=$map;
 		}
