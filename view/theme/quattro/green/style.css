@@ -840,6 +840,9 @@ aside #dfrn-request-link:hover {
 aside #profiles-menu {
   width: 20em;
 }
+aside .posted-date-selector-months {
+  margin-left: 10px;
+}
 #contact-block {
   overflow: auto;
   height: auto;

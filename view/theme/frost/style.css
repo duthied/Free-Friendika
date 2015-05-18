@@ -2327,11 +2327,11 @@ a.mail-list-link {
 	margin-top: 10px;
 }
 
-.nets-ul, .fileas-ul, .categories-ul {
+.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
 	list-style-type: none;
 }
 
-.nets-ul li, .fileas-ul li, .categories-ul li {
+.nets-ul li, .fileas-ul li, .categories-ul li, .datebrowse-ul li {
 	margin-top: 10px;
 }
 
