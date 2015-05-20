@@ -724,16 +724,17 @@ function diaspora_request($importer,$xml) {
 		else
 			$new_relation = CONTACT_IS_FOLLOWER;
 
-		$r = q("UPDATE `contact` SET 
-			`photo` = '%s', 
+		$r = q("UPDATE `contact` SET
+			`photo` = '%s',
 			`thumb` = '%s',
-			`micro` = '%s', 
-			`rel` = %d, 
-			`name-date` = '%s', 
-			`uri-date` = '%s', 
-			`avatar-date` = '%s', 
-			`blocked` = 0, 
-			`pending` = 0
+			`micro` = '%s',
+			`rel` = %d,
+			`name-date` = '%s',
+			`uri-date` = '%s',
+			`avatar-date` = '%s',
+			`blocked` = 0,
+			`pending` = 0,
+			`writable` = 1
 			WHERE `id` = %d
 			",
 			dbesc($photos[0]),
