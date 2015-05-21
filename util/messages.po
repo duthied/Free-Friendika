@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 21:53+0200\n"
+"POT-Creation-Date: 2015-05-21 10:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,51 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-
-#: ../../view/smarty3/compiled/c019a398ec980bbc7c3aaa08335fce9651dcb225.file.newrepo.tpl.php:42
-#: ../../view/smarty3/compiled/06122f3d4709e72b359275cd40cd821933415fe0.file.clonerepo.tpl.php:53
-msgid "Visibility"
-msgstr ""
-
-#: ../../view/smarty3/compiled/c019a398ec980bbc7c3aaa08335fce9651dcb225.file.newrepo.tpl.php:58
-#: ../../view/smarty3/compiled/06122f3d4709e72b359275cd40cd821933415fe0.file.clonerepo.tpl.php:69
-msgid "Create"
-msgstr ""
-
-#: ../../view/smarty3/compiled/41891c5779c0b5b306eb4631dfa03e39256ed413.file.index.tpl.php:31
-msgid "Projects"
-msgstr ""
-
-#: ../../view/smarty3/compiled/41891c5779c0b5b306eb4631dfa03e39256ed413.file.index.tpl.php:32
-msgid "add new"
-msgstr ""
-
-#: ../../view/smarty3/compiled/41891c5779c0b5b306eb4631dfa03e39256ed413.file.index.tpl.php:51
-msgid "delete"
-msgstr ""
-
-#: ../../view/smarty3/compiled/41891c5779c0b5b306eb4631dfa03e39256ed413.file.index.tpl.php:68
-#, php-format
-msgid ""
-"Do you want to delete the project '%s'?\\n\\nThis operation cannot be undone."
-msgstr ""
-
-#: ../../view/smarty3/compiled/0396216d64cb7742520aa8262a6a394e89d80c43.file.commit.tpl.php:77
-#: ../../view/smarty3/compiled/29cb6aa326dbca251230b851c0bbe02ce1a1fb7d.file.project.tpl.php:76
-#: ../../view/smarty3/compiled/457647d85063c796c6f472b14e11e0f149ad349e.file.commits.tpl.php:77
-#: ../../view/smarty3/compiled/e4401331124fce3693a6f71f4a53d583842f7c80.file.blob.tpl.php:76
-#: ../../view/smarty3/compiled/4c3c3e0c286a99f48dffd8d4804be0037add3598.file.project_empty.tpl.php:60
-#: ../../view/smarty3/compiled/18078637833aeed88b65c61470b20001d5525b7d.file.tree.tpl.php:76
-msgid "Clone this project:"
-msgstr ""
-
-#: ../../view/smarty3/compiled/e4401331124fce3693a6f71f4a53d583842f7c80.file.blob.tpl.php:112
-msgid "Click here to download"
-msgstr ""
-
-#: ../../view/smarty3/compiled/4c3c3e0c286a99f48dffd8d4804be0037add3598.file.project_empty.tpl.php:73
-msgid "This project is empty!"
-msgstr ""
 
 #: ../../view/theme/cleanzero/config.php:80
 #: ../../view/theme/vier/config.php:56
@@ -448,37 +403,6 @@ msgstr ""
 
 #: ../../index.php:441
 msgid "toggle mobile"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/trust.php:30
-#, php-format
-msgid "Do you wish to confirm your identity (<tt>%s</tt>) with <tt>%s</tt>"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/trust.php:43
-#: ../../mod/dfrn_request.php:674 ../../mod/dfrn_request.php:691
-msgid "Confirm"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/trust.php:44
-msgid "Do not confirm"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/trust.php:48
-msgid "Trust This Site"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/trust.php:53
-msgid "No Identifier Sent"
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render/wronguser.php:5
-msgid "Requested identity don't match logged in user."
-msgstr ""
-
-#: ../../addon-wrk/openidserver/lib/render.php:27
-#, php-format
-msgid "Please wait; you are being redirected to <%s>"
 msgstr ""
 
 #: ../../boot.php:749
@@ -4878,6 +4802,10 @@ msgstr ""
 msgid ""
 "Incorrect identity currently logged in. Please login to <strong>this</"
 "strong> profile."
+msgstr ""
+
+#: ../../mod/dfrn_request.php:674 ../../mod/dfrn_request.php:691
+msgid "Confirm"
 msgstr ""
 
 #: ../../mod/dfrn_request.php:686

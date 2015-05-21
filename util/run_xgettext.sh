@@ -12,7 +12,7 @@ then
 fi
 
 if [ $ADDONMODE ]
-then 
+then
 	cd "$FULLPATH/../addon/$ADDONNAME"
 	mkdir -p "$FULLPATH/../addon/$ADDONNAME/lang/C"
 	OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/messages.po"
@@ -23,7 +23,7 @@ else
 	OUTFILE="$FULLPATH/messages.po"
 	FINDSTARTDIR="../../"
 	# skip addon folder
-	FINDOPTS="-wholename */addon -prune -o"
+	FINDOPTS="( -wholename */addon -or -wholename */smarty3 ) -prune -o"
 fi
 
 F9KVERSION=$(sed -n "s/.*'FRIENDICA_VERSION'.*'\([0-9.]*\)'.*/\1/p" ../../boot.php);
@@ -45,7 +45,7 @@ done
 
 echo "setup base info.."
 if [ $ADDONMODE ]
-then 
+then
 	sed -i "s/SOME DESCRIPTIVE TITLE./ADDON $ADDONNAME/g" "$OUTFILE"
 	sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER//g" "$OUTFILE"
 	sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.//g" "$OUTFILE"
