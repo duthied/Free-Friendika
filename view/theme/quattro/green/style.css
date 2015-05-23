@@ -1282,13 +1282,13 @@ section {
     opacity: 0.5;
 }*/
 .wwto {
+  position: absolute !important;
   background: #FFFFFF;
   border: 2px solid #364e59;
   height: 25px;
   width: 25px;
   overflow: hidden;
   padding: 1px;
-  position: absolute !important;
   top: 40px;
   left: 30px;
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
