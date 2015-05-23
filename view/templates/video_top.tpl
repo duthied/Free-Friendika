@@ -11,7 +11,7 @@
 	{{*<div class="video-top-album-name"><a href="{{$video.album.link}}" class="video-top-album-link" title="{{$video.album.alt}}" >{{$video.album.name}}</a></div>*}}
 	{{if $delete_url }}
 		<form method="post" action="{{$delete_url}}">
-		<input type="submit" name="delete" value="X"></input>
+		<input type="submit" name="delete" value="X" class="video-delete"></input>
 		<input type="hidden" name="id" value="{{$video.id}}"></input>
 		</form>
 	{{/if}}
