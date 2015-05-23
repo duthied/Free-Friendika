@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{$baseurl}}/library/colorbox/colorbox.css" type="text/css" media="screen" />
 {{*<!--<link rel="stylesheet" href="{{$baseurl}}/library/tiptip/tipTip.css" type="text/css" media="screen" />-->*}}
 <link rel="stylesheet" href="{{$baseurl}}/library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
