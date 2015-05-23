@@ -14,11 +14,11 @@
 	}
         
         function doEventPreview() {
-        $('#event-edit-preview').val(1);
-        $.post('events',$('#event-edit-form').serialize(), function(data) {
-                $.colorbox({ html: data });
-        });
-        $('#event-edit-preview').val(0);
+                $('#event-edit-preview').val(1);
+                $.post('events',$('#event-edit-form').serialize(), function(data) {
+                        $.colorbox({ html: data });
+                });
+                $('#event-edit-preview').val(0);
 	}
 
 	

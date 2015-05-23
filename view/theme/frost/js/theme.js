@@ -353,6 +353,14 @@ function showEvent(eventid) {
 	);			
 }
 
+function doEventPreview() {
+        $('#event-edit-preview').val(1);
+        $.post('events',$('#event-edit-form').serialize(), function(data) {
+                $.colorbox({ html: data });
+        });
+        $('#event-edit-preview').val(0);
+}
+
 function initCrop() {
 	function onEndCrop( coords, dimensions ) {
 		$PR( 'x1' ).value = coords.x1;
