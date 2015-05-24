@@ -12,9 +12,9 @@ body {
 h4 { font-size: 1.1em }
 
 .shadow(@x: 0px, @y: 5px){
-   -webkit-box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
-   -moz-box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
-   box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
+        -webkit-box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
+        -moz-box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
+        box-shadow:@x @y 10px rgba(0, 0, 0, 0.7);
 }
 
 .rounded(@tr: 5px, @tl: 5px, @bl: 5px, @br: 5px){
@@ -52,10 +52,10 @@ a:hover {color: @LinkHover; text-decoration: underline; }
 .fakelink:hover { color: @LinkHover; text-decoration: underline; }
 
 blockquote {
-    background:@BlockquoteBackgroundColor;
-    padding: 1em;
-    margin-left: 1em;
-    border-left: 1em solid @BlockquoteBorderColor;
+        background:@BlockquoteBackgroundColor;
+        padding: 1em;
+        margin-left: 1em;
+        border-left: 1em solid @BlockquoteBorderColor;
     
 }
 
@@ -86,17 +86,13 @@ code {
 }
 
 
-
 /* tool */
-
 .tool {
 	height: auto; overflow: auto;
 	.label { float: left;}
 	.action { float: right; }
 	> img { float: left; }
 }
-
-
 
 
 /* popup notifications */
@@ -144,6 +140,7 @@ header {
 		#logo-text { font-size: 22px }
 	}
 }
+
 /* nav */
 nav { 
 	width: 100%; height: 32px;
@@ -223,7 +220,7 @@ nav {
 	
 		#nav-notifications-linkmenu.on .icon.s22.notify,
 		#nav-notifications-linkmenu.selected .icon.s22.notify   { background-image: url("../../../images/icons/22/notify_on.png") }
-        #nav-introductions-link.on .icon.s22.intro,
+                #nav-introductions-link.on .icon.s22.intro,
 		#nav-introductions-link.selected .icon.s22.intro        { background-image: url("icons/contacts_on.png") }
 		#nav-messages-link.on .icon.s22.mail,
 		#nav-messages-link.selected .icon.s22.mail              { background-image: url("icons/messages_on.png") }		
@@ -302,8 +299,6 @@ ul.menu-popup {
 }
 
 
-
-
 /* aside 230px*/
 aside { 
 	display: table-cell;
@@ -353,8 +348,8 @@ aside {
 	}
 
 	#profiles-menu { width: 20em; }
-
-
+        
+        .posted-date-selector-months { margin-left: 10px; }
 }
 
 #contact-block {
@@ -665,72 +660,70 @@ section {
 }*/
 
 .wwto { 
-	position: absolute !important; 
-	width: 25px; height: 25px; 
-    background: #FFFFFF;
-    border: 2px solid @Metalic3;
-    height: 25px;
-    width: 25px;
-    overflow: hidden;
-    padding: 1px;
-    position: absolute !important;
-    top: 40px;
-    left: 30px;
-    
-    .shadow(0px, 0px)
+        position: absolute !important;
+        background: #FFFFFF;
+        border: 2px solid @Metalic3;
+        height: 25px;
+        width: 25px;
+        overflow: hidden;
+        padding: 1px;
+        top: 40px;
+        left: 30px;
+
+        .shadow(0px, 0px);
 }
 .wwto .contact-photo { width: 25px; height: 25px; }
 
 /* reshare e embed */
 .wall-item-container .wall-item-content .type-link img,
 .type-link img {
-    max-width: 160px;
-    max-height: 160px;
-    float: left;
-    margin-right: 10px;
+        max-width: 160px;
+        max-height: 160px;
+        float: left;
+        margin-right: 10px;
 
-	&.attachment-image {
-		max-width: 650px;
-		max-height: inital;
-		float: none;
-		margin-right: 0px;
-	}
+            &.attachment-image {
+                    max-width: 650px;
+                    max-height: inital;
+                    float: none;
+                    margin-right: 0px;
+            }
 	
 }
 .type-link {
-    blockquote {
-        margin: 1em 0px;
-        max-height: 160px;
-        overflow: hidden;
-		padding-left: 1em;
-    }
-    .oembed {}
+        blockquote {
+            margin: 1em 0px;
+            max-height: 160px;
+            overflow: hidden;
+                    padding-left: 1em;
+        }
+        .oembed {}
 }
 
 .type-video blockquote { padding-left: 1em; }
 
 .shared_header {
-    height: 32px;
-    color: #999;
-    border-top: 1px solid @ThreadBottomBorderColor;
-    padding-top: 5px;
-    margin-top: 5px;
-    
-    img {
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        border-radius: 4px;
-        float: left;
-    }
-    
-    span { margin-left: 9px; }
+        height: 32px;
+        color: #999;
+        border-top: 1px solid @ThreadBottomBorderColor;
+        padding-top: 5px;
+        margin-top: 5px;
+
+        img {
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            float: left;
+        }
+
+        span { margin-left: 9px; }
 }
 
 
 blockquote.shared_content {
-    margin-left: 32px;
-    color: #000;
-    border: none;
+        margin-left: 32px;
+        color: #000;
+        border: none;
 }
 
 
@@ -798,21 +791,21 @@ blockquote.shared_content {
 /*.threaded .hide-comments-outer { margin-left: 20px; }*/
 
 span[id^="showmore-teaser"]{
-    background: url("showmore-bg.jpg") no-repeat center bottom;
+        background: url("showmore-bg.jpg") no-repeat center bottom;
 }
 span[id^="showmore-wrap"] {
-    border-top: 1px solid #999999;
-    color: #999999;
-    display: block;
-    text-align: center;
-    background-color: @ThreadBackgroundColor;
+        border-top: 1px solid #999999;
+        color: #999999;
+        display: block;
+        text-align: center;
+        background-color: @ThreadBackgroundColor;
 }
 
 
 #pause {
- position: fixed;
- bottom: 5px;
- right: 5px;
+        position: fixed;
+        bottom: 5px;
+        right: 5px;
 }
 
 
@@ -898,8 +891,7 @@ span[id^="showmore-wrap"] {
 #jot {
 
 	width: 100%;
-	margin: 0px 2em 20px 0px;
-	
+	margin: 0px 2em 20px 0px;	
 	
 	.profile-jot-text {
 		height: 1em; width: 99%; font-size: 10px;
@@ -1037,7 +1029,6 @@ span[id^="showmore-wrap"] {
 #profile-jot-acl-wrapper{
 	display:block!important;
 }
-
 
 
 #acl-wrapper {
@@ -1181,7 +1172,6 @@ ul.tabs {
 	overflow: auto;
 	width: 100%;
 
-
 	label {
 		float: left;
 		width: 200px;
@@ -1202,7 +1192,6 @@ ul.tabs {
 		color: @FieldHelpColor;
 		
 	}
-
 
 	.onoff {
 		float: left;
@@ -1292,7 +1281,7 @@ ul.tabs {
 #profile-edit-pubkeywords,
 #profile-edit-prvkeywords,
 #profile-edit-homepage {
-    margin-top: 5px;
+        margin-top: 5px;
 }
 
 /* oauth */
@@ -1509,8 +1498,8 @@ ul.tabs {
 footer { height: 100px; display: table-row; }
 
 .pager {
-    margin-top: 25px;
-    clear: both;
+        margin-top: 25px;
+        clear: both;
 }
 
 /**
@@ -1588,7 +1577,6 @@ footer { height: 100px; display: table-row; }
 }
 
 /* edit buttons for comments */
-
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 .comment-edit-bb {
 	list-style: none;
@@ -1604,12 +1592,12 @@ footer { height: 100px; display: table-row; }
 }
 
 .editicon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background-image: url(icons/bbedit.png);
-    text-decoration: none;
-    :hover {background-color: #ccc;}
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-image: url(icons/bbedit.png);
+        text-decoration: none;
+        :hover {background-color: #ccc;}
 }
 .boldbb { background-position: 0px 0px; }
 .boldbb:hover { background-position: 0px -16px; }
@@ -1632,37 +1620,36 @@ footer { height: 100px; display: table-row; }
 /** range input css **/
 /* slider root element */
 .slider {
-    height:2px;
-    position:relative;
-    cursor:pointer;
-    border:1px solid #333;
-    width:200px;
-    margin:10px 0px 10px 0px;
-	float: left;
+        height:2px;
+        position:relative;
+        cursor:pointer;
+        border:1px solid #333;
+        width:200px;
+        margin:10px 0px 10px 0px;
+            float: left;
 }
 
 /* progress bar (enabled with progress: true) */
 .progress {
-    height:9px;
-    background-color:#C5FF00;
-    display:none;
-    opacity:0.6;
+        height:9px;
+        background-color:#C5FF00;
+        display:none;
+        opacity:0.6;
 }
 
 /* drag handle */
 .handle {
-	background-color:#ccc;
-    height:16px;
-    width:8px;
-    top:-8px;
-    position:absolute;
-    display:block;
-    margin-top:1px;
-    border:1px solid #000;
-    cursor:move;
-	.roundbottom();
-	.shadow();
-
+        background-color:#ccc;
+        height:16px;
+        width:8px;
+        top:-8px;
+        position:absolute;
+        display:block;
+        margin-top:1px;
+        border:1px solid #000;
+        cursor:move;
+            .roundbottom();
+            .shadow();
 }
 
 /* the input field */
@@ -1673,4 +1660,3 @@ footer { height: 100px; display: table-row; }
 	border: 0px;
 	color: @FieldHelpColor;
 }
-

@@ -4858,6 +4858,37 @@ function first_post_date($uid,$wall = false) {
 	return false;
 }
 
+/* modified posted_dates() {below} to arrange the list in years */
+function list_post_dates($uid, $wall) {
+	$dnow = datetime_convert('',date_default_timezone_get(),'now','Y-m-d');
+	
+	$dthen = first_post_date($uid, $wall);        
+	if(! $dthen)
+		return array();
+        
+	// Set the start and end date to the beginning of the month
+        $dnow = substr($dnow,0,8).'01';
+	$dthen = substr($dthen,0,8).'01';
+        
+	$ret = array();
+        
+	// Starting with the current month, get the first and last days of every
+	// month down to and including the month of the first post
+	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+		$dyear = intval(substr($dnow,0,4));
+		$dstart = substr($dnow,0,8) . '01';
+		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
+		$start_month = datetime_convert('','',$dstart,'Y-m-d');
+		$end_month = datetime_convert('','',$dend,'Y-m-d');
+		$str = day_translate(datetime_convert('','',$dnow,'F'));
+		if(! $ret[$dyear])
+			$ret[$dyear] = array();
+ 		$ret[$dyear][] = array($str,$end_month,$start_month);
+		$dnow = datetime_convert('','',$dnow . ' -1 month', 'Y-m-d');
+	}
+	return $ret;
+}
+
 function posted_dates($uid,$wall) {
 	$dnow = datetime_convert('',date_default_timezone_get(),'now','Y-m-d');
 
@@ -4895,16 +4926,28 @@ function posted_date_widget($url,$uid,$wall) {
 
 /*	if($wall && intval(get_pconfig($uid,'system','no_wall_archive_widget')))
 		return $o;*/
-
-	$ret = posted_dates($uid,$wall);
+        
+	$visible_years = get_pconfig($uid,'system','archive_visible_years');
+	if(! $visible_years)
+		$visible_years = 5;	
+        
+        $ret = list_post_dates($uid,$wall);
+        
 	if(! count($ret))
 		return $o;
 
+        $cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
+	$cutoff = ((array_key_exists($cutoff_year,$ret))? true : false);
+        
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),array(
 		'$title' => t('Archives'),
-		'$size' => ((count($ret) > 6) ? 6 : count($ret)),
+		'$size' => $visible_years,
+		'$cutoff_year' => $cutoff_year,
+		'$cutoff' => $cutoff,
 		'$url' => $url,
-		'$dates' => $ret
+		'$dates' => $ret,
+                '$showmore' => t('show more')
+
 	));
 	return $o;
 }
