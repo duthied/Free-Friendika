@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{$baseurl}}/view/global.css" type="text/css" media="all" />
 <link rel="stylesheet" href="{{$baseurl}}/library/colorbox/colorbox.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="{{$baseurl}}/library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
@@ -34,6 +35,7 @@
 <script type="text/javascript" src="{{$baseurl}}/js/fk.autocomplete.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/library/colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/acl.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/webtoolkit.base64.js" ></script>

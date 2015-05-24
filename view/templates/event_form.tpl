@@ -13,10 +13,10 @@
 <input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
 <div id="event-start-text">{{$s_text}}</div>
-{{$s_dsel}} {{$s_tsel}}
+{{$s_dsel}}
 
 <div id="event-finish-text">{{$f_text}}</div>
-{{$f_dsel}} {{$f_tsel}}
+{{$f_dsel}}
 
 <div id="event-datetime-break"></div>
 

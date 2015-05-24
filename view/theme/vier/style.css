@@ -427,10 +427,14 @@ a.sidebar-group-element {
   color: #737373;
 }
 
-#follow-sidebar form, #peoplefind-sidebar form, #netsearch-box form, #posted-date-selector {
+#follow-sidebar form, #peoplefind-sidebar form, #netsearch-box form {
   margin-left: 10px;
   margin-top: 3px;
   margin-bottom: 3px;
+}
+
+.posted-date-selector-months {
+  margin-left: 10px;
 }
 
 #sidebar-ungrouped, .side-link {
