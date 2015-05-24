@@ -7,7 +7,7 @@ function search_saved_searches() {
 	if(! feature_enabled(local_user(),'savedsearch'))
 		return $o;
 
-	$r = q("select `id`,`term` from `search` WHERE `uid` = %d",
+	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
@@ -45,12 +45,12 @@ function search_init(&$a) {
 
 	if(local_user()) {
 		if(x($_GET,'save') && $search) {
-			$r = q("select * from `search` where `uid` = %d and `term` = '%s' limit 1",
+			$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
 				dbesc($search)
 			);
 			if(! count($r)) {
-				q("insert into `search` ( `uid`,`term` ) values ( %d, '%s') ",
+				q("INSERT INTO `search` (`uid`,`term`) VALUES ( %d, '%s')",
 					intval(local_user()),
 					dbesc($search)
 				);
@@ -135,7 +135,7 @@ function search_content(&$a) {
 	if($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -156,7 +156,7 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 
-		$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
