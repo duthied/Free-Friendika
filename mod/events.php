@@ -15,17 +15,9 @@ function events_post(&$a) {
 	$event_id = ((x($_POST,'event_id')) ? intval($_POST['event_id']) : 0);
 	$cid = ((x($_POST,'cid')) ? intval($_POST['cid']) : 0);
 	$uid      = local_user();
-	$startyear = intval($_POST['startyear']);
-	$startmonth = intval($_POST['startmonth']);
-	$startday = intval($_POST['startday']);
-	$starthour = intval($_POST['starthour']);
-	$startminute = intval($_POST['startminute']);
-
-	$finishyear = intval($_POST['finishyear']);
-	$finishmonth = intval($_POST['finishmonth']);
-	$finishday = intval($_POST['finishday']);
-	$finishhour = intval($_POST['finishhour']);
-	$finishminute = intval($_POST['finishminute']);
+        
+        $start_text = escape_tags($_REQUEST['start_text']);
+	$finish_text = escape_tags($_REQUEST['finish_text']);
 
 	$adjust   = intval($_POST['adjust']);
 	$nofinish = intval($_POST['nofinish']);
@@ -33,12 +25,23 @@ function events_post(&$a) {
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
 
-
-	$start    = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
-	if($nofinish)
+        if($start_text) {
+		$start = $start_text;
+	}
+	else {
+                $start    = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
+        }
+        
+	if($nofinish) {
 		$finish = '0000-00-00 00:00:00';
-	else
+        }
+        
+        if($finish_text) {
+		$finish = $finish_text;
+	}
+	else {
 		$finish    = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
+        }
 
 	if($adjust) {
 		$start = datetime_convert(date_default_timezone_get(),'UTC',$start);
@@ -214,8 +217,8 @@ function events_content(&$a) {
 	if($mode == 'view') {
 		
 		
-	    $thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
-    	$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
+                $thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
+                $thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
 		if(! $y)
 			$y = intval($thisyear);
 		if(! $m)
@@ -405,6 +408,19 @@ function events_content(&$a) {
 			$orig_event = $r[0];
 	}
 
+	// Passed parameters overrides anything found in the DB
+	if($mode === 'edit' || $mode === 'new') {
+		if(!x($orig_event)) $orig_event = array();
+		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
+		if(x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
+		if(x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
+		if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
+		if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
+		if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
+		if(x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
+		if(x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
+	}
+        
 	if($mode === 'edit' || $mode === 'new') {
 
 		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
@@ -425,9 +441,6 @@ function events_content(&$a) {
 		if($cid)
 			$sh_checked .= ' disabled="disabled" ';
 
-
-
-		$tpl = get_markup_template('event_form.tpl');
 
 		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
 		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
@@ -454,28 +467,24 @@ function events_content(&$a) {
 		if(! $f)
 			$f = 'ymd';
 
-		$dateformat = datesel_format($f);
-		$timeformat = t('hour:minute');
-
-		require_once('include/acl_selectors.php');
+		require_once('include/acl_selectors.php'); 
+                
+                $tpl = get_markup_template('event_form.tpl');
 
 		$o .= replace_macros($tpl,array(
 			'$post' => $a->get_baseurl() . '/events',
 			'$eid' => $eid, 
 			'$cid' => $cid,
 			'$uri' => $uri,
-	
+                    
 			'$title' => t('Event details'),
-			'$desc' => sprintf( t('Format is %s %s. Starting date and Title are required.'),$dateformat,$timeformat),
-			
+			'$desc' => t('Starting date and Title are required.'),			
 			'$s_text' => t('Event Starts:') . ' <span class="required" title="' . t('Required') . '">*</span>',
-			'$s_dsel' => datesel($f,'start',$syear+5,$syear,false,$syear,$smonth,$sday),
-			'$s_tsel' => timesel('start',$shour,$sminute),
+			'$s_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$syear+5),DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"),'start_text',true,true,'','',true),
 			'$n_text' => t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text' => t('Event Finishes:'),
-			'$f_dsel' => datesel($f,'finish',$fyear+5,$fyear,false,$fyear,$fmonth,$fday),
-			'$f_tsel' => timesel('finish',$fhour,$fminute),
+			'$f_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$fyear+5),DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"),'finish_text',true,true,'start_text'),
 			'$a_text' => t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
 			'$d_text' => t('Description:'), 
