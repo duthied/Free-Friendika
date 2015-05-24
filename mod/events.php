@@ -59,13 +59,22 @@ function events_post(&$a) {
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	if(strcmp($finish,$start) < 0)
-		$finish = $start;
-
 	$summary  = escape_tags(trim($_POST['summary']));
 	$desc     = escape_tags(trim($_POST['desc']));
 	$location = escape_tags(trim($_POST['location']));
 	$type     = 'event';
+
+	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
+	$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+
+        if(strcmp($finish,$start) < 0 && !$nofinish) {
+		notice( t('Event can not end before it has started.') . EOL);
+                if(intval($_REQUEST['preview'])) {
+			echo( t('Event can not end before it has started.'));
+			killme();
+		}
+		goaway($onerror_url);
+	}
 
 	if((! $summary) || (! $start)) {
 		notice( t('Event title and start time are required.') . EOL);
@@ -73,7 +82,7 @@ function events_post(&$a) {
 			echo( t('Event title and start time are required.'));
 			killme();
 		}
-		goaway($a->get_baseurl() . '/events/new');
+		goaway($onerror_url);
 	}
 
 	$share = ((intval($_POST['share'])) ? intval($_POST['share']) : 0);
