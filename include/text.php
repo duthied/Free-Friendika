@@ -960,19 +960,18 @@ if(! function_exists('search')) {
  * @param string $s search query
  * @param string $id html id
  * @param string $url search url
- * @param boolean $save show save search button
- * @return string html for search box #FIXME: remove html
+ * @param boolean $savedsearch show save search button
  */
 function search($s,$id='search-box',$url='/search',$save = false) {
 	$a = get_app();
-	$o  = '<div id="' . $id . '">';
-	$o .= '<form action="' . $a->get_baseurl((stristr($url,'network')) ? true : false) . $url . '" method="get" >';
-	$o .= '<input type="text" name="search" id="search-text" placeholder="' . t('Search') . '" value="' . $s .'" />';
-	$o .= '<input type="submit" name="submit" id="search-submit" value="' . t('Search') . '" />';
-	if($save)
-		$o .= '<input type="submit" name="save" id="search-save" value="' . t('Save') . '" />';
-	$o .= '</form></div>';
-	return $o;
+        return replace_macros(get_markup_template('searchbox.tpl'), array(
+		'$s' => $s,
+		'$id' => $id,
+		'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+		'$search_label' => t('Search'),
+		'$save_label' => t('Save'),
+		'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+	));
 }}
 
 if(! function_exists('valid_email')) {
