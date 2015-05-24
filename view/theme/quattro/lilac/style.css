@@ -1965,6 +1965,27 @@ ul.tabs li .active {
   width: 50px;
   float: left;
 }
+/* videos page */
+.videos .video-top-wrapper {
+  width: 200px;
+  float: left;
+  margin: 0px 10px 10px 0px;
+  position: relative;
+}
+.videos .video-top-wrapper .video-js {
+  width: 200px!important;
+  height: 132px!important;
+}
+.videos .video-top-wrapper .video-delete {
+  position: absolute;
+  opacity: 0;
+  right: 0px;
+  top: 0px;
+  transition: opacity 0.5s;
+}
+.videos .video-top-wrapper:hover .video-delete {
+  opacity: 1;
+}
 /* photo albums */
 #photo-edit-link-wrap {
   margin-bottom: 10px;
