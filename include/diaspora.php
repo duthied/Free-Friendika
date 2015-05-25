@@ -785,11 +785,20 @@ function diaspora_is_redmatrix($url) {
 }
 
 function diaspora_plink($addr, $guid) {
-	$r = q("SELECT `url`, `nick` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
+	$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
 
 	// Fallback
 	if (!$r)
 		return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
+
+	// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
+	// So we try another way as well.
+	$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
+	if ($s)
+		$r[0]["network"] = $s[0]["network"];
+
+	if ($r[0]["network"] == NETWORK_DFRN)
+		return(str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/"));
 
 	if (diaspora_is_redmatrix($r[0]["url"]))
 		return $r[0]["url"]."/?f=&mid=".$guid;
@@ -1105,16 +1114,17 @@ function diaspora_reshare($importer,$xml,$msg) {
 
 	$orig_author = notags(unxmlify($xml->root_diaspora_id));
 	$orig_guid = notags(unxmlify($xml->root_guid));
+	$orig_url = $a->get_baseurl()."/display/".$orig_guid;
 
 	$create_original_post = false;
 
 	// Do we already have this item?
-	$r = q("SELECT `body`, `tag`, `app`, `created`, `author-link`, `plink` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+	$r = q("SELECT `body`, `tag`, `app`, `created`, `plink`, `object`, `object-type`, `uri` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 		dbesc($orig_guid),
 		dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
-		logger('reshared message '.$orig_guid." reshared by ".$guid.' already exists on system: '.$orig_url);
+		logger('reshared message '.$orig_guid." reshared by ".$guid.' already exists on system.');
 
 		// Maybe it is already a reshared item?
 		// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
@@ -1126,9 +1136,9 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$str_tags = $r[0]["tag"];
 			$app = $r[0]["app"];
 			$orig_created = $r[0]["created"];
-			$orig_author = $r[0]["author-link"];
+			$orig_plink = $r[0]["plink"];
+			$orig_uri = $r[0]["uri"];
 			$create_original_post = ($body != "");
-			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
 			$object = $r[0]["object"];
 			$objecttype = $r[0]["object-type"];
 		}
@@ -1138,8 +1148,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$body = "";
 		$str_tags = "";
 		$app = "";
-
-		$orig_url = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
 
 		$server = 'https://'.substr($orig_author,strpos($orig_author,'@')+1);
 		logger('1st try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
@@ -1168,12 +1176,15 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$orig_created = $item["created"];
 			$orig_author = $item["author"];
 			$orig_guid = $item["guid"];
+			$orig_plink = diaspora_plink($orig_author, $orig_guid);
+			$orig_uri = $orig_author.':'.$orig_guid;
 			$create_original_post = ($body != "");
-			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
 			$object = $item["object"];
 			$objecttype = $item["object-type"];
 		}
 	}
+
+	$plink = diaspora_plink($diaspora_handle, $guid);
 
 	$person = find_diaspora_person_by_handle($orig_author);
 
@@ -1181,8 +1192,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
 
 	$datarray = array();
-
-	$plink = diaspora_plink($diaspora_handle, $guid);
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
@@ -1230,9 +1239,9 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray2['uid'] = 0;
 		$datarray2['contact-id'] = get_contact($person['url'], 0);
 		$datarray2['guid'] = $orig_guid;
-		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_author.':'.$orig_guid;
+		$datarray2['uri'] = $orig_uri;
 		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = $datarray2['commented'] = $datarray2['received'] = datetime_convert('UTC','UTC',$orig_created);
-		$datarray2['plink'] = diaspora_plink($orig_author, $orig_guid);
+		$datarray2['plink'] = $orig_plink;
 
 		$datarray2['author-name'] = $person['name'];
 		$datarray2['author-link'] = $person['url'];
