@@ -177,9 +177,9 @@ function search_content(&$a) {
 
 
 	if($tag)
-		$o .= '<h2>' . t('Items tagged with:')  . ' ' . $search . '</h2>';
+		$o .= '<h2>' . sprintf( t('Items tagged with: %s'), $search) . '</h2>';
 	else
-		$o .= '<h2>' . t('Search results for:') . ' ' . $search . '</h2>';
+		$o .= '<h2>' . sprintf( t('Search results for: %s'), $search) . '</h2>';
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
 	$o .= conversation($a,$r,'search',false);
