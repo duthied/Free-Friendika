@@ -20,12 +20,11 @@ function allfriends_content(&$a) {
 		intval(local_user())
 	);
 
-	$a->page['aside'] .= '<div class="vcard">' 
-		. '<div class="fn label">' . $c[0]['name'] . '</div>' 
-		. '<div id="profile-photo-wrapper">'
-		. '<a href="/contacts/' . $cid . '"><img class="photo" width="175" height="175" 
-		src="' . $c[0]['photo'] . '" alt="' . $c[0]['name'] . '" /></div>'
-		. '</div>';
+	$a->page['aside'] .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
+                '$name' => $c[0]['name'],
+                '$photo' => $c[0]['photo'],
+                'url' => $a->get_baseurl() . '/contacts/' . $cid
+                ));
 	
 
 	if(! count($c))
