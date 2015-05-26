@@ -2,7 +2,30 @@
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 
-function check_conversations() {
+function ostatus_convert_href($href) {
+	$elements = explode(":",$href);
+
+	if ((count($elements) <= 2) OR ($elements[0] != "tag"))
+		return $href;
+
+	$server = explode(",", $elements[1]);
+	$conversation = explode("=", $elements[2]);
+
+	if ((count($elements) == 4) AND ($elements[2] == "post"))
+		return "http://".$server[0]."/notice/".$elements[3];
+
+	if ((count($conversation) != 2) OR ($conversation[1] ==""))
+		return $href;
+
+	if ($elements[3] == "objectType=thread")
+		return "http://".$server[0]."/conversation/".$conversation[1];
+	else
+		return "http://".$server[0]."/notice/".$conversation[1];
+
+	return $href;
+}
+
+function check_conversations($override = false) {
         $last = get_config('system','ostatus_last_poll');
 
         $poll_interval = intval(get_config('system','ostatus_poll_interval'));
@@ -10,16 +33,16 @@ function check_conversations() {
                 $poll_interval = OSTATUS_DEFAULT_POLL_INTERVAL;
 
 	// Don't poll if the interval is set negative
-	if ($poll_interval < 0)
+	if (($poll_interval < 0) AND !$override)
 		return;
 
         $poll_timeframe = intval(get_config('system','ostatus_poll_timeframe'));
-        if(! $poll_timeframe)
+        if (!$poll_timeframe)
                 $poll_timeframe = OSTATUS_DEFAULT_POLL_TIMEFRAME;
 
-        if($last) {
+        if ($last AND !$override) {
                 $next = $last + ($poll_interval * 60);
-                if($next > time()) {
+                if ($next > time()) {
                         logger('poll interval not reached');
                         return;
                 }
@@ -36,13 +59,15 @@ function check_conversations() {
                 complete_conversation($id, $url);
         }
 
-        logger(' cron_end');
+        logger('cron_end');
 
         set_config('system','ostatus_last_poll', time());
 }
 
 function complete_conversation($itemid, $conversation_url, $only_add_conversation = false) {
 	global $a;
+
+	$conversation_url = ostatus_convert_href($conversation_url);
 
 	if (intval(get_config('system','ostatus_poll_interval')) == -2)
 		return;
@@ -107,15 +132,23 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 	$items = array_reverse($items);
 
 	foreach ($items as $single_conv) {
-		// status.net changed the format of the activity streams. This is a quick fix.
-		if (@is_string($single_conv->object->id))
+		if (!isset($single_conv->id) AND isset($single_conv->object->id))
 			$single_conv->id = $single_conv->object->id;
+		elseif (!isset($single_conv->id) AND isset($single_conv->object->url))
+			$single_conv->id = $single_conv->object->url;
 
-		if (@!$single_conv->id AND $single_conv->provider->url AND $single_conv->statusnet_notice_info->local_id)
-			$single_conv->id = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
+		$plink = ostatus_convert_href($single_conv->id);
+
+		if (isset($single_conv->provider->url) AND isset($single_conv->statusnet_notice_info->local_id))
+			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
+		elseif (isset($single_conv->provider->url) AND isset($single_conv->statusnet->notice_info->local_id))
+			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet->notice_info->local_id;
 
 		if (@!$single_conv->id)
 			continue;
+
+		//logger("OStatus conversation id ".$single_conv->id, LOGGER_DEBUG);
+		//logger("OStatus conversation data ".print_r($single_conv, true), LOGGER_DEBUG);
 
 		if ($first_id == "") {
 			$first_id = $single_conv->id;
@@ -136,8 +169,13 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		else
 			$parent_uri = $parent["uri"];
 
-		$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
+		$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `plink` = '%s' LIMIT 1",
+							intval($message["uid"]), dbesc($plink));
+
+		if (!$message_exists)
+			$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
 							intval($message["uid"]), dbesc($single_conv->id));
+
 		if ($message_exists) {
 			if ($parent["id"] != 0) {
 				$existing_message = $message_exists[0];
@@ -166,7 +204,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr = array();
 		$arr["network"] = NETWORK_OSTATUS;
 		$arr["uri"] = $single_conv->id;
-		$arr["plink"] = $single_conv->id;
+		$arr["plink"] = $plink;
 		$arr["uid"] = $message["uid"];
 		$arr["contact-id"] = $contact_id;
 		if ($parent["id"] != 0)
@@ -190,9 +228,16 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr["author-link"] = $single_conv->actor->id;
 		$arr["author-avatar"] = $single_conv->actor->image->url;
 		$arr["body"] = html2bbcode($single_conv->content);
-		$arr["app"] = strip_tags($single_conv->statusnet_notice_info->source);
-		if ($arr["app"] == "")
+
+		if (isset($single_conv->statusnet->notice_info->source))
+			$arr["app"] = strip_tags($single_conv->statusnet->notice_info->source);
+		elseif (isset($single_conv->statusnet_notice_info->source))
+			$arr["app"] = strip_tags($single_conv->statusnet_notice_info->source);
+		elseif (isset($single_conv->provider->displayName))
 			$arr["app"] = $single_conv->provider->displayName;
+		else
+			$arr["app"] = "OStatus";
+
 		$arr["verb"] = $parent["verb"];
 		$arr["visible"] = $parent["visible"];
 		$arr["location"] = $single_conv->location->displayName;
@@ -205,6 +250,8 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 			unset($arr["coord"]);
 
 		$newitem = item_store($arr);
+
+		logger('Stored new item '.$plink.' under id '.$newitem, LOGGER_DEBUG);
 
 		// Add the conversation entry (but don't fetch the whole conversation)
 		complete_conversation($newitem, $conversation_url, true);

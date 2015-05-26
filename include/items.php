@@ -864,7 +864,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			$conversation = array_shift($link["attribs"]);
 
 			if ($conversation["rel"] == "ostatus:conversation") {
-				$res["ostatus_conversation"] = $conversation["href"];
+				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
 				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
 			}
 		};
@@ -1090,6 +1090,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		unset($arr['dsprsig']);
 	}
 
+	// Converting the plink
+	if ($arr['network'] == NETWORK_OSTATUS) {
+		if (isset($arr['plink']))
+			$arr['plink'] = ostatus_convert_href($arr['plink']);
+		elseif (isset($arr['uri']))
+			$arr['plink'] = ostatus_convert_href($arr['uri']);
+	}
+
 	// if an OStatus conversation url was passed in, it is stored and then
 	// removed from the array.
 	$ostatus_conversation = null;
@@ -1115,7 +1123,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	/* check for create  date and expire time */
 	$uid = intval($arr['uid']);
-	$r = q("SELECT expire FROM user WHERE uid = %d", $uid);
+	$r = q("SELECT expire FROM user WHERE uid = %d", intval($uid));
 	if(count($r)) {
 		$expire_interval = $r[0]['expire'];
 		if ($expire_interval>0) {

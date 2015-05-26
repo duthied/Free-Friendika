@@ -1138,7 +1138,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$orig_created = $r[0]["created"];
 			$orig_plink = $r[0]["plink"];
 			$orig_uri = $r[0]["uri"];
-			$create_original_post = ($body != "");
 			$object = $r[0]["object"];
 			$objecttype = $r[0]["object-type"];
 		}
@@ -1239,8 +1238,9 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray2['uid'] = 0;
 		$datarray2['contact-id'] = get_contact($person['url'], 0);
 		$datarray2['guid'] = $orig_guid;
-		$datarray2['uri'] = $orig_uri;
+		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_uri;
 		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = $datarray2['commented'] = $datarray2['received'] = datetime_convert('UTC','UTC',$orig_created);
+		$datarray2['parent'] = 0;
 		$datarray2['plink'] = $orig_plink;
 
 		$datarray2['author-name'] = $person['name'];
