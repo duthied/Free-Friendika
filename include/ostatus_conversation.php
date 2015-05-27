@@ -143,6 +143,8 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
 		elseif (isset($single_conv->provider->url) AND isset($single_conv->statusnet->notice_info->local_id))
 			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet->notice_info->local_id;
+		elseif (isset($single_conv->provider->url) AND isset($single_conv->status_net->notice_info->local_id))
+			$plink = $single_conv->provider->url."notice/".$single_conv->status_net->notice_info->local_id;
 
 		if (@!$single_conv->id)
 			continue;
@@ -153,8 +155,9 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		if ($first_id == "") {
 			$first_id = $single_conv->id;
 
-			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-				intval($message["uid"]), dbesc($first_id));
+			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+				intval($message["uid"]), dbesc($first_id),
+				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 			if ($new_parents) {
 				$parent = $new_parents[0];
 				logger('adopting new parent '.$parent["id"].' for '.$itemid);
@@ -169,16 +172,20 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		else
 			$parent_uri = $parent["uri"];
 
-		$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `plink` = '%s' LIMIT 1",
-							intval($message["uid"]), dbesc($plink));
+		$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `plink` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+							intval($message["uid"]), dbesc($plink),
+							dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 
 		if (!$message_exists)
-			$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-							intval($message["uid"]), dbesc($single_conv->id));
+			$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+							intval($message["uid"]), dbesc($single_conv->id),
+							dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 
 		if ($message_exists) {
 			if ($parent["id"] != 0) {
 				$existing_message = $message_exists[0];
+
+				logger('updating id '.$existing_message["id"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
 
 				// This is partly bad, since the entry in the thread table isn't updated
 				$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d",
@@ -229,7 +236,9 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr["author-avatar"] = $single_conv->actor->image->url;
 		$arr["body"] = html2bbcode($single_conv->content);
 
-		if (isset($single_conv->statusnet->notice_info->source))
+		if (isset($single_conv->status_net->notice_info->source))
+			$arr["app"] = strip_tags($single_conv->status_net->notice_info->source);
+		elseif (isset($single_conv->statusnet->notice_info->source))
 			$arr["app"] = strip_tags($single_conv->statusnet->notice_info->source);
 		elseif (isset($single_conv->statusnet_notice_info->source))
 			$arr["app"] = strip_tags($single_conv->statusnet_notice_info->source);
