@@ -4745,6 +4745,18 @@ function drop_item($id,$interactive = true) {
 			// ignore the result
 		}
 
+		// If item has attachments, drop them
+
+		foreach(explode(",",$item['attach']) as $attach){
+			preg_match("|attach/(\d+)|", $attach, $matches);
+			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
+				intval($matches[1]),
+				local_user()
+			);
+			// ignore the result
+		}
+
+
 		// clean up item_id and sign meta-data tables
 
 		/*
@@ -4821,6 +4833,7 @@ function drop_item($id,$interactive = true) {
 			// Add a relayable_retraction signature for Diaspora.
 			store_diaspora_retract_sig($item, $a->user, $a->get_baseurl());
 		}
+
 		$drop_id = intval($item['id']);
 
 		// send the notification upstream/downstream as the case may be

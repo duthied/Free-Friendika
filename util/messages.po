@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-21 10:43+0200\n"
+"POT-Creation-Date: 2015-05-24 10:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,9 +29,9 @@ msgstr ""
 #: ../../mod/photos.php:1084 ../../mod/photos.php:1203
 #: ../../mod/photos.php:1514 ../../mod/photos.php:1565
 #: ../../mod/photos.php:1609 ../../mod/photos.php:1697
-#: ../../mod/invite.php:140 ../../mod/events.php:491 ../../mod/mood.php:137
+#: ../../mod/invite.php:140 ../../mod/events.php:500 ../../mod/mood.php:137
 #: ../../mod/message.php:335 ../../mod/message.php:564
-#: ../../mod/profiles.php:686 ../../mod/install.php:248
+#: ../../mod/profiles.php:682 ../../mod/install.php:248
 #: ../../mod/install.php:286 ../../mod/crepair.php:190
 #: ../../mod/content.php:710 ../../mod/poke.php:199 ../../mod/localtime.php:45
 msgid "Submit"
@@ -233,7 +233,7 @@ msgid "Your photos"
 msgstr ""
 
 #: ../../view/theme/diabook/theme.php:127 ../../boot.php:2156
-#: ../../include/nav.php:80 ../../mod/events.php:382
+#: ../../include/nav.php:80 ../../mod/events.php:385
 msgid "Events"
 msgstr ""
 
@@ -260,7 +260,7 @@ msgid "event"
 msgstr ""
 
 #: ../../view/theme/diabook/theme.php:466
-#: ../../view/theme/diabook/theme.php:475 ../../include/diaspora.php:2060
+#: ../../view/theme/diabook/theme.php:475 ../../include/diaspora.php:2061
 #: ../../include/conversation.php:121 ../../include/conversation.php:130
 #: ../../include/conversation.php:248 ../../include/conversation.php:257
 #: ../../mod/like.php:149 ../../mod/like.php:319 ../../mod/subthread.php:87
@@ -268,14 +268,14 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:471 ../../include/diaspora.php:2060
+#: ../../view/theme/diabook/theme.php:471 ../../include/diaspora.php:2061
 #: ../../include/conversation.php:126 ../../include/conversation.php:253
 #: ../../include/text.php:1995 ../../mod/like.php:149
 #: ../../mod/subthread.php:87 ../../mod/tagger.php:62
 msgid "photo"
 msgstr ""
 
-#: ../../view/theme/diabook/theme.php:480 ../../include/diaspora.php:2076
+#: ../../view/theme/diabook/theme.php:480 ../../include/diaspora.php:2077
 #: ../../include/conversation.php:137 ../../mod/like.php:166
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
@@ -375,7 +375,7 @@ msgstr ""
 msgid "Permission denied"
 msgstr ""
 
-#: ../../index.php:382 ../../include/items.php:4838 ../../mod/attach.php:33
+#: ../../index.php:382 ../../include/items.php:4851 ../../mod/attach.php:33
 #: ../../mod/wallmessage.php:9 ../../mod/wallmessage.php:33
 #: ../../mod/wallmessage.php:79 ../../mod/wallmessage.php:103
 #: ../../mod/group.php:19 ../../mod/delegate.php:12
@@ -389,9 +389,9 @@ msgstr ""
 #: ../../mod/notes.php:20 ../../mod/network.php:4 ../../mod/photos.php:134
 #: ../../mod/photos.php:1050 ../../mod/follow.php:9 ../../mod/follow.php:39
 #: ../../mod/follow.php:78 ../../mod/uimport.php:23 ../../mod/invite.php:15
-#: ../../mod/invite.php:101 ../../mod/events.php:152 ../../mod/mood.php:114
+#: ../../mod/invite.php:101 ../../mod/events.php:155 ../../mod/mood.php:114
 #: ../../mod/message.php:38 ../../mod/message.php:174
-#: ../../mod/profiles.php:165 ../../mod/profiles.php:618
+#: ../../mod/profiles.php:165 ../../mod/profiles.php:614
 #: ../../mod/install.php:151 ../../mod/crepair.php:119 ../../mod/poke.php:135
 #: ../../mod/display.php:501 ../../mod/dfrn_confirm.php:55
 #: ../../mod/item.php:169 ../../mod/item.php:185
@@ -415,8 +415,9 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ../../boot.php:751 ../../include/contact_widgets.php:205
-#: ../../object/Item.php:393 ../../mod/content.php:606
+#: ../../boot.php:751 ../../include/items.php:4962
+#: ../../include/contact_widgets.php:205 ../../object/Item.php:393
+#: ../../mod/content.php:606
 msgid "show more"
 msgstr ""
 
@@ -515,28 +516,28 @@ msgstr ""
 msgid "Manage/edit profiles"
 msgstr ""
 
-#: ../../boot.php:1600 ../../boot.php:1626 ../../mod/profiles.php:804
+#: ../../boot.php:1600 ../../boot.php:1626 ../../mod/profiles.php:800
 msgid "Change profile photo"
 msgstr ""
 
-#: ../../boot.php:1601 ../../mod/profiles.php:805
+#: ../../boot.php:1601 ../../mod/profiles.php:801
 msgid "Create New Profile"
 msgstr ""
 
-#: ../../boot.php:1611 ../../mod/profiles.php:816
+#: ../../boot.php:1611 ../../mod/profiles.php:812
 msgid "Profile Image"
 msgstr ""
 
-#: ../../boot.php:1614 ../../mod/profiles.php:818
+#: ../../boot.php:1614 ../../mod/profiles.php:814
 msgid "visible to everybody"
 msgstr ""
 
-#: ../../boot.php:1615 ../../mod/profiles.php:819
+#: ../../boot.php:1615 ../../mod/profiles.php:815
 msgid "Edit visibility"
 msgstr ""
 
 #: ../../boot.php:1637 ../../include/event.php:42
-#: ../../include/bb2diaspora.php:155 ../../mod/events.php:483
+#: ../../include/bb2diaspora.php:155 ../../mod/events.php:492
 #: ../../mod/directory.php:136
 msgid "Location:"
 msgstr ""
@@ -803,12 +804,12 @@ msgstr ""
 msgid "Ability to mute notifications for a thread"
 msgstr ""
 
-#: ../../include/items.php:2330 ../../include/datetime.php:477
+#: ../../include/items.php:2330 ../../include/datetime.php:457
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: ../../include/items.php:2331 ../../include/datetime.php:478
+#: ../../include/items.php:2331 ../../include/datetime.php:458
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -839,21 +840,22 @@ msgstr ""
 #: ../../mod/contacts.php:411 ../../mod/register.php:233
 #: ../../mod/dfrn_request.php:845 ../../mod/api.php:105
 #: ../../mod/suggest.php:29 ../../mod/follow.php:54 ../../mod/message.php:209
-#: ../../mod/profiles.php:661 ../../mod/profiles.php:664
+#: ../../mod/profiles.php:657 ../../mod/profiles.php:660
 msgid "Yes"
 msgstr ""
 
 #: ../../include/items.php:4686 ../../include/conversation.php:1128
 #: ../../mod/settings.php:622 ../../mod/settings.php:648
-#: ../../mod/contacts.php:414 ../../mod/editpost.php:148
-#: ../../mod/dfrn_request.php:859 ../../mod/fbrowser.php:81
-#: ../../mod/fbrowser.php:116 ../../mod/suggest.php:32
-#: ../../mod/photos.php:203 ../../mod/photos.php:292 ../../mod/follow.php:65
-#: ../../mod/tagrm.php:11 ../../mod/tagrm.php:94 ../../mod/message.php:212
+#: ../../mod/contacts.php:414 ../../mod/videos.php:116
+#: ../../mod/editpost.php:148 ../../mod/dfrn_request.php:859
+#: ../../mod/fbrowser.php:81 ../../mod/fbrowser.php:116
+#: ../../mod/suggest.php:32 ../../mod/photos.php:203 ../../mod/photos.php:292
+#: ../../mod/follow.php:65 ../../mod/tagrm.php:11 ../../mod/tagrm.php:94
+#: ../../mod/message.php:212
 msgid "Cancel"
 msgstr ""
 
-#: ../../include/items.php:4904
+#: ../../include/items.php:4956
 msgid "Archives"
 msgstr ""
 
@@ -1349,11 +1351,11 @@ msgstr ""
 msgid "for %1$d %2$s"
 msgstr ""
 
-#: ../../include/profile_advanced.php:46 ../../mod/profiles.php:714
+#: ../../include/profile_advanced.php:46 ../../mod/profiles.php:710
 msgid "Sexual Preference:"
 msgstr ""
 
-#: ../../include/profile_advanced.php:50 ../../mod/profiles.php:716
+#: ../../include/profile_advanced.php:50 ../../mod/profiles.php:712
 msgid "Hometown:"
 msgstr ""
 
@@ -1361,7 +1363,7 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
-#: ../../include/profile_advanced.php:54 ../../mod/profiles.php:717
+#: ../../include/profile_advanced.php:54 ../../mod/profiles.php:713
 msgid "Political Views:"
 msgstr ""
 
@@ -1373,11 +1375,11 @@ msgstr ""
 msgid "Hobbies/Interests:"
 msgstr ""
 
-#: ../../include/profile_advanced.php:62 ../../mod/profiles.php:721
+#: ../../include/profile_advanced.php:62 ../../mod/profiles.php:717
 msgid "Likes:"
 msgstr ""
 
-#: ../../include/profile_advanced.php:64 ../../mod/profiles.php:722
+#: ../../include/profile_advanced.php:64 ../../mod/profiles.php:718
 msgid "Dislikes:"
 msgstr ""
 
@@ -1783,71 +1785,75 @@ msgstr ""
 msgid "Miscellaneous"
 msgstr ""
 
-#: ../../include/datetime.php:153 ../../include/datetime.php:290
-msgid "year"
+#: ../../include/datetime.php:141
+msgid "YYYY-MM-DD or MM-DD"
 msgstr ""
 
-#: ../../include/datetime.php:158 ../../include/datetime.php:291
-msgid "month"
-msgstr ""
-
-#: ../../include/datetime.php:163 ../../include/datetime.php:293
-msgid "day"
-msgstr ""
-
-#: ../../include/datetime.php:276
+#: ../../include/datetime.php:256
 msgid "never"
 msgstr ""
 
-#: ../../include/datetime.php:282
+#: ../../include/datetime.php:262
 msgid "less than a second ago"
 msgstr ""
 
-#: ../../include/datetime.php:290
+#: ../../include/datetime.php:270
+msgid "year"
+msgstr ""
+
+#: ../../include/datetime.php:270
 msgid "years"
 msgstr ""
 
-#: ../../include/datetime.php:291
+#: ../../include/datetime.php:271
+msgid "month"
+msgstr ""
+
+#: ../../include/datetime.php:271
 msgid "months"
 msgstr ""
 
-#: ../../include/datetime.php:292
+#: ../../include/datetime.php:272
 msgid "week"
 msgstr ""
 
-#: ../../include/datetime.php:292
+#: ../../include/datetime.php:272
 msgid "weeks"
 msgstr ""
 
-#: ../../include/datetime.php:293
+#: ../../include/datetime.php:273
+msgid "day"
+msgstr ""
+
+#: ../../include/datetime.php:273
 msgid "days"
 msgstr ""
 
-#: ../../include/datetime.php:294
+#: ../../include/datetime.php:274
 msgid "hour"
 msgstr ""
 
-#: ../../include/datetime.php:294
+#: ../../include/datetime.php:274
 msgid "hours"
 msgstr ""
 
-#: ../../include/datetime.php:295
+#: ../../include/datetime.php:275
 msgid "minute"
 msgstr ""
 
-#: ../../include/datetime.php:295
+#: ../../include/datetime.php:275
 msgid "minutes"
 msgstr ""
 
-#: ../../include/datetime.php:296
+#: ../../include/datetime.php:276
 msgid "second"
 msgstr ""
 
-#: ../../include/datetime.php:296
+#: ../../include/datetime.php:276
 msgid "seconds"
 msgstr ""
 
-#: ../../include/datetime.php:305
+#: ../../include/datetime.php:285
 #, php-format
 msgid "%1$d %2$s ago"
 msgstr ""
@@ -1986,7 +1992,7 @@ msgstr ""
 msgid "Sharing notification from Diaspora network"
 msgstr ""
 
-#: ../../include/diaspora.php:2493
+#: ../../include/diaspora.php:2494
 msgid "Attachments:"
 msgstr ""
 
@@ -2261,7 +2267,7 @@ msgstr ""
 #: ../../include/conversation.php:1125 ../../object/Item.php:690
 #: ../../mod/editpost.php:145 ../../mod/photos.php:1566
 #: ../../mod/photos.php:1610 ../../mod/photos.php:1698
-#: ../../mod/events.php:489 ../../mod/content.php:719
+#: ../../mod/events.php:498 ../../mod/content.php:719
 msgid "Preview"
 msgstr ""
 
@@ -2533,7 +2539,7 @@ msgstr ""
 msgid "December"
 msgstr ""
 
-#: ../../include/text.php:1424 ../../mod/videos.php:301
+#: ../../include/text.php:1424 ../../mod/videos.php:368
 msgid "View Video"
 msgstr ""
 
@@ -2546,7 +2552,7 @@ msgid "Click to open/close"
 msgstr ""
 
 #: ../../include/text.php:1674 ../../include/text.php:1684
-#: ../../mod/events.php:347
+#: ../../mod/events.php:350
 msgid "link to source"
 msgstr ""
 
@@ -3868,8 +3874,8 @@ msgstr ""
 #: ../../mod/settings.php:1108 ../../mod/settings.php:1109
 #: ../../mod/settings.php:1110 ../../mod/register.php:234
 #: ../../mod/dfrn_request.php:845 ../../mod/api.php:106
-#: ../../mod/follow.php:54 ../../mod/profiles.php:661
-#: ../../mod/profiles.php:665
+#: ../../mod/follow.php:54 ../../mod/profiles.php:657
+#: ../../mod/profiles.php:661
 msgid "No"
 msgstr ""
 
@@ -4643,30 +4649,38 @@ msgstr ""
 msgid "Tips for New Members"
 msgstr ""
 
-#: ../../mod/videos.php:115 ../../mod/dfrn_request.php:777
+#: ../../mod/videos.php:108
+msgid "Do you really want to delete this video?"
+msgstr ""
+
+#: ../../mod/videos.php:113
+msgid "Delete Video"
+msgstr ""
+
+#: ../../mod/videos.php:182 ../../mod/dfrn_request.php:777
 #: ../../mod/viewcontacts.php:19 ../../mod/photos.php:920
 #: ../../mod/search.php:89 ../../mod/community.php:18
 #: ../../mod/display.php:214 ../../mod/directory.php:33
 msgid "Public access denied."
 msgstr ""
 
-#: ../../mod/videos.php:125
+#: ../../mod/videos.php:192
 msgid "No videos selected"
 msgstr ""
 
-#: ../../mod/videos.php:226 ../../mod/photos.php:1031
+#: ../../mod/videos.php:293 ../../mod/photos.php:1031
 msgid "Access to this item is restricted."
 msgstr ""
 
-#: ../../mod/videos.php:308 ../../mod/photos.php:1808
+#: ../../mod/videos.php:375 ../../mod/photos.php:1808
 msgid "View Album"
 msgstr ""
 
-#: ../../mod/videos.php:317
+#: ../../mod/videos.php:384
 msgid "Recent Videos"
 msgstr ""
 
-#: ../../mod/videos.php:319
+#: ../../mod/videos.php:386
 msgid "Upload New Videos"
 msgstr ""
 
@@ -6642,72 +6656,67 @@ msgstr ""
 msgid "is interested in:"
 msgstr ""
 
-#: ../../mod/events.php:68 ../../mod/events.php:70
+#: ../../mod/events.php:71 ../../mod/events.php:73
 msgid "Event title and start time are required."
 msgstr ""
 
-#: ../../mod/events.php:303
+#: ../../mod/events.php:306
 msgid "l, F j"
 msgstr ""
 
-#: ../../mod/events.php:325
+#: ../../mod/events.php:328
 msgid "Edit event"
 msgstr ""
 
-#: ../../mod/events.php:383
+#: ../../mod/events.php:386
 msgid "Create New Event"
 msgstr ""
 
-#: ../../mod/events.php:384
+#: ../../mod/events.php:387
 msgid "Previous"
 msgstr ""
 
-#: ../../mod/events.php:385 ../../mod/install.php:207
+#: ../../mod/events.php:388 ../../mod/install.php:207
 msgid "Next"
 msgstr ""
 
-#: ../../mod/events.php:458
-msgid "hour:minute"
-msgstr ""
-
-#: ../../mod/events.php:468
+#: ../../mod/events.php:480
 msgid "Event details"
 msgstr ""
 
-#: ../../mod/events.php:469
-#, php-format
-msgid "Format is %s %s. Starting date and Title are required."
+#: ../../mod/events.php:481
+msgid "Starting date and Title are required."
 msgstr ""
 
-#: ../../mod/events.php:471
+#: ../../mod/events.php:482
 msgid "Event Starts:"
 msgstr ""
 
-#: ../../mod/events.php:471 ../../mod/events.php:485
+#: ../../mod/events.php:482 ../../mod/events.php:494
 msgid "Required"
 msgstr ""
 
-#: ../../mod/events.php:474
+#: ../../mod/events.php:484
 msgid "Finish date/time is not known or not relevant"
 msgstr ""
 
-#: ../../mod/events.php:476
+#: ../../mod/events.php:486
 msgid "Event Finishes:"
 msgstr ""
 
-#: ../../mod/events.php:479
+#: ../../mod/events.php:488
 msgid "Adjust for viewer timezone"
 msgstr ""
 
-#: ../../mod/events.php:481
+#: ../../mod/events.php:490
 msgid "Description:"
 msgstr ""
 
-#: ../../mod/events.php:485
+#: ../../mod/events.php:494
 msgid "Title:"
 msgstr ""
 
-#: ../../mod/events.php:487
+#: ../../mod/events.php:496
 msgid "Share this event"
 msgstr ""
 
@@ -6842,7 +6851,7 @@ msgid "Not available."
 msgstr ""
 
 #: ../../mod/profiles.php:18 ../../mod/profiles.php:133
-#: ../../mod/profiles.php:179 ../../mod/profiles.php:630
+#: ../../mod/profiles.php:179 ../../mod/profiles.php:626
 #: ../../mod/dfrn_confirm.php:64
 msgid "Profile not found."
 msgstr ""
@@ -6867,278 +6876,277 @@ msgstr ""
 msgid "Profile Name is required."
 msgstr ""
 
-#: ../../mod/profiles.php:340
+#: ../../mod/profiles.php:336
 msgid "Marital Status"
 msgstr ""
 
-#: ../../mod/profiles.php:344
+#: ../../mod/profiles.php:340
 msgid "Romantic Partner"
 msgstr ""
 
-#: ../../mod/profiles.php:348
+#: ../../mod/profiles.php:344
 msgid "Likes"
 msgstr ""
 
-#: ../../mod/profiles.php:352
+#: ../../mod/profiles.php:348
 msgid "Dislikes"
 msgstr ""
 
-#: ../../mod/profiles.php:356
+#: ../../mod/profiles.php:352
 msgid "Work/Employment"
 msgstr ""
 
-#: ../../mod/profiles.php:359
+#: ../../mod/profiles.php:355
 msgid "Religion"
 msgstr ""
 
-#: ../../mod/profiles.php:363
+#: ../../mod/profiles.php:359
 msgid "Political Views"
 msgstr ""
 
-#: ../../mod/profiles.php:367
+#: ../../mod/profiles.php:363
 msgid "Gender"
 msgstr ""
 
-#: ../../mod/profiles.php:371
+#: ../../mod/profiles.php:367
 msgid "Sexual Preference"
 msgstr ""
 
-#: ../../mod/profiles.php:375
+#: ../../mod/profiles.php:371
 msgid "Homepage"
 msgstr ""
 
-#: ../../mod/profiles.php:379 ../../mod/profiles.php:698
+#: ../../mod/profiles.php:375 ../../mod/profiles.php:694
 msgid "Interests"
 msgstr ""
 
-#: ../../mod/profiles.php:383
+#: ../../mod/profiles.php:379
 msgid "Address"
 msgstr ""
 
-#: ../../mod/profiles.php:390 ../../mod/profiles.php:694
+#: ../../mod/profiles.php:386 ../../mod/profiles.php:690
 msgid "Location"
 msgstr ""
 
-#: ../../mod/profiles.php:473
+#: ../../mod/profiles.php:469
 msgid "Profile updated."
 msgstr ""
 
-#: ../../mod/profiles.php:568
+#: ../../mod/profiles.php:564
 msgid " and "
 msgstr ""
 
-#: ../../mod/profiles.php:576
+#: ../../mod/profiles.php:572
 msgid "public profile"
 msgstr ""
 
-#: ../../mod/profiles.php:579
+#: ../../mod/profiles.php:575
 #, php-format
 msgid "%1$s changed %2$s to &ldquo;%3$s&rdquo;"
 msgstr ""
 
-#: ../../mod/profiles.php:580
+#: ../../mod/profiles.php:576
 #, php-format
 msgid " - Visit %1$s's %2$s"
 msgstr ""
 
-#: ../../mod/profiles.php:583
+#: ../../mod/profiles.php:579
 #, php-format
 msgid "%1$s has an updated %2$s, changing %3$s."
 msgstr ""
 
-#: ../../mod/profiles.php:658
+#: ../../mod/profiles.php:654
 msgid "Hide contacts and friends:"
 msgstr ""
 
-#: ../../mod/profiles.php:663
+#: ../../mod/profiles.php:659
 msgid "Hide your contact/friend list from viewers of this profile?"
 msgstr ""
 
-#: ../../mod/profiles.php:685
+#: ../../mod/profiles.php:681
 msgid "Edit Profile Details"
 msgstr ""
 
-#: ../../mod/profiles.php:687
+#: ../../mod/profiles.php:683
 msgid "Change Profile Photo"
 msgstr ""
 
-#: ../../mod/profiles.php:688
+#: ../../mod/profiles.php:684
 msgid "View this profile"
 msgstr ""
 
-#: ../../mod/profiles.php:689
+#: ../../mod/profiles.php:685
 msgid "Create a new profile using these settings"
 msgstr ""
 
-#: ../../mod/profiles.php:690
+#: ../../mod/profiles.php:686
 msgid "Clone this profile"
 msgstr ""
 
-#: ../../mod/profiles.php:691
+#: ../../mod/profiles.php:687
 msgid "Delete this profile"
 msgstr ""
 
-#: ../../mod/profiles.php:692
+#: ../../mod/profiles.php:688
 msgid "Basic information"
 msgstr ""
 
-#: ../../mod/profiles.php:693
+#: ../../mod/profiles.php:689
 msgid "Profile picture"
 msgstr ""
 
-#: ../../mod/profiles.php:695
+#: ../../mod/profiles.php:691
 msgid "Preferences"
 msgstr ""
 
-#: ../../mod/profiles.php:696
+#: ../../mod/profiles.php:692
 msgid "Status information"
 msgstr ""
 
-#: ../../mod/profiles.php:697
+#: ../../mod/profiles.php:693
 msgid "Additional information"
 msgstr ""
 
-#: ../../mod/profiles.php:699 ../../mod/newmember.php:36
+#: ../../mod/profiles.php:695 ../../mod/newmember.php:36
 #: ../../mod/profile_photo.php:244
 msgid "Upload Profile Photo"
 msgstr ""
 
-#: ../../mod/profiles.php:700
+#: ../../mod/profiles.php:696
 msgid "Profile Name:"
 msgstr ""
 
-#: ../../mod/profiles.php:701
+#: ../../mod/profiles.php:697
 msgid "Your Full Name:"
 msgstr ""
 
-#: ../../mod/profiles.php:702
+#: ../../mod/profiles.php:698
 msgid "Title/Description:"
 msgstr ""
 
-#: ../../mod/profiles.php:703
+#: ../../mod/profiles.php:699
 msgid "Your Gender:"
 msgstr ""
 
-#: ../../mod/profiles.php:704
-#, php-format
-msgid "Birthday (%s):"
+#: ../../mod/profiles.php:700
+msgid "Birthday :"
 msgstr ""
 
-#: ../../mod/profiles.php:705
+#: ../../mod/profiles.php:701
 msgid "Street Address:"
 msgstr ""
 
-#: ../../mod/profiles.php:706
+#: ../../mod/profiles.php:702
 msgid "Locality/City:"
 msgstr ""
 
-#: ../../mod/profiles.php:707
+#: ../../mod/profiles.php:703
 msgid "Postal/Zip Code:"
 msgstr ""
 
-#: ../../mod/profiles.php:708
+#: ../../mod/profiles.php:704
 msgid "Country:"
 msgstr ""
 
-#: ../../mod/profiles.php:709
+#: ../../mod/profiles.php:705
 msgid "Region/State:"
 msgstr ""
 
-#: ../../mod/profiles.php:710
+#: ../../mod/profiles.php:706
 msgid "<span class=\"heart\">&hearts;</span> Marital Status:"
 msgstr ""
 
-#: ../../mod/profiles.php:711
+#: ../../mod/profiles.php:707
 msgid "Who: (if applicable)"
 msgstr ""
 
-#: ../../mod/profiles.php:712
+#: ../../mod/profiles.php:708
 msgid "Examples: cathy123, Cathy Williams, cathy@example.com"
 msgstr ""
 
-#: ../../mod/profiles.php:713
+#: ../../mod/profiles.php:709
 msgid "Since [date]:"
 msgstr ""
 
-#: ../../mod/profiles.php:715
+#: ../../mod/profiles.php:711
 msgid "Homepage URL:"
 msgstr ""
 
-#: ../../mod/profiles.php:718
+#: ../../mod/profiles.php:714
 msgid "Religious Views:"
 msgstr ""
 
-#: ../../mod/profiles.php:719
+#: ../../mod/profiles.php:715
 msgid "Public Keywords:"
 msgstr ""
 
-#: ../../mod/profiles.php:720
+#: ../../mod/profiles.php:716
 msgid "Private Keywords:"
 msgstr ""
 
-#: ../../mod/profiles.php:723
+#: ../../mod/profiles.php:719
 msgid "Example: fishing photography software"
 msgstr ""
 
-#: ../../mod/profiles.php:724
+#: ../../mod/profiles.php:720
 msgid "(Used for suggesting potential friends, can be seen by others)"
 msgstr ""
 
-#: ../../mod/profiles.php:725
+#: ../../mod/profiles.php:721
 msgid "(Used for searching profiles, never shown to others)"
 msgstr ""
 
-#: ../../mod/profiles.php:726
+#: ../../mod/profiles.php:722
 msgid "Tell us about yourself..."
 msgstr ""
 
-#: ../../mod/profiles.php:727
+#: ../../mod/profiles.php:723
 msgid "Hobbies/Interests"
 msgstr ""
 
-#: ../../mod/profiles.php:728
+#: ../../mod/profiles.php:724
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: ../../mod/profiles.php:729
+#: ../../mod/profiles.php:725
 msgid "Musical interests"
 msgstr ""
 
-#: ../../mod/profiles.php:730
+#: ../../mod/profiles.php:726
 msgid "Books, literature"
 msgstr ""
 
-#: ../../mod/profiles.php:731
+#: ../../mod/profiles.php:727
 msgid "Television"
 msgstr ""
 
-#: ../../mod/profiles.php:732
+#: ../../mod/profiles.php:728
 msgid "Film/dance/culture/entertainment"
 msgstr ""
 
-#: ../../mod/profiles.php:733
+#: ../../mod/profiles.php:729
 msgid "Love/romance"
 msgstr ""
 
-#: ../../mod/profiles.php:734
+#: ../../mod/profiles.php:730
 msgid "Work/employment"
 msgstr ""
 
-#: ../../mod/profiles.php:735
+#: ../../mod/profiles.php:731
 msgid "School/education"
 msgstr ""
 
-#: ../../mod/profiles.php:740
+#: ../../mod/profiles.php:736
 msgid ""
 "This is your <strong>public</strong> profile.<br />It <strong>may</strong> "
 "be visible to anybody using the internet."
 msgstr ""
 
-#: ../../mod/profiles.php:750 ../../mod/directory.php:113
+#: ../../mod/profiles.php:746 ../../mod/directory.php:113
 msgid "Age: "
 msgstr ""
 
-#: ../../mod/profiles.php:803
+#: ../../mod/profiles.php:799
 msgid "Edit/Manage Profiles"
 msgstr ""
 

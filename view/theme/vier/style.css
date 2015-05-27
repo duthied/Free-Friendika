@@ -7,7 +7,7 @@
 @import url("css/font-awesome.css") all;
 @import url("css/font2.css") all;
 
-img { 
+img {
   border: 0px;
 }
 
@@ -32,7 +32,7 @@ img {
 }
 
 .admin.linklist {
-        border: 0px; 
+        border: 0px;
 	padding: 0px;
 	list-style: none;
 	margin-top: 0px;
@@ -135,7 +135,7 @@ img {
   padding: 1px;
   color: #999;
   vertical-align: text-top;
-} 
+}
 
 .icon:hover {
   text-decoration: none;
@@ -201,8 +201,8 @@ div.pager a {
   margin-left: 5px;
   margin-right: 5px;
 }
- 
-span.pager_first a, span.pager_n a, 
+
+span.pager_first a, span.pager_n a,
 span.pager_last a, span.pager_prev a, span.pager_next a,
 span.scroll_loader_text {
   color: darkgray;
@@ -389,7 +389,7 @@ code {
   opacity: 1;
 }
 
-.sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover, 
+.sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
@@ -1466,7 +1466,7 @@ section.minimal {
 }
 
 #profile-jot-form #jot-title, #profile-jot-form #jot-category {
-    
+
          border-radius: 5px 5px 5px 5px;
     font-weight: bold;
     height: 20px;
@@ -1966,13 +1966,13 @@ ul.tabs a {
     margin-bottom: 2px;
 }
 
-#event-notice:hover, #birthday-notice:hover, ul.tabs li .active, 
+#event-notice:hover, #birthday-notice:hover, ul.tabs li .active,
 .comment-edit-submit-wrapper .fakelink:hover {
     color: black;
 }
 
-span.pager_current, span.pager_n a:hover, 
-span.pager_first a:hover, span.pager_last a:hover, 
+span.pager_current, span.pager_n a:hover,
+span.pager_first a:hover, span.pager_last a:hover,
 span.pager_prev a:hover, span.pager_next a:hover,
 ul.tabs a:hover {
   border-bottom: 2px solid #244C5E;
@@ -2092,7 +2092,7 @@ aside form .field label {
 
 .profile-edit-side-div {
 /*  display: none; */
-  float: right; 
+  float: right;
 }
 
 /* aside div.clear {
@@ -2169,9 +2169,9 @@ aside form .field label {
 .contact-photo-menu-button {
         position: relative;
         background-image: url("../../../images/icons/16/menu.png");
-        background-position: top left; 
+        background-position: top left;
         background-repeat: no-repeat;
-        margin: 0px 0px -16px 0px; 
+        margin: 0px 0px -16px 0px;
 	padding: 0px;
         width: 16px;
         height: 16px;
@@ -2179,7 +2179,7 @@ aside form .field label {
         overflow: hidden;
         text-indent: 40px;
         display: none;
-        
+
 }
 .contact-photo-menu {
         width: 11em;
@@ -2194,13 +2194,13 @@ aside form .field label {
 }
 .contact-photo-menu ul { margin:0px; padding: 0px; list-style: none }
 .contact-photo-menu li a {
-	display: block; 
-	padding: 5px 10px; 
+	display: block;
+	padding: 5px 10px;
 	color: #2d2d2d;
 	text-decoration: none;
 }
 .contact-photo-menu li a:hover {
-	background-color: #bdcdd4; 
+	background-color: #bdcdd4;
 }
 
 /* page footer */
@@ -2237,7 +2237,7 @@ blockquote {
 }
 
 .contact-block-textdiv { width: 150px; height: 34px; float: left; }
-#contact-block-end { clear: both; } 
+#contact-block-end { clear: both; }
 
 #group-edit-wrapper {
         margin-bottom: 10px;
@@ -2426,7 +2426,7 @@ a.mail-list-link {
         clear: both;
 }
 
- 
+
 .calendar {
         font-family: Courier, monospace;
 }
@@ -2574,14 +2574,14 @@ a.mail-list-link {
         float: left;
         margin-top: 15px;
         margin-right: 15px;
-        width: 200px; height: 200px; 
-        overflow: hidden; 
+        width: 200px; height: 200px;
+        overflow: hidden;
 }
 .photo-top-album-name {
         width: 100%;
         min-height: 2em;
-        position: absolute; 
-        bottom: 0px; 
+        position: absolute;
+        bottom: 0px;
         padding: 0px 3px;
         padding-top: 0.5em;
         background-color: rgb(255, 255, 255);
@@ -2612,15 +2612,15 @@ a.mail-list-link {
 .menu-profile-list-item{
         padding-left: 5px;
         vertical-align: middle;
-        }       
-.menu-profile-list-item:hover{  
+        }
+.menu-profile-list-item:hover{
         text-decoration: none;
    }
 
 .autocomplete {
   width: 350px;
-  color: black; 
-  border: 1px solid rgb(210, 210, 210); 
+  color: black;
+  border: 1px solid rgb(210, 210, 210);
   background-color: white;
   cursor: pointer;
   text-align: left;
@@ -2628,7 +2628,7 @@ a.mail-list-link {
   overflow: auto;
   display: block;
   background-position: initial initial;
-  background-repeat: initial initial; 
+  background-repeat: initial initial;
 }
 .mail-list-wrapper {
   background-color: #f6f7f8;
@@ -2827,4 +2827,25 @@ a.mail-list-link {
   }
 .profile-view-actions{
   float:right;
+}
+/* videos page */
+.videos .video-top-wrapper {
+  width: 300px;
+  float: left;
+  margin: 0px 10px 10px 0px;
+  position: relative;
+}
+.videos .video-top-wrapper .video-js {
+  width: 300px!important;
+  height: 232px!important;
+}
+.videos .video-top-wrapper .video-delete {
+  position: absolute;
+  opacity: 0;
+  right: 0px;
+  top: 0px;
+  transition: opacity 0.5s;
+}
+.videos .video-top-wrapper:hover .video-delete {
+  opacity: 1;
 }
