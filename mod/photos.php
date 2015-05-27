@@ -41,8 +41,57 @@ function photos_init(&$a) {
 		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
 			intval($a->data['user']['uid'])
 		);
+                
+                $ret = array('success' => false);
+                $albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
+                
+                foreach($albums as $k => $album) {                
+                        if( $album['album'] === 'Contact Photos') {
+                                unset ($albums[$k]['album']);
+                        }
+                }
 
-		if(count($albums)) {
+                if($albums) {
+                        if ($albums_visible) {
+                                $ret['success'] = true;
+                        }
+                        $ret['albums'] = array();
+                        foreach($albums as $k => $album) {
+                                $entry = array(
+                                        'text' => $album['album'],
+                                        'total' => $album['total'], 
+                                        'url' => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album['album']), 
+                                        'urlencode' => urlencode($album['album']),
+                                        'bin2hex' => bin2hex($album['album'])
+                                );
+                                $ret['albums'][] = $entry;
+                        }
+                }
+
+                /*return $ret;*/
+                
+                $o = '';
+                
+                if(! $albums) {
+                        if(array_key_exists('albums', get_app()->data))
+                                $albums = get_app()->data['albums'];
+                        else
+                                $albums = $ret;
+                }
+                
+                $albums = $ret;                
+                
+
+                if($albums['success']) {
+                        $o = replace_macros(get_markup_template('photo_albums.tpl'),array(
+                                '$nick'    => $a->data['user']['nickname'],
+                                '$title'   => t('Photo Albums'),
+                                '$albums'  => $albums['albums'],
+                                '$baseurl' => z_root()
+                        ));
+                }
+
+/*		if(count($albums)) {
 			$a->data['albums'] = $albums;
 
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);	
@@ -69,6 +118,8 @@ function photos_init(&$a) {
 
 			$o .= '</div>';
 		}
+ * 
+ */
 
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
