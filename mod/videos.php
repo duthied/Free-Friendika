@@ -32,7 +32,7 @@ function videos_init(&$a) {
 
                 $tpl = get_markup_template("vcard-widget.tpl");
 
-		$o .= replace_macros($tpl, array(
+		$vcard_widget = replace_macros($tpl, array(
                         '$name' => $a->data['user']['username'],
                         '$photo' => $profilephoto
                 ));
@@ -74,7 +74,7 @@ function videos_init(&$a) {
 
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
-		$a->page['aside'] .= $o;
+		$a->page['aside'] .= $vcard_widget;
 
 
 		$tpl = get_markup_template("videos_head.tpl");

@@ -23,11 +23,11 @@ function crepair_init(&$a) {
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
                         $tpl = get_markup_template("vcard-widget.tpl");
-                        $o .= replace_macros($tpl, array(
+                        $vcard_widget .= replace_macros($tpl, array(
                                 '$name' => $a->data['contact']['name'],
                                 '$photo' => $a->data['contact']['photo']
                         ));
-			$a->page['aside'] .= $o;
+			$a->page['aside'] .= $vcard_widget;
 
 	}
 }
