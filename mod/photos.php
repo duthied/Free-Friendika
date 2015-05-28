@@ -38,29 +38,29 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
-			intval($a->data['user']['uid'])
+		$albums = q("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' 
+                        $sql_extra group by album order by created desc",
+			intval($a->data['user']['uid']),
+                        dbesc('Contact Photos'),
+                        dbesc( t('Contact Photos'))
 		);
-                
-                $ret = array('success' => false);
+
                 $albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
                 
-                foreach($albums as $k => $album) {                
-                        if( $album['album'] === 'Contact Photos') {
-                                unset ($albums[$k]['album']);
-                        }
-                }
-
+                // add various encodings to the array so we can just loop through and pick them out in a template
+                $ret = array('success' => false);
+  
                 if($albums) {
-                        if ($albums_visible) {
+                        $a->data['albums'] = $albums;
+                        if ($albums_visible) 
                                 $ret['success'] = true;
-                        }
+
                         $ret['albums'] = array();
                         foreach($albums as $k => $album) {
                                 $entry = array(
                                         'text' => $album['album'],
                                         'total' => $album['total'], 
-                                        'url' => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album['album']), 
+                                        'url' => z_root() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
                                         'urlencode' => urlencode($album['album']),
                                         'bin2hex' => bin2hex($album['album'])
                                 );
@@ -68,62 +68,27 @@ function photos_init(&$a) {
                         }
                 }
 
-                /*return $ret;*/
-                
-                $o = '';
-                
-                if(! $albums) {
-                        if(array_key_exists('albums', get_app()->data))
-                                $albums = get_app()->data['albums'];
-                        else
-                                $albums = $ret;
-                }
-                
-                $albums = $ret;                
-                
+                $albums = $ret;
+
+                if(local_user() && $a->data['user']['uid'] == local_user())
+                        $can_post = true;
 
                 if($albums['success']) {
-                        $o = replace_macros(get_markup_template('photo_albums.tpl'),array(
+                        $photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'),array(
                                 '$nick'    => $a->data['user']['nickname'],
                                 '$title'   => t('Photo Albums'),
                                 '$albums'  => $albums['albums'],
-                                '$baseurl' => z_root()
+                                '$baseurl' => z_root(),
+                                '$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
+                                '$can_post' => $can_post
                         ));
                 }
 
-/*		if(count($albums)) {
-			$a->data['albums'] = $albums;
-
-			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);	
-
-			if($albums_visible) {
-				$o .= '<div id="side-bar-photos-albums" class="widget">';
-				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
-
-				$o .= '<ul>';
-				foreach($albums as $album) {
-
-					// don't show contact photos. We once translated this name, but then you could still access it under
-					// a different language setting. Now we store the name in English and check in English (and translated for legacy albums).
-
-					if((! strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
-						continue;
-					$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" >' . $album['album'] . '</a></li>'; 
-				}
-				$o .= '</ul>';
-			}
-			if(local_user() && $a->data['user']['uid'] == local_user()) {
-				$o .= '<div id="photo-albums-upload-link"><a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload" >' .t('Upload New Photos') . '</a></div>';
-			}
-
-			$o .= '</div>';
-		}
- * 
- */
 
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
 		$a->page['aside'] .= $o;
+                $a->page['aside'] .= $photo_albums_widget;
 
 
 		$tpl = get_markup_template("photos_head.tpl");
