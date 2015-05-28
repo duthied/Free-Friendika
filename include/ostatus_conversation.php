@@ -1,4 +1,6 @@
 <?php
+require_once("include/Contact.php");
+
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 
@@ -132,19 +134,28 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 	$items = array_reverse($items);
 
 	foreach ($items as $single_conv) {
-		if (!isset($single_conv->id) AND isset($single_conv->object->id))
+		if (isset($single_conv->object->id))
 			$single_conv->id = $single_conv->object->id;
-		elseif (!isset($single_conv->id) AND isset($single_conv->object->url))
-			$single_conv->id = $single_conv->object->url;
+
+		logger("Got id ".$single_conv->id, LOGGER_DEBUG);
+
+		//if (!isset($single_conv->id) AND isset($single_conv->object->id))
+		//	$single_conv->id = $single_conv->object->id;
+		//elseif (!isset($single_conv->id) AND isset($single_conv->object->url))
+		//	$single_conv->id = $single_conv->object->url;
 
 		$plink = ostatus_convert_href($single_conv->id);
+		if (isset($single_conv->object->url))
+			$plink = ostatus_convert_href($single_conv->object->url);
 
-		if (isset($single_conv->provider->url) AND isset($single_conv->statusnet_notice_info->local_id))
-			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
-		elseif (isset($single_conv->provider->url) AND isset($single_conv->statusnet->notice_info->local_id))
-			$plink = $single_conv->provider->url."notice/".$single_conv->statusnet->notice_info->local_id;
-		elseif (isset($single_conv->provider->url) AND isset($single_conv->status_net->notice_info->local_id))
-			$plink = $single_conv->provider->url."notice/".$single_conv->status_net->notice_info->local_id;
+		logger("Got url ".$plink, LOGGER_DEBUG);
+
+		//if (isset($single_conv->provider->url) AND isset($single_conv->statusnet_notice_info->local_id))
+		//	$plink = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
+		//elseif (isset($single_conv->provider->url) AND isset($single_conv->statusnet->notice_info->local_id))
+		//	$plink = $single_conv->provider->url."notice/".$single_conv->statusnet->notice_info->local_id;
+		//elseif (isset($single_conv->provider->url) AND isset($single_conv->status_net->notice_info->local_id))
+		//	$plink = $single_conv->provider->url."notice/".$single_conv->status_net->notice_info->local_id;
 
 		if (@!$single_conv->id)
 			continue;
@@ -197,14 +208,25 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 			continue;
 		}
 
+		$actor = $single_conv->actor->id;
+		if (isset($single_conv->actor->url))
+			$actor = $single_conv->actor->url;
+
 		$contact = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
-				$message["uid"], normalise_link($single_conv->actor->id), NETWORK_STATUSNET);
+				$message["uid"], normalise_link($actor), NETWORK_STATUSNET);
 
 		if (count($contact)) {
-			logger("Found contact for url ".$single_conv->actor->id, LOGGER_DEBUG);
+			logger("Found contact for url ".$actor, LOGGER_DEBUG);
 			$contact_id = $contact[0]["id"];
 		} else {
-			logger("No contact found for url ".$single_conv->actor->id, LOGGER_DEBUG);
+			logger("No contact found for url ".$actor, LOGGER_DEBUG);
+
+			// Adding a global contact
+			// To-Do: Use this data for the post
+			$global_contact_id = get_contact($actor, 0);
+
+			logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
+
 			$contact_id = $parent["contact-id"];
 		}
 
@@ -227,12 +249,12 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		if ($arr["owner-name"] == '')
 			$arr["owner-name"] =  $single_conv->actor->displayName;
 
-		$arr["owner-link"] = $single_conv->actor->id;
+		$arr["owner-link"] = $actor;
 		$arr["owner-avatar"] = $single_conv->actor->image->url;
 		//$arr["author-name"] = $single_conv->actor->contact->displayName;
 		//$arr["author-name"] = $single_conv->actor->contact->preferredUsername;
 		$arr["author-name"] = $arr["owner-name"];
-		$arr["author-link"] = $single_conv->actor->id;
+		$arr["author-link"] = $actor;
 		$arr["author-avatar"] = $single_conv->actor->image->url;
 		$arr["body"] = html2bbcode($single_conv->content);
 
