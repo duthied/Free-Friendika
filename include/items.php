@@ -464,12 +464,27 @@ function get_atom_elements($feed, $item, $contact = array()) {
 
 	// look for a photo. We should check media size and find the best one,
 	// but for now let's just find any author photo
+	// Additionally we look for an alternate author link. On OStatus this one is the one we want.
+
+	// Search for ostatus conversation url
+	$authorlinks = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
+	if (is_array($authorlinks)) {
+		foreach ($authorlinks as $link) {
+			$linkdata = array_shift($link["attribs"]);
+
+			if ($linkdata["rel"] == "alternate")
+				$res["author-link"] = $linkdata["href"];
+		};
+	}
 
 	$rawauthor = $item->get_item_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
 
 	if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
 		$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		foreach($base as $link) {
+			if($link['attribs']['']['rel'] === 'alternate')
+				$res['author-link'] = unxmlify($link['attribs']['']['href']);
+
 			if(!x($res, 'author-avatar') || !$res['author-avatar']) {
 				if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar')
 					$res['author-avatar'] = unxmlify($link['attribs']['']['href']);
@@ -828,7 +843,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		logger('get_atom_elements: Looking for status.net repeated message');
 
 		$message = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["content"][0]["data"];
-		$orig_uri = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"];
+		$orig_id = ostatus_convert_href($child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"]);
 		$author = $child[SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10];
 		$uri = $author["uri"][0]["data"];
 		$name = $author["name"][0]["data"];
@@ -836,10 +851,10 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		$avatar = $avatar["href"];
 
 		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
-			logger('get_atom_elements: fixing sender of repeated message.');
+			logger('get_atom_elements: fixing sender of repeated message. '.$orig_id, LOGGER_DEBUG);
 
 			if (!intval(get_config('system','wall-to-wall_share'))) {
-				$prefix = share_header($name, $uri, $avatar, "", "", $orig_uri);
+				$prefix = share_header($name, $uri, $avatar, "", "", $orig_link);
 
 				$res["body"] = $prefix.html2bbcode($message)."[/share]";
 			} else {
@@ -866,6 +881,9 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			if ($conversation["rel"] == "ostatus:conversation") {
 				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
 				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
+			} elseif ($conversation["rel"] == "alternate") {
+				$res["plink"] = $conversation["href"];
+				logger('get_atom_elements: found plink '.$res["plink"]);
 			}
 		};
 	}
@@ -2211,6 +2229,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		logger('consume_feed: empty input');
 		return;
 	}
+
+	// Test - remove before flight
+//	if ($contact['network'] === NETWORK_OSTATUS) {
+//		$tempfile = tempnam(get_temppath(), "ostatus");
+//		file_put_contents($tempfile, $xml);
+//	}
 
 	$feed = new SimplePie();
 	$feed->set_raw_data($xml);

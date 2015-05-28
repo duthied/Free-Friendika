@@ -139,29 +139,14 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 
 		logger("Got id ".$single_conv->id, LOGGER_DEBUG);
 
-		//if (!isset($single_conv->id) AND isset($single_conv->object->id))
-		//	$single_conv->id = $single_conv->object->id;
-		//elseif (!isset($single_conv->id) AND isset($single_conv->object->url))
-		//	$single_conv->id = $single_conv->object->url;
-
 		$plink = ostatus_convert_href($single_conv->id);
 		if (isset($single_conv->object->url))
 			$plink = ostatus_convert_href($single_conv->object->url);
 
 		logger("Got url ".$plink, LOGGER_DEBUG);
 
-		//if (isset($single_conv->provider->url) AND isset($single_conv->statusnet_notice_info->local_id))
-		//	$plink = $single_conv->provider->url."notice/".$single_conv->statusnet_notice_info->local_id;
-		//elseif (isset($single_conv->provider->url) AND isset($single_conv->statusnet->notice_info->local_id))
-		//	$plink = $single_conv->provider->url."notice/".$single_conv->statusnet->notice_info->local_id;
-		//elseif (isset($single_conv->provider->url) AND isset($single_conv->status_net->notice_info->local_id))
-		//	$plink = $single_conv->provider->url."notice/".$single_conv->status_net->notice_info->local_id;
-
 		if (@!$single_conv->id)
 			continue;
-
-		//logger("OStatus conversation id ".$single_conv->id, LOGGER_DEBUG);
-		//logger("OStatus conversation data ".print_r($single_conv, true), LOGGER_DEBUG);
 
 		if ($first_id == "") {
 			$first_id = $single_conv->id;
