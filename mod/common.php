@@ -31,12 +31,12 @@ function common_content(&$a) {
 	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
                 '$name' => $c[0]['name'],
                 '$photo' => $c[0]['photo'],
-                'url' => $a->get_baseurl() . '/contacts/' . $cid
+                'url' => z_root() . '/contacts/' . $cid
                 ));
 
         if(! x($a->page,'aside'))
                 $a->page['aside'] = '';
-        $a->page['aside'] .= $vcard_widget;	
+        $a->page['aside'] .= $vcard_widget;
 
 	if(! count($c))
 		return;
