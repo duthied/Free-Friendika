@@ -29,7 +29,7 @@ function directory_content(&$a) {
 
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) || (get_config('system','block_local_dir'))) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
