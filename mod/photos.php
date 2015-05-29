@@ -93,7 +93,6 @@ function photos_init(&$a) {
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
                 $a->page['aside'] .= $vcard_widget;
-		$a->page['aside'] .= $o;
                 $a->page['aside'] .= $photo_albums_widget;
 
 
