@@ -114,7 +114,7 @@ function notifier_run(&$argv, &$argc){
 	elseif($cmd === 'expire') {
 		$normal_mode = false;
 		$expire = true;
-		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1 
+		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
 			AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 10 MINUTE",
 			intval($item_id)
 		);
@@ -178,7 +178,7 @@ function notifier_run(&$argv, &$argc){
 		if(! $parent_id)
 			return;
 
-		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer` 
+		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
 			FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
 			intval($parent_id)
 		);
@@ -223,6 +223,9 @@ function notifier_run(&$argv, &$argc){
 
 	// fill this in with a single salmon slap if applicable
 	$slap = '';
+
+	// List of OStatus receiptians of follow up messages
+	$ostatus_recip_str = "";
 
 	if(! ($mail || $fsuggest || $relocate)) {
 
@@ -284,8 +287,6 @@ function notifier_run(&$argv, &$argc){
 		if($parent['origin'])
 			$relay_to_owner = false;
 
-
-
 		if($relay_to_owner) {
 			logger('notifier: followup', LOGGER_DEBUG);
 			// local followup to remote post
@@ -295,6 +296,15 @@ function notifier_run(&$argv, &$argc){
 			$recipients = array($parent['contact-id']);
 
 			if ($parent['network'] == NETWORK_OSTATUS) {
+				$ostatus_recipients = array();
+
+				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `network` = '%s'", intval($uid), dbesc(NETWORK_OSTATUS));
+				if(count($r)) {
+					foreach($r as $rr)
+						$ostatus_recipients[] = $rr['id'];
+
+					$ostatus_recip_str = ", ".implode(', ', $ostatus_recipients);
+				}
 
 				// Check if the recipient isn't in your contact list
 				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
@@ -553,7 +563,7 @@ function notifier_run(&$argv, &$argc){
 	}
 
 	if($followup)
-		$recip_str = $parent['contact-id'];
+		$recip_str = $parent['contact-id'].$ostatus_recip_str;
 	else
 		$recip_str = implode(', ', $recipients);
 
@@ -574,7 +584,7 @@ function notifier_run(&$argv, &$argc){
 	if(count($r)) {
 
 		foreach($r as $contact) {
-			if((! $mail) && (! $fsuggest) && (! $followup) && (!$relocate) && (! $contact['self'])) {
+			if((! $mail) && (! $fsuggest) && (!$followup OR ($parent['contact-id'] != $contact['id'])) && (!$relocate) && (! $contact['self'])) {
 				if(($contact['network'] === NETWORK_DIASPORA) && ($public_message))
 					continue;
 				q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
@@ -608,10 +618,12 @@ function notifier_run(&$argv, &$argc){
 			if($contact['self'])
 				continue;
 
+			logger("Deliver to ".$contact['url'], LOGGER_DEBUG);
+
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here.
 
-			if((! $mail) && (! $fsuggest) && (!$relocate) && (! $followup)) {
+			if((! $mail) && (! $fsuggest) && (!$relocate) && (!$followup OR ($parent['contact-id'] != $contact['id']))) {
 
 				$this_batch[] = $contact['id'];
 
@@ -713,7 +725,7 @@ function notifier_run(&$argv, &$argc){
 						break;
 
 					if($followup && $contact['notify']) {
-						logger('notifier: slapdelivery: ' . $contact['name']);
+						logger('slapdelivery followup item '.$item_id.' to ' . $contact['name']);
 						$deliver_status = slapper($owner,$contact['notify'],$slap);
 
 						if($deliver_status == (-1)) {
@@ -726,7 +738,7 @@ function notifier_run(&$argv, &$argc){
 						// a public hub, it's ok to send a salmon
 
 						if((count($slaps)) && ($public_message) && (! $expire)) {
-							logger('notifier: slapdelivery: ' . $contact['name']);
+							logger('slapdelivery item '.$item_id.' to ' . $contact['name']);
 							foreach($slaps as $slappy) {
 								if($contact['notify']) {
 									$deliver_status = slapper($owner,$contact['notify'],$slappy);
@@ -938,7 +950,7 @@ function notifier_run(&$argv, &$argc){
 			// throw everything into the queue in case we get killed
 
 			foreach($r as $rr) {
-				if((! $mail) && (! $fsuggest) && (! $followup)) {
+				if((! $mail) && (! $fsuggest) && (!$followup OR ($parent['contact-id'] != $contact['id']))) {
 					q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
 						dbesc($cmd),
 						intval($item_id),

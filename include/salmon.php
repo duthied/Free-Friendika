@@ -66,7 +66,7 @@ function get_salmon_key($uri,$keyhash) {
 		
 function slapper($owner,$url,$slap) {
 
-	logger('slapper called. Data: ' . $slap);
+	logger('slapper called for '.$owner['url'].' to '.$url.' . Data: ' . $slap);
 
 	// does contact have a salmon endpoint? 
 
