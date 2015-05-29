@@ -464,12 +464,27 @@ function get_atom_elements($feed, $item, $contact = array()) {
 
 	// look for a photo. We should check media size and find the best one,
 	// but for now let's just find any author photo
+	// Additionally we look for an alternate author link. On OStatus this one is the one we want.
+
+	// Search for ostatus conversation url
+	$authorlinks = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
+	if (is_array($authorlinks)) {
+		foreach ($authorlinks as $link) {
+			$linkdata = array_shift($link["attribs"]);
+
+			if ($linkdata["rel"] == "alternate")
+				$res["author-link"] = $linkdata["href"];
+		};
+	}
 
 	$rawauthor = $item->get_item_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
 
 	if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
 		$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		foreach($base as $link) {
+			if($link['attribs']['']['rel'] === 'alternate')
+				$res['author-link'] = unxmlify($link['attribs']['']['href']);
+
 			if(!x($res, 'author-avatar') || !$res['author-avatar']) {
 				if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar')
 					$res['author-avatar'] = unxmlify($link['attribs']['']['href']);
@@ -828,7 +843,7 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		logger('get_atom_elements: Looking for status.net repeated message');
 
 		$message = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["content"][0]["data"];
-		$orig_uri = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"];
+		$orig_id = ostatus_convert_href($child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"]);
 		$author = $child[SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10];
 		$uri = $author["uri"][0]["data"];
 		$name = $author["name"][0]["data"];
@@ -836,10 +851,10 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		$avatar = $avatar["href"];
 
 		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
-			logger('get_atom_elements: fixing sender of repeated message.');
+			logger('get_atom_elements: fixing sender of repeated message. '.$orig_id, LOGGER_DEBUG);
 
 			if (!intval(get_config('system','wall-to-wall_share'))) {
-				$prefix = share_header($name, $uri, $avatar, "", "", $orig_uri);
+				$prefix = share_header($name, $uri, $avatar, "", "", $orig_link);
 
 				$res["body"] = $prefix.html2bbcode($message)."[/share]";
 			} else {
@@ -864,8 +879,11 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			$conversation = array_shift($link["attribs"]);
 
 			if ($conversation["rel"] == "ostatus:conversation") {
-				$res["ostatus_conversation"] = $conversation["href"];
+				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
 				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
+			} elseif ($conversation["rel"] == "alternate") {
+				$res["plink"] = $conversation["href"];
+				logger('get_atom_elements: found plink '.$res["plink"]);
 			}
 		};
 	}
@@ -1090,6 +1108,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		unset($arr['dsprsig']);
 	}
 
+	// Converting the plink
+	if ($arr['network'] == NETWORK_OSTATUS) {
+		if (isset($arr['plink']))
+			$arr['plink'] = ostatus_convert_href($arr['plink']);
+		elseif (isset($arr['uri']))
+			$arr['plink'] = ostatus_convert_href($arr['uri']);
+	}
+
 	// if an OStatus conversation url was passed in, it is stored and then
 	// removed from the array.
 	$ostatus_conversation = null;
@@ -1115,7 +1141,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	/* check for create  date and expire time */
 	$uid = intval($arr['uid']);
-	$r = q("SELECT expire FROM user WHERE uid = %d", $uid);
+	$r = q("SELECT expire FROM user WHERE uid = %d", intval($uid));
 	if(count($r)) {
 		$expire_interval = $r[0]['expire'];
 		if ($expire_interval>0) {
@@ -1138,6 +1164,19 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
 			logger('item_store: found guid '.$arr['guid'].' for uri '.$arr['uri'], LOGGER_DEBUG);
+		}
+	}
+
+	// If there is no guid then take the same guid that was taken before for the same plink
+	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "")) {
+		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
+		$r = q("SELECT `guid` FROM `item` WHERE `plink` = '%s' AND `guid` != '' LIMIT 1",
+			dbesc(trim($arr['plink']))
+		);
+
+		if(count($r)) {
+			$arr['guid'] = $r[0]["guid"];
+			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
 		}
 	}
 
@@ -1347,12 +1386,36 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
 		dbesc($arr['uri']),
+		dbesc($arr['network']),
 		intval($arr['uid'])
 	);
 	if($r && count($r)) {
-		logger('item-store: duplicate item ignored. ' . print_r($arr,true));
+		logger('duplicated item with the same uri found. ' . print_r($arr,true));
+		return 0;
+	}
+
+	$r = q("SELECT `id` FROM `item` WHERE `plink` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
+		dbesc($arr['plink']),
+		dbesc($arr['network']),
+		intval($arr['uid'])
+	);
+	if($r && count($r)) {
+		logger('duplicated item with the same plink found. ' . print_r($arr,true));
+		return 0;
+	}
+
+	// Check for an existing post with the same content. There seems to be a problem with OStatus.
+	$r = q("SELECT `id` FROM `item` WHERE `body` = '%s' AND `network` = '%s' AND `created` = '%s' AND `contact-id` = %d AND `uid` = %d LIMIT 1",
+		dbesc($arr['body']),
+		dbesc($arr['network']),
+		dbesc($arr['created']),
+		intval($arr['contact-id']),
+		intval($arr['uid'])
+	);
+	if($r && count($r)) {
+		logger('duplicated item with the same body found. ' . print_r($arr,true));
 		return 0;
 	}
 
@@ -2166,6 +2229,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		logger('consume_feed: empty input');
 		return;
 	}
+
+	// Test - remove before flight
+//	if ($contact['network'] === NETWORK_OSTATUS) {
+//		$tempfile = tempnam(get_temppath(), "ostatus");
+//		file_put_contents($tempfile, $xml);
+//	}
 
 	$feed = new SimplePie();
 	$feed->set_raw_data($xml);
@@ -4745,6 +4814,18 @@ function drop_item($id,$interactive = true) {
 			// ignore the result
 		}
 
+		// If item has attachments, drop them
+
+		foreach(explode(",",$item['attach']) as $attach){
+			preg_match("|attach/(\d+)|", $attach, $matches);
+			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
+				intval($matches[1]),
+				local_user()
+			);
+			// ignore the result
+		}
+
+
 		// clean up item_id and sign meta-data tables
 
 		/*
@@ -4821,6 +4902,7 @@ function drop_item($id,$interactive = true) {
 			// Add a relayable_retraction signature for Diaspora.
 			store_diaspora_retract_sig($item, $a->user, $a->get_baseurl());
 		}
+
 		$drop_id = intval($item['id']);
 
 		// send the notification upstream/downstream as the case may be

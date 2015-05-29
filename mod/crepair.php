@@ -22,11 +22,12 @@ function crepair_init(&$a) {
 
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
-			$o .= '<div class="vcard">';
-			$o .= '<div class="fn">' . $a->data['contact']['name'] . '</div>';
-			$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->data['contact']['photo'] . '" alt="' . $a->data['contact']['name'] . '" /></div>';
-			$o .= '</div>';
-			$a->page['aside'] .= $o;
+                        $tpl = get_markup_template("vcard-widget.tpl");
+                        $vcard_widget .= replace_macros($tpl, array(
+                                '$name' => $a->data['contact']['name'],
+                                '$photo' => $a->data['contact']['photo']
+                        ));
+			$a->page['aside'] .= $vcard_widget;
 
 	}
 }

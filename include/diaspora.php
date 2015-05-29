@@ -785,11 +785,20 @@ function diaspora_is_redmatrix($url) {
 }
 
 function diaspora_plink($addr, $guid) {
-	$r = q("SELECT `url`, `nick` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
+	$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
 
 	// Fallback
 	if (!$r)
 		return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
+
+	// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
+	// So we try another way as well.
+	$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
+	if ($s)
+		$r[0]["network"] = $s[0]["network"];
+
+	if ($r[0]["network"] == NETWORK_DFRN)
+		return(str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/"));
 
 	if (diaspora_is_redmatrix($r[0]["url"]))
 		return $r[0]["url"]."/?f=&mid=".$guid;
@@ -833,11 +842,18 @@ function diaspora_post($importer,$xml,$msg) {
 
 	$body = diaspora2bb($xml->raw_message);
 
-	// Add OEmbed and other information to the body
-	if (!diaspora_is_redmatrix($contact['url']))
-		$body = add_page_info_to_body($body, false, true);
-
 	$datarray = array();
+
+	$datarray["object"] = json_encode($xml);
+
+	if($xml->photo->remote_photo_path AND $xml->photo->remote_photo_name)
+		$datarray["object-type"] = ACTIVITY_OBJ_PHOTO;
+	else {
+		$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+		// Add OEmbed and other information to the body
+		if (!diaspora_is_redmatrix($contact['url']))
+			$body = add_page_info_to_body($body, false, true);
+	}
 
 	$str_tags = '';
 
@@ -872,7 +888,10 @@ function diaspora_post($importer,$xml,$msg) {
 	$datarray['author-avatar'] = $contact['thumb'];
 	$datarray['body'] = $body;
 	$datarray['tag'] = $str_tags;
-	$datarray['app']  = 'Diaspora';
+	if ($xml->provider_display_name)
+                $datarray["app"] = unxmlify($xml->provider_display_name);
+	else
+		$datarray['app']  = 'Diaspora';
 
 	// if empty content it might be a photo that hasn't arrived yet. If a photo arrives, we'll make it visible.
 
@@ -921,6 +940,8 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	$author = $item["author"];
 	$guid = $item["guid"];
 	$private = $item["private"];
+	$object = $item["object"];
+	$objecttype = $item["object-type"];
 
 	$message_id = $author.':'.$guid;
 	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
@@ -954,6 +975,8 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	$datarray['tag'] = $str_tags;
 	$datarray['app']  = $app;
 	$datarray['visible'] = ((strlen($body)) ? 1 : 0);
+	$datarray['object'] = $object;
+	$datarray['object-type'] = $objecttype;
 
 	if ($datarray['contact-id'] == 0)
 		return false;
@@ -1001,11 +1024,14 @@ function diaspora_fetch_message($guid, $server, $level = 0) {
 		$item["guid"] = unxmlify($source_xml->post->status_message->guid);
 
 	$item["private"] = (unxmlify($source_xml->post->status_message->public) == 'false');
+	$item["object"] = json_encode($source_xml->post);
 
 	if(strlen($source_xml->post->asphoto->objectId) && ($source_xml->post->asphoto->objectId != 0) && ($source_xml->post->asphoto->image_url)) {
+		$item["object-type"] = ACTIVITY_OBJ_PHOTO;
 		$body = '[url=' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '][img]' . notags(unxmlify($source_xml->post->asphoto->objectId)) . '[/img][/url]' . "\n";
 		$body = scale_external_images($body,false);
 	} elseif($source_xml->post->asphoto->image_url) {
+		$item["object-type"] = ACTIVITY_OBJ_PHOTO;
 		$body = '[img]' . notags(unxmlify($source_xml->post->asphoto->image_url)) . '[/img]' . "\n";
 		$body = scale_external_images($body);
 	} elseif($source_xml->post->status_message) {
@@ -1015,18 +1041,25 @@ function diaspora_fetch_message($guid, $server, $level = 0) {
 		if($source_xml->post->status_message->photo->remote_photo_path AND
 			$source_xml->post->status_message->photo->remote_photo_name) {
 
+			$item["object-type"] = ACTIVITY_OBJ_PHOTO;
+
 			$remote_photo_path = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_path));
 			$remote_photo_name = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_name));
 
 			$body = '[img]'.$remote_photo_path.$remote_photo_name.'[/img]'."\n".$body;
 
 			logger('embedded picture link found: '.$body, LOGGER_DEBUG);
-		}
+		} else
+			$item["object-type"] = ACTIVITY_OBJ_NOTE;
 
 		$body = scale_external_images($body);
 
 		// Add OEmbed and other information to the body
-		$body = add_page_info_to_body($body, false, true);
+		// To-Do: It could be a repeated redmatrix item
+		// Then we shouldn't add further data to it
+		if ($item["object-type"] == ACTIVITY_OBJ_NOTE)
+			$body = add_page_info_to_body($body, false, true);
+
 	} elseif($source_xml->post->reshare) {
 		// Reshare of a reshare
 		return diaspora_fetch_message($source_xml->post->reshare->root_guid, $server, ++$level);
@@ -1081,16 +1114,17 @@ function diaspora_reshare($importer,$xml,$msg) {
 
 	$orig_author = notags(unxmlify($xml->root_diaspora_id));
 	$orig_guid = notags(unxmlify($xml->root_guid));
+	$orig_url = $a->get_baseurl()."/display/".$orig_guid;
 
 	$create_original_post = false;
 
 	// Do we already have this item?
-	$r = q("SELECT `body`, `tag`, `app`, `created`, `author-link`, `plink` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+	$r = q("SELECT `body`, `tag`, `app`, `created`, `plink`, `object`, `object-type`, `uri` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 		dbesc($orig_guid),
 		dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
-		logger('reshared message '.$orig_guid." reshared by ".$guid.' already exists on system: '.$orig_url);
+		logger('reshared message '.$orig_guid." reshared by ".$guid.' already exists on system.');
 
 		// Maybe it is already a reshared item?
 		// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
@@ -1102,9 +1136,10 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$str_tags = $r[0]["tag"];
 			$app = $r[0]["app"];
 			$orig_created = $r[0]["created"];
-			$orig_author = $r[0]["author-link"];
-			$create_original_post = ($body != "");
-			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
+			$orig_plink = $r[0]["plink"];
+			$orig_uri = $r[0]["uri"];
+			$object = $r[0]["object"];
+			$objecttype = $r[0]["object-type"];
 		}
 	}
 
@@ -1112,8 +1147,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$body = "";
 		$str_tags = "";
 		$app = "";
-
-		$orig_url = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
 
 		$server = 'https://'.substr($orig_author,strpos($orig_author,'@')+1);
 		logger('1st try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
@@ -1142,10 +1175,15 @@ function diaspora_reshare($importer,$xml,$msg) {
 			$orig_created = $item["created"];
 			$orig_author = $item["author"];
 			$orig_guid = $item["guid"];
+			$orig_plink = diaspora_plink($orig_author, $orig_guid);
+			$orig_uri = $orig_author.':'.$orig_guid;
 			$create_original_post = ($body != "");
-			$orig_url = $a->get_baseurl()."/display/".$orig_guid;
+			$object = $item["object"];
+			$objecttype = $item["object-type"];
 		}
 	}
+
+	$plink = diaspora_plink($diaspora_handle, $guid);
 
 	$person = find_diaspora_person_by_handle($orig_author);
 
@@ -1153,8 +1191,6 @@ function diaspora_reshare($importer,$xml,$msg) {
 	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
 
 	$datarray = array();
-
-	$plink = diaspora_plink($diaspora_handle, $guid);
 
 	$datarray['uid'] = $importer['uid'];
 	$datarray['contact-id'] = $contact['id'];
@@ -1184,6 +1220,9 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray['body'] = $body;
 	}
 
+	$datarray["object"] = json_encode($xml);
+	$datarray['object-type'] = $objecttype;
+
 	$datarray['tag'] = $str_tags;
 	$datarray['app']  = $app;
 
@@ -1199,9 +1238,10 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray2['uid'] = 0;
 		$datarray2['contact-id'] = get_contact($person['url'], 0);
 		$datarray2['guid'] = $orig_guid;
-		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_author.':'.$orig_guid;
+		$datarray2['uri'] = $datarray2['parent-uri'] = $orig_uri;
 		$datarray2['changed'] = $datarray2['created'] = $datarray2['edited'] = $datarray2['commented'] = $datarray2['received'] = datetime_convert('UTC','UTC',$orig_created);
-		$datarray2['plink'] = diaspora_plink($orig_author, $orig_guid);
+		$datarray2['parent'] = 0;
+		$datarray2['plink'] = $orig_plink;
 
 		$datarray2['author-name'] = $person['name'];
 		$datarray2['author-link'] = $person['url'];
@@ -1210,6 +1250,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 		$datarray2['owner-link'] = $datarray2['author-link'];
 		$datarray2['owner-avatar'] = $datarray2['author-avatar'];
 		$datarray2['body'] = $body;
+		$datarray2["object"] = $object;
 
 		DiasporaFetchGuid($datarray2);
 		$message_id = item_store($datarray2);
@@ -1295,6 +1336,8 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	$datarray['author-link'] = $contact['url'];
 	$datarray['author-avatar'] = $contact['thumb'];
 	$datarray['body'] = $body;
+	$datarray["object"] = json_encode($xml);
+	$datarray['object-type'] = ACTIVITY_OBJ_PHOTO;
 
 	$datarray['app']  = 'Diaspora/Cubbi.es';
 
@@ -1464,6 +1507,8 @@ function diaspora_comment($importer,$xml,$msg) {
 	$datarray['author-link'] = $person['url'];
 	$datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
 	$datarray['body'] = $body;
+	$datarray["object"] = json_encode($xml);
+	$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
 
 	// We can't be certain what the original app is if the message is relayed.
 	if(($parent_item['origin']) && (! $parent_author_signature))
@@ -1790,7 +1835,7 @@ function diaspora_message($importer,$xml,$msg) {
 		dbesc($person['name']),
 		dbesc($person['photo']),
 		dbesc($person['url']),
-		intval($contact['id']),	 
+		intval($contact['id']),
 		dbesc($conversation['subject']),
 		dbesc($body),
 		0,
@@ -2059,7 +2104,7 @@ function diaspora_like($importer,$xml,$msg) {
 
 	$activity = ACTIVITY_LIKE;
 	$post_type = (($parent_item['resource-id']) ? t('photo') : t('status'));
-	$objtype = (($parent_item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE ); 
+	$objtype = (($parent_item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $parent_item['id'] . '" />' . "\n") ;
 	$body = $parent_item['body'];
 
@@ -2878,7 +2923,7 @@ function diaspora_send_retraction($item,$owner,$contact,$public_batch = false) {
 		$target_type = (($item['verb'] === ACTIVITY_LIKE) ? 'Like' : 'Comment');
 	}
 	else {
-		
+
 		$tpl = get_markup_template('diaspora_signed_retract.tpl');
 		$target_type = 'StatusMessage';
 	}
@@ -2924,7 +2969,7 @@ function diaspora_send_mail($item,$owner,$contact) {
 
 	$body = bb2diaspora($item['body']);
 	$created = datetime_convert('UTC','UTC',$item['created'],'Y-m-d H:i:s \U\T\C');
- 
+
 	$signed_text =  $item['guid'] . ';' . $cnv['guid'] . ';' . $body .  ';' 
 		. $created . ';' . $myaddr . ';' . $cnv['guid'];
 
