@@ -1,7 +1,7 @@
 <div id="side-bar-photos-albums" class="widget">
 	<h3>{{$title}}</h3>
 	<ul>
-		<li><a href="{{$baseurl}}/photos/{{$nick}}" title="{{$title}}" >Recent Photos</a></li>
+		<li><a href="{{$baseurl}}/photos/{{$nick}}" title="{{$title}}" >{{$recent}}</a></li>
 		{{if $albums}}
 		{{foreach $albums as $al}}
 		{{if $al.text}}

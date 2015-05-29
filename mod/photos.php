@@ -58,11 +58,11 @@ function photos_init(&$a) {
                         $ret['albums'] = array();
                         foreach($albums as $k => $album) {
                                 $entry = array(
-                                        'text' => $album['album'],
-                                        'total' => $album['total'], 
-                                        'url' => z_root() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
+                                        'text'      => $album['album'],
+                                        'total'     => $album['total'], 
+                                        'url'       => z_root() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
                                         'urlencode' => urlencode($album['album']),
-                                        'bin2hex' => bin2hex($album['album'])
+                                        'bin2hex'   => bin2hex($album['album'])
                                 );
                                 $ret['albums'][] = $entry;
                         }
@@ -75,10 +75,11 @@ function photos_init(&$a) {
 
                 if($albums['success']) {
                         $photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'),array(
-                                '$nick'    => $a->data['user']['nickname'],
-                                '$title'   => t('Photo Albums'),
-                                '$albums'  => $albums['albums'],
-                                '$baseurl' => z_root(),
+                                '$nick'     => $a->data['user']['nickname'],
+                                '$title'    => t('Photo Albums'),
+                                'recent'    => t('Recent Photos'),
+                                '$albums'   => $albums['albums'],
+                                '$baseurl'  => z_root(),
                                 '$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
                                 '$can_post' => $can_post
                         ));

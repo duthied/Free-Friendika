@@ -414,7 +414,8 @@ a:hover {
 .left {
   float: left;
 }
-.right {
+.right,
+.pull-right {
   float: right;
 }
 .hidden {
