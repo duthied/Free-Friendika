@@ -46,20 +46,20 @@ function photos_init(&$a) {
 		);
 
                 $albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
-                
+
                 // add various encodings to the array so we can just loop through and pick them out in a template
                 $ret = array('success' => false);
-  
+
                 if($albums) {
                         $a->data['albums'] = $albums;
-                        if ($albums_visible) 
+                        if ($albums_visible)
                                 $ret['success'] = true;
 
                         $ret['albums'] = array();
                         foreach($albums as $k => $album) {
                                 $entry = array(
                                         'text'      => $album['album'],
-                                        'total'     => $album['total'], 
+                                        'total'     => $album['total'],
                                         'url'       => z_root() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
                                         'urlencode' => urlencode($album['album']),
                                         'bin2hex'   => bin2hex($album['album'])
