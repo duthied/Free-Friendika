@@ -23,8 +23,10 @@ function dirfind_content(&$a) {
 	
 	$o = '';
 
-	$o .= '<h2>' . t('People Search') . ' - ' . $search . '</h2>';
-	
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => sprintf( t('People Search - %s'), $search)
+	));
+
 	if($search) {
 
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');

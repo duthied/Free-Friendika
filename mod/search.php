@@ -15,11 +15,11 @@ function search_saved_searches() {
 		$saved = array();
 		foreach($r as $rr) {
 			$saved[] = array(
-				'id'            => $rr['id'],
-				'term'			=> $rr['term'],
-				'encodedterm' 	=> urlencode($rr['term']),
-				'delete'		=> t('Remove term'),
-				'selected'		=> ($search==$rr['term']),
+				'id'		=> $rr['id'],
+				'term'		=> $rr['term'],
+				'encodedterm'	=> urlencode($rr['term']),
+				'delete'	=> t('Remove term'),
+				'selected'	=> ($search==$rr['term']),
 			);
 		}
 
@@ -27,10 +27,10 @@ function search_saved_searches() {
 		$tpl = get_markup_template("saved_searches_aside.tpl");
 
 		$o .= replace_macros($tpl, array(
-			'$title'	 => t('Saved Searches'),
-			'$add'		 => '',
-			'$searchbox' => '',
-			'$saved' 	 => $saved,
+			'$title'	=> t('Saved Searches'),
+			'$add'		=> '',
+			'$searchbox'	=> '',
+			'$saved' 	=> $saved,
 		));
 	}
 
@@ -177,9 +177,13 @@ function search_content(&$a) {
 
 
 	if($tag)
-		$o .= '<h2>' . sprintf( t('Items tagged with: %s'), $search) . '</h2>';
+		$title = sprintf( t('Items tagged with: %s'), $search);
 	else
-		$o .= '<h2>' . sprintf( t('Search results for: %s'), $search) . '</h2>';
+		$title = sprintf( t('Search results for: %s'), $search);
+
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => $title
+	));
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
 	$o .= conversation($a,$r,'search',false);

@@ -36,12 +36,14 @@ function editpost_content(&$a) {
 		$plaintext = false;
 
 
-	$o .= '<h2>' . t('Edit post') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Edit post')
+	));
 
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
-		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
