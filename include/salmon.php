@@ -62,13 +62,13 @@ function get_salmon_key($uri,$keyhash) {
 	return '';
 }
 
-
-
+	
+		
 function slapper($owner,$url,$slap) {
 
-	logger('slapper called for '.$owner['url'].' to '.$url.' . Data: ' . $slap);
+	logger('slapper called. Data: ' . $slap);
 
-	// does contact have a salmon endpoint?
+	// does contact have a salmon endpoint? 
 
 	if(! strlen($url))
 		return;
@@ -87,16 +87,16 @@ $namespaces = <<< EOT
       xmlns:thr="http://purl.org/syndication/thread/1.0"
       xmlns:at="http://purl.org/atompub/tombstones/1.0"
       xmlns:media="http://purl.org/syndication/atommedia"
-      xmlns:dfrn="http://purl.org/macgirvin/dfrn/1.0"
+      xmlns:dfrn="http://purl.org/macgirvin/dfrn/1.0" 
       xmlns:as="http://activitystrea.ms/spec/1.0/"
-      xmlns:georss="http://www.georss.org/georss"
-      xmlns:poco="http://portablecontacts.net/spec/1.0"
-      xmlns:ostatus="http://ostatus.org/schema/1.0"
+      xmlns:georss="http://www.georss.org/georss" 
+      xmlns:poco="http://portablecontacts.net/spec/1.0" 
+      xmlns:ostatus="http://ostatus.org/schema/1.0" 
 	  xmlns:statusnet="http://status.net/schema/api/1/" >													>
 EOT;
 
 	$slap = str_replace('<entry>',$namespaces,$slap);
-
+	
 	// create a magic envelope
 
 	$data      = base64url_encode($slap);
@@ -125,7 +125,7 @@ EOT;
 		'$signature' => $signature
 	));
 
-	// slap them
+	// slap them 
 	post_url($url,$salmon, array(
 		'Content-type: application/magic-envelope+xml',
 		'Content-length: ' . strlen($salmon)
@@ -152,7 +152,7 @@ EOT;
 			'$signature' => $signature2
 		));
 
-		// slap them
+		// slap them 
 		post_url($url,$salmon, array(
 			'Content-type: application/magic-envelope+xml',
 			'Content-length: ' . strlen($salmon)
@@ -166,7 +166,7 @@ EOT;
 
 			// Entirely likely that their salmon implementation is
 			// non-compliant. Let's try once more, this time only signing
-			// the data, without the precomputed blob
+			// the data, without the precomputed blob 
 
 			$salmon = replace_macros($salmon_tpl,array(
 				'$data'      => $data,
@@ -176,7 +176,7 @@ EOT;
 				'$signature' => $signature3
 			));
 
-			// slap them
+			// slap them 
 			post_url($url,$salmon, array(
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
@@ -184,7 +184,7 @@ EOT;
 			$return_code = $a->get_curl_code();
 		}
 	}
-	logger('slapper returned ' . $return_code);
+	logger('slapper returned ' . $return_code); 
 	if(! $return_code)
 		return(-1);
 	if(($return_code == 503) && (stristr($a->get_curl_headers(),'retry-after')))

@@ -46,9 +46,8 @@ function handle_pubsubhubbub() {
 			if ($new_push > 30) // OK, let's give up
 				$new_push = 0;
 
-			q("UPDATE `push_subscriber` SET `push` = %d, last_update = '%s' WHERE id = %d",
+			q("UPDATE `push_subscriber` SET `push` = %d WHERE id = %d",
 				$new_push,
-				dbesc($date_now),
 				intval($rr['id']));
 		}
 	}
