@@ -88,23 +88,25 @@ function delivery_run(&$argv, &$argc){
 		if($cmd === 'expire') {
 			$normal_mode = false;
 			$expire = true;
-			$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
+			$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1 
 				AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 30 MINUTE",
 				intval($item_id)
 			);
 			$uid = $item_id;
 			$item_id = 0;
 			if(! count($items))
-				continue;
+			continue;
 		}
 		else {
+
 			// find ancestors
 			$r = q("SELECT * FROM `item` WHERE `id` = %d and visible = 1 and moderated = 0 LIMIT 1",
 				intval($item_id)
 			);
 
-			if((! count($r)) || (! intval($r[0]['parent'])))
+			if((! count($r)) || (! intval($r[0]['parent']))) {
 				continue;
+			}
 
 			$target_item = $r[0];
 			$parent_id = intval($r[0]['parent']);
@@ -116,13 +118,14 @@ function delivery_run(&$argv, &$argc){
 				continue;
 
 
-			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
+			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer` 
 				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
 				intval($parent_id)
 			);
 
-			if(! count($items))
+			if(! count($items)) {
 				continue;
+			}
 
 			$icontacts = null;
 			$contacts_arr = array();
@@ -130,8 +133,8 @@ function delivery_run(&$argv, &$argc){
 				if(! in_array($item['contact-id'],$contacts_arr))
 					$contacts_arr[] = intval($item['contact-id']);
 			if(count($contacts_arr)) {
-				$str_contacts = implode(',',$contacts_arr);
-				$icontacts = q("SELECT * FROM `contact`
+				$str_contacts = implode(',',$contacts_arr); 
+				$icontacts = q("SELECT * FROM `contact` 
 					WHERE `id` IN ( $str_contacts ) "
 				);
 			}
@@ -151,10 +154,10 @@ function delivery_run(&$argv, &$argc){
 			}
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
-			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
+		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`, 
+			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`, 
 			`user`.`page-flags`, `user`.`prvnets`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
 			WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 		);
@@ -198,13 +201,6 @@ function delivery_run(&$argv, &$argc){
 		if(strpos($localhost,':'))
 			$localhost = substr($localhost,0,strpos($localhost,':'));
 
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `blocked` = 0 AND `pending` = 0",
-			intval($contact_id)
-		);
-
-		if(count($r))
-			$contact = $r[0];
-
 		/**
 		 *
 		 * Be VERY CAREFUL if you make any changes to the following line. Seemingly innocuous changes
@@ -213,7 +209,7 @@ function delivery_run(&$argv, &$argc){
 		 *
 		 */
 
-		if(!$top_level && ($parent["network"] != NETWORK_OSTATUS) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
+		if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
 			logger('relay denied for delivery agent.');
 
 			/* no relay allowed for direct contact delivery */
@@ -226,6 +222,13 @@ function delivery_run(&$argv, &$argc){
 			|| (strlen($parent['deny_gid']))) {
 			$public_message = false; // private recipients, not public
 		}
+
+		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `blocked` = 0 AND `pending` = 0",
+			intval($contact_id)
+		);
+
+		if(count($r))
+			$contact = $r[0];
 
 		$hubxml = feed_hublinks();
 
@@ -387,15 +390,11 @@ function delivery_run(&$argv, &$argc){
 						if(! $item_contact)
 							continue;
 
-						// For OStatus don't notify all contacts in the thread
-						if (!$top_level AND ($parent["network"] == NETWORK_OSTATUS) AND ($item["id"] != $item_id))
-							continue;
-
-						if(($top_level OR ($parent["network"] == NETWORK_OSTATUS)) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
+						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
 							$slaps[] = atom_entry($item,'html',null,$owner,true);
 					}
 
-					logger('slapdelivery item '.$item_id.' to ' . $contact['name']);
+					logger('notifier: slapdelivery: ' . $contact['name']);
 					foreach($slaps as $slappy) {
 						if($contact['notify']) {
 							if(! was_recently_delayed($contact['id']))

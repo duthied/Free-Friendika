@@ -227,9 +227,6 @@ function notifier_run(&$argv, &$argc){
 	// fill this in with a single salmon slap if applicable
 	$slap = '';
 
-	// List of OStatus receiptians of follow up messages
-	$ostatus_recip_str = "";
-
 	if(! ($mail || $fsuggest || $relocate)) {
 
 		require_once('include/group.php');
@@ -303,17 +300,8 @@ function notifier_run(&$argv, &$argc){
 
 				$push_notify = true;
 
-/*				$ostatus_recipients = array();
-
-				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `network` = '%s'", intval($uid), dbesc(NETWORK_OSTATUS));
-				if(count($r)) {
-					foreach($r as $rr)
-						$ostatus_recipients[] = $rr['id'];
-
-					$ostatus_recip_str = ", ".implode(', ', $ostatus_recipients);
-				}
-*/
-				// Check if the recipient isn't in your contact list
+				// Check if the recipient isn't in your contact list, try to slap it
+				// This doesn't seem to work correctly by now
 				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
 				if (count($r)) {
 					$url_recipients = array();
@@ -570,7 +558,7 @@ function notifier_run(&$argv, &$argc){
 	}
 
 	if($followup)
-		$recip_str = $parent['contact-id'].$ostatus_recip_str;
+		$recip_str = $parent['contact-id'];
 	else
 		$recip_str = implode(', ', $recipients);
 
@@ -591,7 +579,7 @@ function notifier_run(&$argv, &$argc){
 	if(count($r)) {
 
 		foreach($r as $contact) {
-			if((! $mail) && (! $fsuggest) && (!$followup OR ($parent['contact-id'] != $contact['id'])) && (!$relocate) && (! $contact['self'])) {
+			if((! $mail) && (! $fsuggest) && (! $followup) && (!$relocate) && (! $contact['self'])) {
 				if(($contact['network'] === NETWORK_DIASPORA) && ($public_message))
 					continue;
 				q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
@@ -630,7 +618,7 @@ function notifier_run(&$argv, &$argc){
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here.
 
-			if((! $mail) && (! $fsuggest) && (!$relocate) && (!$followup OR ($parent['contact-id'] != $contact['id']))) {
+			if((! $mail) && (! $fsuggest) && (!$relocate) && (! $followup)) {
 
 				$this_batch[] = $contact['id'];
 
@@ -957,7 +945,7 @@ function notifier_run(&$argv, &$argc){
 			// throw everything into the queue in case we get killed
 
 			foreach($r as $rr) {
-				if((! $mail) && (! $fsuggest) && (!$followup OR ($parent['contact-id'] != $contact['id']))) {
+				if((! $mail) && (! $fsuggest) && (! $followup)) {
 					q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
 						dbesc($cmd),
 						intval($item_id),
