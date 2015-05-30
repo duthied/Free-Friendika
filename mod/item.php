@@ -570,9 +570,9 @@ function item_post(&$a) {
 	 */
 
 	if(($parent_contact) && ($parent_contact['network'] === NETWORK_OSTATUS)
-		&& ($parent_contact['nick']) && (! in_array('@' . $parent_contact['nick'],$tags))) {
-		$body = '@' . $parent_contact['nick'] . ' ' . $body;
-		$tags[] = '@' . $parent_contact['nick'];
+		&& ($parent_contact['nick']) && (!in_array('@'.$parent_contact['nick'].'+'.$parent_contact['id'],$tags))) {
+		$body = '@'.$parent_contact['nick'].'+'.$parent_contact['id'].' '.$body;
+		$tags[] = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
 	}
 
 	$tagged = array();
