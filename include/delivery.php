@@ -388,7 +388,7 @@ function delivery_run(&$argv, &$argc){
 							continue;
 
 						// For OStatus don't notify all contacts in the thread
-						if (!$top_level AND ($parent["network"] == NETWORK_OSTATUS) AND ($item["id"] != $item["parent"]))
+						if (!$top_level AND ($parent["network"] == NETWORK_OSTATUS) AND ($item["id"] != $item_id))
 							continue;
 
 						if(($top_level OR ($parent["network"] == NETWORK_OSTATUS)) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))

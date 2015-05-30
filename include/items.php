@@ -14,7 +14,7 @@ require_once('include/threads.php');
 require_once('include/socgraph.php');
 require_once('mod/share.php');
 
-function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
+function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
 
 
 	$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
@@ -55,6 +55,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 	$birthday = feed_birthday($owner_id,$owner['timezone']);
 
 	$sql_post_table = "";
+	$visibility = "";
 
 	if(! $public_feed) {
 
@@ -114,6 +115,17 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 	else
 		$sort = 'ASC';
 
+	// Include answers to status.net posts in public feeds
+	if($forpubsub) {
+		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent` ";
+		$visibility = "OR (`item`.`network` = 'dfrn' AND `thread`.`network`='stat')";
+		$date_field = "`received`";
+		$sql_order = "`item`.`received` DESC";
+	} else {
+		$date_field = "`changed`";
+		$sql_order = "`item`.`parent` ".$sort.", `item`.`created` ASC";
+	}
+
 	if(! strlen($last_update))
 		$last_update = 'now -30 days';
 
@@ -133,7 +145,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 	//	AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
 	//	dbesc($check_date),
 
-	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+	$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`,
 		`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 		`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
@@ -144,9 +156,9 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) 
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 		LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
 		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0
-		AND `item`.`wall` = 1 AND `item`.`changed` > '%s'
+		AND ((`item`.`wall` = 1) $visibility) AND `item`.$date_field > '%s'
 		$sql_extra
-		ORDER BY `parent` %s, `created` ASC LIMIT 0, 300",
+		ORDER BY $sql_order LIMIT 0, 300",
 		intval($owner_id),
 		dbesc($check_date),
 		dbesc($sort)
