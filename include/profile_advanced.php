@@ -4,7 +4,9 @@ function advanced_profile(&$a) {
 
 	$o = '';
 
-	$o .= '<h2>' . t('Profile') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Profile')
+	));
 
 	if($a->profile['name']) {
 
@@ -81,13 +83,13 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['education'])) $profile['education'] = array( t('School/education:'), $txt );
 		
 		if ($a->profile['uid'] == local_user())
-      $profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
+			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
 		
-        return replace_macros($tpl, array(
-          '$title' => t('Profile'),
-          '$profile' => $profile
-        ));
-    }
+		return replace_macros($tpl, array(
+			'$title' => t('Profile'),
+			'$profile' => $profile
+		));
+	}
 
 	return '';
 }

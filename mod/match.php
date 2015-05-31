@@ -9,7 +9,9 @@ function match_content(&$a) {
 
 	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
-	$o .= '<h2>' . t('Profile Match') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Profile Match')
+	));
 
 	$r = q("SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
