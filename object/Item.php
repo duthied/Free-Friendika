@@ -81,7 +81,7 @@ class Item extends BaseObject {
 	 *      _ The data requested on success
 	 *      _ false on failure
 	 */
-	public function get_template_data($alike, $dlike, $thread_level=1) {
+	public function get_template_data($conv_responses, $thread_level=1) {
 		require_once("mod/proxy.php");
 
 		$result = array();
@@ -175,8 +175,8 @@ class Item extends BaseObject {
 			}
 		}*/
 
-		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
-		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
+		$like    = ((x($conv_responses['like'],$item['uri'])) ? format_like($conv_responses['like'][$item['uri']],$conv_responses['like'][$item['uri'] . '-l'],'like',$item['uri']) : '');
+    		$dislike = ((x($conv_responses['dislike'],$item['uri'])) ? format_like($conv_responses['dislike'][$item['uri']],$conv_responses['dislike'][$item['uri'] . '-l'],'dislike',$item['uri']) : '');
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -381,7 +381,7 @@ class Item extends BaseObject {
 		$nb_children = count($children);
 		if($nb_children > 0) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
+				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1);
 			}
 			// Collapse
 			if(($nb_children > 2) || ($thread_level > 1)) {

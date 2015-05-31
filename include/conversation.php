@@ -341,8 +341,15 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
-	if(activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE))
-		return false;
+	// likes (etc.) can apply to other things besides posts. Check if they are post children, 
+	// in which case we handle them specially
+
+	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN);
+	foreach($hidden_activities as $act) {
+		if(activity_match($item['verb'],$act)) {
+			return false;
+		}
+	}
 
 	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
 		if(! (($item['self']) && ($item['uid'] == local_user()))) {
@@ -484,8 +491,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$cmnt_tpl    = get_markup_template('comment_item.tpl');
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
-	$alike = array();
-	$dlike = array();
+	$conv_responses = array(array('like'),array('dislike'),array('agree'),array('disagree'),array('abstain'));
 
 	// array with html for each thread (parent+comments)
 	$threads = array();
@@ -734,8 +740,11 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 
 				// Can we put this after the visibility check?
-				like_puller($a,$item,$alike,'like');
-				like_puller($a,$item,$dlike,'dislike');
+				like_puller($a, $item, $conv_responses, 'like');
+				like_puller($a, $item, $conv_responses, 'dislike');
+				like_puller($a, $item, $conv_responses, 'agree');
+				like_puller($a, $item, $conv_responses, 'disagree');
+				like_puller($a, $item, $conv_responses, 'abstain');
 
 				// Only add what is visible
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
@@ -755,7 +764,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				}
 			}
 
-			$threads = $conv->get_template_data($alike, $dlike);
+			$threads = $conv->get_template_data($conv_responses);
 
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
@@ -904,7 +913,31 @@ function like_puller($a,$item,&$arr,$mode) {
 
 	$url = '';
 	$sparkle = '';
-	$verb = (($mode === 'like') ? ACTIVITY_LIKE : ACTIVITY_DISLIKE);
+	switch($mode) {
+		case 'like':
+		case 'unlike':
+			$verb = ACTIVITY_LIKE;
+			break;
+		case 'dislike':
+		case 'undislike':
+			$verb = ACTIVITY_DISLIKE;
+			break;
+		case 'agree':
+		case 'unagree':
+			$verb = ACTIVITY_AGREE;
+			break;
+		case 'disagree':
+		case 'undisagree':
+			$verb = ACTIVITY_DISAGREE;
+			break;
+		case 'abstain':
+		case 'unabstain':
+			$verb = ACTIVITY_ABSTAIN;
+			break;
+		default:
+			return;
+			break;
+	}
 
 	if((activity_match($item['verb'],$verb)) && ($item['id'] != $item['parent'])) {
 		$url = $item['author-link'];
@@ -918,13 +951,14 @@ function like_puller($a,$item,&$arr,$mode) {
 		if(! $item['thr-parent'])
 			$item['thr-parent'] = $item['parent-uri'];
 
-		if(! ((isset($arr[$item['thr-parent'] . '-l'])) && (is_array($arr[$item['thr-parent'] . '-l']))))
-			$arr[$item['thr-parent'] . '-l'] = array();
-		if(! isset($arr[$item['thr-parent']]))
-			$arr[$item['thr-parent']] = 1;
+		if(! ((isset($arr[$mode][$item['thr-parent'] . '-l'])) && (is_array($arr[$item['thr-parent'] . '-l']))))
+			$arr[$mode][$item['thr-parent'] . '-l'] = array();
+		if(! isset($arr[$mode][$item['thr-parent']]))
+			$arr[$mode][$item['thr-parent']] = 1;
 		else
-			$arr[$item['thr-parent']] ++;
-		$arr[$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . $item['author-name'] . '</a>';
+			$arr[$mode][$item['thr-parent']] ++;
+
+		$arr[$mode][$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . $item['author-name'] . '</a>';
 	}
 	return;
 }}

@@ -270,6 +270,10 @@ define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
 
 define ( 'ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like' );
 define ( 'ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike' );
+define ( 'ACTIVITY_AGREE',       NAMESPACE_DFRN            . '/activity/agree' );
+define ( 'ACTIVITY_DISAGREE',    NAMESPACE_DFRN            . '/activity/disagree' );
+define ( 'ACTIVITY_ABSTAIN',     NAMESPACE_DFRN            . '/activity/abstain' );
+
 define ( 'ACTIVITY_OBJ_HEART',   NAMESPACE_DFRN            . '/heart' );
 
 define ( 'ACTIVITY_FRIEND',      NAMESPACE_ACTIVITY_SCHEMA . 'make-friend' );
