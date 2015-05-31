@@ -1,3 +1,6 @@
+/* General style rules .*/
+.pull-right { float: right }
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
