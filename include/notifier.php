@@ -114,7 +114,7 @@ function notifier_run(&$argv, &$argc){
 	elseif($cmd === 'expire') {
 		$normal_mode = false;
 		$expire = true;
-		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1 
+		$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
 			AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 10 MINUTE",
 			intval($item_id)
 		);
@@ -178,7 +178,7 @@ function notifier_run(&$argv, &$argc){
 		if(! $parent_id)
 			return;
 
-		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer` 
+		$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
 			FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
 			intval($parent_id)
 		);
@@ -220,6 +220,9 @@ function notifier_run(&$argv, &$argc){
 
 	// If this is a public conversation, notify the feed hub
 	$public_message = true;
+
+	// Do a PuSH
+	$push_notify = false;
 
 	// fill this in with a single salmon slap if applicable
 	$slap = '';
@@ -284,8 +287,6 @@ function notifier_run(&$argv, &$argc){
 		if($parent['origin'])
 			$relay_to_owner = false;
 
-
-
 		if($relay_to_owner) {
 			logger('notifier: followup', LOGGER_DEBUG);
 			// local followup to remote post
@@ -295,8 +296,12 @@ function notifier_run(&$argv, &$argc){
 			$recipients = array($parent['contact-id']);
 
 			if ($parent['network'] == NETWORK_OSTATUS) {
+				logger('Parent is OStatus', LOGGER_DEBUG);
 
-				// Check if the recipient isn't in your contact list
+				$push_notify = true;
+
+				// Check if the recipient isn't in your contact list, try to slap it
+				// This doesn't seem to work correctly by now
 				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
 				if (count($r)) {
 					$url_recipients = array();
@@ -608,6 +613,8 @@ function notifier_run(&$argv, &$argc){
 			if($contact['self'])
 				continue;
 
+			logger("Deliver to ".$contact['url'], LOGGER_DEBUG);
+
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here.
 
@@ -713,7 +720,7 @@ function notifier_run(&$argv, &$argc){
 						break;
 
 					if($followup && $contact['notify']) {
-						logger('notifier: slapdelivery: ' . $contact['name']);
+						logger('slapdelivery followup item '.$item_id.' to ' . $contact['name']);
 						$deliver_status = slapper($owner,$contact['notify'],$slap);
 
 						if($deliver_status == (-1)) {
@@ -726,7 +733,7 @@ function notifier_run(&$argv, &$argc){
 						// a public hub, it's ok to send a salmon
 
 						if((count($slaps)) && ($public_message) && (! $expire)) {
-							logger('notifier: slapdelivery: ' . $contact['name']);
+							logger('slapdelivery item '.$item_id.' to ' . $contact['name']);
 							foreach($slaps as $slappy) {
 								if($contact['notify']) {
 									$deliver_status = slapper($owner,$contact['notify'],$slappy);
@@ -966,32 +973,40 @@ function notifier_run(&$argv, &$argc){
 			}
 		}
 
+		$push_notify = true;
 
-		if(strlen($hub)) {
-			$hubs = explode(',', $hub);
-			if(count($hubs)) {
-				foreach($hubs as $h) {
-					$h = trim($h);
-					if(! strlen($h))
-						continue;
+	}
 
-					if ($h === '[internal]') {
-						// Set push flag for PuSH subscribers to this topic,
-						// they will be notified in queue.php
-						q("UPDATE `push_subscriber` SET `push` = 1 " .
-						  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
-					} else {
 
-						$params = 'hub.mode=publish&hub.url=' . urlencode( $a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
-						post_url($h,$params);
-						logger('pubsub: publish: ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
-					}
-					if(count($hubs) > 1)
-						sleep(7);				// try and avoid multiple hubs responding at precisely the same time
+	if($push_notify AND strlen($hub)) {
+		$hubs = explode(',', $hub);
+		if(count($hubs)) {
+			foreach($hubs as $h) {
+				$h = trim($h);
+				if(! strlen($h))
+					continue;
+
+				if ($h === '[internal]') {
+					// Set push flag for PuSH subscribers to this topic,
+					// they will be notified in queue.php
+					q("UPDATE `push_subscriber` SET `push` = 1 " .
+					  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
+
+					logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
+
+				} else {
+
+					$params = 'hub.mode=publish&hub.url=' . urlencode( $a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
+					post_url($h,$params);
+					logger('publish for item '.$item_id.' ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
 				}
+				if(count($hubs) > 1)
+					sleep(7);				// try and avoid multiple hubs responding at precisely the same time
 			}
 		}
 
+		// Handling the pubsubhubbub requests
+		proc_run('php','include/pubsubpublish.php');
 	}
 
 	// If the item was deleted, clean up the `sign` table

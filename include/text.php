@@ -835,10 +835,16 @@ function get_mentions($item) {
 	foreach($arr as $x) {
 		$matches = null;
 		if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 			$o .= "\t\t" . '<link rel="ostatus:attention" href="' . $matches[1] . '" />' . "\r\n";
+			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 		}
 	}
+
+	if (!$item['private']) {
+			$o .= "\t\t".'<link rel="ostatus:attention" href="http://activityschema.org/collection/public"/>'."\r\n";
+			$o .= "\t\t".'<link rel="mentioned" href="http://activityschema.org/collection/public"/>'."\r\n";
+	}
+
 	return $o;
 }}
 

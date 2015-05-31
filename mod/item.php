@@ -144,6 +144,7 @@ function item_post(&$a) {
 						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
 						$parent_contact["thumb"] = $probed_contact["photo"];
 						$parent_contact["micro"] = $probed_contact["photo"];
+						$parent_contact["addr"] = $probed_contact["addr"];
 					}
 					logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
 				} else
@@ -569,10 +570,32 @@ function item_post(&$a) {
 	 * and we are replying, and there isn't one already
 	 */
 
-	if(($parent_contact) && ($parent_contact['network'] === NETWORK_OSTATUS)
-		&& ($parent_contact['nick']) && (! in_array('@' . $parent_contact['nick'],$tags))) {
-		$body = '@' . $parent_contact['nick'] . ' ' . $body;
-		$tags[] = '@' . $parent_contact['nick'];
+	if ($parent_contact['id'] != "")
+		$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
+	//elseif ($parent_contact['addr'] != "")
+	//	$contact = '@'.$parent_contact['addr'];
+	else
+		$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
+
+	if ($parent_contact && ($parent_contact['network'] === NETWORK_OSTATUS)) {
+		if (($parent_contact['nick']) && (!in_array($contact,$tags))) {
+			$body = $contact.' '.$body;
+			$tags[] = $contact;
+		}
+
+		$toplevel_contact = "";
+		$toplevel_parent = q("SELECT `contact`.* FROM `contact` INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id`
+					WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
+		if ($toplevel_parent)
+			$toplevel_contact = '@'.$toplevel_parent[0]['nick'].'+'.$toplevel_parent[0]['id'];
+		else {
+			$toplevel_parent = q("SELECT `author-link`, `author-name` FROM `item` WHERE `id` = `parent` AND `parent` = %d", intval($parent));
+			$toplevel_contact = '@[url='.$toplevel_parent[0]['author-link'].']'.$toplevel_parent[0]['author-name'].'[/url]';
+		}
+
+		if ($toplevel_contact != "")
+			if (!in_array($toplevel_contact,$tags))
+				$tags[] = $toplevel_contact;
 	}
 
 	$tagged = array();
