@@ -118,7 +118,8 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 	// Include answers to status.net posts in pubsub feeds
 	if($forpubsub) {
 		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent` ";
-		$visibility = "OR (`item`.`network` = 'dfrn' AND `thread`.`network`='stat')";
+		$visibility = sprintf("OR (`item`.`network` = '%s' AND `thread`.`network`='%s')",
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS));
 		$date_field = "`received`";
 		$sql_order = "`item`.`received` DESC";
 	} else {

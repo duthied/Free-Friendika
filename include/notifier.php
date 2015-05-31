@@ -295,13 +295,18 @@ function notifier_run(&$argv, &$argc){
 			$conversant_str = dbesc($parent['contact-id']);
 			$recipients = array($parent['contact-id']);
 
+			if (!$item['private'] AND $item['wall'] AND
+				(strlen($item['allow_cid'].$item['allow_gid'].
+					$item['deny_cid'].$item['deny_gid']) == 0))
+				$push_notify = true;
+
 			if ($parent['network'] == NETWORK_OSTATUS) {
 				logger('Parent is OStatus', LOGGER_DEBUG);
 
 				$push_notify = true;
 
 				// Check if the recipient isn't in your contact list, try to slap it
-				// This doesn't seem to work correctly by now
+				// Not sure if it is working or not.
 				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
 				if (count($r)) {
 					$url_recipients = array();
