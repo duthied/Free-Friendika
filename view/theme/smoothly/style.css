@@ -104,8 +104,6 @@ input[type=submit]:active {
 	top: 1px;
 }
 
-.pull-right { float: right }
-
 #search-text,
 #search-submit,
 #search-save {
