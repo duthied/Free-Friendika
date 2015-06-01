@@ -268,6 +268,10 @@ $b is an array, params to mail()
     'body'
     'headers'
 
+###'nav_info'
+is called after the navigational menu is build in include/nav.php.
+$b is an array containing $nav from nav.php.
+
 Complete list of hook callbacks
 ---
 

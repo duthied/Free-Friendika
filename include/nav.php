@@ -200,6 +200,8 @@ function nav_info(&$a) {
 	if($banner === false) 
 		$banner .= '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
 
+	call_hooks('nav_info', $nav);
+
 
 	return array(
 		'sitelocation' => $sitelocation,
