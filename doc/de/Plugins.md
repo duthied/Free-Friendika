@@ -176,6 +176,9 @@ Du kannst ebenso plugin_name_init(&$a) nutzen, was oft frühzeitig aufgerufen wi
         'email' => Email-Adresse, um nach dem Avatar zu suchen
         'url' => generierte URL (String) des Avatars
 
+**'nav_info'**
+ - wird aufgerufen nachdem in include/nav,php der Inhalt des Navigations Menüs erzeugt wurde.
+ - $b ist ein Array, das $nav wiederspiegelt.
 
 Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 14-Feb-2012 generiert): Bitte schau in die Quellcodes für Details zu Hooks, die oben nicht dokumentiert sind.
 
