@@ -14,8 +14,11 @@ function follow_content(&$a) {
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
 
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND (`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') LIMIT 1",
-		intval(local_user()), dbesc(normalise_link($url)), dbesc(normalise_link($url)), dbesc($url));
+	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND
+		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
+		`network` != '%s' LIMIT 1",
+		intval(local_user()), dbesc(normalise_link($url)),
+		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 
 	if ($r) {
 		notice(t('You already added this contact.').EOL);
