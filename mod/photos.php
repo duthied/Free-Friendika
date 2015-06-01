@@ -84,7 +84,7 @@ function photos_init(&$a) {
                                 'recent'    => t('Recent Photos'),
                                 '$albums'   => $albums['albums'],
                                 '$baseurl'  => z_root(),
-                                '$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
+                                '$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload'),
                                 '$can_post' => $can_post
                         ));
                 }
