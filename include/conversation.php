@@ -344,7 +344,7 @@ function visible_activity($item) {
 	// likes (etc.) can apply to other things besides posts. Check if they are post children, 
 	// in which case we handle them specially
 
-	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN);
+	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
 	foreach($hidden_activities as $act) {
 		if(activity_match($item['verb'],$act)) {
 			return false;
@@ -491,7 +491,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$cmnt_tpl    = get_markup_template('comment_item.tpl');
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
-	$conv_responses = array(array('like'),array('dislike'),array('agree'),array('disagree'),array('abstain'));
+	$conv_responses = array(array('like'),array('dislike'),array('agree'),array('disagree'),array('abstain'),array('attendyes'),array('attendno'),array('attendmaybe'));
 
 	// array with html for each thread (parent+comments)
 	$threads = array();
@@ -742,6 +742,14 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				// Can we put this after the visibility check?
 				like_puller($a, $item, $conv_responses, 'like');
 				like_puller($a, $item, $conv_responses, 'dislike');
+
+//				if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+					like_puller($a, $item, $conv_responses, 'attendyes');
+					like_puller($a, $item, $conv_responses, 'attendno');
+					like_puller($a, $item, $conv_responses, 'attendmaybe');
+logger('responses: ' . print_r($conv_responses,true));
+				
+
 				like_puller($a, $item, $conv_responses, 'agree');
 				like_puller($a, $item, $conv_responses, 'disagree');
 				like_puller($a, $item, $conv_responses, 'abstain');
@@ -934,12 +942,29 @@ function like_puller($a,$item,&$arr,$mode) {
 		case 'unabstain':
 			$verb = ACTIVITY_ABSTAIN;
 			break;
+		case 'attendyes':
+		case 'unattendyes':
+			$verb = ACTIVITY_ATTEND;
+			break;
+		case 'attendno':
+		case 'unattendno':
+			$verb = ACTIVITY_ATTENDNO;
+			break;
+		case 'attendmaybe':
+		case 'unattendmaybe':
+			$verb = ACTIVITY_ATTENDMAYBE;
+			break;
 		default:
 			return;
 			break;
 	}
 
+logger('verb: ' . $verb);
+if($verb === ACTIVITY_ATTENDNO)
+	logger('item: ' . $item['verb']);
+
 	if((activity_match($item['verb'],$verb)) && ($item['id'] != $item['parent'])) {
+logger('match:' . $verb);
 		$url = $item['author-link'];
 		if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
 			$url = $a->get_baseurl(true) . '/redir/' . $item['contact-id'];
@@ -951,7 +976,7 @@ function like_puller($a,$item,&$arr,$mode) {
 		if(! $item['thr-parent'])
 			$item['thr-parent'] = $item['parent-uri'];
 
-		if(! ((isset($arr[$mode][$item['thr-parent'] . '-l'])) && (is_array($arr[$item['thr-parent'] . '-l']))))
+		if(! ((isset($arr[$mode][$item['thr-parent'] . '-l'])) && (is_array($arr[$mode][$item['thr-parent'] . '-l']))))
 			$arr[$mode][$item['thr-parent'] . '-l'] = array();
 		if(! isset($arr[$mode][$item['thr-parent']]))
 			$arr[$mode][$item['thr-parent']] = 1;
@@ -1269,4 +1294,55 @@ function render_location_dummy($item) {
 
 	if ($item['coord'] != "")
 		return $item['coord'];
+}
+
+function get_responses($conv_responses,$response_verbs,$ob,$item) {
+	$ret = array();
+	foreach($response_verbs as $v) {
+		$ret[$v] = array();
+		$ret[$v]['count'] = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri']] : '');
+		$ret[$v]['list']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
+		if(count($ret[$v]['list']) > MAX_LIKERS) {
+			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
+			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-' 
+				. $ob->get_id() . '"><b>' . t('View all') . '</b></a>');
+		} 
+		else {
+			$ret[$v]['list_part'] = '';
+		}
+		$ret[$v]['button'] = get_response_button_text($v,$ret[$v]['count']);
+	}
+	$ret['count'] = count($ret);
+	return $ret;
+}
+function get_response_button_text($v,$count) {
+	switch($v) {
+		case 'like':
+			return tt('Like','Likes',$count,'noun');
+			break;
+		case 'dislike':
+			return tt('Dislike','Dislikes',$count,'noun');
+			break;
+		case 'attendyes':
+			return tt('Attending','Attending',$count,'noun');
+			break;
+		case 'attendno':
+			return tt('Not Attending','Not Attending',$count,'noun');
+			break;
+		case 'attendmaybe':
+			return tt('Undecided','Undecided',$count,'noun');
+			break;
+		case 'agree':
+			return tt('Agree','Agrees',$count,'noun');
+			break;
+		case 'agree':
+			return tt('Disagree','Disagrees',$count,'noun');
+			break;
+		case 'abstain':
+			return tt('Abstain','Abstains',$count,'noun');
+			break;
+		default:
+			return '';
+			break;
+	}
 }
