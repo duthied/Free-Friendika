@@ -1099,7 +1099,15 @@ function encode_rel_links($links) {
 	return xmlify($o);
 }
 
+function add_guid($item) {
+	$r = q("SELECT `guid` FROM `guid` WHERE `guid` = '%s' LIMIT 1", dbesc($item["guid"]));
+	if ($r)
+		return;
 
+	q("INSERT INTO `guid` (`guid`,`plink`,`uri`,`network`) VALUES ('%s','%s','%s','%s')",
+		dbesc($item["guid"]), dbesc($item["plink"]),
+		dbesc($item["uri"]), dbesc($item["network"]));
+}
 
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
@@ -1168,11 +1176,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	// If there is no guid then take the same guid that was taken before for the same uri
-	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "")) {
+	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for uri '.$arr['uri'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `guid` != '' LIMIT 1",
-			dbesc(trim($arr['uri']))
-		);
+		$r = q("SELECT `guid` FROM `guid` WHERE `uri` = '%s' AND `network` = '%s' LIMIT 1",
+			dbesc(trim($arr['uri'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
@@ -1181,11 +1188,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	// If there is no guid then take the same guid that was taken before for the same plink
-	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "")) {
+	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `item` WHERE `plink` = '%s' AND `guid` != '' LIMIT 1",
-			dbesc(trim($arr['plink']))
-		);
+		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
+			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
@@ -1476,6 +1482,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	);
 
 	if(count($r)) {
+
+		// Store the guid and other relevant data
+		add_guid($arr);
+
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
@@ -1697,12 +1707,12 @@ function item_body_set_hashtags(&$item) {
 	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
 	$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 		function ($match){
-			return("[url=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/url]");
+			return("[url=".str_replace("#", "&num;", $match[1])."]".str_replace("#", "&num;", $match[2])."[/url]");
 		},$item["body"]);
 
 	$item["body"] = preg_replace_callback("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",
 		function ($match){
-			return("[bookmark=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/bookmark]");
+			return("[bookmark=".str_replace("#", "&num;", $match[1])."]".str_replace("#", "&num;", $match[2])."[/bookmark]");
 		},$item["body"]);
 
 	$item["body"] = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
@@ -1713,6 +1723,7 @@ function item_body_set_hashtags(&$item) {
 	// Repair recursive urls
 	$item["body"] = preg_replace("/&num;\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			"&num;$2", $item["body"]);
+
 
 	foreach($tags as $tag) {
 		if(strpos($tag,'#') !== 0)
@@ -4956,17 +4967,17 @@ function first_post_date($uid,$wall = false) {
 /* modified posted_dates() {below} to arrange the list in years */
 function list_post_dates($uid, $wall) {
 	$dnow = datetime_convert('',date_default_timezone_get(),'now','Y-m-d');
-	
-	$dthen = first_post_date($uid, $wall);        
+
+	$dthen = first_post_date($uid, $wall);
 	if(! $dthen)
 		return array();
-        
+
 	// Set the start and end date to the beginning of the month
         $dnow = substr($dnow,0,8).'01';
 	$dthen = substr($dthen,0,8).'01';
-        
+
 	$ret = array();
-        
+
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
 	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
@@ -5021,19 +5032,19 @@ function posted_date_widget($url,$uid,$wall) {
 
 /*	if($wall && intval(get_pconfig($uid,'system','no_wall_archive_widget')))
 		return $o;*/
-        
+
 	$visible_years = get_pconfig($uid,'system','archive_visible_years');
 	if(! $visible_years)
-		$visible_years = 5;	
-        
+		$visible_years = 5;
+
         $ret = list_post_dates($uid,$wall);
-        
+
 	if(! count($ret))
 		return $o;
 
         $cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year,$ret))? true : false);
-        
+
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),array(
 		'$title' => t('Archives'),
 		'$size' => $visible_years,

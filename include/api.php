@@ -395,19 +395,27 @@
 					'screen_name' => (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']),
 					'location' => NULL,
 					'description' => NULL,
-					'profile_image_url' => $r[0]["avatar"],
-					'profile_image_url_https' => $r[0]["avatar"],
 					'url' => $r[0]["url"],
 					'protected' => false,
 					'followers_count' => 0,
 					'friends_count' => 0,
+					'listed_count' => 0,
 					'created_at' => api_date(0),
 					'favourites_count' => 0,
 					'utc_offset' => 0,
 					'time_zone' => 'UTC',
-					'statuses_count' => 0,
-					'following' => false,
+					'geo_enabled' => false,
 					'verified' => false,
+					'statuses_count' => 0,
+					'lang' => '',
+					'contributors_enabled' => false,
+					'is_translator' => false,
+					'is_translation_enabled' => false,
+					'profile_image_url' => $r[0]["avatar"],
+					'profile_image_url_https' => $r[0]["avatar"],
+					'following' => false,
+					'follow_request_sent' => false,
+					'notifications' => false,
 					'statusnet_blocking' => false,
 					'notifications' => false,
 					'statusnet_profile_url' => $r[0]["url"],
@@ -954,20 +962,29 @@
 			$converted = api_convert_item($item);
 
 			$status_info = array(
-				'text' => $converted["text"],
-				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
-				'in_reply_to_status_id' => $in_reply_to_status_id,
-				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
-				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
 				'id' => intval($lastwall['id']),
 				'id_str' => (string) $lastwall['id'],
+				'text' => $converted["text"],
+				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
+				'truncated' => false,
+				'in_reply_to_status_id' => $in_reply_to_status_id,
+				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
 				'in_reply_to_user_id' => $in_reply_to_user_id,
 				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
-				'geo' => NULL,
-				'favorited' => $lastwall['starred'] ? true : false,
 				'user' => $user_info,
+				'geo' => NULL,
+				'coordinates' => "",
+				'place' => "",
+				'contributors' => "",
+				'is_quote_status' => false,
+				'retweet_count' => 0,
+				'favorite_count' => 0,
+				'favorited' => $lastwall['starred'] ? true : false,
+				'retweeted' => false,
+				'possibly_sensitive' => false,
+				'lang' => "",
 				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
@@ -2957,6 +2974,19 @@ function api_best_nickname(&$contacts) {
 
 
 /*
+To.Do:
+    [pagename] => api/1.1/statuses/lookup.json
+    [id] => 605138389168451584
+    [include_cards] => true
+    [cards_platform] => Android-12
+    [include_entities] => true
+    [include_my_retweet] => 1
+    [include_rts] => 1
+    [include_reply_count] => true
+    [include_descendent_reply_count] => true
+
+
+
 Not implemented by now:
 statuses/retweets_of_me
 friendships/create

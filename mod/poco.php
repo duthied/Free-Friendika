@@ -5,7 +5,7 @@ function poco_init(&$a) {
 
 	$system_mode = false;
 
-	if(intval(get_config('system','block_public')))
+	if(intval(get_config('system','block_public')) || (get_config('system','block_local_dir')))
 		http_status_exit(401);
 
 
