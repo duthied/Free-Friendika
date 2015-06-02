@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.4.0 (Lily of the valley)
--- DB_UPDATE_VERSION 1183
+-- DB_UPDATE_VERSION 1185
 -- ------------------------------------------
 
 
@@ -358,7 +358,12 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 CREATE TABLE IF NOT EXISTS `guid` (
 	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
 	`guid` varchar(255) NOT NULL DEFAULT '',
-	 INDEX `guid` (`guid`)
+	`plink` varchar(255) NOT NULL DEFAULT '',
+	`uri` varchar(255) NOT NULL DEFAULT '',
+	`network` varchar(32) NOT NULL DEFAULT '',
+	 INDEX `guid` (`guid`),
+	 INDEX `plink` (`plink`),
+	 INDEX `uri` (`uri`)
 ) DEFAULT CHARSET=utf8;
 
 --
@@ -587,6 +592,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`msg` mediumtext NOT NULL,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`link` varchar(255) NOT NULL DEFAULT '',
+	`iid` int(11) NOT NULL DEFAULT 0,
 	`parent` int(11) NOT NULL DEFAULT 0,
 	`seen` tinyint(1) NOT NULL DEFAULT 0,
 	`verb` varchar(255) NOT NULL DEFAULT '',

@@ -1099,7 +1099,15 @@ function encode_rel_links($links) {
 	return xmlify($o);
 }
 
+function add_guid($item) {
+	$r = q("SELECT `guid` FROM `guid` WHERE `guid` = '%s' LIMIT 1", dbesc($item["guid"]));
+	if ($r)
+		return;
 
+	q("INSERT INTO `guid` (`guid`,`plink`,`uri`,`network`) VALUES ('%s','%s','%s','%s')",
+		dbesc($item["guid"]), dbesc($item["plink"]),
+		dbesc($item["uri"]), dbesc($item["network"]));
+}
 
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
@@ -1168,11 +1176,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	// If there is no guid then take the same guid that was taken before for the same uri
-	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "")) {
+	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for uri '.$arr['uri'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `guid` != '' LIMIT 1",
-			dbesc(trim($arr['uri']))
-		);
+		$r = q("SELECT `guid` FROM `guid` WHERE `uri` = '%s' AND `network` = '%s' LIMIT 1",
+			dbesc(trim($arr['uri'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
@@ -1181,11 +1188,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	// If there is no guid then take the same guid that was taken before for the same plink
-	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "")) {
+	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `item` WHERE `plink` = '%s' AND `guid` != '' LIMIT 1",
-			dbesc(trim($arr['plink']))
-		);
+		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
+			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
@@ -1476,6 +1482,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	);
 
 	if(count($r)) {
+
+		// Store the guid and other relevant data
+		add_guid($arr);
+
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
