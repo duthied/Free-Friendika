@@ -94,3 +94,7 @@ $a->config['system']['lockpath'] = "";
 
 // Use the old style "share"
 // $a->config['system']['old_share'] = false;
+
+//Deny public access to the local directory
+//$a->config['system']['block_local_dir'] = false;
+
