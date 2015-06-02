@@ -565,23 +565,19 @@ function item_post(&$a) {
 
 	$tags = get_tags($body);
 
-	if($parent) {
-		/**
-		 * add a statusnet style reply tag if the original post was from there
-		 * and we are replying, and there isn't one already
-		 */
+	/**
+	 * add a statusnet style reply tag if the original post was from there
+	 * and we are replying, and there isn't one already
+	 */
 
+	if($parent AND ($parent_contact['network'] === NETWORK_OSTATUS)) {
 		if ($parent_contact['id'] != "")
 			$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
-		//elseif ($parent_contact['addr'] != "")
-		//	$contact = '@'.$parent_contact['addr'];
 		else
 			$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
 
 		if (!in_array($contact,$tags)) {
-			if ($parent_contact['network'] === NETWORK_OSTATUS)
-				$body = $contact.' '.$body;
-
+			$body = $contact.' '.$body;
 			$tags[] = $contact;
 		}
 
