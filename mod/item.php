@@ -565,21 +565,23 @@ function item_post(&$a) {
 
 	$tags = get_tags($body);
 
-	/**
-	 * add a statusnet style reply tag if the original post was from there
-	 * and we are replying, and there isn't one already
-	 */
+	if($parent) {
+		/**
+		 * add a statusnet style reply tag if the original post was from there
+		 * and we are replying, and there isn't one already
+		 */
 
-	if ($parent_contact['id'] != "")
-		$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
-	//elseif ($parent_contact['addr'] != "")
-	//	$contact = '@'.$parent_contact['addr'];
-	else
-		$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
+		if ($parent_contact['id'] != "")
+			$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
+		//elseif ($parent_contact['addr'] != "")
+		//	$contact = '@'.$parent_contact['addr'];
+		else
+			$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
 
-	if ($parent_contact && ($parent_contact['network'] === NETWORK_OSTATUS)) {
-		if (($parent_contact['nick']) && (!in_array($contact,$tags))) {
-			$body = $contact.' '.$body;
+		if (!in_array($contact,$tags)) {
+			if ($parent_contact['network'] === NETWORK_OSTATUS)
+				$body = $contact.' '.$body;
+
 			$tags[] = $contact;
 		}
 
@@ -593,9 +595,8 @@ function item_post(&$a) {
 			$toplevel_contact = '@[url='.$toplevel_parent[0]['author-link'].']'.$toplevel_parent[0]['author-name'].'[/url]';
 		}
 
-		if ($toplevel_contact != "")
-			if (!in_array($toplevel_contact,$tags))
-				$tags[] = $toplevel_contact;
+		if (!in_array($toplevel_contact,$tags))
+			$tags[] = $toplevel_contact;
 	}
 
 	$tagged = array();
