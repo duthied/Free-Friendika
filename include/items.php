@@ -1697,12 +1697,12 @@ function item_body_set_hashtags(&$item) {
 	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
 	$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 		function ($match){
-			return("[url=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/url]");
+			return("[url=".str_replace("#", "&num;", $match[1])."]".str_replace("#", "&num;", $match[2])."[/url]");
 		},$item["body"]);
 
 	$item["body"] = preg_replace_callback("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",
 		function ($match){
-			return("[bookmark=".$match[1]."]".str_replace("#", "&num;", $match[2])."[/bookmark]");
+			return("[bookmark=".str_replace("#", "&num;", $match[1])."]".str_replace("#", "&num;", $match[2])."[/bookmark]");
 		},$item["body"]);
 
 	$item["body"] = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
@@ -1713,6 +1713,7 @@ function item_body_set_hashtags(&$item) {
 	// Repair recursive urls
 	$item["body"] = preg_replace("/&num;\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			"&num;$2", $item["body"]);
+
 
 	foreach($tags as $tag) {
 		if(strpos($tag,'#') !== 0)
@@ -4956,17 +4957,17 @@ function first_post_date($uid,$wall = false) {
 /* modified posted_dates() {below} to arrange the list in years */
 function list_post_dates($uid, $wall) {
 	$dnow = datetime_convert('',date_default_timezone_get(),'now','Y-m-d');
-	
-	$dthen = first_post_date($uid, $wall);        
+
+	$dthen = first_post_date($uid, $wall);
 	if(! $dthen)
 		return array();
-        
+
 	// Set the start and end date to the beginning of the month
         $dnow = substr($dnow,0,8).'01';
 	$dthen = substr($dthen,0,8).'01';
-        
+
 	$ret = array();
-        
+
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
 	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
@@ -5021,19 +5022,19 @@ function posted_date_widget($url,$uid,$wall) {
 
 /*	if($wall && intval(get_pconfig($uid,'system','no_wall_archive_widget')))
 		return $o;*/
-        
+
 	$visible_years = get_pconfig($uid,'system','archive_visible_years');
 	if(! $visible_years)
-		$visible_years = 5;	
-        
+		$visible_years = 5;
+
         $ret = list_post_dates($uid,$wall);
-        
+
 	if(! count($ret))
 		return $o;
 
         $cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year,$ret))? true : false);
-        
+
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),array(
 		'$title' => t('Archives'),
 		'$size' => $visible_years,
