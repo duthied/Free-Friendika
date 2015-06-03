@@ -582,8 +582,9 @@ function item_post(&$a) {
 		}
 
 		$toplevel_contact = "";
-		$toplevel_parent = q("SELECT `contact`.* FROM `contact` INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id`
-					WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
+		$toplevel_parent = q("SELECT `contact`.* FROM `contact`
+						INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `contact`.`url` = `item`.`author-link`
+						WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
 		if ($toplevel_parent)
 			$toplevel_contact = '@'.$toplevel_parent[0]['nick'].'+'.$toplevel_parent[0]['id'];
 		else {
@@ -593,6 +594,8 @@ function item_post(&$a) {
 
 		if (!in_array($toplevel_contact,$tags))
 			$tags[] = $toplevel_contact;
+
+		logger("OStatus tags ".print_r($tags, true), LOGGER_DEBUG);
 	}
 
 	$tagged = array();
