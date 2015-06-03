@@ -208,7 +208,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 
 		call_hooks('atom_feed_end', $atom);
 
-		$atom .= '</feed>'."\r\n";
+		$atom .= '</feed>' . "\r\n";
 		return $atom;
 	}
 
@@ -235,7 +235,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 
 	call_hooks('atom_feed_end', $atom);
 
-	$atom .= '</feed>'."\r\n";
+	$atom .= '</feed>' . "\r\n";
 
 	return $atom;
 }
@@ -250,18 +250,18 @@ function construct_verb($item) {
 function construct_activity_object($item) {
 
 	if($item['object']) {
-		$o = '<as:object>'."\r\n";
+		$o = '<as:object>' . "\r\n";
 		$r = parse_xml_string($item['object'],false);
 
 
 		if(! $r)
 			return '';
 		if($r->type)
-			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>'."\r\n";
+			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>' . "\r\n";
 		if($r->id)
-			$o .= '<id>' . xmlify($r->id) . '</id>'."\r\n";
+			$o .= '<id>' . xmlify($r->id) . '</id>' . "\r\n";
 		if($r->title)
-			$o .= '<title>' . xmlify($r->title) . '</title>'."\r\n";
+			$o .= '<title>' . xmlify($r->title) . '</title>' . "\r\n";
 		if($r->link) {
 			if(substr($r->link,0,1) === '<') {
 				// patch up some facebook "like" activity objects that got stored incorrectly
@@ -273,11 +273,11 @@ function construct_activity_object($item) {
 				$o .= $r->link;
 			}
 			else
-				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />'."\r\n";
+				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
 		}
 		if($r->content)
-			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>'."\r\n";
-		$o .= '</as:object>'."\r\n";
+			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>' . "\r\n";
+		$o .= '</as:object>' . "\r\n";
 		return $o;
 	}
 
@@ -287,16 +287,16 @@ function construct_activity_object($item) {
 function construct_activity_target($item) {
 
 	if($item['target']) {
-		$o = '<as:target>'."\r\n";
+		$o = '<as:target>' . "\r\n";
 		$r = parse_xml_string($item['target'],false);
 		if(! $r)
 			return '';
 		if($r->type)
-			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>'."\r\n";
+			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>' . "\r\n";
 		if($r->id)
-			$o .= '<id>' . xmlify($r->id) . '</id>'."\r\n";
+			$o .= '<id>' . xmlify($r->id) . '</id>' . "\r\n";
 		if($r->title)
-			$o .= '<title>' . xmlify($r->title) . '</title>'."\r\n";
+			$o .= '<title>' . xmlify($r->title) . '</title>' . "\r\n";
 		if($r->link) {
 			if(substr($r->link,0,1) === '<') {
 				if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
@@ -305,11 +305,11 @@ function construct_activity_target($item) {
 				$o .= $r->link;
 			}
 			else
-				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />'."\r\n";
+				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
 		}
 		if($r->content)
-			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>'."\r\n";
-		$o .= '</as:target>'."\r\n";
+			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>' . "\r\n";
+		$o .= '</as:target>' . "\r\n";
 		return $o;
 	}
 
@@ -894,9 +894,9 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			if ($conversation["rel"] == "ostatus:conversation") {
 				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
 				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
-			} elseif ($conversation["rel"] == "alternate") {
-				$res["plink"] = $conversation["href"];
-				logger('get_atom_elements: found plink '.$res["plink"]);
+			//} elseif ($conversation["rel"] == "alternate") {
+			//	$res["plink"] = $conversation["href"];
+			//	logger('get_atom_elements: found plink '.$res["plink"]);
 			}
 		};
 	}
@@ -1187,18 +1187,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	// If there is no guid then take the same guid that was taken before for the same plink
-	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
-		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
-			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
-
-		if(count($r)) {
-			$arr['guid'] = $r[0]["guid"];
-			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
-		}
-	}
-
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
@@ -1412,16 +1400,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	);
 	if($r && count($r)) {
 		logger('duplicated item with the same uri found. ' . print_r($arr,true));
-		return 0;
-	}
-
-	$r = q("SELECT `id` FROM `item` WHERE `plink` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-		dbesc($arr['plink']),
-		dbesc($arr['network']),
-		intval($arr['uid'])
-	);
-	if($r && count($r)) {
-		logger('duplicated item with the same plink found. ' . print_r($arr,true));
 		return 0;
 	}
 
@@ -4321,8 +4299,8 @@ function atom_author($tag,$name,$uri,$h,$w,$photo) {
 	$o .= "<$tag>\r\n";
 	$o .= "<name>$name</name>\r\n";
 	$o .= "<uri>$uri</uri>\r\n";
-	$o .= '<link rel="photo"  type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />'."\r\n";
-	$o .= '<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />'."\r\n";
+	$o .= '<link rel="photo"  type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
+	$o .= '<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
 
 	call_hooks('atom_author', $o);
 
@@ -4338,13 +4316,28 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		return;
 
 	if($item['deleted'])
-		return '<at:deleted-entry ref="' . xmlify($item['uri']) . '" when="' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '" />'."\r\n";
+		return '<at:deleted-entry ref="' . xmlify($item['uri']) . '" when="' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '" />' . "\r\n";
 
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
 		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
 	else
 		$body = $item['body'];
+
+
+	$o = "\r\n\r\n<entry>\r\n";
+
+	if(is_array($author))
+		$o .= atom_author('author',$author['name'],$author['url'],80,80,$author['thumb']);
+	else
+		$o .= atom_author('author',(($item['author-name']) ? $item['author-name'] : $item['name']),(($item['author-link']) ? $item['author-link'] : $item['url']),80,80,(($item['author-avatar']) ? $item['author-avatar'] : $item['thumb']));
+	if(strlen($item['owner-name']))
+		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
+
+	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
+	}
 
 	$htmlbody = $body;
 
@@ -4353,80 +4346,47 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 
 	$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
 
-	$o = "\r\n\r\n<entry>\r\n";
-
-	// OStatus stuff
-	$o .= "\t".'<id>' . xmlify($item['uri']) . '</id>'."\r\n";
-	$o .= "\t".'<title>' . xmlify($item['title']) . '</title>'."\r\n";
-	$o .= "\t".'<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>'."\r\n";
-	$o .= "\t".'<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />'."\r\n";
-
-	$verb = construct_verb($item);
-	$o .= "\t".'<activity:verb>'.xmlify($verb).'</activity:verb>'."\r\n";
-	$o .= "\t".'<as:verb>' . xmlify($verb) . '</as:verb>'."\r\n";
-
-	$o .= "\t".'<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>'."\r\n";
-	$o .= "\t".'<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>'."\r\n";
-	if(is_array($author))
-		$o .= atom_author('author',$author['name'],$author['url'],80,80,$author['thumb']);
-	else
-		$o .= atom_author('author',(($item['author-name']) ? $item['author-name'] : $item['name']),(($item['author-link']) ? $item['author-link'] : $item['url']),80,80,(($item['author-avatar']) ? $item['author-avatar'] : $item['thumb']));
-
-	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-		$o .= "\t".'<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />'."\r\n";
-		$o .= "\t".'<link rel="related" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
-	}
-
-	$o .= "\t".'<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
-
-	$o .= item_getfeedattach($item);
-
-	$mentioned = get_mentions($item);
-	if($mentioned)
-		$o .= $mentioned;
-
-	$o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-	$o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-	$o .= "\t".'<statusnet:notice_info local_id="'.$item['id'].'" source="'.$item['app'].'"></statusnet:notice_info>'."\r\n";
-
-	// DFRN stuff
-	if(strlen($item['owner-name']))
-		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
-
-	$o .= "\t".'<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>'."\r\n";
+	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
+	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
+	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
+	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
+	$o .= '<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>' . "\r\n";
+	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>' . "\r\n";
+	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />' . "\r\n";
 
 
 	if($comment)
-		$o .= "\t".'<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>'."\r\n";
+		$o .= '<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>' . "\r\n";
 
 	if($item['location']) {
-		$o .= "\t".'<dfrn:location>' . xmlify($item['location']) . '</dfrn:location>'."\r\n";
-		$o .= "\t".'<poco:address><poco:formatted>' . xmlify($item['location']) . '</poco:formatted></poco:address>'."\r\n";
+		$o .= '<dfrn:location>' . xmlify($item['location']) . '</dfrn:location>' . "\r\n";
+		$o .= '<poco:address><poco:formatted>' . xmlify($item['location']) . '</poco:formatted></poco:address>' . "\r\n";
 	}
 
 	if($item['coord'])
-		$o .= "\t".'<georss:point>' . xmlify($item['coord']) . '</georss:point>'."\r\n";
+		$o .= '<georss:point>' . xmlify($item['coord']) . '</georss:point>' . "\r\n";
 
 	if(($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
-		$o .= "\t".'<dfrn:private>' . (($item['private']) ? $item['private'] : 1) . '</dfrn:private>'."\r\n";
+		$o .= '<dfrn:private>' . (($item['private']) ? $item['private'] : 1) . '</dfrn:private>' . "\r\n";
 
 	if($item['extid'])
-		$o .= "\t".'<dfrn:extid>' . xmlify($item['extid']) . '</dfrn:extid>'."\r\n";
+		$o .= '<dfrn:extid>' . xmlify($item['extid']) . '</dfrn:extid>' . "\r\n";
 	if($item['bookmark'])
-		$o .= "\t".'<dfrn:bookmark>true</dfrn:bookmark>'."\r\n";
+		$o .= '<dfrn:bookmark>true</dfrn:bookmark>' . "\r\n";
 
 	if($item['app'])
-		$o .= "\t".'<statusnet:notice_info local_id="' . $item['id'] . '" source="' . xmlify($item['app']) . '" ></statusnet:notice_info>'."\r\n";
+		$o .= '<statusnet:notice_info local_id="' . $item['id'] . '" source="' . xmlify($item['app']) . '" ></statusnet:notice_info>' . "\r\n";
 
 	if($item['guid'])
-		$o .= "\t".'<dfrn:diaspora_guid>' . $item['guid'] . '</dfrn:diaspora_guid>'."\r\n";
+		$o .= '<dfrn:diaspora_guid>' . $item['guid'] . '</dfrn:diaspora_guid>' . "\r\n";
 
 	if($item['signed_text']) {
 		$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
-		$o .= "\t".'<dfrn:diaspora_signature>' . xmlify($sign) . '</dfrn:diaspora_signature>'."\r\n";
+		$o .= '<dfrn:diaspora_signature>' . xmlify($sign) . '</dfrn:diaspora_signature>' . "\r\n";
 	}
 
+	$verb = construct_verb($item);
+	$o .= '<as:verb>' . xmlify($verb) . '</as:verb>' . "\r\n";
 	$actobj = construct_activity_object($item);
 	if(strlen($actobj))
 		$o .= $actobj;
@@ -4437,13 +4397,19 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	$tags = item_getfeedtags($item);
 	if(count($tags)) {
 		foreach($tags as $t) {
-			$o .= "\t".'<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />'."\r\n";
+			$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 		}
 	}
 
+	$o .= item_getfeedattach($item);
+
+	$mentioned = get_mentions($item);
+	if($mentioned)
+		$o .= $mentioned;
+
 	call_hooks('atom_entry', $o);
 
-	$o .= '</entry>'."\r\n";
+	$o .= '</entry>' . "\r\n";
 
 	return $o;
 }
@@ -4625,7 +4591,7 @@ function item_getfeedattach($item) {
 					$ret .= 'length="' . intval($matches[2]) . '" ';
 				if($matches[4] !== ' ')
 					$ret .= 'title="' . xmlify(trim($matches[4])) . '" ';
-				$ret .= ' />'."\r\n";
+				$ret .= ' />' . "\r\n";
 			}
 		}
 	}

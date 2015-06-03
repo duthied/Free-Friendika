@@ -594,8 +594,6 @@ function item_post(&$a) {
 
 		if (!in_array($toplevel_contact,$tags))
 			$tags[] = $toplevel_contact;
-
-		logger("OStatus tags ".print_r($tags, true), LOGGER_DEBUG);
 	}
 
 	$tagged = array();
