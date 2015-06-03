@@ -132,11 +132,21 @@ function like_content(&$a) {
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 
+	$verbs = " '".dbesc($activity)."' ";
 
-	$r = q("SELECT `id`, `guid` FROM `item` WHERE `verb` = '%s' AND `deleted` = 0
+	// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
+	// we need to eradicate your first choice. 
+	if($activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE) {
+		$verbs = " '" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
+	}
+	if($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
+		$verbs = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
+	}
+
+	$r = q("SELECT `id`, `guid` FROM `item` WHERE `verb` IN ( $verbs ) AND `deleted` = 0
 		AND `contact-id` = %d AND `uid` = %d
 		AND (`parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s') LIMIT 1",
-		dbesc($activity), intval($contact['id']), intval($owner_uid),
+		intval($contact['id']), intval($owner_uid),
 		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
 

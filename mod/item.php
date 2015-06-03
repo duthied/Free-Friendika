@@ -51,6 +51,7 @@ function item_post(&$a) {
 	$message_id = ((x($_REQUEST,'message_id') && $api_source)  ? strip_tags($_REQUEST['message_id'])       : '');
 
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
+	$consensus = intval($_REQUEST['consensus']);
 	$preview = ((x($_REQUEST,'preview')) ? intval($_REQUEST['preview']) : 0);
 
 
@@ -654,6 +655,15 @@ function item_post(&$a) {
 	// Fallback so that we alway have a thr-parent
 	if(!$thr_parent)
 		$thr_parent = $uri;
+
+
+	/* *
+	 * to make consensus work, red requests the consensus flag from boot.php
+	 * this have to be inserted into the lower $datarray
+	 * 
+	 *	if($consensus)
+	 *		$item_flags |= ITEM_CONSENSUS;
+	 */
 
 	$datarray = array();
 	$datarray['uid']           = $profile_uid;

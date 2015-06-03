@@ -93,15 +93,16 @@ function editpost_content(&$a) {
 		$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> '
           	. t("Post to Email") . '</div>';
 	}*/
-					
+
 
 
 	call_hooks('jot_tool', $jotplugins);
 	//call_hooks('jot_networks', $jotnets);
 
 	
-	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));	
-	
+	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
+
+	$voting = feature_enabled(local_user(),'consensus_tools');
 
 	$o .= replace_macros($tpl,array(
 		'$return_path' => $_SESSION['return_url'],
@@ -121,6 +122,11 @@ function editpost_content(&$a) {
 		'$shortsetloc' => t('set location'),
 		'$noloc' => t('Clear browser location'),
 		'$shortnoloc' => t('clear location'),
+		'$voting' => t('Toggle voting'),
+		'$feature_voting' => $voting,
+
+		// we need a solution for the red flags to make consensus work
+		'$consensus' => (($itm[0]['item_flags'] & ITEM_CONSENSUS) ? 1 : 0),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$ptyp' => $itm[0]['type'],

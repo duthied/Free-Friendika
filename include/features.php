@@ -29,8 +29,9 @@ function get_features() {
 		'composition' => array(
 			t('Post Composition Features'),
 			array('richtext',       t('Richtext Editor'),			t('Enable richtext editor')),
-			array('preview',        t('Post Preview'),				t('Allow previewing posts and comments before publishing them')),
+			array('preview',        t('Post Preview'),			t('Allow previewing posts and comments before publishing them')),
 			array('aclautomention',	t('Auto-mention Forums'),		t('Add/remove mention when a fourm page is selected/deselected in ACL window.')),
+			array('consensus_tools', t('Enable voting tools'),		t('Provide a class of post which others can vote on'),false),
 		),
 
 		// Network sidebar widgets

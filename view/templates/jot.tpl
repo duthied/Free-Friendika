@@ -54,6 +54,12 @@
 		<a id="profile-nolocation" class="icon noglobe" title="{{$noloc|escape:'html'}}" onclick="jotClearLocation();return false;"></a>
 	</div> 
 
+	{{if $feature_voting}}
+		<div id="profile-voting-wrapper" style="display: {{$visitor}};" >
+			<a id="profile-voting" class="icon icon-check-empty" title="{{$voting|escape:'html'}}" onclick="toggleVoting();return false;"></a>
+		</div>
+	{{/if}}
+
 	<div id="profile-jot-perms" class="profile-jot-perms" style="display: {{$pvisit}};" >
 		<a href="#profile-jot-acl-wrapper" id="jot-perms-icon" class="icon {{$lockstate}}"  title="{{$permset|escape:'html'}}" ></a>{{$bang}}
 	</div>

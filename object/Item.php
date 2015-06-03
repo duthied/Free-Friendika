@@ -175,7 +175,6 @@ class Item extends BaseObject {
 			}
 		}*/
 
-
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = array('like');
 			$response_verbs[] = 'dislike';
@@ -183,43 +182,33 @@ class Item extends BaseObject {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
-			$isevent = true;
-			$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+			if($conv->is_writable()) {
+				$isevent = true;
+				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+			}
 		}
-		$consensus = (($item['item_flags'] & ITEM_CONSENSUS)? true : false);
+
+		// red part for consensus
+		// we need a solution in friendica for missing item_flags
+		// to test $consensus with friendica set $consensus = true
+		// $consensus = (($item['item_flags'] & ITEM_CONSENSUS)? true : false);
+		$consensus = false;
+
 		if($consensus) {
 			$response_verbs[] = 'agree';
 			$response_verbs[] = 'disagree';
 			$response_verbs[] = 'abstain';
+			if($conv->is_writable()) {
+				$conlabels  = array( t('I agree'), t('I disagree'), t('I abstain'));
+				$canvote    = true;
+			}
 		}
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
-		// like_button_label from red -> needs to be removed
-		//$like_button_label = tt('Like','Likes',$like_count,'noun');
+		foreach ($response_verbs as $value=>$verbs) {
+			$responses[$verbs][output]  = ((x($conv_responses[$verbs],$item['uri'])) ? format_like($conv_responses[$verbs][$item['uri']],$conv_responses[$verbs][$item['uri'] . '-l'],$verbs,$item['uri']) : '');
 
-		// another part from red - it is here for compatility - maybe removed later
-		$like_count = ((x($conv_responses['like'],$item['uri'])) ? $conv_responses['like'][$item['uri']] : '');
-		$like_list = ((x($conv_responses['like'],$item['uri'])) ? $conv_responses['like'][$item['uri'] . '-l'] : '');
-		if (count($like_list) > MAX_LIKERS) {
-			$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
-			array_push($like_list_part, '<a href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$like_list_part = '';
 		}
-		$like_button_label = tt('Like','Likes',$like_count,'noun');
-		$dislike_count = ((x($conv_responses['dislike'],$item['uri'])) ? $conv_responses['dislike'][$item['uri']] : '');
-		$dislike_list = ((x($conv_responses['dislike'],$item['uri'])) ? $conv_responses['dislike'][$item['uri'] . '-l'] : '');
-		$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
-		if (count($dislike_list) > MAX_LIKERS) {
-			$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
-			array_push($dislike_list_part, '<a href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$dislike_list_part = '';
-		}
-
-		$like    = ((x($conv_responses['like'],$item['uri'])) ? format_like($conv_responses['like'][$item['uri']],$conv_responses['like'][$item['uri'] . '-l'],'like',$item['uri']) : '');
-    		$dislike = ((x($conv_responses['dislike'],$item['uri'])) ? format_like($conv_responses['dislike'][$item['uri']],$conv_responses['dislike'][$item['uri'] . '-l'],'dislike',$item['uri']) : '');
-		$like    = ((x($conv_responses['like'],$item['uri'])) ? format_like($conv_responses['like'][$item['uri']],$conv_responses['like'][$item['uri'] . '-l'],'like',$item['uri']) : '');
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -332,7 +321,7 @@ class Item extends BaseObject {
 
 		// Disable features that aren't available in several networks
 		if (($item["item_network"] != NETWORK_DFRN) AND isset($buttons["dislike"])) {
-			unset($buttons["dislike"]);
+			unset($buttons["dislike"],$isevent,$consensus);
 			$tagger = '';
 		}
 
@@ -370,6 +359,9 @@ class Item extends BaseObject {
 			'guid' => $item['guid'],
 			'isevent' => $isevent,
 			'attend' => $attend,
+			'consensus' => $consensus,
+			'conlabels' => $conlabels,
+			'canvote'   => $canvote,
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
@@ -403,16 +395,16 @@ class Item extends BaseObject {
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing')) ? $filer : ''),
 			'drop' => $drop,
 			'vote' => $buttons,
-			'like' => $like,
-                        'dislike'   => $dislike,
+			'like' => $responses['like']['output'],
+			'dislike'   => $responses['dislike']['output'],
 			'responses' => $responses,
 			'switchcomment' => t('Comment'),
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
-                        'postopts' => $langstr,
-                        'edited' => $edited,
+			'postopts' => $langstr,
+			'edited' => $edited,
 			'network' => $item["item_network"],
 			'network_name' => network_to_name($item['item_network'], $profile_link),
 		);
