@@ -177,6 +177,7 @@ class Item extends BaseObject {
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = array('like');
+		if(feature_enabled($conv->get_profile_owner(),'dislike'))
 			$response_verbs[] = 'dislike';
 		if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
 			$response_verbs[] = 'attendyes';
