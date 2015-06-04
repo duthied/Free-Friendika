@@ -894,9 +894,9 @@ function get_atom_elements($feed, $item, $contact = array()) {
 			if ($conversation["rel"] == "ostatus:conversation") {
 				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
 				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
-			} elseif ($conversation["rel"] == "alternate") {
-				$res["plink"] = $conversation["href"];
-				logger('get_atom_elements: found plink '.$res["plink"]);
+			//} elseif ($conversation["rel"] == "alternate") {
+			//	$res["plink"] = $conversation["href"];
+			//	logger('get_atom_elements: found plink '.$res["plink"]);
 			}
 		};
 	}

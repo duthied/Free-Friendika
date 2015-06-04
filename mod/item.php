@@ -570,22 +570,21 @@ function item_post(&$a) {
 	 * and we are replying, and there isn't one already
 	 */
 
-	if ($parent_contact['id'] != "")
-		$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
-	//elseif ($parent_contact['addr'] != "")
-	//	$contact = '@'.$parent_contact['addr'];
-	else
-		$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
+	if($parent AND ($parent_contact['network'] === NETWORK_OSTATUS)) {
+		if ($parent_contact['id'] != "")
+			$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
+		else
+			$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
 
-	if ($parent_contact && ($parent_contact['network'] === NETWORK_OSTATUS)) {
-		if (($parent_contact['nick']) && (!in_array($contact,$tags))) {
+		if (!in_array($contact,$tags)) {
 			$body = $contact.' '.$body;
 			$tags[] = $contact;
 		}
 
 		$toplevel_contact = "";
-		$toplevel_parent = q("SELECT `contact`.* FROM `contact` INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id`
-					WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
+		$toplevel_parent = q("SELECT `contact`.* FROM `contact`
+						INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `contact`.`url` = `item`.`author-link`
+						WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
 		if ($toplevel_parent)
 			$toplevel_contact = '@'.$toplevel_parent[0]['nick'].'+'.$toplevel_parent[0]['id'];
 		else {
@@ -593,9 +592,8 @@ function item_post(&$a) {
 			$toplevel_contact = '@[url='.$toplevel_parent[0]['author-link'].']'.$toplevel_parent[0]['author-name'].'[/url]';
 		}
 
-		if ($toplevel_contact != "")
-			if (!in_array($toplevel_contact,$tags))
-				$tags[] = $toplevel_contact;
+		if (!in_array($toplevel_contact,$tags))
+			$tags[] = $toplevel_contact;
 	}
 
 	$tagged = array();
