@@ -1187,18 +1187,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	// If there is no guid then take the same guid that was taken before for the same plink
-	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
-		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
-			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
-
-		if(count($r)) {
-			$arr['guid'] = $r[0]["guid"];
-			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
-		}
-	}
-
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
@@ -1412,16 +1400,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	);
 	if($r && count($r)) {
 		logger('duplicated item with the same uri found. ' . print_r($arr,true));
-		return 0;
-	}
-
-	$r = q("SELECT `id` FROM `item` WHERE `plink` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-		dbesc($arr['plink']),
-		dbesc($arr['network']),
-		intval($arr['uid'])
-	);
-	if($r && count($r)) {
-		logger('duplicated item with the same plink found. ' . print_r($arr,true));
 		return 0;
 	}
 
