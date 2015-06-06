@@ -12,6 +12,7 @@ require_once('include/email.php');
 require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
 require_once('include/socgraph.php');
+require_once('include/plaintext.php');
 require_once('mod/share.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
@@ -4344,7 +4345,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if ($item['title'] != "")
 		$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
 
-	$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
+	//$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
+	$htmlbody = bbcode($htmlbody, false, false, 7);
 
 	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
 	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
@@ -4400,6 +4402,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 			$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 		}
 	}
+
+	$o .= item_get_attachment($item);
 
 	$o .= item_getfeedattach($item);
 
@@ -4576,6 +4580,28 @@ function item_getfeedtags($item) {
 		}
 	}
 	return $ret;
+}
+
+function item_get_attachment($item) {
+	$o = "";
+	$siteinfo = get_attached_data($item["body"]);
+
+	switch($siteinfo["type"]) {
+		case 'link':
+			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["url"]).'" type="text/html; charset=UTF-8" length="" title="'.xmlify($siteinfo["title"]).'"/>'."\r\n";
+			break;
+		case 'photo':
+			$imgdata = get_photo_info($siteinfo["image"]);
+			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["image"]).'" type="'.$imgdata["mime"].'" length="'.$imgdata["size"].'"/>'."\r\n";
+			break;
+		case 'video':
+			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["url"]).'" type="text/html; charset=UTF-8" length="" title="'.xmlify($siteinfo["title"]).'"/>'."\r\n";
+			break;
+		default:
+			break;
+	}
+
+	return $o;
 }
 
 function item_getfeedattach($item) {
@@ -4951,7 +4977,7 @@ function list_post_dates($uid, $wall) {
 		return array();
 
 	// Set the start and end date to the beginning of the month
-        $dnow = substr($dnow,0,8).'01';
+	$dnow = substr($dnow,0,8).'01';
 	$dthen = substr($dthen,0,8).'01';
 
 	$ret = array();
@@ -4967,7 +4993,7 @@ function list_post_dates($uid, $wall) {
 		$str = day_translate(datetime_convert('','',$dnow,'F'));
 		if(! $ret[$dyear])
 			$ret[$dyear] = array();
- 		$ret[$dyear][] = array($str,$end_month,$start_month);
+		$ret[$dyear][] = array($str,$end_month,$start_month);
 		$dnow = datetime_convert('','',$dnow . ' -1 month', 'Y-m-d');
 	}
 	return $ret;
@@ -5015,12 +5041,12 @@ function posted_date_widget($url,$uid,$wall) {
 	if(! $visible_years)
 		$visible_years = 5;
 
-        $ret = list_post_dates($uid,$wall);
+	$ret = list_post_dates($uid,$wall);
 
 	if(! count($ret))
 		return $o;
 
-        $cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
+	$cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year,$ret))? true : false);
 
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),array(
@@ -5030,7 +5056,7 @@ function posted_date_widget($url,$uid,$wall) {
 		'$cutoff' => $cutoff,
 		'$url' => $url,
 		'$dates' => $ret,
-                '$showmore' => t('show more')
+		'$showmore' => t('show more')
 
 	));
 	return $o;

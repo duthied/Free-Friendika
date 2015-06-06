@@ -13,9 +13,9 @@ function bb_map_location($match) {
 	return str_replace($match[0],'<div class="map"  >' . generate_named_map($match[1]) . '</div>', $match[0]);
 }
 
-function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
+function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	$Text = preg_replace_callback("/(.*?)\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
-		function ($match) use ($plaintext, $tryoembed){
+		function ($match) use ($simplehtml, $tryoembed){
 
 			$attributes = $match[2];
 
@@ -83,7 +83,10 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				$image = "";
 			}
 
-			if ($plaintext)
+			if ($simplehtml == 7)
+				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a>',
+						$url, $title, $title);
+			elseif (($simplehtml != 4) AND ($simplehtml != 0))
 				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);
 			else {
 				$text = sprintf('<span class="type-%s">', $type);
@@ -871,7 +874,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	}
 
 	// Handle attached links or videos
-	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
+	$Text = bb_attachment($Text, $simplehtml, $tryoembed);
 
 	$Text = str_replace(array("\r","\n"), array('<br />','<br />'), $Text);
 

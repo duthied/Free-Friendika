@@ -53,8 +53,9 @@ function check_conversations($override = false) {
         logger('cron_start');
 
         $start = date("Y-m-d H:i:s", time() - ($poll_timeframe * 60));
-        $conversations = q("SELECT * FROM `term` WHERE `type` = 7 AND `term` > '%s'",
+        $conversations = q("SELECT `oid`, `url` FROM `term` WHERE `type` = 7 AND `term` > '%s' GROUP BY `url` ORDER BY `term` DESC",
                                 dbesc($start));
+
         foreach ($conversations AS $conversation) {
                 $id = $conversation['oid'];
                 $url = $conversation['url'];
