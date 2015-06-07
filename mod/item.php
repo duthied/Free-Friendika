@@ -1097,8 +1097,30 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 	//is it a person tag?
 	if(strpos($tag,'@') === 0) {
 		//is it already replaced?
-		if(strpos($tag,'[url='))
+		if(strpos($tag,'[url=')) {
+			//append tag to str_tags
+			if(!stristr($str_tags,$tag)) {
+				if(strlen($str_tags))
+					$str_tags .= ',';
+				$str_tags .= $tag;
+			}
+
+			// Checking for the alias that is used for OStatus
+			$pattern = "/@\[url\=(.*?)\](.*?)\[\/url\]/ism";
+			if (preg_match($pattern, $tag, $matches)) {
+				$data = probe_url($matches[1]);
+				if ($data["alias"] != "") {
+					$newtag = '@[url='.$data["alias"].']'.$data["name"].'[/url]';
+					if(!stristr($str_tags,$newtag)) {
+						if(strlen($str_tags))
+							$str_tags .= ',';
+						$str_tags .= $newtag;
+					}
+				}
+			}
+
 			return $replaced;
+		}
 		$stat = false;
 		//get the person's name
 		$name = substr($tag,1);

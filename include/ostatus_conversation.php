@@ -138,13 +138,13 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		if (isset($single_conv->object->id))
 			$single_conv->id = $single_conv->object->id;
 
-		logger("Got id ".$single_conv->id, LOGGER_DEBUG);
+		//logger("Got id ".$single_conv->id, LOGGER_DEBUG);
 
 		$plink = ostatus_convert_href($single_conv->id);
 		if (isset($single_conv->object->url))
 			$plink = ostatus_convert_href($single_conv->object->url);
 
-		logger("Got url ".$plink, LOGGER_DEBUG);
+		//logger("Got url ".$plink, LOGGER_DEBUG);
 
 		if (@!$single_conv->id)
 			continue;
@@ -157,7 +157,8 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 			if ($new_parents) {
 				$parent = $new_parents[0];
-				logger('adopting new parent '.$parent["id"].' for '.$itemid);
+				if ($parent["id"] != $message["parent"])
+					logger('Fetch new parent id '.$parent["id"].' for '.$itemid.' Old parent: '.$message["parent"]);
 			} else {
 				$parent["id"] = 0;
 				$parent["uri"] = $first_id;
@@ -169,12 +170,12 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		else
 			$parent_uri = $parent["uri"];
 
-		$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `plink` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+		$message_exists = q("SELECT `id`, `parent` FROM `item` WHERE `uid` = %d AND `plink` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
 							intval($message["uid"]), dbesc($plink),
 							dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 
 		if (!$message_exists)
-			$message_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+			$message_exists = q("SELECT `id`, `parent` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
 							intval($message["uid"]), dbesc($single_conv->id),
 							dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 
@@ -182,14 +183,17 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 			if ($parent["id"] != 0) {
 				$existing_message = $message_exists[0];
 
-				logger('updating id '.$existing_message["id"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
+				// Normally this shouldn't happen anymore, since we improved the way we fetch OStatus messages
+				if ($existing_message["parent"] != $parent["id"]) {
+					logger('updating id '.$existing_message["id"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
 
-				// This is partly bad, since the entry in the thread table isn't updated
-				$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d",
-					intval($parent["id"]),
-					dbesc($parent["uri"]),
-					dbesc($parent_uri),
-					intval($existing_message["id"]));
+					// This is partly bad, since the entry in the thread table isn't updated
+					$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d",
+						intval($parent["id"]),
+						dbesc($parent["uri"]),
+						dbesc($parent_uri),
+						intval($existing_message["id"]));
+				}
 			}
 			continue;
 		}
@@ -274,6 +278,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		complete_conversation($newitem, $conversation_url, true);
 
 		// If the newly created item is the top item then change the parent settings of the thread
+		// This shouldn't happen anymore. This could is supposed to be absolote.
 		if ($newitem AND ($arr["uri"] == $first_id)) {
 			logger('setting new parent to id '.$newitem);
 			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",

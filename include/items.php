@@ -9,10 +9,11 @@ require_once('include/tags.php');
 require_once('include/files.php');
 require_once('include/text.php');
 require_once('include/email.php');
-require_once('include/ostatus_conversation.php');
+//require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
 require_once('include/socgraph.php');
 require_once('include/plaintext.php');
+require_once('include/ostatus.php');
 require_once('mod/share.php');
 
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
@@ -119,7 +120,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 	// Include answers to status.net posts in pubsub feeds
 	if($forpubsub) {
 		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent` ";
-		$visibility = sprintf("OR (`item`.`network` = '%s' AND `thread`.`network`='%s')",
+		$visibility = sprintf("AND (`item`.`parent` = `item`.`id`) OR (`item`.`network` = '%s' AND `thread`.`network`='%s')",
 					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS));
 		$date_field = "`received`";
 		$sql_order = "`item`.`received` DESC";
@@ -885,22 +886,22 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		}
 	}
 
-	// Search for ostatus conversation url
-	$links = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
-
-	if (is_array($links)) {
-		foreach ($links as $link) {
-			$conversation = array_shift($link["attribs"]);
-
-			if ($conversation["rel"] == "ostatus:conversation") {
-				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
-				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
-			//} elseif ($conversation["rel"] == "alternate") {
-			//	$res["plink"] = $conversation["href"];
-			//	logger('get_atom_elements: found plink '.$res["plink"]);
-			}
-		};
-	}
+//	// Search for ostatus conversation url
+//	$links = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
+//
+//	if (is_array($links)) {
+//		foreach ($links as $link) {
+//			$conversation = array_shift($link["attribs"]);
+//
+//			if ($conversation["rel"] == "ostatus:conversation") {
+//				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
+//				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
+//			//} elseif ($conversation["rel"] == "alternate") {
+//			//	$res["plink"] = $conversation["href"];
+//			//	logger('get_atom_elements: found plink '.$res["plink"]);
+//			}
+//		};
+//	}
 
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
 		$preview = "";
@@ -1138,14 +1139,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			$arr['plink'] = ostatus_convert_href($arr['uri']);
 	}
 
-	// if an OStatus conversation url was passed in, it is stored and then
-	// removed from the array.
-	$ostatus_conversation = null;
+//	// if an OStatus conversation url was passed in, it is stored and then
+//	// removed from the array.
+//	$ostatus_conversation = null;
 
-	if (isset($arr["ostatus_conversation"])) {
-		$ostatus_conversation = $arr["ostatus_conversation"];
-		unset($arr["ostatus_conversation"]);
-	}
+//	if (isset($arr["ostatus_conversation"])) {
+//		$ostatus_conversation = $arr["ostatus_conversation"];
+//		unset($arr["ostatus_conversation"]);
+//	}
 
 	if(x($arr, 'gravity'))
 		$arr['gravity'] = intval($arr['gravity']);
@@ -1386,7 +1387,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				$arr['gravity'] = 0;
 			}
 			else {
-				logger('item_store: item parent was not found - ignoring item');
+				logger('item_store: item parent '.$arr['parent-uri'].' for '.$arr['uid'].' was not found - ignoring item');
 				return 0;
 			}
 
@@ -1525,8 +1526,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	);
 
 	// Complete ostatus threads
-	if ($ostatus_conversation)
-		complete_conversation($current_post, $ostatus_conversation);
+	//if ($ostatus_conversation)
+	//	complete_conversation($current_post, $ostatus_conversation);
 
 	$arr['id'] = $current_post;
 	$arr['parent'] = $parent_id;
@@ -2224,6 +2225,13 @@ function edited_timestamp_is_newer($existing, $update) {
  */
 
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
+	if ($contact['network'] === NETWORK_OSTATUS) {
+		if ($pass < 2) {
+			logger("Consume OStatus messages ", LOGGER_DEBUG);
+			ostatus_import($xml,$importer,$contact);
+		}
+		return;
+	}
 
 	require_once('library/simplepie/simplepie.inc');
 	require_once('include/contact_selectors.php');
@@ -4402,6 +4410,10 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 			$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 		}
 	}
+
+	//$o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
+	//$o .= '<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
+	//$o .= '<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
 
 	$o .= item_get_attachment($item);
 
