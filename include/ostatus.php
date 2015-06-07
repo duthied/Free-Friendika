@@ -128,7 +128,7 @@ function ostatus_import($xml,$importer,&$contact) {
 			continue;
 		}
 
-		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
+		$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
@@ -281,8 +281,8 @@ function ostatus_import($xml,$importer,&$contact) {
 			}
 		}
 
-		if ($enclosure != "")
-			$item["body"] .= add_page_info($enclosure);
+		//if ($enclosure != "")
+		//	$item["body"] .= add_page_info($enclosure);
 
 		if (isset($item["parent-uri"])) {
 			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
