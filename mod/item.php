@@ -128,28 +128,27 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if(count($r)) {
+			if(count($r))
 				$parent_contact = $r[0];
 
-				// If the contact id doesn't fit with the contact, then set the contact to null
-				$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
-				if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
-					AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-					$parent_contact = null;
+			// If the contact id doesn't fit with the contact, then set the contact to null
+			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
+			if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
+				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
+				$parent_contact = null;
 
-					require_once("include/Scrape.php");
-					$probed_contact = probe_url($thrparent[0]["author-link"]);
-					if ($probed_contact["network"] != NETWORK_FEED) {
-						$parent_contact = $probed_contact;
-						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
-						$parent_contact["thumb"] = $probed_contact["photo"];
-						$parent_contact["micro"] = $probed_contact["photo"];
-						$parent_contact["addr"] = $probed_contact["addr"];
-					}
-					logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
-				} else
-					logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
-			}
+				require_once("include/Scrape.php");
+				$probed_contact = probe_url($thrparent[0]["author-link"]);
+				if ($probed_contact["network"] != NETWORK_FEED) {
+					$parent_contact = $probed_contact;
+					$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
+					$parent_contact["thumb"] = $probed_contact["photo"];
+					$parent_contact["micro"] = $probed_contact["photo"];
+					$parent_contact["addr"] = $probed_contact["addr"];
+				}
+				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
+			} else
+				logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
 		}
 	}
 
