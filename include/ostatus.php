@@ -5,7 +5,7 @@ require_once('include/enotify.php');
 require_once('include/items.php');
 require_once('include/ostatus_conversation.php');
 
-function ostatus_fetchauthor($xpath, $context, &$contact) {
+function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 
 	$author = array();
 	$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
@@ -112,9 +112,9 @@ function ostatus_import($xml,$importer,&$contact) {
 
 		// fetch the author
 		if ($first_child == "feed")
-			$author = ostatus_fetchauthor($xpath, $doc->firstChild, $contact);
+			$author = ostatus_fetchauthor($xpath, $doc->firstChild, $importer, $contact);
 		else
-			$author = ostatus_fetchauthor($xpath, $entry, $contact);
+			$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact);
 
 		$item = array_merge($header, $author);
 
@@ -271,7 +271,7 @@ function ostatus_import($xml,$importer,&$contact) {
 				$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
 
 				$orig_contact = $contact;
-				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $orig_contact);
+				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact);
 
 				$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
 				$item["body"] = $prefix.html2bbcode($orig_body)."[/share]";
