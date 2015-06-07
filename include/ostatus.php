@@ -120,19 +120,25 @@ function ostatus_import($xml,$importer,&$contact) {
 
 		// Now get the item
 		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+			intval($importer["uid"]), dbesc($item["uri"]));
+		if ($r) {
+			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+			continue;
+		}
+
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 		if ($item["verb"] == ACTIVITY_FOLLOW) {
 			// ignore "Follow" messages
-			$item = array();
 			continue;
 		}
 
 		if ($item["verb"] == ACTIVITY_FAVORITE) {
 			// ignore "Favorite" messages
-			$item = array();
 			continue;
 		}
 
@@ -304,50 +310,44 @@ function ostatus_import($xml,$importer,&$contact) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-			intval($importer["uid"]), dbesc($item["uri"]));
-		if (!$r) {
-			$item_id = item_store($item);
-			//echo $xml;
-			//print_r($item);
-			//echo $item_id." ".$item["parent-uri"]."\n";
+		$item_id = item_store($item);
+		//echo $xml;
+		//print_r($item);
+		//echo $item_id." ".$item["parent-uri"]."\n";
 
-			if ($item_id)
-				logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
-			else
-				logger("Error storing item ".print_r($item, true), LOGGER_DEBUG);
-
-			$item["id"] = $item_id;
-
-			if (!isset($item["parent"]) OR ($item["parent"] == 0))
-				$item["parent"] = $item_id;
-
-			if ($mention AND ($item["id"] != 0)) {
-				$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
-
-				notification(array(
-					'type'         => NOTIFY_TAGSELF,
-					'notify_flags' => $u[0]["notify-flags"],
-					'language'     => $u[0]["language"],
-					'to_name'      => $u[0]["username"],
-					'to_email'     => $u[0]["email"],
-					'uid'          => $item["uid"],
-					'item'         => $item,
-					'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item["id"])),
-					'source_name'  => $item["author-name"],
-					'source_link'  => $item["author-link"],
-					'source_photo' => $item["author-avatar"],
-					'verb'         => ACTIVITY_TAG,
-					'otype'        => 'item',
-					'parent'       => $item["parent"]
-				));
-			}
-		} else {
-			$item_id = $r[0]["id"];
-			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+		if (!$item_id) {
+			logger("Error storing item ".print_r($item, true), LOGGER_DEBUG);
+			continue;
 		}
 
-		if (($conversation != "") AND ($item_id != 0)) {
+		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
+		$item["id"] = $item_id;
+
+		if (!isset($item["parent"]) OR ($item["parent"] == 0))
+			$item["parent"] = $item_id;
+
+		if ($mention) {
+			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
+
+			notification(array(
+				'type'         => NOTIFY_TAGSELF,
+				'notify_flags' => $u[0]["notify-flags"],
+				'language'     => $u[0]["language"],
+				'to_name'      => $u[0]["username"],
+				'to_email'     => $u[0]["email"],
+				'uid'          => $item["uid"],
+				'item'         => $item,
+				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item["id"])),
+				'source_name'  => $item["author-name"],
+				'source_link'  => $item["author-link"],
+				'source_photo' => $item["author-avatar"],
+				'verb'         => ACTIVITY_TAG,
+				'otype'        => 'item',
+				'parent'       => $item["parent"]
+			));
+		}
+
+		if ($conversation != "") {
 			// Check for duplicates. We really don't need to check the same conversation twice.
 			if (!in_array($conversation, $conversationlist)) {
 				complete_conversation($item_id, $conversation);
