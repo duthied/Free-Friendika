@@ -246,7 +246,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr["author-name"] = $arr["owner-name"];
 		$arr["author-link"] = $actor;
 		$arr["author-avatar"] = $single_conv->actor->image->url;
-		$arr["body"] = html2bbcode($single_conv->content);
+		$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->content));
 
 		if (isset($single_conv->status_net->notice_info->source))
 			$arr["app"] = strip_tags($single_conv->status_net->notice_info->source);

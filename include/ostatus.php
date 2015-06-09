@@ -84,6 +84,15 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
 	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
 
+	$gub = "";
+	$hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
+	if (is_object($hub_attributes))
+		foreach($hub_attributes AS $hub_attribute)
+			if ($hub_attribute->name == "href") {
+				$hub = $hub_attribute->textContent;
+				logger("Found hub ".$hub, LOGGER_DEBUG);
+			}
+
 	$header = array();
 	$header["uid"] = $importer["uid"];
 	$header["network"] = NETWORK_OSTATUS;
