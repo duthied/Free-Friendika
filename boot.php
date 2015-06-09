@@ -1858,9 +1858,11 @@ if(! function_exists('get_events')) {
 					$md = datetime_convert('UTC','UTC',$rr['start'],'Y/m');
 				$md .= "/#link-".$rr['id'];
 
-				$title = substr(strip_tags(bbcode($rr['desc'])),0,32) . '... ';
-				if(! $title)
-					$title = t('[No description]');
+				$title = substr($rr['summary'],0,32) . '... ';
+
+				$description = substr(strip_tags(bbcode($rr['desc'])),0,32) . '... ';
+				if(! $description)
+					$description = t('[No description]');
 
 				$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
 
@@ -1872,7 +1874,8 @@ if(! function_exists('get_events')) {
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
 
 				$rr['link'] = $md;
-				$rr['title'] = $title;
+				$rr['title'] =$title;
+				$rr['description'] = $desciption;
 				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
