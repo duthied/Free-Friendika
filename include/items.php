@@ -2228,7 +2228,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus_import($xml,$importer,$contact);
+			ostatus_import($xml,$importer,$contact, $hub);
 		}
 		return;
 	}
@@ -4406,9 +4406,9 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 
 	$tags = item_getfeedtags($item);
 	if(count($tags)) {
-		foreach($tags as $t) {
-			$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
-		}
+		foreach($tags as $t)
+			if (($type != 'html') OR ($t[0] != "@"))
+				$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 	}
 
 	//$o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";

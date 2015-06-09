@@ -59,7 +59,10 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 	return($author);
 }
 
-function ostatus_import($xml,$importer,&$contact) {
+function ostatus_import($xml,$importer,&$contact, &$hub) {
+
+	// To-Do:
+	// Hub
 
 	$a = get_app();
 
@@ -69,7 +72,7 @@ function ostatus_import($xml,$importer,&$contact) {
 		return;
 
 	$doc = new DOMDocument();
-	$doc->loadXML($xml);
+	@$doc->loadXML($xml);
 
 	$xpath = new DomXPath($doc);
 	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
@@ -103,6 +106,8 @@ function ostatus_import($xml,$importer,&$contact) {
 	$item_id = 0;
 
 	// Reverse the order of the entries
+	$entrylist = array();
+
 	foreach ($entries AS $entry)
 		$entrylist[] = $entry;
 
@@ -296,7 +301,7 @@ function ostatus_import($xml,$importer,&$contact) {
 					$reply_xml = fetch_url($reply_path);
 
 					$reply_contact = $contact;
-					ostatus_import($reply_xml,$importer,$reply_contact);
+					ostatus_import($reply_xml,$importer,$reply_contact, $reply_hub);
 
 					// After the import try to fetch the parent item again
 					$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",

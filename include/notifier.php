@@ -2,6 +2,7 @@
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
+require_once("include/Scrape.php");
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -295,9 +296,9 @@ function notifier_run(&$argv, &$argc){
 			$conversant_str = dbesc($parent['contact-id']);
 			$recipients = array($parent['contact-id']);
 
-			if (!$item['private'] AND $item['wall'] AND
-				(strlen($item['allow_cid'].$item['allow_gid'].
-					$item['deny_cid'].$item['deny_gid']) == 0))
+			if (!$target_item['private'] AND $target_item['wall'] AND
+				(strlen($target_item['allow_cid'].$target_item['allow_gid'].
+					$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 				$push_notify = true;
 
 			if ($parent['network'] == NETWORK_OSTATUS) {
@@ -305,15 +306,28 @@ function notifier_run(&$argv, &$argc){
 
 				$push_notify = true;
 
+				// Send a salmon notification to every person we mentioned in the post
+				$arr = explode(',',$target_item['tag']);
+				foreach($arr as $x) {
+					logger('Checking tag '.$x, LOGGER_DEBUG);
+					$matches = null;
+					if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
+						$probed_contact = probe_url($matches[1]);
+						if ($probed_contact["notify"] != "") {
+							logger('scrape data for slapper: '.print_r($probed_contact, true));
+							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+						}
+					}
+				}
+
+/*
 				// Check if the recipient isn't in your contact list, try to slap it
 				// Not sure if it is working or not.
 				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
 				if (count($r)) {
-					$url_recipients = array();
 
 					$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
 					if (count($thrparent) AND (normalise_link($r[0]["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-						require_once("include/Scrape.php");
 						$probed_contact = probe_url($thrparent[0]["author-link"]);
 						if ($probed_contact["notify"] != "") {
 							logger('scrape data for slapper: '.print_r($probed_contact, true));
@@ -321,7 +335,9 @@ function notifier_run(&$argv, &$argc){
 						}
 					}
 				}
-				logger("url_recipients".print_r($url_recipients,true));
+*/
+				if (count($url_recipients))
+					logger("url_recipients ".print_r($url_recipients,true));
 			}
 		} else {
 			$followup = false;
@@ -372,7 +388,8 @@ function notifier_run(&$argv, &$argc){
 				}
 			}
 
-			logger('notifier: url_recipients' . print_r($url_recipients,true));
+			if (count($url_recipients))
+				logger('notifier: url_recipients ' . print_r($url_recipients,true));
 
 			$conversants = array_unique($conversants);
 
@@ -911,7 +928,7 @@ function notifier_run(&$argv, &$argc){
 
 	// send additional slaps to mentioned remote tags (@foo@example.com)
 
-	if($slap && count($url_recipients) && ($followup || $top_level) && $public_message && (! $expire)) {
+	if($slap && count($url_recipients) && ($followup || $top_level) && ($public_message || $push_notify) && (! $expire)) {
 		if(! get_config('system','dfrn_only')) {
 			foreach($url_recipients as $url) {
 				if($url) {
