@@ -24,6 +24,7 @@ require_once('include/files.php');
 require_once('include/threads.php');
 require_once('include/text.php');
 require_once('include/items.php');
+require_once('include/Scrape.php');
 
 function item_post(&$a) {
 
@@ -128,28 +129,27 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if(count($r)) {
+			if(count($r))
 				$parent_contact = $r[0];
 
-				// If the contact id doesn't fit with the contact, then set the contact to null
-				$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
-				if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
-					AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-					$parent_contact = null;
+			// If the contact id doesn't fit with the contact, then set the contact to null
+			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
+			if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
+				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
+				$parent_contact = null;
 
-					require_once("include/Scrape.php");
-					$probed_contact = probe_url($thrparent[0]["author-link"]);
-					if ($probed_contact["network"] != NETWORK_FEED) {
-						$parent_contact = $probed_contact;
-						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
-						$parent_contact["thumb"] = $probed_contact["photo"];
-						$parent_contact["micro"] = $probed_contact["photo"];
-						$parent_contact["addr"] = $probed_contact["addr"];
-					}
-					logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
-				} else
-					logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
-			}
+				require_once("include/Scrape.php");
+				$probed_contact = probe_url($thrparent[0]["author-link"]);
+				if ($probed_contact["network"] != NETWORK_FEED) {
+					$parent_contact = $probed_contact;
+					$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
+					$parent_contact["thumb"] = $probed_contact["photo"];
+					$parent_contact["micro"] = $probed_contact["photo"];
+					$parent_contact["addr"] = $probed_contact["addr"];
+				}
+				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
+			} else
+				logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
 		}
 	}
 
@@ -1097,8 +1097,30 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 	//is it a person tag?
 	if(strpos($tag,'@') === 0) {
 		//is it already replaced?
-		if(strpos($tag,'[url='))
+		if(strpos($tag,'[url=')) {
+			//append tag to str_tags
+			if(!stristr($str_tags,$tag)) {
+				if(strlen($str_tags))
+					$str_tags .= ',';
+				$str_tags .= $tag;
+			}
+
+			// Checking for the alias that is used for OStatus
+			$pattern = "/@\[url\=(.*?)\](.*?)\[\/url\]/ism";
+			if (preg_match($pattern, $tag, $matches)) {
+				$data = probe_url($matches[1]);
+				if ($data["alias"] != "") {
+					$newtag = '@[url='.$data["alias"].']'.$data["name"].'[/url]';
+					if(!stristr($str_tags,$newtag)) {
+						if(strlen($str_tags))
+							$str_tags .= ',';
+						$str_tags .= $newtag;
+					}
+				}
+			}
+
 			return $replaced;
+		}
 		$stat = false;
 		//get the person's name
 		$name = substr($tag,1);
