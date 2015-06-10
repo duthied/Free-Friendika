@@ -37,9 +37,14 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 				if ($dom){
 					$xpath = new DOMXPath($dom);
 					$attr = "oembed";
-
 					$xattr = oe_build_xpath("class","oembed");
 					$entries = $xpath->query("//link[@type='application/json+oembed']");
+					foreach($entries as $e){
+						$href = $e->getAttributeNode("href")->nodeValue;
+						$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
+						break;
+					}
+					$entries = $xpath->query("//link[@type='text/json+oembed']");
 					foreach($entries as $e){
 						$href = $e->getAttributeNode("href")->nodeValue;
 						$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
