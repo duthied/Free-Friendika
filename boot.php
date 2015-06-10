@@ -1858,7 +1858,10 @@ if(! function_exists('get_events')) {
 					$md = datetime_convert('UTC','UTC',$rr['start'],'Y/m');
 				$md .= "/#link-".$rr['id'];
 
-				$title = substr($rr['summary'],0,32) . '... ';
+				$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
+
+				if(strlen($title) > 35)
+					$title = substr($title,0,32) . '... ';
 
 				$description = substr(strip_tags(bbcode($rr['desc'])),0,32) . '... ';
 				if(! $description)
