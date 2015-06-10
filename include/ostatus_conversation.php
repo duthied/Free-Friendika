@@ -152,6 +152,9 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		if ($first_id == "") {
 			$first_id = $single_conv->id;
 
+			// To-Do:
+			// Only fetch a new parent if the new one doesn't have parents
+			// It can happen that OStatus servers have incomplete threads.
 			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
 				intval($message["uid"]), dbesc($first_id),
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));

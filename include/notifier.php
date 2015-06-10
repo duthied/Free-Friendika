@@ -307,6 +307,7 @@ function notifier_run(&$argv, &$argc){
 				$push_notify = true;
 
 				// Send a salmon notification to every person we mentioned in the post
+				// To-Do: Send a Salmon to every Friendica user in that thread
 				$arr = explode(',',$target_item['tag']);
 				foreach($arr as $x) {
 					logger('Checking tag '.$x, LOGGER_DEBUG);
