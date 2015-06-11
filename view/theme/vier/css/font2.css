@@ -235,7 +235,7 @@ li.icon.icon-large:before {
 .icon-signout:before              { content: "\f08b"; }
 .icon-linkedin-sign:before        { content: "\f08c"; }
 .icon-pushpin:before              { content: "\f08d"; }
-.icon-external-link:before        { content: "\f08e"; }
+.icon.remote-link:before          { content: "\f08e"; }
 
 .icon-signin:before               { content: "\f090"; }
 .icon-trophy:before               { content: "\f091"; }
