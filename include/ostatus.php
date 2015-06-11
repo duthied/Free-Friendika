@@ -61,9 +61,6 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 
 function ostatus_import($xml,$importer,&$contact, &$hub) {
 
-	// To-Do:
-	// Hub
-
 	$a = get_app();
 
 	logger("Import OStatus message", LOGGER_DEBUG);
@@ -287,8 +284,17 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				$orig_contact = $contact;
 				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact);
 
-				$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
-				$item["body"] = $prefix.html2bbcode($orig_body)."[/share]";
+				if (!intval(get_config('system','wall-to-wall_share'))) {
+					$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
+					$item["body"] = $prefix.add_page_info_to_body(html2bbcode($orig_body))."[/share]";
+				} else {
+					$author["author-name"] = $orig_author["author-name"];
+					$author["author-link"] = $orig_author["author-link"];
+					$author["author-avatar"] = $orig_author["author-avatar"];
+					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
+					$item["uri"] = $orig_uri;
+					$item["created"] = $orig_created;
+				}
 
 				$item["verb"] = $xpath->query('activity:verb/text()', $activityobjects)->item(0)->nodeValue;
 				$item["object-type"] = $xpath->query('activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
