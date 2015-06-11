@@ -301,13 +301,13 @@ function notifier_run(&$argv, &$argc){
 					$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 				$push_notify = true;
 
-			$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AMD `uid` = %d",
+			$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
 
 			// If the thread parent is OStatus then do some magic to distribute the messages.
 			// We have not only to look at the parent, since it could be a Friendica thread.
-			if (($thr_parent AND ($thr_parent['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
-				logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent['network'], LOGGER_DEBUG);
+			if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
+				logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
 
 				$push_notify = true;
 
