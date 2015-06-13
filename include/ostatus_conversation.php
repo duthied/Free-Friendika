@@ -253,12 +253,16 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr["thr-parent"] = $parent_uri;
 		$arr["created"] = $single_conv->published;
 		$arr["edited"] = $single_conv->published;
-		//$arr["owner-name"] = $single_conv->actor->contact->displayName;
-		$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
+		$arr["owner-name"] = $single_conv->actor->contact->displayName;
+		//$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
+		if ($arr["owner-name"] == '')
+			$arr["owner-name"] = $single_conv->actor->portablecontacts_net->displayName;
+		if ($arr["owner-name"] == '')
+			$arr["owner-name"] = $single_conv->actor->displayName;
 		if ($arr["owner-name"] == '')
 			$arr["owner-name"] = $single_conv->actor->portablecontacts_net->preferredUsername;
 		if ($arr["owner-name"] == '')
-			$arr["owner-name"] =  $single_conv->actor->displayName;
+			$arr["owner-name"] = $single_conv->actor->preferredUsername;
 
 		$arr["owner-link"] = $actor;
 		$arr["owner-avatar"] = $single_conv->actor->image->url;
