@@ -466,16 +466,19 @@ function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')){
-        $test = fetch_url($a->get_baseurl()."/install/testrewrite");
-        if ($test!="ok") {
-            $status = false;
-            $help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
-        }
-        check_add($checks, t('Url rewrite is working'), $status, true, $help);
-    } else {
-        // cannot check modrewrite if libcurl is not installed
-    }
+		$test = fetch_url($a->get_baseurl()."/install/testrewrite");
 
+		if ($test!="ok")
+			$test = fetch_url(normalise_link($a->get_baseurl()."/install/testrewrite"));
+
+		if ($test!="ok") {
+			$status = false;
+			$help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
+		}
+		check_add($checks, t('Url rewrite is working'), $status, true, $help);
+	} else {
+		// cannot check modrewrite if libcurl is not installed
+	}
 }
 
 
