@@ -328,7 +328,8 @@ function notifier_run(&$argv, &$argc){
 				// We notify Friendica users in the thread when it is an OStatus thread.
 				// Hopefully this transfers the messages to the other Friendica servers. (Untested)
 				if ($parent["network"] == NETWORK_OSTATUS) {
-					$r = q("SELECT `author-link` FROM `item` WHERE `parent` = %d", intval($target_item["parent"]));
+					$r = q("SELECT `author-link` FROM `item` WHERE `parent` = %d AND `author-link` != '%s'",
+						intval($target_item["parent"]), dbesc($owner['url']));
 					foreach($r as $parent_item) {
 						$probed_contact = probe_url($parent_item["author-link"]);
 						if (($probed_contact["notify"] != "") AND ($probed_contact["network"] == NETWORK_DFRN)) {
