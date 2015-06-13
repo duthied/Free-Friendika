@@ -335,7 +335,7 @@ function scrape_feed($url) {
 define ( 'PROBE_NORMAL',   0);
 define ( 'PROBE_DIASPORA', 1);
 
-function probe_url($url, $mode = PROBE_NORMAL) {
+function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	require_once('include/email.php');
 
 	$result = array();
@@ -804,13 +804,23 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
 
-	// Trying if it maybe a diaspora account
-	if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
-		require_once('include/bbcode.php');
-		$address = GetProfileUsername($url, "", true);
-		$result2 = probe_url($address, $mode);
-		if ($result2['network'] != "")
-			$result = $result2;
+	if ($level == 1) {
+		// Trying if it maybe a diaspora account
+		if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
+			require_once('include/bbcode.php');
+			$address = GetProfileUsername($url, "", true);
+			$result2 = probe_url($address, $mode, ++$level);
+			if ($result2['network'] != "")
+				$result = $result2;
+		}
+
+		// Maybe it's some non standard GNU Social installation (Single user, subfolder or no uri rewrite)
+		if (($result['network'] == NETWORK_FEED) AND ($result['baseurl'] != "") AND ($result['nick'] != "")) {
+			$addr = $result['nick'].'@'.str_replace("http://", "", $result['baseurl']);
+			$result2 = probe_url($addr, $mode, ++$level);
+			if (($result2['network'] != "") AND ($result2['network'] != NETWORK_FEED))
+				$result = $result2;
+		}
 	}
 
 	Cache::set("probe_url:".$mode.":".$url,serialize($result));
