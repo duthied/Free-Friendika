@@ -4,6 +4,8 @@ require_once('include/html2bbcode.php');
 require_once('include/enotify.php');
 require_once('include/items.php');
 require_once('include/ostatus_conversation.php');
+require_once('include/socgraph.php');
+require_once('include/Photo.php');
 
 function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 
@@ -55,6 +57,49 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 	$author["owner-name"] = $author["author-name"];
 	$author["owner-link"] = $author["author-link"];
 	$author["owner-avatar"] = $author["author-avatar"];
+
+	if ($r) {
+		// Update contact data
+		$update_contact = ($r[0]['name-date'] < datetime_convert('','','now -12 hours'));
+		if ($update_contact) {
+			logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
+
+			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["name"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["nick"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["about"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["location"] = $value;
+
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
+				dbesc(datetime_convert()), intval($contact["id"]));
+
+			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
+					"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
+		}
+
+		$update_photo = ($r[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
+
+		if ($update_photo AND isset($author["author-avatar"])) {
+			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
+
+			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
+
+			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+				dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
+				dbesc(datetime_convert()), intval($contact["id"]));
+		}
+	}
 
 	return($author);
 }
@@ -284,17 +329,18 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				$orig_contact = $contact;
 				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact);
 
-				if (!intval(get_config('system','wall-to-wall_share'))) {
-					$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
-					$item["body"] = $prefix.add_page_info_to_body(html2bbcode($orig_body))."[/share]";
-				} else {
-					$author["author-name"] = $orig_author["author-name"];
-					$author["author-link"] = $orig_author["author-link"];
-					$author["author-avatar"] = $orig_author["author-avatar"];
+				//if (!intval(get_config('system','wall-to-wall_share'))) {
+				//	$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
+				//	$item["body"] = $prefix.add_page_info_to_body(html2bbcode($orig_body))."[/share]";
+				//} else {
+					$item["author-name"] = $orig_author["author-name"];
+					$item["author-link"] = $orig_author["author-link"];
+					$item["author-avatar"] = $orig_author["author-avatar"];
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
-					$item["uri"] = $orig_uri;
 					$item["created"] = $orig_created;
-				}
+
+					$item["uri"] = $orig_uri;
+				//}
 
 				$item["verb"] = $xpath->query('activity:verb/text()', $activityobjects)->item(0)->nodeValue;
 				$item["object-type"] = $xpath->query('activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
