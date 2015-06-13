@@ -670,6 +670,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					$vcard['fn'] = trim(unxmlify($author->get_email()));
 				if(strpos($vcard['fn'],'@') !== false)
 					$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
+
 				$email = unxmlify($author->get_email());
 				if(! $profile && $author->get_link())
 					$profile = trim(unxmlify($author->get_link()));
@@ -680,6 +681,15 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 						if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
 							$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
 					}
+				}
+				// Fetch fullname via poco:displayName
+				$pocotags = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
+				if ($pocotags) {
+					$elems = $pocotags[0]['child']['http://portablecontacts.net/spec/1.0'];
+					if (isset($elems["displayName"]))
+						$vcard['fn'] = $elems["displayName"][0]["data"];
+					if (isset($elems["preferredUsername"]))
+						$vcard['nick'] = $elems["preferredUsername"][0]["data"];
 				}
 			}
 			else {
@@ -757,18 +767,18 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		$vcard['fn'] = $url;
 
 	if (($notify != "") AND ($poll != "")) {
-		$baseurl = matching($notify, $poll);
+		$baseurl = matching(normalise_link($notify), normalise_link($poll));
 
-		$baseurl2 = matching($baseurl, $profile);
+		$baseurl2 = matching($baseurl, normalise_link($profile));
 		if ($baseurl2 != "")
 			$baseurl = $baseurl2;
 	}
 
 	if (($baseurl == "") AND ($notify != ""))
-		$baseurl = matching($profile, $notify);
+		$baseurl = matching(normalise_link($profile), normalise_link($notify));
 
 	if (($baseurl == "") AND ($poll != ""))
-		$baseurl = matching($profile, $poll);
+		$baseurl = matching(normalise_link($profile), normalise_link($poll));
 
 	$baseurl = rtrim($baseurl, "/");
 
