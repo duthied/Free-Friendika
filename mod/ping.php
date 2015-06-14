@@ -23,10 +23,7 @@ function ping_init(&$a) {
 
 		$firehose = intval(get_pconfig(local_user(),'system','notify_full'));
 
-		// Are the nofications calles from the regular process or via the friendica app?
-		$regularnotifications = (intval($_GET['uid']) AND intval($_GET['_']));
-
-		$z = ping_get_notifications(local_user(), $regularnotifications);
+		$z = ping_get_notifications(local_user());
 		$sysnotify = 0; // we will update this in a moment
 
 		$tags = array();
@@ -169,6 +166,16 @@ function ping_init(&$a) {
 		function xmlize($href, $name, $url, $photo, $date, $seen, $message){
 			require_once("mod/proxy.php");
 			$photo = proxy_url($photo);
+
+			// Are the nofications calles from the regular process or via the friendica app?
+			$regularnotifications = (intval($_GET['uid']) AND intval($_GET['_']));
+
+			$a = get_app();
+
+			if ($a->is_friendica_app() OR !$regularnotifications)
+				$message = str_replace("{0}", $name, $message);
+
+
 			$data = array('href' => &$href, 'name' => &$name, 'url'=>&$url, 'photo'=>&$photo, 'date'=>&$date, 'seen'=>&$seen, 'messsage'=>&$message);
 			call_hooks('ping_xmlize', $data);
 			$notsxml = '<note href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" >%s</note>';
@@ -307,7 +314,7 @@ function ping_init(&$a) {
 	killme();
 }
 
-function ping_get_notifications($uid, $regularnotifications) {
+function ping_get_notifications($uid) {
 
 	$result = array();
 	$offset = 0;
@@ -355,13 +362,10 @@ function ping_get_notifications($uid, $regularnotifications) {
 
 			// Replace the name with {0} but ensure to make that only once
 			// The {0} is used later and prints the name in bold.
-			// But don't do it for the android app.
 
 			$pos = strpos($notification["msg"],$notification['name']);
-			if (($pos !== false) AND $regularnotifications AND !$a->is_friendica_app())
+			if ($pos !== false)
 				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification["name"]));
-			else
-				$notification["msg"] = str_replace("{0}", $notification["name"], $notification["msg"]);
 
 			if ($notification["visible"] AND !$notification["spam"] AND
 				!$notification["deleted"] AND !is_array($result[$notification["parent"]]))
