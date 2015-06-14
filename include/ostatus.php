@@ -376,7 +376,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
-		$item_id = item_store($item);
+		$item_id = item_store($item, true);
 		//echo $xml;
 		//print_r($item);
 		//echo $item_id." ".$item["parent-uri"]."\n";
