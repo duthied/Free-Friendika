@@ -376,6 +376,8 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
+		// We risk the chance of getting orphan items, we correct it some lines later
+		// To-Do: See To-Do line below.
 		$item_id = item_store($item, true);
 		//echo $xml;
 		//print_r($item);
@@ -416,6 +418,9 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		if ($conversation != "") {
 			// Check for duplicates. We really don't need to check the same conversation twice.
 			if (!in_array($conversation, $conversationlist)) {
+				// To-Do:
+				// Call this before item_store is called to avoid posts with orphans
+				// The routine then needs to get the item array.
 				complete_conversation($item_id, $conversation);
 				$conversationlist[] = $conversation;
 			}
