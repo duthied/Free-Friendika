@@ -379,6 +379,7 @@ if(! class_exists('App')) {
 		public  $identities;
 		public	$is_mobile;
 		public	$is_tablet;
+		public	$is_friendica_app;
 		public	$performance = array();
 
 		public $nav_sel;
@@ -595,6 +596,9 @@ if(! class_exists('App')) {
 			$mobile_detect = new Mobile_Detect();
 			$this->is_mobile = $mobile_detect->isMobile();
 			$this->is_tablet = $mobile_detect->isTablet();
+
+			// Friendica-Client
+			$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == "Apache-HttpClient/UNAVAILABLE (java 1.4)");
 
 			/**
 			 * register template engines
@@ -904,6 +908,10 @@ if(! class_exists('App')) {
 
 		function get_useragent() {
 			return(FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
+		}
+
+		function is_friendica_app() {
+			return($this->is_friendica_app);
 		}
 
 	}

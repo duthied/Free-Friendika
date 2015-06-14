@@ -316,6 +316,8 @@ function ping_get_notifications($uid, $regularnotifications) {
 	$order = "";
 	$quit = false;
 
+	$a = get_app();
+
 	do {
 		$r = q("SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
@@ -354,8 +356,9 @@ function ping_get_notifications($uid, $regularnotifications) {
 			// Replace the name with {0} but ensure to make that only once
 			// The {0} is used later and prints the name in bold.
 			// But don't do it for the android app.
+
 			$pos = strpos($notification["msg"],$notification['name']);
-			if (($pos !== false) AND $regularnotifications)
+			if (($pos !== false) AND $regularnotifications AND !$a->is_friendica_app())
 				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification["name"]));
 			else
 				$notification["msg"] = str_replace("{0}", $notification["name"], $notification["msg"]);
