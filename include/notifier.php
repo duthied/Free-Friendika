@@ -301,26 +301,43 @@ function notifier_run(&$argv, &$argc){
 					$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 				$push_notify = true;
 
-			if ($parent['network'] == NETWORK_OSTATUS) {
-				logger('Parent is OStatus', LOGGER_DEBUG);
+			$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
+
+			// If the thread parent is OStatus then do some magic to distribute the messages.
+			// We have not only to look at the parent, since it could be a Friendica thread.
+			if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
+				logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
 
 				$push_notify = true;
 
 				// Send a salmon notification to every person we mentioned in the post
-				// To-Do: Send a Salmon to every Friendica user in that thread
 				$arr = explode(',',$target_item['tag']);
 				foreach($arr as $x) {
-					logger('Checking tag '.$x, LOGGER_DEBUG);
+					//logger('Checking tag '.$x, LOGGER_DEBUG);
 					$matches = null;
 					if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
 						$probed_contact = probe_url($matches[1]);
 						if ($probed_contact["notify"] != "") {
-							logger('scrape data for slapper: '.print_r($probed_contact, true));
+							logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
 							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 						}
 					}
 				}
 
+				// We notify Friendica users in the thread when it is an OStatus thread.
+				// Hopefully this transfers the messages to the other Friendica servers. (Untested)
+				if ($parent["network"] == NETWORK_OSTATUS) {
+					$r = q("SELECT `author-link` FROM `item` WHERE `parent` = %d AND `author-link` != '%s'",
+						intval($target_item["parent"]), dbesc($owner['url']));
+					foreach($r as $parent_item) {
+						$probed_contact = probe_url($parent_item["author-link"]);
+						if (($probed_contact["notify"] != "") AND ($probed_contact["network"] == NETWORK_DFRN)) {
+							logger('Notify Friendica user '.$probed_contact["url"].': '.$probed_contact["notify"]);
+							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+						}
+					}
+				}
 /*
 				// Check if the recipient isn't in your contact list, try to slap it
 				// Not sure if it is working or not.

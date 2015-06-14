@@ -1189,6 +1189,18 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
+	// If there is no guid then take the same guid that was taken before for the same plink
+	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
+		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
+		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
+			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
+
+		if(count($r)) {
+			$arr['guid'] = $r[0]["guid"];
+			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
+		}
+	}
+
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
@@ -2227,6 +2239,10 @@ function edited_timestamp_is_newer($existing, $update) {
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
+			// Test - remove before flight
+			//$tempfile = tempnam(get_temppath(), "ostatus");
+			//file_put_contents($tempfile, $xml);
+
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
 			ostatus_import($xml,$importer,$contact, $hub);
 		}
@@ -2240,12 +2256,6 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		logger('consume_feed: empty input');
 		return;
 	}
-
-	// Test - remove before flight
-//	if ($contact['network'] === NETWORK_OSTATUS) {
-//		$tempfile = tempnam(get_temppath(), "ostatus");
-//		file_put_contents($tempfile, $xml);
-//	}
 
 	$feed = new SimplePie();
 	$feed->set_raw_data($xml);
@@ -4306,10 +4316,48 @@ function atom_author($tag,$name,$uri,$h,$w,$photo) {
 
 
 	$o .= "<$tag>\r\n";
-	$o .= "<name>$name</name>\r\n";
-	$o .= "<uri>$uri</uri>\r\n";
-	$o .= '<link rel="photo"  type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
-	$o .= '<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
+	$o .= "\t<name>$name</name>\r\n";
+	$o .= "\t<uri>$uri</uri>\r\n";
+	$o .= "\t".'<link rel="photo"  type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
+	$o .= "\t".'<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
+
+	if ($tag == "author") {
+		$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
+				`profile`.`name`, `profile`.`pub_keywords`, `profile`.`about`,
+				`profile`.`homepage`,`contact`.`nick` FROM `profile`
+				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
+				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `profile`.`is-default` AND `contact`.`self` AND
+					NOT `user`.`hidewall` AND `contact`.`nurl`='%s'",
+			dbesc(normalise_link($uri)));
+		if ($r) {
+			$location = '';
+			if($r[0]['locality'])
+				$location .= $r[0]['locality'];
+			if($r[0]['region']) {
+				if($location)
+					$location .= ', ';
+				$location .= $r[0]['region'];
+			}
+			if($r[0]['country-name']) {
+				if($location)
+					$location .= ', ';
+				$location .= $r[0]['country-name'];
+			}
+
+			$o .= "\t<poco:preferredUsername>".xmlify($r[0]["nick"])."</poco:preferredUsername>\r\n";
+			$o .= "\t<poco:displayName>".xmlify($r[0]["name"])."</poco:displayName>\r\n";
+			$o .= "\t<poco:note>".xmlify($r[0]["about"])."</poco:note>\r\n";
+			$o .= "\t<poco:address>\r\n";
+			$o .= "\t\t<poco:formatted>".xmlify($location)."</poco:formatted>\r\n";
+			$o .= "\t</poco:address>\r\n";
+			$o .= "\t<poco:urls>\r\n";
+			$o .= "\t<poco:type>homepage</poco:type>\r\n";
+			$o .= "\t\t<poco:value>".xmlify($r[0]["homepage"])."</poco:value>\r\n";
+			$o .= "\t\t<poco:primary>true</poco:primary>\r\n";
+			$o .= "\t</poco:urls>\r\n";
+		}
+	}
 
 	call_hooks('atom_author', $o);
 
@@ -4365,6 +4413,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />' . "\r\n";
 
 
+	$o .= '<status_net notice_id="'.$item['id'].'"></status_net>'."\r\n";
+
 	if($comment)
 		$o .= '<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>' . "\r\n";
 
@@ -4411,9 +4461,11 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 				$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 	}
 
+	// To-Do:
+	// To support these elements, the API needs to be enhanced
 	//$o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
-	//$o .= '<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-	//$o .= '<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
+	//$o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
+	//$o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
 
 	$o .= item_get_attachment($item);
 

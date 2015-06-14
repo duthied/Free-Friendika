@@ -1,5 +1,6 @@
 <?php
 require_once("include/Contact.php");
+require_once("include/threads.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
@@ -93,7 +94,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `created`, `received`, `guid`) VALUES (%d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s')",
 			intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval(TERM_CONVERSATION),
 			dbesc($message["created"]), dbesc($conversation_url), dbesc($message["created"]), dbesc($message["received"]), dbesc($message["guid"]));
-		logger('complete_conversation: Storing conversation url '.$conversation_url.' for id '.$itemid);
+		logger('Storing conversation url '.$conversation_url.' for id '.$itemid);
 	}
 
 	if ($only_add_conversation)
@@ -113,7 +114,7 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 	$pageno = 1;
 	$items = array();
 
-	logger('complete_conversation: fetching conversation url '.$conv.' for '.$itemid);
+	logger('fetching conversation url '.$conv.' for id '.$itemid.' and parent '.$parent["id"]);
 
 	do {
 		$conv_as = fetch_url($conv."?page=".$pageno);
@@ -152,16 +153,21 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		if ($first_id == "") {
 			$first_id = $single_conv->id;
 
-			// To-Do:
-			// Only fetch a new parent if the new one doesn't have parents
-			// It can happen that OStatus servers have incomplete threads.
-			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+			$new_parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
 				intval($message["uid"]), dbesc($first_id),
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 			if ($new_parents) {
-				$parent = $new_parents[0];
-				if ($parent["id"] != $message["parent"])
-					logger('Fetch new parent id '.$parent["id"].' for '.$itemid.' Old parent: '.$message["parent"]);
+				// It can happen that OStatus servers have incomplete threads.
+				// Then keep the current parent
+				if ($parent["id"] == $parent["parent"]) {
+					$parent = $new_parents[0];
+
+					if ($parent["id"] != $message["parent"])
+						logger('Fetch new parent id '.$parent["id"].' - Old parent: '.$message["parent"]);
+				} else {
+					$first_id = $parent["uri"];
+					//logger('Keep parent for '.$itemid.' - Old parent: '.$message["parent"]);
+				}
 			} else {
 				$parent["id"] = 0;
 				$parent["uri"] = $first_id;
@@ -186,16 +192,28 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 			if ($parent["id"] != 0) {
 				$existing_message = $message_exists[0];
 
-				// Normally this shouldn't happen anymore, since we improved the way we fetch OStatus messages
+				// We improved the way we fetch OStatus messages, this shouldn't happen very often now
 				if ($existing_message["parent"] != $parent["id"]) {
-					logger('updating id '.$existing_message["id"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
+					logger('updating id '.$existing_message["id"].' with parent '.$existing_message["parent"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
 
-					// This is partly bad, since the entry in the thread table isn't updated
-					$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `thr-parent` = '%s' WHERE `id` = %d",
-						intval($parent["id"]),
-						dbesc($parent["uri"]),
-						dbesc($parent_uri),
-						intval($existing_message["id"]));
+					// Update the parent id of the selected item
+					$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s' WHERE `id` = %d",
+						intval($parent["id"]), dbesc($parent["uri"]), intval($existing_message["id"]));
+
+					// Update the parent uri in the thread - but only if it points to itself
+					$r = q("UPDATE `item` SET `thr-parent` = '%s' WHERE `id` = %d AND `uri` = `thr-parent`",
+						dbesc($parent_uri), intval($existing_message["id"]));
+
+					// try to change all items of the same parent
+					$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s' WHERE `parent` = %d",
+						intval($parent["id"]), dbesc($parent["uri"]), intval($existing_message["parent"]));
+
+					// Update the parent uri in the thread - but only if it points to itself
+					$r = q("UPDATE `item` SET `thr-parent` = '%s' WHERE (`parent` = %d) AND (`uri` = `thr-parent`)",
+						dbesc($parent["uri"]), intval($existing_message["parent"]));
+
+					// Now delete the thread
+					delete_thread($existing_message["parent"]);
 				}
 			}
 			continue;
@@ -235,12 +253,16 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 		$arr["thr-parent"] = $parent_uri;
 		$arr["created"] = $single_conv->published;
 		$arr["edited"] = $single_conv->published;
-		//$arr["owner-name"] = $single_conv->actor->contact->displayName;
-		$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
+		$arr["owner-name"] = $single_conv->actor->contact->displayName;
+		//$arr["owner-name"] = $single_conv->actor->contact->preferredUsername;
+		if ($arr["owner-name"] == '')
+			$arr["owner-name"] = $single_conv->actor->portablecontacts_net->displayName;
+		if ($arr["owner-name"] == '')
+			$arr["owner-name"] = $single_conv->actor->displayName;
 		if ($arr["owner-name"] == '')
 			$arr["owner-name"] = $single_conv->actor->portablecontacts_net->preferredUsername;
 		if ($arr["owner-name"] == '')
-			$arr["owner-name"] =  $single_conv->actor->displayName;
+			$arr["owner-name"] = $single_conv->actor->preferredUsername;
 
 		$arr["owner-link"] = $actor;
 		$arr["owner-avatar"] = $single_conv->actor->image->url;
@@ -275,21 +297,19 @@ function complete_conversation($itemid, $conversation_url, $only_add_conversatio
 
 		$newitem = item_store($arr);
 
-		logger('Stored new item '.$plink.' under id '.$newitem, LOGGER_DEBUG);
+		logger('Stored new item '.$plink.' for parent '.$arr["parent"].' under id '.$newitem, LOGGER_DEBUG);
 
 		// Add the conversation entry (but don't fetch the whole conversation)
 		complete_conversation($newitem, $conversation_url, true);
 
 		// If the newly created item is the top item then change the parent settings of the thread
-		// This shouldn't happen anymore. This could is supposed to be absolote.
+		// This shouldn't happen anymore. This is supposed to be absolote.
 		if ($newitem AND ($arr["uri"] == $first_id)) {
 			logger('setting new parent to id '.$newitem);
 			$new_parents = q("SELECT `id`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 				intval($message["uid"]), intval($newitem));
-			if ($new_parents) {
+			if ($new_parents)
 				$parent = $new_parents[0];
-				logger('done changing parents to parent '.$newitem);
-			}
 		}
 	}
 }
