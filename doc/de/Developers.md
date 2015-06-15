@@ -8,6 +8,7 @@ Hier erfährst Du, wie Du bei uns mitmachen kannst:
 Zunächst erstelle Dir per 'git clone https://github.com/friendica/friendica.git' ein funktionierendes Git-Paket auf Deinem System, auf dem Du die Entwicklung durchführst, und einen eigenen Github-Account.
 
 Erstelle Deine eigene Kopie (fork) der Ursprungsdaten auf Github, an der Du dann entspannt arbeiten kannst. 
+Deine Arbeiten sollten mit einem neuen Arbeitszweig (branch) beginnen, den du vom develop Zweig des Repositories beginnst.
 Die Anleitung unter [http://help.github.com/fork-a-repo/](http://help.github.com/fork-a-repo/) erklärt Dir genau, wie Du das tun musst.
 
 Gehe dann nach getaner Arbeit zu Deiner Github-Seite und erstelle eine "Pull request", um Deine Änderungen in das Hauptprojekt einzugliedern (merge).
