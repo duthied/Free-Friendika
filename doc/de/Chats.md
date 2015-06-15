@@ -10,14 +10,14 @@ Du hast derzeit zwei Möglichkeiten, einen Chat auf Deiner Friendica-Seite zu be
 
 ##IRC Plugin
 
-Sobald das Plugin aktiviert ist, kannst Du den Chat unter [DeineSeite.de/irc](../irc) finden. 
+Sobald das Plugin aktiviert ist, kannst Du den Chat unter [deineSeite.de/irc](../irc) finden. 
 Beachte aber, dass dieser Chat auch ohne Anmeldung auf Deiner Seite zugänglich ist und somit auch Fremde diesen Chat mitnutzen können. 
 
 Wenn Du dem Link folgst, dann kommst Du zum Anmeldefenster des IR-Chats. 
 Wähle nun einen Spitznamen (Nickname) und wähle einen Raum aus, in dem Du chatten willst. 
 Hier kannst Du jeden Namen eingeben. 
 Es kann also auch #tollerChatdessenNamenurichkenne sein. 
-Gib als nächstes noch die Captchas ein, um zu zeigen, dass es sich bei Dir um einen Menschen handelt und klicke dann auf "Connect".
+Gib als nächstes noch die Captchas ein, um zu zeigen, dass es sich bei Dir um einen Menschen handelt und klicke auf "Connect".
 
 Im nächsten Fenster siehst Du zunächst viel Text beim Verbindungsaufbau, der allerdings für Dich nicht weiter von Bedeutung ist. 
 Anschließend öffnet sich das Chat-Fenster. 
@@ -42,7 +42,7 @@ Einige Server zum Anmelden eines neuen Accounts:
 
 **1. Grundsätzliches**
 
-Als erstes musst Du die aktuellste Version herunterladen: 
+Als erstes musst Du die aktuellste Version herunterladen:
 
 Per Git:
 <p style="font-family: courier; background-color: #CCCCCC; margin-left:25px; width: 450px;">
@@ -56,24 +56,26 @@ Entpacke diese Datei (ggf. den entpackten Ordner in „jappixmini“ umbenennen)
 Nach dem Upload gehts in den Friendica Adminbereich und dort zu den Plugins. 
 Aktiviere das Jappixmini Addon und gehe anschließend über die Plugins Seitenleiste (dort wo auch die Twitter-, Impressums-, StatusNet-, usw. Einstellungen gemacht werden) zu den Jappix Grundeinstellungen.
 
-Setze hier den Haken zur Aktivierung des BOSH Proxys.
+Setze hier den Haken zur Aktivierung des BOSH Proxys. 
 Weiter gehts in den Einstellungen Deines Friendica Accounts.
 
-**2. Einstellungen**
+2. Einstellungen
 
 Gehe bitte zu den Plugin-Einstellungen in Deinen Konto-Einstellungen (Account Settings). 
-Scrollen ein Stück hinunter bis zu den Jappix Mini addon settings.
+Scrolle ein Stück hinunter bis zu den Jappix Mini Addon settings.
 
 Aktiviere hier zuerst das Addon.
 
 Trage nun Deinen Jabber/XMPP Namen ein, ebenfalls die entsprechende Domain bzw. den Server (ohne http, also zb einfach so: jappix.com). 
-Bei „Jabber BOSH Host“ kannst Du erstmal “https://bind.jappix.com/ “ eintragen. 
+Um das JavaScript Applet zum Chatten im Browser verwenden zu können, benötigst du einen BOSH Proxy.
+Entweder betreibst du deinen eigenen (s. Dokumentation deines XMPP Servers) oder du verwendest einen öffentlichen BOSH Proxy.
+Beachte aber, dass der Betreiber dieses Proxies den kompletten Datenverkehr über den Proxy mitlesen kann.
 Siehe dazu auch die „Configuration Help“ weiter unten. 
 Gebe danach noch Dein Passwort an, und damit ist eigentlich schon fast alles geschafft. 
 Die weiteren Einstellmöglichkeiten bleiben Dir überlassen, sind also optional. 
 Jetzt noch auf „senden“ klicken und fertig.
 
 Deine Chatbox sollte jetzt irgendwo unten rechts im Browserfenster „kleben“. 
-Falls Du manuell Kontakte hinzufügen möchtest, einfach den „Add Contact“ Knopf nutzen. 
+Falls Du manuell Kontakte hinzufügen möchtest, einfach den „Add Contact“-Knopf nutzen. 
 
 Viel Spass beim Chatten! 

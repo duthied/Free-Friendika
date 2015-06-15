@@ -4,9 +4,10 @@ Gruppen und Seiten
 * [Zur Startseite der Hilfe](help)
 
 Hier siehst Du das globale Verzeichnis. 
-Wenn Du Dich mal verirrt hast, kannst Du <a href = "help/Quick-Start-groupsandpages">diesen Link klicken</a> und wieder hierher kommen. 
+Wenn Du Dich mal verirrt hast, kannst Du diesen Link klicken und wieder hierher kommen.
 
-Auf dieser Seite findest Du eine Zusammenstellung von Gruppen, Foren und Promi-Seiten. Gruppen sind keine realen Personen. 
+Auf dieser Seite findest Du eine Zusammenstellung von Gruppen, Foren und Promi-Seiten. 
+Gruppen sind keine realen Personen. 
 Sich mit diesen zu verbinden ist, als wenn man jemanden auf Facebook "liked" ("gefällt mir") oder wenn man sich in einem Forum anmeldet. 
 Es gibt keinen Anlass zur Unsicherheit, ob Du Dich einfach so mit einer Gruppe verbinden kannst oder nicht, da es sich nicht um Personen handelt.
 
