@@ -67,7 +67,9 @@ Scrolle ein Stück hinunter bis zu den Jappix Mini Addon settings.
 Aktiviere hier zuerst das Addon.
 
 Trage nun Deinen Jabber/XMPP Namen ein, ebenfalls die entsprechende Domain bzw. den Server (ohne http, also zb einfach so: jappix.com). 
-Bei „Jabber BOSH Host“ kannst Du erstmal “https://bind.jappix.com/ “ eintragen. 
+Um das JavaScript Applet zum Chatten im Browser verwenden zu können, benötigst du einen BOSH Proxy.
+Entweder betreibst du deinen eigenen (s. Dokumentation deines XMPP Servers) oder du verwendest einen öffentlichen BOSH Proxy.
+Beachte aber, dass der Betreiber dieses Proxies den kompletten Datenverkehr über den Proxy mitlesen kann.
 Siehe dazu auch die „Configuration Help“ weiter unten. 
 Gebe danach noch Dein Passwort an, und damit ist eigentlich schon fast alles geschafft. 
 Die weiteren Einstellmöglichkeiten bleiben Dir überlassen, sind also optional. 
