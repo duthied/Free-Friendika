@@ -1,5 +1,5 @@
 Erste Schritte... 
-=================
+==========
 
 * [Zur Startseite der Hilfe](help)
 
@@ -8,6 +8,7 @@ Wenn Du noch nicht eingeloggt bist, kannst Du das in dem Fenster unten machen.
 
 Sobald dies geschehen ist, schaust Du auf die Netzwerkseite Deines Profils. 
 Klicke auf den Reiter "Pinnwand".
+
 Hier sieht es ein wenig wie auf (D)einer Facebook-Seite aus. 
 Du findest hier alle Deine Statusmeldungen und Nachrichten Deiner Freunde, die direkt auf Deine "Pinnwand" ("Wall") geschrieben haben. 
 Um Deinen Status einzutragen, klicke einfach auf die Box oben, in der "Teilen" steht. 
@@ -16,7 +17,8 @@ Unten findest Du in diesem Feld weitere Knöpfe, mit denen Du Bilder und Dateien
 Außerdem kannst Du hier eintragen, wo Du gerade bist. 
 
 Wenn Du Deinen Beitrag ("Post") geschrieben hast, kannst Du auf das "Schloss"-Symbol klicken und festlegen, wer Deinen Beitrag sehen kann. 
-Wenn Du dieses Symbol nicht anklickst, ist Dein Beitrag öffentlich. 
+Wenn Du dieses Symbol nicht anklickst, ist Dein Beitrag öffentlich, bzw. es werden deine Grundeinstellungen verwendet, wenn diese nicht öffentlich sind. 
+
 Ein öffentlicher Beitrag ist sichbar für
 <ul>
 	<li>Besucher Deines Profils</li>

@@ -6,19 +6,20 @@ Account - Basics
 
 **Registrierung**
 
-Nicht alle Friendica-Knoten bieten die Möglichkeit einer Registrierung.
-Wenn eine Registrierung möglich ist, wird ein "Registrieren"-Link unter dem Login-Feld auf der Startseite angezeigt, der zur Registrierungsseite führt. 
-Die Stärke unseres Netzwerks liegt darin, dass die verschiedenen Knoten komplett kompatibel zueinander sind. 
+Nicht alle Friendica-Knoten bieten die Möglichkeit zur Registrierung. 
+Wenn die Registrierung möglich ist, wird ein "Registrieren"-Link unter dem Login-Feld auf der Startseite angezeigt, der zur Registrierungsseite führt. 
+Die Stärke unseres Netzwerks ist, dass die verschiedenen Knoten komplett kompatibel zueinander sind. 
 Wenn der Knoten, den Du besuchst, keine Registrierung anbietet, oder wenn Du glaubst, dass Dir eine andere Seite möglicherweise besser gefällt, dann kannst Du hier eine <a href="http://dir.friendica.com/siteinfo">Liste von öffentlichen Servern (Knoten)</a> finden und den Knoten heraus suchen, der am Besten zu Deinen Anforderungen passt. 
 
-Wenn Du Deinen eigenen Server aufsetzen willst, kannst Du das ebenfalls machen. Besuche <a href="http://friendica.com/download">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen. 
+Wenn Du Deinen eigenen Server aufsetzen willst, kannst Du das ebenfalls machen. 
+Besuche <a href="http://friendica.com/download">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen. 
 Es ist ein einfacher Installationsprozess, den jeder mit ein wenig Erfahrungen im Webseiten-Hosting oder mit grundlegenden Linux-Erfahrungen einfach handhaben kann.
 
 
 *OpenID*
 
 Das erste Feld auf der Registrierungsseite ist für eine OpenID-Adresse. 
-Wenn Du keine OpenID-Adresse hast oder diese nicht verwenden möchtest, dann lasse das Feld frei. 
+Wenn Du keine OpenID-Adresse hast oder nicht wünschst, diese zu nutzen, dann lasse das Feld frei. 
 Wenn Du einen OpenID-Account hast und diesen nutzen willst, gib die Adresse in das Feld ein und klicke auf "Registrieren". 
 Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-Provider zu übernehmen, um diese in Dein Profil auf dieser Seite einzutragen. 
 
@@ -26,37 +27,38 @@ Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-
 *Dein vollständiger Name*
 
 Bitte trage Deinen vollständigen Namen **so ein, wie Du ihn im System anzeigen lassen willst**. 
-Viele Leute nutzen ihren richtigen Namen hierfür, allerdings besteht für Dich dazu keine Verpflichtung.
+Viele Leute nutzen ihren richtigen Namen hierfür, allerdings besteht für dich keine Pflicht, das auch so zu machen.
 
 
 *Email-Adresse*
 
 Bitte trage eine richtige Email-Adresse ein. 
 Deine Email-Adresse wird **niemals** veröffentlicht. 
-Wir benötigen diese, um Dir Account-Informationen und die Login-Daten zuzuschicken. 
+Wir benötigen diese, um Dir Account-Informationen und die Login-Daten zu schicken. 
 Du erhältst zudem von Zeit zu Zeit Benachrichtigungen über eingegangene Nachrichten oder Punkte, die Deine Aufmerksamkeit benötigen. 
-Du hast aber auch die Möglichkeit, diese Nachrichten in Deinen Account-Einstellungen komplett abzuschalten.
+Du hast aber auch die Möglichkeit, diese Nachrichten in Deinen Account-Einstellungen komplett abzuschalten. 
 
-Bei der Wahl der Email-Adresse bist Du völlig frei, sie sollte aber funktionieren, und Du musst Zugriff auf sie haben. 
-Ohne diese Adresse kannst Du weder Dein Initialpasswort erhalten, noch Dein Passwort zurücksetzen. 
+Du musst nicht Deine Haupt-Email-Adresse sein, jedoch wird eine funktionierende Adresse benötigt. 
+Ohne dieses kannst Du weder Dein Initialpasswort erhalten, noch Dein Passwort zurücksetzen. 
 Dies ist die einzige persönliche Information, die korrekt sein muss.
  
 
 *Spitzname/Nickname*
 
-Der Spitzname wird benötigt, um eine Webadresse für Deine persönlichen Seiten zu erstellen. 
+Der Spitzname wird benötigt, um eine Webadresse für viele Deiner persönlichen Seiten zu erstellen. 
 Auch wird dieser wie eine Email-Adresse genutzt, wenn eine Verbindung zu anderen Personen hergestellt werden soll. 
-Durch die Art, wie der Spitzname genutzt wird, ergeben sich bestimmte Einschränkungen: Er darf nur US-ASCII-Textzeichen und Ziffern enthalten und er muss zudem mit einem Buchstaben beginnen. 
-Außerdem muss er einzigartig im System sein. 
-Dieser Spitzname wird an vielen Stellen genutzt, um Deinen Account zu identifizieren, und kann daher **später nicht mehr geändert werden**.
+Durch die Art, wie der Spitzname genutzt wird, gibt es bestimmte Einschränkungen. Er darf nur US-ASCII-Textzeichen und Nummern enthalten und er muss zudem mit einem Buchstaben beginnen. 
+Er muss außerdem einzigartig im System sein. 
+Dieser Spitzname wird an vielen Stellen genutzt, um Deinen Account zu identifizieren, und kann daher später nicht mehr geändert werden.
 
 
 *Verzeichnis-Eintrag*
 
-Das Registrierungsformular erlaubt es Dir, direkt zu bestimmen, ob Du in dem einem Telefonbuch vergleichbaren Onlineverzeichnis aufgelistet werden sollst oder nicht. 
-Wir bitten dich, "Ja" zu wählen, so dass Dich andere Leute (Freunde, Familie etc.) finden können. 
-Wenn Du "Nein" wählst, wirst Du gewissermaßen unsichtbar sein und nur wenige Möglichkeiten zur Interaktion haben. 
-Was auch immer Du wählst kann jederzeit nach dem Login in Deinen Account-Einstellungen geändert werden.
+Das Registrierungsformular erlaubt es dir, direkt auszuwählen, ob Du im Onlineverzeichnis aufgelistet wirst oder nicht. 
+Das ist wie ein Telefonbuch und Du kannst entscheiden, nicht aufgeführt zu werden. 
+Wir bitten dich, "Ja" zu wählen, so dass dich andere Leute (Freunde, Familie etc.) finden können. 
+Wenn Du "Nein" wählst, wirst Du hauptsächlich unsichtbar sein und nur wenige Möglichkeiten zur Interaktion haben. 
+Was auch immer Du wählst, kann jederzeit nach dem Login in Deinen Account-Einstellungen geändert werden.
 
 
 *Registrierung*

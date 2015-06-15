@@ -132,7 +132,7 @@ Der Titel der Seite mit einem Link zur *url* wird ebenfalls angezeigt.
 Spezielle Tags
 -------
 
-Wenn du &uuml;ber BBCode Tags in einer Nachricht schreiben m&ouml;chtest, kannst du [noparse], [nobb] oder [pre] verwenden um den BBCode Tags vor der Evaluierung zu sch&uuml;tzen:
+Wenn Du &uuml;ber BBCode Tags in einer Nachricht schreiben m&ouml;chtest, kannst Du [noparse], [nobb] oder [pre] verwenden um den BBCode Tags vor der Evaluierung zu sch&uuml;tzen:
 
 <pre>[noparse][b]fett[/b][/noparse]</pre> : [b]fett[/b]
 
