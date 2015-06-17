@@ -9,7 +9,7 @@ Wenn Du Dich mal verirrt hast, kannst Du diesen Link klicken und wieder hierher 
 Auf dieser Seite findest Du eine Zusammenstellung von Gruppen, Foren und Promi-Seiten. 
 Gruppen sind keine realen Personen. 
 Sich mit diesen zu verbinden ist, als wenn man jemanden auf Facebook "liked" ("gefällt mir") oder wenn man sich in einem Forum anmeldet. 
-Es gibt keinen Anlass zur Unsicherheit, ob Du Dich einfach so mit einer Gruppe verbinden kannst oder nicht, da es sich nicht um Personen handelt.
+Du musst nicht unsicher sein, ob Du jemandem zu nahe trittst, wenn Du Dich so ohne weiteres mit einer Gruppe verbindest; es handelt sich eben nicht um reale Personen.
 
 Wenn Du Dich mit einer Gruppe verbindest, erscheinen alle Nachrichten der Gruppe in Deinem "Netzwerk"-Tab. 
 Du kannst diese Beiträge kommentieren oder selbst in der Gruppe schreiben, ohne eines der Gruppenmitglieder persönlich hinzuzufügen. 
