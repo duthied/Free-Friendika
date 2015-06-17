@@ -6,7 +6,7 @@ Konnektoren (Connectors)
 Konnektoren erlauben es Dir, Dich mit anderen sozialen Netzwerken zu verbinden. 
 Konnektoren werden nur bei bestehenden Facebook-, Twitter und StatusNet-Accounts benötigt. 
 Außerdem gibt es einen Konnektor, um Deinen Email-Posteingang zu nutzen.
-Wenn Du keinen eigenen Knoten betreibst und wissen willst, ob der server Deiner Wahl diese Konnektoren installiert hat, kannst Du Dich darüber auf der Seite '<domain_des_friendica-servers>/friendica' informieren.
+Wenn Du keinen eigenen Knoten betreibst und wissen willst, ob der server Deiner Wahl diese Konnektoren installiert hat, kannst Du Dich darüber auf der Seite '&lt;domain_des_friendica-servers&gt;/friendica' informieren.
 
 Sind die Netzwerk-Konnektoren auf Deinem System installiert sind, kannst Du mit den folgenden Links die Einstellungsseiten besuchen und für Deinen Account konfigurieren:
 
@@ -20,7 +20,7 @@ Anleitung, um sich mit Personen in bestimmten Netzwerken zu verbinden
 
 **Friendica**
 
-Du kannst Dich verbinden, indem Du die Adresse Deiner Identität (<dein_nick>@<dein_friendica-host>) auf der "Verbinden"-Seite des Friendica-Nutzers eingibst. 
+Du kannst Dich verbinden, indem Du die Adresse Deiner Identität (&lt;dein_nick&gt;@&lt;dein_friendica-host&gt;) auf der "Verbinden"-Seite des Friendica-Nutzers eingibst. 
 Ebenso kannst Du deren Identitäts-Adresse in der "Verbinden"-Box auf Deiner ["Kontakt"-Seite](contacts) eingeben.
 
 
