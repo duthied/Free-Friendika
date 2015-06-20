@@ -400,18 +400,6 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		$item_id = ostatus_completion($conversation, $importer["uid"], $item);
 
-		if ($item_id <= 0) {
-			$reason = $item_id;
-			$item["app"] .= $item_id;
-			$item_id = item_store($item, true);
-			if ($item_id) {
-				logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation, LOGGER_DEBUG);
-				ostatus_store_conversation($item_id, $conversation_url);
-			}
-		}
-		//echo $xml;
-		//print_r($item);
-
 		if (!$item_id) {
 			logger("Error storing item ".print_r($item, true), LOGGER_DEBUG);
 			continue;
@@ -509,7 +497,7 @@ function check_conversations($override = false) {
 
 function ostatus_completion($conversation_url, $uid, $item = array()) {
 
-	$item_stored = -3;
+	$item_stored = -1;
 
 	$conversation_url = ostatus_convert_href($conversation_url);
 
@@ -536,7 +524,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		// Preset the parent
 		$r = q("SELECT `id` FROM `contact` WHERE `self` AND `uid`=%d", $uid);
 		if (!$r)
-			return(-1);
+			return(-2);
 
 		$parent = array();
 		$parent["id"] = 0;
@@ -591,7 +579,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 			return($item_stored);
 		} else
-			return(-2);
+			return(-3);
 	}
 
 	$items = array_reverse($items);
@@ -821,10 +809,10 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			unset($arr["coord"]);
 
 		// Copy fields from given item array
-		if (isset($item["uri"]) AND ($item["uri"] == $arr["uri"])) {
+		if (isset($item["uri"]) AND (($item["uri"] == $arr["uri"]) OR ($item["uri"] ==  $single_conv->id))) {
 			$copy_fields = array("owner-name", "owner-link", "owner-avatar", "author-name", "author-link", "author-avatar",
 						"gravity", "body", "object-type", "verb", "created", "edited", "coord", "tag",
-						"attach", "app", "type", "location", "contact-id");
+						"attach", "app", "type", "location", "contact-id", "uri");
 			foreach ($copy_fields AS $field)
 				if (isset($item[$field]))
 					$arr[$field] = $item[$field];
@@ -856,6 +844,14 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 				intval($uid), intval($newitem));
 			if ($new_parents)
 				$parent = $new_parents[0];
+		}
+	}
+
+	if (($item_stored < 0) AND (count($item) > 0)) {
+		$item_stored = item_store($item, true);
+		if ($item_stored) {
+			logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation_url, LOGGER_DEBUG);
+			ostatus_store_conversation($item_stored, $conversation_url);
 		}
 	}
 
