@@ -399,6 +399,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$search = $_REQUEST['query'];
 	}
 
+	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
 
 	if ($search!=""){
 		$sql_extra = "AND `name` LIKE '%%".dbesc($search)."%%'";
@@ -496,9 +497,11 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, forum FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+			AND NOT (`network` IN ('%s', '%s'))
 			$sql_extra2
 			ORDER BY `name` ASC ",
-			intval(local_user())
+			intval(local_user()),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_STATUSNET)
 		);
 	}
 	elseif($type == 'm') {
