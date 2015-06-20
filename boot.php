@@ -415,9 +415,6 @@ if(! class_exists('App')) {
 		// array of instanced template engines ('name'=>'instance')
 		public $template_engine_instance = array();
 
-		// Used for reducing load to the ostatus completion
-		public $last_ostatus_conversation_url;
-
 		private $ldelim = array(
 			'internal' => '',
 			'smarty3' => '{{'
