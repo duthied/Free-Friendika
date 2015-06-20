@@ -74,17 +74,11 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 	$conversation_url = ostatus_convert_href($conversation_url);
 
-/*
-To-Do:
-	if (intval(get_config('system','ostatus_poll_interval')) == -2)
-		return;
-
-	if ($a->last_ostatus_conversation_url == $conversation_url)
-		return;
-
-	$a->last_ostatus_conversation_url = $conversation_url;
-
-*/
+	// If the thread shouldn't be completed then store the item and go away
+	if ((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) {
+		$item_stored = item_store($item, true);
+		return($item_stored);
+	}
 
 	// Get the parent
 	$parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `id` IN
@@ -154,7 +148,7 @@ To-Do:
 			logger("Conversation ".$conversation_url." couldn't be fetched. Item uri ".$item["uri"]." stored: ".$item_stored, LOGGER_DEBUG);
 
 			if ($item_stored)
-				complete_conversation($item_id, $conversation_url, true);
+				complete_conversation($item_id, $conversation_url);
 
 			return($item_stored);
 		} else
@@ -401,7 +395,7 @@ To-Do:
 		logger('Stored new item '.$plink.' for parent '.$arr["parent-uri"].' under id '.$newitem, LOGGER_DEBUG);
 
 		// Add the conversation entry (but don't fetch the whole conversation)
-		complete_conversation($newitem, $conversation_url, true);
+		complete_conversation($newitem, $conversation_url);
 
 		// If the newly created item is the top item then change the parent settings of the thread
 		// This shouldn't happen anymore. This is supposed to be absolote.
@@ -413,19 +407,11 @@ To-Do:
 				$parent = $new_parents[0];
 		}
 	}
-// Test
-/*	if ((count($item) > 0) AND ($item_stored <= 0)) {
-		$item_stored = item_store($item, true);
-		logger("In the conversation ".$conversation_url." the item uri ".$item["uri"]." wasn't found: ".$item_stored, LOGGER_DEBUG);
-
-		if ($item_stored)
-			complete_conversation($item_id, $conversation_url, true);
-	} */
 
 	return($item_stored);
 }
 
-function complete_conversation($itemid, $conversation_url, $only_add_conversation = false) {
+function complete_conversation($itemid, $conversation_url) {
 	global $a;
 
 	$conversation_url = ostatus_convert_href($conversation_url);

@@ -389,7 +389,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 			$item_id = item_store($item, true);
 			if ($item_id) {
 				logger("Shouldn't happen. Code ".$reason." - uri ".$item["uri"], LOGGER_DEBUG);
-				complete_conversation($item_id, $conversation_url, true);
+				complete_conversation($item_id, $conversation_url);
 			}
 		}
 		//echo $xml;
