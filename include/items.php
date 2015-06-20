@@ -1192,12 +1192,15 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// If there is no guid then take the same guid that was taken before for the same plink
 	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
+		$r = q("SELECT `guid`, `uri` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
 			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
 			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
+
+			if ($r[0]["uri"] != $arr['uri'])
+			logger('Different uri for same guid: '.$arr['uri'].' and '.$r[0]["uri"].' - this shouldnt happen!', LOGGER_DEBUG);
 		}
 	}
 

@@ -186,6 +186,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+		$item["object"] = $xml;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 		if ($item["verb"] == ACTIVITY_FOLLOW) {
@@ -217,6 +218,9 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		$georsspoint = $xpath->query('georss:point', $entry);
 		if ($georsspoint)
 			$item["coord"] = $georsspoint->item(0)->nodeValue;
+
+		// To-Do
+		// $item["location"] =
 
 		$categories = $xpath->query('atom:category', $entry);
 		if ($categories) {
@@ -292,7 +296,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		$repeat_of = "";
 
 		$notice_info = $xpath->query('statusnet:notice_info', $entry);
-		if ($notice_info)
+		if ($notice_info AND ($notice_info->length > 0)) {
 			foreach($notice_info->item(0)->attributes AS $attributes) {
 				if ($attributes->name == "source")
 					$item["app"] = strip_tags($attributes->textContent);
@@ -301,6 +305,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				if ($attributes->name == "repeat_of")
 					$repeat_of = $attributes->textContent;
 			}
+		}
 
 		// Is it a repeated post?
 		if ($repeat_of != "") {
@@ -376,12 +381,19 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
-		// We risk the chance of getting orphan items, we correct it some lines later
-		// To-Do: See To-Do line below.
-		$item_id = item_store($item, true);
+		$item_id = ostatus_completion($conversation, $importer["uid"], $item);
+
+		if ($item_id <= 0) {
+			$reason = $item_id;
+			$item["app"] .= $item_id;
+			$item_id = item_store($item, true);
+			if ($item_id) {
+				logger("Shouldn't happen. Code ".$reason." - uri ".$item["uri"], LOGGER_DEBUG);
+				complete_conversation($item_id, $conversation_url, true);
+			}
+		}
 		//echo $xml;
 		//print_r($item);
-		//echo $item_id." ".$item["parent-uri"]."\n";
 
 		if (!$item_id) {
 			logger("Error storing item ".print_r($item, true), LOGGER_DEBUG);
@@ -413,17 +425,6 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				'otype'        => 'item',
 				'parent'       => $item["parent"]
 			));
-		}
-
-		if ($conversation != "") {
-			// Check for duplicates. We really don't need to check the same conversation twice.
-			if (!in_array($conversation, $conversationlist)) {
-				// To-Do:
-				// Call this before item_store is called to avoid posts with orphans
-				// The routine then needs to get the item array.
-				complete_conversation($item_id, $conversation);
-				$conversationlist[] = $conversation;
-			}
 		}
 	}
 }
