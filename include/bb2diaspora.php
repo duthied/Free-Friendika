@@ -95,6 +95,9 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	} else
 		$Text = bbcode($Text, $preserve_nl, false, 4);
 
+    // mask some special HTML chars from conversation to markdown
+    $Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
+
 	// If a link is followed by a quote then there should be a newline before it
 	// Maybe we should make this newline at every time before a quote.
 	$Text = str_replace(array("</a><blockquote>"), array("</a><br><blockquote>"), $Text);
@@ -103,6 +106,9 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	// Now convert HTML to Markdown
 	$Text = new HTML_To_Markdown($Text);
+
+    // unmask the special chars back to HTML
+    $Text = str_replace(array('&_lt_;','&_gt_;','&_amp_;'),array('&lt;','&gt;','&amp;'),$Text);
 
 	$a->save_timestamp($stamp1, "parser");
 
