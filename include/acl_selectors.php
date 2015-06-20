@@ -422,7 +422,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				WHERE `uid` = %d AND `self` = 0
 				AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
 				AND `notify` != '' $sql_extra2" ,
-			intval(local_user()),
+			intval(local_user())
 		);
 		$contact_count = (int)$r[0]['c'];
 	}
