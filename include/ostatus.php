@@ -322,29 +322,33 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 			if (is_object($activityobjects)) {
 
-				$orig_uris = $xpath->query("activity:object/atom:link[@rel='alternate']", $activityobjects);
-				if ($orig_uris)
-					foreach($orig_uris->item(0)->attributes AS $attributes)
-						if ($attributes->name == "href")
-							$orig_uri = $attributes->textContent;
-
-				if (!isset($orig_uri))
-					$orig_uri = $xpath->query("atom:link[@rel='alternate']", $activityobjects)->item(0)->nodeValue;
-
-				if (!isset($orig_uri))
-					$orig_uri = $xpath->query("activity:object/atom:id", $activityobjects)->item(0)->nodeValue;
-
+				$orig_uri = $xpath->query("activity:object/atom:id", $activityobjects)->item(0)->nodeValue;
 				if (!isset($orig_uri))
 					$orig_uri = $xpath->query('atom:id/text()', $activityobjects)->item(0)->nodeValue;
 
-				$orig_body = $xpath->query('atom:content/text()', $activityobjects)->item(0)->nodeValue;
+				$orig_links = $xpath->query("activity:object/atom:link[@rel='alternate']", $activityobjects);
+				if ($orig_links AND ($orig_links->length > 0))
+					foreach($orig_links->item(0)->attributes AS $attributes)
+						if ($attributes->name == "href")
+							$orig_link = $attributes->textContent;
+
+				if (!isset($orig_link))
+					$orig_link = $xpath->query("atom:link[@rel='alternate']", $activityobjects)->item(0)->nodeValue;
+
+				if (!isset($orig_link))
+					$orig_link =  ostatus_convert_href($orig_uri);
+
+				$orig_body = $xpath->query('activity:object/atom:content/text()', $activityobjects)->item(0)->nodeValue;
+				if (!isset($orig_body))
+					$orig_body = $xpath->query('atom:content/text()', $activityobjects)->item(0)->nodeValue;
+
 				$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
 
 				$orig_contact = $contact;
 				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact);
 
 				//if (!intval(get_config('system','wall-to-wall_share'))) {
-				//	$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_uri);
+				//	$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_link);
 				//	$item["body"] = $prefix.add_page_info_to_body(html2bbcode($orig_body))."[/share]";
 				//} else {
 					$item["author-name"] = $orig_author["author-name"];
@@ -354,10 +358,14 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 					$item["created"] = $orig_created;
 
 					$item["uri"] = $orig_uri;
+					$item["plink"] = $orig_link;
 				//}
 
 				$item["verb"] = $xpath->query('activity:verb/text()', $activityobjects)->item(0)->nodeValue;
-				$item["object-type"] = $xpath->query('activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
+
+				$item["object-type"] = $xpath->query('activity:object/activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
+				if (!isset($item["object-type"]))
+					$item["object-type"] = $xpath->query('activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
 			}
 		}
 
@@ -397,7 +405,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 			$item["app"] .= $item_id;
 			$item_id = item_store($item, true);
 			if ($item_id) {
-				logger("Shouldn't happen. Code ".$reason." - uri ".$item["uri"], LOGGER_DEBUG);
+				logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation, LOGGER_DEBUG);
 				ostatus_store_conversation($item_id, $conversation_url);
 			}
 		}
@@ -764,18 +772,31 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		$arr["coord"] = trim($single_conv->location->lat." ".$single_conv->location->lon);
 
 		// Is it a reshared item?
-		if (isset($item->verb) AND ($item->verb == "share") AND isset($item->object)) {
-			if (is_array($item->object))
-				$item->object = $item->object[0];
+		if (isset($single_conv->verb) AND ($single_conv->verb == "share") AND isset($single_conv->object)) {
+			if (is_array($single_conv->object))
+				$single_conv->object = $single_conv->object[0];
 
 			logger("Found reshared item ".$single_conv->object->id);
 
 			// $single_conv->object->context->conversation;
 
-			$plink = ostatus_convert_href($single_conv->object->url);
+			if (isset($single_conv->object->object->id))
+				$arr["uri"] = $single_conv->object->object->id;
+			else
+				$arr["uri"] = $single_conv->object->id;
 
-			$arr["uri"] = $single_conv->object->id;
+			if (isset($single_conv->object->object->url))
+				$plink = ostatus_convert_href($single_conv->object->object->url);
+			else
+				$plink = ostatus_convert_href($single_conv->object->url);
+
+			if (isset($single_conv->object->object->content))
+				$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->object->object->content));
+			else
+				$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->object->content));
+
 			$arr["plink"] = $plink;
+
 			$arr["created"] = $single_conv->object->published;
 			$arr["edited"] = $single_conv->object->published;
 
@@ -786,7 +807,6 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			$arr["author-link"] = $single_conv->object->actor->url;
 			$arr["author-avatar"] = $single_conv->object->actor->image->url;
 
-			$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->object->content));
 			$arr["app"] = $single_conv->object->provider->displayName."#";
 			//$arr["verb"] = $single_conv->object->verb;
 
