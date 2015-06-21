@@ -2,21 +2,26 @@
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_firstcollapsed}}
-	<div class="hide-comments-outer">
-		<span id="hide-comments-total-{{$item.id}}" 
-			class="hide-comments-total">{{$item.num_comments}}</span>
+	{{if $item.thread_level<3}} 
+		<div class="hide-comments-outer">
+			<span id="hide-comments-total-{{$item.id}}" 
+				class="hide-comments-total">{{$item.num_comments}}</span>
 			<span id="hide-comments-{{$item.id}}" 
 				class="hide-comments fakelink" 
 				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
-			{{if $item.thread_level==3}} - 
+<!--			{{if $item.thread_level==3}} - 
 			<span id="hide-thread-{{$item}}-id"
 				class="fakelink"
 				onclick="showThread({{$item.id}});">expand</span> /
 			<span id="hide-thread-{{$item}}-id"
 				class="fakelink"
 				onclick="hideThread({{$item.id}});">collapse</span> thread{{/if}}
-	</div>
-	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
+-->
+		</div>
+		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
+	{{else}}
+		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: block;">
+	{{/if}}
 {{/if}}
 {{/if}}
 
@@ -26,7 +31,11 @@
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}}" id="item-{{$item.guid}}">
+{{if $item.thread_level<7}}
+	<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}}" id="item-{{$item.guid}}">
+{{else}}
+	<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7" id="item-{{$item.guid}}">
+{{/if}}
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}"
