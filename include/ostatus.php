@@ -190,6 +190,12 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+
+		if ($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) {
+			$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
+			$item["body"] = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+		}
+
 		$item["object"] = $xml;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
@@ -283,11 +289,14 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 							$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
 							break;
 						case "related":
-							if (!isset($item["parent-uri"]))
-								$item["parent-uri"] = $href;
+							if ($item["object-type"] != ACTIVITY_OBJ_BOOKMARK) {
+								if (!isset($item["parent-uri"]))
+									$item["parent-uri"] = $href;
 
-							if ($related == "")
-								$related = $href;
+								if ($related == "")
+									$related = $href;
+							} else
+								$item["body"] .= add_page_info($href);
 							break;
 						case "self":
 							$self = $href;
@@ -812,8 +821,8 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		// Copy fields from given item array
 		if (isset($item["uri"]) AND (($item["uri"] == $arr["uri"]) OR ($item["uri"] ==  $single_conv->id))) {
 			$copy_fields = array("owner-name", "owner-link", "owner-avatar", "author-name", "author-link", "author-avatar",
-						"gravity", "body", "object-type", "verb", "created", "edited", "coord", "tag",
-						"attach", "app", "type", "location", "contact-id", "uri");
+						"gravity", "body", "object-type", "object", "verb", "created", "edited", "coord", "tag",
+						"title", "attach", "app", "type", "location", "contact-id", "uri");
 			foreach ($copy_fields AS $field)
 				if (isset($item[$field]))
 					$arr[$field] = $item[$field];
