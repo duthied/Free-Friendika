@@ -401,7 +401,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		$item_id = ostatus_completion($conversation, $importer["uid"], $item);
 
 		if (!$item_id) {
-			logger("Error storing item ".print_r($item, true), LOGGER_DEBUG);
+			logger("Error storing item", LOGGER_DEBUG);
 			continue;
 		}
 
@@ -572,10 +572,11 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	if (!sizeof($items)) {
 		if (count($item) > 0) {
 			$item_stored = item_store($item, true);
-			logger("Conversation ".$conversation_url." couldn't be fetched. Item uri ".$item["uri"]." stored: ".$item_stored, LOGGER_DEBUG);
 
-			if ($item_stored)
+			if ($item_stored) {
+				logger("Conversation ".$conversation_url." couldn't be fetched. Item uri ".$item["uri"]." stored: ".$item_stored, LOGGER_DEBUG);
 				ostatus_store_conversation($item_id, $conversation_url);
+			}
 
 			return($item_stored);
 		} else
