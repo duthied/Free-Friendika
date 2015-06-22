@@ -42,7 +42,7 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = q("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' 
+		$albums = q("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
                         $sql_extra group by album order by created desc",
 			intval($a->data['user']['uid']),
                         dbesc('Contact Photos'),
@@ -156,7 +156,7 @@ function photos_post(&$a) {
 		killme();
 	}
 
-	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
+	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
 		WHERE `user`.`uid` = %d AND `self` = 1 LIMIT 1",
 		intval($page_owner_uid)
 	);
@@ -167,7 +167,7 @@ function photos_post(&$a) {
 		killme();
 	}
 
-	$owner_record = $r[0];	
+	$owner_record = $r[0];
 
 
 	if(($a->argc > 3) && ($a->argv[2] === 'album')) {
@@ -377,7 +377,7 @@ function photos_post(&$a) {
 			$albname = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
 
 
-		if((x($_POST,'rotate') !== false) && 
+		if((x($_POST,'rotate') !== false) &&
 		   ( (intval($_POST['rotate']) == 1) || (intval($_POST['rotate']) == 2) )) {
 			logger('rotate');
 
@@ -488,8 +488,8 @@ function photos_post(&$a) {
 			$arr['visible']       = $visibility;
 			$arr['origin']        = 1;
 
-			$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']' 
-						. '[img]' . $a->get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]' 
+			$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']'
+						. '[img]' . $a->get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
 						. '[/url]';
 
 			$item_id = item_store($arr);
@@ -741,7 +741,7 @@ function photos_post(&$a) {
 	 * overwhelm the data stream with a hundred newly uploaded photos.
 	 * So we will make the first photo uploaded to this album in the last several hours
 	 * visible by default, the rest will become visible over time when and if
-	 * they acquire comments, likes, dislikes, and/or tags 
+	 * they acquire comments, likes, dislikes, and/or tags
 	 *
 	 */
 
@@ -753,7 +753,7 @@ function photos_post(&$a) {
 		$visible = 1;
 	else
 		$visible = 0;
-	
+
 	if(intval($_REQUEST['not_visible']) || $_REQUEST['not_visible'] === 'true')
 		$visible = 0;
 
@@ -819,7 +819,7 @@ function photos_post(&$a) {
 		call_hooks('photo_post_end',$foo);
 		killme();
 	}
-		
+
 
 	$ph = new Photo($imagedata, $type);
 
@@ -867,7 +867,7 @@ function photos_post(&$a) {
 		$ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 2;
 	}
-	
+
 	$basename = basename($filename);
 	$uri = item_new_uri($a->get_hostname(), $page_owner_uid);
 
@@ -897,8 +897,8 @@ function photos_post(&$a) {
 	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
-	$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']' 
-				. '[img]' . $a->get_baseurl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]' 
+	$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
+				. '[img]' . $a->get_baseurl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
 				. '[/url]';
 
 	$item_id = item_store($arr);
@@ -957,7 +957,7 @@ function photos_content(&$a) {
 	$_SESSION['photo_return'] = $a->cmd;
 
 	//
-	// Parse arguments 
+	// Parse arguments
 	//
 
 	if($a->argc > 3) {
@@ -1174,14 +1174,14 @@ function photos_content(&$a) {
 
 		));
 
-		return $o; 
+		return $o;
 	}
 
 	if($datatype === 'album') {
 
 		$album = hex2bin($datum);
 
-		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s' 
+		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
 			intval($owner_uid),
 			dbesc($album)
@@ -1196,7 +1196,7 @@ function photos_content(&$a) {
 		else
 			$order = 'DESC';
 
-		$r = q("SELECT `resource-id`, `id`, `filename`, type, max(`scale`) AS `scale`, `desc` FROM `photo` WHERE `uid` = %d AND `album` = '%s' 
+		$r = q("SELECT `resource-id`, `id`, `filename`, type, max(`scale`) AS `scale`, `desc` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT %d , %d",
 			intval($owner_uid),
 			dbesc($album),
@@ -1260,7 +1260,7 @@ function photos_content(&$a) {
 					$imgalt_e = $rr['filename'];
 					$desc_e = $rr['desc'];
 				}
-				
+
 				$photos[] = array(
 					'id' => $rr['id'],
 					'twist' => ' ' . $twist . rand(2,4),
@@ -1299,7 +1299,7 @@ function photos_content(&$a) {
 		//$o = '';
 		// fetch image, item containing image, then comments
 
-		$ph = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' 
+		$ph = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 			$sql_extra ORDER BY `scale` ASC ",
 			intval($owner_uid),
 			dbesc($datum)
@@ -1375,8 +1375,8 @@ function photos_content(&$a) {
 			);
 
 			// lock
-			$lock = ( ( ($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid']) 
-					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) ) 
+			$lock = ( ( ($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid'])
+					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) )
 					? t('Private Message')
 					: Null);
 
@@ -1518,19 +1518,18 @@ function photos_content(&$a) {
 
 			$edit = replace_macros($edit_tpl, array(
 				'$id' => $ph[0]['id'],
-				'$rotatecw' => t('Rotate CW (right)'),
-				'$rotateccw' => t('Rotate CCW (left)'),
-				'$album' => $album_e,
-				'$newalbum' => t('New album name'),
+				'$album' => array('albname', t('New album name'), $album_e,''),
+				'$caption' => array('desc', t('Caption'), $caption_e, ''),
+				'$tags' => array('newtag', t('Add a Tag'), "", t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping')),
+				'$rotate_none' => array('rotate',t('Do not rotate'),0,'', true),
+				'$rotate_cw' => array('rotate',t('Rotate CW (right)'),1,''),
+				'$rotate_ccw' => array('rotate',t('Rotate CCW (left)'),2,''),
+
 				'$nickname' => $a->data['user']['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],
-				'$capt_label' => t('Caption'),
-				'$caption' => $caption_e,
-				'$tag_label' => t('Add a Tag'),
-				'$tags' => $link_item['tag'],
 				'$permissions' => t('Permissions'),
 				'$aclselect' => $aclselect_e,
-				'$help_tags' => t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping'),
+
 				'$item_id' => ((count($linked_items)) ? $link_item['id'] : 0),
 				'$submit' => t('Submit'),
 				'$delete' => t('Delete Photo'),
@@ -1665,8 +1664,8 @@ function photos_content(&$a) {
 
 					$profile_link = $profile_url;
 
-					
-					
+
+
 					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == local_user()));
 					$drop = array(
 						'dropping' => $dropping,
@@ -1774,7 +1773,7 @@ function photos_content(&$a) {
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
 
-	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' 
+	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
 		dbesc('Contact Photos'),
@@ -1786,7 +1785,7 @@ function photos_content(&$a) {
 	}
 
 	$r = q("SELECT `resource-id`, `id`, `filename`, type, `album`, max(`scale`) AS `scale` FROM `photo`
-		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'  
+		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
 		dbesc('Contact Photos'),
@@ -1806,7 +1805,7 @@ function photos_content(&$a) {
 			else
 				$twist = 'rotright';
 			$ext = $phototypes[$rr['type']];
-			
+
 			if($a->theme['template_engine'] === 'internal') {
 				$alt_e = template_escape($rr['filename']);
 				$name_e = template_escape($rr['album']);
