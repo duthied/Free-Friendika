@@ -290,6 +290,7 @@ define ( 'ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event' );
 define ( 'ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group' );
 define ( 'ACTIVITY_OBJ_TAGTERM', NAMESPACE_DFRN            . '/tagterm' );
 define ( 'ACTIVITY_OBJ_PROFILE', NAMESPACE_DFRN            . '/profile' );
+define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
 
 /**
  * item weight for query ordering
@@ -414,9 +415,6 @@ if(! class_exists('App')) {
 		public $template_engines = array();
 		// array of instanced template engines ('name'=>'instance')
 		public $template_engine_instance = array();
-
-		// Used for reducing load to the ostatus completion
-		public $last_ostatus_conversation_url;
 
 		private $ldelim = array(
 			'internal' => '',

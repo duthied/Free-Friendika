@@ -9,7 +9,6 @@ require_once('include/tags.php');
 require_once('include/files.php');
 require_once('include/text.php');
 require_once('include/email.php');
-//require_once('include/ostatus_conversation.php');
 require_once('include/threads.php');
 require_once('include/socgraph.php');
 require_once('include/plaintext.php');
@@ -481,7 +480,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	// but for now let's just find any author photo
 	// Additionally we look for an alternate author link. On OStatus this one is the one we want.
 
-	// Search for ostatus conversation url
 	$authorlinks = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
 	if (is_array($authorlinks)) {
 		foreach ($authorlinks as $link) {
@@ -886,23 +884,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		}
 	}
 
-//	// Search for ostatus conversation url
-//	$links = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://www.w3.org/2005/Atom"]["link"];
-//
-//	if (is_array($links)) {
-//		foreach ($links as $link) {
-//			$conversation = array_shift($link["attribs"]);
-//
-//			if ($conversation["rel"] == "ostatus:conversation") {
-//				$res["ostatus_conversation"] = ostatus_convert_href($conversation["href"]);
-//				logger('get_atom_elements: found conversation url '.$res["ostatus_conversation"]);
-//			//} elseif ($conversation["rel"] == "alternate") {
-//			//	$res["plink"] = $conversation["href"];
-//			//	logger('get_atom_elements: found plink '.$res["plink"]);
-//			}
-//		};
-//	}
-
 	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
 		$preview = "";
 
@@ -1139,15 +1120,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			$arr['plink'] = ostatus_convert_href($arr['uri']);
 	}
 
-//	// if an OStatus conversation url was passed in, it is stored and then
-//	// removed from the array.
-//	$ostatus_conversation = null;
-
-//	if (isset($arr["ostatus_conversation"])) {
-//		$ostatus_conversation = $arr["ostatus_conversation"];
-//		unset($arr["ostatus_conversation"]);
-//	}
-
 	if(x($arr, 'gravity'))
 		$arr['gravity'] = intval($arr['gravity']);
 	elseif($arr['parent-uri'] === $arr['uri'])
@@ -1192,12 +1164,15 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// If there is no guid then take the same guid that was taken before for the same plink
 	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
+		$r = q("SELECT `guid`, `uri` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
 			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
 
 		if(count($r)) {
 			$arr['guid'] = $r[0]["guid"];
 			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
+
+			if ($r[0]["uri"] != $arr['uri'])
+			logger('Different uri for same guid: '.$arr['uri'].' and '.$r[0]["uri"].' - this shouldnt happen!', LOGGER_DEBUG);
 		}
 	}
 
@@ -1536,10 +1511,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		intval($parent_deleted),
 		intval($current_post)
 	);
-
-	// Complete ostatus threads
-	//if ($ostatus_conversation)
-	//	complete_conversation($current_post, $ostatus_conversation);
 
 	$arr['id'] = $current_post;
 	$arr['parent'] = $parent_id;
