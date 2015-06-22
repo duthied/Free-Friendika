@@ -220,7 +220,7 @@ function xmlify($str) {
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
 	*/
-	$buffer = htmlspecialchars($str, ENT_QUOTES);
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
 	$buffer = trim($buffer);
 
 	return($buffer);
