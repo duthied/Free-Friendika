@@ -1,4 +1,3 @@
-
 <?php
 
 // Set the following for your MySQL installation
@@ -12,7 +11,7 @@ $db_data = '{{$dbdata}}';
 // If you are using a subdirectory of your domain you will need to put the
 // relative path (from the root of your domain) here.
 // For instance if your URL is 'http://example.com/directory/subdirectory',
-// set $a->path to 'directory/subdirectory'. 
+// set path to 'directory/subdirectory'. 
 
 $a->path = '{{$urlpath}}';
  
@@ -23,7 +22,7 @@ $default_timezone = '{{$timezone}}';
 
 // What is your site name?
 
-$a->config['sitename'] = "La Mia Rete di Amici";
+$a->config['sitename'] = "My Friend Network";
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
 // Be certain to create your own personal account before setting 
@@ -67,3 +66,6 @@ $a->config['system']['rino_encrypt'] = true;
 
 $a->config['system']['theme'] = 'duepuntozero';
 
+// By default allow pseudonyms
+
+$a->config['system']['no_regfullname'] = true;

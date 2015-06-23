@@ -73,7 +73,7 @@ function install_post(&$a) {
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
 
-			$tpl = get_intltext_template('htconfig.tpl');
+			$tpl = get_markup_template('htconfig.tpl');
 			$txt = replace_macros($tpl,array(
 				'$dbhost' => $dbhost,
 				'$dbuser' => $dbuser,
@@ -84,13 +84,15 @@ function install_post(&$a) {
 				'$phpath' => $phpath,
 				'$adminmail' => $adminmail
 			));
+			
 
 			$result = file_put_contents('.htconfig.php', $txt);
 			if(! $result) {
 				$a->data['txt'] = $txt;
 			}
-
+			
 			$errors = load_database($db);
+			
 
 			if($errors)
 				$a->data['db_failed'] = $errors;
@@ -148,7 +150,7 @@ function install_content(&$a) {
 			return replace_macros($tpl, array(
 				'$title' => $install_title,
 				'$pass' => '',
-				'$status' => t('Permission denied.'),
+				'$status' => t('Database already in use.'),
 				'$text' => '',
 			));
 		}
