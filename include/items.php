@@ -15,6 +15,9 @@ require_once('include/plaintext.php');
 require_once('include/ostatus.php');
 require_once('mod/share.php');
 
+require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
+
+
 function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
 
 
@@ -1982,16 +1985,16 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($contact['duplex'] && $contact['issued-id'])
 		$idtosend = '1:' . $orig_id;
 
-    /**
-	 * disable rino.
-	$rino = ((function_exists('mcrypt_encrypt')) ? 1 : 0);
-
-	$rino_enable = get_config('system','rino_encrypt');
-
-	if(! $rino_enable)
+    
+	$rino = get_config('system','rino_encrypt');
+	
+	if(! $rino) {
 		$rino = 0;
-    **/
-	$rino = 0; $rino_enable = 0;
+	} else {
+		$rino = 2;
+	}
+   
+
 	
 	$ssl_val = intval(get_config('system','ssl_policy'));
 	$ssl_policy = '';
@@ -2009,7 +2012,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 			break;
 	}
 
-	$url = $contact['notify'] . '&dfrn_id=' . $idtosend . '&dfrn_version=' . DFRN_PROTOCOL_VERSION . (($rino) ? '&rino=1' : '');
+	$url = $contact['notify'] . '&dfrn_id=' . $idtosend . '&dfrn_version=' . DFRN_PROTOCOL_VERSION . (($rino) ? '&rino='.$rino : '');
 
 	logger('dfrn_deliver: ' . $url);
 
@@ -2040,7 +2043,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	$challenge    = hex2bin((string) $res->challenge);
 	$perm         = (($res->perm) ? $res->perm : null);
 	$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
-	$rino_allowed = ((intval($res->rino) === 1) ? 1 : 0);
+	$rino_remote_version = intval($res->rino);
 	$page         = (($owner['page-flags'] == PAGE_COMMUNITY) ? 1 : 0);
 
 	if($owner['page-flags'] == PAGE_PRVGROUP)
@@ -2101,12 +2104,45 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($page)
 		$postvars['page'] = $page;
 
-    /** disable rino
-	if($rino && $rino_allowed && (! $dissolve)) {
-		$key = substr(random_string(),0,16);
-		$data = bin2hex(aes_encrypt($postvars['data'],$key));
-		$postvars['data'] = $data;
-		logger('rino: sent key = ' . $key, LOGGER_DEBUG);
+	if($rino>0 && $rino_remote_version>0 && (! $dissolve)) {
+		logger('rino version: '. $rino_remote_version);
+
+		switch($rino_remote_version) {
+			case 1:
+				// Deprecated rino version!
+				$key = substr(random_string(),0,16);
+				$data = aes_encrypt($postvars['data'],$key);
+				break;
+			case 2:
+				// RINO 2 based on php-encryption
+				try {
+					$key = Crypto::createNewRandomKey();
+				} catch (CryptoTestFailed $ex) {
+					logger('Cannot safely create a key');
+					return -1;
+				} catch (CannotPerformOperation $ex) {
+					logger('Cannot safely create a key');
+					return -1; 
+				}
+				try {
+					$data = Crypto::encrypt($postvars['data'], $key);
+				} catch (CryptoTestFailed $ex) {
+					logger('Cannot safely perform encryption');
+					return -1; 
+				} catch (CannotPerformOperation $ex) {
+					logger('Cannot safely perform encryption');
+					return -1; 
+				}
+				break;
+			default:
+				logger("rino: invalid requested verision '$rino_remote_version'");
+				return -1;
+		}
+		
+		$postvars['rino'] = $rino_remote_version;
+		$postvars['data'] = bin2hex($data);
+		
+		#logger('rino: sent key = ' . $key, LOGGER_DEBUG);
 
 
 		if($dfrn_version >= 2.1) {
@@ -2133,7 +2169,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 		$postvars['key'] = bin2hex($postvars['key']);
 	}
-	**/
+	
 
 	logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
 
