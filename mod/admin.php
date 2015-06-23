@@ -792,7 +792,7 @@ function admin_page_users_post(&$a){
 	$nu_nickname = ( x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
 	$nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
-	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+	check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/users', 'admin_users');
 
 	if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');
@@ -946,11 +946,8 @@ function admin_page_users(&$a){
 				intval($a->pager['itemspage'])
 				);
 
-	function _setup_users($e){
-		$a = get_app();
-
-		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
-
+	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$_setup_users = function ($e) use ($adminlist){
 		$accounts = Array(
 			t('Normal Account'),
 			t('Soapbox Account'),
@@ -963,10 +960,11 @@ function admin_page_users(&$a){
 		$e['lastitem_date'] = relative_date($e['lastitem_date']);
 		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
+		$e['is_deletable'] = (intval($e['uid']) != local_user());
 		$e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
 		return $e;
-	}
-	$users = array_map("_setup_users", $users);
+	};
+	$users = array_map($_setup_users, $users);
 
 
 	// Get rid of dashes in key names, Smarty3 can't handle them
