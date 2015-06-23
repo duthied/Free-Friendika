@@ -61,12 +61,6 @@ $a->config['system']['directory_search_url'] = 'http://dir.friendica.com/directo
 
 $a->config['system']['huburl'] = '[internal]';
 
-// Server-to-server private message encryption (RINO) is allowed by default. 
-// Encryption will only be provided if this setting is true and the
-// PHP mcrypt extension is installed on both systems 
-
-$a->config['system']['rino_encrypt'] = true;
-
 // allowed themes (change this from admin panel after installation)
 
 $a->config['system']['allowed_themes'] = 'dispy,quattro,vier,darkzero,duepuntozero,greenzero,purplezero,slackr,diabook';
