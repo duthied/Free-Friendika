@@ -1987,12 +1987,8 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
     
 	$rino = get_config('system','rino_encrypt');
-	
-	if(! $rino) {
-		$rino = 0;
-	} else {
-		$rino = 2;
-	}
+	$rino = intval($rino);
+
    
 
 	
@@ -2103,6 +2099,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 	if($page)
 		$postvars['page'] = $page;
+
 
 	if($rino>0 && $rino_remote_version>0 && (! $dissolve)) {
 		logger('rino version: '. $rino_remote_version);

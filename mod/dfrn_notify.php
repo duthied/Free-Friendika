@@ -134,6 +134,14 @@ function dfrn_notify_post(&$a) {
 
 	
 	if(strlen($key)) {
+		
+		// if local rino is lower than remote rino, abort: should not happen!
+		// but only for $remote_rino > 1, because old code did't send rino version
+		if ($rino_remote_version > 1 && $rino < $rino_remote) {
+			logger("rino version '$rino_remote' is lower than supported '$rino'");
+			xml_status(0,"rino version '$rino_remote' is lower than supported '$rino'");
+		}
+		
 		$rawkey = hex2bin(trim($key));
 		logger('rino: md5 raw key: ' . md5($rawkey));
 		$final_key = '';
@@ -208,6 +216,7 @@ function dfrn_notify_content(&$a) {
 
 		$dfrn_id = notags(trim($_GET['dfrn_id']));
 		$dfrn_version = (float) $_GET['dfrn_version'];
+		$rino_remote = ((x($_GET,'rino')) ? intval($_GET['rino']) : 0);
 		$type = "";
 		$last_update = "";
 
@@ -288,12 +297,11 @@ function dfrn_notify_content(&$a) {
 
 		
 		$rino = get_config('system','rino_encrypt');
-
-		if(! $rino){
-			$rino = 0;
-		} else {
-			$rino = 2;
-		}
+		$rino = intval($rino);
+		
+		// if requested rino is lower than enabled local rino, lower local rino version
+		// if requested rino is higher than enabled local rino, reply with local rino
+		if ($rino_remote < $rino) $rino = $rino_remote;
 		
 		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
