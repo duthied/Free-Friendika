@@ -2236,9 +2236,14 @@
 			unset($status["user"]["uid"]);
 			unset($status["user"]["self"]);
 
-			// 'geo' => array('type' => 'Point',
-			//                   'coordinates' => array((float) $notice->lat,
-			//                                          (float) $notice->lon));
+			if ($item["coord"] != "") {
+				$coords = explode(' ',$item["coord"]);
+				if (count($coords) == 2) {
+					$status["geo"] = array('type' => 'Point',
+							'coordinates' => array((float) $coords[0],
+										(float) $coords[1]));
+				}
+			}
 
 			$ret[] = $status;
 		};
