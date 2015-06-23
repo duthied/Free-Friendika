@@ -130,7 +130,7 @@ function dfrn_notify_post(&$a) {
 	if($importer['page-flags'] == PAGE_SOAPBOX)
 		xml_status(0);
 
-
+	/** disable rino
 	if(strlen($key)) {
 		$rawkey = hex2bin(trim($key));
 		logger('rino: md5 raw key: ' . md5($rawkey));
@@ -157,7 +157,7 @@ function dfrn_notify_post(&$a) {
 		$data = aes_decrypt(hex2bin($data),$final_key);
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
-
+	**/
 
 	$ret = local_delivery($importer,$data);
 	xml_status($ret);
@@ -253,13 +253,17 @@ function dfrn_notify_content(&$a) {
 		$challenge    = bin2hex($challenge);
 		$encrypted_id = bin2hex($encrypted_id);
 
+		/**
+	     * disable rino.
 		$rino = ((function_exists('mcrypt_encrypt')) ? 1 : 0);
 
 		$rino_enable = get_config('system','rino_encrypt');
 
 		if(! $rino_enable)
 			$rino = 0;
-
+		**/
+		$rino = 0; $rino_enable = 0;
+		
 		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
 		}

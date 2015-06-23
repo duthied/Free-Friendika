@@ -185,7 +185,7 @@ function salmon_key($pubkey) {
 }
 
 
-
+/** disable rino 
 if(! function_exists('aes_decrypt')) {
 function aes_decrypt($val,$ky)
 {
@@ -210,7 +210,7 @@ function aes_encrypt($val,$ky)
     $val=str_pad($val, (16*(floor(strlen($val) / 16)+(strlen($val) % 16==0?2:1))), chr(16-(strlen($val) % 16)));
     return mcrypt_encrypt($enc, $key, $val, $mode, mcrypt_create_iv( mcrypt_get_iv_size($enc, $mode), MCRYPT_DEV_URANDOM));
 }} 
-
+**/
 
 function pkcs5_pad ($text, $blocksize)
 {

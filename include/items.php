@@ -1982,13 +1982,17 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($contact['duplex'] && $contact['issued-id'])
 		$idtosend = '1:' . $orig_id;
 
+    /**
+	 * disable rino.
 	$rino = ((function_exists('mcrypt_encrypt')) ? 1 : 0);
 
 	$rino_enable = get_config('system','rino_encrypt');
 
 	if(! $rino_enable)
 		$rino = 0;
-
+    **/
+	$rino = 0; $rino_enable = 0;
+	
 	$ssl_val = intval(get_config('system','ssl_policy'));
 	$ssl_policy = '';
 
@@ -2097,6 +2101,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($page)
 		$postvars['page'] = $page;
 
+    /** disable rino
 	if($rino && $rino_allowed && (! $dissolve)) {
 		$key = substr(random_string(),0,16);
 		$data = bin2hex(aes_encrypt($postvars['data'],$key));
@@ -2128,6 +2133,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 		$postvars['key'] = bin2hex($postvars['key']);
 	}
+	**/
 
 	logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
 
