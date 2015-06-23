@@ -226,40 +226,6 @@ function pkcs5_unpad($text)
     return substr($text, 0, -1 * $pad);
 } 
 
-function AES256CBC_encrypt($data,$key,$iv) {
-	return mcrypt_encrypt(
-		MCRYPT_RIJNDAEL_128, 
-		str_pad($key,32,"\0"), 
-		pkcs5_pad($data,16), 
-		MCRYPT_MODE_CBC, 
-		str_pad($iv,16,"\0"));
-}
-
-function AES256CBC_decrypt($data,$key,$iv) {
-	return pkcs5_unpad(mcrypt_decrypt(
-		MCRYPT_RIJNDAEL_128, 
-		str_pad($key,32,"\0"), 
-		$data, 
-		MCRYPT_MODE_CBC, 
-		str_pad($iv,16,"\0")));
-}
-
-function aes_encapsulate($data,$pubkey) {
-	$key = random_string(32,RANDOM_STRING_TEXT);
-	$iv  = random_string(16,RANDOM_STRING_TEXT);
-	$result['data'] = base64url_encode(AES256CBC_encrypt($data,$key,$iv),true);
-	openssl_public_encrypt($key,$k,$pubkey);
-	$result['key'] = base64url_encode($k,true);
-	openssl_public_encrypt($iv,$i,$pubkey);
-	$result['iv'] = base64url_encode($i,true);
-	return $result;
-}
-
-function aes_unencapsulate($data,$prvkey) {
-	openssl_private_decrypt(base64url_decode($data['key']),$k,$prvkey);
-	openssl_private_decrypt(base64url_decode($data['iv']),$i,$prvkey);
-	return AES256CBC_decrypt(base64url_decode($data['data']),$k,$i);
-}
 
 function new_keypair($bits) {
 
