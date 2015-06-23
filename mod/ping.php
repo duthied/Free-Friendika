@@ -167,6 +167,9 @@ function ping_init(&$a) {
 			require_once("mod/proxy.php");
 			$photo = proxy_url($photo);
 
+			$message = html_entity_decode($message, ENT_COMPAT | ENT_HTML401, "UTF-8");
+			$name = html_entity_decode($name, ENT_COMPAT | ENT_HTML401, "UTF-8");
+
 			// Are the nofications calles from the regular process or via the friendica app?
 			$regularnotifications = (intval($_GET['uid']) AND intval($_GET['_']));
 
@@ -175,10 +178,9 @@ function ping_init(&$a) {
 			if ($a->is_friendica_app() OR !$regularnotifications)
 				$message = str_replace("{0}", $name, $message);
 
-
 			$data = array('href' => &$href, 'name' => &$name, 'url'=>&$url, 'photo'=>&$photo, 'date'=>&$date, 'seen'=>&$seen, 'messsage'=>&$message);
 			call_hooks('ping_xmlize', $data);
-			$notsxml = '<note href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" >%s</note>';
+			$notsxml = '<note href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" >%s</note>'."\n";
 			return sprintf ( $notsxml,
 				xmlify($href), xmlify($name), xmlify($url), xmlify($photo), xmlify($date), xmlify($seen), xmlify($message)
 			);
