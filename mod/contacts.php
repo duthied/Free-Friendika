@@ -404,7 +404,9 @@ function contacts_content(&$a) {
 				}
 
 				$a->page['aside'] = '';
-				return replace_macros(get_markup_template('confirm.tpl'), array(
+				
+				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
+					'$contact' =>  _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
 					'$message' => t('Do you really want to delete this contact?'),
 					'$extra_inputs' => $inputs,
@@ -732,54 +734,9 @@ function contacts_content(&$a) {
 	$contacts = array();
 
 	if(count($r)) {
-
 		foreach($r as $rr) {
-
-			switch($rr['rel']) {
-				case CONTACT_IS_FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
-					$alt_text = t('Mutual Friendship');
-					break;
-				case  CONTACT_IS_FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
-					$alt_text = t('is a fan of yours');
-					break;
-				case CONTACT_IS_SHARING;
-					$dir_icon = 'images/rarrow.gif';
-					$alt_text = t('you are a fan of');
-					break;
-				default:
-					break;
-			}
-			if(($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
-				$url = "redir/{$rr['id']}";
-				$sparkle = ' class="sparkle" ';
-			}
-			else {
-				$url = $rr['url'];
-				$sparkle = '';
-			}
-
-
-			$contacts[] = array(
-				'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
-				'edit_hover' => t('Edit contact'),
-				'photo_menu' => contact_photo_menu($rr),
-				'id' => $rr['id'],
-				'alt_text' => $alt_text,
-				'dir_icon' => $dir_icon,
-				'thumb' => proxy_url($rr['thumb']),
-				'name' => $rr['name'],
-				'username' => $rr['name'],
-				'sparkle' => $sparkle,
-				'itemurl' => $rr['url'],
-				'url' => $url,
-				'network' => network_to_name($rr['network']),
-			);
+			$contacts[] = _contact_detail_for_template($rr);
 		}
-
-
-
 	}
 
 	$tpl = get_markup_template("contacts-template.tpl");
@@ -807,4 +764,49 @@ function contacts_content(&$a) {
 	));
 
 	return $o;
+}
+
+function _contact_detail_for_template($rr){
+	switch($rr['rel']) {
+		case CONTACT_IS_FRIEND:
+			$dir_icon = 'images/lrarrow.gif';
+			$alt_text = t('Mutual Friendship');
+			break;
+		case  CONTACT_IS_FOLLOWER;
+			$dir_icon = 'images/larrow.gif';
+			$alt_text = t('is a fan of yours');
+			break;
+		case CONTACT_IS_SHARING;
+			$dir_icon = 'images/rarrow.gif';
+			$alt_text = t('you are a fan of');
+			break;
+		default:
+			break;
+	}
+	if(($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
+		$url = "redir/{$rr['id']}";
+		$sparkle = ' class="sparkle" ';
+	}
+	else {
+		$url = $rr['url'];
+		$sparkle = '';
+	}
+	
+	
+	return array(
+		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
+		'edit_hover' => t('Edit contact'),
+		'photo_menu' => contact_photo_menu($rr),
+		'id' => $rr['id'],
+		'alt_text' => $alt_text,
+		'dir_icon' => $dir_icon,
+		'thumb' => proxy_url($rr['thumb']),
+		'name' => $rr['name'],
+		'username' => $rr['name'],
+		'sparkle' => $sparkle,
+		'itemurl' => $rr['url'],
+		'url' => $url,
+		'network' => network_to_name($rr['network']),
+	);
+	
 }
