@@ -181,33 +181,45 @@
 				nnm = $("#nav-notifications-menu");
 				nnm.html(notifications_all + notifications_mark);
 				//nnm.attr('popup','true');
-                
-                var notification_lastitem = localStorage.getItem("notification-lastitem");
-                var notification_id = 0;
+
+				var notification_lastitem = localStorage.getItem("notification-lastitem");
+				var notification_first_id = 0;
 				
-                eNotif.children("note").each(function(){
+				eNotif.children("note").each(function(){
 					e = $(this);
 					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
 					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
 					nnm.append(html);
 					
-                    notification_id = e.attr('href').match(/\d+$/)[0];
-                        
-                    if (notification_lastitem!== null && notification_id>notification_lastitem) {
-                        notification_lastitem = notification_id;
+					var notification_id = e.attr('href').match(/\d+$/)[0];
+					console.log(notification_lastitem, notification_id);
+					if (notification_lastitem!== null && notification_id!=notification_lastitem) {
+						console.log( "eh!",getNotificationPermission() );
+						if (notification_first_id===0) notification_first_id = notification_id;
 						if (getNotificationPermission()==="granted") {
 							var notification = new Notification(document.title, {
 											  body: e.text().replace('&rarr; ','').format(e.attr('name')),
-											  icon: e.attr('photo')
+											  icon: e.attr('photo'),
 											 });
-							// TODO (yet unsupported by most browsers): 
-							// Implement notification.onclick()
+							// close notification after 5 secs.
+							// see https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API#Closing_notifications
+							setTimeout(notification.close.bind(notification), 5000);
+							
+							notification.addEventListener("click", function(ev){
+								window.location = ev.target.data;
+							});
 						}
-                    }
-                    
+					}
+					if (notification_id == notification_lastitem) {
+						if (notification_first_id===0) notification_first_id = notification_id;
+						notification_lastitem = null;
+					}
+				
+					
 				});
-                if (notification_lastitem===null) notification_lastitem = notification_id;
-                localStorage.setItem("notification-lastitem", notification_lastitem)
+				if (notification_first_id!==0) notification_lastitem = notification_first_id;
+				console.log("end:", notification_lastitem, notification_first_id);
+				localStorage.setItem("notification-lastitem", notification_lastitem)
 
 				$("img[data-src]", nnm).each(function(i, el){
 					// Add src attribute for images with a data-src attribute
