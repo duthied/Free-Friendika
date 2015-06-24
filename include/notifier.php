@@ -405,21 +405,6 @@ function notifier_run(&$argv, &$argc){
 			$conversant_str = dbesc(implode(', ',$conversants));
 		}
 
-		// Test!
-		// Send a salmon notification to every person we mentioned in the post
-		$arr = explode(',',$target_item['tag']);
-		foreach($arr as $x) {
-			//logger('Checking tag '.$x, LOGGER_DEBUG);
-			$matches = null;
-			if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-				$probed_contact = probe_url($matches[1]);
-				if ($probed_contact["notify"] != "") {
-					logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-				}
-			}
-		}
-
 		$r = q("SELECT * FROM `contact` WHERE `id` IN ( $conversant_str ) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
 
 		if(count($r))
