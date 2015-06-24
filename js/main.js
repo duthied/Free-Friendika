@@ -192,9 +192,7 @@
 					nnm.append(html);
 					
 					var notification_id = e.attr('href').match(/\d+$/)[0];
-					console.log(notification_lastitem, notification_id);
 					if (notification_lastitem!== null && notification_id!=notification_lastitem) {
-						console.log( "eh!",getNotificationPermission() );
 						if (notification_first_id===0) notification_first_id = notification_id;
 						if (getNotificationPermission()==="granted") {
 							var notification = new Notification(document.title, {
@@ -218,7 +216,6 @@
 					
 				});
 				if (notification_first_id!==0) notification_lastitem = notification_first_id;
-				console.log("end:", notification_lastitem, notification_first_id);
 				localStorage.setItem("notification-lastitem", notification_lastitem)
 
 				$("img[data-src]", nnm).each(function(i, el){
@@ -787,7 +784,7 @@ function previewTheme(elm) {
 // notification permission settings in localstorage
 // set by settings page
 function getNotificationPermission() {
-	if (window.Notification === undefined) {
+	if (window["Notification"] === undefined) {
 		return null;
 	}
     if (Notification.permission === 'granted') {
