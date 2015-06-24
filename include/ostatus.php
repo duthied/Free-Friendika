@@ -656,17 +656,23 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			}
 		}
 
-		if (isset($single_conv->context->inReplyTo->id)) {
-			$parent_uri = $single_conv->context->inReplyTo->id;
+		$parent_uri = $parent["uri"];
 
+		// "context" only seems to exist on older servers
+		if (isset($single_conv->context->inReplyTo->id)) {
 			$parent_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
-						intval($uid), dbesc($parent_uri), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
-			if (!$parent_exists) {
-				logger("Parent ".$parent_uri." wasn't found here", LOGGER_DEBUG);
-				$parent_uri = $parent["uri"];
-			}
-		} else
-			$parent_uri = $parent["uri"];
+						intval($uid), dbesc($single_conv->context->inReplyTo->id), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
+			if ($parent_exists)
+				$parent_uri = $single_conv->context->inReplyTo->id;
+		}
+
+		// This is the current way
+		if (isset($single_conv->object->inReplyTo->id)) {
+			$parent_exists = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
+						intval($uid), dbesc($single_conv->object->inReplyTo->id), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
+			if ($parent_exists)
+				$parent_uri = $single_conv->object->inReplyTo->id;
+		}
 
 		$message_exists = q("SELECT `id`, `parent`, `uri` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s') LIMIT 1",
 						intval($uid), dbesc($single_conv->id),
