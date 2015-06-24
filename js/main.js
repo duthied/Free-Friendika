@@ -184,24 +184,26 @@
 
 				var notification_lastitem = localStorage.getItem("notification-lastitem");
 				var notification_first_id = 0;
-				
+				var notification_id;
 				eNotif.children("note").each(function(){
 					e = $(this);
 					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
 					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
 					nnm.append(html);
 					
-					var notification_id = e.attr('href').match(/\d+$/)[0];
+					notification_id = e.attr('href').match(/\d+$/)[0];
 					if (notification_lastitem!== null && notification_id!=notification_lastitem) {
 						if (notification_first_id===0) notification_first_id = notification_id;
 						if (getNotificationPermission()==="granted") {
+							console.log("notification", e.text().replace('&rarr; ','').format(e.attr('name')));
 							var notification = new Notification(document.title, {
 											  body: e.text().replace('&rarr; ','').format(e.attr('name')),
 											  icon: e.attr('photo'),
+											  data: e.attr('href')
 											 });
 							// close notification after 5 secs.
 							// see https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API#Closing_notifications
-							setTimeout(notification.close.bind(notification), 5000);
+							//setTimeout(notification.close.bind(notification), 5000);
 							
 							notification.addEventListener("click", function(ev){
 								window.location = ev.target.data;
@@ -788,7 +790,9 @@ function getNotificationPermission() {
 		return null;
 	}
     if (Notification.permission === 'granted') {
-        return localStorage.getItem('notification-permissions');
+        var val = localStorage.getItem('notification-permissions');
+		if (val === null) return 'denied';
+		return val;
     } else {
         return Notification.permission;
     }
