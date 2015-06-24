@@ -702,7 +702,7 @@ function admin_page_site(&$a) {
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
 		
-		'$rino' 		=> array('rino', t("RINO Encription"), intval(get_config('system','rino_encrypt')), t("Encription layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
+		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 		
 		'$form_security_token' => get_form_security_token("admin_site")
 
