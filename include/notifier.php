@@ -304,10 +304,11 @@ function notifier_run(&$argv, &$argc){
 			$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
 
+			logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
+
 			// If the thread parent is OStatus then do some magic to distribute the messages.
 			// We have not only to look at the parent, since it could be a Friendica thread.
 			if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
-				logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
 
 				$push_notify = true;
 
@@ -338,22 +339,7 @@ function notifier_run(&$argv, &$argc){
 						}
 					}
 				}
-/*
-				// Check if the recipient isn't in your contact list, try to slap it
-				// Not sure if it is working or not.
-				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
-				if (count($r)) {
 
-					$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
-					if (count($thrparent) AND (normalise_link($r[0]["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-						$probed_contact = probe_url($thrparent[0]["author-link"]);
-						if ($probed_contact["notify"] != "") {
-							logger('scrape data for slapper: '.print_r($probed_contact, true));
-							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-						}
-					}
-				}
-*/
 				if (count($url_recipients))
 					logger("url_recipients ".print_r($url_recipients,true));
 			}
@@ -417,6 +403,21 @@ function notifier_run(&$argv, &$argc){
 			$recipients = array_diff($recipients,$deny);
 
 			$conversant_str = dbesc(implode(', ',$conversants));
+		}
+
+		// Test!
+		// Send a salmon notification to every person we mentioned in the post
+		$arr = explode(',',$target_item['tag']);
+		foreach($arr as $x) {
+			//logger('Checking tag '.$x, LOGGER_DEBUG);
+			$matches = null;
+			if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
+				$probed_contact = probe_url($matches[1]);
+				if ($probed_contact["notify"] != "") {
+					logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
+					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+				}
+			}
 		}
 
 		$r = q("SELECT * FROM `contact` WHERE `id` IN ( $conversant_str ) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
