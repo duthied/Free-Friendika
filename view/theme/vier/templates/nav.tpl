@@ -97,7 +97,7 @@
 
 </nav>
 <ul id="nav-notifications-template" style="display:none;" rel="template">
-	<li><a href="{0}"><img data-src="{1}">{2} <span class="notif-when">{3}</span></a></li>
+	<li class="{4}"><a href="{0}"><img data-src="{1}">{2} <span class="notif-when">{3}</span></a></li>
 </ul>
 <!--
 <div class="icon-flag" style="position: fixed; bottom: 10px; left: 20px; z-index:9;">{{$langselector}}</div>

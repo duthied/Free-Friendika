@@ -1,7 +1,7 @@
 <?php
 require_once("include/datetime.php");
 require_once('include/bbcode.php');
-
+require_once("mod/proxy.php");
 
 function ping_init(&$a) {
 
@@ -164,7 +164,6 @@ function ping_init(&$a) {
 
 
 		function xmlize($href, $name, $url, $photo, $date, $seen, $message){
-			require_once("mod/proxy.php");
 			$photo = proxy_url($photo);
 
 			$message = html_entity_decode($message, ENT_COMPAT | ENT_HTML401, "UTF-8");
@@ -216,23 +215,23 @@ function ping_init(&$a) {
 
 			if ($intro>0){
 				foreach ($intros as $i) {
-					echo xmlize($a->get_baseurl().'/notifications/intros/'.$i['id'], $i['name'], $i['url'], $i['photo'], relative_date($i['datetime']), 'notify-unseen', "&rarr; ".t("{0} wants to be your friend"));
+					echo xmlize($a->get_baseurl().'/notifications/intros/'.$i['id'], $i['name'], $i['url'], $i['photo'], relative_date($i['datetime']), 'notify-unseen', t("{0} wants to be your friend"));
 				};
 			}
 			if ($mail>0){
 				foreach ($mails as $i) {
-					echo xmlize($a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen',"&rarr; ".t("{0} sent you a message"));
+					echo xmlize($a->get_baseurl().'/message/'.$i['id'], $i['from-name'], $i['from-url'], $i['from-photo'], relative_date($i['created']), 'notify-unseen', t("{0} sent you a message"));
 				};
 			}
 			if ($register>0){
 				foreach ($regs as $i) {
-					echo xmlize($a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen', "&rarr; ".t("{0} requested registration"));
+					echo xmlize($a->get_baseurl().'/admin/users/', $i['name'], $i['url'], $i['micro'], relative_date($i['created']), 'notify-unseen', t("{0} requested registration"));
 				};
 			}
 
 			if(count($z)) {
 				foreach($z as $zz) {
-					echo xmlize($a->get_baseurl() . '/notify/view/' . $zz['id'], $zz['name'],$zz['url'],$zz['photo'],relative_date($zz['date']), ($zz['seen'] ? 'notify-seen' : 'notify-unseen'), ($zz['seen'] ? '' : '&rarr; ') .strip_tags(bbcode($zz['msg'])));
+					echo xmlize($a->get_baseurl() . '/notify/view/' . $zz['id'], $zz['name'],$zz['url'],$zz['photo'],relative_date($zz['date']), ($zz['seen'] ? 'notify-seen' : 'notify-unseen'), strip_tags(bbcode($zz['msg'])));
 				}
 			}
 		}
@@ -322,7 +321,7 @@ function ping_get_notifications($uid) {
 	$offset = 0;
 	$seen = false;
 	$seensql = "NOT";
-	$order = "";
+	$order = "DESC";
 	$quit = false;
 
 	$a = get_app();
@@ -348,6 +347,7 @@ function ping_get_notifications($uid) {
 			$quit = true;
 		else
 			$offset += 50;
+			
 
 		foreach ($r AS $notification) {
 			if (is_null($notification["visible"]))
@@ -370,11 +370,21 @@ function ping_get_notifications($uid) {
 				$notification["msg"] = substr_replace($notification["msg"],"{0}",$pos,strlen($notification["name"]));
 
 			if ($notification["visible"] AND !$notification["spam"] AND
-				!$notification["deleted"] AND !is_array($result[$notification["parent"]]))
+				!$notification["deleted"] AND !is_array($result[$notification["parent"]])) {
 				$result[$notification["parent"]] = $notification;
+			}
 		}
 
 	} while ((count($result) < 50) AND !$quit);
 
+	// sort result by $[]['id'], inversed
+	$sort_function = function($a, $b) {
+		if ($a['id'] == $b['id']) {
+			return 0;
+		}
+		return ($a['id'] < $b['id']) ? 1 : -1;
+	};
+	usort($result, $sort_function);
+	
 	return($result);
 }
