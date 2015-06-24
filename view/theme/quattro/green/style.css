@@ -1852,7 +1852,6 @@ ul.tabs li .active {
   display: block;
   margin-left: 200px;
   color: #999999;
-  clear: left;
 }
 .field .onoff {
   float: left;
