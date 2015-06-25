@@ -1139,11 +1139,11 @@ function photos_content(&$a) {
 
 		if($a->theme['template_engine'] === 'internal') {
 			$albumselect_e = template_escape($albumselect);
-			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user, $celeb)));
+			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user, $celeb,false)));
 		}
 		else {
 			$albumselect_e = $albumselect;
-			$aclselect_e = (($visitor) ? '' : populate_acl($a->user, $celeb));
+			$aclselect_e = (($visitor) ? '' : populate_acl($a->user, $celeb,false));
 		}
 
 		$o .= replace_macros($tpl,array(
