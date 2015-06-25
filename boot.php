@@ -1852,12 +1852,6 @@ if(! function_exists('get_events')) {
 			$skip = 0;
 
 			foreach($r as &$rr) {
-				if($rr['adjust'])
-					$md = datetime_convert('UTC',$a->timezone,$rr['start'],'Y/m');
-				else
-					$md = datetime_convert('UTC','UTC',$rr['start'],'Y/m');
-				$md .= "/#link-".$rr['id'];
-
 				$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 
 				if(strlen($title) > 35)
@@ -1875,8 +1869,7 @@ if(! function_exists('get_events')) {
 				}
 
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
-
-				$rr['link'] = $md;
+				
 				$rr['title'] = $title;
 				$rr['description'] = $desciption;
 				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
