@@ -38,7 +38,7 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 
 	// default permissions - anonymous user
 
-	$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' AND `deny_cid`  = '' AND `deny_gid`  = '' ";
+	$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
 
 	$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
@@ -118,9 +118,10 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 
 	// Include answers to status.net posts in pubsub feeds
 	if($forpubsub) {
-		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent` ";
-		$visibility = sprintf("AND (`item`.`parent` = `item`.`id`) OR (`item`.`network` = '%s' AND `thread`.`network`='%s')",
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS));
+		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
+				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`";
+		$visibility = sprintf("AND (`item`.`parent` = `item`.`id`) OR (`item`.`network` = '%s' AND ((`thread`.`network`='%s') OR (`thritem`.`network` = '%s')))",
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS));
 		$date_field = "`received`";
 		$sql_order = "`item`.`received` DESC";
 	} else {
