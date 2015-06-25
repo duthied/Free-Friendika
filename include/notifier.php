@@ -234,6 +234,11 @@ function notifier_run(&$argv, &$argc){
 
 		$parent = $items[0];
 
+		$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+			dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
+
+		logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
+
 		// This is IMPORTANT!!!!
 
 		// We will only send a "notify owner to relay" or followup message if the referenced post
@@ -301,32 +306,12 @@ function notifier_run(&$argv, &$argc){
 					$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 				$push_notify = true;
 
-			$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
-				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
-
-			// If the thread parent is OStatus then do some magic to distribute the messages.
-			// We have not only to look at the parent, since it could be a Friendica thread.
+			// We notify Friendica users in the thread when it is an OStatus thread.
+			// Hopefully this transfers the messages to the other Friendica servers. (Untested)
 			if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
-				logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
 
 				$push_notify = true;
 
-				// Send a salmon notification to every person we mentioned in the post
-				$arr = explode(',',$target_item['tag']);
-				foreach($arr as $x) {
-					//logger('Checking tag '.$x, LOGGER_DEBUG);
-					$matches = null;
-					if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-						$probed_contact = probe_url($matches[1]);
-						if ($probed_contact["notify"] != "") {
-							logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-						}
-					}
-				}
-
-				// We notify Friendica users in the thread when it is an OStatus thread.
-				// Hopefully this transfers the messages to the other Friendica servers. (Untested)
 				if ($parent["network"] == NETWORK_OSTATUS) {
 					$r = q("SELECT `author-link` FROM `item` WHERE `parent` = %d AND `author-link` != '%s'",
 						intval($target_item["parent"]), dbesc($owner['url']));
@@ -338,22 +323,7 @@ function notifier_run(&$argv, &$argc){
 						}
 					}
 				}
-/*
-				// Check if the recipient isn't in your contact list, try to slap it
-				// Not sure if it is working or not.
-				$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", $parent['contact-id']);
-				if (count($r)) {
 
-					$thrparent = q("SELECT `author-link` FROM `item` WHERE `uri` = '%s'", dbesc($target_item["thr-parent"]));
-					if (count($thrparent) AND (normalise_link($r[0]["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-						$probed_contact = probe_url($thrparent[0]["author-link"]);
-						if ($probed_contact["notify"] != "") {
-							logger('scrape data for slapper: '.print_r($probed_contact, true));
-							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-						}
-					}
-				}
-*/
 				if (count($url_recipients))
 					logger("url_recipients ".print_r($url_recipients,true));
 			}
@@ -417,6 +387,25 @@ function notifier_run(&$argv, &$argc){
 			$recipients = array_diff($recipients,$deny);
 
 			$conversant_str = dbesc(implode(', ',$conversants));
+		}
+
+		// If the thread parent is OStatus then do some magic to distribute the messages.
+		// We have not only to look at the parent, since it could be a Friendica thread.
+		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
+
+			// Send a salmon notification to every person we mentioned in the post
+			$arr = explode(',',$target_item['tag']);
+			foreach($arr as $x) {
+				//logger('Checking tag '.$x, LOGGER_DEBUG);
+				$matches = null;
+				if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
+						$probed_contact = probe_url($matches[1]);
+					if ($probed_contact["notify"] != "") {
+						logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
+						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+					}
+				}
+			}
 		}
 
 		$r = q("SELECT * FROM `contact` WHERE `id` IN ( $conversant_str ) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
@@ -530,13 +519,16 @@ function notifier_run(&$argv, &$argc){
 		$recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
 		unset($photos);
 	} else {
+
+		$slap = atom_entry($target_item,'html',null,$owner,false);
+
 		if($followup) {
 			foreach($items as $item) {  // there is only one item
 				if(! $item['parent'])
 					continue;
 				if($item['id'] == $item_id) {
 					logger('notifier: followup: item: ' . print_r($item,true), LOGGER_DATA);
-					$slap  = atom_entry($item,'html',null,$owner,false);
+					//$slap  = atom_entry($item,'html',null,$owner,false);
 					$atom .= atom_entry($item,'text',null,$owner,false);
 				}
 			}
@@ -946,7 +938,8 @@ function notifier_run(&$argv, &$argc){
 
 	// send additional slaps to mentioned remote tags (@foo@example.com)
 
-	if($slap && count($url_recipients) && ($followup || $top_level) && ($public_message || $push_notify) && (! $expire)) {
+	//if($slap && count($url_recipients) && ($followup || $top_level) && ($public_message || $push_notify) && (! $expire)) {
+	if($slap && count($url_recipients) && ($public_message || $push_notify) && (!$expire)) {
 		if(! get_config('system','dfrn_only')) {
 			foreach($url_recipients as $url) {
 				if($url) {
