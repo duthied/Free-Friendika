@@ -516,7 +516,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 	// If the thread shouldn't be completed then store the item and go away
 	if ((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) {
-		$arr["app"] .= " (OStatus-NoCompletion)";
+		//$arr["app"] .= " (OStatus-NoCompletion)";
 		$item_stored = item_store($item, true);
 		return($item_stored);
 	}
@@ -585,7 +585,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 	if (!sizeof($items)) {
 		if (count($item) > 0) {
-			$arr["app"] .= " (OStatus-NoConvFetched)";
+			//$arr["app"] .= " (OStatus-NoConvFetched)";
 			$item_stored = item_store($item, true);
 
 			if ($item_stored) {
@@ -773,7 +773,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		else
 			$arr["app"] = "OStatus";
 
-		$arr["app"] .= " (Conversation)";
+		//$arr["app"] .= " (Conversation)";
 
 		$arr["object"] = json_encode($single_conv);
 		$arr["verb"] = $parent["verb"];
@@ -839,7 +839,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 				if (isset($item[$field]))
 					$arr[$field] = $item[$field];
 
-			$arr["app"] .= " (OStatus)";
+			//$arr["app"] .= " (OStatus)";
 		}
 
 		$newitem = item_store($arr);
@@ -870,7 +870,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	}
 
 	if (($item_stored < 0) AND (count($item) > 0)) {
-		$arr["app"] .= " (OStatus-NoConvFound)";
+		//$arr["app"] .= " (OStatus-NoConvFound)";
 		$item_stored = item_store($item, true);
 		if ($item_stored) {
 			logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation_url, LOGGER_DEBUG);
