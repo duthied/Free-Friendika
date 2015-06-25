@@ -186,13 +186,20 @@
 				var notification_id = 0;
 				eNotif.children("note").each(function(){
 					e = $(this);
-					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
-					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
+					var text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
+					var seenclass = (e.attr('seen')==1)?"notify-seen":"notify-unseen";
+					var html = notifications_tpl.format(e.attr('href'),
+						e.attr('photo'),                    // {0}
+						text,                               // {1}
+						e.attr('date'),                     // {2}
+						seenclass,                          // {3}
+						new Date(e.attr('timestamp')*1000)  // {4}
+					);
 					nnm.append(html);
 				});
 				$(eNotif.children("note").get().reverse()).each(function(){
 					e = $(this);
-					notification_id = parseInt(e.attr('href').match(/\d+$/)[0]);
+					notification_id = parseInt(e.attr('timestamp'));
 					if (notification_lastitem!== null && notification_id > notification_lastitem) {
 						if (getNotificationPermission()==="granted") {
 							var notification = new Notification(document.title, {
