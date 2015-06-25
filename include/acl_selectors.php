@@ -283,9 +283,14 @@ function get_acl_permissions($user = null) {
 }
 
 
-function populate_acl($user = null,$celeb = false) {
+function populate_acl($user = null,$celeb = false,$show_jotnets = true,$show_mail = false) {
 
 	$perms = get_acl_permissions($user);
+
+	$jotnets = '';
+	if($show_jotnets) {
+		call_hooks('jot_networks', $jotnets);
+	}
 
 	// We shouldn't need to prune deadguys from the block list. Either way they can't get the message.
 	// Also no point enumerating groups and checking them, that will take place on delivery.
@@ -337,6 +342,11 @@ function populate_acl($user = null,$celeb = false) {
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
+		'$emailcc' => t('CC: email addresses'),
+		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
+		'$jotnets' => $jotnets,
+		'$aclModalTitle' => t('Permissions'),
+		'$aclModalDismiss' => t('Close'),
 		'$features' => array(
 			"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
 		),
