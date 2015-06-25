@@ -1877,7 +1877,7 @@ if(! function_exists('get_events')) {
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
 
 				$rr['link'] = $md;
-				$rr['title'] =$title;
+				$rr['title'] = $title;
 				$rr['description'] = $desciption;
 				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 				$rr['startime'] = $strt;
