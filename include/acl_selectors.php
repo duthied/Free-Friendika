@@ -374,7 +374,7 @@ function populate_acl($user = null,$celeb = false,$show_jotnets = false) {
 		'$aclModalTitle' => t('Permissions'),
 		'$aclModalDismiss' => t('Close'),
 		'$features' => array(
-			"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
+		"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
 		),
 	));
 

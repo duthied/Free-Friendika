@@ -1124,6 +1124,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => ((feature_enabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
 		'$jotplugins' => $jotplugins,
+		'$notes_cid' => $notes_cid,
 		'$sourceapp' => t($a->sourcename),
 		'$cancel' => t('Cancel'),
 		'$rand_num' => random_digits(12),
