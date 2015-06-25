@@ -507,7 +507,7 @@ function events_content(&$a) {
 			'$sh_text' => t('Share this event'),
 			'$sh_checked' => $sh_checked,
 			'$preview' => t('Preview'),
-			'$acl' => (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user),false, false)),
+			'$acl' => (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user),false)),
 			'$submit' => t('Submit')
 
 		));

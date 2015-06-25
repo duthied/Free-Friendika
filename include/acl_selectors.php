@@ -305,14 +305,17 @@ function populate_acl($user = null,$celeb = false,$show_jotnets = false) {
 			}
 		}
 
-		if($mail_enabled) {
-			$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
-			$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> '
-			. t("Post to Email") . '</div>';
-		}
+		if (!$user['hidewall']) {
+			if($mail_enabled) {
+				$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
+				$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . t("Post to Email") . '</div>';
+			}
 
-		call_hooks('jot_networks', $jotnets);
-	}
+			call_hooks('jot_networks', $jotnets);
+		} else
+			$jotnets .= sprintf(t('Connectors disabled, since "%s" is enabled.'),
+					    t('Hide your profile details from unknown viewers?'));
+		}
 
 	// We shouldn't need to prune deadguys from the block list. Either way they can't get the message.
 	// Also no point enumerating groups and checking them, that will take place on delivery.
