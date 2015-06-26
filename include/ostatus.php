@@ -421,11 +421,9 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
 		$item["id"] = $item_id;
 
-		if (!isset($item["parent"]) OR ($item["parent"] == 0))
-			$item["parent"] = $item_id;
-
 		if ($mention) {
 			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
+			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
 
 			notification(array(
 				'type'         => NOTIFY_TAGSELF,
@@ -435,13 +433,13 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				'to_email'     => $u[0]["email"],
 				'uid'          => $item["uid"],
 				'item'         => $item,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item["id"])),
+				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item_id)),
 				'source_name'  => $item["author-name"],
 				'source_link'  => $item["author-link"],
 				'source_photo' => $item["author-avatar"],
 				'verb'         => ACTIVITY_TAG,
 				'otype'        => 'item',
-				'parent'       => $item["parent"]
+				'parent'       => $r[0]["parent"]
 			));
 		}
 	}
@@ -509,6 +507,8 @@ function check_conversations($override = false) {
 }
 
 function ostatus_completion($conversation_url, $uid, $item = array()) {
+
+	$a = get_app();
 
 	$item_stored = -1;
 
@@ -600,12 +600,16 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 	$items = array_reverse($items);
 
+	$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND `self`", intval($uid));
+	$importer = $r[0];
+
 	foreach ($items as $single_conv) {
 
 		// Test - remove before flight
 		//$tempfile = tempnam(get_temppath(), "conversation");
 		//file_put_contents($tempfile, json_encode($single_conv));
 
+		$mention = false;
 
 		if (isset($single_conv->object->id))
 			$single_conv->id = $single_conv->object->id;
@@ -717,6 +721,11 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 			continue;
 		}
+
+		if (is_array($single_conv->to))
+			foreach($single_conv->to AS $to)
+				if ($importer["nurl"] == normalise_link($to->id))
+					$mention = true;
 
 		$actor = $single_conv->actor->id;
 		if (isset($single_conv->actor->url))
@@ -857,6 +866,28 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 		// Add the conversation entry (but don't fetch the whole conversation)
 		ostatus_store_conversation($newitem, $conversation_url);
+
+		if ($mention) {
+			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($uid));
+			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($newitem));
+
+			notification(array(
+				'type'         => NOTIFY_TAGSELF,
+				'notify_flags' => $u[0]["notify-flags"],
+				'language'     => $u[0]["language"],
+				'to_name'      => $u[0]["username"],
+				'to_email'     => $u[0]["email"],
+				'uid'          => $uid,
+				'item'         => $arr,
+				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($newitem)),
+				'source_name'  => $arr["author-name"],
+				'source_link'  => $arr["author-link"],
+				'source_photo' => $arr["author-avatar"],
+				'verb'         => ACTIVITY_TAG,
+				'otype'        => 'item',
+				'parent'       => $r[0]["parent"]
+			));
+		}
 
 		// If the newly created item is the top item then change the parent settings of the thread
 		// This shouldn't happen anymore. This is supposed to be absolote.
