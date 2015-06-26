@@ -297,7 +297,7 @@ function notification($params) {
 	if($params['type'] == NOTIFY_CONFIRM) {
 		if ($params['verb'] == ACTIVITY_FRIEND ){ // mutual connection
 			$subject = sprintf( t('[Friendica:Notify] Connection accepted'));
-			$preamble = sprintf( t('\'%1$s\' has acepted your connection request at %2$s'), $params['source_name'], $sitename);
+			$preamble = sprintf( t('\'%1$s\' has accepted your connection request at %2$s'), $params['source_name'], $sitename);
 			$epreamble = sprintf( t('%2$s has accepted your [url=%1$s]connection request[/url].'),
 									$itemlink,
 									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
@@ -310,7 +310,7 @@ function notification($params) {
 			$itemlink =  $params['link'];
 		} else { // ACTIVITY_FOLLOW
 			$subject = sprintf( t('[Friendica:Notify] Connection accepted'));
-			$preamble = sprintf( t('\'%1$s\' has acepted your connection request at %2$s'), $params['source_name'], $sitename);
+			$preamble = sprintf( t('\'%1$s\' has accepted your connection request at %2$s'), $params['source_name'], $sitename);
 			$epreamble = sprintf( t('%2$s has accepted your [url=%1$s]connection request[/url].'),
 									$itemlink,
 									'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]');
