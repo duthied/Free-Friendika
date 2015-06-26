@@ -283,7 +283,7 @@ function get_acl_permissions($user = null) {
 }
 
 
-function populate_acl($user = null,$celeb = false,$show_jotnets = false) {
+function populate_acl($user = null, $show_jotnets = false) {
 
 	$perms = get_acl_permissions($user);
 
@@ -317,52 +317,11 @@ function populate_acl($user = null,$celeb = false,$show_jotnets = false) {
 					    t('Hide your profile details from unknown viewers?'));
 		}
 
-	// We shouldn't need to prune deadguys from the block list. Either way they can't get the message.
-	// Also no point enumerating groups and checking them, that will take place on delivery.
-
-//	$deny_cid = prune_deadguys($deny_cid);
-
-
-	/*$o = '';
-	$o .= '<div id="acl-wrapper">';
-	$o .= '<div id="acl-permit-outer-wrapper">';
-	$o .= '<div id="acl-permit-text">' . t('Visible To:') . '</div><div id="jot-public">' . t('everybody') . '</div>';
-	$o .= '<div id="acl-permit-text-end"></div>';
-	$o .= '<div id="acl-permit-wrapper">';
-	$o .= '<div id="group_allow_wrapper">';
-	$o .= '<label id="acl-allow-group-label" for="group_allow" >' . t('Groups') . '</label>';
-	$o .= group_select('group_allow','group_allow',$allow_gid);
-	$o .= '</div>';
-	$o .= '<div id="contact_allow_wrapper">';
-	$o .= '<label id="acl-allow-contact-label" for="contact_allow" >' . t('Contacts') . '</label>';
-	$o .= contact_select('contact_allow','contact_allow',$allow_cid,4,false,$celeb,true);
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-allow-end"></div>' . "\r\n";
-	$o .= '</div>';
-	$o .= '<div id="acl-deny-outer-wrapper">';
-	$o .= '<div id="acl-deny-text">' . t('Except For:') . '</div>';
-	$o .= '<div id="acl-deny-text-end"></div>';
-	$o .= '<div id="acl-deny-wrapper">';
-	$o .= '<div id="group_deny_wrapper" >';
-	$o .= '<label id="acl-deny-group-label" for="group_deny" >' . t('Groups') . '</label>';
-	$o .= group_select('group_deny','group_deny', $deny_gid);
-	$o .= '</div>';
-	$o .= '<div id="contact_deny_wrapper" >';
-	$o .= '<label id="acl-deny-contact-label" for="contact_deny" >' . t('Contacts') . '</label>';
-	$o .= contact_select('contact_deny','contact_deny', $deny_cid,4,false, $celeb,true);
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-deny-end"></div>' . "\r\n";
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-wrapper-end"></div>' . "\r\n";*/
-
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, array(
 		'$showall'=> t("Visible to everybody"),
-		'$show'		 => t("show"),
-		'$hide'		 => t("don't show"),
+		'$show'	=> t("show"),
+		'$hide'	 => t("don't show"),
 		'$allowcid' => json_encode($perms['allow_cid']),
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),

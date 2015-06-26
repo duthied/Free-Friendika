@@ -182,8 +182,6 @@ function profile_content(&$a, $update = 0) {
 		$commpage = (($a->profile['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$commvisitor = (($commpage && $remote_contact == true) ? true : false);
 
-		$celeb = ((($a->profile['page-flags'] == PAGE_SOAPBOX) || ($a->profile['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		$a->page['aside'] .= posted_date_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);	
 		$a->page['aside'] .= categories_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
 
@@ -191,18 +189,20 @@ function profile_content(&$a, $update = 0) {
 
 			$x = array(
 				'is_owner' => $is_owner,
-            	'allow_location' => ((($is_owner || $commvisitor) && $a->profile['allow_location']) ? true : false),
-	            'default_location' => (($is_owner) ? $a->user['default-location'] : ''),
-    	        'nickname' => $a->profile['nickname'],
-        	    'lockstate' => (((is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
-            	'acl' => (($is_owner) ? populate_acl($a->user, $celeb, true) : ''),
-	            'bang' => '',
-    	        'visitor' => (($is_owner || $commvisitor) ? 'block' : 'none'),
-        	    'profile_uid' => $a->profile['profile_uid'],
+				'allow_location' => ((($is_owner || $commvisitor) && $a->profile['allow_location']) ? true : false),
+				'default_location' => (($is_owner) ? $a->user['default-location'] : ''),
+				'nickname' => $a->profile['nickname'],
+				'lockstate' => (((is_array($a->user) && ((strlen($a->user['allow_cid'])) || 
+						(strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || 
+						(strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
+				'acl' => (($is_owner) ? populate_acl($a->user, true) : ''),
+				'bang' => '',
+				'visitor' => (($is_owner || $commvisitor) ? 'block' : 'none'),
+				'profile_uid' => $a->profile['profile_uid'],
 				'acl_data' => ( $is_owner ? construct_acl_data($a, $a->user) : '' ), // For non-Javascript ACL selector
-        	);
+		);
 
-        	$o .= status_editor($a,$x);
+		$o .= status_editor($a,$x);
 		}
 
 	}

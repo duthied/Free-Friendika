@@ -66,8 +66,6 @@ function editpost_content(&$a) {
 	else
 		$lockstate = 'unlock';
 
-	$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 	$jotplugins = '';
 	$jotnets = '';
 
@@ -141,7 +139,7 @@ function editpost_content(&$a) {
 		'$placeholdercategory' => (feature_enabled(local_user(),'categories') ? t('Categories (comma-separated list)') : ''),
 		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
-		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user), $celeb),
+		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
 		'$bang' => (($group) ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
 		'$preview' => t('Preview'),
