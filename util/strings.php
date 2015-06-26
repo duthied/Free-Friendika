@@ -1710,7 +1710,7 @@ $a->strings["Name:"] = "";
 $a->strings["Photo:"] = "";
 $a->strings["Please visit %s to approve or reject the suggestion."] = "";
 $a->strings["[Friendica:Notify] Connection accepted"] = "";
-$a->strings["'%1\$s' has acepted your connection request at %2\$s"] = "";
+$a->strings["'%1\$s' has accepted your connection request at %2\$s"] = "";
 $a->strings["%2\$s has accepted your [url=%1\$s]connection request[/url]."] = "";
 $a->strings["You are now mutual friends and may exchange status updates, photos, and email\n\twithout restriction."] = "";
 $a->strings["Please visit %s  if you wish to make any changes to this relationship."] = "";
