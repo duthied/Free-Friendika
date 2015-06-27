@@ -27,15 +27,16 @@ function videos_init(&$a) {
 			return;
 
 		$a->data['user'] = $r[0];
+		$a->profile_uid = $r[0]['uid'];
 
-                $profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
+		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
 
-                $tpl = get_markup_template("vcard-widget.tpl");
+		$tpl = get_markup_template("vcard-widget.tpl");
 
 		$vcard_widget = replace_macros($tpl, array(
-                        '$name' => $a->data['user']['username'],
-                        '$photo' => $profilephoto
-                ));
+			'$name' => $a->data['user']['username'],
+			'$photo' => $profilephoto
+		));
 
 
 		/*$sql_extra = permissions_sql($a->data['user']['uid']);

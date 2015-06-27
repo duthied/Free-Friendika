@@ -358,6 +358,7 @@ if(! class_exists('App')) {
 		public  $config;
 		public  $page;
 		public  $profile;
+		public  $profile_uid;
 		public  $user;
 		public  $cid;
 		public  $contact;
@@ -1446,9 +1447,32 @@ if(! function_exists('current_theme')) {
 
 		$a = get_app();
 
+		$page_theme = null;
+		
+		// Find the theme that belongs to the user whose stuff we are looking at
+
+		if($a->profile_uid && $a->profile_uid != local_user()) {
+			$r = q("select theme from user where uid = %d limit 1",
+				intval($a->profile_uid)
+			);
+			if($r)
+				$page_theme = $r[0]['theme'];
+		}
+
+		// Allow folks to over-rule user themes and always use their own on their own site.
+		// This works only if the user is on the same server
+
+		if($page_theme && local_user() && local_user() != $a->profile_url) {
+			if(get_pconfig(local_user(),'system','always_my_theme'))
+				$page_theme = null;
+		}
+
 //		$mobile_detect = new Mobile_Detect();
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 		$is_mobile = $a->is_mobile || $a->is_tablet;
+
+		$standard_system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+		$standard_theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $standard_system_theme);
 
 		if($is_mobile) {
 			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
@@ -1466,9 +1490,12 @@ if(! function_exists('current_theme')) {
 				}
 			}
 		}
-		if(!$is_mobile || ($system_theme === '' && $theme_name === '')) {
-			$system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
-			$theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $system_theme);
+		else {
+			$system_theme = $standard_system_theme;
+			$theme_name = $standard_theme_name;
+
+			if($page_theme)
+				$theme_name = $page_theme;
 		}
 
 		if($theme_name &&
@@ -1496,9 +1523,13 @@ if(! function_exists('current_theme')) {
 if(! function_exists('current_theme_url')) {
 	function current_theme_url() {
 		global $a;
+
 		$t = current_theme();
+
+		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 		if (file_exists('view/theme/' . $t . '/style.php'))
-			return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss');
+			return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
+		
 		return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
 	}
 }
