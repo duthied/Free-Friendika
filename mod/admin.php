@@ -379,7 +379,9 @@ function admin_page_site_post(&$a){
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
-
+	$rino			=	((x($_POST,'rino'))				? intval($_POST['rino'])				: 0);
+	
+	
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -432,6 +434,7 @@ function admin_page_site_post(&$a){
 	set_config('system','suppress_tags',$suppress_tags);
 	set_config('system','shortcut_icon',$shortcut_icon);
 	set_config('system','touch_icon',$touch_icon);
+	
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
 		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
@@ -515,6 +518,9 @@ function admin_page_site_post(&$a){
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
 
+	set_config('system','rino_encrypt', $rino);
+	
+	
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
 	return; // NOTREACHED
@@ -695,7 +701,10 @@ function admin_page_site(&$a) {
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-	'$form_security_token' => get_form_security_token("admin_site")
+		
+		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
+		
+		'$form_security_token' => get_form_security_token("admin_site")
 
 	));
 

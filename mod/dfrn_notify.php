@@ -4,6 +4,7 @@ require_once('library/simplepie/simplepie.inc');
 require_once('include/items.php');
 require_once('include/event.php');
 
+require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
 function dfrn_notify_post(&$a) {
     logger(__function__, LOGGER_TRACE);
@@ -12,6 +13,7 @@ function dfrn_notify_post(&$a) {
 	$challenge    = ((x($_POST,'challenge'))    ? notags(trim($_POST['challenge'])) : '');
 	$data         = ((x($_POST,'data'))         ? $_POST['data']                    : '');
 	$key          = ((x($_POST,'key'))          ? $_POST['key']                     : '');
+	$rino_remote  = ((x($_POST,'rino'))         ? intval($_POST['rino'])            :  0);
 	$dissolve     = ((x($_POST,'dissolve'))     ? intval($_POST['dissolve'])        :  0);
 	$perm         = ((x($_POST,'perm'))         ? notags(trim($_POST['perm']))      : 'r');
 	$ssl_policy   = ((x($_POST,'ssl_policy'))   ? notags(trim($_POST['ssl_policy'])): 'none');
@@ -130,8 +132,16 @@ function dfrn_notify_post(&$a) {
 	if($importer['page-flags'] == PAGE_SOAPBOX)
 		xml_status(0);
 
-
+	
 	if(strlen($key)) {
+		
+		// if local rino is lower than remote rino, abort: should not happen!
+		// but only for $remote_rino > 1, because old code did't send rino version
+		if ($rino_remote_version > 1 && $rino < $rino_remote) {
+			logger("rino version '$rino_remote' is lower than supported '$rino'");
+			xml_status(0,"rino version '$rino_remote' is lower than supported '$rino'");
+		}
+		
 		$rawkey = hex2bin(trim($key));
 		logger('rino: md5 raw key: ' . md5($rawkey));
 		$final_key = '';
@@ -153,11 +163,42 @@ function dfrn_notify_post(&$a) {
 			}
 		}
 
-		logger('rino: received key : ' . $final_key);
-		$data = aes_decrypt(hex2bin($data),$final_key);
+		#logger('rino: received key : ' . $final_key);
+		
+		switch($rino_remote) {
+			case 0:
+			case 1:
+				// we got a key. old code send only the key, without RINO version.
+				// we assume RINO 1 if key and no RINO version
+				$data = aes_decrypt(hex2bin($data),$final_key);
+				break;
+			case 2:
+				try {
+					$data = Crypto::decrypt(hex2bin($data),$final_key);
+				} catch (InvalidCiphertext $ex) { // VERY IMPORTANT
+					// Either:
+					//   1. The ciphertext was modified by the attacker,
+					//   2. The key is wrong, or
+					//   3. $ciphertext is not a valid ciphertext or was corrupted.
+					// Assume the worst.
+					logger('The ciphertext has been tampered with!');
+					xml_status(0,'The ciphertext has been tampered with!');
+				} catch (Ex\CryptoTestFailed $ex) {
+					logger('Cannot safely perform dencryption');
+					xml_status(0,'CryptoTestFailed');
+				} catch (Ex\CannotPerformOperation $ex) {
+					logger('Cannot safely perform decryption');
+					xml_status(0,'Cannot safely perform decryption');
+				}
+				break;
+			default:
+				logger("rino: invalid sent verision '$rino_remote'");
+				xml_status(0);
+		}
+		
+		
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
-
 
 	$ret = local_delivery($importer,$data);
 	xml_status($ret);
@@ -175,6 +216,7 @@ function dfrn_notify_content(&$a) {
 
 		$dfrn_id = notags(trim($_GET['dfrn_id']));
 		$dfrn_version = (float) $_GET['dfrn_version'];
+		$rino_remote = ((x($_GET,'rino')) ? intval($_GET['rino']) : 0);
 		$type = "";
 		$last_update = "";
 
@@ -253,13 +295,14 @@ function dfrn_notify_content(&$a) {
 		$challenge    = bin2hex($challenge);
 		$encrypted_id = bin2hex($encrypted_id);
 
-		$rino = ((function_exists('mcrypt_encrypt')) ? 1 : 0);
-
-		$rino_enable = get_config('system','rino_encrypt');
-
-		if(! $rino_enable)
-			$rino = 0;
-
+		
+		$rino = get_config('system','rino_encrypt');
+		$rino = intval($rino);
+		
+		// if requested rino is lower than enabled local rino, lower local rino version
+		// if requested rino is higher than enabled local rino, reply with local rino
+		if ($rino_remote < $rino) $rino = $rino_remote;
+		
 		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
 		}

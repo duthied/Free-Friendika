@@ -99,6 +99,7 @@
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$advanced}}</h3>
+    {{include file="field_select.tpl" field=$rino}}
 	{{include file="field_checkbox.tpl" field=$no_utf}}
 	{{include file="field_checkbox.tpl" field=$verifyssl}}
 	{{include file="field_input.tpl" field=$proxy}}
