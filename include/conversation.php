@@ -1024,7 +1024,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$whereareu' => t('Where are you right now?')
 	));
 
-
+	$jotplugins = '';
 	call_hooks('jot_tool', $jotplugins);
 
 	// Private/public post links for the non-JS ACL form
