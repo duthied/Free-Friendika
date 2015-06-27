@@ -15,6 +15,14 @@
 	<a href="#" class='acl-button-hide'>{{$hide}}</a>
 </div>
 
+{{if $networks}}
+<hr style="clear:both"/>
+<div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle|escape:'html'}}" />
+<div id="profile-jot-email-end"></div>
+{{if $jotnets}}
+{{$jotnets}}
+{{/if}}{{/if}}
+
 <script>
 	window.allowCID = {{$allowcid}};
 	window.allowGID = {{$allowgid}};

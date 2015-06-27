@@ -172,8 +172,6 @@ function group_content(&$a) {
 			'$form_security_token' => get_form_security_token("group_drop"),
 		));
 
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		
 		$context = $context + array(
 			'$title' => t('Group Editor'),

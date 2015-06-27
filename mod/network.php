@@ -466,8 +466,6 @@ function network_content(&$a, $update = 0) {
 
 		nav_set_selected('network');
 
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		$content = "";
 
 		if ($cid) {
@@ -485,7 +483,7 @@ function network_content(&$a, $update = 0) {
 					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || 
 					(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
 			'default_perms'	=> get_acl_permissions($a->user),
-			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), $celeb),
+			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), true),
 			'bang'	=> (($group || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
