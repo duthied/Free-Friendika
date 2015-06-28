@@ -1451,7 +1451,7 @@ if(! function_exists('current_theme')) {
 		
 		// Find the theme that belongs to the user whose stuff we are looking at
 
-		if($a->profile_uid && $a->profile_uid != local_user()) {
+		if($a->profile_uid && ($a->profile_uid != local_user())) {
 			$r = q("select theme from user where uid = %d limit 1",
 				intval($a->profile_uid)
 			);
@@ -1462,7 +1462,7 @@ if(! function_exists('current_theme')) {
 		// Allow folks to over-rule user themes and always use their own on their own site.
 		// This works only if the user is on the same server
 
-		if($page_theme && local_user() && local_user() != $a->profile_url) {
+		if($page_theme && local_user() && (local_user() != $a->profile_uid)) {
 			if(get_pconfig(local_user(),'system','always_my_theme'))
 				$page_theme = null;
 		}
