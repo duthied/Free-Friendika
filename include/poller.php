@@ -103,7 +103,11 @@ function poller_run(&$argv, &$argc){
 		$abandon_days = 0;
 
 	// Check OStatus conversations
-	check_conversations();
+	// Check only conversations with mentions (for a longer time)
+	check_conversations(true);
+
+	// Check every conversation
+	check_conversations(false);
 
 	// To-Do: Regenerate usage statistics
 	// q("ANALYZE TABLE `item`");
