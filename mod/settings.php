@@ -1097,8 +1097,6 @@ function settings_content(&$a) {
 
 	$stpl = get_markup_template('settings.tpl');
 
-	$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 	$expire_arr = array(
 		'days' => array('expire',  t("Automatically expire posts after this many days:"), $expire, t('If empty, posts will not expire. Expired posts will be deleted')),
 		'advanced' => t('Advanced expiration settings'),
@@ -1163,7 +1161,7 @@ function settings_content(&$a) {
 		'$permissions' => t('Default Post Permissions'),
 		'$permdesc' => t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => populate_acl($a->user,$celeb),
+		'$aclselect' => populate_acl($a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', t('Allow friends to tag your posts:'), !$blocktags, ''),

@@ -1089,8 +1089,6 @@ function photos_content(&$a) {
 			}
 		}
 
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		$uploader = '';
 
 		$ret = array('post_url' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'],
@@ -1139,11 +1137,11 @@ function photos_content(&$a) {
 
 		if($a->theme['template_engine'] === 'internal') {
 			$albumselect_e = template_escape($albumselect);
-			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user, $celeb)));
+			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user)));
 		}
 		else {
 			$albumselect_e = $albumselect;
-			$aclselect_e = (($visitor) ? '' : populate_acl($a->user, $celeb));
+			$aclselect_e = (($visitor) ? '' : populate_acl($a->user));
 		}
 
 		$o .= replace_macros($tpl,array(

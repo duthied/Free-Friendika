@@ -1024,42 +1024,8 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$whereareu' => t('Where are you right now?')
 	));
 
-
 	$jotplugins = '';
-	$jotnets = '';
-
-	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-
-	$mail_enabled = false;
-	$pubmail_enabled = false;
-
-	if(($x['is_owner']) && (! $mail_disabled)) {
-		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
-			intval(local_user())
-		);
-		if(count($r)) {
-			$mail_enabled = true;
-			if(intval($r[0]['pubmail']))
-				$pubmail_enabled = true;
-		}
-	}
-
-	if (!$a->user['hidewall']) {
-		if($mail_enabled) {
-			$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
-			$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . t("Post to Email") . '</div>';
-		}
-
-		call_hooks('jot_networks', $jotnets);
-	} else
-		$jotnets .= sprintf(t('Connectors disabled, since "%s" is enabled.'),
-				    t('Hide your profile details from unknown viewers?'));
-
 	call_hooks('jot_tool', $jotplugins);
-
-	if($notes_cid)
-		$jotnets .= '<input type="hidden" name="contact_allow[]" value="' . $notes_cid .'" />';
-
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
@@ -1115,15 +1081,14 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
 		'$pvisit' => (($notes_cid) ? 'none' : $x['visitor']),
-		'$emailcc' => t('CC: email addresses'),
 		'$public' => t('Public post'),
 		'$jotnets' => $jotnets,
-		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $x['lockstate'],
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => ((feature_enabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
 		'$jotplugins' => $jotplugins,
+		'$notes_cid' => $notes_cid,
 		'$sourceapp' => t($a->sourcename),
 		'$cancel' => t('Cancel'),
 		'$rand_num' => random_digits(12),

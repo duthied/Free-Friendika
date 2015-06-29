@@ -18,6 +18,9 @@
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
 		<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 		<div id="jot-title-wrap"><input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none"></div>
+		{{if $notes_cid}}
+		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
+		{{/if}}
 		{{if $placeholdercategory}}
 		<div id="jot-category-wrap"><input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" /></div>
 		{{/if}}
@@ -74,10 +77,6 @@
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper">
 			{{$acl}}
-			<hr/>
-			<div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle}}" />
-			{{$jotnets}}
-			<div id="profile-jot-networks-end"></div>
 		</div>
 	</div>
 

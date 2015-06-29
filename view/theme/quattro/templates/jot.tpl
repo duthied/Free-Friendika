@@ -17,6 +17,9 @@
 		<input type="hidden" name="post_id" value="{{$post_id}}" />
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
 		<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
+		{{if $notes_cid}}
+		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
+		{{/if}}
 
 		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" >{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
 
@@ -44,10 +47,6 @@
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
 			{{$acl}}
-			<hr style="clear:both"/>
-			<div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle}}" />
-			<div id="profile-jot-email-end"></div>
-			{{$jotnets}}
 		</div>
 	</div>
 

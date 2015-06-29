@@ -345,15 +345,13 @@ function display_content(&$a, $update = 0) {
 	}
 
 	if ($is_owner) {
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		$x = array(
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => ( (is_array($a->user)) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
-			'acl' => populate_acl($a->user, $celeb),
+			'acl' => populate_acl($a->user),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
