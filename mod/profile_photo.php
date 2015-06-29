@@ -141,7 +141,7 @@ function profile_photo_post(&$a) {
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
-		notice( sprintf(t('Image exceeds size limit of %d'), $maximagesize) . EOL);
+		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
 	}

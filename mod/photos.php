@@ -785,7 +785,7 @@ function photos_post(&$a) {
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
-		notice( t('Image exceeds size limit of ') . $maximagesize . EOL);
+		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		$foo = 0;
 		call_hooks('photo_post_end',$foo);

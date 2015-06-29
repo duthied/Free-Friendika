@@ -119,7 +119,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
-		echo  sprintf( t('Image exceeds size limit of %d'), $maximagesize) . EOL;
+		echo  sprintf( t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL;
 		@unlink($src);
 		killme();
 	}
