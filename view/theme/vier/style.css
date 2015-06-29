@@ -746,8 +746,10 @@ nav #nav-user-linkmenu {
   top: 56px;
 }
 
+.notify-unseen { background-color: #FFF; }
+
 .notify-seen {
-        background: none repeat scroll 0 0 #DDDDDD;
+        background: none repeat scroll 0 0 #EEE;
         }
 
 ul.menu-popup {
