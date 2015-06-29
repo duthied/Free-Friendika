@@ -1013,3 +1013,4 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 
 	return($image);
 }
+
