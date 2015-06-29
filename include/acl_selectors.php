@@ -399,7 +399,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$search = $_REQUEST['query'];
 	}
 
-	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
+//	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
 
 	if ($search!=""){
 		$sql_extra = "AND `name` LIKE '%%".dbesc($search)."%%'";
