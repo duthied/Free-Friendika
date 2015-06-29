@@ -4403,8 +4403,9 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
 
 	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['parent']) . '" />' . "\r\n";
+		$o .= '<thr:in-reply-to ref="'.xmlify($parent_item).'" type="text/html" href="'.xmlify($a->get_baseurl().'/display/'.$parent[0]['guid']).'" />'."\r\n";
 	}
 
 	$htmlbody = $body;
@@ -4412,7 +4413,6 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if ($item['title'] != "")
 		$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
 
-	//$htmlbody = bbcode(bb_remove_share_information($htmlbody), false, false, 7);
 	$htmlbody = bbcode($htmlbody, false, false, 7);
 
 	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
@@ -4421,8 +4421,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 	$o .= '<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>' . "\r\n";
 	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>' . "\r\n";
-	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id']) . '" />' . "\r\n";
-
+	$o .= '<link rel="alternate" type="text/html" href="'.xmlify($a->get_baseurl().'/display/'.$item['guid']).'" />'."\r\n";
 
 	$o .= '<status_net notice_id="'.$item['id'].'"></status_net>'."\r\n";
 
