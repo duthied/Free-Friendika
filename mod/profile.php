@@ -166,7 +166,6 @@ function profile_content(&$a, $update = 0) {
 
 
 		if($tab === 'profile') {
-			require_once('include/profile_advanced.php');
 			$o .= advanced_profile($a);
 			call_hooks('profile_advanced',$o);
 			return $o;
