@@ -1,12 +1,14 @@
 <?php
+	$uid = get_theme_uid();
+
 	$color=false;
 	$quattro_align=false;
 	$site_color = get_config("quattro","color");
 	$site_quattro_align = get_config("quattro", "align" );
 	
-	if (local_user()) {
-		$color = get_pconfig(local_user(), "quattro","color");
-		$quattro_align = get_pconfig(local_user(), 'quattro', 'align' );
+	if ($uid) {
+		$color = get_pconfig( $uid, "quattro","color");
+		$quattro_align = get_pconfig( $uid, 'quattro', 'align' );
 	}
 	
 	if ($color===false) $color=$site_color;
@@ -39,9 +41,9 @@
     if ($site_textarea_font_size===false) $site_textarea_font_size="20";
     if ($site_post_font_size===false) $site_post_font_size="12";
     
-   	if (local_user()) {
-        $textarea_font_size = get_pconfig(local_user(), "quattro","tfs");
-        $post_font_size = get_pconfig(local_user(), "quattro","pfs");    
+   	if ($uid) {
+        $textarea_font_size = get_pconfig( $uid, "quattro","tfs");
+        $post_font_size = get_pconfig( $uid, "quattro","pfs");    
 	} 
     
     if ($textarea_font_size===false) $textarea_font_size = $site_textarea_font_size;
