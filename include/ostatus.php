@@ -200,6 +200,13 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		$item["object"] = $xml;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
+		// To-Do:
+		// Delete a message
+		if ($item["verb"] == "qvitter-delete-notice") {
+			// ignore "Delete" messages (by now)
+			continue;
+		}
+
 		if ($item["verb"] == ACTIVITY_JOIN) {
 			// ignore "Join" messages
 			continue;
