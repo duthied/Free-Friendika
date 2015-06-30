@@ -90,14 +90,15 @@ if(! function_exists('profile_load')) {
 		}
 
 		$a->profile = $r[0];
+		$a->profile_uid = $r[0]['profile_uid'];
 
 		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = NETWORK_DFRN;
 
 		$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
 
-		if (!$profiledata)
-			$_SESSION['theme'] = $a->profile['theme'];
+//		if (!$profiledata)
+//			$_SESSION['theme'] = $a->profile['theme'];
 
 		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
@@ -725,4 +726,20 @@ function zrl($s,$force = false) {
 	if($mine and ! link_compare($mine,$s))
 		return $s . $achar . 'zrl=' . urlencode($mine);
 	return $s;
+}
+
+// Used from within PCSS themes to set theme parameters. If there's a
+// puid request variable, that is the "page owner" and normally their theme
+// settings take precedence; unless a local user sets the "always_my_theme" 
+// system pconfig, which means they don't want to see anybody else's theme 
+// settings except their own while on this site.
+
+function get_theme_uid() {
+	$uid = (($_REQUEST['puid']) ? intval($_REQUEST['puid']) : 0);
+	if(local_user()) {
+		if((get_pconfig(local_user(),'system','always_my_theme')) || (! $uid))
+			return local_user();
+	}
+
+	return $uid;
 }

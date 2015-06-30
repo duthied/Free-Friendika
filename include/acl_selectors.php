@@ -190,8 +190,14 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$tabindex = ($tabindex > 0 ? "tabindex=\"$tabindex\"" : "");
 
+	if ($privmail AND $preselected) {
+		$sql_extra .= " AND `id` IN (".implode(",", $preselected).")";
+		$hidepreselected = ' style="display: none;"';
+	} else
+		$hidepreselected = "";
+
 	if($privmail)
-		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\" $tabindex >\r\n";
+		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\" $tabindex $hidepreselected>\r\n";
 	else
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"$size\" $tabindex >\r\n";
 
@@ -209,6 +215,8 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
+	$receiverlist = array();
+
 	if(count($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
@@ -221,12 +229,17 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 			else
 				$trimmed = mb_substr($rr['name'],0,20);
 
+			$receiverlist[] = $trimmed;
+
 			$o .= "<option value=\"{$rr['id']}\" $selected title=\"{$rr['name']}|{$rr['url']}\" >$trimmed</option>\r\n";
 		}
 
 	}
 
 	$o .= "</select>\r\n";
+
+	if ($privmail AND $preselected)
+		$o .= implode(", ", $receiverlist);
 
 	call_hooks($a->module . '_post_' . $selname, $o);
 

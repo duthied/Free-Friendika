@@ -10,6 +10,7 @@ require_once("include/Photo.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
+define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
 
 function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 
@@ -199,6 +200,13 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		$item["object"] = $xml;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
+
+		// To-Do:
+		// Delete a message
+		if ($item["verb"] == "qvitter-delete-notice") {
+			// ignore "Delete" messages (by now)
+			continue;
+		}
 
 		if ($item["verb"] == ACTIVITY_JOIN) {
 			// ignore "Join" messages
@@ -468,7 +476,7 @@ function ostatus_convert_href($href) {
 	return $href;
 }
 
-function check_conversations($override = false) {
+function check_conversations($mentions = false, $override = false) {
 	$last = get_config('system','ostatus_last_poll');
 
 	$poll_interval = intval(get_config('system','ostatus_poll_interval'));
@@ -479,9 +487,16 @@ function check_conversations($override = false) {
 	if (($poll_interval < 0) AND !$override)
 		return;
 
-	$poll_timeframe = intval(get_config('system','ostatus_poll_timeframe'));
-	if (!$poll_timeframe)
-		$poll_timeframe = OSTATUS_DEFAULT_POLL_TIMEFRAME;
+	if (!$mentions) {
+		$poll_timeframe = intval(get_config('system','ostatus_poll_timeframe'));
+		if (!$poll_timeframe)
+			$poll_timeframe = OSTATUS_DEFAULT_POLL_TIMEFRAME;
+	} else {
+		$poll_timeframe = intval(get_config('system','ostatus_poll_timeframe'));
+		if (!$poll_timeframe)
+			$poll_timeframe = OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS;
+	}
+
 
 	if ($last AND !$override) {
 		$next = $last + ($poll_interval * 60);
@@ -494,8 +509,16 @@ function check_conversations($override = false) {
 	logger('cron_start');
 
 	$start = date("Y-m-d H:i:s", time() - ($poll_timeframe * 60));
-	$conversations = q("SELECT `oid`, `url`, `uid` FROM `term` WHERE `type` = 7 AND `term` > '%s' GROUP BY `url`, `uid` ORDER BY `term` DESC",
-				dbesc($start));
+
+	if ($mentions)
+		$conversations = q("SELECT `term`.`oid`, `term`.`url`, `term`.`uid` FROM `term`
+					STRAIGHT_JOIN `thread` ON `thread`.`iid` = `term`.`oid` AND `thread`.`uid` = `term`.`uid`
+					WHERE `term`.`type` = 7 AND `term`.`term` > '%s' AND `thread`.`mention`
+					GROUP BY `term`.`url`, `term`.`uid` ORDER BY `term`.`term` DESC", dbesc($start));
+	else
+		$conversations = q("SELECT `oid`, `url`, `uid` FROM `term`
+					WHERE `type` = 7 AND `term` > '%s'
+					GROUP BY `url`, `uid` ORDER BY `term` DESC", dbesc($start));
 
 	foreach ($conversations AS $conversation) {
 		ostatus_completion($conversation['url'], $conversation['uid']);

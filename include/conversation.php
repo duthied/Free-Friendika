@@ -597,7 +597,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
 
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
+				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 				localize_item($item);
 				if($mode === 'network-new')
@@ -1229,14 +1229,10 @@ function find_thread_parent_index($arr,$x) {
 	return false;
 }
 
-function render_location_google($item) {
-	$location = (($item['location']) ? '<a target="map" title="' . $item['location'] . '" href="http://maps.google.com/?q=' . urlencode($item['location']) . '">' . $item['location'] . '</a>' : '');
-	$coord = (($item['coord']) ? '<a target="map" title="' . $item['coord'] . '" href="http://maps.google.com/?q=' . urlencode($item['coord']) . '">' . $item['coord'] . '</a>' : '');
-	if($coord) {
-		if($location)
-			$location .= '<br /><span class="smalltext">(' . $coord . ')</span>';
-		else
-			$location = '<span class="smalltext">' . $coord . '</span>';
-	}
-	return $location;
+function render_location_dummy($item) {
+	if ($item['location'] != "")
+		return $item['location'];
+
+	if ($item['coord'] != "")
+		return $item['coord'];
 }
