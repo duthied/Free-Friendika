@@ -268,7 +268,7 @@ function register_content(&$a) {
 		'$namelabel' => t('Your Full Name ' . "\x28" . 'e.g. Joe Smith' . "\x29" . ': '),
 		'$addrlabel' => t('Your Email Address: '),
 		'$passwords' => $passwords,
-		'$password1' => array('password1', t('New Password:'), '', ''),
+		'$password1' => array('password1', t('New Password:'), '', t('Leave empty for an auto generated password.')),
 		'$password2' => array('confirm', t('Confirm:'), '', ''),
 		'$nickdesc'  => str_replace('$sitename',$a->get_hostname(),t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be \'<strong>nickname@$sitename</strong>\'.')),
 		'$nicklabel' => t('Choose a nickname: '),
