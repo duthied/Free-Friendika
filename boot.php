@@ -1485,8 +1485,11 @@ if(! function_exists('current_theme')) {
 
 				if($theme_name === '---') {
 					// user has selected to have the mobile theme be the same as the normal one
-					$system_theme = '';
-					$theme_name = '';
+					$system_theme = $standard_system_theme;
+					$theme_name = $standard_theme_name;
+					
+					if($page_theme)
+						$theme_name = $page_theme;
 				}
 			}
 		}
