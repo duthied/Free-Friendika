@@ -1476,8 +1476,8 @@ if(! function_exists('current_theme')) {
 
 		if($is_mobile) {
 			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-				$system_theme = '';
-				$theme_name = '';
+				$system_theme = $standard_system_theme;
+				$theme_name = $standard_theme_name;
 			}
 			else {
 				$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : $standard_system_theme);
