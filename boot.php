@@ -17,7 +17,7 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
-define ( 'FRIENDICA_VERSION',      '3.4.0' );
+define ( 'FRIENDICA_VERSION',      '3.4.1' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1185      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -1476,17 +1476,20 @@ if(! function_exists('current_theme')) {
 
 		if($is_mobile) {
 			if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-				$system_theme = '';
-				$theme_name = '';
+				$system_theme = $standard_system_theme;
+				$theme_name = $standard_theme_name;
 			}
 			else {
-				$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : '');
+				$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : $standard_system_theme);
 				$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile-theme')) ? $_SESSION['mobile-theme'] : $system_theme);
 
 				if($theme_name === '---') {
 					// user has selected to have the mobile theme be the same as the normal one
-					$system_theme = '';
-					$theme_name = '';
+					$system_theme = $standard_system_theme;
+					$theme_name = $standard_theme_name;
+					
+					if($page_theme)
+						$theme_name = $page_theme;
 				}
 			}
 		}
