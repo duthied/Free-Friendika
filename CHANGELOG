@@ -45,8 +45,8 @@ Version 3.4.1
 	Show image size warning in a human readable format (rabuzarus)
 	Move ACL window in template (rabuzarus)
 	New option "-s" in util/run_xgettext.sh (fabrixxm)
-	Support but ignore delete message from Quitter (annando)
-	Remove google maps from core (issue #1705) (annando)
+	Support, but ignore at the moment, delete message from Quitter (annando)
+	Remove google maps from core. Functionality moved to addon "googlemap" alongside "openstreetmap" (issue #1705) (annando)
 	Update to German documentation (Frank Dieckmann, tobias)
 	Updated translations (translation teams, tobias)
 
