@@ -1,3 +1,55 @@
+Version 3.4.1
+
+	Implement server-to-server encryption (RINO) using php-encryption library as "RINO 2", deprecate "RINO 1" (issue #1655) (fabrixxm)
+	Fix connection with Diaspora "freelove" account (issue #1572) (annando)
+	Various SQL speedups (annando)
+	Port of Javascript DatePicker input from RedMatrix (rabuzarus)
+	Port of RedMatrix archive widget (rabuzarus)
+	Load profile owner settings for theme on profile page (rabuzarus)
+	Move HTML code from php into templates (rabuzarus)
+	Theme "frost": add event with doubleclick, event preview (rabuzarus)
+	Delete attachments on item deletion, delete videos from video tab (issue #1574) (fabrixxm)
+	Improvements with reshared Diaspora items (annando)
+	Improvements in OStatus communications: (annando)
+		improve duplicate handling
+		publish comments to post to all PuSH subscribers
+		use correct contact when automatically add @-replies
+		add attachment links as enclosures
+		send salmon notifications to every mentioned person
+		better thread completition
+		support to bookmarks
+		support to events and questions
+		link to items using GUID
+	Fix warining in mod/photo (issue #1638) (rabuzarus)
+	New option to block public access to local directory and poco
+	Fix parsing bbcode [url] tag with fragment identifier (issue #1514) (fabrixxm)
+	Fix HTML for oembeds (issue #1612) (fabrixxm)
+	Add fake filelds to API response for better Twitter API compatibility (annando)
+	Fix search in local directory (issue #1657) (annando)
+	Improve OEmbed (issue #1640) (annando)
+	Fix double html encodig in site administration page for sitename and register text (issue #1628) (annando)
+	Fix remote subscription from GNU Social (annando)
+	Fix "{0}" in notifications (issue #1642) (annando)
+	Fix desktop notification (fabrixxm)
+	Fix rewrite test in install wizard with self-signed certificate (annando)
+	Better support for non standard installations of GNU Social (annando)
+	Fix emoticons alt text (tobias)
+	Improve threaded display in Vier theme (annando)
+	Use field templates in photo edit form (fabrixxm)
+	Alllow deletion to any user but yourself (issue #1625) (fabrixxm)
+	Install wizard load htconfig template from template/ folder, remove localized htconfig templates (fabrixxm)
+	Add contact detail to non-js contact drop confirm dialog (issue #1629) (fabrixxm)
+	Return geo coord in API (annando)
+	Improve events reminder: use title, show in colorbox, link using event ID (rabuzarus)
+	Fix spelling in accepted connection notification email (strk)
+	Show image size warning in a human readable format (rabuzarus)
+	Move ACL window in template (rabuzarus)
+	New option "-s" in util/run_xgettext.sh (fabrixxm)
+	Support but ignore delete message from Quitter (annando)
+	Remove google maps from core (issue #1705) (annando)
+	Update to German documentation (Frank Dieckmann, tobias)
+	Updated translations (translation teams, tobias)
+	
 Version 3.4
 
 	Optionally, "like" and "dislike" activities don't update thread timestamp (annando)
