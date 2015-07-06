@@ -1,5 +1,5 @@
 <?php
-
+include_once('include/text.php');
 
 function match_content(&$a) {
 
@@ -9,7 +9,9 @@ function match_content(&$a) {
 
 	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
-	$o .= '<h2>' . t('Profile Match') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Profile Match')
+	));
 
 	$r = q("SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
@@ -48,17 +50,23 @@ function match_content(&$a) {
 			
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
+			    $match_nurl = normalise_link($jj->url);
+			    $match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
+				intval(local_user()),
+				dbesc($match_nurl));
+			    if (!count($match)) {
 				
 				$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
 					'$name' => $jj->name,
-					'$photo' => $jj->photo,
+					'$photo' => proxy_url($jj->photo),
 					'$inttxt' => ' ' . t('is interested in:'),
 					'$conntxt' => t('Connect'),
 					'$connlnk' => $connlnk,
 					'$tags' => $jj->tags
 				));
+			    }
 			}
 		}
 		else {

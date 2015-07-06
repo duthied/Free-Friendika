@@ -1,10 +1,21 @@
 <?php
 require_once("include/oembed.php");
 require_once('include/event.php');
+require_once('include/map.php');
 
-function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
+
+function bb_map_coords($match) {
+	// the extra space in the following line is intentional
+	return str_replace($match[0],'<div class="map"  >' . generate_map(str_replace('/',' ',$match[1])) . '</div>', $match[0]);
+}
+function bb_map_location($match) {
+	// the extra space in the following line is intentional
+	return str_replace($match[0],'<div class="map"  >' . generate_named_map($match[1]) . '</div>', $match[0]);
+}
+
+function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	$Text = preg_replace_callback("/(.*?)\[attachment(.*?)\](.*?)\[\/attachment\]/ism",
-		function ($match) use ($plaintext){
+		function ($match) use ($simplehtml, $tryoembed){
 
 			$attributes = $match[2];
 
@@ -72,7 +83,10 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				$image = "";
 			}
 
-			if ($plaintext)
+			if ($simplehtml == 7)
+				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a>',
+						$url, $title, $title);
+			elseif (($simplehtml != 4) AND ($simplehtml != 0))
 				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);
 			else {
 				$text = sprintf('<span class="type-%s">', $type);
@@ -83,14 +97,18 @@ function bb_attachment($Text, $plaintext = false, $tryoembed = true) {
 				else
 					$oembed = $bookmark[0];
 
-				if (($image != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
-				elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
-					$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
+				if (strstr(strtolower($oembed), "<iframe "))
+					$text = $oembed;
+				else {
+					if (($image != "") AND !strstr(strtolower($oembed), "<img "))
+						$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $url, $image, $title);
+					elseif (($preview != "") AND !strstr(strtolower($oembed), "<img "))
+						$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $url, $preview, $title);
 
-				$text .= $oembed;
+					$text .= $oembed;
 
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
+					$text .= sprintf('<blockquote>%s</blockquote></span>', trim($match[3]));
+				}
 			}
 
 			return($match[1].$text);
@@ -813,7 +831,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$ev = bbtoevent($Text);
 
-
 	// Replace any html brackets with HTML Entities to prevent executing HTML or script
 	// Don't use strip_tags here because it breaks [url] search by replacing & with amp
 
@@ -857,7 +874,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	}
 
 	// Handle attached links or videos
-	$Text = bb_attachment($Text, ($simplehtml != 4) AND ($simplehtml != 0), $tryoembed);
+	$Text = bb_attachment($Text, $simplehtml, $tryoembed);
 
 	$Text = str_replace(array("\r","\n"), array('<br />','<br />'), $Text);
 
@@ -870,8 +887,13 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$MAILSearchString = $URLSearchString;
 
 	// Remove all hashtag addresses
-	if (!$tryoembed OR $simplehtml)
+	if ((!$tryoembed OR $simplehtml) AND ($simplehtml != 7))
 		$Text = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+	elseif ($simplehtml == 7)
+		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+			'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
+			$Text);
+
 
 	// Bookmarks in red - will be converted to bookmarks in friendica
 	$Text = preg_replace("/#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $Text);
@@ -922,12 +944,25 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// we may need to restrict this further if it picks up too many strays
 	// link acct:user@host to a webfinger profile redirector
 
-	$Text = preg_replace('/acct:(.*?)@(.*?)([ ,])/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=' . "$1@$2" 
+	$Text = preg_replace('/acct:(.*?)@(.*?)([ ,])/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=' . "$1@$2"
 		. '" target="extlink" >acct:' . "$1@$2$3" . '</a>',$Text);
 
 	// Perform MAIL Search
 	$Text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $Text);
 	$Text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $Text);
+
+	// leave open the posibility of [map=something]
+	// this is replaced in prepare_body() which has knowledge of the item location
+
+	if (strpos($Text,'[/map]') !== false) {
+		$Text = preg_replace_callback("/\[map\](.*?)\[\/map\]/ism", 'bb_map_location', $Text);
+	}
+	if (strpos($Text,'[map=') !== false) {
+		$Text = preg_replace_callback("/\[map=(.*?)\]/ism", 'bb_map_coords', $Text);
+	}
+	if (strpos($Text,'[map]') !== false) {
+		$Text = preg_replace("/\[map\]/", '<div class="map"></div>', $Text);
+	}
 
 	// Check for headers
 	$Text = preg_replace("(\[h1\](.*?)\[\/h1\])ism",'<h1>$1</h1>',$Text);
@@ -976,8 +1011,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$endlessloop = 0;
 
 	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
-	       ((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) || 
-	       ((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false)) || 
+	       ((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) ||
+	       ((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false)) ||
 	       ((strpos($Text, "[/li]") !== false) && (strpos($Text, "[li]") !== false))) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>' ,$Text);
 		$Text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>' ,$Text);
@@ -1121,7 +1156,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism",'tryoembed',$Text);
 	}
 
-	$Text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism",'[vimeo]$1[/vimeo]',$Text); 
+	$Text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism",'[vimeo]$1[/vimeo]',$Text);
 	$Text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism",'[vimeo]$1[/vimeo]',$Text);
 
 	if ($tryoembed)
@@ -1148,13 +1183,13 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism",'',$Text);
-		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism",$sub,$Text); 
+		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism",$sub,$Text);
 		$Text = preg_replace("/\[event\-finish\](.*?)\[\/event\-finish\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism",'',$Text);
 	}
 
-	// Unhide all [noparse] contained bbtags unspacefying them 
+	// Unhide all [noparse] contained bbtags unspacefying them
 	// and triming the [noparse] tag.
 
 	$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_unspacefy_and_trim',$Text);

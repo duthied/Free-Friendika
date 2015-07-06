@@ -840,6 +840,9 @@ aside #dfrn-request-link:hover {
 aside #profiles-menu {
   width: 20em;
 }
+aside .posted-date-selector-months {
+  margin-left: 10px;
+}
 #contact-block {
   overflow: auto;
   height: auto;
@@ -1284,15 +1287,12 @@ section {
 }*/
 .wwto {
   position: absolute !important;
-  width: 25px;
-  height: 25px;
   background: #FFFFFF;
   border: 2px solid #364e59;
   height: 25px;
   width: 25px;
   overflow: hidden;
   padding: 1px;
-  position: absolute !important;
   top: 40px;
   left: 30px;
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
@@ -1969,6 +1969,27 @@ ul.tabs li .active {
   width: 50px;
   float: left;
 }
+/* videos page */
+.videos .video-top-wrapper {
+  width: 200px;
+  float: left;
+  margin: 0px 10px 10px 0px;
+  position: relative;
+}
+.videos .video-top-wrapper .video-js {
+  width: 200px!important;
+  height: 132px!important;
+}
+.videos .video-top-wrapper .video-delete {
+  position: absolute;
+  opacity: 0;
+  right: 0px;
+  top: 0px;
+  transition: opacity 0.5s;
+}
+.videos .video-top-wrapper:hover .video-delete {
+  opacity: 1;
+}
 /* photo albums */
 #photo-edit-link-wrap {
   margin-bottom: 10px;
@@ -2060,6 +2081,7 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
+
 }
 #photo-caption {
   display: block;
@@ -2092,6 +2114,9 @@ ul.tabs li .active {
 }
 #photo-like-div .like-rotator {
   float: right;
+}
+#photo_edit_form {
+  padding: 1em;
 }
 /* profile match wrapper */
 .profile-match-wrapper {

@@ -16,25 +16,6 @@ $baseurl = $a->get_baseurl();
 
 $a->theme_info = array();
 
-$style = get_pconfig(local_user(), 'vier', 'style');
-
-if ($style == "")
-	$style = get_config('vier', 'style');
-
-if ($style == "")
-	$style = "plus";
-
-if ($style == "flat")
-	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/flat.css" type="text/css" media="screen"/>'."\n";
-else if ($style == "netcolour")
-	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/netcolour.css" type="text/css" media="screen"/>'."\n";
-else if ($style == "breathe")
-	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/breathe.css" type="text/css" media="screen"/>'."\n";
-else if ($style == "plus")
-	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/plus.css" type="text/css" media="screen"/>'."\n";
-else if ($style == "dark")
-	$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/vier/dark.css" type="text/css" media="screen"/>'."\n";
-
 $a->page['htmlhead'] .= <<< EOT
 <script type="text/javascript">
 

@@ -73,7 +73,7 @@ function install_post(&$a) {
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
 
-			$tpl = get_intltext_template('htconfig.tpl');
+			$tpl = get_markup_template('htconfig.tpl');
 			$txt = replace_macros($tpl,array(
 				'$dbhost' => $dbhost,
 				'$dbuser' => $dbuser,
@@ -84,13 +84,15 @@ function install_post(&$a) {
 				'$phpath' => $phpath,
 				'$adminmail' => $adminmail
 			));
+			
 
 			$result = file_put_contents('.htconfig.php', $txt);
 			if(! $result) {
 				$a->data['txt'] = $txt;
 			}
-
+			
 			$errors = load_database($db);
+			
 
 			if($errors)
 				$a->data['db_failed'] = $errors;
@@ -148,7 +150,7 @@ function install_content(&$a) {
 			return replace_macros($tpl, array(
 				'$title' => $install_title,
 				'$pass' => '',
-				'$status' => t('Permission denied.'),
+				'$status' => t('Database already in use.'),
 				'$text' => '',
 			));
 		}
@@ -466,16 +468,19 @@ function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')){
-        $test = fetch_url($a->get_baseurl()."/install/testrewrite");
-        if ($test!="ok") {
-            $status = false;
-            $help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
-        }
-        check_add($checks, t('Url rewrite is working'), $status, true, $help);
-    } else {
-        // cannot check modrewrite if libcurl is not installed
-    }
+		$test = fetch_url($a->get_baseurl()."/install/testrewrite");
 
+		if ($test!="ok")
+			$test = fetch_url(normalise_link($a->get_baseurl()."/install/testrewrite"));
+
+		if ($test!="ok") {
+			$status = false;
+			$help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
+		}
+		check_add($checks, t('Url rewrite is working'), $status, true, $help);
+	} else {
+		// cannot check modrewrite if libcurl is not installed
+	}
 }
 
 

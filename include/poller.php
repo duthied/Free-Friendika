@@ -46,7 +46,7 @@ function poller_run(&$argv, &$argc){
 	if(function_exists('sys_getloadavg')) {
 		$load = sys_getloadavg();
 		if(intval($load[0]) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. Poller deferred to next scheduled run.');
+			logger('system: load ' . $load[0] . ' too high. Poller deferred to next scheduled run.');
 			return;
 		}
 	}
@@ -103,7 +103,11 @@ function poller_run(&$argv, &$argc){
 		$abandon_days = 0;
 
 	// Check OStatus conversations
-	check_conversations();
+	// Check only conversations with mentions (for a longer time)
+	check_conversations(true);
+
+	// Check every conversation
+	check_conversations(false);
 
 	// To-Do: Regenerate usage statistics
 	// q("ANALYZE TABLE `item`");

@@ -78,9 +78,9 @@ function wall_attach_post(&$a) {
 	}
 
 	if(($maxfilesize) && ($filesize > $maxfilesize)) {
-		notice( sprintf(t('File exceeds size limit of %d'), $maxfilesize) . EOL);
+		echo sprintf(t('File exceeds size limit of %s'), formatBytes($maxfilesize)) . EOL;
 		@unlink($src);
-		return;
+		killme();
 	}
 
 	$r = q("select sum(octet_length(data)) as total from attach where uid = %d ",

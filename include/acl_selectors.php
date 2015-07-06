@@ -78,19 +78,19 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 		if(x($options,'networks')) {
 			switch($options['networks']) {
 				case 'DFRN_ONLY':
-					$networks = array('dfrn');
+					$networks = array(NETWORK_DFRN);
 					break;
 				case 'PRIVATE':
 					if(is_array($a->user) && $a->user['prvnets'])
-						$networks = array('dfrn','mail','dspr');
+						$networks = array(NETWORK_DFRN,NETWORK_MAIL,NETWORK_DIASPORA);
 					else
-						$networks = array('dfrn','face','mail', 'dspr');
+						$networks = array(NETWORK_DFRN,NETWORK_FACEBOOK,NETWORK_MAIL, NETWORK_DIASPORA);
 					break;
 				case 'TWO_WAY':
 					if(is_array($a->user) && $a->user['prvnets'])
-						$networks = array('dfrn','mail','dspr');
+						$networks = array(NETWORK_DFRN,NETWORK_MAIL,NETWORK_DIASPORA);
 					else
-						$networks = array('dfrn','face','mail','dspr','stat');
+						$networks = array(NETWORK_DFRN,NETWORK_FACEBOOK,NETWORK_MAIL,NETWORK_DIASPORA,NETWORK_OSTATUS);
 					break;
 				default:
 					break;
@@ -181,17 +181,23 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 		$sql_extra .= sprintf(" AND `rel` = %d ", intval(CONTACT_IS_FRIEND));
 	}
 
-	if($privmail) {
-		$sql_extra .= " AND `network` IN ( 'dfrn', 'dspr' ) ";
-	}
-	elseif($privatenet) {
-		$sql_extra .= " AND `network` IN ( 'dfrn', 'mail', 'face', 'dspr' ) ";
-	}
+	if($privmail)
+		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s') ",
+					NETWORK_DFRN, NETWORK_DIASPORA);
+	elseif($privatenet)
+		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s', '%s', '%s') ",
+					NETWORK_DFRN, NETWORK_MAIL, NETWORK_FACEBOOK, NETWORK_DIASPORA);
 
 	$tabindex = ($tabindex > 0 ? "tabindex=\"$tabindex\"" : "");
 
+	if ($privmail AND $preselected) {
+		$sql_extra .= " AND `id` IN (".implode(",", $preselected).")";
+		$hidepreselected = ' style="display: none;"';
+	} else
+		$hidepreselected = "";
+
 	if($privmail)
-		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\" $tabindex >\r\n";
+		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\" $tabindex $hidepreselected>\r\n";
 	else
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"$size\" $tabindex >\r\n";
 
@@ -209,6 +215,8 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
+	$receiverlist = array();
+
 	if(count($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
@@ -221,12 +229,17 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 			else
 				$trimmed = mb_substr($rr['name'],0,20);
 
+			$receiverlist[] = $trimmed;
+
 			$o .= "<option value=\"{$rr['id']}\" $selected title=\"{$rr['name']}|{$rr['url']}\" >$trimmed</option>\r\n";
 		}
 
 	}
 
 	$o .= "</select>\r\n";
+
+	if ($privmail AND $preselected)
+		$o .= implode(", ", $receiverlist);
 
 	call_hooks($a->module . '_post_' . $selname, $o);
 
@@ -283,62 +296,57 @@ function get_acl_permissions($user = null) {
 }
 
 
-function populate_acl($user = null,$celeb = false) {
+function populate_acl($user = null, $show_jotnets = false) {
 
 	$perms = get_acl_permissions($user);
 
-	// We shouldn't need to prune deadguys from the block list. Either way they can't get the message.
-	// Also no point enumerating groups and checking them, that will take place on delivery.
+	$jotnets = '';
+	if($show_jotnets) {
+		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 
-//	$deny_cid = prune_deadguys($deny_cid);
+		$mail_enabled = false;
+		$pubmail_enabled = false;
 
+		if(! $mail_disabled) {
+			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
+				intval(local_user())
+			);
+			if(count($r)) {
+				$mail_enabled = true;
+				if(intval($r[0]['pubmail']))
+					$pubmail_enabled = true;
+			}
+		}
 
-	/*$o = '';
-	$o .= '<div id="acl-wrapper">';
-	$o .= '<div id="acl-permit-outer-wrapper">';
-	$o .= '<div id="acl-permit-text">' . t('Visible To:') . '</div><div id="jot-public">' . t('everybody') . '</div>';
-	$o .= '<div id="acl-permit-text-end"></div>';
-	$o .= '<div id="acl-permit-wrapper">';
-	$o .= '<div id="group_allow_wrapper">';
-	$o .= '<label id="acl-allow-group-label" for="group_allow" >' . t('Groups') . '</label>';
-	$o .= group_select('group_allow','group_allow',$allow_gid);
-	$o .= '</div>';
-	$o .= '<div id="contact_allow_wrapper">';
-	$o .= '<label id="acl-allow-contact-label" for="contact_allow" >' . t('Contacts') . '</label>';
-	$o .= contact_select('contact_allow','contact_allow',$allow_cid,4,false,$celeb,true);
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-allow-end"></div>' . "\r\n";
-	$o .= '</div>';
-	$o .= '<div id="acl-deny-outer-wrapper">';
-	$o .= '<div id="acl-deny-text">' . t('Except For:') . '</div>';
-	$o .= '<div id="acl-deny-text-end"></div>';
-	$o .= '<div id="acl-deny-wrapper">';
-	$o .= '<div id="group_deny_wrapper" >';
-	$o .= '<label id="acl-deny-group-label" for="group_deny" >' . t('Groups') . '</label>';
-	$o .= group_select('group_deny','group_deny', $deny_gid);
-	$o .= '</div>';
-	$o .= '<div id="contact_deny_wrapper" >';
-	$o .= '<label id="acl-deny-contact-label" for="contact_deny" >' . t('Contacts') . '</label>';
-	$o .= contact_select('contact_deny','contact_deny', $deny_cid,4,false, $celeb,true);
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-deny-end"></div>' . "\r\n";
-	$o .= '</div>';
-	$o .= '</div>' . "\r\n";
-	$o .= '<div id="acl-wrapper-end"></div>' . "\r\n";*/
+		if (!$user['hidewall']) {
+			if($mail_enabled) {
+				$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
+				$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . t("Post to Email") . '</div>';
+			}
+
+			call_hooks('jot_networks', $jotnets);
+		} else
+			$jotnets .= sprintf(t('Connectors disabled, since "%s" is enabled.'),
+					    t('Hide your profile details from unknown viewers?'));
+		}
 
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, array(
 		'$showall'=> t("Visible to everybody"),
-		'$show'		 => t("show"),
-		'$hide'		 => t("don't show"),
+		'$show'	=> t("show"),
+		'$hide'	 => t("don't show"),
 		'$allowcid' => json_encode($perms['allow_cid']),
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
+		'$networks' => $show_jotnets,
+		'$emailcc' => t('CC: email addresses'),
+		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
+		'$jotnets' => $jotnets,
+		'$aclModalTitle' => t('Permissions'),
+		'$aclModalDismiss' => t('Close'),
 		'$features' => array(
-			"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
+		"aclautomention"=>(feature_enabled($user['uid'],"aclautomention")?"true":"false")
 		),
 	));
 
@@ -399,6 +407,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$search = $_REQUEST['query'];
 	}
 
+//	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
 
 	if ($search!=""){
 		$sql_extra = "AND `name` LIKE '%%".dbesc($search)."%%'";
@@ -496,9 +505,11 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, forum FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+			AND NOT (`network` IN ('%s', '%s'))
 			$sql_extra2
 			ORDER BY `name` ASC ",
-			intval(local_user())
+			intval(local_user()),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_STATUSNET)
 		);
 	}
 	elseif($type == 'm') {

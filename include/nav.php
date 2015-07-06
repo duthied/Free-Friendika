@@ -147,15 +147,16 @@ function nav_info(&$a) {
 
 		$nav['home'] = array('profile/' . $a->user['nickname'], t('Home'), "", t('Your posts and conversations'));
 
+		if(in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_PRVGROUP))) {
+			/* only show friend requests for normal pages. Other page types have automatic friendship. */
+			if(in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_PRVGROUP)))
+				$nav['introductions'] = array('notifications/intros',	t('Introductions'), "", t('Friend Requests'));
 
-		/* only show friend requests for normal pages. Other page types have automatic friendship. */
-
-		if($_SESSION['page_flags'] == PAGE_NORMAL || $_SESSION['page_flags'] == PAGE_SOAPBOX || $_SESSION['page_flags'] == PAGE_PRVGROUP) {
-			$nav['introductions'] = array('notifications/intros',	t('Introductions'), "", t('Friend Requests'));
-			$nav['notifications'] = array('notifications',	t('Notifications'), "", t('Notifications'));
-			$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
-			$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
-
+			if(in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
+				$nav['notifications'] = array('notifications',	t('Notifications'), "", t('Notifications'));
+				$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
+				$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
+			}
 		}
 
 		$nav['messages'] = array('message', t('Messages'), "", t('Private mail'));
@@ -198,6 +199,8 @@ function nav_info(&$a) {
 
 	if($banner === false) 
 		$banner .= '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
+
+	call_hooks('nav_info', $nav);
 
 
 	return array(

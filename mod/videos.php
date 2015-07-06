@@ -27,11 +27,16 @@ function videos_init(&$a) {
 			return;
 
 		$a->data['user'] = $r[0];
+		$a->profile_uid = $r[0]['uid'];
 
-		$o .= '<div class="vcard">';
-		$o .= '<div class="fn">' . $a->data['user']['username'] . '</div>';
-		$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg') . '" alt="' . $a->data['user']['username'] . '" /></div>';
-		$o .= '</div>';
+		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
+
+		$tpl = get_markup_template("vcard-widget.tpl");
+
+		$vcard_widget = replace_macros($tpl, array(
+			'$name' => $a->data['user']['username'],
+			'$photo' => $profilephoto
+		));
 
 
 		/*$sql_extra = permissions_sql($a->data['user']['uid']);
@@ -43,12 +48,12 @@ function videos_init(&$a) {
 		if(count($albums)) {
 			$a->data['albums'] = $albums;
 
-			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);	
+			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
 			if($albums_visible) {
 				$o .= '<div id="side-bar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
-					
+
 				$o .= '<ul>';
 				foreach($albums as $album) {
 
@@ -57,7 +62,7 @@ function videos_init(&$a) {
 
 					if((! strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
 						continue;
-					$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" >' . $album['album'] . '</a></li>'; 
+					$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" >' . $album['album'] . '</a></li>';
 				}
 				$o .= '</ul>';
 			}
@@ -70,7 +75,7 @@ function videos_init(&$a) {
 
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
-		$a->page['aside'] .= $o;
+		$a->page['aside'] .= $vcard_widget;
 
 
 		$tpl = get_markup_template("videos_head.tpl");
@@ -92,9 +97,76 @@ function videos_init(&$a) {
 
 function videos_post(&$a) {
 
-	return;
+	$owner_uid = $a->data['user']['uid'];
 
-	// DELETED -- look at mod/photos.php if you want to implement
+	if (local_user() != $owner_uid) goaway($a->get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+
+	if(($a->argc == 2) && x($_POST,'delete') && x($_POST, 'id')) {
+
+		// Check if we should do HTML-based delete confirmation
+		if(!x($_REQUEST,'confirm')) {
+			if(x($_REQUEST,'canceled')) goaway($a->get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+
+			$drop_url = $a->query_string;
+			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), array(
+				'$method' => 'post',
+				'$message' => t('Do you really want to delete this video?'),
+				'$extra_inputs' => [
+					['name'=>'id', 'value'=> $_POST['id']],
+					['name'=>'delete', 'value'=>'x']
+				],
+				'$confirm' => t('Delete Video'),
+				'$confirm_url' => $drop_url,
+				'$confirm_name' => 'confirm', // Needed so that confirmation will bring us back into this if statement
+				'$cancel' => t('Cancel'),
+
+			));
+			$a->error = 1; // Set $a->error so the other module functions don't execute
+			return;
+		}
+
+		$video_id = $_POST['id'];
+
+
+		$r = q("SELECT `id`  FROM `attach` WHERE `uid` = %d AND `id` = '%s' LIMIT 1",
+			intval(local_user()),
+			dbesc($video_id)
+		);
+
+		if(count($r)) {
+			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
+				intval(local_user()),
+				dbesc($video_id)
+			);
+			$i = q("SELECT * FROM `item` WHERE `attach` like '%%attach/%s%%' AND `uid` = %d LIMIT 1",
+				dbesc($video_id),
+				intval(local_user())
+			);
+			#echo "<pre>"; var_dump($i); killme();
+			if(count($i)) {
+				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
+					dbesc(datetime_convert()),
+					dbesc(datetime_convert()),
+					dbesc($i[0]['uri']),
+					intval(local_user())
+				);
+				create_tags_from_itemuri($i[0]['uri'], local_user());
+				delete_thread_uri($i[0]['uri'], local_user());
+
+				$url = $a->get_baseurl();
+				$drop_id = intval($i[0]['id']);
+
+				if($i[0]['visible'])
+					proc_run('php',"include/notifier.php","drop","$drop_id");
+			}
+		}
+
+		goaway($a->get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+		return; // NOTREACHED
+	}
+
+    goaway($a->get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+
 }
 
 
@@ -115,8 +187,8 @@ function videos_content(&$a) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
-	
-	
+
+
 	require_once('include/bbcode.php');
 	require_once('include/security.php');
 	require_once('include/conversation.php');
@@ -131,7 +203,7 @@ function videos_content(&$a) {
 	$_SESSION['video_return'] = $a->cmd;
 
 	//
-	// Parse arguments 
+	// Parse arguments
 	//
 
 	if($a->argc > 3) {
@@ -233,7 +305,7 @@ function videos_content(&$a) {
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);	
+	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request
@@ -251,7 +323,7 @@ function videos_content(&$a) {
 		return; // no albums for now
 
 		// DELETED -- look at mod/photos.php if you want to implement
-	}	
+	}
 
 
 	if($datatype === 'video') {
@@ -307,20 +379,21 @@ function videos_content(&$a) {
 					'name'  => $name_e,
 					'alt'   => t('View Album'),
 				),
-				
+
 			);
 		}
 	}
-	
-	$tpl = get_markup_template('videos_recent.tpl'); 
+
+	$tpl = get_markup_template('videos_recent.tpl');
 	$o .= replace_macros($tpl, array(
 		'$title' => t('Recent Videos'),
 		'$can_post' => $can_post,
 		'$upload' => array(t('Upload New Videos'), $a->get_baseurl().'/videos/'.$a->data['user']['nickname'].'/upload'),
 		'$videos' => $videos,
+        '$delete_url' => (($can_post)?$a->get_baseurl().'/videos/'.$a->data['user']['nickname']:False)
 	));
 
-	
+
 	$o .= paginate($a);
 	return $o;
 }

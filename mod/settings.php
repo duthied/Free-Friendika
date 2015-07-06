@@ -177,7 +177,9 @@ function settings_post(&$a) {
 
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
-		if(x($_POST, 'imap-submit')) {
+		if(x($_POST, 'general-submit')) {
+			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', $_POST['no_intelligent_shortening']);
+		} elseif(x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
 			$mail_port         = ((x($_POST,'mail_port')) ? $_POST['mail_port'] : '');
@@ -474,7 +476,7 @@ function settings_post(&$a) {
 	$str_contact_deny  = perms2str($_POST['contact_deny']);
 
 	$openidserver = $a->user['openidserver'];
-	$openid = normalise_openid($openid);
+	//$openid = normalise_openid($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 
@@ -733,7 +735,25 @@ function settings_content(&$a) {
 
 	if(($a->argc > 1) && ($a->argv[1] === 'connectors')) {
 
-		$settings_connectors = "";
+		$settings_connectors = '<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+		$settings_connectors .= '<div id="settings_general_expanded" class="settings-block" style="display: none;">';
+		$settings_connectors .= '<span class="fakelink" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+
+		$checked = ((get_pconfig(local_user(), 'system', 'no_intelligent_shortening')) ? ' checked="checked" ' : '');
+
+		$settings_connectors .= '<div id="no_intelligent_shortening" class="field checkbox">';
+		$settings_connectors .= '<label id="no_intelligent_shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
+		$settings_connectors .= '<input id="shortening-checkbox" type="checkbox" name="no_intelligent_shortening" value="1" ' . $checked . '/>';
+		$settings_connectors .= '<span class="field_help">'.t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
+
+		$settings_connectors .= '</div><div class="clear"></div>';
 
 		call_hooks('connector_settings', $settings_connectors);
 
@@ -1002,7 +1022,7 @@ function settings_content(&$a) {
 		$openid_field = false;
 	}
 	else {
-		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."));
+		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url");
 	}
 
 
@@ -1077,8 +1097,6 @@ function settings_content(&$a) {
 
 	$stpl = get_markup_template('settings.tpl');
 
-	$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 	$expire_arr = array(
 		'days' => array('expire',  t("Automatically expire posts after this many days:"), $expire, t('If empty, posts will not expire. Expired posts will be deleted')),
 		'advanced' => t('Advanced expiration settings'),
@@ -1143,7 +1161,7 @@ function settings_content(&$a) {
 		'$permissions' => t('Default Post Permissions'),
 		'$permdesc' => t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => populate_acl($a->user,$celeb),
+		'$aclselect' => populate_acl($a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', t('Allow friends to tag your posts:'), !$blocktags, ''),
@@ -1187,6 +1205,8 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
+        '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
+                
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
 									t('Send text only notification emails, without the html part')),

@@ -118,7 +118,8 @@ Man kann viele Dinge, z.B. Video und Audio Dateine, in Nachrichten einbetten.
 <pre>[video]url[/video]</pre>
 <pre>[audio]url[/audio]</pre>
 
-Wobei die *url* von youtube, vimeo, soundcloud oder einer anderen Seite stammen kann die die oembed oder opengraph Spezifikationen unterst&uuml;tzt.  Au&szlig;erdem kann *url* die genaue url zu einer ogg Datei sein, die dann per HTML5 eingebunden wird.
+Wobei die *url* von youtube, vimeo, soundcloud oder einer anderen Seite stammen kann die die oembed oder opengraph Spezifikationen unterst&uuml;tzt.  
+Au&szlig;erdem kann *url* die genaue url zu einer ogg Datei sein, die dann per HTML5 eingebunden wird.
 
 <pre>[url]*url*[/url]</pre>
 
@@ -131,7 +132,7 @@ Der Titel der Seite mit einem Link zur *url* wird ebenfalls angezeigt.
 Spezielle Tags
 -------
 
-Wenn du &uuml;ber BBCode Tags in einer Nachricht schreiben m&ouml;chtest, kannst du [noparse], [nobb] oder [pre] verwenden um den BBCode Tags vor der Evaluierung zu sch&uuml;tzen:
+Wenn Du &uuml;ber BBCode Tags in einer Nachricht schreiben m&ouml;chtest, kannst Du [noparse], [nobb] oder [pre] verwenden um den BBCode Tags vor der Evaluierung zu sch&uuml;tzen:
 
 <pre>[noparse][b]fett[/b][/noparse]</pre> : [b]fett[/b]
 

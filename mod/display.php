@@ -102,8 +102,17 @@ function display_fetchauthor($a, $item) {
 	$profiledata["network"] = $item["network"];
 
 	// Fetching further contact data from the contact table
-	$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
-		normalise_link($profiledata["url"]), $item["uid"]);
+	$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
+		dbesc(normalise_link($profiledata["url"])), intval($item["uid"]), dbesc($item["network"]));
+
+	if (!count($r))
+		$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+			dbesc(normalise_link($profiledata["url"])), intval($item["uid"]));
+
+	if (!count($r))
+		$r = q("SELECT `photo`, `nick`, `location`, `about` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
+			dbesc(normalise_link($profiledata["url"])));
+
 	if (count($r)) {
 		$profiledata["photo"] = proxy_url($r[0]["photo"]);
 		$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
@@ -113,7 +122,7 @@ function display_fetchauthor($a, $item) {
 	}
 
 	// Fetching profile data from unique contacts
-	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
 	if (count($r)) {
 		if ($profiledata["photo"] == "")
 			$profiledata["photo"] = proxy_url($r[0]["avatar"]);
@@ -181,7 +190,7 @@ function display_fetchauthor($a, $item) {
 
 		// Fetching profile data from unique contacts
 		if ($profiledata["url"] != "") {
-			$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($profiledata["url"]));
+			$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
 			if (count($r)) {
 				$profiledata["photo"] = proxy_url($r[0]["avatar"]);
 				$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
@@ -193,11 +202,13 @@ function display_fetchauthor($a, $item) {
 	}
 
 	if (local_user()) {
-		if ($profiledata["network"] == NETWORK_DFRN) {
-			$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"])."&addr=".bin2hex($a->get_baseurl()."/profile/".$a->user["nickname"]);
-			$profiledata["remoteconnect"] = $connect;
-		} elseif ($profiledata["network"] == NETWORK_DIASPORA)
-			$profiledata["remoteconnect"] = $a->get_baseurl()."/contacts?add=".GetProfileUsername($profiledata["url"], "", true);
+		if (in_array($profiledata["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+			$profiledata["remoteconnect"] = $a->get_baseurl()."/follow?url=".urlencode($profiledata["url"]);
+		//if ($profiledata["network"] == NETWORK_DFRN) {
+		//	$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"])."&addr=".bin2hex($a->get_baseurl()."/profile/".$a->user["nickname"]);
+		//	$profiledata["remoteconnect"] = $connect;
+		//} elseif ($profiledata["network"] == NETWORK_DIASPORA)
+		//	$profiledata["remoteconnect"] = $a->get_baseurl()."/contacts?add=".GetProfileUsername($profiledata["url"], "", true);
 	} elseif ($profiledata["network"] == NETWORK_DFRN) {
 		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
 		$profiledata["remoteconnect"] = $connect;
@@ -334,15 +345,13 @@ function display_content(&$a, $update = 0) {
 	}
 
 	if ($is_owner) {
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
 		$x = array(
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => ( (is_array($a->user)) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
-			'acl' => populate_acl($a->user, $celeb),
+			'acl' => populate_acl($a->user),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

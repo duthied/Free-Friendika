@@ -945,13 +945,14 @@ ul .sidebar-group-li .icon {
 	width: 12px;
 }
 
-.nets-ul, .fileas-ul, .categories-ul  {
+.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul  {
 	list-style-type: none;
 }
 
 .nets-ul li, 
 .fileas-ul li, 
-.categories-ul li {
+.categories-ul li,
+.datebrowse-link {
 }
 
 .nets-link {
@@ -4604,10 +4605,6 @@ div #datebrowse-sidebar.widget {
 }
 
 #id_npassword {}
-
-#posted-date-selector {
-	margin-left: 33px;
-}
 
 #hide-comments-page-widget {
 	margin-left: 40px;

@@ -2,7 +2,9 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
+require_once("include/map.php");
 require_once("mod/proxy.php");
+
 
 if(! function_exists('replace_macros')) {
 /**
@@ -218,7 +220,7 @@ function xmlify($str) {
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
 	*/
-	$buffer = htmlspecialchars($str, ENT_QUOTES);
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
 	$buffer = trim($buffer);
 
 	return($buffer);
@@ -833,10 +835,16 @@ function get_mentions($item) {
 	foreach($arr as $x) {
 		$matches = null;
 		if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 			$o .= "\t\t" . '<link rel="ostatus:attention" href="' . $matches[1] . '" />' . "\r\n";
+			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 		}
 	}
+
+	if (!$item['private']) {
+			$o .= "\t\t".'<link rel="ostatus:attention" href="http://activityschema.org/collection/public"/>'."\r\n";
+			$o .= "\t\t".'<link rel="mentioned" href="http://activityschema.org/collection/public"/>'."\r\n";
+	}
+
 	return $o;
 }}
 
@@ -920,7 +928,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	if($redirect) {
 		$a = get_app();
 		$redirect_url = $a->get_baseurl() . '/redir/' . $contact['id'];
-		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === 'dfrn')) {
+		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
 			$url = $redirect_url;
 			$sparkle = ' sparkle';
@@ -958,19 +966,18 @@ if(! function_exists('search')) {
  * @param string $s search query
  * @param string $id html id
  * @param string $url search url
- * @param boolean $save show save search button
- * @return string html for search box #FIXME: remove html
+ * @param boolean $savedsearch show save search button
  */
 function search($s,$id='search-box',$url='/search',$save = false) {
 	$a = get_app();
-	$o  = '<div id="' . $id . '">';
-	$o .= '<form action="' . $a->get_baseurl((stristr($url,'network')) ? true : false) . $url . '" method="get" >';
-	$o .= '<input type="text" name="search" id="search-text" placeholder="' . t('Search') . '" value="' . $s .'" />';
-	$o .= '<input type="submit" name="submit" id="search-submit" value="' . t('Search') . '" />';
-	if($save)
-		$o .= '<input type="submit" name="save" id="search-save" value="' . t('Save') . '" />';
-	$o .= '</form></div>';
-	return $o;
+        return replace_macros(get_markup_template('searchbox.tpl'), array(
+		'$s' => $s,
+		'$id' => $id,
+		'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+		'$search_label' => t('Search'),
+		'$save_label' => t('Save'),
+		'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+	));
 }}
 
 if(! function_exists('valid_email')) {
@@ -1131,9 +1138,9 @@ function smilies($s, $sample = false) {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="<3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="</3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="<\\3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;/3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-smile.gif" alt=":-)" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-wink.gif" alt=";-)" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-frown.gif" alt=":-(" />',
@@ -1210,7 +1217,7 @@ function preg_heart($x) {
 		return $x[0];
 	$t = '';
 	for($cnt = 0; $cnt < strlen($x[1]); $cnt ++)
-		$t .= '<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="<3" />';
+		$t .= '<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />';
 	$r =  str_replace($x[0],$t,$x[0]);
 	return $r;
 }
@@ -1460,6 +1467,14 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		$as .= '<div class="clear"></div></div>';
 	}
 	$s = $s . $as;
+
+	// map
+	if(strpos($s,'<div class="map">') !== false && $item['coord']) {
+		$x = generate_map(trim($item['coord']));
+		if($x) {
+			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
+		}
+	}		
 
 
 	// Look for spoiler
@@ -2267,3 +2282,15 @@ function deindent($text, $chr="[\t ]", $count=NULL) {
 
 	return implode("\n", $lines);
 }
+
+function formatBytes($bytes, $precision = 2) { 
+	 $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+	$bytes = max($bytes, 0); 
+	$pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+	$pow = min($pow, count($units) - 1); 
+
+	$bytes /= pow(1024, $pow);
+
+	return round($bytes, $precision) . ' ' . $units[$pow]; 
+} 

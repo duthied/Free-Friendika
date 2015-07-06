@@ -357,6 +357,7 @@ function admin_page_site_post(&$a){
 	$delivery_interval	=	((x($_POST,'delivery_interval'))	? intval(trim($_POST['delivery_interval']))	: 0);
 	$poll_interval		=	((x($_POST,'poll_interval'))		? intval(trim($_POST['poll_interval']))		: 0);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
+	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
@@ -378,7 +379,9 @@ function admin_page_site_post(&$a){
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
-
+	$rino			=	((x($_POST,'rino'))				? intval($_POST['rino'])				: 0);
+	
+	
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -423,6 +426,7 @@ function admin_page_site_post(&$a){
 	set_config('system','delivery_interval',$delivery_interval);
 	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
+	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
 	set_config('config','sitename',$sitename);
 	set_config('config','hostname',$hostname);
 	set_config('config','sender_email', $sender_email);
@@ -430,6 +434,7 @@ function admin_page_site_post(&$a){
 	set_config('system','suppress_tags',$suppress_tags);
 	set_config('system','shortcut_icon',$shortcut_icon);
 	set_config('system','touch_icon',$touch_icon);
+	
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
 		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
@@ -513,6 +518,9 @@ function admin_page_site_post(&$a){
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
 
+	set_config('system','rino_encrypt', $rino);
+	
+	
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
 	return; // NOTREACHED
@@ -626,7 +634,7 @@ function admin_page_site(&$a) {
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> array('sitename', t("Site name"), htmlentities($a->config['sitename'], ENT_QUOTES), 'UTF-8'),
+		'$sitename' 		=> array('sitename', t("Site name"), $a->config['sitename'],'UTF-8'),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
 		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], "The email address your server shall use to send notification emails from.", "", "", "email"),
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
@@ -647,7 +655,7 @@ function admin_page_site(&$a) {
 
 		'$register_policy'	=> array('register_policy', t("Register policy"), $a->config['register_policy'], "", $register_choices),
 		'$daily_registrations'	=> array('max_daily_registrations', t("Maximum Daily Registrations"), get_config('system', 'max_daily_registrations'), t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")),
-		'$register_text'	=> array('register_text', t("Register text"), htmlentities($a->config['register_text'], ENT_QUOTES, 'UTF-8'), t("Will be displayed prominently on the registration page.")),
+		'$register_text'	=> array('register_text', t("Register text"), $a->config['register_text'], t("Will be displayed prominently on the registration page.")),
 		'$abandon_days'		=> array('abandon_days', t('Accounts abandoned after x days'), get_config('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')),
 		'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), get_config('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
 		'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), get_config('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),
@@ -677,6 +685,7 @@ function admin_page_site(&$a) {
 		'$delivery_interval'	=> array('delivery_interval', t("Delivery interval"), (x(get_config('system','delivery_interval'))?get_config('system','delivery_interval'):2), t("Delay background delivery processes by this many seconds to reduce system load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 for large dedicated servers.")),
 		'$poll_interval'	=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
+		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),
@@ -692,7 +701,10 @@ function admin_page_site(&$a) {
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-	'$form_security_token' => get_form_security_token("admin_site")
+		
+		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
+		
+		'$form_security_token' => get_form_security_token("admin_site")
 
 	));
 
@@ -789,7 +801,7 @@ function admin_page_users_post(&$a){
 	$nu_nickname = ( x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
 	$nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
-	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+	check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/users', 'admin_users');
 
 	if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');
@@ -943,11 +955,8 @@ function admin_page_users(&$a){
 				intval($a->pager['itemspage'])
 				);
 
-	function _setup_users($e){
-		$a = get_app();
-
-		$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
-
+	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$_setup_users = function ($e) use ($adminlist){
 		$accounts = Array(
 			t('Normal Account'),
 			t('Soapbox Account'),
@@ -960,10 +969,11 @@ function admin_page_users(&$a){
 		$e['lastitem_date'] = relative_date($e['lastitem_date']);
 		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
+		$e['is_deletable'] = (intval($e['uid']) != local_user());
 		$e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
 		return $e;
-	}
-	$users = array_map("_setup_users", $users);
+	};
+	$users = array_map($_setup_users, $users);
 
 
 	// Get rid of dashes in key names, Smarty3 can't handle them

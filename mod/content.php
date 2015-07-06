@@ -131,7 +131,9 @@ function content_content(&$a, $update = 0) {
 		}
 
 		$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND ( `contact-id` IN ( $contact_str ) OR `allow_gid` like '" . protect_sprintf('%<' . intval($group) . '>%') . "' ) and deleted = 0 ) ";
-		$o = '<h2>' . t('Group: ') . $r[0]['name'] . '</h2>' . $o;
+		$o = replace_macros(get_markup_template("section_title.tpl"),array(
+			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
+		)) . $o;
 	}
 	elseif($cid) {
 
@@ -423,7 +425,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
 
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
+				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 				localize_item($item);
 				if($mode === 'network-new')
@@ -797,7 +799,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
 
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
+				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 				$indent = (($toplevelpost) ? '' : ' comment');
 
