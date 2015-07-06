@@ -17,14 +17,14 @@ Version 3.4.1
 		add attachment links as enclosures
 		send salmon notifications to every mentioned person
 		better thread completition
-		support to bookmarks
-		support to events and questions
+		support for bookmarks
+		support for events and questions
 		link to items using GUID
-	Fix warining in mod/photo (issue #1638) (rabuzarus)
+	Fix warning in mod/photo (issue #1638) (rabuzarus)
 	New option to block public access to local directory and poco
 	Fix parsing bbcode [url] tag with fragment identifier (issue #1514) (fabrixxm)
 	Fix HTML for oembeds (issue #1612) (fabrixxm)
-	Add fake filelds to API response for better Twitter API compatibility (annando)
+	Add fake fields to API response for better Twitter API compatibility (annando)
 	Fix search in local directory (issue #1657) (annando)
 	Improve OEmbed (issue #1640) (annando)
 	Fix double html encodig in site administration page for sitename and register text (issue #1628) (annando)
@@ -36,7 +36,7 @@ Version 3.4.1
 	Fix emoticons alt text (tobias)
 	Improve threaded display in Vier theme (annando)
 	Use field templates in photo edit form (fabrixxm)
-	Alllow deletion to any user but yourself (issue #1625) (fabrixxm)
+	Alllow deletion of any user but yourself (issue #1625) (fabrixxm)
 	Install wizard load htconfig template from template/ folder, remove localized htconfig templates (fabrixxm)
 	Add contact detail to non-js contact drop confirm dialog (issue #1629) (fabrixxm)
 	Return geo coord in API (annando)
@@ -49,7 +49,7 @@ Version 3.4.1
 	Remove google maps from core (issue #1705) (annando)
 	Update to German documentation (Frank Dieckmann, tobias)
 	Updated translations (translation teams, tobias)
-	
+
 Version 3.4
 
 	Optionally, "like" and "dislike" activities don't update thread timestamp (annando)
