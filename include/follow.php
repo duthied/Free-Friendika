@@ -1,5 +1,30 @@
 <?php
 
+function update_contact($id) {
+	$r = q("SELECT `url`, `network` FROM `contact` WHERE `id` = %d", intval($id));
+	if (!$r)
+		return;
+
+	$ret = probe_url($r[0]["url"]);
+
+	// If probe_url fails the network code will be different
+	if ($ret["network"] != $r[0]["network"])
+		return;
+
+	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s', `name` = '%s', `nick` = '%s' WHERE `id` = %d",
+		dbesc($ret['url']),
+		dbesc(normalise_link($ret['url'])),
+		dbesc($ret['addr']),
+		dbesc($ret['alias']),
+		dbesc($ret['batch']),
+		dbesc($ret['notify']),
+		dbesc($ret['poll']),
+		dbesc($ret['poco']),
+		dbesc($ret['name']),
+		dbesc($ret['nick']),
+		intval($id)
+	);
+}
 
 //
 // Takes a $uid and a url/handle and adds a new contact
@@ -120,9 +145,10 @@ function new_contact($uid,$url,$interactive = false) {
 	// the poll url is more reliable than the profile url, as we may have
 	// indirect links or webfinger links
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` = '%s' AND `network` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' LIMIT 1",
 		intval($uid),
 		dbesc($ret['poll']),
+		dbesc(normalise_link($ret['poll'])),
 		dbesc($ret['network'])
 	);
 
@@ -136,8 +162,8 @@ function new_contact($uid,$url,$interactive = false) {
 				intval($uid)
 			);
 		}
-	}
-	else {
+
+	} else {
 
 
 		// check service class limits

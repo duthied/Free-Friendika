@@ -2064,11 +2064,11 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 		|| ($contact['rel'] == CONTACT_IS_SHARING && strlen($contact['pubkey']))) {
 		openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
 		openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
-	}
-	else {
+	} elseif($contact['prvkey']) {
 		openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
 		openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
-	}
+	} else
+		logger("No private or public key for contact ".$contact['id']." ".$contact['url']);
 
 	$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
 
@@ -2076,7 +2076,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 		$final_dfrn_id = substr($final_dfrn_id,2);
 
 	if($final_dfrn_id != $orig_id) {
-		logger('dfrn_deliver: wrong dfrn_id.');
+		logger('dfrn_deliver: wrong dfrn_id. Original: '.$orig_id.' Target: '.$final_dfrn_id.' Test: '.$test);
 		// did not decode properly - cannot trust this site
 		return 3;
 	}

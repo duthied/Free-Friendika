@@ -1,6 +1,8 @@
 <?php
 
 require_once("boot.php");
+require_once("include/follow.php");
+require_once("include/Scrape.php");
 
 function RemoveReply($subject) {
 	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
@@ -129,6 +131,10 @@ function onepoll_run(&$argv, &$argc){
 		: datetime_convert('UTC','UTC',$contact['last-update'], ATOM_TIME)
 	);
 
+	// Update the contact entry
+	if(($contact['network'] === NETWORK_OSTATUS) || ($contact['network'] === NETWORK_DIASPORA) || ($contact['network'] === NETWORK_DFRN))
+		update_contact($contact["id"]);
+
 	if($contact['network'] === NETWORK_DFRN) {
 
 
@@ -231,11 +237,11 @@ function onepoll_run(&$argv, &$argc){
 		if(($contact['duplex']) && strlen($contact['prvkey'])) {
 			openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
 			openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
-		}
-		else {
+		} elseif($contact['pubkey']) {
 			openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
 			openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
-		}
+		} else
+			logger("No private or public key for contact ".$contact['id']." ".$contact['url']);
 
 		$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
 
@@ -243,8 +249,8 @@ function onepoll_run(&$argv, &$argc){
 			$final_dfrn_id = substr($final_dfrn_id,2);
 
 		if($final_dfrn_id != $orig_id) {
-			logger('poller: ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);	
-			// did not decode properly - cannot trust this site 
+			logger('poller: ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
+			// did not decode properly - cannot trust this site
 			return;
 		}
 
@@ -255,7 +261,7 @@ function onepoll_run(&$argv, &$argc){
 		$xml = post_url($contact['poll'],$postvars);
 
 	}
-	elseif(($contact['network'] === NETWORK_OSTATUS) 
+	elseif(($contact['network'] === NETWORK_OSTATUS)
 		|| ($contact['network'] === NETWORK_DIASPORA)
 		|| ($contact['network'] === NETWORK_FEED) ) {
 
@@ -265,7 +271,8 @@ function onepoll_run(&$argv, &$argc){
 
 		$stat_writeable = ((($contact['notify']) && ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['rel'] == CONTACT_IS_FRIEND)) ? 1 : 0);
 
-		if($contact['network'] === NETWORK_OSTATUS && get_pconfig($importer_uid,'system','ostatus_autofriend'))
+		// Contacts from OStatus are always writable
+		if($contact['network'] === NETWORK_OSTATUS)
 			$stat_writeable = 1;
 
 		if($stat_writeable != $contact['writable']) {
