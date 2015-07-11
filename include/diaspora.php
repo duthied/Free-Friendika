@@ -1,5 +1,11 @@
 <?php
 
+/*
+To-Do:
+- GET /people/9aed8882b9f64896/stream
+- POST /receive/users/9aed8882b9f64896/
+*/
+
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/bb2diaspora.php');
