@@ -2064,11 +2064,11 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 		|| ($contact['rel'] == CONTACT_IS_SHARING && strlen($contact['pubkey']))) {
 		openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
 		openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
-	} elseif($contact['prvkey']) {
+	}
+	else {
 		openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
 		openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
-	} else
-		logger("No private or public key for contact ".$contact['id']." ".$contact['url']);
+	}
 
 	$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
 
