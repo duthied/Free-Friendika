@@ -1216,6 +1216,7 @@ section.minimal {
 
 .wall-item-container .wall-item-content img {
   max-width: 100%;
+  vertical-align: middle;
   /* max-width: 650px; */
   /* max-width: 580px; */
 }
