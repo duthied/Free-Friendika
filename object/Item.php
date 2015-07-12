@@ -308,7 +308,6 @@ class Item extends BaseObject {
 		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-
 		$tmp_item = array(
 			'template' => $this->get_template(),
 
