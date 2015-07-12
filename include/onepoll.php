@@ -237,11 +237,11 @@ function onepoll_run(&$argv, &$argc){
 		if(($contact['duplex']) && strlen($contact['prvkey'])) {
 			openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
 			openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
-		} elseif($contact['pubkey']) {
+		}
+		else {
 			openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
 			openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
-		} else
-			logger("No private or public key for contact ".$contact['id']." ".$contact['url']);
+		}
 
 		$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
 
