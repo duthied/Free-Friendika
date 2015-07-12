@@ -16,9 +16,9 @@
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
 	{{/if}}
 	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
 	{{if $location}}
