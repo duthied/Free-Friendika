@@ -308,10 +308,6 @@ class Item extends BaseObject {
 		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-		// Likes don't federate at OStatus
-		if (($item["item_network"] == NETWORK_OSTATUS) AND isset($buttons["like"]))
-			unset($buttons["like"]);
-
 		$tmp_item = array(
 			'template' => $this->get_template(),
 
