@@ -6,7 +6,7 @@ function update_contact($id) {
 	This will reliably kill your communication with Friendica contacts.
 	*/
 
-	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network` FROM `contact` WHERE `id` = %d", intval($id));
+	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `network` FROM `contact` WHERE `id` = %d", intval($id));
 	if (!$r)
 		return;
 
@@ -16,12 +16,21 @@ function update_contact($id) {
 	if ($ret["network"] != $r[0]["network"])
 		return;
 
+	$update = false;
+
 	// make sure to not overwrite existing values with blank entries
-	foreach ($ret AS $key => $val)
+	foreach ($ret AS $key => $val) {
 		if (isset($r[0][$key]) AND ($r[0][$key] != "") AND ($val == ""))
 			$ret[$key] = $r[0][$key];
 
-	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s', `name` = '%s', `nick` = '%s' WHERE `id` = %d",
+		if (isset($r[0][$key]) AND ($ret[$key] != $r[0][$key]))
+			$update = true;
+	}
+
+	if (!$update)
+		return;
+
+	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s' WHERE `id` = %d",
 		dbesc($ret['url']),
 		dbesc(normalise_link($ret['url'])),
 		dbesc($ret['addr']),
@@ -30,8 +39,6 @@ function update_contact($id) {
 		dbesc($ret['notify']),
 		dbesc($ret['poll']),
 		dbesc($ret['poco']),
-		dbesc($ret['name']),
-		dbesc($ret['nick']),
 		intval($id)
 	);
 }
