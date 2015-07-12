@@ -1,4 +1,5 @@
 <?php
+require_once("include/Scrape.php");
 
 function update_contact($id) {
 	/*

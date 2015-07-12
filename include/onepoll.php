@@ -2,7 +2,6 @@
 
 require_once("boot.php");
 require_once("include/follow.php");
-require_once("include/Scrape.php");
 
 function RemoveReply($subject) {
 	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
