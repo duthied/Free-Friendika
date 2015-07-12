@@ -35,8 +35,8 @@
 				{{if $archived}}
 					<li><div id="archive-message">{{$archived}}</div></li>
 				{{/if}}
-
-				<li>&nbsp;</li>
+			</ul>
+			<ul>
 
 				{{if $common_text}}
 					<li><div id="contact-edit-common"><a href="{{$common_link}}">{{$common_text}}</a></div></li>
