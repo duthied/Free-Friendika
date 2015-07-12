@@ -1,7 +1,12 @@
 <?php
 
 function update_contact($id) {
-	$r = q("SELECT `url`, `network` FROM `contact` WHERE `id` = %d", intval($id));
+	/*
+	Warning: Never ever fetch the public key via probe_url and write it into the contacts.
+	This will reliably kill your communication with Friendica contacts.
+	*/
+
+	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network` FROM `contact` WHERE `id` = %d", intval($id));
 	if (!$r)
 		return;
 
@@ -10,6 +15,11 @@ function update_contact($id) {
 	// If probe_url fails the network code will be different
 	if ($ret["network"] != $r[0]["network"])
 		return;
+
+	// make sure to not overwrite existing values with blank entries
+	foreach ($ret AS $key => $val)
+		if (isset($r[0][$key]) AND ($r[0][$key] != "") AND ($val == ""))
+			$ret[$key] = $r[0][$key];
 
 	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s', `name` = '%s', `nick` = '%s' WHERE `id` = %d",
 		dbesc($ret['url']),
