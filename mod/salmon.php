@@ -1,12 +1,10 @@
 <?php
 
-
-// There is a lot of debug stuff in here because this is quite a
-// complicated process to try and sort out.
-
 require_once('include/salmon.php');
 require_once('include/ostatus.php');
 require_once('include/crypto.php');
+require_once('include/items.php');
+require_once('include/follow.php');
 
 function salmon_return($val) {
 
@@ -96,8 +94,7 @@ function salmon_post(&$a) {
 
 	// Once we have the author URI, go to the web and try to find their public key
 
-	logger('mod-salmon: Fetching key for ' . $author_link );
-
+	logger('mod-salmon: Fetching key for ' . $author_link);
 
 	$key = get_salmon_key($author_link,$keyhash);
 
@@ -156,10 +153,9 @@ function salmon_post(&$a) {
 	if(! count($r)) {
 		logger('mod-salmon: Author unknown to us.');
 		if(get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
-			require_once('include/follow.php');
 			$result = new_contact($importer['uid'],$author_link);
 			if($result['success']) {
-				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s' ) 
+				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s') 
 					AND `uid` = %d LIMIT 1",
 					dbesc(NETWORK_OSTATUS),
 					dbesc($author_link),
@@ -170,32 +166,21 @@ function salmon_post(&$a) {
 		}
 	}
 
-	// is this a follower? Or have we ignored the person?
+	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	if((count($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	//if((count($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	if(count($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
 		http_status_exit(202);
 		// NOTREACHED
 	}
 
-	require_once('include/items.php');
-
-	// Placeholder for hub discovery. We shouldn't find any hubs
-	// since we supplied the fake feed header - and it doesn't have any.
-
+	// Placeholder for hub discovery.
 	$hub = '';
-
-	/**
-	 *
-	 * anti-spam measure: consume_feed will accept a follow activity from 
-	 * this person (and nothing else) if there is no existing contact record.
-	 *
-	 */
 
 	$contact_rec = ((count($r)) ? $r[0] : null);
 
-	//consume_feed($feedxml,$importer,$contact_rec,$hub);
 	ostatus_import($data,$importer,$contact_rec, $hub);
 
 	http_status_exit(200);

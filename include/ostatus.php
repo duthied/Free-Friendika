@@ -12,7 +12,7 @@ define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
 
-function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
+function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
 
 	$author = array();
 	$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
@@ -63,7 +63,7 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 	$author["owner-link"] = $author["author-link"];
 	$author["owner-avatar"] = $author["author-avatar"];
 
-	if ($r) {
+	if ($r AND !$onlyfetch) {
 		// Update contact data
 		$update_contact = ($r[0]['name-date'] < datetime_convert('','','now -12 hours'));
 		if ($update_contact) {
@@ -132,7 +132,7 @@ function ostatus_salmon_author($xml, $importer) {
 
 	foreach ($entries AS $entry) {
 		// fetch the author
-		$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact);
+		$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact, true);
 		return $author;
 	}
 }
@@ -201,9 +201,9 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		// fetch the author
 		if ($first_child == "feed")
-			$author = ostatus_fetchauthor($xpath, $doc->firstChild, $importer, $contact);
+			$author = ostatus_fetchauthor($xpath, $doc->firstChild, $importer, $contact, false);
 		else
-			$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact);
+			$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact, false);
 
 		$item = array_merge($header, $author);
 
@@ -243,11 +243,13 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		if ($item["verb"] == ACTIVITY_FOLLOW) {
 			// ignore "Follow" messages
+			// new_follower($importer,$contact,$datarray,$item);
 			continue;
 		}
 
 		if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
 			// ignore "Unfollow" messages
+			// lose_follower($importer,$contact,$datarray,$item);
 			continue;
 		}
 
@@ -399,7 +401,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 				$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
 
 				$orig_contact = $contact;
-				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact);
+				$orig_author = ostatus_fetchauthor($xpath, $activityobjects, $importer, $orig_contact, false);
 
 				//if (!intval(get_config('system','wall-to-wall_share'))) {
 				//	$prefix = share_header($orig_author['author-name'], $orig_author['author-link'], $orig_author['author-avatar'], "", $orig_created, $orig_link);
