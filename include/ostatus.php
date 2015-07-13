@@ -109,6 +109,34 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact) {
 	return($author);
 }
 
+function ostatus_salmon_author($xml, $importer) {
+	$a = get_app();
+
+	if ($xml == "")
+		return;
+
+	$doc = new DOMDocument();
+	@$doc->loadXML($xml);
+
+	$xpath = new DomXPath($doc);
+	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
+	$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
+	$xpath->registerNamespace('georss', "http://www.georss.org/georss");
+	$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
+	$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
+	$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
+	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
+	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+
+	$entries = $xpath->query('/atom:entry');
+
+	foreach ($entries AS $entry) {
+		// fetch the author
+		$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact);
+		return $author;
+	}
+}
+
 function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 	$a = get_app();
@@ -215,6 +243,11 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 
 		if ($item["verb"] == ACTIVITY_FOLLOW) {
 			// ignore "Follow" messages
+			continue;
+		}
+
+		if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
+			// ignore "Unfollow" messages
 			continue;
 		}
 
