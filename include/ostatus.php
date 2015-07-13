@@ -205,6 +205,12 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		else
 			$author = ostatus_fetchauthor($xpath, $entry, $importer, $contact, false);
 
+		$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$nickname = $value;
+		else
+			$nickname = $author["author-name"];
+
 		$item = array_merge($header, $author);
 
 		// Now get the item
@@ -242,14 +248,12 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		if ($item["verb"] == ACTIVITY_FOLLOW) {
-			// ignore "Follow" messages
-			// new_follower($importer,$contact,$datarray,$item);
+			new_follower($importer, $contact, $item, $nickname);
 			continue;
 		}
 
 		if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
-			// ignore "Unfollow" messages
-			// lose_follower($importer,$contact,$datarray,$item);
+			lose_follower($importer, $contact, $item, $dummy);
 			continue;
 		}
 

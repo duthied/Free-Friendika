@@ -4159,9 +4159,12 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 	$name = notags(trim($datarray['author-name']));
 	$photo = notags(trim($datarray['author-avatar']));
 
-	$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
-	if($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'])
-		$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
+	if (is_object($item)) {
+		$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
+		if($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'])
+			$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
+	} else
+		$nick = $item;
 
 	if(is_array($contact)) {
 		if(($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
