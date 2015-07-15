@@ -275,8 +275,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		// http://activitystrea.ms/schema/1.0/rsvp-yes
-		// http://activitystrea.ms/schema/1.0/share
-		if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE)))
+		if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE)))
 			logger("Unhandled verb ".$item["verb"]." ".print_r($item, true));
 
 		$item["created"] = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
