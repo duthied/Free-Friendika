@@ -239,11 +239,13 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		// Delete a message
 		if ($item["verb"] == "qvitter-delete-notice") {
 			// ignore "Delete" messages (by now)
+			logger("Ignore delete message ".print_r($item, true));
 			continue;
 		}
 
 		if ($item["verb"] == ACTIVITY_JOIN) {
 			// ignore "Join" messages
+			logger("Ignore join message ".print_r($item, true));
 			continue;
 		}
 
@@ -258,9 +260,23 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		if ($item["verb"] == ACTIVITY_FAVORITE) {
-			// ignore "Favorite" messages
+			$orig_uri = $xpath->query("activity:object/atom:id", $entry)->item(0)->nodeValue;
+			logger("Favorite ".$orig_uri." ".print_r($item, true));
+
+		        $item["verb"] = ACTIVITY_LIKE;
+			$item["parent-uri"] = $orig_uri;
+			$item["gravity"] = GRAVITY_LIKE;
+		}
+
+		if ($item["verb"] == NAMESPACE_OSTATUS."/unfavorite") {
+			// Ignore "Unfavorite" message
+			logger("Ignore unfavorite message ".print_r($item, true));
 			continue;
 		}
+
+		// http://activitystrea.ms/schema/1.0/rsvp-yes
+		if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE)))
+			logger("Unhandled verb ".$item["verb"]." ".print_r($item, true));
 
 		$item["created"] = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
 		$item["edited"] = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
