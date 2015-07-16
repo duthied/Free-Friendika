@@ -195,8 +195,20 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url))
 	);
-	if(count($x) AND ($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
-		$network = $x[0]["network"];
+
+	if (count($x)) {
+		if (($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
+			$network = $x[0]["network"];
+
+		if ($updated = "0000-00-00 00:00:00")
+			$updated = $x[0]["updated"];
+
+		$last_contact = $x[0]["last_contact"];
+		$last_failure = $x[0]["last_failure"];
+	} else {
+		$last_contact = "0000-00-00 00:00:00";
+		$last_failure = "0000-00-00 00:00:00";
+	}
 
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
 		require_once("include/Scrape.php");
@@ -223,6 +235,23 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
+	if (poco_do_update($updated, $last_contact, $last_failure)) {
+		$last_updated = poco_last_updated($profile_url);
+		if ($last_updated) {
+			$updated = $last_updated;
+			$last_contact = datetime_convert();
+			logger("Last updated for profile ".$profile_url.": ".$updated, LOGGER_DEBUG);
+
+			if (count($x))
+				q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($profile_url)));
+		} else {
+			$last_failure = datetime_convert();
+
+			if (count($x))
+				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($profile_url)));
+		}
+	}
+
 	if(count($x)) {
 		$gcid = $x[0]['id'];
 
@@ -240,6 +269,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 		if (($generation == 0) AND ($x[0]['generation'] > 0))
 			$generation = $x[0]['generation'];
+
+		if ($last_contact < $x[0]['last_contact'])
+			$last_contact = $x[0]['last_contact'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
 			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
@@ -261,7 +293,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			);
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
+		q("INSERT INTO `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `last_contact`, `last_failure`, `location`, `about`, `keywords`, `gender`, `generation`)
 			VALUES ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($network),
@@ -270,6 +302,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			dbesc($profile_photo),
 			dbesc($connect_url),
 			dbesc($updated),
+			dbesc($last_contact),
+			dbesc($last_failure),
 			dbesc($location),
 			dbesc($about),
 			dbesc($keywords),
@@ -320,6 +354,79 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	return $gcid;
 }
 
+function poco_last_updated($profile) {
+	$data = probe_url($profile);
+
+	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED))
+		return false;
+
+	$feedret = z_fetch_url($data["poll"]);
+
+	if (!$feedret["success"])
+		return false;
+
+	$doc = new DOMDocument();
+	@$doc->loadXML($feedret["body"]);
+
+	$xpath = new DomXPath($doc);
+	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
+
+	$entries = $xpath->query('/atom:feed/atom:entry');
+
+	$last_updated = "";
+
+	foreach ($entries AS $entry) {
+		$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
+		$updated = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
+
+		if ($last_updated < $published)
+			$last_updated = $published;
+
+		if ($last_updated < $updated)
+			$last_updated = $updated;
+	}
+
+	// Maybe there aren't any entries. Then check if it is a valid feed
+	if ($last_updated == "")
+		if ($xpath->query('/atom:feed')->length > 0)
+			$last_updated = "0000-00-00 00:00:00";
+
+	return($last_updated);
+}
+
+function poco_do_update($updated, $last_contact, $last_failure) {
+	$now = strtotime(datetime_convert());
+
+	if ($updated > $last_contact)
+		$contact_time = strtotime($updated);
+	else
+		$contact_time = strtotime($last_contact);
+
+	$failure_time = strtotime($last_failure);
+
+	// If the last contact was less than 24 hours then don't update
+	if (($now - $contact_time) < (60 * 60 * 24))
+		return false;
+
+	// If the last failure was less than 24 hours then don't update
+	if (($now - $failure_time) < (60 * 60 * 24))
+		return false;
+
+	// If the last contact was less than a week ago and the last failure is older than a week then don't update
+	if ((($now - $contact_time) < (60 * 60 * 24 * 7)) AND ($contact_time > $failure_time))
+		return false;
+
+	// If the last contact time was more than a week ago, then only try once a week
+	if (($now - $contact_time) > (60 * 60 * 24 * 7) AND ($now - $failure_time) < (60 * 60 * 24 * 7))
+		return false;
+
+	// If the last contact time was more than a month ago, then only try once a month
+	if (($now - $contact_time) > (60 * 60 * 24 * 30) AND ($now - $failure_time) < (60 * 60 * 24 * 30))
+		return false;
+
+	return true;
+}
+
 function poco_contact_from_body($body, $created, $cid, $uid) {
 	preg_replace_callback("/\[share(.*?)\].*?\[\/share\]/ism",
 		function ($match) use ($created, $cid, $uid){
@@ -328,20 +435,20 @@ function poco_contact_from_body($body, $created, $cid, $uid) {
 }
 
 function sub_poco_from_share($share, $created, $cid, $uid) {
-        $profile = "";
-        preg_match("/profile='(.*?)'/ism", $share[1], $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	$profile = "";
+	preg_match("/profile='(.*?)'/ism", $share[1], $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
-        preg_match('/profile="(.*?)"/ism', $share[1], $matches);
-        if ($matches[1] != "")
-                $profile = $matches[1];
+	preg_match('/profile="(.*?)"/ism', $share[1], $matches);
+	if ($matches[1] != "")
+		$profile = $matches[1];
 
 	if ($profile == "")
 		return;
 
 	logger("prepare poco_check for profile ".$profile, LOGGER_DEBUG);
-        poco_check($profile, "", "", "", "", "", "", "", "", $created, 3, $cid, $uid);
+	poco_check($profile, "", "", "", "", "", "", "", "", $created, 3, $cid, $uid);
 }
 
 function poco_store($item) {
