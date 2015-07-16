@@ -505,7 +505,7 @@ function contacts_content(&$a) {
 
 		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
 
-		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network']));
+		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
 		$common = count_common_friends(local_user(),$contact['id']);
 		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
@@ -806,7 +806,7 @@ function _contact_detail_for_template($rr){
 		'sparkle' => $sparkle,
 		'itemurl' => $rr['url'],
 		'url' => $url,
-		'network' => network_to_name($rr['network']),
+		'network' => network_to_name($rr['network'], $rr['url']),
 	);
-	
+
 }

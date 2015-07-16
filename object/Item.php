@@ -4,6 +4,7 @@ if(class_exists('Item'))
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
+require_once('include/diaspora.php');
 require_once('boot.php');
 
 /**
@@ -82,7 +83,6 @@ class Item extends BaseObject {
 	 */
 	public function get_template_data($alike, $dlike, $thread_level=1) {
 		require_once("mod/proxy.php");
-		require_once("include/diaspora.php");
 
 		$result = array();
 
@@ -368,7 +368,7 @@ class Item extends BaseObject {
                         'postopts' => $langstr,
                         'edited' => $edited,
 			'network' => $item["item_network"],
-			'network_name' => network_to_name($item['item_network']),
+			'network_name' => network_to_name($item['item_network'], $profile_link),
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

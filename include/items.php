@@ -2977,9 +2977,6 @@ function item_is_remote_self($contact, &$datarray) {
 			$datarray['private'] = 0;
 	}
 
-	//if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
-	//	$datarray["app"] = network_to_name($contact['network']);
-
 	if ($contact['network'] != NETWORK_FEED) {
 		// Store the original post
 		$r = item_store($datarray2, false, false);
