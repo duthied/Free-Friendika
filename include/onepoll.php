@@ -92,6 +92,10 @@ function onepoll_run(&$argv, &$argc){
 	);
 
 	if(! count($contacts)) {
+		// Maybe it is a Redmatrix account. Then we can fetch their contacts via poco
+		$contacts = q("SELECT `id`, `poco` FROM `contact` WHERE `id` = %d AND `poco` != ''", intval($contact_id));
+		if ($contacts)
+			poco_load($contacts[0]['id'],$importer_uid,0,$contacts[0]['poco']);
 		return;
 	}
 
