@@ -3,6 +3,13 @@
 require_once('include/datetime.php');
 
 /*
+ To-Do:
+ - noscrape for updating contact fields and "last updated"
+ - use /poco/@global for discovering contacts from other servers
+ - Make search for last activity optional
+*/
+
+/*
  * poco_load
  *
  * Given a contact-id (minimum), load the PortableContacts friend list for that contact,
@@ -270,9 +277,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($generation == 0) AND ($x[0]['generation'] > 0))
 			$generation = $x[0]['generation'];
 
-		if ($last_contact < $x[0]['last_contact'])
-			$last_contact = $x[0]['last_contact'];
-
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
 			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
 				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
@@ -359,6 +363,8 @@ function poco_last_updated($profile) {
 
 	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED))
 		return false;
+
+	// To-Do: Use noscrape
 
 	$feedret = z_fetch_url($data["poll"]);
 
@@ -649,6 +655,7 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		and not gcontact.name in ( select name from contact where uid = %d )
 		and not gcontact.id in ( select gcid from gcign where uid = %d )
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
 		group by glink.gcid order by gcontact.updated desc,total desc limit %d, %d ",
 		intval($uid),
