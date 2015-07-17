@@ -1,12 +1,15 @@
 <?php
 
 require_once('include/datetime.php');
+require_once("include/Scrape.php");
 
 /*
  To-Do:
  - noscrape for updating contact fields and "last updated"
  - use /poco/@global for discovering contacts from other servers
  - Make search for last activity optional
+ - only export contacts via poco where update is higher than failure
+ - check your own contacts in some way as well
 */
 
 /*
@@ -220,8 +223,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	}
 
 	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
-		require_once("include/Scrape.php");
-
 		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];

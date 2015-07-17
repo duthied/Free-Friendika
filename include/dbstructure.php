@@ -451,6 +451,7 @@ function db_definition() {
 					"hub-verify" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"last-update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"success_update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"failure_update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"name-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"uri-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"avatar-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
