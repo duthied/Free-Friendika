@@ -174,6 +174,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if ($profile_url == "")
 		return $gcid;
 
+	$orig_updated = $updated;
+
 	// Don't store the statusnet connector as network
 	// We can't simply set this to NETWORK_OSTATUS since the connector could have fetched posts from friendica as well
 	if ($network == NETWORK_STATUSNET)
@@ -207,7 +209,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
 			$network = $x[0]["network"];
 
-		if ($updated = "0000-00-00 00:00:00")
+		if ($updated == "0000-00-00 00:00:00")
 			$updated = $x[0]["updated"];
 
 		$last_contact = $x[0]["last_contact"];
@@ -242,7 +244,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
-	if (poco_do_update($updated, $last_contact, $last_failure)) {
+	// Only fetch last update manually if it wasn't provided
+	if (($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
 		$last_updated = poco_last_updated($profile_url);
 		if ($last_updated) {
 			$updated = $last_updated;
