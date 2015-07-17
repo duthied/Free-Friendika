@@ -7,9 +7,6 @@ require_once("include/Scrape.php");
  To-Do:
  - noscrape for updating contact fields and "last updated"
  - use /poco/@global for discovering contacts from other servers
- - Make search for last activity optional
- - only export contacts via poco where update is higher than failure
- - check your own contacts in some way as well
 */
 
 /*
@@ -245,8 +242,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
-	// Only fetch last update manually if it wasn't provided
-	if (($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
+	// Only fetch last update manually if it wasn't provided and enabled in the system
+	if (get_config('system','ld_discover_activity') AND ($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
 		$last_updated = poco_last_updated($profile_url);
 		if ($last_updated) {
 			$updated = $last_updated;

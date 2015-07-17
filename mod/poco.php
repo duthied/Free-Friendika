@@ -61,12 +61,13 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `network` IN ('%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `last_contact` >= `last_failure` AND `network` IN ('%s')",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN)
 		);
 	} elseif($system_mode) {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
+			AND `success_update` >= `failure_update`
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -75,7 +76,7 @@ function poco_init(&$a) {
 			);
 	} else {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
+			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -95,7 +96,7 @@ function poco_init(&$a) {
 
 
 	if ($global) {
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') LIMIT %d, %d",
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND `last_contact` >= `last_failure` LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
 			intval($startIndex),
@@ -106,6 +107,7 @@ function poco_init(&$a) {
 			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
+			AND `contact`.`success_update` >= `contact`.`failure_update`
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -116,7 +118,7 @@ function poco_init(&$a) {
 		);
 	} else {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
+			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
