@@ -639,6 +639,7 @@ function db_definition() {
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
+					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -684,6 +685,26 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_gid_contactid" => array("uid","gid","contact-id"),
+					)
+			);
+	$database["gserver"] = array(
+			"fields" => array(
+					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"version" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"site_name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"info" => array("type" => "text", "not null" => "1"),
+					"register_policy" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"poco" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"noscrape" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"platform" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"last_poco_query" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_contact" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_failure" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("nurl"),
 					)
 			);
 	$database["guid"] = array(

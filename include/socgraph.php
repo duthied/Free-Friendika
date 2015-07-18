@@ -214,17 +214,20 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 		$last_contact = $x[0]["last_contact"];
 		$last_failure = $x[0]["last_failure"];
+		$server_url = $x[0]["server_url"];
 	} else {
 		$last_contact = "0000-00-00 00:00:00";
 		$last_failure = "0000-00-00 00:00:00";
+		$server_url = "";
 	}
 
-	if (($network == "") OR ($name == "") OR ($profile_photo == "")) {
+	if (($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "")) {
 		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
+		$server_url = $data["baseurl"];
 	}
 
 	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
@@ -260,6 +263,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		}
 	}
 
+	poco_check_server($server_url, $network);
+
+	// Test - remove before flight
+	if ($last_contact > $last_failure)
+		q("UPDATE `gserver` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($server_url)));
+	else
+		q("UPDATE `gserver` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($server_url)));
+
 	if(count($x)) {
 		$gcid = $x[0]['id'];
 
@@ -279,7 +290,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			$generation = $x[0]['generation'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s',
+			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
 				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
@@ -287,6 +298,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($profile_photo),
 				dbesc($connect_url),
 				dbesc($profile_url),
+				dbesc($server_url),
 				dbesc($updated),
 				dbesc($location),
 				dbesc($about),
@@ -298,14 +310,15 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			);
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `updated`, `last_contact`, `last_failure`, `location`, `about`, `keywords`, `gender`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`,`network`, `url`,`nurl`,`photo`,`connect`, `server_url`, `updated`, `last_contact`, `last_failure`, `location`, `about`, `keywords`, `gender`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($network),
 			dbesc($profile_url),
 			dbesc(normalise_link($profile_url)),
 			dbesc($profile_photo),
 			dbesc($connect_url),
+			dbesc($server_url),
 			dbesc($updated),
 			dbesc($last_contact),
 			dbesc($last_failure),
@@ -432,6 +445,236 @@ function poco_do_update($updated, $last_contact, $last_failure) {
 		return false;
 
 	return true;
+}
+
+function poco_to_boolean($val) {
+        if (($val == "true") OR ($val == 1))
+                return(true);
+        if (($val == "false") OR ($val == 0))
+                return(false);
+
+        return ($val);
+}
+
+function poco_check_server($server_url, $network = "") {
+
+	if ($server_url == "")
+		return;
+
+	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+	if ($servers) {
+		$poco = $servers[0]["poco"];
+		$noscrape = $servers[0]["noscrape"];
+
+		if ($network == "")
+			$network = $servers[0]["network"];
+
+		$last_contact = $servers[0]["last_contact"];
+		$last_failure = $servers[0]["last_failure"];
+		$version = $servers[0]["version"];
+		$platform = $servers[0]["platform"];
+		$site_name = $servers[0]["site_name"];
+		$info = $servers[0]["info"];
+		$register_policy = $servers[0]["register_policy"];
+
+		// Only check the server once a week
+		if (strtotime(datetime_convert()) < (strtotime($last_contact) + (60 * 60 * 24 * 7)))
+			return;
+
+		if (strtotime(datetime_convert()) < (strtotime($last_failure) + (60 * 60 * 24 * 7)))
+			return;
+	} else {
+		$poco = "";
+		$noscrape = "";
+		$version = "";
+		$platform = "";
+		$site_name = "";
+		$info = "";
+		$register_policy = -1;
+
+		$last_contact = "0000-00-00 00:00:00";
+		$last_failure = "0000-00-00 00:00:00";
+	}
+
+	$failure = false;
+	$orig_last_failure = $last_failure;
+
+	// Check if the page is accessible via SSL.
+	$server_url = str_replace("http://", "https://", $server_url);
+	$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+	// Maybe the page is unencrypted only?
+	$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+	if (!$serverret["success"] OR ($serverret["body"] == "") OR (@sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
+		$server_url = str_replace("https://", "http://", $server_url);
+		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+	}
+
+	if (!$serverret["success"] OR ($serverret["body"] == "") OR (sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
+		$last_failure = datetime_convert();
+		$failure = true;
+	} elseif ($network == NETWORK_DIASPORA)
+		$last_contact = datetime_convert();
+
+	if (!$failure) {
+		// Test for Statusnet
+		// Will also return data for Friendica and GNU Social - but it will be overwritten later
+		// The "not implemented" is a special treatment for really, really old Friendica versions
+		$serverret = z_fetch_url($server_url."/api/statusnet/version.json");
+		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND ($serverret["body"] != '') AND (strlen($serverret["body"]) < 250)) {
+			$platform = "StatusNet";
+			$version = trim($serverret["body"], '"');
+			$network = NETWORK_OSTATUS;
+		}
+
+		// Test for GNU Social
+		$serverret = z_fetch_url($server_url."/api/gnusocial/version.json");
+		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND ($serverret["body"] != '') AND (strlen($serverret["body"]) < 250)) {
+			$platform = "GNU Social";
+			$version = trim($serverret["body"], '"');
+			$network = NETWORK_OSTATUS;
+		}
+
+		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+
+			if (isset($data->site->server)) {
+				$last_contact = datetime_convert();
+
+				if (isset($data->site->redmatrix)) {
+					if (isset($data->site->redmatrix->PLATFORM_NAME))
+						$platform = $data->site->redmatrix->PLATFORM_NAME;
+					elseif (isset($data->site->redmatrix->RED_PLATFORM))
+						$platform = $data->site->redmatrix->RED_PLATFORM;
+
+					$version = $data->site->redmatrix->RED_VERSION;
+					$network = NETWORK_DIASPORA;
+				}
+				if (isset($data->site->friendica)) {
+					$platform = $data->site->friendica->FRIENDICA_PLATFORM;
+					$version = $data->site->friendica->FRIENDICA_VERSION;
+					$network = NETWORK_DFRN;
+				}
+
+				$site_name = $data->site->name;
+
+				$data->site->closed = poco_to_boolean($data->site->closed);
+				$data->site->private = poco_to_boolean($data->site->private);
+				$data->site->inviteonly = poco_to_boolean($data->site->inviteonly);
+
+				if (!$data->site->closed AND !$data->site->private and $data->site->inviteonly)
+					$register_policy = REGISTER_APPROVE;
+				elseif (!$data->site->closed AND !$data->site->private)
+					$register_policy = REGISTER_OPEN;
+				else
+					$register_policy = REGISTER_CLOSED;
+			}
+		}
+	}
+
+	// Query statistics.json. Optional package for Diaspora, Friendica and Redmatrix
+	if (!$failure) {
+		$serverret = z_fetch_url($server_url."/statistics.json");
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+			if ($version == "")
+				$version = $data->version;
+
+			$site_name = $data->name;
+
+			if (isset($data->network) AND ($platform == ""))
+				$platform = $data->network;
+
+			if ($data->registrations_open)
+				$register_policy = REGISTER_OPEN;
+			else
+				$register_policy = REGISTER_CLOSED;
+
+			if (isset($data->version))
+				$last_contact = datetime_convert();
+		}
+	}
+
+	// Check for noscrape
+	// Friendica servers could be detected as OStatus servers
+	if (!$failure AND in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+		$serverret = z_fetch_url($server_url."/friendica/json");
+
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+
+			if (isset($data->version)) {
+				$last_contact = datetime_convert();
+				$network = NETWORK_DFRN;
+
+				$noscrape = $data->no_scrape_url;
+				$version = $data->version;
+				$site_name = $data->site_name;
+				$info = $data->info;
+				$register_policy_str = $data->register_policy;
+				$platform = $data->platform;
+
+				switch ($register_policy_str) {
+					case "REGISTER_CLOSED":
+						$register_policy = REGISTER_CLOSED;
+						break;
+					case "REGISTER_APPROVE":
+						$register_policy = REGISTER_APPROVE;
+						break;
+					case "REGISTER_OPEN":
+						$register_policy = REGISTER_OPEN;
+						break;
+				}
+			}
+		}
+	}
+
+	// Look for poco
+	if (!$failure) {
+		$serverret = z_fetch_url($server_url."/poco");
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+			if (isset($data->totalResults)) {
+				$poco = $server_url."/poco";
+				$last_contact = datetime_convert();
+			}
+		}
+	}
+
+	if ($servers)
+		 q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
+			`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
+			dbesc($server_url),
+			dbesc($version),
+			dbesc($site_name),
+			dbesc($info),
+			intval($register_policy),
+			dbesc($poco),
+			dbesc($noscrape),
+			dbesc($network),
+			dbesc($platform),
+			dbesc($last_contact),
+			dbesc($last_failure),
+			dbesc(normalise_link($server_url))
+		);
+	else
+		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `last_contact`)
+					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s')",
+				dbesc($server_url),
+				dbesc(normalise_link($server_url)),
+				dbesc($version),
+				dbesc($site_name),
+				dbesc($info),
+				intval($register_policy),
+				dbesc($poco),
+				dbesc($noscrape),
+				dbesc($network),
+				dbesc($platform),
+				dbesc(datetime_convert())
+		);
 }
 
 function poco_contact_from_body($body, $created, $cid, $uid) {
