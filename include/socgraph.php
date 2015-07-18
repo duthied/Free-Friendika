@@ -977,20 +977,27 @@ function poco_discover() {
 	$r = q("SELECT `poco`, `nurl` FROM `gserver` WHERE `last_contact` > `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if ($r)
 		foreach ($r AS $server) {
-			$url = $server["poco"]."/@global?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+			// Fetch all users from the other server
+			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
 
 			$retdata = z_fetch_url($url);
 			if ($retdata["success"]) {
-				poco_discover_server(json_decode($retdata["body"]));
+				poco_discover_server(json_decode($retdata["body"]), 2);
+
+				// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
+				$url = $server["poco"]."/@global?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+
+				$retdata = z_fetch_url($url);
+				if ($retdata["success"])
+					poco_discover_server(json_decode($retdata["body"]));
+
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				break;
-			} else
-				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
-
+			}
 		}
 }
 
-function poco_discover_server($data) {
+function poco_discover_server($data, $default_generation = 0) {
 
 	foreach ($data->entry AS $entry) {
 		$profile_url = '';
@@ -1003,7 +1010,7 @@ function poco_discover_server($data) {
 		$about = '';
 		$keywords = '';
 		$gender = '';
-		$generation = 0;
+		$generation = $default_generation;
 
 		$name = $entry->displayName;
 
