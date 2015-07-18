@@ -605,6 +605,8 @@ function contacts_content(&$a) {
 			'$alt_text' => $alt_text,
 			'$sparkle' => $sparkle,
 			'$url' => $url,
+			'$profileurllabel' => t('Profile URL'),
+			'$profileurl' => $contact['url'],
 
 		));
 
