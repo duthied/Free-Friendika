@@ -82,6 +82,10 @@ function poller_run(&$argv, &$argc){
 
 	proc_run('php',"include/dsprphotoq.php");
 
+	// run the process to discover global contacts in the background
+
+	proc_run('php',"include/discover_poco.php");
+
 	// expire any expired accounts
 
 	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0

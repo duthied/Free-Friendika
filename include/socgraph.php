@@ -2,12 +2,7 @@
 
 require_once('include/datetime.php');
 require_once("include/Scrape.php");
-
-/*
- To-Do:
- - noscrape for updating contact fields and "last updated"
- - use /poco/@global for discovering contacts from other servers
-*/
+require_once("include/html2bbcode.php");
 
 /*
  * poco_load
@@ -27,8 +22,6 @@ require_once("include/Scrape.php");
 
 
 function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
-
-	require_once("include/html2bbcode.php");
 
 	$a = get_app();
 
@@ -246,7 +239,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
 	// Only fetch last update manually if it wasn't provided and enabled in the system
-	if (get_config('system','ld_discover_activity') AND ($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
+	if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
 		$last_updated = poco_last_updated($profile_url);
 		if ($last_updated) {
 			$updated = $last_updated;
@@ -266,10 +259,10 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	poco_check_server($server_url, $network);
 
 	// Test - remove before flight
-	if ($last_contact > $last_failure)
-		q("UPDATE `gserver` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($server_url)));
-	else
-		q("UPDATE `gserver` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($server_url)));
+	//if ($last_contact > $last_failure)
+	//	q("UPDATE `gserver` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($server_url)));
+	//else
+	//	q("UPDATE `gserver` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($server_url)));
 
 	if(count($x)) {
 		$gcid = $x[0]['id'];
@@ -448,12 +441,12 @@ function poco_do_update($updated, $last_contact, $last_failure) {
 }
 
 function poco_to_boolean($val) {
-        if (($val == "true") OR ($val == 1))
-                return(true);
-        if (($val == "false") OR ($val == 0))
-                return(false);
+	if (($val == "true") OR ($val == 1))
+		return(true);
+	if (($val == "false") OR ($val == 0))
+		return(false);
 
-        return ($val);
+	return ($val);
 }
 
 function poco_check_server($server_url, $network = "") {
@@ -976,3 +969,89 @@ function update_suggestions() {
 		}
 	}
 }
+
+function poco_discover() {
+
+	$last_update = date("c", time() - (60 * 60 * 24));
+
+	$r = q("SELECT `poco`, `nurl` FROM `gserver` WHERE `last_contact` > `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
+	if ($r)
+		foreach ($r AS $server) {
+			$url = $server["poco"]."/@global?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+
+			$retdata = z_fetch_url($url);
+			if ($retdata["success"]) {
+				poco_discover_server(json_decode($retdata["body"]));
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+				break;
+			} else
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+
+		}
+}
+
+function poco_discover_server($data) {
+
+	foreach ($data->entry AS $entry) {
+		$profile_url = '';
+		$profile_photo = '';
+		$connect_url = '';
+		$name = '';
+		$network = '';
+		$updated = '0000-00-00 00:00:00';
+		$location = '';
+		$about = '';
+		$keywords = '';
+		$gender = '';
+		$generation = 0;
+
+		$name = $entry->displayName;
+
+		if(isset($entry->urls)) {
+			foreach($entry->urls as $url) {
+				if($url->type == 'profile') {
+					$profile_url = $url->value;
+					continue;
+				}
+				if($url->type == 'webfinger') {
+					$connect_url = str_replace('acct:' , '', $url->value);
+					continue;
+				}
+			}
+		}
+		if(isset($entry->photos)) {
+			foreach($entry->photos as $photo) {
+				if($photo->type == 'profile') {
+					$profile_photo = $photo->value;
+					continue;
+				}
+			}
+		}
+
+		if(isset($entry->updated))
+			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+
+		if(isset($entry->network))
+			$network = $entry->network;
+
+		if(isset($entry->currentLocation))
+			$location = $entry->currentLocation;
+
+		if(isset($entry->aboutMe))
+			$about = html2bbcode($entry->aboutMe);
+
+		if(isset($entry->gender))
+			$gender = $entry->gender;
+
+		if(isset($entry->generation) AND ($entry->generation > 0))
+			$generation = ++$entry->generation;
+
+		if(isset($entry->tags))
+			foreach($entry->tags as $tag)
+				$keywords = implode(", ", $tag);
+
+		if ($generation > 0)
+			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation);
+	}
+}
+?>

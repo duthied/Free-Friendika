@@ -358,7 +358,8 @@ function admin_page_site_post(&$a){
 	$poll_interval		=	((x($_POST,'poll_interval'))		? intval(trim($_POST['poll_interval']))		: 0);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
-	$ld_discover_activity	=	((x($_POST,'ld_discover_activity'))	? intval(trim($_POST['ld_discover_activity']))	: false);
+	$poco_completion	=	((x($_POST,'poco_completion'))		? intval(trim($_POST['poco_completion']))	: false);
+	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: false);
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
@@ -428,7 +429,8 @@ function admin_page_site_post(&$a){
 	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
-	set_config('system','ld_discover_activity',$ld_discover_activity);
+	set_config('system','poco_completion',$poco_completion);
+	set_config('system','poco_discovery',$poco_discovery);
 	set_config('config','sitename',$sitename);
 	set_config('config','hostname',$hostname);
 	set_config('config','sender_email', $sender_email);
@@ -436,7 +438,7 @@ function admin_page_site_post(&$a){
 	set_config('system','suppress_tags',$suppress_tags);
 	set_config('system','shortcut_icon',$shortcut_icon);
 	set_config('system','touch_icon',$touch_icon);
-	
+
 	if ($banner==""){
 		// don't know why, but del_config doesn't work...
 		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
@@ -632,7 +634,7 @@ function admin_page_site(&$a) {
 		'$upload' => t('File upload'),
 		'$corporate' => t('Policies'),
 		'$advanced' => t('Advanced'),
-		'$local_directory' => t('Local Directory (Portable Contacts)'),
+		'$portable_contacts' => t('Portable Contact Directory'),
 		'$performance' => t('Performance'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
@@ -690,7 +692,8 @@ function admin_page_site(&$a) {
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 
-		'$ld_discover_activity'	=> array('ld_discover_activity', t("Discover last activity"), get_config('system','ld_discover_activity'), t("Update the last activity when this isn't provided via the 'portable contacts' functionality. (Useful for poco exchange with Redmatrix and friendica servers before 3.3)")),
+		'$poco_completion'	=> array('poco_completion', t("Completion of incoming contacts"), get_config('system','poco_completion'), t("Complete data of incomplete incoming contacts that are provided by the 'portable contacts' functionality. (Useful for poco exchange with Redmatrix and friendica servers before 3.3)")),
+		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), get_config('system','poco_discovery'), t("Periodically query other friendica servers for their recent contacts.")),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),

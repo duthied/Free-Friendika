@@ -115,8 +115,9 @@
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
-	<h3>{{$local_directory}}</h3>
-	{{include file="field_checkbox.tpl" field=$ld_discover_activity}}
+	<h3>{{$portable_contacts}}</h3>
+	{{include file="field_checkbox.tpl" field=$poco_completion}}
+	{{include file="field_checkbox.tpl" field=$poco_discovery}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$performance}}</h3>
