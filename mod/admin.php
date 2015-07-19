@@ -641,7 +641,7 @@ function admin_page_site(&$a) {
 		'$upload' => t('File upload'),
 		'$corporate' => t('Policies'),
 		'$advanced' => t('Advanced'),
-		'$portable_contacts' => t('Portable Contact Directory'),
+		'$portable_contacts' => t('Auto Discovered Contact Directory'),
 		'$performance' => t('Performance'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
@@ -699,8 +699,8 @@ function admin_page_site(&$a) {
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 
-		'$poco_completion'	=> array('poco_completion', t("Completion of incoming contacts"), get_config('system','poco_completion'), t("Complete data of incomplete incoming contacts that are provided by the 'portable contacts' functionality. (Useful for poco exchange with Redmatrix and friendica servers before 3.3)")),
-		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), (string) intval(get_config('system','poco_discovery')), t("Periodically query other servers for profiles. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available."), $poco_discovery_choices),
+		'$poco_completion'	=> array('poco_completion', t("Completion of incoming contacts"), get_config('system','poco_completion'), t("Complete data of incomplete incoming contacts that are provided by the 'portable contacts' functionality. (Useful when communicating with Redmatrix and friendica servers before 3.3)")),
+		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), (string) intval(get_config('system','poco_discovery')), t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available."), $poco_discovery_choices),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),

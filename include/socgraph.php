@@ -939,6 +939,7 @@ function update_suggestions() {
 
 	$done = array();
 
+	// To-Do: Check if it is really neccessary to poll the own server
 	poco_load(0,0,0,$a->get_baseurl() . '/poco');
 
 	$done[] = $a->get_baseurl() . '/poco';
@@ -949,6 +950,9 @@ function update_suggestions() {
 			$j = json_decode($x);
 			if($j->entries) {
 				foreach($j->entries as $entry) {
+
+					poco_check_server($entry->url);
+
 					$url = $entry->url . '/poco';
 					if(! in_array($url,$done))
 						poco_load(0,0,0,$entry->url . '/poco');
@@ -957,8 +961,9 @@ function update_suggestions() {
 		}
 	}
 
-	$r = q("select distinct(poco) as poco from contact where network = '%s'",
-		dbesc(NETWORK_DFRN)
+	// Query your contacts from Friendica and Redmatrix/Hubzilla for their contacts
+	$r = q("SELECT DISTINCT(`poco`) AS `poco` FROM `contact` WHERE `network` IN ('%s', '%s')",
+		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA)
 	);
 
 	if(count($r)) {
