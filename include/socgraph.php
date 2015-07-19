@@ -238,6 +238,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
+	poco_check_server($server_url, $network);
+
 	// Only fetch last update manually if it wasn't provided and enabled in the system
 	if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($updated, $last_contact, $last_failure)) {
 		$last_updated = poco_last_updated($profile_url);
@@ -245,24 +247,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			$updated = $last_updated;
 			$last_contact = datetime_convert();
 			logger("Last updated for profile ".$profile_url.": ".$updated, LOGGER_DEBUG);
-
-			if (count($x))
-				q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($profile_url)));
-		} else {
+		} else
 			$last_failure = datetime_convert();
-
-			if (count($x))
-				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($profile_url)));
-		}
 	}
-
-	poco_check_server($server_url, $network);
-
-	// Test - remove before flight
-	//if ($last_contact > $last_failure)
-	//	q("UPDATE `gserver` SET `last_contact` = '%s' WHERE `nurl` = '%s'", dbesc($last_contact), dbesc(normalise_link($server_url)));
-	//else
-	//	q("UPDATE `gserver` SET `last_failure` = '%s' WHERE `nurl` = '%s'", dbesc($last_failure), dbesc(normalise_link($server_url)));
 
 	if(count($x)) {
 		$gcid = $x[0]['id'];
@@ -366,17 +353,53 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 }
 
 function poco_last_updated($profile) {
+
+	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
+			dbesc(normalise_link($profile)));
+
+	if ($gcontacts[0]["server_url"] != "") {
+		$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` < `last_failure`", dbesc(normalise_link($gcontacts[0]["server_url"])));
+
+		if ($servers)
+			return false;
+	}
+
 	$data = probe_url($profile);
 
-	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED))
+	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED)) {
+		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 		return false;
+	}
+
+	if (($data["name"] != "") AND ($data["name"] != $gcontacts[0]["name"]))
+		q("UPDATE `gcontact` SET `name` = '%s' WHERE `nurl` = '%s'",
+			dbesc($data["name"]), dbesc(normalise_link($profile)));
+
+	if (($data["addr"] != "") AND ($data["addr"] != $gcontacts[0]["connect"]))
+		q("UPDATE `gcontact` SET `connect` = '%s' WHERE `nurl` = '%s'",
+			dbesc($data["addr"]), dbesc(normalise_link($profile)));
+
+	if (($data["photo"] != "") AND ($data["photo"] != $gcontacts[0]["photo"]))
+		q("UPDATE `gcontact` SET `photo` = '%s' WHERE `nurl` = '%s'",
+			dbesc($data["photo"]), dbesc(normalise_link($profile)));
+
+	if (($data["baseurl"] != "") AND ($data["baseurl"] != $gcontacts[0]["server_url"]))
+		q("UPDATE `gcontact` SET `server_url` = '%s' WHERE `nurl` = '%s'",
+			dbesc($data["baseurl"]), dbesc(normalise_link($profile)));
+
+	if ($data["baseurl"] != "")
+		poco_check_server($data["baseurl"], $data["network"]);
 
 	// To-Do: Use noscrape
 
 	$feedret = z_fetch_url($data["poll"]);
 
-	if (!$feedret["success"])
+	if (!$feedret["success"]) {
+		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 		return false;
+	}
 
 	$doc = new DOMDocument();
 	@$doc->loadXML($feedret["body"]);
@@ -404,6 +427,9 @@ function poco_last_updated($profile) {
 		if ($xpath->query('/atom:feed')->length > 0)
 			$last_updated = "0000-00-00 00:00:00";
 
+	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
+		dbesc($last_updated), dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
 	return($last_updated);
 }
 
@@ -430,11 +456,11 @@ function poco_do_update($updated, $last_contact, $last_failure) {
 		return false;
 
 	// If the last contact time was more than a week ago, then only try once a week
-	if (($now - $contact_time) > (60 * 60 * 24 * 7) AND ($now - $failure_time) < (60 * 60 * 24 * 7))
+	if ((($now - $contact_time) > (60 * 60 * 24 * 7)) AND (($now - $failure_time) < (60 * 60 * 24 * 7)))
 		return false;
 
-	// If the last contact time was more than a month ago, then only try once a month
-	if (($now - $contact_time) > (60 * 60 * 24 * 30) AND ($now - $failure_time) < (60 * 60 * 24 * 30))
+	// If the last contact time was more than a month ago, then only try once a month - but only if there ever was a contact time
+	if (($contact_time > 0) AND (($now - $contact_time) > (60 * 60 * 24 * 30)) AND (($now - $failure_time) < (60 * 60 * 24 * 30)))
 		return false;
 
 	return true;
@@ -452,7 +478,7 @@ function poco_to_boolean($val) {
 function poco_check_server($server_url, $network = "") {
 
 	if ($server_url == "")
-		return;
+		return false;
 
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
 	if ($servers) {
@@ -470,12 +496,8 @@ function poco_check_server($server_url, $network = "") {
 		$info = $servers[0]["info"];
 		$register_policy = $servers[0]["register_policy"];
 
-		// Only check the server once a week
-		if (strtotime(datetime_convert()) < (strtotime($last_contact) + (60 * 60 * 24 * 7)))
-			return;
-
-		if (strtotime(datetime_convert()) < (strtotime($last_failure) + (60 * 60 * 24 * 7)))
-			return;
+		if (!poco_do_update("", $last_contact, $last_failure))
+			return ($last_contact >= $last_failure);
 	} else {
 		$poco = "";
 		$noscrape = "";
@@ -668,6 +690,7 @@ function poco_check_server($server_url, $network = "") {
 				dbesc($platform),
 				dbesc(datetime_convert())
 		);
+	return $failure;
 }
 
 function poco_contact_from_body($body, $created, $cid, $uid) {

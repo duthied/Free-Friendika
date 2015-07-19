@@ -120,22 +120,11 @@ function onepoll_run(&$argv, &$argc){
 					dbesc($updated),
 					intval($contact['id'])
 				);
-
-				q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-					dbesc($last_updated),
-					dbesc($updated),
-					dbesc($contact['nurl'])
-				);
 			} else {
 				q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
 					dbesc($updated),
 					dbesc($updated),
 					intval($contact['id'])
-				);
-
-				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-					dbesc($updated),
-					dbesc($contact['nurl'])
 				);
 			}
 		}

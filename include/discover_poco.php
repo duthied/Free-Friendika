@@ -100,20 +100,21 @@ function discover_directory($search) {
 				if ($exists[0]["last_contact"] < $exists[0]["last_failure"])
 					continue;
 
-				$last_updated = poco_last_updated($jj->url);
-				$last_contact = datetime_convert();
-
-				if ($last_updated) {
-					logger("Mark profile ".$jj->url." as accessible (".$search.")", LOGGER_DEBUG);
-					q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-						dbesc($last_updated), dbesc($last_contact), dbesc(normalise_link($jj->url)));
-				} else {
-					logger("Mark profile ".$jj->url." as unaccessible (".$search.")", LOGGER_DEBUG);
-					q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-						dbesc($last_contact), dbesc(normalise_link($jj->url)));
-				}
+				// Update the contact
+				poco_last_updated($jj->url);
 				continue;
 			}
+
+			// Harcoded paths aren't so good. But in this case it is okay.
+			// First: We only will get Friendica contacts (which always are using this url schema)
+			// Second: There will be no further problems if we are doing a mistake
+			$server_url = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $jj->url);
+			if ($server_url != $jj->url)
+				if (!poco_check_server($server_url)) {
+					logger("Friendica server ".$server_url." doesn't answer.", LOGGER_DEBUG);
+					continue;
+				}
+					logger("Friendica server ".$server_url." seems to be okay.", LOGGER_DEBUG);
 
 			logger("Check if profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 			$data = probe_url($jj->url);
