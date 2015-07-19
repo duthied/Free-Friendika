@@ -970,7 +970,7 @@ function update_suggestions() {
 	}
 }
 
-function poco_discover() {
+function poco_discover($complete = false) {
 
 	$last_update = date("c", time() - (60 * 60 * 24));
 
@@ -980,24 +980,63 @@ function poco_discover() {
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
 
+			logger("Fetch all users from the server ".$server["nurl"], LOGGER_DEBUG);
+
 			$retdata = z_fetch_url($url);
 			if ($retdata["success"]) {
-				poco_discover_server(json_decode($retdata["body"]), 2);
+				$data = json_decode($retdata["body"]);
+				poco_discover_server($data, 2);
 
-				// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
-				$url = $server["poco"]."/@global?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+				if (get_config('system','poco_discovery') > 1) {
 
-				$retdata = z_fetch_url($url);
-				if ($retdata["success"])
-					poco_discover_server(json_decode($retdata["body"]));
+					// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
+					$url = $server["poco"]."/@global?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+
+					$retdata = z_fetch_url($url);
+					if ($retdata["success"]) {
+						logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
+						poco_discover_server(json_decode($retdata["body"]));
+					} elseif (get_config('system','poco_discovery') > 2) {
+						logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
+						poco_discover_server_users($data);
+					}
+				}
 
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
-				break;
+				if (!$complete)
+					break;
 			}
 		}
 }
 
+function poco_discover_server_users($data) {
+	foreach ($data->entry AS $entry) {
+		$username = "";
+		if (isset($entry->urls)) {
+			foreach($entry->urls as $url)
+				if($url->type == 'profile') {
+					$profile_url = $url->value;
+					$urlparts = parse_url($profile_url);
+					$username = end(explode("/", $urlparts["path"]));
+				}
+		}
+		if ($username != "") {
+			logger("Fetch contacts for the user ".$username." from the server ".$server["nurl"], LOGGER_DEBUG);
+
+			// Fetch all contacts from a given user from the other server
+			$url = $server["poco"]."/".$username."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
+
+			$retdata = z_fetch_url($url);
+			if ($retdata["success"])
+				poco_discover_server(json_decode($retdata["body"]), 3);
+		}
+	}
+}
+
 function poco_discover_server($data, $default_generation = 0) {
+
+	if (!isset($data->entry) OR !count($data->entry))
+		return;
 
 	foreach ($data->entry AS $entry) {
 		$profile_url = '';
@@ -1057,8 +1096,11 @@ function poco_discover_server($data, $default_generation = 0) {
 			foreach($entry->tags as $tag)
 				$keywords = implode(", ", $tag);
 
-		if ($generation > 0)
+		if ($generation > 0) {
+			logger("Store profile ".$profile_url, LOGGER_DEBUG);
 			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation);
+			logger("Done for profile ".$profile_url, LOGGER_DEBUG);
+		}
 	}
 }
 ?>

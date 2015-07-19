@@ -359,7 +359,7 @@ function admin_page_site_post(&$a){
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
 	$poco_completion	=	((x($_POST,'poco_completion'))		? intval(trim($_POST['poco_completion']))	: false);
-	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: false);
+	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: 0);
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
@@ -382,8 +382,8 @@ function admin_page_site_post(&$a){
 	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))				? intval($_POST['rino'])				: 0);
-	
-	
+
+
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
 			q("update `contact` set
@@ -586,6 +586,13 @@ function admin_page_site(&$a) {
 			"1440" => t("Daily")
 			);
 
+		$poco_discovery_choices = array(
+			"0" => t("Disabled"),
+			"1" => t("Users"),
+			"2" => t("Users, Global Contacts"),
+			"3" => t("Users, Global Contacts/fallback"),
+			);
+
 		/* get user names to make the install a personal install of X */
 		$user_names = array();
 		$user_names['---'] = t('Multi user instance');
@@ -693,7 +700,7 @@ function admin_page_site(&$a) {
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 
 		'$poco_completion'	=> array('poco_completion', t("Completion of incoming contacts"), get_config('system','poco_completion'), t("Complete data of incomplete incoming contacts that are provided by the 'portable contacts' functionality. (Useful for poco exchange with Redmatrix and friendica servers before 3.3)")),
-		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), get_config('system','poco_discovery'), t("Periodically query other friendica servers for their recent contacts.")),
+		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), (string) intval(get_config('system','poco_discovery')), t("Periodically query other servers for profiles. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available."), $poco_discovery_choices),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),

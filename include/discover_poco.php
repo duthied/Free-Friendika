@@ -57,7 +57,7 @@ function discover_poco_run(&$argv, &$argc){
 
 	logger('start');
 
-	if (get_config('system','poco_discovery'))
+	if (get_config('system','poco_discovery') > 0)
 		poco_discover();
 
 	logger('end');
