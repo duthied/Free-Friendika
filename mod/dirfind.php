@@ -16,7 +16,7 @@ function dirfind_init(&$a) {
 
 function dirfind_content(&$a) {
 
-	$local = true;
+	$local = get_config('system','poco_local_search');
 
 	$search = notags(trim($_REQUEST['search']));
 
@@ -43,14 +43,18 @@ function dirfind_content(&$a) {
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
-			$results = q("SELECT `url`, `name`, `photo`, `keywords` FROM `gcontact`WHERE `network` IN ('%s', '%s', '%s') AND
-					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR `about` REGEXP '%s' OR
-						`keywords` REGEXP '%s') ORDER BY `name` ASC LIMIT %d, %d",
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`keywords`
+					FROM `gcontact`
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
+					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND `gcontact`.`last_contact` >= `gcontact`.`last_failure` AND
+					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
+						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s')
+						GROUP BY `gcontact`.`nurl`
+						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
+					intval(local_user()), dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					intval($startrec), intval($perpage));
-
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
@@ -62,6 +66,7 @@ function dirfind_content(&$a) {
 				}
 
 				$objresult = new stdClass();
+				$objresult->cid = $result["cid"];
 				$objresult->name = $result["name"];
 				$objresult->url = $result["url"];
 				$objresult->photo = $result["photo"];
@@ -69,6 +74,9 @@ function dirfind_content(&$a) {
 
 				$j->results[] = $objresult;
 			}
+
+			// Add found profiles from the global directory to the local directory
+			proc_run('php','include/discover_poco.php', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
@@ -89,11 +97,22 @@ function dirfind_content(&$a) {
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
 
+				// If We already know this contact then don't show the "connect" button
+				if ($jj->cid > 0) {
+					$connlnk = "";
+					$conntxt = "";
+				} else {
+					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
+					$conntxt = t('Connect');
+				}
+
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
 					'$name' => $jj->name,
 					'$photo' => proxy_url($jj->photo),
-					'$tags' => $jj->tags
+					'$tags' => $jj->tags,
+					'$conntxt' => $conntxt,
+					'$connlnk' => $connlnk,
 				));
 			}
 		}

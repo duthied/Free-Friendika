@@ -118,6 +118,7 @@
 	<h3>{{$portable_contacts}}</h3>
 	{{include file="field_checkbox.tpl" field=$poco_completion}}
 	{{include file="field_select.tpl" field=$poco_discovery}}
+	{{include file="field_checkbox.tpl" field=$poco_local_search}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$performance}}</h3>
