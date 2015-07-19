@@ -430,6 +430,10 @@ function poco_last_updated($profile) {
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
 		dbesc($last_updated), dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
+	if (($gcontacts[0]["generation"] == 0))
+		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
+			dbesc(normalise_link($profile)));
+
 	return($last_updated);
 }
 
@@ -559,6 +563,11 @@ function poco_check_server($server_url, $network = "") {
 			if (isset($data->site->server)) {
 				$last_contact = datetime_convert();
 
+				if (isset($data->site->hubzilla)) {
+					$platform = $data->site->hubzilla->PLATFORM_NAME;
+					$version = $data->site->hubzilla->RED_VERSION;
+					$network = NETWORK_DFRN;
+				}
 				if (isset($data->site->redmatrix)) {
 					if (isset($data->site->redmatrix->PLATFORM_NAME))
 						$platform = $data->site->redmatrix->PLATFORM_NAME;
@@ -676,8 +685,8 @@ function poco_check_server($server_url, $network = "") {
 			dbesc(normalise_link($server_url))
 		);
 	else
-		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `last_contact`)
-					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s')",
+		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `last_contact`, `last_failure`)
+					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
 				dbesc(normalise_link($server_url)),
 				dbesc($version),
@@ -688,9 +697,11 @@ function poco_check_server($server_url, $network = "") {
 				dbesc($noscrape),
 				dbesc($network),
 				dbesc($platform),
+				dbesc($last_contact),
+				dbesc($last_failure),
 				dbesc(datetime_convert())
 		);
-	return $failure;
+	return !$failure;
 }
 
 function poco_contact_from_body($body, $created, $cid, $uid) {
