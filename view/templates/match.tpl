@@ -2,7 +2,7 @@
 <div class="profile-match-wrapper">
 	<div class="profile-match-photo">
 		<a href="{{$url}}">
-			<img src="{{$photo}}" alt="{{$name}}" title="{{$name}}[{{$tags}}]" />
+			<img width="80" height="80" src="{{$photo}}" alt="{{$name}}" title="{{$name}}[{{$tags}}]" />
 		</a>
 	</div>
 	<div class="profile-match-break"></div>

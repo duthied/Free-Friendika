@@ -16,11 +16,13 @@ function dirfind_init(&$a) {
 
 function dirfind_content(&$a) {
 
+	$local = true;
+
 	$search = notags(trim($_REQUEST['search']));
 
 	if(strpos($search,'@') === 0)
 		$search = substr($search,1);
-	
+
 	$o = '';
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
@@ -29,16 +31,53 @@ function dirfind_content(&$a) {
 
 	if($search) {
 
-		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
-			
-		if(strlen(get_config('system','directory_submit_url')))
-			$x = fetch_url('http://dir.friendica.com/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		if ($local) {
 
-//TODO fallback local search if global dir not available.
-//		else
-//			$x = post_url($a->get_baseurl() . '/lsearch', $params);
+			$perpage = 80;
+			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
-		$j = json_decode($x);
+			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
+					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
+						`about` REGEXP '%s' OR `keywords` REGEXP '%s')",
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+
+			$results = q("SELECT `url`, `name`, `photo`, `keywords` FROM `gcontact`WHERE `network` IN ('%s', '%s', '%s') AND
+					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR `about` REGEXP '%s' OR
+						`keywords` REGEXP '%s') ORDER BY `name` ASC LIMIT %d, %d",
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					intval($startrec), intval($perpage));
+
+			$j = new stdClass();
+			$j->total = $count[0]["total"];
+			$j->items_page = $perpage;
+			$j->page = $a->pager['page'];
+			foreach ($results AS $result) {
+				if ($result["name"] == "") {
+					$urlparts = parse_url($result["url"]);
+					$result["name"] = end(explode("/", $urlparts["path"]));
+				}
+
+				$objresult = new stdClass();
+				$objresult->name = $result["name"];
+				$objresult->url = $result["url"];
+				$objresult->photo = $result["photo"];
+				$objresult->tags = $result["keywords"];
+
+				$j->results[] = $objresult;
+			}
+		} else {
+
+			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
+
+			if(strlen(get_config('system','directory_submit_url')))
+				$x = fetch_url('http://dir.friendica.com/lsearch?f=' . $p .  '&search=' . urlencode($search));
+
+			$j = json_decode($x);
+		}
 
 		if($j->total) {
 			$a->set_pager_total($j->total);
@@ -46,21 +85,21 @@ function dirfind_content(&$a) {
 		}
 
 		if(count($j->results)) {
-			
+
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
-				
+
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
 					'$name' => $jj->name,
-					'$photo' => $jj->photo,
+					'$photo' => proxy_url($jj->photo),
 					'$tags' => $jj->tags
 				));
 			}
 		}
 		else {
 			info( t('No matches') . EOL);
-		}		
+		}
 
 	}
 
