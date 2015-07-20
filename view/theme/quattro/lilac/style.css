@@ -43,6 +43,9 @@
 .icon.edit {
   background-image: url("../../../images/icons/22/edit.png");
 }
+.icon.pencil {
+  background-image: url("../../../images/icons/22/edit.png");
+}
 .icon.star {
   background-image: url("../../../images/icons/22/star.png");
 }
@@ -50,6 +53,9 @@
   background-image: url("../../../images/icons/22/menu.png");
 }
 .icon.link {
+  background-image: url("../../../images/icons/22/link.png");
+}
+.icon.remote-link {
   background-image: url("../../../images/icons/22/link.png");
 }
 .icon.lock {
@@ -116,6 +122,9 @@
 .icon.s10.edit {
   background-image: url("../../../images/icons/10/edit.png");
 }
+.icon.s10.pencil {
+  background-image: url("../../../images/icons/10/edit.png");
+}
 .icon.s10.star {
   background-image: url("../../../images/icons/10/star.png");
 }
@@ -123,6 +132,9 @@
   background-image: url("../../../images/icons/10/menu.png");
 }
 .icon.s10.link {
+  background-image: url("../../../images/icons/10/link.png");
+}
+.icon.s10.remote-link {
   background-image: url("../../../images/icons/10/link.png");
 }
 .icon.s10.lock {
@@ -189,6 +201,9 @@
 .icon.s16.edit {
   background-image: url("../../../images/icons/16/edit.png");
 }
+.icon.s16.pencil {
+  background-image: url("../../../images/icons/16/edit.png");
+}
 .icon.s16.star {
   background-image: url("../../../images/icons/16/star.png");
 }
@@ -196,6 +211,9 @@
   background-image: url("../../../images/icons/16/menu.png");
 }
 .icon.s16.link {
+  background-image: url("../../../images/icons/16/link.png");
+}
+.icon.s16.remote-link {
   background-image: url("../../../images/icons/16/link.png");
 }
 .icon.s16.lock {
@@ -262,6 +280,9 @@
 .icon.s22.edit {
   background-image: url("../../../images/icons/22/edit.png");
 }
+.icon.s22.pencil {
+  background-image: url("../../../images/icons/22/edit.png");
+}
 .icon.s22.star {
   background-image: url("../../../images/icons/22/star.png");
 }
@@ -269,6 +290,9 @@
   background-image: url("../../../images/icons/22/menu.png");
 }
 .icon.s22.link {
+  background-image: url("../../../images/icons/22/link.png");
+}
+.icon.s22.remote-link {
   background-image: url("../../../images/icons/22/link.png");
 }
 .icon.s22.lock {
@@ -335,6 +359,9 @@
 .icon.s48.edit {
   background-image: url("../../../images/icons/48/edit.png");
 }
+.icon.s48.pencil {
+  background-image: url("../../../images/icons/48/edit.png");
+}
 .icon.s48.star {
   background-image: url("../../../images/icons/48/star.png");
 }
@@ -342,6 +369,9 @@
   background-image: url("../../../images/icons/48/menu.png");
 }
 .icon.s48.link {
+  background-image: url("../../../images/icons/48/link.png");
+}
+.icon.s48.remote-link {
   background-image: url("../../../images/icons/48/link.png");
 }
 .icon.s48.lock {
@@ -514,7 +544,6 @@ header {
   margin: 0px;
   padding: 0px;
   /*width: 100%; height: 12px; */
-
   z-index: 110;
   color: #ffffff;
 }
@@ -847,7 +876,6 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
-
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -929,7 +957,6 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0px;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0px;}*/
-
 }
 .widget h3 {
   padding: 0px;
@@ -1211,7 +1238,6 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
-
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -2081,7 +2107,6 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
-
 }
 #photo-caption {
   display: block;
@@ -2449,4 +2474,9 @@ footer {
   margin-left: 10px;
   border: 0px;
   color: #999999;
+}
+/* buttons for the event view */
+.plink-event-link {
+  float: left;
+  margin-left: 2px;
 }
