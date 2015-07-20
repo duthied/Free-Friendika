@@ -110,7 +110,7 @@ function onepoll_run(&$argv, &$argc){
 	// - Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
 	// - Check whether this is possible with Redmatrix
 	if ($contact["network"] == NETWORK_DIASPORA) {
-		if (poco_do_update($contact["last-item"], $contact["success_update"], $contact["failure_update"])) {
+		if (poco_do_update($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
 			$last_updated = poco_last_updated($contact["url"]);
 			$updated = datetime_convert();
 			if ($last_updated) {
