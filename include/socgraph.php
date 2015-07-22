@@ -464,7 +464,11 @@ function poco_last_updated($profile) {
 					q("UPDATE `gcontact` SET `about` = '%s' WHERE `nurl` = '%s'",
 						dbesc($noscrape["about"]), dbesc(normalise_link($profile)));
 
-				$keywords = implode(" ", $noscrape["tags"]);
+				if (isset($noscrape["tags"]))
+					$keywords = implode(" ", $noscrape["tags"]);
+				else
+					$keywords = "";
+
 				if (($keywords != "") AND ($keywords != $gcontacts[0]["keywords"]))
 					q("UPDATE `gcontact` SET `keywords` = '%s' WHERE `nurl` = '%s'",
 						dbesc($keywords), dbesc(normalise_link($profile)));
@@ -684,6 +688,23 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$last_contact = datetime_convert();
 
 	if (!$failure) {
+		// Test for Diaspora
+		$serverret = z_fetch_url($server_url);
+
+		$lines = explode("\n",$serverret["header"]);
+		if(count($lines))
+			foreach($lines as $line) {
+				$line = trim($line);
+				if(stristr($line,'X-Diaspora-Version:')) {
+					$platform = "Diaspora";
+					$version = trim(str_replace("X-Diaspora-Version:", "", $line));
+					$version = trim(str_replace("x-diaspora-version:", "", $version));
+					$network = NETWORK_DIASPORA;
+				}
+			}
+	}
+
+	if (!$failure) {
 		// Test for Statusnet
 		// Will also return data for Friendica and GNU Social - but it will be overwritten later
 		// The "not implemented" is a special treatment for really, really old Friendica versions
@@ -758,6 +779,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			if (isset($data->network) AND ($platform == ""))
 				$platform = $data->network;
 
+			if ($platform == "Diaspora")
+				$network = NETWORK_DIASPORA;
+
 			if ($data->registrations_open)
 				$register_policy = REGISTER_OPEN;
 			else
@@ -772,6 +796,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	// Friendica servers could be detected as OStatus servers
 	if (!$failure AND in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS))) {
 		$serverret = z_fetch_url($server_url."/friendica/json");
+
+		if (!$serverret["success"])
+			$serverret = z_fetch_url($server_url."/friendika/json");
 
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
@@ -1220,6 +1247,10 @@ function poco_discover($complete = false) {
 }
 
 function poco_discover_server_users($data, $server) {
+
+	if (!isset($data->entry))
+		return;
+
 	foreach ($data->entry AS $entry) {
 		$username = "";
 		if (isset($entry->urls)) {
