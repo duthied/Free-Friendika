@@ -5,6 +5,11 @@ require_once("include/Scrape.php");
 require_once("include/html2bbcode.php");
 
 /*
+ To-Do:
+ - Move GNU Social URL schemata (http://server.tld/user/number) to http://server.tld/username
+*/
+
+/*
  * poco_load
  *
  * Given a contact-id (minimum), load the PortableContacts friend list for that contact,
@@ -167,6 +172,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if ($profile_url == "")
 		return $gcid;
 
+	$urlparts = parse_url($profile_url);
+	if (!isset($urlparts["scheme"]))
+		return $gcid;
+
+	if (in_array($urlparts["host"], array("facebook.com", "twitter.com", "www.twitter-rss.com",
+						"identi.ca", "alpha.app.net")))
+		return $gcid;
+
 	$orig_updated = $updated;
 
 	// Don't store the statusnet connector as network
@@ -220,7 +233,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$nick = end(explode("/", $urlparts["path"]));
 	}
 
-	if (($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "")) {
+	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == ""))
+		AND poco_reachable($profile_url, $server_url, $network)) {
 		$data = probe_url($profile_url);
 		$network = $data["network"];
 		$name = $data["name"];
@@ -248,7 +262,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	poco_check_server($server_url, $network);
 
 	// Only fetch last update manually if it wasn't provided and enabled in the system
-	if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00") AND poco_do_update($created, $updated, $last_failure, $last_contact)) {
+	if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00")
+		AND poco_do_update($created, $updated, $last_failure, $last_contact)
+		AND poco_reachable($profile_url, $server_url, $network)) {
 		$last_updated = poco_last_updated($profile_url);
 		if ($last_updated) {
 			$updated = $last_updated;
@@ -361,6 +377,49 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	return $gcid;
 }
 
+function poco_reachable($profile, $server = "", $network = "") {
+
+	if ($server == "")
+		$server = poco_detect_server($profile);
+
+	if ($server == "")
+		return true;
+
+	return poco_check_server($server, $network);
+}
+
+function poco_detect_server($profile) {
+
+	// Try to detect the server path based upon some known standard paths
+	$server_url = "";
+
+	if ($server_url == "") {
+		$friendica = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $profile);
+		if ($friendica != $profile) {
+			$server_url = $friendica;
+			$network = NETWORK_DFRN;
+		}
+	}
+
+	if ($server_url == "") {
+		$diaspora = preg_replace("=(https?://)(.*)/u/(.*)=ism", "$1$2", $profile);
+		if ($diaspora != $profile) {
+			$server_url = $diaspora;
+			$network = NETWORK_DIASPORA;
+		}
+	}
+
+	if ($server_url == "") {
+		$red = preg_replace("=(https?://)(.*)/channel/(.*)=ism", "$1$2", $profile);
+		if ($red != $profile) {
+			$server_url = $red;
+			$network = NETWORK_DIASPORA;
+		}
+	}
+
+	return $server_url;
+}
+
 function poco_last_updated($profile) {
 
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
@@ -437,7 +496,7 @@ function poco_last_updated($profile) {
 
 	// If we only can poll the feed, then we only do this once a while
 	if (!poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"]))
-/		return $gcontacts[0]["updated"];
+		return $gcontacts[0]["updated"];
 
 	$data = probe_url($profile);
 
@@ -558,7 +617,7 @@ function poco_to_boolean($val) {
 	return ($val);
 }
 
-function poco_check_server($server_url, $network = "") {
+function poco_check_server($server_url, $network = "", $force = false) {
 
 	if ($server_url == "")
 		return false;
@@ -584,8 +643,10 @@ function poco_check_server($server_url, $network = "") {
 		$info = $servers[0]["info"];
 		$register_policy = $servers[0]["register_policy"];
 
-		if (!poco_do_update($servers[0]["created"], "", $last_failure, $last_contact))
+		if (!$force AND !poco_do_update($servers[0]["created"], "", $last_failure, $last_contact)) {
+			logger("Use cached data for server ".$server_url, LOGGER_DEBUG);
 			return ($last_contact >= $last_failure);
+		}
 	} else {
 		$poco = "";
 		$noscrape = "";
@@ -598,6 +659,7 @@ function poco_check_server($server_url, $network = "") {
 		$last_contact = "0000-00-00 00:00:00";
 		$last_failure = "0000-00-00 00:00:00";
 	}
+	logger("Server ".$server_url." is unknown. Start discovery.", LOGGER_DEBUG);
 
 	$failure = false;
 	$orig_last_failure = $last_failure;
@@ -752,6 +814,9 @@ function poco_check_server($server_url, $network = "") {
 		}
 	}
 
+	// Check again if the server exists
+	$servers = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+
 	if ($servers)
 		 q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
 			`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
@@ -770,7 +835,7 @@ function poco_check_server($server_url, $network = "") {
 		);
 	else
 		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
-					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s')",
+					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
 				dbesc(normalise_link($server_url)),
 				dbesc($version),
@@ -786,6 +851,9 @@ function poco_check_server($server_url, $network = "") {
 				dbesc($last_failure),
 				dbesc(datetime_convert())
 		);
+
+	logger("End discovery for server ".$server_url, LOGGER_DEBUG);
+
 	return !$failure;
 }
 
@@ -1096,11 +1164,17 @@ function update_suggestions() {
 
 function poco_discover($complete = false) {
 
-	$last_update = date("c", time() - (60 * 60 * 24));
+	$no_of_queries = 5;
 
-	$r = q("SELECT `poco`, `nurl` FROM `gserver` WHERE `last_contact` > `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
+	$last_update = date("c", time() - (60 * 60 * 6)); // 24
+
+	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `last_contact` > `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if ($r)
 		foreach ($r AS $server) {
+
+			if (!poco_check_server($server["url"], $server["network"]))
+				continue;
+
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
 
@@ -1109,6 +1183,7 @@ function poco_discover($complete = false) {
 			$retdata = z_fetch_url($url);
 			if ($retdata["success"]) {
 				$data = json_decode($retdata["body"]);
+
 				poco_discover_server($data, 2);
 
 				if (get_config('system','poco_discovery') > 1) {
@@ -1122,24 +1197,29 @@ function poco_discover($complete = false) {
 					// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
 					$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
 
+					$success = false;
+
 					$retdata = z_fetch_url($url);
 					if ($retdata["success"]) {
 						logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
-						poco_discover_server(json_decode($retdata["body"]));
-					} elseif (get_config('system','poco_discovery') > 2) {
+						$success = poco_discover_server(json_decode($retdata["body"]));
+					}
+
+					if (!$success AND (get_config('system','poco_discovery') > 2)) {
 						logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
-						poco_discover_server_users($data);
+						poco_discover_server_users($data, $server);
 					}
 				}
 
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
-				if (!$complete)
+				if (!$complete AND (--$no_of_queries == 0))
 					break;
-			}
+			} else	// If the server hadn't replied correctly, then force a sanity check
+				poco_check_server($server["url"], $server["network"], true);
 		}
 }
 
-function poco_discover_server_users($data) {
+function poco_discover_server_users($data, $server) {
 	foreach ($data->entry AS $entry) {
 		$username = "";
 		if (isset($entry->urls)) {
@@ -1166,7 +1246,9 @@ function poco_discover_server_users($data) {
 function poco_discover_server($data, $default_generation = 0) {
 
 	if (!isset($data->entry) OR !count($data->entry))
-		return;
+		return false;
+
+	$success = false;
 
 	foreach ($data->entry AS $entry) {
 		$profile_url = '';
@@ -1195,6 +1277,7 @@ function poco_discover_server($data, $default_generation = 0) {
 				}
 			}
 		}
+
 		if(isset($entry->photos)) {
 			foreach($entry->photos as $photo) {
 				if($photo->type == 'profile') {
@@ -1227,10 +1310,13 @@ function poco_discover_server($data, $default_generation = 0) {
 				$keywords = implode(", ", $tag);
 
 		if ($generation > 0) {
+			$success = true;
+
 			logger("Store profile ".$profile_url, LOGGER_DEBUG);
-			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation);
+			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, 0, 0, 0);
 			logger("Done for profile ".$profile_url, LOGGER_DEBUG);
 		}
 	}
+	return $success;
 }
 ?>
