@@ -223,6 +223,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$last_failure = $x[0]["last_failure"];
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
+
+		if ($updated > $last_contact)
+			$last_contact = $updated;
 	} else {
 		$created = "0000-00-00 00:00:00";
 		$last_contact = "0000-00-00 00:00:00";
@@ -294,7 +297,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
 			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
-				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
+				`updated` = '%s', `last_contact` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
 				dbesc($network),
@@ -303,6 +306,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($profile_url),
 				dbesc($server_url),
 				dbesc($updated),
+				dbesc($last_contact),
 				dbesc($location),
 				dbesc($about),
 				dbesc($keywords),

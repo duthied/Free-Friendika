@@ -61,7 +61,7 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `last_contact` >= `last_failure` AND `network` IN ('%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`))  AND `network` IN ('%s')",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN)
 		);
