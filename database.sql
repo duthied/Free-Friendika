@@ -301,10 +301,12 @@ CREATE TABLE IF NOT EXISTS `gcign` (
 CREATE TABLE IF NOT EXISTS `gcontact` (
 	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
 	`name` varchar(255) NOT NULL DEFAULT '',
+	`nick` varchar(255) NOT NULL DEFAULT '',
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
 	`connect` varchar(255) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`updated` datetime DEFAULT '0000-00-00 00:00:00',
 	`last_contact` datetime DEFAULT '0000-00-00 00:00:00',
 	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
@@ -360,6 +362,7 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 -- TABLE gserver
 --
 CREATE TABLE IF NOT EXISTS `gserver` (
+	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '',
 	`version` varchar(255) NOT NULL DEFAULT '',
@@ -370,9 +373,11 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`noscrape` varchar(255) NOT NULL DEFAULT '',
 	`network` varchar(32) NOT NULL DEFAULT '',
 	`platform` varchar(255) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`last_poco_query` datetime DEFAULT '0000-00-00 00:00:00',
 	`last_contact` datetime DEFAULT '0000-00-00 00:00:00',
-	`last_failure` datetime DEFAULT '0000-00-00 00:00:00'
+	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
+	 INDEX `nurl` (`nurl`)
 ) DEFAULT CHARSET=utf8;
 
 --
