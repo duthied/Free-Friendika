@@ -264,8 +264,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	poco_check_server($server_url, $network);
 
-	// Only fetch last update manually if it wasn't provided and enabled in the system
-	if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00")
+	// Fetch last update manually if it is enabled in the system
+	// AND ($orig_updated == "0000-00-00 00:00:00")
+	if (get_config('system','poco_completion')
 		AND poco_do_update($created, $updated, $last_failure, $last_contact)
 		AND poco_reachable($profile_url, $server_url, $network)) {
 		$last_updated = poco_last_updated($profile_url);
