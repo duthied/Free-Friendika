@@ -61,7 +61,7 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`))  AND `network` IN ('%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN)
 		);
@@ -96,7 +96,7 @@ function poco_init(&$a) {
 
 
 	if ($global) {
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND `last_contact` >= `last_failure` LIMIT %d, %d",
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
 			intval($startIndex),
@@ -107,7 +107,7 @@ function poco_init(&$a) {
 			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
-			AND `contact`.`success_update` >= `contact`.`failure_update`
+			AND ((`contact`.`success_update` >= `contact`.`failure_update`) OR (`contact`.`last-item` >= `contact`.`failure_update`))
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),

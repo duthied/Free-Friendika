@@ -93,11 +93,12 @@ function discover_directory($search) {
 	if(count($j->results))
 		foreach($j->results as $jj) {
 			// Check if the contact already exists
-			$exists = q("SELECT `id`, `last_contact`, `last_failure`  FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
+			$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
 			if ($exists) {
 				logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
-				if ($exists[0]["last_contact"] < $exists[0]["last_failure"])
+				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) AND
+					($exists[0]["updated"] < $exists[0]["last_failure"]))
 					continue;
 
 				// Update the contact

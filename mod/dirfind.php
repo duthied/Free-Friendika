@@ -46,7 +46,8 @@ function dirfind_content(&$a) {
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`keywords`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
-					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND `gcontact`.`last_contact` >= `gcontact`.`last_failure` AND
+					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
 					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
 						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s')
 						GROUP BY `gcontact`.`nurl`
