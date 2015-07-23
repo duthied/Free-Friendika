@@ -691,6 +691,7 @@ function db_definition() {
 			);
 	$database["gserver"] = array(
 			"fields" => array(
+					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"version" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -707,7 +708,8 @@ function db_definition() {
 					"last_failure" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("nurl"),
+					"PRIMARY" => array("id"),
+					"nurl" => array("nurl"),
 					)
 			);
 	$database["guid"] = array(
