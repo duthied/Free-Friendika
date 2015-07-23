@@ -429,8 +429,13 @@ function poco_last_updated($profile) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
-	if (($gcontacts[0]["server_url"] != "") AND ($gcontacts[0]["network"] != ""))
-		if (!poco_check_server($gcontacts[0]["server_url"], $gcontacts[0]["network"]))
+	if ($gcontacts[0]["server_url"] != "")
+		$server_url = $gcontacts[0]["server_url"];
+	else
+		$server_url = poco_detect_server($profile);
+
+	if ($server_url != "")
+		if (!poco_check_server($pserver_url, $gcontacts[0]["network"]))
 			return false;
 
 	// noscrape is really fast so we don't cache the call.
@@ -492,6 +497,11 @@ function poco_last_updated($profile) {
 				if (($location != "") AND ($location != $gcontacts[0]["location"]))
 					q("UPDATE `gcontact` SET `location` = '%s' WHERE `nurl` = '%s'",
 						dbesc($location), dbesc(normalise_link($profile)));
+
+				// If we got data from noscrape then mark the contact as reachable
+				if (is_array($noscrape) AND count($noscrape))
+					q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
+						dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
 				return $noscrape["updated"];
 			}
