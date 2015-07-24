@@ -613,8 +613,8 @@ function poco_do_update($created, $updated, $last_failure,  $last_contact) {
 		return false;
 
 	// If the last contact was less than a week ago and the last failure is older than a week then don't update
-	if ((($now - $contact_time) < (60 * 60 * 24 * 7)) AND ($contact_time > $failure_time))
-		return false;
+	//if ((($now - $contact_time) < (60 * 60 * 24 * 7)) AND ($contact_time > $failure_time))
+	//	return false;
 
 	// If the last contact time was more than a week ago and the contact was created more than a week ago, then only try once a week
 	if ((($now - $contact_time) > (60 * 60 * 24 * 7)) AND (($now - $created_time) > (60 * 60 * 24 * 7)) AND (($now - $failure_time) < (60 * 60 * 24 * 7)))

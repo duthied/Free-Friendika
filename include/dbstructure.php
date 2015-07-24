@@ -646,6 +646,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"nurl" => array("nurl"),
+					"updated" => array("updated"),
 					)
 			);
 	$database["glink"] = array(

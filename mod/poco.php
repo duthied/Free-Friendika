@@ -61,9 +61,12 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
+		//$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure`  AND `network` IN ('%s', '%s', '%s')",
 			dbesc($update_limit),
-			dbesc(NETWORK_DFRN)
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
 		);
 	} elseif($system_mode) {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
@@ -96,9 +99,12 @@ function poco_init(&$a) {
 
 
 	if ($global) {
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
+		//$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s', '%1', '%1') and `updated` > `last_failure` LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
