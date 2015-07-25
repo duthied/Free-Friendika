@@ -237,19 +237,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	}
 
 	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == ""))
-		AND poco_reachable($profile_url, $server_url, $network)) {
+		AND poco_reachable($profile_url, $server_url, $network, true)) {
 		$data = probe_url($profile_url);
-
-		// If the system doesn't seem to react, recheck the server
-		if ($data["network"] == NETWORK_FEED) {
-			logger("Recheck the server for profile ".$profile_url, LOGGER_DEBUG);
-			if ($server_url == "")
-				$url_check = poco_detect_server($profile_url);
-			else
-				$url_check = $server_url;
-
-			poco_check_server($url_check, $network, true);
-		}
 
 		$network = $data["network"];
 		$name = $data["name"];
@@ -393,7 +382,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	return $gcid;
 }
 
-function poco_reachable($profile, $server = "", $network = "") {
+function poco_reachable($profile, $server = "", $network = "", $force = false) {
 
 	if ($server == "")
 		$server = poco_detect_server($profile);
@@ -401,7 +390,7 @@ function poco_reachable($profile, $server = "", $network = "") {
 	if ($server == "")
 		return true;
 
-	return poco_check_server($server, $network);
+	return poco_check_server($server, $network, $force);
 }
 
 function poco_detect_server($profile) {
