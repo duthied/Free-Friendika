@@ -239,6 +239,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == ""))
 		AND poco_reachable($profile_url, $server_url, $network)) {
 		$data = probe_url($profile_url);
+
+		// If the system doesn't seem to react, recheck the server
+		if ($data["network"] == NETWORK_FEED) {
+			logger("Recheck the server for profile ".$profile_url, LOGGER_DEBUG);
+			if ($server_url == "")
+				$url_check = poco_detect_server($profile_url);
+			else
+				$url_check = $server_url;
+
+			poco_check_server($url_check, $network, true);
+		}
+
 		$network = $data["network"];
 		$name = $data["name"];
 		$nick = $data["nick"];
@@ -1208,6 +1220,7 @@ function poco_discover($complete = false) {
 	$no_of_queries = 5;
 
 	$last_update = date("c", time() - (60 * 60 * 6)); // 24
+	$last_update = date("c", time() - (60 * 60 * 24)); // 24
 
 	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `last_contact` > `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if ($r)
