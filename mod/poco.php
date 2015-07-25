@@ -69,8 +69,8 @@ function poco_init(&$a) {
 			dbesc(NETWORK_OSTATUS)
 		);
 	} elseif($system_mode) {
-		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
-			AND `success_update` >= `failure_update`
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s')
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -79,7 +79,8 @@ function poco_init(&$a) {
 			);
 	} else {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -112,7 +113,7 @@ function poco_init(&$a) {
 		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
 			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
+			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s') AND `profile`.`is-default`
 			AND ((`contact`.`success_update` >= `contact`.`failure_update`) OR (`contact`.`last-item` >= `contact`.`failure_update`))
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
@@ -124,7 +125,8 @@ function poco_init(&$a) {
 		);
 	} else {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
