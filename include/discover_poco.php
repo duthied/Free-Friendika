@@ -38,23 +38,26 @@ function discover_poco_run(&$argv, &$argc){
 
 	if(($argc > 2) && ($argv[1] == "dirsearch")) {
 		$search = urldecode($argv[2]);
-		$searchmode = 1;
+		$mode = 1;
+	} elseif(($argc == 2) && ($argv[1] == "checkcontact")) {
+		$mode = 2;
 	} elseif ($argc == 1) {
 		$search = "";
-		$searchmode = 0;
+		$mode = 0;
 	} else
 		die("Unknown or missing parameter ".$argv[1]."\n");
 
 	$lockpath = get_lockpath();
 	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'discover_poco'.urlencode($search));
+		$pidfile = new pidfile($lockpath, 'discover_poco'.$mode.urlencode($search));
 		if($pidfile->is_already_running()) {
 			logger("discover_poco: Already running");
 			if ($pidfile->running_time() > 19*60) {
                                 $pidfile->kill();
                                 logger("discover_poco: killed stale process");
 				// Calling a new instance
-				proc_run('php','include/discover_poco.php');
+				if ($mode == 0)
+					proc_run('php','include/discover_poco.php');
                         }
 			exit;
 		}
@@ -66,14 +69,31 @@ function discover_poco_run(&$argv, &$argc){
 
 	logger('start '.$search);
 
-	if (($search != "") and get_config('system','poco_local_search'))
+	if (($mode == 2) AND get_config('system','poco_completion'))
+		discover_users();
+	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search'))
 		discover_directory($search);
-	elseif (($search == "") and get_config('system','poco_discovery') > 0)
+	elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0))
 		poco_discover();
 
 	logger('end '.$search);
 
 	return;
+}
+
+function discover_users() {
+	$users = q("SELECT `url` FROM `gcontact` WHERE `updated` = '0000-00-00 00:00:00' AND
+			`last_contact` = '0000-00-00 00:00:00' AND `last_failure` = '0000-00-00 00:00:00' AND
+			`network` IN ('%s', '%s', '%s') ORDER BY rand() LIMIT 50",
+			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+
+	if (!$users)
+		return;
+
+	foreach ($users AS $user) {
+		logger('Check user '.$user["url"]);
+		poco_last_updated($user["url"]);
+	}
 }
 
 function discover_directory($search) {
