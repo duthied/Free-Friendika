@@ -440,7 +440,7 @@ function poco_last_updated($profile) {
 		$server_url = poco_detect_server($profile);
 
 	if ($server_url != "")
-		if (!poco_check_server($pserver_url, $gcontacts[0]["network"]))
+		if (!poco_check_server($server_url, $gcontacts[0]["network"]))
 			return false;
 
 	// noscrape is really fast so we don't cache the call.

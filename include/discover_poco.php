@@ -83,19 +83,32 @@ function discover_poco_run(&$argv, &$argc){
 
 function discover_users() {
 	// To-Do: Maybe we should check old contact as well.
-	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact` FROM `gcontact`
+	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url` FROM `gcontact`
 			WHERE `updated` = '0000-00-00 00:00:00' AND `last_contact` = '0000-00-00 00:00:00' AND
 				`last_failure` = '0000-00-00 00:00:00' AND `network` IN ('%s', '%s', '%s')
-				ORDER BY rand() LIMIT 100",
+				ORDER BY rand()",
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 
 	if (!$users)
 		return;
 
+	$checked = 0;
+
 	foreach ($users AS $user) {
 		if (poco_do_update($user["created"], $user["updated"], $user["last_failure"], $user["last_contact"])) {
-			logger('Check user '.$user["url"]);
-			poco_last_updated($user["url"]);
+
+			if ($user[0]["server_url"] != "")
+                		$server_url = $user[0]["server_url"];
+        		else
+                		$server_url = poco_detect_server($user["url"]);
+
+			if (poco_check_server($server_url, $gcontacts[0]["network"])) {
+				logger('Check user '.$user["url"]);
+				poco_last_updated($user["url"]);
+
+				if (++$checked > 100)
+					return;
+			}
 		}
 	}
 }
