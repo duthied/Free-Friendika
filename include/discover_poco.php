@@ -82,17 +82,21 @@ function discover_poco_run(&$argv, &$argc){
 }
 
 function discover_users() {
-	$users = q("SELECT `url` FROM `gcontact` WHERE `updated` = '0000-00-00 00:00:00' AND
-			`last_contact` = '0000-00-00 00:00:00' AND `last_failure` = '0000-00-00 00:00:00' AND
-			`network` IN ('%s', '%s', '%s') ORDER BY rand() LIMIT 50",
+	// To-Do: Maybe we should check old contact as well.
+	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact` FROM `gcontact`
+			WHERE `updated` = '0000-00-00 00:00:00' AND `last_contact` = '0000-00-00 00:00:00' AND
+				`last_failure` = '0000-00-00 00:00:00' AND `network` IN ('%s', '%s', '%s')
+				ORDER BY rand() LIMIT 100",
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 
 	if (!$users)
 		return;
 
 	foreach ($users AS $user) {
-		logger('Check user '.$user["url"]);
-		poco_last_updated($user["url"]);
+		if (poco_do_update($user["created"], $user["updated"], $user["last_failure"], $user["last_contact"])) {
+			logger('Check user '.$user["url"]);
+			poco_last_updated($user["url"]);
+		}
 	}
 }
 
