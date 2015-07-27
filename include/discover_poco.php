@@ -108,7 +108,9 @@ function discover_users() {
 
 				if (++$checked > 100)
 					return;
-			}
+			} else
+				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+					dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
 		}
 	}
 }
