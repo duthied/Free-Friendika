@@ -425,7 +425,7 @@ function poco_detect_server($profile) {
 	return $server_url;
 }
 
-function poco_last_updated($profile) {
+function poco_last_updated($profile, $force = false) {
 
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
@@ -451,7 +451,7 @@ function poco_last_updated($profile) {
 
 		if ($server) {
 			$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
-			 if ($noscraperet["success"]) {
+			 if ($noscraperet["success"] AND ($noscraperet["body"] = "")) {
 				$noscrape = json_decode($noscraperet["body"], true);
 
 				if (($noscrape["name"] != "") AND ($noscrape["name"] != $gcontacts[0]["name"]))
@@ -514,7 +514,7 @@ function poco_last_updated($profile) {
 	}
 
 	// If we only can poll the feed, then we only do this once a while
-	if (!poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"]))
+	if (!$force AND !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"]))
 		return $gcontacts[0]["updated"];
 
 	$data = probe_url($profile);
