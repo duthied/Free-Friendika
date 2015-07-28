@@ -176,7 +176,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if (!isset($urlparts["scheme"]))
 		return $gcid;
 
-	if (in_array($urlparts["host"], array("facebook.com", "twitter.com", "www.twitter-rss.com",
+	if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
 						"identi.ca", "alpha.app.net")))
 		return $gcid;
 
@@ -434,14 +434,40 @@ function poco_last_updated($profile, $force = false) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
+	$urlparts = parse_url($profile);
+	if (!isset($urlparts["scheme"]))
+		return;
+
+	if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
+						"identi.ca", "alpha.app.net"))) {
+		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+			dbesc(NETWORK_PHANTOM), dbesc(normalise_link($profile)));
+		return;
+	}
+
 	if ($gcontacts[0]["server_url"] != "")
 		$server_url = $gcontacts[0]["server_url"];
 	else
 		$server_url = poco_detect_server($profile);
 
-	if ($server_url != "")
+	if ($server_url != "") {
 		if (!poco_check_server($server_url, $gcontacts[0]["network"]))
 			return false;
+
+		q("UPDATE `gcontact` SET `server_url` = '%s' WHERE `nurl` = '%s'",
+			dbesc($server_url), dbesc(normalise_link($profile)));
+	}
+
+	if (in_array($gcontacts[0]["network"], array("", NETWORK_FEED))) {
+		$server = q("SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
+			dbesc(normalise_link($server_url)));
+
+		if ($server)
+			q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+				dbesc($server[0]["network"]), dbesc(normalise_link($profile)));
+		else
+			return;
+	}
 
 	// noscrape is really fast so we don't cache the call.
 	if (($gcontacts[0]["server_url"] != "") AND ($gcontacts[0]["nick"] != "")) {

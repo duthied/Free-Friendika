@@ -87,8 +87,9 @@ function discover_users() {
 	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url` FROM `gcontact`
 			WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 				`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
-				`network` IN ('%s', '%s', '%s') ORDER BY rand()",
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+				`network` IN ('%s', '%s', '%s', '%s', '') ORDER BY rand()",
+			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_FEED));
 
 	if (!$users)
 		return;
