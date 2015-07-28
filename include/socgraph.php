@@ -7,6 +7,8 @@ require_once("include/html2bbcode.php");
 /*
  To-Do:
  - Move GNU Social URL schemata (http://server.tld/user/number) to http://server.tld/username
+ - Fetch profile data from profile page for Redmatrix users
+ - Detect if it is a forum
 */
 
 /*
@@ -219,17 +221,10 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			$updated = $x[0]["updated"];
 
 		$created = $x[0]["created"];
-		$last_contact = $x[0]["last_contact"];
-		$last_failure = $x[0]["last_failure"];
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
-
-		if ($updated > $last_contact)
-			$last_contact = $updated;
 	} else {
 		$created = "0000-00-00 00:00:00";
-		$last_contact = "0000-00-00 00:00:00";
-		$last_failure = "0000-00-00 00:00:00";
 		$server_url = "";
 
 		$urlparts = parse_url($profile_url);
@@ -265,19 +260,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	poco_check_server($server_url, $network);
 
-	// Fetch last update manually if it is enabled in the system
-	//if (get_config('system','poco_completion') AND ($orig_updated == "0000-00-00 00:00:00")
-	//	AND poco_do_update($created, $updated, $last_failure, $last_contact)
-	//	AND poco_reachable($profile_url, $server_url, $network)) {
-	//	$last_updated = poco_last_updated($profile_url);
-	//	if ($last_updated) {
-	//		$updated = $last_updated;
-	//		$last_contact = datetime_convert();
-	//		logger("Last updated for profile ".$profile_url.": ".$updated, LOGGER_DEBUG);
-	//	} else
-	//		$last_failure = datetime_convert();
-	//}
-
 	if(count($x)) {
 		$gcid = $x[0]['id'];
 
@@ -298,7 +280,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
 			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
-				`updated` = '%s', `last_contact` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
+				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
 				dbesc($network),
@@ -307,7 +289,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($profile_url),
 				dbesc($server_url),
 				dbesc($updated),
-				dbesc($last_contact),
 				dbesc($location),
 				dbesc($about),
 				dbesc($keywords),
@@ -318,8 +299,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			);
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `last_contact`, `last_failure`, `location`, `about`, `keywords`, `gender`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`, `nick`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($nick),
 			dbesc($network),
@@ -330,8 +311,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			dbesc($server_url),
 			dbesc(datetime_convert()),
 			dbesc($updated),
-			dbesc($last_contact),
-			dbesc($last_failure),
 			dbesc($location),
 			dbesc($about),
 			dbesc($keywords),
@@ -451,8 +430,14 @@ function poco_last_updated($profile, $force = false) {
 		$server_url = poco_detect_server($profile);
 
 	if ($server_url != "") {
-		if (!poco_check_server($server_url, $gcontacts[0]["network"]))
+		if (!poco_check_server($server_url, $gcontacts[0]["network"], $force)) {
+
+			if ($force)
+				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+					dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
 			return false;
+		}
 
 		q("UPDATE `gcontact` SET `server_url` = '%s' WHERE `nurl` = '%s'",
 			dbesc($server_url), dbesc(normalise_link($profile)));

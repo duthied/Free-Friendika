@@ -97,23 +97,21 @@ function discover_users() {
 	$checked = 0;
 
 	foreach ($users AS $user) {
-		//if (poco_do_update($user["created"], $user["updated"], $user["last_failure"], $user["last_contact"])) {
 
-			if ($user[0]["server_url"] != "")
-                		$server_url = $user[0]["server_url"];
-        		else
-                		$server_url = poco_detect_server($user["url"]);
+		if ($user[0]["server_url"] != "")
+			$server_url = $user[0]["server_url"];
+		else
+			$server_url = poco_detect_server($user["url"]);
 
-			if (poco_check_server($server_url, $gcontacts[0]["network"])) {
-				logger('Check user '.$user["url"]);
-				poco_last_updated($user["url"], true);
+		if (poco_check_server($server_url, $gcontacts[0]["network"])) {
+			logger('Check user '.$user["url"]);
+			poco_last_updated($user["url"], true);
 
-				if (++$checked > 100)
-					return;
-			} else
-				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-					dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
-		//}
+			if (++$checked > 100)
+				return;
+		} else
+			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+				dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
 	}
 }
 
