@@ -96,7 +96,7 @@ function discover_users() {
 	$checked = 0;
 
 	foreach ($users AS $user) {
-		if (poco_do_update($user["created"], $user["updated"], $user["last_failure"], $user["last_contact"])) {
+		//if (poco_do_update($user["created"], $user["updated"], $user["last_failure"], $user["last_contact"])) {
 
 			if ($user[0]["server_url"] != "")
                 		$server_url = $user[0]["server_url"];
@@ -112,7 +112,7 @@ function discover_users() {
 			} else
 				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 					dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
-		}
+		//}
 	}
 }
 
