@@ -52,7 +52,12 @@
 		});*/
 		
 		/* setup comment textarea buttons */
-		
+		/* comment textarea buttons needs some "data-*" attributes to work:
+		 * 		data-role="insert-formatting" : to mark the element as a formatting button
+		 * 		data-comment="<string>" : string for "Comment", used by insertFormatting() function
+		 * 		data-bbcode="<string>" : name of the bbcode element to insert. insertFormatting() will insert it as "[name][/name]"
+		 * 		data-id="<string>" : id of the comment, used to find other comment-related element, like the textarea
+		 * */		
 		$('[data-role="insert-formatting"]').on('click', function(e) {
 			e.preventDefault();
 			var o = $(this);
