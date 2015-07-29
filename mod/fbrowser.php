@@ -29,7 +29,7 @@ function fbrowser_content($a){
 	
 	switch($a->argv[1]){
 		case "image":
-			$path = array( array($a->get_baseurl()."/fbrowser/image/".$mode, t("Photos")));
+			$path = array( array("", t("Photos")));
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
@@ -39,7 +39,7 @@ function fbrowser_content($a){
 					intval(local_user())
 				);
 				// anon functions only from 5.3.0... meglio tardi che mai..
-				$folder1 = function($el) use ($mode) {return array(bin2hex($el['album']).$mode,$el['album']);};
+				$folder1 = function($el) use ($mode) {return array(bin2hex($el['album']),$el['album']);};
 				$albums = array_map( $folder1 , $albums);
 				
 			}
@@ -49,7 +49,7 @@ function fbrowser_content($a){
 				$album = hex2bin($a->argv[2]);
 				$sql_extra = sprintf("AND `album` = '%s' ",dbesc($album));
 				$sql_extra2 = "";
-				$path[]=array($a->get_baseurl()."/fbrowser/image/".$a->argv[2]."/".$mode, $album);
+				$path[]=array($a->argv[2], $album);
 			}
 				
 			$r = q("SELECT `resource-id`, `id`, `filename`, type, min(`scale`) AS `hiq`,max(`scale`) AS `loq`, `desc`  
@@ -119,7 +119,7 @@ function fbrowser_content($a){
 				$o = replace_macros($tpl, array(
 					'$type' => 'file',
 					'$baseurl' => $a->get_baseurl(),
-					'$path' => array( array($a->get_baseurl()."/fbrowser/file/", t("Files")) ),
+					'$path' => array( array( "", t("Files")) ),
 					'$folders' => false,
 					'$files' =>$files,
 					'$cancel' => t('Cancel'),

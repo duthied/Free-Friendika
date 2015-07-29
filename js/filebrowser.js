@@ -67,6 +67,13 @@ var FileBrowser = {
 		}
 		
 		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
+		
+		$(".folders a, .path a").on("click", function(e){
+			e.preventDefault();
+			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=minimal" + location['hash'];
+			location.href = url;
+		});
+		
 		$(".photo-album-photo-link").on('click', function(e){
 			e.preventDefault();
 			

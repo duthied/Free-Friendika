@@ -13,13 +13,13 @@
 <div class="fbrowser {{$type}}">
 
 	<div class="path">
-		{{foreach $path as $p}}<a href="{{$p.0}}">{{$p.1}}</a>{{/foreach}}
+		{{foreach $path as $p}}<a href="#" data-folder="{{$p.0}}">{{$p.1}}</a>{{/foreach}}
 	</div>
 	
 	{{if $folders }}
 	<div class="folders">
 		<ul>
-			{{foreach $folders as $f}}<li><a href="{{$baseurl}}/fbrowser/{{$type}}/{{$f.0}}">{{$f.1}}</a></li>{{/foreach}}
+			{{foreach $folders as $f}}<li><a href="#" data-folder="{{$f.0}}">{{$f.1}}</a></li>{{/foreach}}
 		</ul>
 	</div>
 	{{/if}}

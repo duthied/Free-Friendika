@@ -142,21 +142,21 @@ function enableOnUser(){
 		 **/
 	
 		/* callback */
-		$('body').on('fbrowser.image', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.image.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
-		$('body').on('fbrowser.file', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.file.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
 	
 		$('#wall-image-upload').on('click', function(){
-			$.colorbox({href: baseurl + "/fbrowser/image/?mode=minimal", iframe:true,innerWidth:'500px',innerHeight:'400px'})
+			$.colorbox({href: baseurl + "/fbrowser/image/?mode=minimal#main", iframe:true,innerWidth:'500px',innerHeight:'400px'})
 		});
 		
 		$('#wall-file-upload').on('click', function(){
-			$.colorbox({href: baseurl + "/fbrowser/file/?mode=minimal", iframe:true,innerWidth:'500px',innerHeight:'400px'})
+			$.colorbox({href: baseurl + "/fbrowser/file/?mode=minimal#main", iframe:true,innerWidth:'500px',innerHeight:'400px'})
 		});
 		
 		/**	
