@@ -267,7 +267,12 @@ function contact_photo_menu($contact) {
 
 
 function random_profile() {
-	$r = q("select url from gcontact where url like '%%://%%/profile/%%' order by rand() limit 1");
+	$r = q("SELECT `url` FROM `gcontact` WHERE `network` = '%s'
+				AND `last_contact` >= `last_failure`
+				AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
+			ORDER BY rand() LIMIT 1",
+		dbesc(NETWORK_DFRN));
+
 	if(count($r))
 		return dirname($r[0]['url']);
 	return '';
