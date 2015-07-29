@@ -317,7 +317,8 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`network` varchar(255) NOT NULL DEFAULT '',
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
 	`server_url` varchar(255) NOT NULL DEFAULT '',
-	 INDEX `nurl` (`nurl`)
+	 INDEX `nurl` (`nurl`),
+	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
 
 --
