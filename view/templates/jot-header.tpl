@@ -142,11 +142,11 @@ function enableOnUser(){
 		 **/
 	
 		/* callback */
-		$('body').on('fbrowser.image', function(e, filename, embedcode) {
+		$('body').on('fbrowser.image', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
-		$('body').on('fbrowser.file', function(e, filename, embedcode) {
+		$('body').on('fbrowser.file', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
