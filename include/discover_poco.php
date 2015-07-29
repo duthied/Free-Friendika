@@ -13,10 +13,10 @@ function discover_poco_run(&$argv, &$argc){
 
 	if(is_null($db)) {
 	    @include(".htconfig.php");
-    	require_once("include/dba.php");
+	require_once("include/dba.php");
 	    $db = new dba($db_host, $db_user, $db_pass, $db_data);
-    	unset($db_host, $db_user, $db_pass, $db_data);
-  	};
+	unset($db_host, $db_user, $db_pass, $db_data);
+	};
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
@@ -53,12 +53,12 @@ function discover_poco_run(&$argv, &$argc){
 		if($pidfile->is_already_running()) {
 			logger("discover_poco: Already running");
 			if ($pidfile->running_time() > 19*60) {
-                                $pidfile->kill();
-                                logger("discover_poco: killed stale process");
+				$pidfile->kill();
+				logger("discover_poco: killed stale process");
 				// Calling a new instance
 				if ($mode == 0)
 					proc_run('php','include/discover_poco.php');
-                        }
+			}
 			exit;
 		}
 	}
@@ -98,8 +98,28 @@ function discover_users() {
 
 	foreach ($users AS $user) {
 
-		if ($user[0]["server_url"] != "")
-			$server_url = $user[0]["server_url"];
+		$urlparts = parse_url($user["url"]);
+		if (!isset($urlparts["scheme"])) {
+			q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+				dbesc(NETWORK_PHANTOM), dbesc(normalise_link($user["url"])));
+			continue;
+		 }
+
+		if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
+							"identi.ca", "alpha.app.net"))) {
+			$networks = array("www.facebook.com" => NETWORK_FACEBOOK,
+					"facebook.com" => NETWORK_FACEBOOK,
+					"twitter.com" => NETWORK_TWITTER,
+					"identi.ca" => NETWORK_PUMPIO,
+					"alpha.app.net" => NETWORK_APPNET);
+
+			q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
+				dbesc($networks[$urlparts["host"]]), dbesc(normalise_link($user["url"])));
+			continue;
+		}
+
+		if ($user["server_url"] != "")
+			$server_url = $user["server_url"];
 		else
 			$server_url = poco_detect_server($user["url"]);
 

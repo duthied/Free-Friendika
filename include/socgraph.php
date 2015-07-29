@@ -413,23 +413,6 @@ function poco_last_updated($profile, $force = false) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
-	$urlparts = parse_url($profile);
-	if (!isset($urlparts["scheme"]))
-		return;
-
-	if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
-						"identi.ca", "alpha.app.net"))) {
-		$networks = array("www.facebook.com" => NETWORK_FACEBOOK,
-				"facebook.com" => NETWORK_FACEBOOK,
-				"twitter.com" => NETWORK_TWITTER,
-				"identi.ca" => NETWORK_PUMPIO,
-				"alpha.app.net" => NETWORK_APPNET);
-
-		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
-			dbesc($networks[$urlparts["host"]]), dbesc(normalise_link($profile)));
-		return;
-	}
-
 	if ($gcontacts[0]["server_url"] != "")
 		$server_url = $gcontacts[0]["server_url"];
 	else
