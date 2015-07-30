@@ -2,7 +2,9 @@
 		This is the template used by mod/fbrowser.php when is called from plain text editor.
 		See also 'filebrowser.tpl'
 	-->
-
+<style>
+	#buglink_wrapper{display:none;} /* hide buglink. only in this page */
+</style>
 <script type="text/javascript" src="{{$baseurl}}/js/ajaxupload.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/filebrowser.js"></script>
 <script>
