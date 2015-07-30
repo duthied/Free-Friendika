@@ -16,12 +16,19 @@ function dirfind_init(&$a) {
 
 function dirfind_content(&$a) {
 
+	$community = false;
+
 	$local = get_config('system','poco_local_search');
 
 	$search = notags(trim($_REQUEST['search']));
 
 	if(strpos($search,'@') === 0)
 		$search = substr($search,1);
+
+	if(strpos($search,'!') === 0) {
+		$search = substr($search,1);
+		$community = true;
+	}
 
 	$o = '';
 
@@ -33,12 +40,17 @@ function dirfind_content(&$a) {
 
 		if ($local) {
 
+			if ($community)
+				$extra_sql = " AND `community`";
+			else
+				$extra_sql = "";
+
 			$perpage = 80;
 			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
 			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
 					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
-						`about` REGEXP '%s' OR `keywords` REGEXP '%s')",
+						`about` REGEXP '%s' OR `keywords` REGEXP '%s')".$extra_sql,
 					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
@@ -49,7 +61,7 @@ function dirfind_content(&$a) {
 					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND
 					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
 					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s')
+						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
 					intval(local_user()), dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
