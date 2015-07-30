@@ -451,12 +451,14 @@ function poco_last_updated($profile, $force = false) {
 
 		if ($server) {
 			$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
-			 if ($noscraperet["success"] AND ($noscraperet["body"] = "")) {
+
+			 if ($noscraperet["success"] AND ($noscraperet["body"] != "")) {
+;
 				$noscrape = json_decode($noscraperet["body"], true);
 
-				if (($noscrape["name"] != "") AND ($noscrape["name"] != $gcontacts[0]["name"]))
+				if (($noscrape["fn"] != "") AND ($noscrape["fn"] != $gcontacts[0]["name"]))
 					q("UPDATE `gcontact` SET `name` = '%s' WHERE `nurl` = '%s'",
-						dbesc($noscrape["name"]), dbesc(normalise_link($profile)));
+						dbesc($noscrape["fn"]), dbesc(normalise_link($profile)));
 
 				if (($noscrape["photo"] != "") AND ($noscrape["photo"] != $gcontacts[0]["photo"]))
 					q("UPDATE `gcontact` SET `photo` = '%s' WHERE `nurl` = '%s'",
@@ -470,9 +472,17 @@ function poco_last_updated($profile, $force = false) {
 					q("UPDATE `gcontact` SET `gender` = '%s' WHERE `nurl` = '%s'",
 						dbesc($noscrape["gender"]), dbesc(normalise_link($profile)));
 
-				if (($noscrape["about"] != "") AND ($noscrape["about"] != $gcontacts[0]["name"]))
+				if (($noscrape["pdesc"] != "") AND ($noscrape["pdesc"] != $gcontacts[0]["about"]))
+					q("UPDATE `gcontact` SET `about` = '%s' WHERE `nurl` = '%s'",
+						dbesc($noscrape["pdesc"]), dbesc(normalise_link($profile)));
+
+				if (($noscrape["about"] != "") AND ($noscrape["about"] != $gcontacts[0]["about"]))
 					q("UPDATE `gcontact` SET `about` = '%s' WHERE `nurl` = '%s'",
 						dbesc($noscrape["about"]), dbesc(normalise_link($profile)));
+
+				if (isset($noscrape["comm"]) AND ($noscrape["comm"] != $gcontacts[0]["community"]))
+					q("UPDATE `gcontact` SET `community` = %d WHERE `nurl` = '%s'",
+						intval($noscrape["comm"]), dbesc(normalise_link($profile)));
 
 				if (isset($noscrape["tags"]))
 					$keywords = implode(" ", $noscrape["tags"]);
