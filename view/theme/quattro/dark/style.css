@@ -544,6 +544,7 @@ header {
   margin: 0px;
   padding: 0px;
   /*width: 100%; height: 12px; */
+
   z-index: 110;
   color: #ffffff;
 }
@@ -876,6 +877,7 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
+
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -957,6 +959,7 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0px;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0px;}*/
+
 }
 .widget h3 {
   padding: 0px;
@@ -1238,6 +1241,7 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
+
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -2107,6 +2111,7 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
+
 }
 #photo-caption {
   display: block;
@@ -2479,4 +2484,66 @@ footer {
 .plink-event-link {
   float: left;
   margin-left: 2px;
+}
+/* upload/select popup */
+.fbrowser {
+  overflow: auto;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+.fbrowser .path {
+  background-color: #0e232e;
+}
+.fbrowser .path a {
+  padding: 5px;
+  margin: 0px 2px;
+  display: inline-block;
+}
+.fbrowser .path a,
+.fbrowser .path a:active,
+.fbrowser .path a:visited,
+.fbrowser .path a:link,
+.fbrowser .path a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  outline: none;
+}
+.fbrowser .folders ul {
+  list-style: url("icons/folder.png");
+  padding-left: 22px;
+}
+.fbrowser .list {
+  padding: 10px;
+}
+.fbrowser.image .photo-album-image-wrapper {
+  width: 48px;
+  height: 48px;
+}
+.fbrowser.image a img {
+  width: auto;
+  height: 48px;
+}
+.fbrowser.image a p {
+  display: none;
+}
+.fbrowser.file .photo-album-image-wrapper {
+  float: none;
+  white-space: nowrap;
+  width: 100%;
+  height: auto;
+}
+.fbrowser.file img {
+  display: inline;
+  width: 16px;
+  height: 16px;
+}
+.fbrowser.file p {
+  display: inline;
+  white-space: nowrap;
+}
+.fbrowser .upload {
+  clear: both;
+  padding-top: 1em;
 }
