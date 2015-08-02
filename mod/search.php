@@ -120,6 +120,10 @@ function search_content(&$a) {
 		require_once('mod/dirfind.php');
 		return dirfind_content($a);
 	}
+	if(strpos($search,'!') === 0) {
+		require_once('mod/dirfind.php');
+		return dirfind_content($a);
+	}
 
 	if(! $search)
 		return $o;

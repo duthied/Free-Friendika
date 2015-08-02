@@ -61,12 +61,16 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `network` IN ('%s')",
+		//$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure`  AND `network` IN ('%s', '%s', '%s')",
 			dbesc($update_limit),
-			dbesc(NETWORK_DFRN)
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
 		);
 	} elseif($system_mode) {
-		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '')
+		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s')
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -75,7 +79,8 @@ function poco_init(&$a) {
 			);
 	} else {
 		$r = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra",
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -93,19 +98,25 @@ function poco_init(&$a) {
 		$startIndex = 0;
 	$itemsPerPage = ((x($_GET,'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
-
 	if ($global) {
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') LIMIT %d, %d",
+		logger("Start global query", LOGGER_DEBUG);
+		//$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
+			ORDER BY `updated` DESC LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	} elseif($system_mode) {
+		logger("Start system mode query", LOGGER_DEBUG);
 		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
 			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s', '') AND `profile`.`is-default`
+			WHERE `self` = 1 AND `network` IN ('%s', '%s', '%s', '%s') AND `profile`.`is-default`
+			AND ((`contact`.`success_update` >= `contact`.`failure_update`) OR (`contact`.`last-item` >= `contact`.`failure_update`))
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -115,8 +126,10 @@ function poco_init(&$a) {
 			intval($itemsPerPage)
 		);
 	} else {
+		logger("Start query for user ".$user['nickname'], LOGGER_DEBUG);
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND `network` IN ('%s', '%s', '%s', '%s', '') $sql_extra LIMIT %d, %d",
+			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -126,6 +139,7 @@ function poco_init(&$a) {
 			intval($itemsPerPage)
 		);
 	}
+	logger("Query done", LOGGER_DEBUG);
 
 	$ret = array();
 	if(x($_GET,'sorted'))
@@ -206,13 +220,19 @@ function poco_init(&$a) {
 				if (($rr['keywords'] == "") AND isset($rr['pub_keywords']))
 					$rr['keywords'] = $rr['pub_keywords'];
 
+				$about = Cache::get("about:".$rr['updated'].":".$rr['nurl']);
+				if (is_null($about)) {
+					$about = bbcode($rr['about'], false, false);
+					Cache::set("about:".$rr['updated'].":".$rr['nurl'],$about);
+				}
+
 				$entry = array();
 				if($fields_ret['id'])
 					$entry['id'] = (int)$rr['id'];
 				if($fields_ret['displayName'])
 					$entry['displayName'] = $rr['name'];
 				if($fields_ret['aboutMe'])
-					$entry['aboutMe'] = bbcode($rr['about'], false, false);
+					$entry['aboutMe'] = $about;
 				if($fields_ret['currentLocation'])
 					$entry['currentLocation'] = $rr['location'];
 				if($fields_ret['gender'])
@@ -294,6 +314,8 @@ function poco_init(&$a) {
 	}
 	else
 		http_status_exit(500);
+
+	logger("End of poco", LOGGER_DEBUG);
 
 	if($format === 'xml') {
 		header('Content-type: text/xml');

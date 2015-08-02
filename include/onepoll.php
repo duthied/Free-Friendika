@@ -19,10 +19,10 @@ function onepoll_run(&$argv, &$argc){
 
 	if(is_null($db)) {
 	    @include(".htconfig.php");
-    	require_once("include/dba.php");
+	require_once("include/dba.php");
 	    $db = new dba($db_host, $db_user, $db_pass, $db_data);
-    	unset($db_host, $db_user, $db_pass, $db_data);
-  	};
+	unset($db_host, $db_user, $db_pass, $db_data);
+	};
 
 
 	require_once('include/session.php');
@@ -79,27 +79,57 @@ function onepoll_run(&$argv, &$argc){
 
 	$contacts = q("SELECT `contact`.* FROM `contact`
 		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
-		AND NOT `network` IN ( '%s', '%s', '%s' )
+		AND NOT `network` IN ( '%s', '%s' )
 		AND `contact`.`id` = %d
 		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0
 		AND `contact`.`archive` = 0 LIMIT 1",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
-		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_FACEBOOK),
 		dbesc(NETWORK_PUMPIO),
 		intval($contact_id)
 	);
 
-	if(! count($contacts)) {
-		// Maybe it is a Redmatrix account. Then we can fetch their contacts via poco
-		$contacts = q("SELECT `id`, `poco` FROM `contact` WHERE `id` = %d AND `poco` != ''", intval($contact_id));
-		if ($contacts)
-			poco_load($contacts[0]['id'],$importer_uid,0,$contacts[0]['poco']);
+	if(! count($contacts))
 		return;
-	}
 
 	$contact = $contacts[0];
+
+	// load current friends if possible.
+	if (($contact['poco'] != "") AND ($contact['success_update'] > $contact['failure_update'])) {
+		$r = q("SELECT count(*) as total from glink
+			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
+			intval($contact['id'])
+		);
+		if (count($r))
+			if (!$r[0]['total'])
+				poco_load($contact['id'],$importer_uid,0,$contact['poco']);
+	}
+
+	// To-Do:
+	// - Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
+	// - Check whether this is possible with Redmatrix
+	if ($contact["network"] == NETWORK_DIASPORA) {
+		if (poco_do_update($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
+			$last_updated = poco_last_updated($contact["url"]);
+			$updated = datetime_convert();
+			if ($last_updated) {
+				q("UPDATE `contact` SET `last-item` = '%s', `last-update` = '%s', `success_update` = '%s' WHERE `id` = %d",
+					dbesc($last_updated),
+					dbesc($updated),
+					dbesc($updated),
+					intval($contact['id'])
+				);
+			} else {
+				q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
+					dbesc($updated),
+					dbesc($updated),
+					intval($contact['id'])
+				);
+			}
+		}
+		return;
+	}
 
 	$xml = false;
 
@@ -177,7 +207,8 @@ function onepoll_run(&$argv, &$argc){
 			mark_for_death($contact);
 
 			// set the last-update so we don't keep polling
-			$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
+			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
+				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 			);
@@ -190,7 +221,8 @@ function onepoll_run(&$argv, &$argc){
 
 			mark_for_death($contact);
 
-			$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
+			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
+				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 			);
@@ -207,7 +239,8 @@ function onepoll_run(&$argv, &$argc){
 			// set the last-update so we don't keep polling
 
 
-			$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
+			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
+				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 			);
@@ -554,13 +587,13 @@ function onepoll_run(&$argv, &$argc){
 		logger('poller: received xml : ' . $xml, LOGGER_DATA);
 		if(! strstr($xml,'<')) {
 			logger('poller: post_handshake: response from ' . $url . ' did not contain XML.');
-			$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
+			$r = q("UPDATE `contact` SET `last-update` = '%s',  `failure_update` = '%s' WHERE `id` = %d",
+				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 			);
 			return;
 		}
-
 
 		consume_feed($xml,$importer,$contact,$hub,1,1);
 
@@ -588,29 +621,38 @@ function onepoll_run(&$argv, &$argc){
 				}
 			}
 		}
-	}
 
-	$updated = datetime_convert();
+		$updated = datetime_convert();
 
-	$r = q("UPDATE `contact` SET `last-update` = '%s', `success_update` = '%s' WHERE `id` = %d",
-		dbesc($updated),
-		dbesc($updated),
-		intval($contact['id'])
-	);
-
-
-	// load current friends if possible.
-
-	if($contact['poco']) {
-		$r = q("SELECT count(*) as total from glink
-			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
+		$r = q("UPDATE `contact` SET `last-update` = '%s', `success_update` = '%s' WHERE `id` = %d",
+			dbesc($updated),
+			dbesc($updated),
 			intval($contact['id'])
 		);
-	}
-	if(count($r)) {
-		if(! $r[0]['total']) {
-			poco_load($contact['id'],$importer_uid,0,$contact['poco']);
-		}
+
+		q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
+			dbesc($updated),
+			dbesc($contact['nurl'])
+		);
+
+	} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
+		$updated = datetime_convert();
+
+		$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
+			dbesc($updated),
+			dbesc($updated),
+			intval($contact['id'])
+		);
+
+		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+			dbesc($updated),
+			dbesc($contact['nurl'])
+		);
+	} else {
+		$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
+			dbesc($updated),
+			intval($contact['id'])
+		);
 	}
 
 	return;
