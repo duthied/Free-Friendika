@@ -90,12 +90,18 @@ function html2bbcode($message)
 
 	$message = str_replace("\r", "", $message);
 
+	$message = preg_replace_callback("|<pre><code>([^<]*)</code></pre>|ism", function($m) {
+		return "<code>".str_replace("\n","<br>\n",$m[1]). "</code>";
+	}, $message);
+
 	$message = str_replace(array(
 					"<li><p>",
-					"</p></li>"),
+					"</p></li>",
+				),
 				array(
 					"<li>",
-					"</li>"),
+					"</li>",
+				),
 				$message);
 
 	// remove namespaces
@@ -187,6 +193,7 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'span', array(), "", "");
 	node2bbcode($doc, 'pre', array(), "", "");
+
 	node2bbcode($doc, 'div', array(), "\r", "\r");
 	node2bbcode($doc, 'p', array(), "\n", "\n");
 
@@ -230,6 +237,7 @@ function html2bbcode($message)
 	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
 	node2bbcode($doc, 'code', array(), '[code]', '[/code]');
+    node2bbcode($doc, 'key', array(), '[code]', '[/code]');
 
 	$message = $doc->saveHTML();
 
