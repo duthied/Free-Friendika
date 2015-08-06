@@ -1,8 +1,7 @@
-
 {{$live_update}}
 
 {{foreach $threads as $thread}}
-
+<hr class="sr-only" />
 <div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper {{if $thread.threaded}}threaded{{/if}}  {{$thread.toplevel}} {{$thread.network}}">
        
        
