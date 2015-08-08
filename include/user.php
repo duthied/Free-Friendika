@@ -136,8 +136,8 @@ function create_user($arr) {
 
 	$nickname = $arr['nickname'] = strtolower($nickname);
 
-	if(! preg_match("/^[a-z][a-z0-9\-\_]*$/",$nickname))
-		$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9", "-", and "_", and must also begin with a letter.') . EOL;
+	if(! preg_match("/^[a-z0-9][a-z0-9\_]*$/",$nickname))
+		$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9" and "_".') . EOL;
 	$r = q("SELECT `uid` FROM `user`
                	WHERE `nickname` = '%s' LIMIT 1",
                	dbesc($nickname)
