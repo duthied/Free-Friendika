@@ -263,8 +263,8 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 			);
 		}
 	}
-	
-	
+
+
 	$tpl = get_markup_template("group_side.tpl");
 	$o = replace_macros($tpl, array(
 		'$title'		=> t('Groups'),
@@ -276,8 +276,8 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 		'$groups'		=> $groups,
 		'$add'			=> t('add'),
 	));
-		
-	
+
+
 	return $o;
 }
 

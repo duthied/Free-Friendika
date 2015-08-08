@@ -44,7 +44,7 @@
 				<a aria-hidden="true" href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link" id="wall-item-photo-link-{{$item.id}}">
 					<img src="{{$item.thumb}}" class="contact-photo {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				</a>
-				<a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
+				<a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}"></a>
 				<ul role="menu" aria-haspopup="true" class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
 				{{$item.item_photo_menu}}
 				</ul>
@@ -95,14 +95,14 @@
 	</div>	
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
-			{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.orig}}"><i class="icon-link icon-large"><span class="sr-only">{{$item.plink.title}}</span></i></a>{{/if}}
+			{{if $item.plink}}<a role="button" title="{{$item.plink.orig_title}}" href="{{$item.plink.orig}}"><i class="icon-link icon-large"><span class="sr-only">{{$item.plink.orig_title}}</span></i></a>{{/if}}
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-social">
 			{{if $item.threaded}}
 			{{/if}}
 			{{if $item.comment}}
-				<span id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-reply"><span class="sr-only">{{$item.switchcomment}}</span></i></span>
+				<a role="button" id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-reply"><span class="sr-only">{{$item.switchcomment}}</span></i></a>
 			{{/if}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
