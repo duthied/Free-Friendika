@@ -9,23 +9,23 @@
 	<ul>
 		{{if $nav.home}}
 			<li role="menuitem" id="nav-home-link" class="nav-menu {{$sel.home}}">
-				<a class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
+				<a accesskey="p" class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
 				<span id="home-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.network}}
 			<li role="menuitem" id="nav-network-link" class="nav-menu {{$sel.network}}">
-				<a class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
+				<a accesskey="n" class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
 				<span id="net-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.community}}
 			<li role="menuitem" id="nav-community-link" class="nav-menu {{$sel.community}}">
-				<a class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
+				<a accesskey="c" class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
 			</li>
 		{{/if}}
 		
-		<li role="menu" id="nav-site-linkmenu" class="nav-menu-icon"><a rel="#nav-site-menu"><span class="icon s22 icon-question"><span class="sr-only">{{$nav.help.3}}</span></span></a>
+		<li role="menu" aria-haspopup="true" id="nav-site-linkmenu" class="nav-menu-icon"><a rel="#nav-site-menu"><span class="icon s22 icon-question"><span class="sr-only">{{$nav.help.3}}</span></span></a>
 			<ul id="nav-site-menu" class="menu-popup">
 				{{if $nav.help}} <li role="menuitem"><a class="{{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a></li>{{/if}}
 				<li role="menuitem"><a class="{{$nav.about.2}}" href="{{$nav.about.0}}" title="{{$nav.about.3}}" >{{$nav.about.1}}</a></li>
@@ -34,7 +34,7 @@
 		</li>
 
 		{{if $nav.notifications}}
-			<li role="menu" id="nav-notifications-linkmenu" class="nav-menu-icon"><a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span></a>
+			<li role="menu" aria-haspopup="true" id="nav-notifications-linkmenu" class="nav-menu-icon"><a accesskey="f" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span></a>
 				<span id="notify-update" class="nav-notify"></span>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<li role="menuitem" id="nav-notifications-mark-all"><a onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
@@ -45,11 +45,11 @@
 		{{/if}}
 		
 		{{if $userinfo}}
-			<li role="menu" id="nav-user-linklabel" class="nav-menu">
+			<li aria-hidden="true" id="nav-user-linklabel" class="nav-menu">
 				<a rel="#nav-user-menu" title="{{$sitelocation}}">{{$userinfo.name}}<span id="intro-update" class="nav-notify"></span></a>
 			</li>
-			<li role="menu" id="nav-user-linkmenu" class="nav-menu-icon">
-				<a rel="#nav-user-menu" title="{{$sitelocation}}"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"></a>
+			<li role="menu" aria-haspopup="true" id="nav-user-linkmenu" class="nav-menu-icon">
+				<a accesskey="u" rel="#nav-user-menu" title="{{$sitelocation}}"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"></a>
 				<ul id="nav-user-menu" class="menu-popup">
 					{{if $nav.introductions}}<li role="menuitem"><a class="{{$nav.introductions.2}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a><span id="intro-update-li" class="nav-notify"></span></li>{{/if}}
 					{{if $nav.contacts}}<li role="menuitem"><a class="{{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a></li>{{/if}}
@@ -71,7 +71,7 @@
 		{{if $nav.search}}
 			<li role="search" id="search-box">
 				<form method="get" action="{{$nav.search.0}}">
-					<input id="search-text" class="nav-menu-search" type="text" value="" name="search">
+					<input accesskey="s" id="search-text" class="nav-menu-search" type="text" value="" name="search">
 				</form>
 			</li>
 		{{/if}}
@@ -79,12 +79,12 @@
 		{{if $nav.admin}}
 			<li role="menuitem" id="nav-admin-link" class="nav-menu">
 				<!-- <a class="{{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" >{{$nav.admin.1}}</a> -->
-				<a class="{{$nav.admin.2}} icon-sliders" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><span class="sr-only">{{$nav.admin.3}}</span></a>
+				<a accesskey="a" class="{{$nav.admin.2}} icon-sliders" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><span class="sr-only">{{$nav.admin.3}}</span></a>
 			</li>
 		{{/if}}
 		
 		{{if $nav.apps}}
-			<li role="menu" id="nav-apps-link" class="nav-menu {{$sel.apps}}">
+			<li role="menu" aria-haspopup="true" id="nav-apps-link" class="nav-menu {{$sel.apps}}">
 				<a class=" {{$nav.apps.2}}" rel="#nav-apps-menu" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>
 				<ul id="nav-apps-menu" class="menu-popup">
 					{{foreach $apps as $ap}}

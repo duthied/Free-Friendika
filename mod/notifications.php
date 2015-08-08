@@ -78,26 +78,31 @@ function notifications_content(&$a) {
 			'label' => t('System'),
 			'url'=>$a->get_baseurl(true) . '/notifications/system',
 			'sel'=> (($a->argv[1] == 'system') ? 'active' : ''),
+			'accesskey' => 'y',
 		),
 		array(
 			'label' => t('Network'),
 			'url'=>$a->get_baseurl(true) . '/notifications/network',
 			'sel'=> (($a->argv[1] == 'network') ? 'active' : ''),
+			'accesskey' => 'w',
 		),
 		array(
 			'label' => t('Personal'),
 			'url'=>$a->get_baseurl(true) . '/notifications/personal',
 			'sel'=> (($a->argv[1] == 'personal') ? 'active' : ''),
+			'accesskey' => 'r',
 		),
 		array(
 			'label' => t('Home'),
 			'url' => $a->get_baseurl(true) . '/notifications/home',
 			'sel'=> (($a->argv[1] == 'home') ? 'active' : ''),
+			'accesskey' => 'h',
 		),
 		array(
 			'label' => t('Introductions'),
 			'url' => $a->get_baseurl(true) . '/notifications/intros',
 			'sel'=> (($a->argv[1] == 'intros') ? 'active' : ''),
+			'accesskey' => 'i',
 		),
 		/*array(
 			'label' => t('Messages'),

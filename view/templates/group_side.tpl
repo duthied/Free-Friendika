@@ -2,9 +2,9 @@
 <h3>{{$title}}</h3>
 
 <div id="sidebar-group-list">
-	<ul id="sidebar-group-ul">
+	<ul role="menu" id="sidebar-group-ul">
 		{{foreach $groups as $group}}
-			<li class="sidebar-group-li">
+			<li role="menuitem" class="sidebar-group-li">
 				{{if $group.cid}}
 					<input type="checkbox" 
 						class="{{if $group.selected}}ticked{{else}}unticked {{/if}} action" 

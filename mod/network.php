@@ -359,12 +359,14 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'=>$all_active,
 			'title'=> t('Sort by Comment Date'),
+			'accesskey' => "e",
 		),
 		array(
 			'label' => t('Posted Order'),
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'=>$postord_active,
 			'title' => t('Sort by Post Date'),
+			'accesskey' => "t",
 		),
 	);
 
@@ -374,6 +376,7 @@ function network_content(&$a, $update = 0) {
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel' => $conv_active,
 			'title' => t('Posts that mention or involve you'),
+			'accesskey' => "r",
 		);
 	}
 
@@ -383,6 +386,7 @@ function network_content(&$a, $update = 0) {
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel' => $new_active,
 			'title' => t('Activity Stream - by date'),
+			'accesskey' => "w",
 		);
 	}
 
@@ -392,6 +396,7 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'=>$bookmarked_active,
 			'title'=> t('Interesting Links'),
+			'accesskey' => "b",
 		);
 	}
 
@@ -401,6 +406,7 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'=>$starred_active,
 			'title' => t('Favourite Posts'),
+			'accesskey' => "m",
 		);
 	}
 
