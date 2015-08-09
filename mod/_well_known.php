@@ -21,24 +21,40 @@ function wk_social_relay(&$a) {
 	define('SR_SCOPE_ALL', 'all');
 	define('SR_SCOPE_TAGS', 'tags');
 
-	$subscribe = (bool)true;
-	$scope = SR_SCOPE_ALL;
-	//$scope = SR_SCOPE_TAGS;
+	$subscribe = (bool)get_config('system', 'relay_subscribe');
+
+	if ($subscribe)
+		$scope = get_config('system', 'relay_scope');
+	else
+		$scope = "";
 
 	$tags = array();
 
 	if ($scope == SR_SCOPE_TAGS) {
-		$terms = q("SELECT DISTINCT(`term`) FROM `search`");
 
-		foreach($terms AS $term) {
-			$tag = trim($term["term"], "#");
-			$tags[] = $tag;
+		$server_tags = get_config('system', 'relay_server_tags');
+		$tagitems = explode(",", $server_tags);
+
+		foreach($tagitems AS $tag)
+			$tags[trim($tag, "# ")] = trim($tag, "# ");
+
+		if (get_config('system', 'relay_user_tags')) {
+			$terms = q("SELECT DISTINCT(`term`) FROM `search`");
+
+			foreach($terms AS $term) {
+				$tag = trim($term["term"], "#");
+				$tags[$tag] = $tag;
+			}
 		}
 	}
 
+	$taglist = array();
+	foreach($tags AS $tag)
+		$taglist[] = $tag;
+
 	$relay = array("subscribe" => $subscribe,
 			"scope" => $scope,
-			"tags" => array_unique($tags));
+			"tags" => $taglist);
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($relay, true);
