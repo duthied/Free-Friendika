@@ -9,7 +9,7 @@ General
 * s: search
 * a: admin
 * f: notifications
-* u: user menu (in theme "vier")
+* u: user menu (in themes "vier" and "quattro")
 
 /profile
 --------
