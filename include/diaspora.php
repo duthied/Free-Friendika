@@ -34,8 +34,13 @@ function diaspora_dispatch_public($msg) {
 			diaspora_dispatch($rr,$msg);
 		}
 	}
-	else
-		logger('diaspora_public: no subscribers');
+	else {
+		logger('diaspora_public: no subscribers '.print_r($msg, true));
+
+		// Use a dummy importer
+		$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+		diaspora_dispatch($importer,$msg);
+	}
 }
 
 
@@ -782,6 +787,11 @@ function diaspora_post_allow($importer,$contact) {
 	if($contact['rel'] == CONTACT_IS_FOLLOWER)
 		if($importer['page-flags'] == PAGE_COMMUNITY)
 			return true;
+
+	// Messages for the global users are always accepted
+	if ($importer['uid'] == 0)
+		return true;
+
 	return false;
 }
 
@@ -1605,7 +1615,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 	$created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml->created_at)));
 
 	$parent_uri = $diaspora_handle . ':' . $guid;
- 
+
 	$messages = $xml->message;
 
 	if(! count($messages)) {
@@ -1619,7 +1629,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 		return;
 	}
 
-	if(($contact['rel'] == CONTACT_IS_FOLLOWER) || ($contact['blocked']) || ($contact['readonly'])) { 
+	if(($contact['rel'] == CONTACT_IS_FOLLOWER) || ($contact['blocked']) || ($contact['readonly'])) {
 		logger('diaspora_conversation: Ignoring this author.');
 		return 202;
 	}
@@ -1776,14 +1786,14 @@ function diaspora_message($importer,$xml,$msg) {
 	$msg_conversation_guid = notags(unxmlify($xml->conversation_guid));
 
 	$parent_uri = $diaspora_handle . ':' . $msg_parent_guid;
- 
+
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$msg_diaspora_handle);
 	if(! $contact) {
 		logger('diaspora_message: cannot find contact: ' . $msg_diaspora_handle);
 		return;
 	}
 
-	if(($contact['rel'] == CONTACT_IS_FOLLOWER) || ($contact['blocked']) || ($contact['readonly'])) { 
+	if(($contact['rel'] == CONTACT_IS_FOLLOWER) || ($contact['blocked']) || ($contact['readonly'])) {
 		logger('diaspora_message: Ignoring this author.');
 		return 202;
 	}
