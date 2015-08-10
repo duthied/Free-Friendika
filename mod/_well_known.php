@@ -1,5 +1,6 @@
 <?php
 require_once("mod/hostxrd.php");
+require_once("mod/nodeinfo.php");
 
 function _well_known_init(&$a){
 	if ($a->argc > 1) {
@@ -9,6 +10,9 @@ function _well_known_init(&$a){
 				break;
 			case "x-social-relay":
 				wk_social_relay($a);
+				break;
+			case "nodeinfo":
+				nodeinfo_wellknown($a);
 				break;
 		}
 	}
