@@ -12,7 +12,7 @@ function nodeinfo_wellknown(&$a) {
 					"href" => $a->get_baseurl()."/nodeinfo/1.0"));
 
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($nodeinfo, true);
+	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
 }
 
@@ -72,7 +72,7 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("fbpost") OR nodeinfo_plugin_enabled("buffer"))
 		$nodeinfo["services"][] = "facebook";
 
-	$nodeinfo["services"][] = " friendica";
+	$nodeinfo["services"][] = "friendica";
 
 	if (nodeinfo_plugin_enabled("statusnet") OR !get_config("system","ostatus_disabled"))
 		$nodeinfo["services"][] = "gnusocial";
@@ -107,14 +107,16 @@ function nodeinfo_init(&$a){
 	$nodeinfo["openRegistrations"] = ($a->config['register_policy'] != 0);
 
 	$nodeinfo["usage"] = array();
-	$nodeinfo["usage"]["users"] = array("total" => get_config("nodeinfo","total_users"),
-				"activeHalfyear" => get_config("nodeinfo","active_users_halfyear"),
-				"activeMonth" => get_config("nodeinfo","active_users_monthly"));
-	$nodeinfo["usage"]["localPosts"] = get_config("nodeinfo","local_posts");
-	$nodeinfo["usage"]["localComments"] = get_config("nodeinfo","local_comments");
+	$nodeinfo["usage"]["users"] = array("total" => (int)get_config("nodeinfo","total_users"),
+				"activeHalfyear" => (int)get_config("nodeinfo","active_users_halfyear"),
+				"activeMonth" => (int)get_config("nodeinfo","active_users_monthly"));
+	$nodeinfo["usage"]["localPosts"] = (int)get_config("nodeinfo","local_posts");
+	$nodeinfo["usage"]["localComments"] = (int)get_config("nodeinfo","local_comments");
+
+	$nodeinfo["usage"]["metadata"] = array();
 
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($nodeinfo, true);
+	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
 }
 

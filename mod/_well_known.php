@@ -61,6 +61,6 @@ function wk_social_relay(&$a) {
 			"tags" => $taglist);
 
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($relay, true);
+	echo json_encode($relay, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
 }
