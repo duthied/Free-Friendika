@@ -50,10 +50,11 @@ function nodeinfo_init(&$a){
 		$nodeinfo["protocols"]["outbound"][] = "gnusocial";
 	}
 
-	if ($smtp) {
-		$nodeinfo["protocols"]["inbound"][] = "smtp";
-		$nodeinfo["protocols"]["outbound"][] = "smtp";
-	}
+	//if ($smtp) {
+	//	$nodeinfo["protocols"]["inbound"][] = "smtp";
+	//	$nodeinfo["protocols"]["outbound"][] = "smtp";
+	//}
+
 
 	$nodeinfo["services"] = array();
 
@@ -63,22 +64,26 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("blogger"))
 		$nodeinfo["services"][] = "blogger";
 
-	if (get_config("system","diaspora_enabled"))
-		$nodeinfo["services"][] = "diaspora";
+	//if (get_config("system","diaspora_enabled"))
+	//	$nodeinfo["services"][] = "diaspora";
 
-	if (nodeinfo_plugin_enabled("dreamwidth"))
+	if (nodeinfo_plugin_enabled("dwpost"))
 		$nodeinfo["services"][] = "dreamwidth";
 
 	if (nodeinfo_plugin_enabled("fbpost") OR nodeinfo_plugin_enabled("buffer"))
 		$nodeinfo["services"][] = "facebook";
 
-	$nodeinfo["services"][] = "friendica";
+	//$nodeinfo["services"][] = "friendica";
 
-	if (nodeinfo_plugin_enabled("statusnet") OR !get_config("system","ostatus_disabled"))
+	//if (nodeinfo_plugin_enabled("statusnet") OR !get_config("system","ostatus_disabled"))
+	if (nodeinfo_plugin_enabled("statusnet"))
 		$nodeinfo["services"][] = "gnusocial";
 
-	if (nodeinfo_plugin_enabled("fpluspost") OR nodeinfo_plugin_enabled("buffer"))
+	if (nodeinfo_plugin_enabled("gpluspost") OR nodeinfo_plugin_enabled("buffer"))
 		$nodeinfo["services"][] = "google";
+
+	if (nodeinfo_plugin_enabled("ijpost"))
+		$nodeinfo["services"][] = "insanejournal";
 
 	if (nodeinfo_plugin_enabled("libertree"))
 		$nodeinfo["services"][] = "libertree";
@@ -89,8 +94,16 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("ljpost"))
 		$nodeinfo["services"][] = "livejournal";
 
+	if (nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"][] = "pinterest";
+
+	if (nodeinfo_plugin_enabled("posterous"))
+		$nodeinfo["services"][] = "posterous";
+
 	if (nodeinfo_plugin_enabled("pumpio"))
 		$nodeinfo["services"][] = "pumpio";
+
+	// redmatrix
 
 	if ($smtp)
 		$nodeinfo["services"][] = "smtp";
@@ -101,8 +114,8 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("twitter"))
 		$nodeinfo["services"][] = "twitter";
 
-	if (nodeinfo_plugin_enabled("wordpress"))
-		$nodeinfo["services"][] = "wppost";
+	if (nodeinfo_plugin_enabled("wppost"))
+		$nodeinfo["services"][] = "wordpress";
 
 	$nodeinfo["openRegistrations"] = ($a->config['register_policy'] != 0);
 
