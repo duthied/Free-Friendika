@@ -9,8 +9,9 @@ function message_init(&$a) {
 		'label' => t('New Message'),
 		'url' => $a->get_baseurl(true) . '/message/new',
 		'sel'=> ($a->argv[1] == 'new'),
+		'accesskey' => 'm',
 	);
-	
+
 	$tpl = get_markup_template('message_side.tpl');
 	$a->page['aside'] = replace_macros($tpl, array(
 		'$tabs'=>$tabs,
@@ -29,7 +30,7 @@ function message_init(&$a) {
 		'$baseurl' => $a->get_baseurl(true),
 		'$base' => $base
 	));
-	
+
 }
 
 function message_post(&$a) {

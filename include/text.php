@@ -1676,11 +1676,14 @@ function get_plink($item) {
 				//'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
 				'href' => $a->get_baseurl()."/display/".$item['guid'],
 				'orig' => $a->get_baseurl()."/display/".$item['guid'],
-				'title' => t('link to source'),
+				'title' => t('local thread'),
+				'orig_title' => t('local thread'),
 			);
 
-		if (x($item,'plink'))
+		if (x($item,'plink')) {
 			$ret["href"] = $item['plink'];
+			$ret["title"] = t('link to source');
+		}
 
 	} elseif (x($item,'plink') && ($item['private'] != 1))
 		$ret = array(
