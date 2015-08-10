@@ -634,6 +634,7 @@ if(! function_exists('profile_tabs')){
 				'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
 				'title' => t('Status Messages and Posts'),
 				'id' => 'status-tab',
+				'accesskey' => 'm',
 			),
 			array(
 				'label' => t('Profile'),
@@ -641,6 +642,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((isset($tab) && $tab=='profile')?'active':''),
 				'title' => t('Profile Details'),
 				'id' => 'profile-tab',
+				'accesskey' => 'r',
 			),
 			array(
 				'label' => t('Photos'),
@@ -648,6 +650,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='photos')?'active':''),
 				'title' => t('Photo Albums'),
 				'id' => 'photo-tab',
+				'accesskey' => 'h',
 			),
 			array(
 				'label' => t('Videos'),
@@ -655,6 +658,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='videos')?'active':''),
 				'title' => t('Videos'),
 				'id' => 'video-tab',
+				'accesskey' => 'v',
 			),
 		);
 
@@ -665,6 +669,7 @@ if(! function_exists('profile_tabs')){
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
+				'accesskey' => 'e',
 			);
 			$tabs[] = array(
 				'label' => t('Personal Notes'),
@@ -672,6 +677,7 @@ if(! function_exists('profile_tabs')){
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='notes')?'active':''),
 				'title' => t('Only You Can See This'),
 				'id' => 'notes-tab',
+				'accesskey' => 't',
 			);
 		}
 

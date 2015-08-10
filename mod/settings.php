@@ -41,47 +41,56 @@ function settings_init(&$a) {
 			'label'	=> t('Account'),
 			'url' 	=> $a->get_baseurl(true).'/settings',
 			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
+			'accesskey' => 'o',
 		),
 		array(
 			'label'	=> t('Additional features'),
 			'url' 	=> $a->get_baseurl(true).'/settings/features',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
+			'accesskey' => 't',
 		),
 		array(
 			'label'	=> t('Display'),
 			'url' 	=> $a->get_baseurl(true).'/settings/display',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
+			'accesskey' => 'i',
 		),
 
 		array(
 			'label'	=> t('Social Networks'),
 			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
+			'accesskey' => 'w',
 		),
 		array(
 			'label'	=> t('Plugins'),
 			'url' 	=> $a->get_baseurl(true).'/settings/addon',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
+			'accesskey' => 'l',
 		),
 		array(
 			'label'	=> t('Delegations'),
 			'url' 	=> $a->get_baseurl(true).'/delegate',
 			'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+			'accesskey' => 'd',
 		),
 		array(
 			'label' => t('Connected apps'),
 			'url' => $a->get_baseurl(true) . '/settings/oauth',
 			'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
+			'accesskey' => 'b',
 		),
 		array(
 			'label' => t('Export personal data'),
 			'url' => $a->get_baseurl(true) . '/uexport',
 			'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
+			'accesskey' => 'e',
 		),
 		array(
 			'label' => t('Remove account'),
 			'url' => $a->get_baseurl(true) . '/removeme',
 			'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
+			'accesskey' => 'r',
 		)
 	);
 

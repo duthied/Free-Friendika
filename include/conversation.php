@@ -892,9 +892,9 @@ function item_photo_menu($item){
 	foreach($menu as $k=>$v){
 		if(strpos($v,'javascript:') === 0) {
 			$v = substr($v,11);
-			$o .= "<li><a href=\"#\" onclick=\"$v\">$k</a></li>\n";
+			$o .= "<li role=\"menuitem\"><a onclick=\"$v\">$k</a></li>\n";
 		}
-		elseif ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
+		elseif ($v!="") $o .= "<li role=\"menuitem\"><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}

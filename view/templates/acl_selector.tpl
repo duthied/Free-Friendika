@@ -1,7 +1,7 @@
 
 <div id="acl-wrapper">
 	<input id="acl-search">
-	<a href="#" id="acl-showall">{{$showall}}</a>
+	<a id="acl-showall">{{$showall}}</a>
 	<div id="acl-list">
 		<div id="acl-list-content">
 		</div>
@@ -11,8 +11,8 @@
 
 <div class="acl-list-item" rel="acl-template" style="display:none">
 	<img data-src="{0}"><p>{1}</p>
-	<a href="#" class='acl-button-show'>{{$show}}</a>
-	<a href="#" class='acl-button-hide'>{{$hide}}</a>
+	<a class='acl-button-show'>{{$show}}</a>
+	<a class='acl-button-hide'>{{$hide}}</a>
 </div>
 
 {{if $networks}}
