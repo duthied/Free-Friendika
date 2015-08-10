@@ -3,6 +3,7 @@ require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once("include/Scrape.php");
+require_once('include/diaspora.php');
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -874,8 +875,6 @@ function notifier_run(&$argv, &$argc){
 					}
 					break;
 				case NETWORK_DIASPORA:
-					require_once('include/diaspora.php');
-
 					if(get_config('system','dfrn_only') || (! get_config('system','diaspora_enabled')))
 						break;
 
@@ -958,6 +957,11 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
+		if (!$followup)
+			$r0 = diaspora_fetch_relay();
+		else
+			$r0 = array();
+
 		$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
 			AND `uid` = %d AND `rel` != %d group by `batch` ORDER BY rand() ",
 			dbesc(NETWORK_DIASPORA),
@@ -974,7 +978,7 @@ function notifier_run(&$argv, &$argc){
 			intval(CONTACT_IS_SHARING)
 		);
 
-		$r = array_merge($r2,$r1);
+		$r = array_merge($r2,$r1,$r0);
 
 		if(count($r)) {
 			logger('pubdeliver: ' . print_r($r,true), LOGGER_DEBUG);
