@@ -113,7 +113,7 @@ function nodeinfo_init(&$a){
 	$nodeinfo["usage"]["localPosts"] = (int)get_config("nodeinfo","local_posts");
 	$nodeinfo["usage"]["localComments"] = (int)get_config("nodeinfo","local_comments");
 
-	$nodeinfo["usage"]["metadata"] = array();
+	$nodeinfo["metadata"] = new stdClass();
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
