@@ -126,7 +126,8 @@ function nodeinfo_init(&$a){
 	$nodeinfo["usage"]["localPosts"] = (int)get_config("nodeinfo","local_posts");
 	$nodeinfo["usage"]["localComments"] = (int)get_config("nodeinfo","local_comments");
 
-	$nodeinfo["metadata"] = new stdClass();
+	//$nodeinfo["metadata"] = new stdClass();
+	$nodeinfo["metadata"] = array("nodeName" => $a->config["sitename"]);
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
@@ -221,10 +222,10 @@ function nodeinfo_cron() {
 	set_config('nodeinfo','local_comments', $local_comments);
 
 	// Now trying to register
-	//$url = "http://the-federation.info/register/".$a->get_hostname();
-        //logger('nodeinfo_cron: registering url: '.$url, LOGGER_DEBUG);
-	//$ret = fetch_url($url);
-        //logger('nodeinfo_cron: registering answer: '.$ret, LOGGER_DEBUG);
+	$url = "http://the-federation.info/register/".$a->get_hostname();
+        logger('registering url: '.$url, LOGGER_DEBUG);
+	$ret = fetch_url($url);
+        logger('registering answer: '.$ret, LOGGER_DEBUG);
 
         logger("cron_end");
 	set_config('nodeinfo','last_calucation', time());
