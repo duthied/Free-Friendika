@@ -140,6 +140,9 @@ function nodeinfo_plugin_enabled($plugin) {
 }
 
 function nodeinfo_cron() {
+
+	$a = get_app();
+
 	if (!get_config("system", "nodeinfo"))
 		return;
 
