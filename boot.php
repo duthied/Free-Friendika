@@ -829,7 +829,7 @@ if(! class_exists('App')) {
 				$v = get_class_vars( $class );
 				if(x($v,"name")) $name = $v['name'];
 			}
-	 		if ($name===""){
+			if ($name===""){
 				echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 				killme();
 			}
@@ -1449,7 +1449,7 @@ if(! function_exists('current_theme')) {
 		$a = get_app();
 
 		$page_theme = null;
-		
+
 		// Find the theme that belongs to the user whose stuff we are looking at
 
 		if($a->profile_uid && ($a->profile_uid != local_user())) {
@@ -1488,7 +1488,7 @@ if(! function_exists('current_theme')) {
 					// user has selected to have the mobile theme be the same as the normal one
 					$system_theme = $standard_system_theme;
 					$theme_name = $standard_theme_name;
-					
+
 					if($page_theme)
 						$theme_name = $page_theme;
 				}
@@ -1533,7 +1533,7 @@ if(! function_exists('current_theme_url')) {
 		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 		if (file_exists('view/theme/' . $t . '/style.php'))
 			return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
-		
+
 		return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
 	}
 }
@@ -1619,9 +1619,9 @@ if(! function_exists('load_contact_links')) {
 				$url = normalise_link($rr['url']);
 				$ret[$url] = $rr;
 			}
-		}
-		else
+		} else
 			$ret['empty'] = true;
+
 		$a->contacts = $ret;
 		return;
 	}
@@ -1634,24 +1634,24 @@ if(! function_exists('load_contact_links')) {
 * @return string
 */
 function build_querystring($params, $name=null) {
-    $ret = "";
-    foreach($params as $key=>$val) {
-        if(is_array($val)) {
-            if($name==null) {
-                $ret .= build_querystring($val, $key);
-            } else {
-                $ret .= build_querystring($val, $name."[$key]");
-            }
-        } else {
-            $val = urlencode($val);
-            if($name!=null) {
-                $ret.=$name."[$key]"."=$val&";
-            } else {
-                $ret.= "$key=$val&";
-            }
-        }
-    }
-    return $ret;
+	$ret = "";
+	foreach($params as $key=>$val) {
+		if(is_array($val)) {
+			if($name==null) {
+				$ret .= build_querystring($val, $key);
+			} else {
+				$ret .= build_querystring($val, $name."[$key]");
+			}
+		} else {
+			$val = urlencode($val);
+			if($name!=null) {
+				$ret.=$name."[$key]"."=$val&";
+			} else {
+				$ret.= "$key=$val&";
+			}
+		}
+	}
+	return $ret;
 }
 
 function explode_querystring($query) {
@@ -1659,8 +1659,7 @@ function explode_querystring($query) {
 	if($arg_st !== false) {
 		$base = substr($query, 0, $arg_st);
 		$arg_st += 1;
-	}
-	else {
+	} else {
 		$base = '';
 		$arg_st = 0;
 	}
@@ -1746,16 +1745,16 @@ function clear_cache($basepath = "", $path = "") {
 		$cachetime = 86400;
 
 	if (is_writable($path)){
-	if ($dh = opendir($path)) {
-		while (($file = readdir($dh)) !== false) {
-			$fullpath = $path."/".$file;
-			if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != ".."))
-				clear_cache($basepath, $fullpath);
-			if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime)))
-				unlink($fullpath);
+		if ($dh = opendir($path)) {
+			while (($file = readdir($dh)) !== false) {
+				$fullpath = $path."/".$file;
+				if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != ".."))
+					clear_cache($basepath, $fullpath);
+				if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime)))
+					unlink($fullpath);
+			}
+			closedir($dh);
 		}
-		closedir($dh);
-	}
 	}
 }
 
@@ -1805,14 +1804,22 @@ function get_lockpath() {
 }
 
 function get_temppath() {
+	$a = get_app();
+
 	$temppath = get_config("system","temppath");
 	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
 		return($temppath);
 
 	$temppath = sys_get_temp_dir();
 	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
-		set_config("system", "temppath", $temppath);
-		return($temppath);
+		$temppath .= "/".$a->get_hostname();
+		if (!is_dir($temppath))
+			mkdir($temppath);
+
+		if (is_dir($temppath) AND is_writable($temppath)) {
+			set_config("system", "temppath", $temppath);
+			return($temppath);
+		}
 	}
 
 	return("");
