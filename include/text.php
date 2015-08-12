@@ -868,8 +868,14 @@ function contact_block() {
 
 	if((! is_array($a->profile)) || ($a->profile['hide-friends']))
 		return $o;
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0",
-			intval($a->profile['uid'])
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+				AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s')",
+			intval($a->profile['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
 		$total = intval($r[0]['total']);
@@ -879,8 +885,14 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY RAND() LIMIT %d",
+		$r = q("SELECT * FROM `contact`
+				WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+					AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
+				dbesc(NETWORK_DFRN),
+				dbesc(NETWORK_OSTATUS),
+				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
 		if(count($r)) {
