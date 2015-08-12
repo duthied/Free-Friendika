@@ -135,8 +135,13 @@ function notifications_content(&$a) {
 			$a->set_pager_itemspage(20);
 		}
 
-		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`
-			FROM `intro` LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`,
+				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
+				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`
+			FROM `intro`
+				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
+				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
 				intval($_SESSION['uid']));
 
@@ -210,6 +215,15 @@ function notifications_content(&$a) {
 					'$contact_id' => $rr['contact-id'],
 					'$photo' => ((x($rr,'photo')) ? $rr['photo'] : "images/person-175.jpg"),
 					'$fullname' => $rr['name'],
+					'$location_label' => t('Location:'),
+					'$location' => $rr['glocation'],
+					'$location_label' => t('Location:'),
+					'$about' => $rr['gabout'],
+					'$about_label' => t('About:'),
+					'$keywords' => $rr['gkeywords'],
+					'$keywords_label' => t('Tags:'),
+					'$gender' => $rr['ggender'],
+					'$gender_label' => t('Gender:'),
 					'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
 					'$activity' => array('activity', t('Post a new friend activity'), (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0), t('if applicable')),
 					'$url' => zrl($rr['url']),
