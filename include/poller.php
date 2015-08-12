@@ -36,6 +36,7 @@ function poller_run(&$argv, &$argc){
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
 	require_once('include/pidfile.php');
+	require_once('mod/nodeinfo.php');
 
 	load_config('config');
 	load_config('system');
@@ -116,6 +117,9 @@ function poller_run(&$argv, &$argc){
 
 	// Check every conversation
 	check_conversations(false);
+
+	// update nodeinfo data
+	nodeinfo_cron();
 
 	// To-Do: Regenerate usage statistics
 	// q("ANALYZE TABLE `item`");
