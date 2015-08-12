@@ -17,6 +17,7 @@
 	<li class='admin link button {{$admin.plugins.2}}'><a href='{{$admin.plugins.0}}'>{{$admin.plugins.1}}</a></li>
 	<li class='admin link button {{$admin.themes.2}}'><a href='{{$admin.themes.0}}'>{{$admin.themes.1}}</a></li>
 	<li class='admin link button {{$admin.dbsync.2}}'><a href='{{$admin.dbsync.0}}'>{{$admin.dbsync.1}}</a></li>
+	<li class='admin link button {{$admin.queue.2}}'><a href='{{$admin.queue.0}}'>{{$admin.queue.1}}</a></li>
 </ul>
 
 {{if $admin.update}}
