@@ -105,7 +105,8 @@ function admin_content(&$a) {
 		'users'	 =>	Array($a->get_baseurl(true)."/admin/users/", t("Users") , "users"),
 		'plugins'=>	Array($a->get_baseurl(true)."/admin/plugins/", t("Plugins") , "plugins"),
 		'themes' =>	Array($a->get_baseurl(true)."/admin/themes/", t("Themes") , "themes"),
-		'dbsync' => Array($a->get_baseurl(true)."/admin/dbsync/", t('DB updates'), "dbsync"),
+		'dbsync' => 	Array($a->get_baseurl(true)."/admin/dbsync/", t('DB updates'), "dbsync"),
+		'queue'	 =>	Array($a->get_baseurl(true)."/admin/queue/", t('Inspect Queue'), "queue"),
 		//'update' =>	Array($a->get_baseurl(true)."/admin/update/", t("Software Update") , "update")
 	);
 
@@ -165,6 +166,9 @@ function admin_content(&$a) {
 			case 'update':
 				$o = admin_page_remoteupdate($a);
 				break;
+			case 'queue':
+			    	$o = admin_page_queue($a);
+				break;
 			default:
 				notice( t("Item not found.") );
 		}
@@ -181,7 +185,30 @@ function admin_content(&$a) {
 	}
 }
 
+/**
+ * Admin Inspect Queue Page
+ * @param App $a
+ * return string
+ */
+function admin_page_queue(&$a) {
+    	// get content from the queue table
+    	$r = q("SELECT c.name,c.nurl,q.id,q.network,q.created,q.last from queue as q, contact as c where c.id=q.cid order by q.cid, q.created;");
 
+	$t = get_markup_template("admin_queue.tpl");
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('Inspect Queue'),
+		'$count' => sizeof($r),
+		'id_header' => t('ID'),
+		'$to_header' => t('Recipient Name'),
+		'$url_header' => t('Recipient Profile'),
+		'$network_header' => t('Network'),
+		'$created_header' => t('Created'),
+		'$last_header' => t('Last Tried'),
+		'$info' => t('This page lists the content of the queue for outgoing postings. These are postings the initial delivery failed for. They will be resend later and eventually deleted if the delivery fails permanently.'),
+		'$entries' => $r,
+	));
+}
 /**
  * Admin Summary Page
  * @param App $a
