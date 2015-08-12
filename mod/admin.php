@@ -253,6 +253,7 @@ function admin_page_summary(&$a) {
 		'$accounts' => $accounts,
 		'$pending' => Array( t('Pending registrations'), $pending),
 		'$version' => Array( t('Version'), FRIENDICA_VERSION),
+		'$baseurl' => $a->get_baseurl(),
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
