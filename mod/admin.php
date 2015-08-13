@@ -857,7 +857,7 @@ function admin_page_users_post(&$a){
 	$nu_nickname = ( x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
 	$nu_email = ( x($_POST, 'new_user_email') ? $_POST['new_user_email'] : '');
 
-	check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/users', 'admin_users');
+	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');

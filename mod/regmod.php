@@ -121,13 +121,13 @@ function regmod_content(&$a) {
 
 	if($cmd === 'deny') {
 		user_deny($hash);
-		goaway("/admin/users/");
+		goaway($a->get_baseurl()."/admin/users/");
 		killme();
 	}
 
 	if($cmd === 'allow') {
 		user_allow($hash);
-		goaway("/admin/users/");
+		goaway($a->get_baseurl()."/admin/users/");
 		killme();
 	}
 }
