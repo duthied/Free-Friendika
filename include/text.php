@@ -1788,7 +1788,7 @@ function return_bytes ($size_str) {
 function generate_user_guid() {
 	$found = true;
 	do {
-		$guid = random_string(16);
+		$guid = get_guid(32);
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
