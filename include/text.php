@@ -470,11 +470,17 @@ if(! function_exists('item_new_uri')) {
  * @param int $uid
  * @return string
  */
-function item_new_uri($hostname,$uid) {
+function item_new_uri($hostname,$uid, $guid = "") {
 
 	do {
 		$dups = false;
-		$hash = random_string();
+
+		if ($guid == "")
+			$hash = get_guid(32);
+		else {
+			$hash = $guid;
+			$guid = "";
+		}
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 

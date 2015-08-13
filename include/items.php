@@ -2968,7 +2968,7 @@ function item_is_remote_self($contact, &$datarray) {
 		if ($contact['network'] != NETWORK_FEED) {
 			$datarray["guid"] = get_guid(32);
 			unset($datarray["plink"]);
-			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid']);
+			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid'], $datarray["guid"]);
 			$datarray["parent-uri"] = $datarray["uri"];
 			$datarray["extid"] = $contact['network'];
 			$urlpart = parse_url($datarray2['author-link']);
