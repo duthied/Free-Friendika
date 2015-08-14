@@ -98,7 +98,7 @@ function wall_attach_post(&$a) {
 
 	$filedata = @file_get_contents($src);
 	$mimetype = z_mime_content_type($filename);
-	$hash = random_string();
+	$hash = get_guid(64);
 	$created = datetime_convert();
 	$r = q("INSERT INTO `attach` ( `uid`, `hash`, `filename`, `filetype`, `filesize`, `data`, `created`, `edited`, `allow_cid`, `allow_gid`,`deny_cid`, `deny_gid` )
 		VALUES ( %d, '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
@@ -114,7 +114,7 @@ function wall_attach_post(&$a) {
 		dbesc(''),
 		dbesc(''),
 		dbesc('')
-	);		
+	);
 
 	@unlink($src);
 

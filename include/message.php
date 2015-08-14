@@ -26,6 +26,9 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		return -2;
 	}
 
+	$guid = get_guid(32);
+ 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $guid;
+
 	$convid = 0;
 	$reply = false;
 
@@ -42,18 +45,15 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 			$convid = $r[0]['convid'];
 	}
 
-	$recip_host = substr($contact[0]['url'],strpos($contact[0]['url'],'://')+3);
-	$recip_host = substr($recip_host,0,strpos($recip_host,'/'));
-
-	$recip_handle = (($contact[0]['addr']) ? $contact[0]['addr'] : $contact[0]['nick'] . '@' . $recip_host);
-	$sender_handle = $a->user['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
-
-	$msg_guid = get_guid(32);
-	$uri = $recip_handle.':'.$msg_guid;
-
 	if(! $convid) {
 
 		// create a new conversation
+
+		$recip_host = substr($contact[0]['url'],strpos($contact[0]['url'],'://')+3);
+		$recip_host = substr($recip_host,0,strpos($recip_host,'/'));
+
+		$recip_handle = (($contact[0]['addr']) ? $contact[0]['addr'] : $contact[0]['nick'] . '@' . $recip_host);
+		$sender_handle = $a->user['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 
 		$conv_guid = get_guid(32);
 		$convuri = $recip_handle.':'.$conv_guid;
@@ -92,7 +92,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`)
 		VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s' )",
 		intval(local_user()),
-		dbesc($msg_guid),
+		dbesc($guid),
 		intval($convid),
 		dbesc($me[0]['name']),
 		dbesc($me[0]['thumb']),
@@ -172,8 +172,8 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	if(! strlen($subject))
 		$subject = t('[no subject]');
 
-	$hash = random_string();
- 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $hash ;
+	$guid = get_guid(32);
+ 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $guid;
 
 	$convid = 0;
 	$reply = false;
@@ -222,7 +222,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)
 		VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s', %d )",
 		intval($recipient['uid']),
-		dbesc(get_guid(32)),
+		dbesc($guid),
 		intval($convid),
 		dbesc($me['name']),
 		dbesc($me['photo']),
