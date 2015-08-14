@@ -1791,7 +1791,7 @@ function diaspora_message($importer,$xml,$msg) {
 	$msg_diaspora_handle = notags(unxmlify($xml->diaspora_handle));
 	$msg_conversation_guid = notags(unxmlify($xml->conversation_guid));
 
-	$parent_uri = $diaspora_handle . ':' . $msg_parent_guid;
+	$parent_uri = $msg_diaspora_handle . ':' . $msg_parent_guid;
 
 	$contact = diaspora_get_contact_by_handle($importer['uid'],$msg_diaspora_handle);
 	if(! $contact) {
@@ -2991,7 +2991,7 @@ function diaspora_send_mail($item,$owner,$contact) {
 	$body = bb2diaspora($item['body']);
 	$created = datetime_convert('UTC','UTC',$item['created'],'Y-m-d H:i:s \U\T\C');
 
-	$signed_text =  $item['guid'] . ';' . $cnv['guid'] . ';' . $body .  ';' 
+	$signed_text =  $item['guid'] . ';' . $cnv['guid'] . ';' . $body .  ';'
 		. $created . ';' . $myaddr . ';' . $cnv['guid'];
 
 	$sig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
@@ -2999,7 +2999,7 @@ function diaspora_send_mail($item,$owner,$contact) {
 	$msg = array(
 		'guid' => xmlify($item['guid']),
 		'parent_guid' => xmlify($cnv['guid']),
-		'parent_author_signature' => (($item['reply']) ? null : xmlify($sig)),
+		'parent_author_signature' => xmlify($sig),
 		'author_signature' => xmlify($sig),
 		'text' => xmlify($body),
 		'created_at' => xmlify($created),
