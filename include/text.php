@@ -1694,8 +1694,8 @@ function get_plink($item) {
 				//'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
 				'href' => $a->get_baseurl()."/display/".$item['guid'],
 				'orig' => $a->get_baseurl()."/display/".$item['guid'],
-				'title' => t('local thread'),
-				'orig_title' => t('local thread'),
+				'title' => t('View on separate page'),
+				'orig_title' => t('view on separate page'),
 			);
 
 		if (x($item,'plink')) {
