@@ -113,7 +113,7 @@ function terminate_friendship($user,$self,$contact) {
 			'$photo' => $self['photo'],
 			'$thumb' => $self['thumb'],
 			'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . random_string(),
+			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . get_guid(32),
 			'$title' => '',
 			'$type' => 'text',
 			'$content' => t('stopped following'),

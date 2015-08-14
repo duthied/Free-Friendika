@@ -674,7 +674,7 @@ function item_post(&$a) {
 
 	$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 
-	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid));
+	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid, $guid));
 
 	// Fallback so that we alway have a thr-parent
 	if(!$thr_parent)

@@ -1210,7 +1210,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
-	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : random_string());
+	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $arr['network']));
+	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
 	$arr['author-name']   = ((x($arr,'author-name'))   ? notags(trim($arr['author-name']))   : '');
 	$arr['author-link']   = ((x($arr,'author-link'))   ? notags(trim($arr['author-link']))   : '');
@@ -1248,7 +1249,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
-	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $arr['network']));
 	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
 	$arr['resource-id']   = ((x($arr,'resource-id'))   ? trim($arr['resource-id'])           : '');
 	$arr['event-id']      = ((x($arr,'event-id'))      ? intval($arr['event-id'])            : 0 );
@@ -2968,7 +2968,7 @@ function item_is_remote_self($contact, &$datarray) {
 		if ($contact['network'] != NETWORK_FEED) {
 			$datarray["guid"] = get_guid(32);
 			unset($datarray["plink"]);
-			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid']);
+			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid'], $datarray["guid"]);
 			$datarray["parent-uri"] = $datarray["uri"];
 			$datarray["extid"] = $contact['network'];
 			$urlpart = parse_url($datarray2['author-link']);
