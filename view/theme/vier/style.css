@@ -2163,7 +2163,17 @@ aside form {
   overflow-x: hidden;
 }
 aside form .field label {
-  float: inherit;
+  float: left;
+  width: 170px;
+}
+
+aside #div_id_remember label {
+ float:  inherit;
+}
+
+aside #id_username, aside #id_password {
+  width: 170px;
+  max-width: 170px;
 }
 
 #profile-edit-links-end {
