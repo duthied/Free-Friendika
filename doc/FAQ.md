@@ -121,7 +121,7 @@ No. The act of 'following' a hashtags is an interesting technology, but presents
 
 1. Posts would have to be copied to all sites on the network that are "listening" to that hashtag. This would increase the storage demands to the detriment of small sites. It would make the use of shared hosting practically impossible.
 
-2. Making spam easy (tag spam is quite a serious issue on identi.ca for instance)
+2. Making spam easy (tag spam is a serious issue on Twitter for instance)
 
 3. It creates a natural bias towards large sites which hold more tagged content - if your network uses tagging instead of other conversation federation mechanisms such as groups/forums.
 
@@ -153,7 +153,7 @@ RSS feed of the conversations at your site
 
 ###Are there any clients for friendica I can use?
 
-Friendica is using a [Twitter/StatusNet compatible API](help/api), which means you can use any Twitter/StatusNet/GNU Social client for your plattform as long as you can change the API path in its settings.
+Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android

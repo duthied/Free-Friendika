@@ -4,15 +4,14 @@ Konnektoren (Connectors)
 * [Zur Startseite der Hilfe](help)
 
 Konnektoren erlauben es Dir, Dich mit anderen sozialen Netzwerken zu verbinden. 
-Konnektoren werden nur bei bestehenden Facebook-, Twitter und StatusNet-Accounts benötigt. 
+Konnektoren werden nur bei bestehenden Twitter und GNU Social-Accounts benötigt. 
 Außerdem gibt es einen Konnektor, um Deinen Email-Posteingang zu nutzen.
 Wenn Du keinen eigenen Knoten betreibst und wissen willst, ob der server Deiner Wahl diese Konnektoren installiert hat, kannst Du Dich darüber auf der Seite '&lt;domain_des_friendica-servers&gt;/friendica' informieren.
 
 Sind die Netzwerk-Konnektoren auf Deinem System installiert sind, kannst Du mit den folgenden Links die Einstellungsseiten besuchen und für Deinen Account konfigurieren:
 
-* [Facebook](/settings/connectors)
 * [Twitter](/settings/connectors)
-* [StatusNet / GNU Social](/settings/connectors)
+* [GNU Social](/settings/connectors)
 * [Email](/settings/connectors)
 
 Anleitung, um sich mit Personen in bestimmten Netzwerken zu verbinden
@@ -29,9 +28,9 @@ Ebenso kannst Du deren Identitäts-Adresse in der "Verbinden"-Box auf Deiner ["K
 Füge die Diaspora-Identitäts-Adresse (z.B. name@diasporapod.com)auf Deiner ["Kontakte"-Seite](contacts) in das Feld "Neuen Kontakt hinzufügen" ein. 
 
 
-**Identi.ca/StatusNet/GNU-Social**
+**GNU Social**
 
-Diese Netzwerke werden als "federated social web" bzw. "OStatus"-Kontakte bezeichnet.
+Dieses Netzwerk wird als "federated social web" bzw. "OStatus"-Kontakte bezeichnet.
 
 Bitte beachte, dass es **keine** Einstellungen zur Privatssphäre im OStatus-Netzwerk gibt. 
 **Jede** Nachricht, die an eines dieser OStatus-Mitglieder verschickt wird, ist für jeden auf der Welt sichtbar; alle Privatssphäreneinstellungen verlieren ihre Wirkung. 
@@ -41,7 +40,7 @@ Da die OStatus-Kommunikation keine Authentifizierung benutzt, können OStatus-Nu
 
 Um Dich mit einem OStatus-Mitglied zu verbinden, trage deren Profil-URL oder Identitäts-Adresse auf Deiner ["Kontakte"-Seite](contacts) in das Feld "Neuen Kontakt hinzufügen" ein.
 
-Der StatusNet-Konnektor kann genutzt werden, wenn Du Beiträge schreiben willst, die auf einer OStatus-Seite über einen existierenden OStatus-Account erscheinen sollen.
+Der GNU Social-Konnektor kann genutzt werden, wenn Du Beiträge schreiben willst, die auf einer OStatus-Seite über einen existierenden OStatus-Account erscheinen sollen.
 
 Das ist nicht notwendig, wenn Du OStatus-Mitgliedern von Friendica aus folgst und diese Dir auch folgen, indem sie auf Deiner Kontaktseite ihre eigene Identitäts-Adresse eingeben.
 
@@ -68,23 +67,3 @@ Konfiguriere den Email-Konnektor auf Deiner [Einstellungsseite](settings).
 Wenn Du das gemacht hast, kannst Du auf Deiner ["Kontakte"-Seite](contacts) die Email-Adresse in das Feld "Neuen Kontakt hinzufügen" eintragen. 
 Diese Email-Adresse muss jedoch bereits mit einer Nachricht in Deinem Email-Posteingang auf dem Server liegen. 
 Du hast die Möglichkeit, Email-Kontakte in Deine privaten Unterhaltungen einzubeziehen.
-
-**Facebook**
-
-Der Facebook-Konnektor ist ein Plugin/Addon, dass es Dir erlaubt, von Friendica aus mit Freunden auf Facebook zu interagieren. 
-Wenn er aktiviert ist, wird Deine Facebook-Freundesliste importiert und Du wirst Facebook-Beiträge sehen und kommentieren können. 
-Facebook-Freunde können außerdem zu privaten Gesprächen hinzugefügt werden. 
-Du hast nicht die Möglichkeit, einzelne Facebook-Accounts hinzuzufügen, sondern nur Deine gesamte Freundesliste, die aktualisiert wird, wenn neue Freunde hinzugefügt werden.
-
-Wenn das Facebook-Plugin/Addon installiert ist, kannst Du diesen auf Deiner Einstellungsseite unter ["Facebook Connector Settings"](/settings/connectors) einstellen. 
-Dieser Eintrag erscheint nur, wenn das Plugin/Addon installiert ist. 
-Folge den Vorgaben, um den Facebook-Konnektor zu installieren oder löschen. 
-
-Du kannst ebenfalls auswählen, ob Deine öffentlichen Posts auch standardmäßig bei Facebook veröffentlicht werden sollen. 
-Du kannst diese Einstellung jederzeit im aktuellen Beitrag beeinflussen, indem Du auf das "Schloss"-Icon unter dem Beitragseditor gehst. 
-Diese Einstellung hat keine Auswirkung auf private Unterhaltungen. 
-Diese werden immer an Facebook-Freunde mit den entsprechenden Genehmigungen geschickt.
-
-(Beachte: Aktuell können Facebook-Kontakte keine privaten Fotos sehen. 
-Das wird zukünftig gelöst. 
-Facebook-Kontakte können aber trotzdem öffentliche Fotos sehen, die Du hochgeladen hast.)

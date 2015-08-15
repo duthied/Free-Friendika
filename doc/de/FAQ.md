@@ -131,7 +131,7 @@ Die Möglichkeit, einem hashtag zu folgen, ist eine interessante Technik, führt
 
 1.) Alle Beiträge, die diesen tag nutzen, müssten zu allen Seiten im Netzwerk kopiert werden. Das erhöht den Speicherbedarf und beeinträchtigt kleine Seiten. Die Nutzung von geteilten Hosting-Angeboten (Shared Hosting) wäre praktisch unmöglich. 
 
-2.) Die Verbreitung von Spam wäre vereinfacht (tag-Spam ist z.B. bei identi.ca ein schwerwiegendes Problem)
+2.) Die Verbreitung von Spam wäre vereinfacht (tag-Spam ist z.B. bei Twitter ein schwerwiegendes Problem)
 
 3.) Der wichtigste Grund der gegen diese Technik spricht ist, dass sie eine natürliche Ausrichtung auf größere Seiten mit mehr getaggten Inhalten zur Folge hat. Dies kann z.B. aufkommen, wenn Dein Netzwerk tags anstelle von anderen Kommunikationsmitteln wie Gruppen oder Foren nutzt. 
 

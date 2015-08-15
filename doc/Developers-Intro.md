@@ -69,7 +69,7 @@ Do not worry about cross-posting.
 
 ###Client software
 There are free software clients that do somehow work with Friendica but most of them need love and maintenance.
-Also, they were mostly made for other platforms using the StatusNet API.
+Also, they were mostly made for other platforms using the GNU Social API.
 This means they lack the features that are really specific to Friendica.
 Popular clients you might want to have a look at are:
 

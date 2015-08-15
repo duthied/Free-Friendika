@@ -41,10 +41,7 @@ Dies wird dich durch einen ähnlichen Prozess leiten.
 
 Du kannst deine oder andere Identitäts-Adressen ebenfalls nutzen, um über verschiedene Netzwerke hinweg Freundschaften aufzubauen. 
 Die Liste möglicher Netzwerke steigt immer weiter. 
-Wenn du z.B. "bob" auf identi.ca (eine Status.Net-Seite) kennst, dann kannst du bob@identi.ca auf deiner "Kontakt"-Seite verbinden. (Oder du kannst die URL von Bobs identi.ca-Seite eintragen, wenn du es wünscht). 
-Du kannst auch "teilweise" mit Leuten auf Google Buzz befreundet sein, wenn du deren GMail-Adresse einträgst. 
-Google Buzz unterstützt bisher noch nicht alle Protokolle, die wir für die direkte Kommunikation benötigen, aber es sollte möglich sein, Statusupdates von Friendica zu folgen. 
-Das Gleiche gilt für Twitter- und Diaspora-Accounts. 
+Wenn du z.B. "bob" auf quitter.se (eine GNU Social-Seite) kennst, dann kannst du bob@quitter.se auf deiner "Kontakt"-Seite verbinden. (Oder du kannst die URL von Bobs quitter.se-Seite eintragen, wenn du es wünscht). 
 Tatsächlich kannst du jedem und jeder Website folgen, der/die einen Syndication-Feed (RSS/Atom etc.) zur Verfügung stellt. 
 Wenn wir einen Informationsstrom und einen Namen dazu finden, können wir auch versuchen, uns damit zu verbinden. 
 
@@ -52,10 +49,10 @@ Wenn du deine Email-Postfachverbindung auf deiner Einstellungsseite konfiguriert
 Du kannst diesen Personen außerdem von Friendica aus antworten.
 
 Leute können sich ebenfalls von anderen Netzwerken aus mit dir befreunden. 
-Ein Freund von dir hat einen identi.ca-Account und kann sich mit dir befreunden, indem er deine Identitäts-Adresse in seine identi.ca-Verbinden-Dialogbox einträgt. 
+Ein Freund von dir hat einen GNU Social-Account und kann sich mit dir befreunden, indem er deine Identitäts-Adresse in seine GNU Social-Verbinden-Dialogbox einträgt. 
 Ein ähnlicher Mechanismus ist für Diaspora-Nutzer vorhanden, indem deine Identitäts-Adresse in ihre Suchleiste eingegeben wird. 
 
-Beachte: Manche StatusNet-Versionen benötigen die volle URL deines Profils und funktionieren möglicherweise nicht mit der Identitäts-Adresse.
+Beachte: Manche GNU Social-Versionen benötigen die volle URL deines Profils und funktionieren möglicherweise nicht mit der Identitäts-Adresse.
 
 Wenn jemand eine Freundschaftsanfrage schickt, erhältst du eine Benachrichtigung. 
 Du musst dann diese Anfrage bestätigen, um die Freundschaftsanfrage abzuschließen. 

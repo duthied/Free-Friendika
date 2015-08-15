@@ -30,11 +30,11 @@ Friendica - Dokumentation und Ressourcen
 * [Installation](help/Install)
 * [Konfigurationen](help/Settings)
 * [Plugins](help/Plugins)
-* [Konnektoren (Connectors) installieren (Facebook/Twitter/StatusNet)](help/Installing-Connectors)
+* [Konnektoren (Connectors) installieren (Twitter/GNU Social)](help/Installing-Connectors)
 * [Nachrichtenfluss](help/Message-Flow)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
 * [Entwickler](help/Developers)
-* [Twitter/StatusNet API Functions](help/api) (EN)
+* [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 
 
