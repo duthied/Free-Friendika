@@ -21,7 +21,7 @@ Friendica will recreate your account on the new server, with your contacts and g
 A message is sent to Friendica contacts, to inform them about your move:
 If your contacts are runnning on an updated server, your details on their side will be automatically updated.
 
-StatusNet/GNUSocial/Diaspora contacts
+GNU Social/Diaspora contacts
 ---
-Contacts on Statusnet/Identi.ca or Diaspora will be archived, as we can't inform them about your move.
+Contacts on GNU Social or Diaspora will be archived, as we can't inform them about your move.
 You should ask them to remove your contact from their lists and re-add you, and you should do the same with their contact.

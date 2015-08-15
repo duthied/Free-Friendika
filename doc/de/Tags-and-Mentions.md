@@ -25,7 +25,7 @@ Bitte beachte, dass Friendica eingehende "Erwähnungs"-Nachrichten von Personen 
 Diese Maßnahme dient dazu, Spam zu vermeiden.
 
 "Fernerwähnungen" werden durch das OStatus-Protokoll übermittelt. 
-Dieses Protokoll wird von Friendica, StatusNet und anderen Systemen genutzt, ist allerdings derzeit nicht in Diaspora eingebaut. 
+Dieses Protokoll wird von Friendica, GNU Social und anderen Systemen genutzt, ist allerdings derzeit nicht in Diaspora eingebaut. 
 
 Friendica unterscheidet bei Tags nicht zwischen Personen und Gruppen (einige andere Netzwerke nutzen "!gruppe", um solche zu markieren).
 

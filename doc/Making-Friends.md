@@ -51,14 +51,11 @@ This will take you through a similar process.
 
 Connect to users of alternate networks
 ---
-###StatusNet/GNUSocial, Google Plus, Twitter, Diaspora
+###GNU Social, Twitter, Diaspora
 You can also use your Identity Address or other people's Identity Addresses to become friends across networks.
 The list of possible networks is growing all the time.
-If you know (for instance) "bob" on identi.ca (a StatusNet site) you could put bob@identi.ca into your Contact page and become friends across networks.
-(Or you can put in the URL to Bob's identi.ca page if you wish).
-
-You can also be "partial" friends with somebody on Google Plus by putting in their gmail address.
-Google Plus does not yet support all the protocols we need for direct messaging, but you should be able to follow status updates from within Friendica.
+If you know (for instance) "bob" on gnusocial.de (a GNU Social site) you could put bob@gnusocial.de into your Contact page and become friends across networks.
+(Or you can put in the URL to Bob's gnusocial.de page if you wish).
 
 You can do the same for Twitter accounts and Diaspora accounts.
 
@@ -70,10 +67,10 @@ If you have supplied your mailbox connection information on your Settings page, 
 You can also reply to them from within Friendica.  
 
 People can also become friends with you from other networks.
-If a friend of yours has an identi.ca account, they can become friends with you by putting your Friendica Identity Address into their identi.ca subscription dialog box.
+If a friend of yours has an GNU Social account, they can become friends with you by putting your Friendica Identity Address into their GNU Social subscription dialog box.
 A similar mechanism is available for Diaspora members, by putting your identity address into their search bar. 
 
-Note: Some versions of StatusNet software may require the full URL to your profile and may not work with the identity address.
+Note: Some versions of GNU Social software may require the full URL to your profile and may not work with the identity address.
 
 Notification
 ---
