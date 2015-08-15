@@ -16,50 +16,18 @@ This value reduces the data that is send from the server to the client. 50 is a 
 
     Set "OStatus conversation completion interval" to "never".
 
-If you have many OStatus contacts then completing of conversations can be very time wasting. The downside: You won't see every comment in OStatus threads.
-
-    Set "Path for lock file" to an empty folder outside your web root.
-
-Lock files help avoid the possibility of several background processes running at the same time.
-
-For example: It can happen that the poller.php takes longer than expected.
-When there is no lock file, it is possible for several instances of poller.php to run at the same time - which would slow down the system and affect the maximum numbers of processes and database connections.
-
-Please define a full file path that is writeable by the web server process.
-If your site is located at "/var/www/sitename/htdocs/" you could maybe create a folder "/var/www/sitename/temp/".
+If you have many OStatus contacts then completing of conversations can take some time. Since you will miss several comments in OStatus threads, you maybe should consider the option "At post arrival" instead.
 
     Enable "Use MySQL full text engine"
 
-When using MyISAM (default) this speeds up search.
-
-    Set "Path to item cache" to an empty value outside your web root.
-
-Parsed BBCode and some external images will be put there.
-Parsing BBCode is a time wasting process that also makes heave use of the CPU.
-You can use the same folder you used for the lock file.
-
-**Warning!**
-
-The folder for item cache is cleaned up regularly.
-Every file that exceeds the cache duration is deleted. **If you accidentally point the cache path to your web root then you will delete your web root!**
-So double check that the folder only contains temporary content that can be deleted at any time.
-You have been warned.
+When using MyISAM (default) or InnoDB on MariaDB 10 this speeds up search.
 
 Plugins
 --------
 
 Active the following plugins:
 
-    Alternate Pagination
-    Privacy Image Cache
     rendertime
-
-###Alternate Pagination
-
-This plugin reduces the database load massively.
-Downside: You can't see the total number of pages available at each module, and have this replaced with "older" and "newer" links.
-
-Go to the admin settings of "altpager" and set it to "global".
 
 ###rendertime
 
@@ -110,13 +78,6 @@ When using Apache think about using FCGI.
 In a Debian-based distribution you will need to install the packages named "php5-cgi" and "libapache2-mod-fcgid".
 
 Please refer to external documentation for a more detailed explanation how to set up a system based upon FCGI.
-
-###APC
-
-APC is an opcode cache.
-It speeds up the processing of PHP code.
-When APC is enabled, Friendica uses it to store configuration data between different requests.
-This helps speeding up the page creation time.
 
 ###Database
 
