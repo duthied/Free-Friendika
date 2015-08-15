@@ -2171,7 +2171,17 @@ aside #div_id_remember label {
  float:  inherit;
 }
 
-aside #id_username, aside #id_password {
+aside div #login-submit-button {
+  margin-left:0px;
+}
+
+aside #register-link, aside #lost-password-link {
+  display: block;
+}
+
+aside #id_username,
+aside div #id_openid_url,
+aside #id_password {
   width: 170px;
   max-width: 170px;
 }
