@@ -390,6 +390,7 @@ function admin_page_site_post(&$a){
 	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: 0);
 	$poco_discovery_since	=	((x($_POST,'poco_discovery_since'))	? intval(trim($_POST['poco_discovery_since']))	: 30);
 	$poco_local_search	=	((x($_POST,'poco_local_search'))	? intval(trim($_POST['poco_local_search']))	: false);
+	$nodeinfo		=	((x($_POST,'nodeinfo'))			? intval(trim($_POST['nodeinfo']))		: false);
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
@@ -463,6 +464,7 @@ function admin_page_site_post(&$a){
 	set_config('system','poco_discovery',$poco_discovery);
 	set_config('system','poco_discovery_since',$poco_discovery_since);
 	set_config('system','poco_local_search',$poco_local_search);
+	set_config('system','nodeinfo',$nodeinfo);
 	set_config('config','sitename',$sitename);
 	set_config('config','hostname',$hostname);
 	set_config('config','sender_email', $sender_email);
@@ -742,6 +744,8 @@ function admin_page_site(&$a) {
 		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), (string) intval(get_config('system','poco_discovery')), t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices),
 		'$poco_discovery_since'	=> array('poco_discovery_since', t("Timeframe for fetching global contacts"), (string) intval(get_config('system','poco_discovery_since')), t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices),
 		'$poco_local_search'	=> array('poco_local_search', t("Search the local directory"), get_config('system','poco_local_search'), t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")),
+
+		'$nodeinfo'		=> array('nodeinfo', t("Publish server information"), get_config('system','nodeinfo'), t("If enabled, general server information and usage data will be published. Th data contains the number of users, number of posts and the activated connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")),
 
 		'$use_fulltext_engine'	=> array('use_fulltext_engine', t("Use MySQL full text engine"), get_config('system','use_fulltext_engine'), t("Activates the full text engine. Speeds up search - but can only search for four and more characters.")),
 		'$suppress_language'	=> array('suppress_language', t("Suppress Language"), get_config('system','suppress_language'), t("Suppress language information in meta information about a posting.")),
