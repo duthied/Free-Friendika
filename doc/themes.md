@@ -133,7 +133,7 @@ Done.
 Now you can use the variant on your system.
 But remember once the theme.php or the config.php you have to readd your variant to them.
 
-*More of less the same procedure works for the vier theme.*
+*More or less the same procedure works for the vier theme.*
 
 ### Inheritation
 
