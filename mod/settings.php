@@ -1111,6 +1111,7 @@ function settings_content(&$a) {
 		'$desc' => t('Your Identity Address is'),
 		'$nickname' => $nickname,
 		'$subdir' => $subdir,
+		'$or' => t('or'),
 		'$basepath' => $a->get_hostname()
 	));
 
