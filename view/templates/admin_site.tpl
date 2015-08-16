@@ -113,6 +113,7 @@
 	{{include file="field_input.tpl" field=$basepath}}
 	{{include file="field_checkbox.tpl" field=$suppress_language}}
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
+	{{include file="field_checkbox.tpl" field=$nodeinfo}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$portable_contacts}}</h3>

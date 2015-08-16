@@ -3,6 +3,8 @@
 Documentation: http://nodeinfo.diaspora.software/schema.html
 */
 
+require_once("include/plugin.php");
+
 function nodeinfo_wellknown(&$a) {
 	if (!get_config("system", "nodeinfo")) {
 		http_status_exit(404);
@@ -142,6 +144,26 @@ function nodeinfo_plugin_enabled($plugin) {
 function nodeinfo_cron() {
 
 	$a = get_app();
+
+	// If the plugin "statistics_json" is enabled then disable it and actrivate nodeinfo.
+	if (nodeinfo_plugin_enabled("statistics_json")) {
+		set_config("system", "nodeinfo", true);
+
+		$plugin = "statistics_json";
+		$plugins = get_config("system","addon");
+		$plugins_arr = array();
+
+		if($plugins) {
+			$plugins_arr = explode(",",str_replace(" ", "",$plugins));
+
+			$idx = array_search($plugin, $plugins_arr);
+			if ($idx !== false){
+				unset($plugins_arr[$idx]);
+				uninstall_plugin($plugin);
+				set_config("system","addon", implode(", ",$plugins_arr));
+			}
+		}
+	}
 
 	if (!get_config("system", "nodeinfo"))
 		return;
