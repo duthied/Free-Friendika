@@ -37,6 +37,16 @@ Friendica - Dokumentation und Ressourcen
 * [Twitter/StatusNet API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 
+**Entwickler Dokumentation**
+
+* [Where to get started?](help/Developers-Intro)
+* [Help on Github](help/Github)
+* [Help on Vagrant](help/Vagrant)
+* [How to translate Friendica](help/translations)
+* [Bugs and Issues](help/Bugs-and-Issues)
+* [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
+* [Smarty 3 Templates](help/smarty3-templates)
 
 **Externe Ressourcen**
 

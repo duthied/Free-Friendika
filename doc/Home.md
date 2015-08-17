@@ -41,6 +41,7 @@ Friendica Documentation and Resources
 * [How to translate Friendica](help/translations)
 * [Bugs and Issues](help/Bugs-and-Issues)
 * [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
 
 **External Resources**
