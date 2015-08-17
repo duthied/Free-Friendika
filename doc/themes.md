@@ -5,31 +5,36 @@
 To change the look of friendica you have to touch the themes.
 The current default theme is [duepunto zero](https://github.com/friendica/friendica/tree/master/view/theme/duepuntozero) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
-There are several ways to change a theme.
+In case none of them suits your needs, there are several ways to change a theme.
+
 You can either directly work on an existing theme.
 But you might loose your changes when the theme is updated by the friendica team.
-In cases where you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheritating most of the properties of the parent theme and change just minor stuff.
+
+If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheritating most of the properties of the parent theme and change just minor stuff.
 The beloow for a more detailed description of theme heritage.
 
 Some themes also allow users to select *variants* of the theme.
 Those theme variants most often contain an additional [CSS](https://en.wikipedia.org/wiki/CSS) file to override some styling of the default theme values.
 From the themes in the main repository *duepunto zero* and *vier* are using this methods for variations.
+Quattro is using a slightly different approach.
 
 Third you can start your theme from scratch.
 Which is the most complex way to change friendicas look.
 But it leaves you the most freedom.
-So below for a detailed description and the meaning of some special files.
+So below for a *detailed* description and the meaning of some special files.
 
-## Styling
+### Styling
 
 If you want to change the styling of a theme, have a look at the themes CSS file.
 In most cases, you can found these in
 
-    /view/theme/<your-theme-name>/style.css
+    /view/theme/**your-theme-name**/style.css
 
 sometimes, there is also a file called style.php in the theme directory.
 This is only needed if the theme allowes the user to change certain things of the theme dynamically.
 Say the font size or set a background image.
+
+### Templates
 
 If you want to change the structure of the theme, you need to change the templates used by the theme.
 Friendica themes are using [SMARTY3](http://www.smarty.net/) for templating.
@@ -39,20 +44,29 @@ The default template can be found in
 
 if you want to override any template within your theme create your version of the template in
 
-    /view/theme/<your-theme-name>/templates
+    /view/theme/**your-theme-name**/templates
 
 any template that exists there will be used instead of the default one.
+
+### Javascript
+
 The same rule applies to the JavaScript files found in
 
     /js
 
 they will be overwritten by files in
 
-    /view/theme/<your-theme-name>/js.
+    /view/theme/**your-theme-name**/js.
 
 ## Expand an existing Theme
 
-### A new Variation for duepuntozero
+### Theme Variations
+
+Many themes are more *theme families* then only one theme.
+*duepunto zero* and *vier* allow easily to add new theme variation.
+We will go through the process of creating a new variation for *duepunto zero*.
+The same  (well almost, some names change) procedure applies to the *vier* theme.
+And similar steps are needed for *quattro* but this theme is using [lessc](http://lesscss.org/#docs) to maintaine the CSS files..
 
 In
 
@@ -65,18 +79,19 @@ Darkzero and Easter Bunny for example.
 The selection of the colorset is done in a combination of a template for a new form in the settings and aome functions in the theme.php file.
 The template (theme_settings.tpl)
 
-    <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js"></script>
-    {{include file="field_select.tpl" field=$colorset}} 
+    {{include file="field_select.tpl" field=$colorset}}
     <div class="settings-submit-wrapper">
         <input type="submit" value="{{$submit}}" class="settings-submit" name="duepuntozero-settings-submit" />
     </div>
 
 defines a formular consisting of a [select](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) pull-down which contains all aviable variants and s submit button.
 See the documentation about [SMARTY3 templates](/help/snarty3-templates.md) for a summary of friendica specific blocks other then the select element.
+But we don't really need to change anything at the template itself.
 
-The template alone wont work.
+The template alone wont work though.
 You make friendica aware of its existance and tell it how to use the template file, by defining a config.php file.
 It needs to define at lest the following functions
+
 * theme_content
 * theme_post
 
@@ -88,10 +103,10 @@ and may also define functions for the admin interface
 theme_content and theme_admin are used to make the form available in the settings, repectively the admin panel.
 The _post functions handle the processing of the send form, in this case they save to selected variand in friendicas database.
 
-To make your own variation all you need to do is to create a new CSS file in the deriv directoy and include it in the array in the config.php:
+To make your own variation appear in the menu, all you need to do is to create a new CSS file in the deriv directoy and include it in the array in the config.php:
 
     $colorset = array(
-        'default'=>t('default'), 
+        'default'=>t('default'),
         'greenzero'=>t('greenzero'),
         'purplezero'=>t('purplezero'),
         'easterbunny'=>t('easterbunny'),
@@ -101,6 +116,7 @@ To make your own variation all you need to do is to create a new CSS file in the
     );
 
 the 1st part of the line is the name of the CSS file (without the .css) the 2nd part is the common name of the variant.
+Calling the t() function with the common name makes the string translateable.
 The selected 1st part will be saved in the database by the theme_post function.
 
     function theme_post(&$a){
@@ -114,8 +130,8 @@ The selected 1st part will be saved in the database by the theme_post function.
         }
     }
 
-Now that this information is set in the databes, what should friendica do with it?
-For this, have a look at the theme.php file of the theme.
+Now that this information is set in the database, what should friendica do with it?
+For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
         $colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
@@ -127,13 +143,15 @@ There you'll find somethink alike
             /* some more variants */
         }
 
-so you'll just need to add a if selection, fitting your variant keyword and link to the CSS file of it.
+which tells friendica to get the personal config of a user.
+Check if it is set and if not look for the global config.
+And finally if a config for the colorset was found, apply it by adding a link to the CSS file into the HTML header of the page.
+So you'll just need to add a if selection, fitting your variant keyword and link to the CSS file of it.
 
 Done.
 Now you can use the variant on your system.
 But remember once the theme.php or the config.php you have to readd your variant to them.
-
-*More or less the same procedure works for the vier theme.*
+If you think your color variation could be benifical for other friendica users as well, feel free to generate a pull request at github so we can include your work into the repository.
 
 ### Inheritation
 
@@ -168,12 +186,13 @@ So the central part of the file now looks like this:
     </body>
 
 Finally we need a style.css file, inheriting the definitions from the parent theme and containing out changes for the new theme.
+***Note***:You need to create the style.css and at lest import the base CSS file from the parent theme.
 
     @import url('../duepuntozero/style.css');
 
 Done.
 But I agree it is not really useful at this state.
-Nevertheless, to use it, you just neet to activate in the admin panel.
+Nevertheless, to use it, you just need to activate in the admin panel.
 That done, you can select it in the settings like any other activated theme.
 
 ## Creating a Theme from Scratch
@@ -182,6 +201,8 @@ Keep patient.
 Basically what you have to do is identifying which template you have to change so it looks more like what you want.
 Adopt the CSS of the theme accordingly.
 And iterate the process until you have the theme the way you want it.
+
+*Use the source Luke.*
 
 ## Special Files
 
@@ -264,3 +285,4 @@ The default file is in
     /view/default.php
 
 if you want to change it, say adding a 4th column for banners of your favourite FLOSS projects, place a new default.php file in your theme directory.
+As with the theme.php file, you can use the properties of the $a variable with holds the friendica application to decide what content is displayed.
