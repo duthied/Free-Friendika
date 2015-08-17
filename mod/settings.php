@@ -1108,7 +1108,7 @@ function settings_content(&$a) {
 	$tpl_addr = get_markup_template("settings_nick_set.tpl");
 
 	$prof_addr = replace_macros($tpl_addr,array(
-		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname(), $a->get_baseurl().'/profile/'.$nickname),
+		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname().$a->get_path(), $a->get_baseurl().'/profile/'.$nickname),
 		'$basepath' => $a->get_hostname()
 	));
 
