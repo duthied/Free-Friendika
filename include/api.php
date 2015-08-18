@@ -12,7 +12,6 @@
 	require_once("mod/item.php");
 	require_once('include/security.php');
 	require_once('include/contact_selectors.php');
-	require_once('library/HTMLPurifier.auto.php');
 	require_once('include/html2bbcode.php');
 	require_once('mod/wall_upload.php');
 	require_once("mod/proxy.php");
@@ -698,6 +697,9 @@
 		//$txt = urldecode(requestdata('status'));
 
 		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+
+			require_once('library/HTMLPurifier.auto.php');
+
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
@@ -738,11 +740,12 @@
 			$txt = requestdata('htmlstatus');
 			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 
+				require_once('library/HTMLPurifier.auto.php');
+
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
 				$config->set('Cache.DefinitionImpl', null);
-
 
 				$purifier = new HTMLPurifier($config);
 				$txt = $purifier->purify($txt);
