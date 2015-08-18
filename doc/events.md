@@ -19,6 +19,9 @@ And return to *today*.
 
 To create a new event, you can either follow the link "Create New Event" or make a double click on the desired box in the calendarium for when the event should take place.
 
+With a click on an existing event a pop-up box will be opened which shows you the event.
+From there you can edit the event or view the event at the source link, if you are the one who created the event.
+
 ## Create a new Event
 
 Following one of the methods mentioned above you reach a form to enter the event data.
