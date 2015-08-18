@@ -6,12 +6,15 @@ To change the look of friendica you have to touch the themes.
 The current default theme is [duepunto zero](https://github.com/friendica/friendica/tree/master/view/theme/duepuntozero) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
 In case none of them suits your needs, there are several ways to change a theme.
+If you need help theming, there is a forum @[ftdevs@friendica.eu](https://friendica.eu/profile/ftdevs) where you can ask theme specific questions and present your themes.
 
-You can either directly work on an existing theme.
+So, how to work on the UI of friendica.
+
+You can either directly edit an existing theme.
 But you might loose your changes when the theme is updated by the friendica team.
 
 If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheritating most of the properties of the parent theme and change just minor stuff.
-The beloow for a more detailed description of theme heritage.
+The below for a more detailed description of theme heritage.
 
 Some themes also allow users to select *variants* of the theme.
 Those theme variants most often contain an additional [CSS](https://en.wikipedia.org/wiki/CSS) file to override some styling of the default theme values.
@@ -202,13 +205,13 @@ Basically what you have to do is identifying which template you have to change s
 Adopt the CSS of the theme accordingly.
 And iterate the process until you have the theme the way you want it.
 
-*Use the source Luke.*
+*Use the source Luke.* and don't hesitate to ask in @[ftdevs](https://friendica.eu/profile/ftdevs) or @[helpers](https://helpers.pyxis.uberspace.de/profile/helpers).
 
 ## Special Files
 
 ### unsupported
 
-If a file (which might be empty) exists in the theme directory, the theme is marked as *unsupported*.
+If a file with this name (which might be empty) exists in the theme directory, the theme is marked as *unsupported*.
 An unsupported theme may not be selected by a user in the settings.
 Users who are already using it wont notice anything.
 
