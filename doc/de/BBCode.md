@@ -60,6 +60,14 @@ Block Tags
 
 <p style="clear:both;">&nbsp;</p>
 
+<pre>Wer überrascht werden möchte sollte nicht weiter lesen.[spoiler]Es gibt ein Happy End.[/spoiler]</pre>
+
+Wer überrascht werden möchte sollte nicht weiter lesen.<br />*klicken zum öffnen/schließen*
+
+(Der Text zweischen dem öffnenden und dem schließenden Teil des spoiler Tags wird nicht angezeigt, bis der Link angeklickt wurde. In dem Fall wird *"Es gibt ein Happy End."* also erst angezeigt, wenn der Spoiler verraten wird.)
+
+<p style="clear:both;">&nbsp;</p>
+
 **Tabelle**
 <pre>[table border=1]
  [tr] 

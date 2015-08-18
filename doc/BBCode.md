@@ -60,6 +60,14 @@ Block
 
 <p style="clear:both;">&nbsp;</p>
 
+<pre>You should not read any further if you want to be surprised.[spoiler]There is a happy end.[/spoiler]</pre>
+
+You should not read any further if you want to be surprised.<br />*click to open/close*
+
+(The text between thhe opening and the closing of the spoiler tag will be visible once the link is clicked. So *"There is a happy end."* wont be visible until the spoiler is uncovered.)
+
+<p style="clear:both;">&nbsp;</p>
+
 **Table**
 <pre>[table border=1]
  [tr] 
