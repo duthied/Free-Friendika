@@ -11,6 +11,7 @@ Friendica Documentation and Resources
 	* [Comment, sort and delete posts](help/Text_comment)
 	* [Profiles](help/Profiles)
 	* [Accesskey reference](help/Accesskeys
+    * [Events](help/events)
 * You and other users
 	* [Connectors](help/Connectors)
 	* [Making Friends](help/Making-Friends)
@@ -41,6 +42,7 @@ Friendica Documentation and Resources
 * [How to translate Friendica](help/translations)
 * [Bugs and Issues](help/Bugs-and-Issues)
 * [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
 
 **External Resources**

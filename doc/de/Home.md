@@ -11,6 +11,7 @@ Friendica - Dokumentation und Ressourcen
 	* [Beiträge kommentieren, einordnen und löschen](help/Text_comment)
 	* [Profile](help/Profiles)
 	* [Referenz der Accesskeys](help/Accesskeys)
+    * [Veranstaltungen](help/events) (EN)
 * Du und andere Nutzer
 	* [Konnektoren (Connectors)](help/Connectors)
 	* [Freunde finden](help/Making-Friends)
@@ -37,6 +38,16 @@ Friendica - Dokumentation und Ressourcen
 * [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 
+**Entwickler Dokumentation**
+
+* [Where to get started?](help/Developers-Intro)
+* [Help on Github](help/Github)
+* [Help on Vagrant](help/Vagrant)
+* [How to translate Friendica](help/translations)
+* [Bugs and Issues](help/Bugs-and-Issues)
+* [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
+* [Smarty 3 Templates](help/smarty3-templates)
 
 **Externe Ressourcen**
 

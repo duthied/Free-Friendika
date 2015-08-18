@@ -60,6 +60,14 @@ Block Tags
 
 <p style="clear:both;">&nbsp;</p>
 
+<pre>Wer überrascht werden möchte sollte nicht weiter lesen.[spoiler]Es gibt ein Happy End.[/spoiler]</pre>
+
+Wer überrascht werden möchte sollte nicht weiter lesen.<br />*klicken zum öffnen/schließen*
+
+(Der Text zweischen dem öffnenden und dem schließenden Teil des spoiler Tags wird nicht angezeigt, bis der Link angeklickt wurde. In dem Fall wird *"Es gibt ein Happy End."* also erst angezeigt, wenn der Spoiler verraten wird.)
+
+<p style="clear:both;">&nbsp;</p>
+
 **Tabelle**
 <pre>[table border=1]
  [tr] 
@@ -118,7 +126,7 @@ Man kann viele Dinge, z.B. Video und Audio Dateine, in Nachrichten einbetten.
 <pre>[video]url[/video]</pre>
 <pre>[audio]url[/audio]</pre>
 
-Wobei die *url* von youtube, vimeo, soundcloud oder einer anderen Seite stammen kann die die oembed oder opengraph Spezifikationen unterst&uuml;tzt.  
+Wobei die *url* von youtube, vimeo, soundcloud oder einer anderen Seite stammen kann die die oembed oder opengraph Spezifikationen unterst&uuml;tzt.
 Au&szlig;erdem kann *url* die genaue url zu einer ogg Datei sein, die dann per HTML5 eingebunden wird.
 
 <pre>[url]*url*[/url]</pre>
@@ -127,7 +135,15 @@ Wenn *url* entweder oembed oder opengraph unterstützt wird das eingebettete
 Objekt (z.B. ein Dokument von scribd) eingebunden.
 Der Titel der Seite mit einem Link zur *url* wird ebenfalls angezeigt.
 
+Um eine Karte in einen Beitrag einzubinden, muss das *openstreetmap* Addon aktiviert werden. Ist dies der Fall, kann mit
 
+<pre>[map]Broadway 26, New York[/map]</pre>
+
+eine Karte von [OpenStreetmap](http://openstreetmap.org) eingebettet werden. Zur Identifikation des Ortes können entweder seine Koordinaten in der Form
+
+<pre>[map=lat,long]</pre>
+
+oder eine Adresse in obiger Form verwendet werden.
 
 Spezielle Tags
 -------
