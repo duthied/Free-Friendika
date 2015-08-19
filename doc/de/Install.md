@@ -70,6 +70,8 @@ Wir planen, diese Einschränkung in einer zukünftigen Version zu beheben.
 
 3. Erstelle eine leere Datenbank und notiere alle Zugangsdaten (Adresse der Datenbank, Nutzername, Passwort, Datenbankname).
 
+Friendica benötigt die Berechtigungen um neue Felder in dieser Datenbank zu ertellen (create) und zu löschen (delete).
+
 4. Besuche deine Webseite mit deinem Browser und befolge die Anleitung. Bitte beachte jeden Fehler und korrigiere diese, bevor du fortfährst.
 
 5. *Wenn* die automatisierte Installation aus irgendeinem Grund fehlschlägt, dann prüfe das Folgende:

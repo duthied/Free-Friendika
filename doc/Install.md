@@ -65,6 +65,8 @@ If you copy the directory tree to your webserver, make sure that you also copy .
 
 Create an empty database and note the access details (hostname, username, password, database name).
 
+Friendica needs the permission to create and delete fields and tables in its own database.
+
 ###Run the installer
 
 Point your web browser to the new site and follow the instructions.

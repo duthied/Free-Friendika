@@ -64,6 +64,8 @@ you wish to communicate with the Diaspora network.
 3. Create an empty database and note the access details (hostname, username, 
 password, database name).
 
+    - Friendica needs the permission to create and delete fields and tables in its own database.
+
 
 4. If you know in advance that it will be impossible for the web server to 
 write or create files in your web directory, create an empty file called 
