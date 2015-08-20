@@ -557,8 +557,8 @@ function admin_page_site_post(&$a){
 	set_config('system','only_tag_search', $only_tag_search);
 
 	set_config('system','rino_encrypt', $rino);
-	
-	
+
+
 	info( t('Site settings updated.') . EOL);
 	goaway($a->get_baseurl(true) . '/admin/site' );
 	return; // NOTREACHED
@@ -761,9 +761,9 @@ function admin_page_site(&$a) {
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
 		'$relocate_url'     => array('relocate_url', t("New base url"), $a->get_baseurl(), "Change base url for this server. Sends relocate message to all DFRN contacts of all users."),
-		
+
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
-		
+
 		'$form_security_token' => get_form_security_token("admin_site")
 
 	));
@@ -1195,6 +1195,13 @@ function admin_page_plugins(&$a){
 	/**
 	 * List plugins
 	 */
+
+    if (x($_GET,"a") && $_GET['a']=="r"){
+		check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/plugins', 'admin_themes', 't');
+		reload_plugins();
+		info("Plugins reloaded");
+		goaway($a->get_baseurl().'/admin/plugins');
+	}
 
 	$plugins = array();
 	$files = glob("addon/*/"); /* */
