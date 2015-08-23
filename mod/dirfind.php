@@ -98,7 +98,7 @@ function dirfind_content(&$a) {
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
 			if(strlen(get_config('system','directory_submit_url')))
-				$x = fetch_url('http://dir.friendica.com/lsearch?f=' . $p .  '&search=' . urlencode($search));
+				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 
 			$j = json_decode($x);
 		}
