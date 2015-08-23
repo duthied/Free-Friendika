@@ -836,7 +836,7 @@ function dfrn_request_content(&$a) {
 		//$emailnet = (($mail_disabled) ? '' : t("<strike>Connect as an email follower</strike> \x28Coming soon\x29"));
 		$emailnet = "";
 
-		$invite_desc = t('If you are not yet a member of the free social web, <a href="http://dir.friendica.com/siteinfo">follow this link to find a public Friendica site and join us today</a>.');
+		$invite_desc = sprintf(t('If you are not yet a member of the free social web, <a href="%s/siteinfo">follow this link to find a public Friendica site and join us today</a>.', get_server()));
 
 		$o .= replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),

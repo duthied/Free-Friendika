@@ -146,7 +146,7 @@ function discover_directory($search) {
 		}
 	}
 
-	$x = fetch_url("http://dir.friendica.com/lsearch?p=1&n=500&search=".urlencode($search));
+	$x = fetch_url(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
 	$j = json_decode($x);
 
 	if(count($j->results))

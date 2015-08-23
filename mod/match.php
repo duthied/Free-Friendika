@@ -26,14 +26,14 @@ function match_content(&$a) {
 
 	$params = array();
 	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
-	
+
 	if($tags) {
 		$params['s'] = $tags;
 		if($a->pager['page'] != 1)
 			$params['p'] = $a->pager['page'];
-			
+
 		if(strlen(get_config('system','directory_submit_url')))
-			$x = post_url('http://dir.friendica.com/msearch', $params);
+			$x = post_url(get_server().'/msearch', $params);
 		else
 			$x = post_url($a->get_baseurl() . '/msearch', $params);
 

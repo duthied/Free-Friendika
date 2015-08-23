@@ -1708,6 +1708,15 @@ function random_digits($digits) {
 	return $rn;
 }
 
+function get_server() {
+	$server = get_config("system", "directory");
+
+	if ($server == "")
+		$server = "http://dir.friendi.ca";
+
+	return($server);
+}
+
 function get_cachefile($file, $writemode = true) {
 	$cache = get_itemcachepath();
 
