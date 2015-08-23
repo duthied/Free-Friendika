@@ -170,6 +170,9 @@ span.oembed, h4 {
   margin: 0px 0px 0px 0px;
 }
 
+code { display: block; background-color: #eee; color: #666; padding:1em; font-size: 0.8em; font-family: monospace; }
+key { display: inline; background-color: #eee; color: #666; padding:0.2em; font-size: 0.8em; font-family: monospace; }
+
 /* fields help text */
 .field .field_help {
     clear: left;
@@ -177,7 +180,6 @@ span.oembed, h4 {
 
 /* notifications unseen */
 .notify-unseen { background-color: #cceeFF; }
-
 
 /* plain text editor upload/select popup */
 
