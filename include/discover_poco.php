@@ -183,7 +183,7 @@ function discover_directory($search) {
 				poco_check($data["url"], $data["name"], $data["network"], $data["photo"], "", "", "", $jj->tags, $data["addr"], "", 0);
 			}
 		}
-	Cache::set("dirsearch:".$search, time());
+	Cache::set("dirsearch:".$search, time(), CACHE_DAY);
 }
 
 if (array_search(__file__,get_included_files())===0){

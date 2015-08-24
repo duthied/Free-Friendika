@@ -6,26 +6,29 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 	logger("wall upload: starting new upload", LOGGER_DEBUG);
 
+	$r_json = (x($_GET,'response') && $_GET['response']=='json');
+
 	if($a->argc > 1) {
-	        if(! x($_FILES,'media')) {
-		        $nick = $a->argv[1];
-		        $r = q("SELECT `user`.*, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
-			        dbesc($nick)
-		        );
+		if(! x($_FILES,'media')) {
+			$nick = $a->argv[1];
+			$r = q("SELECT `user`.*, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
+				dbesc($nick)
+			);
 
-		        if(! count($r))
-                                return;
-		}
-                else {
+			if(! count($r)){
+				if ($r_json) { echo json_encode(['error'=>t('Invalid request.')]); killme(); }
+				return;
+			}
+		} else {
 			$user_info = api_get_user($a);
-		        $r = q("SELECT `user`.*, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
-			        dbesc($user_info['screen_name'])
-		        );
-                }
-	}
-	else
+			$r = q("SELECT `user`.*, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
+				dbesc($user_info['screen_name'])
+			);
+		}
+	} else {
+		if ($r_json) { echo json_encode(['error'=>t('Invalid request.')]); killme(); }
 		return;
-
+	}
 
 	$can_post  = false;
 	$visitor   = 0;
@@ -62,14 +65,19 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		}
 	}
 
+
 	if(! $can_post) {
+		if ($r_json) { echo json_encode(['error'=>t('Permission denied.')]); killme(); }
 		notice( t('Permission denied.') . EOL );
 		killme();
 	}
 
-	if(! x($_FILES,'userfile') && ! x($_FILES,'media'))
+	if(! x($_FILES,'userfile') && ! x($_FILES,'media')){
+		if ($r_json) { echo json_encode(['error'=>t('Invalid request.')]); killme(); }
 		killme();
+	}
 
+	$src = "";
 	if(x($_FILES,'userfile')) {
 		$src      = $_FILES['userfile']['tmp_name'];
 		$filename = basename($_FILES['userfile']['name']);
@@ -98,6 +106,12 @@ function wall_upload_post(&$a, $desktopmode = true) {
 			$filetype = $_FILES['media']['type'];
 	}
 
+	if ($src=="") {
+		if ($r_json) { echo json_encode(['error'=>t('Invalid request.')]); killme(); }
+		notice(t('Invalid request.').EOL);
+		killme();
+	}
+
 	// This is a special treatment for picture upload from Twidere
 	if (($filename == "octet-stream") AND ($filetype != "")) {
 		$filename = $filetype;
@@ -109,6 +123,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 	// If there is a temp name, then do a manual check
 	// This is more reliable than the provided value
+
 	$imagedata = getimagesize($src);
 	if ($imagedata)
 		$filetype = $imagedata['mime'];
@@ -119,7 +134,12 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
-		echo  sprintf( t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL;
+		$msg = sprintf( t('Image exceeds size limit of %s'), formatBytes($maximagesize));
+		if ($r_json) {
+			echo json_encode(['error'=>$msg]);
+		} else {
+			echo  $msg. EOL;
+		}
 		@unlink($src);
 		killme();
 	}
@@ -131,7 +151,12 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	$limit = service_class_fetch($page_owner_uid,'photo_upload_limit');
 
 	if(($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
-		echo upgrade_message(true) . EOL ;
+		$msg = upgrade_message(true);
+		if ($r_json) {
+			echo json_encode(['error'=>$msg]);
+		} else {
+			echo  $msg. EOL;
+		}
 		@unlink($src);
 		killme();
 	}
@@ -141,7 +166,12 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	$ph = new Photo($imagedata, $filetype);
 
 	if(! $ph->is_valid()) {
-		echo ( t('Unable to process image.') . EOL);
+		$msg = t('Unable to process image.');
+		if ($r_json) {
+			echo json_encode(['error'=>$msg]);
+		} else {
+			echo  $msg. EOL;
+		}
 		@unlink($src);
 		killme();
 	}
@@ -169,7 +199,12 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, t('Wall Photos'), 0, 0, $defperm);
 
 	if(! $r) {
-		echo ( t('Image upload failed.') . EOL);
+		$msg = t('Image upload failed.');
+		if ($r_json) {
+			echo json_encode(['error'=>$msg]);
+		} else {
+			echo  $msg. EOL;
+		}
 		killme();
 	}
 
@@ -192,9 +227,10 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	if (!$desktopmode) {
 
 		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo` WHERE `resource-id` = '%s' ORDER BY `width` DESC LIMIT 1", $hash);
-		if (!$r)
+		if (!$r){
+			if ($r_json) { echo json_encode(['error'=>'']); killme(); }
 			return false;
-
+		}
 		$picture = array();
 
 		$picture["id"] = $r[0]["id"];
@@ -206,8 +242,11 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		$picture["picture"] = $a->get_baseurl()."/photo/{$hash}-0.".$ph->getExt();
 		$picture["preview"] = $a->get_baseurl()."/photo/{$hash}-{$smallest}.".$ph->getExt();
 
+		if ($r_json) { echo json_encode(['picture'=>$picture]); killme(); }
 		return $picture;
 	}
+
+	if ($r_json) { echo json_encode(['ok'=>true]); killme(); }
 
 /* mod Waitman Gobble NO WARRANTY */
 
