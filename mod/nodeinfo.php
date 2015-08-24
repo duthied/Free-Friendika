@@ -127,6 +127,7 @@ function nodeinfo_init(&$a){
 		$nodeinfo["services"]["outbound"][] = "wordpress";
 
 	$nodeinfo["metadata"]["services"] = $nodeinfo["services"];
+	$nodeinfo["metadata"]["services"]["inbound"][] = "feed";
 
 	if (nodeinfo_plugin_enabled("twitter"))
 		$nodeinfo["metadata"]["services"]["inbound"][] = "twitter";
