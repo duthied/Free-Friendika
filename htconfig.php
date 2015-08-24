@@ -83,12 +83,8 @@ $a->config['system']['itemcache'] = "";
 // If enabled, the lockpath is used for a lockfile to check if the poller is running
 $a->config['system']['lockpath'] = "";
 
-// If enabled, the MyBB fulltext engine is used
-// $a->config['system']['use_fulltext_engine'] = true;
-
-// Use the old style "share"
-// $a->config['system']['old_share'] = false;
-
 //Deny public access to the local directory
 //$a->config['system']['block_local_dir'] = false;
 
+// Global directory
+$a->config['system']['directory'] = 'http://dir.friendi.ca';
