@@ -13,11 +13,14 @@
 	});
 </script>
 <div class="fbrowser {{$type}}">
+	<div class="error hidden">
+		<span></span> <a href="#" class='close'>X</a>
+	</div>
 
 	<div class="path">
 		{{foreach $path as $p}}<a href="#" data-folder="{{$p.0}}">{{$p.1}}</a>{{/foreach}}
 	</div>
-	
+
 	{{if $folders }}
 	<div class="folders">
 		<ul>
@@ -25,7 +28,7 @@
 		</ul>
 	</div>
 	{{/if}}
-		
+
 	<div class="list">
 		{{foreach $files as $f}}
 		<div class="photo-album-image-wrapper">
@@ -38,11 +41,11 @@
 	</div>
 
 	<div class="upload">
-		<button id="upload-{{$type}}"><img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait|escape:'html'}}" style="display: none;" /> {{"Upload"|t}}</button> 
+		<button id="upload-{{$type}}"><img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait|escape:'html'}}" style="display: none;" /> {{"Upload"|t}}</button>
 	</div>
 </div>
 
 
 	</body>
-	
+
 </html>

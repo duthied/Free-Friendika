@@ -1,6 +1,6 @@
 /**
  * Filebrowser - Friendica Communications Server
- * 
+ *
  * Copyright (c) 2010-2013 the Friendica Project
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
  * 	The event is named
  *
  * 		fbrowser.<type>.[<eventname>]
- * 		
+ *
  * 	with params:
  *
  * 		filemane: filename of item choosed by user
@@ -49,13 +49,13 @@
  *			$(id).value = bbcode;
  *		});
  **/
- 
+
 var FileBrowser = {
 	nickname : "",
 	type : "",
 	event: "",
 	id : null,
-	
+
 	init: function(nickname, type) {
 		FileBrowser.nickname = nickname;
 		FileBrowser.type = type;
@@ -65,18 +65,23 @@ var FileBrowser = {
 			FileBrowser.event = FileBrowser.event + "." + h.split("-")[0];
 			FileBrowser.id = h.split("-")[1];
 		}
-		
+
 		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
-		
+
+		$(".error a.close").on("click", function(e) {
+			e.preventDefault();
+			$(".error").addClass("hidden");
+		});
+
 		$(".folders a, .path a").on("click", function(e){
 			e.preventDefault();
 			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=minimal" + location['hash'];
 			location.href = url;
 		});
-		
+
 		$(".photo-album-photo-link").on('click', function(e){
 			e.preventDefault();
-			
+
 			var embed = "";
 			if (FileBrowser.type == "image") {
 				embed = "[url="+this.dataset.link+"][img]"+this.dataset.img+"[/img][/url]";
@@ -91,31 +96,45 @@ var FileBrowser = {
 				embed,
 				FileBrowser.id
 			]);
-			
+
 		});
-		
+
 		if ($("#upload-image").length)
 			var image_uploader = new window.AjaxUpload(
 				'upload-image',
-				{ action: 'wall_upload/'+FileBrowser.nickname,
+				{ action: 'wall_upload/'+FileBrowser.nickname+'?response=json',
 					name: 'userfile',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); },
+					responseType: 'json',
+					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
 					onComplete: function(file,response) {
+						if (response['error']!= undefined) {
+							$(".error span").html(response['error']);
+							$(".error").removeClass('hidden');
+							$('#profile-rotator').hide();
+							return;
+						}
 						location = baseurl + "/fbrowser/image/?mode=minimal"+location['hash'];
 						location.reload(true);
-					}				 
+					}
 				}
 			);
 
 		if ($("#upload-file").length)
 			var file_uploader = new window.AjaxUpload(
 				'upload-file',
-				{ action: 'wall_attach/'+FileBrowser.nickname,
+				{ action: 'wall_attach/'+FileBrowser.nickname+'?response=json',
 					name: 'userfile',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); },
+					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
 					onComplete: function(file,response) {
+						if (response['error']!= undefined) {
+							$(".error span").html(response['error']);
+							$(".error").removeClass('hidden');
+							$('#profile-rotator').hide();
+							return;
+						}
 						location = baseurl + "/fbrowser/file/?mode=minimal"+location['hash'];
-						location.reload(true);				}				 
+						location.reload(true);
+					}
 				}
 		);
 	}

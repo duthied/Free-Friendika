@@ -194,6 +194,9 @@ key { display: inline; background-color: #eee; color: #666; padding:0.2em; font-
 .fbrowser.file img { display: inline; }
 .fbrowser.file p  { display: inline; white-space: nowrap; }
 .fbrowser .upload { clear: both; padding-top: 1em;}
+.fbrowser .error { background: #ffeeee; border: 1px solid #994444; color: #994444; padding: 0.5em;}
+.fbrowser .error a.close { float: right; font-weight: bold; }
+.fbrowser .error.hidden { display: none; }
 
 a {
   cursor: pointer;
