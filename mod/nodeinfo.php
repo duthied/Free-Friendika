@@ -67,10 +67,11 @@ function nodeinfo_init(&$a){
 
 	$nodeinfo["metadata"] = array("nodeName" => $a->config["sitename"]);
 
-	if (nodeinfo_plugin_enabled("appnet") OR nodeinfo_plugin_enabled("buffer")) {
+	if (nodeinfo_plugin_enabled("appnet"))
 		$nodeinfo["services"]["inbound"][] = "appnet";
+
+	if (nodeinfo_plugin_enabled("appnet") OR nodeinfo_plugin_enabled("buffer"))
 		$nodeinfo["services"]["outbound"][] = "appnet";
-	}
 
 	if (nodeinfo_plugin_enabled("blogger"))
 		$nodeinfo["services"]["outbound"][] = "blogger";
@@ -120,7 +121,7 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("tumblr"))
 		$nodeinfo["services"]["outbound"][] = "tumblr";
 
-	if (nodeinfo_plugin_enabled("twitter"))
+	if (nodeinfo_plugin_enabled("twitter") OR nodeinfo_plugin_enabled("buffer"))
 		$nodeinfo["services"]["outbound"][] = "twitter";
 
 	if (nodeinfo_plugin_enabled("wppost"))
