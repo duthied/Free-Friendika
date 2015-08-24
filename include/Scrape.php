@@ -819,7 +819,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		}
 	}
 
-	Cache::set("probe_url:".$mode.":".$url,serialize($result));
+	Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
 
 	return $result;
 }

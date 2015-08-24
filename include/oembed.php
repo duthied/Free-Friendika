@@ -73,7 +73,7 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 		if ($txt[0]!="{") $txt='{"type":"error"}';
 
 		//save in cache
-		Cache::set($a->videowidth . $embedurl,$txt);
+		Cache::set($a->videowidth . $embedurl,$txt, CACHE_DAY);
 
 	}
 
