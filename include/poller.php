@@ -118,6 +118,9 @@ function poller_run(&$argv, &$argc){
 	// Check every conversation
 	check_conversations(false);
 
+	// Follow your friends from your legacy OStatus account
+	ostatus_check_follow_friends();
+
 	// update nodeinfo data
 	nodeinfo_cron();
 

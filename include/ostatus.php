@@ -7,10 +7,61 @@ require_once("mod/share.php");
 require_once("include/enotify.php");
 require_once("include/socgraph.php");
 require_once("include/Photo.php");
+require_once("include/Scrape.php");
+require_once("include/follow.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
+
+function ostatus_check_follow_friends() {
+	$r = q("SELECT `uid`,`v` FROM `pconfig` WHERE `cat`='system' AND `k`='ostatus_legacy_contact' AND `v` != ''");
+
+	if (!$r)
+		return;
+
+	foreach ($r AS $contact) {
+		ostatus_follow_friends($contact["uid"], $contact["v"]);
+		set_pconfig($contact["uid"], "system", "ostatus_legacy_contact", "");
+	}
+}
+
+function ostatus_follow_friends($uid, $url) {
+	$contact = probe_url($url);
+
+	if (!$contact)
+		return;
+
+	$api = $contact["baseurl"]."/api/";
+
+	// Fetching friends
+	$data = z_fetch_url($api."statuses/friends.json?screen_name=".$contact["nick"]);
+
+	if (!$data["success"])
+		return;
+
+	$friends = json_decode($data["body"]);
+
+	foreach ($friends AS $friend) {
+		$url = $friend->statusnet_profile_url;
+		$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND
+			(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
+			`network` != '%s' LIMIT 1",
+ 			intval($uid), dbesc(normalise_link($url)),
+			dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
+		if (!$r) {
+			$data = probe_url($friend->statusnet_profile_url);
+			if ($data["network"] == NETWORK_OSTATUS) {
+				$result = new_contact($uid,$friend->statusnet_profile_url);
+				if ($result["success"])
+					logger($friend->name." ".$url." - success", LOGGER_DEBUG);
+				else
+					logger($friend->name." ".$url." - failed", LOGGER_DEBUG);
+			} else
+				logger($friend->name." ".$url." - not OStatus", LOGGER_DEBUG);
+		}
+	}
+}
 
 function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
 

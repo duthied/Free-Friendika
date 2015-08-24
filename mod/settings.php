@@ -189,6 +189,7 @@ function settings_post(&$a) {
 		if(x($_POST, 'general-submit')) {
 			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			set_pconfig(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
+			set_pconfig(local_user(), 'system', 'ostatus_legacy_contact', $_POST['legacy_contact']);
 		} elseif(x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
@@ -767,6 +768,14 @@ function settings_content(&$a) {
 		$settings_connectors .= '<label id="snautofollow-label" for="snautofollow-checkbox">'. t('Automatically follow any GNU Social (OStatus) followers/mentioners'). '</label>';
 		$settings_connectors .= '<input id="snautofollow-checkbox" type="checkbox" name="snautofollow" value="1" ' . $checked . '/>';
 		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$legacy_contact = get_pconfig(local_user(), 'system', 'ostatus_legacy_contact');
+
+		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
+		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
+		$settings_connectors .= '<input id="legacy-contact-checkbox" name="legacy_contact" value="'.$legacy_contact.'"/>';
+		$settings_connectors .= '<span class="field_help">'.t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.').'</span>';
 		$settings_connectors .= '</div>';
 
 		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
