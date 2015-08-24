@@ -237,6 +237,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		AND poco_reachable($profile_url, $server_url, $network, true)) {
 		$data = probe_url($profile_url);
 
+		$orig_profile = $profile_url;
+
 		$network = $data["network"];
 		$name = $data["name"];
 		$nick = $data["nick"];
@@ -244,8 +246,17 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
 
-		if ($alternate AND ($network == NETWORK_OSTATUS))
+		if ($alternate AND ($network == NETWORK_OSTATUS)) {
+			// Delete the old entry - if it exists
+			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
+			if ($r) {
+				q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
+				q("DELETE FROM `glink` WHERE `gcid` = %d", intval($r[0]["id"]));
+			}
+
+			// possibly create a new entry
 			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
+		}
 	}
 
 	if ($alternate AND ($network == NETWORK_OSTATUS))
