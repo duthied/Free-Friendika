@@ -126,8 +126,12 @@ function nodeinfo_init(&$a){
 	if (nodeinfo_plugin_enabled("wppost"))
 		$nodeinfo["services"]["outbound"][] = "wordpress";
 
+	$nodeinfo["metadata"]["protocols"] = $nodeinfo["protocols"];
+	$nodeinfo["metadata"]["protocols"]["outbound"][] = "atom1.0";
+	$nodeinfo["metadata"]["protocols"]["inbound"][] = "atom1.0";
+	$nodeinfo["metadata"]["protocols"]["inbound"][] = "rss2.0";
+
 	$nodeinfo["metadata"]["services"] = $nodeinfo["services"];
-	$nodeinfo["metadata"]["services"]["inbound"][] = "feed";
 
 	if (nodeinfo_plugin_enabled("twitter"))
 		$nodeinfo["metadata"]["services"]["inbound"][] = "twitter";
