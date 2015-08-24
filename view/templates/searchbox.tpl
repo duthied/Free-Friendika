@@ -2,6 +2,13 @@
         <form action="{{$action_url}}" method="get" >
                 {{strip}}
                 <input type="text" name="search" id="search-text" placeholder="{{$search_label}}" value="{{$s}}" />
+		<select name="search-option">
+			<option value="fulltext">{{$searchoption.0}}</option>
+			<option value="tags">{{$searchoption.1}}</option>
+			<option value="contacts">{{$searchoption.2}}</option>
+			<option value="forums">{{$searchoption.3}}</option>
+		</select>
+
                 <input type="submit" name="submit" id="search-submit" value="{{$search_label}}" />
                 {{if $savedsearch}}
                 <input type="submit" name="save" id="search-save" value="{{$save_label}}" />

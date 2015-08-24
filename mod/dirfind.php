@@ -14,13 +14,13 @@ function dirfind_init(&$a) {
 
 
 
-function dirfind_content(&$a) {
+function dirfind_content(&$a, $prefix = "") {
 
 	$community = false;
 
 	$local = get_config('system','poco_local_search');
 
-	$search = notags(trim($_REQUEST['search']));
+	$search = $prefix.notags(trim($_REQUEST['search']));
 
 	if(strpos($search,'@') === 0)
 		$search = substr($search,1);

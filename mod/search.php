@@ -1,4 +1,8 @@
 <?php
+require_once("include/bbcode.php");
+require_once('include/security.php');
+require_once('include/conversation.php');
+require_once('mod/dirfind.php');
 
 function search_saved_searches() {
 
@@ -92,9 +96,6 @@ function search_content(&$a) {
 
 	nav_set_selected('search');
 
-	require_once("include/bbcode.php");
-	require_once('include/security.php');
-	require_once('include/conversation.php');
 
 	$o = '<h3>' . t('Search') . '</h3>';
 
@@ -117,13 +118,26 @@ function search_content(&$a) {
 		$search = substr($search,1);
 	}
 	if(strpos($search,'@') === 0) {
-		require_once('mod/dirfind.php');
 		return dirfind_content($a);
 	}
 	if(strpos($search,'!') === 0) {
-		require_once('mod/dirfind.php');
 		return dirfind_content($a);
 	}
+
+        if(x($_GET,'search-option'))
+		switch($_GET['search-option']) {
+			case 'fulltext':
+				break;
+			case 'tags':
+				$tag = true;
+				break;
+			case 'contacts':
+				return dirfind_content($a, "@");
+				break;
+			case 'forums':
+				return dirfind_content($a, "!");
+				break;
+		}
 
 	if(! $search)
 		return $o;

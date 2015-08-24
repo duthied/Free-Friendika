@@ -995,6 +995,11 @@ function search($s,$id='search-box',$url='/search',$save = false) {
 		'$search_label' => t('Search'),
 		'$save_label' => t('Save'),
 		'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+		'$searchoption' => array(
+					t("Full Text"),
+					t("Tags"),
+					t("Contacts"),
+					t("Forums"))
 	));
 }}
 
