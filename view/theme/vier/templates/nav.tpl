@@ -72,6 +72,12 @@
 			<li role="search" id="search-box">
 				<form method="get" action="{{$nav.search.0}}">
 					<input accesskey="s" id="search-text" class="nav-menu-search" type="text" value="" name="search">
+					<select name="search-option">
+						<option value="fulltext">{{$nav.searchoption.0}}</option>
+						<option value="tags">{{$nav.searchoption.1}}</option>
+						<option value="contacts">{{$nav.searchoption.2}}</option>
+						<option value="forums">{{$nav.searchoption.3}}</option>
+					</select>
 				</form>
 			</li>
 		{{/if}}

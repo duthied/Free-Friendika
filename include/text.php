@@ -986,16 +986,26 @@ if(! function_exists('search')) {
  * @param string $url search url
  * @param boolean $savedsearch show save search button
  */
-function search($s,$id='search-box',$url='/search',$save = false) {
+function search($s,$id='search-box',$url='/search',$save = false, $aside = true) {
 	$a = get_app();
-        return replace_macros(get_markup_template('searchbox.tpl'), array(
-		'$s' => $s,
-		'$id' => $id,
-		'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
-		'$search_label' => t('Search'),
-		'$save_label' => t('Save'),
-		'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
-	));
+
+	$values = array(
+			'$s' => $s,
+			'$id' => $id,
+			'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+			'$search_label' => t('Search'),
+			'$save_label' => t('Save'),
+			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+		);
+
+	if (!$aside)
+		$values['$searchoption'] = array(
+					t("Full Text"),
+					t("Tags"),
+					t("Contacts"),
+					t("Forums"));
+
+        return replace_macros(get_markup_template('searchbox.tpl'), $values);
 }}
 
 if(! function_exists('valid_email')) {
