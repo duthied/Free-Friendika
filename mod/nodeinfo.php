@@ -52,72 +52,9 @@ function nodeinfo_init(&$a){
 		$nodeinfo["protocols"]["outbound"][] = "gnusocial";
 	}
 
-	//if ($smtp) {
-	//	$nodeinfo["protocols"]["inbound"][] = "smtp";
-	//	$nodeinfo["protocols"]["outbound"][] = "smtp";
-	//}
-
-
 	$nodeinfo["services"] = array();
-
-	if (nodeinfo_plugin_enabled("appnet") OR nodeinfo_plugin_enabled("buffer"))
-		$nodeinfo["services"][] = "appnet";
-
-	if (nodeinfo_plugin_enabled("blogger"))
-		$nodeinfo["services"][] = "blogger";
-
-	//if (get_config("system","diaspora_enabled"))
-	//	$nodeinfo["services"][] = "diaspora";
-
-	if (nodeinfo_plugin_enabled("dwpost"))
-		$nodeinfo["services"][] = "dreamwidth";
-
-	if (nodeinfo_plugin_enabled("fbpost") OR nodeinfo_plugin_enabled("buffer"))
-		$nodeinfo["services"][] = "facebook";
-
-	//$nodeinfo["services"][] = "friendica";
-
-	//if (nodeinfo_plugin_enabled("statusnet") OR !get_config("system","ostatus_disabled"))
-	if (nodeinfo_plugin_enabled("statusnet"))
-		$nodeinfo["services"][] = "gnusocial";
-
-	if (nodeinfo_plugin_enabled("gpluspost") OR nodeinfo_plugin_enabled("buffer"))
-		$nodeinfo["services"][] = "google";
-
-	if (nodeinfo_plugin_enabled("ijpost"))
-		$nodeinfo["services"][] = "insanejournal";
-
-	if (nodeinfo_plugin_enabled("libertree"))
-		$nodeinfo["services"][] = "libertree";
-
-	if (nodeinfo_plugin_enabled("buffer"))
-		$nodeinfo["services"][] = "linkedin";
-
-	if (nodeinfo_plugin_enabled("ljpost"))
-		$nodeinfo["services"][] = "livejournal";
-
-	if (nodeinfo_plugin_enabled("buffer"))
-		$nodeinfo["services"][] = "pinterest";
-
-	if (nodeinfo_plugin_enabled("posterous"))
-		$nodeinfo["services"][] = "posterous";
-
-	if (nodeinfo_plugin_enabled("pumpio"))
-		$nodeinfo["services"][] = "pumpio";
-
-	// redmatrix
-
-	if ($smtp)
-		$nodeinfo["services"][] = "smtp";
-
-	if (nodeinfo_plugin_enabled("tumblr"))
-		$nodeinfo["services"][] = "tumblr";
-
-	if (nodeinfo_plugin_enabled("twitter"))
-		$nodeinfo["services"][] = "twitter";
-
-	if (nodeinfo_plugin_enabled("wppost"))
-		$nodeinfo["services"][] = "wordpress";
+	$nodeinfo["services"]["inbound"] = array();
+	$nodeinfo["services"]["outbound"] = array();
 
 	$nodeinfo["openRegistrations"] = ($a->config['register_policy'] != 0);
 
@@ -128,8 +65,77 @@ function nodeinfo_init(&$a){
 	$nodeinfo["usage"]["localPosts"] = (int)get_config("nodeinfo","local_posts");
 	$nodeinfo["usage"]["localComments"] = (int)get_config("nodeinfo","local_comments");
 
-	//$nodeinfo["metadata"] = new stdClass();
 	$nodeinfo["metadata"] = array("nodeName" => $a->config["sitename"]);
+
+	if (nodeinfo_plugin_enabled("appnet"))
+		$nodeinfo["services"]["inbound"][] = "appnet";
+
+	if (nodeinfo_plugin_enabled("appnet") OR nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "appnet";
+
+	if (nodeinfo_plugin_enabled("blogger"))
+		$nodeinfo["services"]["outbound"][] = "blogger";
+
+	if (nodeinfo_plugin_enabled("dwpost"))
+		$nodeinfo["services"]["outbound"][] = "dreamwidth";
+
+	if (nodeinfo_plugin_enabled("fbpost") OR nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "facebook";
+
+	if (nodeinfo_plugin_enabled("statusnet")) {
+		$nodeinfo["services"]["inbound"][] = "gnusocial";
+		$nodeinfo["services"]["outbound"][] = "gnusocial";
+	}
+
+	if (nodeinfo_plugin_enabled("gpluspost") OR nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "google";
+
+	if (nodeinfo_plugin_enabled("ijpost"))
+		$nodeinfo["services"]["outbound"][] = "insanejournal";
+
+	if (nodeinfo_plugin_enabled("libertree"))
+		$nodeinfo["services"]["outbound"][] = "libertree";
+
+	if (nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "linkedin";
+
+	if (nodeinfo_plugin_enabled("ljpost"))
+		$nodeinfo["services"]["outbound"][] = "livejournal";
+
+	if (nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "pinterest";
+
+	if (nodeinfo_plugin_enabled("posterous"))
+		$nodeinfo["services"]["outbound"][] = "posterous";
+
+	if (nodeinfo_plugin_enabled("pumpio")) {
+		$nodeinfo["services"]["inbound"][] = "pumpio";
+		$nodeinfo["services"]["outbound"][] = "pumpio";
+	}
+
+	// redmatrix
+
+	if ($smtp)
+		$nodeinfo["services"]["outbound"][] = "smtp";
+
+	if (nodeinfo_plugin_enabled("tumblr"))
+		$nodeinfo["services"]["outbound"][] = "tumblr";
+
+	if (nodeinfo_plugin_enabled("twitter") OR nodeinfo_plugin_enabled("buffer"))
+		$nodeinfo["services"]["outbound"][] = "twitter";
+
+	if (nodeinfo_plugin_enabled("wppost"))
+		$nodeinfo["services"]["outbound"][] = "wordpress";
+
+	$nodeinfo["metadata"]["protocols"] = $nodeinfo["protocols"];
+	$nodeinfo["metadata"]["protocols"]["outbound"][] = "atom1.0";
+	$nodeinfo["metadata"]["protocols"]["inbound"][] = "atom1.0";
+	$nodeinfo["metadata"]["protocols"]["inbound"][] = "rss2.0";
+
+	$nodeinfo["metadata"]["services"] = $nodeinfo["services"];
+
+	if (nodeinfo_plugin_enabled("twitter"))
+		$nodeinfo["metadata"]["services"]["inbound"][] = "twitter";
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
