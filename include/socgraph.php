@@ -453,7 +453,7 @@ function poco_last_updated($profile, $force = false) {
 			$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
 			 if ($noscraperet["success"] AND ($noscraperet["body"] != "")) {
-;
+
 				$noscrape = json_decode($noscraperet["body"], true);
 
 				if (($noscrape["fn"] != "") AND ($noscrape["fn"] != $gcontacts[0]["name"]))
@@ -528,6 +528,22 @@ function poco_last_updated($profile, $force = false) {
 		return $gcontacts[0]["updated"];
 
 	$data = probe_url($profile);
+
+	// Is the profile link the alternate OStatus link notation? (http://domain.tld/user/4711)
+	// Then check the other link and mark this one as a failure
+	if (($data["network"] == NETWORK_OSTATUS) AND
+		(normalise_link($profile) == normalise_link($data["alias"])) AND
+		(normalise_link($profile) != normalise_link($data["url"]))) {
+		poco_check($data["url"], $data["name"], $data["network"], $data["photo"], $gcontacts[0]["about"], $gcontacts[0]["location"],
+				$gcontacts[0]["gender"], $gcontacts[0]["keywords"], $data["addr"], $gcontacts[0]["updated"], $gcontacts[0]["generation"]);
+
+		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
+		 poco_last_updated($data["url"], $force);
+
+		return false;
+	}
 
 	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED)) {
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
