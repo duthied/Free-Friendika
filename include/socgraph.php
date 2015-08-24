@@ -171,6 +171,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	$gcid = "";
 
+	$alternate = poco_alternate_ostatus_url($profile_url);
+
 	if ($profile_url == "")
 		return $gcid;
 
@@ -231,7 +233,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$nick = end(explode("/", $urlparts["path"]));
 	}
 
-	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == ""))
+	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
 		AND poco_reachable($profile_url, $server_url, $network, true)) {
 		$data = probe_url($profile_url);
 
@@ -241,7 +243,13 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
+
+		if ($alternate AND ($network == NETWORK_OSTATUS))
+			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
 	}
+
+	if ($alternate AND ($network == NETWORK_OSTATUS))
+		return $gcid;
 
 	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
 		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
@@ -404,6 +412,10 @@ function poco_detect_server($profile) {
 	return $server_url;
 }
 
+function poco_alternate_ostatus_url($url) {
+	return(preg_match("=https?://.+/user/\d+=ism", $url, $matches));
+}
+
 function poco_last_updated($profile, $force = false) {
 
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
@@ -530,17 +542,19 @@ function poco_last_updated($profile, $force = false) {
 	$data = probe_url($profile);
 
 	// Is the profile link the alternate OStatus link notation? (http://domain.tld/user/4711)
-	// Then check the other link and mark this one as a failure
-	if (($data["network"] == NETWORK_OSTATUS) AND
+	// Then check the other link and delete this one
+	if (($data["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($profile) AND
 		(normalise_link($profile) == normalise_link($data["alias"])) AND
 		(normalise_link($profile) != normalise_link($data["url"]))) {
+
+		// Delete the old entry
+		q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profile)));
+		q("DELETE FROM `glink` WHERE `gcid` = %d", intval($gcontacts[0]["id"]));
+
 		poco_check($data["url"], $data["name"], $data["network"], $data["photo"], $gcontacts[0]["about"], $gcontacts[0]["location"],
 				$gcontacts[0]["gender"], $gcontacts[0]["keywords"], $data["addr"], $gcontacts[0]["updated"], $gcontacts[0]["generation"]);
 
-		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
-
-		 poco_last_updated($data["url"], $force);
+		poco_last_updated($data["url"], $force);
 
 		return false;
 	}
