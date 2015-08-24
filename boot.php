@@ -19,7 +19,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
 define ( 'FRIENDICA_VERSION',      '3.4.1' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1187      );
+define ( 'DB_UPDATE_VERSION',      1188      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -83,6 +83,15 @@ define ( 'LOGGER_TRACE',           1 );
 define ( 'LOGGER_DEBUG',           2 );
 define ( 'LOGGER_DATA',            3 );
 define ( 'LOGGER_ALL',             4 );
+
+/**
+ * cache levels
+ */
+
+define ( 'CACHE_MONTH',            0 );
+define ( 'CACHE_WEEK',             1 );
+define ( 'CACHE_DAY',              2 );
+define ( 'CACHE_HOUR',             3 );
 
 /**
  * registration policies

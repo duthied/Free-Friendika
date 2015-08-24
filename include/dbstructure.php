@@ -364,6 +364,7 @@ function db_definition() {
 			"fields" => array(
 					"k" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
 					"v" => array("type" => "text", "not null" => "1"),
+					"expire_mode" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(

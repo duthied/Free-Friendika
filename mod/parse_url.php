@@ -60,7 +60,7 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
 
-	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data));
+	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data), CACHE_DAY);
 
 	return $data;
 }
