@@ -2214,6 +2214,12 @@ aside #id_password {
   float: left;
 }
 
+#register-name-end,
+#register-email-end,
+#register-nickname-end {
+  clear: both;
+}
+
 .required {
   display: inline;
   color: #B20202;
