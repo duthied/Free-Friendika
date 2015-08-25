@@ -1,8 +1,8 @@
 <?php
+require_once('include/contact_widgets.php');
+require_once('include/socgraph.php');
 
 function dirfind_init(&$a) {
-
-	require_once('include/contact_widgets.php');
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
@@ -76,6 +76,9 @@ function dirfind_content(&$a, $prefix = "") {
 			$j->items_page = $perpage;
 			$j->page = $a->pager['page'];
 			foreach ($results AS $result) {
+				if (poco_alternate_ostatus_url($result["url"]))
+					 continue;
+
 				if ($result["name"] == "") {
 					$urlparts = parse_url($result["url"]);
 					$result["name"] = end(explode("/", $urlparts["path"]));

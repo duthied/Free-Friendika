@@ -171,6 +171,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	$gcid = "";
 
+	$alternate = poco_alternate_ostatus_url($profile_url);
+
 	if ($profile_url == "")
 		return $gcid;
 
@@ -205,7 +207,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		);
 		if(count($r)) {
 			$network = $r[0]["network"];
-			$profile_url = $r[0]["url"];
+			//$profile_url = $r[0]["url"];
 		}
 	}
 
@@ -231,9 +233,11 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$nick = end(explode("/", $urlparts["path"]));
 	}
 
-	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == ""))
+	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
 		AND poco_reachable($profile_url, $server_url, $network, true)) {
 		$data = probe_url($profile_url);
+
+		$orig_profile = $profile_url;
 
 		$network = $data["network"];
 		$name = $data["name"];
@@ -241,7 +245,22 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
+
+		if ($alternate AND ($network == NETWORK_OSTATUS)) {
+			// Delete the old entry - if it exists
+			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
+			if ($r) {
+				q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
+				q("DELETE FROM `glink` WHERE `gcid` = %d", intval($r[0]["id"]));
+			}
+
+			// possibly create a new entry
+			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
+		}
 	}
+
+	if ($alternate AND ($network == NETWORK_OSTATUS))
+		return $gcid;
 
 	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
 		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
@@ -404,6 +423,10 @@ function poco_detect_server($profile) {
 	return $server_url;
 }
 
+function poco_alternate_ostatus_url($url) {
+	return(preg_match("=https?://.+/user/\d+=ism", $url, $matches));
+}
+
 function poco_last_updated($profile, $force = false) {
 
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
@@ -453,7 +476,7 @@ function poco_last_updated($profile, $force = false) {
 			$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
 			 if ($noscraperet["success"] AND ($noscraperet["body"] != "")) {
-;
+
 				$noscrape = json_decode($noscraperet["body"], true);
 
 				if (($noscrape["fn"] != "") AND ($noscrape["fn"] != $gcontacts[0]["name"]))
@@ -528,6 +551,24 @@ function poco_last_updated($profile, $force = false) {
 		return $gcontacts[0]["updated"];
 
 	$data = probe_url($profile);
+
+	// Is the profile link the alternate OStatus link notation? (http://domain.tld/user/4711)
+	// Then check the other link and delete this one
+	if (($data["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($profile) AND
+		(normalise_link($profile) == normalise_link($data["alias"])) AND
+		(normalise_link($profile) != normalise_link($data["url"]))) {
+
+		// Delete the old entry
+		q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profile)));
+		q("DELETE FROM `glink` WHERE `gcid` = %d", intval($gcontacts[0]["id"]));
+
+		poco_check($data["url"], $data["name"], $data["network"], $data["photo"], $gcontacts[0]["about"], $gcontacts[0]["location"],
+				$gcontacts[0]["gender"], $gcontacts[0]["keywords"], $data["addr"], $gcontacts[0]["updated"], $gcontacts[0]["generation"]);
+
+		poco_last_updated($data["url"], $force);
+
+		return false;
+	}
 
 	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED)) {
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
@@ -688,7 +729,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$last_contact = "0000-00-00 00:00:00";
 		$last_failure = "0000-00-00 00:00:00";
 	}
-	logger("Server ".$server_url." is unknown. Start discovery.", LOGGER_DEBUG);
+	logger("Server ".$server_url." is outdated or unknown. Start discovery. Force: ".$force." Created: ".$servers[0]["created"]." Failure: ".$last_failure." Contact: ".$last_contact, LOGGER_DEBUG);
 
 	$failure = false;
 	$orig_last_failure = $last_failure;
