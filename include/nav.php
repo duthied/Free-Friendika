@@ -121,8 +121,10 @@ function nav_info(&$a) {
 	$nav['searchoption'] = array(
 					t("Full Text"),
 					t("Tags"),
-					t("Contacts"),
-					t("Forums"));
+					t("Contacts"));
+
+	if (get_config('system','poco_local_search'))
+		$nav['searchoption'][] = t("Forums");
 
 	$gdirpath = 'directory';
 

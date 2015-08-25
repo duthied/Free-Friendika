@@ -998,12 +998,15 @@ function search($s,$id='search-box',$url='/search',$save = false, $aside = true)
 			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
 		);
 
-	if (!$aside)
+	if (!$aside) {
 		$values['$searchoption'] = array(
 					t("Full Text"),
 					t("Tags"),
-					t("Contacts"),
-					t("Forums"));
+					t("Contacts"));
+
+		if (get_config('system','poco_local_search'))
+			$values['$searchoption'][] = t("Forums");
+	}
 
         return replace_macros(get_markup_template('searchbox.tpl'), $values);
 }}
