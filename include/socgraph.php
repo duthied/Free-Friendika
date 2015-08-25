@@ -207,7 +207,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		);
 		if(count($r)) {
 			$network = $r[0]["network"];
-			$profile_url = $r[0]["url"];
+			//$profile_url = $r[0]["url"];
 		}
 	}
 
@@ -729,7 +729,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$last_contact = "0000-00-00 00:00:00";
 		$last_failure = "0000-00-00 00:00:00";
 	}
-	logger("Server ".$server_url." is unknown. Start discovery.", LOGGER_DEBUG);
+	logger("Server ".$server_url." is outdated or unknown. Start discovery. Force: ".$force." Created: ".$servers[0]["created"]." Failure: ".$last_failure." Contact: ".$last_contact, LOGGER_DEBUG);
 
 	$failure = false;
 	$orig_last_failure = $last_failure;
