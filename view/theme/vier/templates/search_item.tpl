@@ -15,7 +15,7 @@
 				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-photo-link" id="wall-item-photo-link-{{$item.id}}">
 					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				</a>
-				<a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
+				<!-- <a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a> -->
 				<ul role="menu" aria-haspopup="true" class="wall-item-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
 				{{$item.item_photo_menu}}
 				</ul>

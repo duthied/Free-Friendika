@@ -11,7 +11,7 @@
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
 			{{/if}}
 			{{if $contact.photo_menu}}
-			<span onclick="openClose('contact-photo-menu-{{$contact.id}}');" class="fakelink contact-photo-menu-button" id="contact-photo-menu-button-{{$contact.id}}">menu</span>
+			<!-- <span onclick="openClose('contact-photo-menu-{{$contact.id}}');" class="fakelink contact-photo-menu-button" id="contact-photo-menu-button-{{$contact.id}}">menu</span> -->
 			<div class="contact-photo-menu" id="contact-photo-menu-{{$contact.id}}">
 				<ul>
 					{{foreach $contact.photo_menu as $k=>$c}}
