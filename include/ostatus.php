@@ -26,6 +26,7 @@ function ostatus_check_follow_friends() {
 	}
 }
 
+// This function doesn't work reliable by now.
 function ostatus_follow_friends($uid, $url) {
 	$contact = probe_url($url);
 
