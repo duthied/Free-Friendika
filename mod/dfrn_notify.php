@@ -132,16 +132,16 @@ function dfrn_notify_post(&$a) {
 	if($importer['page-flags'] == PAGE_SOAPBOX)
 		xml_status(0);
 
-	
+
 	if(strlen($key)) {
-		
+
 		// if local rino is lower than remote rino, abort: should not happen!
 		// but only for $remote_rino > 1, because old code did't send rino version
 		if ($rino_remote_version > 1 && $rino < $rino_remote) {
 			logger("rino version '$rino_remote' is lower than supported '$rino'");
 			xml_status(0,"rino version '$rino_remote' is lower than supported '$rino'");
 		}
-		
+
 		$rawkey = hex2bin(trim($key));
 		logger('rino: md5 raw key: ' . md5($rawkey));
 		$final_key = '';
@@ -164,7 +164,7 @@ function dfrn_notify_post(&$a) {
 		}
 
 		#logger('rino: received key : ' . $final_key);
-		
+
 		switch($rino_remote) {
 			case 0:
 			case 1:
@@ -195,8 +195,8 @@ function dfrn_notify_post(&$a) {
 				logger("rino: invalid sent verision '$rino_remote'");
 				xml_status(0);
 		}
-		
-		
+
+
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
 
@@ -243,7 +243,7 @@ function dfrn_notify_content(&$a) {
 			dbesc($last_update)
 		);
 
-		logger('dfrn_notify: challenge=' . $hash, LOGGER_DEBUG );
+		logger('dfrn_notify: challenge=' . $hash, LOGGER_DEBUG);
 
 		$sql_extra = '';
 		switch($direction) {
@@ -295,14 +295,14 @@ function dfrn_notify_content(&$a) {
 		$challenge    = bin2hex($challenge);
 		$encrypted_id = bin2hex($encrypted_id);
 
-		
+
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
-		
+
 		// if requested rino is lower than enabled local rino, lower local rino version
 		// if requested rino is higher than enabled local rino, reply with local rino
 		if ($rino_remote < $rino) $rino = $rino_remote;
-		
+
 		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
 		}
