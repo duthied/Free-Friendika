@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.4.1 (Lily of the valley)
--- DB_UPDATE_VERSION 1186
+-- DB_UPDATE_VERSION 1188
 -- ------------------------------------------
 
 
@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 CREATE TABLE IF NOT EXISTS `cache` (
 	`k` varchar(255) NOT NULL PRIMARY KEY,
 	`v` text NOT NULL,
+	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
@@ -314,6 +315,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`about` text NOT NULL,
 	`keywords` text NOT NULL,
 	`gender` varchar(32) NOT NULL DEFAULT '',
+	`community` tinyint(1) NOT NULL DEFAULT 0,
 	`network` varchar(255) NOT NULL DEFAULT '',
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
 	`server_url` varchar(255) NOT NULL DEFAULT '',
