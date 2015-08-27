@@ -173,7 +173,7 @@ function call_hooks($name, &$data = null) {
 			@include_once($hook[0]);
 			if(function_exists($hook[1])) {
 				$func = $hook[1];
-				logger($name." => ".$hook[0].":".$func."()", LOGGER_DEBUG);
+				//logger($name." => ".$hook[0].":".$func."()", LOGGER_DEBUG);
 				$func($a,$data);
 			}
 			else {
