@@ -25,7 +25,7 @@
 			</li>
 		{{/if}}
 		
-		<li role="menu" aria-haspopup="true" id="nav-site-linkmenu" class="nav-menu-icon"><a rel="#nav-site-menu"><span class="icon s22 icon-question"><span class="sr-only">{{$nav.help.3}}</span></span></a>
+		<li role="menu" aria-haspopup="true" id="nav-site-linkmenu" class="nav-menu-icon"><a rel2="#nav-site-menu"><span class="icon s22 icon-question"><span class="sr-only">{{$nav.help.3}}</span></span></a>
 			<ul id="nav-site-menu" class="menu-popup">
 				{{if $nav.help}} <li role="menuitem"><a class="{{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a></li>{{/if}}
 				<li role="menuitem"><a class="{{$nav.about.2}}" href="{{$nav.about.0}}" title="{{$nav.about.3}}" >{{$nav.about.1}}</a></li>
@@ -34,7 +34,7 @@
 		</li>
 
 		{{if $nav.notifications}}
-			<li role="menu" aria-haspopup="true" id="nav-notifications-linkmenu" class="nav-menu-icon"><a accesskey="f" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span></a>
+			<li role="menu" aria-haspopup="true" id="nav-notifications-linkmenu" class="nav-menu-icon"><a accesskey="f" href="{{$nav.notifications.0}}" rel2="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span></a>
 				<span id="notify-update" class="nav-notify"></span>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<li role="menuitem" id="nav-notifications-mark-all"><a onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
@@ -46,10 +46,10 @@
 		
 		{{if $userinfo}}
 			<!-- <li aria-hidden="true" id="nav-user-linklabel" class="nav-menu">
-				<a rel="#nav-user-menu" title="{{$sitelocation}}">{{$userinfo.name}}<span id="intro-update" class="nav-notify"></span></a>
+				<a rel2="#nav-user-menu" title="{{$sitelocation}}">{{$userinfo.name}}<span id="intro-update" class="nav-notify"></span></a>
 			</li> -->
 			<li role="menu" aria-haspopup="true" id="nav-user-linkmenu" class="nav-menu">
-				<a accesskey="u" rel="#nav-user-menu" title="{{$sitelocation}}"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"><span id="nav-user-linklabel">{{$userinfo.name}}</span><span id="intro-update" class="nav-notify"></span></a>
+				<a accesskey="u" rel2="#nav-user-menu" title="{{$sitelocation}}"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"><span id="nav-user-linklabel">{{$userinfo.name}}</span><span id="intro-update" class="nav-notify"></span></a>
 				<ul id="nav-user-menu" class="menu-popup">
 					{{if $nav.introductions}}<li role="menuitem"><a class="{{$nav.introductions.2}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a><span id="intro-update-li" class="nav-notify"></span></li>{{/if}}
 					{{if $nav.contacts}}<li role="menuitem"><a class="{{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a></li>{{/if}}
@@ -91,7 +91,7 @@
 		
 		{{if $nav.apps}}
 			<li role="menu" aria-haspopup="true" id="nav-apps-link" class="nav-menu {{$sel.apps}}">
-				<a class=" {{$nav.apps.2}}" rel="#nav-apps-menu" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>
+				<a class=" {{$nav.apps.2}}" rel2="#nav-apps-menu" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>
 				<ul id="nav-apps-menu" class="menu-popup">
 					{{foreach $apps as $ap}}
 					<li role="menuitem">{{$ap}}</li>
