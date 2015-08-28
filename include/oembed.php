@@ -67,9 +67,6 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 
 		$txt=trim($txt);
 
-		if ($txt==false || $txt=="")
-			return false;
-
 		if ($txt[0]!="{")
 			$txt='{"type":"error"}';
 		else	//save in cache
