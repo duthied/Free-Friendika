@@ -2042,7 +2042,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	$rino_remote_version = intval($res->rino);
 	$page         = (($owner['page-flags'] == PAGE_COMMUNITY) ? 1 : 0);
 
-	logger("Remote rino version: ".$rino_remote_version, LOGGER_DEBUG);
+	logger("Remote rino version: ".$rino_remote_version." for ".$contact["url"], LOGGER_DEBUG);
 
 	if($owner['page-flags'] == PAGE_PRVGROUP)
 		$page = 2;

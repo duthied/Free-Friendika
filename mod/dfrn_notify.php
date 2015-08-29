@@ -33,8 +33,6 @@ function dfrn_notify_post(&$a) {
 		$dfrn_id = substr($dfrn_id,2);
 	}
 
-	logger("Remote rino version: ".$rino_remote, LOGGER_DEBUG);
-
 	$r = q("SELECT * FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s' LIMIT 1",
 		dbesc($dfrn_id),
 		dbesc($challenge)
@@ -94,6 +92,8 @@ function dfrn_notify_post(&$a) {
 	// $importer in this case contains the contact record for the remote contact joined with the user record of our user.
 
 	$importer = $r[0];
+
+	logger("Remote rino version: ".$rino_remote." for ".$importer["url"], LOGGER_DEBUG);
 
 	if((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
 		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d",
@@ -228,8 +228,6 @@ function dfrn_notify_content(&$a) {
 
 		logger('dfrn_notify: new notification dfrn_id=' . $dfrn_id);
 
-		logger("Remote rino version: ".$rino_remote, LOGGER_DEBUG);
-
 		$direction = (-1);
 		if(strpos($dfrn_id,':') == 1) {
 			$direction = intval(substr($dfrn_id,0,1));
@@ -280,6 +278,8 @@ function dfrn_notify_content(&$a) {
 
 		if(! count($r))
 			$status = 1;
+
+		logger("Remote rino version: ".$rino_remote." for ".$r[0]["url"], LOGGER_DEBUG);
 
 		$challenge = '';
 		$encrypted_id = '';
