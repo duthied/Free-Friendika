@@ -1986,13 +1986,12 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($contact['duplex'] && $contact['issued-id'])
 		$idtosend = '1:' . $orig_id;
 
-    
+
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
 
-   
+	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
-	
 	$ssl_val = intval(get_config('system','ssl_policy'));
 	$ssl_policy = '';
 
@@ -2042,6 +2041,8 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
 	$rino_remote_version = intval($res->rino);
 	$page         = (($owner['page-flags'] == PAGE_COMMUNITY) ? 1 : 0);
+
+	logger("Remote rino version: ".$rino_remote_version, LOGGER_DEBUG);
 
 	if($owner['page-flags'] == PAGE_PRVGROUP)
 		$page = 2;
@@ -2120,26 +2121,26 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 					return -1;
 				} catch (CannotPerformOperation $ex) {
 					logger('Cannot safely create a key');
-					return -1; 
+					return -1;
 				}
 				try {
 					$data = Crypto::encrypt($postvars['data'], $key);
 				} catch (CryptoTestFailed $ex) {
 					logger('Cannot safely perform encryption');
-					return -1; 
+					return -1;
 				} catch (CannotPerformOperation $ex) {
 					logger('Cannot safely perform encryption');
-					return -1; 
+					return -1;
 				}
 				break;
 			default:
 				logger("rino: invalid requested verision '$rino_remote_version'");
 				return -1;
 		}
-		
+
 		$postvars['rino'] = $rino_remote_version;
 		$postvars['data'] = bin2hex($data);
-		
+
 		#logger('rino: sent key = ' . $key, LOGGER_DEBUG);
 
 
@@ -2167,7 +2168,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 		$postvars['key'] = bin2hex($postvars['key']);
 	}
-	
+
 
 	logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
 
