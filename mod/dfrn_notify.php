@@ -93,6 +93,8 @@ function dfrn_notify_post(&$a) {
 
 	$importer = $r[0];
 
+	logger("Remote rino version: ".$rino_remote." for ".$importer["url"], LOGGER_DEBUG);
+
 	if((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
 		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d",
 			intval(($writable == (-1)) ? $importer['writable'] : $writable),
@@ -132,6 +134,10 @@ function dfrn_notify_post(&$a) {
 	if($importer['page-flags'] == PAGE_SOAPBOX)
 		xml_status(0);
 
+	$rino = get_config('system','rino_encrypt');
+	$rino = intval($rino);
+
+	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
 	if(strlen($key)) {
 
@@ -273,6 +279,8 @@ function dfrn_notify_content(&$a) {
 		if(! count($r))
 			$status = 1;
 
+		logger("Remote rino version: ".$rino_remote." for ".$r[0]["url"], LOGGER_DEBUG);
+
 		$challenge = '';
 		$encrypted_id = '';
 		$id_str = $my_id . '.' . mt_rand(1000,9999);
@@ -298,6 +306,8 @@ function dfrn_notify_content(&$a) {
 
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
+
+		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
 		// if requested rino is lower than enabled local rino, lower local rino version
 		// if requested rino is higher than enabled local rino, reply with local rino
