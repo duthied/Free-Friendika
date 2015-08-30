@@ -130,9 +130,10 @@ function dfrn_notify_post(&$a) {
 
 
 	// If we are setup as a soapbox we aren't accepting input from this person
-
-	if($importer['page-flags'] == PAGE_SOAPBOX)
-		xml_status(0);
+	// This behaviour is deactivated since it really doesn't make sense to even disallow comments
+	// The check if someone is a friend or simply a follower is done in a later place so it needn't to be done here
+	//if($importer['page-flags'] == PAGE_SOAPBOX)
+	//	xml_status(0);
 
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
