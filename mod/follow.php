@@ -14,10 +14,12 @@ function follow_content(&$a) {
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
 
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND
+	// There is a current issue. It seems as if you can't start following a Friendica that is following you
+	// With Diaspora this works - but Friendica is special, it seems ...
+	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
 		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
 		`network` != '%s' LIMIT 1",
-		intval(local_user()), dbesc(normalise_link($url)),
+		intval(local_user()), dbesc(CONTACT_IS_FOLLOWER), dbesc(NETWORK_DFRN), dbesc(normalise_link($url)),
 		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 
 	if ($r) {

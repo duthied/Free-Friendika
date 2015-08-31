@@ -4,7 +4,7 @@
 <div id="identity-manage-choose">{{$choose}}</div>
 <div id="identity-selector-wrapper">
 	<form action="manage" method="post" >
-	<select name="identity" size="4" onchange="this.form.submit();" >
+	<select name="identity" size="10" onchange="this.form.submit();" >
 
 	{{foreach $identities as $id}}
 		<option {{$id.selected}} value="{{$id.uid}}">{{$id.username}} ({{$id.nickname}})</option>

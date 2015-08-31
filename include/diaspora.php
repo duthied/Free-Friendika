@@ -590,7 +590,7 @@ function diaspora_request($importer,$xml) {
 		// perhaps we were already sharing with this person. Now they're sharing with us.
 		// That makes us friends.
 
-		if($contact['rel'] == CONTACT_IS_FOLLOWER && $importer['page-flags'] != PAGE_COMMUNITY) {
+		if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact['id']),
@@ -767,12 +767,12 @@ function diaspora_request($importer,$xml) {
 	return;
 }
 
-function diaspora_post_allow($importer,$contact) {
+function diaspora_post_allow($importer,$contact, $is_comment = false) {
 
 	// perhaps we were already sharing with this person. Now they're sharing with us.
 	// That makes us friends.
 	// Normally this should have handled by getting a request - but this could get lost
-	if($contact['rel'] == CONTACT_IS_FOLLOWER && $importer['page-flags'] != PAGE_COMMUNITY) {
+	if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
 		q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval(CONTACT_IS_FRIEND),
 			intval($contact['id']),
@@ -787,7 +787,7 @@ function diaspora_post_allow($importer,$contact) {
 	if($contact['rel'] == CONTACT_IS_SHARING || $contact['rel'] == CONTACT_IS_FRIEND)
 		return true;
 	if($contact['rel'] == CONTACT_IS_FOLLOWER)
-		if($importer['page-flags'] == PAGE_COMMUNITY)
+		if(($importer['page-flags'] == PAGE_COMMUNITY) OR $is_comment)
 			return true;
 
 	// Messages for the global users are always accepted
@@ -840,7 +840,7 @@ function diaspora_post($importer,$xml,$msg) {
 		return 203;
 	}
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, false)) {
 		logger('diaspora_post: Ignoring this author.');
 		return 202;
 	}
@@ -1117,7 +1117,7 @@ function diaspora_reshare($importer,$xml,$msg) {
 	if(! $contact)
 		return;
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, false)) {
 		logger('diaspora_reshare: Ignoring this author: ' . $diaspora_handle . ' ' . print_r($xml,true));
 		return 202;
 	}
@@ -1303,7 +1303,7 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	if(! $contact)
 		return;
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, false)) {
 		logger('diaspora_asphoto: Ignoring this author.');
 		return 202;
 	}
@@ -1399,7 +1399,7 @@ function diaspora_comment($importer,$xml,$msg) {
 		return;
 	}
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, true)) {
 		logger('diaspora_comment: Ignoring this author.');
 		return 202;
 	}
@@ -1903,7 +1903,7 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 		return;
 	}
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, false)) {
 		logger('diaspora_photo: Ignoring this author.');
 		return 202;
 	}
@@ -1990,7 +1990,7 @@ function diaspora_like($importer,$xml,$msg) {
 		return;
 	}
 
-	if(! diaspora_post_allow($importer,$contact)) {
+	if(! diaspora_post_allow($importer,$contact, false)) {
 		logger('diaspora_like: Ignoring this author.');
 		return 202;
 	}
