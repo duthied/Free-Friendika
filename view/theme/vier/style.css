@@ -606,12 +606,17 @@ nav .nav-menu-icon {
 nav .nav-menu-icon.selected {
   background-color: #364e59;
 }
+nav .nav-menu img,
 nav .nav-menu-icon img {
   width: 22px;
   height: 22px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+}
+nav .nav-menu img {
+  margin-top: -3px;
+  margin-right: 4px;
 }
 nav .nav-menu-icon .nav-notify {
   top: 3px;
@@ -683,7 +688,7 @@ nav #nav-user-linklabel {
 }
 nav #nav-user-linklabel {
   padding-left: 0px;
-  margin-left: 0px;
+  margin-top: 0px;
 }
 nav #nav-help-link .menu-popup,
 nav #nav-search-link .menu-popup,
@@ -698,6 +703,17 @@ nav #nav-site-linkmenu .menu-popup {
 nav #nav-site-linkmenu {
   margin-left: 0px;
   margin-right: 0px;
+}
+.contact-entry-photo:hover .contact-photo-menu,
+.contact-photo-wrapper:hover .menu-popup,
+nav #nav-user-linklabel:hover #nav-user-menu,
+nav #nav-user-linkmenu:hover #nav-user-menu,
+nav #nav-apps-link:hover #nav-apps-menu,
+nav #nav-site-linkmenu:hover #nav-site-menu,
+nav #nav-notifications-linkmenu:hover #nav-notifications-menu {
+  display:block;
+  visibility:visible;
+  opacity:1;
 }
 nav #nav-notifications-linkmenu {
   margin-left: 0px;
@@ -754,8 +770,12 @@ nav #nav-user-linkmenu {
         }
 
 ul.menu-popup {
+  visibility:hidden;
+  opacity:0;
+  z-index:1;
+  transition:all 0.2s ease-in-out;
+  /* display: none; */
   position: absolute;
-  display: none;
   width: 11em;
   background: #ffffff;
   color: #2d2d2d;
