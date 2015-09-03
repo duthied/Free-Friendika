@@ -1259,8 +1259,8 @@ function poco_discover($complete = false) {
 
 	$no_of_queries = 5;
 
-	$last_update = date("c", time() - (60 * 60 * 6)); // 24
-	$last_update = date("c", time() - (60 * 60 * 24)); // 24
+	//$last_update = date("c", time() - (60 * 60 * 24)); // 24
+	$last_update = date("c", time() - (60 * 60 * 24 * 7));
 
 	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if ($r)
