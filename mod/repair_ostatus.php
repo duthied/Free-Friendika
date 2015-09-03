@@ -38,7 +38,7 @@ function repair_ostatus_content(&$a) {
                 intval($uid),
                 dbesc(NETWORK_OSTATUS),
                 intval(CONTACT_IS_FRIEND),
-                intval(CONTACT_IS_SHARING), ++$counter);
+                intval(CONTACT_IS_SHARING), $counter++);
 
 	if (!$r) {
 		$o .= t("Done");
