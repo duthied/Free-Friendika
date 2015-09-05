@@ -22,6 +22,12 @@ function diaspora_dispatch_public($msg) {
 		return;
 	}
 
+	// Use a dummy importer to import the data for the public copy
+	$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+	$result = diaspora_dispatch($importer,$msg);
+	logger("Dispatcher reported ".$result, LOGGER_DEBUG);
+
+	// Now distribute it to the followers
 	$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
 		( SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s' )
 		AND `account_expired` = 0 AND `account_removed` = 0 ",
@@ -34,15 +40,8 @@ function diaspora_dispatch_public($msg) {
 			diaspora_dispatch($rr,$msg);
 		}
 	}
-	else {
+	else
 		logger('diaspora_public: no subscribers for '.$msg["author"].' '.print_r($msg, true));
-
-		// Use a dummy importer
-		$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-		$result = diaspora_dispatch($importer,$msg);
-
-		logger("Dispatcher reported ".$result, LOGGER_DEBUG);
-	}
 }
 
 
