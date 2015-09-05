@@ -975,9 +975,21 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 
 	$person = find_diaspora_person_by_handle($author);
 
+	$contact_id = get_contact($person['url'], $uid);
+
+	$contacts = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
+	$importers = q("SELECT * FROM `user` WHERE `uid` = %d", intval($uid));
+
+	if ($contacts AND $importers)
+		if(!diaspora_post_allow($importers[0],$contacts[0], false)) {
+			logger('Ignoring author '.$person['url'].' for uid '.$uid);
+			return false;
+		} else
+			logger('Author '.$person['url'].' is allowed for uid '.$uid);
+
 	$datarray = array();
 	$datarray['uid'] = $uid;
-	$datarray['contact-id'] = get_contact($person['url'], $uid);
+	$datarray['contact-id'] = $contact_id;
 	$datarray['wall'] = 0;
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
