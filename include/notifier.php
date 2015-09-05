@@ -295,7 +295,7 @@ function notifier_run(&$argv, &$argc){
 			$relay_to_owner = false;
 
 		if($relay_to_owner) {
-			logger('notifier: followup', LOGGER_DEBUG);
+			logger('notifier: followup '.$target_item["guid"], LOGGER_DEBUG);
 			// local followup to remote post
 			$followup = true;
 			$public_message = false; // not public
@@ -330,6 +330,8 @@ function notifier_run(&$argv, &$argc){
 			}
 		} else {
 			$followup = false;
+
+			logger('Distributing directly '.$target_item["guid"], LOGGER_DEBUG);
 
 			// don't send deletions onward for other people's stuff
 
@@ -378,7 +380,7 @@ function notifier_run(&$argv, &$argc){
 			}
 
 			if (count($url_recipients))
-				logger('notifier: url_recipients ' . print_r($url_recipients,true));
+				logger('notifier: '.$target_item["guid"].' url_recipients ' . print_r($url_recipients,true));
 
 			$conversants = array_unique($conversants);
 
@@ -393,6 +395,8 @@ function notifier_run(&$argv, &$argc){
 		// If the thread parent is OStatus then do some magic to distribute the messages.
 		// We have not only to look at the parent, since it could be a Friendica thread.
 		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
+
+			logger('Some parent is OStatus for '.$target_item["guid"], LOGGER_DEBUG);
 
 			// Send a salmon notification to every person we mentioned in the post
 			$arr = explode(',',$target_item['tag']);
@@ -650,7 +654,7 @@ function notifier_run(&$argv, &$argc){
 			if($contact['self'])
 				continue;
 
-			logger("Deliver to ".$contact['url'], LOGGER_DEBUG);
+			logger("Deliver ".$target_item["guid"]." to ".$contact['url'], LOGGER_DEBUG);
 
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here.

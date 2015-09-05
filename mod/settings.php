@@ -770,6 +770,8 @@ function settings_content(&$a) {
 		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
 		$settings_connectors .= '</div>';
 
+		$settings_connectors .= '<p><a href="'.$a->get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
+
 		/*
 		// Deactivated by now - it doesn't seem to work reliable
 		$legacy_contact = get_pconfig(local_user(), 'system', 'ostatus_legacy_contact');
