@@ -10,8 +10,8 @@ function nodeinfo_wellknown(&$a) {
 		http_status_exit(404);
 		killme();
 	}
-	$nodeinfo = array("links" => array("rel" => "http://nodeinfo.diaspora.software/ns/schema/1.0",
-					"href" => $a->get_baseurl()."/nodeinfo/1.0"));
+	$nodeinfo = array("links" => array(array("rel" => "http://nodeinfo.diaspora.software/ns/schema/1.0",
+					"href" => $a->get_baseurl()."/nodeinfo/1.0")));
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
