@@ -189,7 +189,7 @@ function settings_post(&$a) {
 		if(x($_POST, 'general-submit')) {
 			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			set_pconfig(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
-			//set_pconfig(local_user(), 'system', 'ostatus_legacy_contact', $_POST['legacy_contact']);
+			set_pconfig(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif(x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
@@ -770,18 +770,18 @@ function settings_content(&$a) {
 		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
 		$settings_connectors .= '</div>';
 
-		$settings_connectors .= '<p><a href="'.$a->get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
+		$legacy_contact = get_pconfig(local_user(), 'ostatus', 'legacy_contact');
 
-		/*
-		// Deactivated by now - it doesn't seem to work reliable
-		$legacy_contact = get_pconfig(local_user(), 'system', 'ostatus_legacy_contact');
+		if ($legacy_contact != "")
+			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
 
 		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
 		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
 		$settings_connectors .= '<input id="legacy-contact-checkbox" name="legacy_contact" value="'.$legacy_contact.'"/>';
 		$settings_connectors .= '<span class="field_help">'.t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.').'</span>';
 		$settings_connectors .= '</div>';
-		*/
+
+		$settings_connectors .= '<p><a href="'.$a->get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
 
 		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
 
