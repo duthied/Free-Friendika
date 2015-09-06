@@ -22,6 +22,12 @@ function diaspora_dispatch_public($msg) {
 		return;
 	}
 
+	// Use a dummy importer to import the data for the public copy
+	$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+	$result = diaspora_dispatch($importer,$msg);
+	logger("Dispatcher reported ".$result, LOGGER_DEBUG);
+
+	// Now distribute it to the followers
 	$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
 		( SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s' )
 		AND `account_expired` = 0 AND `account_removed` = 0 ",
@@ -34,15 +40,8 @@ function diaspora_dispatch_public($msg) {
 			diaspora_dispatch($rr,$msg);
 		}
 	}
-	else {
+	else
 		logger('diaspora_public: no subscribers for '.$msg["author"].' '.print_r($msg, true));
-
-		// Use a dummy importer
-		$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-		$result = diaspora_dispatch($importer,$msg);
-
-		logger("Dispatcher reported ".$result, LOGGER_DEBUG);
-	}
 }
 
 
@@ -846,9 +845,8 @@ function diaspora_post($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
@@ -965,9 +963,8 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	$objecttype = $item["object-type"];
 
 	$message_id = $author.':'.$guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($uid),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r))
@@ -975,9 +972,21 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 
 	$person = find_diaspora_person_by_handle($author);
 
+	$contact_id = get_contact($person['url'], $uid);
+
+	$contacts = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
+	$importers = q("SELECT * FROM `user` WHERE `uid` = %d", intval($uid));
+
+	if ($contacts AND $importers)
+		if(!diaspora_post_allow($importers[0],$contacts[0], false)) {
+			logger('Ignoring author '.$person['url'].' for uid '.$uid);
+			return false;
+		} else
+			logger('Author '.$person['url'].' is allowed for uid '.$uid);
+
 	$datarray = array();
 	$datarray['uid'] = $uid;
-	$datarray['contact-id'] = get_contact($person['url'], $uid);
+	$datarray['contact-id'] = $contact_id;
 	$datarray['wall'] = 0;
 	$datarray['network']  = NETWORK_DIASPORA;
 	$datarray['guid'] = $guid;
@@ -1123,9 +1132,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
@@ -1309,9 +1317,8 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
