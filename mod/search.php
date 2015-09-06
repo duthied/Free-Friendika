@@ -94,6 +94,13 @@ function search_content(&$a) {
 		return;
 	}
 
+	if(get_config('system','local_search') AND !local_user()) {
+		notice(t('Public access denied.').EOL);
+		return;
+		//http_status_exit(403);
+		//killme();
+	}
+
 	nav_set_selected('search');
 
 

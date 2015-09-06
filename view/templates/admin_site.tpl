@@ -119,6 +119,7 @@
 
 	<h3>{{$portable_contacts}}</h3>
 	{{include file="field_checkbox.tpl" field=$poco_completion}}
+	{{include file="field_input.tpl" field=$poco_requery_days}}
 	{{include file="field_select.tpl" field=$poco_discovery}}
 	{{include file="field_select.tpl" field=$poco_discovery_since}}
 	{{include file="field_checkbox.tpl" field=$poco_local_search}}
