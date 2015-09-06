@@ -1255,7 +1255,33 @@ function update_suggestions() {
 	}
 }
 
+function poco_discover_federation() {
+	$last = get_config('poco','last_federation_discovery');
+
+	if($last) {
+		$next = $last + (24 * 60 * 60);
+		if($next > time())
+			return;
+	}
+
+	$serverdata = fetch_url("http://the-federation.info/pods.json");
+
+	if (!$serverdata)
+		return;
+
+	$servers = json_decode($serverdata);
+
+	foreach($servers->pods AS $server)
+		poco_check_server("https://".$server->host);
+
+	set_config('poco','last_federation_discovery', time());
+
+}
+
 function poco_discover($complete = false) {
+
+	// Update the server list
+	poco_discover_federation();
 
 	$no_of_queries = 5;
 
