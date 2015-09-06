@@ -170,6 +170,11 @@ function new_contact($uid,$url,$interactive = false) {
 		dbesc($ret['network'])
 	);
 
+	if(!count($r))
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
+			intval($uid), dbesc(normalise_link($url)), dbesc($ret['network'])
+	);
+
 	if(count($r)) {
 		// update contact
 		if($r[0]['rel'] == CONTACT_IS_FOLLOWER || ($network === NETWORK_DIASPORA && $r[0]['rel'] == CONTACT_IS_SHARING)) {
@@ -180,7 +185,6 @@ function new_contact($uid,$url,$interactive = false) {
 				intval($uid)
 			);
 		}
-
 	} else {
 
 
@@ -285,7 +289,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	proc_run('php',"include/poller.php","$contact_id");
+	proc_run('php',"include/onepoll.php","$contact_id", "force");
 
 	// create a follow slap
 

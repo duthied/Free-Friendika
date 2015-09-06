@@ -4300,7 +4300,7 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
-	if(! strlen($contact['hub-verify'])) {
+	if(!strlen($contact['hub-verify']) OR ($contact['hub-verify'] != $verify_token)) {
 		$r = q("UPDATE `contact` SET `hub-verify` = '%s' WHERE `id` = %d",
 			dbesc($verify_token),
 			intval($contact['id'])

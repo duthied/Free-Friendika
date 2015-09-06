@@ -206,13 +206,34 @@ function contacts_post(&$a) {
 
 /*contact actions*/
 function _contact_update($contact_id) {
-	// pull feed and consume it, which should subscribe to the hub.
-	proc_run('php',"include/poller.php","$contact_id");
+	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if (!$r)
+		return;
+
+	$uid = $r[0]["uid"];
+
+	if ($uid != local_user())
+		return;
+
+	if ($r[0]["network"] == NETWORK_OSTATUS) {
+		$result = new_contact($uid, $r[0]["url"], false);
+
+		if ($result['success'])
+			$r = q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d",
+				intval($contact_id));
+	} else
+		// pull feed and consume it, which should subscribe to the hub.
+		proc_run('php',"include/onepoll.php","$contact_id", "force");
 }
 
 function _contact_update_profile($contact_id) {
-	$r = q("SELECT `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
 	if (!$r)
+		return;
+
+	$uid = $r[0]["uid"];
+
+	if ($uid != local_user())
 		return;
 
 	$data = probe_url($r[0]["url"]);
@@ -224,6 +245,13 @@ function _contact_update_profile($contact_id) {
 	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
 				"poco", "network", "alias", "pubkey");
 	$update = array();
+
+	if ($data["network"] == NETWORK_OSTATUS) {
+		$result = new_contact($uid, $data["url"], false);
+
+		if ($result['success'])
+			$update["subhub"] = true;
+	}
 
 	foreach($updatefields AS $field)
 		if (isset($data[$field]) AND ($data[$field] != ""))

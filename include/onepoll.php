@@ -53,6 +53,9 @@ function onepoll_run(&$argv, &$argc){
 	if(($argc > 1) && (intval($argv[1])))
 		$contact_id = intval($argv[1]);
 
+	if(($argc > 2) && ($argv[2] == "force"))
+		$force = true;
+
 	if(! $contact_id) {
 		logger('onepoll: no contact');
 		return;
@@ -595,8 +598,10 @@ function onepoll_run(&$argv, &$argc){
 			return;
 		}
 
-		consume_feed($xml,$importer,$contact,$hub,1,1);
 
+		logger("Consume feed of contact ".$contact['id']);
+
+		consume_feed($xml,$importer,$contact,$hub,1,1);
 
 		// do it twice. Ensures that children of parents which may be later in the stream aren't tossed
 
@@ -608,6 +613,11 @@ function onepoll_run(&$argv, &$argc){
 
 		if(($contact['network'] === NETWORK_OSTATUS ||  $contact['network'] == NETWORK_FEED) && (! $contact['hub-verify']))
 			$hub_update = true;
+
+		if ($force)
+			$hub_update = true;
+
+		logger("Contact ".$contact['id']." returned hub: ".$hub." Network: ".$contact['network']." Relation: ".$contact['rel']." Update: ".$hub_update);
 
 		if((strlen($hub)) && ($hub_update) && (($contact['rel'] != CONTACT_IS_FOLLOWER) || $contact['network'] == NETWORK_FEED) ) {
 			logger('poller: hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
