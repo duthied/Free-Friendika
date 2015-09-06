@@ -845,9 +845,8 @@ function diaspora_post($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
@@ -964,9 +963,8 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	$objecttype = $item["object-type"];
 
 	$message_id = $author.':'.$guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($uid),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r))
@@ -1134,9 +1132,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
@@ -1320,9 +1317,8 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	}
 
 	$message_id = $diaspora_handle . ':' . $guid;
-	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `guid` = '%s' LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 		intval($importer['uid']),
-		dbesc($message_id),
 		dbesc($guid)
 	);
 	if(count($r)) {
