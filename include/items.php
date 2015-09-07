@@ -1423,7 +1423,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Fill the cache field
 	put_item_in_cache($arr);
 
-	call_hooks('post_remote',$arr);
+	if ($notify)
+		call_hooks('post_local',$arr);
+	else
+		call_hooks('post_remote',$arr);
 
 	if(x($arr,'cancel')) {
 		logger('item_store: post cancelled by plugin.');
@@ -1569,7 +1572,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
-			call_hooks('post_remote_end', $r[0]);
+			if ($notify)
+				call_hooks('post_local_end', $r[0]);
+			else
+				call_hooks('post_remote_end', $r[0]);
 		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
