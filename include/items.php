@@ -1209,8 +1209,13 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
+	if ($notify)
+		$guid_prefix = "";
+	else
+		$guid_prefix = $arr['network'];
+
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
-	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $arr['network']));
+	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
 	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
 	$arr['author-name']   = ((x($arr,'author-name'))   ? notags(trim($arr['author-name']))   : '');
