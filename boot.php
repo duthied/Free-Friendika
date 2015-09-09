@@ -1432,8 +1432,25 @@ if(! function_exists('proc_run')) {
 		if(! $arr['run_cmd'])
 			return;
 
-		if(count($args) && $args[0] === 'php')
+		if(count($args) && $args[0] === 'php') {
+			$argv = $args;
+			array_shift($argv);
+
+			$parameters = json_encode($argv);
+			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
+					dbesc($parameters));
+
+			if (!$found)
+				q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+							VALUES ('%s', '%s', %d)",
+					dbesc($parameters),
+					dbesc(datetime_convert()),
+					intval(0));
+
+			// return;
+
 			$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
+		}
 
 		// add baseurl to args. cli scripts can't construct it
 		$args[] = $a->get_baseurl();
@@ -1441,9 +1458,8 @@ if(! function_exists('proc_run')) {
 		for($x = 0; $x < count($args); $x ++)
 			$args[$x] = escapeshellarg($args[$x]);
 
-
-
 		$cmdline = implode($args," ");
+
 		if(get_config('system','proc_windows'))
 			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
 		else
