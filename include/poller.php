@@ -75,22 +75,6 @@ function poller_run(&$argv, &$argc){
 
 	logger('poller: start');
 
-	// run queue delivery process in the background
-
-	proc_run('php',"include/queue.php");
-
-	// run diaspora photo queue process in the background
-
-	proc_run('php',"include/dsprphotoq.php");
-
-	// run the process to discover global contacts in the background
-
-	proc_run('php',"include/discover_poco.php");
-
-	// run the process to update locally stored global contacts in the background
-
-	proc_run('php',"include/discover_poco.php", "checkcontact");
-
 	// expire any expired accounts
 
 	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
@@ -119,7 +103,8 @@ function poller_run(&$argv, &$argc){
 	check_conversations(false);
 
 	// Follow your friends from your legacy OStatus account
-	ostatus_check_follow_friends();
+	// Doesn't work
+	// ostatus_check_follow_friends();
 
 	// update nodeinfo data
 	nodeinfo_cron();

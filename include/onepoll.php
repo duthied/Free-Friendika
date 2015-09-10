@@ -360,7 +360,7 @@ function onepoll_run(&$argv, &$argc){
 				);
 				logger("Mail: Connected to " . $mailconf[0]['user']);
 			} else
-				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors()));
+				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors(), true));
 		}
 		if($mbox) {
 

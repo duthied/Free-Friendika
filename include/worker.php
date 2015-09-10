@@ -26,6 +26,25 @@ if(is_null($db)) {
 	unset($db_host, $db_user, $db_pass, $db_data);
 };
 
+// run queue delivery process in the background
+
+proc_run('php',"include/queue.php");
+
+// run diaspora photo queue process in the background
+
+proc_run('php',"include/dsprphotoq.php");
+
+// run the process to discover global contacts in the background
+
+proc_run('php',"include/discover_poco.php");
+
+// run the process to update locally stored global contacts in the background
+
+proc_run('php',"include/discover_poco.php", "checkcontact");
+
+// When everything else is done ...
+proc_run("php","include/poller.php");
+
 // Cleaning killed processes
 $r = q("SELECT DISTINCT(`pid`) FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 foreach($r AS $pid)
@@ -36,9 +55,12 @@ foreach($r AS $pid)
 // Checking number of workers
 $workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 
-$threads = 3;
+$queues = intval(get_config("system", "worker_queues"));
 
-if ($workers[0]["workers"] >= $threads)
+if ($queues == 0)
+	$queues = 4;
+
+if ($workers[0]["workers"] >= $queues)
 	return;
 
 while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
@@ -58,11 +80,12 @@ while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:
 
 	if (function_exists($funcname)) {
 		logger("Process ".getmypid().": ".$funcname." ".$r[0]["parameter"]);
-		//$funcname($argv, $argc);
-		sleep(10);
+		$funcname($argv, $argc);
+		//sleep(10);
 		logger("Process ".getmypid().": ".$funcname." - done");
 
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 	}
 }
+
 ?>

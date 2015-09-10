@@ -1338,8 +1338,10 @@ function poco_discover($complete = false) {
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				if (!$complete AND (--$no_of_queries == 0))
 					break;
-			} else	// If the server hadn't replied correctly, then force a sanity check
-				poco_check_server($server["url"], $server["network"], true);
+			// If the server hadn't replied correctly, then force a sanity check
+			} elseif (!poco_check_server($server["url"], $server["network"], true))
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+
 		}
 }
 

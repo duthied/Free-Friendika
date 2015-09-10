@@ -1433,21 +1433,24 @@ if(! function_exists('proc_run')) {
 			return;
 
 		if(count($args) && $args[0] === 'php') {
-			$argv = $args;
-			array_shift($argv);
 
-			$parameters = json_encode($argv);
-			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
-					dbesc($parameters));
+			if (get_config("system", "worker")) {
+				$argv = $args;
+				array_shift($argv);
 
-			if (!$found)
-				q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', %d)",
-					dbesc($parameters),
-					dbesc(datetime_convert()),
-					intval(0));
+				$parameters = json_encode($argv);
+				$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
+						dbesc($parameters));
 
-			// return;
+				if (!$found)
+					q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+								VALUES ('%s', '%s', %d)",
+						dbesc($parameters),
+						dbesc(datetime_convert()),
+						intval(0));
+
+				return;
+			}
 
 			$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
 		}
