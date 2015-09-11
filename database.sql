@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.4.1 (Lily of the valley)
--- DB_UPDATE_VERSION 1188
+-- DB_UPDATE_VERSION 1189
 -- ------------------------------------------
 
 
@@ -1018,5 +1018,18 @@ CREATE TABLE IF NOT EXISTS `userd` (
 	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
 	`username` varchar(255) NOT NULL,
 	 INDEX `username` (`username`)
+) DEFAULT CHARSET=utf8;
+
+--
+-- TABLE workerqueue
+--
+CREATE TABLE IF NOT EXISTS `workerqueue` (
+	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`parameter` text NOT NULL,
+	`priority` tinyint(3) unsigned NOT NULL DEFAULT 0,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`pid` int(11) NOT NULL DEFAULT 0,
+	`executed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8;
 
