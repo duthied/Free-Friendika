@@ -52,6 +52,20 @@ function cron_run(&$argv, &$argc){
 		}
 	}
 
+	$last = get_config('system','last_cron');
+
+	$poll_interval = intval(get_config('system','cron_interval'));
+	if(! $poll_interval)
+		$poll_interval = 10;
+
+	if($last) {
+		$next = $last + ($poll_interval * 60);
+		if($next > time()) {
+			logger('cron intervall not reached');
+			return;
+		}
+	}
+
 	$lockpath = get_lockpath();
 	if ($lockpath != '') {
 		$pidfile = new pidfile($lockpath, 'cron');
@@ -74,6 +88,22 @@ function cron_run(&$argv, &$argc){
 	load_hooks();
 
 	logger('cron: start');
+
+	// run queue delivery process in the background
+
+	proc_run('php',"include/queue.php");
+
+	// run diaspora photo queue process in the background
+
+	proc_run('php',"include/dsprphotoq.php");
+
+	// run the process to discover global contacts in the background
+
+	proc_run('php',"include/discover_poco.php");
+
+	// run the process to update locally stored global contacts in the background
+
+	proc_run('php',"include/discover_poco.php", "checkcontact");
 
 	// expire any expired accounts
 
@@ -298,6 +328,8 @@ function cron_run(&$argv, &$argc){
 	}
 
 	logger('cron: end');
+
+	set_config('system','last_cron', time());
 
 	return;
 }

@@ -26,23 +26,7 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-	// run queue delivery process in the background
-
-	proc_run('php',"include/queue.php");
-
-	// run diaspora photo queue process in the background
-
-	proc_run('php',"include/dsprphotoq.php");
-
-	// run the process to discover global contacts in the background
-
-	proc_run('php',"include/discover_poco.php");
-
-	// run the process to update locally stored global contacts in the background
-
-	proc_run('php',"include/discover_poco.php", "checkcontact");
-
-	// When everything else is done ...
+	// Run the cron job that calls all other jobs
 	proc_run("php","include/cron.php");
 
 	// Cleaning killed processes
@@ -81,7 +65,7 @@ function poller_run(&$argv, &$argc){
 		if (function_exists($funcname)) {
 			logger("Process ".getmypid().": ".$funcname." ".$r[0]["parameter"]);
 			$funcname($argv, $argc);
-			//sleep(10);
+
 			logger("Process ".getmypid().": ".$funcname." - done");
 
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
