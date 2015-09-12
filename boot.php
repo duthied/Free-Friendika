@@ -1449,7 +1449,25 @@ if(! function_exists('proc_run')) {
 						dbesc(datetime_convert()),
 						intval(0));
 
-				return;
+				// Should we quit and wait for the poller to be called as a cronjob?
+				if (get_config("system", "worker_dont_fork"))
+					return;
+
+				// Checking number of workers
+				$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+				// Get number of allowed number of worker threads
+				$queues = intval(get_config("system", "worker_queues"));
+
+				if ($queues == 0)
+					$queues = 4;
+
+				// If there are already enough workers running, don't fork another one
+				if ($workers[0]["workers"] >= $queues)
+					return;
+
+				// Now call the poller to execute the jobs that we just added to the queue
+				$args = array("php", "include/poller.php", "no_cron");
 			}
 
 			$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');

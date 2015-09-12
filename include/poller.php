@@ -26,15 +26,20 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-	// Run the cron job that calls all other jobs
-	proc_run("php","include/cron.php");
+	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
+		// Run the cron job that calls all other jobs
+		proc_run("php","include/cron.php");
 
-	// Cleaning killed processes
-	$r = q("SELECT DISTINCT(`pid`) FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-	foreach($r AS $pid)
-		if (!posix_kill($pid["pid"], 0))
-			q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
-				intval($pid["pid"]));
+		// Cleaning dead processes
+		$r = q("SELECT DISTINCT(`pid`) FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+		foreach($r AS $pid)
+			if (!posix_kill($pid["pid"], 0))
+				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
+					intval($pid["pid"]));
+
+	} else
+		// Sleep two seconds before checking for running processes to avoid having too many workers
+		sleep(2);
 
 	// Checking number of workers
 	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
