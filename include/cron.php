@@ -215,6 +215,10 @@ function cron_run(&$argv, &$argc){
 	if(! $interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
+	// If we are using the worker we don't need a delivery interval
+	if (get_config("system", "worker"))
+		$interval = false;
+
 	$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
 	reload_plugins();

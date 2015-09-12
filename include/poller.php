@@ -39,7 +39,7 @@ function poller_run(&$argv, &$argc){
 
 	} else
 		// Sleep two seconds before checking for running processes to avoid having too many workers
-		sleep(2);
+		sleep(4);
 
 	// Checking number of workers
 	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");

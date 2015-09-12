@@ -615,6 +615,10 @@ function notifier_run(&$argv, &$argc){
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
+	// If we are using the worker we don't need a delivery interval
+	if (get_config("system", "worker"))
+		$interval = false;
+
 	// delivery loop
 
 	if(count($r)) {

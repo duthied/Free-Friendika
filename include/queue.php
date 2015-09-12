@@ -60,6 +60,10 @@ function queue_run(&$argv, &$argc){
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
+	// If we are using the worker we don't need a delivery interval
+	if (get_config("system", "worker"))
+		$interval = false;
+
 	$r = q("select * from deliverq where 1");
 	if($r) {
 		foreach($r as $rr) {
