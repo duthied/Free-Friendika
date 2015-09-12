@@ -225,9 +225,6 @@ function cron_run(&$argv, &$argc){
 
 	$d = datetime_convert();
 
-	if(! $restart)
-		proc_run('php','include/cronhooks.php');
-
 	// Only poll from those with suitable relationships,
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
@@ -339,6 +336,6 @@ function cron_run(&$argv, &$argc){
 }
 
 if (array_search(__file__,get_included_files())===0){
-  cron_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
+	cron_run($_SERVER["argv"],$_SERVER["argc"]);
+	killme();
 }

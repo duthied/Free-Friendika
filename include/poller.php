@@ -30,6 +30,9 @@ function poller_run(&$argv, &$argc){
 		// Run the cron job that calls all other jobs
 		proc_run("php","include/cron.php");
 
+		// Run the cronhooks job separately from cron for being able to use a different timing
+		proc_run("php","include/cronhooks.php");
+
 		// Cleaning dead processes
 		$r = q("SELECT DISTINCT(`pid`) FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 		foreach($r AS $pid)
