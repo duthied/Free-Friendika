@@ -1893,3 +1893,31 @@ if(!function_exists('exif_imagetype')) {
 		return($size[2]);
 	}
 }
+
+function validate_include(&$file) {
+	$orig_file = $file;
+
+	$file = realpath($file);
+
+	if (strpos($file, getcwd()) !== 0)
+		return false;
+
+	$file = str_replace(getcwd()."/", "", $file, $count);
+	if ($count != 1)
+		return false;
+
+	if ($orig_file !== $file)
+		return false;
+
+	$valid = false;
+	if (strpos($file, "include/") === 0)
+		$valid = true;
+
+	if (strpos($file, "addon/") === 0)
+		$valid = true;
+
+	if (!$valid)
+		return false;
+
+	return true;
+}

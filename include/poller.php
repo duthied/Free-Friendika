@@ -65,8 +65,16 @@ function poller_run(&$argv, &$argc){
 
 		$argc = count($argv);
 
-		// To-Do: Check for existance
-		require_once(basename($argv[0]));
+		// Check for existance and validity of the include file
+		$include = $argv[0];
+
+		if (!validate_include($include)) {
+			logger("Include file ".$argv[0]." is not valid!");
+			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
+			continue;
+		}
+
+		require_once($include);
 
 		$funcname=str_replace(".php", "", basename($argv[0]))."_run";
 
@@ -77,7 +85,8 @@ function poller_run(&$argv, &$argc){
 			logger("Process ".getmypid().": ".$funcname." - done");
 
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
-		}
+		} else
+			logger("Function ".$funcname." does not exist");
 	}
 
 }
