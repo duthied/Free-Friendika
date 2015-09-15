@@ -36,7 +36,7 @@ function user_allow($hash) {
 	);
 	if(count($r) && $r[0]['net-publish']) {
 		$url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
-		if($url && strlen(get_config('system','directory_submit_url')))
+		if($url && strlen(get_config('system','directory')))
 			proc_run('php',"include/directory.php","$url");
 	}
 

@@ -363,7 +363,7 @@ function admin_page_site_post(&$a){
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
-	$global_directory	=	((x($_POST,'directory_submit_url'))	? notags(trim($_POST['directory_submit_url']))	: '');
+	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))	: '');
 	$thread_allow		=	((x($_POST,'thread_allow'))		? True						: False);
 	$newuser_private		=	((x($_POST,'newuser_private'))		? True						: False);
 	$enotify_no_content		=	((x($_POST,'enotify_no_content'))	? True						: False);
@@ -514,15 +514,7 @@ function admin_page_site_post(&$a){
 	set_config('system','allowed_email', $allowed_email);
 	set_config('system','block_public', $block_public);
 	set_config('system','publish_all', $force_publish);
-	if ($global_directory==""){
-		// don't know why, but del_config doesn't work...
-		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
-			dbesc("system"),
-			dbesc("directory_submit_url")
-		);
-	} else {
-		set_config('system','directory_submit_url', $global_directory);
-	}
+	set_config('system','directory', $global_directory);
 	set_config('system','thread_allow', $thread_allow);
 	set_config('system','newuser_private', $newuser_private);
 	set_config('system','enotify_no_content', $enotify_no_content);
@@ -578,7 +570,7 @@ function admin_page_site(&$a) {
 
 	/* Installed langs */
 	$lang_choices = array();
-	$langs = glob('view/*/strings.php');
+	$langs = glob('view/*/strings.php'); /**/
 
 	if(is_array($langs) && count($langs)) {
 		if(! in_array('view/en/strings.php',$langs))
@@ -588,6 +580,12 @@ function admin_page_site(&$a) {
 			$t = explode("/",$l);
 			$lang_choices[$t[1]] = $t[1];
 		}
+	}
+
+	if (strlen(get_config('system','directory_submit_url')) AND
+		!strlen(get_config('system','directory'))) {
+		set_config('system','directory', dirname(get_config('system','directory_submit_url')));
+		del_config('system','directory_submit_url');
 	}
 
 	/* Installed themes */
@@ -719,7 +717,7 @@ function admin_page_site(&$a) {
 		'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), get_config('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),
 		'$block_public'		=> array('block_public', t("Block public"), get_config('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
-		'$global_directory'	=> array('directory_submit_url', t("Global directory update URL"), get_config('system','directory_submit_url'), t("URL to update the global directory. If this is not set, the global directory is completely unavailable to the application.")),
+		'$global_directory'	=> array('directory', t("Global directory URL"), get_config('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")),
 		'$thread_allow'		=> array('thread_allow', t("Allow threaded items"), get_config('system','thread_allow'), t("Allow infinite level threading for items on this site.")),
 		'$newuser_private'	=> array('newuser_private', t("Private posts by default for new users"), get_config('system','newuser_private'), t("Set default post permissions for all new members to the default privacy group rather than public.")),
 		'$enotify_no_content'	=> array('enotify_no_content', t("Don't include post content in email notifications"), get_config('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")),
