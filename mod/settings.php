@@ -582,7 +582,7 @@ function settings_post(&$a) {
 	if(($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
-		if($url && strlen(get_config('system','directory_submit_url')))
+		if($url && strlen(get_config('system','directory')))
 			proc_run('php',"include/directory.php","$url");
 
 	}
@@ -1069,7 +1069,7 @@ function settings_content(&$a) {
 		));
 	}
 
-	if(strlen(get_config('system','directory_submit_url'))) {
+	if(strlen(get_config('system','directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl,array(
 			'$field' 	=> array('profile_in_netdirectory', t('Publish your default profile in the global social directory?'), $profile['net-publish'], '', array(t('No'),t('Yes'))),
 		));

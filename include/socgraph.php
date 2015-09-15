@@ -1224,7 +1224,7 @@ function update_suggestions() {
 
 	$done[] = $a->get_baseurl() . '/poco';
 
-	if(strlen(get_config('system','directory_submit_url'))) {
+	if(strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
 		if($x) {
 			$j = json_decode($x);
