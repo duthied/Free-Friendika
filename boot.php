@@ -1811,7 +1811,11 @@ function get_lockpath() {
 
 	if ($temppath != "") {
 		$lockpath = $temppath."/lock";
-		mkdir($lockpath);
+
+		if (!is_dir($lockpath))
+			mkdir($lockpath);
+		elseif (!is_writable($lockpath))
+			$lockpath = $temppath;
 
 		if (is_dir($lockpath) AND is_writable($lockpath)) {
 			set_config("system", "lockpath", $lockpath);
