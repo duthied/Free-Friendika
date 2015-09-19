@@ -285,6 +285,7 @@ if(! function_exists('profile_sidebar')) {
 		$lastname = (($firstname === $profile['name']) ? '' : trim(substr($profile['name'],strlen($firstname))));
 
 		$diaspora = array(
+			'guid' => $profile['guid'],
 			'podloc' => $a->get_baseurl(),
 			'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
 			'nickname' => $profile['nickname'],
