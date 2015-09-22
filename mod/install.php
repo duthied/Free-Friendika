@@ -392,6 +392,7 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, t('OpenSSL PHP module'), true, true, "");
 	check_add($ck_funcs, t('mysqli PHP module'), true, true, "");
 	check_add($ck_funcs, t('mb_string PHP module'), true, true, "");
+	check_add($ck_funcs, t('mcrypt PHP module'), true, true, "");
 
 
 	if(function_exists('apache_get_modules')){
@@ -422,7 +423,13 @@ function check_funcs(&$checks) {
 		$ck_funcs[4]['status']= false;
 		$ck_funcs[4]['help']= t('Error: mb_string PHP module required but not installed.');
 	}
+	if(! function_exists('mcrypt_create_iv')){
+		$ck_funcs[5]['status']= false;
+		$ck_funcs[5]['help']= t('Error: mcrypt PHP module required but not installed.');
+	}
 
+	
+	
 	$checks = array_merge($checks, $ck_funcs);
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
