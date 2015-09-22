@@ -551,7 +551,12 @@ function admin_page_site_post(&$a){
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
 
-	set_config('system','rino_encrypt', $rino);
+	
+	if ($rino==2 and !function_exists('mcrypt_create_iv')){
+		notice(t("RINO2 needs mcrypt php extension to work."));		
+	} else {	
+		set_config('system','rino_encrypt', $rino);
+	}
 
 	set_config('system','embedly', $embedly);
 
