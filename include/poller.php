@@ -26,6 +26,17 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
+	$maxsysload = intval(get_config('system','maxloadavg'));
+	if($maxsysload < 1)
+		$maxsysload = 50;
+	if(function_exists('sys_getloadavg')) {
+		$load = sys_getloadavg();
+		if(intval($load[0]) > $maxsysload) {
+			logger('system: load ' . $load[0] . ' too high. poller deferred to next scheduled run.');
+			return;
+		}
+	}
+
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
 		proc_run("php","include/cron.php");
@@ -56,6 +67,15 @@ function poller_run(&$argv, &$argc){
 		return;
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
+
+		if(function_exists('sys_getloadavg')) {
+			$load = sys_getloadavg();
+			if(intval($load[0]) > $maxsysload) {
+				logger('system: load ' . $load[0] . ' too high. poller deferred to next scheduled run.');
+				return;
+			}
+		}
+
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d",
 			dbesc(datetime_convert()),
 			intval(getmypid()),
