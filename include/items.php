@@ -1104,7 +1104,7 @@ function item_add_language_opt(&$arr) {
 
 	if (version_compare(PHP_VERSION, '5.3.0', '<')) return; // LanguageDetect.php not available ?
 
-	if ( $arr['postopts'] )
+	if ( x($arr, 'postopts') )
 	{
 		if ( strstr($arr['postopts'], 'lang=') )
 		{
