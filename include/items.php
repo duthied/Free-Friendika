@@ -1127,7 +1127,7 @@ function item_add_language_opt(&$arr) {
 	$lng = $l->detect($naked_body, 3);
 
 	if (sizeof($lng) > 0) {
-		if ($postopts) $postopts .= '^'; // arbitrary separator, to be reviewed
+		if ($postopts != "") $postopts .= '&'; // arbitrary separator, to be reviewed
 		$postopts .= 'lang=';
 		$sep = "";
 		foreach ($lng as $language => $score) {
