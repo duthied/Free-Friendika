@@ -66,6 +66,8 @@ function poller_run(&$argv, &$argc){
 	if ($workers[0]["workers"] >= $queues)
 		return;
 
+	$starttime = time();
+
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
 
 		if(function_exists('sys_getloadavg')) {
@@ -75,6 +77,10 @@ function poller_run(&$argv, &$argc){
 				return;
 			}
 		}
+
+		// Quit the poller once every hour
+		if (time() > ($starttime + 3600))
+			return;
 
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d",
 			dbesc(datetime_convert()),
