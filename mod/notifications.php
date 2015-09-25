@@ -1,4 +1,5 @@
 <?php
+include_once("include/bbcode.php");
 
 function notifications_post(&$a) {
 
@@ -213,12 +214,12 @@ function notifications_content(&$a) {
 					'$uid' => $_SESSION['uid'],
 					'$intro_id' => $rr['intro_id'],
 					'$contact_id' => $rr['contact-id'],
-					'$photo' => ((x($rr,'photo')) ? $rr['photo'] : "images/person-175.jpg"),
+					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo']) : "images/person-175.jpg"),
 					'$fullname' => $rr['name'],
 					'$location_label' => t('Location:'),
 					'$location' => $rr['glocation'],
 					'$location_label' => t('Location:'),
-					'$about' => $rr['gabout'],
+					'$about' => proxy_parse_html(bbcode($rr['gabout'], false, false)),
 					'$about_label' => t('About:'),
 					'$keywords' => $rr['gkeywords'],
 					'$keywords_label' => t('Tags:'),
