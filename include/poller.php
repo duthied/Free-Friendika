@@ -56,14 +56,7 @@ function poller_run(&$argv, &$argc){
 		sleep(4);
 
 	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-
-	$queues = intval(get_config("system", "worker_queues"));
-
-	if ($queues == 0)
-		$queues = 4;
-
-	if ($workers[0]["workers"] >= $queues)
+	if (poller_too_much_workers())
 		return;
 
 	$starttime = time();
@@ -80,6 +73,9 @@ function poller_run(&$argv, &$argc){
 
 		// Quit the poller once every hour
 		if (time() > ($starttime + 3600))
+			return;
+
+		if (poller_too_much_workers())
 			return;
 
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d",
@@ -115,6 +111,38 @@ function poller_run(&$argv, &$argc){
 			logger("Function ".$funcname." does not exist");
 	}
 
+}
+
+function poller_too_much_workers() {
+
+	if(function_exists('sys_getloadavg')) {
+		$load = sys_getloadavg();
+
+		// To-Do
+		if ($load < 1)
+			$queues = 10;
+		elseif ($load < 5)
+			$queues = 4;
+		elseif ($load < 10)
+			$queues = 2;
+		else
+			$queues = 1;
+
+	} else {
+		$queues = intval(get_config("system", "worker_queues"));
+
+		if ($queues == 0)
+			$queues = 4;
+	}
+
+	if (poller_active_workers() >= $queues)
+		return;
+}
+
+function poller_active_workers() {
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+	return($workers[0]["workers"]);
 }
 
 if (array_search(__file__,get_included_files())===0){
