@@ -184,9 +184,60 @@ function events_content(&$a) {
 	if( feature_enabled(local_user(), 'richtext') )
 		$editselect = 'textareas';
 
+	// First day of the week (0 = Sunday)
+	// To-Do: Needs to be configurable
+	$firstDay = 0;
+
+	$i18n = array(
+			"firstDay" => $firstDay,
+			"Sun" => t("Sun"),
+			"Mon" => t("Mon"),
+			"Tue" => t("Tue"),
+			"Wed" => t("Wed"),
+			"Thu" => t("Thu"),
+			"Fri" => t("Fri"),
+			"Sat" => t("Sat"),
+			"Sunday" => t("Sunday"),
+			"Monday" => t("Monday"),
+			"Tuesday" => t("Tuesday"),
+			"Wednesday" => t("Wednesday"),
+			"Thursday" => t("Thursday"),
+			"Friday" => t("Friday"),
+			"Saturday" => t("Saturday"),
+			"Jan" => t("Jan"),
+			"Feb" => t("Feb"),
+			"Mar" => t("Mar"),
+			"Apr" => t("Apr"),
+			"May" => t("May"),
+			"Jun" => t("Jun"),
+			"Jul" => t("Jul"),
+			"Aug" => t("Aug"),
+			"Sep" => t("Sept"),
+			"Oct" => t("Oct"),
+			"Nov" => t("Nov"),
+			"Dec" => t("Dec"),
+			"January" => t("January"),
+			"February" => t("February"),
+			"March" => t("March"),
+			"April" => t("April"),
+			"May" => t("May"),
+			"June" => t("June"),
+			"July" => t("July"),
+			"August" => t("August"),
+			"September" => t("September"),
+			"October" => t("October"),
+			"November" => t("November"),
+			"December" => t("December"),
+			"today" => t("today"),
+			"month" => t("month"),
+			"week" => t("week"),
+			"day" => t("day"),
+		);
+
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl,array(
 		'$baseurl' => $a->get_baseurl(),
+		'$i18n' => $i18n,
 		'$editselect' => $editselect
 	));
 
