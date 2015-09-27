@@ -13,6 +13,7 @@ require_once('include/threads.php');
 require_once('include/socgraph.php');
 require_once('include/plaintext.php');
 require_once('include/ostatus.php');
+require_once('include/feed.php');
 require_once('mod/share.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
@@ -2251,12 +2252,16 @@ function edited_timestamp_is_newer($existing, $update) {
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
-			// Test - remove before flight
-			//$tempfile = tempnam(get_temppath(), "ostatus");
-			//file_put_contents($tempfile, $xml);
-
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
 			ostatus_import($xml,$importer,$contact, $hub);
+		}
+		return;
+	}
+
+	if ($contact['network'] === NETWORK_FEED) {
+		if ($pass < 2) {
+			logger("Consume feeds", LOGGER_DEBUG);
+			feed_import($xml,$importer,$contact, $hub);
 		}
 		return;
 	}
