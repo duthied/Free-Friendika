@@ -85,8 +85,10 @@ function poller_run(&$argv, &$argc){
 		$id = q("SELECT `id` FROM `workerqueue` WHERE `id` = %d AND `pid` = %d",
 			intval($r[0]["id"]),
 			intval(getmypid()));
-		if (!$id)
+		if (!$id) {
+			logger("Queue item ".$r[0]["id"]." was executed multiple times - quitting this one", LOGGER_DEBUG);
 			continue;
+		}
 
 		$argv = json_decode($r[0]["parameter"]);
 
