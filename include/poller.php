@@ -51,6 +51,10 @@ function poller_run(&$argv, &$argc){
 			if (!posix_kill($pid["pid"], 0))
 				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
 					intval($pid["pid"]));
+			else {
+				// To-Do: Kill long running processes
+				// But: Update processes (like the database update) mustn't be killed
+			}
 
 	} else
 		// Sleep two seconds before checking for running processes to avoid having too many workers
@@ -124,7 +128,12 @@ function poller_too_much_workers() {
 		if($maxsysload < 1)
 			$maxsysload = 50;
 
-		$queues = max(0, ceil($queues * (($maxsysload - $load) / $maxsysload)));
+		$maxworkers = $queues;
+
+		// Some magical mathemathics to reduce the workers
+		$exponent = 3;
+		$slope = $maxworkers / pow($maxsysload, $exponent);
+		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
 		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
 
