@@ -26,10 +26,11 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
 	if(function_exists('sys_getloadavg')) {
+		$maxsysload = intval(get_config('system','maxloadavg'));
+		if($maxsysload < 1)
+			$maxsysload = 50;
+
 		$load = sys_getloadavg();
 		if(intval($load[0]) > $maxsysload) {
 			logger('system: load ' . $load[0] . ' too high. poller deferred to next scheduled run.');
@@ -63,18 +64,11 @@ function poller_run(&$argv, &$argc){
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
 
-		if(function_exists('sys_getloadavg')) {
-			$load = sys_getloadavg();
-			if(intval($load[0]) > $maxsysload) {
-				logger('system: load ' . $load[0] . ' too high. poller deferred to next scheduled run.');
-				return;
-			}
-		}
-
 		// Quit the poller once every hour
 		if (time() > ($starttime + 3600))
 			return;
 
+		// Count active workers and compare them with a maximum value that depends on the load
 		if (poller_too_much_workers())
 			return;
 
@@ -115,28 +109,28 @@ function poller_run(&$argv, &$argc){
 
 function poller_too_much_workers() {
 
+	$queues = get_config("system", "worker_queues");
+
+	if ($queues == 0)
+		$queues = 4;
+
+	$active = poller_active_workers();
+
+	// Decrease the number of workers at higher load
 	if(function_exists('sys_getloadavg')) {
-		$load = sys_getloadavg();
+		$load = max(sys_getloadavg());
 
-		// To-Do
-		if ($load < 1)
-			$queues = 10;
-		elseif ($load < 5)
-			$queues = 4;
-		elseif ($load < 10)
-			$queues = 2;
-		else
-			$queues = 1;
+		$maxsysload = intval(get_config('system','maxloadavg'));
+		if($maxsysload < 1)
+			$maxsysload = 50;
 
-	} else {
-		$queues = intval(get_config("system", "worker_queues"));
+		$queues = max(0, ceil($queues * (($maxsysload - $load) / $maxsysload)));
 
-		if ($queues == 0)
-			$queues = 4;
+		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
+
 	}
 
-	if (poller_active_workers() >= $queues)
-		return;
+	return($active >= $queues);
 }
 
 function poller_active_workers() {
