@@ -76,10 +76,17 @@ function poller_run(&$argv, &$argc){
 		if (poller_too_much_workers())
 			return;
 
-		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d",
+		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
 			dbesc(datetime_convert()),
 			intval(getmypid()),
 			intval($r[0]["id"]));
+
+		// Assure that there are no tasks executed twice
+		$id = q("SELECT `id` FROM `workerqueue` WHERE `id` = %d AND `pid` = %d",
+			intval($r[0]["id"]),
+			intval(getmypid()));
+		if (!$id)
+			continue;
 
 		$argv = json_decode($r[0]["parameter"]);
 
