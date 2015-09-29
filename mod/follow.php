@@ -2,6 +2,7 @@
 
 require_once('include/Scrape.php');
 require_once('include/follow.php');
+require_once('include/contact_selectors.php');
 
 function follow_content(&$a) {
 
@@ -30,6 +31,9 @@ function follow_content(&$a) {
 
 	$ret = probe_url($url);
 
+	if ($ret["network"] == NETWORK_MAIL)
+		$ret["url"] = $ret["addr"];
+
 	if($ret['network'] === NETWORK_DFRN) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
@@ -51,8 +55,15 @@ function follow_content(&$a) {
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $ret["url"];
 
+	$header = $ret["name"];
+
+	if ($ret["addr"] != "")
+		$header .= " <".$ret["addr"].">";
+
+	$header .= " (".network_to_name($ret['network']).")";
+
 	$o  = replace_macros($tpl,array(
-			'$header' => $ret["name"]." (".$ret["addr"].")",
+			'$header' => htmlentities($header),
 			'$photo' => $ret["photo"],
                         '$desc' => "",
                         '$pls_answer' => t('Please answer the following:'),

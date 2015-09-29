@@ -1,11 +1,16 @@
 <?php
 include_once('include/text.php');
+require_once('include/socgraph.php');
+require_once('include/contact_widgets.php');
 
 function match_content(&$a) {
 
 	$o = '';
 	if(! local_user())
 		return;
+
+	$a->page['aside'] .= follow_widget();
+	$a->page['aside'] .= findpeople_widget();
 
 	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
@@ -17,7 +22,7 @@ function match_content(&$a) {
 		intval(local_user())
 	);
 	if(! count($r))
-		return; 
+		return;
 	if(! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
 		notice( t('No keywords to match. Please add keywords to your default profile.') . EOL);
 		return;
@@ -32,7 +37,7 @@ function match_content(&$a) {
 		if($a->pager['page'] != 1)
 			$params['p'] = $a->pager['page'];
 
-		if(strlen(get_config('system','directory_submit_url')))
+		if(strlen(get_config('system','directory')))
 			$x = post_url(get_server().'/msearch', $params);
 		else
 			$x = post_url($a->get_baseurl() . '/msearch', $params);
@@ -47,31 +52,30 @@ function match_content(&$a) {
 		if(count($j->results)) {
 
 
-			
+
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
-			    $match_nurl = normalise_link($jj->url);
-			    $match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
-				intval(local_user()),
-				dbesc($match_nurl));
-			    if (!count($match)) {
-				
-				$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
-				$o .= replace_macros($tpl,array(
-					'$url' => zrl($jj->url),
-					'$name' => $jj->name,
-					'$photo' => proxy_url($jj->photo),
-					'$inttxt' => ' ' . t('is interested in:'),
-					'$conntxt' => t('Connect'),
-					'$connlnk' => $connlnk,
-					'$tags' => $jj->tags
-				));
-			    }
+				$match_nurl = normalise_link($jj->url);
+				$match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
+					intval(local_user()),
+					dbesc($match_nurl));
+				if (!count($match)) {
+					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
+					$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
+					$o .= replace_macros($tpl,array(
+						'$url' => zrl($jj->url),
+						'$name' => $jj->name,
+						'$photo' => proxy_url($jj->photo),
+						'$inttxt' => ' ' . t('is interested in:'),
+						'$conntxt' => t('Connect'),
+						'$connlnk' => $connlnk,
+						'$tags' => $jj->tags
+					));
+				}
 			}
-		}
-		else {
+		} else {
 			info( t('No matches') . EOL);
-		}		
+		}
 
 	}
 

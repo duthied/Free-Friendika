@@ -17,7 +17,7 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
-define ( 'FRIENDICA_VERSION',      '3.4.1' );
+define ( 'FRIENDICA_VERSION',      '3.4.2' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1189      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -1848,7 +1848,11 @@ function get_lockpath() {
 
 	if ($temppath != "") {
 		$lockpath = $temppath."/lock";
-		mkdir($lockpath);
+
+		if (!is_dir($lockpath))
+			mkdir($lockpath);
+		elseif (!is_writable($lockpath))
+			$lockpath = $temppath;
 
 		if (is_dir($lockpath) AND is_writable($lockpath)) {
 			set_config("system", "lockpath", $lockpath);
