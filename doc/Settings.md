@@ -200,7 +200,7 @@ This configures the URL to update the global directory, and is supplied in the d
 The undocumented part is that if this is not set, the global directory is completely unavailable to the application.
 This allows a private community to be completely isolated from the global mistpark network. 
 
-	$a->config['system']['directory_submit_url'] = 'http://dir.friendica.com/submit';
+	$a->config['system']['directory'] = 'http://dir.friendi.ca';
 
 Developer Settings
 ---

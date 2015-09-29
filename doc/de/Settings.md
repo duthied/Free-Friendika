@@ -138,7 +138,7 @@ Dies erlaubt eine private Kommunikation, die komplett vom globalen Verzeichnis i
 
 Konfiguriere:
 ```
-$a->config['system']['directory_submit_url'] = 'http://dir.friendica.com/submit';
+$a->config['system']['directory'] = 'http://dir.friendi.ca';
 ```
 
 
