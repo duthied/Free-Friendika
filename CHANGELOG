@@ -38,6 +38,10 @@ Version 3.4.2
 	Change default directory to dir.friendi.ca (annando)
 	Improve cache system with granular expire time (annando)
 	Remove oohembed code (issue #1855) (annando)
+	Checks for mcrypt availability before enable or use RINO2 (fabrixm)
+	Fix following email contacts (issue #1896) (annando)
+	Parse BBCode in contact request notification email (annando)
+	
 	
 Version 3.4.1
 
