@@ -68,14 +68,6 @@ function poller_run(&$argv, &$argc){
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
 
-		// Quit the poller once every hour
-		if (time() > ($starttime + 3600))
-			return;
-
-		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers())
-			return;
-
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
 			dbesc(datetime_convert()),
 			intval(getmypid()),
@@ -86,7 +78,7 @@ function poller_run(&$argv, &$argc){
 			intval($r[0]["id"]),
 			intval(getmypid()));
 		if (!$id) {
-			logger("Queue item ".$r[0]["id"]." was executed multiple times - quitting this one", LOGGER_DEBUG);
+			logger("Queue item ".$r[0]["id"]." was executed multiple times - skip this execution", LOGGER_DEBUG);
 			continue;
 		}
 
@@ -116,6 +108,14 @@ function poller_run(&$argv, &$argc){
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 		} else
 			logger("Function ".$funcname." does not exist");
+
+		// Quit the poller once every hour
+		if (time() > ($starttime + 3600))
+			return;
+
+		// Count active workers and compare them with a maximum value that depends on the load
+		if (poller_too_much_workers())
+			return;
 	}
 
 }
