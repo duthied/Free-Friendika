@@ -1,5 +1,48 @@
 <?php
+require_once("include/Scrape.php");
 
+function update_contact($id) {
+	/*
+	Warning: Never ever fetch the public key via probe_url and write it into the contacts.
+	This will reliably kill your communication with Friendica contacts.
+	*/
+
+	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `network` FROM `contact` WHERE `id` = %d", intval($id));
+	if (!$r)
+		return;
+
+	$ret = probe_url($r[0]["url"]);
+
+	// If probe_url fails the network code will be different
+	if ($ret["network"] != $r[0]["network"])
+		return;
+
+	$update = false;
+
+	// make sure to not overwrite existing values with blank entries
+	foreach ($ret AS $key => $val) {
+		if (isset($r[0][$key]) AND ($r[0][$key] != "") AND ($val == ""))
+			$ret[$key] = $r[0][$key];
+
+		if (isset($r[0][$key]) AND ($ret[$key] != $r[0][$key]))
+			$update = true;
+	}
+
+	if (!$update)
+		return;
+
+	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s' WHERE `id` = %d",
+		dbesc($ret['url']),
+		dbesc(normalise_link($ret['url'])),
+		dbesc($ret['addr']),
+		dbesc($ret['alias']),
+		dbesc($ret['batch']),
+		dbesc($ret['notify']),
+		dbesc($ret['poll']),
+		dbesc($ret['poco']),
+		intval($id)
+	);
+}
 
 //
 // Takes a $uid and a url/handle and adds a new contact
@@ -120,10 +163,16 @@ function new_contact($uid,$url,$interactive = false) {
 	// the poll url is more reliable than the profile url, as we may have
 	// indirect links or webfinger links
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` = '%s' AND `network` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' LIMIT 1",
 		intval($uid),
 		dbesc($ret['poll']),
+		dbesc(normalise_link($ret['poll'])),
 		dbesc($ret['network'])
+	);
+
+	if(!count($r))
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
+			intval($uid), dbesc(normalise_link($url)), dbesc($ret['network'])
 	);
 
 	if(count($r)) {
@@ -136,8 +185,7 @@ function new_contact($uid,$url,$interactive = false) {
 				intval($uid)
 			);
 		}
-	}
-	else {
+	} else {
 
 
 		// check service class limits
@@ -241,7 +289,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	proc_run('php',"include/poller.php","$contact_id");
+	proc_run('php',"include/onepoll.php","$contact_id", "force");
 
 	// create a follow slap
 
@@ -252,7 +300,7 @@ function new_contact($uid,$url,$interactive = false) {
 		'$photo' => $a->contact['photo'],
 		'$thumb' => $a->contact['thumb'],
 		'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-		'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':follow:' . random_string(),
+		'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':follow:' . get_guid(32),
 		'$title' => '',
 		'$type' => 'text',
 		'$content' => t('following'),

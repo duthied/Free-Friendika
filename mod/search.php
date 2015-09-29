@@ -1,4 +1,8 @@
 <?php
+require_once("include/bbcode.php");
+require_once('include/security.php');
+require_once('include/conversation.php');
+require_once('mod/dirfind.php');
 
 function search_saved_searches() {
 
@@ -90,11 +94,15 @@ function search_content(&$a) {
 		return;
 	}
 
+	if(get_config('system','local_search') AND !local_user()) {
+		notice(t('Public access denied.').EOL);
+		return;
+		//http_status_exit(403);
+		//killme();
+	}
+
 	nav_set_selected('search');
 
-	require_once("include/bbcode.php");
-	require_once('include/security.php');
-	require_once('include/conversation.php');
 
 	$o = '<h3>' . t('Search') . '</h3>';
 
@@ -110,16 +118,33 @@ function search_content(&$a) {
 	}
 
 
-	$o .= search($search,'search-box','/search',((local_user()) ? true : false));
+	$o .= search($search,'search-box','/search',((local_user()) ? true : false), false);
 
 	if(strpos($search,'#') === 0) {
 		$tag = true;
 		$search = substr($search,1);
 	}
 	if(strpos($search,'@') === 0) {
-		require_once('mod/dirfind.php');
 		return dirfind_content($a);
 	}
+	if(strpos($search,'!') === 0) {
+		return dirfind_content($a);
+	}
+
+        if(x($_GET,'search-option'))
+		switch($_GET['search-option']) {
+			case 'fulltext':
+				break;
+			case 'tags':
+				$tag = true;
+				break;
+			case 'contacts':
+				return dirfind_content($a, "@");
+				break;
+			case 'forums':
+				return dirfind_content($a, "!");
+				break;
+		}
 
 	if(! $search)
 		return $o;

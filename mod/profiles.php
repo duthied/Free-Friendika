@@ -470,7 +470,8 @@ function profiles_post(&$a) {
 
 
 		if($namechanged && $is_default) {
-			$r = q("UPDATE `contact` SET `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
+				dbesc($name),
 				dbesc(datetime_convert()),
 				intval(local_user())
 			);
@@ -507,7 +508,7 @@ function profiles_post(&$a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if($url && strlen(get_config('system','directory_submit_url')))
+			if($url && strlen(get_config('system','directory')))
 				proc_run('php',"include/directory.php","$url");
 
 			require_once('include/profile_update.php');

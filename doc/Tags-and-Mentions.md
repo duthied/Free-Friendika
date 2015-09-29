@@ -23,7 +23,7 @@ You can tag a person on a different network or one that is **not in your social 
 
 Unless their system blocks unsolicited "mentions", the person tagged will likely receive a "Mention" post/activity or become a direct participant in the conversation in the case of public posts. Please note that Friendica blocks incoming "mentions" from people with no relationship to you. This is a spam prevention measure.
 
-Remote mentions are delivered using the OStatus protocol. This protocol is used by Friendica and StatusNet and several other systems, but is not currently implemented in Diaspora. 
+Remote mentions are delivered using the OStatus protocol. This protocol is used by Friendica and GNU Social and several other systems, but is not currently implemented in Diaspora. 
 
 Friendica makes no distinction between people and groups for the purpose of tagging. (Some other networks use !group to indicate a group.)
 

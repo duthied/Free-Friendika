@@ -364,6 +364,7 @@ function db_definition() {
 			"fields" => array(
 					"k" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
 					"v" => array("type" => "text", "not null" => "1"),
+					"expire_mode" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
@@ -451,6 +452,7 @@ function db_definition() {
 					"hub-verify" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"last-update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"success_update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"failure_update" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"name-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"uri-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"avatar-date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
@@ -625,21 +627,28 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"updated" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_contact" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_failure" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"about" => array("type" => "text", "not null" => "1"),
 					"keywords" => array("type" => "text", "not null" => "1"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
+					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"nurl" => array("nurl"),
+					"updated" => array("updated"),
 					)
 			);
 	$database["glink"] = array(
@@ -681,6 +690,29 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_gid_contactid" => array("uid","gid","contact-id"),
+					)
+			);
+	$database["gserver"] = array(
+			"fields" => array(
+					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
+					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"version" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"site_name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"info" => array("type" => "text", "not null" => "1"),
+					"register_policy" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"poco" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"noscrape" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"platform" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"last_poco_query" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_contact" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					"last_failure" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("id"),
+					"nurl" => array("nurl"),
 					)
 			);
 	$database["guid"] = array(

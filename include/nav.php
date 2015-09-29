@@ -26,7 +26,7 @@ function nav(&$a) {
 	$tpl = get_markup_template('nav.tpl');
 
 	$a->page['nav'] .= replace_macros($tpl, array(
-        '$baseurl' => $a->get_baseurl(),
+		'$baseurl' => $a->get_baseurl(),
 		'$langselector' => lang_selector(),
 		'$sitelocation' => $nav_info['sitelocation'],
 		'$nav' => $nav_info['nav'],
@@ -118,10 +118,18 @@ function nav_info(&$a) {
 
 	$nav['search'] = array('search', t('Search'), "", t('Search site content'));
 
+	$nav['searchoption'] = array(
+					t("Full Text"),
+					t("Tags"),
+					t("Contacts"));
+
+	if (get_config('system','poco_local_search'))
+		$nav['searchoption'][] = t("Forums");
+
 	$gdirpath = 'directory';
 
 	if(strlen(get_config('system','singleuser'))) {
-		$gdir = dirname(get_config('system','directory_submit_url'));
+		$gdir = get_config('system','directory');
 		if(strlen($gdir))
 			$gdirpath = $gdir;
 	}

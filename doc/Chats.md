@@ -49,7 +49,7 @@ Just unpack the file and rename the directory to „jappixmini“.
 Next, upload this directory and the .tgz-file into your addon directory of your friendica installation.
 
 Now you can activate the plugin globally on the admin pages.
-In the plugin sidebar, you will find an entry of jappix now (where you can also find twitter, statusnet and others).
+In the plugin sidebar, you will find an entry of jappix now (where you can also find twitter, GNU Social and others).
 The following page shows the settings of this plugin.
 
 Activate the BOSH proxy.

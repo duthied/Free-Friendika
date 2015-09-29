@@ -18,7 +18,7 @@ function display_init(&$a) {
 		if (local_user()) {
 			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
 				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-					AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
+					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 			if (count($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
@@ -34,7 +34,7 @@ function display_init(&$a) {
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND `item`.`private` = 0 AND NOT `user`.`hidewall`
-					AND `item`.`guid` = '%s'", $a->argv[1]);
+					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 			if (count($r)) {
 				$nick = $r[0]["nickname"];
@@ -50,7 +50,7 @@ function display_init(&$a) {
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND `item`.`private` = 0 AND `item`.`uid` = 0
-					AND `item`.`guid` = '%s'", $a->argv[1]);
+					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 		}
 		if (count($r)) {
@@ -255,7 +255,7 @@ function display_content(&$a, $update = 0) {
 			if (local_user()) {
 				$r = q("SELECT `id` FROM `item`
 					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-						AND `guid` = '%s' AND `uid` = %d", $a->argv[1], local_user());
+						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $a->user["nickname"];
@@ -268,7 +268,7 @@ function display_content(&$a, $update = 0) {
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND `item`.`private` = 0  AND NOT `user`.`hidewall`
-						AND `item`.`guid` = '%s'", $a->argv[1]);
+						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 				if (count($r)) {
 					$item_id = $r[0]["id"];
@@ -281,7 +281,7 @@ function display_content(&$a, $update = 0) {
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND `item`.`private` = 0  AND `item`.`uid` = 0
-						AND `item`.`guid` = '%s'", $a->argv[1]);
+						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
 				if (count($r)) {
 					$item_id = $r[0]["id"];
@@ -351,7 +351,7 @@ function display_content(&$a, $update = 0) {
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => ( (is_array($a->user)) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
-			'acl' => populate_acl($a->user),
+			'acl' => populate_acl($a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
@@ -412,7 +412,7 @@ function display_content(&$a, $update = 0) {
 
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
+				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 				FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0

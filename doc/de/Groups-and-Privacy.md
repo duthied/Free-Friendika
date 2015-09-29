@@ -59,7 +59,7 @@ Dies ist eine Vertrauensfrage, die du beachten musst.
 Keine Software der Welt kann deine Freunde davon abhalten, die privaten Unterhaltungen zu veröffentlichen. 
 Nur eine gute Auswahl deiner Freunde. 
 
-Bei status.net, identi.ca und anderen Netzwerk-Anbietern ist es nicht so gesichert. 
+Bei GNu Social und anderen Netzwerk-Anbietern ist es nicht so gesichert. 
 Du musst **sehr** vorsichtig sein, wenn du Mitglieder anderer Netzwerke in einer deiner Gruppen hast, da es möglich ist, dass deine privaten Nachrichten in einem öffentlichen Stream enden. 
 Wenn du auf die "Kontakt bearbeiten"-Seite einer Person gehst, zeigen wir dir, ob sie Mitglied eines unsicheren Netzwerks ist oder nicht.
 
@@ -104,9 +104,9 @@ Da Friendica nicht bestätigen kann, um wen es sich handelt, kann es passieren, 
 
 Für Leute, die davon betroffen sind, schlagen wir vor, eine Zusammenfassung in Twitter-Länge zu erstellen mit mehr Details für Freunde, die den ganzen Beitrag sehen können. 
 
-Dein Profil oder deine gesamte Friendica-Seite zu blockieren, hat außerdem ernsthafte Einflüsse auf deine Kommunikation mit StatusNet/identi.ca-Nutzern. 
+Dein Profil oder deine gesamte Friendica-Seite zu blockieren, hat außerdem ernsthafte Einflüsse auf deine Kommunikation mit GNU Social-Nutzern. 
 Diese Netzwerke kommunizieren mit anderen über öffentliche Protokolle, die nicht authentifiziert werden. 
 Um deine Beiträge zu sehen, müssen diese Netzwerke deine Beiträge als "unbekannte Webbesucher" ansehen. 
 Wenn wir das erlauben, würde es dazu führen, das absolut jeder deine Beiträge sehen. 
 Und du hast Friendica so eingestellt, das nicht zuzulassen. 
-Beachte also, dass das Blockieren von unbekannten Besuchern auch dazu führen kann, dass öffentliche Netzwerke (wie identi.ca) und Newsfeed-Reader wie Google Reader auch geblockt werden.
+Beachte also, dass das Blockieren von unbekannten Besuchern auch dazu führen kann, dass öffentliche Netzwerke (wie GNU Social) und Newsfeed-Reader auch geblockt werden.

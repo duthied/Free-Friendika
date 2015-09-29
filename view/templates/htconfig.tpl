@@ -11,7 +11,7 @@ $db_data = '{{$dbdata}}';
 // If you are using a subdirectory of your domain you will need to put the
 // relative path (from the root of your domain) here.
 // For instance if your URL is 'http://example.com/directory/subdirectory',
-// set path to 'directory/subdirectory'. 
+// set path to 'directory/subdirectory'.
 
 $a->path = '{{$urlpath}}';
  
@@ -25,8 +25,8 @@ $default_timezone = '{{$timezone}}';
 $a->config['sitename'] = "My Friend Network";
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
-// Be certain to create your own personal account before setting 
-// REGISTER_CLOSED. 'register_text' (if set) will be displayed prominently on 
+// Be certain to create your own personal account before setting
+// REGISTER_CLOSED. 'register_text' (if set) will be displayed prominently on
 // the registration page. REGISTER_APPROVE requires you set 'admin_email'
 // to the email address of an already registered person who can authorise
 // and/or approve/deny the request.
@@ -47,18 +47,13 @@ $a->config['system']['maximagesize'] = 800000;
 
 $a->config['php_path'] = '{{$phpath}}';
 
-// Location of global directory submission page.
-
-$a->config['system']['directory_submit_url'] = 'http://dir.friendica.com/submit';
-$a->config['system']['directory_search_url'] = 'http://dir.friendica.com/directory?search=';
-
 // PuSH - aka pubsubhubbub URL. This makes delivery of public posts as fast as private posts
 
 $a->config['system']['huburl'] = '[internal]';
 
-// Server-to-server private message encryption (RINO) is allowed by default. 
+// Server-to-server private message encryption (RINO) is allowed by default.
 // Encryption will only be provided if this setting is true and the
-// PHP mcrypt extension is installed on both systems 
+// PHP mcrypt extension is installed on both systems
 
 $a->config['system']['rino_encrypt'] = true;
 
@@ -69,3 +64,9 @@ $a->config['system']['theme'] = 'duepuntozero';
 // By default allow pseudonyms
 
 $a->config['system']['no_regfullname'] = true;
+
+//Deny public access to the local directory
+//$a->config['system']['block_local_dir'] = false;
+
+// Location of the global directory
+$a->config['system']['directory'] = 'http://dir.friendi.ca';

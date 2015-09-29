@@ -268,6 +268,13 @@ function stripcode_br_cb($s) {
 	return '[code]' . str_replace('<br />', '', $s[1]) . '[/code]';
 }
 
+function bb_onelinecode_cb($match) {
+	if (strpos($match[1],"<br>")===false){
+		return "<key>".$match[1]."</key>";
+	}
+	return "<code>".$match[1]."</code>";
+}
+
 function tryoembed($match){
 	//$url = ((count($match)==2)?$match[1]:$match[2]);
 	$url = $match[1];
@@ -887,8 +894,12 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$MAILSearchString = $URLSearchString;
 
 	// Remove all hashtag addresses
-	if ((!$tryoembed OR $simplehtml) AND ($simplehtml != 7))
+	if ((!$tryoembed OR $simplehtml) AND !in_array($simplehtml, array(3, 7)))
 		$Text = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+	elseif ($simplehtml == 3)
+		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+			'$1<a href="$2">$3</a>',
+			$Text);
 	elseif ($simplehtml == 7)
 		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
@@ -1175,7 +1186,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// If we found an event earlier, strip out all the event code and replace with a reformatted version.
 	// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
-	// Summary (e.g. title) is required, earlier revisions only required description (in addition to 
+	// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
 	if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
@@ -1188,6 +1199,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 		$Text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism",'',$Text);
 	}
+
+
+	//replace oneliner <code> with <key>
+	$Text = preg_replace_callback("|(?!<br[^>]*>)<code>([^<]*)</code>(?!<br[^>]*>)|ism", 'bb_onelinecode_cb', $Text);
 
 	// Unhide all [noparse] contained bbtags unspacefying them
 	// and triming the [noparse] tag.
@@ -1203,7 +1218,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	// fix any escaped ampersands that may have been converted into links
 	$Text = preg_replace("/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
-	$Text = preg_replace("/\<([^>]*?)(src|href)=\"(?!http|ftp|mailto|cid)(.*?)\>/ism",'<$1$2="">',$Text);
+	$Text = preg_replace("/\<([^>]*?)(src|href)=\"(?!http|ftp|mailto|gopher|cid)(.*?)\>/ism",'<$1$2="">',$Text);
 
 	if($saved_image)
 		$Text = bb_replace_images($Text, $saved_image);

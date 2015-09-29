@@ -3,6 +3,7 @@ require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once("include/Scrape.php");
+require_once('include/diaspora.php');
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -294,7 +295,7 @@ function notifier_run(&$argv, &$argc){
 			$relay_to_owner = false;
 
 		if($relay_to_owner) {
-			logger('notifier: followup', LOGGER_DEBUG);
+			logger('notifier: followup '.$target_item["guid"], LOGGER_DEBUG);
 			// local followup to remote post
 			$followup = true;
 			$public_message = false; // not public
@@ -329,6 +330,8 @@ function notifier_run(&$argv, &$argc){
 			}
 		} else {
 			$followup = false;
+
+			logger('Distributing directly '.$target_item["guid"], LOGGER_DEBUG);
 
 			// don't send deletions onward for other people's stuff
 
@@ -377,7 +380,7 @@ function notifier_run(&$argv, &$argc){
 			}
 
 			if (count($url_recipients))
-				logger('notifier: url_recipients ' . print_r($url_recipients,true));
+				logger('notifier: '.$target_item["guid"].' url_recipients ' . print_r($url_recipients,true));
 
 			$conversants = array_unique($conversants);
 
@@ -393,6 +396,8 @@ function notifier_run(&$argv, &$argc){
 		// We have not only to look at the parent, since it could be a Friendica thread.
 		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
 
+			logger('Some parent is OStatus for '.$target_item["guid"], LOGGER_DEBUG);
+
 			// Send a salmon notification to every person we mentioned in the post
 			$arr = explode(',',$target_item['tag']);
 			foreach($arr as $x) {
@@ -406,9 +411,13 @@ function notifier_run(&$argv, &$argc){
 					}
 				}
 			}
-		}
 
-		$r = q("SELECT * FROM `contact` WHERE `id` IN ( $conversant_str ) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
+			// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
+			$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."')";
+		} else
+			$sql_extra = "";
+
+		$r = q("SELECT * FROM `contact` WHERE `id` IN ($conversant_str) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0".$sql_extra);
 
 		if(count($r))
 			$contacts = $r;
@@ -645,7 +654,7 @@ function notifier_run(&$argv, &$argc){
 			if($contact['self'])
 				continue;
 
-			logger("Deliver to ".$contact['url'], LOGGER_DEBUG);
+			logger("Deliver ".$target_item["guid"]." to ".$contact['url'], LOGGER_DEBUG);
 
 			// potentially more than one recipient. Start a new process and space them out a bit.
 			// we will deliver single recipient types of message and email recipients here.
@@ -870,8 +879,6 @@ function notifier_run(&$argv, &$argc){
 					}
 					break;
 				case NETWORK_DIASPORA:
-					require_once('include/diaspora.php');
-
 					if(get_config('system','dfrn_only') || (! get_config('system','diaspora_enabled')))
 						break;
 
@@ -954,6 +961,11 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
+		if (!$followup)
+			$r0 = diaspora_fetch_relay();
+		else
+			$r0 = array();
+
 		$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
 			AND `uid` = %d AND `rel` != %d group by `batch` ORDER BY rand() ",
 			dbesc(NETWORK_DIASPORA),
@@ -970,7 +982,7 @@ function notifier_run(&$argv, &$argc){
 			intval(CONTACT_IS_SHARING)
 		);
 
-		$r = array_merge($r2,$r1);
+		$r = array_merge($r2,$r1,$r0);
 
 		if(count($r)) {
 			logger('pubdeliver: ' . print_r($r,true), LOGGER_DEBUG);

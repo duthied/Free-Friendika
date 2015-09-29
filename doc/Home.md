@@ -10,6 +10,8 @@ Friendica Documentation and Resources
         * [BBCode tag reference](help/BBCode)
 	* [Comment, sort and delete posts](help/Text_comment)
 	* [Profiles](help/Profiles)
+	* [Accesskey reference](help/Accesskeys
+    * [Events](help/events)
 * You and other users
 	* [Connectors](help/Connectors)
 	* [Making Friends](help/Making-Friends)
@@ -27,10 +29,10 @@ Friendica Documentation and Resources
 
 * [Install](help/Install)
 * [Settings](help/Settings)
-* [Installing Connectors (Facebook/Twitter/StatusNet)](help/Installing-Connectors)
+* [Installing Connectors (Twitter/GNU Social)](help/Installing-Connectors)
 * [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
-* [Twitter/StatusNet API Functions](help/api)
+* [Twitter/GNU Social API Functions](help/api)
 
 **Developer Manual**
 
@@ -40,6 +42,7 @@ Friendica Documentation and Resources
 * [How to translate Friendica](help/translations)
 * [Bugs and Issues](help/Bugs-and-Issues)
 * [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
 
 **External Resources**

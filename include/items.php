@@ -969,7 +969,7 @@ function query_page_info($url, $no_photos = false, $photo = "", $keywords = fals
 	$data = Cache::get("parse_url:".$url);
 	if (is_null($data)){
 		$data = parseurl_getsiteinfo($url, true);
-		Cache::set("parse_url:".$url,serialize($data));
+		Cache::set("parse_url:".$url,serialize($data), CACHE_DAY);
 	} else
 		$data = unserialize($data);
 
@@ -1209,8 +1209,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
+	if ($notify)
+		$guid_prefix = "";
+	else
+		$guid_prefix = $arr['network'];
+
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
-	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : random_string());
+	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
+	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
 	$arr['author-name']   = ((x($arr,'author-name'))   ? notags(trim($arr['author-name']))   : '');
 	$arr['author-link']   = ((x($arr,'author-link'))   ? notags(trim($arr['author-link']))   : '');
@@ -1248,7 +1254,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr,'origin'))        ? intval($arr['origin'])              : 0 );
 	$arr['network']       = ((x($arr,'network'))       ? trim($arr['network'])               : '');
-	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $arr['network']));
 	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
 	$arr['resource-id']   = ((x($arr,'resource-id'))   ? trim($arr['resource-id'])           : '');
 	$arr['event-id']      = ((x($arr,'event-id'))      ? intval($arr['event-id'])            : 0 );
@@ -1423,7 +1428,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Fill the cache field
 	put_item_in_cache($arr);
 
-	call_hooks('post_remote',$arr);
+	if ($notify)
+		call_hooks('post_local',$arr);
+	else
+		call_hooks('post_remote',$arr);
 
 	if(x($arr,'cancel')) {
 		logger('item_store: post cancelled by plugin.');
@@ -1569,7 +1577,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
-			call_hooks('post_remote_end', $r[0]);
+			if ($notify)
+				call_hooks('post_local_end', $r[0]);
+			else
+				call_hooks('post_remote_end', $r[0]);
 		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
@@ -1986,13 +1997,14 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	if($contact['duplex'] && $contact['issued-id'])
 		$idtosend = '1:' . $orig_id;
 
-    
+
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
+	// use RINO1 if mcrypt isn't installed and RINO2 was selected
+	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
 
-   
+	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
-	
 	$ssl_val = intval(get_config('system','ssl_policy'));
 	$ssl_policy = '';
 
@@ -2042,6 +2054,8 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 	$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
 	$rino_remote_version = intval($res->rino);
 	$page         = (($owner['page-flags'] == PAGE_COMMUNITY) ? 1 : 0);
+
+	logger("Remote rino version: ".$rino_remote_version." for ".$contact["url"], LOGGER_DEBUG);
 
 	if($owner['page-flags'] == PAGE_PRVGROUP)
 		$page = 2;
@@ -2120,26 +2134,26 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 					return -1;
 				} catch (CannotPerformOperation $ex) {
 					logger('Cannot safely create a key');
-					return -1; 
+					return -1;
 				}
 				try {
 					$data = Crypto::encrypt($postvars['data'], $key);
 				} catch (CryptoTestFailed $ex) {
 					logger('Cannot safely perform encryption');
-					return -1; 
+					return -1;
 				} catch (CannotPerformOperation $ex) {
 					logger('Cannot safely perform encryption');
-					return -1; 
+					return -1;
 				}
 				break;
 			default:
 				logger("rino: invalid requested verision '$rino_remote_version'");
 				return -1;
 		}
-		
+
 		$postvars['rino'] = $rino_remote_version;
 		$postvars['data'] = bin2hex($data);
-		
+
 		#logger('rino: sent key = ' . $key, LOGGER_DEBUG);
 
 
@@ -2167,7 +2181,7 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 		$postvars['key'] = bin2hex($postvars['key']);
 	}
-	
+
 
 	logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
 
@@ -2968,7 +2982,7 @@ function item_is_remote_self($contact, &$datarray) {
 		if ($contact['network'] != NETWORK_FEED) {
 			$datarray["guid"] = get_guid(32);
 			unset($datarray["plink"]);
-			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid']);
+			$datarray["uri"] = item_new_uri($a->get_hostname(),$contact['uid'], $datarray["guid"]);
 			$datarray["parent-uri"] = $datarray["uri"];
 			$datarray["extid"] = $contact['network'];
 			$urlpart = parse_url($datarray2['author-link']);
@@ -2976,9 +2990,6 @@ function item_is_remote_self($contact, &$datarray) {
 		} else
 			$datarray['private'] = 0;
 	}
-
-	//if (!isset($datarray["app"]) OR ($datarray["app"] == ""))
-	//	$datarray["app"] = network_to_name($contact['network']);
 
 	if ($contact['network'] != NETWORK_FEED) {
 		// Store the original post
@@ -4159,9 +4170,12 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 	$name = notags(trim($datarray['author-name']));
 	$photo = notags(trim($datarray['author-avatar']));
 
-	$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
-	if($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'])
-		$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
+	if (is_object($item)) {
+		$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
+		if($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'])
+			$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
+	} else
+		$nick = $item;
 
 	if(is_array($contact)) {
 		if(($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
@@ -4299,7 +4313,7 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
-	if(! strlen($contact['hub-verify'])) {
+	if(!strlen($contact['hub-verify']) OR ($contact['hub-verify'] != $verify_token)) {
 		$r = q("UPDATE `contact` SET `hub-verify` = '%s' WHERE `id` = %d",
 			dbesc($verify_token),
 			intval($contact['id'])

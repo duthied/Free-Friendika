@@ -34,6 +34,15 @@ function diaspora2bb($s) {
 
 	$s = str_replace('&#35;','#',$s);
 
+	$search = array(" \n", "\n ");
+	$replace = array("\n", "\n");
+	do {
+		$oldtext = $s;
+		$s = str_replace($search, $replace, $s);
+	} while ($oldtext != $s);
+
+	$s = str_replace("\n\n", "<br>", $s);
+
 	$s = html2bbcode($s);
 
 	// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
@@ -143,22 +152,22 @@ function format_event_diaspora($ev) {
 	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
 	$o .= t('Starts:') . ' ' . '['
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC', 
+		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format ))
-			:  day_translate(datetime_convert('UTC', 'UTC', 
+			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format)))
 		.  '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
 	if(! $ev['nofinish'])
-		$o .= t('Finishes:') . ' ' . '[' 
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC', 
+		$o .= t('Finishes:') . ' ' . '['
+			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format ))
-				:  day_translate(datetime_convert('UTC', 'UTC', 
+				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
 			. '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
 
 	if(strlen($ev['location']))
-		$o .= t('Location:') . bb2diaspora($ev['location']) 
+		$o .= t('Location:') . bb2diaspora($ev['location'])
 			. "\n";
 
 	$o .= "\n";

@@ -50,6 +50,21 @@ function completeurl($url, $scheme) {
 	return($complete);
 }
 
+function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
+
+	$data = Cache::get("parse_url:".$no_guessing.":".$do_oembed.":".$url);
+	if (!is_null($data)) {
+		$data = unserialize($data);
+		return $data;
+	}
+
+	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
+
+	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data), CACHE_DAY);
+
+	return $data;
+}
+
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 	require_once("include/network.php");
 

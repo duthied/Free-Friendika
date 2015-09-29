@@ -45,7 +45,7 @@ function network_init(&$a) {
 		else if($sel_groups !== false) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
-		
+
 		if($remember_tab) {
 			// redirect if current selected tab is '/network' and
 			// last selected tab is _not_ '/network?f=&order=comment'.
@@ -91,17 +91,17 @@ function network_init(&$a) {
 		else if($sel_nets!==false) {
 			$net_args['nets'] = $sel_nets;
 		}
-		
+
 		if($remember_tab || $remember_net || $remember_group) {
 			$net_args = array_merge($query_array, $net_args);
 			$net_queries = build_querystring($net_args);
-			
+
 			$redir_url = ($net_queries ? $net_baseurl."?".$net_queries : $net_baseurl);
-			
+
 			goaway($a->get_baseurl() . $redir_url);
 		}
 	}
-	
+
 	if(x($_GET['nets']) && $_GET['nets'] === 'all')
 		unset($_GET['nets']);
 
@@ -359,12 +359,14 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'=>$all_active,
 			'title'=> t('Sort by Comment Date'),
+			'accesskey' => "e",
 		),
 		array(
 			'label' => t('Posted Order'),
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'=>$postord_active,
 			'title' => t('Sort by Post Date'),
+			'accesskey' => "t",
 		),
 	);
 
@@ -374,6 +376,7 @@ function network_content(&$a, $update = 0) {
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel' => $conv_active,
 			'title' => t('Posts that mention or involve you'),
+			'accesskey' => "r",
 		);
 	}
 
@@ -383,6 +386,7 @@ function network_content(&$a, $update = 0) {
 			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel' => $new_active,
 			'title' => t('Activity Stream - by date'),
+			'accesskey' => "w",
 		);
 	}
 
@@ -392,6 +396,7 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'=>$bookmarked_active,
 			'title'=> t('Interesting Links'),
+			'accesskey' => "b",
 		);
 	}
 
@@ -401,6 +406,7 @@ function network_content(&$a, $update = 0) {
 			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'=>$starred_active,
 			'title' => t('Favourite Posts'),
+			'accesskey' => "m",
 		);
 	}
 
@@ -479,8 +485,8 @@ function network_content(&$a, $update = 0) {
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
-			'lockstate'=> ((($group) || ($cid) || ($nets) || (is_array($a->user) && 
-					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || 
+			'lockstate'=> ((($group) || ($cid) || ($nets) || (is_array($a->user) &&
+					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
 					(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
 			'default_perms'	=> get_acl_permissions($a->user),
 			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), true),
@@ -546,8 +552,8 @@ function network_content(&$a, $update = 0) {
 		//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
 
 		$sql_extra3 .= " AND `contact-id` IN ($contact_str$contact_str_self) ";
-		$sql_extra3 .= " AND EXISTS (SELECT id FROM `item` WHERE (`contact-id` IN ($contact_str) 
-				OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 
+		$sql_extra3 .= " AND EXISTS (SELECT id FROM `item` WHERE (`contact-id` IN ($contact_str)
+				OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0
 				AND parent = $sql_table.$sql_parent) ";
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(

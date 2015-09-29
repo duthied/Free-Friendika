@@ -249,7 +249,7 @@ function scrape_feed($url) {
 					$ret['feed_atom'] = $url;
 					return $ret;
 				}
- 				if(stristr($line,'application/rss+xml') || stristr($s,'<rss')) {
+				if(stristr($line,'application/rss+xml') || stristr($s,'<rss')) {
 					$ret['feed_rss'] = $url;
 					return $ret;
 				}
@@ -262,47 +262,40 @@ function scrape_feed($url) {
 		}
 	}
 
-	try {
-		$dom = HTML5_Parser::parse($s);
-	} catch (DOMException $e) {
-		logger('scrape_feed: parse error: ' . $e);
+	$basename = implode('/', array_slice(explode('/',$url),0,3)) . '/';
+
+	$doc = new DOMDocument();
+	@$doc->loadHTML($s);
+	$xpath = new DomXPath($doc);
+
+	$base = $xpath->query("//base");
+	foreach ($base as $node) {
+		$attr = array();
+
+		if ($node->attributes->length)
+			foreach ($node->attributes as $attribute)
+				$attr[$attribute->name] = $attribute->value;
+
+		if ($attr["href"] != "")
+			$basename = $attr["href"] ;
 	}
 
-	if(! $dom) {
-		logger('scrape_feed: failed to parse.');
-		return $ret;
+	$list = $xpath->query("//link");
+	foreach ($list as $node) {
+		$attr = array();
+
+		if ($node->attributes->length)
+			foreach ($node->attributes as $attribute)
+				$attr[$attribute->name] = $attribute->value;
+
+		if (($attr["rel"] == "alternate") AND ($attr["type"] == "application/atom+xml"))
+			$ret["feed_atom"] = $attr["href"];
+
+		if (($attr["rel"] == "alternate") AND ($attr["type"] == "application/rss+xml"))
+			$ret["feed_rss"] = $attr["href"];
 	}
 
-
-	$head = $dom->getElementsByTagName('base');
-	if($head) {
-		foreach($head as $head0) {
-			$basename = $head0->getAttribute('href');
-			break;
-		}
-	}
-	if(! $basename)
-		$basename = implode('/', array_slice(explode('/',$url),0,3)) . '/';
-
-	$items = $dom->getElementsByTagName('link');
-
-	// get Atom/RSS link elements, take the first one of either.
-
-	if($items) {
-		foreach($items as $item) {
-			$x = $item->getAttribute('rel');
-			if(($x === 'alternate') && ($item->getAttribute('type') === 'application/atom+xml')) {
-				if(! x($ret,'feed_atom'))
-					$ret['feed_atom'] = $item->getAttribute('href');
-			}
-			if(($x === 'alternate') && ($item->getAttribute('type') === 'application/rss+xml')) {
-				if(! x($ret,'feed_rss'))
-					$ret['feed_rss'] = $item->getAttribute('href');
-			}
-		}
-	}
-
-	// Drupal and perhaps others only provide relative URL's. Turn them into absolute.
+	// Drupal and perhaps others only provide relative URLs. Turn them into absolute.
 
 	if(x($ret,'feed_atom') && (! strstr($ret['feed_atom'],'://')))
 		$ret['feed_atom'] = $basename . $ret['feed_atom'];
@@ -509,6 +502,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	if($mode == PROBE_NORMAL) {
+
 		if(strlen($zot)) {
 			$s = fetch_url($zot);
 			if($s) {
@@ -527,6 +521,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				}
 			}
 		}
+
 
 		if(strlen($dfrn)) {
 			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn);
@@ -634,6 +629,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		if($check_feed) {
 
 			$feedret = scrape_feed(($poll) ? $poll : $url);
+
 			logger('probe_url: scrape_feed ' . (($poll)? $poll : $url) . ' returns: ' . print_r($feedret,true), LOGGER_DATA);
 			if(count($feedret) && ($feedret['feed_atom'] || $feedret['feed_rss'])) {
 				$poll = ((x($feedret,'feed_atom')) ? unamp($feedret['feed_atom']) : unamp($feedret['feed_rss']));
@@ -653,7 +649,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			logger('probe_url: scrape_feed: headers: ' . $a->get_curl_headers(), LOGGER_DATA);
 
 			// Don't try and parse an empty string
-   			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
+			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
 
 			$feed->init();
 			if($feed->error())
@@ -823,7 +819,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		}
 	}
 
-	Cache::set("probe_url:".$mode.":".$url,serialize($result));
+	// Only store into the cache if the value seems to be valid
+	if ($result['network'] != NETWORK_FEED)
+		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
 
 	return $result;
 }

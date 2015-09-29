@@ -162,6 +162,8 @@ function call_hooks($name, &$data = null) {
 
 	$a = get_app();
 
+	#logger($name, LOGGER_ALL);
+
 	if((is_array($a->hooks)) && (array_key_exists($name,$a->hooks))) {
 		foreach($a->hooks[$name] as $hook) {
 			// Don't run a theme's hook if the user isn't using the theme
@@ -171,6 +173,7 @@ function call_hooks($name, &$data = null) {
 			@include_once($hook[0]);
 			if(function_exists($hook[1])) {
 				$func = $hook[1];
+				//logger($name." => ".$hook[0].":".$func."()", LOGGER_DEBUG);
 				$func($a,$data);
 			}
 			else {
@@ -386,11 +389,11 @@ function install_theme($theme) {
 
 
 // check service_class restrictions. If there are no service_classes defined, everything is allowed.
-// if $usage is supplied, we check against a maximum count and return true if the current usage is 
+// if $usage is supplied, we check against a maximum count and return true if the current usage is
 // less than the subscriber plan allows. Otherwise we return boolean true or false if the property
-// is allowed (or not) in this subscriber plan. An unset property for this service plan means 
-// the property is allowed, so it is only necessary to provide negative properties for each plan, 
-// or what the subscriber is not allowed to do. 
+// is allowed (or not) in this subscriber plan. An unset property for this service plan means
+// the property is allowed, so it is only necessary to provide negative properties for each plan,
+// or what the subscriber is not allowed to do.
 
 
 function service_class_allows($uid,$property,$usage = false) {

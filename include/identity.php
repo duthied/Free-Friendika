@@ -175,7 +175,7 @@ if(! function_exists('profile_sidebar')) {
 		if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
 			require_once('include/contact_selectors.php');
 			if ($profile['url'] != "")
-				$profile['network_name'] = '<a href="'.$profile['url'].'">'.network_to_name($profile['network'])."</a>";
+				$profile['network_name'] = '<a href="'.$profile['url'].'">'.network_to_name($profile['network'], $profile['url'])."</a>";
 			else
 				$profile['network_name'] = network_to_name($profile['network']);
 		} else
@@ -285,6 +285,7 @@ if(! function_exists('profile_sidebar')) {
 		$lastname = (($firstname === $profile['name']) ? '' : trim(substr($profile['name'],strlen($firstname))));
 
 		$diaspora = array(
+			'guid' => $profile['guid'],
 			'podloc' => $a->get_baseurl(),
 			'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
 			'nickname' => $profile['nickname'],
@@ -634,6 +635,7 @@ if(! function_exists('profile_tabs')){
 				'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
 				'title' => t('Status Messages and Posts'),
 				'id' => 'status-tab',
+				'accesskey' => 'm',
 			),
 			array(
 				'label' => t('Profile'),
@@ -641,6 +643,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((isset($tab) && $tab=='profile')?'active':''),
 				'title' => t('Profile Details'),
 				'id' => 'profile-tab',
+				'accesskey' => 'r',
 			),
 			array(
 				'label' => t('Photos'),
@@ -648,6 +651,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='photos')?'active':''),
 				'title' => t('Photo Albums'),
 				'id' => 'photo-tab',
+				'accesskey' => 'h',
 			),
 			array(
 				'label' => t('Videos'),
@@ -655,6 +659,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='videos')?'active':''),
 				'title' => t('Videos'),
 				'id' => 'video-tab',
+				'accesskey' => 'v',
 			),
 		);
 
@@ -665,6 +670,7 @@ if(! function_exists('profile_tabs')){
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
+				'accesskey' => 'e',
 			);
 			$tabs[] = array(
 				'label' => t('Personal Notes'),
@@ -672,6 +678,7 @@ if(! function_exists('profile_tabs')){
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='notes')?'active':''),
 				'title' => t('Only You Can See This'),
 				'id' => 'notes-tab',
+				'accesskey' => 't',
 			);
 		}
 

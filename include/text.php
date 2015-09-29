@@ -470,11 +470,17 @@ if(! function_exists('item_new_uri')) {
  * @param int $uid
  * @return string
  */
-function item_new_uri($hostname,$uid) {
+function item_new_uri($hostname,$uid, $guid = "") {
 
 	do {
 		$dups = false;
-		$hash = random_string();
+
+		if ($guid == "")
+			$hash = get_guid(32);
+		else {
+			$hash = $guid;
+			$guid = "";
+		}
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
@@ -868,8 +874,14 @@ function contact_block() {
 
 	if((! is_array($a->profile)) || ($a->profile['hide-friends']))
 		return $o;
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0",
-			intval($a->profile['uid'])
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+				AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s')",
+			intval($a->profile['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
 		$total = intval($r[0]['total']);
@@ -879,8 +891,14 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY RAND() LIMIT %d",
+		$r = q("SELECT * FROM `contact`
+				WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+					AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
+				dbesc(NETWORK_DFRN),
+				dbesc(NETWORK_OSTATUS),
+				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
 		if(count($r)) {
@@ -968,16 +986,29 @@ if(! function_exists('search')) {
  * @param string $url search url
  * @param boolean $savedsearch show save search button
  */
-function search($s,$id='search-box',$url='/search',$save = false) {
+function search($s,$id='search-box',$url='/search',$save = false, $aside = true) {
 	$a = get_app();
-        return replace_macros(get_markup_template('searchbox.tpl'), array(
-		'$s' => $s,
-		'$id' => $id,
-		'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
-		'$search_label' => t('Search'),
-		'$save_label' => t('Save'),
-		'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
-	));
+
+	$values = array(
+			'$s' => $s,
+			'$id' => $id,
+			'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+			'$search_label' => t('Search'),
+			'$save_label' => t('Save'),
+			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+		);
+
+	if (!$aside) {
+		$values['$searchoption'] = array(
+					t("Full Text"),
+					t("Tags"),
+					t("Contacts"));
+
+		if (get_config('system','poco_local_search'))
+			$values['$searchoption'][] = t("Forums");
+	}
+
+        return replace_macros(get_markup_template('searchbox.tpl'), $values);
 }}
 
 if(! function_exists('valid_email')) {
@@ -1676,11 +1707,14 @@ function get_plink($item) {
 				//'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
 				'href' => $a->get_baseurl()."/display/".$item['guid'],
 				'orig' => $a->get_baseurl()."/display/".$item['guid'],
-				'title' => t('link to source'),
+				'title' => t('View on separate page'),
+				'orig_title' => t('view on separate page'),
 			);
 
-		if (x($item,'plink'))
+		if (x($item,'plink')) {
 			$ret["href"] = $item['plink'];
+			$ret["title"] = t('link to source');
+		}
 
 	} elseif (x($item,'plink') && ($item['private'] != 1))
 		$ret = array(
@@ -1773,7 +1807,7 @@ function return_bytes ($size_str) {
 function generate_user_guid() {
 	$found = true;
 	do {
-		$guid = random_string(16);
+		$guid = get_guid(32);
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);

@@ -9,6 +9,14 @@
 	require_once("include/html2plain.php");
 	require_once("mod/share.php");
 	require_once("include/Photo.php");
+	require_once("mod/item.php");
+	require_once('include/security.php');
+	require_once('include/contact_selectors.php');
+	require_once('include/html2bbcode.php');
+	require_once('mod/wall_upload.php');
+	require_once("mod/proxy.php");
+	require_once("include/message.php");
+
 
 	/*
 	 * Twitter-Like API
@@ -151,7 +159,6 @@
 			die('This api requires login');
 		}
 
-		require_once('include/security.php');
 		authenticate_success($record); $_SESSION["allow_api"] = true;
 
 		call_hooks('logged_in', $a->user);
@@ -185,7 +192,11 @@
 				if (strpos($a->query_string, ".atom")>0) $type="atom";
 				if (strpos($a->query_string, ".as")>0) $type="as";
 
+				$stamp =  microtime(true);
 				$r = call_user_func($info['func'], $a, $type);
+				$duration = (float)(microtime(true)-$stamp);
+				logger("API call duration: ".round($duration, 2)."\t".$a->query_string, LOGGER_DEBUG);
+
 				if ($r===false) return;
 
 				switch($type){
@@ -504,8 +515,7 @@
 			$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
 		}
 
-		require_once('include/contact_selectors.php');
-		$network_name = network_to_name($uinfo[0]['network']);
+		$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
 
 		$ret = Array(
 			'id' => intval($r[0]['id']),
@@ -686,10 +696,10 @@
 		$txt = requestdata('status');
 		//$txt = urldecode(requestdata('status'));
 
-		require_once('library/HTMLPurifier.auto.php');
-		require_once('include/html2bbcode.php');
-
 		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+
+			require_once('library/HTMLPurifier.auto.php');
+
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
@@ -701,12 +711,10 @@
 		$a->argv[1]=$user_info['screen_name']; //should be set to username?
 
 		$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-		require_once('mod/wall_upload.php');
 		$bebop = wall_upload_post($a);
 
 		//now that we have the img url in bbcode we can add it to the status and insert the wall item.
 		$_REQUEST['body']=$txt."\n\n".$bebop;
-		require_once('mod/item.php');
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
@@ -729,17 +737,15 @@
 		// logger('api_post: ' . print_r($_POST,true));
 
 		if(requestdata('htmlstatus')) {
-			require_once('library/HTMLPurifier.auto.php');
-			require_once('include/html2bbcode.php');
-
 			$txt = requestdata('htmlstatus');
 			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+
+				require_once('library/HTMLPurifier.auto.php');
 
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
 				$config->set('Cache.DefinitionImpl', null);
-
 
 				$purifier = new HTMLPurifier($config);
 				$txt = $purifier->purify($txt);
@@ -753,6 +759,11 @@
 		$_REQUEST['title'] = requestdata('title');
 
 		$parent = requestdata('in_reply_to_status_id');
+
+		// Twidere sends "-1" if it is no reply ...
+		if ($parent == -1)
+			$parent = "";
+
 		if(ctype_digit($parent))
 			$_REQUEST['parent'] = $parent;
 		else
@@ -829,7 +840,6 @@
 		if(x($_FILES,'media')) {
 			// upload the image if we have one
 			$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-			require_once('mod/wall_upload.php');
 			$media = wall_upload_post($a);
 			if(strlen($media)>0)
 				$_REQUEST['body'] .= "\n\n".$media;
@@ -856,7 +866,6 @@
 
 		// call out normal post function
 
-		require_once('mod/item.php');
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
@@ -879,7 +888,6 @@
 			return false;
 		}
 
-		require_once('mod/wall_upload.php');
 		$media = wall_upload_post($a, false);
 		if(!$media) {
 			// Output error
@@ -996,9 +1004,9 @@
 				$status_info["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($status["source"] == 'web'))
-				$status_info["source"] = network_to_name($lastwall['item_network']);
-			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $status_info["source"]))
-				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network']).')');
+				$status_info["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
+			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network'], $user_info['url']) != $status_info["source"]))
+				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network'], $user_info['url']).')');
 
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status_info["user"]["uid"]);
@@ -1095,9 +1103,9 @@
 				$user_info["status"]["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($user_info["status"]["source"] == 'web'))
-				$user_info["status"]["source"] = network_to_name($lastwall['item_network']);
-			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $user_info["status"]["source"]))
-				$user_info["status"]["source"] = trim($user_info["status"]["source"].' ('.network_to_name($lastwall['item_network']).')');
+				$user_info["status"]["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
+			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"]))
+				$user_info["status"]["source"] = trim($user_info["status"]["source"].' ('.network_to_name($lastwall['item_network'], $user_info['url']).')');
 
 		}
 
@@ -1480,7 +1488,6 @@
 			if (!x($_REQUEST, "source"))
 				$_REQUEST["source"] = api_source();
 
-			require_once('mod/item.php');
 			item_post($a);
 		}
 
@@ -1512,7 +1519,6 @@
 
 		$ret = api_statuses_show($a, $type);
 
-		require_once('include/items.php');
 		drop_item($id, false);
 
 		return($ret);
@@ -1976,7 +1982,6 @@
 		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
 		if ($include_entities != "true") {
-			require_once("mod/proxy.php");
 
 			preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
@@ -2079,7 +2084,6 @@
 					// If image cache is activated, then use the following sizes:
 					// thumb  (150), small (340), medium (600) and large (1024)
 					if (!get_config("system", "proxy_disabled")) {
-						require_once("mod/proxy.php");
 						$media_url = proxy_url($url);
 
 						$sizes = array();
@@ -2214,9 +2218,9 @@
 				$status["entities"] = $converted["entities"];
 
 			if (($item['item_network'] != "") AND ($status["source"] == 'web'))
-				$status["source"] = network_to_name($item['item_network']);
-			else if (($item['item_network'] != "") AND (network_to_name($item['item_network']) != $status["source"]))
-				$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network']).')');
+				$status["source"] = network_to_name($item['item_network'], $user_info['url']);
+			else if (($item['item_network'] != "") AND (network_to_name($item['item_network'], $user_info['url']) != $status["source"]))
+				$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network'], $user_info['url']).')');
 
 
 			// Retweets are only valid for top postings
@@ -2470,8 +2474,6 @@
 		if (!x($_POST, "text") OR (!x($_POST,"screen_name") AND !x($_POST,"user_id"))) return;
 
 		$sender = api_get_user($a);
-
-		require_once("include/message.php");
 
 		if ($_POST['screen_name']) {
 			$r = q("SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",

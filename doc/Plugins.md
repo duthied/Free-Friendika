@@ -2,7 +2,6 @@ Friendica Addon/Plugin development
 ==========================
 
 Please see the sample addon 'randplace' for a working example of using some of these features.
-The facebook addon provides an example of integrating both "addon" and "module" functionality.
 Addons work by intercepting event hooks - which must be registered.
 Modules work by intercepting specific page requests (by URL path). 
 

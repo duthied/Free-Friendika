@@ -17,9 +17,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
-define ( 'FRIENDICA_VERSION',      '3.4.1' );
+define ( 'FRIENDICA_VERSION',      '3.4.2' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1185      );
+define ( 'DB_UPDATE_VERSION',      1188      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -83,6 +83,15 @@ define ( 'LOGGER_TRACE',           1 );
 define ( 'LOGGER_DEBUG',           2 );
 define ( 'LOGGER_DATA',            3 );
 define ( 'LOGGER_ALL',             4 );
+
+/**
+ * cache levels
+ */
+
+define ( 'CACHE_MONTH',            0 );
+define ( 'CACHE_WEEK',             1 );
+define ( 'CACHE_DAY',              2 );
+define ( 'CACHE_HOUR',             3 );
 
 /**
  * registration policies
@@ -274,6 +283,7 @@ define ( 'ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post' );
 define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
+define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
 
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
@@ -828,7 +838,7 @@ if(! class_exists('App')) {
 				$v = get_class_vars( $class );
 				if(x($v,"name")) $name = $v['name'];
 			}
-	 		if ($name===""){
+			if ($name===""){
 				echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 				killme();
 			}
@@ -1448,7 +1458,7 @@ if(! function_exists('current_theme')) {
 		$a = get_app();
 
 		$page_theme = null;
-		
+
 		// Find the theme that belongs to the user whose stuff we are looking at
 
 		if($a->profile_uid && ($a->profile_uid != local_user())) {
@@ -1487,7 +1497,7 @@ if(! function_exists('current_theme')) {
 					// user has selected to have the mobile theme be the same as the normal one
 					$system_theme = $standard_system_theme;
 					$theme_name = $standard_theme_name;
-					
+
 					if($page_theme)
 						$theme_name = $page_theme;
 				}
@@ -1532,7 +1542,7 @@ if(! function_exists('current_theme_url')) {
 		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 		if (file_exists('view/theme/' . $t . '/style.php'))
 			return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
-		
+
 		return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
 	}
 }
@@ -1618,9 +1628,9 @@ if(! function_exists('load_contact_links')) {
 				$url = normalise_link($rr['url']);
 				$ret[$url] = $rr;
 			}
-		}
-		else
+		} else
 			$ret['empty'] = true;
+
 		$a->contacts = $ret;
 		return;
 	}
@@ -1633,24 +1643,24 @@ if(! function_exists('load_contact_links')) {
 * @return string
 */
 function build_querystring($params, $name=null) {
-    $ret = "";
-    foreach($params as $key=>$val) {
-        if(is_array($val)) {
-            if($name==null) {
-                $ret .= build_querystring($val, $key);
-            } else {
-                $ret .= build_querystring($val, $name."[$key]");
-            }
-        } else {
-            $val = urlencode($val);
-            if($name!=null) {
-                $ret.=$name."[$key]"."=$val&";
-            } else {
-                $ret.= "$key=$val&";
-            }
-        }
-    }
-    return $ret;
+	$ret = "";
+	foreach($params as $key=>$val) {
+		if(is_array($val)) {
+			if($name==null) {
+				$ret .= build_querystring($val, $key);
+			} else {
+				$ret .= build_querystring($val, $name."[$key]");
+			}
+		} else {
+			$val = urlencode($val);
+			if($name!=null) {
+				$ret.=$name."[$key]"."=$val&";
+			} else {
+				$ret.= "$key=$val&";
+			}
+		}
+	}
+	return $ret;
 }
 
 function explode_querystring($query) {
@@ -1658,8 +1668,7 @@ function explode_querystring($query) {
 	if($arg_st !== false) {
 		$base = substr($query, 0, $arg_st);
 		$arg_st += 1;
-	}
-	else {
+	} else {
 		$base = '';
 		$arg_st = 0;
 	}
@@ -1708,6 +1717,15 @@ function random_digits($digits) {
 	return $rn;
 }
 
+function get_server() {
+	$server = get_config("system", "directory");
+
+	if ($server == "")
+		$server = "http://dir.friendi.ca";
+
+	return($server);
+}
+
 function get_cachefile($file, $writemode = true) {
 	$cache = get_itemcachepath();
 
@@ -1745,16 +1763,16 @@ function clear_cache($basepath = "", $path = "") {
 		$cachetime = 86400;
 
 	if (is_writable($path)){
-	if ($dh = opendir($path)) {
-		while (($file = readdir($dh)) !== false) {
-			$fullpath = $path."/".$file;
-			if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != ".."))
-				clear_cache($basepath, $fullpath);
-			if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime)))
-				unlink($fullpath);
+		if ($dh = opendir($path)) {
+			while (($file = readdir($dh)) !== false) {
+				$fullpath = $path."/".$file;
+				if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != ".."))
+					clear_cache($basepath, $fullpath);
+				if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime)))
+					unlink($fullpath);
+			}
+			closedir($dh);
 		}
-		closedir($dh);
-	}
 	}
 }
 
@@ -1793,7 +1811,11 @@ function get_lockpath() {
 
 	if ($temppath != "") {
 		$lockpath = $temppath."/lock";
-		mkdir($lockpath);
+
+		if (!is_dir($lockpath))
+			mkdir($lockpath);
+		elseif (!is_writable($lockpath))
+			$lockpath = $temppath;
 
 		if (is_dir($lockpath) AND is_writable($lockpath)) {
 			set_config("system", "lockpath", $lockpath);
@@ -1804,14 +1826,22 @@ function get_lockpath() {
 }
 
 function get_temppath() {
+	$a = get_app();
+
 	$temppath = get_config("system","temppath");
 	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
 		return($temppath);
 
 	$temppath = sys_get_temp_dir();
 	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
-		set_config("system", "temppath", $temppath);
-		return($temppath);
+		$temppath .= "/".$a->get_hostname();
+		if (!is_dir($temppath))
+			mkdir($temppath);
+
+		if (is_dir($temppath) AND is_writable($temppath)) {
+			set_config("system", "temppath", $temppath);
+			return($temppath);
+		}
 	}
 
 	return("");

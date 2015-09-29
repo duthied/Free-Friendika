@@ -2,6 +2,7 @@
 
 require_once('include/Scrape.php');
 require_once('include/follow.php');
+require_once('include/contact_selectors.php');
 
 function follow_content(&$a) {
 
@@ -14,10 +15,12 @@ function follow_content(&$a) {
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
 
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND
+	// There is a current issue. It seems as if you can't start following a Friendica that is following you
+	// With Diaspora this works - but Friendica is special, it seems ...
+	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
 		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
 		`network` != '%s' LIMIT 1",
-		intval(local_user()), dbesc(normalise_link($url)),
+		intval(local_user()), dbesc(CONTACT_IS_FOLLOWER), dbesc(NETWORK_DFRN), dbesc(normalise_link($url)),
 		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 
 	if ($r) {
@@ -27,6 +30,9 @@ function follow_content(&$a) {
 	}
 
 	$ret = probe_url($url);
+
+	if ($ret["network"] == NETWORK_MAIL)
+		$ret["url"] = $ret["addr"];
 
 	if($ret['network'] === NETWORK_DFRN) {
 		$request = $ret["request"];
@@ -49,8 +55,15 @@ function follow_content(&$a) {
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $ret["url"];
 
+	$header = $ret["name"];
+
+	if ($ret["addr"] != "")
+		$header .= " <".$ret["addr"].">";
+
+	$header .= " (".network_to_name($ret['network']).")";
+
 	$o  = replace_macros($tpl,array(
-			'$header' => $ret["name"]." (".$ret["addr"].")",
+			'$header' => htmlentities($header),
 			'$photo' => $ret["photo"],
                         '$desc' => "",
                         '$pls_answer' => t('Please answer the following:'),

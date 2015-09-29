@@ -3,9 +3,9 @@
 	{{if $title}}<h3>{{$title}}</h3>{{/if}}
 	{{if $desc}}<div class="desc">{{$desc}}</div>{{/if}}
 	
-	<ul>
+	<ul role="menu">
 		{{foreach $items as $item}}
-			<li class="tool"><a href="{{$item.url}}" class="{{if $item.selected}}selected{{/if}}">{{$item.label}}</a></li>
+			<li role="menuitem" class="tool"><a href="{{$item.url}}" {{if $item.accesskey}}accesskey="{{$item.accesskey}}"{{/if}} class="{{if $item.selected}}selected{{/if}}">{{$item.label}}</a></li>
 		{{/foreach}}
 	</ul>
 	

@@ -54,7 +54,7 @@ oder als normaler Download von hier: https://github.com/friendica/friendica-addo
 Entpacke diese Datei (ggf. den entpackten Ordner in „jappixmini“ umbenennen) und lade sowohl den entpackten Ordner komplett als auch die .tgz Datei in den Addon Ordner Deiner Friendica Installation hoch.
 
 Nach dem Upload gehts in den Friendica Adminbereich und dort zu den Plugins. 
-Aktiviere das Jappixmini Addon und gehe anschließend über die Plugins Seitenleiste (dort wo auch die Twitter-, Impressums-, StatusNet-, usw. Einstellungen gemacht werden) zu den Jappix Grundeinstellungen.
+Aktiviere das Jappixmini Addon und gehe anschließend über die Plugins Seitenleiste (dort wo auch die Twitter-, Impressums-, GNU Social-, usw. Einstellungen gemacht werden) zu den Jappix Grundeinstellungen.
 
 Setze hier den Haken zur Aktivierung des BOSH Proxys. 
 Weiter gehts in den Einstellungen Deines Friendica Accounts.

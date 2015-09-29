@@ -36,6 +36,7 @@ function poller_run(&$argv, &$argc){
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
 	require_once('include/pidfile.php');
+	require_once('mod/nodeinfo.php');
 
 	load_config('config');
 	load_config('system');
@@ -82,6 +83,14 @@ function poller_run(&$argv, &$argc){
 
 	proc_run('php',"include/dsprphotoq.php");
 
+	// run the process to discover global contacts in the background
+
+	proc_run('php',"include/discover_poco.php");
+
+	// run the process to update locally stored global contacts in the background
+
+	proc_run('php',"include/discover_poco.php", "checkcontact");
+
 	// expire any expired accounts
 
 	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
@@ -108,6 +117,12 @@ function poller_run(&$argv, &$argc){
 
 	// Check every conversation
 	check_conversations(false);
+
+	// Follow your friends from your legacy OStatus account
+	ostatus_check_follow_friends();
+
+	// update nodeinfo data
+	nodeinfo_cron();
 
 	// To-Do: Regenerate usage statistics
 	// q("ANALYZE TABLE `item`");

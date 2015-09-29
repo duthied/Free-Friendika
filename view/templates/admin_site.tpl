@@ -59,8 +59,6 @@
 	{{include file="field_checkbox.tpl" field=$old_share}}
 	{{include file="field_checkbox.tpl" field=$hide_help}}
 	{{include file="field_select.tpl" field=$singleuser}}
-
-	
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$registration}}</h3>
@@ -70,13 +68,13 @@
 	{{include file="field_checkbox.tpl" field=$no_multi_reg}}
 	{{include file="field_checkbox.tpl" field=$no_openid}}
 	{{include file="field_checkbox.tpl" field=$no_regfullname}}
-	
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$upload}}</h3>
 	{{include file="field_input.tpl" field=$maximagesize}}
 	{{include file="field_input.tpl" field=$maximagelength}}
 	{{include file="field_input.tpl" field=$jpegimagequality}}
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$corporate}}</h3>
 	{{include file="field_input.tpl" field=$allowed_sites}}
@@ -99,7 +97,7 @@
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 	
 	<h3>{{$advanced}}</h3>
-    {{include file="field_select.tpl" field=$rino}}
+	{{include file="field_select.tpl" field=$rino}}
 	{{include file="field_checkbox.tpl" field=$no_utf}}
 	{{include file="field_checkbox.tpl" field=$verifyssl}}
 	{{include file="field_input.tpl" field=$proxy}}
@@ -115,6 +113,17 @@
 	{{include file="field_input.tpl" field=$basepath}}
 	{{include file="field_checkbox.tpl" field=$suppress_language}}
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
+	{{include file="field_checkbox.tpl" field=$nodeinfo}}
+	{{include file="field_input.tpl" field=$embedly}}
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+
+	<h3>{{$portable_contacts}}</h3>
+	{{include file="field_checkbox.tpl" field=$poco_completion}}
+	{{include file="field_input.tpl" field=$poco_requery_days}}
+	{{include file="field_select.tpl" field=$poco_discovery}}
+	{{include file="field_select.tpl" field=$poco_discovery_since}}
+	{{include file="field_checkbox.tpl" field=$poco_local_search}}
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$performance}}</h3>
 	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}

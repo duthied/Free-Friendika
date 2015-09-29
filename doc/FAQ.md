@@ -19,6 +19,8 @@ Admins
 
 * **[Can I configure multiple domains with the same code instance?](help/FAQ#multiple)**
 * **[Where can I find the source code of friendica, addons and themes?](help/FAQ#sources)**
+* **[I've changed the my email address now the admin panel is gone?](help/FAQ#adminaccount1)**
+* **[Can there be more then just one admin for a node?](help/FAQ#adminaccount2)**
 
 User
 --------
@@ -119,7 +121,7 @@ No. The act of 'following' a hashtags is an interesting technology, but presents
 
 1. Posts would have to be copied to all sites on the network that are "listening" to that hashtag. This would increase the storage demands to the detriment of small sites. It would make the use of shared hosting practically impossible.
 
-2. Making spam easy (tag spam is quite a serious issue on identi.ca for instance)
+2. Making spam easy (tag spam is a serious issue on Twitter for instance)
 
 3. It creates a natural bias towards large sites which hold more tagged content - if your network uses tagging instead of other conversation federation mechanisms such as groups/forums.
 
@@ -151,7 +153,7 @@ RSS feed of the conversations at your site
 
 ###Are there any clients for friendica I can use?
 
-Friendica is using a [Twitter/StatusNet compatible API](help/api), which means you can use any Twitter/StatusNet/GNU Social client for your plattform as long as you can change the API path in its settings.
+Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android
@@ -198,3 +200,14 @@ There you will always find the current stable version of friendica.
 Addons are listed at [this page](https://github.com/friendica/friendica-addons).
 
 If you are searching for new themes, you can find them at [Friendica-Themes.com](http://friendica-themes.com/) 
+
+<a name="adminaccount1"></a>
+###I've changed the my email address now the admin panel is gone?
+
+Have a look into your <tt>.htconfig.php</tt> and fix your email address there.
+
+<a name="adminaccount2"></a>
+###Can there be more then just one admin for a node?
+
+Yes. You just have to list more then one email address in the
+<tt>.htconfig.php</tt> file. The listed emails need to be separated by a comma.

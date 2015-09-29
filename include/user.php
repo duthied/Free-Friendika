@@ -27,11 +27,19 @@ function create_user($arr) {
 	$openid_url = ((x($arr,'openid_url')) ? notags(trim($arr['openid_url'])) : '');
 	$photo      = ((x($arr,'photo'))      ? notags(trim($arr['photo']))      : '');
 	$password   = ((x($arr,'password'))   ? trim($arr['password'])           : '');
+	$password1  = ((x($arr,'password1'))  ? trim($arr['password1'])          : '');
+	$confirm    = ((x($arr,'confirm'))    ? trim($arr['confirm'])            : '');
 	$blocked    = ((x($arr,'blocked'))    ? intval($arr['blocked'])  : 0);
 	$verified   = ((x($arr,'verified'))   ? intval($arr['verified']) : 0);
 
 	$publish    = ((x($arr,'profile_publish_reg') && intval($arr['profile_publish_reg'])) ? 1 : 0);
-	$netpublish = ((strlen(get_config('system','directory_submit_url'))) ? $publish : 0);
+	$netpublish = ((strlen(get_config('system','directory'))) ? $publish : 0);
+
+	if ($password1 != $confirm) {
+		$result['message'] .= t('Passwords do not match. Password unchanged.') . EOL;
+		return $result;
+	} elseif ($password1 != "")
+		$password = $password1;
 
 	$tmp_str = $openid_url;
 
@@ -128,8 +136,8 @@ function create_user($arr) {
 
 	$nickname = $arr['nickname'] = strtolower($nickname);
 
-	if(! preg_match("/^[a-z][a-z0-9\-\_]*$/",$nickname))
-		$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9", "-", and "_", and must also begin with a letter.') . EOL;
+	if(! preg_match("/^[a-z0-9][a-z0-9\_]*$/",$nickname))
+		$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9" and "_".') . EOL;
 	$r = q("SELECT `uid` FROM `user`
                	WHERE `nickname` = '%s' LIMIT 1",
                	dbesc($nickname)

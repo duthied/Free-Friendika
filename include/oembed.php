@@ -56,25 +56,21 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 
 		if ($txt==false || $txt==""){
 			$embedly = get_config("system", "embedly");
-			if ($embedly == "") {
-				// try oohembed service
-				$ourl = "http://oohembed.com/oohembed/?url=".urlencode($embedurl).'&maxwidth=' . $a->videowidth;
-				$txt = fetch_url($ourl);
-			} else {
+			if ($embedly != "") {
 				// try embedly service
 				$ourl = "https://api.embed.ly/1/oembed?key=".$embedly."&url=".urlencode($embedurl);
 				$txt = fetch_url($ourl);
-			}
 
-			logger("oembed_fetch_url: ".$txt, LOGGER_DEBUG);
+				logger("oembed_fetch_url: ".$txt, LOGGER_DEBUG);
+			}
 		}
 
 		$txt=trim($txt);
-		if ($txt[0]!="{") $txt='{"type":"error"}';
 
-		//save in cache
-		Cache::set($a->videowidth . $embedurl,$txt);
-
+		if ($txt[0]!="{")
+			$txt='{"type":"error"}';
+		else	//save in cache
+			Cache::set($a->videowidth . $embedurl,$txt, CACHE_DAY);
 	}
 
 	$j = json_decode($txt);

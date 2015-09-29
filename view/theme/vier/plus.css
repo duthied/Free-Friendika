@@ -47,10 +47,11 @@ nav .nav-menu {
   font-weight: initial;
 }
 
+#nav-apps-menu,
 #nav-site-menu,
 #nav-notifications-menu,
 #nav-user-menu {
-  top: 35px;
+  top: 32px;
 }
 
 #nav-messages-menu {

@@ -10,6 +10,8 @@ Friendica - Dokumentation und Ressourcen
 	* [Referenz der BBCode Elemente](help/BBCode)
 	* [Beiträge kommentieren, einordnen und löschen](help/Text_comment)
 	* [Profile](help/Profiles)
+	* [Referenz der Accesskeys](help/Accesskeys)
+    * [Veranstaltungen](help/events) (EN)
 * Du und andere Nutzer
 	* [Konnektoren (Connectors)](help/Connectors)
 	* [Freunde finden](help/Making-Friends)
@@ -29,13 +31,23 @@ Friendica - Dokumentation und Ressourcen
 * [Installation](help/Install)
 * [Konfigurationen](help/Settings)
 * [Plugins](help/Plugins)
-* [Konnektoren (Connectors) installieren (Facebook/Twitter/StatusNet)](help/Installing-Connectors)
+* [Konnektoren (Connectors) installieren (Twitter/GNU Social)](help/Installing-Connectors)
 * [Nachrichtenfluss](help/Message-Flow)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
 * [Entwickler](help/Developers)
-* [Twitter/StatusNet API Functions](help/api) (EN)
+* [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 
+**Entwickler Dokumentation**
+
+* [Where to get started?](help/Developers-Intro)
+* [Help on Github](help/Github)
+* [Help on Vagrant](help/Vagrant)
+* [How to translate Friendica](help/translations)
+* [Bugs and Issues](help/Bugs-and-Issues)
+* [Plugin Development](help/Plugins)
+* [Theme Development](help/themes)
+* [Smarty 3 Templates](help/smarty3-templates)
 
 **Externe Ressourcen**
 
