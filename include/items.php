@@ -1097,6 +1097,48 @@ function add_guid($item) {
 		dbesc($item["uri"]), dbesc($item["network"]));
 }
 
+// Adds a "lang" specification in a "postopts" element of given $arr,
+// if possible and not already present.
+// Expects "body" element to exist in $arr.
+// TODO: add a parameter to request forcing override
+function item_add_language_opt(&$arr) {
+
+	if (version_compare(PHP_VERSION, '5.3.0', '<')) return; // LanguageDetect.php not available ?
+
+	if ( x($arr, 'postopts') )
+	{
+		if ( strstr($arr['postopts'], 'lang=') )
+		{
+			// do not override
+			// TODO: add parameter to request overriding
+			return;
+		}
+		$postopts = $arr['postopts'];
+	}
+	else
+	{
+		$postopts = "";
+	}
+
+	require_once('library/langdet/Text/LanguageDetect.php');
+	$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
+	$l = new Text_LanguageDetect;
+	//$lng = $l->detectConfidence($naked_body);
+	//$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+	$lng = $l->detect($naked_body, 3);
+
+	if (sizeof($lng) > 0) {
+		if ($postopts != "") $postopts .= '&'; // arbitrary separator, to be reviewed
+		$postopts .= 'lang=';
+		$sep = "";
+		foreach ($lng as $language => $score) {
+			$postopts .= $sep . $language.";".$score;
+			$sep = ':';
+		}
+		$arr['postopts'] = $postopts;
+	}
+}
+
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
 	// If it is a posting where users should get notifications, then define it as wall posting
@@ -1186,32 +1228,15 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
 	//	$arr['body'] = strip_tags($arr['body']);
 
+	item_add_language_opt($arr);
 
-	if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
-		require_once('library/langdet/Text/LanguageDetect.php');
-		$naked_body = preg_replace('/\[(.+?)\]/','',$arr['body']);
-		$l = new Text_LanguageDetect;
-		//$lng = $l->detectConfidence($naked_body);
-		//$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
-		$lng = $l->detect($naked_body, 3);
-
-		if (sizeof($lng) > 0) {
-			$postopts = "";
-
-			foreach ($lng as $language => $score) {
-				if ($postopts == "")
-					$postopts = "lang=";
-				else
-					$postopts .= ":";
-
-				$postopts .= $language.";".$score;
-			}
-			$arr['postopts'] = $postopts;
-		}
-	}
+	if ($notify)
+		$guid_prefix = "";
+	else
+		$guid_prefix = $arr['network'];
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
-	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $arr['network']));
+	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
 	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
 	$arr['author-name']   = ((x($arr,'author-name'))   ? notags(trim($arr['author-name']))   : '');
@@ -1424,7 +1449,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Fill the cache field
 	put_item_in_cache($arr);
 
-	call_hooks('post_remote',$arr);
+	if ($notify)
+		call_hooks('post_local',$arr);
+	else
+		call_hooks('post_remote',$arr);
 
 	if(x($arr,'cancel')) {
 		logger('item_store: post cancelled by plugin.');
@@ -1570,7 +1598,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
 		if (count($r) == 1) {
-			call_hooks('post_remote_end', $r[0]);
+			if ($notify)
+				call_hooks('post_local_end', $r[0]);
+			else
+				call_hooks('post_remote_end', $r[0]);
 		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
@@ -1990,6 +2021,8 @@ function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
 
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
+	// use RINO1 if mcrypt isn't installed and RINO2 was selected
+	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
 
 	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 

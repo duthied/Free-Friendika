@@ -33,7 +33,7 @@ function create_user($arr) {
 	$verified   = ((x($arr,'verified'))   ? intval($arr['verified']) : 0);
 
 	$publish    = ((x($arr,'profile_publish_reg') && intval($arr['profile_publish_reg'])) ? 1 : 0);
-	$netpublish = ((strlen(get_config('system','directory_submit_url'))) ? $publish : 0);
+	$netpublish = ((strlen(get_config('system','directory'))) ? $publish : 0);
 
 	if ($password1 != $confirm) {
 		$result['message'] .= t('Passwords do not match. Password unchanged.') . EOL;

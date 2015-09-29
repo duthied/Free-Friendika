@@ -100,7 +100,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-			if(strlen(get_config('system','directory_submit_url')))
+			if(strlen(get_config('system','directory')))
 				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 
 			$j = json_decode($x);
@@ -124,6 +124,8 @@ function dirfind_content(&$a, $prefix = "") {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
 				}
+
+				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),

@@ -7,7 +7,7 @@ function directory_run(&$argv, &$argc){
 	if(is_null($a)) {
 		$a = new App;
 	}
-  
+
 	if(is_null($db)) {
 		@include(".htconfig.php");
 		require_once("include/dba.php");
@@ -29,10 +29,12 @@ function directory_run(&$argv, &$argc){
 
 	$a->set_baseurl(get_config('system','url'));
 
-	$dir = get_config('system','directory_submit_url');
+	$dir = get_config('system','directory');
 
 	if(! strlen($dir))
 		return;
+
+	$dir .= "/submit";
 
 	$arr = array('url' => $argv[1]);
 
