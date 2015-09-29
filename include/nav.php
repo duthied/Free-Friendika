@@ -129,7 +129,7 @@ function nav_info(&$a) {
 	$gdirpath = 'directory';
 
 	if(strlen(get_config('system','singleuser'))) {
-		$gdir = dirname(get_config('system','directory_submit_url'));
+		$gdir = get_config('system','directory');
 		if(strlen($gdir))
 			$gdirpath = $gdir;
 	}

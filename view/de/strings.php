@@ -589,7 +589,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Basis-Pfad zur Installation";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Falls das System nicht den korrekten Pfad zu deiner Installation gefunden hat, gib den richtigen Pfad bitte hier ein. Du solltest hier den Pfad nur auf einem eingeschränkten System angeben müssen, bei dem du mit symbolischen Links auf dein Webverzeichnis verweist.";
 $a->strings["Disable picture proxy"] = "Bilder Proxy deaktivieren";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Der Proxy für Bilder verbessert die Leitung und Privatsphäre der Nutzer. Er sollte nicht auf Systemen verwendet werden, die nur über begrenzte Bandbreite verfügen.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Der Proxy für Bilder verbessert die Leistung und Privatsphäre der Nutzer. Er sollte nicht auf Systemen verwendet werden, die nur über begrenzte Bandbreite verfügen.";
 $a->strings["Enable old style pager"] = "Den Old-Style Pager aktiviren";
 $a->strings["The old style pager has page numbers but slows down massively the page speed."] = "Der Old-Style Pager zeigt Seitennummern an, verlangsamt aber auch drastisch das Laden einer Seite.";
 $a->strings["Only search in tags"] = "Nur in Tags suchen";

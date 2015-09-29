@@ -12,7 +12,7 @@ function profile_change() {
 		return;
 
 //   $url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
-//   if($url && strlen(get_config('system','directory_submit_url')))
+//   if($url && strlen(get_config('system','directory')))
 //      proc_run('php',"include/directory.php","$url");
 
 	$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'

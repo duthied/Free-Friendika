@@ -234,7 +234,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	}
 
 	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
-		AND poco_reachable($profile_url, $server_url, $network, true)) {
+		AND poco_reachable($profile_url, $server_url, $network, false)) {
 		$data = probe_url($profile_url);
 
 		$orig_profile = $profile_url;
@@ -1224,7 +1224,7 @@ function update_suggestions() {
 
 	$done[] = $a->get_baseurl() . '/poco';
 
-	if(strlen(get_config('system','directory_submit_url'))) {
+	if(strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
 		if($x) {
 			$j = json_decode($x);
@@ -1296,8 +1296,11 @@ function poco_discover($complete = false) {
 	if ($r)
 		foreach ($r AS $server) {
 
-			if (!poco_check_server($server["url"], $server["network"]))
+			if (!poco_check_server($server["url"], $server["network"])) {
+				// The server is not reachable? Okay, then we will try it later
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				continue;
+			}
 
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,generation";
@@ -1338,8 +1341,13 @@ function poco_discover($complete = false) {
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				if (!$complete AND (--$no_of_queries == 0))
 					break;
-			} else	// If the server hadn't replied correctly, then force a sanity check
+			} else {
+				// If the server hadn't replied correctly, then force a sanity check
 				poco_check_server($server["url"], $server["network"], true);
+
+				// If we couldn't reach the server, we will try it some time later
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+			}
 		}
 }
 
