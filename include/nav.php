@@ -138,6 +138,8 @@ function nav_info(&$a) {
 	elseif(get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		$nav['community'] = array('community', t('Community'), "", t('Conversations on the network'));
 
+	$nav['events'] = Array('events', t('Events'), "", t('Events and Calendar'));
+
 	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory'));
 
 	$nav['about'] = Array('friendica', t('Information'), "", t('Information about this friendica instance'));

@@ -19,6 +19,11 @@
 				<span id="net-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
+		{{if $nav.events}}
+			<li role="menuitem" id="nav-events-link" class="nav-menu {{$sel.events}}">
+				<a accesskey="e" class="{{$nav.events.2}}" href="{{$nav.events.0}}" title="{{$nav.events.3}}" >{{$nav.events.1}}</a>
+			</li>
+		{{/if}}
 		{{if $nav.community}}
 			<li role="menuitem" id="nav-community-link" class="nav-menu {{$sel.community}}">
 				<a accesskey="c" class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
