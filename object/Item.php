@@ -357,7 +357,7 @@ class Item extends BaseObject {
 			'body' => $body_e,
 			'text' => $text_e,
 			'id' => $this->get_id(),
-			'guid' => $item['guid'],
+			'guid' => urlencode($item['guid']),
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'consensus' => $consensus,
