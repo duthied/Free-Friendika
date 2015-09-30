@@ -30,6 +30,7 @@ function photos_init(&$a) {
 
 		$a->data['user'] = $r[0];
 		$a->profile_uid = $r[0]['uid'];
+		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
 		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
 
@@ -62,6 +63,9 @@ function photos_init(&$a) {
 
 			$ret['albums'] = array();
 			foreach($albums as $k => $album) {
+				//hide profile photos to others
+				if((! $is_owner) && (! remote_user()) && ($album['album'] == t('Profile Photos')))
+					continue;
 				$entry = array(
 					'text'      => $album['album'],
 					'total'     => $album['total'],
@@ -534,12 +538,12 @@ function photos_post(&$a) {
 							if(count($links)) {
 								foreach($links as $link) {
 									if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
-        		            			$profile = $link['@attributes']['href'];
+							$profile = $link['@attributes']['href'];
 									if($link['@attributes']['rel'] === 'salmon') {
 										$salmon = '$url:' . str_replace(',','%sc',$link['@attributes']['href']);
 										if(strlen($inform))
 											$inform .= ',';
-                    					$inform .= $salmon;
+							$inform .= $salmon;
 									}
 								}
 							}
@@ -1059,8 +1063,8 @@ function photos_content(&$a) {
 	$o = "";
 
 	// tabs
-	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);
+	$is_owner = (local_user() && (local_user() == $owner_uid));
+	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request
@@ -1799,6 +1803,10 @@ function photos_content(&$a) {
 	if(count($r)) {
 		$twist = 'rotright';
 		foreach($r as $rr) {
+			//hide profile photos to others
+			if((! $is_owner) && (! remote_user()) && ($rr['album'] == t('Profile Photos')))
+					continue;
+			
 			if($twist == 'rotright')
 				$twist = 'rotleft';
 			else
@@ -1815,8 +1823,8 @@ function photos_content(&$a) {
 			}
 
 			$photos[] = array(
-				'id'       => $rr['id'],
-				'twist'    => ' ' . $twist . rand(2,4),
+				'id'		=> $rr['id'],
+				'twist'		=> ' ' . $twist . rand(2,4),
 				'link'  	=> $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
 				'title' 	=> t('View Photo'),
 				'src'     	=> $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
