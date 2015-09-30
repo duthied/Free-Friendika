@@ -9,13 +9,13 @@ function update_contact($id) {
 
 	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `network` FROM `contact` WHERE `id` = %d", intval($id));
 	if (!$r)
-		return;
+		return false;
 
 	$ret = probe_url($r[0]["url"]);
 
 	// If probe_url fails the network code will be different
 	if ($ret["network"] != $r[0]["network"])
-		return;
+		return false;
 
 	$update = false;
 
@@ -29,7 +29,7 @@ function update_contact($id) {
 	}
 
 	if (!$update)
-		return;
+		return true;
 
 	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s' WHERE `id` = %d",
 		dbesc($ret['url']),
@@ -42,6 +42,8 @@ function update_contact($id) {
 		dbesc($ret['poco']),
 		intval($id)
 	);
+
+	return true;
 }
 
 //

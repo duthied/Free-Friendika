@@ -615,6 +615,10 @@ function notifier_run(&$argv, &$argc){
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
+	// If we are using the worker we don't need a delivery interval
+	if (get_config("system", "worker"))
+		$interval = false;
+
 	// delivery loop
 
 	if(count($r)) {
@@ -634,7 +638,7 @@ function notifier_run(&$argv, &$argc){
 
 		// This controls the number of deliveries to execute with each separate delivery process.
 		// By default we'll perform one delivery per process. Assuming a hostile shared hosting
-		// provider, this provides the greatest chance of deliveries if processes start getting 
+		// provider, this provides the greatest chance of deliveries if processes start getting
 		// killed. We can also space them out with the delivery_interval to also help avoid them
 		// getting whacked.
 
@@ -642,8 +646,10 @@ function notifier_run(&$argv, &$argc){
 		// together into a single process. This will reduce the overall number of processes
 		// spawned for each delivery, but they will run longer.
 
+		// When using the workerqueue, we don't need this functionality.
+
 		$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
-		if($deliveries_per_process <= 0)
+		if (($deliveries_per_process <= 0) OR get_config("system", "worker"))
 			$deliveries_per_process = 1;
 
 		$this_batch = array();

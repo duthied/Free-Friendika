@@ -168,8 +168,18 @@ function onepoll_run(&$argv, &$argc){
 	);
 
 	// Update the contact entry
-	if(($contact['network'] === NETWORK_OSTATUS) || ($contact['network'] === NETWORK_DIASPORA) || ($contact['network'] === NETWORK_DFRN))
-		update_contact($contact["id"]);
+	if(($contact['network'] === NETWORK_OSTATUS) || ($contact['network'] === NETWORK_DIASPORA) || ($contact['network'] === NETWORK_DFRN)) {
+		if (!poco_reachable($contact['url'])) {
+			logger("Skipping probably dead contact ".$contact['url']);
+			return;
+		}
+
+		if (!update_contact($contact["id"])) {
+			mark_for_death($contact);
+			return;
+		} else
+			unmark_for_death($contact);
+	}
 
 	if($contact['network'] === NETWORK_DFRN) {
 
@@ -360,7 +370,7 @@ function onepoll_run(&$argv, &$argc){
 				);
 				logger("Mail: Connected to " . $mailconf[0]['user']);
 			} else
-				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors()));
+				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors(), true));
 		}
 		if($mbox) {
 
