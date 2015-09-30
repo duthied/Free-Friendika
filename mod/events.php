@@ -189,8 +189,7 @@ function events_content(&$a) {
 		$editselect = 'textareas';
 
 	// First day of the week (0 = Sunday)
-	// To-Do: Needs to be configurable
-	$firstDay = 0;
+	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
 
 	$i18n = array(
 			"firstDay" => $firstDay,
