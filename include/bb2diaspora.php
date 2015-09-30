@@ -34,6 +34,15 @@ function diaspora2bb($s) {
 
 	$s = str_replace('&#35;','#',$s);
 
+	$search = array(" \n", "\n ");
+	$replace = array("\n", "\n");
+	do {
+		$oldtext = $s;
+		$s = str_replace($search, $replace, $s);
+	} while ($oldtext != $s);
+
+	$s = str_replace("\n\n", "<br>", $s);
+
 	$s = html2bbcode($s);
 
 	// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
@@ -95,6 +104,9 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	} else
 		$Text = bbcode($Text, $preserve_nl, false, 4);
 
+    // mask some special HTML chars from conversation to markdown
+    $Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
+
 	// If a link is followed by a quote then there should be a newline before it
 	// Maybe we should make this newline at every time before a quote.
 	$Text = str_replace(array("</a><blockquote>"), array("</a><br><blockquote>"), $Text);
@@ -103,6 +115,9 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	// Now convert HTML to Markdown
 	$Text = new HTML_To_Markdown($Text);
+
+    // unmask the special chars back to HTML
+    $Text = str_replace(array('&_lt_;','&_gt_;','&_amp_;'),array('&lt;','&gt;','&amp;'),$Text);
 
 	$a->save_timestamp($stamp1, "parser");
 
@@ -137,22 +152,22 @@ function format_event_diaspora($ev) {
 	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
 	$o .= t('Starts:') . ' ' . '['
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC', 
+		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format ))
-			:  day_translate(datetime_convert('UTC', 'UTC', 
+			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format)))
 		.  '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
 	if(! $ev['nofinish'])
-		$o .= t('Finishes:') . ' ' . '[' 
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC', 
+		$o .= t('Finishes:') . ' ' . '['
+			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format ))
-				:  day_translate(datetime_convert('UTC', 'UTC', 
+				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
 			. '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
 
 	if(strlen($ev['location']))
-		$o .= t('Location:') . bb2diaspora($ev['location']) 
+		$o .= t('Location:') . bb2diaspora($ev['location'])
 			. "\n";
 
 	$o .= "\n";

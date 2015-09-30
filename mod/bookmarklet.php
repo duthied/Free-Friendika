@@ -27,7 +27,7 @@ function bookmarklet_content(&$a) {
 			'nickname' => $a->user['nickname'],
 			'lockstate' => ((is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))) ? 'lock' : 'unlock'),
 			'default_perms' => get_acl_permissions($a->user),
-			'acl' => populate_acl($a->user, $celeb),
+			'acl' => populate_acl($a->user,true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

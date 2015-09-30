@@ -18,11 +18,8 @@ function notify_init(&$a) {
 				intval(local_user())
 			);
 
-			// Friendica-Client
-			$friendicamobile = ($_SERVER['HTTP_USER_AGENT'] == "Apache-HttpClient/UNAVAILABLE (java 1.4)");
-
 			// The friendica client has problems with the GUID. this is some workaround
-			if ($friendicamobile) {
+			if ($a->is_friendica_app()) {
 				require_once("include/items.php");
 				$urldata = parse_url($r[0]['link']);
 				$guid = basename($urldata["path"]);

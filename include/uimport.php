@@ -156,7 +156,9 @@ function import_account(&$a, $file) {
 	$newuid = last_insert_id();
 	//~ $newuid = 1;
 
-
+	// Generate a new guid for the account. Otherwise there will be problems with diaspora
+	q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d",
+		dbesc(generate_user_guid()), intval($newuid));
 
 	foreach ($account['profile'] as &$profile) {
 		foreach ($profile as $k => &$v) {

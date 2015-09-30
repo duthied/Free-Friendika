@@ -235,7 +235,7 @@ li.icon.icon-large:before {
 .icon-signout:before              { content: "\f08b"; }
 .icon-linkedin-sign:before        { content: "\f08c"; }
 .icon-pushpin:before              { content: "\f08d"; }
-.icon-external-link:before        { content: "\f08e"; }
+.icon.remote-link:before          { content: "\f08e"; }
 
 .icon-signin:before               { content: "\f090"; }
 .icon-trophy:before               { content: "\f091"; }
@@ -324,11 +324,12 @@ li.icon.icon-large:before {
 
 .icon-user-md:before              { content: "\f200"; }
 
-.icon.type-image:before           { content: "\f03e"; }
-.icon.type-video:before           { content: "\f008"; }
-.icon.type-audio:before           { content: "\f001"; }
-.icon.type-text:before            { content: "\f036"; }
-.icon.type.unkn:before            { content: "\f059"; }
+.icon.type-image:before           { content: "\f1c5"; }
+.icon.type-video:before           { content: "\f1c8"; }
+.icon.type-audio:before           { content: "\f1c7"; }
+.icon.type-text:before            { content: "\f0f6"; }
+.icon.type-application:before     { content: "\f016"; }
+.icon.type-unkn:before            { content: "\f016"; }
 
 .icon.drop:before                 { content: "\f014"; }
 .icon.drophide:before             { content: "\f014"; }

@@ -16,54 +16,24 @@ Geh auf /admin/site in deinem System und ändere die folgenden Werte:
 
     setze "Qualität des JPEG Bildes" auf 50.
 
-Dieser Wert reduziert die Daten, die vom Server an den Client geschickt werden. 50 ist ein Wert, der die Bildqualität nicht zu stark beeinflusst.
+Dieser Wert reduziert die Daten, die vom Server an den Client geschickt werden. 
+50 ist ein Wert, der die Bildqualität nicht zu stark beeinflusst.
 
     setze "Intervall zum Vervollständigen von OStatus Unterhaltungen" auf "niemals"
 
-Wenn du viele OStatus-Kontakte hast, dann kann die Vervollständigung von Unterhaltungen sehr zeitraubend sein. Der Nachteil: Du siehst nicht jede Antwort einer OStatus-Unterhaltung.
-
-    setze "Pfad für die Sperrdatei" auf einen Ordner außerhalb deines Stammverzeichnisses deines Servers.
-
-Sperrdateien sorgen dafür, dass Hintergrundprozesse nicht parallel ablaufen.
-
-Als Beispiel: Es kann passieren, dass die poller.php länger als erwartet läuft. Ohne Sperrdatei kann es passieren, dass mehrere Instanzen der poller.php zur gleichen Zeit laufen. Dies würde das System verlangsamen und Einfluss auf die maximale Anzahl an Prozessen und Datenbankverbindungen nehmen.
-
-Bitte definiere einen kompletten Pfad, auf den der Server einen Schreibzugriff hat. Wenn deine Seite unter "/var/www/namederseite/htdocs/" liegt, dann kannst du z.B. einen Ordner unter "/var/www/sitename/temp/" erstellen.
+Wenn du viele OStatus-Kontakte hast, dann kann die Vervollständigung von Unterhaltungen sehr zeitraubend sein. 
+Der Nachteil: Du siehst nicht jede Antwort einer OStatus-Unterhaltung. Aus diesem Grund ist die Option "Beim Empfang von Nachrichten" in der Regel ein guter Kompromiss.
 
     setze "Nutze MySQL full text engine".
 
-Wenn du MyISAM (Standardeinstellung) nutzt, dann beschleunigt dies die Suche.
-
-    setze "Pfad zum Eintrag Cache" auf einen leeren Ordner außerhalb deines Stammverzeichnisses.
-
-Verarbeiteter BBCode und einige externe Bilder werden hier gespeichert. BBCode verarbeiten ist ein zeitintensiver Prozess, der zudem eine hohe CPU-Leistung erfordert.
-
-Du kannst den gleichen Ordner nutzen, den du für die Sperrdatei genutzt hast.
-
-**Warnung!**
-
-Der Ordner für den Eintrag-Cache wird regelmäßig geleert. Jede Datei, die die Cache-Dauer überschreitet, wird gelöscht. **Wenn du versehentlich den Cache-Pfad auf dein Stammverzeichnis legst, dann würde dir dies das gesamte Stammverzeichnis löschen.**
-
-Prüfe also doppelt, dass der gewählte Ordner nur temporäre Dateien enthält, die jederzeit gelöscht werden können.
+Wenn du MyISAM (Standardeinstellung) oder InnoDB mit MariaDB 10 nutzt, dann beschleunigt dies die Suche.
 
 Plugins
 --------
 
 Aktiviere die folgenden Plugins:
 
-    Alternate Pagination
-    Privacy Image Cache
     rendertime
-
-###Alternate Pagination
-
-**Beschreibung**
-
-Dieses Plugin reduziert die Ladezeit der Datenbank massiv. Nachteil: Du kannst nicht mehr die Anzahl aller Seiten sehen.
-
-**Einrichtung**
-
-Gehe auf admin/plugins/altpager und wähle "global".
 
 ###rendertime
 
@@ -119,14 +89,9 @@ Weitere Informationen findest du hier: http://httpd.apache.org/docs/2.2/mod/mod_
 
 **FCGI**
 
-Wenn du Apache nutzt, dann denk darüber nach, FCGI zu nutzen. Wenn du eine Debian-basierte Distribution nutzt, dann wirst du die Pakete "php5-cgi" und "libapache2-mod-fcgid" benötigen.
+Wenn du Apache nutzt, dann denk darüber nach, FCGI zu nutzen. 
+Wenn du eine Debian-basierte Distribution nutzt, dann wirst du die Pakete "php5-cgi" und "libapache2-mod-fcgid" benötigen.
 Nutze externe Dokumente, um eine detailiertere Erklärung für die Einrichtung eines Systems auf FCGI-Basis zu erhalten.
-
-**APC**
-
-APC ist ein Zwischenspeicher für die Verarbeitung des Befehlscodes. Es beschleunigt die Verarbeitung des PHP-Codes.
-
-Wenn APC aktiviert ist, dann nutzt Friendica dies, um Konfigurationseinstellungen für verschiedene Anfragen zwischenzuspeichern. Dies beschleunigt die Reaktionszeit der Seite.
 
 ###Database
 

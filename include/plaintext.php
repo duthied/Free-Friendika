@@ -52,7 +52,7 @@ function get_attached_data($body) {
 		if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures,  PREG_SET_ORDER)) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
-				$data = parseurl_getsiteinfo($pictures[0][1], true);
+				$data = parseurl_getsiteinfo_cached($pictures[0][1], true);
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
 					if (isset($data["images"][0]))
@@ -95,7 +95,7 @@ function get_attached_data($body) {
 		}
 	} elseif (isset($post["url"]) AND ($post["type"] == "video")) {
 		require_once("mod/parse_url.php");
-		$data = parseurl_getsiteinfo($post["url"], true);
+		$data = parseurl_getsiteinfo_cached($post["url"], true);
 
 		if (isset($data["images"][0]))
 			$post["image"] = $data["images"][0]["src"];
@@ -181,6 +181,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 				$limit = $limit - 23;
 				$post["url"] = $b["plink"];
 			} elseif (strpos($b["body"], "[share") !== false)
+				$post["url"] = $b["plink"];
+			elseif (get_pconfig($b["uid"], "system", "no_intelligent_shortening"))
 				$post["url"] = $b["plink"];
 
 			$msg = shortenmsg($msg, $limit);

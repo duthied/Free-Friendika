@@ -22,7 +22,7 @@ a:hover {text-decoration: underline; }
 input {
 	border: 1px solid #666666;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 	padding: 3px;
 }
 
@@ -50,7 +50,7 @@ code {
 	background: #EEE;
 	color: #444;
 	padding: 10px;
-	margin-top: 20px; 
+	margin-top: 20px;
 }
 
 blockquote {
@@ -91,7 +91,7 @@ nav {
 	display: block;
 	margin: 0px 10%;
 	border-bottom: 1px solid #babdb6;
-	position: relative; 
+	position: relative;
 }
 nav #site-location {
 	color: #888a85;
@@ -151,9 +151,9 @@ nav #banner #logo-text a:hover { text-decoration: none; }
 	border: 1px solid #babdb6;
 	border-bottom: 0px;
 	background-color: #aec0d3;
-	color: #565854;		
+	color: #565854;
 	-moz-border-radius: 3px 3px 0px 0px;
-	border-radius: 3px 3px 0px 0px;	
+	border-radius: 3px 3px 0px 0px;
 }
 nav .nav-link {
 	float: right;
@@ -173,7 +173,7 @@ nav .nav-link {
 .nav-ajax-left {
 	font-size: 0.8em;
 	float: left;
-	margin-top: 62px;	
+	margin-top: 62px;
 }
 
 
@@ -228,12 +228,12 @@ section {
 	background-position: top right;
 	background-repeat: no-repeat;
 	min-height: 112px;
-	
+
 }
 .tabs {
 	height: 27px;
 	background-image: url(head.jpg);
-	background-repeat: repeat-x;	
+	background-repeat: repeat-x;
 	background-position: 0px -20px;
 	border-bottom: 1px solid #babdb6;
 	padding:0px;
@@ -248,7 +248,7 @@ section {
 }
 .tab.active {
 	font-weight: bold;
-	
+
 }
 
 
@@ -278,14 +278,14 @@ div.wall-item-content-wrapper.shiny {
 }
 
 /* from default */
-#jot-perms-icon, 
+#jot-perms-icon,
 #profile-location,
 #profile-nolocation,
-#profile-youtube, 
-#profile-video, 
+#profile-youtube,
+#profile-video,
 #profile-audio,
 #profile-link,
-#profile-title, 
+#profile-title,
 #wall-image-upload,
 #wall-file-upload,
 #profile-upload-wrapper,
@@ -313,13 +313,13 @@ div.wall-item-content-wrapper.shiny {
 #jot-category::-webkit-input-placeholder{font-weight: normal;}
 #jot-title:-moz-placeholder{font-weight: normal;}
 #jot-category:-moz-placeholder{font-weight: normal;}
-		
-	
+
+
 #jot-title:hover,
 #jot-title:focus,
 #jot-category:hover,
 #jot-category:focus {
-	border: 1px solid #cccccc; 
+	border: 1px solid #cccccc;
 }
 
 .jothidden { display:none; }
@@ -343,7 +343,7 @@ div.wall-item-content-wrapper.shiny {
 .group-selected, .nets-selected, .fileas-selected, .categories-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 	border: 1px solid #CCCCCC;
 	background: #F8F8F8;
 	font-weight: bold;
@@ -352,7 +352,7 @@ div.wall-item-content-wrapper.shiny {
 .settings-widget .selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 	border: 1px solid #CCCCCC;
 	background: #F8F8F8;
 	font-weight: bold;
@@ -813,7 +813,7 @@ input#dfrn-url {
     clear: left;
     color: #666666;
     display: block;
-    margin-bottom: 20px	
+    margin-bottom: 20px
 }
 
 #profile-edit-profile-name-end,
@@ -944,7 +944,7 @@ input#dfrn-url {
 	border: 1px solid #CCC;
 	position: relative;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 }
 
 .tread-wrapper .tread-wrapper {
@@ -987,7 +987,7 @@ input#dfrn-url {
 	display: block;
 	position: absolute;
 	background-image: url("photo-menu.jpg");
-	background-position: top left; 
+	background-position: top left;
 	background-repeat: no-repeat;
 	margin: 0px; padding: 0px;
 	width: 16px;
@@ -996,7 +996,7 @@ input#dfrn-url {
 	overflow: hidden;
 	text-indent: 40px;
 	display: none;
-	
+
 }
 .wall-item-photo-menu {
 	width: auto;
@@ -1047,7 +1047,7 @@ input#dfrn-url {
 	/*margin-top: 10px;*/
     left: 105px;
     position: absolute;
-    top: 1px;	
+    top: 1px;
 }
 .comment .wall-item-lock {
 	left: 65px;
@@ -1100,11 +1100,11 @@ input#dfrn-url {
 }
 .star-item {
 	margin-left: 10px;
-	float: left;	
+	float: left;
 }
 .tag-item {
 	margin-left: 10px;
-	float: left;	
+	float: left;
 }
 
 .filer-item {
@@ -1141,7 +1141,7 @@ input#dfrn-url {
 	border: none;
 }
 .comment .wall-item-photo {
-	width: 50px !important; 
+	width: 50px !important;
 	height: 50px !important;
 }
 .wall-item-content {
@@ -1240,7 +1240,7 @@ blockquote.shared_content {
 
 .comment .wall-item-tools {
 	background:none;
-} 
+}
 
 .comment-edit-wrapper {
 	margin-top: 15px;
@@ -1270,7 +1270,7 @@ blockquote.shared_content {
 	float: left;
 	margin-top: 10px;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 	border: 1px solid #cccccc;
 	padding: 3px 1px 1px 3px;
 }
@@ -1469,6 +1469,7 @@ blockquote.shared_content {
   padding: 10px;
   text-align: center;
   font-size: 1.0em;
+  clear:left;
 }
 
 
@@ -1676,7 +1677,7 @@ blockquote.shared_content {
 .contact-photo-menu-button {
 	position: absolute;
 	background-image: url("photo-menu.jpg");
-	background-position: top left; 
+	background-position: top left;
 	background-repeat: no-repeat;
 	margin: 0px; padding: 0px;
 	width: 16px;
@@ -1685,7 +1686,7 @@ blockquote.shared_content {
 	overflow: hidden;
 	text-indent: 40px;
 	display: none;
-	
+
 }
 .contact-photo-menu {
 	width: auto;
@@ -1723,7 +1724,7 @@ blockquote.shared_content {
 	border: 1px solid #cccccc;
 	padding: 3px 0px 0px 5px;
 	-moz-border-radius: 3px;
-	border-radius: 3px;	
+	border-radius: 3px;
 }
 
 
@@ -1777,7 +1778,7 @@ blockquote.shared_content {
 	overflow: auto;
 }
 #acl-list-content {
-	
+
 }
 .acl-list-item {
 	display: block;
@@ -1794,7 +1795,7 @@ blockquote.shared_content {
 	margin: 4px;
 }
 .acl-list-item p { height: 12px; font-size: 10px; margin: 0px; padding: 2px 0px 1px; overflow: hidden;}
-.acl-list-item a { 
+.acl-list-item a {
 	font-size: 8px;
 	display: block;
 	width: 40px;
@@ -2026,11 +2027,11 @@ a.mail-list-link {
 	margin-top: 10px;
 }
 
-.nets-ul, .fileas-ul, .categories-ul {
+.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
 	list-style-type: none;
 }
 
-.nets-ul li, .fileas-ul li, .categories-ul li {
+.nets-ul li, .fileas-ul li, .categories-ul li, .datebrowse-ul li {
 	margin-top: 10px;
 }
 
@@ -2111,15 +2112,15 @@ aside input[type='text'] {
 	margin-top: 15px;
 	margin-right: 15px;
 	margin-left: 15px;
-/*	width: 200px; height: 200px; 
-	overflow: hidden; 
+/*	width: 200px; height: 200px;
+	overflow: hidden;
 	position: relative; */
 }
 .photo-album-image-wrapper .caption {
-	display: none; 
+	display: none;
  	width: 100%;
 /* 	position: absolute; */
- 	bottom: 0px; 
+ 	bottom: 0px;
  	padding: 0.5em 0.5em 0px 0.5em;
  	background-color: rgba(245, 245, 255, 0.8);
  	border-bottom: 2px solid #CCC;
@@ -2141,14 +2142,14 @@ aside input[type='text'] {
 	margin-right: 15px;
 	margin-left: 15px;
 	margin-bottom: 15px;
-/*	width: 200px; height: 200px; 
+/*	width: 200px; height: 200px;
 	overflow: hidden; */
 }
 .photo-top-album-name {
  	width: 100%;
  	min-height: 2em;
 /* 	position: absolute;  */
- 	bottom: 0px; 
+ 	bottom: 0px;
  	padding: 0px 3px;
  	padding-top: 0.5em;
  	background-color: rgb(255, 255, 255);
@@ -2236,7 +2237,7 @@ aside input[type='text'] {
 }
 
 #profile-jot-banner-end {
-	/* clear: both; */ 
+	/* clear: both; */
 }
 
 #photos-upload-select-files-text {
@@ -2464,7 +2465,7 @@ aside input[type='text'] {
 }
 
 /* end from default */
-	
+
 
 .fn {
 	padding: 0px 0px 5px 12px;
@@ -2483,7 +2484,7 @@ aside input[type='text'] {
 
 #birthday-title {
 	float: left;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 #birthday-adjust {
@@ -2607,7 +2608,7 @@ aside input[type='text'] {
 	clear: both;
 }
 
- 
+
 .calendar {
 	font-family: Courier, monospace;
 }
@@ -2791,7 +2792,7 @@ aside input[type='text'] {
 
 
 #netsearch-box {
-	margin-top: 20px;	
+	margin-top: 20px;
 }
 
 #netsearch-box #search-submit {
@@ -2898,7 +2899,7 @@ aside input[type='text'] {
 .settings-heading {
 	border-bottom: 1px solid #babdb6;
 }
- 
+
 
 /**
  * Form fields
@@ -2924,7 +2925,7 @@ aside input[type='text'] {
 	display: block;
 	margin-left: 200px;
 	color: #666666;
-	
+
 }
 
 
@@ -2972,7 +2973,7 @@ aside input[type='text'] {
 	font-weight: bold;
 	background-color: #FF0000;
 	padding: 0em 0.3em;
-	
+
 }
 #adminpage dl {
 	clear: left;
@@ -3027,7 +3028,7 @@ aside input[type='text'] {
 /*
  * UPDATE
  */
-.popup { 	
+.popup {
 	width: 100%; height: 100%;
 	top:0px; left:0px;
 	position: absolute;
@@ -3048,7 +3049,7 @@ aside input[type='text'] {
 	border: 4px solid #000000;
 	background-color: #FFFFFF;
 }
-.popup .panel .panel_text { display: block; overflow: auto; height: 80%; } 
+.popup .panel .panel_text { display: block; overflow: auto; height: 80%; }
 .popup .panel .panel_in { width: 100%; height: 100%;	position: relative; }
 .popup .panel .panel_actions {  width: 100%; bottom: 4px; left: 0px; position: absolute; }
 .panel_text .progress { width: 50%; overflow: hidden; height: auto; border: 1px solid #cccccc; margin-bottom: 5px}
@@ -3061,7 +3062,7 @@ aside input[type='text'] {
 	height: auto; overflow: auto;
 	border-bottom: 2px solid #cccccc;
 	padding-bottom: 1em;
-	margin-bottom: 1em;	
+	margin-bottom: 1em;
 }
 .oauthapp img {
 	float: left;
@@ -3365,9 +3366,9 @@ ul.menu-popup {
 }
 
 #recip {
-	
+
 }
-.autocomplete-w1 { background: #ffffff; no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
+.autocomplete-w1 { background: #ffffff no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
 .autocomplete { color:#000; border:1px solid #999; background:#FFF; cursor:default; text-align:left; max-height:350px; overflow:auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }
 .autocomplete .selected { background:#F0F0F0; }
 .autocomplete div { padding:2px 5px; white-space:nowrap; overflow:hidden; }
@@ -3400,10 +3401,10 @@ ul.menu-popup {
 }
 @media all and (max-width: 760px) {
 	body { background-image: none; }
-	nav, aside, section, footer { 
-		margin: 0px; 
-		float: none; 
-		position: relative; 
+	nav, aside, section, footer {
+		margin: 0px;
+		float: none;
+		position: relative;
 		width: 100%;
 		padding: 0.5em;
 		height: auto;
@@ -3416,11 +3417,11 @@ ul.menu-popup {
 	aside { overflow: hidden; min-height: 0; height: 1em;}
 	aside:hover, aside:focus { height: auto; }
 
-	nav .nav-link { 
+	nav .nav-link {
 		float: left;
 		width: 23%;
 		min-width: 100px;
-		height: 15px;	
+		height: 15px;
 		display: block;
 		margin: 0.4em 2px 0 0;
 
@@ -3431,11 +3432,11 @@ ul.menu-popup {
 		background-color: rgb(174, 192,211)!important;
 	}
 	.nav-commlink.selected,
-	.nav-commlink { 
+	.nav-commlink {
 		border-bottom: 0px;
 		padding: 6px 3px;
 		min-width: 100px;
-		float: left; 
+		float: left;
 		margin-top: 0.4em;
 		width: 23%;
 		bottom: auto;
@@ -3443,6 +3444,30 @@ ul.menu-popup {
 	.nav-ajax-left {margin-left: -1em; margin-top: 0px;	}
 	nav #site-location,
 	nav #banner { position: relative; clear:both; }
-	ul.menu-popup { left: 0px; top 20px; }
+	ul.menu-popup { left: 0px; top: 20px; }
 
 }
+
+/* videos page */
+.videos .video-top-wrapper {
+  width: 300px;
+  float: left;
+  margin: 0px 10px 10px 0px;
+  position: relative;
+}
+.videos .video-top-wrapper .video-js {
+  width: 300px!important;
+  height: 232px!important;
+}
+.videos .video-top-wrapper .video-delete {
+  position: absolute;
+  opacity: 0;
+  right: 0px;
+  top: 0px;
+  transition: opacity 0.5s;
+}
+.videos .video-top-wrapper:hover .video-delete {
+  opacity: 1;
+}
+
+

@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.4.0 (Ginger)
--- DB_UPDATE_VERSION 1182
+-- Friendica 3.4.1 (Lily of the valley)
+-- DB_UPDATE_VERSION 1188
 -- ------------------------------------------
 
 
@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 CREATE TABLE IF NOT EXISTS `cache` (
 	`k` varchar(255) NOT NULL PRIMARY KEY,
 	`v` text NOT NULL,
+	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
@@ -136,10 +137,12 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`hub-verify` varchar(255) NOT NULL DEFAULT '',
 	`last-update` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`success_update` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`failure_update` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`name-date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`uri-date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`avatar-date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`term-date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`last-item` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`priority` tinyint(3) NOT NULL DEFAULT 0,
 	`blocked` tinyint(1) NOT NULL DEFAULT 1,
 	`readonly` tinyint(1) NOT NULL DEFAULT 0,
@@ -299,18 +302,25 @@ CREATE TABLE IF NOT EXISTS `gcign` (
 CREATE TABLE IF NOT EXISTS `gcontact` (
 	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
 	`name` varchar(255) NOT NULL DEFAULT '',
+	`nick` varchar(255) NOT NULL DEFAULT '',
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
 	`connect` varchar(255) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`updated` datetime DEFAULT '0000-00-00 00:00:00',
+	`last_contact` datetime DEFAULT '0000-00-00 00:00:00',
+	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
 	`location` varchar(255) NOT NULL DEFAULT '',
 	`about` text NOT NULL,
 	`keywords` text NOT NULL,
 	`gender` varchar(32) NOT NULL DEFAULT '',
+	`community` tinyint(1) NOT NULL DEFAULT 0,
 	`network` varchar(255) NOT NULL DEFAULT '',
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
-	 INDEX `nurl` (`nurl`)
+	`server_url` varchar(255) NOT NULL DEFAULT '',
+	 INDEX `nurl` (`nurl`),
+	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
 
 --
@@ -352,12 +362,39 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 ) DEFAULT CHARSET=utf8;
 
 --
+-- TABLE gserver
+--
+CREATE TABLE IF NOT EXISTS `gserver` (
+	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`url` varchar(255) NOT NULL DEFAULT '',
+	`nurl` varchar(255) NOT NULL DEFAULT '',
+	`version` varchar(255) NOT NULL DEFAULT '',
+	`site_name` varchar(255) NOT NULL DEFAULT '',
+	`info` text NOT NULL,
+	`register_policy` tinyint(1) NOT NULL DEFAULT 0,
+	`poco` varchar(255) NOT NULL DEFAULT '',
+	`noscrape` varchar(255) NOT NULL DEFAULT '',
+	`network` varchar(32) NOT NULL DEFAULT '',
+	`platform` varchar(255) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`last_poco_query` datetime DEFAULT '0000-00-00 00:00:00',
+	`last_contact` datetime DEFAULT '0000-00-00 00:00:00',
+	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
+	 INDEX `nurl` (`nurl`)
+) DEFAULT CHARSET=utf8;
+
+--
 -- TABLE guid
 --
 CREATE TABLE IF NOT EXISTS `guid` (
 	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
 	`guid` varchar(255) NOT NULL DEFAULT '',
-	 INDEX `guid` (`guid`)
+	`plink` varchar(255) NOT NULL DEFAULT '',
+	`uri` varchar(255) NOT NULL DEFAULT '',
+	`network` varchar(32) NOT NULL DEFAULT '',
+	 INDEX `guid` (`guid`),
+	 INDEX `plink` (`plink`),
+	 INDEX `uri` (`uri`)
 ) DEFAULT CHARSET=utf8;
 
 --
@@ -586,6 +623,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`msg` mediumtext NOT NULL,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`link` varchar(255) NOT NULL DEFAULT '',
+	`iid` int(11) NOT NULL DEFAULT 0,
 	`parent` int(11) NOT NULL DEFAULT 0,
 	`seen` tinyint(1) NOT NULL DEFAULT 0,
 	`verb` varchar(255) NOT NULL DEFAULT '',

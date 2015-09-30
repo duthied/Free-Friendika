@@ -3,7 +3,9 @@
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
 require_once('include/contact_selectors.php');
+require_once('include/Scrape.php');
 require_once('mod/proxy.php');
+require_once('include/Photo.php');
 
 function contacts_init(&$a) {
 	if(! local_user())
@@ -33,7 +35,7 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => $a->data['contact']['name'],
 				'$photo' => $a->data['contact']['photo'],
-			        '$url' => ($a->data['contact']['network'] == 'dfrn') ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
+			        '$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
 			$follow_widget = '';
 	}
@@ -204,9 +206,99 @@ function contacts_post(&$a) {
 
 /*contact actions*/
 function _contact_update($contact_id) {
-	// pull feed and consume it, which should subscribe to the hub.
-	proc_run('php',"include/poller.php","$contact_id"); 
+	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if (!$r)
+		return;
+
+	$uid = $r[0]["uid"];
+
+	if ($uid != local_user())
+		return;
+
+	if ($r[0]["network"] == NETWORK_OSTATUS) {
+		$result = new_contact($uid, $r[0]["url"], false);
+
+		if ($result['success'])
+			$r = q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d",
+				intval($contact_id));
+	} else
+		// pull feed and consume it, which should subscribe to the hub.
+		proc_run('php',"include/onepoll.php","$contact_id", "force");
 }
+
+function _contact_update_profile($contact_id) {
+	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if (!$r)
+		return;
+
+	$uid = $r[0]["uid"];
+
+	if ($uid != local_user())
+		return;
+
+	$data = probe_url($r[0]["url"]);
+
+	// "Feed" is mostly a sign of communication problems
+	if (($data["network"] == NETWORK_FEED) AND ($data["network"] != $r[0]["network"]))
+		return;
+
+	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
+				"poco", "network", "alias", "pubkey");
+	$update = array();
+
+	if ($data["network"] == NETWORK_OSTATUS) {
+		$result = new_contact($uid, $data["url"], false);
+
+		if ($result['success'])
+			$update["subhub"] = true;
+	}
+
+	foreach($updatefields AS $field)
+		if (isset($data[$field]) AND ($data[$field] != ""))
+			$update[$field] = $data[$field];
+
+	$update["nurl"] = normalise_link($data["url"]);
+
+	$query = "";
+
+	if (isset($data["priority"]) AND ($data["priority"] != 0))
+		$query = "`priority` = ".intval($data["priority"]);
+
+	foreach($update AS $key => $value) {
+		if ($query != "")
+			$query .= ", ";
+
+		$query .= "`".$key."` = '".dbesc($value)."'";
+	}
+
+	if ($query == "")
+		return;
+
+	$r = q("UPDATE `contact` SET $query WHERE `id` = %d AND `uid` = %d",
+		intval($contact_id),
+		intval(local_user())
+	);
+
+	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
+
+	$r = q("UPDATE `contact` SET `photo` = '%s',
+			`thumb` = '%s',
+			`micro` = '%s',
+			`name-date` = '%s',
+			`uri-date` = '%s',
+			`avatar-date` = '%s'
+			WHERE `id` = %d",
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($contact_id)
+		);
+
+}
+
 function _contact_block($contact_id, $orig_record) {
 	$blocked = (($orig_record['blocked']) ? 0 : 1);
 	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d",
@@ -284,6 +376,12 @@ function contacts_content(&$a) {
 			// NOTREACHED
 		}
 
+		if($cmd === 'updateprofile') {
+			_contact_update_profile($contact_id);
+			goaway($a->get_baseurl(true) . '/crepair/' . $contact_id);
+			// NOTREACHED
+		}
+
 		if($cmd === 'block') {
 			$r = _contact_block($contact_id, $orig_record[0]);
 			if($r) {
@@ -334,7 +432,9 @@ function contacts_content(&$a) {
 				}
 
 				$a->page['aside'] = '';
-				return replace_macros(get_markup_template('confirm.tpl'), array(
+				
+				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
+					'$contact' =>  _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
 					'$message' => t('Do you really want to delete this contact?'),
 					'$extra_inputs' => $inputs,
@@ -433,7 +533,7 @@ function contacts_content(&$a) {
 
 		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
 
-		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network']));
+		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
 		$common = count_common_friends(local_user(),$contact['id']);
 		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
@@ -450,12 +550,14 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
 				'sel'   => '',
 				'title' => t('Toggle Blocked status'),
+				'accesskey' => 'b',
 			),
 			array(
 				'label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
 				'sel'   => '',
 				'title' => t('Toggle Ignored status'),
+				'accesskey' => 'i',
 			),
 
 			array(
@@ -463,12 +565,14 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
 				'sel'   => '',
 				'title' => t('Toggle Archive status'),
+				'accesskey' => 'v',
 			),
 			array(
 				'label' => t('Repair'),
 				'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
 				'sel'   => '',
 				'title' => t('Advanced Contact Settings'),
+				'accesskey' => 'r',
 			)
 		);
 		$tab_tpl = get_markup_template('common_tabs.tpl');
@@ -533,6 +637,8 @@ function contacts_content(&$a) {
 			'$alt_text' => $alt_text,
 			'$sparkle' => $sparkle,
 			'$url' => $url,
+			'$profileurllabel' => t('Profile URL'),
+			'$profileurl' => $contact['url'],
 
 		));
 
@@ -578,21 +684,24 @@ function contacts_content(&$a) {
 	$tabs = array(
 		array(
 			'label' => t('Suggestions'),
-			'url'   => $a->get_baseurl(true) . '/suggest', 
+			'url'   => $a->get_baseurl(true) . '/suggest',
 			'sel'   => '',
 			'title' => t('Suggest potential friends'),
+			'accesskey' => 'g',
 		),
 		array(
 			'label' => t('All Contacts'),
-			'url'   => $a->get_baseurl(true) . '/contacts/all', 
+			'url'   => $a->get_baseurl(true) . '/contacts/all',
 			'sel'   => ($all) ? 'active' : '',
 			'title' => t('Show all contacts'),
+			'accesskey' => 'l',
 		),
 		array(
 			'label' => t('Unblocked'),
 			'url'   => $a->get_baseurl(true) . '/contacts',
 			'sel'   => ((! $all) && (! $blocked) && (! $hidden) && (! $search) && (! $nets) && (! $ignored) && (! $archived)) ? 'active' : '',
 			'title' => t('Only show unblocked contacts'),
+			'accesskey' => 'o',
 		),
 
 		array(
@@ -600,6 +709,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/blocked',
 			'sel'   => ($blocked) ? 'active' : '',
 			'title' => t('Only show blocked contacts'),
+			'accesskey' => 'b',
 		),
 
 		array(
@@ -607,6 +717,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/ignored',
 			'sel'   => ($ignored) ? 'active' : '',
 			'title' => t('Only show ignored contacts'),
+			'accesskey' => 'i',
 		),
 
 		array(
@@ -614,6 +725,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/archived',
 			'sel'   => ($archived) ? 'active' : '',
 			'title' => t('Only show archived contacts'),
+			'accesskey' => 'y',
 		),
 
 		array(
@@ -621,6 +733,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/hidden',
 			'sel'   => ($hidden) ? 'active' : '',
 			'title' => t('Only show hidden contacts'),
+			'accesskey' => 'h',
 		),
 
 	);
@@ -662,54 +775,9 @@ function contacts_content(&$a) {
 	$contacts = array();
 
 	if(count($r)) {
-
 		foreach($r as $rr) {
-
-			switch($rr['rel']) {
-				case CONTACT_IS_FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
-					$alt_text = t('Mutual Friendship');
-					break;
-				case  CONTACT_IS_FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
-					$alt_text = t('is a fan of yours');
-					break;
-				case CONTACT_IS_SHARING;
-					$dir_icon = 'images/rarrow.gif';
-					$alt_text = t('you are a fan of');
-					break;
-				default:
-					break;
-			}
-			if(($rr['network'] === 'dfrn') && ($rr['rel'])) {
-				$url = "redir/{$rr['id']}";
-				$sparkle = ' class="sparkle" ';
-			}
-			else {
-				$url = $rr['url'];
-				$sparkle = '';
-			}
-
-
-			$contacts[] = array(
-				'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
-				'edit_hover' => t('Edit contact'),
-				'photo_menu' => contact_photo_menu($rr),
-				'id' => $rr['id'],
-				'alt_text' => $alt_text,
-				'dir_icon' => $dir_icon,
-				'thumb' => proxy_url($rr['thumb']),
-				'name' => $rr['name'],
-				'username' => $rr['name'],
-				'sparkle' => $sparkle,
-				'itemurl' => $rr['url'],
-				'url' => $url,
-				'network' => network_to_name($rr['network']),
-			);
+			$contacts[] = _contact_detail_for_template($rr);
 		}
-
-
-
 	}
 
 	$tpl = get_markup_template("contacts-template.tpl");
@@ -734,7 +802,52 @@ function contacts_content(&$a) {
 		),
 		'$paginate' => paginate($a),
 
-	)); 
-	
+	));
+
 	return $o;
+}
+
+function _contact_detail_for_template($rr){
+	switch($rr['rel']) {
+		case CONTACT_IS_FRIEND:
+			$dir_icon = 'images/lrarrow.gif';
+			$alt_text = t('Mutual Friendship');
+			break;
+		case  CONTACT_IS_FOLLOWER;
+			$dir_icon = 'images/larrow.gif';
+			$alt_text = t('is a fan of yours');
+			break;
+		case CONTACT_IS_SHARING;
+			$dir_icon = 'images/rarrow.gif';
+			$alt_text = t('you are a fan of');
+			break;
+		default:
+			break;
+	}
+	if(($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
+		$url = "redir/{$rr['id']}";
+		$sparkle = ' class="sparkle" ';
+	}
+	else {
+		$url = $rr['url'];
+		$sparkle = '';
+	}
+	
+	
+	return array(
+		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
+		'edit_hover' => t('Edit contact'),
+		'photo_menu' => contact_photo_menu($rr),
+		'id' => $rr['id'],
+		'alt_text' => $alt_text,
+		'dir_icon' => $dir_icon,
+		'thumb' => proxy_url($rr['thumb']),
+		'name' => $rr['name'],
+		'username' => $rr['name'],
+		'sparkle' => $sparkle,
+		'itemurl' => $rr['url'],
+		'url' => $url,
+		'network' => network_to_name($rr['network'], $rr['url']),
+	);
+
 }

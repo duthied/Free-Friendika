@@ -249,7 +249,7 @@ function scrape_feed($url) {
 					$ret['feed_atom'] = $url;
 					return $ret;
 				}
- 				if(stristr($line,'application/rss+xml') || stristr($s,'<rss')) {
+				if(stristr($line,'application/rss+xml') || stristr($s,'<rss')) {
 					$ret['feed_rss'] = $url;
 					return $ret;
 				}
@@ -262,47 +262,40 @@ function scrape_feed($url) {
 		}
 	}
 
-	try {
-		$dom = HTML5_Parser::parse($s);
-	} catch (DOMException $e) {
-		logger('scrape_feed: parse error: ' . $e);
+	$basename = implode('/', array_slice(explode('/',$url),0,3)) . '/';
+
+	$doc = new DOMDocument();
+	@$doc->loadHTML($s);
+	$xpath = new DomXPath($doc);
+
+	$base = $xpath->query("//base");
+	foreach ($base as $node) {
+		$attr = array();
+
+		if ($node->attributes->length)
+			foreach ($node->attributes as $attribute)
+				$attr[$attribute->name] = $attribute->value;
+
+		if ($attr["href"] != "")
+			$basename = $attr["href"] ;
 	}
 
-	if(! $dom) {
-		logger('scrape_feed: failed to parse.');
-		return $ret;
+	$list = $xpath->query("//link");
+	foreach ($list as $node) {
+		$attr = array();
+
+		if ($node->attributes->length)
+			foreach ($node->attributes as $attribute)
+				$attr[$attribute->name] = $attribute->value;
+
+		if (($attr["rel"] == "alternate") AND ($attr["type"] == "application/atom+xml"))
+			$ret["feed_atom"] = $attr["href"];
+
+		if (($attr["rel"] == "alternate") AND ($attr["type"] == "application/rss+xml"))
+			$ret["feed_rss"] = $attr["href"];
 	}
 
-
-	$head = $dom->getElementsByTagName('base');
-	if($head) {
-		foreach($head as $head0) {
-			$basename = $head0->getAttribute('href');
-			break;
-		}
-	}
-	if(! $basename)
-		$basename = implode('/', array_slice(explode('/',$url),0,3)) . '/';
-
-	$items = $dom->getElementsByTagName('link');
-
-	// get Atom/RSS link elements, take the first one of either.
-
-	if($items) {
-		foreach($items as $item) {
-			$x = $item->getAttribute('rel');
-			if(($x === 'alternate') && ($item->getAttribute('type') === 'application/atom+xml')) {
-				if(! x($ret,'feed_atom'))
-					$ret['feed_atom'] = $item->getAttribute('href');
-			}
-			if(($x === 'alternate') && ($item->getAttribute('type') === 'application/rss+xml')) {
-				if(! x($ret,'feed_rss'))
-					$ret['feed_rss'] = $item->getAttribute('href');
-			}
-		}
-	}
-
-	// Drupal and perhaps others only provide relative URL's. Turn them into absolute.
+	// Drupal and perhaps others only provide relative URLs. Turn them into absolute.
 
 	if(x($ret,'feed_atom') && (! strstr($ret['feed_atom'],'://')))
 		$ret['feed_atom'] = $basename . $ret['feed_atom'];
@@ -335,7 +328,7 @@ function scrape_feed($url) {
 define ( 'PROBE_NORMAL',   0);
 define ( 'PROBE_DIASPORA', 1);
 
-function probe_url($url, $mode = PROBE_NORMAL) {
+function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	require_once('include/email.php');
 
 	$result = array();
@@ -509,6 +502,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 	}
 
 	if($mode == PROBE_NORMAL) {
+
 		if(strlen($zot)) {
 			$s = fetch_url($zot);
 			if($s) {
@@ -527,6 +521,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 				}
 			}
 		}
+
 
 		if(strlen($dfrn)) {
 			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn);
@@ -634,6 +629,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		if($check_feed) {
 
 			$feedret = scrape_feed(($poll) ? $poll : $url);
+
 			logger('probe_url: scrape_feed ' . (($poll)? $poll : $url) . ' returns: ' . print_r($feedret,true), LOGGER_DATA);
 			if(count($feedret) && ($feedret['feed_atom'] || $feedret['feed_rss'])) {
 				$poll = ((x($feedret,'feed_atom')) ? unamp($feedret['feed_atom']) : unamp($feedret['feed_rss']));
@@ -653,7 +649,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 			logger('probe_url: scrape_feed: headers: ' . $a->get_curl_headers(), LOGGER_DATA);
 
 			// Don't try and parse an empty string
-   			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
+			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
 
 			$feed->init();
 			if($feed->error())
@@ -670,6 +666,7 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 					$vcard['fn'] = trim(unxmlify($author->get_email()));
 				if(strpos($vcard['fn'],'@') !== false)
 					$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
+
 				$email = unxmlify($author->get_email());
 				if(! $profile && $author->get_link())
 					$profile = trim(unxmlify($author->get_link()));
@@ -680,6 +677,15 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 						if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
 							$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
 					}
+				}
+				// Fetch fullname via poco:displayName
+				$pocotags = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
+				if ($pocotags) {
+					$elems = $pocotags[0]['child']['http://portablecontacts.net/spec/1.0'];
+					if (isset($elems["displayName"]))
+						$vcard['fn'] = $elems["displayName"][0]["data"];
+					if (isset($elems["preferredUsername"]))
+						$vcard['nick'] = $elems["preferredUsername"][0]["data"];
 				}
 			}
 			else {
@@ -757,18 +763,18 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 		$vcard['fn'] = $url;
 
 	if (($notify != "") AND ($poll != "")) {
-		$baseurl = matching($notify, $poll);
+		$baseurl = matching(normalise_link($notify), normalise_link($poll));
 
-		$baseurl2 = matching($baseurl, $profile);
+		$baseurl2 = matching($baseurl, normalise_link($profile));
 		if ($baseurl2 != "")
 			$baseurl = $baseurl2;
 	}
 
 	if (($baseurl == "") AND ($notify != ""))
-		$baseurl = matching($profile, $notify);
+		$baseurl = matching(normalise_link($profile), normalise_link($notify));
 
 	if (($baseurl == "") AND ($poll != ""))
-		$baseurl = matching($profile, $poll);
+		$baseurl = matching(normalise_link($profile), normalise_link($poll));
 
 	$baseurl = rtrim($baseurl, "/");
 
@@ -794,16 +800,28 @@ function probe_url($url, $mode = PROBE_NORMAL) {
 
 	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
 
-	// Trying if it maybe a diaspora account
-	if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
-		require_once('include/bbcode.php');
-		$address = GetProfileUsername($url, "", true);
-		$result2 = probe_url($address, $mode);
-		if ($result2['network'] != "")
-			$result = $result2;
+	if ($level == 1) {
+		// Trying if it maybe a diaspora account
+		if (($result['network'] == NETWORK_FEED) OR ($result['addr'] == "")) {
+			require_once('include/bbcode.php');
+			$address = GetProfileUsername($url, "", true);
+			$result2 = probe_url($address, $mode, ++$level);
+			if ($result2['network'] != "")
+				$result = $result2;
+		}
+
+		// Maybe it's some non standard GNU Social installation (Single user, subfolder or no uri rewrite)
+		if (($result['network'] == NETWORK_FEED) AND ($result['baseurl'] != "") AND ($result['nick'] != "")) {
+			$addr = $result['nick'].'@'.str_replace("http://", "", $result['baseurl']);
+			$result2 = probe_url($addr, $mode, ++$level);
+			if (($result2['network'] != "") AND ($result2['network'] != NETWORK_FEED))
+				$result = $result2;
+		}
 	}
 
-	Cache::set("probe_url:".$mode.":".$url,serialize($result));
+	// Only store into the cache if the value seems to be valid
+	if ($result['network'] != NETWORK_FEED)
+		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
 
 	return $result;
 }

@@ -50,6 +50,21 @@ function completeurl($url, $scheme) {
 	return($complete);
 }
 
+function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
+
+	$data = Cache::get("parse_url:".$no_guessing.":".$do_oembed.":".$url);
+	if (!is_null($data)) {
+		$data = unserialize($data);
+		return $data;
+	}
+
+	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
+
+	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data), CACHE_DAY);
+
+	return $data;
+}
+
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 	require_once("include/network.php");
 
@@ -97,15 +112,6 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 		return($siteinfo);
 	}
 
-	if ($do_oembed) {
-		require_once("include/oembed.php");
-
-		$oembed_data = oembed_fetch_url($url);
-
-		if ($oembed_data->type != "error")
-			$siteinfo["type"] = $oembed_data->type;
-	}
-
 	// if the file is too large then exit
 	if ($curl_info["download_content_length"] > 1000000)
 		return($siteinfo);
@@ -113,6 +119,24 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	// if it isn't a HTML file then exit
 	if (($curl_info["content_type"] != "") AND !strstr(strtolower($curl_info["content_type"]),"html"))
 		return($siteinfo);
+
+	if ($do_oembed) {
+		require_once("include/oembed.php");
+
+		$oembed_data = oembed_fetch_url($url);
+
+		if ($oembed_data->type != "error")
+			$siteinfo["type"] = $oembed_data->type;
+
+		if (($oembed_data->type == "link") AND ($siteinfo["type"] != "photo")) {
+			if (isset($oembed_data->title))
+				$siteinfo["title"] = $oembed_data->title;
+			if (isset($oembed_data->description))
+				$siteinfo["text"] = trim($oembed_data->description);
+			if (isset($oembed_data->thumbnail_url))
+				$siteinfo["image"] = $oembed_data->thumbnail_url;
+		}
+	}
 
 	$stamp1 = microtime(true);
 
@@ -281,15 +305,6 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 					$siteinfo["text"] = $attr["content"];
 					break;
 			}
-	}
-
-	if (isset($oembed_data) AND ($oembed_data->type == "link") AND ($siteinfo["type"] != "photo")) {
-		if (isset($oembed_data->title) AND (trim($oembed_data->title) != ""))
-			$siteinfo["title"] = $oembed_data->title;
-		if (isset($oembed_data->description) AND (trim($oembed_data->description) != ""))
-			$siteinfo["text"] = trim($oembed_data->description);
-		if (isset($oembed_data->thumbnail_url) AND (trim($oembed_data->thumbnail_url) != ""))
-			$siteinfo["image"] = $oembed_data->thumbnail_url;
 	}
 
 	if ((@$siteinfo["image"] == "") AND !$no_guessing) {

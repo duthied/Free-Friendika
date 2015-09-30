@@ -63,14 +63,15 @@ function pubsub_init(&$a) {
 			intval($owner['uid'])
 		);
 		if(! count($r)) {
-			logger('pubsub: contact not found.');
+			logger('pubsub: contact '.$contact_id.' not found.');
 			hub_return(false, '');
 		}
 
-		if(! link_compare($hub_topic,$r[0]['poll'])) {
-			logger('pubsub: hub topic ' . $hub_topic . ' != ' . $r[0]['poll']);
-			// should abort but let's humour them.
-		}
+		if ($hub_topic)
+			if(! link_compare($hub_topic,$r[0]['poll'])) {
+				logger('pubsub: hub topic ' . $hub_topic . ' != ' . $r[0]['poll']);
+				// should abort but let's humour them.
+			}
 
 		$contact = $r[0];
 
@@ -85,10 +86,11 @@ function pubsub_init(&$a) {
 			logger('pubsub: unsubscribe success');
 		}
 
-		$r = q("UPDATE `contact` SET `subhub` = %d WHERE `id` = %d",
-			intval($subscribe),
-			intval($contact['id'])
-		);
+		if ($hub_mode)
+			$r = q("UPDATE `contact` SET `subhub` = %d WHERE `id` = %d",
+				intval($subscribe),
+				intval($contact['id'])
+			);
 
  		hub_return(true, $hub_challenge);
 	}
@@ -120,7 +122,7 @@ function pubsub_post(&$a) {
 
 	$importer = $r[0];
 
-	$r = q("SELECT * FROM `contact` WHERE `subhub` = 1 AND `id` = %d AND `uid` = %d 
+	$r = q("SELECT * FROM `contact` WHERE `subhub` = 1 AND `id` = %d AND `uid` = %d
 		AND ( `rel` = %d OR `rel` = %d OR network = '%s' ) AND `blocked` = 0 AND `readonly` = 0 LIMIT 1",
 		intval($contact_id),
 		intval($importer['uid']),

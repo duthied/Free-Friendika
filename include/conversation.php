@@ -597,7 +597,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
 
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
+				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 				localize_item($item);
 				if($mode === 'network-new')
@@ -892,9 +892,9 @@ function item_photo_menu($item){
 	foreach($menu as $k=>$v){
 		if(strpos($v,'javascript:') === 0) {
 			$v = substr($v,11);
-			$o .= "<li><a href=\"#\" onclick=\"$v\">$k</a></li>\n";
+			$o .= "<li role=\"menuitem\"><a onclick=\"$v\">$k</a></li>\n";
 		}
-		elseif ($v!="") $o .= "<li><a href=\"$v\">$k</a></li>\n";
+		elseif ($v!="") $o .= "<li role=\"menuitem\"><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}
@@ -908,7 +908,7 @@ function like_puller($a,$item,&$arr,$mode) {
 
 	if((activity_match($item['verb'],$verb)) && ($item['id'] != $item['parent'])) {
 		$url = $item['author-link'];
-		if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === 'dfrn') && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
+		if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
 			$url = $a->get_baseurl(true) . '/redir/' . $item['contact-id'];
 			$sparkle = ' class="sparkle" ';
 		}
@@ -1024,42 +1024,8 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$whereareu' => t('Where are you right now?')
 	));
 
-
 	$jotplugins = '';
-	$jotnets = '';
-
-	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-
-	$mail_enabled = false;
-	$pubmail_enabled = false;
-
-	if(($x['is_owner']) && (! $mail_disabled)) {
-		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
-			intval(local_user())
-		);
-		if(count($r)) {
-			$mail_enabled = true;
-			if(intval($r[0]['pubmail']))
-				$pubmail_enabled = true;
-		}
-	}
-
-	if (!$a->user['hidewall']) {
-		if($mail_enabled) {
-			$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
-			$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . t("Post to Email") . '</div>';
-		}
-
-		call_hooks('jot_networks', $jotnets);
-	} else
-		$jotnets .= sprintf(t('Connectors disabled, since "%s" is enabled.'),
-				    t('Hide your profile details from unknown viewers?'));
-
 	call_hooks('jot_tool', $jotplugins);
-
-	if($notes_cid)
-		$jotnets .= '<input type="hidden" name="contact_allow[]" value="' . $notes_cid .'" />';
-
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
@@ -1115,15 +1081,14 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
 		'$pvisit' => (($notes_cid) ? 'none' : $x['visitor']),
-		'$emailcc' => t('CC: email addresses'),
 		'$public' => t('Public post'),
 		'$jotnets' => $jotnets,
-		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $x['lockstate'],
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => ((feature_enabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
 		'$jotplugins' => $jotplugins,
+		'$notes_cid' => $notes_cid,
 		'$sourceapp' => t($a->sourcename),
 		'$cancel' => t('Cancel'),
 		'$rand_num' => random_digits(12),
@@ -1264,14 +1229,10 @@ function find_thread_parent_index($arr,$x) {
 	return false;
 }
 
-function render_location_google($item) {
-	$location = (($item['location']) ? '<a target="map" title="' . $item['location'] . '" href="http://maps.google.com/?q=' . urlencode($item['location']) . '">' . $item['location'] . '</a>' : '');
-	$coord = (($item['coord']) ? '<a target="map" title="' . $item['coord'] . '" href="http://maps.google.com/?q=' . urlencode($item['coord']) . '">' . $item['coord'] . '</a>' : '');
-	if($coord) {
-		if($location)
-			$location .= '<br /><span class="smalltext">(' . $coord . ')</span>';
-		else
-			$location = '<span class="smalltext">' . $coord . '</span>';
-	}
-	return $location;
+function render_location_dummy($item) {
+	if ($item['location'] != "")
+		return $item['location'];
+
+	if ($item['coord'] != "")
+		return $item['coord'];
 }

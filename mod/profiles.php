@@ -190,27 +190,23 @@ function profiles_post(&$a) {
 			return;
 		}
 
-		$year = intval($_POST['year']);
-		if($year < 1900 || $year > 2100 || $year < 0)
-			$year = 0;
-		$month = intval($_POST['month']);
-			if(($month > 12) || ($month < 0))
-				$month = 0;
-		$mtab = array(0,31,29,31,30,31,30,31,31,30,31,30,31);
-		$day = intval($_POST['day']);
-			if(($day > $mtab[$month]) || ($day < 0))
-				$day = 0;
+		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
 
-		// It's OK to have an empty (0) year, but if you supplied a year you have to have a non-zero month and day
-		if($year && ! $month)
-			$month = 1;
-		if($year && ! $day)
-			$day = 1;
-
-		$dob = '0000-00-00';
-		$dob = sprintf('%04d-%02d-%02d',$year,$month,$day);
-
-
+		$y = substr($dob,0,4);
+		if((! ctype_digit($y)) || ($y < 1900))
+			$ignore_year = true;
+		else
+			$ignore_year = false;
+		if($dob != '0000-00-00') {
+			if(strpos($dob,'0000-') === 0) {
+				$ignore_year = true;
+				$dob = substr($dob,5);
+			}
+			$dob = datetime_convert('UTC','UTC',(($ignore_year) ? '1900-' . $dob : $dob),(($ignore_year) ? 'm-d' : 'Y-m-d'));
+			if($ignore_year)
+				$dob = '0000-' . $dob;
+		}
+                
 		$name = notags(trim($_POST['name']));
 
 		if(! strlen($name)) {
@@ -474,7 +470,8 @@ function profiles_post(&$a) {
 
 
 		if($namechanged && $is_default) {
-			$r = q("UPDATE `contact` SET `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
+				dbesc($name),
 				dbesc(datetime_convert()),
 				intval(local_user())
 			);
@@ -511,7 +508,7 @@ function profiles_post(&$a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if($url && strlen(get_config('system','directory_submit_url')))
+			if($url && strlen(get_config('system','directory')))
 				proc_run('php',"include/directory.php","$url");
 
 			require_once('include/profile_update.php');
@@ -701,7 +698,7 @@ function profiles_content(&$a) {
 			'$lbl_fullname' => t('Your Full Name:'),
 			'$lbl_title' => t('Title/Description:'),
 			'$lbl_gender' => t('Your Gender:'),
-			'$lbl_bd' => sprintf( t("Birthday \x28%s\x29:"),datesel_format($f)),
+			'$lbl_bd'       => t("Birthday :"),
 			'$lbl_address' => t('Street Address:'),
 			'$lbl_city' => t('Locality/City:'),
 			'$lbl_zip' => t('Postal/Zip Code:'),

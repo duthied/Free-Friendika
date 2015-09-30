@@ -1,16 +1,16 @@
 <?php
 
 	// send a private message
-	
 
 
 
-function send_message($recipient=0, $body='', $subject='', $replyto=''){ 
+
+function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
 	$a = get_app();
 
 	if(! $recipient) return -1;
-	
+
 	if(! strlen($subject))
 		$subject = t('[no subject]');
 
@@ -26,8 +26,8 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		return -2;
 	}
 
-	$hash = random_string();
- 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $hash ;
+	$guid = get_guid(32);
+ 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $guid;
 
 	$convid = 0;
 	$reply = false;
@@ -43,19 +43,20 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		);
 		if(count($r))
 			$convid = $r[0]['convid'];
-	}		
+	}
 
 	if(! $convid) {
 
 		// create a new conversation
-
-		$conv_guid = get_guid();
 
 		$recip_host = substr($contact[0]['url'],strpos($contact[0]['url'],'://')+3);
 		$recip_host = substr($recip_host,0,strpos($recip_host,'/'));
 
 		$recip_handle = (($contact[0]['addr']) ? $contact[0]['addr'] : $contact[0]['nick'] . '@' . $recip_host);
 		$sender_handle = $a->user['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
+
+		$conv_guid = get_guid(32);
+		$convuri = $recip_handle.':'.$conv_guid;
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -83,15 +84,15 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 	}
 
 	if(! strlen($replyto)) {
-		$replyto = $uri;
+		$replyto = $convuri;
 	}
 
 
-	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`, 
+	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`)
 		VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s' )",
 		intval(local_user()),
-		dbesc(get_guid()),
+		dbesc($guid),
 		intval($convid),
 		dbesc($me[0]['name']),
 		dbesc($me[0]['thumb']),
@@ -117,7 +118,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
 	/**
 	 *
-	 * When a photo was uploaded into the message using the (profile wall) ajax 
+	 * When a photo was uploaded into the message using the (profile wall) ajax
 	 * uploader, The permissions are initially set to disallow anybody but the
 	 * owner from seeing it. This is because the permissions may not yet have been
 	 * set for the post. If it's private, the photo permissions should be set
@@ -143,11 +144,11 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 					dbesc($image_uri),
 					dbesc( t('Wall Photos')),
 					intval(local_user())
-				); 
+				);
 			}
 		}
 	}
-	
+
 	if($post_id) {
 		proc_run('php',"include/notifier.php","mail","$post_id");
 		return intval($post_id);
@@ -161,18 +162,18 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
 
 
-function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){ 
+function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$a = get_app();
 
 
 	if(! $recipient) return -1;
-	
+
 	if(! strlen($subject))
 		$subject = t('[no subject]');
 
-	$hash = random_string();
- 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $hash ;
+	$guid = get_guid(32);
+ 	$uri = 'urn:X-dfrn:' . $a->get_baseurl() . ':' . local_user() . ':' . $guid;
 
 	$convid = 0;
 	$reply = false;
@@ -184,7 +185,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	if(! $me['name'])
 		return -2;
 
-	$conv_guid = get_guid();
+	$conv_guid = get_guid(32);
 
 	$recip_handle = $recipient['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 
@@ -217,11 +218,11 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 		return -4;
 	}
 
-	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`, 
+	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)
 		VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s', %d )",
 		intval($recipient['uid']),
-		dbesc(get_guid()),
+		dbesc($guid),
 		intval($convid),
 		dbesc($me['name']),
 		dbesc($me['photo']),

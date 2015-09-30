@@ -118,7 +118,7 @@ function profile_photo_post(&$a) {
 				info( t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
 				$url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
-				if($url && strlen(get_config('system','directory_submit_url')))
+				if($url && strlen(get_config('system','directory')))
 					proc_run('php',"include/directory.php","$url");
 
 				require_once('include/profile_update.php');
@@ -141,7 +141,7 @@ function profile_photo_post(&$a) {
 	$maximagesize = get_config('system','maximagesize');
 
 	if(($maximagesize) && ($filesize > $maximagesize)) {
-		notice( sprintf(t('Image exceeds size limit of %d'), $maximagesize) . EOL);
+		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
 	}
@@ -217,7 +217,7 @@ function profile_photo_content(&$a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if($url && strlen(get_config('system','directory_submit_url')))
+			if($url && strlen(get_config('system','directory')))
 				proc_run('php',"include/directory.php","$url");
 
 			goaway($a->get_baseurl() . '/profiles');

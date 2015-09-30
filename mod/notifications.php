@@ -1,4 +1,5 @@
 <?php
+include_once("include/bbcode.php");
 
 function notifications_post(&$a) {
 
@@ -78,26 +79,31 @@ function notifications_content(&$a) {
 			'label' => t('System'),
 			'url'=>$a->get_baseurl(true) . '/notifications/system',
 			'sel'=> (($a->argv[1] == 'system') ? 'active' : ''),
+			'accesskey' => 'y',
 		),
 		array(
 			'label' => t('Network'),
 			'url'=>$a->get_baseurl(true) . '/notifications/network',
 			'sel'=> (($a->argv[1] == 'network') ? 'active' : ''),
+			'accesskey' => 'w',
 		),
 		array(
 			'label' => t('Personal'),
 			'url'=>$a->get_baseurl(true) . '/notifications/personal',
 			'sel'=> (($a->argv[1] == 'personal') ? 'active' : ''),
+			'accesskey' => 'r',
 		),
 		array(
 			'label' => t('Home'),
 			'url' => $a->get_baseurl(true) . '/notifications/home',
 			'sel'=> (($a->argv[1] == 'home') ? 'active' : ''),
+			'accesskey' => 'h',
 		),
 		array(
 			'label' => t('Introductions'),
 			'url' => $a->get_baseurl(true) . '/notifications/intros',
 			'sel'=> (($a->argv[1] == 'intros') ? 'active' : ''),
+			'accesskey' => 'i',
 		),
 		/*array(
 			'label' => t('Messages'),
@@ -130,8 +136,13 @@ function notifications_content(&$a) {
 			$a->set_pager_itemspage(20);
 		}
 
-		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`
-			FROM `intro` LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`,
+				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
+				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`
+			FROM `intro`
+				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
+				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
 				intval($_SESSION['uid']));
 
@@ -203,8 +214,17 @@ function notifications_content(&$a) {
 					'$uid' => $_SESSION['uid'],
 					'$intro_id' => $rr['intro_id'],
 					'$contact_id' => $rr['contact-id'],
-					'$photo' => ((x($rr,'photo')) ? $rr['photo'] : "images/person-175.jpg"),
+					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo']) : "images/person-175.jpg"),
 					'$fullname' => $rr['name'],
+					'$location_label' => t('Location:'),
+					'$location' => $rr['glocation'],
+					'$location_label' => t('Location:'),
+					'$about' => proxy_parse_html(bbcode($rr['gabout'], false, false)),
+					'$about_label' => t('About:'),
+					'$keywords' => $rr['gkeywords'],
+					'$keywords_label' => t('Tags:'),
+					'$gender' => $rr['ggender'],
+					'$gender_label' => t('Gender:'),
 					'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
 					'$activity' => array('activity', t('Post a new friend activity'), (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0), t('if applicable')),
 					'$url' => zrl($rr['url']),

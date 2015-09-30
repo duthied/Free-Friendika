@@ -159,6 +159,11 @@ $(document).ready(function() {
 			eventClick: function(calEvent, jsEvent, view) {
 				showEvent(calEvent.id);
 			},
+                        loading: function(isLoading, view) {
+				if(!isLoading) {
+					$('td.fc-day').dblclick(function() { window.location.href='/events/new?start='+$(this).data('date'); });
+				}
+			},
 			
 			eventRender: function(event, element, view) {
 				//console.log(view.name);
@@ -351,6 +356,14 @@ function showEvent(eventid) {
 			$.colorbox.resize();
 		}
 	);			
+}
+
+function doEventPreview() {
+        $('#event-edit-preview').val(1);
+        $.post('events',$('#event-edit-form').serialize(), function(data) {
+                $.colorbox({ html: data });
+        });
+        $('#event-edit-preview').val(0);
 }
 
 function initCrop() {

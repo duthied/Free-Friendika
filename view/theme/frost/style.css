@@ -21,7 +21,7 @@ body {
 
 div.container {
 	display: block;
-	width: 785 px;
+	width: 785px;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	margin-left: auto;
@@ -110,6 +110,8 @@ blockquote {
 	font-size: 100%;
 	margin-right: 5px;
 }
+
+.pull-right { float: right }
 
 
 
@@ -2327,11 +2329,11 @@ a.mail-list-link {
 	margin-top: 10px;
 }
 
-.nets-ul, .fileas-ul, .categories-ul {
+.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
 	list-style-type: none;
 }
 
-.nets-ul li, .fileas-ul li, .categories-ul li {
+.nets-ul li, .fileas-ul li, .categories-ul li, .datebrowse-ul li {
 	margin-top: 10px;
 }
 
@@ -4094,7 +4096,7 @@ ul.notifications-menu-popup {
 #recip {
 	
 }
-.autocomplete-w1 { background: #ffffff; no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
+.autocomplete-w1 { background: #ffffff no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
 .autocomplete { color:#000; border:1px solid #999; background:#FFF; cursor:default; text-align:left; max-height:350px; overflow:auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }
 .autocomplete .selected { background:#F0F0F0; }
 .autocomplete div { padding:2px 5px; white-space:nowrap; overflow:hidden; }

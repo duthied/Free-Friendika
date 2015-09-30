@@ -26,10 +26,12 @@ function directory_post(&$a) {
 
 
 function directory_content(&$a) {
+	global $db;
 
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) || 
+                (get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -45,7 +47,7 @@ function directory_content(&$a) {
 	$tpl = get_markup_template('directory_header.tpl');
 
 	$globaldir = '';
-	$gdirpath = dirname(get_config('system','directory_submit_url'));
+	$gdirpath = get_config('system','directory');
 	if(strlen($gdirpath)) {
 		$globaldir = '<ul><li><div id="global-directory-link"><a href="'
 		. zrl($gdirpath,true) . '">' . t('Global Directory') . '</a></div></li></ul>';
@@ -63,24 +65,38 @@ function directory_content(&$a) {
 		'$submit' => t('Find')
 	));
 
-	if($search)
+	if($search) {
 		$search = dbesc($search);
-	$sql_extra = ((strlen($search)) ? " AND MATCH (`profile`.`name`, `user`.`nickname`, `pdesc`, `locality`,`region`,`country-name`,`gender`,`marital`,`sexual`,`about`,`romance`,`work`,`education`,`pub_keywords`,`prv_keywords` ) AGAINST ('$search' IN BOOLEAN MODE) " : "");
+
+		$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
+				(`user`.`nickname` LIKE '%$search%') OR
+				(`pdesc` LIKE '%$search%') OR
+				(`locality` LIKE '%$search%') OR
+				(`region` LIKE '%$search%') OR
+				(`country-name` LIKE '%$search%') OR
+				(`gender` LIKE '%$search%') OR
+				(`marital` LIKE '%$search%') OR
+				(`sexual` LIKE '%$search%') OR
+				(`about` LIKE '%$search%') OR
+				(`romance` LIKE '%$search%') OR
+				(`work` LIKE '%$search%') OR
+				(`education` LIKE '%$search%') OR
+				(`pub_keywords` LIKE '%$search%') OR
+				(`prv_keywords` LIKE '%$search%'))";
+	}
 
 	$publish = ((get_config('system','publish_all')) ? '' : " AND `publish` = 1 " );
 
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
+	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
 	if(count($r))
 		$a->set_pager_total($r[0]['total']);
 
-	$order = " ORDER BY `name` ASC "; 
+	$order = " ORDER BY `name` ASC ";
 
+	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra $order LIMIT %d , %d ",
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
-	);
+	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra $order LIMIT ".$limit);
 	if(count($r)) {
 
 		if(in_array('small', $a->argv))

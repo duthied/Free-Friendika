@@ -1,3 +1,7 @@
+  function resizeIframe(obj) {
+    obj.style.height = 0;
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
 
   function openClose(theID) {
     if(document.getElementById(theID).style.display == "block") { 
@@ -47,6 +51,38 @@
 			e.tipTip({defaultPosition: pos, edgeOffset: 8});
 		});*/
 		
+		/* setup comment textarea buttons */
+		/* comment textarea buttons needs some "data-*" attributes to work:
+		 * 		data-role="insert-formatting" : to mark the element as a formatting button
+		 * 		data-comment="<string>" : string for "Comment", used by insertFormatting() function
+		 * 		data-bbcode="<string>" : name of the bbcode element to insert. insertFormatting() will insert it as "[name][/name]"
+		 * 		data-id="<string>" : id of the comment, used to find other comment-related element, like the textarea
+		 * */		
+		$('body').on('click','[data-role="insert-formatting"]', function(e) {
+			e.preventDefault();
+			var o = $(this);
+			var comment = o.data('comment');
+			var bbcode  = o.data('bbcode');
+			var id = o.data('id');
+			if (bbcode=="img") {
+				$.colorbox({href: baseurl + "/fbrowser/image/?mode=minimal#comment-"+id, iframe:true,innerWidth:'500px',innerHeight:'400px'})
+				return;	
+			}
+			
+			insertFormatting(comment, bbcode, id);
+		});
+
+		/* event from comment textarea button popups */
+		/* insert returned bbcode at cursor position or replace selected text */
+		$("body").on("fbrowser.image.comment", function(e, filename, bbcode, id) {
+			console.log("on", id);
+			$.colorbox.close();
+			var textarea = document.getElementById("comment-edit-text-" +id);
+			var start = textarea.selectionStart;
+			var end = textarea.selectionEnd;
+			textarea.value = textarea.value.substring(0, start) + bbcode + textarea.value.substring(end, textarea.value.length);
+		});
+	
 		
 		
 		/* setup onoff widgets */
@@ -71,14 +107,14 @@
 		setupFieldRichtext();
 
 		/* popup menus */
-	function close_last_popup_menu() {
- 		if(last_popup_menu) {
- 		last_popup_menu.hide();
- 		last_popup_button.removeClass("selected");
- 		last_popup_menu = null;
- 		last_popup_button = null;
- 		}
- 		}
+		function close_last_popup_menu() {
+			if(last_popup_menu) {
+				last_popup_menu.hide();
+				last_popup_button.removeClass("selected");
+				last_popup_menu = null;
+				last_popup_button = null;
+			}
+		}
 		$('a[rel^=#]').click(function(e){
 			e.preventDefault();
 			var parent = $(this).parent();
@@ -101,7 +137,7 @@
 			return false;
 		});
 		$('html').click(function() {
-						close_last_popup_menu();
+			close_last_popup_menu();
 		});
 		
 		// fancyboxes
@@ -177,12 +213,41 @@
 				nnm = $("#nav-notifications-menu");
 				nnm.html(notifications_all + notifications_mark);
 				//nnm.attr('popup','true');
+
+				var notification_lastitem = parseInt(localStorage.getItem("notification-lastitem"));
+				var notification_id = 0;
 				eNotif.children("note").each(function(){
 					e = $(this);
-					text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
-					html = notifications_tpl.format(e.attr('href'),e.attr('photo'), text, e.attr('date'), e.attr('seen'));
+					var text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
+					var seenclass = (e.attr('seen')==1)?"notify-seen":"notify-unseen";
+					var html = notifications_tpl.format(e.attr('href'),
+						e.attr('photo'),                    // {0}
+						text,                               // {1}
+						e.attr('date'),                     // {2}
+						seenclass,                          // {3}
+						new Date(e.attr('timestamp')*1000)  // {4}
+					);
 					nnm.append(html);
 				});
+				$(eNotif.children("note").get().reverse()).each(function(){
+					e = $(this);
+					notification_id = parseInt(e.attr('timestamp'));
+					if (notification_lastitem!== null && notification_id > notification_lastitem) {
+						if (getNotificationPermission()==="granted") {
+							var notification = new Notification(document.title, {
+											  body: e.text().replace('&rarr; ','').format(e.attr('name')),
+											  icon: e.attr('photo'),
+											 });
+							notification['url'] = e.attr('href');
+							notification.addEventListener("click", function(ev){
+								window.location = ev.target.url;
+							});
+						}
+					}
+					
+				});
+				notification_lastitem = notification_id;
+				localStorage.setItem("notification-lastitem", notification_lastitem)
 
 				$("img[data-src]", nnm).each(function(i, el){
 					// Add src attribute for images with a data-src attribute
@@ -745,4 +810,19 @@ function previewTheme(elm) {
 			$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" width="320" height="240" alt="' + theme + '" /></a>');
 	});
 
+}
+
+// notification permission settings in localstorage
+// set by settings page
+function getNotificationPermission() {
+	if (window["Notification"] === undefined) {
+		return null;
+	}
+    if (Notification.permission === 'granted') {
+        var val = localStorage.getItem('notification-permissions');
+		if (val === null) return 'denied';
+		return val;
+    } else {
+        return Notification.permission;
+    }
 }

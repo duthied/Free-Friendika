@@ -1,9 +1,9 @@
 <div id="message-sidebar" class="widget">
-	<div id="message-new" class="{{if $new.sel}}selected{{/if}}"><a href="{{$new.url}}">{{$new.label}}</a> </div>
+	<div id="message-new" class="{{if $new.sel}}selected{{/if}}"><a href="{{$new.url}}" accesskey="m">{{$new.label}}</a> </div>
 	
-	<ul class="message-ul">
+	<ul role="menu" class="message-ul">
 		{{foreach $tabs as $t}}
-			<li class="tool {{if $t.sel}}selected{{/if}}"><a href="{{$t.url}}" class="message-link">{{$t.label}}</a></li>
+			<li role="menuitem" class="tool {{if $t.sel}}selected{{/if}}"><a href="{{$t.url}}" {{if $t.accesskey}}accesskey="$t.accesskey"{{/if}} class="message-link">{{$t.label}}</a></li>
 		{{/foreach}}
 	</ul>
 	

@@ -65,7 +65,9 @@ function suggest_content(&$a) {
 	$a->page['aside'] .= findpeople_widget();
 
 
-	$o .= '<h2>' . t('Friend Suggestions') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Friend Suggestions')
+	));
 
 
 	$r = suggestion_query(local_user());

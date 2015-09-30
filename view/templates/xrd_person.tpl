@@ -29,6 +29,8 @@
           href="{{$salmon}}" />
     <Link rel="http://salmon-protocol.org/ns/salmon-mention" 
           href="{{$salmen}}" />
+    <Link rel="http://ostatus.org/schema/1.0/subscribe"
+          template="{{$subscribe}}" />
     <Link rel="magic-public-key" 
           href="{{$modexp}}" />
  

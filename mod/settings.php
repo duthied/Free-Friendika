@@ -41,47 +41,56 @@ function settings_init(&$a) {
 			'label'	=> t('Account'),
 			'url' 	=> $a->get_baseurl(true).'/settings',
 			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
+			'accesskey' => 'o',
 		),
 		array(
 			'label'	=> t('Additional features'),
 			'url' 	=> $a->get_baseurl(true).'/settings/features',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
+			'accesskey' => 't',
 		),
 		array(
 			'label'	=> t('Display'),
 			'url' 	=> $a->get_baseurl(true).'/settings/display',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
+			'accesskey' => 'i',
 		),
 
 		array(
 			'label'	=> t('Social Networks'),
 			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
+			'accesskey' => 'w',
 		),
 		array(
 			'label'	=> t('Plugins'),
 			'url' 	=> $a->get_baseurl(true).'/settings/addon',
 			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
+			'accesskey' => 'l',
 		),
 		array(
 			'label'	=> t('Delegations'),
 			'url' 	=> $a->get_baseurl(true).'/delegate',
 			'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+			'accesskey' => 'd',
 		),
 		array(
 			'label' => t('Connected apps'),
 			'url' => $a->get_baseurl(true) . '/settings/oauth',
 			'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
+			'accesskey' => 'b',
 		),
 		array(
 			'label' => t('Export personal data'),
 			'url' => $a->get_baseurl(true) . '/uexport',
 			'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
+			'accesskey' => 'e',
 		),
 		array(
 			'label' => t('Remove account'),
 			'url' => $a->get_baseurl(true) . '/removeme',
 			'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
+			'accesskey' => 'r',
 		)
 	);
 
@@ -177,7 +186,11 @@ function settings_post(&$a) {
 
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
-		if(x($_POST, 'imap-submit')) {
+		if(x($_POST, 'general-submit')) {
+			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
+			set_pconfig(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
+			set_pconfig(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
+		} elseif(x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
 			$mail_port         = ((x($_POST,'mail_port')) ? $_POST['mail_port'] : '');
@@ -474,7 +487,7 @@ function settings_post(&$a) {
 	$str_contact_deny  = perms2str($_POST['contact_deny']);
 
 	$openidserver = $a->user['openidserver'];
-	$openid = normalise_openid($openid);
+	//$openid = normalise_openid($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 
@@ -569,7 +582,7 @@ function settings_post(&$a) {
 	if(($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
-		if($url && strlen(get_config('system','directory_submit_url')))
+		if($url && strlen(get_config('system','directory')))
 			proc_run('php',"include/directory.php","$url");
 
 	}
@@ -733,13 +746,52 @@ function settings_content(&$a) {
 
 	if(($a->argc > 1) && ($a->argv[1] === 'connectors')) {
 
-		$settings_connectors = "";
+		$settings_connectors = '<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+		$settings_connectors .= '<div id="settings_general_expanded" class="settings-block" style="display: none;">';
+		$settings_connectors .= '<span class="fakelink" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
+		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
+		$settings_connectors .= '</span>';
+
+		$checked = ((get_pconfig(local_user(), 'system', 'no_intelligent_shortening')) ? ' checked="checked" ' : '');
+
+		$settings_connectors .= '<div id="no_intelligent_shortening" class="field checkbox">';
+		$settings_connectors .= '<label id="no_intelligent_shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
+		$settings_connectors .= '<input id="shortening-checkbox" type="checkbox" name="no_intelligent_shortening" value="1" ' . $checked . '/>';
+		$settings_connectors .= '<span class="field_help">'.t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$checked = ((get_pconfig(local_user(), 'system', 'ostatus_autofriend')) ? ' checked="checked" ' : '');
+
+		$settings_connectors .= '<div id="snautofollow-wrapper" class="field checkbox">';
+		$settings_connectors .= '<label id="snautofollow-label" for="snautofollow-checkbox">'. t('Automatically follow any GNU Social (OStatus) followers/mentioners'). '</label>';
+		$settings_connectors .= '<input id="snautofollow-checkbox" type="checkbox" name="snautofollow" value="1" ' . $checked . '/>';
+		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$legacy_contact = get_pconfig(local_user(), 'ostatus', 'legacy_contact');
+
+		if ($legacy_contact != "")
+			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
+
+		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
+		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
+		$settings_connectors .= '<input id="legacy-contact-checkbox" name="legacy_contact" value="'.$legacy_contact.'"/>';
+		$settings_connectors .= '<span class="field_help">'.t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.').'</span>';
+		$settings_connectors .= '</div>';
+
+		$settings_connectors .= '<p><a href="'.$a->get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
+
+		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
+
+		$settings_connectors .= '</div><div class="clear"></div>';
 
 		call_hooks('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
 			$diasp_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('Diaspora'), ((get_config('system','diaspora_enabled')) ? t('enabled') : t('disabled')));
-			$ostat_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('StatusNet'), ((get_config('system','ostatus_disabled')) ? t('disabled') : t('enabled')));
+			$ostat_enabled = sprintf( t('Built-in support for %s connectivity is %s'), t('GNU Social (OStatus)'), ((get_config('system','ostatus_disabled')) ? t('disabled') : t('enabled')));
 		} else {
 			$diasp_enabled = "";
 			$ostat_enabled = "";
@@ -896,6 +948,7 @@ function settings_content(&$a) {
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),
 
+			'stitle' => t('Theme settings'),
 			'$theme_config' => $theme_config,
 		));
 
@@ -1002,7 +1055,7 @@ function settings_content(&$a) {
 		$openid_field = false;
 	}
 	else {
-		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."));
+		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url");
 	}
 
 
@@ -1016,7 +1069,7 @@ function settings_content(&$a) {
 		));
 	}
 
-	if(strlen(get_config('system','directory_submit_url'))) {
+	if(strlen(get_config('system','directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl,array(
 			'$field' 	=> array('profile_in_netdirectory', t('Publish your default profile in the global social directory?'), $profile['net-publish'], '', array(t('No'),t('Yes'))),
 		));
@@ -1064,20 +1117,16 @@ function settings_content(&$a) {
 		info( t('Profile is <strong>not published</strong>.') . EOL );
 
 
-	$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . $a->get_baseurl(true) . '/profile/' . $nickname : '');
+	//$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . $a->get_baseurl(true) . '/profile/' . $nickname : '');
 
 	$tpl_addr = get_markup_template("settings_nick_set.tpl");
 
 	$prof_addr = replace_macros($tpl_addr,array(
-		'$desc' => t('Your Identity Address is'),
-		'$nickname' => $nickname,
-		'$subdir' => $subdir,
+		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname().$a->get_path(), $a->get_baseurl().'/profile/'.$nickname),
 		'$basepath' => $a->get_hostname()
 	));
 
 	$stpl = get_markup_template('settings.tpl');
-
-	$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
 
 	$expire_arr = array(
 		'days' => array('expire',  t("Automatically expire posts after this many days:"), $expire, t('If empty, posts will not expire. Expired posts will be deleted')),
@@ -1143,7 +1192,7 @@ function settings_content(&$a) {
 		'$permissions' => t('Default Post Permissions'),
 		'$permdesc' => t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => populate_acl($a->user,$celeb),
+		'$aclselect' => populate_acl($a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', t('Allow friends to tag your posts:'), !$blocktags, ''),
@@ -1187,6 +1236,8 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
+        '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
+                
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
 									t('Send text only notification emails, without the html part')),

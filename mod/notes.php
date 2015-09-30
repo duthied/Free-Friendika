@@ -46,25 +46,21 @@ function notes_content(&$a,$update = false) {
 		$commpage = false;
 		$commvisitor = false;
 
-		$celeb = false;
-
-
-
 		$x = array(
 			'is_owner' => $is_owner,
-       		'allow_location' => (($a->user['allow_location']) ? true : false),
-	        'default_location' => $a->user['default-location'],
-    	    'nickname' => $a->user['nickname'],
-   	    	'lockstate' => 'lock',
-	       	'acl' => '',
-    	    'bang' => '',
-        	'visitor' => 'block',
-	   	    'profile_uid' => local_user(),
+			'allow_location' => (($a->user['allow_location']) ? true : false),
+			'default_location' => $a->user['default-location'],
+			'nickname' => $a->user['nickname'],
+			'lockstate' => 'lock',
+			'acl' => '',
+			'bang' => '',
+			'visitor' => 'block',
+			'profile_uid' => local_user(),
 			'button' => t('Save'),
 			'acl_data' => '',
-    	);
+		);
 
-    	$o .= status_editor($a,$x,$a->contact['id']);
+		$o .= status_editor($a,$x,$a->contact['id']);
 
 	}
 

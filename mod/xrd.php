@@ -54,6 +54,7 @@ function xrd_init(&$a) {
 		'$dspr'        => $dspr,
 		'$salmon'      => $a->get_baseurl() . '/salmon/'        . $r[0]['nickname'],
 		'$salmen'      => $a->get_baseurl() . '/salmon/'        . $r[0]['nickname'] . '/mention',
+		'$subscribe'   => $a->get_baseurl() . '/follow?url={uri}',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
 		'$bigkey'      =>  salmon_key($r[0]['pubkey'])
 	));

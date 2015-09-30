@@ -2,7 +2,9 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
+require_once("include/map.php");
 require_once("mod/proxy.php");
+
 
 if(! function_exists('replace_macros')) {
 /**
@@ -218,7 +220,7 @@ function xmlify($str) {
 	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
 	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
 	*/
-	$buffer = htmlspecialchars($str, ENT_QUOTES);
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
 	$buffer = trim($buffer);
 
 	return($buffer);
@@ -468,11 +470,17 @@ if(! function_exists('item_new_uri')) {
  * @param int $uid
  * @return string
  */
-function item_new_uri($hostname,$uid) {
+function item_new_uri($hostname,$uid, $guid = "") {
 
 	do {
 		$dups = false;
-		$hash = random_string();
+
+		if ($guid == "")
+			$hash = get_guid(32);
+		else {
+			$hash = $guid;
+			$guid = "";
+		}
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
@@ -833,10 +841,16 @@ function get_mentions($item) {
 	foreach($arr as $x) {
 		$matches = null;
 		if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 			$o .= "\t\t" . '<link rel="ostatus:attention" href="' . $matches[1] . '" />' . "\r\n";
+			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
 		}
 	}
+
+	if (!$item['private']) {
+			$o .= "\t\t".'<link rel="ostatus:attention" href="http://activityschema.org/collection/public"/>'."\r\n";
+			$o .= "\t\t".'<link rel="mentioned" href="http://activityschema.org/collection/public"/>'."\r\n";
+	}
+
 	return $o;
 }}
 
@@ -860,8 +874,14 @@ function contact_block() {
 
 	if((! is_array($a->profile)) || ($a->profile['hide-friends']))
 		return $o;
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0",
-			intval($a->profile['uid'])
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+				AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s')",
+			intval($a->profile['uid']),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_DIASPORA)
 	);
 	if(count($r)) {
 		$total = intval($r[0]['total']);
@@ -871,8 +891,14 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY RAND() LIMIT %d",
+		$r = q("SELECT * FROM `contact`
+				WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
+					AND `hidden` = 0 AND `archive` = 0
+				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
+				dbesc(NETWORK_DFRN),
+				dbesc(NETWORK_OSTATUS),
+				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
 		if(count($r)) {
@@ -920,7 +946,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	if($redirect) {
 		$a = get_app();
 		$redirect_url = $a->get_baseurl() . '/redir/' . $contact['id'];
-		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === 'dfrn')) {
+		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
 			$url = $redirect_url;
 			$sparkle = ' sparkle';
@@ -958,19 +984,31 @@ if(! function_exists('search')) {
  * @param string $s search query
  * @param string $id html id
  * @param string $url search url
- * @param boolean $save show save search button
- * @return string html for search box #FIXME: remove html
+ * @param boolean $savedsearch show save search button
  */
-function search($s,$id='search-box',$url='/search',$save = false) {
+function search($s,$id='search-box',$url='/search',$save = false, $aside = true) {
 	$a = get_app();
-	$o  = '<div id="' . $id . '">';
-	$o .= '<form action="' . $a->get_baseurl((stristr($url,'network')) ? true : false) . $url . '" method="get" >';
-	$o .= '<input type="text" name="search" id="search-text" placeholder="' . t('Search') . '" value="' . $s .'" />';
-	$o .= '<input type="submit" name="submit" id="search-submit" value="' . t('Search') . '" />';
-	if($save)
-		$o .= '<input type="submit" name="save" id="search-save" value="' . t('Save') . '" />';
-	$o .= '</form></div>';
-	return $o;
+
+	$values = array(
+			'$s' => $s,
+			'$id' => $id,
+			'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+			'$search_label' => t('Search'),
+			'$save_label' => t('Save'),
+			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+		);
+
+	if (!$aside) {
+		$values['$searchoption'] = array(
+					t("Full Text"),
+					t("Tags"),
+					t("Contacts"));
+
+		if (get_config('system','poco_local_search'))
+			$values['$searchoption'][] = t("Forums");
+	}
+
+        return replace_macros(get_markup_template('searchbox.tpl'), $values);
 }}
 
 if(! function_exists('valid_email')) {
@@ -1131,9 +1169,9 @@ function smilies($s, $sample = false) {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="<3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="</3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="<\\3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;/3" />',
+		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-smile.gif" alt=":-)" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-wink.gif" alt=";-)" />',
 		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-frown.gif" alt=":-(" />',
@@ -1210,7 +1248,7 @@ function preg_heart($x) {
 		return $x[0];
 	$t = '';
 	for($cnt = 0; $cnt < strlen($x[1]); $cnt ++)
-		$t .= '<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="<3" />';
+		$t .= '<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />';
 	$r =  str_replace($x[0],$t,$x[0]);
 	return $r;
 }
@@ -1461,6 +1499,14 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	}
 	$s = $s . $as;
 
+	// map
+	if(strpos($s,'<div class="map">') !== false && $item['coord']) {
+		$x = generate_map(trim($item['coord']));
+		if($x) {
+			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
+		}
+	}		
+
 
 	// Look for spoiler
 	$spoilersearch = '<blockquote class="spoiler">';
@@ -1661,11 +1707,14 @@ function get_plink($item) {
 				//'href' => $a->get_baseurl()."/display/".$a->user['nickname']."/".$item['id'],
 				'href' => $a->get_baseurl()."/display/".$item['guid'],
 				'orig' => $a->get_baseurl()."/display/".$item['guid'],
-				'title' => t('link to source'),
+				'title' => t('View on separate page'),
+				'orig_title' => t('view on separate page'),
 			);
 
-		if (x($item,'plink'))
+		if (x($item,'plink')) {
 			$ret["href"] = $item['plink'];
+			$ret["title"] = t('link to source');
+		}
 
 	} elseif (x($item,'plink') && ($item['private'] != 1))
 		$ret = array(
@@ -1758,7 +1807,7 @@ function return_bytes ($size_str) {
 function generate_user_guid() {
 	$found = true;
 	do {
-		$guid = random_string(16);
+		$guid = get_guid(32);
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
@@ -2267,3 +2316,15 @@ function deindent($text, $chr="[\t ]", $count=NULL) {
 
 	return implode("\n", $lines);
 }
+
+function formatBytes($bytes, $precision = 2) { 
+	 $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+	$bytes = max($bytes, 0); 
+	$pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+	$pow = min($pow, count($units) - 1); 
+
+	$bytes /= pow(1024, $pow);
+
+	return round($bytes, $precision) . ' ' . $units[$pow]; 
+} 

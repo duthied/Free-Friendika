@@ -15,21 +15,21 @@
 		
 	{{if $nav.apps}}<a id="nav-apps-link" class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>{{/if}}
 
-	<a id="nav-search-link" class="nav-link {{$nav.search.2}}" href="{{$nav.search.0}}" title="{{$nav.search.3}}" >{{$nav.search.1}}</a>
+	<a accesskey="s" id="nav-search-link" class="nav-link {{$nav.search.2}}" href="{{$nav.search.0}}" title="{{$nav.search.3}}" >{{$nav.search.1}}</a>
 	<a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}" >{{$nav.directory.1}}</a>
 
-	{{if $nav.admin}}<a id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" >{{$nav.admin.1}}</a>{{/if}}
+	{{if $nav.admin}}<a accesskey="a" id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" >{{$nav.admin.1}}</a>{{/if}}
 
 	{{if $nav.network}}
-	<a id="nav-network-link" class="nav-commlink {{$nav.network.2}} {{$sel.network}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
+	<a accesskey="n" id="nav-network-link" class="nav-commlink {{$nav.network.2}} {{$sel.network}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
 	<span id="net-update" class="nav-ajax-left"></span>
 	{{/if}}
 	{{if $nav.home}}
-	<a id="nav-home-link" class="nav-commlink {{$nav.home.2}} {{$sel.home}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
+	<a accesskey="p" id="nav-home-link" class="nav-commlink {{$nav.home.2}} {{$sel.home}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
 	<span id="home-update" class="nav-ajax-left"></span>
 	{{/if}}
 	{{if $nav.community}}
-	<a id="nav-community-link" class="nav-commlink {{$nav.community.2}} {{$sel.community}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
+	<a accesskey="c" id="nav-community-link" class="nav-commlink {{$nav.community.2}} {{$sel.community}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
 	{{/if}}
 	{{if $nav.introductions}}
 	<a id="nav-notify-link" class="nav-commlink {{$nav.introductions.2}} {{$sel.introductions}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a>
@@ -45,7 +45,7 @@
 
 
 		{{if $nav.notifications}}
-			<a id="nav-notifications-linkmenu" class="nav-commlink" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}">{{$nav.notifications.1}}</a>
+			<a accesskey="f" id="nav-notifications-linkmenu" class="nav-commlink" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}">{{$nav.notifications.1}}</a>
 				<span id="notify-update" class="nav-ajax-left"></span>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<li id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
@@ -67,5 +67,5 @@
 </nav>
 
 <ul id="nav-notifications-template" style="display:none;" rel="template">
-	<li class="{4}"><a href="{0}"><img data-src="{1}" height="24" width="24" alt="" />{2} <span class="notif-when">{3}</span></a></li>
+	<li class="{4}"><a href="{0}" title="{5}"><img data-src="{1}" height="24" width="24" alt="" />{2} <span class="notif-when">{3}</span></a></li>
 </ul>

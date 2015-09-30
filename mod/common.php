@@ -28,18 +28,22 @@ function common_content(&$a) {
 		);
 	}	
 
-	$a->page['aside'] .= '<div class="vcard">' 
-		. '<div class="fn label">' . $c[0]['name'] . '</div>' 
-		. '<div id="profile-photo-wrapper">'
-		. '<img class="photo" width="175" height="175" 
-		src="' . $c[0]['photo'] . '" alt="' . $c[0]['name'] . '" /></div>'
-		. '</div>';
-	
+	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
+		'$name' => $c[0]['name'],
+		'$photo' => $c[0]['photo'],
+		'url' => z_root() . '/contacts/' . $cid
+	));
+
+	if(! x($a->page,'aside'))
+		$a->page['aside'] = '';
+	$a->page['aside'] .= $vcard_widget;
 
 	if(! count($c))
 		return;
 
-	$o .= '<h2>' . t('Common Friends') . '</h2>';
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => t('Common Friends')
+	));
 
 
 	if(! $cid) {

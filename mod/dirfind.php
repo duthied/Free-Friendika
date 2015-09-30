@@ -1,8 +1,8 @@
 <?php
+require_once('include/contact_widgets.php');
+require_once('include/socgraph.php');
 
 function dirfind_init(&$a) {
-
-	require_once('include/contact_widgets.php');
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
@@ -14,29 +14,97 @@ function dirfind_init(&$a) {
 
 
 
-function dirfind_content(&$a) {
+function dirfind_content(&$a, $prefix = "") {
 
-	$search = notags(trim($_REQUEST['search']));
+	$community = false;
+
+	$local = get_config('system','poco_local_search');
+
+	$search = $prefix.notags(trim($_REQUEST['search']));
 
 	if(strpos($search,'@') === 0)
 		$search = substr($search,1);
-	
+
+	if(strpos($search,'!') === 0) {
+		$search = substr($search,1);
+		$community = true;
+	}
+
 	$o = '';
 
-	$o .= '<h2>' . t('People Search') . ' - ' . $search . '</h2>';
-	
+	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+		'$title' => sprintf( t('People Search - %s'), $search)
+	));
+
 	if($search) {
 
-		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
-			
-		if(strlen(get_config('system','directory_submit_url')))
-			$x = fetch_url('http://dir.friendica.com/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		if ($local) {
 
-//TODO fallback local search if global dir not available.
-//		else
-//			$x = post_url($a->get_baseurl() . '/lsearch', $params);
+			if ($community)
+				$extra_sql = " AND `community`";
+			else
+				$extra_sql = "";
 
-		$j = json_decode($x);
+			$perpage = 80;
+			$startrec = (($a->pager['page']) * $perpage) - $perpage;
+
+			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
+					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
+						`about` REGEXP '%s' OR `keywords` REGEXP '%s')".$extra_sql,
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+
+			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`keywords`
+					FROM `gcontact`
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
+						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
+					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
+					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
+						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
+						GROUP BY `gcontact`.`nurl`
+						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
+					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
+					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					intval($startrec), intval($perpage));
+			$j = new stdClass();
+			$j->total = $count[0]["total"];
+			$j->items_page = $perpage;
+			$j->page = $a->pager['page'];
+			foreach ($results AS $result) {
+				if (poco_alternate_ostatus_url($result["url"]))
+					 continue;
+
+				if ($result["name"] == "") {
+					$urlparts = parse_url($result["url"]);
+					$result["name"] = end(explode("/", $urlparts["path"]));
+				}
+
+				$objresult = new stdClass();
+				$objresult->cid = $result["cid"];
+				$objresult->name = $result["name"];
+				$objresult->url = $result["url"];
+				$objresult->photo = $result["photo"];
+				$objresult->tags = $result["keywords"];
+
+				$j->results[] = $objresult;
+			}
+
+			// Add found profiles from the global directory to the local directory
+			proc_run('php','include/discover_poco.php', "dirsearch", urlencode($search));
+		} else {
+
+			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
+
+			if(strlen(get_config('system','directory')))
+				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+
+			$j = json_decode($x);
+		}
 
 		if($j->total) {
 			$a->set_pager_total($j->total);
@@ -44,21 +112,34 @@ function dirfind_content(&$a) {
 		}
 
 		if(count($j->results)) {
-			
+
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
-				
+
+				// If We already know this contact then don't show the "connect" button
+				if ($jj->cid > 0) {
+					$connlnk = "";
+					$conntxt = "";
+				} else {
+					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
+					$conntxt = t('Connect');
+				}
+
+				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
+
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
 					'$name' => $jj->name,
-					'$photo' => $jj->photo,
-					'$tags' => $jj->tags
+					'$photo' => proxy_url($jj->photo),
+					'$tags' => $jj->tags,
+					'$conntxt' => $conntxt,
+					'$connlnk' => $connlnk,
 				));
 			}
 		}
 		else {
 			info( t('No matches') . EOL);
-		}		
+		}
 
 	}
 

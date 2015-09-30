@@ -7,6 +7,17 @@
 	require_once("include/conversation.php");
 	require_once("include/oauth.php");
 	require_once("include/html2plain.php");
+	require_once("mod/share.php");
+	require_once("include/Photo.php");
+	require_once("mod/item.php");
+	require_once('include/security.php');
+	require_once('include/contact_selectors.php');
+	require_once('include/html2bbcode.php');
+	require_once('mod/wall_upload.php');
+	require_once("mod/proxy.php");
+	require_once("include/message.php");
+
+
 	/*
 	 * Twitter-Like API
 	 *
@@ -99,6 +110,9 @@
 		$password = $_SERVER['PHP_AUTH_PW'];
 		$encrypted = hash('whirlpool',trim($password));
 
+		// allow "user@server" login (but ignore 'server' part)
+		$at=strstr($user, "@", true);
+		if ( $at ) $user=$at;
 
 		/**
 		 *  next code from mod/auth.php. needs better solution
@@ -106,7 +120,7 @@
 		$record = null;
 
 		$addon_auth = array(
-			'username' => trim($user), 
+			'username' => trim($user),
 			'password' => trim($password),
 			'authenticated' => 0,
 			'user_record' => null
@@ -145,7 +159,6 @@
 			die('This api requires login');
 		}
 
-		require_once('include/security.php');
 		authenticate_success($record); $_SESSION["allow_api"] = true;
 
 		call_hooks('logged_in', $a->user);
@@ -179,7 +192,11 @@
 				if (strpos($a->query_string, ".atom")>0) $type="atom";
 				if (strpos($a->query_string, ".as")>0) $type="as";
 
+				$stamp =  microtime(true);
 				$r = call_user_func($info['func'], $a, $type);
+				$duration = (float)(microtime(true)-$stamp);
+				logger("API call duration: ".round($duration, 2)."\t".$a->query_string, LOGGER_DEBUG);
+
 				if ($r===false) return;
 
 				switch($type){
@@ -389,19 +406,27 @@
 					'screen_name' => (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']),
 					'location' => NULL,
 					'description' => NULL,
-					'profile_image_url' => $r[0]["avatar"],
-					'profile_image_url_https' => $r[0]["avatar"],
 					'url' => $r[0]["url"],
 					'protected' => false,
 					'followers_count' => 0,
 					'friends_count' => 0,
+					'listed_count' => 0,
 					'created_at' => api_date(0),
 					'favourites_count' => 0,
 					'utc_offset' => 0,
 					'time_zone' => 'UTC',
-					'statuses_count' => 0,
-					'following' => false,
+					'geo_enabled' => false,
 					'verified' => false,
+					'statuses_count' => 0,
+					'lang' => '',
+					'contributors_enabled' => false,
+					'is_translator' => false,
+					'is_translation_enabled' => false,
+					'profile_image_url' => $r[0]["avatar"],
+					'profile_image_url_https' => $r[0]["avatar"],
+					'following' => false,
+					'follow_request_sent' => false,
+					'notifications' => false,
 					'statusnet_blocking' => false,
 					'notifications' => false,
 					'statusnet_profile_url' => $r[0]["url"],
@@ -490,8 +515,7 @@
 			$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
 		}
 
-		require_once('include/contact_selectors.php');
-		$network_name = network_to_name($uinfo[0]['network']);
+		$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
 
 		$ret = Array(
 			'id' => intval($r[0]['id']),
@@ -672,10 +696,10 @@
 		$txt = requestdata('status');
 		//$txt = urldecode(requestdata('status'));
 
-		require_once('library/HTMLPurifier.auto.php');
-		require_once('include/html2bbcode.php');
-
 		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+
+			require_once('library/HTMLPurifier.auto.php');
+
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
@@ -687,12 +711,10 @@
 		$a->argv[1]=$user_info['screen_name']; //should be set to username?
 
 		$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-		require_once('mod/wall_upload.php');
 		$bebop = wall_upload_post($a);
 
 		//now that we have the img url in bbcode we can add it to the status and insert the wall item.
 		$_REQUEST['body']=$txt."\n\n".$bebop;
-		require_once('mod/item.php');
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
@@ -715,17 +737,15 @@
 		// logger('api_post: ' . print_r($_POST,true));
 
 		if(requestdata('htmlstatus')) {
-			require_once('library/HTMLPurifier.auto.php');
-			require_once('include/html2bbcode.php');
-
 			$txt = requestdata('htmlstatus');
 			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+
+				require_once('library/HTMLPurifier.auto.php');
 
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
 				$config->set('Cache.DefinitionImpl', null);
-
 
 				$purifier = new HTMLPurifier($config);
 				$txt = $purifier->purify($txt);
@@ -739,6 +759,11 @@
 		$_REQUEST['title'] = requestdata('title');
 
 		$parent = requestdata('in_reply_to_status_id');
+
+		// Twidere sends "-1" if it is no reply ...
+		if ($parent == -1)
+			$parent = "";
+
 		if(ctype_digit($parent))
 			$_REQUEST['parent'] = $parent;
 		else
@@ -815,10 +840,21 @@
 		if(x($_FILES,'media')) {
 			// upload the image if we have one
 			$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
-			require_once('mod/wall_upload.php');
 			$media = wall_upload_post($a);
 			if(strlen($media)>0)
 				$_REQUEST['body'] .= "\n\n".$media;
+		}
+
+		// To-Do: Multiple IDs
+		if (requestdata('media_ids')) {
+			$r = q("SELECT `resource-id`, `scale`, `nickname`, `type` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
+				intval(requestdata('media_ids')), api_user());
+			if ($r) {
+				$phototypes = Photo::supportedTypes();
+				$ext = $phototypes[$r[0]['type']];
+				$_REQUEST['body'] .= "\n\n".'[url='.$a->get_baseurl().'/photos/'.$r[0]['nickname'].'/image/'.$r[0]['resource-id'].']';
+				$_REQUEST['body'] .= '[img]'.$a->get_baseurl()."/photo/".$r[0]['resource-id']."-".$r[0]['scale'].".".$ext."[/img][/url]";
+			}
 		}
 
 		// set this so that the item_post() function is quiet and doesn't redirect or emit json
@@ -830,7 +866,6 @@
 
 		// call out normal post function
 
-		require_once('mod/item.php');
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
@@ -839,6 +874,40 @@
 	api_register_func('api/statuses/update','api_statuses_update', true);
 	api_register_func('api/statuses/update_with_media','api_statuses_update', true);
 
+
+	function api_media_upload(&$a, $type) {
+		if (api_user()===false) {
+			logger('no user');
+			return false;
+		}
+
+		$user_info = api_get_user($a);
+
+		if(!x($_FILES,'media')) {
+			// Output error
+			return false;
+		}
+
+		$media = wall_upload_post($a, false);
+		if(!$media) {
+			// Output error
+			return false;
+		}
+
+		$returndata = array();
+		$returndata["media_id"] = $media["id"];
+		$returndata["media_id_string"] = (string)$media["id"];
+		$returndata["size"] = $media["size"];
+		$returndata["image"] = array("w" => $media["width"],
+						"h" => $media["height"],
+						"image_type" => $media["type"]);
+
+		logger("Media uploaded: ".print_r($returndata, true), LOGGER_DEBUG);
+
+		return array("media" => $returndata);
+	}
+
+	api_register_func('api/media/upload','api_media_upload', true);
 
 	function api_status_show(&$a, $type){
 		$user_info = api_get_user($a);
@@ -901,20 +970,29 @@
 			$converted = api_convert_item($item);
 
 			$status_info = array(
-				'text' => $converted["text"],
-				'truncated' => false,
 				'created_at' => api_date($lastwall['created']),
-				'in_reply_to_status_id' => $in_reply_to_status_id,
-				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
-				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
 				'id' => intval($lastwall['id']),
 				'id_str' => (string) $lastwall['id'],
+				'text' => $converted["text"],
+				'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
+				'truncated' => false,
+				'in_reply_to_status_id' => $in_reply_to_status_id,
+				'in_reply_to_status_id_str' => $in_reply_to_status_id_str,
 				'in_reply_to_user_id' => $in_reply_to_user_id,
 				'in_reply_to_user_id_str' => $in_reply_to_user_id_str,
 				'in_reply_to_screen_name' => $in_reply_to_screen_name,
-				'geo' => NULL,
-				'favorited' => $lastwall['starred'] ? true : false,
 				'user' => $user_info,
+				'geo' => NULL,
+				'coordinates' => "",
+				'place' => "",
+				'contributors' => "",
+				'is_quote_status' => false,
+				'retweet_count' => 0,
+				'favorite_count' => 0,
+				'favorited' => $lastwall['starred'] ? true : false,
+				'retweeted' => false,
+				'possibly_sensitive' => false,
+				'lang' => "",
 				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $lastwall['parent'],
 			);
@@ -926,9 +1004,9 @@
 				$status_info["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($status["source"] == 'web'))
-				$status_info["source"] = network_to_name($lastwall['item_network']);
-			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $status_info["source"]))
-				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network']).')');
+				$status_info["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
+			elseif (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network'], $user_info['url']) != $status_info["source"]))
+				$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network'], $user_info['url']).')');
 
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($status_info["user"]["uid"]);
@@ -1025,9 +1103,9 @@
 				$user_info["status"]["entities"] = $converted["entities"];
 
 			if (($lastwall['item_network'] != "") AND ($user_info["status"]["source"] == 'web'))
-				$user_info["status"]["source"] = network_to_name($lastwall['item_network']);
-			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network']) != $user_info["status"]["source"]))
-				$user_info["status"]["source"] = trim($user_info["status"]["source"].' ('.network_to_name($lastwall['item_network']).')');
+				$user_info["status"]["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
+			if (($lastwall['item_network'] != "") AND (network_to_name($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"]))
+				$user_info["status"]["source"] = trim($user_info["status"]["source"].' ('.network_to_name($lastwall['item_network'], $user_info['url']).')');
 
 		}
 
@@ -1109,7 +1187,7 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1136,7 +1214,8 @@
 
 		$idlist = implode(",", $idarray);
 
-		$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+		if ($idlist != "")
+			$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
 
 
 		$data = array('$statuses' => $ret);
@@ -1315,6 +1394,10 @@
 
 		logger('API: api_conversation_show: '.$id);
 
+		$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($id));
+		if ($r)
+			$id = $r[0]["parent"];
+
 		$sql_extra = '';
 
 		if ($max_id > 0)
@@ -1389,10 +1472,8 @@
 					$pos = strpos($r[0]['body'], "[share");
 					$post = substr($r[0]['body'], $pos);
 				} else {
-					$post = "[share author='".str_replace("'", "&#039;", $r[0]['author-name']).
-							"' profile='".$r[0]['author-link'].
-							"' avatar='".$r[0]['author-avatar'].
-							"' link='".$r[0]['plink']."']";
+					$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+
 					$post .= $r[0]['body'];
 					$post .= "[/share]";
 				}
@@ -1407,7 +1488,6 @@
 			if (!x($_REQUEST, "source"))
 				$_REQUEST["source"] = api_source();
 
-			require_once('mod/item.php');
 			item_post($a);
 		}
 
@@ -1439,7 +1519,6 @@
 
 		$ret = api_statuses_show($a, $type);
 
-		require_once('include/items.php');
 		drop_item($id, false);
 
 		return($ret);
@@ -1876,8 +1955,6 @@
 		if (!$ret)
 			return false;
 
-		require_once("include/Photo.php");
-
 		$attachments = array();
 
 		foreach ($images[1] AS $image) {
@@ -1905,7 +1982,6 @@
 		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
 		if ($include_entities != "true") {
-			require_once("mod/proxy.php");
 
 			preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
@@ -2003,13 +2079,11 @@
 
 			$start = iconv_strpos($text, $url, $offset, "UTF-8");
 			if (!($start === false)) {
-				require_once("include/Photo.php");
 				$image = get_photo_info($url);
 				if ($image) {
 					// If image cache is activated, then use the following sizes:
 					// thumb  (150), small (340), medium (600) and large (1024)
 					if (!get_config("system", "proxy_disabled")) {
-						require_once("mod/proxy.php");
 						$media_url = proxy_url($url);
 
 						$sizes = array();
@@ -2144,9 +2218,9 @@
 				$status["entities"] = $converted["entities"];
 
 			if (($item['item_network'] != "") AND ($status["source"] == 'web'))
-				$status["source"] = network_to_name($item['item_network']);
-			else if (($item['item_network'] != "") AND (network_to_name($item['item_network']) != $status["source"]))
-				$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network']).')');
+				$status["source"] = network_to_name($item['item_network'], $user_info['url']);
+			else if (($item['item_network'] != "") AND (network_to_name($item['item_network'], $user_info['url']) != $status["source"]))
+				$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network'], $user_info['url']).')');
 
 
 			// Retweets are only valid for top postings
@@ -2166,9 +2240,14 @@
 			unset($status["user"]["uid"]);
 			unset($status["user"]["self"]);
 
-			// 'geo' => array('type' => 'Point',
-			//                   'coordinates' => array((float) $notice->lat,
-			//                                          (float) $notice->lon));
+			if ($item["coord"] != "") {
+				$coords = explode(' ',$item["coord"]);
+				if (count($coords) == 2) {
+					$status["geo"] = array('type' => 'Point',
+							'coordinates' => array((float) $coords[0],
+										(float) $coords[1]));
+				}
+			}
 
 			$ret[] = $status;
 		};
@@ -2396,8 +2475,6 @@
 
 		$sender = api_get_user($a);
 
-		require_once("include/message.php");
-
 		if ($_POST['screen_name']) {
 			$r = q("SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 					intval(api_user()),
@@ -2620,6 +2697,70 @@
 
 
 
+	/**
+	 * similar as /mod/redir.php
+	 * redirect to 'url' after dfrn auth
+	 *
+	 * why this when there is mod/redir.php already?
+	 * This use api_user() and api_login()
+	 *
+	 * params
+	 * 		c_url: url of remote contact to auth to
+	 * 		url: string, url to redirect after auth
+	 */
+	function api_friendica_remoteauth(&$a) {
+		$url = ((x($_GET,'url')) ? $_GET['url'] : '');
+		$c_url = ((x($_GET,'c_url')) ? $_GET['c_url'] : '');
+
+		if ($url === '' || $c_url === '')
+			die((api_error($a, 'json', "Wrong parameters")));
+
+		$c_url = normalise_link($c_url);
+
+		// traditional DFRN
+
+		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `nurl` = '%s' LIMIT 1",
+			dbesc($c_url),
+			intval(api_user())
+		);
+
+		if ((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			die((api_error($a, 'json', "Unknown contact")));
+
+		$cid = $r[0]['id'];
+
+		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
+
+		if($r[0]['duplex'] && $r[0]['issued-id']) {
+			$orig_id = $r[0]['issued-id'];
+			$dfrn_id = '1:' . $orig_id;
+		}
+		if($r[0]['duplex'] && $r[0]['dfrn-id']) {
+			$orig_id = $r[0]['dfrn-id'];
+			$dfrn_id = '0:' . $orig_id;
+		}
+
+		$sec = random_string();
+
+		q("INSERT INTO `profile_check` ( `uid`, `cid`, `dfrn_id`, `sec`, `expire`)
+			VALUES( %d, %s, '%s', '%s', %d )",
+			intval(api_user()),
+			intval($cid),
+			dbesc($dfrn_id),
+			dbesc($sec),
+			intval(time() + 45)
+		);
+
+		logger($r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
+		$dest = (($url) ? '&destination_url=' . $url : '');
+		goaway ($r[0]['poll'] . '?dfrn_id=' . $dfrn_id
+				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
+				. '&type=profile&sec=' . $sec . $dest . $quiet );
+	}
+	api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
+
+
+
 function api_share_as_retweet(&$item) {
 	$body = trim($item["body"]);
 
@@ -2838,7 +2979,21 @@ function api_best_nickname(&$contacts) {
 		$contacts = array($contacts[0]);
 }
 
+
 /*
+To.Do:
+    [pagename] => api/1.1/statuses/lookup.json
+    [id] => 605138389168451584
+    [include_cards] => true
+    [cards_platform] => Android-12
+    [include_entities] => true
+    [include_my_retweet] => 1
+    [include_rts] => 1
+    [include_reply_count] => true
+    [include_descendent_reply_count] => true
+
+
+
 Not implemented by now:
 statuses/retweets_of_me
 friendships/create

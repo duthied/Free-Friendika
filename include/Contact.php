@@ -113,7 +113,7 @@ function terminate_friendship($user,$self,$contact) {
 			'$photo' => $self['photo'],
 			'$thumb' => $self['thumb'],
 			'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . random_string(),
+			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . get_guid(32),
 			'$title' => '',
 			'$type' => 'text',
 			'$content' => t('stopped following'),
@@ -267,7 +267,12 @@ function contact_photo_menu($contact) {
 
 
 function random_profile() {
-	$r = q("select url from gcontact where url like '%%://%%/profile/%%' order by rand() limit 1");
+	$r = q("SELECT `url` FROM `gcontact` WHERE `network` = '%s'
+				AND `last_contact` >= `last_failure`
+				AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
+			ORDER BY rand() LIMIT 1",
+		dbesc(NETWORK_DFRN));
+
 	if(count($r))
 		return dirname($r[0]['url']);
 	return '';
@@ -330,7 +335,8 @@ function get_contact($url, $uid = 0) {
 
 		if (!$update_photo)
 			return($contactid);
-	}
+	} elseif ($uid != 0)
+		return 0;
 
 	if (!count($data))
 		$data = probe_url($url);

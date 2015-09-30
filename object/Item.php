@@ -4,6 +4,7 @@ if(class_exists('Item'))
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
+require_once('include/diaspora.php');
 require_once('boot.php');
 
 /**
@@ -154,7 +155,7 @@ class Item extends BaseObject {
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
-		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_google($locate));
+		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		$searchpath = $a->get_baseurl()."/search?tag=";
 		$tags=array();
@@ -287,24 +288,25 @@ class Item extends BaseObject {
 		}
 
 		// Disable features that aren't available in several networks
-		if (($item["item_network"] != "dfrn") AND isset($buttons["dislike"])) {
+		if (($item["item_network"] != NETWORK_DFRN) AND isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$tagger = '';
 		}
 
-		if (($item["item_network"] == "feed") AND isset($buttons["like"]))
+		if (($item["item_network"] == NETWORK_FEED) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-		if (($item["item_network"] == "mail") AND isset($buttons["like"]))
+		if (($item["item_network"] == NETWORK_MAIL) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
-		if (($item["item_network"] == "dspr") AND ($indent == 'comment') AND isset($buttons["like"]))
+		// Diaspora isn't able to do likes on comments - but red does
+		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
+			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Facebook can like comments - but it isn't programmed in the connector yet.
-		if (($item["item_network"] == "face") AND ($indent == 'comment') AND isset($buttons["like"]))
+		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
-
 
 		$tmp_item = array(
 			'template' => $this->get_template(),
@@ -322,7 +324,7 @@ class Item extends BaseObject {
 			'body' => $body_e,
 			'text' => $text_e,
 			'id' => $this->get_id(),
-			'guid' => $item['guid'],
+			'guid' => urlencode($item['guid']),
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
@@ -366,7 +368,7 @@ class Item extends BaseObject {
                         'postopts' => $langstr,
                         'edited' => $edited,
 			'network' => $item["item_network"],
-			'network_name' => network_to_name($item['item_network']),
+			'network_name' => network_to_name($item['item_network'], $profile_link),
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
