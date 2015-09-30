@@ -17,6 +17,8 @@ function photos_init(&$a) {
 		return;
 	}
 
+	nav_set_selected('home');
+
 	$o = '';
 
 	if($a->argc > 1) {

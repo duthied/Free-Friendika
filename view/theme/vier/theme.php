@@ -10,6 +10,9 @@
  */
 
 function vier_init(&$a) {
+
+$a->theme_events_in_profile = false;
+
 set_template_engine($a, 'smarty3');
 
 $baseurl = $a->get_baseurl();

@@ -240,6 +240,7 @@ function nav_set_selected($item){
 		'settings'		=> null,
 		'contacts'		=> null,
 		'manage'        => null,
+		'events'        => null,
 		'register'      => null,
 	);
 	$a->nav_sel[$item] = 'selected';

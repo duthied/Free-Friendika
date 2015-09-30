@@ -408,6 +408,7 @@ if(! class_exists('App')) {
 		public	$videoheight = 350;
 		public	$force_max_items = 0;
 		public	$theme_thread_allow = true;
+		public	$theme_events_in_profile = true;
 
 		// An array for all theme-controllable parameters
 		// Mostly unimplemented yet. Only options 'stylesheet' and
