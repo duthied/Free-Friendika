@@ -270,9 +270,6 @@ define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
 
 define ( 'ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like' );
 define ( 'ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike' );
-define ( 'ACTIVITY_AGREE',       NAMESPACE_ZOT             . '/activity/agree' );
-define ( 'ACTIVITY_DISAGREE',    NAMESPACE_ZOT             . '/activity/disagree' );
-define ( 'ACTIVITY_ABSTAIN',     NAMESPACE_ZOT             . '/activity/abstain' );
 define ( 'ACTIVITY_ATTEND',      NAMESPACE_ZOT             . '/activity/attendyes' );
 define ( 'ACTIVITY_ATTENDNO',    NAMESPACE_ZOT             . '/activity/attendno' );
 define ( 'ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT             . '/activity/attendmaybe' );

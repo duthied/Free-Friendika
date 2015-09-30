@@ -189,21 +189,6 @@ class Item extends BaseObject {
 			}
 		}
 
-		// red part for consensus
-		// we need a solution in friendica for missing item_flags
-		// to test $consensus with friendica set $consensus = true
-		// $consensus = (($item['item_flags'] & ITEM_CONSENSUS)? true : false);
-		$consensus = false;
-
-		if($consensus) {
-			$response_verbs[] = 'agree';
-			$response_verbs[] = 'disagree';
-			$response_verbs[] = 'abstain';
-			if($conv->is_writable()) {
-				$conlabels  = array( t('I agree'), t('I disagree'), t('I abstain'));
-				$canvote    = true;
-			}
-		}
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
 		foreach ($response_verbs as $value=>$verbs) {
@@ -322,7 +307,7 @@ class Item extends BaseObject {
 
 		// Disable features that aren't available in several networks
 		if (($item["item_network"] != NETWORK_DFRN) AND isset($buttons["dislike"])) {
-			unset($buttons["dislike"],$isevent,$consensus);
+			unset($buttons["dislike"],$isevent);
 			$tagger = '';
 		}
 
@@ -360,9 +345,6 @@ class Item extends BaseObject {
 			'guid' => urlencode($item['guid']),
 			'isevent' => $isevent,
 			'attend' => $attend,
-			'consensus' => $consensus,
-			'conlabels' => $conlabels,
-			'canvote'   => $canvote,
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),

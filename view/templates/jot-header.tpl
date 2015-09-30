@@ -333,17 +333,6 @@ function enableOnUser(){
 
 	}
 
-	function toggleVoting() {
-		if($('#jot-consensus').val() > 0) {
-			$('#jot-consensus').val(0);
-			$('#profile-voting').removeClass('icon-check').addClass('icon-check-empty');
-		}
-		else {
-			$('#jot-consensus').val(1);
-			$('#profile-voting').removeClass('icon-check-empty').addClass('icon-check');
-		}
-	}
-
 	function jotClearLocation() {
 		$('#jot-coord').val('');
 		$('#profile-nolocation-wrapper').hide();

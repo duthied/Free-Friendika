@@ -1348,14 +1348,12 @@ section.minimal {
   margin-bottom: 0.3em;
 }
 .wall-item-container .wall-item-actions-social, 
-.wall-item-container .wall-item-actions-isevent,
-.wall-item-container .wall-item-actions-canvote {
+.wall-item-container .wall-item-actions-isevent {
   float: left;
   margin-bottom: 1px;
 }
 .wall-item-container .wall-item-actions-social a, 
-.wall-item-container .wall-item-actions-isevent a, 
-.wall-item-container .wall-item-actions-canvote a{
+.wall-item-container .wall-item-actions-isevent a {
   float: left;
   margin-right: 1em;
   cursor: pointer;
@@ -1863,11 +1861,6 @@ section.minimal {
   cursor: pointer;
 }
 #profile-nolocation-wrapper {
-  float: left;
-  margin-left: 15px;
-  cursor: pointer;
-}
-#profile-voting-wrapper {
   float: left;
   margin-left: 15px;
   cursor: pointer;

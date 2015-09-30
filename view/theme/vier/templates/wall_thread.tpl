@@ -130,14 +130,6 @@
 			</div>
 			{{/if}}
 
-			{{if $item.canvote}}<!--Consensus isn't implemented at this time. It's just for testing. -->
-			<div class="clear"></div>
-			<div class="wall-item-actions-canvote">
-				<a href="#" id="attendyes-{{$item.id}}" title="{{$item.conlabels.0}}" onclick="dolike({{$item.id}},'agree'); return false;"><i class="icon-ok icon-large"></i></a>
-				<a href="#" id="attendno-{{$item.id}}" title="{{$item.conlabels.1}}" onclick="dolike({{$item.id}},'disagree'); return false;"><i class="icon-remove icon-large"></i></a>
-				<a href="#" id="attendmaybe-{{$item.id}}" title="{{$item.conlabels.2}}" onclick="dolike({{$item.id}},'abstain'); return false;"><i class="icon-question icon-large"></i></a>
-			</div>
-			{{/if}}
 			<div class="wall-item-actions-tools">
 
 				{{if $item.drop.pagedrop}}

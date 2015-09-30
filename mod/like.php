@@ -26,18 +26,6 @@ function like_content(&$a) {
 		case 'undislike':
 			$activity = ACTIVITY_DISLIKE;
 			break;
-		case 'agree':
-		case 'unagree':
-			$activity = ACTIVITY_AGREE;
-			break;
-		case 'disagree':
-		case 'undisagree':
-			$activity = ACTIVITY_DISAGREE;
-			break;
-		case 'abstain':
-		case 'unabstain':
-			$activity = ACTIVITY_ABSTAIN;
-			break;
 		case 'attendyes':
 		case 'unattendyes':
 			$activity = ACTIVITY_ATTEND;
@@ -134,13 +122,10 @@ function like_content(&$a) {
 
 	$verbs = " '".dbesc($activity)."' ";
 
-	// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
+	// event participation are essentially radio toggles. If you make a subsequent choice,
 	// we need to eradicate your first choice. 
 	if($activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE) {
 		$verbs = " '" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
-	}
-	if($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
-		$verbs = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
 	}
 
 	$r = q("SELECT `id`, `guid` FROM `item` WHERE `verb` IN ( $verbs ) AND `deleted` = 0
@@ -202,12 +187,6 @@ EOT;
 		$bodyverb = t('%1$s likes %2$s\'s %3$s');
 	if($verb === 'dislike')
 		$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-	if($verb === 'agree')
-		$bodyverb = t('%1$s agrees with %2$s\'s %3$s');
-	if($verb === 'disagree')
-		$bodyverb = t('%1$s doesn\'t agree with %2$s\'s %3$s');
-	if($verb === 'abstain')
-		$bodyverb = t('%1$s abstains from a decision on %2$s\'s %3$s');
 	if($verb === 'attendyes')
 		$bodyverb = t('%1$s is attending %2$s\'s %3$s');
 	if($verb === 'attendno')

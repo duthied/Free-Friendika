@@ -123,10 +123,6 @@ function editpost_content(&$a) {
 		'$noloc' => t('Clear browser location'),
 		'$shortnoloc' => t('clear location'),
 		'$voting' => t('Toggle voting'),
-		'$feature_voting' => $voting,
-
-		// we need a solution for the red flags to make consensus work
-		'$consensus' => (($itm[0]['item_flags'] & ITEM_CONSENSUS) ? 1 : 0),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$ptyp' => $itm[0]['type'],

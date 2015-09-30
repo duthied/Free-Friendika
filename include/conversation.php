@@ -344,7 +344,7 @@ function visible_activity($item) {
 	// likes (etc.) can apply to other things besides posts. Check if they are post children, 
 	// in which case we handle them specially
 
-	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
+	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
 	foreach($hidden_activities as $act) {
 		if(activity_match($item['verb'],$act)) {
 			return false;
@@ -492,8 +492,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
 	$conv_responses = array(
-		'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
-		'agree' => array('title' => t('Agree','title')),'disagree' => array('title' => t('Disagree','title')), 'abstain' => array('title' => t('Abstain','title')), 
+		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')), 
 		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
 	);
 
@@ -930,15 +929,6 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'dislike':
 				$verb = ACTIVITY_DISLIKE;
 				break;
-			case 'agree':
-				$verb = ACTIVITY_AGREE;
-				break;
-			case 'disagree':
-				$verb = ACTIVITY_DISAGREE;
-				break;
-			case 'abstain':
-				$verb = ACTIVITY_ABSTAIN;
-				break;
 			case 'attendyes':
 				$verb = ACTIVITY_ATTEND;
 				break;
@@ -991,7 +981,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 // Format the vote text for a profile item
 // $cnt = number of people who vote the item
 // $arr = array of pre-linked names of likers/dislikers
-// $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe', 'agree', 'disagree', 'abstain'
+// $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
 // $id  = item id
 // returns formatted text
 
@@ -1037,15 +1027,6 @@ function format_like($cnt,$arr,$type,$id) {
 			break;
 		case 'attendmaybe' :
 			$phrase = sprintf( t('%s attends maybe.'), $likers);
-			break;
-		case 'agree' :
-			$phrase = sprintf( t('%s agrees.'), $likers);
-			break;
-		case 'disagree' :
-			$phrase = sprintf( t('%s doesn\'t agree.'), $likers);
-			break;
-		case 'abstain' :
-			$phrase = sprintf( t('%s abstains.'), $likers);
 			break;
 	}
 
@@ -1102,8 +1083,6 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 	$plaintext = true;
 	if( local_user() && feature_enabled(local_user(),'richtext') )
 		$plaintext = false;
-
-	$voting = feature_enabled(local_user(),'consensus_tools');
 
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
@@ -1182,9 +1161,6 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$shortsetloc' => t('set location'),
 		'$noloc' => t('Clear browser location'),
 		'$shortnoloc' => t('clear location'),
-		'$voting' => t('Toggle voting'),
-		'$feature_voting' => $voting,
-		'$consensus' => 0,
 		'$title' => $x['title'],
 		'$placeholdertitle' => t('Set title'),
 		'$category' => $x['category'],
@@ -1399,18 +1375,6 @@ function get_response_button_text($v,$count) {
 			break;
 		case 'attendmaybe':
 			return tt('Undecided','Undecided',$count,'noun');
-			break;
-		case 'agree':
-			return tt('Agree','Agrees',$count,'noun');
-			break;
-		case 'disagree':
-			return tt('Disagree','Disagrees',$count,'noun');
-			break;
-		case 'abstain':
-			return tt('Abstain','Abstains',$count,'noun');
-			break;
-		default:
-			return '';
 			break;
 	}
 }
