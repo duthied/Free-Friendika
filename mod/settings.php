@@ -950,6 +950,7 @@ function settings_content(&$a) {
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
+			'$calendar_title' => t('Calendar'),
 			'$first_day_of_week'	=> array('first_day_of_week', t('Beginning of week:'), $first_day_of_week, '', $weekdays, false),
 			'$noinfo'	=> array('noinfo', t("Don't show notices"), $noinfo, ''),
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
