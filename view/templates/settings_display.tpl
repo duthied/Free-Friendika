@@ -13,6 +13,7 @@
 {{include file="field_checkbox.tpl" field=$nosmile}}
 {{include file="field_checkbox.tpl" field=$noinfo}}
 {{include file="field_checkbox.tpl" field=$infinite_scroll}}
+{{include file="field_select.tpl" field=$first_day_of_week}}
 
 
 <div class="settings-submit-wrapper" >

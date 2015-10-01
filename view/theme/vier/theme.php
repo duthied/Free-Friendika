@@ -10,6 +10,9 @@
  */
 
 function vier_init(&$a) {
+
+$a->theme_events_in_profile = false;
+
 set_template_engine($a, 'smarty3');
 
 $baseurl = $a->get_baseurl();
@@ -17,6 +20,7 @@ $baseurl = $a->get_baseurl();
 $a->theme_info = array();
 
 $a->page['htmlhead'] .= <<< EOT
+<link rel='stylesheet' media='screen and (max-width: 1100px)' href='view/theme/vier/narrow.css' />
 <script type="text/javascript">
 
 function insertFormatting(comment,BBcode,id) {
