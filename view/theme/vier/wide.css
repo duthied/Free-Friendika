@@ -1,0 +1,23 @@
+right_aside {
+  vertical-align: top;
+  width: 185px;
+  padding-top: 10px;
+  padding-right: 20px;
+  padding-bottom: 0px;
+  padding-left: 10px;
+  background-color: #FFFFFF;
+  font-size: 13px;
+  overflow-y: auto;
+  z-index: 2;
+  line-height: 17px;
+  position: fixed;
+  color: #737373;
+    top: 44px;
+  height: calc(100% - 54px);
+  display: block;
+  margin-left: calc(100% - 215px);
+}
+
+#forumlist-sidebar {
+  display: none;
+}

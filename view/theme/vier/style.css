@@ -375,7 +375,7 @@ code {
 .tool a {
 /*  color: #000; */
 }
-.tool a:hover, .widget a:hover, #nets-sidear a:hover, #hide-forum-list:hover, .admin.link a:hover, aside h4 a:hover {
+.tool a:hover, .widget a:hover, #nets-sidear a:hover, #hide-forum-list:hover, .admin.link a:hover, aside h4 a:hover, right_aside h4 a:hover {
   /* text-decoration: underline; */
   text-decoration: none;
   color: black;
@@ -391,7 +391,7 @@ code {
 
 .sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
-.nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, #message-new:hover {
+.nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
   background-color: #F5F5F5;
@@ -418,7 +418,7 @@ code {
   display: block;
 }
 
-a.nets-link, .side-link a, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a {
+a.nets-link, .side-link a, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a, right_aside h4 a {
   display: block;
   color: #737373;
 }
@@ -984,7 +984,7 @@ aside #search-text, aside #side-follow-url, aside #side-peoplefind-url {
   -moz-border-right-colors: #dbdbdb;*/
 }
 
-aside h4 {
+aside h4, right_aside h4 {
   margin-bottom: 0px;
   margin-top: 0px;
   font-size: 1.17em;
