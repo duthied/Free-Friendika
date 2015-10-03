@@ -10,14 +10,41 @@ right_aside {
   overflow-y: auto;
   z-index: 2;
   line-height: 17px;
-  position: fixed;
   color: #737373;
-    top: 44px;
-  height: calc(100% - 54px);
+  top: 44px;
+  position: absolute;
+/*  position: fixed;
+  height: calc(100% - 54px); */
   display: block;
   margin-left: calc(100% - 215px);
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
 }
 
 #forumlist-sidebar {
   display: none;
+}
+
+right_aside span.sbox {
+  margin-left: 10px;
+}
+
+right_aside .directory-item {
+  width: 50px;
+  height: 50px;
+}
+
+right_aside img.directory-photo-img {
+  width: 45px;
+  height: 45px;
+}
+
+right_aside #right_services img {
+  width: 32px;
+}
+
+right_aside #lastusers-wrapper,
+right_aside div.itens-wrapper,
+right_aside #right_services_icons {
+  margin-left: 10px;
+  margin-top: 5px;
 }

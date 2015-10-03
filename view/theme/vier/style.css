@@ -390,7 +390,7 @@ code {
 }
 
 .sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover,
-#sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover,
+#sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forum-list div:hover, #forum-list-right div:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
@@ -409,7 +409,7 @@ code {
   font-weight: bold;
 }
 
-#sidebar-new-group, #hide-forum-list, #forum-list, #sidebar-ungrouped,
+#sidebar-new-group, #hide-forum-list, #forum-list, #forum-list-right, #sidebar-ungrouped,
 .side-link, #peoplefind-desc, #connect-desc, .nets-all, .admin.link, #message-new {
   padding-left: 10px;
   padding-top: 3px;
@@ -445,11 +445,11 @@ a.sidebar-group-element {
   color: black;
 }
 
-#forum-list a, .tool a, .admin.link a {
+#forum-list a, #forum-list-right a, .tool a, .admin.link a {
   color: #737373;
 }
 
-#forum-list {
+#forum-list, #forum-list-right {
   margin-top: 2px;
 }
 
@@ -970,7 +970,7 @@ aside #profiles-menu {
   left: 10px;
 }
 
-aside #search-text, aside #side-follow-url, aside #side-peoplefind-url {
+aside #search-text, aside #side-follow-url, aside #side-peoplefind-url, right_aside input {
   width: 140px;
   height: 17px;
   padding-left: 10px;
