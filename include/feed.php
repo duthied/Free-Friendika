@@ -106,8 +106,16 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 	$header["wall"] = 0;
 	$header["origin"] = 0;
 	$header["gravity"] = GRAVITY_PARENT;
+	$header["private"] = 2;
+	$header["verb"] = ACTIVITY_POST;
+	$header["object-type"] = ACTIVITY_OBJ_NOTE;
 
 	$header["contact-id"] = $contact["id"];
+
+	if(!strlen($contact["notify"])) {
+		// one way feed - no remote comment ability
+		$header["last-child"] = 0;
+	}
 
 	if (!is_object($entries))
 		return;
