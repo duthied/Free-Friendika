@@ -1,5 +1,6 @@
 <?php
 require_once('include/Photo.php');
+require_once('include/photos.php');
 require_once('include/items.php');
 require_once('include/acl_selectors.php');
 require_once('include/bbcode.php');
@@ -200,6 +201,10 @@ function photos_post(&$a) {
 			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
 		}
 
+		/*
+		 * RENAME photo album
+		 */
+
 		$newalbum = notags(trim($_POST['albumname']));
 		if($newalbum != $album) {
 			q("UPDATE `photo` SET `album` = '%s' WHERE `album` = '%s' AND `uid` = %d",
@@ -212,6 +217,9 @@ function photos_post(&$a) {
 			return; // NOTREACHED
 		}
 
+		/*
+		 * DELETE photo album and all its photos
+		 */
 
 		if($_POST['dropalbum'] == t('Delete Album')) {
 
@@ -540,7 +548,7 @@ function photos_post(&$a) {
 							if(count($links)) {
 								foreach($links as $link) {
 									if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
-							$profile = $link['@attributes']['href'];
+										$profile = $link['@attributes']['href'];
 									if($link['@attributes']['rel'] === 'salmon') {
 										$salmon = '$url:' . str_replace(',','%sc',$link['@attributes']['href']);
 										if(strlen($inform))
@@ -839,7 +847,7 @@ function photos_post(&$a) {
 		killme();
 	}
 
-	$ph->orient($src);
+	$exif = $ph->orient($src);
 	@unlink($src);
 
 	$max_length = get_config('system','max_image_length');
@@ -880,7 +888,19 @@ function photos_post(&$a) {
 
 	// Create item container
 
+	$lat = $lon = null;
+
+	if($exif && $exif['GPS']) {
+		if(feature_enabled($channel_id,'photo_location')) {
+			$lat = getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
+			$lon = getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
+		}
+	}
+
 	$arr = array();
+
+	if($lat && $lon)
+		$arr['coord'] = $lat . ' ' . $lon;
 
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
@@ -1068,10 +1088,9 @@ function photos_content(&$a) {
 	$is_owner = (local_user() && (local_user() == $owner_uid));
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
 
-	//
-	// dispatch request
-	//
-
+	/**
+	 * Display upload form
+	 */
 
 	if($datatype === 'upload') {
 		if(! ($can_post)) {
@@ -1182,6 +1201,10 @@ function photos_content(&$a) {
 		return $o;
 	}
 
+	/*
+	 * Display a single photo album
+	 */
+
 	if($datatype === 'album') {
 
 		$album = hex2bin($datum);
@@ -1209,6 +1232,7 @@ function photos_content(&$a) {
 			intval($a->pager['itemspage'])
 		);
 
+		//edit album name
 		if($cmd === 'edit') {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if($can_post) {
@@ -1296,10 +1320,11 @@ function photos_content(&$a) {
 
 	}
 
+	/** 
+	 * Display one photo
+	 */
 
 	if($datatype === 'image') {
-
-
 
 		//$o = '';
 		// fetch image, item containing image, then comments
@@ -1424,6 +1449,9 @@ function photos_content(&$a) {
 		$linked_items = q("SELECT * FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			dbesc($datum)
 		);
+
+		$map = null;
+
 		if(count($linked_items)) {
 			$link_item = $linked_items[0];
 			$r = q("SELECT COUNT(*) AS `total`
@@ -1466,6 +1494,10 @@ function photos_content(&$a) {
 					intval(local_user())
 				);
 				update_thread($link_item['parent']);
+			}
+
+			if($link_item['coord']) {
+				$map = generate_map($link_item['coord']);
 			}
 		}
 
@@ -1759,6 +1791,8 @@ function photos_content(&$a) {
 			'$desc' => $ph[0]['desc'],
 			'$tags' => $tags_e,
 			'$edit' => $edit,
+			'$map' => $map,
+			'$map_text' => t('Map'),
 			'$likebuttons' => $likebuttons,
 			'$like' => $like_e,
 			'$dislike' => $dikslike_e,
