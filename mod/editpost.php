@@ -102,8 +102,6 @@ function editpost_content(&$a) {
 	
 	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
 
-	$voting = feature_enabled(local_user(),'consensus_tools');
-
 	$o .= replace_macros($tpl,array(
 		'$return_path' => $_SESSION['return_url'],
 		'$action' => 'item',
@@ -122,7 +120,6 @@ function editpost_content(&$a) {
 		'$shortsetloc' => t('set location'),
 		'$noloc' => t('Clear browser location'),
 		'$shortnoloc' => t('clear location'),
-		'$voting' => t('Toggle voting'),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$ptyp' => $itm[0]['type'],
