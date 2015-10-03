@@ -31,6 +31,12 @@ function follow_content(&$a) {
 
 	$ret = probe_url($url);
 
+	if ($ret["network"] == NETWORK_PHANTOM) {
+		notice( t("The network type couldn't be detected. Contact can't be added.") . EOL);
+		goaway($_SESSION['return_url']);
+		// NOTREACHED
+	}
+
 	if ($ret["network"] == NETWORK_MAIL)
 		$ret["url"] = $ret["addr"];
 
