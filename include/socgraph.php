@@ -570,7 +570,7 @@ function poco_last_updated($profile, $force = false) {
 		return false;
 	}
 
-	if (($data["poll"] == "") OR ($data["network"] == NETWORK_FEED)) {
+	if (($data["poll"] == "") OR (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 		return false;
