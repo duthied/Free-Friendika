@@ -874,7 +874,7 @@ ul.menu-popup .empty {
 right_aside {
   width: 0px;
   top: 32px;
-  display: block;
+  display: none;
 }
 
 /* aside */
