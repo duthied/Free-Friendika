@@ -1,6 +1,7 @@
 <?php
 include_once("include/bbcode.php");
 include_once("include/contact_selectors.php");
+include_once("include/Scrape.php");
 
 function notifications_post(&$a) {
 
