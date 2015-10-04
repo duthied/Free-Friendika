@@ -1,5 +1,6 @@
 <?php
 include_once("include/bbcode.php");
+include_once("include/contact_selectors.php");
 
 function notifications_post(&$a) {
 
@@ -138,7 +139,8 @@ function notifications_content(&$a) {
 
 		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`,
 				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
-				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`
+				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`,
+				`gcontact`.`network` AS `gnetwork`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
 				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
@@ -152,6 +154,7 @@ function notifications_content(&$a) {
 			$tpl = get_markup_template("intros.tpl");
 
 			foreach($r as $rr) {
+
 				if($rr['fid']) {
 
 					$return_addr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
@@ -206,7 +209,20 @@ function notifications_content(&$a) {
 					));
 				}
 
+				$header = $rr["name"];
+
+				$ret = probe_url($rr["url"]);
+
+				if ($rr['gnetwork'] == "")
+					$rr['gnetwork'] = $ret["network"];
+
+				if ($ret["addr"] != "")
+					$header .= " <".$ret["addr"].">";
+
+				$header .= " (".network_to_name($rr['gnetwork']).")";
+
 				$notif_content .= replace_macros($tpl, array(
+					'$header' => htmlentities($header),
 					'$str_notifytype' => t('Notification type: '),
 					'$notify_type' => (($rr['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
 					'$dfrn_text' => $dfrn_text,
