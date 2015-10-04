@@ -238,8 +238,8 @@ function _contact_update_profile($contact_id) {
 
 	$data = probe_url($r[0]["url"]);
 
-	// "Feed" is mostly a sign of communication problems
-	if (($data["network"] == NETWORK_FEED) AND ($data["network"] != $r[0]["network"]))
+	// "Feed" or "Unknown" is mostly a sign of communication problems
+	if ((in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) AND ($data["network"] != $r[0]["network"]))
 		return;
 
 	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
