@@ -5,8 +5,15 @@ There are some config values that haven't found their way into the administratio
 current development that isn't considered stable and will be added later in the administration page when it is considered safe. Or it triggers 
 something that isn't expected to be of public interest. Or it is for testing purposes only.
 
-Please be warned that you shouldn't use one of these values without the knowledge what it could trigger. Especially don't do that with 
+**Attention:** Please be warned that you shouldn't use one of these values without the knowledge what it could trigger. Especially don't do that with 
 undocumented values.
+
+The header of the section describes the category, the value is the parameter. Example: To set the directory value please add this 
+line to your .htconfig.php:
+
+    $a->config['system']['directory'] = 'http://dir.friendi.ca';
+
+
 
 ## Jabber ##
 * debug (Boolean) - Enable debug level for the jabber account synchronisation.
