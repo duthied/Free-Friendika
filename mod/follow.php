@@ -99,9 +99,9 @@ function follow_content(&$a) {
 			'$request' => $request,
 			'$location' => bbcode($r[0]["location"]),
 			'$location_label' => t("Location:"),
-			'$about' => bbcode($r[0]["about"]),
+			'$about' => proxy_parse_html(bbcode($r[0]["about"], false, false)),
 			'$about_label' => t("About:"),
-			'$keywords' => bbcode($r[0]["keywords"]),
+			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => t("Tags:")
 	));
 	return $o;
