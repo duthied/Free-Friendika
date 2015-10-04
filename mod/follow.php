@@ -94,6 +94,7 @@ function follow_content(&$a) {
 			'$nickname' => "",
 			'$name' => $ret["name"],
 			'$url' => $ret["url"],
+			'$zrl' => zrl($ret["url"]),
 			'$url_label' => t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
