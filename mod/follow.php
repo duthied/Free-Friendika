@@ -64,6 +64,9 @@ function follow_content(&$a) {
 	$r = q("SELECT `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
 		normalise_link($ret["url"]));
 
+	if (!$r)
+		$r = array(array("location" => "", "about" => "", "keywords" => ""));
+
 	$header = $ret["name"];
 
 	if ($ret["addr"] != "")
