@@ -792,9 +792,15 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 			if($a->contacts[$clean_url]['network'] === NETWORK_DFRN) {
 				$best_url = $a->get_baseurl($ssl_state) . '/redir/' . $a->contacts[$clean_url]['id'];
 				$sparkle = true;
-			}
-			else
+			} else
 				$best_url = $a->contacts[$clean_url]['url'];
+		}
+	} elseif (local_user()) {
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s'",
+			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
+		if ($r) {
+			$best_url = $a->get_baseurl($ssl_state).'/redir/'.$r[0]['id'];
+			$sparkle = true;
 		}
 	}
 	if(! $best_url) {
@@ -848,13 +854,16 @@ function item_photo_menu($item){
 		$profile_link = zrl($profile_link);
 		if(local_user() && local_user() == $item['uid'] && link_compare($item['url'],$item['author-link'])) {
 			$cid = $item['contact-id'];
-		}
-		else {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' ORDER BY `uid` DESC LIMIT 1",
-				intval($item['uid']), normalise_link($item['author-link']));
-			if ($r)
+		} else {
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' ORDER BY `uid` DESC LIMIT 1",
+				intval(local_user()), dbesc(normalise_link($item['author-link'])));
+			if ($r) {
 				$cid = $r[0]["id"];
-			else
+
+				if ($r[0]["network"] == NETWORK_DIASPORA)
+					$pm_url = $a->get_baseurl($ssl_state) . '/message/new/' . $cid;
+
+			} else
 				$cid = 0;
 		}
 	}
