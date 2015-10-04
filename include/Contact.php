@@ -233,7 +233,6 @@ function contact_photo_menu($contact) {
 
 
 	$menu = Array(
-		'poke' => array(t("Poke"), $poke_link),
 		'status' => array(t("View Status"), $status_link),
 		'profile' => array(t("View Profile"), $profile_link),
 		'photos' => array(t("View Photos"), $photos_link),
@@ -241,6 +240,7 @@ function contact_photo_menu($contact) {
 		'edit' => array(t("Edit Contact"), $contact_url),
 		'drop' => array(t("Drop Contact"), $contact_drop_link),
 		'pm' => array(t("Send PM"), $pm_url),
+		'poke' => array(t("Poke"), $poke_link),
 	);
 
 
