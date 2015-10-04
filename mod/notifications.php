@@ -166,7 +166,7 @@ function notifications_content(&$a) {
 						'$intro_id' => $rr['intro_id'],
 						'$madeby' => sprintf( t('suggested by %s'),$rr['name']),
 						'$contact_id' => $rr['contact-id'],
-						'$photo' => ((x($rr,'fphoto')) ? $rr['fphoto'] : "images/person-175.jpg"),
+						'$photo' => ((x($rr,'fphoto')) ? proxy_url($rr['fphoto']) : "images/person-175.jpg"),
 						'$fullname' => $rr['fname'],
 						'$url' => zrl($rr['furl']),
 						'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
@@ -220,7 +220,7 @@ function notifications_content(&$a) {
 				if ($ret["addr"] != "")
 					$header .= " <".$ret["addr"].">";
 
-				$header .= " (".network_to_name($rr['gnetwork']).")";
+				$header .= " (".network_to_name($rr['gnetwork'], $rr['url']).")";
 
 				$notif_content .= replace_macros($tpl, array(
 					'$header' => htmlentities($header),
@@ -368,7 +368,7 @@ function notifications_content(&$a) {
 			foreach ($r as $it) {
 				$notif_content .= replace_macros($not_tpl,array(
 					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
-					'$item_image' => $it['photo'],
+					'$item_image' => proxy_url($it['photo']),
 					'$item_text' => strip_tags(bbcode($it['msg'])),
 					'$item_when' => relative_date($it['date'])
 				));
