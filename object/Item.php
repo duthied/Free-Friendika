@@ -644,7 +644,7 @@ class Item extends BaseObject {
 		if(!$this->is_toplevel() && !(get_config('system','thread_allow') && $a->theme_thread_allow)) {
 			return '';
 		}
-		
+
 		$comment_box = '';
 		$conv = $this->get_conversation();
 		$template = get_markup_template($this->get_comment_box_template());

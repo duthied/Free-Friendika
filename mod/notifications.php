@@ -216,7 +216,6 @@ function notifications_content(&$a) {
 					'$contact_id' => $rr['contact-id'],
 					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo']) : "images/person-175.jpg"),
 					'$fullname' => $rr['name'],
-					'$location_label' => t('Location:'),
 					'$location' => $rr['glocation'],
 					'$location_label' => t('Location:'),
 					'$about' => proxy_parse_html(bbcode($rr['gabout'], false, false)),

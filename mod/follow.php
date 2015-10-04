@@ -61,6 +61,9 @@ function follow_content(&$a) {
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $ret["url"];
 
+	$r = q("SELECT `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
+		normalise_link($ret["url"]));
+
 	$header = $ret["name"];
 
 	if ($ret["addr"] != "")
@@ -71,25 +74,32 @@ function follow_content(&$a) {
 	$o  = replace_macros($tpl,array(
 			'$header' => htmlentities($header),
 			'$photo' => $ret["photo"],
-                        '$desc' => "",
-                        '$pls_answer' => t('Please answer the following:'),
-                        '$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'),t('Yes'))),
-                        '$add_note' => t('Add a personal note:'),
-                        '$page_desc' => "",
-                        '$friendica' => "",
-                        '$statusnet' => "",
-                        '$diaspora' => "",
-                        '$diasnote' => "",
-                        '$your_address' => t('Your Identity Address:'),
-                        '$invite_desc' => "",
-                        '$emailnet' => "",
-                        '$submit' => t('Submit Request'),
-                        '$cancel' => t('Cancel'),
-                        '$nickname' => "",
-                        '$name' => $ret["name"],
-                        '$url' => $ret["url"],
-                        '$myaddr' => $myaddr,
-			'$request' => $request
+			'$desc' => "",
+			'$pls_answer' => t('Please answer the following:'),
+			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'),t('Yes'))),
+			'$add_note' => t('Add a personal note:'),
+			'$page_desc' => "",
+			'$friendica' => "",
+			'$statusnet' => "",
+			'$diaspora' => "",
+			'$diasnote' => "",
+			'$your_address' => t('Your Identity Address:'),
+			'$invite_desc' => "",
+			'$emailnet' => "",
+			'$submit' => t('Submit Request'),
+			'$cancel' => t('Cancel'),
+			'$nickname' => "",
+			'$name' => $ret["name"],
+			'$url' => $ret["url"],
+			'$url_label' => t("Profile URL"),
+			'$myaddr' => $myaddr,
+			'$request' => $request,
+			'$location' => bbcode($r[0]["location"]),
+			'$location_label' => t("Location:"),
+			'$about' => bbcode($r[0]["about"]),
+			'$about_label' => t("About:"),
+			'$keywords' => bbcode($r[0]["keywords"]),
+			'$keywords_label' => t("Tags:")
 	));
 	return $o;
 }
