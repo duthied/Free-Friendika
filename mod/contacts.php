@@ -243,7 +243,7 @@ function _contact_update_profile($contact_id) {
 		return;
 
 	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
-				"poco", "network", "alias", "pubkey");
+				"poco", "network", "alias");
 	$update = array();
 
 	if ($data["network"] == NETWORK_OSTATUS) {
