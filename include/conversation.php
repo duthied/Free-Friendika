@@ -204,7 +204,7 @@ function localize_item(&$item){
 		// we can't have a translation string with three positions but no distinguishable text
 		// So here is the translate string.
 		$txt = t('%1$s poked %2$s');
-		
+
 		// now translate the verb
 		$poked_t = trim(sprintf($txt, "",""));
 		$txt = str_replace( $poked_t, t($verb), $txt);
@@ -850,7 +850,12 @@ function item_photo_menu($item){
 			$cid = $item['contact-id'];
 		}
 		else {
-			$cid = 0;
+			$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' ORDER BY `uid` DESC LIMIT 1",
+				intval($item['uid']), normalise_link($item['author-link']));
+			if ($r)
+				$cid = $r[0]["id"];
+			else
+				$cid = 0;
 		}
 	}
 	if(($cid) && (! $item['self'])) {
@@ -877,10 +882,14 @@ function item_photo_menu($item){
 		t("View Photos") => $photos_link,
 		t("Network Posts") => $posts_link,
 		t("Edit Contact") => $contact_url,
-		t("Send PM") => $pm_url,
-		t("Poke") => $poke_link
+		t("Send PM") => $pm_url
 	);
 
+	if ($a->contacts[$clean_url]['network'] === NETWORK_DFRN)
+		$menu[t("Poke")] = $poke_link;
+
+	if (($cid == 0) AND in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+		$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
 
 	$args = array('item' => $item, 'menu' => $menu);
 
