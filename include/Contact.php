@@ -219,17 +219,20 @@ function contact_photo_menu($contact) {
 		$status_link = $profile_link . "?url=status";
 		$photos_link = $profile_link . "?url=photos";
 		$profile_link = $profile_link . "?url=profile";
-		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
 	}
 
-	$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA)))
+		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+
+	if ($contact["network"] == NETWORK_DFRN)
+		$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
 	$posts_link = $a->get_baseurl() . '/network/0?nets=all&cid=' . $contact['id'];
 	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
 
 
 	$menu = Array(
-		'poke' => array(t("Poke"), $poke_link),
 		'status' => array(t("View Status"), $status_link),
 		'profile' => array(t("View Profile"), $profile_link),
 		'photos' => array(t("View Photos"), $photos_link),
@@ -237,6 +240,7 @@ function contact_photo_menu($contact) {
 		'edit' => array(t("Edit Contact"), $contact_url),
 		'drop' => array(t("Drop Contact"), $contact_drop_link),
 		'pm' => array(t("Send PM"), $pm_url),
+		'poke' => array(t("Poke"), $poke_link),
 	);
 
 
@@ -254,6 +258,7 @@ function contact_photo_menu($contact) {
 		}
 	}
 	return $o;*/
+
 	foreach($menu as $k=>$v){
 		if ($v[1]!="") {
 			if(($v[0] !== t("Network Posts")) && ($v[0] !== t("Send PM")) && ($v[0] !== t('Edit Contact')))
@@ -262,7 +267,14 @@ function contact_photo_menu($contact) {
 				$menu[$k][2] = 0;
 		}
 	}
-	return $menu;
+
+	$menucondensed = array();
+
+	foreach ($menu AS $menuitem)
+		if ($menuitem[1] != "")
+			$menucondensed[] = $menuitem;
+
+	return $menucondensed;
 }}
 
 
