@@ -1,6 +1,7 @@
 <?php
 require_once('include/contact_widgets.php');
 require_once('include/socgraph.php');
+require_once('include/Contact.php');
 
 function dirfind_init(&$a) {
 
@@ -113,6 +114,8 @@ function dirfind_content(&$a, $prefix = "") {
 
 		if(count($j->results)) {
 
+			$id = 0;
+
 			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
 
@@ -120,9 +123,16 @@ function dirfind_content(&$a, $prefix = "") {
 				if ($jj->cid > 0) {
 					$connlnk = "";
 					$conntxt = "";
+					$contact = q("SELECT * FROM `contact` WHERE `id` = %d",
+							intval($jj->cid));
+					if ($contact)
+						$photo_menu = contact_photo_menu($contact[0]);
+					else
+						$photo_menu = array();
 				} else {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
+					$photo_menu = array(array(t("Connect/Follow"), $connlnk));
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
@@ -134,6 +144,8 @@ function dirfind_content(&$a, $prefix = "") {
 					'$tags' => $jj->tags,
 					'$conntxt' => $conntxt,
 					'$connlnk' => $connlnk,
+					'$photo_menu' => $photo_menu,
+					'$id' => ++$id,
 				));
 			}
 		}
