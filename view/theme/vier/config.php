@@ -9,6 +9,9 @@ function theme_content(&$a){
 	if(!local_user())
 		return;
 
+	if (!function_exists('get_vier_config'))
+		return;
+
 	$style = get_pconfig(local_user(), 'vier', 'style');
 
 	if ($style == "")
@@ -45,6 +48,10 @@ function theme_post(&$a){
 
 
 function theme_admin(&$a){
+
+	if (!function_exists('get_vier_config'))
+		return;
+
 	$style = get_config('vier', 'style');
 
 	$helperlist = get_config('vier', 'helperlist');
