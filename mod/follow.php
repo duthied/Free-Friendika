@@ -100,7 +100,7 @@ function follow_content(&$a) {
 			'$request' => $request,
 			'$location' => bbcode($r[0]["location"]),
 			'$location_label' => t("Location:"),
-			'$about' => proxy_parse_html(bbcode($r[0]["about"], false, false)),
+			'$about' => bbcode($r[0]["about"], false, false),
 			'$about_label' => t("About:"),
 			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => t("Tags:")

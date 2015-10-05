@@ -1410,9 +1410,6 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	put_item_in_cache($item, true);
 	$s = $item["rendered-html"];
 
-	//require_once("mod/proxy.php");
-	//$s = proxy_parse_html($s);
-
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);
 	$s = $prep_arr['html'];
