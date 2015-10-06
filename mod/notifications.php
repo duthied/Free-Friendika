@@ -222,6 +222,13 @@ function notifications_content(&$a) {
 
 				$header .= " (".network_to_name($rr['gnetwork'], $rr['url']).")";
 
+				// Don't show these data until you are connected. Diaspora is doing the same.
+				if($rr['gnetwork'] === NETWORK_DIASPORA) {
+					$rr['glocation'] = "";
+					$rr['gabout'] = "";
+					$rr['ggender'] = "";
+				}
+
 				$notif_content .= replace_macros($tpl, array(
 					'$header' => htmlentities($header),
 					'$str_notifytype' => t('Notification type: '),
@@ -243,7 +250,8 @@ function notifications_content(&$a) {
 					'$gender_label' => t('Gender:'),
 					'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
 					'$activity' => array('activity', t('Post a new friend activity'), (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0), t('if applicable')),
-					'$url' => zrl($rr['url']),
+					'$url' => $rr['url'],
+					'$zrl' => zrl($rr['url']),
 					'$url_label' => t('Profile URL'),
 					'$knowyou' => $knowyou,
 					'$approve' => t('Approve'),

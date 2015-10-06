@@ -67,6 +67,11 @@ function follow_content(&$a) {
 	if (!$r)
 		$r = array(array("location" => "", "about" => "", "keywords" => ""));
 
+	if($ret['network'] === NETWORK_DIASPORA) {
+		$r[0]["location"] = "";
+		$r[0]["about"] = "";
+	}
+
 	$header = $ret["name"];
 
 	if ($ret["addr"] != "")
