@@ -115,8 +115,8 @@ function display_fetchauthor($a, $item) {
 
 	if (count($r)) {
 		$profiledata["photo"] = proxy_url($r[0]["photo"]);
-		$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
-		$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
+		$profiledata["address"] = bbcode($r[0]["location"]);
+		$profiledata["about"] = bbcode($r[0]["about"]);
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];
 	}
@@ -127,9 +127,9 @@ function display_fetchauthor($a, $item) {
 		if ($profiledata["photo"] == "")
 			$profiledata["photo"] = proxy_url($r[0]["avatar"]);
 		if ($profiledata["address"] == "")
-			$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
+			$profiledata["address"] = bbcode($r[0]["location"]);
 		if ($profiledata["about"] == "")
-			$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
+			$profiledata["about"] = bbcode($r[0]["about"]);
 		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
 			$profiledata["nickname"] = $r[0]["nick"];
 	}
@@ -193,8 +193,8 @@ function display_fetchauthor($a, $item) {
 			$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
 			if (count($r)) {
 				$profiledata["photo"] = proxy_url($r[0]["avatar"]);
-				$profiledata["address"] = proxy_parse_html(bbcode($r[0]["location"]));
-				$profiledata["about"] = proxy_parse_html(bbcode($r[0]["about"]));
+				$profiledata["address"] = bbcode($r[0]["location"]);
+				$profiledata["about"] = bbcode($r[0]["about"]);
 				if ($r[0]["nick"] != "")
 					$profiledata["nickname"] = $r[0]["nick"];
 			}

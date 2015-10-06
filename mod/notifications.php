@@ -242,7 +242,7 @@ function notifications_content(&$a) {
 					'$fullname' => $rr['name'],
 					'$location' => bbcode($rr['glocation'], false, false),
 					'$location_label' => t('Location:'),
-					'$about' => proxy_parse_html(bbcode($rr['gabout'], false, false)),
+					'$about' => bbcode($rr['gabout'], false, false),
 					'$about_label' => t('About:'),
 					'$keywords' => $rr['gkeywords'],
 					'$keywords_label' => t('Tags:'),
