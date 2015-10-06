@@ -222,6 +222,13 @@ function notifications_content(&$a) {
 
 				$header .= " (".network_to_name($rr['gnetwork'], $rr['url']).")";
 
+				// Don't show these data until you are connected. Diaspora is doing the same.
+				if($rr['gnetwork'] === NETWORK_DIASPORA) {
+					$rr['glocation'] = "";
+					$rr['gabout'] = "";
+					$rr['ggender'] = "";
+				}
+
 				$notif_content .= replace_macros($tpl, array(
 					'$header' => htmlentities($header),
 					'$str_notifytype' => t('Notification type: '),
