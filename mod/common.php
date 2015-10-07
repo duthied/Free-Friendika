@@ -16,7 +16,7 @@ function common_content(&$a) {
 	if(! $uid)
 		return;
 
-	if($cmd === 'loc' && $cid) {	
+	if($cmd === 'loc' && $cid) {
 		$c = q("select name, url, photo from contact where id = %d and uid = %d limit 1",
 			intval($cid),
 			intval($uid)
@@ -26,10 +26,10 @@ function common_content(&$a) {
 		$c = q("select name, url, photo from contact where self = 1 and uid = %d limit 1",
 			intval($uid)
 		);
-	}	
+	}
 
 	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
-		'$name' => $c[0]['name'],
+		'$name' => htmlentities($c[0]['name']),
 		'$photo' => $c[0]['photo'],
 		'url' => z_root() . '/contacts/' . $cid
 	));
@@ -97,10 +97,10 @@ function common_content(&$a) {
 	$tpl = get_markup_template('common_friends.tpl');
 
 	foreach($r as $rr) {
-			
+
 		$o .= replace_macros($tpl,array(
 			'$url' => $rr['url'],
-			'$name' => $rr['name'],
+			'$name' => htmlentities($rr['name']),
 			'$photo' => $rr['photo'],
 			'$tags' => ''
 		));

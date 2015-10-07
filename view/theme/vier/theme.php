@@ -84,7 +84,8 @@ function cmtBbClose(id) {
 EOT;
 
 	// Hide the left menu bar
-	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications", "probe", "webfinger", "login")))
+	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
+									"probe", "webfinger", "login", "invite")))
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 }
 

@@ -1287,10 +1287,23 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	if ($arr['network'] == "") {
-		$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($arr['contact-id']),
+		$r = q("SELECT `network` FROM `contact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
+			dbesc(normalise_link($arr['author-link'])),
 			intval($arr['uid'])
 		);
+
+		if(!count($r))
+			$r = q("SELECT `network` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' LIMIT 1",
+				dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
+				dbesc(normalise_link($arr['author-link']))
+			);
+
+		if(!count($r))
+			$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+				intval($arr['contact-id']),
+				intval($arr['uid'])
+			);
 
 		if(count($r))
 			$arr['network'] = $r[0]["network"];

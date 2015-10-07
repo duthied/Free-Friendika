@@ -33,7 +33,7 @@ function contacts_init(&$a) {
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
-				'$name' => $a->data['contact']['name'],
+				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
 			        '$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
@@ -432,7 +432,7 @@ function contacts_content(&$a) {
 				}
 
 				$a->page['aside'] = '';
-				
+
 				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
 					'$contact' =>  _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
@@ -509,7 +509,7 @@ function contacts_content(&$a) {
 		if(!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 				$relation_text = "";
 
-		$relation_text = sprintf($relation_text,$contact['name']);
+		$relation_text = sprintf($relation_text,htmlentities($contact['name']));
 
 		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
 			$url = "redir/{$contact['id']}";
@@ -632,7 +632,7 @@ function contacts_content(&$a) {
 			'$ffi_keyword_blacklist' => $contact['ffi_keyword_blacklist'],
 			'$ffi_keyword_blacklist' => array('ffi_keyword_blacklist', t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')),
 			'$photo' => $contact['photo'],
-			'$name' => $contact['name'],
+			'$name' => htmlentities($contact['name']),
 			'$dir_icon' => $dir_icon,
 			'$alt_text' => $alt_text,
 			'$sparkle' => $sparkle,
@@ -842,8 +842,8 @@ function _contact_detail_for_template($rr){
 		'alt_text' => $alt_text,
 		'dir_icon' => $dir_icon,
 		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
-		'name' => $rr['name'],
-		'username' => $rr['name'],
+		'name' => htmlentities($rr['name']),
+		'username' => htmlentities($rr['name']),
 		'sparkle' => $sparkle,
 		'itemurl' => $rr['url'],
 		'url' => $url,

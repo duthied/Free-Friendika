@@ -134,7 +134,7 @@ class Item extends BaseObject {
 		$filer = (($conv->get_profile_owner() == local_user()) ? t("save to folder") : false);
 
 		$diff_author    = ((link_compare($item['url'],$item['author-link'])) ? false : true);
-		$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
+		$profile_name   = htmlentities(((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
 		if($item['author-link'] && (! $item['author-name']))
 			$profile_name = $item['author-link'];
 
