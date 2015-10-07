@@ -81,7 +81,7 @@ function follow_content(&$a) {
 
 	$o  = replace_macros($tpl,array(
 			'$header' => htmlentities($header),
-			'$photo' => proxy_url($ret["photo"]),
+			'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => t('Please answer the following:'),
 			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'),t('Yes'))),

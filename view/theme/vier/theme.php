@@ -132,7 +132,7 @@ function vier_community_info() {
 					'$id' => $rr['id'],
 					//'$profile_link' => zrl($rr['url']),
 					'$profile_link' => $a->get_baseurl().'/follow/?url='.urlencode($rr['url']),
-					'$photo' => proxy_url($rr['photo']),
+					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
 					'$alt_text' => $rr['name'],
 				));
 				$aside['$comunity_profiles_items'][] = $entry;

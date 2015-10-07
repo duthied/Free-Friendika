@@ -171,7 +171,7 @@ function directory_content(&$a) {
 			$entry = replace_macros($tpl,array(
 				'$id' => $rr['id'],
 				'$profile_link' => $profile_link,
-				'$photo' => proxy_url($a->get_cached_avatar_image($rr[$photo])),
+				'$photo' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
 				'$alt_text' => $rr['name'],
 				'$name' => $rr['name'],
 				'$details' => $pdesc . $details,

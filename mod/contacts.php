@@ -832,8 +832,8 @@ function _contact_detail_for_template($rr){
 		$url = $rr['url'];
 		$sparkle = '';
 	}
-	
-	
+
+
 	return array(
 		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
 		'edit_hover' => t('Edit contact'),
@@ -841,7 +841,7 @@ function _contact_detail_for_template($rr){
 		'id' => $rr['id'],
 		'alt_text' => $alt_text,
 		'dir_icon' => $dir_icon,
-		'thumb' => proxy_url($rr['thumb']),
+		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 		'name' => $rr['name'],
 		'username' => $rr['name'],
 		'sparkle' => $sparkle,
