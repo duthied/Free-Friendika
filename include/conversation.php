@@ -100,7 +100,11 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE)){
+	if (activity_match($item['verb'],ACTIVITY_LIKE) 
+		|| activity_match($item['verb'],ACTIVITY_DISLIKE) 
+		|| activity_match($item['verb'],ACTIVITY_ATTEND) 
+		|| activity_match($item['verb'],ACTIVITY_ATTENDNO) 
+		|| activity_match($item['verb'],ACTIVITY_ATTENDMAYBE)){
 
 		$r = q("SELECT * from `item`,`contact` WHERE
 				`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
@@ -138,6 +142,15 @@ function localize_item(&$item){
 		}
 		elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTEND)) {
+			$bodyverb = t('%1$s attends %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTENDNO)) {
+			$bodyverb = t('%1$s doesn\'t attend %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTENDMAYBE)) {
+			$bodyverb = t('%1$s attends maybe %2$s\'s %3$s');
 		}
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 
