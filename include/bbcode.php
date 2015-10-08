@@ -601,7 +601,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 		default:
 			$headline = trim($share[1]).'<div class="shared_header">';
 			if ($avatar != "")
-				$headline .= '<img src="'.proxy_url($avatar).'" height="32" width="32" >';
+				$headline .= '<img src="'.proxy_url($avatar, false, PROXY_SIZE_MICRO).'" height="32" width="32" >';
 
 			$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
 			$headline .= "</div>";

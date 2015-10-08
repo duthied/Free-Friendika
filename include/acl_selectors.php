@@ -545,7 +545,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$x['data'] = array();
 		if(count($r)) {
 			foreach($r as $g) {
-				$x['photos'][] = proxy_url($g['micro']);
+				$x['photos'][] = proxy_url($g['micro'], false, PROXY_SIZE_MICRO);
 				$x['links'][] = $g['url'];
 				$x['suggestions'][] = $g['name'];
 				$x['data'][] = intval($g['id']);
@@ -559,7 +559,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		foreach($r as $g){
 			$contacts[] = array(
 				"type"  => "c",
-				"photo" => proxy_url($g['micro']),
+				"photo" => proxy_url($g['micro'], false, PROXY_SIZE_MICRO),
 				"name"  => $g['name'],
 				"id"	=> intval($g['id']),
 				"network" => $g['network'],
@@ -604,7 +604,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				// /nickname
 				$unknow_contacts[] = array(
 					"type"  => "c",
-					"photo" => proxy_url($row['author-avatar']),
+					"photo" => proxy_url($row['author-avatar'], false, PROXY_SIZE_MICRO),
 					"name"  => $row['author-name'],
 					"id"	=> '',
 					"network" => "unknown",

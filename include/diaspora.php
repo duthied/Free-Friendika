@@ -110,6 +110,9 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 	elseif($xmlbase->message) {
 		$ret = diaspora_message($importer,$xmlbase->message,$msg);
 	}
+	elseif($xmlbase->participation) {
+		$ret = diaspora_participation($importer,$xmlbase->participation);
+	}
 	else {
 		logger('diaspora_dispatch: unknown message type: ' . print_r($xmlbase,true));
 	}
@@ -1834,7 +1837,7 @@ function diaspora_message($importer,$xml,$msg) {
 
 	$author_signature = base64_decode($msg_author_signature);
 
-	$person = find_diaspora_person_by_handle($msg_diaspora_handle);	
+	$person = find_diaspora_person_by_handle($msg_diaspora_handle);
 	if(is_array($person) && x($person,'pubkey'))
 		$key = $person['pubkey'];
 	else {
@@ -1881,6 +1884,9 @@ function diaspora_message($importer,$xml,$msg) {
 	return;
 }
 
+function diaspora_participation($importer,$xml) {
+	logger("Unsupported message type 'participation' ".print_r($xml, true));
+}
 
 function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 

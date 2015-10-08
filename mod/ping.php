@@ -173,7 +173,7 @@ function ping_init(&$a) {
 		 *		'message' => notification message. "{0}" will be replaced by subject name
 		 **/
 		function xmlize($n){
-			$n['photo'] = proxy_url($n['photo']);
+			$n['photo'] = proxy_url($n['photo'], false, PROXY_SIZE_MICRO);
 
 			$n['message'] = html_entity_decode($n['message'], ENT_COMPAT | ENT_HTML401, "UTF-8");
 			$n['name'] = html_entity_decode($n['name'], ENT_COMPAT | ENT_HTML401, "UTF-8");

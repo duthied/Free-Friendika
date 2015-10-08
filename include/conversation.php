@@ -396,25 +396,25 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		$page_writeable = true;
 		if(!$update) {
 			// The special div is needed for liveUpdate to kick in for this page.
-			// We only launch liveUpdate if you aren't filtering in some incompatible 
+			// We only launch liveUpdate if you aren't filtering in some incompatible
 			// way and also you aren't writing a comment (discovered in javascript).
 
 			$live_update_div = '<div id="live-network"></div>' . "\r\n"
-				. "<script> var profile_uid = " . $_SESSION['uid'] 
+				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr($a->cmd,8)
 				. '?f='
 				. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
-				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '') 
-				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '') 
-				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '') 
-				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '') 
-				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '') 
-				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '') 
-				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '') 
-				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '') 
-				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '') 
-				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '') 
-				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '') 
+				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '')
+				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '')
+				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '')
+				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
+				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '')
+				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '')
+				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '')
+				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '')
+				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
+				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
+				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '')
 
 				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
@@ -431,7 +431,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				// because browser prefetching might change it on us. We have to deliver it with the page.
 
 				$live_update_div = '<div id="live-profile"></div>' . "\r\n"
-					. "<script> var profile_uid = " . $a->profile['profile_uid'] 
+					. "<script> var profile_uid = " . $a->profile['profile_uid']
 					. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 			}
 		}
@@ -441,7 +441,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		$page_writeable = true;
 		if(!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
-				. "<script> var profile_uid = " . local_user() 
+				. "<script> var profile_uid = " . local_user()
 				. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	}
@@ -656,7 +656,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => proxy_url($profile_avatar),
+					'thumb' => proxy_url($profile_avatar, false, PROXY_SIZE_THUMB),
 					'title' => $item['title_e'],
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -675,7 +675,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => proxy_url($owner_photo),
+					'owner_photo' => proxy_url($owner_photo, false, PROXY_SIZE_THUMB),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,

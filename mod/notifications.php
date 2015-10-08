@@ -166,7 +166,7 @@ function notifications_content(&$a) {
 						'$intro_id' => $rr['intro_id'],
 						'$madeby' => sprintf( t('suggested by %s'),$rr['name']),
 						'$contact_id' => $rr['contact-id'],
-						'$photo' => ((x($rr,'fphoto')) ? proxy_url($rr['fphoto']) : "images/person-175.jpg"),
+						'$photo' => ((x($rr,'fphoto')) ? proxy_url($rr['fphoto'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 						'$fullname' => $rr['fname'],
 						'$url' => zrl($rr['furl']),
 						'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
@@ -238,7 +238,7 @@ function notifications_content(&$a) {
 					'$uid' => $_SESSION['uid'],
 					'$intro_id' => $rr['intro_id'],
 					'$contact_id' => $rr['contact-id'],
-					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo']) : "images/person-175.jpg"),
+					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 					'$fullname' => $rr['name'],
 					'$location' => bbcode($rr['glocation'], false, false),
 					'$location_label' => t('Location:'),
@@ -303,7 +303,7 @@ function notifications_content(&$a) {
 						$notif_content .= replace_macros($tpl_item_likes,array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
+							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
 							'$item_when' => relative_date($it['created'])
 						));
@@ -313,7 +313,7 @@ function notifications_content(&$a) {
 						$notif_content .= replace_macros($tpl_item_dislikes,array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
+							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
 							'$item_when' => relative_date($it['created'])
 						));
@@ -328,7 +328,7 @@ function notifications_content(&$a) {
 						$notif_content .= replace_macros($tpl_item_friends,array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
+							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
 							'$item_when' => relative_date($it['created'])
 						));
@@ -343,7 +343,7 @@ function notifications_content(&$a) {
 						$notif_content .= replace_macros($tpl,array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
+							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'$item_text' => $item_text,
 							'$item_when' => relative_date($it['created'])
 						));
@@ -376,7 +376,7 @@ function notifications_content(&$a) {
 			foreach ($r as $it) {
 				$notif_content .= replace_macros($not_tpl,array(
 					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
-					'$item_image' => proxy_url($it['photo']),
+					'$item_image' => proxy_url($it['photo'], false, PROXY_SIZE_MICRO),
 					'$item_text' => strip_tags(bbcode($it['msg'])),
 					'$item_when' => relative_date($it['date'])
 				));

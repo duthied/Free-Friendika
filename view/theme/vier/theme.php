@@ -84,7 +84,8 @@ function cmtBbClose(id) {
 EOT;
 
 	// Hide the left menu bar
-	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications", "probe", "webfinger", "login")))
+	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
+									"probe", "webfinger", "login", "invite")))
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 }
 
@@ -132,7 +133,7 @@ function vier_community_info() {
 					'$id' => $rr['id'],
 					//'$profile_link' => zrl($rr['url']),
 					'$profile_link' => $a->get_baseurl().'/follow/?url='.urlencode($rr['url']),
-					'$photo' => proxy_url($rr['photo']),
+					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
 					'$alt_text' => $rr['name'],
 				));
 				$aside['$comunity_profiles_items'][] = $entry;

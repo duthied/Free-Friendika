@@ -97,7 +97,7 @@ function display_fetchauthor($a, $item) {
 	$profiledata["nickname"] = $item["author-name"];
 	$profiledata["name"] = $item["author-name"];
 	$profiledata["picdate"] = "";
-	$profiledata["photo"] = proxy_url($item["author-avatar"]);
+	$profiledata["photo"] = proxy_url($item["author-avatar"], false, PROXY_SIZE_SMALL);
 	$profiledata["url"] = $item["author-link"];
 	$profiledata["network"] = $item["network"];
 
@@ -174,7 +174,7 @@ function display_fetchauthor($a, $item) {
 			$r[0]["about"] = "";
 		}
 
-		$profiledata["photo"] = proxy_url($r[0]["photo"]);
+		$profiledata["photo"] = proxy_url($r[0]["photo"], false, PROXY_SIZE_SMALL);
 		$profiledata["address"] = bbcode($r[0]["location"]);
 		$profiledata["about"] = bbcode($r[0]["about"]);
 		if ($r[0]["nick"] != "")
@@ -185,7 +185,7 @@ function display_fetchauthor($a, $item) {
 	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
 	if (count($r)) {
 		if ($profiledata["photo"] == "")
-			$profiledata["photo"] = proxy_url($r[0]["avatar"]);
+			$profiledata["photo"] = proxy_url($r[0]["avatar"], false, PROXY_SIZE_SMALL);
 		if (($profiledata["address"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
 			$profiledata["address"] = bbcode($r[0]["location"]);
 		if (($profiledata["about"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
