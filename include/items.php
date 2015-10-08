@@ -2751,7 +2751,11 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				$datarray['parent-uri'] = $parent_uri;
 				$datarray['uid'] = $importer['uid'];
 				$datarray['contact-id'] = $contact['id'];
-				if((activity_match($datarray['verb'],ACTIVITY_LIKE)) || (activity_match($datarray['verb'],ACTIVITY_DISLIKE))) {
+				if(($datarray['verb'] === ACTIVITY_LIKE) 
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
+					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
+					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$datarray['type'] = 'activity';
 					$datarray['gravity'] = GRAVITY_LIKE;
 					// only one like or dislike per person
@@ -3738,7 +3742,11 @@ function local_delivery($importer,$data) {
 				$datarray['owner-avatar'] = $own[0]['thumb'];
 				$datarray['contact-id'] = $importer['id'];
 
-				if(($datarray['verb'] === ACTIVITY_LIKE) || ($datarray['verb'] === ACTIVITY_DISLIKE)) {
+				if(($datarray['verb'] === ACTIVITY_LIKE) 
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
+					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
+					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$is_like = true;
 					$datarray['type'] = 'activity';
 					$datarray['gravity'] = GRAVITY_LIKE;
@@ -3927,7 +3935,11 @@ function local_delivery($importer,$data) {
 				$datarray['parent-uri'] = $parent_uri;
 				$datarray['uid'] = $importer['importer_uid'];
 				$datarray['contact-id'] = $importer['id'];
-				if(($datarray['verb'] == ACTIVITY_LIKE) || ($datarray['verb'] == ACTIVITY_DISLIKE)) {
+				if(($datarray['verb'] === ACTIVITY_LIKE) 
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
+					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
+					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$datarray['type'] = 'activity';
 					$datarray['gravity'] = GRAVITY_LIKE;
 					// only one like or dislike per person
