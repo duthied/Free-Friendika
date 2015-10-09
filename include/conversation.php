@@ -101,9 +101,9 @@ function localize_item(&$item){
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
 	if (activity_match($item['verb'],ACTIVITY_LIKE) 
-		|| activity_match($item['verb'],ACTIVITY_DISLIKE) 
-		|| activity_match($item['verb'],ACTIVITY_ATTEND) 
-		|| activity_match($item['verb'],ACTIVITY_ATTENDNO) 
+		|| activity_match($item['verb'],ACTIVITY_DISLIKE)
+		|| activity_match($item['verb'],ACTIVITY_ATTEND)
+		|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
 		|| activity_match($item['verb'],ACTIVITY_ATTENDMAYBE)){
 
 		$r = q("SELECT * from `item`,`contact` WHERE

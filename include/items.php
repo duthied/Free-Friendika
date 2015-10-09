@@ -2751,9 +2751,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				$datarray['parent-uri'] = $parent_uri;
 				$datarray['uid'] = $importer['uid'];
 				$datarray['contact-id'] = $contact['id'];
-				if(($datarray['verb'] === ACTIVITY_LIKE) 
-					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
-					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+				if(($datarray['verb'] === ACTIVITY_LIKE)
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE)
+					|| ($datarray['verb'] === ACTIVITY_ATTEND)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$datarray['type'] = 'activity';
@@ -3743,8 +3743,8 @@ function local_delivery($importer,$data) {
 				$datarray['contact-id'] = $importer['id'];
 
 				if(($datarray['verb'] === ACTIVITY_LIKE) 
-					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
-					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE)
+					|| ($datarray['verb'] === ACTIVITY_ATTEND)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$is_like = true;
@@ -3936,8 +3936,8 @@ function local_delivery($importer,$data) {
 				$datarray['uid'] = $importer['importer_uid'];
 				$datarray['contact-id'] = $importer['id'];
 				if(($datarray['verb'] === ACTIVITY_LIKE) 
-					|| ($datarray['verb'] === ACTIVITY_DISLIKE) 
-					|| ($datarray['verb'] === ACTIVITY_ATTEND) 
+					|| ($datarray['verb'] === ACTIVITY_DISLIKE)
+					|| ($datarray['verb'] === ACTIVITY_ATTEND)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
 					$datarray['type'] = 'activity';

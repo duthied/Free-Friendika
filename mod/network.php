@@ -732,9 +732,9 @@ function network_content(&$a, $update = 0) {
 		// Fetch a page full of parent items for this page
 		if($update) {
 			if (!get_config("system", "like_no_comment"))
-				$sql_extra4 = "(`item`.`deleted` = 0 
-						OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."' 
-						OR `item`.`verb` = '".ACTIVITY_ATTEND."' OR `item`.`verb` = '".ACTIVITY_ATTENDNO."' 
+				$sql_extra4 = "(`item`.`deleted` = 0
+						OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."'
+						OR `item`.`verb` = '".ACTIVITY_ATTEND."' OR `item`.`verb` = '".ACTIVITY_ATTENDNO."'
 						OR `item`.`verb` = '".ACTIVITY_ATTENDMAYBE."')";
 			else
 				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
