@@ -139,7 +139,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 				$o .= replace_macros($tpl,array(
 					'$url' => zrl($jj->url),
-					'$name' => $jj->name,
+					'$name' => htmlentities($jj->name),
 					'$photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 					'$tags' => $jj->tags,
 					'$conntxt' => $conntxt,

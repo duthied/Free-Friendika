@@ -235,6 +235,8 @@ class Item extends BaseObject {
 			if ($shareable) $buttons['share'] = array( t('Share this'), t('share'));
 		}
 
+		$comment = $this->get_comment_box($indent);
+
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0){
 			$shiny = 'shiny';
 		}
@@ -304,6 +306,10 @@ class Item extends BaseObject {
 			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
+		// Diaspora doesn't has multithreaded comments
+		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment'))
+			unset($comment);
+
 		// Facebook can like comments - but it isn't programmed in the connector yet.
 		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
@@ -326,7 +332,7 @@ class Item extends BaseObject {
 			'id' => $this->get_id(),
 			'guid' => urlencode($item['guid']),
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
-			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
+			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), htmlentities($this->get_owner_name()), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
 			'via' => t('via'),
 			'wall' => t('Wall-to-Wall'),
@@ -348,7 +354,7 @@ class Item extends BaseObject {
 			'shiny' => $shiny,
 			'owner_url' => $this->get_owner_url(),
 			'owner_photo' => proxy_url($this->get_owner_photo(), false, PROXY_SIZE_THUMB),
-			'owner_name' => $owner_name_e,
+			'owner_name' => htmlentities($owner_name_e),
 			'plink' => get_plink($item),
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
 			'isstarred' => $isstarred,
@@ -361,7 +367,7 @@ class Item extends BaseObject {
 			'like' => $like,
                         'dislike'   => $dislike,
 			'switchcomment' => t('Comment'),
-			'comment' => $this->get_comment_box($indent),
+			'comment' => $comment,
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
@@ -523,7 +529,7 @@ class Item extends BaseObject {
 	 */
 	public function set_conversation($conv) {
 		$previous_mode = ($this->conversation ? $this->conversation->get_mode() : '');
-		
+
 		$this->conversation = $conv;
 
 		// Set it on our children too
