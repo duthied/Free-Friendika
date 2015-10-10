@@ -1489,9 +1489,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr = $unescaped;
 
 	// find the item we just created
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC ",
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' ORDER BY `id` ASC ",
 		dbesc($arr['uri']),
-		intval($arr['uid'])
+		intval($arr['uid']),
+		dbesc($arr['network'])
 	);
 
 	if(count($r)) {
