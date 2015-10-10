@@ -154,11 +154,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 	$hidden = (($ret['network'] === NETWORK_MAIL) ? 1 : 0);
 
-	if($ret['network'] === NETWORK_MAIL) {
-		$writeable = 1;
-
-	}
-	if($ret['network'] === NETWORK_DIASPORA)
+	if(in_array($ret['network'], array(NETWORK_MAIL, NETWORK_DIASPORA)))
 		$writeable = 1;
 
 	// check if we already have a contact
@@ -215,9 +211,7 @@ function new_contact($uid,$url,$interactive = false) {
 			return $result;
 		}
 
-		$new_relation = (($ret['network'] === NETWORK_MAIL) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
-		if($ret['network'] === NETWORK_DIASPORA)
-			$new_relation = CONTACT_IS_FOLLOWER;
+		$new_relation = ((in_array($ret['network'], array(NETWORK_MAIL, NETWORK_DIASPORA))) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
 		// create contact record
 		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network`, `pubkey`, `rel`, `priority`,
