@@ -897,7 +897,8 @@ function item_photo_menu($item){
 	if ($a->contacts[$clean_url]['network'] === NETWORK_DFRN)
 		$menu[t("Poke")] = $poke_link;
 
-	if (($cid == 0) AND in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+	if (($cid == 0) AND
+		in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
 
 	$args = array('item' => $item, 'menu' => $menu);

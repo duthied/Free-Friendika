@@ -592,7 +592,7 @@ function diaspora_request($importer,$xml) {
 		// perhaps we were already sharing with this person. Now they're sharing with us.
 		// That makes us friends.
 
-		if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
+		if($contact['rel'] == CONTACT_IS_FOLLOWER && in_array($importer['page-flags'], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact['id']),
@@ -774,7 +774,7 @@ function diaspora_post_allow($importer,$contact, $is_comment = false) {
 	// perhaps we were already sharing with this person. Now they're sharing with us.
 	// That makes us friends.
 	// Normally this should have handled by getting a request - but this could get lost
-	if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
+	if($contact['rel'] == CONTACT_IS_FOLLOWER && in_array($importer['page-flags'], array(PAGE_FREELOVE))) {
 		q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval(CONTACT_IS_FRIEND),
 			intval($contact['id']),
