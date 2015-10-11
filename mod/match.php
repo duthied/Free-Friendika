@@ -2,6 +2,7 @@
 include_once('include/text.php');
 require_once('include/socgraph.php');
 require_once('include/contact_widgets.php');
+require_once('mod/proxy.php');
 
 function match_content(&$a) {
 
@@ -65,7 +66,7 @@ function match_content(&$a) {
 					$o .= replace_macros($tpl,array(
 						'$url' => zrl($jj->url),
 						'$name' => $jj->name,
-						'$photo' => proxy_url($jj->photo),
+						'$photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 						'$inttxt' => ' ' . t('is interested in:'),
 						'$conntxt' => t('Connect'),
 						'$connlnk' => $connlnk,

@@ -179,14 +179,17 @@ function events_content(&$a) {
 		);
 	}
 
+	if ($a->theme_events_in_profile)
+		nav_set_selected('home');
+	else
+		nav_set_selected('events');
 
 	$editselect = 'none';
 	if( feature_enabled(local_user(), 'richtext') )
 		$editselect = 'textareas';
 
 	// First day of the week (0 = Sunday)
-	// To-Do: Needs to be configurable
-	$firstDay = 0;
+	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
 
 	$i18n = array(
 			"firstDay" => $firstDay,
@@ -249,7 +252,8 @@ function events_content(&$a) {
 
 	$o ="";
 	// tabs
-	$tabs = profile_tabs($a, True);
+	if ($a->theme_events_in_profile)
+		$tabs = profile_tabs($a, True);
 
 
 

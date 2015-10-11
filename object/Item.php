@@ -134,7 +134,7 @@ class Item extends BaseObject {
 		$filer = (($conv->get_profile_owner() == local_user()) ? t("save to folder") : false);
 
 		$diff_author    = ((link_compare($item['url'],$item['author-link'])) ? false : true);
-		$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
+		$profile_name   = htmlentities(((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
 		if($item['author-link'] && (! $item['author-name']))
 			$profile_name = $item['author-link'];
 
@@ -253,6 +253,8 @@ class Item extends BaseObject {
 			if ($shareable) $buttons['share'] = array( t('Share this'), t('share'));
 		}
 
+		$comment = $this->get_comment_box($indent);
+
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0){
 			$shiny = 'shiny';
 		}
@@ -322,6 +324,10 @@ class Item extends BaseObject {
 			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
+		// Diaspora doesn't has multithreaded comments
+		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment'))
+			unset($comment);
+
 		// Facebook can like comments - but it isn't programmed in the connector yet.
 		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"]))
 			unset($buttons["like"]);
@@ -346,7 +352,7 @@ class Item extends BaseObject {
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
-			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), $this->get_owner_name(), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
+			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), htmlentities($this->get_owner_name()), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
 			'via' => t('via'),
 			'wall' => t('Wall-to-Wall'),
@@ -354,7 +360,7 @@ class Item extends BaseObject {
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name' => $name_e,
-			'thumb' => proxy_url($profile_avatar),
+			'thumb' => proxy_url($profile_avatar, false, PROXY_SIZE_THUMB),
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => $title_e,
@@ -367,8 +373,8 @@ class Item extends BaseObject {
 			'indent' => $indent,
 			'shiny' => $shiny,
 			'owner_url' => $this->get_owner_url(),
-			'owner_photo' => proxy_url($this->get_owner_photo()),
-			'owner_name' => $owner_name_e,
+			'owner_photo' => proxy_url($this->get_owner_photo(), false, PROXY_SIZE_THUMB),
+			'owner_name' => htmlentities($owner_name_e),
 			'plink' => get_plink($item),
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
 			'isstarred' => $isstarred,
@@ -382,7 +388,7 @@ class Item extends BaseObject {
 			'dislike'   => $responses['dislike']['output'],
 			'responses' => $responses,
 			'switchcomment' => t('Comment'),
-			'comment' => $this->get_comment_box($indent),
+			'comment' => $comment,
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
@@ -544,7 +550,7 @@ class Item extends BaseObject {
 	 */
 	public function set_conversation($conv) {
 		$previous_mode = ($this->conversation ? $this->conversation->get_mode() : '');
-		
+
 		$this->conversation = $conv;
 
 		// Set it on our children too
@@ -665,7 +671,7 @@ class Item extends BaseObject {
 		if(!$this->is_toplevel() && !(get_config('system','thread_allow') && $a->theme_thread_allow)) {
 			return '';
 		}
-		
+
 		$comment_box = '';
 		$conv = $this->get_conversation();
 		$template = get_markup_template($this->get_comment_box_template());

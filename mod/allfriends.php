@@ -21,7 +21,7 @@ function allfriends_content(&$a) {
 	);
 
 	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
-		'$name'  => $c[0]['name'],
+		'$name'  => htmlentities($c[0]['name']),
 		'$photo' => $c[0]['photo'],
 		'url'    => z_root() . '/contacts/' . $cid
 	));
@@ -34,7 +34,7 @@ function allfriends_content(&$a) {
 		return;
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => sprintf( t('Friends of %s'), $c[0]['name'])
+		'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name']))
 	));
 
 
@@ -48,10 +48,10 @@ function allfriends_content(&$a) {
 	$tpl = get_markup_template('common_friends.tpl');
 
 	foreach($r as $rr) {
-			
+
 		$o .= replace_macros($tpl,array(
 			'$url' => $rr['url'],
-			'$name' => $rr['name'],
+			'$name' => htmlentities($rr['name']),
 			'$photo' => $rr['photo'],
 			'$tags' => ''
 		));

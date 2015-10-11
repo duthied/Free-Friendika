@@ -33,6 +33,7 @@ Friendica Documentation and Resources
 * [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
 * [Twitter/GNU Social API Functions](help/api)
+* [Config values that can only be set in .htconfig.php](help/htconfig)
 
 **Developer Manual**
 

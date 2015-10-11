@@ -284,6 +284,7 @@ function settings_post(&$a) {
 		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->user['theme']);
 		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
 		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
+		$first_day_of_week = ((x($_POST,'first_day_of_week')) ? intval($_POST['first_day_of_week'])  : 0);
 		$noinfo = ((x($_POST,'noinfo')) ? intval($_POST['noinfo'])  : 0);
 		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
 		$no_auto_update = ((x($_POST,'no_auto_update')) ? intval($_POST['no_auto_update'])  : 0);
@@ -308,6 +309,7 @@ function settings_post(&$a) {
 		set_pconfig(local_user(),'system','itemspage_network', $itemspage_network);
 		set_pconfig(local_user(),'system','itemspage_mobile_network', $itemspage_mobile_network);
 		set_pconfig(local_user(),'system','no_smilies',$nosmile);
+		set_pconfig(local_user(),'system','first_day_of_week',$first_day_of_week);
 		set_pconfig(local_user(),'system','ignore_info',$noinfo);
 		set_pconfig(local_user(),'system','infinite_scroll',$infinite_scroll);
 		set_pconfig(local_user(),'system','no_auto_update',$no_auto_update);
@@ -915,6 +917,10 @@ function settings_content(&$a) {
 		$nosmile = get_pconfig(local_user(),'system','no_smilies');
 		$nosmile = (($nosmile===false)? '0': $nosmile); // default if not set: 0
 
+		$first_day_of_week = get_pconfig(local_user(),'system','first_day_of_week');
+		$first_day_of_week = (($first_day_of_week===false)? '0': $first_day_of_week); // default if not set: 0
+		$weekdays = array(0 => t("Sunday"), 1 => t("Monday"));
+
 		$noinfo = get_pconfig(local_user(),'system','ignore_info');
 		$noinfo = (($noinfo===false)? '0': $noinfo); // default if not set: 0
 
@@ -944,6 +950,8 @@ function settings_content(&$a) {
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
+			'$calendar_title' => t('Calendar'),
+			'$first_day_of_week'	=> array('first_day_of_week', t('Beginning of week:'), $first_day_of_week, '', $weekdays, false),
 			'$noinfo'	=> array('noinfo', t("Don't show notices"), $noinfo, ''),
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),

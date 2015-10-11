@@ -552,7 +552,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if($network !== NETWORK_ZOT && $network !== NETWORK_DFRN && $network !== NETWORK_MAIL) {
 		if($diaspora)
 			$network = NETWORK_DIASPORA;
-		elseif($has_lrdd)
+		elseif($has_lrdd AND ($notify))
 			$network  = NETWORK_OSTATUS;
 
 		if(strpos($url,'@'))
@@ -652,9 +652,10 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
 
 			$feed->init();
-			if($feed->error())
+			if($feed->error()) {
 				logger('probe_url: scrape_feed: Error parsing XML: ' . $feed->error());
-
+				$network = NETWORK_PHANTOM;
+			}
 
 			if(! x($vcard,'photo'))
 				$vcard['photo'] = $feed->get_image_url();

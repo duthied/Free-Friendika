@@ -501,7 +501,7 @@ if(! function_exists('get_events')) {
 				}
 
 				$today = ((substr($strt,0,10) === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) ? true : false);
-				
+
 				$rr['title'] = $title;
 				$rr['description'] = $desciption;
 				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
@@ -533,21 +533,21 @@ function advanced_profile(&$a) {
 	if($a->profile['name']) {
 
 		$tpl = get_markup_template('profile_advanced.tpl');
-		
+
 		$profile = array();
-		
+
 		$profile['fullname'] = array( t('Full Name:'), $a->profile['name'] ) ;
-		
+
 		if($a->profile['gender']) $profile['gender'] = array( t('Gender:'),  $a->profile['gender'] );
-		
+
 
 		if(($a->profile['dob']) && ($a->profile['dob'] != '0000-00-00')) {
-		
+
 			$year_bd_format = t('j F, Y');
 			$short_bd_format = t('j F');
 
-		
-			$val = ((intval($a->profile['dob'])) 
+
+			$val = ((intval($a->profile['dob']))
 				? day_translate(datetime_convert('UTC','UTC',$a->profile['dob'] . ' 00:00 +00:00',$year_bd_format))
 				: day_translate(datetime_convert('UTC','UTC','2001-' . substr($a->profile['dob'],5) . ' 00:00 +00:00',$short_bd_format)));
 
@@ -556,7 +556,7 @@ function advanced_profile(&$a) {
 		}
 
 		if($age = age($a->profile['dob'],$a->profile['timezone'],''))  $profile['age'] = array( t('Age:'), $age );
-			
+
 
 		if($a->profile['marital']) $profile['marital'] = array( t('Status:'), $a->profile['marital']);
 
@@ -591,7 +591,7 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['contact'])) $profile['contact'] = array( t('Contact information and Social Networks:'), $txt);
 
 		if($txt = prepare_text($a->profile['music'])) $profile['music'] = array( t('Musical interests:'), $txt);
-		
+
 		if($txt = prepare_text($a->profile['book'])) $profile['book'] = array( t('Books, literature:'), $txt);
 
 		if($txt = prepare_text($a->profile['tv'])) $profile['tv'] = array( t('Television:'), $txt);
@@ -599,14 +599,14 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['film'])) $profile['film'] = array( t('Film/dance/culture/entertainment:'), $txt);
 
 		if($txt = prepare_text($a->profile['romance'])) $profile['romance'] = array( t('Love/Romance:'), $txt);
-		
+
 		if($txt = prepare_text($a->profile['work'])) $profile['work'] = array( t('Work/employment:'), $txt);
 
 		if($txt = prepare_text($a->profile['education'])) $profile['education'] = array( t('School/education:'), $txt );
-		
+
 		if ($a->profile['uid'] == local_user())
 			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
-		
+
 		return replace_macros($tpl, array(
 			'$title' => t('Profile'),
 			'$profile' => $profile
@@ -664,14 +664,15 @@ if(! function_exists('profile_tabs')){
 		);
 
 		if ($is_owner){
-			$tabs[] = array(
-				'label' => t('Events'),
-				'url'	=> $a->get_baseurl() . '/events',
-				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
-				'title' => t('Events and Calendar'),
-				'id' => 'events-tab',
-				'accesskey' => 'e',
-			);
+			if ($a->theme_events_in_profile)
+				$tabs[] = array(
+					'label' => t('Events'),
+					'url'	=> $a->get_baseurl() . '/events',
+					'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
+					'title' => t('Events and Calendar'),
+					'id' => 'events-tab',
+					'accesskey' => 'e',
+				);
 			$tabs[] = array(
 				'label' => t('Personal Notes'),
 				'url'	=> $a->get_baseurl() . '/notes',
@@ -709,7 +710,7 @@ function zrl_init(&$a) {
 		$result = Cache::get("gprobe:".$urlparts["host"]);
 		if (!is_null($result)) {
 			$result = unserialize($result);
-			if ($result["network"] == NETWORK_FEED) {
+			if (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
 				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
 				return;
 			}
@@ -737,8 +738,8 @@ function zrl($s,$force = false) {
 
 // Used from within PCSS themes to set theme parameters. If there's a
 // puid request variable, that is the "page owner" and normally their theme
-// settings take precedence; unless a local user sets the "always_my_theme" 
-// system pconfig, which means they don't want to see anybody else's theme 
+// settings take precedence; unless a local user sets the "always_my_theme"
+// system pconfig, which means they don't want to see anybody else's theme
 // settings except their own while on this site.
 
 function get_theme_uid() {

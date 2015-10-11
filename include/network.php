@@ -309,16 +309,25 @@ function xml_status($st, $message = '') {
 
 
 if(! function_exists('http_status_exit')) {
-function http_status_exit($val) {
-
+function http_status_exit($val, $description = array()) {
     $err = '';
-	if($val >= 400)
+	if($val >= 400) {
 		$err = 'Error';
+		if (!isset($description["title"]))
+			$description["title"] = $err." ".$val;
+	}
 	if($val >= 200 && $val < 300)
 		$err = 'OK';
 
 	logger('http_status_exit ' . $val);
 	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
+
+	if (isset($description["title"])) {
+		$tpl = get_markup_template('http_status.tpl');
+		echo replace_macros($tpl, array('$title' => $description["title"],
+						'$description' => $description["description"]));
+	}
+
 	killme();
 
 }}

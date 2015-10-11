@@ -37,6 +37,7 @@ Friendica - Dokumentation und Ressourcen
 * [Entwickler](help/Developers)
 * [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
+* [Konfigurationswerte, die nur in der .htconfig.php gesetzt werden können](help/htconfig) (EN)
 
 **Entwickler Dokumentation**
 

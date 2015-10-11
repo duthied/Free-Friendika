@@ -62,9 +62,9 @@ function viewcontacts_content(&$a) {
 		$contacts[] = array(
 			'id' => $rr['id'],
 			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
-			'thumb' => proxy_url($rr['thumb']),
-			'name' => substr($rr['name'],0,20),
-			'username' => $rr['name'],
+			'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
+			'name' => htmlentities(substr($rr['name'],0,20)),
+			'username' => htmlentities($rr['name']),
 			'url' => $url,
 			'sparkle' => '',
 			'itemurl' => $rr['url'],

@@ -106,8 +106,16 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 	$header["wall"] = 0;
 	$header["origin"] = 0;
 	$header["gravity"] = GRAVITY_PARENT;
+	$header["private"] = 2;
+	$header["verb"] = ACTIVITY_POST;
+	$header["object-type"] = ACTIVITY_OBJ_NOTE;
 
 	$header["contact-id"] = $contact["id"];
+
+	if(!strlen($contact["notify"])) {
+		// one way feed - no remote comment ability
+		$header["last-child"] = 0;
+	}
 
 	if (!is_object($entries))
 		return;
@@ -193,8 +201,8 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 		//$item["object"] = $xml;
 
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-			intval($importer["uid"]), dbesc($item["uri"]));
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` = '%s'",
+			intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED));
 		if ($r) {
 			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
 			continue;

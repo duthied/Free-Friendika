@@ -970,7 +970,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. proxy_url($contact['micro']) . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
+			. proxy_url($contact['micro'], false, PROXY_SIZE_THUMB) . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
 			. '" /></a></div>' . "\r\n";
 	}
 }}
@@ -1409,9 +1409,6 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 
 	put_item_in_cache($item, true);
 	$s = $item["rendered-html"];
-
-	require_once("mod/proxy.php");
-	$s = proxy_parse_html($s);
 
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);

@@ -226,6 +226,13 @@ function poco_init(&$a) {
 					Cache::set("about:".$rr['updated'].":".$rr['nurl'],$about);
 				}
 
+				// Non connected persons can only see the keywords of a Diaspora account
+				if ($rr['network'] == NETWORK_DIASPORA) {
+					$rr['location'] = "";
+					$about = "";
+					$rr['gender'] = "";
+				}
+
 				$entry = array();
 				if($fields_ret['id'])
 					$entry['id'] = (int)$rr['id'];

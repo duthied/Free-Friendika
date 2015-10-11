@@ -568,14 +568,14 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` 
-					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." and deleted = 0 
-					    ORDER BY `item`.`received` DESC) AS `temp1` 
+			$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
+					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." and deleted = 0
+					    ORDER BY `item`.`received` DESC) AS `temp1`
 					    ON $sql_table.$sql_parent = `temp1`.`parent` ";
 			$sql_extra = "";
 
 			$o = replace_macros(get_markup_template("section_title.tpl"),array(
-				'$title' => sprintf( t('Contact: %s'), $r[0]['name'])
+				'$title' => sprintf( t('Contact: %s'), htmlentities($r[0]['name']))
 			)) . $o;
 
 			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {

@@ -81,12 +81,12 @@ function suggest_content(&$a) {
 
 	foreach($r as $rr) {
 
-		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);			
+		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 
 		$o .= replace_macros($tpl,array(
 			'$url' => zrl($rr['url']),
 			'$name' => $rr['name'],
-			'$photo' => proxy_url($rr['photo']),
+			'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
 			'$ignlnk' => $a->get_baseurl() . '/suggest?ignore=' . $rr['id'],
 			'$ignid' => $rr['id'],
 			'$conntxt' => t('Connect'),

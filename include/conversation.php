@@ -217,7 +217,7 @@ function localize_item(&$item){
 		// we can't have a translation string with three positions but no distinguishable text
 		// So here is the translate string.
 		$txt = t('%1$s poked %2$s');
-		
+
 		// now translate the verb
 		$poked_t = trim(sprintf($txt, "",""));
 		$txt = str_replace( $poked_t, t($verb), $txt);
@@ -416,25 +416,25 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		$page_writeable = true;
 		if(!$update) {
 			// The special div is needed for liveUpdate to kick in for this page.
-			// We only launch liveUpdate if you aren't filtering in some incompatible 
+			// We only launch liveUpdate if you aren't filtering in some incompatible
 			// way and also you aren't writing a comment (discovered in javascript).
 
 			$live_update_div = '<div id="live-network"></div>' . "\r\n"
-				. "<script> var profile_uid = " . $_SESSION['uid'] 
+				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr($a->cmd,8)
 				. '?f='
 				. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
-				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '') 
-				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '') 
-				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '') 
-				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '') 
-				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '') 
-				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '') 
-				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '') 
-				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '') 
-				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '') 
-				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '') 
-				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '') 
+				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '')
+				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '')
+				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '')
+				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
+				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '')
+				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '')
+				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '')
+				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '')
+				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
+				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
+				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '')
 
 				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
@@ -451,7 +451,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				// because browser prefetching might change it on us. We have to deliver it with the page.
 
 				$live_update_div = '<div id="live-profile"></div>' . "\r\n"
-					. "<script> var profile_uid = " . $a->profile['profile_uid'] 
+					. "<script> var profile_uid = " . $a->profile['profile_uid']
 					. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 			}
 		}
@@ -461,7 +461,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 		$page_writeable = true;
 		if(!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
-				. "<script> var profile_uid = " . local_user() 
+				. "<script> var profile_uid = " . local_user()
 				. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	}
@@ -678,7 +678,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => proxy_url($profile_avatar),
+					'thumb' => proxy_url($profile_avatar, false, PROXY_SIZE_THUMB),
 					'title' => $item['title_e'],
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -697,7 +697,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => proxy_url($owner_photo),
+					'owner_photo' => proxy_url($owner_photo, false, PROXY_SIZE_THUMB),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
@@ -813,9 +813,15 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 			if($a->contacts[$clean_url]['network'] === NETWORK_DFRN) {
 				$best_url = $a->get_baseurl($ssl_state) . '/redir/' . $a->contacts[$clean_url]['id'];
 				$sparkle = true;
-			}
-			else
+			} else
 				$best_url = $a->contacts[$clean_url]['url'];
+		}
+	} elseif (local_user()) {
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s'",
+			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
+		if ($r) {
+			$best_url = $a->get_baseurl($ssl_state).'/redir/'.$r[0]['id'];
+			$sparkle = true;
 		}
 	}
 	if(! $best_url) {
@@ -869,9 +875,17 @@ function item_photo_menu($item){
 		$profile_link = zrl($profile_link);
 		if(local_user() && local_user() == $item['uid'] && link_compare($item['url'],$item['author-link'])) {
 			$cid = $item['contact-id'];
-		}
-		else {
-			$cid = 0;
+		} else {
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' ORDER BY `uid` DESC LIMIT 1",
+				intval(local_user()), dbesc(normalise_link($item['author-link'])));
+			if ($r) {
+				$cid = $r[0]["id"];
+
+				if ($r[0]["network"] == NETWORK_DIASPORA)
+					$pm_url = $a->get_baseurl($ssl_state) . '/message/new/' . $cid;
+
+			} else
+				$cid = 0;
 		}
 	}
 	if(($cid) && (! $item['self'])) {
@@ -891,17 +905,25 @@ function item_photo_menu($item){
 
 	}
 
-	$menu = Array(
-		t("Follow Thread") => $sub_link,
-		t("View Status") => $status_link,
-		t("View Profile") => $profile_link,
-		t("View Photos") => $photos_link,
-		t("Network Posts") => $posts_link,
-		t("Edit Contact") => $contact_url,
-		t("Send PM") => $pm_url,
-		t("Poke") => $poke_link
-	);
+	if (local_user()) {
+		$menu = Array(
+			t("Follow Thread") => $sub_link,
+			t("View Status") => $status_link,
+			t("View Profile") => $profile_link,
+			t("View Photos") => $photos_link,
+			t("Network Posts") => $posts_link,
+			t("Edit Contact") => $contact_url,
+			t("Send PM") => $pm_url
+		);
 
+		if ($a->contacts[$clean_url]['network'] === NETWORK_DFRN)
+			$menu[t("Poke")] = $poke_link;
+
+		if ((($cid == 0) OR ($a->contacts[$clean_url]['rel'] == CONTACT_IS_FOLLOWER)) AND
+			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+			$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
+	} else
+		$menu = array(t("View Profile") => $item['author-link']);
 
 	$args = array('item' => $item, 'menu' => $menu);
 
