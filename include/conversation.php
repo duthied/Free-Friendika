@@ -946,7 +946,7 @@ function like_puller($a,$item,&$arr,$mode) {
 			$arr[$item['thr-parent']] = 1;
 		else
 			$arr[$item['thr-parent']] ++;
-		$arr[$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . $item['author-name'] . '</a>';
+		$arr[$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 	}
 	return;
 }}
@@ -962,7 +962,7 @@ if(! function_exists('format_like')) {
 function format_like($cnt,$arr,$type,$id) {
 	$o = '';
 	if($cnt == 1)
-		$o .= (($type === 'like') ? sprintf( t('%s likes this.'), $arr[0]) : sprintf( t('%s doesn\'t like this.'), $arr[0])) . EOL ;
+		$o .= (($type === 'like') ? sprintf( t('%s likes this.'), $arr[0]) : sprintf( t('%s doesn\'t like this.'), $arr[0])) . EOL;
 	else {
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
 		switch($type) {

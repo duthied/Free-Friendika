@@ -590,6 +590,10 @@ function contacts_content(&$a) {
 		if ($contact['network'] == NETWORK_DFRN)
 			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
 
+		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) AND
+			($contact['rel'] == CONTACT_IS_FOLLOWER))
+			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
+
 		$o .= replace_macros($tpl, array(
 			'$header' => t('Contact Editor'),
 			'$tab_str' => $tab_str,
@@ -617,6 +621,8 @@ function contacts_content(&$a) {
 			'$updpub' => t('Update public posts'),
 			'$last_update' => $last_update,
 			'$udnow' => t('Update now'),
+			'$follow' => $follow,
+			'$follow_text' => t("Connect/Follow"),
 			'$profile_select' => $profile_select,
 			'$contact_id' => $contact['id'],
 			'$block_text' => (($contact['blocked']) ? t('Unblock') : t('Block') ),

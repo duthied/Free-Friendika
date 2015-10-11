@@ -1239,10 +1239,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
 	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
-	$arr['author-name']   = ((x($arr,'author-name'))   ? notags(trim($arr['author-name']))   : '');
+	$arr['author-name']   = ((x($arr,'author-name'))   ? trim($arr['author-name'])   : '');
 	$arr['author-link']   = ((x($arr,'author-link'))   ? notags(trim($arr['author-link']))   : '');
 	$arr['author-avatar'] = ((x($arr,'author-avatar')) ? notags(trim($arr['author-avatar'])) : '');
-	$arr['owner-name']    = ((x($arr,'owner-name'))    ? notags(trim($arr['owner-name']))    : '');
+	$arr['owner-name']    = ((x($arr,'owner-name'))    ? trim($arr['owner-name'])    : '');
 	$arr['owner-link']    = ((x($arr,'owner-link'))    ? notags(trim($arr['owner-link']))    : '');
 	$arr['owner-avatar']  = ((x($arr,'owner-avatar'))  ? notags(trim($arr['owner-avatar']))  : '');
 	$arr['created']       = ((x($arr,'created') !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
@@ -1250,8 +1250,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['commented']     = ((x($arr,'commented')  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
 	$arr['received']      = ((x($arr,'received')  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
 	$arr['changed']       = ((x($arr,'changed')  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert());
-	$arr['title']         = ((x($arr,'title'))         ? notags(trim($arr['title']))         : '');
-	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : '');
+	$arr['title']         = ((x($arr,'title'))         ? trim($arr['title'])         : '');
+	$arr['location']      = ((x($arr,'location'))      ? trim($arr['location'])      : '');
 	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : '');
 	$arr['last-child']    = ((x($arr,'last-child'))    ? intval($arr['last-child'])          : 0 );
 	$arr['visible']       = ((x($arr,'visible') !== false) ? intval($arr['visible'])         : 1 );
@@ -1489,9 +1489,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr = $unescaped;
 
 	// find the item we just created
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC ",
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' ORDER BY `id` ASC ",
 		dbesc($arr['uri']),
-		intval($arr['uid'])
+		intval($arr['uid']),
+		dbesc($arr['network'])
 	);
 
 	if(count($r)) {

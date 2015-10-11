@@ -201,8 +201,8 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 		//$item["object"] = $xml;
 
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-			intval($importer["uid"]), dbesc($item["uri"]));
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` = '%s'",
+			intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED));
 		if ($r) {
 			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
 			continue;
