@@ -5,6 +5,11 @@ require_once('include/Contact.php');
 
 function dirfind_init(&$a) {
 
+	if(! local_user()) {
+		notice( t('Permission denied.') . EOL );
+		return;
+	}
+
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
@@ -132,7 +137,8 @@ function dirfind_content(&$a, $prefix = "") {
 				} else {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
-					$photo_menu = array(array(t("Connect/Follow"), $connlnk));
+					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
+					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);

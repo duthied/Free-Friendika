@@ -1658,7 +1658,7 @@ if(! function_exists('load_contact_links')) {
 		if(! $uid || x($a->contacts,'empty'))
 			return;
 
-		$r = q("SELECT `id`,`network`,`url`,`thumb` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
+		$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
 				intval($uid)
 		);
 		if(count($r)) {

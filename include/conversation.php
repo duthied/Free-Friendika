@@ -884,22 +884,25 @@ function item_photo_menu($item){
 
 	}
 
-	$menu = Array(
-		t("Follow Thread") => $sub_link,
-		t("View Status") => $status_link,
-		t("View Profile") => $profile_link,
-		t("View Photos") => $photos_link,
-		t("Network Posts") => $posts_link,
-		t("Edit Contact") => $contact_url,
-		t("Send PM") => $pm_url
-	);
+	if (local_user()) {
+		$menu = Array(
+			t("Follow Thread") => $sub_link,
+			t("View Status") => $status_link,
+			t("View Profile") => $profile_link,
+			t("View Photos") => $photos_link,
+			t("Network Posts") => $posts_link,
+			t("Edit Contact") => $contact_url,
+			t("Send PM") => $pm_url
+		);
 
-	if ($a->contacts[$clean_url]['network'] === NETWORK_DFRN)
-		$menu[t("Poke")] = $poke_link;
+		if ($a->contacts[$clean_url]['network'] === NETWORK_DFRN)
+			$menu[t("Poke")] = $poke_link;
 
-	if (($cid == 0) AND
-		in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
-		$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
+		if ((($cid == 0) OR ($a->contacts[$clean_url]['rel'] == CONTACT_IS_FOLLOWER)) AND
+			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+			$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
+	} else
+		$menu = array(t("View Profile") => $item['author-link']);
 
 	$args = array('item' => $item, 'menu' => $menu);
 
