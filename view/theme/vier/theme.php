@@ -293,6 +293,9 @@ function vier_community_info() {
 		if (nodeinfo_plugin_enabled("fbpost"))
 			$r[] = array("photo" => "images/facebook.png", "name" => "Facebook");
 
+		if (nodeinfo_plugin_enabled("ifttt"))
+			$r[] = array("photo" => "addon/ifttt/ifttt.png", "name" => "IFTTT");
+
 		if (nodeinfo_plugin_enabled("statusnet"))
 			$r[] = array("photo" => "images/gnusocial.png", "name" => "GNU Social");
 
