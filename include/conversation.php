@@ -987,7 +987,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 			else 
 				$url = zrl($url);
 			
-			$url = '<a href="'. $url . '"'. $sparkle .'>' . $item['author-name'] . '</a>';
+			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
 			if(! $item['thr-parent'])
 				$item['thr-parent'] = $item['parent-uri'];
