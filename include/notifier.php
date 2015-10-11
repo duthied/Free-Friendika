@@ -908,7 +908,7 @@ function notifier_run(&$argv, &$argc){
 					if(! $contact['pubkey'])
 						break;
 
-					$unsupported_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
+					$unsupported_activities = array(ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
 
 					//don't transmit activities which are not supported by diaspora
 					foreach($unsupported_activities as $act) {
