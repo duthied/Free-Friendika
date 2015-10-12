@@ -1128,6 +1128,16 @@ input#dfrn-url {
 	border: none;
 }
 
+.wall-item-attend-wrapper {
+    float:left;
+    padding-left: 10px;
+}
+
+.wall-item-attend-wrapper > a {
+    display: inline-block;
+    margin-right: 10px;
+}
+
 
 .wall-item-wrapper-end {
 	clear: both;
@@ -3128,6 +3138,9 @@ aside input[type='text'] {
 .tagged { background-position: -48px -48px; }
 .yellow { background-position: -64px -48px; }
 
+.attendyes { background-position: -80px -48px; }
+.attendno { background-position: -96px -48px; }
+.attendmaybe { background-position: -112px -48px; }
 
 .filer-icon {
 	display: block; width: 16px; height: 16px;
