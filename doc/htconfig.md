@@ -77,3 +77,22 @@ line to your .htconfig.php:
 ## theme ##
 
 * hide_eventlist (Boolean) - Don't show the birthdays and events on the profile and network page
+
+# Administrator Options #
+
+Enabling the admin panel for an account, and thus making the account holder
+admin of the node, is done by setting the variable
+
+    $a->config['admin_email'] = "someone@example.com";
+
+where you have to match the email address used for the account with the one you
+enter to the .htconfig file. If more then one account should be able to access
+the admin panel, seperate the email addresses with a comma.
+
+    $a->config['admin_email'] = "someone@example.com,someonelese@example.com";
+
+If you want to have a more personalized closing line for the notification
+emails you can set a variable for the admin_name.
+
+    $a->config['admin_name'] = "Marvin";
+
