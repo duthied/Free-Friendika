@@ -190,6 +190,7 @@ function events_content(&$a) {
 
 	// First day of the week (0 = Sunday)
 	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
+	if ($firstDay === false) $firstDay=0;
 
 	$i18n = array(
 			"firstDay" => $firstDay,
@@ -289,7 +290,7 @@ function events_content(&$a) {
 			$m = intval($thismonth);
 
 		// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
-		// An upper limit was chosen to keep search engines from exploring links millions of years in the future. 
+		// An upper limit was chosen to keep search engines from exploring links millions of years in the future.
 
 		if($y < 1901)
 			$y = 1900;
