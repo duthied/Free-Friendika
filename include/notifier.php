@@ -908,11 +908,16 @@ function notifier_run(&$argv, &$argc){
 					if(! $contact['pubkey'])
 						break;
 
-					if($target_item['verb'] === ACTIVITY_DISLIKE) {
-						// unsupported
-						break;
+					$unsupported_activities = array(ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
+
+					//don't transmit activities which are not supported by diaspora
+					foreach($unsupported_activities as $act) {
+						if(activity_match($target_item['verb'],$act)) {
+							break 2;
+						}
 					}
-					elseif(($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
+
+					if(($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 						// send both top-level retractions and relayable retractions for owner to relay
 						diaspora_send_retraction($target_item,$owner,$contact);
 						break;

@@ -21,7 +21,7 @@ function initEditor(cb){
 			$(".jothidden").show();
 			if (typeof cb!="undefined") cb();
 			return;
-		}	
+		}
 		tinyMCE.init({
 			theme : "advanced",
 			mode : "specific_textareas",
@@ -203,7 +203,7 @@ function enableOnUser(){
 					else {
 						checkedstr = $(this).val();
 					}
-				}	
+				}
 			});
 			$.post('item', { dropitems: checkedstr }, function(data) {
 				window.location.reload();
@@ -330,7 +330,7 @@ function enableOnUser(){
 				return false;
 			});
 		});
-		
+
 	}
 
 	function jotClearLocation() {

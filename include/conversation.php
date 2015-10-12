@@ -100,7 +100,11 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE)){
+	if (activity_match($item['verb'],ACTIVITY_LIKE) 
+		|| activity_match($item['verb'],ACTIVITY_DISLIKE)
+		|| activity_match($item['verb'],ACTIVITY_ATTEND)
+		|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
+		|| activity_match($item['verb'],ACTIVITY_ATTENDMAYBE)){
 
 		$r = q("SELECT * from `item`,`contact` WHERE
 				`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
@@ -138,6 +142,15 @@ function localize_item(&$item){
 		}
 		elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTEND)) {
+			$bodyverb = t('%1$s attends %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTENDNO)) {
+			$bodyverb = t('%1$s doesn\'t attend %2$s\'s %3$s');
+		}
+		elseif(activity_match($item['verb'],ACTIVITY_ATTENDMAYBE)) {
+			$bodyverb = t('%1$s attends maybe %2$s\'s %3$s');
 		}
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 
@@ -341,8 +354,15 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
-	if(activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE))
-		return false;
+	// likes (etc.) can apply to other things besides posts. Check if they are post children, 
+	// in which case we handle them specially
+
+	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
+	foreach($hidden_activities as $act) {
+		if(activity_match($item['verb'],$act)) {
+			return false;
+		}
+	}
 
 	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
 		if(! (($item['self']) && ($item['uid'] == local_user()))) {
@@ -484,8 +504,10 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$cmnt_tpl    = get_markup_template('comment_item.tpl');
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
-	$alike = array();
-	$dlike = array();
+	$conv_responses = array(
+		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')), 
+		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
+	);
 
 	// array with html for each thread (parent+comments)
 	$threads = array();
@@ -734,8 +756,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 
 				// Can we put this after the visibility check?
-				like_puller($a,$item,$alike,'like');
-				like_puller($a,$item,$dlike,'dislike');
+				builtin_activity_puller($item, $conv_responses);
 
 				// Only add what is visible
 				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
@@ -755,7 +776,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				}
 			}
 
-			$threads = $conv->get_template_data($alike, $dlike);
+			$threads = $conv->get_template_data($conv_responses);
 
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
@@ -921,65 +942,93 @@ function item_photo_menu($item){
 	return $o;
 }}
 
-if(! function_exists('like_puller')) {
-function like_puller($a,$item,&$arr,$mode) {
+/**
+ * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
+ * Increments the count of each matching activity and adds a link to the author as needed.
+ *
+ * @param array $a (not used)
+ * @param array $item
+ * @param array &$conv_responses (already created with builtin activity structure)
+ * @return void
+ */
+if(! function_exists(builtin_activity_puller)) {
+function builtin_activity_puller($item, &$conv_responses) {
+	foreach($conv_responses as $mode => $v) {
+		$url = '';
+		$sparkle = '';
 
-	$url = '';
-	$sparkle = '';
-	$verb = (($mode === 'like') ? ACTIVITY_LIKE : ACTIVITY_DISLIKE);
-
-	if((activity_match($item['verb'],$verb)) && ($item['id'] != $item['parent'])) {
-		$url = $item['author-link'];
-		if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
-			$url = $a->get_baseurl(true) . '/redir/' . $item['contact-id'];
-			$sparkle = ' class="sparkle" ';
+		switch($mode) {
+			case 'like':
+				$verb = ACTIVITY_LIKE;
+				break;
+			case 'dislike':
+				$verb = ACTIVITY_DISLIKE;
+				break;
+			case 'attendyes':
+				$verb = ACTIVITY_ATTEND;
+				break;
+			case 'attendno':
+				$verb = ACTIVITY_ATTENDNO;
+				break;
+			case 'attendmaybe':
+				$verb = ACTIVITY_ATTENDMAYBE;
+				break;
+			default:
+				return;
+				break;
 		}
-		else
-			$url = zrl($url);
 
-		if(! $item['thr-parent'])
-			$item['thr-parent'] = $item['parent-uri'];
+		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
+			$url = $item['author-link'];
+			if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
+				$url = z_root(true) . '/redir/' . $item['contact-id'];
+				$sparkle = ' class="sparkle" ';
+			}
+			else 
+				$url = zrl($url);
+			
+			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-		if(! ((isset($arr[$item['thr-parent'] . '-l'])) && (is_array($arr[$item['thr-parent'] . '-l']))))
-			$arr[$item['thr-parent'] . '-l'] = array();
-		if(! isset($arr[$item['thr-parent']]))
-			$arr[$item['thr-parent']] = 1;
-		else
-			$arr[$item['thr-parent']] ++;
-		$arr[$item['thr-parent'] . '-l'][] = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
+			if(! $item['thr-parent'])
+				$item['thr-parent'] = $item['parent-uri'];
+
+			if(! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l'])) 
+				&& (is_array($conv_responses[$mode][$item['thr-parent'] . '-l']))))
+				$conv_responses[$mode][$item['thr-parent'] . '-l'] = array();
+
+			// only list each unique author once
+			if(in_array($url,$conv_responses[$mode][$item['thr-parent'] . '-l']))
+				continue;
+
+			if(! isset($conv_responses[$mode][$item['thr-parent']]))
+				$conv_responses[$mode][$item['thr-parent']] = 1;
+			else
+				$conv_responses[$mode][$item['thr-parent']] ++;
+
+			$conv_responses[$mode][$item['thr-parent'] . '-l'][] = $url;
+
+			// there can only be one activity verb per item so if we found anything, we can stop looking
+			return;
+		}
 	}
-	return;
 }}
 
-// Format the like/dislike text for a profile item
-// $cnt = number of people who like/dislike the item
+// Format the vote text for a profile item
+// $cnt = number of people who vote the item
 // $arr = array of pre-linked names of likers/dislikers
-// $type = one of 'like, 'dislike'
+// $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
 // $id  = item id
 // returns formatted text
 
 if(! function_exists('format_like')) {
 function format_like($cnt,$arr,$type,$id) {
 	$o = '';
-	if($cnt == 1)
-		$o .= (($type === 'like') ? sprintf( t('%s likes this.'), $arr[0]) : sprintf( t('%s doesn\'t like this.'), $arr[0])) . EOL;
-	else {
-		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
-		switch($type) {
-			case 'like':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
-				break;
-			case 'dislike':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
-				break;
-		}
-		$phrase .= EOL ;
-		$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), array(
-			'$phrase' => $phrase,
-			'$type' => $type,
-			'$id' => $id
-		));
+	$expanded = '';
 
+	if($cnt == 1)
+		$likers = $arr[0];
+
+	else {
 		$total = count($arr);
 		if($total >= MAX_LIKERS)
 			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
@@ -992,9 +1041,67 @@ function format_like($cnt,$arr,$type,$id) {
 			$str = implode(', ', $arr);
 			$str .= sprintf( t(', and %d other people'), $total - MAX_LIKERS );
 		}
-		$str = (($type === 'like') ? sprintf( t('%s like this.'), $str) : sprintf( t('%s don\'t like this.'), $str));
-		$o .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $str . '</div>';
+
+		$likers = $str;
 	}
+
+	// Phrase if there is only one liker. In other cases it will be uses for the expanded
+	// list which show all likers
+	switch($type) {
+		case 'like' :
+			$phrase = sprintf( t('%s likes this.'), $likers);
+			break;
+		case 'dislike' :
+			$phrase = sprintf( t('%s doesn\'t like this.'), $likers);
+			break;
+		case 'attendyes' :
+			$phrase = sprintf( t('%s attends.'), $likers);
+			break;
+		case 'attendno' :
+			$phrase = sprintf( t('%s doesn\'t attend.'), $likers);
+			break;
+		case 'attendmaybe' :
+			$phrase = sprintf( t('%s attends maybe.'), $likers);
+			break;
+	}
+
+	if($cnt > 1) {
+		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
+		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $phrase . EOL . '</div>';
+		switch($type) {
+			case 'like':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
+				break;
+			case 'dislike':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
+				break;
+			case 'attendyes':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> attend'), $spanatts, $cnt);
+				break;
+			case 'attendno':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t attend'), $spanatts, $cnt);
+				break;
+			case 'attendmaybe':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> anttend maybe'), $spanatts, $cnt);
+			case 'agree':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> agree'), $spanatts, $cnt);
+				break;
+			case 'disagree':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t agree'), $spanatts, $cnt);
+				break;
+			case 'abstain':
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> abstains'), $spanatts, $cnt);
+		}
+	}
+
+	$phrase .= EOL ;
+	$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), array(
+		'$phrase' => $phrase,
+		'$type' => $type,
+		'$id' => $id
+	));
+	$o .= $expanded;
+
 	return $o;
 }}
 
@@ -1257,4 +1364,52 @@ function render_location_dummy($item) {
 
 	if ($item['coord'] != "")
 		return $item['coord'];
+}
+
+function get_responses($conv_responses,$response_verbs,$ob,$item) {
+	$ret = array();
+	foreach($response_verbs as $v) {
+		$ret[$v] = array();
+		$ret[$v]['count'] = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri']] : '');
+		$ret[$v]['list']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
+		if(count($ret[$v]['list']) > MAX_LIKERS) {
+			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
+			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-' 
+				. (($ob) ? $ob->get_id() : $item['id']) . '"><b>' . t('View all') . '</b></a>');
+		}
+		else {
+			$ret[$v]['list_part'] = '';
+		}
+		$ret[$v]['button'] = get_response_button_text($v,$ret[$v]['count']);
+		$ret[$v]['title'] = $conv_responses[$v]['title'];
+	}
+
+	$count = 0;
+	foreach($ret as $key) {
+		if ($key['count'] == true)
+			$count++;
+	}
+	$ret['count'] = $count;
+
+	return $ret;
+}
+
+function get_response_button_text($v,$count) {
+	switch($v) {
+		case 'like':
+			return tt('Like','Likes',$count,'noun');
+			break;
+		case 'dislike':
+			return tt('Dislike','Dislikes',$count,'noun');
+			break;
+		case 'attendyes':
+			return tt('Attending','Attending',$count,'noun');
+			break;
+		case 'attendno':
+			return tt('Not Attending','Not Attending',$count,'noun');
+			break;
+		case 'attendmaybe':
+			return tt('Undecided','Undecided',$count,'noun');
+			break;
+	}
 }

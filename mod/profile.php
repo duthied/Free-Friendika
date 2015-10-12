@@ -221,8 +221,10 @@ function profile_content(&$a, $update = 0) {
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
-			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."' OR item.verb = '" . ACTIVITY_DISLIKE . "')
-			and `item`.`moderated` = 0 and `item`.`unseen` = 1
+			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."'
+			OR item.verb = '" . ACTIVITY_DISLIKE . "' OR item.verb = '" . ACTIVITY_ATTEND . "'
+			OR item.verb = '" . ACTIVITY_ATTENDNO . "' OR item.verb = '" . ACTIVITY_ATTENDMAYBE . "')
+			AND `item`.`moderated` = 0 and `item`.`unseen` = 1
 			AND `item`.`wall` = 1
 			$sql_extra
 			ORDER BY `item`.`created` DESC",

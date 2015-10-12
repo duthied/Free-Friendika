@@ -81,7 +81,7 @@ class Item extends BaseObject {
 	 *      _ The data requested on success
 	 *      _ false on failure
 	 */
-	public function get_template_data($alike, $dlike, $thread_level=1) {
+	public function get_template_data($conv_responses, $thread_level=1) {
 		require_once("mod/proxy.php");
 
 		$result = array();
@@ -175,8 +175,26 @@ class Item extends BaseObject {
 			}
 		}*/
 
-		$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
-		$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');
+		// process action responses - e.g. like/dislike/attend/agree/whatever
+		$response_verbs = array('like');
+		if(feature_enabled($conv->get_profile_owner(),'dislike'))
+			$response_verbs[] = 'dislike';
+		if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+			$response_verbs[] = 'attendyes';
+			$response_verbs[] = 'attendno';
+			$response_verbs[] = 'attendmaybe';
+			if($conv->is_writable()) {
+				$isevent = true;
+				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+			}
+		}
+
+		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
+
+		foreach ($response_verbs as $value=>$verbs) {
+			$responses[$verbs][output]  = ((x($conv_responses[$verbs],$item['uri'])) ? format_like($conv_responses[$verbs][$item['uri']],$conv_responses[$verbs][$item['uri'] . '-l'],$verbs,$item['uri']) : '');
+
+		}
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -291,7 +309,7 @@ class Item extends BaseObject {
 
 		// Disable features that aren't available in several networks
 		if (($item["item_network"] != NETWORK_DFRN) AND isset($buttons["dislike"])) {
-			unset($buttons["dislike"]);
+			unset($buttons["dislike"],$isevent);
 			$tagger = '';
 		}
 
@@ -331,6 +349,8 @@ class Item extends BaseObject {
 			'text' => $text_e,
 			'id' => $this->get_id(),
 			'guid' => urlencode($item['guid']),
+			'isevent' => $isevent,
+			'attend' => $attend,
 			'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 			'olinktitle' => sprintf( t('View %s\'s profile @ %s'), htmlentities($this->get_owner_name()), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
 			'to' => t('to'),
@@ -364,15 +384,16 @@ class Item extends BaseObject {
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing')) ? $filer : ''),
 			'drop' => $drop,
 			'vote' => $buttons,
-			'like' => $like,
-                        'dislike'   => $dislike,
+			'like' => $responses['like']['output'],
+			'dislike'   => $responses['dislike']['output'],
+			'responses' => $responses,
 			'switchcomment' => t('Comment'),
 			'comment' => $comment,
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
-                        'postopts' => $langstr,
-                        'edited' => $edited,
+			'postopts' => $langstr,
+			'edited' => $edited,
 			'network' => $item["item_network"],
 			'network_name' => network_to_name($item['item_network'], $profile_link),
 		);
@@ -387,7 +408,7 @@ class Item extends BaseObject {
 		$nb_children = count($children);
 		if($nb_children > 0) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($alike, $dlike, $thread_level + 1);
+				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1);
 			}
 			// Collapse
 			if(($nb_children > 2) || ($thread_level > 1)) {

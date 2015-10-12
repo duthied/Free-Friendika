@@ -1635,18 +1635,22 @@ function photos_content(&$a) {
 			$like = '';
 			$dislike = '';
 
+			$conv_responses = array(
+				'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
+				'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
+			);
+
 
 
 			// display comments
 			if(count($r)) {
 
 				foreach($r as $item) {
-					like_puller($a,$item,$alike,'like');
-					like_puller($a,$item,$dlike,'dislike');
+					builtin_activity_puller($item, $conv_responses);
 				}
 
-				$like    = ((isset($alike[$link_item['id']])) ? format_like($alike[$link_item['id']],$alike[$link_item['id'] . '-l'],'like',$link_item['id']) : '');
-				$dislike = ((isset($dlike[$link_item['id']])) ? format_like($dlike[$link_item['id']],$dlike[$link_item['id'] . '-l'],'dislike',$link_item['id']) : '');
+				$like    = ((x($conv_responses['like'],$link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']],$conv_responses['like'][$link_item['uri'] . '-l'],'like',$link_item['id']) : '');
+				$dislike = ((x($conv_responses['dislike'],$link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']],$conv_responses['dislike'][$link_item['uri'] . '-l'],'dislike',$link_item['id']) : '');
 
 
 
@@ -1765,6 +1769,12 @@ function photos_content(&$a) {
 			$paginate = paginate($a);
 		}
 
+
+		$response_verbs = array('like');
+		if(feature_enabled($owner_uid,'dislike'))
+			$response_verbs[] = 'dislike';
+		$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+
 		$photo_tpl = get_markup_template('photo_view.tpl');
 
 		if($a->theme['template_engine'] === 'internal') {
@@ -1796,6 +1806,7 @@ function photos_content(&$a) {
 			'$likebuttons' => $likebuttons,
 			'$like' => $like_e,
 			'$dislike' => $dikslike_e,
+			'responses' => $responses,
 			'$comments' => $comments,
 			'$paginate' => $paginate,
 		));

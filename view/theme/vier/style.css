@@ -1347,11 +1347,13 @@ section.minimal {
   width: 100%;
   margin-bottom: 0.3em;
 }
-.wall-item-container .wall-item-actions-social {
+.wall-item-container .wall-item-actions-social, 
+.wall-item-container .wall-item-actions-isevent {
   float: left;
   margin-bottom: 1px;
 }
-.wall-item-container .wall-item-actions-social a {
+.wall-item-container .wall-item-actions-social a, 
+.wall-item-container .wall-item-actions-isevent a {
   float: left;
   margin-right: 1em;
   cursor: pointer;

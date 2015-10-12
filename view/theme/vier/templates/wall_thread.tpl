@@ -118,7 +118,18 @@
                                 <a role="button" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="icon-folder-close icon-large"><span class="sr-only">{{$item.filer}}</span></i></a>
 			{{/if}}
 			</div>
+
 			<div class="wall-item-location">{{$item.location}} {{$item.postopts}}</div>
+
+			{{if $item.isevent}}
+			<div class="clear"></div>
+			<div class="wall-item-actions-isevent">
+				<a href="#" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;"><i class="icon-ok icon-large"></i></a>
+				<a href="#" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"><i class="icon-remove icon-large"></i></a>
+				<a href="#" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"><i class="icon-question icon-large"></i></a>
+			</div>
+			{{/if}}
+
 			<div class="wall-item-actions-tools">
 
 				{{if $item.drop.pagedrop}}
@@ -137,8 +148,12 @@
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
 		</div>
-		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>	
+		{{if $item.responses}}
+			{{foreach $item.responses as $verb=>$response}}
+				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+			{{/foreach}}
+		{{/if}}
+		
 	</div>
 	
 	{{if $item.threaded}}{{if $item.comment}}
