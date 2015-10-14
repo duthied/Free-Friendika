@@ -1025,10 +1025,31 @@ function format_like($cnt,$arr,$type,$id) {
 	$o = '';
 	$expanded = '';
 
-	if($cnt == 1)
+	if($cnt == 1) {
 		$likers = $arr[0];
 
-	else {
+		// Phrase if there is only one liker. In other cases it will be uses for the expanded
+		// list which show all likers
+		switch($type) {
+			case 'like' :
+				$phrase = sprintf( t('%s likes this.'), $likers);
+				break;
+			case 'dislike' :
+				$phrase = sprintf( t('%s doesn\'t like this.'), $likers);
+				break;
+			case 'attendyes' :
+				$phrase = sprintf( t('%s attends.'), $likers);
+				break;
+			case 'attendno' :
+				$phrase = sprintf( t('%s doesn\'t attend.'), $likers);
+				break;
+			case 'attendmaybe' :
+				$phrase = sprintf( t('%s attends maybe.'), $likers);
+				break;
+		}
+	}
+
+	if($cnt > 1) {
 		$total = count($arr);
 		if($total >= MAX_LIKERS)
 			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
@@ -1043,55 +1064,33 @@ function format_like($cnt,$arr,$type,$id) {
 		}
 
 		$likers = $str;
-	}
-
-	// Phrase if there is only one liker. In other cases it will be uses for the expanded
-	// list which show all likers
-	switch($type) {
-		case 'like' :
-			$phrase = sprintf( t('%s likes this.'), $likers);
-			break;
-		case 'dislike' :
-			$phrase = sprintf( t('%s doesn\'t like this.'), $likers);
-			break;
-		case 'attendyes' :
-			$phrase = sprintf( t('%s attends.'), $likers);
-			break;
-		case 'attendno' :
-			$phrase = sprintf( t('%s doesn\'t attend.'), $likers);
-			break;
-		case 'attendmaybe' :
-			$phrase = sprintf( t('%s attends maybe.'), $likers);
-			break;
-	}
-
-	if($cnt > 1) {
+	
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
-		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $phrase . EOL . '</div>';
+		
 		switch($type) {
 			case 'like':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s like this.'), $likers);
 				break;
 			case 'dislike':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s don\'t like this.'), $likers);
 				break;
 			case 'attendyes':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> attend'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s attend.'), $likers);
 				break;
 			case 'attendno':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t attend'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s don\'t attend.'), $likers);
 				break;
 			case 'attendmaybe':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> anttend maybe'), $spanatts, $cnt);
-			case 'agree':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> agree'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s anttend maybe.'), $likers);
 				break;
-			case 'disagree':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t agree'), $spanatts, $cnt);
-				break;
-			case 'abstain':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> abstains'), $spanatts, $cnt);
 		}
+
+		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</div>';
 	}
 
 	$phrase .= EOL ;
