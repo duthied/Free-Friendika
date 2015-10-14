@@ -120,6 +120,8 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 	if (!is_object($entries))
 		return;
 
+	$entrylist = array();
+
 	foreach ($entries AS $entry)
 		$entrylist[] = $entry;
 
