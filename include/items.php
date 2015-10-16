@@ -2849,7 +2849,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
 					$ev = bbtoevent($datarray['body']);
-					if(x($ev,'desc') && x($ev,'start')) {
+					if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
 						$ev['uid'] = $importer['uid'];
 						$ev['uri'] = $item_id;
 						$ev['edited'] = $datarray['edited'];
@@ -4074,7 +4074,7 @@ function local_delivery($importer,$data) {
 
 			if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
 				$ev = bbtoevent($datarray['body']);
-				if(x($ev,'desc') && x($ev,'start')) {
+				if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
 					$ev['cid'] = $importer['id'];
 					$ev['uid'] = $importer['uid'];
 					$ev['uri'] = $item_id;
