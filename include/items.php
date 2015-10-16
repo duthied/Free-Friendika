@@ -2558,6 +2558,11 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					if(! $item['deleted'])
 						logger('consume_feed: deleting item ' . $item['id'] . ' uri=' . $item['uri'], LOGGER_DEBUG);
 
+					if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+						logger("Deleting event ".$item['event-id'], LOGGER_DEBUG);
+						event_delete($item['event-id']);
+					}
+
 					if(($item['verb'] === ACTIVITY_TAG) && ($item['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
 						$xo = parse_xml_string($item['object'],false);
 						$xt = parse_xml_string($item['target'],false);
@@ -3543,6 +3548,11 @@ function local_delivery($importer,$data) {
 						continue;
 
 					logger('local_delivery: deleting item ' . $item['id'] . ' uri=' . $item['uri'], LOGGER_DEBUG);
+
+					if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+						logger("Deleting event ".$item['event-id'], LOGGER_DEBUG);
+						event_delete($item['event-id']);
+					}
 
 					if(($item['verb'] === ACTIVITY_TAG) && ($item['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
 						$xo = parse_xml_string($item['object'],false);

@@ -204,7 +204,13 @@ function ev_compare($a,$b) {
 	return strcmp($date_a,$date_b);
 }
 
+function event_delete($event_id) {
+	if ($event_id == 0)
+		return;
 
+	q("DELETE FROM `event` WHERE `id` = %d", intval($event_id));
+	logger("Deleted event ".$event_id, LOGGER_DEBUG);
+}
 
 function event_store($arr) {
 
