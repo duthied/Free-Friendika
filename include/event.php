@@ -21,33 +21,33 @@ function format_event_html($ev) {
 
 	$o .= '<p class="event-start">' . t('Starts:') . ' <abbr class="dtstart" title="'
 		. datetime_convert('UTC','UTC',$ev['start'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
-		. '" >' 
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), 
+		. '" >'
+		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 			$ev['start'] , $bd_format ))
-			:  day_translate(datetime_convert('UTC', 'UTC', 
+			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format)))
 		. '</abbr></p>' . "\r\n";
 
 	if(! $ev['nofinish'])
 		$o .= '<p class="event-end" >' . t('Finishes:') . ' <abbr class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['finish'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
-			. '" >' 
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), 
+			. '" >'
+			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 				$ev['finish'] , $bd_format ))
-				:  day_translate(datetime_convert('UTC', 'UTC', 
+				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
 			. '</abbr></p>'  . "\r\n";
 
 	if(strlen($ev['location'])){
-		$o .= '<p class="event-location"> ' . t('Location:') . ' <span class="location">' 
-			. bbcode($ev['location']) 
+		$o .= '<p class="event-location"> ' . t('Location:') . ' <span class="location">'
+			. bbcode($ev['location'])
 			. '</span></p>' . "\r\n";
-		
+
 		if (strpos($ev['location'], "[map")===False) {
 			$map = generate_named_map($ev['location']);
 			if ($map!==$ev['location']) $o.=$map;
 		}
-		
+
 	}
 
 	$o .= '</div>' . "\r\n";
@@ -137,7 +137,7 @@ function format_event_bbcode($ev) {
 
 	if(($ev['finish']) && (! $ev['nofinish']))
 		$o .= '[event-finish]' . $ev['finish'] . '[/event-finish]';
- 
+
 	if($ev['location'])
 		$o .= '[event-location]' . $ev['location'] . '[/event-location]';
 
@@ -200,7 +200,7 @@ function ev_compare($a,$b) {
 
 	if($date_a === $date_b)
 		return strcasecmp($a['desc'],$b['desc']);
-	
+
 	return strcmp($date_a,$date_b);
 }
 
@@ -324,7 +324,7 @@ function event_store($arr) {
 	}
 	else {
 
-		// New event. Store it. 
+		// New event. Store it.
 
 		$r = q("INSERT INTO `event` ( `uid`,`cid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
 			`adjust`,`nofinish`,`allow_cid`,`allow_gid`,`deny_cid`,`deny_gid`)
@@ -362,6 +362,7 @@ function event_store($arr) {
 		$item_arr['contact-id']    = $arr['cid'];
 		$item_arr['uri']           = $arr['uri'];
 		$item_arr['parent-uri']    = $arr['uri'];
+		$item_arr['guid']          = $arr['guid'];
 		$item_arr['type']          = 'activity';
 		$item_arr['wall']          = (($arr['cid']) ? 0 : 1);
 		$item_arr['contact-id']    = $contact['id'];

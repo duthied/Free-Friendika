@@ -2854,6 +2854,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 						$ev['uri'] = $item_id;
 						$ev['edited'] = $datarray['edited'];
 						$ev['private'] = $datarray['private'];
+						$ev['guid'] = $datarray['guid'];
 
 						if(is_array($contact))
 							$ev['cid'] = $contact['id'];
@@ -4079,6 +4080,7 @@ function local_delivery($importer,$data) {
 					$ev['uri'] = $item_id;
 					$ev['edited'] = $datarray['edited'];
 					$ev['private'] = $datarray['private'];
+					$ev['guid'] = $datarray['guid'];
 
 					$r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($item_id),
