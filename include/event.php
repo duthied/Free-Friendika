@@ -3,7 +3,7 @@
 require_once('include/bbcode.php');
 require_once('include/map.php');
 
-function format_event_html($ev) {
+function format_event_html($ev, $simple = false) {
 
 
 
@@ -11,6 +11,32 @@ function format_event_html($ev) {
 		return '';
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
+
+	$event_start = (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+			$ev['start'] , $bd_format ))
+			:  day_translate(datetime_convert('UTC', 'UTC',
+			$ev['start'] , $bd_format)));
+
+	$event_end = (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+				$ev['finish'] , $bd_format ))
+				:  day_translate(datetime_convert('UTC', 'UTC',
+				$ev['finish'] , $bd_format )));
+
+	if ($simple) {
+		$o = "<h3>".bbcode($ev['summary'])."</h3>";
+
+		$o .= "<p>".bbcode($ev['desc'])."</p>";
+
+		$o .= "<h4>".t('Starts:')."</h4><p>".$event_start."</p>";
+
+		if(! $ev['nofinish'])
+			$o .= "<h4>".t('Finishes:')."</h4><p>".$event_end."</p>";
+
+		if(strlen($ev['location']))
+			$o .= "<h4>".t('Location:')."</h4><p>".$ev['location']."</p>";
+
+		return $o;
+	}
 
 	$o = '<div class="vevent">' . "\r\n";
 
@@ -21,21 +47,13 @@ function format_event_html($ev) {
 
 	$o .= '<p class="event-start">' . t('Starts:') . ' <abbr class="dtstart" title="'
 		. datetime_convert('UTC','UTC',$ev['start'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
-		. '" >'
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
-			$ev['start'] , $bd_format ))
-			:  day_translate(datetime_convert('UTC', 'UTC',
-			$ev['start'] , $bd_format)))
+		. '" >'.$event_start
 		. '</abbr></p>' . "\r\n";
 
 	if(! $ev['nofinish'])
 		$o .= '<p class="event-end" >' . t('Finishes:') . ' <abbr class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['finish'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
-			. '" >'
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
-				$ev['finish'] , $bd_format ))
-				:  day_translate(datetime_convert('UTC', 'UTC',
-				$ev['finish'] , $bd_format )))
+			. '" >'.$event_end
 			. '</abbr></p>'  . "\r\n";
 
 	if(strlen($ev['location'])){
