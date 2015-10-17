@@ -82,6 +82,7 @@ function match_content(&$a) {
 		$o .= replace_macros($tpl,array(
 			'$title' => t('Profile Match'),
 			'entries' => $entries,
+			'$paginate' => paginate($a),
 		));
 
 		}
@@ -91,6 +92,5 @@ function match_content(&$a) {
 
 	}
 
-	$o .= paginate($a);
 	return $o;
 }

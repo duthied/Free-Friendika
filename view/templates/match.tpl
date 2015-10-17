@@ -36,3 +36,5 @@
 {{/foreach}}
 
 <div class="clear"></div>
+
+{{$paginate}}

@@ -156,6 +156,7 @@ function dirfind_content(&$a, $prefix = "") {
 		$o .= replace_macros($tpl,array(
 			'title' => sprintf( t('People Search - %s'), $search),
 			'$entries' => $entries,
+			'$paginate' => paginate($a),
 		));
 
 		}
@@ -165,6 +166,5 @@ function dirfind_content(&$a, $prefix = "") {
 
 	}
 
-	$o .= paginate($a);
 	return $o;
 }
