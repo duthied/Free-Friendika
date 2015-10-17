@@ -117,9 +117,12 @@ class Item extends BaseObject {
 			? t('Private Message')
 			: false);
 		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
-		if(local_user() && link_compare($a->contact['url'],$item['author-link']))
-			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
-		else
+		if(local_user() && link_compare($a->contact['url'],$item['author-link'])) {
+			if ($item["event-id"] != 0)
+				$edpost = array($a->get_baseurl($ssl_state)."/events/event/".$item['event-id'], t("Edit"));
+			else
+				$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
+		} else
 			$edpost = false;
 		if(($this->get_data_value('uid') == local_user()) || $this->is_visiting())
 			$dropping = true;

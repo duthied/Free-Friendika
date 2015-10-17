@@ -154,6 +154,7 @@ function events_post(&$a) {
 	if(! $cid)
 		proc_run('php',"include/notifier.php","event","$item_id");
 
+	goaway($_SESSION['return_url']);
 }
 
 
@@ -164,6 +165,9 @@ function events_content(&$a) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
+
+	if($a->argc == 1)
+		$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
 	if(($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 1 where id = %d and uid = %d",
