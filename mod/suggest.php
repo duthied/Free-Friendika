@@ -65,11 +65,6 @@ function suggest_content(&$a) {
 	$a->page['aside'] .= findpeople_widget();
 
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => t('Friend Suggestions')
-	));
-
-
 	$r = suggestion_query(local_user());
 
 	if(! count($r)) {
@@ -77,25 +72,31 @@ function suggest_content(&$a) {
 		return $o;
 	}
 
-	$tpl = get_markup_template('suggest_friends.tpl');
-
 	foreach($r as $rr) {
 
 		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 
-		$o .= replace_macros($tpl,array(
-			'$url' => zrl($rr['url']),
-			'$name' => $rr['name'],
-			'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
-			'$ignlnk' => $a->get_baseurl() . '/suggest?ignore=' . $rr['id'],
-			'$ignid' => $rr['id'],
-			'$conntxt' => t('Connect'),
-			'$connlnk' => $connlnk,
-			'$ignore' => t('Ignore/Hide')
-		));
+		$entry = array(
+			'url' => zrl($rr['url']),
+			'url_clean' => $rr['url'],
+			'name' => $rr['name'],
+			'photo' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
+			'ignlnk' => $a->get_baseurl() . '/suggest?ignore=' . $rr['id'],
+			'ignid' => $rr['id'],
+			'conntxt' => t('Connect'),
+			'connlnk' => $connlnk,
+			'ignore' => t('Ignore/Hide')
+		);
+		$entries[] = $entry;
 	}
 
-	$o .= cleardiv();
+	$tpl = get_markup_template('suggest_friends.tpl');
+
+	$o .= replace_macros($tpl,array(
+		'$title' => t('Friend Suggestions'),
+		'$entries' => $entries,
+	));
+
 //	$o .= paginate($a);
 	return $o;
 }
