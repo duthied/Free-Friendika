@@ -2558,6 +2558,11 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					if(! $item['deleted'])
 						logger('consume_feed: deleting item ' . $item['id'] . ' uri=' . $item['uri'], LOGGER_DEBUG);
 
+					if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+						logger("Deleting event ".$item['event-id'], LOGGER_DEBUG);
+						event_delete($item['event-id']);
+					}
+
 					if(($item['verb'] === ACTIVITY_TAG) && ($item['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
 						$xo = parse_xml_string($item['object'],false);
 						$xt = parse_xml_string($item['target'],false);
@@ -2849,11 +2854,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 				if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
 					$ev = bbtoevent($datarray['body']);
-					if(x($ev,'desc') && x($ev,'start')) {
+					if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
 						$ev['uid'] = $importer['uid'];
 						$ev['uri'] = $item_id;
 						$ev['edited'] = $datarray['edited'];
 						$ev['private'] = $datarray['private'];
+						$ev['guid'] = $datarray['guid'];
 
 						if(is_array($contact))
 							$ev['cid'] = $contact['id'];
@@ -3543,6 +3549,11 @@ function local_delivery($importer,$data) {
 
 					logger('local_delivery: deleting item ' . $item['id'] . ' uri=' . $item['uri'], LOGGER_DEBUG);
 
+					if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+						logger("Deleting event ".$item['event-id'], LOGGER_DEBUG);
+						event_delete($item['event-id']);
+					}
+
 					if(($item['verb'] === ACTIVITY_TAG) && ($item['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
 						$xo = parse_xml_string($item['object'],false);
 						$xt = parse_xml_string($item['target'],false);
@@ -4073,12 +4084,13 @@ function local_delivery($importer,$data) {
 
 			if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
 				$ev = bbtoevent($datarray['body']);
-				if(x($ev,'desc') && x($ev,'start')) {
+				if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
 					$ev['cid'] = $importer['id'];
 					$ev['uid'] = $importer['uid'];
 					$ev['uri'] = $item_id;
 					$ev['edited'] = $datarray['edited'];
 					$ev['private'] = $datarray['private'];
+					$ev['guid'] = $datarray['guid'];
 
 					$r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($item_id),

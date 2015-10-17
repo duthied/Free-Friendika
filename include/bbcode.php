@@ -1210,7 +1210,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
 	if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
-		$sub = format_event_html($ev);
+		$sub = format_event_html($ev, $simplehtml);
 
 		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism",'',$Text);
