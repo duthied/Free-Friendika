@@ -509,7 +509,7 @@ function events_content(&$a) {
 		else
 			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
 
-		if($cid)
+		if($cid OR ($mode !== 'new'))
 			$sh_checked .= ' disabled="disabled" ';
 
 
@@ -540,6 +540,9 @@ function events_content(&$a) {
 
 		require_once('include/acl_selectors.php');
 
+		if ($mode === 'new')
+			$acl = (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user)));
+
 		$tpl = get_markup_template('event_form.tpl');
 
 		$o .= replace_macros($tpl,array(
@@ -567,7 +570,7 @@ function events_content(&$a) {
 			'$sh_text' => t('Share this event'),
 			'$sh_checked' => $sh_checked,
 			'$preview' => t('Preview'),
-			'$acl' => (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user))),
+			'$acl' => $acl,
 			'$submit' => t('Submit')
 
 		));
