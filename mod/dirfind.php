@@ -38,10 +38,6 @@ function dirfind_content(&$a, $prefix = "") {
 
 	$o = '';
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => sprintf( t('People Search - %s'), $search)
-	));
-
 	if($search) {
 
 		if ($local) {
@@ -121,7 +117,6 @@ function dirfind_content(&$a, $prefix = "") {
 
 			$id = 0;
 
-			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
 
 				// If We already know this contact then don't show the "connect" button
@@ -143,17 +138,27 @@ function dirfind_content(&$a, $prefix = "") {
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
-				$o .= replace_macros($tpl,array(
-					'$url' => zrl($jj->url),
-					'$name' => htmlentities($jj->name),
-					'$photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
-					'$tags' => $jj->tags,
-					'$conntxt' => $conntxt,
-					'$connlnk' => $connlnk,
-					'$photo_menu' => $photo_menu,
-					'$id' => ++$id,
-				));
+				$entry = array(
+					'url' => zrl($jj->url),
+					'name' => htmlentities($jj->name),
+					'photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+					'tags' => $jj->tags,
+					'conntxt' => $conntxt,
+					'connlnk' => $connlnk,
+					'photo_menu' => $photo_menu,
+					'id' => ++$id,
+				);
+				$entries[] = $entry;
 			}
+
+		$tpl = get_markup_template('match.tpl');
+
+		$o .= replace_macros($tpl,array(
+			'title' => sprintf( t('People Search - %s'), $search),
+			'$entries' => $entries,
+			'$paginate' => paginate($a),
+		));
+
 		}
 		else {
 			info( t('No matches') . EOL);
@@ -161,7 +166,5 @@ function dirfind_content(&$a, $prefix = "") {
 
 	}
 
-	$o .= '<div class="clear"></div>';
-	$o .= paginate($a);
 	return $o;
 }
