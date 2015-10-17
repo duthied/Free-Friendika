@@ -6,6 +6,8 @@ function directory_init(&$a) {
 	if(local_user()) {
 		require_once('include/contact_widgets.php');
 
+		$a->page['aside'] .= follow_widget();
+
 		$a->page['aside'] .= findpeople_widget();
 
 	}
@@ -193,7 +195,7 @@ function directory_content(&$a) {
 			'$entries' => $entries,
 			'$finding' => t('Finding:'),
 			'$findterm' => (strlen($search) ? $search : ""),
-			'$sitedir' => t('Site Directory'),
+			'$title' => t('Site Directory'),
 			'$submit' => t('Find')
 		));
 

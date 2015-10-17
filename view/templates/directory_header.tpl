@@ -1,5 +1,5 @@
 
-<h1>{{$sitedir}}</h1>
+{{include file="section_title.tpl"}}
 
 {{if $gdirpath}}
 	<ul>
