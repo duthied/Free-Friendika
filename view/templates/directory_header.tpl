@@ -27,3 +27,5 @@
 {{/foreach}}
 
 <div class="directory-end" ></div>
+
+{{$paginate}}

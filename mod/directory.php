@@ -196,10 +196,9 @@ function directory_content(&$a) {
 			'$finding' => t('Finding:'),
 			'$findterm' => (strlen($search) ? $search : ""),
 			'$title' => t('Site Directory'),
-			'$submit' => t('Find')
+			'$submit' => t('Find'),
+			'$paginate' => paginate($a),
 		));
-
-		$o .= paginate($a);
 
 	}
 	else
