@@ -2421,7 +2421,8 @@ function diaspora_profile($importer,$xml,$msg) {
 
 	$birthday = str_replace('1000','1901',$birthday);
 
-	$birthday = datetime_convert('UTC','UTC',$birthday,'Y-m-d');
+	if ($birthday != "")
+		$birthday = datetime_convert('UTC','UTC',$birthday,'Y-m-d');
 
 	// this is to prevent multiple birthday notifications in a single year
 	// if we already have a stored birthday and the 'm-d' part hasn't changed, preserve the entry, which will preserve the notify year
