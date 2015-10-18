@@ -799,6 +799,7 @@ function contacts_content(&$a) {
 		'$cmd' => $a->cmd,
 		'$contacts' => $contacts,
 		'$contact_drop_confirm' => t('Do you really want to delete this contact?'),
+		'multiselect' => 1,
 		'$batch_actions' => array(
 			'contacts_batch_update' => t('Update'),
 			'contacts_batch_block' => t('Block')."/".t("Unblock"),

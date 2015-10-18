@@ -291,7 +291,7 @@ section {
 	margin: 10px 0 0 230px;
 }
 
-.login-form,
+.login-form {
 	margin-top: 10px;
 }
 
@@ -2784,7 +2784,7 @@ margin-left: 0px;
 	font-weight: bold;
 }
 
-.contact-entry-name {
+.contact-entry-name, .contact-entry-connect {
 	width: 100px;
 	overflow: hidden;
 	font: #999;
@@ -2803,6 +2803,11 @@ margin-left: 0px;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
 		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+}
+
+.contact-entry-photo a img {
+	width: 80px;
+	height: 80px;
 }
 
 .contact-entry-edit-links .icon {	

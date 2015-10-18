@@ -141,8 +141,8 @@ function dirfind_content(&$a, $prefix = "") {
 				$entry = array(
 					'url' => zrl($jj->url),
 					'name' => htmlentities($jj->name),
-					'photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
-					'tags' => $jj->tags,
+					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+					'img_hover' => $jj->tags,
 					'conntxt' => $conntxt,
 					'connlnk' => $connlnk,
 					'photo_menu' => $photo_menu,
@@ -151,11 +151,11 @@ function dirfind_content(&$a, $prefix = "") {
 				$entries[] = $entry;
 			}
 
-		$tpl = get_markup_template('match.tpl');
+		$tpl = get_markup_template('viewcontact_template.tpl');
 
 		$o .= replace_macros($tpl,array(
 			'title' => sprintf( t('People Search - %s'), $search),
-			'$entries' => $entries,
+			'$contacts' => $entries,
 			'$paginate' => paginate($a),
 		));
 

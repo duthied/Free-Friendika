@@ -2282,6 +2282,10 @@ aside #id_password {
   float: left;
   margin: 0px 10px 10px 0px;
 }
+.contact-entry-photo a img {
+  width: 80px;
+  height: 80px;
+}
 /* profile match wrapper */
 .profile-match-wrapper {
   float: left;

@@ -7,9 +7,10 @@
 
 			<a href="{{$contact.url}}" title="{{$contact.img_hover}}" /><img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" /></a>
 
-			{{if !$no_contacts_checkbox}}
+			{{if $multiselect}}
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
 			{{/if}}
+
 			{{if $contact.photo_menu}}
 			<span onclick="openClose('contact-photo-menu-{{$contact.id}}');" class="fakelink contact-photo-menu-button" id="contact-photo-menu-button-{{$contact.id}}">menu</span>
 			<div class="contact-photo-menu" id="contact-photo-menu-{{$contact.id}}">

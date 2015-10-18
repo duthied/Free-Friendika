@@ -72,31 +72,41 @@ function suggest_content(&$a) {
 		return $o;
 	}
 
+	require_once 'include/contact_selectors.php';
+
 	foreach($r as $rr) {
 
 		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
+		$ignlnk = $a->get_baseurl() . '/suggest?ignore=' . $rr['id'];
+		$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
+		$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+		$photo_menu[] = array(t('Ignore/Hide'), $ignlnk);
 
 		$entry = array(
 			'url' => zrl($rr['url']),
-			'url_clean' => $rr['url'],
+			'itemurl' => $rr['url'],
+			'img_hover' => $rr['url'],
 			'name' => $rr['name'],
-			'photo' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
-			'ignlnk' => $a->get_baseurl() . '/suggest?ignore=' . $rr['id'],
+			'thumb' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
+			'ignlnk' => $ignlnk,
 			'ignid' => $rr['id'],
 			'conntxt' => t('Connect'),
 			'connlnk' => $connlnk,
-			'ignore' => t('Ignore/Hide')
+			'photo_menu' => $photo_menu,
+			'ignore' => t('Ignore/Hide'),
+			'network' => network_to_name($rr['network'], $rr['url']),
+			'id' => ++$id,
 		);
 		$entries[] = $entry;
 	}
 
-	$tpl = get_markup_template('suggest_friends.tpl');
+	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl,array(
 		'$title' => t('Friend Suggestions'),
-		'$entries' => $entries,
+		'$contacts' => $entries,
+		
 	));
 
-//	$o .= paginate($a);
 	return $o;
 }

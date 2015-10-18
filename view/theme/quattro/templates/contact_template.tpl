@@ -1,5 +1,6 @@
 
 <div class="contact-wrapper" id="contact-entry-wrapper-{{$id}}" >
+	{{if $contact.ignlnk}}<a href="{{$contact.ignlnk}}" title="{{$contact.ignore}}" class="icon drophide profile-match-ignore" onmouseout="imgdull(this);" onmouseover="imgbright(this);" onclick="return confirmDelete();" ></a>{{/if}}
 	<div class="contact-photo-wrapper" >
 		<div class="contact-photo mframe" id="contact-entry-photo-{{$contact.id}}"
 		onmouseover="if (typeof t{{$contact.id}} != 'undefined') clearTimeout(t{{$contact.id}}); openMenu('contact-photo-menu-button-{{$contact.id}}')" 
@@ -7,7 +8,7 @@
 
 			<a href="{{$contact.url}}" title="{{$contact.img_hover}}" /><img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" /></a>
 
-			{{if !$no_contacts_checkbox}}
+			{{if $multiselect}}
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
 			{{/if}}
 			{{if $contact.photo_menu}}
@@ -29,6 +30,10 @@
 	{{if $contact.alt_text}}<div class="contact-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
 	<div class="contact-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>
 	<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>
+
+	{{if $contact.connlnk}}
+	<div class="contact-entry-connect"><a href="{{$contact.connlnk}}" title="{{$contact.conntxt}}">{{$contact.conntxt}}</a></div>
+	{{/if}}
 
 
 </div>

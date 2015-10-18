@@ -7,7 +7,7 @@
 
 			<a href="{{$contact.url}}" title="{{$contact.img_hover}}" /><img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" /></a>
 
-			{{if !$no_contacts_checkbox}}
+			{{if $multiselect}}
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
 			{{/if}}
 			{{if $contact.photo_menu}}

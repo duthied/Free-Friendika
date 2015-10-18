@@ -1124,6 +1124,8 @@ input#dfrn-url {
 
 .contact-entry-photo img {
 	border: none;
+	width: 80px;
+	height: 80px;
 }
 .contact-entry-photo-end {
 	clear: both;

@@ -56,32 +56,40 @@ function match_content(&$a) {
 
 		if(count($j->results)) {
 
+			$id = 0;
+
 			foreach($j->results as $jj) {
 				$match_nurl = normalise_link($jj->url);
 				$match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
 					intval(local_user()),
 					dbesc($match_nurl));
+
 				if (!count($match)) {
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
+					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
+					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+
 					$entry = array(
 						'url' => zrl($jj->url),
 						'name' => $jj->name,
-						'photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 						'inttxt' => ' ' . t('is interested in:'),
 						'conntxt' => t('Connect'),
 						'connlnk' => $connlnk,
-						'tags' => $jj->tags
+						'img_hover' => $jj->tags,
+						'photo_menu' => $photo_menu,
+						'id' => ++$id,
 					);
-					$entries[] = $entry;
 				}
+				$entries[] = $entry;
 			}
 
-		$tpl = get_markup_template('match.tpl');
+		$tpl = get_markup_template('viewcontact_template.tpl');
 
 		$o .= replace_macros($tpl,array(
 			'$title' => t('Profile Match'),
-			'entries' => $entries,
+			'$contacts' => $entries,
 			'$paginate' => paginate($a),
 		));
 
