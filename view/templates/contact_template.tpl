@@ -1,3 +1,5 @@
+{{* todo: better layout and implement $contact.details and other variables *}}
+
 
 <div class="contact-entry-wrapper" id="contact-entry-wrapper-{{$contact.id}}" >
 	<div class="contact-entry-photo-wrapper" >

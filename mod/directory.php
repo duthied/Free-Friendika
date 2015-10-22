@@ -155,9 +155,9 @@ function directory_content(&$a) {
 
 			$entry = array(
 				'id' => $rr['id'],
-				'profile_link' => $profile_link,
-				'photo' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
-				'alt_text' => $rr['name'],
+				'url' => $profile_link,
+				'thumb' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
+				'img_hover' => $rr['name'],
 				'name' => $rr['name'],
 				'details' => $pdesc . $details,
 				'page_type' => $page_type,
@@ -192,7 +192,7 @@ function directory_content(&$a) {
 			'$globaldir' => t('Global Directory'),
 			'$gdirpath' => $gdirpath,
 			'$desc' => t('Find on this site'),
-			'$entries' => $entries,
+			'$contacts' => $entries,
 			'$finding' => t('Finding:'),
 			'$findterm' => (strlen($search) ? $search : ""),
 			'$title' => t('Site Directory'),

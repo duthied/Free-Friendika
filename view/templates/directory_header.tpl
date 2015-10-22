@@ -22,8 +22,8 @@
 
 <div id="directory-search-end"></div>
 
-{{foreach $entries as $entry}}
-	{{include file="directory_item.tpl"}}
+{{foreach $contacts as $contact}}
+	{{include file="contact_template.tpl"}}
 {{/foreach}}
 
 <div class="directory-end" ></div>
