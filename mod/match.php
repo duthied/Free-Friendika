@@ -19,8 +19,8 @@ function match_content(&$a) {
 	if(! local_user())
 		return;
 
-	$a->page['aside'] .= follow_widget();
 	$a->page['aside'] .= findpeople_widget();
+	$a->page['aside'] .= follow_widget();
 
 	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 

@@ -61,8 +61,8 @@ function suggest_content(&$a) {
 
 	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
 
-	$a->page['aside'] .= follow_widget();
 	$a->page['aside'] .= findpeople_widget();
+	$a->page['aside'] .= follow_widget();
 
 
 	$r = suggestion_query(local_user());

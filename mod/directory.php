@@ -6,9 +6,9 @@ function directory_init(&$a) {
 	if(local_user()) {
 		require_once('include/contact_widgets.php');
 
-		$a->page['aside'] .= follow_widget();
-
 		$a->page['aside'] .= findpeople_widget();
+
+		$a->page['aside'] .= follow_widget();
 
 	}
 	else {

@@ -13,9 +13,9 @@ function dirfind_init(&$a) {
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
-	$a->page['aside'] .= follow_widget();
-
 	$a->page['aside'] .= findpeople_widget();
+
+	$a->page['aside'] .= follow_widget();
 }
 
 
