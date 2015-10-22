@@ -28,8 +28,9 @@
 	</div>
 	<div class="contact-name" id="contact-entry-name-{{$contact.id}}" >{{$contact.name}}</div>
 	{{if $contact.alt_text}}<div class="contact-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
-	<div class="contact-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>
-	<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>
+	{{if $contact.itemurl}}<div class="contact-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
+	{{if $contact.network}}<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
+	{{if $contact.details}}<div class="contact-details" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
 
 	{{if $contact.connlnk}}
 	<div class="contact-entry-connect"><a href="{{$contact.connlnk}}" title="{{$contact.conntxt}}">{{$contact.conntxt}}</a></div>
