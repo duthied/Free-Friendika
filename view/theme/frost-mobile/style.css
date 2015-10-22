@@ -1779,27 +1779,6 @@ input#profile-jot-email {
 .directory-end {
 	clear: both;
 }
-.directory-name {
-	text-align: center;
-}
-.directory-photo {
-	margin-left: 15px;
-}
-.directory-details {
-	font-size: 0.7em;
-	text-align: center;
-	margin-left: 5px;
-	margin-right: 5px;
-}
-.directory-item {
-	float: left;
-/*	width: 225px;
-	height: 260px;*/
-	padding-left: 15px;
-	width: 130px;
-	height: 235px;
-	overflow: auto;
-}
 
 #directory-search-wrapper {
 	margin-top: 20px;
@@ -1808,11 +1787,6 @@ input#profile-jot-email {
 }
 
 #directory-search-end {
-}
-
-.directory-photo-img {
-	width: 125px;
-	border: none;
 }
 
 

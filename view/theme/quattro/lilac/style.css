@@ -1568,19 +1568,6 @@ span[id^="showmore-wrap"] {
   padding-top: 5px;
   font-weight: bold;
 }
-.directory-item {
-  float: left;
-  width: 200px;
-  height: 200px;
-}
-.directory-item .contact-photo {
-  width: 175px;
-  height: 175px;
-}
-.directory-item .contact-photo img {
-  width: 175px;
-  height: 175px;
-}
 .contact-name {
   font-weight: bold;
   padding-top: 15px;

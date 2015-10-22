@@ -3656,25 +3656,6 @@ margin-left: 0px;
 	margin-top: 10px;
 }
 
-/* ============= */
-/* = Directory = */
-/* ============= */
-
-.directory-item {
-	float: left;
-	margin: 50px 50px 0px 0px;
-}
-
-.directory-details {
-	font-size: 0.9em;
-	width: 160px;
-}
-
-.directory-name {
-	font-size: 1em;
-	width: 150px;	
-}
-
 /* ========= */
 /* = Admin = */
 /* ========= */
