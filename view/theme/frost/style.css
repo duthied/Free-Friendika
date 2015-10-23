@@ -1723,6 +1723,27 @@ input#dfrn-url {
 .directory-end {
 	clear: both;
 }
+.directory-name {
+	text-align: center;
+}
+.directory-photo {
+	margin-left: 25px;
+}
+.directory-details {
+	font-size: 0.7em;
+	text-align: center;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.directory-item {
+	float: left;
+/*	width: 225px;
+	height: 260px;*/
+	padding-left: 25px;
+	width: 150px;
+	height: 225px;
+	overflow: auto;
+}
 
 #directory-search-wrapper {
 	margin-top: 20px;
@@ -1731,6 +1752,11 @@ input#dfrn-url {
 }
 
 #directory-search-end {
+}
+
+.directory-photo-img {
+	width: 125px;
+	border: none;
 }
 
 /* NOTE: The order of the "pager" items here is very important!
