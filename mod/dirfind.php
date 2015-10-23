@@ -2,6 +2,7 @@
 require_once('include/contact_widgets.php');
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
+require_once('include/contact_selectors.php');
 
 function dirfind_init(&$a) {
 
@@ -57,7 +58,7 @@ function dirfind_content(&$a, $prefix = "") {
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
-			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`keywords`
+			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network` , `gcontact`.`keywords`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
@@ -76,7 +77,7 @@ function dirfind_content(&$a, $prefix = "") {
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
-			$j->page = $a->pager['page'];
+			$j->page = $a->pager['page'];			
 			foreach ($results AS $result) {
 				if (poco_alternate_ostatus_url($result["url"]))
 					 continue;
@@ -92,6 +93,7 @@ function dirfind_content(&$a, $prefix = "") {
 				$objresult->url = $result["url"];
 				$objresult->photo = $result["photo"];
 				$objresult->tags = $result["keywords"];
+				$objresult->network = $result["network"];
 
 				$j->results[] = $objresult;
 			}
@@ -140,12 +142,14 @@ function dirfind_content(&$a, $prefix = "") {
 
 				$entry = array(
 					'url' => zrl($jj->url),
+					'itemurl' => $jj->url,
 					'name' => htmlentities($jj->name),
 					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 					'img_hover' => $jj->tags,
 					'conntxt' => $conntxt,
 					'connlnk' => $connlnk,
 					'photo_menu' => $photo_menu,
+					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);
 				$entries[] = $entry;

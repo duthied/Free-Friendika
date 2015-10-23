@@ -72,6 +72,7 @@ function match_content(&$a) {
 
 					$entry = array(
 						'url' => zrl($jj->url),
+						'itemurl' => $jj->url,
 						'name' => $jj->name,
 						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 						'inttxt' => ' ' . t('is interested in:'),
