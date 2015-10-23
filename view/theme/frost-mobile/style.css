@@ -1110,8 +1110,13 @@ input#dfrn-url {
 	height: 120px;*/
 	padding-left: 15px;
 	padding-right: 15px; 
-	width: 95px;
-	height: 200px;
+	max-width: 262px;
+	height: 90px;
+	margin: 0 10px 10px 0px;
+}
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+	float: left;
+	margin-right: 10px;
 }
 #contacts-search-end {
 	margin-bottom: 10px;
@@ -1130,8 +1135,10 @@ input#dfrn-url {
 .contact-entry-photo-end {
 	clear: both;
 }
+.contact-entry-desc {
+	overflow: hidden;
+}
 .contact-entry-name {
-	float: left;
 	margin-left: 0px;
 	margin-right: 10px;
 	padding-bottom: 5px;
@@ -1143,6 +1150,9 @@ input#dfrn-url {
 	font-style: italic;
 	font-size: 10px;
 	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .contact-entry-network {
 	font-size: 10px;
@@ -2137,7 +2147,7 @@ input#profile-jot-email {
 	border: 1px solid #AAA;
 	background: #FFFFFF;
 	position: absolute;
-	left: -30px; top: 80px;
+	/*left: -30px;*/ top: 80px;
 	display: none;
 	z-index: 101;
 	-moz-box-shadow: 3px 3px 5px #555;

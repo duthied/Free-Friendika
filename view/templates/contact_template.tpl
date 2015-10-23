@@ -1,5 +1,3 @@
-{{* todo: better layout and implement $contact.details and other variables *}}
-
 
 <div class="contact-entry-wrapper" id="contact-entry-wrapper-{{$contact.id}}" >
 	<div class="contact-entry-photo-wrapper" >
@@ -30,8 +28,14 @@
 		</div>
 			
 	</div>
-	<div class="contact-entry-photo-end" ></div>
-	<div class="contact-entry-name" id="contact-entry-name-{{$contact.id}}" >{{$contact.name}}</div>
+
+	<div class="contact-entry-desc">
+		<div class="contact-entry-name" id="contact-entry-name-{{$contact.id}}" >{{$contact.name}}</div>
+		{{if $contact.alt_text}}<div class="contact-entry-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
+		{{if $contact.itemurl}}<div class="contact-entry-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
+		{{if $contact.network}}<div class="contact-entry-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
+		{{if $contact.details}}<div class="contact-entry-details" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
+	</div>
 
 	<div class="contact-entry-end" ></div>
 </div>

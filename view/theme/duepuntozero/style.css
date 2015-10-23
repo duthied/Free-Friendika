@@ -876,8 +876,14 @@ input#dfrn-url {
 
 .contact-entry-wrapper {
 	float: left;
-	width: 120px;
-	height: 120px;
+	min-width: 363px;
+	height: 90px;
+	padding-right: 10px;
+	margin: 0 10px 10px 0px;
+}
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+	float: left;
+	margin-right: 10px;
 }
 #contacts-search-end {
 	margin-bottom: 10px;
@@ -899,11 +905,14 @@ input#dfrn-url {
 	clear: both;
 }
 .contact-entry-name {
-	float: left;
-	margin-left: 0px;
-	margin-right: 10px;
-	width: 120px;
+	font-weight: bold;
+}
+.contact-entry-details {
+	font-size: 13px;
+	color: #999999;
+	white-space: nowrap;
 	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .contact-entry-edit-links {
 	margin-top: 6px;

@@ -1074,12 +1074,14 @@ input#dfrn-url {
 
 .contact-entry-wrapper {
 	float: left;
-/*	width: 120px;
-	height: 120px;*/
-	padding-left: 8px;
-	padding-right: 8px; 
-	width: 95px;
-	height: 170px;
+	width: 262px;
+	height: 90px;
+	padding-right: 10px;
+	margin: 0 10px 10px 0px;
+}
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+	float: left;
+	margin-right: 10px;
 }
 #contacts-search-end {
 	margin-bottom: 10px;
@@ -1100,6 +1102,9 @@ input#dfrn-url {
 .contact-entry-photo-end {
 	clear: both;
 }
+.contact-entry-desc {
+	overflow: hidden;
+}
 .contact-entry-name {
 	/*float: left;*/
 	margin-left: 0px;
@@ -1113,6 +1118,9 @@ input#dfrn-url {
 	font-style: italic;
 	font-size: 10px;
 	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .contact-entry-network {
 	font-size: 10px;
