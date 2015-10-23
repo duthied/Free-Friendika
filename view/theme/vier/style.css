@@ -2716,6 +2716,19 @@ a.mail-list-link {
   left: 0px;
   top: 63px;
 }
+.directory-item {
+  float: left;
+  width: 200px;
+  height: 200px;
+}
+.directory-item .contact-photo {
+  width: 175px;
+  height: 175px;
+}
+.directory-item .contact-photo img {
+  width: 175px;
+  height: 175px;
+}
 .contact-name {
   text-align: center;
   font-weight: bold;
