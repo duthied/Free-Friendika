@@ -2497,6 +2497,22 @@ a.mail-list-link {
 }
 
 /* ========== */
+/* = Poke = */
+/* ========== */
+#poke-desc {
+	margin: 10px 0 20px;
+}
+#poke-wrapper  {
+	margin: 40px 0 20px;
+}
+#poke-recipient, #poke-action, #poke-privacy-settings {
+	margin: 10px 0 30px;
+}
+#poke-recip-label, #poke-action-label, #prvmail-message-label {
+	margin: 10px 0 20px;
+}
+
+/* ========== */
 /* = Events = */
 /* ========== */
 .eventcal {

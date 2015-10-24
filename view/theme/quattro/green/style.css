@@ -2267,6 +2267,20 @@ ul.tabs li .active {
   -ms-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
+/* poke */
+#poke-desc {
+  margin: 5px 0 25px;
+}
+#poke-recipient,
+#poke-action,
+#poke-privacy-settings {
+  margin: 10px 0 30px;
+}
+#poke-recip-label,
+#poke-action-label,
+#prvmail-message-label {
+  margin: 10px 0 10px;
+}
 /* theme screenshot */
 .screenshot,
 #theme-preview {
