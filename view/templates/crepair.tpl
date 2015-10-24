@@ -1,10 +1,9 @@
 
 {{include file="section_title.tpl"}}
 
-<div class="error-message">
-	{{$warning}}
-	{{$info}}<br />
-	<br />
+<div class="crepair-error-message">{{$warning}}</div><br>
+<div class="crepair-return">
+	{{$info}}<br>
 	<a href="{{$returnaddr}}">{{$return}}</a>
 </div>
 <br />
