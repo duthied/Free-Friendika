@@ -1,3 +1,14 @@
+
+{{include file="section_title.tpl"}}
+
+<div class="error-message">
+	{{$warning}}
+	{{$info}}<br />
+	<br />
+	<a href="{{$returnaddr}}">{{$return}}</a>
+</div>
+<br />
+
 <form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
 
 <h4>{{$contact_name}}</h4>
