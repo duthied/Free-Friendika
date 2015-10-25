@@ -268,8 +268,8 @@ div.pager {
 
 /* global */
 body {
-  /* font-family: 'Lato', "Helvetica Neue", Helvetica, Arial, sans-serif; */
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+/*  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; */
+  font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif;
   font-size: 14px;
   /* font-size: 13px;
   line-height: 19.5px; */
@@ -1109,7 +1109,6 @@ section {
   line-height: 19.5px;*/
   font-size: 14.95px;
   line-height: 21px;
-  /* font-family: Quodana,Verdana,DejaVu Sans,Bitstream Vera Sans,Helvetica,sans-serif; */
   display: table-cell;
   vertical-align: top;
   top: 32px;
@@ -2944,7 +2943,7 @@ a.mail-list-link {
   border:1px solid #dcdcdc;
   display:inline-block;
   color:#777777;
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   font-size:15px;
   font-weight:bold;
   font-style:normal;
