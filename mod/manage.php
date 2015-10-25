@@ -98,7 +98,16 @@ function manage_content(&$a) {
 	}
 
 	$identities = $a->identities;
-	foreach($identities as $key=>$id) {
+
+	//getting profile pics for delegates
+	foreach ($identities as $key=>$id) {
+		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = %d AND `name` = '%s' AND `nick` = '%s' AND (network = 'dfrn' OR self = 1)",
+			intval($a->user['uid']),
+			dbesc($id['username']),
+			dbesc($id['nickname'])
+			);
+		$identities[$key][thumb] = $thumb[0][thumb];
+
 		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? ' selected="selected" ' : '');
 	}
 
