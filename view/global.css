@@ -212,3 +212,48 @@ a {
   clip: rect(0,0,0,0);
   border: 0;
 }
+
+.itentity-match-wrapper {
+  float: left;
+  padding: 10px;
+  width: 120px;
+  height: 140px;
+  margin-bottom: 20px;
+}
+
+.identity-match-photo {
+  float: left;
+  text-align: center;
+  width: 120px;
+}
+
+.identity-match-name {
+  text-align: center;
+}
+
+.identity-match-details {
+  float: left;
+  text-align: center;
+  width: 120px;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 500;
+  color: #999999;
+}
+
+.identity-match-break, .identity-match-end {
+  clear: both;
+}
+
+.identity-match-photo button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  height: 80px;
+  width: 80px;
+}
+
+.selected-identity img {
+  border: 2px solid #ff0000;
+}

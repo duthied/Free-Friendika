@@ -99,16 +99,17 @@ function manage_content(&$a) {
 
 	$identities = $a->identities;
 
-	//getting profile pics for delegates
+	//getting additinal information for each identity
 	foreach ($identities as $key=>$id) {
-		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = %d AND `name` = '%s' AND `nick` = '%s' AND (network = 'dfrn' OR self = 1)",
+		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = %d AND `name` = '%s' AND `nick` = '%s' AND (`network` = '%s' OR `self` = 1)",
 			intval($a->user['uid']),
 			dbesc($id['username']),
-			dbesc($id['nickname'])
+			dbesc($id['nickname']),
+			dbesc(NETWORK_DFRN)
 			);
 		$identities[$key][thumb] = $thumb[0][thumb];
 
-		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? ' selected="selected" ' : '');
+		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? true : false);
 	}
 
 	$o = replace_macros(get_markup_template('manage.tpl'), array(
