@@ -959,7 +959,7 @@ input#dfrn-url {
 }
 
 .wall-item-content-wrapper.comment {
-#	margin-left: 50px;
+	/*margin-left: 50px;*/
 	background: #EEEEEE;
 }
 
@@ -2021,21 +2021,6 @@ a.mail-list-link {
 
 .message-links-end {
 	clear: both;
-}
-#poke-desc {
-	margin: 5px 0 10px;
-}
-
-#poke-wrapper  {
-	padding: 10px 0 20px;
-}
-
-#poke-recipient, #poke-action, #poke-privacy-settings {
-	margin: 10px 0 30px;
-}
-
-#poke-recip-label, #poke-action-label, #prvmail-message-label {
-	margin: 10px 0 10px;
 }
 
 #sidebar-group-list ul {

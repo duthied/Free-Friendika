@@ -291,7 +291,7 @@ section {
 	margin: 10px 0 0 230px;
 }
 
-.login-form,
+.login-form {
 	margin-top: 10px;
 }
 
@@ -2696,18 +2696,6 @@ margin-left: 0px;
 /* ========== */
 /* = Poke = */
 /* ========== */
-#poke-desc {
-	margin: 5px 0 20px;
-}
-#poke-wrapper  {
-	margin: 40px 0 20px;
-}
-#poke-recipient, #poke-action, #poke-privacy-settings {
-	margin: 10px 0 30px;
-}
-#poke-recip-label, #poke-action-label, #prvmail-message-label {
-	margin: 10px 0 20px;
-}
 #poke-recip {
 	float: none;
 }
