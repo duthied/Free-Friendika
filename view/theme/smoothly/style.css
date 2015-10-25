@@ -291,7 +291,7 @@ section {
 	margin: 10px 0 0 230px;
 }
 
-.login-form,
+.login-form {
 	margin-top: 10px;
 }
 
@@ -2691,6 +2691,13 @@ margin-left: 0px;
 #prvmail-subject {
 	font-weight: bold;
 	border: 1px solid #7C7D7B;
+}
+
+/* ========== */
+/* = Poke = */
+/* ========== */
+#poke-recip {
+	float: none;
 }
 
 /* ================= */
