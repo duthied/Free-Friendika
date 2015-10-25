@@ -550,6 +550,7 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
 				'sel'   => '',
 				'title' => t('Toggle Blocked status'),
+				'id'	=> 'toggle-block-tab',
 				'accesskey' => 'b',
 			),
 			array(
@@ -557,6 +558,7 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
 				'sel'   => '',
 				'title' => t('Toggle Ignored status'),
+				'id'	=> 'toggle-ignore-tab',
 				'accesskey' => 'i',
 			),
 
@@ -565,6 +567,7 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
 				'sel'   => '',
 				'title' => t('Toggle Archive status'),
+				'id'	=> 'toggle-archive-tab',
 				'accesskey' => 'v',
 			),
 			array(
@@ -572,6 +575,7 @@ function contacts_content(&$a) {
 				'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
 				'sel'   => '',
 				'title' => t('Advanced Contact Settings'),
+				'id'	=> 'repair-tab',
 				'accesskey' => 'r',
 			)
 		);
@@ -693,6 +697,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/suggest',
 			'sel'   => '',
 			'title' => t('Suggest potential friends'),
+			'id'	=> 'suggestions-tab',
 			'accesskey' => 'g',
 		),
 		array(
@@ -700,6 +705,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/all',
 			'sel'   => ($all) ? 'active' : '',
 			'title' => t('Show all contacts'),
+			'id'	=> 'showall-tab',
 			'accesskey' => 'l',
 		),
 		array(
@@ -707,6 +713,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts',
 			'sel'   => ((! $all) && (! $blocked) && (! $hidden) && (! $search) && (! $nets) && (! $ignored) && (! $archived)) ? 'active' : '',
 			'title' => t('Only show unblocked contacts'),
+			'id'	=> 'showunblocked-tab',
 			'accesskey' => 'o',
 		),
 
@@ -715,6 +722,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/blocked',
 			'sel'   => ($blocked) ? 'active' : '',
 			'title' => t('Only show blocked contacts'),
+			'id'	=> 'showblocked-tab',
 			'accesskey' => 'b',
 		),
 
@@ -723,6 +731,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/ignored',
 			'sel'   => ($ignored) ? 'active' : '',
 			'title' => t('Only show ignored contacts'),
+			'id'	=> 'showignored-tab',
 			'accesskey' => 'i',
 		),
 
@@ -731,6 +740,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/archived',
 			'sel'   => ($archived) ? 'active' : '',
 			'title' => t('Only show archived contacts'),
+			'id'	=> 'showarchived-tab',
 			'accesskey' => 'y',
 		),
 
@@ -739,6 +749,7 @@ function contacts_content(&$a) {
 			'url'   => $a->get_baseurl(true) . '/contacts/hidden',
 			'sel'   => ($hidden) ? 'active' : '',
 			'title' => t('Only show hidden contacts'),
+			'id'	=> 'showhidden-tab',
 			'accesskey' => 'h',
 		),
 

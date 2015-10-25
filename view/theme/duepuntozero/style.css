@@ -959,7 +959,7 @@ input#dfrn-url {
 }
 
 .wall-item-content-wrapper.comment {
-#	margin-left: 50px;
+	/*margin-left: 50px;*/
 	background: #EEEEEE;
 }
 

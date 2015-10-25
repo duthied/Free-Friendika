@@ -2500,6 +2500,22 @@ a.mail-list-link {
 	clear: both;
 }
 
+#poke-desc {
+	margin: 5px 0 10px;
+}
+
+#poke-wrapper  {
+	padding: 10px 0 0px;
+}
+
+#poke-recipient, #poke-action, #poke-privacy-settings {
+	margin: 10px 0 30px;
+}
+
+#poke-recip-label, #poke-action-label, #prvmail-message-label {
+	margin: 10px 0 10px;
+}
+
 #sidebar-group-list ul {
 	list-style-type: none;
 }
@@ -4249,7 +4265,7 @@ ul.notifications-menu-popup {
 #recip {
 	
 }
-.autocomplete-w1 { background: #ffffff; no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
+.autocomplete-w1 { background: #ffffff no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
 .autocomplete { color:#000; border:1px solid #999; background:#FFF; cursor:default; text-align:left; max-height:350px; overflow:auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }
 .autocomplete .selected { background:#F0F0F0; }
 .autocomplete div { padding:2px 5px; white-space:nowrap; overflow:hidden; }

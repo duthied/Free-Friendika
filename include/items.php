@@ -4392,7 +4392,7 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 }
 
 
-function atom_author($tag,$name,$uri,$h,$w,$photo) {
+function atom_author($tag,$name,$uri,$h,$w,$photo,$geo) {
 	$o = '';
 	if(! $tag)
 		return $o;
@@ -4410,6 +4410,10 @@ function atom_author($tag,$name,$uri,$h,$w,$photo) {
 	$o .= "\t".'<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
 
 	if ($tag == "author") {
+
+		if($geo)
+			$o .= '<georss:point>'.xmlify($geo).'</georss:point>'."\r\n";
+
 		$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
 				`profile`.`name`, `profile`.`pub_keywords`, `profile`.`about`,
 				`profile`.`homepage`,`contact`.`nick` FROM `profile`
@@ -4473,11 +4477,11 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	$o = "\r\n\r\n<entry>\r\n";
 
 	if(is_array($author))
-		$o .= atom_author('author',$author['name'],$author['url'],80,80,$author['thumb']);
+		$o .= atom_author('author',$author['name'],$author['url'],80,80,$author['thumb'], $item['coord']);
 	else
-		$o .= atom_author('author',(($item['author-name']) ? $item['author-name'] : $item['name']),(($item['author-link']) ? $item['author-link'] : $item['url']),80,80,(($item['author-avatar']) ? $item['author-avatar'] : $item['thumb']));
+		$o .= atom_author('author',(($item['author-name']) ? $item['author-name'] : $item['name']),(($item['author-link']) ? $item['author-link'] : $item['url']),80,80,(($item['author-avatar']) ? $item['author-avatar'] : $item['thumb']), $item['coord']);
 	if(strlen($item['owner-name']))
-		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar']);
+		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar'], $item['coord']);
 
 	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));

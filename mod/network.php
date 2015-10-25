@@ -119,19 +119,19 @@ function network_init(&$a) {
 	$search = ((x($_GET,'search')) ? escape_tags($_GET['search']) : '');
 
 	if(x($_GET,'save')) {
-		$r = q("select * from `search` where `uid` = %d and `term` = '%s' limit 1",
+		$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
 		);
 		if(! count($r)) {
-			q("insert into `search` ( `uid`,`term` ) values ( %d, '%s') ",
+			q("INSERT INTO `search` ( `uid`,`term` ) VALUES ( %d, '%s') ",
 				intval(local_user()),
 				dbesc($search)
 			);
 		}
 	}
 	if(x($_GET,'remove')) {
-		q("delete from `search` where `uid` = %d and `term` = '%s'",
+		q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s'",
 			intval(local_user()),
 			dbesc($search)
 		);
@@ -172,7 +172,7 @@ function saved_searches($search) {
 
 	$o = '';
 
-	$r = q("select `id`,`term` from `search` WHERE `uid` = %d",
+	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
@@ -355,57 +355,63 @@ function network_content(&$a, $update = 0) {
 	// tabs
 	$tabs = array(
 		array(
-			'label' => t('Commented Order'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'=>$all_active,
-			'title'=> t('Sort by Comment Date'),
+			'label'	=> t('Commented Order'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $all_active,
+			'title'	=> t('Sort by Comment Date'),
+			'id'	=> 'commented-order-tab',
 			'accesskey' => "e",
 		),
 		array(
-			'label' => t('Posted Order'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'=>$postord_active,
-			'title' => t('Sort by Post Date'),
+			'label'	=> t('Posted Order'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $postord_active,
+			'title'	=> t('Sort by Post Date'),
+			'id'	=> 'posted-order-tab',
 			'accesskey' => "t",
 		),
 	);
 
 	if(feature_enabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
-			'label' => t('Personal'),
-			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
-			'sel' => $conv_active,
-			'title' => t('Posts that mention or involve you'),
+			'label'	=> t('Personal'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+			'sel'	=> $conv_active,
+			'title'	=> t('Posts that mention or involve you'),
+			'id'	=> 'personal-tab',
 			'accesskey' => "r",
 		);
 	}
 
 	if(feature_enabled(local_user(),'new_tab')) {
 		$tabs[] = array(
-			'label' => t('New'),
-			'url' => $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
-			'sel' => $new_active,
-			'title' => t('Activity Stream - by date'),
+			'label'	=> t('New'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $new_active,
+			'title'	=> t('Activity Stream - by date'),
+			'id'	=> 'activitiy-by-date-tab',
 			'accesskey' => "w",
 		);
 	}
 
 	if(feature_enabled(local_user(),'link_tab')) {
 		$tabs[] = array(
-			'label' => t('Shared Links'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
-			'sel'=>$bookmarked_active,
-			'title'=> t('Interesting Links'),
+			'label'	=> t('Shared Links'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'sel'	=> $bookmarked_active,
+			'title'	=> t('Interesting Links'),
+			'id'	=> 'shared-links-tab',
 			'accesskey' => "b",
 		);
 	}
 
 	if(feature_enabled(local_user(),'star_posts')) {
 		$tabs[] = array(
-			'label' => t('Starred'),
-			'url'=>$a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
-			'sel'=>$starred_active,
-			'title' => t('Favourite Posts'),
+			'label'	=> t('Starred'),
+			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+			'sel'	=> $starred_active,
+			'title'	=> t('Favourite Posts'),
+			'id'	=> 'starred-posts-tab',
 			'accesskey' => "m",
 		);
 	}
@@ -446,7 +452,7 @@ function network_content(&$a, $update = 0) {
 		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
 
 	if($nets) {
-		$r = q("select id from contact where uid = %d and network = '%s' and self = 0",
+		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
 			intval(local_user()),
 			dbesc($nets)
 		);
@@ -475,7 +481,10 @@ function network_content(&$a, $update = 0) {
 		$content = "";
 
 		if ($cid) {
-			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`", intval($cid), intval(local_user()));
+			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`",
+				intval($cid),
+				intval(local_user())
+			);
 			if ($contact)
 				$content = "@".$contact[0]["nick"]."+".$cid;
 		}
@@ -569,7 +578,7 @@ function network_content(&$a, $update = 0) {
 		);
 		if(count($r)) {
 			$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
-					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." and deleted = 0
+					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." AND `deleted` = 0
 					    ORDER BY `item`.`received` DESC) AS `temp1`
 					    ON $sql_table.$sql_parent = `temp1`.`parent` ";
 			$sql_extra = "";

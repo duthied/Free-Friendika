@@ -748,8 +748,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	}
 
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
-		$last_failure = datetime_convert();
-		$failure = true;
+		// Workaround for bad configured servers (known nginx problem)
+		if ($serverret["debug"]["http_code"] != "403") {
+			$last_failure = datetime_convert();
+			$failure = true;
+		}
 	} elseif ($network == NETWORK_DIASPORA)
 		$last_contact = datetime_convert();
 

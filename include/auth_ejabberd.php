@@ -140,6 +140,7 @@ class exAuth
 								$sQuery = "SELECT `uid`, `password` FROM `user` WHERE `nickname`='". $db->escape($sUser) ."'";
 								$this->writeDebugLog("[debug] using query ". $sQuery);
 								if ($oResult = q($sQuery)){
+									$uid = $oResult[0]["uid"];
 									$Error = ($oResult[0]["password"] != hash('whirlpool',$aCommand[3]));
 /*
 									if ($oResult[0]["password"] == hash('whirlpool',$aCommand[3])) {
@@ -156,9 +157,10 @@ class exAuth
 								} else {
 									$this->writeLog("[MySQL] invalid query: ". $sQuery);
 									$Error = true;
+									$uid = -1;
 								}
 								if ($Error) {
-									$oConfig = q("SELECT `v` FROM `pconfig` WHERE `uid`=1 AND `cat` = 'xmpp' AND `k`='password' LIMIT 1;");
+									$oConfig = q("SELECT `v` FROM `pconfig` WHERE `uid`=%d AND `cat` = 'xmpp' AND `k`='password' LIMIT 1;", intval($uid));
 									$this->writeLog("[exAuth] got password ".$oConfig[0]["v"]);
 									$Error = ($aCommand[3] != $oConfig[0]["v"]);
 								}
