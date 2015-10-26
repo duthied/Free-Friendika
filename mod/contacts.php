@@ -40,6 +40,7 @@ function contacts_init(&$a) {
 				'$photo' => $a->data['contact']['photo'],
 				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
+			$finpeople_widget = '';
 			$follow_widget = '';
 			$networks_widget = '';
 	}
@@ -50,9 +51,10 @@ function contacts_init(&$a) {
 			$follow_widget = follow_widget($_GET['add']);
 		else
 			$follow_widget = follow_widget();
+
+		$findpeople_widget .= findpeople_widget();
 	}
 
-	$findpeople_widget .= findpeople_widget();
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
 	
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
