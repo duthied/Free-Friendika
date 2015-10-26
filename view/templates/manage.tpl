@@ -3,13 +3,13 @@
 <div id="identity-manage-desc">{{$desc}}</div>
 <div id="identity-manage-choose">{{$choose}}</div>
 
-<div id="identity-selector-wrapper">
+<div id="identity-selector-wrapper" role="menu">
 	<form action="manage" method="post" >
 
 	{{foreach $identities as $id}}
 		<div class="itentity-match-wrapper {{if $id.selected}}selected-identity{{/if}}" id="identity-match-{{$id.uid}}">
 			<div class="identity-match-photo" id="identity-match-photo-{{$id.uid}}">
-				<button name="identity" value="{{$id.uid}}" onclick="this.form.submit();" title="{{$id.username}}">
+				<button role="menuitem" name="identity" value="{{$id.uid}}" onclick="this.form.submit();" title="{{$id.username}}">
 					<img src="{{$id.thumb}}" alt="{{$id.username}}" />
 				</button>
 			</div>
@@ -25,7 +25,7 @@
 		</div>
 	{{/foreach}}
 
+	<div class="identity-match-break"></div>
+
 	</form>
 </div>
-	
-	

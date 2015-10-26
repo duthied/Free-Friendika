@@ -252,6 +252,7 @@ a {
   background: none;
   height: 80px;
   width: 80px;
+  cursor: pointer;
 }
 
 .selected-identity img {
