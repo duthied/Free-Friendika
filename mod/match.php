@@ -82,8 +82,8 @@ function match_content(&$a) {
 						'photo_menu' => $photo_menu,
 						'id' => ++$id,
 					);
+					$entries[] = $entry;
 				}
-				$entries[] = $entry;
 			}
 
 		$tpl = get_markup_template('viewcontact_template.tpl');
