@@ -163,7 +163,8 @@ define ( 'NETWORK_TWITTER',          'twit');    // Twitter
 define ( 'NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
 define ( 'NETWORK_APPNET',           'apdn');    // app.net
-
+define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
+define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 
 /**
@@ -189,7 +190,9 @@ $netgroup_ids = array(
 	NETWORK_TWITTER  => (-14),
 	NETWORK_DIASPORA2 => (-15),
 	NETWORK_STATUSNET => (-16),
-	NETWORK_APPNET => (-17),
+	NETWORK_APPNET    => (-17),
+	NETWORK_NEWS      => (-18),
+	NETWORK_ICALENDAR => (-19),
 
 	NETWORK_PHANTOM  => (-127),
 );
