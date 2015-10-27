@@ -97,6 +97,12 @@ function manage_content(&$a) {
 		return;
 	}
 
+	if ($_GET['identity']) {
+		$_POST['identity'] = $_GET['identity'];
+		manage_post($a);
+		return;
+	}
+
 	$identities = $a->identities;
 
 	//getting additinal information for each identity
