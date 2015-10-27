@@ -115,6 +115,10 @@ input[type=submit]:active {
 #search-save {
 }
 
+#directory-search-end {
+	clear: both;
+}
+
 .dirsearch-desc {
 }
 
@@ -2760,11 +2764,10 @@ margin-left: 0px;
 .view-contact-wrapper,
 .contact-entry-wrapper {
 	float: left;
-	margin-right: 30px;
-	margin-bottom: 20px;
-	width: 88px;
+	padding-right: 10px;
+	width: 345px;
 	height: 120px;
-	position: relative;
+	margin: 0 10px 10px 0px;
 }
 
 #view-contact-end {
@@ -2775,6 +2778,10 @@ margin-left: 0px;
 	margin-top: 15px;
 }
 
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+	float: left;
+	margin-right: 10px;
+}
 .contact-entry-direction-wrapper {
 	position: absolute;
 	top: 20px;
@@ -2791,17 +2798,27 @@ margin-left: 0px;
 	font-weight: bold;
 }
 
-.contact-entry-name {
-	width: 100px;
+.contact-entry-desc {
+	overflow: hidden;
+}
+
+.contact-entry-name, .contact-entry-connect {
 	overflow: hidden;
 	font: #999;
 	font-size: 12px;
-	text-align: center;
 	font-weight: bold;
 	margin-top: 5px;
 }
 
-.contact-entry-photo {
+.contact-entry-details {
+	font-size: 13px;
+	color: #999999;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.contact-entry-photo-wrapper {
 	position: relative;
 	/*border: 1px solid #7C7D7B;
 	border-radius: 3px;
@@ -2810,6 +2827,15 @@ margin-left: 0px;
 	box-shadow: 0 0 8px #BDBDBD;
 		-moz-box-shadow: 0 0 8px #BDBDBD;
 		-webkit-box-shadow: 0 0 8px #BDBDBD;*/
+}
+
+.contact-entry-photo {
+	width: 80px;
+}
+
+.contact-entry-photo a img {
+	width: 80px;
+	height: 80px;
 }
 
 .contact-entry-edit-links .icon {	

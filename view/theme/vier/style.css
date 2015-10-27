@@ -351,7 +351,7 @@ code {
   margin: 0px;
   padding: 1em;
   list-style: none;
-  border: 3px solid #364e59;
+  /*border: 3px solid #364e59;*/
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
@@ -2270,17 +2270,49 @@ aside #id_password {
   float: left;
 }
 /* contacts */
-.contact-entry-wrapper {
+/*.contact-entry-wrapper {
   width: 120px;
   height: 130px;
   float: left;
-/*  overflow: hidden; */
+  overflow: hidden; 
   margin-left: 5px;
+}*/
+
+.contact-entry-wrapper {
+  float: left;
+  width: 363px;
+  height: 90px;
+  padding-right: 10px;
+  margin: 0 10px 10px 0px;
+}
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+  float: left;
+  margin-right: 10px;
+}
+.contact-entry-photo-wrapper {
+  position: relative;
+}
+.contact-entry-desc {
+  overflow: hidden;
+}
+.contact-entry-name {
+  font-weight: bold;
+}
+.contact-entry-details {
+  font-size: 13px;
+  color: #999999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* photo */
 .lframe {
   float: left;
   margin: 0px 10px 10px 0px;
+}
+.contact-entry-photo a img {
+  width: 80px;
+  height: 80px;
 }
 /* profile match wrapper */
 .profile-match-wrapper {
@@ -2319,14 +2351,15 @@ aside #id_password {
 }
 .contact-photo-menu {
         width: 11em;
-        border: 3px solid #364e59;
+        /*border: 3px solid #364e59;*/
 	color: #2d2d2d;
         background: #FFFFFF;
-/*        position: absolute;*/
-        position: relative;
-        left: 0px; top: 0px;
+        position: absolute;
+        /*position: relative;*/
+        left: 0px; /*top: 0px;*/
         display: none;
         z-index: 10000;
+	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 .contact-photo-menu ul { margin:0px; padding: 0px; list-style: none }
 .contact-photo-menu li a {

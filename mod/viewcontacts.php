@@ -48,7 +48,7 @@ function viewcontacts_content(&$a) {
 		if($rr['self'])
 			continue;
 
-	    $url = $rr['url'];
+		$url = $rr['url'];
 
 		// route DFRN profiles through the redirect
 

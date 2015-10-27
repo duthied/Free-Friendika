@@ -2,6 +2,7 @@
 require_once('include/contact_widgets.php');
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
+require_once('include/contact_selectors.php');
 
 function dirfind_init(&$a) {
 
@@ -13,9 +14,9 @@ function dirfind_init(&$a) {
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
-	$a->page['aside'] .= follow_widget();
-
 	$a->page['aside'] .= findpeople_widget();
+
+	$a->page['aside'] .= follow_widget();
 }
 
 
@@ -38,10 +39,6 @@ function dirfind_content(&$a, $prefix = "") {
 
 	$o = '';
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => sprintf( t('People Search - %s'), $search)
-	));
-
 	if($search) {
 
 		if ($local) {
@@ -61,7 +58,7 @@ function dirfind_content(&$a, $prefix = "") {
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
-			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`keywords`
+			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network` , `gcontact`.`keywords`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
@@ -80,7 +77,7 @@ function dirfind_content(&$a, $prefix = "") {
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
-			$j->page = $a->pager['page'];
+			$j->page = $a->pager['page'];			
 			foreach ($results AS $result) {
 				if (poco_alternate_ostatus_url($result["url"]))
 					 continue;
@@ -96,6 +93,7 @@ function dirfind_content(&$a, $prefix = "") {
 				$objresult->url = $result["url"];
 				$objresult->photo = $result["photo"];
 				$objresult->tags = $result["keywords"];
+				$objresult->network = $result["network"];
 
 				$j->results[] = $objresult;
 			}
@@ -121,7 +119,6 @@ function dirfind_content(&$a, $prefix = "") {
 
 			$id = 0;
 
-			$tpl = get_markup_template('match.tpl');
 			foreach($j->results as $jj) {
 
 				// If We already know this contact then don't show the "connect" button
@@ -143,17 +140,29 @@ function dirfind_content(&$a, $prefix = "") {
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
-				$o .= replace_macros($tpl,array(
-					'$url' => zrl($jj->url),
-					'$name' => htmlentities($jj->name),
-					'$photo' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
-					'$tags' => $jj->tags,
-					'$conntxt' => $conntxt,
-					'$connlnk' => $connlnk,
-					'$photo_menu' => $photo_menu,
-					'$id' => ++$id,
-				));
+				$entry = array(
+					'url' => zrl($jj->url),
+					'itemurl' => $jj->url,
+					'name' => htmlentities($jj->name),
+					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+					'img_hover' => $jj->tags,
+					'conntxt' => $conntxt,
+					'connlnk' => $connlnk,
+					'photo_menu' => $photo_menu,
+					'network' => network_to_name($jj->network, $jj->url),
+					'id' => ++$id,
+				);
+				$entries[] = $entry;
 			}
+
+		$tpl = get_markup_template('viewcontact_template.tpl');
+
+		$o .= replace_macros($tpl,array(
+			'title' => sprintf( t('People Search - %s'), $search),
+			'$contacts' => $entries,
+			'$paginate' => paginate($a),
+		));
+
 		}
 		else {
 			info( t('No matches') . EOL);
@@ -161,7 +170,5 @@ function dirfind_content(&$a, $prefix = "") {
 
 	}
 
-	$o .= '<div class="clear"></div>';
-	$o .= paginate($a);
 	return $o;
 }

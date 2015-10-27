@@ -27,6 +27,9 @@ function contacts_init(&$a) {
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 
+	if ($_GET['nets'] == "all")
+	$_GET['nets'] = "";
+
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
@@ -35,29 +38,30 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
-			        '$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
+			$finpeople_widget = '';
 			$follow_widget = '';
+			$networks_widget = '';
 	}
 	else {
 		$vcard_widget = '';
+		$networks_widget .= networks_widget('contacts',$_GET['nets']);
 		if (isset($_GET['add']))
 			$follow_widget = follow_widget($_GET['add']);
 		else
 			$follow_widget = follow_widget();
+
+		$findpeople_widget .= findpeople_widget();
 	}
 
-	if ($_GET['nets'] == "all")
-		$_GET['nets'] = "";
-
 	$groups_widget .= group_side('contacts','group',false,0,$contact_id);
-	$findpeople_widget .= findpeople_widget();
-	$networks_widget .= networks_widget('contacts',$_GET['nets']);
+	
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,
+		'$findpeople_widget' => $findpeople_widget,
 		'$follow_widget' => $follow_widget,
 		'$groups_widget' => $groups_widget,
-		'$findpeople_widget' => $findpeople_widget,
 		'$networks_widget' => $networks_widget
 	));
 
@@ -810,6 +814,7 @@ function contacts_content(&$a) {
 		'$cmd' => $a->cmd,
 		'$contacts' => $contacts,
 		'$contact_drop_confirm' => t('Do you really want to delete this contact?'),
+		'multiselect' => 1,
 		'$batch_actions' => array(
 			'contacts_batch_update' => t('Update'),
 			'contacts_batch_block' => t('Block')."/".t("Unblock"),
