@@ -17,13 +17,13 @@ function common_content(&$a) {
 		return;
 
 	if($cmd === 'loc' && $cid) {
-		$c = q("select name, url, photo from contact where id = %d and uid = %d limit 1",
+		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($cid),
 			intval($uid)
 		);
 	}
 	else {
-		$c = q("select name, url, photo from contact where self = 1 and uid = %d limit 1",
+		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 			intval($uid)
 		);
 	}
@@ -41,21 +41,16 @@ function common_content(&$a) {
 	if(! count($c))
 		return;
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => t('Common Friends')
-	));
-
-
 	if(! $cid) {
 		if(get_my_url()) {
-			$r = q("select id from contact where nurl = '%s' and uid = %d limit 1",
+			$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
 			if(count($r))
 				$cid = $r[0]['id'];
 			else {
-				$r = q("select id from gcontact where nurl = '%s' limit 1",
+				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link(get_my_url()))
 				);
 				if(count($r))
@@ -94,19 +89,29 @@ function common_content(&$a) {
 		return $o;
 	}
 
-	$tpl = get_markup_template('common_friends.tpl');
+	$id = 0;
 
 	foreach($r as $rr) {
 
-		$o .= replace_macros($tpl,array(
-			'$url' => $rr['url'],
-			'$name' => htmlentities($rr['name']),
-			'$photo' => $rr['photo'],
-			'$tags' => ''
-		));
+		$entry = array(
+			'url' => $rr['url'],
+			'itemurl' => $rr['url'],
+			'name' => htmlentities($rr['name']),
+			'thumb' => $rr['photo'],
+			'img_hover' => htmlentities($rr['name']),
+			'tags' => '',
+			'id' => ++$id,
+		);
+		$entries[] = $entry;
 	}
 
-	$o .= cleardiv();
+	$tpl = get_markup_template('viewcontact_template.tpl');
+
+	$o .= replace_macros($tpl,array(
+		'$title' => t('Common Friends'),
+		'$contacts' => $entries,
+	));
+
 //	$o .= paginate($a);
 	return $o;
 }

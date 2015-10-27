@@ -12,10 +12,11 @@ function allfriends_content(&$a) {
 
 	if($a->argc > 1)
 		$cid = intval($a->argv[1]);
+
 	if(! $cid)
 		return;
 
-	$c = q("select name, url, photo from contact where id = %d and uid = %d limit 1",
+	$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($cid),
 		intval(local_user())
 	);
@@ -33,10 +34,6 @@ function allfriends_content(&$a) {
 	if(! count($c))
 		return;
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-		'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name']))
-	));
-
 
 	$r = all_friends(local_user(),$cid);
 
@@ -45,19 +42,29 @@ function allfriends_content(&$a) {
 		return $o;
 	}
 
-	$tpl = get_markup_template('common_friends.tpl');
+	$id = 0;
 
 	foreach($r as $rr) {
 
-		$o .= replace_macros($tpl,array(
-			'$url' => $rr['url'],
-			'$name' => htmlentities($rr['name']),
-			'$photo' => $rr['photo'],
-			'$tags' => ''
-		));
+		$entry = array(
+			'url' => $rr['url'],
+			'itemurl' => $rr['url'],
+			'name' => htmlentities($rr['name']),
+			'thumb' => $rr['photo'],
+			'img_hover' => htmlentities($rr['name']),
+			'tags' => '',
+			'id' => ++$id,
+		);
+		$entries[] = $entry;
 	}
 
-	$o .= cleardiv();
+	$tpl = get_markup_template('viewcontact_template.tpl');
+
+	$o .= replace_macros($tpl,array(
+		'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
+		'$contacts' => $entries,
+	));
+
 //	$o .= paginate($a);
 	return $o;
 }
