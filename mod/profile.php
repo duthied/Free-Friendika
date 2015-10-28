@@ -268,10 +268,10 @@ function profile_content(&$a, $update = 0) {
 		//  accordingly
 		if ($a->is_mobile) {
 		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 10);
 		} else {
 		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
+		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 		}
 		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice
