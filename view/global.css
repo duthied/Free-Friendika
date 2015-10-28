@@ -274,3 +274,8 @@ a {
 #poke-recip-label, #poke-action-label, #prvmail-message-label {
 	margin: 10px 0 10px;
 }
+
+.contact-entry-photo img {
+  max-width: 80px;
+  max-height: 80px;
+}

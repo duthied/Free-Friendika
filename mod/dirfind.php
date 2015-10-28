@@ -3,6 +3,7 @@ require_once('include/contact_widgets.php');
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
+require_once('mod/contacts.php');
 
 function dirfind_init(&$a) {
 
@@ -77,7 +78,7 @@ function dirfind_content(&$a, $prefix = "") {
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
-			$j->page = $a->pager['page'];			
+			$j->page = $a->pager['page'];
 			foreach ($results AS $result) {
 				if (poco_alternate_ostatus_url($result["url"]))
 					 continue;
@@ -121,15 +122,21 @@ function dirfind_content(&$a, $prefix = "") {
 
 			foreach($j->results as $jj) {
 
+				$alt_text = "";
+
+				$itemurl = $jj->url;
+
 				// If We already know this contact then don't show the "connect" button
 				if ($jj->cid > 0) {
 					$connlnk = "";
 					$conntxt = "";
 					$contact = q("SELECT * FROM `contact` WHERE `id` = %d",
 							intval($jj->cid));
-					if ($contact)
+					if ($contact) {
 						$photo_menu = contact_photo_menu($contact[0]);
-					else
+						$details = _contact_detail_for_template($contact[0]);
+						$alt_text = $details['alt_text'];
+					} else
 						$photo_menu = array();
 				} else {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
@@ -141,8 +148,9 @@ function dirfind_content(&$a, $prefix = "") {
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
 				$entry = array(
+					'alt_text' => $alt_text,
 					'url' => zrl($jj->url),
-					'itemurl' => $jj->url,
+					'itemurl' => $itemurl,
 					'name' => htmlentities($jj->name),
 					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 					'img_hover' => $jj->tags,
