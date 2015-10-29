@@ -25,13 +25,14 @@ dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m'
                'leberwurscht', 'abinoam', 'fabrixxm', 'FULL NAME', 'Hauke Zuehl',
                'Michal Supler', 'michal_s', 'Manuel Pérez']
 
+
 #  this script is in the /util sub-directory of the friendica installation
 #  so the friendica path is the 0th argument of calling this script but we
 #  need to remove the name of the file and the name of the directory
 path = os.path.abspath(argv[0].split('util/make_credits.py')[0])
 print('> base directory is assumed to be: '+path)
 #  a place to store contributors
-contributors = []
+contributors = ['Andi Stadler']
 #  get the contributors
 print('> getting contributors to the friendica core repository')
 p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
