@@ -9,7 +9,7 @@ The collected names will be saved in /util/credits.txt which is also parsed from
 yourfriendica.tld/credits.
 
 The output is not perfect, so remember to open a fresh (re)created credits.txt file
-in your fav editor to check for obvious mistakes.
+in your fav editor to check for obvious mistakes and doubled entries.
 
 Initially written by Tobias Diekershoff for the Friendica Project. Released under
 the terms of the AGPL version 3 or later, same as Friendica.
