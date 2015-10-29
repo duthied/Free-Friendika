@@ -35,8 +35,10 @@ function fbrowser_content($a){
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
 			if ($a->argc==2){
-				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d ",
-					intval(local_user())
+				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
+					intval(local_user()),
+					dbesc('Contact Photos'),
+					dbesc( t('Contact Photos'))
 				);
 				// anon functions only from 5.3.0... meglio tardi che mai..
 				$folder1 = function($el) use ($mode) {return array(bin2hex($el['album']),$el['album']);};
@@ -53,9 +55,11 @@ function fbrowser_content($a){
 			}
 
 			$r = q("SELECT `resource-id`, `id`, `filename`, type, min(`scale`) AS `hiq`,max(`scale`) AS `loq`, `desc`
-					FROM `photo` WHERE `uid` = %d  $sql_extra
+					FROM `photo` WHERE `uid` = %d $sql_extra AND `album` != '%s' AND `album` != '%s'
 					GROUP BY `resource-id` $sql_extra2",
-				intval(local_user())
+				intval(local_user()),
+				dbesc('Contact Photos'),
+				dbesc( t('Contact Photos'))
 			);
 
 			function files1($rr){
@@ -94,7 +98,7 @@ function fbrowser_content($a){
 			break;
 		case "file":
 			if ($a->argc==2){
-				$files = q("SELECT id, filename, filetype FROM `attach` WHERE `uid` = %d ",
+				$files = q("SELECT `id`, `filename`, `filetype` FROM `attach` WHERE `uid` = %d ",
 					intval(local_user())
 				);
 
