@@ -1,4 +1,4 @@
-<h1>{{$pagetitle}}</h1>
+{{include file="section_title.tpl"}}
 <p>{{$thanks}}</p>
 
 <ul class="credits">

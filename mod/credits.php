@@ -13,7 +13,7 @@ function credits_content (&$a) {
     fclose($f);
     $tpl = get_markup_template('credits.tpl');
     return replace_macros( $tpl, array(
-       '$pagetitle'		=> t('Credits'),
+       '$title'		=> t('Credits'),
        '$thanks'		=> t('Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'),
        '$names'         => $arr,
     ));
