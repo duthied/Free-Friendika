@@ -489,6 +489,7 @@ function network_content(&$a, $update = 0) {
 		$content = "";
 
 		if ($cid) {
+			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
 			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
 				intval($cid),
 				intval(local_user())
