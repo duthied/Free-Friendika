@@ -191,7 +191,7 @@ function unmark_for_death($contact) {
 	);
 }}
 
-function contact_data($url, $uid = -1) {
+function get_contact_details_by_url($url, $uid = -1) {
 	require_once("mod/proxy.php");
 	require_once("include/bbcode.php");
 

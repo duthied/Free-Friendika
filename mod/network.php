@@ -155,7 +155,7 @@ function network_init(&$a) {
 			intval($_GET['cid']));
 		if ($r) {
 			$a->page['aside'] = "";
-			profile_load($a, "", 0, contact_data($r[0]["url"]));
+			profile_load($a, "", 0, get_contact_details_by_url($r[0]["url"]));
 		}
 	}
 }
