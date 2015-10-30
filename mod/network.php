@@ -489,7 +489,7 @@ function network_content(&$a, $update = 0) {
 		$content = "";
 
 		if ($cid) {
-			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `forum`",
+			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
 				intval($cid),
 				intval(local_user())
 			);
@@ -569,9 +569,9 @@ function network_content(&$a, $update = 0) {
 		//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
 
 		$sql_extra3 .= " AND `contact-id` IN ($contact_str$contact_str_self) ";
-		$sql_extra3 .= " AND EXISTS (SELECT id FROM `item` WHERE (`contact-id` IN ($contact_str)
-				OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0
-				AND parent = $sql_table.$sql_parent) ";
+		$sql_extra3 .= " AND EXISTS (SELECT `id` FROM `item` WHERE (`contact-id` IN ($contact_str)
+				OR `allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."') AND `deleted` = 0
+				AND `parent` = $sql_table.$sql_parent) ";
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
@@ -671,29 +671,30 @@ function network_content(&$a, $update = 0) {
 	}
 	else {
 		if(get_config('system', 'old_pager')) {
-		        $r = q("SELECT COUNT(*) AS `total`
-			        FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-			        AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			        WHERE $sql_table.`uid` = %d AND $sql_table.`visible` = 1 AND $sql_table.`deleted` = 0
-			        $sql_extra2 $sql_extra3
-			        $sql_extra $sql_nets ",
-			        intval($_SESSION['uid'])
-		        );
+			$r = q("SELECT COUNT(*) AS `total`
+				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
+				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` = 1 AND $sql_table.`deleted` = 0
+				$sql_extra2 $sql_extra3
+				$sql_extra $sql_nets ",
+				intval($_SESSION['uid'])
+			);
 
-		        if(count($r)) {
-			        $a->set_pager_total($r[0]['total']);
-		        }
+			if(count($r)) {
+				$a->set_pager_total($r[0]['total']);
+			}
 		}
 
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
 		if ($a->is_mobile) {
-		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 		} else {
-		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
 		}
+
 		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice
 		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
@@ -704,7 +705,7 @@ function network_content(&$a, $update = 0) {
 	}
 
 	if($nouveau) {
-		$simple_update = (($update) ? " and `item`.`unseen` = 1 " : '');
+		$simple_update = (($update) ? " AND `item`.`unseen` = 1 " : '');
 
 		if ($sql_order == "")
 			$sql_order = "`item`.`received`";
@@ -717,7 +718,7 @@ function network_content(&$a, $update = 0) {
 			FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1
-			AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+			AND `item`.`deleted` = 0 AND `item`.`moderated` = 0
 			$simple_update
 			$sql_extra $sql_nets
 			ORDER BY $sql_order DESC $pager_sql ",
