@@ -59,4 +59,5 @@ Friendica - Dokumentation und Ressourcen
 **Über diese Seite**
 
 * [Seite/Friendica-Version](friendica)
+* [Mitwirkenden bei Friendica](credits)
 
