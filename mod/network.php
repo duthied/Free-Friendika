@@ -151,11 +151,11 @@ function network_init(&$a) {
 	$a->page['aside'] .= fileas_widget($a->get_baseurl(true) . '/network',(x($_GET, 'file') ? $_GET['file'] : ''));
 
 	if(x($_GET['cid']) && intval($_GET['cid']) != 0) {
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d",
+		$r = q("SELECT `url` FROM `contact` WHERE `id` = %d",
 			intval($_GET['cid']));
 		if ($r) {
 			$a->page['aside'] = "";
-			profile_load($a, "", 0, $r[0]);
+			profile_load($a, "", 0, get_contact_details_by_url($r[0]["url"]));
 		}
 	}
 }
