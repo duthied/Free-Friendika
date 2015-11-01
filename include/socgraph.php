@@ -1047,7 +1047,7 @@ function count_common_friends($uid,$cid) {
 		intval($cid)
 	);
 
-//	logger("count_common_friends: $uid $cid {$r[0]['total']}"); 
+//	logger("count_common_friends: $uid $cid {$r[0]['total']}");
 	if(count($r))
 		return $r[0]['total'];
 	return 0;
@@ -1062,11 +1062,14 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 	else
 		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.*
-		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) 
-		$sql_extra limit %d, %d",
+	$r = q("SELECT `gcontact`.*, `contact`.`id` AS `cid`
+		FROM `glink`
+		INNER JOIN `gcontact` ON `glink`.`gcid` = `gcontact`.`id`
+		INNER JOIN `contact` ON `gcontact`.`nurl` = `contact`.`nurl`
+		WHERE `glink`.`cid` = %d and `glink`.`uid` = %d
+			AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `contact`.`blocked` = 0
+			AND `contact`.`hidden` = 0 AND `contact`.`id` != %d
+			$sql_extra LIMIT %d, %d",
 		intval($cid),
 		intval($uid),
 		intval($uid),
@@ -1137,10 +1140,13 @@ function count_all_friends($uid,$cid) {
 
 function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
-	$r = q("SELECT `gcontact`.*
-		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		order by `gcontact`.`name` asc LIMIT %d, %d ",
+	$r = q("SELECT `gcontact`.*, `contact`.`id` AS `cid`
+		FROM `glink`
+		INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
+		LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
+		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d
+		ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
+		intval($uid),
 		intval($cid),
 		intval($uid),
 		intval($start),
