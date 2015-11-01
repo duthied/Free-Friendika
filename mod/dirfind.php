@@ -52,10 +52,20 @@ function dirfind_content(&$a, $prefix = "") {
 			$perpage = 80;
 			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
+			if (get_config('system','diaspora_enabled'))
+				$diaspora = NETWORK_DIASPORA;
+			else
+				$diaspora = NETWORK_DFRN;
+
+			if (!get_config('system','ostatus_disabled'))
+				$ostatus = NETWORK_OSTATUS;
+			else
+				$ostatus = NETWORK_DFRN;
+
 			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
 					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
 						`about` REGEXP '%s' OR `keywords` REGEXP '%s')".$extra_sql,
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
@@ -71,7 +81,7 @@ function dirfind_content(&$a, $prefix = "") {
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
+					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					intval($startrec), intval($perpage));

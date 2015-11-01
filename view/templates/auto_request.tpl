@@ -53,7 +53,9 @@
 </div>
 
 	<div id="dfrn-request-submit-wrapper">
-		<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+		{{if $submit}}
+			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+		{{/if}}
 		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
 	</div>
 </form>
