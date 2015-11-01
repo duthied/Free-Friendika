@@ -416,6 +416,11 @@ function admin_page_site_post(&$a){
 	$rino			=	((x($_POST,'rino'))				? intval($_POST['rino'])				: 0);
 	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
 
+	if ($a->get_path() != "")
+		$diaspora_enabled = false;
+
+	if (!$thread_allow)
+		$ostatus_disabled = true;
 
 	if($ssl_policy != intval(get_config('system','ssl_policy'))) {
 		if($ssl_policy == SSL_POLICY_FULL) {
@@ -535,6 +540,7 @@ function admin_page_site_post(&$a){
 	set_config('system','ostatus_disabled', $ostatus_disabled);
 	set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
 	set_config('system','diaspora_enabled', $diaspora_enabled);
+
 	set_config('config','private_addons', $private_addons);
 
 	set_config('system','force_ssl', $force_ssl);
@@ -681,6 +687,8 @@ function admin_page_site(&$a) {
 	if ($a->config['hostname'] == "")
 		$a->config['hostname'] = $a->get_hostname();
 
+	$diaspora_able = ($a->get_path() == "");
+
 	$t = get_markup_template("admin_site.tpl");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -737,6 +745,9 @@ function admin_page_site(&$a) {
 		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), get_config('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !get_config('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
 		'$ostatus_poll_interval'	=> array('ostatus_poll_interval', t("OStatus conversation completion interval"), (string) intval(get_config('system','ostatus_poll_interval')), t("How often shall the poller check for new entries in OStatus conversations? This can be a very ressource task."), $ostatus_poll_choices),
+		'$ostatus_not_able'	=> t("OStatus support can only be enabled if threading is enabled."),
+		'$diaspora_able'	=> $diaspora_able,
+		'$diaspora_not_able'	=> t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
 		'$diaspora_enabled' 	=> array('diaspora_enabled', t("Enable Diaspora support"), get_config('system','diaspora_enabled'), t("Provide built-in Diaspora network compatibility.")),
 		'$dfrn_only'        	=> array('dfrn_only', t('Only allow Friendica contacts'), get_config('system','dfrn_only'), t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")),
 		'$verifyssl' 		=> array('verifyssl', t("Verify SSL"), get_config('system','verifyssl'), t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.")),
