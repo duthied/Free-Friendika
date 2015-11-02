@@ -86,10 +86,9 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	if(x($opts,'nobody')){
 		@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 	}
-	if(intval($timeout)) {
-		@curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-	}
-	else {
+	if(x($opts,'timeout')){
+		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
+	} else {
 		$curl_time = intval(get_config('system','curl_timeout'));
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
