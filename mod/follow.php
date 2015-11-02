@@ -15,6 +15,8 @@ function follow_content(&$a) {
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
 
+	$submit = t('Submit Request');
+
 	// There is a current issue. It seems as if you can't start following a Friendica that is following you
 	// With Diaspora this works - but Friendica is special, it seems ...
 	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
@@ -25,15 +27,31 @@ function follow_content(&$a) {
 
 	if ($r) {
 		notice(t('You already added this contact.').EOL);
-		goaway($_SESSION['return_url']);
+		$submit = "";
+		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
 	$ret = probe_url($url);
 
+	if (($ret["network"] == NETWORK_DIASPORA) AND !get_config('system','diaspora_enabled')) {
+		notice( t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
+		$submit = "";
+		//goaway($_SESSION['return_url']);
+		// NOTREACHED
+	}
+
+	if (($ret["network"] == NETWORK_OSTATUS) AND get_config('system','ostatus_disabled')) {
+		notice( t("OStatus support is disabled. Contact can't be added.") . EOL);
+		$submit = "";
+		//goaway($_SESSION['return_url']);
+		// NOTREACHED
+	}
+
 	if ($ret["network"] == NETWORK_PHANTOM) {
 		notice( t("The network type couldn't be detected. Contact can't be added.") . EOL);
-		goaway($_SESSION['return_url']);
+		$submit = "";
+		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
@@ -94,7 +112,7 @@ function follow_content(&$a) {
 			'$your_address' => t('Your Identity Address:'),
 			'$invite_desc' => "",
 			'$emailnet' => "",
-			'$submit' => t('Submit Request'),
+			'$submit' => $submit,
 			'$cancel' => t('Cancel'),
 			'$nickname' => "",
 			'$name' => $ret["name"],

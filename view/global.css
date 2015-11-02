@@ -260,17 +260,29 @@ a {
 }
 /* poke */
 #poke-desc {
-	margin: 5px 0 10px;
+    margin: 5px 0 10px;
 }
 
 #poke-wrapper  {
-	padding: 10px 0 0px;
+    padding: 10px 0 0px;
 }
 
 #poke-recipient, #poke-action, #poke-privacy-settings {
-	margin: 10px 0 30px;
+    margin: 10px 0 30px;
 }
 
 #poke-recip-label, #poke-action-label, #prvmail-message-label {
-	margin: 10px 0 10px;
+    margin: 10px 0 10px;
+}
+ul.credits {
+    list-style: none;
+}
+ul.credits li {
+    float: left;
+    width: 240px;
+}
+
+.contact-entry-photo img {
+  max-width: 80px;
+  max-height: 80px;
 }

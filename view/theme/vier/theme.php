@@ -195,7 +195,7 @@ function vier_community_info() {
 		$pagelist = array();
 
 		$contacts = q("SELECT `id`, `url`, `name`, `micro` FROM `contact`
-				WHERE `network`= '%s' AND `forum` AND `uid` = %d AND
+				WHERE `network`= '%s' AND `uid` = %d AND (`forum` OR `prv`) AND
 					NOT `hidden` AND NOT `blocked` AND
 					NOT `archive` AND NOT `pending` AND
 					`success_update` > `failure_update`

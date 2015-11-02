@@ -872,9 +872,23 @@ ul.menu-popup .empty {
 }
 
 right_aside {
-  width: 0px;
-  top: 32px;
   display: none;
+  vertical-align: top;
+  width: 185px;
+  padding-top: 10px;
+  padding-right: 20px;
+  padding-bottom: 0px;
+  padding-left: 10px;
+  background-color: #FFFFFF;
+  font-size: 13px;
+  overflow-y: auto;
+  z-index: 2;
+  line-height: 17px;
+  color: #737373;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
+  top: 32px;
+  position: absolute;
+  margin-left: calc(100% - 215px);
 }
 
 /* aside */
