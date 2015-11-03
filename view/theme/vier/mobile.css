@@ -15,9 +15,12 @@ section {
   padding: 10px;
 }
 
-body, section, nav .nav-menu, div.pager, ul.tabs, .wall-item-container .wall-item-ago, .wall-item-network,
-.type-link blockquote, .type-video blockquote {
+body, section, nav .nav-menu, div.pager, ul.tabs {
   font-size: 16px;
+}
+
+.wall-item-container .wall-item-ago, .wall-item-network,.type-link blockquote, .type-video blockquote {
+  font-size: 13px;
 }
 
 nav {
