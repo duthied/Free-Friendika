@@ -33,7 +33,7 @@ function vier_init(&$a) {
 		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
-<link rel='stylesheet' media='(max-width: 1010px)' href='view/theme/vier/mobile.css' />
+<link rel='stylesheet' media='(max-width: 1000px)' href='view/theme/vier/mobile.css' />
 <link rel='stylesheet' media='screen and (max-width: 1100px)' href='view/theme/vier/narrow.css' />
 <script type="text/javascript">
 
