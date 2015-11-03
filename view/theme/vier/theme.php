@@ -26,15 +26,17 @@ function vier_init(&$a) {
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] or $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
 
-		$a->page['htmlhead'] .= "<link rel='stylesheet' media='screen and (min-width: 1300px)' href='view/theme/vier/wide.css' />\n";
+		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
 	}
 
-	if ($a->is_mobile || $a->is_tablet)
+	if ($a->is_mobile || $a->is_tablet) {
 		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
+		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
+	}
+		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
-<link rel='stylesheet' media='(max-width: 1000px)' href='view/theme/vier/mobile.css' />
-<link rel='stylesheet' media='screen and (max-width: 1100px)' href='view/theme/vier/narrow.css' />
+<link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
 
 function insertFormatting(comment,BBcode,id) {

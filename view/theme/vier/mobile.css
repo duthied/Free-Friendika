@@ -1,4 +1,5 @@
-aside, header, #nav-events-link, #search-box, #nav-admin-link, #activitiy-by-date-tab, #shared-links-tab {
+aside, header, #nav-events-link, #search-box, #nav-admin-link, #activitiy-by-date-tab, #shared-links-tab,
+.wall-item-location {
   display: none;
 }
 
@@ -24,20 +25,44 @@ nav {
 }
 
 .wall-item-container .wall-item-content {
+  max-width: 100%;
 /*  margin-left: -70px;
   padding-top: 25px; */
-}
-
-.wall-item-container .wall-item-content img {
-  max-width: 400px;
 }
 
 nav ul {
     margin-left: 0px;
 }
 
+
+.wall-item-container .wall-item-content img,
+.children .wall-item-container .wall-item-item .wall-item-content img,
 .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
-  max-width: 400px;
+  max-width: 650px;
+}
+
+@media screen and (max-width: 800px) {
+  .wall-item-container .wall-item-content img,
+  .children .wall-item-container .wall-item-item .wall-item-content img,
+  .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
+    max-width: 450px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .wall-item-container .wall-item-content img,
+  .children .wall-item-container .wall-item-item .wall-item-content img,
+  .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
+    max-width: 350px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .wall-item-container .wall-item-content img,
+  .children .wall-item-container .wall-item-item .wall-item-content img,
+  .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
+    max-width: 200px;
+  }
 }
 
 .wall-item-container.thread_level_2,
@@ -48,4 +73,13 @@ nav ul {
 .wall-item-container.thread_level_7 {
   margin-left: 60px;
   width: calc(100% - 70px);
+}
+
+.wall-item-container.thread_level_2 .wall-item-content,
+.wall-item-container.thread_level_3 .wall-item-content,
+.wall-item-container.thread_level_4 .wall-item-content,
+.wall-item-container.thread_level_5 .wall-item-content,
+.wall-item-container.thread_level_6 .wall-item-content,
+.wall-item-container.thread_level_7 .wall-item-content {
+  max-width: 100%;
 }
