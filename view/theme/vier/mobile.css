@@ -1,0 +1,51 @@
+aside, header, #nav-events-link, #search-box, #nav-admin-link, #activitiy-by-date-tab, #shared-links-tab {
+  display: none;
+}
+
+.hide-comments-outer {
+  width: calc(100% - 105px);
+}
+
+section {
+  /* left: calc((100% - (784px)) / 2); */
+  left: 0px;
+  width: calc(100% - 20px);
+  max-width: 100%;
+  padding: 10px;
+}
+
+body, section, nav .nav-menu, div.pager, ul.tabs, .wall-item-container .wall-item-ago, .wall-item-network,
+.type-link blockquote, .type-video blockquote {
+  font-size: 16px;
+}
+
+nav {
+  min-width: 480px;
+}
+
+.wall-item-container .wall-item-content {
+/*  margin-left: -70px;
+  padding-top: 25px; */
+}
+
+.wall-item-container .wall-item-content img {
+  max-width: 400px;
+}
+
+nav ul {
+    margin-left: 0px;
+}
+
+.wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
+  max-width: 400px;
+}
+
+.wall-item-container.thread_level_2,
+.wall-item-container.thread_level_3,
+.wall-item-container.thread_level_4,
+.wall-item-container.thread_level_5,
+.wall-item-container.thread_level_6,
+.wall-item-container.thread_level_7 {
+  margin-left: 60px;
+  width: calc(100% - 70px);
+}
