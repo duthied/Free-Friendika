@@ -101,14 +101,14 @@ function common_content(&$a) {
 
 	foreach($r as $rr) {
 
+		//get further details of the contact
+		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+
 		// $rr[id] is needed to use contact_photo_menu()
 		$rr[id] = $rr[cid];
 
 		$photo_menu = '';
 		$photo_menu = contact_photo_menu ($rr);
-
-		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid);
 
 		$entry = array(
 			'url'		=> $rr['url'],
