@@ -1583,7 +1583,7 @@ span[id^="showmore-wrap"] {
 }
 .contact-name {
   font-weight: bold;
-  padding-top: 15px;
+  /* padding-top: 15px; */
 }
 .contact-details {
   color: #999999;

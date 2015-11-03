@@ -245,7 +245,7 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["keywords"] = $r[0]["keywords"];
 		if (isset($r[0]["gender"]) AND $r[0]["gender"])
 			$profile["gender"] = $r[0]["gender"];
-		if (isset($r[0]["forum"]) AND isset($r[0]["prv"]))
+		if (isset($r[0]["forum"]) OR isset($r[0]["prv"]))
 			$profile["community"] = ($r[0]["forum"] OR $r[0]["prv"]);
 		if (isset($r[0]["network"]) AND $r[0]["network"])
 			$profile["network"] = $r[0]["network"];

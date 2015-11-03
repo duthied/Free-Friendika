@@ -26,11 +26,15 @@
 		</div>
 			
 	</div>
-	<div class="contact-name" id="contact-entry-name-{{$contact.id}}" >{{$contact.name}}</div>
+	<div class="contact-name" id="contact-entry-name-{{$contact.id}}" >
+		{{$contact.name}}
+		{{if $contact.account_type}} <span class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</span>{{/if}}
+	</div>
 	{{if $contact.alt_text}}<div class="contact-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
 	{{if $contact.itemurl}}<div class="contact-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
-	{{if $contact.network}}<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
+	{{if $contact.tags}}<div class="contact-details" id="contact-entry-tags-{{$contact.id}}" >{{$contact.tags}}</div>{{/if}}
 	{{if $contact.details}}<div class="contact-details" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
+	{{if $contact.network}}<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
 
 	{{if $contact.connlnk}}
 	<div class="contact-entry-connect"><a href="{{$contact.connlnk}}" title="{{$contact.conntxt}}">{{$contact.conntxt}}</a></div>
