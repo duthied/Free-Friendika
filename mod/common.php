@@ -1,6 +1,8 @@
 <?php
 
 require_once('include/socgraph.php');
+require_once('include/Contact.php');
+require_once('include/contact_selectors.php');
 
 function common_content(&$a) {
 
@@ -11,8 +13,14 @@ function common_content(&$a) {
 	$cid = intval($a->argv[3]);
 	$zcid = 0;
 
+	if (! local_user()) {
+		notice( t('Permission denied.') . EOL);
+		return;
+	}
+
 	if($cmd !== 'loc' && $cmd != 'rem')
 		return;
+
 	if(! $uid)
 		return;
 
@@ -93,14 +101,28 @@ function common_content(&$a) {
 
 	foreach($r as $rr) {
 
+		// $rr[id] is needed to use contact_photo_menu()
+		$rr[id] = $rr[cid];
+
+		$photo_menu = '';
+		$photo_menu = contact_photo_menu ($rr);
+
+		//get further details of the contact
+		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+
 		$entry = array(
-			'url' => $rr['url'],
-			'itemurl' => $rr['url'],
-			'name' => htmlentities($rr['name']),
-			'thumb' => $rr['photo'],
-			'img_hover' => htmlentities($rr['name']),
-			'tags' => '',
-			'id' => ++$id,
+			'url'		=> $rr['url'],
+			'itemurl'	=> $rr['url'],
+			'name'		=> $rr['name'],
+			'thumb'		=> proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
+			'img_hover'	=> htmlentities($rr['name']),
+			'details'	=> $contact_details['location'],
+			'tags'		=> $contact_details['keywords'],
+			'about'		=> $contact_details['about'],
+			'account_type'	=> (($contact_details['community']) ? t('Forum') : ''),
+			'network'	=> network_to_name($contact_details['network'], $contact_details['url']),
+			'photo_menu'	=> $photo_menu,
+			'id'		=> ++$id,
 		);
 		$entries[] = $entry;
 	}

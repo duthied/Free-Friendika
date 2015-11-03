@@ -1,6 +1,8 @@
 <?php
 
 require_once('include/socgraph.php');
+require_once('include/Contact.php');
+require_once('include/contact_selectors.php');
 
 function allfriends_content(&$a) {
 
@@ -15,6 +17,8 @@ function allfriends_content(&$a) {
 
 	if(! $cid)
 		return;
+
+	$uid = $a->user[uid];
 
 	$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($cid),
@@ -46,14 +50,38 @@ function allfriends_content(&$a) {
 
 	foreach($r as $rr) {
 
+		//get further details of the contact
+		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+
+		$photo_menu = '';
+
+		// $rr[cid] is only available for common contacts. So if the contact is a common one, use contact_photo_menu to generate the photo_menu
+		// If the contact is not common to the user, Connect/Follow' will be added to the photo menu
+		if ($rr[cid]) {
+			$rr[id] = $rr[cid];
+			$photo_menu = contact_photo_menu ($rr);
+		}
+		else {
+			$connlnk = $a->get_baseurl() . '/follow/?url=' . $rr['url'];
+			$photo_menu = array(array(t("View Profile"), zrl($rr['url'])));
+			$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+		}
+
 		$entry = array(
-			'url' => $rr['url'],
-			'itemurl' => $rr['url'],
-			'name' => htmlentities($rr['name']),
-			'thumb' => $rr['photo'],
-			'img_hover' => htmlentities($rr['name']),
-			'tags' => '',
-			'id' => ++$id,
+			'url'		=> $rr['url'],
+			'itemurl'	=> $rr['url'],
+			'name'		=> htmlentities($rr['name']),
+			'thumb'		=> proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
+			'img_hover'	=> htmlentities($rr['name']),
+			'details'	=> $contact_details['location'],
+			'tags'		=> $contact_details['keywords'],
+			'about'		=> $contact_details['about'],
+			'account_type'	=> (($contact_details['community']) ? t('Forum') : ''),
+			'network'	=> network_to_name($contact_details['network'], $contact_details['url']),
+			'photo_menu'	=> $photo_menu,
+			'conntxt'	=> t('Connect'),
+			'connlnk'	=> $connlnk,
+			'id'		=> ++$id,
 		);
 		$entries[] = $entry;
 	}
