@@ -320,7 +320,7 @@ function scrape_feed($url) {
  * PROBE_DIASPORA has a bias towards returning Diaspora information
  * while PROBE_NORMAL has a bias towards dfrn/zot - in the case where
  * an address (such as a Friendica address) supports more than one type
- * of network. 
+ * of network.
  *
  */
 
@@ -407,7 +407,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 						$pubkey = $diaspora_key;
 					$diaspora = true;
 				}
-				if($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') {
+				if(($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') AND ($mode == PROBE_NORMAL)) {
 					$diaspora = false;
 				}
 			}
@@ -778,6 +778,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		$baseurl = matching(normalise_link($profile), normalise_link($poll));
 
 	$baseurl = rtrim($baseurl, "/");
+
+	if(strpos($url,'@') AND ($addr == "") AND ($network == NETWORK_DFRN))
+		$addr = str_replace('acct:', '', $url);
 
 	$vcard['fn'] = notags($vcard['fn']);
 	$vcard['nick'] = str_replace(' ','',notags($vcard['nick']));
