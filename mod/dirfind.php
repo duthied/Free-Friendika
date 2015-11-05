@@ -69,7 +69,7 @@ function dirfind_content(&$a, $prefix = "") {
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
-			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network` , `gcontact`.`keywords`
+			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
@@ -101,6 +101,7 @@ function dirfind_content(&$a, $prefix = "") {
 				$objresult = new stdClass();
 				$objresult->cid = $result["cid"];
 				$objresult->name = $result["name"];
+				$objresult->addr = $result["addr"];
 				$objresult->url = $result["url"];
 				$objresult->photo = $result["photo"];
 				$objresult->tags = $result["keywords"];
@@ -134,7 +135,9 @@ function dirfind_content(&$a, $prefix = "") {
 
 				$alt_text = "";
 
-				$itemurl = $jj->url;
+				$contact_details = get_contact_details_by_url($jj->url, local_user());
+
+				$itemurl = (($contact_details["addr"] != "") ? $contact_details["addr"] : $jj->url);
 
 				// If We already know this contact then don't show the "connect" button
 				if ($jj->cid > 0) {
@@ -167,6 +170,9 @@ function dirfind_content(&$a, $prefix = "") {
 					'conntxt' => $conntxt,
 					'connlnk' => $connlnk,
 					'photo_menu' => $photo_menu,
+					'details'       => $contact_details['location'],
+					'tags'          => $contact_details['keywords'],
+					'about'         => $contact_details['about'],
 					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);

@@ -29,6 +29,8 @@ nav {
 
 .wall-item-container .wall-item-content {
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 /*  margin-left: -70px;
   padding-top: 25px; */
 }

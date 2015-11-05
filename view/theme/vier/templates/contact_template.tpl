@@ -36,10 +36,12 @@
 			{{if $contact.account_type}} <span class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</span>{{/if}}
 		</div>
 		{{if $contact.alt_text}}<div class="contact-entry-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
-		{{if $contact.itemurl}}<div class="contact-entry-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
+		<div class="contact-entry-details">
+		{{if $contact.itemurl}}<span class="contact-entry-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</span>{{/if}}
+		{{if $contact.network}}<span class="contact-entry-details" id="contact-entry-network-{{$contact.id}}" > ({{$contact.network}})</span>{{/if}}
+		</div>
 		{{if $contact.tags}}<div class="contact-entry-details" id="contact-entry-tags-{{$contact.id}}" >{{$contact.tags}}</div>{{/if}}
 		{{if $contact.details}}<div class="contact-entry-details" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
-		{{if $contact.network}}<div class="contact-entry-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
 	</div>
 
 

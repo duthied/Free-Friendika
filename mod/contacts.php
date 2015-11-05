@@ -867,7 +867,7 @@ function _contact_detail_for_template($rr){
 		'name' => htmlentities($rr['name']),
 		'username' => htmlentities($rr['name']),
 		'sparkle' => $sparkle,
-		'itemurl' => $rr['url'],
+		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,
 		'network' => network_to_name($rr['network'], $rr['url']),
 	);

@@ -198,12 +198,16 @@ function get_contact_details_by_url($url, $uid = -1) {
 	if ($uid == -1)
 		$uid = local_user();
 
-	$r = q("SELECT `url`, `name`, `nick`, `addr`. `photo`, `location`, `about`, `keywords`, `gender`, `community`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+	$r = q("SELECT `id` AS `gid`, `url`, `name`, `nick`, `addr`, `photo`, `location`, `about`, `keywords`, `gender`, `community`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($url)));
 
-	if ($r)
+	if ($r) {
 		$profile = $r[0];
-	else {
+
+		if ($profile["addr"] == "")
+			proc_run('php',"include/update_gcontact.php", $profile["gid"]);
+
+	} else {
 		$r = q("SELECT `url`, `name`, `nick`, `avatar` AS `photo`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'",
 			dbesc(normalise_link($url)));
 
