@@ -235,7 +235,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$addr = "";
 	}
 
-	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
+	if ((($network == "") OR ($name == "") OR ($addr == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
 		AND poco_reachable($profile_url, $server_url, $network, false)) {
 		$data = probe_url($profile_url);
 
