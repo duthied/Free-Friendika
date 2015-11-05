@@ -198,7 +198,7 @@ function get_contact_details_by_url($url, $uid = -1) {
 	if ($uid == -1)
 		$uid = local_user();
 
-	$r = q("SELECT `url`, `name`, `nick`, `photo`, `location`, `about`, `keywords`, `gender`, `community`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+	$r = q("SELECT `url`, `name`, `nick`, `addr`. `photo`, `location`, `about`, `keywords`, `gender`, `community`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($url)));
 
 	if ($r)
@@ -213,19 +213,20 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["gender"] = "";
 			$profile["community"] = false;
 			$profile["network"] = "";
+			$profile["addr"] = "";
 		}
 	}
 
 	// Fetching further contact data from the contact table
-	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
+	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
 		dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
 	if (!count($r))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	if (!count($r))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 			dbesc(normalise_link($url)));
 
 	if ($r) {
@@ -235,6 +236,8 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["name"] = $r[0]["name"];
 		if (isset($r[0]["nick"]) AND $r[0]["nick"] AND ($profile["nick"] == ""))
 			$profile["nick"] = $r[0]["nick"];
+		if (isset($r[0]["addr"]) AND $r[0]["addr"] AND ($profile["addr"] == ""))
+			$profile["addr"] = $r[0]["addr"];
 		if (isset($r[0]["photo"]) AND $r[0]["photo"])
 			$profile["photo"] = $r[0]["photo"];
 		if (isset($r[0]["location"]) AND $r[0]["location"])

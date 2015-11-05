@@ -225,12 +225,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$created = $x[0]["created"];
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
+		$addr = $x[0]["addr"];
 	} else {
 		$created = "0000-00-00 00:00:00";
 		$server_url = "";
 
 		$urlparts = parse_url($profile_url);
 		$nick = end(explode("/", $urlparts["path"]));
+		$addr = "";
 	}
 
 	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
@@ -242,6 +244,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$network = $data["network"];
 		$name = $data["name"];
 		$nick = $data["nick"];
+		$addr = $data["addr"];
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
@@ -294,14 +297,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($keywords == "") AND ($x[0]['keywords'] != ""))
 			$keywords = $x[0]['keywords'];
 
+		if (($addr == "") AND ($x[0]['addr'] != ""))
+			$addr = $x[0]['addr'];
+
 		if (($generation == 0) AND ($x[0]['generation'] > 0))
 			$generation = $x[0]['generation'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
+			q("UPDATE `gcontact` SET `name` = '%s', `addr` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
 				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
+				dbesc($addr),
 				dbesc($network),
 				dbesc($profile_photo),
 				dbesc($connect_url),
@@ -318,10 +325,11 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			);
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`, `nick`, `addr`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($nick),
+			dbesc($addr),
 			dbesc($network),
 			dbesc($profile_url),
 			dbesc(normalise_link($profile_url)),
