@@ -70,10 +70,15 @@ function match_content(&$a) {
 					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
 					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
 
+					$contact_details = get_contact_details_by_url($jj->url, local_user());
+
 					$entry = array(
 						'url' => zrl($jj->url),
-						'itemurl' => $jj->url,
+						'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $jj->url),
 						'name' => $jj->name,
+						'details'       => $contact_details['location'],
+						'tags'          => $contact_details['keywords'],
+						'about'         => $contact_details['about'],
 						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 						'inttxt' => ' ' . t('is interested in:'),
 						'conntxt' => t('Connect'),

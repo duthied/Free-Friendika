@@ -70,7 +70,7 @@ function common_content(&$a) {
 
 
 	if($cid == 0 && $zcid == 0)
-		return; 
+		return;
 
 
 	if($cid)
@@ -112,7 +112,7 @@ function common_content(&$a) {
 
 		$entry = array(
 			'url'		=> $rr['url'],
-			'itemurl'	=> $rr['url'],
+			'itemurl'	=> (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'name'		=> $rr['name'],
 			'thumb'		=> proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
 			'img_hover'	=> htmlentities($rr['name']),

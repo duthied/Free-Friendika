@@ -69,7 +69,7 @@ function allfriends_content(&$a) {
 
 		$entry = array(
 			'url'		=> $rr['url'],
-			'itemurl'	=> $rr['url'],
+			'itemurl'	=> (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'name'		=> htmlentities($rr['name']),
 			'thumb'		=> proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
 			'img_hover'	=> htmlentities($rr['name']),
