@@ -274,7 +274,11 @@ $b is an array containing $nav from nav.php.
 ###'template_vars'
 is called before vars are passed to the template engine to render the page.
 The registered function can add,change or remove variables passed to template.
-$b is the array of vars pased to 'replace_macros()' function.
+$b is an array with:
+
+    'template' => filename of template
+    'vars' => array of vars passed to template
+
 
 
 Complete list of hook callbacks
