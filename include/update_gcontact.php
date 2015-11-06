@@ -10,22 +10,14 @@ function update_gcontact_run(&$argv, &$argc){
 	}
 
 	if(is_null($db)) {
-	    @include(".htconfig.php");
-	require_once("include/dba.php");
-	    $db = new dba($db_host, $db_user, $db_pass, $db_data);
-	unset($db_host, $db_user, $db_pass, $db_data);
+		@include(".htconfig.php");
+		require_once("include/dba.php");
+		$db = new dba($db_host, $db_user, $db_pass, $db_data);
+		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-
-	require_once('include/session.php');
-	require_once('include/datetime.php');
-	require_once('library/simplepie/simplepie.inc');
-	require_once('include/items.php');
-	require_once('include/Contact.php');
-	require_once('include/email.php');
-	require_once('include/socgraph.php');
 	require_once('include/pidfile.php');
-	require_once('include/queue_fn.php');
+	require_once('include/Scrape.php');
 
 	load_config('config');
 	load_config('system');
@@ -36,17 +28,8 @@ function update_gcontact_run(&$argv, &$argc){
 
 	logger('update_gcontact: start');
 
-	$manual_id  = 0;
-	$generation = 0;
-	$hub_update = false;
-	$force      = false;
-	$restart    = false;
-
 	if(($argc > 1) && (intval($argv[1])))
 		$contact_id = intval($argv[1]);
-
-	if(($argc > 2) && ($argv[2] == "force"))
-		$force = true;
 
 	if(!$contact_id) {
 		logger('update_gcontact: no contact');
@@ -99,16 +82,22 @@ function update_gcontact_run(&$argv, &$argc){
 			);
 
 	q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `photo` = '%s'
-				WHERE `uid` = 0 AND `nurl` = '%s'",
+				WHERE `uid` = 0 AND `addr` = '' AND `nurl` = '%s'",
 				dbesc($data["name"]),
 				dbesc($data["nick"]),
 				dbesc($data["addr"]),
 				dbesc($data["photo"]),
 				dbesc(normalise_link($data["url"]))
 			);
+
+	q("UPDATE `contact` SET `addr` = '%s'
+				WHERE `uid` != 0 AND `addr` = '' AND `nurl` = '%s'",
+				dbesc($data["addr"]),
+				dbesc(normalise_link($data["url"]))
+			);
 }
 
 if (array_search(__file__,get_included_files())===0){
-  update_gcontact_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
+	update_gcontact_run($_SERVER["argv"],$_SERVER["argc"]);
+	killme();
 }
