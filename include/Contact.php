@@ -204,7 +204,8 @@ function get_contact_details_by_url($url, $uid = -1) {
 	if ($r) {
 		$profile = $r[0];
 
-		if ($profile["addr"] == "")
+		if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND
+			in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
 			proc_run('php',"include/update_gcontact.php", $profile["gid"]);
 
 	} else {

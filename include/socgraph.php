@@ -1047,8 +1047,9 @@ function count_common_friends($uid,$cid) {
 
 	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) ",
+		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+		AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) ",
 		intval($cid),
 		intval($uid),
 		intval($uid),
@@ -1077,6 +1078,7 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 		WHERE `glink`.`cid` = %d and `glink`.`uid` = %d
 			AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `contact`.`blocked` = 0
 			AND `contact`.`hidden` = 0 AND `contact`.`id` != %d
+			AND ((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
 			$sql_extra LIMIT %d, %d",
 		intval($cid),
 		intval($uid),
@@ -1134,7 +1136,8 @@ function count_all_friends($uid,$cid) {
 
 	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d ",
+		where `glink`.`cid` = %d and `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))",
 		intval($cid),
 		intval($uid)
 	);
@@ -1152,7 +1155,8 @@ function all_friends($uid,$cid,$start = 0, $limit = 80) {
 		FROM `glink`
 		INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 		LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
-		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d
+		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
 		ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
 		intval($uid),
 		intval($cid),

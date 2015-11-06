@@ -18,6 +18,7 @@ function update_gcontact_run(&$argv, &$argc){
 
 	require_once('include/pidfile.php');
 	require_once('include/Scrape.php');
+	require_once("include/socgraph.php");
 
 	load_config('config');
 	load_config('system');
@@ -54,10 +55,19 @@ function update_gcontact_run(&$argv, &$argc){
 	if (!$r)
 		return;
 
+	if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+		return;
+
 	$data = probe_url($r[0]["url"]);
 
-	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if ($r[0]["server_url"] != "")
+			poco_check_server($r[0]["server_url"], $r[0]["network"]);
+
+		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `id` = %d",
+			dbesc(datetime_convert()), intval($contact_id));
 		return;
+	}
 
 	if (($data["name"] == "") AND ($r[0]['name'] != ""))
 		$data["name"] = $r[0]['name'];
