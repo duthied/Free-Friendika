@@ -19,6 +19,10 @@ function replace_macros($s,$r) {
 
 	$stamp1 = microtime(true);
 
+	// "middleware": inject variables into templates
+	call_hooks("template_vars", $r);
+
+
 	$a = get_app();
 
 	$t = $a->template_engine();
@@ -1502,7 +1506,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		if($x) {
 			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
 		}
-	}		
+	}
 
 
 	// Look for spoiler
@@ -2314,14 +2318,14 @@ function deindent($text, $chr="[\t ]", $count=NULL) {
 	return implode("\n", $lines);
 }
 
-function formatBytes($bytes, $precision = 2) { 
-	 $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+function formatBytes($bytes, $precision = 2) {
+	 $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
-	$bytes = max($bytes, 0); 
-	$pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-	$pow = min($pow, count($units) - 1); 
+	$bytes = max($bytes, 0);
+	$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+	$pow = min($pow, count($units) - 1);
 
 	$bytes /= pow(1024, $pow);
 
-	return round($bytes, $precision) . ' ' . $units[$pow]; 
-} 
+	return round($bytes, $precision) . ' ' . $units[$pow];
+}
