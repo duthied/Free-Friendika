@@ -19,10 +19,6 @@ function replace_macros($s,$r) {
 
 	$stamp1 = microtime(true);
 
-	// "middleware": inject variables into templates
-	call_hooks("template_vars", $r);
-
-
 	$a = get_app();
 
 	$t = $a->template_engine();
