@@ -1,4 +1,5 @@
 <?php
+require_once "include/Photo.php";
 
 $install_wizard_pass=1;
 
@@ -84,15 +85,15 @@ function install_post(&$a) {
 				'$phpath' => $phpath,
 				'$adminmail' => $adminmail
 			));
-			
+
 
 			$result = file_put_contents('.htconfig.php', $txt);
 			if(! $result) {
 				$a->data['txt'] = $txt;
 			}
-			
+
 			$errors = load_database($db);
-			
+
 
 			if($errors)
 				$a->data['db_failed'] = $errors;
@@ -176,6 +177,8 @@ function install_content(&$a) {
 			$checks = array();
 
 			check_funcs($checks);
+
+			check_imagik($checks);
 
 			check_htconfig($checks);
 
@@ -428,8 +431,8 @@ function check_funcs(&$checks) {
 		$ck_funcs[5]['help']= t('Error: mcrypt PHP module required but not installed.');
 	}
 
-	
-	
+
+
 	$checks = array_merge($checks, $ck_funcs);
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
@@ -487,6 +490,23 @@ function check_htaccess(&$checks) {
 		check_add($checks, t('Url rewrite is working'), $status, true, $help);
 	} else {
 		// cannot check modrewrite if libcurl is not installed
+	}
+}
+
+function check_imagik(&$checks) {
+	$imagick = false;
+	$gif = false;
+
+	if (class_exists('Imagick')) {
+		$imagick = true;
+		$supported = Photo::supportedTypes();
+		if (array_key_exists('image/gif', $supported)) {
+			$gif = true;
+		}
+	}
+	check_add($checks, t('ImageMagick PHP extension is installed'), $imagick, false, "");
+	if ($imagick) {
+		check_add($checks, t('ImageMagick supports GIF'), $gif, false, "");
 	}
 }
 
