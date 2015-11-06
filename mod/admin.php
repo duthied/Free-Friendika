@@ -557,10 +557,10 @@ function admin_page_site_post(&$a){
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
 
-	
+
 	if ($rino==2 and !function_exists('mcrypt_create_iv')){
-		notice(t("RINO2 needs mcrypt php extension to work."));		
-	} else {	
+		notice(t("RINO2 needs mcrypt php extension to work."));
+	} else {
 		set_config('system','rino_encrypt', $rino);
 	}
 
@@ -1217,7 +1217,7 @@ function admin_page_plugins(&$a){
 	 * List plugins
 	 */
 
-    if (x($_GET,"a") && $_GET['a']=="r"){
+	if (x($_GET,"a") && $_GET['a']=="r"){
 		check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/plugins', 'admin_themes', 't');
 		reload_plugins();
 		info("Plugins reloaded");
@@ -1252,6 +1252,7 @@ function admin_page_plugins(&$a){
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
 		'$submit' => t('Save Settings'),
+		'$reload' => t('Reload active plugins'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
@@ -1438,6 +1439,22 @@ function admin_page_themes(&$a){
 		));
 	}
 
+
+	// reload active themes
+	if (x($_GET,"a") && $_GET['a']=="r"){
+		check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/themes', 'admin_themes', 't');
+		if ($themes) {
+			foreach($themes as $th) {
+				if ($th['allowed']) {
+					uninstall_theme($th['name']);
+					install_theme($th['name']);
+				}
+			}
+		}
+		info("Themes reloaded");
+		goaway($a->get_baseurl().'/admin/themes');
+	}
+
 	/**
 	 * List themes
 	 */
@@ -1449,11 +1466,13 @@ function admin_page_themes(&$a){
 		}
 	}
 
+
 	$t = get_markup_template("admin_plugins.tpl");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Themes'),
 		'$submit' => t('Save Settings'),
+		'$reload' => t('Reload active themes'),
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
