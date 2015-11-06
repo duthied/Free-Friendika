@@ -2301,6 +2301,8 @@ aside #id_password {
 .contact-entry-wrapper .contact-entry-photo-wrapper {
   float: left;
   margin-right: 10px;
+  width: 80px;
+  height: 80px;
 }
 .contact-entry-photo-wrapper {
   position: relative;
