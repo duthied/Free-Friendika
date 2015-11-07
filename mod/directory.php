@@ -152,6 +152,8 @@ function directory_content(&$a) {
 			else {
 				$location_e = $location;
 			}
+			
+			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
 
 			$entry = array(
 				'id' => $rr['id'],
@@ -168,6 +170,7 @@ function directory_content(&$a) {
 				'marital'  => $marital,
 				'homepage' => $homepage,
 				'about' => $about,
+				'photo_menu' => $photo_menu,
 
 			);
 
