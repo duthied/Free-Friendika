@@ -14,7 +14,8 @@ That means that you won't need to configure SSL at all - it will simply work out
 
 If that isn't your idea of doing things, read on...
 
-**Shared hosts**
+Shared hosts
+---
 
 If you are using a shared host on a domain of your own, your provider may well offer to obtain and install the certificate for you.
 You will then only need to apply and pay for it – and everything will be set up.
@@ -23,7 +24,8 @@ Just make sure the certificate is for the address that Friendica uses: e.g. myow
 
 The above ought to be the most common scenario for Friendica sites, making the rest of this article superfluous for most people.
 
-**Obtaining a certificate yourself**
+Obtaining a certificate yourself
+---
 
 Alternatively, a few shared hosting providers may ask you to obtain and upload the certificate yourself.
 
@@ -39,7 +41,8 @@ But for shared hosts, there will usually be an easy web tool for this.
 Note: Your certificate is usually restricted to one subdomain.
 When you apply for the certificate, make sure it’s for the domain and subdomain Friendica uses: e.g. myownfriendica.com or friendica.myserver.com.
 
-**Getting a free StartSSL certificate**
+Getting a free StartSSL certificate
+---
 
 StartSSL’s website attempts to guide you through the process of obtaining a free certificate, but some people end up frustrated.
 We really recommend working your way through the steps on the site very slowly and carefully.
@@ -62,7 +65,8 @@ These are sub.class1.server.ca.pem and ca.pem.
 If you have already overlooked this step, you can download those files here: http://www.startssl.com/?app=21
 But once again, the very best way of doing things is not to quit the StartSSL site until you are completely done and your https certificate is up and working.
 
-**Virtual private and dedicated servers (using StartSSL free)**
+Virtual private and dedicated servers (using StartSSL free)
+---
 
 The rest of this document is slightly more complicated, but it’s only for people running Friendica on a virtual private or dedicated server.
 Everyone else can stop reading at this point.
@@ -97,7 +101,8 @@ Don't redirect to SSL in your Apache settings.
 Friendica's own admin panel has a special setting for SSL policy.
 Please use this facility instead.
 
-**Mixing certificates on Apache – StartSSL and others (self-signed)**
+Mixing certificates on Apache – StartSSL and others (self-signed)
+---
 
 Many people using a virtual private or dedicated server will be running more than Friendica on it.
 They will probably want to use SSL for other sites they run on the server, too.
@@ -146,7 +151,8 @@ But if you're savvy about alternatives like that, you will probably be able to f
 
 Just restart Apache when you're done, whichever way you decide to do it.
 
-**StartSSL on Nginx**
+StartSSL on Nginx
+---
 
 First, update to the latest Friendica code.
 Then follow the above instructions to get your free certificate.
