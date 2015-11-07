@@ -324,7 +324,7 @@ function check_php(&$phpath, &$checks) {
 	$help = "";
 	if(!$passed) {
 		$help .= t('Could not find a command line version of PHP in the web server PATH.'). EOL;
-		$help .= t("If you don't have a command line version of PHP installed on server, you will not be able to run background polling via cron. See <a href='http://friendica.com/node/27'>'Activating scheduled tasks'</a>") . EOL ;
+		$help .= t("If you don't have a command line version of PHP installed on server, you will not be able to run background polling via cron. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-poller'>'Setup the poller'</a>") . EOL ;
 		$help .= EOL . EOL ;
 		$tpl = get_markup_template('field_input.tpl');
 		$help .= replace_macros($tpl, array(
@@ -431,9 +431,20 @@ function check_funcs(&$checks) {
 		$ck_funcs[5]['help']= t('Error: mcrypt PHP module required but not installed.');
 	}
 
-
-
 	$checks = array_merge($checks, $ck_funcs);
+
+	// check for 'mcrypt_create_iv()', needed for RINO2
+	if ($ck_funcs[5]['status']) {
+		if (function_exists('mcrypt_create_iv')) {
+			$__status = true;
+			$__help = "If you are using php_cli, please make sure that mcrypt module is enabled in its config file";
+		} else {
+			$__status = false;
+			$__help = t('Function mcrypt_create_iv() is not defined. This is needed to enable RINO2 encryption layer.');
+		}
+		check_add($checks, t('mcrypt_create_iv() function'), $__status, false, $__help);
+	}
+
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
 		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
@@ -509,6 +520,7 @@ function check_imagik(&$checks) {
 		check_add($checks, t('ImageMagick supports GIF'), $gif, false, "");
 	}
 }
+
 
 
 function manual_config(&$a) {
