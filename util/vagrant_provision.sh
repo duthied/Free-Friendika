@@ -39,7 +39,10 @@ sudo service apache2 restart
 #Install php
 echo ">>> Installing PHP5"
 sudo apt-get install -y php5 libapache2-mod-php5 php5-cli php5-mysql php5-curl php5-gd
+sudo apt-get install -y Imagick
+sudo apt-get install -y php5-imagick
 sudo service apache2 restart
+
 
 #Install mysql
 echo ">>> Installing Mysql"
