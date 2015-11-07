@@ -62,10 +62,10 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 		}
 
 		// "middleware": inject variables into templates
-		$arr = [
+		$arr = array(
 			"template"=> basename($s->filename),
 			"vars" => $r
-		];
+		);
 		call_hooks("template_vars", $arr);
 		$r = $arr['vars'];
 
