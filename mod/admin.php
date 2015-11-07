@@ -47,12 +47,35 @@ function admin_post(&$a){
 				return; // NOTREACHED
 				break;
 			case 'themes':
+				if ($a->argc < 2) {
+					if(is_ajax()) return;
+					goaway($a->get_baseurl(true) . '/admin/' );
+					return;
+				}
+
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")){
-					require_once("view/theme/$theme/config.php");
-					if (function_exists("theme_admin_post")){
-						theme_admin_post($a);
+					function __call_theme_admin_post(&$a, $theme) {
+						$orig_theme = $a->theme;
+						$orig_page = $a->page;
+						$orig_session_theme = $_SESSION['theme'];
+						require_once("view/theme/$theme/theme.php");
+						require_once("view/theme/$theme/config.php");
+						$_SESSION['theme'] = $theme;
+
+
+						$init = $theme."_init";
+						if(function_exists($init)) $init($a);
+						if(function_exists("theme_admin_post")){
+							$admin_form = theme_admin_post($a);
+						}
+
+						$_SESSION['theme'] = $orig_session_theme;
+						$a->theme = $orig_theme;
+						$a->page = $orig_page;
+						return $admin_form;
 					}
+					__call_theme_admin_post($a, $theme);
 				}
 				info(t('Theme settings updated.'));
 				if(is_ajax()) return;
@@ -1405,11 +1428,27 @@ function admin_page_themes(&$a){
 
 		$admin_form="";
 		if (is_file("view/theme/$theme/config.php")){
-			require_once("view/theme/$theme/config.php");
-			if(function_exists("theme_admin")){
-				$admin_form = theme_admin($a);
-			}
+			function __get_theme_admin_form(&$a, $theme) {
+				$orig_theme = $a->theme;
+				$orig_page = $a->page;
+				$orig_session_theme = $_SESSION['theme'];
+				require_once("view/theme/$theme/theme.php");
+				require_once("view/theme/$theme/config.php");
+				$_SESSION['theme'] = $theme;
 
+
+				$init = $theme."_init";
+				if(function_exists($init)) $init($a);
+				if(function_exists("theme_admin")){
+					$admin_form = theme_admin($a);
+				}
+
+				$_SESSION['theme'] = $orig_session_theme;
+				$a->theme = $orig_theme;
+				$a->page = $orig_page;
+				return $admin_form;
+			}
+			$admin_form = __get_theme_admin_form($a, $theme);
 		}
 
 		$screenshot = array( get_theme_screenshot($theme), t('Screenshot'));
