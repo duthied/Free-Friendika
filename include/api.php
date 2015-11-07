@@ -562,8 +562,10 @@
 			$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 				dbesc(normalise_link($item['author-link'])));
 		} else if ($item["author-link"].$item["author-name"] != $author[0]["url"].$author[0]["name"]) {
-			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE url = '%s'",
-			dbesc($item["author-name"]), dbesc($item["author-avatar"]), dbesc(normalise_link($item["author-link"])));
+			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE (`name` != '%s' OR `avatar` != '%s') AND url = '%s'",
+			dbesc($item["author-name"]), dbesc($item["author-avatar"]),
+			dbesc($item["author-name"]), dbesc($item["author-avatar"]),
+			dbesc(normalise_link($item["author-link"])));
 		}
 
 		$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
@@ -576,8 +578,10 @@
 			$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
 				dbesc(normalise_link($item['owner-link'])));
 		} else if ($item["owner-link"].$item["owner-name"] != $owner[0]["url"].$owner[0]["name"]) {
-			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE url = '%s'",
-			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]), dbesc(normalise_link($item["owner-link"])));
+			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE (`name` != '%s' OR `avatar` != '%s') AND url = '%s'",
+			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
+			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
+			dbesc(normalise_link($item["owner-link"])));
 		}
 
 		// Comments in threads may appear as wall-to-wall postings.
@@ -914,14 +918,18 @@
 
 		logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
 
+		if ($type == "raw")
+			$privacy_sql = "AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''";
+		else
+			$privacy_sql = "";
+
 		// get last public wall message
 		$lastwall = q("SELECT `item`.*, `i`.`contact-id` as `reply_uid`, `i`.`author-link` AS `item-author`
 				FROM `item`, `item` as `i`
 				WHERE `item`.`contact-id` = %d AND `item`.`uid` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
-					AND `item`.`type`!='activity'
-					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
+					AND `item`.`type`!='activity' $privacy_sql
 				ORDER BY `item`.`created` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
@@ -967,7 +975,7 @@
 				$in_reply_to_screen_name = NULL;
 			}
 
-			$converted = api_convert_item($item);
+			$converted = api_convert_item($lastwall);
 
 			$status_info = array(
 				'created_at' => api_date($lastwall['created']),
@@ -1012,6 +1020,8 @@
 			unset($status_info["user"]["uid"]);
 			unset($status_info["user"]["self"]);
 		}
+
+		logger('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
 
 		if ($type == "raw")
 			return($status_info);
@@ -1076,7 +1086,7 @@
 				}
 			}
 
-			$converted = api_convert_item($item);
+			$converted = api_convert_item($lastwall);
 
 			$user_info['status'] = array(
 				'text' => $converted["text"],
@@ -2877,8 +2887,8 @@ function api_get_nick($profile) {
 	//}
 
 	if ($nick != "") {
-		q("UPDATE unique_contacts SET nick = '%s' WHERE url = '%s'",
-			dbesc($nick), dbesc(normalise_link($profile)));
+		q("UPDATE unique_contacts SET nick = '%s' WHERE `nick` != '%s' AND url = '%s'",
+			dbesc($nick), dbesc($nick), dbesc(normalise_link($profile)));
 		return($nick);
 	}
 
