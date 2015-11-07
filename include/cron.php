@@ -151,9 +151,10 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		update_suggestions();
+		proc_run('php',"include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
+
 		proc_run('php','include/expire.php');
 	}
 
