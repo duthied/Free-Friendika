@@ -168,25 +168,6 @@ Now you need to merge the files:
 
 	cat ssl.crt sub.class1.server.ca.pem > ssl.crt
 
-In some configurations there is a bug, and this doesn't quite work properly.
-You may now need to edit ssl.crt, so:
-
-	nano /foo/bar/ssl.crt
-
-You'll see two certificates in the same file.
-Halfway down, you may see:
-
-	-----END CERTIFICATE----------BEGIN CERTIFICATE-----
-
-This is bad. You need to see:
-
-	-----END CERTIFICATE-----
-	-----BEGIN CERTIFICATE-----
-
-You can enter the carriage return manually if the bug is present on your system.
-Note there is a single carriage return for -----BEGIN CERTIFICATE----- to start on a new line.
-There is no empty line.
-
 Now you need to tell Nginx about the certs.
 
 In /etc/nginx/sites-available/foo.com.conf you need something like:
