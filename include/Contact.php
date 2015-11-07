@@ -144,7 +144,7 @@ function terminate_friendship($user,$self,$contact) {
 // and we won't waste any more time trying to communicate with them.
 // This provides for the possibility that their database is temporarily messed
 // up or some other transient event and that there's a possibility we could recover from it.
- 
+
 if(! function_exists('mark_for_death')) {
 function mark_for_death($contact) {
 
@@ -166,7 +166,7 @@ function mark_for_death($contact) {
 		$expiry = $contact['term-date'] . ' + 32 days ';
 		if(datetime_convert() > datetime_convert('UTC','UTC',$expiry)) {
 
-			// relationship is really truly dead. 
+			// relationship is really truly dead.
 			// archive them rather than delete
 			// though if the owner tries to unarchive them we'll start the whole process over again
 
@@ -326,15 +326,19 @@ function contact_photo_menu($contact) {
 	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
 
 
+	/**
+	 * menu array:
+	 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
+	 */
 	$menu = Array(
-		'status' => array(t("View Status"), $status_link),
-		'profile' => array(t("View Profile"), $profile_link),
-		'photos' => array(t("View Photos"), $photos_link),
-		'network' => array(t("Network Posts"), $posts_link),
-		'edit' => array(t("Edit Contact"), $contact_url),
-		'drop' => array(t("Drop Contact"), $contact_drop_link),
-		'pm' => array(t("Send PM"), $pm_url),
-		'poke' => array(t("Poke"), $poke_link),
+		'status' => array(t("View Status"), $status_link, true),
+		'profile' => array(t("View Profile"), $profile_link, true),
+		'photos' => array(t("View Photos"), $photos_link,true),
+		'network' => array(t("Network Posts"), $posts_link,false),
+		'edit' => array(t("Edit Contact"), $contact_url, false),
+		'drop' => array(t("Drop Contact"), $contact_drop_link, false),
+		'pm' => array(t("Send PM"), $pm_url, false),
+		'poke' => array(t("Poke"), $poke_link, false),
 	);
 
 
@@ -342,31 +346,11 @@ function contact_photo_menu($contact) {
 
 	call_hooks('contact_photo_menu', $args);
 
-/*	$o = "";
-	foreach($menu as $k=>$v){
-		if ($v!="") {
-			if(($k !== t("Network Posts")) && ($k !== t("Send PM")) && ($k !== t('Edit Contact')))
-				$o .= "<li><a target=\"redir\" href=\"$v\">$k</a></li>\n";
-			else
-				$o .= "<li><a href=\"$v\">$k</a></li>\n";
-		}
-	}
-	return $o;*/
-
-	foreach($menu as $k=>$v){
-		if ($v[1]!="") {
-			if(($v[0] !== t("Network Posts")) && ($v[0] !== t("Send PM")) && ($v[0] !== t('Edit Contact')))
-				$menu[$k][2] = 1;
-			else
-				$menu[$k][2] = 0;
-		}
-	}
-
 	$menucondensed = array();
 
-	foreach ($menu AS $menuitem)
+	foreach ($menu AS $menuname=>$menuitem)
 		if ($menuitem[1] != "")
-			$menucondensed[] = $menuitem;
+			$menucondensed[$menuname] = $menuitem;
 
 	return $menucondensed;
 }}
