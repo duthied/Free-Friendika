@@ -51,7 +51,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 		if ($discover_user) {
 			$j = new stdClass();
-			$j->total = $count[0]["total"];
+			$j->total = 1;
 			$j->items_page = 1;
 			$j->page = $a->pager['page'];
 
