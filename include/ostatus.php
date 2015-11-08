@@ -705,8 +705,8 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		$no_of_items = sizeof($items);
 
 		if (@is_array($conv_as->items))
-			foreach ($conv_as->items AS $item)
-				$items[$item->id] = $item;
+			foreach ($conv_as->items AS $single_item)
+				$items[$single_item->id] = $single_item;
 
 		if ($no_of_items == sizeof($items))
 			break;
