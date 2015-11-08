@@ -27,7 +27,6 @@ function nav(&$a) {
 
 	$a->page['nav'] .= replace_macros($tpl, array(
 		'$baseurl' => $a->get_baseurl(),
-		'$langselector' => lang_selector(),
 		'$sitelocation' => $nav_info['sitelocation'],
 		'$nav' => $nav_info['nav'],
 		'$banner' =>  $nav_info['banner'],
@@ -48,7 +47,7 @@ function nav_info(&$a) {
 
 	/**
 	 *
-	 * Our network is distributed, and as you visit friends some of the 
+	 * Our network is distributed, and as you visit friends some of the
 	 * sites look exactly the same - it isn't always easy to know where you are.
 	 * Display the current site location as a navigation aid.
 	 *
@@ -207,7 +206,7 @@ function nav_info(&$a) {
 
 	$banner = get_config('system','banner');
 
-	if($banner === false) 
+	if($banner === false)
 		$banner .= '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
 
 	call_hooks('nav_info', $nav);
@@ -224,7 +223,7 @@ function nav_info(&$a) {
 
 /*
  * Set a menu item in navbar as selected
- * 
+ *
  */
 function nav_set_selected($item){
 	$a = get_app();
