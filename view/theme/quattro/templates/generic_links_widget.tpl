@@ -4,7 +4,6 @@
 
 	<ul role="menu">
 		{{foreach $items as $item}}
-			{{$item|var_dump}}
 			<li role="menuitem" class="tool {{if $item.selected}}selected{{/if}}"><a href="{{$item.url}}" {{if $item.accesskey}}accesskey="{{$item.accesskey}}"{{/if}} class="link">{{$item.label}}</a></li>
 		{{/foreach}}
 	</ul>
