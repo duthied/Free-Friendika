@@ -88,20 +88,17 @@ function ping_init(&$a) {
 		if ( $network )
 		{
 			# Find out how unseen network posts are spread across groups
-			$sql = "SELECT g.id, g.name, count(i.id) gm
-				FROM `group` g, group_member gm, item i
-				WHERE g.uid = %d
-				  AND i.uid = %d
-				  AND i.unseen AND i.visible
-				  AND NOT i.deleted
-				  AND i.`contact-id` = gm.`contact-id`
-				  AND gm.gid = g.id GROUP BY g.id";
+			$sql = "SELECT g.id, g.name, count(i.id) count " .
+				"FROM `group` g, group_member gm, item i " .
+				"WHERE g.uid = %d " .
+				"AND i.uid = %d " .
+				"AND i.unseen AND i.visible " .
+				"AND NOT i.deleted " .
+				"AND i.`contact-id` = gm.`contact-id` " .
+				"AND gm.gid = g.id GROUP BY g.id";
 			#echo '<SQL id="' . intval(local_user()) . '">' . $sql . '</SQL>';
-			$r = q(sql, intval(local_user()), intval(local_user()));
-			#echo $r;
-			foreach ($r as $it) {
-				$network_group[] = $it;
-			}
+			$network_group = q($sql, intval(local_user()), intval(local_user()));
+			#echo '<COUNT R="' . count($network_group) . '"/>';
 		}
 
 		$intros1 = q("SELECT  `intro`.`id`, `intro`.`datetime`,
@@ -223,11 +220,11 @@ function ping_init(&$a) {
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
 		if ( count($network_group) ) {
-			echo '<groups uid="' . intval(local_user()) . '">';
+			echo '<group_posts>';
 			foreach ($network_group as $it) {
 				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
 			}
-			echo "</groups>";
+			echo "</group_posts>";
 		}
 
 		echo "<all-events>$all_events</all-events>
