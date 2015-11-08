@@ -40,9 +40,9 @@ function fbrowser_content($a){
 					dbesc('Contact Photos'),
 					dbesc( t('Contact Photos'))
 				);
-				// anon functions only from 5.3.0... meglio tardi che mai..
-				$folder1 = function($el) use ($mode) {return array(bin2hex($el['album']),$el['album']);};
-				$albums = array_map( $folder1 , $albums);
+
+				function _map_folder1($el){return array(bin2hex($el['album']),$el['album']);};
+				$albums = array_map( "_map_folder1" , $albums);
 
 			}
 
@@ -62,7 +62,7 @@ function fbrowser_content($a){
 				dbesc( t('Contact Photos'))
 			);
 
-			function files1($rr){
+			function _map_files1($rr){
 				global $a;
 				$types = Photo::supportedTypes();
 				$ext = $types[$rr['type']];
@@ -75,12 +75,12 @@ function fbrowser_content($a){
 				}
 
 				return array(
-					$a->get_baseurl() . '/photo/' . $rr['resource-id'] . '.' .$ext,
+					$a->get_baseurl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
 					$a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $rr['loq'] . '.'. $ext
 				);
 			}
-			$files = array_map("files1", $r);
+			$files = array_map("_map_files1", $r);
 
 			$tpl = get_markup_template($template_file);
 
@@ -102,7 +102,7 @@ function fbrowser_content($a){
 					intval(local_user())
 				);
 
-				function files2($rr){ global $a;
+				function _map_files2($rr){ global $a;
 					list($m1,$m2) = explode("/",$rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 
@@ -115,8 +115,7 @@ function fbrowser_content($a){
 
 					return array( $a->get_baseurl() . '/attach/' . $rr['id'], $filename_e, $a->get_baseurl() . '/images/icons/16/' . $filetype . '.png');
 				}
-				$files = array_map("files2", $files);
-				//echo "<pre>"; var_dump($files); killme();
+				$files = array_map("_map_files2", $files);
 
 
 				$tpl = get_markup_template($template_file);
