@@ -153,7 +153,7 @@
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
 
 		/* nav update event  */
-		$('nav').bind('nav-update', function(e,data){;
+		$('nav').bind('nav-update', function(e,data){
 			var invalid = $(data).find('invalid').text();
 			if(invalid == 1) { window.location.href=window.location.href }
 
