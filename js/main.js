@@ -203,6 +203,13 @@
 			var birthdaystoday = $(data).find('birthdays-today').text();
 			if(birthdaystoday == 0) { $('#birthdays-update').removeClass('notif-birthdays-today') } else { $('#birthdays-update').addClass('notif-birthdays-today') }
 
+			$(".sidebar-group-li .notify").removeClass("show");
+			$(data).find("group").each(function() {
+				var gid = this.id;
+				var gcount = this.innerHTML;
+				$(".group-"+gid+" .notify").addClass("show").text(gcount);
+			});
+
 
 			var eNotif = $(data).find('notif')
 

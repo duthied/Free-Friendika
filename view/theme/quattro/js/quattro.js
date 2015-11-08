@@ -4,7 +4,7 @@ $(document).ready(function(){
 		var intro = $(data).find('intro').text();
 		var mail = $(data).find('mail').text();
 
-		$("tool notify").removeClass("on");
+		$(".tool .notify").removeClass("on");
 		$(data).find("group").each(function() {
 			var gid = this.id;
 			var gcount = this.innerHTML;
