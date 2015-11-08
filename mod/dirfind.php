@@ -25,13 +25,19 @@ function dirfind_init(&$a) {
 function dirfind_content(&$a, $prefix = "") {
 
 	$community = false;
+	$discover_user = false;
 
 	$local = get_config('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
 
-	if(strpos($search,'@') === 0)
+	if(strpos($search,'@') === 0) {
 		$search = substr($search,1);
+		if (valid_email($search)) {
+			$user_data = probe_url($search);
+			$discover_user = (in_array($user_data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)));
+		}
+	}
 
 	if(strpos($search,'!') === 0) {
 		$search = substr($search,1);
@@ -42,7 +48,32 @@ function dirfind_content(&$a, $prefix = "") {
 
 	if($search) {
 
-		if ($local) {
+		if ($discover_user) {
+			$j = new stdClass();
+			$j->total = $count[0]["total"];
+			$j->items_page = 1;
+			$j->page = $a->pager['page'];
+
+			$objresult = new stdClass();
+			$objresult->cid = 0;
+			$objresult->name = $user_data["name"];
+			$objresult->addr = $user_data["addr"];
+			$objresult->url = $user_data["url"];
+			$objresult->photo = $user_data["photo"];
+			$objresult->tags = "";
+			$objresult->network = $user_data["network"];
+
+			$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+					dbesc(normalise_link($user_data["url"])), intval(local_user()));
+			if ($contact)
+				$objresult->cid = $contact[0]["id"];
+
+
+			$j->results[] = $objresult;
+
+			poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
+				"", "", "", "", "", datetime_convert(), 0);
+		} elseif ($local) {
 
 			if ($community)
 				$extra_sql = " AND `community`";
