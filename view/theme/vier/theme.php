@@ -86,6 +86,14 @@ function cmtBbOpen(id) {
 function cmtBbClose(id) {
 	$("#comment-edit-bb-" + id).hide();
 }
+
+$(document).ready(function() {
+	$(".mobile-aside-toggle a").click(function(e){
+		e.preventDefault();
+		$("aside").toggleClass("show");
+	});
+});
+
 </script>
 EOT;
 
