@@ -220,11 +220,11 @@ function ping_init(&$a) {
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
 		if ( count($network_group) ) {
-			echo '<group_posts>';
+			echo '<groups>';
 			foreach ($network_group as $it) {
 				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
 			}
-			echo "</group_posts>";
+			echo "</groups>";
 		}
 
 		echo "<all-events>$all_events</all-events>
