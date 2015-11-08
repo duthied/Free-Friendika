@@ -603,18 +603,7 @@ function admin_page_site_post(&$a){
 function admin_page_site(&$a) {
 
 	/* Installed langs */
-	$lang_choices = array();
-	$langs = glob('view/*/strings.php'); /**/
-
-	if(is_array($langs) && count($langs)) {
-		if(! in_array('view/en/strings.php',$langs))
-			$langs[] = 'view/en/';
-		asort($langs);
-		foreach($langs as $l) {
-			$t = explode("/",$l);
-			$lang_choices[$t[1]] = $t[1];
-		}
-	}
+	$lang_choices = get_avaiable_languages();
 
 	if (strlen(get_config('system','directory_submit_url')) AND
 		!strlen(get_config('system','directory'))) {

@@ -1738,50 +1738,6 @@ function unamp($s) {
 }}
 
 
-
-
-if(! function_exists('lang_selector')) {
-/**
- * get html for language selector
- * @global string $lang
- * @return string
- * @template lang_selector.tpl
- */
-function lang_selector() {
-	global $lang;
-
-	$langs = glob('view/*/strings.php');
-
-	$lang_options = array();
-	$selected = "";
-
-	if(is_array($langs) && count($langs)) {
-		$langs[] = '';
-		if(! in_array('view/en/strings.php',$langs))
-			$langs[] = 'view/en/';
-		asort($langs);
-		foreach($langs as $l) {
-			if($l == '') {
-				$lang_options[""] = t('default');
-				continue;
-			}
-			$ll = substr($l,5);
-			$ll = substr($ll,0,strrpos($ll,'/'));
-			$selected = (($ll === $lang && (x($_SESSION, 'language'))) ? $ll : $selected);
-			$lang_options[$ll]=$ll;
-		}
-	}
-
-	$tpl = get_markup_template("lang_selector.tpl");
-	$o = replace_macros($tpl, array(
-		'$title' => t('Select an alternate language'),
-		'$langs' => array($lang_options, $selected),
-
-	));
-	return $o;
-}}
-
-
 if(! function_exists('return_bytes')) {
 /**
  * return number of bytes in size (K, M, G)
