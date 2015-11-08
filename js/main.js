@@ -872,7 +872,7 @@ var Dialog = {
 	 * to the event handler
 	 */
 	doFileBrowser : function (name, id) {
-		var url = Dialog._get_url("image",name,id);
+		var url = Dialog._get_url("file",name,id);
 		return Dialog.show(url);
 	},
 
