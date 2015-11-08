@@ -7,8 +7,9 @@ function message_init(&$a) {
 
 	$tabs = '';
 
-	if (is_numeric($a->argv[1]))
+	if ($a->argc >1 && is_numeric($a->argv[1])) {
 	 $tabs = render_messages(get_messages(local_user(),0,5), 'mail_list.tpl');
+	}
 
 	$new = array(
 		'label' => t('New Message'),
