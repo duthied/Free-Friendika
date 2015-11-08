@@ -1020,8 +1020,9 @@ if(! function_exists('valid_email')) {
  */
 function valid_email($x){
 
-	if(get_config('system','disable_email_validation'))
-		return true;
+	// Removed because Fabio told me so.
+	//if(get_config('system','disable_email_validation'))
+	//	return true;
 
 	if(preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/',$x))
 		return true;
