@@ -33,7 +33,8 @@ function dirfind_content(&$a, $prefix = "") {
 
 	if(strpos($search,'@') === 0) {
 		$search = substr($search,1);
-		if (valid_email($search)) {
+		if ((valid_email($search) AND validate_email($search)) OR
+			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = probe_url($search);
 			$discover_user = (in_array($user_data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)));
 		}
