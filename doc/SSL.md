@@ -100,7 +100,7 @@ Web server settings
 Visit the [Mozilla's wiki](https://wiki.mozilla.org/Security/Server_Side_TLS) for instructions on how to configure a secure webserver.
 They provide recommendations for [different web servers](https://wiki.mozilla.org/Security/Server_Side_TLS#Recommended_Server_Configurations).
 
-Test you server SSL settings
+Test your SSL settings
 ---
 
 When you are done, visit the test site [SSL Labs](https://www.ssllabs.com/ssltest/) to have them check if you succeeded.
