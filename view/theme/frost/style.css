@@ -4146,5 +4146,9 @@ ul.notifications-menu-popup {
 	margin-left: 40px;
 	width: 130px;
 }
-
-
+#message-preview .mail-list-sender, #message-preview .mail-list-delete {
+	display:none;
+}
+#message-preview .mail-list-outside-wrapper {
+	margin-top: 20px;
+}

@@ -3476,5 +3476,9 @@ ul.menu-popup {
 .videos .video-top-wrapper:hover .video-delete {
   opacity: 1;
 }
-
-
+#message-preview .mail-list-sender-url, #message-preview .mail-list-delete {
+	display: none;
+}
+#message-preview .mail-list-outside-wrapper {
+	margin-top: 20px;
+}
