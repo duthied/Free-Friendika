@@ -24,7 +24,7 @@ body, section, nav .nav-menu, div.pager, ul.tabs {
 }
 
 nav {
-  min-width: 480px;
+  min-width: 100%;
 }
 
 .wall-item-container .wall-item-content {
@@ -87,4 +87,30 @@ nav ul {
 .wall-item-container.thread_level_6 .wall-item-content,
 .wall-item-container.thread_level_7 .wall-item-content {
   max-width: 100%;
+}
+
+/* aside in/out */
+.mobile-aside-toggle {
+	display: block !important;
+}
+.mobile-aside-toggle a {
+	line-height: 35px;
+	padding: 0 10px;
+}
+.mobile-aside-toggle a i {
+	font-size: 22px;
+	color: #CCC;
+}
+
+aside {
+	display: block;
+	position: absolute;
+	max-width: 400px;
+	width: 80%;
+	left: -100%;
+	transition: left 0.5s;
+}
+
+aside.show {
+	left: 0;
 }
