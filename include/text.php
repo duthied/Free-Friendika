@@ -1020,8 +1020,9 @@ if(! function_exists('valid_email')) {
  */
 function valid_email($x){
 
-	if(get_config('system','disable_email_validation'))
-		return true;
+	// Removed because Fabio told me so.
+	//if(get_config('system','disable_email_validation'))
+	//	return true;
 
 	if(preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/',$x))
 		return true;
@@ -1735,50 +1736,6 @@ if(! function_exists('unamp')) {
  */
 function unamp($s) {
 	return str_replace('&amp;', '&', $s);
-}}
-
-
-
-
-if(! function_exists('lang_selector')) {
-/**
- * get html for language selector
- * @global string $lang
- * @return string
- * @template lang_selector.tpl
- */
-function lang_selector() {
-	global $lang;
-
-	$langs = glob('view/*/strings.php');
-
-	$lang_options = array();
-	$selected = "";
-
-	if(is_array($langs) && count($langs)) {
-		$langs[] = '';
-		if(! in_array('view/en/strings.php',$langs))
-			$langs[] = 'view/en/';
-		asort($langs);
-		foreach($langs as $l) {
-			if($l == '') {
-				$lang_options[""] = t('default');
-				continue;
-			}
-			$ll = substr($l,5);
-			$ll = substr($ll,0,strrpos($ll,'/'));
-			$selected = (($ll === $lang && (x($_SESSION, 'language'))) ? $ll : $selected);
-			$lang_options[$ll]=$ll;
-		}
-	}
-
-	$tpl = get_markup_template("lang_selector.tpl");
-	$o = replace_macros($tpl, array(
-		'$title' => t('Select an alternate language'),
-		'$langs' => array($lang_options, $selected),
-
-	));
-	return $o;
 }}
 
 

@@ -3037,3 +3037,8 @@ a.mail-list-link {
 
 /* upload/select popup */
 .fbrowser.image .photo-album-image-wrapper { margin-left: 10px; }
+ #message-preview { margin-top: 15px; }
+ #message-preview span { width: 100%; }
+ #message-preview .mail-count, #message-preview .mail-delete { display:none; }
+ #message-preview .mail-list-wrapper { padding: 3px; }
+ #message-preview .mail-date { opacity:0.6; font-size:10px; }

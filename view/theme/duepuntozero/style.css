@@ -2713,12 +2713,6 @@ aside input[type='text'] {
 	margin-bottom: 15px;
 }
 
-#language-selector {
-	position: absolute;
-	top: 0px;
-	left: 16px;
-}
-
 #group-members {
 	margin-top: 20px;
 	padding: 10px;
@@ -2888,19 +2882,6 @@ aside input[type='text'] {
 	text-decoration: underline;
 }
 
-#lang-select-icon {
-	cursor: pointer;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	opacity: 0.2;
-	filter:alpha(opacity=20);
-}
-
-#lang-select-icon:hover {
-	opacity: 1;
-	filter:alpha(opacity=100);
-}
 
 .notif-image {
 	height: 80px;
@@ -3495,5 +3476,9 @@ ul.menu-popup {
 .videos .video-top-wrapper:hover .video-delete {
   opacity: 1;
 }
-
-
+#message-preview .mail-list-sender-url, #message-preview .mail-list-delete {
+	display: none;
+}
+#message-preview .mail-list-outside-wrapper {
+	margin-top: 20px;
+}
