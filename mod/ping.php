@@ -33,6 +33,7 @@ function ping_init(&$a) {
 
 		$home = 0;
 		$network = 0;
+		$network_group = array();
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
 				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
@@ -81,6 +82,25 @@ function ping_init(&$a) {
 								$posts[] = $it;
 						}
 				}
+			}
+		}
+
+		if ( $network )
+		{
+			# Find out how unseen network posts are spread across groups
+			$sql = "SELECT g.id, g.name, count(i.id) gm
+				FROM `group` g, group_member gm, item i
+				WHERE g.uid = %d
+				  AND i.uid = %d
+				  AND i.unseen AND i.visible
+				  AND NOT i.deleted
+				  AND i.`contact-id` = gm.`contact-id`
+				  AND gm.gid = g.id GROUP BY g.id";
+			#echo '<SQL id="' . intval(local_user()) . '">' . $sql . '</SQL>';
+			$r = q(sql, intval(local_user()), intval(local_user()));
+			#echo $r;
+			foreach ($r as $it) {
+				$network_group[] = $it;
 			}
 		}
 
@@ -202,6 +222,13 @@ function ping_init(&$a) {
 				<net>$network</net>
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
+		if ( count($network_group) ) {
+			echo '<groups uid="' . intval(local_user()) . '">';
+			foreach ($network_group as $it) {
+				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
+			}
+			echo "</groups>";
+		}
 
 		echo "<all-events>$all_events</all-events>
 			<all-events-today>$all_events_today</all-events-today>
