@@ -104,10 +104,9 @@
 .shashape.nolike:before{
     content: "C";
 }
-/*  uppercase D is not defined at the moment
- .shashape.download:before{
+ .shashape.hash:before{
     content: "D";
-}*/
+}
 .shashape.arrow7:before{
     content: "E";
 }
@@ -138,16 +137,15 @@
 .shashape.arrow-right:before{
     content: "N";
 }
-.shashape.arrow-up:before{
+.shashape.admin:before{
     content: "O";
 }
 .shashape.arrow-down:before{
     content: "P";
 }
-/* uppercase Q is not defined
-.shashape.skip:before{
+.shashape.arrow-up:before{
     content: "Q";
-}*/
+}
 .shashape.request:before{
     content: "R";
 }
@@ -181,6 +179,15 @@
 .shashape.arrow-doublerigh:before{
     content: "=";
 }
-.shahsape.arrow-doubleright2:before{
+.shashape.arrow-doubleright2:before{
     content: "/";
+}
+.shashape.edit:before{
+    content: "<";
+}
+.shashape.eye-open:before{
+    content: ":";
+}
+.shashape.eye-closed:before{
+    content: ";";
 }
