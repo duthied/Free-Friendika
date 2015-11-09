@@ -525,6 +525,7 @@ if(! function_exists('get_events')) {
 function advanced_profile(&$a) {
 
 	$o = '';
+	$uid = $a->profile['uid'];
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
 		'$title' => t('Profile')
@@ -603,6 +604,13 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['work'])) $profile['work'] = array( t('Work/employment:'), $txt);
 
 		if($txt = prepare_text($a->profile['education'])) $profile['education'] = array( t('School/education:'), $txt );
+	
+		//show subcribed forum if it is enabled in the usersettings
+		if (feature_enabled($uid,'forumlist_profile')) {
+			require_once('include/forums.php');
+			$show_forumlist = true;
+			$profile['forumlist'] = array( t('Forums:'), forumlist_profile_advanced($uid));
+		}
 
 		if ($a->profile['uid'] == local_user())
 			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
