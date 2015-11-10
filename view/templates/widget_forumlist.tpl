@@ -18,7 +18,7 @@ function showHideForumlist() {
 
 	{{foreach $forums as $forum}}
 		{{if $forum.id <= $visible_forums}}
-		<div class="forum-widget-entry" id="forum-widget-entry role="menuitem">
+		<div class="forum-widget-entry" id="forum-widget-entry" role="menuitem">
 			<a href="{{$forum.external_url}}" title="{{$forum.link_desc}}" class="label sparkle" target="_blank">
 				<img class="forumlist-img" src="{{$forum.micro}}" alt="{{$forum.link_desc}}" />
 			</a>
