@@ -269,7 +269,7 @@ div.pager {
 /* global */
 body {
 /*  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; */
-  font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif;
+  font-family: system,-apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Helvetica,Arial,sans-serif;
   font-size: 14px;
   /* font-size: 13px;
   line-height: 19.5px; */
@@ -366,6 +366,17 @@ code {
 #sidebar-group-list .tool:hover {
 	background: #EEE;
 }
+#sidebar-group-list .notify {
+	min-width: 10px;
+	text-align: center;
+	color: #FFF;
+	background-color: #CB4437;
+	font: bold 10px Arial;
+	padding: 3px;
+	border-radius: 10px;
+	display: none;
+}
+#sidebar-group-list .notify.show { display: inline-block; }
 .tool .label {
 /*  float: left; */
 }
@@ -1360,12 +1371,12 @@ section.minimal {
   width: 100%;
   margin-bottom: 0.3em;
 }
-.wall-item-container .wall-item-actions-social, 
+.wall-item-container .wall-item-actions-social,
 .wall-item-container .wall-item-actions-isevent {
   float: left;
   margin-bottom: 1px;
 }
-.wall-item-container .wall-item-actions-social a, 
+.wall-item-container .wall-item-actions-social a,
 .wall-item-container .wall-item-actions-isevent a {
   float: left;
   margin-right: 1em;
@@ -2287,7 +2298,7 @@ aside #id_password {
   width: 120px;
   height: 130px;
   float: left;
-  overflow: hidden; 
+  overflow: hidden;
   margin-left: 5px;
 }*/
 

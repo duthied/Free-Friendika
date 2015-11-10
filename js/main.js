@@ -153,7 +153,7 @@
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
 
 		/* nav update event  */
-		$('nav').bind('nav-update', function(e,data){;
+		$('nav').bind('nav-update', function(e,data){
 			var invalid = $(data).find('invalid').text();
 			if(invalid == 1) { window.location.href=window.location.href }
 
@@ -202,6 +202,13 @@
 
 			var birthdaystoday = $(data).find('birthdays-today').text();
 			if(birthdaystoday == 0) { $('#birthdays-update').removeClass('notif-birthdays-today') } else { $('#birthdays-update').addClass('notif-birthdays-today') }
+
+			$(".sidebar-group-li .notify").removeClass("show");
+			$(data).find("group").each(function() {
+				var gid = this.id;
+				var gcount = this.innerHTML;
+				$(".group-"+gid+" .notify").addClass("show").text(gcount);
+			});
 
 
 			var eNotif = $(data).find('notif')

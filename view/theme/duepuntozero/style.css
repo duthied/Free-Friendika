@@ -2039,6 +2039,17 @@ a.mail-list-link {
 #sidebar-group-list ul {
 	list-style-type: none;
 }
+.sidebar-group-li .notify {
+	display: none;
+	font-size: 9px;
+	border: 1px solid rgb(221, 221, 221);
+	padding: 2px;
+	float: right;
+	background-color: #BABDB6;
+}
+.sidebar-group-li .notify.show {
+	display: block;
+}
 
 #sidebar-group-list .icon, #sidebar-group-list .iconspacer {
 	display: inline-block;

@@ -615,58 +615,60 @@ function admin_page_site(&$a) {
 	$theme_choices = array();
 	$theme_choices_mobile = array();
 	$theme_choices_mobile["---"] = t("No special theme for mobile devices");
-	$files = glob('view/theme/*');
+	$files = glob('view/theme/*'); /**/
 	if($files) {
 		foreach($files as $file) {
+			if (intval(file_exists($file . '/unsupported')))
+				continue;
+
 			$f = basename($file);
 			$theme_name = ((file_exists($file . '/experimental')) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
 			if (file_exists($file . '/mobile')) {
 				$theme_choices_mobile[$f] = $theme_name;
-			}
-		else {
+			} else {
 				$theme_choices[$f] = $theme_name;
 			}
 		}
-		}
+	}
 
-		/* Community page style */
-		$community_page_style_choices = array(
-			CP_NO_COMMUNITY_PAGE => t("No community page"),
-			CP_USERS_ON_SERVER => t("Public postings from users of this site"),
-			CP_GLOBAL_COMMUNITY => t("Global community page")
-			);
+	/* Community page style */
+	$community_page_style_choices = array(
+		CP_NO_COMMUNITY_PAGE => t("No community page"),
+		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
+		CP_GLOBAL_COMMUNITY => t("Global community page")
+		);
 
-		/* OStatus conversation poll choices */
-		$ostatus_poll_choices = array(
-			"-2" => t("Never"),
-			"-1" => t("At post arrival"),
-			"0" => t("Frequently"),
-			"60" => t("Hourly"),
-			"720" => t("Twice daily"),
-			"1440" => t("Daily")
-			);
+	/* OStatus conversation poll choices */
+	$ostatus_poll_choices = array(
+		"-2" => t("Never"),
+		"-1" => t("At post arrival"),
+		"0" => t("Frequently"),
+		"60" => t("Hourly"),
+		"720" => t("Twice daily"),
+		"1440" => t("Daily")
+		);
 
-		$poco_discovery_choices = array(
-			"0" => t("Disabled"),
-			"1" => t("Users"),
-			"2" => t("Users, Global Contacts"),
-			"3" => t("Users, Global Contacts/fallback"),
-			);
+	$poco_discovery_choices = array(
+		"0" => t("Disabled"),
+		"1" => t("Users"),
+		"2" => t("Users, Global Contacts"),
+		"3" => t("Users, Global Contacts/fallback"),
+		);
 
-		$poco_discovery_since_choices = array(
-			"30" => t("One month"),
-			"91" => t("Three months"),
-			"182" => t("Half a year"),
-			"365" => t("One year"),
-			);
+	$poco_discovery_since_choices = array(
+		"30" => t("One month"),
+		"91" => t("Three months"),
+		"182" => t("Half a year"),
+		"365" => t("One year"),
+		);
 
-		/* get user names to make the install a personal install of X */
-		$user_names = array();
-		$user_names['---'] = t('Multi user instance');
-		$users = q("SELECT username, nickname FROM `user`");
-		foreach ($users as $user) {
-			$user_names[$user['nickname']] = $user['username'];
-		}
+	/* get user names to make the install a personal install of X */
+	$user_names = array();
+	$user_names['---'] = t('Multi user instance');
+	$users = q("SELECT username, nickname FROM `user`");
+	foreach ($users as $user) {
+		$user_names[$user['nickname']] = $user['username'];
+	}
 
 	/* Banner */
 	$banner = get_config('system','banner');
