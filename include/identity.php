@@ -1,4 +1,9 @@
 <?php
+/*
+ * @file include/identity.php
+ */
+
+require_once('include/forums.php');
 
 
 /**
@@ -607,8 +612,6 @@ function advanced_profile(&$a) {
 	
 		//show subcribed forum if it is enabled in the usersettings
 		if (feature_enabled($uid,'forumlist_profile')) {
-			require_once('include/forums.php');
-			$show_forumlist = true;
 			$profile['forumlist'] = array( t('Forums:'), forumlist_profile_advanced($uid));
 		}
 
