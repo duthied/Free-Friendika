@@ -5,11 +5,11 @@
 @font-face {
     font-family: 'ShaShape';
     src: url('friendica_shashape.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
 }
 .shashape {
     font-family: ShaShape;
+    font-weight: normal;
+    font-style: normal;
 }
 .shashape.friendica:before {
     content: "3";
@@ -47,7 +47,7 @@
 .shashape.star:before{
     content: "k";
 }
-.shashape.heart:before{
+.shashape.star-full:before{
     content: "l";
 }
 .shashape.message:before{
@@ -78,11 +78,11 @@
     content: "u";
 }
 .shashape.logout:before,
-.shashape.loggedin:before{
+.shashape.logged-in:before{
     content: "v";
 }
 .shashape.login:before,
-.shashape.loggedout:before{
+.shashape.logged-out:before{
     content: "w";
 }
 .shashape.delete:before{
@@ -104,9 +104,10 @@
 .shashape.nolike:before{
     content: "C";
 }
+/* uppercase D is not defined at the moment
  .shashape.hash:before{
     content: "D";
-}
+} */
 .shashape.arrow7:before{
     content: "E";
 }
@@ -128,15 +129,17 @@
 .shashape.arrow-updown:before{
     content: "K";
 }
+/* uppercase L is not defined at the moment
 .shashape.lock:before{
     content: "L";
-}
+} */
 .shashape.arrow-left:before{
     content: "M";
 }
 .shashape.arrow-right:before{
     content: "N";
 }
+.shashape.setting2:before,
 .shashape.admin:before{
     content: "O";
 }
@@ -173,21 +176,43 @@
 .shashape.arrow-updown3:before{
     content: "Z";
 }
-.shashape.arrow-doubleup:before {
-    content: "?";
+.shashape.hash:before{
+    content: "/";
 }
-.shashape.arrow-doublerigh:before{
+.shashape.tag:before{
     content: "=";
 }
-.shashape.arrow-doubleright2:before{
-    content: "/";
+.shashape.lock-open:before{
+    content: "?";
+}
+.shashape.lock-closed:before{
+    content: ")";
+}
+.shashape.yes:before{
+    content: "+";
+}
+.shashape.hmm:before{
+    content: ",";
+}
+.shashape.no:before{
+    content: "-";
+}
+.shashape.blank:before{
+    content: ".";
+}
+.shashape.see:before{
+    content: ":";
+}
+.shashape.blind:before{
+    content: ";";
 }
 .shashape.edit:before{
     content: "<";
 }
-.shashape.eye-open:before{
-    content: ":";
+.shashape.stamp:before{
+    content: ">";
 }
-.shashape.eye-closed:before{
-    content: ";";
+.shashape.heart:before{
+    content: "_";
 }
+
