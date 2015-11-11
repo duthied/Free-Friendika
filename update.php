@@ -1662,7 +1662,7 @@ function update_1188() {
 
 function update_1190() {
 
-	require_once('/include/plugins.php');
+	require_once('include/plugins.php');
 
 	if (plugin_enabled('forumlist')) {
 		$plugin = 'forumlist';
