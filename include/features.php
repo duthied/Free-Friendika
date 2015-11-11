@@ -38,7 +38,7 @@ function get_features() {
 		'widgets' => array(
 			t('Network Sidebar Widgets'),
 			array('archives',	t('Search by Date'),			t('Ability to select posts by date ranges')),
-			array('forumlist',	t('List Forums'),			t('Enable widget to display the forums your are connected with')),
+			array('forumlist_widget', t('List Forums'),			t('Enable widget to display the forums your are connected with')),
 			array('groups',		t('Group Filter'),			t('Enable widget to display Network posts only from selected group')),
 			array('networks',	t('Network Filter'),			t('Enable widget to display Network posts only from selected network')),
 			array('savedsearch',	t('Saved Searches'),			t('Save search terms for re-use')),

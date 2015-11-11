@@ -64,7 +64,7 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
  */
 function widget_forumlist($a) {
 
-	if(! intval(feature_enabled(local_user(),'forumlist')))
+	if(! intval(feature_enabled(local_user(),'forumlist_widget')))
 		return;
 
 	$o = '';
