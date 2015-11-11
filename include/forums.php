@@ -53,7 +53,7 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 }
 
 
-/*
+/**
  * @brief forumlist widget
  * 
  * Sidebar widget to show subcribed friendica forums. If activated
@@ -107,7 +107,7 @@ function widget_forumlist($a) {
 	return $o;
 }
 
-/*
+/**
  * @brief format forumlist as contact block
  * 
  * This function is used to show the forumlist in

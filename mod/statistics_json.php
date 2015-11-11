@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file mod/statistics_json.php
  */
 

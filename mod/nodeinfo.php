@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file mod/nodeinfo.php
  * 
  * Documentation: http://nodeinfo.diaspora.software/schema.html

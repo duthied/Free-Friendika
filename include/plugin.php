@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file include/identity.php
  */
 
@@ -107,7 +107,7 @@ function reload_plugins() {
 
 }}
 
-/*
+/**
  * @brief check if addon is enabled
  *
  * @param string $plugin

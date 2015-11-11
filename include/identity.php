@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file include/identity.php
  */
 
