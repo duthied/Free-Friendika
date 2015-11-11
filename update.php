@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1190 );
+define( 'UPDATE_VERSION' , 1191 );
 
 /**
  *
@@ -1658,4 +1658,52 @@ function update_1188() {
 	}
 
 	return UPDATE_SUCCESS;
+}
+
+function update_1190() {
+
+	require_once('/include/plugins.php');
+
+	if (plugin_enabled('forumlist')) {
+		$plugin = 'forumlist';
+		$plugins = get_config('system','addon');
+		$plugins_arr = array();
+		if($plugins) {
+			$plugins_arr = explode(',',str_replace(' ', '',$plugins));
+			$idx = array_search($plugin, $plugins_arr);
+			if ($idx !== false){
+				unset($plugins_arr[$idx]);
+				uninstall_plugin($plugin);
+				set_config('system','addon', implode(', ',$plugins_arr));
+			}
+		}
+	}
+
+	$r = q("SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%d' ",
+		dbesc('forumlist')
+);
+
+	foreach ($r as $rr) {
+		$uid = $rr['uid'];
+		$family = $rr['cat'];
+		$key = $rr['k'];
+		$value = $rr['v'];
+
+		if ($key === 'randomize')
+			del_pconfig($uid,$family,$key);
+
+		if ($key === 'show_on_profile') {
+			if ($value)
+				set_pconfig($uid,feature,forumlist_profile,$value);
+
+			del_pconfig($uid,$family,$key);
+		}
+
+		if ($key === 'show_on_network') {
+			if ($value)
+				set_pconfig($uid,feature,forumlist,$value);
+
+			del_pconfig($uid,$family,$key);
+		}
+	}
 }

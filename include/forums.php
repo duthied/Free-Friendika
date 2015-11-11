@@ -2,20 +2,20 @@
 
 /**
  * @file include/forums.php
- * @brief functions related to forum functionality * 
+ * @brief Functions related to forum functionality * 
  */
 
 
 /**
- * @brief function to list all forums a user is connected with
+ * @brief Function to list all forums a user is connected with
  * 
  * @param int $uid of the profile owner
  * @param boolean $showhidden
- *	show frorums which are not hidden
+ *	Show frorums which are not hidden
  * @param boolean $lastitem
- *	sort by lastitem
+ *	Sort by lastitem
  * @param boolean $showprivate
- *	show private groups
+ *	Show private groups
  * 
  * @returns array
  *	'url'	=> forum url
@@ -27,11 +27,11 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 
 	$forumlist = array();
 
-	$order = (($showhidden) ? '' : " AND `hidden` = 0 ");
+	$order = (($showhidden) ? '' : ' AND `hidden` = 0 ');
 	$order .= (($lastitem) ? ' ORDER BY `last-item` ASC ' : ' ORDER BY `name` ASC ');
-	$select = "`forum` = 1";
+	$select = '`forum` = 1';
 	if ($showprivate) {
-		$select = "( `forum` = 1 OR `prv` = 1 )";
+		$select = '( `forum` = 1 OR `prv` = 1 )';
 	}
 
 	$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro` FROM contact 
@@ -54,7 +54,7 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 
 
 /**
- * @brief forumlist widget
+ * @brief Forumlist widget
  * 
  * Sidebar widget to show subcribed friendica forums. If activated
  * in the settings, it appears at the notwork page sidebar
@@ -95,7 +95,7 @@ function widget_forumlist($a) {
 		$tpl = get_markup_template('widget_forumlist.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'$title'	=> t("Forums"),
+			'$title'	=> t('Forums'),
 			'$forums'	=> $entries,
 			'$link_desc'	=> t('External link to forum'),
 			'$total'	=> $total,
@@ -108,7 +108,7 @@ function widget_forumlist($a) {
 }
 
 /**
- * @brief format forumlist as contact block
+ * @brief Format forumlist as contact block
  * 
  * This function is used to show the forumlist in
  * the advanced profile.
