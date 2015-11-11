@@ -1,6 +1,8 @@
 <?php
 /*
-Documentation: http://nodeinfo.diaspora.software/schema.html
+ * @file mod/nodeinfo.php
+ * 
+ * Documentation: http://nodeinfo.diaspora.software/schema.html
 */
 
 require_once("include/plugin.php");

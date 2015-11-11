@@ -1,5 +1,9 @@
 <?php
-require_once("mod/nodeinfo.php");
+/*
+ * @file mod/statistics_json.php
+ */
+
+require_once("include/plugin.php");
 
 function statistics_json_init(&$a) {
 
