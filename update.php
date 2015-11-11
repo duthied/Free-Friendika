@@ -1681,7 +1681,7 @@ function update_1190() {
 
 	$r = q("SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%d' ",
 		dbesc('forumlist')
-);
+	);
 
 	foreach ($r as $rr) {
 		$uid = $rr['uid'];
