@@ -1,5 +1,7 @@
 <?php
-
+/*
+ * @file include/identity.php
+ */
 
 // install and uninstall plugin
 if (! function_exists('uninstall_plugin')){
@@ -105,7 +107,16 @@ function reload_plugins() {
 
 }}
 
-
+/*
+ * @brief check if addon is enabled
+ *
+ * @param string $plugin
+ * @return boolean
+ */
+function plugin_enabled($plugin) {
+	$r = q("SELECT * FROM `addon` WHERE `installed` = 1 AND `name` = '%s'", $plugin);
+	return((bool)(count($r) > 0));
+}
 
 
 

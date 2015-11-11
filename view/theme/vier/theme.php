@@ -284,49 +284,49 @@ function vier_community_info() {
 
 		$r = array();
 
-		if (nodeinfo_plugin_enabled("appnet"))
+		if (plugin_enabled("appnet"))
 			$r[] = array("photo" => "images/appnet.png", "name" => "App.net");
 
-		if (nodeinfo_plugin_enabled("buffer"))
+		if (plugin_enabled("buffer"))
 			$r[] = array("photo" => "images/buffer.png", "name" => "Buffer");
 
-		if (nodeinfo_plugin_enabled("blogger"))
+		if (plugin_enabled("blogger"))
 			$r[] = array("photo" => "images/blogger.png", "name" => "Blogger");
 
-		if (nodeinfo_plugin_enabled("dwpost"))
+		if (plugin_enabled("dwpost"))
 			$r[] = array("photo" => "images/dreamwidth.png", "name" => "Dreamwidth");
 
-		if (nodeinfo_plugin_enabled("fbpost"))
+		if (plugin_enabled("fbpost"))
 			$r[] = array("photo" => "images/facebook.png", "name" => "Facebook");
 
-		if (nodeinfo_plugin_enabled("ifttt"))
+		if (plugin_enabled("ifttt"))
 			$r[] = array("photo" => "addon/ifttt/ifttt.png", "name" => "IFTTT");
 
-		if (nodeinfo_plugin_enabled("statusnet"))
+		if (plugin_enabled("statusnet"))
 			$r[] = array("photo" => "images/gnusocial.png", "name" => "GNU Social");
 
-		if (nodeinfo_plugin_enabled("gpluspost"))
+		if (plugin_enabled("gpluspost"))
 			$r[] = array("photo" => "images/googleplus.png", "name" => "Google+");
 
-		//if (nodeinfo_plugin_enabled("ijpost"))
+		//if (plugin_enabled("ijpost"))
 		//	$r[] = array("photo" => "images/", "name" => "");
 
-		if (nodeinfo_plugin_enabled("libertree"))
+		if (plugin_enabled("libertree"))
 			$r[] = array("photo" => "images/libertree.png", "name" => "Libertree");
 
-		//if (nodeinfo_plugin_enabled("ljpost"))
+		//if (plugin_enabled("ljpost"))
 		//	$r[] = array("photo" => "images/", "name" => "");
 
-		if (nodeinfo_plugin_enabled("pumpio"))
+		if (plugin_enabled("pumpio"))
 			$r[] = array("photo" => "images/pumpio.png", "name" => "pump.io");
 
-		if (nodeinfo_plugin_enabled("tumblr"))
+		if (plugin_enabled("tumblr"))
 			$r[] = array("photo" => "images/tumblr.png", "name" => "Tumblr");
 
-		if (nodeinfo_plugin_enabled("twitter"))
+		if (plugin_enabled("twitter"))
 			$r[] = array("photo" => "images/twitter.png", "name" => "Twitter");
 
-		if (nodeinfo_plugin_enabled("wppost"))
+		if (plugin_enabled("wppost"))
 			$r[] = array("photo" => "images/wordpress", "name" => "Wordpress");
 
 		if(function_exists("imap_open") AND !get_config("system","imap_disabled") AND !get_config("system","dfrn_only"))
