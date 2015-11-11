@@ -33,7 +33,7 @@ function vier_init(&$a) {
 		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
 		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
 	}
-		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
+		#$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
 
 $a->page['htmlhead'] .= <<< EOT
 <link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
@@ -91,6 +91,9 @@ $(document).ready(function() {
 	$(".mobile-aside-toggle a").click(function(e){
 		e.preventDefault();
 		$("aside").toggleClass("show");
+	});
+	$(".tabs").click(function(e){
+		$(this).toggleClass("show");
 	});
 });
 
