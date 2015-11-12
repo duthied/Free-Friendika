@@ -1677,7 +1677,10 @@ function update_1190() {
 			$idx = array_search($plugin, $plugins_arr);
 			if ($idx !== false){
 				unset($plugins_arr[$idx]);
-				uninstall_plugin($plugin);
+				//delete forumlist manually from addon and hook table 
+				// since uninstall_plugin() don't work here
+				q("DELETE FROM `addon` WHERE `name` = 'forumlist' ");
+				q("DELETE FROM `hook` WHERE `file` = 'addon/forumlist/forumlist.php' ");
 				set_config('system','addon', implode(", ",$plugins_arr));
 			}
 		}
