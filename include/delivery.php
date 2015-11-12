@@ -342,8 +342,8 @@ function delivery_run(&$argv, &$argc){
 
 						// If we are setup as a soapbox we aren't accepting input from this person
 
-						if($x[0]['page-flags'] == PAGE_SOAPBOX)
-							break;
+						//if($x[0]['page-flags'] == PAGE_SOAPBOX)
+						//	break;
 
 						require_once('library/simplepie/simplepie.inc');
 						logger('mod-delivery: local delivery');
