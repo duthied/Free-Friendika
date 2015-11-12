@@ -104,7 +104,8 @@ nav ul {
 
 aside {
 	display: block;
-	position: absolute;
+	/* position: absolute; */
+	position: fixed;
 	max-width: 400px;
 	width: 80%;
 	left: -100%;
