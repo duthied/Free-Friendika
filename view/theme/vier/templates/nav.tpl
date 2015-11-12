@@ -9,7 +9,7 @@
 	<ul>
 		<li class="mobile-aside-toggle" style="display:none;">
 			<a href="#">
-				<i class="icons icon-list"></i>
+				<i class="icons icon-reorder"></i>
 			</a>
 		</li>
 		{{if $nav.home}}
