@@ -87,18 +87,28 @@ function cmtBbClose(id) {
 	$("#comment-edit-bb-" + id).hide();
 }
 
-$(document).ready(function() {
-	$(".mobile-aside-toggle a").click(function(e){
-		e.preventDefault();
-		$("aside").toggleClass("show");
-	});
-	$(".tabs").click(function(e){
-		$(this).toggleClass("show");
-	});
-});
+
 
 </script>
 EOT;
+
+
+if ($a->is_mobile || $a->is_tablet){
+	$a->page['htmlhead'] .= <<< EOT
+<script>
+	$(document).ready(function() {
+		$(".mobile-aside-toggle a").click(function(e){
+			e.preventDefault();
+			$("aside").toggleClass("show");
+		});
+		$(".tabs").click(function(e){
+			$(this).toggleClass("show");
+		});
+	});
+</script>
+EOT;
+}
+
 
 	// Hide the left menu bar
 	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",

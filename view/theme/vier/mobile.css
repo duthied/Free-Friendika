@@ -108,6 +108,9 @@ aside {
 	max-width: 400px;
 	width: 80%;
 	left: -100%;
+	-webkit-transition: left 0.5s;
+	-moz-transition: left 0.5s;
+	-o-transition: left 0.5s;
 	transition: left 0.5s;
 }
 
