@@ -734,10 +734,10 @@ function notifier_run(&$argv, &$argc){
 							$ssl_policy = get_config('system','ssl_policy');
 							fix_contact_ssl_policy($x[0],$ssl_policy);
 
-							// If we are setup as a soapbox we aren't accepting input from this person
+							// If we are setup as a soapbox we aren't accepting top level posts from this person
 
-							//if($x[0]['page-flags'] == PAGE_SOAPBOX)
-							//	break;
+							if (($x[0]['page-flags'] == PAGE_SOAPBOX) AND $top_level)
+								break;
 
 							require_once('library/simplepie/simplepie.inc');
 							logger('mod-delivery: local delivery');
