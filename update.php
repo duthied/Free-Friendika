@@ -1662,48 +1662,61 @@ function update_1188() {
 
 function update_1190() {
 
-	require_once('include/plugins.php');
+	require_once('include/plugin.php');
+
+	set_config('system', 'maintenance', 1);
 
 	if (plugin_enabled('forumlist')) {
 		$plugin = 'forumlist';
 		$plugins = get_config('system','addon');
 		$plugins_arr = array();
+
 		if($plugins) {
-			$plugins_arr = explode(',',str_replace(' ', '',$plugins));
+			$plugins_arr = explode(",",str_replace(" ", "",$plugins));
+
 			$idx = array_search($plugin, $plugins_arr);
 			if ($idx !== false){
 				unset($plugins_arr[$idx]);
 				uninstall_plugin($plugin);
-				set_config('system','addon', implode(', ',$plugins_arr));
+				set_config('system','addon', implode(", ",$plugins_arr));
 			}
 		}
 	}
 
-	$r = q("SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%d' ",
+	// select old formlist addon entries
+	$r = q("SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%s' ",
 		dbesc('forumlist')
 	);
 
-	foreach ($r as $rr) {
-		$uid = $rr['uid'];
-		$family = $rr['cat'];
-		$key = $rr['k'];
-		$value = $rr['v'];
+	// convert old forumlist addon entries in new config entries
+	if (count($r)) {
+		foreach ($r as $rr) {
+			$uid = $rr['uid'];
+			$family = $rr['cat'];
+			$key = $rr['k'];
+			$value = $rr['v'];
 
-		if ($key === 'randomize')
-			del_pconfig($uid,$family,$key);
+			if ($key === 'randomise')
+				del_pconfig($uid,$family,$key);
 
-		if ($key === 'show_on_profile') {
-			if ($value)
-				set_pconfig($uid,feature,forumlist_profile,$value);
+			if ($key === 'show_on_profile') {
+				if ($value)
+					set_pconfig($uid,feature,forumlist_profile,$value);
 
-			del_pconfig($uid,$family,$key);
-		}
+				del_pconfig($uid,$family,$key);
+			}
 
-		if ($key === 'show_on_network') {
-			if ($value)
-				set_pconfig($uid,feature,forumlist,$value);
+			if ($key === 'show_on_network') {
+				if ($value)
+					set_pconfig($uid,feature,forumlist_widget,$value);
 
-			del_pconfig($uid,$family,$key);
+				del_pconfig($uid,$family,$key);
+			}
 		}
 	}
+
+	set_config('system', 'maintenance', 0);
+
+	return UPDATE_SUCCESS;
+
 }
