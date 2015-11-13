@@ -20,6 +20,10 @@ function replace_macros($s,$r) {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
+	
+	// pass $baseurl to all templates
+	$r['$baseurl'] = $a->get_baseurl();
+	
 
 	$t = $a->template_engine();
 	try {
