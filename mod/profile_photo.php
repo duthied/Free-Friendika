@@ -99,15 +99,15 @@ function profile_photo_post(&$a) {
 					);
 
 					$r = q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
-						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-4'),
-						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-5'),
-						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-6'),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-4.' . $im->getExt()),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-5.' . $im->getExt()),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-6.' . $im->getExt()),
 						intval(local_user())
 					);
 				} else {
 					$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
-						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-4'),
-						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-5'),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-4.' . $im->getExt()),
+						dbesc($a->get_baseurl() . '/photo/' . $base_image['resource-id'] . '-5.' . $im->getExt()),
 						intval($_REQUEST['profile']),
 						intval(local_user())
 					);
