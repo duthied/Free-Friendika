@@ -11,6 +11,14 @@ function install_init(&$a){
 		echo "ok";
 		killme();
 	}
+	
+	// We overwrite current theme css, because during install we could not have a working mod_rewrite
+	// so we could not have a css at all. Here we set a static css file for the install procedure pages
+	$a->config['system']['theme'] = "../install";
+	$a->theme['stylesheet'] = $a->get_baseurl()."/view/install/style.css";
+	
+	
+	
 	global $install_wizard_pass;
 	if (x($_POST,'pass'))
 		$install_wizard_pass = intval($_POST['pass']);
