@@ -2381,6 +2381,19 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		$contact_updated = $photo_timestamp;
 
 		require_once("include/Photo.php");
+		$photos = import_profile_photo($photo_url,$contact['uid'],$contact['id']);
+
+		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
+			WHERE `uid` = %d AND `id` = %d",
+			dbesc(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			intval($contact['uid']),
+			intval($contact['id'])
+		);
+
+		/*
 		$photo_failure = false;
 		$have_photo = false;
 
@@ -2433,7 +2446,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 				intval($contact['uid']),
 				intval($contact['id'])
 			);
-		}
+		}*/
 	}
 
 	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
@@ -3119,6 +3132,21 @@ function local_delivery($importer,$data) {
 
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("include/Photo.php");
+
+		$photos = import_profile_photo($photo_url,$importer['importer_uid'],$importer['id']);
+
+		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
+			WHERE `uid` = %d AND `id` = %d",
+			dbesc(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			intval($importer['importer_uid']),
+			intval($importer['id'])
+		);
+
+
+		/*
 		$photo_failure = false;
 		$have_photo = false;
 
@@ -3171,7 +3199,7 @@ function local_delivery($importer,$data) {
 				intval($importer['importer_uid']),
 				intval($importer['id'])
 			);
-		}
+		} */
 	}
 
 	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
