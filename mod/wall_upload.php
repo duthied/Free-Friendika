@@ -16,10 +16,10 @@ function wall_upload_post(&$a, $desktopmode = true) {
 			);
 
 			if(! count($r)){
-				if ($r_json) { 
-                                    echo json_encode(array('error'=>t('Invalid request.'))); 
-                                    killme(); 
-                                }
+				if ($r_json) {
+				    echo json_encode(array('error'=>t('Invalid request.')));
+				    killme();
+				}
 				return;
 			}
 		} else {
@@ -29,10 +29,10 @@ function wall_upload_post(&$a, $desktopmode = true) {
 			);
 		}
 	} else {
-		if ($r_json) { 
-                    echo json_encode(array('error'=>t('Invalid request.'))); 
-                    killme(); 
-                }
+		if ($r_json) {
+		    echo json_encode(array('error'=>t('Invalid request.')));
+		    killme();
+		}
 		return;
 	}
 
@@ -73,18 +73,18 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 
 	if(! $can_post) {
-		if ($r_json) { 
-                    echo json_encode(array('error'=>t('Permission denied.'))); 
-                    killme(); 
-                }
+		if ($r_json) {
+		    echo json_encode(array('error'=>t('Permission denied.')));
+		    killme();
+		}
 		notice( t('Permission denied.') . EOL );
 		killme();
 	}
 
 	if(! x($_FILES,'userfile') && ! x($_FILES,'media')){
-		if ($r_json) { 
-                    echo json_encode(array('error'=>t('Invalid request.')));
-                }
+		if ($r_json) {
+		    echo json_encode(array('error'=>t('Invalid request.')));
+		}
 		killme();
 	}
 
@@ -118,10 +118,10 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	}
 
 	if ($src=="") {
-		if ($r_json) { 
-                    echo json_encode(array('error'=>t('Invalid request.')));
-                    killme();
-                }
+		if ($r_json) {
+		    echo json_encode(array('error'=>t('Invalid request.')));
+		    killme();
+		}
 		notice(t('Invalid request.').EOL);
 		killme();
 	}
@@ -243,9 +243,9 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo` WHERE `resource-id` = '%s' ORDER BY `width` DESC LIMIT 1", $hash);
 		if (!$r){
 			if ($r_json) {
-                            echo json_encode(array('error'=>''));
-                            killme();
-                        }
+			    echo json_encode(array('error'=>''));
+			    killme();
+			}
 			return false;
 		}
 		$picture = array();
@@ -260,16 +260,16 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		$picture["preview"] = $a->get_baseurl()."/photo/{$hash}-{$smallest}.".$ph->getExt();
 
 		if ($r_json) {
-                    echo json_encode(array('picture'=>$picture));
-                    killme();
-                }
+		    echo json_encode(array('picture'=>$picture));
+		    killme();
+		}
 		return $picture;
 	}
 
 	if ($r_json) {
-            echo json_encode(array('ok'=>true));
-            killme();
-        }
+	    echo json_encode(array('ok'=>true));
+	    killme();
+	}
 
 /* mod Waitman Gobble NO WARRANTY */
 
