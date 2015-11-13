@@ -2,7 +2,7 @@
 require_once("boot.php");
 require_once("include/text.php");
 
-define('NEW_UPDATE_ROUTINE_VERSION', 1191);
+define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /*
  * send the email and do what is needed to do on update fails
