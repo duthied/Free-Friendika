@@ -100,6 +100,9 @@ function register_post(&$a) {
 						 ). EOL
 				);
 			}
+		} else {
+			info( t('Registration successful.') . EOL ) ;
+			goaway(z_root());
 		}
 	}
 	elseif($a->config['register_policy'] == REGISTER_APPROVE) {
