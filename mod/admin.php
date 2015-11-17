@@ -121,15 +121,17 @@ function admin_content(&$a) {
 	/**
 	 * Side bar links
 	 */
-
+	$aside = Array();
 	// array( url, name, extra css classes )
-	$aside = Array(
+	// not part of $aside to make the template more adjustable
+	$asidesubpages = Array(
 		'site'	 =>	Array($a->get_baseurl(true)."/admin/site/", t("Site") , "site"),
 		'users'	 =>	Array($a->get_baseurl(true)."/admin/users/", t("Users") , "users"),
 		'plugins'=>	Array($a->get_baseurl(true)."/admin/plugins/", t("Plugins") , "plugins"),
 		'themes' =>	Array($a->get_baseurl(true)."/admin/themes/", t("Themes") , "themes"),
 		'dbsync' => 	Array($a->get_baseurl(true)."/admin/dbsync/", t('DB updates'), "dbsync"),
 		'queue'	 =>	Array($a->get_baseurl(true)."/admin/queue/", t('Inspect Queue'), "queue"),
+		'federation' => Array($a->get_baseurl(true)."/admin/federation/", t('Federation Statistics'), "federation"),
 		//'update' =>	Array($a->get_baseurl(true)."/admin/update/", t("Software Update") , "update")
 	);
 
@@ -150,7 +152,8 @@ function admin_content(&$a) {
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
-			'$admin' => $aside,
+	    '$admin' => $aside,
+	    '$subpages' => $asidesubpages,
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
 			'$logtxt' => t('Logs'),
@@ -192,6 +195,9 @@ function admin_content(&$a) {
 			case 'queue':
 			    	$o = admin_page_queue($a);
 				break;
+			case 'federation':
+			    	$o = admin_page_federation($a);
+				break;
 			default:
 				notice( t("Item not found.") );
 		}
@@ -208,6 +214,47 @@ function admin_content(&$a) {
 	}
 }
 
+/**
+ * Admin Federation Stats Page; display some numbers from gserver
+ * @param App $a
+ * returning string
+ */
+function admin_page_federation(&$a) {
+    // get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
+    // social and statusnet nodes this node is knowing
+    //
+    // We are looking for the following platforms in the DB, "Red" should find
+    // all variants of that platform ID string as the q() function is stripping
+    // off one % two of them are needed in the query
+    $platforms = array('Diaspora', 'Friendica', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
+    $counts = array();
+    foreach ($platforms as $p) {
+	// get a totaö count for the platform, the name and version of the
+	// highest version and the protocol tpe
+	$c = q('select count(*), platform, network, version from gserver where platform like "'.$p.'" and last_contact > last_failure order by version asc;');
+	// what versions for that platform do we know at all?
+	// again only the active nodes
+	$v = q('select count(*), version from gserver where last_contact > last_failure and platform like "'.$p.'" group by version order by version;');
+	// the 3rd array item is needed for the JavaScript graphs as JS does
+	// not like some characters in the names of variables...
+	$counts[$p]=array($c[0], $v, str_replace(array(' ','%'),'',$p));
+    }
+    // some helpful text
+    $intro = t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
+    $hint = t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
+    // load the template, replace the macros and return the page content
+    $t = get_markup_template("admin_federation.tpl");
+    return replace_macros($t, array(
+	'$title' => t('Administration'),
+	'$page' => t('Federation Statistics'),
+    	'$intro' => $intro,
+	'$hint' => $hint,
+	'$autoactive' => get_config('system', 'poco_completion'),
+	'$counts' => $counts,
+	'$version' => FRIENDICA_VERSION,
+	'$legendtext' => t('Currently this node is aware of nodes from the following platforms:'),
+    ));
+}
 /**
  * Admin Inspect Queue Page
  * @param App $a

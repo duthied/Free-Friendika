@@ -276,9 +276,15 @@ a {
 #poke-recip-label, #poke-action-label, #prvmail-message-label {
   margin: 10px 0 10px;
 }
+.version-match {
+    font-weight: bold;
+    color: #00a700;
+}
+ul.federation-stats,
 ul.credits {
   list-style: none;
 }
+ul.federation-stats li,
 ul.credits li {
   float: left;
   width: 240px;

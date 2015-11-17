@@ -10,14 +10,12 @@
 		});
 	});
 </script>
+
 <h4><a href="{{$admurl}}">{{$admtxt}}</a></h4>
 <ul class='admin linklist'>
-	<li class='admin link button {{$admin.site.2}}'><a href='{{$admin.site.0}}'>{{$admin.site.1}}</a></li>
-	<li class='admin link button {{$admin.users.2}}'><a href='{{$admin.users.0}}'>{{$admin.users.1}}</a><span id='pending-update' title='{{$h_pending}}'></span></li>
-	<li class='admin link button {{$admin.plugins.2}}'><a href='{{$admin.plugins.0}}'>{{$admin.plugins.1}}</a></li>
-	<li class='admin link button {{$admin.themes.2}}'><a href='{{$admin.themes.0}}'>{{$admin.themes.1}}</a></li>
-	<li class='admin link button {{$admin.dbsync.2}}'><a href='{{$admin.dbsync.0}}'>{{$admin.dbsync.1}}</a></li>
-	<li class='admin link button {{$admin.queue.2}}'><a href='{{$admin.queue.0}}'>{{$admin.queue.1}}</a></li>
+{{foreach $subpages as $page}}
+	<li class='admin link button {{$page.2}}'><a href='{{$page.0}}'>{{$page.1}}</a></li>
+{{/foreach}}
 </ul>
 
 {{if $admin.update}}
