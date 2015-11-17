@@ -112,6 +112,7 @@ function network_init(&$a) {
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 	require_once('include/items.php');
+	require_once('include/forums.php');
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
@@ -145,6 +146,7 @@ function network_init(&$a) {
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network',true,$group_id) : '');
+	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? widget_forumlist($a) : '');
 	$a->page['aside'] .= posted_date_widget($a->get_baseurl() . '/network',local_user(),false);
 	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
