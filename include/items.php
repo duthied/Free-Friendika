@@ -2384,7 +2384,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		$photos = import_profile_photo($photo_url,$contact['uid'],$contact['id']);
 
 		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-			WHERE `uid` = %d AND `id` = %d",
+			WHERE `uid` = %d AND `id` = %d AND NOT `self`",
 			dbesc(datetime_convert()),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
@@ -2403,7 +2403,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			intval($contact['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s'",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s' AND NOT `self`",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($contact['uid']),
@@ -3083,7 +3083,7 @@ function local_delivery($importer,$data) {
 		$photos = import_profile_photo($photo_url,$importer['importer_uid'],$importer['id']);
 
 		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-			WHERE `uid` = %d AND `id` = %d",
+			WHERE `uid` = %d AND `id` = %d AND NOT `self`",
 			dbesc(datetime_convert()),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
@@ -3102,7 +3102,7 @@ function local_delivery($importer,$data) {
 			intval($importer['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s'",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s' AND NOT `self`",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($importer['importer_uid']),
