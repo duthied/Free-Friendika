@@ -1,13 +1,13 @@
 <script>
 
 function showHideForumlist() {
-	if( $('#forum-widget-entry-extended').is(':visible')) {
-		$('#forum-widget-entry-extended').hide();
+	if( $("div[id^='forum-widget-entry-extended-']").is(':visible')) {
+		$("div[id^='forum-widget-entry-extended-']").hide();
 		$('#forum-widget-collapse').html(window.showMore);
 
 	}
 	else {
-		$('#forum-widget-entry-extended').show();
+		$("div[id^='forum-widget-entry-extended-']").show();
 		$('#forum-widget-collapse').html(window.showFewer);
 	}
 	}
