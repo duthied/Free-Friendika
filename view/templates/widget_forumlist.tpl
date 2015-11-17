@@ -1,13 +1,13 @@
 <script>
 
 function showHideForumlist() {
-	if( $('#forum-widget-entry-extended').is(':visible')) {
-		$('#forum-widget-entry-extended').hide();
+	if( $("div[id^='forum-widget-entry-extended-']").is(':visible')) {
+		$("div[id^='forum-widget-entry-extended-']").hide();
 		$('#forum-widget-collapse').html(window.showMore);
 
 	}
 	else {
-		$('#forum-widget-entry-extended').show();
+		$("div[id^='forum-widget-entry-extended-']").show();
 		$('#forum-widget-collapse').html(window.showFewer);
 	}
 	}
@@ -18,7 +18,7 @@ function showHideForumlist() {
 
 	{{foreach $forums as $forum}}
 		{{if $forum.id <= $visible_forums}}
-		<div class="forum-widget-entry" id="forum-widget-entry" role="menuitem">
+		<div class="forum-widget-entry" id="forum-widget-entry-{{$forum.id}}" role="menuitem">
 			<a href="{{$forum.external_url}}" title="{{$forum.link_desc}}" class="label sparkle" target="_blank">
 				<img class="forumlist-img" src="{{$forum.micro}}" alt="{{$forum.link_desc}}" />
 			</a>
@@ -27,7 +27,7 @@ function showHideForumlist() {
 		{{/if}}
 	
 		{{if $forum.id > $visible_forums}}
-		<div class="forum-widget-entry" id="forum-widget-entry-extended" role="menuitem" style="display: none;">
+		<div class="forum-widget-entry" id="forum-widget-entry-extended-{{$forum.id}}" role="menuitem" style="display: none;">
 			<a href="{{$forum.external_url}}" title="{{$forum.link_desc}}" class="label sparkle" target="_blank">
 				<img class="forumlist-img" src="{{$forum.micro}}" alt="{{$forum.link_desc}}" />
 			</a>

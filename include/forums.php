@@ -74,7 +74,7 @@ function widget_forumlist($a) {
 
 	$contacts = get_forumlist($a->user['uid'],true,$lastitem, true);
 	$total = count($contacts);
-	$visible_forums = 10;
+	$visible_forums = 1;
 
 	if(count($contacts)) {
 
