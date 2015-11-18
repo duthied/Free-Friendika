@@ -2,13 +2,13 @@
 
 /**
  * @file include/forums.php
- * @brief Functions related to forum functionality * 
+ * @brief Functions related to forum functionality *
  */
 
 
 /**
  * @brief Function to list all forums a user is connected with
- * 
+ *
  * @param int $uid of the profile owner
  * @param boolean $showhidden
  *	Show frorums which are not hidden
@@ -16,7 +16,7 @@
  *	Sort by lastitem
  * @param boolean $showprivate
  *	Show private groups
- * 
+ *
  * @returns array
  *	'url'	=> forum url
  *	'name'	=> forum name
@@ -27,16 +27,17 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 
 	$forumlist = array();
 
-	$order = (($showhidden) ? '' : ' AND `hidden` = 0 ');
-	$order .= (($lastitem) ? ' ORDER BY `last-item` ASC ' : ' ORDER BY `name` ASC ');
-	$select = '`forum` = 1';
+	$order = (($showhidden) ? '' : ' AND NOT `hidden` ');
+	$order .= (($lastitem) ? ' ORDER BY `last-item` DESC ' : ' ORDER BY `name` ASC ');
+	$select = '`forum` ';
 	if ($showprivate) {
-		$select = '( `forum` = 1 OR `prv` = 1 )';
+		$select = '(`forum` OR `prv`)';
 	}
 
-	$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro` FROM contact 
+	$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro` FROM `contact`
 			WHERE `network`= 'dfrn' AND $select AND `uid` = %d
-			AND `blocked` = 0 AND `hidden` = 0 AND `pending` = 0 AND `archive` = 0
+			AND NOT `blocked` AND NOT `hidden` AND NOT `pending` AND NOT `archive`
+			AND `success_update` > `failure_update`
 			$order ",
 			intval($uid)
 	);

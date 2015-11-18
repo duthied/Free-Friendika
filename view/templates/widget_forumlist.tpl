@@ -37,9 +37,9 @@ function showHideForumlist() {
 	{{/foreach}}
 
 	{{if $total > $visible_forums }}
-	<ul class="forum-widget-ul">
-		<li onclick="showHideForumlist(); return false;" id="forum-widget-collapse" class="fakelink tool">{{$showmore}}</li>
-	</ul>
+	<div id="forum-widget-showmore" class="forum-widget-entry" role="menuitem">
+		<a onclick="showHideForumlist(); return false;" id="forum-widget-collapse" class="forum-widget-link">{{$showmore}}</a>
+	</div>
 	{{/if}}
 
 </div>
