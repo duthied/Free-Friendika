@@ -23,6 +23,16 @@ Installation
 
         {access, register, [{deny, all}]}.
 
+- Enable BOSH:
+  - Enable the module "mod_http_bind"
+  - Edit this line:
+
+        {5280, ejabberd_http,    [captcha, http_poll, http_bind]}
+
+  - In your apache configuration for your site add this line:
+
+        ProxyPass /http-bind http://127.0.0.1:5280/http-bind retry=0
+
 - Restart your ejabberd service, you should be able to login with your friendica credentials
 
 Other hints
