@@ -55,7 +55,7 @@ But before you do, you can also *preview* the event in a pop-up box.
 
 ### Interaction with Events
 
-When you publish an event, you can choose who shall receive it, as with a regular new posting. The recipiants will see the posting about the event in their network-stream. Additionally it will be added to their calendar and thus be shown in their events overview page.
+When you publish an event, you can choose who shall receive it, as with a regular new posting. The recipients will see the posting about the event in their network-stream. Additionally it will be added to their calendar and thus be shown in their events overview page.
 
 Recipients of the event-posting can comment or dis-/like the event, as with a regular posting, but also announce that they will attend, not attend or may-be attend the event with a single click.
 
