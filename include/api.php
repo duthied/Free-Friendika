@@ -2849,15 +2849,29 @@ function api_share_as_retweet(&$item) {
 
 function api_get_nick($profile) {
 /* To-Do:
- - remove trailing jung from profile url
+ - remove trailing junk from profile url
  - pump.io check has to check the website
 */
 
 	$nick = "";
 
-	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
-	if ($friendica != $profile)
-		$nick = $friendica;
+	$r = q("SELECT `nick` FROM `gcontact` WHERE `nurl` = '%s'",
+		dbesc(normalise_link($profile)));
+	if ($r)
+		$nick = $r[0]["nick"];
+
+	if (!$nick == "") {
+		$r = q("SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
+			dbesc(normalise_link($profile)));
+		if ($r)
+			$nick = $r[0]["nick"];
+	}
+
+	if (!$nick == "") {
+		$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
+		if ($friendica != $profile)
+			$nick = $friendica;
+	}
 
 	if (!$nick == "") {
 		$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2", $profile);
