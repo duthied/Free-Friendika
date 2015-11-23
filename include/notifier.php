@@ -4,6 +4,7 @@ require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once("include/Scrape.php");
 require_once('include/diaspora.php');
+require_once("include/ostatus.php");
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -529,6 +530,7 @@ function notifier_run(&$argv, &$argc){
 		unset($photos);
 	} else {
 
+		//$slap = ostatus_salmon($target_item,$owner);
 		$slap = atom_entry($target_item,'html',null,$owner,false);
 
 		if($followup) {
@@ -569,6 +571,7 @@ function notifier_run(&$argv, &$argc){
 					$atom .= atom_entry($item,'text',null,$owner,true);
 
 				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
+					//$slaps[] = ostatus_salmon($item,$owner);
 					$slaps[] = atom_entry($item,'html',null,$owner,true);
 			}
 		}

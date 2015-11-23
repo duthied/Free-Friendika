@@ -1,5 +1,6 @@
 <?php
 require_once("boot.php");
+require_once("include/ostatus.php");
 
 function handle_pubsubhubbub() {
 	global $a, $db;
@@ -12,7 +13,8 @@ function handle_pubsubhubbub() {
 	$r = q("SELECT * FROM `push_subscriber` WHERE `push` > 0");
 
 	foreach($r as $rr) {
-		$params = get_feed_for($a, '', $rr['nickname'], $rr['last_update'], 0, true);
+		//$params = get_feed_for($a, '', $rr['nickname'], $rr['last_update'], 0, true);
+		$params = ostatus_feed($a, $rr['nickname'], $rr['last_update']);
 		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
 		$headers = array("Content-type: application/atom+xml",
