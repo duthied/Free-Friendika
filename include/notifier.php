@@ -530,8 +530,8 @@ function notifier_run(&$argv, &$argc){
 		unset($photos);
 	} else {
 
-		//$slap = ostatus_salmon($target_item,$owner);
-		$slap = atom_entry($target_item,'html',null,$owner,false);
+		$slap = ostatus_salmon($target_item,$owner);
+		//$slap = atom_entry($target_item,'html',null,$owner,false);
 
 		if($followup) {
 			foreach($items as $item) {  // there is only one item
@@ -571,8 +571,8 @@ function notifier_run(&$argv, &$argc){
 					$atom .= atom_entry($item,'text',null,$owner,true);
 
 				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
-					//$slaps[] = ostatus_salmon($item,$owner);
-					$slaps[] = atom_entry($item,'html',null,$owner,true);
+					$slaps[] = ostatus_salmon($item,$owner);
+					//$slaps[] = atom_entry($item,'html',null,$owner,true);
 			}
 		}
 	}

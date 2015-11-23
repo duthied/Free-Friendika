@@ -1078,11 +1078,11 @@ function ostatus_store_conversation($itemid, $conversation_url) {
 }
 
 function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
-	$element = $doc->createElement($element, $value);
+	$element = $doc->createElement($element, xmlify($value));
 
 	foreach ($attributes AS $key => $value) {
 		$attribute = $doc->createAttribute($key);
-		$attribute->value = $value;
+		$attribute->value = xmlify($value);
 		$element->appendChild($attribute);
 	}
 
@@ -1093,7 +1093,7 @@ function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
 	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-		intval($owner["user_uid"]));
+		intval($owner["uid"]));
 	if (!$r)
 		return;
 
@@ -1102,13 +1102,13 @@ function ostatus_add_header($doc, $owner) {
 	$root = $doc->createElementNS(NS_ATOM, 'feed');
 	$doc->appendChild($root);
 
-	$root->setAttributeNS(NS_ATOM, "xmlns:thr", NS_THR);
-	$root->setAttributeNS(NS_ATOM, "xmlns:georss", NS_GEORSS);
-	$root->setAttributeNS(NS_ATOM, "xmlns:activity", NS_ACTIVITY);
-	$root->setAttributeNS(NS_ATOM, "xmlns:media", NS_MEDIA);
-	$root->setAttributeNS(NS_ATOM, "xmlns:poco", NS_POCO);
-	$root->setAttributeNS(NS_ATOM, "xmlns:ostatus", NS_OSTATUS);
-	$root->setAttributeNS(NS_ATOM, "xmlns:statusnet", NS_STATUSNET);
+	$root->setAttribute("xmlns:thr", NS_THR);
+	$root->setAttribute("xmlns:georss", NS_GEORSS);
+	$root->setAttribute("xmlns:activity", NS_ACTIVITY);
+	$root->setAttribute("xmlns:media", NS_MEDIA);
+	$root->setAttribute("xmlns:poco", NS_POCO);
+	$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
+	$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
 	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
@@ -1269,7 +1269,7 @@ function ostatus_add_author($doc, $owner, $profile) {
 	}
 
 	xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
-	xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["user_uid"]));
+	xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
 
 	return $author;
 }
@@ -1283,16 +1283,16 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	} else {
 		$entry = $doc->createElementNS(NS_ATOM, "entry");
 
-		$entry->setAttributeNS(NS_ATOM, "xmlns:thr", NS_THR);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:georss", NS_GEORSS);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:activity", NS_ACTIVITY);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:media", NS_MEDIA);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:poco", NS_POCO);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:ostatus", NS_OSTATUS);
-		$entry->setAttributeNS(NS_ATOM, "xmlns:statusnet", NS_STATUSNET);
+		$entry->setAttribute("xmlns:thr", NS_THR);
+		$entry->setAttribute("xmlns:georss", NS_GEORSS);
+		$entry->setAttribute("xmlns:activity", NS_ACTIVITY);
+		$entry->setAttribute("xmlns:media", NS_MEDIA);
+		$entry->setAttribute("xmlns:poco", NS_POCO);
+		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
+		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-			intval($owner["user_uid"]));
+			intval($owner["uid"]));
 		if (!$r)
 			return;
 
@@ -1317,6 +1317,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 		$body = "[b]".$item['title']."[/b]\n\n".$body;
 
 	$body = bbcode($body, false, false, 7);
+
 	xml_add_element($doc, $entry, "content", $body, array("type" => "html"));
 
 	xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
@@ -1389,7 +1390,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 
 function ostatus_feed(&$a, $owner_nick, $last_update) {
 
-	$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+	$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
 			dbesc($owner_nick));
@@ -1413,7 +1414,7 @@ function ostatus_feed(&$a, $owner_nick, $last_update) {
 				AND (`item`.`owner-link` IN ('%s', '%s'))
 			ORDER BY `item`.`received` DESC
 			LIMIT 0, 300",
-			intval($owner["user_uid"]), dbesc($check_date),
+			intval($owner["uid"]), dbesc($check_date),
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
 			dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"]))
 		);

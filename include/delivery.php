@@ -392,8 +392,8 @@ function delivery_run(&$argv, &$argc){
 							continue;
 
 						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
-							//$slaps[] = ostatus_salmon($item,$owner);
-							$slaps[] = atom_entry($item,'html',null,$owner,true);
+							$slaps[] = ostatus_salmon($item,$owner);
+							//$slaps[] = atom_entry($item,'html',null,$owner,true);
 					}
 
 					logger('notifier: slapdelivery: ' . $contact['name']);
