@@ -285,7 +285,7 @@
 	 * Unique contact to contact url.
 	 */
 	function api_unique_id_to_url($id){
-		$r = q("SELECT url FROM unique_contacts WHERE id=%d LIMIT 1",
+		$r = q("SELECT `url` FROM `unique_contacts` WHERE `id`=%d LIMIT 1",
 			intval($id));
 		if ($r)
 			return ($r[0]["url"]);
@@ -390,9 +390,9 @@
 			$r = array();
 
 			if ($url != "")
-				$r = q("SELECT * FROM unique_contacts WHERE url='%s' LIMIT 1", $url);
+				$r = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1", $url);
 			elseif ($nick != "")
-				$r = q("SELECT * FROM unique_contacts WHERE nick='%s' LIMIT 1", $nick);
+				$r = q("SELECT * FROM `unique_contacts` WHERE `nick`='%s' LIMIT 1", $nick);
 
 			if ($r) {
 				// If no nick where given, extract it from the address
@@ -505,14 +505,14 @@
 		}
 
 		// Fetching unique id
-		$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
+		$r = q("SELECT id FROM `unique_contacts` WHERE `url`='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
 
 		// If not there, then add it
 		if (count($r) == 0) {
-			q("INSERT INTO unique_contacts (url, name, nick, avatar) VALUES ('%s', '%s', '%s', '%s')",
+			q("INSERT INTO `unique_contacts` (`url`, `name`, `nick`, `avatar`) VALUES ('%s', '%s', '%s', '%s')",
 				dbesc(normalise_link($uinfo[0]['url'])), dbesc($uinfo[0]['name']),dbesc($uinfo[0]['nick']), dbesc($uinfo[0]['micro']));
 
-			$r = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
+			$r = q("SELECT `id` FROM `unique_contacts` WHERE `url`='%s' LIMIT 1", dbesc(normalise_link($uinfo[0]['url'])));
 		}
 
 		$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
@@ -539,7 +539,8 @@
 			'verified' => true,
 			'statusnet_blocking' => false,
 			'notifications' => false,
-			'statusnet_profile_url' => $a->get_baseurl()."/contacts/".$uinfo[0]['cid'],
+			//'statusnet_profile_url' => $a->get_baseurl()."/contacts/".$uinfo[0]['cid'],
+			'statusnet_profile_url' => $uinfo[0]['url'],
 			'uid' => intval($uinfo[0]['uid']),
 			'cid' => intval($uinfo[0]['cid']),
 			'self' => $uinfo[0]['self'],
@@ -552,36 +553,44 @@
 
 	function api_item_get_user(&$a, $item) {
 
-		$author = q("SELECT * FROM unique_contacts WHERE url='%s' LIMIT 1",
+		$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
 			dbesc(normalise_link($item['author-link'])));
 
 		if (count($author) == 0) {
-			q("INSERT INTO unique_contacts (url, name, avatar) VALUES ('%s', '%s', '%s')",
-			dbesc(normalise_link($item["author-link"])), dbesc($item["author-name"]), dbesc($item["author-avatar"]));
+			q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`) VALUES ('%s', '%s', '%s')",
+				dbesc(normalise_link($item["author-link"])), dbesc($item["author-name"]), dbesc($item["author-avatar"]));
 
-			$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+			$author = q("SELECT `id` FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
 				dbesc(normalise_link($item['author-link'])));
 		} else if ($item["author-link"].$item["author-name"] != $author[0]["url"].$author[0]["name"]) {
-			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE (`name` != '%s' OR `avatar` != '%s') AND url = '%s'",
-			dbesc($item["author-name"]), dbesc($item["author-avatar"]),
-			dbesc($item["author-name"]), dbesc($item["author-avatar"]),
-			dbesc(normalise_link($item["author-link"])));
+			$r = q("SELECT `id` FROM `unique_contacts` WHERE `name` = '%s' AND `avatar` = '%s' AND url = '%s'",
+				dbesc($item["author-name"]), dbesc($item["author-avatar"]),
+				dbesc(normalise_link($item["author-link"])));
+
+			if (!$r)
+				q("UPDATE `unique_contacts` SET `name` = '%s', `avatar` = '%s' WHERE `url` = '%s'",
+					dbesc($item["author-name"]), dbesc($item["author-avatar"]),
+					dbesc(normalise_link($item["author-link"])));
 		}
 
-		$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+		$owner = q("SELECT `id` FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
 			dbesc(normalise_link($item['owner-link'])));
 
 		if (count($owner) == 0) {
-			q("INSERT INTO unique_contacts (url, name, avatar) VALUES ('%s', '%s', '%s')",
-			dbesc(normalise_link($item["owner-link"])), dbesc($item["owner-name"]), dbesc($item["owner-avatar"]));
+			q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`) VALUES ('%s', '%s', '%s')",
+				dbesc(normalise_link($item["owner-link"])), dbesc($item["owner-name"]), dbesc($item["owner-avatar"]));
 
-			$owner = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
+			$owner = q("SELECT `id` FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
 				dbesc(normalise_link($item['owner-link'])));
 		} else if ($item["owner-link"].$item["owner-name"] != $owner[0]["url"].$owner[0]["name"]) {
-			q("UPDATE unique_contacts SET name = '%s', avatar = '%s' WHERE (`name` != '%s' OR `avatar` != '%s') AND url = '%s'",
-			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
-			dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
-			dbesc(normalise_link($item["owner-link"])));
+			$r = q("SELECT `id` FROM `unique_contacts` WHERE `name` = '%s' AND `avatar` = '%s' AND url = '%s'",
+				dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
+				dbesc(normalise_link($item["owner-link"])));
+
+			if (!$r)
+				q("UPDATE `unique_contacts` SET `name` = '%s', `avatar` = '%s' WHERE `url` = '%s'",
+					dbesc($item["owner-name"]), dbesc($item["owner-avatar"]),
+					dbesc(normalise_link($item["owner-link"])));
 		}
 
 		// Comments in threads may appear as wall-to-wall postings.
@@ -952,7 +961,7 @@
 				$in_reply_to_status_id= intval($lastwall['parent']);
 				$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
 
-				$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($lastwall['item-author'])));
+				$r = q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($lastwall['item-author'])));
 				if ($r) {
 					if ($r[0]['nick'] == "")
 						$r[0]['nick'] = api_get_nick($r[0]["url"]);
@@ -1074,7 +1083,7 @@
 					$in_reply_to_status_id = intval($lastwall['parent']);
 					$in_reply_to_status_id_str = (string) intval($lastwall['parent']);
 
-					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($reply[0]['item-author'])));
+					$r = q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($reply[0]['item-author'])));
 					if ($r) {
 						if ($r[0]['nick'] == "")
 							$r[0]['nick'] = api_get_nick($r[0]["url"]);
@@ -1135,9 +1144,9 @@
 		$userlist = array();
 
 		if (isset($_GET["q"])) {
-			$r = q("SELECT id FROM unique_contacts WHERE name='%s'", dbesc($_GET["q"]));
+			$r = q("SELECT id FROM `unique_contacts` WHERE `name`='%s'", dbesc($_GET["q"]));
 			if (!count($r))
-				$r = q("SELECT id FROM unique_contacts WHERE nick='%s'", dbesc($_GET["q"]));
+				$r = q("SELECT `id` FROM `unique_contacts` WHERE `nick`='%s'", dbesc($_GET["q"]));
 
 			if (count($r)) {
 				foreach ($r AS $user) {
@@ -2180,7 +2189,7 @@
 					intval(api_user()),
 					intval($in_reply_to_status_id));
 				if ($r) {
-					$r = q("SELECT * FROM unique_contacts WHERE `url` = '%s'", dbesc(normalise_link($r[0]['author-link'])));
+					$r = q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($r[0]['author-link'])));
 
 					if ($r) {
 						if ($r[0]['nick'] == "")
@@ -2439,7 +2448,7 @@
 
 		$stringify_ids = (x($_REQUEST,'stringify_ids')?$_REQUEST['stringify_ids']:false);
 
-		$r = q("SELECT unique_contacts.id FROM contact, unique_contacts WHERE contact.nurl = unique_contacts.url AND `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
+		$r = q("SELECT `unique_contact`.`id` FROM contact, `unique_contacts` WHERE contact.nurl = unique_contacts.url AND `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
 			intval(api_user())
 		);
 
@@ -2841,15 +2850,29 @@ function api_share_as_retweet(&$item) {
 
 function api_get_nick($profile) {
 /* To-Do:
- - remove trailing jung from profile url
+ - remove trailing junk from profile url
  - pump.io check has to check the website
 */
 
 	$nick = "";
 
-	$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
-	if ($friendica != $profile)
-		$nick = $friendica;
+	$r = q("SELECT `nick` FROM `gcontact` WHERE `nurl` = '%s'",
+		dbesc(normalise_link($profile)));
+	if ($r)
+		$nick = $r[0]["nick"];
+
+	if (!$nick == "") {
+		$r = q("SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
+			dbesc(normalise_link($profile)));
+		if ($r)
+			$nick = $r[0]["nick"];
+	}
+
+	if (!$nick == "") {
+		$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
+		if ($friendica != $profile)
+			$nick = $friendica;
+	}
 
 	if (!$nick == "") {
 		$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2", $profile);
@@ -2887,7 +2910,7 @@ function api_get_nick($profile) {
 	//}
 
 	if ($nick != "") {
-		q("UPDATE unique_contacts SET nick = '%s' WHERE `nick` != '%s' AND url = '%s'",
+		q("UPDATE `unique_contacts` SET `nick` = '%s' WHERE `nick` != '%s' AND url = '%s'",
 			dbesc($nick), dbesc($nick), dbesc(normalise_link($profile)));
 		return($nick);
 	}

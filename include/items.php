@@ -2381,85 +2381,45 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		$contact_updated = $photo_timestamp;
 
 		require_once("include/Photo.php");
-		$photo_failure = false;
-		$have_photo = false;
+		$photos = import_profile_photo($photo_url,$contact['uid'],$contact['id']);
 
-		$r = q("SELECT `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d LIMIT 1",
-			intval($contact['id']),
-			intval($contact['uid'])
+		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
+			WHERE `uid` = %d AND `id` = %d AND NOT `self`",
+			dbesc(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			intval($contact['uid']),
+			intval($contact['id'])
 		);
-		if(count($r)) {
-			$resource_id = $r[0]['resource-id'];
-			$have_photo = true;
-		}
-		else {
-			$resource_id = photo_new_resource();
-		}
-
-		$img_str = fetch_url($photo_url,true);
-		// guess mimetype from headers or filename
-		$type = guess_image_type($photo_url,true);
-
-
-		$img = new Photo($img_str, $type);
-		if($img->is_valid()) {
-			if($have_photo) {
-				q("DELETE FROM `photo` WHERE `resource-id` = '%s' AND `contact-id` = %d AND `uid` = %d",
-					dbesc($resource_id),
-					intval($contact['id']),
-					intval($contact['uid'])
-				);
-			}
-
-			$img->scaleImageSquare(175);
-
-			$hash = $resource_id;
-			$r = $img->store($contact['uid'], $contact['id'], $hash, basename($photo_url), 'Contact Photos', 4);
-
-			$img->scaleImage(80);
-			$r = $img->store($contact['uid'], $contact['id'], $hash, basename($photo_url), 'Contact Photos', 5);
-
-			$img->scaleImage(48);
-			$r = $img->store($contact['uid'], $contact['id'], $hash, basename($photo_url), 'Contact Photos', 6);
-
-			$a = get_app();
-
-			q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-				WHERE `uid` = %d AND `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-4.'.$img->getExt()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-5.'.$img->getExt()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-6.'.$img->getExt()),
-				intval($contact['uid']),
-				intval($contact['id'])
-			);
-		}
 	}
 
 	if((is_array($contact)) && ($name_updated) && (strlen($new_name)) && ($name_updated > $contact['name-date'])) {
 		if ($name_updated > $contact_updated)
 			$contact_updated = $name_updated;
 
-		$r = q("select * from contact where uid = %d and id = %d limit 1",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 			intval($contact['uid']),
 			intval($contact['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s' AND NOT `self`",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($contact['uid']),
-			intval($contact['id'])
+			intval($contact['id']),
+			dbesc(notags(trim($new_name)))
 		);
 
 		// do our best to update the name on content items
 
-		if(count($r)) {
-			q("update item set `author-name` = '%s' where `author-name` = '%s' and `author-link` = '%s' and uid = %d",
+		if(count($r) AND (notags(trim($new_name)) != $r[0]['name'])) {
+			q("UPDATE `item` SET `author-name` = '%s' WHERE `author-name` = '%s' AND `author-link` = '%s' AND `uid` = %d AND `author-name` != '%s'",
 				dbesc(notags(trim($new_name))),
 				dbesc($r[0]['name']),
 				dbesc($r[0]['url']),
-				intval($contact['uid'])
+				intval($contact['uid']),
+				dbesc(notags(trim($new_name)))
 			);
 		}
 	}
@@ -3119,85 +3079,46 @@ function local_delivery($importer,$data) {
 
 		logger('local_delivery: Updating photo for ' . $importer['name']);
 		require_once("include/Photo.php");
-		$photo_failure = false;
-		$have_photo = false;
 
-		$r = q("SELECT `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d LIMIT 1",
-			intval($importer['id']),
-			intval($importer['importer_uid'])
+		$photos = import_profile_photo($photo_url,$importer['importer_uid'],$importer['id']);
+
+		q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
+			WHERE `uid` = %d AND `id` = %d AND NOT `self`",
+			dbesc(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			intval($importer['importer_uid']),
+			intval($importer['id'])
 		);
-		if(count($r)) {
-			$resource_id = $r[0]['resource-id'];
-			$have_photo = true;
-		}
-		else {
-			$resource_id = photo_new_resource();
-		}
-
-		$img_str = fetch_url($photo_url,true);
-		// guess mimetype from headers or filename
-		$type = guess_image_type($photo_url,true);
-
-
-		$img = new Photo($img_str, $type);
-		if($img->is_valid()) {
-			if($have_photo) {
-				q("DELETE FROM `photo` WHERE `resource-id` = '%s' AND `contact-id` = %d AND `uid` = %d",
-					dbesc($resource_id),
-					intval($importer['id']),
-					intval($importer['importer_uid'])
-				);
-			}
-
-			$img->scaleImageSquare(175);
-
-			$hash = $resource_id;
-			$r = $img->store($importer['importer_uid'], $importer['id'], $hash, basename($photo_url), 'Contact Photos', 4);
-
-			$img->scaleImage(80);
-			$r = $img->store($importer['importer_uid'], $importer['id'], $hash, basename($photo_url), 'Contact Photos', 5);
-
-			$img->scaleImage(48);
-			$r = $img->store($importer['importer_uid'], $importer['id'], $hash, basename($photo_url), 'Contact Photos', 6);
-
-			$a = get_app();
-
-			q("UPDATE `contact` SET `avatar-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s'
-				WHERE `uid` = %d AND `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-4.'.$img->getExt()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-5.'.$img->getExt()),
-				dbesc($a->get_baseurl() . '/photo/' . $hash . '-6.'.$img->getExt()),
-				intval($importer['importer_uid']),
-				intval($importer['id'])
-			);
-		}
 	}
 
 	if(($name_updated) && (strlen($new_name)) && ($name_updated > $importer['name-date'])) {
 		if ($name_updated > $contact_updated)
 			$contact_updated = $name_updated;
 
-		$r = q("select * from contact where uid = %d and id = %d limit 1",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 			intval($importer['importer_uid']),
 			intval($importer['id'])
 		);
 
-		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d",
+		$x = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `id` = %d AND `name` != '%s' AND NOT `self`",
 			dbesc(notags(trim($new_name))),
 			dbesc(datetime_convert()),
 			intval($importer['importer_uid']),
-			intval($importer['id'])
+			intval($importer['id']),
+			dbesc(notags(trim($new_name)))
 		);
 
 		// do our best to update the name on content items
 
-		if(count($r)) {
-			q("update item set `author-name` = '%s' where `author-name` = '%s' and `author-link` = '%s' and uid = %d",
+		if(count($r) AND (notags(trim($new_name)) != $r[0]['name'])) {
+			q("UPDATE `item` SET `author-name` = '%s' WHERE `author-name` = '%s' AND `author-link` = '%s' AND `uid` = %d AND `author-name` != '%s'",
 				dbesc(notags(trim($new_name))),
 				dbesc($r[0]['name']),
 				dbesc($r[0]['url']),
-				intval($importer['importer_uid'])
+				intval($importer['importer_uid']),
+				dbesc(notags(trim($new_name)))
 			);
 		}
 	}

@@ -100,7 +100,7 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if (activity_match($item['verb'],ACTIVITY_LIKE) 
+	if (activity_match($item['verb'],ACTIVITY_LIKE)
 		|| activity_match($item['verb'],ACTIVITY_DISLIKE)
 		|| activity_match($item['verb'],ACTIVITY_ATTEND)
 		|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
@@ -984,15 +984,15 @@ function builtin_activity_puller($item, &$conv_responses) {
 				$url = z_root(true) . '/redir/' . $item['contact-id'];
 				$sparkle = ' class="sparkle" ';
 			}
-			else 
+			else
 				$url = zrl($url);
-			
+
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
 			if(! $item['thr-parent'])
 				$item['thr-parent'] = $item['parent-uri'];
 
-			if(! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l'])) 
+			if(! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l']))
 				&& (is_array($conv_responses[$mode][$item['thr-parent'] . '-l']))))
 				$conv_responses[$mode][$item['thr-parent'] . '-l'] = array();
 
@@ -1064,9 +1064,9 @@ function format_like($cnt,$arr,$type,$id) {
 		}
 
 		$likers = $str;
-	
+
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
-		
+
 		switch($type) {
 			case 'like':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
@@ -1291,6 +1291,15 @@ function conv_sort($arr,$order) {
 
 	$parents = array();
 	$children = array();
+	$newarr = array();
+
+	// This is a preparation for having two different items with the same uri in one thread
+	// This will otherwise lead to an endless loop.
+	foreach($arr as $x)
+		if (!isset($newarr[$x['uri']]))
+			$newarr[$x['uri']] = $x;
+
+	$arr = $newarr;
 
 	foreach($arr as $x)
 		if($x['id'] == $x['parent'])

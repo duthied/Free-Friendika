@@ -1,4 +1,9 @@
 <?php
+/**
+ * @file include/identity.php
+ */
+
+require_once('include/forums.php');
 
 
 /**
@@ -59,15 +64,15 @@ if(! function_exists('profile_load')) {
 			$profile_int = intval($profile);
 			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d and `contact`.`self` = 1 LIMIT 1",
+					WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d AND `contact`.`self` = 1 LIMIT 1",
 					dbesc($nickname),
 					intval($profile_int)
 			);
 		}
 		if((!$r) && (!count($r))) {
 			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
+					INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 AND `contact`.`self` = 1 LIMIT 1",
 					dbesc($nickname)
 			);
 		}
@@ -82,7 +87,7 @@ if(! function_exists('profile_load')) {
 		// fetch user tags if this isn't the default profile
 
 		if(!$r[0]['is-default']) {
-			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
+			$x = q("SELECT `pub_keywords` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
 					intval($r[0]['profile_uid'])
 			);
 			if($x && count($x))
@@ -306,7 +311,7 @@ if(! function_exists('profile_sidebar')) {
 				if(count($r))
 					$updated =  date("c", strtotime($r[0]['updated']));
 
-				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 						AND `network` IN ('%s', '%s', '%s', '')",
 					intval($profile['uid']),
 					dbesc(NETWORK_DFRN),
@@ -525,8 +530,9 @@ if(! function_exists('get_events')) {
 function advanced_profile(&$a) {
 
 	$o = '';
+	$uid = $a->profile['uid'];
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+	$o .= replace_macros(get_markup_template('section_title.tpl'),array(
 		'$title' => t('Profile')
 	));
 
@@ -603,6 +609,11 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['work'])) $profile['work'] = array( t('Work/employment:'), $txt);
 
 		if($txt = prepare_text($a->profile['education'])) $profile['education'] = array( t('School/education:'), $txt );
+	
+		//show subcribed forum if it is enabled in the usersettings
+		if (feature_enabled($uid,'forumlist_profile')) {
+			$profile['forumlist'] = array( t('Forums:'), forumlist_profile_advanced($uid));
+		}
 
 		if ($a->profile['uid'] == local_user())
 			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
