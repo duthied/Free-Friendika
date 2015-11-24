@@ -2979,6 +2979,10 @@ function api_best_nickname(&$contacts) {
 		$contacts = array($contacts[0]);
 }
 
+	function api_users_groups_show() {
+	}
+	api_register_func('api/users/groups_show', 'api_users_groups_show', true);
+
 
 /*
 To.Do:
