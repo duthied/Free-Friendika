@@ -155,9 +155,9 @@ function forumlist_profile_advanced($uid) {
  * Count unread items of connected forums and private groups
  * 
  * @return array
- *	id = contact id
- *	name = contact name
- *	count = counted unseen items
+ *	'id' => contact id
+ *	'name' => contact/forum name
+ *	'count' => counted unseen forum items
  * 
  */
 
