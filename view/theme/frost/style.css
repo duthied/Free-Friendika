@@ -2357,6 +2357,16 @@ a.mail-list-link {
 	margin-top: 10px;
 }
 
+#forumlist-sidebar ul {
+	list-style: none;
+}
+
+.forumlist-img {
+	height: 20px;
+	width: 20px;
+	vertical-align: middle;
+}
+
 .nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
 	list-style-type: none;
 }

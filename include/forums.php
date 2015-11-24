@@ -87,6 +87,7 @@ function widget_forumlist($a) {
 				'url' => $a->get_baseurl() . '/network?f=&cid=' . $contact['id'],
 				'external_url' => $a->get_baseurl() . '/redir/' . $contact['id'],
 				'name' => $contact['name'],
+				'cid' => $contact['id'],
 				'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
 				'id' => ++$id,
 			);
@@ -146,4 +147,31 @@ function forumlist_profile_advanced($uid) {
 	if(count($contacts) > 0)
 		$o .= $forumlist;
 		return $o;
+}
+
+/**
+ * @brief count unread forum items
+ *
+ * Count unread items of connected forums and private groups
+ * 
+ * @return array
+ *	id = contact id
+ *	name = contact name
+ *	count = counted unseen items
+ * 
+ */
+
+function forums_count_unseen() {
+	$r = q("SELECT `contact`.`id`, `contact`.`name`, COUNT(`item`.`unseen`) AS `count` FROM `item`
+			INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
+			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+			AND `contact`.`network`= 'dfrn' AND (`contact`.`forum` OR `contact`.`prv`)
+			AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
+			AND NOT `contact`.`pending` AND NOT `contact`.`archive`
+			AND `contact`.`success_update` > `failure_update`
+			GROUP BY `contact`.`id` ",
+		intval(local_user())
+	);
+
+	return $r;
 }

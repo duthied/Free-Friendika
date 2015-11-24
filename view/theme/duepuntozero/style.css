@@ -2039,7 +2039,7 @@ a.mail-list-link {
 #sidebar-group-list ul {
 	list-style-type: none;
 }
-.sidebar-group-li .notify {
+.sidebar-group-li .notify, .forum-widget-entry .notify {
 	display: none;
 	font-size: 9px;
 	border: 1px solid rgb(221, 221, 221);
@@ -2047,7 +2047,7 @@ a.mail-list-link {
 	float: right;
 	background-color: #BABDB6;
 }
-.sidebar-group-li .notify.show {
+.sidebar-group-li .notify.show, .forum-widget-entry .notify.show {
 	display: block;
 }
 
@@ -2059,6 +2059,10 @@ a.mail-list-link {
 
 #sidebar-group-list li {
 	margin-top: 10px;
+}
+
+#forumlist-sidebar ul {
+	list-style: none;
 }
 
 .nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {

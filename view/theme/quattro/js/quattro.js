@@ -11,6 +11,13 @@ $(document).ready(function(){
 			$(".group-"+gid+" .notify").addClass("on").text(gcount);
 		});
 
+		$(".forum-widget-entry .notify").removeClass("on");
+		$(data).find("forum").each(function() {
+			var fid = this.id;
+			var fcount = this.innerHTML;
+			$(".forum-"+fid+" .notify").addClass("on").text(fcount);
+		});
+
 		console.log(intro,mail);
 
 		if (notifCount > 0 ) {
