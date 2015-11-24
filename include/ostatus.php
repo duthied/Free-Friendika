@@ -1304,8 +1304,19 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 		$title = sprintf("New comment by %s", $owner["nick"]);
 	}
 
-	xml_add_element($doc, $entry, "activity:object-type", $item["object-type"]);
-	xml_add_element($doc, $entry, "id", $item["uri"]); //<id>tag:fresh.federati.net,2015-11-22:noticeId=324796:objectType=note</id>
+	// To use the object-type "bookmark" we have to implement these elements:
+	//
+	// <activity:object-type>http://activitystrea.ms/schema/1.0/bookmark</activity:object-type>
+	// <title>Historic Rocket Landing</title>
+	// <summary>Nur ein Testbeitrag.</summary>
+	// <link rel="related" href="https://www.youtube.com/watch?v=9pillaOxGCo"/>
+	// <link rel="preview" href="https://pirati.cc/file/thumb-4526-450x338-b48c8055f0c2fed0c3f67adc234c4b99484a90c42ed3cac73dc1081a4d0a7bc1.jpg.jpg" media:width="450" media:height="338"/>
+	//
+	// But: it seems as if it doesn't federate well between the GS servers
+	// So we just set it to "note" to be sure that it reaches their target systems
+
+	xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+	xml_add_element($doc, $entry, "id", $item["uri"]);
 	xml_add_element($doc, $entry, "title", $title);
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])

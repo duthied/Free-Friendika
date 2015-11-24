@@ -18,13 +18,12 @@ function handle_pubsubhubbub() {
 		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
 		$headers = array("Content-type: application/atom+xml",
-						sprintf("Link: <%s>;rel=hub," .
-								"<%s>;rel=self",
-								$a->get_baseurl() . '/pubsubhubbub',
-								$rr['topic']),
-						"X-Hub-Signature: sha1=" . $hmac_sig);
+				sprintf("Link: <%s>;rel=hub,<%s>;rel=self",
+					$a->get_baseurl().'/pubsubhubbub',
+					$rr['topic']),
+				"X-Hub-Signature: sha1=".$hmac_sig);
 
-		logger('POST '. print_r($headers, true)."\n".$params, LOGGER_DEBUG);
+		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DEBUG);
 
 		post_url($rr['callback_url'], $params, $headers);
 		$ret = $a->get_curl_code();
