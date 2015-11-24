@@ -41,8 +41,9 @@ function ping_init(&$a) {
 				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
 				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `pitem`.`parent` != 0
+				AND `item`.`contact-id` != %d
 				ORDER BY `item`.`created` DESC",
-			intval(local_user())
+			intval(local_user()), intval(local_user())
 		);
 
 		if(count($r)) {
