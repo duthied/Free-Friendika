@@ -4479,7 +4479,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	//$o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
 	//$o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
 
-	$o .= item_get_attachment($item);
+	// Deactivated since it was meant only for OStatus
+	//$o .= item_get_attachment($item);
 
 	$o .= item_getfeedattach($item);
 
