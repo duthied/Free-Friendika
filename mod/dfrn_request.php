@@ -136,7 +136,7 @@ function dfrn_request_post(&$a) {
 
 					$dfrn_request = $parms['dfrn-request'];
 
-                    /********* Escape the entire array ********/
+					/********* Escape the entire array ********/
 
 					dbesc_array($parms);
 
@@ -146,13 +146,14 @@ function dfrn_request_post(&$a) {
 					 * Create a contact record on our site for the other person
 					 */
 
-					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `name`, `nick`, `photo`, `site-pubkey`,
+					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `addr`, `name`, `nick`, `photo`, `site-pubkey`,
 						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`)
-						VALUES ( %d, '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
+						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
 						intval(local_user()),
 						datetime_convert(),
 						dbesc($dfrn_url),
 						dbesc(normalise_link($dfrn_url)),
+						$parms['addr'],
 						$parms['fn'],
 						$parms['nick'],
 						$parms['photo'],
@@ -539,13 +540,14 @@ function dfrn_request_post(&$a) {
 
 
 				dbesc_array($parms);
-				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`,`name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
+				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
 					`request`, `confirm`, `notify`, `poll`, `poco`, `network` )
-					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
+					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
 					intval($uid),
 					dbesc(datetime_convert()),
 					$parms['url'],
 					dbesc(normalise_link($parms['url'])),
+					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
 					$parms['issued-id'],
