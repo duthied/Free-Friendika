@@ -4,7 +4,7 @@ require_once('library/HTML5/Parser.php');
 require_once('include/crypto.php');
 
 if(! function_exists('scrape_dfrn')) {
-function scrape_dfrn($url) {
+function scrape_dfrn($url, $dont_probe = false) {
 
 	$a = get_app();
 
@@ -16,6 +16,11 @@ function scrape_dfrn($url) {
 
 	if(! $s)
 		return $ret;
+
+	$probe = probe_url($url);
+
+	if (isset($probe["addr"]))
+		$ret["addr"] = $probe["addr"];
 
 	$headers = $a->get_curl_headers();
 	logger('scrape_dfrn: headers=' . $headers, LOGGER_DEBUG);
@@ -524,7 +529,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 
 		if(strlen($dfrn)) {
-			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn);
+			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
 			if(is_array($ret) && x($ret,'dfrn-request')) {
 				$network = NETWORK_DFRN;
 				$request = $ret['dfrn-request'];
