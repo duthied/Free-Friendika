@@ -146,9 +146,9 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 			if ($value != "")
 				$contact["location"] = $value;
 
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-				dbesc(datetime_convert()), intval($contact["id"]));
+				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
 					"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
@@ -161,9 +161,9 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
 
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
 				dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($contact["id"]));
+				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
 	}
 
