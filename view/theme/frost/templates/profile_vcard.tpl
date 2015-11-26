@@ -3,7 +3,7 @@
 
 	<div class="fn label">{{$profile.name}}</div>
 	
-				
+	{{if $profile.faddr}}<div class="p-faddr">{{$profile.faddr}}</div>{{/if}}
 	
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>

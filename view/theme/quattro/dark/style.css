@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -808,6 +808,9 @@ aside .vcard .fn {
   margin-bottom: 5px;
 }
 aside .vcard .title {
+  margin-bottom: 5px;
+}
+aside .vcard .p-faddr {
   margin-bottom: 5px;
 }
 aside .vcard dl {

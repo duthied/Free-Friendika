@@ -6,17 +6,17 @@
 			<div class="action">
 			<a class="icon s16 edit ttright" href="#" rel="#profiles-menu" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
 			<ul id="profiles-menu" class="menu-popup">
-			    {{if $profile.menu.entries}}
-    				{{foreach $profile.menu.entries as $e}}
-    				<li>
-    					<a href="profiles/{{$e.id}}"><img src='{{$e.photo}}'>{{$e.profile_name}}</a>
-    				</li>
-    				{{/foreach}}
-    			{{else}}
-    				<li>
-    					<a href="{{$profile.edit.0}}">{{$profile.edit.1}}</a>
-    				</li>
-    			{{/if}}
+			{{if $profile.menu.entries}}
+				{{foreach $profile.menu.entries as $e}}
+				<li>
+					<a href="profiles/{{$e.id}}"><img src='{{$e.photo}}'>{{$e.profile_name}}</a>
+				</li>
+				{{/foreach}}
+			{{else}}
+				<li>
+					<a href="{{$profile.edit.0}}">{{$profile.edit.1}}</a>
+				</li>
+			{{/if}}
 				<li><a href="profile_photo" >{{$profile.menu.chg_photo}}</a></li>
 				{{if $profile.menu.cr_new }}
 				<li><a href="profiles/new" id="profile-listing-new-link">{{$profile.menu.cr_new}}</a></li>
@@ -26,6 +26,7 @@
 		{{/if}}
 	</div>
 
+	{{if $profile.faddr}}<div class="p-faddr">{{$profile.faddr}}</div>{{/if}}
 
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
@@ -52,21 +53,23 @@
 
 	{{if $marital}}<dl class="marital"><dt class="marital-label"><span class="heart">&hearts;</span>{{$marital}}</dt><dd class="marital-text">{{$profile.marital}}</dd></dl>{{/if}}
 
-	{{if $homepage}}<dl class="homepage"><dt
-        class="homepage-label">{{$homepage}}</dt><dd class="homepage-url"><a
-        href="{{$profile.homepage}}" target="external-link">{{$profile.homepage}}</a></dd></dl>{{/if}}
+	{{if $homepage}}
+	<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt>
+		<dd class="homepage-url"><a href="{{$profile.homepage}}" target="external-link">{{$profile.homepage}}</a></dd>
+	</dl>
+	{{/if}}
 
 	{{include file="diaspora_vcard.tpl"}}
 	
 	<div id="profile-extra-links">
 		<ul>
 			{{if $connect}}
-                                {{if $remoteconnect}}
-                                        <li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
-                                {{else}}
-                                        <li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
-                                {{/if}}
-                        {{/if}}
+				{{if $remoteconnect}}
+					<li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
+				{{else}}
+					<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
+				{{/if}}
+			{{/if}}
 			{{if $wallmessage}}
 				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
 			{{/if}}
