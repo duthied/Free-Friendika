@@ -1201,6 +1201,14 @@ function ostatus_get_attachment($doc, $root, $item) {
 			break;
 	}
 
+	if (($siteinfo["type"] != "photo") AND isset($siteinfo["image"])) {
+		$photodata = get_photo_info($siteinfo["image"]);
+
+		$attributes = array("rel" => "preview", "href" => $siteinfo["image"], "media:width" => $photodata[0], "media:height" => $photodata[1]);
+		xml_add_element($doc, $root, "link", "", $attributes);
+	}
+
+
 	$arr = explode('[/attach],',$item['attach']);
 	if(count($arr)) {
 		foreach($arr as $r) {
@@ -1327,6 +1335,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	if ($item['title'] != "")
 		$body = "[b]".$item['title']."[/b]\n\n".$body;
 
+	$body = bb_remove_share_information($body);
 	$body = bbcode($body, false, false, 7);
 
 	xml_add_element($doc, $entry, "content", $body, array("type" => "html"));
@@ -1440,7 +1449,7 @@ function ostatus_feed(&$a, $owner_nick, $last_update) {
 		$root->appendChild($entry);
 	}
 
-	return($doc->saveXML());
+	return(trim($doc->saveXML()));
 }
 
 function ostatus_salmon($item,$owner) {
@@ -1452,6 +1461,6 @@ function ostatus_salmon($item,$owner) {
 
 	$doc->appendChild($entry);
 
-	return($doc->saveXML());
+	return(trim($doc->saveXML()));
 }
 ?>

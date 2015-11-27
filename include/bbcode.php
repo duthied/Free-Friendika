@@ -100,7 +100,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			}
 
 			if ($simplehtml == 7)
-				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a>',
+				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a><br />',
 						$url, $title, $title);
 			elseif (($simplehtml != 4) AND ($simplehtml != 0))
 				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);

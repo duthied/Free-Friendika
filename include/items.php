@@ -4645,7 +4645,7 @@ function item_getfeedtags($item) {
 	if($cnt) {
 		for($x = 0; $x < $cnt; $x ++) {
 			if($matches[1][$x])
-				$ret[] = array('#',$matches[1][$x], $matches[2][$x]);
+				$ret[$matches[2][$x]] = array('#',$matches[1][$x], $matches[2][$x]);
 		}
 	}
 	$matches = false;
