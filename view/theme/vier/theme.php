@@ -220,35 +220,44 @@ function vier_community_info() {
 	//Community_Pages at right_aside
 	if($show_pages AND local_user()) {
 
-		$pagelist = array();
+		require_once('include/forums.php');
 
-		$contacts = q("SELECT `id`, `url`, `name`, `micro` FROM `contact`
-				WHERE `network`= '%s' AND `uid` = %d AND (`forum` OR `prv`) AND
-					NOT `hidden` AND NOT `blocked` AND
-					NOT `archive` AND NOT `pending` AND
-					`success_update` > `failure_update`
-				ORDER BY `name` ASC",
-				dbesc(NETWORK_DFRN), intval($a->user['uid']));
+		//sort by last updated item
+		$lastitem = true;
 
-		$pageD = array();
+		$contacts = get_forumlist($a->user['uid'],true,$lastitem, true);
+		$total = count($contacts);
+		$visible_forums = 10;
 
-		// Look if the profile is a community page
-		foreach($contacts as $contact) {
-			$pageD[] = array("url"=>$contact["url"], "name"=>$contact["name"], "id"=>$contact["id"], "micro"=>$contact['micro']);
-		};
+		if(count($contacts)) {
 
-		$contacts = $pageD;
-
-		if ($contacts) {
-			$page = '
-				<h3>'.t("Community Pages").'</h3>
-				<div id="forum-list-right">';
+			$id = 0;
 
 			foreach($contacts as $contact) {
-				$page .= '<div role="menuitem"><a href="' . $a->get_baseurl() . '/redir/' . $contact["id"] . '" title="'.t('External link to forum').'" class="label sparkle" target="_blank"><img class="forumlist-img" height="20" width="20" src="' . $contact['micro'] .'" alt="'.t('External link to forum').'" /></a> <a href="' . $a->get_baseurl() . '/network?f=&cid=' . $contact['id'] . '" >' . $contact["name"]."</a></div>";
+
+				$entry = array(
+					'url' => $a->get_baseurl() . '/network?f=&cid=' . $contact['id'],
+					'external_url' => $a->get_baseurl() . '/redir/' . $contact['id'],
+					'name' => $contact['name'],
+					'cid' => $contact['id'],
+					'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
+					'id' => ++$id,
+				);
+				$entries[] = $entry;
 			}
 
-			$page .= '</div>';
+
+			$tpl = get_markup_template('widget_forumlist_right.tpl');
+
+			$page .= replace_macros($tpl,array(
+				'$title'	=> t('Forums'),
+				'$forums'	=> $entries,
+				'$link_desc'	=> t('External link to forum'),
+				'$total'	=> $total,
+				'$visible_forums' => $visible_forums,
+				'$showmore'	=> t('show more'),
+			));
+
 			$aside['$page'] = $page;
 		}
 	}

@@ -1,6 +1,7 @@
 <?php
 require_once("include/datetime.php");
 require_once('include/bbcode.php');
+require_once('include/forums.php');
 require_once("mod/proxy.php");
 
 function ping_init(&$a) {
@@ -34,6 +35,7 @@ function ping_init(&$a) {
 		$home = 0;
 		$network = 0;
 		$network_group = array();
+		$forums_unseen = array();
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
 				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
@@ -100,6 +102,10 @@ function ping_init(&$a) {
 			#echo '<SQL id="' . intval(local_user()) . '">' . $sql . '</SQL>';
 			$network_group = q($sql, intval(local_user()), intval(local_user()));
 			#echo '<COUNT R="' . count($network_group) . '"/>';
+
+			if(intval(feature_enabled(local_user(),'forumlist_widget'))) {
+				$forums_unseen = forums_count_unseen();
+			}
 		}
 
 		$intros1 = q("SELECT  `intro`.`id`, `intro`.`datetime`,
@@ -220,12 +226,21 @@ function ping_init(&$a) {
 				<net>$network</net>
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
+
 		if ( count($network_group) ) {
 			echo '<groups>';
 			foreach ($network_group as $it) {
 				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
 			}
 			echo "</groups>";
+		}
+
+		if ( count($forums_unseen) ) {
+			echo '<forums>';
+			foreach ($forums_unseen as $it) {
+				echo '<forum id="' . $it['id'] . '">' . $it['count'] . "</forum>";
+			}
+			echo "</forums>";
 		}
 
 		echo "<all-events>$all_events</all-events>

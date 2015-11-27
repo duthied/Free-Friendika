@@ -210,6 +210,13 @@
 				$(".group-"+gid+" .notify").addClass("show").text(gcount);
 			});
 
+			$(".forum-widget-entry .notify").removeClass("show");
+			$(data).find("forum").each(function() {
+				var fid = this.id;
+				var fcount = this.innerHTML;
+				$(".forum-"+fid+" .notify").addClass("show").text(fcount);
+			});
+
 
 			var eNotif = $(data).find('notif')
 

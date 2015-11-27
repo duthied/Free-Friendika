@@ -343,6 +343,22 @@ code {
   margin-top: 20px;
   max-width: 640px;
 }
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  /* background-color: #737373*/;
+  background-color: #36C;
+  border-radius: 4px;
+  opacity: 0.3;
+}
 #panel {
   position: absolute;
   width: 10em;
@@ -386,7 +402,7 @@ code {
 .tool a {
 /*  color: #000; */
 }
-.tool a:hover, .widget a:hover, #nets-sidear a:hover, #hide-forum-list:hover, .admin.link a:hover, aside h4 a:hover, right_aside h4 a:hover {
+.tool a:hover, .widget a:hover, #nets-sidear a:hover, #forum-widget-collapse:hover, .admin.link a:hover, aside h4 a:hover, right_aside h4 a:hover {
   /* text-decoration: underline; */
   text-decoration: none;
   color: black;
@@ -400,8 +416,8 @@ code {
   opacity: 1;
 }
 
-.sidebar-group-li:hover, #sidebar-new-group:hover, #hide-forum-list:hover,
-#sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar div:hover, #forum-list-right div:hover,
+.sidebar-group-li:hover, #sidebar-new-group:hover, #forum-widget-collapse:hover,
+#sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar li:hover, #forumlist-sidebar-right li:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
@@ -420,7 +436,7 @@ code {
   font-weight: bold;
 }
 
-#forum-widget-showmore, #sidebar-new-group, #hide-forum-list, #forum-list-right, #sidebar-ungrouped,
+#forum-widget-showmore, #sidebar-new-group, #forum-widget-collapse, #forumlist-rsidebar-right, #sidebar-ungrouped,
 .side-link, #peoplefind-desc, #connect-desc, .nets-all, .admin.link, #message-new {
   padding-left: 10px;
   padding-top: 3px;
@@ -438,6 +454,14 @@ code {
 .forum-widget-entry {
   padding-left: 10px;
   padding-right: 5px;
+}
+
+#forumlist-sidebar .notify, #forumlist-sidebar-right .notify {
+  display: none;
+}
+
+#forumlist-sidebar .notify.show, #forumlist-sidebar-right .notify.show {
+  display: inline-block;
 }
 
 a.nets-link, .side-link a, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a, right_aside h4 a {
@@ -467,11 +491,11 @@ a.sidebar-group-element {
   color: black;
 }
 
-#forumlist-sidebar a, #forum-list-right a, .tool a, .admin.link a {
+#forumlist-sidebar a, #forumlist-sidebar-right a, .tool a, .admin.link a {
   color: #737373;
 }
 
-#forumlist-sidebar, #forum-list-right {
+#forumlist-sidebar, #forumlist-sidebar-right {
   margin-top: 2px;
 }
 
