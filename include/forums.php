@@ -56,10 +56,10 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 
 /**
  * @brief Forumlist widget
- * 
+ *
  * Sidebar widget to show subcribed friendica forums. If activated
  * in the settings, it appears at the notwork page sidebar
- * 
+ *
  * @param App $a
  * @return string
  */
@@ -111,13 +111,13 @@ function widget_forumlist($a) {
 
 /**
  * @brief Format forumlist as contact block
- * 
+ *
  * This function is used to show the forumlist in
  * the advanced profile.
- * 
+ *
  * @param int $uid
  * @return string
- * 
+ *
  */
 function forumlist_profile_advanced($uid) {
 
@@ -153,18 +153,18 @@ function forumlist_profile_advanced($uid) {
  * @brief count unread forum items
  *
  * Count unread items of connected forums and private groups
- * 
+ *
  * @return array
  *	'id' => contact id
  *	'name' => contact/forum name
  *	'count' => counted unseen forum items
- * 
+ *
  */
 
 function forums_count_unseen() {
-	$r = q("SELECT `contact`.`id`, `contact`.`name`, COUNT(`item`.`unseen`) AS `count` FROM `item`
+	$r = q("SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `item`
 			INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` AND `item`.`unseen`
 			AND `contact`.`network`= 'dfrn' AND (`contact`.`forum` OR `contact`.`prv`)
 			AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
 			AND NOT `contact`.`pending` AND NOT `contact`.`archive`
