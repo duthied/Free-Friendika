@@ -1382,13 +1382,13 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 
 	// To-Do:
 	// The API call has yet to be implemented
-	$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
-			"rel" => "self", "type" => "application/atom+xml");
-	xml_add_element($doc, $entry, "link", "", $attributes);
+	//$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
+	//		"rel" => "self", "type" => "application/atom+xml");
+	//xml_add_element($doc, $entry, "link", "", $attributes);
 
-	$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
-			"rel" => "edit", "type" => "application/atom+xml");
-	xml_add_element($doc, $entry, "link", "", $attributes);
+	//$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
+	//		"rel" => "edit", "type" => "application/atom+xml");
+	//xml_add_element($doc, $entry, "link", "", $attributes);
 
 	$app = $item["app"];
 	if ($app == "")
