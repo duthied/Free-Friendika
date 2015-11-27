@@ -2,6 +2,7 @@
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
+require_once("include/ostatus.php");
 
 function delivery_run(&$argv, &$argc){
 	global $a, $db;
@@ -391,7 +392,8 @@ function delivery_run(&$argv, &$argc){
 							continue;
 
 						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
-							$slaps[] = atom_entry($item,'html',null,$owner,true);
+							$slaps[] = ostatus_salmon($item,$owner);
+							//$slaps[] = atom_entry($item,'html',null,$owner,true);
 					}
 
 					logger('notifier: slapdelivery: ' . $contact['name']);

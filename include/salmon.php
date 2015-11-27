@@ -66,8 +66,6 @@ function get_salmon_key($uri,$keyhash) {
 
 function slapper($owner,$url,$slap) {
 
-	logger('slapper called for '.$url.'. Data: ' . $slap);
-
 	// does contact have a salmon endpoint?
 
 	if(! strlen($url))
@@ -96,6 +94,8 @@ $namespaces = <<< EOT
 EOT;
 
 	$slap = str_replace('<entry>',$namespaces,$slap);
+
+	logger('slapper called for '.$url.'. Data: ' . $slap);
 
 	// create a magic envelope
 
