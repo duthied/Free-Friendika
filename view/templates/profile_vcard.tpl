@@ -3,7 +3,7 @@
 
 	<div class="fn label p-name">{{$profile.name}}</div>
 	
-				
+	{{if $profile.faddr}}<div class="p-faddr">{{$profile.faddr}}</div>{{/if}}
 	
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
