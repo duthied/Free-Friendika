@@ -26,7 +26,7 @@ function viewcontacts_content(&$a) {
 	}
 
 
-	$r = q("SELECT COUNT(*) as `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ",
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ",
 		intval($a->profile['uid'])
 	);
 	if(count($r))
@@ -68,8 +68,9 @@ function viewcontacts_content(&$a) {
 			'name' => htmlentities(substr($rr['name'],0,20)),
 			'username' => htmlentities($rr['name']),
 			'details'       => $contact_details['location'],
-                        'tags'          => $contact_details['keywords'],
-                        'about'         => $contact_details['about'],
+			'tags'          => $contact_details['keywords'],
+			'about'         => $contact_details['about'],
+			'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
 			'url' => $url,
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),

@@ -36,7 +36,7 @@ function suggest_init(&$a) {
 		}
 		// Now check how the user responded to the confirmation query
 		if(!$_REQUEST['canceled']) {
-			q("insert into gcign ( uid, gcid ) values ( %d, %d ) ",
+			q("INSERT INTO `gcign` ( `uid`, `gcid` ) VALUES ( %d, %d ) ",
 				intval(local_user()),
 				intval($_GET['ignore'])
 			);
@@ -90,8 +90,9 @@ function suggest_content(&$a) {
 			'name' => $rr['name'],
 			'thumb' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
 			'details'       => $contact_details['location'],
-                        'tags'          => $contact_details['keywords'],
-                        'about'         => $contact_details['about'],
+			'tags'          => $contact_details['keywords'],
+			'about'         => $contact_details['about'],
+			'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
 			'ignlnk' => $ignlnk,
 			'ignid' => $rr['id'],
 			'conntxt' => t('Connect'),
