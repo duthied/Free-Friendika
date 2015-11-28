@@ -194,8 +194,8 @@ function cron_run(&$argv, &$argc){
 		q("OPTIMIZE TABLE `session`");
 		q("OPTIMIZE TABLE `config`");
 		q("OPTIMIZE TABLE `pconfig`");
-		q("OPTIMIZE TABLE `photo`");
 		q("OPTIMIZE TABLE `workerqueue`");
+		//q("OPTIMIZE TABLE `photo`"); // Could take too long
 
 		set_config('system','cache_last_cleared', time());
 	}
