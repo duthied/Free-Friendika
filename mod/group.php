@@ -7,7 +7,7 @@ function validate_members(&$item) {
 function group_init(&$a) {
 	if(local_user()) {
 		require_once('include/group.php');
-		$a->page['aside'] = group_side('contacts','group',false,(($a->argc > 1) ? intval($a->argv[1]) : 0));
+		$a->page['aside'] = group_side('contacts','group','extended',(($a->argc > 1) ? intval($a->argv[1]) : 0));
 	}
 }
 

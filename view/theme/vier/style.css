@@ -347,7 +347,7 @@ code {
   display: inline-block;
   min-width: 10px;
   padding: 3px 7px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   color: #fff;
@@ -382,7 +382,7 @@ code {
 #sidebar-group-list .tool:hover {
 	background: #EEE;
 }
-#sidebar-group-list .notify {
+/*#sidebar-group-list .notify {
 	min-width: 10px;
 	text-align: center;
 	color: #FFF;
@@ -391,6 +391,9 @@ code {
 	padding: 3px;
 	border-radius: 10px;
 	display: none;
+}*/
+#sidebar-group-list .notify {
+  display: none;
 }
 #sidebar-group-list .notify.show { display: inline-block; }
 .tool .label {
@@ -416,7 +419,7 @@ code {
   opacity: 1;
 }
 
-.sidebar-group-li:hover, #sidebar-new-group:hover, #forum-widget-collapse:hover,
+.sidebar-group-li:hover, #sidebar-new-group:hover, #sidebar-edit-groups:hover, #forum-widget-collapse:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar li:hover, #forumlist-sidebar-right li:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover {
   /* background-color: #ddd; */
@@ -436,7 +439,7 @@ code {
   font-weight: bold;
 }
 
-#forum-widget-showmore, #sidebar-new-group, #forum-widget-collapse, #forumlist-rsidebar-right, #sidebar-ungrouped,
+#forum-widget-showmore, #sidebar-new-group, #sidebar-edit-groups, #forum-widget-collapse, #forumlist-rsidebar-right, #sidebar-ungrouped,
 .side-link, #peoplefind-desc, #connect-desc, .nets-all, .admin.link, #message-new {
   padding-left: 10px;
   padding-top: 3px;
@@ -464,7 +467,7 @@ code {
   display: inline-block;
 }
 
-a.nets-link, .side-link a, #sidebar-new-group a, a.savedsearchterm, a.fileas-link, aside h4 a, right_aside h4 a {
+a.nets-link, .side-link a, #sidebar-new-group a, #sidebar-edit-groups a, a.savedsearchterm, a.fileas-link, aside h4 a, right_aside h4 a {
   display: block;
   color: #737373;
 }

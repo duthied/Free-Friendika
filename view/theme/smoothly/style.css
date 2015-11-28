@@ -854,7 +854,8 @@ li.widget-list {
    	padding: 3px 24px;
 }
 
-#sidebar-new-group {
+#sidebar-new-group,
+#sidebar-edit-groups {
 	padding: 7px;
 	width: 165px;
 	margin: auto;
