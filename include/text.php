@@ -943,6 +943,9 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	if($class)
 		$class = ' ' . $class;
 
+	if ($contact["addr"] == "")
+		$contact["addr"] = $contact["url"];
+
 	$url = $contact['url'];
 	$sparkle = '';
 	$redir = false;
@@ -966,7 +969,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click
-			. '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
+			. '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
 			. '" >'. $contact['name'] . '</a></div>' . "\r\n";
 	}
 	else {
@@ -974,7 +977,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			. (($click) ? ' fakelink' : '') . '" '
 			. (($redir) ? ' target="redir" ' : '')
 			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. proxy_url($contact['micro'], false, PROXY_SIZE_THUMB) . '" title="' . $contact['name'] . ' [' . $contact['url'] . ']" alt="' . $contact['name']
+			. proxy_url($contact['micro'], false, PROXY_SIZE_THUMB) . '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
 			. '" /></a></div>' . "\r\n";
 	}
 }}
