@@ -85,9 +85,11 @@ function directory_content(&$a) {
 
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags` FROM `profile`
+	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+			`contact`.`addr` AS faddr, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra $order LIMIT ".$limit);
+			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if(count($r)) {
 
 		if(in_array('small', $a->argv))
@@ -98,14 +100,9 @@ function directory_content(&$a) {
 		foreach($r as $rr) {
 
 			$community = '';
+			$itemurl= '';
 
-			// get the friendica address and the profile url of the user
-			$p = q("SELECT `addr` AS faddr, `url` AS profile_url FROM `contact` WHERE `uid` = %d AND `self`",
-				intval($rr['uid'])
-			);
-
-			if(count($p))
-				$itemurl = (($p['0']['faddr'] != "") ? $p['0']['faddr'] : $p['0']['profile_url']);
+			$itemurl = (($rr['faddr'] != "") ? $rr['faddr'] : $rr['profile_url']);
 
 			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 
@@ -135,7 +132,7 @@ function directory_content(&$a) {
 			// show if account is a community account
 			// ToDo the other should be also respected, but first we need a good translatiion
 			// and systemwide consistency for displaying the page type
-			if(intval($rr['page-flags']) == PAGE_COMMUNITY OR intval($rr['page-flags']) == PAGE_PRVGROUP)
+			if((intval($rr['page-flags']) == PAGE_COMMUNITY) OR (intval($rr['page-flags']) == PAGE_PRVGROUP))
 				$community = true;
 
 			$profile = $rr;

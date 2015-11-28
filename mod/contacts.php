@@ -830,6 +830,9 @@ function contacts_content(&$a) {
 }
 
 function _contact_detail_for_template($rr){
+
+	$community = '';
+
 	switch($rr['rel']) {
 		case CONTACT_IS_FRIEND:
 			$dir_icon = 'images/lrarrow.gif';
