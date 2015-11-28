@@ -114,6 +114,20 @@ function manage_content(&$a) {
 		$identities[$key][thumb] = $thumb[0][thumb];
 
 		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? true : false);
+
+		$notifications = 0;
+
+		$r = q("SELECT DISTINCT(`parent`) FROM `notify` WHERE `uid` = %d AND NOT `seen` AND NOT (`type` IN (%d, %d))",
+			intval($id['uid']), intval(NOTIFY_INTRO), intval(NOTIFY_MAIL));
+		if ($r)
+			$notifications = sizeof($r);
+
+		$r = q("SELECT DISTINCT(`convid`) FROM `mail` WHERE `uid` = %d AND NOT `seen`",
+			intval($id['uid']));
+		if ($r)
+			$notifications = $notifications + sizeof($r);
+
+		$identities[$key]['notifications'] = $notifications;
 	}
 
 	$o = replace_macros(get_markup_template('manage.tpl'), array(

@@ -11,6 +11,7 @@
 			<div class="identity-match-photo" id="identity-match-photo-{{$id.uid}}">
 				<button name="identity" value="{{$id.uid}}" onclick="this.form.submit();" title="{{$id.username}}">
 					<img src="{{$id.thumb}}" alt="{{$id.username}}" />
+					{{if $id.notifications}}<span class="manage-notify">{{$id.notifications}}</span>{{/if}}
 				</button>
 			</div>
 
@@ -22,7 +23,6 @@
 				</div>
 				<div class="identity-match-details" id="identity-match-nick-{{$id.uid}}">({{$id.nickname}})</div>
 			</div>
-
 			<div class="identity-match-end"></div>
 		</div>
 	{{/foreach}}
