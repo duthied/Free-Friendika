@@ -60,10 +60,12 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
  * Sidebar widget to show subcribed friendica forums. If activated
  * in the settings, it appears at the notwork page sidebar
  *
- * @param App $a
+ * @param int $uid
+ * @param int $cid
+ *	The contact id which is used to mark a forum as "selected"
  * @return string
  */
-function widget_forumlist($a) {
+function widget_forumlist($uid,$cid = 0) {
 
 	if(! intval(feature_enabled(local_user(),'forumlist_widget')))
 		return;
@@ -73,7 +75,7 @@ function widget_forumlist($a) {
 	//sort by last updated item
 	$lastitem = true;
 
-	$contacts = get_forumlist($a->user['uid'],true,$lastitem, true);
+	$contacts = get_forumlist($uid,true,$lastitem, true);
 	$total = count($contacts);
 	$visible_forums = 10;
 
@@ -83,11 +85,14 @@ function widget_forumlist($a) {
 
 		foreach($contacts as $contact) {
 
+			$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
+
 			$entry = array(
-				'url' => $a->get_baseurl() . '/network?f=&cid=' . $contact['id'],
-				'external_url' => $a->get_baseurl() . '/redir/' . $contact['id'],
+				'url' => z_root() . '/network?f=&cid=' . $contact['id'],
+				'external_url' => z_root() . '/redir/' . $contact['id'],
 				'name' => $contact['name'],
 				'cid' => $contact['id'],
+				'selected' 	=> $selected,
 				'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
 				'id' => ++$id,
 			);

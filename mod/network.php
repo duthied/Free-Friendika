@@ -6,6 +6,8 @@ function network_init(&$a) {
 	}
 
 	$is_a_date_query = false;
+	if(x($_GET['cid']) && intval($_GET['cid']) != 0)
+		$cid = $_GET['cid'];
 
 	if($a->argc > 1) {
 		for($x = 1; $x < $a->argc; $x ++) {
@@ -146,7 +148,7 @@ function network_init(&$a) {
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? widget_forumlist($a) : '');
+	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? widget_forumlist(local_user(),$cid) : '');
 	$a->page['aside'] .= posted_date_widget($a->get_baseurl() . '/network',local_user(),false);
 	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
