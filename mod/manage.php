@@ -127,6 +127,11 @@ function manage_content(&$a) {
 		if ($r)
 			$notifications = $notifications + sizeof($r);
 
+		$r = q("SELECT COUNT(*) AS `introductions` FROM `intro` WHERE NOT `blocked` AND NOT `ignore` AND `uid` = %d",
+			intval($id['uid']));
+		if ($r)
+			$notifications = $notifications + $r[0]["introductions"];
+
 		$identities[$key]['notifications'] = $notifications;
 	}
 
