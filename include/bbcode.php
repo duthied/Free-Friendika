@@ -101,9 +101,13 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 
 			if ($simplehtml == 7) {
 				$title2 = $title;
+
+				$test1 = trim(html_entity_decode($match[1],ENT_QUOTES,'UTF-8'));
+				$test2 = trim(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+
 				// If the link description is similar to the text above then don't add the link description
-				if (($title != "") AND ((strpos($match[1],$title) !== false) OR
-					(similar_text($match[1],$title) / strlen($title)) > 0.9))
+				if (($title != "") AND ((strpos($test1,$test2) !== false) OR
+					(similar_text($test1,$test2) / strlen($title)) > 0.9))
 					$title2 = $url;
 				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a><br />',
 						$url, $title, $title2);
