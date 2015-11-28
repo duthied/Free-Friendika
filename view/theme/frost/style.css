@@ -4040,6 +4040,22 @@ div.jGrowl-notification {
 }
 
 /* notifications popup menu */
+.manage-notify {
+	padding: 1px 3px;
+	top: 0px;
+	min-width: 15px;
+	text-align: center;
+	float: right;
+	margin-top: -14px;
+	margin-right: -20px;
+
+	font-size: 0.8em;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background-color: gold !important;
+}
+
 .nav-notify {
 	display: none;
 	position: absolute;
