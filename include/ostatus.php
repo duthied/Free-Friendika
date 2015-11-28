@@ -1237,7 +1237,7 @@ function ostatus_add_author($doc, $owner, $profile) {
 	$author = $doc->createElement("author");
 	xml_add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
 	xml_add_element($doc, $author, "uri", $owner["url"]);
-	xml_add_element($doc, $author, "name", $owner["nick"]);
+	xml_add_element($doc, $author, "name", $profile["name"]);
 
 	$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $owner["url"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
