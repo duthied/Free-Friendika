@@ -216,7 +216,12 @@ if(! function_exists('profile_sidebar')) {
 		}
 
 		if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
-				$connect = false;
+			$connect = false;
+
+		if ($connect)
+			$subscribe_feed = t("Atom feed");
+		else
+			$subscribe_feed = false;
 
 		if (isset($profile['remoteconnect']))
 			$remoteconnect = $profile['remoteconnect'];
@@ -337,6 +342,7 @@ if(! function_exists('profile_sidebar')) {
 			'$profile' => $p,
 			'$connect'  => $connect,
 			'$remoteconnect'  => $remoteconnect,
+			'$subscribe_feed' => $subscribe_feed,
 			'$wallmessage' => $wallmessage,
 			'$location' => $location,
 			'$gender'   => $gender,

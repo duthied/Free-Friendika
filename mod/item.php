@@ -362,8 +362,7 @@ function item_post(&$a) {
 	if((local_user()) && (local_user() == $profile_uid)) {
 		$self = true;
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
-			intval($_SESSION['uid'])
-		);
+			intval($_SESSION['uid']));
 	}
 	elseif(remote_user()) {
 		if(is_array($_SESSION['remote'])) {
