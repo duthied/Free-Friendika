@@ -205,6 +205,7 @@ function dirfind_content(&$a, $prefix = "") {
 					'details'       => $contact_details['location'],
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
+					'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
 					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);
