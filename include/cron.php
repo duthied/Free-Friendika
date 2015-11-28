@@ -189,6 +189,14 @@ function cron_run(&$argv, &$argc){
 			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
 		}
 
+		// Optimize some tables that are written often
+		q("OPTIMIZE TABLE `cache`");
+		q("OPTIMIZE TABLE `session`");
+		q("OPTIMIZE TABLE `config`");
+		q("OPTIMIZE TABLE `pconfig`");
+		q("OPTIMIZE TABLE `photo`");
+		q("OPTIMIZE TABLE `workerqueue`");
+
 		set_config('system','cache_last_cleared', time());
 	}
 
