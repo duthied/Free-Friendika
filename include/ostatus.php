@@ -1335,7 +1335,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	if ($item['title'] != "")
 		$body = "[b]".$item['title']."[/b]\n\n".$body;
 
-	$body = bb_remove_share_information($body);
+	//$body = bb_remove_share_information($body);
 	$body = bbcode($body, false, false, 7);
 
 	xml_add_element($doc, $entry, "content", $body, array("type" => "html"));
