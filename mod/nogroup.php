@@ -15,7 +15,7 @@ function nogroup_init(&$a) {
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
-	$a->page['aside'] .= group_side('contacts','group',false,0,$contact_id);
+	$a->page['aside'] .= group_side('contacts','group','extended',0,$contact_id);
 }
 
 
