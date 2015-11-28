@@ -88,7 +88,7 @@ function directory_content(&$a) {
 	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
 			`contact`.`addr` AS faddr, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if(count($r)) {
 
