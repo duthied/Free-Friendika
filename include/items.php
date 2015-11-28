@@ -4171,14 +4171,13 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			);
 		}
 		// send email notification to owner?
-	}
-	else {
+	} else {
 
 		// create contact record
 
-		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
-			`blocked`, `readonly`, `pending`, `writable` )
-			VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1 ) ",
+		$r = q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
+			`blocked`, `readonly`, `pending`, `writable`)
+			VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 			intval($importer['uid']),
 			dbesc(datetime_convert()),
 			dbesc($url),
@@ -4193,27 +4192,38 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				intval($importer['uid']),
 				dbesc($url)
 		);
-		if(count($r))
+		if(count($r)) {
 				$contact_record = $r[0];
 
-		// create notification
-		$hash = random_string();
+				$photos = import_profile_photo($photo,$importer["uid"],$contact_record["id"]);
 
-		if(is_array($contact_record)) {
-			$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `hash`, `datetime`)
-				VALUES ( %d, %d, 0, 0, '%s', '%s' )",
-				intval($importer['uid']),
-				intval($contact_record['id']),
-				dbesc($hash),
-				dbesc(datetime_convert())
-			);
+				q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
+					dbesc($photos[0]),
+					dbesc($photos[1]),
+					dbesc($photos[2]),
+					intval($contact_record["id"])
+				);
 		}
+
 
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($importer['uid'])
 		);
 		$a = get_app();
-		if(count($r)) {
+		if(count($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+
+			// create notification
+			$hash = random_string();
+
+			if(is_array($contact_record)) {
+				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `hash`, `datetime`)
+					VALUES ( %d, %d, 0, 0, '%s', '%s' )",
+					intval($importer['uid']),
+					intval($contact_record['id']),
+					dbesc($hash),
+					dbesc(datetime_convert())
+				);
+			}
 
 			if(intval($r[0]['def_gid'])) {
 				require_once('include/group.php');
@@ -4221,7 +4231,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			}
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
-				in_array($r[0]['page-flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
+				in_array($r[0]['page-flags'], array(PAGE_NORMAL))) {
 
 				notification(array(
 					'type'         => NOTIFY_INTRO,
@@ -4239,7 +4249,13 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				));
 
 			}
+		} elseif (count($r) AND in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+			$r = q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
+					intval($importer['uid']),
+					dbesc($url)
+			);
 		}
+
 	}
 }
 
