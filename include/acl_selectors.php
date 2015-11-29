@@ -1,6 +1,7 @@
 <?php
 
 require_once("include/contact_selectors.php");
+require_once("include/contact_widgets.php");
 require_once("include/features.php");
 require_once("mod/proxy.php");
 
@@ -424,6 +425,8 @@ function acl_lookup(&$a, $out_type = 'json') {
 	} else {
 		$group_count = 0;
 	}
+
+	$sql_extra2 .= " ".unavailable_networks();
 
 	if ($type=='' || $type=='c'){
 		$r = q("SELECT COUNT(*) AS c FROM `contact`

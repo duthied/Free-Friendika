@@ -56,7 +56,7 @@ function contacts_init(&$a) {
 	}
 
 	$groups_widget .= group_side('contacts','group','full',0,$contact_id);
-	
+
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,
 		'$findpeople_widget' => $findpeople_widget,
@@ -809,8 +809,9 @@ function contacts_content(&$a) {
 		$total = $r[0]['total'];
 	}
 
+	$sql_extra3 = unavailable_networks();
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ORDER BY `name` ASC LIMIT %d , %d ",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
 		intval($_SESSION['uid']),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
