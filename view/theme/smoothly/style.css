@@ -690,6 +690,7 @@ aside h4 {
 	list-style: none;
 }
 
+#subscribe-feed-link,
 #dfrn-request-link {
 	box-shadow: inset 0px 1px 0px 0px #a65151;
 		-moz-box-shadow: inset 0px 1px 0px 0px #a65151;
@@ -725,6 +726,7 @@ aside h4 {
 	background-color: #3465a4;
 }
 
+#subscribe-feed-link:hover,
 #dfrn-request-link:hover {
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
 	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
@@ -732,6 +734,7 @@ aside h4 {
 	background-color: #1873a2;
 }
 
+#subscribe-feed-link:active,
 #dfrn-request-link:active {
 	position: relative;
 	top: 1px;
@@ -854,7 +857,8 @@ li.widget-list {
    	padding: 3px 24px;
 }
 
-#sidebar-new-group {
+#sidebar-new-group,
+#sidebar-edit-groups {
 	padding: 7px;
 	width: 165px;
 	margin: auto;

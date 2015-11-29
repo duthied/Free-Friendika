@@ -43,10 +43,11 @@
 			{{if $wallmessage}}
 				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
 			{{/if}}
+			{{if $subscribe_feed}}
+				<li><a id="subscribe-feed-link" href="dfrn_poll/{{$profile.nickname}}">{{$subscribe_feed}}</a></li>
+			{{/if}}
 		</ul>
 	</div>
 </div>
 
 {{$contact_block}}
-
-

@@ -213,9 +213,20 @@ function mini_group_select($uid,$gid = 0) {
 }
 
 
-
-
-function group_side($every="contacts",$each="group",$edit = false, $group_id = 0, $cid = 0) {
+/**
+ * @brief Create group sidebar widget
+ * 
+ * @param string $every
+ * @param string $each
+ * @param string $editmode
+ *	'standard' => include link 'Edit groups'
+ *	'extended' => include link 'Create new group'
+ *	'full' => include link 'Create new group' and provide for each group a link to edit this group
+ * @param int $group_id
+ * @param int $cid
+ * @return string
+ */
+function group_side($every="contacts",$each="group",$editmode = "standard", $group_id = 0, $cid = 0) {
 
 	$o = '';
 
@@ -239,13 +250,13 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 	$member_of = array();
 	if($cid) {
 		$member_of = groups_containing(local_user(),$cid);
-	} 
+	}
 
 	if(count($r)) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 			
-			if ($edit) {
+			if ($editmode == "full") {
 				$groupedit = array(
 					'href' => "group/".$rr['id'],
 					'title' => t('edit'),
@@ -269,14 +280,17 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 
 	$tpl = get_markup_template("group_side.tpl");
 	$o = replace_macros($tpl, array(
-		'$title'		=> t('Groups'),
+		'$title'	=> t('Groups'),
+		'newgroup'	=> (($editmode == "extended") || ($editmode == "full") ? 1 : ''),
+		'$editgroupstext' => t('Edit groups'),
+		'grouppage'	=> "group/",
 		'$edittext'     => t('Edit group'),
 		'$createtext' 	=> t('Create a new group'),
-    '$creategroup' => t('Group Name: '),
-    '$form_security_token' => get_form_security_token("group_edit"),
+		'$creategroup'  => t('Group Name: '),
+		'$form_security_token' => get_form_security_token("group_edit"),
 		'$ungrouped'    => (($every === 'contacts') ? t('Contacts not in any group') : ''),
-		'$groups'		=> $groups,
-		'$add'			=> t('add'),
+		'$groups'	=> $groups,
+		'$add'		=> t('add'),
 	));
 
 

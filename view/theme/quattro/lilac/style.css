@@ -854,6 +854,7 @@ aside #wallmessage-link:hover {
   text-decoration: none;
   background-color: #86608e;
 }
+aside #subscribe-feed-link,
 aside #dfrn-request-link {
   display: block;
   -moz-border-radius: 5px 5px 5px 5px;
@@ -865,6 +866,7 @@ aside #dfrn-request-link {
   text-transform: uppercase;
   padding: 4px 2px 2px 35px;
 }
+aside #subscribe-feed-link:hover,
 aside #dfrn-request-link:hover {
   text-decoration: none;
   background-color: #86608e;

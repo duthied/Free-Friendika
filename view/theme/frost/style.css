@@ -284,6 +284,7 @@ aside {
 /*	float:left;*/
 }
 
+#subscribe-feed-link,
 #dfrn-request-link {
 	display: block;
 	color: #FFFFFF;
@@ -489,7 +490,7 @@ div.wall-item-content-wrapper.shiny {
 	margin-bottom: 10px;
 }
 
-.group-selected, .nets-selected, .fileas-selected, .categories-selected {
+.group-selected, .nets-selected, .fileas-selected, .categories-selected, .forum-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
