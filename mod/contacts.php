@@ -890,13 +890,17 @@ function contact_posts($a, $contact_id) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` WHERE `item`.`uid` = %d AND `contact-id` = %d AND `item`.`id` = `item`.`parent`
+		FROM `item` WHERE `item`.`uid` = %d AND `contact-id` = %d
+			AND ((`item`.`id` = `item`.`parent`) OR (`author-link` = '%s'))
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
+		dbesc($contact["url"]),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
+
+
 
 	$tab_str = contact_tabs($a, $contact_id, 1);
 
