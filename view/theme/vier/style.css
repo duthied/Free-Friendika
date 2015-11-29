@@ -1199,6 +1199,21 @@ section.minimal {
   height: 100%;
 }
 
+#contact-entry-wrapper-network {
+  float: none;
+  width: 100%;
+  background-color: #FAFAFA;
+  box-shadow: 1px 2px 0px 0px #D8D8D8;
+  border-bottom: 1px solid #D2D2D2;
+  padding: 10px 10px 0 10px;
+  width: 745px;
+}
+#contact-entry-accounttype-network {
+  font-size: 20px;
+}
+#contact-entry-name-network {
+  font-size: 24.5px;
+}
 /* wall item */
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */
