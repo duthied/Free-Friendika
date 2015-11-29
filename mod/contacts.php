@@ -549,6 +549,14 @@ function contacts_content(&$a) {
 
 		// tabs
 		$tabs = array(
+                        array(
+                                'label'=>t('Network Posts'),
+                                'url' => "network/0?nets=all&cid=".$contact["id"],
+                                'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
+                                'title' => t('Status Messages and Posts'),
+                                'id' => 'status-tab',
+                                'accesskey' => 'm',
+                        ),
 			array(
 				'label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
 				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
@@ -602,8 +610,17 @@ function contacts_content(&$a) {
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
 			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
+
+		$header = $contact["name"];
+
+		if ($contact["addr"] != "")
+			$header .= " <".$contact["addr"].">";
+
+		$header .= " (".network_to_name($contact['network'], $contact['url']).")";
+
 		$o .= replace_macros($tpl, array(
-			'$header' => t('Contact Editor'),
+			//'$header' => t('Contact Editor'),
+			'$header' => htmlentities($header),
 			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
@@ -653,6 +670,12 @@ function contacts_content(&$a) {
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
 			'$profileurl' => $contact['url'],
+			'$location' => bbcode($contact["location"]),
+			'$location_label' => t("Location:"),
+			'$about' => bbcode($contact["about"], false, false),
+			'$about_label' => t("About:"),
+			'$keywords' => $contact["keywords"],
+			'$keywords_label' => t("Tags:")
 
 		));
 
