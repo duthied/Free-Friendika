@@ -435,7 +435,7 @@ code {
 /*  color: #000; */
 }
 
-.group-selected, .nets-selected, .fileas-selected {
+.group-selected, .nets-selected, .fileas-selected, .forum-selected {
   font-weight: bold;
 }
 

@@ -222,6 +222,9 @@ function vier_community_info() {
 
 		require_once('include/forums.php');
 
+		if(x($_GET['cid']) && intval($_GET['cid']) != 0)
+			$cid = $_GET['cid'];
+
 		//sort by last updated item
 		$lastitem = true;
 
@@ -235,11 +238,14 @@ function vier_community_info() {
 
 			foreach($contacts as $contact) {
 
+				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
+
 				$entry = array(
-					'url' => $a->get_baseurl() . '/network?f=&cid=' . $contact['id'],
-					'external_url' => $a->get_baseurl() . '/redir/' . $contact['id'],
+					'url' => z_root() . '/network?f=&cid=' . $contact['id'],
+					'external_url' => z_root() . '/redir/' . $contact['id'],
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
+					'selected' 	=> $selected,
 					'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
 					'id' => ++$id,
 				);
