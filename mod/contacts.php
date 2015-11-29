@@ -55,8 +55,7 @@ function contacts_init(&$a) {
 		$findpeople_widget .= findpeople_widget();
 	}
 
-	if ($a->argv[2] != "posts")
-		$groups_widget .= group_side('contacts','group','full',0,$contact_id);
+	$groups_widget .= group_side('contacts','group','full',0,$contact_id);
 
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,
