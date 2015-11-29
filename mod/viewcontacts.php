@@ -26,19 +26,30 @@ function viewcontacts_content(&$a) {
 	}
 
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ",
-		intval($a->profile['uid'])
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s')",
+		intval($a->profile['uid']),
+		dbesc(NETWORK_DFRN),
+		dbesc(NETWORK_DIASPORA),
+		dbesc(NETWORK_OSTATUS)
 	);
 	if(count($r))
 		$a->set_pager_total($r[0]['total']);
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0 ORDER BY `name` ASC LIMIT %d , %d ",
+	$r = q("SELECT * FROM `contact`
+		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			AND `network` IN ('%s', '%s', '%s')
+		ORDER BY `name` ASC LIMIT %d, %d",
 		intval($a->profile['uid']),
+		dbesc(NETWORK_DFRN),
+		dbesc(NETWORK_DIASPORA),
+		dbesc(NETWORK_OSTATUS),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-	if(! count($r)) {
-		info( t('No contacts.') . EOL );
+	if(!count($r)) {
+		info(t('No contacts.').EOL);
 		return $o;
 	}
 
@@ -64,6 +75,7 @@ function viewcontacts_content(&$a) {
 		$contacts[] = array(
 			'id' => $rr['id'],
 			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
+			'photo_menu' => contact_photo_menu($rr),
 			'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 			'name' => htmlentities(substr($rr['name'],0,20)),
 			'username' => htmlentities($rr['name']),
