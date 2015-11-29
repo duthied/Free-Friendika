@@ -286,7 +286,7 @@ function get_contact_details_by_url($url, $uid = -1) {
 }
 
 if(! function_exists('contact_photo_menu')){
-function contact_photo_menu($contact) {
+function contact_photo_menu($contact, $uid = 0) {
 
 	$a = get_app();
 
@@ -297,6 +297,33 @@ function contact_photo_menu($contact) {
 	$posts_link="";
 	$contact_drop_link = "";
 	$poke_link="";
+
+	if ($uid == 0)
+		$uid = local_user();
+
+	if ($contact["uid"] != $uid) {
+		if ($uid == 0) {
+			$profile_link = zrl($contact['url']);
+			$menu = Array('profile' => array(t("View Profile"), $profile_link, true));
+
+			return $menu;
+		}
+
+		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `network` = '%s' AND `uid` = %d",
+			dbesc($contact["nurl"]), dbesc($contact["network"]), intval($uid));
+		if ($r)
+			return contact_photo_menu($r[0], $uid);
+		else {
+			$profile_link = zrl($contact['url']);
+			$connlnk = 'follow/?url='.$contact['url'];
+			$menu = Array(
+				'profile' => array(t("View Profile"), $profile_link, true),
+				'follow' => array(t("Connect/Follow"), $connlnk, true)
+				);
+
+			return $menu;
+		}
+	}
 
 	$sparkle = false;
 	if($contact['network'] === NETWORK_DFRN) {
