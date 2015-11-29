@@ -908,9 +908,12 @@ function contact_posts($a, $contact_id) {
 
 	$header .= " (".network_to_name($contact['network'], $contact['url']).")";
 
-//{{include file="section_title.tpl"}}
+	$tpl = get_markup_template("section_title.tpl");
+	$o = replace_macros($tpl,array(
+                '$title' => htmlentities($header)
+        ));
 
-	$o = "<h2>".htmlentities($header)."</h2>".$tab_str;
+	$o .= $tab_str;
 
 	$o .= conversation($a,$r,'community',false);
 
