@@ -29,15 +29,15 @@
 <div id="event-adjust-break"></div>
 
 <div id="event-summary-text">{{$t_text}}</div>
-<input type="text" id="event-summary" name="summary" value="{{$t_orig|escape:'html'}}" />
+<input type="text" size="65" id="event-summary" name="summary" value="{{$t_orig|escape:'html'}}" />
 
 
 <div id="event-desc-text">{{$d_text}}</div>
-<textarea id="event-desc-textarea" name="desc">{{$d_orig}}</textarea>
+<textarea rows="8" cols="64" id="event-desc-textarea" name="desc">{{$d_orig}}</textarea>
 
 
 <div id="event-location-text">{{$l_text}}</div>
-<textarea id="event-location-textarea" name="location">{{$l_orig}}</textarea>
+<textarea rows="4" cols="64" id="event-location-textarea" name="location">{{$l_orig}}</textarea>
 
 <div id="event-location-break"></div>
 
