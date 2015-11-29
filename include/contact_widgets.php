@@ -20,12 +20,12 @@ function findpeople_widget() {
 	if(get_config('system','invitation_only')) {
 		$x = get_pconfig(local_user(),'system','invites_remaining');
 		if($x || is_site_admin()) {
-			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
-			. sprintf( tt('%d invitation available','%d invitations available',$x), $x) 
+			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
+			. sprintf( tt('%d invitation available','%d invitations available',$x), $x)
 			. '</div>' . $inv;
 		}
 	}
- 
+
 	return replace_macros(get_markup_template('peoplefind.tpl'),array(
 		'$findpeople' => t('Find People'),
 		'$desc' => t('Enter name or interest'),
@@ -48,7 +48,7 @@ function unavailable_networks() {
 	if (!plugin_enabled("appnet"))
 		$networks[] = NETWORK_APPNET;
 
-	if (!plugin_enabled("fbpost"))
+	if (!plugin_enabled("fbpost") AND !plugin_enabled("facebook"))
 		$networks[] = NETWORK_FACEBOOK;
 
 	if (!plugin_enabled("statusnet"))
@@ -217,7 +217,7 @@ function common_friends_visitor_widget($profile_uid) {
 	}
 
 	if($cid == 0 && $zcid == 0)
-		return; 
+		return;
 
 	require_once('include/socgraph.php');
 
@@ -241,6 +241,6 @@ function common_friends_visitor_widget($profile_uid) {
 		'$linkmore' => (($t > 5) ? 'true' : ''),
 		'$more' => t('show more'),
 		'$items' => $r
-	)); 
+	));
 
 };
