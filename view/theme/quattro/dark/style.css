@@ -838,7 +838,6 @@ aside #profile-extra-links li {
   margin: 0px;
   list-style: none;
 }
-aside #subscribe-feed-link,
 aside #wallmessage-link {
   display: block;
   -moz-border-radius: 5px 5px 5px 5px;
@@ -851,7 +850,6 @@ aside #wallmessage-link {
   padding: 4px 2px 2px 35px;
   margin-top: 3px;
 }
-aside #subscribe-feed:hover,
 aside #wallmessage-link:hover {
   text-decoration: none;
   background-color: #19aeff;
@@ -868,6 +866,21 @@ aside #dfrn-request-link {
   padding: 4px 2px 2px 35px;
 }
 aside #dfrn-request-link:hover {
+  text-decoration: none;
+  background-color: #19aeff;
+}
+aside #subscribe-feed-link {
+  display: block;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  color: #ffffff;
+  background: #005c94 url('../../../images/connect-bg.png') no-repeat left center;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 2px 2px 35px;
+}
+aside #subscribe-feed-link:hover {
   text-decoration: none;
   background-color: #19aeff;
 }
