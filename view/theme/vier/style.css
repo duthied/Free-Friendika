@@ -1007,9 +1007,11 @@ aside #profile-extra-links ul {
 }
 aside #profile-extra-links li {
   padding: 0px;
+  padding-bottom: 4px;
   margin: 0px;
   list-style: none;
 }
+aside #subscribe-feed-link,
 aside #dfrn-request-link,
 aside #wallmessage-link {
   display: block;
@@ -1022,6 +1024,7 @@ aside #wallmessage-link {
   text-transform: uppercase;
   padding: 4px 2px 2px 35px;
 }
+aside #subscribe-feed-link:hover,
 aside #dfrn-request-link:hover,
 aside #wallmessage-link:hover {
   text-decoration: none;

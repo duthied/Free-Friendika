@@ -284,6 +284,7 @@ aside {
 /*	float:left;*/
 }
 
+#subscribe-feed-link,
 #dfrn-request-link {
 	display: block;
 	color: #FFFFFF;

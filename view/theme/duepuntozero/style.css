@@ -205,6 +205,7 @@ aside {
 	font-weight: bold;
 	background: #3465a4 url('friendica-16.png') no-repeat 95% center;
 }
+#subscribe-feed-link,
 #wallmessage-link {
 	display: block;
 	color: #FFFFFF;
