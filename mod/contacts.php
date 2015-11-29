@@ -13,7 +13,7 @@ function contacts_init(&$a) {
 
 	$contact_id = 0;
 
-	if(($a->argc == 2) && intval($a->argv[1])) {
+	if((($a->argc == 2) && intval($a->argv[1])) OR (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
 		$contact_id = intval($a->argv[1]);
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
 			intval(local_user()),
@@ -55,7 +55,8 @@ function contacts_init(&$a) {
 		$findpeople_widget .= findpeople_widget();
 	}
 
-	$groups_widget .= group_side('contacts','group','full',0,$contact_id);
+	if ($a->argv[2] != "posts")
+		$groups_widget .= group_side('contacts','group','full',0,$contact_id);
 
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,
@@ -464,6 +465,9 @@ function contacts_content(&$a) {
 				goaway($a->get_baseurl(true) . '/contacts');
 			return; // NOTREACHED
 		}
+		if($cmd === 'posts') {
+			return contact_posts($a, $contact_id);
+		}
 	}
 
 
@@ -548,51 +552,7 @@ function contacts_content(&$a) {
 		$all_friends = (($x) ? t('View all contacts') : '');
 
 		// tabs
-		$tabs = array(
-                        array(
-                                'label'=>t('Network Posts'),
-                                'url' => "network/0?nets=all&cid=".$contact["id"],
-                                'sel' => ((!isset($tab)&&$a->argv[0]=='profile')?'active':''),
-                                'title' => t('Status Messages and Posts'),
-                                'id' => 'status-tab',
-                                'accesskey' => 'm',
-                        ),
-			array(
-				'label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
-				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
-				'sel'   => '',
-				'title' => t('Toggle Blocked status'),
-				'id'	=> 'toggle-block-tab',
-				'accesskey' => 'b',
-			),
-			array(
-				'label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
-				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
-				'sel'   => '',
-				'title' => t('Toggle Ignored status'),
-				'id'	=> 'toggle-ignore-tab',
-				'accesskey' => 'i',
-			),
-
-			array(
-				'label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
-				'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
-				'sel'   => '',
-				'title' => t('Toggle Archive status'),
-				'id'	=> 'toggle-archive-tab',
-				'accesskey' => 'v',
-			),
-			array(
-				'label' => t('Repair'),
-				'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
-				'sel'   => '',
-				'title' => t('Advanced Contact Settings'),
-				'id'	=> 'repair-tab',
-				'accesskey' => 'r',
-			)
-		);
-		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
+		$tab_str = contact_tabs($a, $contact_id, 2);
 
 		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
@@ -849,6 +809,116 @@ function contacts_content(&$a) {
 		'$paginate' => paginate($a),
 
 	));
+
+	return $o;
+}
+
+function contact_tabs($a, $contact_id, $active_tab) {
+	// tabs
+	$tabs = array(
+		array(
+			'label'=>t('Status'),
+			'url' => "contacts/".$contact_id."/posts",
+			'sel' => (($active_tab == 1)?'active':''),
+			'title' => t('Status Messages and Posts'),
+			'id' => 'status-tab',
+			'accesskey' => 'm',
+		),
+		array(
+			'label'=>t('Profile'),
+			'url' => "contacts/".$contact_id,
+			'sel' => (($active_tab == 2)?'active':''),
+			'title' => t('Profile Details'),
+			'id' => 'status-tab',
+			'accesskey' => 'r',
+		),
+		array(
+			'label' => t('Repair'),
+			'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
+			'sel' => (($active_tab == 3)?'active':''),
+			'title' => t('Advanced Contact Settings'),
+			'id'	=> 'repair-tab',
+			'accesskey' => 'r',
+		),
+		array(
+			'label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
+			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
+			'sel'   => '',
+			'title' => t('Toggle Blocked status'),
+			'id'	=> 'toggle-block-tab',
+			'accesskey' => 'b',
+		),
+		array(
+			'label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
+			'sel'   => '',
+			'title' => t('Toggle Ignored status'),
+			'id'	=> 'toggle-ignore-tab',
+			'accesskey' => 'i',
+		),
+		array(
+			'label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
+			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
+			'sel'   => '',
+			'title' => t('Toggle Archive status'),
+			'id'	=> 'toggle-archive-tab',
+			'accesskey' => 'v',
+		)
+	);
+	$tab_tpl = get_markup_template('common_tabs.tpl');
+	$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
+
+	return $tab_str;
+}
+
+function contact_posts($a, $contact_id) {
+
+	require_once('include/conversation.php');
+
+	$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if ($r) {
+		$contact = $r[0];
+		$a->page['aside'] = "";
+		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
+	}
+
+	$r = q("SELECT COUNT(*) AS `total` FROM `item`
+		WHERE `item`.`uid` = %d AND `contact-id` = %d AND `item`.`id` = `item`.`parent`",
+		intval(local_user()), intval($contact_id));
+
+	$a->set_pager_total($r[0]['total']);
+
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+			`author-name` AS `name`, `owner-avatar` AS `photo`,
+			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+		FROM `item` WHERE `item`.`uid` = %d AND `contact-id` = %d AND `item`.`id` = `item`.`parent`
+		ORDER BY `item`.`created` DESC LIMIT %d, %d",
+		intval(local_user()),
+		intval($contact_id),
+		intval($a->pager['start']),
+		intval($a->pager['itemspage'])
+	);
+
+	$tab_str = contact_tabs($a, $contact_id, 1);
+
+	$header = $contact["name"];
+
+	if ($contact["addr"] != "")
+		$header .= " <".$contact["addr"].">";
+
+	$header .= " (".network_to_name($contact['network'], $contact['url']).")";
+
+//{{include file="section_title.tpl"}}
+
+	$o = "<h2>".htmlentities($header)."</h2>".$tab_str;
+
+	$o .= conversation($a,$r,'community',false);
+
+	if(!get_config('system', 'old_pager')) {
+		$o .= alt_pager($a,count($r));
+	} else {
+		$o .= paginate($a);
+	}
 
 	return $o;
 }

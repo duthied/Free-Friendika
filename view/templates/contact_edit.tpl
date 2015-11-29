@@ -62,6 +62,7 @@
 	</div>
 	<div id="contact-edit-nav-end"></div>
 
+<hr />
 
 <form action="contacts/{{$contact_id}}" method="post" >
 <input type="hidden" name="contact_id" value="{{$contact_id}}">
