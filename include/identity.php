@@ -218,15 +218,15 @@ if(! function_exists('profile_sidebar')) {
 		if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
 			$connect = false;
 
-		if ($connect)
+		if (isset($profile['remoteconnect']))
+			$remoteconnect = $profile['remoteconnect'];
+
+		if ($connect AND ($profile['network'] == NETWORK_DFRN) AND !isset($remoteconnect))
 			$subscribe_feed = t("Atom feed");
 		else
 			$subscribe_feed = false;
 
-		if (isset($profile['remoteconnect']))
-			$remoteconnect = $profile['remoteconnect'];
-
-		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
+		if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))
 			$wallmessage = t('Message');
 		else
 			$wallmessage = false;
