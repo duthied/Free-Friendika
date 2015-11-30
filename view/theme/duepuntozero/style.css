@@ -3338,6 +3338,17 @@ div.jGrowl div.info {
 }
 
 /* notifications popup menu */
+.manage-notify {
+  font-size: 10px;
+  padding: 1px 3px;
+  top: 0px;
+  min-width: 15px;
+  text-align: center;
+  float: right;
+  margin-top: -14px;
+  margin-right: -20px;
+}
+
 .nav-notify {
 	display: none;
 	position: absolute;

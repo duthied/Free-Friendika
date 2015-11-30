@@ -667,6 +667,7 @@ nav .nav-menu img {
   margin-top: -3px;
   margin-right: 4px;
 }
+
 nav .nav-menu-icon .nav-notify {
   top: 3px;
 }
@@ -701,6 +702,23 @@ nav .nav-menu:hover {
 /*    background: #4c619c; */
     text-decoration: none;
 }
+
+.manage-notify {
+   background-color: #F80;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  font-size: 10px;
+  padding: 1px 3px;
+  top: 0px;
+  min-width: 15px;
+  text-align: center;
+  color: white;
+  float: right;
+  margin-top: -14px;
+  margin-right: -20px;
+}
+
 nav .nav-notify {
   display: none;
   position: absolute;
@@ -720,6 +738,7 @@ nav .nav-notify {
   text-align: center;
   color: white;
 }
+
 nav .nav-notify.show {
   display: block;
 }

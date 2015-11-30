@@ -17,6 +17,12 @@ nav a:hover,
   color: #000;
 }
 
+.manage-notify {
+  background-color: #CB4437;
+  border-radius: 10px;
+  font: bold 11px/16px Arial;
+}
+
 nav .nav-notify {
 /*  background-color: #427FED; */
   background-color: #CB4437;
