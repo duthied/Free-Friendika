@@ -19,6 +19,7 @@ General
 * v: Videos
 * e: Events and Calendar
 * t: Personal Notes
+* k: View Contacts
 
 /contacts (contact list)
 ---------
