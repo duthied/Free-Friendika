@@ -707,7 +707,7 @@ if(! function_exists('profile_tabs')){
 				'sel'	=> ((!isset($tab)&&$a->argv[0]=='viewcontacts')?'active':''),
 				'title' => t('Contacts'),
 				'id' => 'viewcontacts-tab',
-				'accesskey' => 's',
+				'accesskey' => 'k',
 			);
 		}
 
