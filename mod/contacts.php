@@ -881,17 +881,20 @@ function contact_posts($a, $contact_id) {
 		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `item`
-		WHERE `item`.`uid` = %d AND `contact-id` = %d AND `item`.`id` = `item`.`parent`",
-		intval(local_user()), intval($contact_id));
+	if(get_config('system', 'old_pager')) {
+		$r = q("SELECT COUNT(*) AS `total` FROM `item`
+			WHERE `item`.`uid` = %d AND (`author-link` = '%s')",
+			intval(local_user()), dbesc($contact["url"]));
 
-	$a->set_pager_total($r[0]['total']);
+		$a->set_pager_total($r[0]['total']);
+	}
 
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` WHERE `item`.`uid` = %d AND `contact-id` = %d
-			AND ((`item`.`id` = `item`.`parent`) OR (`author-link` = '%s'))
+		FROM `item` FORCE INDEX (uid_contactid_created)
+		WHERE `item`.`uid` = %d AND `contact-id` = %d
+			AND (`author-link` = '%s')
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
@@ -899,8 +902,6 @@ function contact_posts($a, $contact_id) {
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-
-
 
 	$tab_str = contact_tabs($a, $contact_id, 1);
 
