@@ -87,7 +87,6 @@ function add_shadow_entry($item) {
 
 	// Is there already a shadow entry?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
-
 	if (count($r))
 		return;
 
