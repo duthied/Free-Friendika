@@ -791,6 +791,29 @@ ul.menu-popup .toolbar a:hover {
   color: #9eabb0;
   display: block;
 }
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
+  width: 100%;
+  min-height: 100px;
+  background-color: #eff0f1;
+  border-bottom: 1px solid #cccccc;
+}
+#viewcontact_wrapper-network #contact-entry-wrapper-network {
+  float: none;
+  width: auto;
+  height: auto;
+  padding: 10px;
+}
+#viewcontact_wrapper-network #contact-entry-wrapper-network #contact-entry-accounttype-network {
+  font-size: 22px;
+}
+#viewcontact_wrapper-network #contact-entry-wrapper-network #contact-entry-name-network {
+  font-size: 24.5px;
+  font-weight: normal;
+}
+#viewcontact_wrapper-network #contact-entry-wrapper-network .contact-details {
+  font-size: 12px;
+}
 /* aside 230px*/
 aside {
   display: table-cell;

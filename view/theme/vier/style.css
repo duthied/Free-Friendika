@@ -1199,14 +1199,20 @@ section.minimal {
   height: 100%;
 }
 
-#contact-entry-wrapper-network {
-  float: none;
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
   width: 100%;
+  min-height: 100px;
   background-color: #FAFAFA;
   box-shadow: 1px 2px 0px 0px #D8D8D8;
   border-bottom: 1px solid #D2D2D2;
-  padding: 10px 10px 0 10px;
-  width: 745px;
+}
+#contact-entry-wrapper-network {
+  float: none;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  margin: 0;
 }
 #contact-entry-accounttype-network {
   font-size: 20px;
@@ -1214,6 +1220,10 @@ section.minimal {
 #contact-entry-name-network {
   font-size: 24.5px;
 }
+.contact-entry-photo img {
+  border-radius: 4px;
+}
+
 /* wall item */
 .tread-wrapper {
 /*    border-bottom: 1px solid #BDCDD4; */

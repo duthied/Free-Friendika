@@ -149,6 +149,30 @@ section {
 	padding-bottom: 2em;
 }
 
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
+	width: 100%;
+	min-height: 110px;
+	background-color: #FAFAFA;
+	box-shadow: 0 0 8px #BDBDBD;
+	border-bottom: 1px solid #dedede;
+	border: 1px solid #7C7D7B;
+	border-radius: 5px;
+}
+#contact-entry-wrapper-network {
+	float: none;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	margin: 0;
+}
+#contact-entry-accounttype-network {
+	font-size: 20px;
+}
+#contact-entry-name-network {
+	font-size: 24.5px;
+}
+
 .lframe {
 	border: 1px solid #7C7D7B;
 	box-shadow: 3px 3px 6px #959494;

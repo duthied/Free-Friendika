@@ -152,14 +152,6 @@ function network_init(&$a) {
 	$a->page['aside'] .= saved_searches($search);
 	$a->page['aside'] .= fileas_widget($a->get_baseurl(true) . '/network',(x($_GET, 'file') ? $_GET['file'] : ''));
 
-//	if(x($_GET['cid']) && intval($_GET['cid']) != 0) {
-//		$r = q("SELECT `url` FROM `contact` WHERE `id` = %d",
-//			intval($_GET['cid']));
-//		if ($r) {
-//			$a->page['aside'] = "";
-//			profile_load($a, "", 0, get_contact_details_by_url($r[0]["url"]));
-//		}
-//	}
 }
 
 function saved_searches($search) {
@@ -605,6 +597,7 @@ function network_content(&$a, $update = 0) {
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,
+				'id' => 'network',
 			)) . $o;
 
 			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
