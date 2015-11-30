@@ -2671,6 +2671,13 @@ a.mail-list-link {
         font-weight: bold;
         color: #FF0000;
 }
+#event-desc-text-edit-bb, #event-location-text-edit-bb {
+  float: none;
+}
+#event-start-text, #event-finish-text, #event-summary-text, #event-desc-text, #event-location-text {
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
 
 .settings-block {
         /* border: 1px solid #AAA; */
