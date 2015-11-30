@@ -75,7 +75,9 @@ function directory_content(&$a) {
 	$publish = ((get_config('system','publish_all')) ? '' : " AND `publish` = 1 " );
 
 
-	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
+	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
 	if(count($r))
 		$a->set_pager_total($r[0]['total']);
 
@@ -83,7 +85,11 @@ function directory_content(&$a) {
 
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra $order LIMIT ".$limit);
+	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+			`contact`.`addr` AS faddr, `contact`.`url` AS profile_url FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if(count($r)) {
 
 		if(in_array('small', $a->argv))
@@ -93,8 +99,12 @@ function directory_content(&$a) {
 
 		foreach($r as $rr) {
 
+			$community = '';
+			$itemurl= '';
 
-			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+			$itemurl = (($rr['faddr'] != "") ? $rr['faddr'] : $rr['profile_url']);
+
+			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 
@@ -111,23 +121,19 @@ function directory_content(&$a) {
 					$details .= ', ';
 				$details .= $rr['country-name'];
 			}
-			if(strlen($rr['dob'])) {
-				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-					$details .= '<br />' . t('Age: ') . $years ; 
-			}
-			if(strlen($rr['gender']))
-				$details .= '<br />' . t('Gender: ') . $rr['gender'];
+//			if(strlen($rr['dob'])) {
+//				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
+//					$details .= '<br />' . t('Age: ') . $years ; 
+//			}
+//			if(strlen($rr['gender']))
+//				$details .= '<br />' . t('Gender: ') . $rr['gender'];
 
-			if($rr['page-flags'] == PAGE_NORMAL)
-				$page_type = "Personal Profile";
-			if($rr['page-flags'] == PAGE_SOAPBOX)
-				$page_type = "Fan Page";
-			if($rr['page-flags'] == PAGE_COMMUNITY)
-				$page_type = "Community Forum";
-			if($rr['page-flags'] == PAGE_FREELOVE)
-				$page_type = "Open Forum";
-			if($rr['page-flags'] == PAGE_PRVGROUP)
-				$page_type = "Private Group";
+
+			// show if account is a community account
+			// ToDo the other should be also respected, but first we need a good translatiion
+			// and systemwide consistency for displaying the page type
+			if((intval($rr['page-flags']) == PAGE_COMMUNITY) OR (intval($rr['page-flags']) == PAGE_PRVGROUP))
+				$community = true;
 
 			$profile = $rr;
 
@@ -158,13 +164,15 @@ function directory_content(&$a) {
 			$entry = array(
 				'id' => $rr['id'],
 				'url' => $profile_link,
+				'itemurl' => $itemurl,
 				'thumb' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
 				'img_hover' => $rr['name'],
 				'name' => $rr['name'],
-				'details' => $pdesc . $details,
-				'page_type' => $page_type,
+				'details' => $details,
+				'account_type' => ($community ? t('Forum') : ''),
 				'profile' => $profile,
 				'location' => $location_e,
+				'tags' => $rr['pub_keywords'],
 				'gender'   => $gender,
 				'pdesc'	=> $pdesc,
 				'marital'  => $marital,

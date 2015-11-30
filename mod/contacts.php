@@ -38,7 +38,7 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? $a->get_baseurl()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
 			));
 			$finpeople_widget = '';
 			$follow_widget = '';
@@ -65,7 +65,7 @@ function contacts_init(&$a) {
 		'$networks_widget' => $networks_widget
 	));
 
-	$base = $a->get_baseurl();
+	$base = z_root();
 	$tpl = get_markup_template("contacts-head.tpl");
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
 		'$baseurl' => $a->get_baseurl(true),
@@ -786,7 +786,7 @@ function contacts_content(&$a) {
 
 	$tpl = get_markup_template("contacts-template.tpl");
 	$o .= replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => z_root(),
 		'$header' => t('Contacts') . (($nets) ? ' - ' . network_to_name($nets) : ''),
 		'$tabs' => $t,
 		'$total' => $total,
@@ -931,6 +931,9 @@ function contact_posts($a, $contact_id) {
 }
 
 function _contact_detail_for_template($rr){
+
+	$community = '';
+
 	switch($rr['rel']) {
 		case CONTACT_IS_FRIEND:
 			$dir_icon = 'images/lrarrow.gif';
@@ -956,6 +959,10 @@ function _contact_detail_for_template($rr){
 		$sparkle = '';
 	}
 
+	//test if contact is a forum page
+	if (isset($rr['forum']) OR isset($rr['prv']))
+				$community = ($rr['forum'] OR $rr['prv']);
+
 
 	return array(
 		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
@@ -967,6 +974,7 @@ function _contact_detail_for_template($rr){
 		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 		'name' => htmlentities($rr['name']),
 		'username' => htmlentities($rr['name']),
+		'account_type' => ($community ? t('Forum') : ''),
 		'sparkle' => $sparkle,
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,
