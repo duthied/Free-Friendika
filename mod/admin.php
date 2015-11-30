@@ -121,10 +121,10 @@ function admin_content(&$a) {
 	/**
 	 * Side bar links
 	 */
-	$aside = Array();
+	$aside_tools = Array();
 	// array( url, name, extra css classes )
 	// not part of $aside to make the template more adjustable
-	$asidesubpages = Array(
+	$aside_sub = Array(
 		'site'	 =>	Array($a->get_baseurl(true)."/admin/site/", t("Site") , "site"),
 		'users'	 =>	Array($a->get_baseurl(true)."/admin/users/", t("Users") , "users"),
 		'plugins'=>	Array($a->get_baseurl(true)."/admin/plugins/", t("Plugins") , "plugins"),
@@ -138,7 +138,7 @@ function admin_content(&$a) {
 	/* get plugins admin page */
 
 	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin`=1 ORDER BY `name`");
-	$aside['plugins_admin']=Array();
+	$aside_tools['plugins_admin']=Array();
 	foreach ($r as $h){
 		$plugin =$h['name'];
 		$aside['plugins_admin'][] = Array($a->get_baseurl(true)."/admin/plugins/".$plugin, $plugin, "plugin");
@@ -146,14 +146,14 @@ function admin_content(&$a) {
 		$a->plugins_admin[] = $plugin;
 	}
 
-	$aside['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
-	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
-	$aside['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
+	$aside_tools['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
+	$aside_tools['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
+	$aside_tools['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
-	    '$admin' => $aside,
-	    '$subpages' => $asidesubpages,
+	    '$admin' => $aside_tools,
+	    '$subpages' => $aside_sub,
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
 			'$logtxt' => t('Logs'),
