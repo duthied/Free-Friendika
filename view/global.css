@@ -301,3 +301,15 @@ ul.credits li {
 #forum-widget-collapse:hover {
   opacity: 1.0;
 }
+
+.crepair-label {
+        margin-top: 10px;
+        float: left;
+        width: 250px;
+}
+
+.crepair-input {
+        margin-top: 10px;
+        float: left;
+        width: 200px;
+}

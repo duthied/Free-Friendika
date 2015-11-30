@@ -1,4 +1,6 @@
 <?php
+require_once("include/contact_selectors.php");
+require_once("mod/contacts.php");
 
 function crepair_init(&$a) {
 	if(! local_user())
@@ -157,9 +159,20 @@ function crepair_content(&$a) {
 
 	$update_profile = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DSPR, NETWORK_OSTATUS));
 
+	$tab_str = contact_tabs($a, $contact['id'], 3);
+
+	$header = $contact["name"];
+
+       if ($contact["addr"] != "")
+                $header .= " <".$contact["addr"].">";
+
+        $header .= " (".network_to_name($contact['network'], $contact['url']).")";
+
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
-		'$title'	=> t('Repair Contact Settings'),
+		//'$title'	=> t('Repair Contact Settings'),
+		'$title'	=> htmlentities($header),
+		'$tab_str'	=> $tab_str,
 		'$warning'	=> $warning,
 		'$info'		=> $info,
 		'$returnaddr'	=> $returnaddr,

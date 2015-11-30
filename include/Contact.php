@@ -349,7 +349,7 @@ function contact_photo_menu($contact, $uid = 0) {
 		$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
 
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
-	$posts_link = $a->get_baseurl() . '/network/0?nets=all&cid=' . $contact['id'];
+	$posts_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/posts';
 	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
 
 
