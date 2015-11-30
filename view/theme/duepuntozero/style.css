@@ -278,6 +278,31 @@ div.wall-item-content-wrapper.shiny {
 	margin: 15px 0 15px 150px;
 }
 
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
+	width: 100%;
+	min-height: 100px;
+	background-color: #DBE6F1;
+	border-bottom: 1px solid #babdb6;
+}
+#contact-entry-wrapper-network {
+	float: none;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	margin: 0px
+}
+#contact-entry-accounttype-network {
+	font-size: 20px;
+}
+#contact-entry-name-network {
+	font-size: 24.5px;
+}
+/*#contact-entry-name-network>.contact-entry-details, #contact-entry-url-network,
+#contact-entry-details-network, contact-entry-network-network {
+	color: #000;
+}*/
+
 /* from default */
 #jot-perms-icon,
 #profile-location,

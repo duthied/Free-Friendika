@@ -57,5 +57,9 @@ input#side-peoplefind-submit, input#side-follow-submit {
 }
 
 li :hover {
-	color: #767676 !important;	
+	color: #767676 !important;
+}
+
+#viewcontact_wrapper-network {
+	background-color: #343434;
 }

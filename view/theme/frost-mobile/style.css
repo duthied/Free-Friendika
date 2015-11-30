@@ -421,6 +421,27 @@ section {
 	clear: both;
 }
 
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
+	width: 100%;
+	min-height: 100px;
+	background-color: #FAFAFA;
+	border: 1px solid #DDDDDD;
+	border-radius: 5px;
+}
+#contact-entry-wrapper-network {
+	float: none;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	margin: 0;
+}
+#contact-entry-accounttype-network {
+	font-size: 0.9em;
+}
+#contact-entry-name-network {
+	font-size: 1.5em;
+}
 
 /* footer */
 footer {

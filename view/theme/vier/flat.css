@@ -16,3 +16,8 @@ aside {
 right_aside {
   border-left: 1px solid #D2D2D2;
 }
+
+#viewcontact_wrapper-network {
+  background-color: #FFF;
+  border-bottom: 1px solid #D2D2D2;
+}

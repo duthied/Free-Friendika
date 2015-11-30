@@ -3,8 +3,9 @@ a:hover {text-decoration: underline; }
 
 
 body { 	background-image: url('imgpurplezero/head.jpg'); }
-aside( 	background-image: url('imgpurplezero/border.jpg'); }
+aside {	background-image: url('imgpurplezero/border.jpg'); }
 section { 	background-image: url('imgpurplezero/border.jpg'); }
+#viewcontact_wrapper-network { background: #ECCAEB; }
 .tabs {	background-image: url('imgpurplezero/head.jpg'); }
 div.wall-item-content-wrapper.shiny {  background-image: url('imgpurplezero/shiny.png'); }
 

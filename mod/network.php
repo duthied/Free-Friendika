@@ -154,14 +154,6 @@ function network_init(&$a) {
 	$a->page['aside'] .= saved_searches($search);
 	$a->page['aside'] .= fileas_widget($a->get_baseurl(true) . '/network',(x($_GET, 'file') ? $_GET['file'] : ''));
 
-	if(x($_GET['cid']) && intval($_GET['cid']) != 0) {
-		$r = q("SELECT `url` FROM `contact` WHERE `id` = %d",
-			intval($_GET['cid']));
-		if ($r) {
-			$a->page['aside'] = "";
-			profile_load($a, "", 0, get_contact_details_by_url($r[0]["url"]));
-		}
-	}
 }
 
 function saved_searches($search) {
@@ -585,7 +577,7 @@ function network_content(&$a, $update = 0) {
 	}
 	elseif($cid) {
 
-		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl` FROM `contact` WHERE `id` = %d
+		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
 				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($cid)
 		);
@@ -596,8 +588,18 @@ function network_content(&$a, $update = 0) {
 					    ON $sql_table.$sql_parent = `temp1`.`parent` ";
 			$sql_extra = "";
 
-			$o = replace_macros(get_markup_template("section_title.tpl"),array(
-				'$title' => sprintf( t('Contact: %s'), htmlentities($r[0]['name']))
+			$entries[0] = array(
+				'id' => 'network',
+				'name' => htmlentities($r[0]['name']),
+				'itemurl' => (($r[0]['addr']) ? ($r[0]['addr']) : ($r[0]['nurl'])),
+				'thumb' => proxy_url($r[0]['thumb'], false, PROXY_SIZE_THUMB),
+				'account_type' => (($r[0]['forum']) || ($r[0]['prv']) ? t('Forum') : ''),
+				'details' => $r[0]['location'],
+			);
+
+			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
+				'contacts' => $entries,
+				'id' => 'network',
 			)) . $o;
 
 			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
