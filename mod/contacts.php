@@ -899,8 +899,10 @@ function contact_posts($a, $contact_id) {
 
 	if(get_config('system', 'old_pager')) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `item`.`uid` = %d AND (`author-link` = '%s')",
-			intval(local_user()), dbesc($contact["url"]));
+			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
+			intval(local_user()),
+			dbesc(normalise_link($contact["url"])),
+			dbesc(str_replace("http://", "https://", $contact["url"])));
 
 		$a->set_pager_total($r[0]['total']);
 	}
@@ -910,14 +912,18 @@ function contact_posts($a, $contact_id) {
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
 		FROM `item` FORCE INDEX (uid_contactid_created)
 		WHERE `item`.`uid` = %d AND `contact-id` = %d
-			AND (`author-link` = '%s')
+			AND `author-link` IN ('%s', '%s')
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
-		dbesc($contact["url"]),
+		dbesc(normalise_link($contact["url"])),
+		dbesc(str_replace("http://", "https://", $contact["url"])),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
+
+	if (!$r)
+		$o = $contact["url"]." - ".$contact_id;
 
 	$tab_str = contacts_tab($a, $contact_id, 1);
 
