@@ -725,6 +725,16 @@ if(! function_exists('profile_tabs')){
 			);
 		}
 
+		if ((! $is_owner) && ((count($a->profile)) || (! $a->profile['hide-friends']))) {
+			$tabs[] = array(
+				'label' => t('Contacts'),
+				'url'	=> $a->get_baseurl() . '/viewcontacts/' . $nickname,
+				'sel'	=> ((!isset($tab)&&$a->argv[0]=='viewcontacts')?'active':''),
+				'title' => t('Contacts'),
+				'id' => 'viewcontacts-tab',
+				'accesskey' => 'k',
+			);
+		}
 
 		$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
 		call_hooks('profile_tabs', $arr);

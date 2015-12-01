@@ -737,7 +737,14 @@ if(! class_exists('App')) {
 			if($interval < 10000)
 				$interval = 40000;
 
-			$this->page['title'] = $this->config['sitename'];
+			// compose the page title from the sitename and the
+			// current module called
+			if (!$this->module=='')
+			{
+			    $this->page['title'] = $this->config['sitename'].' ('.$this->module.')';
+			} else {
+			    $this->page['title'] = $this->config['sitename'];
+			}
 
 			/* put the head template at the beginning of page['htmlhead']
 			 * since the code added by the modules frequently depends on it

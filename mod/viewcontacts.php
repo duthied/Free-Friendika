@@ -8,7 +8,23 @@ function viewcontacts_init(&$a) {
 		return;
 	}
 
-	profile_load($a,$a->argv[1]);
+	nav_set_selected('home');
+
+	if($a->argc > 1) {
+		$nick = $a->argv[1];
+		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
+			dbesc($nick)
+		);
+
+		if(! count($r))
+			return;
+
+		$a->data['user'] = $r[0];
+		$a->profile_uid = $r[0]['uid'];
+		$is_owner = (local_user() && (local_user() == $a->profile_uid));
+
+		profile_load($a,$a->argv[1]);
+	}
 }
 
 
@@ -25,6 +41,10 @@ function viewcontacts_content(&$a) {
 		return;
 	}
 
+	$o = "";
+
+	// tabs
+	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -93,7 +113,7 @@ function viewcontacts_content(&$a) {
 
 	$tpl = get_markup_template("viewcontact_template.tpl");
 	$o .= replace_macros($tpl, array(
-		'$title' => t('View Contacts'),
+		'$title' => t('Contacts'),
 		'$contacts' => $contacts,
 		'$paginate' => paginate($a),
 	));
