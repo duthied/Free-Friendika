@@ -53,7 +53,7 @@ function videos_init(&$a) {
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
 			if($albums_visible) {
-				$o .= '<div id="side-bar-photos-albums" class="widget">';
+				$o .= '<div id="sidebar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
 
 				$o .= '<ul>';
