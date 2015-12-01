@@ -159,7 +159,7 @@ function crepair_content(&$a) {
 
 	$update_profile = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DSPR, NETWORK_OSTATUS));
 
-	$tab_str = contact_tabs($a, $contact['id'], 3);
+	$tab_str = contacts_tab($a, $contact['id'], 5);
 
 	$header = $contact["name"];
 

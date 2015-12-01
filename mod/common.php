@@ -3,6 +3,7 @@
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
+require_once('mod/contacts.php');
 
 function common_content(&$a) {
 
@@ -29,22 +30,23 @@ function common_content(&$a) {
 			intval($cid),
 			intval($uid)
 		);
-	}
-	else {
+		$a->page['aside'] = "";
+		profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
+	} else {
 		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 			intval($uid)
 		);
+
+		$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
+			'$name' => htmlentities($c[0]['name']),
+			'$photo' => $c[0]['photo'],
+			'url' => z_root() . '/contacts/' . $cid
+		));
+
+		if(! x($a->page,'aside'))
+			$a->page['aside'] = '';
+		$a->page['aside'] .= $vcard_widget;
 	}
-
-	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
-		'$name' => htmlentities($c[0]['name']),
-		'$photo' => $c[0]['photo'],
-		'url' => z_root() . '/contacts/' . $cid
-	));
-
-	if(! x($a->page,'aside'))
-		$a->page['aside'] = '';
-	$a->page['aside'] .= $vcard_widget;
 
 	if(! count($c))
 		return;
@@ -127,10 +129,14 @@ function common_content(&$a) {
 		$entries[] = $entry;
 	}
 
+	if($cmd === 'loc' && $cid && $uid == local_user())
+		$tab_str = contacts_tab($a, $cid, 4);
+
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl,array(
 		'$title' => t('Common Friends'),
+		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 	));
 
