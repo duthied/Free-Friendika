@@ -1196,6 +1196,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
+	// Do we already have this item?
+	// We have to check several networks since Friendica posts could be repeated via OStatus (maybe Diasporsa as well)
+	if (in_array(trim($arr['network']), array(NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""))) {
+		$r = q("SELECT `id`, `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` IN ('%s', '%s', '%s')  LIMIT 1",
+				dbesc(trim($arr['uri'])),
+				intval($uid),
+				dbesc(NETWORK_DIASPORA),
+				dbesc(NETWORK_DFRN),
+				dbesc(NETWORK_OSTATUS)
+			);
+		if ($r) {
+			// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
+			if ($uid != 0)
+				logger("Item with uri ".$arr['uri']." already existed for user ".$uid." with id ".$r[0]["id"]." target network ".$r[0]["network"]." - new network: ".$arr['network']);
+			return($r[0]["id"]);
+		}
+	}
+
 	// If there is no guid then take the same guid that was taken before for the same uri
 	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "") AND (trim($arr['network']) != "")) {
 		logger('item_store: checking for an existing guid for uri '.$arr['uri'], LOGGER_DEBUG);
@@ -1425,9 +1443,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `network` IN ('%s', '%s') AND `uid` = %d LIMIT 1",
 		dbesc($arr['uri']),
 		dbesc($arr['network']),
+		dbesc(NETWORK_DFRN),
 		intval($arr['uid'])
 	);
 	if($r && count($r)) {
@@ -1488,14 +1507,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// And restore it
 	$arr = $unescaped;
 
-	// find the item we just created
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' ORDER BY `id` ASC ",
+	// find the item that we just created
+	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' ORDER BY `id` ASC",
 		dbesc($arr['uri']),
 		intval($arr['uid']),
 		dbesc($arr['network'])
 	);
 
-	if(count($r)) {
+	if(count($r) > 1) {
+		// There are duplicates. Keep the oldest one, delete the others
+		logger('item_store: duplicated post occurred. Removing newer duplicates. uri = '.$arr['uri'].' uid = '.$arr['uid']);
+		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' AND `id` > %d",
+			dbesc($arr['uri']),
+			intval($arr['uid']),
+			dbesc($arr['network']),
+			intval($r[0]["id"])
+		);
+		return 0;
+	} elseif(count($r)) {
 
 		// Store the guid and other relevant data
 		add_guid($arr);
@@ -1527,14 +1556,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
-	}
-	if(count($r) > 1) {
-		logger('item_store: duplicated post occurred. Removing duplicates. uri = '.$arr['uri'].' uid = '.$arr['uid']);
-		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `id` != %d ",
-			dbesc($arr['uri']),
-			intval($arr['uid']),
-			intval($current_post)
-		);
 	}
 
 	if((! $parent_id) || ($arr['parent-uri'] === $arr['uri']))
