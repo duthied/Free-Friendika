@@ -835,7 +835,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 
 	$x = count_all_friends(local_user(), $contact_id);
 	if ($x)
-		$tabs[] = array('label'=>t('All Contacts'),
+		$tabs[] = array('label'=>t('Contacts'),
 				'url' => "allfriends/".$contact_id,
 				'sel' => (($active_tab == 3)?'active':''),
 				'title' => t('View all contacts'),
