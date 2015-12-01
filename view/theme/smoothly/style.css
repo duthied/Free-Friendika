@@ -2164,20 +2164,20 @@ div[id$="wrapper"] br {
 		-webkit-border-radius: 5px;
 }
 
-#side-bar-photos-albums {
+#sidebar-photos-albums {
 }
 
 #photo-albums-upload-link {
 	margin: 20px;
 }
 
-#side-bar-photos-albums h3:before {
+#sidebar-photos-albums h3:before {
 	content: url("images/photography.png");
 	padding-right: 10px;
 	vertical-align: middle;
 }
 
-#side-bar-photos-albums li {
+#sidebar-photos-albums li {
 	font-size: 14px;
 	font-variant: none;
 	text-align: left;
