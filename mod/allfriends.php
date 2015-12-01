@@ -84,7 +84,7 @@ function allfriends_content(&$a) {
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl,array(
-		'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
+		//'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 	));

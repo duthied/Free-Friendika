@@ -579,7 +579,7 @@ function contacts_content(&$a) {
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
-			'$header' => htmlentities($header),
+			//'$header' => htmlentities($header),
 			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
@@ -928,10 +928,10 @@ function contact_posts($a, $contact_id) {
 
 	$header .= " (".network_to_name($contact['network'], $contact['url']).")";
 
-	$tpl = get_markup_template("section_title.tpl");
-	$o = replace_macros($tpl,array(
-                '$title' => htmlentities($header)
-        ));
+	//$tpl = get_markup_template("section_title.tpl");
+	//$o = replace_macros($tpl,array(
+        //        '$title' => htmlentities($header)
+        //));
 
 	$o .= $tab_str;
 

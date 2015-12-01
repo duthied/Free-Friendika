@@ -171,7 +171,7 @@ function crepair_content(&$a) {
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
 		//'$title'	=> t('Repair Contact Settings'),
-		'$title'	=> htmlentities($header),
+		//'$title'	=> htmlentities($header),
 		'$tab_str'	=> $tab_str,
 		'$warning'	=> $warning,
 		'$info'		=> $info,

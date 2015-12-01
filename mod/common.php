@@ -129,13 +129,15 @@ function common_content(&$a) {
 		$entries[] = $entry;
 	}
 
-	if($cmd === 'loc' && $cid && $uid == local_user())
+	if($cmd === 'loc' && $cid && $uid == local_user()) {
 		$tab_str = contacts_tab($a, $cid, 4);
+	} else
+		$title = t('Common Friends');
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl,array(
-		'$title' => t('Common Friends'),
+		'$title' => $title,
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 	));

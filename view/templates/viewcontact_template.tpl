@@ -8,7 +8,7 @@
 	{{include file="contact_template.tpl"}}
 {{/foreach}}
 </div>
-
+<div class="clear"></div>
 <div id="view-contact-end"></div>
 
 {{$paginate}}
