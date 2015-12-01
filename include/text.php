@@ -2318,3 +2318,25 @@ function page_type_translate($page_type) {
 
 	return $trans_type;
 }
+
+/**
+ * @brief translate and format the networkname of a contact
+ * 
+ * @param string $network
+ *	Networkname of the contact (e.g. dfrn, rss and so on)
+ * @param sting $url
+ *	The contact url
+ * @return string
+ */
+function format_network_name($network, $url = 0) {
+	if ($network != "") {
+		require_once('include/contact_selectors.php');
+		if ($url != "")
+			$network_name = '<a href="'.$url.'">'.network_to_name($network, $url)."</a>";
+		else
+			$network_name = network_to_name($network);
+
+		return $network_name;
+	}
+
+}

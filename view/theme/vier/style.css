@@ -998,6 +998,11 @@ aside .vcard dl {
   height: auto;
   overflow: auto;
 }
+aside .vcard .account-type {
+  margin-bottom: 13px;
+  font-size: 14px;
+  font-weight: bold;
+}
 
 aside select {
   background-color: white;

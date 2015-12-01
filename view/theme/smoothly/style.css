@@ -665,6 +665,10 @@ aside h4 {
 	font-size: 1em;
 }
 
+.vcard .account-type {
+	font-size: 1.2em;
+}
+
 .vcard dd {
 	font-size: 12px;
 	font-variant: normal;
@@ -4554,7 +4558,8 @@ hr.line-dots {
 .location-label,
 .gender-label,
 .marital-label,
-.homepage-label {
+.homepage-label,
+.network-label {
 	float: left;
 	text-align: left;
 	display: block;
@@ -4564,7 +4569,8 @@ hr.line-dots {
 .adr,
 .x-gender,
 .marital-text,
-.homepage-url {
+.homepage-url,
+.x-network {
 	float: left;
 	display: block;
 	margin-left: 8px;

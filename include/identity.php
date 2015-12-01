@@ -45,39 +45,9 @@ if(! function_exists('profile_load')) {
 			return;
 		}
 
-		if(remote_user() && count($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $visitor) {
-				if($visitor['uid'] == $user[0]['uid']) {
-					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
-						intval($visitor['cid'])
-					);
-					if(count($r))
-						$profile = $r[0]['profile-id'];
-					break;
-				}
-			}
-		}
+		$pdata = get_profiledata_by_nick($nickname, $user[0]['uid'], $profile);
 
-		$r = null;
-
-		if($profile) {
-			$profile_int = intval($profile);
-			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr` AS faddr, `user`.* FROM `profile`
-					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d AND `contact`.`self` = 1 LIMIT 1",
-					dbesc($nickname),
-					intval($profile_int)
-			);
-		}
-		if((!$r) && (!count($r))) {
-			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr` AS faddr, `user`.* FROM `profile`
-					INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 AND `contact`.`self` = 1 LIMIT 1",
-					dbesc($nickname)
-			);
-		}
-
-		if(($r === false) || (!count($r)) && !count($profiledata)) {
+		if(($pdata === false) || (!count($pdata)) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested profile is not available.') . EOL );
 			$a->error = 404;
@@ -86,16 +56,16 @@ if(! function_exists('profile_load')) {
 
 		// fetch user tags if this isn't the default profile
 
-		if(!$r[0]['is-default']) {
+		if(!$pdata['is-default']) {
 			$x = q("SELECT `pub_keywords` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-					intval($r[0]['profile_uid'])
+					intval($pdata['profile_uid'])
 			);
 			if($x && count($x))
-				$r[0]['pub_keywords'] = $x[0]['pub_keywords'];
+				$pdata['pub_keywords'] = $x[0]['pub_keywords'];
 		}
 
-		$a->profile = $r[0];
-		$a->profile_uid = $r[0]['profile_uid'];
+		$a->profile = $pdata;
+		$a->profile_uid = $pdata['profile_uid'];
 
 		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = NETWORK_DFRN;
@@ -148,6 +118,58 @@ if(! function_exists('profile_load')) {
 
 
 /**
+ * @brief Get all profil data of a local user
+ *	If the viewer is an authenticated remote viewer, the profile displayed is the
+ *	one that has been configured for his/her viewing in the Contact manager.
+ *	Passing a non-zero profile ID can also allow a preview of a selected profile
+ *	by the owner
+ * 
+ * @param string $nickname
+ * @param int $uid
+ * @param int $profile
+ *	ID of the profile
+ * @returns array
+ *	Includes all available profile data
+ */
+function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
+	if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $uid) {
+					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
+						intval($visitor['cid'])
+					);
+					if(count($r))
+						$profile = $r[0]['profile-id'];
+					break;
+				}
+			}
+		}
+
+	$r = null;
+
+	if($profile) {
+		$profile_int = intval($profile);
+		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
+				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+				WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d AND `contact`.`self` = 1 LIMIT 1",
+				dbesc($nickname),
+				intval($profile_int)
+		);
+	}
+	if((!$r) && (!count($r))) {
+		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
+				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+				WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 AND `contact`.`self` = 1 LIMIT 1",
+				dbesc($nickname)
+		);
+	}
+
+	return $r[0];
+
+}
+
+
+/**
  *
  * Function: profile_sidebar
  *
@@ -161,8 +183,6 @@ if(! function_exists('profile_load')) {
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  *
  */
-
-
 if(! function_exists('profile_sidebar')) {
 	function profile_sidebar($profile, $block = 0) {
 		$a = get_app();
@@ -178,12 +198,8 @@ if(! function_exists('profile_sidebar')) {
 		$profile['picdate'] = urlencode($profile['picdate']);
 
 		if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
-			require_once('include/contact_selectors.php');
-			if ($profile['url'] != "")
-				$profile['network_name'] = '<a href="'.$profile['url'].'">'.network_to_name($profile['network'], $profile['url'])."</a>";
-			else
-				$profile['network_name'] = network_to_name($profile['network']);
-		} else
+			$profile['network_name'] = format_network_name($profile['network'],$profile['url']);
+		} else 
 			$profile['network_name'] = "";
 
 		call_hooks('profile_sidebar_enter', $profile);
@@ -270,6 +286,14 @@ if(! function_exists('profile_sidebar')) {
 			);
 		}
 
+		if((x($profile['page-flags']) == 1)
+				|| (x($profile['page-flags']) == 2)
+				|| (x($profile['page-flags']) == 5))
+			$account_type = page_type_translate($profile['page-flags']);
+
+		if(! $account_type)
+			$account_type = (x($profile['forum']) || x($profile['prv']) || (x($profile['community'])) ? t('Forum') : "");
+
 		if((x($profile,'address') == 1)
 				|| (x($profile,'locality') == 1)
 				|| (x($profile,'region') == 1)
@@ -344,6 +368,7 @@ if(! function_exists('profile_sidebar')) {
 			'$remoteconnect'  => $remoteconnect,
 			'$subscribe_feed' => $subscribe_feed,
 			'$wallmessage' => $wallmessage,
+			'$account_type' => $account_type,
 			'$location' => $location,
 			'$gender'   => $gender,
 			'$pdesc'	=> $pdesc,

@@ -13,7 +13,7 @@
 		{{/if}}
 	</div>
 
-	{{if $profile.faddr}}<div class="p-faddr">{{$profile.faddr}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 
 	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
@@ -22,7 +22,8 @@
 	{{else}}
 		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
 	{{/if}}
-	
+
+	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 

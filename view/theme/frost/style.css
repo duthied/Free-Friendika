@@ -2867,14 +2867,14 @@ aside input[type='text'] {
 	margin-bottom: 25px;
 }
 
-.location-label, .gender-label, .marital-label, .homepage-label {
+.location-label, .gender-label, .marital-label, .homepage-label, .network-label {
 	float: left;
 	text-align: right;
 	display: block;
 	width: 65px;
 }
 
-.adr, .x-gender, .marital-text, .homepage-url {
+.adr, .x-gender, .marital-text, .homepage-url, .x-network {
 	float: left;
 	display: block;
 	margin-left: 8px;
@@ -2913,9 +2913,14 @@ aside input[type='text'] {
 }
 
 .vcard .title,
-.vcard .p-faddr {
+.vcard .p-addr,
+.vcard .account-type {
 	margin-bottom: 5px;
 	margin-left: 12px;
+}
+.vcard .account-type {
+	font-size: 120%;
+	margin-bottom: 13px;
 }
 
 .vcard dl {
