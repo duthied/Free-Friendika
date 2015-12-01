@@ -138,6 +138,10 @@
 		}
 
 	});
+
+	$(document).ready(function() { 
+		$('.comment-edit-bb').hide();
+	});
 	{{else}}
 	<script language="javascript" type="text/javascript">
 	{{/if}}

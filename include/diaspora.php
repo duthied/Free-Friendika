@@ -1386,11 +1386,6 @@ function diaspora_asphoto($importer,$xml,$msg) {
 
 }
 
-
-
-
-
-
 function diaspora_comment($importer,$xml,$msg) {
 
 	$a = get_app();
@@ -1510,16 +1505,27 @@ function diaspora_comment($importer,$xml,$msg) {
 		}
 	}
 
+	// Fetch the contact id - if we know this contact
+	$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+		dbesc(normalise_link($person['url'])), intval($importer['uid']));
+	if ($r) {
+		$cid = $r[0]['id'];
+		$network = $r[0]['network'];
+	} else {
+		$cid = $contact['id'];
+		$network = NETWORK_DIASPORA;
+	}
+
 	$body = diaspora2bb($text);
 	$message_id = $diaspora_handle . ':' . $guid;
 
 	$datarray = array();
 
 	$datarray['uid'] = $importer['uid'];
-	$datarray['contact-id'] = $contact['id'];
+	$datarray['contact-id'] = $cid;
 	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
-	$datarray['network']  = NETWORK_DIASPORA;
+	$datarray['network']  = $network;
 	$datarray['verb'] = ACTIVITY_POST;
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
@@ -2155,13 +2161,24 @@ function diaspora_like($importer,$xml,$msg) {
 EOT;
 	$bodyverb = t('%1$s likes %2$s\'s %3$s');
 
+	// Fetch the contact id - if we know this contact
+	$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+		dbesc(normalise_link($person['url'])), intval($importer['uid']));
+	if ($r) {
+		$cid = $r[0]['id'];
+		$network = $r[0]['network'];
+	} else {
+		$cid = $contact['id'];
+		$network = NETWORK_DIASPORA;
+	}
+
 	$arr = array();
 
 	$arr['uri'] = $uri;
 	$arr['uid'] = $importer['uid'];
 	$arr['guid'] = $guid;
-	$arr['network']  = NETWORK_DIASPORA;
-	$arr['contact-id'] = $contact['id'];
+	$arr['network']  = $network;
+	$arr['contact-id'] = $cid;
 	$arr['type'] = 'activity';
 	$arr['wall'] = $parent_item['wall'];
 	$arr['gravity'] = GRAVITY_LIKE;
