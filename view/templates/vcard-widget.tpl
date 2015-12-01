@@ -2,7 +2,7 @@
 <div class="vcard">
 	<div class="fn">{{$name}}</div>
 	{{if $addr}}<div class="p-addr">{{$addr}}</div>{{/if}}
-	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
+	{{if $pdesc}}<div class="title">{{$pdesc}}</div>{{/if}}
 	{{if $url}}
 	<div id="profile-photo-wrapper"><a href="{{$url}}"><img class="vcard-photo photo" style="width: 175px; height: 175px;" src="{{$photo}}" alt="{{$name}}" /></a></div>
 	{{else}}

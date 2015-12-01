@@ -33,18 +33,23 @@ function videos_init(&$a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		if((x($profile['page-flags']) == 1)
+		if((x($profile['page-flags']) == 1) 
 				|| (x($profile['page-flags']) == 2)
-				|| (x($profile['page-flags']) == 5))
+				|| (x($profile['page-flags']) == 5)) {
 			$account_type = page_type_translate($profile['page-flags']);
+		}
+		else {
+			$account_type = "";
+		}
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
 		$vcard_widget .= replace_macros($tpl, array(
-			'$name' => $profile[name],
-			'$photo' => $profile[photo],
-			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ''),
+			'$name' => $profile['name'],
+			'$photo' => $profile['photo'],
+			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
 			'$account_type' => $account_type,
+			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
 

@@ -993,6 +993,7 @@ aside .vcard .fn {
 }
 aside .vcard .title {
   margin-bottom: 5px;
+  float: left;
 }
 aside .vcard dl {
   height: auto;

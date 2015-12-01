@@ -190,7 +190,7 @@ if(! function_exists('profile_sidebar')) {
 		$o = '';
 		$location = false;
 		$address = false;
-		$pdesc = true;
+//		$pdesc = true;
 
 		if((! is_array($profile)) && (! count($profile)))
 			return $o;
@@ -371,7 +371,7 @@ if(! function_exists('profile_sidebar')) {
 			'$account_type' => $account_type,
 			'$location' => $location,
 			'$gender'   => $gender,
-			'$pdesc'	=> $pdesc,
+//			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
 			'$about' => $about,
