@@ -229,12 +229,69 @@ function admin_page_federation(&$a) {
     $platforms = array('Diaspora', 'Friendica', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
     $counts = array();
     foreach ($platforms as $p) {
-	// get a totaö count for the platform, the name and version of the
+	// get a total count for the platform, the name and version of the
 	// highest version and the protocol tpe
-	$c = q('select count(*), platform, network, version from gserver where platform like "'.$p.'" and last_contact > last_failure order by version asc;');
+	$c = q('select count(*), platform, network, version from gserver
+	    where platform like "'.$p.'" and last_contact > last_failure
+	    order by version asc;');
 	// what versions for that platform do we know at all?
 	// again only the active nodes
-	$v = q('select count(*), version from gserver where last_contact > last_failure and platform like "'.$p.'" group by version order by version;');
+	$v = q('select count(*), version from gserver
+	    where last_contact > last_failure and platform like "'.$p.'" 
+	    group by version
+	    order by version;');
+	//
+	// clean up version numbers
+	//
+	// in the DB the Diaspora versions have the format x.x.x.x-xx the last
+	// part (-xx) should be removed to clean up the versions from the "head
+	// commit" information and combined into a single entry for x.x.x.x
+	if ($p=='Diaspora') {
+	    $newV = array();
+	    $newVv = array();
+	    foreach($v as $vv) {
+		$newVC = $vv['count(*)'];
+		$newVV = $vv['version'];
+		$posDash = strpos($newVV, '-');
+		if ($posDash) 
+		    $newVV = substr($newVV, 0, $posDash);
+		if (isset($newV[$newVV]))
+		{ 
+		    $newV[$newVV] += $newVC; 
+		} else { 
+		    $newV[$newVV] = $newVC; 
+		}
+	    }
+	    foreach ($newV as $key => $value) {
+		array_push($newVv, array('count(*)'=>$value, 'version'=>$key));
+	    }
+	    $v = $newVv;
+	}
+	// early friendica versions have the format x.x.xxxx where xxxx is the
+	// DB version stamp; those should be operated out and versions be
+	// conbined
+	if ($p=='Friendica') {
+	    $newV = array();
+	    $newVv = array();
+	    foreach ($v as $vv) {
+		$newVC = $vv['count(*)'];
+		$newVV = $vv['version'];
+		$lastDot = strrpos($newVV,'.');
+		$len = strlen($newVV)-1;
+		if ($lastDot == $len-4)
+		    $newVV = substr($newVV, 0, $lastDot);
+		if (isset($newV[$newVV])) 
+		{ 
+		    $newV[$newVV] += $newVC; 
+		} else { 
+		    $newV[$newVV] = $newVC; 
+		}
+	    }
+	    foreach ($newV as $key => $value) {
+		array_push($newVv, array('count(*)'=>$value, 'version'=>$key));
+	    }
+	    $v = $newVv;
+	}
 	// the 3rd array item is needed for the JavaScript graphs as JS does
 	// not like some characters in the names of variables...
 	$counts[$p]=array($c[0], $v, str_replace(array(' ','%'),'',$p));
