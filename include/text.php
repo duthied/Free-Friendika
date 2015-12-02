@@ -2289,37 +2289,6 @@ function formatBytes($bytes, $precision = 2) {
 }
 
 /**
- * @brief Translate the PAGE type flags in human readable string
- * 
- * @param int $page_type
- * @return string $trans_type
- */
-function page_type_translate($page_type) {
-
-	// ToDo: we need a good interpretable translation for PAGE_SOAPBOX
-	// and PAGE_PRVGROUP
-	switch ($page_type) {
-		case PAGE_NORMAL:
-			$trans_type = t('Normal Account');
-			break;
-		case PAGE_SOAPBOX:
-			$trans_type = t('Fan Page');
-			break;
-		case PAGE_COMMUNITY:
-			$trans_type = t('Community Forum');
-			break;
-		case PAGE_FREELOVE:
-			$trans_type = t('Open Forum');
-			break;
-		case PAGE_PRVGROUP:
-			$trans_type = t('Private Forum');
-			break;
-	}
-
-	return $trans_type;
-}
-
-/**
  * @brief translate and format the networkname of a contact
  * 
  * @param string $network
