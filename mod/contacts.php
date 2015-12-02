@@ -829,7 +829,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 			'sel' => (($active_tab == 2)?'active':''),
 			'title' => t('Profile Details'),
 			'id' => 'status-tab',
-			'accesskey' => 'r',
+			'accesskey' => 'o',
 		)
 	);
 
@@ -840,7 +840,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'sel' => (($active_tab == 3)?'active':''),
 				'title' => t('View all contacts'),
 				'id' => 'allfriends-tab',
-				'accesskey' => '');
+				'accesskey' => 't');
 
 	$common = count_common_friends(local_user(),$contact_id);
 	if ($common)
@@ -849,7 +849,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'sel' => (($active_tab == 4)?'active':''),
 				'title' => t('View all common friends'),
 				'id' => 'common-loc-tab',
-				'accesskey' => '');
+				'accesskey' => 'd');
 
 	$tabs[] = array('label' => t('Repair'),
 			'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
