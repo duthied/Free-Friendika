@@ -286,13 +286,15 @@ if(! function_exists('profile_sidebar')) {
 			);
 		}
 
-		if((x($profile['page-flags']) == 1)
-				|| (x($profile['page-flags']) == 2)
-				|| (x($profile['page-flags']) == 5))
-			$account_type = page_type_translate($profile['page-flags']);
-
-		if(! $account_type)
-			$account_type = (x($profile['forum']) || x($profile['prv']) || (x($profile['community'])) ? t('Forum') : "");
+		// check if profile is a forum
+		if((x($profile['page-flags']) == 2)
+				|| (x($profile['page-flags']) == 5)
+				|| (x($profile['forum']))
+				|| (x($profile['prv']))
+				|| (x($profile['community'])))
+			$account_type = t('Forum');
+		else
+			$account_type = "";
 
 		if((x($profile,'address') == 1)
 				|| (x($profile,'locality') == 1)

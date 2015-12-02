@@ -33,14 +33,10 @@ function videos_init(&$a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		if((x($profile['page-flags']) == 1) 
-				|| (x($profile['page-flags']) == 2)
-				|| (x($profile['page-flags']) == 5)) {
-			$account_type = page_type_translate($profile['page-flags']);
-		}
-		else {
+		if((x($profile['page-flags']) == 2) || (x($profile['page-flags']) == 5))
+			$account_type = t('Forum');
+		else
 			$account_type = "";
-		}
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
