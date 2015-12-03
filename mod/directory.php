@@ -86,7 +86,7 @@ function directory_content(&$a) {
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
 	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr` AS faddr, `contact`.`url` AS profile_url FROM `profile`
+			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
@@ -102,7 +102,7 @@ function directory_content(&$a) {
 			$community = '';
 			$itemurl= '';
 
-			$itemurl = (($rr['faddr'] != "") ? $rr['faddr'] : $rr['profile_url']);
+			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
 
 			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 

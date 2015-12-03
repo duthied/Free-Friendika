@@ -24,24 +24,32 @@ function photos_init(&$a) {
 
 	if($a->argc > 1) {
 		$nick = $a->argv[1];
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
+		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
-		if(! count($r))
+		if(! count($user))
 			return;
 
-		$a->data['user'] = $r[0];
-		$a->profile_uid = $r[0]['uid'];
+		$a->data['user'] = $user[0];
+		$a->profile_uid = $user[0]['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
+		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+
+		if((x($profile['page-flags']) == 2) || (x($profile['page-flags']) == 5))
+			$account_type = t('Forum');
+		else
+			$account_type = "";
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
 		$vcard_widget .= replace_macros($tpl, array(
-			'$name' => $a->data['user']['username'],
-			'$photo' => $profilephoto
+			'$name' => $profile['name'],
+			'$photo' => $profile['photo'],
+			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+			'$account_type' => $account_type,
+			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
 
@@ -89,7 +97,7 @@ function photos_init(&$a) {
 			$photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'),array(
 				'$nick'     => $a->data['user']['nickname'],
 				'$title'    => t('Photo Albums'),
-				'recent'    => t('Recent Photos'),
+				'$recent'    => t('Recent Photos'),
 				'$albums'   => $albums['albums'],
 				'$baseurl'  => z_root(),
 				'$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload'),

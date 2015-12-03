@@ -35,10 +35,20 @@ function contacts_init(&$a) {
 
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
+
+			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
+				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
+			} else 
+				$networkname = '';
+
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url']
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
+				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
+				'$network_name' => $networkname,
+				'$network' => t('Network:'),
+				'account_type' => (($a->data['contact']['forum'] || $a->data['contact']['prv']) ? t('Forum') : '')
 			));
 			$finpeople_widget = '';
 			$follow_widget = '';
@@ -570,16 +580,8 @@ function contacts_content(&$a) {
 			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
 
-		$header = $contact["name"];
-
-		if ($contact["addr"] != "")
-			$header .= " <".$contact["addr"].">";
-
-		$header .= " (".network_to_name($contact['network'], $contact['url']).")";
-
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
-			'$header' => htmlentities($header),
 			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
@@ -904,18 +906,6 @@ function contact_posts($a, $contact_id) {
 	);
 
 	$tab_str = contact_tabs($a, $contact_id, 1);
-
-	$header = $contact["name"];
-
-	if ($contact["addr"] != "")
-		$header .= " <".$contact["addr"].">";
-
-	$header .= " (".network_to_name($contact['network'], $contact['url']).")";
-
-	$tpl = get_markup_template("section_title.tpl");
-	$o = replace_macros($tpl,array(
-                '$title' => htmlentities($header)
-        ));
 
 	$o .= $tab_str;
 

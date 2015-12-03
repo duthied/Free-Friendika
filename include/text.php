@@ -2289,32 +2289,23 @@ function formatBytes($bytes, $precision = 2) {
 }
 
 /**
- * @brief Translate the PAGE type flags in human readable string
+ * @brief translate and format the networkname of a contact
  * 
- * @param int $page_type
- * @return string $trans_type
+ * @param string $network
+ *	Networkname of the contact (e.g. dfrn, rss and so on)
+ * @param sting $url
+ *	The contact url
+ * @return string
  */
-function page_type_translate($page_type) {
+function format_network_name($network, $url = 0) {
+	if ($network != "") {
+		require_once('include/contact_selectors.php');
+		if ($url != "")
+			$network_name = '<a href="'.$url.'">'.network_to_name($network, $url)."</a>";
+		else
+			$network_name = network_to_name($network);
 
-	// ToDo: we need a good interpretable translation for PAGE_SOAPBOX
-	// and PAGE_PRVGROUP
-	switch ($page_type) {
-		case PAGE_NORMAL:
-			$trans_type = t('Normal Account');
-			break;
-		case PAGE_SOAPBOX:
-			$trans_type = t('Fan Page');
-			break;
-		case PAGE_COMMUNITY:
-			$trans_type = t('Community Forum');
-			break;
-		case PAGE_FREELOVE:
-			$trans_type = t('Open Forum');
-			break;
-		case PAGE_PRVGROUP:
-			$trans_type = t('Private Forum');
-			break;
+		return $network_name;
 	}
 
-	return $trans_type;
 }

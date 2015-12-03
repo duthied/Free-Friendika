@@ -833,8 +833,12 @@ aside .vcard .fn {
 aside .vcard .title {
   margin-bottom: 5px;
 }
-aside .vcard .p-faddr {
+aside .vcard .p-addr {
   margin-bottom: 5px;
+}
+aside .vcard .account-type {
+  font-size: 14px;
+  margin-bottom: 13px;
 }
 aside .vcard dl {
   height: auto;

@@ -24,11 +24,22 @@ function crepair_init(&$a) {
 
 	if($contact_id) {
 			$a->data['contact'] = $r[0];
-                        $tpl = get_markup_template("vcard-widget.tpl");
-                        $vcard_widget .= replace_macros($tpl, array(
-                                '$name' => htmlentities($a->data['contact']['name']),
-                                '$photo' => $a->data['contact']['photo']
-                        ));
+
+			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
+				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
+			} else 
+				$networkname = '';
+
+			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
+				'$name' => htmlentities($a->data['contact']['name']),
+				'$photo' => $a->data['contact']['photo'],
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
+				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
+				'$network_name' => $networkname,
+				'$network' => t('Network:'),
+				'account_type' => (($a->data['contact']['forum'] || $a->data['contact']['prv']) ? t('Forum') : '')
+			));
+
 			$a->page['aside'] .= $vcard_widget;
 
 	}
@@ -161,17 +172,10 @@ function crepair_content(&$a) {
 
 	$tab_str = contact_tabs($a, $contact['id'], 3);
 
-	$header = $contact["name"];
-
-       if ($contact["addr"] != "")
-                $header .= " <".$contact["addr"].">";
-
-        $header .= " (".network_to_name($contact['network'], $contact['url']).")";
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
 		//'$title'	=> t('Repair Contact Settings'),
-		'$title'	=> htmlentities($header),
 		'$tab_str'	=> $tab_str,
 		'$warning'	=> $warning,
 		'$info'		=> $info,
