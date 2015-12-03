@@ -142,14 +142,15 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	// Get the definition
 	if (is_null($definition))
 		$definition = db_definition();
-
+	
 	// Compare it
 	foreach ($definition AS $name => $structure) {
 		$sql3="";
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action);
-                        if(false === $r)
+			if(false === $r) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
+			}
 		} else {
 			// Drop the index if it isn't present in the definition and index name doesn't start with "local_"
 			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames)
@@ -231,8 +232,8 @@ function db_field_command($parameters, $create = true) {
 	if ($parameters["extra"] != "")
 		$fieldstruct .= " ".$parameters["extra"];
 
-	if (($parameters["primary"] != "") AND $create)
-		$fieldstruct .= " PRIMARY KEY";
+	/*if (($parameters["primary"] != "") AND $create)
+		$fieldstruct .= " PRIMARY KEY";*/
 
 	return($fieldstruct);
 }
@@ -243,9 +244,14 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	$r = true;
 
 	$sql = "";
+	
 	$sql_rows = array();
+	$primary_keys = array();
 	foreach($fields AS $fieldname => $field) {
 		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
+		if (x($field,'primary') and $field['primary']!=''){
+			$primary_keys[] = $fieldname;
+		}
 	}
 
 	if (!is_null($indexes)) {
@@ -256,10 +262,13 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 		}
 	}
 
+	if (count($primary_keys)>0) {
+		$sql_rows[] =  sprintf("PRIMARY KEY(`%s`)", implode("`,`", $primary_keys));
+	}
+	
 	$sql = implode(",\n\t", $sql_rows);
 
 	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
-
 	if ($verbose)
 		echo $sql.";\n";
 
