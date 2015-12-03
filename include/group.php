@@ -346,7 +346,7 @@ function groups_containing($uid,$c) {
  * Count unread items of each groups
  *
  * @return array
- *	'id' => contact id
+ *	'id' => group id
  *	'name' => group name
  *	'count' => counted unseen group items
  *
