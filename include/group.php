@@ -340,18 +340,30 @@ function groups_containing($uid,$c) {
 
 	return $ret;
 }
-
+/**
+ * @brief count unread group items
+ *
+ * Count unread items of each groups
+ *
+ * @return array
+ *	'id' => contact id
+ *	'name' => group name
+ *	'count' => counted unseen group items
+ *
+ */
 function groups_count_unseen() {
-	
-	$r = q("SELECT `group`.`id`, `group`.`name`, COUNT(`item`.id`) AS `count` FROM `group`, `group_member`, `item`
+
+	$r = q("SELECT `group`.`id`, `group`.`name`, COUNT(`item`.`id`) AS `count` FROM `group`, `group_member`, `item`
 			WHERE `group`.`uid` = %d
 			AND `item`.`uid` = %d
 			AND `item`.`unseen` AND `item`.`visible`
 			AND NOT `item`.`deleted`
 			AND `item`.`contact-id` = `group_member`.`contact-id`
 			AND `group_member`.`gid` = `group`.`id`
-			GROUP BY `group.id` ",
+			GROUP BY `group`.`id` ",
 		intval(local_user()),
 		intval(local_user())
 	);
+
+	return $r;
 }

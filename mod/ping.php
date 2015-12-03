@@ -2,7 +2,7 @@
 require_once("include/datetime.php");
 require_once('include/bbcode.php');
 require_once('include/forums.php');
-require_once('include/groupo.php');
+require_once('include/group.php');
 require_once("mod/proxy.php");
 
 function ping_init(&$a) {
