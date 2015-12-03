@@ -2254,8 +2254,23 @@ function diaspora_retraction($importer,$xml) {
 	if($type === 'Person') {
 		require_once('include/Contact.php');
 		contact_remove($contact['id']);
-	}
-	elseif($type === 'Post') {
+	} elseif($type === 'StatusMessage') {
+		$guid = notags(unxmlify($xml->post_guid));
+
+		$r = q("SELECT * FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
+			dbesc($guid),
+			intval($importer['uid'])
+		);
+		if(count($r)) {
+			if(link_compare($r[0]['author-link'],$contact['url'])) {
+				q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d",
+					dbesc(datetime_convert()),
+					intval($r[0]['id'])
+				);
+				delete_thread($r[0]['id'], $r[0]['parent-uri']);
+			}
+		}
+	} elseif($type === 'Post') {
 		$r = q("select * from item where guid = '%s' and uid = %d and not file like '%%[%%' limit 1",
 			dbesc('guid'),
 			intval($importer['uid'])
