@@ -42,3 +42,12 @@ nbproject
 
 #ignore local folder
 /local/
+
+.directory
+
+/view/theme/Friendiboot
+/view/theme/clean
+/view/theme/Viereinhalb
+/view/theme/suckerberg
+/view/theme/blog
+/view/theme/boehme
