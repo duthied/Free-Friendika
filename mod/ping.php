@@ -2,6 +2,7 @@
 require_once("include/datetime.php");
 require_once('include/bbcode.php');
 require_once('include/forums.php');
+require_once('include/groupo.php');
 require_once("mod/proxy.php");
 
 function ping_init(&$a) {
@@ -34,7 +35,7 @@ function ping_init(&$a) {
 
 		$home = 0;
 		$network = 0;
-		$network_group = array();
+		$groups_unseen = array();
 		$forums_unseen = array();
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
@@ -88,20 +89,11 @@ function ping_init(&$a) {
 			}
 		}
 
-		if ( $network )
-		{
-			# Find out how unseen network posts are spread across groups
-			$sql = "SELECT g.id, g.name, count(i.id) count " .
-				"FROM `group` g, group_member gm, item i " .
-				"WHERE g.uid = %d " .
-				"AND i.uid = %d " .
-				"AND i.unseen AND i.visible " .
-				"AND NOT i.deleted " .
-				"AND i.`contact-id` = gm.`contact-id` " .
-				"AND gm.gid = g.id GROUP BY g.id";
-			#echo '<SQL id="' . intval(local_user()) . '">' . $sql . '</SQL>';
-			$network_group = q($sql, intval(local_user()), intval(local_user()));
-			#echo '<COUNT R="' . count($network_group) . '"/>';
+		if($network) {
+			if(intval(feature_enabled(local_user(),'groups'))) {
+				// Find out how unseen network posts are spread across groups
+				$groups_unseen = groups_count_unseen();
+			}
 
 			if(intval(feature_enabled(local_user(),'forumlist_widget'))) {
 				$forums_unseen = forums_count_unseen();
@@ -227,9 +219,9 @@ function ping_init(&$a) {
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
 
-		if ( count($network_group) ) {
+		if ( count($groups_unseen) ) {
 			echo '<groups>';
-			foreach ($network_group as $it) {
+			foreach ($groups_unseen as $it) {
 				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
 			}
 			echo "</groups>";
