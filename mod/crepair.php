@@ -23,14 +23,9 @@ function crepair_init(&$a) {
 		$a->page['aside'] = '';
 
 	if($contact_id) {
-			$a->data['contact'] = $r[0];
-                        $tpl = get_markup_template("vcard-widget.tpl");
-                        $vcard_widget .= replace_macros($tpl, array(
-                                '$name' => htmlentities($a->data['contact']['name']),
-                                '$photo' => $a->data['contact']['photo']
-                        ));
-			$a->page['aside'] .= $vcard_widget;
-
+		$a->data['contact'] = $r[0];
+                $contact = $r[0];
+		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 }
 
@@ -161,17 +156,10 @@ function crepair_content(&$a) {
 
 	$tab_str = contacts_tab($a, $contact['id'], 5);
 
-	$header = $contact["name"];
-
-       if ($contact["addr"] != "")
-                $header .= " <".$contact["addr"].">";
-
-        $header .= " (".network_to_name($contact['network'], $contact['url']).")";
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
 		//'$title'	=> t('Repair Contact Settings'),
-		//'$title'	=> htmlentities($header),
 		'$tab_str'	=> $tab_str,
 		'$warning'	=> $warning,
 		'$info'		=> $info,

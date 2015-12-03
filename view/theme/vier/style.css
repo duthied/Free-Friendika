@@ -419,9 +419,10 @@ code {
   opacity: 1;
 }
 
-.sidebar-group-li:hover, #sidebar-new-group:hover, #sidebar-edit-groups:hover, #forum-widget-collapse:hover,
+.sidebar-group-li:hover, #sidebar-new-group:hover, #sidebar-edit-groups:hover,#forum-widget-collapse:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar li:hover, #forumlist-sidebar-right li:hover,
-.nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover {
+.nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover,
+#sidebar-photos-albums li:hover, .photos-upload-link:hover {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
   background-color: #F5F5F5;
@@ -448,6 +449,12 @@ code {
   display: block;
 }
 
+.photos-upload-link {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  display: block;
+}
+
 #forumlist-sidebar {
   padding-top: 3px;
   padding-bottom: 3px;
@@ -467,7 +474,7 @@ code {
   display: inline-block;
 }
 
-a.nets-link, .side-link a, #sidebar-new-group a, #sidebar-edit-groups a, a.savedsearchterm, a.fileas-link, aside h4 a, right_aside h4 a {
+a.nets-link, .side-link a, #sidebar-new-group a, #sidebar-edit-groups a, a.savedsearchterm,a.fileas-link, aside h4 a, right_aside h4 a {
   display: block;
   color: #737373;
 }
@@ -494,7 +501,7 @@ a.sidebar-group-element {
   color: black;
 }
 
-#forumlist-sidebar a, #forumlist-sidebar-right a, .tool a, .admin.link a {
+#forumlist-sidebar a, #forumlist-sidebar-right a, .tool a, .admin.link a, #sidebar-photos-albums a {
   color: #737373;
 }
 
@@ -993,10 +1000,16 @@ aside .vcard .fn {
 }
 aside .vcard .title {
   margin-bottom: 5px;
+  float: left;
 }
 aside .vcard dl {
   height: auto;
   overflow: auto;
+}
+aside .vcard .account-type {
+  margin-bottom: 13px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 aside select {

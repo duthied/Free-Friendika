@@ -21,23 +21,31 @@ function videos_init(&$a) {
 
 	if($a->argc > 1) {
 		$nick = $a->argv[1];
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
+		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
-		if(! count($r))
+		if(! count($user))
 			return;
 
-		$a->data['user'] = $r[0];
-		$a->profile_uid = $r[0]['uid'];
+		$a->data['user'] = $user[0];
+		$a->profile_uid = $user[0]['uid'];
 
-		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
+		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+
+		if((x($profile['page-flags']) == 2) || (x($profile['page-flags']) == 5))
+			$account_type = t('Forum');
+		else
+			$account_type = "";
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, array(
-			'$name' => $a->data['user']['username'],
-			'$photo' => $profilephoto
+		$vcard_widget .= replace_macros($tpl, array(
+			'$name' => $profile['name'],
+			'$photo' => $profile['photo'],
+			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+			'$account_type' => $account_type,
+			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
 
@@ -53,7 +61,7 @@ function videos_init(&$a) {
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
 			if($albums_visible) {
-				$o .= '<div id="side-bar-photos-albums" class="widget">';
+				$o .= '<div id="sidebar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
 
 				$o .= '<ul>';
