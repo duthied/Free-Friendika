@@ -1093,6 +1093,27 @@ span[id^="showmore-wrap"] {
     height: 18px;
 }*/
 
+a.actionbutton {
+	border: 1px solid @Grey3;
+	background-color: @Grey2;
+	color: @Grey5;
+	font-size: 8pt;
+	padding: 2pt;
+	.rounded();
+
+	i.icon {
+		display: inline-block;
+		vertical-align: baseline;
+		padding: 0;
+	}
+
+	&:hover {
+		text-decoration: none;
+		background-color: @Grey1;
+	}
+}
+h2 > .actionbutton { float: right; }
+
 
 /** acl **/
 #photo-edit-perms-select,
