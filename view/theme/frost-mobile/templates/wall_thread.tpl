@@ -94,6 +94,12 @@
 			<a href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"></a>
 			{{/if}}			
 			
+			{{if $item.isevent}}
+				<a href="#" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;" class="event-item event-icon event-attend-icon"></a>
+				<a href="#" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"  class="event-item event-icon event-dontattend-icon"></a>
+				<a href="#" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"  class="event-item event-icon event-maybeattend-icon"></a>
+			{{/if}}
+			
 			{{*<!--<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$item.id}}" >-->*}}
 				{{if $item.drop.dropping}}<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="wall-item-delete-wrapper icon drophide" title="{{$item.drop.delete}}" id="wall-item-delete-wrapper-{{$item.id}}" {{*onmouseover="imgbright(this);" onmouseout="imgdull(this);" *}}></a>{{/if}}
 			{{*<!--</div>-->*}}
@@ -102,8 +108,12 @@
 		</div>
 	</div>	
 	{{*<!--<div class="wall-item-wrapper-end"></div>-->*}}
-	<div class="wall-item-like {{$item.indent}}" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
-	<div class="wall-item-dislike {{$item.indent}}" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
+	{{if $item.responses}}
+		{{foreach $item.responses as $verb=>$response}}
+			<div class="wall-item-response {{$item.indent}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+		{{/foreach}}
+	{{/if}}
+
 
 	{{if $item.threaded}}
 	{{if $item.comment}}
