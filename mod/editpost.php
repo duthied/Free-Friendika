@@ -60,7 +60,7 @@ function editpost_content(&$a) {
 
 
 	$tpl = get_markup_template("jot.tpl");
-		
+
 	if(($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
 		$lockstate = 'lock';
 	else
@@ -99,10 +99,11 @@ function editpost_content(&$a) {
 	call_hooks('jot_tool', $jotplugins);
 	//call_hooks('jot_networks', $jotnets);
 
-	
+
 	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
 
 	$o .= replace_macros($tpl,array(
+		'$is_edit' => true,
 		'$return_path' => $_SESSION['return_url'],
 		'$action' => 'item',
 		'$share' => t('Save'),
