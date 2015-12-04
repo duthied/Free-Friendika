@@ -62,7 +62,6 @@ function update_fail($update_id, $error_message){
 	*/
 	//try the logger
 	logger("CRITICAL: Database structure update failed: ".$retval);
-	break;
 }
 
 
