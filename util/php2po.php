@@ -52,9 +52,7 @@
 	$out .= 'msgstr ""' ."\n";
 	$out .= '"Project-Id-Version: friendica\n"' ."\n";
 	$out .= '"Report-Msgid-Bugs-To: \n"' ."\n";
-	$out .= '"POT-Creation-Date: 2015-09-22 09:58+0200\n"' ."\n";
-	$out .= '"PO-Revision-Date: 2015-10-06 17:43+0000\n"' ."\n";
-	$out .= '"Language-Team: Italian (http://www.transifex.com/Friendica/friendica/language/it/)\n"' ."\n";
+	$out .= '"POT-Creation-Date: '. date("Y-m-d H:i:sO").'\n"' ."\n";
 	$out .= '"MIME-Version: 1.0\n"' ."\n";
 	$out .= '"Content-Type: text/plain; charset=UTF-8\n"' ."\n";
 	$out .= '"Content-Transfer-Encoding: 8bit\n"' ."\n";
