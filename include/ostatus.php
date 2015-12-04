@@ -1089,6 +1089,17 @@ function xml_add_element($doc, $parent, $element, $value = "", $attributes = arr
 	$parent->appendChild($element);
 }
 
+function ostatus_format_picture_post($body) {
+	$siteinfo = get_attached_data($body);
+
+	if (($siteinfo["type"] == "photo") AND isset($siteinfo["url"]) AND isset($siteinfo["preview"])) {
+		$siteinfo["preview"] = str_replace(array("-1.jpg", "-1.png"), array("-2.jpg", "-2.png"), $siteinfo["preview"]);
+		$body = trim($siteinfo["text"])." [url]".$siteinfo["url"]."[/url]\n[img]".$siteinfo["preview"]."[/img]";
+	}
+
+	return $body;
+}
+
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
@@ -1331,6 +1342,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 		$body = fix_private_photos($item['body'],$owner['uid'],$item, 0);
 	else
 		$body = $item['body'];
+
+	$body = ostatus_format_picture_post($body);
 
 	if ($item['title'] != "")
 		$body = "[b]".$item['title']."[/b]\n\n".$body;
