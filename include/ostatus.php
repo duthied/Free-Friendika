@@ -1282,6 +1282,14 @@ function ostatus_add_author($doc, $owner, $profile) {
 	return $author;
 }
 
+/*
+To-Do: Picture attachments should look like this:
+
+<a href="https://status.pirati.ca/attachment/572819" title="https://status.pirati.ca/file/heluecht-20151202T222602-rd3u49p.gif"
+class="attachment thumbnail" id="attachment-572819" rel="nofollow external">https://status.pirati.ca/attachment/572819</a>
+
+*/
+
 function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	$a = get_app();
 
