@@ -1204,22 +1204,22 @@ input#dfrn-url {
 	border: none;
 }
 
-.wall-item-like, .wall-item-dislike {
+.wall-item-response {
 	font-style: italic;
 	margin-left: 0px;
 	opacity: 0.4;
 }
-.wall-item-dislike {
+.wall-item-respose:last-chid {
 	margin-bottom: 15px;
 }
-.wall-item-like:hover, .wall-item-dislike:hover {
+.wall-item-response:hover {
 	opacity: 1.0;
 }
 
-.wall-item-like.comment, .wall-item-dislike.comment {
+.wall-item-response.comment {
 	margin-left: 75px;
 }
-.wall-item-dislike.comment {
+.wall-item-response.comment:last-chid  {
 	margin-bottom: 0px;
 }
 
@@ -1345,20 +1345,11 @@ input#dfrn-url {
 	margin-right: 10px;
 }
 
-.editpost {
-	margin-left: 10px;
-	float: left;
-}
-.star-item {
-	margin-left: 10px;
-	float: left;
-}
-.tag-item {
-	margin-left: 10px;
-	float: left;
-}
-
-.filer-item {
+.editpost,
+.star-item ,
+.tag-item,
+.filer-item,
+.event-item {
 	margin-left: 10px;
 	float: left;
 }
@@ -3830,6 +3821,21 @@ aside input[type='text'] {
 .filer-icon:hover {
 	opacity: 1.0;
 }
+
+.event-icon {
+	display: block; width: 16px; height: 16px;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	opacity: 0.4;
+}
+.event-attend-icon { background-image: url('images/event-attend-16.png'); }
+.event-maybeattend-icon { background-image: url('images/event-maybeattend-16.png'); }
+.event-dontattend-icon { background-image: url('images/event-dontattend-16.png'); }
+
+.filer-icon:hover {
+	opacity: 1.0;
+}
+
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 /*[class^="comment-edit-bb"] {*/

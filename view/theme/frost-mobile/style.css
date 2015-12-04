@@ -1246,13 +1246,14 @@ input#dfrn-url {
 /*	background: #EEEEEE;*/
 }
 
-.wall-item-like, .wall-item-dislike {
+.wall-item-response {
+	clear: both;
 	font-style: italic;
 	margin-left: 0px;
 	opacity: 0.6;
 }
 
-.wall-item-like.comment, .wall-item-dislike.comment {
+.wall-item-response.comment {
 	margin-left: 5px;
 }
 
@@ -1372,20 +1373,11 @@ input#dfrn-url {
 	margin-right: 10px;
 }
 
-.editpost {
-	margin-left: 10px;
-	float: left;
-}
-.star-item {
-	margin-left: 10px;
-	float: left;
-}
-.tag-item {
-	margin-left: 10px;
-	float: left;
-}
-
-.filer-item {
+.editpost,
+.star-item,
+.tag-item,
+.filer-item,
+.event-item {
 	margin-left: 10px;
 	float: left;
 }
@@ -3989,6 +3981,16 @@ aside input[type='text'] {
 	background-repeat: no-repeat;
 	opacity: 0.5;
 }
+
+.event-icon {
+	display: block; width: 33px; height: 33px;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+}
+.event-attend-icon { background-image: url('images/event-attend.png'); }
+.event-maybeattend-icon { background-image: url('images/event-maybeattend.png'); }
+.event-dontattend-icon { background-image: url('images/event-dontattend.png'); }
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 
