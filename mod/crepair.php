@@ -23,25 +23,9 @@ function crepair_init(&$a) {
 		$a->page['aside'] = '';
 
 	if($contact_id) {
-			$a->data['contact'] = $r[0];
-
-			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
-				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
-			} else 
-				$networkname = '';
-
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
-				'$name' => htmlentities($a->data['contact']['name']),
-				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
-				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
-				'$network_name' => $networkname,
-				'$network' => t('Network:'),
-				'account_type' => (($a->data['contact']['forum'] || $a->data['contact']['prv']) ? t('Forum') : '')
-			));
-
-			$a->page['aside'] .= $vcard_widget;
-
+		$a->data['contact'] = $r[0];
+                $contact = $r[0];
+		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 }
 
@@ -170,7 +154,7 @@ function crepair_content(&$a) {
 
 	$update_profile = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DSPR, NETWORK_OSTATUS));
 
-	$tab_str = contact_tabs($a, $contact['id'], 3);
+	$tab_str = contacts_tab($a, $contact['id'], 5);
 
 
 	$tpl = get_markup_template('crepair.tpl');

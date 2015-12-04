@@ -3,6 +3,7 @@
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
+require_once('mod/contacts.php');
 
 function allfriends_content(&$a) {
 
@@ -25,19 +26,11 @@ function allfriends_content(&$a) {
 		intval(local_user())
 	);
 
-	$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
-		'$name'  => htmlentities($c[0]['name']),
-		'$photo' => $c[0]['photo'],
-		'url'    => z_root() . '/contacts/' . $cid
-	));
-
-	if(! x($a->page,'aside'))
-		$a->page['aside'] = '';
-	$a->page['aside'] .= $vcard_widget;
-
 	if(! count($c))
 		return;
 
+	$a->page['aside'] = "";
+	profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
 
 	$r = all_friends(local_user(),$cid);
 
@@ -86,10 +79,13 @@ function allfriends_content(&$a) {
 		$entries[] = $entry;
 	}
 
+	$tab_str = contacts_tab($a, $cid, 3);
+
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl,array(
-		'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
+		//'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
+		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 	));
 

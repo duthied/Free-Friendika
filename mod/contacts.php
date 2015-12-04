@@ -552,16 +552,16 @@ function contacts_content(&$a) {
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
-		$common = count_common_friends(local_user(),$contact['id']);
-		$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
+		//$common = count_common_friends(local_user(),$contact['id']);
+		//$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
 		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
-		$x = count_all_friends(local_user(), $contact['id']);
-		$all_friends = (($x) ? t('View all contacts') : '');
+		//$x = count_all_friends(local_user(), $contact['id']);
+		//$all_friends = (($x) ? t('View all contacts') : '');
 
 		// tabs
-		$tab_str = contact_tabs($a, $contact_id, 2);
+		$tab_str = contacts_tab($a, $contact_id, 2);
 
 		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
@@ -814,7 +814,7 @@ function contacts_content(&$a) {
 	return $o;
 }
 
-function contact_tabs($a, $contact_id, $active_tab) {
+function contacts_tab($a, $contact_id, $active_tab) {
 	// tabs
 	$tabs = array(
 		array(
@@ -831,41 +831,57 @@ function contact_tabs($a, $contact_id, $active_tab) {
 			'sel' => (($active_tab == 2)?'active':''),
 			'title' => t('Profile Details'),
 			'id' => 'status-tab',
-			'accesskey' => 'r',
-		),
-		array(
-			'label' => t('Repair'),
+			'accesskey' => 'o',
+		)
+	);
+
+	$x = count_all_friends(local_user(), $contact_id);
+	if ($x)
+		$tabs[] = array('label'=>t('Contacts'),
+				'url' => "allfriends/".$contact_id,
+				'sel' => (($active_tab == 3)?'active':''),
+				'title' => t('View all contacts'),
+				'id' => 'allfriends-tab',
+				'accesskey' => 't');
+
+	$common = count_common_friends(local_user(),$contact_id);
+	if ($common)
+		$tabs[] = array('label'=>t('Common Friends'),
+				'url' => "common/loc/".local_user()."/".$contact_id,
+				'sel' => (($active_tab == 4)?'active':''),
+				'title' => t('View all common friends'),
+				'id' => 'common-loc-tab',
+				'accesskey' => 'd');
+
+	$tabs[] = array('label' => t('Repair'),
 			'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
-			'sel' => (($active_tab == 3)?'active':''),
+			'sel' => (($active_tab == 5)?'active':''),
 			'title' => t('Advanced Contact Settings'),
 			'id'	=> 'repair-tab',
-			'accesskey' => 'r',
-		),
-		array(
-			'label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
+			'accesskey' => 'r');
+
+
+	$tabs[] = array('label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
 			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
 			'sel'   => '',
 			'title' => t('Toggle Blocked status'),
 			'id'	=> 'toggle-block-tab',
-			'accesskey' => 'b',
-		),
-		array(
-			'label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+			'accesskey' => 'b');
+
+	$tabs[] = array('label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
 			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
 			'sel'   => '',
 			'title' => t('Toggle Ignored status'),
 			'id'	=> 'toggle-ignore-tab',
-			'accesskey' => 'i',
-		),
-		array(
-			'label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
+			'accesskey' => 'i');
+
+	$tabs[] = array('label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
 			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
 			'sel'   => '',
 			'title' => t('Toggle Archive status'),
 			'id'	=> 'toggle-archive-tab',
-			'accesskey' => 'v',
-		)
-	);
+			'accesskey' => 'v');
+
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
 
@@ -885,8 +901,10 @@ function contact_posts($a, $contact_id) {
 
 	if(get_config('system', 'old_pager')) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `item`.`uid` = %d AND (`author-link` = '%s')",
-			intval(local_user()), dbesc($contact["url"]));
+			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
+			intval(local_user()),
+			dbesc(normalise_link($contact["url"])),
+			dbesc(str_replace("http://", "https://", $contact["url"])));
 
 		$a->set_pager_total($r[0]['total']);
 	}
@@ -896,16 +914,17 @@ function contact_posts($a, $contact_id) {
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
 		FROM `item` FORCE INDEX (uid_contactid_created)
 		WHERE `item`.`uid` = %d AND `contact-id` = %d
-			AND (`author-link` = '%s')
+			AND `author-link` IN ('%s', '%s')
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
-		dbesc($contact["url"]),
+		dbesc(normalise_link($contact["url"])),
+		dbesc(str_replace("http://", "https://", $contact["url"])),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
 
-	$tab_str = contact_tabs($a, $contact_id, 1);
+	$tab_str = contacts_tab($a, $contact_id, 1);
 
 	$o .= $tab_str;
 

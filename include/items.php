@@ -1250,8 +1250,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	if ($notify)
 		$guid_prefix = "";
-	else
-		$guid_prefix = $arr['network'];
+	else {
+		$parsed = parse_url($arr["author-link"]);
+		$guid_prefix = hash("crc32", $parsed["host"]);
+	}
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
@@ -2320,6 +2322,9 @@ function edited_timestamp_is_newer($existing, $update) {
 function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
+			// Test - remove before flight
+			//$tempfile = tempnam(get_temppath(), "ostatus2");
+			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
 			ostatus_import($xml,$importer,$contact, $hub);
 		}
