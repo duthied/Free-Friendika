@@ -190,6 +190,7 @@ function group_content(&$a) {
 		'label_members' => t('Members'),
 		'members' => array(),
 		'label_contacts' => t('All Contacts'),
+		'group_is_empty' => t('Group is empty'),
 		'contacts' => array(),
 	);
 
@@ -204,7 +205,7 @@ function group_content(&$a) {
 			group_rmv_member(local_user(),$group['name'],$member['id']);
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 and `pending` = 0 and `self` = 0 ORDER BY `name` ASC",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `self` ORDER BY `name` ASC",
 		intval(local_user())
 	);
 
