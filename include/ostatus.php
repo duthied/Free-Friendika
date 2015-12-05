@@ -9,6 +9,7 @@ require_once("include/socgraph.php");
 require_once("include/Photo.php");
 require_once("include/Scrape.php");
 require_once("include/follow.php");
+require_once("mod/proxy.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
@@ -1089,6 +1090,33 @@ function xml_add_element($doc, $parent, $element, $value = "", $attributes = arr
 	$parent->appendChild($element);
 }
 
+function ostatus_format_picture_post($body) {
+	$siteinfo = get_attached_data($body);
+
+	if (($siteinfo["type"] == "photo")) {
+		if (isset($siteinfo["preview"]))
+			$preview = $siteinfo["preview"];
+		else
+			$preview = $siteinfo["image"];
+
+		// Is it a remote picture? Then make a smaller preview here
+		$preview = proxy_url($preview, false, PROXY_SIZE_SMALL);
+
+		// Is it a local picture? Then make it smaller here
+		$preview = str_replace(array("-0.jpg", "-0.png"), array("-2.jpg", "-2.png"), $preview);
+		$preview = str_replace(array("-1.jpg", "-1.png"), array("-2.jpg", "-2.png"), $preview);
+
+		if (isset($siteinfo["url"]))
+			$url = $siteinfo["url"];
+		else
+			$url = $siteinfo["image"];
+
+		$body = trim($siteinfo["text"])." [url]".$url."[/url]\n[img]".$preview."[/img]";
+	}
+
+	return $body;
+}
+
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
@@ -1339,6 +1367,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 		$body = fix_private_photos($item['body'],$owner['uid'],$item, 0);
 	else
 		$body = $item['body'];
+
+	$body = ostatus_format_picture_post($body);
 
 	if ($item['title'] != "")
 		$body = "[b]".$item['title']."[/b]\n\n".$body;
