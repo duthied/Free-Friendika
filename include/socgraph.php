@@ -1188,14 +1188,15 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	$sql_network = "'".$sql_network."'";
 
 	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
-		INNER JOIN glink on glink.gcid = gcontact.id
+		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
 		where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
-		and not gcontact.name in ( select name from contact where uid = %d )
-		and not gcontact.id in ( select gcid from gcign where uid = %d )
+		AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
 		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
-		group by glink.gcid order by gcontact.updated desc,total desc limit %d, %d ",
+		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
+		GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",
 		intval($uid),
 		intval($uid),
 		intval($uid),
@@ -1208,14 +1209,15 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(count($r) && count($r) >= ($limit -1))
 		return $r;
 
-	$r2 = q("SELECT gcontact.* from gcontact
-		INNER JOIN glink on glink.gcid = gcontact.id
-		where glink.uid = 0 and glink.cid = 0 and glink.zcid = 0 and not gcontact.nurl in ( select nurl from contact where uid = %d )
-		and not gcontact.name in ( select name from contact where uid = %d )
-		and not gcontact.id in ( select gcid from gcign where uid = %d )
+	$r2 = q("SELECT gcontact.* FROM gcontact
+		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
+		WHERE `glink`.`uid` = 0 AND `glink`.`cid` = 0 AND `glink`.`zcid` = 0 AND NOT `gcontact`.`nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
-		order by rand() limit %d, %d ",
+		ORDER BY rand() LIMIT %d, %d",
 		intval($uid),
 		intval($uid),
 		intval($uid),
@@ -1230,6 +1232,9 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 
 	foreach ($r AS $suggestion)
 		$list[$suggestion["nurl"]] = $suggestion;
+
+	while (sizeof($list) > ($limit))
+		array_pop($list);
 
 	return $list;
 }
