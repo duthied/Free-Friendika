@@ -831,7 +831,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_FEED)
+	if ($result['network'] != NETWORK_PHANTOM)
 		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
 
 	return $result;
