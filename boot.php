@@ -734,6 +734,11 @@ if(! class_exists('App')) {
 
 		function init_pagehead() {
 			$interval = ((local_user()) ? get_pconfig(local_user(),'system','update_interval') : 40000);
+
+			// If the update is "deactivated" set it to the highest integer number (~24 days)
+			if ($interval < 0)
+				$interval = 2147483647;
+
 			if($interval < 10000)
 				$interval = 40000;
 

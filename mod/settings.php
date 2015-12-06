@@ -289,9 +289,11 @@ function settings_post(&$a) {
 		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
 		$no_auto_update = ((x($_POST,'no_auto_update')) ? intval($_POST['no_auto_update'])  : 0);
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
-		$browser_update   = $browser_update * 1000;
-		if($browser_update < 10000)
-			$browser_update = 10000;
+		if ($browser_update != -1) {
+			$browser_update   = $browser_update * 1000;
+			if ($browser_update < 10000)
+				$browser_update = 10000;
+		}
 
 		$itemspage_network   = ((x($_POST,'itemspage_network')) ? intval($_POST['itemspage_network']) : 40);
 		if($itemspage_network > 100)
@@ -921,7 +923,8 @@ function settings_content(&$a) {
 		$mobile_theme_selected = (!x($_SESSION,'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
 
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
-		$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
+		if (intval($browser_update) != -1)
+			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 
 		$itemspage_network = intval(get_pconfig(local_user(), 'system','itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
@@ -960,7 +963,7 @@ function settings_content(&$a) {
 
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
 			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
-			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
+			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds. Enter -1 to disable it.')),
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
