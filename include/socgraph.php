@@ -1195,7 +1195,6 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
 		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
-		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 		GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",
 		intval($uid),
 		intval($uid),
