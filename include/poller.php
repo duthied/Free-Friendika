@@ -38,6 +38,10 @@ function poller_run(&$argv, &$argc){
 		}
 	}
 
+	// Checking the number of workers
+	if (poller_too_much_workers(1))
+		return;
+
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
 		proc_run("php","include/cron.php");
@@ -56,14 +60,9 @@ function poller_run(&$argv, &$argc){
 				// But: Update processes (like the database update) mustn't be killed
 			}
 
-	} else {
-		// Checking the number of workers
-		if (poller_too_much_workers(1))
-			return;
-
+	} else
 		// Sleep four seconds before checking for running processes again to avoid having too many workers
 		sleep(4);
-	}
 
 	// Checking number of workers
 	if (poller_too_much_workers(2))
