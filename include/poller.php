@@ -56,12 +56,17 @@ function poller_run(&$argv, &$argc){
 				// But: Update processes (like the database update) mustn't be killed
 			}
 
-	} else
-		// Sleep two seconds before checking for running processes to avoid having too many workers
+	} else {
+		// Checking the number of workers
+		if (poller_too_much_workers(1))
+			return;
+
+		// Sleep four seconds before checking for running processes again to avoid having too many workers
 		sleep(4);
+	}
 
 	// Checking number of workers
-	if (poller_too_much_workers())
+	if (poller_too_much_workers(2))
 		return;
 
 	$starttime = time();
@@ -114,13 +119,13 @@ function poller_run(&$argv, &$argc){
 			return;
 
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers())
+		if (poller_too_much_workers(3))
 			return;
 	}
 
 }
 
-function poller_too_much_workers() {
+function poller_too_much_workers($stage) {
 
 	$queues = get_config("system", "worker_queues");
 
@@ -144,7 +149,7 @@ function poller_too_much_workers() {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
-		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
+		logger("Current load stage ".$stage.": ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
 
 	}
 
