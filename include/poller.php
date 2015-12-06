@@ -104,10 +104,10 @@ function poller_run(&$argv, &$argc){
 		$funcname=str_replace(".php", "", basename($argv[0]))."_run";
 
 		if (function_exists($funcname)) {
-			logger("Process ".getmypid().": ".$funcname." ".$r[0]["parameter"]);
+			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
 			$funcname($argv, $argc);
 
-			logger("Process ".getmypid().": ".$funcname." - done");
+			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - done");
 
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 		} else
