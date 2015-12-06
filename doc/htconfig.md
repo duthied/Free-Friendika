@@ -44,6 +44,8 @@ line to your .htconfig.php:
 * ostatus_poll_timeframe - Defines how old an item can be to try to complete the conversation with it.
 * paranoia (Boolean) - Log out users if their IP address changed.
 * permit_crawling (Boolean) - Restricts the search for not logged in users to one search per minute.
+* free_crawls - Number of "free" searches when "permit_crawling" is activated (Default value is 10)
+* crawl_permit_period - Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated (Default value is 60)
 * png_quality - Default value is 8.
 * proc_windows (Boolean) - Should be enabled if Friendica is running under Windows.
 * proxy_cache_time - Time after which the cache is cleared. Default value is one day.
