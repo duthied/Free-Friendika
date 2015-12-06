@@ -632,7 +632,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 		if ($connectornetworks)
 			$check_feed = false;
+
 		if($check_feed) {
+
 			$feedret = scrape_feed(($poll) ? $poll : $url);
 
 			logger('probe_url: scrape_feed ' . (($poll)? $poll : $url) . ' returns: ' . print_r($feedret,true), LOGGER_DATA);
@@ -760,7 +762,6 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 					if (isset($noscrapedata["dfrn-poll"]))
 						$poll = $noscrapedata["dfrn-poll"];
 
-//					print_r($noscrapedata);
 				}
 			}
 
