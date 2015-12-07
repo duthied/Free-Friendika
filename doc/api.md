@@ -349,7 +349,7 @@ Friendica doesn't allow showing friends of other users.
 
 ## Implemented API calls (not compatible with other API’s)
 
-### users/group_show
+### friendica/group_show
 Return all or a specified group of the user with the containing contacts as array.
 
 #### Parameters
@@ -362,7 +362,7 @@ Array of:
 * user: array of group members (return from api_get_user() function for each member)
 
 
-### users/group_delete
+### friendica/group_delete
 delete the specified group of contacts; API call need to include the correct gid AND name of the group to be deleted.
 
 ### Parameters
@@ -378,7 +378,7 @@ Array of:
 * wrong users: empty array
 
 
-### users/group_create
+### friendica/group_create
 Create the group with the posted array of contacts as members. 
 #### Parameters
 * name: name of the group to be created
@@ -398,7 +398,7 @@ Array of:
 * wrong users: array of users, which were not available in the contact table 
 
 
-### users/group_update
+### friendica/group_update
 Update the group with the posted array of contacts as members (post all members of the group to the call; function will remove members not posted). 
 #### Parameters
 * gid: id of the group to be changed
