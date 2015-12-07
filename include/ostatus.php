@@ -1322,12 +1322,12 @@ class="attachment thumbnail" id="attachment-572819" rel="nofollow external">http
 function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) {
 	$a = get_app();
 
-	if (!$toplevel AND $repeat) {
-		$entry = $doc->createElement("activity:object");
-		$title = sprintf("New note by %s", $owner["nick"]);
-	} elseif (!$toplevel) {
+	if (!$toplevel AND !$repeat) {
 		$entry = $doc->createElement("entry");
 		$title = sprintf("New note by %s", $owner["nick"]);
+	//} elseif (!$toplevel AND $repeat) {
+	//	$entry = $doc->createElement("activity:object");
+	//	$title = sprintf("New note by %s", $owner["nick"]);
 	} else {
 		$entry = $doc->createElementNS(NS_ATOM, "entry");
 
@@ -1363,10 +1363,10 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 	// But: it seems as if it doesn't federate well between the GS servers
 	// So we just set it to "note" to be sure that it reaches their target systems
 
-	if (!$repeat)
+	//if (!$repeat)
 		xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
-	else
-		xml_add_element($doc, $entry, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA.'activity');
+	//else
+	//	xml_add_element($doc, $entry, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA.'activity');
 
 	xml_add_element($doc, $entry, "id", $item["uri"]);
 	xml_add_element($doc, $entry, "title", $title);
@@ -1391,21 +1391,21 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 
 	xml_add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
 
-	$repeated_item = $item;
-	$is_repeat = false;
+	//$repeated_item = $item;
+	//$is_repeat = false;
 
-	if (!$repeat)
-		$is_repeat = api_share_as_retweet($repeated_item);
+	//if (!$repeat)
+	//	$is_repeat = api_share_as_retweet($repeated_item);
 
-	if (!$is_repeat)
+	//if (!$is_repeat)
 		xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
-	else
-		xml_add_element($doc, $entry, "activity:verb", ACTIVITY_SHARE);
+	//else
+	//	xml_add_element($doc, $entry, "activity:verb", ACTIVITY_SHARE);
 
 	xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
 	xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 
-	if ($is_repeat) {
+	/*if ($is_repeat) {
 		$repeated_owner = array();
 		$repeated_owner["name"] = $repeated_item["author-name"];
 		$repeated_owner["url"] = $repeated_item["author-link"];
@@ -1432,7 +1432,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$profile["about"] = $owner["about"];
 		$author = ostatus_add_author($doc, $owner, $profile);
 		$entry->appendChild($author);
-	}
+	}*/
 
 	$mentioned = array();
 
@@ -1499,8 +1499,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 
 
 	$attributes = array("local_id" => $item["id"], "source" => $app);
-	if ($is_repeat)
-		$attributes["repeat_of"] = $item["id"];
+	//if ($is_repeat)
+	//	$attributes["repeat_of"] = $item["id"];
 
 	xml_add_element($doc, $entry, "statusnet:notice_info", "", $attributes);
 
