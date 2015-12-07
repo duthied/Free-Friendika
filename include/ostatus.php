@@ -1453,6 +1453,14 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 
 		$mentioned[$parent[0]["author-link"]] = $parent[0]["author-link"];
 		$mentioned[$parent[0]["owner-link"]] = $parent[0]["owner-link"];
+
+		$thrparent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+				intval($owner["uid"]),
+				dbesc($parent_item));
+		if ($thrparent) {
+			$mentioned[$thrparent[0]["author-link"]] = $thrparent[0]["author-link"];
+			$mentioned[$thrparent[0]["owner-link"]] = $thrparent[0]["owner-link"];
+		}
         }
 
 	xml_add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation",
