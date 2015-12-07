@@ -44,14 +44,15 @@ function proxy_init() {
 	$thumb = false;
 	$size = 1024;
 	$sizetype = "";
+	$basepath = $a->get_basepath();
 
 	// If the cache path isn't there, try to create it
-	if (!is_dir($_SERVER["DOCUMENT_ROOT"]."/proxy"))
-		if (is_writable($_SERVER["DOCUMENT_ROOT"]))
-			mkdir($_SERVER["DOCUMENT_ROOT"]."/proxy");
+	if (!is_dir($basepath."/proxy"))
+		if (is_writable($basepath))
+			mkdir($basepath."/proxy");
 
 	// Checking if caching into a folder in the webroot is activated and working
-	$direct_cache = (is_dir($_SERVER["DOCUMENT_ROOT"]."/proxy") AND is_writable($_SERVER["DOCUMENT_ROOT"]."/proxy"));
+	$direct_cache = (is_dir($basepath."/proxy") AND is_writable($basepath."/proxy"));
 
 	// Look for filename in the arguments
 	if ((isset($a->argv[1]) OR isset($a->argv[2]) OR isset($a->argv[3])) AND !isset($_REQUEST["url"])) {
@@ -211,9 +212,9 @@ function proxy_init() {
 	// advantage: real file access is really fast
 	// Otherwise write in cachefile
 	if ($valid AND $direct_cache) {
-		file_put_contents($_SERVER["DOCUMENT_ROOT"]."/proxy/".proxy_url($_REQUEST['url'], true), $img_str_orig);
+		file_put_contents($basepath."/proxy/".proxy_url($_REQUEST['url'], true), $img_str_orig);
 		if ($sizetype <> '')
-			file_put_contents($_SERVER["DOCUMENT_ROOT"]."/proxy/".proxy_url($_REQUEST['url'], true).$sizetype, $img_str);
+			file_put_contents($basepath."/proxy/".proxy_url($_REQUEST['url'], true).$sizetype, $img_str);
 	} elseif ($cachefile != '')
 		file_put_contents($cachefile, $img_str_orig);
 
@@ -247,7 +248,7 @@ function proxy_url($url, $writemode = false, $size = "") {
 		return($url);
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
-	$basepath = $_SERVER["DOCUMENT_ROOT"]."/proxy";
+	$basepath = $a->get_basepath()."/proxy";
 
 	$path = substr(hash("md5", $url), 0, 2);
 
