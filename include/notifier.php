@@ -303,7 +303,8 @@ function notifier_run(&$argv, &$argc){
 			$conversant_str = dbesc($parent['contact-id']);
 			$recipients = array($parent['contact-id']);
 
-			if (!$target_item['private'] AND $target_item['wall'] AND
+			//if (!$target_item['private'] AND $target_item['wall'] AND
+			if (!$target_item['private'] AND
 				(strlen($target_item['allow_cid'].$target_item['allow_gid'].
 					$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 				$push_notify = true;
@@ -329,6 +330,7 @@ function notifier_run(&$argv, &$argc){
 				if (count($url_recipients))
 					logger("url_recipients ".print_r($url_recipients,true));
 			}
+			logger("Notify ".$target_item["guid"]." via PuSH: ".($push_notify?"Yes":"No"), LOGGER_DEBUG);
 		} else {
 			$followup = false;
 
