@@ -38,6 +38,10 @@ function poller_run(&$argv, &$argc){
 		}
 	}
 
+	// Checking the number of workers
+	if (poller_too_much_workers(1))
+		return;
+
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
 		proc_run("php","include/cron.php");
@@ -57,11 +61,11 @@ function poller_run(&$argv, &$argc){
 			}
 
 	} else
-		// Sleep two seconds before checking for running processes to avoid having too many workers
+		// Sleep four seconds before checking for running processes again to avoid having too many workers
 		sleep(4);
 
 	// Checking number of workers
-	if (poller_too_much_workers())
+	if (poller_too_much_workers(2))
 		return;
 
 	$starttime = time();
@@ -100,10 +104,10 @@ function poller_run(&$argv, &$argc){
 		$funcname=str_replace(".php", "", basename($argv[0]))."_run";
 
 		if (function_exists($funcname)) {
-			logger("Process ".getmypid().": ".$funcname." ".$r[0]["parameter"]);
+			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
 			$funcname($argv, $argc);
 
-			logger("Process ".getmypid().": ".$funcname." - done");
+			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - done");
 
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 		} else
@@ -114,13 +118,13 @@ function poller_run(&$argv, &$argc){
 			return;
 
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers())
+		if (poller_too_much_workers(3))
 			return;
 	}
 
 }
 
-function poller_too_much_workers() {
+function poller_too_much_workers($stage) {
 
 	$queues = get_config("system", "worker_queues");
 
@@ -144,7 +148,7 @@ function poller_too_much_workers() {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
-		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
+		logger("Current load stage ".$stage.": ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
 
 	}
 
