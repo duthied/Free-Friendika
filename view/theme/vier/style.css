@@ -958,7 +958,7 @@ right_aside {
   font-size: 13px;
   overflow-y: auto;
   z-index: 2;
-  line-height: 17px;
+  /* line-height: 17px; */
   color: #737373;
   box-shadow: 1px 2px 0px 0px #D8D8D8;
   top: 32px;
@@ -983,7 +983,7 @@ aside {
   top: 32px;
   overflow-y: auto;
   z-index: 2;
-  line-height: 17px;
+  /* line-height: 17px; */
   position: fixed;
   /* overflow: auto; */
   height: 100%;
