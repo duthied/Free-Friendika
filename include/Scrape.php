@@ -726,6 +726,45 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				}
 			}
 
+			// Workaround for misconfigured Friendica servers
+			if (($network == "") AND (strstr($url, "/profile/"))) {
+				$noscrape = str_replace("/profile/", "/noscrape/", $url);
+				$noscrapejson = fetch_url($noscrape);
+				if ($noscrapejson) {
+
+					$network = NETWORK_DFRN;
+
+					$poco = str_replace("/profile/", "/poco/", $url);
+
+					$noscrapedata = json_decode($noscrapejson, true);
+
+					if (isset($noscrapedata["addr"]))
+						$addr = $noscrapedata["addr"];
+
+					if (isset($noscrapedata["fn"]))
+						$vcard["fn"] = $noscrapedata["fn"];
+
+					if (isset($noscrapedata["key"]))
+						$pubkey = $noscrapedata["key"];
+
+					if (isset($noscrapedata["photo"]))
+						$vcard["photo"] = $noscrapedata["photo"];
+
+					if (isset($noscrapedata["dfrn-request"]))
+						$request = $noscrapedata["dfrn-request"];
+
+					if (isset($noscrapedata["dfrn-confirm"]))
+						$confirm = $noscrapedata["dfrn-confirm"];
+
+					if (isset($noscrapedata["dfrn-notify"]))
+						$notify = $noscrapedata["dfrn-notify"];
+
+					if (isset($noscrapedata["dfrn-poll"]))
+						$poll = $noscrapedata["dfrn-poll"];
+
+				}
+			}
+
 			if((! $vcard['photo']) && strlen($email))
 				$vcard['photo'] = avatar_img($email);
 			if($poll === $profile)
