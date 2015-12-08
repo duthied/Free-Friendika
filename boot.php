@@ -635,13 +635,13 @@ if(! class_exists('App')) {
 			$basepath = get_config("system", "basepath");
 
 			if ($basepath == "")
+				$basepath = dirname(__FILE__);
+
+			if ($basepath == "")
 				$basepath = $_SERVER["DOCUMENT_ROOT"];
 
 			if ($basepath == "")
 				$basepath = $_SERVER["PWD"];
-
-			if ($basepath == "")
-				$basepath = dirname(__FILE__);
 
 			return($basepath);
 		}
