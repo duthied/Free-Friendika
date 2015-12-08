@@ -313,3 +313,7 @@ ul.credits li {
         float: left;
         width: 200px;
 }
+
+.renderinfo {
+	clear: both;
+}
