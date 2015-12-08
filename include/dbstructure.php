@@ -142,26 +142,37 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	// Get the definition
 	if (is_null($definition))
 		$definition = db_definition();
-	
+
+
 	// Compare it
 	foreach ($definition AS $name => $structure) {
+		$is_new_table = False;
 		$sql3="";
 		if (!isset($database[$name])) {
-			$r = db_create_table($name, $structure["fields"], $verbose, $action);
+			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
 			if(false === $r) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 			}
+			$is_new_table = True;
 		} else {
-			// Drop the index if it isn't present in the definition and index name doesn't start with "local_"
-			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames)
-				if (!isset($structure["indexes"][$indexname]) && substr($indexname, 0, 6) != 'local_') {
+			// Drop the index if it isn't present in the definition
+			// or the definition differ from current status
+			// and index name doesn't start with "local_"
+			foreach ($database[$name]["indexes"] AS $indexname => $fieldnames) {
+				$current_index_definition = implode(",",$fieldnames);
+				if (isset($structure["indexes"][$indexname])) {
+					$new_index_definition = implode(",",$structure["indexes"][$indexname]);
+				} else {
+					$new_index_definition = "__NOT_SET__";
+				}
+				if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "")
 						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
 				}
-
+			}
 			// Compare the field structure field by field
 			foreach ($structure["fields"] AS $fieldname => $parameters) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
@@ -186,19 +197,28 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 		}
 
-		// Create the index
-		foreach ($structure["indexes"] AS $indexname => $fieldnames) {
-			if (!isset($database[$name]["indexes"][$indexname])) {
-				$sql2=db_create_index($indexname, $fieldnames);
-				if ($sql2 != "") {
-					if ($sql3 == "")
-						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
-					else
-						$sql3 .= ", ".$sql2;
+		// Create the index if the index don't exists in database
+		// or the definition differ from the current status.
+		// Don't create keys if table is new
+		if (!$is_new_table) {
+			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+				if (isset($database[$name]["indexes"][$indexname])) {
+					$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+				} else {
+					$current_index_definition = "__NOT_SET__";
+				}
+				$new_index_definition = implode(",",$fieldnames);
+				if ($current_index_definition != $new_index_definition) {
+					$sql2=db_create_index($indexname, $fieldnames);
+					if ($sql2 != "") {
+						if ($sql3 == "")
+							$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+						else
+							$sql3 .= ", ".$sql2;
+					}
 				}
 			}
 		}
-
 		if ($sql3 != "") {
 			$sql3 .= ";";
 
@@ -244,7 +264,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	$r = true;
 
 	$sql = "";
-	
+
 	$sql_rows = array();
 	$primary_keys = array();
 	foreach($fields AS $fieldname => $field) {
@@ -255,17 +275,12 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	}
 
 	if (!is_null($indexes)) {
-
 		foreach ($indexes AS $indexname => $fieldnames) {
 			$sql_index = db_create_index($indexname, $fieldnames, "");
 			if (!is_null($sql_index)) $sql_rows[] = $sql_index;
 		}
 	}
 
-	if (count($primary_keys)>0) {
-		$sql_rows[] =  sprintf("PRIMARY KEY(`%s`)", implode("`,`", $primary_keys));
-	}
-	
 	$sql = implode(",\n\t", $sql_rows);
 
 	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
@@ -295,8 +310,16 @@ function db_drop_index($indexname) {
 
 function db_create_index($indexname, $fieldnames, $method="ADD") {
 
-	if ($indexname == "PRIMARY")
-		return;
+	$method = strtoupper(trim($method));
+	if ($method!="" && $method!="ADD") {
+		throw new Exception("Invalid parameter 'method' in db_create_index(): '$method'");
+		killme();
+	}
+
+
+	if ($indexname == "PRIMARY") {
+		return sprintf("%s PRIMARY KEY(`%s`)", $method, implode("`,`", $fieldnames));
+	}
 
 	$names = "";
 	foreach ($fieldnames AS $fieldname) {
@@ -309,11 +332,6 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 			$names .= "`".dbesc($fieldname)."`";
 	}
 
-	$method = strtoupper(trim($method));
-	if ($method!="" && $method!="ADD") {
-		throw new Exception("Invalid parameter 'method' in db_create_index(): '$method'");
-		killme();
-	}
 
 	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
