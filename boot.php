@@ -640,6 +640,9 @@ if(! class_exists('App')) {
 			if ($basepath == "")
 				$basepath = $_SERVER["PWD"];
 
+			if ($basepath == "")
+				$basepath = dirname(__FILE__);
+
 			return($basepath);
 		}
 
