@@ -278,7 +278,7 @@ function admin_page_federation(&$a) {
 		$newVV = $vv['version'];
 		$lastDot = strrpos($newVV,'.');
 		$len = strlen($newVV)-1;
-		if ($lastDot == $len-4)
+		if (($lastDot == $len-4) && (!strrpos($newVV,'-rc')==$len-3))
 		    $newVV = substr($newVV, 0, $lastDot);
 		if (isset($newV[$newVV])) 
 		{ 
