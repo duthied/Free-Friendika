@@ -30,7 +30,7 @@ function showHideForumlist() {
 	
 		{{if $forum.id > $visible_forums}}
 		<li class="forum-widget-entry forum-{{$forum.cid}}" id="forum-widget-entry-extended-{{$forum.id}}" role="menuitem" style="display: none;">
-			<span class="notify padge pull-right"></span>
+			<span class="notify badge pull-right"></span>
 			<a href="{{$forum.external_url}}" title="{{$forum.link_desc}}" class="label sparkle" target="_blank">
 				<img class="forumlist-img" src="{{$forum.micro}}" alt="{{$forum.link_desc}}" />
 			</a>
@@ -40,8 +40,7 @@ function showHideForumlist() {
 		{{/foreach}}
 
 		{{if $total > $visible_forums }}
-		<li onclick="showHideForumlist(); return false;" id="forum-widget-collapse" class="forum-widget-link tool fakelink">{{$showmore}}</li>
+		<li onclick="showHideForumlist(); return false;" id="forum-widget-collapse" class="forum-widget-link fakelink tool">{{$showmore}}</li>
 		{{/if}}
 	</ul>
-
 </div>
