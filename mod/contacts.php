@@ -903,7 +903,7 @@ function contact_posts($a, $contact_id) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
 			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
 			intval(local_user()),
-			dbesc(normalise_link($contact["url"])),
+			dbesc(str_replace("https://", "http://", $contact["url"])),
 			dbesc(str_replace("http://", "https://", $contact["url"])));
 
 		$a->set_pager_total($r[0]['total']);
@@ -918,7 +918,7 @@ function contact_posts($a, $contact_id) {
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
-		dbesc(normalise_link($contact["url"])),
+		dbesc(str_replace("https://", "http://", $contact["url"])),
 		dbesc(str_replace("http://", "https://", $contact["url"])),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
