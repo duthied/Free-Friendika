@@ -1079,6 +1079,35 @@ function ostatus_store_conversation($itemid, $conversation_url) {
 	}
 }
 
+function get_reshared_guid($item) {
+        $body = trim($item["body"]);
+
+        // Skip if it isn't a pure repeated messages
+        // Does it start with a share?
+        if (strpos($body, "[share") > 0)
+                return("");
+
+        // Does it end with a share?
+        if (strlen($body) > (strrpos($body, "[/share]") + 8))
+                return("");
+
+        $attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+        // Skip if there is no shared message in there
+        if ($body == $attributes)
+                return(false);
+
+        $guid = "";
+        preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+        if ($matches[1] != "")
+                $guid = $matches[1];
+
+        preg_match('/guid="(.*?)"/ism', $attributes, $matches);
+        if ($matches[1] != "")
+                $guid = $matches[1];
+
+	return $guid;
+}
+
 function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
 	$element = $doc->createElement($element, xmlify($value));
 
@@ -1474,10 +1503,19 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 			if ($t[0] == "@")
 				$mentioned[$t[1]] = $t[1];
 
-	foreach ($mentioned AS $mention)
-		xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
-									"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
-									"href" => $mention));
+	foreach ($mentioned AS $mention) {
+		$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner["uid"]),
+			dbesc(normalise_link($mention)));
+		if ($r[0]["forum"] OR $r[0]["prv"])
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+										"href" => $mention));
+		else
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+										"href" => $mention));
+	}
 
 	if (!$item["private"])
 		xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
