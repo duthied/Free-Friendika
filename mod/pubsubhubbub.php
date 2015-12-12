@@ -70,8 +70,8 @@ function pubsubhubbub_init(&$a) {
 		}
 
 		// get corresponding row from contact table
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0" .
-			   " AND `pending` = 0 LIMIT 1",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked`".
+			   " AND NOT `pending` AND `self` LIMIT 1",
 			   intval($owner['uid']));
 		if(!count($r)) {
 			logger('pubsubhubbub: contact not found.');
