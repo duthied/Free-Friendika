@@ -39,7 +39,7 @@ function pubsubhubbub_init(&$a) {
 			http_status_exit(404);
 		}
 
-		logger("pubsubhubbub: $hub_mode request from " . 
+		logger("pubsubhubbub: $hub_mode request from " .
 			   $_SERVER['REMOTE_ADDR']);
 
 		// get the nick name from the topic, a bit hacky but needed
@@ -52,9 +52,9 @@ function pubsubhubbub_init(&$a) {
 
 		// fetch user from database given the nickname
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s'" .
-			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1", 
+			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			   dbesc($nick));
-		
+
 		if(!count($r)) {
 			logger('pubsubhubbub: local account not found: ' . $nick);
 			http_status_exit(404);
@@ -82,20 +82,20 @@ function pubsubhubbub_init(&$a) {
 
 		// sanity check that topic URLs are the same
 		if(!link_compare($hub_topic, $contact['poll'])) {
-			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' . 
+			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
 				   $contact['poll']);
 			http_status_exit(404);
 		}
 
 		// do subscriber verification according to the PuSH protocol
 		$hub_challenge = random_string(40);
-		$params = 'hub.mode=' . 
+		$params = 'hub.mode=' .
 			($subscribe == 1 ? 'subscribe' : 'unsubscribe') .
 			'&hub.topic=' . urlencode($hub_topic) .
 			'&hub.challenge=' . $hub_challenge .
 			'&hub.lease_seconds=604800' .
 			'&hub.verify_token=' . $hub_verify_token;
-		
+
 		// lease time is hard coded to one week (in seconds)
 		// we don't actually enforce the lease time because GNU
 		// Social/StatusNet doesn't honour it (yet)
