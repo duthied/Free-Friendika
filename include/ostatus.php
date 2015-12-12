@@ -1289,13 +1289,13 @@ function ostatus_get_attachment($doc, $root, $item) {
 	}
 }
 
-function ostatus_add_author($doc, $owner, $profile) {
+function ostatus_add_author($doc, $owner, $profile = array()) {
 	$a = get_app();
 
 	$author = $doc->createElement("author");
 	xml_add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
 	xml_add_element($doc, $author, "uri", $owner["url"]);
-	xml_add_element($doc, $author, "name", $profile["name"]);
+	xml_add_element($doc, $author, "name", $owner["name"]);
 
 	$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $owner["url"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
@@ -1305,20 +1305,22 @@ function ostatus_add_author($doc, $owner, $profile) {
 			"type" => "image/jpeg", // To-Do?
 			"media:width" => 175,
 			"media:height" => 175,
-			"href" => $profile["photo"]);
+			"href" => $owner["photo"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
 
-	$attributes = array(
-			"rel" => "avatar",
-			"type" => "image/jpeg", // To-Do?
-			"media:width" => 80,
-			"media:height" => 80,
-			"href" => $profile["thumb"]);
-	xml_add_element($doc, $author, "link", "", $attributes);
+	if (isset($owner["thumb"])) {
+		$attributes = array(
+				"rel" => "avatar",
+				"type" => "image/jpeg", // To-Do?
+				"media:width" => 80,
+				"media:height" => 80,
+				"href" => $owner["thumb"]);
+		xml_add_element($doc, $author, "link", "", $attributes);
+	}
 
 	xml_add_element($doc, $author, "poco:preferredUsername", $owner["nick"]);
-	xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
-	xml_add_element($doc, $author, "poco:note", $profile["about"]);
+	xml_add_element($doc, $author, "poco:displayName", $owner["name"]);
+	xml_add_element($doc, $author, "poco:note", $owner["about"]);
 
 	if (trim($owner["location"]) != "") {
 		$element = $doc->createElement("poco:address");
@@ -1334,8 +1336,10 @@ function ostatus_add_author($doc, $owner, $profile) {
 		$author->appendChild($urls);
 	}
 
-	xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
-	xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+	if (count($profile)) {
+		xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
+		xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+	}
 
 	return $author;
 }
@@ -1351,6 +1355,21 @@ class="attachment thumbnail" id="attachment-572819" rel="nofollow external">http
 function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) {
 	$a = get_app();
 
+	$is_repeat = false;
+
+/*	if (!$repeat) {
+		$repeated_guid = get_reshared_guid($item);
+
+		if ($repeated_guid != "") {
+			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+				intval($owner["uid"]), dbesc($repeated_guid));
+			if ($r) {
+				$repeated_item = $r[0];
+				$is_repeat = true;
+			}
+		}
+	}
+*/
 	if (!$toplevel AND !$repeat) {
 		$entry = $doc->createElement("entry");
 		$title = sprintf("New note by %s", $owner["nick"]);
@@ -1368,12 +1387,15 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
 		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
-		$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-			intval($owner["uid"]));
-		if (!$r)
-			return;
+		if (!$repeat) {
+			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
+				intval($owner["uid"]));
+			if (!$r)
+				return;
 
-		$profile = $r[0];
+			$profile = $r[0];
+		}
+			$profile = array();
 
 		$author = ostatus_add_author($doc, $owner, $profile);
 		$entry->appendChild($author);
@@ -1420,22 +1442,6 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 
 	xml_add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
 
-	//$repeated_item = $item;
-	$is_repeat = false;
-
-/*	if (!$repeat) {
-		$repeated_guid = get_reshared_guid($item);
-
-		if ($repeated_guid != "") {
-			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-				intval($owner["uid"]), dbesc($repeated_guid));
-			if ($r) {
-				$repeated_item = $r[0];
-				$is_repeat = true;
-			}
-		}
-	}
-*/
 	if (!$is_repeat)
 		xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
 	else
@@ -1448,8 +1454,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$repeated_owner = array();
 		$repeated_owner["name"] = $repeated_item["author-name"];
 		$repeated_owner["url"] = $repeated_item["author-link"];
-		$repeated_owner["photo"] = normalise_link($repeated_item["author-avatar"]);
-		$repeated_owner["nick"] = "";
+		$repeated_owner["photo"] = $repeated_item["author-avatar"];
+		$repeated_owner["nick"] = $repeated_owner["name"];
 		$repeated_owner["location"] = "";
 		$repeated_owner["about"] = "";
 		$repeated_owner["uid"] = 0;
@@ -1464,12 +1470,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$entry_repeat = ostatus_entry($doc, $repeated_item, $repeated_owner, false, true);
 		$entry->appendChild($entry_repeat);
 	} elseif ($repeat) {
-		$profile = array();
-		$profile["name"] = $owner["name"];
-		$profile["photo"] = $owner["photo"];
-		$profile["thumb"] = $owner["photo"];
-		$profile["about"] = $owner["about"];
-		$author = ostatus_add_author($doc, $owner, $profile);
+		$author = ostatus_add_author($doc, $owner);
 		$entry->appendChild($author);
 	}
 
