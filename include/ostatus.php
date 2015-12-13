@@ -1514,6 +1514,15 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 			if ($t[0] == "@")
 				$mentioned[$t[1]] = $t[1];
 
+	// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
+	// Not sure if that will really work.
+	$newmentions = array();
+	foreach ($mentioned AS $mention) {
+		$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
+		$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
+	}
+	$mentioned = $newmentions;
+
 	foreach ($mentioned AS $mention) {
 		$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 			intval($owner["uid"]),
