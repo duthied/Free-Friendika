@@ -2,6 +2,8 @@
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
+require_once("include/Scrape.php");
+require_once('include/diaspora.php');
 require_once("include/ostatus.php");
 
 function delivery_run(&$argv, &$argc){
@@ -15,14 +17,13 @@ function delivery_run(&$argv, &$argc){
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		        unset($db_host, $db_user, $db_pass, $db_data);
+		unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
 	require_once("include/session.php");
 	require_once("include/datetime.php");
 	require_once('include/items.php');
 	require_once('include/bbcode.php');
-	require_once('include/diaspora.php');
 	require_once('include/email.php');
 
 	load_config('config');
@@ -46,7 +47,7 @@ function delivery_run(&$argv, &$argc){
 
 		// Some other process may have delivered this item already.
 
-		$r = q("select * from deliverq where cmd = '%s' and item = %d and contact = %d limit 1",
+		$r = q("SELECT * FROM `deliverq` WHERE `cmd` = '%s' AND `item` = %d AND `contact` = %d LIMIT 1",
 			dbesc($cmd),
 			dbesc($item_id),
 			dbesc($contact_id)
@@ -68,7 +69,7 @@ function delivery_run(&$argv, &$argc){
 
 		// It's ours to deliver. Remove it from the queue.
 
-		q("delete from deliverq where cmd = '%s' and item = %d and contact = %d",
+		q("DELETE FROM `deliverq` WHERE `cmd` = '%s' AND `item` = %d AND `contact` = %d",
 			dbesc($cmd),
 			dbesc($item_id),
 			dbesc($contact_id)
@@ -78,28 +79,60 @@ function delivery_run(&$argv, &$argc){
 			continue;
 
 		$expire = false;
+		$mail = false;
+		$fsuggest = false;
+		$relocate = false;
 		$top_level = false;
 		$recipients = array();
 		$url_recipients = array();
+		$followup = false;
 
 		$normal_mode = true;
 
 		$recipients[] = $contact_id;
 
-		if($cmd === 'expire') {
+		if($cmd === 'mail') {
+			$normal_mode = false;
+			$mail = true;
+			$message = q("SELECT * FROM `mail` WHERE `id` = %d LIMIT 1",
+					intval($item_id)
+			);
+			if(! count($message)){
+				return;
+			}
+			$uid = $message[0]['uid'];
+			$recipients[] = $message[0]['contact-id'];
+			$item = $message[0];
+		}
+		elseif($cmd === 'expire') {
 			$normal_mode = false;
 			$expire = true;
-			$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1 
+			$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
 				AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 30 MINUTE",
 				intval($item_id)
 			);
 			$uid = $item_id;
 			$item_id = 0;
 			if(! count($items))
-			continue;
+				continue;
 		}
-		else {
+		elseif($cmd === 'suggest') {
+			$normal_mode = false;
+			$fsuggest = true;
 
+			$suggest = q("SELECT * FROM `fsuggest` WHERE `id` = %d LIMIT 1",
+				intval($item_id)
+			);
+			if(! count($suggest))
+				return;
+			$uid = $suggest[0]['uid'];
+			$recipients[] = $suggest[0]['cid'];
+			$item = $suggest[0];
+		} elseif($cmd === 'relocate') {
+			$normal_mode = false;
+			$relocate = true;
+			$uid = $item_id;
+		} else {
 			// find ancestors
 			$r = q("SELECT * FROM `item` WHERE `id` = %d and visible = 1 and moderated = 0 LIMIT 1",
 				intval($item_id)
@@ -114,12 +147,7 @@ function delivery_run(&$argv, &$argc){
 			$uid = $r[0]['uid'];
 			$updated = $r[0]['edited'];
 
-			// POSSIBLE CLEANUP --> The following seems superfluous. We've already checked for "if (! intval($r[0]['parent']))" a few lines up
-			if(! $parent_id)
-				continue;
-
-
-			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer` 
+			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
 				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
 				intval($parent_id)
 			);
@@ -134,8 +162,8 @@ function delivery_run(&$argv, &$argc){
 				if(! in_array($item['contact-id'],$contacts_arr))
 					$contacts_arr[] = intval($item['contact-id']);
 			if(count($contacts_arr)) {
-				$str_contacts = implode(',',$contacts_arr); 
-				$icontacts = q("SELECT * FROM `contact` 
+				$str_contacts = implode(',',$contacts_arr);
+				$icontacts = q("SELECT * FROM `contact`
 					WHERE `id` IN ( $str_contacts ) "
 				);
 			}
@@ -155,10 +183,10 @@ function delivery_run(&$argv, &$argc){
 			}
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`, 
-			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`, 
+		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 			`user`.`page-flags`, `user`.`prvnets`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid` 
+			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 		);
@@ -172,13 +200,10 @@ function delivery_run(&$argv, &$argc){
 
 		$public_message = true;
 
-		// fill this in with a single salmon slap if applicable
+		if(! ($mail || $fsuggest || $relocate)) {
+			require_once('include/group.php');
 
-		$slap = '';
-
-		require_once('include/group.php');
-
-		$parent = $items[0];
+			$parent = $items[0];
 
 			// This is IMPORTANT!!!!
 
@@ -198,30 +223,37 @@ function delivery_run(&$argv, &$argc){
 			// by stringing togther an array of retractions and sending them onward.
 
 
-		$localhost = $a->get_hostname();
-		if(strpos($localhost,':'))
-			$localhost = substr($localhost,0,strpos($localhost,':'));
+			$localhost = $a->get_hostname();
+			if(strpos($localhost,':'))
+				$localhost = substr($localhost,0,strpos($localhost,':'));
 
-		/**
-		 *
-		 * Be VERY CAREFUL if you make any changes to the following line. Seemingly innocuous changes
-		 * have been known to cause runaway conditions which affected several servers, along with
-		 * permissions issues.
-		 *
-		 */
+			/**
+			 *
+			 * Be VERY CAREFUL if you make any changes to the following line. Seemingly innocuous changes
+			 * have been known to cause runaway conditions which affected several servers, along with
+			 * permissions issues.
+			 *
+			 */
 
-		if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
-			logger('relay denied for delivery agent.');
+			$relay_to_owner = false;
 
-			/* no relay allowed for direct contact delivery */
-			continue;
-		}
+			if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
+				$relay_to_owner = true;
+			}
 
-		if((strlen($parent['allow_cid']))
-			|| (strlen($parent['allow_gid']))
-			|| (strlen($parent['deny_cid']))
-			|| (strlen($parent['deny_gid']))) {
-			$public_message = false; // private recipients, not public
+			if($relay_to_owner) {
+				logger('followup '.$target_item["guid"], LOGGER_DEBUG);
+				// local followup to remote post
+				$followup = true;
+			}
+
+			if((strlen($parent['allow_cid']))
+				|| (strlen($parent['allow_gid']))
+				|| (strlen($parent['deny_cid']))
+				|| (strlen($parent['deny_gid']))) {
+				$public_message = false; // private recipients, not public
+			}
+
 		}
 
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `blocked` = 0 AND `pending` = 0",
@@ -233,18 +265,16 @@ function delivery_run(&$argv, &$argc){
 
 		$hubxml = feed_hublinks();
 
-		logger('notifier: slaps: ' . print_r($slaps,true), LOGGER_DATA);
-
-		require_once('include/salmon.php');
-
 		if($contact['self'])
 			continue;
 
 		$deliver_status = 0;
 
+		logger("main delivery by delivery: followup=$followup mail=$mail fsuggest=$fsuggest relocate=$relocate - network ".$contact['network']);
+
 		switch($contact['network']) {
 
-			case NETWORK_DFRN :
+			case NETWORK_DFRN:
 				logger('notifier: dfrndelivery: ' . $contact['name']);
 
 				$feed_template = get_markup_template('atom_feed.tpl');
@@ -276,25 +306,106 @@ function delivery_run(&$argv, &$argc){
 						'$community'    => (($owner['page-flags'] == PAGE_COMMUNITY) ? '<dfrn:community>1</dfrn:community>' : '')
 				));
 
-				foreach($items as $item) {
-					if(! $item['parent'])
-						continue;
+				if($mail) {
+					$public_message = false;  // mail is  not public
 
-					// private emails may be in included in public conversations. Filter them.
-					if(($public_message) && $item['private'] == 1)
-						continue;
+					$body = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
 
-					$item_contact = get_item_contact($item,$icontacts);
-					if(! $item_contact)
-						continue;
+					$atom .= replace_macros($mail_template, array(
+						'$name'         => xmlify($owner['name']),
+						'$profile_page' => xmlify($owner['url']),
+						'$thumb'        => xmlify($owner['thumb']),
+						'$item_id'      => xmlify($item['uri']),
+						'$subject'      => xmlify($item['title']),
+						'$created'      => xmlify(datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME)),
+						'$content'      => xmlify($body),
+						'$parent_id'    => xmlify($item['parent-uri'])
+					));
+				} elseif($fsuggest) {
+					$public_message = false;  // suggestions are not public
 
-					if($normal_mode) {
-						if($item_id == $item['id'] || $item['id'] == $item['parent'])
-							$atom .= atom_entry($item,'text',null,$owner,true,(($top_level) ? $contact['id'] : 0));
+					$sugg_template = get_markup_template('atom_suggest.tpl');
+
+					$atom .= replace_macros($sugg_template, array(
+						'$name'         => xmlify($item['name']),
+						'$url'          => xmlify($item['url']),
+						'$photo'        => xmlify($item['photo']),
+						'$request'      => xmlify($item['request']),
+						'$note'         => xmlify($item['note'])
+					));
+
+					// We don't need this any more
+
+					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1",
+						intval($item['id'])
+					);
+				} elseif($relocate) {
+					$public_message = false;  // suggestions are not public
+
+					$sugg_template = get_markup_template('atom_relocate.tpl');
+
+					/* get site pubkey. this could be a new installation with no site keys*/
+					$pubkey = get_config('system','site_pubkey');
+					if(! $pubkey) {
+						$res = new_keypair(1024);
+						set_config('system','site_prvkey', $res['prvkey']);
+						set_config('system','site_pubkey', $res['pubkey']);
 					}
-					else
-						$atom .= atom_entry($item,'text',null,$owner,true);
 
+					$rp = q("SELECT `resource-id` , `scale`, type FROM `photo`
+							WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
+					$photos = array();
+					$ext = Photo::supportedTypes();
+					foreach($rp as $p){
+						$photos[$p['scale']] = $a->get_baseurl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+					}
+					unset($rp, $ext);
+
+					$atom .= replace_macros($sugg_template, array(
+								'$name' => xmlify($owner['name']),
+								'$photo' => xmlify($photos[4]),
+								'$thumb' => xmlify($photos[5]),
+								'$micro' => xmlify($photos[6]),
+								'$url' => xmlify($owner['url']),
+								'$request' => xmlify($owner['request']),
+								'$confirm' => xmlify($owner['confirm']),
+								'$notify' => xmlify($owner['notify']),
+								'$poll' => xmlify($owner['poll']),
+								'$sitepubkey' => xmlify(get_config('system','site_pubkey')),
+								//'$pubkey' => xmlify($owner['pubkey']),
+								//'$prvkey' => xmlify($owner['prvkey']),
+						));
+					unset($photos);
+				} elseif($followup) {
+					foreach($items as $item) {  // there is only one item
+						if(! $item['parent'])
+							continue;
+						if($item['id'] == $item_id) {
+							logger('followup: item: ' . print_r($item,true), LOGGER_DATA);
+							$atom .= atom_entry($item,'text',null,$owner,false);
+						}
+					}
+				} else {
+					foreach($items as $item) {
+						if(! $item['parent'])
+							continue;
+
+						// private emails may be in included in public conversations. Filter them.
+						if(($public_message) && $item['private'] == 1)
+							continue;
+
+						$item_contact = get_item_contact($item,$icontacts);
+						if(! $item_contact)
+							continue;
+
+						if($normal_mode) {
+							if($item_id == $item['id'] || $item['id'] == $item['parent'])
+								$atom .= atom_entry($item,'text',null,$owner,true,(($top_level) ? $contact['id'] : 0));
+						}
+						else
+							$atom .= atom_entry($item,'text',null,$owner,true);
+
+					}
 				}
 
 				$atom .= '</feed>' . "\r\n";
@@ -366,54 +477,18 @@ function delivery_run(&$argv, &$argc){
 				}
 				break;
 
-			case NETWORK_OSTATUS :
+			case NETWORK_OSTATUS:
 				// Do not send to otatus if we are not configured to send to public networks
 				if($owner['prvnets'])
 					break;
 				if(get_config('system','ostatus_disabled') || get_config('system','dfrn_only'))
 					break;
 
-				// only send salmon if public - e.g. if it's ok to notify
-				// a public hub, it's ok to send a salmon
-
-				if(($public_message) && (! $expire)) {
-					$slaps = array();
-
-					foreach($items as $item) {
-						if(! $item['parent'])
-							continue;
-
-						// private emails may be in included in public conversations. Filter them.
-						if(($public_message) && $item['private'] == 1)
-							continue;
-
-						$item_contact = get_item_contact($item,$icontacts);
-						if(! $item_contact)
-							continue;
-
-						if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
-							$slaps[] = ostatus_salmon($item,$owner);
-					}
-
-					logger('notifier: slapdelivery: ' . $contact['name']);
-					foreach($slaps as $slappy) {
-						if($contact['notify']) {
-							if(! was_recently_delayed($contact['id']))
-								$deliver_status = slapper($owner,$contact['notify'],$slappy);
-							else
-								$deliver_status = (-1);
-
-							if($deliver_status == (-1)) {
-								// queue message for redelivery
-								add_to_queue($contact['id'],NETWORK_OSTATUS,$slappy);
-							}
-						}
-					}
-				}
-
+				// There is currently no code here to distribute anything to OStatus.
+				// This is done in "notifier.php" (See "url_recipients" and "push_notify")
 				break;
 
-			case NETWORK_MAIL :
+			case NETWORK_MAIL:
 			case NETWORK_MAIL2:
 
 				if(get_config('system','dfrn_only'))
@@ -507,7 +582,7 @@ function delivery_run(&$argv, &$argc){
 				}
 				break;
 
-			case NETWORK_DIASPORA :
+			case NETWORK_DIASPORA:
 				if($public_message)
 					$loc = 'public batch ' . $contact['batch'];
 				else
@@ -515,7 +590,15 @@ function delivery_run(&$argv, &$argc){
 
 				logger('delivery: diaspora batch deliver: ' . $loc);
 
-				if(get_config('system','dfrn_only') || (! get_config('system','diaspora_enabled')) || (! $normal_mode))
+				if(get_config('system','dfrn_only') || (!get_config('system','diaspora_enabled')))
+					break;
+
+				if($mail) {
+					diaspora_send_mail($item,$owner,$contact);
+					break;
+				}
+
+				if(!$normal_mode)
 					break;
 
 				if((! $contact['pubkey']) && (! $public_message))
@@ -530,21 +613,23 @@ function delivery_run(&$argv, &$argc){
 					}
 				}
 
-				if(($target_item['deleted']) && ($target_item['uri'] === $target_item['parent-uri'])) {
+				if(($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 					// top-level retraction
 					logger('delivery: diaspora retract: ' . $loc);
 
 					diaspora_send_retraction($target_item,$owner,$contact,$public_message);
 					break;
-				}
-				elseif($target_item['uri'] !== $target_item['parent-uri']) {
+				} elseif($followup) {
+					// send comments and likes to owner to relay
+					diaspora_send_followup($target_item,$owner,$contact,$public_message);
+					break;
+				} elseif($target_item['uri'] !== $target_item['parent-uri']) {
 					// we are the relay - send comments, likes and relayable_retractions to our conversants
 					logger('delivery: diaspora relay: ' . $loc);
 
 					diaspora_send_relay($target_item,$owner,$contact,$public_message);
 					break;
-				}
-				elseif(($top_level) && (! $walltowall)) {
+				} elseif(($top_level) && (! $walltowall)) {
 					// currently no workable solution for sending walltowall
 					logger('delivery: diaspora status: ' . $loc);
 					diaspora_send_status($target_item,$owner,$contact,$public_message);
@@ -555,13 +640,6 @@ function delivery_run(&$argv, &$argc){
 
 				break;
 
-			case NETWORK_FEED :
-			case NETWORK_FACEBOOK :
-				if(get_config('system','dfrn_only'))
-					break;
-			case NETWORK_PUMPIO :
-				if(get_config('system','dfrn_only'))
-					break;
 			default:
 				break;
 		}
