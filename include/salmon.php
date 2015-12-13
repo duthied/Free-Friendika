@@ -78,23 +78,6 @@ function slapper($owner,$url,$slap) {
 		return;
 	}
 
-	// add all namespaces to item
-
-$namespaces = <<< EOT
-<entry xmlns="http://www.w3.org/2005/Atom"
-      xmlns:thr="http://purl.org/syndication/thread/1.0"
-      xmlns:at="http://purl.org/atompub/tombstones/1.0"
-      xmlns:media="http://purl.org/syndication/atommedia"
-      xmlns:dfrn="http://purl.org/macgirvin/dfrn/1.0" 
-      xmlns:as="http://activitystrea.ms/spec/1.0/"
-      xmlns:georss="http://www.georss.org/georss" 
-      xmlns:poco="http://portablecontacts.net/spec/1.0" 
-      xmlns:ostatus="http://ostatus.org/schema/1.0" 
-	  xmlns:statusnet="http://status.net/schema/api/1/" >													>
-EOT;
-
-	$slap = str_replace('<entry>',$namespaces,$slap);
-
 	logger('slapper called for '.$url.'. Data: ' . $slap);
 
 	// create a magic envelope

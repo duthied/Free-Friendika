@@ -13,7 +13,6 @@ function handle_pubsubhubbub() {
 	$r = q("SELECT * FROM `push_subscriber` WHERE `push` > 0");
 
 	foreach($r as $rr) {
-		//$params = get_feed_for($a, '', $rr['nickname'], $rr['last_update'], 0, true);
 		$params = ostatus_feed($a, $rr['nickname'], $rr['last_update']);
 		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
