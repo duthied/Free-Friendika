@@ -3828,9 +3828,9 @@ aside input[type='text'] {
 	background-repeat: no-repeat;
 	opacity: 0.4;
 }
-.event-attend-icon { background-image: url('images/event-attend.png'); }
-.event-maybeattend-icon { background-image: url('images/event-maybeattend.png'); }
-.event-dontattend-icon { background-image: url('images/event-dontattend.png'); }
+.event-attend-icon { background-image: url('images/event-attend-16.png'); }
+.event-maybeattend-icon { background-image: url('images/event-maybeattend-16.png'); }
+.event-dontattend-icon { background-image: url('images/event-dontattend-16.png'); }
 
 .filer-icon:hover {
 	opacity: 1.0;
