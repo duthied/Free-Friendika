@@ -4402,7 +4402,7 @@ function atom_author($tag,$name,$uri,$h,$w,$photo,$geo) {
 
 			$o .= "\t<poco:preferredUsername>".xmlify($r[0]["nick"])."</poco:preferredUsername>\r\n";
 			$o .= "\t<poco:displayName>".xmlify($r[0]["name"])."</poco:displayName>\r\n";
-			$o .= "\t<poco:note>".xmlify($r[0]["about"])."</poco:note>\r\n";
+			$o .= "\t<poco:note>".xmlify(bbcode($r[0]["about"]))."</poco:note>\r\n";
 			$o .= "\t<poco:address>\r\n";
 			$o .= "\t\t<poco:formatted>".xmlify($location)."</poco:formatted>\r\n";
 			$o .= "\t</poco:address>\r\n";
