@@ -89,15 +89,13 @@ function display_init(&$a) {
 }
 
 function display_fetchauthor($a, $item) {
-	require_once("mod/proxy.php");
-	require_once("include/bbcode.php");
 
 	$profiledata = array();
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];
 	$profiledata["name"] = $item["author-name"];
 	$profiledata["picdate"] = "";
-	$profiledata["photo"] = proxy_url($item["author-avatar"], false, PROXY_SIZE_SMALL);
+	$profiledata["photo"] = $item["author-avatar"];
 	$profiledata["url"] = $item["author-link"];
 	$profiledata["network"] = $item["network"];
 
@@ -174,9 +172,9 @@ function display_fetchauthor($a, $item) {
 			$r[0]["about"] = "";
 		}
 
-		$profiledata["photo"] = proxy_url($r[0]["photo"], false, PROXY_SIZE_SMALL);
-		$profiledata["address"] = bbcode($r[0]["location"]);
-		$profiledata["about"] = bbcode($r[0]["about"]);
+		$profiledata["photo"] = $r[0]["photo"];
+		$profiledata["address"] = $r[0]["location"];
+		$profiledata["about"] = $r[0]["about"];
 		if ($r[0]["nick"] != "")
 			$profiledata["nickname"] = $r[0]["nick"];
 	}
@@ -185,11 +183,11 @@ function display_fetchauthor($a, $item) {
 	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
 	if (count($r)) {
 		if ($profiledata["photo"] == "")
-			$profiledata["photo"] = proxy_url($r[0]["avatar"], false, PROXY_SIZE_SMALL);
+			$profiledata["photo"] = $r[0]["avatar"];
 		if (($profiledata["address"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
-			$profiledata["address"] = bbcode($r[0]["location"]);
+			$profiledata["address"] = $r[0]["location"];
 		if (($profiledata["about"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
-			$profiledata["about"] = bbcode($r[0]["about"]);
+			$profiledata["about"] = $r[0]["about"];
 		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
 			$profiledata["nickname"] = $r[0]["nick"];
 	}
@@ -212,7 +210,6 @@ function display_content(&$a, $update = 0) {
 		return;
 	}
 
-	require_once("include/bbcode.php");
 	require_once('include/security.php');
 	require_once('include/conversation.php');
 	require_once('include/acl_selectors.php');

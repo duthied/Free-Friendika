@@ -192,9 +192,6 @@ function unmark_for_death($contact) {
 }}
 
 function get_contact_details_by_url($url, $uid = -1) {
-	require_once("mod/proxy.php");
-	require_once("include/bbcode.php");
-
 	if ($uid == -1)
 		$uid = local_user();
 
@@ -267,15 +264,6 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["cid"] = $r[0]["id"];
 	} else
 		$profile["cid"] = 0;
-
-	if (isset($profile["photo"]))
-		$profile["photo"] = proxy_url($profile["photo"], false, PROXY_SIZE_SMALL);
-
-	if (isset($profile["location"]))
-		$profile["location"] = bbcode($profile["location"]);
-
-	if (isset($profile["about"]))
-		$profile["about"] = bbcode($profile["about"]);
 
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {
 		$profile["location"] = "";

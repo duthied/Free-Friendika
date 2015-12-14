@@ -4,7 +4,8 @@
  */
 
 require_once('include/forums.php');
-
+require_once('include/bbcode.php');
+require_once("mod/proxy.php");
 
 /**
  *
@@ -108,7 +109,6 @@ if(! function_exists('profile_load')) {
 		else
 			$a->page['aside'] .= profile_sidebar($a->profile, $block);
 
-
 		/*if(! $block)
 		 $a->page['aside'] .= contact_block();*/
 
@@ -199,7 +199,7 @@ if(! function_exists('profile_sidebar')) {
 
 		if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
 			$profile['network_name'] = format_network_name($profile['network'],$profile['url']);
-		} else 
+		} else
 			$profile['network_name'] = "";
 
 		call_hooks('profile_sidebar_enter', $profile);
@@ -359,6 +359,15 @@ if(! function_exists('profile_sidebar')) {
 			$k = str_replace('-','_',$k);
 			$p[$k] = $v;
 		}
+
+		if (isset($p["about"]))
+			$p["about"] = bbcode($p["about"]);
+
+		if (isset($p["location"]))
+			$p["location"] = bbcode($p["location"]);
+
+		if (isset($p["photo"]))
+			$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
 
 		if($a->theme['template_engine'] === 'internal')
 			$location = template_escape($location);
