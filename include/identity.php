@@ -287,11 +287,11 @@ if(! function_exists('profile_sidebar')) {
 		}
 
 		// check if profile is a forum
-		if((x($profile['page-flags']) == 2)
-				|| (x($profile['page-flags']) == 5)
-				|| (x($profile['forum']))
-				|| (x($profile['prv']))
-				|| (x($profile['community'])))
+		if((intval($profile['page-flags']) == PAGE_COMMUNITY)
+				|| (intval($profile['page-flags']) == PAGE_PRVGROUP)
+				|| (intval($profile['forum']))
+				|| (intval($profile['prv']))
+				|| (intval($profile['community'])))
 			$account_type = t('Forum');
 		else
 			$account_type = "";
