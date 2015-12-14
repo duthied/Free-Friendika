@@ -347,7 +347,7 @@ Friendica doesn't allow showing followers of other users.
 Friendica doesn't allow showing friends of other users.
 
 
-## Implemented API calls (not compatible with other API’s)
+## Implemented API calls (not compatible with other APIs)
 
 ### friendica/group_show
 Return all or a specified group of the user with the containing contacts as array.
