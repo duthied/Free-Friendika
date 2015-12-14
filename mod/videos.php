@@ -33,7 +33,7 @@ function videos_init(&$a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		if((x($profile['page-flags']) == 2) || (x($profile['page-flags']) == 5))
+		if((intval($profile['page-flags']) == PAGE_COMMUNITY) || (intval($profile['page-flags']) == PAGE_PRVGROUP))
 			$account_type = t('Forum');
 		else
 			$account_type = "";
