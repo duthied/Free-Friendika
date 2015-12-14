@@ -223,6 +223,8 @@ function notifier_run(&$argv, &$argc){
 
 	if(! ($mail || $fsuggest || $relocate)) {
 
+		$slap = ostatus_salmon($target_item,$owner);
+
 		require_once('include/group.php');
 
 		$parent = $items[0];
@@ -267,12 +269,12 @@ function notifier_run(&$argv, &$argc){
 
 		$relay_to_owner = false;
 
-		if((! $top_level) && ($parent['wall'] == 0) && (! $expire) && (stristr($target_item['uri'],$localhost))) {
+		if(!$top_level && ($parent['wall'] == 0) && !$expire && (stristr($target_item['uri'],$localhost))) {
 			$relay_to_owner = true;
 		}
 
 
-		if(($cmd === 'uplink') && (intval($parent['forum_mode']) == 1) && (! $top_level)) {
+		if(($cmd === 'uplink') && (intval($parent['forum_mode']) == 1) && !$top_level) {
 			$relay_to_owner = true;
 		}
 
@@ -411,12 +413,9 @@ function notifier_run(&$argv, &$argc){
 
 		if(count($r))
 			$contacts = $r;
-	}
 
-	if (!$normal_mode)
+	} else
 		$public_message = false;
-	else
-		$slap = ostatus_salmon($target_item,$owner);
 
 	// If this is a public message and pubmail is set on the parent, include all your email contacts
 
@@ -521,8 +520,8 @@ function notifier_run(&$argv, &$argc){
 	// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 	// They are especially used for notifications to OStatus users that don't follow us.
 
-	if($slap && count($url_recipients) && ($public_message || $push_notify) && (!$expire)) {
-		if(! get_config('system','dfrn_only')) {
+	if($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
+		if(!get_config('system','dfrn_only')) {
 			foreach($url_recipients as $url) {
 				if($url) {
 					logger('notifier: urldelivery: ' . $url);
