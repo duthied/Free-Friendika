@@ -72,6 +72,10 @@ function poller_run(&$argv, &$argc){
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
 
+		// Count active workers and compare them with a maximum value that depends on the load
+		if (poller_too_much_workers(3))
+			return;
+
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
 			dbesc(datetime_convert()),
 			intval(getmypid()),
@@ -115,10 +119,6 @@ function poller_run(&$argv, &$argc){
 
 		// Quit the poller once every hour
 		if (time() > ($starttime + 3600))
-			return;
-
-		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers(3))
 			return;
 	}
 
