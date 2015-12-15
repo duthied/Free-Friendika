@@ -26,14 +26,14 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-	if(function_exists('sys_getloadavg')) {
+	$load = current_load();
+	if($load) {
 		$maxsysload = intval(get_config('system','maxloadavg'));
 		if($maxsysload < 1)
 			$maxsysload = 50;
 
-		$load = sys_getloadavg();
-		if(intval($load[0]) > $maxsysload) {
-			logger('system: load ' . $load[0] . ' too high. poller deferred to next scheduled run.');
+		if(intval($load) > $maxsysload) {
+			logger('system: load ' . $load . ' too high. poller deferred to next scheduled run.');
 			return;
 		}
 	}
@@ -134,9 +134,8 @@ function poller_too_much_workers($stage) {
 	$active = poller_active_workers();
 
 	// Decrease the number of workers at higher load
-	if(function_exists('sys_getloadavg')) {
-		$load = max(sys_getloadavg());
-
+	$load = current_load();
+	if($load) {
 		$maxsysload = intval(get_config('system','maxloadavg'));
 		if($maxsysload < 1)
 			$maxsysload = 50;
