@@ -76,23 +76,22 @@ function common_content(&$a) {
 
 
 	if($cid)
-		$t = count_common_friends($uid,$cid);
+		$t = count_common_friends($uid, $cid);
 	else
-		$t = count_common_friends_zcid($uid,$zcid);
+		$t = count_common_friends_zcid($uid, $zcid);
 
-
-	$a->set_pager_total($t);
-
-	if(! $t) {
+	if(count($t))
+		$a->set_pager_total($t);
+	else {
 		notice( t('No contacts in common.') . EOL);
 		return $o;
 	}
 
 
 	if($cid)
-		$r = common_friends($uid,$cid);
+		$r = common_friends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
 	else
-		$r = common_friends_zcid($uid,$zcid);
+		$r = common_friends_zcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 
 
 	if(! count($r)) {
@@ -140,8 +139,8 @@ function common_content(&$a) {
 		'$title' => $title,
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
+		'$paginate' => paginate($a),
 	));
 
-//	$o .= paginate($a);
 	return $o;
 }
