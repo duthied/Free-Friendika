@@ -1248,7 +1248,7 @@ function get_guid($size=16, $prefix = "") {
 		$prefix = substr($prefix, 0, $size - 22);
 		return(str_replace(".", "", uniqid($prefix, true)));
 	} else {
-		$prefix = substr($prefix, 0, $size - 13);
+		$prefix = substr($prefix, 0, max($size - 13, 0));
 		return(uniqid($prefix));
 	}
 }
