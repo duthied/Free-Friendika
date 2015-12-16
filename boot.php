@@ -1948,3 +1948,15 @@ function validate_include(&$file) {
 
 	return true;
 }
+
+function current_load() {
+	if (!function_exists('sys_getloadavg'))
+		return false;
+
+	$load_arr = sys_getloadavg();
+
+	if (!is_array($load_arr))
+		return false;
+
+	return max($load_arr);
+}
