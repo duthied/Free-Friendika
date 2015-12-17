@@ -22,8 +22,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-12-14 07:48+0100\n"
-"PO-Revision-Date: 2015-12-14 09:23+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2015-12-16 08:20+0000\n"
+"Last-Translator: Perig Gouanvic <pierre.alain.gouanvic@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -477,7 +477,7 @@ msgstr "Amis communs"
 
 #: mod/contacts.php:852
 msgid "View all common friends"
-msgstr ""
+msgstr "Voir tous les amis communs"
 
 #: mod/contacts.php:856
 msgid "Repair"
@@ -909,7 +909,7 @@ msgstr "Utiliser comme photo de profil"
 
 #: mod/ostatus_subscribe.php:14
 msgid "Subsribing to OStatus contacts"
-msgstr ""
+msgstr "Inscription aux contacts OStatus"
 
 #: mod/ostatus_subscribe.php:25
 msgid "No contact provided."
@@ -1897,7 +1897,7 @@ msgstr "Nouvelle photo depuis cette URL"
 
 #: mod/crepair.php:179
 msgid "Remote Self"
-msgstr ""
+msgstr "Identité à distance"
 
 #: mod/crepair.php:182
 msgid "Mirror postings from this contact"
@@ -2870,11 +2870,11 @@ msgstr ""
 
 #: mod/admin.php:798
 msgid "Only search in tags"
-msgstr ""
+msgstr "Rechercher seulement dans les étiquettes"
 
 #: mod/admin.php:798
 msgid "On large systems the text search can slow down the system extremely."
-msgstr ""
+msgstr "La recherche textuelle peut ralentir considérablement les systèmes de grande taille."
 
 #: mod/admin.php:800
 msgid "New base url"
@@ -2884,7 +2884,7 @@ msgstr "Nouvelle URL de base"
 msgid ""
 "Change base url for this server. Sends relocate message to all DFRN contacts"
 " of all users."
-msgstr ""
+msgstr "Changer d'URL de base pour ce serveur. Envoie un message de relocalisation à tous les contacts des réseaux distribués d'amis et de relations (DFRN) de tous les utilisateurs."
 
 #: mod/admin.php:802
 msgid "RINO Encryption"
@@ -2896,7 +2896,7 @@ msgstr "Couche de chiffrement entre les nœuds du réseau."
 
 #: mod/admin.php:803
 msgid "Embedly API key"
-msgstr ""
+msgstr "Clé API d'Embedly"
 
 #: mod/admin.php:803
 msgid ""
@@ -3232,7 +3232,7 @@ msgstr "Mot de passe FTP"
 #: mod/network.php:146
 #, php-format
 msgid "Search Results For: %s"
-msgstr ""
+msgstr "Résultats de la recherche pour %s"
 
 #: mod/network.php:191 mod/search.php:25
 msgid "Remove term"
@@ -3309,7 +3309,7 @@ msgstr "Groupe inexistant"
 #: mod/network.php:574 mod/content.php:135
 #, php-format
 msgid "Group: %s"
-msgstr ""
+msgstr "Group : %s"
 
 #: mod/network.php:606
 msgid "Private messages to this person are at risk of public disclosure."
@@ -3325,7 +3325,7 @@ msgstr "Pas d'amis à afficher."
 
 #: mod/events.php:71 mod/events.php:73
 msgid "Event can not end before it has started."
-msgstr ""
+msgstr "L'événement ne peut pas se terminer avant d'avoir commencé."
 
 #: mod/events.php:80 mod/events.php:82
 msgid "Event title and start time are required."
@@ -4471,7 +4471,7 @@ msgstr "Mettre-à-jour l'affichage toutes les xx secondes"
 
 #: mod/settings.php:966
 msgid "Minimum of 10 seconds. Enter -1 to disable it."
-msgstr ""
+msgstr "Minimum de 10 secondes. Saisir -1 pour désactiver."
 
 #: mod/settings.php:967
 msgid "Number of items to display per page:"
@@ -4507,7 +4507,7 @@ msgstr "Défilement infini"
 
 #: mod/settings.php:974
 msgid "Automatic updates only at the top of the network page"
-msgstr ""
+msgstr "Mises à jour automatiques seulement en haut de la page du réseau."
 
 #: mod/settings.php:976 view/theme/cleanzero/config.php:82
 #: view/theme/dispy/config.php:72 view/theme/quattro/config.php:66
@@ -5080,7 +5080,7 @@ msgstr "Votre adresse courriel: "
 
 #: mod/register.php:274
 msgid "Leave empty for an auto generated password."
-msgstr ""
+msgstr "Laisser ce champ libre pour obtenir un mot de passe généré automatiquement."
 
 #: mod/register.php:276
 msgid ""
@@ -5111,15 +5111,15 @@ msgstr "Système indisponible pour cause de maintenance"
 
 #: mod/search.php:100
 msgid "Only logged in users are permitted to perform a search."
-msgstr ""
+msgstr "Seuls les utilisateurs inscrits sont autorisés à lancer une recherche."
 
 #: mod/search.php:124
 msgid "Too Many Requests"
-msgstr ""
+msgstr "Trop de requêtes"
 
 #: mod/search.php:125
 msgid "Only one search per minute is permitted for not logged in users."
-msgstr ""
+msgstr "Une seule recherche par minute pour les utilisateurs qui ne sont pas connectés."
 
 #: mod/search.php:136 include/text.php:1003 include/nav.php:118
 msgid "Search"
@@ -5429,7 +5429,7 @@ msgstr "Votre genre :"
 
 #: mod/profiles.php:714
 msgid "Birthday :"
-msgstr ""
+msgstr "Anniversaire :"
 
 #: mod/profiles.php:715
 msgid "Street Address:"
@@ -5794,7 +5794,7 @@ msgstr ""
 
 #: mod/repair_ostatus.php:30
 msgid "Error"
-msgstr ""
+msgstr "Erreur"
 
 #: mod/invite.php:27
 msgid "Total invitation limit exceeded."
@@ -6041,7 +6041,7 @@ msgstr "Exemples: @bob, @Barbara_Jensen, @jim@example.com, #Californie, #vacance
 
 #: mod/photos.php:1569
 msgid "Do not rotate"
-msgstr ""
+msgstr "Pas de rotation"
 
 #: mod/photos.php:1570
 msgid "Rotate CW (right)"
@@ -6072,15 +6072,15 @@ msgstr[1] ""
 
 #: mod/photos.php:1648 include/conversation.php:509
 msgid "Not attending"
-msgstr ""
+msgstr "Ne participe pas"
 
 #: mod/photos.php:1648 include/conversation.php:509
 msgid "Might attend"
-msgstr ""
+msgstr "Participera peut-être"
 
 #: mod/photos.php:1813
 msgid "Map"
-msgstr ""
+msgstr "Carte"
 
 #: mod/p.php:9
 msgid "Not Extended"
@@ -6201,15 +6201,15 @@ msgstr "Cette entrée à été édité"
 
 #: object/Item.php:191
 msgid "I will attend"
-msgstr ""
+msgstr "Je vais participer"
 
 #: object/Item.php:191
 msgid "I will not attend"
-msgstr ""
+msgstr "Je ne vais pas participer"
 
 #: object/Item.php:191
 msgid "I might attend"
-msgstr ""
+msgstr "Je vais peut-être participer"
 
 #: object/Item.php:230
 msgid "ignore thread"
@@ -6360,7 +6360,7 @@ msgstr "Possibilité de créer plusieurs profils"
 
 #: include/features.php:61
 msgid "Photo Location"
-msgstr ""
+msgstr "Lieu de prise de la photo"
 
 #: include/features.php:61
 msgid ""
@@ -6613,7 +6613,7 @@ msgstr "éditer"
 
 #: include/group.php:285
 msgid "Edit groups"
-msgstr ""
+msgstr "Modifier les groupes"
 
 #: include/group.php:287
 msgid "Edit group"
@@ -6633,7 +6633,7 @@ msgstr "Divers"
 
 #: include/datetime.php:141
 msgid "YYYY-MM-DD or MM-DD"
-msgstr ""
+msgstr "AAAA-MM-JJ ou MM-JJ"
 
 #: include/datetime.php:271
 msgid "never"
@@ -6712,7 +6712,7 @@ msgstr "Editer le profil"
 
 #: include/identity.php:241
 msgid "Atom feed"
-msgstr ""
+msgstr "Flux Atom"
 
 #: include/identity.php:246
 msgid "Message"
@@ -6821,7 +6821,7 @@ msgstr "Études/Formation:"
 
 #: include/identity.php:648
 msgid "Forums:"
-msgstr ""
+msgstr "Forums :"
 
 #: include/identity.php:701 include/identity.php:704 include/nav.php:78
 msgid "Videos"
@@ -6842,7 +6842,7 @@ msgstr "Publier aux courriels"
 #: include/acl_selectors.php:330
 #, php-format
 msgid "Connectors disabled, since \"%s\" is enabled."
-msgstr ""
+msgstr "Les connecteurs sont désactivés parce que \"%s\" est activé."
 
 #: include/acl_selectors.php:336
 msgid "Visible to everybody"
@@ -6915,17 +6915,17 @@ msgstr "Le jeton de sécurité du formulaire n'est pas correct. Ceci veut probab
 #: include/conversation.php:147
 #, php-format
 msgid "%1$s attends %2$s's %3$s"
-msgstr ""
+msgstr "%1$s participe à %3$s de %2$s"
 
 #: include/conversation.php:150
 #, php-format
 msgid "%1$s doesn't attend %2$s's %3$s"
-msgstr ""
+msgstr "%1$s ne participe pas à %3$s de %2$s"
 
 #: include/conversation.php:153
 #, php-format
 msgid "%1$s attends maybe %2$s's %3$s"
-msgstr ""
+msgstr "%1$s participe peut-être à %3$s de %2$s"
 
 #: include/conversation.php:219
 #, php-format
@@ -6966,17 +6966,17 @@ msgstr "%s n'aime pas ça."
 #: include/conversation.php:1041
 #, php-format
 msgid "%s attends."
-msgstr ""
+msgstr "%s participe"
 
 #: include/conversation.php:1044
 #, php-format
 msgid "%s doesn't attend."
-msgstr ""
+msgstr "%s ne participe pas"
 
 #: include/conversation.php:1047
 #, php-format
 msgid "%s attends maybe."
-msgstr ""
+msgstr "%s participe peut-être"
 
 #: include/conversation.php:1057
 msgid "and"
@@ -6995,7 +6995,7 @@ msgstr "<span  %1$s>%2$d personnes</span> aiment ça"
 #: include/conversation.php:1073
 #, php-format
 msgid "%s like this."
-msgstr ""
+msgstr "%s aime ça."
 
 #: include/conversation.php:1076
 #, php-format
@@ -7005,7 +7005,7 @@ msgstr "<span  %1$s>%2$d personnes</span> n'aiment pas ça"
 #: include/conversation.php:1077
 #, php-format
 msgid "%s don't like this."
-msgstr ""
+msgstr "%s n'aiment pas ça."
 
 #: include/conversation.php:1080
 #, php-format
@@ -7015,7 +7015,7 @@ msgstr ""
 #: include/conversation.php:1081
 #, php-format
 msgid "%s attend."
-msgstr ""
+msgstr "%s participent."
 
 #: include/conversation.php:1084
 #, php-format
@@ -7025,7 +7025,7 @@ msgstr ""
 #: include/conversation.php:1085
 #, php-format
 msgid "%s don't attend."
-msgstr ""
+msgstr "%s ne participent pas."
 
 #: include/conversation.php:1088
 #, php-format
@@ -7035,7 +7035,7 @@ msgstr ""
 #: include/conversation.php:1089
 #, php-format
 msgid "%s anttend maybe."
-msgstr ""
+msgstr "%s participent peut-être."
 
 #: include/conversation.php:1128 include/conversation.php:1146
 msgid "Visible to <strong>everybody</strong>"
@@ -7079,7 +7079,7 @@ msgstr "Message privé"
 
 #: include/conversation.php:1386
 msgid "View all"
-msgstr ""
+msgstr "Voir tout"
 
 #: include/conversation.php:1408
 msgid "Like"
@@ -7108,7 +7108,7 @@ msgstr[1] ""
 #: include/forums.php:105 include/text.php:1015 include/nav.php:126
 #: view/theme/vier/theme.php:259
 msgid "Forums"
-msgstr ""
+msgstr "Forums"
 
 #: include/forums.php:107 view/theme/vier/theme.php:261
 msgid "External link to forum"
