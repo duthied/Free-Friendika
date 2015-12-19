@@ -151,9 +151,10 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		update_suggestions();
+		proc_run('php',"include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
+
 		proc_run('php','include/expire.php');
 	}
 
@@ -186,6 +187,27 @@ function cron_run(&$argv, &$argc){
 			if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
 
 			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
+		}
+
+		// maximum table size in megabyte
+		$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
+		if ($max_tablesize == 0)
+			$max_tablesize = 100 * 1000000; // Default are 100 MB
+
+		// Optimize some tables that need to be optimized
+		$r = q("SHOW TABLE STATUS");
+		foreach($r as $table) {
+
+			// Don't optimize tables that needn't to be optimized
+			if ($table["Data_free"] == 0)
+				continue;
+
+			// Don't optimize tables that are too large
+			if ($table["Data_length"] > $max_tablesize)
+				continue;
+
+			// So optimize it
+			q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
 		}
 
 		set_config('system','cache_last_cleared', time());

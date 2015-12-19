@@ -48,7 +48,7 @@ function create_user($arr) {
 			$result['message'] .= t('An invitation is required.') . EOL;
 			return $result;
 		}
-		$r = q("select * from register where `hash` = '%s' limit 1", dbesc($invite_id));
+		$r = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1", dbesc($invite_id));
 		if(! results($r)) {
 			$result['message'] .= t('Invitation could not be verified.') . EOL;
 			return $result;
@@ -66,7 +66,7 @@ function create_user($arr) {
 			require_once('library/openid.php');
 			$openid = new LightOpenID;
 			$openid->identity = $openid_url;
-			$openid->returnUrl = $a->get_baseurl() . '/openid';
+			$openid->returnUrl = z_root() . '/openid';
 			$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');
 			$openid->optional = array('namePerson/first','media/image/aspect11','media/image/default');
 			try {
@@ -138,9 +138,10 @@ function create_user($arr) {
 
 	if(! preg_match("/^[a-z0-9][a-z0-9\_]*$/",$nickname))
 		$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9" and "_".') . EOL;
+
 	$r = q("SELECT `uid` FROM `user`
-               	WHERE `nickname` = '%s' LIMIT 1",
-               	dbesc($nickname)
+		WHERE `nickname` = '%s' LIMIT 1",
+		dbesc($nickname)
 	);
 	if(count($r))
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
@@ -149,8 +150,8 @@ function create_user($arr) {
 	// but could be a security issue for federated platforms.
 
 	$r = q("SELECT * FROM `userd`
-               	WHERE `username` = '%s' LIMIT 1",
-               	dbesc($nickname)
+		WHERE `username` = '%s' LIMIT 1",
+		dbesc($nickname)
 	);
 	if(count($r))
 		$result['message'] .= t('Nickname was once registered here and may not be re-used. Please choose another.') . EOL;
@@ -237,8 +238,8 @@ function create_user($arr) {
 	 */
 
 	$r = q("SELECT `uid` FROM `user`
-               	WHERE `nickname` = '%s' ",
-               	dbesc($nickname)
+		WHERE `nickname` = '%s' ",
+		dbesc($nickname)
 	);
 	if((count($r) > 1) && $newuid) {
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
@@ -255,8 +256,8 @@ function create_user($arr) {
 			t('default'),
 			1,
 			dbesc($username),
-			dbesc($a->get_baseurl() . "/photo/profile/{$newuid}.jpg"),
-			dbesc($a->get_baseurl() . "/photo/avatar/{$newuid}.jpg"),
+			dbesc(z_root() . "/photo/profile/{$newuid}.jpg"),
+			dbesc(z_root() . "/photo/avatar/{$newuid}.jpg"),
 			intval($publish),
 			intval($netpublish)
 
@@ -269,22 +270,23 @@ function create_user($arr) {
 			return $result;
 		}
 		$r = q("INSERT INTO `contact` ( `uid`, `created`, `self`, `name`, `nick`, `photo`, `thumb`, `micro`, `blocked`, `pending`, `url`, `nurl`,
-			`request`, `notify`, `poll`, `confirm`, `poco`, `name-date`, `uri-date`, `avatar-date`, `closeness` )
-			VALUES ( %d, '%s', 1, '%s', '%s', '%s', '%s', '%s', 0, 0, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', 0 ) ",
+			`addr`, `request`, `notify`, `poll`, `confirm`, `poco`, `name-date`, `uri-date`, `avatar-date`, `closeness` )
+			VALUES ( %d, '%s', 1, '%s', '%s', '%s', '%s', '%s', 0, 0, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', 0 ) ",
 			intval($newuid),
 			datetime_convert(),
 			dbesc($username),
 			dbesc($nickname),
-			dbesc($a->get_baseurl() . "/photo/profile/{$newuid}.jpg"),
-			dbesc($a->get_baseurl() . "/photo/avatar/{$newuid}.jpg"),
-			dbesc($a->get_baseurl() . "/photo/micro/{$newuid}.jpg"),
-			dbesc($a->get_baseurl() . "/profile/$nickname"),
-			dbesc(normalise_link($a->get_baseurl() . "/profile/$nickname")),
-			dbesc($a->get_baseurl() . "/dfrn_request/$nickname"),
-			dbesc($a->get_baseurl() . "/dfrn_notify/$nickname"),
-			dbesc($a->get_baseurl() . "/dfrn_poll/$nickname"),
-			dbesc($a->get_baseurl() . "/dfrn_confirm/$nickname"),
-			dbesc($a->get_baseurl() . "/poco/$nickname"),
+			dbesc(z_root() . "/photo/profile/{$newuid}.jpg"),
+			dbesc(z_root() . "/photo/avatar/{$newuid}.jpg"),
+			dbesc(z_root() . "/photo/micro/{$newuid}.jpg"),
+			dbesc(z_root() . "/profile/$nickname"),
+			dbesc(normalise_link(z_root() . "/profile/$nickname")),
+			dbesc($nickname . '@' . substr(z_root(), strpos(z_root(),'://') + 3 )),
+			dbesc(z_root() . "/dfrn_request/$nickname"),
+			dbesc(z_root() . "/dfrn_notify/$nickname"),
+			dbesc(z_root() . "/dfrn_poll/$nickname"),
+			dbesc(z_root() . "/dfrn_confirm/$nickname"),
+			dbesc(z_root() . "/poco/$nickname"),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert())
@@ -296,23 +298,23 @@ function create_user($arr) {
 		require_once('include/group.php');
 		group_add($newuid, t('Friends'));
 
-		$r = q("SELECT id FROM `group` WHERE uid = %d AND name = '%s'",
+		$r = q("SELECT `id` FROM `group` WHERE `uid` = %d AND `name` = '%s'",
 			intval($newuid),
 			dbesc(t('Friends'))
 		);
 		if($r && count($r)) {
 			$def_gid = $r[0]['id'];
 
-			q("UPDATE user SET def_gid = %d WHERE uid = %d",
+			q("UPDATE `user` SET `def_gid` = %d WHERE `uid` = %d",
 				intval($r[0]['id']),
 				intval($newuid)
 			);
 		}
 
 		if(get_config('system', 'newuser_private') && $def_gid) {
-			q("UPDATE user SET allow_gid = '%s' WHERE uid = %d",
-			   dbesc("<" . $def_gid . ">"),
-			   intval($newuid)
+			q("UPDATE `user` SET `allow_gid` = '%s' WHERE `uid` = %d",
+				dbesc("<" . $def_gid . ">"),
+				intval($newuid)
 			);
 		}
 

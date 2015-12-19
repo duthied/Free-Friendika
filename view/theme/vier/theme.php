@@ -9,9 +9,9 @@
  * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
  */
 
-require_once("mod/nodeinfo.php");
-require_once("mod/proxy.php");
+require_once("include/plugin.php");
 require_once("include/socgraph.php");
+require_once("mod/proxy.php");
 
 function vier_init(&$a) {
 
@@ -26,11 +26,18 @@ function vier_init(&$a) {
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] or $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
 
-		$a->page['htmlhead'] .= "<link rel='stylesheet' media='screen and (min-width: 1300px)' href='view/theme/vier/wide.css' />";
+		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
 	}
 
+	if ($a->is_mobile || $a->is_tablet) {
+		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
+		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
+	}
+		// deactivated since it doesn't work with desktop browsers at the moment (To-Do)
+		//$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
+
 $a->page['htmlhead'] .= <<< EOT
-<link rel='stylesheet' media='screen and (max-width: 1100px)' href='view/theme/vier/narrow.css' />
+<link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
 
 function insertFormatting(comment,BBcode,id) {
@@ -80,12 +87,33 @@ function cmtBbOpen(id) {
 function cmtBbClose(id) {
 	$("#comment-edit-bb-" + id).hide();
 }
+
+
+
 </script>
 EOT;
 
+
+if ($a->is_mobile || $a->is_tablet){
+	$a->page['htmlhead'] .= <<< EOT
+<script>
+	$(document).ready(function() {
+		$(".mobile-aside-toggle a").click(function(e){
+			e.preventDefault();
+			$("aside").toggleClass("show");
+		});
+		$(".tabs").click(function(e){
+			$(this).toggleClass("show");
+		});
+	});
+</script>
+EOT;
+}
+
+
 	// Hide the left menu bar
 	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
-									"probe", "webfinger", "login", "invite")))
+									"probe", "webfinger", "login", "invite", "credits")))
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 }
 
@@ -192,35 +220,50 @@ function vier_community_info() {
 	//Community_Pages at right_aside
 	if($show_pages AND local_user()) {
 
-		$pagelist = array();
+		require_once('include/forums.php');
 
-		$contacts = q("SELECT `id`, `url`, `name`, `micro` FROM `contact`
-				WHERE `network`= '%s' AND `forum` AND `uid` = %d AND
-					NOT `hidden` AND NOT `blocked` AND
-					NOT `archive` AND NOT `pending` AND
-					`success_update` > `failure_update`
-				ORDER BY `name` ASC",
-				dbesc(NETWORK_DFRN), intval($a->user['uid']));
+		if(x($_GET['cid']) && intval($_GET['cid']) != 0)
+			$cid = $_GET['cid'];
 
-		$pageD = array();
+		//sort by last updated item
+		$lastitem = true;
 
-		// Look if the profile is a community page
-		foreach($contacts as $contact) {
-			$pageD[] = array("url"=>$contact["url"], "name"=>$contact["name"], "id"=>$contact["id"], "micro"=>$contact['micro']);
-		};
+		$contacts = get_forumlist($a->user['uid'],true,$lastitem, true);
+		$total = count($contacts);
+		$visible_forums = 10;
 
-		$contacts = $pageD;
+		if(count($contacts)) {
 
-		if ($contacts) {
-			$page = '
-				<h3>'.t("Community Pages").'</h3>
-				<div id="forum-list-right">';
+			$id = 0;
 
 			foreach($contacts as $contact) {
-				$page .= '<div role="menuitem"><a href="' . $a->get_baseurl() . '/redir/' . $contact["id"] . '" title="'.t('External link to forum').'" class="label sparkle" target="_blank"><img class="forumlist-img" height="20" width="20" src="' . $contact['micro'] .'" alt="'.t('External link to forum').'" /></a> <a href="' . $a->get_baseurl() . '/network?f=&cid=' . $contact['id'] . '" >' . $contact["name"]."</a></div>";
+
+				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
+
+				$entry = array(
+					'url' => z_root() . '/network?f=&cid=' . $contact['id'],
+					'external_url' => z_root() . '/redir/' . $contact['id'],
+					'name' => $contact['name'],
+					'cid' => $contact['id'],
+					'selected' 	=> $selected,
+					'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
+					'id' => ++$id,
+				);
+				$entries[] = $entry;
 			}
 
-			$page .= '</div>';
+
+			$tpl = get_markup_template('widget_forumlist_right.tpl');
+
+			$page .= replace_macros($tpl,array(
+				'$title'	=> t('Forums'),
+				'$forums'	=> $entries,
+				'$link_desc'	=> t('External link to forum'),
+				'$total'	=> $total,
+				'$visible_forums' => $visible_forums,
+				'$showmore'	=> t('show more'),
+			));
+
 			$aside['$page'] = $page;
 		}
 	}
@@ -278,49 +321,49 @@ function vier_community_info() {
 
 		$r = array();
 
-		if (nodeinfo_plugin_enabled("appnet"))
+		if (plugin_enabled("appnet"))
 			$r[] = array("photo" => "images/appnet.png", "name" => "App.net");
 
-		if (nodeinfo_plugin_enabled("buffer"))
+		if (plugin_enabled("buffer"))
 			$r[] = array("photo" => "images/buffer.png", "name" => "Buffer");
 
-		if (nodeinfo_plugin_enabled("blogger"))
+		if (plugin_enabled("blogger"))
 			$r[] = array("photo" => "images/blogger.png", "name" => "Blogger");
 
-		if (nodeinfo_plugin_enabled("dwpost"))
+		if (plugin_enabled("dwpost"))
 			$r[] = array("photo" => "images/dreamwidth.png", "name" => "Dreamwidth");
 
-		if (nodeinfo_plugin_enabled("fbpost"))
+		if (plugin_enabled("fbpost"))
 			$r[] = array("photo" => "images/facebook.png", "name" => "Facebook");
 
-		if (nodeinfo_plugin_enabled("ifttt"))
+		if (plugin_enabled("ifttt"))
 			$r[] = array("photo" => "addon/ifttt/ifttt.png", "name" => "IFTTT");
 
-		if (nodeinfo_plugin_enabled("statusnet"))
+		if (plugin_enabled("statusnet"))
 			$r[] = array("photo" => "images/gnusocial.png", "name" => "GNU Social");
 
-		if (nodeinfo_plugin_enabled("gpluspost"))
+		if (plugin_enabled("gpluspost"))
 			$r[] = array("photo" => "images/googleplus.png", "name" => "Google+");
 
-		//if (nodeinfo_plugin_enabled("ijpost"))
+		//if (plugin_enabled("ijpost"))
 		//	$r[] = array("photo" => "images/", "name" => "");
 
-		if (nodeinfo_plugin_enabled("libertree"))
+		if (plugin_enabled("libertree"))
 			$r[] = array("photo" => "images/libertree.png", "name" => "Libertree");
 
-		//if (nodeinfo_plugin_enabled("ljpost"))
+		//if (plugin_enabled("ljpost"))
 		//	$r[] = array("photo" => "images/", "name" => "");
 
-		if (nodeinfo_plugin_enabled("pumpio"))
+		if (plugin_enabled("pumpio"))
 			$r[] = array("photo" => "images/pumpio.png", "name" => "pump.io");
 
-		if (nodeinfo_plugin_enabled("tumblr"))
+		if (plugin_enabled("tumblr"))
 			$r[] = array("photo" => "images/tumblr.png", "name" => "Tumblr");
 
-		if (nodeinfo_plugin_enabled("twitter"))
+		if (plugin_enabled("twitter"))
 			$r[] = array("photo" => "images/twitter.png", "name" => "Twitter");
 
-		if (nodeinfo_plugin_enabled("wppost"))
+		if (plugin_enabled("wppost"))
 			$r[] = array("photo" => "images/wordpress", "name" => "Wordpress");
 
 		if(function_exists("imap_open") AND !get_config("system","imap_disabled") AND !get_config("system","dfrn_only"))

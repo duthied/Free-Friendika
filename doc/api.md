@@ -346,6 +346,79 @@ Friendica doesn't allow showing followers of other users.
 
 Friendica doesn't allow showing friends of other users.
 
+
+## Implemented API calls (not compatible with other APIs)
+
+### friendica/group_show
+Return all or a specified group of the user with the containing contacts as array.
+
+#### Parameters
+* gid: optional, if not given, API returns all groups of the user
+
+#### Return values
+Array of:
+* name: name of the group
+* gid: id of the group
+* user: array of group members (return from api_get_user() function for each member)
+
+
+### friendica/group_delete
+delete the specified group of contacts; API call need to include the correct gid AND name of the group to be deleted.
+
+### Parameters
+* gid: id of the group to be deleted
+* name: name of the group to be deleted 
+
+#### Return values
+Array of:
+* success: true if successfully deleted
+* gid: gid of the deleted group
+* name: name of the deleted group
+* status: „deleted“ if successfully deleted
+* wrong users: empty array
+
+
+### friendica/group_create
+Create the group with the posted array of contacts as members. 
+#### Parameters
+* name: name of the group to be created
+
+#### POST data
+JSON data as Array like the result of „users/group_show“:
+* gid
+* name
+* array of users
+
+#### Return values
+Array of:
+* success: true if successfully created or reactivated
+* gid: gid of the created group
+* name: name of the created group
+* status: „missing user“ | „reactivated“ | „ok“
+* wrong users: array of users, which were not available in the contact table 
+
+
+### friendica/group_update
+Update the group with the posted array of contacts as members (post all members of the group to the call; function will remove members not posted). 
+#### Parameters
+* gid: id of the group to be changed
+* name: name of the group to be changed
+
+#### POST data
+JSON data as array like the result of „users/group_show“:
+* gid
+* name
+* array of users
+
+#### Return values
+Array of:
+* success: true if successfully updated
+* gid: gid of the changed group
+* name: name of the changed group
+* status: „missing user“ | „ok“
+* wrong users: array of users, which were not available in the contact table 
+
+
 ## Not Implemented API calls
 The following API calls are implemented in GNU Social but not in Friendica: (incomplete)
 

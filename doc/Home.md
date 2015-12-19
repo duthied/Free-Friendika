@@ -30,6 +30,7 @@ Friendica Documentation and Resources
 * [Install](help/Install)
 * [Settings](help/Settings)
 * [Installing Connectors (Twitter/GNU Social)](help/Installing-Connectors)
+* [Install an ejabberd server (XMPP chat) with synchronized credentials](help/install-ejabberd)
 * [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
 * [Twitter/GNU Social API Functions](help/api)
@@ -45,6 +46,7 @@ Friendica Documentation and Resources
 * [Plugin Development](help/Plugins)
 * [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
+* [Code - Reference(Doxygen generated - sets cookies)](doc/html/)
 
 **External Resources**
 
@@ -54,4 +56,5 @@ Friendica Documentation and Resources
 **About**
 
 * [Site/Version Info](friendica)
+* [Friendica Credits](credits)
 

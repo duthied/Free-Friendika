@@ -156,9 +156,11 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 function group_get_members($gid) {
 	$ret = array();
 	if(intval($gid)) {
-		$r = q("SELECT `group_member`.`contact-id`, `contact`.* FROM `group_member` 
-			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
-			WHERE `gid` = %d AND `group_member`.`uid` = %d ORDER BY `contact`.`name` ASC ",
+		$r = q("SELECT `group_member`.`contact-id`, `contact`.* FROM `group_member`
+			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id`
+			WHERE `gid` = %d AND `group_member`.`uid` = %d AND
+				NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				ORDER BY `contact`.`name` ASC ",
 			intval($gid),
 			intval(local_user())
 		);
@@ -171,14 +173,14 @@ function group_get_members($gid) {
 function group_public_members($gid) {
 	$ret = 0;
 	if(intval($gid)) {
-		$r = q("SELECT `contact`.`id` AS `contact-id` FROM `group_member` 
-			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id` 
-			WHERE `gid` = %d AND `group_member`.`uid` = %d 
+		$r = q("SELECT `contact`.`id` AS `contact-id` FROM `group_member`
+			INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id`
+			WHERE `gid` = %d AND `group_member`.`uid` = %d
 			AND  `contact`.`network` = '%s' AND `contact`.`notify` != '' ",
 			intval($gid),
 			intval(local_user()),
 			dbesc(NETWORK_OSTATUS)
-		);		
+		);
 		if(count($r))
 			$ret = count($r);
 	}
@@ -187,7 +189,7 @@ function group_public_members($gid) {
 
 
 function mini_group_select($uid,$gid = 0) {
-	
+
 	$grps = array();
 	$o = '';
 
@@ -205,15 +207,26 @@ function mini_group_select($uid,$gid = 0) {
 
 	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
 		'$label' => t('Default privacy group for new contacts'),
-		'$groups' => $grps 
+		'$groups' => $grps
 	));
 	return $o;
 }
 
 
-
-
-function group_side($every="contacts",$each="group",$edit = false, $group_id = 0, $cid = 0) {
+/**
+ * @brief Create group sidebar widget
+ * 
+ * @param string $every
+ * @param string $each
+ * @param string $editmode
+ *	'standard' => include link 'Edit groups'
+ *	'extended' => include link 'Create new group'
+ *	'full' => include link 'Create new group' and provide for each group a link to edit this group
+ * @param int $group_id
+ * @param int $cid
+ * @return string
+ */
+function group_side($every="contacts",$each="group",$editmode = "standard", $group_id = 0, $cid = 0) {
 
 	$o = '';
 
@@ -237,13 +250,13 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 	$member_of = array();
 	if($cid) {
 		$member_of = groups_containing(local_user(),$cid);
-	} 
+	}
 
 	if(count($r)) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 			
-			if ($edit) {
+			if ($editmode == "full") {
 				$groupedit = array(
 					'href' => "group/".$rr['id'],
 					'title' => t('edit'),
@@ -267,14 +280,17 @@ function group_side($every="contacts",$each="group",$edit = false, $group_id = 0
 
 	$tpl = get_markup_template("group_side.tpl");
 	$o = replace_macros($tpl, array(
-		'$title'		=> t('Groups'),
+		'$title'	=> t('Groups'),
+		'newgroup'	=> (($editmode == "extended") || ($editmode == "full") ? 1 : ''),
+		'$editgroupstext' => t('Edit groups'),
+		'grouppage'	=> "group/",
 		'$edittext'     => t('Edit group'),
 		'$createtext' 	=> t('Create a new group'),
-    '$creategroup' => t('Group Name: '),
-    '$form_security_token' => get_form_security_token("group_edit"),
+		'$creategroup'  => t('Group Name: '),
+		'$form_security_token' => get_form_security_token("group_edit"),
 		'$ungrouped'    => (($every === 'contacts') ? t('Contacts not in any group') : ''),
-		'$groups'		=> $groups,
-		'$add'			=> t('add'),
+		'$groups'	=> $groups,
+		'$add'		=> t('add'),
 	));
 
 
@@ -323,4 +339,31 @@ function groups_containing($uid,$c) {
 	}
 
 	return $ret;
+}
+/**
+ * @brief count unread group items
+ *
+ * Count unread items of each groups
+ *
+ * @return array
+ *	'id' => group id
+ *	'name' => group name
+ *	'count' => counted unseen group items
+ *
+ */
+function groups_count_unseen() {
+
+	$r = q("SELECT `group`.`id`, `group`.`name`, COUNT(`item`.`id`) AS `count` FROM `group`, `group_member`, `item`
+			WHERE `group`.`uid` = %d
+			AND `item`.`uid` = %d
+			AND `item`.`unseen` AND `item`.`visible`
+			AND NOT `item`.`deleted`
+			AND `item`.`contact-id` = `group_member`.`contact-id`
+			AND `group_member`.`gid` = `group`.`id`
+			GROUP BY `group`.`id` ",
+		intval(local_user()),
+		intval(local_user())
+	);
+
+	return $r;
 }

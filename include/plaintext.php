@@ -55,9 +55,10 @@ function get_attached_data($body) {
 				$data = parseurl_getsiteinfo_cached($pictures[0][1], true);
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
-					if (isset($data["images"][0]))
+					if (isset($data["images"][0])) {
 						$post["image"] = $data["images"][0]["src"];
-					else
+						$post["url"] = $data["url"];
+					} else
 						$post["image"] = $data["url"];
 
 					$post["preview"] = $pictures[0][2];

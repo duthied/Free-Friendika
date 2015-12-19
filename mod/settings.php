@@ -289,9 +289,11 @@ function settings_post(&$a) {
 		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
 		$no_auto_update = ((x($_POST,'no_auto_update')) ? intval($_POST['no_auto_update'])  : 0);
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
-		$browser_update   = $browser_update * 1000;
-		if($browser_update < 10000)
-			$browser_update = 10000;
+		if ($browser_update != -1) {
+			$browser_update   = $browser_update * 1000;
+			if ($browser_update < 10000)
+				$browser_update = 10000;
+		}
 
 		$itemspage_network   = ((x($_POST,'itemspage_network')) ? intval($_POST['itemspage_network']) : 40);
 		if($itemspage_network > 100)
@@ -386,6 +388,8 @@ function settings_post(&$a) {
 	$username         = ((x($_POST,'username'))   ? notags(trim($_POST['username']))     : '');
 	$email            = ((x($_POST,'email'))      ? notags(trim($_POST['email']))        : '');
 	$timezone         = ((x($_POST,'timezone'))   ? notags(trim($_POST['timezone']))     : '');
+	$language         = ((x($_POST,'language'))   ? notags(trim($_POST['language']))     : '');
+
 	$defloc           = ((x($_POST,'defloc'))     ? notags(trim($_POST['defloc']))       : '');
 	$openid           = ((x($_POST,'openid_url')) ? notags(trim($_POST['openid_url']))   : '');
 	$maxreq           = ((x($_POST,'maxreq'))     ? intval($_POST['maxreq'])             : 0);
@@ -532,7 +536,15 @@ function settings_post(&$a) {
 		}
 	}
 
-	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s', `openid` = '%s', `timezone` = '%s',  `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `notify-flags` = %d, `page-flags` = %d, `default-location` = '%s', `allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s', `def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d, `unkmail` = %d, `cntunkmail` = %d  WHERE `uid` = %d",
+
+	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s',
+				`openid` = '%s', `timezone` = '%s',
+				`allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s',
+				`notify-flags` = %d, `page-flags` = %d, `default-location` = '%s',
+				`allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s',
+				`def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d,
+				`unkmail` = %d, `cntunkmail` = %d, `language` = '%s'
+			WHERE `uid` = %d",
 			dbesc($username),
 			dbesc($email),
 			dbesc($openid),
@@ -554,10 +566,14 @@ function settings_post(&$a) {
 			intval($blocktags),
 			intval($unkmail),
 			intval($cntunkmail),
+			dbesc($language),
 			intval(local_user())
 	);
 	if($r)
 		info( t('Settings updated.') . EOL);
+
+	// clear session language
+	unset($_SESSION['language']);
 
 	$r = q("UPDATE `profile`
 		SET `publish` = %d,
@@ -907,7 +923,8 @@ function settings_content(&$a) {
 		$mobile_theme_selected = (!x($_SESSION,'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
 
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
-		$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
+		if (intval($browser_update) != -1)
+			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 
 		$itemspage_network = intval(get_pconfig(local_user(), 'system','itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
@@ -946,7 +963,7 @@ function settings_content(&$a) {
 
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
 			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
-			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
+			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds. Enter -1 to disable it.')),
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Don't show emoticons"), $nosmile, ''),
@@ -985,6 +1002,7 @@ function settings_content(&$a) {
 	$email      = $a->user['email'];
 	$nickname   = $a->user['nickname'];
 	$timezone   = $a->user['timezone'];
+	$language   = $a->user['language'];
 	$notify     = $a->user['notify-flags'];
 	$defloc     = $a->user['default-location'];
 	$openid     = $a->user['openid'];
@@ -1168,6 +1186,8 @@ function settings_content(&$a) {
 	else
 		$public_post_link = '&public=1';
 
+	/* Installed langs */
+	$lang_choices = get_avaiable_languages();
 
 	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),
@@ -1190,6 +1210,7 @@ function settings_content(&$a) {
 		'$username' => array('username',  t('Full Name:'), $username,''),
 		'$email' 	=> array('email', t('Email Address:'), $email, '', '', '', 'email'),
 		'$timezone' => array('timezone_select' , t('Your Timezone:'), select_timezone($timezone), ''),
+		'$language' => array('language', t('Your Language:'), $language, t('Set the language we use to show you friendica interface and to send you emails'), $lang_choices),
 		'$defloc'	=> array('defloc', t('Default Post Location:'), $defloc, ''),
 		'$allowloc' => array('allow_location', t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''),
 
@@ -1245,7 +1266,7 @@ function settings_content(&$a) {
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
         '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
-                
+
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
 									t('Send text only notification emails, without the html part')),

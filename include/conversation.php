@@ -100,7 +100,7 @@ function localize_item(&$item){
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 
 	$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-	if (activity_match($item['verb'],ACTIVITY_LIKE) 
+	if (activity_match($item['verb'],ACTIVITY_LIKE)
 		|| activity_match($item['verb'],ACTIVITY_DISLIKE)
 		|| activity_match($item['verb'],ACTIVITY_ATTEND)
 		|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
@@ -891,7 +891,7 @@ function item_photo_menu($item){
 	if(($cid) && (! $item['self'])) {
 		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $cid;
 		$contact_url = $a->get_baseurl($ssl_state) . '/contacts/' . $cid;
-		$posts_link = $a->get_baseurl($ssl_state) . '/network/0?nets=all&cid=' . $cid;
+		$posts_link = $a->get_baseurl($ssl_state) . '/contacts/' . $cid . '/posts';
 
 		$clean_url = normalise_link($item['author-link']);
 
@@ -984,15 +984,15 @@ function builtin_activity_puller($item, &$conv_responses) {
 				$url = z_root(true) . '/redir/' . $item['contact-id'];
 				$sparkle = ' class="sparkle" ';
 			}
-			else 
+			else
 				$url = zrl($url);
-			
+
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
 			if(! $item['thr-parent'])
 				$item['thr-parent'] = $item['parent-uri'];
 
-			if(! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l'])) 
+			if(! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l']))
 				&& (is_array($conv_responses[$mode][$item['thr-parent'] . '-l']))))
 				$conv_responses[$mode][$item['thr-parent'] . '-l'] = array();
 
@@ -1025,10 +1025,31 @@ function format_like($cnt,$arr,$type,$id) {
 	$o = '';
 	$expanded = '';
 
-	if($cnt == 1)
+	if($cnt == 1) {
 		$likers = $arr[0];
 
-	else {
+		// Phrase if there is only one liker. In other cases it will be uses for the expanded
+		// list which show all likers
+		switch($type) {
+			case 'like' :
+				$phrase = sprintf( t('%s likes this.'), $likers);
+				break;
+			case 'dislike' :
+				$phrase = sprintf( t('%s doesn\'t like this.'), $likers);
+				break;
+			case 'attendyes' :
+				$phrase = sprintf( t('%s attends.'), $likers);
+				break;
+			case 'attendno' :
+				$phrase = sprintf( t('%s doesn\'t attend.'), $likers);
+				break;
+			case 'attendmaybe' :
+				$phrase = sprintf( t('%s attends maybe.'), $likers);
+				break;
+		}
+	}
+
+	if($cnt > 1) {
 		$total = count($arr);
 		if($total >= MAX_LIKERS)
 			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
@@ -1043,55 +1064,33 @@ function format_like($cnt,$arr,$type,$id) {
 		}
 
 		$likers = $str;
-	}
 
-	// Phrase if there is only one liker. In other cases it will be uses for the expanded
-	// list which show all likers
-	switch($type) {
-		case 'like' :
-			$phrase = sprintf( t('%s likes this.'), $likers);
-			break;
-		case 'dislike' :
-			$phrase = sprintf( t('%s doesn\'t like this.'), $likers);
-			break;
-		case 'attendyes' :
-			$phrase = sprintf( t('%s attends.'), $likers);
-			break;
-		case 'attendno' :
-			$phrase = sprintf( t('%s doesn\'t attend.'), $likers);
-			break;
-		case 'attendmaybe' :
-			$phrase = sprintf( t('%s attends maybe.'), $likers);
-			break;
-	}
-
-	if($cnt > 1) {
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
-		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $phrase . EOL . '</div>';
+
 		switch($type) {
 			case 'like':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s like this.'), $likers);
 				break;
 			case 'dislike':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s don\'t like this.'), $likers);
 				break;
 			case 'attendyes':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> attend'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s attend.'), $likers);
 				break;
 			case 'attendno':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t attend'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s don\'t attend.'), $likers);
 				break;
 			case 'attendmaybe':
 				$phrase = sprintf( t('<span  %1$s>%2$d people</span> anttend maybe'), $spanatts, $cnt);
-			case 'agree':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> agree'), $spanatts, $cnt);
+				$explikers = sprintf( t('%s anttend maybe.'), $likers);
 				break;
-			case 'disagree':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> don\'t agree'), $spanatts, $cnt);
-				break;
-			case 'abstain':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> abstains'), $spanatts, $cnt);
 		}
+
+		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</div>';
 	}
 
 	$phrase .= EOL ;
@@ -1292,6 +1291,15 @@ function conv_sort($arr,$order) {
 
 	$parents = array();
 	$children = array();
+	$newarr = array();
+
+	// This is a preparation for having two different items with the same uri in one thread
+	// This will otherwise lead to an endless loop.
+	foreach($arr as $x)
+		if (!isset($newarr[$x['uri']]))
+			$newarr[$x['uri']] = $x;
+
+	$arr = $newarr;
 
 	foreach($arr as $x)
 		if($x['id'] == $x['parent'])

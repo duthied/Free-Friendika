@@ -32,6 +32,7 @@ Friendica - Dokumentation und Ressourcen
 * [Konfigurationen](help/Settings)
 * [Plugins](help/Plugins)
 * [Konnektoren (Connectors) installieren (Twitter/GNU Social)](help/Installing-Connectors)
+* [Installation eines ejabberd Servers (XMPP-Chat) mit synchronisierten Anmeldedaten](help/install-ejabberd) (EN)
 * [Nachrichtenfluss](help/Message-Flow)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
 * [Entwickler](help/Developers)
@@ -49,6 +50,7 @@ Friendica - Dokumentation und Ressourcen
 * [Plugin Development](help/Plugins)
 * [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
+* [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
 
 **Externe Ressourcen**
 
@@ -59,4 +61,5 @@ Friendica - Dokumentation und Ressourcen
 **Über diese Seite**
 
 * [Seite/Friendica-Version](friendica)
+* [Mitwirkenden bei Friendica](credits)
 

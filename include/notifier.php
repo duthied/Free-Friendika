@@ -4,6 +4,7 @@ require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once("include/Scrape.php");
 require_once('include/diaspora.php');
+require_once("include/ostatus.php");
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -529,7 +530,8 @@ function notifier_run(&$argv, &$argc){
 		unset($photos);
 	} else {
 
-		$slap = atom_entry($target_item,'html',null,$owner,false);
+		$slap = ostatus_salmon($target_item,$owner);
+		//$slap = atom_entry($target_item,'html',null,$owner,false);
 
 		if($followup) {
 			foreach($items as $item) {  // there is only one item
@@ -569,7 +571,8 @@ function notifier_run(&$argv, &$argc){
 					$atom .= atom_entry($item,'text',null,$owner,true);
 
 				if(($top_level) && ($public_message) && ($item['author-link'] === $item['owner-link']) && (! $expire))
-					$slaps[] = atom_entry($item,'html',null,$owner,true);
+					$slaps[] = ostatus_salmon($item,$owner);
+					//$slaps[] = atom_entry($item,'html',null,$owner,true);
 			}
 		}
 	}
@@ -734,9 +737,9 @@ function notifier_run(&$argv, &$argc){
 							$ssl_policy = get_config('system','ssl_policy');
 							fix_contact_ssl_policy($x[0],$ssl_policy);
 
-							// If we are setup as a soapbox we aren't accepting input from this person
+							// If we are setup as a soapbox we aren't accepting top level posts from this person
 
-							if($x[0]['page-flags'] == PAGE_SOAPBOX)
+							if (($x[0]['page-flags'] == PAGE_SOAPBOX) AND $top_level)
 								break;
 
 							require_once('library/simplepie/simplepie.inc');

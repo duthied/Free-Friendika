@@ -99,10 +99,19 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 				$image = "";
 			}
 
-			if ($simplehtml == 7)
-				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a>',
-						$url, $title, $title);
-			elseif (($simplehtml != 4) AND ($simplehtml != 0))
+			if ($simplehtml == 7) {
+				$title2 = $title;
+
+				$test1 = trim(html_entity_decode($match[1],ENT_QUOTES,'UTF-8'));
+				$test2 = trim(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+
+				// If the link description is similar to the text above then don't add the link description
+				if (($title != "") AND ((strpos($test1,$test2) !== false) OR
+					(similar_text($test1,$test2) / strlen($title)) > 0.9))
+					$title2 = $url;
+				$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a><br />',
+						$url, $title, $title2);
+			} elseif (($simplehtml != 4) AND ($simplehtml != 0))
 				$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $url, $title);
 			else {
 				$text = sprintf('<span class="type-%s">', $type);
@@ -950,12 +959,14 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi", 'bb_DiasporaLinks', $Text);
 
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
-	if (!$forplaintext)
-		$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
-	else {
-		$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism"," $1 ",$Text);
-		$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);
-	}
+//	if ($simplehtml != 7) {
+		if (!$forplaintext)
+			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+		else {
+			$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism"," $1 ",$Text);
+			$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);
+		}
+//	}
 
 	if ($tryoembed)
 		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism",'tryoembed',$Text);
@@ -1210,7 +1221,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
 	if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
-		$sub = format_event_html($ev);
+		$sub = format_event_html($ev, $simplehtml);
 
 		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism",'',$Text);

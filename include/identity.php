@@ -1,4 +1,9 @@
 <?php
+/**
+ * @file include/identity.php
+ */
+
+require_once('include/forums.php');
 
 
 /**
@@ -40,39 +45,9 @@ if(! function_exists('profile_load')) {
 			return;
 		}
 
-		if(remote_user() && count($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $visitor) {
-				if($visitor['uid'] == $user[0]['uid']) {
-					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
-						intval($visitor['cid'])
-					);
-					if(count($r))
-						$profile = $r[0]['profile-id'];
-					break;
-				}
-			}
-		}
+		$pdata = get_profiledata_by_nick($nickname, $user[0]['uid'], $profile);
 
-		$r = null;
-
-		if($profile) {
-			$profile_int = intval($profile);
-			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d and `contact`.`self` = 1 LIMIT 1",
-					dbesc($nickname),
-					intval($profile_int)
-			);
-		}
-		if((!$r) && (!count($r))) {
-			$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
-					dbesc($nickname)
-			);
-		}
-
-		if(($r === false) || (!count($r)) && !count($profiledata)) {
+		if(($pdata === false) || (!count($pdata)) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested profile is not available.') . EOL );
 			$a->error = 404;
@@ -81,16 +56,16 @@ if(! function_exists('profile_load')) {
 
 		// fetch user tags if this isn't the default profile
 
-		if(!$r[0]['is-default']) {
-			$x = q("select `pub_keywords` from `profile` where uid = %d and `is-default` = 1 limit 1",
-					intval($r[0]['profile_uid'])
+		if(!$pdata['is-default']) {
+			$x = q("SELECT `pub_keywords` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
+					intval($pdata['profile_uid'])
 			);
 			if($x && count($x))
-				$r[0]['pub_keywords'] = $x[0]['pub_keywords'];
+				$pdata['pub_keywords'] = $x[0]['pub_keywords'];
 		}
 
-		$a->profile = $r[0];
-		$a->profile_uid = $r[0]['profile_uid'];
+		$a->profile = $pdata;
+		$a->profile_uid = $pdata['profile_uid'];
 
 		$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = NETWORK_DFRN;
@@ -143,6 +118,58 @@ if(! function_exists('profile_load')) {
 
 
 /**
+ * @brief Get all profil data of a local user
+ *	If the viewer is an authenticated remote viewer, the profile displayed is the
+ *	one that has been configured for his/her viewing in the Contact manager.
+ *	Passing a non-zero profile ID can also allow a preview of a selected profile
+ *	by the owner
+ * 
+ * @param string $nickname
+ * @param int $uid
+ * @param int $profile
+ *	ID of the profile
+ * @returns array
+ *	Includes all available profile data
+ */
+function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
+	if(remote_user() && count($_SESSION['remote'])) {
+			foreach($_SESSION['remote'] as $visitor) {
+				if($visitor['uid'] == $uid) {
+					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
+						intval($visitor['cid'])
+					);
+					if(count($r))
+						$profile = $r[0]['profile-id'];
+					break;
+				}
+			}
+		}
+
+	$r = null;
+
+	if($profile) {
+		$profile_int = intval($profile);
+		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
+				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+				WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d AND `contact`.`self` = 1 LIMIT 1",
+				dbesc($nickname),
+				intval($profile_int)
+		);
+	}
+	if((!$r) && (!count($r))) {
+		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
+				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+				WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 AND `contact`.`self` = 1 LIMIT 1",
+				dbesc($nickname)
+		);
+	}
+
+	return $r[0];
+
+}
+
+
+/**
  *
  * Function: profile_sidebar
  *
@@ -156,8 +183,6 @@ if(! function_exists('profile_load')) {
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  *
  */
-
-
 if(! function_exists('profile_sidebar')) {
 	function profile_sidebar($profile, $block = 0) {
 		$a = get_app();
@@ -165,7 +190,7 @@ if(! function_exists('profile_sidebar')) {
 		$o = '';
 		$location = false;
 		$address = false;
-		$pdesc = true;
+//		$pdesc = true;
 
 		if((! is_array($profile)) && (! count($profile)))
 			return $o;
@@ -173,12 +198,8 @@ if(! function_exists('profile_sidebar')) {
 		$profile['picdate'] = urlencode($profile['picdate']);
 
 		if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
-			require_once('include/contact_selectors.php');
-			if ($profile['url'] != "")
-				$profile['network_name'] = '<a href="'.$profile['url'].'">'.network_to_name($profile['network'], $profile['url'])."</a>";
-			else
-				$profile['network_name'] = network_to_name($profile['network']);
-		} else
+			$profile['network_name'] = format_network_name($profile['network'],$profile['url']);
+		} else 
 			$profile['network_name'] = "";
 
 		call_hooks('profile_sidebar_enter', $profile);
@@ -211,12 +232,17 @@ if(! function_exists('profile_sidebar')) {
 		}
 
 		if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
-				$connect = false;
+			$connect = false;
 
 		if (isset($profile['remoteconnect']))
 			$remoteconnect = $profile['remoteconnect'];
 
-		if( get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()) )
+		if ($connect AND ($profile['network'] == NETWORK_DFRN) AND !isset($remoteconnect))
+			$subscribe_feed = t("Atom feed");
+		else
+			$subscribe_feed = false;
+
+		if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))
 			$wallmessage = t('Message');
 		else
 			$wallmessage = false;
@@ -259,6 +285,16 @@ if(! function_exists('profile_sidebar')) {
 				'entries' => array(),
 			);
 		}
+
+		// check if profile is a forum
+		if((x($profile['page-flags']) == 2)
+				|| (x($profile['page-flags']) == 5)
+				|| (x($profile['forum']))
+				|| (x($profile['prv']))
+				|| (x($profile['community'])))
+			$account_type = t('Forum');
+		else
+			$account_type = "";
 
 		if((x($profile,'address') == 1)
 				|| (x($profile,'locality') == 1)
@@ -306,7 +342,7 @@ if(! function_exists('profile_sidebar')) {
 				if(count($r))
 					$updated =  date("c", strtotime($r[0]['updated']));
 
-				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+				$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 						AND `network` IN ('%s', '%s', '%s', '')",
 					intval($profile['uid']),
 					dbesc(NETWORK_DFRN),
@@ -332,10 +368,12 @@ if(! function_exists('profile_sidebar')) {
 			'$profile' => $p,
 			'$connect'  => $connect,
 			'$remoteconnect'  => $remoteconnect,
+			'$subscribe_feed' => $subscribe_feed,
 			'$wallmessage' => $wallmessage,
+			'$account_type' => $account_type,
 			'$location' => $location,
 			'$gender'   => $gender,
-			'$pdesc'	=> $pdesc,
+//			'$pdesc'	=> $pdesc,
 			'$marital'  => $marital,
 			'$homepage' => $homepage,
 			'$about' => $about,
@@ -525,8 +563,9 @@ if(! function_exists('get_events')) {
 function advanced_profile(&$a) {
 
 	$o = '';
+	$uid = $a->profile['uid'];
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+	$o .= replace_macros(get_markup_template('section_title.tpl'),array(
 		'$title' => t('Profile')
 	));
 
@@ -603,6 +642,11 @@ function advanced_profile(&$a) {
 		if($txt = prepare_text($a->profile['work'])) $profile['work'] = array( t('Work/employment:'), $txt);
 
 		if($txt = prepare_text($a->profile['education'])) $profile['education'] = array( t('School/education:'), $txt );
+	
+		//show subcribed forum if it is enabled in the usersettings
+		if (feature_enabled($uid,'forumlist_profile')) {
+			$profile['forumlist'] = array( t('Forums:'), forumlist_profile_advanced($uid));
+		}
 
 		if ($a->profile['uid'] == local_user())
 			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
@@ -683,6 +727,16 @@ if(! function_exists('profile_tabs')){
 			);
 		}
 
+		if ((! $is_owner) && ((count($a->profile)) || (! $a->profile['hide-friends']))) {
+			$tabs[] = array(
+				'label' => t('Contacts'),
+				'url'	=> $a->get_baseurl() . '/viewcontacts/' . $nickname,
+				'sel'	=> ((!isset($tab)&&$a->argv[0]=='viewcontacts')?'active':''),
+				'title' => t('Contacts'),
+				'id' => 'viewcontacts-tab',
+				'accesskey' => 'k',
+			);
+		}
 
 		$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
 		call_hooks('profile_tabs', $arr);

@@ -17,9 +17,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
-define ( 'FRIENDICA_VERSION',      '3.4.2' );
+define ( 'FRIENDICA_VERSION',      '3.4.3-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1189      );
+define ( 'DB_UPDATE_VERSION',      1191      );
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -163,7 +163,8 @@ define ( 'NETWORK_TWITTER',          'twit');    // Twitter
 define ( 'NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
 define ( 'NETWORK_APPNET',           'apdn');    // app.net
-
+define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
+define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 
 /**
@@ -189,7 +190,9 @@ $netgroup_ids = array(
 	NETWORK_TWITTER  => (-14),
 	NETWORK_DIASPORA2 => (-15),
 	NETWORK_STATUSNET => (-16),
-	NETWORK_APPNET => (-17),
+	NETWORK_APPNET    => (-17),
+	NETWORK_NEWS      => (-18),
+	NETWORK_ICALENDAR => (-19),
 
 	NETWORK_PHANTOM  => (-127),
 );
@@ -731,10 +734,22 @@ if(! class_exists('App')) {
 
 		function init_pagehead() {
 			$interval = ((local_user()) ? get_pconfig(local_user(),'system','update_interval') : 40000);
+
+			// If the update is "deactivated" set it to the highest integer number (~24 days)
+			if ($interval < 0)
+				$interval = 2147483647;
+
 			if($interval < 10000)
 				$interval = 40000;
 
-			$this->page['title'] = $this->config['sitename'];
+			// compose the page title from the sitename and the
+			// current module called
+			if (!$this->module=='')
+			{
+			    $this->page['title'] = $this->config['sitename'].' ('.$this->module.')';
+			} else {
+			    $this->page['title'] = $this->config['sitename'];
+			}
 
 			/* put the head template at the beginning of page['htmlhead']
 			 * since the code added by the modules frequently depends on it

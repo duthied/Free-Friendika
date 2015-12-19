@@ -225,15 +225,17 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$created = $x[0]["created"];
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
+		$addr = $x[0]["addr"];
 	} else {
 		$created = "0000-00-00 00:00:00";
 		$server_url = "";
 
 		$urlparts = parse_url($profile_url);
 		$nick = end(explode("/", $urlparts["path"]));
+		$addr = "";
 	}
 
-	if ((($network == "") OR ($name == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
+	if ((($network == "") OR ($name == "") OR ($addr == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
 		AND poco_reachable($profile_url, $server_url, $network, false)) {
 		$data = probe_url($profile_url);
 
@@ -242,6 +244,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$network = $data["network"];
 		$name = $data["name"];
 		$nick = $data["nick"];
+		$addr = $data["addr"];
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
@@ -294,14 +297,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($keywords == "") AND ($x[0]['keywords'] != ""))
 			$keywords = $x[0]['keywords'];
 
+		if (($addr == "") AND ($x[0]['addr'] != ""))
+			$addr = $x[0]['addr'];
+
 		if (($generation == 0) AND ($x[0]['generation'] > 0))
 			$generation = $x[0]['generation'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
-			q("UPDATE `gcontact` SET `name` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
+			q("UPDATE `gcontact` SET `name` = '%s', `addr` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
 				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
+				dbesc($addr),
 				dbesc($network),
 				dbesc($profile_photo),
 				dbesc($connect_url),
@@ -318,10 +325,11 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			);
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`, `nick`, `addr`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($name),
 			dbesc($nick),
+			dbesc($addr),
 			dbesc($network),
 			dbesc($profile_url),
 			dbesc(normalise_link($profile_url)),
@@ -748,8 +756,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	}
 
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
-		$last_failure = datetime_convert();
-		$failure = true;
+		// Workaround for bad configured servers (known nginx problem)
+		if ($serverret["debug"]["http_code"] != "403") {
+			$last_failure = datetime_convert();
+			$failure = true;
+		}
 	} elseif ($network == NETWORK_DIASPORA)
 		$last_contact = datetime_convert();
 
@@ -1036,15 +1047,16 @@ function count_common_friends($uid,$cid) {
 
 	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) ",
+		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+		AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) ",
 		intval($cid),
 		intval($uid),
 		intval($uid),
 		intval($cid)
 	);
 
-//	logger("count_common_friends: $uid $cid {$r[0]['total']}"); 
+//	logger("count_common_friends: $uid $cid {$r[0]['total']}");
 	if(count($r))
 		return $r[0]['total'];
 	return 0;
@@ -1059,11 +1071,15 @@ function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 	else
 		$sql_extra = " order by `gcontact`.`name` asc ";
 
-	$r = q("SELECT `gcontact`.*
-		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) 
-		$sql_extra limit %d, %d",
+	$r = q("SELECT `gcontact`.*, `contact`.`id` AS `cid`
+		FROM `glink`
+		INNER JOIN `gcontact` ON `glink`.`gcid` = `gcontact`.`id`
+		INNER JOIN `contact` ON `gcontact`.`nurl` = `contact`.`nurl`
+		WHERE `glink`.`cid` = %d and `glink`.`uid` = %d
+			AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `contact`.`blocked` = 0
+			AND `contact`.`hidden` = 0 AND `contact`.`id` != %d
+			AND ((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+			$sql_extra LIMIT %d, %d",
 		intval($cid),
 		intval($uid),
 		intval($uid),
@@ -1120,7 +1136,8 @@ function count_all_friends($uid,$cid) {
 
 	$r = q("SELECT count(*) as `total`
 		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d ",
+		where `glink`.`cid` = %d and `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))",
 		intval($cid),
 		intval($uid)
 	);
@@ -1134,10 +1151,14 @@ function count_all_friends($uid,$cid) {
 
 function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
-	$r = q("SELECT `gcontact`.*
-		FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d
-		order by `gcontact`.`name` asc LIMIT %d, %d ",
+	$r = q("SELECT `gcontact`.*, `contact`.`id` AS `cid`
+		FROM `glink`
+		INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
+		LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
+		WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
+		((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+		ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
+		intval($uid),
 		intval($cid),
 		intval($uid),
 		intval($start),
@@ -1167,14 +1188,14 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	$sql_network = "'".$sql_network."'";
 
 	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
-		INNER JOIN glink on glink.gcid = gcontact.id
+		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
 		where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
-		and not gcontact.name in ( select name from contact where uid = %d )
-		and not gcontact.id in ( select gcid from gcign where uid = %d )
+		AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
 		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
-		group by glink.gcid order by gcontact.updated desc,total desc limit %d, %d ",
+		GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",
 		intval($uid),
 		intval($uid),
 		intval($uid),
@@ -1187,14 +1208,15 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	if(count($r) && count($r) >= ($limit -1))
 		return $r;
 
-	$r2 = q("SELECT gcontact.* from gcontact
-		INNER JOIN glink on glink.gcid = gcontact.id
-		where glink.uid = 0 and glink.cid = 0 and glink.zcid = 0 and not gcontact.nurl in ( select nurl from contact where uid = %d )
-		and not gcontact.name in ( select name from contact where uid = %d )
-		and not gcontact.id in ( select gcid from gcign where uid = %d )
+	$r2 = q("SELECT gcontact.* FROM gcontact
+		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
+		WHERE `glink`.`uid` = 0 AND `glink`.`cid` = 0 AND `glink`.`zcid` = 0 AND NOT `gcontact`.`nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
+		AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 		AND `gcontact`.`updated` != '0000-00-00 00:00:00'
+		AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 		AND `gcontact`.`network` IN (%s)
-		order by rand() limit %d, %d ",
+		ORDER BY rand() LIMIT %d, %d",
 		intval($uid),
 		intval($uid),
 		intval($uid),
@@ -1209,6 +1231,9 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 
 	foreach ($r AS $suggestion)
 		$list[$suggestion["nurl"]] = $suggestion;
+
+	while (sizeof($list) > ($limit))
+		array_pop($list);
 
 	return $list;
 }

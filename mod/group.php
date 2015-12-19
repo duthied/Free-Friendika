@@ -7,7 +7,7 @@ function validate_members(&$item) {
 function group_init(&$a) {
 	if(local_user()) {
 		require_once('include/group.php');
-		$a->page['aside'] = group_side('contacts','group',false,(($a->argc > 1) ? intval($a->argv[1]) : 0));
+		$a->page['aside'] = group_side('contacts','group','extended',(($a->argc > 1) ? intval($a->argv[1]) : 0));
 	}
 }
 
@@ -62,12 +62,12 @@ function group_post(&$a) {
 
 		$a->page['aside'] = group_side();
 	}
-	return;	
+	return;
 }
 
 function group_content(&$a) {
 	$change = false;
-	
+
 	if(! local_user()) {
 		notice( t('Permission denied') . EOL);
 		return;
@@ -172,7 +172,7 @@ function group_content(&$a) {
 			'$form_security_token' => get_form_security_token("group_drop"),
 		));
 
-		
+
 		$context = $context + array(
 			'$title' => t('Group Editor'),
 			'$gname' => array('groupname',t('Group Name: '),$group['name'], ''),
@@ -190,9 +190,10 @@ function group_content(&$a) {
 		'label_members' => t('Members'),
 		'members' => array(),
 		'label_contacts' => t('All Contacts'),
+		'group_is_empty' => t('Group is empty'),
 		'contacts' => array(),
 	);
-		
+
 	$sec_token = addslashes(get_form_security_token('group_member_change'));
 	$textmode = (($switchtotext && (count($members) > $switchtotext)) ? true : false);
 	foreach($members as $member) {
@@ -204,7 +205,7 @@ function group_content(&$a) {
 			group_rmv_member(local_user(),$group['name'],$member['id']);
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 and `pending` = 0 and `self` = 0 ORDER BY `name` ASC",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `self` ORDER BY `name` ASC",
 		intval(local_user())
 	);
 
@@ -226,8 +227,7 @@ function group_content(&$a) {
 		echo replace_macros($tpl, $context);
 		killme();
 	}
-	
+
 	return replace_macros($tpl, $context);
 
 }
-

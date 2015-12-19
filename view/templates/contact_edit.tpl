@@ -1,6 +1,4 @@
-
-
-<h2>{{$header}}</h2>
+{{if $header}}<h2>{{$header}}</h2>{{/if}}
 
 <div id="contact-edit-wrapper" >
 
@@ -19,8 +17,6 @@
 				{{if $relation_text}}
 					<li><div id="contact-edit-rel">{{$relation_text}}</div></li>
 				{{/if}}
-				<li><div id="contact-edit-nettype">{{$nettype}}</div></li>
-				<li><div id="contact-edit-profileurl">{{$profileurllabel}}: <a href="{{$url}}">{{$profileurl}}</a></div></li>
 				{{if $lost_contact}}
 					<li><div id="lost-contact-message">{{$lost_contact}}</div></li>
 				{{/if}}
@@ -37,6 +33,7 @@
 					<li><div id="archive-message">{{$archived}}</div></li>
 				{{/if}}
 			</ul>
+
 			<ul>
 
 				{{if $common_text}}
@@ -47,7 +44,7 @@
 				{{/if}}
 
 
-				<li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li>
+				<!-- <li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
 				{{if $lblsuggest}}
 					<li><a href="fsuggest/{{$contact_id}}" id="contact-edit-suggest">{{$lblsuggest}}</a></li>
 				{{/if}}
@@ -56,10 +53,16 @@
 				{{/if}}
 
 			</ul>
+
+			<dl><dt>{{$profileurllabel}}</dt><dd><a target="blank" href="{{$url}}">{{$profileurl}}</a></dd></dl>
+			{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
+			{{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
+			{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
 		</div>
 	</div>
 	<div id="contact-edit-nav-end"></div>
 
+<hr />
 
 <form action="contacts/{{$contact_id}}" method="post" >
 <input type="hidden" name="contact_id" value="{{$contact_id}}">

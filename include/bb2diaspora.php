@@ -83,7 +83,6 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 		'return \'#\'. str_replace(\' \', \'_\', $match[2]);'
 	), $Text);
 
-
 	// Converting images with size parameters to simple images. Markdown doesn't know it.
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
 
@@ -94,11 +93,12 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 		// Add all tags that maybe were removed
 		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",$OriginalText, $tags)) {
 			$tagline = "";
-			foreach($tags[2] as $tag)
-				if (!strpos($Text, "#".$tag))
+			foreach($tags[2] as $tag) {
+				$tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
+				if (!strpos(html_entity_decode($Text, ENT_QUOTES, 'UTF-8'), "#".$tag))
 					$tagline .= "#".$tag." ";
-
-			$Text = $Text."<br />".$tagline;
+			}
+			$Text = $Text." ".$tagline;
 		}
 
 	} else

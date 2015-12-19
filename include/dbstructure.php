@@ -62,7 +62,6 @@ function update_fail($update_id, $error_message){
 	*/
 	//try the logger
 	logger("CRITICAL: Database structure update failed: ".$retval);
-	break;
 }
 
 
@@ -642,6 +641,7 @@ function db_definition() {
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
