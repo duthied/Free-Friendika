@@ -1150,13 +1150,6 @@ function ostatus_format_picture_post($body) {
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
-	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-		intval($owner["uid"]));
-	if (!$r)
-		return;
-
-	$profile = $r[0];
-
 	$root = $doc->createElementNS(NS_ATOM, 'feed');
 	$doc->appendChild($root);
 
@@ -1171,12 +1164,12 @@ function ostatus_add_header($doc, $owner) {
 	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 	xml_add_element($doc, $root, "id", $a->get_baseurl()."/profile/".$owner["nick"]);
-	xml_add_element($doc, $root, "title", sprintf("%s timeline", $profile["name"]));
-	xml_add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $profile["name"], $a->config["sitename"]));
-	xml_add_element($doc, $root, "logo", $profile["photo"]);
+	xml_add_element($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
+	xml_add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
+	xml_add_element($doc, $root, "logo", $owner["photo"]);
 	xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
-	$author = ostatus_add_author($doc, $owner, $profile);
+	$author = ostatus_add_author($doc, $owner);
 	$root->appendChild($author);
 
 	$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
@@ -1289,8 +1282,12 @@ function ostatus_get_attachment($doc, $root, $item) {
 	}
 }
 
-function ostatus_add_author($doc, $owner, $profile = array()) {
+function ostatus_add_author($doc, $owner) {
 	$a = get_app();
+
+	$r = q("SELECT `homepage` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
+	if ($r)
+		$profile = $r[0];
 
 	$author = $doc->createElement("author");
 	xml_add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1387,17 +1384,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
 		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
-		if (!$repeat) {
-			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-				intval($owner["uid"]));
-			if (!$r)
-				return;
-
-			$profile = $r[0];
-		}
-			$profile = array();
-
-		$author = ostatus_add_author($doc, $owner, $profile);
+		$author = ostatus_add_author($doc, $owner);
 		$entry->appendChild($author);
 
 		$title = sprintf("New comment by %s", $owner["nick"]);
