@@ -2113,6 +2113,22 @@ ul.tabs li .active {
   width: 50px;
   float: left;
 }
+/* manage page */
+.identity-match-photo {
+  position: relative;
+}
+.identity-match-photo .manage-notify {
+  background-color: #19AEFF;
+  border-radius: 5px;
+  font-size: 10px;
+  padding: 1px 3px;
+  min-width: 15px;
+  text-align: right;
+  position: absolute;
+  right: 10px;
+  top: -5px;
+  color: #ffffff;
+}
 /* videos page */
 .videos .video-top-wrapper {
   width: 200px;
