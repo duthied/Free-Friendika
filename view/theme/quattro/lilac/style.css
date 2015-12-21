@@ -420,7 +420,7 @@
 body {
   font-family: Liberation Sans, helvetica, arial, clean, sans-serif;
   font-size: 11px;
-  background-color: #F6ECF9;
+  background-color: #f6ecf9;
   color: #2d2d2d;
   margin: 50px 0 0 0;
   display: table;
@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -544,6 +544,7 @@ header {
   margin: 0;
   padding: 0;
   /*width: 100%; height: 12px; */
+
   z-index: 110;
   color: #ffffff;
 }
@@ -921,6 +922,7 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
+
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -1002,6 +1004,7 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0;}*/
+
 }
 .widget h3 {
   padding: 0;
@@ -1305,6 +1308,7 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
+
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -1749,7 +1753,7 @@ span[id^="showmore-wrap"] {
   height: 20px;
   width: 500px;
   font-weight: bold;
-  border: 1px solid #F6ECF9;
+  border: 1px solid #f6ecf9;
 }
 #jot #jot-title:-webkit-input-placeholder {
   font-weight: normal;
@@ -1776,7 +1780,7 @@ span[id^="showmore-wrap"] {
   margin: 0;
   height: 20px;
   width: 200px;
-  border: 1px solid #F6ECF9;
+  border: 1px solid #f6ecf9;
 }
 #jot #jot-category:hover {
   border: 1px solid #999999;
@@ -2221,6 +2225,7 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
+
 }
 #photo-caption {
   display: block;
@@ -2343,6 +2348,53 @@ ul.tabs li .active {
 }
 .mail-list-wrapper .mail-delete {
   float: right;
+}
+#message-preview {
+  margin-top: 1em;
+  box-sizing: border-box;
+}
+#message-preview * {
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+#message-preview .mail-list-wrapper .mail-subject {
+  width: 100%;
+}
+#message-preview .mail-list-wrapper .mail-date {
+  font-size: 0.8em;
+  width: 25%;
+  text-align: right;
+}
+#message-preview .mail-list-wrapper .mail-from {
+  font-size: 0.8em;
+  width: 75%;
+}
+#message-preview .mail-list-wrapper .mail-count {
+  font-size: 0.8em;
+  width: 100%;
+}
+#message-preview .mail-list-wrapper .mail-delete {
+  display: none;
+}
+#message-preview .mail-list-wrapper .mail-date,
+#message-preview .mail-list-wrapper .mail-from,
+#message-preview .mail-list-wrapper .mail-count {
+  opacity: 0.5;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -ms-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+#message-preview .mail-list-wrapper:hover .mail-date,
+#message-preview .mail-list-wrapper:hover .mail-from,
+#message-preview .mail-list-wrapper:hover .mail-count {
+  opacity: 1;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -ms-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 #mail-display-subject {
   background-color: #f6f7f8;
