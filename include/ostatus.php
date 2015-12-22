@@ -2,6 +2,7 @@
 require_once("include/Contact.php");
 require_once("include/threads.php");
 require_once("include/html2bbcode.php");
+require_once("include/bbcode.php");
 require_once("include/items.php");
 require_once("mod/share.php");
 require_once("include/enotify.php");
@@ -141,7 +142,7 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["about"] = $value;
+				$contact["about"] = html2bbcode($value);
 
 			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
@@ -1288,7 +1289,7 @@ function ostatus_add_author($doc, $owner, $profile) {
 
 	xml_add_element($doc, $author, "poco:preferredUsername", $owner["nick"]);
 	xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
-	xml_add_element($doc, $author, "poco:note", $profile["about"]);
+	xml_add_element($doc, $author, "poco:note", bbcode($profile["about"]));
 
 	if (trim($owner["location"]) != "") {
 		$element = $doc->createElement("poco:address");
@@ -1386,6 +1387,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
 	xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 
+	$mentioned = array();
+
 	if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
@@ -1400,7 +1403,18 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 				"rel" => "related",
 				"href" => $a->get_baseurl()."/display/".$parent[0]["guid"]);
 		xml_add_element($doc, $entry, "link", "", $attributes);
-        }
+
+		$mentioned[$parent[0]["author-link"]] = $parent[0]["author-link"];
+		$mentioned[$parent[0]["owner-link"]] = $parent[0]["owner-link"];
+
+		$thrparent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+				intval($owner["uid"]),
+				dbesc($parent_item));
+		if ($thrparent) {
+			$mentioned[$thrparent[0]["author-link"]] = $thrparent[0]["author-link"];
+			$mentioned[$thrparent[0]["owner-link"]] = $thrparent[0]["owner-link"];
+		}
+	}
 
 	xml_add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation",
 							"href" => $a->get_baseurl()."/display/".$owner["nick"]."/".$item["parent"]));
@@ -1411,9 +1425,29 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	if(count($tags))
 		foreach($tags as $t)
 			if ($t[0] == "@")
-				xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+				$mentioned[$t[1]] = $t[1];
+
+	// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
+	$newmentions = array();
+	foreach ($mentioned AS $mention) {
+		$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
+		$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
+	}
+	$mentioned = $newmentions;
+
+	foreach ($mentioned AS $mention) {
+		$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner["uid"]),
+			dbesc(normalise_link($mention)));
+		if ($r[0]["forum"] OR $r[0]["prv"])
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+										"href" => $mention));
+		else
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
 										"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
-										"href" => $t[1]));
+										"href" => $mention));
+	}
 
 	if (!$item["private"])
 		xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",

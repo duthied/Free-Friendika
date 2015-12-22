@@ -1404,6 +1404,24 @@ ul.tabs {
 	width: 50px; float: left;
 }
 
+/* manage page */
+.identity-match-photo {
+	position: relative;
+	.manage-notify {
+		background-color: #19AEFF;
+		border-radius: 5px;
+		font-size: 10px;
+		padding: 1px 3px;
+		min-width: 15px;
+		text-align: right;
+		position: absolute;
+		right: 10px;
+		top: -5px;
+		color: rgb(255, 255, 255);
+	}
+}
+
+
 /* videos page */
 .videos {
 	.video-top-wrapper {
@@ -1598,6 +1616,25 @@ ul.tabs {
 
 	.mail-delete { float: right; }
 }
+
+#message-preview {
+	margin-top: 1em;
+	box-sizing: border-box;
+	* {  box-sizing: border-box; 	white-space: nowrap;}
+	.mail-list-wrapper {
+		.mail-subject {
+			width: 100%;
+		}
+		.mail-date  { font-size: 0.8em; width: 25%; text-align: right}
+		.mail-from  { font-size: 0.8em; width: 75%;}
+		.mail-count { font-size: 0.8em; width: 100%;}
+		.mail-delete { display: none;}
+
+		& .mail-date, & .mail-from, & .mail-count { .opaque(0.5); }
+		&:hover .mail-date, &:hover .mail-from, &:hover .mail-count { .opaque(1); }
+	}
+}
+
 
 #mail-display-subject {
 	background-color: @MailDisplaySubjectBackgroundColor;
@@ -1816,4 +1853,3 @@ footer { height: 100px; display: table-row; }
 .fbrowser.file p  { display: inline; white-space: nowrap; }
 
 .fbrowser .upload { clear: both; padding-top: 1em;}
-

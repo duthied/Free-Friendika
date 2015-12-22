@@ -1,6 +1,21 @@
   function resizeIframe(obj) {
     obj.style.height = 0;
-    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+	_resizeIframe(obj, 0);
+  }
+  
+  function _resizeIframe(obj, desth) {
+	var h = obj.style.height;
+	var ch = obj.contentWindow.document.body.scrollHeight + 'px';
+	if (h==ch) {
+		return;
+	}
+	console.log("_resizeIframe", obj, desth, ch);
+	if (desth!=ch) {
+		setTimeout(_resizeIframe, 500, obj, ch);
+	} else {
+		obj.style.height  = ch;
+		setTimeout(_resizeIframe, 1000, obj, ch);
+	}
   }
 
   function openClose(theID) {
