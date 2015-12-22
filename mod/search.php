@@ -95,10 +95,39 @@ function search_content(&$a) {
 	}
 
 	if(get_config('system','local_search') AND !local_user()) {
-		notice(t('Public access denied.').EOL);
-		return;
-		//http_status_exit(403);
-		//killme();
+		http_status_exit(403,
+				array("title" => t("Public access denied."),
+					"description" => t("Only logged in users are permitted to perform a search.")));
+		killme();
+		//notice(t('Public access denied.').EOL);
+		//return;
+	}
+
+	if (get_config('system','permit_crawling') AND !local_user()) {
+		// Default values:
+		// 10 requests are "free", after the 11th only a call per minute is allowed
+
+		$free_crawls = intval(get_config('system','free_crawls'));
+		if ($free_crawls == 0)
+			$free_crawls = 10;
+
+		$crawl_permit_period = intval(get_config('system','crawl_permit_period'));
+		if ($crawl_permit_period == 0)
+			$crawl_permit_period = 10;
+
+		$remote = $_SERVER["REMOTE_ADDR"];
+		$result = Cache::get("remote_search:".$remote);
+		if (!is_null($result)) {
+			$resultdata = json_decode($result);
+			if (($resultdata->time > (time() - $crawl_permit_period)) AND ($resultdata->accesses > $free_crawls)) {
+				http_status_exit(429,
+						array("title" => t("Too Many Requests"),
+							"description" => t("Only one search per minute is permitted for not logged in users.")));
+				killme();
+			}
+			Cache::set("remote_search:".$remote, json_encode(array("time" => time(), "accesses" => $resultdata->accesses + 1)), CACHE_HOUR);
+		} else
+			Cache::set("remote_search:".$remote, json_encode(array("time" => time(), "accesses" => 1)), CACHE_HOUR);
 	}
 
 	nav_set_selected('search');

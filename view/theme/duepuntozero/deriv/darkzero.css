@@ -20,6 +20,9 @@ div.wall-item-content-wrapper.shiny {  background-image: url('ingdarkzero/shiny.
 
 nav #banner #logo-text a { color: #ffffff; }
 
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {background-image: url('imgdarkzero/head.jpg');}
+
 .wall-item-content-wrapper { 
 	border: 1px solid #444444; 
 	background: #444444;  

@@ -2,6 +2,7 @@
 require_once("include/Contact.php");
 require_once("include/threads.php");
 require_once("include/html2bbcode.php");
+require_once("include/bbcode.php");
 require_once("include/items.php");
 require_once("mod/share.php");
 require_once("include/enotify.php");
@@ -9,10 +10,20 @@ require_once("include/socgraph.php");
 require_once("include/Photo.php");
 require_once("include/Scrape.php");
 require_once("include/follow.php");
+require_once("mod/proxy.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
+
+define("NS_ATOM", "http://www.w3.org/2005/Atom");
+define("NS_THR", "http://purl.org/syndication/thread/1.0");
+define("NS_GEORSS", "http://www.georss.org/georss");
+define("NS_ACTIVITY", "http://activitystrea.ms/spec/1.0/");
+define("NS_MEDIA", "http://purl.org/syndication/atommedia");
+define("NS_POCO", "http://portablecontacts.net/spec/1.0");
+define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
+define("NS_STATUSNET", "http://status.net/schema/api/1/");
 
 function ostatus_check_follow_friends() {
 	$r = q("SELECT `uid`,`v` FROM `pconfig` WHERE `cat`='system' AND `k`='ostatus_legacy_contact' AND `v` != ''");
@@ -48,7 +59,7 @@ function ostatus_follow_friends($uid, $url) {
 		$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND
 			(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
 			`network` != '%s' LIMIT 1",
- 			intval($uid), dbesc(normalise_link($url)),
+			intval($uid), dbesc(normalise_link($url)),
 			dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 		if (!$r) {
 			$data = probe_url($friend->statusnet_profile_url);
@@ -131,15 +142,15 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["about"] = $value;
+				$contact["about"] = html2bbcode($value);
 
 			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
 				$contact["location"] = $value;
 
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-				dbesc(datetime_convert()), intval($contact["id"]));
+				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
 					"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
@@ -152,9 +163,9 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
 
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
 				dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($contact["id"]));
+				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
 	}
 
@@ -315,7 +326,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 			$orig_uri = $xpath->query("activity:object/atom:id", $entry)->item(0)->nodeValue;
 			logger("Favorite ".$orig_uri." ".print_r($item, true));
 
-		        $item["verb"] = ACTIVITY_LIKE;
+			$item["verb"] = ACTIVITY_LIKE;
 			$item["parent-uri"] = $orig_uri;
 			$item["gravity"] = GRAVITY_LIKE;
 		}
@@ -702,9 +713,13 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		$conv_as = str_replace(',"statusnet:notice_info":', ',"statusnet_notice_info":', $conv_as);
 		$conv_as = json_decode($conv_as);
 
+		$no_of_items = sizeof($items);
+
 		if (@is_array($conv_as->items))
-			$items = array_merge($items, $conv_as->items);
-		else
+			foreach ($conv_as->items AS $single_item)
+				$items[$single_item->id] = $single_item;
+
+		if ($no_of_items == sizeof($items))
 			break;
 
 		$pageno++;
@@ -1062,5 +1077,462 @@ function ostatus_store_conversation($itemid, $conversation_url) {
 			dbesc($message["created"]), dbesc($conversation_url), dbesc($message["created"]), dbesc($message["received"]), dbesc($message["guid"]));
 		logger('Storing conversation url '.$conversation_url.' for id '.$itemid);
 	}
+}
+
+function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+	$element = $doc->createElement($element, xmlify($value));
+
+	foreach ($attributes AS $key => $value) {
+		$attribute = $doc->createAttribute($key);
+		$attribute->value = xmlify($value);
+		$element->appendChild($attribute);
+	}
+
+	$parent->appendChild($element);
+}
+
+function ostatus_format_picture_post($body) {
+	$siteinfo = get_attached_data($body);
+
+	if (($siteinfo["type"] == "photo")) {
+		if (isset($siteinfo["preview"]))
+			$preview = $siteinfo["preview"];
+		else
+			$preview = $siteinfo["image"];
+
+		// Is it a remote picture? Then make a smaller preview here
+		$preview = proxy_url($preview, false, PROXY_SIZE_SMALL);
+
+		// Is it a local picture? Then make it smaller here
+		$preview = str_replace(array("-0.jpg", "-0.png"), array("-2.jpg", "-2.png"), $preview);
+		$preview = str_replace(array("-1.jpg", "-1.png"), array("-2.jpg", "-2.png"), $preview);
+
+		if (isset($siteinfo["url"]))
+			$url = $siteinfo["url"];
+		else
+			$url = $siteinfo["image"];
+
+		$body = trim($siteinfo["text"])." [url]".$url."[/url]\n[img]".$preview."[/img]";
+	}
+
+	return $body;
+}
+
+function ostatus_add_header($doc, $owner) {
+	$a = get_app();
+
+	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
+		intval($owner["uid"]));
+	if (!$r)
+		return;
+
+	$profile = $r[0];
+
+	$root = $doc->createElementNS(NS_ATOM, 'feed');
+	$doc->appendChild($root);
+
+	$root->setAttribute("xmlns:thr", NS_THR);
+	$root->setAttribute("xmlns:georss", NS_GEORSS);
+	$root->setAttribute("xmlns:activity", NS_ACTIVITY);
+	$root->setAttribute("xmlns:media", NS_MEDIA);
+	$root->setAttribute("xmlns:poco", NS_POCO);
+	$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
+	$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
+
+	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
+	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+	xml_add_element($doc, $root, "id", $a->get_baseurl()."/profile/".$owner["nick"]);
+	xml_add_element($doc, $root, "title", sprintf("%s timeline", $profile["name"]));
+	xml_add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $profile["name"], $a->config["sitename"]));
+	xml_add_element($doc, $root, "logo", $profile["photo"]);
+	xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+
+	$author = ostatus_add_author($doc, $owner, $profile);
+	$root->appendChild($author);
+
+	$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	// To-Do: We have to find out what this is
+	//$attributes = array("href" => $a->get_baseurl()."/sup",
+	//		"rel" => "http://api.friendfeed.com/2008/03#sup",
+	//		"type" => "application/json");
+	//xml_add_element($doc, $root, "link", "", $attributes);
+
+	ostatus_hublinks($doc, $root);
+
+	$attributes = array("href" => $a->get_baseurl()."/salmon/".$owner["nick"], "rel" => "salmon");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("href" => $a->get_baseurl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("href" => $a->get_baseurl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("href" => $a->get_baseurl()."/api/statuses/user_timeline/".$owner["nick"].".atom",
+			"rel" => "self", "type" => "application/atom+xml");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	return $root;
+}
+
+function ostatus_hublinks($doc, $root) {
+	$a = get_app();
+	$hub = get_config('system','huburl');
+
+	$hubxml = '';
+	if(strlen($hub)) {
+		$hubs = explode(',', $hub);
+		if(count($hubs)) {
+			foreach($hubs as $h) {
+				$h = trim($h);
+				if(! strlen($h))
+					continue;
+				if ($h === '[internal]')
+					$h = $a->get_baseurl() . '/pubsubhubbub';
+				xml_add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
+			}
+		}
+	}
+}
+
+function ostatus_get_attachment($doc, $root, $item) {
+	$o = "";
+	$siteinfo = get_attached_data($item["body"]);
+
+	switch($siteinfo["type"]) {
+		case 'link':
+			$attributes = array("rel" => "enclosure",
+					"href" => $siteinfo["url"],
+					"type" => "text/html; charset=UTF-8",
+					"length" => "",
+					"title" => $siteinfo["title"]);
+			xml_add_element($doc, $root, "link", "", $attributes);
+			break;
+		case 'photo':
+			$imgdata = get_photo_info($siteinfo["image"]);
+			$attributes = array("rel" => "enclosure",
+					"href" => $siteinfo["image"],
+					"type" => $imgdata["mime"],
+					"length" => intval($imgdata["size"]));
+			xml_add_element($doc, $root, "link", "", $attributes);
+			break;
+		case 'video':
+			$attributes = array("rel" => "enclosure",
+					"href" => $siteinfo["url"],
+					"type" => "text/html; charset=UTF-8",
+					"length" => "",
+					"title" => $siteinfo["title"]);
+			xml_add_element($doc, $root, "link", "", $attributes);
+			break;
+		default:
+			break;
+	}
+
+	if (($siteinfo["type"] != "photo") AND isset($siteinfo["image"])) {
+		$photodata = get_photo_info($siteinfo["image"]);
+
+		$attributes = array("rel" => "preview", "href" => $siteinfo["image"], "media:width" => $photodata[0], "media:height" => $photodata[1]);
+		xml_add_element($doc, $root, "link", "", $attributes);
+	}
+
+
+	$arr = explode('[/attach],',$item['attach']);
+	if(count($arr)) {
+		foreach($arr as $r) {
+			$matches = false;
+			$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches);
+			if($cnt) {
+				$attributes = array("rel" => "enclosure",
+						"href" => $matches[1],
+						"type" => $matches[3]);
+
+				if(intval($matches[2]))
+					$attributes["length"] = intval($matches[2]);
+
+				if(trim($matches[4]) != "")
+					$attributes["title"] = trim($matches[4]);
+
+				xml_add_element($doc, $root, "link", "", $attributes);
+			}
+		}
+	}
+}
+
+function ostatus_add_author($doc, $owner, $profile) {
+	$a = get_app();
+
+	$author = $doc->createElement("author");
+	xml_add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
+	xml_add_element($doc, $author, "uri", $owner["url"]);
+	xml_add_element($doc, $author, "name", $profile["name"]);
+
+	$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $owner["url"]);
+	xml_add_element($doc, $author, "link", "", $attributes);
+
+	$attributes = array(
+			"rel" => "avatar",
+			"type" => "image/jpeg", // To-Do?
+			"media:width" => 175,
+			"media:height" => 175,
+			"href" => $profile["photo"]);
+	xml_add_element($doc, $author, "link", "", $attributes);
+
+	$attributes = array(
+			"rel" => "avatar",
+			"type" => "image/jpeg", // To-Do?
+			"media:width" => 80,
+			"media:height" => 80,
+			"href" => $profile["thumb"]);
+	xml_add_element($doc, $author, "link", "", $attributes);
+
+	xml_add_element($doc, $author, "poco:preferredUsername", $owner["nick"]);
+	xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
+	xml_add_element($doc, $author, "poco:note", bbcode($profile["about"]));
+
+	if (trim($owner["location"]) != "") {
+		$element = $doc->createElement("poco:address");
+		xml_add_element($doc, $element, "poco:formatted", $owner["location"]);
+		$author->appendChild($element);
+	}
+
+	if (trim($profile["homepage"]) != "") {
+		$urls = $doc->createElement("poco:urls");
+		xml_add_element($doc, $urls, "poco:type", "homepage");
+		xml_add_element($doc, $urls, "poco:value", $profile["homepage"]);
+		xml_add_element($doc, $urls, "poco:primary", "true");
+		$author->appendChild($urls);
+	}
+
+	xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
+	xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+
+	return $author;
+}
+
+/*
+To-Do: Picture attachments should look like this:
+
+<a href="https://status.pirati.ca/attachment/572819" title="https://status.pirati.ca/file/heluecht-20151202T222602-rd3u49p.gif"
+class="attachment thumbnail" id="attachment-572819" rel="nofollow external">https://status.pirati.ca/attachment/572819</a>
+
+*/
+
+function ostatus_entry($doc, $item, $owner, $toplevel = false) {
+	$a = get_app();
+
+	if (!$toplevel) {
+		$entry = $doc->createElement("entry");
+		$title = sprintf("New note by %s", $owner["nick"]);
+	} else {
+		$entry = $doc->createElementNS(NS_ATOM, "entry");
+
+		$entry->setAttribute("xmlns:thr", NS_THR);
+		$entry->setAttribute("xmlns:georss", NS_GEORSS);
+		$entry->setAttribute("xmlns:activity", NS_ACTIVITY);
+		$entry->setAttribute("xmlns:media", NS_MEDIA);
+		$entry->setAttribute("xmlns:poco", NS_POCO);
+		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
+		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
+
+		$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
+			intval($owner["uid"]));
+		if (!$r)
+			return;
+
+		$profile = $r[0];
+
+		$author = ostatus_add_author($doc, $owner, $profile);
+		$entry->appendChild($author);
+
+		$title = sprintf("New comment by %s", $owner["nick"]);
+	}
+
+	// To use the object-type "bookmark" we have to implement these elements:
+	//
+	// <activity:object-type>http://activitystrea.ms/schema/1.0/bookmark</activity:object-type>
+	// <title>Historic Rocket Landing</title>
+	// <summary>Nur ein Testbeitrag.</summary>
+	// <link rel="related" href="https://www.youtube.com/watch?v=9pillaOxGCo"/>
+	// <link rel="preview" href="https://pirati.cc/file/thumb-4526-450x338-b48c8055f0c2fed0c3f67adc234c4b99484a90c42ed3cac73dc1081a4d0a7bc1.jpg.jpg" media:width="450" media:height="338"/>
+	//
+	// But: it seems as if it doesn't federate well between the GS servers
+	// So we just set it to "note" to be sure that it reaches their target systems
+
+	xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+	xml_add_element($doc, $entry, "id", $item["uri"]);
+	xml_add_element($doc, $entry, "title", $title);
+
+	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
+		$body = fix_private_photos($item['body'],$owner['uid'],$item, 0);
+	else
+		$body = $item['body'];
+
+	$body = ostatus_format_picture_post($body);
+
+	if ($item['title'] != "")
+		$body = "[b]".$item['title']."[/b]\n\n".$body;
+
+	//$body = bb_remove_share_information($body);
+	$body = bbcode($body, false, false, 7);
+
+	xml_add_element($doc, $entry, "content", $body, array("type" => "html"));
+
+	xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
+							"href" => $a->get_baseurl()."/display/".$item["guid"]));
+
+	xml_add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
+	xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
+	xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
+	xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
+
+	$mentioned = array();
+
+	if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
+		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+
+		$attributes = array(
+				"ref" => $parent_item,
+				"type" => "text/html",
+				"href" => $a->get_baseurl()."/display/".$parent[0]["guid"]);
+		xml_add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
+
+		$attributes = array(
+				"rel" => "related",
+				"href" => $a->get_baseurl()."/display/".$parent[0]["guid"]);
+		xml_add_element($doc, $entry, "link", "", $attributes);
+
+		$mentioned[$parent[0]["author-link"]] = $parent[0]["author-link"];
+		$mentioned[$parent[0]["owner-link"]] = $parent[0]["owner-link"];
+
+		$thrparent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+				intval($owner["uid"]),
+				dbesc($parent_item));
+		if ($thrparent) {
+			$mentioned[$thrparent[0]["author-link"]] = $thrparent[0]["author-link"];
+			$mentioned[$thrparent[0]["owner-link"]] = $thrparent[0]["owner-link"];
+		}
+	}
+
+	xml_add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation",
+							"href" => $a->get_baseurl()."/display/".$owner["nick"]."/".$item["parent"]));
+	xml_add_element($doc, $entry, "ostatus:conversation", $a->get_baseurl()."/display/".$owner["nick"]."/".$item["parent"]);
+
+	$tags = item_getfeedtags($item);
+
+	if(count($tags))
+		foreach($tags as $t)
+			if ($t[0] == "@")
+				$mentioned[$t[1]] = $t[1];
+
+	// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
+	$newmentions = array();
+	foreach ($mentioned AS $mention) {
+		$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
+		$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
+	}
+	$mentioned = $newmentions;
+
+	foreach ($mentioned AS $mention) {
+		$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner["uid"]),
+			dbesc(normalise_link($mention)));
+		if ($r[0]["forum"] OR $r[0]["prv"])
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+										"href" => $mention));
+		else
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+										"href" => $mention));
+	}
+
+	if (!$item["private"])
+		xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+								"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
+								"href" => "http://activityschema.org/collection/public"));
+
+	if(count($tags))
+		foreach($tags as $t)
+			if ($t[0] != "@")
+				xml_add_element($doc, $entry, "category", "", array("term" => $t[2]));
+
+	ostatus_get_attachment($doc, $entry, $item);
+
+	// To-Do:
+	// The API call has yet to be implemented
+	//$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
+	//		"rel" => "self", "type" => "application/atom+xml");
+	//xml_add_element($doc, $entry, "link", "", $attributes);
+
+	//$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
+	//		"rel" => "edit", "type" => "application/atom+xml");
+	//xml_add_element($doc, $entry, "link", "", $attributes);
+
+	$app = $item["app"];
+	if ($app == "")
+		$app = "web";
+
+	xml_add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item["id"], "source" => $app));
+
+	return $entry;
+}
+
+function ostatus_feed(&$a, $owner_nick, $last_update) {
+
+	$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
+			dbesc($owner_nick));
+	if (!$r)
+		return;
+
+	$owner = $r[0];
+
+	if(!strlen($last_update))
+		$last_update = 'now -30 days';
+
+	$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
+
+	$items = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id` FROM `item`
+			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
+			LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`
+			WHERE `item`.`uid` = %d AND `item`.`received` > '%s' AND NOT `item`.`private` AND NOT `item`.`deleted`
+				AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+				AND ((`item`.`wall` AND (`item`.`parent` = `item`.`id`))
+					OR (`item`.`network` = '%s' AND ((`thread`.`network`='%s') OR (`thritem`.`network` = '%s'))) AND `thread`.`mention`)
+				AND (`item`.`owner-link` IN ('%s', '%s'))
+			ORDER BY `item`.`received` DESC
+			LIMIT 0, 300",
+			intval($owner["uid"]), dbesc($check_date),
+			dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
+			dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"]))
+		);
+
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$root = ostatus_add_header($doc, $owner);
+
+	foreach ($items AS $item) {
+		$entry = ostatus_entry($doc, $item, $owner);
+		$root->appendChild($entry);
+	}
+
+	return(trim($doc->saveXML()));
+}
+
+function ostatus_salmon($item,$owner) {
+
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$entry = ostatus_entry($doc, $item, $owner, true);
+
+	$doc->appendChild($entry);
+
+	return(trim($doc->saveXML()));
 }
 ?>

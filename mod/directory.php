@@ -8,6 +8,8 @@ function directory_init(&$a) {
 
 		$a->page['aside'] .= findpeople_widget();
 
+		$a->page['aside'] .= follow_widget();
+
 	}
 	else {
 		unset($_SESSION['theme']);
@@ -31,7 +33,7 @@ function directory_content(&$a) {
 	require_once("mod/proxy.php");
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) || 
-                (get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
+		(get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -44,51 +46,38 @@ function directory_content(&$a) {
 	else
 		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
-	$tpl = get_markup_template('directory_header.tpl');
-
-	$globaldir = '';
-	$gdirpath = get_config('system','directory');
-	if(strlen($gdirpath)) {
-		$globaldir = '<ul><li><div id="global-directory-link"><a href="'
-		. zrl($gdirpath,true) . '">' . t('Global Directory') . '</a></div></li></ul>';
+	$gdirpath = '';
+	$dirurl = get_config('system','directory');
+	if(strlen($dirurl)) {
+		$gdirpath = zrl($dirurl,true);
 	}
-
-	$admin = '';
-
-	$o .= replace_macros($tpl, array(
-		'$search' => $search,
-		'$globaldir' => $globaldir,
-		'$desc' => t('Find on this site'),
-		'$admin' => $admin,
-		'$finding' => (strlen($search) ? '<h4>' . t('Finding: ') . "'" . $search . "'" . '</h4>' : ""),
-		'$sitedir' => t('Site Directory'),
-		'$submit' => t('Find')
-	));
 
 	if($search) {
 		$search = dbesc($search);
 
 		$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
 				(`user`.`nickname` LIKE '%$search%') OR
-				(`pdesc` LIKE '%$search%') OR
-				(`locality` LIKE '%$search%') OR
-				(`region` LIKE '%$search%') OR
-				(`country-name` LIKE '%$search%') OR
-				(`gender` LIKE '%$search%') OR
-				(`marital` LIKE '%$search%') OR
-				(`sexual` LIKE '%$search%') OR
-				(`about` LIKE '%$search%') OR
-				(`romance` LIKE '%$search%') OR
-				(`work` LIKE '%$search%') OR
-				(`education` LIKE '%$search%') OR
-				(`pub_keywords` LIKE '%$search%') OR
-				(`prv_keywords` LIKE '%$search%'))";
+				(`profile`.`pdesc` LIKE '%$search%') OR
+				(`profile`.`locality` LIKE '%$search%') OR
+				(`profile`.`region` LIKE '%$search%') OR
+				(`profile`.`country-name` LIKE '%$search%') OR
+				(`profile`.`gender` LIKE '%$search%') OR
+				(`profile`.`marital` LIKE '%$search%') OR
+				(`profile`.`sexual` LIKE '%$search%') OR
+				(`profile`.`about` LIKE '%$search%') OR
+				(`profile`.`romance` LIKE '%$search%') OR
+				(`profile`.`work` LIKE '%$search%') OR
+				(`profile`.`education` LIKE '%$search%') OR
+				(`profile`.`pub_keywords` LIKE '%$search%') OR
+				(`profile`.`prv_keywords` LIKE '%$search%'))";
 	}
 
 	$publish = ((get_config('system','publish_all')) ? '' : " AND `publish` = 1 " );
 
 
-	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
+	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
 	if(count($r))
 		$a->set_pager_total($r[0]['total']);
 
@@ -96,7 +85,11 @@ function directory_content(&$a) {
 
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra $order LIMIT ".$limit);
+	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if(count($r)) {
 
 		if(in_array('small', $a->argv))
@@ -106,8 +99,12 @@ function directory_content(&$a) {
 
 		foreach($r as $rr) {
 
+			$community = '';
+			$itemurl= '';
 
-			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
+
+			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 
@@ -124,23 +121,19 @@ function directory_content(&$a) {
 					$details .= ', ';
 				$details .= $rr['country-name'];
 			}
-			if(strlen($rr['dob'])) {
-				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-					$details .= '<br />' . t('Age: ') . $years ; 
-			}
-			if(strlen($rr['gender']))
-				$details .= '<br />' . t('Gender: ') . $rr['gender'];
+//			if(strlen($rr['dob'])) {
+//				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
+//					$details .= '<br />' . t('Age: ') . $years ; 
+//			}
+//			if(strlen($rr['gender']))
+//				$details .= '<br />' . t('Gender: ') . $rr['gender'];
 
-			if($rr['page-flags'] == PAGE_NORMAL)
-				$page_type = "Personal Profile";
-			if($rr['page-flags'] == PAGE_SOAPBOX)
-				$page_type = "Fan Page";
-			if($rr['page-flags'] == PAGE_COMMUNITY)
-				$page_type = "Community Forum";
-			if($rr['page-flags'] == PAGE_FREELOVE)
-				$page_type = "Open Forum";
-			if($rr['page-flags'] == PAGE_PRVGROUP)
-				$page_type = "Private Group";
+
+			// show if account is a community account
+			// ToDo the other should be also respected, but first we need a good translatiion
+			// and systemwide consistency for displaying the page type
+			if((intval($rr['page-flags']) == PAGE_COMMUNITY) OR (intval($rr['page-flags']) == PAGE_PRVGROUP))
+				$community = true;
 
 			$profile = $rr;
 
@@ -159,32 +152,35 @@ function directory_content(&$a) {
 
 			$about = ((x($profile,'about') == 1) ?  t('About:') : False);
 
-			$tpl = get_markup_template('directory_item.tpl');
-
 			if($a->theme['template_engine'] === 'internal') {
 				$location_e = template_escape($location);
 			}
 			else {
 				$location_e = $location;
 			}
+			
+			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
 
-			$entry = replace_macros($tpl,array(
-				'$id' => $rr['id'],
-				'$profile_link' => $profile_link,
-				'$photo' => proxy_url($a->get_cached_avatar_image($rr[$photo])),
-				'$alt_text' => $rr['name'],
-				'$name' => $rr['name'],
-				'$details' => $pdesc . $details,
-				'$page_type' => $page_type,
-				'$profile' => $profile,
-				'$location' => $location_e,
-				'$gender'   => $gender,
-				'$pdesc'	=> $pdesc,
-				'$marital'  => $marital,
-				'$homepage' => $homepage,
-				'$about' => $about,
+			$entry = array(
+				'id' => $rr['id'],
+				'url' => $profile_link,
+				'itemurl' => $itemurl,
+				'thumb' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
+				'img_hover' => $rr['name'],
+				'name' => $rr['name'],
+				'details' => $details,
+				'account_type' => ($community ? t('Forum') : ''),
+				'profile' => $profile,
+				'location' => $location_e,
+				'tags' => $rr['pub_keywords'],
+				'gender'   => $gender,
+				'pdesc'	=> $pdesc,
+				'marital'  => $marital,
+				'homepage' => $homepage,
+				'about' => $about,
+				'photo_menu' => $photo_menu,
 
-			));
+			);
 
 			$arr = array('contact' => $rr, 'entry' => $entry);
 
@@ -193,12 +189,27 @@ function directory_content(&$a) {
 			unset($profile);
 			unset($location);
 
-			$o .= $entry;
+			if(! $arr['entry'])
+				continue;
+
+			$entries[] = $arr['entry'];
 
 		}
 
-		$o .= "<div class=\"directory-end\" ></div>\r\n";
-		$o .= paginate($a);
+		$tpl = get_markup_template('directory_header.tpl');
+
+		$o .= replace_macros($tpl, array(
+			'$search' => $search,
+			'$globaldir' => t('Global Directory'),
+			'$gdirpath' => $gdirpath,
+			'$desc' => t('Find on this site'),
+			'$contacts' => $entries,
+			'$finding' => t('Finding:'),
+			'$findterm' => (strlen($search) ? $search : ""),
+			'$title' => t('Site Directory'),
+			'$submit' => t('Find'),
+			'$paginate' => paginate($a),
+		));
 
 	}
 	else

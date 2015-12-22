@@ -97,9 +97,42 @@ function manage_content(&$a) {
 		return;
 	}
 
+	if ($_GET['identity']) {
+		$_POST['identity'] = $_GET['identity'];
+		manage_post($a);
+		return;
+	}
+
 	$identities = $a->identities;
-	foreach($identities as $key=>$id) {
-		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? ' selected="selected" ' : '');
+
+	//getting additinal information for each identity
+	foreach ($identities as $key=>$id) {
+		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = '%s' AND `self` = 1",
+			dbesc($id['uid'])
+		);
+
+		$identities[$key][thumb] = $thumb[0][thumb];
+
+		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? true : false);
+
+		$notifications = 0;
+
+		$r = q("SELECT DISTINCT(`parent`) FROM `notify` WHERE `uid` = %d AND NOT `seen` AND NOT (`type` IN (%d, %d))",
+			intval($id['uid']), intval(NOTIFY_INTRO), intval(NOTIFY_MAIL));
+		if ($r)
+			$notifications = sizeof($r);
+
+		$r = q("SELECT DISTINCT(`convid`) FROM `mail` WHERE `uid` = %d AND NOT `seen`",
+			intval($id['uid']));
+		if ($r)
+			$notifications = $notifications + sizeof($r);
+
+		$r = q("SELECT COUNT(*) AS `introductions` FROM `intro` WHERE NOT `blocked` AND NOT `ignore` AND `uid` = %d",
+			intval($id['uid']));
+		if ($r)
+			$notifications = $notifications + $r[0]["introductions"];
+
+		$identities[$key]['notifications'] = $notifications;
 	}
 
 	$o = replace_macros(get_markup_template('manage.tpl'), array(

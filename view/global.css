@@ -212,3 +212,112 @@ a {
   clip: rect(0,0,0,0);
   border: 0;
 }
+
+.itentity-match-wrapper {
+  float: left;
+  padding: 10px;
+  width: 120px;
+  height: 140px;
+  margin-bottom: 20px;
+}
+
+.identity-match-photo {
+  float: left;
+  text-align: center;
+  width: 120px;
+}
+
+.identity-match-name {
+  text-align: center;
+}
+
+.identity-match-details {
+  float: left;
+  text-align: center;
+  width: 120px;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 500;
+  color: #999999;
+}
+
+.identity-match-break, .identity-match-end {
+  clear: both;
+}
+
+.identity-match-photo button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  height: 80px;
+  width: 80px;
+  cursor: pointer;
+}
+
+.selected-identity img {
+  border: 2px solid #ff0000;
+}
+/* poke */
+#poke-desc {
+  margin: 5px 0 10px;
+}
+
+#poke-wrapper  {
+  padding: 10px 0 0px;
+}
+
+#poke-recipient, #poke-action, #poke-privacy-settings {
+  margin: 10px 0 30px;
+}
+
+#poke-recip-label, #poke-action-label, #prvmail-message-label {
+  margin: 10px 0 10px;
+}
+ul.credits {
+  list-style: none;
+}
+ul.credits li {
+  float: left;
+  width: 240px;
+}
+
+.contact-entry-photo img {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+/* forumlist widget */
+.forumlist-img {
+  height: 20px;
+  width: 20px;
+  vertical-align: middle;
+}
+
+#forum-widget-collapse {
+  opacity: 0.3;
+}
+
+#forum-widget-collapse:hover {
+  opacity: 1.0;
+}
+
+.crepair-label {
+        margin-top: 10px;
+        float: left;
+        width: 250px;
+}
+
+.crepair-input {
+        margin-top: 10px;
+        float: left;
+        width: 200px;
+}
+
+.renderinfo {
+	clear: both;
+}
+
+.p-addr {
+	clear: both;	
+}

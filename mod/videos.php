@@ -15,27 +15,37 @@ function videos_init(&$a) {
 		return;
 	}
 
+	nav_set_selected('home');
+
 	$o = '';
 
 	if($a->argc > 1) {
 		$nick = $a->argv[1];
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
+		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
-		if(! count($r))
+		if(! count($user))
 			return;
 
-		$a->data['user'] = $r[0];
-		$a->profile_uid = $r[0]['uid'];
+		$a->data['user'] = $user[0];
+		$a->profile_uid = $user[0]['uid'];
 
-		$profilephoto = $a->get_cached_avatar_image($a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg');
+		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+
+		if((intval($profile['page-flags']) == PAGE_COMMUNITY) || (intval($profile['page-flags']) == PAGE_PRVGROUP))
+			$account_type = t('Forum');
+		else
+			$account_type = "";
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, array(
-			'$name' => $a->data['user']['username'],
-			'$photo' => $profilephoto
+		$vcard_widget .= replace_macros($tpl, array(
+			'$name' => $profile['name'],
+			'$photo' => $profile['photo'],
+			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+			'$account_type' => $account_type,
+			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
 
@@ -51,7 +61,7 @@ function videos_init(&$a) {
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
 			if($albums_visible) {
-				$o .= '<div id="side-bar-photos-albums" class="widget">';
+				$o .= '<div id="sidebar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
 
 				$o .= '<ul>';
@@ -111,10 +121,10 @@ function videos_post(&$a) {
 			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), array(
 				'$method' => 'post',
 				'$message' => t('Do you really want to delete this video?'),
-				'$extra_inputs' => [
-					['name'=>'id', 'value'=> $_POST['id']],
-					['name'=>'delete', 'value'=>'x']
-				],
+				'$extra_inputs' => array(
+					array('name'=>'id', 'value'=> $_POST['id']),
+					array('name'=>'delete', 'value'=>'x')
+				),
 				'$confirm' => t('Delete Video'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'confirm', // Needed so that confirmation will bring us back into this if statement
