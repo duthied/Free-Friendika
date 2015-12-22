@@ -21,6 +21,7 @@ body { 	background-image: url('imggreenzero/head.jpg'); }
 aside { background-image: url('imggreenzero/border.jpg'); }
 section { background-image: url('imggreenzero/border.jpg'); }
 .tabs {	background-image: url('imggreenzero/head.jpg'); }
+#viewcontact_wrapper-network { background: #DBEAD7; }
 div.wall-item-content-wrapper.shiny {  background-image: url('imggreenzero/shiny.png'); }
 
 .fakelink, .fakelink:visited, .fakelink:hover, .fakelink:link {

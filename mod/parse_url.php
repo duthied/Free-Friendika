@@ -280,7 +280,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	if (isset($keywords)) {
 		$siteinfo["keywords"] = array();
 		foreach ($keywords as $keyword)
-			$siteinfo["keywords"][] = trim($keyword);
+			if (!in_array(trim($keyword), $siteinfo["keywords"]))
+				$siteinfo["keywords"][] = trim($keyword);
 	}
 
 	//$list = $xpath->query("head/meta[@property]");

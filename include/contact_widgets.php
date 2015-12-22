@@ -20,12 +20,12 @@ function findpeople_widget() {
 	if(get_config('system','invitation_only')) {
 		$x = get_pconfig(local_user(),'system','invites_remaining');
 		if($x || is_site_admin()) {
-			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
-			. sprintf( tt('%d invitation available','%d invitations available',$x), $x) 
+			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
+			. sprintf( tt('%d invitation available','%d invitations available',$x), $x)
 			. '</div>' . $inv;
 		}
 	}
- 
+
 	return replace_macros(get_markup_template('peoplefind.tpl'),array(
 		'$findpeople' => t('Find People'),
 		'$desc' => t('Enter name or interest'),
@@ -40,18 +40,55 @@ function findpeople_widget() {
 
 }
 
+function unavailable_networks() {
+	$network_filter = "";
+
+	$networks = array();
+
+	if (!plugin_enabled("appnet"))
+		$networks[] = NETWORK_APPNET;
+
+	if (!plugin_enabled("fbpost") AND !plugin_enabled("facebook"))
+		$networks[] = NETWORK_FACEBOOK;
+
+	if (!plugin_enabled("statusnet"))
+		$networks[] = NETWORK_STATUSNET;
+
+	if (!plugin_enabled("pumpio"))
+		$networks[] = NETWORK_PUMPIO;
+
+	if (!plugin_enabled("twitter"))
+		$networks[] = NETWORK_TWITTER;
+
+	if (get_config("system","ostatus_disabled"))
+		$networks[] = NETWORK_OSTATUS;
+
+	if (!get_config("system","diaspora_enabled"))
+		$networks[] = NETWORK_DIASPORA;
+
+	if (!sizeof($networks))
+		return "";
+
+	$network_filter = implode("','", $networks);
+
+	$network_filter = "AND `network` NOT IN ('$network_filter')";
+
+	return $network_filter;
+}
 
 function networks_widget($baseurl,$selected = '') {
 
 	$a = get_app();
 
-	if(! local_user())
+	if(!local_user())
 		return '';
 
-	if(! feature_enabled(local_user(),'networks'))
+	if(!feature_enabled(local_user(),'networks'))
 		return '';
 
-	$r = q("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = %d AND `self` = 0 ORDER BY `network`",
+	$extra_sql = unavailable_networks();
+
+	$r = q("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = %d AND NOT `self` $extra_sql ORDER BY `network`",
 		intval(local_user())
 	);
 
@@ -180,7 +217,7 @@ function common_friends_visitor_widget($profile_uid) {
 	}
 
 	if($cid == 0 && $zcid == 0)
-		return; 
+		return;
 
 	require_once('include/socgraph.php');
 
@@ -204,6 +241,6 @@ function common_friends_visitor_widget($profile_uid) {
 		'$linkmore' => (($t > 5) ? 'true' : ''),
 		'$more' => t('show more'),
 		'$items' => $r
-	)); 
+	));
 
 };

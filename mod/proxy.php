@@ -3,6 +3,12 @@
 
 define("PROXY_DEFAULT_TIME", 86400); // 1 Day
 
+define("PROXY_SIZE_MICRO", "micro");
+define("PROXY_SIZE_THUMB", "thumb");
+define("PROXY_SIZE_SMALL", "small");
+define("PROXY_SIZE_MEDIUM", "medium");
+define("PROXY_SIZE_LARGE", "large");
+
 require_once('include/security.php');
 require_once("include/Photo.php");
 
@@ -37,14 +43,16 @@ function proxy_init() {
 
 	$thumb = false;
 	$size = 1024;
+	$sizetype = "";
+	$basepath = $a->get_basepath();
 
 	// If the cache path isn't there, try to create it
-	if (!is_dir($_SERVER["DOCUMENT_ROOT"]."/proxy"))
-		if (is_writable($_SERVER["DOCUMENT_ROOT"]))
-			mkdir($_SERVER["DOCUMENT_ROOT"]."/proxy");
+	if (!is_dir($basepath."/proxy"))
+		if (is_writable($basepath))
+			mkdir($basepath."/proxy");
 
 	// Checking if caching into a folder in the webroot is activated and working
-	$direct_cache = (is_dir($_SERVER["DOCUMENT_ROOT"]."/proxy") AND is_writable($_SERVER["DOCUMENT_ROOT"]."/proxy"));
+	$direct_cache = (is_dir($basepath."/proxy") AND is_writable($basepath."/proxy"));
 
 	// Look for filename in the arguments
 	if ((isset($a->argv[1]) OR isset($a->argv[2]) OR isset($a->argv[3])) AND !isset($_REQUEST["url"])) {
@@ -59,14 +67,27 @@ function proxy_init() {
 			$size = 200;
 
 		// thumb, small, medium and large.
-		if (substr($url, -6) == ":thumb")
-			$size = 150;
-		if (substr($url, -6) == ":small")
-			$size = 340;
-		if (substr($url, -7) == ":medium")
+		if (substr($url, -6) == ":micro") {
+			$size = 48;
+			$sizetype = ":micro";
+			$url = substr($url, 0, -6);
+		} elseif (substr($url, -6) == ":thumb") {
+			$size = 80;
+			$sizetype = ":thumb";
+			$url = substr($url, 0, -6);
+		} elseif (substr($url, -6) == ":small") {
+			$size = 175;
+			$url = substr($url, 0, -6);
+			$sizetype = ":small";
+		} elseif (substr($url, -7) == ":medium") {
 			$size = 600;
-		if (substr($url, -6) == ":large")
+			$url = substr($url, 0, -7);
+			$sizetype = ":medium";
+		} elseif (substr($url, -6) == ":large") {
 			$size = 1024;
+			$url = substr($url, 0, -6);
+			$sizetype = ":large";
+		}
 
 		$pos = strrpos($url, "=.");
 		if ($pos)
@@ -176,6 +197,8 @@ function proxy_init() {
 		}
 	}
 
+	$img_str_orig = $img_str;
+
 	// reduce quality - if it isn't a GIF
 	if ($mime != "image/gif") {
 		$img = new Photo($img_str, $mime);
@@ -188,10 +211,12 @@ function proxy_init() {
 	// If there is a real existing directory then put the cache file there
 	// advantage: real file access is really fast
 	// Otherwise write in cachefile
-	if ($valid AND $direct_cache)
-		file_put_contents($_SERVER["DOCUMENT_ROOT"]."/proxy/".proxy_url($_REQUEST['url'], true), $img_str);
-	elseif ($cachefile != '')
-		file_put_contents($cachefile, $img_str);
+	if ($valid AND $direct_cache) {
+		file_put_contents($basepath."/proxy/".proxy_url($_REQUEST['url'], true), $img_str_orig);
+		if ($sizetype <> '')
+			file_put_contents($basepath."/proxy/".proxy_url($_REQUEST['url'], true).$sizetype, $img_str);
+	} elseif ($cachefile != '')
+		file_put_contents($cachefile, $img_str_orig);
 
 	header("Content-type: $mime");
 
@@ -208,7 +233,7 @@ function proxy_init() {
 	killme();
 }
 
-function proxy_url($url, $writemode = false) {
+function proxy_url($url, $writemode = false, $size = "") {
 	global $_SERVER;
 
 	$a = get_app();
@@ -223,7 +248,7 @@ function proxy_url($url, $writemode = false) {
 		return($url);
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
-	$basepath = $_SERVER["DOCUMENT_ROOT"]."/proxy";
+	$basepath = $a->get_basepath()."/proxy";
 
 	$path = substr(hash("md5", $url), 0, 2);
 
@@ -251,6 +276,9 @@ function proxy_url($url, $writemode = false) {
 
 	$proxypath = $a->get_baseurl()."/proxy/".$path;
 
+	if ($size != "")
+		$size = ":".$size;
+
 	// Too long files aren't supported by Apache
 	// Writemode in combination with long files shouldn't be possible
 	if ((strlen($proxypath) > 250) AND $writemode)
@@ -260,7 +288,7 @@ function proxy_url($url, $writemode = false) {
 	elseif ($writemode)
 		return ($path);
 	else
-		return ($proxypath);
+		return ($proxypath.$size);
 }
 
 /**

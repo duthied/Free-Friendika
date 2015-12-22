@@ -51,4 +51,3 @@
 <input id="event-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 </form>
 
-

@@ -1,6 +1,7 @@
 <?php
 
 require_once("include/contact_selectors.php");
+require_once("include/contact_widgets.php");
 require_once("include/features.php");
 require_once("mod/proxy.php");
 
@@ -392,7 +393,6 @@ function acl_lookup(&$a, $out_type = 'json') {
 	if(!local_user())
 		return "";
 
-
 	$start = (x($_REQUEST,'start')?$_REQUEST['start']:0);
 	$count = (x($_REQUEST,'count')?$_REQUEST['count']:100);
 	$search = (x($_REQUEST,'search')?$_REQUEST['search']:"");
@@ -425,6 +425,8 @@ function acl_lookup(&$a, $out_type = 'json') {
 	} else {
 		$group_count = 0;
 	}
+
+	$sql_extra2 .= " ".unavailable_networks();
 
 	if ($type=='' || $type=='c'){
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
@@ -492,7 +494,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 			$groups[] = array(
 				"type"  => "g",
 				"photo" => "images/twopeople.png",
-				"name"  => $g['name'],
+				"name"  => htmlentities($g['name']),
 				"id"	=> intval($g['id']),
 				"uids"  => array_map("intval", explode(",",$g['uids'])),
 				"link"  => '',
@@ -545,9 +547,9 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$x['data'] = array();
 		if(count($r)) {
 			foreach($r as $g) {
-				$x['photos'][] = proxy_url($g['micro']);
+				$x['photos'][] = proxy_url($g['micro'], false, PROXY_SIZE_MICRO);
 				$x['links'][] = $g['url'];
-				$x['suggestions'][] = $g['name'];
+				$x['suggestions'][] = htmlentities($g['name']);
 				$x['data'][] = intval($g['id']);
 			}
 		}
@@ -559,12 +561,12 @@ function acl_lookup(&$a, $out_type = 'json') {
 		foreach($r as $g){
 			$contacts[] = array(
 				"type"  => "c",
-				"photo" => proxy_url($g['micro']),
-				"name"  => $g['name'],
+				"photo" => proxy_url($g['micro'], false, PROXY_SIZE_MICRO),
+				"name"  => htmlentities($g['name']),
 				"id"	=> intval($g['id']),
 				"network" => $g['network'],
 				"link" => $g['url'],
-				"nick" => ($g['attag']) ? $g['attag'] : $g['nick'],
+				"nick" => htmlentities(($g['attag']) ? $g['attag'] : $g['nick']),
 				"forum" => $g['forum']
 			);
 		}
@@ -604,12 +606,12 @@ function acl_lookup(&$a, $out_type = 'json') {
 				// /nickname
 				$unknow_contacts[] = array(
 					"type"  => "c",
-					"photo" => proxy_url($row['author-avatar']),
-					"name"  => $row['author-name'],
+					"photo" => proxy_url($row['author-avatar'], false, PROXY_SIZE_MICRO),
+					"name"  => htmlentities($row['author-name']),
 					"id"	=> '',
 					"network" => "unknown",
 					"link" => $row['author-link'],
-					"nick" => $nick,
+					"nick" => htmlentities($nick),
 					"forum" => false
 				);
 			}

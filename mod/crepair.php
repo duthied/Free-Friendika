@@ -1,4 +1,6 @@
 <?php
+require_once("include/contact_selectors.php");
+require_once("mod/contacts.php");
 
 function crepair_init(&$a) {
 	if(! local_user())
@@ -21,14 +23,9 @@ function crepair_init(&$a) {
 		$a->page['aside'] = '';
 
 	if($contact_id) {
-			$a->data['contact'] = $r[0];
-                        $tpl = get_markup_template("vcard-widget.tpl");
-                        $vcard_widget .= replace_macros($tpl, array(
-                                '$name' => $a->data['contact']['name'],
-                                '$photo' => $a->data['contact']['photo']
-                        ));
-			$a->page['aside'] .= $vcard_widget;
-
+		$a->data['contact'] = $r[0];
+                $contact = $r[0];
+		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 }
 
@@ -137,16 +134,10 @@ function crepair_content(&$a) {
 
 	$contact = $r[0];
 
-	$msg1 = t('Repair Contact Settings');
+	$warning = t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
+	$info = t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
-	$msg2 = t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
-	$msg3 = t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
-
-	$o .= '<h2>' . $msg1 . '</h2>';
-
-	$o .= '<div class="error-message">' . $msg2 . EOL . EOL. $msg3 . '</div>';
-
-	$o .= EOL . '<a href="contacts/' . $cid . '">' . t('Return to contact editor') . '</a>' . EOL;
+	$returnaddr = "contacts/$cid";
 
 	$allow_remote_self = get_config('system','allow_users_remote_self');
 
@@ -163,8 +154,17 @@ function crepair_content(&$a) {
 
 	$update_profile = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DSPR, NETWORK_OSTATUS));
 
+	$tab_str = contacts_tab($a, $contact['id'], 5);
+
+
 	$tpl = get_markup_template('crepair.tpl');
 	$o .= replace_macros($tpl, array(
+		//'$title'	=> t('Repair Contact Settings'),
+		'$tab_str'	=> $tab_str,
+		'$warning'	=> $warning,
+		'$info'		=> $info,
+		'$returnaddr'	=> $returnaddr,
+		'$return'	=> t('Return to contact editor'),
 		'$update_profile' => update_profile,
 		'$udprofilenow' => t('Refetch contact data'),
 		'$label_name' => t('Name'),
@@ -178,9 +178,14 @@ function crepair_content(&$a) {
 		'$label_photo' => t('New photo from this URL'),
 		'$label_remote_self' => t('Remote Self'),
 		'$allow_remote_self' => $allow_remote_self,
-		'$remote_self' => array('remote_self', t('Mirror postings from this contact'), $contact['remote_self'], t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'), $remote_self_options),
-		'$contact_name' => $contact['name'],
-		'$contact_nick' => $contact['nick'],
+		'$remote_self' => array('remote_self',
+					t('Mirror postings from this contact'),
+					$contact['remote_self'],
+					t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
+					$remote_self_options
+				),
+		'$contact_name' => htmlentities($contact['name']),
+		'$contact_nick' => htmlentities($contact['nick']),
 		'$contact_id'   => $contact['id'],
 		'$contact_url'  => $contact['url'],
 		'$request'      => $contact['request'],
@@ -189,7 +194,7 @@ function crepair_content(&$a) {
 		'$poll'         => $contact['poll'],
 		'$contact_attag'  => $contact['attag'],
 		'$lbl_submit'   => t('Submit')
-	    ));
+	));
 
 	return $o;
 

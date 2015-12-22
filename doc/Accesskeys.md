@@ -19,6 +19,7 @@ General
 * v: Videos
 * e: Events and Calendar
 * t: Personal Notes
+* k: View Contacts
 
 /contacts (contact list)
 ---------
@@ -32,6 +33,10 @@ General
 
 /contacts (single contact view)
 -------------------------------
+* m: Status messages
+* o: Profile
+* t: Contacts
+* d: Common friends
 * b: Toggle Blocked status
 * i: Toggle Ignored status
 * v: Toggle Archive status
