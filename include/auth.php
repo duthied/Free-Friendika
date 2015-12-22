@@ -5,6 +5,8 @@ require_once('include/security.php');
 require_once('include/datetime.php');
 
 function nuke_session() {
+	session_unset();
+/*
 	new_cookie(0); // make sure cookie is deleted on browser close, as a security measure
 
 	unset($_SESSION['authenticated']);
@@ -20,10 +22,11 @@ function nuke_session() {
 	unset($_SESSION['my_address']);
 	unset($_SESSION['addr']);
 	unset($_SESSION['return_url']);
+*/
 }
 
 
-// login/logout 
+// login/logout
 
 
 
@@ -31,7 +34,7 @@ function nuke_session() {
 if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-params'))) || ($_POST['auth-params'] !== 'login'))) {
 
 	if(((x($_POST,'auth-params')) && ($_POST['auth-params'] === 'logout')) || ($a->module === 'logout')) {
-	
+
 		// process logout request
 		call_hooks("logging_out");
 		nuke_session();
@@ -203,9 +206,14 @@ else {
 }
 
 function new_cookie($time) {
+	$a = get_app();
+
 	$old_sid = session_id();
-	session_set_cookie_params("$time");
+	session_set_cookie_params($time);
+	//session_set_cookie_params($time, "/", $a->get_hostname());
 	session_regenerate_id(false);
 
 	q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
+
+	logger("Session parameter lifetime: ".$time." - got: ".print_r(session_get_cookie_params(), true), LOGGER_DEBUG);
 }

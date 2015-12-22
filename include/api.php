@@ -2,6 +2,27 @@
 /* To-Do:
  - Automatically detect if incoming data is HTML or BBCode
 */
+
+/* Contact details:
+	Gerhard Seeber		Mail: gerhard@seeber.at		Friendica: http://mozartweg.dyndns.org/friendica/gerhard
+
+ */
+
+
+/*
+ * Change history:
+	Gerhard Seeber		2015-NOV-25	Add API call /friendica/group_show to return all or a single group
+ 						with the containing contacts (necessary for Windows 10 Universal app)
+	Gerhard Seeber 		2015-NOV-27	Add API call /friendica/group_delete to delete the specified group id
+						(necessary for Windows 10 Universal app)
+	Gerhard Seeber		2015-DEC-01	Add API call /friendica/group_create to create a group with the specified 
+						name and the given list of contacts (necessary for Windows 10 Universal
+						app)
+	Gerhard Seeber		2015-DEC-07	Add API call /friendica/group_update to update a group with the given 
+						list of contacts (necessary for Windows 10 Universal app)
+ *
+ */
+
 	require_once("include/bbcode.php");
 	require_once("include/datetime.php");
 	require_once("include/conversation.php");
@@ -16,6 +37,7 @@
 	require_once('mod/wall_upload.php');
 	require_once("mod/proxy.php");
 	require_once("include/message.php");
+	require_once("include/group.php");
 
 
 	/*
@@ -3012,6 +3034,205 @@ function api_best_nickname(&$contacts) {
 		$contacts = array($contacts[0]);
 }
 
+	// return all or a specified group of the user with the containing contacts
+	function api_friendica_group_show(&$a, $type) {
+		if (api_user()===false) return false;		
+
+		// params
+		$user_info = api_get_user($a);
+		$gid = (x($_REQUEST,'gid') ? $_REQUEST['gid'] : 0);
+		$uid = $user_info['uid'];
+	
+		// get data of the specified group id or all groups if not specified
+		if ($gid != 0) {
+			$r = q("SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d AND `id` = %d",
+				intval($uid), 
+				intval($gid));
+			// error message if specified gid is not in database
+			if (count($r) == 0) 
+				die(api_error($a, $type, 'gid not available'));
+		}
+		else 
+			$r = q("SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d",
+				intval($uid));
+		
+		// loop through all groups and retrieve all members for adding data in the user array
+		foreach ($r as $rr) {
+			$members = group_get_members($rr['id']);
+			$users = array();
+			foreach ($members as $member) {
+				$user = api_get_user($a, $member['nurl']);
+				$users[] = $user;
+			}
+			$grps[] = array('name' => $rr['name'], 'gid' => $rr['id'], 'user' => $users);
+		}
+		return api_apply_template("group_show", $type, array('$groups' => $grps));
+	}
+	api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
+
+
+	// delete the specified group of the user
+	function api_friendica_group_delete(&$a, $type) {
+		if (api_user()===false) return false;		
+
+		// params
+		$user_info = api_get_user($a);
+		$gid = (x($_REQUEST,'gid') ? $_REQUEST['gid'] : 0);
+		$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+		$uid = $user_info['uid'];
+	
+		// error if no gid specified
+		if ($gid == 0 || $name == "")
+			die(api_error($a, $type, 'gid or name not specified'));
+
+		// get data of the specified group id
+		$r = q("SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d",
+			intval($uid), 
+			intval($gid));
+		// error message if specified gid is not in database
+		if (count($r) == 0) 
+			die(api_error($a, $type, 'gid not available'));
+
+		// get data of the specified group id and group name
+		$rname = q("SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d AND `name` = '%s'",
+			intval($uid), 
+			intval($gid),
+			dbesc($name));
+		// error message if specified gid is not in database
+		if (count($rname) == 0) 
+			die(api_error($a, $type, 'wrong group name'));
+
+		// delete group
+		$ret = group_rmv($uid, $name);
+		if ($ret) {
+			// return success
+			$success = array('success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => array());
+			return api_apply_template("group_delete", $type, array('$result' => $success));
+		}
+		else
+			die(api_error($a, $type, 'other API error'));
+	}
+	api_register_func('api/friendica/group_delete', 'api_friendica_group_delete', true);
+
+
+	// create the specified group with the posted array of contacts 
+	function api_friendica_group_create(&$a, $type) {
+		if (api_user()===false) return false;		
+
+		// params
+		$user_info = api_get_user($a);
+		$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+		$uid = $user_info['uid'];
+		$json = json_decode($_POST['json'], true);
+		$users = $json['user'];
+
+		// error if no name specified
+		if ($name == "")
+			die(api_error($a, $type, 'group name not specified'));
+
+		// get data of the specified group name
+		$rname = q("SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 0",
+			intval($uid), 
+			dbesc($name));
+		// error message if specified group name already exists
+		if (count($rname) != 0) 
+			die(api_error($a, $type, 'group name already exists'));
+
+		// check if specified group name is a deleted group
+		$rname = q("SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 1",
+			intval($uid), 
+			dbesc($name));
+		// error message if specified group name already exists
+		if (count($rname) != 0) 
+			$reactivate_group = true;
+
+		// create group
+		$ret = group_add($uid, $name);
+		if ($ret) 
+			$gid = group_byname($uid, $name);
+		else
+			die(api_error($a, $type, 'other API error'));
+		
+		// add members
+		$erroraddinguser = false;
+		$errorusers = array();
+		foreach ($users as $user) {
+			$cid = $user['cid'];
+			// check if user really exists as contact
+			$contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d", 
+				intval($cid),
+				intval($uid));
+			if (count($contact))
+				$result = group_add_member($uid, $name, $cid, $gid);
+			else {
+				$erroraddinguser = true;
+				$errorusers[] = $cid;
+			}
+		}
+
+		// return success message incl. missing users in array
+		$status = ($erroraddinguser ? "missing user" : ($reactivate_group ? "reactivated" : "ok"));
+		$success = array('success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers);
+		return api_apply_template("group_create", $type, array('result' => $success));		
+	}
+	api_register_func('api/friendica/group_create', 'api_friendica_group_create', true);
+
+
+	// update the specified group with the posted array of contacts 
+	function api_friendica_group_update(&$a, $type) {
+		if (api_user()===false) return false;		
+
+		// params
+		$user_info = api_get_user($a);
+		$uid = $user_info['uid'];
+		$gid = (x($_REQUEST, 'gid') ? $_REQUEST['gid'] : 0);
+		$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+		$json = json_decode($_POST['json'], true);
+		$users = $json['user'];
+
+		// error if no name specified
+		if ($name == "")
+			die(api_error($a, $type, 'group name not specified'));
+
+		// error if no gid specified
+		if ($gid == "")
+			die(api_error($a, $type, 'gid not specified'));
+
+		// remove members
+		$members = group_get_members($gid);
+		foreach ($members as $member) {
+			$cid = $member['id'];
+			foreach ($users as $user) {
+				$found = ($user['cid'] == $cid ? true : false);
+			}
+			if (!$found) {
+				$ret = group_rmv_member($uid, $name, $cid);
+			}
+		}
+
+		// add members
+		$erroraddinguser = false;
+		$errorusers = array();
+		foreach ($users as $user) {
+			$cid = $user['cid'];
+			// check if user really exists as contact
+			$contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d", 
+				intval($cid),
+				intval($uid));
+			if (count($contact))
+				$result = group_add_member($uid, $name, $cid, $gid);
+			else {
+				$erroraddinguser = true;
+				$errorusers[] = $cid;
+			}
+		}
+		
+		// return success message incl. missing users in array
+		$status = ($erroraddinguser ? "missing user" : "ok");
+		$success = array('success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers);
+		return api_apply_template("group_update", $type, array('result' => $success));		
+	}
+	api_register_func('api/friendica/group_update', 'api_friendica_group_update', true);
 
 /*
 To.Do:

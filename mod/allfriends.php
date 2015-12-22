@@ -32,7 +32,12 @@ function allfriends_content(&$a) {
 	$a->page['aside'] = "";
 	profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
 
-	$r = all_friends(local_user(),$cid);
+	$total = count_all_friends(local_user(), $cid);
+
+	if(count($total))
+		$a->set_pager_total($total);
+
+	$r = all_friends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
 	if(! count($r)) {
 		$o .= t('No friends to display.');
@@ -87,8 +92,8 @@ function allfriends_content(&$a) {
 		//'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
+		'$paginate' => paginate($a),
 	));
 
-//	$o .= paginate($a);
 	return $o;
 }

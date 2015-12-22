@@ -410,6 +410,7 @@ function admin_page_site_post(&$a){
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
 	$optimize_max_tablesize	=	((x($_POST,'optimize_max_tablesize'))	? intval(trim($_POST['optimize_max_tablesize'])): 100);
+	$optimize_fragmentation	=	((x($_POST,'optimize_fragmentation'))	? intval(trim($_POST['optimize_fragmentation'])): 30);
 	$poco_completion	=	((x($_POST,'poco_completion'))		? intval(trim($_POST['poco_completion']))	: false);
 	$poco_requery_days	=	((x($_POST,'poco_requery_days'))	? intval(trim($_POST['poco_requery_days']))	: 7);
 	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: 0);
@@ -492,6 +493,7 @@ function admin_page_site_post(&$a){
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
 	set_config('system','optimize_max_tablesize',$optimize_max_tablesize);
+	set_config('system','optimize_fragmentation',$optimize_fragmentation);
 	set_config('system','poco_completion',$poco_completion);
 	set_config('system','poco_requery_days',$poco_requery_days);
 	set_config('system','poco_discovery',$poco_discovery);
@@ -775,6 +777,7 @@ function admin_page_site(&$a) {
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), ((intval(get_config('system','optimize_max_tablesize')) > 0)?get_config('system','optimize_max_tablesize'):100), t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
+		'$optimize_fragmentation'=> array('optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(get_config('system','optimize_fragmentation')) > 0)?get_config('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")),
 
 		'$poco_completion'	=> array('poco_completion', t("Periodical check of global contacts"), get_config('system','poco_completion'), t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")),
 		'$poco_requery_days'	=> array('poco_requery_days', t("Days between requery"), get_config('system','poco_requery_days'), t("Number of days after which a server is requeried for his contacts.")),

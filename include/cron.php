@@ -44,10 +44,11 @@ function cron_run(&$argv, &$argc){
 	$maxsysload = intval(get_config('system','maxloadavg'));
 	if($maxsysload < 1)
 		$maxsysload = 50;
-	if(function_exists('sys_getloadavg')) {
-		$load = sys_getloadavg();
-		if(intval($load[0]) > $maxsysload) {
-			logger('system: load ' . $load[0] . ' too high. cron deferred to next scheduled run.');
+
+	$load = current_load();
+	if($load) {
+		if(intval($load) > $maxsysload) {
+			logger('system: load ' . $load . ' too high. cron deferred to next scheduled run.');
 			return;
 		}
 	}
@@ -189,24 +190,39 @@ function cron_run(&$argv, &$argc){
 			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
 		}
 
-		// maximum table size in megabyte
+		// Maximum table size in megabyte
 		$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
 		if ($max_tablesize == 0)
 			$max_tablesize = 100 * 1000000; // Default are 100 MB
+
+		// Minimum fragmentation level in percent
+		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
+		if ($fragmentation_level == 0)
+			$fragmentation_level = 0.3; // Default value is 30%
 
 		// Optimize some tables that need to be optimized
 		$r = q("SHOW TABLE STATUS");
 		foreach($r as $table) {
 
-			// Don't optimize tables that needn't to be optimized
-			if ($table["Data_free"] == 0)
-				continue;
-
 			// Don't optimize tables that are too large
 			if ($table["Data_length"] > $max_tablesize)
 				continue;
 
+			// Don't optimize empty tables
+			if ($table["Data_length"] == 0)
+				continue;
+
+			// Calculate fragmentation
+			$fragmentation = $table["Data_free"] / $table["Data_length"];
+
+			logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
+
+			// Don't optimize tables that needn't to be optimized
+			if ($fragmentation < $fragmentation_level)
+				continue;
+
 			// So optimize it
+			logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
 			q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
 		}
 

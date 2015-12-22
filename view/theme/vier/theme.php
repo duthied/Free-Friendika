@@ -364,10 +364,10 @@ function vier_community_info() {
 			$r[] = array("photo" => "images/twitter.png", "name" => "Twitter");
 
 		if (plugin_enabled("wppost"))
-			$r[] = array("photo" => "images/wordpress", "name" => "Wordpress");
+			$r[] = array("photo" => "images/wordpress.png", "name" => "Wordpress");
 
 		if(function_exists("imap_open") AND !get_config("system","imap_disabled") AND !get_config("system","dfrn_only"))
-			$r[] = array("photo" => "images/mail", "name" => "E-Mail");
+			$r[] = array("photo" => "images/mail.png", "name" => "E-Mail");
 
 		$tpl = get_markup_template('ch_connectors.tpl');
 

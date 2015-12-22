@@ -951,7 +951,7 @@ function item_photo_menu($item){
  * @param array &$conv_responses (already created with builtin activity structure)
  * @return void
  */
-if(! function_exists(builtin_activity_puller)) {
+if(! function_exists('builtin_activity_puller')) {
 function builtin_activity_puller($item, &$conv_responses) {
 	foreach($conv_responses as $mode => $v) {
 		$url = '';

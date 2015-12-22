@@ -59,10 +59,11 @@ function delivery_run(&$argv, &$argc){
 		$maxsysload = intval(get_config('system','maxloadavg'));
 		if($maxsysload < 1)
 			$maxsysload = 50;
-		if(function_exists('sys_getloadavg')) {
-			$load = sys_getloadavg();
-			if(intval($load[0]) > $maxsysload) {
-				logger('system: load ' . $load[0] . ' too high. Delivery deferred to next queue run.');
+
+		$load = current_load();
+		if($load) {
+			if(intval($load) > $maxsysload) {
+				logger('system: load ' . $load . ' too high. Delivery deferred to next queue run.');
 				return;
 			}
 		}

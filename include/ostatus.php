@@ -2,6 +2,7 @@
 require_once("include/Contact.php");
 require_once("include/threads.php");
 require_once("include/html2bbcode.php");
+require_once("include/bbcode.php");
 require_once("include/items.php");
 require_once("mod/share.php");
 require_once("include/enotify.php");
@@ -142,7 +143,7 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["about"] = $value;
+				$contact["about"] = html2bbcode($value);
 
 			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
 			if ($value != "")

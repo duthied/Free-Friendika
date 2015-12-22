@@ -17,7 +17,7 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Lily of the valley');
-define ( 'FRIENDICA_VERSION',      '3.4.3-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1191      );
 define ( 'EOL',                    "<br />\r\n"     );
@@ -633,6 +633,9 @@ if(! class_exists('App')) {
 		function get_basepath() {
 
 			$basepath = get_config("system", "basepath");
+
+			if ($basepath == "")
+				$basepath = dirname(__FILE__);
 
 			if ($basepath == "")
 				$basepath = $_SERVER["DOCUMENT_ROOT"];
@@ -1944,4 +1947,16 @@ function validate_include(&$file) {
 		return false;
 
 	return true;
+}
+
+function current_load() {
+	if (!function_exists('sys_getloadavg'))
+		return false;
+
+	$load_arr = sys_getloadavg();
+
+	if (!is_array($load_arr))
+		return false;
+
+	return max($load_arr);
 }
