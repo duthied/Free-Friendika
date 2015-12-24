@@ -1407,7 +1407,7 @@ function local_user() {
 }
 
 /**
-/* @brief Returns contact id of authenticated site visitor or false
+ * @brief Returns contact id of authenticated site visitor or false
  * 
  * @return int|bool visitor_id or false
  */
