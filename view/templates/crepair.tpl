@@ -1,6 +1,17 @@
+{{include file="section_title.tpl"}}
+
+{{$tab_str}}
+
+<div class="crepair-error-message">{{$warning}}</div><br>
+<div class="crepair-return">
+	{{$info}}<br>
+	<!-- <a href="{{$returnaddr}}">{{$return}}</a> -->
+</div>
+<br />
+
 <form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
 
-<h4>{{$contact_name}}</h4>
+<!-- <h4>{{$contact_name}}</h4> -->
 
 <div id="contact-update-profile-wrapper">
 {{if $update_profile}}

@@ -110,6 +110,9 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 	elseif($xmlbase->message) {
 		$ret = diaspora_message($importer,$xmlbase->message,$msg);
 	}
+	elseif($xmlbase->participation) {
+		$ret = diaspora_participation($importer,$xmlbase->participation);
+	}
 	else {
 		logger('diaspora_dispatch: unknown message type: ' . print_r($xmlbase,true));
 	}
@@ -589,7 +592,7 @@ function diaspora_request($importer,$xml) {
 		// perhaps we were already sharing with this person. Now they're sharing with us.
 		// That makes us friends.
 
-		if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
+		if($contact['rel'] == CONTACT_IS_FOLLOWER && in_array($importer['page-flags'], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact['id']),
@@ -771,7 +774,7 @@ function diaspora_post_allow($importer,$contact, $is_comment = false) {
 	// perhaps we were already sharing with this person. Now they're sharing with us.
 	// That makes us friends.
 	// Normally this should have handled by getting a request - but this could get lost
-	if($contact['rel'] == CONTACT_IS_FOLLOWER && !in_array($importer['page-flags'], array(PAGE_COMMUNITY, PAGE_SOAPBOX))) {
+	if($contact['rel'] == CONTACT_IS_FOLLOWER && in_array($importer['page-flags'], array(PAGE_FREELOVE))) {
 		q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval(CONTACT_IS_FRIEND),
 			intval($contact['id']),
@@ -1383,11 +1386,6 @@ function diaspora_asphoto($importer,$xml,$msg) {
 
 }
 
-
-
-
-
-
 function diaspora_comment($importer,$xml,$msg) {
 
 	$a = get_app();
@@ -1507,16 +1505,27 @@ function diaspora_comment($importer,$xml,$msg) {
 		}
 	}
 
+	// Fetch the contact id - if we know this contact
+	$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+		dbesc(normalise_link($person['url'])), intval($importer['uid']));
+	if ($r) {
+		$cid = $r[0]['id'];
+		$network = $r[0]['network'];
+	} else {
+		$cid = $contact['id'];
+		$network = NETWORK_DIASPORA;
+	}
+
 	$body = diaspora2bb($text);
 	$message_id = $diaspora_handle . ':' . $guid;
 
 	$datarray = array();
 
 	$datarray['uid'] = $importer['uid'];
-	$datarray['contact-id'] = $contact['id'];
+	$datarray['contact-id'] = $cid;
 	$datarray['type'] = 'remote-comment';
 	$datarray['wall'] = $parent_item['wall'];
-	$datarray['network']  = NETWORK_DIASPORA;
+	$datarray['network']  = $network;
 	$datarray['verb'] = ACTIVITY_POST;
 	$datarray['gravity'] = GRAVITY_COMMENT;
 	$datarray['guid'] = $guid;
@@ -1834,7 +1843,7 @@ function diaspora_message($importer,$xml,$msg) {
 
 	$author_signature = base64_decode($msg_author_signature);
 
-	$person = find_diaspora_person_by_handle($msg_diaspora_handle);	
+	$person = find_diaspora_person_by_handle($msg_diaspora_handle);
 	if(is_array($person) && x($person,'pubkey'))
 		$key = $person['pubkey'];
 	else {
@@ -1881,6 +1890,9 @@ function diaspora_message($importer,$xml,$msg) {
 	return;
 }
 
+function diaspora_participation($importer,$xml) {
+	logger("Unsupported message type 'participation' ".print_r($xml, true));
+}
 
 function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 
@@ -2149,13 +2161,24 @@ function diaspora_like($importer,$xml,$msg) {
 EOT;
 	$bodyverb = t('%1$s likes %2$s\'s %3$s');
 
+	// Fetch the contact id - if we know this contact
+	$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+		dbesc(normalise_link($person['url'])), intval($importer['uid']));
+	if ($r) {
+		$cid = $r[0]['id'];
+		$network = $r[0]['network'];
+	} else {
+		$cid = $contact['id'];
+		$network = NETWORK_DIASPORA;
+	}
+
 	$arr = array();
 
 	$arr['uri'] = $uri;
 	$arr['uid'] = $importer['uid'];
 	$arr['guid'] = $guid;
-	$arr['network']  = NETWORK_DIASPORA;
-	$arr['contact-id'] = $contact['id'];
+	$arr['network']  = $network;
+	$arr['contact-id'] = $cid;
 	$arr['type'] = 'activity';
 	$arr['wall'] = $parent_item['wall'];
 	$arr['gravity'] = GRAVITY_LIKE;
@@ -2231,8 +2254,23 @@ function diaspora_retraction($importer,$xml) {
 	if($type === 'Person') {
 		require_once('include/Contact.php');
 		contact_remove($contact['id']);
-	}
-	elseif($type === 'Post') {
+	} elseif($type === 'StatusMessage') {
+		$guid = notags(unxmlify($xml->post_guid));
+
+		$r = q("SELECT * FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
+			dbesc($guid),
+			intval($importer['uid'])
+		);
+		if(count($r)) {
+			if(link_compare($r[0]['author-link'],$contact['url'])) {
+				q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d",
+					dbesc(datetime_convert()),
+					intval($r[0]['id'])
+				);
+				delete_thread($r[0]['id'], $r[0]['parent-uri']);
+			}
+		}
+	} elseif($type === 'Post') {
 		$r = q("select * from item where guid = '%s' and uid = %d and not file like '%%[%%' limit 1",
 			dbesc('guid'),
 			intval($importer['uid'])
@@ -2415,7 +2453,8 @@ function diaspora_profile($importer,$xml,$msg) {
 
 	$birthday = str_replace('1000','1901',$birthday);
 
-	$birthday = datetime_convert('UTC','UTC',$birthday,'Y-m-d');
+	if ($birthday != "")
+		$birthday = datetime_convert('UTC','UTC',$birthday,'Y-m-d');
 
 	// this is to prevent multiple birthday notifications in a single year
 	// if we already have a stored birthday and the 'm-d' part hasn't changed, preserve the entry, which will preserve the notify year

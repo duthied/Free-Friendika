@@ -205,6 +205,7 @@ aside {
 	font-weight: bold;
 	background: #3465a4 url('friendica-16.png') no-repeat 95% center;
 }
+#subscribe-feed-link,
 #wallmessage-link {
 	display: block;
 	color: #FFFFFF;
@@ -277,6 +278,31 @@ div.wall-item-content-wrapper.shiny {
 	margin: 15px 0 15px 150px;
 }
 
+/* Contact-Header for the Network Stream */
+#viewcontact_wrapper-network {
+	width: 100%;
+	min-height: 100px;
+	background-color: #DBE6F1;
+	border-bottom: 1px solid #babdb6;
+}
+#contact-entry-wrapper-network {
+	float: none;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	margin: 0px
+}
+#contact-entry-accounttype-network {
+	font-size: 20px;
+}
+#contact-entry-name-network {
+	font-size: 24.5px;
+}
+/*#contact-entry-name-network>.contact-entry-details, #contact-entry-url-network,
+#contact-entry-details-network, contact-entry-network-network {
+	color: #000;
+}*/
+
 /* from default */
 #jot-perms-icon,
 #profile-location,
@@ -340,7 +366,7 @@ div.wall-item-content-wrapper.shiny {
 	margin-bottom: 10px;
 }
 
-.group-selected, .nets-selected, .fileas-selected, .categories-selected {
+.group-selected, .nets-selected, .fileas-selected, .categories-selected, .forum-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -876,8 +902,14 @@ input#dfrn-url {
 
 .contact-entry-wrapper {
 	float: left;
-	width: 120px;
-	height: 120px;
+	min-width: 363px;
+	height: 90px;
+	padding-right: 10px;
+	margin: 0 10px 10px 0px;
+}
+.contact-entry-wrapper .contact-entry-photo-wrapper {
+	float: left;
+	margin-right: 10px;
 }
 #contacts-search-end {
 	margin-bottom: 10px;
@@ -891,15 +923,22 @@ input#dfrn-url {
 .contact-entry-photo img {
 	border: none;
 }
+.contact-entry-photo a img {
+	width: 80px;
+	height: 80px;
+}
 .contact-entry-photo-end {
 	clear: both;
 }
 .contact-entry-name {
-	float: left;
-	margin-left: 0px;
-	margin-right: 10px;
-	width: 120px;
+	font-weight: bold;
+}
+.contact-entry-details {
+	font-size: 13px;
+	color: #999999;
+	white-space: nowrap;
 	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .contact-entry-edit-links {
 	margin-top: 6px;
@@ -959,7 +998,7 @@ input#dfrn-url {
 }
 
 .wall-item-content-wrapper.comment {
-#	margin-left: 50px;
+	/*margin-left: 50px;*/
 	background: #EEEEEE;
 }
 
@@ -1126,6 +1165,16 @@ input#dfrn-url {
 
 .wall-item-delete-icon {
 	border: none;
+}
+
+.wall-item-attend-wrapper {
+    float:left;
+    padding-left: 10px;
+}
+
+.wall-item-attend-wrapper > a {
+    display: inline-block;
+    margin-right: 10px;
 }
 
 
@@ -2016,6 +2065,17 @@ a.mail-list-link {
 #sidebar-group-list ul {
 	list-style-type: none;
 }
+.sidebar-group-li .notify, .forum-widget-entry .notify {
+	display: none;
+	font-size: 9px;
+	border: 1px solid rgb(221, 221, 221);
+	padding: 2px;
+	float: right;
+	background-color: #BABDB6;
+}
+.sidebar-group-li .notify.show, .forum-widget-entry .notify.show {
+	display: block;
+}
 
 #sidebar-group-list .icon, #sidebar-group-list .iconspacer {
 	display: inline-block;
@@ -2025,6 +2085,10 @@ a.mail-list-link {
 
 #sidebar-group-list li {
 	margin-top: 10px;
+}
+
+#forumlist-sidebar ul {
+	list-style: none;
 }
 
 .nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
@@ -2428,14 +2492,14 @@ aside input[type='text'] {
 	margin-bottom: 25px;
 }
 
-.location-label, .gender-label, .marital-label, .homepage-label {
+.location-label, .gender-label, .marital-label, .homepage-label, .network-label {
 	float: left;
 	text-align: right;
 	display: block;
 	width: 65px;
 }
 
-.adr, .x-gender, .marital-text, .homepage-url {
+.adr, .x-gender, .marital-text, .homepage-url, .x-network {
 	float: left;
 	display: block;
 	margin-left: 8px;
@@ -2473,9 +2537,15 @@ aside input[type='text'] {
 	font-weight: bold;
 }
 
-.vcard .title {
+.vcard .title,
+.vcard .p-addr {
 	margin-bottom: 5px;
 	margin-left: 12px;
+}
+
+.vcard .account-type {
+	font-size: 120%;
+	margin-bottom: 13px;
 }
 
 .vcard dl {
@@ -2690,12 +2760,6 @@ aside input[type='text'] {
 	margin-bottom: 15px;
 }
 
-#language-selector {
-	position: absolute;
-	top: 0px;
-	left: 16px;
-}
-
 #group-members {
 	margin-top: 20px;
 	padding: 10px;
@@ -2865,19 +2929,6 @@ aside input[type='text'] {
 	text-decoration: underline;
 }
 
-#lang-select-icon {
-	cursor: pointer;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	opacity: 0.2;
-	filter:alpha(opacity=20);
-}
-
-#lang-select-icon:hover {
-	opacity: 1;
-	filter:alpha(opacity=100);
-}
 
 .notif-image {
 	height: 80px;
@@ -3128,6 +3179,9 @@ aside input[type='text'] {
 .tagged { background-position: -48px -48px; }
 .yellow { background-position: -64px -48px; }
 
+.attendyes { background-position: -80px -48px; }
+.attendno { background-position: -96px -48px; }
+.attendmaybe { background-position: -112px -48px; }
 
 .filer-icon {
 	display: block; width: 16px; height: 16px;
@@ -3289,6 +3343,17 @@ div.jGrowl div.info {
 }
 
 /* notifications popup menu */
+.manage-notify {
+  font-size: 10px;
+  padding: 1px 3px;
+  top: 0px;
+  min-width: 15px;
+  text-align: center;
+  float: right;
+  margin-top: -14px;
+  margin-right: -20px;
+}
+
 .nav-notify {
 	display: none;
 	position: absolute;
@@ -3469,5 +3534,9 @@ ul.menu-popup {
 .videos .video-top-wrapper:hover .video-delete {
   opacity: 1;
 }
-
-
+#message-preview .mail-list-sender-url, #message-preview .mail-list-delete {
+	display: none;
+}
+#message-preview .mail-list-outside-wrapper {
+	margin-top: 20px;
+}

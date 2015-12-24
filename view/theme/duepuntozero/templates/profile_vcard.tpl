@@ -3,12 +3,14 @@
 
 	<div class="fn label">{{$profile.name}}</div>
 	
-				
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
-	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
+	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
 
+	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 
+	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
 
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
@@ -38,14 +40,17 @@
 	<div id="profile-extra-links">
 		<ul>
 			{{if $connect}}
-                                {{if $remoteconnect}}
-                                        <li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
-                                {{else}}
-                                        <li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
-                                {{/if}}
-                        {{/if}}
+				{{if $remoteconnect}}
+					<li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
+				{{else}}
+					<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
+				{{/if}}
+			{{/if}}
 			{{if $wallmessage}}
 				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
+			{{/if}}
+			{{if $subscribe_feed}}
+				<li><a id="subscribe-feed-link" href="dfrn_poll/{{$profile.nickname}}">{{$subscribe_feed}}</a></li>
 			{{/if}}
 		</ul>
 	</div>

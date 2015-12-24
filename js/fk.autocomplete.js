@@ -3,9 +3,9 @@
  *
  * require jQuery, jquery.textareas
  */
- 
-		
-		
+
+
+
 function ACPopup(elm,backend_url){
 	this.idsel=-1;
 	this.element = elm;
@@ -23,18 +23,19 @@ function ACPopup(elm,backend_url){
 	var h = 130;
 
 
-	if(typeof elm.editorId == "undefined") {	
+	if(tinyMCE.activeEditor == null) {
 		style = $(elm).offset();
 		w = $(elm).width();
 		h = $(elm).height();
 	}
 	else {
-		var container = elm.getContainer();
-		if(typeof container != "undefined") {
-			style = $(container).offset();
-			w = $(container).width();
-	    	h = $(container).height();
-		}
+		// I can't find an "official" way to get the element who get all
+		// this fraking thing that is tinyMCE.
+		// This code will broke again at some point...
+		var container = $(tinyMCE.activeEditor.getContainer()).find("table");
+		style = $(container).offset();
+		w = $(container).width();
+		h = $(container).height();
 	}
 
 	style.top=style.top+h;
@@ -43,15 +44,15 @@ function ACPopup(elm,backend_url){
 	/*	style['max-height'] = '150px';
 		style.border = '1px solid red';
 		style.background = '#cccccc';
-	
+
 		style.overflow = 'auto';
 		style['z-index'] = '100000';
 	*/
 	style.display = 'none';
-	
+
 	this.cont = $("<div class='acpopup'></div>");
 	this.cont.css(style);
-	
+
 	$("body").append(this.cont);
 }
 ACPopup.prototype.close = function(){
@@ -64,7 +65,7 @@ ACPopup.prototype.search = function(text){
 	if (this.kp_timer) clearTimeout(this.kp_timer);
 	this.kp_timer = setTimeout( function(){that._search();}, 500);
 }
-ACPopup.prototype._search = function(){	
+ACPopup.prototype._search = function(){
 	console.log("_search");
 	var that = this;
 	var postdata = {
@@ -74,7 +75,7 @@ ACPopup.prototype._search = function(){
 		type:'c',
 		conversation: this.conversation_id,
 	}
-	
+
 	$.ajax({
 		type:'POST',
 		url: this.url,
@@ -87,15 +88,15 @@ ACPopup.prototype._search = function(){
 				$(data.items).each(function(){
 					var html = "<img src='{0}' height='16px' width='16px'>{1} ({2})".format(this.photo, this.name, this.nick);
 					var nick = this.nick.replace(' ','');
-					if (this.id!=='')  nick += '+' + this.id; 
+					if (this.id!=='')  nick += '+' + this.id;
 					that.add(html, nick + ' - ' + this.link);
-				});			
+				});
 			} else {
 				that.cont.hide();
 			}
 		}
 	});
-	
+
 }
 ACPopup.prototype.add = function(label, value){
 	var that=this;
@@ -141,12 +142,12 @@ ACPopup.prototype.onkey = function(event){
 		if (this.idsel>cmax) this.idsel=0;
 		event.preventDefault();
 	}
-	
+
 	if (event.keyCode == '38' || event.keyCode == '40' || event.keyCode == '9') {
 		this.cont.children().removeClass('selected');
 		$(this.cont.children()[this.idsel]).addClass('selected');
 	}
-	
+
 	if (event.keyCode == '27') { //ESC
 		this.close();
 	}
@@ -156,14 +157,14 @@ function ContactAutocomplete(element,backend_url){
 	this.pattern=/@([^ \n]+)$/;
 	this.popup=null;
 	var that = this;
-	
+
 	$(element).unbind('keydown');
 	$(element).unbind('keyup');
-	
+
 	$(element).keydown(function(event){
 		if (that.popup!==null) that.popup.onkey(event);
 	});
-	
+
 	$(element).keyup(function(event){
 		cpos = $(this).getSelection();
 		if (cpos.start==cpos.end){
@@ -174,15 +175,15 @@ function ContactAutocomplete(element,backend_url){
 				}
 				if (that.popup.ready && match[1]!==that.popup.searchText) that.popup.search(match[1]);
 				if (!that.popup.ready) that.popup=null;
-				
+
 			} else {
 				if (that.popup!==null) {that.popup.close(); that.popup=null;}
 			}
-			
-			
+
+
 		}
-	});		
-	
+	});
+
 }
 
 
@@ -199,4 +200,4 @@ function ContactAutocomplete(element,backend_url){
 
 
 
-		
+

@@ -4,7 +4,7 @@ require_once('library/HTML5/Parser.php');
 require_once('include/crypto.php');
 
 if(! function_exists('scrape_dfrn')) {
-function scrape_dfrn($url) {
+function scrape_dfrn($url, $dont_probe = false) {
 
 	$a = get_app();
 
@@ -16,6 +16,13 @@ function scrape_dfrn($url) {
 
 	if(! $s)
 		return $ret;
+
+	if (!$dont_probe) {
+		$probe = probe_url($url);
+
+		if (isset($probe["addr"]))
+			$ret["addr"] = $probe["addr"];
+	}
 
 	$headers = $a->get_curl_headers();
 	logger('scrape_dfrn: headers=' . $headers, LOGGER_DEBUG);
@@ -320,7 +327,7 @@ function scrape_feed($url) {
  * PROBE_DIASPORA has a bias towards returning Diaspora information
  * while PROBE_NORMAL has a bias towards dfrn/zot - in the case where
  * an address (such as a Friendica address) supports more than one type
- * of network. 
+ * of network.
  *
  */
 
@@ -407,7 +414,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 						$pubkey = $diaspora_key;
 					$diaspora = true;
 				}
-				if($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') {
+				if(($link['@attributes']['rel'] === 'http://ostatus.org/schema/1.0/subscribe') AND ($mode == PROBE_NORMAL)) {
 					$diaspora = false;
 				}
 			}
@@ -524,7 +531,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 
 		if(strlen($dfrn)) {
-			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn);
+			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
 			if(is_array($ret) && x($ret,'dfrn-request')) {
 				$network = NETWORK_DFRN;
 				$request = $ret['dfrn-request'];
@@ -552,7 +559,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if($network !== NETWORK_ZOT && $network !== NETWORK_DFRN && $network !== NETWORK_MAIL) {
 		if($diaspora)
 			$network = NETWORK_DIASPORA;
-		elseif($has_lrdd)
+		elseif($has_lrdd AND ($notify))
 			$network  = NETWORK_OSTATUS;
 
 		if(strpos($url,'@'))
@@ -652,9 +659,10 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
 
 			$feed->init();
-			if($feed->error())
+			if($feed->error()) {
 				logger('probe_url: scrape_feed: Error parsing XML: ' . $feed->error());
-
+				$network = NETWORK_PHANTOM;
+			}
 
 			if(! x($vcard,'photo'))
 				$vcard['photo'] = $feed->get_image_url();
@@ -718,6 +726,45 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				}
 			}
 
+			// Workaround for misconfigured Friendica servers
+			if (($network == "") AND (strstr($url, "/profile/"))) {
+				$noscrape = str_replace("/profile/", "/noscrape/", $url);
+				$noscrapejson = fetch_url($noscrape);
+				if ($noscrapejson) {
+
+					$network = NETWORK_DFRN;
+
+					$poco = str_replace("/profile/", "/poco/", $url);
+
+					$noscrapedata = json_decode($noscrapejson, true);
+
+					if (isset($noscrapedata["addr"]))
+						$addr = $noscrapedata["addr"];
+
+					if (isset($noscrapedata["fn"]))
+						$vcard["fn"] = $noscrapedata["fn"];
+
+					if (isset($noscrapedata["key"]))
+						$pubkey = $noscrapedata["key"];
+
+					if (isset($noscrapedata["photo"]))
+						$vcard["photo"] = $noscrapedata["photo"];
+
+					if (isset($noscrapedata["dfrn-request"]))
+						$request = $noscrapedata["dfrn-request"];
+
+					if (isset($noscrapedata["dfrn-confirm"]))
+						$confirm = $noscrapedata["dfrn-confirm"];
+
+					if (isset($noscrapedata["dfrn-notify"]))
+						$notify = $noscrapedata["dfrn-notify"];
+
+					if (isset($noscrapedata["dfrn-poll"]))
+						$poll = $noscrapedata["dfrn-poll"];
+
+				}
+			}
+
 			if((! $vcard['photo']) && strlen($email))
 				$vcard['photo'] = avatar_img($email);
 			if($poll === $profile)
@@ -778,6 +825,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	$baseurl = rtrim($baseurl, "/");
 
+	if(strpos($url,'@') AND ($addr == "") AND ($network == NETWORK_DFRN))
+		$addr = str_replace('acct:', '', $url);
+
 	$vcard['fn'] = notags($vcard['fn']);
 	$vcard['nick'] = str_replace(' ','',notags($vcard['nick']));
 
@@ -820,7 +870,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_FEED)
+	if ($result['network'] != NETWORK_PHANTOM)
 		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
 
 	return $result;
