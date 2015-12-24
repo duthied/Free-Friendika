@@ -363,8 +363,8 @@ if(! function_exists('profile_sidebar')) {
 		if (isset($p["about"]))
 			$p["about"] = bbcode($p["about"]);
 
-		if (isset($p["location"]))
-			$p["location"] = bbcode($p["location"]);
+		if (isset($p["address"]))
+			$p["address"] = bbcode($p["address"]);
 
 		if (isset($p["photo"]))
 			$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
