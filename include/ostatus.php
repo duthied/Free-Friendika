@@ -298,8 +298,8 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		$item["object"] = $xml;
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
-		// To-Do:
-		// Delete a message
+		/// @TODO
+		/// Delete a message
 		if ($item["verb"] == "qvitter-delete-notice") {
 			// ignore "Delete" messages (by now)
 			logger("Ignore delete message ".print_r($item, true));
@@ -361,8 +361,8 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		if ($georsspoint)
 			$item["coord"] = $georsspoint->item(0)->nodeValue;
 
-		// To-Do
-		// $item["location"] =
+		/// @TODO
+		/// $item["location"] =
 
 		$categories = $xpath->query('atom:category', $entry);
 		if ($categories) {
@@ -833,7 +833,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 				$existing_message = $message_exists[0];
 
 				// We improved the way we fetch OStatus messages, this shouldn't happen very often now
-				// To-Do: we have to change the shadow copies as well. This way here is really ugly.
+				/// @TODO We have to change the shadow copies as well. This way here is really ugly.
 				if ($existing_message["parent"] != $parent["id"]) {
 					logger('updating id '.$existing_message["id"].' with parent '.$existing_message["parent"].' to parent '.$parent["id"].' uri '.$parent["uri"].' thread '.$parent_uri, LOGGER_DEBUG);
 
@@ -886,7 +886,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			logger("No contact found for url ".$actor, LOGGER_DEBUG);
 
 			// Adding a global contact
-			// To-Do: Use this data for the post
+			/// @TODO Use this data for the post
 			$global_contact_id = get_contact($actor, 0);
 
 			logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
@@ -1153,11 +1153,11 @@ function ostatus_add_header($doc, $owner) {
 	$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
 	xml_add_element($doc, $root, "link", "", $attributes);
 
-	// To-Do: We have to find out what this is
-	//$attributes = array("href" => $a->get_baseurl()."/sup",
-	//		"rel" => "http://api.friendfeed.com/2008/03#sup",
-	//		"type" => "application/json");
-	//xml_add_element($doc, $root, "link", "", $attributes);
+	/// @TODO We have to find out what this is
+	/// $attributes = array("href" => $a->get_baseurl()."/sup",
+	///		"rel" => "http://api.friendfeed.com/2008/03#sup",
+	///		"type" => "application/json");
+	/// xml_add_element($doc, $root, "link", "", $attributes);
 
 	ostatus_hublinks($doc, $root);
 
@@ -1311,12 +1311,11 @@ function ostatus_add_author($doc, $owner, $profile) {
 	return $author;
 }
 
-/*
-To-Do: Picture attachments should look like this:
-
-<a href="https://status.pirati.ca/attachment/572819" title="https://status.pirati.ca/file/heluecht-20151202T222602-rd3u49p.gif"
-class="attachment thumbnail" id="attachment-572819" rel="nofollow external">https://status.pirati.ca/attachment/572819</a>
-
+/** 
+ * @TODO Picture attachments should look like this:
+ *	<a href="https://status.pirati.ca/attachment/572819" title="https://status.pirati.ca/file/heluecht-20151202T222602-rd3u49p.gif"
+ *	class="attachment thumbnail" id="attachment-572819" rel="nofollow external">https://status.pirati.ca/attachment/572819</a>
+ * 
 */
 
 function ostatus_entry($doc, $item, $owner, $toplevel = false) {
@@ -1461,8 +1460,8 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 
 	ostatus_get_attachment($doc, $entry, $item);
 
-	// To-Do:
-	// The API call has yet to be implemented
+	/// @TODO
+	/// The API call has yet to be implemented
 	//$attributes = array("href" => $a->get_baseurl()."/api/statuses/show/".$item["id"].".atom",
 	//		"rel" => "self", "type" => "application/atom+xml");
 	//xml_add_element($doc, $entry, "link", "", $attributes);

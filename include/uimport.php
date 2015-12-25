@@ -195,10 +195,10 @@ function import_account(&$a, $file) {
 					//  send relocate message (below)
 					break;
 				case NETWORK_ZOT:
-					// TODO handle zot network
+					/// @TODO handle zot network
 					break;
 				case NETWORK_MAIL2:
-					// TODO ?
+					/// @TODO ?
 					break;
 				case NETWORK_FEED:
 				case NETWORK_MAIL:

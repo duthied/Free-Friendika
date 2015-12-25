@@ -176,10 +176,6 @@ function item_post(&$a) {
 	// have been provided, and run any anti-spam plugins
 
 
-	// TODO
-
-
-
 
 	if((! can_write_wall($a,$profile_uid)) && (! $allow_moderated)) {
 		notice( t('Permission denied.') . EOL) ;

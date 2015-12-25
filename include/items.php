@@ -1097,10 +1097,13 @@ function add_guid($item) {
 		dbesc($item["uri"]), dbesc($item["network"]));
 }
 
-// Adds a "lang" specification in a "postopts" element of given $arr,
-// if possible and not already present.
-// Expects "body" element to exist in $arr.
-// TODO: add a parameter to request forcing override
+/**
+ * Adds a "lang" specification in a "postopts" element of given $arr,
+ * if possible and not already present.
+ * Expects "body" element to exist in $arr.
+ * 
+ * @todo Add a parameter to request forcing override
+ */
 function item_add_language_opt(&$arr) {
 
 	if (version_compare(PHP_VERSION, '5.3.0', '<')) return; // LanguageDetect.php not available ?
@@ -1110,7 +1113,7 @@ function item_add_language_opt(&$arr) {
 		if ( strstr($arr['postopts'], 'lang=') )
 		{
 			// do not override
-			// TODO: add parameter to request overriding
+			/// @TODO Add parameter to request overriding
 			return;
 		}
 		$postopts = $arr['postopts'];
@@ -3228,11 +3231,11 @@ function local_delivery($importer,$data) {
 					return 1;
 			}
 
-		// TODO
-		// merge with current record, current contents have priority
-		// update record, set url-updated
-		// update profile photos
-		// schedule a scan?
+		/// @TODO
+		/// merge with current record, current contents have priority
+		/// update record, set url-updated
+		/// update profile photos
+		/// schedule a scan?
 		return 0;
 	}
 
@@ -4515,11 +4518,11 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 				$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
 	}
 
-	// To-Do:
-	// To support these elements, the API needs to be enhanced
-	//$o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
-	//$o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-	//$o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
+	/// @TODO
+	/// To support these elements, the API needs to be enhanced
+	/// $o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
+	/// $o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
+	/// $o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
 
 	// Deactivated since it was meant only for OStatus
 	//$o .= item_get_attachment($item);

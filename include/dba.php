@@ -14,8 +14,7 @@ if(class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 require_once('include/datetime.php');
 
 /**
- *
- * MySQL database class
+ * @class MySQL database class
  *
  * For debugging, insert 'dbg(1);' anywhere in the program flow.
  * dbg(0); will turn it off. Logging is performed at LOGGER_DATA level.

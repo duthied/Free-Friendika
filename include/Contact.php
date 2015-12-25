@@ -159,9 +159,10 @@ function mark_for_death($contact) {
 	}
 	else {
 
-		// TODO: We really should send a notification to the owner after 2-3 weeks
-		// so they won't be surprised when the contact vanishes and can take
-		// remedial action if this was a serious mistake or glitch
+		/// @todo 
+		/// We really should send a notification to the owner after 2-3 weeks
+		/// so they won't be surprised when the contact vanishes and can take
+		/// remedial action if this was a serious mistake or glitch
 
 		$expiry = $contact['term-date'] . ' + 32 days ';
 		if(datetime_convert() > datetime_convert('UTC','UTC',$expiry)) {

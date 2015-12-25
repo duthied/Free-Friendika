@@ -1,15 +1,16 @@
 <?php
+/**
+ * @file include/socgraph.php
+ * 
+ * @todo Move GNU Social URL schemata (http://server.tld/user/number) to http://server.tld/username
+ * @todo Fetch profile data from profile page for Redmatrix users
+ * @todo Detect if it is a forum
+ */
 
 require_once('include/datetime.php');
 require_once("include/Scrape.php");
 require_once("include/html2bbcode.php");
 
-/*
- To-Do:
- - Move GNU Social URL schemata (http://server.tld/user/number) to http://server.tld/username
- - Fetch profile data from profile page for Redmatrix users
- - Detect if it is a forum
-*/
 
 /*
  * poco_load
@@ -131,7 +132,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 				$keywords = implode(", ", $tag);
 
 		// If you query a Friendica server for its profiles, the network has to be Friendica
-		// To-Do: It could also be a Redmatrix server
+		/// TODO It could also be a Redmatrix server
 		//if ($uid == 0)
 		//	$network = NETWORK_DFRN;
 
@@ -1244,7 +1245,7 @@ function update_suggestions() {
 
 	$done = array();
 
-	// To-Do: Check if it is really neccessary to poll the own server
+	/// TODO Check if it is really neccessary to poll the own server
 	poco_load(0,0,0,$a->get_baseurl() . '/poco');
 
 	$done[] = $a->get_baseurl() . '/poco';

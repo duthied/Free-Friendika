@@ -106,8 +106,8 @@ function get_attached_data($body) {
 }
 
 function shortenmsg($msg, $limit, $twitter = false) {
-	// To-Do:
-	// For Twitter URLs aren't shortened, but they have to be calculated as if.
+	/// @TODO
+	/// For Twitter URLs aren't shortened, but they have to be calculated as if.
 
 	$lines = explode("\n", $msg);
 	$msg = "";

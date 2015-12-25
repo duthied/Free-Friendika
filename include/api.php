@@ -1,7 +1,9 @@
 <?php
-/* To-Do:
- - Automatically detect if incoming data is HTML or BBCode
-*/
+/**
+ * @file include/api.php
+ * 
+ * @todo Automatically detect if incoming data is HTML or BBCode
+ */
 
 /* Contact details:
 	Gerhard Seeber		Mail: gerhard@seeber.at		Friendica: http://mozartweg.dyndns.org/friendica/gerhard
@@ -261,7 +263,7 @@
 	}
 
 	function api_error(&$a, $type, $error) {
-		# TODO:  https://dev.twitter.com/overview/api/response-codes
+		/// @TODO  https://dev.twitter.com/overview/api/response-codes
 		$r = "<status><error>".$error."</error><request>".$a->query_string."</request></status>";
 		switch($type){
 			case "xml":
@@ -880,7 +882,7 @@
 				$_REQUEST['body'] .= "\n\n".$media;
 		}
 
-		// To-Do: Multiple IDs
+		/// @TODO Multiple IDs
 		if (requestdata('media_ids')) {
 			$r = q("SELECT `resource-id`, `scale`, `nickname`, `type` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
 				intval(requestdata('media_ids')), api_user());
@@ -1192,8 +1194,8 @@
 	 *
 	 * http://developer.twitter.com/doc/get/statuses/home_timeline
 	 *
-	 * TODO: Optional parameters
-	 * TODO: Add reply info
+	 * @TODO Optional parameters
+	 * @TODO Add reply info
 	 */
 	function api_statuses_home_timeline(&$a, $type){
 		if (api_user()===false) return false;
@@ -1725,8 +1727,8 @@
 	function api_favorites_create_destroy(&$a, $type){
 		if (api_user()===false) return false;
 
-		# for versioned api.
-		# TODO: we need a better global soluton
+		// for versioned api.
+		/// @TODO We need a better global soluton
 		$action_argv_id=2;
 		if ($a->argv[1]=="1.1") $action_argv_id=3;
 
@@ -2013,10 +2015,8 @@
 	}
 
 	function api_get_entitities(&$text, $bbcode) {
-		/*
-		To-Do:
-		* Links at the first character of the post
-		*/
+		/// @todo
+		/// Links at the first character of the post
 
 		$a = get_app();
 
@@ -2871,10 +2871,8 @@ function api_share_as_retweet(&$item) {
 }
 
 function api_get_nick($profile) {
-/* To-Do:
- - remove trailing junk from profile url
- - pump.io check has to check the website
-*/
+/// @TODO Remove trailing junk from profile url
+/// @TODO pump.io check has to check the website
 
 	$nick = "";
 
@@ -2922,7 +2920,7 @@ function api_get_nick($profile) {
 		}
 	}
 
-	// To-Do: look at the page if its really a pumpio site
+	/// @TODO Look at the page if its really a pumpio site
 	//if (!$nick == "") {
 	//	$pumpio = preg_replace("=https?://(.*)/(.*)/=ism", "$2", $profile."/");
 	//	if ($pumpio != $profile)

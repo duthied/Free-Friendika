@@ -873,9 +873,9 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 
 	$page_owner_nick  = $r[0]['nickname'];
 
-//	To-Do:
-//	$default_cid      = $r[0]['id'];
-//	$community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+	/// @TODO
+	/// $default_cid      = $r[0]['id'];
+	/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
 	if ((strlen($imagedata) == 0) AND ($url == "")) {
 		logger("No image data and no url provided", LOGGER_DEBUG);

@@ -130,8 +130,8 @@ function directory_content(&$a) {
 
 
 			// show if account is a community account
-			// ToDo the other should be also respected, but first we need a good translatiion
-			// and systemwide consistency for displaying the page type
+			/// @TODO The other page types should be also respected, but first we need a good 
+			/// translatiion and systemwide consistency for displaying the page type
 			if((intval($rr['page-flags']) == PAGE_COMMUNITY) OR (intval($rr['page-flags']) == PAGE_PRVGROUP))
 				$community = true;
 
