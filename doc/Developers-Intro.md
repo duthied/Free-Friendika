@@ -49,7 +49,7 @@ Programming
 
 ###Code documentation
 
-If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](doxygen.org) to generate it.
+If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](http://doxygen.org) to generate it.
 The configuration file for Doxygen is located in the ```util``` directory of the project sources.
 Run
 
