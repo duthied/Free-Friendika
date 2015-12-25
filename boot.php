@@ -50,8 +50,9 @@ define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
 
 /**
- *
- * Image storage quality. Lower numbers save space at cost of image detail.
+ * @brief Image storage quality.
+ * 
+ * Lower numbers save space at cost of image detail.
  * For ease of upgrade, please do not change here. Change jpeg quality with
  * $a->config['system']['jpeg_quality'] = n;
  * in .htconfig.php, where n is netween 1 and 100, and with very poor results
@@ -91,61 +92,76 @@ define ( 'MAX_IMAGE_LENGTH',        -1  );
 define ( 'DEFAULT_DB_ENGINE',  'MyISAM'  );
 
 /**
+ * @name SSL Policy
+ * 
  * SSL redirection policies
+ * @{
  */
-
 define ( 'SSL_POLICY_NONE',         0 );
 define ( 'SSL_POLICY_FULL',         1 );
 define ( 'SSL_POLICY_SELFSIGN',     2 );
-
+/* @}*/
 
 /**
+ * @name Logger
+ * 
  * log levels
+ * @{
  */
-
 define ( 'LOGGER_NORMAL',          0 );
 define ( 'LOGGER_TRACE',           1 );
 define ( 'LOGGER_DEBUG',           2 );
 define ( 'LOGGER_DATA',            3 );
 define ( 'LOGGER_ALL',             4 );
+/* @}*/
 
 /**
- * cache levels
+ * @name Cache
+ * 
+ * Cache levels
+ * @{
  */
-
 define ( 'CACHE_MONTH',            0 );
 define ( 'CACHE_WEEK',             1 );
 define ( 'CACHE_DAY',              2 );
 define ( 'CACHE_HOUR',             3 );
+/* @}*/
 
 /**
- * registration policies
+ * @name Register
+ * 
+ * Registration policies
+ * @{
  */
-
 define ( 'REGISTER_CLOSED',        0 );
 define ( 'REGISTER_APPROVE',       1 );
 define ( 'REGISTER_OPEN',          2 );
+/** @}*/
 
 /**
- * relationship types
+ * @name Contact_is
+ * 
+ * Relationship types
+ * @{
  */
-
 define ( 'CONTACT_IS_FOLLOWER', 1);
 define ( 'CONTACT_IS_SHARING',  2);
 define ( 'CONTACT_IS_FRIEND',   3);
-
+/** @}*/
 
 /**
+ * @name Update
+ * 
  * DB update return values
+ * @{
  */
-
 define ( 'UPDATE_SUCCESS', 0);
 define ( 'UPDATE_FAILED',  1);
+/** @}*/
 
 
 /**
- *
- * page/profile types
+ * @name page/profile types
  *
  * PAGE_NORMAL is a typical personal profile account
  * PAGE_SOAPBOX automatically approves all friend requests as CONTACT_IS_SHARING, (readonly)
@@ -153,26 +169,33 @@ define ( 'UPDATE_FAILED',  1);
  *      write access to wall and comments (no email and not included in page owner's ACL lists)
  * PAGE_FREELOVE automatically approves all friend requests as full friends (CONTACT_IS_FRIEND).
  *
+ * @{
  */
-
 define ( 'PAGE_NORMAL',            0 );
 define ( 'PAGE_SOAPBOX',           1 );
 define ( 'PAGE_COMMUNITY',         2 );
 define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
+/** @}*/
 
 /**
+ * @name CP
+ * 
  * Type of the community page
+ * @{
  */
 define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
 define ( 'CP_USERS_ON_SERVER',     0 );
 define ( 'CP_GLOBAL_COMMUNITY',    1 );
+/** @}*/
 
 /**
+ * @name Network
+ * 
  * Network and protocol family types
+ * @{
  */
-
 define ( 'NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
 define ( 'NETWORK_ZOT',              'zot!');    // Zot!
 define ( 'NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
@@ -193,6 +216,7 @@ define ( 'NETWORK_APPNET',           'apdn');    // app.net
 define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
 define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
+/** @}*/
 
 /**
  * These numbers are used in stored permissions
@@ -239,9 +263,11 @@ define ( 'ZCURL_TIMEOUT' , (-1));
 
 
 /**
- * email notification options
+ * @name Notify
+ * 
+ * Email notification options
+ * @{
  */
-
 define ( 'NOTIFY_INTRO',    0x0001 );
 define ( 'NOTIFY_CONFIRM',  0x0002 );
 define ( 'NOTIFY_WALL',     0x0004 );
@@ -255,12 +281,15 @@ define ( 'NOTIFY_POKE',     0x0200 );
 define ( 'NOTIFY_SHARE',    0x0400 );
 
 define ( 'NOTIFY_SYSTEM',   0x8000 );
+/* @}*/
 
 
 /**
+ * @name Term
+ * 
  * Tag/term types
+ * @{
  */
-
 define ( 'TERM_UNKNOWN',   0 );
 define ( 'TERM_HASHTAG',   1 );
 define ( 'TERM_MENTION',   2 );
@@ -276,9 +305,11 @@ define ( 'TERM_OBJ_PHOTO', 2 );
 
 
 /**
- * various namespaces we may need to parse
+ * @name Namespaces
+ * 
+ * Various namespaces we may need to parse
+ * @{
  */
-
 define ( 'NAMESPACE_ZOT',             'http://purl.org/zot' );
 define ( 'NAMESPACE_DFRN' ,           'http://purl.org/macgirvin/dfrn/1.0' );
 define ( 'NAMESPACE_THREAD' ,         'http://purl.org/syndication/thread/1.0' );
@@ -294,10 +325,14 @@ define ( 'NAMESPACE_FEED',            'http://schemas.google.com/g/2010#updates-
 define ( 'NAMESPACE_OSTATUS',         'http://ostatus.org/schema/1.0' );
 define ( 'NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/' );
 define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
-/**
- * activity stream defines
- */
+/* @}*/
 
+/**
+ * @name Activity
+ * 
+ * Activity stream defines
+ * @{
+ */
 define ( 'ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like' );
 define ( 'ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike' );
 define ( 'ACTIVITY_ATTEND',      NAMESPACE_ZOT             . '/activity/attendyes' );
@@ -336,14 +371,19 @@ define ( 'ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group' );
 define ( 'ACTIVITY_OBJ_TAGTERM', NAMESPACE_DFRN            . '/tagterm' );
 define ( 'ACTIVITY_OBJ_PROFILE', NAMESPACE_DFRN            . '/profile' );
 define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
+/* @}*/
 
 /**
- * item weight for query ordering
+ * @name Gravity
+ * 
+ * Item weight for query ordering
+ * @{
  */
-
 define ( 'GRAVITY_PARENT',       0);
 define ( 'GRAVITY_LIKE',         3);
 define ( 'GRAVITY_COMMENT',      6);
+/* @}*/
+
 
 /**
  *
@@ -490,7 +530,7 @@ class App {
 	private $cached_profile_picdate;
 
 	/**
-	 * App constructor.
+	 * @brief App constructor.
 	 */
 	function __construct() {
 
@@ -550,7 +590,7 @@ class App {
 
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
-			/**
+			/*
 			 * Figure out if we are running at the top of a domain
 			 * or in a sub-directory and adjust accordingly
 			 */
@@ -603,7 +643,7 @@ class App {
 			$this->cmd = 'profile/' . substr($this->cmd,2);
 
 
-		/**
+		/*
 		 *
 		 * Break the URL path into C style argc/argv style arguments for our
 		 * modules. Given "http://example.com/module/arg1/arg2", $this->argc
@@ -630,7 +670,7 @@ class App {
 			$this->module = 'home';
 		}
 
-		/**
+		/*
 		 * See if there is any page number information, and initialise
 		 * pagination
 		 */
@@ -642,7 +682,7 @@ class App {
 			$this->pager['start'] = 0;
 		$this->pager['total'] = 0;
 
-		/**
+		/*
 		 * Detect mobile devices
 		 */
 
@@ -653,7 +693,7 @@ class App {
 		// Friendica-Client
 		$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == "Apache-HttpClient/UNAVAILABLE (java 1.4)");
 
-		/**
+		/*
 		 * register template engines
 		 */
 		$dc = get_declared_classes();
@@ -1239,22 +1279,21 @@ function run_update_function($x) {
 	return true;
 }
 
-
-function check_plugins(&$a) {
-
-	/**
-	 *
-	 * Synchronise plugins:
-	 *
-	 * $a->config['system']['addon'] contains a comma-separated list of names
-	 * of plugins/addons which are used on this system.
-	 * Go through the database list of already installed addons, and if we have
-	 * an entry, but it isn't in the config list, call the uninstall procedure
-	 * and mark it uninstalled in the database (for now we'll remove it).
-	 * Then go through the config list and if we have a plugin that isn't installed,
-	 * call the install procedure and add it to the database.
-	 *
+/**
+ * @brief Synchronise plugins:
+ *
+ * $a->config['system']['addon'] contains a comma-separated list of names
+ * of plugins/addons which are used on this system.
+ * Go through the database list of already installed addons, and if we have
+ * an entry, but it isn't in the config list, call the uninstall procedure
+ * and mark it uninstalled in the database (for now we'll remove it).
+ * Then go through the config list and if we have a plugin that isn't installed,
+ * call the install procedure and add it to the database.
+ * 
+ * @param App $a
+ *
 	 */
+function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
 	if(count($r))
@@ -1969,8 +2008,8 @@ function get_temppath() {
 }
 
 function set_template_engine(&$a, $engine = 'internal') {
-// This function is no longer necessary, but keep it as a wrapper to the class method
-// to avoid breaking themes again unnecessarily
+/// @note This function is no longer necessary, but keep it as a wrapper to the class method
+/// to avoid breaking themes again unnecessarily
 
 	$a->set_template_engine($engine);
 }
