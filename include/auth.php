@@ -209,12 +209,12 @@ else {
 }
 
 function new_cookie($time) {
-	if (get_config('system', 'disable_database_session'))
+	if (!get_config('system', 'disable_database_session'))
 		$old_sid = session_id();
 
 	session_set_cookie_params($time);
 
-	if (get_config('system', 'disable_database_session')) {
+	if (!get_config('system', 'disable_database_session')) {
 		session_regenerate_id(false);
 		q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
 	}
