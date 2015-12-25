@@ -37,6 +37,14 @@ define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1191      );
+
+/**
+ * @brief Constant with a HTML line break.
+ *
+ * Contains a HTML line break (br) element and a real carriage return with line
+ * feed for the source.
+ * This can be used in HTML and JavaScript where needed a line break.
+ */
 define ( 'EOL',                    "<br />\r\n"     );
 define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
@@ -154,7 +162,9 @@ define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
 
-// Type of the community page
+/**
+ * Type of the community page
+ */
 define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
 define ( 'CP_USERS_ON_SERVER',     0 );
 define ( 'CP_GLOBAL_COMMUNITY',    1 );
@@ -1316,6 +1326,9 @@ function get_guid($size=16, $prefix = "") {
  * 
  * @return string
  *	Returns the complete html for inserting into the page
+ * 
+ * @hooks 'login_hook'
+ *	string $o
  */
 function login($register = false, $hiddens=false) {
 	$a = get_app();
@@ -1461,17 +1474,18 @@ function get_max_import_size() {
 }
 
 /**
+ * @brief Wrap calls to proc_close(proc_open()) and call hook
+ *	so plugins can take part in process :)
  *
- * Wrap calls to proc_close(proc_open()) and call hook
- * so plugins can take part in process :)
- *
- * args:
- * $cmd program to run
- *  next args are passed as $cmd command line
- *
+ * @param string $cmd program to run
+ * 
+ * next args are passed as $cmd command line
  * e.g.: proc_run("ls","-la","/tmp");
  *
- * $cmd and string args are surrounded with ""
+ * @note $cmd and string args are surrounded with ""
+ * 
+ * @hooks 'proc_run'
+ *	array $arr
  */
 function proc_run($cmd){
 

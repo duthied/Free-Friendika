@@ -181,6 +181,11 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
  * @return HTML string stuitable for sidebar inclusion
  * 
  * @note Returns empty string if passed $profile is wrong type or not populated
+ * 
+ * @hooks 'profile_sidebar_enter'
+ *      array $profile - profile data
+ * @hooks 'profile_sidebar'
+ *      array $arr
  */
 function profile_sidebar($profile, $block = 0) {
 	$a = get_app();
@@ -361,8 +366,8 @@ function profile_sidebar($profile, $block = 0) {
 	if (isset($p["about"]))
 		$p["about"] = bbcode($p["about"]);
 
-	if (isset($p["location"]))
-		$p["location"] = bbcode($p["location"]);
+	if (isset($p["address"]))
+		$p["address"] = bbcode($p["address"]);
 
 	if (isset($p["photo"]))
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
