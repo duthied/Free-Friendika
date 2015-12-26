@@ -587,7 +587,7 @@ function lrdd($uri, $debug = false) {
 	$lines = explode("\n",$headers);
 	if(count($lines)) {
 		foreach($lines as $line) {
-			// TODO alter the following regex to support multiple relations (space separated)
+			/// @TODO Alter the following regex to support multiple relations (space separated)
 			if((stristr($line,'link:')) && preg_match('/<([^>].*)>.*rel\=[\'\"]lrdd[\'\"]/',$line,$matches)) {
 				$pagelink = $matches[1];
 				break;

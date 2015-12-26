@@ -127,9 +127,9 @@ function removesig($message)
 	if (($sigpos < $quotepos) and ($sigpos != 0))
 		return(array('body' => $message, 'sig' => ''));
 
-	// To-Do: Regexp umstellen, so dass auf 1 oder kein Leerzeichen
-	// geprueft wird
-	//$message = str_replace("\n--\n", "\n-- \n", $message);
+	/// @TODO Regexp umstellen, so dass auf 1 oder kein Leerzeichen
+	/// geprueft wird
+	/// $message = str_replace("\n--\n", "\n-- \n", $message);
 
 	$pattern = '/(.*)[\r\n]-- [\r\n](.*)/is';
 

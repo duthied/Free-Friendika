@@ -56,8 +56,8 @@ function poller_run(&$argv, &$argc){
 				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
 					intval($pid["pid"]));
 			else {
-				// To-Do: Kill long running processes
-				// But: Update processes (like the database update) mustn't be killed
+				/// @TODO Kill long running processes
+				/// But: Update processes (like the database update) mustn't be killed
 			}
 
 	} else

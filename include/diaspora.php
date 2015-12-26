@@ -1,9 +1,10 @@
 <?php
 
-/*
-To-Do:
-- GET /people/9aed8882b9f64896/stream
-*/
+/**
+ * @file include/diaspora.php
+ * 
+ * @todo GET /people/9aed8882b9f64896/stream
+ */
 
 require_once('include/crypto.php');
 require_once('include/items.php');
@@ -1017,8 +1018,8 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	DiasporaFetchGuid($datarray);
 	$message_id = item_store($datarray);
 
-	// To-Do:
-	// Looking if there is some subscribe mechanism in Diaspora to get all comments for this post
+	/// @TODO
+	/// Looking if there is some subscribe mechanism in Diaspora to get all comments for this post
 
 	return $message_id;
 }
@@ -1088,8 +1089,8 @@ function diaspora_fetch_message($guid, $server, $level = 0) {
 		$body = scale_external_images($body);
 
 		// Add OEmbed and other information to the body
-		// To-Do: It could be a repeated redmatrix item
-		// Then we shouldn't add further data to it
+		/// @TODO It could be a repeated redmatrix item
+		/// Then we shouldn't add further data to it
 		if ($item["object-type"] == ACTIVITY_OBJ_NOTE)
 			$body = add_page_info_to_body($body, false, true);
 
@@ -2462,8 +2463,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	if(substr($birthday,5) === substr($contact['bd'],5))
 		$birthday = $contact['bd'];
 
-	// TODO: update name on item['author-name'] if the name changed. See consume_feed()
-	// Not doing this currently because D* protocol is scheduled for revision soon.
+	/// @TODO Update name on item['author-name'] if the name changed. See consume_feed()
+	/// (Not doing this currently because D* protocol is scheduled for revision soon).
 
 	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),

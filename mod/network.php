@@ -312,7 +312,7 @@ function network_content(&$a, $update = 0) {
 		return login(false);
 	}
 
-	// TODO:is this really necessary? $a is already available to hooks
+	/// @TODO Is this really necessary? $a is already available to hooks
 	$arr = array('query' => $a->query_string);
 	call_hooks('network_content_init', $arr);
 
@@ -346,8 +346,8 @@ function network_content(&$a, $update = 0) {
 	$o = '';
 
 	// item filter tabs
-	// TODO: fix this logic, reduce duplication
-	//$a->page['content'] .= '<div class="tabs-wrapper">';
+	/// @TODO fix this logic, reduce duplication
+	/// $a->page['content'] .= '<div class="tabs-wrapper">';
 
 	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
 	// if no tabs are selected, defaults to comments

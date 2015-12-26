@@ -140,7 +140,7 @@ function cron_run(&$argv, &$argc){
 	// update nodeinfo data
 	nodeinfo_cron();
 
-	// To-Do: Regenerate usage statistics
+	/// @TODO Regenerate usage statistics
 	// q("ANALYZE TABLE `item`");
 
 	// once daily run birthday_updates and then expire in background

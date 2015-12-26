@@ -85,7 +85,7 @@ function api_content(&$a) {
 
 
 		if(! local_user()) {
-			//TODO: we need login form to redirect to this page
+			/// @TODO We need login form to redirect to this page
 			notice( t('Please login to continue.') . EOL );
 			return login(false,$request->get_parameters());
 		}

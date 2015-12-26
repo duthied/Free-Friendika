@@ -109,9 +109,8 @@ function onepoll_run(&$argv, &$argc){
 				poco_load($contact['id'],$importer_uid,0,$contact['poco']);
 	}
 
-	// To-Do:
-	// - Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
-	// - Check whether this is possible with Redmatrix
+	/// @TODO Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
+	/// @TODO Check whether this is possible with Redmatrix
 	if ($contact["network"] == NETWORK_DIASPORA) {
 		if (poco_do_update($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
 			$last_updated = poco_last_updated($contact["url"]);
@@ -507,7 +506,7 @@ function onepoll_run(&$argv, &$argc){
 						logger("Mail: Importing ".$msg_uid." for ".$mailconf[0]['user']);
 
 						// some mailing lists have the original author as 'from' - add this sender info to msg body.
-						// todo: adding a gravatar for the original author would be cool
+						/// @TODO Adding a gravatar for the original author would be cool
 
 						if(! stristr($meta->from,$contact['addr'])) {
 							$from = imap_mime_header_decode($meta->from);

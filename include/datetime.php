@@ -377,7 +377,7 @@ function get_first_dim($y,$m) {
 // Months count from 1.
 
 
-// TODO: provide (prev,next) links, define class variations for different size calendars
+/// @TODO Provide (prev,next) links, define class variations for different size calendars
 
 
 if(! function_exists('cal')) {

@@ -966,7 +966,7 @@ function notifier_run(&$argv, &$argc){
 				if($url) {
 					logger('notifier: urldelivery: ' . $url);
 					$deliver_status = slapper($owner,$url,$slap);
-					// TODO: redeliver/queue these items on failure, though there is no contact record
+					/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				}
 			}
 		}

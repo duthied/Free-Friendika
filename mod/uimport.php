@@ -29,7 +29,7 @@ function uimport_post(&$a) {
 	}
     
     if (x($_FILES,'accountfile')){
-        // TODO: pass $blocked / $verified, send email to admin on REGISTER_APPROVE
+        /// @TODO Pass $blocked / $verified, send email to admin on REGISTER_APPROVE
         import_account($a, $_FILES['accountfile']);
         return;
     }
