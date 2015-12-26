@@ -47,6 +47,19 @@ We can't promise we have the right skills in the group but we'll try.
 Programming
 ---
 
+###Code documentation
+
+If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](http://doxygen.org) to generate it.
+The configuration file for Doxygen is located in the ```util``` directory of the project sources.
+Run
+
+    $> doxygen util/Doxyfile
+
+to generate the files which will be located in the ```doc/html``` subdirectory in the Friendica directory.
+You can browse these files with any browser.
+
+If you find missing documentation, don't hestitate to contact us and write it down to enhance the code documentation.
+
 ###Issues
 
 Have a look at our [issue tracker](https://github.com/friendica/friendica) on github!
