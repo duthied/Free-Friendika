@@ -1960,3 +1960,15 @@ function current_load() {
 
 	return max($load_arr);
 }
+
+// much better way of dealing with c-style args
+function argc() {
+	return get_app()->argc;
+}
+
+function argv($x) {
+	if(array_key_exists($x,get_app()->argv))
+		return get_app()->argv[$x];
+
+	return '';
+}
