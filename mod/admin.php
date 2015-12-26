@@ -7,9 +7,18 @@ require_once("include/remoteupdate.php");
 require_once("include/enotify.php");
 require_once("include/text.php");
 
-
 /**
+ * @brief process send data from the admin panels subpages
+ *
+ * This function acts as relais for processing the data send from the subpages
+ * of the admin panel. Depending on the 1st parameter of the url (argv[1])
+ * specialized functions are called to process the data from the subpages.
+ *
+ * The function itself does not return anything, but the subsequencely function
+ * return the HTML for the pages of the admin panel.
+ *
  * @param App $a
+ *
  */
 function admin_post(&$a){
 
@@ -100,6 +109,8 @@ function admin_post(&$a){
 }
 
 /**
+ * This function generates the content for the admin panel.
+ * @brief generates content of the admin panel pages
  * @param App $a
  * @return string
  */
@@ -215,9 +226,17 @@ function admin_content(&$a) {
 }
 
 /**
- * Admin Federation Stats Page; display some numbers from gserver
+ * This function generates the "Federation Statistics" subpage for the admin
+ * panel. The page lists some numbers to the part of "The Federation" known to
+ * the node. This data includes the different connected networks (e.g.
+ * Diaspora, Hubzilla, GNU Social) and the used versions in the different
+ * networks.
+ *
+ * The returned string contains the HTML code of the subpage for display.
+ *
+ * @brief subpage with some stats about "the federstion" network
  * @param App $a
- * returning string
+ * @return string
  */
 function admin_page_federation(&$a) {
     // get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
@@ -313,9 +332,9 @@ function admin_page_federation(&$a) {
     ));
 }
 /**
- * Admin Inspect Queue Page
+ * @brief Admin Inspect Queue Page
  * @param App $a
- * return string
+ * @return string
  */
 function admin_page_queue(&$a) {
     	// get content from the queue table
@@ -337,7 +356,7 @@ function admin_page_queue(&$a) {
 	));
 }
 /**
- * Admin Summary Page
+ * @brief Admin Summary Page
  * @param App $a
  * @return string
  */
@@ -390,8 +409,8 @@ function admin_page_summary(&$a) {
 
 
 /**
- * Admin Site Page
- *  @param App $a
+ * @brief process send data from Admin Site Page
+ * @param App $a
  */
 function admin_page_site_post(&$a){
 	if (!x($_POST,"page_site")){
@@ -705,6 +724,7 @@ function admin_page_site_post(&$a){
 }
 
 /**
+ * @brief generate Admin Site subpage
  * @param  App $a
  * @return string
  */
@@ -915,7 +935,11 @@ function admin_page_site(&$a) {
 
 }
 
-
+/**
+ * @brief generates admin panel subpage for DB syncronization
+ * @param App $a
+ * @return string
+ **/
 function admin_page_dbsync(&$a) {
 
 	$o = '';
@@ -995,8 +1019,7 @@ function admin_page_dbsync(&$a) {
 }
 
 /**
- * Users admin page
- *
+ * @brief process data send by Users admin page
  * @param App $a
  */
 function admin_page_users_post(&$a){
@@ -1091,6 +1114,7 @@ function admin_page_users_post(&$a){
 }
 
 /**
+ * @brief admin panel subpage for User management
  * @param App $a
  * @return string
  */
@@ -1251,8 +1275,7 @@ function admin_page_users(&$a){
 
 
 /**
- * Plugins admin page
- *
+ * @brief Plugins admin page
  * @param App $a
  * @return string
  */
@@ -1624,8 +1647,7 @@ function admin_page_themes(&$a){
 
 
 /**
- * Logs admin page
- *
+ * @brief prosesses data send by Logs admin page
  * @param App $a
  */
 
@@ -1650,6 +1672,7 @@ function admin_page_logs_post(&$a) {
 }
 
 /**
+ * @brief generates admin panel subpage for Logs
  * @param App $a
  * @return string
  */
