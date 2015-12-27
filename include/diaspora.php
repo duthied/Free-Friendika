@@ -805,7 +805,7 @@ function diaspora_is_redmatrix($url) {
 }
 
 function diaspora_plink($addr, $guid) {
-	$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", $addr);
+	$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
 
 	// Fallback
 	if (!$r)
@@ -2362,9 +2362,9 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 				// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
 				// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
 				// The only item with `parent` and `id` as the parent id is the parent item.
-				$p = q("select origin from item where parent = %d and id = %d limit 1",
-					$r[0]['parent'],
-					$r[0]['parent']
+				$p = q("SELECT `origin` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
+					intval($r[0]['parent']),
+					intval($r[0]['parent'])
 				);
 				if(count($p)) {
 					if(($p[0]['origin']) && (! $parent_author_signature)) {
