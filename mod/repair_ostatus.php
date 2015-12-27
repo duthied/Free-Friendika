@@ -11,7 +11,7 @@ function repair_ostatus_content(&$a) {
 		// NOTREACHED
 	}
 
-	$o = "<h2>".t("Resubsribing to OStatus contacts")."</h2>";
+	$o = "<h2>".t("Resubscribing to OStatus contacts")."</h2>";
 
 	$uid = local_user();
 
