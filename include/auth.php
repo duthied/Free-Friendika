@@ -5,6 +5,11 @@ require_once('include/security.php');
 require_once('include/datetime.php');
 
 function nuke_session() {
+	if (get_config('system', 'disable_database_session')) {
+		session_unset();
+		return;
+	}
+
 	new_cookie(0); // make sure cookie is deleted on browser close, as a security measure
 
 	unset($_SESSION['authenticated']);
@@ -20,10 +25,11 @@ function nuke_session() {
 	unset($_SESSION['my_address']);
 	unset($_SESSION['addr']);
 	unset($_SESSION['return_url']);
+
 }
 
 
-// login/logout 
+// login/logout
 
 
 
@@ -31,7 +37,7 @@ function nuke_session() {
 if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-params'))) || ($_POST['auth-params'] !== 'login'))) {
 
 	if(((x($_POST,'auth-params')) && ($_POST['auth-params'] === 'logout')) || ($a->module === 'logout')) {
-	
+
 		// process logout request
 		call_hooks("logging_out");
 		nuke_session();
@@ -55,13 +61,13 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		$check = get_config('system','paranoia');
 		// extra paranoia - if the IP changed, log them out
 		if($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
-			logger('Session address changed. Paranoid setting in effect, blocking session. ' 
+			logger('Session address changed. Paranoid setting in effect, blocking session. '
 				. $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
 			nuke_session();
 			goaway(z_root());
 		}
 
-		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey` 
+		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
 		FROM `user` WHERE `uid` = %d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
 			intval($_SESSION['uid'])
 		);
@@ -122,7 +128,7 @@ else {
 			$openid->identity = $openid_url;
 			$_SESSION['openid'] = $openid_url;
 			$a = get_app();
-			$openid->returnUrl = $a->get_baseurl(true) . '/openid'; 
+			$openid->returnUrl = $a->get_baseurl(true) . '/openid';
                         goaway($openid->authUrl());
                         } catch (Exception $e) {
                             notice( t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.').'<br /><br >'. t('The error message was:').' '.$e->getMessage());
@@ -159,8 +165,8 @@ else {
 
 			// process normal login request
 
-			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`  
-				FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' ) 
+			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
+				FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
 				AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
 				dbesc(trim($_POST['username'])),
 				dbesc(trim($_POST['username'])),
@@ -171,7 +177,7 @@ else {
 		}
 
 		if((! $record) || (! count($record))) {
-			logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']); 
+			logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
 			notice( t('Login failed.') . EOL );
 			goaway(z_root());
   		}
@@ -203,9 +209,13 @@ else {
 }
 
 function new_cookie($time) {
-	$old_sid = session_id();
-	session_set_cookie_params("$time");
-	session_regenerate_id(false);
+	if (!get_config('system', 'disable_database_session'))
+		$old_sid = session_id();
 
-	q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
+	session_set_cookie_params($time);
+
+	if (!get_config('system', 'disable_database_session')) {
+		session_regenerate_id(false);
+		q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
+	}
 }

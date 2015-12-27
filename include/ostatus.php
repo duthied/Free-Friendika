@@ -10,6 +10,7 @@ require_once("include/socgraph.php");
 require_once("include/Photo.php");
 require_once("include/Scrape.php");
 require_once("include/follow.php");
+require_once("include/api.php");
 require_once("mod/proxy.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
@@ -1079,6 +1080,35 @@ function ostatus_store_conversation($itemid, $conversation_url) {
 	}
 }
 
+function get_reshared_guid($item) {
+	$body = trim($item["body"]);
+
+	// Skip if it isn't a pure repeated messages
+	// Does it start with a share?
+	if (strpos($body, "[share") > 0)
+		return("");
+
+	// Does it end with a share?
+	if (strlen($body) > (strrpos($body, "[/share]") + 8))
+		return("");
+
+	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+	// Skip if there is no shared message in there
+	if ($body == $attributes)
+		return(false);
+
+	$guid = "";
+	preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$guid = $matches[1];
+
+	preg_match('/guid="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$guid = $matches[1];
+
+	return $guid;
+}
+
 function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
 	$element = $doc->createElement($element, xmlify($value));
 
@@ -1121,13 +1151,6 @@ function ostatus_format_picture_post($body) {
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
-	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-		intval($owner["uid"]));
-	if (!$r)
-		return;
-
-	$profile = $r[0];
-
 	$root = $doc->createElementNS(NS_ATOM, 'feed');
 	$doc->appendChild($root);
 
@@ -1142,12 +1165,12 @@ function ostatus_add_header($doc, $owner) {
 	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 	xml_add_element($doc, $root, "id", $a->get_baseurl()."/profile/".$owner["nick"]);
-	xml_add_element($doc, $root, "title", sprintf("%s timeline", $profile["name"]));
-	xml_add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $profile["name"], $a->config["sitename"]));
-	xml_add_element($doc, $root, "logo", $profile["photo"]);
+	xml_add_element($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
+	xml_add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
+	xml_add_element($doc, $root, "logo", $owner["photo"]);
 	xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
-	$author = ostatus_add_author($doc, $owner, $profile);
+	$author = ostatus_add_author($doc, $owner);
 	$root->appendChild($author);
 
 	$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
@@ -1260,13 +1283,17 @@ function ostatus_get_attachment($doc, $root, $item) {
 	}
 }
 
-function ostatus_add_author($doc, $owner, $profile) {
+function ostatus_add_author($doc, $owner) {
 	$a = get_app();
+
+	$r = q("SELECT `homepage` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
+	if ($r)
+		$profile = $r[0];
 
 	$author = $doc->createElement("author");
 	xml_add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
 	xml_add_element($doc, $author, "uri", $owner["url"]);
-	xml_add_element($doc, $author, "name", $profile["name"]);
+	xml_add_element($doc, $author, "name", $owner["name"]);
 
 	$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $owner["url"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
@@ -1276,20 +1303,22 @@ function ostatus_add_author($doc, $owner, $profile) {
 			"type" => "image/jpeg", // To-Do?
 			"media:width" => 175,
 			"media:height" => 175,
-			"href" => $profile["photo"]);
+			"href" => $owner["photo"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
 
-	$attributes = array(
-			"rel" => "avatar",
-			"type" => "image/jpeg", // To-Do?
-			"media:width" => 80,
-			"media:height" => 80,
-			"href" => $profile["thumb"]);
-	xml_add_element($doc, $author, "link", "", $attributes);
+	if (isset($owner["thumb"])) {
+		$attributes = array(
+				"rel" => "avatar",
+				"type" => "image/jpeg", // To-Do?
+				"media:width" => 80,
+				"media:height" => 80,
+				"href" => $owner["thumb"]);
+		xml_add_element($doc, $author, "link", "", $attributes);
+	}
 
 	xml_add_element($doc, $author, "poco:preferredUsername", $owner["nick"]);
-	xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
-	xml_add_element($doc, $author, "poco:note", bbcode($profile["about"]));
+	xml_add_element($doc, $author, "poco:displayName", $owner["name"]);
+	xml_add_element($doc, $author, "poco:note", $owner["about"]);
 
 	if (trim($owner["location"]) != "") {
 		$element = $doc->createElement("poco:address");
@@ -1305,8 +1334,10 @@ function ostatus_add_author($doc, $owner, $profile) {
 		$author->appendChild($urls);
 	}
 
-	xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
-	xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+	if (count($profile)) {
+		xml_add_element($doc, $author, "followers", "", array("url" => $a->get_baseurl()."/viewcontacts/".$owner["nick"]));
+		xml_add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+	}
 
 	return $author;
 }
@@ -1318,11 +1349,29 @@ function ostatus_add_author($doc, $owner, $profile) {
  * 
 */
 
-function ostatus_entry($doc, $item, $owner, $toplevel = false) {
+function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) {
 	$a = get_app();
 
-	if (!$toplevel) {
+	$is_repeat = false;
+
+/*	if (!$repeat) {
+		$repeated_guid = get_reshared_guid($item);
+
+		if ($repeated_guid != "") {
+			$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+				intval($owner["uid"]), dbesc($repeated_guid));
+			if ($r) {
+				$repeated_item = $r[0];
+				$is_repeat = true;
+			}
+		}
+	}
+*/
+	if (!$toplevel AND !$repeat) {
 		$entry = $doc->createElement("entry");
+		$title = sprintf("New note by %s", $owner["nick"]);
+	} elseif (!$toplevel AND $repeat) {
+		$entry = $doc->createElement("activity:object");
 		$title = sprintf("New note by %s", $owner["nick"]);
 	} else {
 		$entry = $doc->createElementNS(NS_ATOM, "entry");
@@ -1335,14 +1384,7 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
 		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
-		$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`",
-			intval($owner["uid"]));
-		if (!$r)
-			return;
-
-		$profile = $r[0];
-
-		$author = ostatus_add_author($doc, $owner, $profile);
+		$author = ostatus_add_author($doc, $owner);
 		$entry->appendChild($author);
 
 		$title = sprintf("New comment by %s", $owner["nick"]);
@@ -1359,7 +1401,11 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	// But: it seems as if it doesn't federate well between the GS servers
 	// So we just set it to "note" to be sure that it reaches their target systems
 
-	xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+	if (!$repeat)
+		xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+	else
+		xml_add_element($doc, $entry, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA.'activity');
+
 	xml_add_element($doc, $entry, "id", $item["uri"]);
 	xml_add_element($doc, $entry, "title", $title);
 
@@ -1382,14 +1428,43 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 							"href" => $a->get_baseurl()."/display/".$item["guid"]));
 
 	xml_add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
-	xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
+
+	if (!$is_repeat)
+		xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
+	else
+		xml_add_element($doc, $entry, "activity:verb", ACTIVITY_SHARE);
+
 	xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
 	xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
+
+	if ($is_repeat) {
+		$repeated_owner = array();
+		$repeated_owner["name"] = $repeated_item["author-name"];
+		$repeated_owner["url"] = $repeated_item["author-link"];
+		$repeated_owner["photo"] = $repeated_item["author-avatar"];
+		$repeated_owner["nick"] = $repeated_owner["name"];
+		$repeated_owner["location"] = "";
+		$repeated_owner["about"] = "";
+		$repeated_owner["uid"] = 0;
+
+		$r =q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($repeated_item["author-link"]));
+		if ($r) {
+			$repeated_owner["nick"] = $r[0]["nick"];
+			$repeated_owner["location"] = $r[0]["location"];
+			$repeated_owner["about"] = $r[0]["about"];
+		}
+
+		$entry_repeat = ostatus_entry($doc, $repeated_item, $repeated_owner, false, true);
+		$entry->appendChild($entry_repeat);
+	} elseif ($repeat) {
+		$author = ostatus_add_author($doc, $owner);
+		$entry->appendChild($author);
+	}
 
 	$mentioned = array();
 
 	if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
+		$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
 		$attributes = array(
@@ -1474,7 +1549,12 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false) {
 	if ($app == "")
 		$app = "web";
 
-	xml_add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item["id"], "source" => $app));
+
+	$attributes = array("local_id" => $item["id"], "source" => $app);
+	if ($is_repeat)
+		$attributes["repeat_of"] = $repeated_item["id"];
+
+	xml_add_element($doc, $entry, "statusnet:notice_info", "", $attributes);
 
 	return $entry;
 }
@@ -1501,12 +1581,17 @@ function ostatus_feed(&$a, $owner_nick, $last_update) {
 			WHERE `item`.`uid` = %d AND `item`.`received` > '%s' AND NOT `item`.`private` AND NOT `item`.`deleted`
 				AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 				AND ((`item`.`wall` AND (`item`.`parent` = `item`.`id`))
-					OR (`item`.`network` = '%s' AND ((`thread`.`network`='%s') OR (`thritem`.`network` = '%s'))) AND `thread`.`mention`)
-				AND (`item`.`owner-link` IN ('%s', '%s'))
+					OR (`item`.`network` = '%s' AND ((`thread`.`network` IN ('%s', '%s')) OR (`thritem`.`network` IN ('%s', '%s')))) AND `thread`.`mention`)
+				AND ((`item`.`owner-link` IN ('%s', '%s') AND (`item`.`parent` = `item`.`id`))
+					OR (`item`.`author-link` IN ('%s', '%s')))
 			ORDER BY `item`.`received` DESC
 			LIMIT 0, 300",
-			intval($owner["uid"]), dbesc($check_date),
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
+			intval($owner["uid"]), dbesc($check_date), dbesc(NETWORK_DFRN),
+			//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
+			//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN),
+			dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"])),
 			dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"]))
 		);
 
