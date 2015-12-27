@@ -158,6 +158,7 @@ function admin_content(&$a) {
 	}
 
 	$aside_tools['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
+	$aside_tools['viewlogs'] = Array($a->get_baseurl(true)."/admin/viewlogs/", t("View Logs"), 'viewlogs');
 	$aside_tools['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
 	$aside_tools['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
 
@@ -165,12 +166,12 @@ function admin_content(&$a) {
 	$a->page['aside'] .= replace_macros( $t, array(
 	    '$admin' => $aside_tools,
 	    '$subpages' => $aside_sub,
-			'$admtxt' => t('Admin'),
-			'$plugadmtxt' => t('Plugin Features'),
-			'$logtxt' => t('Logs'),
-			'$diagnosticstxt' => t('diagnostics'),
-			'$h_pending' => t('User registrations waiting for confirmation'),
-			'$admurl'=> $a->get_baseurl(true)."/admin/"
+	    '$admtxt' => t('Admin'),
+	    '$plugadmtxt' => t('Plugin Features'),
+	    '$logtxt' => t('Logs'),
+	    '$diagnosticstxt' => t('diagnostics'),
+	    '$h_pending' => t('User registrations waiting for confirmation'),
+	    '$admurl'=> $a->get_baseurl(true)."/admin/"
 	));
 
 
@@ -196,6 +197,9 @@ function admin_content(&$a) {
 				break;
 			case 'logs':
 				$o = admin_page_logs($a);
+				break;
+			case 'viewlogs':
+				$o = admin_page_viewlogs($a);
 				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
@@ -1672,7 +1676,18 @@ function admin_page_logs_post(&$a) {
 }
 
 /**
- * @brief generates admin panel subpage for Logs
+ * @brief generates admin panel subpage for configuration of the logs
+ *
+ * This function take the view/templates/admin_logs.tpl file and generates a
+ * page where admin can configure the logging of friendica.
+ *
+ * Displaying the log is separated from the log config as the logfile can get
+ * big depending on the settings and changing settings regarding the logs can
+ * thus waste bandwidth.
+ *
+ * The string returned contains the content of the template file with replaced
+ * macros.
+ *
  * @param App $a
  * @return string
  */
@@ -1688,7 +1703,7 @@ function admin_page_logs(&$a){
 
 	$t = get_markup_template("admin_logs.tpl");
 
-	$f = get_config('system','logfile');
+/*	$f = get_config('system','logfile');
 
 	$data = '';
 
@@ -1717,14 +1732,14 @@ readable.");
 			}
 			fclose($fp);
 		}
-	}
+	}*/
 
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Logs'),
 		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
-		'$data' => $data,
+//		'$data' => $data,
 		'$baseurl' => $a->get_baseurl(true),
 		'$logname' =>  get_config('system','logfile'),
 
@@ -1734,9 +1749,67 @@ readable.");
 		'$loglevel' 		=> array('loglevel', t("Log level"), get_config('system','loglevel'), "", $log_choices),
 
 		'$form_security_token' => get_form_security_token("admin_logs"),
+		'$phpheader' => t("PHP logging"),
+		'$phphint' => t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
+		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE );\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
 	));
 }
 
+/**
+ * @brief generates admin panel subpage to view the Friendica log
+ *
+ * This function loads the template view/templates/admin_viewlogs.tpl to
+ * display the systemlog content. The filename for the systemlog of friendica
+ * is relative to the base directory and taken from the config entry 'logfile'
+ * in the 'system' category.
+ *
+ * Displaying the log is separated from the log config as the logfile can get
+ * big depending on the settings and changing settings regarding the logs can
+ * thus waste bandwidth.
+ *
+ * The string returned contains the content of the template file with replaced
+ * macros.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_viewlogs(&$a){
+	$t = get_markup_template("admin_viewlogs.tpl");
+	$f = get_config('system','logfile');
+	$data = '';
+
+	if(!file_exists($f)) {
+		$data = t("Error trying to open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f exist and is readable.");
+	}
+	else {
+		$fp = fopen($f, 'r');
+		if(!$fp) {
+			$data = t("Couldn't open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f is readable.");
+		}
+		else {
+			$fstat = fstat($fp);
+			$size = $fstat['size'];
+			if($size != 0)
+			{
+				if($size > 5000000 || $size < 0)
+					$size = 5000000;
+				$seek = fseek($fp,0-$size,SEEK_END);
+				if($seek === 0) {
+					$data = escape_tags(fread($fp,$size));
+					while(! feof($fp))
+						$data .= escape_tags(fread($fp,4096));
+				}
+			}
+			fclose($fp);
+		}
+	}
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('View Logs'),
+		'$data' => $data,
+		'$logname' =>  get_config('system','logfile')
+	));
+}
 /**
  * @param App $a
  */
