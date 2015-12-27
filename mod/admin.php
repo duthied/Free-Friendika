@@ -337,6 +337,14 @@ function admin_page_federation(&$a) {
 }
 /**
  * @brief Admin Inspect Queue Page
+ *
+ * Generates a page for the admin to have a look into the current queue of
+ * postings that are not deliverabke. Shown are the name and url of the
+ * recipient, the delivery network and the dates when the posting was generated
+ * and the last time tried to deliver the posting.
+ *
+ * The returned string holds the content of the page.
+ *
  * @param App $a
  * @return string
  */
@@ -361,6 +369,12 @@ function admin_page_queue(&$a) {
 }
 /**
  * @brief Admin Summary Page
+ *
+ * The summary page is the "start page" of the admin panel. It gives the admin
+ * a first overview of the open adminastrative tasks.
+ *
+ * The returned string contains the HTML content of the generated page.
+ *
  * @param App $a
  * @return string
  */
@@ -1660,14 +1674,12 @@ function admin_page_logs_post(&$a) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
 		$logfile 		=	((x($_POST,'logfile'))		? notags(trim($_POST['logfile']))	: '');
-		$debugging		=	((x($_POST,'debugging'))	? true								: false);
+		$debugging		=	((x($_POST,'debugging'))	? true					: false);
 		$loglevel 		=	((x($_POST,'loglevel'))		? intval(trim($_POST['loglevel']))	: 0);
 
 		set_config('system','logfile', $logfile);
 		set_config('system','debugging',  $debugging);
 		set_config('system','loglevel', $loglevel);
-
-
 	}
 
 	info( t("Log settings updated.") );
