@@ -19,7 +19,7 @@ function p_init($a){
 
 	$guid = strtolower(substr($guid, 0, -4));
 
-	$item = q("SELECT `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app` FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') LIMIT 1",
+	$item = q("SELECT `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app` FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
 		dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
 	if (!$item) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
