@@ -1,6 +1,6 @@
 <?php
 /**
- * @file include/identity.php
+ * @file include/plugin.php
  * 
  * @brief Some functions to handle addons and themes.
  */
