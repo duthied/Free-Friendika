@@ -37,8 +37,7 @@
 <h4>{{$logtxt}}</h4>
 <ul class='admin linklist'>
 	<li class='admin link button {{$admin.logs.2}}'><a href='{{$admin.logs.0}}'>{{$admin.logs.1}}</a></li>
-	<li class='admin link button {{$admin.viewlogs.2}}'><a
-	href='{{$admin.viewlogs.0}}'>{{$admin.viewlogs.1}}</a></li>
+	<li class='admin link button {{$admin.viewlogs.2}}'><a href='{{$admin.viewlogs.0}}'>{{$admin.viewlogs.1}}</a></li>
 </ul>
 
 <h4>{{$diagnosticstxt}}</h4>
