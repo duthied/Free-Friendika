@@ -11,7 +11,7 @@ function ostatus_subscribe_content(&$a) {
 		// NOTREACHED
 	}
 
-	$o = "<h2>".t("Subsribing to OStatus contacts")."</h2>";
+	$o = "<h2>".t("Subscribing to OStatus contacts")."</h2>";
 
 	$uid = local_user();
 
