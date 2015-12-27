@@ -43,7 +43,7 @@ function do_like($item_id, $verb) {
 			$activity = ACTIVITY_ATTENDMAYBE;
 			break;
 		default:
-			return;
+			return false;
 			break;
 	}
 
