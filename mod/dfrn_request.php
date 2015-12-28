@@ -444,27 +444,25 @@ function dfrn_request_post(&$a) {
 		}
 
 		else {
+			// Detect the network
+			$data = probe_url($url);
+			$network = $data["network"];
+
+			// Use the detected address - if present
+			if ($data["addr"] != "")
+				$url = $data["addr"];
 
 			// Canonicalise email-style profile locator
-
 			$url = webfinger_dfrn($url,$hcard);
 
-			if(substr($url,0,5) === 'stat:') {
-				$network = NETWORK_OSTATUS;
+			if (substr($url,0,5) === 'stat:')
 				$url = substr($url,5);
-			}
-			else {
-				$network = NETWORK_DFRN;
-			}
+
+			if (($url == "") AND ($network === NETWORK_DIASPORA))
+				$url = $data["baseurl"]."/people?q={uri}";
 		}
 
 		logger('dfrn_request: url: ' . $url);
-
-		if(! strlen($url)) {
-			notice( t("Unable to resolve your name at the provided location.") . EOL);
-			return;
-		}
-
 
 		if($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
@@ -610,24 +608,34 @@ function dfrn_request_post(&$a) {
 			);
 			// NOTREACHED
 			// END $network === NETWORK_DFRN
-		}
-		elseif($network === NETWORK_OSTATUS) {
+		} elseif (($network != NETWORK_PHANTOM) AND ($url != "")) {
 
 			/**
 			 *
-			 * OStatus network
-			 * Check contact existence
-			 * Try and scrape together enough information to create a contact record,
-			 * with us as CONTACT_IS_FOLLOWER
 			 * Substitute our user's feed URL into $url template
 			 * Send the subscriber home to subscribe
 			 *
 			 */
 
-			$url = str_replace('{uri}', $a->get_baseurl() . '/profile/' . $nickname, $url);
+			// Diaspora needs the uri in the format user@domain.tld
+			// Diaspora will support the remote subscription in a future version
+			if ($network == NETWORK_DIASPORA) {
+				$uri = $nickname.'@'.$a->get_hostname();
+
+				if ($a->get_path())
+					$uri .= '/'.$a->get_path();
+
+				$uri = urlencode($uri);
+			} else
+				$uri = $a->get_baseurl().'/profile/'.$nickname;
+
+			$url = str_replace('{uri}', $uri, $url);
 			goaway($url);
 			// NOTREACHED
-			// END $network === NETWORK_OSTATUS
+			// END $network != NETWORK_PHANTOM
+		} else {
+			notice(t("Remote subscription can't be done for your network. Please subscribe directly on your system.").EOL);
+			return;
 		}
 
 	}	return;
