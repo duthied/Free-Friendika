@@ -12,9 +12,9 @@
 	<width>{{$photo.width}}</width>
 	<datasize>{{$photo.datasize}}</datasize>
 	<profile>1</profile>
-	<url>{{foreach $photo.link as $scale => $url}}
+	<links type="array">{{foreach $photo.link as $scale => $url}}
 		<link type="{{$photo.type}}" scale="{{$scale}}" href="{{$url}}" />
-	{{/foreach}}</url>
+	{{/foreach}}</links>
 	{{if $photo.data}}
 	<data encode="base64">{{$photo.data}}</data>
 	{{/if}}
