@@ -917,7 +917,8 @@ ul.menu-popup .empty {
 #nav-notifications-menu {
   width: 400px;
   max-height: 550px;
-  overflow: auto;
+  overflow: hidden;
+  posistion: absolute;
 }
 /* #nav-notifications-menu a {
 	display: inline;
@@ -928,10 +929,31 @@ ul.menu-popup .empty {
   background-color: #bdcdd4;
 }*/
 
-#nav-notifications-menu img {
-  float: left;
-  margin-right: 5px;
+
+/* überleugung das zu löschen: begin*/
+#nav-notifications-menu > li {
+  display: block;
+  color: #737373;
+  cursor: pointer;
 }
+
+#nav-notifications-menu > li:hover {
+  background-color: #e5e5e5;
+  color: #000;
+}
+
+#nav-notifications-menu img {
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+}
+
+#nav-notifications-menu .notif-desc-wrapper a {
+  display: inline;
+/*  color: #2d2d2d;*/
+  padding: 0px;
+}
+
 #nav-notifications-menu .contactname {
   font-weight: bold;
 }
@@ -945,6 +967,26 @@ ul.menu-popup .empty {
         width: 32px;
         height: 32px;
         padding: 7px 7px 0px 0px;
+}
+
+/* überlegung das zu löschen Ende*/
+.notif-entry-wrapper {
+  padding: 5px;
+  min-height: 35px;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.notif-photo-wrapper {
+  float: left;
+  margin-right: 5px;
+}
+
+.notif-photo-wrapper a {
+  padding: 0 !important;
+}
+
+.notif-desc-wrapper {
+  overflow: hidden;
 }
 
 right_aside {
