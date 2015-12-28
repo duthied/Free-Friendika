@@ -2873,6 +2873,8 @@
 			$data = array('photo' => $r[0]);
 			if ($scale !== false) {
 				$data['photo']['data'] = base64_encode($data['photo']['data']);
+			} else {
+				unset($data['photo']['datasize']); //needed only with scale param
 			}
 			$data['photo']['link'] = array();
 			for($k=intval($data['photo']['minscale']); $k<=intval($data['photo']['maxscale']); $k++) {
