@@ -6,9 +6,11 @@ function xrd_init(&$a) {
 
 	$uri = urldecode(notags(trim($_GET['uri'])));
 
-	if(substr($uri,0,4) === 'http')
+	if(substr($uri,0,4) === 'http') {
+		$acct = false;
 		$name = basename($uri);
-	else {
+	} else {
+		$acct = true;
 		$local = str_replace('acct:', '', $uri);
 		if(substr($local,0,2) == '//')
 			$local = substr($local,2);
@@ -28,7 +30,6 @@ function xrd_init(&$a) {
 	header("Content-type: text/xml");
 
 	if(get_config('system','diaspora_enabled')) {
-		//$tpl = file_get_contents('view/xrd_diaspora.tpl');
 		$tpl = get_markup_template('xrd_diaspora.tpl');
 		$dspr = replace_macros($tpl,array(
 			'$baseurl' => $a->get_baseurl(),
@@ -39,13 +40,24 @@ function xrd_init(&$a) {
 	else
 		$dspr = '';
 
-	//$tpl = file_get_contents('view/xrd_person.tpl');
 	$tpl = get_markup_template('xrd_person.tpl');
+
+	$profile_url = $a->get_baseurl().'/profile/'.$r[0]['nickname'];
+
+	if ($acct)
+		$alias = $profile_url;
+	else {
+		$alias = 'acct:'.$r[0]['nickname'].'@'.$a->get_hostname();
+
+		if ($a->get_path())
+			$alias .= '/'.$a->get_path();
+	}
 
 	$o = replace_macros($tpl, array(
 		'$nick'        => $r[0]['nickname'],
 		'$accturi'     => $uri,
-		'$profile_url' => $a->get_baseurl() . '/profile/'       . $r[0]['nickname'],
+		'$alias'       => $alias,
+		'$profile_url' => $profile_url,
 		'$hcard_url'   => $a->get_baseurl() . '/hcard/'         . $r[0]['nickname'],
 		'$atom'        => $a->get_baseurl() . '/dfrn_poll/'     . $r[0]['nickname'],
 		'$zot_post'    => $a->get_baseurl() . '/post/'          . $r[0]['nickname'],
