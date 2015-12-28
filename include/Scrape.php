@@ -547,6 +547,19 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		}
 	}
 
+	// Scrape the public key from the hcard.
+	// Diaspora will remove it from the webfinger somewhere in the future.
+	if (($hcard != "") AND ($pubkey == "")) {
+		$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
+		if (isset($ret["key"])) {
+			$hcard_key = $ret["key"];
+			if(strstr($hcard_key,'RSA '))
+				$pubkey = rsatopem($hcard_key);
+			else
+				$pubkey = $hcard_key;
+		}
+	}
+
 	if($diaspora && $diaspora_base && $diaspora_guid) {
 		if($mode == PROBE_DIASPORA || ! $notify) {
 			$notify = $diaspora_base . 'receive/users/' . $diaspora_guid;
