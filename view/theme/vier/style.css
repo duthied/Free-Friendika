@@ -917,8 +917,7 @@ ul.menu-popup .empty {
 #nav-notifications-menu {
   width: 400px;
   max-height: 550px;
-  overflow: hidden;
-  posistion: absolute;
+  overflow: auto;
 }
 /* #nav-notifications-menu a {
 	display: inline;
@@ -929,8 +928,6 @@ ul.menu-popup .empty {
   background-color: #bdcdd4;
 }*/
 
-
-/* überleugung das zu löschen: begin*/
 #nav-notifications-menu > li {
   display: block;
   color: #737373;
@@ -969,9 +966,8 @@ ul.menu-popup .empty {
         padding: 7px 7px 0px 0px;
 }
 
-/* überlegung das zu löschen Ende*/
 .notif-entry-wrapper {
-  padding: 5px;
+  padding: 5px 10px;
   min-height: 35px;
   border-bottom: 1px solid #DDDDDD;
 }
