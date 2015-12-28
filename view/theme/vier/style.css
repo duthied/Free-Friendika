@@ -938,16 +938,20 @@ ul.menu-popup .empty {
   background-color: #e5e5e5;
   color: #000;
 }
+#nav-notifications-mark-all a {
+  color: #737373;
+}
 
 #nav-notifications-menu img {
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   border-radius: 5px;
+  margin: 0;
+  padding: 0;
 }
 
 #nav-notifications-menu .notif-desc-wrapper a {
   display: inline;
-/*  color: #2d2d2d;*/
   padding: 0px;
 }
 
@@ -968,13 +972,13 @@ ul.menu-popup .empty {
 
 .notif-entry-wrapper {
   padding: 5px 10px;
-  min-height: 35px;
-  border-bottom: 1px solid #DDDDDD;
+  min-height: 32px;
+  /*border-bottom: 1px solid #DDDDDD;*/
 }
 
 .notif-photo-wrapper {
   float: left;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 .notif-photo-wrapper a {
