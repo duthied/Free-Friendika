@@ -50,7 +50,7 @@ Friendica - Dokumentation und Ressourcen
 * [Plugin Development](help/Plugins)
 * [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
-* [Datenbank-Schema](help/Database)
+* [Datenbank-Schema](help/database)
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
 
 **Externe Ressourcen**

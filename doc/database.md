@@ -13,7 +13,7 @@ Database Tables
 | [clients](help/database/db_clients)                  | OAuth usage                                      |
 | [config](help/database/db_config)                    | main configuration storage                       |
 | [contact](help/database/db_contact)                  | contact table                                    |
-| [conv](help/database/db_conv)                        | Diaspora private messages                        |
+| [conv](help/database/db_conv)                        | private messages                                 |
 | [deliverq](help/database/db_deliverq)                |                                                  |
 | [dsprphotoq](help/database/db_dsprphotoq)            |                                                  |
 | [event](help/database/db_event)                      | Events                                           |
@@ -22,7 +22,7 @@ Database Tables
 | [fserver](help/database/db_fserver)                  |                                                  |
 | [fsuggest](help/database/db_fsuggest)                | friend suggestion stuff                          |
 | [gcign](help/database/db_gcign)                      | contacts ignored by friend suggestions           |
-| [gcontact](help/database/db_gcontact)                |                                                  |
+| [gcontact](help/database/db_gcontact)                | global contacts                                  |
 | [glink](help/database/db_glink)                      | "friends of friends" linkages derived from poco  |
 | [group](help/database/db_group)                      | privacy groups, group info                       |
 | [group_member](help/database/db_group_member)        | privacy groups, member info                      |
@@ -52,7 +52,6 @@ Database Tables
 | [sign](help/database/db_sign)                        | Diaspora signatures                              |
 | [spam](help/database/db_spam)                        | unfinished                                       |
 | [term](help/database/db_term)                        | item taxonomy (categories, tags, etc.) table     |
-| [test](help/database/db_test)                        |                                                  |
 | [thread](help/database/db_thread)                    |                                                  |
 | [tokens](help/database/db_tokens)                    | OAuth usage                                      |
 | [unique_contacts](help/database/db_unique_contacts)  |                                                  |
