@@ -28,6 +28,8 @@ function help_content(&$a) {
 
 	if ($a->argc > 1) {
 		$path = '';
+		// looping through the argv keys bigger than 0 to build
+		// a path relative to /help
 		for($x = 1; $x < argc(); $x ++) {
 			if(strlen($path))
 				$path .= '/';
