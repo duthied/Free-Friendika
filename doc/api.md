@@ -269,6 +269,7 @@ xml
 	</photo>
 ```
 
+---
 ### friendica/photos/list
 
 Returns a list of all photo resources of the logged in user.
