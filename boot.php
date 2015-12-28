@@ -2060,3 +2060,25 @@ function current_load() {
 
 	return max($load_arr);
 }
+
+/**
+ * @brief get c-style args
+ * 
+ * @return int
+ */
+function argc() {
+	return get_app()->argc;
+}
+
+/**
+ * @brief Returns the value of a argv key
+ * 
+ * @param int $x argv key
+ * @return string Value of the argv key
+ */
+function argv($x) {
+	if(array_key_exists($x,get_app()->argv))
+		return get_app()->argv[$x];
+
+	return '';
+}

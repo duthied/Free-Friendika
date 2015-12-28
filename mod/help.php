@@ -27,8 +27,18 @@ function help_content(&$a) {
 	$text = '';
 
 	if ($a->argc > 1) {
-		$text = load_doc_file('doc/' . $a->argv[1] . '.md');
-		$a->page['title'] = t('Help:') . ' ' . str_replace('-', ' ', notags($a->argv[1]));
+		$path = '';
+		// looping through the argv keys bigger than 0 to build
+		// a path relative to /help
+		for($x = 1; $x < argc(); $x ++) {
+			if(strlen($path))
+				$path .= '/';
+			$path .= argv($x);
+		}
+		$title = basename($path);
+
+		$text = load_doc_file('doc/' . $path . '.md');
+		$a->page['title'] = t('Help:') . ' ' . str_replace('-', ' ', notags($title));
 	}
 	$home = load_doc_file('doc/Home.md');
 	if (!$text) {
