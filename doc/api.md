@@ -1,4 +1,4 @@
-Implemented API calls
+Friendica API
 ===
 The Friendica API aims to be compatible to the [GNU Social API](http://skilledtests.com/wiki/Twitter-compatible_API) and the [Twitter API](https://dev.twitter.com/rest/public).
 

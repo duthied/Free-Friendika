@@ -36,13 +36,14 @@ function help_content(&$a) {
 			$path .= argv($x);
 		}
 		$title = basename($path);
-
+		$filename = $path;
 		$text = load_doc_file('doc/' . $path . '.md');
 		$a->page['title'] = t('Help:') . ' ' . str_replace('-', ' ', notags($title));
 	}
 	$home = load_doc_file('doc/Home.md');
 	if (!$text) {
 		$text = $home;
+		$filename = "Home";
 		$a->page['title'] = t('Help');
 	} else {
 		$a->page['aside'] = Markdown($home);
@@ -57,7 +58,42 @@ function help_content(&$a) {
 	}
 
 	$html = Markdown($text);
-	$html = "<style>.md_warning { padding: 1em; border: #ff0000 solid 2px; background-color: #f9a3a3; color: #ffffff;</style>".$html;
+
+	// create TOC
+	$lines = explode("\n", $html);
+	$toc="<style>aside ul {padding-left: 1em;}</style><h2>TOC</h2><ul id='toc'>";
+	$lastlevel=1;
+	$idnum = array(0,0,0,0,0,0,0);
+	foreach($lines as &$line){
+		if (substr($line,0,2)=="<h") {
+			$level = substr($line,2,1);
+			if ($level!="r") {
+				$level = intval($level);
+				if ($level<$lastlevel) {
+					for($k=$level;$k<$lastlevel; $k++) $toc.="</ul>";
+					for($k=$level+1;$k<count($idnum);$k++) $idnum[$k]=0;
+				}
+				if ($level>$lastlevel) $toc.="<ul>";
+				$idnum[$level]++;
+				$id = implode("_", array_slice($idnum,1,$level));
+				$toc .= "<li><a href='#{$id}'>".strip_tags($line)."</a></li>";
+				$line = "<a name='{$id}'></a>".$line;
+				$lastlevel = $level;
+			}
+		}
+	}
+	for($k=1;$k<$lastlevel; $k++) $toc.="</ul>";
+	$html = implode("\n",$lines);
+
+	$a->page['aside'] = $toc.$a->page['aside'];
+
+	$html = "
+		<style>
+		.md_warning {
+			padding: 1em; border: #ff0000 solid 2px;
+			background-color: #f9a3a3; color: #ffffff;
+		}
+		</style>".$html;
 	return $html;
 
 }
