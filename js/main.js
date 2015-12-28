@@ -1,22 +1,22 @@
-  function resizeIframe(obj) {
-    obj.style.height = 0;
-	_resizeIframe(obj, 0);
-  }
-  
-  function _resizeIframe(obj, desth) {
-	var h = obj.style.height;
-	var ch = obj.contentWindow.document.body.scrollHeight + 'px';
-	if (h==ch) {
-		return;
+	function resizeIframe(obj) {
+		//obj.style.height = 0;
+		_resizeIframe(obj, 0);
 	}
-	console.log("_resizeIframe", obj, desth, ch);
-	if (desth!=ch) {
-		setTimeout(_resizeIframe, 500, obj, ch);
-	} else {
-		obj.style.height  = ch;
-		setTimeout(_resizeIframe, 1000, obj, ch);
+
+	function _resizeIframe(obj, desth) {
+		var h = obj.style.height;
+		var ch = obj.contentWindow.document.body.scrollHeight + 'px';
+		if (h==ch) {
+			return;
+		}
+		console.log("_resizeIframe", obj, desth, ch);
+		if (desth!=ch) {
+			setTimeout(_resizeIframe, 500, obj, ch);
+		} else {
+			if (ch>0) obj.style.height  = ch;
+			setTimeout(_resizeIframe, 1000, obj, ch);
+		}
 	}
-  }
 
   function openClose(theID) {
     if(document.getElementById(theID).style.display == "block") {

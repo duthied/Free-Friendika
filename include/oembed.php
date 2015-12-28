@@ -1,12 +1,9 @@
 <?php
 function oembed_replacecb($matches){
-//	logger('oembedcb');
 	$embedurl=$matches[1];
 	$j = oembed_fetch_url($embedurl);
 	$s =  oembed_format_object($j);
-	return $s;//oembed_iframe($s,$j->width,$j->height);
-
-
+	return $s;
 }
 
 
@@ -144,15 +141,12 @@ function oembed_format_object($j){
 			} else {
 				$ret=$jhtml;
 			}
-			$ret.="<br>";
+			//$ret.="<br>";
 		}; break;
 		case "photo": {
 			$ret.= "<img width='".$j->width."' src='".proxy_url($j->url)."'>";
-			//$ret.= "<img width='".$j->width."' height='".$j->height."' src='".proxy_url($j->url)."'>";
-			$ret.="<br>";
 		}; break;
 		case "link": {
-			//$ret = "<a href='".$embedurl."'>".$j->title."</a>";
 		}; break;
 		case "rich": {
 			// not so safe..
@@ -194,10 +188,10 @@ function oembed_format_object($j){
 	} else {
 		// add <a> for html2bbcode conversion
 		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
-		$ret .= "<br style='clear:left'>";
 	}
 	$ret.="</span>";
-	return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
+	$ret = str_replace("\n","",$ret);
+	return mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
 }
 
 function oembed_iframe($src,$width,$height) {

@@ -2522,6 +2522,25 @@ blockquote {
     display: block;
 }
 
+.oembed.video .embed_video > div {
+    position: absolute; top: 0px; left: 0px;
+    background-color: rgba(0,0,0,0.5);
+}
+.oembed.video .embed_video > div::before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    vertical-align: top;
+    font-size: 3em;
+    content: "\f01d"; /* icon-play-circle */
+    color: #fff;
+    bottom: 10px;
+    right: 10px;
+    position: absolute;
+}
+
 /* ================== */
 /* = Contacts Block = */
 /* ================== */

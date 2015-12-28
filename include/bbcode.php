@@ -301,14 +301,12 @@ function bb_onelinecode_cb($match) {
 }
 
 function tryoembed($match){
-	//$url = ((count($match)==2)?$match[1]:$match[2]);
 	$url = $match[1];
 
 	// Always embed the SSL version
 	$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 				array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
 
-	//logger("tryoembed: $url");
 
 	$o = oembed_fetch_url($url);
 
@@ -318,7 +316,7 @@ function tryoembed($match){
 	if ($o->type=="error") return $match[0];
 
 	$html = oembed_format_object($o);
-	return $html; //oembed_iframe($html,$o->width,$o->height);
+	return $html;
 
 }
 
