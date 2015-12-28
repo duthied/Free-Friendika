@@ -167,6 +167,10 @@
 		var notifications_mark = unescape($('<div>').append( $("#nav-notifications-mark-all").clone() ).html()); //outerHtml hack
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
 
+		/* enable perfect-scrollbars for nav-notivications-menu */
+		$('#nav-notifications-menu').perfectScrollbar();
+		$('aside').perfectScrollbar();
+
 		/* nav update event  */
 		$('nav').bind('nav-update', function(e,data){
 			var invalid = $(data).find('invalid').text();
@@ -310,6 +314,9 @@
 				text = $(this).text();
 				$.jGrowl(text, { sticky: false, theme: 'info', life: 5000 });
 			});
+
+			/* update the js scrollbars */
+			$('#nav-notifications-menu').perfectScrollbar('update');
 
 		});
 
