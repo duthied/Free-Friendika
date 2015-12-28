@@ -529,9 +529,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			}
 		}
 
-
 		if(strlen($dfrn)) {
 			$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
+
 			if(is_array($ret) && x($ret,'dfrn-request')) {
 				$network = NETWORK_DFRN;
 				$request = $ret['dfrn-request'];
@@ -544,6 +544,19 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				$vcard['nick'] = $ret['nick'];
 				$vcard['photo'] = $ret['photo'];
 			}
+		}
+	}
+
+	// Scrape the public key from the hcard.
+	// Diaspora will remove it from the webfinger somewhere in the future.
+	if (($hcard != "") AND ($pubkey == "")) {
+		$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
+		if (isset($ret["key"])) {
+			$hcard_key = $ret["key"];
+			if(strstr($hcard_key,'RSA '))
+				$pubkey = rsatopem($hcard_key);
+			else
+				$pubkey = $hcard_key;
 		}
 	}
 
