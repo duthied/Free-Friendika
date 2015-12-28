@@ -745,7 +745,7 @@ section {
             margin: 1em 0;
             max-height: 160px;
             overflow: hidden;
-                    padding-left: 1em;
+            padding-left: 1em;
         }
         .oembed {}
 }
@@ -780,8 +780,10 @@ blockquote.shared_content {
 .oembed.video {
 	> a.embed_video {
 		display: block;
-		float: none;
+		float: left;
+        position: relative;
 		> div {
+            position: absolute; top: 0px; left: 0px;
 			background:
 				rgba(255, 255, 255, 0.36)
 				url(../../../images/icons/48/play.png)
