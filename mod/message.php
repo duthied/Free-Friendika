@@ -549,6 +549,8 @@ function render_messages($msg, $t) {
 	$tpl = get_markup_template($t);
 	$rslt = '';
 
+	$myprofile = $a->get_baseurl(true) . '/profile/' . $a->user['nickname'];
+
 	foreach($msg as $rr) {
 
 		if($rr['unknown']) {
