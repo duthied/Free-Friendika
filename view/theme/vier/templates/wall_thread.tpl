@@ -56,6 +56,7 @@
 			<span class="wall-item-network" title="{{$item.app}}">
 				{{$item.network_name}}
 			</span>
+			<div class="wall-item-network-end"></div>
 		</div>
 
 		<div itemprop="description" class="wall-item-content">

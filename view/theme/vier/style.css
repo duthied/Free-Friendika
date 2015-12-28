@@ -342,6 +342,7 @@ code {
   padding: 10px;
   margin-top: 20px;
   max-width: 640px;
+  white-space: pre-wrap;
 }
 .badge {
   display: inline-block;
@@ -1348,6 +1349,10 @@ section.minimal {
   float: right;
 }
 
+.wall-item-network-end {
+  clear: both;
+}
+
 .wall-item-location {
   width: 350px;
   float: left;
@@ -1446,6 +1451,7 @@ section.minimal {
   transition: all 0.2s ease-in-out;
   /* color: darkblue; */
   /* color: #3E3E8C; */
+  word-break: break-word;
 }
 
 .toplevel_item:hover .fakelink,
