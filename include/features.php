@@ -79,6 +79,12 @@ function get_features() {
 			array('savedsearch',	t('Saved Searches'),			t('Save search terms for re-use'),false),
 		),
 
+		// Profile sidebar widgets
+		'profile-widgets' => array(
+			t('Profile Sidebar Widgets'),
+			array('photos_widget',	t('Show last Photos'),			t('Show your last Photos on the Profile Page Sidebar'),false),
+		),
+
 		// Network tabs
 		'net_tabs' => array(
 			t('Network Tabs'),

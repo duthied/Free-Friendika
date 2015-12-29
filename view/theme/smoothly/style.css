@@ -1019,6 +1019,15 @@ ul .sidebar-group-li .icon {
 	text-shadow: -1px 0px 0px #bdbdbd;
 }
 
+.widget h3 a {
+	color: #626262;
+}
+
+.widget h3 a:hover, .widget h3 a:focus {
+	color: #6da6c4;
+	text-decoration: none;
+}
+
 #connect-desc {
 	margin-left: 10px;
 }

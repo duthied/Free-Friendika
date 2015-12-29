@@ -181,6 +181,10 @@ function profile_content(&$a, $update = 0) {
 		$commpage = (($a->profile['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$commvisitor = (($commpage && $remote_contact == true) ? true : false);
 
+		if(feature_enabled($a->profile['profile_uid'],'photos_widget')) {
+			require_once('include/photos.php');
+			$a->page['aside'] .= widget_photos($a->profile);
+		}
 		$a->page['aside'] .= posted_date_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);
 		$a->page['aside'] .= categories_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
 

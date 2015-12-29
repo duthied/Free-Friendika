@@ -1023,63 +1023,13 @@ function photos_content(&$a) {
 
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if((local_user()) && (local_user() == $owner_uid))
-		$can_post = true;
-	else {
-		if($community_page && remote_user()) {
-			if(is_array($_SESSION['remote'])) {
-				foreach($_SESSION['remote'] as $v) {
-					if($v['uid'] == $owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
-			if($contact_id) {
+	// get the access rights for photos
+	$photos_perms = photos_permissions($owner_uid, $community_page);
 
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($owner_uid)
-				);
-				if(count($r)) {
-					$can_post = true;
-					$contact = $r[0];
-					$remote_contact = true;
-					$visitor = $cid;
-				}
-			}
-		}
-	}
-
-	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-
-	if(remote_user() && (! $visitor)) {
-		$contact_id = 0;
-		if(is_array($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $v) {
-				if($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-		if($contact_id) {
-			$groups = init_groups_visitor($contact_id);
-			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
-			if(count($r)) {
-				$contact = $r[0];
-				$remote_contact = true;
-			}
-		}
-	}
-
-	if(! $remote_contact) {
-		if(local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
+	// convert keys of the $photo_persms array into variables
+	if(count($photos_perms)) {
+		foreach ($photos_perms as $key => $value) {
+			${$key} = $value;
 		}
 	}
 
@@ -1088,7 +1038,7 @@ function photos_content(&$a) {
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid,$remote_contact,$groups);
+	$sql_extra = permissions_sql($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 
@@ -1842,7 +1792,7 @@ function photos_content(&$a) {
 		$a->set_pager_itemspage(20);
 	}
 
-	$r = q("SELECT `resource-id`, `id`, `filename`, type, `album`, max(`scale`) AS `scale` FROM `photo`
+	$r = q("SELECT `resource-id`, `id`, `filename`, `type`, `album`, max(`scale`) AS `scale` FROM `photo`
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
