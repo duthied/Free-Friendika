@@ -82,7 +82,7 @@ function get_features() {
 		// Profile sidebar widgets
 		'profile-widgets' => array(
 			t('Profile Sidebar Widgets'),
-			array('photos_widget',	t('Show last Photos'),			t('Show your last Photos on the Profile Page Sidebar'),false),
+			array('photos_widget',	t('Show last Photos'),			t('Show your last Photos in the Profile Page Sidebar'),false),
 		),
 
 		// Network tabs

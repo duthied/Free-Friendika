@@ -92,7 +92,7 @@ function photos_permissions($owner_uid, $community_page = 0) {
  * It displays the last 9 photos
  * 
  * @param array $profile_data
- *......'profile_uid'...=> The user.id of the profile (owner of the hotos)
+ *......'profile_uid'...=> The user.id of the profile (owner of the photos)
  *......'nickname'......=> Nick of the owner of the profile
  *......'page-flags'....=> Account type of the profile
  * 
