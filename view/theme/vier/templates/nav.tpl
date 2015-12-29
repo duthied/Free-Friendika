@@ -15,27 +15,27 @@
 		{{if $nav.home}}
 			<li role="menuitem" id="nav-home-link" class="nav-menu {{$sel.home}}">
 				<a accesskey="p" class="{{$nav.home.2}} desktop-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
-				<a accesskey="p" class="{{$nav.home.2}} mobile-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" ><i class="icon s22 icon-home"></i></a>
+				<a class="{{$nav.home.2}} mobile-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" ><i class="icon s22 icon-home"></i></a>
 				<span id="home-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.network}}
 			<li role="menuitem" id="nav-network-link" class="nav-menu {{$sel.network}}">
 				<a accesskey="n" class="{{$nav.network.2}} desktop-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
-				<a accesskey="n" class="{{$nav.network.2}} mobile-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" ><i class="icon s22 icon-th"></i></a>
+				<a class="{{$nav.network.2}} mobile-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" ><i class="icon s22 icon-th"></i></a>
 				<span id="net-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.events}}
 			<li role="menuitem" id="nav-events-link" class="nav-menu {{$sel.events}}">
 				<a accesskey="e" class="{{$nav.events.2}} desktop-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}" >{{$nav.events.1}}</a>
-				<a accesskey="e" class="{{$nav.events.2}} mobile-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}" ><i class="icon s22 icon-calendar"></i></a>
+				<a class="{{$nav.events.2}} mobile-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}" ><i class="icon s22 icon-calendar"></i></a>
 			</li>
 		{{/if}}
 		{{if $nav.community}}
 			<li role="menuitem" id="nav-community-link" class="nav-menu {{$sel.community}}">
 				<a accesskey="c" class="{{$nav.community.2}} desktop-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
-				<a accesskey="c" class="{{$nav.community.2}} mobile-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}" ><i class="icon s22 icon-bullseye"></i></a>
+				<a class="{{$nav.community.2}} mobile-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}" ><i class="icon s22 icon-bullseye"></i></a>
 			</li>
 		{{/if}}
 
