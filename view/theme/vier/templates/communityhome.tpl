@@ -12,6 +12,7 @@
 	{{$i}}
 {{/foreach}}
 </div>
+<div class="clear"></div>
 </div>
 {{/if}}
 
@@ -59,6 +60,7 @@
 	{{$i}}
 {{/foreach}}
 </div>
+<div class="clear"></div>
 </div>
 {{/if}}
 
