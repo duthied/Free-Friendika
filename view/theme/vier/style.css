@@ -928,10 +928,33 @@ ul.menu-popup .empty {
   background-color: #bdcdd4;
 }*/
 
-#nav-notifications-menu img {
-  float: left;
-  margin-right: 5px;
+#nav-notifications-menu > li {
+  display: block;
+  color: #737373;
+  cursor: pointer;
 }
+
+#nav-notifications-menu > li:hover {
+  background-color: #e5e5e5;
+  color: #000;
+}
+#nav-notifications-mark-all a {
+  color: #737373;
+}
+
+#nav-notifications-menu img {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  margin: 0;
+  padding: 0;
+}
+
+#nav-notifications-menu .notif-desc-wrapper a {
+  display: inline;
+  padding: 0px;
+}
+
 #nav-notifications-menu .contactname {
   font-weight: bold;
 }
@@ -945,6 +968,25 @@ ul.menu-popup .empty {
         width: 32px;
         height: 32px;
         padding: 7px 7px 0px 0px;
+}
+
+.notif-entry-wrapper {
+  padding: 5px 10px;
+  min-height: 32px;
+  /*border-bottom: 1px solid #DDDDDD;*/
+}
+
+.notif-photo-wrapper {
+  float: left;
+  margin-right: 10px;
+}
+
+.notif-photo-wrapper a {
+  padding: 0 !important;
+}
+
+.notif-desc-wrapper {
+  overflow: hidden;
 }
 
 right_aside {

@@ -247,13 +247,18 @@
 				eNotif.children("note").each(function(){
 					e = $(this);
 					var text = e.text().format("<span class='contactname'>"+e.attr('name')+"</span>");
+					var contact = ("<a href="+e.attr('url')+"><span class='contactname'>"+e.attr('name')+"</span></a>");
 					var seenclass = (e.attr('seen')==1)?"notify-seen":"notify-unseen";
-					var html = notifications_tpl.format(e.attr('href'),
-						e.attr('photo'),                    // {0}
-						text,                               // {1}
-						e.attr('date'),                     // {2}
-						seenclass,                          // {3}
-						new Date(e.attr('timestamp')*1000)  // {4}
+					var html = notifications_tpl.format(
+						e.attr('href'),                     // {0}  // link to the source
+						e.attr('photo'),                    // {1}  // photo of the contact
+						text,                               // {2}  // preformatet text (autor + text)
+						e.attr('date'),                     // {3}  // date of notification (time ago)
+						seenclass,                          // {4}  // vistiting status of the notification
+						new Date(e.attr('timestamp')*1000), // {5}  //date of notification
+						e.attr('url'),                      // {6}  // profile url of the contact
+						e.text().format(""),                // {7}  // clean status text
+						contact                             // {8}  //preformatat author (name + profile url)
 					);
 					nnm.append(html);
 				});
