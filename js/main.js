@@ -147,6 +147,7 @@
 			} else {
 				last_popup_menu = menu;
 				last_popup_button = parent;
+				$('#nav-notifications-menu').perfectScrollbar('update');
 			}
 			return false;
 		});

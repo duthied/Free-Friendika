@@ -544,7 +544,6 @@ header {
   margin: 0;
   padding: 0;
   /*width: 100%; height: 12px; */
-
   z-index: 110;
   color: #ffffff;
 }
@@ -922,7 +921,6 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
-
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -1004,7 +1002,6 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0;}*/
-
 }
 .widget h3 {
   padding: 0;
@@ -1308,7 +1305,6 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
-
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -2241,7 +2237,6 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
-
 }
 #photo-caption {
   display: block;
