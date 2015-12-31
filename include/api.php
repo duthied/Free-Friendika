@@ -1336,7 +1336,7 @@
 			intval($since_id),
 			intval($start),	intval($count)
 		);
-
+	
 		$ret = api_format_items($r,$user_info);
 
 		// Set all posts from the query above to seen
@@ -2302,7 +2302,7 @@
 	 * @param array $user_info
 	 * @param bool $filter_user filter items by $user_info
 	 */
-	function api_format_items(&$r,$user_info, $filter_user = false) {
+	function api_format_items($r,$user_info, $filter_user = false) {
 
 		$a = get_app();
 		$ret = Array();
