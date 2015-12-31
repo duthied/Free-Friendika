@@ -60,6 +60,9 @@ nav ul {
   .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
     max-width: 350px;
   }
+  a.desktop-view { display: none; }
+  a.mobile-view { display: initial; }
+  #nav-apps-link { display: none; }
 }
 
 @media screen and (max-width: 480px) {

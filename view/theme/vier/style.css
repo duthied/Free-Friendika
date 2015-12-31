@@ -372,6 +372,13 @@ code {
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
+
+/* some settings for different form-factors */
+@media (min-width: 601px) {
+  a.mobile-view { display: none };
+  a.desktop-view { display: initial };
+}
+
 /* tool */
 .tool {
   height: auto;
