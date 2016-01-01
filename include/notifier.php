@@ -310,7 +310,7 @@ function notifier_run(&$argv, &$argc){
 				if ($parent["network"] == NETWORK_OSTATUS) {
 					// Distribute the message to the DFRN contacts as if this wasn't a followup since OStatus can't relay comments
 					// Currently it is work at progress
-					$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s' AND NOT `blocked` AND NOT `pending`",
+					$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s' AND NOT `blocked` AND NOT `pending` AND NOT `archive`",
 						intval($uid),
 						dbesc(NETWORK_DFRN)
 					);
@@ -409,7 +409,7 @@ function notifier_run(&$argv, &$argc){
 		} else
 			$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."', '".NETWORK_MAIL2."')";
 
-		$r = q("SELECT * FROM `contact` WHERE `id` IN ($conversant_str) AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0".$sql_extra);
+		$r = q("SELECT * FROM `contact` WHERE `id` IN ($conversant_str) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra);
 
 		if(count($r))
 			$contacts = $r;
@@ -444,7 +444,7 @@ function notifier_run(&$argv, &$argc){
 	if ($relocate)
 		$r = $recipients_relocate;
 	else
-		$r = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending`",
+		$r = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`",
 			dbesc($recip_str)
 		);
 
@@ -548,7 +548,7 @@ function notifier_run(&$argv, &$argc){
 		);
 
 		$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
-			WHERE `network` in ( '%s', '%s')  AND `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
+			WHERE `network` in ( '%s', '%s')  AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 			AND `rel` != %d order by rand() ",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_MAIL2),
