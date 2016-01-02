@@ -2768,20 +2768,20 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 					$datarray['gravity'] = GRAVITY_LIKE;
 					// only one like or dislike per person
 					// splitted into two queries for performance issues
-					$r = q("select id from item where uid = %d and `contact-id` = %d and verb ='%s' and deleted = 0 and (`parent-uri` = '%s') limit 1",
+					$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
 						intval($datarray['uid']),
-						intval($datarray['contact-id']),
+						dbesc($datarray['author-link']),
 						dbesc($datarray['verb']),
-						dbesc($parent_uri)
+						dbesc($datarray['parent-uri'])
 					);
 					if($r && count($r))
 						continue;
 
-					$r = q("select id from item where uid = %d and `contact-id` = %d and verb ='%s' and deleted = 0 and (`thr-parent` = '%s') limit 1",
+					$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
 						intval($datarray['uid']),
-						intval($datarray['contact-id']),
+						dbesc($datarray['author-link']),
 						dbesc($datarray['verb']),
-						dbesc($parent_uri)
+						dbesc($datarray['parent-uri'])
 					);
 					if($r && count($r))
 						continue;
@@ -3733,7 +3733,6 @@ function local_delivery($importer,$data) {
 						dbesc($datarray['author-link']),
 						dbesc($datarray['verb']),
 						dbesc($datarray['parent-uri'])
-
 					);
 					if($r && count($r))
 						continue;
@@ -3910,7 +3909,7 @@ function local_delivery($importer,$data) {
 				$datarray['parent-uri'] = $parent_uri;
 				$datarray['uid'] = $importer['importer_uid'];
 				$datarray['contact-id'] = $importer['id'];
-				if(($datarray['verb'] === ACTIVITY_LIKE) 
+				if(($datarray['verb'] === ACTIVITY_LIKE)
 					|| ($datarray['verb'] === ACTIVITY_DISLIKE)
 					|| ($datarray['verb'] === ACTIVITY_ATTEND)
 					|| ($datarray['verb'] === ACTIVITY_ATTENDNO)
@@ -3919,20 +3918,20 @@ function local_delivery($importer,$data) {
 					$datarray['gravity'] = GRAVITY_LIKE;
 					// only one like or dislike per person
 					// splitted into two queries for performance issues
-					$r = q("select id from item where uid = %d and `contact-id` = %d and verb ='%s' and deleted = 0 and (`parent-uri` = '%s') limit 1",
+					$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
 						intval($datarray['uid']),
-						intval($datarray['contact-id']),
+						dbesc($datarray['author-link']),
 						dbesc($datarray['verb']),
-						dbesc($parent_uri)
+						dbesc($datarray['parent-uri'])
 					);
 					if($r && count($r))
 						continue;
 
-					$r = q("select id from item where uid = %d and `contact-id` = %d and verb ='%s' and deleted = 0 and (`thr-parent` = '%s') limit 1",
+					$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
 						intval($datarray['uid']),
-						intval($datarray['contact-id']),
+						dbesc($datarray['author-link']),
 						dbesc($datarray['verb']),
-						dbesc($parent_uri)
+						dbesc($datarray['parent-uri'])
 					);
 					if($r && count($r))
 						continue;
