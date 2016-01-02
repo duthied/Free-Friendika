@@ -1336,7 +1336,7 @@
 			intval($since_id),
 			intval($start),	intval($count)
 		);
-	
+
 		$ret = api_format_items($r,$user_info);
 
 		// Set all posts from the query above to seen
@@ -2277,21 +2277,26 @@
 	 */
 	function api_format_items_likes(&$item) {
 		$activities = array(
-			ACTIVITY_LIKE => 'like',
-			ACTIVITY_DISLIKE => 'dislike',
-			ACTIVITY_ATTEND => 'attendyes',
-			ACTIVITY_ATTENDNO => 'attendno',
-			ACTIVITY_ATTENDMAYBE => 'attendmaybe'
+			'like' => array(),
+			'dislike' => array(),
+			'attendyes' => array(),
+			'attendno' => array(),
+			'attendmaybe' => array()
 		);
-		$r = q("SELECT verb, count(verb) as n FROM item WHERE parent=%d GROUP BY verb",
-				intval($item['id']));
+		$items = q('SELECT * FROM item
+					WHERE uid=%d AND `thr-parent`="%s" AND visible AND NOT deleted',
+					intval($item['uid']),
+					dbesc($item['uri']));
+		foreach ($items as $i){
+			builtin_activity_puller($i, $activities);
+		}
 
 		$res = array();
-		foreach($r as $row) {
-			if (x($activities, $row['verb'])) {
-				$res[$activities[$row['verb']]] = $row['n'];
-			}
+		$uri = $item['uri'];
+		foreach($activities as $k => $v) {
+			$res[$k] = (x($v,$uri)?$v[$uri]:0);
 		}
+
 		return $res;
 	}
 
@@ -3395,8 +3400,9 @@
 
 	function api_friendica_activity(&$a, $type) {
 		if (api_user()===false) throw new ForbiddenException();
-		#$verb = (x($_REQUEST, 'verb') ? strtolower($_REQUEST['verb']) : '');
 		$verb = strtolower($a->argv[3]);
+		$verb = preg_replace("|\..*$|", "", $verb);
+
 		$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
 
 		$res = do_like($id, $verb);
@@ -3406,7 +3412,7 @@
 				$ok = "true";
 			else
 				$ok = "ok";
-			return api_apply_template('test', $type, array("$ok" => $ok));
+			return api_apply_template('test', $type, array('ok' => $ok));
 		} else {
 			throw new BadRequestException('Error adding activity');
 		}
