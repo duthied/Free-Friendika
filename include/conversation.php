@@ -354,7 +354,7 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
-	// likes (etc.) can apply to other things besides posts. Check if they are post children, 
+	// likes (etc.) can apply to other things besides posts. Check if they are post children,
 	// in which case we handle them specially
 
 	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
@@ -505,7 +505,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
 	$conv_responses = array(
-		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')), 
+		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')),
 		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
 	);
 
@@ -946,7 +946,6 @@ function item_photo_menu($item){
  * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
  * Increments the count of each matching activity and adds a link to the author as needed.
  *
- * @param array $a (not used)
  * @param array $item
  * @param array &$conv_responses (already created with builtin activity structure)
  * @return void
@@ -1382,7 +1381,7 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
 		if(count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
-			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-' 
+			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'
 				. (($ob) ? $ob->get_id() : $item['id']) . '"><b>' . t('View all') . '</b></a>');
 		}
 		else {
