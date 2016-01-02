@@ -441,25 +441,25 @@ function dfrn_request_post(&$a) {
 
 			// Next send an email verify form to the requestor.
 
-		}
-
-		else {
+		} else {
 			// Detect the network
 			$data = probe_url($url);
 			$network = $data["network"];
 
-			// Use the detected address - if present
-			if ($data["addr"] != "")
-				$url = $data["addr"];
-
 			// Canonicalise email-style profile locator
 			$url = webfinger_dfrn($url,$hcard);
 
-			if (substr($url,0,5) === 'stat:')
-				$url = substr($url,5);
+			if (substr($url,0,5) === 'stat:') {
 
-			if (($url == "") AND ($network === NETWORK_DIASPORA))
-				$url = $data["baseurl"]."/people?q={uri}";
+				// Every time we detect the remote subscription we define this as OStatus.
+				// We do this even if it is not OStatus.
+				// we only need to pass this through another section of the code.
+				if ($network != NETWORK_DIASPORA)
+					$network = NETWORK_OSTATUS;
+
+				$url = substr($url,5);
+			} else
+				$network = NETWORK_DFRN;
 		}
 
 		logger('dfrn_request: url: ' . $url);
