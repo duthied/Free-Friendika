@@ -2596,7 +2596,7 @@
 
 		$stringify_ids = (x($_REQUEST,'stringify_ids')?$_REQUEST['stringify_ids']:false);
 
-		$r = q("SELECT `unique_contact`.`id` FROM contact, `unique_contacts` WHERE contact.nurl = unique_contacts.url AND `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
+		$r = q("SELECT `unique_contacts`.`id` FROM `contact`, `unique_contacts` WHERE `contact`.`nurl` = `unique_contacts`.`url` AND `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` $sql_extra",
 			intval(api_user())
 		);
 
