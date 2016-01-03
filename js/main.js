@@ -147,6 +147,7 @@
 			} else {
 				last_popup_menu = menu;
 				last_popup_button = parent;
+				$('#nav-notifications-menu').perfectScrollbar('update');
 			}
 			return false;
 		});
@@ -166,6 +167,10 @@
 		var notifications_all = unescape($('<div>').append( $("#nav-notifications-see-all").clone() ).html()); //outerHtml hack
 		var notifications_mark = unescape($('<div>').append( $("#nav-notifications-mark-all").clone() ).html()); //outerHtml hack
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
+
+		/* enable perfect-scrollbars for nav-notivications-menu */
+		$('#nav-notifications-menu').perfectScrollbar();
+		$('aside').perfectScrollbar();
 
 		/* nav update event  */
 		$('nav').bind('nav-update', function(e,data){
@@ -310,6 +315,9 @@
 				text = $(this).text();
 				$.jGrowl(text, { sticky: false, theme: 'info', life: 5000 });
 			});
+
+			/* update the js scrollbars */
+			$('#nav-notifications-menu').perfectScrollbar('update');
 
 		});
 
