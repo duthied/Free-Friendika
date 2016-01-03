@@ -559,7 +559,7 @@ function notifier_run(&$argv, &$argc){
 		$r = array_merge($r2,$r1,$r0);
 
 		if(count($r)) {
-			logger('pubdeliver: ' . print_r($r,true), LOGGER_DEBUG);
+			logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
 
 			// throw everything into the queue in case we get killed
 
@@ -584,7 +584,7 @@ function notifier_run(&$argv, &$argc){
 				}
 
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
-					logger('notifier: delivery agent: ' . $rr['name'] . ' ' . $rr['id']);
+					logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
 					proc_run('php','include/delivery.php',$cmd,$item_id,$rr['id']);
 					if($interval)
 						@time_sleep_until(microtime(true) + (float) $interval);

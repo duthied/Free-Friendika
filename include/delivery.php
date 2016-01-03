@@ -276,7 +276,7 @@ function delivery_run(&$argv, &$argc){
 		switch($contact['network']) {
 
 			case NETWORK_DFRN:
-				logger('notifier: dfrndelivery: ' . $contact['name']);
+				logger('notifier: '.$target_item["guid"].' dfrndelivery: ' . $contact['name']);
 
 				$feed_template = get_markup_template('atom_feed.tpl');
 				$mail_template = get_markup_template('atom_mail.tpl');
@@ -402,14 +402,14 @@ function delivery_run(&$argv, &$argc){
 						if($normal_mode) {
 							if($item_id == $item['id'] || $item['id'] == $item['parent'])
 								$atom .= atom_entry($item,'text',null,$owner,true,(($top_level) ? $contact['id'] : 0));
-						}
-						else
+						} else
 							$atom .= atom_entry($item,'text',null,$owner,true);
-
 					}
 				}
 
 				$atom .= '</feed>' . "\r\n";
+
+				logger('notifier: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
 
 				logger('notifier: ' . $atom, LOGGER_DATA);
 				$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));
@@ -470,7 +470,7 @@ function delivery_run(&$argv, &$argc){
 				else
 					$deliver_status = (-1);
 
-				logger('notifier: dfrn_delivery returns ' . $deliver_status);
+				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
 
 				if($deliver_status == (-1)) {
 					logger('notifier: delivery failed: queuing message');
