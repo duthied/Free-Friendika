@@ -1,4 +1,4 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+<script src="{{$baseurl}}/library/Chart.js-1.0.2/Chart.min.js"></script>
 <canvas id="FederationChart" style="width: 400px; height: 400px; float: right; margin: 20px;"></canvas>
 <div id="adminpage">
     <h1>{{$title}} - {{$page}}</h1>
