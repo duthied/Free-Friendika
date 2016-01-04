@@ -9,7 +9,9 @@
     <p>{{$legendtext}}
     <ul>
     {{foreach $counts as $c}}
+    {{if $c[0]['count(*)'] > 0}}
     <li>{{$c[0]['platform']}} ({{$c[0]['count(*)']}})</li>
+    {{/if}}
     {{/foreach}}
     </ul>
     </p>
@@ -30,6 +32,7 @@ document.getElementById('FederationLegend').innerHTML = myDoughnutChart.generate
 
 <table style="width: 100%">
 {{foreach $counts as $c}}
+{{if $c[0]['count(*)'] > 0}}
 <tr>
 	<th>{{$c[0]['platform']}}</th>
 	<th><strong>{{$c[0]['count(*)']}}</strong></td>
@@ -56,5 +59,6 @@ var my{{$c[2]}}DoughnutChart = new Chart(ctx).Doughnut({{$c[2]}}data,
 </ul>
 </td>
 </tr>
+{{/if}}
 {{/foreach}}
 </table>
