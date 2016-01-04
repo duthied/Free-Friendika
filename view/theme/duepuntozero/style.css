@@ -140,12 +140,12 @@ nav #banner #logo-text a:hover { text-decoration: none; }
 
 
 .nav-commlink, .nav-login-link {
-	display: block;
-	height: 15px;
+    display: block;
+    height: 15px;
 	margin-top: 67px;
 	margin-right: 2px;
-	/* padding: 6px 10px; */
-	padding: 6px 3px;
+	//padding: 6px 10px;
+       padding: 6px 3px;
 	float: left;
 	bottom: 140px;
 	border: 1px solid #babdb6;
@@ -244,7 +244,7 @@ section {
 	display:block;
 	float:left;
 	padding: 0.4em;
-	/*margin-right: 1em; */
+	//margin-right: 1em;
 	margin-right: 3px ;
 }
 .tab.active {
@@ -2164,9 +2164,6 @@ aside input[type='text'] {
 
 }
 
-.widget h3 a {
-	color: #000000;
-}
 
 /*.photos {
 	height: auto;

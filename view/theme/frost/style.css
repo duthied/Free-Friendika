@@ -2356,21 +2356,6 @@ a.mail-list-link {
 	margin: 10px 0 10px;
 }
 
-.widget-photo {
-	float: left;
-}
-
-.widget-photo-link {
-	margin: 0 2px 2px 0;
-}
-
-img.widget-photo-img {
-	width: 48px;
-	height: 48px;
-	object-fit: cover;
-	padding-right: 2px;
-}
-
 #sidebar-group-list ul {
 	list-style-type: none;
 }
@@ -2461,11 +2446,9 @@ aside input[type='text'] {
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
 	border-radius:5px;
+
 }
 
-.widget h3  a {
-	color: #505050;
-}
 
 /*.photos {
 	height: auto;
