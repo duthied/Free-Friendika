@@ -238,7 +238,7 @@ function admin_content(&$a) {
  *
  * The returned string contains the HTML code of the subpage for display.
  *
- * @brief subpage with some stats about "the federstion" network
+ * @brief subpage with some stats about "the federation" network
  * @param App $a
  * @return string
  */
@@ -249,7 +249,9 @@ function admin_page_federation(&$a) {
     // We are looking for the following platforms in the DB, "Red" should find
     // all variants of that platform ID string as the q() function is stripping
     // off one % two of them are needed in the query
-    $platforms = array('Diaspora', 'Friendica', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
+    // Add more platforms if you like, when one returns 0 known nodes it is not
+    // displayed on the stats page.
+    $platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
     $counts = array();
     foreach ($platforms as $p) {
 	// get a total count for the platform, the name and version of the
@@ -333,6 +335,7 @@ function admin_page_federation(&$a) {
 	'$counts' => $counts,
 	'$version' => FRIENDICA_VERSION,
 	'$legendtext' => t('Currently this node is aware of nodes from the following platforms:'),
+	'$baseurl' => $a->get_baseurl(),
     ));
 }
 /**
@@ -743,6 +746,9 @@ function admin_page_site_post(&$a){
 
 /**
  * @brief generate Admin Site subpage
+ *
+ * This function generates the main configuration page of the admin panel.
+ *
  * @param  App $a
  * @return string
  */
@@ -955,6 +961,13 @@ function admin_page_site(&$a) {
 
 /**
  * @brief generates admin panel subpage for DB syncronization
+ *
+ * This page checks if the database of friendica is in sync with the specs.
+ * Should this not be the case, it attemps to sync the structure and notifies
+ * the admin if the automatic process was failing.
+ *
+ * The returned string holds the HTML code of the page.
+ *
  * @param App $a
  * @return string
  **/
@@ -1133,6 +1146,13 @@ function admin_page_users_post(&$a){
 
 /**
  * @brief admin panel subpage for User management
+ *
+ * This function generates the admin panel page for user management of the
+ * node. It offers functionality to add/block/delete users and offers some
+ * statistics about the userbase.
+ *
+ * The returned string holds the HTML code of the page.
+ *
  * @param App $a
  * @return string
  */
