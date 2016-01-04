@@ -1013,82 +1013,25 @@ function photos_content(&$a) {
 	// Setup permissions structures
 	//
 
-	$can_post       = false;
-	$visitor        = 0;
-	$contact        = null;
-	$remote_contact = false;
-	$contact_id     = 0;
+	$photos_perms['can_post']       = false;
+	$photos_perms['visitor']        = 0;
+	$photos_perms['contact']        = null;
+	$photos_perms['remote_contact'] = false;
+	$photos_perms['contact_id']     = 0;
 
 	$owner_uid = $a->data['user']['uid'];
 
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if((local_user()) && (local_user() == $owner_uid))
-		$can_post = true;
-	else {
-		if($community_page && remote_user()) {
-			if(is_array($_SESSION['remote'])) {
-				foreach($_SESSION['remote'] as $v) {
-					if($v['uid'] == $owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
-			if($contact_id) {
+	// get the access rights for photos
+	$photos_perms = photos_permissions($owner_uid, $community_page);
 
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($owner_uid)
-				);
-				if(count($r)) {
-					$can_post = true;
-					$contact = $r[0];
-					$remote_contact = true;
-					$visitor = $cid;
-				}
-			}
-		}
-	}
-
-	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-
-	if(remote_user() && (! $visitor)) {
-		$contact_id = 0;
-		if(is_array($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $v) {
-				if($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-		if($contact_id) {
-			$groups = init_groups_visitor($contact_id);
-			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
-			if(count($r)) {
-				$contact = $r[0];
-				$remote_contact = true;
-			}
-		}
-	}
-
-	if(! $remote_contact) {
-		if(local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
-		}
-	}
-
-	if($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
+	if($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $photos_perms['remote_contact'])) {
 		notice( t('Access to this item is restricted.') . EOL);
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid,$remote_contact,$groups);
+	$sql_extra = permissions_sql($owner_uid, $photos_perms['remote_contact'], $photos_perms['groups']);
 
 	$o = "";
 
@@ -1101,7 +1044,7 @@ function photos_content(&$a) {
 	 */
 
 	if($datatype === 'upload') {
-		if(! ($can_post)) {
+		if(! ($photos_perms['can_post'])) {
 			notice( t('Permission denied.'));
 			return;
 		}
@@ -1171,11 +1114,11 @@ function photos_content(&$a) {
 
 		if($a->theme['template_engine'] === 'internal') {
 			$albumselect_e = template_escape($albumselect);
-			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user)));
+			$aclselect_e = (($photos_perms['visitor']) ? '' : template_escape(populate_acl($a->user)));
 		}
 		else {
 			$albumselect_e = $albumselect;
-			$aclselect_e = (($visitor) ? '' : populate_acl($a->user));
+			$aclselect_e = (($photos_perms['visitor']) ? '' : populate_acl($a->user));
 		}
 
 		$o .= replace_macros($tpl,array(
@@ -1243,7 +1186,7 @@ function photos_content(&$a) {
 		//edit album name
 		if($cmd === 'edit') {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
-				if($can_post) {
+				if($photos_perms['can_post']) {
 					$edit_tpl = get_markup_template('album_edit.tpl');
 
 					if($a->theme['template_engine'] === 'internal') {
@@ -1266,7 +1209,7 @@ function photos_content(&$a) {
 		}
 		else {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
-				if($can_post) {
+				if($photos_perms['can_post']) {
 					$edit = array(t('Edit Album'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit');
  				}
 			}
@@ -1316,7 +1259,7 @@ function photos_content(&$a) {
 		$o .= replace_macros($tpl, array(
 				'$photos' => $photos,
 				'$album' => $album,
-				'$can_post' => $can_post,
+				'$can_post' => $photos_perms['can_post'],
 				'$upload' => array(t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
 				'$order' => $order,
 				'$edit' => $edit
@@ -1383,7 +1326,7 @@ function photos_content(&$a) {
 					break;
 				}
 			}
-			$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
+			$edit_suffix = ((($cmd === 'edit') && ($photos_perms['can_post'])) ? '/edit' : '');
 			$prevlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
 			$nextlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
  		}
@@ -1406,7 +1349,7 @@ function photos_content(&$a) {
  		$tools = Null;
  		$lock = Null;
 
-		if($can_post && ($ph[0]['uid'] == $owner_uid)) {
+		if($photos_perms['can_post'] && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = array(
 				'edit'	=> array($a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))),
 				'profile'=>array($a->get_baseurl() . '/profile_photo/use/'.$ph[0]['resource-id'], t('Use as profile photo')),
@@ -1529,7 +1472,7 @@ function photos_content(&$a) {
 
 
 		$edit = Null;
-		if(($cmd === 'edit') && ($can_post)) {
+		if(($cmd === 'edit') && ($photos_perms['can_post'])) {
 			$edit_tpl = get_markup_template('photo_edit.tpl');
 
 			// Private/public post links for the non-JS ACL form
@@ -1601,7 +1544,7 @@ function photos_content(&$a) {
 
 			$likebuttons = '';
 
-			if($can_post || can_write_wall($a,$owner_uid)) {
+			if($photos_perms['can_post'] || can_write_wall($a,$owner_uid)) {
 				$likebuttons = replace_macros($like_tpl,array(
 					'$id' => $link_item['id'],
 					'$likethis' => t("I like this \x28toggle\x29"),
@@ -1614,7 +1557,7 @@ function photos_content(&$a) {
 
 			$comments = '';
 			if(! count($r)) {
-				if($can_post || can_write_wall($a,$owner_uid)) {
+				if($photos_perms['can_post'] || can_write_wall($a,$owner_uid)) {
 					if($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
 							'$return_path' => '',
@@ -1623,9 +1566,9 @@ function photos_content(&$a) {
 							'$id' => $link_item['id'],
 							'$parent' => $link_item['id'],
 							'$profile_uid' =>  $owner_uid,
-							'$mylink' => $contact['url'],
+							'$mylink' => $photos_perms['contact']['url'],
 							'$mytitle' => t('This is you'),
-							'$myphoto' => $contact['thumb'],
+							'$myphoto' => $photos_perms['contact']['thumb'],
 							'$comment' => t('Comment'),
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
@@ -1662,7 +1605,7 @@ function photos_content(&$a) {
 
 
 
-				if($can_post || can_write_wall($a,$owner_uid)) {
+				if($photos_perms['can_post'] || can_write_wall($a,$owner_uid)) {
 					if($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
 							'$return_path' => '',
@@ -1671,9 +1614,9 @@ function photos_content(&$a) {
 							'$id' => $link_item['id'],
 							'$parent' => $link_item['id'],
 							'$profile_uid' =>  $owner_uid,
-							'$mylink' => $contact['url'],
+							'$mylink' => $photos_perms['contact']['url'],
 							'$mytitle' => t('This is you'),
-							'$myphoto' => $contact['thumb'],
+							'$myphoto' => $photos_perms['contact']['thumb'],
 							'$comment' => t('Comment'),
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
@@ -1715,7 +1658,7 @@ function photos_content(&$a) {
 
 
 
-					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == local_user()));
+					$dropping = (($item['contact-id'] == $photos_perms['contact_id']) || ($item['uid'] == local_user()));
 					$drop = array(
 						'dropping' => $dropping,
 						'pagedrop' => false,
@@ -1749,7 +1692,7 @@ function photos_content(&$a) {
 						'$comment' => $comment
 					));
 
-					if($can_post || can_write_wall($a,$owner_uid)) {
+					if($photos_perms['can_post'] || can_write_wall($a,$owner_uid)) {
 
 						if($item['last-child']) {
 							$comments .= replace_macros($cmnt_tpl,array(
@@ -1759,9 +1702,9 @@ function photos_content(&$a) {
 								'$id' => $item['item_id'],
 								'$parent' => $item['parent'],
 								'$profile_uid' =>  $owner_uid,
-								'$mylink' => $contact['url'],
+								'$mylink' => $photos_perms['contact']['url'],
 								'$mytitle' => t('This is you'),
-								'$myphoto' => $contact['thumb'],
+								'$myphoto' => $photos_perms['contact']['thumb'],
 								'$comment' => t('Comment'),
 								'$submit' => t('Submit'),
 								'$preview' => t('Preview'),
@@ -1842,7 +1785,7 @@ function photos_content(&$a) {
 		$a->set_pager_itemspage(20);
 	}
 
-	$r = q("SELECT `resource-id`, `id`, `filename`, type, `album`, max(`scale`) AS `scale` FROM `photo`
+	$r = q("SELECT `resource-id`, `id`, `filename`, `type`, `album`, max(`scale`) AS `scale` FROM `photo`
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
@@ -1897,7 +1840,7 @@ function photos_content(&$a) {
 	$tpl = get_markup_template('photos_recent.tpl');
 	$o .= replace_macros($tpl, array(
 		'$title' => t('Recent Photos'),
-		'$can_post' => $can_post,
+		'$can_post' => $photos_perms['can_post'],
 		'$upload' => array(t('Upload New Photos'), $a->get_baseurl().'/photos/'.$a->data['user']['nickname'].'/upload'),
 		'$photos' => $photos,
 	));

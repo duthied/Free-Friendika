@@ -1190,6 +1190,12 @@ aside h4, right_aside h4 {
   padding: 0px;
   margin: 2px;
 }
+.widget h3  a {
+  color: #737373;
+}
+.widget h3 a:hover {
+  color: black;
+}
 .widget .action {
   opacity: 0.1;
   -webkit-transition: all 0.2s ease-in-out;
