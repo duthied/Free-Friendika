@@ -318,6 +318,7 @@
 					}
 				}
 			}
+			logger('API call not implemented: '.$a->query_string);
 			throw new NotImplementedException();
 		} catch (HTTPException $e) {
 			header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
@@ -2576,6 +2577,7 @@
 			killme();
 		}
 	}
+	api_register_func('api/gnusocial/version','api_statusnet_version',false);
 	api_register_func('api/statusnet/version','api_statusnet_version',false);
 
 	/**
