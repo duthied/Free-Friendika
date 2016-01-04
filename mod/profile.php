@@ -1,7 +1,6 @@
 <?php
 
 require_once('include/contact_widgets.php');
-require_once('include/photos.php');
 require_once('include/redir.php');
 
 
@@ -13,7 +12,7 @@ function profile_init(&$a) {
 	if($a->argc > 1)
 		$which = $a->argv[1];
 	else {
-		$r = q("SELECT `nickname` FROM `user` WHERE `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 ORDER BY RAND() LIMIT 1");
+		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
 		if(count($r)) {
 			goaway($a->get_baseurl() . '/profile/' . $r[0]['nickname']);
 		}
@@ -182,9 +181,6 @@ function profile_content(&$a, $update = 0) {
 		$commpage = (($a->profile['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$commvisitor = (($commpage && $remote_contact == true) ? true : false);
 
-		if(feature_enabled($a->profile['profile_uid'],'photos_widget'))
-			$a->page['aside'] .= widget_photos($a->profile);
-
 		$a->page['aside'] .= posted_date_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);
 		$a->page['aside'] .= categories_widget($a->get_baseurl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
 
@@ -225,9 +221,9 @@ function profile_content(&$a, $update = 0) {
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
-			(`item`.`deleted` = 0 OR `item`.`verb` = '" . ACTIVITY_LIKE ."'
-			OR `item`.`verb` = '" . ACTIVITY_DISLIKE . "' OR `item`.`verb` = '" . ACTIVITY_ATTEND . "'
-			OR `item`.`verb` = '" . ACTIVITY_ATTENDNO . "' OR `item`.`verb` = '" . ACTIVITY_ATTENDMAYBE . "')
+			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."'
+			OR item.verb = '" . ACTIVITY_DISLIKE . "' OR item.verb = '" . ACTIVITY_ATTEND . "'
+			OR item.verb = '" . ACTIVITY_ATTENDNO . "' OR item.verb = '" . ACTIVITY_ATTENDMAYBE . "')
 			AND `item`.`moderated` = 0 and `item`.`unseen` = 1
 			AND `item`.`wall` = 1
 			$sql_extra
