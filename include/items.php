@@ -19,7 +19,7 @@ require_once('mod/share.php');
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
 
-function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
+function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
 
 	$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
@@ -120,18 +120,8 @@ function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, 
 	else
 		$sort = 'ASC';
 
-	// Include answers to status.net posts in pubsub feeds
-	if($forpubsub) {
-		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`";
-		$visibility = sprintf("AND (`item`.`parent` = `item`.`id`) OR (`item`.`network` = '%s' AND ((`thread`.`network`='%s') OR (`thritem`.`network` = '%s')))",
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS));
-		$date_field = "`received`";
-		$sql_order = "`item`.`received` DESC";
-	} else {
-		$date_field = "`changed`";
-		$sql_order = "`item`.`parent` ".$sort.", `item`.`created` ASC";
-	}
+	$date_field = "`changed`";
+	$sql_order = "`item`.`parent` ".$sort.", `item`.`created` ASC";
 
 	if(! strlen($last_update))
 		$last_update = 'now -30 days';
