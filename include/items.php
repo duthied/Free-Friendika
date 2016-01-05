@@ -1338,6 +1338,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
+	if ($arr["gcontact-id"] == 0)
+		$arr["gcontact-id"] = get_gcontact_id($arr['author-link'], $arr['network'], $arr['author-avatar'], $arr['author-name']);
+
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid
 		logger('checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);

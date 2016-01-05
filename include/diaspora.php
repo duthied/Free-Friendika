@@ -2488,6 +2488,14 @@ function diaspora_profile($importer,$xml,$msg) {
 			datetime_convert(), 2, $contact['id'], $importer['uid']);
 	}
 
+	// @todo:
+	/*
+                update_gcontact($contact["url"], $contact["network"],
+                                $author["author-avatar"], $contact["name"],
+                                $contact["nick"], $contact["location"],
+                                $contact["about"]);
+	*/
+
 	$profileurl = "";
 	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
 			dbesc(normalise_link($contact['url'])));

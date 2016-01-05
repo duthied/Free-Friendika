@@ -129,45 +129,50 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 	if ($r AND !$onlyfetch) {
 		// Update contact data
-		$update_contact = ($r[0]['name-date'] < datetime_convert('','','now -12 hours'));
-		if ($update_contact) {
+
+		$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["name"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["nick"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["about"] = html2bbcode($value);
+
+		$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["location"] = $value;
+
+		if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
+
 			logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
-
-			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["name"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["nick"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["about"] = html2bbcode($value);
-
-			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["location"] = $value;
 
 			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
-					"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
+						"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 		}
 
-		$update_photo = ($r[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
-
-		if ($update_photo AND isset($author["author-avatar"])) {
+		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['photo'])) {
 			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
 			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
 
 			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-				dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
+				dbesc($author["author-avatar"]), dbesc($photos[1]), dbesc($photos[2]),
 				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
+
+		// @todo: Addr
+		update_gcontact($contact["url"], $contact["network"],
+				$author["author-avatar"], $contact["name"],
+				$contact["nick"], $contact["location"],
+				$contact["about"]);
 	}
 
 	return($author);

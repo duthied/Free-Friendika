@@ -693,6 +693,8 @@ function item_post(&$a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
+	$datarray['gcontact-id']   = get_gcontact_id($datarray['author-link'], $datarray['network'],
+							$datarray['author-avatar'], $datarray['author-name']);
 
 	/**
 	 * These fields are for the convenience of plugins...

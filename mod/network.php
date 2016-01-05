@@ -565,10 +565,10 @@ function network_content(&$a, $update = 0) {
 
 		//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
 
-		$sql_extra3 .= " AND `contact-id` IN ($contact_str$contact_str_self) ";
+		$sql_extra3 .= " AND $sql_table.`contact-id` IN ($contact_str$contact_str_self) ";
 		$sql_extra3 .= " AND EXISTS (SELECT `id` FROM `item` WHERE (`contact-id` IN ($contact_str)
 				OR `allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."') AND `deleted` = 0
-				AND `parent` = $sql_table.$sql_parent) ";
+				AND `id` = $sql_table.$sql_parent) ";
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
@@ -582,11 +582,11 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
-					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." AND `deleted` = 0
-					    ORDER BY `item`.`received` DESC) AS `temp1`
-					    ON $sql_table.$sql_parent = `temp1`.`parent` ";
-			$sql_extra = "";
+			//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
+			//		    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." AND `deleted` = 0
+			//		    ORDER BY `item`.`received` DESC) AS `temp1`
+			//		    ON $sql_table.$sql_parent = `temp1`.`parent` ";
+			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
 				'id' => 'network',

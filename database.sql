@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.4.2 (Lily of the valley)
--- DB_UPDATE_VERSION 1190
+-- Friendica 3.5-dev (Asparagus)
+-- DB_UPDATE_VERSION 1192
 -- ------------------------------------------
 
 
@@ -8,20 +8,21 @@
 -- TABLE addon
 --
 CREATE TABLE IF NOT EXISTS `addon` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`version` varchar(255) NOT NULL DEFAULT '',
 	`installed` tinyint(1) NOT NULL DEFAULT 0,
 	`hidden` tinyint(1) NOT NULL DEFAULT 0,
 	`timestamp` bigint(20) NOT NULL DEFAULT 0,
-	`plugin_admin` tinyint(1) NOT NULL DEFAULT 0
+	`plugin_admin` tinyint(1) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE attach
 --
 CREATE TABLE IF NOT EXISTS `attach` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`hash` varchar(64) NOT NULL DEFAULT '',
 	`filename` varchar(255) NOT NULL DEFAULT '',
@@ -33,28 +34,31 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`allow_cid` mediumtext NOT NULL,
 	`allow_gid` mediumtext NOT NULL,
 	`deny_cid` mediumtext NOT NULL,
-	`deny_gid` mediumtext NOT NULL
+	`deny_gid` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE auth_codes
 --
 CREATE TABLE IF NOT EXISTS `auth_codes` (
-	`id` varchar(40) NOT NULL PRIMARY KEY,
+	`id` varchar(40) NOT NULL,
 	`client_id` varchar(20) NOT NULL DEFAULT '',
 	`redirect_uri` varchar(200) NOT NULL DEFAULT '',
 	`expires` int(11) NOT NULL DEFAULT 0,
-	`scope` varchar(250) NOT NULL DEFAULT ''
+	`scope` varchar(250) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE cache
 --
 CREATE TABLE IF NOT EXISTS `cache` (
-	`k` varchar(255) NOT NULL PRIMARY KEY,
+	`k` varchar(255) NOT NULL,
 	`v` text NOT NULL,
 	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`k`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
 
@@ -62,34 +66,37 @@ CREATE TABLE IF NOT EXISTS `cache` (
 -- TABLE challenge
 --
 CREATE TABLE IF NOT EXISTS `challenge` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`challenge` varchar(255) NOT NULL DEFAULT '',
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '',
 	`expire` int(11) NOT NULL DEFAULT 0,
 	`type` varchar(255) NOT NULL DEFAULT '',
-	`last_update` varchar(255) NOT NULL DEFAULT ''
+	`last_update` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE clients
 --
 CREATE TABLE IF NOT EXISTS `clients` (
-	`client_id` varchar(20) NOT NULL PRIMARY KEY,
+	`client_id` varchar(20) NOT NULL,
 	`pw` varchar(20) NOT NULL DEFAULT '',
 	`redirect_uri` varchar(200) NOT NULL DEFAULT '',
 	`name` text,
 	`icon` text,
-	`uid` int(11) NOT NULL DEFAULT 0
+	`uid` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`client_id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE config
 --
 CREATE TABLE IF NOT EXISTS `config` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`cat` varchar(255) NOT NULL DEFAULT '',
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` text NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `cat_k` (`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8;
 
@@ -97,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `config` (
 -- TABLE contact
 --
 CREATE TABLE IF NOT EXISTS `contact` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`self` tinyint(1) NOT NULL DEFAULT 0,
@@ -162,6 +169,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`notify_new_posts` tinyint(1) NOT NULL DEFAULT 0,
 	`fetch_further_information` tinyint(1) NOT NULL DEFAULT 0,
 	`ffi_keyword_blacklist` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -169,7 +177,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 -- TABLE conv
 --
 CREATE TABLE IF NOT EXISTS `conv` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`guid` varchar(64) NOT NULL DEFAULT '',
 	`recips` mediumtext NOT NULL,
 	`uid` int(11) NOT NULL DEFAULT 0,
@@ -177,6 +185,7 @@ CREATE TABLE IF NOT EXISTS `conv` (
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`subject` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -184,27 +193,29 @@ CREATE TABLE IF NOT EXISTS `conv` (
 -- TABLE deliverq
 --
 CREATE TABLE IF NOT EXISTS `deliverq` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`cmd` varchar(32) NOT NULL DEFAULT '',
 	`item` int(11) NOT NULL DEFAULT 0,
-	`contact` int(11) NOT NULL DEFAULT 0
+	`contact` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE dsprphotoq
 --
 CREATE TABLE IF NOT EXISTS `dsprphotoq` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`msg` mediumtext NOT NULL,
-	`attempt` tinyint(4) NOT NULL DEFAULT 0
+	`attempt` tinyint(4) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE event
 --
 CREATE TABLE IF NOT EXISTS `event` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`cid` int(11) NOT NULL DEFAULT 0,
 	`uri` varchar(255) NOT NULL DEFAULT '',
@@ -223,6 +234,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`allow_gid` mediumtext NOT NULL,
 	`deny_cid` mediumtext NOT NULL,
 	`deny_gid` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -230,7 +242,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 -- TABLE fcontact
 --
 CREATE TABLE IF NOT EXISTS `fcontact` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
@@ -246,6 +258,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`alias` varchar(255) NOT NULL DEFAULT '',
 	`pubkey` text NOT NULL,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`)
 ) DEFAULT CHARSET=utf8;
 
@@ -253,20 +266,22 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 -- TABLE ffinder
 --
 CREATE TABLE IF NOT EXISTS `ffinder` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`cid` int(10) unsigned NOT NULL DEFAULT 0,
-	`fid` int(10) unsigned NOT NULL DEFAULT 0
+	`fid` int(10) unsigned NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE fserver
 --
 CREATE TABLE IF NOT EXISTS `fserver` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`server` varchar(255) NOT NULL DEFAULT '',
 	`posturl` varchar(255) NOT NULL DEFAULT '',
 	`key` text NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `server` (`server`)
 ) DEFAULT CHARSET=utf8;
 
@@ -274,7 +289,7 @@ CREATE TABLE IF NOT EXISTS `fserver` (
 -- TABLE fsuggest
 --
 CREATE TABLE IF NOT EXISTS `fsuggest` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`cid` int(11) NOT NULL DEFAULT 0,
 	`name` varchar(255) NOT NULL DEFAULT '',
@@ -282,16 +297,18 @@ CREATE TABLE IF NOT EXISTS `fsuggest` (
 	`request` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
 	`note` text NOT NULL,
-	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE gcign
 --
 CREATE TABLE IF NOT EXISTS `gcign` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`gcid` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `gcid` (`gcid`)
 ) DEFAULT CHARSET=utf8;
@@ -300,7 +317,7 @@ CREATE TABLE IF NOT EXISTS `gcign` (
 -- TABLE gcontact
 --
 CREATE TABLE IF NOT EXISTS `gcontact` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`nick` varchar(255) NOT NULL DEFAULT '',
 	`url` varchar(255) NOT NULL DEFAULT '',
@@ -320,6 +337,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`addr` varchar(255) NOT NULL DEFAULT '',
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
 	`server_url` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `nurl` (`nurl`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
@@ -328,12 +346,13 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 -- TABLE glink
 --
 CREATE TABLE IF NOT EXISTS `glink` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`cid` int(11) NOT NULL DEFAULT 0,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`gcid` int(11) NOT NULL DEFAULT 0,
 	`zcid` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `cid_uid_gcid_zcid` (`cid`,`uid`,`gcid`,`zcid`),
 	 INDEX `gcid` (`gcid`),
 	 INDEX `zcid` (`zcid`)
@@ -343,11 +362,12 @@ CREATE TABLE IF NOT EXISTS `glink` (
 -- TABLE group
 --
 CREATE TABLE IF NOT EXISTS `group` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`visible` tinyint(1) NOT NULL DEFAULT 0,
 	`deleted` tinyint(1) NOT NULL DEFAULT 0,
 	`name` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -355,10 +375,11 @@ CREATE TABLE IF NOT EXISTS `group` (
 -- TABLE group_member
 --
 CREATE TABLE IF NOT EXISTS `group_member` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`gid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(10) unsigned NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid_gid_contactid` (`uid`,`gid`,`contact-id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -366,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 -- TABLE gserver
 --
 CREATE TABLE IF NOT EXISTS `gserver` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '',
 	`version` varchar(255) NOT NULL DEFAULT '',
@@ -381,6 +402,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_poco_query` datetime DEFAULT '0000-00-00 00:00:00',
 	`last_contact` datetime DEFAULT '0000-00-00 00:00:00',
 	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `nurl` (`nurl`)
 ) DEFAULT CHARSET=utf8;
 
@@ -388,11 +410,12 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 -- TABLE guid
 --
 CREATE TABLE IF NOT EXISTS `guid` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`guid` varchar(255) NOT NULL DEFAULT '',
 	`plink` varchar(255) NOT NULL DEFAULT '',
 	`uri` varchar(255) NOT NULL DEFAULT '',
 	`network` varchar(32) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `guid` (`guid`),
 	 INDEX `plink` (`plink`),
 	 INDEX `uri` (`uri`)
@@ -402,11 +425,12 @@ CREATE TABLE IF NOT EXISTS `guid` (
 -- TABLE hook
 --
 CREATE TABLE IF NOT EXISTS `hook` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`hook` varchar(255) NOT NULL DEFAULT '',
 	`file` varchar(255) NOT NULL DEFAULT '',
 	`function` varchar(255) NOT NULL DEFAULT '',
 	`priority` int(11) unsigned NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `hook_file_function` (`hook`(30),`file`(60),`function`(30))
 ) DEFAULT CHARSET=utf8;
 
@@ -414,7 +438,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
 -- TABLE intro
 --
 CREATE TABLE IF NOT EXISTS `intro` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`fid` int(11) NOT NULL DEFAULT 0,
 	`contact-id` int(11) NOT NULL DEFAULT 0,
@@ -424,18 +448,20 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`hash` varchar(255) NOT NULL DEFAULT '',
 	`datetime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`blocked` tinyint(1) NOT NULL DEFAULT 1,
-	`ignore` tinyint(1) NOT NULL DEFAULT 0
+	`ignore` tinyint(1) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE item
 --
 CREATE TABLE IF NOT EXISTS `item` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`guid` varchar(255) NOT NULL DEFAULT '',
 	`uri` varchar(255) NOT NULL DEFAULT '',
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(11) NOT NULL DEFAULT 0,
+	`gcontact-id` int(11) unsigned NOT NULL DEFAULT 0,
 	`type` varchar(255) NOT NULL DEFAULT '',
 	`wall` tinyint(1) NOT NULL DEFAULT 0,
 	`gravity` tinyint(1) NOT NULL DEFAULT 0,
@@ -493,6 +519,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '',
 	`rendered-html` mediumtext NOT NULL,
 	`global` tinyint(1) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `guid` (`guid`),
 	 INDEX `uri` (`uri`),
 	 INDEX `parent` (`parent`),
@@ -531,11 +558,12 @@ CREATE TABLE IF NOT EXISTS `item` (
 -- TABLE item_id
 --
 CREATE TABLE IF NOT EXISTS `item_id` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`iid` int(11) NOT NULL DEFAULT 0,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`sid` varchar(255) NOT NULL DEFAULT '',
 	`service` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `sid` (`sid`),
 	 INDEX `service` (`service`),
@@ -546,17 +574,18 @@ CREATE TABLE IF NOT EXISTS `item_id` (
 -- TABLE locks
 --
 CREATE TABLE IF NOT EXISTS `locks` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`name` varchar(128) NOT NULL DEFAULT '',
 	`locked` tinyint(1) NOT NULL DEFAULT 0,
-	`created` datetime DEFAULT '0000-00-00 00:00:00'
+	`created` datetime DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE mail
 --
 CREATE TABLE IF NOT EXISTS `mail` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`guid` varchar(64) NOT NULL DEFAULT '',
 	`from-name` varchar(255) NOT NULL DEFAULT '',
@@ -573,6 +602,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`uri` varchar(255) NOT NULL DEFAULT '',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '',
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `guid` (`guid`),
 	 INDEX `convid` (`convid`),
@@ -585,7 +615,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 -- TABLE mailacct
 --
 CREATE TABLE IF NOT EXISTS `mailacct` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`server` varchar(255) NOT NULL DEFAULT '',
 	`port` int(11) NOT NULL DEFAULT 0,
@@ -597,16 +627,18 @@ CREATE TABLE IF NOT EXISTS `mailacct` (
 	`action` int(11) NOT NULL DEFAULT 0,
 	`movetofolder` varchar(255) NOT NULL DEFAULT '',
 	`pubmail` tinyint(1) NOT NULL DEFAULT 0,
-	`last_check` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+	`last_check` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE manage
 --
 CREATE TABLE IF NOT EXISTS `manage` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`mid` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid_mid` (`uid`,`mid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -614,7 +646,7 @@ CREATE TABLE IF NOT EXISTS `manage` (
 -- TABLE notify
 --
 CREATE TABLE IF NOT EXISTS `notify` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`hash` varchar(64) NOT NULL DEFAULT '',
 	`type` int(11) NOT NULL DEFAULT 0,
 	`name` varchar(255) NOT NULL DEFAULT '',
@@ -629,6 +661,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`seen` tinyint(1) NOT NULL DEFAULT 0,
 	`verb` varchar(255) NOT NULL DEFAULT '',
 	`otype` varchar(16) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -636,11 +669,12 @@ CREATE TABLE IF NOT EXISTS `notify` (
 -- TABLE notify-threads
 --
 CREATE TABLE IF NOT EXISTS `notify-threads` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`notify-id` int(11) NOT NULL DEFAULT 0,
 	`master-parent-item` int(10) unsigned NOT NULL DEFAULT 0,
 	`parent-item` int(10) unsigned NOT NULL DEFAULT 0,
 	`receiver-uid` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `master-parent-item` (`master-parent-item`),
 	 INDEX `receiver-uid` (`receiver-uid`)
 ) DEFAULT CHARSET=utf8;
@@ -649,11 +683,12 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 -- TABLE pconfig
 --
 CREATE TABLE IF NOT EXISTS `pconfig` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`cat` varchar(255) NOT NULL DEFAULT '',
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid_cat_k` (`uid`,`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8;
 
@@ -661,7 +696,7 @@ CREATE TABLE IF NOT EXISTS `pconfig` (
 -- TABLE photo
 --
 CREATE TABLE IF NOT EXISTS `photo` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(10) unsigned NOT NULL DEFAULT 0,
 	`guid` varchar(64) NOT NULL DEFAULT '',
@@ -683,6 +718,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`allow_gid` mediumtext NOT NULL,
 	`deny_cid` mediumtext NOT NULL,
 	`deny_gid` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `guid` (`guid`)
@@ -692,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 -- TABLE poll
 --
 CREATE TABLE IF NOT EXISTS `poll` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`q0` mediumtext NOT NULL,
 	`q1` mediumtext NOT NULL,
@@ -704,6 +740,7 @@ CREATE TABLE IF NOT EXISTS `poll` (
 	`q7` mediumtext NOT NULL,
 	`q8` mediumtext NOT NULL,
 	`q9` mediumtext NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -711,9 +748,10 @@ CREATE TABLE IF NOT EXISTS `poll` (
 -- TABLE poll_result
 --
 CREATE TABLE IF NOT EXISTS `poll_result` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`poll_id` int(11) NOT NULL DEFAULT 0,
 	`choice` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `poll_id` (`poll_id`),
 	 INDEX `choice` (`choice`)
 ) DEFAULT CHARSET=utf8;
@@ -722,7 +760,7 @@ CREATE TABLE IF NOT EXISTS `poll_result` (
 -- TABLE profile
 --
 CREATE TABLE IF NOT EXISTS `profile` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`profile-name` varchar(255) NOT NULL DEFAULT '',
 	`is-default` tinyint(1) NOT NULL DEFAULT 0,
@@ -763,6 +801,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`thumb` varchar(255) NOT NULL DEFAULT '',
 	`publish` tinyint(1) NOT NULL DEFAULT 0,
 	`net-publish` tinyint(1) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `hometown` (`hometown`)
 ) DEFAULT CHARSET=utf8;
 
@@ -770,39 +809,42 @@ CREATE TABLE IF NOT EXISTS `profile` (
 -- TABLE profile_check
 --
 CREATE TABLE IF NOT EXISTS `profile_check` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`cid` int(10) unsigned NOT NULL DEFAULT 0,
 	`dfrn_id` varchar(255) NOT NULL DEFAULT '',
 	`sec` varchar(255) NOT NULL DEFAULT '',
-	`expire` int(11) NOT NULL DEFAULT 0
+	`expire` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE push_subscriber
 --
 CREATE TABLE IF NOT EXISTS `push_subscriber` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`callback_url` varchar(255) NOT NULL DEFAULT '',
 	`topic` varchar(255) NOT NULL DEFAULT '',
 	`nickname` varchar(255) NOT NULL DEFAULT '',
 	`push` int(11) NOT NULL DEFAULT 0,
 	`last_update` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	`secret` varchar(255) NOT NULL DEFAULT ''
+	`secret` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE queue
 --
 CREATE TABLE IF NOT EXISTS `queue` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`cid` int(11) NOT NULL DEFAULT 0,
 	`network` varchar(32) NOT NULL DEFAULT '',
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`last` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`content` mediumtext NOT NULL,
 	`batch` tinyint(1) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `cid` (`cid`),
 	 INDEX `created` (`created`),
 	 INDEX `last` (`last`),
@@ -814,21 +856,23 @@ CREATE TABLE IF NOT EXISTS `queue` (
 -- TABLE register
 --
 CREATE TABLE IF NOT EXISTS `register` (
-	`id` int(11) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) unsigned NOT NULL auto_increment,
 	`hash` varchar(255) NOT NULL DEFAULT '',
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`uid` int(11) unsigned NOT NULL DEFAULT 0,
 	`password` varchar(255) NOT NULL DEFAULT '',
-	`language` varchar(16) NOT NULL DEFAULT ''
+	`language` varchar(16) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE search
 --
 CREATE TABLE IF NOT EXISTS `search` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`term` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `term` (`term`)
 ) DEFAULT CHARSET=utf8;
@@ -837,10 +881,11 @@ CREATE TABLE IF NOT EXISTS `search` (
 -- TABLE session
 --
 CREATE TABLE IF NOT EXISTS `session` (
-	`id` bigint(20) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` bigint(20) unsigned NOT NULL auto_increment,
 	`sid` varchar(255) NOT NULL DEFAULT '',
 	`data` text NOT NULL,
 	`expire` int(10) unsigned NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`),
 	 INDEX `sid` (`sid`),
 	 INDEX `expire` (`expire`)
 ) DEFAULT CHARSET=utf8;
@@ -849,12 +894,13 @@ CREATE TABLE IF NOT EXISTS `session` (
 -- TABLE sign
 --
 CREATE TABLE IF NOT EXISTS `sign` (
-	`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`id` int(10) unsigned NOT NULL auto_increment,
 	`iid` int(10) unsigned NOT NULL DEFAULT 0,
 	`retract_iid` int(10) unsigned NOT NULL DEFAULT 0,
 	`signed_text` mediumtext NOT NULL,
 	`signature` text NOT NULL,
 	`signer` varchar(255) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`id`),
 	 INDEX `iid` (`iid`),
 	 INDEX `retract_iid` (`retract_iid`)
 ) DEFAULT CHARSET=utf8;
@@ -863,12 +909,13 @@ CREATE TABLE IF NOT EXISTS `sign` (
 -- TABLE spam
 --
 CREATE TABLE IF NOT EXISTS `spam` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`uid` int(11) NOT NULL DEFAULT 0,
 	`spam` int(11) NOT NULL DEFAULT 0,
 	`ham` int(11) NOT NULL DEFAULT 0,
 	`term` varchar(255) NOT NULL DEFAULT '',
 	`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `spam` (`spam`),
 	 INDEX `ham` (`ham`),
@@ -879,7 +926,7 @@ CREATE TABLE IF NOT EXISTS `spam` (
 -- TABLE term
 --
 CREATE TABLE IF NOT EXISTS `term` (
-	`tid` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+	`tid` int(10) unsigned NOT NULL auto_increment,
 	`oid` int(10) unsigned NOT NULL DEFAULT 0,
 	`otype` tinyint(3) unsigned NOT NULL DEFAULT 0,
 	`type` tinyint(3) unsigned NOT NULL DEFAULT 0,
@@ -891,6 +938,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	`global` tinyint(1) NOT NULL DEFAULT 0,
 	`aid` int(10) unsigned NOT NULL DEFAULT 0,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`tid`),
 	 INDEX `oid_otype_type_term` (`oid`,`otype`,`type`,`term`),
 	 INDEX `uid_term_tid` (`uid`,`term`,`tid`),
 	 INDEX `type_term` (`type`,`term`),
@@ -903,9 +951,10 @@ CREATE TABLE IF NOT EXISTS `term` (
 -- TABLE thread
 --
 CREATE TABLE IF NOT EXISTS `thread` (
-	`iid` int(10) unsigned NOT NULL DEFAULT 0 PRIMARY KEY,
+	`iid` int(10) unsigned NOT NULL DEFAULT 0,
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(11) unsigned NOT NULL DEFAULT 0,
+	`gcontact-id` int(11) unsigned NOT NULL DEFAULT 0,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -926,6 +975,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`forum_mode` tinyint(1) NOT NULL DEFAULT 0,
 	`mention` tinyint(1) NOT NULL DEFAULT 0,
 	`network` varchar(32) NOT NULL DEFAULT '',
+	 PRIMARY KEY(`iid`),
 	 INDEX `created` (`created`),
 	 INDEX `commented` (`commented`),
 	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
@@ -941,25 +991,27 @@ CREATE TABLE IF NOT EXISTS `thread` (
 -- TABLE tokens
 --
 CREATE TABLE IF NOT EXISTS `tokens` (
-	`id` varchar(40) NOT NULL PRIMARY KEY,
+	`id` varchar(40) NOT NULL,
 	`secret` text NOT NULL,
 	`client_id` varchar(20) NOT NULL DEFAULT '',
 	`expires` int(11) NOT NULL DEFAULT 0,
 	`scope` varchar(200) NOT NULL DEFAULT '',
-	`uid` int(11) NOT NULL DEFAULT 0
+	`uid` int(11) NOT NULL DEFAULT 0,
+	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
 --
 -- TABLE unique_contacts
 --
 CREATE TABLE IF NOT EXISTS `unique_contacts` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`nick` varchar(255) NOT NULL DEFAULT '',
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '',
 	`location` varchar(255) NOT NULL DEFAULT '',
 	`about` text NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `url` (`url`)
 ) DEFAULT CHARSET=utf8;
 
@@ -967,7 +1019,7 @@ CREATE TABLE IF NOT EXISTS `unique_contacts` (
 -- TABLE user
 --
 CREATE TABLE IF NOT EXISTS `user` (
-	`uid` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`uid` int(11) NOT NULL auto_increment,
 	`guid` varchar(64) NOT NULL DEFAULT '',
 	`username` varchar(255) NOT NULL DEFAULT '',
 	`password` varchar(255) NOT NULL DEFAULT '',
@@ -1009,6 +1061,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`deny_cid` mediumtext NOT NULL,
 	`deny_gid` mediumtext NOT NULL,
 	`openidserver` text NOT NULL,
+	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`)
 ) DEFAULT CHARSET=utf8;
 
@@ -1016,8 +1069,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- TABLE userd
 --
 CREATE TABLE IF NOT EXISTS `userd` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`username` varchar(255) NOT NULL,
+	 PRIMARY KEY(`id`),
 	 INDEX `username` (`username`)
 ) DEFAULT CHARSET=utf8;
 
@@ -1025,12 +1079,13 @@ CREATE TABLE IF NOT EXISTS `userd` (
 -- TABLE workerqueue
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
-	`id` int(11) NOT NULL auto_increment PRIMARY KEY,
+	`id` int(11) NOT NULL auto_increment,
 	`parameter` text NOT NULL,
 	`priority` tinyint(3) unsigned NOT NULL DEFAULT 0,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`pid` int(11) NOT NULL DEFAULT 0,
 	`executed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`id`),
 	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8;
 
