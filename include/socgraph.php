@@ -1488,35 +1488,37 @@ function poco_discover_server($data, $default_generation = 0) {
 	return $success;
 }
 
-function get_gcontact_id($url, $network, $avatar = "", $name = "", $nick = "", $location = "", $about = "", $addr = "") {
+function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
 
-	if ($network == NETWORK_STATUSNET)
-		$network = NETWORK_OSTATUS;
+	if ($contact["network"] == NETWORK_STATUSNET)
+		$contact["network"] = NETWORK_OSTATUS;
 
-	$r = q("SELECT `id`, `name`, `nick`, `network`, `photo`, `location`, `about` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-		dbesc(normalise_link($url)));
+	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+		dbesc(normalise_link($contact["url"])));
 
 	if ($r)
 		$gcontact_id = $r[0]["id"];
 	else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-			dbesc($name),
-			dbesc($nick),
-			dbesc($addr),
-			dbesc($network),
-			dbesc($url),
-			dbesc(normalise_link($url)),
-			dbesc($avatar),
+		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+			dbesc($contact["name"]),
+			dbesc($contact["nick"]),
+			dbesc($contact["addr"]),
+			dbesc($contact["network"]),
+			dbesc($contact["url"]),
+			dbesc(normalise_link($contact["url"])),
+			dbesc($contact["photo"]),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
-			dbesc($location),
-			dbesc($about)
+			dbesc($contact["location"]),
+			dbesc($contact["about"]),
+			intval($contact["generation"])
 		);
 
-		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1", dbesc(normalise_link($url)));
+		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+			dbesc(normalise_link($contact["url"])));
 
 		if ($r)
 			$gcontact_id = $r[0]["id"];
@@ -1525,39 +1527,71 @@ function get_gcontact_id($url, $network, $avatar = "", $name = "", $nick = "", $
 	return $gcontact_id;
 }
 
-function update_gcontact($url, $network, $avatar = "", $name = "", $nick = "", $location = "", $about = "", $addr = "") {
+function update_gcontact($contact) {
 
-	if ($network == NETWORK_STATUSNET)
-		$network = NETWORK_OSTATUS;
-
-	$gcontact_id = get_gcontact_id($url, $network, $avatar, $name, $nick, $location, $about);
+	$gcontact_id = get_gcontact_id($contact);
 
 	if (!$gcontact_id)
 		return false;
 
-	if (($avatar != $r[0]["photo"]) AND ($avatar != ""))
-		q("UPDATE `gcontact` SET `photo` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `photo` = '')",
-			dbesc($avatar), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`, `hide`, `nsfw`
+		FROM `gcontact` WHERE `id` = %d LIMIT 1",
+		intval($gcontact_id));
 
-	if (($name != $r[0]["name"]) AND ($name != ""))
-		q("UPDATE `gcontact` SET `name` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `name` = '')",
-			dbesc($name), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	if ($contact["generation"] == 0)
+		$contact["generation"] = $r[0]["generation"];
 
-	if (($nick != $r[0]["nick"]) AND ($nick != ""))
-		q("UPDATE `gcontact` SET `nick` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `nick` = '')",
-			dbesc($nick), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	if ($contact["photo"] == "")
+		$contact["photo"] = $r[0]["photo"];
 
-	if (($addr != $r[0]["addr"]) AND ($nick != ""))
-		q("UPDATE `gcontact` SET `addr` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `addr` = '')",
-			dbesc($addr), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	if ($contact["name"] == "")
+		$contact["name"] = $r[0]["name"];
 
-	if (($location != $r[0]["location"]) AND ($location != ""))
-		q("UPDATE `gcontact` SET `location` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `location` = '')",
-			dbesc($location), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	if ($contact["nick"] == "")
+		$contact["nick"] = $r[0]["nick"];
 
-	if (($about != $r[0]["about"]) AND ($about != ""))
-		q("UPDATE `gcontact` SET `about` = '%s', `updated` = '%s' WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `about` = '')",
-			dbesc($about), dbesc(datetime_convert()), dbesc(normalise_link($url)), dbesc($network));
+	if ($contact["addr"] == "")
+		$contact["addr"] = $r[0]["addr"];
+
+	if ($contact["location"] =="")
+		$contact["location"] = $r[0]["location"];
+
+	if ($contact["about"] =="")
+		$contact["about"] = $r[0]["about"];
+
+	if ($contact["birthday"] =="")
+		$contact["birthday"] = $r[0]["birthday"];
+
+	if ($contact["gender"] =="")
+		$contact["gender"] = $r[0]["gender"];
+
+	if ($contact["keywords"] =="")
+		$contact["keywords"] = $r[0]["keywords"];
+
+	if (!isset($contact["hide"]))
+		$contact["hide"] = $r[0]["hide"];
+
+	if (!isset($contact["nsfw"]))
+		$contact["nsfw"] = $r[0]["nsfw"];
+
+	if ($contact["network"] == NETWORK_STATUSNET)
+		$contact["network"] = NETWORK_OSTATUS;
+
+	if (($contact["photo"] != $r[0]["photo"]) OR ($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["addr"] != $r[0]["addr"]) OR
+		($contact["birthday"] != $r[0]["birthday"]) OR ($contact["gender"] != $r[0]["gender"]) OR ($contact["keywords"] != $r[0]["keywords"]) OR
+		($contact["hide"] != $r[0]["hide"]) OR ($contact["nsfw"] != $r[0]["nsfw"]) OR
+		($contact["location"] != $r[0]["location"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["generation"] < $r[0]["generation"])) {
+
+		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s',
+					`birthday` = '%s', `gender` = '%s', `keywords` = %d, `hide` = %d, `nsfw` = %d,
+					`location` = '%s', `about` = '%s', `generation` = %d, `updated` = '%s'
+				WHERE `nurl` = '%s' AND `network` = '%s' AND (`generation` = 0 OR `generation` >= %d)",
+			dbesc($contact["photo"]), dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["addr"]),
+			dbesc($contact["birthday"]), dbesc($contact["gender"]), dbesc($contact["keywords"]),
+			intval($contact["hide"]), intval($contact["nsfw"]),
+			dbesc($contact["location"]), dbesc($contact["about"]), intval($contact["generation"]), dbesc(datetime_convert()),
+			dbesc(normalise_link($contact["url"])), dbesc($contact["network"]), intval($contact["generation"]));
+	}
 
 	return $gcontact_id;
 }

@@ -693,9 +693,8 @@ function item_post(&$a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
-	$datarray['gcontact-id']   = get_gcontact_id($datarray['author-link'], $datarray['network'],
-							$datarray['author-avatar'], $datarray['author-name']);
-
+	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
+							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
 	/**
 	 * These fields are for the convenience of plugins...
 	 * 'self' if true indicates the owner is posting on their own wall

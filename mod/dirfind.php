@@ -94,9 +94,15 @@ function dirfind_content(&$a, $prefix = "") {
 			else
 				$ostatus = NETWORK_DFRN;
 
-			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
-					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
-						`about` REGEXP '%s' OR `keywords` REGEXP '%s')".$extra_sql,
+			$count = q("SELECT count(*) AS `total` FROM `gcontact`
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
+						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
+					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
+					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
+						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql",
+					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
 					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
@@ -106,8 +112,8 @@ function dirfind_content(&$a, $prefix = "") {
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
-					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND
-					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
+					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
 					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
 						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`

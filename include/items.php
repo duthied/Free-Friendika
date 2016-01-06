@@ -1339,7 +1339,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	}
 
 	if ($arr["gcontact-id"] == 0)
-		$arr["gcontact-id"] = get_gcontact_id($arr['author-link'], $arr['network'], $arr['author-avatar'], $arr['author-name']);
+		$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
+							 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
 
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid

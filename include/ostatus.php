@@ -169,10 +169,10 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 		}
 
 		// @todo: Addr
-		update_gcontact($contact["url"], $contact["network"],
-				$author["author-avatar"], $contact["name"],
-				$contact["nick"], $contact["location"],
-				$contact["about"]);
+		update_gcontact(array("url" => $contact["url"], "network" => $contact["network"],
+				"photo" => $author["author-avatar"], "name" => $contact["name"],
+				"nick" => $contact["nick"], "location" => $contact["location"],
+				"about" => $contact["about"], "generation" => 2));
 	}
 
 	return($author);

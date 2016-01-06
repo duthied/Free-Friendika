@@ -2407,10 +2407,10 @@ function diaspora_profile($importer,$xml,$msg) {
 	if(! $contact)
 		return;
 
-	if($contact['blocked']) {
-		logger('diaspora_post: Ignoring this author.');
-		return 202;
-	}
+	//if($contact['blocked']) {
+	//	logger('diaspora_post: Ignoring this author.');
+	//	return 202;
+	//}
 
 	$name = unxmlify($xml->first_name) . ((strlen($xml->last_name)) ? ' ' . unxmlify($xml->last_name) : '');
 	$image_url = unxmlify($xml->image_url);
@@ -2418,6 +2418,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	$location = diaspora2bb(unxmlify($xml->location));
 	$about = diaspora2bb(unxmlify($xml->bio));
 	$gender = unxmlify($xml->gender);
+	$searchable = (unxmlify($xml->searchable) == "true");
+	$nsfw = (unxmlify($xml->nsfw) == "true");
 	$tags = unxmlify($xml->tag_string);
 
 	$tags = explode("#", $tags);
@@ -2432,6 +2434,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	$keywords = implode(", ", $keywords);
 
 	$handle_parts = explode("@", $diaspora_handle);
+	$nick = $handle_parts[0];
+
 	if($name === '') {
 		$name = $handle_parts[0];
 	}
@@ -2466,10 +2470,12 @@ function diaspora_profile($importer,$xml,$msg) {
 	/// @TODO Update name on item['author-name'] if the name changed. See consume_feed()
 	/// (Not doing this currently because D* protocol is scheduled for revision soon).
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
+		dbesc($nick),
+		dbesc($diaspora_handle),
 		dbesc(datetime_convert()),
-		dbesc($images[0]),
+		dbesc($image_url),
 		dbesc($images[1]),
 		dbesc($images[2]),
 		dbesc(datetime_convert()),
@@ -2482,34 +2488,17 @@ function diaspora_profile($importer,$xml,$msg) {
 		intval($importer['uid'])
 	);
 
-	if (unxmlify($xml->searchable) == "true") {
+	if ($searchable) {
 		require_once('include/socgraph.php');
-		poco_check($contact['url'], $name, NETWORK_DIASPORA, $images[0], $about, $location, $gender, $keywords, "",
+		poco_check($contact['url'], $name, NETWORK_DIASPORA, $image_url, $about, $location, $gender, $keywords, "",
 			datetime_convert(), 2, $contact['id'], $importer['uid']);
 	}
 
-	// @todo:
-	/*
-                update_gcontact($contact["url"], $contact["network"],
-                                $author["author-avatar"], $contact["name"],
-                                $contact["nick"], $contact["location"],
-                                $contact["about"]);
-	*/
-
-	$profileurl = "";
-	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
-			dbesc(normalise_link($contact['url'])));
-
-	if (count($author) == 0) {
-		q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`, `location`, `about`) VALUES ('%s', '%s', '%s', '%s', '%s')",
-			dbesc(normalise_link($contact['url'])), dbesc($name), dbesc($location), dbesc($about), dbesc($images[0]));
-
-		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
-			dbesc(normalise_link($contact['url'])));
-	} else if (normalise_link($contact['url']).$name.$location.$about != normalise_link($author[0]["url"]).$author[0]["name"].$author[0]["location"].$author[0]["about"]) {
-		q("UPDATE unique_contacts SET name = '%s', avatar = '%s', `location` = '%s', `about` = '%s' WHERE url = '%s'",
-		dbesc($name), dbesc($images[0]), dbesc($location), dbesc($about), dbesc(normalise_link($contact['url'])));
-	}
+	update_gcontact(array("url" => $contact['url'], "network" => NETWORK_DIASPORA, "generation" => 2,
+				"photo" => $image_url, "name" => $name, "location" => $location,
+				"about" => $about, "birthday" => $birthday, "gender" => $gender,
+				"addr" => $diaspora_handle, "nick" => $nick, "keywords" => $keywords,
+				"hide" => !$searchable, "nsfw" => $nsfw));
 
 /*	if($r) {
 		if($oldphotos) {
