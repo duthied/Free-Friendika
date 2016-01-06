@@ -1452,9 +1452,12 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$repeated_owner["about"] = "";
 		$repeated_owner["uid"] = 0;
 
-		$r =q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($repeated_item["author-link"]));
+		// Fetch the missing data from the global contacts
+		$r =q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($repeated_item["author-link"]));
 		if ($r) {
-			$repeated_owner["nick"] = $r[0]["nick"];
+			if ($r[0]["nick"] != "")
+				$repeated_owner["nick"] = $r[0]["nick"];
+
 			$repeated_owner["location"] = $r[0]["location"];
 			$repeated_owner["about"] = $r[0]["about"];
 		}

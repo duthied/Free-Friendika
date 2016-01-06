@@ -179,8 +179,8 @@ function display_fetchauthor($a, $item) {
 			$profiledata["nickname"] = $r[0]["nick"];
 	}
 
-	// Fetching profile data from unique contacts
-	$r = q("SELECT `avatar`, `nick`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'", dbesc(normalise_link($profiledata["url"])));
+	// Fetching profile data from global contacts
+	$r = q("SELECT `photo`, `nick`, `addr`, `location`, `about`, `gender` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
 	if (count($r)) {
 		if ($profiledata["photo"] == "")
 			$profiledata["photo"] = $r[0]["avatar"];
@@ -190,6 +190,10 @@ function display_fetchauthor($a, $item) {
 			$profiledata["about"] = $r[0]["about"];
 		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
 			$profiledata["nickname"] = $r[0]["nick"];
+		if ($profiledata["gender"] == "")
+			$profiledata["gender"] = $r[0]["gender"];
+		if ($profiledata["addr"] == "")
+			$profiledata["addr"] = $r[0]["addr"];
 	}
 
 	if (local_user()) {

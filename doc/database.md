@@ -54,7 +54,6 @@ Database Tables
 | [term](help/database/db_term)                        | item taxonomy (categories, tags, etc.) table     |
 | [thread](help/database/db_thread)                    |                                                  |
 | [tokens](help/database/db_tokens)                    | OAuth usage                                      |
-| [unique_contacts](help/database/db_unique_contacts)  |                                                  |
 | [user](help/database/db_user)                        | local user table                                 |
 | [userd](help/database/db_userd)                      |                                                  |
 | [workerqueue](help/database/db_workerqueue)          |                                                  |

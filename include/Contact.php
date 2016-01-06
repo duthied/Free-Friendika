@@ -205,19 +205,6 @@ function get_contact_details_by_url($url, $uid = -1) {
 		if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND
 			in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
 			proc_run('php',"include/update_gcontact.php", $profile["gid"]);
-
-	} else {
-		$r = q("SELECT `url`, `name`, `nick`, `avatar` AS `photo`, `location`, `about` FROM `unique_contacts` WHERE `url` = '%s'",
-			dbesc(normalise_link($url)));
-
-		if (count($r)) {
-			$profile = $r[0];
-			$profile["keywords"] = "";
-			$profile["gender"] = "";
-			$profile["community"] = false;
-			$profile["network"] = "";
-			$profile["addr"] = "";
-		}
 	}
 
 	// Fetching further contact data from the contact table

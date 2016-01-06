@@ -341,7 +341,7 @@ function admin_page_site_post(&$a){
 		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
 		update_table("term", array('url'), $old_url, $new_url);
 		update_table("contact", array('photo','thumb','micro','url','nurl','request','notify','poll','confirm','poco'), $old_url, $new_url);
-		update_table("unique_contacts", array('url'), $old_url, $new_url);
+		update_table("gcontact", array('photo','url','nurl','server_url'), $old_url, $new_url);
 		update_table("item", array('owner-link','owner-avatar','author-name','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
 
 		// update config

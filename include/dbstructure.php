@@ -1340,21 +1340,6 @@ function db_definition() {
 					"PRIMARY" => array("id"),
 					)
 			);
-	$database["unique_contacts"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"about" => array("type" => "text", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"url" => array("url"),
-					)
-			);
 	$database["user"] = array(
 			"fields" => array(
 					"uid" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
