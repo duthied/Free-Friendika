@@ -180,6 +180,7 @@ function display_fetchauthor($a, $item) {
 	}
 
 	// Fetching profile data from global contacts
+	// @todo: should override everything else (but not Feeds)
 	$r = q("SELECT `photo`, `nick`, `addr`, `location`, `about`, `gender` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
 	if (count($r)) {
 		if ($profiledata["photo"] == "")

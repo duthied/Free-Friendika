@@ -672,6 +672,8 @@ function db_definition() {
 					"nsfw" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"notify" => array("type" => "text", "not null" => "1"),
+					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),

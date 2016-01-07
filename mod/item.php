@@ -137,15 +137,25 @@ function item_post(&$a) {
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = null;
 
-				// @todo: Use gcontact
-				require_once("include/Scrape.php");
-				$probed_contact = probe_url($thrparent[0]["author-link"]);
-				if ($probed_contact["network"] != NETWORK_FEED) {
-					$parent_contact = $probed_contact;
-					$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
-					$parent_contact["thumb"] = $probed_contact["photo"];
-					$parent_contact["micro"] = $probed_contact["photo"];
-					$parent_contact["addr"] = $probed_contact["addr"];
+				$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+					dbesc(normalise_link($thrparent[0]["author-link"])));
+				if (count($r)) {
+					$parent_contact = $r[0];
+					$parent_contact["thumb"] = $parent_contact["photo"];
+					$parent_contact["micro"] = $parent_contact["photo"];
+					unset($parent_contact["id"]);
+				}
+
+				if (!isset($parent_contact["nick"])) {
+					require_once("include/Scrape.php");
+					$probed_contact = probe_url($thrparent[0]["author-link"]);
+					if ($probed_contact["network"] != NETWORK_FEED) {
+						$parent_contact = $probed_contact;
+						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
+						$parent_contact["thumb"] = $probed_contact["photo"];
+						$parent_contact["micro"] = $probed_contact["photo"];
+						$parent_contact["addr"] = $probed_contact["addr"];
+					}
 				}
 				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
 			} else
@@ -1062,6 +1072,8 @@ function item_content(&$a) {
  * @return boolean true if replaced, false if not replaced
  */
 function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
+	require_once("include/Scrape.php");
+	require_once("include/socgraph.php");
 
 	$replaced = false;
 	$r = null;
@@ -1096,10 +1108,112 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		$stat = false;
 		//get the person's name
 		$name = substr($tag,1);
+
+		// Try to detect the contact in various ways
+		if ((strpos($name,'@')) || (strpos($name,'http://'))) {
+			// Is it in format @user@domain.tld or @http://domain.tld/...?
+
+			// First check the contact table for the address
+			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact` WHERE `addr` = '%s' AND `uid` = %d LIMIT 1",
+					dbesc($name),
+					intval($profile_uid)
+			);
+
+			// Then check in the contact table for the url
+			if (!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `notify`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc(normalise_link($name)),
+						intval($profile_uid)
+				);
+
+			// Then check in the global contacts for the address
+			if (!$r)
+				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `addr` = '%s' LIMIT 1", dbesc($name));
+
+			// Then check in the global contacts for the url
+			if (!$r)
+				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1", dbesc(normalise_link($name)));
+
+			// If the data isn't complete then refetch the data
+			if ($r AND ($r[0]["network"] == NETWORK_OSTATUS) AND (($r[0]["notify"] == "") OR ($r[0]["alias"] == "")))
+				$r = false;
+
+			if (!$r) {
+				$probed = probe_url($name);
+				if (isset($probed["url"])) {
+					update_gcontact($probed);
+					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+						dbesc(normalise_link($probed["url"])));
+				}
+			}
+		} elseif (!$r) {
+			$newname = str_replace('_',' ',$name);
+			$r = false;
+			if (strrpos($name,'+')) {
+				// Is it in format @nick+number?
+				$tagcid = intval(substr($name,strrpos($name,'+') + 1));
+
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+						intval($tagcid),
+						intval($profile_uid)
+				);
+			}
+
+			//select someone by attag or nick and the name passed in the current network
+			if(!$r AND ($network != ""))
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+						dbesc($name),
+						dbesc($name),
+						dbesc($network),
+						intval($profile_uid)
+				);
+
+			//select someone from this user's contacts by name in the current network
+			if (!$r AND ($network != ""))
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($newname),
+						dbesc($network),
+						intval($profile_uid)
+				);
+
+			//select someone by attag or nick and the name passed in
+			if(!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+						dbesc($name),
+						dbesc($name),
+						intval($profile_uid)
+				);
+
+
+			//select someone from this user's contacts by name
+			if(!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($newname),
+						intval($profile_uid)
+				);
+		}
+
+		if ($r) {
+			if(strlen($inform) AND (isset($r[0]["notify"]) OR isset($r[0]["id"])))
+				$inform .= ',';
+
+			if (isset($r[0]["id"]))
+				$inform .= 'cid:' . $r[0]["id"];
+			elseif (isset($r[0]["notify"]))
+				$inform  .= $r[0]["notify"];
+
+			$profile = $r[0]["url"];
+			$alias   = $r[0]["alias"];
+			$newname = $r[0]["nick"];
+			if (($newname == "") OR (($r[0]["network"] != NETWORK_OSTATUS) AND ($r[0]["network"] != NETWORK_TWITTER)
+				AND ($r[0]["network"] != NETWORK_STATUSNET) AND ($r[0]["network"] != NETWORK_APPNET)))
+				$newname = $r[0]["name"];
+		}
+
+/*
 		//is it a link or a full dfrn address?
 		if((strpos($name,'@')) || (strpos($name,'http://'))) {
 			$newname = $name;
-
 			//get the profile links
 			$links = @lrdd($name);
 			if(count($links)) {
@@ -1176,6 +1290,8 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 					);
 				}
 			}
+*/
+
 /*			} elseif(strstr($name,'_') || strstr($name,' ')) { //no id
 				//get the real name
 				$newname = str_replace('_',' ',$name);
@@ -1192,6 +1308,8 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 						intval($profile_uid)
 				);
 			}*/
+
+/*
 			//$r is set, if someone could be selected
 			if(count($r)) {
 				$profile = $r[0]['url'];
@@ -1211,28 +1329,9 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 				$inform .= 'cid:' . $r[0]['id'];
 			}
 		}
-
-		if(!isset($profile)) {
-			$r = q("SELECT `url` FROM `gcontact` WHERE `addr` = '%s' LIMIT 1",
-				dbesc($name));
-			if ($r)
-				$profile = $r[0]["url"];
-		}
-
+*/
 		//if there is an url for this persons profile
 		if(isset($profile)) {
-
-			$r = q("SELECT `nick`, `name`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-				dbesc(normalise_link($profile)));
-			if ($r) {
-				$newname = $r[0]["name"];
-
-				//set newname to nick
-				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER)
-					OR ($r[0]['network'] === NETWORK_STATUSNET) OR ($r[0]['network'] === NETWORK_APPNET)) {
-					$newname = $r[0]['nick'];
-				}
-			}
 
 			$replaced = true;
 			//create profile link

@@ -227,6 +227,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
 		$addr = $x[0]["addr"];
+		$alias =  $x[0]["alias"];
+		$notify =  $x[0]["notify"];
 	} else {
 		$created = "0000-00-00 00:00:00";
 		$server_url = "";
@@ -234,6 +236,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$urlparts = parse_url($profile_url);
 		$nick = end(explode("/", $urlparts["path"]));
 		$addr = "";
+		$alias = "";
+		$notify = "";
 	}
 
 	if ((($network == "") OR ($name == "") OR ($addr == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
@@ -246,6 +250,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		$name = $data["name"];
 		$nick = $data["nick"];
 		$addr = $data["addr"];
+		$alias = $data["alias"];
+		$notify = $data["notify"];
 		$profile_url = $data["url"];
 		$profile_photo = $data["photo"];
 		$server_url = $data["baseurl"];
@@ -301,12 +307,19 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		if (($addr == "") AND ($x[0]['addr'] != ""))
 			$addr = $x[0]['addr'];
 
+		if (($alias == "") AND ($x[0]['alias'] != ""))
+			$alias = $x[0]['alias'];
+
+		if (($notify == "") AND ($x[0]['notify'] != ""))
+			$notify = $x[0]['notify'];
+
 		if (($generation == 0) AND ($x[0]['generation'] > 0))
 			$generation = $x[0]['generation'];
 
 		if($x[0]['name'] != $name || $x[0]['photo'] != $profile_photo || $x[0]['updated'] < $updated) {
 			q("UPDATE `gcontact` SET `name` = '%s', `addr` = '%s', `network` = '%s', `photo` = '%s', `connect` = '%s', `url` = '%s', `server_url` = '%s',
-				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d
+				`updated` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s', `generation` = %d,
+				`alias` = '$s', `notify` = '%s'
 				WHERE (`generation` >= %d OR `generation` = 0) AND `nurl` = '%s'",
 				dbesc($name),
 				dbesc($addr),
@@ -320,6 +333,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($about),
 				dbesc($keywords),
 				dbesc($gender),
+				dbesc($alias),
+				dbesc($notify),
 				intval($generation),
 				intval($generation),
 				dbesc(normalise_link($profile_url))
@@ -331,8 +346,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			dbesc(normalise_link($profile_url))
 		);
 		if(!$x) {
-			q("INSERT INTO `gcontact` (`name`, `nick`, `addr`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `generation`)
-				VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+			q("INSERT INTO `gcontact` (`name`, `nick`, `addr`, `network`, `url`, `nurl`, `photo`, `connect`, `server_url`, `created`, `updated`, `location`, `about`, `keywords`, `gender`, `alias`, `notify`, `generation`)
+				VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 				dbesc($name),
 				dbesc($nick),
 				dbesc($addr),
@@ -348,6 +363,8 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 				dbesc($about),
 				dbesc($keywords),
 				dbesc($gender),
+				dbesc($alias),
+				dbesc($notify),
 				intval($generation)
 			);
 			$x = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
@@ -1536,7 +1553,7 @@ function update_gcontact($contact) {
 	if (!$gcontact_id)
 		return false;
 
-	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`, `hide`, `nsfw`, `network`
+	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`, `hide`, `nsfw`, `network`, `alias`, `notify`
 		FROM `gcontact` WHERE `id` = %d LIMIT 1",
 		intval($gcontact_id));
 
@@ -1579,22 +1596,30 @@ function update_gcontact($contact) {
 	if ($contact["network"] =="")
 		$contact["network"] = $r[0]["network"];
 
+	if ($contact["alias"] =="")
+		$contact["alias"] = $r[0]["alias"];
+
+	if ($contact["notify"] =="")
+		$contact["notify"] = $r[0]["notify"];
+
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
 	if (($contact["photo"] != $r[0]["photo"]) OR ($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["addr"] != $r[0]["addr"]) OR
 		($contact["birthday"] != $r[0]["birthday"]) OR ($contact["gender"] != $r[0]["gender"]) OR ($contact["keywords"] != $r[0]["keywords"]) OR
 		($contact["hide"] != $r[0]["hide"]) OR ($contact["nsfw"] != $r[0]["nsfw"]) OR ($contact["network"] != $r[0]["network"]) OR
+		($contact["alias"] != $r[0]["alias"]) OR ($contact["notify"] != $r[0]["notify"]) OR
 		($contact["location"] != $r[0]["location"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["generation"] < $r[0]["generation"])) {
 
 		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
 					`birthday` = '%s', `gender` = '%s', `keywords` = %d, `hide` = %d, `nsfw` = %d,
+					`alias` = '%s', `notify` = '%s',
 					`location` = '%s', `about` = '%s', `generation` = %d, `updated` = '%s'
 				WHERE `nurl` = '%s' AND (`generation` = 0 OR `generation` >= %d)",
 			dbesc($contact["photo"]), dbesc($contact["name"]), dbesc($contact["nick"]),
 			dbesc($contact["addr"]), dbesc($contact["network"]),
 			dbesc($contact["birthday"]), dbesc($contact["gender"]), dbesc($contact["keywords"]),
-			intval($contact["hide"]), intval($contact["nsfw"]),
+			intval($contact["hide"]), intval($contact["nsfw"]), dbesc($contact["alias"]), dbesc($contact["notify"]),
 			dbesc($contact["location"]), dbesc($contact["about"]), intval($contact["generation"]), dbesc(datetime_convert()),
 			dbesc(normalise_link($contact["url"])), intval($contact["generation"]));
 	}
