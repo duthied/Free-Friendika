@@ -130,6 +130,14 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	if ($r AND !$onlyfetch) {
 		// Update contact data
 
+		$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["notify"] = $value;
+
+		$value = $xpath->evaluate('atom:author/uri/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["alias"] = $value;
+
 		$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
 		if ($value != "")
 			$contact["name"] = $value;
@@ -169,10 +177,9 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 		}
 
 		// @todo: Addr
-		update_gcontact(array("url" => $contact["url"], "network" => $contact["network"],
-				"photo" => $author["author-avatar"], "name" => $contact["name"],
-				"nick" => $contact["nick"], "location" => $contact["location"],
-				"about" => $contact["about"], "generation" => 2));
+		$contact["generation"] = 2;
+		$contact["photo"] = $author["author-avatar"];
+		update_gcontact($contact);
 	}
 
 	return($author);

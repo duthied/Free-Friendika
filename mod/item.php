@@ -1109,6 +1109,11 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		//get the person's name
 		$name = substr($tag,1);
 
+		// Sometimes the tag detection doesn't seem to work right
+		// This is some workaround
+		$nameparts = explode(" ", $name);
+		$name = $nameparts[0];
+
 		// Try to detect the contact in various ways
 		if ((strpos($name,'@')) || (strpos($name,'http://'))) {
 			// Is it in format @user@domain.tld or @http://domain.tld/...?
@@ -1146,8 +1151,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 						dbesc(normalise_link($probed["url"])));
 				}
 			}
-		} elseif (!$r) {
-			$newname = str_replace('_',' ',$name);
+		} else {
 			$r = false;
 			if (strrpos($name,'+')) {
 				// Is it in format @nick+number?
@@ -1330,6 +1334,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			}
 		}
 */
+
 		//if there is an url for this persons profile
 		if(isset($profile)) {
 
