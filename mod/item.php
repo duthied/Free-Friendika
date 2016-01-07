@@ -137,6 +137,7 @@ function item_post(&$a) {
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = null;
 
+				// @todo: Use gcontact
 				require_once("include/Scrape.php");
 				$probed_contact = probe_url($thrparent[0]["author-link"]);
 				if ($probed_contact["network"] != NETWORK_FEED) {
@@ -1098,6 +1099,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		//is it a link or a full dfrn address?
 		if((strpos($name,'@')) || (strpos($name,'http://'))) {
 			$newname = $name;
+
 			//get the profile links
 			$links = @lrdd($name);
 			if(count($links)) {
@@ -1209,8 +1211,29 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 				$inform .= 'cid:' . $r[0]['id'];
 			}
 		}
+
+		if(!isset($profile)) {
+			$r = q("SELECT `url` FROM `gcontact` WHERE `addr` = '%s' LIMIT 1",
+				dbesc($name));
+			if ($r)
+				$profile = $r[0]["url"];
+		}
+
 		//if there is an url for this persons profile
 		if(isset($profile)) {
+
+			$r = q("SELECT `nick`, `name`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+				dbesc(normalise_link($profile)));
+			if ($r) {
+				$newname = $r[0]["name"];
+
+				//set newname to nick
+				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER)
+					OR ($r[0]['network'] === NETWORK_STATUSNET) OR ($r[0]['network'] === NETWORK_APPNET)) {
+					$newname = $r[0]['nick'];
+				}
+			}
+
 			$replaced = true;
 			//create profile link
 			$profile = str_replace(',','%2c',$profile);
