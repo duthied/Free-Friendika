@@ -180,21 +180,24 @@ function display_fetchauthor($a, $item) {
 	}
 
 	// Fetching profile data from global contacts
-	// @todo: should override everything else (but not Feeds)
-	$r = q("SELECT `photo`, `nick`, `addr`, `location`, `about`, `gender` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
-	if (count($r)) {
-		if ($profiledata["photo"] == "")
-			$profiledata["photo"] = $r[0]["avatar"];
-		if (($profiledata["address"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
-			$profiledata["address"] = $r[0]["location"];
-		if (($profiledata["about"] == "") AND ($profiledata["network"] != NETWORK_DIASPORA))
-			$profiledata["about"] = $r[0]["about"];
-		if (($profiledata["nickname"] == "") AND ($r[0]["nick"] != ""))
-			$profiledata["nickname"] = $r[0]["nick"];
-		if ($profiledata["gender"] == "")
-			$profiledata["gender"] = $r[0]["gender"];
-		if ($profiledata["addr"] == "")
-			$profiledata["addr"] = $r[0]["addr"];
+	if ($profiledata["network"] != NETWORK_FEED) {
+		$r = q("SELECT `photo`, `nick`, `addr`, `location`, `about`, `gender` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
+		if (count($r)) {
+			if ($r[0]["avatar"] != "")
+				$profiledata["photo"] = $r[0]["avatar"];
+			if (($r[0]["location"] != "") AND ($profiledata["network"] != NETWORK_DIASPORA))
+				$profiledata["address"] = $r[0]["location"];
+			if (($r[0]["about"] != "") AND ($profiledata["network"] != NETWORK_DIASPORA))
+				$profiledata["about"] = $r[0]["about"];
+			if (($r[0]["nick"] != "") AND ($r[0]["nick"] != ""))
+				$profiledata["nickname"] = $r[0]["nick"];
+			if ($r[0]["gender"] != "")
+				$profiledata["gender"] = $r[0]["gender"];
+			if ($r[0]["addr"] != "")
+				$profiledata["addr"] = $r[0]["addr"];
+			if ($r[0]["keywords"] != "")
+				$profiledata["keywords"] = $r[0]["keywords"];
+		}
 	}
 
 	if (local_user()) {
