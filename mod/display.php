@@ -158,23 +158,25 @@ function display_fetchauthor($a, $item) {
 	$showdetails = ($profiledata["network"] != NETWORK_DIASPORA);
 
 	// Fetching further contact data from the contact table
-	$r = q("SELECT `uid`, `network`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
+	$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
 		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
-		dbesc(normalise_link($profiledata["url"])), intval($item["uid"]), dbesc($item["network"]),
+		dbesc(normalise_link($profiledata["url"])), intval(local_user()), dbesc($item["network"]),
 		intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
 	if (!count($r))
-		$r = q("SELECT `uid`, `network`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
+		$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `rel` IN (%d, %d)",
-			dbesc(normalise_link($profiledata["url"])), intval($item["uid"]),
+			dbesc(normalise_link($profiledata["url"])), intval(local_user()),
 			intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
 
 	if (count($r)) {
+		$profiledata["name"] = $r[0]["name"];
 		$profiledata["photo"] = $r[0]["photo"];
 		$profiledata["nickname"] = $r[0]["nick"];
 		$profiledata["addr"] = $r[0]["addr"];
 		$profiledata["keywords"] = $r[0]["keywords"];
+		$profiledata["network"] = $r[0]["network"];
 
-		if (($r[0]["uid"] != 0) OR $showdetails) {
+		if (local_user() OR $showdetails) {
 			$showdetails = true;
 			$profiledata["address"] = $r[0]["location"];
 			$profiledata["about"] = $r[0]["about"];
@@ -184,12 +186,14 @@ function display_fetchauthor($a, $item) {
 
 	// Fetching profile data from global contacts
 	if ($profiledata["network"] != NETWORK_FEED) {
-		$r = q("SELECT `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
+		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
 		if (count($r)) {
+			$profiledata["name"] = $r[0]["name"];
 			$profiledata["photo"] = $r[0]["photo"];
 			$profiledata["nickname"] = $r[0]["nick"];
 			$profiledata["addr"] = $r[0]["addr"];
 			$profiledata["keywords"] = $r[0]["keywords"];
+			$profiledata["network"] = $r[0]["network"];
 
 			if ($showdetails) {
 				$profiledata["address"] = $r[0]["location"];

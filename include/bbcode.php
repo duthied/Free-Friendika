@@ -3,6 +3,7 @@ require_once("include/oembed.php");
 require_once('include/event.php');
 require_once('include/map.php');
 require_once('mod/proxy.php');
+require_once('include/Contact.php');
 
 function bb_PictureCacheExt($matches) {
 	if (strpos($matches[3], "data:image/") === 0)
@@ -541,8 +542,23 @@ function bb_ShareAttributes($share, $simplehtml) {
 		$reldate = (($posted) ? " " . relative_date($posted) : '');
 	}
 
-	$userid = GetProfileUsername($profile,$author, false);
-	$userid_compact = GetProfileUsername($profile,$author, true);
+	$data = get_contact_details_by_url($profile);
+
+	if (isset($data["name"]) AND isset($data["addr"]))
+	        $userid_compact = $data["name"]." (".$data["addr"].")";
+	else
+		$userid_compact = GetProfileUsername($profile,$author, true);
+
+	if (isset($data["addr"]))
+		$userid = $data["addr"];
+	else
+		$userid = GetProfileUsername($profile,$author, false);
+
+	if (isset($data["name"]))
+		$author = $data["name"];
+
+	if (isset($data["photo"]))
+		$avatar = $data["photo"];
 
 	$preshare = trim($share[1]);
 
