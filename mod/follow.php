@@ -2,6 +2,7 @@
 
 require_once('include/Scrape.php');
 require_once('include/follow.php');
+require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
 function follow_content(&$a) {
@@ -75,15 +76,18 @@ function follow_content(&$a) {
 	}
 
 	$myaddr = $r[0]["url"];
+	$gcontact_id = 0;
 
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $ret["url"];
 
-	$r = q("SELECT `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
+	$r = q("SELECT `id`, `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
 		normalise_link($ret["url"]));
 
 	if (!$r)
 		$r = array(array("location" => "", "about" => "", "keywords" => ""));
+	else
+		$gcontact_id = $r[0]["id"];
 
 	if($ret['network'] === NETWORK_DIASPORA) {
 		$r[0]["location"] = "";
@@ -95,11 +99,12 @@ function follow_content(&$a) {
 	if ($ret["addr"] != "")
 		$header .= " <".$ret["addr"].">";
 
-	$header .= " (".network_to_name($ret['network'], $ret['url']).")";
+	//$header .= " (".network_to_name($ret['network'], $ret['url']).")";
+	$header = t("Connect/Follow");
 
 	$o  = replace_macros($tpl,array(
 			'$header' => htmlentities($header),
-			'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
+			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => t('Please answer the following:'),
 			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'),t('Yes'))),
@@ -121,13 +126,26 @@ function follow_content(&$a) {
 			'$url_label' => t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
-			'$location' => bbcode($r[0]["location"]),
+			/*'$location' => bbcode($r[0]["location"]),
 			'$location_label' => t("Location:"),
 			'$about' => bbcode($r[0]["about"], false, false),
-			'$about_label' => t("About:"),
+			'$about_label' => t("About:"), */
 			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => t("Tags:")
 	));
+
+	$a->page['aside'] = "";
+	profile_load($a, "", 0, get_contact_details_by_url($ret["url"]));
+
+	// Show last public posts
+	if ($gcontact_id <> 0) {
+		$o .= replace_macros(get_markup_template('section_title.tpl'),
+						array('$title' => t('Status Messages and Posts')
+		));
+
+		$o .= posts_from_gcontact($a, $gcontact_id);
+	}
+
 	return $o;
 }
 

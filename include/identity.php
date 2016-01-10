@@ -300,6 +300,7 @@ function profile_sidebar($profile, $block = 0) {
 		$account_type = "";
 
 	if((x($profile,'address') == 1)
+			|| (x($profile,'location') == 1)
 			|| (x($profile,'locality') == 1)
 			|| (x($profile,'region') == 1)
 			|| (x($profile,'postal-code') == 1)
@@ -368,6 +369,8 @@ function profile_sidebar($profile, $block = 0) {
 
 	if (isset($p["address"]))
 		$p["address"] = bbcode($p["address"]);
+	else
+		$p["address"] = bbcode($p["location"]);
 
 	if (isset($p["photo"]))
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);

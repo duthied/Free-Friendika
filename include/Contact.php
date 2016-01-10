@@ -500,3 +500,165 @@ function get_contact($url, $uid = 0) {
 
 	return $contactid;
 }
+
+/**
+ * @brief Returns posts from a given gcontact
+ *
+ * @param App $a argv application class
+ * @param int $gcontact_id Global contact
+ *
+ * @return string posts in HTML
+ */
+function posts_from_gcontact($a, $gcontact_id) {
+
+	require_once('include/conversation.php');
+
+	// There are no posts with "uid = 0" with connector networks
+	// This speeds up the query a lot
+	$r = q("SELECT `network` FROM `gcontact` WHERE `id` = %d", dbesc($gcontact_id));
+	if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
+		$sql = "(`item`.`uid` = 0 OR  (`item`.`uid` = %d AND `item`.`private`))";
+	else
+		$sql = "`item`.`uid` = %d";
+
+	if(get_config('system', 'old_pager')) {
+		$r = q("SELECT COUNT(*) AS `total` FROM `item`
+			WHERE `gcontact-id` = %d and $sql",
+			intval($gcontact_id),
+			intval(local_user()));
+
+		$a->set_pager_total($r[0]['total']);
+	}
+
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+			`author-name` AS `name`, `owner-avatar` AS `photo`,
+			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+		FROM `item`
+		WHERE `gcontact-id` = %d AND $sql AND
+			NOT `deleted` AND NOT `moderated` AND `visible`
+		ORDER BY `item`.`created` DESC LIMIT %d, %d",
+		intval($gcontact_id),
+		intval(local_user()),
+		intval($a->pager['start']),
+		intval($a->pager['itemspage'])
+	);
+
+	$o = conversation($a,$r,'community',false);
+
+	if(!get_config('system', 'old_pager')) {
+		$o .= alt_pager($a,count($r));
+	} else {
+		$o .= paginate($a);
+	}
+
+	return $o;
+}
+
+/**
+ * @brief set the gcontact-id in all item entries
+ *
+ * This job has to be started multiple times until all entries are set.
+ * It isn't started in the update function since it would consume too much time and can be done in the background.
+ */
+function item_set_gcontact() {
+	define ('POST_UPDATE_VERSION', 1192);
+
+	// Was the script completed?
+	if (get_config("system", "post_update_version") >= POST_UPDATE_VERSION)
+		return;
+
+	// Check if the first step is done (Setting "gcontact-id" in the item table)
+	$r = q("SELECT `author-link`, `author-name`, `author-avatar`, `uid`, `network` FROM `item` WHERE `gcontact-id` = 0 LIMIT 1000");
+	if (!$r) {
+		// Are there unfinished entries in the thread table?
+		$r = q("SELECT COUNT(*) AS `total` FROM `thread`
+			INNER JOIN `item` ON `item`.`id` =`thread`.`iid`
+			WHERE `thread`.`gcontact-id` = 0 AND
+				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
+
+		if ($r AND ($r[0]["total"] == 0)) {
+			set_config("system", "post_update_version", POST_UPDATE_VERSION);
+			return false;
+		}
+
+		// Update the thread table from the item table
+		q("UPDATE `thread` INNER JOIN `item` ON `item`.`id`=`thread`.`iid`
+				SET `thread`.`gcontact-id` = `item`.`gcontact-id`
+			WHERE `thread`.`gcontact-id` = 0 AND
+				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
+
+		return false;
+	}
+
+	$item_arr = array();
+	foreach ($r AS $item) {
+		$index = $item["author-link"]."-".$item["uid"];
+		$item_arr[$index] = array("author-link" => $item["author-link"],
+						"uid" => $item["uid"],
+						"network" => $item["network"]);
+	}
+
+	// Set the "gcontact-id" in the item table and add a new gcontact entry if needed
+	foreach($item_arr AS $item) {
+		$gcontact_id = get_gcontact_id(array("url" => $item['author-link'], "network" => $item['network'],
+						"photo" => $item['author-avatar'], "name" => $item['author-name']));
+		q("UPDATE `item` SET `gcontact-id` = %d WHERE `uid` = %d AND `author-link` = '%s' AND `gcontact-id` = 0",
+			intval($gcontact_id), intval($item["uid"]), dbesc($item["author-link"]));
+	}
+	return true;
+}
+
+/**
+ * @brief Returns posts from a given contact
+ *
+ * @param App $a argv application class
+ * @param int $contact_id contact
+ *
+ * @return string posts in HTML
+ */
+function posts_from_contact($a, $contact_id) {
+
+	require_once('include/conversation.php');
+
+	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
+	if (!$r)
+		return false;
+
+	$contact = $r[0];
+
+	if(get_config('system', 'old_pager')) {
+		$r = q("SELECT COUNT(*) AS `total` FROM `item`
+			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
+			intval(local_user()),
+			dbesc(str_replace("https://", "http://", $contact["url"])),
+			dbesc(str_replace("http://", "https://", $contact["url"])));
+
+		$a->set_pager_total($r[0]['total']);
+	}
+
+	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+			`author-name` AS `name`, `owner-avatar` AS `photo`,
+			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+		FROM `item` FORCE INDEX (uid_contactid_created)
+		WHERE `item`.`uid` = %d AND `contact-id` = %d
+			AND `author-link` IN ('%s', '%s')
+			AND NOT `deleted` AND NOT `moderated` AND `visible`
+		ORDER BY `item`.`created` DESC LIMIT %d, %d",
+		intval(local_user()),
+		intval($contact_id),
+		dbesc(str_replace("https://", "http://", $contact["url"])),
+		dbesc(str_replace("http://", "https://", $contact["url"])),
+		intval($a->pager['start']),
+		intval($a->pager['itemspage'])
+	);
+
+	$o .= conversation($a,$r,'community',false);
+
+	if(!get_config('system', 'old_pager'))
+		$o .= alt_pager($a,count($r));
+	else
+		$o .= paginate($a);
+
+	return $o;
+}
+?>
