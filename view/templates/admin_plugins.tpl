@@ -2,6 +2,11 @@
 <div id='adminpage'>
 	<h1>{{$title}} - {{$page}}</h1>
 		<a class="btn" href="{{$baseurl}}/admin/{{$function}}?a=r&amp;t={{$form_security_token}}">{{$reload}}</a>
+		{{if $pcount eq 0}}
+		    <div class="XXX">
+		    {{$noplugshint}}
+		    </div>
+		{{else}}
 		<ul id='pluginslist'>
 		{{foreach $plugins as $p}}
 			<li class='plugin {{$p.1}}'>
@@ -13,4 +18,5 @@
 			</li>
 		{{/foreach}}
 		</ul>
+		{{/if}}
 </div>

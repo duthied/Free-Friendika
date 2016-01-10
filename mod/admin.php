@@ -1441,6 +1441,8 @@ function admin_page_plugins(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
+		'$pcount' => count($plugins), 
+		'$noplugshint' => sprintf( t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s'), 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
 }
