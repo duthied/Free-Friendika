@@ -588,10 +588,6 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
-			//		    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." AND `deleted` = 0
-			//		    ORDER BY `item`.`received` DESC) AS `temp1`
-			//		    ON $sql_table.$sql_parent = `temp1`.`parent` ";
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
