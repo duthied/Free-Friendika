@@ -670,7 +670,7 @@ function network_content(&$a, $update = 0) {
 	}
 
 	if($conv)
-		$sql_extra3 .= " AND `mention`";
+		$sql_extra3 .= " AND $sql_table.`mention`";
 
 	if($update) {
 
