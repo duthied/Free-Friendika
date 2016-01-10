@@ -1507,6 +1507,12 @@ function poco_discover_server($data, $default_generation = 0) {
 	return $success;
 }
 
+/**
+ * @brief Fetch the gcontact id, add an entry if not existed
+ *
+ * @param arr $contact contact array
+ * @return bool|int Returns false if not found, integer if contact was found
+ */
 function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
@@ -1546,6 +1552,12 @@ function get_gcontact_id($contact) {
 	return $gcontact_id;
 }
 
+/**
+ * @brief Updates the gcontact table from a given array
+ *
+ * @param arr $contact contact array
+ * @return bool|int Returns false if not found, integer if contact was found
+ */
 function update_gcontact($contact) {
 
 	$gcontact_id = get_gcontact_id($contact);
@@ -1553,7 +1565,7 @@ function update_gcontact($contact) {
 	if (!$gcontact_id)
 		return false;
 
-	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`, `hide`, `nsfw`, `network`, `alias`, `notify`
+	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`, `hide`, `nsfw`, `network`, `alias`, `notify`, `url`
 		FROM `gcontact` WHERE `id` = %d LIMIT 1",
 		intval($gcontact_id));
 
@@ -1599,6 +1611,9 @@ function update_gcontact($contact) {
 	if ($contact["alias"] =="")
 		$contact["alias"] = $r[0]["alias"];
 
+	if ($contact["url"] =="")
+		$contact["url"] = $r[0]["url"];
+
 	if ($contact["notify"] =="")
 		$contact["notify"] = $r[0]["notify"];
 
@@ -1608,22 +1623,35 @@ function update_gcontact($contact) {
 	if (($contact["photo"] != $r[0]["photo"]) OR ($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["addr"] != $r[0]["addr"]) OR
 		($contact["birthday"] != $r[0]["birthday"]) OR ($contact["gender"] != $r[0]["gender"]) OR ($contact["keywords"] != $r[0]["keywords"]) OR
 		($contact["hide"] != $r[0]["hide"]) OR ($contact["nsfw"] != $r[0]["nsfw"]) OR ($contact["network"] != $r[0]["network"]) OR
-		($contact["alias"] != $r[0]["alias"]) OR ($contact["notify"] != $r[0]["notify"]) OR
+		($contact["alias"] != $r[0]["alias"]) OR ($contact["notify"] != $r[0]["notify"]) OR ($contact["url"] != $r[0]["url"]) OR
 		($contact["location"] != $r[0]["location"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["generation"] < $r[0]["generation"])) {
 
 		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
 					`birthday` = '%s', `gender` = '%s', `keywords` = %d, `hide` = %d, `nsfw` = %d,
-					`alias` = '%s', `notify` = '%s',
+					`alias` = '%s', `notify` = '%s', `url` = '%s',
 					`location` = '%s', `about` = '%s', `generation` = %d, `updated` = '%s'
 				WHERE `nurl` = '%s' AND (`generation` = 0 OR `generation` >= %d)",
 			dbesc($contact["photo"]), dbesc($contact["name"]), dbesc($contact["nick"]),
-			dbesc($contact["addr"]), dbesc($contact["network"]),
-			dbesc($contact["birthday"]), dbesc($contact["gender"]), dbesc($contact["keywords"]),
-			intval($contact["hide"]), intval($contact["nsfw"]), dbesc($contact["alias"]), dbesc($contact["notify"]),
-			dbesc($contact["location"]), dbesc($contact["about"]), intval($contact["generation"]), dbesc(datetime_convert()),
+			dbesc($contact["addr"]), dbesc($contact["network"]), dbesc($contact["birthday"]),
+			dbesc($contact["gender"]), dbesc($contact["keywords"]), intval($contact["hide"]),
+			intval($contact["nsfw"]), dbesc($contact["alias"]), dbesc($contact["notify"]),
+			dbesc($contact["url"]), dbesc($contact["location"]), dbesc($contact["about"]),
+			intval($contact["generation"]), dbesc(datetime_convert()),
 			dbesc(normalise_link($contact["url"])), intval($contact["generation"]));
 	}
 
 	return $gcontact_id;
+}
+
+/**
+ * @brief Updates the gcontact entry from probe
+ *
+ * @param str $url profile link
+ */
+function update_gcontact_from_probe($url) {
+	$data = probe_url($url);
+
+	if ($data["network"] != NETWORK_PHANTOM)
+		update_gcontact($data);
 }
 ?>

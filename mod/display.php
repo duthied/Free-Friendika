@@ -186,7 +186,7 @@ function display_fetchauthor($a, $item) {
 
 	// Fetching profile data from global contacts
 	if ($profiledata["network"] != NETWORK_FEED) {
-		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
+		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`, `network` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
 		if (count($r)) {
 			$profiledata["name"] = $r[0]["name"];
 			$profiledata["photo"] = $r[0]["photo"];

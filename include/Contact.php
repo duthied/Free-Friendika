@@ -533,7 +533,7 @@ function posts_from_gcontact($a, $gcontact_id) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item`
+		FROM `item` FORCE INDEX (`gcontactid_uid_created`)
 		WHERE `gcontact-id` = %d AND $sql AND
 			NOT `deleted` AND NOT `moderated` AND `visible`
 		ORDER BY `item`.`created` DESC LIMIT %d, %d",
@@ -639,7 +639,7 @@ function posts_from_contact($a, $contact_id) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` FORCE INDEX (uid_contactid_created)
+		FROM `item` FORCE INDEX (`uid_contactid_created`)
 		WHERE `item`.`uid` = %d AND `contact-id` = %d
 			AND `author-link` IN ('%s', '%s')
 			AND NOT `deleted` AND NOT `moderated` AND `visible`

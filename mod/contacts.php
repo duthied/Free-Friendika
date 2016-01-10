@@ -302,7 +302,7 @@ function _contact_update_profile($contact_id) {
 			`uri-date` = '%s',
 			`avatar-date` = '%s'
 			WHERE `id` = %d",
-			dbesc($photos[0]),
+			dbesc($data["photo"]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),
 			dbesc(datetime_convert()),
@@ -311,6 +311,8 @@ function _contact_update_profile($contact_id) {
 			intval($contact_id)
 		);
 
+	// Update the entry in the gcontact table
+	update_gcontact_from_probe($data["url"]);
 }
 
 function _contact_block($contact_id, $orig_record) {
