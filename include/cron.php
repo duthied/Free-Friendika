@@ -229,6 +229,24 @@ function cron_run(&$argv, &$argc){
 		set_config('system','cache_last_cleared', time());
 	}
 
+	// Repair missing Diaspora settings
+	$r = q("SELECT `id`, `url` FROM `contact`
+		WHERE `uid` > 0 AND `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
+			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
+	if ($r) {
+		foreach ($r AS $contact) {
+			if (poco_reachable($contact["url"])) {
+				$data = probe_url($contact["url"]);
+				if ($data["network"] == NETWORK_DIASPORA) {
+					logger("Repair contact ".$contact["id"]." ".$contact["url"], LOGGER_DEBUG);
+					q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
+						dbesc($data["batch"]), dbesc($data["notify"]), dbesc($data["poll"]), dbesc($data["pubkey"]),
+						intval($contact["id"]));
+				}
+			}
+		}
+	}
+
 	$manual_id  = 0;
 	$generation = 0;
 	$force      = false;
