@@ -559,10 +559,11 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				$pubkey = $hcard_key;
 		}
 	}
-
 	if($diaspora && $diaspora_base && $diaspora_guid) {
-		if($mode == PROBE_DIASPORA || ! $notify) {
-			$notify = $diaspora_base . 'receive/users/' . $diaspora_guid;
+		$diaspora_notify = $diaspora_base.'receive/users/'.$diaspora_guid;
+
+		if($mode == PROBE_DIASPORA || ! $notify || ($notify == $diaspora_notify)) {
+			$notify = $diaspora_notify;
 			$batch  = $diaspora_base . 'receive/public' ;
 		}
 		if(strpos($url,'@'))
