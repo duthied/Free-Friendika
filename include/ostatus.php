@@ -176,7 +176,7 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
 
-		// @todo: Addr
+		/// @todo Add the "addr" field
 		$contact["generation"] = 2;
 		$contact["photo"] = $author["author-avatar"];
 		update_gcontact($contact);
