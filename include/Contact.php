@@ -402,6 +402,7 @@ function get_contact($url, $uid = 0) {
 	$contactid = 0;
 
 	// is it an address in the format user@server.tld?
+	/// @todo use gcontact and/or the addr field for a lookup
 	if (!strstr($url, "http") OR strstr($url, "@")) {
 		$data = probe_url($url);
 		$url = $data["url"];

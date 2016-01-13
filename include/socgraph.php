@@ -1560,6 +1560,8 @@ function get_gcontact_id($contact) {
  */
 function update_gcontact($contact) {
 
+	/// @todo update contact table as well
+
 	$gcontact_id = get_gcontact_id($contact);
 
 	if (!$gcontact_id)
