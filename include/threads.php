@@ -112,7 +112,7 @@ function update_thread_uri($itemuri, $uid) {
 
 function update_thread($itemid, $setmention = false) {
 	$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
-			`deleted`, `origin`, `forum_mode`, `network`  FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+			`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
 	if (!$items)
 		return;
@@ -125,7 +125,7 @@ function update_thread($itemid, $setmention = false) {
 	$sql = "";
 
 	foreach ($item AS $field => $data)
-		if (!in_array($field, array("guid", "title", "body"))) {
+		if (!in_array($field, array("guid", "title", "body", "rendered-html", "rendered-hash"))) {
 			if ($sql != "")
 				$sql .= ", ";
 
@@ -142,9 +142,11 @@ function update_thread($itemid, $setmention = false) {
 	if (!$items)
 		return;
 
-	$result = q("UPDATE `item` SET `title` = '%s', `body` = '%s' WHERE `id` = %d",
+	$result = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
 			dbesc($item["title"]),
 			dbesc($item["body"]),
+			dbesc($item["rendered-html"]),
+			dbesc($item["rendered-hash"]),
 			intval($items[0]["id"])
 		);
 	logger("Updating public shadow for post ".$items[0]["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);

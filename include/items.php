@@ -955,8 +955,9 @@ function add_page_info_data($data) {
 		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
-			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
-						array("","", "", "", "", ""), $keyword);
+			/// @todo make a positive list of allowed characters
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"),
+						array("","", "", "", "", "", "", "", "", "", "", ""), $keyword);
 			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
 		}
 	}

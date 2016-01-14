@@ -467,6 +467,7 @@ class App {
 	public	$is_tablet;
 	public	$is_friendica_app;
 	public	$performance = array();
+	public	$callstack = array();
 
 	public $nav_sel;
 
@@ -552,7 +553,15 @@ class App {
 		$this->performance["rendering"] = 0;
 		$this->performance["parser"] = 0;
 		$this->performance["marktime"] = 0;
-		$this->performance["markstart"] = microtime(true);
+
+		$this->performance["file"] = 0;
+		$this->performance["file"] = 0;
+
+		$this->callstack["database"] = array();
+		$this->callstack["network"] = array();
+		$this->callstack["file"] = array();
+		$this->callstack["rendering"] = array();
+		$this->callstack["parser"] = array();
 
 		$this->config = array();
 		$this->page = array();
@@ -1016,6 +1025,23 @@ class App {
 
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
+
+		// Trace the different functions with their timestamps
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+
+		array_shift($trace);
+
+		$function = array();
+		foreach ($trace AS $func)
+			$function[] = $func["function"];
+
+		$function = implode(", ", $function);
+
+		//$last = array_pop($trace);
+		//$function = $last["function"];
+
+		$this->callstack[$value][$function] += (float)$duration;
+
 	}
 
 	function mark_timestamp($mark) {

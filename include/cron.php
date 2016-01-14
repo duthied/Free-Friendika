@@ -230,7 +230,7 @@ function cron_run(&$argv, &$argc){
 
 	// Repair missing Diaspora settings
 	$r = q("SELECT `id`, `url` FROM `contact`
-		WHERE `uid` > 0 AND `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
+		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
 	if ($r) {
 		foreach ($r AS $contact) {

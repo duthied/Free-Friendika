@@ -20,10 +20,10 @@ function replace_macros($s,$r) {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
-	
+
 	// pass $baseurl to all templates
 	$r['$baseurl'] = z_root();
-	
+
 
 	$t = $a->template_engine();
 	try {
@@ -1415,8 +1415,12 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
+	$test = $item["rendered-html"];
 	put_item_in_cache($item, true);
 	$s = $item["rendered-html"];
+
+	//if ($test != $s)
+	//	$s .= "<hr>*********************************<hr>".$test;
 
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);
