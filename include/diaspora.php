@@ -2407,10 +2407,10 @@ function diaspora_profile($importer,$xml,$msg) {
 	if(! $contact)
 		return;
 
-	if($contact['blocked']) {
-		logger('diaspora_post: Ignoring this author.');
-		return 202;
-	}
+	//if($contact['blocked']) {
+	//	logger('diaspora_post: Ignoring this author.');
+	//	return 202;
+	//}
 
 	$name = unxmlify($xml->first_name) . ((strlen($xml->last_name)) ? ' ' . unxmlify($xml->last_name) : '');
 	$image_url = unxmlify($xml->image_url);
@@ -2418,6 +2418,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	$location = diaspora2bb(unxmlify($xml->location));
 	$about = diaspora2bb(unxmlify($xml->bio));
 	$gender = unxmlify($xml->gender);
+	$searchable = (unxmlify($xml->searchable) == "true");
+	$nsfw = (unxmlify($xml->nsfw) == "true");
 	$tags = unxmlify($xml->tag_string);
 
 	$tags = explode("#", $tags);
@@ -2432,6 +2434,8 @@ function diaspora_profile($importer,$xml,$msg) {
 	$keywords = implode(", ", $keywords);
 
 	$handle_parts = explode("@", $diaspora_handle);
+	$nick = $handle_parts[0];
+
 	if($name === '') {
 		$name = $handle_parts[0];
 	}
@@ -2466,10 +2470,12 @@ function diaspora_profile($importer,$xml,$msg) {
 	/// @TODO Update name on item['author-name'] if the name changed. See consume_feed()
 	/// (Not doing this currently because D* protocol is scheduled for revision soon).
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
+		dbesc($nick),
+		dbesc($diaspora_handle),
 		dbesc(datetime_convert()),
-		dbesc($images[0]),
+		dbesc($image_url),
 		dbesc($images[1]),
 		dbesc($images[2]),
 		dbesc(datetime_convert()),
@@ -2482,26 +2488,17 @@ function diaspora_profile($importer,$xml,$msg) {
 		intval($importer['uid'])
 	);
 
-	if (unxmlify($xml->searchable) == "true") {
+	if ($searchable) {
 		require_once('include/socgraph.php');
-		poco_check($contact['url'], $name, NETWORK_DIASPORA, $images[0], $about, $location, $gender, $keywords, "",
+		poco_check($contact['url'], $name, NETWORK_DIASPORA, $image_url, $about, $location, $gender, $keywords, "",
 			datetime_convert(), 2, $contact['id'], $importer['uid']);
 	}
 
-	$profileurl = "";
-	$author = q("SELECT * FROM `unique_contacts` WHERE `url`='%s' LIMIT 1",
-			dbesc(normalise_link($contact['url'])));
-
-	if (count($author) == 0) {
-		q("INSERT INTO `unique_contacts` (`url`, `name`, `avatar`, `location`, `about`) VALUES ('%s', '%s', '%s', '%s', '%s')",
-			dbesc(normalise_link($contact['url'])), dbesc($name), dbesc($location), dbesc($about), dbesc($images[0]));
-
-		$author = q("SELECT id FROM unique_contacts WHERE url='%s' LIMIT 1",
-			dbesc(normalise_link($contact['url'])));
-	} else if (normalise_link($contact['url']).$name.$location.$about != normalise_link($author[0]["url"]).$author[0]["name"].$author[0]["location"].$author[0]["about"]) {
-		q("UPDATE unique_contacts SET name = '%s', avatar = '%s', `location` = '%s', `about` = '%s' WHERE url = '%s'",
-		dbesc($name), dbesc($images[0]), dbesc($location), dbesc($about), dbesc(normalise_link($contact['url'])));
-	}
+	update_gcontact(array("url" => $contact['url'], "network" => NETWORK_DIASPORA, "generation" => 2,
+				"photo" => $image_url, "name" => $name, "location" => $location,
+				"about" => $about, "birthday" => $birthday, "gender" => $gender,
+				"addr" => $diaspora_handle, "nick" => $nick, "keywords" => $keywords,
+				"hide" => !$searchable, "nsfw" => $nsfw));
 
 /*	if($r) {
 		if($oldphotos) {
@@ -2643,11 +2640,12 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 	}
 
 	logger('diaspora_send_status: '.$owner['username'].' -> '.$contact['name'].' base message: '.$msg, LOGGER_DATA);
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
-	$return_code = diaspora_transmit($owner,$contact,$slap,$public_batch);
+	$return_code = diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']);
 
 	logger('diaspora_send_status: guid: '.$item['guid'].' result '.$return_code, LOGGER_DEBUG);
 
@@ -2758,10 +2756,12 @@ function diaspora_send_images($item,$owner,$contact,$images,$public_batch = fals
 
 
 		logger('diaspora_send_photo: base message: ' . $msg, LOGGER_DATA);
+		logger('send guid '.$r[0]['guid'], LOGGER_DEBUG);
+
 		$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 		//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
-		diaspora_transmit($owner,$contact,$slap,$public_batch);
+		diaspora_transmit($owner,$contact,$slap,$public_batch,false,$r[0]['guid']);
 	}
 
 }
@@ -2832,11 +2832,12 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	));
 
 	logger('diaspora_followup: base message: ' . $msg, LOGGER_DATA);
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
-	return(diaspora_transmit($owner,$contact,$slap,$public_batch));
+	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
 }
 
 
@@ -2968,12 +2969,12 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	));
 
 	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DATA);
-
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
-	return(diaspora_transmit($owner,$contact,$slap,$public_batch));
+	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
 
 }
 
@@ -3005,10 +3006,12 @@ function diaspora_send_retraction($item,$owner,$contact,$public_batch = false) {
 		'$signature' => xmlify(base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')))
 	));
 
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
+
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
 
-	return(diaspora_transmit($owner,$contact,$slap,$public_batch));
+	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
 }
 
 function diaspora_send_mail($item,$owner,$contact) {
@@ -3065,16 +3068,17 @@ function diaspora_send_mail($item,$owner,$contact) {
 	}
 
 	logger('diaspora_conversation: ' . print_r($xmsg,true), LOGGER_DATA);
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($xmsg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],false)));
 	//$slap = 'xml=' . urlencode(diaspora_msg_build($xmsg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],false));
 
-	return(diaspora_transmit($owner,$contact,$slap,false));
+	return(diaspora_transmit($owner,$contact,$slap,false,false,$item['guid']));
 
 
 }
 
-function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false) {
+function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false,$guid = "") {
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
 	if(! $enabled) {
@@ -3087,9 +3091,9 @@ function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false)
 	if(! $dest_url) {
 		logger('diaspora_transmit: no url for contact: ' . $contact['id'] . ' batch mode =' . $public_batch);
 		return 0;
-	} 
+	}
 
-	logger('diaspora_transmit: ' . $logid . ' ' . $dest_url);
+	logger('diaspora_transmit: '.$logid.'-'.$guid.' '.$dest_url);
 
 	if( (! $queue_run) && (was_recently_delayed($contact['id'])) ) {
 		$return_code = 0;
@@ -3104,7 +3108,7 @@ function diaspora_transmit($owner,$contact,$slap,$public_batch,$queue_run=false)
 		}
 	}
 
-	logger('diaspora_transmit: ' . $logid . ' returns: ' . $return_code);
+	logger('diaspora_transmit: '.$logid.'-'.$guid.' returns: '.$return_code);
 
 	if((! $return_code) || (($return_code == 503) && (stristr($a->get_curl_headers(),'retry-after')))) {
 		logger('diaspora_transmit: queue message');

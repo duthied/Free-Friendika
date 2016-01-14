@@ -666,9 +666,14 @@ function db_definition() {
 					"about" => array("type" => "text", "not null" => "1"),
 					"keywords" => array("type" => "text", "not null" => "1"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"hide" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"nsfw" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"notify" => array("type" => "text", "not null" => "1"),
+					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
@@ -795,6 +800,7 @@ function db_definition() {
 					"uri" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"contact-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
+					"gcontact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"type" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"wall" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"gravity" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -871,6 +877,7 @@ function db_definition() {
 					"uid_thrparent" => array("uid","thr-parent"),
 					"uid_parenturi" => array("uid","parent-uri"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
+					"gcontactid_uid_created" => array("gcontact-id","uid","created"),
 					"wall_body" => array("wall","body(6)"),
 					"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
 					"uid_uri" => array("uid","uri"),
@@ -1287,6 +1294,7 @@ function db_definition() {
 					"iid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "primary" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"contact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"gcontact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"commented" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
@@ -1316,6 +1324,8 @@ function db_definition() {
 					"uid_network_created" => array("uid","network","created"),
 					"uid_contactid_commented" => array("uid","contact-id","commented"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
+					"uid_gcontactid_commented" => array("uid","gcontact-id","commented"),
+					"uid_gcontactid_created" => array("uid","gcontact-id","created"),
 					"wall_private_received" => array("wall","private","received"),
 					"uid_created" => array("uid","created"),
 					"uid_commented" => array("uid","commented"),
@@ -1332,21 +1342,6 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					)
-			);
-	$database["unique_contacts"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"about" => array("type" => "text", "not null" => "1"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"url" => array("url"),
 					)
 			);
 	$database["user"] = array(

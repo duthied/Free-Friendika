@@ -133,9 +133,8 @@ function cron_run(&$argv, &$argc){
 	// Check every conversation
 	check_conversations(false);
 
-	// Follow your friends from your legacy OStatus account
-	// Doesn't work
-	// ostatus_check_follow_friends();
+	// Set the gcontact-id in the item table if missing
+	item_set_gcontact();
 
 	// update nodeinfo data
 	nodeinfo_cron();

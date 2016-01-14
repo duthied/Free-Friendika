@@ -61,8 +61,7 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		//$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure`  AND `network` IN ('%s', '%s', '%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -94,8 +93,7 @@ function poco_init(&$a) {
 
 	if ($global) {
 		logger("Start global query", LOGGER_DEBUG);
-		//$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
 			ORDER BY `updated` DESC LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),

@@ -297,17 +297,26 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 	return $o;
 }
 
-function expand_groups($a,$check_dead = false) {
+function expand_groups($a,$check_dead = false, $use_gcontact = false) {
 	if(! (is_array($a) && count($a)))
 		return array();
 	$groups = implode(',', $a);
 	$groups = dbesc($groups);
-	$r = q("SELECT `contact-id` FROM `group_member` WHERE `gid` IN ( $groups )");
+
+	if ($use_gcontact)
+		$r = q("SELECT `gcontact`.`id` AS `contact-id` FROM `group_member`
+				INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id`
+				INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+			WHERE `gid` IN ($groups)");
+	else
+		$r = q("SELECT `contact-id` FROM `group_member` WHERE `gid` IN ( $groups )");
+
+
 	$ret = array();
 	if(count($r))
 		foreach($r as $rr)
 			$ret[] = $rr['contact-id'];
-	if($check_dead) {
+	if($check_dead AND !$use_gcontact) {
 		require_once('include/acl_selectors.php');
 		$ret = prune_deadguys($ret);
 	}
