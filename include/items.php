@@ -968,12 +968,7 @@ function add_page_info_data($data) {
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	require_once("mod/parse_url.php");
 
-	$data = Cache::get("parse_url:".$url);
-	if (is_null($data)){
-		$data = parseurl_getsiteinfo($url, true);
-		Cache::set("parse_url:".$url,serialize($data), CACHE_DAY);
-	} else
-		$data = unserialize($data);
+	$data = parseurl_getsiteinfo_cached($url, true);
 
 	if ($photo != "")
 		$data["images"][0]["src"] = $photo;

@@ -1021,6 +1021,26 @@ function db_definition() {
 					"receiver-uid" => array("receiver-uid"),
 					)
 			);
+	$database["oembed"] = array(
+			"fields" => array(
+					"url" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
+					"content" => array("type" => "text", "not null" => "1"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("url"),
+					)
+			);
+	$database["parsed_url"] = array(
+			"fields" => array(
+					"url" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
+					"guessing" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
+					"oembed" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
+					"content" => array("type" => "text", "not null" => "1"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("url", "guessing", "oembed"),
+					)
+			);
 	$database["pconfig"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
