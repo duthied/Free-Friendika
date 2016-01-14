@@ -1025,9 +1025,11 @@ function db_definition() {
 			"fields" => array(
 					"url" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
 					"content" => array("type" => "text", "not null" => "1"),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("url"),
+					"created" => array("created"),
 					)
 			);
 	$database["parsed_url"] = array(
@@ -1036,9 +1038,11 @@ function db_definition() {
 					"guessing" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
 					"oembed" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
 					"content" => array("type" => "text", "not null" => "1"),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("url", "guessing", "oembed"),
+					"created" => array("created"),
 					)
 			);
 	$database["pconfig"] = array(

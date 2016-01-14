@@ -75,8 +75,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 		else {	//save in cache
 			$j = json_decode($txt);
 			if ($j->type != "error")
-				q("INSERT INTO `oembed` (`url`, `content`) VALUES ('%s', '%s')",
-					dbesc(normalise_link($embedurl)), dbesc($txt));
+				q("INSERT INTO `oembed` (`url`, `content`, `created`) VALUES ('%s', '%s', '%s')",
+					dbesc(normalise_link($embedurl)), dbesc($txt), dbesc(datetime_convert()));
 
 			Cache::set($a->videowidth . $embedurl,$txt, CACHE_DAY);
 		}
