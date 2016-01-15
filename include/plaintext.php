@@ -90,6 +90,14 @@ function get_attached_data($body) {
 				$post["text"] = $body;
 			}
 		}
+
+		if (preg_match_all("(\[url\]([$URLSearchString]*)\[\/url\])ism", $body, $links,  PREG_SET_ORDER)) {
+			if (count($links) == 1) {
+				$post["type"] = "text";
+				$post["url"] = $links[0][1];
+				$post["text"] = $body;
+			}
+		}
 		if (!isset($post["type"])) {
 			$post["type"] = "text";
 			$post["text"] = trim($body);
@@ -129,9 +137,17 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 	require_once("include/html2plain.php");
 	require_once("include/network.php");
 
+	// Remove the hash tags
+	$URLSearchString = "^\[\]";
+	$body = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $b["body"]);
+
+	// Add an URL element if the text contains a raw link
+	$body = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $body);
+
 	// At first look at data that is attached via "type-..." stuff
 	// This will hopefully replaced with a dedicated bbcode later
-	$post = get_attached_data($b["body"]);
+	//$post = get_attached_data($b["body"]);
+	$post = get_attached_data($body);
 
 	if (($b["title"] != "") AND ($post["text"] != ""))
 		$post["text"] = trim($b["title"]."\n\n".$post["text"]);
@@ -145,6 +161,8 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 	$link = "";
 	if ($includedlinks) {
 		if ($post["type"] == "link")
+			$link = $post["url"];
+		elseif ($post["type"] == "text")
 			$link = $post["url"];
 		elseif ($post["type"] == "video")
 			$link = $post["url"];
@@ -161,8 +179,22 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 		// But: if the link is beyond the limit, then it has to be added.
 		if (($link != "") AND strstr($msg, $link)) {
 			$pos = strpos($msg, $link);
-			if (($limit == 0) OR ($pos < $limit))
+
+			// Will the text be shortened in the link?
+			// Or is the link the last item in the post?
+			if (($limit > 0) AND ($pos < $limit) AND (($pos + 23 > $limit) OR ($pos + strlen($link) == strlen($msg))))
+				$msg = trim(str_replace($link, "", $msg));
+			elseif (($limit == 0) OR ($pos < $limit)) {
+				// The limit has to be increased since it will be shortened - but not now
+				// Only do it with Twitter (htmlmode = 8)
+				if (($limit > 0) AND (strlen($link) > 23) AND ($htmlmode == 8))
+					$limit = $limit - 23 + strlen($link);
+
 				$link = "";
+
+				if ($post["type"] == "text")
+					unset($post["url"]);
+			}
 		}
 	}
 
@@ -178,7 +210,9 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 
 		if (iconv_strlen($msg, "UTF-8") > $limit) {
 
-			if (!isset($post["url"])) {
+			if (($post["type"] == "text") AND isset($post["url"]))
+				$post["url"] = $b["plink"];
+			elseif (!isset($post["url"])) {
 				$limit = $limit - 23;
 				$post["url"] = $b["plink"];
 			} elseif (strpos($b["body"], "[share") !== false)
