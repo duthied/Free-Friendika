@@ -1316,7 +1316,9 @@ function admin_page_users(&$a){
  * @brief Plugins admin page
  *
  * This function generates the admin panel page for managing plugins on the
- * friendica node.
+ * friendica node. If a plugin name is given a single page showing the details
+ * for this addon is generated. If no name is given, a list of available
+ * plugins is shown.
  *
  * The template used for displaying the list of plugins and the details of the
  * plugin are the same as used for the templates.
@@ -1519,7 +1521,9 @@ function rebuild_theme_table($themes) {
  * @brief Themes admin page
  *
  * This function generates the admin panel page to control the themes available
- * on the friendica node.
+ * on the friendica node. If the name of a theme is given as parameter a page
+ * with the details for the theme is shown. Otherwise a list of available
+ * themes is generated.
  *
  * The template used for displaying the list of themes and the details of the
  * themes are the same as used for the plugins.
