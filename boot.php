@@ -1042,9 +1042,6 @@ class App {
 
 		$function = implode(", ", $function);
 
-		//$last = array_pop($trace);
-		//$function = $last["function"];
-
 		$this->callstack[$value][$function] += (float)$duration;
 
 	}

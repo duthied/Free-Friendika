@@ -1415,8 +1415,6 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
-	$test = $item["rendered-html"];
-
 	// Update the cached values if there is no "zrl=..." on the links
 	$update = (!local_user() and !remote_user() and ($item["uid"] == 0));
 
@@ -1426,9 +1424,6 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 
 	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
-
-	//if ($test != $s)
-	//	$s .= "<hr>*********************************<hr>".$test;
 
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
 	call_hooks('prepare_body', $prep_arr);
