@@ -1314,6 +1314,15 @@ function admin_page_users(&$a){
 
 /**
  * @brief Plugins admin page
+ *
+ * This function generates the admin panel page for managing plugins on the
+ * friendica node.
+ *
+ * The template used for displaying the list of plugins and the details of the
+ * plugin are the same as used for the templates.
+ *
+ * The returned string returned hulds the HTML code of the page.
+ *
  * @param App $a
  * @return string
  */
@@ -1507,7 +1516,15 @@ function rebuild_theme_table($themes) {
 
 
 /**
- * Themes admin page
+ * @brief Themes admin page
+ *
+ * This function generates the admin panel page to control the themes available
+ * on the friendica node.
+ *
+ * The template used for displaying the list of themes and the details of the
+ * themes are the same as used for the plugins.
+ *
+ * The returned string contains the HTML code of the admin panel page.
  *
  * @param App $a
  * @return string
@@ -1619,6 +1636,7 @@ function admin_page_themes(&$a){
 		if(! stristr($screenshot[0],$theme))
 			$screenshot = null;
 
+
 		$t = get_markup_template("admin_plugins_details.tpl");
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -1626,7 +1644,6 @@ function admin_page_themes(&$a){
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
 			'$baseurl' => $a->get_baseurl(true),
-
 			'$plugin' => $theme,
 			'$status' => $status,
 			'$action' => $action,
@@ -1679,6 +1696,8 @@ function admin_page_themes(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
+		'$pcount' => count($themes),
+		'$noplugshint' => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
 		'$experimental' => t('[Experimental]'),
 		'$unsupported' => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
