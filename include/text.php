@@ -1416,7 +1416,15 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['mentions'] = $mentions;
 
 	$test = $item["rendered-html"];
-	put_item_in_cache($item, true);
+
+	// Update the cached values if there is no "zrl=..." on the links
+	$update = (!local_user() and !remote_user() and ($item["uid"] == 0));
+
+	// Or update it if the current viewer is the intented viewer
+	if (($item["uid"] == local_user()) AND ($item["uid"] != 0))
+		$update = true;
+
+	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
 
 	//if ($test != $s)

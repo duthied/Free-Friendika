@@ -811,16 +811,16 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 	if((local_user()) && (local_user() == $item['uid'])) {
 		if(isset($a->contacts) && x($a->contacts,$clean_url)) {
 			if($a->contacts[$clean_url]['network'] === NETWORK_DFRN) {
-				$best_url = $a->get_baseurl($ssl_state) . '/redir/' . $a->contacts[$clean_url]['id'];
+				$best_url = 'redir/'.$a->contacts[$clean_url]['id'];
 				$sparkle = true;
 			} else
 				$best_url = $a->contacts[$clean_url]['url'];
 		}
 	} elseif (local_user()) {
-		$r = q("SELECT `id`, `network` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s'",
+		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' LIMIT 1",
 			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
 		if ($r) {
-			$best_url = $a->get_baseurl($ssl_state).'/redir/'.$r[0]['id'];
+			$best_url = 'redir/'.$r[0]['id'];
 			$sparkle = true;
 		}
 	}
@@ -876,7 +876,7 @@ function item_photo_menu($item){
 		if(local_user() && local_user() == $item['uid'] && link_compare($item['url'],$item['author-link'])) {
 			$cid = $item['contact-id'];
 		} else {
-			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' ORDER BY `uid` DESC LIMIT 1",
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 				intval(local_user()), dbesc(normalise_link($item['author-link'])));
 			if ($r) {
 				$cid = $r[0]["id"];

@@ -38,6 +38,8 @@ Database Tables
 | [manage](help/database/db_manage)                    | table of accounts that can "su" each other       |
 | [notify](help/database/db_notify)                    | notifications                                    |
 | [notify-threads](help/database/db_notify-threads)    |                                                  |
+| [oembed](help/database/db_oembed)                    | cache for OEmbed queries                         |
+| [parsed_url](help/database/db_parsed_url)            | cache for "parse_url" queries                    |
 | [pconfig](help/database/db_pconfig)                  | personal (per user) configuration storage        |
 | [photo](help/database/db_photo)                      | photo storage                                    |
 | [poll](help/database/db_poll)                        | data for polls                                   |

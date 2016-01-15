@@ -912,6 +912,10 @@ class App {
 	}
 
 	function get_cached_avatar_image($avatar_image){
+		return $avatar_image;
+
+		// The following code is deactivated. It doesn't seem to make any sense and it slows down the system.
+		/*
 		if($this->cached_profile_image[$avatar_image])
 			return $this->cached_profile_image[$avatar_image];
 
@@ -931,6 +935,7 @@ class App {
 			}
 		}
 		return $this->cached_profile_image[$avatar_image];
+		*/
 	}
 
 
