@@ -554,9 +554,6 @@ class App {
 		$this->performance["parser"] = 0;
 		$this->performance["marktime"] = 0;
 
-		$this->performance["file"] = 0;
-		$this->performance["file"] = 0;
-
 		$this->callstack["database"] = array();
 		$this->callstack["network"] = array();
 		$this->callstack["file"] = array();
