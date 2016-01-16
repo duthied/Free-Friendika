@@ -248,15 +248,15 @@ function admin_page_federation(&$a) {
     foreach ($platforms as $p) {
 	// get a total count for the platform, the name and version of the
 	// highest version and the protocol tpe
-	$c = q('select count(*), platform, network, version from gserver
-	    where platform like "'.$p.'" and last_contact > last_failure
-	    order by version asc;');
+	$c = q('SELECT count(*) AS total, platform, network, version FROM gserver
+	    WHERE platform LIKE "%s" AND last_contact > last_failure
+	    ORDER BY version ASC;', $p);
 	// what versions for that platform do we know at all?
 	// again only the active nodes
-	$v = q('select count(*), version from gserver
-	    where last_contact > last_failure and platform like "'.$p.'" 
-	    group by version
-	    order by version;');
+	$v = q('SELECT count(*) AS total, version FROM gserver
+	    WHERE last_contact > last_failure AND platform LIKE "%s" 
+	    GROUP BY version
+	    ORDER BY version;', $p);
 	//
 	// clean up version numbers
 	//
@@ -267,7 +267,7 @@ function admin_page_federation(&$a) {
 	    $newV = array();
 	    $newVv = array();
 	    foreach($v as $vv) {
-		$newVC = $vv['count(*)'];
+		$newVC = $vv['total'];
 		$newVV = $vv['version'];
 		$posDash = strpos($newVV, '-');
 		if ($posDash) 
@@ -280,7 +280,7 @@ function admin_page_federation(&$a) {
 		}
 	    }
 	    foreach ($newV as $key => $value) {
-		array_push($newVv, array('count(*)'=>$value, 'version'=>$key));
+		array_push($newVv, array('total'=>$value, 'version'=>$key));
 	    }
 	    $v = $newVv;
 	}
@@ -291,7 +291,7 @@ function admin_page_federation(&$a) {
 	    $newV = array();
 	    $newVv = array();
 	    foreach ($v as $vv) {
-		$newVC = $vv['count(*)'];
+		$newVC = $vv['total'];
 		$newVV = $vv['version'];
 		$lastDot = strrpos($newVV,'.');
 		$len = strlen($newVV)-1;
@@ -305,7 +305,7 @@ function admin_page_federation(&$a) {
 		}
 	    }
 	    foreach ($newV as $key => $value) {
-		array_push($newVv, array('count(*)'=>$value, 'version'=>$key));
+		array_push($newVv, array('total'=>$value, 'version'=>$key));
 	    }
 	    $v = $newVv;
 	}
@@ -1752,43 +1752,11 @@ function admin_page_logs(&$a){
 
 	$t = get_markup_template("admin_logs.tpl");
 
-/*	$f = get_config('system','logfile');
-
-	$data = '';
-
-	if(!file_exists($f)) {
-		$data = t("Error trying to open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f exist and is
-readable.");
-	}
-	else {
-		$fp = fopen($f, 'r');
-		if(!$fp) {
-			$data = t("Couldn't open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f is readable.");
-		}
-		else {
-			$fstat = fstat($fp);
-			$size = $fstat['size'];
-			if($size != 0)
-			{
-				if($size > 5000000 || $size < 0)
-					$size = 5000000;
-				$seek = fseek($fp,0-$size,SEEK_END);
-				if($seek === 0) {
-					$data = escape_tags(fread($fp,$size));
-					while(! feof($fp))
-						$data .= escape_tags(fread($fp,4096));
-				}
-			}
-			fclose($fp);
-		}
-	}*/
-
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Logs'),
 		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
-//		'$data' => $data,
 		'$baseurl' => $a->get_baseurl(true),
 		'$logname' =>  get_config('system','logfile'),
 
