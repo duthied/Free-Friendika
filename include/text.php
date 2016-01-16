@@ -895,9 +895,9 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT * FROM `contact`
-				WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
-					AND `hidden` = 0 AND `archive` = 0
+		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `micro`, `network` FROM `contact`
+				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
+					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
 				dbesc(NETWORK_DFRN),
