@@ -97,9 +97,6 @@ function admin_post(&$a){
 			case 'dbsync':
 				admin_page_dbsync_post($a);
 				break;
-			case 'update':
-				admin_page_remoteupdate_post($a);
-				break;
 		}
 	}
 
@@ -142,7 +139,6 @@ function admin_content(&$a) {
 		'dbsync' => 	Array($a->get_baseurl(true)."/admin/dbsync/", t('DB updates'), "dbsync"),
 		'queue'	 =>	Array($a->get_baseurl(true)."/admin/queue/", t('Inspect Queue'), "queue"),
 		'federation' => Array($a->get_baseurl(true)."/admin/federation/", t('Federation Statistics'), "federation"),
-		//'update' =>	Array($a->get_baseurl(true)."/admin/update/", t("Software Update") , "update")
 	);
 
 	/* get plugins admin page */
@@ -202,9 +198,6 @@ function admin_content(&$a) {
 				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
-				break;
-			case 'update':
-				$o = admin_page_remoteupdate($a);
 				break;
 			case 'queue':
 			    	$o = admin_page_queue($a);
