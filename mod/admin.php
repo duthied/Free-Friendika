@@ -105,8 +105,10 @@ function admin_post(&$a){
 }
 
 /**
- * This function generates the content for the admin panel.
  * @brief generates content of the admin panel pages
+ *
+ * This function generates the content for the admin panel.
+ *
  * @param App $a
  * @return string
  */
@@ -222,6 +224,8 @@ function admin_content(&$a) {
 }
 
 /**
+ * @brief subpage with some stats about "the federation" network
+ *
  * This function generates the "Federation Statistics" subpage for the admin
  * panel. The page lists some numbers to the part of "The Federation" known to
  * the node. This data includes the different connected networks (e.g.
@@ -230,7 +234,6 @@ function admin_content(&$a) {
  *
  * The returned string contains the HTML code of the subpage for display.
  *
- * @brief subpage with some stats about "the federation" network
  * @param App $a
  * @return string
  */
