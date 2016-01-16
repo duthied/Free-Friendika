@@ -9,8 +9,8 @@
     <p>{{$legendtext}}
     <ul>
     {{foreach $counts as $c}}
-    {{if $c[0]['count(*)'] > 0}}
-    <li>{{$c[0]['platform']}} ({{$c[0]['count(*)']}})</li>
+    {{if $c[0]['total'] > 0}}
+    <li>{{$c[0]['platform']}} ({{$c[0]['total']}})</li>
     {{/if}}
     {{/foreach}}
     </ul>
@@ -19,7 +19,7 @@
 <script>
 var FedData = [
 {{foreach $counts as $c}}
-    { value: {{$c[0]['count(*)']}}, label: "{{$c[0]['platform']}}", color: "#90EE90", highlight: "#EE90A1", },
+    { value: {{$c[0]['total']}}, label: "{{$c[0]['platform']}}", color: "#90EE90", highlight: "#EE90A1", },
 {{/foreach}}
 ];
 var ctx = document.getElementById("FederationChart").getContext("2d");
@@ -32,10 +32,10 @@ document.getElementById('FederationLegend').innerHTML = myDoughnutChart.generate
 
 <table style="width: 100%">
 {{foreach $counts as $c}}
-{{if $c[0]['count(*)'] > 0}}
+{{if $c[0]['total'] > 0}}
 <tr>
 	<th>{{$c[0]['platform']}}</th>
-	<th><strong>{{$c[0]['count(*)']}}</strong></td>
+	<th><strong>{{$c[0]['total']}}</strong></td>
 	<td>{{$c[0]['network']}}</td>
 </tr>
 <tr>
@@ -45,7 +45,7 @@ margin: 20px;"></canvas>
 <script>
 var {{$c[2]}}data = [
 {{foreach $c[1] as $v}}
-    { value: {{$v['count(*)']}}, label: '{{$v['version']}}', color: "#90EE90", highlight: "#EE90A1",},
+    { value: {{$v['total']}}, label: '{{$v['version']}}', color: "#90EE90", highlight: "#EE90A1",},
 {{/foreach}}
 ];
 var ctx = document.getElementById("{{$c[2]}}Chart").getContext("2d");
@@ -54,7 +54,7 @@ var my{{$c[2]}}DoughnutChart = new Chart(ctx).Doughnut({{$c[2]}}data,
 </script>
 <ul class="federation-stats">
 {{foreach $c[1] as $v}}
-<li>{{if ($c[0]['platform']==='Friendica' and  $version===$v['version']) }}<span class="version-match">{{$v['version']}}</span>{{else}}{{$v['version']}}{{/if}} ({{$v['count(*)']}})</li>
+<li>{{if ($c[0]['platform']==='Friendica' and  $version===$v['version']) }}<span class="version-match">{{$v['version']}}</span>{{else}}{{$v['version']}}{{/if}} ({{$v['total']}})</li>
 {{/foreach}}
 </ul>
 </td>
