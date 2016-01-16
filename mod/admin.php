@@ -3,13 +3,21 @@
  /**
   * Friendica admin
   */
-require_once("include/remoteupdate.php");
 require_once("include/enotify.php");
 require_once("include/text.php");
 
-
 /**
+ * @brief process send data from the admin panels subpages
+ *
+ * This function acts as relais for processing the data send from the subpages
+ * of the admin panel. Depending on the 1st parameter of the url (argv[1])
+ * specialized functions are called to process the data from the subpages.
+ *
+ * The function itself does not return anything, but the subsequencely function
+ * return the HTML for the pages of the admin panel.
+ *
  * @param App $a
+ *
  */
 function admin_post(&$a){
 
@@ -89,9 +97,6 @@ function admin_post(&$a){
 			case 'dbsync':
 				admin_page_dbsync_post($a);
 				break;
-			case 'update':
-				admin_page_remoteupdate_post($a);
-				break;
 		}
 	}
 
@@ -100,6 +105,10 @@ function admin_post(&$a){
 }
 
 /**
+ * @brief generates content of the admin panel pages
+ *
+ * This function generates the content for the admin panel.
+ *
  * @param App $a
  * @return string
  */
@@ -121,22 +130,23 @@ function admin_content(&$a) {
 	/**
 	 * Side bar links
 	 */
-
+	$aside_tools = Array();
 	// array( url, name, extra css classes )
-	$aside = Array(
+	// not part of $aside to make the template more adjustable
+	$aside_sub = Array(
 		'site'	 =>	Array($a->get_baseurl(true)."/admin/site/", t("Site") , "site"),
 		'users'	 =>	Array($a->get_baseurl(true)."/admin/users/", t("Users") , "users"),
 		'plugins'=>	Array($a->get_baseurl(true)."/admin/plugins/", t("Plugins") , "plugins"),
 		'themes' =>	Array($a->get_baseurl(true)."/admin/themes/", t("Themes") , "themes"),
 		'dbsync' => 	Array($a->get_baseurl(true)."/admin/dbsync/", t('DB updates'), "dbsync"),
 		'queue'	 =>	Array($a->get_baseurl(true)."/admin/queue/", t('Inspect Queue'), "queue"),
-		//'update' =>	Array($a->get_baseurl(true)."/admin/update/", t("Software Update") , "update")
+		'federation' => Array($a->get_baseurl(true)."/admin/federation/", t('Federation Statistics'), "federation"),
 	);
 
 	/* get plugins admin page */
 
 	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin`=1 ORDER BY `name`");
-	$aside['plugins_admin']=Array();
+	$aside_tools['plugins_admin']=Array();
 	foreach ($r as $h){
 		$plugin =$h['name'];
 		$aside['plugins_admin'][] = Array($a->get_baseurl(true)."/admin/plugins/".$plugin, $plugin, "plugin");
@@ -144,19 +154,21 @@ function admin_content(&$a) {
 		$a->plugins_admin[] = $plugin;
 	}
 
-	$aside['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
-	$aside['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
-	$aside['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
+	$aside_tools['logs'] = Array($a->get_baseurl(true)."/admin/logs/", t("Logs"), "logs");
+	$aside_tools['viewlogs'] = Array($a->get_baseurl(true)."/admin/viewlogs/", t("View Logs"), 'viewlogs');
+	$aside_tools['diagnostics_probe'] = Array($a->get_baseurl(true).'/probe/', t('probe address'), 'probe');
+	$aside_tools['diagnostics_webfinger'] = Array($a->get_baseurl(true).'/webfinger/', t('check webfinger'), 'webfinger');
 
 	$t = get_markup_template("admin_aside.tpl");
 	$a->page['aside'] .= replace_macros( $t, array(
-			'$admin' => $aside,
-			'$admtxt' => t('Admin'),
-			'$plugadmtxt' => t('Plugin Features'),
-			'$logtxt' => t('Logs'),
-			'$diagnosticstxt' => t('diagnostics'),
-			'$h_pending' => t('User registrations waiting for confirmation'),
-			'$admurl'=> $a->get_baseurl(true)."/admin/"
+	    '$admin' => $aside_tools,
+	    '$subpages' => $aside_sub,
+	    '$admtxt' => t('Admin'),
+	    '$plugadmtxt' => t('Plugin Features'),
+	    '$logtxt' => t('Logs'),
+	    '$diagnosticstxt' => t('diagnostics'),
+	    '$h_pending' => t('User registrations waiting for confirmation'),
+	    '$admurl'=> $a->get_baseurl(true)."/admin/"
 	));
 
 
@@ -183,14 +195,17 @@ function admin_content(&$a) {
 			case 'logs':
 				$o = admin_page_logs($a);
 				break;
+			case 'viewlogs':
+				$o = admin_page_viewlogs($a);
+				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
 				break;
-			case 'update':
-				$o = admin_page_remoteupdate($a);
-				break;
 			case 'queue':
 			    	$o = admin_page_queue($a);
+				break;
+			case 'federation':
+			    	$o = admin_page_federation($a);
 				break;
 			default:
 				notice( t("Item not found.") );
@@ -209,9 +224,127 @@ function admin_content(&$a) {
 }
 
 /**
- * Admin Inspect Queue Page
+ * @brief subpage with some stats about "the federation" network
+ *
+ * This function generates the "Federation Statistics" subpage for the admin
+ * panel. The page lists some numbers to the part of "The Federation" known to
+ * the node. This data includes the different connected networks (e.g.
+ * Diaspora, Hubzilla, GNU Social) and the used versions in the different
+ * networks.
+ *
+ * The returned string contains the HTML code of the subpage for display.
+ *
  * @param App $a
- * return string
+ * @return string
+ */
+function admin_page_federation(&$a) {
+    // get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
+    // social and statusnet nodes this node is knowing
+    //
+    // We are looking for the following platforms in the DB, "Red" should find
+    // all variants of that platform ID string as the q() function is stripping
+    // off one % two of them are needed in the query
+    // Add more platforms if you like, when one returns 0 known nodes it is not
+    // displayed on the stats page.
+    $platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
+    $counts = array();
+    foreach ($platforms as $p) {
+	// get a total count for the platform, the name and version of the
+	// highest version and the protocol tpe
+	$c = q('SELECT count(*) AS total, platform, network, version FROM gserver
+	    WHERE platform LIKE "%s" AND last_contact > last_failure
+	    ORDER BY version ASC;', $p);
+	// what versions for that platform do we know at all?
+	// again only the active nodes
+	$v = q('SELECT count(*) AS total, version FROM gserver
+	    WHERE last_contact > last_failure AND platform LIKE "%s" 
+	    GROUP BY version
+	    ORDER BY version;', $p);
+	//
+	// clean up version numbers
+	//
+	// in the DB the Diaspora versions have the format x.x.x.x-xx the last
+	// part (-xx) should be removed to clean up the versions from the "head
+	// commit" information and combined into a single entry for x.x.x.x
+	if ($p=='Diaspora') {
+	    $newV = array();
+	    $newVv = array();
+	    foreach($v as $vv) {
+		$newVC = $vv['total'];
+		$newVV = $vv['version'];
+		$posDash = strpos($newVV, '-');
+		if ($posDash) 
+		    $newVV = substr($newVV, 0, $posDash);
+		if (isset($newV[$newVV]))
+		{ 
+		    $newV[$newVV] += $newVC; 
+		} else { 
+		    $newV[$newVV] = $newVC; 
+		}
+	    }
+	    foreach ($newV as $key => $value) {
+		array_push($newVv, array('total'=>$value, 'version'=>$key));
+	    }
+	    $v = $newVv;
+	}
+	// early friendica versions have the format x.x.xxxx where xxxx is the
+	// DB version stamp; those should be operated out and versions be
+	// conbined
+	if ($p=='Friendica') {
+	    $newV = array();
+	    $newVv = array();
+	    foreach ($v as $vv) {
+		$newVC = $vv['total'];
+		$newVV = $vv['version'];
+		$lastDot = strrpos($newVV,'.');
+		$len = strlen($newVV)-1;
+		if (($lastDot == $len-4) && (!strrpos($newVV,'-rc')==$len-3))
+		    $newVV = substr($newVV, 0, $lastDot);
+		if (isset($newV[$newVV])) 
+		{ 
+		    $newV[$newVV] += $newVC; 
+		} else { 
+		    $newV[$newVV] = $newVC; 
+		}
+	    }
+	    foreach ($newV as $key => $value) {
+		array_push($newVv, array('total'=>$value, 'version'=>$key));
+	    }
+	    $v = $newVv;
+	}
+	// the 3rd array item is needed for the JavaScript graphs as JS does
+	// not like some characters in the names of variables...
+	$counts[$p]=array($c[0], $v, str_replace(array(' ','%'),'',$p));
+    }
+    // some helpful text
+    $intro = t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
+    $hint = t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
+    // load the template, replace the macros and return the page content
+    $t = get_markup_template("admin_federation.tpl");
+    return replace_macros($t, array(
+	'$title' => t('Administration'),
+	'$page' => t('Federation Statistics'),
+    	'$intro' => $intro,
+	'$hint' => $hint,
+	'$autoactive' => get_config('system', 'poco_completion'),
+	'$counts' => $counts,
+	'$version' => FRIENDICA_VERSION,
+	'$legendtext' => t('Currently this node is aware of nodes from the following platforms:'),
+	'$baseurl' => $a->get_baseurl(),
+    ));
+}
+/**
+ * @brief Admin Inspect Queue Page
+ *
+ * Generates a page for the admin to have a look into the current queue of
+ * postings that are not deliverabke. Shown are the name and url of the
+ * recipient, the delivery network and the dates when the posting was generated
+ * and the last time tried to deliver the posting.
+ *
+ * The returned string holds the content of the page.
+ *
+ * @param App $a
+ * @return string
  */
 function admin_page_queue(&$a) {
     	// get content from the queue table
@@ -233,7 +366,13 @@ function admin_page_queue(&$a) {
 	));
 }
 /**
- * Admin Summary Page
+ * @brief Admin Summary Page
+ *
+ * The summary page is the "start page" of the admin panel. It gives the admin
+ * a first overview of the open adminastrative tasks.
+ *
+ * The returned string contains the HTML content of the generated page.
+ *
  * @param App $a
  * @return string
  */
@@ -286,8 +425,8 @@ function admin_page_summary(&$a) {
 
 
 /**
- * Admin Site Page
- *  @param App $a
+ * @brief process send data from Admin Site Page
+ * @param App $a
  */
 function admin_page_site_post(&$a){
 	if (!x($_POST,"page_site")){
@@ -601,6 +740,10 @@ function admin_page_site_post(&$a){
 }
 
 /**
+ * @brief generate Admin Site subpage
+ *
+ * This function generates the main configuration page of the admin panel.
+ *
  * @param  App $a
  * @return string
  */
@@ -811,7 +954,18 @@ function admin_page_site(&$a) {
 
 }
 
-
+/**
+ * @brief generates admin panel subpage for DB syncronization
+ *
+ * This page checks if the database of friendica is in sync with the specs.
+ * Should this not be the case, it attemps to sync the structure and notifies
+ * the admin if the automatic process was failing.
+ *
+ * The returned string holds the HTML code of the page.
+ *
+ * @param App $a
+ * @return string
+ **/
 function admin_page_dbsync(&$a) {
 
 	$o = '';
@@ -891,8 +1045,7 @@ function admin_page_dbsync(&$a) {
 }
 
 /**
- * Users admin page
- *
+ * @brief process data send by Users admin page
  * @param App $a
  */
 function admin_page_users_post(&$a){
@@ -987,6 +1140,14 @@ function admin_page_users_post(&$a){
 }
 
 /**
+ * @brief admin panel subpage for User management
+ *
+ * This function generates the admin panel page for user management of the
+ * node. It offers functionality to add/block/delete users and offers some
+ * statistics about the userbase.
+ *
+ * The returned string holds the HTML code of the page.
+ *
  * @param App $a
  * @return string
  */
@@ -1147,7 +1308,17 @@ function admin_page_users(&$a){
 
 
 /**
- * Plugins admin page
+ * @brief Plugins admin page
+ *
+ * This function generates the admin panel page for managing plugins on the
+ * friendica node. If a plugin name is given a single page showing the details
+ * for this addon is generated. If no name is given, a list of available
+ * plugins is shown.
+ *
+ * The template used for displaying the list of plugins and the details of the
+ * plugin are the same as used for the templates.
+ *
+ * The returned string returned hulds the HTML code of the page.
  *
  * @param App $a
  * @return string
@@ -1276,6 +1447,8 @@ function admin_page_plugins(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
+		'$pcount' => count($plugins), 
+		'$noplugshint' => sprintf( t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s'), 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
 }
@@ -1340,7 +1513,17 @@ function rebuild_theme_table($themes) {
 
 
 /**
- * Themes admin page
+ * @brief Themes admin page
+ *
+ * This function generates the admin panel page to control the themes available
+ * on the friendica node. If the name of a theme is given as parameter a page
+ * with the details for the theme is shown. Otherwise a list of available
+ * themes is generated.
+ *
+ * The template used for displaying the list of themes and the details of the
+ * themes are the same as used for the plugins.
+ *
+ * The returned string contains the HTML code of the admin panel page.
  *
  * @param App $a
  * @return string
@@ -1452,6 +1635,7 @@ function admin_page_themes(&$a){
 		if(! stristr($screenshot[0],$theme))
 			$screenshot = null;
 
+
 		$t = get_markup_template("admin_plugins_details.tpl");
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -1459,7 +1643,6 @@ function admin_page_themes(&$a){
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
 			'$baseurl' => $a->get_baseurl(true),
-
 			'$plugin' => $theme,
 			'$status' => $status,
 			'$action' => $action,
@@ -1512,6 +1695,8 @@ function admin_page_themes(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
+		'$pcount' => count($themes),
+		'$noplugshint' => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
 		'$experimental' => t('[Experimental]'),
 		'$unsupported' => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
@@ -1520,8 +1705,7 @@ function admin_page_themes(&$a){
 
 
 /**
- * Logs admin page
- *
+ * @brief prosesses data send by Logs admin page
  * @param App $a
  */
 
@@ -1530,14 +1714,12 @@ function admin_page_logs_post(&$a) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
 		$logfile 		=	((x($_POST,'logfile'))		? notags(trim($_POST['logfile']))	: '');
-		$debugging		=	((x($_POST,'debugging'))	? true								: false);
+		$debugging		=	((x($_POST,'debugging'))	? true					: false);
 		$loglevel 		=	((x($_POST,'loglevel'))		? intval(trim($_POST['loglevel']))	: 0);
 
 		set_config('system','logfile', $logfile);
 		set_config('system','debugging',  $debugging);
 		set_config('system','loglevel', $loglevel);
-
-
 	}
 
 	info( t("Log settings updated.") );
@@ -1546,6 +1728,18 @@ function admin_page_logs_post(&$a) {
 }
 
 /**
+ * @brief generates admin panel subpage for configuration of the logs
+ *
+ * This function take the view/templates/admin_logs.tpl file and generates a
+ * page where admin can configure the logging of friendica.
+ *
+ * Displaying the log is separated from the log config as the logfile can get
+ * big depending on the settings and changing settings regarding the logs can
+ * thus waste bandwidth.
+ *
+ * The string returned contains the content of the template file with replaced
+ * macros.
+ *
  * @param App $a
  * @return string
  */
@@ -1561,13 +1755,51 @@ function admin_page_logs(&$a){
 
 	$t = get_markup_template("admin_logs.tpl");
 
-	$f = get_config('system','logfile');
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('Logs'),
+		'$submit' => t('Save Settings'),
+		'$clear' => t('Clear'),
+		'$baseurl' => $a->get_baseurl(true),
+		'$logname' =>  get_config('system','logfile'),
 
+									// name, label, value, help string, extra data...
+		'$debugging' 		=> array('debugging', t("Enable Debugging"),get_config('system','debugging'), ""),
+		'$logfile'			=> array('logfile', t("Log file"), get_config('system','logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")),
+		'$loglevel' 		=> array('loglevel', t("Log level"), get_config('system','loglevel'), "", $log_choices),
+
+		'$form_security_token' => get_form_security_token("admin_logs"),
+		'$phpheader' => t("PHP logging"),
+		'$phphint' => t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
+		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE );\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
+	));
+}
+
+/**
+ * @brief generates admin panel subpage to view the Friendica log
+ *
+ * This function loads the template view/templates/admin_viewlogs.tpl to
+ * display the systemlog content. The filename for the systemlog of friendica
+ * is relative to the base directory and taken from the config entry 'logfile'
+ * in the 'system' category.
+ *
+ * Displaying the log is separated from the log config as the logfile can get
+ * big depending on the settings and changing settings regarding the logs can
+ * thus waste bandwidth.
+ *
+ * The string returned contains the content of the template file with replaced
+ * macros.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_viewlogs(&$a){
+	$t = get_markup_template("admin_viewlogs.tpl");
+	$f = get_config('system','logfile');
 	$data = '';
 
 	if(!file_exists($f)) {
-		$data = t("Error trying to open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f exist and is
-readable.");
+		$data = t("Error trying to open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f exist and is readable.");
 	}
 	else {
 		$fp = fopen($f, 'r');
@@ -1591,80 +1823,10 @@ readable.");
 			fclose($fp);
 		}
 	}
-
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
-		'$page' => t('Logs'),
-		'$submit' => t('Save Settings'),
-		'$clear' => t('Clear'),
+		'$page' => t('View Logs'),
 		'$data' => $data,
-		'$baseurl' => $a->get_baseurl(true),
-		'$logname' =>  get_config('system','logfile'),
-
-									// name, label, value, help string, extra data...
-		'$debugging' 		=> array('debugging', t("Enable Debugging"),get_config('system','debugging'), ""),
-		'$logfile'			=> array('logfile', t("Log file"), get_config('system','logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")),
-		'$loglevel' 		=> array('loglevel', t("Log level"), get_config('system','loglevel'), "", $log_choices),
-
-		'$form_security_token' => get_form_security_token("admin_logs"),
+		'$logname' =>  get_config('system','logfile')
 	));
-}
-
-/**
- * @param App $a
- */
-function admin_page_remoteupdate_post(&$a) {
-	// this function should be called via ajax post
-	if(!is_site_admin()) {
-		return;
-	}
-
-
-	if (x($_POST,'remotefile') && $_POST['remotefile']!=""){
-		$remotefile = $_POST['remotefile'];
-		$ftpdata = (x($_POST['ftphost'])?$_POST:false);
-		doUpdate($remotefile, $ftpdata);
-	} else {
-		echo "No remote file to download. Abort!";
-	}
-
-	killme();
-}
-
-/**
- * @param App $a
- * @return string
- */
-function admin_page_remoteupdate(&$a) {
-	if(!is_site_admin()) {
-		return login(false);
-	}
-
-	$canwrite = canWeWrite();
-	$canftp = function_exists('ftp_connect');
-
-	$needupdate = true;
-	$u = checkUpdate();
-	if (!is_array($u)){
-		$needupdate = false;
-		$u = array('','','');
-	}
-
-	$tpl = get_markup_template("admin_remoteupdate.tpl");
-	return replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(true),
-		'$submit' => t("Update now"),
-		'$close' => t("Close"),
-		'$localversion' => FRIENDICA_VERSION,
-		'$remoteversion' => $u[1],
-		'$needupdate' => $needupdate,
-		'$canwrite' => $canwrite,
-		'$canftp'	=> $canftp,
-		'$ftphost'	=> array('ftphost', t("FTP Host"), '',''),
-		'$ftppath'	=> array('ftppath', t("FTP Path"), '/',''),
-		'$ftpuser'	=> array('ftpuser', t("FTP User"), '',''),
-		'$ftppwd'	=> array('ftppwd', t("FTP Password"), '',''),
-		'$remotefile'=>array('remotefile','', $u['2'],''),
-	));
-
 }
