@@ -4,7 +4,7 @@
   </div>
 {{/if}}
 
-<h2>{{$title}}</h2>
+{{include file="section_title.tpl"}}
 
 <dl id="aprofile-fullname" class="aprofile">
  <dt>{{$profile.fullname.0}}</dt>
@@ -171,6 +171,9 @@
 </dl>
 {{/if}}
 
-
-
-
+{{if $profile.forumlist}}
+<dl id="aprofile-forumlist" class="aprofile">
+ <dt>{{$profile.forumlist.0}}</dt>
+ <dd>{{$profile.forumlist.1}}</dd>
+</dl>
+{{/if}}
