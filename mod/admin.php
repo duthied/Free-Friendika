@@ -212,17 +212,11 @@ function admin_content(&$a) {
 			case 'viewlogs':
 				$o = admin_page_viewlogs($a);
 				break;
-			case 'viewlogs':
-				$o = admin_page_viewlogs($a);
-				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
 				break;
 			case 'queue':
 				$o = admin_page_queue($a);
-				break;
-			case 'federation':
-				$o = admin_page_federation($a);
 				break;
 			case 'federation':
 				$o = admin_page_federation($a);
