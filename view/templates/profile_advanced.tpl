@@ -1,5 +1,5 @@
 
-<h2>{{$title}}</h2>
+{{include file="section_title.tpl"}}
 
 <dl id="aprofile-fullname" class="aprofile">
  <dt>{{$profile.fullname.0}}</dt>
