@@ -1,23 +1,25 @@
 <?php
 
 /**
- * @file include/features.php * 
+ * @file include/features.php
  * @brief Features management
  */
 
 /**
  * @brief check if feature is enabled
  * 
- * return boolean
+ * @return boolean
  */
 function feature_enabled($uid,$feature) {
-	//return true;
 
-	$x = get_pconfig($uid,'feature',$feature);
+	$x = get_config('feature_lock',$feature);
 	if($x === false) {
-		$x = get_config('feature',$feature);
-		if($x === false)
-			$x = get_feature_default($feature);
+		$x = get_pconfig($uid,'feature',$feature);
+		if($x === false) {
+			$x = get_config('feature',$feature);
+			if($x === false)
+				$x = get_feature_default($feature);
+		}
 	}
 	$arr = array('uid' => $uid, 'feature' => $feature, 'enabled' => $x);
 	call_hooks('feature_enabled',$arr);
@@ -42,14 +44,17 @@ function get_feature_default($feature) {
 }
 
 /**
- * @ brief get a list of all available features
+ * @brief Get a list of all available features
+ * 
  * The array includes the setting group, the setting name,
  * explainations for the setting and if it's enabled or disabled
  * by default
  * 
+ * @param bool $filtered True removes any locked features
+ * 
  * @return array
  */
-function get_features() {
+function get_features($filtered = true) {
 
 	$arr = array(
 
@@ -57,55 +62,77 @@ function get_features() {
 		'general' => array(
 			t('General Features'),
 			//array('expire',         t('Content Expiration'),		t('Remove old posts/comments after a period of time')),
-			array('multi_profiles', t('Multiple Profiles'),			t('Ability to create multiple profiles'),false),
-			array('photo_location', t('Photo Location'),			t('Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'),false),
+			array('multi_profiles', t('Multiple Profiles'),			t('Ability to create multiple profiles'), false, get_config('feature_lock','multi_profiles')),
+			array('photo_location', t('Photo Location'),			t('Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'), false, get_config('feature_lock','photo_location')),
 		),
 
 		// Post composition
 		'composition' => array(
 			t('Post Composition Features'),
-			array('richtext',	t('Richtext Editor'),			t('Enable richtext editor'),false),
-			array('preview',	t('Post Preview'),			t('Allow previewing posts and comments before publishing them'),false),
-			array('aclautomention',	t('Auto-mention Forums'),		t('Add/remove mention when a fourm page is selected/deselected in ACL window.'),false),
+			array('richtext',	t('Richtext Editor'),			t('Enable richtext editor'), false, get_config('feature_lock','richtext')),
+			array('preview',	t('Post Preview'),			t('Allow previewing posts and comments before publishing them'), false, get_config('feature_lock','preview')),
+			array('aclautomention',	t('Auto-mention Forums'),		t('Add/remove mention when a fourm page is selected/deselected in ACL window.'), false, get_config('feature_lock','aclautomention')),
 		),
 
 		// Network sidebar widgets
 		'widgets' => array(
 			t('Network Sidebar Widgets'),
-			array('archives',	t('Search by Date'),			t('Ability to select posts by date ranges'),false),
-			array('forumlist_widget', t('List Forums'),			t('Enable widget to display the forums your are connected with'),true),
-			array('groups',		t('Group Filter'),			t('Enable widget to display Network posts only from selected group'),false),
-			array('networks',	t('Network Filter'),			t('Enable widget to display Network posts only from selected network'),false),
-			array('savedsearch',	t('Saved Searches'),			t('Save search terms for re-use'),false),
+			array('archives',	t('Search by Date'),			t('Ability to select posts by date ranges'), false, get_config('feature_lock','archives')),
+			array('forumlist_widget', t('List Forums'),			t('Enable widget to display the forums your are connected with'), true, get_config('feature_lock','forumlist_widget')),
+			array('groups',		t('Group Filter'),			t('Enable widget to display Network posts only from selected group'), false, get_config('feature_lock','groups')),
+			array('networks',	t('Network Filter'),			t('Enable widget to display Network posts only from selected network'), false, get_config('feature_lock','networks')),
+			array('savedsearch',	t('Saved Searches'),			t('Save search terms for re-use'), false, get_config('feature_lock','savedsearch')),
 		),
 
 		// Network tabs
 		'net_tabs' => array(
 			t('Network Tabs'),
-			array('personal_tab',	t('Network Personal Tab'),		t('Enable tab to display only Network posts that you\'ve interacted on'),false),
-			array('new_tab',	t('Network New Tab'),			t('Enable tab to display only new Network posts (from the last 12 hours)'),false),
-			array('link_tab',	t('Network Shared Links Tab'),		t('Enable tab to display only Network posts with links in them'),false),
+			array('personal_tab',	t('Network Personal Tab'),		t('Enable tab to display only Network posts that you\'ve interacted on'), false, get_config('feature_lock','personal_tab')),
+			array('new_tab',	t('Network New Tab'),			t('Enable tab to display only new Network posts (from the last 12 hours)'), false, get_config('feature_lock','new_tab')),
+			array('link_tab',	t('Network Shared Links Tab'),		t('Enable tab to display only Network posts with links in them'), false, get_config('feature_lock','link_tab')),
 		),
 
 		// Item tools
 		'tools' => array(
 			t('Post/Comment Tools'),
-			array('multi_delete',	t('Multiple Deletion'),			t('Select and delete multiple posts/comments at once'),false),
-			array('edit_posts',	t('Edit Sent Posts'),			t('Edit and correct posts and comments after sending'),false),
-			array('commtag',	t('Tagging'),				t('Ability to tag existing posts'),false),
-			array('categories',	t('Post Categories'),			t('Add categories to your posts'),false),
-			array('filing',		t('Saved Folders'),			t('Ability to file posts under folders'),false),
-			array('dislike',	t('Dislike Posts'),			t('Ability to dislike posts/comments')),
-			array('star_posts',	t('Star Posts'),			t('Ability to mark special posts with a star indicator'),false),
-			array('ignore_posts',	t('Mute Post Notifications'),		t('Ability to mute notifications for a thread'),false),
+			array('multi_delete',	t('Multiple Deletion'),			t('Select and delete multiple posts/comments at once'), false, get_config('feature_lock','multi_delete')),
+			array('edit_posts',	t('Edit Sent Posts'),			t('Edit and correct posts and comments after sending'), false, get_config('feature_lock','edit_posts')),
+			array('commtag',	t('Tagging'),				t('Ability to tag existing posts'), false, get_config('feature_lock','commtag')),
+			array('categories',	t('Post Categories'),			t('Add categories to your posts'), false, get_config('feature_lock','categories')),
+			array('filing',		t('Saved Folders'),			t('Ability to file posts under folders'), false, get_config('feature_lock','filing')),
+			array('dislike',	t('Dislike Posts'),			t('Ability to dislike posts/comments'), false, get_config('feature_lock','dislike')),
+			array('star_posts',	t('Star Posts'),			t('Ability to mark special posts with a star indicator'), false, get_config('feature_lock','star_posts')),
+			array('ignore_posts',	t('Mute Post Notifications'),		t('Ability to mute notifications for a thread'), false, get_config('feature_lock','ignore_posts')),
 		),
 
 		// Advanced Profile Settings
 		'advanced_profile' => array(
 			t('Advanced Profile Settings'),
-			array('forumlist_profile', t('List Forums'),			t('Show visitors public community forums at the Advanced Profile Page'),false),
+			array('forumlist_profile', t('List Forums'),			t('Show visitors public community forums at the Advanced Profile Page'), false, get_config('feature_lock','forumlist_profile')),
 		),
 	);
+
+	// removed any locked features and remove the entire category if this makes it empty
+
+	if($filtered) {
+		foreach($arr as $k => $x) {
+			$has_items = false;
+			$kquantity = count($arr[$k]);
+			for($y = 0; $y < $kquantity; $y ++) {
+				if(is_array($arr[$k][$y])) {
+					if($arr[$k][$y][4] === false) {
+						$has_items = true;
+					}
+					else {
+						unset($arr[$k][$y]);
+					}
+				}
+			}
+			if(! $has_items) {
+				unset($arr[$k]);
+			}
+		}
+	}
 
 	call_hooks('get_features',$arr);
 	return $arr;
