@@ -20,10 +20,10 @@ function replace_macros($s,$r) {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
-	
+
 	// pass $baseurl to all templates
 	$r['$baseurl'] = z_root();
-	
+
 
 	$t = $a->template_engine();
 	try {
@@ -895,9 +895,9 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT * FROM `contact`
-				WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
-					AND `hidden` = 0 AND `archive` = 0
+		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `micro`, `network` FROM `contact`
+				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
+					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
 				dbesc(NETWORK_DFRN),
@@ -1415,7 +1415,14 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
-	put_item_in_cache($item, true);
+	// Update the cached values if there is no "zrl=..." on the links
+	$update = (!local_user() and !remote_user() and ($item["uid"] == 0));
+
+	// Or update it if the current viewer is the intented viewer
+	if (($item["uid"] == local_user()) AND ($item["uid"] != 0))
+		$update = true;
+
+	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
 
 	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);

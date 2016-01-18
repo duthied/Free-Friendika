@@ -19,7 +19,7 @@ if(! function_exists('load_config')) {
 function load_config($family) {
 	global $a;
 
-	$r = q("SELECT * FROM `config` WHERE `cat` = '%s'", dbesc($family));
+	$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s'", dbesc($family));
 	if(count($r)) {
 		foreach($r as $rr) {
 			$k = $rr['k'];
@@ -170,7 +170,7 @@ function set_config($family,$key,$value) {
 if(! function_exists('load_pconfig')) {
 function load_pconfig($uid,$family) {
 	global $a;
-	$r = q("SELECT * FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d",
+	$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d",
 		dbesc($family),
 		intval($uid)
 	);

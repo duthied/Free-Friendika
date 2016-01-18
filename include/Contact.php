@@ -211,40 +211,40 @@ function get_contact_details_by_url($url, $uid = -1) {
 	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
 		dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
-	if (!count($r))
+	if (!count($r) AND !isset($profile))
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
-	if (!count($r))
+	if (!count($r) AND !isset($profile))
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 			dbesc(normalise_link($url)));
 
 	if ($r) {
-		if (isset($r[0]["url"]) AND $r[0]["url"])
+		if (!isset($profile["url"]) AND $r[0]["url"])
 			$profile["url"] = $r[0]["url"];
-		if (isset($r[0]["name"]) AND $r[0]["name"])
+		if (!isset($profile["name"]) AND $r[0]["name"])
 			$profile["name"] = $r[0]["name"];
-		if (isset($r[0]["nick"]) AND $r[0]["nick"] AND ($profile["nick"] == ""))
+		if (!isset($profile["nick"]) AND $r[0]["nick"])
 			$profile["nick"] = $r[0]["nick"];
-		if (isset($r[0]["addr"]) AND $r[0]["addr"] AND ($profile["addr"] == ""))
+		if (!isset($profile["addr"]) AND $r[0]["addr"])
 			$profile["addr"] = $r[0]["addr"];
-		if (isset($r[0]["photo"]) AND $r[0]["photo"])
+		if (!isset($profile["photo"]) AND $r[0]["photo"])
 			$profile["photo"] = $r[0]["photo"];
-		if (isset($r[0]["location"]) AND $r[0]["location"])
+		if (!isset($profile["location"]) AND $r[0]["location"])
 			$profile["location"] = $r[0]["location"];
-		if (isset($r[0]["about"]) AND $r[0]["about"])
+		if (!isset($profile["about"]) AND $r[0]["about"])
 			$profile["about"] = $r[0]["about"];
-		if (isset($r[0]["keywords"]) AND $r[0]["keywords"])
+		if (!isset($profile["keywords"]) AND $r[0]["keywords"])
 			$profile["keywords"] = $r[0]["keywords"];
-		if (isset($r[0]["gender"]) AND $r[0]["gender"])
+		if (!isset($profile["gender"]) AND $r[0]["gender"])
 			$profile["gender"] = $r[0]["gender"];
 		if (isset($r[0]["forum"]) OR isset($r[0]["prv"]))
 			$profile["community"] = ($r[0]["forum"] OR $r[0]["prv"]);
-		if (isset($r[0]["network"]) AND $r[0]["network"])
+		if (!isset($profile["network"]) AND $r[0]["network"])
 			$profile["network"] = $r[0]["network"];
-		if (isset($r[0]["addr"]) AND $r[0]["addr"])
+		if (!isset($profile["addr"]) AND $r[0]["addr"])
 			$profile["addr"] = $r[0]["addr"];
-		if (isset($r[0]["bd"]) AND $r[0]["bd"])
+		if (!isset($profile["bd"]) AND $r[0]["bd"])
 			$profile["bd"] = $r[0]["bd"];
 		if ($r[0]["uid"] == 0)
 			$profile["cid"] = 0;

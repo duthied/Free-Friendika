@@ -1973,11 +1973,15 @@ function diaspora_photo($importer,$xml,$msg,$attempt=1) {
 					   array($remote_photo_name, 'scaled_full_' . $remote_photo_name));
 
 	if(strpos($parent_item['body'],$link_text) === false) {
+
+		$parent_item['body'] = $link_text . $parent_item['body'];
+
 		$r = q("UPDATE `item` SET `body` = '%s', `visible` = 1 WHERE `id` = %d AND `uid` = %d",
-			dbesc($link_text . $parent_item['body']),
+			dbesc($parent_item['body']),
 			intval($parent_item['id']),
 			intval($parent_item['uid'])
 		);
+		put_item_in_cache($parent_item, true);
 		update_thread($parent_item['id']);
 	}
 

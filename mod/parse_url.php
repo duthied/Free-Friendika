@@ -56,7 +56,15 @@ function completeurl($url, $scheme) {
 
 function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
 
-	$data = Cache::get("parse_url:".$no_guessing.":".$do_oembed.":".$url);
+	if ($url == "")
+		return false;
+
+	$r = q("SELECT * FROM `parsed_url` WHERE `url` = '%s' AND `guessing` = %d AND `oembed` = %d",
+		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed));
+
+	if ($r)
+		$data = $r[0]["content"];
+
 	if (!is_null($data)) {
 		$data = unserialize($data);
 		return $data;
@@ -64,7 +72,8 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
 
-	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data), CACHE_DAY);
+	q("INSERT INTO `parsed_url` (`url`, `guessing`, `oembed`, `content`, `created`) VALUES ('%s', %d, %d, '%s', '%s')",
+		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed), dbesc(serialize($data)), dbesc(datetime_convert()));
 
 	return $data;
 }

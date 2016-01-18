@@ -20,7 +20,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 
 	$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"$size\" >\r\n";
 
-	$r = q("SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d ORDER BY `name` ASC",
+	$r = q("SELECT `id`, `name` FROM `group` WHERE NOT `deleted` AND `uid` = %d ORDER BY `name` ASC",
 		intval(local_user())
 	);
 
@@ -309,7 +309,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 		$pubmail_enabled = false;
 
 		if(! $mail_disabled) {
-			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
+			$r = q("SELECT `pubmail` FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 				intval(local_user())
 			);
 			if(count($r)) {

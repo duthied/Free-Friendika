@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1192
+-- DB_UPDATE_VERSION 1193
 -- ------------------------------------------
 
 
@@ -683,6 +683,30 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	 PRIMARY KEY(`id`),
 	 INDEX `master-parent-item` (`master-parent-item`),
 	 INDEX `receiver-uid` (`receiver-uid`)
+) DEFAULT CHARSET=utf8;
+
+--
+-- TABLE oembed
+--
+CREATE TABLE IF NOT EXISTS `oembed` (
+	`url` varchar(255) NOT NULL,
+	`content` text NOT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`url`),
+	 INDEX `created` (`created`)
+) DEFAULT CHARSET=utf8;
+
+--
+-- TABLE parsed_url
+--
+CREATE TABLE IF NOT EXISTS `parsed_url` (
+	`url` varchar(255) NOT NULL,
+	`guessing` tinyint(1) NOT NULL DEFAULT 0,
+	`oembed` tinyint(1) NOT NULL DEFAULT 0,
+	`content` text NOT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`url`,`guessing`,`oembed`),
+	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8;
 
 --

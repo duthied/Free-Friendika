@@ -158,93 +158,11 @@ function cron_run(&$argv, &$argc){
 		proc_run('php','include/expire.php');
 	}
 
-	$last = get_config('system','cache_last_cleared');
+	// Clear cache entries
+	cron_clear_cache($a);
 
-	if($last) {
-		$next = $last + (3600); // Once per hour
-		$clear_cache = ($next <= time());
-	} else
-		$clear_cache = true;
-
-	if ($clear_cache) {
-		// clear old cache
-		Cache::clear();
-
-		// clear old item cache files
-		clear_cache();
-
-		// clear cache for photos
-		clear_cache($a->get_basepath(), $a->get_basepath()."/photo");
-
-		// clear smarty cache
-		clear_cache($a->get_basepath()."/view/smarty3/compiled", $a->get_basepath()."/view/smarty3/compiled");
-
-		// clear cache for image proxy
-		if (!get_config("system", "proxy_disabled")) {
-			clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
-
-			$cachetime = get_config('system','proxy_cache_time');
-			if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
-
-			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
-		}
-
-		// Maximum table size in megabyte
-		$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
-		if ($max_tablesize == 0)
-			$max_tablesize = 100 * 1000000; // Default are 100 MB
-
-		// Minimum fragmentation level in percent
-		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
-		if ($fragmentation_level == 0)
-			$fragmentation_level = 0.3; // Default value is 30%
-
-		// Optimize some tables that need to be optimized
-		$r = q("SHOW TABLE STATUS");
-		foreach($r as $table) {
-
-			// Don't optimize tables that are too large
-			if ($table["Data_length"] > $max_tablesize)
-				continue;
-
-			// Don't optimize empty tables
-			if ($table["Data_length"] == 0)
-				continue;
-
-			// Calculate fragmentation
-			$fragmentation = $table["Data_free"] / $table["Data_length"];
-
-			logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
-
-			// Don't optimize tables that needn't to be optimized
-			if ($fragmentation < $fragmentation_level)
-				continue;
-
-			// So optimize it
-			logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
-			q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
-		}
-
-		set_config('system','cache_last_cleared', time());
-	}
-
-	// Repair missing Diaspora settings
-	$r = q("SELECT `id`, `url` FROM `contact`
-		WHERE `uid` > 0 AND `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
-			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-	if ($r) {
-		foreach ($r AS $contact) {
-			if (poco_reachable($contact["url"])) {
-				$data = probe_url($contact["url"]);
-				if ($data["network"] == NETWORK_DIASPORA) {
-					logger("Repair contact ".$contact["id"]." ".$contact["url"], LOGGER_DEBUG);
-					q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
-						dbesc($data["batch"]), dbesc($data["notify"]), dbesc($data["poll"]), dbesc($data["pubkey"]),
-						intval($contact["id"]));
-				}
-			}
-		}
-	}
+	// Repair missing Diaspora values in contacts
+	cron_repair_diaspora($a);
 
 	$manual_id  = 0;
 	$generation = 0;
@@ -388,6 +306,115 @@ function cron_run(&$argv, &$argc){
 	set_config('system','last_cron', time());
 
 	return;
+}
+
+/**
+ * @brief Clear cache entries
+ *
+ * @param App $a
+ */
+function cron_clear_cache(&$a) {
+
+	$last = get_config('system','cache_last_cleared');
+
+	if($last) {
+		$next = $last + (3600); // Once per hour
+		$clear_cache = ($next <= time());
+	} else
+		$clear_cache = true;
+
+	if (!$clear_cache)
+		return;
+
+	// clear old cache
+	Cache::clear();
+
+	// clear old item cache files
+	clear_cache();
+
+	// clear cache for photos
+	clear_cache($a->get_basepath(), $a->get_basepath()."/photo");
+
+	// clear smarty cache
+	clear_cache($a->get_basepath()."/view/smarty3/compiled", $a->get_basepath()."/view/smarty3/compiled");
+
+	// clear cache for image proxy
+	if (!get_config("system", "proxy_disabled")) {
+		clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
+
+		$cachetime = get_config('system','proxy_cache_time');
+		if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
+
+		q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
+	}
+
+	// Delete the cached OEmbed entries that are older than one year
+	q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+
+	// Delete the cached "parse_url" entries that are older than one year
+	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+
+	// Maximum table size in megabyte
+	$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
+	if ($max_tablesize == 0)
+		$max_tablesize = 100 * 1000000; // Default are 100 MB
+
+	// Minimum fragmentation level in percent
+	$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
+	if ($fragmentation_level == 0)
+		$fragmentation_level = 0.3; // Default value is 30%
+
+	// Optimize some tables that need to be optimized
+	$r = q("SHOW TABLE STATUS");
+	foreach($r as $table) {
+
+		// Don't optimize tables that are too large
+		if ($table["Data_length"] > $max_tablesize)
+			continue;
+
+		// Don't optimize empty tables
+		if ($table["Data_length"] == 0)
+			continue;
+
+		// Calculate fragmentation
+		$fragmentation = $table["Data_free"] / $table["Data_length"];
+
+		logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
+
+		// Don't optimize tables that needn't to be optimized
+		if ($fragmentation < $fragmentation_level)
+			continue;
+
+		// So optimize it
+		logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
+		q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+	}
+
+	set_config('system','cache_last_cleared', time());
+}
+
+/**
+ * @brief Repair missing values in Diaspora contacts
+ *
+ * @param App $a
+ */
+function cron_repair_diaspora(&$a) {
+	$r = q("SELECT `id`, `url` FROM `contact`
+		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
+			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
+	if ($r) {
+		foreach ($r AS $contact) {
+			if (poco_reachable($contact["url"])) {
+				$data = probe_url($contact["url"]);
+				if ($data["network"] == NETWORK_DIASPORA) {
+					logger("Repair contact ".$contact["id"]." ".$contact["url"], LOGGER_DEBUG);
+					q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
+						dbesc($data["batch"]), dbesc($data["notify"]), dbesc($data["poll"]), dbesc($data["pubkey"]),
+						intval($contact["id"]));
+				}
+			}
+		}
+	}
 }
 
 if (array_search(__file__,get_included_files())===0){

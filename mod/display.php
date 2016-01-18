@@ -340,6 +340,10 @@ function display_content(&$a, $update = 0) {
 		return;
 	}
 
+	// Why do we need this on the display page? We don't have the possibility to write new content here.
+	// Ad editing of posts work without this as well.
+	// We should remove this completely for the 3.5.1 release.
+	/*
 	if ($is_owner) {
 		$x = array(
 			'is_owner' => true,
@@ -355,6 +359,7 @@ function display_content(&$a, $update = 0) {
 		);
 		$o .= status_editor($a,$x,0,true);
 	}
+	*/
 
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 

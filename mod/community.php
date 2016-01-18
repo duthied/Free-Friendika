@@ -14,6 +14,10 @@ function community_content(&$a, $update = 0) {
 
 	$o = '';
 
+	// Currently the community page isn't able to handle update requests
+	if ($update)
+		return;
+
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
