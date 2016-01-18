@@ -160,7 +160,7 @@ function admin_content(&$a) {
 	$aside_tools['plugins_admin']=array();
 	foreach ($r as $h){
 		$plugin =$h['name'];
-		$aside['plugins_admin'][] = array($a->get_baseurl(true)."/admin/plugins/".$plugin, $plugin, "plugin");
+		$aside_tools['plugins_admin'][] = array($a->get_baseurl(true)."/admin/plugins/".$plugin, $plugin, "plugin");
 		// temp plugins with admin
 		$a->plugins_admin[] = $plugin;
 	}
