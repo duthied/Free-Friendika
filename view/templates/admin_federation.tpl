@@ -1,5 +1,5 @@
 <script src="{{$baseurl}}/library/Chart.js-1.0.2/Chart.min.js"></script>
-<canvas id="FederationChart" style="width: 400px; height: 400px; float: right; margin: 20px;"></canvas>
+<canvas id="FederationChart" class="federation-graph"></canvas>
 <div id="adminpage">
     <h1>{{$title}} - {{$page}}</h1>
     <p>{{$intro}}</p>
@@ -30,7 +30,7 @@ var myDoughnutChart = new Chart(ctx).Doughnut(FedData,
 document.getElementById('FederationLegend').innerHTML = myDoughnutChart.generateLegend();
 </script>
 
-<table style="width: 100%">
+<table id="federation-stats">
 {{foreach $counts as $c}}
 {{if $c[0]['total'] > 0}}
 <tr>
@@ -39,9 +39,8 @@ document.getElementById('FederationLegend').innerHTML = myDoughnutChart.generate
 	<td>{{$c[0]['network']}}</td>
 </tr>
 <tr>
-<td colspan="3" style="border-bottom: 1px solid #000;">
-<canvas id="{{$c[2]}}Chart" style="width: 240px; height: 240px; float: left;
-margin: 20px;"></canvas>
+<td colspan="3" class="federation-data">
+<canvas id="{{$c[2]}}Chart" class="federation-network-graph"></canvas>
 <script>
 var {{$c[2]}}data = [
 {{foreach $c[1] as $v}}
@@ -49,8 +48,7 @@ var {{$c[2]}}data = [
 {{/foreach}}
 ];
 var ctx = document.getElementById("{{$c[2]}}Chart").getContext("2d");
-var my{{$c[2]}}DoughnutChart = new Chart(ctx).Doughnut({{$c[2]}}data,
-{animateRotate : false,});
+var my{{$c[2]}}DoughnutChart = new Chart(ctx).Doughnut({{$c[2]}}data, {animateRotate : false,});
 </script>
 <ul class="federation-stats">
 {{foreach $c[1] as $v}}

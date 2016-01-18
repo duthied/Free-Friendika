@@ -280,6 +280,18 @@ a {
     font-weight: bold;
     color: #00a700;
 }
+.federation-graph {
+    width: 400px; 
+    height: 400px; 
+    float: right; 
+    margin: 20px;
+}
+.federation-network-graph {
+    width: 240px; 
+    height: 240px; 
+    float: left; 
+    margin: 20px;
+}
 ul.federation-stats,
 ul.credits {
   list-style: none;
@@ -288,6 +300,12 @@ ul.federation-stats li,
 ul.credits li {
   float: left;
   width: 240px;
+}
+table#federation-stats {
+    width: 100%;
+}
+td.federation-data {
+    border-bottom: 1px solid #000;
 }
 
 .contact-entry-photo img {
