@@ -1246,6 +1246,9 @@ function original_url($url, $depth=1, $fetchbody = false) {
 
 	$a->save_timestamp($stamp1, "network");
 
+	if ($http_code == 0)
+		return($url);
+
 	if ((($curl_info['http_code'] == "301") OR ($curl_info['http_code'] == "302"))
 		AND (($curl_info['redirect_url'] != "") OR ($curl_info['location'] != ""))) {
 		if ($curl_info['redirect_url'] != "")

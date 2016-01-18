@@ -71,6 +71,7 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 	require_once("include/network.php");
+	require_once("include/Photo.php");
 
 	$a = get_app();
 
@@ -321,7 +322,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 			$attr[$attribute->name] = $attribute->value;
 
 			$src = completeurl($attr["src"], $url);
-			$photodata = @getimagesize($src);
+			$photodata = get_photo_info($src);
 
 			if (($photodata) && ($photodata[0] > 150) and ($photodata[1] > 150)) {
 				if ($photodata[0] > 300) {
@@ -338,12 +339,12 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 			}
 
 		}
-    } else {
+    } elseif ($siteinfo["image"] != "") {
 		$src = completeurl($siteinfo["image"], $url);
 
 		unset($siteinfo["image"]);
 
-		$photodata = @getimagesize($src);
+		$photodata = get_photo_info($src);
 
 		if (($photodata) && ($photodata[0] > 10) and ($photodata[1] > 10))
 			$siteinfo["images"][] = array("src"=>$src,

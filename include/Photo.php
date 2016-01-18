@@ -792,15 +792,19 @@ function get_photo_info($url) {
 
 		$filesize = strlen($img_str);
 
-		$tempfile = tempnam(get_temppath(), "cache");
+		if (function_exists("getimagesizefromstring"))
+			$data = getimagesizefromstring($img_str);
+		else {
+			$tempfile = tempnam(get_temppath(), "cache");
 
-		$a = get_app();
-		$stamp1 = microtime(true);
-		file_put_contents($tempfile, $img_str);
-		$a->save_timestamp($stamp1, "file");
+			$a = get_app();
+			$stamp1 = microtime(true);
+			file_put_contents($tempfile, $img_str);
+			$a->save_timestamp($stamp1, "file");
 
-		$data = getimagesize($tempfile);
-		unlink($tempfile);
+			$data = getimagesize($tempfile);
+			unlink($tempfile);
+		}
 
 		if ($data)
 			$data["size"] = $filesize;
