@@ -78,8 +78,14 @@ function discover_poco_run(&$argv, &$argc){
 		discover_users();
 	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search'))
 		discover_directory($search);
-	elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0))
+	elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {
+		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
+
+		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
+		if (!get_config('system','ostatus_disabled'))
+			gs_discover();
+	}
 
 	logger('end '.$search);
 
@@ -128,7 +134,7 @@ function discover_users() {
 		else
 			$server_url = poco_detect_server($user["url"]);
 
-		if (poco_check_server($server_url, $gcontacts[0]["network"])) {
+		if (($server_url == "") OR poco_check_server($server_url, $gcontacts[0]["network"])) {
 			logger('Check user '.$user["url"]);
 			poco_last_updated($user["url"], true);
 

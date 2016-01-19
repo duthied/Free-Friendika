@@ -721,6 +721,10 @@ function poco_to_boolean($val) {
 
 function poco_check_server($server_url, $network = "", $force = false) {
 
+	// Unify the server address
+	$server_url = trim($server_url, "/");
+	$server_url = str_replace("/index.php", "", $server_url);
+
 	if ($server_url == "")
 		return false;
 
@@ -1315,18 +1319,30 @@ function poco_discover_federation() {
 			return;
 	}
 
+	// Discover Friendica, Hubzilla and Diaspora servers
 	$serverdata = fetch_url("http://the-federation.info/pods.json");
 
-	if (!$serverdata)
-		return;
+	if ($serverdata) {
+		$servers = json_decode($serverdata);
 
-	$servers = json_decode($serverdata);
+		foreach($servers->pods AS $server)
+			poco_check_server("https://".$server->host);
+	}
 
-	foreach($servers->pods AS $server)
-		poco_check_server("https://".$server->host);
+	// Discover GNU Social Servers
+	if (!get_config('system','ostatus_disabled')) {
+		$serverdata = "http://gstools.org/api/get_open_instances/";
+
+		$result = z_fetch_url($serverdata);
+		if ($result["success"]) {
+			$servers = json_decode($result["body"]);
+
+			foreach($servers->data AS $server)
+				poco_check_server($server->instance_address);
+		}
+	}
 
 	set_config('poco','last_federation_discovery', time());
-
 }
 
 function poco_discover($complete = false) {
@@ -1655,5 +1671,82 @@ function update_gcontact_from_probe($url) {
 
 	if ($data["network"] != NETWORK_PHANTOM)
 		update_gcontact($data);
+}
+
+/**
+ * @brief Fetches users of given GNU Social server
+ *
+ * If the "Statistics" plugin is enabled (See http://gstools.org/ for details) we query user data with this.
+ *
+ * @param str $server Server address
+ */
+function gs_fetch_users($server) {
+
+	logger("Fetching users from GNU Social server ".$server, LOGGER_DEBUG);
+
+	$a = get_app();
+
+	$url = $server."/main/statistics";
+
+	$result = z_fetch_url($url);
+	if (!$result["success"])
+		return false;
+
+	$statistics = json_decode($result["body"]);
+
+	if (is_object($statistics->config)) {
+		if ($statistics->config->instance_with_ssl)
+			$server = "https://";
+		else
+			$server = "http://";
+
+		$server .= $statistics->config->instance_address;
+
+		$hostname = $statistics->config->instance_address;
+	} else {
+		if ($statistics->instance_with_ssl)
+			$server = "https://";
+		else
+			$server = "http://";
+
+		$server .= $statistics->instance_address;
+
+		$hostname = $statistics->instance_address;
+	}
+
+	foreach ($statistics->users AS $nick => $user) {
+		$profile_url = $server."/".$user->nickname;
+
+		$contact = array("url" => $profile_url,
+				"name" => $user->fullname,
+				"addr" => $user->nickname."@".$hostname,
+				"nick" => $user->nickname,
+				"about" => $user->bio,
+				"network" => NETWORK_OSTATUS,
+				"photo" => $a->get_baseurl()."/images/person-175.jpg");
+		get_gcontact_id($contact);
+	}
+}
+
+/**
+ * @brief Asking GNU Social server on a regular base for their user data
+ *
+ */
+function gs_discover() {
+
+	$requery_days = intval(get_config("system", "poco_requery_days"));
+
+	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
+
+	$r = q("SELECT `nurl`, `url` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `network` = '%s' AND `last_poco_query` < '%s' ORDER BY RAND() LIMIT 5",
+		dbesc(NETWORK_OSTATUS), dbesc($last_update));
+
+	if (!$r)
+		return;
+
+	foreach ($r AS $server) {
+		gs_fetch_users($server["url"]);
+		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+	}
 }
 ?>
