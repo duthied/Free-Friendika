@@ -114,7 +114,16 @@ function admin_post(&$a){
 /**
  * @brief Generates content of the admin panel pages
  *
- * This function generates the content for the admin panel.
+ * This function generates the content for the admin panel. It consists of the
+ * aside menu (same for the entire admin panel) and the code for the soecified
+ * subpage of the panel.
+ *
+ * The structure of the adress is: /admin/subpage/details though "details" is
+ * only necessary for some subpages, like themes or addons where it is the name
+ * of one theme resp. addon from which the details should be shown. Content for
+ * the subpages is generated in separate functions for each of the subpages.
+ *
+ * The returned string hold the generated HTML code of the page.
  *
  * @param App $a
  * @return string
