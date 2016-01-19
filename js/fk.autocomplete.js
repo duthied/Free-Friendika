@@ -86,7 +86,7 @@ ACPopup.prototype._search = function(){
 			if (data.tot>0){
 				that.cont.show();
 				$(data.items).each(function(){
-					var html = "<img src='{0}' height='16px' width='16px'>{1} ({2})".format(this.photo, this.name, this.nick);
+					var html = "<img class='acpopup-img' src='{0}' height='16px' width='16px'> <span class='acpopup-name'>{1}</span> <span class='acpopup-addr'>({2})</span>".format(this.photo, this.name, this.addr);
 					var nick = this.nick.replace(' ','');
 					if (this.id!=='')  nick += '+' + this.id;
 					that.add(html, nick + ' - ' + this.link);
