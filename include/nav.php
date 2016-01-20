@@ -11,10 +11,18 @@ function nav(&$a) {
 	if(!(x($a->page,'nav')))
 		$a->page['nav'] = '';
 
+	$base = z_root();
 	/**
 	 * Placeholder div for popup panel
 	 */
 
+	$a->page['htmlhead'] .= <<< EOT
+
+<script>$(document).ready(function() {
+		$("#search-text").search_autocomplete('$base/acl');
+});
+</script>
+EOT;
 	$a->page['nav'] .= '<div id="panel" style="display: none;"></div>' ;
 
 	$nav_info = nav_info($a);

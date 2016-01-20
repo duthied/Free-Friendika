@@ -545,6 +545,26 @@ function acl_lookup(&$a, $out_type = 'json') {
 			intval(local_user())
 		);
 	}
+	elseif($type == 'x') {
+		$r = navbar_complete($a);
+		$contacts = array();
+		if($r) {
+			foreach($r as $g) {
+				$contacts[] = array(
+					"photo"    => $g['photo'],
+					"name"     => $g['name'],
+					"nick"     => (x($g['addr']) ? $g['addr'] : $g['url']),
+				);
+			}
+		}
+		$o = array(
+			'start' => $start,
+			'count'	=> $count,
+			'items'	=> $contacts,
+		);
+		echo json_encode($o);
+		killme();
+	}
 	else
 		$r = array();
 
@@ -655,3 +675,58 @@ function acl_lookup(&$a, $out_type = 'json') {
 	killme();
 }
 
+function navbar_complete(&$a) {
+
+//	logger('navbar_complete');
+
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+		return;
+	}
+
+	$local = get_config('system','poco_local_search');
+	$local = true;
+
+	$search = $prefix.notags(trim($_REQUEST['search']));
+	if(! $search || mb_strlen($search) < 2)
+		return array();
+
+	$star = false;
+	$address = false;
+
+	if(substr($search,0,1) === '@')
+		$search = substr($search,1);
+
+	if(substr($search,0,1) === '*') {
+		$star = true;
+		$search = substr($search,1);
+	}
+
+	if(strpos($search,'@') !== false) {
+		$address = true;
+	}
+
+	if($local) {
+		require_once("include/dir_fns.php");
+		$x = dirsearch_autocomplete($search);
+		return $x;
+	}
+
+	if(! $local) {
+		require_once("include/dir_fns.php");
+		$url = $directory['url'] . '/dirsearch';
+	
+
+		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
+	
+
+		$x = z_fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		if($x['success']) {
+			$t = 0;
+			$j = json_decode($x['body'],true);
+			if($j && $j['results']) {
+				return $j['results'];
+			}
+		}
+	}
+	return;
+}
