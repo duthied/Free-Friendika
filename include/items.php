@@ -1609,6 +1609,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		);
 
 	if($dsprsig) {
+
+                // Friendica servers lower than 3.4.3-2 had double encoded the signature ...
+		// We can check for this condition when we decode and encode the stuff again.
+		if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
+			$dsprsig->signature = base64_decode($dsprsig->signature);
+			logger("Repaired double encoded signature from handle ".$dsprsig->signer, LOGGER_DEBUG);
+		}
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($current_post),
 			dbesc($dsprsig->signed_text),
