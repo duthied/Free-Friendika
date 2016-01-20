@@ -2911,10 +2911,6 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 		$authorsig = $orig_sign['signature'];
 		$handle = $orig_sign['signer'];
 
-		// Friendica servers lower than 3.5 had double encoded the signature ...
-		if (substr($authorsig, -1, 1) != "=")
-			$authorsig = base64_decode($authorsig);
-
 		// Split the signed text
 		$signed_parts = explode(";", $signed_text);
 
