@@ -1488,7 +1488,8 @@ function diaspora_comment($importer,$xml,$msg) {
 			logger('diaspora_comment: top-level owner verification failed.');
 			return;
 		}
-	} elseif($author_signature) {
+	}
+	else {
 		// If there's no parent_author_signature, then we've received the comment
 		// from the comment creator. In that case, the person is commenting on
 		// our post, so he/she must be a contact of ours and his/her public key
@@ -1500,11 +1501,6 @@ function diaspora_comment($importer,$xml,$msg) {
 			logger('diaspora_comment: comment author verification failed.');
 			return;
 		}
-	}
-
-	if (!$parent_author_signature AND !$author_signature) {
-		logger("No signature in comment. Comment will be rejected.");
-		return;
 	}
 
 	// Phew! Everything checks out. Now create an item.
@@ -2131,7 +2127,7 @@ function diaspora_like($importer,$xml,$msg) {
 			logger('diaspora_like: top-level owner verification failed.');
 			return;
 		}
-	} elseif($author_signature) {
+	} else {
 		// If there's no parent_author_signature, then we've received the like
 		// from the like creator. In that case, the person is "like"ing
 		// our post, so he/she must be a contact of ours and his/her public key
@@ -2145,11 +2141,6 @@ function diaspora_like($importer,$xml,$msg) {
 			logger('diaspora_like: like creator verification failed.');
 			return;
 		}
-	}
-
-	if (!$parent_author_signature AND !$author_signature) {
-		logger("No signature in like. Like will be rejected.");
-		return;
 	}
 
 	// Phew! Everything checks out. Now create an item.
