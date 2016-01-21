@@ -9,7 +9,7 @@ $a->strings["Network:"] = "Netzwerk";
 $a->strings["Forum"] = "Forum";
 $a->strings["%d contact edited."] = array(
 	0 => "%d Kontakt bearbeitet.",
-	1 => "%d Kontakte bearbeitet",
+	1 => "%d Kontakte bearbeitet.",
 );
 $a->strings["Could not access contact record."] = "Konnte nicht auf die Kontaktdaten zugreifen.";
 $a->strings["Could not locate selected profile."] = "Konnte das ausgewählte Profil nicht finden.";
