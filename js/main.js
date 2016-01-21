@@ -160,7 +160,9 @@
 			'inline' : true,
 			'transition' : 'elastic'
 		});
-
+		$("a.ajax-popupbox").colorbox({
+			'transition' : 'elastic'
+		});
 
 		/* notifications template */
 		var notifications_tpl= unescape($("#nav-notifications-template[rel=template]").html());
