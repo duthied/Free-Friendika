@@ -76,9 +76,10 @@ function discover_poco_run(&$argv, &$argc){
 		update_suggestions();
 	elseif (($mode == 2) AND get_config('system','poco_completion'))
 		discover_users();
-	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search'))
+	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search')) {
 		discover_directory($search);
-	elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {
+		gs_search_user($search);
+	} elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {
 		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
 
@@ -196,6 +197,36 @@ function discover_directory($search) {
 		}
 	Cache::set("dirsearch:".$search, time(), CACHE_DAY);
 }
+
+/**
+ * @brief Search for GNU Social user with gstools.org
+ *
+ * @param str $search User name
+ */
+function gs_search_user($search) {
+
+	$a = get_app();
+
+	$url = "http://gstools.org/api/users_search/".urlencode($search);
+
+	$result = z_fetch_url($url);
+	if (!$result["success"])
+		return false;
+
+	$contacts = json_decode($result["body"]);
+
+	if ($contacts->status == 'ERROR')
+		return false;
+
+	foreach($contacts->data AS $user) {
+		$contact = probe_url($user->site_address."/".$user->name);
+		if ($contact["network"] != NETWORK_PHANTOM) {
+			$contact["about"] = $user->description;
+			update_gcontact($contact);
+		}
+	}
+}
+
 
 if (array_search(__file__,get_included_files())===0){
   discover_poco_run($_SERVER["argv"],$_SERVER["argc"]);
