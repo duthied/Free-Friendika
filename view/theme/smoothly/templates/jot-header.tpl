@@ -12,7 +12,7 @@ function initEditor(cb){
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").hide();
             		$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-			$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
+			$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
             		$(".jothidden").show();
             		editor = true;
             		$("a#jot-perms-icon").colorbox({

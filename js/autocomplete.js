@@ -1,9 +1,13 @@
 /**
- * Red people autocomplete
+ * Friendica people autocomplete
  *
  * require jQuery, jquery.textcomplete
  */
 function contact_search(term, callback, backend_url, type) {
+
+	// Check if there is a conversation id to include the unkonwn contacts of the conversation
+	var conv_id = document.activeElement.id.match(/\d+$/);
+
 
 	// Check if there is a cached result that contains the same information we would get with a full server-side search
 	var bt = backend_url+type;
@@ -26,6 +30,9 @@ function contact_search(term, callback, backend_url, type) {
 		search:term,
 		type:type,
 	};
+
+	if(conv_id !== null)
+		postdata['conversation'] = conv_id[0];
 
 
 	$.ajax({
@@ -54,7 +61,7 @@ function contact_format(item) {
 		var desc = ((item.label) ? item.nick + ' ' + item.label : item.nick);
 		if(typeof desc === 'undefined') desc = '';
 		if(desc) desc = ' ('+desc+')';
-		return "<div class='{0}' title='{4}'><img class='dropdown-menu-img-sm' src='{1}'><span class='contactname'>{2}</span><span class='dropdown-sub-text'>{3}</span><div class='clear'></div></div>".format(item.taggable, item.photo, item.name, desc, item.link);
+		return "<div class='{0}' title='{4}'><img class='acpopup-img' src='{1}'><span class='acpopup-contactname'>{2}</span><span class='acpopup-sub-text'>{3}</span><div class='clear'></div></div>".format(item.taggable, item.photo, item.name, desc, item.link);
 	}
 	else
 		return "<div>" + item.text + "</div>";
@@ -190,3 +197,163 @@ function submit_form(e) {
 			a.on('textComplete:select', function(e, value, strategy) { onselect(value); });
 	};
 })( jQuery );
+
+
+/**
+ * Friendica people autocomplete legacy
+ * code which is needed for tinymce
+ *
+ * require jQuery, jquery.textareas
+ */
+
+function ACPopup(elm,backend_url){
+	this.idsel=-1;
+	this.element = elm;
+	this.searchText="";
+	this.ready=true;
+	this.kp_timer = false;
+	this.url = backend_url;
+
+	this.conversation_id = null;
+	var conv_id = this.element.id.match(/\d+$/);
+	if (conv_id) this.conversation_id = conv_id[0];
+	console.log("ACPopup elm id",this.element.id,"conversation",this.conversation_id);
+
+	var w = 530;
+	var h = 130;
+
+
+	if(tinyMCE.activeEditor == null) {
+		style = $(elm).offset();
+		w = $(elm).width();
+		h = $(elm).height();
+	}
+	else {
+		// I can't find an "official" way to get the element who get all
+		// this fraking thing that is tinyMCE.
+		// This code will broke again at some point...
+		var container = $(tinyMCE.activeEditor.getContainer()).find("table");
+		style = $(container).offset();
+		w = $(container).width();
+		h = $(container).height();
+	}
+
+	style.top=style.top+h;
+	style.width = w;
+	style.position = 'absolute';
+	/*	style['max-height'] = '150px';
+		style.border = '1px solid red';
+		style.background = '#cccccc';
+
+		style.overflow = 'auto';
+		style['z-index'] = '100000';
+	*/
+	style.display = 'none';
+
+	this.cont = $("<div class='acpopup-mce'></div>");
+	this.cont.css(style);
+
+	$("body").append(this.cont);
+    }
+
+ACPopup.prototype.close = function(){
+	$(this.cont).remove();
+	this.ready=false;
+}
+ACPopup.prototype.search = function(text){
+	var that = this;
+	this.searchText=text;
+	if (this.kp_timer) clearTimeout(this.kp_timer);
+	this.kp_timer = setTimeout( function(){that._search();}, 500);
+}
+
+ACPopup.prototype._search = function(){
+	console.log("_search");
+	var that = this;
+	var postdata = {
+		start:0,
+		count:100,
+		search:this.searchText,
+		type:'c',
+		conversation: this.conversation_id,
+	}
+
+	$.ajax({
+		type:'POST',
+		url: this.url,
+		data: postdata,
+		dataType: 'json',
+		success:function(data){
+			that.cont.html("");
+			if (data.tot>0){
+				that.cont.show();
+				$(data.items).each(function(){
+					var html = "<img src='{0}' height='16px' width='16px'>{1} ({2})".format(this.photo, this.name, this.nick);
+					var nick = this.nick.replace(' ','');
+					if (this.id!=='')  nick += '+' + this.id;
+					that.add(html, nick + ' - ' + this.link);
+				});
+			} else {
+				that.cont.hide();
+			}
+		}
+	});
+
+}
+
+ACPopup.prototype.add = function(label, value){
+	var that=this;
+	var elm = $("<div class='acpopupitem' title='"+value+"'>"+label+"</div>");
+	elm.click(function(e){
+		t = $(this).attr('title').replace(new RegExp(' \- .*'),'');
+		if(typeof(that.element.container) === "undefined") {
+			el=$(that.element);
+			sel = el.getSelection();
+			sel.start = sel.start- that.searchText.length;
+			el.setSelection(sel.start,sel.end).replaceSelectedText(t+' ').collapseSelection(false);
+			that.close();
+		}
+		else {
+			txt = tinyMCE.activeEditor.getContent();
+			//			alert(that.searchText + ':' + t);
+			newtxt = txt.replace('@' + that.searchText,'@' + t +' ');
+			tinyMCE.activeEditor.setContent(newtxt);
+			tinyMCE.activeEditor.focus();
+			that.close();
+		}
+	});
+	$(this.cont).append(elm);
+}
+
+ACPopup.prototype.onkey = function(event){
+	if (event.keyCode == '13') {
+		if(this.idsel>-1) {
+			this.cont.children()[this.idsel].click();
+			event.preventDefault();
+		}
+		else
+			this.close();
+	}
+	if (event.keyCode == '38') { //cursor up
+		cmax = this.cont.children().size()-1;
+		this.idsel--;
+		if (this.idsel<0) this.idsel=cmax;
+		event.preventDefault();
+	}
+	if (event.keyCode == '40' || event.keyCode == '9') { //cursor down
+		cmax = this.cont.children().size()-1;
+		this.idsel++;
+		if (this.idsel>cmax) this.idsel=0;
+		event.preventDefault();
+	}
+
+	if (event.keyCode == '38' || event.keyCode == '40' || event.keyCode == '9') {
+		this.cont.children().removeClass('selected');
+		$(this.cont.children()[this.idsel]).addClass('selected');
+	}
+
+	if (event.keyCode == '27') { //ESC
+		this.close();
+	}
+}
+

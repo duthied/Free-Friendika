@@ -429,7 +429,7 @@ code {
 .sidebar-group-li:hover, #sidebar-new-group:hover, #sidebar-edit-groups:hover,#forum-widget-collapse:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar li:hover, #forumlist-sidebar-right li:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover,
-#sidebar-photos-albums li:hover, .photos-upload-link:hover {
+#sidebar-photos-albums li:hover, .photos-upload-link:hover, .textcomplete-item.active {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
   background-color: #F5F5F5;
@@ -900,14 +900,17 @@ ul.menu-popup .empty {
   color: #9eabb0;
 }
 /* autocomplete popup */
-.acpopup {
-  max-height: 150px;
+
+.acpopup, .acpopup-mce {
   background-color: #ffffff;
-  color: #2d2d2d;
   border: 1px solid #MenuBorder;
   overflow: auto;
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
+}
+acpopup-mce {
+  color: #2d2d2d;
+  max-height: 150px;
 }
 .acpopupitem {
   color: #2d2d2d;
@@ -921,6 +924,16 @@ ul.menu-popup .empty {
 .acpopupitem.selected {
   background-color: #bdcdd4;
 }
+.textcomplete-item {
+  float: none;
+}
+.textcomplete-item a {
+  color: #737373;
+}
+.textcomplete-item a:hover {
+  padding: 3px 20px;
+}
+
 #nav-notifications-menu {
   width: 400px;
   max-height: 550px;

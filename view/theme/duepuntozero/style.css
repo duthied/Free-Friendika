@@ -3308,6 +3308,12 @@ aside input[type='text'] {
 
 /* autocomplete popup */
 .acpopup {
+	background-color:#ffffff;
+	overflow:auto;
+	z-index:100000;
+	border:1px solid #cccccc;
+}
+.acpopup-mce {
 	max-height:150px;
 	background-color:#ffffff;
 	overflow:auto;
@@ -3325,6 +3331,12 @@ aside input[type='text'] {
 
 .acpopupitem.selected {
 	color: #FFFFFF; background: #3465A4;
+}
+.textcomplete-item.active {
+	color: #FFFFFF; background: #3465A4;
+}
+.active a .acpopup-sub-text {
+	color: #fff;
 }
 
 /* popup notifications */
