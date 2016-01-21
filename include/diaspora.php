@@ -827,6 +827,10 @@ function diaspora_plink($addr, $guid) {
 }
 
 function diaspora_repair_signature($signature, $handle = "", $level = 1) {
+
+	if ($signature == "")
+		return($signature);
+
 	if (base64_encode(base64_decode(base64_decode($signature))) == base64_decode($signature)) {
 		$signature = base64_decode($signature);
 		logger("Repaired double encoded signature from Diaspora/Hubzilla handle ".$handle." - level ".$level, LOGGER_DEBUG);
@@ -2974,7 +2978,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 		'$handle' => xmlify($handle)
 	));
 
-	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DEBUG);
+	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DATA);
 	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
