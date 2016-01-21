@@ -826,6 +826,19 @@ function diaspora_plink($addr, $guid) {
 	return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
 }
 
+function diaspora_repair_signature($signature, $handle = "", $level = 1) {
+	if (base64_encode(base64_decode(base64_decode($signature))) == base64_decode($signature)) {
+		$signature = base64_decode($signature);
+		logger("Repaired double encoded signature from Diaspora/Hubzilla handle ".$handle." - level ".$level, LOGGER_DEBUG);
+
+		// Do a recursive call to be able to fix even multiple levels
+		if ($level < 10)
+			$signature = diaspora_repair_signature($signature, $handle, ++$level);
+	}
+
+	return($signature);
+}
+
 function diaspora_post($importer,$xml,$msg) {
 
 	$a = get_app();
@@ -1475,8 +1488,7 @@ function diaspora_comment($importer,$xml,$msg) {
 			logger('diaspora_comment: top-level owner verification failed.');
 			return;
 		}
-	}
-	else {
+	} elseif($author_signature) {
 		// If there's no parent_author_signature, then we've received the comment
 		// from the comment creator. In that case, the person is commenting on
 		// our post, so he/she must be a contact of ours and his/her public key
@@ -1488,6 +1500,11 @@ function diaspora_comment($importer,$xml,$msg) {
 			logger('diaspora_comment: comment author verification failed.');
 			return;
 		}
+	}
+
+	if (!$parent_author_signature AND !$author_signature) {
+		logger("No signature in comment. Comment will be rejected.");
+		return;
 	}
 
 	// Phew! Everything checks out. Now create an item.
@@ -1565,18 +1582,19 @@ function diaspora_comment($importer,$xml,$msg) {
 		//);
 	//}
 
-	if(($parent_item['origin']) && (! $parent_author_signature)) {
+	// If we are the origin of the parent we store the original signature and notify our followers
+	if($parent_item['origin']) {
+		$author_signature_base64 = base64_encode($author_signature);
+		$author_signature_base64 = diaspora_repair_signature($author_signature_base64, $diaspora_handle);
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
 			dbesc($signed_data),
-			dbesc(base64_encode($author_signature)),
+			dbesc($author_signature_base64),
 			dbesc($diaspora_handle)
 		);
 
-		// if the message isn't already being relayed, notify others
-		// the existence of parent_author_signature means the parent_author or owner
-		// is already relaying.
-
+		// notify others
 		proc_run('php','include/notifier.php','comment-import',$message_id);
 	}
 
@@ -2113,7 +2131,7 @@ function diaspora_like($importer,$xml,$msg) {
 			logger('diaspora_like: top-level owner verification failed.');
 			return;
 		}
-	} else {
+	} elseif($author_signature) {
 		// If there's no parent_author_signature, then we've received the like
 		// from the like creator. In that case, the person is "like"ing
 		// our post, so he/she must be a contact of ours and his/her public key
@@ -2127,6 +2145,11 @@ function diaspora_like($importer,$xml,$msg) {
 			logger('diaspora_like: like creator verification failed.');
 			return;
 		}
+	}
+
+	if (!$parent_author_signature AND !$author_signature) {
+		logger("No signature in like. Like will be rejected.");
+		return;
 	}
 
 	// Phew! Everything checks out. Now create an item.
@@ -2226,21 +2249,21 @@ EOT;
 	//	);
 	//}
 
-	if(! $parent_author_signature) {
+	// If we are the origin of the parent we store the original signature and notify our followers
+	if($parent_item['origin']) {
+		$author_signature_base64 = base64_encode($author_signature);
+		$author_signature_base64 = diaspora_repair_signature($author_signature_base64, $diaspora_handle);
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
 			dbesc($signed_data),
-			dbesc(base64_encode($author_signature)),
+			dbesc($author_signature_base64),
 			dbesc($diaspora_handle)
 		);
-	}
 
-	// if the message isn't already being relayed, notify others
-	// the existence of parent_author_signature means the parent_author or owner
-	// is already relaying. The parent_item['origin'] indicates the message was created on our system
-
-	if(($parent_item['origin']) && (! $parent_author_signature))
+		// notify others
 		proc_run('php','include/notifier.php','comment-import',$message_id);
+	}
 
 	return;
 }
@@ -2336,8 +2359,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 			return;
 		}
 
-	}
-	else {
+	} else {
 
 		$sig_decode = base64_decode($sig);
 
@@ -2371,7 +2393,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 					intval($r[0]['parent'])
 				);
 				if(count($p)) {
-					if(($p[0]['origin']) && (! $parent_author_signature)) {
+					if($p[0]['origin']) {
 						q("insert into sign (`retract_iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 							$r[0]['id'],
 							dbesc($signed_data),
@@ -2961,7 +2983,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 		'$handle' => xmlify($handle)
 	));
 
-	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DATA);
+	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DEBUG);
 	logger('send guid '.$item['guid'], LOGGER_DEBUG);
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
