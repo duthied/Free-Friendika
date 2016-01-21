@@ -121,7 +121,7 @@ $(document).ready(function() {
 			a.setOptions({ params: { type: 'a' }});
 			break;
 		case 'display-head':
-			$(".comment-wwedit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
+			$(".comment-wwedit-wrapper textarea").editor_autocomplete(baseurl+"/acl");
 			break;
 		default:
 			break;
@@ -286,7 +286,7 @@ function initEditor(cb){
 		if(plaintext == 'none') {
 //			$("#profile-jot-text-loading").hide();
 			$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-			$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
+			$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
 			editor = true;
 /*			$("a#jot-perms-icon").colorbox({
 				'inline' : true,

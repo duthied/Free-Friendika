@@ -232,7 +232,7 @@ $(document).ready(function() {
 			a.setOptions({ params: { type: 'a' }});
 			break;
 		case 'display-head':
-			$(".comment-wwedit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
+			$(".comment-wwedit-wrapper textarea").editor_autocomplete(baseurl+"/acl");
 			break;
 		default:
 			break;
@@ -587,7 +587,7 @@ function initEditor(cb){
 			plaintextFn : function() {
 				$("#profile-jot-text-loading").hide();
 				$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-				$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
+				$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
 				$(".jothidden").show();
 				if (typeof cb!="undefined") cb();
 			}
@@ -660,7 +660,7 @@ function msgInitEditor() {
 			});
 		},
 		plaintextFn : function() {
-			$("#prvmail-text").contact_autocomplete(baseurl+"/acl");
+			$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
 		}
 	}
 	InitMCEEditor(editorData);
