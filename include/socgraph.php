@@ -1718,18 +1718,19 @@ function gs_fetch_users($server) {
 		$hostname = $statistics->instance_address;
 	}
 
-	foreach ($statistics->users AS $nick => $user) {
-		$profile_url = $server."/".$user->nickname;
+	if (is_object($statistics->users))
+		foreach ($statistics->users AS $nick => $user) {
+			$profile_url = $server."/".$user->nickname;
 
-		$contact = array("url" => $profile_url,
-				"name" => $user->fullname,
-				"addr" => $user->nickname."@".$hostname,
-				"nick" => $user->nickname,
-				"about" => $user->bio,
-				"network" => NETWORK_OSTATUS,
-				"photo" => $a->get_baseurl()."/images/person-175.jpg");
-		get_gcontact_id($contact);
-	}
+			$contact = array("url" => $profile_url,
+					"name" => $user->fullname,
+					"addr" => $user->nickname."@".$hostname,
+					"nick" => $user->nickname,
+					"about" => $user->bio,
+					"network" => NETWORK_OSTATUS,
+					"photo" => $a->get_baseurl()."/images/person-175.jpg");
+			get_gcontact_id($contact);
+		}
 }
 
 /**
