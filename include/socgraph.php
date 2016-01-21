@@ -796,19 +796,23 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		// Test for Diaspora
 		$serverret = z_fetch_url($server_url);
 
-		$lines = explode("\n",$serverret["header"]);
-		if(count($lines))
-			foreach($lines as $line) {
-				$line = trim($line);
-				if(stristr($line,'X-Diaspora-Version:')) {
-					$platform = "Diaspora";
-					$version = trim(str_replace("X-Diaspora-Version:", "", $line));
-					$version = trim(str_replace("x-diaspora-version:", "", $version));
-					$network = NETWORK_DIASPORA;
-					$versionparts = explode("-", $version);
-					$version = $versionparts[0];
+		if (!$serverret["success"] OR ($serverret["body"] == ""))
+			$failure = true;
+		else {
+			$lines = explode("\n",$serverret["header"]);
+			if(count($lines))
+				foreach($lines as $line) {
+					$line = trim($line);
+					if(stristr($line,'X-Diaspora-Version:')) {
+						$platform = "Diaspora";
+						$version = trim(str_replace("X-Diaspora-Version:", "", $line));
+						$version = trim(str_replace("x-diaspora-version:", "", $version));
+						$network = NETWORK_DIASPORA;
+						$versionparts = explode("-", $version);
+						$version = $versionparts[0];
+					}
 				}
-			}
+		}
 	}
 
 	if (!$failure) {
