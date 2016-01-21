@@ -1658,35 +1658,6 @@ LOCK TABLES `tokens` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `unique_contacts`
---
-
-DROP TABLE IF EXISTS `unique_contacts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `unique_contacts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) NOT NULL DEFAULT '',
-  `nick` varchar(255) NOT NULL DEFAULT '',
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `avatar` varchar(255) NOT NULL DEFAULT '',
-  `location` varchar(255) NOT NULL DEFAULT '',
-  `about` text NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `url` (`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `unique_contacts`
---
-
-LOCK TABLES `unique_contacts` WRITE;
-/*!40000 ALTER TABLE `unique_contacts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `unique_contacts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user`
 --
 

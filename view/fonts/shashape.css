@@ -177,7 +177,7 @@
     content: "Z";
 }
 .shashape.hash:before{
-    content: "/";
+    content: "#";
 }
 .shashape.tag:before{
     content: "=";

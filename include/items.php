@@ -945,8 +945,9 @@ function add_page_info_data($data) {
 		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
-			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
-						array("","", "", "", "", ""), $keyword);
+			/// @todo make a positive list of allowed characters
+			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"),
+						array("","", "", "", "", "", "", "", "", "", "", ""), $keyword);
 			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
 		}
 	}
@@ -957,12 +958,7 @@ function add_page_info_data($data) {
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	require_once("mod/parse_url.php");
 
-	$data = Cache::get("parse_url:".$url);
-	if (is_null($data)){
-		$data = parseurl_getsiteinfo($url, true);
-		Cache::set("parse_url:".$url,serialize($data), CACHE_DAY);
-	} else
-		$data = unserialize($data);
+	$data = parseurl_getsiteinfo_cached($url, true);
 
 	if ($photo != "")
 		$data["images"][0]["src"] = $photo;
@@ -1328,6 +1324,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
+	if ($arr["gcontact-id"] == 0)
+		$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
+							 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
+
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid
 		logger('checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);
@@ -1599,6 +1599,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		);
 
 	if($dsprsig) {
+
+                // Friendica servers lower than 3.4.3-2 had double encoded the signature ...
+		// We can check for this condition when we decode and encode the stuff again.
+		if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
+			$dsprsig->signature = base64_decode($dsprsig->signature);
+			logger("Repaired double encoded signature from handle ".$dsprsig->signer, LOGGER_DEBUG);
+		}
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($current_post),
 			dbesc($dsprsig->signed_text),
@@ -2633,7 +2641,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 		logger('consume_feed: feed item count = ' . $feed->get_item_quantity());
 
-	// in inverse date order
+		// in inverse date order
 		if ($datedir)
 			$items = array_reverse($feed->get_items());
 		else

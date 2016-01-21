@@ -13,7 +13,13 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 
 	$a = get_app();
 
-	$txt = Cache::get($a->videowidth . $embedurl);
+	$r = q("SELECT * FROM `oembed` WHERE `url` = '%s'",
+		dbesc(normalise_link($embedurl)));
+
+	if ($r)
+		$txt = $r[0]["content"];
+	else
+		$txt = Cache::get($a->videowidth . $embedurl);
 
 	// These media files should now be caught in bbcode.php
 	// left here as a fallback in case this is called from another source
@@ -66,8 +72,14 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 
 		if ($txt[0]!="{")
 			$txt='{"type":"error"}';
-		else	//save in cache
+		else {	//save in cache
+			$j = json_decode($txt);
+			if ($j->type != "error")
+				q("INSERT INTO `oembed` (`url`, `content`, `created`) VALUES ('%s', '%s', '%s')",
+					dbesc(normalise_link($embedurl)), dbesc($txt), dbesc(datetime_convert()));
+
 			Cache::set($a->videowidth . $embedurl,$txt, CACHE_DAY);
+		}
 	}
 
 	$j = json_decode($txt);
@@ -85,7 +97,7 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	// If fetching information doesn't work, then improve via internal functions
 	if (($j->type == "error") OR ($no_rich_type AND ($j->type == "rich"))) {
 		require_once("mod/parse_url.php");
-		$data = parseurl_getsiteinfo($embedurl, true, false);
+		$data = parseurl_getsiteinfo_cached($embedurl, true, false);
 		$j->type = $data["type"];
 
 		if ($j->type == "photo") {

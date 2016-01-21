@@ -556,6 +556,7 @@ EOT;
 $page    = $a->page;
 $profile = $a->profile;
 
+header("X-Friendica-Version: ".FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
 
