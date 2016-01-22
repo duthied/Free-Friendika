@@ -37,10 +37,10 @@ Assuming you want to convert the German localization which is placed in view/de/
     2. Execute the po2php script, which will place the translation
        in the strings.php file that is used by friendica.
 
-       $> php util/po2php.php view/de/message.po
+       $> php util/po2php.php view/de/messages.po
 
        The output of the script will be placed at view/de/strings.php where
-       froemdoca is expecting it, so you can test your translation immediately.
+       friendica is expecting it, so you can test your translation immediately.
 
     3. Visit your friendica page to check if it still works in the language you
        just translated. If not try to find the error, most likely PHP will give
