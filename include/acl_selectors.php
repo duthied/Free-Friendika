@@ -257,7 +257,7 @@ function prune_deadguys($arr) {
 	if(! $arr)
 		return $arr;
 	$str = dbesc(implode(',',$arr));
-	$r = q("select id from contact where id in ( " . $str . ") and blocked = 0 and pending = 0 and archive = 0 ");
+	$r = q("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 ");
 	if($r) {
 		$ret = array();
 		foreach($r as $rr)
@@ -399,7 +399,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	$type = (x($_REQUEST,'type')?$_REQUEST['type']:"");
 	$conv_id = (x($_REQUEST,'conversation')?$_REQUEST['conversation']:null);
 
-	// For use with jquery.autocomplete for private mail completion
+	// For use with jquery.textcomplete for private mail completion
 
 	if(x($_REQUEST,'query') && strlen($_REQUEST['query'])) {
 		if(! $type)
@@ -428,6 +428,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	$sql_extra2 .= " ".unavailable_networks();
 
+	// autocomplete for editor mentions
 	if ($type=='' || $type=='c'){
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND `self` = 0
@@ -476,7 +477,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	if ($type=='' || $type=='g'){
 
-		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') as uids
+		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
 				FROM `group`,`group_member`
 				WHERE `group`.`deleted` = 0 AND `group`.`uid` = %d
 					AND `group_member`.`gid`=`group`.`id`
@@ -505,7 +506,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	if ($type==''){
 
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, forum FROM `contact`
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum` FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 			AND NOT (`network` IN ('%s', '%s'))
 			$sql_extra2
@@ -516,7 +517,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	}
 	elseif ($type=='c'){
 
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, forum FROM `contact`
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum` FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 			AND NOT (`network` IN ('%s'))
 			$sql_extra2
@@ -546,6 +547,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		);
 	}
 	elseif($type == 'x') {
+		// autocomplete for global contact search (e.g. navbar search)
 		$r = navbar_complete($a);
 		$contacts = array();
 		if($r) {
@@ -568,25 +570,6 @@ function acl_lookup(&$a, $out_type = 'json') {
 	else
 		$r = array();
 
-
-	if($type == 'm' || $type == 'a') {
-		$x = array();
-		$x['query'] = $search;
-		$x['photos'] = array();
-		$x['links'] = array();
-		$x['suggestions'] = array();
-		$x['data'] = array();
-		if(count($r)) {
-			foreach($r as $g) {
-				$x['photos'][] = proxy_url($g['micro'], false, PROXY_SIZE_MICRO);
-				$x['links'][] = $g['url'];
-				$x['suggestions'][] = htmlentities($g['name']);
-				$x['data'][] = intval($g['id']);
-			}
-		}
-		echo json_encode($x);
-		killme();
-	}
 
 	if(count($r)) {
 		foreach($r as $g){
@@ -611,14 +594,10 @@ function acl_lookup(&$a, $out_type = 'json') {
 		function _contact_link($i){ return dbesc($i['link']); }
 		$known_contacts = array_map(_contact_link, $contacts);
 		$unknow_contacts=array();
-		$r = q("select
-					`author-avatar`,`author-name`,`author-link`
-				from item where parent=%d
-				and (
-					`author-name` LIKE '%%%s%%' OR
-					`author-link` LIKE '%%%s%%'
-				) and
-				`author-link` NOT IN ('%s')
+		$r = q("SELECT `author-avatar`,`author-name`,`author-link`
+				FROM `item` WHERE `parent` = %d
+					AND (`author-name` LIKE '%%%s%%' OR `author-link` LIKE '%%%s%%')
+					AND `author-link` NOT IN ('%s')
 				GROUP BY `author-link`
 				ORDER BY `author-name` ASC
 				",

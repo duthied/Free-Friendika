@@ -35,7 +35,6 @@
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/autocomplete.js" ></script>
-<!--<script type="text/javascript" src="{{$baseurl}}/js/fk.autocomplete.js" ></script>-->
 <script type="text/javascript" src="{{$baseurl}}/library/colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.js"></script>
