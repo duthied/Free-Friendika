@@ -103,22 +103,24 @@ $(document).ready(function() {
 
 	switch(window.autocompleteType) {
 		case 'msg-header':
-			var a = $("#recip").autocomplete({ 
-				serviceUrl: baseurl + '/acl',
-				minChars: 2,
-				width: 350,
-				onSelect: function(value,data) {
-					$("#recip-complete").val(data);
-				}			
+			$("#recip").name_autocomplete(baseurl + '/acl', '', false, function(data) {
+					$("#recip-complete").val(data.id);
 			});
 			break;
 		case 'contacts-head':
-			var a = $("#contacts-search").autocomplete({ 
-				serviceUrl: baseurl + '/acl',
-				minChars: 2,
-				width: 350,
+			$("#contacts-search").contact_autocomplete(baseurl + '/acl', 'a', true);
+
+
+			$("#contacts-search").keyup(function(event){
+				if(event.keyCode == 13){
+					$("#contacts-search").click();
+				}
 			});
-			a.setOptions({ params: { type: 'a' }});
+			$(".autocomplete-w1 .selected").keyup(function(event){
+				if(event.keyCode == 13){
+					$("#contacts-search").click();
+				}
+			});
 			break;
 		case 'display-head':
 			$(".comment-wwedit-wrapper textarea").editor_autocomplete(baseurl+"/acl");

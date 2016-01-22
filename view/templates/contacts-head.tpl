@@ -1,18 +1,19 @@
 
-
-<script src="{{$baseurl}}/library/jquery_ac/friendica.complete.js" ></script>
-
 <script>
-$(document).ready(function() { 
-	var a; 
-	a = $("#contacts-search").autocomplete({ 
-		serviceUrl: '{{$base}}/acl',
-		minChars: 2,
-		width: 350,
+$(document).ready(function() {
+	$("#contacts-search").contact_autocomplete(baseurl + '/acl', 'a', true);
+ 
+
+	$("#contacts-search").keyup(function(event){
+		if(event.keyCode == 13){
+			$("#contacts-search").click();
+		}
 	});
-	a.setOptions({ params: { type: 'a' }});
-
-}); 
-
+	$(".autocomplete-w1 .selected").keyup(function(event){
+		if(event.keyCode == 13){
+			$("#contacts-search").click();
+		}
+	});
+});
 </script>
 
