@@ -455,17 +455,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
 
-	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
-		logger("get_atom_elements: detected app.net posting: ".print_r($res, true), LOGGER_DEBUG);
-		$res['title'] = "";
-		$res['body'] = nl2br($res['body']);
-	}
-
-	// removing the content of the title if its identically to the body
-	// This helps with auto generated titles e.g. from tumblr
-	if (title_is_body($res["title"], $res["body"]))
-		$res['title'] = "";
-
 	if($res['plink'])
 		$base_url = implode('/', array_slice(explode('/',$res['plink']),0,3));
 	else
@@ -841,62 +830,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		}
 
 		$res['target'] .= '</target>' . "\n";
-	}
-
-	// This is some experimental stuff. By now retweets are shown with "RT:"
-	// But: There is data so that the message could be shown similar to native retweets
-	// There is some better way to parse this array - but it didn't worked for me.
-	$child = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://activitystrea.ms/spec/1.0/"][object][0]["child"];
-	if (is_array($child)) {
-		logger('get_atom_elements: Looking for status.net repeated message');
-
-		$message = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["content"][0]["data"];
-		$orig_id = ostatus_convert_href($child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"]);
-		$author = $child[SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10];
-		$uri = $author["uri"][0]["data"];
-		$name = $author["name"][0]["data"];
-		$avatar = @array_shift($author["link"][2]["attribs"]);
-		$avatar = $avatar["href"];
-
-		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
-			logger('get_atom_elements: fixing sender of repeated message. '.$orig_id, LOGGER_DEBUG);
-
-			if (!intval(get_config('system','wall-to-wall_share'))) {
-				$prefix = share_header($name, $uri, $avatar, "", "", $orig_link);
-
-				$res["body"] = $prefix.html2bbcode($message)."[/share]";
-			} else {
-				$res["owner-name"] = $res["author-name"];
-				$res["owner-link"] = $res["author-link"];
-				$res["owner-avatar"] = $res["author-avatar"];
-
-				$res["author-name"] = $name;
-				$res["author-link"] = $uri;
-				$res["author-avatar"] = $avatar;
-
-				$res["body"] = html2bbcode($message);
-			}
-		}
-	}
-
-	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$preview = "";
-
-		// Handle enclosures and treat them as preview picture
-		if (isset($attach))
-			foreach ($attach AS $attachment)
-				if ($attachment->type == "image/jpeg")
-					$preview = $attachment->link;
-
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
-		$res["tag"] = add_page_keywords($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
-		$res["title"] = "";
-		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
-		unset($res["attach"]);
-	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
-		$res["body"] = add_page_info_to_body($res["body"]);
-	elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
-		$res["body"] = add_page_info_to_body($res["body"]);
 	}
 
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
@@ -3038,6 +2971,9 @@ function item_is_remote_self($contact, &$datarray) {
 }
 
 function local_delivery($importer,$data) {
+
+	require_once('library/simplepie/simplepie.inc');
+
 	$a = get_app();
 
 	logger(__function__, LOGGER_TRACE);

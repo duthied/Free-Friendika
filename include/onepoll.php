@@ -27,7 +27,6 @@ function onepoll_run(&$argv, &$argc){
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
-	require_once('library/simplepie/simplepie.inc');
 	require_once('include/items.php');
 	require_once('include/Contact.php');
 	require_once('include/email.php');

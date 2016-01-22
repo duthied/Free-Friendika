@@ -458,7 +458,6 @@ function delivery_run(&$argv, &$argc){
 						if (($x[0]['page-flags'] == PAGE_SOAPBOX) AND $top_level)
 							break;
 
-						require_once('library/simplepie/simplepie.inc');
 						logger('mod-delivery: local delivery');
 						local_delivery($x[0],$atom);
 						break;

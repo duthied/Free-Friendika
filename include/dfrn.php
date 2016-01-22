@@ -2,6 +2,24 @@
 
 require_once('include/items.php');
 
+function dfrn_entries($items,$owner) {
+
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$root = dfrn_add_header($doc, $owner, "dfrn:owner");
+
+	if(! count($items))
+		return trim($doc->saveXML());
+
+	foreach($items as $item) {
+		$entry = dfrn_entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
+		$root->appendChild($entry);
+	}
+
+	return(trim($doc->saveXML()));
+}
+
 function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
 
@@ -39,8 +57,6 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 	$owner = $r[0];
 	$owner_id = $owner['user_uid'];
 	$owner_nick = $owner['nickname'];
-
-	$birthday = feed_birthday($owner_id,$owner['timezone']);
 
 	$sql_post_table = "";
 	$visibility = "";
@@ -149,63 +165,25 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
 	$items = $r;
 
-	//$feed_template = get_markup_template(($dfrn_id) ? 'atom_feed_dfrn.tpl' : 'atom_feed.tpl');
-
-	//$atom = '';
 	$doc = new DOMDocument('1.0', 'utf-8');
 	$doc->formatOutput = true;
 
-        $xpath = new DomXPath($doc);
-        $xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-        $xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-        $xpath->registerNamespace('georss', "http://www.georss.org/georss");
-        $xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-        $xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-        $xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-        $xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-        $xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+	$alternatelink = $owner['url'];
 
-	$root = ostatus_add_header($doc, $owner);
-	dfrn_add_header($root, $doc, $xpath, $owner);
-
-	// Todo $hubxml = feed_hublinks();
-
-	// Todo $salmon = feed_salmonlinks($owner_nick);
-
-	// todo $alternatelink = $owner['url'];
-
-/*
 	if(isset($category))
 		$alternatelink .= "/category/".$category;
 
-	$atom .= replace_macros($feed_template, array(
-		'$version'      => xmlify(FRIENDICA_VERSION),
-		'$feed_id'      => xmlify($a->get_baseurl() . '/profile/' . $owner_nick),
-		'$feed_title'   => xmlify($owner['name']),
-		'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now' , ATOM_TIME)) ,
-		'$hub'          => $hubxml,
-		'$salmon'       => $salmon,
-		'$alternatelink' => xmlify($alternatelink),
-		'$name'         => xmlify($owner['name']),
-		'$profile_page' => xmlify($owner['url']),
-		'$photo'        => xmlify($owner['photo']),
-		'$thumb'        => xmlify($owner['thumb']),
-		'$picdate'      => xmlify(datetime_convert('UTC','UTC',$owner['avatar-date'] . '+00:00' , ATOM_TIME)) ,
-		'$uridate'      => xmlify(datetime_convert('UTC','UTC',$owner['uri-date']    . '+00:00' , ATOM_TIME)) ,
-		'$namdate'      => xmlify(datetime_convert('UTC','UTC',$owner['name-date']   . '+00:00' , ATOM_TIME)) ,
-		'$birthday'     => ((strlen($birthday)) ? '<dfrn:birthday>' . xmlify($birthday) . '</dfrn:birthday>' : ''),
-		'$community'    => (($owner['page-flags'] == PAGE_COMMUNITY) ? '<dfrn:community>1</dfrn:community>' : '')
-	));
-*/
-	call_hooks('atom_feed', $atom);
+	$root = dfrn_add_header($doc, $owner, "author", $alternatelink);
+
+	// This hook can't work anymore
+	//	call_hooks('atom_feed', $atom);
 
 	if(! count($items)) {
+		$atom = trim($doc->saveXML());
 
 		call_hooks('atom_feed_end', $atom);
 
-		//$atom .= '</feed>' . "\r\n";
-		//return $atom;
-		return(trim($doc->saveXML()));
+		return $atom;
 	}
 
 	foreach($items as $item) {
@@ -226,19 +204,16 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 			$type = 'text';
 		}
 
-		//$atom .= atom_entry($item,$type,null,$owner,true);
-		$entry = ostatus_entry($doc, $item, $owner);
-		dfrn_entry($entry, $doc, $xpath, $item, $owner);
+		$entry = dfrn_entry($doc, $type, $item, $owner, true);
 		$root->appendChild($entry);
 
 	}
 
+	$atom = trim($doc->saveXML());
+
 	call_hooks('atom_feed_end', $atom);
 
-	//$atom .= '</feed>' . "\r\n";
-
-	//return $atom;
-	return(trim($doc->saveXML()));
+	return $atom;
 }
 
 /**
@@ -246,33 +221,68 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
  *
  * We use the XML from OStatus as a base and are adding the DFRN parts to it.
  *
- * @root Class XML root element
  * @doc Class XML document
- * @xpath Class XML xpath
  * @owner array Owner record
  *
+ * @return Class XML root object
  */
-function dfrn_add_header(&$root, $doc, $xpath, $owner) {
-
-	$root->setAttribute("xmlns:at", "http://purl.org/atompub/tombstones/1.0");
-	$root->setAttribute("xmlns:xmlns:dfrn", "http://purl.org/macgirvin/dfrn/1.0");
-
-	$attributes = array("href" => "http://creativecommons.org/licenses/by/3.0/", "rel" => "license");
-	xml_add_element($doc, $root, "link", "", $attributes);
-
-	xml_replace_element($doc, $root, $xpath, "title", $owner["name"]);
-	xml_remove_element($root, $xpath, "/atom:feed/subtitle");
-	xml_remove_element($root, $xpath, "/atom:feed/logo");
-	xml_remove_element($root, $xpath, "/atom:feed/author");
-
-	$author = dfrn_add_author($doc, $owner);
-	$root->appendChild($author);
-}
-
-function dfrn_add_author($doc, $owner) {
+function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "") {
 	$a = get_app();
 
-	$author = $doc->createElement("author");
+	if ($alternatelink == "")
+		$alternatelink = $owner['url'];
+
+	$root = $doc->createElementNS(NS_ATOM, 'feed');
+	$doc->appendChild($root);
+
+	$root->setAttribute("xmlns:thr", NS_THR);
+	$root->setAttribute("xmlns:at", "http://purl.org/atompub/tombstones/1.0");
+	$root->setAttribute("xmlns:media", NS_MEDIA);
+	$root->setAttribute("xmlns:dfrn", "http://purl.org/macgirvin/dfrn/1.0");
+	$root->setAttribute("xmlns:activity", NS_ACTIVITY);
+	$root->setAttribute("xmlns:georss", NS_GEORSS);
+	$root->setAttribute("xmlns:poco", NS_POCO);
+	$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
+	$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
+
+	xml_add_element($doc, $root, "id", $a->get_baseurl()."/profile/".$owner["nick"]);
+	xml_add_element($doc, $root, "title", $owner["name"]);
+
+	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
+	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+
+	$attributes = array("rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/");
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $alternatelink);
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	ostatus_hublinks($doc, $root);
+
+	$attributes = array("rel" => "salmon", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+	xml_add_element($doc, $root, "link", "", $attributes);
+
+	if ($owner['page-flags'] == PAGE_COMMUNITY)
+		xml_add_element($doc, $root, "dfrn:community", 1);
+
+	xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+
+	$author = dfrn_add_author($doc, $owner, $authorelement);
+	$root->appendChild($author);
+
+	return $root;
+}
+
+function dfrn_add_author($doc, $owner, $authorelement) {
+	$a = get_app();
+
+	$author = $doc->createElement($authorelement);
 
 	$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00' , ATOM_TIME);
 	$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
@@ -292,32 +302,256 @@ function dfrn_add_author($doc, $owner) {
 				"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
 	xml_add_element($doc, $author, "link", "", $attributes);
 
+	$birthday = feed_birthday($owner['user_uid'], $owner['timezone']);
+
+	if ($birthday)
+		xml_add_element($doc, $author, "dfrn:birthday", $birthday);
+
 	return $author;
 }
 
-function dfrn_entry($entry, $doc, $xpath, $item, $owner) {
+function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
 	$a = get_app();
 
-	$author = ostatus_add_author($doc, $owner);
+	$contact = get_contact_details_by_url($contact_url, $item["uid"]);
+
+	$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `contact`.`nick`, `contact`.`location` FROM `profile`
+			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
+			INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			WHERE `contact`.`self` AND `profile`.`is-default` AND NOT `user`.`hidewall` AND `contact`.`nurl`='%s'",
+		dbesc(normalise_link($contact_url)));
+	if ($r)
+		$profile = $r[0];
+
+	$author = $doc->createElement($element);
+	xml_add_element($doc, $author, "name", $contact["name"]);
+	xml_add_element($doc, $author, "uri", $contact["url"]);
+
+	/// @Todo
+	/// - Check real image type and image size
+	/// - Check which of these boths elements we really use
+	$attributes = array(
+			"rel" => "photo",
+			"type" => "image/jpeg",
+			"media:width" => 80,
+			"media:height" => 80,
+			"href" => $contact["photo"]);
+	xml_add_element($doc, $author, "link", "", $attributes);
+
+	$attributes = array(
+			"rel" => "avatar",
+			"type" => "image/jpeg",
+			"media:width" => 80,
+			"media:height" => 80,
+			"href" => $contact["photo"]);
+	xml_add_element($doc, $author, "link", "", $attributes);
+
+	// Only show contact details when it is a user from our system and we are allowed to
+	if ($profile) {
+		xml_add_element($doc, $author, "poco:preferredUsername", $profile["nick"]);
+		xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
+		xml_add_element($doc, $author, "poco:note", $profile["about"]);
+
+		if (trim($contact["location"]) != "") {
+			$element = $doc->createElement("poco:address");
+			xml_add_element($doc, $element, "poco:formatted", $profile["location"]);
+			$author->appendChild($element);
+		}
+
+		if (trim($profile["homepage"]) != "") {
+			$urls = $doc->createElement("poco:urls");
+			xml_add_element($doc, $urls, "poco:type", "homepage");
+			xml_add_element($doc, $urls, "poco:value", $profile["homepage"]);
+			xml_add_element($doc, $urls, "poco:primary", "true");
+			$author->appendChild($urls);
+		}
+	}
+
+	return $author;
+}
+
+function dfrn_create_activity($doc, $element, $activity) {
+
+	if($activity) {
+		$entry = $doc->createElement($element);
+
+		$r = parse_xml_string($activity, false);
+		if(!$r)
+			return false;
+		if($r->type)
+			xml_add_element($doc, $entry, "activity:object-type", $r->type);
+		if($r->id)
+			xml_add_element($doc, $entry, "id", $r->id);
+		if($r->title)
+			xml_add_element($doc, $entry, "title", $r->title);
+		if($r->link) {
+			if(substr($r->link,0,1) === '<') {
+				if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
+					$r->link = str_replace('&','&amp;', $r->link);
+
+				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
+
+				$data = parse_xml_string($r->link, false);
+				foreach ($data->attributes() AS $parameter => $value)
+					$attributes[$parameter] = $value;
+			} else
+				$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $r->link);
+
+			xml_add_element($doc, $entry, "link", "", $attributes);
+		}
+		if($r->content)
+			xml_add_element($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
+
+		return $entry;
+	}
+
+	return false;
+}
+
+function dfrn_get_attachment($doc, $root, $item) {
+	$arr = explode('[/attach],',$item['attach']);
+	if(count($arr)) {
+		foreach($arr as $r) {
+			$matches = false;
+			$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches);
+			if($cnt) {
+				$attributes = array("rel" => "enclosure",
+						"href" => $matches[1],
+						"type" => $matches[3]);
+
+				if(intval($matches[2]))
+					$attributes["length"] = intval($matches[2]);
+
+				if(trim($matches[4]) != "")
+					$attributes["title"] = trim($matches[4]);
+
+				xml_add_element($doc, $root, "link", "", $attributes);
+			}
+		}
+	}
+}
+
+function dfrn_entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
+	$a = get_app();
+
+	$mentioned = array();
+
+	if(!$item['parent'])
+		return;
+
+	$entry = $doc->createElement("entry");
+
+	if($item['deleted']) {
+		$attributes = array("ref" => $item['uri'], "when" => datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME));
+		xml_add_element($doc, $entry, "at:deleted-entry", "", $attributes);
+		return $entry;
+	}
+
+	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
+		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
+	else
+		$body = $item['body'];
+
+	if ($type == 'html') {
+		$htmlbody = $body;
+
+		if ($item['title'] != "")
+			$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
+
+		$htmlbody = bbcode($htmlbody, false, false, 7);
+	}
+
+	$author = dfrn_add_entry_author($doc, "author", $item["author-link"], $item);
 	$entry->appendChild($author);
 
-}
+	$dfrnowner = dfrn_add_entry_author($doc, "dfrn:owner", $item["owner-link"], $item);
+	$entry->appendChild($dfrnowner);
 
-function xml_replace_element($doc, $parent, $xpath, $element, $value = "", $attributes = array()) {
-	$old_element = $xpath->query("/atom:feed/".$element)->item(0);
+	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
+		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+		$attributes = array("ref" => $parent_item, "type" => "text/html", "href" => $a->get_baseurl().'/display/'.$parent[0]['guid']);
+		xml_add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
+	}
 
-	$element = $doc->createElement($element, xmlify($value));
+	xml_add_element($doc, $entry, "id", $item["uri"]);
+	xml_add_element($doc, $entry, "title", $item["title"]);
 
-	foreach ($attributes AS $key => $value) {
-                $attribute = $doc->createAttribute($key);
-                $attribute->value = xmlify($value);
-                $element->appendChild($attribute);
-        }
+	xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
+	xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 
-	$parent->replaceChild($element, $old_element);
-}
+	xml_add_element($doc, $entry, "dfrn:env", base64url_encode($body, true));
+	xml_add_element($doc, $entry, "content", (($type === 'html') ? $htmlbody : $body), array("type" => $type));
 
-function xml_remove_element($parent, $xpath, $element) {
-	$old_element = $xpath->query($element)->item(0);
-	$parent->removeChild($old_element);
+	xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
+							"href" => $a->get_baseurl()."/display/".$item["guid"]));
+
+	if ($comment)
+		xml_add_element($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
+
+	if($item['location'])
+		xml_add_element($doc, $entry, "dfrn:location", $item['location']);
+
+	if($item['coord'])
+		xml_add_element($doc, $entry, "georss:point", $item['coord']);
+
+	if(($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
+		xml_add_element($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
+
+	if($item['extid'])
+		xml_add_element($doc, $entry, "dfrn:extid", $item['extid']);
+
+	if($item['bookmark'])
+		xml_add_element($doc, $entry, "dfrn:bookmark", "true");
+
+	if($item['app'])
+		xml_add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
+
+	xml_add_element($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
+
+	if($item['signed_text']) {
+		$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
+		xml_add_element($doc, $entry, "dfrn:diaspora_signature", $sign);
+	}
+
+	xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
+
+	$actobj = dfrn_create_activity($doc, "activity:object", $item['object']);
+	if ($actobj)
+		$entry->appendChild($actobj);
+
+	$actarg = dfrn_create_activity($doc, "activity:target", $item['target']);
+	if ($actarg)
+		$entry->appendChild($actarg);
+
+	$tags = item_getfeedtags($item);
+
+	if(count($tags)) {
+		foreach($tags as $t)
+			if (($type != 'html') OR ($t[0] != "@"))
+				xml_add_element($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
+	}
+
+	if(count($tags))
+		foreach($tags as $t)
+			if ($t[0] == "@")
+				$mentioned[$t[1]] = $t[1];
+
+	foreach ($mentioned AS $mention) {
+		$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner["uid"]),
+			dbesc(normalise_link($mention)));
+		if ($r[0]["forum"] OR $r[0]["prv"])
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+										"href" => $mention));
+		else
+			xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+										"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+										"href" => $mention));
+	}
+
+	dfrn_get_attachment($doc, $entry, $item);
+
+	return $entry;
 }
