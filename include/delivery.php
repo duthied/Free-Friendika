@@ -280,7 +280,7 @@ function delivery_run(&$argv, &$argc){
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: ' . $contact['name']);
 
 				if ($mail) {
-					$item["body"] = $body;
+					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
 					$atom = dfrn_mail($item, $owner);
 				} elseif ($fsuggest) {
 					$atom = dfrn_fsuggest($item, $owner);
