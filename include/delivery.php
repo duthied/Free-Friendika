@@ -265,7 +265,7 @@ function delivery_run(&$argv, &$argc){
 		if(count($r))
 			$contact = $r[0];
 
-		$hubxml = feed_hublinks();
+		//$hubxml = feed_hublinks();
 
 		if($contact['self'])
 			continue;
