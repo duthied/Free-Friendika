@@ -271,6 +271,7 @@ function admin_page_federation(&$a) {
 	// displayed on the stats page.
 	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
 	$counts = array();
+	$total = 0;
 
 	foreach ($platforms as $p) {
 		// get a total count for the platform, the name and version of the
@@ -278,6 +279,7 @@ function admin_page_federation(&$a) {
 		$c = q('SELECT count(*) AS total, platform, network, version FROM gserver
 			WHERE platform LIKE "%s" AND last_contact > last_failure
 			ORDER BY version ASC;', $p);
+		$total = $total + $c[0]['total'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
@@ -355,7 +357,7 @@ function admin_page_federation(&$a) {
 		'$autoactive' => get_config('system', 'poco_completion'),
 		'$counts' => $counts,
 		'$version' => FRIENDICA_VERSION,
-		'$legendtext' => t('Currently this node is aware of nodes from the following platforms:'),
+		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes from the following platforms:'), $total),
 		'$baseurl' => $a->get_baseurl(),
 	));
 }
