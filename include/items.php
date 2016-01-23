@@ -14,6 +14,7 @@ require_once('include/socgraph.php');
 require_once('include/plaintext.php');
 require_once('include/ostatus.php');
 require_once('include/feed.php');
+require_once('include/Contact.php');
 require_once('mod/share.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
@@ -1334,6 +1335,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
+	// The contact-id should be set before "item_store" was called - but there seems to be some issues
+	if ($arr["contact-id"] == 0) {
+		// First we are looking for a suitable contact that matches with the author of the post
+		$arr["contact-id"] = get_contact($arr['author-link'], $uid);
+
+		// If not present then maybe the owner was found
+		if ($arr["contact-id"] == 0)
+			$arr["contact-id"] = get_contact($arr['owner-link'], $uid);
+
+		// Still missing? Then use the "self" contact of the current user
+		if ($arr["contact-id"] == 0) {
+			$r = q("SELECT `id` FROM `contact` WHERE `self` AND `uid` = %d", intval($uid));
+			if ($r)
+				$arr["contact-id"] = $r[0]["id"];
+		}
+		logger("Contact-id was missing for post ".$arr["guid"]." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
+	}
+
 	if ($arr["gcontact-id"] == 0)
 		$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
 							 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
@@ -1610,7 +1629,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	if($dsprsig) {
 
-                // Friendica servers lower than 3.4.3-2 had double encoded the signature ...
+		// Friendica servers lower than 3.4.3-2 had double encoded the signature ...
 		// We can check for this condition when we decode and encode the stuff again.
 		if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
 			$dsprsig->signature = base64_decode($dsprsig->signature);
