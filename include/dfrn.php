@@ -191,7 +191,12 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 	if(isset($category))
 		$alternatelink .= "/category/".$category;
 
-	$root = dfrn_add_header($doc, $owner, "author", $alternatelink, true);
+	if ($public_feed)
+		$author = "dfrn:owner";
+	else
+		$author = "author";
+
+	$root = dfrn_add_header($doc, $owner, $author, $alternatelink, true);
 
 	// This hook can't work anymore
 	//	call_hooks('atom_feed', $atom);
@@ -622,13 +627,12 @@ function dfrn_entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
 	if(!$item['parent'])
 		return;
 
-	$entry = $doc->createElement("entry");
-
 	if($item['deleted']) {
 		$attributes = array("ref" => $item['uri'], "when" => datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME));
-		xml_add_element($doc, $entry, "at:deleted-entry", "", $attributes);
-		return $entry;
+		return xml_create_element($doc, "at:deleted-entry", "", $attributes);
 	}
+
+	$entry = $doc->createElement("entry");
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
 		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);

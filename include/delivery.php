@@ -5,6 +5,7 @@ require_once('include/html2plain.php');
 require_once("include/Scrape.php");
 require_once('include/diaspora.php');
 require_once("include/ostatus.php");
+require_once("include/dfrn.php");
 
 function delivery_run(&$argv, &$argc){
 	global $a, $db;
@@ -278,6 +279,53 @@ function delivery_run(&$argv, &$argc){
 			case NETWORK_DFRN:
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: ' . $contact['name']);
 
+				if ($mail) {
+					$item["body"] = $body;
+					$atom = dfrn_mail($item, $owner);
+				} elseif ($fsuggest) {
+					$atom = dfrn_fsuggest($item, $owner);
+					// q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id'])
+				} elseif ($relocate)
+					$atom = dfrn_relocate($owner, $uid);
+				elseif($followup) {
+					$msgitems = array();
+					foreach($items as $item) {  // there is only one item
+						if(!$item['parent'])
+							continue;
+						if($item['id'] == $item_id) {
+							logger('followup: item: ' . print_r($item,true), LOGGER_DATA);
+							$msgitems[] = $item;
+						}
+					}
+					$atom = dfrn_entries($msgitems,$owner);
+				} else {
+					$msgitems = array();
+					foreach($items as $item) {
+						if(!$item['parent'])
+							continue;
+
+						// private emails may be in included in public conversations. Filter them.
+						if(($public_message) && $item['private'])
+							continue;
+
+						$item_contact = get_item_contact($item,$icontacts);
+						if(!$item_contact)
+							continue;
+
+						if($normal_mode) {
+							if($item_id == $item['id'] || $item['id'] == $item['parent']) {
+								$item["entry:comment-allow"] = true;
+								$item["entry:cid"] = (($top_level) ? $contact['id'] : 0);
+								$msgitems[] = $item;
+							}
+						} else {
+							$item["entry:comment-allow"] = true;
+							$msgitems[] = $item;
+						}
+					}
+					$atom = dfrn_entries($msgitems,$owner);
+				}
+/*
 				$feed_template = get_markup_template('atom_feed.tpl');
 				$mail_template = get_markup_template('atom_mail.tpl');
 
@@ -345,7 +393,7 @@ function delivery_run(&$argv, &$argc){
 
 					$sugg_template = get_markup_template('atom_relocate.tpl');
 
-					/* get site pubkey. this could be a new installation with no site keys*/
+					// get site pubkey. this could be a new installation with no site keys
 					$pubkey = get_config('system','site_pubkey');
 					if(! $pubkey) {
 						$res = new_keypair(1024);
@@ -408,8 +456,8 @@ function delivery_run(&$argv, &$argc){
 				}
 
 				$atom .= '</feed>' . "\r\n";
-
-				logger('notifier: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
+*/
+				logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
 
 				logger('notifier: ' . $atom, LOGGER_DATA);
 				$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));

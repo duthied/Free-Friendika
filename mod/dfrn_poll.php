@@ -1,9 +1,7 @@
 <?php
-
-
-
 require_once('include/items.php');
 require_once('include/auth.php');
+require_once('include/dfrn.php');
 
 
 function dfrn_poll_init(&$a) {
@@ -46,7 +44,8 @@ function dfrn_poll_init(&$a) {
 
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
-		echo get_feed_for($a, '', $user,$last_update);
+		//echo get_feed_for($a, '', $user,$last_update);
+		echo dfrn_feed($a, '', $user,$last_update);
 		killme();
 	}
 
@@ -373,7 +372,8 @@ function dfrn_poll_post(&$a) {
 		}
 
 		header("Content-type: application/atom+xml");
-		$o = get_feed_for($a,$dfrn_id, $a->argv[1], $last_update, $direction);
+		//$o = get_feed_for($a,$dfrn_id, $a->argv[1], $last_update, $direction);
+		$o = dfrn_feed($a,$dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
 		killme();
 
