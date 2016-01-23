@@ -1,13 +1,21 @@
 <?php
-
 require_once('include/items.php');
+require_once('include/ostatus.php');
 
+/**
+ * @brief Adds the header elements for the DFRN protocol
+ *
+ * @param array $items Item elements
+ * @param array $owner Owner record
+ *
+ * @return string DFRN entries
+ */
 function dfrn_entries($items,$owner) {
 
 	$doc = new DOMDocument('1.0', 'utf-8');
 	$doc->formatOutput = true;
 
-	$root = dfrn_add_header($doc, $owner, "dfrn:owner");
+	$root = dfrn_add_header($doc, $owner, "dfrn:owner", "", false);
 
 	if(! count($items))
 		return trim($doc->saveXML());
@@ -20,8 +28,18 @@ function dfrn_entries($items,$owner) {
 	return(trim($doc->saveXML()));
 }
 
+/**
+ * @brief Adds the header elements for the DFRN protocol
+ *
+ * @param App $a
+ * @param string $dfrn_id
+ * @param string $owner_nick Owner nick name
+ * @param string $last_update Date of the last update
+ * @param int $direction
+ *
+ * @return string DFRN feed entries
+ */
 function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
-
 
 	$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
 	$public_feed = (($dfrn_id) ? false : true);
@@ -173,7 +191,7 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 	if(isset($category))
 		$alternatelink .= "/category/".$category;
 
-	$root = dfrn_add_header($doc, $owner, "author", $alternatelink);
+	$root = dfrn_add_header($doc, $owner, "author", $alternatelink, true);
 
 	// This hook can't work anymore
 	//	call_hooks('atom_feed', $atom);
@@ -217,16 +235,130 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 }
 
 /**
- * @brief Adds the header elements for thr DFRN protocol
+ * @brief Create XML text for DFRN mail
  *
- * We use the XML from OStatus as a base and are adding the DFRN parts to it.
+ * @param array $item message elements
+ * @param array $owner Owner record
  *
- * @doc Class XML document
- * @owner array Owner record
- *
- * @return Class XML root object
+ * @return string DFRN mail
  */
-function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "") {
+function dfrn_mail($item, $owner) {
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$root = dfrn_add_header($doc, $owner, "dfrn:owner", "", false);
+
+	$mail = $doc->createElement("dfrn:mail");
+	$sender = $doc->createElement("dfrn:sender");
+
+	xml_add_element($doc, $sender, "dfrn:name", $owner['name']);
+	xml_add_element($doc, $sender, "dfrn:uri", $owner['url']);
+	xml_add_element($doc, $sender, "dfrn:avatar", $owner['thumb']);
+
+	$mail->appendChild($sender);
+
+	xml_add_element($doc, $mail, "dfrn:id", $item['uri']);
+	xml_add_element($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
+	xml_add_element($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME));
+	xml_add_element($doc, $mail, "dfrn:subject", $item['title']);
+	xml_add_element($doc, $mail, "dfrn:content", $item['body']);
+
+	$root->appendChild($mail);
+
+	return(trim($doc->saveXML()));
+}
+
+/**
+ * @brief Create XML text for DFRN suggestions
+ *
+ * @param array $item suggestion elements
+ * @param array $owner Owner record
+ *
+ * @return string DFRN suggestions
+ */
+function dfrn_fsuggest($item, $owner) {
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$root = dfrn_add_header($doc, $owner, "dfrn:owner", "", false);
+
+	$suggest = $doc->createElement("dfrn:suggest");
+
+	xml_add_element($doc, $suggest, "dfrn:url", $item['url']);
+	xml_add_element($doc, $suggest, "dfrn:name", $item['name']);
+	xml_add_element($doc, $suggest, "dfrn:photo", $item['photo']);
+	xml_add_element($doc, $suggest, "dfrn:request", $item['request']);
+	xml_add_element($doc, $suggest, "dfrn:note", $item['note']);
+
+	$root->appendChild($suggest);
+
+	return(trim($doc->saveXML()));
+}
+
+/**
+ * @brief Create XML text for DFRN relocations
+ *
+ * @param array $owner Owner record
+ * @param int $uid User ID
+ *
+ * @return string DFRN relocations
+ */
+function dfrn_relocate($owner, $uid) {
+
+	$a = get_app();
+
+	/* get site pubkey. this could be a new installation with no site keys*/
+	$pubkey = get_config('system','site_pubkey');
+	if(! $pubkey) {
+		$res = new_keypair(1024);
+		set_config('system','site_prvkey', $res['prvkey']);
+		set_config('system','site_pubkey', $res['pubkey']);
+	}
+
+	$rp = q("SELECT `resource-id` , `scale`, type FROM `photo`
+			WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
+	$photos = array();
+	$ext = Photo::supportedTypes();
+	foreach($rp as $p){
+		$photos[$p['scale']] = $a->get_baseurl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+	}
+	unset($rp, $ext);
+
+	$doc = new DOMDocument('1.0', 'utf-8');
+	$doc->formatOutput = true;
+
+	$root = dfrn_add_header($doc, $owner, "dfrn:owner", "", false);
+
+	$relocate = $doc->createElement("dfrn:relocate");
+
+	xml_add_element($doc, $relocate, "dfrn:url", $owner['url']);
+	xml_add_element($doc, $relocate, "dfrn:name", $owner['name']);
+	xml_add_element($doc, $relocate, "dfrn:photo", $photos[4]);
+	xml_add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
+	xml_add_element($doc, $relocate, "dfrn:micro", $photos[6]);
+	xml_add_element($doc, $relocate, "dfrn:request", $owner['request']);
+	xml_add_element($doc, $relocate, "dfrn:confirm", $owner['confirm']);
+	xml_add_element($doc, $relocate, "dfrn:notify", $owner['notify']);
+	xml_add_element($doc, $relocate, "dfrn:poll", $owner['poll']);
+	xml_add_element($doc, $relocate, "dfrn:sitepubkey", get_config('system','site_pubkey'));
+
+	$root->appendChild($relocate);
+
+	return(trim($doc->saveXML()));
+}
+
+/**
+ * @brief Adds the header elements for the DFRN protocol
+ *
+ * @param object $doc XML document
+ * @param array $owner Owner record
+ * @param string $authorelement Element name for the author
+ * @param string $alternatelink link to profile or category
+ * @param bool $public Is it a header for public posts?
+ *
+ * @return object XML root object
+ */
+function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "", $public = false) {
 	$a = get_app();
 
 	if ($alternatelink == "")
@@ -259,14 +391,16 @@ function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "") {
 
 	ostatus_hublinks($doc, $root);
 
-	$attributes = array("rel" => "salmon", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
-	xml_add_element($doc, $root, "link", "", $attributes);
+	if ($public) {
+		$attributes = array("rel" => "salmon", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+		xml_add_element($doc, $root, "link", "", $attributes);
 
-	$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
-	xml_add_element($doc, $root, "link", "", $attributes);
+		$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+		xml_add_element($doc, $root, "link", "", $attributes);
 
-	$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
-	xml_add_element($doc, $root, "link", "", $attributes);
+		$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => $a->get_baseurl()."/salmon/".$owner["nick"]);
+		xml_add_element($doc, $root, "link", "", $attributes);
+	}
 
 	if ($owner['page-flags'] == PAGE_COMMUNITY)
 		xml_add_element($doc, $root, "dfrn:community", 1);
@@ -279,6 +413,15 @@ function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "") {
 	return $root;
 }
 
+/**
+ * @brief Adds the author elements for the DFRN protocol
+ *
+ * @param object $doc XML document
+ * @param array $owner Owner record
+ * @param string $authorelement Element name for the author
+ *
+ * @return object XML author object
+ */
 function dfrn_add_author($doc, $owner, $authorelement) {
 	$a = get_app();
 
@@ -310,6 +453,16 @@ function dfrn_add_author($doc, $owner, $authorelement) {
 	return $author;
 }
 
+/**
+ * @brief Adds the author elements for the item entries of the DFRN protocol
+ *
+ * @param object $doc XML document
+ * @param string $element Element name for the author
+ * @param string $contact_url Link of the contact
+ * @param array $items Item elements
+ *
+ * @return object XML author object
+ */
 function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
 	$a = get_app();
 
@@ -370,6 +523,15 @@ function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
 	return $author;
 }
 
+/**
+ * @brief Adds the activity elements
+ *
+ * @param object $doc XML document
+ * @param string $element Element name for the activity
+ * @param string $activity activity value
+ *
+ * @return object XML activity object
+ */
 function dfrn_create_activity($doc, $element, $activity) {
 
 	if($activity) {
@@ -408,6 +570,15 @@ function dfrn_create_activity($doc, $element, $activity) {
 	return false;
 }
 
+/**
+ * @brief Adds the attachments elements
+ *
+ * @param object $doc XML document
+ * @param object $root XML root
+ * @param array $item Item element
+ *
+ * @return object XML attachment object
+ */
 function dfrn_get_attachment($doc, $root, $item) {
 	$arr = explode('[/attach],',$item['attach']);
 	if(count($arr)) {
@@ -431,6 +602,18 @@ function dfrn_get_attachment($doc, $root, $item) {
 	}
 }
 
+/**
+ * @brief Adds the header elements for the DFRN protocol
+ *
+ * @param object $doc XML document
+ * @param string $type "text" or "html"
+ * @param array $item Item element
+ * @param array $owner Owner record
+ * @param bool $comment Trigger the sending of the "comment" element
+ * @param int $cid
+ *
+ * @return object XML entry object
+ */
 function dfrn_entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
 	$a = get_app();
 
