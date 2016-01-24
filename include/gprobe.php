@@ -33,7 +33,7 @@ function gprobe_run(&$argv, &$argc){
 
 	$url = hex2bin($argv[1]);
 
-	$r = q("select * from gcontact where nurl = '%s' limit 1",
+	$r = q("SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
 		dbesc(normalise_link($url))
 	);
 
@@ -58,21 +58,16 @@ function gprobe_run(&$argv, &$argc){
 		if (is_null($result))
 			Cache::set("gprobe:".$urlparts["host"],serialize($arr));
 
-		if(count($arr) && x($arr,'network') && $arr['network'] === NETWORK_DFRN) {
-			q("insert into `gcontact` (`name`,`url`,`nurl`,`photo`)
-				values ( '%s', '%s', '%s', '%s') ",
-				dbesc($arr['name']),
-				dbesc($arr['url']),
-				dbesc(normalise_link($arr['url'])),
-				dbesc($arr['photo'])
-			);
-		}
-		$r = q("select * from gcontact where nurl = '%s' limit 1",
+		if (!in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))
+			update_gcontact($arr);
+
+		$r = q("SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
 			dbesc(normalise_link($url))
 		);
 	}
 	if(count($r))
-		poco_load(0,0,$r[0]['id'], str_replace('/profile/','/poco/',$r[0]['url']));
+		if ($r[0]["network"] == NETWORK_DFRN)
+			poco_load(0,0,$r[0]['id'], str_replace('/profile/','/poco/',$r[0]['url']));
 
 	logger("gprobe end for ".normalise_link($url), LOGGER_DEBUG);
 	return;
