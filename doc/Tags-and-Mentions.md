@@ -21,11 +21,19 @@ You can tag a person on a different network or one that is **not in your social 
 	
 * @mike@macgirvin.com - This is called a "remote mention" and can only be an email-style locator, not a web URL.
 
-Unless their system blocks unsolicited "mentions", the person tagged will likely receive a "Mention" post/activity or become a direct participant in the conversation in the case of public posts. Please note that Friendica blocks incoming "mentions" from people with no relationship to you. This is a spam prevention measure.
+Unless their system blocks unsolicited "mentions", the person tagged will likely receive a "Mention" post/activity or become a direct participant in the conversation in the case of public posts.
+Please note that Friendica blocks incoming "mentions" from people with no relationship to you.
+This is a spam prevention measure.
 
-Remote mentions are delivered using the OStatus protocol. This protocol is used by Friendica and GNU Social and several other systems, but is not currently implemented in Diaspora. 
+Remote mentions are delivered using the OStatus protocol.
+This protocol is used by Friendica and GNU Social and several other systems, but is not currently implemented in Diaspora. 
 
-Friendica makes no distinction between people and groups for the purpose of tagging. (Some other networks use !group to indicate a group.)
+Friendica makes no distinction between people and forums for the purpose of tagging.
+(Some other networks use !forum to indicate a forum.)
+
+If you sort your contacts into groups, you cannot @-mention these groups.
+But you can select the group in the access control when creating a new posting, to allow (or disallow) a certain group of people to see the posting.
+See [Groups and Privacy](help/Groups-and-Privacy) for more details about grouping your contacts.
 
 **Topical Tags**
 
