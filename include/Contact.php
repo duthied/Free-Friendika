@@ -664,4 +664,34 @@ function posts_from_contact($a, $contact_id) {
 
 	return $o;
 }
+
+/**
+ * @brief Returns a formatted location string from the given profile array
+ *
+ * @param array $profile Profile array (Generated from the "profile" table)
+ *
+ * @return string Location string
+ */
+function formatted_location($profile) {
+	$location = '';
+
+	if($profile['locality'])
+		$location .= $profile['locality'];
+
+	if($profile['region'] AND ($profile['locality'] != $profile['region'])) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['region'];
+	}
+
+	if($profile['country-name']) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['country-name'];
+	}
+
+	return $location;
+}
 ?>

@@ -1,5 +1,6 @@
 <?php
 require_once('include/items.php');
+require_once('include/Contact.php');
 require_once('include/ostatus.php');
 
 /**
@@ -416,7 +417,7 @@ function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "", $pub
 
 	xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
-	$author = dfrn_add_author($doc, $owner, $authorelement);
+	$author = dfrn_add_author($doc, $owner, $authorelement, $public);
 	$root->appendChild($author);
 
 	return $root;
@@ -431,7 +432,7 @@ function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "", $pub
  *
  * @return object XML author object
  */
-function dfrn_add_author($doc, $owner, $authorelement) {
+function dfrn_add_author($doc, $owner, $authorelement, $public) {
 	$a = get_app();
 
 	$author = $doc->createElement($authorelement);
@@ -459,6 +460,77 @@ function dfrn_add_author($doc, $owner, $authorelement) {
 	if ($birthday)
 		xml_add_element($doc, $author, "dfrn:birthday", $birthday);
 
+	// The following fields will only be generated if this isn't for a public feed
+	if ($public)
+		return $author;
+
+	// Only show contact details when we are allowed to
+	$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`, `user`.`timezone`,
+			`profile`.`locality`, `profile`.`region`, `profile`.`country-name`, `profile`.`pub_keywords`, `profile`.`dob`
+		FROM `profile`
+			INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
+		intval($owner['user_uid']));
+	if ($r) {
+		$profile = $r[0];
+		xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
+		xml_add_element($doc, $author, "poco:updated", $namdate);
+
+		if (trim($profile["dob"]) != "0000-00-00")
+			xml_add_element($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
+
+		xml_add_element($doc, $author, "poco:note", $profile["about"]);
+		xml_add_element($doc, $author, "poco:preferredUsername", $profile["nickname"]);
+
+		$savetz = date_default_timezone_get();
+		date_default_timezone_set($profile["timezone"]);
+		xml_add_element($doc, $author, "poco:utcOffset", date("P"));
+		date_default_timezone_set($savetz);
+
+		if (trim($profile["homepage"]) != "") {
+			$urls = $doc->createElement("poco:urls");
+			xml_add_element($doc, $urls, "poco:type", "homepage");
+			xml_add_element($doc, $urls, "poco:value", $profile["homepage"]);
+			xml_add_element($doc, $urls, "poco:primary", "true");
+			$author->appendChild($urls);
+		}
+
+		if (trim($profile["pub_keywords"]) != "") {
+			$keywords = explode(",", $profile["pub_keywords"]);
+
+			foreach ($keywords AS $keyword)
+				xml_add_element($doc, $author, "poco:tags", trim($keyword));
+
+		}
+
+		/// @todo When we are having the XMPP address in the profile we should propagate it here
+		$xmpp = "";
+		if (trim($xmpp) != "") {
+			$ims = $doc->createElement("poco:ims");
+			xml_add_element($doc, $ims, "poco:type", "xmpp");
+			xml_add_element($doc, $ims, "poco:value", $xmpp);
+			xml_add_element($doc, $ims, "poco:primary", "true");
+			$author->appendChild($ims);
+		}
+
+		if (trim($profile["locality"].$profile["region"].$profile["country-name"]) != "") {
+			$element = $doc->createElement("poco:address");
+
+			xml_add_element($doc, $element, "poco:formatted", formatted_location($profile));
+
+			if (trim($profile["locality"]) != "")
+				xml_add_element($doc, $element, "poco:locality", $profile["locality"]);
+
+			if (trim($profile["region"]) != "")
+				xml_add_element($doc, $element, "poco:region", $profile["region"]);
+
+			if (trim($profile["country-name"]) != "")
+				xml_add_element($doc, $element, "poco:country", $profile["country-name"]);
+
+			$author->appendChild($element);
+		}
+	}
+
 	return $author;
 }
 
@@ -477,21 +549,13 @@ function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
 
 	$contact = get_contact_details_by_url($contact_url, $item["uid"]);
 
-	$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `contact`.`nick`, `contact`.`location` FROM `profile`
-			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
-			INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			WHERE `contact`.`self` AND `profile`.`is-default` AND NOT `user`.`hidewall` AND `contact`.`nurl`='%s'",
-		dbesc(normalise_link($contact_url)));
-	if ($r)
-		$profile = $r[0];
-
 	$author = $doc->createElement($element);
 	xml_add_element($doc, $author, "name", $contact["name"]);
 	xml_add_element($doc, $author, "uri", $contact["url"]);
 
 	/// @Todo
 	/// - Check real image type and image size
-	/// - Check which of these boths elements we really use
+	/// - Check which of these boths elements we should use
 	$attributes = array(
 			"rel" => "photo",
 			"type" => "image/jpeg",
@@ -507,27 +571,6 @@ function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
 			"media:height" => 80,
 			"href" => $contact["photo"]);
 	xml_add_element($doc, $author, "link", "", $attributes);
-
-	// Only show contact details when it is a user from our system and we are allowed to
-	if ($profile) {
-		xml_add_element($doc, $author, "poco:preferredUsername", $profile["nick"]);
-		xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
-		xml_add_element($doc, $author, "poco:note", $profile["about"]);
-
-		if (trim($contact["location"]) != "") {
-			$element = $doc->createElement("poco:address");
-			xml_add_element($doc, $element, "poco:formatted", $profile["location"]);
-			$author->appendChild($element);
-		}
-
-		if (trim($profile["homepage"]) != "") {
-			$urls = $doc->createElement("poco:urls");
-			xml_add_element($doc, $urls, "poco:type", "homepage");
-			xml_add_element($doc, $urls, "poco:value", $profile["homepage"]);
-			xml_add_element($doc, $urls, "poco:primary", "true");
-			$author->appendChild($urls);
-		}
-	}
 
 	return $author;
 }
