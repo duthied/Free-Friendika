@@ -1,13 +1,15 @@
 <?php
 
+/**
+ * @file include/acl_selectors.php
+ */
+
 require_once("include/contact_selectors.php");
 require_once("include/contact_widgets.php");
+require_once("include/dir_fns.php");
 require_once("include/features.php");
 require_once("mod/proxy.php");
 
-/**
- *
- */
 
 /**
  * @package acl_selectors
@@ -653,7 +655,12 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	killme();
 }
-
+/**
+ * @brief Searching for global contacts for autocompletion
+ * 
+ * @param App $a
+ * @return type
+ */
 function navbar_complete(&$a) {
 
 //	logger('navbar_complete');
@@ -662,41 +669,25 @@ function navbar_complete(&$a) {
 		return;
 	}
 
-	$local = get_config('system','poco_local_search');
-	$local = true;
+	// check if searching in the local global contact table is enabled
+	$localsearch = get_config('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
+
+	// don't search if search term has less than 2 characters
 	if(! $search || mb_strlen($search) < 2)
 		return array();
-
-	$star = false;
-	$address = false;
 
 	if(substr($search,0,1) === '@')
 		$search = substr($search,1);
 
-	if(substr($search,0,1) === '*') {
-		$star = true;
-		$search = substr($search,1);
-	}
-
-	if(strpos($search,'@') !== false) {
-		$address = true;
-	}
-
-	if($local) {
-		require_once("include/dir_fns.php");
-		$x = dirsearch_autocomplete($search);
+	if($localsearch) {
+		$x = dirsearch_global_by_name($search);
 		return $x;
 	}
 
-	if(! $local) {
-		require_once("include/dir_fns.php");
-		$url = $directory['url'] . '/dirsearch';
-	
-
+	if(! $localsearch) {
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
-	
 
 		$x = z_fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 		if($x['success']) {

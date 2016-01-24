@@ -184,7 +184,6 @@ key { display: inline; background-color: #eee; color: #666; padding:0.2em; font-
 .notify-unseen { background-color: #cceeFF; }
 
 /* autocomplete popup */
-
 ul.acpopup {
   list-style: none;
   float: left;
@@ -194,7 +193,6 @@ ul.acpopup {
 }
 nav .acpopup {
   width: 290px;
-  margin-left: -35px;
   max-height: 450px;
   max-width: 300px;
   overflow-y: auto;
