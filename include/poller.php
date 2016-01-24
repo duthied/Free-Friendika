@@ -39,8 +39,10 @@ function poller_run(&$argv, &$argc){
 	}
 
 	// Checking the number of workers
-	if (poller_too_much_workers(1))
+	if (poller_too_much_workers(1)) {
+		poller_kill_stale_workers();
 		return;
+	}
 
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
@@ -50,16 +52,7 @@ function poller_run(&$argv, &$argc){
 		proc_run("php","include/cronhooks.php");
 
 		// Cleaning dead processes
-		$r = q("SELECT DISTINCT(`pid`) FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-		foreach($r AS $pid)
-			if (!posix_kill($pid["pid"], 0))
-				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
-					intval($pid["pid"]));
-			else {
-				/// @TODO Kill long running processes
-				/// But: Update processes (like the database update) mustn't be killed
-			}
-
+		poller_kill_stale_workers();
 	} else
 		// Sleep four seconds before checking for running processes again to avoid having too many workers
 		sleep(4);
@@ -122,6 +115,32 @@ function poller_run(&$argv, &$argc){
 			return;
 	}
 
+}
+
+/**
+ * @brief fix the queue entry if the worker process died
+ *
+ */
+function poller_kill_stale_workers() {
+	$r = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+	foreach($r AS $pid)
+		if (!posix_kill($pid["pid"], 0))
+			q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
+				intval($pid["pid"]));
+		else {
+			// Kill long running processes
+			$duration = (time() - strtotime($pid["executed"])) / 60;
+			if ($duration > 180) {
+				logger("Worker process ".$pid["pid"]." took more than 3 hours. It will be killed now.");
+				posix_kill($pid["pid"], SIGTERM);
+
+				// Question: If a process is stale: Should we remove it or should we reschedule it?
+				// By now we rescheduling it. It's maybe not the wisest decision?
+				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
+					intval($pid["pid"]));
+			} else
+				logger("Worker process ".$pid["pid"]." now runs for ".round($duration)." minutes. That's okay.", LOGGER_DEBUG);
+		}
 }
 
 function poller_too_much_workers($stage) {
