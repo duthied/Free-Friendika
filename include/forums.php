@@ -42,6 +42,9 @@ function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false
 			intval($uid)
 	);
 
+	if (!$contacts)
+		return($forumlist);
+
 	foreach($contacts as $contact) {
 		$forumlist[] = array(
 			'url'	=> $contact['url'],
