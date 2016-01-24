@@ -3,7 +3,9 @@ require_once('include/items.php');
 require_once('include/ostatus.php');
 
 /**
- * @brief Adds the header elements for the DFRN protocol
+ * @brief Generates the atom entries for delivery.php
+ *
+ * This function is used whenever content is transmitted via DFRN.
  *
  * @param array $items Item elements
  * @param array $owner Owner record
@@ -29,7 +31,9 @@ function dfrn_entries($items,$owner) {
 }
 
 /**
- * @brief Adds the header elements for the DFRN protocol
+ * @brief Generate an atom feed for the given user
+ *
+ * This function is called when another server is pulling data from the user feed.
  *
  * @param App $a
  * @param string $dfrn_id
@@ -240,7 +244,7 @@ function dfrn_feed(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0) {
 }
 
 /**
- * @brief Create XML text for DFRN mail
+ * @brief Create XML text for DFRN mails
  *
  * @param array $item message elements
  * @param array $owner Owner record
@@ -274,7 +278,7 @@ function dfrn_mail($item, $owner) {
 }
 
 /**
- * @brief Create XML text for DFRN suggestions
+ * @brief Create XML text for DFRN friend suggestions
  *
  * @param array $item suggestion elements
  * @param array $owner Owner record
@@ -419,7 +423,7 @@ function dfrn_add_header($doc, $owner, $authorelement, $alternatelink = "", $pub
 }
 
 /**
- * @brief Adds the author elements for the DFRN protocol
+ * @brief Adds the author element in the header for the DFRN protocol
  *
  * @param object $doc XML document
  * @param array $owner Owner record
@@ -459,7 +463,7 @@ function dfrn_add_author($doc, $owner, $authorelement) {
 }
 
 /**
- * @brief Adds the author elements for the item entries of the DFRN protocol
+ * @brief Adds the author elements in the "entry" elements of the DFRN protocol
  *
  * @param object $doc XML document
  * @param string $element Element name for the author
@@ -576,7 +580,7 @@ function dfrn_create_activity($doc, $element, $activity) {
 }
 
 /**
- * @brief Adds the attachments elements
+ * @brief Adds the elements for attachments
  *
  * @param object $doc XML document
  * @param object $root XML root
@@ -608,7 +612,7 @@ function dfrn_get_attachment($doc, $root, $item) {
 }
 
 /**
- * @brief Adds the header elements for the DFRN protocol
+ * @brief Adds the "entry" elements for the DFRN protocol
  *
  * @param object $doc XML document
  * @param string $type "text" or "html"
