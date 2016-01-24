@@ -1,11 +1,20 @@
 <?php
 
+/**
+ * @file include/dir_fns.php
+ * @brief Functions for directory
+ */
 
-
-function dirsearch_autocomplete($search) {
+/**
+ * @brief Search global contact table by nick or name
+ *  * 
+ * @param string $search
+ * @return array
+ */
+function dirsearch_global_by_name($search) {
 
 	if($search) {
-
+		// check supported networks
 		if (get_config('system','diaspora_enabled'))
 			$diaspora = NETWORK_DIASPORA;
 		else
@@ -16,7 +25,8 @@ function dirsearch_autocomplete($search) {
 		else
 			$ostatus = NETWORK_DFRN;
 
-		$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`nick`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
+		$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`nick`, `gcontact`.`photo`,
+						`gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
