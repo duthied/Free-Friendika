@@ -164,6 +164,9 @@ function cron_run(&$argv, &$argc){
 	// Repair missing Diaspora values in contacts
 	cron_repair_diaspora($a);
 
+	// Repair entries in the database
+	cron_repair_database();
+
 	$manual_id  = 0;
 	$generation = 0;
 	$force      = false;
@@ -415,6 +418,24 @@ function cron_repair_diaspora(&$a) {
 			}
 		}
 	}
+}
+
+/**
+ * @brief Do some repairs in database entries
+ *
+ */
+function cron_repair_database() {
+
+	// Set the parent if it wasn't set. (Shouldn't happen - but does sometimes)
+	// This call is very "cheap" so we can do it at any time without a problem
+	q("UPDATE `item` INNER JOIN `item` AS `parent` ON `parent`.`uri` = `item`.`parent-uri` AND `parent`.`uid` = `item`.`uid` SET `item`.`parent` = `parent`.`id` WHERE `item`.`parent` = 0");
+
+	/// @todo
+	/// - remove duplicated contacts with uid=0 (We could do this at the place where the contacts are stored)
+	/// - remove thread entries without item
+	/// - remove sign entries without item
+	/// - remove children when parent got lost
+	/// - set contact-id in item when not present
 }
 
 if (array_search(__file__,get_included_files())===0){
