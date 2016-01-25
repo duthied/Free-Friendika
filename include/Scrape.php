@@ -235,7 +235,9 @@ function scrape_feed($url) {
 	$a = get_app();
 
 	$ret = array();
-	$s = fetch_url($url);
+	$cookiejar = tempnam('/tmp', 'cookiejar-scrape-feed-');
+	$s = fetch_url($url, false, $redirects, 0, Null, $cookiejar);
+	unlink($cookiejar);
 
 	$headers = $a->get_curl_headers();
 	$code = $a->get_curl_code();
@@ -662,7 +664,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				$vcard['photo'] = $feedret['photo'];
 			require_once('library/simplepie/simplepie.inc');
 			$feed = new SimplePie();
-			$xml = fetch_url($poll);
+			$cookiejar = tempnam('/tmp', 'cookiejar-scrape-feed-');
+			$xml = fetch_url($poll, false, $redirects, 0, Null, $cookiejar);
+			unlink($cookiejar);
 
 			logger('probe_url: fetch feed: ' . $poll . ' returns: ' . $xml, LOGGER_DATA);
 			$a = get_app();
