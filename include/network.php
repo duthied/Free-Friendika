@@ -42,6 +42,7 @@ if(!function_exists('z_fetch_url')){
  * @return array an assoziative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
+ *  * \e string \b redirect_url => in case of redirect, content was finally retrieved from this URL
  *  * \e string \b header => HTTP headers
  *  * \e string \b body => fetched content
  */
