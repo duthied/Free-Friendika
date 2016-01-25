@@ -412,12 +412,12 @@ function get_contact($url, $uid = 0) {
 			return 0;
 	}
 
-	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($url)),
 			intval($uid));
 
 	if (!$contact)
-		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d",
+		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d ORDER BY `id` LIMIT 1",
 				dbesc($url),
 				dbesc(normalise_link($url)),
 				intval($uid));
@@ -441,9 +441,7 @@ function get_contact($url, $uid = 0) {
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		return 0;
 
-	// tempory programming. Can be deleted after 2015-02-07
-	if (($data["alias"] == "") AND (normalise_link($data["url"]) != normalise_link($url)))
-		$data["alias"] = normalise_link($url);
+	$url = $data["url"];
 
 	if ($contactid == 0) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
@@ -472,7 +470,7 @@ function get_contact($url, $uid = 0) {
 			dbesc($data["poco"])
 		);
 
-		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 				dbesc(normalise_link($data["url"])),
 				intval($uid));
 		if (!$contact)
@@ -480,6 +478,11 @@ function get_contact($url, $uid = 0) {
 
 		$contactid = $contact[0]["id"];
 	}
+
+	if ((count($contact) > 1) AND ($uid == 0) AND ($contactid != 0) AND ($url != ""))
+		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d",
+			dbesc(normalise_link($url)),
+			intval($contactid));
 
 	require_once("Photo.php");
 

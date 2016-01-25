@@ -42,6 +42,7 @@ if(!function_exists('z_fetch_url')){
  * @return array an assoziative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
+ *  * \e string \b redirect_url => in case of redirect, content was finally retrieved from this URL
  *  * \e string \b header => HTTP headers
  *  * \e string \b body => fetched content
  */
@@ -116,6 +117,9 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	// if it throws any errors.
 
 	$s = @curl_exec($ch);
+	if (curl_errno($ch) !== CURLE_OK) {
+		logger('fetch_url error fetching '.$url.': '.curl_error($ch), LOGGER_NORMAL);
+	}
 
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
@@ -132,6 +136,10 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));
 	}
+
+	$a->set_curl_code($http_code);
+	$a->set_curl_content_type($curl_info['content_type']);
+	$a->set_curl_headers($header);
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
 		$new_location_info = @parse_url($curl_info["redirect_url"]);
@@ -160,13 +168,13 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	$a->set_curl_content_type($curl_info['content_type']);
 
 	$body = substr($s,strlen($header));
-	$a->set_curl_headers($header);
 
 
 
 	$rc = intval($http_code);
 	$ret['return_code'] = $rc;
 	$ret['success'] = (($rc >= 200 && $rc <= 299) ? true : false);
+	$ret['redirect_url'] = $url;
 	if(! $ret['success']) {
 		$ret['error'] = curl_error($ch);
 		$ret['debug'] = $curl_info;

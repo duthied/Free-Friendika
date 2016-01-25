@@ -238,6 +238,10 @@ function proxy_url($url, $writemode = false, $size = "") {
 
 	$a = get_app();
 
+	if (substr($url, 0, strlen('http')) !== 'http') {
+		return($url);
+	}
+
 	// Only continue if it isn't a local image and the isn't deactivated
 	if (proxy_is_local_image($url)) {
 		$url = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $url);
