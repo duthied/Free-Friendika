@@ -545,7 +545,6 @@ function dfrn_add_author($doc, $owner, $authorelement, $public) {
  * @return object XML author object
  */
 function dfrn_add_entry_author($doc, $element, $contact_url, $item) {
-	$a = get_app();
 
 	$contact = get_contact_details_by_url($contact_url, $item["uid"]);
 
