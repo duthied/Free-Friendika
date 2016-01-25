@@ -22,11 +22,14 @@ You can tag a person on a different network or one that is **not in your social 
 * @mike@macgirvin.com - This is called a "remote mention" and can only be an email-style locator, not a web URL.
 
 Unless their system blocks unsolicited "mentions", the person tagged will likely receive a "Mention" post/activity or become a direct participant in the conversation in the case of public posts.
-Please note that Friendica blocks incoming "mentions" from people with no relationship to you.
+Friendica blocks incoming “mentions” from people with no relationship to you.
+The exception is an ongiong conversation started from a contact of both you and the 3rd person or a conversation in a forum where you are a member of.
 This is a spam prevention measure.
 
 Remote mentions are delivered using the OStatus protocol.
 This protocol is used by Friendica and GNU Social and several other systems, but is not currently implemented in Diaspora. 
+As the OStatus protocol allows this Friendica user can be @-mentioned by users from platforms using this protocol in conversations if the "Enable OStatus support" is activated on the Friendica node.
+These @-mentions wont be blocked, even if there is no relationship between the sender and the receiver of the message.
 
 Friendica makes no distinction between people and forums for the purpose of tagging.
 (Some other networks use !forum to indicate a forum.)
