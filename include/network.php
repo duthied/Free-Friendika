@@ -136,6 +136,10 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		$base = substr($base,strlen($chunk));
 	}
 
+	$a->set_curl_code($http_code);
+	$a->set_curl_content_type($curl_info['content_type']);
+	$a->set_curl_headers($header);
+
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
 		$new_location_info = @parse_url($curl_info["redirect_url"]);
 		$old_location_info = @parse_url($curl_info["url"]);
@@ -154,16 +158,17 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 			$redirects++;
 			@curl_close($ch);
+			$a->set_curl_redirect_url($newurl);
 			return z_fetch_url($newurl,$binary, $redirects, $opts);
 		}
 	}
 
 
+	$a->set_curl_redirect_url($url);
 	$a->set_curl_code($http_code);
 	$a->set_curl_content_type($curl_info['content_type']);
 
 	$body = substr($s,strlen($header));
-	$a->set_curl_headers($header);
 
 
 
