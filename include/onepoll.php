@@ -335,7 +335,7 @@ function onepoll_run(&$argv, &$argc){
 		if($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly'])
 			return;
 
-		$cookiejar = tempnam('/tmp', 'cookiejar-onepoll-');
+		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
 		$xml = fetch_url($contact['poll'], false, $redirects, 0, Null, $cookiejar);
 		unlink($cookiejar);
 	}
