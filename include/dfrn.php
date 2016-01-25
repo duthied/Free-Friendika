@@ -37,10 +37,10 @@ function dfrn_entries($items,$owner) {
  * This function is called when another server is pulling data from the user feed.
  *
  * @param App $a
- * @param string $dfrn_id
+ * @param string $dfrn_id DFRN ID from the requesting party
  * @param string $owner_nick Owner nick name
  * @param string $last_update Date of the last update
- * @param int $direction
+ * @param int $direction Can be -1, 0 or 1.
  *
  * @return string DFRN feed entries
  */
@@ -662,7 +662,7 @@ function dfrn_get_attachment($doc, $root, $item) {
  * @param array $item Item element
  * @param array $owner Owner record
  * @param bool $comment Trigger the sending of the "comment" element
- * @param int $cid
+ * @param int $cid Contact ID of the recipient
  *
  * @return object XML entry object
  */
