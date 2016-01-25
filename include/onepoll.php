@@ -335,7 +335,9 @@ function onepoll_run(&$argv, &$argc){
 		if($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly'])
 			return;
 
-		$xml = fetch_url($contact['poll']);
+		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
+		$xml = fetch_url($contact['poll'], false, $redirects, 0, Null, $cookiejar);
+		unlink($cookiejar);
 	}
 	elseif($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
 
