@@ -1551,6 +1551,8 @@
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow`.`gid` = ''
+			AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
 			$sql_extra
 			AND `item`.`id`=%d",
 			intval($id)
@@ -1579,7 +1581,8 @@
 				$_REQUEST["source"] = api_source();
 
 			item_post($a);
-		}
+		} else
+			throw new ForbiddenException();
 
 		// this should output the last post (the one we just posted).
 		$called_api = null;
