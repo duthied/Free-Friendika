@@ -720,6 +720,8 @@ function dfrn_entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
 	xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
 							"href" => $a->get_baseurl()."/display/".$item["guid"]));
 
+	// "comment-allow" is some old fashioned stuff for old Friendica versions.
+	// It is included in the rewritten code for completeness
 	if ($comment)
 		xml_add_element($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
 
@@ -743,6 +745,8 @@ function dfrn_entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
 
 	xml_add_element($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
 
+	// The signed text contains the content in Markdown, the sender handle and the signatur for the content
+	// It is needed for relayed comments to Diaspora.
 	if($item['signed_text']) {
 		$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
 		xml_add_element($doc, $entry, "dfrn:diaspora_signature", $sign);
