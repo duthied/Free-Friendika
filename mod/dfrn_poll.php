@@ -44,7 +44,7 @@ function dfrn_poll_init(&$a) {
 
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
-		echo dfrn_feed($a, '', $user,$last_update);
+		echo dfrn::feed('', $user,$last_update);
 		killme();
 	}
 
@@ -371,7 +371,7 @@ function dfrn_poll_post(&$a) {
 		}
 
 		header("Content-type: application/atom+xml");
-		$o = dfrn_feed($a,$dfrn_id, $a->argv[1], $last_update, $direction);
+		$o = dfrn::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
 		killme();
 

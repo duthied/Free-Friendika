@@ -279,12 +279,12 @@ function delivery_run(&$argv, &$argc){
 
 				if ($mail) {
 					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
-					$atom = dfrn_mail($item, $owner);
+					$atom = dfrn::mail($item, $owner);
 				} elseif ($fsuggest) {
-					$atom = dfrn_fsuggest($item, $owner);
+					$atom = dfrn::fsuggest($item, $owner);
 					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
 				} elseif ($relocate)
-					$atom = dfrn_relocate($owner, $uid);
+					$atom = dfrn::relocate($owner, $uid);
 				elseif($followup) {
 					$msgitems = array();
 					foreach($items as $item) {  // there is only one item
@@ -295,7 +295,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn_entries($msgitems,$owner);
+					$atom = dfrn::entries($msgitems,$owner);
 				} else {
 					$msgitems = array();
 					foreach($items as $item) {
@@ -321,7 +321,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn_entries($msgitems,$owner);
+					$atom = dfrn::entries($msgitems,$owner);
 				}
 
 				logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
@@ -380,7 +380,7 @@ function delivery_run(&$argv, &$argc){
 				}
 
 				if(! was_recently_delayed($contact['id']))
-					$deliver_status = dfrn_deliver($owner,$contact,$atom);
+					$deliver_status = dfrn::deliver($owner,$contact,$atom);
 				else
 					$deliver_status = (-1);
 
