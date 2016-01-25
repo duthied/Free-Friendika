@@ -158,13 +158,11 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 			$redirects++;
 			@curl_close($ch);
-			$a->set_curl_redirect_url($newurl);
 			return z_fetch_url($newurl,$binary, $redirects, $opts);
 		}
 	}
 
 
-	$a->set_curl_redirect_url($url);
 	$a->set_curl_code($http_code);
 	$a->set_curl_content_type($curl_info['content_type']);
 
@@ -175,6 +173,7 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	$rc = intval($http_code);
 	$ret['return_code'] = $rc;
 	$ret['success'] = (($rc >= 200 && $rc <= 299) ? true : false);
+	$ret['redirect_url'] = $url;
 	if(! $ret['success']) {
 		$ret['error'] = curl_error($ch);
 		$ret['debug'] = $curl_info;
