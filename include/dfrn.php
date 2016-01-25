@@ -1,8 +1,19 @@
 <?php
+/**
+ * @file include/dfrn.php
+ * @brief The implementation of the dfrn protocol
+ *
+ * https://github.com/friendica/friendica/wiki/Protocol
+ */
+
 require_once('include/items.php');
 require_once('include/Contact.php');
 require_once('include/ostatus.php');
 
+/**
+ * @brief This class contain functions to create and send DFRN XML files
+ *
+ */
 class dfrn {
 
 	/**
