@@ -456,6 +456,9 @@ class dfrn {
 		$attributes = array("dfrn:updated" => $namdate);
 		xml_add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
 
+		$attributes = array("dfrn:updated" => $namdate);
+		xml_add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
+
 		$attributes = array("rel" => "photo", "type" => "image/jpeg", "dfrn:updated" => $picdate,
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
 		xml_add_element($doc, $author, "link", "", $attributes);
@@ -560,6 +563,7 @@ class dfrn {
 		$author = $doc->createElement($element);
 		xml_add_element($doc, $author, "name", $contact["name"]);
 		xml_add_element($doc, $author, "uri", $contact["url"]);
+		xml_add_element($doc, $author, "dfrn:handle", $contact["addr"]);
 
 		/// @Todo
 		/// - Check real image type and image size
@@ -711,7 +715,9 @@ class dfrn {
 		if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-			$attributes = array("ref" => $parent_item, "type" => "text/html", "href" => app::get_baseurl().'/display/'.$parent[0]['guid']);
+			$attributes = array("ref" => $parent_item, "type" => "text/html",
+						"href" => app::get_baseurl().'/display/'.$parent[0]['guid'],
+						"dfrn:diaspora_guid" => $parent[0]['guid']);
 			xml_add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
 
