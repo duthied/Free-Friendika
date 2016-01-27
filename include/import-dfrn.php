@@ -25,13 +25,13 @@ define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
 define("NS_STATUSNET", "http://status.net/schema/api/1/");
 
 class dfrn2 {
-        /**
-         * @brief Add new birthday event for this person
-         *
-         * @param array $contact Contact record
-         * @param string $birthday Birthday of the contact
-         *
-         */
+	/**
+	 * @brief Add new birthday event for this person
+	 *
+	 * @param array $contact Contact record
+	 * @param string $birthday Birthday of the contact
+	 *
+	 */
 	private function birthday_event($contact, $birthday) {
 
 		logger('updating birthday: '.$birthday.' for contact '.$contact['id']);
@@ -54,25 +54,27 @@ class dfrn2 {
 		);
 	}
 
-        /**
-         * @brief Fetch the author data from head or entry items
-         *
-         * @param object $xpath XPath object
-         * @param object $context In which context should the data be searched
-         * @param array $importer Record of the importer contact
-         * @param string $element Element name from which the data is fetched
-         * @param array $contact The updated contact record of the author
-         * @param bool $onlyfetch Should the data only be fetched or should it update the contact record as well
-         *
+	/**
+	 * @brief Fetch the author data from head or entry items
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $context In which context should the data be searched
+	 * @param array $importer Record of the importer contact
+	 * @param string $element Element name from which the data is fetched
+	 * @param array $contact The updated contact record of the author
+	 * @param bool $onlyfetch Should the data only be fetched or should it update the contact record as well
+	 *
 	 * @return Returns an array with relevant data of the author
-         */
+	 */
 	private function fetchauthor($xpath, $context, $importer, $element, &$contact, $onlyfetch) {
 
 		$author = array();
 		$author["name"] = $xpath->evaluate($element.'/atom:name/text()', $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element.'/atom:uri/text()', $context)->item(0)->nodeValue;
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
+		$r = q("SELECT `id`, `uid`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
+				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
+				FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
 			dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -115,14 +117,10 @@ class dfrn2 {
 				if ($attributes->name == "updated")
 					$contact["name-date"] = $attributes->textContent;
 
-
 			$link_element = $xpath->query($element."/atom:link", $context)->item(0);
 			foreach($link_element->attributes AS $attributes)
 				if ($attributes->name == "updated")
 					$contact["uri-date"] = $attributes->textContent;
-
-			// is it a public forum? Private forums aren't supported by now with this method
-			$contact["forum"] = intval($xpath->evaluate($element.'/dfrn:community/text()', $context)->item(0)->nodeValue);
 
 			// Update contact data
 			$value = $xpath->evaluate($element.'/dfrn:handle/text()', $context)->item(0)->nodeValue;
@@ -188,37 +186,49 @@ class dfrn2 {
 				$contact["bd"] = $value;
 			}
 
-			if ($old_bdyear != $contact["bdyear"])
-				self::birthday_event($contact, $birthday;
+			//if ($old_bdyear != $contact["bdyear"])
+			//	self::birthday_event($contact, $birthday);
 
-print_r($contact);
-die();
-/*
-			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
+			// Get all field names
+			$fields = array();
+			foreach ($r[0] AS $field => $data)
+				$fields[$field] = $data;
 
+			unset($fields["id"]);
+			unset($fields["uid"]);
+
+			foreach ($fields AS $field => $data)
+				if ($contact[$field] != $r[0][$field])
+					$update = true;
+
+			if ($update) {
 				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
+				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s'
+					`avatar-date`  = '%s', `name-date`  = '%s', `uri-date` = '%s'
+					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
-
+					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
+					dbesc($contact["bd"]), dbesc($contact["avatar-date"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
+					intval($contact["id"]), dbesc($contact["network"]));
 			}
 
-			if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['photo'])) {
+			if ((isset($author["avatar"]) AND ($author["avatar"] != $r[0]["photo"])) OR
+				($contact["avatar-date"] != $r[0]["avatar-date"])) {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
-				$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
+				$photos = import_profile_photo($author["avatar"], $importer["uid"], $contact["id"]);
 
 				q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-					dbesc($author["author-avatar"]), dbesc($photos[1]), dbesc($photos[2]),
-					dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+					dbesc($author["avatar"]), dbesc($photos[1]), dbesc($photos[2]),
+					dbesc($contact["avatar-date"]), intval($contact["id"]), dbesc($contact["network"]));
 			}
-*/
-			/// @todo Add the "addr" field
-//			$contact["generation"] = 2;
-//			$contact["photo"] = $author["avatar"];
-//print_r($contact);
-			//update_gcontact($contact);
+
+			$contact["generation"] = 2;
+			$contact["photo"] = $author["avatar"];
+			print_r($contact);
+			update_gcontact($contact);
 		}
 
 		return($author);
@@ -260,6 +270,9 @@ die();
 		// Update the contact table if the data has changed
 		// Only the "dfrn:owner" in the head section contains all data
 		self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", $contact, false);
+
+		// is it a public forum? Private forums aren't supported by now with this method
+		//$contact["forum"] = intval($xpath->evaluate($element.'/dfrn:community/text()', $context)->item(0)->nodeValue);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 
