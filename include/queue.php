@@ -1,6 +1,7 @@
 <?php
 require_once("boot.php");
 require_once('include/queue_fn.php');
+require_once('include/dfrn.php');
 
 function queue_run(&$argv, &$argc){
 	global $a, $db;
@@ -179,7 +180,7 @@ function queue_run(&$argv, &$argc){
 		switch($contact['network']) {
 			case NETWORK_DFRN:
 				logger('queue: dfrndelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
-				$deliver_status = dfrn_deliver($owner,$contact,$data);
+				$deliver_status = dfrn::deliver($owner,$contact,$data);
 
 				if($deliver_status == (-1)) {
 					update_queue_time($q_item['id']);

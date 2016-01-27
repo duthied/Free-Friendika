@@ -1,6 +1,5 @@
 <?php
 
-require_once('library/simplepie/simplepie.inc');
 require_once('include/items.php');
 require_once('include/event.php');
 
@@ -311,7 +310,7 @@ function dfrn_notify_content(&$a) {
 		$rino = intval($rino);
 		// use RINO1 if mcrypt isn't installed and RINO2 was selected
 		if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
-		
+
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
 		// if requested rino is lower than enabled local rino, lower local rino version

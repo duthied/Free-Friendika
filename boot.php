@@ -530,6 +530,8 @@ class App {
 	private $cached_profile_image;
 	private $cached_profile_picdate;
 
+	private static $a;
+
 	/**
 	 * @brief App constructor.
 	 */
@@ -710,6 +712,8 @@ class App {
 			}
 		}
 
+		self::$a = $this;
+
 	}
 
 	function get_basepath() {
@@ -733,6 +737,10 @@ class App {
 	}
 
 	function get_baseurl($ssl = false) {
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->get_baseurl($ssl));
 
 		$scheme = $this->scheme;
 

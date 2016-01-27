@@ -1121,7 +1121,7 @@ function get_reshared_guid($item) {
 	return $guid;
 }
 
-function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+function xml_create_element($doc, $element, $value = "", $attributes = array()) {
 	$element = $doc->createElement($element, xmlify($value));
 
 	foreach ($attributes AS $key => $value) {
@@ -1129,7 +1129,11 @@ function xml_add_element($doc, $parent, $element, $value = "", $attributes = arr
 		$attribute->value = xmlify($value);
 		$element->appendChild($attribute);
 	}
+	return $element;
+}
 
+function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+	$element = xml_create_element($doc, $element, $value, $attributes);
 	$parent->appendChild($element);
 }
 

@@ -132,8 +132,8 @@ function terminate_friendship($user,$self,$contact) {
 		diaspora_unshare($user,$contact);
 	}
 	elseif($contact['network'] === NETWORK_DFRN) {
-		require_once('include/items.php');
-		dfrn_deliver($user,$contact,'placeholder', 1);
+		require_once('include/dfrn.php');
+		dfrn::deliver($user,$contact,'placeholder', 1);
 	}
 
 }
@@ -208,15 +208,15 @@ function get_contact_details_by_url($url, $uid = -1) {
 	}
 
 	// Fetching further contact data from the contact table
-	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
+	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd`, `self` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` IN ('%s', '')",
 		dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
 	if (!count($r) AND !isset($profile))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd`, `self` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	if (!count($r) AND !isset($profile))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 			dbesc(normalise_link($url)));
 
 	if ($r) {
@@ -228,7 +228,7 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["nick"] = $r[0]["nick"];
 		if (!isset($profile["addr"]) AND $r[0]["addr"])
 			$profile["addr"] = $r[0]["addr"];
-		if (!isset($profile["photo"]) AND $r[0]["photo"])
+		if ((!isset($profile["photo"]) OR $r[0]["self"]) AND $r[0]["photo"])
 			$profile["photo"] = $r[0]["photo"];
 		if (!isset($profile["location"]) AND $r[0]["location"])
 			$profile["location"] = $r[0]["location"];
@@ -246,6 +246,8 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["addr"] = $r[0]["addr"];
 		if (!isset($profile["bd"]) AND $r[0]["bd"])
 			$profile["bd"] = $r[0]["bd"];
+		if (isset($r[0]["thumb"]))
+			$profile["thumb"] = $r[0]["thumb"];
 		if ($r[0]["uid"] == 0)
 			$profile["cid"] = 0;
 		else
@@ -664,5 +666,35 @@ function posts_from_contact($a, $contact_id) {
 		$o .= paginate($a);
 
 	return $o;
+}
+
+/**
+ * @brief Returns a formatted location string from the given profile array
+ *
+ * @param array $profile Profile array (Generated from the "profile" table)
+ *
+ * @return string Location string
+ */
+function formatted_location($profile) {
+	$location = '';
+
+	if($profile['locality'])
+		$location .= $profile['locality'];
+
+	if($profile['region'] AND ($profile['locality'] != $profile['region'])) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['region'];
+	}
+
+	if($profile['country-name']) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['country-name'];
+	}
+
+	return $location;
 }
 ?>
