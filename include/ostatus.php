@@ -176,10 +176,13 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
 
-		/// @todo Add the "addr" field
-		$contact["generation"] = 2;
-		$contact["photo"] = $author["author-avatar"];
-		update_gcontact($contact);
+		// Only update the global contact if it is an OStatus contact
+		if ($contact["network"] == NETWORK_OSTATUS) {
+			/// @todo Add the "addr" field
+			$contact["generation"] = 2;
+			$contact["photo"] = $author["author-avatar"];
+			update_gcontact($contact);
+		}
 	}
 
 	return($author);
@@ -560,7 +563,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
 		$item["id"] = $item_id;
 
-		if ($mention) {
+		if ($mention AND in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_SHARE))) {
 			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
 			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
 
