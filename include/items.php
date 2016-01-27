@@ -1766,6 +1766,12 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		return;
 	}
 
+	// Test - remove before flight
+	//if ($pass < 2) {
+	//	$tempfile = tempnam(get_temppath(), "dfrn-consume-");
+	//	file_put_contents($tempfile, $xml);
+	//}
+
 	require_once('library/simplepie/simplepie.inc');
 	require_once('include/contact_selectors.php');
 
@@ -2470,6 +2476,9 @@ function local_delivery($importer,$data) {
 	$a = get_app();
 
 	logger(__function__, LOGGER_TRACE);
+
+	//$tempfile = tempnam(get_temppath(), "dfrn-local-");
+	//file_put_contents($tempfile, $data);
 
 	if($importer['readonly']) {
 		// We aren't receiving stuff from this person. But we will quietly ignore them
