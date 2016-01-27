@@ -767,6 +767,13 @@ class dfrn {
 
 		xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
 
+		if ($item['object-type'] != "")
+			xml_add_element($doc, $entry, "activity:object-type", $item['object-type']);
+		elseif ($item['id'] == $item['parent'])
+			xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+		else
+			xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
+
 		$actobj = self::create_activity($doc, "activity:object", $item['object']);
 		if ($actobj)
 			$entry->appendChild($actobj);
