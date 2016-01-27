@@ -25,7 +25,48 @@ define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
 define("NS_STATUSNET", "http://status.net/schema/api/1/");
 
 class dfrn2 {
-	function fetchauthor($xpath, $context, $importer, $element, &$contact, $onlyfetch) {
+        /**
+         * @brief Add new birthday event for this person
+         *
+         * @param array $contact Contact record
+         * @param string $birthday Birthday of the contact
+         *
+         */
+	private function birthday_event($contact, $birthday) {
+
+		logger('updating birthday: '.$birthday.' for contact '.$contact['id']);
+
+		$bdtext = sprintf(t('%s\'s birthday'), $contact['name']);
+		$bdtext2 = sprintf(t('Happy Birthday %s'), ' [url=' . $contact['url'].']'.$contact['name'].'[/url]' ) ;
+
+
+		$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
+			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
+			intval($contact['uid']),
+			intval($contact['id']),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert('UTC','UTC', $birthday)),
+			dbesc(datetime_convert('UTC','UTC', $birthday.' + 1 day ')),
+			dbesc($bdtext),
+			dbesc($bdtext2),
+			dbesc('birthday')
+		);
+	}
+
+        /**
+         * @brief Fetch the author data from head or entry items
+         *
+         * @param object $xpath XPath object
+         * @param object $context In which context should the data be searched
+         * @param array $importer Record of the importer contact
+         * @param string $element Element name from which the data is fetched
+         * @param array $contact The updated contact record of the author
+         * @param bool $onlyfetch Should the data only be fetched or should it update the contact record as well
+         *
+	 * @return Returns an array with relevant data of the author
+         */
+	private function fetchauthor($xpath, $context, $importer, $element, &$contact, $onlyfetch) {
 
 		$author = array();
 		$author["name"] = $xpath->evaluate($element.'/atom:name/text()', $context)->item(0)->nodeValue;
@@ -55,6 +96,8 @@ class dfrn2 {
 					$href = $attributes->textContent;
 				if ($attributes->name == "width")
 					$width = $attributes->textContent;
+				if ($attributes->name == "updated")
+					$contact["avatar-date"] = $attributes->textContent;
 			}
 			if (($width > 0) AND ($href != ""))
 				$avatarlist[$width] = $href;
@@ -65,7 +108,26 @@ class dfrn2 {
 		}
 
 		if ($r AND !$onlyfetch) {
+
+			// When was the last change to name or uri?
+			$name_element = $xpath->query($element."/atom:name", $context)->item(0);
+			foreach($name_element->attributes AS $attributes)
+				if ($attributes->name == "updated")
+					$contact["name-date"] = $attributes->textContent;
+
+
+			$link_element = $xpath->query($element."/atom:link", $context)->item(0);
+			foreach($link_element->attributes AS $attributes)
+				if ($attributes->name == "updated")
+					$contact["uri-date"] = $attributes->textContent;
+
+			// is it a public forum? Private forums aren't supported by now with this method
+			$contact["forum"] = intval($xpath->evaluate($element.'/dfrn:community/text()', $context)->item(0)->nodeValue);
+
 			// Update contact data
+			$value = $xpath->evaluate($element.'/dfrn:handle/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["addr"] = $value;
 
 			$value = $xpath->evaluate($element.'/poco:displayName/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
@@ -83,13 +145,54 @@ class dfrn2 {
 			if ($value != "")
 				$contact["location"] = $value;
 
-			/// @todo
-			/// poco:birthday
-			/// poco:utcOffset
-			/// poco:updated
-			/// poco:ims
-			/// poco:tags
+			/// @todo Add support for the following fields that we don't support by now in the contact table:
+			/// - poco:utcOffset
+			/// - poco:ims
+			/// - poco:urls
+			/// - poco:locality
+			/// - poco:region
+			/// - poco:country
 
+			// Save the keywords into the contact table
+			$tags = array();
+			$tagelements = $xpath->evaluate($element.'/poco:tags/text()', $context);
+			foreach($tagelements AS $tag)
+				$tags[$tag->nodeValue] = $tag->nodeValue;
+
+			if (count($tags))
+				$contact["keywords"] = implode(", ", $tags);
+
+			// "dfrn:birthday" contains the birthday converted to UTC
+			$old_bdyear = $contact["bdyear"];
+
+			$birthday = $xpath->evaluate($element.'/dfrn:birthday/text()', $context)->item(0)->nodeValue;
+
+			if (strtotime($birthday) > time()) {
+				$bd_timestamp = strtotime($birthday);
+
+				$contact["bdyear"] = date("Y", $bd_timestamp);
+			}
+
+			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
+			$value = $xpath->evaluate($element.'/poco:birthday/text()', $context)->item(0)->nodeValue;
+
+			if (!in_array($value, array("", "0000-00-00"))) {
+				$bdyear = date("Y");
+				$value = str_replace("0000", $bdyear, $value);
+
+				if (strtotime($value) < time()) {
+					$value = str_replace($bdyear, $bdyear + 1, $value);
+					$bdyear = $bdyear + 1;
+				}
+
+				$contact["bd"] = $value;
+			}
+
+			if ($old_bdyear != $contact["bdyear"])
+				self::birthday_event($contact, $birthday;
+
+print_r($contact);
+die();
 /*
 			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
 
@@ -162,13 +265,7 @@ class dfrn2 {
 
 		$item_id = 0;
 
-		// Reverse the order of the entries
-		$entrylist = array();
-
-		foreach ($entries AS $entry)
-			$entrylist[] = $entry;
-
-		foreach (array_reverse($entrylist) AS $entry) {
+		foreach ($entries AS $entry) {
 
 			$item = $header;
 

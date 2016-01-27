@@ -396,7 +396,6 @@ class dfrn {
 		$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
 		$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
 
-		//xml_add_element($doc, $root, "id", app::get_baseurl()."/profile/".$owner["nick"]);
 		xml_add_element($doc, $root, "id", app::get_baseurl()."/profile/".$owner["nick"]);
 		xml_add_element($doc, $root, "title", $owner["name"]);
 
@@ -409,9 +408,11 @@ class dfrn {
 		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $alternatelink);
 		xml_add_element($doc, $root, "link", "", $attributes);
 
-		ostatus_hublinks($doc, $root);
 
 		if ($public) {
+			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
+			ostatus_hublinks($doc, $root);
+
 			$attributes = array("rel" => "salmon", "href" => app::get_baseurl()."/salmon/".$owner["nick"]);
 			xml_add_element($doc, $root, "link", "", $attributes);
 
@@ -424,6 +425,8 @@ class dfrn {
 
 		if ($owner['page-flags'] == PAGE_COMMUNITY)
 			xml_add_element($doc, $root, "dfrn:community", 1);
+
+		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
 		xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
@@ -727,9 +730,14 @@ class dfrn {
 		xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
 		xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 
+		// "dfrn:env" is used to read the content
 		xml_add_element($doc, $entry, "dfrn:env", base64url_encode($body, true));
+
+		// The "content" field is not read by the receiver. We could remove it when the type is "text"
+		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
 		xml_add_element($doc, $entry, "content", (($type === 'html') ? $htmlbody : $body), array("type" => $type));
 
+		// We save this value in "plink". Maybe we should read it from there as well?
 		xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
 								"href" => app::get_baseurl()."/display/".$item["guid"]));
 
