@@ -10,7 +10,6 @@
 require_once('include/datetime.php');
 require_once("include/Scrape.php");
 require_once("include/html2bbcode.php");
-require_once("include/Contact.php");
 
 /*
  * poco_load
@@ -1553,7 +1552,6 @@ function update_gcontact($contact) {
 		$update = true;
 
 	if ($update) {
-
 		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
 					`birthday` = '%s', `gender` = '%s', `keywords` = %d, `hide` = %d, `nsfw` = %d,
 					`alias` = '%s', `notify` = '%s', `url` = '%s',
