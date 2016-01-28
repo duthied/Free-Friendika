@@ -561,29 +561,6 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
-		$item["id"] = $item_id;
-
-		if ($mention AND in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_SHARE))) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $item["uid"],
-				'item'         => $item,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item_id)),
-				'source_name'  => $item["author-name"],
-				'source_link'  => $item["author-link"],
-				'source_photo' => $item["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
 	}
 }
 
@@ -1027,28 +1004,6 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 		// Add the conversation entry (but don't fetch the whole conversation)
 		ostatus_store_conversation($newitem, $conversation_url);
-
-		if ($mention) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($uid));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($newitem));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $uid,
-				'item'         => $arr,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($newitem)),
-				'source_name'  => $arr["author-name"],
-				'source_link'  => $arr["author-link"],
-				'source_photo' => $arr["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
 
 		// If the newly created item is the top item then change the parent settings of the thread
 		// This shouldn't happen anymore. This is supposed to be absolote.
