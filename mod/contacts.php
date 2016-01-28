@@ -295,7 +295,9 @@ function _contact_update_profile($contact_id) {
 
 	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
 
-	$r = q("UPDATE `contact` SET `photo` = '%s',
+	$r = q("UPDATE `contact` SET
+			`avatar` = '%s',
+			`photo` = '%s',
 			`thumb` = '%s',
 			`micro` = '%s',
 			`name-date` = '%s',
@@ -303,6 +305,7 @@ function _contact_update_profile($contact_id) {
 			`avatar-date` = '%s'
 			WHERE `id` = %d",
 			dbesc($data["photo"]),
+			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),
 			dbesc(datetime_convert()),

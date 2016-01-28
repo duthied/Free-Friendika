@@ -488,9 +488,10 @@ function get_contact($url, $uid = 0) {
 
 	$photos = import_profile_photo($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s',
+	q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s',
 		`addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
 		`name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+		dbesc($data["photo"]),
 		dbesc($photos[0]),
 		dbesc($photos[1]),
 		dbesc($photos[2]),

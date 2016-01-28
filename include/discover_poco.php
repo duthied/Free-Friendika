@@ -222,6 +222,7 @@ function gs_search_user($search) {
 		$contact = probe_url($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
 			$contact["about"] = $user->description;
+			$contact["avatar"] = $contact["photo"];
 			update_gcontact($contact);
 		}
 	}

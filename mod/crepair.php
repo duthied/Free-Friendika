@@ -82,7 +82,9 @@ function crepair_post(&$a) {
 
 		$photos = import_profile_photo($photo,local_user(),$contact['id']);
 
-		$x = q("UPDATE `contact` SET `photo` = '%s',
+		$x = q("UPDATE `contact` SET
+			`avatar` = '%s',
+			`photo` = '%s',
 			`thumb` = '%s',
 			`micro` = '%s',
 			`name-date` = '%s',
@@ -90,6 +92,7 @@ function crepair_post(&$a) {
 			`avatar-date` = '%s'
 			WHERE `id` = %d
 			",
+			dbesc($photo),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),

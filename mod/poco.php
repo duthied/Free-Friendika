@@ -179,6 +179,9 @@ function poco_init(&$a) {
 						$rr['generation'] = 2;
 				}
 
+				if ($rr["avatar"] == "")
+					$rr["avatar"] = $rr["photo"];
+
 				if (($rr['about'] == "") AND isset($rr['pabout']))
 					$rr['about'] = $rr['pabout'];
 
@@ -258,7 +261,7 @@ function poco_init(&$a) {
 					$entry['updated'] = date("c", strtotime($entry['updated']));
 				}
 				if($fields_ret['photos'])
-					$entry['photos'] = array(array('value' => $rr['photo'], 'type' => 'profile'));
+					$entry['photos'] = array(array('value' => $rr['avatar'], 'type' => 'profile'));
 				if($fields_ret['network']) {
 					$entry['network'] = $rr['network'];
 					if ($entry['network'] == NETWORK_STATUSNET)

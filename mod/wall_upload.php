@@ -158,6 +158,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		killme();
 	}
 
+	logger("Check size of picture.", LOGGER_DEBUG);
 	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
 		intval($page_owner_uid)
 	);
@@ -176,6 +177,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	}
 
 
+	logger("Picture will be processed.", LOGGER_DEBUG);
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
@@ -210,6 +212,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 	$defperm = '<' . $default_cid . '>';
 
+	logger("Picture will be stored", LOGGER_DEBUG);
 	$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, t('Wall Photos'), 0, 0, $defperm);
 
 	if(! $r) {
@@ -265,6 +268,8 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		}
 		return $picture;
 	}
+
+	logger("Picture is stored.", LOGGER_DEBUG);
 
 	if ($r_json) {
 	    echo json_encode(array('ok'=>true));

@@ -166,13 +166,13 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 						"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 		}
 
-		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['photo'])) {
+		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
 			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
 			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
 
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-				dbesc($author["author-avatar"]), dbesc($photos[1]), dbesc($photos[2]),
+			q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
+				dbesc($author["author-avatar"]), dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
 				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
 		}
 
@@ -180,7 +180,7 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 		if ($contact["network"] == NETWORK_OSTATUS) {
 			/// @todo Add the "addr" field
 			$contact["generation"] = 2;
-			$contact["photo"] = $author["author-avatar"];
+			$contact["avatar"] = $author["author-avatar"];
 			update_gcontact($contact);
 		}
 	}

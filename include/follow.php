@@ -266,13 +266,16 @@ function new_contact($uid,$url,$interactive = false) {
 
 	$photos = import_profile_photo($ret['photo'],$uid,$contact_id);
 
-	$r = q("UPDATE `contact` SET `photo` = '%s',
+	$r = q("UPDATE `contact` SET
+			`avatar` = '%s',
+			`photo` = '%s',
 			`thumb` = '%s',
 			`micro` = '%s',
 			`name-date` = '%s',
 			`uri-date` = '%s',
 			`avatar-date` = '%s'
 			WHERE `id` = %d",
+			dbesc($ret['photo']),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),

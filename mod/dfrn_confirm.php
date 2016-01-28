@@ -329,6 +329,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				$duplex = 0;
 
 			$r = q("UPDATE `contact` SET
+				`avatar` = '%s',
 				`photo` = '%s',
 				`thumb` = '%s',
 				`micro` = '%s',
@@ -342,6 +343,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				`hidden` = %d,
 				`network` = '%s' WHERE `id` = %d
 			",
+				dbesc($contact['photo']),
 				dbesc($photos[0]),
 				dbesc($photos[1]),
 				dbesc($photos[2]),
@@ -695,6 +697,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$duplex = 0;
 
 		$r = q("UPDATE `contact` SET
+			`avatar` = '%s',
 			`photo` = '%s',
 			`thumb` = '%s',
 			`micro` = '%s',
@@ -709,6 +712,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			`prv` = %d,
 			`network` = '%s' WHERE `id` = %d
 		",
+			dbesc($photo),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),
