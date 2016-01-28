@@ -294,7 +294,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			"alias" => $alias,
 			"name" => $name,
 			"network" => $network,
-			"avatar" => $profile_photo,
+			"photo" => $profile_photo,
 			"about" => $about,
 			"location" => $location,
 			"gender" => $gender,
@@ -1517,7 +1517,7 @@ function update_gcontact($contact) {
 	if (!$gcontact_id)
 		return false;
 
-	$r = q("SELECT `name`, `nick`, `avatar`, `photo`, `thumb`, `micro`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`,
+	$r = q("SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`,
 			`hide`, `nsfw`, `network`, `alias`, `notify`, `server_url`, `connect`, `updated`, `url`
 		FROM `gcontact` WHERE `id` = %d LIMIT 1",
 		intval($gcontact_id));
@@ -1552,37 +1552,15 @@ function update_gcontact($contact) {
 	if ($contact["generation"] < $r[0]["generation"])
 		$update = true;
 
-        if (isset($contact["avatar"]) AND (($contact["avatar"] != $r[0]["avatar"]) OR
-		($r[0]["photo"] == $r[0]["avatar"]) OR ($r[0]["thumb"] == "") OR ($r[0]["micro"] == ""))) {
-
-		$cid = get_contact($contact["url"]);
-
-		// We always store avatar picture with a contact-id.
-		// We don't have a contact-id when we use the gcontact table.
-		// Solution is to use a matching entry in the contact table. (Which is not totally clean)
-		if (($cid == 0) AND isset($contact["uid"]))
-			$cid = get_contact($contact["url"], $contact["uid"]);
-
-		$photos = update_contact_avatar($contact["avatar"], 0, $cid);
-
-		if ($photos) {
-			$contact["photo"] = $photos[0];
-			$contact["thumb"] = $photos[1];
-			$contact["micro"] = $photos[2];
-		}
-	}
-
 	if ($update) {
 
-		q("UPDATE `gcontact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s',
-					`name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
+		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
 					`birthday` = '%s', `gender` = '%s', `keywords` = %d, `hide` = %d, `nsfw` = %d,
 					`alias` = '%s', `notify` = '%s', `url` = '%s',
 					`location` = '%s', `about` = '%s', `generation` = %d, `updated` = '%s',
 					`server_url` = '%s', `connect` = '%s'
 				WHERE `nurl` = '%s' AND (`generation` = 0 OR `generation` >= %d)",
-			dbesc($contact["avatar"]), dbesc($contact["photo"]), dbesc($contact["thumb"]),
-			dbesc($contact["micro"]), dbesc($contact["name"]), dbesc($contact["nick"]),
+			dbesc($contact["photo"]), dbesc($contact["name"]), dbesc($contact["nick"]),
 			dbesc($contact["addr"]), dbesc($contact["network"]), dbesc($contact["birthday"]),
 			dbesc($contact["gender"]), dbesc($contact["keywords"]), intval($contact["hide"]),
 			intval($contact["nsfw"]), dbesc($contact["alias"]), dbesc($contact["notify"]),

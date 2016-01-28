@@ -58,10 +58,8 @@ function gprobe_run(&$argv, &$argc){
 		if (is_null($result))
 			Cache::set("gprobe:".$urlparts["host"],serialize($arr));
 
-		if (!in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
-			$arr["avatar"] = $arr["photo"];
+		if (!in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))
 			update_gcontact($arr);
-		}
 
 		$r = q("SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
 			dbesc(normalise_link($url))

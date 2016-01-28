@@ -80,27 +80,7 @@ function crepair_post(&$a) {
 		logger('mod-crepair: updating photo from ' . $photo);
 		require_once("include/Photo.php");
 
-		$photos = import_profile_photo($photo,local_user(),$contact['id']);
-
-		$x = q("UPDATE `contact` SET
-			`avatar` = '%s',
-			`photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`avatar-date` = '%s'
-			WHERE `id` = %d
-			",
-			dbesc($photo),
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact['id'])
-		);
+		update_contact_avatar($photo,local_user(),$contact['id']);
 	}
 
 	if($r)
