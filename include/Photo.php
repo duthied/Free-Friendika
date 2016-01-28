@@ -720,6 +720,15 @@ function guess_image_type($filename, $fromcurl=false) {
 
 }
 
+/**
+ * @brief Updates the avatar links in a contact only if needed
+ *
+ * @param string $avatar Link to avatar picture
+ * @param int $uid User id of contact owner
+ * @param int $cid Contact id
+ *
+ * @return array Returns array of the different avatar sizes
+ */
 function update_contact_avatar($avatar,$uid,$cid) {
 
 	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
