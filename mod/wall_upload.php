@@ -158,14 +158,18 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		killme();
 	}
 
-	logger("Check size of picture.", LOGGER_DEBUG);
-	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-		intval($page_owner_uid)
-	);
 
 	$limit = service_class_fetch($page_owner_uid,'photo_upload_limit');
 
-	if(($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
+	if ($limit) {
+		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+			intval($page_owner_uid)
+		);
+		$size = $r[0]['total'];
+	} else
+		$size = 0;
+
+	if(($limit !== false) && (($size + strlen($imagedata)) > $limit)) {
 		$msg = upgrade_message(true);
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));
@@ -177,7 +181,6 @@ function wall_upload_post(&$a, $desktopmode = true) {
 	}
 
 
-	logger("Picture will be processed.", LOGGER_DEBUG);
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
@@ -212,7 +215,6 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 	$defperm = '<' . $default_cid . '>';
 
-	logger("Picture will be stored", LOGGER_DEBUG);
 	$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, t('Wall Photos'), 0, 0, $defperm);
 
 	if(! $r) {
@@ -269,7 +271,6 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		return $picture;
 	}
 
-	logger("Picture is stored.", LOGGER_DEBUG);
 
 	if ($r_json) {
 	    echo json_encode(array('ok'=>true));
