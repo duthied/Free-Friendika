@@ -734,7 +734,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$tagged = false;
 
 	foreach ($profiles AS $profile) {
-		if (strpos($item[0]["tag"], "=".$profile."]"))
+		if (strpos($item[0]["tag"], "=".$profile."]") OR strpos($item[0]["body"], "=".$profile."]"))
 			$tagged = true;
 	}
 
