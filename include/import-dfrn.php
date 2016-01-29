@@ -109,6 +109,8 @@ class dfrn2 {
 			$author["avatar"] = current($avatarlist);
 		}
 
+$onlyfetch = true; // Test
+
 		if ($r AND !$onlyfetch) {
 
 			// When was the last change to name or uri?
@@ -186,8 +188,8 @@ class dfrn2 {
 				$contact["bd"] = $value;
 			}
 
-			//if ($old_bdyear != $contact["bdyear"])
-			//	self::birthday_event($contact, $birthday);
+			if ($old_bdyear != $contact["bdyear"])
+				self::birthday_event($contact, $birthday);
 
 			// Get all field names
 			$fields = array();
@@ -214,24 +216,299 @@ class dfrn2 {
 					intval($contact["id"]), dbesc($contact["network"]));
 			}
 
-			if ((isset($author["avatar"]) AND ($author["avatar"] != $r[0]["photo"])) OR
-				($contact["avatar-date"] != $r[0]["avatar-date"])) {
-				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
-
-				$photos = import_profile_photo($author["avatar"], $importer["uid"], $contact["id"]);
-
-				q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-					dbesc($author["avatar"]), dbesc($photos[1]), dbesc($photos[2]),
-					dbesc($contact["avatar-date"]), intval($contact["id"]), dbesc($contact["network"]));
-			}
+			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"], ($contact["avatar-date"] != $r[0]["avatar-date"]));
 
 			$contact["generation"] = 2;
 			$contact["photo"] = $author["avatar"];
-			print_r($contact);
 			update_gcontact($contact);
 		}
 
 		return($author);
+	}
+
+	private function transform_activity($xpath, $activity, $element) {
+		if (!is_object($activity))
+			return "";
+
+		$obj_doc = new DOMDocument('1.0', 'utf-8');
+		$obj_doc->formatOutput = true;
+
+		$obj_element = $obj_doc->createElementNS(NS_ATOM, $element);
+
+		$activity_type = $xpath->query('activity:object-type/text()', $activity)->item(0)->nodeValue;
+		xml_add_element($obj_doc, $obj_element, "type", $activity_type);
+
+		$id = $xpath->query('atom:id', $activity)->item(0);
+		if (is_object($id))
+			$obj_element->appendChild($obj_doc->importNode($id, true));
+
+		$title = $xpath->query('atom:title', $activity)->item(0);
+		if (is_object($title))
+			$obj_element->appendChild($obj_doc->importNode($title, true));
+
+		$link = $xpath->query('atom:link', $activity)->item(0);
+		if (is_object($link))
+			$obj_element->appendChild($obj_doc->importNode($link, true));
+
+		$content = $xpath->query('atom:content', $activity)->item(0);
+		if (is_object($content))
+			$obj_element->appendChild($obj_doc->importNode($content, true));
+
+		$obj_doc->appendChild($obj_element);
+
+		$objxml = $obj_doc->saveXML($obj_element);
+
+		// @todo This isn't totally clean. We should find a way to transform the namespaces
+		$objxml = str_replace('<'.$element.' xmlns="http://www.w3.org/2005/Atom">', "<".$element.">", $objxml);
+		return($objxml);
+	}
+
+	private function process_mail($header, $xpath, $mail, $importer, $contact) {
+
+		$msg = array();
+		$msg["uid"] = $importer['importer_uid'];
+		$msg["from-name"] = $xpath->query('dfrn:sender/dfrn:name/text()', $mail)->item(0)->nodeValue;
+		$msg["from-url"] = $xpath->query('dfrn:sender/dfrn:uri/text()', $mail)->item(0)->nodeValue;
+		$msg["from-photo"] = $xpath->query('dfrn:sender/dfrn:avatar/text()', $mail)->item(0)->nodeValue;
+                $msg["contact-id"] = $importer["id"];
+		$msg["uri"] = $xpath->query('dfrn:id/text()', $mail)->item(0)->nodeValue;
+		$msg["parent-uri"] = $xpath->query('dfrn:in-reply-to/text()', $mail)->item(0)->nodeValue;
+		$msg["created"] = $xpath->query('dfrn:sentdate/text()', $mail)->item(0)->nodeValue;
+		$msg["title"] = $xpath->query('dfrn:subject/text()', $mail)->item(0)->nodeValue;
+		$msg["body"] = $xpath->query('dfrn:content/text()', $mail)->item(0)->nodeValue;
+                $msg["seen"] = 0;
+                $msg["replied"] = 0;
+
+		dbesc_array($msg);
+
+                //$r = dbq("INSERT INTO `mail` (`" . implode("`, `", array_keys($msg))
+                //        . "`) VALUES ('" . implode("', '", array_values($msg)) . "')" );
+
+print_r($msg);
+
+                // send notifications.
+
+                require_once('include/enotify.php');
+
+                $notif_params = array(
+                        'type' => NOTIFY_MAIL,
+                        'notify_flags' => $importer['notify-flags'],
+                        'language' => $importer['language'],
+                        'to_name' => $importer['username'],
+                        'to_email' => $importer['email'],
+                        'uid' => $importer['importer_uid'],
+                        'item' => $msg,
+                        'source_name' => $msg['from-name'],
+                        'source_link' => $importer['url'],
+                        'source_photo' => $importer['thumb'],
+                        'verb' => ACTIVITY_POST,
+                        'otype' => 'mail'
+                );
+
+//                notification($notif_params);
+print_r($notif_params);
+
+	}
+
+	private function process_suggestion($header, $xpath, $suggestion, $importer, $contact) {
+	}
+
+	private function process_relocation($header, $xpath, $relocation, $importer, $contact) {
+	}
+
+	private function process_entry($header, $xpath, $entry, $importer, $contact) {
+		$item = $header;
+
+		// Fetch the owner
+		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", $contact, true);
+
+		$item["owner-name"] = $owner["name"];
+		$item["owner-link"] = $owner["link"];
+		$item["owner-avatar"] = $owner["avatar"];
+
+		if ($header["contact-id"] != $owner["contact-id"])
+			$item["contact-id"] = $owner["contact-id"];
+
+		if (($header["network"] != $owner["network"]) AND ($owner["network"] != ""))
+			$item["network"] = $owner["network"];
+
+		// fetch the author
+		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", $contact, true);
+
+		$item["author-name"] = $author["name"];
+		$item["author-link"] = $author["link"];
+		$item["author-avatar"] = $author["avatar"];
+
+		if ($header["contact-id"] != $author["contact-id"])
+			$item["contact-id"] = $author["contact-id"];
+
+		if (($header["network"] != $author["network"]) AND ($author["network"] != ""))
+			$item["network"] = $author["network"];
+
+		// Now get the item
+		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+			intval($importer["uid"]), dbesc($item["uri"]));
+		if ($r) {
+			//logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+			//return false;
+		}
+
+		// Is it a reply?
+		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
+		if (is_object($inreplyto->item(0))) {
+			$objecttype = ACTIVITY_OBJ_COMMENT;
+			$item["type"] = 'remote-comment';
+			$item["gravity"] = GRAVITY_COMMENT;
+
+			foreach($inreplyto->item(0)->attributes AS $attributes) {
+				if ($attributes->name == "ref")
+					$item["parent-uri"] = $attributes->textContent;
+			}
+		} else {
+			$objecttype = ACTIVITY_OBJ_NOTE;
+			$item["parent-uri"] = $item["uri"];
+		}
+
+		$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
+
+		$item["created"] = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
+		$item["edited"] = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
+
+		$item["body"] = $xpath->query('dfrn:env/text()', $entry)->item(0)->nodeValue;
+		$item["body"] = str_replace(array(' ',"\t","\r","\n"), array('','','',''),$item["body"]);
+		// make sure nobody is trying to sneak some html tags by us
+		$item["body"] = notags(base64url_decode($item["body"]));
+
+		$item["body"] = limit_body_size($item["body"]);
+
+		/// @todo Do we need the old check for HTML elements?
+
+		// We don't need the content element since "dfrn:env" is always present
+		//$item["body"] = $xpath->query('atom:content/text()', $entry)->item(0)->nodeValue;
+
+		$item["last-child"] = $xpath->query('dfrn:comment-allow/text()', $entry)->item(0)->nodeValue;
+		$item["location"] = $xpath->query('dfrn:location/text()', $entry)->item(0)->nodeValue;
+
+		$georsspoint = $xpath->query('georss:point', $entry);
+		if ($georsspoint)
+			$item["coord"] = $georsspoint->item(0)->nodeValue;
+
+		$item["private"] = $xpath->query('dfrn:private/text()', $entry)->item(0)->nodeValue;
+
+		$item["extid"] = $xpath->query('dfrn:extid/text()', $entry)->item(0)->nodeValue;
+
+		if ($xpath->query('dfrn:extid/text()', $entry)->item(0)->nodeValue == "true")
+			$item["bookmark"] = true;
+
+		$notice_info = $xpath->query('statusnet:notice_info', $entry);
+		if ($notice_info AND ($notice_info->length > 0)) {
+			foreach($notice_info->item(0)->attributes AS $attributes) {
+				if ($attributes->name == "source")
+					$item["app"] = strip_tags($attributes->textContent);
+			}
+		}
+
+		$item["guid"] = $xpath->query('dfrn:diaspora_guid/text()', $entry)->item(0)->nodeValue;
+
+		// We store the data from "dfrn:diaspora_signature" in a later step. See some lines below
+		$signature = $xpath->query('dfrn:diaspora_signature/text()', $entry)->item(0)->nodeValue;
+
+		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
+
+		if ($xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue != "")
+			$objecttype = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+
+		$item["object-type"] = $objecttype;
+
+		// I have the feeling that we don't do anything with this data
+		$object = $xpath->query('activity:object', $entry)->item(0);
+		$item["object"] = self::transform_activity($xpath, $object, "object");
+
+		// Could someone explain what this is for?
+		$target = $xpath->query('activity:target', $entry)->item(0);
+		$item["target"] = self::transform_activity($xpath, $target, "target");
+
+		$categories = $xpath->query('atom:category', $entry);
+		if ($categories) {
+			foreach ($categories AS $category) {
+				foreach($category->attributes AS $attributes)
+					if ($attributes->name == "term") {
+						$term = $attributes->textContent;
+						if(strlen($item["tag"]))
+							$item["tag"] .= ',';
+
+						$item["tag"] .= "#[url=".$a->get_baseurl()."/search?tag=".$term."]".$term."[/url]";
+					}
+			}
+		}
+
+		$enclosure = "";
+
+		$links = $xpath->query('atom:link', $entry);
+		if ($links) {
+			$rel = "";
+			$href = "";
+			$type = "";
+			$length = "0";
+			$title = "";
+			foreach ($links AS $link) {
+				foreach($link->attributes AS $attributes) {
+					if ($attributes->name == "href")
+						$href = $attributes->textContent;
+					if ($attributes->name == "rel")
+						$rel = $attributes->textContent;
+					if ($attributes->name == "type")
+						$type = $attributes->textContent;
+					if ($attributes->name == "length")
+						$length = $attributes->textContent;
+					if ($attributes->name == "title")
+						$title = $attributes->textContent;
+				}
+				if (($rel != "") AND ($href != ""))
+					switch($rel) {
+						case "alternate":
+							$item["plink"] = $href;
+							break;
+						case "enclosure":
+							$enclosure = $href;
+							if(strlen($item["attach"]))
+								$item["attach"] .= ',';
+
+							$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
+							break;
+					}
+			}
+		}
+
+		print_r($item);
+		//$item_id = item_store($item);
+
+		return;
+
+		if (!$item_id) {
+			logger("Error storing item", LOGGER_DEBUG);
+			return false;
+		} else {
+			logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
+
+			if ($signature) {
+				$signature = json_decode(base64_decode($signature));
+
+				// Check for falsely double encoded signatures
+				$signature->signature = diaspora_repair_signature($signature->signature, $signature->signer);
+
+				// Store it in the "sign" table where we will read it for comments that we relay to Diaspora
+				q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
+					intval($item_id),
+					dbesc($signature->signed_text),
+					dbesc($signature->signature),
+					dbesc($signature->signer)
+				);
+			}
+		}
+		return $item_id;
 	}
 
 	function import($xml,$importer,&$contact, &$hub) {
@@ -269,218 +546,32 @@ class dfrn2 {
 
 		// Update the contact table if the data has changed
 		// Only the "dfrn:owner" in the head section contains all data
-		self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", $contact, false);
+		$dfrn_owner = self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", $contact, false);
 
 		// is it a public forum? Private forums aren't supported by now with this method
-		//$contact["forum"] = intval($xpath->evaluate($element.'/dfrn:community/text()', $context)->item(0)->nodeValue);
+		$forum = intval($xpath->evaluate('/atom:feed/dfrn:community/text()', $context)->item(0)->nodeValue);
+
+		if ($forum AND ($dfrn_owner["contact-id"] != 0))
+			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
+				intval($forum), intval($forum),
+				intval($dfrn_owner["contact-id"])
+			);
+
+		$mails = $xpath->query('/atom:feed/dfrn:mail');
+		foreach ($mails AS $mail)
+			self::process_mail($header, $xpath, $mail, $importer, $contact);
+
+		$suggestions = $xpath->query('/atom:feed/dfrn:suggest');
+		foreach ($suggestions AS $suggestion)
+			self::process_suggestion($header, $xpath, $suggestion, $importer, $contact);
+
+		$relocations = $xpath->query('/atom:feed/dfrn:relocate');
+		foreach ($relocations AS $relocation)
+			self::process_relocation($header, $xpath, $relocation, $importer, $contact);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
-
-		$item_id = 0;
-
-		foreach ($entries AS $entry) {
-
-			$item = $header;
-
-			$mention = false;
-
-			// Fetch the owner
-			$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", $contact, true);
-
-			$item["owner-name"] = $owner["name"];
-			$item["owner-link"] = $owner["link"];
-			$item["owner-avatar"] = $owner["avatar"];
-
-			if ($header["contact-id"] != $owner["contact-id"])
-				$item["contact-id"] = $owner["contact-id"];
-
-			if (($header["network"] != $owner["network"]) AND ($owner["network"] != ""))
-				$item["network"] = $owner["network"];
-
-			// fetch the author
-			$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", $contact, true);
-
-			$item["author-name"] = $author["name"];
-			$item["author-link"] = $author["link"];
-			$item["author-avatar"] = $author["avatar"];
-
-			if ($header["contact-id"] != $author["contact-id"])
-				$item["contact-id"] = $author["contact-id"];
-
-			if (($header["network"] != $author["network"]) AND ($author["network"] != ""))
-				$item["network"] = $author["network"];
-
-			// Now get the item
-			$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
-
-			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-				intval($importer["uid"]), dbesc($item["uri"]));
-			if ($r) {
-				//logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-				//continue;
-			}
-
-			// Is it a reply?
-			$inreplyto = $xpath->query('thr:in-reply-to', $entry);
-			if (is_object($inreplyto->item(0))) {
-				$objecttype = ACTIVITY_OBJ_COMMENT;
-				$item["type"] = 'remote-comment';
-				$item["gravity"] = GRAVITY_COMMENT;
-
-				foreach($inreplyto->item(0)->attributes AS $attributes) {
-					if ($attributes->name == "ref")
-						$item["parent-uri"] = $attributes->textContent;
-				}
-			} else {
-				$objecttype = ACTIVITY_OBJ_NOTE;
-				$item["parent-uri"] = $item["uri"];
-			}
-
-			$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
-
-			$item["created"] = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
-			$item["edited"] = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
-
-			$item["body"] = $xpath->query('dfrn:env/text()', $entry)->item(0)->nodeValue;
-			$item["body"] = str_replace(array(' ',"\t","\r","\n"), array('','','',''),$item["body"]);
-			// make sure nobody is trying to sneak some html tags by us
-			$item["body"] = notags(base64url_decode($item["body"]));
-
-			$item["body"] = limit_body_size($item["body"]);
-
-			/// @todo Do we need the old check for HTML elements?
-
-			// We don't need the content element since "dfrn:env" is always present
-			//$item["body"] = $xpath->query('atom:content/text()', $entry)->item(0)->nodeValue;
-
-			$item["last-child"] = $xpath->query('dfrn:comment-allow/text()', $entry)->item(0)->nodeValue;
-			$item["location"] = $xpath->query('dfrn:location/text()', $entry)->item(0)->nodeValue;
-
-			$georsspoint = $xpath->query('georss:point', $entry);
-			if ($georsspoint)
-				$item["coord"] = $georsspoint->item(0)->nodeValue;
-
-			$item["private"] = $xpath->query('dfrn:private/text()', $entry)->item(0)->nodeValue;
-
-			$item["extid"] = $xpath->query('dfrn:extid/text()', $entry)->item(0)->nodeValue;
-
-			if ($xpath->query('dfrn:extid/text()', $entry)->item(0)->nodeValue == "true")
-				$item["bookmark"] = true;
-
-			$notice_info = $xpath->query('statusnet:notice_info', $entry);
-			if ($notice_info AND ($notice_info->length > 0)) {
-				foreach($notice_info->item(0)->attributes AS $attributes) {
-					if ($attributes->name == "source")
-						$item["app"] = strip_tags($attributes->textContent);
-				}
-			}
-
-			$item["guid"] = $xpath->query('dfrn:diaspora_guid/text()', $entry)->item(0)->nodeValue;
-
-			// dfrn:diaspora_signature
-
-			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
-
-			if ($xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue != "")
-				$objecttype = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
-
-			$item["object-type"] = $objecttype;
-
-			// activity:object
-
-			// activity:target
-
-			$categories = $xpath->query('atom:category', $entry);
-			if ($categories) {
-				foreach ($categories AS $category) {
-					foreach($category->attributes AS $attributes)
-						if ($attributes->name == "term") {
-							$term = $attributes->textContent;
-							if(strlen($item["tag"]))
-							$item["tag"] .= ',';
-							$item["tag"] .= "#[url=".$a->get_baseurl()."/search?tag=".$term."]".$term."[/url]";
-						}
-				}
-			}
-
-			$enclosure = "";
-
-			$links = $xpath->query('atom:link', $entry);
-			if ($links) {
-				$rel = "";
-				$href = "";
-				$type = "";
-				$length = "0";
-				$title = "";
-				foreach ($links AS $link) {
-					foreach($link->attributes AS $attributes) {
-						if ($attributes->name == "href")
-							$href = $attributes->textContent;
-						if ($attributes->name == "rel")
-							$rel = $attributes->textContent;
-						if ($attributes->name == "type")
-							$type = $attributes->textContent;
-						if ($attributes->name == "length")
-							$length = $attributes->textContent;
-						if ($attributes->name == "title")
-							$title = $attributes->textContent;
-					}
-					if (($rel != "") AND ($href != ""))
-						switch($rel) {
-							case "alternate":
-								$item["plink"] = $href;
-								break;
-							case "enclosure":
-								$enclosure = $href;
-								if(strlen($item["attach"]))
-									$item["attach"] .= ',';
-
-								$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
-								break;
-							case "mentioned":
-								// Notification check
-								if ($importer["nurl"] == normalise_link($href))
-									$mention = true;
-								break;
-						}
-				}
-			}
-
-			print_r($item);
-/*
-			if (!$item_id) {
-				logger("Error storing item", LOGGER_DEBUG);
-				continue;
-			}
-
-			logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
-			$item["id"] = $item_id;
-*/
-
-/*
-			if ($mention) {
-				$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
-				$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
-
-				notification(array(
-					'type'         => NOTIFY_TAGSELF,
-					'notify_flags' => $u[0]["notify-flags"],
-					'language'     => $u[0]["language"],
-					'to_name'      => $u[0]["username"],
-					'to_email'     => $u[0]["email"],
-					'uid'          => $item["uid"],
-					'item'         => $item,
-					'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item_id)),
-					'source_name'  => $item["author-name"],
-					'source_link'  => $item["author-link"],
-					'source_photo' => $item["author-avatar"],
-					'verb'         => ACTIVITY_TAG,
-					'otype'        => 'item',
-					'parent'       => $r[0]["parent"]
-				));
-			}
-*/
-		}
+		foreach ($entries AS $entry)
+			self::process_entry($header, $xpath, $entry, $importer, $contact);
 	}
 }
 ?>

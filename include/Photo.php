@@ -726,10 +726,11 @@ function guess_image_type($filename, $fromcurl=false) {
  * @param string $avatar Link to avatar picture
  * @param int $uid User id of contact owner
  * @param int $cid Contact id
+ * @param bool $force force picture update
  *
  * @return array Returns array of the different avatar sizes
  */
-function update_contact_avatar($avatar,$uid,$cid) {
+function update_contact_avatar($avatar,$uid,$cid, $force = false) {
 
 	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 	if (!$r)
@@ -737,7 +738,7 @@ function update_contact_avatar($avatar,$uid,$cid) {
 	else
 		$data = array($r[0]["photo"], $r[0]["thumb"], $r[0]["micro"]);
 
-	if ($r[0]["avatar"] != $avatar) {
+	if (($r[0]["avatar"] != $avatar) OR $force) {
 		$photos = import_profile_photo($avatar,$uid,$cid, true);
 
 		if ($photos) {
