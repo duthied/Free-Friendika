@@ -972,7 +972,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// The contact-id should be set before "item_store" was called - but there seems to be some issues
 	if ($arr["contact-id"] == 0) {
 		// First we are looking for a suitable contact that matches with the author of the post
-		$arr["contact-id"] = get_contact($arr['author-link'], $uid);
+		// This is done only for comments (See below explanation at "gcontact-id")
+		if($arr['parent-uri'] != $arr['uri'])
+			$arr["contact-id"] = get_contact($arr['author-link'], $uid);
 
 		// If not present then maybe the owner was found
 		if ($arr["contact-id"] == 0)
@@ -984,12 +986,20 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			if ($r)
 				$arr["contact-id"] = $r[0]["id"];
 		}
-		logger("Contact-id was missing for post ".$arr["guid"]." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
+		logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
 	}
 
-	if ($arr["gcontact-id"] == 0)
-		$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
-							 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
+	if ($arr["gcontact-id"] == 0) {
+		// The gcontact should mostly behave like the contact. But is is supposed to be global for the system.
+		// This means that wall posts, repeated posts, etc. should have the gcontact id of the owner.
+		// On comments the author is the better choice.
+		if($arr['parent-uri'] === $arr['uri'])
+			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['owner-link'], "network" => $arr['network'],
+								 "photo" => $arr['owner-avatar'], "name" => $arr['owner-name']));
+		else
+			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
+								 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
+	}
 
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid
