@@ -638,9 +638,14 @@ function notification($params) {
  *
  * @param int $itemid ID of the item for which the check should be done
  * @param int $uid User ID
- * @param str $profile (Optional) Can be used for connector post. Otherwise empty.
+ * @param str $defaulttype (Optional) Forces a notification with this type.
  */
-function check_item_notification($itemid, $uid, $profile = "", $defaulttype = "") {
+function check_item_notification($itemid, $uid, $defaulttype = "") {
+
+	$notification_data = array("uid" => $uid, "profiles" => array());
+	call_hooks('check_item_notification', $notification_data);
+
+	$profiles = $notification_data["profiles"];
 
 	$user = q("SELECT `notify-flags`, `language`, `username`, `email` FROM `user` WHERE `uid` = %d", intval($uid));
 	if (!$user)
@@ -649,22 +654,36 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	$owner = q("SELECT `id`, `url` FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1", intval($uid));
 	if (!$owner)
 		return false;
-	$local_profile = $owner[0]["url"];
 
-	if ($profile == "")
-		$profile = $local_profile;
+	$profiles[] = $owner[0]["url"];
 
-	$profile = normalise_link($profile);
+	$profiles2 = array();
 
-	$profile_ssl = str_replace("http://", "https://", normalise_link($profile));
+	foreach ($profiles AS $profile) {
+		$profiles2[] = normalise_link($profile);
+		$profiles2[] = str_replace("http://", "https://", normalise_link($profile));
+	}
+
+	$profiles = $profiles2;
+
+	$profile_list = "";
+
+	foreach ($profiles AS $profile) {
+		if ($profile_list != "")
+			$profile_list .= "', '";
+
+		$profile_list .= dbesc($profile);
+	}
+
+	$profile_list = "'".$profile_list."'";
 
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
 	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-name`, `author-link`, `author-avatar`, `guid`,
 			`parent-uri`, `uri`, `contact-id`
 			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
-				NOT (`author-link` IN ('%s', '%s', '%s'))  LIMIT 1",
-		intval($itemid), dbesc(ACTIVITY_POST), dbesc($profile), dbesc($profile_ssl), dbesc($local_profile));
+				NOT (`author-link` IN ($profile_list))  LIMIT 1",
+		intval($itemid), dbesc(ACTIVITY_POST));
 	if (!$item)
 		return false;
 
@@ -712,8 +731,14 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	}
 
 	// Is the user mentioned in this post?
-	if ($item[0]["mention"] OR strpos($item[0]["tag"], "=".$profile."]") OR strpos($item[0]["tag"], "=".$profile_ssl."]") OR
-		strpos($item[0]["tag"], "=".$local_profile."]")  OR ($defaulttype == NOTIFY_TAGSELF)) {
+	$tagged = false;
+
+	foreach ($profiles AS $profile) {
+		if (strpos($item[0]["tag"], "=".$profile."]"))
+			$tagged = true;
+	}
+
+	if ($item[0]["mention"] OR $tagged OR ($defaulttype == NOTIFY_TAGSELF)) {
 		$params["type"] = NOTIFY_TAGSELF;
 		$params["verb"] = ACTIVITY_TAG;
 	}
@@ -721,10 +746,10 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	// Is it a post that the user had started or where he interacted?
 	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
 			WHERE `thread`.`iid` = %d AND `thread`.`uid` = %d AND NOT `thread`.`ignored` AND
-				(`thread`.`mention` OR `item`.`author-link` IN ('%s', '%s', '%s'))
+				(`thread`.`mention` OR `item`.`author-link` IN ($profile_list))
 			LIMIT 1",
-			intval($item[0]["parent"]), intval($uid),
-			dbesc($profile), dbesc($profile_ssl), dbesc($local_profile));
+			intval($item[0]["parent"]), intval($uid));
+
 	if ($parent AND !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
 		$params["verb"] = ACTIVITY_POST;
