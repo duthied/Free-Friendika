@@ -127,7 +127,8 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	$author["owner-link"] = $author["author-link"];
 	$author["owner-avatar"] = $author["author-avatar"];
 
-	if ($r AND !$onlyfetch) {
+	// Only update the contacts if it is an OStatus contact
+	if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
 		// Update contact data
 
 		$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
@@ -158,31 +159,25 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+				dbesc(datetime_convert()), intval($contact["id"]));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
 						"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 		}
 
-		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['photo'])) {
+		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
 			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
-			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
-
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-				dbesc($author["author-avatar"]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+			update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 		}
 
-		// Only update the global contact if it is an OStatus contact
-		if ($contact["network"] == NETWORK_OSTATUS) {
-			/// @todo Add the "addr" field
-			$contact["generation"] = 2;
-			$contact["photo"] = $author["author-avatar"];
-			update_gcontact($contact);
-		}
+
+		/// @todo Add the "addr" field
+		$contact["generation"] = 2;
+		$contact["photo"] = $author["author-avatar"];
+		update_gcontact($contact);
 	}
 
 	return($author);
@@ -561,29 +556,6 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
-		$item["id"] = $item_id;
-
-		if ($mention AND in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_SHARE))) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $item["uid"],
-				'item'         => $item,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item_id)),
-				'source_name'  => $item["author-name"],
-				'source_link'  => $item["author-link"],
-				'source_photo' => $item["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
 	}
 }
 
@@ -1027,28 +999,6 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 		// Add the conversation entry (but don't fetch the whole conversation)
 		ostatus_store_conversation($newitem, $conversation_url);
-
-		if ($mention) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($uid));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($newitem));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $uid,
-				'item'         => $arr,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($newitem)),
-				'source_name'  => $arr["author-name"],
-				'source_link'  => $arr["author-link"],
-				'source_photo' => $arr["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
 
 		// If the newly created item is the top item then change the parent settings of the thread
 		// This shouldn't happen anymore. This is supposed to be absolote.

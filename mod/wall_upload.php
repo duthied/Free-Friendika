@@ -158,13 +158,18 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		killme();
 	}
 
-	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-		intval($page_owner_uid)
-	);
 
 	$limit = service_class_fetch($page_owner_uid,'photo_upload_limit');
 
-	if(($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
+	if ($limit) {
+		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+			intval($page_owner_uid)
+		);
+		$size = $r[0]['total'];
+	} else
+		$size = 0;
+
+	if(($limit !== false) && (($size + strlen($imagedata)) > $limit)) {
 		$msg = upgrade_message(true);
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));
@@ -265,6 +270,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 		}
 		return $picture;
 	}
+
 
 	if ($r_json) {
 	    echo json_encode(array('ok'=>true));

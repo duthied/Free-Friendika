@@ -293,23 +293,8 @@ function _contact_update_profile($contact_id) {
 		intval(local_user())
 	);
 
-	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
-
-	$r = q("UPDATE `contact` SET `photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`avatar-date` = '%s'
-			WHERE `id` = %d",
-			dbesc($data["photo"]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_id)
-		);
+	// Update the entry in the contact table
+	update_contact_avatar($data['photo'], local_user(), $contact_id);
 
 	// Update the entry in the gcontact table
 	update_gcontact_from_probe($data["url"]);

@@ -264,24 +264,8 @@ function new_contact($uid,$url,$interactive = false) {
 
 	require_once("include/Photo.php");
 
-	$photos = import_profile_photo($ret['photo'],$uid,$contact_id);
-
-	$r = q("UPDATE `contact` SET `photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`avatar-date` = '%s'
-			WHERE `id` = %d",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_id)
-		);
-
+	// Update the avatar
+	update_contact_avatar($ret['photo'],$uid,$contact_id);
 
 	// pull feed and consume it, which should subscribe to the hub.
 

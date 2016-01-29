@@ -486,19 +486,14 @@ function get_contact($url, $uid = 0) {
 
 	require_once("Photo.php");
 
-	$photos = import_profile_photo($data["photo"],$uid,$contactid);
+	update_contact_avatar($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s',
-		`addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-		`name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
-		dbesc($photos[0]),
-		dbesc($photos[1]),
-		dbesc($photos[2]),
+	q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+		`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
 		dbesc($data["addr"]),
 		dbesc($data["alias"]),
 		dbesc($data["name"]),
 		dbesc($data["nick"]),
-		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		intval($contactid)
