@@ -16,6 +16,7 @@ require_once('include/ostatus.php');
 require_once('include/feed.php');
 require_once('include/Contact.php');
 require_once('mod/share.php');
+require_once('include/enotify.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
@@ -1313,66 +1314,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	create_files_from_item($current_post);
 
 	// Only check for notifications on start posts
-	if ($arr['parent-uri'] === $arr['uri']) {
+	if ($arr['parent-uri'] === $arr['uri'])
 		add_thread($current_post);
-		logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-
-		// Send a notification for every new post?
-		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-			intval($arr['contact-id']),
-			intval($arr['uid'])
-		);
-		$send_notification = count($r);
-
-		if (!$send_notification) {
-			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
-				intval(TERM_OBJ_POST), intval($current_post), intval(TERM_MENTION), intval($arr['uid']));
-
-			if (count($tags)) {
-				foreach ($tags AS $tag) {
-					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
-						normalise_link($tag["url"]), intval($arr['uid']));
-					if (count($r))
-						$send_notification = true;
-				}
-			}
-		}
-
-		if ($send_notification) {
-			logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-			$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
-				intval($arr['uid']));
-
-			$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
-				intval($current_post),
-				intval($arr['uid'])
-			);
-
-			$a = get_app();
-
-			require_once('include/enotify.php');
-			notification(array(
-				'type'         => NOTIFY_SHARE,
-				'notify_flags' => $u[0]['notify-flags'],
-				'language'     => $u[0]['language'],
-				'to_name'      => $u[0]['username'],
-				'to_email'     => $u[0]['email'],
-				'uid'          => $u[0]['uid'],
-				'item'         => $item[0],
-				'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
-				'source_name'  => $item[0]['author-name'],
-				'source_link'  => $item[0]['author-link'],
-				'source_photo' => $item[0]['author-avatar'],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $arr['parent']
-			));
-			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-		}
-	} else {
+	else {
 		update_thread($parent_id);
 		add_shadow_entry($arr);
 	}
+
+	check_item_notification($current_post, $uid);
 
 	if ($notify)
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
@@ -1568,37 +1517,6 @@ function tag_deliver($uid,$item_id) {
 		}
 		return;
 	}
-
-
-	// send a notification
-
-	// use a local photo if we have one
-
-	$r = q("select * from contact where uid = %d and nurl = '%s' limit 1",
-		intval($u[0]['uid']),
-		dbesc(normalise_link($item['author-link']))
-	);
-	$photo = (($r && count($r)) ? $r[0]['thumb'] : $item['author-avatar']);
-
-
-	require_once('include/enotify.php');
-	notification(array(
-		'type'         => NOTIFY_TAGSELF,
-		'notify_flags' => $u[0]['notify-flags'],
-		'language'     => $u[0]['language'],
-		'to_name'      => $u[0]['username'],
-		'to_email'     => $u[0]['email'],
-		'uid'          => $u[0]['uid'],
-		'item'         => $item,
-		'link'         => $a->get_baseurl() . '/display/'.urlencode(get_item_guid($item['id'])),
-		'source_name'  => $item['author-name'],
-		'source_link'  => $item['author-link'],
-		'source_photo' => $photo,
-		'verb'         => ACTIVITY_TAG,
-		'otype'        => 'item',
-		'parent'       => $item['parent']
-	));
-
 
 	$arr = array('item' => $item, 'user' => $u[0], 'contact' => $r[0]);
 
@@ -3245,33 +3163,7 @@ function local_delivery($importer,$data) {
 					}
 
 					if($posted_id && $parent) {
-
 						proc_run('php',"include/notifier.php","comment-import","$posted_id");
-
-						if((! $is_like) && (! $importer['self'])) {
-
-							require_once('include/enotify.php');
-
-							notification(array(
-								'type'         => NOTIFY_COMMENT,
-								'notify_flags' => $importer['notify-flags'],
-								'language'     => $importer['language'],
-								'to_name'      => $importer['username'],
-								'to_email'     => $importer['email'],
-								'uid'          => $importer['importer_uid'],
-								'item'         => $datarray,
-								'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
-								'source_name'  => stripslashes($datarray['author-name']),
-								'source_link'  => $datarray['author-link'],
-								'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
-									? $importer['thumb'] : $datarray['author-avatar']),
-								'verb'         => ACTIVITY_POST,
-								'otype'        => 'item',
-								'parent'       => $parent,
-								'parent_uri'   => $parent_uri,
-							));
-
-						}
 					}
 
 					return 0;
@@ -3393,59 +3285,6 @@ function local_delivery($importer,$data) {
 
 				$posted_id = item_store($datarray);
 
-				// find out if our user is involved in this conversation and wants to be notified.
-
-				if(!x($datarray['type']) || $datarray['type'] != 'activity') {
-
-					$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0",
-						dbesc($top_uri),
-						intval($importer['importer_uid'])
-					);
-
-					if(count($myconv)) {
-						$importer_url = $a->get_baseurl() . '/profile/' . $importer['nickname'];
-
-						// first make sure this isn't our own post coming back to us from a wall-to-wall event
-						if(! link_compare($datarray['author-link'],$importer_url)) {
-
-
-							foreach($myconv as $conv) {
-
-								// now if we find a match, it means we're in this conversation
-
-								if(! link_compare($conv['author-link'],$importer_url))
-									continue;
-
-								require_once('include/enotify.php');
-
-								$conv_parent = $conv['parent'];
-
-								notification(array(
-									'type'         => NOTIFY_COMMENT,
-									'notify_flags' => $importer['notify-flags'],
-									'language'     => $importer['language'],
-									'to_name'      => $importer['username'],
-									'to_email'     => $importer['email'],
-									'uid'          => $importer['importer_uid'],
-									'item'         => $datarray,
-									'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
-									'source_name'  => stripslashes($datarray['author-name']),
-									'source_link'  => $datarray['author-link'],
-									'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
-										? $importer['thumb'] : $datarray['author-avatar']),
-									'verb'         => ACTIVITY_POST,
-									'otype'        => 'item',
-									'parent'       => $conv_parent,
-									'parent_uri'   => $parent_uri
-
-								));
-
-								// only send one notification
-								break;
-							}
-						}
-					}
-				}
 				continue;
 			}
 		}

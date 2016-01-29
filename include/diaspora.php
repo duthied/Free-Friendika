@@ -14,6 +14,7 @@ require_once('include/queue_fn.php');
 require_once('include/lock.php');
 require_once('include/threads.php');
 require_once('mod/share.php');
+require_once('include/enotify.php');
 
 function diaspora_dispatch_public($msg) {
 
@@ -1598,47 +1599,6 @@ function diaspora_comment($importer,$xml,$msg) {
 		proc_run('php','include/notifier.php','comment-import',$message_id);
 	}
 
-	$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0 ",
-		dbesc($parent_item['uri']),
-		intval($importer['uid'])
-	);
-
-	if(count($myconv)) {
-		$importer_url = $a->get_baseurl() . '/profile/' . $importer['nickname'];
-
-		foreach($myconv as $conv) {
-
-			// now if we find a match, it means we're in this conversation
-
-			if(! link_compare($conv['author-link'],$importer_url))
-				continue;
-
-			require_once('include/enotify.php');
-
-			$conv_parent = $conv['parent'];
-
-			notification(array(
-				'type'         => NOTIFY_COMMENT,
-				'notify_flags' => $importer['notify-flags'],
-				'language'     => $importer['language'],
-				'to_name'      => $importer['username'],
-				'to_email'     => $importer['email'],
-				'uid'          => $importer['uid'],
-				'item'         => $datarray,
-				'link'		   => $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
-				'source_name'  => $datarray['author-name'],
-				'source_link'  => $datarray['author-link'],
-				'source_photo' => $datarray['author-avatar'],
-				'verb'         => ACTIVITY_POST,
-				'otype'        => 'item',
-				'parent'       => $conv_parent,
-				'parent_uri'   => $parent_uri
-			));
-
-			// only send one notification
-			break;
-		}
-	}
 	return;
 }
 
@@ -1793,7 +1753,6 @@ function diaspora_conversation($importer,$xml,$msg) {
 			intval($conversation['id'])
 		);
 
-		require_once('include/enotify.php');
 		notification(array(
 			'type' => NOTIFY_MAIL,
 			'notify_flags' => $importer['notify-flags'],
