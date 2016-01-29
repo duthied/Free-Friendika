@@ -127,7 +127,8 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	$author["owner-link"] = $author["author-link"];
 	$author["owner-avatar"] = $author["author-avatar"];
 
-	if ($r AND !$onlyfetch) {
+	// Only update the contacts if it is an OStatus contact
+	if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
 		// Update contact data
 
 		$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
@@ -158,31 +159,25 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 
 			logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+				dbesc(datetime_convert()), intval($contact["id"]));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
 						"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 		}
 
-		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['photo'])) {
+		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
 			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
-			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
-
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-				dbesc($author["author-avatar"]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+			update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 		}
 
-		// Only update the global contact if it is an OStatus contact
-		if ($contact["network"] == NETWORK_OSTATUS) {
-			/// @todo Add the "addr" field
-			$contact["generation"] = 2;
-			$contact["photo"] = $author["author-avatar"];
-			update_gcontact($contact);
-		}
+
+		/// @todo Add the "addr" field
+		$contact["generation"] = 2;
+		$contact["photo"] = $author["author-avatar"];
+		update_gcontact($contact);
 	}
 
 	return($author);

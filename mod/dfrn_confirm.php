@@ -315,7 +315,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		require_once('include/Photo.php');
 
-		$photos = import_profile_photo($contact['photo'],$uid,$contact_id);
+		update_contact_avatar($contact['photo'],$uid,$contact_id);
 
 		logger('dfrn_confirm: confirm - imported photos');
 
@@ -328,25 +328,16 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			if(($relation == CONTACT_IS_SHARING) && ($duplex))
 				$duplex = 0;
 
-			$r = q("UPDATE `contact` SET
-				`photo` = '%s',
-				`thumb` = '%s',
-				`micro` = '%s',
-				`rel` = %d,
+			$r = q("UPDATE `contact` SET `rel` = %d,
 				`name-date` = '%s',
 				`uri-date` = '%s',
-				`avatar-date` = '%s',
 				`blocked` = 0,
 				`pending` = 0,
 				`duplex` = %d,
 				`hidden` = %d,
 				`network` = '%s' WHERE `id` = %d
 			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
 				intval($new_relation),
-				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($duplex),
@@ -394,12 +385,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			);
 
 
-			$r = q("UPDATE `contact` SET `photo` = '%s',
-				`thumb` = '%s',
-				`micro` = '%s',
-				`name-date` = '%s',
+			$r = q("UPDATE `contact` SET `name-date` = '%s',
 				`uri-date` = '%s',
-				`avatar-date` = '%s',
 				`notify` = '%s',
 				`poll` = '%s',
 				`blocked` = 0,
@@ -410,10 +397,6 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc($notify),
@@ -683,7 +666,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		require_once("include/Photo.php");
 
-		$photos = import_profile_photo($photo,$local_uid,$dfrn_record);
+		update_contact_avatar($photo,$local_uid,$dfrn_record);
 
 		logger('dfrn_confirm: request - photos imported');
 
@@ -695,13 +678,9 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$duplex = 0;
 
 		$r = q("UPDATE `contact` SET
-			`photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
 			`rel` = %d,
 			`name-date` = '%s',
 			`uri-date` = '%s',
-			`avatar-date` = '%s',
 			`blocked` = 0,
 			`pending` = 0,
 			`duplex` = %d,
@@ -709,11 +688,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			`prv` = %d,
 			`network` = '%s' WHERE `id` = %d
 		",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
 			intval($new_relation),
-			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($duplex),

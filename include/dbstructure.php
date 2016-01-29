@@ -453,6 +453,7 @@ function db_definition() {
 					"keywords" => array("type" => "text", "not null" => "1"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "text", "not null" => "1"),
 					"thumb" => array("type" => "text", "not null" => "1"),
 					"micro" => array("type" => "text", "not null" => "1"),

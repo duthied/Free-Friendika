@@ -729,7 +729,7 @@ function diaspora_request($importer,$xml) {
 
 		require_once('include/Photo.php');
 
-		$photos = import_profile_photo($contact_record['photo'],$importer['uid'],$contact_record['id']);
+		update_contact_avatar($contact_record['photo'],$importer['uid'],$contact_record['id']);
 
 		// technically they are sharing with us (CONTACT_IS_SHARING),
 		// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
@@ -740,24 +740,15 @@ function diaspora_request($importer,$xml) {
 		else
 			$new_relation = CONTACT_IS_FOLLOWER;
 
-		$r = q("UPDATE `contact` SET
-			`photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`rel` = %d,
+		$r = q("UPDATE `contact` SET `rel` = %d,
 			`name-date` = '%s',
 			`uri-date` = '%s',
-			`avatar-date` = '%s',
 			`blocked` = 0,
 			`pending` = 0,
 			`writable` = 1
 			WHERE `id` = %d
 			",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
 			intval($new_relation),
-			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($contact_record['id'])
@@ -2432,7 +2423,7 @@ function diaspora_profile($importer,$xml,$msg) {
 
 	require_once('include/Photo.php');
 
-	$images = import_profile_photo($image_url,$importer['uid'],$contact['id']);
+	update_contact_avatar($image_url,$importer['uid'],$contact['id']);
 
 	// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -2450,14 +2441,11 @@ function diaspora_profile($importer,$xml,$msg) {
 	/// @TODO Update name on item['author-name'] if the name changed. See consume_feed()
 	/// (Not doing this currently because D* protocol is scheduled for revision soon).
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `bd` = '%s',
+			`location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc($nick),
 		dbesc($diaspora_handle),
-		dbesc(datetime_convert()),
-		dbesc($image_url),
-		dbesc($images[1]),
-		dbesc($images[2]),
 		dbesc(datetime_convert()),
 		dbesc($birthday),
 		dbesc($location),
