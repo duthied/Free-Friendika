@@ -654,13 +654,17 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	if ($profile == "")
 		$profile = $local_profile;
 
+	$profile = normalise_link($profile);
+
+	$profile_ssl = str_replace("http://", "https://", normalise_link($profile));
+
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
 	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-name`, `author-link`, `author-avatar`, `guid`,
 			`parent-uri`, `uri`, `contact-id`
 			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
-				`author-link` != '%s' AND `author-link` != '%s' LIMIT 1",
-		intval($itemid), dbesc(ACTIVITY_POST), dbesc($profile), dbesc($local_profile));
+				NOT (`author-link` IN ('%s', '%s', '%s'))  LIMIT 1",
+		intval($itemid), dbesc(ACTIVITY_POST), dbesc($profile), dbesc($profile_ssl), dbesc($local_profile));
 	if (!$item)
 		return false;
 
@@ -708,7 +712,8 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	}
 
 	// Is the user mentioned in this post?
-	if ($item[0]["mention"] OR strpos($item[0]["tag"], "=".$profile."]") OR ($defaulttype == NOTIFY_TAGSELF)) {
+	if ($item[0]["mention"] OR strpos($item[0]["tag"], "=".$profile."]") OR strpos($item[0]["tag"], "=".$profile_ssl."]") OR
+		strpos($item[0]["tag"], "=".$local_profile."]")  OR ($defaulttype == NOTIFY_TAGSELF)) {
 		$params["type"] = NOTIFY_TAGSELF;
 		$params["verb"] = ACTIVITY_TAG;
 	}
@@ -716,9 +721,10 @@ function check_item_notification($itemid, $uid, $profile = "", $defaulttype = ""
 	// Is it a post that the user had started or where he interacted?
 	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
 			WHERE `thread`.`iid` = %d AND `thread`.`uid` = %d AND NOT `thread`.`ignored` AND
-				(`thread`.`mention` OR `item`.`author-link` = '%s')
+				(`thread`.`mention` OR `item`.`author-link` IN ('%s', '%s', '%s'))
 			LIMIT 1",
-			intval($item[0]["parent"]), intval($uid), dbesc($profile));
+			intval($item[0]["parent"]), intval($uid),
+			dbesc($profile), dbesc($profile_ssl), dbesc($local_profile));
 	if ($parent AND !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
 		$params["verb"] = ACTIVITY_POST;
