@@ -192,13 +192,20 @@ function display_fetchauthor($a, $item) {
 			$profiledata["photo"] = $r[0]["photo"];
 			$profiledata["nickname"] = $r[0]["nick"];
 			$profiledata["addr"] = $r[0]["addr"];
-			$profiledata["keywords"] = $r[0]["keywords"];
 			$profiledata["network"] = $r[0]["network"];
 
+			if ($r[0]["keywords"])
+				$profiledata["keywords"] = $r[0]["keywords"];
+
 			if ($showdetails) {
-				$profiledata["address"] = $r[0]["location"];
-				$profiledata["about"] = $r[0]["about"];
-				$profiledata["gender"] = $r[0]["gender"];
+				if ($r[0]["location"])
+					$profiledata["address"] = $r[0]["location"];
+
+				if ($r[0]["about"])
+					$profiledata["about"] = $r[0]["about"];
+
+				if ($r[0]["gender"])
+					$profiledata["gender"] = $r[0]["gender"];
 			}
 		}
 	}
