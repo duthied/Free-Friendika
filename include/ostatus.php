@@ -17,15 +17,6 @@ define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
 
-define("NS_ATOM", "http://www.w3.org/2005/Atom");
-define("NS_THR", "http://purl.org/syndication/thread/1.0");
-define("NS_GEORSS", "http://www.georss.org/georss");
-define("NS_ACTIVITY", "http://activitystrea.ms/spec/1.0/");
-define("NS_MEDIA", "http://purl.org/syndication/atommedia");
-define("NS_POCO", "http://portablecontacts.net/spec/1.0");
-define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
-define("NS_STATUSNET", "http://status.net/schema/api/1/");
-
 function ostatus_check_follow_friends() {
 	$r = q("SELECT `uid`,`v` FROM `pconfig` WHERE `cat`='system' AND `k`='ostatus_legacy_contact' AND `v` != ''");
 
@@ -193,14 +184,14 @@ function ostatus_salmon_author($xml, $importer) {
 	@$doc->loadXML($xml);
 
 	$xpath = new DomXPath($doc);
-	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-	$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-	$xpath->registerNamespace('georss', "http://www.georss.org/georss");
-	$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-	$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-	$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+	$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+	$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+	$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+	$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+	$xpath->registerNamespace('poco', NAMESPACE_POCO);
+	$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+	$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
 	$entries = $xpath->query('/atom:entry');
 
@@ -224,14 +215,14 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 	@$doc->loadXML($xml);
 
 	$xpath = new DomXPath($doc);
-	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-	$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-	$xpath->registerNamespace('georss', "http://www.georss.org/georss");
-	$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-	$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-	$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+	$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+	$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+	$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+	$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+	$xpath->registerNamespace('poco', NAMESPACE_POCO);
+	$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+	$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
 	$gub = "";
 	$hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
@@ -1120,16 +1111,16 @@ function ostatus_format_picture_post($body) {
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
-	$root = $doc->createElementNS(NS_ATOM, 'feed');
+	$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
 	$doc->appendChild($root);
 
-	$root->setAttribute("xmlns:thr", NS_THR);
-	$root->setAttribute("xmlns:georss", NS_GEORSS);
-	$root->setAttribute("xmlns:activity", NS_ACTIVITY);
-	$root->setAttribute("xmlns:media", NS_MEDIA);
-	$root->setAttribute("xmlns:poco", NS_POCO);
-	$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
-	$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
+	$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+	$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+	$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+	$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+	$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
+	$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+	$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
 	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
@@ -1343,15 +1334,15 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$entry = $doc->createElement("activity:object");
 		$title = sprintf("New note by %s", $owner["nick"]);
 	} else {
-		$entry = $doc->createElementNS(NS_ATOM, "entry");
+		$entry = $doc->createElementNS(NAMESPACE_ATOM1, "entry");
 
-		$entry->setAttribute("xmlns:thr", NS_THR);
-		$entry->setAttribute("xmlns:georss", NS_GEORSS);
-		$entry->setAttribute("xmlns:activity", NS_ACTIVITY);
-		$entry->setAttribute("xmlns:media", NS_MEDIA);
-		$entry->setAttribute("xmlns:poco", NS_POCO);
-		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
-		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
+		$entry->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+		$entry->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+		$entry->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+		$entry->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+		$entry->setAttribute("xmlns:poco", NAMESPACE_POCO);
+		$entry->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+		$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
 		$author = ostatus_add_author($doc, $owner);
 		$entry->appendChild($author);

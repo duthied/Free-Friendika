@@ -263,57 +263,215 @@ $onlyfetch = true; // Test
 		return($objxml);
 	}
 
-	private function process_mail($header, $xpath, $mail, $importer, $contact) {
+	private function process_mail($xpath, $mail, $importer) {
 
 		$msg = array();
 		$msg["uid"] = $importer['importer_uid'];
 		$msg["from-name"] = $xpath->query('dfrn:sender/dfrn:name/text()', $mail)->item(0)->nodeValue;
 		$msg["from-url"] = $xpath->query('dfrn:sender/dfrn:uri/text()', $mail)->item(0)->nodeValue;
 		$msg["from-photo"] = $xpath->query('dfrn:sender/dfrn:avatar/text()', $mail)->item(0)->nodeValue;
-                $msg["contact-id"] = $importer["id"];
+		$msg["contact-id"] = $importer["id"];
 		$msg["uri"] = $xpath->query('dfrn:id/text()', $mail)->item(0)->nodeValue;
 		$msg["parent-uri"] = $xpath->query('dfrn:in-reply-to/text()', $mail)->item(0)->nodeValue;
 		$msg["created"] = $xpath->query('dfrn:sentdate/text()', $mail)->item(0)->nodeValue;
 		$msg["title"] = $xpath->query('dfrn:subject/text()', $mail)->item(0)->nodeValue;
 		$msg["body"] = $xpath->query('dfrn:content/text()', $mail)->item(0)->nodeValue;
-                $msg["seen"] = 0;
-                $msg["replied"] = 0;
+		$msg["seen"] = 0;
+		$msg["replied"] = 0;
 
 		dbesc_array($msg);
 
-                //$r = dbq("INSERT INTO `mail` (`" . implode("`, `", array_keys($msg))
-                //        . "`) VALUES ('" . implode("', '", array_values($msg)) . "')" );
+		$r = dbq("INSERT INTO `mail` (`".implode("`, `", array_keys($msg))."`) VALUES ('".implode("', '", array_values($msg))."')");
 
-print_r($msg);
+		// send notifications.
 
-                // send notifications.
+		$notif_params = array(
+			'type' => NOTIFY_MAIL,
+			'notify_flags' => $importer['notify-flags'],
+			'language' => $importer['language'],
+			'to_name' => $importer['username'],
+			'to_email' => $importer['email'],
+			'uid' => $importer['importer_uid'],
+			'item' => $msg,
+			'source_name' => $msg['from-name'],
+			'source_link' => $importer['url'],
+			'source_photo' => $importer['thumb'],
+			'verb' => ACTIVITY_POST,
+			'otype' => 'mail'
+		);
 
-                require_once('include/enotify.php');
+		notification($notif_params);
+	}
 
-                $notif_params = array(
-                        'type' => NOTIFY_MAIL,
-                        'notify_flags' => $importer['notify-flags'],
-                        'language' => $importer['language'],
-                        'to_name' => $importer['username'],
-                        'to_email' => $importer['email'],
-                        'uid' => $importer['importer_uid'],
-                        'item' => $msg,
-                        'source_name' => $msg['from-name'],
-                        'source_link' => $importer['url'],
-                        'source_photo' => $importer['thumb'],
-                        'verb' => ACTIVITY_POST,
-                        'otype' => 'mail'
-                );
+	private function process_suggestion($xpath, $suggestion, $importer) {
 
-//                notification($notif_params);
-print_r($notif_params);
+		$suggest = array();
+		$suggest["uid"] = $importer["importer_uid"];
+		$suggest["cid"] = $importer["id"];
+		$suggest["url"] = $xpath->query('dfrn:url/text()', $suggestion)->item(0)->nodeValue;
+		$suggest["name"] = $xpath->query('dfrn:name/text()', $suggestion)->item(0)->nodeValue;
+		$suggest["photo"] = $xpath->query('dfrn:photo/text()', $suggestion)->item(0)->nodeValue;
+		$suggest["request"] = $xpath->query('dfrn:request/text()', $suggestion)->item(0)->nodeValue;
+		$suggest["note"] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
+
+		// Does our member already have a friend matching this description?
+
+		$r = q("SELECT `id` FROM `contact` WHERE `name` = '%s' AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($suggest["name"]),
+			dbesc(normalise_link($suggest["url"])),
+			intval($suggest["uid"])
+		);
+		if(count($r))
+			return false;
+
+		// Do we already have an fcontact record for this person?
+
+		$fid = 0;
+		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
+			dbesc($suggest["url"]),
+			dbesc($suggest["name"]),
+			dbesc($suggest["request"])
+		);
+		if(count($r)) {
+			$fid = $r[0]["id"];
+
+			// OK, we do. Do we already have an introduction for this person ?
+			$r = q("SELECT `id` FROM `intro` WHERE `uid` = %d AND `fid` = %d LIMIT 1",
+				intval($suggest["uid"]),
+				intval($fid)
+			);
+			if(count($r))
+				return false;
+		}
+		if(!$fid)
+			$r = q("INSERT INTO `fcontact` (`name`,`url`,`photo`,`request`) VALUES ('%s', '%s', '%s', '%s')",
+			dbesc($suggest["name"]),
+			dbesc($suggest["url"]),
+			dbesc($suggest["photo"]),
+			dbesc($suggest["request"])
+		);
+		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
+			dbesc($suggest["url"]),
+			dbesc($suggest["name"]),
+			dbesc($suggest["request"])
+		);
+		if(count($r))
+			$fid = $r[0]["id"];
+		else
+			// database record did not get created. Quietly give up.
+			return false;
+
+
+		$hash = random_string();
+
+		$r = q("INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
+			VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
+			intval($suggest["uid"]),
+			intval($fid),
+			intval($suggest["cid"]),
+			dbesc($suggest["body"]),
+			dbesc($hash),
+			dbesc(datetime_convert()),
+			intval(0)
+		);
+
+		notification(array(
+			'type'         => NOTIFY_SUGGEST,
+			'notify_flags' => $importer["notify-flags"],
+			'language'     => $importer["language"],
+			'to_name'      => $importer["username"],
+			'to_email'     => $importer["email"],
+			'uid'          => $importer["importer_uid"],
+			'item'         => $suggest,
+			'link'         => App::get_baseurl()."/notifications/intros",
+			'source_name'  => $importer["name"],
+			'source_link'  => $importer["url"],
+			'source_photo' => $importer["photo"],
+			'verb'         => ACTIVITY_REQ_FRIEND,
+			'otype'        => "intro"
+		));
+
+		return true;
 
 	}
 
-	private function process_suggestion($header, $xpath, $suggestion, $importer, $contact) {
-	}
+	private function process_relocation($xpath, $relocation, $importer) {
 
-	private function process_relocation($header, $xpath, $relocation, $importer, $contact) {
+		$relocate = array();
+		$relocate["uid"] = $importer["importer_uid"];
+		$relocate["cid"] = $importer["id"];
+		$relocate["url"] = $xpath->query('dfrn:url/text()', $relocation)->item(0)->nodeValue;
+		$relocate["name"] = $xpath->query('dfrn:name/text()', $relocation)->item(0)->nodeValue;
+		$relocate["photo"] = $xpath->query('dfrn:photo/text()', $relocation)->item(0)->nodeValue;
+		$relocate["thumb"] = $xpath->query('dfrn:thumb/text()', $relocation)->item(0)->nodeValue;
+		$relocate["micro"] = $xpath->query('dfrn:micro/text()', $relocation)->item(0)->nodeValue;
+		$relocate["request"] = $xpath->query('dfrn:request/text()', $relocation)->item(0)->nodeValue;
+		$relocate["confirm"] = $xpath->query('dfrn:confirm/text()', $relocation)->item(0)->nodeValue;
+		$relocate["notify"] = $xpath->query('dfrn:notify/text()', $relocation)->item(0)->nodeValue;
+		$relocate["poll"] = $xpath->query('dfrn:poll/text()', $relocation)->item(0)->nodeValue;
+		$relocate["sitepubkey"] = $xpath->query('dfrn:sitepubkey/text()', $relocation)->item(0)->nodeValue;
+
+		// update contact
+		$r = q("SELECT `photo`, `url` FROM `contact` WHERE `id` = %d AND `uid` = %d;",
+			intval($importer["id"]),
+			intval($importer["importer_uid"]));
+		if (!$r)
+			return false;
+
+		$old = $r[0];
+
+		$x = q("UPDATE `contact` SET
+					`name` = '%s',
+					`photo` = '%s',
+					`thumb` = '%s',
+					`micro` = '%s',
+					`url` = '%s',
+					`nurl` = '%s',
+					`request` = '%s',
+					`confirm` = '%s',
+					`notify` = '%s',
+					`poll` = '%s',
+					`site-pubkey` = '%s'
+			WHERE `id` = %d AND `uid` = %d;",
+					dbesc($relocate["name"]),
+					dbesc($relocate["photo"]),
+					dbesc($relocate["thumb"]),
+					dbesc($relocate["micro"]),
+					dbesc($relocate["url"]),
+					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["request"]),
+					dbesc($relocate["confirm"]),
+					dbesc($relocate["notify"]),
+					dbesc($relocate["poll"]),
+					dbesc($relocate["sitepubkey"]),
+					intval($importer["id"]),
+					intval($importer["importer_uid"]));
+
+		if ($x === false)
+			return false;
+
+		// update items
+		$fields = array(
+			'owner-link' => array($old["url"], $relocate["url"]),
+			'author-link' => array($old["url"], $relocate["url"]),
+			'owner-avatar' => array($old["photo"], $relocate["photo"]),
+			'author-avatar' => array($old["photo"], $relocate["photo"]),
+			);
+		foreach ($fields as $n=>$f){
+			$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
+					$n, dbesc($f[1]),
+					$n, dbesc($f[0]),
+					intval($importer["importer_uid"]));
+				if ($x === false)
+					return false;
+			}
+
+		/// @TODO
+		/// merge with current record, current contents have priority
+		/// update record, set url-updated
+		/// update profile photos
+		/// schedule a scan?
+		return true;
 	}
 
 	private function process_entry($header, $xpath, $entry, $importer, $contact) {
@@ -511,7 +669,11 @@ print_r($notif_params);
 		return $item_id;
 	}
 
-	function import($xml,$importer,&$contact, &$hub) {
+	private function process_deletion($header, $xpath, $entry, $importer, $contact) {
+		die("blubb");
+	}
+
+	function import($xml,$importer) {
 
 		$a = get_app();
 
@@ -524,16 +686,19 @@ print_r($notif_params);
 		@$doc->loadXML($xml);
 
 		$xpath = new DomXPath($doc);
-		$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-		$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-		$xpath->registerNamespace('at', "http://purl.org/atompub/tombstones/1.0");
-		$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-		$xpath->registerNamespace('dfrn', "http://purl.org/macgirvin/dfrn/1.0");
-		$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-		$xpath->registerNamespace('georss', "http://www.georss.org/georss");
-		$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-		$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-		$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+		$xpath->registerNamespace('at', NAMESPACE_TOMB);
+		$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+		$xpath->registerNamespace('dfrn', NAMESPACE_DFRN);
+		$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+		$xpath->registerNamespace('poco', NAMESPACE_POCO);
+		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
+
+		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `self`", intval($importer["uid"]));
+		$contact = $r[0];
 
 		$header = array();
 		$header["uid"] = $importer["uid"];
@@ -559,15 +724,15 @@ print_r($notif_params);
 
 		$mails = $xpath->query('/atom:feed/dfrn:mail');
 		foreach ($mails AS $mail)
-			self::process_mail($header, $xpath, $mail, $importer, $contact);
+			self::process_mail($xpath, $mail, $importer);
 
 		$suggestions = $xpath->query('/atom:feed/dfrn:suggest');
 		foreach ($suggestions AS $suggestion)
-			self::process_suggestion($header, $xpath, $suggestion, $importer, $contact);
+			self::process_suggestion($xpath, $suggestion, $importer);
 
 		$relocations = $xpath->query('/atom:feed/dfrn:relocate');
 		foreach ($relocations AS $relocation)
-			self::process_relocation($header, $xpath, $relocation, $importer, $contact);
+			self::process_relocation($xpath, $relocation, $importer);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 		foreach ($entries AS $entry)

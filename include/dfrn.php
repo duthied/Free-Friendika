@@ -386,15 +386,15 @@ class dfrn {
 		$root = $doc->createElementNS(NS_ATOM, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", NS_THR);
-		$root->setAttribute("xmlns:at", "http://purl.org/atompub/tombstones/1.0");
-		$root->setAttribute("xmlns:media", NS_MEDIA);
-		$root->setAttribute("xmlns:dfrn", "http://purl.org/macgirvin/dfrn/1.0");
-		$root->setAttribute("xmlns:activity", NS_ACTIVITY);
-		$root->setAttribute("xmlns:georss", NS_GEORSS);
-		$root->setAttribute("xmlns:poco", NS_POCO);
-		$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
-		$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
+		$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+		$root->setAttribute("xmlns:at", NAMESPACE_TOMB);
+		$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+		$root->setAttribute("xmlns:dfrn", NAMESPACE_DFRN);
+		$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+		$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+		$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
+		$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
 		xml_add_element($doc, $root, "id", app::get_baseurl()."/profile/".$owner["nick"]);
 		xml_add_element($doc, $root, "title", $owner["name"]);
