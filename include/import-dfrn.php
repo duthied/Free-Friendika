@@ -520,10 +520,10 @@ class dfrn2 {
 
 		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
 			intval($importer["uid"]), dbesc($item["uri"]));
-		if ($r) {
-			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-			return false;
-		}
+		//if ($r) {
+		//	logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+		//	return false;
+		//}
 
 		// Is it a reply?
 		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
@@ -652,8 +652,239 @@ class dfrn2 {
 			}
 		}
 
-		//print_r($item);
-		$item_id = item_store($item);
+/*
+// reply
+                                // not allowed to post
+
+                                if($contact['rel'] == CONTACT_IS_FOLLOWER)
+                                        continue;
+
+                                $r = q("SELECT `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+                                        dbesc($item_id),
+                                        intval($importer['uid'])
+                                );
+
+				// Update content if 'updated' changes
+
+                                if(count($r)) {
+                                        if (edited_timestamp_is_newer($r[0], $datarray)) {
+
+                                                // do not accept (ignore) an earlier edit than one we currently have.
+                                                if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
+                                                        continue;
+
+                                                $r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` =
+ '%s' WHERE `uri` = '%s' AND `uid` = %d",
+                                                        dbesc($datarray['title']),
+                                                        dbesc($datarray['body']),
+                                                        dbesc($datarray['tag']),
+                                                        dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+                                                        dbesc(datetime_convert()),
+                                                        dbesc($item_id),
+                                                        intval($importer['uid'])
+                                                );
+                                                create_tags_from_itemuri($item_id, $importer['uid']);
+                                                update_thread_uri($item_id, $importer['uid']);
+                                        }
+
+                                        // update last-child if it changes
+                                        // update last-child if it changes
+
+                                        $allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
+                                        if(($allow) && ($allow[0]['data'] != $r[0]['last-child'])) {
+                                                $r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
+                                                        dbesc(datetime_convert()),
+                                                        dbesc($parent_uri),
+                                                        intval($importer['uid'])
+                                                );
+                                                $r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d",
+                                                        intval($allow[0]['data']),
+                                                        dbesc(datetime_convert()),
+                                                        dbesc($item_id),
+                                                        intval($importer['uid'])
+                                                );
+                                                update_thread_uri($item_id, $importer['uid']);
+                                        }
+                                        continue;
+                                }
+                                if(($datarray['verb'] === ACTIVITY_LIKE)
+                                        || ($datarray['verb'] === ACTIVITY_DISLIKE)
+                                        || ($datarray['verb'] === ACTIVITY_ATTEND)
+                                        || ($datarray['verb'] === ACTIVITY_ATTENDNO)
+                                        || ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
+                                        $datarray['type'] = 'activity';
+                                        $datarray['gravity'] = GRAVITY_LIKE;
+                                        // only one like or dislike per person
+                                        // splitted into two queries for performance issues
+                                        $r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
+                                                intval($datarray['uid']),
+                                                dbesc($datarray['author-link']),
+                                                dbesc($datarray['verb']),
+                                                dbesc($datarray['parent-uri'])
+                                        );
+                                        if($r && count($r))
+                                                continue;
+
+                                        $r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
+                                                intval($datarray['uid']),
+                                                dbesc($datarray['author-link']),
+                                                dbesc($datarray['verb']),
+                                                dbesc($datarray['parent-uri'])
+                                        );
+                                        if($r && count($r))
+                                                continue;
+                                }
+                                if(($datarray['verb'] === ACTIVITY_TAG) && ($datarray['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
+                                        $xo = parse_xml_string($datarray['object'],false);
+                                        $xt = parse_xml_string($datarray['target'],false);
+
+                                        if($xt->type == ACTIVITY_OBJ_NOTE) {
+                                                $r = q("select * from item where `uri` = '%s' AND `uid` = %d limit 1",
+                                                        dbesc($xt->id),
+                                                        intval($importer['importer_uid'])
+                                                );
+                                                if(! count($r))
+                                                        continue;
+
+                                                // extract tag, if not duplicate, add to parent item
+                                                if($xo->id && $xo->content) {
+                                                        $newtag = '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
+                                                        if(! (stristr($r[0]['tag'],$newtag))) {
+                                                                q("UPDATE item SET tag = '%s' WHERE id = %d",
+                                                                        dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . $newtag),
+                                                                        intval($r[0]['id'])
+                                                                );
+                                                                create_tags_from_item($r[0]['id']);
+                                                        }
+                                                }
+                                        }
+                                }
+
+
+
+// toplevel
+                                // special handling for events
+
+                                if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
+                                        $ev = bbtoevent($datarray['body']);
+                                        if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
+                                                $ev['uid'] = $importer['uid'];
+                                                $ev['uri'] = $item_id;
+                                                $ev['edited'] = $datarray['edited'];
+                                                $ev['private'] = $datarray['private'];
+                                                $ev['guid'] = $datarray['guid'];
+
+                                                if(is_array($contact))
+                                                        $ev['cid'] = $contact['id'];
+                                                $r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+                                                        dbesc($item_id),
+                                                        intval($importer['uid'])
+                                                );
+                                                if(count($r))
+                                                        $ev['id'] = $r[0]['id'];
+                                                $xyz = event_store($ev);
+                                                continue;
+                                        }
+                                }
+
+
+				$r = q("SELECT `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+                                        dbesc($item_id),
+                                        intval($importer['uid'])
+                                );
+
+                                // Update content if 'updated' changes
+
+                                if(count($r)) {
+                                        if (edited_timestamp_is_newer($r[0], $datarray)) {
+
+                                                // do not accept (ignore) an earlier edit than one we currently have.
+                                                if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
+                                                        continue;
+
+                                                $r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` =
+ '%s' WHERE `uri` = '%s' AND `uid` = %d",
+                                                        dbesc($datarray['title']),
+                                                        dbesc($datarray['body']),
+                                                        dbesc($datarray['tag']),
+                                                        dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
+                                                        dbesc(datetime_convert()),
+                                                        dbesc($item_id),
+                                                        intval($importer['uid'])
+                                                );
+                                                create_tags_from_itemuri($item_id, $importer['uid']);
+                                                update_thread_uri($item_id, $importer['uid']);
+                                        }
+
+                                        // update last-child if it changes
+
+                                        $allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
+                                        if($allow && $allow[0]['data'] != $r[0]['last-child']) {
+                                                $r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+                                                        intval($allow[0]['data']),
+                                                        dbesc(datetime_convert()),
+                                                        dbesc($item_id),
+                                                        intval($importer['uid'])
+                                                );
+                                                update_thread_uri($item_id, $importer['uid']);
+                                        }
+                                        continue;
+                                }
+
+
+
+toplevel:
+
+                                if(activity_match($datarray['verb'],ACTIVITY_FOLLOW)) {
+                                        logger('consume-feed: New follower');
+                                        new_follower($importer,$contact,$datarray,$item);
+                                        return;
+                                }
+                                if(activity_match($datarray['verb'],ACTIVITY_UNFOLLOW))  {
+                                        lose_follower($importer,$contact,$datarray,$item);
+                                        return;
+                                }
+
+                                if(activity_match($datarray['verb'],ACTIVITY_REQ_FRIEND)) {
+                                        logger('consume-feed: New friend request');
+                                        new_follower($importer,$contact,$datarray,$item,true);
+                                        return;
+                                }
+                                if(activity_match($datarray['verb'],ACTIVITY_UNFRIEND))  {
+                                        lose_sharer($importer,$contact,$datarray,$item);
+                                        return;
+                                }
+
+
+                                if(! is_array($contact))
+                                        return;
+
+                                if(! link_compare($datarray['owner-link'],$contact['url'])) {
+                                        // The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
+                                        // but otherwise there's a possible data mixup on the sender's system.
+                                        // the tgroup delivery code called from item_store will correct it if it's a forum,
+                                        // but we're going to unconditionally correct it here so that the post will always be owned by our contact.
+                                        logger('consume_feed: Correcting item owner.', LOGGER_DEBUG);
+                                        $datarray['owner-name']   = $contact['name'];
+                                        $datarray['owner-link']   = $contact['url'];
+                                        $datarray['owner-avatar'] = $contact['thumb'];
+                                }
+
+                                // We've allowed "followers" to reach this point so we can decide if they are
+                                // posting an @-tag delivery, which followers are allowed to do for certain
+                                // page types. Now that we've parsed the post, let's check if it is legit. Otherwise ignore it.
+
+                                if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
+                                        continue;
+
+                                // This is my contact on another system, but it's really me.
+                                // Turn this into a wall post.
+                                $notify = item_is_remote_self($contact, $datarray);
+
+*/
+		print_r($item);
+		return;
+		//$item_id = item_store($item);
 
 		if (!$item_id) {
 			logger("Error storing item", LOGGER_DEBUG);
@@ -703,7 +934,9 @@ class dfrn2 {
 				intval($importer["uid"]),
 				intval($contact_id)
 			);
-		if(count($r)) {
+		if(!count($r))
+			logger("Item with uri ".$uri." from contact ".$contact_id." for user ".$importer["uid"]." wasn't found.", LOGGER_DEBUG);
+		else {
 			$item = $r[0];
 
 			if(!$item["deleted"])
@@ -792,6 +1025,11 @@ class dfrn2 {
 						);
 					}
 				}
+				// if this is a relayed delete, propagate it to other recipients
+
+//                                                if($is_a_remote_delete)
+  //                                                      proc_run('php',"include/notifier.php","drop",$item['id']);
+
 			}
 		}
 	}

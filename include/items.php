@@ -17,7 +17,7 @@ require_once('include/feed.php');
 require_once('include/Contact.php');
 require_once('mod/share.php');
 require_once('include/enotify.php');
-require_once('include/import-dfrn.php');
+//require_once('include/import-dfrn.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
@@ -2407,7 +2407,7 @@ function item_is_remote_self($contact, &$datarray) {
 
 function local_delivery($importer,$data) {
 	// dfrn-Test
-	return dfrn2::import($data, $importer, $contact);
+	//return dfrn2::import($data, $importer, $contact);
 
 	require_once('library/simplepie/simplepie.inc');
 
