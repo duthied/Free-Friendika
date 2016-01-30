@@ -132,8 +132,8 @@ function terminate_friendship($user,$self,$contact) {
 		diaspora_unshare($user,$contact);
 	}
 	elseif($contact['network'] === NETWORK_DFRN) {
-		require_once('include/items.php');
-		dfrn_deliver($user,$contact,'placeholder', 1);
+		require_once('include/dfrn.php');
+		dfrn::deliver($user,$contact,'placeholder', 1);
 	}
 
 }
@@ -208,15 +208,15 @@ function get_contact_details_by_url($url, $uid = -1) {
 	}
 
 	// Fetching further contact data from the contact table
-	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s'",
+	$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd`, `self` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` IN ('%s', '')",
 		dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
 	if (!count($r) AND !isset($profile))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd`, `self` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	if (!count($r) AND !isset($profile))
-		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `name`, `nick`, `addr`, `location`, `about`, `keywords`, `gender`, `photo`, `thumb`, `addr`, `forum`, `prv`, `bd` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 			dbesc(normalise_link($url)));
 
 	if ($r) {
@@ -228,7 +228,7 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["nick"] = $r[0]["nick"];
 		if (!isset($profile["addr"]) AND $r[0]["addr"])
 			$profile["addr"] = $r[0]["addr"];
-		if (!isset($profile["photo"]) AND $r[0]["photo"])
+		if ((!isset($profile["photo"]) OR $r[0]["self"]) AND $r[0]["photo"])
 			$profile["photo"] = $r[0]["photo"];
 		if (!isset($profile["location"]) AND $r[0]["location"])
 			$profile["location"] = $r[0]["location"];
@@ -246,6 +246,8 @@ function get_contact_details_by_url($url, $uid = -1) {
 			$profile["addr"] = $r[0]["addr"];
 		if (!isset($profile["bd"]) AND $r[0]["bd"])
 			$profile["bd"] = $r[0]["bd"];
+		if (isset($r[0]["thumb"]))
+			$profile["thumb"] = $r[0]["thumb"];
 		if ($r[0]["uid"] == 0)
 			$profile["cid"] = 0;
 		else
@@ -410,12 +412,12 @@ function get_contact($url, $uid = 0) {
 			return 0;
 	}
 
-	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($url)),
 			intval($uid));
 
 	if (!$contact)
-		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d",
+		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d ORDER BY `id` LIMIT 1",
 				dbesc($url),
 				dbesc(normalise_link($url)),
 				intval($uid));
@@ -439,9 +441,7 @@ function get_contact($url, $uid = 0) {
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 		return 0;
 
-	// tempory programming. Can be deleted after 2015-02-07
-	if (($data["alias"] == "") AND (normalise_link($data["url"]) != normalise_link($url)))
-		$data["alias"] = normalise_link($url);
+	$url = $data["url"];
 
 	if ($contactid == 0) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
@@ -470,7 +470,7 @@ function get_contact($url, $uid = 0) {
 			dbesc($data["poco"])
 		);
 
-		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 				dbesc(normalise_link($data["url"])),
 				intval($uid));
 		if (!$contact)
@@ -479,21 +479,21 @@ function get_contact($url, $uid = 0) {
 		$contactid = $contact[0]["id"];
 	}
 
+	if ((count($contact) > 1) AND ($uid == 0) AND ($contactid != 0) AND ($url != ""))
+		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d",
+			dbesc(normalise_link($url)),
+			intval($contactid));
+
 	require_once("Photo.php");
 
-	$photos = import_profile_photo($data["photo"],$uid,$contactid);
+	update_contact_avatar($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s',
-		`addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-		`name-date` = '%s', `uri-date` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
-		dbesc($photos[0]),
-		dbesc($photos[1]),
-		dbesc($photos[2]),
+	q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+		`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
 		dbesc($data["addr"]),
 		dbesc($data["alias"]),
 		dbesc($data["name"]),
 		dbesc($data["nick"]),
-		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		intval($contactid)
@@ -661,5 +661,35 @@ function posts_from_contact($a, $contact_id) {
 		$o .= paginate($a);
 
 	return $o;
+}
+
+/**
+ * @brief Returns a formatted location string from the given profile array
+ *
+ * @param array $profile Profile array (Generated from the "profile" table)
+ *
+ * @return string Location string
+ */
+function formatted_location($profile) {
+	$location = '';
+
+	if($profile['locality'])
+		$location .= $profile['locality'];
+
+	if($profile['region'] AND ($profile['locality'] != $profile['region'])) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['region'];
+	}
+
+	if($profile['country-name']) {
+		if($location)
+			$location .= ', ';
+
+		$location .= $profile['country-name'];
+	}
+
+	return $location;
 }
 ?>

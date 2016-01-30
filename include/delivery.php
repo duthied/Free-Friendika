@@ -5,6 +5,7 @@ require_once('include/html2plain.php');
 require_once("include/Scrape.php");
 require_once('include/diaspora.php');
 require_once("include/ostatus.php");
+require_once("include/dfrn.php");
 
 function delivery_run(&$argv, &$argc){
 	global $a, $db;
@@ -264,8 +265,6 @@ function delivery_run(&$argv, &$argc){
 		if(count($r))
 			$contact = $r[0];
 
-		$hubxml = feed_hublinks();
-
 		if($contact['self'])
 			continue;
 
@@ -278,138 +277,54 @@ function delivery_run(&$argv, &$argc){
 			case NETWORK_DFRN:
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: ' . $contact['name']);
 
-				$feed_template = get_markup_template('atom_feed.tpl');
-				$mail_template = get_markup_template('atom_mail.tpl');
-
-				$atom = '';
-
-
-				$birthday = feed_birthday($owner['uid'],$owner['timezone']);
-
-				if(strlen($birthday))
-					$birthday = '<dfrn:birthday>' . xmlify($birthday) . '</dfrn:birthday>';
-
-				$atom .= replace_macros($feed_template, array(
-						'$version'      => xmlify(FRIENDICA_VERSION),
-						'$feed_id'      => xmlify($a->get_baseurl() . '/profile/' . $owner['nickname'] ),
-						'$feed_title'   => xmlify($owner['name']),
-						'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', $updated . '+00:00' , ATOM_TIME)) ,
-						'$hub'          => $hubxml,
-						'$salmon'       => '',  // private feed, we don't use salmon here
-						'$name'         => xmlify($owner['name']),
-						'$profile_page' => xmlify($owner['url']),
-						'$photo'        => xmlify($owner['photo']),
-						'$thumb'        => xmlify($owner['thumb']),
-						'$picdate'      => xmlify(datetime_convert('UTC','UTC',$owner['avatar-date'] . '+00:00' , ATOM_TIME)) ,
-						'$uridate'      => xmlify(datetime_convert('UTC','UTC',$owner['uri-date']    . '+00:00' , ATOM_TIME)) ,
-						'$namdate'      => xmlify(datetime_convert('UTC','UTC',$owner['name-date']   . '+00:00' , ATOM_TIME)) ,
-						'$birthday'     => $birthday,
-						'$community'    => (($owner['page-flags'] == PAGE_COMMUNITY) ? '<dfrn:community>1</dfrn:community>' : '')
-				));
-
-				if($mail) {
-					$public_message = false;  // mail is  not public
-
-					$body = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
-
-					$atom .= replace_macros($mail_template, array(
-						'$name'         => xmlify($owner['name']),
-						'$profile_page' => xmlify($owner['url']),
-						'$thumb'        => xmlify($owner['thumb']),
-						'$item_id'      => xmlify($item['uri']),
-						'$subject'      => xmlify($item['title']),
-						'$created'      => xmlify(datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME)),
-						'$content'      => xmlify($body),
-						'$parent_id'    => xmlify($item['parent-uri'])
-					));
-				} elseif($fsuggest) {
-					$public_message = false;  // suggestions are not public
-
-					$sugg_template = get_markup_template('atom_suggest.tpl');
-
-					$atom .= replace_macros($sugg_template, array(
-						'$name'         => xmlify($item['name']),
-						'$url'          => xmlify($item['url']),
-						'$photo'        => xmlify($item['photo']),
-						'$request'      => xmlify($item['request']),
-						'$note'         => xmlify($item['note'])
-					));
-
-					// We don't need this any more
-
-					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1",
-						intval($item['id'])
-					);
-				} elseif($relocate) {
-					$public_message = false;  // suggestions are not public
-
-					$sugg_template = get_markup_template('atom_relocate.tpl');
-
-					/* get site pubkey. this could be a new installation with no site keys*/
-					$pubkey = get_config('system','site_pubkey');
-					if(! $pubkey) {
-						$res = new_keypair(1024);
-						set_config('system','site_prvkey', $res['prvkey']);
-						set_config('system','site_pubkey', $res['pubkey']);
-					}
-
-					$rp = q("SELECT `resource-id` , `scale`, type FROM `photo`
-							WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;", $uid);
-					$photos = array();
-					$ext = Photo::supportedTypes();
-					foreach($rp as $p){
-						$photos[$p['scale']] = $a->get_baseurl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
-					}
-					unset($rp, $ext);
-
-					$atom .= replace_macros($sugg_template, array(
-								'$name' => xmlify($owner['name']),
-								'$photo' => xmlify($photos[4]),
-								'$thumb' => xmlify($photos[5]),
-								'$micro' => xmlify($photos[6]),
-								'$url' => xmlify($owner['url']),
-								'$request' => xmlify($owner['request']),
-								'$confirm' => xmlify($owner['confirm']),
-								'$notify' => xmlify($owner['notify']),
-								'$poll' => xmlify($owner['poll']),
-								'$sitepubkey' => xmlify(get_config('system','site_pubkey')),
-								//'$pubkey' => xmlify($owner['pubkey']),
-								//'$prvkey' => xmlify($owner['prvkey']),
-						));
-					unset($photos);
-				} elseif($followup) {
+				if ($mail) {
+					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
+					$atom = dfrn::mail($item, $owner);
+				} elseif ($fsuggest) {
+					$atom = dfrn::fsuggest($item, $owner);
+					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
+				} elseif ($relocate)
+					$atom = dfrn::relocate($owner, $uid);
+				elseif($followup) {
+					$msgitems = array();
 					foreach($items as $item) {  // there is only one item
-						if(! $item['parent'])
+						if(!$item['parent'])
 							continue;
 						if($item['id'] == $item_id) {
 							logger('followup: item: ' . print_r($item,true), LOGGER_DATA);
-							$atom .= atom_entry($item,'text',null,$owner,false);
+							$msgitems[] = $item;
 						}
 					}
+					$atom = dfrn::entries($msgitems,$owner);
 				} else {
+					$msgitems = array();
 					foreach($items as $item) {
-						if(! $item['parent'])
+						if(!$item['parent'])
 							continue;
 
 						// private emails may be in included in public conversations. Filter them.
-						if(($public_message) && $item['private'] == 1)
+						if(($public_message) && $item['private'])
 							continue;
 
 						$item_contact = get_item_contact($item,$icontacts);
-						if(! $item_contact)
+						if(!$item_contact)
 							continue;
 
 						if($normal_mode) {
-							if($item_id == $item['id'] || $item['id'] == $item['parent'])
-								$atom .= atom_entry($item,'text',null,$owner,true,(($top_level) ? $contact['id'] : 0));
-						} else
-							$atom .= atom_entry($item,'text',null,$owner,true);
+							if($item_id == $item['id'] || $item['id'] == $item['parent']) {
+								$item["entry:comment-allow"] = true;
+								$item["entry:cid"] = (($top_level) ? $contact['id'] : 0);
+								$msgitems[] = $item;
+							}
+						} else {
+							$item["entry:comment-allow"] = true;
+							$msgitems[] = $item;
+						}
 					}
+					$atom = dfrn::entries($msgitems,$owner);
 				}
 
-				$atom .= '</feed>' . "\r\n";
-
-				logger('notifier: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
+				logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
 
 				logger('notifier: ' . $atom, LOGGER_DATA);
 				$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));
@@ -458,7 +373,6 @@ function delivery_run(&$argv, &$argc){
 						if (($x[0]['page-flags'] == PAGE_SOAPBOX) AND $top_level)
 							break;
 
-						require_once('library/simplepie/simplepie.inc');
 						logger('mod-delivery: local delivery');
 						local_delivery($x[0],$atom);
 						break;
@@ -466,7 +380,7 @@ function delivery_run(&$argv, &$argc){
 				}
 
 				if(! was_recently_delayed($contact['id']))
-					$deliver_status = dfrn_deliver($owner,$contact,$atom);
+					$deliver_status = dfrn::deliver($owner,$contact,$atom);
 				else
 					$deliver_status = (-1);
 

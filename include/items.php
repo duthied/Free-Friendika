@@ -14,312 +14,16 @@ require_once('include/socgraph.php');
 require_once('include/plaintext.php');
 require_once('include/ostatus.php');
 require_once('include/feed.php');
+require_once('include/Contact.php');
 require_once('mod/share.php');
+require_once('include/enotify.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
-
-
-function get_feed_for(&$a, $dfrn_id, $owner_nick, $last_update, $direction = 0, $forpubsub = false) {
-
-
-	$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
-	$public_feed = (($dfrn_id) ? false : true);
-	$starred     = false;   // not yet implemented, possible security issues
-	$converse    = false;
-
-	if($public_feed && $a->argc > 2) {
-		for($x = 2; $x < $a->argc; $x++) {
-			if($a->argv[$x] == 'converse')
-				$converse = true;
-			if($a->argv[$x] == 'starred')
-				$starred = true;
-			if($a->argv[$x] === 'category' && $a->argc > ($x + 1) && strlen($a->argv[$x+1]))
-				$category = $a->argv[$x+1];
-		}
-	}
-
-
-
-	// default permissions - anonymous user
-
-	$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
-
-	$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
-		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-		WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
-		dbesc($owner_nick)
-	);
-
-	if(! count($r))
-		killme();
-
-	$owner = $r[0];
-	$owner_id = $owner['user_uid'];
-	$owner_nick = $owner['nickname'];
-
-	$birthday = feed_birthday($owner_id,$owner['timezone']);
-
-	$sql_post_table = "";
-	$visibility = "";
-
-	if(! $public_feed) {
-
-		$sql_extra = '';
-		switch($direction) {
-			case (-1):
-				$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($dfrn_id));
-				$my_id = $dfrn_id;
-				break;
-			case 0:
-				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
-				$my_id = '1:' . $dfrn_id;
-				break;
-			case 1:
-				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
-				$my_id = '0:' . $dfrn_id;
-				break;
-			default:
-				return false;
-				break; // NOTREACHED
-		}
-
-		$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `contact`.`uid` = %d $sql_extra LIMIT 1",
-			intval($owner_id)
-		);
-
-		if(! count($r))
-			killme();
-
-		$contact = $r[0];
-		require_once('include/security.php');
-		$groups = init_groups_visitor($contact['id']);
-
-		if(count($groups)) {
-			for($x = 0; $x < count($groups); $x ++)
-				$groups[$x] = '<' . intval($groups[$x]) . '>' ;
-			$gs = implode('|', $groups);
-		}
-		else
-			$gs = '<<>>' ; // Impossible to match
-
-		$sql_extra = sprintf("
-			AND ( `allow_cid` = '' OR     `allow_cid` REGEXP '<%d>' )
-			AND ( `deny_cid`  = '' OR NOT `deny_cid`  REGEXP '<%d>' )
-			AND ( `allow_gid` = '' OR     `allow_gid` REGEXP '%s' )
-			AND ( `deny_gid`  = '' OR NOT `deny_gid`  REGEXP '%s')
-		",
-			intval($contact['id']),
-			intval($contact['id']),
-			dbesc($gs),
-			dbesc($gs)
-		);
-	}
-
-	if($public_feed)
-		$sort = 'DESC';
-	else
-		$sort = 'ASC';
-
-	// Include answers to status.net posts in pubsub feeds
-	if($forpubsub) {
-		$sql_post_table = "INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`";
-		$visibility = sprintf("AND (`item`.`parent` = `item`.`id`) OR (`item`.`network` = '%s' AND ((`thread`.`network`='%s') OR (`thritem`.`network` = '%s')))",
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS));
-		$date_field = "`received`";
-		$sql_order = "`item`.`received` DESC";
-	} else {
-		$date_field = "`changed`";
-		$sql_order = "`item`.`parent` ".$sort.", `item`.`created` ASC";
-	}
-
-	if(! strlen($last_update))
-		$last_update = 'now -30 days';
-
-	if(isset($category)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				dbesc(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($owner_id));
-		//$sql_extra .= file_tag_file_query('item',$category,'category');
-	}
-
-	if($public_feed) {
-		if(! $converse)
-			$sql_extra .= " AND `contact`.`self` = 1 ";
-	}
-
-	$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
-
-	//	AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
-	//	dbesc($check_date),
-
-	$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`,
-		`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
-		`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
-		`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
-		`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-		FROM `item` $sql_post_table
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0
-		AND ((`item`.`wall` = 1) $visibility) AND `item`.$date_field > '%s'
-		$sql_extra
-		ORDER BY $sql_order LIMIT 0, 300",
-		intval($owner_id),
-		dbesc($check_date),
-		dbesc($sort)
-	);
-
-	// Will check further below if this actually returned results.
-	// We will provide an empty feed if that is the case.
-
-	$items = $r;
-
-	$feed_template = get_markup_template(($dfrn_id) ? 'atom_feed_dfrn.tpl' : 'atom_feed.tpl');
-
-	$atom = '';
-
-	$hubxml = feed_hublinks();
-
-	$salmon = feed_salmonlinks($owner_nick);
-
-	$alternatelink = $owner['url'];
-
-	if(isset($category))
-		$alternatelink .= "/category/".$category;
-
-	$atom .= replace_macros($feed_template, array(
-		'$version'      => xmlify(FRIENDICA_VERSION),
-		'$feed_id'      => xmlify($a->get_baseurl() . '/profile/' . $owner_nick),
-		'$feed_title'   => xmlify($owner['name']),
-		'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now' , ATOM_TIME)) ,
-		'$hub'          => $hubxml,
-		'$salmon'       => $salmon,
-		'$alternatelink' => xmlify($alternatelink),
-		'$name'         => xmlify($owner['name']),
-		'$profile_page' => xmlify($owner['url']),
-		'$photo'        => xmlify($owner['photo']),
-		'$thumb'        => xmlify($owner['thumb']),
-		'$picdate'      => xmlify(datetime_convert('UTC','UTC',$owner['avatar-date'] . '+00:00' , ATOM_TIME)) ,
-		'$uridate'      => xmlify(datetime_convert('UTC','UTC',$owner['uri-date']    . '+00:00' , ATOM_TIME)) ,
-		'$namdate'      => xmlify(datetime_convert('UTC','UTC',$owner['name-date']   . '+00:00' , ATOM_TIME)) ,
-		'$birthday'     => ((strlen($birthday)) ? '<dfrn:birthday>' . xmlify($birthday) . '</dfrn:birthday>' : ''),
-		'$community'    => (($owner['page-flags'] == PAGE_COMMUNITY) ? '<dfrn:community>1</dfrn:community>' : '')
-	));
-
-	call_hooks('atom_feed', $atom);
-
-	if(! count($items)) {
-
-		call_hooks('atom_feed_end', $atom);
-
-		$atom .= '</feed>' . "\r\n";
-		return $atom;
-	}
-
-	foreach($items as $item) {
-
-		// prevent private email from leaking.
-		if($item['network'] === NETWORK_MAIL)
-			continue;
-
-		// public feeds get html, our own nodes use bbcode
-
-		if($public_feed) {
-			$type = 'html';
-			// catch any email that's in a public conversation and make sure it doesn't leak
-			if($item['private'])
-				continue;
-		}
-		else {
-			$type = 'text';
-		}
-
-		$atom .= atom_entry($item,$type,null,$owner,true);
-	}
-
-	call_hooks('atom_feed_end', $atom);
-
-	$atom .= '</feed>' . "\r\n";
-
-	return $atom;
-}
-
 
 function construct_verb($item) {
 	if($item['verb'])
 		return $item['verb'];
 	return ACTIVITY_POST;
-}
-
-function construct_activity_object($item) {
-
-	if($item['object']) {
-		$o = '<as:object>' . "\r\n";
-		$r = parse_xml_string($item['object'],false);
-
-
-		if(! $r)
-			return '';
-		if($r->type)
-			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>' . "\r\n";
-		if($r->id)
-			$o .= '<id>' . xmlify($r->id) . '</id>' . "\r\n";
-		if($r->title)
-			$o .= '<title>' . xmlify($r->title) . '</title>' . "\r\n";
-		if($r->link) {
-			if(substr($r->link,0,1) === '<') {
-				// patch up some facebook "like" activity objects that got stored incorrectly
-				// for a couple of months prior to 9-Jun-2011 and generated bad XML.
-				// we can probably remove this hack here and in the following function in a few months time.
-				if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
-					$r->link = str_replace('&','&amp;', $r->link);
-				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
-				$o .= $r->link;
-			}
-			else
-				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
-		}
-		if($r->content)
-			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>' . "\r\n";
-		$o .= '</as:object>' . "\r\n";
-		return $o;
-	}
-
-	return '';
-}
-
-function construct_activity_target($item) {
-
-	if($item['target']) {
-		$o = '<as:target>' . "\r\n";
-		$r = parse_xml_string($item['target'],false);
-		if(! $r)
-			return '';
-		if($r->type)
-			$o .= '<as:object-type>' . xmlify($r->type) . '</as:object-type>' . "\r\n";
-		if($r->id)
-			$o .= '<id>' . xmlify($r->id) . '</id>' . "\r\n";
-		if($r->title)
-			$o .= '<title>' . xmlify($r->title) . '</title>' . "\r\n";
-		if($r->link) {
-			if(substr($r->link,0,1) === '<') {
-				if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
-					$r->link = str_replace('&','&amp;', $r->link);
-				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
-				$o .= $r->link;
-			}
-			else
-				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
-		}
-		if($r->content)
-			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>' . "\r\n";
-		$o .= '</as:target>' . "\r\n";
-		return $o;
-	}
-
-	return '';
 }
 
 /* limit_body_size()
@@ -440,8 +144,6 @@ function title_is_body($title, $body) {
 	return($title == $body);
 }
 
-
-
 function get_atom_elements($feed, $item, $contact = array()) {
 
 	require_once('library/HTMLPurifier.auto.php');
@@ -464,17 +166,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 	$res['title'] = unxmlify($item->get_title());
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
-
-	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
-		logger("get_atom_elements: detected app.net posting: ".print_r($res, true), LOGGER_DEBUG);
-		$res['title'] = "";
-		$res['body'] = nl2br($res['body']);
-	}
-
-	// removing the content of the title if its identically to the body
-	// This helps with auto generated titles e.g. from tumblr
-	if (title_is_body($res["title"], $res["body"]))
-		$res['title'] = "";
 
 	if($res['plink'])
 		$base_url = implode('/', array_slice(explode('/',$res['plink']),0,3));
@@ -851,62 +542,6 @@ function get_atom_elements($feed, $item, $contact = array()) {
 		}
 
 		$res['target'] .= '</target>' . "\n";
-	}
-
-	// This is some experimental stuff. By now retweets are shown with "RT:"
-	// But: There is data so that the message could be shown similar to native retweets
-	// There is some better way to parse this array - but it didn't worked for me.
-	$child = $item->feed->data["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["feed"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["entry"][0]["child"]["http://activitystrea.ms/spec/1.0/"][object][0]["child"];
-	if (is_array($child)) {
-		logger('get_atom_elements: Looking for status.net repeated message');
-
-		$message = $child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["content"][0]["data"];
-		$orig_id = ostatus_convert_href($child["http://activitystrea.ms/spec/1.0/"]["object"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10]["id"][0]["data"]);
-		$author = $child[SIMPLEPIE_NAMESPACE_ATOM_10]["author"][0]["child"][SIMPLEPIE_NAMESPACE_ATOM_10];
-		$uri = $author["uri"][0]["data"];
-		$name = $author["name"][0]["data"];
-		$avatar = @array_shift($author["link"][2]["attribs"]);
-		$avatar = $avatar["href"];
-
-		if (($name != "") and ($uri != "") and ($avatar != "") and ($message != "")) {
-			logger('get_atom_elements: fixing sender of repeated message. '.$orig_id, LOGGER_DEBUG);
-
-			if (!intval(get_config('system','wall-to-wall_share'))) {
-				$prefix = share_header($name, $uri, $avatar, "", "", $orig_link);
-
-				$res["body"] = $prefix.html2bbcode($message)."[/share]";
-			} else {
-				$res["owner-name"] = $res["author-name"];
-				$res["owner-link"] = $res["author-link"];
-				$res["owner-avatar"] = $res["author-avatar"];
-
-				$res["author-name"] = $name;
-				$res["author-link"] = $uri;
-				$res["author-avatar"] = $avatar;
-
-				$res["body"] = html2bbcode($message);
-			}
-		}
-	}
-
-	if (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND $contact['fetch_further_information']) {
-		$preview = "";
-
-		// Handle enclosures and treat them as preview picture
-		if (isset($attach))
-			foreach ($attach AS $attachment)
-				if ($attachment->type == "image/jpeg")
-					$preview = $attachment->link;
-
-		$res["body"] = $res["title"].add_page_info($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
-		$res["tag"] = add_page_keywords($res['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_blacklist']);
-		$res["title"] = "";
-		$res["object-type"] = ACTIVITY_OBJ_BOOKMARK;
-		unset($res["attach"]);
-	} elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_OSTATUS))
-		$res["body"] = add_page_info_to_body($res["body"]);
-	elseif (isset($contact["network"]) AND ($contact["network"] == NETWORK_FEED) AND strstr($res['plink'], ".app.net/")) {
-		$res["body"] = add_page_info_to_body($res["body"]);
 	}
 
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
@@ -1334,9 +969,37 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("item_store: Set network to ".$arr["network"]." for ".$arr["uri"], LOGGER_DEBUG);
 	}
 
-	if ($arr["gcontact-id"] == 0)
-		$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
-							 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
+	// The contact-id should be set before "item_store" was called - but there seems to be some issues
+	if ($arr["contact-id"] == 0) {
+		// First we are looking for a suitable contact that matches with the author of the post
+		// This is done only for comments (See below explanation at "gcontact-id")
+		if($arr['parent-uri'] != $arr['uri'])
+			$arr["contact-id"] = get_contact($arr['author-link'], $uid);
+
+		// If not present then maybe the owner was found
+		if ($arr["contact-id"] == 0)
+			$arr["contact-id"] = get_contact($arr['owner-link'], $uid);
+
+		// Still missing? Then use the "self" contact of the current user
+		if ($arr["contact-id"] == 0) {
+			$r = q("SELECT `id` FROM `contact` WHERE `self` AND `uid` = %d", intval($uid));
+			if ($r)
+				$arr["contact-id"] = $r[0]["id"];
+		}
+		logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
+	}
+
+	if ($arr["gcontact-id"] == 0) {
+		// The gcontact should mostly behave like the contact. But is is supposed to be global for the system.
+		// This means that wall posts, repeated posts, etc. should have the gcontact id of the owner.
+		// On comments the author is the better choice.
+		if($arr['parent-uri'] === $arr['uri'])
+			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['owner-link'], "network" => $arr['network'],
+								 "photo" => $arr['owner-avatar'], "name" => $arr['owner-name']));
+		else
+			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
+								 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
+	}
 
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid
@@ -1609,6 +1272,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		);
 
 	if($dsprsig) {
+
+		// Friendica servers lower than 3.4.3-2 had double encoded the signature ...
+		// We can check for this condition when we decode and encode the stuff again.
+		if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
+			$dsprsig->signature = base64_decode($dsprsig->signature);
+			logger("Repaired double encoded signature from handle ".$dsprsig->signer, LOGGER_DEBUG);
+		}
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($current_post),
 			dbesc($dsprsig->signed_text),
@@ -1653,66 +1324,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	create_files_from_item($current_post);
 
 	// Only check for notifications on start posts
-	if ($arr['parent-uri'] === $arr['uri']) {
+	if ($arr['parent-uri'] === $arr['uri'])
 		add_thread($current_post);
-		logger('item_store: Check notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-
-		// Send a notification for every new post?
-		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-			intval($arr['contact-id']),
-			intval($arr['uid'])
-		);
-		$send_notification = count($r);
-
-		if (!$send_notification) {
-			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
-				intval(TERM_OBJ_POST), intval($current_post), intval(TERM_MENTION), intval($arr['uid']));
-
-			if (count($tags)) {
-				foreach ($tags AS $tag) {
-					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
-						normalise_link($tag["url"]), intval($arr['uid']));
-					if (count($r))
-						$send_notification = true;
-				}
-			}
-		}
-
-		if ($send_notification) {
-			logger('item_store: Send notification for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-			$u = q("SELECT * FROM user WHERE uid = %d LIMIT 1",
-				intval($arr['uid']));
-
-			$item = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d",
-				intval($current_post),
-				intval($arr['uid'])
-			);
-
-			$a = get_app();
-
-			require_once('include/enotify.php');
-			notification(array(
-				'type'         => NOTIFY_SHARE,
-				'notify_flags' => $u[0]['notify-flags'],
-				'language'     => $u[0]['language'],
-				'to_name'      => $u[0]['username'],
-				'to_email'     => $u[0]['email'],
-				'uid'          => $u[0]['uid'],
-				'item'         => $item[0],
-				'link'         => $a->get_baseurl().'/display/'.urlencode($arr['guid']),
-				'source_name'  => $item[0]['author-name'],
-				'source_link'  => $item[0]['author-link'],
-				'source_photo' => $item[0]['author-avatar'],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $arr['parent']
-			));
-			logger('item_store: Notification sent for contact '.$arr['contact-id'].' and post '.$current_post, LOGGER_DEBUG);
-		}
-	} else {
+	else {
 		update_thread($parent_id);
 		add_shadow_entry($arr);
 	}
+
+	check_item_notification($current_post, $uid);
 
 	if ($notify)
 		proc_run('php', "include/notifier.php", $notify_type, $current_post);
@@ -1909,37 +1528,6 @@ function tag_deliver($uid,$item_id) {
 		return;
 	}
 
-
-	// send a notification
-
-	// use a local photo if we have one
-
-	$r = q("select * from contact where uid = %d and nurl = '%s' limit 1",
-		intval($u[0]['uid']),
-		dbesc(normalise_link($item['author-link']))
-	);
-	$photo = (($r && count($r)) ? $r[0]['thumb'] : $item['author-avatar']);
-
-
-	require_once('include/enotify.php');
-	notification(array(
-		'type'         => NOTIFY_TAGSELF,
-		'notify_flags' => $u[0]['notify-flags'],
-		'language'     => $u[0]['language'],
-		'to_name'      => $u[0]['username'],
-		'to_email'     => $u[0]['email'],
-		'uid'          => $u[0]['uid'],
-		'item'         => $item,
-		'link'         => $a->get_baseurl() . '/display/'.urlencode(get_item_guid($item['id'])),
-		'source_name'  => $item['author-name'],
-		'source_link'  => $item['author-link'],
-		'source_photo' => $photo,
-		'verb'         => ACTIVITY_TAG,
-		'otype'        => 'item',
-		'parent'       => $item['parent']
-	));
-
-
 	$arr = array('item' => $item, 'user' => $u[0], 'contact' => $r[0]);
 
 	call_hooks('tagged', $arr);
@@ -2036,244 +1624,8 @@ function tgroup_check($uid,$item) {
 	if((! $community_page) && (! $prvgroup))
 		return false;
 
-
-
 	return true;
-
 }
-
-
-
-
-
-
-function dfrn_deliver($owner,$contact,$atom, $dissolve = false) {
-
-	$a = get_app();
-
-	$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
-
-	if($contact['duplex'] && $contact['dfrn-id'])
-		$idtosend = '0:' . $orig_id;
-	if($contact['duplex'] && $contact['issued-id'])
-		$idtosend = '1:' . $orig_id;
-
-
-	$rino = get_config('system','rino_encrypt');
-	$rino = intval($rino);
-	// use RINO1 if mcrypt isn't installed and RINO2 was selected
-	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
-
-	logger("Local rino version: ". $rino, LOGGER_DEBUG);
-
-	$ssl_val = intval(get_config('system','ssl_policy'));
-	$ssl_policy = '';
-
-	switch($ssl_val){
-		case SSL_POLICY_FULL:
-			$ssl_policy = 'full';
-			break;
-		case SSL_POLICY_SELFSIGN:
-			$ssl_policy = 'self';
-			break;
-		case SSL_POLICY_NONE:
-		default:
-			$ssl_policy = 'none';
-			break;
-	}
-
-	$url = $contact['notify'] . '&dfrn_id=' . $idtosend . '&dfrn_version=' . DFRN_PROTOCOL_VERSION . (($rino) ? '&rino='.$rino : '');
-
-	logger('dfrn_deliver: ' . $url);
-
-	$xml = fetch_url($url);
-
-	$curl_stat = $a->get_curl_code();
-	if(! $curl_stat)
-		return(-1); // timed out
-
-	logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
-
-	if(! $xml)
-		return 3;
-
-	if(strpos($xml,'<?xml') === false) {
-		logger('dfrn_deliver: no valid XML returned');
-		logger('dfrn_deliver: returned XML: ' . $xml, LOGGER_DATA);
-		return 3;
-	}
-
-	$res = parse_xml_string($xml);
-
-	if((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id)))
-		return (($res->status) ? $res->status : 3);
-
-	$postvars     = array();
-	$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
-	$challenge    = hex2bin((string) $res->challenge);
-	$perm         = (($res->perm) ? $res->perm : null);
-	$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
-	$rino_remote_version = intval($res->rino);
-	$page         = (($owner['page-flags'] == PAGE_COMMUNITY) ? 1 : 0);
-
-	logger("Remote rino version: ".$rino_remote_version." for ".$contact["url"], LOGGER_DEBUG);
-
-	if($owner['page-flags'] == PAGE_PRVGROUP)
-		$page = 2;
-
-	$final_dfrn_id = '';
-
-	if($perm) {
-		if((($perm == 'rw') && (! intval($contact['writable'])))
-		|| (($perm == 'r') && (intval($contact['writable'])))) {
-			q("update contact set writable = %d where id = %d",
-				intval(($perm == 'rw') ? 1 : 0),
-				intval($contact['id'])
-			);
-			$contact['writable'] = (string) 1 - intval($contact['writable']);
-		}
-	}
-
-	if(($contact['duplex'] && strlen($contact['pubkey']))
-		|| ($owner['page-flags'] == PAGE_COMMUNITY && strlen($contact['pubkey']))
-		|| ($contact['rel'] == CONTACT_IS_SHARING && strlen($contact['pubkey']))) {
-		openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
-		openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
-	}
-	else {
-		openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
-		openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
-	}
-
-	$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
-
-	if(strpos($final_dfrn_id,':') == 1)
-		$final_dfrn_id = substr($final_dfrn_id,2);
-
-	if($final_dfrn_id != $orig_id) {
-		logger('dfrn_deliver: wrong dfrn_id.');
-		// did not decode properly - cannot trust this site
-		return 3;
-	}
-
-	$postvars['dfrn_id']      = $idtosend;
-	$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
-	if($dissolve)
-		$postvars['dissolve'] = '1';
-
-
-	if((($contact['rel']) && ($contact['rel'] != CONTACT_IS_SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == PAGE_COMMUNITY)) {
-		$postvars['data'] = $atom;
-		$postvars['perm'] = 'rw';
-	}
-	else {
-		$postvars['data'] = str_replace('<dfrn:comment-allow>1','<dfrn:comment-allow>0',$atom);
-		$postvars['perm'] = 'r';
-	}
-
-	$postvars['ssl_policy'] = $ssl_policy;
-
-	if($page)
-		$postvars['page'] = $page;
-
-
-	if($rino>0 && $rino_remote_version>0 && (! $dissolve)) {
-		logger('rino version: '. $rino_remote_version);
-
-		switch($rino_remote_version) {
-			case 1:
-				// Deprecated rino version!
-				$key = substr(random_string(),0,16);
-				$data = aes_encrypt($postvars['data'],$key);
-				break;
-			case 2:
-				// RINO 2 based on php-encryption
-				try {
-					$key = Crypto::createNewRandomKey();
-				} catch (CryptoTestFailed $ex) {
-					logger('Cannot safely create a key');
-					return -1;
-				} catch (CannotPerformOperation $ex) {
-					logger('Cannot safely create a key');
-					return -1;
-				}
-				try {
-					$data = Crypto::encrypt($postvars['data'], $key);
-				} catch (CryptoTestFailed $ex) {
-					logger('Cannot safely perform encryption');
-					return -1;
-				} catch (CannotPerformOperation $ex) {
-					logger('Cannot safely perform encryption');
-					return -1;
-				}
-				break;
-			default:
-				logger("rino: invalid requested verision '$rino_remote_version'");
-				return -1;
-		}
-
-		$postvars['rino'] = $rino_remote_version;
-		$postvars['data'] = bin2hex($data);
-
-		#logger('rino: sent key = ' . $key, LOGGER_DEBUG);
-
-
-		if($dfrn_version >= 2.1) {
-			if(($contact['duplex'] && strlen($contact['pubkey']))
-				|| ($owner['page-flags'] == PAGE_COMMUNITY && strlen($contact['pubkey']))
-				|| ($contact['rel'] == CONTACT_IS_SHARING && strlen($contact['pubkey']))) {
-
-				openssl_public_encrypt($key,$postvars['key'],$contact['pubkey']);
-			}
-			else {
-				openssl_private_encrypt($key,$postvars['key'],$contact['prvkey']);
-			}
-		}
-		else {
-			if(($contact['duplex'] && strlen($contact['prvkey'])) || ($owner['page-flags'] == PAGE_COMMUNITY)) {
-				openssl_private_encrypt($key,$postvars['key'],$contact['prvkey']);
-			}
-			else {
-				openssl_public_encrypt($key,$postvars['key'],$contact['pubkey']);
-			}
-		}
-
-		logger('md5 rawkey ' . md5($postvars['key']));
-
-		$postvars['key'] = bin2hex($postvars['key']);
-	}
-
-
-	logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
-
-	$xml = post_url($contact['notify'],$postvars);
-
-	logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
-
-	$curl_stat = $a->get_curl_code();
-	if((! $curl_stat) || (! strlen($xml)))
-		return(-1); // timed out
-
-	if(($curl_stat == 503) && (stristr($a->get_curl_headers(),'retry-after')))
-		return(-1);
-
-	if(strpos($xml,'<?xml') === false) {
-		logger('dfrn_deliver: phase 2: no valid XML returned');
-		logger('dfrn_deliver: phase 2: returned XML: ' . $xml, LOGGER_DATA);
-		return 3;
-	}
-
-	if($contact['term-date'] != '0000-00-00 00:00:00') {
-		logger("dfrn_deliver: $url back from the dead - removing mark for death");
-		require_once('include/Contact.php');
-		unmark_for_death($contact);
-	}
-
-	$res = parse_xml_string($xml);
-
-	return $res->status;
-}
-
 
 /*
   This function returns true if $update has an edited timestamp newer
@@ -2643,7 +1995,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 
 		logger('consume_feed: feed item count = ' . $feed->get_item_quantity());
 
-	// in inverse date order
+		// in inverse date order
 		if ($datedir)
 			$items = array_reverse($feed->get_items());
 		else
@@ -3040,6 +2392,9 @@ function item_is_remote_self($contact, &$datarray) {
 }
 
 function local_delivery($importer,$data) {
+
+	require_once('library/simplepie/simplepie.inc');
+
 	$a = get_app();
 
 	logger(__function__, LOGGER_TRACE);
@@ -3818,33 +3173,7 @@ function local_delivery($importer,$data) {
 					}
 
 					if($posted_id && $parent) {
-
 						proc_run('php',"include/notifier.php","comment-import","$posted_id");
-
-						if((! $is_like) && (! $importer['self'])) {
-
-							require_once('include/enotify.php');
-
-							notification(array(
-								'type'         => NOTIFY_COMMENT,
-								'notify_flags' => $importer['notify-flags'],
-								'language'     => $importer['language'],
-								'to_name'      => $importer['username'],
-								'to_email'     => $importer['email'],
-								'uid'          => $importer['importer_uid'],
-								'item'         => $datarray,
-								'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
-								'source_name'  => stripslashes($datarray['author-name']),
-								'source_link'  => $datarray['author-link'],
-								'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
-									? $importer['thumb'] : $datarray['author-avatar']),
-								'verb'         => ACTIVITY_POST,
-								'otype'        => 'item',
-								'parent'       => $parent,
-								'parent_uri'   => $parent_uri,
-							));
-
-						}
 					}
 
 					return 0;
@@ -3966,59 +3295,6 @@ function local_delivery($importer,$data) {
 
 				$posted_id = item_store($datarray);
 
-				// find out if our user is involved in this conversation and wants to be notified.
-
-				if(!x($datarray['type']) || $datarray['type'] != 'activity') {
-
-					$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0",
-						dbesc($top_uri),
-						intval($importer['importer_uid'])
-					);
-
-					if(count($myconv)) {
-						$importer_url = $a->get_baseurl() . '/profile/' . $importer['nickname'];
-
-						// first make sure this isn't our own post coming back to us from a wall-to-wall event
-						if(! link_compare($datarray['author-link'],$importer_url)) {
-
-
-							foreach($myconv as $conv) {
-
-								// now if we find a match, it means we're in this conversation
-
-								if(! link_compare($conv['author-link'],$importer_url))
-									continue;
-
-								require_once('include/enotify.php');
-
-								$conv_parent = $conv['parent'];
-
-								notification(array(
-									'type'         => NOTIFY_COMMENT,
-									'notify_flags' => $importer['notify-flags'],
-									'language'     => $importer['language'],
-									'to_name'      => $importer['username'],
-									'to_email'     => $importer['email'],
-									'uid'          => $importer['importer_uid'],
-									'item'         => $datarray,
-									'link'		   => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
-									'source_name'  => stripslashes($datarray['author-name']),
-									'source_link'  => $datarray['author-link'],
-									'source_photo' => ((link_compare($datarray['author-link'],$importer['url']))
-										? $importer['thumb'] : $datarray['author-avatar']),
-									'verb'         => ACTIVITY_POST,
-									'otype'        => 'item',
-									'parent'       => $conv_parent,
-									'parent_uri'   => $parent_uri
-
-								));
-
-								// only send one notification
-								break;
-							}
-						}
-					}
-				}
 				continue;
 			}
 		}
@@ -4313,7 +3589,6 @@ function lose_sharer($importer,$contact,$datarray,$item) {
 	}
 }
 
-
 function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 
 	$a = get_app();
@@ -4354,189 +3629,6 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 
 	return;
 
-}
-
-
-function atom_author($tag,$name,$uri,$h,$w,$photo,$geo) {
-	$o = '';
-	if(! $tag)
-		return $o;
-	$name = xmlify($name);
-	$uri = xmlify($uri);
-	$h = intval($h);
-	$w = intval($w);
-	$photo = xmlify($photo);
-
-
-	$o .= "<$tag>\r\n";
-	$o .= "\t<name>$name</name>\r\n";
-	$o .= "\t<uri>$uri</uri>\r\n";
-	$o .= "\t".'<link rel="photo"  type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
-	$o .= "\t".'<link rel="avatar" type="image/jpeg" media:width="' . $w . '" media:height="' . $h . '" href="' . $photo . '" />' . "\r\n";
-
-	if ($tag == "author") {
-
-		if($geo)
-			$o .= '<georss:point>'.xmlify($geo).'</georss:point>'."\r\n";
-
-		$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
-				`profile`.`name`, `profile`.`pub_keywords`, `profile`.`about`,
-				`profile`.`homepage`,`contact`.`nick` FROM `profile`
-				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
-				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `profile`.`is-default` AND `contact`.`self` AND
-					NOT `user`.`hidewall` AND `contact`.`nurl`='%s'",
-			dbesc(normalise_link($uri)));
-		if ($r) {
-			$location = '';
-			if($r[0]['locality'])
-				$location .= $r[0]['locality'];
-			if($r[0]['region']) {
-				if($location)
-					$location .= ', ';
-				$location .= $r[0]['region'];
-			}
-			if($r[0]['country-name']) {
-				if($location)
-					$location .= ', ';
-				$location .= $r[0]['country-name'];
-			}
-
-			$o .= "\t<poco:preferredUsername>".xmlify($r[0]["nick"])."</poco:preferredUsername>\r\n";
-			$o .= "\t<poco:displayName>".xmlify($r[0]["name"])."</poco:displayName>\r\n";
-			$o .= "\t<poco:note>".xmlify(bbcode($r[0]["about"]))."</poco:note>\r\n";
-			$o .= "\t<poco:address>\r\n";
-			$o .= "\t\t<poco:formatted>".xmlify($location)."</poco:formatted>\r\n";
-			$o .= "\t</poco:address>\r\n";
-			$o .= "\t<poco:urls>\r\n";
-			$o .= "\t<poco:type>homepage</poco:type>\r\n";
-			$o .= "\t\t<poco:value>".xmlify($r[0]["homepage"])."</poco:value>\r\n";
-			$o .= "\t\t<poco:primary>true</poco:primary>\r\n";
-			$o .= "\t</poco:urls>\r\n";
-		}
-	}
-
-	call_hooks('atom_author', $o);
-
-	$o .= "</$tag>\r\n";
-	return $o;
-}
-
-function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
-
-	$a = get_app();
-
-	if(! $item['parent'])
-		return;
-
-	if($item['deleted'])
-		return '<at:deleted-entry ref="' . xmlify($item['uri']) . '" when="' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '" />' . "\r\n";
-
-
-	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
-		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
-	else
-		$body = $item['body'];
-
-
-	$o = "\r\n\r\n<entry>\r\n";
-
-	if(is_array($author))
-		$o .= atom_author('author',$author['name'],$author['url'],80,80,$author['thumb'], $item['coord']);
-	else
-		$o .= atom_author('author',(($item['author-name']) ? $item['author-name'] : $item['name']),(($item['author-link']) ? $item['author-link'] : $item['url']),80,80,(($item['author-avatar']) ? $item['author-avatar'] : $item['thumb']), $item['coord']);
-	if(strlen($item['owner-name']))
-		$o .= atom_author('dfrn:owner',$item['owner-name'],$item['owner-link'],80,80,$item['owner-avatar'], $item['coord']);
-
-	if(($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-		$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
-		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-		$o .= '<thr:in-reply-to ref="'.xmlify($parent_item).'" type="text/html" href="'.xmlify($a->get_baseurl().'/display/'.$parent[0]['guid']).'" />'."\r\n";
-	}
-
-	$htmlbody = $body;
-
-	if ($item['title'] != "")
-		$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
-
-	$htmlbody = bbcode($htmlbody, false, false, 7);
-
-	$o .= '<id>' . xmlify($item['uri']) . '</id>' . "\r\n";
-	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
-	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
-	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
-	$o .= '<dfrn:env>' . base64url_encode($body, true) . '</dfrn:env>' . "\r\n";
-	$o .= '<content type="' . $type . '" >' . xmlify((($type === 'html') ? $htmlbody : $body)) . '</content>' . "\r\n";
-	$o .= '<link rel="alternate" type="text/html" href="'.xmlify($a->get_baseurl().'/display/'.$item['guid']).'" />'."\r\n";
-
-	$o .= '<status_net notice_id="'.$item['id'].'"></status_net>'."\r\n";
-
-	if($comment)
-		$o .= '<dfrn:comment-allow>' . intval($item['last-child']) . '</dfrn:comment-allow>' . "\r\n";
-
-	if($item['location']) {
-		$o .= '<dfrn:location>' . xmlify($item['location']) . '</dfrn:location>' . "\r\n";
-		$o .= '<poco:address><poco:formatted>' . xmlify($item['location']) . '</poco:formatted></poco:address>' . "\r\n";
-	}
-
-	if($item['coord'])
-		$o .= '<georss:point>' . xmlify($item['coord']) . '</georss:point>' . "\r\n";
-
-	if(($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
-		$o .= '<dfrn:private>' . (($item['private']) ? $item['private'] : 1) . '</dfrn:private>' . "\r\n";
-
-	if($item['extid'])
-		$o .= '<dfrn:extid>' . xmlify($item['extid']) . '</dfrn:extid>' . "\r\n";
-	if($item['bookmark'])
-		$o .= '<dfrn:bookmark>true</dfrn:bookmark>' . "\r\n";
-
-	if($item['app'])
-		$o .= '<statusnet:notice_info local_id="' . $item['id'] . '" source="' . xmlify($item['app']) . '" ></statusnet:notice_info>' . "\r\n";
-
-	if($item['guid'])
-		$o .= '<dfrn:diaspora_guid>' . $item['guid'] . '</dfrn:diaspora_guid>' . "\r\n";
-
-	if($item['signed_text']) {
-		$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
-		$o .= '<dfrn:diaspora_signature>' . xmlify($sign) . '</dfrn:diaspora_signature>' . "\r\n";
-	}
-
-	$verb = construct_verb($item);
-	$o .= '<as:verb>' . xmlify($verb) . '</as:verb>' . "\r\n";
-	$actobj = construct_activity_object($item);
-	if(strlen($actobj))
-		$o .= $actobj;
-	$actarg = construct_activity_target($item);
-	if(strlen($actarg))
-		$o .= $actarg;
-
-	$tags = item_getfeedtags($item);
-	if(count($tags)) {
-		foreach($tags as $t)
-			if (($type != 'html') OR ($t[0] != "@"))
-				$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
-	}
-
-	/// @TODO
-	/// To support these elements, the API needs to be enhanced
-	/// $o .= '<link rel="ostatus:conversation" href="'.xmlify($a->get_baseurl().'/display/'.$owner['nickname'].'/'.$item['parent']).'"/>'."\r\n";
-	/// $o .= "\t".'<link rel="self" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-	/// $o .= "\t".'<link rel="edit" type="application/atom+xml" href="'.xmlify($a->get_baseurl().'/api/statuses/show/'.$item['id'].'.atom').'"/>'."\r\n";
-
-	// Deactivated since it was meant only for OStatus
-	//$o .= item_get_attachment($item);
-
-	$o .= item_getfeedattach($item);
-
-	$mentioned = get_mentions($item);
-	if($mentioned)
-		$o .= $mentioned;
-
-	call_hooks('atom_entry', $o);
-
-	$o .= '</entry>' . "\r\n";
-
-	return $o;
 }
 
 function fix_private_photos($s, $uid, $item = null, $cid = 0) {
@@ -4642,7 +3734,6 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	return($new_body);
 }
 
-
 function has_permissions($obj) {
 	if(($obj['allow_cid'] != '') || ($obj['allow_gid'] != '') || ($obj['deny_cid'] != '') || ($obj['deny_gid'] != ''))
 		return true;
@@ -4702,50 +3793,6 @@ function item_getfeedtags($item) {
 	}
 	return $ret;
 }
-
-function item_get_attachment($item) {
-	$o = "";
-	$siteinfo = get_attached_data($item["body"]);
-
-	switch($siteinfo["type"]) {
-		case 'link':
-			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["url"]).'" type="text/html; charset=UTF-8" length="" title="'.xmlify($siteinfo["title"]).'"/>'."\r\n";
-			break;
-		case 'photo':
-			$imgdata = get_photo_info($siteinfo["image"]);
-			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["image"]).'" type="'.$imgdata["mime"].'" length="'.$imgdata["size"].'"/>'."\r\n";
-			break;
-		case 'video':
-			$o = '<link rel="enclosure" href="'.xmlify($siteinfo["url"]).'" type="text/html; charset=UTF-8" length="" title="'.xmlify($siteinfo["title"]).'"/>'."\r\n";
-			break;
-		default:
-			break;
-	}
-
-	return $o;
-}
-
-function item_getfeedattach($item) {
-	$ret = '';
-	$arr = explode('[/attach],',$item['attach']);
-	if(count($arr)) {
-		foreach($arr as $r) {
-			$matches = false;
-			$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches);
-			if($cnt) {
-				$ret .= '<link rel="enclosure" href="' . xmlify($matches[1]) . '" type="' . xmlify($matches[3]) . '" ';
-				if(intval($matches[2]))
-					$ret .= 'length="' . intval($matches[2]) . '" ';
-				if($matches[4] !== ' ')
-					$ret .= 'title="' . xmlify(trim($matches[4])) . '" ';
-				$ret .= ' />' . "\r\n";
-			}
-		}
-	}
-	return $ret;
-}
-
-
 
 function item_expire($uid, $days, $network = "", $force = false) {
 

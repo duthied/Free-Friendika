@@ -633,4 +633,129 @@ function notification($params) {
 
 }
 
+/**
+ * @brief Checks for item related notifications and sends them
+ *
+ * @param int $itemid ID of the item for which the check should be done
+ * @param int $uid User ID
+ * @param str $defaulttype (Optional) Forces a notification with this type.
+ */
+function check_item_notification($itemid, $uid, $defaulttype = "") {
+
+	$notification_data = array("uid" => $uid, "profiles" => array());
+	call_hooks('check_item_notification', $notification_data);
+
+	$profiles = $notification_data["profiles"];
+
+	$user = q("SELECT `notify-flags`, `language`, `username`, `email` FROM `user` WHERE `uid` = %d", intval($uid));
+	if (!$user)
+		return false;
+
+	$owner = q("SELECT `id`, `url` FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1", intval($uid));
+	if (!$owner)
+		return false;
+
+	$profiles[] = $owner[0]["url"];
+
+	$profiles2 = array();
+
+	foreach ($profiles AS $profile) {
+		$profiles2[] = normalise_link($profile);
+		$profiles2[] = str_replace("http://", "https://", normalise_link($profile));
+	}
+
+	$profiles = $profiles2;
+
+	$profile_list = "";
+
+	foreach ($profiles AS $profile) {
+		if ($profile_list != "")
+			$profile_list .= "', '";
+
+		$profile_list .= dbesc($profile);
+	}
+
+	$profile_list = "'".$profile_list."'";
+
+	// Only act if it is a "real" post
+	// We need the additional check for the "local_profile" because of mixed situations on connector networks
+	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-name`, `author-link`, `author-avatar`, `guid`,
+			`parent-uri`, `uri`, `contact-id`
+			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
+				NOT (`author-link` IN ($profile_list))  LIMIT 1",
+		intval($itemid), dbesc(ACTIVITY_POST));
+	if (!$item)
+		return false;
+
+	// Generate the notification array
+	$params = array();
+	$params["uid"] = $uid;
+	$params["notify_flags"] = $user[0]["notify-flags"];
+	$params["language"] = $user[0]["language"];
+	$params["to_name"] = $user[0]["username"];
+	$params["to_email"] = $user[0]["email"];
+	$params["item"] = $item[0];
+	$params["parent"] = $item[0]["parent"];
+	$params["link"] = App::get_baseurl().'/display/'.urlencode($item[0]["guid"]);
+	$params["otype"] = 'item';
+	$params["source_name"] = $item[0]["author-name"];
+	$params["source_link"] = $item[0]["author-link"];
+	$params["source_photo"] = $item[0]["author-avatar"];
+
+	if ($item[0]["parent-uri"] === $item[0]["uri"]) {
+                // Send a notification for every new post?
+                $r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
+                        intval($item[0]['contact-id']),
+                        intval($uid)
+                );
+                $send_notification = count($r);
+
+                if (!$send_notification) {
+                        $tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
+                                intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
+
+                        if (count($tags)) {
+                                foreach ($tags AS $tag) {
+                                        $r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
+                                                normalise_link($tag["url"]), intval($uid));
+                                        if (count($r))
+                                                $send_notification = true;
+                                }
+                        }
+                }
+
+		if ($send_notification) {
+			$params["type"] = NOTIFY_SHARE;
+			$params["verb"] = ACTIVITY_TAG;
+		}
+	}
+
+	// Is the user mentioned in this post?
+	$tagged = false;
+
+	foreach ($profiles AS $profile) {
+		if (strpos($item[0]["tag"], "=".$profile."]") OR strpos($item[0]["body"], "=".$profile."]"))
+			$tagged = true;
+	}
+
+	if ($item[0]["mention"] OR $tagged OR ($defaulttype == NOTIFY_TAGSELF)) {
+		$params["type"] = NOTIFY_TAGSELF;
+		$params["verb"] = ACTIVITY_TAG;
+	}
+
+	// Is it a post that the user had started or where he interacted?
+	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
+			WHERE `thread`.`iid` = %d AND `thread`.`uid` = %d AND NOT `thread`.`ignored` AND
+				(`thread`.`mention` OR `item`.`author-link` IN ($profile_list))
+			LIMIT 1",
+			intval($item[0]["parent"]), intval($uid));
+
+	if ($parent AND !isset($params["type"])) {
+		$params["type"] = NOTIFY_COMMENT;
+		$params["verb"] = ACTIVITY_POST;
+	}
+
+	if (isset($params["type"]))
+		notification($params);
+}
 ?>

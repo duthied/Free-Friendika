@@ -1800,7 +1800,8 @@ section.minimal {
 }
 
 #jot-preview-content {
-  padding-top: 25px;
+  padding-top: 4px;
+  clear: both;
 }
 
 #jot-preview-content .tread-wrapper {

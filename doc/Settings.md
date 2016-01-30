@@ -24,6 +24,9 @@ You are not required to provide the year.
 System settings
 ---
 
+**Settings should be done in the admin panel** (/admin).
+Those settings found in the database, will always override the settings added to the ``.htconfig.php`` file.
+
 ###Language
 
 Please see util/README for information on creating language translations.
@@ -219,6 +222,8 @@ LOGGER_DEBUG will show a good deal of information about system activity but will
 You may also select LOGGER_ALL but due to the volume of information we recommend only enabling this when you are tracking down a specific problem.
 Other log levels are possible but are not being used at the present time. 
 
+Please be aware that turning on the logging can fill up the disk space on your server relatively quick.
+You should take preventions with e.g. [logrotate](https://en.wikipedia.org/wiki/Log_rotation) or similar tools.
 
 ###PHP error logging
 
@@ -237,4 +242,6 @@ The vast majority of issues reported at these levels are completely harmless.
 Please report to the developers any errors you encounter in the logs using the recommended settings above.
 They generally indicate issues which need to be resolved. 
 
-If you encounter a blank (white) page when using the application, view the PHP logs - as this almost always indicates an error has occurred.  
+If you encounter a blank (white) page when using the application, view the PHP logs - as this almost always indicates an error has occurred.
+
+*Note*: PHP logging cannot be activated from the admin panel but has to be configured from the ``.htconfig.php`` file.

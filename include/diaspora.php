@@ -14,6 +14,7 @@ require_once('include/queue_fn.php');
 require_once('include/lock.php');
 require_once('include/threads.php');
 require_once('mod/share.php');
+require_once('include/enotify.php');
 
 function diaspora_dispatch_public($msg) {
 
@@ -728,7 +729,7 @@ function diaspora_request($importer,$xml) {
 
 		require_once('include/Photo.php');
 
-		$photos = import_profile_photo($contact_record['photo'],$importer['uid'],$contact_record['id']);
+		update_contact_avatar($contact_record['photo'],$importer['uid'],$contact_record['id']);
 
 		// technically they are sharing with us (CONTACT_IS_SHARING),
 		// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
@@ -739,24 +740,15 @@ function diaspora_request($importer,$xml) {
 		else
 			$new_relation = CONTACT_IS_FOLLOWER;
 
-		$r = q("UPDATE `contact` SET
-			`photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`rel` = %d,
+		$r = q("UPDATE `contact` SET `rel` = %d,
 			`name-date` = '%s',
 			`uri-date` = '%s',
-			`avatar-date` = '%s',
 			`blocked` = 0,
 			`pending` = 0,
 			`writable` = 1
 			WHERE `id` = %d
 			",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
 			intval($new_relation),
-			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($contact_record['id'])
@@ -824,6 +816,23 @@ function diaspora_plink($addr, $guid) {
 		return $r[0]["url"]."/?f=&mid=".$guid;
 
 	return 'https://'.substr($addr,strpos($addr,'@')+1).'/posts/'.$guid;
+}
+
+function diaspora_repair_signature($signature, $handle = "", $level = 1) {
+
+	if ($signature == "")
+		return($signature);
+
+	if (base64_encode(base64_decode(base64_decode($signature))) == base64_decode($signature)) {
+		$signature = base64_decode($signature);
+		logger("Repaired double encoded signature from Diaspora/Hubzilla handle ".$handle." - level ".$level, LOGGER_DEBUG);
+
+		// Do a recursive call to be able to fix even multiple levels
+		if ($level < 10)
+			$signature = diaspora_repair_signature($signature, $handle, ++$level);
+	}
+
+	return($signature);
 }
 
 function diaspora_post($importer,$xml,$msg) {
@@ -1565,62 +1574,22 @@ function diaspora_comment($importer,$xml,$msg) {
 		//);
 	//}
 
-	if(($parent_item['origin']) && (! $parent_author_signature)) {
+	// If we are the origin of the parent we store the original signature and notify our followers
+	if($parent_item['origin']) {
+		$author_signature_base64 = base64_encode($author_signature);
+		$author_signature_base64 = diaspora_repair_signature($author_signature_base64, $diaspora_handle);
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
 			dbesc($signed_data),
-			dbesc(base64_encode($author_signature)),
+			dbesc($author_signature_base64),
 			dbesc($diaspora_handle)
 		);
 
-		// if the message isn't already being relayed, notify others
-		// the existence of parent_author_signature means the parent_author or owner
-		// is already relaying.
-
+		// notify others
 		proc_run('php','include/notifier.php','comment-import',$message_id);
 	}
 
-	$myconv = q("SELECT `author-link`, `author-avatar`, `parent` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d AND `parent` != 0 AND `deleted` = 0 ",
-		dbesc($parent_item['uri']),
-		intval($importer['uid'])
-	);
-
-	if(count($myconv)) {
-		$importer_url = $a->get_baseurl() . '/profile/' . $importer['nickname'];
-
-		foreach($myconv as $conv) {
-
-			// now if we find a match, it means we're in this conversation
-
-			if(! link_compare($conv['author-link'],$importer_url))
-				continue;
-
-			require_once('include/enotify.php');
-
-			$conv_parent = $conv['parent'];
-
-			notification(array(
-				'type'         => NOTIFY_COMMENT,
-				'notify_flags' => $importer['notify-flags'],
-				'language'     => $importer['language'],
-				'to_name'      => $importer['username'],
-				'to_email'     => $importer['email'],
-				'uid'          => $importer['uid'],
-				'item'         => $datarray,
-				'link'		   => $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
-				'source_name'  => $datarray['author-name'],
-				'source_link'  => $datarray['author-link'],
-				'source_photo' => $datarray['author-avatar'],
-				'verb'         => ACTIVITY_POST,
-				'otype'        => 'item',
-				'parent'       => $conv_parent,
-				'parent_uri'   => $parent_uri
-			));
-
-			// only send one notification
-			break;
-		}
-	}
 	return;
 }
 
@@ -1775,7 +1744,6 @@ function diaspora_conversation($importer,$xml,$msg) {
 			intval($conversation['id'])
 		);
 
-		require_once('include/enotify.php');
 		notification(array(
 			'type' => NOTIFY_MAIL,
 			'notify_flags' => $importer['notify-flags'],
@@ -2226,21 +2194,21 @@ EOT;
 	//	);
 	//}
 
-	if(! $parent_author_signature) {
+	// If we are the origin of the parent we store the original signature and notify our followers
+	if($parent_item['origin']) {
+		$author_signature_base64 = base64_encode($author_signature);
+		$author_signature_base64 = diaspora_repair_signature($author_signature_base64, $diaspora_handle);
+
 		q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 			intval($message_id),
 			dbesc($signed_data),
-			dbesc(base64_encode($author_signature)),
+			dbesc($author_signature_base64),
 			dbesc($diaspora_handle)
 		);
-	}
 
-	// if the message isn't already being relayed, notify others
-	// the existence of parent_author_signature means the parent_author or owner
-	// is already relaying. The parent_item['origin'] indicates the message was created on our system
-
-	if(($parent_item['origin']) && (! $parent_author_signature))
+		// notify others
 		proc_run('php','include/notifier.php','comment-import',$message_id);
+	}
 
 	return;
 }
@@ -2336,8 +2304,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 			return;
 		}
 
-	}
-	else {
+	} else {
 
 		$sig_decode = base64_decode($sig);
 
@@ -2371,7 +2338,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 					intval($r[0]['parent'])
 				);
 				if(count($p)) {
-					if(($p[0]['origin']) && (! $parent_author_signature)) {
+					if($p[0]['origin']) {
 						q("insert into sign (`retract_iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
 							$r[0]['id'],
 							dbesc($signed_data),
@@ -2456,7 +2423,7 @@ function diaspora_profile($importer,$xml,$msg) {
 
 	require_once('include/Photo.php');
 
-	$images = import_profile_photo($image_url,$importer['uid'],$contact['id']);
+	update_contact_avatar($image_url,$importer['uid'],$contact['id']);
 
 	// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -2474,14 +2441,11 @@ function diaspora_profile($importer,$xml,$msg) {
 	/// @TODO Update name on item['author-name'] if the name changed. See consume_feed()
 	/// (Not doing this currently because D* protocol is scheduled for revision soon).
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' , `bd` = '%s', `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
+	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `bd` = '%s',
+			`location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc($name),
 		dbesc($nick),
 		dbesc($diaspora_handle),
-		dbesc(datetime_convert()),
-		dbesc($image_url),
-		dbesc($images[1]),
-		dbesc($images[2]),
 		dbesc(datetime_convert()),
 		dbesc($birthday),
 		dbesc($location),
@@ -2819,7 +2783,7 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 	// sign it
 
 	if($like)
-		$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $myaddr;
+		$signed_text =  $positive . ';' . $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $myaddr;
 	else
 		$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $myaddr;
 
@@ -2851,9 +2815,6 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	$a = get_app();
 	$myaddr = $owner['nickname'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
 //	$theiraddr = $contact['addr'];
-
-	$body = $item['body'];
-	$text = html_entity_decode(bb2diaspora($body));
 
 	// Diaspora doesn't support threaded comments, but some
 	// versions of Diaspora (i.e. Diaspora-pistos) support
@@ -2905,61 +2866,53 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 	// fetch the original signature	if the relayable was created by a Diaspora
 	// or DFRN user. Relayables for other networks are not supported.
 
-/*	$r = q("select * from sign where " . $sql_sign_id . " = %d limit 1",
+	$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE " . $sql_sign_id . " = %d LIMIT 1",
 		intval($item['id'])
 	);
-	if(count($r)) { 
+	if(count($r)) {
 		$orig_sign = $r[0];
 		$signed_text = $orig_sign['signed_text'];
 		$authorsig = $orig_sign['signature'];
 		$handle = $orig_sign['signer'];
+
+		// Split the signed text
+		$signed_parts = explode(";", $signed_text);
+
+		// Remove the parent guid
+		array_shift($signed_parts);
+
+		// Remove the comment guid
+		array_shift($signed_parts);
+
+		// Remove the handle
+		array_pop($signed_parts);
+
+		// Glue the parts together
+		$text = implode(";", $signed_parts);
 	}
 	else {
+		// This part is meant for cases where we don't have the signatur. (Which shouldn't happen with posts from Diaspora and Friendica)
+		// This means that the comment won't be accepted by newer Diaspora servers
 
-		// Author signature information (for likes, comments, and retractions of likes or comments,
-		// whether from Diaspora or Friendica) must be placed in the `sign` table before this 
-		// function is called
-		logger('diaspora_send_relay: original author signature not found, cannot send relayable');
-		return;
-	}*/
+		$body = $item['body'];
+		$text = html_entity_decode(bb2diaspora($body));
 
-	/* Since the author signature is only checked by the parent, not by the relay recipients,
-	 * I think it may not be necessary for us to do so much work to preserve all the original
-	 * signatures. The important thing that Diaspora DOES need is the original creator's handle.
-	 * Let's just generate that and forget about all the original author signature stuff.
-	 *
-	 * Note: this might be more of an problem if we want to support likes on comments for older
-	 * versions of Diaspora (diaspora-pistos), but since there are a number of problems with
-	 * doing that, let's ignore it for now.
-	 *
-	 * Currently, only DFRN contacts are supported. StatusNet shouldn't be hard, but it hasn't
-	 * been done yet
-	 */
+		$handle = diaspora_handle_from_contact($item['contact-id']);
+		if(! $handle)
+			return;
 
-	$handle = diaspora_handle_from_contact($item['contact-id']);
-	if(! $handle)
-		return;
+		if($relay_retract)
+			$signed_text = $item['guid'] . ';' . $target_type;
+		elseif($like)
+			$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
+		else
+			$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
 
-
-	if($relay_retract)
-		$sender_signed_text = $item['guid'] . ';' . $target_type;
-	elseif($like)
-		$sender_signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
-	else
-		$sender_signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
+		$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
+	}
 
 	// Sign the relayable with the top-level owner's signature
-	//
-	// We'll use the $sender_signed_text that we just created, instead of the $signed_text
-	// stored in the database, because that provides the best chance that Diaspora will
-	// be able to reconstruct the signed text the same way we did. This is particularly a
-	// concern for the comment, whose signed text includes the text of the comment. The
-	// smallest change in the text of the comment, including removing whitespace, will
-	// make the signature verification fail. Since we translate from BB code to Diaspora's
-	// markup at the top of this function, which is AFTER we placed the original $signed_text
-	// in the database, it's hazardous to trust the original $signed_text.
-
-	$parentauthorsig = base64_encode(rsa_sign($sender_signed_text,$owner['uprvkey'],'sha256'));
+	$parentauthorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
 
 	$msg = replace_macros($tpl,array(
 		'$guid' => xmlify($item['guid']),

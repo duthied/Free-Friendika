@@ -829,35 +829,6 @@ function qp($s) {
 return str_replace ("%","=",rawurlencode($s));
 }}
 
-
-
-if(! function_exists('get_mentions')) {
-/**
- * @param array $item
- * @return string html for mentions #FIXME: remove html
- */
-function get_mentions($item) {
-	$o = '';
-	if(! strlen($item['tag']))
-		return $o;
-
-	$arr = explode(',',$item['tag']);
-	foreach($arr as $x) {
-		$matches = null;
-		if(preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-			$o .= "\t\t" . '<link rel="ostatus:attention" href="' . $matches[1] . '" />' . "\r\n";
-			$o .= "\t\t" . '<link rel="mentioned" href="' . $matches[1] . '" />' . "\r\n";
-		}
-	}
-
-	if (!$item['private']) {
-			$o .= "\t\t".'<link rel="ostatus:attention" href="http://activityschema.org/collection/public"/>'."\r\n";
-			$o .= "\t\t".'<link rel="mentioned" href="http://activityschema.org/collection/public"/>'."\r\n";
-	}
-
-	return $o;
-}}
-
 if(! function_exists('contact_block')) {
 /**
  * Get html for contact block.
@@ -1533,7 +1504,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 
 		$pos = strpos($s, $spoilersearch);
 		$rnd = random_string(8);
-		$spoilerreplace = '<br /> <span id="spoiler-wrap-'.$rnd.'" style="white-space:nowrap;" class="fakelink" onclick="openClose(\'spoiler-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
+		$spoilerreplace = '<br /> <span id="spoiler-wrap-'.$rnd.'" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
 					'<blockquote class="spoiler" id="spoiler-'.$rnd.'" style="display: none;">';
 		$s = substr($s, 0, $pos).$spoilerreplace.substr($s, $pos+strlen($spoilersearch));
 	}
@@ -1545,7 +1516,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 
 		$pos = strpos($s, $authorsearch);
 		$rnd = random_string(8);
-		$authorreplace = '<br /> <span id="author-wrap-'.$rnd.'" style="white-space:nowrap;" class="fakelink" onclick="openClose(\'author-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
+		$authorreplace = '<br /> <span id="author-wrap-'.$rnd.'" class="author-wrap fakelink" onclick="openClose(\'author-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
 					'<blockquote class="author" id="author-'.$rnd.'" style="display: block;">';
 		$s = substr($s, 0, $pos).$authorreplace.substr($s, $pos+strlen($authorsearch));
 	}
@@ -1656,54 +1627,6 @@ function get_cats_and_terms($item) {
 
 	return array($categories, $folders);
 }
-
-
-
-if(! function_exists('feed_hublinks')) {
-/**
- * return atom link elements for all of our hubs
- * @return string hub link xml elements
- */
-function feed_hublinks() {
-	$a = get_app();
-	$hub = get_config('system','huburl');
-
-	$hubxml = '';
-	if(strlen($hub)) {
-		$hubs = explode(',', $hub);
-		if(count($hubs)) {
-			foreach($hubs as $h) {
-				$h = trim($h);
-				if(! strlen($h))
-					continue;
-				if ($h === '[internal]')
-					$h = z_root() . '/pubsubhubbub';
-				$hubxml .= '<link rel="hub" href="' . xmlify($h) . '" />' . "\n" ;
-			}
-		}
-	}
-	return $hubxml;
-}}
-
-
-if(! function_exists('feed_salmonlinks')) {
-/**
- * return atom link elements for salmon endpoints
- * @param string $nick user nickname
- * @return string salmon link xml elements
- */
-function feed_salmonlinks($nick) {
-
-	$a = get_app();
-
-	$salmon  = '<link rel="salmon" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ;
-
-	// old style links that status.net still needed as of 12/2010
-
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-replies" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ;
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-mention" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ;
-	return $salmon;
-}}
 
 if(! function_exists('get_plink')) {
 /**

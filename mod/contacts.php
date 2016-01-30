@@ -125,7 +125,7 @@ function contacts_batch_actions(&$a){
 		}
 	}
 	if ($count_actions>0) {
-		info ( sprintf( tt("%d contact edited.", "%d contacts edited", $count_actions), $count_actions) );
+		info ( sprintf( tt("%d contact edited.", "%d contacts edited.", $count_actions), $count_actions) );
 	}
 
 	if(x($_SESSION,'return_url'))
@@ -293,23 +293,8 @@ function _contact_update_profile($contact_id) {
 		intval(local_user())
 	);
 
-	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
-
-	$r = q("UPDATE `contact` SET `photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`avatar-date` = '%s'
-			WHERE `id` = %d",
-			dbesc($data["photo"]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_id)
-		);
+	// Update the entry in the contact table
+	update_contact_avatar($data['photo'], local_user(), $contact_id);
 
 	// Update the entry in the gcontact table
 	update_gcontact_from_probe($data["url"]);
@@ -903,7 +888,10 @@ function contact_posts($a, $contact_id) {
 
 	$o .= $tab_str;
 
-	if ($contact["url"]) {
+	$r = q("SELECT `id` FROM `item` WHERE `contact-id` = %d LIMIT 1", intval($contact_id));
+	if ($r)
+		$o .= posts_from_contact($a, $contact_id);
+	elseif ($contact["url"]) {
 		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 			dbesc(normalise_link($contact["url"])));
 
