@@ -67,9 +67,22 @@ nav ul {
 
 @media screen and (max-width: 480px) {
   .wall-item-container .wall-item-content img,
-  .children .wall-item-container .wall-item-item .wall-item-content img,
   .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
     max-width: 200px;
+  }
+  /* fix img width in threaded view - maybe there exists a better possibility to do this 
+    maybe this needs also to be done for tablet view*/
+  .children .wall-item-container .wall-item-item .wall-item-content img {
+    max-width: 100%;
+  }
+  iframe {
+    max-width: 100%;
+  }
+
+  /* the top-nav notfication menu
+    Note: the device needs a min display width of 320px */
+  #nav-notifications-menu {
+    width: 270px;
   }
 }
 
