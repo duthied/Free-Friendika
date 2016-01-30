@@ -521,8 +521,8 @@ class dfrn2 {
 		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
 			intval($importer["uid"]), dbesc($item["uri"]));
 		if ($r) {
-			//logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-			//return false;
+			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+			return false;
 		}
 
 		// Is it a reply?
@@ -694,7 +694,7 @@ class dfrn2 {
 		else
 			$when = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
 
-		if (!$uri OR !$contact)
+		if (!$uri OR !$contact_id)
 			return false;
 
 		$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id`
