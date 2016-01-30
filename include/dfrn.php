@@ -383,7 +383,7 @@ class dfrn {
 		if ($alternatelink == "")
 			$alternatelink = $owner['url'];
 
-		$root = $doc->createElementNS(NS_ATOM, 'feed');
+		$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
 		$doc->appendChild($root);
 
 		$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);

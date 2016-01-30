@@ -18,15 +18,6 @@ require_once("include/items.php");
 require_once("include/tags.php");
 require_once("include/files.php");
 
-define("NS_ATOM", "http://www.w3.org/2005/Atom");
-define("NS_THR", "http://purl.org/syndication/thread/1.0");
-define("NS_GEORSS", "http://www.georss.org/georss");
-define("NS_ACTIVITY", "http://activitystrea.ms/spec/1.0/");
-define("NS_MEDIA", "http://purl.org/syndication/atommedia");
-define("NS_POCO", "http://portablecontacts.net/spec/1.0");
-define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
-define("NS_STATUSNET", "http://status.net/schema/api/1/");
-
 class dfrn2 {
 	/**
 	 * @brief Add new birthday event for this person
@@ -236,7 +227,7 @@ class dfrn2 {
 		$obj_doc = new DOMDocument('1.0', 'utf-8');
 		$obj_doc->formatOutput = true;
 
-		$obj_element = $obj_doc->createElementNS(NS_ATOM, $element);
+		$obj_element = $obj_doc->createElementNS(NAMESPACE_ATOM1, $element);
 
 		$activity_type = $xpath->query('activity:object-type/text()', $activity)->item(0)->nodeValue;
 		xml_add_element($obj_doc, $obj_element, "type", $activity_type);
