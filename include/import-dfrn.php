@@ -1,19 +1,22 @@
 <?php
 /*
 require_once("include/Contact.php");
-require_once("include/threads.php");
 require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
-require_once("include/items.php");
 require_once("mod/share.php");
-require_once("include/enotify.php");
-require_once("include/socgraph.php");
 require_once("include/Photo.php");
 require_once("include/Scrape.php");
 require_once("include/follow.php");
 require_once("include/api.php");
 require_once("mod/proxy.php");
 */
+
+require_once("include/enotify.php");
+require_once("include/threads.php");
+require_once("include/socgraph.php");
+require_once("include/items.php");
+require_once("include/tags.php");
+require_once("include/files.php");
 
 define("NS_ATOM", "http://www.w3.org/2005/Atom");
 define("NS_THR", "http://purl.org/syndication/thread/1.0");
@@ -109,7 +112,7 @@ class dfrn2 {
 			$author["avatar"] = current($avatarlist);
 		}
 
-$onlyfetch = true; // Test
+		//$onlyfetch = true; // Test
 
 		if ($r AND !$onlyfetch) {
 
@@ -640,8 +643,8 @@ $onlyfetch = true; // Test
 			}
 		}
 
-		print_r($item);
-		//$item_id = item_store($item);
+		//print_r($item);
+		$item_id = item_store($item);
 
 		return;
 
@@ -669,11 +672,121 @@ $onlyfetch = true; // Test
 		return $item_id;
 	}
 
-	private function process_deletion($header, $xpath, $entry, $importer, $contact) {
-		die("blubb");
+	private function process_deletion($header, $xpath, $deletion, $importer, $contact) {
+		foreach($deletion->attributes AS $attributes) {
+			if ($attributes->name == "ref")
+				$uri = $attributes->textContent;
+			if ($attributes->name == "when")
+				$when = $attributes->textContent;
+		}
+		if ($when)
+			$when = datetime_convert('UTC','UTC', $when, 'Y-m-d H:i:s');
+		else
+			$when = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+
+		if (!$uri OR !is_array($contact))
+			return false;
+
+		$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id`
+				WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
+				dbesc($uri),
+				intval($importer["uid"]),
+				intval($contact["id"])
+			);
+		if(count($r)) {
+			$item = $r[0];
+
+			if(!$item["deleted"])
+				logger('deleting item '.$item["id"].' uri='.$item['uri'], LOGGER_DEBUG);
+
+			if($item["object-type"] === ACTIVITY_OBJ_EVENT) {
+				logger("Deleting event ".$item["event-id"], LOGGER_DEBUG);
+				event_delete($item["event-id"]);
+			}
+
+			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+				$xo = parse_xml_string($item["object"],false);
+				$xt = parse_xml_string($item["target"],false);
+				if($xt->type === ACTIVITY_OBJ_NOTE) {
+					$i = q("SELECT `id`, `contact-id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($xt->id),
+						intval($importer["importer_uid"])
+					);
+					if(count($i)) {
+
+						// For tags, the owner cannot remove the tag on the author's copy of the post.
+
+						$owner_remove = (($item['contact-id'] == $i[0]['contact-id']) ? true: false);
+						$author_remove = (($item['origin'] && $item['self']) ? true : false);
+						$author_copy = (($item['origin']) ? true : false);
+
+						if($owner_remove && $author_copy)
+							continue;
+						if($author_remove || $owner_remove) {
+							$tags = explode(',',$i[0]['tag']);
+							$newtags = array();
+							if(count($tags)) {
+								foreach($tags as $tag)
+									if(trim($tag) !== trim($xo->body))
+										$newtags[] = trim($tag);
+							}
+							q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
+								dbesc(implode(',',$newtags)),
+								intval($i[0]['id'])
+							);
+							create_tags_from_item($i[0]['id']);
+						}
+					}
+				}
+			}
+
+			if($item['uri'] == $item['parent-uri']) {
+				$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
+						`body` = '', `title` = ''
+					WHERE `parent-uri` = '%s' AND `uid` = %d",
+						dbesc($when),
+						dbesc(datetime_convert()),
+						dbesc($item['uri']),
+						intval($importer['uid'])
+					);
+					create_tags_from_itemuri($item['uri'], $importer['uid']);
+					create_files_from_itemuri($item['uri'], $importer['uid']);
+					update_thread_uri($item['uri'], $importer['uid']);
+			} else {
+				$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
+						`body` = '', `title` = ''
+					WHERE `uri` = '%s' AND `uid` = %d",
+						dbesc($when),
+						dbesc(datetime_convert()),
+						dbesc($uri),
+						intval($importer['uid'])
+					);
+				create_tags_from_itemuri($uri, $importer['uid']);
+				create_files_from_itemuri($uri, $importer['uid']);
+				if($item['last-child']) {
+					// ensure that last-child is set in case the comment that had it just got wiped.
+					q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d ",
+						dbesc(datetime_convert()),
+						dbesc($item['parent-uri']),
+						intval($item['uid'])
+					);
+					// who is the last child now?
+					$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `moderated` = 0 AND `uid` = %d
+						ORDER BY `created` DESC LIMIT 1",
+							dbesc($item['parent-uri']),
+							intval($importer['uid'])
+					);
+					if(count($r)) {
+						q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
+							intval($r[0]['id'])
+						);
+					}
+				}
+			}
+		}
 	}
 
-	function import($xml,$importer) {
+	function import($xml,$importer, &$contact) {
 
 		$a = get_app();
 
@@ -697,8 +810,10 @@ $onlyfetch = true; // Test
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
 		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `self`", intval($importer["uid"]));
-		$contact = $r[0];
+		if (!$contact) {
+			$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `self`", intval($importer["uid"]));
+			$contact = $r[0];
+		}
 
 		$header = array();
 		$header["uid"] = $importer["uid"];
@@ -733,6 +848,10 @@ $onlyfetch = true; // Test
 		$relocations = $xpath->query('/atom:feed/dfrn:relocate');
 		foreach ($relocations AS $relocation)
 			self::process_relocation($xpath, $relocation, $importer);
+
+		$deletions = $xpath->query('/atom:feed/at:deleted-entry');
+		foreach ($deletions AS $deletion)
+			self::process_deletion($header, $xpath, $deletion, $importer, $contact);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 		foreach ($entries AS $entry)
