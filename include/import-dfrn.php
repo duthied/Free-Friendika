@@ -69,7 +69,7 @@ class dfrn2 {
 	 *
 	 * @return Returns an array with relevant data of the author
 	 */
-	private function fetchauthor($xpath, $context, $importer, $element, &$contact, $onlyfetch) {
+	private function fetchauthor($xpath, $context, $importer, $element, $contact, $onlyfetch) {
 
 		$author = array();
 		$author["name"] = $xpath->evaluate($element.'/atom:name/text()', $context)->item(0)->nodeValue;
@@ -77,9 +77,8 @@ class dfrn2 {
 
 		$r = q("SELECT `id`, `uid`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
 				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
-				FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
-			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-			dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
+				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
+			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
 			$contact = $r[0];
 			$author["contact-id"] = $r[0]["id"];
@@ -87,6 +86,7 @@ class dfrn2 {
 		} else {
 			$author["contact-id"] = $contact["id"];
 			$author["network"] = $contact["network"];
+			$onlyfetch = true;
 		}
 
 		// Until now we aren't serving different sizes - but maybe later
@@ -268,6 +268,8 @@ class dfrn2 {
 
 	private function process_mail($xpath, $mail, $importer) {
 
+		logger("Processing mails");
+
 		$msg = array();
 		$msg["uid"] = $importer['importer_uid'];
 		$msg["from-name"] = $xpath->query('dfrn:sender/dfrn:name/text()', $mail)->item(0)->nodeValue;
@@ -307,6 +309,8 @@ class dfrn2 {
 	}
 
 	private function process_suggestion($xpath, $suggestion, $importer) {
+
+		logger("Processing suggestions");
 
 		$suggest = array();
 		$suggest["uid"] = $importer["importer_uid"];
@@ -400,6 +404,8 @@ class dfrn2 {
 
 	private function process_relocation($xpath, $relocation, $importer) {
 
+		logger("Processing relocations");
+
 		$relocate = array();
 		$relocate["uid"] = $importer["importer_uid"];
 		$relocate["cid"] = $importer["id"];
@@ -478,6 +484,9 @@ class dfrn2 {
 	}
 
 	private function process_entry($header, $xpath, $entry, $importer, $contact) {
+
+		logger("Processing entries");
+
 		$item = $header;
 
 		// Fetch the owner
@@ -600,7 +609,7 @@ class dfrn2 {
 						if(strlen($item["tag"]))
 							$item["tag"] .= ',';
 
-						$item["tag"] .= "#[url=".$a->get_baseurl()."/search?tag=".$term."]".$term."[/url]";
+						$item["tag"] .= "#[url=".App::get_baseurl()."/search?tag=".$term."]".$term."[/url]";
 					}
 			}
 		}
@@ -646,8 +655,6 @@ class dfrn2 {
 		//print_r($item);
 		$item_id = item_store($item);
 
-		return;
-
 		if (!$item_id) {
 			logger("Error storing item", LOGGER_DEBUG);
 			return false;
@@ -672,7 +679,10 @@ class dfrn2 {
 		return $item_id;
 	}
 
-	private function process_deletion($header, $xpath, $deletion, $importer, $contact) {
+	private function process_deletion($header, $xpath, $deletion, $importer, $contact_id) {
+
+		logger("Processing deletions");
+
 		foreach($deletion->attributes AS $attributes) {
 			if ($attributes->name == "ref")
 				$uri = $attributes->textContent;
@@ -684,14 +694,14 @@ class dfrn2 {
 		else
 			$when = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
 
-		if (!$uri OR !is_array($contact))
+		if (!$uri OR !$contact)
 			return false;
 
 		$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id`
 				WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
 				dbesc($uri),
 				intval($importer["uid"]),
-				intval($contact["id"])
+				intval($contact_id)
 			);
 		if(count($r)) {
 			$item = $r[0];
@@ -788,10 +798,6 @@ class dfrn2 {
 
 	function import($xml,$importer, &$contact) {
 
-		$a = get_app();
-
-		logger("Import DFRN message", LOGGER_DEBUG);
-
 		if ($xml == "")
 			return;
 
@@ -828,6 +834,13 @@ class dfrn2 {
 		// Only the "dfrn:owner" in the head section contains all data
 		$dfrn_owner = self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", $contact, false);
 
+		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$contact["id"]." ".print_r($dfrn_owner, true)." - ".print_r($contact, true), LOGGER_DEBUG);
+
+		//if (!$dfrn_owner["found"]) {
+		//	logger("Author doesn't seem to be known by us. UID: ".$importer["uid"]." Contact: ".$dfrn_owner["contact-id"]." - ".print_r($dfrn_owner, true));
+		//	return;
+		//}
+
 		// is it a public forum? Private forums aren't supported by now with this method
 		$forum = intval($xpath->evaluate('/atom:feed/dfrn:community/text()', $context)->item(0)->nodeValue);
 
@@ -851,7 +864,7 @@ class dfrn2 {
 
 		$deletions = $xpath->query('/atom:feed/at:deleted-entry');
 		foreach ($deletions AS $deletion)
-			self::process_deletion($header, $xpath, $deletion, $importer, $contact);
+			self::process_deletion($header, $xpath, $deletion, $importer, $dfrn_owner["contact-id"]);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 		foreach ($entries AS $entry)

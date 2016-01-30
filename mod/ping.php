@@ -389,7 +389,11 @@ function ping_get_notifications($uid) {
 			// Replace the name with {0} but ensure to make that only once
 			// The {0} is used later and prints the name in bold.
 
-			$pos = strpos($notification["message"],$notification['name']);
+			if ($notification['name'] != "")
+				$pos = strpos($notification["message"],$notification['name']);
+			else
+				$pos = false;
+
 			if ($pos !== false)
 				$notification["message"] = substr_replace($notification["message"],"{0}",$pos,strlen($notification["name"]));
 

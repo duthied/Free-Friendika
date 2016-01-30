@@ -17,6 +17,7 @@ require_once('include/feed.php');
 require_once('include/Contact.php');
 require_once('mod/share.php');
 require_once('include/enotify.php');
+require_once('include/import-dfrn.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
@@ -1693,6 +1694,13 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		}
 		return;
 	}
+	// dfrn-test
+//	if ($contact['network'] === NETWORK_DFRN) {
+//		logger("Consume DFRN messages", LOGGER_DEBUG);
+//		logger("dfrn-test");
+//		dfrn2::import($xml,$importer, $contact);
+//		return;
+//	}
 
 	// Test - remove before flight
 	//if ($pass < 2) {
@@ -2398,6 +2406,8 @@ function item_is_remote_self($contact, &$datarray) {
 }
 
 function local_delivery($importer,$data) {
+	// dfrn-Test
+	return dfrn2::import($data, $importer, $contact);
 
 	require_once('library/simplepie/simplepie.inc');
 
