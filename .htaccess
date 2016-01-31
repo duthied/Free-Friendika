@@ -32,8 +32,8 @@ Deny from all
 
   # If you want to restrict access to your Friendica site to HTTPS only,
   # uncommment the following lines
-  RewriteCond %{HTTPS} !=on
-  RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+  #RewriteCond %{HTTPS} !=on
+  #RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
   
 </IfModule>
 
