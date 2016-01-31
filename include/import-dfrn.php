@@ -18,7 +18,12 @@ require_once("include/items.php");
 require_once("include/tags.php");
 require_once("include/files.php");
 
+define('DFRN_TOP_LEVEL', 0);
+define('DFRN_REPLY', 1);
+define('DFRN_REPLY_RC', 2);
+
 class dfrn2 {
+
 	/**
 	 * @brief Add new birthday event for this person
 	 *
@@ -31,11 +36,11 @@ class dfrn2 {
 		logger('updating birthday: '.$birthday.' for contact '.$contact['id']);
 
 		$bdtext = sprintf(t('%s\'s birthday'), $contact['name']);
-		$bdtext2 = sprintf(t('Happy Birthday %s'), ' [url=' . $contact['url'].']'.$contact['name'].'[/url]' ) ;
+		$bdtext2 = sprintf(t('Happy Birthday %s'), ' [url=' . $contact['url'].']'.$contact['name'].'[/url]') ;
 
 
 		$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
+			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
 			intval($contact['uid']),
 			intval($contact['id']),
 			dbesc(datetime_convert()),
@@ -310,7 +315,7 @@ class dfrn2 {
 		$suggest["name"] = $xpath->query('dfrn:name/text()', $suggestion)->item(0)->nodeValue;
 		$suggest["photo"] = $xpath->query('dfrn:photo/text()', $suggestion)->item(0)->nodeValue;
 		$suggest["request"] = $xpath->query('dfrn:request/text()', $suggestion)->item(0)->nodeValue;
-		$suggest["note"] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
+		$suggest["body"] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
 
 		// Does our member already have a friend matching this description?
 
@@ -474,11 +479,114 @@ class dfrn2 {
 		return true;
 	}
 
+	private function upate_content($current, $item, $importer, $entrytype) {
+		if (edited_timestamp_is_newer($current, $item)) {
+
+			// do not accept (ignore) an earlier edit than one we currently have.
+			if(datetime_convert('UTC','UTC',$item['edited']) < $current['edited'])
+				return;
+
+			$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+				dbesc($item['title']),
+				dbesc($item['body']),
+				dbesc($item['tag']),
+				dbesc(datetime_convert('UTC','UTC',$item['edited'])),
+				dbesc(datetime_convert()),
+				dbesc($item["uri"]),
+				intval($importer['importer_uid'])
+			);
+			create_tags_from_itemuri($item["uri"], $importer['importer_uid']);
+			update_thread_uri($item["uri"], $importer['importer_uid']);
+
+			if ($entrytype == DFRN_REPLY_RC)
+				proc_run('php',"include/notifier.php","comment-import",$current["id"]);
+		}
+
+		// update last-child if it changes
+		if($item["last-child"] AND ($item["last-child"] != $current['last-child'])) {
+			$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
+				dbesc(datetime_convert()),
+				dbesc($item["parent-uri"]),
+				intval($importer['importer_uid'])
+			);
+			$r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
+				intval($item["last-child"]),
+				dbesc(datetime_convert()),
+				dbesc($item["uri"]),
+				intval($importer['importer_uid'])
+			);
+		}
+	}
+
+	private function get_entry_type($is_reply, $importer, $item) {
+		if ($is_reply) {
+			$community = false;
+
+			if($importer['page-flags'] == PAGE_COMMUNITY || $importer['page-flags'] == PAGE_PRVGROUP) {
+				$sql_extra = '';
+				$community = true;
+				logger('possible community reply');
+			} else
+				$sql_extra = " and contact.self = 1 and item.wall = 1 ";
+
+			// was the top-level post for this reply written by somebody on this site?
+			// Specifically, the recipient?
+
+			$is_a_remote_comment = false;
+
+			$r = q("SELECT `item`.`parent-uri` FROM `item`
+				WHERE `item`.`uri` = '%s'
+				LIMIT 1",
+				dbesc($item["parent-uri"])
+			);
+			if($r && count($r)) {
+				$r = q("SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
+					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' OR `item`.`thr-parent` = '%s')
+					AND `item`.`uid` = %d
+					$sql_extra
+					LIMIT 1",
+					dbesc($r[0]['parent-uri']),
+					dbesc($r[0]['parent-uri']),
+					dbesc($r[0]['parent-uri']),
+					intval($importer['importer_uid'])
+				);
+				if($r && count($r))
+					$is_a_remote_comment = true;
+			}
+
+			// Does this have the characteristics of a community or private group comment?
+			// If it's a reply to a wall post on a community/prvgroup page it's a
+			// valid community comment. Also forum_mode makes it valid for sure.
+			// If neither, it's not.
+
+			if($is_a_remote_comment && $community) {
+				if((!$r[0]['forum_mode']) && (!$r[0]['wall'])) {
+					$is_a_remote_comment = false;
+					logger('not a community reply');
+				}
+			}
+		} else {
+			$is_reply = false;
+			$is_a_remote_comment = false;
+		}
+
+		if ($is_a_remote_comment)
+			return DFRN_REPLY_RC;
+		elseif ($is_reply)
+			return DFRN_REPLY;
+		else
+			return DFRN_TOP_LEVEL;
+	}
+
 	private function process_entry($header, $xpath, $entry, $importer, $contact) {
 
 		logger("Processing entries");
 
 		$item = $header;
+
+		// Get the uri
+		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
 
 		// Fetch the owner
 		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", $contact, true);
@@ -505,32 +613,6 @@ class dfrn2 {
 
 		if (($header["network"] != $author["network"]) AND ($author["network"] != ""))
 			$item["network"] = $author["network"];
-
-		// Now get the item
-		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-			intval($importer["uid"]), dbesc($item["uri"]));
-		//if ($r) {
-		//	logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-		//	return false;
-		//}
-
-		// Is it a reply?
-		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
-		if (is_object($inreplyto->item(0))) {
-			$objecttype = ACTIVITY_OBJ_COMMENT;
-			$item["type"] = 'remote-comment';
-			$item["gravity"] = GRAVITY_COMMENT;
-
-			foreach($inreplyto->item(0)->attributes AS $attributes) {
-				if ($attributes->name == "ref")
-					$item["parent-uri"] = $attributes->textContent;
-			}
-		} else {
-			$objecttype = ACTIVITY_OBJ_NOTE;
-			$item["parent-uri"] = $item["uri"];
-		}
 
 		$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
 
@@ -574,14 +656,12 @@ class dfrn2 {
 		$item["guid"] = $xpath->query('dfrn:diaspora_guid/text()', $entry)->item(0)->nodeValue;
 
 		// We store the data from "dfrn:diaspora_signature" in a later step. See some lines below
-		$signature = $xpath->query('dfrn:diaspora_signature/text()', $entry)->item(0)->nodeValue;
+		$item["dsprsig"] = unxmlify($xpath->query('dfrn:diaspora_signature/text()', $entry)->item(0)->nodeValue);
 
 		$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 		if ($xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue != "")
-			$objecttype = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
-
-		$item["object-type"] = $objecttype;
+			$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 
 		// I have the feeling that we don't do anything with this data
 		$object = $xpath->query('activity:object', $entry)->item(0);
@@ -643,262 +723,231 @@ class dfrn2 {
 			}
 		}
 
-/*
-// reply
-                                // not allowed to post
+		// Is it a reply or a top level posting?
+		$item["parent-uri"] = $item["uri"];
 
-                                if($contact['rel'] == CONTACT_IS_FOLLOWER)
-                                        continue;
+		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
+		if (is_object($inreplyto->item(0)))
+			foreach($inreplyto->item(0)->attributes AS $attributes)
+				if ($attributes->name == "ref")
+					$item["parent-uri"] = $attributes->textContent;
 
-                                $r = q("SELECT `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-                                        dbesc($item_id),
-                                        intval($importer['uid'])
-                                );
+		$entrytype = get_entry_type(( $item["parent-uri"] != $item["uri"]),  $importer, $item);
 
-				// Update content if 'updated' changes
+		// Now assign the rest of the values that depend on the type of the message
+		if ($entrytype == DFRN_REPLY_RC) {
+			if (!isset($item["object-type"]))
+				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 
-                                if(count($r)) {
-                                        if (edited_timestamp_is_newer($r[0], $datarray)) {
-
-                                                // do not accept (ignore) an earlier edit than one we currently have.
-                                                if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
-                                                        continue;
-
-                                                $r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` =
- '%s' WHERE `uri` = '%s' AND `uid` = %d",
-                                                        dbesc($datarray['title']),
-                                                        dbesc($datarray['body']),
-                                                        dbesc($datarray['tag']),
-                                                        dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
-                                                        dbesc(datetime_convert()),
-                                                        dbesc($item_id),
-                                                        intval($importer['uid'])
-                                                );
-                                                create_tags_from_itemuri($item_id, $importer['uid']);
-                                                update_thread_uri($item_id, $importer['uid']);
-                                        }
-
-                                        // update last-child if it changes
-                                        // update last-child if it changes
-
-                                        $allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
-                                        if(($allow) && ($allow[0]['data'] != $r[0]['last-child'])) {
-                                                $r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-                                                        dbesc(datetime_convert()),
-                                                        dbesc($parent_uri),
-                                                        intval($importer['uid'])
-                                                );
-                                                $r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s'  WHERE `uri` = '%s' AND `uid` = %d",
-                                                        intval($allow[0]['data']),
-                                                        dbesc(datetime_convert()),
-                                                        dbesc($item_id),
-                                                        intval($importer['uid'])
-                                                );
-                                                update_thread_uri($item_id, $importer['uid']);
-                                        }
-                                        continue;
-                                }
-                                if(($datarray['verb'] === ACTIVITY_LIKE)
-                                        || ($datarray['verb'] === ACTIVITY_DISLIKE)
-                                        || ($datarray['verb'] === ACTIVITY_ATTEND)
-                                        || ($datarray['verb'] === ACTIVITY_ATTENDNO)
-                                        || ($datarray['verb'] === ACTIVITY_ATTENDMAYBE)) {
-                                        $datarray['type'] = 'activity';
-                                        $datarray['gravity'] = GRAVITY_LIKE;
-                                        // only one like or dislike per person
-                                        // splitted into two queries for performance issues
-                                        $r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
-                                                intval($datarray['uid']),
-                                                dbesc($datarray['author-link']),
-                                                dbesc($datarray['verb']),
-                                                dbesc($datarray['parent-uri'])
-                                        );
-                                        if($r && count($r))
-                                                continue;
-
-                                        $r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
-                                                intval($datarray['uid']),
-                                                dbesc($datarray['author-link']),
-                                                dbesc($datarray['verb']),
-                                                dbesc($datarray['parent-uri'])
-                                        );
-                                        if($r && count($r))
-                                                continue;
-                                }
-                                if(($datarray['verb'] === ACTIVITY_TAG) && ($datarray['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
-                                        $xo = parse_xml_string($datarray['object'],false);
-                                        $xt = parse_xml_string($datarray['target'],false);
-
-                                        if($xt->type == ACTIVITY_OBJ_NOTE) {
-                                                $r = q("select * from item where `uri` = '%s' AND `uid` = %d limit 1",
-                                                        dbesc($xt->id),
-                                                        intval($importer['importer_uid'])
-                                                );
-                                                if(! count($r))
-                                                        continue;
-
-                                                // extract tag, if not duplicate, add to parent item
-                                                if($xo->id && $xo->content) {
-                                                        $newtag = '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
-                                                        if(! (stristr($r[0]['tag'],$newtag))) {
-                                                                q("UPDATE item SET tag = '%s' WHERE id = %d",
-                                                                        dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . $newtag),
-                                                                        intval($r[0]['id'])
-                                                                );
-                                                                create_tags_from_item($r[0]['id']);
-                                                        }
-                                                }
-                                        }
-                                }
-
-
-
-// toplevel
-                                // special handling for events
-
-                                if((x($datarray,'object-type')) && ($datarray['object-type'] === ACTIVITY_OBJ_EVENT)) {
-                                        $ev = bbtoevent($datarray['body']);
-                                        if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
-                                                $ev['uid'] = $importer['uid'];
-                                                $ev['uri'] = $item_id;
-                                                $ev['edited'] = $datarray['edited'];
-                                                $ev['private'] = $datarray['private'];
-                                                $ev['guid'] = $datarray['guid'];
-
-                                                if(is_array($contact))
-                                                        $ev['cid'] = $contact['id'];
-                                                $r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-                                                        dbesc($item_id),
-                                                        intval($importer['uid'])
-                                                );
-                                                if(count($r))
-                                                        $ev['id'] = $r[0]['id'];
-                                                $xyz = event_store($ev);
-                                                continue;
-                                        }
-                                }
-
-
-				$r = q("SELECT `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-                                        dbesc($item_id),
-                                        intval($importer['uid'])
-                                );
-
-                                // Update content if 'updated' changes
-
-                                if(count($r)) {
-                                        if (edited_timestamp_is_newer($r[0], $datarray)) {
-
-                                                // do not accept (ignore) an earlier edit than one we currently have.
-                                                if(datetime_convert('UTC','UTC',$datarray['edited']) < $r[0]['edited'])
-                                                        continue;
-
-                                                $r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` =
- '%s' WHERE `uri` = '%s' AND `uid` = %d",
-                                                        dbesc($datarray['title']),
-                                                        dbesc($datarray['body']),
-                                                        dbesc($datarray['tag']),
-                                                        dbesc(datetime_convert('UTC','UTC',$datarray['edited'])),
-                                                        dbesc(datetime_convert()),
-                                                        dbesc($item_id),
-                                                        intval($importer['uid'])
-                                                );
-                                                create_tags_from_itemuri($item_id, $importer['uid']);
-                                                update_thread_uri($item_id, $importer['uid']);
-                                        }
-
-                                        // update last-child if it changes
-
-                                        $allow = $item->get_item_tags( NAMESPACE_DFRN, 'comment-allow');
-                                        if($allow && $allow[0]['data'] != $r[0]['last-child']) {
-                                                $r = q("UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
-                                                        intval($allow[0]['data']),
-                                                        dbesc(datetime_convert()),
-                                                        dbesc($item_id),
-                                                        intval($importer['uid'])
-                                                );
-                                                update_thread_uri($item_id, $importer['uid']);
-                                        }
-                                        continue;
-                                }
-
-
-
-toplevel:
-
-                                if(activity_match($datarray['verb'],ACTIVITY_FOLLOW)) {
-                                        logger('consume-feed: New follower');
-                                        new_follower($importer,$contact,$datarray,$item);
-                                        return;
-                                }
-                                if(activity_match($datarray['verb'],ACTIVITY_UNFOLLOW))  {
-                                        lose_follower($importer,$contact,$datarray,$item);
-                                        return;
-                                }
-
-                                if(activity_match($datarray['verb'],ACTIVITY_REQ_FRIEND)) {
-                                        logger('consume-feed: New friend request');
-                                        new_follower($importer,$contact,$datarray,$item,true);
-                                        return;
-                                }
-                                if(activity_match($datarray['verb'],ACTIVITY_UNFRIEND))  {
-                                        lose_sharer($importer,$contact,$datarray,$item);
-                                        return;
-                                }
-
-
-                                if(! is_array($contact))
-                                        return;
-
-                                if(! link_compare($datarray['owner-link'],$contact['url'])) {
-                                        // The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
-                                        // but otherwise there's a possible data mixup on the sender's system.
-                                        // the tgroup delivery code called from item_store will correct it if it's a forum,
-                                        // but we're going to unconditionally correct it here so that the post will always be owned by our contact.
-                                        logger('consume_feed: Correcting item owner.', LOGGER_DEBUG);
-                                        $datarray['owner-name']   = $contact['name'];
-                                        $datarray['owner-link']   = $contact['url'];
-                                        $datarray['owner-avatar'] = $contact['thumb'];
-                                }
-
-                                // We've allowed "followers" to reach this point so we can decide if they are
-                                // posting an @-tag delivery, which followers are allowed to do for certain
-                                // page types. Now that we've parsed the post, let's check if it is legit. Otherwise ignore it.
-
-                                if(($contact['rel'] == CONTACT_IS_FOLLOWER) && (! tgroup_check($importer['uid'],$datarray)))
-                                        continue;
-
-                                // This is my contact on another system, but it's really me.
-                                // Turn this into a wall post.
-                                $notify = item_is_remote_self($contact, $datarray);
-
-*/
-		print_r($item);
-		return;
-		//$item_id = item_store($item);
-
-		if (!$item_id) {
-			logger("Error storing item", LOGGER_DEBUG);
-			return false;
+			$item["type"] = 'remote-comment';
+			$item['wall'] = 1;
+		} elseif ($entrytype == DFRN_REPLY) {
+			if (!isset($item["object-type"]))
+				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 		} else {
-			logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
+			if (!isset($item["object-type"]))
+				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 
-			if ($signature) {
-				$signature = json_decode(base64_decode($signature));
+			if ($item["object-type"] === ACTIVITY_OBJ_EVENT) {
+				$ev = bbtoevent($item['body']);
+				if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
+					$ev['cid'] = $importer['id'];
+					$ev['uid'] = $importer['uid'];
+					$ev['uri'] = $item["uri"];
+					$ev['edited'] = $item['edited'];
+					$ev['private'] = $item['private'];
+					$ev['guid'] = $item['guid'];
 
-				// Check for falsely double encoded signatures
-				$signature->signature = diaspora_repair_signature($signature->signature, $signature->signer);
-
-				// Store it in the "sign" table where we will read it for comments that we relay to Diaspora
-				q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
-					intval($item_id),
-					dbesc($signature->signed_text),
-					dbesc($signature->signature),
-					dbesc($signature->signer)
-				);
+					$r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($item["uri"]),
+						intval($importer['uid'])
+					);
+					if(count($r))
+						$ev['id'] = $r[0]['id'];
+						$xyz = event_store($ev);
+							return;
+				}
 			}
 		}
-		return $item_id;
+
+		$r = q("SELECT `id`, `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($item["uri"]),
+			intval($importer['importer_uid'])
+		);
+
+		// Update content if 'updated' changes
+		if(count($r)) {
+			self::upate_content($r[0], $item, $importer, $entrytype);
+			return;
+		}
+
+		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
+			if($importer['rel'] == CONTACT_IS_FOLLOWER)
+				return;
+
+			if(($item['verb'] === ACTIVITY_LIKE)
+				|| ($item['verb'] === ACTIVITY_DISLIKE)
+				|| ($item['verb'] === ACTIVITY_ATTEND)
+				|| ($item['verb'] === ACTIVITY_ATTENDNO)
+				|| ($item['verb'] === ACTIVITY_ATTENDMAYBE)) {
+				$is_like = true;
+				$item['type'] = 'activity';
+				$item['gravity'] = GRAVITY_LIKE;
+				// only one like or dislike per person
+				// splitted into two queries for performance issues
+				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
+					intval($item['uid']),
+					dbesc($item['author-link']),
+					dbesc($item['verb']),
+					dbesc($item['parent-uri'])
+				);
+				if($r && count($r))
+					return;
+
+				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
+					intval($item['uid']),
+					dbesc($item['author-link']),
+					dbesc($item['verb']),
+					dbesc($item['parent-uri'])
+				);
+				if($r && count($r))
+					return;
+
+			} else
+				$is_like = false;
+
+			if(($item['verb'] === ACTIVITY_TAG) && ($item['object-type'] === ACTIVITY_OBJ_TAGTERM)) {
+
+				$xo = parse_xml_string($item['object'],false);
+				$xt = parse_xml_string($item['target'],false);
+
+				if($xt->type == ACTIVITY_OBJ_NOTE) {
+					$r = q("SELECT `id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($xt->id),
+						intval($importer['importer_uid'])
+					);
+
+					if(!count($r))
+						return;
+
+					// extract tag, if not duplicate, add to parent item
+					if($xo->content) {
+						if(!(stristr($r[0]['tag'],trim($xo->content)))) {
+							q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
+								dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
+								intval($r[0]['id'])
+							);
+							create_tags_from_item($r[0]['id']);
+						}
+					}
+				}
+			}
+
+			$posted_id = item_store($item);
+			$parent = 0;
+
+			if($posted_id) {
+
+				$item["id"] = $posted_id;
+
+				$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+					intval($posted_id),
+					intval($importer['importer_uid'])
+				);
+				if(count($r)) {
+					$parent = $r[0]['parent'];
+					$parent_uri = $r[0]['parent-uri'];
+				}
+
+				if(!$is_like) {
+					$r1 = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `uid` = %d AND `parent` = %d",
+						dbesc(datetime_convert()),
+						intval($importer['importer_uid']),
+						intval($r[0]['parent'])
+					);
+
+					$r2 = q("UPDATE `item` SET `last-child` = 1, `changed` = '%s' WHERE `uid` = %d AND `id` = %d",
+						dbesc(datetime_convert()),
+						intval($importer['importer_uid']),
+						intval($posted_id)
+					);
+				}
+
+				if($posted_id AND $parent AND ($entrytype == DFRN_REPLY_RC)) {
+					proc_run('php',"include/notifier.php","comment-import","$posted_id");
+				}
+
+				return true;
+			}
+		} else {
+			if(!link_compare($item['owner-link'],$importer['url'])) {
+				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
+				// but otherwise there's a possible data mixup on the sender's system.
+				// the tgroup delivery code called from item_store will correct it if it's a forum,
+				// but we're going to unconditionally correct it here so that the post will always be owned by our contact.
+				logger('Correcting item owner.', LOGGER_DEBUG);
+				$item['owner-name']   = $importer['senderName'];
+				$item['owner-link']   = $importer['url'];
+				$item['owner-avatar'] = $importer['thumb'];
+			}
+
+			if(($importer['rel'] == CONTACT_IS_FOLLOWER) && (!tgroup_check($importer['importer_uid'],$item)))
+				return;
+
+			// This is my contact on another system, but it's really me.
+			// Turn this into a wall post.
+			$notify = item_is_remote_self($importer, $item);
+
+			$posted_id = item_store($item, false, $notify);
+
+			if(stristr($item['verb'],ACTIVITY_POKE)) {
+				$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+				if(!$verb)
+					return;
+				$xo = parse_xml_string($item['object'],false);
+
+				if(($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
+
+					// somebody was poked/prodded. Was it me?
+					$links = parse_xml_string("<links>".unxmlify($xo->link)."</links>",false);
+
+					foreach($links->link as $l) {
+						$atts = $l->attributes();
+						switch($atts['rel']) {
+							case "alternate":
+								$Blink = $atts['href'];
+								break;
+							default:
+								break;
+						}
+					}
+					if($Blink && link_compare($Blink,$a->get_baseurl() . '/profile/' . $importer['nickname'])) {
+
+						// send a notification
+						require_once('include/enotify.php');
+
+						notification(array(
+							'type'         => NOTIFY_POKE,
+							'notify_flags' => $importer['notify-flags'],
+							'language'     => $importer['language'],
+							'to_name'      => $importer['username'],
+							'to_email'     => $importer['email'],
+							'uid'          => $importer['importer_uid'],
+							'item'         => $item,
+							'link'             => $a->get_baseurl().'/display/'.urlencode(get_item_guid($posted_id)),
+							'source_name'  => stripslashes($item['author-name']),
+							'source_link'  => $item['author-link'],
+							'source_photo' => ((link_compare($item['author-link'],$importer['url']))
+								? $importer['thumb'] : $item['author-avatar']),
+							'verb'         => $item['verb'],
+							'otype'        => 'person',
+							'activity'     => $verb,
+							'parent'       => $item['parent']
+						));
+					}
+				}
+			}
+		}
 	}
 
 	private function process_deletion($header, $xpath, $deletion, $importer, $contact_id) {
@@ -919,6 +968,64 @@ toplevel:
 		if (!$uri OR !$contact_id)
 			return false;
 
+
+		$is_reply = false;
+		$r = q("SELECT `id`, `parent-uri`, `parent` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($uri),
+			intval($importer['importer_uid'])
+		);
+		if(count($r)) {
+			$parent_uri = $r[0]['parent-uri'];
+			if($r[0]['id'] != $r[0]['parent'])
+				$is_reply = true;
+		}
+
+		if($is_reply) {
+			$community = false;
+
+			if($importer['page-flags'] == PAGE_COMMUNITY || $importer['page-flags'] == PAGE_PRVGROUP) {
+				$sql_extra = '';
+				$community = true;
+				logger('possible community delete');
+			} else
+				$sql_extra = " AND `contact`.`self` AND `item`.`wall`";
+
+			// was the top-level post for this reply written by somebody on this site?
+			// Specifically, the recipient?
+
+			$is_a_remote_delete = false;
+
+			$r = q("SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' or `item`.`thr-parent` = '%s')
+				AND `item`.`uid` = %d
+				$sql_extra
+				LIMIT 1",
+				dbesc($parent_uri),
+				dbesc($parent_uri),
+				dbesc($parent_uri),
+				intval($importer['importer_uid'])
+			);
+			if($r && count($r))
+				$is_a_remote_delete = true;
+
+			// Does this have the characteristics of a community or private group comment?
+			// If it's a reply to a wall post on a community/prvgroup page it's a
+			// valid community comment. Also forum_mode makes it valid for sure.
+			// If neither, it's not.
+
+			if($is_a_remote_delete && $community) {
+				if((!$r[0]['forum_mode']) && (!$r[0]['wall'])) {
+					$is_a_remote_delete = false;
+					logger('not a community delete');
+				}
+			}
+
+			if($is_a_remote_delete) {
+				logger('received remote delete');
+			}
+		}
+
 		$r = q("SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id`
 				WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
 				dbesc($uri),
@@ -932,6 +1039,8 @@ toplevel:
 
 			if(!$item["deleted"])
 				logger('deleting item '.$item["id"].' uri='.$item['uri'], LOGGER_DEBUG);
+			else
+				return;
 
 			if($item["object-type"] === ACTIVITY_OBJ_EVENT) {
 				logger("Deleting event ".$item["event-id"], LOGGER_DEBUG);
@@ -955,7 +1064,7 @@ toplevel:
 						$author_copy = (($item['origin']) ? true : false);
 
 						if($owner_remove && $author_copy)
-							continue;
+							return;
 						if($author_remove || $owner_remove) {
 							$tags = explode(',',$i[0]['tag']);
 							$newtags = array();
@@ -983,9 +1092,9 @@ toplevel:
 						dbesc($item['uri']),
 						intval($importer['uid'])
 					);
-					create_tags_from_itemuri($item['uri'], $importer['uid']);
-					create_files_from_itemuri($item['uri'], $importer['uid']);
-					update_thread_uri($item['uri'], $importer['uid']);
+				create_tags_from_itemuri($item['uri'], $importer['uid']);
+				create_files_from_itemuri($item['uri'], $importer['uid']);
+				update_thread_uri($item['uri'], $importer['uid']);
 			} else {
 				$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
 						`body` = '', `title` = ''
@@ -997,6 +1106,7 @@ toplevel:
 					);
 				create_tags_from_itemuri($uri, $importer['uid']);
 				create_files_from_itemuri($uri, $importer['uid']);
+				update_thread_uri($uri, $importer['importer_uid']);
 				if($item['last-child']) {
 					// ensure that last-child is set in case the comment that had it just got wiped.
 					q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d ",
@@ -1018,9 +1128,8 @@ toplevel:
 				}
 				// if this is a relayed delete, propagate it to other recipients
 
-//                                                if($is_a_remote_delete)
-  //                                                      proc_run('php',"include/notifier.php","drop",$item['id']);
-
+				if($is_a_remote_delete)
+					proc_run('php',"include/notifier.php","drop",$item['id']);
 			}
 		}
 	}
@@ -1056,7 +1165,6 @@ toplevel:
 		$header["type"] = "remote";
 		$header["wall"] = 0;
 		$header["origin"] = 0;
-		$header["gravity"] = GRAVITY_PARENT;
 		$header["contact-id"] = $importer["id"];
 
 		// Update the contact table if the data has changed
