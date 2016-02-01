@@ -1,8 +1,15 @@
 /**
- * Friendica people autocomplete
+ * @brief Friendica people autocomplete
  *
  * require jQuery, jquery.textcomplete
+ * 
+ * for further documentation look at:
+ * http://yuku-t.com/jquery-textcomplete/
+ * 
+ * https://github.com/yuku-t/jquery-textcomplete/blob/master/doc/how_to_use.md
  */
+
+
 function contact_search(term, callback, backend_url, type) {
 
 	// Check if there is a conversation id to include the unkonwn contacts of the conversation
@@ -107,6 +114,9 @@ function submit_form(e) {
 (function( $ ) {
 	$.fn.editor_autocomplete = function(backend_url) {
 
+		// list of supported bbtags
+		var bbelements = ['b', 'u', 'i', 'img', 'url', 'quote', 'code', 'spoiler', 'audio', 'video', 'youtube', 'map', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 's', 'o', 'list', 'center', 'nosmile', 'vimeo' ];
+
 		// Autocomplete contacts
 		contacts = {
 			match: /(^|\s)(@\!*)([^ \n]+)$/,
@@ -119,12 +129,19 @@ function submit_form(e) {
 		smilies = {
 			match: /(^|\s)(:[a-z]{2,})$/,
 			index: 2,
-			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
-			template: function(item) { return item.icon + item.text; },
+			search: function(term, callback) { $.getJSON('smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
+			template: function(item) { return item.icon + ' ' + item.text; },
 			replace: function(item) { return "$1" + item.text + ' '; },
 		};
+
+		bbtags = {
+			match: /\[(\w*)$/,
+			index: 1,
+			search: function (term, callback) { callback($.map(bbelements, function (element) { return element.indexOf(term) === 0 ? element : null; })); },
+			replace: function (element) { return ['[' + element + ']', '[/' + element + ']']; },
+		};
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts,smilies], {className:'acpopup', zIndex:1020});
+		this.textcomplete([contacts,smilies, bbtags], {className:'acpopup', zIndex:1020});
 	};
 })( jQuery );
 
