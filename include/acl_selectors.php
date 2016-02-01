@@ -659,7 +659,7 @@ function acl_lookup(&$a, $out_type = 'json') {
  * @brief Searching for global contacts for autocompletion
  * 
  * @param App $a
- * @return type
+ * @return array
  */
 function navbar_complete(&$a) {
 
@@ -682,7 +682,7 @@ function navbar_complete(&$a) {
 		$search = substr($search,1);
 
 	if($localsearch) {
-		$x = dirsearch_global_by_name($search);
+		$x = dir::global_search_by_name($search);
 		return $x;
 	}
 
