@@ -1,10 +1,19 @@
-/* perfect-scrollbar v0.6.8 */
+/* perfect-scrollbar v0.6.10 */
 .ps-container {
   -ms-touch-action: none;
-  overflow: hidden !important; }
+  touch-action: none;
+  overflow: hidden !important;
+  -ms-overflow-style: none; }
+  @supports (-ms-overflow-style: none) {
+    .ps-container {
+      overflow: auto !important; } }
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    .ps-container {
+      overflow: auto !important; } }
   .ps-container.ps-active-x > .ps-scrollbar-x-rail,
   .ps-container.ps-active-y > .ps-scrollbar-y-rail {
-    display: block; }
+    display: block;
+    background-color: transparent; }
   .ps-container.ps-in-scrolling {
     pointer-events: none; }
     .ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
@@ -23,13 +32,12 @@
     /* please don't change 'position' */
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
-    -ms-border-radius: 4px;
     border-radius: 4px;
     opacity: 0;
-    -webkit-transition: background-color 0.2s linear, opacity 0.2s linear;
-    -moz-transition: background-color 0.2s linear, opacity 0.2s linear;
-    -o-transition: background-color 0.2s linear, opacity 0.2s linear;
-    transition: background-color 0.2s linear, opacity 0.2s linear;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    -moz-transition: background-color .2s linear, opacity .2s linear;
+    -o-transition: background-color .2s linear, opacity .2s linear;
+    transition: background-color .2s linear, opacity .2s linear;
     bottom: 3px;
     /* there must be 'bottom' for ps-scrollbar-x-rail */
     height: 8px; }
@@ -39,12 +47,11 @@
       background-color: #aaa;
       -webkit-border-radius: 4px;
       -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
       border-radius: 4px;
-      -webkit-transition: background-color 0.2s linear;
-      -moz-transition: background-color 0.2s linear;
-      -o-transition: background-color 0.2s linear;
-      transition: background-color 0.2s linear;
+      -webkit-transition: background-color .2s linear;
+      -moz-transition: background-color .2s linear;
+      -o-transition: background-color .2s linear;
+      transition: background-color .2s linear;
       bottom: 0;
       /* there must be 'bottom' for ps-scrollbar-x */
       height: 8px; }
@@ -54,13 +61,12 @@
     /* please don't change 'position' */
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
-    -ms-border-radius: 4px;
     border-radius: 4px;
     opacity: 0;
-    -webkit-transition: background-color 0.2s linear, opacity 0.2s linear;
-    -moz-transition: background-color 0.2s linear, opacity 0.2s linear;
-    -o-transition: background-color 0.2s linear, opacity 0.2s linear;
-    transition: background-color 0.2s linear, opacity 0.2s linear;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    -moz-transition: background-color .2s linear, opacity .2s linear;
+    -o-transition: background-color .2s linear, opacity .2s linear;
+    transition: background-color .2s linear, opacity .2s linear;
     right: 3px;
     /* there must be 'right' for ps-scrollbar-y-rail */
     width: 8px; }
@@ -70,12 +76,11 @@
       background-color: #aaa;
       -webkit-border-radius: 4px;
       -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
       border-radius: 4px;
-      -webkit-transition: background-color 0.2s linear;
-      -moz-transition: background-color 0.2s linear;
-      -o-transition: background-color 0.2s linear;
-      transition: background-color 0.2s linear;
+      -webkit-transition: background-color .2s linear;
+      -moz-transition: background-color .2s linear;
+      -o-transition: background-color .2s linear;
+      transition: background-color .2s linear;
       right: 0;
       /* there must be 'right' for ps-scrollbar-y */
       width: 8px; }
