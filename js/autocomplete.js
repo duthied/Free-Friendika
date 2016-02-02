@@ -24,7 +24,7 @@ function contact_search(term, callback, backend_url, type, mode) {
 		if(lterm.indexOf(t) >= 0) { // A more broad search has been performed already, so use those results
 			// Filter old results locally
 			var matching = contact_search.cache[bt][t].filter(function (x) { return (x.name.toLowerCase().indexOf(lterm) >= 0 || (typeof x.nick !== 'undefined' && x.nick.toLowerCase().indexOf(lterm) >= 0)); }); // Need to check that nick exists because groups don't have one
-			matching.unshift({taggable:false, text: term, replace: term});
+			matching.unshift({forum:false, text: term, replace: term});
 			setTimeout(function() { callback(matching); } , 1); // Use "pseudo-thread" to avoid some problems
 			return;
 		}
@@ -68,9 +68,10 @@ function contact_format(item) {
 	// Show contact information if not explicitly told to show something else
 	if(typeof item.text === 'undefined') {
 		var desc = ((item.label) ? item.nick + ' ' + item.label : item.nick);
+		var forum = ((item.forum) ? 'forum' : '');
 		if(typeof desc === 'undefined') desc = '';
 		if(desc) desc = ' ('+desc+')';
-		return "<div class='{0}' title='{4}'><img class='acpopup-img' src='{1}'><span class='acpopup-contactname'>{2}</span><span class='acpopup-sub-text'>{3}</span><div class='clear'></div></div>".format(item.taggable, item.photo, item.name, desc, item.link);
+		return "<div class='{0}' title='{4}'><img class='acpopup-img' src='{1}'><span class='acpopup-contactname'>{2}</span><span class='acpopup-sub-text'>{3}</span><div class='clear'></div></div>".format(forum, item.photo, item.name, desc, item.link);
 	}
 	else
 		return "<div>" + item.text + "</div>";

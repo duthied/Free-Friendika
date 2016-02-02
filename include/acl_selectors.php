@@ -509,7 +509,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 
 	if ($type==''){
 
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum` FROM `contact`
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum`, `prv` FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 			AND NOT (`network` IN ('%s', '%s'))
 			$sql_extra2
@@ -520,7 +520,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	}
 	elseif ($type=='c'){
 
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum` FROM `contact`
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum`, `prv` FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
 			AND NOT (`network` IN ('%s'))
 			$sql_extra2
@@ -542,7 +542,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		);
 	}
 	elseif($type == 'a') {
-		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag` FROM `contact`
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum`, `prv` FROM `contact`
 			WHERE `uid` = %d AND `pending` = 0
 			$sql_extra2
 			ORDER BY `name` ASC ",
@@ -559,6 +559,9 @@ function acl_lookup(&$a, $out_type = 'json') {
 					"photo"    => $g['photo'],
 					"name"     => $g['name'],
 					"nick"     => (x($g['addr']) ? $g['addr'] : $g['url']),
+					"network" => $g['network'],
+					"link" => $g['url'],
+					"forum"	   => (x($g['community']) ? 1 : 0),
 				);
 			}
 		}
@@ -584,7 +587,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				"network" => $g['network'],
 				"link" => $g['url'],
 				"nick" => htmlentities(($g['attag']) ? $g['attag'] : $g['nick']),
-				"forum" => $g['forum']
+				"forum" => ((x($g['forum']) || x($g['prv'])) ? 1 : 0),
 			);
 		}
 	}

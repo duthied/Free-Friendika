@@ -935,7 +935,18 @@ nav .acpopup {
   color: #737373;
 }
 .textcomplete-item a:hover {
+  color: #000;
   padding: 3px 20px;
+}
+.textcomplete-item a .forum, .forum .acpopup-sub-text {
+  color: #36C;
+  opacity: 0.8;
+}
+.textcomplete-item a .forum:hover {
+  opacity: 1.0;
+}
+img.acpopup-img {
+  border-radius: 4px;
 }
 
 #nav-notifications-menu {
