@@ -10,11 +10,10 @@
  */
 
 
-function contact_search(term, callback, backend_url, type) {
+function contact_search(term, callback, backend_url, type, mode) {
 
 	// Check if there is a conversation id to include the unkonwn contacts of the conversation
 	var conv_id = document.activeElement.id.match(/\d+$/);
-
 
 	// Check if there is a cached result that contains the same information we would get with a full server-side search
 	var bt = backend_url+type;
@@ -40,6 +39,9 @@ function contact_search(term, callback, backend_url, type) {
 
 	if(conv_id !== null)
 		postdata['conversation'] = conv_id[0];
+
+	if(mode !== null)
+		postdata['mode'] = mode;
 
 
 	$.ajax({
@@ -126,6 +128,7 @@ function submit_form(e) {
 			template: contact_format,
 		};
 
+		// Autocomplete smilies e.g. ":like"
 		smilies = {
 			match: /(^|\s)(:[a-z]{2,})$/,
 			index: 2,
@@ -134,6 +137,7 @@ function submit_form(e) {
 			replace: function(item) { return "$1" + item.text + ' '; },
 		};
 
+		// Autocomplete BBTags
 		bbtags = {
 			match: /\[(\w*)$/,
 			index: 1,
@@ -154,12 +158,21 @@ function submit_form(e) {
 		contacts = {
 			match: /(^@)([^\n]{2,})$/,
 			index: 2,
-			search: function(term, callback) { contact_search(term, callback, backend_url, 'x'); },
+			search: function(term, callback) { contact_search(term, callback, backend_url, 'x', 'contact'); },
+			replace: basic_replace,
+			template: contact_format,
+		};
+
+		// Autocomplete forum accounts
+		community = {
+			match: /(^!)([^\n]{2,})$/,
+			index: 2,
+			search: function(term, callback) { contact_search(term, callback, backend_url, 'x', 'community'); },
 			replace: basic_replace,
 			template: contact_format,
 		};
 		this.attr('autocomplete', 'off');
-		var a = this.textcomplete([contacts], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'nav'});
+		var a = this.textcomplete([contacts, community], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'#nav-search-box'});
 		a.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
 	};
 })( jQuery );
