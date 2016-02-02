@@ -395,11 +395,12 @@ function acl_lookup(&$a, $out_type = 'json') {
 	if(!local_user())
 		return "";
 
-	$start = (x($_REQUEST,'start')?$_REQUEST['start']:0);
-	$count = (x($_REQUEST,'count')?$_REQUEST['count']:100);
-	$search = (x($_REQUEST,'search')?$_REQUEST['search']:"");
-	$type = (x($_REQUEST,'type')?$_REQUEST['type']:"");
-	$conv_id = (x($_REQUEST,'conversation')?$_REQUEST['conversation']:null);
+	$start	=	(x($_REQUEST,'start')		? $_REQUEST['start']		: 0);
+	$count	=	(x($_REQUEST,'count')		? $_REQUEST['count']		: 100);
+	$search	 =	(x($_REQUEST,'search')		? $_REQUEST['search']		: "");
+	$type	=	(x($_REQUEST,'type')		? $_REQUEST['type']		: "");
+	$mode	=	(x($_REQUEST,'mode')		? $_REQUEST['mode']		: "");
+	$conv_id =	(x($_REQUEST,'conversation')	? $_REQUEST['conversation']	: null);
 
 	// For use with jquery.textcomplete for private mail completion
 
@@ -673,6 +674,7 @@ function navbar_complete(&$a) {
 	$localsearch = get_config('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
+	$mode = $_REQUEST['mode'];
 
 	// don't search if search term has less than 2 characters
 	if(! $search || mb_strlen($search) < 2)
@@ -682,7 +684,7 @@ function navbar_complete(&$a) {
 		$search = substr($search,1);
 
 	if($localsearch) {
-		$x = dir::global_search_by_name($search);
+		$x = dir::global_search_by_name($search, $mode);
 		return $x;
 	}
 
