@@ -38,7 +38,7 @@ class dir {
 				$extra_sql = "";
 
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`nick`, `gcontact`.`photo`,
-							`gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
+							`gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`, `gcontact`.`community`
 						FROM `gcontact`
 						LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 							AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
