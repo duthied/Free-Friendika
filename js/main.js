@@ -170,9 +170,8 @@
 		var notifications_mark = unescape($('<div>').append( $("#nav-notifications-mark-all").clone() ).html()); //outerHtml hack
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
 
-		/* enable perfect-scrollbars for nav-notivications-menu */
-		$('#nav-notifications-menu').perfectScrollbar();
-		$('aside').perfectScrollbar();
+		/* enable perfect-scrollbars for different elements */
+		$('#nav-notifications-menu, aside').perfectScrollbar();
 
 		/* nav update event  */
 		$('nav').bind('nav-update', function(e,data){
