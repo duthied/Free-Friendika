@@ -90,8 +90,8 @@ If you run your own server, upload the files and check out the Mozilla wiki link
 Let's encrypt
 ---
 
-If you run your own server, the "Let's encrypt" initiative might become an interesting alternative.
-Their offer is in public beta right now.
+If you run your own server and you control your name server, the "Let's encrypt" initiative might become an interesting alternative.
+Their offer is not ready, yet.
 Check out [their website](https://letsencrypt.org/) for status updates.
 
 Web server settings
