@@ -774,6 +774,30 @@ function item_add_language_opt(&$arr) {
 	}
 }
 
+/**
+ * @brief Creates an unique guid out of a given uri
+ *
+ * @param string $uri uri of an item entry
+ * @return string unique guid
+ */
+function uri_to_guid($uri) {
+
+	// Our regular guid routine is using this kind of prefix as well
+	// We have to avoid that different routines could accidentally create the same value
+	$parsed = parse_url($uri);
+	$guid_prefix = hash("crc32", $parsed["host"]);
+
+	// Remove the scheme to make sure that "https" and "http" doesn't make a difference
+	unset($parsed["scheme"]);
+
+	$host_id = implode("/", $parsed);
+
+	// We could use any hash algorithm since it isn't a security issue
+	$host_hash = hash("ripemd128", $host_id);
+
+	return $guid_prefix.$host_hash;
+}
+
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
 	// If it is a posting where users should get notifications, then define it as wall posting
@@ -849,33 +873,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	}
 
-	// If there is no guid then take the same guid that was taken before for the same uri
-	if ((trim($arr['guid']) == "") AND (trim($arr['uri']) != "") AND (trim($arr['network']) != "")) {
-		logger('item_store: checking for an existing guid for uri '.$arr['uri'], LOGGER_DEBUG);
-		$r = q("SELECT `guid` FROM `guid` WHERE `uri` = '%s' AND `network` = '%s' LIMIT 1",
-			dbesc(trim($arr['uri'])), dbesc(trim($arr['network'])));
-
-		if(count($r)) {
-			$arr['guid'] = $r[0]["guid"];
-			logger('item_store: found guid '.$arr['guid'].' for uri '.$arr['uri'], LOGGER_DEBUG);
-		}
-	}
-
-	// If there is no guid then take the same guid that was taken before for the same plink
-	if ((trim($arr['guid']) == "") AND (trim($arr['plink']) != "") AND (trim($arr['network']) != "")) {
-		logger('item_store: checking for an existing guid for plink '.$arr['plink'], LOGGER_DEBUG);
-		$r = q("SELECT `guid`, `uri` FROM `guid` WHERE `plink` = '%s' AND `network` = '%s' LIMIT 1",
-			dbesc(trim($arr['plink'])), dbesc(trim($arr['network'])));
-
-		if(count($r)) {
-			$arr['guid'] = $r[0]["guid"];
-			logger('item_store: found guid '.$arr['guid'].' for plink '.$arr['plink'], LOGGER_DEBUG);
-
-			if ($r[0]["uri"] != $arr['uri'])
-			logger('Different uri for same guid: '.$arr['uri'].' and '.$r[0]["uri"].' - this shouldnt happen!', LOGGER_DEBUG);
-		}
-	}
-
 	// Shouldn't happen but we want to make absolutely sure it doesn't leak from a plugin.
 	// Deactivated, since the bbcode parser can handle with it - and it destroys posts with some smileys that contain "<"
 	//if((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
@@ -885,6 +882,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	if ($notify)
 		$guid_prefix = "";
+	elseif ((trim($arr['guid']) == "") AND (trim($arr['plink']) != ""))
+		$arr['guid'] = uri_to_guid($arr['plink']);
+	elseif ((trim($arr['guid']) == "") AND (trim($arr['uri']) != ""))
+		$arr['guid'] = uri_to_guid($arr['uri']);
 	else {
 		$parsed = parse_url($arr["author-link"]);
 		$guid_prefix = hash("crc32", $parsed["host"]);
