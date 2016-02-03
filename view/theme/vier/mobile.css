@@ -166,6 +166,19 @@ aside.show {
 .tabs.show::after { display: none; }
 .tabs.show .tab { display: block; }
 
+/* jot buttons */
+#profile-jot-submit,
+#jot-preview-link {
+    float: none;
+    display: block;
+    width: 100%;
+    margin: 0 0 1em 0;
+}
+#profile-jot-submit-wrapper > div {
+    margin: 0 1em 1em 0;
+}
+#profile-jot-submit-wrapper > div#profile-jot-perms { margin: 0; }
+ 
 /* ACL window */
 #profile-jot-acl-wrapper, #profile-jot-acl-wrapper * { box-sizing: border-box; }
 #acl-wrapper { width: 100%; float: none; }
