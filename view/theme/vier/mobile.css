@@ -161,3 +161,77 @@ aside.show {
 }
 .tabs.show::after { display: none; }
 .tabs.show .tab { display: block; }
+
+/* ACL window */
+#profile-jot-acl-wrapper, #profile-jot-acl-wrapper * { box-sizing: border-box; }
+#acl-wrapper { width: 100%; float: none; }
+#acl-search { width: 100%; float: none; padding-right: 0px; margin-bottom: 1em; }
+#acl-showall { width: 100%; height: 48px; margin-bottom: 1em; }
+.acl-list-item { width: auto; float: none; height: auto; overflow: hidden; position: relative;}
+.acl-list-item img { width: 48px; height: 48px; }
+.acl-list-item p { height: auto; font-size: inherit; }
+.acl-list-item a {
+  float: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 48px;
+  padding: 10px 2px 2px 2px;
+  font-size: 12px;
+  width: 20%;
+  text-align: center;
+  background-position: center 5px;
+}
+.acl-list-item a.acl-button-hide { right: 25%; }
+/* flexbox for ACL window */
+#cboxLoadedContent,
+#cboxLoadedContent > div,
+#acl-wrapper {
+  display: -ms-Flexbox !important;
+  -ms-box-orient: vertival;
+
+  display: -webkit-flex !important;
+  display: -moz-flex !important;
+  display: -ms-flex !important;
+  display: flex !important;
+
+  -webkit-flex-flow: column;
+  -moz-flex-flow: column;
+  -ms-flex-flow: column;
+  flex-flow: column;
+  
+  -webkit-flex: 1 100%;
+  -moz-flex: 1 100%;
+  -ms-flex: 1 100%;
+  flex: 1 100%;
+}
+#acl-list {
+  -webkit-flex: 1 1 auto;
+  -moz-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;  
+}
+
+/** input elements **/
+input,
+textarea,
+select {
+    font-size: 18px;
+    border: 1px solid #888;
+    padding: 0.2em;
+}
+input:focus,
+textarea:focus,
+select:focus {
+    box-shadow: 1px 1px 10px rgba(46, 151, 255, 0.62);
+}
+
+.field, .field > * {  box-sizing: border-box; }
+.field label { width: 100%; float: none; display: block; }
+.field input, .field textarea, .field select { max-width: 100%; width: 100%; }
+.field.yesno .onoff,
+.field.checkbox input { width: auto; float: right; }
+.field.yesno label,
+.field.checkbox label { width: 70%; float: left; }
+.field .field_help { margin: 0; }
+

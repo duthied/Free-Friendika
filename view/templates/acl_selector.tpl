@@ -29,7 +29,8 @@ $(document).ready(function() {
 		acl = new ACL(
 			baseurl+"/acl",
 			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ],
-			{{$features.aclautomention}}
+			{{$features.aclautomention}},
+			{{$APP->is_mobile}}
 		);
 	}
 });
