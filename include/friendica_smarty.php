@@ -60,6 +60,8 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 			$template = $s;
 			$s = new FriendicaSmarty();
 		}
+		
+		$r['$APP'] = get_app();
 
 		// "middleware": inject variables into templates
 		$arr = array(

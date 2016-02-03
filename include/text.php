@@ -22,7 +22,7 @@ function replace_macros($s,$r) {
 	$a = get_app();
 
 	// pass $baseurl to all templates
-	$r['$baseurl'] = z_root();
+	$r['$baseurl'] = $a->get_baseurl();
 
 
 	$t = $a->template_engine();
