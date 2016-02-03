@@ -127,8 +127,8 @@ img {
 .icon {
   background-color: transparent ;
   background-repeat: no-repeat;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   /* display: block; */
   display: inline-block;
   overflow: hidden;
@@ -2748,7 +2748,9 @@ a.mail-list-link {
         margin-bottom: 15px;
 }
 
-.vevent .event-description, .vevent .event-location {
+.vevent .event-summary,
+.vevent .event-description,
+.vevent .event-location {
         margin-left: 10px;
         margin-right: 10px;
 }

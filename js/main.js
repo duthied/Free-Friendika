@@ -9,7 +9,7 @@
 		if (h==ch) {
 			return;
 		}
-		console.log("_resizeIframe", obj, desth, ch);
+		//console.log("_resizeIframe", obj, desth, ch);
 		if (desth!=ch) {
 			setTimeout(_resizeIframe, 500, obj, ch);
 		} else {
