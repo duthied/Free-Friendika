@@ -18,11 +18,11 @@ require_once("include/items.php");
 require_once("include/tags.php");
 require_once("include/files.php");
 
-define("DFRN_TOP_LEVEL", 0);
-define("DFRN_REPLY", 1);
-define("DFRN_REPLY_RC", 2);
-
 class dfrn2 {
+
+	const DFRN_TOP_LEVEL = 0;
+	const DFRN_REPLY = 1;
+	const DFRN_REPLY_RC = 2;
 
 	/**
 	 * @brief Add new birthday event for this person
@@ -58,14 +58,13 @@ class dfrn2 {
 	 *
 	 * @param object $xpath XPath object
 	 * @param object $context In which context should the data be searched
-	 * @param array $importer Record of the importer contact
+	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param string $element Element name from which the data is fetched
-	 * @param array $contact The updated contact record of the author
 	 * @param bool $onlyfetch Should the data only be fetched or should it update the contact record as well
 	 *
 	 * @return Returns an array with relevant data of the author
 	 */
-	private function fetchauthor($xpath, $context, $importer, $element, $contact, $onlyfetch) {
+	private function fetchauthor($xpath, $context, $importer, $element, $onlyfetch) {
 
 		$author = array();
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
@@ -80,8 +79,8 @@ class dfrn2 {
 			$author["contact-id"] = $r[0]["id"];
 			$author["network"] = $r[0]["network"];
 		} else {
-			$author["contact-id"] = $contact["id"];
-			$author["network"] = $contact["network"];
+			$author["contact-id"] = $importer["id"];
+			$author["network"] = $importer["network"];
 			$onlyfetch = true;
 		}
 
@@ -623,7 +622,7 @@ class dfrn2 {
 		}
 	}
 
-	private function process_entry($header, $xpath, $entry, $importer, $contact) {
+	private function process_entry($header, $xpath, $entry, $importer) {
 
 		logger("Processing entries");
 
@@ -633,27 +632,29 @@ class dfrn2 {
 		$item["uri"] = $xpath->query("atom:id/text()", $entry)->item(0)->nodeValue;
 
 		// Fetch the owner
-		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", $contact, true);
+		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true);
 
 		$item["owner-name"] = $owner["name"];
 		$item["owner-link"] = $owner["link"];
 		$item["owner-avatar"] = $owner["avatar"];
 
-		if ($header["contact-id"] != $owner["contact-id"])
-			$item["contact-id"] = $owner["contact-id"];
+		// At the moment we trust the importer array
+		//if ($header["contact-id"] != $owner["contact-id"])
+		//	$item["contact-id"] = $owner["contact-id"];
 
 		if (($header["network"] != $owner["network"]) AND ($owner["network"] != ""))
 			$item["network"] = $owner["network"];
 
 		// fetch the author
-		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", $contact, true);
+		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true);
 
 		$item["author-name"] = $author["name"];
 		$item["author-link"] = $author["link"];
 		$item["author-avatar"] = $author["avatar"];
 
-		if ($header["contact-id"] != $author["contact-id"])
-			$item["contact-id"] = $author["contact-id"];
+		// At the moment we trust the importer array
+		//if ($header["contact-id"] != $author["contact-id"])
+		//	$item["contact-id"] = $author["contact-id"];
 
 		if (($header["network"] != $author["network"]) AND ($author["network"] != ""))
 			$item["network"] = $author["network"];
@@ -948,7 +949,7 @@ class dfrn2 {
 		}
 	}
 
-	private function process_deletion($header, $xpath, $deletion, $importer, $contact_id) {
+	private function process_deletion($header, $xpath, $deletion, $importer) {
 
 		logger("Processing deletions");
 
@@ -963,7 +964,7 @@ class dfrn2 {
 		else
 			$when = datetime_convert("UTC", "UTC", "now", "Y-m-d H:i:s");
 
-		if (!$uri OR !$contact_id)
+		if (!$uri OR !$importer["id"])
 			return false;
 
 		/// @todo Only select the used fields
@@ -971,10 +972,10 @@ class dfrn2 {
 				WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
 				dbesc($uri),
 				intval($importer["uid"]),
-				intval($contact_id)
+				intval($importer["id"])
 			);
 		if(!count($r)) {
-			logger("Item with uri ".$uri." from contact ".$contact_id." for user ".$importer["uid"]." wasn't found.", LOGGER_DEBUG);
+			logger("Item with uri ".$uri." from contact ".$importer["id"]." for user ".$importer["uid"]." wasn't found.", LOGGER_DEBUG);
 			return;
 		} else {
 
@@ -1079,10 +1080,24 @@ class dfrn2 {
 		}
 	}
 
-	function import($xml,$importer, &$contact) {
+	/**
+	 * @brief Imports a DFRN message
+	 *
+	 * @param text $xml The DFRN message
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @param bool $sort_by_date Is used when feeds are polled
+	 */
+	function import($xml,$importer, $sort_by_date = false) {
 
 		if ($xml == "")
 			return;
+
+		if($importer["readonly"]) {
+	                // We aren't receiving stuff from this person. But we will quietly ignore them
+	                // rather than a blatant "go away" message.
+	                logger('ignoring contact '.$importer["id"]);
+	                return;
+	        }
 
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
@@ -1099,12 +1114,6 @@ class dfrn2 {
 		$xpath->registerNamespace("ostatus", NAMESPACE_OSTATUS);
 		$xpath->registerNamespace("statusnet", NAMESPACE_STATUSNET);
 
-		/// @todo Do we need this?
-		if (!$contact) {
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `self`", intval($importer["uid"]));
-			$contact = $r[0];
-		}
-
 		$header = array();
 		$header["uid"] = $importer["uid"];
 		$header["network"] = NETWORK_DFRN;
@@ -1115,22 +1124,17 @@ class dfrn2 {
 
 		// Update the contact table if the data has changed
 		// Only the "dfrn:owner" in the head section contains all data
-		$dfrn_owner = self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", $contact, false);
+		self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false);
 
-		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$contact["id"]." ".print_r($dfrn_owner, true)." - ".print_r($contact, true), LOGGER_DEBUG);
-
-		//if (!$dfrn_owner["found"]) {
-		//	logger("Author doesn't seem to be known by us. UID: ".$importer["uid"]." Contact: ".$dfrn_owner["contact-id"]." - ".print_r($dfrn_owner, true));
-		//	return;
-		//}
+		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
 
 		// is it a public forum? Private forums aren't supported by now with this method
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
-		if ($forum AND ($dfrn_owner["contact-id"] != 0))
+		if ($forum)
 			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
 				intval($forum), intval($forum),
-				intval($dfrn_owner["contact-id"])
+				intval($importer["id"])
 			);
 
 		$mails = $xpath->query("/atom:feed/dfrn:mail");
@@ -1147,11 +1151,11 @@ class dfrn2 {
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
 		foreach ($deletions AS $deletion)
-			self::process_deletion($header, $xpath, $deletion, $importer, $dfrn_owner["contact-id"]);
+			self::process_deletion($header, $xpath, $deletion, $importer);
 
 		$entries = $xpath->query("/atom:feed/atom:entry");
 		foreach ($entries AS $entry)
-			self::process_entry($header, $xpath, $entry, $importer, $contact);
+			self::process_entry($header, $xpath, $entry, $importer);
 	}
 }
 ?>
