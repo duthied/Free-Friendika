@@ -773,13 +773,25 @@ function item_add_language_opt(&$arr) {
 	}
 }
 
+/**
+ * @brief Creates an unique guid out of a given uri
+ *
+ * @param string $uri uri of an item entry
+ * @return string unique guid
+ */
 function uri_to_guid($uri) {
+
+	// Our regular guid routine is using this kind of prefix as well
+	// We have to avoid that different routines could accidentally create the same value
 	$parsed = parse_url($uri);
 	$guid_prefix = hash("crc32", $parsed["host"]);
 
+	// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 	unset($parsed["scheme"]);
 
 	$host_id = implode("/", $parsed);
+
+	// We could use any hash algorithm since it isn't a security issue
 	$host_hash = hash("ripemd128", $host_id);
 
 	return $guid_prefix.$host_hash;
