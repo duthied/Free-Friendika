@@ -776,7 +776,7 @@ class dfrn2 {
 					$item["parent-uri"] = $attributes->textContent;
 
 		// Get the type of the item (Top level post, reply or remote reply)
-		$entrytype = get_entry_type($importer, $item);
+		$entrytype = self::get_entry_type($importer, $item);
 
 		// Now assign the rest of the values that depend on the type of the message
 		if ($entrytype == DFRN_REPLY_RC) {
@@ -892,6 +892,8 @@ class dfrn2 {
 
 			if($posted_id) {
 
+				logger("Reply was stored with id ".$posted_id, LOGGER_DEBUG);
+
 				$item["id"] = $posted_id;
 
 				$r = q("SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -918,6 +920,7 @@ class dfrn2 {
 				}
 
 				if($posted_id AND $parent AND ($entrytype == DFRN_REPLY_RC)) {
+					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
 					proc_run("php", "include/notifier.php", "comment-import", $posted_id);
 				}
 
@@ -943,6 +946,8 @@ class dfrn2 {
 			$notify = item_is_remote_self($importer, $item);
 
 			$posted_id = item_store($item, false, $notify);
+
+			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
 
 			if(stristr($item["verb"],ACTIVITY_POKE))
 				self::do_poke($item, $importer, $posted_id);
@@ -981,7 +986,7 @@ class dfrn2 {
 
 			$item = $r[0];
 
-			$entrytype = get_entry_type($importer, $item);
+			$entrytype = self::get_entry_type($importer, $item);
 
 			if(!$item["deleted"])
 				logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
@@ -1074,8 +1079,10 @@ class dfrn2 {
 				}
 				// if this is a relayed delete, propagate it to other recipients
 
-				if($entrytype == DFRN_REPLY_RC)
+				if($entrytype == DFRN_REPLY_RC) {
+					logger("Notifying followers about deletion of post ".$item["id"], LOGGER_DEBUG);
 					proc_run("php", "include/notifier.php","drop", $item["id"]);
+				}
 			}
 		}
 	}
