@@ -1042,6 +1042,9 @@ aside {
   box-shadow: 1px 2px 0px 0px #D8D8D8;
   color: #737373;
 }
+aside .vcard .tool {
+  clear: both;
+}
 aside .vcard .fn {
   font-size: 18px;
   font-weight: bold;
@@ -1050,7 +1053,6 @@ aside .vcard .fn {
 }
 aside .vcard .title {
   margin-bottom: 5px;
-  float: left;
 }
 aside .vcard dl {
   height: auto;
