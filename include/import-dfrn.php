@@ -1,16 +1,4 @@
 <?php
-/*
-require_once("include/Contact.php");
-require_once("include/html2bbcode.php");
-require_once("include/bbcode.php");
-require_once("mod/share.php");
-require_once("include/Photo.php");
-require_once("include/Scrape.php");
-require_once("include/follow.php");
-require_once("include/api.php");
-require_once("mod/proxy.php");
-*/
-
 require_once("include/enotify.php");
 require_once("include/threads.php");
 require_once("include/socgraph.php");
@@ -196,25 +184,37 @@ class dfrn2 {
 
 			unset($fields["id"]);
 			unset($fields["uid"]);
+			unset($fields["avatar-date"]);
+			unset($fields["name-date"]);
+			unset($fields["uri-date"]);
+
+			 // Update check for this field has to be done differently
+			$datefields = array("name-date", "uri-date");
+			foreach ($datefields AS $field)
+				if (strtotime($contact[$field]) > strtotime($r[0][$field]))
+					$update = true;
 
 			foreach ($fields AS $field => $data)
-				if ($contact[$field] != $r[0][$field])
+				if ($contact[$field] != $r[0][$field]) {
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
+				}
 
 			if ($update) {
 				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s'
-					`avatar-date`  = '%s', `name-date`  = '%s', `uri-date` = '%s'
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
+					`name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), dbesc($contact["avatar-date"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
+					dbesc($contact["bd"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
 					intval($contact["id"]), dbesc($contact["network"]));
 			}
 
-			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"], ($contact["avatar-date"] != $r[0]["avatar-date"]));
+			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
+						(strtotime($contact["avatar-date"]) > strtotime($r[0]["avatar-date"])));
 
 			$contact["generation"] = 2;
 			$contact["photo"] = $author["avatar"];
@@ -301,6 +301,8 @@ class dfrn2 {
 		);
 
 		notification($notif_params);
+
+		logger("Mail is processed, notification was sent.");
 	}
 
 	private function process_suggestion($xpath, $suggestion, $importer) {
@@ -638,26 +640,12 @@ class dfrn2 {
 		$item["owner-link"] = $owner["link"];
 		$item["owner-avatar"] = $owner["avatar"];
 
-		// At the moment we trust the importer array
-		//if ($header["contact-id"] != $owner["contact-id"])
-		//	$item["contact-id"] = $owner["contact-id"];
-
-		if (($header["network"] != $owner["network"]) AND ($owner["network"] != ""))
-			$item["network"] = $owner["network"];
-
 		// fetch the author
 		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true);
 
 		$item["author-name"] = $author["name"];
 		$item["author-link"] = $author["link"];
 		$item["author-avatar"] = $author["avatar"];
-
-		// At the moment we trust the importer array
-		//if ($header["contact-id"] != $author["contact-id"])
-		//	$item["contact-id"] = $author["contact-id"];
-
-		if (($header["network"] != $author["network"]) AND ($author["network"] != ""))
-			$item["network"] = $author["network"];
 
 		$item["title"] = $xpath->query("atom:title/text()", $entry)->item(0)->nodeValue;
 
@@ -779,16 +767,31 @@ class dfrn2 {
 		$entrytype = self::get_entry_type($importer, $item);
 
 		// Now assign the rest of the values that depend on the type of the message
-		if ($entrytype == DFRN_REPLY_RC) {
+		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
 			if (!isset($item["object-type"]))
 				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 
+			if ($item["contact-id"] != $owner["contact-id"])
+				$item["contact-id"] = $owner["contact-id"];
+
+			if (($item["network"] != $owner["network"]) AND ($owner["network"] != ""))
+				$item["network"] = $owner["network"];
+
+			if ($item["contact-id"] != $author["contact-id"])
+				$item["contact-id"] = $author["contact-id"];
+
+			if (($item["network"] != $author["network"]) AND ($author["network"] != ""))
+				$item["network"] = $author["network"];
+		}
+
+		if ($entrytype == DFRN_REPLY_RC) {
 			$item["type"] = "remote-comment";
 			$item["wall"] = 1;
-		} elseif ($entrytype == DFRN_REPLY) {
-			if (!isset($item["object-type"]))
-				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 		} else {
+			// The Diaspora signature is only stored in replies
+			// Since this isn't a field in the item table this would create a bug when inserting this in the item table
+			unset($item["dsprsig"]);
+
 			if (!isset($item["object-type"]))
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 
@@ -892,7 +895,7 @@ class dfrn2 {
 
 			if($posted_id) {
 
-				logger("Reply was stored with id ".$posted_id, LOGGER_DEBUG);
+				logger("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, LOGGER_DEBUG);
 
 				$item["id"] = $posted_id;
 
