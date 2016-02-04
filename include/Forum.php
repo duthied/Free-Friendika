@@ -8,7 +8,7 @@
 /**
  * @brief This class handles functions related to the forum functionality
  */
-class forum {
+class Forum {
 
 	/**
 	 * @brief Function to list all forums a user is connected with
@@ -27,7 +27,7 @@ class forum {
 	 *	'id'	=> number of the key from the array
 	 *	'micro' => contact photo in format micro
 	 */
-	public static function get_forumlist($uid, $showhidden = true, $lastitem, $showprivate = false) {
+	public static function get_list($uid, $showhidden = true, $lastitem, $showprivate = false) {
 
 		$forumlist = array();
 
@@ -72,7 +72,7 @@ class forum {
 	 *	The contact id which is used to mark a forum as "selected"
 	 * @return string
 	 */
-	public static function widget_forumlist($uid,$cid = 0) {
+	public static function widget($uid,$cid = 0) {
 
 		if(! intval(feature_enabled(local_user(),'forumlist_widget')))
 			return;
@@ -82,7 +82,7 @@ class forum {
 		//sort by last updated item
 		$lastitem = true;
 
-		$contacts = self::get_forumlist($uid,true,$lastitem, true);
+		$contacts = self::get_list($uid,true,$lastitem, true);
 		$total = count($contacts);
 		$visible_forums = 10;
 
@@ -131,7 +131,7 @@ class forum {
 	 * @return string
 	 *
 	 */
-	public static function forumlist_profile_advanced($uid) {
+	public static function profile_advanced($uid) {
 
 		$profile = intval(feature_enabled($uid,'forumlist_profile'));
 		if(! $profile)
@@ -145,7 +145,7 @@ class forum {
 		//don't sort by last updated item
 		$lastitem = false;
 
-		$contacts = self::get_forumlist($uid,false,$lastitem,false);
+		$contacts = self::get_list($uid,false,$lastitem,false);
 
 		$total_shown = 0;
 

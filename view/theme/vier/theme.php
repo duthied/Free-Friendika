@@ -220,7 +220,7 @@ function vier_community_info() {
 	//Community_Pages at right_aside
 	if($show_pages AND local_user()) {
 
-		require_once('include/forum.php');
+		require_once('include/Forum.php');
 
 		if(x($_GET['cid']) && intval($_GET['cid']) != 0)
 			$cid = $_GET['cid'];
@@ -228,7 +228,7 @@ function vier_community_info() {
 		//sort by last updated item
 		$lastitem = true;
 
-		$contacts = forum::get_forumlist($a->user['uid'],true,$lastitem, true);
+		$contacts = Forum::get_list($a->user['uid'],true,$lastitem, true);
 		$total = count($contacts);
 		$visible_forums = 10;
 

@@ -1,7 +1,7 @@
 <?php
 require_once("include/datetime.php");
 require_once('include/bbcode.php');
-require_once('include/forum.php');
+require_once('include/Forum.php');
 require_once('include/group.php');
 require_once("mod/proxy.php");
 
@@ -96,7 +96,7 @@ function ping_init(&$a) {
 			}
 
 			if(intval(feature_enabled(local_user(),'forumlist_widget'))) {
-				$forums_unseen = forum::count_unseen_items();
+				$forums_unseen = Forum::count_unseen_items();
 			}
 		}
 
