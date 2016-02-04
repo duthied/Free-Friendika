@@ -961,8 +961,10 @@ class dfrn2 {
 				$item["owner-avatar"] = $importer["thumb"];
 			}
 
-			if(($importer["rel"] == CONTACT_IS_FOLLOWER) && (!tgroup_check($importer["importer_uid"], $item)))
+			if(($importer["rel"] == CONTACT_IS_FOLLOWER) && (!tgroup_check($importer["importer_uid"], $item))) {
+				logger("Contact ".$importer["id"]." is only follower and tgroup check was negative.", LOGGER_DEBUG);
 				return;
+			}
 
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
@@ -1183,9 +1185,24 @@ class dfrn2 {
 		foreach ($deletions AS $deletion)
 			self::process_deletion($header, $xpath, $deletion, $importer);
 
-		$entries = $xpath->query("/atom:feed/atom:entry");
-		foreach ($entries AS $entry)
-			self::process_entry($header, $xpath, $entry, $importer);
+		if (!$sort_by_date) {
+			$entries = $xpath->query("/atom:feed/atom:entry");
+			foreach ($entries AS $entry)
+				self::process_entry($header, $xpath, $entry, $importer);
+		} else {
+			$newentries = array();
+			$entries = $xpath->query("/atom:feed/atom:entry");
+			foreach ($entries AS $entry) {
+				$created = $xpath->query("atom:published/text()", $entry)->item(0)->nodeValue;
+				$newentries[strtotime($created)] = $entry;
+			}
+
+			// Now sort after the publishing date
+			ksort($newentries);
+
+			foreach ($newentries AS $entry)
+				self::process_entry($header, $xpath, $entry, $importer);
+		}
 	}
 }
 ?>

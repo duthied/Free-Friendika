@@ -1695,11 +1695,9 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		}
 		return;
 	}
-	// dfrn-test
-/*
+
 	if ($contact['network'] === NETWORK_DFRN) {
 		logger("Consume DFRN messages", LOGGER_DEBUG);
-		logger("dfrn-test");
 
 		$r = q("SELECT  `contact`.*, `contact`.`uid` AS `importer_uid`,
                                         `contact`.`pubkey` AS `cpubkey`,
@@ -1711,14 +1709,15 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
                         FROM `contact`
                         LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
                         WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
-	                dbesc($contact["id"], $importer["uid"]);
+	                dbesc($contact["id"]), dbesc($importer["uid"])
 	        );
 		if ($r) {
+			logger("Now import the DFRN feed");
 			dfrn2::import($xml,$r[0], true);
 			return;
 		}
 	}
-*/
+
 	// Test - remove before flight
 	//if ($pass < 2) {
 	//	$tempfile = tempnam(get_temppath(), "dfrn-consume-");
