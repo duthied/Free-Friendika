@@ -5,6 +5,7 @@ require_once("include/socgraph.php");
 require_once("include/items.php");
 require_once("include/tags.php");
 require_once("include/files.php");
+require_once("include/event.php");
 
 class dfrn2 {
 
@@ -702,6 +703,12 @@ class dfrn2 {
 		$object = $xpath->query("activity:object", $entry)->item(0);
 		$item["object"] = self::transform_activity($xpath, $object, "object");
 
+		if (trim($item["object"]) != "") {
+			$r = parse_xml_string($item["object"], false);
+			if (isset($r->type))
+				$item["object-type"] = $r->type;
+		}
+
 		$target = $xpath->query("activity:target", $entry)->item(0);
 		$item["target"] = self::transform_activity($xpath, $target, "target");
 
@@ -790,7 +797,7 @@ class dfrn2 {
 		if ($entrytype == DFRN_REPLY_RC) {
 			$item["type"] = "remote-comment";
 			$item["wall"] = 1;
-		} else {
+		} elseif ($entrytype == DFRN_TOP_LEVEL) {
 			// The Diaspora signature is only stored in replies
 			// Since this isn't a field in the item table this would create a bug when inserting this in the item table
 			unset($item["dsprsig"]);
@@ -798,9 +805,11 @@ class dfrn2 {
 			if (!isset($item["object-type"]))
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 
-			if ($item["object-type"] === ACTIVITY_OBJ_EVENT) {
+			if ($item["object-type"] == ACTIVITY_OBJ_EVENT) {
+				logger("Item ".$item["uri"]." seems to contain an event.", LOGGER_DEBUG);
 				$ev = bbtoevent($item["body"]);
 				if((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
+					logger("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
 					$ev["cid"] = $importer["id"];
 					$ev["uid"] = $importer["uid"];
 					$ev["uri"] = $item["uri"];
@@ -814,9 +823,10 @@ class dfrn2 {
 					);
 					if(count($r))
 						$ev["id"] = $r[0]["id"];
-						$xyz = event_store($ev);
-						logger("Event ".$ev["id"]." was stored", LOGGER_DEBUG);
-						return;
+
+					$event_id = event_store($ev);
+					logger("Event ".$event_id." was stored", LOGGER_DEBUG);
+					return;
 				}
 			}
 		}
