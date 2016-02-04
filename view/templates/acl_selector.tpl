@@ -30,7 +30,7 @@ $(document).ready(function() {
 			baseurl+"/acl",
 			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ],
 			{{$features.aclautomention}},
-			{{$APP->is_mobile}}
+			{{if $APP->is_mobile}}true{{else}}false{{/if}}
 		);
 	}
 });
