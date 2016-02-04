@@ -95,8 +95,6 @@ class dfrn2 {
 			$author["avatar"] = current($avatarlist);
 		}
 
-		//$onlyfetch = true; // Test
-
 		if ($r AND !$onlyfetch) {
 
 			// When was the last change to name or uri?
@@ -481,11 +479,13 @@ class dfrn2 {
 	}
 
 	private function update_content($current, $item, $importer, $entrytype) {
+		$changed = false;
+
 		if (edited_timestamp_is_newer($current, $item)) {
 
 			// do not accept (ignore) an earlier edit than one we currently have.
 			if(datetime_convert("UTC","UTC",$item["edited"]) < $current["edited"])
-				return;
+				return(false);
 
 			$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 				dbesc($item["title"]),
@@ -498,6 +498,8 @@ class dfrn2 {
 			);
 			create_tags_from_itemuri($item["uri"], $importer["importer_uid"]);
 			update_thread_uri($item["uri"], $importer["importer_uid"]);
+
+			$changed = true;
 
 			if ($entrytype == DFRN_REPLY_RC)
 				proc_run("php", "include/notifier.php","comment-import", $current["id"]);
@@ -517,6 +519,7 @@ class dfrn2 {
 				intval($importer["importer_uid"])
 			);
 		}
+		return $changed;
 	}
 
 	private function get_entry_type($importer, $item) {
@@ -812,7 +815,8 @@ class dfrn2 {
 					if(count($r))
 						$ev["id"] = $r[0]["id"];
 						$xyz = event_store($ev);
-							return;
+						logger("Event ".$ev["id"]." was stored", LOGGER_DEBUG);
+						return;
 				}
 			}
 		}
@@ -824,13 +828,18 @@ class dfrn2 {
 
 		// Update content if 'updated' changes
 		if(count($r)) {
-			self::update_content($r[0], $item, $importer, $entrytype);
+			if (self::update_content($r[0], $item, $importer, $entrytype))
+				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
+			else
+				logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
 			return;
 		}
 
 		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
-			if($importer["rel"] == CONTACT_IS_FOLLOWER)
+			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
+				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
 				return;
+			}
 
 			if(($item["verb"] === ACTIVITY_LIKE)
 				|| ($item["verb"] === ACTIVITY_DISLIKE)
@@ -931,6 +940,7 @@ class dfrn2 {
 			}
 		} else {
 			if(!link_compare($item["owner-link"],$importer["url"])) {
+				/// @todo Check if this is really used
 				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
 				// but otherwise there's a possible data mixup on the sender's system.
 				// the tgroup delivery code called from item_store will correct it if it's a forum,
