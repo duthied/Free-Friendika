@@ -3,7 +3,7 @@
  * @file include/identity.php
  */
 
-require_once('include/Forum.php');
+require_once('include/ForumManager.php');
 require_once('include/bbcode.php');
 require_once("mod/proxy.php");
 
@@ -655,7 +655,7 @@ function advanced_profile(&$a) {
 	
 		//show subcribed forum if it is enabled in the usersettings
 		if (feature_enabled($uid,'forumlist_profile')) {
-			$profile['forumlist'] = array( t('Forums:'), Forum::profile_advanced($uid));
+			$profile['forumlist'] = array( t('Forums:'), ForumManager::profile_advanced($uid));
 		}
 
 		if ($a->profile['uid'] == local_user())

@@ -8,7 +8,7 @@
 /**
  * @brief This class handles functions related to the forum functionality
  */
-class Forum {
+class ForumManager {
 
 	/**
 	 * @brief Function to list all forums a user is connected with
