@@ -5,6 +5,7 @@ require_once('include/follow.php');
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
+if(! function_exists('follow_content')) {
 function follow_content(&$a) {
 
 	if(! local_user()) {
@@ -148,7 +149,9 @@ function follow_content(&$a) {
 
 	return $o;
 }
+}
 
+if(! function_exists('follow_post')) {
 function follow_post(&$a) {
 
 	if(! local_user()) {
@@ -184,4 +187,5 @@ function follow_post(&$a) {
 
 	goaway($return_url);
 	// NOTREACHED
+}
 }

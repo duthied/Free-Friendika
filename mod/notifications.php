@@ -3,6 +3,7 @@ include_once("include/bbcode.php");
 include_once("include/contact_selectors.php");
 include_once("include/Scrape.php");
 
+if(! function_exists('notifications_post')) {
 function notifications_post(&$a) {
 
 	if(! local_user()) {
@@ -58,11 +59,11 @@ function notifications_post(&$a) {
 		}
 	}
 }
+}
 
 
 
-
-
+if(! function_exists('notifications_content')) {
 function notifications_content(&$a) {
 
 	if(! local_user()) {
@@ -578,4 +579,5 @@ function notifications_content(&$a) {
 
 	$o .= paginate($a);
 	return $o;
+}
 }

@@ -3,6 +3,7 @@
 require_once('include/Scrape.php');
 require_once('include/follow.php');
 
+if(! function_exists('repair_ostatus_content')) {
 function repair_ostatus_content(&$a) {
 
 	if(! local_user()) {
@@ -54,4 +55,5 @@ function repair_ostatus_content(&$a) {
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.$a->get_baseurl().'/repair_ostatus?counter='.$counter.'">';
 
 	return $o;
+}
 }

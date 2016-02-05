@@ -1,12 +1,13 @@
 <?php
 /**
  * @file mod/nodeinfo.php
- * 
+ *
  * Documentation: http://nodeinfo.diaspora.software/schema.html
 */
 
 require_once("include/plugin.php");
 
+if(! function_exists('nodeinfo_wellknown')) {
 function nodeinfo_wellknown(&$a) {
 	if (!get_config("system", "nodeinfo")) {
 		http_status_exit(404);
@@ -19,7 +20,9 @@ function nodeinfo_wellknown(&$a) {
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
 }
+}
 
+if(! function_exists('nodeinfo_init')) {
 function nodeinfo_init(&$a){
 	if (!get_config("system", "nodeinfo")) {
 		http_status_exit(404);
@@ -143,9 +146,9 @@ function nodeinfo_init(&$a){
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
 }
+}
 
-
-
+if(! function_exists('nodeinfo_cron')) {
 function nodeinfo_cron() {
 
 	$a = get_app();
@@ -260,5 +263,5 @@ function nodeinfo_cron() {
         logger("cron_end");
 	set_config('nodeinfo','last_calucation', time());
 }
-
+}
 ?>

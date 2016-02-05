@@ -1,12 +1,14 @@
 <?php
+
+if(! function_exists('share_init')) {
 function share_init(&$a) {
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 	if((! $post_id) || (! local_user()))
 		killme();
 
-	$r = q("SELECT item.*, contact.network FROM `item` 
-		inner join contact on `item`.`contact-id` = `contact`.`id` 
+	$r = q("SELECT item.*, contact.network FROM `item`
+		inner join contact on `item`.`contact-id` = `contact`.`id`
 		WHERE `item`.`id` = %d AND `item`.`uid` = %d LIMIT 1",
 
 		intval($post_id),
@@ -40,7 +42,9 @@ function share_init(&$a) {
 	echo $o;
 	killme();
 }
+}
 
+if(! function_exists('share_header')) {
 function share_header($author, $profile, $avatar, $guid, $posted, $link) {
 	$header = "[share author='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$author).
 		"' profile='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$profile).
@@ -55,4 +59,5 @@ function share_header($author, $profile, $avatar, $guid, $posted, $link) {
 	$header .= "' link='".str_replace(array("'", "[", "]"), array("&#x27;", "&#x5B;", "&#x5D;"),$link)."']";
 
 	return $header;
+}
 }

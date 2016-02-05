@@ -1,11 +1,13 @@
 <?php
 require_once('mod/settings.php');
 
+if(! function_exists('delegate_init')) {
 function delegate_init(&$a) {
 	return settings_init($a);
 }
+}
 
-
+if(! function_exists('delegate_content')) {
 function delegate_content(&$a) {
 
 	if(! local_user()) {
@@ -90,12 +92,12 @@ function delegate_content(&$a) {
 
 	// find every contact who might be a candidate for delegation
 
-	$r = q("select nurl from contact where substring_index(contact.nurl,'/',3) = '%s' 
+	$r = q("select nurl from contact where substring_index(contact.nurl,'/',3) = '%s'
 		and contact.uid = %d and contact.self = 0 and network = '%s' ",
 		dbesc(normalise_link($a->get_baseurl())),
 		intval(local_user()),
 		dbesc(NETWORK_DFRN)
-	); 
+	);
 
 	if(! count($r)) {
 		notice( t('No potential page delegates located.') . EOL);
@@ -144,5 +146,5 @@ function delegate_content(&$a) {
 
 	return $o;
 
-
+}
 }

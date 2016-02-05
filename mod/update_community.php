@@ -4,6 +4,7 @@
 
 require_once('mod/community.php');
 
+if(! function_exists('update_community_content')) {
 function update_community_content(&$a) {
 
 	header("Content-type: text/html");
@@ -29,5 +30,5 @@ function update_community_content(&$a) {
 	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
-
+}
 }

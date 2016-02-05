@@ -1,12 +1,14 @@
 <?php
-
 require_once('include/conversation.php');
 require_once('include/items.php');
 
+if(! function_exists('bookmarklet_init')) {
 function bookmarklet_init(&$a) {
 	$_GET["mode"] = "minimal";
 }
+}
 
+if(! function_exists('bookmarklet_content')) {
 function bookmarklet_content(&$a) {
 	if(!local_user()) {
 		$o = '<h2>'.t('Login').'</h2>';
@@ -43,4 +45,5 @@ function bookmarklet_content(&$a) {
 	}
 
 	return $o;
+}
 }

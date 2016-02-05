@@ -1,5 +1,6 @@
 <?php
 
+if(! function_exists('removeme_post')) {
 function removeme_post(&$a) {
 
 	if(! local_user())
@@ -24,9 +25,10 @@ function removeme_post(&$a) {
 		user_remove($a->user['uid']);
 		// NOTREACHED
 	}
-
+}
 }
 
+if(! function_exists('removeme_content')) {
 function removeme_content(&$a) {
 
 	if(! local_user())
@@ -50,5 +52,5 @@ function removeme_content(&$a) {
 	));
 
 	return $o;
-
+}
 }

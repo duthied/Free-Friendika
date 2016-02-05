@@ -6,6 +6,7 @@ require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/follow.php');
 
+if(! function_exists('salmon_return')) {
 function salmon_return($val) {
 
 	if($val >= 400)
@@ -16,9 +17,10 @@ function salmon_return($val) {
 	logger('mod-salmon returns ' . $val);
 	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 	killme();
-
+}
 }
 
+if(! function_exists('salmon_post')) {
 function salmon_post(&$a) {
 
 	$xml = file_get_contents('php://input');
@@ -155,7 +157,7 @@ function salmon_post(&$a) {
 		if(get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
 			$result = new_contact($importer['uid'],$author_link);
 			if($result['success']) {
-				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s') 
+				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
 					AND `uid` = %d LIMIT 1",
 					dbesc(NETWORK_OSTATUS),
 					dbesc($author_link),
@@ -184,4 +186,5 @@ function salmon_post(&$a) {
 	ostatus_import($data,$importer,$contact_rec, $hub);
 
 	http_status_exit(200);
+}
 }

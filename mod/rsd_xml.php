@@ -1,7 +1,6 @@
 <?php
 
-
-
+if(! function_exists('rsd_xml_content')) {
 function rsd_xml_content(&$a) {
 	header ("Content-Type: text/xml");
 	echo '<?xml version="1.0" encoding="UTF-8"?>
@@ -21,4 +20,5 @@ function rsd_xml_content(&$a) {
  </rsd>
 	';
 die();
+}
 }

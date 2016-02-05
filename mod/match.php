@@ -13,6 +13,7 @@ require_once('mod/proxy.php');
  * @param App &$a
  * @return void|string
  */
+if(! function_exists('match_content')) {
 function match_content(&$a) {
 
 	$o = '';
@@ -108,4 +109,5 @@ function match_content(&$a) {
 	}
 
 	return $o;
+}
 }

@@ -5,6 +5,7 @@
 require_once('mod/display.php');
 require_once('include/group.php');
 
+if(! function_exists('update_display_content')) {
 function update_display_content(&$a) {
 
 	$profile_uid = intval($_GET['p']);
@@ -34,5 +35,5 @@ function update_display_content(&$a) {
 	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
-
+}
 }

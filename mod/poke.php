@@ -4,11 +4,11 @@
  *
  * Poke, prod, finger, or otherwise do unspeakable things to somebody - who must be a connection in your address book
  * This function can be invoked with the required arguments (verb and cid and private and possibly parent) silently via ajax or
- * other web request. You must be logged in and connected to a profile. 
+ * other web request. You must be logged in and connected to a profile.
  * If the required arguments aren't present, we'll display a simple form to choose a recipient and a verb.
  * parent is a special argument which let's you attach this activity as a comment to an existing conversation, which
  * may have started with somebody else poking (etc.) somebody, but this isn't necessary. This can be used in the more pokes
- * plugin version to have entire conversations where Alice poked Bob, Bob fingered Alice, Alice hugged Bob, etc.  
+ * plugin version to have entire conversations where Alice poked Bob, Bob fingered Alice, Alice hugged Bob, etc.
  *
  * private creates a private conversation with the recipient. Otherwise your profile's default post privacy is used.
  *
@@ -18,7 +18,7 @@ require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
 
-
+if(! function_exists('poke_init')) {
 function poke_init(&$a) {
 
 	if(! local_user())
@@ -140,9 +140,9 @@ function poke_init(&$a) {
 
 	return;
 }
+}
 
-
-
+if(! function_exists('poke_content')) {
 function poke_content(&$a) {
 
 	if(! local_user()) {
@@ -201,5 +201,5 @@ function poke_content(&$a) {
 	));
 
 	return $o;
-
+}
 }
