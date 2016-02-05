@@ -6,7 +6,7 @@
 
 require_once("include/contact_selectors.php");
 require_once("include/contact_widgets.php");
-require_once("include/dir_fns.php");
+require_once("include/DirSearch.php");
 require_once("include/features.php");
 require_once("mod/proxy.php");
 
@@ -687,7 +687,7 @@ function navbar_complete(&$a) {
 		$search = substr($search,1);
 
 	if($localsearch) {
-		$x = dir::global_search_by_name($search, $mode);
+		$x = DirSearch::global_search_by_name($search, $mode);
 		return $x;
 	}
 

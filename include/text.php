@@ -2,7 +2,7 @@
 
 require_once("include/template_processor.php");
 require_once("include/friendica_smarty.php");
-require_once("include/smilies.php");
+require_once("include/Smilies.php");
 require_once("include/map.php");
 require_once("mod/proxy.php");
 
@@ -1396,7 +1396,7 @@ function prepare_text($text) {
 	if(stristr($text,'[nosmile]'))
 		$s = bbcode($text);
 	else
-		$s = smilies::replace(bbcode($text));
+		$s = Smilies::replace(bbcode($text));
 
 	return trim($s);
 }}

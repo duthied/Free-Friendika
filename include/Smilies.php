@@ -8,7 +8,7 @@
  * This class contains functions to handle smiles
  */
 
-class smilies {
+class Smilies {
 
 	/**
 	 * @brief Function to list all smilies
@@ -21,7 +21,7 @@ class smilies {
 	 * 
 	 * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array)
 	 */
-	public static function list_smilies() {
+	public static function get_list() {
 
 		$texts =  array(
 			'&lt;3',
@@ -128,10 +128,10 @@ class smilies {
 			|| (local_user() && intval(get_pconfig(local_user(),'system','no_smilies'))))
 			return $s;
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::smile_encode',$s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::smile_encode',$s);
+		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::encode',$s);
+		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::encode',$s);
 
-		$params = self::list_smilies();
+		$params = self::get_list();
 		$params['string'] = $s;
 
 		if($sample) {
@@ -145,17 +145,17 @@ class smilies {
 			$s = str_replace($params['texts'],$params['icons'],$params['string']);
 		}
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::smile_decode',$s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::smile_decode',$s);
+		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::decode',$s);
+		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::decode',$s);
 
 		return $s;
 	}
 
-	private function smile_encode($m) {
+	private function encode($m) {
 		return(str_replace($m[1],base64url_encode($m[1]),$m[0]));
 	}
 
-	private function smile_decode($m) {
+	private function decode($m) {
 		return(str_replace($m[1],base64url_decode($m[1]),$m[0]));
 	}
 

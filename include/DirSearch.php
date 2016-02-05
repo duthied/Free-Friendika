@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @file include/dir_fns.php
+ * @file include/dir.php
  */
 
 
 /**
  * @brief This class handels directory related functions
  */
-class dir {
+class DirSearch {
 
 	/**
 	 * @brief Search global contact table by nick or name
