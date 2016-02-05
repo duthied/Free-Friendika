@@ -28,7 +28,7 @@ function ACL(backend_url, preset, automention, is_mobile){
 	if (preset.length==0) this.showall.addClass("selected");
 	
 	/*events*/
-	this.showall.click(this.on_showall);
+	this.showall.click(this.on_showall.bind(this));
 	$(document).on("click", ".acl-button-show", this.on_button_show.bind(this));
 	$(document).on("click", ".acl-button-hide", this.on_button_hide.bind(this));
 	$("#acl-search").keypress(this.on_search.bind(this));
@@ -123,12 +123,8 @@ ACL.prototype.on_button_show = function(event){
 	event.preventDefault()
 	event.stopImmediatePropagation()
 	event.stopPropagation();
-
-	/*this.showall.removeClass("selected");
-	$(this).siblings(".acl-button-hide").removeClass("selected");
-	$(this).toggleClass("selected");*/
-
-	this.set_allow($(this).parent().attr('id'));
+	
+	this.set_allow($(event.target).parent().attr('id'));
 
 	return false;
 }
@@ -137,11 +133,7 @@ ACL.prototype.on_button_hide = function(event){
 	event.stopImmediatePropagation()
 	event.stopPropagation();
 
-	/*this.showall.removeClass("selected");
-	$(this).siblings(".acl-button-show").removeClass("selected");
-	$(this).toggleClass("selected");*/
-
-	this.set_deny($(this).parent().attr('id'));
+	this.set_deny($(event.target).parent().attr('id'));
 
 	return false;
 }
@@ -303,7 +295,7 @@ ACL.prototype.populate = function(data){
 		html = "<div class='acl-list-item {4} {5} type{2}' title='{6}' id='{2}{3}'>"+this.item_tpl+"</div>";
 		html = html.format(item.photo, item.name, item.type, item.id, (item.forum=='1'?'forum':''), item.network, item.link);
 		if (item.uids!=undefined) this.group_uids[item.id] = item.uids;
-		//console.log(html);
+		
 		this.list_content.append(html);
 		this.data[item.id] = item;
 	}.bind(this));
