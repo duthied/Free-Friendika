@@ -829,6 +829,26 @@ class dfrn2 {
 					return;
 				}
 			}
+/*
+			if(activity_match($item['verb'],ACTIVITY_FOLLOW)) {
+				logger('consume-feed: New follower');
+				new_follower($importer,$contact,$item);
+				return;
+			}
+			if(activity_match($item['verb'],ACTIVITY_UNFOLLOW))  {
+				lose_follower($importer,$contact,$item);
+				return;
+			}
+			if(activity_match($item['verb'],ACTIVITY_REQ_FRIEND)) {
+				logger('consume-feed: New friend request');
+				new_follower($importer,$contact,$item,(?),true);
+				return;
+			}
+			if(activity_match($item['verb'],ACTIVITY_UNFRIEND))  {
+				lose_sharer($importer,$contact,$item);
+				return;
+			}
+*/
 		}
 
 		$r = q("SELECT `id`, `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
@@ -1125,11 +1145,11 @@ class dfrn2 {
 			return;
 
 		if($importer["readonly"]) {
-	                // We aren't receiving stuff from this person. But we will quietly ignore them
-	                // rather than a blatant "go away" message.
-	                logger('ignoring contact '.$importer["id"]);
-	                return;
-	        }
+			// We aren't receiving stuff from this person. But we will quietly ignore them
+			// rather than a blatant "go away" message.
+			logger('ignoring contact '.$importer["id"]);
+			return;
+		}
 
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
@@ -1163,6 +1183,7 @@ class dfrn2 {
 		// is it a public forum? Private forums aren't supported by now with this method
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
+		/// @todo Check the opposite as well (forum changed to non-forum)
 		if ($forum)
 			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
 				intval($forum), intval($forum),
