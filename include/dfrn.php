@@ -1278,6 +1278,15 @@ class dfrn {
 		return($author);
 	}
 
+	/**
+	 * @brief Transforms activity objects into an XML string
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $activity Activity object
+	 * @param text $element element name
+	 *
+	 * @return string XML string
+	 */
 	private function transform_activity($xpath, $activity, $element) {
 		if (!is_object($activity))
 			return "";
@@ -1315,6 +1324,13 @@ class dfrn {
 		return($objxml);
 	}
 
+	/**
+	 * @brief Processes the mail elements
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $mail mail elements
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 */
 	private function process_mail($xpath, $mail, $importer) {
 
 		logger("Processing mails");
@@ -1359,6 +1375,13 @@ class dfrn {
 		logger("Mail is processed, notification was sent.");
 	}
 
+	/**
+	 * @brief Processes the suggestion elements
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $suggestion suggestion elements
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 */
 	private function process_suggestion($xpath, $suggestion, $importer) {
 
 		logger("Processing suggestions");
@@ -1453,6 +1476,13 @@ class dfrn {
 
 	}
 
+	/**
+	 * @brief Processes the relocation elements
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $relocation relocation elements
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 */
 	private function process_relocation($xpath, $relocation, $importer) {
 
 		logger("Processing relocations");
@@ -1534,6 +1564,14 @@ class dfrn {
 		return true;
 	}
 
+	/**
+	 * @brief Updates an item
+	 *
+	 * @param array $current the current item record
+	 * @param array $item the new item record
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @param int $entrytype Is it a toplevel entry, a comment or a relayed comment?
+	 */
 	private function update_content($current, $item, $importer, $entrytype) {
 		$changed = false;
 
@@ -1578,6 +1616,14 @@ class dfrn {
 		return $changed;
 	}
 
+	/**
+	 * @brief Detects the entry type of the item
+	 *
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @param array $item the new item record
+	 *
+	 * @return int Is it a toplevel entry, a comment or a relayed comment?
+	 */
 	private function get_entry_type($importer, $item) {
 		if ($item["parent-uri"] != $item["uri"]) {
 			$community = false;
@@ -1637,6 +1683,13 @@ class dfrn {
 
 	}
 
+	/**
+	 * @brief Send a "poke"
+	 *
+	 * @param array $item the new item record
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @param int $posted_id The record number of item record that was just posted
+	 */
 	private function do_poke($item, $importer, $posted_id) {
 		$verb = urldecode(substr($item["verb"],strpos($item["verb"], "#")+1));
 		if(!$verb)
@@ -1683,6 +1736,14 @@ class dfrn {
 		}
 	}
 
+	/**
+	 * @brief Processes the entry elements which contain the items and comments
+	 *
+	 * @param array $header Array of the header elements that always stay the same
+	 * @param object $xpath XPath object
+	 * @param object $entry entry elements
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 */
 	private function process_entry($header, $xpath, $entry, $importer) {
 
 		logger("Processing entries");
@@ -2079,7 +2140,14 @@ class dfrn {
 		}
 	}
 
-	private function process_deletion($header, $xpath, $deletion, $importer) {
+	/**
+	 * @brief Deletes items
+	 *
+	 * @param object $xpath XPath object
+	 * @param object $deletion deletion elements
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 */
+	private function process_deletion($xpath, $deletion, $importer) {
 
 		logger("Processing deletions");
 
@@ -2283,7 +2351,7 @@ class dfrn {
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
 		foreach ($deletions AS $deletion)
-			self::process_deletion($header, $xpath, $deletion, $importer);
+			self::process_deletion($xpath, $deletion, $importer);
 
 		if (!$sort_by_date) {
 			$entries = $xpath->query("/atom:feed/atom:entry");
