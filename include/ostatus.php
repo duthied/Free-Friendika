@@ -1312,6 +1312,10 @@ function ostatus_add_author($doc, $owner) {
 function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) {
 	$a = get_app();
 
+	if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
+	}
+
 	$is_repeat = false;
 
 /*	if (!$repeat) {
