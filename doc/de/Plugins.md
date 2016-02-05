@@ -5,7 +5,8 @@ Friendica Addon/Plugin-Entwicklung
 
 Bitte schau dir das Beispiel-Addon "randplace" für ein funktionierendes Beispiel für manche der hier aufgeführten Funktionen an.
 Das Facebook-Addon bietet ein Beispiel dafür, die "addon"- und "module"-Funktion gemeinsam zu integrieren.
-Addons arbeiten, indem sie Event Hooks abfangen. Module arbeiten, indem bestimmte Seitenanfragen (durch den URL-Pfad) abgefangen werden
+Addons arbeiten, indem sie Event Hooks abfangen.
+Module arbeiten, indem bestimmte Seitenanfragen (durch den URL-Pfad) abgefangen werden.
 
 Plugin-Namen können keine Leerstellen oder andere Interpunktionen enthalten und werden als Datei- und Funktionsnamen genutzt.
 Du kannst einen lesbaren Namen im Kommentarblock eintragen.
@@ -18,7 +19,7 @@ Plugins sollten einen Kommentarblock mit den folgenden vier Parametern enthalten
 
     /*
      * Name: My Great Plugin
-     * Description: This is what my plugin does. It's really cool
+     * Description: This is what my plugin does. It's really cool.
      * Version: 1.0
      * Author: John Q. Public <john@myfriendicasite.com>
      */
@@ -59,9 +60,9 @@ Module
 Plugins/Addons können auch als "Module" agieren und alle Seitenanfragen für eine bestimte URL abfangen.
 Um ein Plugin als Modul zu nutzen, ist es nötig, die Funktion "plugin_name_module()" zu definieren, die keine Argumente benötigt und nichts weiter machen muss.
 
-Wenn diese Funktion existiert, wirst du nun alle Seitenanfragen für "http://my.web.site/plugin_name" erhalten - mit allen URL-Komponenten als zusätzliche Argumente.
+Wenn diese Funktion existiert, wirst du nun alle Seitenanfragen für "http://example.com/plugin_name" erhalten - mit allen URL-Komponenten als zusätzliche Argumente.
 Diese werden in ein Array $a->argv geparst und stimmen mit $a->argc überein, wobei sie die Anzahl der URL-Komponenten abbilden.
-So würde http://my.web.site/plugin/arg1/arg2 nach einem Modul "plugin" suchen und seiner Modulfunktion die $a-App-Strukur übergeben (dies ist für viele Komponenten verfügbar). Das umfasst:
+So würde http://example.com/plugin/arg1/arg2 nach einem Modul "plugin" suchen und seiner Modulfunktion die $a-App-Strukur übergeben (dies ist für viele Komponenten verfügbar). Das umfasst:
 
     $a->argc = 3
     $a->argv = array(0 => 'plugin', 1 => 'arg1', 2 => 'arg2');
