@@ -69,6 +69,10 @@ li :hover {
 	background-color: #343434;
 }
 
+table.smiley-preview{
+	background-color: #252C33 !important;
+}
+
 /* ACL permission popup */
  .acl-list-item.groupshow {
 	border-color: #9ade00 !important;
