@@ -1740,6 +1740,107 @@ class dfrn {
 	}
 
 	/**
+	 * @brief Processes several actions, depending on the verb
+	 *
+	 * @param int $entrytype Is it a toplevel entry, a comment or a relayed comment?
+	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @param array $item the new item record
+	 * @param bool $is_like Is the verb a "like"?
+	 *
+	 * @return bool Should the processing of the entries be continued?
+	 */
+	private function process_verbs($entrytype, $importer, &$item, &$is_like) {
+		if (($entrytype == DFRN_TOP_LEVEL)) {
+			// The filling of the the "contact" variable is done for legcy reasons
+			// The functions below are partly used by ostatus.php as well - where we have this variable
+			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
+			$contact = $r[0];
+			$nickname = $contact["nick"];
+
+			// Big question: Do we need these functions? They were part of the "consume_feed" function.
+			// This function once was responsible for DFRN and OStatus.
+			if(activity_match($item["verb"],ACTIVITY_FOLLOW)) {
+				logger("New follower");
+				new_follower($importer, $contact, $item, $nickname);
+				return false;
+			}
+			if(activity_match($item["verb"],ACTIVITY_UNFOLLOW))  {
+				logger("Lost follower");
+				lose_follower($importer, $contact, $item);
+				return false;
+			}
+			if(activity_match($item["verb"],ACTIVITY_REQ_FRIEND)) {
+				logger("New friend request");
+				new_follower($importer, $contact, $item, $nickname, true);
+				return false;
+			}
+			if(activity_match($item["verb"],ACTIVITY_UNFRIEND))  {
+				logger("Lost sharer");
+				lose_sharer($importer, $contact, $item);
+				return false;
+			}
+		} else {
+			if(($item["verb"] === ACTIVITY_LIKE)
+				|| ($item["verb"] === ACTIVITY_DISLIKE)
+				|| ($item["verb"] === ACTIVITY_ATTEND)
+				|| ($item["verb"] === ACTIVITY_ATTENDNO)
+				|| ($item["verb"] === ACTIVITY_ATTENDMAYBE)) {
+				$is_like = true;
+				$item["type"] = "activity";
+				$item["gravity"] = GRAVITY_LIKE;
+				// only one like or dislike per person
+				// splitted into two queries for performance issues
+				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
+					intval($item["uid"]),
+					dbesc($item["author-link"]),
+					dbesc($item["verb"]),
+					dbesc($item["parent-uri"])
+				);
+				if($r && count($r))
+					return false;
+
+				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
+					intval($item["uid"]),
+					dbesc($item["author-link"]),
+					dbesc($item["verb"]),
+					dbesc($item["parent-uri"])
+				);
+				if($r && count($r))
+					return false;
+			} else
+				$is_like = false;
+
+			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+
+				$xo = parse_xml_string($item["object"],false);
+				$xt = parse_xml_string($item["target"],false);
+
+				if($xt->type == ACTIVITY_OBJ_NOTE) {
+					$r = q("SELECT `id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($xt->id),
+						intval($importer["importer_uid"])
+					);
+
+					if(!count($r))
+						return false;
+
+					// extract tag, if not duplicate, add to parent item
+					if($xo->content) {
+						if(!(stristr($r[0]["tag"],trim($xo->content)))) {
+							q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
+								dbesc($r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
+								intval($r[0]["id"])
+							);
+							create_tags_from_item($r[0]["id"]);
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * @brief Processes the entry elements which contain the items and comments
 	 *
 	 * @param array $header Array of the header elements that always stay the same
@@ -1932,6 +2033,11 @@ class dfrn {
 
 			if (($item["network"] != $author["network"]) AND ($author["network"] != ""))
 				$item["network"] = $author["network"];
+
+			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
+				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
+				return;
+			}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
@@ -1941,6 +2047,7 @@ class dfrn {
 			if (!isset($item["object-type"]))
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 
+			// Is it an event?
 			if ($item["object-type"] == ACTIVITY_OBJ_EVENT) {
 				logger("Item ".$item["uri"]." seems to contain an event.", LOGGER_DEBUG);
 				$ev = bbtoevent($item["body"]);
@@ -1965,41 +2072,17 @@ class dfrn {
 					return;
 				}
 			}
-
-			// The filling of the the "contact" variable is done for legcy reasons
-			// The functions below are partly used by ostatus.php as well - where we have this variable
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
-			$contact = $r[0];
-			$nickname = $contact["nick"];
-
-			// Big question: Do we need these functions? They were part of the "consume_feed" function.
-			// This function once was responsible for DFRN and OStatus.
-			if(activity_match($item['verb'],ACTIVITY_FOLLOW)) {
-				logger('New follower');
-				new_follower($importer, $contact, $item, $nickname);
-				return;
-			}
-			if(activity_match($item['verb'],ACTIVITY_UNFOLLOW))  {
-				logger('Lost follower');
-				lose_follower($importer, $contact, $item);
-				return;
-			}
-			if(activity_match($item['verb'],ACTIVITY_REQ_FRIEND)) {
-				logger('New friend request');
-				new_follower($importer, $contact, $item, $nickname, true);
-				return;
-			}
-			if(activity_match($item['verb'],ACTIVITY_UNFRIEND))  {
-				logger('Lost sharer');
-				lose_sharer($importer, $contact, $item);
-				return;
-			}
 		}
 
 		$r = q("SELECT `id`, `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc($item["uri"]),
 			intval($importer["importer_uid"])
 		);
+
+		if (!self::process_verbs($entrytype, $importer, $item, $is_like)) {
+			logger("Exiting because 'process_verbs' told us so", LOGGER_DEBUG);
+			return;
+		}
 
 		// Update content if 'updated' changes
 		if(count($r)) {
@@ -2011,69 +2094,6 @@ class dfrn {
 		}
 
 		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
-			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
-				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-				return;
-			}
-
-			if(($item["verb"] === ACTIVITY_LIKE)
-				|| ($item["verb"] === ACTIVITY_DISLIKE)
-				|| ($item["verb"] === ACTIVITY_ATTEND)
-				|| ($item["verb"] === ACTIVITY_ATTENDNO)
-				|| ($item["verb"] === ACTIVITY_ATTENDMAYBE)) {
-				$is_like = true;
-				$item["type"] = "activity";
-				$item["gravity"] = GRAVITY_LIKE;
-				// only one like or dislike per person
-				// splitted into two queries for performance issues
-				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
-					intval($item["uid"]),
-					dbesc($item["author-link"]),
-					dbesc($item["verb"]),
-					dbesc($item["parent-uri"])
-				);
-				if($r && count($r))
-					return;
-
-				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
-					intval($item["uid"]),
-					dbesc($item["author-link"]),
-					dbesc($item["verb"]),
-					dbesc($item["parent-uri"])
-				);
-				if($r && count($r))
-					return;
-
-			} else
-				$is_like = false;
-
-			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
-
-				$xo = parse_xml_string($item["object"],false);
-				$xt = parse_xml_string($item["target"],false);
-
-				if($xt->type == ACTIVITY_OBJ_NOTE) {
-					$r = q("SELECT `id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($xt->id),
-						intval($importer["importer_uid"])
-					);
-
-					if(!count($r))
-						return;
-
-					// extract tag, if not duplicate, add to parent item
-					if($xo->content) {
-						if(!(stristr($r[0]["tag"],trim($xo->content)))) {
-							q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
-								dbesc($r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
-								intval($r[0]["id"])
-							);
-							create_tags_from_item($r[0]["id"]);
-						}
-					}
-				}
-			}
-
 			$posted_id = item_store($item);
 			$parent = 0;
 
@@ -2113,7 +2133,7 @@ class dfrn {
 
 				return true;
 			}
-		} else {
+		} else { // $entrytype == DFRN_TOP_LEVEL
 			if(!link_compare($item["owner-link"],$importer["url"])) {
 				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
 				// but otherwise there's a possible data mixup on the sender's system.
