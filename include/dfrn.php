@@ -1703,9 +1703,7 @@ class dfrn {
 		if(($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
 
 			// somebody was poked/prodded. Was it me?
-			$links = parse_xml_string("<links>".unxmlify($xo->link)."</links>",false);
-
-			foreach($links->link as $l) {
+			foreach($xo->link as $l) {
 				$atts = $l->attributes();
 				switch($atts["rel"]) {
 					case "alternate":
@@ -1715,6 +1713,7 @@ class dfrn {
 						break;
 				}
 			}
+
 			if($Blink && link_compare($Blink,App::get_baseurl()."/profile/".$importer["nickname"])) {
 
 				// send a notification
