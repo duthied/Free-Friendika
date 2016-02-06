@@ -106,7 +106,7 @@ function field_timezone($name='timezone', $label='', $current = 'America/Los_Ang
  * @param string $fmt Output format recognised from php's DateTime class
  *   http://www.php.net/manual/en/datetime.format.php
  * 
- * @return string
+ * @return string Formatted date according to given format
  */
 function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d H:i:s") {
 
@@ -153,6 +153,7 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 	}
 
 	$d->setTimeZone($to_obj);
+
 	return($d->format($fmt));
 }
 
@@ -380,7 +381,7 @@ function relative_date($posted_date,$format = null) {
  * @param string $owner_tz (optional) Timezone of the person of interest
  * @param string $viewer_tz (optional) Timezone of the person viewing
  * 
- * @return int
+ * @return int Age in years
  */
 function age($dob,$owner_tz = '',$viewer_tz = '') {
 	if(! intval($dob))
