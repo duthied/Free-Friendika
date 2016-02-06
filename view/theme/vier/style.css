@@ -2024,6 +2024,15 @@ section.minimal {
   cursor: pointer;
   margin-top: 3px;
   height: 10px;
+  display: inline-block;
+}
+#smileybutton {
+  position: absolute;
+  z-index: 99;
+}
+table.smiley-preview{
+  background-color: #FFF;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 #jot-perms-icon {
   float: right;

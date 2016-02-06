@@ -63,3 +63,7 @@ li :hover {
 #viewcontact_wrapper-network {
 	background-color: #343434;
 }
+
+table.smiley-preview{
+  background-color: #252C33 !important;
+}
