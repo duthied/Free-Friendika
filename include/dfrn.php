@@ -1270,6 +1270,10 @@ class dfrn {
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
 						(strtotime($contact["avatar-date"]) > strtotime($r[0]["avatar-date"])));
 
+			// The generation is a sign for the reliability of the provided data.
+			// It is used in the socgraph.php to prevent that old contact data
+			// that was relayed over several servers can overwrite contact
+			// data that we received directly.
 			$contact["generation"] = 2;
 			$contact["photo"] = $author["avatar"];
 			update_gcontact($contact);
@@ -1711,7 +1715,7 @@ class dfrn {
 						break;
 				}
 			}
-			if($Blink && link_compare($Blink,$a->get_baseurl()."/profile/".$importer["nickname"])) {
+			if($Blink && link_compare($Blink,App::get_baseurl()."/profile/".$importer["nickname"])) {
 
 				// send a notification
 				notification(array(
@@ -1722,7 +1726,7 @@ class dfrn {
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => $a->get_baseurl()."/display/".urlencode(get_item_guid($posted_id)),
+					"link"         => App::get_baseurl()."/display/".urlencode(get_item_guid($posted_id)),
 					"source_name"  => stripslashes($item["author-name"]),
 					"source_link"  => $item["author-link"],
 					"source_photo" => ((link_compare($item["author-link"],$importer["url"]))
