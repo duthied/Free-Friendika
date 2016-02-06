@@ -26,9 +26,9 @@ require_once("library/HTMLPurifier.auto.php");
  */
 class dfrn {
 
-	const DFRN_TOP_LEVEL = 0;
-	const DFRN_REPLY = 1;
-	const DFRN_REPLY_RC = 2;
+	const DFRN_TOP_LEVEL = 0;	// Top level posting
+	const DFRN_REPLY = 1;		// Regular reply that is stored locally
+	const DFRN_REPLY_RC = 2;	// Reply that will be relayed
 
 	/**
 	 * @brief Generates the atom entries for delivery.php
@@ -1841,6 +1841,47 @@ class dfrn {
 	}
 
 	/**
+	 * @brief Processes the link elements
+	 *
+	 * @param object $links link elements
+	 * @param array $item the item record
+	 */
+	private function parse_links($links, &$item) {
+		$rel = "";
+		$href = "";
+		$type = "";
+		$length = "0";
+		$title = "";
+		foreach ($links AS $link) {
+			foreach($link->attributes AS $attributes) {
+				if ($attributes->name == "href")
+					$href = $attributes->textContent;
+				if ($attributes->name == "rel")
+					$rel = $attributes->textContent;
+				if ($attributes->name == "type")
+					$type = $attributes->textContent;
+				if ($attributes->name == "length")
+					$length = $attributes->textContent;
+				if ($attributes->name == "title")
+					$title = $attributes->textContent;
+			}
+			if (($rel != "") AND ($href != ""))
+				switch($rel) {
+					case "alternate":
+						$item["plink"] = $href;
+						break;
+					case "enclosure":
+						$enclosure = $href;
+						if(strlen($item["attach"]))
+							$item["attach"] .= ",";
+
+						$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
+						break;
+				}
+		}
+	}
+
+	/**
 	 * @brief Processes the entry elements which contain the items and comments
 	 *
 	 * @param array $header Array of the header elements that always stay the same
@@ -1970,40 +2011,8 @@ class dfrn {
 		$enclosure = "";
 
 		$links = $xpath->query("atom:link", $entry);
-		if ($links) {
-			$rel = "";
-			$href = "";
-			$type = "";
-			$length = "0";
-			$title = "";
-			foreach ($links AS $link) {
-				foreach($link->attributes AS $attributes) {
-					if ($attributes->name == "href")
-						$href = $attributes->textContent;
-					if ($attributes->name == "rel")
-						$rel = $attributes->textContent;
-					if ($attributes->name == "type")
-						$type = $attributes->textContent;
-					if ($attributes->name == "length")
-						$length = $attributes->textContent;
-					if ($attributes->name == "title")
-						$title = $attributes->textContent;
-				}
-				if (($rel != "") AND ($href != ""))
-					switch($rel) {
-						case "alternate":
-							$item["plink"] = $href;
-							break;
-						case "enclosure":
-							$enclosure = $href;
-							if(strlen($item["attach"]))
-								$item["attach"] .= ",";
-
-							$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
-							break;
-					}
-			}
-		}
+		if ($links)
+			self::parse_links($links, $item);
 
 		// Is it a reply or a top level posting?
 		$item["parent-uri"] = $item["uri"];
