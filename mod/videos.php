@@ -5,7 +5,7 @@ require_once('include/bbcode.php');
 require_once('include/security.php');
 require_once('include/redir.php');
 
-if(! function_exists('videos_init')) {
+
 function videos_init(&$a) {
 
 	if($a->argc > 1)
@@ -102,9 +102,9 @@ function videos_init(&$a) {
 
 	return;
 }
-}
 
-if(! function_exists('videos_post')) {
+
+
 function videos_post(&$a) {
 
 	$owner_uid = $a->data['user']['uid'];
@@ -176,11 +176,11 @@ function videos_post(&$a) {
 	}
 
     goaway($a->get_baseurl() . '/videos/' . $a->data['user']['nickname']);
-}
+
 }
 
 
-if(! function_exists('videos_content')) {
+
 function videos_content(&$a) {
 
 	// URLs (most aren't currently implemented):
@@ -407,4 +407,4 @@ function videos_content(&$a) {
 	$o .= paginate($a);
 	return $o;
 }
-}
+

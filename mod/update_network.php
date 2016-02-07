@@ -5,7 +5,6 @@
 require_once('mod/network.php');
 require_once('include/group.php');
 
-if(! function_exists('update_network_content')) {
 function update_network_content(&$a) {
 
 	$profile_uid = intval($_GET['p']);
@@ -38,5 +37,5 @@ function update_network_content(&$a) {
 	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
-}
+
 }

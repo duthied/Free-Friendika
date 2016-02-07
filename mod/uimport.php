@@ -5,7 +5,6 @@
 
 require_once("include/uimport.php");
 
-if(! function_exists('uimport_post')) {
 function uimport_post(&$a) {
 	switch($a->config['register_policy']) {
         case REGISTER_OPEN:
@@ -28,18 +27,16 @@ function uimport_post(&$a) {
             $verified = 0;
             break;
 	}
-
+    
     if (x($_FILES,'accountfile')){
         /// @TODO Pass $blocked / $verified, send email to admin on REGISTER_APPROVE
         import_account($a, $_FILES['accountfile']);
         return;
     }
 }
-}
 
-if(! function_exists('uimport_content')) {
 function uimport_content(&$a) {
-
+	
 	if((! local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
@@ -54,8 +51,8 @@ function uimport_content(&$a) {
 			return;
 		}
 	}
-
-
+	
+	
 	if(x($_SESSION,'theme'))
 		unset($_SESSION['theme']);
 	if(x($_SESSION,'mobile-theme'))
@@ -73,5 +70,4 @@ function uimport_content(&$a) {
             'field' => array('accountfile', t('Account file'),'<input id="id_accountfile" name="accountfile" type="file">', t('To export your account, go to "Settings->Export your personal data" and select "Export account"')),
         ),
     ));
-}
 }

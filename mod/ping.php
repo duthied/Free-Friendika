@@ -5,7 +5,6 @@ require_once('include/ForumManager.php');
 require_once('include/group.php');
 require_once("mod/proxy.php");
 
-if(! function_exists('ping_init')) {
 function ping_init(&$a) {
 
 	header("Content-type: text/xml");
@@ -339,9 +338,7 @@ function ping_init(&$a) {
 
 	killme();
 }
-}
 
-if(! function_exists('ping_get_notifications')) {
 function ping_get_notifications($uid) {
 
 	$result = array();
@@ -408,5 +405,4 @@ function ping_get_notifications($uid) {
 
 
 	return($result);
-}
 }

@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('profperm_init')) {
 function profperm_init(&$a) {
 
 	if(! local_user())
@@ -10,10 +9,10 @@ function profperm_init(&$a) {
 	$profile = $a->argv[1];
 
 	profile_load($a,$which,$profile);
-}
+
 }
 
-if(! function_exists('profperm_content')) {
+
 function profperm_content(&$a) {
 
 	if(! local_user()) {
@@ -109,9 +108,9 @@ function profperm_content(&$a) {
 	}
 
 	$o .= '<div id="prof-update-wrapper">';
-	if($change)
+	if($change) 
 		$o = '';
-
+	
 	$o .= '<div id="prof-members-title">';
 	$o .= '<h3>' . t('Visible To') . '</h3>';
 	$o .= '</div>';
@@ -157,5 +156,6 @@ function profperm_content(&$a) {
 	}
 	$o .= '</div>';
 	return $o;
+
 }
-}
+

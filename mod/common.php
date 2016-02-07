@@ -5,7 +5,6 @@ require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 require_once('mod/contacts.php');
 
-if(! function_exists('common_content')) {
 function common_content(&$a) {
 
 	$o = '';
@@ -144,5 +143,4 @@ function common_content(&$a) {
 	));
 
 	return $o;
-}
 }

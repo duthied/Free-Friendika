@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('hub_return')) {
 function hub_return($valid,$body) {
 
 	if($valid) {
@@ -15,18 +14,18 @@ function hub_return($valid,$body) {
 
 	// NOTREACHED
 }
-}
 
 // when receiving an XML feed, always return OK
-if(! function_exists('hub_post_return')) {
+
 function hub_post_return() {
+
 	header($_SERVER["SERVER_PROTOCOL"] . ' 200 ' . 'OK');
 	killme();
-}
+
 }
 
 
-if(! function_exists('pubsub_init')) {
+
 function pubsub_init(&$a) {
 
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
@@ -58,7 +57,7 @@ function pubsub_init(&$a) {
 
 		$sql_extra = ((strlen($hub_verify)) ? sprintf(" AND `hub-verify` = '%s' ", dbesc($hub_verify)) : '');
 
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d
+		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d 
 			AND `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1",
 			intval($contact_id),
 			intval($owner['uid'])
@@ -76,7 +75,7 @@ function pubsub_init(&$a) {
 
 		$contact = $r[0];
 
-		// We must initiate an unsubscribe request with a verify_token.
+		// We must initiate an unsubscribe request with a verify_token. 
 		// Don't allow outsiders to unsubscribe us.
 
 		if($hub_mode === 'unsubscribe') {
@@ -96,11 +95,9 @@ function pubsub_init(&$a) {
  		hub_return(true, $hub_challenge);
 	}
 }
-}
 
 require_once('include/security.php');
 
-if(! function_exists('pubsub_post')) {
 function pubsub_post(&$a) {
 
 	$xml = file_get_contents('php://input');
@@ -158,5 +155,8 @@ function pubsub_post(&$a) {
 	consume_feed($xml,$importer,$contact,$feedhub,1,2);
 
 	hub_post_return();
+
 }
-}
+
+
+

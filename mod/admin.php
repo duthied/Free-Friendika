@@ -2,7 +2,7 @@
 
  /**
  * @file mod/admin.php
- *
+ * 
  * @brief Friendica admin
  */
 
@@ -23,7 +23,6 @@ require_once("include/text.php");
  * @param App $a
  *
  */
-if(! function_exists('admin_post')) {
 function admin_post(&$a){
 
 
@@ -111,7 +110,6 @@ function admin_post(&$a){
 	goaway($a->get_baseurl(true) . '/admin' );
 	return; // NOTREACHED
 }
-}
 
 /**
  * @brief Generates content of the admin panel pages
@@ -130,7 +128,6 @@ function admin_post(&$a){
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_content')) {
 function admin_content(&$a) {
 
 	if(!is_site_admin()) {
@@ -248,7 +245,6 @@ function admin_content(&$a) {
 		return $o;
 	}
 }
-}
 
 /**
  * @brief Subpage with some stats about "the federation" network
@@ -264,7 +260,6 @@ function admin_content(&$a) {
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_federation')) {
 function admin_page_federation(&$a) {
 	// get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
 	// social and statusnet nodes this node is knowing
@@ -289,7 +284,7 @@ function admin_page_federation(&$a) {
 		// what versions for that platform do we know at all?
 		// again only the active nodes
 		$v = q('SELECT count(*) AS total, version FROM gserver
-			WHERE last_contact > last_failure AND platform LIKE "%s"
+			WHERE last_contact > last_failure AND platform LIKE "%s" 
 			GROUP BY version
 			ORDER BY version;', $p);
 
@@ -306,12 +301,12 @@ function admin_page_federation(&$a) {
 				$newVC = $vv['total'];
 				$newVV = $vv['version'];
 				$posDash = strpos($newVV, '-');
-				if($posDash)
+				if($posDash) 
 					$newVV = substr($newVV, 0, $posDash);
 				if(isset($newV[$newVV]))
-					$newV[$newVV] += $newVC;
+					$newV[$newVV] += $newVC; 
 				else
-					$newV[$newVV] = $newVC;
+					$newV[$newVV] = $newVC; 
 			}
 			foreach ($newV as $key => $value) {
 				array_push($newVv, array('total'=>$value, 'version'=>$key));
@@ -366,7 +361,6 @@ function admin_page_federation(&$a) {
 		'$baseurl' => $a->get_baseurl(),
 	));
 }
-}
 
 /**
  * @brief Admin Inspect Queue Page
@@ -381,7 +375,6 @@ function admin_page_federation(&$a) {
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_queue')) {
 function admin_page_queue(&$a) {
 	// get content from the queue table
 	$r = q("SELECT c.name,c.nurl,q.id,q.network,q.created,q.last from queue as q, contact as c where c.id=q.cid order by q.cid, q.created;");
@@ -401,7 +394,6 @@ function admin_page_queue(&$a) {
 		'$entries' => $r,
 	));
 }
-}
 
 /**
  * @brief Admin Summary Page
@@ -414,7 +406,6 @@ function admin_page_queue(&$a) {
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_summary')) {
 function admin_page_summary(&$a) {
 	$r = q("SELECT `page-flags`, COUNT(uid) as `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
@@ -461,14 +452,12 @@ function admin_page_summary(&$a) {
 		'$plugins' => array( t('Active plugins'), $a->plugins )
 	));
 }
-}
 
 /**
  * @brief Process send data from Admin Site Page
- *
+ * 
  * @param App $a
  */
-if(! function_exists('admin_page_site_post')) {
 function admin_page_site_post(&$a) {
 	if(!x($_POST,"page_site")) {
 		return;
@@ -781,7 +770,6 @@ function admin_page_site_post(&$a) {
 	return; // NOTREACHED
 
 }
-}
 
 /**
  * @brief Generate Admin Site subpage
@@ -791,7 +779,6 @@ function admin_page_site_post(&$a) {
  * @param  App $a
  * @return string
  */
-if(! function_exists('admin_page_site')) {
 function admin_page_site(&$a) {
 
 	/* Installed langs */
@@ -996,7 +983,7 @@ function admin_page_site(&$a) {
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
 	));
-}
+
 }
 
 /**
@@ -1011,7 +998,6 @@ function admin_page_site(&$a) {
  * @param App $a
  * @return string
  **/
-if(! function_exists('admin_page_dbsync')) {
 function admin_page_dbsync(&$a) {
 
 	$o = '';
@@ -1087,15 +1073,14 @@ function admin_page_dbsync(&$a) {
 	}
 
 	return $o;
-}
+
 }
 
 /**
  * @brief Process data send by Users admin page
- *
+ * 
  * @param App $a
  */
-if(! function_exists('admin_page_users_post')) {
 function admin_page_users_post(&$a){
 	$pending	=	( x($_POST, 'pending')			? $_POST['pending']		: array() );
 	$users		=	( x($_POST, 'user')			? $_POST['user']		: array() );
@@ -1186,7 +1171,6 @@ function admin_page_users_post(&$a){
 	goaway($a->get_baseurl(true) . '/admin/users' );
 	return; // NOTREACHED
 }
-}
 
 /**
  * @brief Admin panel subpage for User management
@@ -1200,7 +1184,6 @@ function admin_page_users_post(&$a){
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_users')) {
 function admin_page_users(&$a){
 	if($a->argc>2) {
 		$uid = $a->argv[3];
@@ -1353,7 +1336,7 @@ function admin_page_users(&$a){
 	$o .= paginate($a);
 	return $o;
 }
-}
+
 
 /**
  * @brief Plugins admin page
@@ -1371,7 +1354,6 @@ function admin_page_users(&$a){
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_plugins')) {
 function admin_page_plugins(&$a){
 
 	/*
@@ -1497,11 +1479,10 @@ function admin_page_plugins(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
-		'$pcount' => count($plugins),
+		'$pcount' => count($plugins), 
 		'$noplugshint' => sprintf( t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s'), 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
-}
 }
 
 /**
@@ -1509,7 +1490,6 @@ function admin_page_plugins(&$a){
  * @param string $th
  * @param int $result
  */
-if(! function_exists('toggle_theme')) {
 function toggle_theme(&$themes,$th,&$result) {
 	for($x = 0; $x < count($themes); $x ++) {
 		if($themes[$x]['name'] === $th) {
@@ -1524,14 +1504,12 @@ function toggle_theme(&$themes,$th,&$result) {
 		}
 	}
 }
-}
 
 /**
  * @param array $themes
  * @param string $th
  * @return int
  */
-if(! function_exists('theme_status')) {
 function theme_status($themes,$th) {
 	for($x = 0; $x < count($themes); $x ++) {
 		if($themes[$x]['name'] === $th) {
@@ -1545,13 +1523,12 @@ function theme_status($themes,$th) {
 	}
 	return 0;
 }
-}
+
 
 /**
  * @param array $themes
  * @return string
  */
-if(! function_exists('rebuild_theme_table')) {
 function rebuild_theme_table($themes) {
 	$o = '';
 	if(count($themes)) {
@@ -1565,7 +1542,7 @@ function rebuild_theme_table($themes) {
 	}
 	return $o;
 }
-}
+
 
 /**
  * @brief Themes admin page
@@ -1583,7 +1560,6 @@ function rebuild_theme_table($themes) {
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_themes')) {
 function admin_page_themes(&$a){
 
 	$allowed_themes_str = get_config('system','allowed_themes');
@@ -1758,14 +1734,13 @@ function admin_page_themes(&$a){
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
 }
-}
+
 
 /**
  * @brief Prosesses data send by Logs admin page
- *
+ * 
  * @param App $a
  */
-if(! function_exists('admin_page_logs_post')) {
 function admin_page_logs_post(&$a) {
 	if(x($_POST,"page_logs")) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
@@ -1782,7 +1757,6 @@ function admin_page_logs_post(&$a) {
 	info( t("Log settings updated.") );
 	goaway($a->get_baseurl(true) . '/admin/logs' );
 	return; // NOTREACHED
-}
 }
 
 /**
@@ -1801,7 +1775,6 @@ function admin_page_logs_post(&$a) {
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_logs')) {
 function admin_page_logs(&$a){
 
 	$log_choices = array(
@@ -1833,7 +1806,6 @@ function admin_page_logs(&$a){
 		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE );\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
 	));
 }
-}
 
 /**
  * @brief Generates admin panel subpage to view the Friendica log
@@ -1853,7 +1825,6 @@ function admin_page_logs(&$a){
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_viewlogs')) {
 function admin_page_viewlogs(&$a){
 	$t = get_markup_template("admin_viewlogs.tpl");
 	$f = get_config('system','logfile');
@@ -1890,14 +1861,12 @@ function admin_page_viewlogs(&$a){
 		'$logname' =>  get_config('system','logfile')
 	));
 }
-}
 
 /**
  * @brief Prosesses data send by the features admin page
- *
+ * 
  * @param App $a
  */
-if(! function_exists('admin_page_features_post')) {
 function admin_page_features_post(&$a) {
 
 	check_form_security_token_redirectOnErr('/admin/features', 'admin_manage_features');
@@ -1929,25 +1898,23 @@ function admin_page_features_post(&$a) {
 	goaway($a->get_baseurl(true) . '/admin/features' );
 	return; // NOTREACHED
 }
-}
 
 /**
  * @brief Subpage for global additional feature management
- *
+ * 
  * This functin generates the subpage 'Manage Additional Features'
  * for the admin panel. At this page the admin can set preferences
- * for the user settings of the 'additional features'. If needed this
+ * for the user settings of the 'additional features'. If needed this 
  * preferences can be locked through the admin.
- *
+ * 
  * The returned string contains the HTML code of the subpage 'Manage
  * Additional Features'
- *
+ * 
  * @param App $a
  * @return string
  */
-if(! function_exists('admin_page_features')) {
 function admin_page_features(&$a) {
-
+	
 	if((argc() > 1) && (argv(1) === 'features')) {
 		$arr = array();
 		$features = get_features(false);
@@ -1966,7 +1933,7 @@ function admin_page_features(&$a) {
 				);
 			}
 		}
-
+		
 		$tpl = get_markup_template("admin_settings_features.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("admin_manage_features"),
@@ -1977,5 +1944,4 @@ function admin_page_features(&$a) {
 
 		return $o;
 	}
-}
 }

@@ -3,7 +3,6 @@
 require_once('include/enotify.php');
 require_once('include/user.php');
 
-if(! function_exists('user_allow')) {
 function user_allow($hash) {
 
 	$a = get_app();
@@ -56,14 +55,14 @@ function user_allow($hash) {
 		info( t('Account approved.') . EOL );
 		return true;
 	}
-}
+
 }
 
 
 // This does not have to go through user_remove() and save the nickname
 // permanently against re-registration, as the person was not yet
 // allowed to have friends on this system
-if(! function_exists('user_deny')) {
+
 function user_deny($hash) {
 
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
@@ -92,10 +91,9 @@ function user_deny($hash) {
 	);
 	notice( sprintf(t('Registration revoked for %s'), $user[0]['username']) . EOL);
 	return true;
-}
+
 }
 
-if(! function_exists('regmod_content')) {
 function regmod_content(&$a) {
 
 	global $lang;
@@ -132,5 +130,4 @@ function regmod_content(&$a) {
 		goaway($a->get_baseurl()."/admin/users/");
 		killme();
 	}
-}
 }

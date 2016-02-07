@@ -2,7 +2,6 @@
 
 require_once('include/crypto.php');
 
-if(! function_exists('hostxrd_init')) {
 function hostxrd_init(&$a) {
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");
@@ -28,5 +27,5 @@ function hostxrd_init(&$a) {
 	));
 	session_write_close();
 	exit();
-}
+
 }

@@ -1,8 +1,7 @@
 <?php
 
-if(! function_exists('pretheme_init')) {
 function pretheme_init(&$a) {
-
+	
 	if($_REQUEST['theme']) {
 		$theme = $_REQUEST['theme'];
 		$info = get_theme_info($theme);
@@ -20,5 +19,4 @@ function pretheme_init(&$a) {
 		echo json_encode(array('img' => get_theme_screenshot($theme), 'desc' => $desc, 'version' => $version, 'credits' => $credits));
 	}
 	killme();
-}
 }

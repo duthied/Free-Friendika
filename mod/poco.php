@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('poco_init')) {
 function poco_init(&$a) {
 	require_once("include/bbcode.php");
 
@@ -325,5 +324,5 @@ function poco_init(&$a) {
 	else
 		http_status_exit(500);
 
-}
+
 }

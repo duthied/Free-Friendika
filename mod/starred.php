@@ -1,6 +1,6 @@
 <?php
 
-if(! function_exists('starred_init')) {
+
 function starred_init(&$a) {
 
 	require_once("include/threads.php");
@@ -46,5 +46,4 @@ function starred_init(&$a) {
 
 	echo json_encode($starred);
 	killme();
-}
 }

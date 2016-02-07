@@ -1,7 +1,6 @@
 <?php
 require_once("include/Contact.php");
 
-if(! function_exists('profiles_init')) {
 function profiles_init(&$a) {
 
 	nav_set_selected('profiles');
@@ -140,10 +139,9 @@ function profiles_init(&$a) {
 	}
 
 
-}
+
 }
 
-if(! function_exists('profile_clean_keywords')) {
 function profile_clean_keywords($keywords) {
 	$keywords = str_replace(","," ",$keywords);
 	$keywords = explode(" ", $keywords);
@@ -160,9 +158,7 @@ function profile_clean_keywords($keywords) {
 
 	return $keywords;
 }
-}
 
-if(! function_exists('profiles_post')) {
 function profiles_post(&$a) {
 
 	if(! local_user()) {
@@ -506,9 +502,8 @@ function profiles_post(&$a) {
 		}
 	}
 }
-}
 
-if(! function_exists('profile_activity')) {
+
 function profile_activity($changed, $value) {
 	$a = get_app();
 
@@ -598,9 +593,8 @@ function profile_activity($changed, $value) {
 
 	}
 }
-}
 
-if(! function_exists('profiles_content')) {
+
 function profiles_content(&$a) {
 
 	if(! local_user()) {
@@ -824,5 +818,5 @@ function profiles_content(&$a) {
 		}
 		return $o;
 	}
-}
+
 }

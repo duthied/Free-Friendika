@@ -1,6 +1,6 @@
 <?php
 
-if(! function_exists('ignored_init')) {
+
 function ignored_init(&$a) {
 
 	$ignored = 0;
@@ -42,5 +42,4 @@ function ignored_init(&$a) {
 
 	echo json_encode($ignored);
 	killme();
-}
 }

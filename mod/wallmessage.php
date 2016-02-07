@@ -2,7 +2,6 @@
 
 require_once('include/message.php');
 
-if(! function_exists('wallmessage_post')) {
 function wallmessage_post(&$a) {
 
 	$replyto = get_my_url();
@@ -49,7 +48,7 @@ function wallmessage_post(&$a) {
 	$body = str_replace("\r\n","\n",$body);
 	$body = str_replace("\n\n","\n",$body);
 
-
+	
 	$ret = send_wallmessage($user, $body, $subject, $replyto);
 
 	switch($ret){
@@ -70,10 +69,10 @@ function wallmessage_post(&$a) {
 	}
 
 //	goaway($a->get_baseurl() . '/profile/' . $user['nickname']);
-}
+	
 }
 
-if(! function_exists('wallmessage_content')) {
+
 function wallmessage_content(&$a) {
 
 	if(! get_my_url()) {
@@ -135,9 +134,9 @@ function wallmessage_content(&$a) {
 		'$nickname' => $user['nickname'],
 		'$linkurl' => t('Please enter a link URL:')
 	));
+	
 
-
-
+	
 	$tpl = get_markup_template('wallmessage.tpl');
 	$o .= replace_macros($tpl,array(
 		'$header' => t('Send Private Message'),
@@ -158,5 +157,4 @@ function wallmessage_content(&$a) {
 	));
 
 	return $o;
-}
 }

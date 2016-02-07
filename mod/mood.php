@@ -4,7 +4,7 @@ require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
 
-if(! function_exists('mood_init')) {
+
 function mood_init(&$a) {
 
 	if(! local_user())
@@ -59,7 +59,7 @@ function mood_init(&$a) {
 
 	$uri = item_new_uri($a->get_hostname(),$uid);
 
-	$action = sprintf( t('%1$s is currently %2$s'), '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' , $verbs[$verb]);
+	$action = sprintf( t('%1$s is currently %2$s'), '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' , $verbs[$verb]); 
 
 	$arr = array();
 
@@ -105,9 +105,9 @@ function mood_init(&$a) {
 
 	return;
 }
-}
 
-if(! function_exists('mood_content')) {
+
+
 function mood_content(&$a) {
 
 	if(! local_user()) {
@@ -138,5 +138,5 @@ function mood_content(&$a) {
 	));
 
 	return $o;
-}
+
 }
