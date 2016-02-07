@@ -1,5 +1,5 @@
 <?php
-
+if(! function_exists('amcd_content')) {
 function amcd_content(&$a) {
 //header("Content-type: text/json");
 echo <<< EOT
@@ -46,4 +46,5 @@ echo <<< EOT
 }
 EOT;
 killme();
+}
 }

@@ -233,7 +233,16 @@ if(strlen($a->module)) {
 	}
 
 	/**
-	 * If not, next look for a 'standard' program module in the 'mod' directory
+	 * If not, next look for module overrides by the theme
+	 */
+
+	if((! $a->module_loaded) && (file_exists("view/theme/" . current_theme() . "/mod/{$a->module}.php"))) {
+		include_once("view/theme/" . current_theme() . "/mod/{$a->module}.php");
+		// We will not set module_loaded to true to allow for partial overrides.
+	}
+
+	/**
+	 * Finally, look for a 'standard' program module in the 'mod' directory
 	 */
 
 	if((! $a->module_loaded) && (file_exists("mod/{$a->module}.php"))) {

@@ -1,5 +1,5 @@
 <?php
-
+if(! function_exists('directory_init')) {
 function directory_init(&$a) {
 	$a->set_pager_itemspage(60);
 
@@ -16,23 +16,23 @@ function directory_init(&$a) {
 		unset($_SESSION['mobile-theme']);
 	}
 
-
+}
 }
 
-
+if(! function_exists('directory_post')) {
 function directory_post(&$a) {
 	if(x($_POST,'search'))
 		$a->data['search'] = $_POST['search'];
 }
+}
 
-
-
+if(! function_exists('directory_content')) {
 function directory_content(&$a) {
 	global $db;
 
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) || 
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) ||
 		(get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
@@ -123,14 +123,14 @@ function directory_content(&$a) {
 			}
 //			if(strlen($rr['dob'])) {
 //				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-//					$details .= '<br />' . t('Age: ') . $years ; 
+//					$details .= '<br />' . t('Age: ') . $years ;
 //			}
 //			if(strlen($rr['gender']))
 //				$details .= '<br />' . t('Gender: ') . $rr['gender'];
 
 
 			// show if account is a community account
-			/// @TODO The other page types should be also respected, but first we need a good 
+			/// @TODO The other page types should be also respected, but first we need a good
 			/// translatiion and systemwide consistency for displaying the page type
 			if((intval($rr['page-flags']) == PAGE_COMMUNITY) OR (intval($rr['page-flags']) == PAGE_PRVGROUP))
 				$community = true;
@@ -158,7 +158,7 @@ function directory_content(&$a) {
 			else {
 				$location_e = $location;
 			}
-			
+
 			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
 
 			$entry = array(
@@ -216,4 +216,5 @@ function directory_content(&$a) {
 		info( t("No entries \x28some entries may be hidden\x29.") . EOL);
 
 	return $o;
+}
 }

@@ -2,6 +2,7 @@
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
+if(! function_exists('viewcontacts_init')) {
 function viewcontacts_init(&$a) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -26,8 +27,9 @@ function viewcontacts_init(&$a) {
 		profile_load($a,$a->argv[1]);
 	}
 }
+}
 
-
+if(! function_exists('viewcontacts_content')) {
 function viewcontacts_content(&$a) {
 	require_once("mod/proxy.php");
 
@@ -120,4 +122,5 @@ function viewcontacts_content(&$a) {
 
 
 	return $o;
+}
 }

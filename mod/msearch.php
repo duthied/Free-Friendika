@@ -1,5 +1,6 @@
 <?php
 
+if(! function_exists('msearch_post')) {
 function msearch_post(&$a) {
 
 	$perpage = (($_POST['n']) ? $_POST['n'] : 80);
@@ -26,8 +27,8 @@ function msearch_post(&$a) {
 	if(count($r)) {
 		foreach($r as $rr)
 			$results[] = array(
-				'name' => $rr['name'], 
-				'url' => $a->get_baseurl() . '/profile/' . $rr['nickname'], 
+				'name' => $rr['name'],
+				'url' => $a->get_baseurl() . '/profile/' . $rr['nickname'],
 				'photo' => $a->get_baseurl() . '/photo/avatar/' . $rr['uid'] . '.jpg',
 				'tags' => str_replace(array(',','  '),array(' ',' '),$rr['pub_keywords'])
 			);
@@ -38,5 +39,5 @@ function msearch_post(&$a) {
 	echo json_encode($output);
 
 	killme();
-
+}
 }

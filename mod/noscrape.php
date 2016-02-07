@@ -1,5 +1,6 @@
 <?php
 
+if(! function_exists('noscrape_init')) {
 function noscrape_init(&$a) {
 
 	if($a->argc > 1)
@@ -62,5 +63,5 @@ function noscrape_init(&$a) {
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($json_info);
 	exit;
-
+}
 }

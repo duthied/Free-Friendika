@@ -4,7 +4,7 @@ require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
 
-
+if(! function_exists('subthread_content')) {
 function subthread_content(&$a) {
 
 	if(! local_user() && ! remote_user()) {
@@ -47,7 +47,7 @@ function subthread_content(&$a) {
 			$remote_owner = $r[0];
 	}
 
-	// this represents the post owner on this system. 
+	// this represents the post owner on this system.
 
 	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
@@ -103,7 +103,7 @@ EOT;
 	$bodyverb = t('%1$s is following %2$s\'s %3$s');
 
 	if(! isset($bodyverb))
-			return; 
+			return;
 
 	$arr = array();
 
@@ -123,7 +123,7 @@ EOT;
 	$arr['author-name'] = $contact['name'];
 	$arr['author-link'] = $contact['url'];
 	$arr['author-avatar'] = $contact['thumb'];
-	
+
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 	$plink = '[url=' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
@@ -154,7 +154,5 @@ EOT;
 	call_hooks('post_local_end', $arr);
 
 	killme();
-
 }
-
-
+}

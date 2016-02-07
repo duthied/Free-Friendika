@@ -9,7 +9,8 @@ require_once('include/salmon.php');
 require_once('include/crypto.php');
 // not yet ready for prime time
 //require_once('include/zot.php');
-	
+
+if(! function_exists('post_post')) {
 function post_post(&$a) {
 
 	$bulk_delivery = false;
@@ -19,7 +20,7 @@ function post_post(&$a) {
 	}
 	else {
 		$nickname = $a->argv[2];
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' 
+		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s'
 				AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			dbesc($nickname)
 		);
@@ -48,4 +49,4 @@ function post_post(&$a) {
 	http_status_exit(($ret) ? $ret : 200);
 	// NOTREACHED
 }
-
+}

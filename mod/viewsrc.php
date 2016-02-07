@@ -1,6 +1,6 @@
 <?php
 
-
+if(! function_exists('viewsrc_content')) {
 function viewsrc_content(&$a) {
 
 	if(! local_user()) {
@@ -16,7 +16,7 @@ function viewsrc_content(&$a) {
 		return;
 	}
 
-	$r = q("SELECT `item`.`body` FROM `item` 
+	$r = q("SELECT `item`.`body` FROM `item`
 		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
 		and `item`.`moderated` = 0
 		AND `item`.`id` = '%s' LIMIT 1",
@@ -33,4 +33,4 @@ function viewsrc_content(&$a) {
 		}
 	return $o;
 }
-
+}

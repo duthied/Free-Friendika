@@ -2,6 +2,7 @@
 
 require_once('include/group.php');
 
+if(! function_exists('contactgroup_content')) {
 function contactgroup_content(&$a) {
 
 
@@ -47,4 +48,5 @@ function contactgroup_content(&$a) {
 	}
 
 	killme();
+}
 }

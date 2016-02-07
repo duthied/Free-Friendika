@@ -4,7 +4,8 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 */
 require_once("include/diaspora.php");
 
-function p_init($a){
+if(! function_exists('p_init')) {
+function p_init($a) {
 	if ($a->argc != 2) {
 		header($_SERVER["SERVER_PROTOCOL"].' 510 '.t('Not Extended'));
 		killme();
@@ -78,4 +79,5 @@ function p_init($a){
 	echo $xml;
 
 	killme();
+}
 }

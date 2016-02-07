@@ -1,5 +1,6 @@
 <?php
 
+if(! function_exists('toggle_mobile_init')) {
 function toggle_mobile_init(&$a) {
 
 	if(isset($_GET['off']))
@@ -14,4 +15,4 @@ function toggle_mobile_init(&$a) {
 
 	goaway($address);
 }
-
+}

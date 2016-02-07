@@ -1,4 +1,6 @@
 <?php
+
+if(! function_exists('network_init')) {
 function network_init(&$a) {
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
@@ -153,9 +155,10 @@ function network_init(&$a) {
 	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
 	$a->page['aside'] .= fileas_widget($a->get_baseurl(true) . '/network',(x($_GET, 'file') ? $_GET['file'] : ''));
-
+}
 }
 
+if(! function_exists('saved_searches')) {
 function saved_searches($search) {
 
 	if(! feature_enabled(local_user(),'savedsearch'))
@@ -204,7 +207,7 @@ function saved_searches($search) {
 	));
 
 	return $o;
-
+}
 }
 
 /**
@@ -222,6 +225,7 @@ function saved_searches($search) {
  *
  * @return Array ( $no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active );
  */
+if(! function_exists('network_query_get_sel_tab')) {
 function network_query_get_sel_tab($a) {
 	$no_active='';
 	$starred_active = '';
@@ -278,10 +282,12 @@ function network_query_get_sel_tab($a) {
 
 	return array($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
 }
+}
 
 /**
  * Return selected network from query
  */
+if(! function_exists('network_query_get_sel_net')) {
 function network_query_get_sel_net() {
 	$network = false;
 
@@ -291,7 +297,9 @@ function network_query_get_sel_net() {
 
 	return $network;
 }
+}
 
+if(! function_exists('network_query_get_sel_group')) {
 function network_query_get_sel_group($a) {
 	$group = false;
 
@@ -301,8 +309,9 @@ function network_query_get_sel_group($a) {
 
 	return $group;
 }
+}
 
-
+if(! function_exists('network_content')) {
 function network_content(&$a, $update = 0) {
 
 	require_once('include/conversation.php');
@@ -886,4 +895,4 @@ function network_content(&$a, $update = 0) {
 
 	return $o;
 }
-
+}

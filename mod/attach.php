@@ -1,7 +1,7 @@
 <?php
-
 require_once('include/security.php');
 
+if(! function_exists('attach_init')) {
 function attach_init(&$a) {
 
 	if($a->argc != 2) {
@@ -46,4 +46,5 @@ function attach_init(&$a) {
 	echo $r[0]['data'];
 	killme();
 	// NOTREACHED
+}
 }

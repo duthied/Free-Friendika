@@ -5,6 +5,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 require_once('include/like.php');
 
+if(! function_exists('like_content')) {
 function like_content(&$a) {
 	if(! local_user() && ! remote_user()) {
 		return false;
@@ -28,11 +29,11 @@ function like_content(&$a) {
 	killme(); // NOTREACHED
 //	return; // NOTREACHED
 }
-
+}
 
 // Decide how to return. If we were called with a 'return' argument,
 // then redirect back to the calling page. If not, just quietly end
-
+if(! function_exists('like_content_return')) {
 function like_content_return($baseurl, $return_path) {
 
 	if($return_path) {
@@ -45,4 +46,4 @@ function like_content_return($baseurl, $return_path) {
 
 	killme();
 }
-
+}

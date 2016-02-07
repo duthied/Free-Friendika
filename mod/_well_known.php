@@ -2,6 +2,7 @@
 require_once("mod/hostxrd.php");
 require_once("mod/nodeinfo.php");
 
+if(! function_exists('_well_known_init')) {
 function _well_known_init(&$a){
 	if ($a->argc > 1) {
 		switch($a->argv[1]) {
@@ -19,7 +20,9 @@ function _well_known_init(&$a){
 	http_status_exit(404);
 	killme();
 }
+}
 
+if(! function_exists('wk_social_relay')) {
 function wk_social_relay(&$a) {
 
 	define('SR_SCOPE_ALL', 'all');
@@ -63,4 +66,5 @@ function wk_social_relay(&$a) {
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($relay, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	exit;
+}
 }

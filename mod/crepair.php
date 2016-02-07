@@ -2,6 +2,7 @@
 require_once("include/contact_selectors.php");
 require_once("mod/contacts.php");
 
+if(! function_exists('crepair_init')) {
 function crepair_init(&$a) {
 	if(! local_user())
 		return;
@@ -28,8 +29,9 @@ function crepair_init(&$a) {
 		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 }
+}
 
-
+if(! function_exists('crepair_post')) {
 function crepair_post(&$a) {
 	if(! local_user())
 		return;
@@ -91,9 +93,9 @@ function crepair_post(&$a) {
 
 	return;
 }
+}
 
-
-
+if(! function_exists('crepair_content')) {
 function crepair_content(&$a) {
 
 	if(! local_user()) {
@@ -180,5 +182,5 @@ function crepair_content(&$a) {
 	));
 
 	return $o;
-
+}
 }
