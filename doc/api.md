@@ -52,20 +52,20 @@ Error body is
 
 json:
 ```
-{
-"error": "Specific error message",
-"request": "API path requested",
-"code": "HTTP error code"
-}
+	{
+		"error": "Specific error message",
+		"request": "API path requested",
+		"code": "HTTP error code"
+	}
 ```
 
 xml:
 ```
-<status>
-<error>Specific error message</error>
-<request>API path requested</request>
-<code>HTTP error code</code>
-</status>
+	<status>
+		<error>Specific error message</error>
+		<request>API path requested</request>
+		<code>HTTP error code</code>
+	</status>
 ```
 
 ---
@@ -605,47 +605,47 @@ An image used as profile image has only scale 4-6, other images only 0-3
 
 json
 ```
-{
-"id": "photo id"
-"created": "date(YYYY-MM-GG HH:MM:SS)",
-"edited": "date(YYYY-MM-GG HH:MM:SS)",
-"title": "photo title",
-"desc": "photo description",
-"album": "album name",
-"filename": "original file name",
-"type": "mime type",
-"height": "number",
-"width": "number",
-"profile": "1 if is profile photo",
-"link": {
-"<scale>": "url to image"
-...
-},
-// if 'scale' is set
-"datasize": "size in byte",
-"data": "base64 encoded image data"
-}
+	{
+		"id": "photo id"
+		"created": "date(YYYY-MM-GG HH:MM:SS)",
+		"edited": "date(YYYY-MM-GG HH:MM:SS)",
+		"title": "photo title",
+		"desc": "photo description",
+		"album": "album name",
+		"filename": "original file name",
+		"type": "mime type",
+		"height": "number",
+		"width": "number",
+		"profile": "1 if is profile photo",
+		"link": {
+			"<scale>": "url to image"
+			...
+		},
+		// if 'scale' is set
+		"datasize": "size in byte",
+		"data": "base64 encoded image data"
+	}
 ```
 
 xml
 ```
-<photo>
-<id>photo id</id>
-<created>date(YYYY-MM-GG HH:MM:SS)</created>
-<edited>date(YYYY-MM-GG HH:MM:SS)</edited>
-<title>photo title</title>
-<desc>photo description</desc>
-<album>album name</album>
-<filename>original file name</filename>
-<type>mime type</type>
-<height>number</height>
-<width>number</width>
-<profile>1 if is profile photo</profile>
-<links type="array">
-<link type="mime type" scale="scale number" href="image url"/>
-...
-</links>
-</photo>
+	<photo>
+		<id>photo id</id>
+		<created>date(YYYY-MM-GG HH:MM:SS)</created>
+		<edited>date(YYYY-MM-GG HH:MM:SS)</edited>
+		<title>photo title</title>
+		<desc>photo description</desc>
+		<album>album name</album>
+		<filename>original file name</filename>
+		<type>mime type</type>
+		<height>number</height>
+		<width>number</width>
+		<profile>1 if is profile photo</profile>
+		<links type="array">
+		<link type="mime type" scale="scale number" href="image url"/>
+			...
+		</links>
+	</photo>
 ```
 
 ---
@@ -657,29 +657,29 @@ Returns a list of all photo resources of the logged in user.
 
 json
 ```
-[
-{
-id: "resource_id",
-album: "album name",
-filename: "original file name",
-type: "image mime type",
-thumb: "url to thumb sized image"
-},
-...
-]
+	[
+		{
+			id: "resource_id",
+			album: "album name",
+			filename: "original file name",
+			type: "image mime type",
+			thumb: "url to thumb sized image"
+		},
+		...
+	]
 ```
 
 xml
 ```
-<photos type="array">
-<photo id="resource_id"
-album="album name"
-filename="original file name"
-type="image mime type">
-"url to thumb sized image"
-</photo>
-...
-</photos>
+	<photos type="array">
+		<photo id="resource_id"
+		album="album name"
+		filename="original file name"
+		type="image mime type">
+			"url to thumb sized image"
+		</photo>
+		...
+	</photos>
 ```
 
 
