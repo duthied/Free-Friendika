@@ -1,14 +1,14 @@
 <?php
-/** 
+/**
  * @file mod/parse_url.php
- * 
+ *
  * @todo https://developers.google.com/+/plugins/snippet/
- * 
+ *
  * @verbatim
  * <meta itemprop="name" content="Toller Titel">
  * <meta itemprop="description" content="Eine tolle Beschreibung">
  * <meta itemprop="image" content="http://maple.libertreeproject.org/images/tree-icon.png">
- * 
+ *
  * <body itemscope itemtype="http://schema.org/Product">
  *   <h1 itemprop="name">Shiny Trinket</h1>
  *   <img itemprop="image" src="{image-url}" />
@@ -27,6 +27,7 @@ if(!function_exists('deletenode')) {
 	}
 }
 
+if(! function_exists('completeurl')) {
 function completeurl($url, $scheme) {
 	$urlarr = parse_url($url);
 
@@ -53,7 +54,9 @@ function completeurl($url, $scheme) {
 
 	return($complete);
 }
+}
 
+if(! function_exists('parseurl_getsiteinfo_cached')) {
 function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
 
 	if ($url == "")
@@ -77,7 +80,9 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 	return $data;
 }
+}
 
+if(! function_exists('parseurl_getsiteinfo')) {
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 	require_once("include/network.php");
 	require_once("include/Photo.php");
@@ -400,11 +405,15 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	return($siteinfo);
 }
+}
 
+if(! function_exists('arr_add_hashes')) {
 function arr_add_hashes(&$item,$k) {
 	$item = '#' . $item;
 }
+}
 
+if(! function_exists('parse_url_content')) {
 function parse_url_content(&$a) {
 
 	$text = null;
@@ -557,5 +566,6 @@ function parse_url_content(&$a) {
 		echo "[class=type-photo]".$title.$br.$image."[/class]";
 
 	killme();
+}
 }
 ?>

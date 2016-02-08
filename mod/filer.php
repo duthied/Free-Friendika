@@ -4,7 +4,7 @@ require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
 
-
+if(! function_exists('filer_content')) {
 function filer_content(&$a) {
 
 	if(! local_user()) {
@@ -30,8 +30,9 @@ function filer_content(&$a) {
 			'$field' => array('term', t("Save to Folder:"), '', '', $filetags, t('- select -')),
 			'$submit' => t('Save'),
 		));
-		
+
 		echo $o;
 	}
 	killme();
+}
 }

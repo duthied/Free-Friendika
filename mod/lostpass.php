@@ -4,6 +4,7 @@ require_once('include/email.php');
 require_once('include/enotify.php');
 require_once('include/text.php');
 
+if(! function_exists('lostpass_post')) {
 function lostpass_post(&$a) {
 
 	$loginame = notags(trim($_POST['login-name']));
@@ -74,10 +75,10 @@ function lostpass_post(&$a) {
 		'body' => $body));
 
 	goaway(z_root());
-
+}
 }
 
-
+if(! function_exists('lostpass_content')) {
 function lostpass_content(&$a) {
 
 
@@ -164,5 +165,5 @@ function lostpass_content(&$a) {
 
 		return $o;
 	}
-
+}
 }

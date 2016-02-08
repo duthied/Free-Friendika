@@ -5,6 +5,7 @@ require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 require_once('mod/contacts.php');
 
+if(! function_exists('allfriends_content')) {
 function allfriends_content(&$a) {
 
 	$o = '';
@@ -96,4 +97,5 @@ function allfriends_content(&$a) {
 	));
 
 	return $o;
+}
 }

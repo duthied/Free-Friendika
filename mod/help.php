@@ -18,6 +18,7 @@ if (!function_exists('load_doc_file')) {
 
 }
 
+if(! function_exists('help_content')) {
 function help_content(&$a) {
 
 	nav_set_selected('help');
@@ -98,5 +99,5 @@ function help_content(&$a) {
 		}
 		</style>".$html;
 	return $html;
-
+}
 }

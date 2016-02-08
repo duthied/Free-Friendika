@@ -3,7 +3,7 @@
 require_once('include/contact_widgets.php');
 require_once('include/redir.php');
 
-
+if(! function_exists('profile_init')) {
 function profile_init(&$a) {
 
 	if(! x($a->page,'aside'))
@@ -65,10 +65,10 @@ function profile_init(&$a) {
 	foreach($dfrn_pages as $dfrn)
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".$a->get_baseurl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
 	$a->page['htmlhead'] .= "<link rel=\"dfrn-poco\" href=\"".$a->get_baseurl()."/poco/{$which}\" />\r\n";
-
+}
 }
 
-
+if(! function_exists('profile_content')) {
 function profile_content(&$a, $update = 0) {
 
 	$category = $datequery = $datequery2 = '';
@@ -349,4 +349,5 @@ function profile_content(&$a, $update = 0) {
 	}
 
 	return $o;
+}
 }

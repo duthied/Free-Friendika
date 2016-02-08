@@ -5,6 +5,7 @@
 
 require_once("include/plugin.php");
 
+if(! function_exists('statistics_json_init')) {
 function statistics_json_init(&$a) {
 
         if (!get_config("system", "nodeinfo")) {
@@ -56,4 +57,5 @@ function statistics_json_init(&$a) {
 	echo json_encode($statistics, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 	logger("statistics_init: printed ".print_r($statistics, true), LOGGER_DATA);
 	killme();
+}
 }

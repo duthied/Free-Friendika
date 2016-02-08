@@ -1,15 +1,14 @@
 <?php
-
+if(! function_exists('community_init')) {
 function community_init(&$a) {
 	if(! local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
-
-
+}
 }
 
-
+if(! function_exists('community_content')) {
 function community_content(&$a, $update = 0) {
 
 	$o = '';
@@ -115,7 +114,9 @@ function community_content(&$a, $update = 0) {
 
 	return $o;
 }
+}
 
+if(! function_exists('community_getitems')) {
 function community_getitems($start, $itemspage) {
 	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		return(community_getpublicitems($start, $itemspage));
@@ -140,9 +141,10 @@ function community_getitems($start, $itemspage) {
 	);
 
 	return($r);
-
+}
 }
 
+if(! function_exists('community_getpublicitems')) {
 function community_getpublicitems($start, $itemspage) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
@@ -156,4 +158,5 @@ function community_getpublicitems($start, $itemspage) {
 	);
 
 	return($r);
+}
 }

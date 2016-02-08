@@ -1,6 +1,6 @@
 <?php
 
-
+if(! function_exists('fsuggest_post')) {
 function fsuggest_post(&$a) {
 
 	if(! local_user()) {
@@ -39,11 +39,11 @@ function fsuggest_post(&$a) {
 				VALUES ( %d, %d, '%s','%s','%s','%s','%s','%s')",
 				intval(local_user()),
 				intval($contact_id),
-				dbesc($r[0]['name']), 
-				dbesc($r[0]['url']), 
-				dbesc($r[0]['request']), 
-				dbesc($r[0]['photo']), 
-				dbesc($hash), 
+				dbesc($r[0]['name']),
+				dbesc($r[0]['url']),
+				dbesc($r[0]['request']),
+				dbesc($r[0]['photo']),
+				dbesc($hash),
 				dbesc(datetime_convert())
 			);
 			$r = q("SELECT `id` FROM `fsuggest` WHERE `note` = '%s' AND `uid` = %d LIMIT 1",
@@ -65,11 +65,11 @@ function fsuggest_post(&$a) {
 
 	}
 
-
+}
 }
 
 
-
+if(! function_exists('fsuggest_content')) {
 function fsuggest_content(&$a) {
 
 	require_once('include/acl_selectors.php');
@@ -100,7 +100,7 @@ function fsuggest_content(&$a) {
 
 	$o .= '<form id="fsuggest-form" action="fsuggest/' . $contact_id . '" method="post" >';
 
-	$o .= contact_selector('suggest','suggest-select', false, 
+	$o .= contact_selector('suggest','suggest-select', false,
 		array('size' => 4, 'exclude' => $contact_id, 'networks' => 'DFRN_ONLY', 'single' => true));
 
 
@@ -108,4 +108,5 @@ function fsuggest_content(&$a) {
 	$o .= '</form>';
 
 	return $o;
+}
 }

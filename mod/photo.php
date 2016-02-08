@@ -3,6 +3,7 @@
 require_once('include/security.php');
 require_once('include/Photo.php');
 
+if(! function_exists('photo_init')) {
 function photo_init(&$a) {
 	global $_SERVER;
 
@@ -208,4 +209,5 @@ function photo_init(&$a) {
 
 	killme();
 	// NOTREACHED
+}
 }

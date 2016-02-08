@@ -16,6 +16,7 @@
 
 require_once('include/enotify.php');
 
+if(! function_exists('dfrn_confirm_post')) {
 function dfrn_confirm_post(&$a,$handsfree = null) {
 
 	if(is_array($handsfree)) {
@@ -801,5 +802,5 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 	goaway(z_root());
 	// NOTREACHED
-
+}
 }

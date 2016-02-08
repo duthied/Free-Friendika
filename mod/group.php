@@ -1,18 +1,21 @@
 <?php
 
+if(! function_exists('validate_members')) {
 function validate_members(&$item) {
 	$item = intval($item);
 }
+}
 
+if(! function_exists('group_init')) {
 function group_init(&$a) {
 	if(local_user()) {
 		require_once('include/group.php');
 		$a->page['aside'] = group_side('contacts','group','extended',(($a->argc > 1) ? intval($a->argv[1]) : 0));
 	}
 }
+}
 
-
-
+if(! function_exists('group_post')) {
 function group_post(&$a) {
 
 	if(! local_user()) {
@@ -64,7 +67,9 @@ function group_post(&$a) {
 	}
 	return;
 }
+}
 
+if(! function_exists('group_content')) {
 function group_content(&$a) {
 	$change = false;
 
@@ -229,5 +234,5 @@ function group_content(&$a) {
 	}
 
 	return replace_macros($tpl, $context);
-
+}
 }

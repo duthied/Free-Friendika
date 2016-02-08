@@ -5,6 +5,7 @@ require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 require_once('mod/contacts.php');
 
+if(! function_exists('dirfind_init')) {
 function dirfind_init(&$a) {
 
 	if(! local_user()) {
@@ -19,9 +20,9 @@ function dirfind_init(&$a) {
 
 	$a->page['aside'] .= follow_widget();
 }
+}
 
-
-
+if(! function_exists('dirfind_content')) {
 function dirfind_content(&$a, $prefix = "") {
 
 	$community = false;
@@ -234,4 +235,5 @@ function dirfind_content(&$a, $prefix = "") {
 	}
 
 	return $o;
+}
 }

@@ -1,5 +1,6 @@
 <?php
 
+if(! function_exists('filerm_content')) {
 function filerm_content(&$a) {
 
 	if(! local_user()) {
@@ -24,4 +25,5 @@ function filerm_content(&$a) {
 		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
 
 	killme();
+}
 }

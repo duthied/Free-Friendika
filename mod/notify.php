@@ -1,6 +1,6 @@
 <?php
 
-
+if(! function_exists('notify_init')) {
 function notify_init(&$a) {
 	if(! local_user())
 		return;
@@ -42,10 +42,10 @@ function notify_init(&$a) {
 		echo $j;
 		killme();
 	}
-
+}
 }
 
-
+if(! function_exists('notify_content')) {
 function notify_content(&$a) {
 	if(! local_user())
 		return login();
@@ -80,5 +80,5 @@ function notify_content(&$a) {
 
 	return $o;
 
-
+}
 }
