@@ -824,7 +824,17 @@ function contacts_content(&$a) {
 }
 }
 
-if(! function_exists('contacts_tab')) {
+/**
+ * @brief List of pages for the Contact TabBar
+ * 
+ * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
+ * 
+ * @param app $a
+ * @param int $contact_id The ID of the contact
+ * @param int $active_tab 1 if tab should be marked as active
+ * 
+ * @return array with with contact TabBar data
+ */
 function contacts_tab($a, $contact_id, $active_tab) {
 	// tabs
 	$tabs = array(
@@ -846,6 +856,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 		)
 	);
 
+	// Show this tab only if there is visible friend list
 	$x = count_all_friends(local_user(), $contact_id);
 	if ($x)
 		$tabs[] = array('label'=>t('Contacts'),
@@ -855,6 +866,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'id' => 'allfriends-tab',
 				'accesskey' => 't');
 
+	// Show this tab only if there is visible common friend list
 	$common = count_common_friends(local_user(),$contact_id);
 	if ($common)
 		$tabs[] = array('label'=>t('Common Friends'),
@@ -864,40 +876,10 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'id' => 'common-loc-tab',
 				'accesskey' => 'd');
 
-	$tabs[] = array('label' => t('Repair'),
-			'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
-			'sel' => (($active_tab == 5)?'active':''),
-			'title' => t('Advanced Contact Settings'),
-			'id'	=> 'repair-tab',
-			'accesskey' => 'r');
-
-
-	$tabs[] = array('label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
-			'sel'   => '',
-			'title' => t('Toggle Blocked status'),
-			'id'	=> 'toggle-block-tab',
-			'accesskey' => 'b');
-
-	$tabs[] = array('label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
-			'sel'   => '',
-			'title' => t('Toggle Ignored status'),
-			'id'	=> 'toggle-ignore-tab',
-			'accesskey' => 'i');
-
-	$tabs[] = array('label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
-			'sel'   => '',
-			'title' => t('Toggle Archive status'),
-			'id'	=> 'toggle-archive-tab',
-			'accesskey' => 'v');
-
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
 
 	return $tab_str;
-}
 }
 
 if(! function_exists('contact_posts')) {
@@ -990,13 +972,14 @@ function _contact_detail_for_template($rr){
  * This includes actions like e.g. 'block', 'hide', 'archive', 'delete' and others
  * 
  * @param array $contact Data about the Contact
- * @return array with actions related actions
+ * @return array with contact related actions
  */
 function contact_actions($contact) {
 
 	$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
 	$contact_action = array();
 
+	// Provide friend suggestion only for Friendica contacts
 	if($contact['network'] === NETWORK_DFRN) {
 		$contact_actions['suggest'] = array(
 							'label' => t('Suggest friends'),
