@@ -15,12 +15,16 @@
   padding: 5px 10px;
   text-align: center;
 }
+a.btn, a.btn:hover {
+  text-decoration: none;
+  color: inherit;
+}
 
-ul.menu-popup li.divider {
+.menu-popup .divider {
   height: 1px;
   margin: 3px 0;
   overflow: hidden;
-  background-color: #2d2d2d;;
+  background-color: #2d2d2d;
 }
 
 /* List of social Networks */
@@ -375,6 +379,24 @@ td.federation-data {
 }
 
 /* contact-edit */
+#contact-edit-status-wrapper {
+  border: 1px solid;
+  padding: 10px;
+}
 #contact-edit-actions {
-    float: right;
+  float: right;
+  display: inline-block;
+  position: relative;
+}
+#contact-edit-actions > .menu-popup {
+  right: 0;
+  left: auto;
+}
+
+#contact-edit-settings-label:after {
+  content: ' »';
+}
+
+#contact-edit-settings {
+  display: none;
 }

@@ -14,7 +14,7 @@
 
 				{{* This is the Action menu where contact related actions like 'ignore', 'hide' can be performed *}}
 				<div id="contact-edit-actions">
-					<a class="btn" rel="#contact-actions-menu" href="#" id="contact-edit-actions-button">{{$contact_action_button}}</a>
+					<a class="btn" id="contact-edit-actions-button">{{$contact_action_button}}</a>
 
 					<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup" >
 						{{if $lblsuggest}}<li role="menuitem"><a  href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}

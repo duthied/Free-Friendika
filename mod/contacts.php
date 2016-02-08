@@ -565,6 +565,7 @@ function contacts_content(&$a) {
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
 			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
+		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);
 
 
@@ -586,7 +587,7 @@ function contacts_content(&$a) {
 			'$lblcrepair' => t("Repair URL settings"),
 			'$lblrecent' => t('View conversations'),
 			'$lblsuggest' => $lblsuggest,
-			'$delete' => t('Delete contact'),
+			//'$delete' => t('Delete contact'),
 			'$nettype' => $nettype,
 			'$poll_interval' => $poll_interval,
 			'$poll_enabled' => $poll_enabled,
@@ -627,6 +628,8 @@ function contacts_content(&$a) {
 			'$keywords_label' => t("Tags:"),
 			'$contact_action_button' => t("Actions"),
 			'$contact_actions' => $contact_actions,
+			'$contact_status' => t("Status"),
+			'$contact_settings_label' => t('Contact Settings'),
 
 		));
 
@@ -970,7 +973,7 @@ function _contact_detail_for_template($rr){
 function contact_actions($contact) {
 
 	$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
-	$contact_action_menu = array();
+	$contact_action = array();
 
 	if($contact['network'] === NETWORK_DFRN) {
 		$contact_actions['suggest'] = array(
@@ -1032,5 +1035,5 @@ function contact_actions($contact) {
 						'id'	=> 'delete',
 				);
 
-	return $contact_action_menu;
+	return $contact_actions;
 }
