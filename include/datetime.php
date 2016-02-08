@@ -75,8 +75,8 @@ function select_timezone($current = 'America/Los_Angeles') {
  * 
  * Return a select using 'field_select_raw' template, with timezones
  * groupped (primarily) by continent
-.* arguments follow convetion as other field_* template array:
-.* 'name', 'label', $value, 'help'
+ * arguments follow convetion as other field_* template array:
+ * 'name', 'label', $value, 'help'
  * 
  * @param string $name Name of the selector
  * @param string $label Label for the selector
