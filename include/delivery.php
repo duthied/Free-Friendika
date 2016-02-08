@@ -374,7 +374,7 @@ function delivery_run(&$argv, &$argc){
 							break;
 
 						logger('mod-delivery: local delivery');
-						local_delivery($x[0],$atom);
+						dfrn::import($atom, $x[0]);
 						break;
 					}
 				}
