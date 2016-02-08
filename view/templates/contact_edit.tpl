@@ -4,6 +4,21 @@
 
 	{{$tab_str}}
 
+	<div id="contact-edit-actions">
+		<a class="btn" rel="#contact-actions-menu" href="#" id="contact-edit-actions-button">{{$contact_action_button}}</a>
+
+		<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup" >
+			{{if $lblsuggest}}<li><a  href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}
+			{{if $poll_enabled}}<li><a  href="#" title="{{$contact_actions.update.title}}" onclick="window.location.href='{{$contact_actions.update.url}}'; return false;">{{$contact_actions.update.label}}</a></li>{{/if}}
+			<li><a  href="#" title="{{$contact_actions.repair.title}}" onclick="window.location.href='{{$contact_actions.repair.url}}'; return false;">{{$contact_actions.repair.label}}</a></li>
+			<li class="divider"></li>
+			<li><a  href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
+			<li><a  href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
+			<li><a  href="#" title="{{$contact_actions.archive.title}}" onclick="window.location.href='{{$contact_actions.archive.url}}'; return false;">{{$contact_actions.archive.label}}</a></li>
+			<li><a  href="#" title="{{$contact_actions.delete.title}}" onclick="return confirmDelete();">{{$contact_actions.delete.label}}</a></li>
+		</ul>
+	</div>
+
 	<div id="contact-edit-drop-link" >
 		<a href="contacts/{{$contact_id}}/drop" class="icon drophide" id="contact-edit-drop-link" onclick="return confirmDelete();"  title="{{$delete}}" onmouseover="imgbright(this);" onmouseout="imgdull(this);"></a>
 	</div>
@@ -35,15 +50,6 @@
 			</ul>
 
 			<ul>
-
-				{{if $common_text}}
-					<li><div id="contact-edit-common"><a href="{{$common_link}}">{{$common_text}}</a></div></li>
-				{{/if}}
-				{{if $all_friends}}
-					<li><div id="contact-edit-allfriends"><a href="allfriends/{{$contact_id}}">{{$all_friends}}</a></div></li>
-				{{/if}}
-
-
 				<!-- <li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
 				{{if $lblsuggest}}
 					<li><a href="fsuggest/{{$contact_id}}" id="contact-edit-suggest">{{$lblsuggest}}</a></li>

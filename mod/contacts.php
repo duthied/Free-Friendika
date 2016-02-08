@@ -565,6 +565,8 @@ function contacts_content(&$a) {
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
 			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
+		$contact_actions = contact_action_menu($contact);
+
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
@@ -574,7 +576,7 @@ function contacts_content(&$a) {
 			'$lbl_vis2' => sprintf( t('Please choose the profile you would like to display to %s when viewing your profile securely.'), $contact['name']),
 			'$lbl_info1' => t('Contact Information / Notes'),
 			'$infedit' => t('Edit contact notes'),
-			'$common_text' => $common_text,
+			//'$common_text' => $common_text,
 			'$common_link' => $a->get_baseurl(true) . '/common/loc/' . local_user() . '/' . $contact['id'],
 			'$all_friends' => $all_friends,
 			'$relation_text' => $relation_text,
@@ -622,7 +624,9 @@ function contacts_content(&$a) {
 			'$about' => bbcode($contact["about"], false, false),
 			'$about_label' => t("About:"),
 			'$keywords' => $contact["keywords"],
-			'$keywords_label' => t("Tags:")
+			'$keywords_label' => t("Tags:"),
+			'$contact_action_button' => t("Actions"),
+			'$contact_actions' => $contact_actions,
 
 		));
 
@@ -953,4 +957,67 @@ function _contact_detail_for_template($rr){
 		'network' => network_to_name($rr['network'], $rr['url']),
 	);
 
+}
+
+function contact_action_menu($contact) {
+
+	$contact_action_menu = array(
+				'suggest' => array(
+					'label' => t('Suggest friends'),
+					'url'	=> app::get_baseurl(true) . '/fsuggest/' . $contact['id'],
+					'title'	=> '',
+					'sel'	=> '',
+					'id'	=>  'suggest',
+				),
+
+				'update' => array(
+					'label'	=> t('Update now'),
+					'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/update',
+					'title'	=> '',
+					'sel'	=> '',
+					'id'	=> 'update',
+				),
+
+				'repair' => array(
+					'label'	=> t('Repair'),
+					'url'	=> app::get_baseurl(true) . '/crepair/' . $contact['id'],
+					'title' => t('Advanced Contact Settings'),
+					'sel'	=> '',
+					'id'	=> 'repair',
+				),
+
+				'block' => array(
+					'label'	=> (intval($contact['blocked']) ? t('Unblock') : t('Block') ),
+					'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/block',
+					'title' => t('Toggle Blocked status'),
+					'sel'	=> (intval($contact['blocked']) ? 'active' : ''),
+					'id'	=> 'toggle-block',
+				),
+
+				'ignore' => array(
+					'label'	=> (intval($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+					'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/ignore',
+					'title' => t('Toggle Ignored status'),
+					'sel'	=> (intval($contact['readonly']) ? 'active' : ''),
+					'id'	=> 'toggle-ignore',
+				),
+
+				'archive' => array(
+					'label'	=> (intval($contact['archive']) ? t('Unarchive') : t('Archive') ),
+					'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/archive',
+					'title' => t('Toggle Archive status'),
+					'sel'	=> (intval($contact['archive']) ? 'active' : ''),
+					'id'	=> 'toggle-archive',
+				),
+
+				'delete' => array(
+					'label'	=> t('Delete'),
+					'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/drop', 
+					'title'	=> t('Delete contact'),
+					'sel'	=> '',
+					'id'	=> 'delete',
+				)
+	);
+
+	return $contact_action_menu;
 }
