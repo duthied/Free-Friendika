@@ -79,7 +79,7 @@ class NotificationsManager {
         
         if ($limit!="") $limit = " LIMIT ".$limit;
         
-		$r = q("SELECT * FROM notify WHERE uid = %d $filter_sql ORDER BY $order_sql $limit",
+		$r = q("SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
 			intval(local_user())
 		);
         if ($r!==false && count($r)>0) return $this->_set_extra($r);
@@ -93,7 +93,7 @@ class NotificationsManager {
      * @return array note values or null if not found
      */
     public function getByID($id) {
-        $r = q("SELECT * FROM notify WHERE id = %d AND uid = %d LIMIT 1",
+        $r = q("SELECT * FROM `notify` WHERE `id` = %d AND `uid` = %d LIMIT 1",
                 intval($id),
                 intval(local_user())
         );
@@ -111,7 +111,7 @@ class NotificationsManager {
      * @return bool true on success, false on errors
      */
     public function setSeen($note, $seen = true) {
-        return q("UPDATE notify SET seen = %d WHERE ( link = '%s' OR ( parent != 0 AND parent = %d AND otype = '%s' )) AND uid = %d",
+        return q("UPDATE `notify` SET `seen` = %d WHERE ( `link` = '%s' OR ( `parent` != 0 AND `parent` = %d AND `otype` = '%s' )) AND `uid` = %d",
             intval($seen),
             dbesc($note['link']),
             intval($note['parent']),
@@ -127,7 +127,7 @@ class NotificationsManager {
      * @return bool true on success, false on error
      */
     public function setAllSeen($seen = true) {
-    	return q("UPDATE notify SET seen = %d WHERE uid = %d",
+    	return q("UPDATE `notify` SET `seen` = %d WHERE `uid` = %d",
             intval($seen),
 			intval(local_user())
 		);
