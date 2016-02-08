@@ -690,6 +690,11 @@
 	function api_array_to_xml($data, $ename="") {
 		$attrs="";
 		$childs="";
+		if (count($data)==1 && !is_array($data[0])) {
+			$ename = array_keys($data)[0];
+			$v = $data[$ename];
+			return "<$ename>$v</$ename>";
+		}
 		foreach($data as $k=>$v) {
 			$k=trim($k,'$');
 			if (!is_array($v)) {
@@ -3415,41 +3420,62 @@
 	api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activity', true, API_METHOD_POST);
 
 	/**
-	 * returns notifications
-	 * if called with note id set note seen and returns associated item (if possible)
-	 */
+	 * @brief Returns notifications
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	*/
 	function api_friendica_notification(&$a, $type) {
 		if (api_user()===false) throw new ForbiddenException();
-		
+		if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
 		$nm = new NotificationsManager();
 		
-		if ($a->argc==3) {
-			$notes = $nm->getAll(array(), "+seen -date", 50);
-			return api_apply_template("<auto>", $type, array('$notes' => $notes));
-		}
-		if ($a->argc==4) {
-			$note = $nm->getByID(intval($a->argv[3]));
-			if (is_null($note)) throw new BadRequestException("Invalid argument");
-			$nm->setSeen($note);
-			if ($note['otype']=='item') {
-				// would be really better with a ItemsManager and $im->getByID() :-P
-				$r = q("SELECT * FROM item WHERE id=%d AND uid=%d",
-					intval($note['iid']),
-					intval(local_user())
-				);
-				if ($r===false) throw new NotFoundException();
+		$notes = $nm->getAll(array(), "+seen -date", 50);
+		return api_apply_template("<auto>", $type, array('$notes' => $notes));
+	}
+	
+	/**
+	 * @brief Set notification as seen and returns associated item (if possible)
+	 *
+	 * POST request with 'id' param as notification id
+	 * 
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_notification_seen(&$a, $type){
+		if (api_user()===false) throw new ForbiddenException();
+		if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
+		
+		$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
+		
+		$nm = new NotificationsManager();		
+		$note = $nm->getByID($id);
+		if (is_null($note)) throw new BadRequestException("Invalid argument");
+		
+		$nm->setSeen($note);
+		if ($note['otype']=='item') {
+			// would be really better with an ItemsManager and $im->getByID() :-P
+			$r = q("SELECT * FROM item WHERE id=%d AND uid=%d",
+				intval($note['iid']),
+				intval(local_user())
+			);
+			if ($r!==false) {
+				// we found the item, return it to the user
 				$user_info = api_get_user($a);
 				$ret = api_format_items($r,$user_info);
 				$data = array('$statuses' => $ret);
 				return api_apply_template("timeline", $type, $data);
-			} else {
-				return api_apply_template('test', $type, array('ok' => $ok));
 			}
-			
-		}
-		throw new BadRequestException("Invalid argument count");
+			// the item can't be found, but we set the note as seen, so we count this as a success
+		} 
+		return api_apply_template('<auto>', $type, array('status' => "success"));
 	}
+	
+	api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
+	
 
 /*
 To.Do:

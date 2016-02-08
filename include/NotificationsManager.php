@@ -1,6 +1,13 @@
 <?php
+/**
+ * @file include/NotificationsManager.php
+ */
 require_once("include/datetime.php");
+require_once("include/bbcode.php");
 
+/**
+ * @brief Read and write notifications from/to database
+ */
 class NotificationsManager {
     private $a;
     
@@ -8,12 +15,27 @@ class NotificationsManager {
         $this->a = get_app();
     }
     
+	/**
+	 * @brief set some extra note properties
+	 *
+	 * @param array $notes array of note arrays from db
+	 * @return array Copy of input array with added properties
+	 * 
+	 * Set some extra properties to note array from db:
+	 *  - timestamp as int in default TZ
+	 *  - date_rel : relative date string
+	 *  - msg_html: message as html string
+	 *  - msg_plain: message as plain text string
+	 */
     private function _set_extra($notes) {
         $rets = array();
         foreach($notes as $n) {
             $local_time = datetime_convert('UTC',date_default_timezone_get(),$n['date']);
             $n['timestamp'] = strtotime($local_time);
             $n['date_rel'] = relative_date($n['date']);
+			$n['msg_html'] = bbcode($n['msg'], false, false, false, false);
+			$n['msg_plain'] = explode("\n",trim(html2plain($n['msg_html'], 0)))[0];
+			
             $rets[] = $n;
         }
         return $rets;
@@ -57,7 +79,7 @@ class NotificationsManager {
         
         if ($limit!="") $limit = " LIMIT ".$limit;
         
-		$r = q("SELECT * from notify where uid = %d $filter_sql order by $order_sql $limit",
+		$r = q("SELECT * FROM notify WHERE uid = %d $filter_sql ORDER BY $order_sql $limit",
 			intval(local_user())
 		);
         if ($r!==false && count($r)>0) return $this->_set_extra($r);
@@ -71,7 +93,7 @@ class NotificationsManager {
      * @return array note values or null if not found
      */
     public function getByID($id) {
-        $r = q("select * from notify where id = %d and uid = %d limit 1",
+        $r = q("SELECT * FROM notify WHERE id = %d AND uid = %d LIMIT 1",
                 intval($id),
                 intval(local_user())
         );
@@ -89,7 +111,7 @@ class NotificationsManager {
      * @return bool true on success, false on errors
      */
     public function setSeen($note, $seen = true) {
-        return q("update notify set seen = %d where ( link = '%s' or ( parent != 0 and parent = %d and otype = '%s' )) and uid = %d",
+        return q("UPDATE notify SET seen = %d WHERE ( link = '%s' OR ( parent != 0 AND parent = %d AND otype = '%s' )) AND uid = %d",
             intval($seen),
             dbesc($note['link']),
             intval($note['parent']),
@@ -105,7 +127,7 @@ class NotificationsManager {
      * @return bool true on success, false on error
      */
     public function setAllSeen($seen = true) {
-    	return q("update notify set seen = %d where uid = %d",
+    	return q("UPDATE notify SET seen = %d WHERE uid = %d",
             intval($seen),
 			intval(local_user())
 		);
