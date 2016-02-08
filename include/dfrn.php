@@ -40,7 +40,7 @@ class dfrn {
 	 *
 	 * @return string DFRN entries
 	 */
-	function entries($items,$owner) {
+	public static function entries($items,$owner) {
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -70,7 +70,7 @@ class dfrn {
 	 *
 	 * @return string DFRN feed entries
 	 */
-	function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
+	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
 
 		$a = get_app();
 
@@ -277,7 +277,7 @@ class dfrn {
 	 *
 	 * @return string DFRN mail
 	 */
-	function mail($item, $owner) {
+	public static function mail($item, $owner) {
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
@@ -311,7 +311,7 @@ class dfrn {
 	 *
 	 * @return string DFRN suggestions
 	 */
-	function fsuggest($item, $owner) {
+	public static function fsuggest($item, $owner) {
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
@@ -338,7 +338,7 @@ class dfrn {
 	 *
 	 * @return string DFRN relocations
 	 */
-	function relocate($owner, $uid) {
+	public static function relocate($owner, $uid) {
 
 		/* get site pubkey. this could be a new installation with no site keys*/
 		$pubkey = get_config('system','site_pubkey');
@@ -846,7 +846,7 @@ class dfrn {
 	 *
 	 * @return int Deliver status. -1 means an error.
 	 */
-	function deliver($owner,$contact,$atom, $dissolve = false) {
+	public static function deliver($owner,$contact,$atom, $dissolve = false) {
 
 		$a = get_app();
 
@@ -2319,7 +2319,7 @@ class dfrn {
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param bool $sort_by_date Is used when feeds are polled
 	 */
-	function import($xml,$importer, $sort_by_date = false) {
+	public static function import($xml,$importer, $sort_by_date = false) {
 
 		if ($xml == "")
 			return;
