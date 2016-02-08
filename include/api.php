@@ -3457,7 +3457,7 @@
 		$nm->setSeen($note);
 		if ($note['otype']=='item') {
 			// would be really better with an ItemsManager and $im->getByID() :-P
-			$r = q("SELECT * FROM item WHERE id=%d AND uid=%d",
+			$r = q("SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d",
 				intval($note['iid']),
 				intval(local_user())
 			);
