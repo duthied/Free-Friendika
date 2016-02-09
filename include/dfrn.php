@@ -1252,8 +1252,10 @@ class dfrn {
 			 // Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
-				if (strtotime($contact[$field]) > strtotime($r[0][$field]))
+				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
+				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
