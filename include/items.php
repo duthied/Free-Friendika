@@ -291,16 +291,6 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 	return $body;
 }
 
-function add_guid($item) {
-	$r = q("SELECT `guid` FROM `guid` WHERE `guid` = '%s' LIMIT 1", dbesc($item["guid"]));
-	if ($r)
-		return;
-
-	q("INSERT INTO `guid` (`guid`,`plink`,`uri`,`network`) VALUES ('%s','%s','%s','%s')",
-		dbesc($item["guid"]), dbesc($item["plink"]),
-		dbesc($item["uri"]), dbesc($item["network"]));
-}
-
 /**
  * Adds a "lang" specification in a "postopts" element of given $arr,
  * if possible and not already present.
@@ -777,9 +767,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		);
 		return 0;
 	} elseif(count($r)) {
-
-		// Store the guid and other relevant data
-		add_guid($arr);
 
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
