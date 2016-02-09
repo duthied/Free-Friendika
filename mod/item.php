@@ -844,9 +844,6 @@ function item_post(&$a) {
 		// NOTREACHED
 	}
 
-	// Store the guid and other relevant data
-	add_guid($datarray);
-
 	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);
 

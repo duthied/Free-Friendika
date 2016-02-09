@@ -748,21 +748,6 @@ function db_definition() {
 					"nurl" => array("nurl"),
 					)
 			);
-	$database["guid"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"plink" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"uri" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"guid" => array("guid"),
-					"plink" => array("plink"),
-					"uri" => array("uri"),
-					)
-			);
 	$database["hook"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
