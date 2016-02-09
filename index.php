@@ -418,15 +418,6 @@ call_hooks('page_end', $a->page['content']);
 
 /**
  *
- * Add a place for the pause/resume Ajax indicator
- *
- */
-
-$a->page['content'] .=  '<div id="pause"></div>';
-
-
-/**
- *
  * Add the navigation (menu) template
  *
  */
