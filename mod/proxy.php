@@ -12,7 +12,6 @@ define("PROXY_SIZE_LARGE", "large");
 require_once('include/security.php');
 require_once("include/Photo.php");
 
-if(! function_exists('proxy_init')) {
 function proxy_init() {
 	global $a, $_SERVER;
 
@@ -233,9 +232,7 @@ function proxy_init() {
 
 	killme();
 }
-}
 
-if(! function_exists('proxy_url')) {
 function proxy_url($url, $writemode = false, $size = "") {
 	global $_SERVER;
 
@@ -297,13 +294,11 @@ function proxy_url($url, $writemode = false, $size = "") {
 	else
 		return ($proxypath.$size);
 }
-}
 
 /**
  * @param $url string
  * @return boolean
  */
-if(! function_exists('proxy_is_local_image')) {
 function proxy_is_local_image($url) {
 	if ($url[0] == '/') return true;
 
@@ -314,9 +309,7 @@ function proxy_is_local_image($url) {
 	$url = normalise_link($url);
 	return (substr($url, 0, strlen($baseurl)) == $baseurl);
 }
-}
 
-if(! function_exists('proxy_parse_query')) {
 function proxy_parse_query($var) {
         /**
          *  Use this function to parse out the query array element from
@@ -335,9 +328,7 @@ function proxy_parse_query($var) {
         unset($val, $x, $var);
         return $arr;
 }
-}
 
-if(! function_exists('proxy_img_cb')) {
 function proxy_img_cb($matches) {
 
 	// if the picture seems to be from another picture cache then take the original source
@@ -351,13 +342,10 @@ function proxy_img_cb($matches) {
 
 	return $matches[1].proxy_url(htmlspecialchars_decode($matches[2])).$matches[3];
 }
-}
 
-if(! function_exists('proxy_parse_html')) {
 function proxy_parse_html($html) {
 	$a = get_app();
 	$html = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $html);
 
 	return preg_replace_callback("/(<img [^>]*src *= *[\"'])([^\"']+)([\"'][^>]*>)/siU", "proxy_img_cb", $html);
-}
 }

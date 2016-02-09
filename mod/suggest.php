@@ -3,7 +3,7 @@
 require_once('include/socgraph.php');
 require_once('include/contact_widgets.php');
 
-if(! function_exists('suggest_init')) {
+
 function suggest_init(&$a) {
 	if(! local_user())
 		return;
@@ -42,13 +42,13 @@ function suggest_init(&$a) {
 			);
 		}
 	}
+
 }
-}
 
 
 
 
-if(! function_exists('suggest_content')) {
+
 function suggest_content(&$a) {
 
 	require_once("mod/proxy.php");
@@ -110,9 +110,8 @@ function suggest_content(&$a) {
 	$o .= replace_macros($tpl,array(
 		'$title' => t('Friend Suggestions'),
 		'$contacts' => $entries,
-
+		
 	));
 
 	return $o;
-}
 }

@@ -1,7 +1,7 @@
 <?php
 
-if(! function_exists('get_theme_config_file')) {
-function get_theme_config_file($theme) {
+
+function get_theme_config_file($theme){
 	$a = get_app();
 	$base_theme = $a->theme_info['extends'];
 
@@ -13,9 +13,7 @@ function get_theme_config_file($theme) {
 	}
 	return null;
 }
-}
 
-if(! function_exists('settings_init')) {
 function settings_init(&$a) {
 
 	if(! local_user()) {
@@ -112,10 +110,10 @@ function settings_init(&$a) {
 		'$class' => 'settings-widget',
 		'$items' => $tabs,
 	));
-}
+
 }
 
-if(! function_exists('settings_post')) {
+
 function settings_post(&$a) {
 
 	if(! local_user())
@@ -632,9 +630,8 @@ function settings_post(&$a) {
 	goaway($a->get_baseurl(true) . '/settings' );
 	return; // NOTREACHED
 }
-}
 
-if(! function_exists('settings_content')) {
+
 function settings_content(&$a) {
 
 	$o = '';
@@ -1298,5 +1295,6 @@ function settings_content(&$a) {
 	$o .= '</form>' . "\r\n";
 
 	return $o;
+
 }
-}
+

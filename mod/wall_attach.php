@@ -3,7 +3,6 @@
 require_once('include/attach.php');
 require_once('include/datetime.php');
 
-if(! function_exists('wall_attach_post')) {
 function wall_attach_post(&$a) {
 
 	$r_json = (x($_GET,'response') && $_GET['response']=='json');
@@ -190,5 +189,4 @@ function wall_attach_post(&$a) {
 
 	killme();
 	// NOTREACHED
-}
 }

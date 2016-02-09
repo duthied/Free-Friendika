@@ -10,7 +10,6 @@ require_once('include/Photo.php');
 /**
  * @param App $a
  */
-if(! function_exists('fbrowser_content')) {
 function fbrowser_content($a){
 
 	if (!local_user())
@@ -142,5 +141,5 @@ function fbrowser_content($a){
 		killme();
 	}
 
-}
+
 }

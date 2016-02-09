@@ -1,8 +1,10 @@
 <?php
+
 require_once('include/api.php');
 
-if(! function_exists('oauth_get_client')) {
 function oauth_get_client($request){
+
+
 	$params = $request->get_parameters();
 	$token = $params['oauth_token'];
 
@@ -17,10 +19,9 @@ function oauth_get_client($request){
 
 	return $r[0];
 }
-}
 
-if(! function_exists('api_post')) {
 function api_post(&$a) {
+
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
@@ -30,10 +31,9 @@ function api_post(&$a) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
-}
+
 }
 
-if(! function_exists('api_content')) {
 function api_content(&$a) {
 	if ($a->cmd=='api/oauth/authorize'){
 		/*
@@ -113,5 +113,4 @@ function api_content(&$a) {
 
 	echo api_call($a);
 	killme();
-}
 }

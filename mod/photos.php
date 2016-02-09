@@ -9,7 +9,6 @@ require_once('include/redir.php');
 require_once('include/tags.php');
 require_once('include/threads.php');
 
-if(! function_exists('photos_init')) {
 function photos_init(&$a) {
 
 	if($a->argc > 1)
@@ -122,9 +121,9 @@ function photos_init(&$a) {
 
 	return;
 }
-}
 
-if(! function_exists('photos_post')) {
+
+
 function photos_post(&$a) {
 
 	logger('mod-photos: photos_post: begin' , LOGGER_DEBUG);
@@ -958,9 +957,9 @@ function photos_post(&$a) {
 	goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
 	// NOTREACHED
 }
-}
 
-if(! function_exists('photos_content')) {
+
+
 function photos_content(&$a) {
 
 	// URLs:
@@ -1329,7 +1328,7 @@ function photos_content(&$a) {
 
 	}
 
-	/**
+	/** 
 	 * Display one photo
 	 */
 
@@ -1862,7 +1861,7 @@ function photos_content(&$a) {
 			//hide profile photos to others
 			if((! $is_owner) && (! remote_user()) && ($rr['album'] == t('Profile Photos')))
 					continue;
-
+			
 			if($twist == 'rotright')
 				$twist = 'rotleft';
 			else
@@ -1907,4 +1906,4 @@ function photos_content(&$a) {
 	$o .= paginate($a);
 	return $o;
 }
-}
+

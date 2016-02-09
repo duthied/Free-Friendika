@@ -2,7 +2,6 @@
 
 require_once('include/bbcode.php');
 
-if(! function_exists('tagrm_post')) {
 function tagrm_post(&$a) {
 
 	if(! local_user())
@@ -41,13 +40,13 @@ function tagrm_post(&$a) {
 
 	info( t('Tag removed') . EOL );
 	goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
-
+	
 	// NOTREACHED
-}
+
 }
 
 
-if(! function_exists('tagrm_content')) {
+
 function tagrm_content(&$a) {
 
 	$o = '';
@@ -96,5 +95,5 @@ function tagrm_content(&$a) {
 	$o .= '</form>';
 
 	return $o;
-}
+	
 }

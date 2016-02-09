@@ -3,7 +3,7 @@ require_once "include/Photo.php";
 
 $install_wizard_pass=1;
 
-if(! function_exists('install_init')) {
+
 function install_init(&$a){
 
 	// $baseurl/install/testrwrite to test if rewite in .htaccess is working
@@ -11,21 +11,20 @@ function install_init(&$a){
 		echo "ok";
 		killme();
 	}
-
+	
 	// We overwrite current theme css, because during install we could not have a working mod_rewrite
 	// so we could not have a css at all. Here we set a static css file for the install procedure pages
 	$a->config['system']['theme'] = "../install";
 	$a->theme['stylesheet'] = $a->get_baseurl()."/view/install/style.css";
-
-
-
+	
+	
+	
 	global $install_wizard_pass;
 	if (x($_POST,'pass'))
 		$install_wizard_pass = intval($_POST['pass']);
-}
+
 }
 
-if(! function_exists('install_post')) {
 function install_post(&$a) {
 	global $install_wizard_pass, $db;
 
@@ -113,18 +112,14 @@ function install_post(&$a) {
 		break;
 	}
 }
-}
 
-if(! function_exists('get_db_errno')) {
 function get_db_errno() {
 	if(class_exists('mysqli'))
 		return mysqli_connect_errno();
 	else
 		return mysql_errno();
 }
-}
 
-if(! function_exists('install_content')) {
 function install_content(&$a) {
 
 	global $install_wizard_pass, $db;
@@ -309,7 +304,6 @@ function install_content(&$a) {
 
 	}
 }
-}
 
 /**
  * checks   : array passed to template
@@ -318,8 +312,7 @@ function install_content(&$a) {
  * required : boolean
  * help		: string optional
  */
-if(! function_exists('check_add')) {
-function check_add(&$checks, $title, $status, $required, $help) {
+function check_add(&$checks, $title, $status, $required, $help){
 	$checks[] = array(
 		'title' => $title,
 		'status' => $status,
@@ -327,9 +320,7 @@ function check_add(&$checks, $title, $status, $required, $help) {
 		'help'	=> $help,
 	);
 }
-}
 
-if(! function_exists('check_php')) {
 function check_php(&$phpath, &$checks) {
 	$passed = $passed2 = $passed3 = false;
 	if (strlen($phpath)){
@@ -379,10 +370,9 @@ function check_php(&$phpath, &$checks) {
 		check_add($checks, t('PHP register_argc_argv'), $passed3, true, $help);
 	}
 
-}
+
 }
 
-if(! function_exists('check_keys')) {
 function check_keys(&$checks) {
 
 	$help = '';
@@ -402,10 +392,10 @@ function check_keys(&$checks) {
 		$help .= t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
 	}
 	check_add($checks, t('Generate encryption keys'), $res, true, $help);
-}
+
 }
 
-if(! function_exists('check_funcs')) {
+
 function check_funcs(&$checks) {
 	$ck_funcs = array();
 	check_add($ck_funcs, t('libCurl PHP module'), true, true, "");
@@ -467,9 +457,8 @@ function check_funcs(&$checks) {
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
 		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
 }
-}
 
-if(! function_exists('check_htconfig')) {
+
 function check_htconfig(&$checks) {
 	$status = true;
 	$help = "";
@@ -484,10 +473,9 @@ function check_htconfig(&$checks) {
 	}
 
 	check_add($checks, t('.htconfig.php is writable'), $status, false, $help);
-}
+
 }
 
-if(! function_exists('check_smarty3')) {
 function check_smarty3(&$checks) {
 	$status = true;
 	$help = "";
@@ -501,10 +489,9 @@ function check_smarty3(&$checks) {
 	}
 
 	check_add($checks, t('view/smarty3 is writable'), $status, true, $help);
-}
+
 }
 
-if(! function_exists('check_htaccess')) {
 function check_htaccess(&$checks) {
 	$a = get_app();
 	$status = true;
@@ -524,9 +511,7 @@ function check_htaccess(&$checks) {
 		// cannot check modrewrite if libcurl is not installed
 	}
 }
-}
 
-if(! function_exists('check_imagik')) {
 function check_imagik(&$checks) {
 	$imagick = false;
 	$gif = false;
@@ -543,18 +528,16 @@ function check_imagik(&$checks) {
 		check_add($checks, t('ImageMagick supports GIF'), $gif, false, "");
 	}
 }
-}
 
-if(! function_exists('manual_config')) {
+
+
 function manual_config(&$a) {
 	$data = htmlentities($a->data['txt'],ENT_COMPAT,'UTF-8');
 	$o = t('The database configuration file ".htconfig.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
 	$o .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
 	return $o;
 }
-}
 
-if(! function_exists('load_database_rem')) {
 function load_database_rem($v, $i){
 	$l = trim($i);
 	if (strlen($l)>1 && ($l[0]=="-" || ($l[0]=="/" && $l[1]=="*"))){
@@ -563,9 +546,8 @@ function load_database_rem($v, $i){
 		return $v."\n".$i;
 	}
 }
-}
 
-if(! function_exists('load_database')) {
+
 function load_database($db) {
 
 	require_once("include/dbstructure.php");
@@ -585,9 +567,7 @@ function load_database($db) {
 
 	return $errors;
 }
-}
 
-if(! function_exists('what_next')) {
 function what_next() {
 	$a = get_app();
 	$baseurl = $a->get_baseurl();
@@ -599,4 +579,5 @@ function what_next() {
 		.t("Go to your new Friendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
 		."</p>";
 }
-}
+
+

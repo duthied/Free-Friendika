@@ -2,8 +2,8 @@
 
 require_once('include/Scrape.php');
 
-if(! function_exists('acctlink_init')) {
 function acctlink_init(&$a) {
+
 	if(x($_GET,'addr')) {
 		$addr = trim($_GET['addr']);
 		$res = probe_url($addr);
@@ -13,5 +13,4 @@ function acctlink_init(&$a) {
 			killme();
 		}
 	}
-}
 }

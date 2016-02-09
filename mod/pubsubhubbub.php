@@ -1,12 +1,9 @@
 <?php
 
-if(! function_exists('post_var')) {
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
 }
-}
 
-if(! function_exists('pubsubhubbub_init')) {
 function pubsubhubbub_init(&$a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
@@ -161,5 +158,5 @@ function pubsubhubbub_init(&$a) {
 
 	killme();
 }
-}
+
 ?>

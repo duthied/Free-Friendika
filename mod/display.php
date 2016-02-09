@@ -1,5 +1,5 @@
 <?php
-if(! function_exists('display_init')) {
+
 function display_init(&$a) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -85,10 +85,9 @@ function display_init(&$a) {
 	}
 
 	profile_load($a, $nick, 0, $profiledata);
-}
+
 }
 
-if(! function_exists('display_fetchauthor')) {
 function display_fetchauthor($a, $item) {
 
 	$profiledata = array();
@@ -221,9 +220,7 @@ function display_fetchauthor($a, $item) {
 
 	return($profiledata);
 }
-}
 
-if(! function_exists('display_content')) {
 function display_content(&$a, $update = 0) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -525,4 +522,4 @@ function display_content(&$a, $update = 0) {
 
 	return $o;
 }
-}
+
