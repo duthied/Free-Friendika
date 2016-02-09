@@ -509,6 +509,16 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['inform']        = ((x($arr,'inform'))        ? trim($arr['inform'])                : '');
 	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
+
+	if (($arr['author-link'] == "") AND ($arr['owner-link'] == "")) {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+		foreach ($trace AS $func)
+		        $function[] = $func["function"];
+
+		$function = implode(", ", $function);
+		logger("Both author-link and owner-link are empty. Called by: ".$function, LOGGER_DEBUG);
+	}
+
 	if ($arr['plink'] == "") {
 		$a = get_app();
 		$arr['plink'] = $a->get_baseurl().'/display/'.urlencode($arr['guid']);
