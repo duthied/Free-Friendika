@@ -634,13 +634,20 @@ class dfrn {
 
 					$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
 
-					$data = parse_xml_string($r->link, false);
-					foreach ($data->attributes() AS $parameter => $value)
-						$attributes[$parameter] = $value;
-				} else
+					// XML does need a single element as root element so we add a dummy element here
+					$data = parse_xml_string("<dummy>".$r->link."</dummy>", false);
+					if (is_object($data)) {
+						foreach ($data->link AS $link) {
+							$attributes = array();
+							foreach ($link->attributes() AS $parameter => $value)
+								$attributes[$parameter] = $value;
+							xml_add_element($doc, $entry, "link", "", $attributes);
+						}
+					}
+				} else {
 					$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $r->link);
-
-				xml_add_element($doc, $entry, "link", "", $attributes);
+					xml_add_element($doc, $entry, "link", "", $attributes);
+				}
 			}
 			if($r->content)
 				xml_add_element($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
@@ -1311,9 +1318,10 @@ class dfrn {
 		if (is_object($title))
 			$obj_element->appendChild($obj_doc->importNode($title, true));
 
-		$link = $xpath->query("atom:link", $activity)->item(0);
-		if (is_object($link))
-			$obj_element->appendChild($obj_doc->importNode($link, true));
+		$links = $xpath->query("atom:link", $activity);
+		if (is_object($links))
+			foreach ($links AS $link)
+				$obj_element->appendChild($obj_doc->importNode($link, true));
 
 		$content = $xpath->query("atom:content", $activity)->item(0);
 		if (is_object($content))

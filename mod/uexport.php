@@ -1,7 +1,6 @@
 <?php
 
-if(! function_exists('uexport_init')) {
-function uexport_init(&$a) {
+function uexport_init(&$a){
 	if(! local_user())
 		killme();
 
@@ -56,10 +55,8 @@ function uexport_init(&$a) {
 	));
 */
 }
-}
 
-if(! function_exists('uexport_content')) {
-function uexport_content(&$a) {
+function uexport_content(&$a){
 
     if ($a->argc > 1) {
         header("Content-type: application/json");
@@ -89,10 +86,9 @@ function uexport_content(&$a) {
         '$options' => $options
     ));
 
-}
+
 }
 
-if(! function_exists('_uexport_multirow')) {
 function _uexport_multirow($query) {
 	$result = array();
 	$r = q($query);
@@ -107,9 +103,7 @@ function _uexport_multirow($query) {
 	}
     return $result;
 }
-}
 
-if(! function_exists('_uexport_row')) {
 function _uexport_row($query) {
 	$result = array();
 	$r = q($query);
@@ -121,10 +115,9 @@ function _uexport_row($query) {
 	}
     return $result;
 }
-}
 
-if(! function_exists('uexport_account')) {
-function uexport_account($a) {
+
+function uexport_account($a){
 
 	$user = _uexport_row(
         sprintf( "SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()) )
@@ -160,9 +153,9 @@ function uexport_account($a) {
         'version' => FRIENDICA_VERSION,
         'schema' => DB_UPDATE_VERSION,
         'baseurl' => $a->get_baseurl(),
-        'user' => $user,
-        'contact' => $contact,
-        'profile' => $profile,
+        'user' => $user, 
+        'contact' => $contact, 
+        'profile' => $profile, 
         'photo' => $photo,
         'pconfig' => $pconfig,
         'group' => $group,
@@ -171,15 +164,14 @@ function uexport_account($a) {
 
     //echo "<pre>"; var_dump(json_encode($output)); killme();
 	echo json_encode($output);
-}
+
 }
 
 /**
  * echoes account data and items as separated json, one per line
  */
-if(! function_exists('uexport_all')) {
 function uexport_all(&$a) {
-
+    
     uexport_account($a);
 	echo "\n";
 
@@ -207,5 +199,5 @@ function uexport_all(&$a) {
 		$output = array('item' => $r);
 		echo json_encode($output)."\n";
 	}
-}
+
 }

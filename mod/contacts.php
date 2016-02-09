@@ -7,7 +7,6 @@ require_once('include/Scrape.php');
 require_once('mod/proxy.php');
 require_once('include/Photo.php');
 
-if(! function_exists('contacts_init')) {
 function contacts_init(&$a) {
 	if(! local_user())
 		return;
@@ -39,7 +38,7 @@ function contacts_init(&$a) {
 
 			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
 				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
-			} else
+			} else 
 				$networkname = '';
 
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
@@ -89,10 +88,9 @@ function contacts_init(&$a) {
 		'$base' => $base
 	));
 
-}
+
 }
 
-if(! function_exists('contacts_batch_actions')) {
 function contacts_batch_actions(&$a){
 	$contacts_id = $_POST['contact_batch'];
 	if (!is_array($contacts_id)) return;
@@ -134,10 +132,10 @@ function contacts_batch_actions(&$a){
 		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
 	else
 		goaway($a->get_baseurl(true) . '/contacts');
-}
+
 }
 
-if(! function_exists('contacts_post')) {
+
 function contacts_post(&$a) {
 
 	if(! local_user())
@@ -217,11 +215,10 @@ function contacts_post(&$a) {
 		$a->data['contact'] = $r[0];
 
 	return;
-}
+
 }
 
 /*contact actions*/
-if(! function_exists('_contact_update')) {
 function _contact_update($contact_id) {
 	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
 	if (!$r)
@@ -242,9 +239,7 @@ function _contact_update($contact_id) {
 		// pull feed and consume it, which should subscribe to the hub.
 		proc_run('php',"include/onepoll.php","$contact_id", "force");
 }
-}
 
-if(! function_exists('_contact_update_profile')) {
 function _contact_update_profile($contact_id) {
 	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
 	if (!$r)
@@ -304,9 +299,7 @@ function _contact_update_profile($contact_id) {
 	// Update the entry in the gcontact table
 	update_gcontact_from_probe($data["url"]);
 }
-}
 
-if(! function_exists('_contact_block')) {
 function _contact_block($contact_id, $orig_record) {
 	$blocked = (($orig_record['blocked']) ? 0 : 1);
 	$r = q("UPDATE `contact` SET `blocked` = %d WHERE `id` = %d AND `uid` = %d",
@@ -315,10 +308,8 @@ function _contact_block($contact_id, $orig_record) {
 		intval(local_user())
 	);
 	return $r;
-}
-}
 
-if(! function_exists('_contact_ignore')) {
+}
 function _contact_ignore($contact_id, $orig_record) {
 	$readonly = (($orig_record['readonly']) ? 0 : 1);
 	$r = q("UPDATE `contact` SET `readonly` = %d WHERE `id` = %d AND `uid` = %d",
@@ -328,9 +319,6 @@ function _contact_ignore($contact_id, $orig_record) {
 	);
 	return $r;
 }
-}
-
-if(! function_exists('_contact_archive')) {
 function _contact_archive($contact_id, $orig_record) {
 	$archived = (($orig_record['archive']) ? 0 : 1);
 	$r = q("UPDATE `contact` SET `archive` = %d WHERE `id` = %d AND `uid` = %d",
@@ -343,18 +331,14 @@ function _contact_archive($contact_id, $orig_record) {
 	}
 	return $r;
 }
-}
-
-if(! function_exists('_contact_drop')) {
 function _contact_drop($contact_id, $orig_record) {
 	$a = get_app();
 
 	terminate_friendship($a->user,$a->contact,$orig_record);
 	contact_remove($orig_record['id']);
 }
-}
 
-if(! function_exists('contacts_content')) {
+
 function contacts_content(&$a) {
 
 	$sort_type = 0;
@@ -822,7 +806,6 @@ function contacts_content(&$a) {
 
 	return $o;
 }
-}
 
 /**
  * @brief List of pages for the Contact TabBar
@@ -882,7 +865,6 @@ function contacts_tab($a, $contact_id, $active_tab) {
 	return $tab_str;
 }
 
-if(! function_exists('contact_posts')) {
 function contact_posts($a, $contact_id) {
 
 	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
@@ -910,9 +892,7 @@ function contact_posts($a, $contact_id) {
 
 	return $o;
 }
-}
 
-if(! function_exists('_contact_detail_for_template')) {
 function _contact_detail_for_template($rr){
 
 	$community = '';
@@ -963,7 +943,7 @@ function _contact_detail_for_template($rr){
 		'url' => $url,
 		'network' => network_to_name($rr['network'], $rr['url']),
 	);
-}
+
 }
 
 /**

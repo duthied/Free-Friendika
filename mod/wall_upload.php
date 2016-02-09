@@ -2,7 +2,6 @@
 
 require_once('include/Photo.php');
 
-if(! function_exists('wall_upload_post')) {
 function wall_upload_post(&$a, $desktopmode = true) {
 
 	logger("wall upload: starting new upload", LOGGER_DEBUG);
@@ -297,5 +296,4 @@ function wall_upload_post(&$a, $desktopmode = true) {
 
 	killme();
 	// NOTREACHED
-}
 }

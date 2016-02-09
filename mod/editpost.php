@@ -2,7 +2,6 @@
 
 require_once('include/acl_selectors.php');
 
-if(! function_exists('editpost_content')) {
 function editpost_content(&$a) {
 
 	$o = '';
@@ -151,5 +150,7 @@ function editpost_content(&$a) {
 	));
 
 	return $o;
+
 }
-}
+
+

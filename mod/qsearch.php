@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('qsearch_init')) {
 function qsearch_init(&$a) {
 
 	if(! local_user())
@@ -48,4 +47,4 @@ function qsearch_init(&$a) {
 	echo json_encode((object) $results);
 	killme();
 }
-}
+

@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('redir_init')) {
 function redir_init(&$a) {
 
 	$url = ((x($_GET,'url')) ? $_GET['url'] : '');
@@ -58,9 +57,9 @@ function redir_init(&$a) {
 			intval(time() + 45)
 		);
 
-		logger('mod_redir: ' . $r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
+		logger('mod_redir: ' . $r[0]['name'] . ' ' . $sec, LOGGER_DEBUG); 
 		$dest = (($url) ? '&destination_url=' . $url : '');
-		goaway ($r[0]['poll'] . '?dfrn_id=' . $dfrn_id
+		goaway ($r[0]['poll'] . '?dfrn_id=' . $dfrn_id 
 			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet );
 	}
 
@@ -75,5 +74,4 @@ function redir_init(&$a) {
 	}
 
 	goaway(z_root());
-}
 }

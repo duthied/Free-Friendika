@@ -2,7 +2,7 @@
 
 require_once('include/datetime.php');
 
-if(! function_exists('localtime_post')) {
+
 function localtime_post(&$a) {
 
 	$t = $_REQUEST['time'];
@@ -13,10 +13,9 @@ function localtime_post(&$a) {
 
 	if($_POST['timezone'])
 		$a->data['mod-localtime'] = datetime_convert('UTC',$_POST['timezone'],$t,$bd_format);
-}
+
 }
 
-if(! function_exists('localtime_content')) {
 function localtime_content(&$a) {
 	$t = $_REQUEST['time'];
 	if(! $t)
@@ -39,12 +38,12 @@ function localtime_content(&$a) {
 
 	$o .= '<form action ="' . $a->get_baseurl() . '/localtime?f=&time=' . $t . '" method="post" >';
 
-	$o .= '<p>' . t('Please select your timezone:') . '</p>';
+	$o .= '<p>' . t('Please select your timezone:') . '</p>'; 
 
 	$o .= select_timezone(($_REQUEST['timezone']) ? $_REQUEST['timezone'] : 'America/Los_Angeles');
 
 	$o .= '<input type="submit" name="submit" value="' . t('Submit') . '" /></form>';
 
 	return $o;
-}
+
 }

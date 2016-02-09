@@ -1,6 +1,5 @@
 <?php
 
-if(! function_exists('notes_init')) {
 function notes_init(&$a) {
 
 	if(! local_user())
@@ -13,10 +12,10 @@ function notes_init(&$a) {
 	nav_set_selected('home');
 
 //	profile_load($a,$which,$profile);
-}
+
 }
 
-if(! function_exists('notes_content')) {
+
 function notes_content(&$a,$update = false) {
 
 	if(! local_user()) {
@@ -70,12 +69,12 @@ function notes_content(&$a,$update = false) {
 	// Construct permissions
 
 	// default permissions - anonymous user
-
+	
 	$sql_extra = " AND `allow_cid` = '<" . $a->contact['id'] . ">' ";
 
 	$r = q("SELECT COUNT(*) AS `total`
 		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0
+		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 
 		AND `item`.`deleted` = 0 AND `item`.`type` = 'note'
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
 		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
@@ -91,7 +90,7 @@ function notes_content(&$a,$update = false) {
 
 	$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact-uid`
 		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
+		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0 
 		and `item`.`moderated` = 0 AND `item`.`type` = 'note'
 		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
 		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
@@ -110,10 +109,10 @@ function notes_content(&$a,$update = false) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
-
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`,
-			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
+ 
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
+			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`, 
+			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
@@ -135,5 +134,4 @@ function notes_content(&$a,$update = false) {
 
 	$o .= paginate($a);
 	return $o;
-}
 }

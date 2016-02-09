@@ -1,8 +1,7 @@
 <?php
 require_once("include/oembed.php");
 
-if(! function_exists('oembed_content')) {
-function oembed_content(&$a) {
+function oembed_content(&$a){
 	// logger('mod_oembed ' . $a->query_string, LOGGER_ALL);
 
 	if ($a->argv[1]=='b2h'){
@@ -33,5 +32,4 @@ function oembed_content(&$a) {
 		echo "</body></html>";
 	}
 	killme();
-}
 }

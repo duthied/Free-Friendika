@@ -5,7 +5,6 @@ require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
 
-if(! function_exists('events_post')) {
 function events_post(&$a) {
 
 	logger('post: ' . print_r($_REQUEST,true));
@@ -157,9 +156,9 @@ function events_post(&$a) {
 
 	goaway($_SESSION['return_url']);
 }
-}
 
-if(! function_exists('events_content')) {
+
+
 function events_content(&$a) {
 
 	if(! local_user()) {
@@ -578,5 +577,4 @@ function events_content(&$a) {
 
 		return $o;
 	}
-}
 }

@@ -2,7 +2,6 @@
 
 require_once("include/nav.php");
 
-if(! function_exists('navigation_content')) {
 function navigation_content(&$a) {
 
 	$nav_info = nav_info($a);
@@ -23,5 +22,5 @@ function navigation_content(&$a) {
 		'$apps' => $a->apps,
 		'$clear_notifs' => t('Clear notifications')
 	));
-}
+
 }

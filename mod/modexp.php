@@ -2,7 +2,6 @@
 
 require_once('library/asn1.php');
 
-if(! function_exists('modexp_init')) {
 function modexp_init(&$a) {
 
 	if($a->argc != 2)
@@ -30,5 +29,6 @@ function modexp_init(&$a) {
 	echo 'RSA' . '.' . $m . '.' . $e ;
 
 	killme();
+
 }
-}
+

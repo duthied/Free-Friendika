@@ -5,7 +5,6 @@
  * addons repository will be listed though ATM)
  */
 
-if(! function_exists('credits_content')) {
 function credits_content (&$a) {
     /* fill the page with credits */
     $f = fopen('util/credits.txt','r');
@@ -18,5 +17,4 @@ function credits_content (&$a) {
        '$thanks'		=> t('Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'),
        '$names'         => $arr,
     ));
-}
 }

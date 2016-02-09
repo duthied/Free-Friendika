@@ -59,19 +59,7 @@ The same rule applies to the JavaScript files found in
 
 they will be overwritten by files in
 
-    /view/theme/**your-theme-name**/js
-
-### Modules
-
-You have the freedom to override core modules found in
-
-    /mod
-
-They will be overwritten by files in
-
-    /view/theme/**your-theme-name**/mod
-
-Be aware that you can break things easily here if you don't know what you do. Also notice that you can override parts of the module – functions not defined in your theme module will be loaded from the core module.
+    /view/theme/**your-theme-name**/js.
 
 ## Expand an existing Theme
 

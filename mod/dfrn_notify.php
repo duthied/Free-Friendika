@@ -6,7 +6,6 @@ require_once('include/event.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
-if(! function_exists('dfrn_notify_post')) {
 function dfrn_notify_post(&$a) {
     logger(__function__, LOGGER_TRACE);
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? notags(trim($_POST['dfrn_id']))   : '');
@@ -215,9 +214,8 @@ function dfrn_notify_post(&$a) {
 
 	// NOTREACHED
 }
-}
 
-if(! function_exists('dfrn_notify_content')) {
+
 function dfrn_notify_content(&$a) {
 
 	if(x($_GET,'dfrn_id')) {
@@ -341,5 +339,5 @@ function dfrn_notify_content(&$a) {
 
 		killme();
 	}
-}
+
 }
