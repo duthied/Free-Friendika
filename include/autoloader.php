@@ -1,5 +1,11 @@
 <?php
+/**
+ * @file include/autoloader.php
+ */
 
+/**
+ * @brief composer-derived autoloader init
+ **/
 class FriendicaAutoloaderInit
 {
     private static $loader;
