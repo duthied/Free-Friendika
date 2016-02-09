@@ -9,7 +9,6 @@
 
 require_once('mod/notes.php');
 
-if(! function_exists('update_notes_content')) {
 function update_notes_content(&$a) {
 
 	$profile_uid = intval($_GET['p']);
@@ -21,8 +20,8 @@ function update_notes_content(&$a) {
 
 	/**
 	 *
-	 * Grab the page inner contents by calling the content function from the profile module directly,
-	 * but move any image src attributes to another attribute name. This is because
+	 * Grab the page inner contents by calling the content function from the profile module directly, 
+	 * but move any image src attributes to another attribute name. This is because 
 	 * some browsers will prefetch all the images for the page even if we don't need them.
 	 * The only ones we need to fetch are those for new page additions, which we'll discover
 	 * on the client side and then swap the image back.
@@ -53,5 +52,5 @@ function update_notes_content(&$a) {
 	echo "</section>";
 	echo "</body></html>\r\n";
 	killme();
-}
+
 }

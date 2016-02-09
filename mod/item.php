@@ -25,7 +25,6 @@ require_once('include/text.php');
 require_once('include/items.php');
 require_once('include/Scrape.php');
 
-if(! function_exists('item_post')) {
 function item_post(&$a) {
 
 	if((! local_user()) && (! remote_user()) && (! x($_REQUEST,'commenter')))
@@ -845,9 +844,6 @@ function item_post(&$a) {
 		// NOTREACHED
 	}
 
-	// Store the guid and other relevant data
-	add_guid($datarray);
-
 	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);
 
@@ -1018,9 +1014,7 @@ function item_post(&$a) {
 	item_post_return($a->get_baseurl(), $api_source, $return_path);
 	// NOTREACHED
 }
-}
 
-if(! function_exists('item_post_return')) {
 function item_post_return($baseurl, $api_source, $return_path) {
 	// figure out how to return, depending on from whence we came
 
@@ -1040,9 +1034,9 @@ function item_post_return($baseurl, $api_source, $return_path) {
 	echo json_encode($json);
 	killme();
 }
-}
 
-if(! function_exists('item_content')) {
+
+
 function item_content(&$a) {
 
 	if((! local_user()) && (! remote_user()))
@@ -1061,7 +1055,6 @@ function item_content(&$a) {
 	}
 	return $o;
 }
-}
 
 /**
  * This function removes the tag $tag from the text $body and replaces it with
@@ -1075,7 +1068,6 @@ function item_content(&$a) {
  *
  * @return boolean true if replaced, false if not replaced
  */
-if(! function_exists('handle_tag')) {
 function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
 	require_once("include/Scrape.php");
 	require_once("include/socgraph.php");
@@ -1250,9 +1242,8 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 
 	return array('replaced' => $replaced, 'contact' => $r[0]);
 }
-}
 
-if(! function_exists('store_diaspora_comment_sig')) {
+
 function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, $post_id) {
 	// We won't be able to sign Diaspora comments for authenticated visitors - we don't have their private key
 
@@ -1289,5 +1280,4 @@ function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, 
 	);
 
 	return;
-}
 }

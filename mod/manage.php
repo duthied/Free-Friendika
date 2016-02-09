@@ -2,7 +2,7 @@
 
 require_once("include/text.php");
 
-if(! function_exists('manage_post')) {
+
 function manage_post(&$a) {
 
 	if(! local_user())
@@ -87,9 +87,9 @@ function manage_post(&$a) {
 	goaway( $a->get_baseurl() . "/profile/" . $a->user['nickname'] );
 	// NOTREACHED
 }
-}
 
-if(! function_exists('manage_content')) {
+
+
 function manage_content(&$a) {
 
 	if(! local_user()) {
@@ -144,5 +144,5 @@ function manage_content(&$a) {
 	));
 
 	return $o;
-}
+
 }

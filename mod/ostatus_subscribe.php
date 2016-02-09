@@ -3,7 +3,6 @@
 require_once('include/Scrape.php');
 require_once('include/follow.php');
 
-if(! function_exists('ostatus_subscribe_content')) {
 function ostatus_subscribe_content(&$a) {
 
 	if(! local_user()) {
@@ -76,5 +75,4 @@ function ostatus_subscribe_content(&$a) {
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?counter='.$counter.'">';
 
 	return $o;
-}
 }

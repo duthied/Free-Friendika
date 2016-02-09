@@ -1,8 +1,9 @@
 <?php
 
+
 require_once('library/openid.php');
 
-if(! function_exists('openid_content')) {
+
 function openid_content(&$a) {
 
 	$noid = get_config('system','no_openid');
@@ -24,8 +25,8 @@ function openid_content(&$a) {
 				goaway(z_root());
 			}
 
-			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-				FROM `user` WHERE `openid` = '%s' AND `blocked` = 0
+			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey` 
+				FROM `user` WHERE `openid` = '%s' AND `blocked` = 0 
 				AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
 				dbesc($authid)
 			);
@@ -39,7 +40,7 @@ function openid_content(&$a) {
 				require_once('include/security.php');
 				authenticate_success($r[0],true,true);
 
-				// just in case there was no return url set
+				// just in case there was no return url set 
 				// and we fell through
 
 				goaway(z_root());
@@ -92,5 +93,4 @@ function openid_content(&$a) {
 	notice( t('Login failed.') . EOL);
 	goaway(z_root());
 	// NOTREACHED
-}
 }

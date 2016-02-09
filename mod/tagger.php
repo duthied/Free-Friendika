@@ -4,7 +4,7 @@ require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
 
-if(! function_exists('tagger_content')) {
+
 function tagger_content(&$a) {
 
 	if(! local_user() && ! remote_user()) {
@@ -95,7 +95,7 @@ EOT;
 	$bodyverb = t('%1$s tagged %2$s\'s %3$s with %4$s');
 
 	if(! isset($bodyverb))
-			return;
+			return; 
 
 	$termlink = html_entity_decode('&#x2317;') . '[url=' . $a->get_baseurl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
 
@@ -115,7 +115,7 @@ EOT;
 	$arr['author-name'] = $contact['name'];
 	$arr['author-link'] = $contact['url'];
 	$arr['author-avatar'] = $contact['thumb'];
-
+	
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 	$plink = '[url=' . $item['plink'] . ']' . $post_type . '[/url]';
@@ -216,5 +216,5 @@ EOT;
 
 	return; // NOTREACHED
 
-}
+
 }

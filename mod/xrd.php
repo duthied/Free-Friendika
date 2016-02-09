@@ -2,7 +2,6 @@
 
 require_once('include/crypto.php');
 
-if(! function_exists('xrd_init')) {
 function xrd_init(&$a) {
 
 	$uri = urldecode(notags(trim($_GET['uri'])));
@@ -78,5 +77,5 @@ function xrd_init(&$a) {
 
 	echo $arr['xml'];
 	killme();
-}
+
 }

@@ -1,9 +1,9 @@
 <?php
 require_once('include/NotificationsManager.php');
-if(! function_exists('notify_init')) {
+
+
 function notify_init(&$a) {
 	if(! local_user()) return;
-
 	$nm = new NotificationsManager();
 		
 	if($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
@@ -33,10 +33,9 @@ function notify_init(&$a) {
 		echo $j;
 		killme();
 	}
-}
+
 }
 
-if(! function_exists('notify_content')) {
 function notify_content(&$a) {
 	if(! local_user()) return login();
 
@@ -69,6 +68,5 @@ function notify_content(&$a) {
 
 	return $o;
 
-}
-}
 
+}

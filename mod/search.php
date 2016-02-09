@@ -4,7 +4,6 @@ require_once('include/security.php');
 require_once('include/conversation.php');
 require_once('mod/dirfind.php');
 
-if(! function_exists('search_saved_searches')) {
 function search_saved_searches() {
 
 	$o = '';
@@ -40,10 +39,10 @@ function search_saved_searches() {
 	}
 
 	return $o;
-}
+
 }
 
-if(! function_exists('search_init')) {
+
 function search_init(&$a) {
 
 	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
@@ -77,18 +76,17 @@ function search_init(&$a) {
 	}
 
 
-}
+
 }
 
 
-if(! function_exists('search_post')) {
+
 function search_post(&$a) {
 	if(x($_POST,'search'))
 		$a->data['search'] = $_POST['search'];
 }
-}
 
-if(! function_exists('search_content')) {
+
 function search_content(&$a) {
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -250,4 +248,4 @@ function search_content(&$a) {
 
 	return $o;
 }
-}
+

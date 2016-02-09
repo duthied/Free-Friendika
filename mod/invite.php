@@ -9,7 +9,6 @@
 
 require_once('include/email.php');
 
-if(! function_exists('invite_post')) {
 function invite_post(&$a) {
 
 	if(! local_user()) {
@@ -50,7 +49,7 @@ function invite_post(&$a) {
 			notice(  sprintf( t('%s : Not a valid email address.'), $recip) . EOL);
 			continue;
 		}
-
+		
 		if($invonly && ($x || is_site_admin())) {
 			$code = autoname(8) . srand(1000,9999);
 			$nmessage = str_replace('$invite_code',$code,$message);
@@ -71,8 +70,8 @@ function invite_post(&$a) {
 		else
 			$nmessage = $message;
 
-		$res = mail($recip, email_header_encode( t('Please join us on Friendica'),'UTF-8'),
-			$nmessage,
+		$res = mail($recip, email_header_encode( t('Please join us on Friendica'),'UTF-8'), 
+			$nmessage, 
 			"From: " . $a->user['email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
 			. 'Content-transfer-encoding: 8bit' );
@@ -94,9 +93,8 @@ function invite_post(&$a) {
 	notice( sprintf( tt("%d message sent.", "%d messages sent.", $total) , $total) . EOL);
 	return;
 }
-}
 
-if(! function_exists('invite_content')) {
+
 function invite_content(&$a) {
 
 	if(! local_user()) {
@@ -136,12 +134,11 @@ function invite_content(&$a) {
 		'$msg_text' => t('Your message:'),
 		'$default_message' => t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"
 			. $linktxt
-			. "\r\n" . "\r\n" . (($invonly) ? t('You will need to supply this invitation code: $invite_code') . "\r\n" . "\r\n" : '') .t('Once you have registered, please connect with me via my profile page at:')
+			. "\r\n" . "\r\n" . (($invonly) ? t('You will need to supply this invitation code: $invite_code') . "\r\n" . "\r\n" : '') .t('Once you have registered, please connect with me via my profile page at:') 
 			. "\r\n" . "\r\n" . $a->get_baseurl() . '/profile/' . $a->user['nickname']
 			. "\r\n" . "\r\n" . t('For more information about the Friendica project and why we feel it is important, please visit http://friendica.com') . "\r\n" . "\r\n"  ,
 		'$submit' => t('Submit')
 	));
 
 	return $o;
-}
 }

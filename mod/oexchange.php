@@ -1,6 +1,6 @@
 <?php
 
-if(! function_exists('oexchange_init')) {
+
 function oexchange_init(&$a) {
 
 	if(($a->argc > 1) && ($a->argv[1] === 'xrd')) {
@@ -11,10 +11,9 @@ function oexchange_init(&$a) {
 		killme();
 	}
 
-}
+
 }
 
-if(! function_exists('oexchange_content')) {
 function oexchange_content(&$a) {
 
 	if(! local_user()) {
@@ -27,13 +26,13 @@ function oexchange_content(&$a) {
 		return;
 	}
 
-	$url = (((x($_REQUEST,'url')) && strlen($_REQUEST['url']))
+	$url = (((x($_REQUEST,'url')) && strlen($_REQUEST['url'])) 
 		? urlencode(notags(trim($_REQUEST['url']))) : '');
-	$title = (((x($_REQUEST,'title')) && strlen($_REQUEST['title']))
+	$title = (((x($_REQUEST,'title')) && strlen($_REQUEST['title'])) 
 		? '&title=' . urlencode(notags(trim($_REQUEST['title']))) : '');
-	$description = (((x($_REQUEST,'description')) && strlen($_REQUEST['description']))
+	$description = (((x($_REQUEST,'description')) && strlen($_REQUEST['description'])) 
 		? '&description=' . urlencode(notags(trim($_REQUEST['description']))) : '');
-	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags']))
+	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags'])) 
 		? '&tags=' . urlencode(notags(trim($_REQUEST['tags']))) : '');
 
 	$s = fetch_url($a->get_baseurl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
@@ -53,5 +52,7 @@ function oexchange_content(&$a) {
 	$_REQUEST = $post;
 	require_once('mod/item.php');
 	item_post($a);
+
 }
-}
+
+

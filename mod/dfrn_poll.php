@@ -3,7 +3,7 @@ require_once('include/items.php');
 require_once('include/auth.php');
 require_once('include/dfrn.php');
 
-if(! function_exists('dfrn_poll_init')) {
+
 function dfrn_poll_init(&$a) {
 
 
@@ -160,7 +160,7 @@ function dfrn_poll_init(&$a) {
 
 			if($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
-				// did not decode properly - cannot trust this site
+				// did not decode properly - cannot trust this site 
 				xml_status(3, 'Bad decryption');
 			}
 
@@ -195,11 +195,11 @@ function dfrn_poll_init(&$a) {
 			return; // NOTREACHED
 		}
 	}
-}
+
 }
 
 
-if(! function_exists('dfrn_poll_post')) {
+
 function dfrn_poll_post(&$a) {
 
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? $_POST['dfrn_id']              : '');
@@ -257,7 +257,7 @@ function dfrn_poll_post(&$a) {
 
 			if($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
-				// did not decode properly - cannot trust this site
+				// did not decode properly - cannot trust this site 
 				xml_status(3, 'Bad decryption');
 			}
 
@@ -377,9 +377,7 @@ function dfrn_poll_post(&$a) {
 
 	}
 }
-}
 
-if(! function_exists('dfrn_poll_content')) {
 function dfrn_poll_content(&$a) {
 
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
@@ -563,5 +561,4 @@ function dfrn_poll_content(&$a) {
 			// NOTREACHED
 		}
 	}
-}
 }

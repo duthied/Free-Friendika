@@ -3,7 +3,6 @@
 require_once('include/acl_selectors.php');
 require_once('include/message.php');
 
-if(! function_exists('message_init')) {
 function message_init(&$a) {
 
 	$tabs = '';
@@ -37,10 +36,9 @@ function message_init(&$a) {
 		'$baseurl' => $a->get_baseurl(true),
 		'$base' => $base
 	));
-}
+
 }
 
-if(! function_exists('message_post')) {
 function message_post(&$a) {
 
 	if(! local_user()) {
@@ -93,7 +91,7 @@ function message_post(&$a) {
 	}
 	else
 		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
-}
+
 }
 
 // Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
@@ -173,7 +171,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 }}
 
 
-if(! function_exists('message_content')) {
+
 function message_content(&$a) {
 
 	$o = '';
@@ -532,9 +530,7 @@ function message_content(&$a) {
 		return $o;
 	}
 }
-}
 
-if(! function_exists('get_messages')) {
 function get_messages($user, $lstart, $lend) {
 
 	return q("SELECT max(`mail`.`created`) AS `mailcreated`, min(`mail`.`seen`) AS `mailseen`,
@@ -545,9 +541,7 @@ function get_messages($user, $lstart, $lend) {
 		intval($user), intval($lstart), intval($lend)
 	);
 }
-}
 
-if(! function_exists('render_messages')) {
 function render_messages($msg, $t) {
 
 	$a = get_app();
@@ -598,5 +592,4 @@ function render_messages($msg, $t) {
 	}
 
 	return $rslt;
-}
 }

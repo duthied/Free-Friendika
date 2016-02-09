@@ -4,7 +4,6 @@ require_once('include/Contact.php');
 require_once('include/socgraph.php');
 require_once('include/contact_selectors.php');
 
-if(! function_exists('nogroup_init')) {
 function nogroup_init(&$a) {
 
 	if(! local_user())
@@ -18,9 +17,8 @@ function nogroup_init(&$a) {
 
 	$a->page['aside'] .= group_side('contacts','group','extended',0,$contact_id);
 }
-}
 
-if(! function_exists('nogroup_content')) {
+
 function nogroup_content(&$a) {
 
 	if(! local_user()) {
@@ -68,5 +66,5 @@ function nogroup_content(&$a) {
 	));
 
 	return $o;
-}
+
 }
