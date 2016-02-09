@@ -26,6 +26,9 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
+	if (poller_max_connections_reached())
+		return;
+
 	$load = current_load();
 	if($load) {
 		$maxsysload = intval(get_config('system','maxloadavg'));
@@ -114,6 +117,40 @@ function poller_run(&$argv, &$argc){
 		if (time() > ($starttime + 3600))
 			return;
 	}
+
+}
+
+/**
+ * @brief Checks if the number of database connections has reached a critical limit.
+ *
+ * @return bool Are more than 3/4 of the maximum connections used?
+ */
+function poller_max_connections_reached() {
+	$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
+	if (!$r)
+		return false;
+
+	$max = intval($r[0]["Value"]);
+	if ($max == 0)
+		return false;
+
+	$r = q("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
+	if (!$r)
+		return false;
+
+	$connected = intval($r[0]["Value"]);
+	if ($connected == 0)
+		return false;
+
+	$level = $connected / $max;
+
+	logger("Connection usage: ".$connected."/".$max, LOGGER_DEBUG);
+
+	if ($level < (3/4))
+		return false;
+
+	logger("Maximum level (3/4) of connections reached: ".$connected."/".$max);
+	return true;
 
 }
 
