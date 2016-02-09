@@ -18,7 +18,6 @@ require_once("include/event.php");
 require_once("include/text.php");
 require_once("include/oembed.php");
 require_once("include/html2bbcode.php");
-require_once("library/HTMLPurifier.auto.php");
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
