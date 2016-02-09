@@ -19,7 +19,9 @@
 
 	<aside><?php if(x($page,'aside')) echo $page['aside']; ?></aside>
 
-	<section><?php if(x($page,'content')) echo $page['content']; ?>
+	<section>
+		<?php if(x($page,'content')) echo $page['content']; ?>
+		<div id="pause"></div> <!-- The pause/resume Ajax indicator -->
 		<div id="page-footer"></div>
 	</section>
 
@@ -41,4 +43,3 @@
 	<?php if (x($page, 'bottom')) echo $page['bottom']; ?>
 </body>
 </html>
-
