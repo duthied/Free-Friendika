@@ -130,9 +130,14 @@ function poller_max_connections_reached() {
 	if (!$r)
 		return false;
 
-	$max = intval($r[0]["Value"]);
-	if ($max == 0)
-		return false;
+	// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
+	$max = get_config("system", "max_connections");
+
+	if ($max == 0) {
+		$max = intval($r[0]["Value"]);
+		if ($max == 0)
+			return false;
+	}
 
 	$r = q("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
 	if (!$r)
