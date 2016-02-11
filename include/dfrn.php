@@ -2053,10 +2053,10 @@ class dfrn {
 			if (($item["network"] != $author["network"]) AND ($author["network"] != ""))
 				$item["network"] = $author["network"];
 
-			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
-				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-				return;
-			}
+			//if($importer["rel"] == CONTACT_IS_FOLLOWER) {
+			//	logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
+			//	return;
+			//}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
