@@ -2,6 +2,7 @@
 /**
  * @file include/NotificationsManager.php
  */
+require_once('include/html2plain.php');
 require_once("include/datetime.php");
 require_once("include/bbcode.php");
 
