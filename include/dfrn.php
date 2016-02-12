@@ -2053,10 +2053,14 @@ class dfrn {
 			if (($item["network"] != $author["network"]) AND ($author["network"] != ""))
 				$item["network"] = $author["network"];
 
-			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
-				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-				return;
-			}
+			// This code was taken from the old DFRN code
+			// When activated, forums don't work.
+			// And: Why should we disallow commenting by followers?
+			// the behaviour is now similar to the Diaspora part.
+			//if($importer["rel"] == CONTACT_IS_FOLLOWER) {
+			//	logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
+			//	return;
+			//}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
