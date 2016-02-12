@@ -161,35 +161,42 @@ function poller_max_connections_reached() {
 		$used = count($r);
 
 		logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
-	} else {
-		// Since there are no user specific limitations we will now check for the system values
-		$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
-		if (!$r)
-			return false;
 
-		$max = intval($r[0]["Value"]);
-		if ($max == 0)
-			return false;
+		$level = $used / $max;
 
-		$r = q("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
-		if (!$r)
-			return false;
-
-		$used = intval($r[0]["Value"]);
-		if ($used == 0)
-			return false;
-
-		logger("Connection usage (system values): ".$used."/".$max, LOGGER_DEBUG);
+		if ($level >= (3/4)) {
+			logger("Maximum level (3/4) of user connections reached: ".$used."/".$max);
+			return true;
+		}
 	}
+
+	// We will now check for the system values.
+	// This limit could be reached although the user limits are fine.
+	$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
+	if (!$r)
+		return false;
+
+	$max = intval($r[0]["Value"]);
+	if ($max == 0)
+		return false;
+
+	$r = q("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
+	if (!$r)
+		return false;
+
+	$used = intval($r[0]["Value"]);
+	if ($used == 0)
+		return false;
+
+	logger("Connection usage (system values): ".$used."/".$max, LOGGER_DEBUG);
 
 	$level = $used / $max;
 
 	if ($level < (3/4))
 		return false;
 
-	logger("Maximum level (3/4) of connections reached: ".$used."/".$max);
+	logger("Maximum level (3/4) of system connections reached: ".$used."/".$max);
 	return true;
-
 }
 
 /**
