@@ -95,7 +95,7 @@ class dfrn {
 
 		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
 
-		$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
 			dbesc($owner_nick)
@@ -105,7 +105,7 @@ class dfrn {
 			killme();
 
 		$owner = $r[0];
-		$owner_id = $owner['user_uid'];
+		$owner_id = $owner['uid'];
 		$owner_nick = $owner['nickname'];
 
 		$sql_post_table = "";
@@ -483,7 +483,7 @@ class dfrn {
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
 		xml_add_element($doc, $author, "link", "", $attributes);
 
-		$birthday = feed_birthday($owner['user_uid'], $owner['timezone']);
+		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday)
 			xml_add_element($doc, $author, "dfrn:birthday", $birthday);
@@ -498,7 +498,7 @@ class dfrn {
 			FROM `profile`
 				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
-			intval($owner['user_uid']));
+			intval($owner['uid']));
 		if ($r) {
 			$profile = $r[0];
 			xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
