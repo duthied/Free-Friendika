@@ -626,6 +626,77 @@ function check_conversations($mentions = false, $override = false) {
 	set_config('system','ostatus_last_poll', time());
 }
 
+/**
+ * @brief Updates the gcontact table with actor data from the conversation
+ *
+ * @param object $actor The actor object that contains the contact data
+ */
+function ostatus_conv_fetch_actor($actor) {
+
+	// We set the generation to "3" since the data here is not as reliable as the data we get on other occasions
+	$contact = array("network" => NETWORK_OSTATUS, "generation" => 3);
+
+	if (isset($actor->url))
+		$contact["url"] = $actor->url;
+
+	if (isset($actor->displayName))
+		$contact["name"] = $actor->displayName;
+
+	if (isset($actor->portablecontacts_net->displayName))
+		$contact["name"] = $actor->portablecontacts_net->displayName;
+
+	if (isset($actor->portablecontacts_net->preferredUsername))
+		$contact["nick"] = $actor->portablecontacts_net->preferredUsername;
+
+	if (isset($actor->id))
+		$contact["alias"] = $actor->id;
+
+	if (isset($actor->summary))
+		$contact["about"] = $actor->summary;
+
+	if (isset($actor->portablecontacts_net->note))
+		$contact["about"] = $actor->portablecontacts_net->note;
+
+	if (isset($actor->portablecontacts_net->addresses->formatted))
+		$contact["location"] = $actor->portablecontacts_net->addresses->formatted;
+
+
+	if (isset($actor->image->url))
+		$contact["photo"] = $actor->image->url;
+
+	if (isset($actor->image->width))
+		$avatarwidth = $actor->image->width;
+
+	if (is_array($actor->status_net->avatarLinks))
+		foreach ($actor->status_net->avatarLinks AS $avatar) {
+			if ($avatarsize < $avatar->width) {
+				$contact["photo"] = $avatar->url;
+				$avatarsize = $avatar->width;
+			}
+		}
+
+	$contact["server_url"] = $contact["url"];
+
+	$server_url = matching($contact["server_url"], $contact["alias"]);
+	if (strlen($server_url) > 8)
+		$contact["server_url"] = $server_url;
+
+	$server_url = matching($contact["server_url"], $contact["photo"]);
+	if (strlen($server_url) > 8)
+		$contact["server_url"] = $server_url;
+
+	if (($contact["server_url"] == $contact["url"]) OR ($contact["server_url"] == $contact["alias"]))
+		unset($contact["server_url"]);
+	else {
+		$hostname = str_replace("http://", "", normalise_link($contact["server_url"]));
+		if ($hostname AND $contact["nick"])
+			$contact["addr"] = $contact["nick"]."@".$hostname;
+	}
+
+	update_gcontact($contact);
+}
+
+
 function ostatus_completion($conversation_url, $uid, $item = array()) {
 
 	$a = get_app();
@@ -728,6 +799,9 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	$importer = $r[0];
 
 	foreach ($items as $single_conv) {
+
+		// Update the gcontact table
+		ostatus_conv_fetch_actor($single_conv->actor);
 
 		// Test - remove before flight
 		//$tempfile = tempnam(get_temppath(), "conversation");
