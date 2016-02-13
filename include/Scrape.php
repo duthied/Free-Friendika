@@ -19,9 +19,11 @@ function scrape_dfrn($url, $dont_probe = false) {
 	if ($noscrapejson) {
 		$noscrapedata = json_decode($noscrapejson, true);
 
-		if (is_array($noscrapedata))
+		if (is_array($noscrapedata)) {
 			if ($noscrapedata["nick"] != "")
 				return($noscrapedata);
+		} else
+			$noscrapedata = array();
 	}
 
 	$s = fetch_url($url);
