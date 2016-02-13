@@ -62,7 +62,7 @@ function help_content(&$a) {
 	if ($filename !== "Home") {
 		// create TOC but not for home
 		$lines = explode("\n", $html);
-		$toc="<style>aside ul {padding-left: 1em;}</style><h2>TOC</h2><ul id='toc'>";
+		$toc="<style>aside ul {padding-left: 1em;}aside h1{font-size:2em}</style><h2>TOC</h2><ul id='toc'>";
 		$lastlevel=1;
 		$idnum = array(0,0,0,0,0,0,0);
 		foreach($lines as &$line){
@@ -84,7 +84,7 @@ function help_content(&$a) {
 				}
 			}
 		}
-		for($k=1;$k<$lastlevel; $k++) $toc.="</ul>";
+		for($k=0;$k<$lastlevel; $k++) $toc.="</ul>";
 		$html = implode("\n",$lines);
 
 		$a->page['aside'] = $toc.$a->page['aside'];
