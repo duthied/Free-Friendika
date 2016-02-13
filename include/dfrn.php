@@ -1965,6 +1965,8 @@ class dfrn {
 			$item['body'] = @html2bbcode($item['body']);
 		}
 
+		/// @todo We should check for a repeated post and if we know the repeated author.
+
 		// We don't need the content element since "dfrn:env" is always present
 		//$item["body"] = $xpath->query("atom:content/text()", $entry)->item(0)->nodeValue;
 
