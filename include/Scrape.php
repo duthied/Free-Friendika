@@ -12,6 +12,18 @@ function scrape_dfrn($url, $dont_probe = false) {
 
 	logger('scrape_dfrn: url=' . $url);
 
+	// Try to fetch the data from noscrape. This is faster than parsing the HTML
+	$noscrape = str_replace("/hcard/", "/noscrape/", $url);
+	$noscrapejson = fetch_url($noscrape);
+	$noscrapedata = array();
+	if ($noscrapejson) {
+		$noscrapedata = json_decode($noscrapejson, true);
+
+		if (is_array($noscrapedata))
+			if ($noscrapedata["nick"] != "")
+				return($noscrapedata);
+	}
+
 	$s = fetch_url($url);
 
 	if(! $s)
@@ -91,8 +103,7 @@ function scrape_dfrn($url, $dont_probe = false) {
 			}
 		}
 	}
-
-	return $ret;
+	return array_merge($ret, $noscrapedata);
 }}
 
 
