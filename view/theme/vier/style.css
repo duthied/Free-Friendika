@@ -1141,6 +1141,10 @@ aside h4, right_aside h4 {
   font-size: 1.17em;
 }
 
+aside img {
+  max-width: 175px;
+}
+
 .nets-ul {
   margin-top: 0px;
 }

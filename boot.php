@@ -17,6 +17,8 @@
  * easily as email does today.
  */
 
+require_once('include/autoloader.php');
+ 
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
