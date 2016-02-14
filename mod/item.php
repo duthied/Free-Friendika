@@ -160,6 +160,9 @@ function item_post(&$a) {
 				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
 			} else
 				logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
+
+			if ($parent_contact["nick"] == "")
+				$parent_contact["nick"] = $parent_contact["name"];
 		}
 	}
 
