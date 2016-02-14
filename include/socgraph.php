@@ -11,7 +11,7 @@ require_once('include/datetime.php');
 require_once("include/Scrape.php");
 require_once("include/html2bbcode.php");
 require_once("include/Contact.php");
-
+require_once("include/Photo.php");
 
 /*
  * poco_load
@@ -1467,6 +1467,28 @@ function update_gcontact($contact) {
 			intval($contact["generation"]), dbesc($contact["updated"]),
 			dbesc($contact["server_url"]), dbesc($contact["connect"]),
 			dbesc(normalise_link($contact["url"])), intval($contact["generation"]));
+
+
+		// Now update the contact entry with the user id "0" as well.
+		// This is used for the shadow copies of public items.
+		$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0 ORDER BY `id` LIMIT 1",
+			dbesc(normalise_link($contact["url"])));
+
+		if ($r) {
+			logger("Update shadow contact ".$r[0]["id"], LOGGER_DEBUG);
+
+			update_contact_avatar($contact["photo"], 0, $r[0]["id"]);
+
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s',
+						`network` = '%s', `bd` = '%s', `gender` = '%s',
+						`keywords` = '%s', `alias` = '%s', `url` = '%s',
+						`location` = '%s', `about` = '%s'
+					WHERE `id` = %d",
+				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["addr"]),
+				dbesc($contact["network"]), dbesc($contact["birthday"]), dbesc($contact["gender"]),
+				dbesc($contact["keywords"]), dbesc($contact["alias"]), dbesc($contact["url"]),
+				dbesc($contact["location"]), dbesc($contact["about"]), intval($r[0]["id"]));
+		}
 	}
 
 	return $gcontact_id;
