@@ -14,12 +14,13 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	$doc = new DOMDocument();
 	@$doc->loadXML($xml);
 	$xpath = new DomXPath($doc);
-	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
+	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 	$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
 	$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");
 	$xpath->registerNamespace('rdf', "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	$xpath->registerNamespace('rss', "http://purl.org/rss/1.0/");
 	$xpath->registerNamespace('media', "http://search.yahoo.com/mrss/");
+	$xpath->registerNamespace('poco', NAMESPACE_POCO);
 
 	$author = array();
 
@@ -36,22 +37,23 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	// Is it Atom?
 	if ($xpath->query('/atom:feed/atom:entry')->length > 0) {
-		$self = $xpath->query("atom:link[@rel='self']")->item(0)->attributes;
-		if (is_object($self))
-			foreach($self AS $attributes)
+		$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
+		if (is_object($alternate))
+			foreach($alternate AS $attributes)
 				if ($attributes->name == "href")
 					$author["author-link"] = $attributes->textContent;
 
+		if ($author["author-link"] == "")
+			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
+
 		if ($author["author-link"] == "") {
-			$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
-			if (is_object($alternate))
-				foreach($alternate AS $attributes)
+			$self = $xpath->query("atom:link[@rel='self']")->item(0)->attributes;
+			if (is_object($self))
+				foreach($self AS $attributes)
 					if ($attributes->name == "href")
 						$author["author-link"] = $attributes->textContent;
 		}
 
-		if ($author["author-link"] == "")
-			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
 		if ($author["author-link"] == "")
 			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:id/text()')->item(0)->nodeValue;
 
@@ -64,6 +66,14 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 		if ($author["author-name"] == "")
 			$author["author-name"] = $xpath->evaluate('/atom:feed/atom:author/atom:name/text()')->item(0)->nodeValue;
+
+		$value = $xpath->evaluate('atom:author/poco:displayName/text()')->item(0)->nodeValue;
+		if ($value != "")
+			$author["author-name"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()')->item(0)->nodeValue;
+		if ($value != "")
+			$author["author-nick"] = $value;
 
 		$author["edited"] = $author["created"] = $xpath->query('/atom:feed/atom:updated/text()')->item(0)->nodeValue;
 
