@@ -841,18 +841,18 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		$vcard['fn'] = $url;
 
 	if (($notify != "") AND ($poll != "")) {
-		$baseurl = matching(normalise_link($notify), normalise_link($poll));
+		$baseurl = matching_url(normalise_link($notify), normalise_link($poll));
 
-		$baseurl2 = matching($baseurl, normalise_link($profile));
+		$baseurl2 = matching_url($baseurl, normalise_link($profile));
 		if ($baseurl2 != "")
 			$baseurl = $baseurl2;
 	}
 
 	if (($baseurl == "") AND ($notify != ""))
-		$baseurl = matching(normalise_link($profile), normalise_link($notify));
+		$baseurl = matching_url(normalise_link($profile), normalise_link($notify));
 
 	if (($baseurl == "") AND ($poll != ""))
-		$baseurl = matching(normalise_link($profile), normalise_link($poll));
+		$baseurl = matching_url(normalise_link($profile), normalise_link($poll));
 
 	$baseurl = rtrim($baseurl, "/");
 
@@ -907,19 +907,56 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	return $result;
 }
 
-function matching($part1, $part2) {
-	$len = min(strlen($part1), strlen($part2));
+/**
+ * @brief Find the matching part between two url
+ *
+ * @param string $url1
+ * @param string $url2
+ * @return string The matching part
+ */
+function matching_url($url1, $url2) {
 
-	$match = "";
-	$matching = true;
+	if (($url1 == "") OR ($url2 == ""))
+		return "";
+
+	$url1 = normalise_link($url1);
+	$url2 = normalise_link($url2);
+
+	$parts1 = parse_url($url1);
+	$parts2 = parse_url($url2);
+
+	if (!isset($parts1["host"]) OR !isset($parts2["host"]))
+		return "";
+
+	if ($parts1["scheme"] != $parts2["scheme"])
+		return "";
+
+	if ($parts1["host"] != $parts2["host"])
+		return "";
+
+	if ($parts1["port"] != $parts2["port"])
+		return "";
+
+	$match = $parts1["scheme"]."://".$parts1["host"];
+
+	if ($parts1["port"])
+		$match .= ":".$parts1["port"];
+
+	$pathparts1 = explode("/", $parts1["path"]);
+	$pathparts2 = explode("/", $parts2["path"]);
+
 	$i = 0;
-	while (($i <= $len) AND $matching) {
-		if (substr($part1, $i, 1) == substr($part2, $i, 1))
-			$match .= substr($part1, $i, 1);
-		else
-			$matching = false;
+	$path = "";
+	do {
+		$path1 = $pathparts1[$i];
+		$path2 = $pathparts2[$i];
 
-		$i++;
-	}
-	return($match);
+		if ($path1 == $path2)
+			$path .= $path1."/";
+
+	} while (($path1 == $path2) AND ($i++ <= count($pathparts1)));
+
+	$match .= $path;
+
+	return normalise_link($match);
 }

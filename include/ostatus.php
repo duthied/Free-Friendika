@@ -164,8 +164,6 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 			update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 		}
 
-
-		/// @todo Add the "addr" field
 		$contact["generation"] = 2;
 		$contact["photo"] = $author["author-avatar"];
 		update_gcontact($contact);
@@ -674,24 +672,6 @@ function ostatus_conv_fetch_actor($actor) {
 				$avatarsize = $avatar->width;
 			}
 		}
-
-	$contact["server_url"] = $contact["url"];
-
-	$server_url = matching($contact["server_url"], $contact["alias"]);
-	if (strlen($server_url) > 8)
-		$contact["server_url"] = $server_url;
-
-	$server_url = matching($contact["server_url"], $contact["photo"]);
-	if (strlen($server_url) > 8)
-		$contact["server_url"] = $server_url;
-
-	if (($contact["server_url"] == $contact["url"]) OR ($contact["server_url"] == $contact["alias"]))
-		unset($contact["server_url"]);
-	else {
-		$hostname = str_replace("http://", "", normalise_link($contact["server_url"]));
-		if ($hostname AND $contact["nick"])
-			$contact["addr"] = $contact["nick"]."@".$hostname;
-	}
 
 	update_gcontact($contact);
 }

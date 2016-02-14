@@ -1433,6 +1433,28 @@ function update_gcontact($contact) {
 	if (!isset($contact["updated"]))
 		$contact["updated"] = datetime_convert();
 
+	if ($contact["server_url"] == "") {
+		$server_url = $contact["url"];
+
+		$server_url = matching_url($server_url, $contact["alias"]);
+		if ($server_url != "")
+			$contact["server_url"] = $server_url;
+
+		$server_url = matching_url($server_url, $contact["photo"]);
+		if ($server_url != "")
+			$contact["server_url"] = $server_url;
+
+		$server_url = matching_url($server_url, $contact["notify"]);
+		if ($server_url != "")
+			$contact["server_url"] = $server_url;
+	} else
+		$contact["server_url"] = normalise_link($contact["server_url"]);
+
+	if (($contact["addr"] == "") AND ($contact["server_url"] != "") AND ($contact["nick"] != "")) {
+		$hostname = str_replace("http://", "", $contact["server_url"]);
+		$contact["addr"] = $contact["nick"]."@".$hostname;
+	}
+
 	// Check if any field changed
 	$update = false;
 	unset($fields["generation"]);
