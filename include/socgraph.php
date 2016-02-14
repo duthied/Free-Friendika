@@ -1422,6 +1422,14 @@ function update_gcontact($contact) {
 	unset($fields["url"]);
 	unset($fields["updated"]);
 
+	// Bugfix: We had an error in the storing of keywords which lead to the "0"
+	// This value is still transmitted via poco.
+	if ($contact["keywords"] == "0")
+		unset($contact["keywords"]);
+
+	if ($r[0]["keywords"] == "0")
+		$r[0]["keywords"] = "";
+
 	// assign all unassigned fields from the database entry
 	foreach ($fields AS $field => $data)
 		if (!isset($contact[$field]) OR ($contact[$field] == ""))
