@@ -814,8 +814,6 @@
 
 		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 
-			require_once('library/HTMLPurifier.auto.php');
-
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
@@ -855,9 +853,6 @@
 		if(requestdata('htmlstatus')) {
 			$txt = requestdata('htmlstatus');
 			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
-
-				require_once('library/HTMLPurifier.auto.php');
-
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
