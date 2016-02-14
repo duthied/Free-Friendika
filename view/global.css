@@ -93,7 +93,7 @@ span.connector {
 
 /* Shared Messages */
 .shared_header {
-  height: 32px;
+  min-height: 32px;
   color: #999;
   border-top: 1px solid #D2D2D2;
   padding-top: 5px;
@@ -118,10 +118,12 @@ span.connector {
   -moz-border-radius: 4px;
   border-radius: 4px;
   float: left;
+  margin-right: 9px;
 }
 
 .shared_header span {
-  margin-left: 9px;
+  display: table-cell;
+  float: none;
 }
 
 blockquote.shared_content {
@@ -274,12 +276,36 @@ a {
 #poke-recip-label, #poke-action-label, #prvmail-message-label {
   margin: 10px 0 10px;
 }
+.version-match {
+    font-weight: bold;
+    color: #00a700;
+}
+.federation-graph {
+    width: 400px; 
+    height: 400px; 
+    float: right; 
+    margin: 20px;
+}
+.federation-network-graph {
+    width: 240px; 
+    height: 240px; 
+    float: left; 
+    margin: 20px;
+}
+ul.federation-stats,
 ul.credits {
   list-style: none;
 }
+ul.federation-stats li,
 ul.credits li {
   float: left;
   width: 240px;
+}
+table#federation-stats {
+    width: 100%;
+}
+td.federation-data {
+    border-bottom: 1px solid #000;
 }
 
 .contact-entry-photo img {
@@ -320,4 +346,8 @@ ul.credits li {
 
 .p-addr {
 	clear: both;	
+}
+
+#live-community {
+	clear: both;
 }

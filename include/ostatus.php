@@ -17,15 +17,6 @@ define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS', 14400); // given in minutes
 
-define("NS_ATOM", "http://www.w3.org/2005/Atom");
-define("NS_THR", "http://purl.org/syndication/thread/1.0");
-define("NS_GEORSS", "http://www.georss.org/georss");
-define("NS_ACTIVITY", "http://activitystrea.ms/spec/1.0/");
-define("NS_MEDIA", "http://purl.org/syndication/atommedia");
-define("NS_POCO", "http://portablecontacts.net/spec/1.0");
-define("NS_OSTATUS", "http://ostatus.org/schema/1.0");
-define("NS_STATUSNET", "http://status.net/schema/api/1/");
-
 function ostatus_check_follow_friends() {
 	$r = q("SELECT `uid`,`v` FROM `pconfig` WHERE `cat`='system' AND `k`='ostatus_legacy_contact' AND `v` != ''");
 
@@ -127,47 +118,57 @@ function ostatus_fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	$author["owner-link"] = $author["author-link"];
 	$author["owner-avatar"] = $author["author-avatar"];
 
-	if ($r AND !$onlyfetch) {
+	// Only update the contacts if it is an OStatus contact
+	if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
 		// Update contact data
-		$update_contact = ($r[0]['name-date'] < datetime_convert('','','now -12 hours'));
-		if ($update_contact) {
+
+		$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["notify"] = $value;
+
+		$value = $xpath->evaluate('atom:author/uri/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["alias"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["name"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["nick"] = $value;
+
+		$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["about"] = html2bbcode($value);
+
+		$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+		if ($value != "")
+			$contact["location"] = $value;
+
+		if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
+
 			logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["name"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["nick"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["about"] = html2bbcode($value);
-
-			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["location"] = $value;
-
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
 				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+				dbesc(datetime_convert()), intval($contact["id"]));
 
 			poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
-					"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
+						"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 		}
 
-		$update_photo = ($r[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
-
-		if ($update_photo AND isset($author["author-avatar"])) {
+		if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
 			logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
-			$photos = import_profile_photo($author["author-avatar"], $importer["uid"], $contact["id"]);
-
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d AND `network` = '%s'",
-				dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($contact["id"]), dbesc(NETWORK_OSTATUS));
+			update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 		}
+
+
+		/// @todo Add the "addr" field
+		$contact["generation"] = 2;
+		$contact["photo"] = $author["author-avatar"];
+		update_gcontact($contact);
 	}
 
 	return($author);
@@ -183,14 +184,14 @@ function ostatus_salmon_author($xml, $importer) {
 	@$doc->loadXML($xml);
 
 	$xpath = new DomXPath($doc);
-	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-	$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-	$xpath->registerNamespace('georss', "http://www.georss.org/georss");
-	$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-	$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-	$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+	$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+	$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+	$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+	$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+	$xpath->registerNamespace('poco', NAMESPACE_POCO);
+	$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+	$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
 	$entries = $xpath->query('/atom:entry');
 
@@ -214,14 +215,14 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 	@$doc->loadXML($xml);
 
 	$xpath = new DomXPath($doc);
-	$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
-	$xpath->registerNamespace('thr', "http://purl.org/syndication/thread/1.0");
-	$xpath->registerNamespace('georss', "http://www.georss.org/georss");
-	$xpath->registerNamespace('activity', "http://activitystrea.ms/spec/1.0/");
-	$xpath->registerNamespace('media', "http://purl.org/syndication/atommedia");
-	$xpath->registerNamespace('poco', "http://portablecontacts.net/spec/1.0");
-	$xpath->registerNamespace('ostatus', "http://ostatus.org/schema/1.0");
-	$xpath->registerNamespace('statusnet', "http://status.net/schema/api/1/");
+	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+	$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+	$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+	$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+	$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+	$xpath->registerNamespace('poco', NAMESPACE_POCO);
+	$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+	$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
 	$gub = "";
 	$hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
@@ -546,29 +547,6 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		}
 
 		logger("Item was stored with id ".$item_id, LOGGER_DEBUG);
-		$item["id"] = $item_id;
-
-		if ($mention) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($item['uid']));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($item_id));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $item["uid"],
-				'item'         => $item,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($item_id)),
-				'source_name'  => $item["author-name"],
-				'source_link'  => $item["author-link"],
-				'source_photo' => $item["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
 	}
 }
 
@@ -1013,28 +991,6 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		// Add the conversation entry (but don't fetch the whole conversation)
 		ostatus_store_conversation($newitem, $conversation_url);
 
-		if ($mention) {
-			$u = q("SELECT `notify-flags`, `language`, `username`, `email` FROM user WHERE uid = %d LIMIT 1", intval($uid));
-			$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($newitem));
-
-			notification(array(
-				'type'         => NOTIFY_TAGSELF,
-				'notify_flags' => $u[0]["notify-flags"],
-				'language'     => $u[0]["language"],
-				'to_name'      => $u[0]["username"],
-				'to_email'     => $u[0]["email"],
-				'uid'          => $uid,
-				'item'         => $arr,
-				'link'         => $a->get_baseurl().'/display/'.urlencode(get_item_guid($newitem)),
-				'source_name'  => $arr["author-name"],
-				'source_link'  => $arr["author-link"],
-				'source_photo' => $arr["author-avatar"],
-				'verb'         => ACTIVITY_TAG,
-				'otype'        => 'item',
-				'parent'       => $r[0]["parent"]
-			));
-		}
-
 		// If the newly created item is the top item then change the parent settings of the thread
 		// This shouldn't happen anymore. This is supposed to be absolote.
 		if ($arr["uri"] == $first_id) {
@@ -1109,7 +1065,7 @@ function get_reshared_guid($item) {
 	return $guid;
 }
 
-function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+function xml_create_element($doc, $element, $value = "", $attributes = array()) {
 	$element = $doc->createElement($element, xmlify($value));
 
 	foreach ($attributes AS $key => $value) {
@@ -1117,7 +1073,11 @@ function xml_add_element($doc, $parent, $element, $value = "", $attributes = arr
 		$attribute->value = xmlify($value);
 		$element->appendChild($attribute);
 	}
+	return $element;
+}
 
+function xml_add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+	$element = xml_create_element($doc, $element, $value, $attributes);
 	$parent->appendChild($element);
 }
 
@@ -1151,16 +1111,16 @@ function ostatus_format_picture_post($body) {
 function ostatus_add_header($doc, $owner) {
 	$a = get_app();
 
-	$root = $doc->createElementNS(NS_ATOM, 'feed');
+	$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
 	$doc->appendChild($root);
 
-	$root->setAttribute("xmlns:thr", NS_THR);
-	$root->setAttribute("xmlns:georss", NS_GEORSS);
-	$root->setAttribute("xmlns:activity", NS_ACTIVITY);
-	$root->setAttribute("xmlns:media", NS_MEDIA);
-	$root->setAttribute("xmlns:poco", NS_POCO);
-	$root->setAttribute("xmlns:ostatus", NS_OSTATUS);
-	$root->setAttribute("xmlns:statusnet", NS_STATUSNET);
+	$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+	$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+	$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+	$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+	$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
+	$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+	$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
 	$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 	xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
@@ -1352,6 +1312,10 @@ function ostatus_add_author($doc, $owner) {
 function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) {
 	$a = get_app();
 
+	if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
+	}
+
 	$is_repeat = false;
 
 /*	if (!$repeat) {
@@ -1374,15 +1338,15 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$entry = $doc->createElement("activity:object");
 		$title = sprintf("New note by %s", $owner["nick"]);
 	} else {
-		$entry = $doc->createElementNS(NS_ATOM, "entry");
+		$entry = $doc->createElementNS(NAMESPACE_ATOM1, "entry");
 
-		$entry->setAttribute("xmlns:thr", NS_THR);
-		$entry->setAttribute("xmlns:georss", NS_GEORSS);
-		$entry->setAttribute("xmlns:activity", NS_ACTIVITY);
-		$entry->setAttribute("xmlns:media", NS_MEDIA);
-		$entry->setAttribute("xmlns:poco", NS_POCO);
-		$entry->setAttribute("xmlns:ostatus", NS_OSTATUS);
-		$entry->setAttribute("xmlns:statusnet", NS_STATUSNET);
+		$entry->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+		$entry->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+		$entry->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+		$entry->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+		$entry->setAttribute("xmlns:poco", NAMESPACE_POCO);
+		$entry->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+		$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
 		$author = ostatus_add_author($doc, $owner);
 		$entry->appendChild($author);
@@ -1447,9 +1411,12 @@ function ostatus_entry($doc, $item, $owner, $toplevel = false, $repeat = false) 
 		$repeated_owner["about"] = "";
 		$repeated_owner["uid"] = 0;
 
-		$r =q("SELECT * FROM `unique_contacts` WHERE `url` = '%s'", normalise_link($repeated_item["author-link"]));
+		// Fetch the missing data from the global contacts
+		$r =q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($repeated_item["author-link"]));
 		if ($r) {
-			$repeated_owner["nick"] = $r[0]["nick"];
+			if ($r[0]["nick"] != "")
+				$repeated_owner["nick"] = $r[0]["nick"];
+
 			$repeated_owner["location"] = $r[0]["location"];
 			$repeated_owner["about"] = $r[0]["about"];
 		}

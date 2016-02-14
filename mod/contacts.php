@@ -125,7 +125,7 @@ function contacts_batch_actions(&$a){
 		}
 	}
 	if ($count_actions>0) {
-		info ( sprintf( tt("%d contact edited.", "%d contacts edited", $count_actions), $count_actions) );
+		info ( sprintf( tt("%d contact edited.", "%d contacts edited.", $count_actions), $count_actions) );
 	}
 
 	if(x($_SESSION,'return_url'))
@@ -293,24 +293,11 @@ function _contact_update_profile($contact_id) {
 		intval(local_user())
 	);
 
-	$photos = import_profile_photo($data['photo'], local_user(), $contact_id);
+	// Update the entry in the contact table
+	update_contact_avatar($data['photo'], local_user(), $contact_id);
 
-	$r = q("UPDATE `contact` SET `photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`avatar-date` = '%s'
-			WHERE `id` = %d",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_id)
-		);
-
+	// Update the entry in the gcontact table
+	update_gcontact_from_probe($data["url"]);
 }
 
 function _contact_block($contact_id, $orig_record) {
@@ -345,7 +332,6 @@ function _contact_archive($contact_id, $orig_record) {
 	return $r;
 }
 function _contact_drop($contact_id, $orig_record) {
-	require_once('include/Contact.php');
 	$a = get_app();
 
 	terminate_friendship($a->user,$a->contact,$orig_record);
@@ -890,50 +876,27 @@ function contacts_tab($a, $contact_id, $active_tab) {
 
 function contact_posts($a, $contact_id) {
 
-	require_once('include/conversation.php');
-
-	$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
+	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
 	if ($r) {
 		$contact = $r[0];
 		$a->page['aside'] = "";
 		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
-	}
-
-	if(get_config('system', 'old_pager')) {
-		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
-			intval(local_user()),
-			dbesc(str_replace("https://", "http://", $contact["url"])),
-			dbesc(str_replace("http://", "https://", $contact["url"])));
-
-		$a->set_pager_total($r[0]['total']);
-	}
-
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-			`author-name` AS `name`, `owner-avatar` AS `photo`,
-			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` FORCE INDEX (uid_contactid_created)
-		WHERE `item`.`uid` = %d AND `contact-id` = %d
-			AND `author-link` IN ('%s', '%s')
-		ORDER BY `item`.`created` DESC LIMIT %d, %d",
-		intval(local_user()),
-		intval($contact_id),
-		dbesc(str_replace("https://", "http://", $contact["url"])),
-		dbesc(str_replace("http://", "https://", $contact["url"])),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
-	);
+	} else
+		$profile = "";
 
 	$tab_str = contacts_tab($a, $contact_id, 1);
 
 	$o .= $tab_str;
 
-	$o .= conversation($a,$r,'community',false);
+	$r = q("SELECT `id` FROM `item` WHERE `contact-id` = %d LIMIT 1", intval($contact_id));
+	if ($r)
+		$o .= posts_from_contact($a, $contact_id);
+	elseif ($contact["url"]) {
+		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+			dbesc(normalise_link($contact["url"])));
 
-	if(!get_config('system', 'old_pager')) {
-		$o .= alt_pager($a,count($r));
-	} else {
-		$o .= paginate($a);
+		if ($r[0]["id"] <> 0)
+			$o .= posts_from_gcontact($a, $r[0]["id"]);
 	}
 
 	return $o;

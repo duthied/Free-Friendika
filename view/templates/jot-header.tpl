@@ -8,16 +8,24 @@ var plaintext = '{{$editselect}}';
 
 function initEditor(cb){
 	if (editor==false){
+		var  colorbox_options = {
+			{{if $APP->is_mobile}}
+			'width' : '100%',
+			'height' : '100%',
+			{{/if}}
+			'inline' : true,
+			'transition' : 'elastic'
+		}
+		
+		
+		
 		$("#profile-jot-text-loading").show();
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").hide();
 			$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
 			$("#profile-jot-text").contact_autocomplete(baseurl+"/acl");
 			editor = true;
-			$("a#jot-perms-icon").colorbox({
-				'inline' : true,
-				'transition' : 'elastic'
-			});
+			$("a#jot-perms-icon").colorbox(colorbox_options);
 			$(".jothidden").show();
 			if (typeof cb!="undefined") cb();
 			return;
@@ -107,10 +115,7 @@ function initEditor(cb){
 		});
 		editor = true;
 		// setup acl popup
-		$("a#jot-perms-icon").colorbox({
-			'inline' : true,
-			'transition' : 'elastic'
-		});
+		$("a#jot-perms-icon").colorbox(colorbox_options);
 	} else {
 		if (typeof cb!="undefined") cb();
 	}

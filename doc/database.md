@@ -27,7 +27,6 @@ Database Tables
 | [group](help/database/db_group)                      | privacy groups, group info                       |
 | [group_member](help/database/db_group_member)        | privacy groups, member info                      |
 | [gserver](help/database/db_gserver)                  |                                                  |
-| [guid](help/database/db_guid)                        |                                                  |
 | [hook](help/database/db_hook)                        | plugin hook registry                             |
 | [intro](help/database/db_intro)                      |                                                  |
 | [item](help/database/db_item)                        | all posts                                        |
@@ -38,6 +37,8 @@ Database Tables
 | [manage](help/database/db_manage)                    | table of accounts that can "su" each other       |
 | [notify](help/database/db_notify)                    | notifications                                    |
 | [notify-threads](help/database/db_notify-threads)    |                                                  |
+| [oembed](help/database/db_oembed)                    | cache for OEmbed queries                         |
+| [parsed_url](help/database/db_parsed_url)            | cache for "parse_url" queries                    |
 | [pconfig](help/database/db_pconfig)                  | personal (per user) configuration storage        |
 | [photo](help/database/db_photo)                      | photo storage                                    |
 | [poll](help/database/db_poll)                        | data for polls                                   |
@@ -54,7 +55,6 @@ Database Tables
 | [term](help/database/db_term)                        | item taxonomy (categories, tags, etc.) table     |
 | [thread](help/database/db_thread)                    |                                                  |
 | [tokens](help/database/db_tokens)                    | OAuth usage                                      |
-| [unique_contacts](help/database/db_unique_contacts)  |                                                  |
 | [user](help/database/db_user)                        | local user table                                 |
 | [userd](help/database/db_userd)                      |                                                  |
 | [workerqueue](help/database/db_workerqueue)          |                                                  |

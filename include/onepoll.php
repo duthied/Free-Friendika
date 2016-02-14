@@ -27,7 +27,6 @@ function onepoll_run(&$argv, &$argc){
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
-	require_once('library/simplepie/simplepie.inc');
 	require_once('include/items.php');
 	require_once('include/Contact.php');
 	require_once('include/email.php');
@@ -335,7 +334,9 @@ function onepoll_run(&$argv, &$argc){
 		if($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly'])
 			return;
 
-		$xml = fetch_url($contact['poll']);
+		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
+		$xml = fetch_url($contact['poll'], false, $redirects, 0, Null, $cookiejar);
+		unlink($cookiejar);
 	}
 	elseif($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
 

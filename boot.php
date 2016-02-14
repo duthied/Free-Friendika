@@ -17,6 +17,8 @@
  * easily as email does today.
  */
 
+require_once('include/autoloader.php');
+ 
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -36,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1191      );
+define ( 'DB_UPDATE_VERSION',      1194      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -467,6 +469,7 @@ class App {
 	public	$is_tablet;
 	public	$is_friendica_app;
 	public	$performance = array();
+	public	$callstack = array();
 
 	public $nav_sel;
 
@@ -529,6 +532,8 @@ class App {
 	private $cached_profile_image;
 	private $cached_profile_picdate;
 
+	private static $a;
+
 	/**
 	 * @brief App constructor.
 	 */
@@ -553,6 +558,12 @@ class App {
 		$this->performance["parser"] = 0;
 		$this->performance["marktime"] = 0;
 		$this->performance["markstart"] = microtime(true);
+
+		$this->callstack["database"] = array();
+		$this->callstack["network"] = array();
+		$this->callstack["file"] = array();
+		$this->callstack["rendering"] = array();
+		$this->callstack["parser"] = array();
 
 		$this->config = array();
 		$this->page = array();
@@ -703,6 +714,8 @@ class App {
 			}
 		}
 
+		self::$a = $this;
+
 	}
 
 	function get_basepath() {
@@ -726,6 +739,10 @@ class App {
 	}
 
 	function get_baseurl($ssl = false) {
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->get_baseurl($ssl));
 
 		$scheme = $this->scheme;
 
@@ -903,6 +920,10 @@ class App {
 	}
 
 	function get_cached_avatar_image($avatar_image){
+		return $avatar_image;
+
+		// The following code is deactivated. It doesn't seem to make any sense and it slows down the system.
+		/*
 		if($this->cached_profile_image[$avatar_image])
 			return $this->cached_profile_image[$avatar_image];
 
@@ -922,6 +943,7 @@ class App {
 			}
 		}
 		return $this->cached_profile_image[$avatar_image];
+		*/
 	}
 
 
@@ -1016,6 +1038,20 @@ class App {
 
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
+
+		// Trace the different functions with their timestamps
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+
+		array_shift($trace);
+
+		$function = array();
+		foreach ($trace AS $func)
+			$function[] = $func["function"];
+
+		$function = implode(", ", $function);
+
+		$this->callstack[$value][$function] += (float)$duration;
+
 	}
 
 	function mark_timestamp($mark) {

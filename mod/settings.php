@@ -43,56 +43,66 @@ function settings_init(&$a) {
 			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
 			'accesskey' => 'o',
 		),
-		array(
-			'label'	=> t('Additional features'),
-			'url' 	=> $a->get_baseurl(true).'/settings/features',
-			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
-			'accesskey' => 't',
-		),
-		array(
-			'label'	=> t('Display'),
-			'url' 	=> $a->get_baseurl(true).'/settings/display',
-			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
-			'accesskey' => 'i',
-		),
-
-		array(
-			'label'	=> t('Social Networks'),
-			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
-			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
-			'accesskey' => 'w',
-		),
-		array(
-			'label'	=> t('Plugins'),
-			'url' 	=> $a->get_baseurl(true).'/settings/addon',
-			'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
-			'accesskey' => 'l',
-		),
-		array(
-			'label'	=> t('Delegations'),
-			'url' 	=> $a->get_baseurl(true).'/delegate',
-			'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
-			'accesskey' => 'd',
-		),
-		array(
-			'label' => t('Connected apps'),
-			'url' => $a->get_baseurl(true) . '/settings/oauth',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
-			'accesskey' => 'b',
-		),
-		array(
-			'label' => t('Export personal data'),
-			'url' => $a->get_baseurl(true) . '/uexport',
-			'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
-			'accesskey' => 'e',
-		),
-		array(
-			'label' => t('Remove account'),
-			'url' => $a->get_baseurl(true) . '/removeme',
-			'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
-			'accesskey' => 'r',
-		)
 	);
+
+	if(get_features()) {
+		$tabs[] =	array(
+					'label'	=> t('Additional features'),
+					'url' 	=> $a->get_baseurl(true).'/settings/features',
+					'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
+					'accesskey' => 't',
+				);
+	}
+
+	$tabs[] =	array(
+		'label'	=> t('Display'),
+		'url' 	=> $a->get_baseurl(true).'/settings/display',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
+		'accesskey' => 'i',
+	);
+
+	$tabs[] =	array(
+		'label'	=> t('Social Networks'),
+		'url' 	=> $a->get_baseurl(true).'/settings/connectors',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
+		'accesskey' => 'w',
+	);
+
+	$tabs[] =	array(
+		'label'	=> t('Plugins'),
+		'url' 	=> $a->get_baseurl(true).'/settings/addon',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
+		'accesskey' => 'l',
+	);
+
+	$tabs[] =	array(
+		'label'	=> t('Delegations'),
+		'url' 	=> $a->get_baseurl(true).'/delegate',
+		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+		'accesskey' => 'd',
+	);
+
+	$tabs[] =	array(
+		'label' => t('Connected apps'),
+		'url' => $a->get_baseurl(true) . '/settings/oauth',
+		'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
+		'accesskey' => 'b',
+	);
+
+	$tabs[] =	array(
+		'label' => t('Export personal data'),
+		'url' => $a->get_baseurl(true) . '/uexport',
+		'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
+		'accesskey' => 'e',
+	);
+
+	$tabs[] =	array(
+		'label' => t('Remove account'),
+		'url' => $a->get_baseurl(true) . '/removeme',
+		'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
+		'accesskey' => 'r',
+	);
+
 
 	$tabtpl = get_markup_template("generic_links_widget.tpl");
 	$a->page['aside'] = replace_macros($tabtpl, array(
@@ -622,7 +632,6 @@ function settings_post(&$a) {
 }
 
 
-if(! function_exists('settings_content')) {
 function settings_content(&$a) {
 
 	$o = '';
@@ -747,7 +756,7 @@ function settings_content(&$a) {
 			$arr[$fname] = array();
 			$arr[$fname][0] = $fdata[0];
 			foreach(array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = array('feature_' .$f[0],$f[1],((intval(get_pconfig(local_user(),'feature',$f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
+				$arr[$fname][1][] = array('feature_' .$f[0],$f[1],((intval(feature_enabled(local_user(),$f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
 			}
 		}
 
@@ -1287,5 +1296,5 @@ function settings_content(&$a) {
 
 	return $o;
 
-}}
+}
 

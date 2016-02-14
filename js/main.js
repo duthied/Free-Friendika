@@ -9,7 +9,7 @@
 		if (h==ch) {
 			return;
 		}
-		console.log("_resizeIframe", obj, desth, ch);
+		//console.log("_resizeIframe", obj, desth, ch);
 		if (desth!=ch) {
 			setTimeout(_resizeIframe, 500, obj, ch);
 		} else {
@@ -147,6 +147,7 @@
 			} else {
 				last_popup_menu = menu;
 				last_popup_button = parent;
+				$('#nav-notifications-menu').perfectScrollbar('update');
 			}
 			return false;
 		});
@@ -159,13 +160,18 @@
 			'inline' : true,
 			'transition' : 'elastic'
 		});
-
+		$("a.ajax-popupbox").colorbox({
+			'transition' : 'elastic'
+		});
 
 		/* notifications template */
 		var notifications_tpl= unescape($("#nav-notifications-template[rel=template]").html());
 		var notifications_all = unescape($('<div>').append( $("#nav-notifications-see-all").clone() ).html()); //outerHtml hack
 		var notifications_mark = unescape($('<div>').append( $("#nav-notifications-mark-all").clone() ).html()); //outerHtml hack
 		var notifications_empty = unescape($("#nav-notifications-menu").html());
+
+		/* enable perfect-scrollbars for different elements */
+		$('#nav-notifications-menu, aside').perfectScrollbar();
 
 		/* nav update event  */
 		$('nav').bind('nav-update', function(e,data){
@@ -310,6 +316,9 @@
 				text = $(this).text();
 				$.jGrowl(text, { sticky: false, theme: 'info', life: 5000 });
 			});
+
+			/* update the js scrollbars */
+			$('#nav-notifications-menu').perfectScrollbar('update');
 
 		});
 

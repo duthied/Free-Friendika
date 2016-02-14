@@ -57,7 +57,7 @@ $a->config['system']['huburl'] = '[internal]';
 
 // allowed themes (change this from admin panel after installation)
 
-$a->config['system']['allowed_themes'] = 'dispy,quattro,vier,darkzero,duepuntozero,greenzero,purplezero,slackr,diabook';
+$a->config['system']['allowed_themes'] = 'quattro,vier,duepuntozero';
 
 // default system theme
 

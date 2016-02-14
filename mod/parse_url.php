@@ -56,7 +56,15 @@ function completeurl($url, $scheme) {
 
 function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
 
-	$data = Cache::get("parse_url:".$no_guessing.":".$do_oembed.":".$url);
+	if ($url == "")
+		return false;
+
+	$r = q("SELECT * FROM `parsed_url` WHERE `url` = '%s' AND `guessing` = %d AND `oembed` = %d",
+		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed));
+
+	if ($r)
+		$data = $r[0]["content"];
+
 	if (!is_null($data)) {
 		$data = unserialize($data);
 		return $data;
@@ -64,13 +72,15 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
 
-	Cache::set("parse_url:".$no_guessing.":".$do_oembed.":".$url,serialize($data), CACHE_DAY);
+	q("INSERT INTO `parsed_url` (`url`, `guessing`, `oembed`, `content`, `created`) VALUES ('%s', %d, %d, '%s', '%s')",
+		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed), dbesc(serialize($data)), dbesc(datetime_convert()));
 
 	return $data;
 }
 
 function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 	require_once("include/network.php");
+	require_once("include/Photo.php");
 
 	$a = get_app();
 
@@ -321,7 +331,7 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 			$attr[$attribute->name] = $attribute->value;
 
 			$src = completeurl($attr["src"], $url);
-			$photodata = @getimagesize($src);
+			$photodata = get_photo_info($src);
 
 			if (($photodata) && ($photodata[0] > 150) and ($photodata[1] > 150)) {
 				if ($photodata[0] > 300) {
@@ -338,12 +348,12 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 			}
 
 		}
-    } else {
+    } elseif ($siteinfo["image"] != "") {
 		$src = completeurl($siteinfo["image"], $url);
 
 		unset($siteinfo["image"]);
 
-		$photodata = @getimagesize($src);
+		$photodata = get_photo_info($src);
 
 		if (($photodata) && ($photodata[0] > 10) and ($photodata[1] > 10))
 			$siteinfo["images"][] = array("src"=>$src,

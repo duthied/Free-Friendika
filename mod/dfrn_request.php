@@ -10,6 +10,7 @@
  */
 
 require_once('include/enotify.php');
+require_once('include/Scrape.php');
 
 if(! function_exists('dfrn_request_init')) {
 function dfrn_request_init(&$a) {
@@ -111,8 +112,6 @@ function dfrn_request_post(&$a) {
 					/**
 					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					 */
-
-					require_once('include/Scrape.php');
 
 					$parms = scrape_dfrn($dfrn_url);
 

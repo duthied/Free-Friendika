@@ -3,6 +3,7 @@
 require_once('include/datetime.php');
 require_once('include/diaspora.php');
 require_once('include/queue_fn.php');
+require_once('include/Contact.php');
 
 function profile_change() {
 
@@ -53,19 +54,7 @@ function profile_change() {
 		$about = xmlify($profile['about']);
 		require_once('include/bbcode.php');
 		$about = xmlify(strip_tags(bbcode($about)));
-		$location = '';
-		if($profile['locality'])
-			$location .= $profile['locality'];
-		if($profile['region']) {
-			if($location)
-				$location .= ', ';
-			$location .= $profile['region'];
-		}
-		if($profile['country-name']) {
-			if($location)
-				$location .= ', ';
-			$location .= $profile['country-name'];
-		}
+		$location = formatted_location($profile);
 		$location = xmlify($location);
 		$tags = '';
 		if($profile['pub_keywords']) {

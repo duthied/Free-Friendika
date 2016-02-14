@@ -18,9 +18,14 @@ Table gcontact
 | about        |                                    | text             | NO   |     | NULL                |                |
 | keywords     | puplic keywords (interests)        | text             | NO   |     | NULL                |                |
 | gender       |                                    | varchar(32)      | NO   |     |                     |                |
+| birthday     |                                    | varchar(32)      | NO   |     | 0000-00-00          |                |
 | community    | 1 if contact is forum account      | tinyint(1)       | NO   |     | 0                   |                |
+| hide         | 1 = should be hidden from search   | tinyint(1)       | NO   |     | 0                   |                |
+| nsfw         | 1 = contact posts nsfw content     | tinyint(1)       | NO   |     | 0                   |                |
 | network      | social network protocol            | varchar(255)     | NO   |     |                     |                |
 | addr         |                                    | varchar(255)     | NO   |     |                     |                |
+| notify       |                                    | text             | NO   |     |                     |                |
+| alias        |                                    | varchar(255)     | NO   |     |                     |                |
 | generation   |                                    | tinyint(3)       | NO   |     | 0                   |                |
 | server_url   | baseurl of the contacts server     | varchar(255)     | NO   |     |                     |                |
 

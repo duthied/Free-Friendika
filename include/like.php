@@ -279,6 +279,9 @@ function store_diaspora_like_retract_sig($activity, $item, $like_item, $contact)
 		$contact_baseurl = substr($contact['url'], $contact_baseurl_start, $contact_baseurl_length);
 		$diaspora_handle = $contact['nick'] . '@' . $contact_baseurl;
 
+		// This code could never had worked (the return values form the queries were used in a wrong way.
+		// Additionally it is needlessly complicated. Either the contact is owner or not. And we have this data already.
+/*
 		// Get contact's private key if he's a user of the local Friendica server
 		$r = q("SELECT `contact`.`uid` FROM `contact` WHERE `url` = '%s' AND `self` = 1 LIMIT 1",
 			dbesc($contact['url'])
@@ -289,9 +292,15 @@ function store_diaspora_like_retract_sig($activity, $item, $like_item, $contact)
 			$r = q("SELECT prvkey FROM user WHERE uid = %d LIMIT 1",
 				intval($contact_uid)
 			);
+*/
+		// Is the contact the owner? Then fetch the private key
+		if ($contact['self'] AND ($contact['uid'] > 0)) {
+			$r = q("SELECT prvkey FROM user WHERE uid = %d LIMIT 1",
+				intval($contact['uid'])
+			);
 
-			if( $r)
-				$authorsig = base64_encode(rsa_sign($signed_text,$r['prvkey'],'sha256'));
+			if($r)
+				$authorsig = base64_encode(rsa_sign($signed_text,$r[0]['prvkey'],'sha256'));
 		}
 
 		if(! isset($authorsig))
@@ -329,6 +338,10 @@ function store_diaspora_like_sig($activity, $post_type, $contact, $post_id) {
 		$contact_baseurl = substr($contact['url'], $contact_baseurl_start, $contact_baseurl_length);
 		$diaspora_handle = $contact['nick'] . '@' . $contact_baseurl;
 
+
+		// This code could never had worked (the return values form the queries were used in a wrong way.
+		// Additionally it is needlessly complicated. Either the contact is owner or not. And we have this data already.
+/*
 		// Get contact's private key if he's a user of the local Friendica server
 		$r = q("SELECT `contact`.`uid` FROM `contact` WHERE `url` = '%s' AND `self` = 1 LIMIT 1",
 			dbesc($contact['url'])
@@ -343,6 +356,17 @@ function store_diaspora_like_sig($activity, $post_type, $contact, $post_id) {
 			if( $r)
 				$contact_uprvkey = $r['prvkey'];
 		}
+*/
+
+		// Is the contact the owner? Then fetch the private key
+		if ($contact['self'] AND ($contact['uid'] > 0)) {
+			$r = q("SELECT prvkey FROM user WHERE uid = %d LIMIT 1",
+				intval($contact['uid'])
+			);
+
+			if($r)
+				$contact_uprvkey = $r[0]['prvkey'];
+		}
 
 		$r = q("SELECT guid, parent FROM `item` WHERE id = %d LIMIT 1",
 			intval($post_id)
@@ -353,7 +377,7 @@ function store_diaspora_like_sig($activity, $post_type, $contact, $post_id) {
 				intval($r[0]['parent'])
 			);
 			if( $p) {
-				$signed_text = $r[0]['guid'] . ';Post;' . $p[0]['guid'] . ';true;' . $diaspora_handle;
+				$signed_text = 'true;'.$r[0]['guid'].';Post;'.$p[0]['guid'].';'.$diaspora_handle;
 
 				if(isset($contact_uprvkey))
 					$authorsig = base64_encode(rsa_sign($signed_text,$contact_uprvkey,'sha256'));

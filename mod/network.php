@@ -114,7 +114,7 @@ function network_init(&$a) {
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 	require_once('include/items.php');
-	require_once('include/forums.php');
+	require_once('include/ForumManager.php');
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
@@ -148,7 +148,7 @@ function network_init(&$a) {
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? widget_forumlist(local_user(),$cid) : '');
+	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? ForumManager::widget(local_user(),$cid) : '');
 	$a->page['aside'] .= posted_date_widget($a->get_baseurl() . '/network',local_user(),false);
 	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
@@ -312,6 +312,9 @@ function network_content(&$a, $update = 0) {
 		return login(false);
 	}
 
+	// Rawmode is used for fetching new content at the end of the page
+	$rawmode = (isset($_GET["mode"]) AND ($_GET["mode"] == "raw"));
+
 	/// @TODO Is this really necessary? $a is already available to hooks
 	$arr = array('query' => $a->query_string);
 	call_hooks('network_content_init', $arr);
@@ -470,7 +473,7 @@ function network_content(&$a, $update = 0) {
 	}
 	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
-	if(! $update) {
+	if(!$update AND !$rawmode) {
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
@@ -549,26 +552,29 @@ function network_content(&$a, $update = 0) {
 		}
 
 		$contacts = expand_groups(array($group));
-
-		$contact_str_self = "";
+		$gcontacts = expand_groups(array($group), false, true);
 
 		if((is_array($contacts)) && count($contacts)) {
+			$contact_str_self = "";
+			$gcontact_str_self = "";
+
 			$contact_str = implode(',',$contacts);
-			$self = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
-			if (count($self))
-				$contact_str_self = ",".$self[0]["id"];
-		}
-		else {
-			$contact_str = ' 0 ';
+			$gcontact_str = implode(',',$gcontacts);
+			$self = q("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
+					INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+					WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
+			if (count($self)) {
+				$contact_str_self = $self[0]["id"];
+				$gcontact_str_self = $self[0]["gid"];
+			}
+
+			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
+			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
+			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+		} else {
+			$sql_extra3 .= " AND false ";
 			info( t('Group is empty'));
 		}
-
-		//$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item` WHERE (`contact-id` IN ($contact_str) OR `allow_gid` like '".protect_sprintf('%<'.intval($group).'>%')."') and deleted = 0 ORDER BY `created` DESC) AS `temp1` ON $sql_table.$sql_parent = `temp1`.`parent` ";
-
-		$sql_extra3 .= " AND `contact-id` IN ($contact_str$contact_str_self) ";
-		$sql_extra3 .= " AND EXISTS (SELECT `id` FROM `item` WHERE (`contact-id` IN ($contact_str)
-				OR `allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."') AND `deleted` = 0
-				AND `parent` = $sql_table.$sql_parent) ";
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
@@ -582,11 +588,7 @@ function network_content(&$a, $update = 0) {
 			intval($cid)
 		);
 		if(count($r)) {
-			$sql_post_table = " INNER JOIN (SELECT DISTINCT(`parent`) FROM `item`
-					    WHERE 1 $sql_options AND `contact-id` = ".intval($cid)." AND `deleted` = 0
-					    ORDER BY `item`.`received` DESC) AS `temp1`
-					    ON $sql_table.$sql_parent = `temp1`.`parent` ";
-			$sql_extra = "";
+			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
 				'id' => 'network',
@@ -668,7 +670,7 @@ function network_content(&$a, $update = 0) {
 	}
 
 	if($conv)
-		$sql_extra3 .= " AND `mention`";
+		$sql_extra3 .= " AND $sql_table.`mention`";
 
 	if($update) {
 

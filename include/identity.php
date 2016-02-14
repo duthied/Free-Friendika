@@ -3,7 +3,7 @@
  * @file include/identity.php
  */
 
-require_once('include/forums.php');
+require_once('include/ForumManager.php');
 require_once('include/bbcode.php');
 require_once("mod/proxy.php");
 
@@ -300,6 +300,7 @@ function profile_sidebar($profile, $block = 0) {
 		$account_type = "";
 
 	if((x($profile,'address') == 1)
+			|| (x($profile,'location') == 1)
 			|| (x($profile,'locality') == 1)
 			|| (x($profile,'region') == 1)
 			|| (x($profile,'postal-code') == 1)
@@ -368,6 +369,8 @@ function profile_sidebar($profile, $block = 0) {
 
 	if (isset($p["address"]))
 		$p["address"] = bbcode($p["address"]);
+	else
+		$p["address"] = bbcode($p["location"]);
 
 	if (isset($p["photo"]))
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
@@ -652,7 +655,7 @@ function advanced_profile(&$a) {
 	
 		//show subcribed forum if it is enabled in the usersettings
 		if (feature_enabled($uid,'forumlist_profile')) {
-			$profile['forumlist'] = array( t('Forums:'), forumlist_profile_advanced($uid));
+			$profile['forumlist'] = array( t('Forums:'), ForumManager::profile_advanced($uid));
 		}
 
 		if ($a->profile['uid'] == local_user())

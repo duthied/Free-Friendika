@@ -61,7 +61,7 @@ function format_event_html($ev, $simple = false) {
 			. bbcode($ev['location'])
 			. '</span></p>' . "\r\n";
 
-		if (strpos($ev['location'], "[map")===False) {
+		if (strpos($ev['location'], "[map") !== False) {
 			$map = generate_named_map($ev['location']);
 			if ($map!==$ev['location']) $o.=$map;
 		}
@@ -76,7 +76,6 @@ function format_event_html($ev, $simple = false) {
 function parse_event($h) {
 
 	require_once('include/Scrape.php');
-	require_once('library/HTMLPurifier.auto.php');
 	require_once('include/html2bbcode');
 
 	$h = '<html><body>' . $h . '</body></html>';

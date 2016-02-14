@@ -45,11 +45,6 @@ function newmember_content(&$a) {
 
 	$o .= '<ul>';
 
-	if(in_array('facebook', $a->plugins))
-		$o .= '<li>' . '<a target="newmember" href="facebook">' . t('Facebook') . '</a><br />' . t("Authorise the Facebook Connector if you currently have a Facebook account and we will \x28optionally\x29 import all your Facebook friends and conversations.") . '</li>' . EOL;
-	else
-		$o .= '<li>' . '<a target="newmember" href="help/Installing-Connectors">' . t('Facebook') . '</a><br />' . t("<em>If</em> this is your own personal server, installing the Facebook addon may ease your transition to the free social web.") . '</li>' . EOL;
-
     $mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 	
 	if(! $mail_disabled)

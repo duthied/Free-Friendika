@@ -137,14 +137,25 @@ function item_post(&$a) {
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = null;
 
-				require_once("include/Scrape.php");
-				$probed_contact = probe_url($thrparent[0]["author-link"]);
-				if ($probed_contact["network"] != NETWORK_FEED) {
-					$parent_contact = $probed_contact;
-					$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
-					$parent_contact["thumb"] = $probed_contact["photo"];
-					$parent_contact["micro"] = $probed_contact["photo"];
-					$parent_contact["addr"] = $probed_contact["addr"];
+				$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+					dbesc(normalise_link($thrparent[0]["author-link"])));
+				if (count($r)) {
+					$parent_contact = $r[0];
+					$parent_contact["thumb"] = $parent_contact["photo"];
+					$parent_contact["micro"] = $parent_contact["photo"];
+					unset($parent_contact["id"]);
+				}
+
+				if (!isset($parent_contact["nick"])) {
+					require_once("include/Scrape.php");
+					$probed_contact = probe_url($thrparent[0]["author-link"]);
+					if ($probed_contact["network"] != NETWORK_FEED) {
+						$parent_contact = $probed_contact;
+						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
+						$parent_contact["thumb"] = $probed_contact["photo"];
+						$parent_contact["micro"] = $probed_contact["photo"];
+						$parent_contact["addr"] = $probed_contact["addr"];
+					}
 				}
 				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
 			} else
@@ -693,7 +704,8 @@ function item_post(&$a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
-
+	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
+							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
 	/**
 	 * These fields are for the convenience of plugins...
 	 * 'self' if true indicates the owner is posting on their own wall
@@ -832,9 +844,6 @@ function item_post(&$a) {
 		// NOTREACHED
 	}
 
-	// Store the guid and other relevant data
-	add_guid($datarray);
-
 	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);
 
@@ -888,7 +897,7 @@ function item_post(&$a) {
 
 
 		// Store the comment signature information in case we need to relay to Diaspora
-		store_diaspora_comment_sig($datarray, $author, ($self ? $a->user['prvkey'] : false), $parent_item, $post_id);
+		store_diaspora_comment_sig($datarray, $author, ($self ? $user['prvkey'] : false), $parent_item, $post_id);
 
 	} else {
 		$parent = $post_id;
@@ -1060,6 +1069,8 @@ function item_content(&$a) {
  * @return boolean true if replaced, false if not replaced
  */
 function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
+	require_once("include/Scrape.php");
+	require_once("include/socgraph.php");
 
 	$replaced = false;
 	$r = null;
@@ -1094,122 +1105,115 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		$stat = false;
 		//get the person's name
 		$name = substr($tag,1);
-		//is it a link or a full dfrn address?
-		if((strpos($name,'@')) || (strpos($name,'http://'))) {
-			$newname = $name;
-			//get the profile links
-			$links = @lrdd($name);
-			if(count($links)) {
-				//for all links, collect how is to inform and how's profile is to link
-				foreach($links as $link) {
-					if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
-						$profile = $link['@attributes']['href'];
-					if($link['@attributes']['rel'] === 'salmon') {
-						if(strlen($inform))
-							$inform .= ',';
-						$inform .= 'url:' . str_replace(',','%2c',$link['@attributes']['href']);
-					}
+
+		// Sometimes the tag detection doesn't seem to work right
+		// This is some workaround
+		$nameparts = explode(" ", $name);
+		$name = $nameparts[0];
+
+		// Try to detect the contact in various ways
+		if ((strpos($name,'@')) || (strpos($name,'http://'))) {
+			// Is it in format @user@domain.tld or @http://domain.tld/...?
+
+			// First check the contact table for the address
+			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact` WHERE `addr` = '%s' AND `uid` = %d LIMIT 1",
+					dbesc($name),
+					intval($profile_uid)
+			);
+
+			// Then check in the contact table for the url
+			if (!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `notify`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc(normalise_link($name)),
+						intval($profile_uid)
+				);
+
+			// Then check in the global contacts for the address
+			if (!$r)
+				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `addr` = '%s' LIMIT 1", dbesc($name));
+
+			// Then check in the global contacts for the url
+			if (!$r)
+				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1", dbesc(normalise_link($name)));
+
+			// If the data isn't complete then refetch the data
+			if ($r AND ($r[0]["network"] == NETWORK_OSTATUS) AND (($r[0]["notify"] == "") OR ($r[0]["alias"] == "")))
+				$r = false;
+
+			if (!$r) {
+				$probed = probe_url($name);
+				if (isset($probed["url"])) {
+					update_gcontact($probed);
+					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+						dbesc(normalise_link($probed["url"])));
 				}
 			}
-		} elseif (($network != NETWORK_OSTATUS) AND ($network != NETWORK_TWITTER) AND
-			($network != NETWORK_STATUSNET) AND ($network != NETWORK_APPNET)) {
-			//if it is a name rather than an address
-			$newname = $name;
-			$alias = '';
-			$tagcid = 0;
-			//is it some generated name?
-			if(strrpos($newname,'+')) {
-				//get the id
-				$tagcid = intval(substr($newname,strrpos($newname,'+') + 1));
-				//remove the next word from tag's name
-				if(strpos($name,' ')) {
-					$name = substr($name,0,strpos($name,' '));
-				}
-			}
-			if($tagcid) { //if there was an id
-				//select contact with that id from the logged in user's contact list
-				$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		} else {
+			$r = false;
+			if (strrpos($name,'+')) {
+				// Is it in format @nick+number?
+				$tagcid = intval(substr($name,strrpos($name,'+') + 1));
+
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($tagcid),
 						intval($profile_uid)
 				);
 			}
-			else {
-				$newname = str_replace('_',' ',$name);
 
-				// At first try to fetch a contact according to the given network
-				if ($network != "") {
-					//select someone from this user's contacts by name
-					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-							dbesc($newname),
-							dbesc($network),
-							intval($profile_uid)
-					);
-					if(! $r) {
-						//select someone by attag or nick and the name passed in
-						$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-								dbesc($name),
-								dbesc($name),
-								dbesc($network),
-								intval($profile_uid)
-						);
-					}
-				} else
-					$r = false;
+			//select someone by attag or nick and the name passed in the current network
+			if(!$r AND ($network != ""))
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+						dbesc($name),
+						dbesc($name),
+						dbesc($network),
+						intval($profile_uid)
+				);
 
-				if(! $r) {
-					//select someone from this user's contacts by name
-					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-							dbesc($newname),
-							intval($profile_uid)
-					);
-				}
+			//select someone from this user's contacts by name in the current network
+			if (!$r AND ($network != ""))
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
+						dbesc($newname),
+						dbesc($network),
+						intval($profile_uid)
+				);
 
-				if(! $r) {
-					//select someone by attag or nick and the name passed in
-					$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-							dbesc($name),
-							dbesc($name),
-							intval($profile_uid)
-					);
-				}
-			}
-/*			} elseif(strstr($name,'_') || strstr($name,' ')) { //no id
-				//get the real name
-				$newname = str_replace('_',' ',$name);
-				//select someone from this user's contacts by name
-				$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
+			//select someone by attag or nick and the name passed in
+			if(!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
+						dbesc($name),
+						dbesc($name),
+						intval($profile_uid)
+				);
+
+
+			//select someone from this user's contacts by name
+			if(!$r)
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($newname),
 						intval($profile_uid)
 				);
-			} else {
-				//select someone by attag or nick and the name passed in
-				$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-						dbesc($name),
-						dbesc($name),
-						intval($profile_uid)
-				);
-			}*/
-			//$r is set, if someone could be selected
-			if(count($r)) {
-				$profile = $r[0]['url'];
-				//set newname to nick, find alias
-				if(($r[0]['network'] === NETWORK_OSTATUS) OR ($r[0]['network'] === NETWORK_TWITTER)
-					OR ($r[0]['network'] === NETWORK_STATUSNET) OR ($r[0]['network'] === NETWORK_APPNET)) {
-					$newname = $r[0]['nick'];
-					$stat = true;
-					if($r[0]['alias'])
-						$alias = $r[0]['alias'];
-				}
-				else
-					$newname = $r[0]['name'];
-				//add person's id to $inform
-				if(strlen($inform))
-					$inform .= ',';
-				$inform .= 'cid:' . $r[0]['id'];
-			}
 		}
+
+		if ($r) {
+			if(strlen($inform) AND (isset($r[0]["notify"]) OR isset($r[0]["id"])))
+				$inform .= ',';
+
+			if (isset($r[0]["id"]))
+				$inform .= 'cid:' . $r[0]["id"];
+			elseif (isset($r[0]["notify"]))
+				$inform  .= $r[0]["notify"];
+
+			$profile = $r[0]["url"];
+			$alias   = $r[0]["alias"];
+			$newname = $r[0]["nick"];
+			if (($newname == "") OR (($r[0]["network"] != NETWORK_OSTATUS) AND ($r[0]["network"] != NETWORK_TWITTER)
+				AND ($r[0]["network"] != NETWORK_STATUSNET) AND ($r[0]["network"] != NETWORK_APPNET)))
+				$newname = $r[0]["name"];
+		}
+
 		//if there is an url for this persons profile
 		if(isset($profile)) {
+
 			$replaced = true;
 			//create profile link
 			$profile = str_replace(',','%2c',$profile);
@@ -1264,7 +1268,7 @@ function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, 
 	$signed_text = $datarray['guid'] . ';' . $parent_item['guid'] . ';' . $signed_body . ';' . $diaspora_handle;
 
 	if( $uprvkey !== false )
-		$authorsig = base64_encode(rsa_sign($signed_text,$uprvkey,'sha256'));
+		$authorsig = rsa_sign($signed_text,$uprvkey,'sha256');
 	else
 		$authorsig = '';
 

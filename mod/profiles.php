@@ -1,5 +1,5 @@
 <?php
-
+require_once("include/Contact.php");
 
 function profiles_init(&$a) {
 
@@ -482,21 +482,7 @@ function profiles_post(&$a) {
 		}
 
 		if($is_default) {
-			$location = $locality;
-
-			if ($region != "") {
-				if ($location != "")
-					$location .= ", ";
-
-				$location .= $region;
-			}
-
-			if ($country_name != "") {
-				if ($location != "")
-					$location .= ", ";
-
-				$location .= $country_name;
-			}
+			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
 			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($about),

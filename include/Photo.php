@@ -720,65 +720,101 @@ function guess_image_type($filename, $fromcurl=false) {
 
 }
 
-function import_profile_photo($photo,$uid,$cid) {
+/**
+ * @brief Updates the avatar links in a contact only if needed
+ *
+ * @param string $avatar Link to avatar picture
+ * @param int $uid User id of contact owner
+ * @param int $cid Contact id
+ * @param bool $force force picture update
+ *
+ * @return array Returns array of the different avatar sizes
+ */
+function update_contact_avatar($avatar,$uid,$cid, $force = false) {
 
-    $a = get_app();
+	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
+	if (!$r)
+		return false;
+	else
+		$data = array($r[0]["photo"], $r[0]["thumb"], $r[0]["micro"]);
 
-    $r = q("select `resource-id` from photo where `uid` = %d and `contact-id` = %d and `scale` = 4 and `album` = 'Contact Photos' limit 1",
-	intval($uid),
-	intval($cid)
-    );
-    if(count($r) && strlen($r[0]['resource-id'])) {
-	$hash = $r[0]['resource-id'];
-    }
-    else {
-	$hash = photo_new_resource();
-    }
+	if (($r[0]["avatar"] != $avatar) OR $force) {
+		$photos = import_profile_photo($avatar,$uid,$cid, true);
 
-    $photo_failure = false;
+		if ($photos) {
+			q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
+				dbesc($avatar), dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
+				dbesc(datetime_convert()), intval($cid));
+			return $photos;
+		}
+	}
 
-    $filename = basename($photo);
-    $img_str = fetch_url($photo,true);
+	return $data;
+}
 
-    $type = guess_image_type($photo,true);
-    $img = new Photo($img_str, $type);
-    if($img->is_valid()) {
+function import_profile_photo($photo,$uid,$cid, $quit_on_error = false) {
 
-	$img->scaleImageSquare(175);
+	$a = get_app();
 
-	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4 );
+	$r = q("select `resource-id` from photo where `uid` = %d and `contact-id` = %d and `scale` = 4 and `album` = 'Contact Photos' limit 1",
+		intval($uid),
+		intval($cid)
+	);
+	if(count($r) && strlen($r[0]['resource-id'])) {
+		$hash = $r[0]['resource-id'];
+	} else {
+		$hash = photo_new_resource();
+    	}
 
-	if($r === false)
-	    $photo_failure = true;
+	$photo_failure = false;
 
-	$img->scaleImage(80);
+	$filename = basename($photo);
+	$img_str = fetch_url($photo,true);
 
-	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5 );
+	if ($quit_on_error AND ($img_str == ""))
+		return false;
 
-	if($r === false)
-	    $photo_failure = true;
+	$type = guess_image_type($photo,true);
+	$img = new Photo($img_str, $type);
+	if($img->is_valid()) {
 
-	$img->scaleImage(48);
+		$img->scaleImageSquare(175);
 
-	$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6 );
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4 );
 
-	if($r === false)
-	    $photo_failure = true;
+		if($r === false)
+			$photo_failure = true;
 
-	$photo = $a->get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt();
-	$thumb = $a->get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt();
-	$micro = $a->get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt();
-    }
-    else
-	$photo_failure = true;
+		$img->scaleImage(80);
 
-    if($photo_failure) {
-	$photo = $a->get_baseurl() . '/images/person-175.jpg';
-	$thumb = $a->get_baseurl() . '/images/person-80.jpg';
-	$micro = $a->get_baseurl() . '/images/person-48.jpg';
-    }
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5 );
 
-    return(array($photo,$thumb,$micro));
+		if($r === false)
+			$photo_failure = true;
+
+		$img->scaleImage(48);
+
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6 );
+
+		if($r === false)
+			$photo_failure = true;
+
+		$photo = $a->get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt();
+		$thumb = $a->get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt();
+		$micro = $a->get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt();
+	} else
+		$photo_failure = true;
+
+	if($photo_failure AND $quit_on_error)
+		return false;
+
+	if($photo_failure) {
+		$photo = $a->get_baseurl() . '/images/person-175.jpg';
+		$thumb = $a->get_baseurl() . '/images/person-80.jpg';
+		$micro = $a->get_baseurl() . '/images/person-48.jpg';
+	}
+
+	return(array($photo,$thumb,$micro));
 
 }
 
@@ -792,15 +828,19 @@ function get_photo_info($url) {
 
 		$filesize = strlen($img_str);
 
-		$tempfile = tempnam(get_temppath(), "cache");
+		if (function_exists("getimagesizefromstring"))
+			$data = getimagesizefromstring($img_str);
+		else {
+			$tempfile = tempnam(get_temppath(), "cache");
 
-		$a = get_app();
-		$stamp1 = microtime(true);
-		file_put_contents($tempfile, $img_str);
-		$a->save_timestamp($stamp1, "file");
+			$a = get_app();
+			$stamp1 = microtime(true);
+			file_put_contents($tempfile, $img_str);
+			$a->save_timestamp($stamp1, "file");
 
-		$data = getimagesize($tempfile);
-		unlink($tempfile);
+			$data = getimagesize($tempfile);
+			unlink($tempfile);
+		}
 
 		if ($data)
 			$data["size"] = $filesize;
