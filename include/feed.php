@@ -2,7 +2,7 @@
 require_once("include/html2bbcode.php");
 require_once("include/items.php");
 
-function feed_import($xml,$importer,&$contact, &$hub) {
+function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	$a = get_app();
 
@@ -25,7 +25,7 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 	// Is it RDF?
 	if ($xpath->query('/rdf:RDF/rss:channel')->length > 0) {
-		//$author["author-link"] = $xpath->evaluate('/rdf:RDF/rss:channel/rss:link/text()')->item(0)->nodeValue;
+		$author["author-link"] = $xpath->evaluate('/rdf:RDF/rss:channel/rss:link/text()')->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('/rdf:RDF/rss:channel/rss:title/text()')->item(0)->nodeValue;
 
 		if ($author["author-name"] == "")
@@ -36,19 +36,26 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 	// Is it Atom?
 	if ($xpath->query('/atom:feed/atom:entry')->length > 0) {
-		//$self = $xpath->query("/atom:feed/atom:link[@rel='self']")->item(0)->attributes;
-		//if (is_object($self))
-		//	foreach($self AS $attributes)
-		//		if ($attributes->name == "href")
-		//			$author["author-link"] = $attributes->textContent;
+		$self = $xpath->query("atom:link[@rel='self']")->item(0)->attributes;
+		if (is_object($self))
+			foreach($self AS $attributes)
+				if ($attributes->name == "href")
+					$author["author-link"] = $attributes->textContent;
 
-		//if ($author["author-link"] == "") {
-		//	$alternate = $xpath->query("/atom:feed/atom:link[@rel='alternate']")->item(0)->attributes;
-		//	if (is_object($alternate))
-		//		foreach($alternate AS $attributes)
-		//			if ($attributes->name == "href")
-		//				$author["author-link"] = $attributes->textContent;
-		//}
+		if ($author["author-link"] == "") {
+			$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
+			if (is_object($alternate))
+				foreach($alternate AS $attributes)
+					if ($attributes->name == "href")
+						$author["author-link"] = $attributes->textContent;
+		}
+
+		if ($author["author-link"] == "")
+			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
+		if ($author["author-link"] == "")
+			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:id/text()')->item(0)->nodeValue;
+
+		$author["author-avatar"] = $xpath->evaluate('/atom:feed/atom:logo/text()')->item(0)->nodeValue;
 
 		$author["author-name"] = $xpath->evaluate('/atom:feed/atom:title/text()')->item(0)->nodeValue;
 
@@ -57,8 +64,6 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 		if ($author["author-name"] == "")
 			$author["author-name"] = $xpath->evaluate('/atom:feed/atom:author/atom:name/text()')->item(0)->nodeValue;
-
-		//$author["author-avatar"] = $xpath->evaluate('/atom:feed/atom:logo/text()')->item(0)->nodeValue;
 
 		$author["edited"] = $author["created"] = $xpath->query('/atom:feed/atom:updated/text()')->item(0)->nodeValue;
 
@@ -69,9 +74,10 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 	// Is it RSS?
 	if ($xpath->query('/rss/channel')->length > 0) {
-		//$author["author-link"] = $xpath->evaluate('/rss/channel/link/text()')->item(0)->nodeValue;
+		$author["author-link"] = $xpath->evaluate('/rss/channel/link/text()')->item(0)->nodeValue;
+
 		$author["author-name"] = $xpath->evaluate('/rss/channel/title/text()')->item(0)->nodeValue;
-		//$author["author-avatar"] = $xpath->evaluate('/rss/channel/image/url/text()')->item(0)->nodeValue;
+		$author["author-avatar"] = $xpath->evaluate('/rss/channel/image/url/text()')->item(0)->nodeValue;
 
 		if ($author["author-name"] == "")
 			$author["author-name"] = $xpath->evaluate('/rss/channel/copyright/text()')->item(0)->nodeValue;
@@ -86,18 +92,18 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 		$entries = $xpath->query('/rss/channel/item');
 	}
 
-	//if ($author["author-link"] == "")
+	if (is_array($contact)) {
 		$author["author-link"] = $contact["url"];
 
-	if ($author["author-name"] == "")
-		$author["author-name"] = $contact["name"];
+		if ($author["author-name"] == "")
+			$author["author-name"] = $contact["name"];
 
-	//if ($author["author-avatar"] == "")
 		$author["author-avatar"] = $contact["thumb"];
 
-	$author["owner-link"] = $contact["url"];
-	$author["owner-name"] = $contact["name"];
-	$author["owner-avatar"] = $contact["thumb"];
+		$author["owner-link"] = $contact["url"];
+		$author["owner-name"] = $contact["name"];
+		$author["owner-avatar"] = $contact["thumb"];
+	}
 
 	$header = array();
 	$header["uid"] = $importer["uid"];
@@ -119,6 +125,8 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 
 	if (!is_object($entries))
 		return;
+
+	$items = array();
 
 	$entrylist = array();
 
@@ -201,13 +209,13 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 		if ($creator != "")
 			$item["author-name"] = $creator;
 
-		//$item["object"] = $xml;
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s', '%s')",
-			intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED), dbesc(NETWORK_DFRN));
-		if ($r) {
-			logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-			continue;
+		if (!$simulate) {
+			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s', '%s')",
+				intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED), dbesc(NETWORK_DFRN));
+			if ($r) {
+				logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+				continue;
+			}
 		}
 
 		/// @TODO ?
@@ -272,14 +280,21 @@ function feed_import($xml,$importer,&$contact, &$hub) {
 			$item["body"] = html2bbcode($body);
 		}
 
-		logger("Stored feed: ".print_r($item, true), LOGGER_DEBUG);
+		if (!$simulate) {
+			logger("Stored feed: ".print_r($item, true), LOGGER_DEBUG);
 
-		$notify = item_is_remote_self($contact, $item);
-		$id = item_store($item, false, $notify);
+			$notify = item_is_remote_self($contact, $item);
+			$id = item_store($item, false, $notify);
 
-		//print_r($item);
+			logger("Feed for contact ".$contact["url"]." stored under id ".$id);
+		} else
+			$items[] = $item;
 
-		logger("Feed for contact ".$contact["url"]." stored under id ".$id);
+		if ($simulate)
+			break;
 	}
+
+	if ($simulate)
+		return array("header" => $author, "items" => $items);
 }
 ?>
