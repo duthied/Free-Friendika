@@ -22,13 +22,17 @@ function noscrape_init(&$a) {
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
 	$keywords = explode(',', $keywords);
 
+	$r = q("SELECT `photo` FROM `contact` WHERE `self` AND `uid` = %d",
+		intval($a->profile['uid']));
+
 	$json_info = array(
 		'fn' => $a->profile['name'],
 		'addr' => $a->profile['addr'],
+		'nick' => $a->user['nickname'],
 		'key' => $a->profile['pubkey'],
 		'homepage' => $a->get_baseurl()."/profile/{$which}",
 		'comm' => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
-		'photo' => $a->profile['photo'],
+		'photo' => $r[0]["photo"],
 		'tags' => $keywords
 	);
 
