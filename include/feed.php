@@ -2,6 +2,17 @@
 require_once("include/html2bbcode.php");
 require_once("include/items.php");
 
+/**
+ * @brief Read a RSS/RDF/Atom feed and create an item entry for it
+ *
+ * @param string $xml The feed data
+ * @param array $importer The user record of the importer
+ * @param array $contact The contact record of the feed
+ * @param string $hub Unused dummy value for compatibility reasons
+ * @param bool $simulate If enabled, no data is imported
+ *
+ * @return array In simulation mode it returns the header and the first item
+ */
 function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	$a = get_app();
@@ -102,7 +113,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		$entries = $xpath->query('/rss/channel/item');
 	}
 
-	if (is_array($contact)) {
+	if (!$simulate) {
 		$author["author-link"] = $contact["url"];
 
 		if ($author["author-name"] == "")
@@ -113,6 +124,9 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		$author["owner-link"] = $contact["url"];
 		$author["owner-name"] = $contact["name"];
 		$author["owner-avatar"] = $contact["thumb"];
+
+		// This is no field in the item table. So we have to unset it.
+		unset($author["author-nick"]);
 	}
 
 	$header = array();
