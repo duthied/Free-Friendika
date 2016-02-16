@@ -500,14 +500,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
 
-	if (($arr['author-link'] == "") AND ($arr['owner-link'] == "")) {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-		foreach ($trace AS $func)
-		        $function[] = $func["function"];
-
-		$function = implode(", ", $function);
-		logger("Both author-link and owner-link are empty. Called by: ".$function, LOGGER_DEBUG);
-	}
+	if (($arr['author-link'] == "") AND ($arr['owner-link'] == ""))
+		logger("Both author-link and owner-link are empty. Called by: ".App::callstack(), LOGGER_DEBUG);
 
 	if ($arr['plink'] == "") {
 		$a = get_app();
@@ -887,9 +881,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
-
-	// Add every contact of the post to the global contact table
-	poco_store($arr);
 
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
