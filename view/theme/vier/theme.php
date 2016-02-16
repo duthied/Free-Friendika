@@ -19,8 +19,6 @@ function vier_init(&$a) {
 
 	set_template_engine($a, 'smarty3');
 
-	$baseurl = $a->get_baseurl();
-
 	$a->theme_info = array();
 
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] or $a->argv[0] === "network" && local_user()) {
@@ -160,7 +158,7 @@ function vier_community_info() {
 				$entry = replace_macros($tpl,array(
 					'$id' => $rr['id'],
 					//'$profile_link' => zrl($rr['url']),
-					'$profile_link' => $a->get_baseurl().'/follow/?url='.urlencode($rr['url']),
+					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
 					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
 					'$alt_text' => $rr['name'],
 				));
@@ -186,7 +184,7 @@ function vier_community_info() {
 			$aside['$lastusers_items'] = array();
 
 			foreach($r as $rr) {
-				$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+				$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 				$entry = replace_macros($tpl,array(
 					'$id' => $rr['id'],
 					'$profile_link' => $profile_link,
@@ -207,7 +205,7 @@ function vier_community_info() {
 		$nv['suggest'] = Array('suggest', t('Friend Suggestions'), "", "");
 		$nv['invite'] = Array('invite', t('Invite Friends'), "", "");
 
-		$nv['search'] = '<form name="simple_bar" method="get" action="'.$a->get_baseurl().'/dirfind">
+		$nv['search'] = '<form name="simple_bar" method="get" action="dirfind">
 						<span class="sbox_l"></span>
 						<span class="sbox">
 						<input type="text" name="search" size="13" maxlength="50">

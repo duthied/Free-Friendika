@@ -107,7 +107,7 @@ function nav_info(&$a) {
 	if(($a->config['register_policy'] == REGISTER_OPEN) && (! local_user()) && (! remote_user()))
 		$nav['register'] = array('register',t('Register'), "", t('Create an account'));
 
-	$help_url = $a->get_baseurl($ssl_state) . '/help';
+	$help_url = 'help';
 
 	if(! get_config('system','hide_help'))
 		$nav['help'] = array($help_url, t('Help'), "", t('Help and documentation'));

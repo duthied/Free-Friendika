@@ -705,7 +705,7 @@ class Item extends BaseObject {
 				'$profile_uid' =>  $conv->get_profile_owner(),
 				'$mylink' => $a->contact['url'],
 				'$mytitle' => t('This is you'),
-				'$myphoto' => $a->contact['thumb'],
+				'$myphoto' => $a->get_cached_avatar_image($a->contact['thumb']),
 				'$comment' => t('Comment'),
 				'$submit' => t('Submit'),
 				'$edbold' => t('Bold'),

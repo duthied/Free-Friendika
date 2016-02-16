@@ -920,6 +920,10 @@ class App {
 	}
 
 	function get_cached_avatar_image($avatar_image){
+		// Just remove the base url. This avoid mixed content
+		$avatar_image = normalise_link($avatar_image);
+		$base = normalise_link($this->get_baseurl());
+		$avatar_image = str_replace($base."/", "", $avatar_image);
 		return $avatar_image;
 
 		// The following code is deactivated. It doesn't seem to make any sense and it slows down the system.
