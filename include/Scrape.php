@@ -2,6 +2,7 @@
 
 require_once('library/HTML5/Parser.php');
 require_once('include/crypto.php');
+require_once('include/feed.php');
 
 if(! function_exists('scrape_dfrn')) {
 function scrape_dfrn($url, $dont_probe = false) {
@@ -379,8 +380,6 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		$network = NETWORK_TWITTER;
 	}
 
-	// Twitter is deactivated since twitter closed its old API
-	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
 	$lastfm  = ((strpos($url,'last.fm/user') !== false) ? true : false);
 
 	$at_addr = ((strpos($url,'@') !== false) ? true : false);
@@ -617,21 +616,6 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			$vcard['nick'] = $addr_parts[0];
 		}
 
-		/* if($twitter) {
-			logger('twitter: setup');
-			$tid = basename($url);
-			$tapi = 'https://api.twitter.com/1/statuses/user_timeline.rss';
-			if(intval($tid))
-				$poll = $tapi . '?user_id=' . $tid;
-			else
-				$poll = $tapi . '?screen_name=' . $tid;
-			$profile = 'http://twitter.com/#!/' . $tid;
-			//$vcard['photo'] = 'https://api.twitter.com/1/users/profile_image/' . $tid;
-			$vcard['photo'] = 'https://api.twitter.com/1/users/profile_image?screen_name=' . $tid . '&size=bigger';
-			$vcard['nick'] = $tid;
-			$vcard['fn'] = $tid;
-		} */
-
 		if($lastfm) {
 			$profile = $url;
 			$poll = str_replace(array('www.','last.fm/'),array('','ws.audioscrobbler.com/1.0/'),$url) . '/recenttracks.rss';
@@ -675,85 +659,34 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 			if(x($feedret,'photo') && (! x($vcard,'photo')))
 				$vcard['photo'] = $feedret['photo'];
-			require_once('library/simplepie/simplepie.inc');
-			$feed = new SimplePie();
+
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-scrape-feed-');
 			$xml = fetch_url($poll, false, $redirects, 0, Null, $cookiejar);
 			unlink($cookiejar);
 
 			logger('probe_url: fetch feed: ' . $poll . ' returns: ' . $xml, LOGGER_DATA);
-			$a = get_app();
 
-			logger('probe_url: scrape_feed: headers: ' . $a->get_curl_headers(), LOGGER_DATA);
-
-			// Don't try and parse an empty string
-			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
-
-			$feed->init();
-			if($feed->error()) {
-				logger('probe_url: scrape_feed: Error parsing XML: ' . $feed->error());
+			if ($xml == "") {
+				logger("scrape_feed: XML is empty for feed ".$poll);
 				$network = NETWORK_PHANTOM;
-			}
+			} else {
+				$data = feed_import($xml,$dummy1,$dummy2, $dummy3, true);
 
-			if(! x($vcard,'photo'))
-				$vcard['photo'] = $feed->get_image_url();
-			$author = $feed->get_author();
+				if (!is_array($data)) {
+					logger("scrape_feed: This doesn't seem to be a feed: ".$poll);
+					$network = NETWORK_PHANTOM;
+				} else {
+					if (($vcard["photo"] == "") AND ($data["header"]["author-avatar"] != ""))
+						$vcard["photo"] = $data["header"]["author-avatar"];
 
-			if($author) {
-				$vcard['fn'] = unxmlify(trim($author->get_name()));
-				if(! $vcard['fn'])
-					$vcard['fn'] = trim(unxmlify($author->get_email()));
-				if(strpos($vcard['fn'],'@') !== false)
-					$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
+					if (($vcard["fn"] == "") AND ($data["header"]["author-name"] != ""))
+						$vcard["fn"] = $data["header"]["author-name"];
 
-				$email = unxmlify($author->get_email());
-				if(! $profile && $author->get_link())
-					$profile = trim(unxmlify($author->get_link()));
-				if(! $vcard['photo']) {
-					$rawtags = $feed->get_feed_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-					if($rawtags) {
-						$elems = $rawtags[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10];
-						if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
-							$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
-					}
-				}
-				// Fetch fullname via poco:displayName
-				$pocotags = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-				if ($pocotags) {
-					$elems = $pocotags[0]['child']['http://portablecontacts.net/spec/1.0'];
-					if (isset($elems["displayName"]))
-						$vcard['fn'] = $elems["displayName"][0]["data"];
-					if (isset($elems["preferredUsername"]))
-						$vcard['nick'] = $elems["preferredUsername"][0]["data"];
-				}
-			}
-			else {
-				$item = $feed->get_item(0);
-				if($item) {
-					$author = $item->get_author();
-					if($author) {
-						$vcard['fn'] = trim(unxmlify($author->get_name()));
-						if(! $vcard['fn'])
-							$vcard['fn'] = trim(unxmlify($author->get_email()));
-						if(strpos($vcard['fn'],'@') !== false)
-							$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
-						$email = unxmlify($author->get_email());
-						if(! $profile && $author->get_link())
-							$profile = trim(unxmlify($author->get_link()));
-					}
-					if(! $vcard['photo']) {
-						$rawmedia = $item->get_item_tags('http://search.yahoo.com/mrss/','thumbnail');
-						if($rawmedia && $rawmedia[0]['attribs']['']['url'])
-							$vcard['photo'] = unxmlify($rawmedia[0]['attribs']['']['url']);
-					}
-					if(! $vcard['photo']) {
-						$rawtags = $item->get_item_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-						if($rawtags) {
-							$elems = $rawtags[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10];
-							if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
-								$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
-						}
-					}
+					if (($vcard["nick"] == "") AND ($data["header"]["author-nick"] != ""))
+						$vcard["nick"] = $data["header"]["author-nick"];
+
+					if(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
+						$profile = $data["header"]["author-link"];
 				}
 			}
 
@@ -796,27 +729,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				}
 			}
 
-			if((! $vcard['photo']) && strlen($email))
-				$vcard['photo'] = avatar_img($email);
-			if($poll === $profile)
-				$lnk = $feed->get_permalink();
-			if(isset($lnk) && strlen($lnk))
-				$profile = $lnk;
-
-			if(! $network) {
+			if(! $network)
 				$network = NETWORK_FEED;
-				// If it is a feed, don't take the author name as feed name
-				unset($vcard['fn']);
-			}
-			if(! (x($vcard,'fn')))
-				$vcard['fn'] = notags($feed->get_title());
-			if(! (x($vcard,'fn')))
-				$vcard['fn'] = notags($feed->get_description());
 
-			if(strpos($vcard['fn'],'Twitter / ') !== false) {
-				$vcard['fn'] = substr($vcard['fn'],strpos($vcard['fn'],'/')+1);
-				$vcard['fn'] = trim($vcard['fn']);
-			}
 			if(! x($vcard,'nick')) {
 				$vcard['nick'] = strtolower(notags(unxmlify($vcard['fn'])));
 				if(strpos($vcard['nick'],' '))
@@ -829,7 +744,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	if(! x($vcard,'photo')) {
 		$a = get_app();
-		$vcard['photo'] = $a->get_baseurl() . '/images/person-175.jpg' ;
+		$vcard['photo'] = App::get_baseurl() . '/images/person-175.jpg' ;
 	}
 
 	if(! $profile)

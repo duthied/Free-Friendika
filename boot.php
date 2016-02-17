@@ -590,15 +590,6 @@ class App {
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
 
-			// See bug 437 - this didn't work so disabling it
-			//if(stristr($this->hostname,'xn--')) {
-				// PHP or webserver may have converted idn to punycode, so
-				// convert punycode back to utf-8
-			//	require_once('library/simplepie/idn/idna_convert.class.php');
-			//	$x = new idna_convert();
-			//	$this->hostname = $x->decode($_SERVER['SERVER_NAME']);
-			//}
-
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			/*
