@@ -920,10 +920,6 @@ class App {
 	}
 
 	function get_cached_avatar_image($avatar_image){
-		// Just remove the base url. This avoid mixed content
-		$avatar_image = normalise_link($avatar_image);
-		$base = normalise_link($this->get_baseurl());
-		$avatar_image = str_replace($base."/", "", $avatar_image);
 		return $avatar_image;
 
 		// The following code is deactivated. It doesn't seem to make any sense and it slows down the system.
@@ -950,6 +946,25 @@ class App {
 		*/
 	}
 
+
+	/**
+	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
+	 *
+	 * @param string $url
+	 *
+	 * @return string The cleaned url
+	 */
+	function remove_baseurl($url){
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->remove_baseurl($ssl));
+
+		$url = normalise_link($url);
+		$base = normalise_link($this->get_baseurl());
+		$url = str_replace($base."/", "", $url);
+		return $url;
+	}
 
 	/**
 	 * @brief Register template engine class

@@ -89,7 +89,7 @@ class ForumManager {
 		if(count($contacts)) {
 
 			$id = 0;
-$a = get_app();
+
 			foreach($contacts as $contact) {
 
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
@@ -100,7 +100,7 @@ $a = get_app();
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
-					'micro' => $a->get_cached_avatar_image(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'micro' => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
 					'id' => ++$id,
 				);
 				$entries[] = $entry;

@@ -154,7 +154,7 @@ class Item extends BaseObject {
 		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
 			$profile_avatar = $a->contacts[$normalised]['thumb'];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($this->get_data_value('thumb')));
+			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
@@ -705,7 +705,7 @@ class Item extends BaseObject {
 				'$profile_uid' =>  $conv->get_profile_owner(),
 				'$mylink' => $a->contact['url'],
 				'$mytitle' => t('This is you'),
-				'$myphoto' => $a->get_cached_avatar_image($a->contact['thumb']),
+				'$myphoto' => $a->remove_baseurl($a->contact['thumb']),
 				'$comment' => t('Comment'),
 				'$submit' => t('Submit'),
 				'$edbold' => t('Bold'),

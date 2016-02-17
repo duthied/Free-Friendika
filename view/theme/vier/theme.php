@@ -188,7 +188,7 @@ function vier_community_info() {
 				$entry = replace_macros($tpl,array(
 					'$id' => $rr['id'],
 					'$profile_link' => $profile_link,
-					'$photo' => $a->get_cached_avatar_image($rr['thumb']),
+					'$photo' => $a->remove_baseurl($rr['thumb']),
 					'$alt_text' => $rr['name']));
 				$aside['$lastusers_items'][] = $entry;
 			}
