@@ -864,11 +864,11 @@ class App {
 
 		$shortcut_icon = get_config("system", "shortcut_icon");
 		if ($shortcut_icon == "")
-			$shortcut_icon = $this->get_baseurl()."/images/friendica-32.png";
+			$shortcut_icon = "images/friendica-32.png";
 
 		$touch_icon = get_config("system", "touch_icon");
 		if ($touch_icon == "")
-			$touch_icon = $this->get_baseurl()."/images/friendica-128.png";
+			$touch_icon = "images/friendica-128.png";
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
@@ -1447,7 +1447,7 @@ function login($register = false, $hiddens=false) {
 
 	$noid = get_config('system','no_openid');
 
-	$dest_url = $a->get_baseurl(true) . '/' . $a->query_string;
+	$dest_url = $a->query_string;
 
 	if(local_user()) {
 		$tpl = get_markup_template("logout.tpl");
@@ -1766,9 +1766,9 @@ function current_theme_url() {
 
 	$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 	if (file_exists('view/theme/' . $t . '/style.php'))
-		return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
+		return('view/theme/'.$t.'/style.pcss'.$opts);
 
-	return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
+	return('view/theme/'.$t.'/style.css');
 }
 
 function feed_birthday($uid,$tz) {
