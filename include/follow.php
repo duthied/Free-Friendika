@@ -1,5 +1,6 @@
 <?php
 require_once("include/Scrape.php");
+require_once("include/socgraph.php");
 
 function update_contact($id) {
 	/*
@@ -42,6 +43,9 @@ function update_contact($id) {
 		dbesc($ret['poco']),
 		intval($id)
 	);
+
+	// Update the corresponding gcontact entry
+	poco_last_updated($ret["url"]);
 
 	return true;
 }

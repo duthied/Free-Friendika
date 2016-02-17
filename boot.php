@@ -590,15 +590,6 @@ class App {
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
 
-			// See bug 437 - this didn't work so disabling it
-			//if(stristr($this->hostname,'xn--')) {
-				// PHP or webserver may have converted idn to punycode, so
-				// convert punycode back to utf-8
-			//	require_once('library/simplepie/idn/idna_convert.class.php');
-			//	$x = new idna_convert();
-			//	$this->hostname = $x->decode($_SERVER['SERVER_NAME']);
-			//}
-
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			/*
@@ -1039,19 +1030,29 @@ class App {
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
 
-		// Trace the different functions with their timestamps
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+		$callstack = $this->callstack();
 
+		$this->callstack[$value][$callstack] += (float)$duration;
+
+	}
+
+	/**
+	 * @brief Returns a string with a callstack. Can be used for logging.
+	 *
+	 * @return string
+	 */
+	function callstack() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
+
+		// We remove the first two items from the list since they contain data that we don't need.
+		array_shift($trace);
 		array_shift($trace);
 
-		$function = array();
+		$callstack = array();
 		foreach ($trace AS $func)
-			$function[] = $func["function"];
+			$callstack[] = $func["function"];
 
-		$function = implode(", ", $function);
-
-		$this->callstack[$value][$function] += (float)$duration;
-
+		return implode(", ", $callstack);
 	}
 
 	function mark_timestamp($mark) {
