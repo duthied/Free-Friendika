@@ -49,12 +49,12 @@ function notifications_post(&$a) {
 					intval(local_user())
 				);
 			}
-			goaway($a->get_baseurl(true) . '/notifications/intros');
+			goaway('notifications/intros');
 		}
 		if($_POST['submit'] == t('Ignore')) {
 			$r = q("UPDATE `intro` SET `ignore` = 1 WHERE `id` = %d",
 				intval($intro_id));
-			goaway($a->get_baseurl(true) . '/notifications/intros');
+			goaway('notifications/intros');
 		}
 	}
 }
@@ -79,37 +79,37 @@ function notifications_content(&$a) {
 	$tabs = array(
 		array(
 			'label' => t('System'),
-			'url'=>$a->get_baseurl(true) . '/notifications/system',
+			'url'=>'notifications/system',
 			'sel'=> (($a->argv[1] == 'system') ? 'active' : ''),
 			'accesskey' => 'y',
 		),
 		array(
 			'label' => t('Network'),
-			'url'=>$a->get_baseurl(true) . '/notifications/network',
+			'url'=>'notifications/network',
 			'sel'=> (($a->argv[1] == 'network') ? 'active' : ''),
 			'accesskey' => 'w',
 		),
 		array(
 			'label' => t('Personal'),
-			'url'=>$a->get_baseurl(true) . '/notifications/personal',
+			'url'=>'notifications/personal',
 			'sel'=> (($a->argv[1] == 'personal') ? 'active' : ''),
 			'accesskey' => 'r',
 		),
 		array(
 			'label' => t('Home'),
-			'url' => $a->get_baseurl(true) . '/notifications/home',
+			'url' => 'notifications/home',
 			'sel'=> (($a->argv[1] == 'home') ? 'active' : ''),
 			'accesskey' => 'h',
 		),
 		array(
 			'label' => t('Introductions'),
-			'url' => $a->get_baseurl(true) . '/notifications/intros',
+			'url' => 'notifications/intros',
 			'sel'=> (($a->argv[1] == 'intros') ? 'active' : ''),
 			'accesskey' => 'i',
 		),
 		/*array(
 			'label' => t('Messages'),
-			'url' => $a->get_baseurl(true) . '/message',
+			'url' => 'message',
 			'sel'=> '',
 		),*/ /*while I can have notifications for messages, this tablist is not place for message page link */
 	);

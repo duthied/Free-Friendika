@@ -615,7 +615,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					$comment_lastcollapsed = true;
 				}
 
-				$redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $item['cid'] ;
+				$redirect_url = 'redir/' . $item['cid'] ;
 
 				$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 					|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))

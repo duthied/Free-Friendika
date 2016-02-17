@@ -104,7 +104,7 @@ function directory_content(&$a) {
 
 			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
 
-			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+			$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 

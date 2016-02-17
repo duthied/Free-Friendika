@@ -1432,8 +1432,8 @@ section.minimal {
 }
 .children .wall-item-container .wall-item-item .wall-item-content img {
   /* max-width: 650px; */
-  /* max-width: 580px; */
-  max-width: 100%;
+  max-width: 520px;
+  /* max-width: 100%; */
 }
 .wall-item-container .wall-item-links, .wall-item-container .wall-item-actions {
   display: table-cell;

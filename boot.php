@@ -949,7 +949,7 @@ class App {
 
 		// Is the function called statically?
 		if (!is_object($this))
-			return(self::$a->remove_baseurl($ssl));
+			return(self::$a->remove_baseurl($url));
 
 		$url = normalise_link($url);
 		$base = normalise_link($this->get_baseurl());

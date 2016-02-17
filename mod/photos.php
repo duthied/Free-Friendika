@@ -80,7 +80,7 @@ function photos_init(&$a) {
 				$entry = array(
 					'text'      => $album['album'],
 					'total'     => $album['total'],
-					'url'       => z_root() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
+					'url'       => 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album['album']),
 					'urlencode' => urlencode($album['album']),
 					'bin2hex'   => bin2hex($album['album'])
 				);
@@ -100,7 +100,7 @@ function photos_init(&$a) {
 				'$recent'    => t('Recent Photos'),
 				'$albums'   => $albums['albums'],
 				'$baseurl'  => z_root(),
-				'$upload'   => array( t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload'),
+				'$upload'   => array( t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'),
 				'$can_post' => $can_post
 			));
 		}
@@ -190,7 +190,7 @@ function photos_post(&$a) {
 		$album = hex2bin($a->argv[3]);
 
 		if($album === t('Profile Photos') || $album === 'Contact Photos' || $album === t('Contact Photos')) {
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
@@ -200,13 +200,13 @@ function photos_post(&$a) {
 		);
 		if(! count($r)) {
 			notice( t('Album not found.') . EOL);
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
 		// Check if the user has responded to a delete confirmation query
 		if($_REQUEST['canceled']) {
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway($_SESSION['photo_return']);
 		}
 
 		/*
@@ -221,7 +221,7 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 			$newurl = str_replace(bin2hex($album),bin2hex($newalbum),$_SESSION['photo_return']);
-			goaway($a->get_baseurl() . '/' . $newurl);
+			goaway($newurl);
 			return; // NOTREACHED
 		}
 
@@ -273,7 +273,7 @@ function photos_post(&$a) {
 				}
 			}
 			else {
-				goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+				goaway($_SESSION['photo_return']);
 				return; // NOTREACHED
 			}
 
@@ -309,14 +309,14 @@ function photos_post(&$a) {
 				}
 			}
 		}
-		goaway($a->get_baseurl() . '/photos/' . $a->data['user']['nickname']);
+		goaway('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
 
 
 	// Check if the user has responded to a delete confirmation query for a single photo
 	if(($a->argc > 2) && $_REQUEST['canceled']) {
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway($_SESSION['photo_return']);
 	}
 
 	if(($a->argc > 2) && (x($_POST,'delete')) && ($_POST['delete'] == t('Delete Photo'))) {
@@ -379,7 +379,7 @@ function photos_post(&$a) {
 			}
 		}
 
-		goaway($a->get_baseurl() . '/photos/' . $a->data['user']['nickname']);
+		goaway('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
 
@@ -718,12 +718,6 @@ function photos_post(&$a) {
 
 					$item_id = item_store($arr);
 					if($item_id) {
-						//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-						//	dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-						//	intval($page_owner_uid),
-						//	intval($item_id)
-						//);
-
 						proc_run('php',"include/notifier.php","tag","$item_id");
 					}
 				}
@@ -731,7 +725,7 @@ function photos_post(&$a) {
 			}
 
 		}
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway($_SESSION['photo_return']);
 		return; // NOTREACHED
 	}
 
@@ -938,14 +932,6 @@ function photos_post(&$a) {
 
 	$item_id = item_store($arr);
 
-	//if($item_id) {
-	//	q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-	//		dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-	//		intval($page_owner_uid),
-	//		intval($item_id)
-	//	);
-	//}
-
 	if($visible)
 		proc_run('php', "include/notifier.php", 'wall-new', $item_id);
 
@@ -954,7 +940,7 @@ function photos_post(&$a) {
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
 
-	goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+	goaway($_SESSION['photo_return']);
 	// NOTREACHED
 }
 
@@ -1125,7 +1111,7 @@ function photos_content(&$a) {
 
 		$uploader = '';
 
-		$ret = array('post_url' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'],
+		$ret = array('post_url' => 'photos/' . $a->data['user']['nickname'],
 				'addon_text' => $uploader,
 				'default_upload' => true);
 
@@ -1267,15 +1253,15 @@ function photos_content(&$a) {
 		else {
 			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if($can_post) {
-					$edit = array(t('Edit Album'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit');
+					$edit = array(t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit');
  				}
 			}
 		}
 
 		if($_GET['order'] === 'posted')
-			$order =  array(t('Show Newest First'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album));
+			$order =  array(t('Show Newest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album));
 		else
-			$order = array(t('Show Oldest First'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted');
+			$order = array(t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted');
 
 		$photos = array();
 
@@ -1301,10 +1287,10 @@ function photos_content(&$a) {
 				$photos[] = array(
 					'id' => $rr['id'],
 					'twist' => ' ' . $twist . rand(2,4),
-					'link' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
+					'link' => 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
 						. (($_GET['order'] === 'posted') ? '?f=&order=posted' : ''),
 					'title' => t('View Photo'),
-					'src' => $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
+					'src' => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
 					'alt' => $imgalt_e,
 					'desc'=> $desc_e,
 					'ext' => $ext,
@@ -1317,7 +1303,7 @@ function photos_content(&$a) {
 				'$photos' => $photos,
 				'$album' => $album,
 				'$can_post' => $can_post,
-				'$upload' => array(t('Upload New Photos'), $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
+				'$upload' => array(t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
 				'$order' => $order,
 				'$edit' => $edit
 			));
@@ -1384,8 +1370,8 @@ function photos_content(&$a) {
 				}
 			}
 			$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
-			$prevlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
-			$nextlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
+			$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
+			$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
  		}
 
 
@@ -1402,14 +1388,14 @@ function photos_content(&$a) {
 			}
 		}
 
-		$album_link = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
+		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
  		$tools = Null;
  		$lock = Null;
 
 		if($can_post && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = array(
-				'edit'	=> array($a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))),
-				'profile'=>array($a->get_baseurl() . '/profile_photo/use/'.$ph[0]['resource-id'], t('Use as profile photo')),
+				'edit'	=> array('photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))),
+				'profile'=>array('profile_photo/use/'.$ph[0]['resource-id'], t('Use as profile photo')),
 			);
 
 			// lock
@@ -1433,9 +1419,9 @@ function photos_content(&$a) {
 			$prevlink = array($prevlink, '<div class="icon prev"></div>') ;
 
 		$photo = array(
-			'href' => $a->get_baseurl() . '/photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
+			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
 			'title'=> t('View Full Size'),
-			'src'  => $a->get_baseurl() . '/photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . datetime_convert('','','','ymdhis'),
+			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . datetime_convert('','','','ymdhis'),
 			'height' => $hires['height'],
 			'width' => $hires['width'],
 			'album' => $hires['album'],
@@ -1522,7 +1508,7 @@ function photos_content(&$a) {
 			}
 			$tags = array(t('Tags: '), $tag_str);
 			if($cmd === 'edit') {
-				$tags[] = $a->get_baseurl() . '/tagrm/' . $link_item['id'];
+				$tags[] = 'tagrm/' . $link_item['id'];
 				$tags[] = t('[Remove any tag]');
 			}
 		}
@@ -1693,7 +1679,7 @@ function photos_content(&$a) {
 					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) && ($item['id'] != $item['parent']))
 						continue;
 
-					$redirect_url = $a->get_baseurl() . '/redir/' . $item['cid'] ;
+					$redirect_url = 'redir/' . $item['cid'] ;
 
 
 					if(local_user() && ($item['contact-uid'] == local_user())
@@ -1880,12 +1866,12 @@ function photos_content(&$a) {
 			$photos[] = array(
 				'id'		=> $rr['id'],
 				'twist'		=> ' ' . $twist . rand(2,4),
-				'link'  	=> $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
+				'link'  	=> 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
 				'title' 	=> t('View Photo'),
-				'src'     	=> $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
+				'src'     	=> 'photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
 				'alt'     	=> $alt_e,
 				'album'	=> array(
-					'link'  => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
+					'link'  => 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
 					'alt'   => t('View Album'),
 				),
@@ -1898,7 +1884,7 @@ function photos_content(&$a) {
 	$o .= replace_macros($tpl, array(
 		'$title' => t('Recent Photos'),
 		'$can_post' => $can_post,
-		'$upload' => array(t('Upload New Photos'), $a->get_baseurl().'/photos/'.$a->data['user']['nickname'].'/upload'),
+		'$upload' => array(t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'),
 		'$photos' => $photos,
 	));
 
