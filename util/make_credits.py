@@ -46,17 +46,20 @@ for i in c:
 n1 = len(contributors)
 print('  > found %d contributors' % n1)
 #  get the contributors to the addons
-os.chdir(path+'/addon')
-#  get the contributors
-print('> getting contributors to the addons')
-p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-c = iter(p.stdout.readline, b'')
-for i in c:
-    name = i.decode().split('\t')[1].split('\n')[0]
-    if not name in contributors and name not in dontinclude:
-        contributors.append(name)
+try:
+    os.chdir(path+'/addon')
+    #  get the contributors
+    print('> getting contributors to the addons')
+    p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    c = iter(p.stdout.readline, b'')
+    for i in c:
+        name = i.decode().split('\t')[1].split('\n')[0]
+        if not name in contributors and name not in dontinclude:
+            contributors.append(name)
+except FileNotFoundError:
+    print('  > no addon directory found ( THE LIST OF CONTRIBUTORS WILL BE INCOMPLETE )')
 n2 = len(contributors)
 print('  > found %d new contributors' % (n2-n1))
 print('> total of %d contributors to the repositories of friendica' % n2)
