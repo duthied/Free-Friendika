@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-24 06:49+0100\n"
-"PO-Revision-Date: 2016-01-30 08:43+0000\n"
+"PO-Revision-Date: 2016-02-16 10:29+0000\n"
 "Last-Translator: Sandro Santilli <strk@keybit.net>\n"
 "Language-Team: Italian (http://www.transifex.com/Friendica/friendica/language/it/)\n"
 "MIME-Version: 1.0\n"
@@ -41,8 +41,8 @@ msgstr "Forum"
 #, php-format
 msgid "%d contact edited."
 msgid_plural "%d contacts edited."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d contatto modificato."
+msgstr[1] "%d contatti modificati"
 
 #: mod/contacts.php:159 mod/contacts.php:383
 msgid "Could not access contact record."
@@ -887,7 +887,7 @@ msgstr "Rimuovi"
 
 #: mod/ostatus_subscribe.php:14
 msgid "Subscribing to OStatus contacts"
-msgstr ""
+msgstr "Iscrizione a contatti OStatus"
 
 #: mod/ostatus_subscribe.php:25
 msgid "No contact provided."
@@ -1943,7 +1943,7 @@ msgstr "Ispeziona Coda di invio"
 
 #: mod/admin.php:163 mod/admin.php:354
 msgid "Federation Statistics"
-msgstr ""
+msgstr "Statistiche sulla Federazione"
 
 #: mod/admin.php:177 mod/admin.php:188 mod/admin.php:1792
 msgid "Logs"
@@ -1951,7 +1951,7 @@ msgstr "Log"
 
 #: mod/admin.php:178 mod/admin.php:1859
 msgid "View Logs"
-msgstr ""
+msgstr "Vedi i log"
 
 #: mod/admin.php:179
 msgid "probe address"
@@ -1982,7 +1982,7 @@ msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
-msgstr ""
+msgstr "Questa pagina offre alcuni numeri riguardo la porzione del social network federato di cui il tuo nodo Friendica fa parte. Questi numeri non sono completi ma riflettono esclusivamente la porzione di rete di cui il tuo nodo e' a conoscenza."
 
 #: mod/admin.php:348
 msgid ""

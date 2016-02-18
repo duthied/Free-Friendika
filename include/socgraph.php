@@ -438,44 +438,47 @@ function poco_last_updated($profile, $force = false) {
 
 				$noscrape = json_decode($noscraperet["body"], true);
 
-				$contact = array("url" => $profile,
-						"network" => $server[0]["network"],
-						"generation" => $gcontacts[0]["generation"]);
+				if (is_array($noscrape)) {
+					$contact = array("url" => $profile,
+							"network" => $server[0]["network"],
+							"generation" => $gcontacts[0]["generation"]);
 
-				$contact["name"] = $noscrape["fn"];
-				$contact["community"] = $noscrape["comm"];
+					$contact["name"] = $noscrape["fn"];
+					$contact["community"] = $noscrape["comm"];
 
-				if (isset($noscrape["tags"])) {
-					$keywords = implode(" ", $noscrape["tags"]);
-					if ($keywords != "")
-						$contact["keywords"] = $keywords;
+					if (isset($noscrape["tags"])) {
+						$keywords = implode(" ", $noscrape["tags"]);
+						if ($keywords != "")
+							$contact["keywords"] = $keywords;
+					}
+
+					$location = formatted_location($noscrape);
+					if ($location)
+						$contact["location"] = $location;
+
+					$contact["notify"] = $noscrape["dfrn-notify"];
+
+					// Remove all fields that are not present in the gcontact table
+					unset($noscrape["fn"]);
+					unset($noscrape["key"]);
+					unset($noscrape["homepage"]);
+					unset($noscrape["comm"]);
+					unset($noscrape["tags"]);
+					unset($noscrape["locality"]);
+					unset($noscrape["region"]);
+					unset($noscrape["country-name"]);
+					unset($noscrape["contacts"]);
+					unset($noscrape["dfrn-request"]);
+					unset($noscrape["dfrn-confirm"]);
+					unset($noscrape["dfrn-notify"]);
+					unset($noscrape["dfrn-poll"]);
+
+					$contact = array_merge($contact, $noscrape);
+
+					update_gcontact($contact);
+
+					return $noscrape["updated"];
 				}
-
-				$location = formatted_location($noscrape);
-				if ($location)
-					$contact["location"] = $location;
-
-				$contact["notify"] = $noscrape["dfrn-notify"];
-
-				// Remove all fields that are not present in the gcontact table
-				unset($noscrape["fn"]);
-				unset($noscrape["key"]);
-				unset($noscrape["homepage"]);
-				unset($noscrape["comm"]);
-				unset($noscrape["tags"]);
-				unset($noscrape["locality"]);
-				unset($noscrape["region"]);
-				unset($noscrape["country-name"]);
-				unset($noscrape["contacts"]);
-				unset($noscrape["dfrn-request"]);
-				unset($noscrape["dfrn-confirm"]);
-				unset($noscrape["dfrn-notify"]);
-				unset($noscrape["dfrn-poll"]);
-
-				$contact = array_merge($contact, $noscrape);
-				update_gcontact($contact);
-
-				return $noscrape["updated"];
 			}
 		}
 	}
