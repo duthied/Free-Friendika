@@ -851,6 +851,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$a = get_app();
 
+	// Remove the abstract element. It is a non visible element.
+	$Text = remove_abstract($Text);
+
 	// Hide all [noparse] contained bbtags by spacefying them
 	// POSSIBLE BUG --> Will the 'preg' functions crash if there's an embedded image?
 
@@ -1299,5 +1302,44 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	call_hooks('bbcode',$Text);
 
 	return trim($Text);
+}
+
+/**
+ * @brief Removes the "abstract" element from the text
+ *
+ * @param string $text The text with BBCode
+ * @return string The same text - but without "abstract" element
+ */
+function remove_abstract($text) {
+	$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", '', $text);
+	$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", '', $text);
+
+	return $text;
+}
+
+/**
+ * @brief Returns the value of the "abstract" element
+ *
+ * @param string $text The text that maybe contains the element
+ * @param string $addon The addon for which the abstract is meant for
+ * @return string The abstract
+ */
+function fetch_abstract($text, $addon = "") {
+	$abstract = "";
+	$abstracts = array();
+	$addon = strtolower($addon);
+
+	if (preg_match_all("/\[abstract=(.*?)\](.*?)\[\/abstract\]/ism",$text, $results, PREG_SET_ORDER))
+		foreach ($results AS $result)
+			$abstracts[strtolower($result[1])] = $result[2];
+
+	if (isset($abstracts[$addon]))
+		$abstract = $abstracts[$addon];
+
+	if ($abstract == "")
+		if (preg_match("/\[abstract\](.*?)\[\/abstract\]/ism",$text, $result))
+			$abstract = $result[1];
+
+	return $abstract;
 }
 ?>

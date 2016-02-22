@@ -18,6 +18,7 @@ require_once("include/event.php");
 require_once("include/text.php");
 require_once("include/oembed.php");
 require_once("include/html2bbcode.php");
+require_once("include/bbcode.php");
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
@@ -719,6 +720,9 @@ class dfrn {
 			$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
 		else
 			$body = $item['body'];
+
+		// Remove the abstract element. It is only locally important.
+		$body = remove_abstract($body);
 
 		if ($type == 'html') {
 			$htmlbody = $body;

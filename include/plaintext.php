@@ -132,7 +132,7 @@ function shortenmsg($msg, $limit, $twitter = false) {
 	return($msg);
 }
 
-function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
+function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "") {
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
 	require_once("include/network.php");
@@ -144,6 +144,9 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 	// Add an URL element if the text contains a raw link
 	$body = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $body);
 
+	// Remove the abstract
+	$body = remove_abstract($body);
+
 	// At first look at data that is attached via "type-..." stuff
 	// This will hopefully replaced with a dedicated bbcode later
 	//$post = get_attached_data($b["body"]);
@@ -153,6 +156,44 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2) {
 		$post["text"] = trim($b["title"]."\n\n".$post["text"]);
 	elseif ($b["title"] != "")
 		$post["text"] = trim($b["title"]);
+
+	$abstract = "";
+
+	// Fetch the abstract from the given target network
+	if ($target_network != "") {
+		$default_abstract = fetch_abstract($b["body"]);
+		$abstract = fetch_abstract($b["body"], $target_network);
+
+		// If we post to a network with no limit we only fetch
+		// an abstract exactly for this network
+		if (($limit == 0) AND ($abstract == $default_abstract))
+			$abstract = "";
+
+	} else // Try to guess the correct target network
+		switch ($htmlmode) {
+			case 8:
+				$abstract = fetch_abstract($b["body"], NETWORK_TWITTER);
+				break;
+			case 7:
+				$abstract = fetch_abstract($b["body"], NETWORK_STATUSNET);
+				break;
+			case 6:
+				$abstract = fetch_abstract($b["body"], NETWORK_APPNET);
+				break;
+			default: // We don't know the exact target.
+				 // We fetch an abstract since there is a posting limit.
+				if ($limit > 0)
+					$abstract = fetch_abstract($b["body"]);
+		}
+
+	if ($abstract != "") {
+		$post["text"] = $abstract;
+
+		if ($post["type"] == "text") {
+			$post["type"] = "link";
+			$post["url"] = $b["plink"];
+		}
+	}
 
 	$html = bbcode($post["text"], false, false, $htmlmode);
 	$msg = html2plain($html, 0, true);
