@@ -132,6 +132,18 @@ function shortenmsg($msg, $limit, $twitter = false) {
 	return($msg);
 }
 
+/**
+ * @brief Convert a message into plaintext for connectors to other networks
+ *
+ * @param App $a The application class
+ * @param array $b The message array that is about to be posted
+ * @param int $limit The maximum number of characters when posting to that network
+ * @param bool $includedlinks Has an attached link to be included into the message?
+ * @param int $htmlmode This triggers the behaviour of the bbcode conversion
+ * @param string $target_network Name of the network where the post should go to.
+ *
+ * @return string The converted message
+ */
 function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "") {
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
