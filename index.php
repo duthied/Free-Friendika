@@ -371,7 +371,7 @@ $a->init_page_end();
 if(x($_SESSION,'visitor_home'))
 	$homebase = $_SESSION['visitor_home'];
 elseif(local_user())
-	$homebase = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
+	$homebase = 'profile/' . $a->user['nickname'];
 
 if(isset($homebase))
 	$a->page['content'] .= '<script>var homebase="' . $homebase . '" ; </script>';
@@ -423,10 +423,10 @@ if($a->module != 'install' && $a->module != 'maintenance') {
 
 if($a->is_mobile || $a->is_tablet) {
 	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-		$link = $a->get_baseurl() . '/toggle_mobile?address=' . curPageURL();
+		$link = 'toggle_mobile?address=' . curPageURL();
 	}
 	else {
-		$link = $a->get_baseurl() . '/toggle_mobile?off=1&address=' . curPageURL();
+		$link = 'toggle_mobile?off=1&address=' . curPageURL();
 	}
 	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
 	                     	'$toggle_link' => $link,
