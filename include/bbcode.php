@@ -851,9 +851,6 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$a = get_app();
 
-	// Remove the abstract element. It is a non visible element.
-	$Text = remove_abstract($Text);
-
 	// Hide all [noparse] contained bbtags by spacefying them
 	// POSSIBLE BUG --> Will the 'preg' functions crash if there's an embedded image?
 
@@ -861,6 +858,8 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'bb_spacefy',$Text);
 	$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
 
+	// Remove the abstract element. It is a non visible element.
+	$Text = remove_abstract($Text);
 
 	// Move all spaces out of the tags
 	$Text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $Text);
