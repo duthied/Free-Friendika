@@ -68,6 +68,10 @@ function poller_run(&$argv, &$argc){
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
 
+		// Constantly check the number of available database connections to let the frontend be accessible at any time
+		if (poller_max_connections_reached())
+			return;
+
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (poller_too_much_workers(3))
 			return;
@@ -126,6 +130,48 @@ function poller_run(&$argv, &$argc){
  * @return bool Are more than 3/4 of the maximum connections used?
  */
 function poller_max_connections_reached() {
+
+	// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
+	$max = get_config("system", "max_connections");
+
+	if ($max == 0) {
+		// the maximum number of possible user connections can be a system variable
+		$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
+		if ($r)
+			$max = $r[0]["Value"];
+
+		// Or it can be granted. This overrides the system variable
+		$r = q("SHOW GRANTS");
+		if ($r)
+			foreach ($r AS $grants) {
+				$grant = array_pop($grants);
+				if (stristr($grant, "GRANT USAGE ON"))
+					if (preg_match("/WITH MAX_USER_CONNECTIONS (\d*)/", $grant, $match))
+						$max = $match[1];
+			}
+	}
+
+	// If $max is set we will use the processlist to determine the current number of connections
+	// The processlist only shows entries of the current user
+	if ($max != 0) {
+		$r = q("SHOW PROCESSLIST");
+		if (!$r)
+			return false;
+
+		$used = count($r);
+
+		logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
+
+		$level = $used / $max;
+
+		if ($level >= (3/4)) {
+			logger("Maximum level (3/4) of user connections reached: ".$used."/".$max);
+			return true;
+		}
+	}
+
+	// We will now check for the system values.
+	// This limit could be reached although the user limits are fine.
 	$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
 	if (!$r)
 		return false;
@@ -138,20 +184,19 @@ function poller_max_connections_reached() {
 	if (!$r)
 		return false;
 
-	$connected = intval($r[0]["Value"]);
-	if ($connected == 0)
+	$used = intval($r[0]["Value"]);
+	if ($used == 0)
 		return false;
 
-	$level = $connected / $max;
+	logger("Connection usage (system values): ".$used."/".$max, LOGGER_DEBUG);
 
-	logger("Connection usage: ".$connected."/".$max, LOGGER_DEBUG);
+	$level = $used / $max;
 
 	if ($level < (3/4))
 		return false;
 
-	logger("Maximum level (3/4) of connections reached: ".$connected."/".$max);
+	logger("Maximum level (3/4) of system connections reached: ".$used."/".$max);
 	return true;
-
 }
 
 /**

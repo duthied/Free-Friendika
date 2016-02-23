@@ -2,17 +2,17 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <base href="{{$baseurl}}/" />
 <meta name="generator" content="{{$generator}}" />
-<link rel="stylesheet" href="{{$baseurl}}/view/global.css" type="text/css" media="all" />
-<link rel="stylesheet" href="{{$baseurl}}/library/colorbox/colorbox.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{$baseurl}}/library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{$baseurl}}/library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/global.css" type="text/css" media="all" />
+<link rel="stylesheet" href="library/colorbox/colorbox.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
 <!--
-<link rel="shortcut icon" href="{{$baseurl}}/images/friendica-32.png" />
-<link rel="apple-touch-icon" href="{{$baseurl}}/images/friendica-128.png"/>
+<link rel="shortcut icon" href="images/friendica-32.png" />
+<link rel="apple-touch-icon" href="images/friendica-128.png"/>
 -->
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
@@ -28,20 +28,20 @@
 <!--[if IE]>
 <script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
-<script type="text/javascript" src="{{$baseurl}}/js/modernizr.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/jquery.js" ></script>
-<!-- <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>-->
-<script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/fk.autocomplete.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/colorbox/jquery.colorbox-min.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/perfect-scrollbar/perfect-scrollbar.jquery.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/acl.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/webtoolkit.base64.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/main.js" ></script>
+<script type="text/javascript" src="js/modernizr.js" ></script>
+<script type="text/javascript" src="js/jquery.js" ></script>
+<!-- <script type="text/javascript" src="js/jquery-migrate.js" ></script>-->
+<script type="text/javascript" src="js/jquery-migrate.js" ></script>
+<script type="text/javascript" src="js/jquery.textinputs.js" ></script>
+<script type="text/javascript" src="js/fk.autocomplete.js" ></script>
+<script type="text/javascript" src="library/colorbox/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="library/jgrowl/jquery.jgrowl_minimized.js"></script>
+<script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="library/tinymce/jscripts/tiny_mce/tiny_mce_src.js" ></script>
+<script type="text/javascript" src="library/perfect-scrollbar/perfect-scrollbar.jquery.js" ></script>
+<script type="text/javascript" src="js/acl.js" ></script>
+<script type="text/javascript" src="js/webtoolkit.base64.js" ></script>
+<script type="text/javascript" src="js/main.js" ></script>
 <script>
 
 	var updateInterval = {{$update_interval}};

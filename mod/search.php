@@ -147,7 +147,7 @@ function search_content(&$a) {
 	}
 
 
-	$o .= search($search,'search-box','/search',((local_user()) ? true : false), false);
+	$o .= search($search,'search-box','search',((local_user()) ? true : false), false);
 
 	if(strpos($search,'#') === 0) {
 		$tag = true;

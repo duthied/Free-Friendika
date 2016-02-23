@@ -6,54 +6,6 @@ function uexport_init(&$a){
 
 	require_once("mod/settings.php");
         settings_init($a);
-
-/*
-	$tabs = array(
-		array(
-			'label'	=> t('Account settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings',
-			'selected'	=> '',
-		),
-		array(
-			'label'	=> t('Display settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/display',
-			'selected'	=>'',
-		),
-
-		array(
-			'label'	=> t('Connector settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/connectors',
-			'selected'	=> '',
-		),
-		array(
-			'label'	=> t('Plugin settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/addon',
-			'selected'	=> '',
-		),
-		array(
-			'label' => t('Connected apps'),
-			'url' => $a->get_baseurl(true) . '/settings/oauth',
-			'selected' => '',
-		),
-		array(
-			'label' => t('Export personal data'),
-			'url' => $a->get_baseurl(true) . '/uexport',
-			'selected' => 'active'
-		),
-		array(
-			'label' => t('Remove account'),
-			'url' => $a->get_baseurl(true) . '/removeme',
-			'selected' => ''
-		)
-	);
-
-	$tabtpl = get_markup_template("generic_links_widget.tpl");
-	$a->page['aside'] = replace_macros($tabtpl, array(
-		'$title' => t('Settings'),
-		'$class' => 'settings-widget',
-		'$items' => $tabs,
-	));
-*/
 }
 
 function uexport_content(&$a){
@@ -74,8 +26,8 @@ function uexport_content(&$a){
       * list of array( 'link url', 'link text', 'help text' )
       */
     $options = array(
-            array('/uexport/account',t('Export account'),t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')),
-            array('/uexport/backup',t('Export all'),t('Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')),
+            array('uexport/account',t('Export account'),t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')),
+            array('uexport/backup',t('Export all'),t('Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')),
     );
     call_hooks('uexport_options', $options);
 
@@ -153,9 +105,9 @@ function uexport_account($a){
         'version' => FRIENDICA_VERSION,
         'schema' => DB_UPDATE_VERSION,
         'baseurl' => $a->get_baseurl(),
-        'user' => $user, 
-        'contact' => $contact, 
-        'profile' => $profile, 
+        'user' => $user,
+        'contact' => $contact,
+        'profile' => $profile,
         'photo' => $photo,
         'pconfig' => $pconfig,
         'group' => $group,
@@ -171,8 +123,8 @@ function uexport_account($a){
  * echoes account data and items as separated json, one per line
  */
 function uexport_all(&$a) {
-    
-    uexport_account($a);
+
+	uexport_account($a);
 	echo "\n";
 
 	$r = q("SELECT count(*) as `total` FROM `item` WHERE `uid` = %d ",

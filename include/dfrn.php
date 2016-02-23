@@ -18,7 +18,7 @@ require_once("include/event.php");
 require_once("include/text.php");
 require_once("include/oembed.php");
 require_once("include/html2bbcode.php");
-require_once("library/HTMLPurifier.auto.php");
+require_once("include/bbcode.php");
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
@@ -96,7 +96,7 @@ class dfrn {
 
 		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
 
-		$r = q("SELECT `contact`.*, `user`.`uid` AS `user_uid`, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
 			dbesc($owner_nick)
@@ -106,7 +106,7 @@ class dfrn {
 			killme();
 
 		$owner = $r[0];
-		$owner_id = $owner['user_uid'];
+		$owner_id = $owner['uid'];
 		$owner_nick = $owner['nickname'];
 
 		$sql_post_table = "";
@@ -484,7 +484,7 @@ class dfrn {
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
 		xml_add_element($doc, $author, "link", "", $attributes);
 
-		$birthday = feed_birthday($owner['user_uid'], $owner['timezone']);
+		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday)
 			xml_add_element($doc, $author, "dfrn:birthday", $birthday);
@@ -499,7 +499,7 @@ class dfrn {
 			FROM `profile`
 				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
-			intval($owner['user_uid']));
+			intval($owner['uid']));
 		if ($r) {
 			$profile = $r[0];
 			xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
@@ -720,6 +720,9 @@ class dfrn {
 			$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
 		else
 			$body = $item['body'];
+
+		// Remove the abstract element. It is only locally important.
+		$body = remove_abstract($body);
 
 		if ($type == 'html') {
 			$htmlbody = $body;
@@ -1115,13 +1118,13 @@ class dfrn {
 	 *
 	 * @return Returns an array with relevant data of the author
 	 */
-	private function fetchauthor($xpath, $context, $importer, $element, $onlyfetch) {
+	private function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "") {
 
 		$author = array();
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
-		$r = q("SELECT `id`, `uid`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
+		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
 				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
@@ -1130,6 +1133,9 @@ class dfrn {
 			$author["contact-id"] = $r[0]["id"];
 			$author["network"] = $r[0]["network"];
 		} else {
+			if (!$onlyfetch)
+				logger("Contact ".$author["link"]." wasn't found for user ".$importer["uid"]." XML: ".$xml, LOGGER_DEBUG);
+
 			$author["contact-id"] = $importer["id"];
 			$author["network"] = $importer["network"];
 			$onlyfetch = true;
@@ -1159,38 +1165,41 @@ class dfrn {
 		}
 
 		if ($r AND !$onlyfetch) {
+			logger("Check if contact details for contact ".$r[0]["id"]." (".$r[0]["nick"].") have to be updated.", LOGGER_DEBUG);
+
+			$poco = array("url" => $contact["url"]);
 
 			// When was the last change to name or uri?
 			$name_element = $xpath->query($element."/atom:name", $context)->item(0);
 			foreach($name_element->attributes AS $attributes)
 				if ($attributes->name == "updated")
-					$contact["name-date"] = $attributes->textContent;
+					$poco["name-date"] = $attributes->textContent;
 
 			$link_element = $xpath->query($element."/atom:link", $context)->item(0);
 			foreach($link_element->attributes AS $attributes)
 				if ($attributes->name == "updated")
-					$contact["uri-date"] = $attributes->textContent;
+					$poco["uri-date"] = $attributes->textContent;
 
 			// Update contact data
 			$value = $xpath->evaluate($element."/dfrn:handle/text()", $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["addr"] = $value;
+				$poco["addr"] = $value;
 
 			$value = $xpath->evaluate($element."/poco:displayName/text()", $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["name"] = $value;
+				$poco["name"] = $value;
 
 			$value = $xpath->evaluate($element."/poco:preferredUsername/text()", $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["nick"] = $value;
+				$poco["nick"] = $value;
 
 			$value = $xpath->evaluate($element."/poco:note/text()", $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["about"] = $value;
+				$poco["about"] = $value;
 
 			$value = $xpath->evaluate($element."/poco:address/poco:formatted/text()", $context)->item(0)->nodeValue;
 			if ($value != "")
-				$contact["location"] = $value;
+				$poco["location"] = $value;
 
 			/// @todo Add support for the following fields that we don't support by now in the contact table:
 			/// - poco:utcOffset
@@ -1207,7 +1216,7 @@ class dfrn {
 				$tags[$tag->nodeValue] = $tag->nodeValue;
 
 			if (count($tags))
-				$contact["keywords"] = implode(", ", $tags);
+				$poco["keywords"] = implode(", ", $tags);
 
 			// "dfrn:birthday" contains the birthday converted to UTC
 			$old_bdyear = $contact["bdyear"];
@@ -1217,7 +1226,7 @@ class dfrn {
 			if (strtotime($birthday) > time()) {
 				$bd_timestamp = strtotime($birthday);
 
-				$contact["bdyear"] = date("Y", $bd_timestamp);
+				$poco["bdyear"] = date("Y", $bd_timestamp);
 			}
 
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
@@ -1232,8 +1241,10 @@ class dfrn {
 					$bdyear = $bdyear + 1;
 				}
 
-				$contact["bd"] = $value;
+				$poco["bd"] = $value;
 			}
+
+			$contact = array_merge($contact, $poco);
 
 			if ($old_bdyear != $contact["bdyear"])
 				self::birthday_event($contact, $birthday);
@@ -1245,6 +1256,7 @@ class dfrn {
 
 			unset($fields["id"]);
 			unset($fields["uid"]);
+			unset($fields["url"]);
 			unset($fields["avatar-date"]);
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
@@ -1252,8 +1264,10 @@ class dfrn {
 			 // Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
-				if (strtotime($contact[$field]) > strtotime($r[0][$field]))
+				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
+				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
@@ -1262,7 +1276,7 @@ class dfrn {
 				}
 
 			if ($update) {
-				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
+				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
 					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
@@ -1281,9 +1295,10 @@ class dfrn {
 			// It is used in the socgraph.php to prevent that old contact data
 			// that was relayed over several servers can overwrite contact
 			// data that we received directly.
-			$contact["generation"] = 2;
-			$contact["photo"] = $author["avatar"];
-			update_gcontact($contact);
+
+			$poco["generation"] = 2;
+			$poco["photo"] = $author["avatar"];
+			update_gcontact($poco);
 		}
 
 		return($author);
@@ -1953,6 +1968,8 @@ class dfrn {
 			$item['body'] = @html2bbcode($item['body']);
 		}
 
+		/// @todo We should check for a repeated post and if we know the repeated author.
+
 		// We don't need the content element since "dfrn:env" is always present
 		//$item["body"] = $xpath->query("atom:content/text()", $entry)->item(0)->nodeValue;
 
@@ -2051,10 +2068,14 @@ class dfrn {
 			if (($item["network"] != $author["network"]) AND ($author["network"] != ""))
 				$item["network"] = $author["network"];
 
-			if($importer["rel"] == CONTACT_IS_FOLLOWER) {
-				logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-				return;
-			}
+			// This code was taken from the old DFRN code
+			// When activated, forums don't work.
+			// And: Why should we disallow commenting by followers?
+			// the behaviour is now similar to the Diaspora part.
+			//if($importer["rel"] == CONTACT_IS_FOLLOWER) {
+			//	logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
+			//	return;
+			//}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
@@ -2363,8 +2384,14 @@ class dfrn {
 		$header["contact-id"] = $importer["id"];
 
 		// Update the contact table if the data has changed
+
+		// The "atom:author" is only present in feeds
+		if ($xpath->query("/atom:feed/atom:author")->length > 0)
+			self::fetchauthor($xpath, $doc->firstChild, $importer, "atom:author", false, $xml);
+
 		// Only the "dfrn:owner" in the head section contains all data
-		self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false);
+		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0)
+			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
 
 		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
 

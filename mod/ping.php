@@ -205,8 +205,8 @@ function ping_init(&$a) {
 			$local_time = datetime_convert('UTC',date_default_timezone_get(),$n['date']);
 
 			call_hooks('ping_xmlize', $n);
-			$notsxml = '<note href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" timestamp="%s" >%s</note>'."\n";
-			return sprintf ( $notsxml,
+			$notsxml = '<note id="%d" href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" timestamp="%s" >%s</note>'."\n";
+			return sprintf ( $notsxml, intval($n['id']),
 				xmlify($n['href']), xmlify($n['name']), xmlify($n['url']), xmlify($n['photo']),
 				xmlify(relative_date($n['date'])), xmlify($n['seen']), xmlify(strtotime($local_time)),
 				xmlify($n['message'])
@@ -219,19 +219,21 @@ function ping_init(&$a) {
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
 
-		if ( count($groups_unseen) ) {
+		if (count($groups_unseen)) {
 			echo '<groups>';
-			foreach ($groups_unseen as $it) {
-				echo '<group id="' . $it['id'] . '">' . $it['count'] . "</group>";
-			}
+			foreach ($groups_unseen as $it)
+				if ($it['count'] > 0)
+					echo '<group id="'.$it['id'].'">'.$it['count']."</group>";
+
 			echo "</groups>";
 		}
 
-		if ( count($forums_unseen) ) {
+		if (count($forums_unseen)) {
 			echo '<forums>';
-			foreach ($forums_unseen as $it) {
-				echo '<forum id="' . $it['id'] . '">' . $it['count'] . "</forum>";
-			}
+			foreach ($forums_unseen as $it)
+				if ($it['count'] > 0)
+					echo '<forum id="'.$it['id'].'">'.$it['count']."</forum>";
+
 			echo "</forums>";
 		}
 

@@ -37,6 +37,7 @@ General
 * o: Profile
 * t: Contacts
 * d: Common friends
+* r: Advanced
 
 /message
 --------

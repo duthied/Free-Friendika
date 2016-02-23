@@ -44,7 +44,7 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? "redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
 				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 				'$network_name' => $networkname,
 				'$network' => t('Network:'),
@@ -129,9 +129,9 @@ function contacts_batch_actions(&$a){
 	}
 
 	if(x($_SESSION,'return_url'))
-		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+		goaway('' . $_SESSION['return_url']);
 	else
-		goaway($a->get_baseurl(true) . '/contacts');
+		goaway('contacts');
 
 }
 
@@ -157,7 +157,7 @@ function contacts_post(&$a) {
 
 	if(! count($orig_record)) {
 		notice( t('Could not access contact record.') . EOL);
-		goaway($a->get_baseurl(true) . '/contacts');
+		goaway('contacts');
 		return; // NOTREACHED
 	}
 
@@ -366,19 +366,19 @@ function contacts_content(&$a) {
 
 		if(! count($orig_record)) {
 			notice( t('Could not access contact record.') . EOL);
-			goaway($a->get_baseurl(true) . '/contacts');
+			goaway('contacts');
 			return; // NOTREACHED
 		}
 
 		if($cmd === 'update') {
 			_contact_update($contact_id);
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			// NOTREACHED
 		}
 
 		if($cmd === 'updateprofile') {
 			_contact_update_profile($contact_id);
-			goaway($a->get_baseurl(true) . '/crepair/' . $contact_id);
+			goaway('crepair/' . $contact_id);
 			// NOTREACHED
 		}
 
@@ -389,7 +389,7 @@ function contacts_content(&$a) {
 				info((($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -400,7 +400,7 @@ function contacts_content(&$a) {
 				info((($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -412,7 +412,7 @@ function contacts_content(&$a) {
 				info((($archived) ? t('Contact has been archived') : t('Contact has been unarchived')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -447,17 +447,17 @@ function contacts_content(&$a) {
 			// Now check how the user responded to the confirmation query
 			if($_REQUEST['canceled']) {
 				if(x($_SESSION,'return_url'))
-					goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+					goaway('' . $_SESSION['return_url']);
 				else
-					goaway($a->get_baseurl(true) . '/contacts');
+					goaway('contacts');
 			}
 
 			_contact_drop($contact_id, $orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
 			if(x($_SESSION,'return_url'))
-				goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+				goaway('' . $_SESSION['return_url']);
 			else
-				goaway($a->get_baseurl(true) . '/contacts');
+				goaway('contacts');
 			return; // NOTREACHED
 		}
 		if($cmd === 'posts') {
@@ -577,8 +577,8 @@ function contacts_content(&$a) {
 			'$lbl_vis2' => sprintf( t('Please choose the profile you would like to display to %s when viewing your profile securely.'), $contact['name']),
 			'$lbl_info1' => t('Contact Information / Notes'),
 			'$infedit' => t('Edit contact notes'),
-			//'$common_text' => $common_text,
-			'$common_link' => $a->get_baseurl(true) . '/common/loc/' . local_user() . '/' . $contact['id'],
+			'$common_text' => $common_text,
+			'$common_link' => 'common/loc/' . local_user() . '/' . $contact['id'],
 			'$all_friends' => $all_friends,
 			'$relation_text' => $relation_text,
 			'$visit' => sprintf( t('Visit %s\'s profile [%s]'),$contact['name'],$contact['url']),
@@ -675,7 +675,7 @@ function contacts_content(&$a) {
 	$tabs = array(
 		array(
 			'label' => t('Suggestions'),
-			'url'   => $a->get_baseurl(true) . '/suggest',
+			'url'   => 'suggest',
 			'sel'   => '',
 			'title' => t('Suggest potential friends'),
 			'id'	=> 'suggestions-tab',
@@ -683,7 +683,7 @@ function contacts_content(&$a) {
 		),
 		array(
 			'label' => t('All Contacts'),
-			'url'   => $a->get_baseurl(true) . '/contacts/all',
+			'url'   => 'contacts/all',
 			'sel'   => ($all) ? 'active' : '',
 			'title' => t('Show all contacts'),
 			'id'	=> 'showall-tab',
@@ -691,7 +691,7 @@ function contacts_content(&$a) {
 		),
 		array(
 			'label' => t('Unblocked'),
-			'url'   => $a->get_baseurl(true) . '/contacts',
+			'url'   => 'contacts',
 			'sel'   => ((! $all) && (! $blocked) && (! $hidden) && (! $search) && (! $nets) && (! $ignored) && (! $archived)) ? 'active' : '',
 			'title' => t('Only show unblocked contacts'),
 			'id'	=> 'showunblocked-tab',
@@ -700,7 +700,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Blocked'),
-			'url'   => $a->get_baseurl(true) . '/contacts/blocked',
+			'url'   => 'contacts/blocked',
 			'sel'   => ($blocked) ? 'active' : '',
 			'title' => t('Only show blocked contacts'),
 			'id'	=> 'showblocked-tab',
@@ -709,7 +709,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Ignored'),
-			'url'   => $a->get_baseurl(true) . '/contacts/ignored',
+			'url'   => 'contacts/ignored',
 			'sel'   => ($ignored) ? 'active' : '',
 			'title' => t('Only show ignored contacts'),
 			'id'	=> 'showignored-tab',
@@ -718,7 +718,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Archived'),
-			'url'   => $a->get_baseurl(true) . '/contacts/archived',
+			'url'   => 'contacts/archived',
 			'sel'   => ($archived) ? 'active' : '',
 			'title' => t('Only show archived contacts'),
 			'id'	=> 'showarchived-tab',
@@ -727,7 +727,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Hidden'),
-			'url'   => $a->get_baseurl(true) . '/contacts/hidden',
+			'url'   => 'contacts/hidden',
 			'sel'   => ($hidden) ? 'active' : '',
 			'title' => t('Only show hidden contacts'),
 			'id'	=> 'showhidden-tab',
@@ -859,6 +859,13 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'id' => 'common-loc-tab',
 				'accesskey' => 'd');
 
+	$tabs[] = array('label' => t('Advanced'),
+			'url'   => 'crepair/' . $contact_id,
+			'sel' => (($active_tab == 5)?'active':''),
+			'title' => t('Advanced Contact Settings'),
+			'id'	=> 'advanced-tab',
+			'accesskey' => 'r');
+
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
 
@@ -979,14 +986,6 @@ function contact_actions($contact) {
 							'id'	=> 'update',
 					);
 	}
-
-	$contact_actions['repair'] = array(
-						'label'	=> t('Repair'),
-						'url'	=> app::get_baseurl(true) . '/crepair/' . $contact['id'],
-						'title' => t('Advanced Contact Settings'),
-						'sel'	=> '',
-						'id'	=> 'repair',
-				);
 
 	$contact_actions['block'] = array(
 						'label'	=> (intval($contact['blocked']) ? t('Unblock') : t('Block') ),

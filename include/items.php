@@ -291,16 +291,6 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 	return $body;
 }
 
-function add_guid($item) {
-	$r = q("SELECT `guid` FROM `guid` WHERE `guid` = '%s' LIMIT 1", dbesc($item["guid"]));
-	if ($r)
-		return;
-
-	q("INSERT INTO `guid` (`guid`,`plink`,`uri`,`network`) VALUES ('%s','%s','%s','%s')",
-		dbesc($item["guid"]), dbesc($item["plink"]),
-		dbesc($item["uri"]), dbesc($item["network"]));
-}
-
 /**
  * Adds a "lang" specification in a "postopts" element of given $arr,
  * if possible and not already present.
@@ -510,14 +500,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
 
-	if (($arr['author-link'] == "") AND ($arr['owner-link'] == "")) {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-		foreach ($trace AS $func)
-		        $function[] = $func["function"];
-
-		$function = implode(", ", $function);
-		logger("Both author-link and owner-link are empty. Called by: ".$function, LOGGER_DEBUG);
-	}
+	if (($arr['author-link'] == "") AND ($arr['owner-link'] == ""))
+		logger("Both author-link and owner-link are empty. Called by: ".App::callstack(), LOGGER_DEBUG);
 
 	if ($arr['plink'] == "") {
 		$a = get_app();
@@ -778,9 +762,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	} elseif(count($r)) {
 
-		// Store the guid and other relevant data
-		add_guid($arr);
-
 		$current_post = $r[0]['id'];
 		logger('item_store: created item ' . $current_post);
 
@@ -900,9 +881,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		} else
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
-
-	// Add every contact of the post to the global contact table
-	poco_store($arr);
 
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);

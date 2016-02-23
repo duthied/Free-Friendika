@@ -17,6 +17,8 @@
  * easily as email does today.
  */
 
+require_once('include/autoloader.php');
+ 
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -588,15 +590,6 @@ class App {
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
 
-			// See bug 437 - this didn't work so disabling it
-			//if(stristr($this->hostname,'xn--')) {
-				// PHP or webserver may have converted idn to punycode, so
-				// convert punycode back to utf-8
-			//	require_once('library/simplepie/idn/idna_convert.class.php');
-			//	$x = new idna_convert();
-			//	$this->hostname = $x->decode($_SERVER['SERVER_NAME']);
-			//}
-
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			/*
@@ -862,11 +855,11 @@ class App {
 
 		$shortcut_icon = get_config("system", "shortcut_icon");
 		if ($shortcut_icon == "")
-			$shortcut_icon = $this->get_baseurl()."/images/friendica-32.png";
+			$shortcut_icon = "images/friendica-32.png";
 
 		$touch_icon = get_config("system", "touch_icon");
 		if ($touch_icon == "")
-			$touch_icon = $this->get_baseurl()."/images/friendica-128.png";
+			$touch_icon = "images/friendica-128.png";
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
@@ -944,6 +937,25 @@ class App {
 		*/
 	}
 
+
+	/**
+	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
+	 *
+	 * @param string $url
+	 *
+	 * @return string The cleaned url
+	 */
+	function remove_baseurl($url){
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->remove_baseurl($url));
+
+		$url = normalise_link($url);
+		$base = normalise_link($this->get_baseurl());
+		$url = str_replace($base."/", "", $url);
+		return $url;
+	}
 
 	/**
 	 * @brief Register template engine class
@@ -1037,19 +1049,29 @@ class App {
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
 
-		// Trace the different functions with their timestamps
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+		$callstack = $this->callstack();
 
+		$this->callstack[$value][$callstack] += (float)$duration;
+
+	}
+
+	/**
+	 * @brief Returns a string with a callstack. Can be used for logging.
+	 *
+	 * @return string
+	 */
+	function callstack() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
+
+		// We remove the first two items from the list since they contain data that we don't need.
+		array_shift($trace);
 		array_shift($trace);
 
-		$function = array();
+		$callstack = array();
 		foreach ($trace AS $func)
-			$function[] = $func["function"];
+			$callstack[] = $func["function"];
 
-		$function = implode(", ", $function);
-
-		$this->callstack[$value][$function] += (float)$duration;
-
+		return implode(", ", $callstack);
 	}
 
 	function mark_timestamp($mark) {
@@ -1416,7 +1438,7 @@ function login($register = false, $hiddens=false) {
 
 	$noid = get_config('system','no_openid');
 
-	$dest_url = $a->get_baseurl(true) . '/' . $a->query_string;
+	$dest_url = $a->query_string;
 
 	if(local_user()) {
 		$tpl = get_markup_template("logout.tpl");
@@ -1735,9 +1757,9 @@ function current_theme_url() {
 
 	$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 	if (file_exists('view/theme/' . $t . '/style.php'))
-		return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
+		return('view/theme/'.$t.'/style.pcss'.$opts);
 
-	return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
+	return('view/theme/'.$t.'/style.css');
 }
 
 function feed_birthday($uid,$tz) {
