@@ -145,6 +145,64 @@ eine Karte von [OpenStreetmap](http://openstreetmap.org) eingebettet werden. Zur
 
 oder eine Adresse in obiger Form verwendet werden.
 
+Zusammenfassung für längere Beiträge
+------------------------------------
+
+Wenn man seine Beiträge über mehrere Netzwerke verbreiten möchte, hat 
+man häufig das Problem, dass diese Netzwerke z.B. eine 
+Längenbeschränkung haben. (Z.B. Twitter).
+
+Friendica benutzt zum Erzeugen eines Anreißtextes eine halbwegs 
+intelligente Logik. Es kann aber dennoch von Interesse sein, eine eigene 
+Zusammenfassung zu erstellen, die nur auf dem Fremdnetzwerk dargestellt 
+wird. Dies geschieht mit dem [abstract]-Element. Beispiel:
+
+<pre>[abstract]Total spannend! Unbedingt diesen Link anklicken![/abstract]
+Hier erzähle ich euch eine total langweilige Geschichte, die ihr noch 
+nie hören wolltet.</pre>
+
+Auf Twitter würde das "Total spannend! Unbedingt diesen Link anklicken!" 
+stehen, auf Friendica würde nur der Text nach "Hier erzähle ..." 
+erscheinen.
+
+Es ist sogar möglich, für einzelne Netzwerke eigene Zusammenfassungen zu 
+erstellen:
+
+<pre>
+[abstract]Hallo Leute, hier meine neuesten Bilder![abstract]
+[abstract=twit]Hallo Twitter-User, hier meine neuesten Bilder![abstract]
+[abstract=apdn]Hallo App.net-User, hier meine neuesten Bilder![abstract]
+Ich war heute wieder im Wald unterwegs und habe tolle Bilder geschossen ...
+</pre>
+
+Für Twitter und App.net nimmt das System die entsprechenden Texte. Bei 
+anderen Netzwerken, bei denen der Inhalt gekürzt wird (z.B. beim 
+Statusnet-Connector) wird dann die Zusammenfassung unter [abstract] 
+verwendet.
+
+Wenn man z.B. den "buffer"-Connector verwendet, um nach Facebook oder 
+Google+ zu posten, kann man dieses Element ebenfalls verwenden, wenn man 
+z.B. einen längeren Blogbeitrag erstellt hat, aber ihn nicht komplett in 
+diese Netzwerke posten möchte.
+
+Netzwerke wie Facebook oder Google+ sind nicht in der Postinglänge 
+beschränkt. Aus diesem Grund greift nicht die 
+[abstract]-Zusammenfassung. Stattdessen muss man das Netzwerk explizit 
+angeben:
+
+<pre>
+[abstract]Ich habe neulich wieder etwas erlebt, was ich euch mitteilen möchte.[abstract]
+[abstract=goog]Hallo meine Google+-Kreislinge. Ich habe neulich wieder 
+etwas erlebt, was ich euch mitteilen möchte.[abstract]
+[abstract=face]Hallo Facebook-Freunde! Ich habe neulich wieder etwas 
+erlebt, was ich euch mitteilen möchte.[abstract]
+Beim Bildermachen im Wald habe ich neulich eine interessante Person 
+getroffen ... </pre>
+
+Das [abstract]-Element greift nicht bei der nativen OStatus-Verbindung 
+oder bei Connectoren, die den HTML-Text posten wie z.B. die Connectoren 
+zu Tumblr, Wordpress oder Pump.io.
+
 Spezielle Tags
 -------
 
