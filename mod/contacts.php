@@ -970,7 +970,7 @@ function contact_actions($contact) {
 	if($contact['network'] === NETWORK_DFRN) {
 		$contact_actions['suggest'] = array(
 							'label' => t('Suggest friends'),
-							'url'	=> app::get_baseurl(true) . '/fsuggest/' . $contact['id'],
+							'url'	=> 'fsuggest/' . $contact['id'],
 							'title'	=> '',
 							'sel'	=> '',
 							'id'	=>  'suggest',
@@ -980,7 +980,7 @@ function contact_actions($contact) {
 	if($poll_enabled) {
 		$contact_actions['update'] = array(
 							'label'	=> t('Update now'),
-							'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/update',
+							'url'	=> 'contacts/' . $contact['id'] . '/update',
 							'title'	=> '',
 							'sel'	=> '',
 							'id'	=> 'update',
@@ -989,7 +989,7 @@ function contact_actions($contact) {
 
 	$contact_actions['block'] = array(
 						'label'	=> (intval($contact['blocked']) ? t('Unblock') : t('Block') ),
-						'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/block',
+						'url'	=> 'contacts/' . $contact['id'] . '/block',
 						'title' => t('Toggle Blocked status'),
 						'sel'	=> (intval($contact['blocked']) ? 'active' : ''),
 						'id'	=> 'toggle-block',
@@ -997,7 +997,7 @@ function contact_actions($contact) {
 
 	$contact_actions['ignore'] = array(
 						'label'	=> (intval($contact['readonly']) ? t('Unignore') : t('Ignore') ),
-						'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/ignore',
+						'url'	=> 'contacts/' . $contact['id'] . '/ignore',
 						'title' => t('Toggle Ignored status'),
 						'sel'	=> (intval($contact['readonly']) ? 'active' : ''),
 						'id'	=> 'toggle-ignore',
@@ -1005,7 +1005,7 @@ function contact_actions($contact) {
 
 	$contact_actions['archive'] = array(
 						'label'	=> (intval($contact['archive']) ? t('Unarchive') : t('Archive') ),
-						'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/archive',
+						'url'	=> 'contacts/' . $contact['id'] . '/archive',
 						'title' => t('Toggle Archive status'),
 						'sel'	=> (intval($contact['archive']) ? 'active' : ''),
 						'id'	=> 'toggle-archive',
@@ -1013,7 +1013,7 @@ function contact_actions($contact) {
 
 	$contact_actions['delete'] = array(
 						'label'	=> t('Delete'),
-						'url'	=> app::get_baseurl(true) . '/contacts/' . $contact['id'] . '/drop', 
+						'url'	=> 'contacts/' . $contact['id'] . '/drop', 
 						'title'	=> t('Delete contact'),
 						'sel'	=> '',
 						'id'	=> 'delete',
