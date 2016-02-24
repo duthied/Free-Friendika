@@ -166,7 +166,7 @@ Es ist sogar möglich, für einzelne Netzwerke eigene Zusammenfassungen zu erste
 Ich war heute wieder im Wald unterwegs und habe tolle Bilder geschossen ...
 </pre>
 
-Für Twitter und App.net nimmt das System die entsprechenden Texte. Bei anderen Netzwerken, bei denen der Inhalt gekürzt wird (z.B. beim Statusnet-Connector) wird dann die Zusammenfassung unter [abstract] verwendet.
+Für Twitter und App.net nimmt das System die entsprechenden Texte. Bei anderen Netzwerken, bei denen der Inhalt gekürzt wird (z.B. beim "statusnet"-Connector, der für das Posten nach GNU Social verwendet wird) wird dann die Zusammenfassung unter [abstract] verwendet.
 
 Wenn man z.B. den "buffer"-Connector verwendet, um nach Facebook oder Google+ zu posten, kann man dieses Element ebenfalls verwenden, wenn man z.B. einen längeren Blogbeitrag erstellt hat, aber ihn nicht komplett in diese Netzwerke posten möchte.
 
