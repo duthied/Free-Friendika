@@ -347,7 +347,7 @@ function display_content(&$a, $update = 0) {
 		return;
 	}
 
-	// We meed the editor here if we want to reshare an item.
+	// We need the editor here to be able to reshare an item.
 
 	if ($is_owner) {
 		$x = array(
