@@ -148,22 +148,15 @@ This require "openstreetmap" addon version 1.3 or newer.
 Abstract for longer posts
 -------------------------
 
-If you want to spread your post to several third party networks you can 
-have the problem that these networks have (for example) a length 
-limitation. (Like on Twitter)
+If you want to spread your post to several third party networks you can have the problem that these networks have (for example) a length limitation. (Like on Twitter)
 
-Friendica is using a semi intelligent mechanism to generate a fitting 
-abstract. But it can be interesting to define an own abstract that will 
-only be displayed on the external network. This is done with the 
-[abstract]-element. Example:
+Friendica is using a semi intelligent mechanism to generate a fitting abstract. But it can be interesting to define an own abstract that will only be displayed on the external network. This is done with the [abstract]-element. Example:
 
 <pre>[abstract]Totally interesting! A must-see! Please click the link![/abstract]
 I want to tell you a really boring story that you really never wanted 
 to hear.</pre>
 
-Twitter would display the text "Totally interesting! A must-see! Please 
-click the link!". On Friendica you would only see the text after "I 
-want to tell you a really ..."
+Twitter would display the text "Totally interesting! A must-see! Please click the link!". On Friendica you would only see the text after "I want to tell you a really ..."
 
 It is even possible to define abstracts for separate networks:
 
@@ -176,17 +169,11 @@ that I wanted to share with you.[abstract]
 Today I was in the woods and took some real cool pictures ...
 </pre>
 
-For Twitter and App.net the system will use the defined abstracts. For 
-other networks (e.g. when you are using the Statusnet connector) the 
-general abstract element will be used.
+For Twitter and App.net the system will use the defined abstracts. For other networks (e.g. when you are using the Statusnet connector) the general abstract element will be used.
 
-If you use (for example) the "buffer" connector to post to Facebook or 
-Google+ you can use this element to define an abstract for a longer 
-blogpost that you don't want to post completely to these networks.
+If you use (for example) the "buffer" connector to post to Facebook or Google+ you can use this element to define an abstract for a longer blogpost that you don't want to post completely to these networks.
 
-Networks like Facebook or Google+ aren't length limited. For this reason 
-the [abstract] element isn't used. Instead you have to name the explicit 
-network:
+Networks like Facebook or Google+ aren't length limited. For this reason the [abstract] element isn't used. Instead you have to name the explicit network:
 
 <pre>
 [abstract]These days I had a strange encounter ...[abstract]
@@ -196,9 +183,7 @@ newest blog post![abstract]
 really cool.[abstract]
 While taking pictures in the woods I had a really strange encounter ... </pre>
 
-The [abstract] element isn't working with the native OStatus connection 
-or with connectors where we post the HTML. (Like Tumblr, Wordpress or 
-Pump.io)
+The [abstract] element isn't working with the native OStatus connection or with connectors where we post the HTML. (Like Tumblr, Wordpress or Pump.io)
 
 Special
 -------
