@@ -174,7 +174,8 @@ that I wanted to share with you.[abstract]
 Today I was in the woods and took some real cool pictures ...
 </pre>
 
-For Twitter and App.net the system will use the defined abstracts. For other networks (e.g. when you are using the "statusnet" connector that is used to post to GNU Social) the general abstract element will be used.
+For Twitter and App.net the system will use the defined abstracts.
+For other networks (e.g. when you are using the "statusnet" connector that is used to post to GNU Social) the general abstract element will be used.
 
 If you use (for example) the "buffer" connector to post to Facebook or Google+ you can use this element to define an abstract for a longer blogpost that you don't want to post completely to these networks.
 
