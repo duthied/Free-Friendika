@@ -58,6 +58,8 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 		return;
 	}
 
+	$data = $msg;
+
 	// php doesn't like dashes in variable names
 
 	$msg['message'] = str_replace(
@@ -74,48 +76,83 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 
 
 	if($xmlbase->request) {
+		$tempfile = tempnam(get_temppath(), "diaspora-request");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_request($importer,$xmlbase->request);
 	}
 	elseif($xmlbase->status_message) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-status_message");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_post($importer,$xmlbase->status_message,$msg);
 	}
 	elseif($xmlbase->profile) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-profile");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_profile($importer,$xmlbase->profile,$msg);
 	}
 	elseif($xmlbase->comment) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-comment");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_comment($importer,$xmlbase->comment,$msg);
 	}
 	elseif($xmlbase->like) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-like");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_like($importer,$xmlbase->like,$msg);
 	}
 	elseif($xmlbase->asphoto) {
+		$tempfile = tempnam(get_temppath(), "diaspora-asphoto");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_asphoto($importer,$xmlbase->asphoto,$msg);
 	}
 	elseif($xmlbase->reshare) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-reshare");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_reshare($importer,$xmlbase->reshare,$msg);
 	}
 	elseif($xmlbase->retraction) {
+		$tempfile = tempnam(get_temppath(), "diaspora-retraction");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
 	}
 	elseif($xmlbase->signed_retraction) {
+		$tempfile = tempnam(get_temppath(), "diaspora-signed_retraction");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->signed_retraction,$msg);
 	}
 	elseif($xmlbase->relayable_retraction) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-relayable_retraction");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->relayable_retraction,$msg);
 	}
 	elseif($xmlbase->photo) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-photo");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_photo($importer,$xmlbase->photo,$msg,$attempt);
 	}
 	elseif($xmlbase->conversation) {
+		$tempfile = tempnam(get_temppath(), "diaspora-conversation");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_conversation($importer,$xmlbase->conversation,$msg);
 	}
 	elseif($xmlbase->message) {
+		$tempfile = tempnam(get_temppath(), "diaspora-message");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_message($importer,$xmlbase->message,$msg);
 	}
 	elseif($xmlbase->participation) {
+		//$tempfile = tempnam(get_temppath(), "diaspora-participation");
+		//file_put_contents($tempfile, json_encode($data));
+		$ret = diaspora_participation($importer,$xmlbase->participation);
+	}
+	elseif($xmlbase->poll_participation) {
+		$tempfile = tempnam(get_temppath(), "diaspora-poll_participation");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_participation($importer,$xmlbase->participation);
 	}
 	else {
+		$tempfile = tempnam(get_temppath(), "diaspora-unknown");
+		file_put_contents($tempfile, json_encode($data));
 		logger('diaspora_dispatch: unknown message type: ' . print_r($xmlbase,true));
 	}
 	return $ret;
