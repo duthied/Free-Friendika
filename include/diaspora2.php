@@ -4,8 +4,9 @@
  * @brief The implementation of the diaspora protocol
  */
 
-require_once("include/diaspora.php");
+require_once("include/bb2diaspora.php");
 require_once("include/Scrape.php");
+require_once("include/Contact.php");
 
 function array_to_xml($array, &$xml) {
 
@@ -66,7 +67,7 @@ class diaspora {
 
 		// The sender is the handle of the contact that sent the message.
 		// This will often be different with relayed messages (for example "like" and "comment")
-		$sender = $msg->author;
+		$sender = $msg["author"];
 
 		if (!diaspora::valid_posting($msg, $fields)) {
 			logger("Invalid posting");
@@ -80,12 +81,14 @@ class diaspora {
 				return self::import_account_deletion($importer, $fields);
 
 			case "comment":
-				return self::import_comment($importer, $sender, $fields);
+				return true;
+			//	return self::import_comment($importer, $sender, $fields);
 
 			case "conversation":
 				return self::import_conversation($importer, $fields);
 
 			case "like":
+			//	return true;
 				return self::import_like($importer, $sender, $fields);
 
 			case "message":
@@ -136,7 +139,7 @@ class diaspora {
 	 */
 	private function valid_posting($msg, &$fields) {
 
-		$data = parse_xml_string($msg->message, false);
+		$data = parse_xml_string($msg["message"], false);
 
 		$first_child = $data->getName();
 
@@ -202,12 +205,13 @@ class diaspora {
 				}
 
 				$signed_data .= $data;
-				$fields->$fieldname = $data;
 			}
+			if (!in_array($fieldname, array("parent_author_signature", "target_author_signature")))
+				$fields->$fieldname = $data;
 		}
 
 		if (in_array($type, array("status_message", "reshare")))
-			if ($msg->author != $fields->author) {
+			if ($msg["author"] != $fields->author) {
 				logger("Message handle is not the same as envelope sender. Quitting this message.");
 				return false;
 			}
@@ -219,7 +223,7 @@ class diaspora {
 			return false;
 
 		if (isset($parent_author_signature)) {
-			$key = self::get_key($msg->author);
+			$key = self::get_key($msg["author"]);
 
 			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256"))
 				return false;
@@ -349,104 +353,166 @@ class diaspora {
 		return false;
 	}
 
+	private function fetch_guid($item) {
+		preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			function ($match) use ($item){
+				return(self::fetch_guid_sub($match, $item));
+			},$item["body"]);
+	}
+
+	private function fetch_guid_sub($match, $item) {
+		$a = get_app();
+
+		if (!self::store_by_guid($match[1], $item["author-link"]))
+			self::store_by_guid($match[1], $item["owner-link"]);
+	}
+
+	private function store_by_guid($guid, $server, $uid = 0) {
+		$serverparts = parse_url($server);
+		$server = $serverparts["scheme"]."://".$serverparts["host"];
+
+		logger("Trying to fetch item ".$guid." from ".$server, LOGGER_DEBUG);
+
+/// @todo		$item = self::fetch_message($guid, $server);
+
+		if (!$item)
+			return false;
+
+		logger("Successfully fetched item ".$guid." from ".$server, LOGGER_DEBUG);
+
+// @todo - neue Funktion import_status... nutzen
+print_r($item);
+die();
+		return self::import_status_message($importer, $data);
+
 /*
-function DiasporaFetchGuid($item) {
-        preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
-                function ($match) use ($item){
-                        return(DiasporaFetchGuidSub($match, $item));
-                },$item["body"]);
-}
+		$body = $item["body"];
+		$str_tags = $item["tag"];
+		$app = $item["app"];
+		$created = $item["created"];
+		$author = $item["author"];
+		$guid = $item["guid"];
+		$private = $item["private"];
+		$object = $item["object"];
+		$objecttype = $item["object-type"];
 
-function DiasporaFetchGuidSub($match, $item) {
-        $a = get_app();
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+			intval($uid),
+			dbesc($guid)
+		);
+		if(count($r))
+			return $r[0]["id"];
 
-        if (!diaspora_store_by_guid($match[1], $item["author-link"]))
-                diaspora_store_by_guid($match[1], $item["owner-link"]);
-}
+		$person = self::get_person_by_handle($author);
 
-function diaspora_store_by_guid($guid, $server, $uid = 0) {
-        require_once("include/Contact.php");
+		$contact_id = get_contact($person["url"], $uid);
 
-        $serverparts = parse_url($server);
-        $server = $serverparts["scheme"]."://".$serverparts["host"];
+		$contacts = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
+		$importers = q("SELECT * FROM `user` WHERE `uid` = %d", intval($uid));
 
-        logger("Trying to fetch item ".$guid." from ".$server, LOGGER_DEBUG);
+		if ($contacts AND $importers)
+			if (!self::post_allow($importers[0],$contacts[0], false)) {
+				logger("Ignoring author ".$person["url"]." for uid ".$uid);
+				return false;
+			} else
+				logger("Author ".$person["url"]." is allowed for uid ".$uid);
 
-        $item = diaspora_fetch_message($guid, $server);
+		$datarray = array();
+		$datarray["uid"] = $uid;
+		$datarray["contact-id"] = $contact_id;
+		$datarray["wall"] = 0;
+		$datarray["network"] = NETWORK_DIASPORA;
+		$datarray["guid"] = $guid;
+		$datarray["uri"] = $datarray["parent-uri"] = $author.":".$guid;
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert('UTC','UTC',$created);
+		$datarray["private"] = $private;
+		$datarray["parent"] = 0;
+		$datarray["plink"] = self::plink($author, $guid);
+		$datarray["author-name"] = $person["name"];
+		$datarray["author-link"] = $person["url"];
+		$datarray["author-avatar"] = ((x($person,'thumb')) ? $person["thumb"] : $person["photo"]);
+		$datarray["owner-name"] = $datarray["author-name"];
+		$datarray["owner-link"] = $datarray["author-link"];
+		$datarray["owner-avatar"] = $datarray["author-avatar"];
+		$datarray["body"] = $body;
+		$datarray["tag"] = $str_tags;
+		$datarray["app"]  = $app;
+		$datarray["visible"] = ((strlen($body)) ? 1 : 0);
+		$datarray["object"] = $object;
+		$datarray["object-type"] = $objecttype;
 
-        if (!$item)
-                return false;
+		if ($datarray["contact-id"] == 0)
+			return false;
 
-        logger("Successfully fetched item ".$guid." from ".$server, LOGGER_DEBUG);
+		self::fetch_guid($datarray);
+		$message_id = item_store($datarray);
 
-        $body = $item["body"];
-        $str_tags = $item["tag"];
-        $app = $item["app"];
-        $created = $item["created"];
-        $author = $item["author"];
-        $guid = $item["guid"];
-        $private = $item["private"];
-        $object = $item["object"];
-        $objecttype = $item["object-type"];
+		/// @TODO
+		/// Looking if there is some subscribe mechanism in Diaspora to get all comments for this post
 
-        $message_id = $author.':'.$guid;
-        $r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-                intval($uid),
-                dbesc($guid)
-        );
-        if(count($r))
-                return $r[0]["id"];
-
-        $person = find_diaspora_person_by_handle($author);
-
-        $contact_id = get_contact($person['url'], $uid);
-
-        $contacts = q("SELECT * FROM `contact` WHERE `id` = %d", intval($contact_id));
-        $importers = q("SELECT * FROM `user` WHERE `uid` = %d", intval($uid));
-
-        if ($contacts AND $importers)
-                if(!diaspora_post_allow($importers[0],$contacts[0], false)) {
-                        logger('Ignoring author '.$person['url'].' for uid '.$uid);
-                        return false;
-                } else
-                        logger('Author '.$person['url'].' is allowed for uid '.$uid);
-
-        $datarray = array();
-        $datarray['uid'] = $uid;
-        $datarray['contact-id'] = $contact_id;
-        $datarray['wall'] = 0;
-        $datarray['network'] = NETWORK_DIASPORA;
-        $datarray['guid'] = $guid;
-        $datarray['uri'] = $datarray['parent-uri'] = $message_id;
-        $datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert('UTC','UTC',$created);
-        $datarray['private'] = $private;
-        $datarray['parent'] = 0;
-        $datarray['plink'] = diaspora_plink($author, $guid);
-        $datarray['author-name'] = $person['name'];
-        $datarray['author-link'] = $person['url'];
-        $datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
-        $datarray['owner-name'] = $datarray['author-name'];
-        $datarray['owner-link'] = $datarray['author-link'];
-        $datarray['owner-avatar'] = $datarray['author-avatar'];
-        $datarray['body'] = $body;
-        $datarray['tag'] = $str_tags;
-        $datarray['app']  = $app;
-        $datarray['visible'] = ((strlen($body)) ? 1 : 0);
-        $datarray['object'] = $object;
-        $datarray['object-type'] = $objecttype;
-
-        if ($datarray['contact-id'] == 0)
-                return false;
-
-        DiasporaFetchGuid($datarray);
-        $message_id = item_store($datarray);
-
-        /// @TODO
-        /// Looking if there is some subscribe mechanism in Diaspora to get all comments for this post
-
-        return $message_id;
-}
+		return $message_id;
 */
+	}
+
+	private function post_allow($importer, $contact, $is_comment = false) {
+
+		// perhaps we were already sharing with this person. Now they're sharing with us.
+		// That makes us friends.
+		// Normally this should have handled by getting a request - but this could get lost
+		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
+				intval(CONTACT_IS_FRIEND),
+				intval($contact["id"]),
+				intval($importer["uid"])
+			);
+			$contact["rel"] = CONTACT_IS_FRIEND;
+			logger("defining user ".$contact["nick"]." as friend");
+		}
+
+		if(($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
+			return false;
+		if($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
+			return true;
+		if($contact["rel"] == CONTACT_IS_FOLLOWER)
+			if(($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
+				return true;
+
+		// Messages for the global users are always accepted
+		if ($importer["uid"] == 0)
+			return true;
+
+		return false;
+	}
+
+	private function fetch_parent_item($uid, $guid, $author, $contact) {
+		$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`, `owner-name`, `owner-link`, `owner-avatar`, `origin`
+			FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+			intval($uid), dbesc($guid));
+
+		if(!count($r)) {
+			$result = self::store_by_guid($guid, $contact["url"], $uid);
+
+			if (!$result) {
+				$person = self::get_person_by_handle($author);
+				$result = self::store_by_guid($guid, $person["url"], $uid);
+			}
+
+			if ($result) {
+				logger("Fetched missing item ".$guid." - result: ".$result, LOGGER_DEBUG);
+
+				$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`,
+						`owner-name`, `owner-link`, `owner-avatar`, `origin`
+					FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+					intval($uid), dbesc($guid));
+			}
+		}
+
+		if (!count($r)) {
+			logger("parent item not found: parent: ".$guid." item: ".$guid);
+			return false;
+		} else
+			return $r[0];
+	}
 
 	private function import_account_deletion($importer, $data) {
 		return true;
@@ -463,132 +529,93 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 			logger("cannot find contact for sender: ".$sender);
 			return false;
 		}
+
+		if (!self::post_allow($importer,$contact, true)) {
+			logger("Ignoring the author ".$sender);
+			return false;
+		}
 /*
-        if(! diaspora_post_allow($importer,$contact, true)) {
-                logger('diaspora_comment: Ignoring this author.');
-                return 202;
-        }
-
-        $r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-                intval($importer['uid']),
-                dbesc($guid)
-        );
-        if(count($r)) {
-                logger('diaspora_comment: our comment just got relayed back to us (or there was a guid collision) : ' . $guid);
-                return;
-        }
-
-        $r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-                intval($importer['uid']),
-                dbesc($parent_guid)
-        );
-
-        if(!count($r)) {
-                $result = diaspora_store_by_guid($parent_guid, $contact['url'], $importer['uid']);
-
-                if (!$result) {
-                        $person = find_diaspora_person_by_handle($diaspora_handle);
-                        $result = diaspora_store_by_guid($parent_guid, $person['url'], $importer['uid']);
-                }
-
-                if ($result) {
-                        logger("Fetched missing item ".$parent_guid." - result: ".$result, LOGGER_DEBUG);
-
-                        $r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-                                intval($importer['uid']),
-                                dbesc($parent_guid)
-                        );
-                }
-        }
-
-        if(! count($r)) {
-                logger('diaspora_comment: parent item not found: parent: ' . $parent_guid . ' item: ' . $guid);
-                return;
-        }
-        $parent_item = $r[0];
-
-        // Find the original comment author information.
-        // We need this to make sure we display the comment author
-        // information (name and avatar) correctly.
-        if(strcasecmp($diaspora_handle,$msg['author']) == 0)
-                $person = $contact;
-        else {
-                $person = find_diaspora_person_by_handle($diaspora_handle);
-
-                if(! is_array($person)) {
-                        logger('diaspora_comment: unable to find author details');
-                        return;
-                }
-        }
-
-        // Fetch the contact id - if we know this contact
-        $r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-                dbesc(normalise_link($person['url'])), intval($importer['uid']));
-        if ($r) {
-                $cid = $r[0]['id'];
-                $network = $r[0]['network'];
-        } else {
-                $cid = $contact['id'];
-                $network = NETWORK_DIASPORA;
-        }
-
-        $body = diaspora2bb($text);
-        $message_id = $diaspora_handle . ':' . $guid;
-
-        $datarray = array();
-
-        $datarray['uid'] = $importer['uid'];
-        $datarray['contact-id'] = $cid;
-        $datarray['type'] = 'remote-comment';
-        $datarray['wall'] = $parent_item['wall'];
-        $datarray['network']  = $network;
-        $datarray['verb'] = ACTIVITY_POST;
-        $datarray['gravity'] = GRAVITY_COMMENT;
-        $datarray['guid'] = $guid;
-        $datarray['uri'] = $message_id;
-        $datarray['parent-uri'] = $parent_item['uri'];
-
-        // No timestamps for comments? OK, we'll the use current time.
-        $datarray['changed'] = $datarray['created'] = $datarray['edited'] = datetime_convert();
-        $datarray['private'] = $parent_item['private'];
-
-        $datarray['owner-name'] = $parent_item['owner-name'];
-        $datarray['owner-link'] = $parent_item['owner-link'];
-        $datarray['owner-avatar'] = $parent_item['owner-avatar'];
-
-        $datarray['author-name'] = $person['name'];
-        $datarray['author-link'] = $person['url'];
-        $datarray['author-avatar'] = ((x($person,'thumb')) ? $person['thumb'] : $person['photo']);
-        $datarray['body'] = $body;
-        $datarray["object"] = json_encode($xml);
-        $datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
-
-        // We can't be certain what the original app is if the message is relayed.
-        if(($parent_item['origin']) && (! $parent_author_signature))
-                $datarray['app']  = 'Diaspora';
-
-        DiasporaFetchGuid($datarray);
-        $message_id = item_store($datarray);
-
-        $datarray['id'] = $message_id;
-
-        // If we are the origin of the parent we store the original signature and notify our followers
-        if($parent_item['origin']) {
-                $author_signature_base64 = base64_encode($author_signature);
-                $author_signature_base64 = diaspora_repair_signature($author_signature_base64, $diaspora_handle);
-
-                q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
-                        intval($message_id),
-                        dbesc($signed_data),
-                        dbesc($author_signature_base64),
-                        dbesc($diaspora_handle)
-                );
-
-                // notify others
-                proc_run('php','include/notifier.php','comment-import',$message_id);
-        }
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+			intval($importer["uid"]),
+			dbesc($guid)
+		);
+		if(count($r)) {
+			logger("The comment already exists: ".$guid);
+			return;
+		}
 */
-		return true;
+		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
+		if (!$parent_item)
+			return false;
+
+		$person = self::get_person_by_handle($author);
+		if (!is_array($person)) {
+			logger("unable to find author details");
+			return false;
+		}
+
+		// Fetch the contact id - if we know this contact
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc(normalise_link($person["url"])), intval($importer["uid"]));
+		if ($r) {
+			$cid = $r[0]["id"];
+			$network = $r[0]["network"];
+		} else {
+			$cid = $contact["id"];
+			$network = NETWORK_DIASPORA;
+		}
+
+		$body = diaspora2bb($text);
+
+		$datarray = array();
+
+		$datarray["uid"] = $importer["uid"];
+		$datarray["contact-id"] = $cid;
+		$datarray["type"] = 'remote-comment';
+		$datarray["wall"] = $parent_item["wall"];
+		$datarray["network"]  = $network;
+		$datarray["verb"] = ACTIVITY_POST;
+		$datarray["gravity"] = GRAVITY_COMMENT;
+		$datarray["guid"] = $guid;
+		$datarray["uri"] = $author.":".$guid;
+		$datarray["parent-uri"] = $parent_item["uri"];
+
+		// The old Diaspora protocol doesn't have a timestamp for comments
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert();
+		$datarray["private"] = $parent_item["private"];
+
+		$datarray["owner-name"] = $contact["name"];
+		$datarray["owner-link"] = $contact["url"];
+		$datarray["owner-avatar"] = ((x($contact,"thumb")) ? $contact["thumb"] : $contact["photo"]);
+
+		$datarray["author-name"] = $person["name"];
+		$datarray["author-link"] = $person["url"];
+		$datarray["author-avatar"] = ((x($person,"thumb")) ? $person["thumb"] : $person["photo"]);
+		$datarray["body"] = $body;
+		$datarray["object"] = json_encode($data);
+		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
+
+		self::fetch_guid($datarray);
+
+//		$message_id = item_store($datarray);
+print_r($datarray);
+		$datarray["id"] = $message_id;
+
+		// If we are the origin of the parent we store the original data and notify our followers
+		if($message_id AND $parent_item["origin"]) {
+
+			// Formerly we stored the signed text, the signature and the author in different fields.
+			// The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
+			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+				intval($message_id),
+				dbesc(json_encode($data))
+			);
+
+			// notify others
+			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+		}
+
+		return $message_id;
 	}
 
 	private function import_conversation($importer, $data) {
@@ -596,6 +623,134 @@ function diaspora_store_by_guid($guid, $server, $uid = 0) {
 	}
 
 	private function import_like($importer, $sender, $data) {
+		$positive = notags(unxmlify($data->positive));
+		$guid = notags(unxmlify($data->guid));
+		$parent_type = notags(unxmlify($data->parent_type));
+		$parent_guid = notags(unxmlify($data->parent_guid));
+		$author = notags(unxmlify($data->author));
+
+		// likes on comments aren't supported by Diaspora - only on posts
+		if ($parent_type !== "Post")
+			return false;
+
+		// "positive" = "false" doesn't seem to be supported by Diaspora
+		if ($positive === "false") {
+			logger("Received a like with positive set to 'false' - this shouldn't exist at all");
+			return false;
+		}
+
+		$contact = self::get_contact_by_handle($importer["uid"], $sender);
+		if (!$contact) {
+			logger("cannot find contact for sender: ".$sender);
+			return false;
+		}
+
+		if (!self::post_allow($importer,$contact, true)) {
+			logger("Ignoring the author ".$sender);
+			return false;
+		}
+/*
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+			intval($importer["uid"]),
+			dbesc($guid)
+		);
+		if(count($r)) {
+			logger("The like already exists: ".$guid);
+			return false;
+		}
+*/
+		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
+		if (!$parent_item)
+			return false;
+
+		$person = self::get_person_by_handle($author);
+		if (!is_array($person)) {
+			logger("unable to find author details");
+			return false;
+		}
+
+		// Fetch the contact id - if we know this contact
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc(normalise_link($person["url"])), intval($importer["uid"]));
+		if ($r) {
+			$cid = $r[0]["id"];
+			$network = $r[0]["network"];
+		} else {
+			$cid = $contact["id"];
+			$network = NETWORK_DIASPORA;
+		}
+
+// ------------------------------------------------
+		$objtype = ACTIVITY_OBJ_NOTE;
+		$link = xmlify('<link rel="alternate" type="text/html" href="'.App::get_baseurl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />'."\n") ;
+		$parent_body = $parent_item["body"];
+
+		$obj = <<< EOT
+
+		<object>
+			<type>$objtype</type>
+			<local>1</local>
+			<id>{$parent_item["uri"]}</id>
+			<link>$link</link>
+			<title></title>
+			<content>$parent_body</content>
+		</object>
+EOT;
+		$bodyverb = t('%1$s likes %2$s\'s %3$s');
+
+		$ulink = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
+		$alink = "[url=".$parent_item["author-link"]."]".$parent_item["author-name"]."[/url]";
+		$plink = "[url=".App::get_baseurl()."/display/".urlencode($guid)."]".t("status")."[/url]";
+		$body = sprintf($bodyverb, $ulink, $alink, $plink);
+// ------------------------------------------------
+
+		$datarray = array();
+
+		$datarray["uri"] = $author.":".$guid;
+		$datarray["uid"] = $importer["uid"];
+		$datarray["guid"] = $guid;
+		$datarray["network"]  = $network;
+		$datarray["contact-id"] = $cid;
+		$datarray["type"] = "activity";
+		$datarray["wall"] = $parent_item["wall"];
+		$datarray["gravity"] = GRAVITY_LIKE;
+		$datarray["parent"] = $parent_item["id"];
+		$datarray["parent-uri"] = $parent_item["uri"];
+
+		$datarray["owner-name"] = $contact["name"];
+		$datarray["owner-link"] = $contact["url"];
+		$datarray["owner-avatar"] = ((x($contact,"thumb")) ? $contact["thumb"] : $contact["photo"]);
+
+		$datarray["author-name"] = $person["name"];
+		$datarray["author-link"] = $person["url"];
+		$datarray["author-avatar"] = ((x($person,"thumb")) ? $person["thumb"] : $person["photo"]);
+
+		$datarray["body"] = $body;
+		$datarray["private"] = $parent_item["private"];
+		$datarray["verb"] = ACTIVITY_LIKE;
+		$datarray["object-type"] = $objtype;
+		$datarray["object"] = $obj;
+		$datarray["visible"] = 1;
+		$datarray["unseen"] = 1;
+		$datarray["last-child"] = 0;
+
+print_r($datarray);
+//		$message_id = item_store($datarray);
+
+		// If we are the origin of the parent we store the original data and notify our followers
+		if($message_id AND $parent_item["origin"]) {
+
+			// Formerly we stored the signed text, the signature and the author in different fields.
+			// The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
+			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+				intval($message_id),
+				dbesc(json_encode($data))
+			);
+
+			// notify others
+			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+		}
+
 		return true;
 	}
 
