@@ -19,7 +19,7 @@
 <script>
 var FedData = [
 {{foreach $counts as $c}}
-    { value: {{$c[0]['total']}}, label: "{{$c[0]['platform']}}", color: "#90EE90", highlight: "#EE90A1", },
+    { value: {{$c[0]['total']}}, label: "{{$c[0]['platform']}}", color: '{{$c[3]}}', highlight: "#EE90A1", },
 {{/foreach}}
 ];
 var ctx = document.getElementById("FederationChart").getContext("2d");
@@ -40,7 +40,7 @@ var myDoughnutChart = new Chart(ctx).Doughnut(FedData, { animateRotate : false, 
     <script>
     var {{$c[2]}}data = [
     {{foreach $c[1] as $v}}
-	{ value: {{$v['total']}}, label: '{{$v['version']}}', color: "#90EE90", highlight: "#EE90A1",},
+	{ value: {{$v['total']}}, label: '{{$v['version']}}', color: "{{$c[3]}}", highlight: "#EE90A1",},
     {{/foreach}}
     ];
     var ctx = document.getElementById("{{$c[2]}}Chart").getContext("2d");
