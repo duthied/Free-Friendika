@@ -10,7 +10,6 @@
  */
 
 function frost_init(&$a) {
-	$a->theme_info = array();
 	$a->videowidth = 400;
 	$a->videoheight = 330;
 	$a->theme_thread_allow = false;
