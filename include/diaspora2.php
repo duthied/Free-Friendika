@@ -131,7 +131,8 @@ class diaspora {
 				return self::import_request($importer, $fields);
 
 			case "reshare":
-				return self::import_reshare($importer, $fields);
+				return true;
+				//return self::import_reshare($importer, $fields);
 
 			case "retraction":
 				return self::import_retraction($importer, $fields);
@@ -676,6 +677,8 @@ class diaspora {
 	}
 
 	private function import_conversation($importer, $data) {
+		print_r($data);
+		die();
 /*
         $guid = notags(unxmlify($xml->guid));
         $subject = notags(unxmlify($xml->subject));
@@ -874,9 +877,8 @@ EOT;
 		if ($parent_type !== "Post")
 			return false;
 
-		// "positive" = "false" doesn't seem to be supported by Diaspora
+		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
 		if ($positive === "false") {
-			logger("Received a like with positive set to 'false' - this shouldn't exist at all");
 			return false;
 		}
 
