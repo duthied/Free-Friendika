@@ -846,6 +846,7 @@ function dfrn_request_content(&$a) {
 			get_server()
 		);
 
+
 		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
