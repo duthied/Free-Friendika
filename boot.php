@@ -2202,3 +2202,7 @@ function argv($x) {
 
 	return '';
 }
+
+function is_filled_array ($array) {
+	return (is_array($array) && count($array) > 0);
+}
