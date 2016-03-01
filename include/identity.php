@@ -237,6 +237,7 @@ function profile_sidebar($profile, $block = 0) {
 	if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
 		$connect = false;
 
+	$remoteconnect = NULL;
 	if (isset($profile['remoteconnect']))
 		$remoteconnect = $profile['remoteconnect'];
 
@@ -292,9 +293,9 @@ function profile_sidebar($profile, $block = 0) {
 	// check if profile is a forum
 	if((intval($profile['page-flags']) == PAGE_COMMUNITY)
 			|| (intval($profile['page-flags']) == PAGE_PRVGROUP)
-			|| (intval($profile['forum']))
-			|| (intval($profile['prv']))
-			|| (intval($profile['community'])))
+			|| (isset($profile['forum']) && intval($profile['forum']))
+			|| (isset($profile['prv']) && intval($profile['prv']))
+			|| (isset($profile['community']) && intval($profile['community'])))
 		$account_type = t('Forum');
 	else
 		$account_type = "";
