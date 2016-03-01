@@ -4,11 +4,14 @@
  * @brief The implementation of the diaspora protocol
  */
 
+require_once("include/items.php");
 require_once("include/bb2diaspora.php");
 require_once("include/Scrape.php");
 require_once("include/Contact.php");
 require_once("include/Photo.php");
 require_once("include/socgraph.php");
+require_once("include/group.php");
+require_once("include/api.php");
 
 class xml {
 	function from_array($array, &$xml) {
@@ -380,6 +383,64 @@ class diaspora {
 		return false;
 	}
 
+	private function post_allow($importer, $contact, $is_comment = false) {
+
+		// perhaps we were already sharing with this person. Now they're sharing with us.
+		// That makes us friends.
+		// Normally this should have handled by getting a request - but this could get lost
+		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
+				intval(CONTACT_IS_FRIEND),
+				intval($contact["id"]),
+				intval($importer["uid"])
+			);
+			$contact["rel"] = CONTACT_IS_FRIEND;
+			logger("defining user ".$contact["nick"]." as friend");
+		}
+
+		if(($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
+			return false;
+		if($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
+			return true;
+		if($contact["rel"] == CONTACT_IS_FOLLOWER)
+			if(($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
+				return true;
+
+		// Messages for the global users are always accepted
+		if ($importer["uid"] == 0)
+			return true;
+
+		return false;
+	}
+
+	private function get_allowed_contact_by_handle($importer, $handle, $is_comment = false) {
+		$contact = self::get_contact_by_handle($importer["uid"], $handle);
+		if (!$contact) {
+			logger("A Contact for handle ".$handle." and user ".$importer["uid"]." was not found");
+			return false;
+		}
+
+		if (!self::post_allow($importer, $contact, false)) {
+			logger("The handle: ".$handle." is not allowed to post to user ".$importer["uid"]);
+			return false;
+		}
+		return $contact;
+	}
+
+	private function message_exists($uid, $guid) {
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+			intval($uid),
+			dbesc($guid)
+		);
+
+		if(count($r)) {
+			logger("message ".$guid." already exists for user ".$uid);
+			return false;
+		}
+
+		return true;
+	}
+
 	private function fetch_guid($item) {
 		preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($item){
@@ -388,8 +449,6 @@ class diaspora {
 	}
 
 	private function fetch_guid_sub($match, $item) {
-		$a = get_app();
-
 		if (!self::store_by_guid($match[1], $item["author-link"]))
 			self::store_by_guid($match[1], $item["owner-link"]);
 	}
@@ -451,36 +510,6 @@ class diaspora {
 		$msg["key"] = self::get_key($msg["author"]);
 
 		return $msg;
-	}
-
-	private function post_allow($importer, $contact, $is_comment = false) {
-
-		// perhaps we were already sharing with this person. Now they're sharing with us.
-		// That makes us friends.
-		// Normally this should have handled by getting a request - but this could get lost
-		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
-			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
-				intval(CONTACT_IS_FRIEND),
-				intval($contact["id"]),
-				intval($importer["uid"])
-			);
-			$contact["rel"] = CONTACT_IS_FRIEND;
-			logger("defining user ".$contact["nick"]." as friend");
-		}
-
-		if(($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
-			return false;
-		if($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
-			return true;
-		if($contact["rel"] == CONTACT_IS_FOLLOWER)
-			if(($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
-				return true;
-
-		// Messages for the global users are always accepted
-		if ($importer["uid"] == 0)
-			return true;
-
-		return false;
 	}
 
 	private function fetch_parent_item($uid, $guid, $author, $contact) {
@@ -562,7 +591,7 @@ class diaspora {
 
 		$contact = self::get_contact_by_handle($importer["uid"], $author);
 		if (!$contact) {
-			logger("cannot find contact for sender: ".$sender);
+			logger("cannot find contact for author: ".$author);
 			return false;
 		}
 
@@ -577,25 +606,12 @@ class diaspora {
 		$text = unxmlify($data->text);
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $sender);
-		if (!$contact) {
-			logger("cannot find contact for sender: ".$sender);
+		$contact = self::get_allowed_contact_by_handle($importer, $sender, true);
+		if (!$contact)
 			return false;
-		}
 
-		if (!self::post_allow($importer,$contact, true)) {
-			logger("Ignoring the author ".$sender);
+		if (self::message_exists($importer["uid"], $guid))
 			return false;
-		}
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			dbesc($guid)
-		);
-		if(count($r)) {
-			logger("The comment already exists: ".$guid);
-			return false;
-		}
 
 		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
@@ -676,16 +692,9 @@ class diaspora {
                 return;
         }
 
-        $contact = diaspora_get_contact_by_handle($importer['uid'],$msg['author']);
-        if(! $contact) {
-                logger('diaspora_conversation: cannot find contact: ' . $msg['author']);
-                return;
-        }
-
-        if(($contact['rel'] == CONTACT_IS_FOLLOWER) || ($contact['blocked']) || ($contact['readonly'])) {
-                logger('diaspora_conversation: Ignoring this author.');
-                return 202;
-        }
+		$contact = self::get_allowed_contact_by_handle($importer, $sender, true)
+		if (!$contact)
+			return false;
 
         $conversation = null;
 
@@ -871,25 +880,12 @@ EOT;
 			return false;
 		}
 
-		$contact = self::get_contact_by_handle($importer["uid"], $sender);
-		if (!$contact) {
-			logger("cannot find contact for sender: ".$sender);
+		$contact = self::get_allowed_contact_by_handle($importer, $sender, true);
+		if (!$contact)
 			return false;
-		}
 
-		if (!self::post_allow($importer,$contact, true)) {
-			logger("Ignoring the author ".$sender);
+		if (self::message_exists($importer["uid"], $guid))
 			return false;
-		}
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			dbesc($guid)
-		);
-		if(count($r)) {
-			logger("The like already exists: ".$guid);
-			return false;
-		}
 
 		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
@@ -961,16 +957,9 @@ EOT;
 
 		$parent_uri = $author.":".$parent_guid;
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
-		if (!$contact) {
-			logger("cannot find contact: ".$author);
+		$contact = self::get_allowed_contact_by_handle($importer, $author, true);
+		if (!$contact)
 			return false;
-		}
-
-		if(($contact["rel"] == CONTACT_IS_FOLLOWER) || ($contact["blocked"]) || ($contact["readonly"])) {
-			logger("Ignoring this author.");
-			return false;
-		}
 
 		$conversation = null;
 
@@ -1159,7 +1148,6 @@ print_r($data);
 		);
 
 		if((count($r)) && (!$r[0]["hide-friends"]) && (!$contact["hidden"]) && intval(get_pconfig($importer["uid"],'system','post_newfriend'))) {
-			require_once('include/items.php');
 
 			$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 				intval($importer["uid"])
@@ -1170,7 +1158,7 @@ print_r($data);
 			if(count($self) && $contact["rel"] == CONTACT_IS_FOLLOWER) {
 
 				$arr = array();
-				$arr["uri"] = $arr["parent-uri"] = item_new_uri($a->get_hostname(), $importer["uid"]);
+				$arr["uri"] = $arr["parent-uri"] = item_new_uri(App::get_hostname(), $importer["uid"]);
 				$arr["uid"] = $importer["uid"];
 				$arr["contact-id"] = $self[0]["id"];
 				$arr["wall"] = 1;
@@ -1256,7 +1244,6 @@ print_r($data);
 		intval($importer["uid"])
 	);
 	if($g && intval($g[0]["def_gid"])) {
-		require_once('include/group.php');
 		group_add_member($importer["uid"],'',$contact_record["id"],$g[0]["def_gid"]);
 	}
 
@@ -1278,8 +1265,6 @@ print_r($data);
 	else {
 
 		// automatic friend approval
-
-		require_once('include/Photo.php');
 
 		update_contact_avatar($contact_record["photo"],$importer["uid"],$contact_record["id"]);
 
@@ -1314,6 +1299,60 @@ print_r($data);
 		return true;
 	}
 
+	private function get_original_item($guid, $orig_author, $author) {
+
+		// Do we already have this item?
+		$r = q("SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
+				`author-name`, `author-link`, `author-avatar`
+				FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+			dbesc($guid));
+
+		if(count($r)) {
+			logger("reshared message ".$guid." already exists on system.");
+
+			// Maybe it is already a reshared item?
+			// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
+			if (api_share_as_retweet($r[0]))
+				$r = array();
+			else
+				return $r[0];
+		}
+
+		if (!count($r)) {
+			$server = 'https://'.substr($orig_author,strpos($orig_author,'@')+1);
+			logger("1st try: reshared message ".$guid." will be fetched from original server: ".$server);
+			$item_id = self::store_by_guid($guid, $server);
+
+			if (!$item_id) {
+				$server = 'https://'.substr($author,strpos($author,'@')+1);
+				logger("2nd try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
+				$item = self::store_by_guid($guid, $server);
+			}
+			if (!$item_id) {
+				$server = 'http://'.substr($orig_author,strpos($orig_author,'@')+1);
+				logger("3rd try: reshared message ".$guid." will be fetched from original server: ".$server);
+				$item = self::store_by_guid($guid, $server);
+			}
+			if (!$item_id) {
+				$server = 'http://'.substr($author,strpos($author,'@')+1);
+				logger("4th try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
+				$item = self::store_by_guid($guid, $server);
+			}
+
+			if ($item_id) {
+				$r = q("SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
+						`author-name`, `author-link`, `author-avatar`
+					FROM `item` WHERE `id` = %d AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
+					intval($item_id));
+
+				if ($r)
+					return $r[0];
+
+			}
+		}
+		return false;
+	}
+
 	private function import_reshare($importer, $data) {
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
@@ -1322,101 +1361,16 @@ print_r($data);
 		$public = notags(unxmlify($data->public));
 		$created_at = notags(unxmlify($data->created_at));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
+		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
 			return false;
 
-		if (!self::post_allow($importer, $contact, false)) {
-			logger("Ignoring this author: ".$author." ".print_r($data,true));
+//		if (self::message_exists($importer["uid"], $guid))
+//			return false;
+
+		$original_item = self::get_original_item($root_guid, $root_author, $author);
+		if (!$original_item)
 			return false;
-		}
-/*
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			dbesc($guid)
-		);
-		if(count($r)) {
-			logger("message exists: ".$guid);
-			return;
-		}
-*/
-		$orig_author = $root_author;
-		$orig_guid = $root_guid;
-		$orig_url = App::get_baseurl()."/display/".$guid;
-
-		$create_original_post = false;
-
-		// Do we already have this item?
-		$r = q("SELECT `body`, `tag`, `app`, `created`, `plink`, `object`, `object-type`, `uri` FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
-			dbesc($orig_guid),
-			dbesc(NETWORK_DIASPORA)
-		);
-		if(count($r)) {
-			logger("reshared message ".$orig_guid." reshared by ".$guid." already exists on system.");
-
-			// Maybe it is already a reshared item?
-			// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
-			require_once('include/api.php');
-			if (api_share_as_retweet($r[0]))
-				$r = array();
-			else {
-				$body = $r[0]["body"];
-				$str_tags = $r[0]["tag"];
-				$app = $r[0]["app"];
-				$orig_created = $r[0]["created"];
-				$orig_plink = $r[0]["plink"];
-				$orig_uri = $r[0]["uri"];
-				$object = $r[0]["object"];
-				$objecttype = $r[0]["object-type"];
-			}
-		}
-
-/* @todo
-		if (!count($r)) {
-			$body = "";
-			$str_tags = "";
-			$app = "";
-
-			$server = 'https://'.substr($orig_author,strpos($orig_author,'@')+1);
-			logger('1st try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
-			$item = self::fetch_message($orig_guid, $server);
-
-			if (!$item) {
-				$server = 'https://'.substr($author,strpos($author,'@')+1);
-				logger('2nd try: reshared message '.$orig_guid." reshared by ".$guid." will be fetched from sharer's server: ".$server);
-				$item = diaspora_fetch_message($orig_guid, $server);
-			}
-			if (!$item) {
-				$server = 'http://'.substr($orig_author,strpos($orig_author,'@')+1);
-				logger('3rd try: reshared message '.$orig_guid." reshared by ".$guid.' will be fetched from original server: '.$server);
-				$item = diaspora_fetch_message($orig_guid, $server);
-			}
-			if (!$item) {
-				$server = 'http://'.substr($author,strpos($author,'@')+1);
-				logger('4th try: reshared message '.$orig_guid." reshared by ".$guid." will be fetched from sharer's server: ".$server);
-				$item = diaspora_fetch_message($orig_guid, $server);
-			}
-
-			if ($item) {
-				$body = $item["body"];
-				$str_tags = $item["tag"];
-				$app = $item["app"];
-				$orig_created = $item["created"];
-				$orig_author = $item["author"];
-				$orig_guid = $item["guid"];
-				$orig_plink = diaspora_plink($orig_author, $orig_guid);
-				$orig_uri = $orig_author.":".$orig_guid;
-				$create_original_post = ($body != "");
-				$object = $item["object"];
-				$objecttype = $item["object-type"];
-			}
-		}
-*/
-		$plink = self::plink($author, $guid);
-
-		$person = self::get_person_by_handle($orig_author);
-
-		$private = (($public == "false") ? 1 : 0);
 
 		$datarray = array();
 
@@ -1440,18 +1394,18 @@ print_r($data);
 
 		$datarray["object"] = json_encode($data);
 
-		$prefix = share_header($person["name"], $person["url"], ((x($person,'thumb')) ? $person["thumb"] : $person["photo"]),
-					$orig_guid, $orig_created, $orig_url);
-		$datarray["body"] = $prefix.$body."[/share]";
+		$prefix = share_header($original_item["author-name"], $original_item["author-link"], $original_item["author-avatar"],
+					$original_item["guid"], $original_item["created"], $original_item["uri"]);
+		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
 
-		$datarray["tag"] = $str_tags;
-		$datarray["app"]  = $app;
+		$datarray["tag"] = $original_item["tag"];
+		$datarray["app"]  = $original_item["app"];
 
-		$datarray["plink"] = $plink;
-		$datarray["private"] = $private;
+		$datarray["plink"] = self::plink($author, $guid);
+		$datarray["private"] = (($public == "false") ? 1 : 0);
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert("UTC", "UTC", $created_at);
 
-		$datarray["object-type"] = $objecttype;
+		$datarray["object-type"] = $original_item["object-type"];
 
 		self::fetch_guid($datarray);
 		//$message_id = item_store($datarray);
@@ -1473,25 +1427,12 @@ print_r($data);
 		$created_at = notags(unxmlify($data->created_at));
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
-		if (!$contact) {
-			logger("A Contact for handle ".$author." and user ".$importer["uid"]." was not found");
+		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
+		if (!$contact)
 			return false;
-		}
 
-		if (!self::post_allow($importer, $contact, false)) {
-			logger("Ignoring this author.");
+		if (self::message_exists($importer["uid"], $guid))
 			return false;
-		}
-
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			dbesc($guid)
-		);
-		if(count($r)) {
-			logger("message exists: ".$guid);
-			return false;
-		}
 
 		/// @todo enable support for polls
 		// if ($data->poll) {
@@ -1503,8 +1444,6 @@ print_r($data);
 		if ($data->location)
 			foreach ($data->location->children() AS $fieldname => $data)
 				$address[$fieldname] = notags(unxmlify($data));
-
-		$private = (($public == "false") ? 1 : 0);
 
 		$body = diaspora2bb($raw_message);
 
@@ -1533,7 +1472,6 @@ print_r($data);
 				$str_tags .= "@[url=".$mtch[1]."[/url]";
 			}
 		}
-		$plink = self::plink($author, $guid);
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $contact["id"];
@@ -1561,8 +1499,8 @@ print_r($data);
 		if ($provider_display_name != "")
 			$datarray["app"] = $provider_display_name;
 
-		$datarray["plink"] = $plink;
-		$datarray["private"] = $private;
+		$datarray["plink"] = self::plink($author, $guid);
+		$datarray["private"] = (($public == "false") ? 1 : 0);
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert("UTC", "UTC", $created_at);
 
 		if (isset($address["address"]))
