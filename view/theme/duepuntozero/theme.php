@@ -2,7 +2,6 @@
 
 function duepuntozero_init(&$a) {
 
-$a->theme_info = array();
 set_template_engine($a, 'smarty3');
 
     $colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
