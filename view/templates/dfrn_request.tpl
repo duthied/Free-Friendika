@@ -18,13 +18,13 @@
 {{/if}}
 
 {{if $request}}
-<form action="{{$request}}" method="post" />
+<form action="{{$request}}" method="post">
 {{else}}
-<form action="dfrn_request/{{$nickname}}" method="post" />
+<form action="dfrn_request/{{$nickname}}" method="post">
 {{/if}}
 
 {{if $photo}}
-<img src="{{$photo}}" alt="" id="dfrn-request-photo">
+<img src="{{$photo}}" alt="" id="dfrn-request-photo" />
 {{/if}}
 
 {{if $url}}<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>{{/if}}
