@@ -146,9 +146,9 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 		$ret = diaspora_participation($importer,$xmlbase->participation);
 	}
 	elseif($xmlbase->poll_participation) {
-		$tempfile = tempnam(get_temppath(), "diaspora-poll_participation");
-		file_put_contents($tempfile, json_encode($data));
-		$ret = diaspora_participation($importer,$xmlbase->participation);
+		//$tempfile = tempnam(get_temppath(), "diaspora-poll_participation");
+		//file_put_contents($tempfile, json_encode($data));
+		$ret = diaspora_participation($importer,$xmlbase->poll_participation);
 	}
 	else {
 		$tempfile = tempnam(get_temppath(), "diaspora-unknown");
