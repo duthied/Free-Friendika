@@ -827,8 +827,7 @@ function dfrn_request_content(&$a) {
 		else
 			$tpl = get_markup_template('auto_request.tpl');
 
-		// TODO This .= triggers an E_NOTICE, really needed?
-		$page_desc .= t("Please enter your 'Identity Address' from one of the following supported communications networks:");
+		$page_desc = t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
 		// see if we are allowed to have NETWORK_MAIL2 contacts
 
@@ -853,8 +852,7 @@ function dfrn_request_content(&$a) {
 			get_server()
 		);
 
-		// TODO This .= triggers an E_NOTICE, really needed?
-		$o .= replace_macros($tpl,array(
+		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
 			'$pls_answer' => t('Please answer the following:'),
