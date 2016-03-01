@@ -465,11 +465,12 @@ class App {
 	public  $plugins;
 	public  $apps = array();
 	public  $identities;
-	public	$is_mobile;
-	public	$is_tablet;
+	public	$is_mobile = false;
+	public	$is_tablet = false;
 	public	$is_friendica_app;
 	public	$performance = array();
 	public	$callstack = array();
+	public	$theme_info = array();
 
 	public $nav_sel;
 
