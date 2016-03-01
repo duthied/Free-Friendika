@@ -8,7 +8,7 @@ function message_init(&$a) {
 	$tabs = '';
 
 	if ($a->argc >1 && is_numeric($a->argv[1])) {
-	 $tabs = render_messages(get_messages(local_user(),0,5), 'mail_list.tpl');
+		$tabs = render_messages(get_messages(local_user(),0,5), 'mail_list.tpl');
 	}
 
 	$new = array(
@@ -360,11 +360,13 @@ function message_content(&$a) {
 			dbesc($myprofile)
 		);
 
-		if(count($r)) $a->set_pager_total($r[0]['total']);
+		if (is_filled_array($r)) {
+			$a->set_pager_total($r[0]['total']);
+		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if(! count($r)) {
+		if(! is_filled_array($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}
@@ -542,7 +544,7 @@ function get_messages($user, $lstart, $lend) {
 	);
 }
 
-function render_messages($msg, $t) {
+function render_messages(array $msg, $t) {
 
 	$a = get_app();
 
