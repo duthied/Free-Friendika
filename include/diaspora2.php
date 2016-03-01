@@ -104,7 +104,8 @@ class diaspora {
 				//return self::import_comment($importer, $sender, $fields);
 
 			case "conversation":
-				return self::import_conversation($importer, $fields);
+				return true;
+				//return self::import_conversation($importer, $fields);
 
 			case "like":
 				return true;
@@ -138,8 +139,8 @@ class diaspora {
 				return self::import_retraction($importer, $fields);
 
 			case "status_message":
-				return true;
-				//return self::import_status_message($importer, $fields, $msg, $data2);
+				//return true;
+				return self::import_status_message($importer, $fields);
 
 			default:
 				logger("Unknown message type ".$type);
@@ -246,7 +247,7 @@ class diaspora {
 			}
 
 		// Only some message types have signatures. So we quit here for the other types.
-		if (!in_array($type, array("comment", "conversation", "message", "like")))
+		if (!in_array($type, array("comment", "message", "like")))
 			return true;
 
 		// No author_signature? This is a must, so we quit.
@@ -691,7 +692,7 @@ class diaspora {
         $messages = $xml->message;
 
         if(! count($messages)) {
-                logger('diaspora_conversation: empty conversation');
+                logger('empty conversation');
                 return;
         }
 
@@ -874,13 +875,9 @@ EOT;
 		$author = notags(unxmlify($data->author));
 
 		// likes on comments aren't supported by Diaspora - only on posts
-		if ($parent_type !== "Post")
+		// But maybe this will be supported in the future, so we will accept it.
+		if (!in_array($parent_type, array("Post", "Comment")))
 			return false;
-
-		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
-		if ($positive === "false") {
-			return false;
-		}
 
 		$contact = self::get_allowed_contact_by_handle($importer, $sender, true);
 		if (!$contact)
@@ -902,6 +899,13 @@ EOT;
 		// Fetch the contact id - if we know this contact
 		$author_contact = self::get_author_contact_by_url($contact, $person, $importer["uid"]);
 
+		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
+		// We would accept this anyhow.
+		if ($positive === "true")
+			$verb = ACTIVITY_LIKE;
+		else
+			$verb = ACTIVITY_DISLIKE;
+
 		$datarray = array();
 
 		$datarray["uid"] = $importer["uid"];
@@ -920,7 +924,7 @@ EOT;
 		$datarray["uri"] = $author.":".$guid;
 
 		$datarray["type"] = "activity";
-		$datarray["verb"] = ACTIVITY_LIKE;
+		$datarray["verb"] = $verb;
 		$datarray["gravity"] = GRAVITY_LIKE;
 		$datarray["parent-uri"] = $parent_item["uri"];
 
@@ -1429,18 +1433,18 @@ print_r($data);
 		$created_at = notags(unxmlify($data->created_at));
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
 
+		/// @todo enable support for polls
+		if ($data->poll) {
+			foreach ($data->poll AS $poll)
+				print_r($poll);
+			die("poll!\n");
+		}
 		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
 			return false;
 
-		if (self::message_exists($importer["uid"], $guid))
-			return false;
-
-		/// @todo enable support for polls
-		// if ($data->poll) {
-		//	print_r($data->poll);
-		//	die("poll!\n");
-		// }
+		//if (self::message_exists($importer["uid"], $guid))
+		//	return false;
 
 		$address = array();
 		if ($data->location)
@@ -1450,8 +1454,8 @@ print_r($data);
 		$body = diaspora2bb($raw_message);
 
 		if ($data->photo)
-			for ($i = 0; $i < count($data->photo); $i++)
-				$body = "[img]".$data->photo[$i]->remote_photo_path.$data->photo[$i]->remote_photo_name."[/img]\n".$body;
+			foreach ($data->photo AS $photo)
+				$body = "[img]".$photo->remote_photo_path.$photo->remote_photo_name."[/img]\n".$body;
 
 		$datarray = array();
 
