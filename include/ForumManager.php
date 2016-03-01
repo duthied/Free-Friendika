@@ -86,7 +86,7 @@ class ForumManager {
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if(count($contacts)) {
+		if(is_filled_array($contacts)) {
 
 			$id = 0;
 
