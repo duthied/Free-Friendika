@@ -72,7 +72,8 @@ if(!$install) {
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr($a->get_baseurl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
-		header("location: ".$a->get_baseurl()."/".$a->query_string);
+		header("Location: ".$a->get_baseurl()."/".$a->query_string);
+		exit();
 	}
 
 	require_once("include/session.php");
