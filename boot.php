@@ -465,11 +465,12 @@ class App {
 	public  $plugins;
 	public  $apps = array();
 	public  $identities;
-	public	$is_mobile;
-	public	$is_tablet;
+	public	$is_mobile = false;
+	public	$is_tablet = false;
 	public	$is_friendica_app;
 	public	$performance = array();
 	public	$callstack = array();
+	public	$theme_info = array();
 
 	public $nav_sel;
 
@@ -1046,10 +1047,20 @@ class App {
 	function save_timestamp($stamp, $value) {
 		$duration = (float)(microtime(true)-$stamp);
 
+		if (!isset($this->performance[$value])) {
+			// Prevent ugly E_NOTICE
+			$this->performance[$value] = 0;
+		}
+
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
 
 		$callstack = $this->callstack();
+
+		if (!isset($this->callstack[$value][$callstack])) {
+			// Prevent ugly E_NOTICE
+			$this->callstack[$value][$callstack] = 0;
+		}
 
 		$this->callstack[$value][$callstack] += (float)$duration;
 

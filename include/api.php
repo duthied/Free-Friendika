@@ -1691,13 +1691,13 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
+			FROM `item`  FORCE INDEX (`uid_id`), `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention` AND !`ignored`)
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",

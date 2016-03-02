@@ -19,8 +19,6 @@ function vier_init(&$a) {
 
 	set_template_engine($a, 'smarty3');
 
-	$a->theme_info = array();
-
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] or $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
 
