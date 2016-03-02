@@ -114,7 +114,7 @@ function network_init(&$a) {
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 	require_once('include/items.php');
-	require_once('include/forums.php');
+	require_once('include/ForumManager.php');
 
 	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
@@ -148,11 +148,11 @@ function network_init(&$a) {
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? widget_forumlist(local_user(),$cid) : '');
-	$a->page['aside'] .= posted_date_widget($a->get_baseurl() . '/network',local_user(),false);
-	$a->page['aside'] .= networks_widget($a->get_baseurl(true) . '/network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
+	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? ForumManager::widget(local_user(),$cid) : '');
+	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
+	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
-	$a->page['aside'] .= fileas_widget($a->get_baseurl(true) . '/network',(x($_GET, 'file') ? $_GET['file'] : ''));
+	$a->page['aside'] .= fileas_widget('network',(x($_GET, 'file') ? $_GET['file'] : ''));
 
 }
 
@@ -363,7 +363,7 @@ function network_content(&$a, $update = 0) {
 	$tabs = array(
 		array(
 			'label'	=> t('Commented Order'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
 			'title'	=> t('Sort by Comment Date'),
 			'id'	=> 'commented-order-tab',
@@ -371,7 +371,7 @@ function network_content(&$a, $update = 0) {
 		),
 		array(
 			'label'	=> t('Posted Order'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $postord_active,
 			'title'	=> t('Sort by Post Date'),
 			'id'	=> 'posted-order-tab',
@@ -382,7 +382,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Personal'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel'	=> $conv_active,
 			'title'	=> t('Posts that mention or involve you'),
 			'id'	=> 'personal-tab',
@@ -393,7 +393,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'new_tab')) {
 		$tabs[] = array(
 			'label'	=> t('New'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $new_active,
 			'title'	=> t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
@@ -404,7 +404,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'link_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Shared Links'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'	=> $bookmarked_active,
 			'title'	=> t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
@@ -415,7 +415,7 @@ function network_content(&$a, $update = 0) {
 	if(feature_enabled(local_user(),'star_posts')) {
 		$tabs[] = array(
 			'label'	=> t('Starred'),
-			'url'	=> $a->get_baseurl(true) . '/' . str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'	=> $starred_active,
 			'title'	=> t('Favourite Posts'),
 			'id'	=> 'starred-posts-tab',
@@ -547,7 +547,7 @@ function network_content(&$a, $update = 0) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
-			goaway($a->get_baseurl(true) . '/network/0');
+			goaway('network/0');
 			// NOTREACHED
 		}
 
@@ -611,7 +611,7 @@ function network_content(&$a, $update = 0) {
 		}
 		else {
 			notice( t('Invalid contact.') . EOL);
-			goaway($a->get_baseurl(true) . '/network');
+			goaway('network');
 			// NOTREACHED
 		}
 	}

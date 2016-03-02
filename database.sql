@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1193
+-- DB_UPDATE_VERSION 1194
 -- ------------------------------------------
 
 
@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`keywords` text NOT NULL,
 	`gender` varchar(32) NOT NULL DEFAULT '',
 	`attag` varchar(255) NOT NULL DEFAULT '',
+	`avatar` varchar(255) NOT NULL DEFAULT '',
 	`photo` text NOT NULL,
 	`thumb` text NOT NULL,
 	`micro` text NOT NULL,
@@ -409,21 +410,6 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
 	 PRIMARY KEY(`id`),
 	 INDEX `nurl` (`nurl`)
-) DEFAULT CHARSET=utf8;
-
---
--- TABLE guid
---
-CREATE TABLE IF NOT EXISTS `guid` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`guid` varchar(255) NOT NULL DEFAULT '',
-	`plink` varchar(255) NOT NULL DEFAULT '',
-	`uri` varchar(255) NOT NULL DEFAULT '',
-	`network` varchar(32) NOT NULL DEFAULT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `guid` (`guid`),
-	 INDEX `plink` (`plink`),
-	 INDEX `uri` (`uri`)
 ) DEFAULT CHARSET=utf8;
 
 --

@@ -1,6 +1,7 @@
 <?php
 
 require_once('include/items.php');
+require_once('include/dfrn.php');
 require_once('include/event.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
@@ -208,7 +209,7 @@ function dfrn_notify_post(&$a) {
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
 
-	$ret = local_delivery($importer,$data);
+	$ret = dfrn::import($data, $importer);
 	xml_status($ret);
 
 	// NOTREACHED

@@ -39,7 +39,7 @@ function settings_init(&$a) {
 	$tabs = array(
 		array(
 			'label'	=> t('Account'),
-			'url' 	=> $a->get_baseurl(true).'/settings',
+			'url' 	=> 'settings',
 			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
 			'accesskey' => 'o',
 		),
@@ -48,7 +48,7 @@ function settings_init(&$a) {
 	if(get_features()) {
 		$tabs[] =	array(
 					'label'	=> t('Additional features'),
-					'url' 	=> $a->get_baseurl(true).'/settings/features',
+					'url' 	=> 'settings/features',
 					'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
 					'accesskey' => 't',
 				);
@@ -56,49 +56,49 @@ function settings_init(&$a) {
 
 	$tabs[] =	array(
 		'label'	=> t('Display'),
-		'url' 	=> $a->get_baseurl(true).'/settings/display',
+		'url' 	=> 'settings/display',
 		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
 		'accesskey' => 'i',
 	);
 
 	$tabs[] =	array(
 		'label'	=> t('Social Networks'),
-		'url' 	=> $a->get_baseurl(true).'/settings/connectors',
+		'url' 	=> 'settings/connectors',
 		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
 		'accesskey' => 'w',
 	);
 
 	$tabs[] =	array(
 		'label'	=> t('Plugins'),
-		'url' 	=> $a->get_baseurl(true).'/settings/addon',
+		'url' 	=> 'settings/addon',
 		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
 		'accesskey' => 'l',
 	);
 
 	$tabs[] =	array(
 		'label'	=> t('Delegations'),
-		'url' 	=> $a->get_baseurl(true).'/delegate',
+		'url' 	=> 'delegate',
 		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
 		'accesskey' => 'd',
 	);
 
 	$tabs[] =	array(
 		'label' => t('Connected apps'),
-		'url' => $a->get_baseurl(true) . '/settings/oauth',
+		'url' => 'settings/oauth',
 		'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
 		'accesskey' => 'b',
 	);
 
 	$tabs[] =	array(
 		'label' => t('Export personal data'),
-		'url' => $a->get_baseurl(true) . '/uexport',
+		'url' => 'uexport',
 		'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport')?'active':''),
 		'accesskey' => 'e',
 	);
 
 	$tabs[] =	array(
 		'label' => t('Remove account'),
-		'url' => $a->get_baseurl(true) . '/removeme',
+		'url' => 'removeme',
 		'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
 		'accesskey' => 'r',
 	);
@@ -342,7 +342,7 @@ function settings_post(&$a) {
 		);
 
 		call_hooks('display_settings_post', $_POST);
-		goaway($a->get_baseurl(true) . '/settings/display' );
+		goaway('settings/display' );
 		return; // NOTREACHED
 	}
 
@@ -351,7 +351,7 @@ function settings_post(&$a) {
 	if (x($_POST,'resend_relocate')) {
 		proc_run('php', 'include/notifier.php', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
-		goaway($a->get_baseurl(true) . '/settings');
+		goaway('settings');
 	}
 
 	call_hooks('settings_post', $_POST);
@@ -627,7 +627,7 @@ function settings_post(&$a) {
 
 	}
 
-	goaway($a->get_baseurl(true) . '/settings' );
+	goaway('settings' );
 	return; // NOTREACHED
 }
 
@@ -1152,7 +1152,7 @@ function settings_content(&$a) {
 		info( t('Profile is <strong>not published</strong>.') . EOL );
 
 
-	//$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . $a->get_baseurl(true) . '/profile/' . $nickname : '');
+	//$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . 'profile/' . $nickname : '');
 
 	$tpl_addr = get_markup_template("settings_nick_set.tpl");
 

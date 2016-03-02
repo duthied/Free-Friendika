@@ -160,6 +160,9 @@ function item_post(&$a) {
 				logger('no contact found: '.print_r($thrparent, true), LOGGER_DEBUG);
 			} else
 				logger('parent contact: '.print_r($parent_contact, true), LOGGER_DEBUG);
+
+			if ($parent_contact["nick"] == "")
+				$parent_contact["nick"] = $parent_contact["name"];
 		}
 	}
 
@@ -843,9 +846,6 @@ function item_post(&$a) {
 		goaway($a->get_baseurl() . "/" . $return_path );
 		// NOTREACHED
 	}
-
-	// Store the guid and other relevant data
-	add_guid($datarray);
 
 	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);

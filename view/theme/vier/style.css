@@ -269,7 +269,7 @@ div.pager {
 /* global */
 body {
 /*  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; */
-  font-family: system,-apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Helvetica,Arial,sans-serif;
+  font-family: -apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Helvetica,Arial,sans-serif;
   font-size: 14px;
   /* font-size: 13px;
   line-height: 19.5px; */
@@ -1042,6 +1042,9 @@ aside {
   box-shadow: 1px 2px 0px 0px #D8D8D8;
   color: #737373;
 }
+aside .vcard .tool {
+  clear: both;
+}
 aside .vcard .fn {
   font-size: 18px;
   font-weight: bold;
@@ -1050,7 +1053,6 @@ aside .vcard .fn {
 }
 aside .vcard .title {
   margin-bottom: 5px;
-  float: left;
 }
 aside .vcard dl {
   height: auto;
@@ -1137,6 +1139,10 @@ aside h4, right_aside h4 {
   margin-bottom: 0px;
   margin-top: 0px;
   font-size: 1.17em;
+}
+
+aside img {
+  max-width: 175px;
 }
 
 .nets-ul {
@@ -1426,8 +1432,8 @@ section.minimal {
 }
 .children .wall-item-container .wall-item-item .wall-item-content img {
   /* max-width: 650px; */
-  /* max-width: 580px; */
-  max-width: 100%;
+  max-width: 520px;
+  /* max-width: 100%; */
 }
 .wall-item-container .wall-item-links, .wall-item-container .wall-item-actions {
   display: table-cell;
@@ -1583,62 +1589,33 @@ section.minimal {
   width: calc(100% - 165px);
 }
 
-.wall-item-container.comment .wall-item-content {
-  max-width: 585px;
-}
-.wall-item-container.thread_level_3 .wall-item-content {
-  max-width: 570px;
-}
-.wall-item-container.thread_level_4 .wall-item-content {
-  max-width: 555px;
-}
-.wall-item-container.thread_level_5 .wall-item-content {
-  max-width: 540px;
-}
-.wall-item-container.thread_level_6 .wall-item-content {
-  max-width: 525px;
-}
+.wall-item-container.comment .wall-item-content,
+.wall-item-container.thread_level_3 .wall-item-content,
+.wall-item-container.thread_level_4 .wall-item-content,
+.wall-item-container.thread_level_5 .wall-item-content,
+.wall-item-container.thread_level_6 .wall-item-content,
 .wall-item-container.thread_level_7 .wall-item-content {
-  max-width: 510px;
+  max-width: calc(100% - 1px);
 }
 
-.children .wall-item-comment-wrapper textarea {
-  width: 570px;
-}
-.wall-item-container.thread_level_3 .wall-item-comment-wrapper textarea {
-  width: 555px;
-}
-.wall-item-container.thread_level_4 .wall-item-comment-wrapper textarea {
-  width: 540px;
-}
-.wall-item-container.thread_level_5 .wall-item-comment-wrapper textarea {
-  width: 525px;
-}
-.wall-item-container.thread_level_6 .wall-item-comment-wrapper textarea {
-  width: 510px;
-}
+.children .wall-item-comment-wrapper textarea, 
+.wall-item-container.thread_level_3 .wall-item-comment-wrapper textarea,
+.wall-item-container.thread_level_4 .wall-item-comment-wrapper textarea,
+.wall-item-container.thread_level_5 .wall-item-comment-wrapper textarea,
+.wall-item-container.thread_level_6 .wall-item-comment-wrapper textarea,
 .wall-item-container.thread_level_7 .wall-item-comment-wrapper textarea {
-  width: 495px;
+  width: calc(100% - 11px);
 }
 
-.children .wall-item-bottom .comment-edit-preview {
-  width: 575px;
-}
-.wall-item-container.thread_level_3 .wall-item-bottom .comment-edit-preview {
-  width: 560px;
-}
-.wall-item-container.thread_level_4 .wall-item-bottom .comment-edit-preview {
-  width: 545px;
-}
-.wall-item-container.thread_level_5 .wall-item-bottom .comment-edit-preview {
-  width: 530px;
-}
-.wall-item-container.thread_level_6 .wall-item-bottom .comment-edit-preview {
-  width: 515px;
-}
+.children .wall-item-bottom .comment-edit-preview,
+.wall-item-container.thread_level_3 .wall-item-bottom .comment-edit-preview,
+.wall-item-container.thread_level_4 .wall-item-bottom .comment-edit-preview,
+.wall-item-container.thread_level_5 .wall-item-bottom .comment-edit-preview,
+.wall-item-container.thread_level_6 .wall-item-bottom .comment-edit-preview,
 .wall-item-container.thread_level_7 .wall-item-bottom .comment-edit-preview {
-  width: 500px;
+  width: calc(100% - 6px);
 }
+
 
 .wall-item-container.comment .contact-photo {
   width: 32px;
@@ -2051,6 +2028,15 @@ section.minimal {
   cursor: pointer;
   margin-top: 3px;
   height: 10px;
+  display: inline-block;
+}
+#smileybutton {
+  position: absolute;
+  z-index: 99;
+}
+table.smiley-preview{
+  background-color: #FFF;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 #jot-perms-icon {
   float: right;

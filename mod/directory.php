@@ -104,7 +104,7 @@ function directory_content(&$a) {
 
 			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
 
-			$profile_link = z_root() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+			$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
 
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 
@@ -158,14 +158,14 @@ function directory_content(&$a) {
 			else {
 				$location_e = $location;
 			}
-			
+
 			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
 
 			$entry = array(
 				'id' => $rr['id'],
 				'url' => $profile_link,
 				'itemurl' => $itemurl,
-				'thumb' => proxy_url($a->get_cached_avatar_image($rr[$photo]), false, PROXY_SIZE_THUMB),
+				'thumb' => proxy_url($rr[$photo], false, PROXY_SIZE_THUMB),
 				'img_hover' => $rr['name'],
 				'name' => $rr['name'],
 				'details' => $details,
