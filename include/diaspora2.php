@@ -95,11 +95,11 @@ class diaspora {
 		$type = $fields->getName();
 
 		switch ($type) {
-			case "account_deletion":
+			case "account_deletion": // Done
 				return true;
 				//return self::import_account_deletion($importer, $fields);
 
-			case "comment":
+			case "comment": // Done
 				return true;
 				//return self::import_comment($importer, $sender, $fields);
 
@@ -107,40 +107,40 @@ class diaspora {
 				return true;
 				//return self::import_conversation($importer, $fields);
 
-			case "like":
+			case "like": // Done
 				return true;
 				//return self::import_like($importer, $sender, $fields);
 
-			case "message":
+			case "message": // Done
 				return true;
 				//return self::import_message($importer, $fields);
 
 			case "participation": // Not implemented
 				return self::import_participation($importer, $fields);
 
-			case "photo":
+			case "photo": // Not needed
 				return self::import_photo($importer, $fields);
 
 			case "poll_participation": // Not implemented
 				return self::import_poll_participation($importer, $fields);
 
-			case "profile":
+			case "profile": // Done
 				return true;
 				//return self::import_profile($importer, $fields);
 
 			case "request":
 				return self::import_request($importer, $fields);
 
-			case "reshare":
+			case "reshare": // Done
 				return true;
 				//return self::import_reshare($importer, $fields);
 
 			case "retraction":
 				return self::import_retraction($importer, $fields);
 
-			case "status_message":
-				//return true;
-				return self::import_status_message($importer, $fields);
+			case "status_message": // Done
+				return true;
+				//return self::import_status_message($importer, $fields);
 
 			default:
 				logger("Unknown message type ".$type);
@@ -567,25 +567,25 @@ class diaspora {
 	}
 
 	private function plink($addr, $guid) {
-	        $r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
+		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
 
-	        // Fallback
-	        if (!$r)
-	                return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
+		// Fallback
+		if (!$r)
+			return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
 
-	        // Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
-	        // So we try another way as well.
-	        $s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
-	        if ($s)
-	                $r[0]["network"] = $s[0]["network"];
+		// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
+		// So we try another way as well.
+		$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
+		if ($s)
+			$r[0]["network"] = $s[0]["network"];
 
-	        if ($r[0]["network"] == NETWORK_DFRN)
-	                return(str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/"));
+		if ($r[0]["network"] == NETWORK_DFRN)
+			return(str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/"));
 
-	        if (self::is_redmatrix($r[0]["url"]))
-	                return $r[0]["url"]."/?f=&mid=".$guid;
+		if (self::is_redmatrix($r[0]["url"]))
+			return $r[0]["url"]."/?f=&mid=".$guid;
 
-	        return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
+		return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
 	}
 
 	private function import_account_deletion($importer, $data) {
@@ -681,158 +681,158 @@ class diaspora {
 		print_r($data);
 		die();
 /*
-        $guid = notags(unxmlify($xml->guid));
-        $subject = notags(unxmlify($xml->subject));
-        $diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-        $participant_handles = notags(unxmlify($xml->participant_handles));
-        $created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml->created_at)));
+	$guid = notags(unxmlify($xml->guid));
+	$subject = notags(unxmlify($xml->subject));
+	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+	$participant_handles = notags(unxmlify($xml->participant_handles));
+	$created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml->created_at)));
 
-        $parent_uri = $diaspora_handle . ':' . $guid;
+	$parent_uri = $diaspora_handle . ':' . $guid;
 
-        $messages = $xml->message;
+	$messages = $xml->message;
 
-        if(! count($messages)) {
-                logger('empty conversation');
-                return;
-        }
+	if(! count($messages)) {
+		logger('empty conversation');
+		return;
+	}
 
 		$contact = self::get_allowed_contact_by_handle($importer, $sender, true)
 		if (!$contact)
 			return false;
 
-        $conversation = null;
+	$conversation = null;
 
-        $c = q("select * from conv where uid = %d and guid = '%s' limit 1",
-                intval($importer['uid']),
-                dbesc($guid)
-        );
-        if(count($c))
-                $conversation = $c[0];
-        else {
-                $r = q("insert into conv (uid,guid,creator,created,updated,subject,recips) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
-                        intval($importer['uid']),
-                        dbesc($guid),
-                        dbesc($diaspora_handle),
-                        dbesc(datetime_convert('UTC','UTC',$created_at)),
-                        dbesc(datetime_convert()),
-                        dbesc($subject),
-                        dbesc($participant_handles)
-                );
-                if($r)
-                        $c = q("select * from conv where uid = %d and guid = '%s' limit 1",
-                intval($importer['uid']),
-            dbesc($guid)
-        );
-            if(count($c))
-            $conversation = $c[0];
-        }
-        if(! $conversation) {
-                logger('diaspora_conversation: unable to create conversation.');
-                return;
-        }
+	$c = q("select * from conv where uid = %d and guid = '%s' limit 1",
+		intval($importer["uid"]),
+		dbesc($guid)
+	);
+	if(count($c))
+		$conversation = $c[0];
+	else {
+		$r = q("insert into conv (uid,guid,creator,created,updated,subject,recips) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
+			intval($importer["uid"]),
+			dbesc($guid),
+			dbesc($diaspora_handle),
+			dbesc(datetime_convert('UTC','UTC',$created_at)),
+			dbesc(datetime_convert()),
+			dbesc($subject),
+			dbesc($participant_handles)
+		);
+		if($r)
+			$c = q("select * from conv where uid = %d and guid = '%s' limit 1",
+		intval($importer["uid"]),
+	    dbesc($guid)
+	);
+	    if(count($c))
+	    $conversation = $c[0];
+	}
+	if(! $conversation) {
+		logger('diaspora_conversation: unable to create conversation.');
+		return;
+	}
 
-        foreach($messages as $mesg) {
+	foreach($messages as $mesg) {
 
-                $reply = 0;
+		$reply = 0;
 
-                $msg_guid = notags(unxmlify($mesg->guid));
-                $msg_parent_guid = notags(unxmlify($mesg->parent_guid));
-                $msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
-                $msg_author_signature = notags(unxmlify($mesg->author_signature));
-                $msg_text = unxmlify($mesg->text);
-                $msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($mesg->created_at)));
-                $msg_diaspora_handle = notags(unxmlify($mesg->diaspora_handle));
-                $msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
-                if($msg_conversation_guid != $guid) {
-                        logger('diaspora_conversation: message conversation guid does not belong to the current conversation. ' . $xml);
-                        continue;
-                }
+		$msg_guid = notags(unxmlify($mesg->guid));
+		$msg_parent_guid = notags(unxmlify($mesg->parent_guid));
+		$msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
+		$msg_author_signature = notags(unxmlify($mesg->author_signature));
+		$msg_text = unxmlify($mesg->text);
+		$msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($mesg->created_at)));
+		$msg_diaspora_handle = notags(unxmlify($mesg->diaspora_handle));
+		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
+		if($msg_conversation_guid != $guid) {
+			logger('diaspora_conversation: message conversation guid does not belong to the current conversation. ' . $xml);
+			continue;
+		}
 
-                $body = diaspora2bb($msg_text);
-                $message_id = $msg_diaspora_handle . ':' . $msg_guid;
+		$body = diaspora2bb($msg_text);
+		$message_id = $msg_diaspora_handle . ':' . $msg_guid;
 
-                $author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
+		$author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
 
-                $author_signature = base64_decode($msg_author_signature);
+		$author_signature = base64_decode($msg_author_signature);
 
-                if(strcasecmp($msg_diaspora_handle,$msg['author']) == 0) {
-                        $person = $contact;
-                        $key = $msg['key'];
-                }
-                else {
-                        $person = find_diaspora_person_by_handle($msg_diaspora_handle); 
+		if(strcasecmp($msg_diaspora_handle,$msg["author"]) == 0) {
+			$person = $contact;
+			$key = $msg["key"];
+		}
+		else {
+			$person = find_diaspora_person_by_handle($msg_diaspora_handle); 
 
-                        if(is_array($person) && x($person,'pubkey'))
-                                $key = $person['pubkey'];
-                        else {
-                                logger('diaspora_conversation: unable to find author details');
-                                continue;
-                        }
-                }
+			if(is_array($person) && x($person,'pubkey'))
+				$key = $person["pubkey"];
+			else {
+				logger('diaspora_conversation: unable to find author details');
+				continue;
+			}
+		}
 
-                if(! rsa_verify($author_signed_data,$author_signature,$key,'sha256')) {
-                        logger('diaspora_conversation: verification failed.');
-                        continue;
-                }
+		if(! rsa_verify($author_signed_data,$author_signature,$key,'sha256')) {
+			logger('diaspora_conversation: verification failed.');
+			continue;
+		}
 
-                if($msg_parent_author_signature) {
-                        $owner_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
+		if($msg_parent_author_signature) {
+			$owner_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
 
-                        $parent_author_signature = base64_decode($msg_parent_author_signature);
+			$parent_author_signature = base64_decode($msg_parent_author_signature);
 
-                        $key = $msg['key'];
+			$key = $msg["key"];
 
-                        if(! rsa_verify($owner_signed_data,$parent_author_signature,$key,'sha256')) {
-                                logger('diaspora_conversation: owner verification failed.');
-                                continue;
-                        }
-                }
+			if(! rsa_verify($owner_signed_data,$parent_author_signature,$key,'sha256')) {
+				logger('diaspora_conversation: owner verification failed.');
+				continue;
+			}
+		}
 
-                $r = q("select id from mail where `uri` = '%s' limit 1",
-                        dbesc($message_id)
-                );
-                if(count($r)) {
-                        logger('diaspora_conversation: duplicate message already delivered.', LOGGER_DEBUG);
-                        continue;
-                }
+		$r = q("select id from mail where `uri` = '%s' limit 1",
+			dbesc($message_id)
+		);
+		if(count($r)) {
+			logger('diaspora_conversation: duplicate message already delivered.', LOGGER_DEBUG);
+			continue;
+		}
 
-                q("insert into mail ( `uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`) values ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
-                        intval($importer['uid']),
-                        dbesc($msg_guid),
-                        intval($conversation['id']),
-                        dbesc($person['name']),
-                        dbesc($person['photo']),
-                        dbesc($person['url']),
-                        intval($contact['id']),
-                        dbesc($subject),
-                        dbesc($body),
-                        0,
-                        0,
-                        dbesc($message_id),
-                        dbesc($parent_uri),
-                        dbesc($msg_created_at)
-                );
+		q("insert into mail ( `uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`) values ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
+			intval($importer["uid"]),
+			dbesc($msg_guid),
+			intval($conversation["id"]),
+			dbesc($person["name"]),
+			dbesc($person["photo"]),
+			dbesc($person["url"]),
+			intval($contact["id"]),
+			dbesc($subject),
+			dbesc($body),
+			0,
+			0,
+			dbesc($message_id),
+			dbesc($parent_uri),
+			dbesc($msg_created_at)
+		);
 
-                q("update conv set updated = '%s' where id = %d",
-                        dbesc(datetime_convert()),
-                        intval($conversation['id'])
-                );
+		q("update conv set updated = '%s' where id = %d",
+			dbesc(datetime_convert()),
+			intval($conversation["id"])
+		);
 
-                notification(array(
-                        'type' => NOTIFY_MAIL,
-                        'notify_flags' => $importer['notify-flags'],
-                        'language' => $importer['language'],
-                        'to_name' => $importer['username'],
-                        'to_email' => $importer['email'],
-                        'uid' =>$importer['uid'],
-                        'item' => array('subject' => $subject, 'body' => $body),
-                        'source_name' => $person['name'],
-                        'source_link' => $person['url'],
-                        'source_photo' => $person['thumb'],
-                        'verb' => ACTIVITY_POST,
-                        'otype' => 'mail'
-                ));
-        }
+		notification(array(
+			'type' => NOTIFY_MAIL,
+			'notify_flags' => $importer["notify-flags"],
+			'language' => $importer["language"],
+			'to_name' => $importer["username"],
+			'to_email' => $importer["email"],
+			'uid' =>$importer["uid"],
+			'item' => array('subject' => $subject, 'body' => $body),
+			'source_name' => $person["name"],
+			'source_link' => $person["url"],
+			'source_photo' => $person["thumb"],
+			'verb' => ACTIVITY_POST,
+			'otype' => 'mail'
+		));
+	}
 */
 		return true;
 	}
@@ -1420,7 +1420,78 @@ print_r($data);
 		return $message_id;
 	}
 
+	private function item_retraction($importer, $contact, $data) {
+		$target_guid = notags(unxmlify($data->target_guid));
+
+		$r = q("SELECT `id`, `parent`, `parent-uri`, `author-link` FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
+			dbesc($target_guid),
+			intval($importer["uid"])
+		);
+		if (!$r)
+			return false;
+
+		// Only delete it if the author really fits
+		if (!link_compare($r[0]["author-link"],$contact["url"]))
+			return false;
+
+		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
+		q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s', `body` = '' , `title` = '' WHERE `id` = %d",
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($r[0]["id"])
+		);
+		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
+
+		// Now check if the retraction needs to be relayed by us
+		//
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("SELECT `origin` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
+			intval($r[0]["parent"]),
+			intval($r[0]["parent"])
+		);
+		if(count($p)) {
+			if($p[0]["origin"]) {
+
+	                        // Formerly we stored the signed text, the signature and the author in different fields.
+	                        // The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
+	                        q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+					intval($r[0]["id"]),
+	                                dbesc(json_encode($data))
+	                        );
+
+				// the existence of parent_author_signature would have meant the parent_author or owner
+				// is already relaying.
+				logger("relaying retraction");
+
+				proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
+			}
+		}
+	}
+
 	private function import_retraction($importer, $data) {
+		$target_type = notags(unxmlify($data->target_type));
+		$author = notags(unxmlify($data->author));
+
+		$contact = self::get_contact_by_handle($importer["uid"], $author);
+		if (!$contact) {
+			logger("cannot find contact for author: ".$author);
+			return false;
+		}
+
+		switch ($target_type) {
+			case "Comment": case "Like": case "StatusMessage":
+				self::item_retraction($importer, $contact, $data);
+				break;
+
+			case "Person":
+				contact_remove($contact["id"]);
+				return true;
+
+			default:
+				logger("Unknown target type ".$target_type);
+		}
 		return true;
 	}
 
@@ -1434,11 +1505,11 @@ print_r($data);
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
 
 		/// @todo enable support for polls
-		if ($data->poll) {
-			foreach ($data->poll AS $poll)
-				print_r($poll);
-			die("poll!\n");
-		}
+		//if ($data->poll) {
+		//	foreach ($data->poll AS $poll)
+		//		print_r($poll);
+		//	die("poll!\n");
+		//}
 		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
 			return false;

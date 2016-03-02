@@ -116,13 +116,13 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
 	}
 	elseif($xmlbase->signed_retraction) {
-		//$tempfile = tempnam(get_temppath(), "diaspora-signed_retraction");
-		//file_put_contents($tempfile, json_encode($data));
+		$tempfile = tempnam(get_temppath(), "diaspora-signed_retraction");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->signed_retraction,$msg);
 	}
 	elseif($xmlbase->relayable_retraction) {
-		//$tempfile = tempnam(get_temppath(), "diaspora-relayable_retraction");
-		//file_put_contents($tempfile, json_encode($data));
+		$tempfile = tempnam(get_temppath(), "diaspora-relayable_retraction");
+		file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->relayable_retraction,$msg);
 	}
 	elseif($xmlbase->photo) {
