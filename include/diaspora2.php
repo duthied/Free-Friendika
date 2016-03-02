@@ -1524,16 +1524,16 @@ print_r($data);
 
 		$body = diaspora2bb($raw_message);
 
-		if ($data->photo)
+		$datarray = array();
+
+		if ($data->photo) {
 			foreach ($data->photo AS $photo)
 				$body = "[img]".$photo->remote_photo_path.$photo->remote_photo_name."[/img]\n".$body;
 
-		$datarray = array();
-
-		if($data->photo->remote_photo_path AND $data->photo->remote_photo_name)
 			$datarray["object-type"] = ACTIVITY_OBJ_PHOTO;
-		else {
+		} else {
 			$datarray["object-type"] = ACTIVITY_OBJ_NOTE;
+
 			// Add OEmbed and other information to the body
 			if (!self::is_redmatrix($contact["url"]))
 				$body = add_page_info_to_body($body, false, true);
@@ -1541,6 +1541,7 @@ print_r($data);
 
 		$str_tags = "";
 
+		// This doesn't work. @todo Check if the "tag" field is filled in the "item_store" function.
 		$cnt = preg_match_all("/@\[url=(.*?)\[\/url\]/ism", $body, $matches, PREG_SET_ORDER);
 		if($cnt) {
 			foreach($matches as $mtch) {
