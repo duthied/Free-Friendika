@@ -13,6 +13,10 @@ require_once("include/socgraph.php");
 require_once("include/group.php");
 require_once("include/api.php");
 
+/**
+ * @brief This class contain functions to work with XML data
+ *
+ */
 class xml {
 	function from_array($array, &$xml) {
 
@@ -45,12 +49,20 @@ class xml {
 		}
 	}
 }
+
 /**
  * @brief This class contain functions to create and send Diaspora XML files
  *
  */
 class diaspora {
 
+	/**
+	 * @brief Dispatches public messages and find the fitting receivers
+	 *
+	 * @param array $msg The post that will be dispatched
+	 *
+	 * @return bool Was the message accepted?
+	 */
 	public static function dispatch_public($msg) {
 
 		$enabled = intval(get_config("system", "diaspora_enabled"));
@@ -81,6 +93,14 @@ class diaspora {
 		return $item_id;
 	}
 
+	/**
+	 * @brief Dispatches the different message types to the different functions
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param array $msg The post that will be dispatched
+	 *
+	 * @return bool Was the message accepted?
+	 */
 	public static function dispatch($importer, $msg) {
 
 		// The sender is the handle of the contact that sent the message.
@@ -104,8 +124,8 @@ class diaspora {
 				//return self::import_comment($importer, $sender, $fields);
 
 			case "conversation":
-				return true;
-				//return self::import_conversation($importer, $fields);
+				//return true;
+				return self::import_conversation($importer, $fields);
 
 			case "like": // Done
 				return true;
@@ -129,18 +149,20 @@ class diaspora {
 				//return self::import_profile($importer, $fields);
 
 			case "request":
+				//return true;
 				return self::import_request($importer, $fields);
 
 			case "reshare": // Done
 				return true;
 				//return self::import_reshare($importer, $fields);
 
-			case "retraction":
-				return self::import_retraction($importer, $fields);
-
-			case "status_message": // Done
+			case "retraction": // Done
 				return true;
-				//return self::import_status_message($importer, $fields);
+				//return self::import_retraction($importer, $sender, $fields);
+
+			case "status_message":
+				//return true;
+				return self::import_status_message($importer, $fields);
 
 			default:
 				logger("Unknown message type ".$type);
@@ -181,6 +203,7 @@ class diaspora {
 		}
 
 		$type = $element->getName();
+		$orig_type = $type;
 
 		// All retractions are handled identically from now on.
 		// In the new version there will only be "retraction".
@@ -235,7 +258,8 @@ class diaspora {
 
 				$signed_data .= $entry;
 			}
-			if (!in_array($fieldname, array("parent_author_signature", "target_author_signature")))
+			if (!in_array($fieldname, array("parent_author_signature", "target_author_signature")) OR
+				($orig_type == "relayable_retraction"))
 				xml::copy($entry, $fields, $fieldname);
 		}
 
@@ -266,6 +290,13 @@ class diaspora {
 		return rsa_verify($signed_data, $author_signature, $key, "sha256");
 	}
 
+	/**
+	 * @brief Fetches the public key for a given handle
+	 *
+	 * @param string $handle The handle
+	 *
+	 * @return string The public key
+	 */
 	private function get_key($handle) {
 		logger("Fetching diaspora key for: ".$handle);
 
@@ -276,6 +307,13 @@ class diaspora {
 		return "";
 	}
 
+	/**
+	 * @brief Fetches data for a given handle
+	 *
+	 * @param string $handle The handle
+	 *
+	 * @return array the queried data
+	 */
 	private function get_person_by_handle($handle) {
 
 		$r = q("SELECT * FROM `fcontact` WHERE `network` = '%s' AND `addr` = '%s' LIMIT 1",
@@ -306,6 +344,14 @@ class diaspora {
 		return $person;
 	}
 
+	/**
+	 * @brief Updates the fcontact table
+	 *
+	 * @param array $arr The fcontact data
+	 * @param bool $update Update or insert?
+	 *
+	 * @return string The id of the fcontact entry
+	 */
 	private function add_fcontact($arr, $update = false) {
 		/// @todo Remove this function from include/network.php
 
@@ -477,13 +523,12 @@ class diaspora {
 		if ($level > 5)
 			return false;
 
-		// This will not work if the server is not a Diaspora server
+		// This will work for Diaspora and newer Friendica servers
 		$source_url = $server."/p/".$guid.".xml";
 		$x = fetch_url($source_url);
 		if(!$x)
 			return false;
 
-		/// @todo - should maybe solved by the dispatcher
 		$source_xml = parse_xml_string($x, false);
 
 		if (!is_object($source_xml))
@@ -664,7 +709,7 @@ class diaspora {
 		if($message_id AND $parent_item["origin"]) {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
-			// The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
+			// We now store the raw data so that we are more flexible.
 			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
 				intval($message_id),
 				dbesc(json_encode($data))
@@ -678,6 +723,7 @@ class diaspora {
 	}
 
 	private function import_conversation($importer, $data) {
+		// @todo
 		print_r($data);
 		die();
 /*
@@ -934,13 +980,13 @@ EOT;
 		$datarray["body"] = self::construct_like_body($contact, $parent_item, $guid);
 
 		$message_id = item_store($datarray);
-		//print_r($datarray);
+		// print_r($datarray);
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
-			// The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
+			// We now store the raw data so that we are more flexible.
 			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
 				intval($message_id),
 				dbesc(json_encode($data))
@@ -1125,7 +1171,8 @@ EOT;
 	}
 
 	private function import_request($importer, $data) {
-print_r($data);
+		// @todo
+		print_r($data);
 /*
 	$author = unxmlify($xml->author);
 	$recipient = unxmlify($xml->recipient);
@@ -1371,8 +1418,8 @@ print_r($data);
 		if (!$contact)
 			return false;
 
-//		if (self::message_exists($importer["uid"], $guid))
-//			return false;
+		if (self::message_exists($importer["uid"], $guid))
+			return false;
 
 		$original_item = self::get_original_item($root_guid, $root_author, $author);
 		if (!$original_item)
@@ -1414,14 +1461,22 @@ print_r($data);
 		$datarray["object-type"] = $original_item["object-type"];
 
 		self::fetch_guid($datarray);
-		//$message_id = item_store($datarray);
-		print_r($datarray);
+		$message_id = item_store($datarray);
+		// print_r($datarray);
 
 		return $message_id;
 	}
 
 	private function item_retraction($importer, $contact, $data) {
+		$target_type = notags(unxmlify($data->target_type));
 		$target_guid = notags(unxmlify($data->target_guid));
+		$author = notags(unxmlify($data->author));
+
+		$person = self::get_person_by_handle($author);
+		if (!is_array($person)) {
+			logger("unable to find author detail for ".$author);
+			return false;
+		}
 
 		$r = q("SELECT `id`, `parent`, `parent-uri`, `author-link` FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
 			dbesc($target_guid),
@@ -1431,7 +1486,15 @@ print_r($data);
 			return false;
 
 		// Only delete it if the author really fits
-		if (!link_compare($r[0]["author-link"],$contact["url"]))
+		if (!link_compare($r[0]["author-link"],$person["url"]))
+			return false;
+
+		// Check if the sender is the thread owner
+		$p = q("SELECT `author-link`, `origin` FROM `item` WHERE `id` = %d",
+			intval($r[0]["parent"]));
+
+		// Only delete it if the parent author really fits
+		if (!link_compare($p[0]["author-link"], $contact["url"]))
 			return false;
 
 		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
@@ -1443,47 +1506,36 @@ print_r($data);
 		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
 
 		// Now check if the retraction needs to be relayed by us
-		//
-		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-		// The only item with `parent` and `id` as the parent id is the parent item.
-		$p = q("SELECT `origin` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
-			intval($r[0]["parent"]),
-			intval($r[0]["parent"])
-		);
-		if(count($p)) {
-			if($p[0]["origin"]) {
+		if($p[0]["origin"]) {
 
-	                        // Formerly we stored the signed text, the signature and the author in different fields.
-	                        // The new Diaspora protocol can have variable fields. We now store the data in correct order in a single field.
-	                        q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-					intval($r[0]["id"]),
-	                                dbesc(json_encode($data))
-	                        );
+			// Formerly we stored the signed text, the signature and the author in different fields.
+			// We now store the raw data so that we are more flexible.
+			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+				intval($r[0]["id"]),
+				dbesc(json_encode($data))
+			);
 
-				// the existence of parent_author_signature would have meant the parent_author or owner
-				// is already relaying.
-				logger("relaying retraction");
-
-				proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
-			}
+			// notify others
+			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
 		}
 	}
 
-	private function import_retraction($importer, $data) {
+	private function import_retraction($importer, $sender, $data) {
 		$target_type = notags(unxmlify($data->target_type));
-		$author = notags(unxmlify($data->author));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
+		$contact = self::get_contact_by_handle($importer["uid"], $sender);
 		if (!$contact) {
-			logger("cannot find contact for author: ".$author);
+			logger("cannot find contact for sender: ".$sender." and user ".$importer["uid"]);
 			return false;
 		}
 
 		switch ($target_type) {
-			case "Comment": case "Like": case "StatusMessage":
-				self::item_retraction($importer, $contact, $data);
-				break;
+			case "Comment":
+			case "Like":
+			case "Post": // "Post" will be supported in a future version
+			case "Reshare":
+			case "StatusMessage":
+				return self::item_retraction($importer, $contact, $data);;
 
 			case "Person":
 				contact_remove($contact["id"]);
@@ -1491,6 +1543,7 @@ print_r($data);
 
 			default:
 				logger("Unknown target type ".$target_type);
+				return false;
 		}
 		return true;
 	}
@@ -1514,8 +1567,8 @@ print_r($data);
 		if (!$contact)
 			return false;
 
-		//if (self::message_exists($importer["uid"], $guid))
-		//	return false;
+		if (self::message_exists($importer["uid"], $guid))
+			return false;
 
 		$address = array();
 		if ($data->location)
@@ -1537,18 +1590,6 @@ print_r($data);
 			// Add OEmbed and other information to the body
 			if (!self::is_redmatrix($contact["url"]))
 				$body = add_page_info_to_body($body, false, true);
-		}
-
-		$str_tags = "";
-
-		// This doesn't work. @todo Check if the "tag" field is filled in the "item_store" function.
-		$cnt = preg_match_all("/@\[url=(.*?)\[\/url\]/ism", $body, $matches, PREG_SET_ORDER);
-		if($cnt) {
-			foreach($matches as $mtch) {
-				if(strlen($str_tags))
-					$str_tags .= ",";
-				$str_tags .= "@[url=".$mtch[1]."[/url]";
-			}
 		}
 
 		$datarray["uid"] = $importer["uid"];
@@ -1573,7 +1614,6 @@ print_r($data);
 
 		$datarray["body"] = $body;
 
-		$datarray["tag"] = $str_tags;
 		if ($provider_display_name != "")
 			$datarray["app"] = $provider_display_name;
 
@@ -1588,8 +1628,8 @@ print_r($data);
 			$datarray["coord"] = $address["lat"]." ".$address["lng"];
 
 		self::fetch_guid($datarray);
-		//$message_id = item_store($datarray);
-		print_r($datarray);
+		$message_id = item_store($datarray);
+		// print_r($datarray);
 
 		logger("Stored item with message id ".$message_id, LOGGER_DEBUG);
 
