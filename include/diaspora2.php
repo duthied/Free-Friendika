@@ -116,53 +116,53 @@ class diaspora {
 
 		switch ($type) {
 			case "account_deletion": // Done
-				return true;
-				//return self::import_account_deletion($importer, $fields);
+				//return true;
+				return self::receive_account_deletion($importer, $fields);
 
 			case "comment": // Done
-				return true;
-				//return self::import_comment($importer, $sender, $fields);
-
-			case "conversation":
 				//return true;
-				return self::import_conversation($importer, $msg, $fields);
+				return self::receive_comment($importer, $sender, $fields);
+
+			case "conversation": // Done
+				//return true;
+				return self::receive_conversation($importer, $msg, $fields);
 
 			case "like": // Done
-				return true;
-				//return self::import_like($importer, $sender, $fields);
+				//return true;
+				return self::receive_like($importer, $sender, $fields);
 
 			case "message": // Done
-				return true;
-				//return self::import_message($importer, $fields);
+				//return true;
+				return self::receive_message($importer, $fields);
 
 			case "participation": // Not implemented
-				return self::import_participation($importer, $fields);
+				return self::receive_participation($importer, $fields);
 
 			case "photo": // Not needed
-				return self::import_photo($importer, $fields);
+				return self::receive_photo($importer, $fields);
 
 			case "poll_participation": // Not implemented
-				return self::import_poll_participation($importer, $fields);
+				return self::receive_poll_participation($importer, $fields);
 
 			case "profile": // Done
-				return true;
-				//return self::import_profile($importer, $fields);
+				//return true;
+				return self::receive_profile($importer, $fields);
 
 			case "request":
 				//return true;
-				return self::import_request($importer, $fields);
+				return self::receive_request($importer, $fields);
 
 			case "reshare": // Done
-				return true;
-				//return self::import_reshare($importer, $fields);
+				//return true;
+				return self::receive_reshare($importer, $fields);
 
 			case "retraction": // Done
-				return true;
-				//return self::import_retraction($importer, $sender, $fields);
-
-			case "status_message":
 				//return true;
-				return self::import_status_message($importer, $fields);
+				return self::receive_retraction($importer, $sender, $fields);
+
+			case "status_message": // Done
+				//return true;
+				return self::receive_status_message($importer, $fields);
 
 			default:
 				logger("Unknown message type ".$type);
@@ -633,7 +633,7 @@ class diaspora {
 		return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
 	}
 
-	private function import_account_deletion($importer, $data) {
+	private function receive_account_deletion($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
 		$contact = self::get_contact_by_handle($importer["uid"], $author);
@@ -647,7 +647,7 @@ class diaspora {
 		return true;
 	}
 
-	private function import_comment($importer, $sender, $data) {
+	private function receive_comment($importer, $sender, $data) {
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
 		$text = unxmlify($data->text);
@@ -722,7 +722,7 @@ class diaspora {
 		return $message_id;
 	}
 
-	private function import_conversation_message($importer, $contact, $data, $msg, $mesg) {
+	private function receive_conversation_message($importer, $contact, $data, $msg, $mesg) {
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
 		$author = notags(unxmlify($data->author));
@@ -735,7 +735,14 @@ class diaspora {
 		$msg_author_signature = notags(unxmlify($mesg->author_signature));
 		$msg_text = unxmlify($mesg->text);
 		$msg_created_at = datetime_convert("UTC", "UTC", notags(unxmlify($mesg->created_at)));
-		$msg_author = notags(unxmlify($mesg->diaspora_handle));
+
+		if ($mesg->diaspora_handle)
+			$msg_author = notags(unxmlify($mesg->diaspora_handle));
+		elseif ($mesg->author)
+			$msg_author = notags(unxmlify($mesg->author));
+		else
+			return false;
+
 		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
 
 		if($msg_conversation_guid != $guid) {
@@ -829,7 +836,7 @@ class diaspora {
 		));
 	}
 
-	private function import_conversation($importer, $msg, $data) {
+	private function receive_conversation($importer, $msg, $data) {
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
 		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
@@ -881,7 +888,7 @@ class diaspora {
 		}
 
 		foreach($messages as $mesg)
-			self::import_conversation_message($importer, $contact, $data, $msg, $mesg);
+			self::receive_conversation_message($importer, $contact, $data, $msg, $mesg);
 
 		return true;
 	}
@@ -916,7 +923,7 @@ EOT;
 		return $obj;
 	}
 
-	private function import_like($importer, $sender, $data) {
+	private function receive_like($importer, $sender, $data) {
 		$positive = notags(unxmlify($data->positive));
 		$guid = notags(unxmlify($data->guid));
 		$parent_type = notags(unxmlify($data->parent_type));
@@ -1002,7 +1009,7 @@ EOT;
 		return $message_id;
 	}
 
-	private function import_message($importer, $data) {
+	private function receive_message($importer, $data) {
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
 		$text = unxmlify($data->text);
@@ -1073,22 +1080,22 @@ EOT;
 		return true;
 	}
 
-	private function import_participation($importer, $data) {
+	private function receive_participation($importer, $data) {
 		// I'm not sure if we can fully support this message type
 		return true;
 	}
 
-	private function import_photo($importer, $data) {
+	private function receive_photo($importer, $data) {
 		// There doesn't seem to be a reason for this function, since the photo data is transmitted in the status message as well
 		return true;
 	}
 
-	private function import_poll_participation($importer, $data) {
+	private function receive_poll_participation($importer, $data) {
 		// We don't support polls by now
 		return true;
 	}
 
-	private function import_profile($importer, $data) {
+	private function receive_profile($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
 		$contact = self::get_contact_by_handle($importer["uid"], $author);
@@ -1171,23 +1178,7 @@ EOT;
 		return true;
 	}
 
-	private function import_request($importer, $data) {
-		// @todo
-		print_r($data);
-/*
-	$author = unxmlify($data->author);
-	$recipient = unxmlify($data->recipient);
-
-	if (!$author || !$recipient)
-		return;
-
-	$contact = self::get_contact_by_handle($importer["uid"],$author);
-
-	if($contact) {
-
-		// perhaps we were already sharing with this person. Now they're sharing with us.
-		// That makes us friends.
-
+	private function receive_request_make_friend($importer, $contact) {
 		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
@@ -1201,9 +1192,9 @@ EOT;
 			intval($importer["uid"])
 		);
 
-		if($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(get_pconfig($importer["uid"],'system','post_newfriend'))) {
+		if($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(get_pconfig($importer["uid"], "system", "post_newfriend"))) {
 
-			$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
+			$self = q("SELECT * FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1",
 				intval($importer["uid"])
 			);
 
@@ -1225,16 +1216,16 @@ EOT;
 				$arr["verb"] = ACTIVITY_FRIEND;
 				$arr["object-type"] = ACTIVITY_OBJ_PERSON;
 
-				$A = '[url='.$self[0]["url"] . "]'.$self[0]["name"] .'[/url]';
-				$B = '[url='.$contact["url"] . "]'.$contact["name"] .'[/url]';
-				$BPhoto = '[url='.$contact["url"] . "]'.'[img]'.$contact["thumb"] .'[/img][/url]';
-				$arr["body"] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
+				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
+				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
+				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
+				$arr["body"] = sprintf(t("%1$s is now friends with %2$s"), $A, $B)."\n\n\n".$Bphoto;
 
-				$arr["object"] = '<object><type>'. ACTIVITY_OBJ_PERSON .'</type><title>'.$contact["name"] .'</title>'
-					.'<id>'.$contact["url"] .'/'.$contact["name"] .'</id>';
-				$arr["object"] .= '<link>'. xmlify('<link rel="alternate" type="text/html" href="'.$contact["url"] .'" />'. "\n");
-				$arr["object"] .= xmlify('<link rel="photo" type="image/jpeg" href="'.$contact["thumb"] .'" />'. "\n");
-				$arr["object"] .= '</link></object>'. "\n";
+				$arr["object"] = "<object><type>".ACTIVITY_OBJ_PERSON."</type><title>".$contact["name"]."</title>"
+					."<id>".$contact["url"]."/".$contact["name"]."</id>";
+				$arr["object"] .= "<link>".xmlify('<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n");
+				$arr["object"] .= xmlify('<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n");
+				$arr["object"] .= "</link></object>\n";
 				$arr["last-child"] = 1;
 
 				$arr["allow_cid"] = $user[0]["allow_cid"];
@@ -1244,111 +1235,123 @@ EOT;
 
 				$i = item_store($arr);
 				if($i)
-				proc_run('php',"include/notifier.php","activity","$i");
+					proc_run("php", "include/notifier.php", "activity", $i);
 
 			}
 
 		}
-
-		return;
 	}
 
-	$ret = self::get_person_by_handle($author);
+	private function receive_request($importer, $data) {
+		$author = unxmlify($data->author);
+		$recipient = unxmlify($data->recipient);
 
+		if (!$author || !$recipient)
+			return;
 
-	if (!$ret || ($ret["network"] != NETWORK_DIASPORA)) {
-		logger('Cannot resolve diaspora handle '.$author .' for '.$recipient);
-		return;
-	}
+		$contact = self::get_contact_by_handle($importer["uid"],$author);
 
-	$batch = (($ret["batch"]) ? $ret["batch"] : implode('/', array_slice(explode('/',$ret["url"]),0,3)) .'/receive/public');
+		if($contact) {
 
+			// perhaps we were already sharing with this person. Now they're sharing with us.
+			// That makes us friends.
 
+			self::receive_request_make_friend($importer, $contact);
+			return true;
+		}
 
-	$r = q("INSERT INTO `contact` (`uid`, `network`,`addr`,`created`,`url`,`nurl`,`batch`,`name`,`nick`,`photo`,`pubkey`,`notify`,`poll`,`blocked`,`priority`)
-		VALUES ( %d, '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s',%d,%d) ",
-		intval($importer["uid"]),
-		dbesc($ret["network"]),
-		dbesc($ret["addr"]),
-		datetime_convert(),
-		dbesc($ret["url"]),
-		dbesc(normalise_link($ret["url"])),
-		dbesc($batch),
-		dbesc($ret["name"]),
-		dbesc($ret["nick"]),
-		dbesc($ret["photo"]),
-		dbesc($ret["pubkey"]),
-		dbesc($ret["notify"]),
-		dbesc($ret["poll"]),
-		1,
-		2
-	);
+		$ret = self::get_person_by_handle($author);
 
-	// find the contact record we just created
+		if (!$ret || ($ret["network"] != NETWORK_DIASPORA)) {
+			logger("Cannot resolve diaspora handle ".$author ." for ".$recipient);
+			return false;
+		}
 
-	$contact_record = self::get_contact_by_handle($importer["uid"],$author);
+		$batch = (($ret["batch"]) ? $ret["batch"] : implode("/", array_slice(explode("/", $ret["url"]), 0, 3))."/receive/public");
 
-	if(! $contact_record) {
-		logger('unable to locate newly created contact record.');
-		return;
-	}
-
-	$g = q("select def_gid from user where uid = %d limit 1",
-		intval($importer["uid"])
-	);
-	if($g && intval($g[0]["def_gid"])) {
-		group_add_member($importer["uid"],'',$contact_record["id"],$g[0]["def_gid"]);
-	}
-
-	if($importer["page-flags"] == PAGE_NORMAL) {
-
-		$hash = random_string() . (string) time();   // Generate a confirm_key
-
-		$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime` )
-			VALUES ( %d, %d, %d, %d, '%s', '%s', '%s' )",
+		$r = q("INSERT INTO `contact` (`uid`, `network`,`addr`,`created`,`url`,`nurl`,`batch`,`name`,`nick`,`photo`,`pubkey`,`notify`,`poll`,`blocked`,`priority`)
+			VALUES (%d, '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s',%d,%d)",
 			intval($importer["uid"]),
-			intval($contact_record["id"]),
-			0,
-			0,
-			dbesc( t('Sharing notification from Diaspora network')),
-			dbesc($hash),
-			dbesc(datetime_convert())
-		);
-	}
-	else {
-
-		// automatic friend approval
-
-		update_contact_avatar($contact_record["photo"],$importer["uid"],$contact_record["id"]);
-
-		// technically they are sharing with us (CONTACT_IS_SHARING),
-		// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
-		// we are going to change the relationship and make them a follower.
-
-		if($importer["page-flags"] == PAGE_FREELOVE)
-			$new_relation = CONTACT_IS_FRIEND;
-		else
-			$new_relation = CONTACT_IS_FOLLOWER;
-
-		$r = q("UPDATE `contact` SET `rel` = %d,
-			`name-date` = '%s',
-			`uri-date` = '%s',
-			`blocked` = 0,
-			`pending` = 0,
-			`writable` = 1
-			WHERE `id` = %d
-			",
-			intval($new_relation),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_record["id"])
+			dbesc($ret["network"]),
+			dbesc($ret["addr"]),
+			datetime_convert(),
+			dbesc($ret["url"]),
+			dbesc(normalise_link($ret["url"])),
+			dbesc($batch),
+			dbesc($ret["name"]),
+			dbesc($ret["nick"]),
+			dbesc($ret["photo"]),
+			dbesc($ret["pubkey"]),
+			dbesc($ret["notify"]),
+			dbesc($ret["poll"]),
+			1,
+			2
 		);
 
-		$u = q("select * from user where uid = %d limit 1",intval($importer["uid"]));
-		if($u)
-			$ret = diaspora_share($u[0],$contact_record);
-	}
-*/
+		// find the contact record we just created
+
+		$contact_record = self::get_contact_by_handle($importer["uid"],$author);
+
+		if (!$contact_record) {
+			logger("unable to locate newly created contact record.");
+			return;
+		}
+
+		$g = q("SELECT `def_gid` FROM `user` WHERE `uid` = %d LIMIT 1",
+			intval($importer["uid"])
+		);
+
+		if($g && intval($g[0]["def_gid"]))
+			group_add_member($importer["uid"], "", $contact_record["id"], $g[0]["def_gid"]);
+
+		if($importer["page-flags"] == PAGE_NORMAL) {
+
+			$hash = random_string().(string)time();   // Generate a confirm_key
+
+			$ret = q("INSERT INTO `intro` (`uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
+				VALUES (%d, %d, %d, %d, '%s', '%s', '%s')",
+				intval($importer["uid"]),
+				intval($contact_record["id"]),
+				0,
+				0,
+				dbesc(t("Sharing notification from Diaspora network")),
+				dbesc($hash),
+				dbesc(datetime_convert())
+			);
+		} else {
+
+			// automatic friend approval
+
+			update_contact_avatar($contact_record["photo"],$importer["uid"],$contact_record["id"]);
+
+			// technically they are sharing with us (CONTACT_IS_SHARING),
+			// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
+			// we are going to change the relationship and make them a follower.
+
+			if($importer["page-flags"] == PAGE_FREELOVE)
+				$new_relation = CONTACT_IS_FRIEND;
+			else
+				$new_relation = CONTACT_IS_FOLLOWER;
+
+			$r = q("UPDATE `contact` SET `rel` = %d,
+				`name-date` = '%s',
+				`uri-date` = '%s',
+				`blocked` = 0,
+				`pending` = 0,
+				`writable` = 1
+				WHERE `id` = %d
+				",
+				intval($new_relation),
+				dbesc(datetime_convert()),
+				dbesc(datetime_convert()),
+				intval($contact_record["id"])
+			);
+
+			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
+			if($u)
+				$ret = diaspora_share($u[0], $contact_record);
+		}
+
 		return true;
 	}
 
@@ -1406,7 +1409,7 @@ EOT;
 		return false;
 	}
 
-	private function import_reshare($importer, $data) {
+	private function receive_reshare($importer, $data) {
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
 		$guid = notags(unxmlify($data->guid));
@@ -1520,7 +1523,7 @@ EOT;
 		}
 	}
 
-	private function import_retraction($importer, $sender, $data) {
+	private function receive_retraction($importer, $sender, $data) {
 		$target_type = notags(unxmlify($data->target_type));
 
 		$contact = self::get_contact_by_handle($importer["uid"], $sender);
@@ -1548,7 +1551,7 @@ EOT;
 		return true;
 	}
 
-	private function import_status_message($importer, $data) {
+	private function receive_status_message($importer, $data) {
 
 		$raw_message = unxmlify($data->raw_message);
 		$guid = notags(unxmlify($data->guid));
