@@ -108,7 +108,7 @@ if (x($_SESSION,'authenticated') && !x($_SESSION,'language')) {
 	// we didn't loaded user data yet, but we need user language
 	$r = q("SELECT language FROM user WHERE uid=%d", intval($_SESSION['uid']));
 	$_SESSION['language'] = $lang;
-	if (count($r)>0) $_SESSION['language'] = $r[0]['language'];
+	if (is_filled_array($r)) $_SESSION['language'] = $r[0]['language'];
 }
 
 if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {

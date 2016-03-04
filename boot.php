@@ -927,7 +927,7 @@ class App {
 		} else {
 			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
 				$common_filename);
-			if(! count($r)){
+			if(! is_filled_array($r)){
 				$this->cached_profile_image[$avatar_image] = $avatar_image;
 			} else {
 				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
@@ -1363,7 +1363,7 @@ function run_update_function($x) {
 function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if(count($r))
+	if(is_filled_array($r))
 		$installed = $r;
 	else
 		$installed = array();
@@ -1691,7 +1691,7 @@ function current_theme(){
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if($r)
+		if(is_filled_array($r))
 			$page_theme = $r[0]['theme'];
 	}
 
@@ -1804,7 +1804,7 @@ function feed_birthday($uid,$tz) {
 			intval($uid)
 	);
 
-	if($p && count($p)) {
+	if(is_filled_array($p)) {
 		$tmp_dob = substr($p[0]['dob'],5);
 		if(intval($tmp_dob)) {
 			$y = datetime_convert($tz,$tz,'now','Y');
