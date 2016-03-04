@@ -1849,7 +1849,8 @@ function load_contact_links($uid) {
 	$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
 			intval($uid)
 	);
-	if(count($r)) {
+
+	if(is_filled_array($r)) {
 		foreach($r as $rr){
 			$url = normalise_link($rr['url']);
 			$ret[$url] = $rr;
