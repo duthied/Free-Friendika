@@ -283,14 +283,14 @@ function admin_page_federation(&$a) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
 		$c = q('SELECT count(*) AS total, platform, network, version FROM gserver
-			WHERE platform LIKE "%s" AND last_contact > last_failure
+			WHERE platform LIKE "%s" AND last_contact > last_failure AND `version` != ""
 			ORDER BY version ASC;', $p);
 		$total = $total + $c[0]['total'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
 		$v = q('SELECT count(*) AS total, version FROM gserver
-			WHERE last_contact > last_failure AND platform LIKE "%s" 
+			WHERE last_contact > last_failure AND platform LIKE "%s"  AND `version` != ""
 			GROUP BY version
 			ORDER BY version;', $p);
 
@@ -343,6 +343,9 @@ function admin_page_federation(&$a) {
 			}
 			$v = $newVv;
 		}
+
+		foreach ($v as $key => $vv)
+			$v[$key]["version"] = trim(strip_tags($vv["version"]));
 
 		// the 3rd array item is needed for the JavaScript graphs as JS does
 		// not like some characters in the names of variables...
