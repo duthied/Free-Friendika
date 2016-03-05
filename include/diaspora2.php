@@ -553,7 +553,6 @@ class diaspora {
 
 		$msg = array("message" => $x, "author" => $author);
 
-		// We don't really need this, but until the work is unfinished we better will keep this
 		$msg["key"] = self::get_key($msg["author"]);
 
 		return $msg;
@@ -736,10 +735,12 @@ class diaspora {
 		$msg_text = unxmlify($mesg->text);
 		$msg_created_at = datetime_convert("UTC", "UTC", notags(unxmlify($mesg->created_at)));
 
-		if ($mesg->diaspora_handle)
-			$msg_author = notags(unxmlify($mesg->diaspora_handle));
-		elseif ($mesg->author)
+		// "diaspora_handle" is the element name from the old version
+		// "author" is the element name from the new version
+		if ($mesg->author)
 			$msg_author = notags(unxmlify($mesg->author));
+		elseif ($mesg->diaspora_handle)
+			$msg_author = notags(unxmlify($mesg->diaspora_handle));
 		else
 			return false;
 
