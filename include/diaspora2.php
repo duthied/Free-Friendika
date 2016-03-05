@@ -11,50 +11,58 @@ require_once("include/Contact.php");
 require_once("include/Photo.php");
 require_once("include/socgraph.php");
 require_once("include/group.php");
-require_once("include/api.php");
-
-/**
- * @brief This class contain functions to work with XML data
- *
- */
-class xml {
-	function from_array($array, &$xml) {
-
-		if (!is_object($xml)) {
-			foreach($array as $key => $value) {
-				$root = new SimpleXMLElement("<".$key."/>");
-				array_to_xml($value, $root);
-
-				$dom = dom_import_simplexml($root)->ownerDocument;
-				$dom->formatOutput = true;
-				return $dom->saveXML();
-			}
-		}
-
-		foreach($array as $key => $value) {
-			if (!is_array($value) AND !is_numeric($key))
-				$xml->addChild($key, $value);
-			elseif (is_array($value))
-				array_to_xml($value, $xml->addChild($key));
-		}
-	}
-
-	function copy(&$source, &$target, $elementname) {
-		if (count($source->children()) == 0)
-			$target->addChild($elementname, $source);
-		else {
-			$child = $target->addChild($elementname);
-			foreach ($source->children() AS $childfield => $childentry)
-				self::copy($childentry, $child, $childfield);
-		}
-	}
-}
+require_once("include/xml.php");
+require_once("include/datetime.php");
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
  *
  */
 class diaspora {
+
+	public static function fetch_relay() {
+
+		$serverdata = get_config("system", "relay_server");
+		if ($serverdata == "")
+			return array();
+
+		$relay = array();
+
+		$servers = explode(",", $serverdata);
+
+		foreach($servers AS $server) {
+			$server = trim($server);
+			$batch = $server."/receive/public";
+
+			$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
+
+			if (!$relais) {
+				$addr = "relay@".str_replace("http://", "", normalise_link($server));
+
+				$r = q("INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
+					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
+					datetime_convert(),
+					dbesc($addr),
+					dbesc($addr),
+					dbesc($server),
+					dbesc(normalise_link($server)),
+					dbesc($batch),
+					dbesc(NETWORK_DIASPORA),
+					intval(CONTACT_IS_FOLLOWER),
+					dbesc(datetime_convert()),
+					dbesc(datetime_convert()),
+					dbesc(datetime_convert())
+				);
+
+				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
+				if ($relais)
+					$relay[] = $relais[0];
+			} else
+				$relay[] = $relais[0];
+		}
+
+		return $relay;
+	}
 
 	/**
 	 * @brief Dispatches public messages and find the fitting receivers
@@ -1180,6 +1188,9 @@ EOT;
 	}
 
 	private function receive_request_make_friend($importer, $contact) {
+
+		$a = get_app();
+
 		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
@@ -1204,7 +1215,7 @@ EOT;
 			if($self && $contact["rel"] == CONTACT_IS_FOLLOWER) {
 
 				$arr = array();
-				$arr["uri"] = $arr["parent-uri"] = item_new_uri(App::get_hostname(), $importer["uid"]);
+				$arr["uri"] = $arr["parent-uri"] = item_new_uri($a->get_hostname(), $importer["uid"]);
 				$arr["uid"] = $importer["uid"];
 				$arr["contact-id"] = $self[0]["id"];
 				$arr["wall"] = 1;
@@ -1369,7 +1380,7 @@ EOT;
 
 			// Maybe it is already a reshared item?
 			// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
-			if (api_share_as_retweet($r[0]))
+			if (self::is_reshare($r[0]["body"]))
 				$r = array();
 			else
 				return $r[0];
@@ -1638,6 +1649,454 @@ EOT;
 		logger("Stored item with message id ".$message_id, LOGGER_DEBUG);
 
 		return $message_id;
+	}
+
+	/*******************************************************************************************
+	 * Here come all the functions that are needed to transmit data with the Diaspora protocol *
+	 *******************************************************************************************/
+
+	private function get_my_handle($me) {
+		if ($contact["addr"] != "")
+			return $contact["addr"];
+
+		// Normally we should have a filled "addr" field - but in the past this wasn't the case
+		// So - just in case - we build the the address here.
+		return $me["nickname"]."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
+	}
+
+	function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
+
+		logger("Message: ".$msg, LOGGER_DATA);
+
+		$handle = self::get_my_handle($user);
+
+		$b64url_data = base64url_encode($msg);
+
+		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+
+		$type = "application/xml";
+		$encoding = "base64url";
+		$alg = "RSA-SHA256";
+
+		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+
+		$signature = rsa_sign($signable_data,$prvkey);
+		$sig = base64url_encode($signature);
+
+$magic_env = <<< EOT
+<?xml version='1.0' encoding='UTF-8'?>
+<diaspora xmlns="https://joindiaspora.com/protocol" xmlns:me="http://salmon-protocol.org/ns/magic-env" >
+  <header>
+    <author_id>$handle</author_id>
+  </header>
+  <me:env>
+    <me:encoding>base64url</me:encoding>
+    <me:alg>RSA-SHA256</me:alg>
+    <me:data type="application/xml">$data</me:data>
+    <me:sig>$sig</me:sig>
+  </me:env>
+</diaspora>
+EOT;
+
+		logger("magic_env: ".$magic_env, LOGGER_DATA);
+		return $magic_env;
+	}
+
+	private function build_private_message($msg, $user, $contact, $prvkey, $pubkey) {
+
+		logger("Message: ".$msg, LOGGER_DATA);
+
+		// without a public key nothing will work
+
+		if (!$pubkey) {
+			logger("pubkey missing: contact id: ".$contact["id"]);
+			return false;
+		}
+
+		$inner_aes_key = random_string(32);
+		$b_inner_aes_key = base64_encode($inner_aes_key);
+		$inner_iv = random_string(16);
+		$b_inner_iv = base64_encode($inner_iv);
+
+		$outer_aes_key = random_string(32);
+		$b_outer_aes_key = base64_encode($outer_aes_key);
+		$outer_iv = random_string(16);
+		$b_outer_iv = base64_encode($outer_iv);
+
+		$handle = self::get_my_handle($user);
+
+		$padded_data = pkcs5_pad($msg,16);
+		$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
+
+		$b64_data = base64_encode($inner_encrypted);
+
+
+		$b64url_data = base64url_encode($b64_data);
+		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+
+		$type = "application/xml";
+		$encoding = "base64url";
+		$alg = "RSA-SHA256";
+
+		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+
+		$signature = rsa_sign($signable_data,$prvkey);
+		$sig = base64url_encode($signature);
+
+$decrypted_header = <<< EOT
+<decrypted_header>
+  <iv>$b_inner_iv</iv>
+  <aes_key>$b_inner_aes_key</aes_key>
+  <author_id>$handle</author_id>
+</decrypted_header>
+EOT;
+
+		$decrypted_header = pkcs5_pad($decrypted_header,16);
+
+		$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $outer_aes_key, $decrypted_header, MCRYPT_MODE_CBC, $outer_iv);
+
+		$outer_json = json_encode(array("iv" => $b_outer_iv, "key" => $b_outer_aes_key));
+
+		$encrypted_outer_key_bundle = "";
+		openssl_public_encrypt($outer_json, $encrypted_outer_key_bundle, $pubkey);
+
+		$b64_encrypted_outer_key_bundle = base64_encode($encrypted_outer_key_bundle);
+
+		logger("outer_bundle: ".$b64_encrypted_outer_key_bundle." key: ".$pubkey, LOGGER_DATA);
+
+		$encrypted_header_json_object = json_encode(array("aes_key" => base64_encode($encrypted_outer_key_bundle),
+								"ciphertext" => base64_encode($ciphertext)));
+		$cipher_json = base64_encode($encrypted_header_json_object);
+
+		$encrypted_header = "<encrypted_header>".$cipher_json."</encrypted_header>";
+
+$magic_env = <<< EOT
+<?xml version='1.0' encoding='UTF-8'?>
+<diaspora xmlns="https://joindiaspora.com/protocol" xmlns:me="http://salmon-protocol.org/ns/magic-env" >
+  $encrypted_header
+  <me:env>
+    <me:encoding>base64url</me:encoding>
+    <me:alg>RSA-SHA256</me:alg>
+    <me:data type="application/xml">$data</me:data>
+    <me:sig>$sig</me:sig>
+  </me:env>
+</diaspora>
+EOT;
+
+		logger("magic_env: ".$magic_env, LOGGER_DATA);
+		return $magic_env;
+	}
+
+	private function build_message($msg, $user, $contact, $prvkey, $pubkey, $public = false) {
+
+		if ($public)
+			$magic_env =  self::build_public_message($msg,$user,$contact,$prvkey,$pubkey);
+		else
+			$magic_env =  self::build_private_message($msg,$user,$contact,$prvkey,$pubkey);
+
+		// The data that will be transmitted is double encoded via "urlencode", strange ...
+		$slap = "xml=".urlencode(urlencode($magic_env));
+		return $slap;
+	}
+
+	private function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
+
+		$a = get_app();
+
+		$enabled = intval(get_config("system", "diaspora_enabled"));
+		if(!$enabled)
+			return 200;
+
+		$logid = random_string(4);
+		$dest_url = (($public_batch) ? $contact["batch"] : $contact["notify"]);
+		if (!$dest_url) {
+			logger("no url for contact: ".$contact["id"]." batch mode =".$public_batch);
+			return 0;
+		}
+
+		logger("transmit: ".$logid."-".$guid." ".$dest_url);
+
+		if (!$queue_run && was_recently_delayed($contact["id"])) {
+			$return_code = 0;
+		} else {
+			if (!intval(get_config("system", "diaspora_test"))) {
+				post_url($dest_url."/", $slap);
+				$return_code = $a->get_curl_code();
+			} else {
+				logger("test_mode");
+				return 200;
+			}
+		}
+
+		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
+
+		if(!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
+			logger("queue message");
+
+			$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d AND `network` = '%s' AND `content` = '%s' AND `batch` = %d LIMIT 1",
+				intval($contact["id"]),
+				dbesc(NETWORK_DIASPORA),
+				dbesc($slap),
+				intval($public_batch)
+			);
+			if(count($r)) {
+				logger("add_to_queue ignored - identical item already in queue");
+			} else {
+				// queue message for redelivery
+				add_to_queue($contact["id"], NETWORK_DIASPORA, $slap, $public_batch);
+			}
+		}
+
+
+		return(($return_code) ? $return_code : (-1));
+	}
+
+	public static function send_share($me,$contact) {
+		$myaddr = self::get_my_handle($me);
+		$theiraddr = $contact["addr"];
+
+		$data = array("XML" => array("post" => array("request" => array(
+										"sender_handle" => $myaddr,
+										"recipient_handle" => $theiraddr
+									))));
+
+		$msg = xml::from_array($data, $xml);
+
+		$slap = self::build_message($msg, $me, $contact, $me["prvkey"], $contact["pubkey"]);
+
+		return(self::transmit($owner,$contact,$slap, false));
+
+	}
+
+	public static function send_unshare($me,$contact) {
+		$myaddr = self::get_my_handle($me);
+
+		$data = array("XML" => array("post" => array("retraction" => array(
+										"post_guid" => $me["guid"],
+										"diaspora_handle" => $myaddr,
+										"type" => "Person"
+									))));
+
+		$msg = xml::from_array($data, $xml);
+
+		$slap = self::build_message($msg, $me, $contact, $me["prvkey"], $contact["pubkey"]);
+
+		return(self::transmit($owner,$contact,$slap, false));
+	}
+
+	function is_reshare($body) {
+		$body = trim($body);
+
+		// Skip if it isn't a pure repeated messages
+		// Does it start with a share?
+		if (strpos($body, "[share") > 0)
+			return(false);
+
+		// Does it end with a share?
+		if (strlen($body) > (strrpos($body, "[/share]") + 8))
+			return(false);
+
+		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+		// Skip if there is no shared message in there
+		if ($body == $attributes)
+			return(false);
+
+		$guid = "";
+		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$guid = $matches[1];
+
+		preg_match('/guid="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$guid = $matches[1];
+
+		if ($guid != "") {
+			$r = q("SELECT `contact-id` FROM `item` WHERE `guid` = '%s' AND `network` IN ('%s', '%s') LIMIT 1",
+				dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
+			if ($r) {
+				$ret= array();
+				$ret["root_handle"] = diaspora_handle_from_contact($r[0]["contact-id"]);
+				$ret["root_guid"] = $guid;
+				return($ret);
+			}
+		}
+
+		$profile = "";
+		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$profile = $matches[1];
+
+		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$profile = $matches[1];
+
+		$ret= array();
+
+		$ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
+		if (($ret["root_handle"] == $profile) OR ($ret["root_handle"] == ""))
+			return(false);
+
+		$link = "";
+		preg_match("/link='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$link = $matches[1];
+
+		preg_match('/link="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$link = $matches[1];
+
+		$ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
+		if (($ret["root_guid"] == $link) OR ($ret["root_guid"] == ""))
+			return(false);
+		return($ret);
+	}
+
+	function send_status($item, $owner, $contact, $public_batch = false) {
+
+		$myaddr = self::get_my_handle($owner);
+		$theiraddr = $contact["addr"];
+
+		$title = $item["title"];
+		$body = $item["body"];
+
+		// convert to markdown
+		$body = html_entity_decode(bb2diaspora($body));
+
+		// Adding the title
+		if(strlen($title))
+			$body = "## ".html_entity_decode($title)."\n\n".$body;
+
+		if ($item["attach"]) {
+			$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
+			if(cnt) {
+				$body .= "\n".t("Attachments:")."\n";
+				foreach($matches as $mtch)
+					$body .= "[".$mtch[3]."](".$mtch[1].")\n";
+			}
+		}
+
+
+		$public = (($item["private"]) ? "false" : "true");
+
+		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d H:i:s \U\T\C');
+
+		// Detect a share element and do a reshare
+		if (!$item['private'] AND ($ret = self::is_reshare($item["body"]))) {
+			$message = array("root_diaspora_id" => $ret["root_handle"],
+					"root_guid" => $ret["root_guid"],
+					"guid" => $item["guid"],
+					"diaspora_handle" => $myaddr,
+					"public" => $public,
+					"created_at" => $created,
+					"provider_display_name" => $item["app"]);
+
+			$data = array("XML" => array("post" => array("reshare" => $message)));
+		} else {
+			$location = array();
+
+			if ($item["location"] != "")
+				$location["address"] = $item["location"];
+
+			if ($item["coord"] != "") {
+				$coord = explode(" ", $item["coord"]);
+				$location["lat"] = $coord[0];
+				$location["lng"] = $coord[1];
+			}
+
+			$message = array("raw_message" => $body,
+					"location" => $location,
+					"guid" => $item["guid"],
+					"diaspora_handle" => $myaddr,
+					"public" => $public,
+					"created_at" => $created,
+					"provider_display_name" => $item["app"]);
+
+			if (count($location) == 0)
+				unset($message["location"]);
+
+			$data = array("XML" => array("post" => array("status_message" => $message)));
+		}
+
+		$msg = xml::from_array($data, $xml);
+
+		logger("status: ".$owner["username"]." -> ".$contact["name"]." base message: ".$msg, LOGGER_DATA);
+		logger("send guid ".$item["guid"], LOGGER_DEBUG);
+
+		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
+
+		$return_code = self::transmit($owner,$contact,$slap, false);
+
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
+	}
+
+	function send_mail($item,$owner,$contact) {
+
+		$myaddr = self::get_my_handle($owner);
+
+		$r = q("SELECT * FROM `conv` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			intval($item["convid"]),
+			intval($item["uid"])
+		);
+
+		if (!count($r)) {
+			logger("conversation not found.");
+			return;
+		}
+		$cnv = $r[0];
+
+		$conv = array(
+			"guid" => $cnv["guid"],
+			"subject" => $cnv["subject"],
+			"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d H:i:s \U\T\C'),
+			"diaspora_handle" => $cnv["creator"],
+			"participant_handles" => $cnv["recips"]
+		);
+
+		$body = bb2diaspora($item["body"]);
+		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d H:i:s \U\T\C');
+
+		$signed_text = $item["guid"].";".$cnv["guid"].";".$body.";".$created.";".$myaddr.";".$cnv['guid'];
+
+		$sig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+
+		$msg = array(
+			"guid" => $item["guid"],
+			"parent_guid" => $cnv["guid"],
+			"parent_author_signature" => $sig,
+			"author_signature" => $sig,
+			"text" => $body,
+			"created_at" => $created,
+			"diaspora_handle" => $myaddr,
+			"conversation_guid" => $cnv["guid"]
+		);
+
+		if ($item["reply"])
+			$data = array("XML" => array("post" => array("message" => $msg)));
+		else {
+			$message = array("guid" => $cnv["guid"],
+					"subject" => $cnv["subject"],
+					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d H:i:s \U\T\C'),
+					"message" => $msg,
+					"diaspora_handle" => $cnv["creator"],
+					"participant_handles" => $cnv["recips"]);
+
+			$data = array("XML" => array("post" => array("conversation" => $message)));
+		}
+
+		$xmsg = xml::from_array($data, $xml);
+
+		logger("conversation: ".print_r($xmsg,true), LOGGER_DATA);
+		logger("send guid ".$item["guid"], LOGGER_DEBUG);
+
+		$slap = self::build_message($xmsg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], false);
+
+		$return_code = self::transmit($owner, $contact, $slap, false, false, $item["guid"]);
+
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
 	}
 }
 ?>
