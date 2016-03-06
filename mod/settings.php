@@ -801,7 +801,7 @@ function settings_content(&$a) {
 		$default_group = get_pconfig(local_user(), 'ostatus', 'default_group');
 		$legacy_contact = get_pconfig(local_user(), 'ostatus', 'legacy_contact');
 
-		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus followers"));
+		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus contacts"));
 
 		if ($legacy_contact != "")
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
