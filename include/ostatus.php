@@ -676,13 +676,21 @@ function ostatus_conv_fetch_actor($actor) {
 	update_gcontact($contact);
 }
 
-function ostatus_fetch_conversation($self, $conversation_url = "") {
+/**
+ * @brief Fetches the conversation url for a given item link or conversation id
+ *
+ * @param string $self The link to the posting
+ * @param string $conversation_id The conversation id
+ *
+ * @return string The conversation url
+ */
+function ostatus_fetch_conversation($self, $conversation_id = "") {
 
-	if ($conversation_url != "") {
-		$elements = explode(":", $conversation_url);
+	if ($conversation_id != "") {
+		$elements = explode(":", $conversation_id);
 
 		if ((count($elements) <= 2) OR ($elements[0] != "tag"))
-			return $conversation_url;
+			return $conversation_id;
 	}
 
 	if ($self == "")
