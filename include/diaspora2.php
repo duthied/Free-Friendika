@@ -2031,6 +2031,40 @@ EOT;
 		return $return_code;
 	}
 
+	function send_retraction($item, $owner, $contact, $public_batch = false) {
+
+		$myaddr = self::get_my_handle($owner);
+
+		// Check whether the retraction is for a top-level post or whether it's a relayable
+		if ($item["uri"] !== $item["parent-uri"]) {
+			$msg_type = "relayable_retraction";
+			$target_type = (($item["verb"] === ACTIVITY_LIKE) ? "Like" : "Comment");
+		} else {
+			$msg_type = "signed_retraction";
+			$target_type = "StatusMessage";
+		}
+
+		$signed_text = $item["guid"].";".$target_type;
+
+		$message = array("target_guid" => $item['guid'],
+				"target_type" => $target_type,
+				"sender_handle" => $myaddr,
+				"target_author_signature" => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
+
+		$data = array("XML" => array("post" => array($msg_type => $message)));
+		$msg = xml::from_array($data, $xml);
+
+		logger("send guid ".$item["guid"], LOGGER_DEBUG);
+
+		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
+
+		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item["guid"]);
+
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
+	}
+
 	function send_mail($item,$owner,$contact) {
 
 		$myaddr = self::get_my_handle($owner);

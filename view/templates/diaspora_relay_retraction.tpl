@@ -1,11 +1,10 @@
-
 <XML>
   <post>
     <relayable_retraction>
-      <target_type>{{$type}}</target_type>
       <target_guid>{{$guid}}</target_guid>
-      <target_author_signature>{{$signature}}</target_author_signature>
+      <target_type>{{$type}}</target_type>
       <sender_handle>{{$handle}}</sender_handle>
+      <target_author_signature>{{$signature}}</target_author_signature>
     </relayable_retraction>
   </post>
 </XML>
