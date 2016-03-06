@@ -2030,74 +2030,93 @@ EOT;
 
 		return $return_code;
 	}
-/*
-	public static function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
+
+	private function construct_like($item,$owner,$contact,$public_batch = false) {
 
 		$myaddr = self::get_my_handle($owner);
 
-		// Diaspora doesn't support threaded comments, but some
-		// versions of Diaspora (i.e. Diaspora-pistos) support
-		// likes on comments
-		if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
-			$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
-				dbesc($item['thr-parent'])
-			      );
-		} else {
-			// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-			// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-			// The only item with `parent` and `id` as the parent id is the parent item.
-			$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
-				intval($item['parent']),
-				intval($item['parent'])
-			);
-		}
-		if(count($p))
-			$parent = $p[0];
-		else
-			return;
+		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
+			dbesc($item["thr-parent"])
+		      );
+		if(!$p)
+			return false;
 
-		if($item['verb'] === ACTIVITY_LIKE) {
-			$tpl = get_markup_template('diaspora_like.tpl');
-			$like = true;
-			$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
-			$positive = 'true';
+		$parent = $p[0];
 
-			if(($item['deleted']))
-				logger('diaspora_send_followup: received deleted "like". Those should go to diaspora_send_retraction');
-		} else {
-			$tpl = get_markup_template('diaspora_comment.tpl');
-			$like = false;
-		}
-
-		$text = html_entity_decode(bb2diaspora($item['body']));
+		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
+		$positive = "true";
 
 		// sign it
+		$signed_text =  $positive.";".$item["guid"].";".$target_type.";".$parent["guid"].";".$myaddr;
 
-		if($like)
-			$signed_text =  $positive . ';' . $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $myaddr;
-		else
-			$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $myaddr;
+		$authorsig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 
-		$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
+		$message = array("positive" => $positive,
+				"guid" => $item["guid"],
+				"target_type" => $item["guid"],
+				"parent_guid" => $parent["guid"],
+				"author_signature" => $authorsig,
+				"diaspora_handle" => $myaddr);
 
-		$msg = replace_macros($tpl,array(
-			'$guid' => xmlify($item['guid']),
-			'$parent_guid' => xmlify($parent['guid']),
-			'$target_type' =>xmlify($target_type),
-			'$authorsig' => xmlify($authorsig),
-			'$body' => xmlify($text),
-			'$positive' => xmlify($positive),
-				'$handle' => xmlify($myaddr)
-			));
+		$data = array("XML" => array("post" => array("like" => $message)));
 
-		logger('diaspora_followup: base message: ' . $msg, LOGGER_DATA);
-		logger('send guid '.$item['guid'], LOGGER_DEBUG);
-
-		$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
-
-		return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
+		return xml::from_array($data, $xml);
 	}
-*/
+
+	private function construct_comment($item,$owner,$contact,$public_batch = false) {
+
+		$myaddr = self::get_my_handle($owner);
+
+		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
+			intval($item["parent"]),
+			intval($item["parent"])
+		);
+
+		if (!$p)
+			return false;
+
+		$parent = $p[0];
+
+		$text = html_entity_decode(bb2diaspora($item["body"]));
+
+		// sign it
+		$signed_text = $item["guid"].";".$parent["guid"].";".$text.";".$myaddr;
+
+		$authorsig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+
+		$message = array("guid" => $item["guid"],
+				"parent_guid" => $parent["guid"],
+				"author_signature" => $authorsig,
+				"text" => $text,
+				"diaspora_handle" => $myaddr);
+
+		$data = array("XML" => array("post" => array("comment" => $message)));
+
+		return xml::from_array($data, $xml);
+	}
+
+	public static function send_followup($item,$owner,$contact,$public_batch = false) {
+
+		if($item['verb'] === ACTIVITY_LIKE)
+			$msg = self::construct_like($item, $owner, $contact, $public_batch);
+		else
+			$msg = self::construct_comment($item, $owner, $contact, $public_batch);
+
+		if (!$msg)
+			return $msg;
+
+		logger("base message: ".$msg, LOGGER_DATA);
+		logger("send guid ".$item["guid"], LOGGER_DEBUG);
+
+		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
+
+		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item["guid"]);
+
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
+	}
+
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
 		$myaddr = self::get_my_handle($owner);
