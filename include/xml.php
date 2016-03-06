@@ -20,7 +20,7 @@ class xml {
 
 		foreach($array as $key => $value) {
 			if (!is_array($value) AND !is_numeric($key))
-				$xml->addChild($key, $value);
+				$xml->addChild($key, xmlify($value));
 			elseif (is_array($value))
 				self::from_array($value, $xml->addChild($key));
 		}
