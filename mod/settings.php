@@ -199,6 +199,7 @@ function settings_post(&$a) {
 		if(x($_POST, 'general-submit')) {
 			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			set_pconfig(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
+			set_pconfig(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			set_pconfig(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif(x($_POST, 'imap-submit')) {
 
@@ -797,7 +798,10 @@ function settings_content(&$a) {
 		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
 		$settings_connectors .= '</div>';
 
+		$default_group = get_pconfig(local_user(), 'ostatus', 'default_group');
 		$legacy_contact = get_pconfig(local_user(), 'ostatus', 'legacy_contact');
+
+		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus contacts"));
 
 		if ($legacy_contact != "")
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
