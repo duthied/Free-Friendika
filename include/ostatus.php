@@ -537,7 +537,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
-		$item_id = ostatus_completion($conversation, $importer["uid"], $item);
+		$item_id = ostatus_completion($conversation, $importer["uid"], $item, $self);
 
 		if (!$item_id) {
 			logger("Error storing item", LOGGER_DEBUG);
@@ -676,18 +676,57 @@ function ostatus_conv_fetch_actor($actor) {
 	update_gcontact($contact);
 }
 
+/**
+ * @brief Fetches the conversation url for a given item link or conversation id
+ *
+ * @param string $self The link to the posting
+ * @param string $conversation_id The conversation id
+ *
+ * @return string The conversation url
+ */
+function ostatus_fetch_conversation($self, $conversation_id = "") {
 
-function ostatus_completion($conversation_url, $uid, $item = array()) {
+	if ($conversation_id != "") {
+		$elements = explode(":", $conversation_id);
+
+		if ((count($elements) <= 2) OR ($elements[0] != "tag"))
+			return $conversation_id;
+	}
+
+	if ($self == "")
+		return "";
+
+	$json = str_replace(".atom", ".json", $self);
+
+	$raw = fetch_url($json);
+	if ($raw == "")
+		return "";
+
+	$data = json_decode($raw);
+	if (!is_object($data))
+		return "";
+
+	$conversation_id = $data->statusnet_conversation_id;
+
+	$pos = strpos($self, "/api/statuses/show/");
+	$base_url = substr($self, 0, $pos);
+
+	return $base_url."/conversation/".$conversation_id;
+}
+
+function ostatus_completion($conversation_url, $uid, $item = array(), $self = "") {
 
 	$a = get_app();
 
 	$item_stored = -1;
 
-	$conversation_url = ostatus_convert_href($conversation_url);
+	//$conversation_url = ostatus_convert_href($conversation_url);
+	$conversation_url = ostatus_fetch_conversation($self, $conversation_url);
 
 	// If the thread shouldn't be completed then store the item and go away
 	// Don't do a completion on liked content
-	if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR ($item["verb"] == ACTIVITY_LIKE)) {
+	if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR
+		($item["verb"] == ACTIVITY_LIKE) OR ($conversation_url == "")) {
 		//$arr["app"] .= " (OStatus-NoCompletion)";
 		$item_stored = item_store($item, true);
 		return($item_stored);
@@ -726,7 +765,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	$pageno = 1;
 	$items = array();
 
-	logger('fetching conversation url '.$conv.' ('.$conversation_url.') for user '.$uid);
+	logger('fetching conversation url '.$conv.' (Self: '.$self.') for user '.$uid);
 
 	do {
 		$conv_arr = z_fetch_url($conv."?page=".$pageno);
