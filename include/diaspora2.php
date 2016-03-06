@@ -1664,7 +1664,7 @@ EOT;
 		return $me["nickname"]."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
 	}
 
-	function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
+	private function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
 
 		logger("Message: ".$msg, LOGGER_DATA);
 
@@ -1884,7 +1884,7 @@ EOT;
 		return(self::transmit($owner,$contact,$slap, false));
 	}
 
-	function is_reshare($body) {
+	private function is_reshare($body) {
 		$body = trim($body);
 
 		// Skip if it isn't a pure repeated messages
@@ -1951,7 +1951,7 @@ EOT;
 		return($ret);
 	}
 
-	function send_status($item, $owner, $contact, $public_batch = false) {
+	public static function send_status($item, $owner, $contact, $public_batch = false) {
 
 		$myaddr = self::get_my_handle($owner);
 		$theiraddr = $contact["addr"];
@@ -2030,8 +2030,75 @@ EOT;
 
 		return $return_code;
 	}
+/*
+	public static function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 
-	function send_retraction($item, $owner, $contact, $public_batch = false) {
+		$myaddr = self::get_my_handle($owner);
+
+		// Diaspora doesn't support threaded comments, but some
+		// versions of Diaspora (i.e. Diaspora-pistos) support
+		// likes on comments
+		if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
+			$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+				dbesc($item['thr-parent'])
+			      );
+		} else {
+			// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+			// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+			// The only item with `parent` and `id` as the parent id is the parent item.
+			$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+				intval($item['parent']),
+				intval($item['parent'])
+			);
+		}
+		if(count($p))
+			$parent = $p[0];
+		else
+			return;
+
+		if($item['verb'] === ACTIVITY_LIKE) {
+			$tpl = get_markup_template('diaspora_like.tpl');
+			$like = true;
+			$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
+			$positive = 'true';
+
+			if(($item['deleted']))
+				logger('diaspora_send_followup: received deleted "like". Those should go to diaspora_send_retraction');
+		} else {
+			$tpl = get_markup_template('diaspora_comment.tpl');
+			$like = false;
+		}
+
+		$text = html_entity_decode(bb2diaspora($item['body']));
+
+		// sign it
+
+		if($like)
+			$signed_text =  $positive . ';' . $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $myaddr;
+		else
+			$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $myaddr;
+
+		$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
+
+		$msg = replace_macros($tpl,array(
+			'$guid' => xmlify($item['guid']),
+			'$parent_guid' => xmlify($parent['guid']),
+			'$target_type' =>xmlify($target_type),
+			'$authorsig' => xmlify($authorsig),
+			'$body' => xmlify($text),
+			'$positive' => xmlify($positive),
+				'$handle' => xmlify($myaddr)
+			));
+
+		logger('diaspora_followup: base message: ' . $msg, LOGGER_DATA);
+		logger('send guid '.$item['guid'], LOGGER_DEBUG);
+
+		$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
+
+		return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
+	}
+*/
+	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
 		$myaddr = self::get_my_handle($owner);
 
@@ -2065,7 +2132,7 @@ EOT;
 		return $return_code;
 	}
 
-	function send_mail($item,$owner,$contact) {
+	public static function send_mail($item,$owner,$contact) {
 
 		$myaddr = self::get_my_handle($owner);
 
