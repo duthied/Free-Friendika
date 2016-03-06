@@ -537,7 +537,7 @@ function ostatus_import($xml,$importer,&$contact, &$hub) {
 		} else
 			$item["parent-uri"] = $item["uri"];
 
-		$item_id = ostatus_completion($conversation, $importer["uid"], $item);
+		$item_id = ostatus_completion($conversation, $importer["uid"], $item, $self);
 
 		if (!$item_id) {
 			logger("Error storing item", LOGGER_DEBUG);
@@ -676,17 +676,57 @@ function ostatus_conv_fetch_actor($actor) {
 	update_gcontact($contact);
 }
 
+/**
+ * @brief Fetches the conversation url for a given item link or conversation id
+ *
+ * @param string $self The link to the posting
+ * @param string $conversation_id The conversation id
+ *
+ * @return string The conversation url
+ */
+function ostatus_fetch_conversation($self, $conversation_id = "") {
 
-function ostatus_completion($conversation_url, $uid, $item = array()) {
+	if ($conversation_id != "") {
+		$elements = explode(":", $conversation_id);
+
+		if ((count($elements) <= 2) OR ($elements[0] != "tag"))
+			return $conversation_id;
+	}
+
+	if ($self == "")
+		return "";
+
+	$json = str_replace(".atom", ".json", $self);
+
+	$raw = fetch_url($json);
+	if ($raw == "")
+		return "";
+
+	$data = json_decode($raw);
+	if (!is_object($data))
+		return "";
+
+	$conversation_id = $data->statusnet_conversation_id;
+
+	$pos = strpos($self, "/api/statuses/show/");
+	$base_url = substr($self, 0, $pos);
+
+	return $base_url."/conversation/".$conversation_id;
+}
+
+function ostatus_completion($conversation_url, $uid, $item = array(), $self = "") {
 
 	$a = get_app();
 
 	$item_stored = -1;
 
-	$conversation_url = ostatus_convert_href($conversation_url);
+	//$conversation_url = ostatus_convert_href($conversation_url);
+	$conversation_url = ostatus_fetch_conversation($self, $conversation_url);
 
 	// If the thread shouldn't be completed then store the item and go away
-	if ((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) {
+	// Don't do a completion on liked content
+	if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR
+		($item["verb"] == ACTIVITY_LIKE) OR ($conversation_url == "")) {
 		//$arr["app"] .= " (OStatus-NoCompletion)";
 		$item_stored = item_store($item, true);
 		return($item_stored);
@@ -725,7 +765,7 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	$pageno = 1;
 	$items = array();
 
-	logger('fetching conversation url '.$conv.' for user '.$uid);
+	logger('fetching conversation url '.$conv.' (Self: '.$self.') for user '.$uid);
 
 	do {
 		$conv_arr = z_fetch_url($conv."?page=".$pageno);
@@ -778,6 +818,8 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 	$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND `self`", intval($uid));
 	$importer = $r[0];
 
+	$new_parent = true;
+
 	foreach ($items as $single_conv) {
 
 		// Update the gcontact table
@@ -809,6 +851,9 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			// 2. This first post is a post inside our thread
 			// 3. This first post is a post inside another thread
 			if (($first_id != $parent["uri"]) AND ($parent["uri"] != "")) {
+
+				$new_parent = true;
+
 				$new_parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `id` IN
 							(SELECT `parent` FROM `item`
 								WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s')) LIMIT 1",
@@ -909,12 +954,14 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 		if (isset($single_conv->actor->url))
 			$actor = $single_conv->actor->url;
 
-		$contact = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
+		$contact = q("SELECT `id`, `rel` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 				$uid, normalise_link($actor), NETWORK_STATUSNET);
 
 		if (count($contact)) {
 			logger("Found contact for url ".$actor, LOGGER_DEBUG);
 			$contact_id = $contact[0]["id"];
+
+			$not_following = !in_array($contact[0]["rel"], array(CONTACT_IS_SHARING, CONTACT_IS_FRIEND));
 		} else {
 			logger("No contact found for url ".$actor, LOGGER_DEBUG);
 
@@ -925,6 +972,14 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
 
 			$contact_id = $parent["contact-id"];
+
+			$not_following = true;
+		}
+
+		// Do we only want to import threads that were started by our contacts?
+		if ($not_following AND $new_parent AND get_config('system','ostatus_full_threads')) {
+			logger("Don't import uri ".$first_id." because we don't follow the person ".$actor, LOGGER_DEBUG);
+			continue;
 		}
 
 		$arr = array();

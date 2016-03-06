@@ -188,7 +188,7 @@ function group_public_members($gid) {
 }
 
 
-function mini_group_select($uid,$gid = 0) {
+function mini_group_select($uid,$gid = 0, $label = "") {
 
 	$grps = array();
 	$o = '';
@@ -205,8 +205,11 @@ function mini_group_select($uid,$gid = 0) {
 	}
 	logger('groups: ' . print_r($grps,true));
 
+	if ($label == "")
+		$label = t('Default privacy group for new contacts');
+
 	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
-		'$label' => t('Default privacy group for new contacts'),
+		'$label' => $label,
 		'$groups' => $grps
 	));
 	return $o;
@@ -374,4 +377,29 @@ function groups_count_unseen() {
 	);
 
 	return $r;
+}
+
+/**
+ * @brief Returns the default group for a given user and network
+ *
+ * @param int $uid User id
+ * @param string $network network name
+ *
+ * @return int group id
+ */
+function get_default_group($uid, $network = "") {
+
+	$default_group = 0;
+
+	if ($network == NETWORK_OSTATUS)
+		$default_group = get_pconfig($uid, "ostatus", "default_group");
+
+	if ($default_group != 0)
+		return $default_group;
+
+	$g = q("SELECT `def_gid` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+	if($g && intval($g[0]["def_gid"]))
+		$default_group = $g[0]["def_gid"];
+
+	return $default_group;
 }
