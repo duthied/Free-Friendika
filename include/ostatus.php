@@ -810,6 +810,12 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			// 3. This first post is a post inside another thread
 			if (($first_id != $parent["uri"]) AND ($parent["uri"] != "")) {
 
+				// Do we only want to import threads that were started by our contacts?
+				if (get_config('system','ostatus_full_threads')) {
+					logger("Don't import uri ".$first_id." because we don't follow this person.", LOGGER_DEBUG);
+					continue;
+				}
+
 				$new_parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `id` IN
 							(SELECT `parent` FROM `item`
 								WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s')) LIMIT 1",
@@ -918,12 +924,6 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			$contact_id = $contact[0]["id"];
 		} else {
 			logger("No contact found for url ".$actor, LOGGER_DEBUG);
-
-			// Do we only want to import threads that were started by our contacts?
-			if (get_config('system','ostatus_full_threads')) {
-				logger("Don't import uri ".$first_id." because we don't follow this person.", LOGGER_DEBUG);
-				continue;
-			}
 
 			// Adding a global contact
 			/// @TODO Use this data for the post
