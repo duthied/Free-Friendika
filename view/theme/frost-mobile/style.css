@@ -139,6 +139,47 @@ blockquote {
 	margin-right: 5px;
 }
 
+.btn {
+	outline: none;
+	-moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+	box-shadow: inset 0px 1px 0px 0px #ffffff;
+	background-color: #ededed;
+	text-indent: 0;
+	border: 1px solid #dcdcdc;
+	display: inline-block;
+	color: #777777;
+	padding: 5px 10px;
+	text-align: center;
+	border-radius: 8px;
+}
+
+.menu-popup {
+	width: auto;
+	border: 2px solid #444444;
+	background: #FFFFFF;
+	position: absolute;
+	margin: 2px 0 0;
+	display: none;
+	z-index: 10000;
+}
+
+.menu-popup li a {
+	display: block;
+	padding: 2px;
+}
+
+.menu-popup li a:hover {
+	color: #FFFFFF;
+	background: #3465A4;
+	text-decoration: none;
+}
+ul.menu-popup li.divider {
+	height: 1px;
+	margin: 3px 0;
+	overflow: hidden;
+	background-color: #2d2d2d;
+}
 
 
 /* nav */
@@ -2045,6 +2086,19 @@ input#profile-jot-email {
 	margin-left: 15px;
 }
 
+#contact-edit-status-wrapper {
+	padding: 10px;
+	border: 1px solid #aaa;
+	border-radius: 8px;
+}
+
+#contact-edit-contact-status {
+	font-weight: bold;
+}
+#contact-edit-actions {
+	float: right;
+	display: inline-block;
+}
 #contact-edit-wrapper {
 	margin-top: 10px;
 }
@@ -2059,14 +2113,10 @@ input#profile-jot-email {
 }
 
 #contact-edit-last-update-text {
-	float: left;
-	clear: left;
 	margin-top: 30px;
 }
 
 #contact-edit-poll-text {
-	float: left;
-	clear: left;
 	margin-top: 15px;
 	margin-bottom: 0px;
 }

@@ -8,6 +8,12 @@ hr { background-color: #343434 !important; }
 a, .wall-item-name, .fakelink { 
 	color: #989898 !important; 
 }
+.btn, .btn:hover{
+	color: #989898;
+	border: 2px solid #0C1116;
+	background-color: #0C1116;
+	text-shadow: none;
+}
 
 nav { 
 	color: #989898 !important;
@@ -36,7 +42,7 @@ body, section, blockquote, blockquote.shared_content, #profile-jot-form,
 }
 
 #profile-jot-acl-wrapper, #event-notice, #event-wrapper,
-#cboxLoadedContent, .contact-photo-menu {
+#cboxLoadedContent, .contact-photo-menu, #contact-edit-status-wrapper {
 	background-color: #252C33 !important;
 }
 
