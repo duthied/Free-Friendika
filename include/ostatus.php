@@ -809,6 +809,13 @@ function ostatus_completion($conversation_url, $uid, $item = array()) {
 			// 2. This first post is a post inside our thread
 			// 3. This first post is a post inside another thread
 			if (($first_id != $parent["uri"]) AND ($parent["uri"] != "")) {
+
+				// Do we only want to import threads that were started by our contacts?
+				if (get_config('system','ostatus_full_threads')) {
+					logger("Don't import uri ".$first_id." because we don't follow this person.", LOGGER_DEBUG);
+					continue;
+				}
+
 				$new_parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `id` IN
 							(SELECT `parent` FROM `item`
 								WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s','%s')) LIMIT 1",
