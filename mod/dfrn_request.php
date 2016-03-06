@@ -42,8 +42,10 @@ function dfrn_request_init(&$a) {
 if(! function_exists('dfrn_request_post')) {
 function dfrn_request_post(&$a) {
 
-	if(($a->argc != 2) || (! count($a->profile)))
+	if(($a->argc != 2) || (! count($a->profile))) {
+		logger('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
 		return;
+	}
 
 
 	if(x($_POST, 'cancel')) {
@@ -461,7 +463,7 @@ function dfrn_request_post(&$a) {
 				$network = NETWORK_DFRN;
 		}
 
-		logger('dfrn_request: url: ' . $url);
+		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
 
 		if($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
@@ -825,7 +827,7 @@ function dfrn_request_content(&$a) {
 		else
 			$tpl = get_markup_template('auto_request.tpl');
 
-		$page_desc .= t("Please enter your 'Identity Address' from one of the following supported communications networks:");
+		$page_desc = t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
 		// see if we are allowed to have NETWORK_MAIL2 contacts
 
@@ -850,7 +852,7 @@ function dfrn_request_content(&$a) {
 			get_server()
 		);
 
-		$o .= replace_macros($tpl,array(
+		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
 			'$pls_answer' => t('Please answer the following:'),
