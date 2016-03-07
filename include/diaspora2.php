@@ -1525,7 +1525,7 @@ EOT;
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
-			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+			q("INSERT INTO `sign` (`retract_iid`,`signed_text`) VALUES (%d,'%s')",
 				intval($r[0]["id"]),
 				dbesc(json_encode($data))
 			);
@@ -1552,7 +1552,7 @@ EOT;
 			case "StatusMessage":
 				return self::item_retraction($importer, $contact, $data);;
 
-			case "Person":
+			case "Person": /// @todo an "unshare" shouldn't remove the contact
 				contact_remove($contact["id"]);
 				return true;
 
