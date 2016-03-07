@@ -2063,32 +2063,45 @@ EOT;
 		return xml::from_array($data, $xml);
 	}
 
-	private function construct_comment($item,$owner,$contact,$public_batch = false) {
+	private function construct_comment($item,$owner,$contact,$public_batch = false, $data = null) {
 
-		$myaddr = self::get_my_handle($owner);
+		if (is_array($data))
+			$message = $data;
+		else {
+			$myaddr = self::get_my_handle($owner);
 
-		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
-			intval($item["parent"]),
-			intval($item["parent"])
-		);
+			$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
+				intval($item["parent"]),
+				intval($item["parent"])
+			);
 
-		if (!$p)
-			return false;
+			if (!$p)
+				return false;
 
-		$parent = $p[0];
+			$parent = $p[0];
 
-		$text = html_entity_decode(bb2diaspora($item["body"]));
+			$text = html_entity_decode(bb2diaspora($item["body"]));
+
+			$message = array("guid" => $item["guid"],
+					"parent_guid" => $parent["guid"],
+					"author_signature" => "",
+					"text" => $text,
+					"diaspora_handle" => $myaddr);
+		}
 
 		// sign it
-		$signed_text = $item["guid"].";".$parent["guid"].";".$text.";".$myaddr;
+		$sigmsg = $message;
+		unset($sigmsg["author_signature"]);
+		unset($sigmsg["parent_author_signature"]);
+
+		$signed_text = implode(";", $sigmsg);
 
 		$authorsig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 
-		$message = array("guid" => $item["guid"],
-				"parent_guid" => $parent["guid"],
-				"author_signature" => $authorsig,
-				"text" => $text,
-				"diaspora_handle" => $myaddr);
+		if ($message["author_signature"] == "")
+			$message["author_signature"] = $authorsig;
+		else
+			$message["parent_author_signature"] = $authorsig;
 
 		$data = array("XML" => array("post" => array("comment" => $message)));
 
@@ -2116,6 +2129,180 @@ EOT;
 
 		return $return_code;
 	}
+
+	function send_relay($item, $owner, $contact, $public_batch = false) {
+
+		if ($item["deleted"])
+			$sql_sign_id = "retract_iid";
+		else
+			$sql_sign_id = "iid";
+
+		// fetch the original signature if the relayable was created by a Diaspora
+		// or DFRN user.
+
+		$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `".$sql_sign_id."` = %d LIMIT 1",
+			intval($item["id"])
+		);
+
+		if(count($r)) {
+			$orig_sign = $r[0];
+			$signed_text = $orig_sign['signed_text'];
+			$authorsig = $orig_sign['signature'];
+			$handle = $orig_sign['signer'];
+
+			// Split the signed text
+			$signed_parts = explode(";", $signed_text);
+
+			// Remove the comment guid
+			$guid = array_shift($signed_parts);
+
+			// Remove the parent guid
+			$parent_guid = array_shift($signed_parts);
+
+			// Remove the handle
+			$handle = array_pop($signed_parts);
+
+			// Glue the parts together
+			$text = implode(";", $signed_parts);
+
+			$data = array("guid" => $guid,
+					"parent_guid" => $parent_guid,
+					"parent_author_signature" => "",
+					"author_signature" => $orig_sign['signature'],
+					"text" => implode(";", $signed_parts),
+					"diaspora_handle" => $handle);
+		}
+
+
+		$myaddr = self::get_my_handle($owner);
+
+		if ($item['deleted'])
+			; // Retraction
+		elseif($item['verb'] === ACTIVITY_LIKE)
+			$msg = self::construct_like($item, $owner, $contact, $public_batch);
+		else
+			$msg = self::construct_comment($item, $owner, $contact, $public_batch, $data);
+die($msg);
+/*
+	// Diaspora doesn't support threaded comments, but some
+	// versions of Diaspora (i.e. Diaspora-pistos) support
+	// likes on comments
+	if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
+		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
+			dbesc($item['thr-parent'])
+		      );
+	}
+	else {
+		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
+		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
+		// The only item with `parent` and `id` as the parent id is the parent item.
+		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
+		       intval($item['parent']),
+		       intval($item['parent'])
+		      );
+	}
+	if(count($p))
+		$parent = $p[0];
+	else
+		return;
+
+	$like = false;
+	$relay_retract = false;
+	$sql_sign_id = 'iid';
+	if( $item['deleted']) {
+		$relay_retract = true;
+
+		$target_type = ( ($item['verb'] === ACTIVITY_LIKE) ? 'Like' : 'Comment');
+
+		$sql_sign_id = 'retract_iid';
+		$tpl = get_markup_template('diaspora_relayable_retraction.tpl');
+	}
+	elseif($item['verb'] === ACTIVITY_LIKE) {
+		$like = true;
+
+		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
+//              $positive = (($item['deleted']) ? 'false' : 'true');
+		$positive = 'true';
+
+		$tpl = get_markup_template('diaspora_like_relay.tpl');
+	}
+	else { // item is a comment
+		$tpl = get_markup_template('diaspora_comment_relay.tpl');
+	}
+
+
+	// fetch the original signature if the relayable was created by a Diaspora
+	// or DFRN user. Relayables for other networks are not supported.
+
+	$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE " . $sql_sign_id . " = %d LIMIT 1",
+		intval($item['id'])
+	);
+	if(count($r)) {
+		$orig_sign = $r[0];
+		$signed_text = $orig_sign['signed_text'];
+		$authorsig = $orig_sign['signature'];
+		$handle = $orig_sign['signer'];
+
+		// Split the signed text
+		$signed_parts = explode(";", $signed_text);
+
+		// Remove the parent guid
+		array_shift($signed_parts);
+
+		// Remove the comment guid
+		array_shift($signed_parts);
+
+		// Remove the handle
+		array_pop($signed_parts);
+
+		// Glue the parts together
+		$text = implode(";", $signed_parts);
+	}
+	else {
+		// This part is meant for cases where we don't have the signatur. (Which shouldn't happen with posts from Diaspora and Friendica)
+		// This means that the comment won't be accepted by newer Diaspora servers
+
+		$body = $item['body'];
+		$text = html_entity_decode(bb2diaspora($body));
+
+		$handle = diaspora_handle_from_contact($item['contact-id']);
+		if(! $handle)
+			return;
+
+		if($relay_retract)
+			$signed_text = $item['guid'] . ';' . $target_type;
+		elseif($like)
+			$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
+		else
+			$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
+
+		$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
+	}
+
+	// Sign the relayable with the top-level owner's signature
+	$parentauthorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
+
+	$msg = replace_macros($tpl,array(
+		'$guid' => xmlify($item['guid']),
+		'$parent_guid' => xmlify($parent['guid']),
+		'$target_type' =>xmlify($target_type),
+		'$authorsig' => xmlify($authorsig),
+		'$parentsig' => xmlify($parentauthorsig),
+		'$body' => xmlify($text),
+		'$positive' => xmlify($positive),
+		'$handle' => xmlify($handle)
+	));
+
+	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DATA);
+	logger('send guid '.$item['guid'], LOGGER_DEBUG);
+
+	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
+	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
+
+	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
+*/
+	}
+
 
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
