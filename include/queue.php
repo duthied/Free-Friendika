@@ -28,18 +28,21 @@ function queue_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'queue');
-		if($pidfile->is_already_running()) {
-			logger("queue: Already running");
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("queue: killed stale process");
-				// Calling a new instance
-				proc_run('php',"include/queue.php");
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, 'queue');
+			if($pidfile->is_already_running()) {
+				logger("queue: Already running");
+				if ($pidfile->running_time() > 9*60) {
+					$pidfile->kill();
+					logger("queue: killed stale process");
+					// Calling a new instance
+					proc_run('php',"include/queue.php");
+				}
+				return;
 			}
-			return;
 		}
 	}
 

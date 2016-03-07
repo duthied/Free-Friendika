@@ -954,16 +954,21 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 		if (isset($single_conv->actor->url))
 			$actor = $single_conv->actor->url;
 
-		$contact = q("SELECT `id`, `rel` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
+		$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 				$uid, normalise_link($actor), NETWORK_STATUSNET);
 
-		if (count($contact)) {
+		if (!$contact)
+			$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `alias` IN ('%s', '%s') AND `network` != '%s'",
+					$uid, $actor, normalise_link($actor), NETWORK_STATUSNET);
+
+		if ($contact) {
 			logger("Found contact for url ".$actor, LOGGER_DEBUG);
 			$contact_id = $contact[0]["id"];
+			$network = $contact[0]["network"];
 
 			$not_following = !in_array($contact[0]["rel"], array(CONTACT_IS_SHARING, CONTACT_IS_FRIEND));
 		} else {
-			logger("No contact found for url ".$actor, LOGGER_DEBUG);
+			logger("No contact found for user ".$uid." and url ".$actor, LOGGER_DEBUG);
 
 			// Adding a global contact
 			/// @TODO Use this data for the post
@@ -972,18 +977,19 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 			logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
 
 			$contact_id = $parent["contact-id"];
+			$network = NETWORK_OSTATUS;
 
 			$not_following = true;
 		}
 
 		// Do we only want to import threads that were started by our contacts?
 		if ($not_following AND $new_parent AND get_config('system','ostatus_full_threads')) {
-			logger("Don't import uri ".$first_id." because we don't follow the person ".$actor, LOGGER_DEBUG);
+			logger("Don't import uri ".$first_id." because user ".$uid." doesn't follow the person ".$actor, LOGGER_DEBUG);
 			continue;
 		}
 
 		$arr = array();
-		$arr["network"] = NETWORK_OSTATUS;
+		$arr["network"] = $network;
 		$arr["uri"] = $single_conv->id;
 		$arr["plink"] = $plink;
 		$arr["uid"] = $uid;

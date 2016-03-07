@@ -40,15 +40,33 @@ function cron_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$maxsysload = intval(get_config('system','maxloadavg'));
+		if($maxsysload < 1)
+			$maxsysload = 50;
 
-	$load = current_load();
-	if($load) {
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. cron deferred to next scheduled run.');
-			return;
+		$load = current_load();
+		if($load) {
+			if(intval($load) > $maxsysload) {
+				logger('system: load '.$load.' too high. cron deferred to next scheduled run.');
+				return;
+			}
+		}
+
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, 'cron');
+			if($pidfile->is_already_running()) {
+				logger("cron: Already running");
+				if ($pidfile->running_time() > 9*60) {
+					$pidfile->kill();
+					logger("cron: killed stale process");
+					// Calling a new instance
+					proc_run('php','include/cron.php');
+				}
+				exit;
+			}
 		}
 	}
 
@@ -65,23 +83,6 @@ function cron_run(&$argv, &$argc){
 			return;
 		}
 	}
-
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'cron');
-		if($pidfile->is_already_running()) {
-			logger("cron: Already running");
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("cron: killed stale process");
-				// Calling a new instance
-				proc_run('php','include/cron.php');
-			}
-			exit;
-		}
-	}
-
-
 
 	$a->set_baseurl(get_config('system','url'));
 

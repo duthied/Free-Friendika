@@ -37,16 +37,19 @@ function update_gcontact_run(&$argv, &$argc){
 		return;
 	}
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'update_gcontact'.$contact_id);
-		if ($pidfile->is_already_running()) {
-			logger("update_gcontact: Already running for contact ".$contact_id);
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("killed stale process");
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, 'update_gcontact'.$contact_id);
+			if ($pidfile->is_already_running()) {
+				logger("update_gcontact: Already running for contact ".$contact_id);
+				if ($pidfile->running_time() > 9*60) {
+					$pidfile->kill();
+					logger("killed stale process");
+				}
+				exit;
 			}
-			exit;
 		}
 	}
 

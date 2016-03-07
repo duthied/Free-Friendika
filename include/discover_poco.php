@@ -25,15 +25,18 @@ function discover_poco_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$maxsysload = intval(get_config('system','maxloadavg'));
+		if($maxsysload < 1)
+			$maxsysload = 50;
 
-	$load = current_load();
-	if($load) {
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. discover_poco deferred to next scheduled run.');
-			return;
+		$load = current_load();
+		if($load) {
+			if(intval($load) > $maxsysload) {
+				logger('system: load '.$load.' too high. discover_poco deferred to next scheduled run.');
+				return;
+			}
 		}
 	}
 
@@ -50,19 +53,22 @@ function discover_poco_run(&$argv, &$argc){
 	} else
 		die("Unknown or missing parameter ".$argv[1]."\n");
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'discover_poco'.$mode.urlencode($search));
-		if($pidfile->is_already_running()) {
-			logger("discover_poco: Already running");
-			if ($pidfile->running_time() > 19*60) {
-				$pidfile->kill();
-				logger("discover_poco: killed stale process");
-				// Calling a new instance
-				if ($mode == 0)
-					proc_run('php','include/discover_poco.php');
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, 'discover_poco'.$mode.urlencode($search));
+			if($pidfile->is_already_running()) {
+				logger("discover_poco: Already running");
+				if ($pidfile->running_time() > 19*60) {
+					$pidfile->kill();
+					logger("discover_poco: killed stale process");
+					// Calling a new instance
+					if ($mode == 0)
+						proc_run('php','include/discover_poco.php');
+				}
+				exit;
 			}
-			exit;
 		}
 	}
 

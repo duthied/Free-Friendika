@@ -79,18 +79,21 @@ function pubsubpublish_run(&$argv, &$argc){
 	load_config('config');
 	load_config('system');
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'pubsubpublish');
-		if($pidfile->is_already_running()) {
-			logger("Already running");
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("killed stale process");
-				// Calling a new instance
-				proc_run('php',"include/pubsubpublish.php");
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, 'pubsubpublish');
+			if($pidfile->is_already_running()) {
+				logger("Already running");
+				if ($pidfile->running_time() > 9*60) {
+					$pidfile->kill();
+					logger("killed stale process");
+					// Calling a new instance
+					proc_run('php',"include/pubsubpublish.php");
+				}
+				return;
 			}
-			return;
 		}
 	}
 
