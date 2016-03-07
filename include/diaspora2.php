@@ -1799,6 +1799,16 @@ EOT;
 		return $slap;
 	}
 
+	private function get_signature($owner, $message) {
+		$sigmsg = $message;
+		unset($sigmsg["author_signature"]);
+		unset($sigmsg["parent_author_signature"]);
+
+		$signed_text = implode(";", $sigmsg);
+
+		return base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+	}
+
 	private function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
 
 		$a = get_app();
@@ -2031,32 +2041,37 @@ EOT;
 		return $return_code;
 	}
 
-	private function construct_like($item,$owner,$contact,$public_batch = false) {
+	private function construct_like($item,$owner,$contact,$public_batch = false, $data = null) {
 
-		$myaddr = self::get_my_handle($owner);
+		if (is_array($data))
+			$message = $data;
+		else {
+			$myaddr = self::get_my_handle($owner);
 
-		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-			dbesc($item["thr-parent"])
-		      );
-		if(!$p)
-			return false;
+			$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
+				dbesc($item["thr-parent"]));
+			if(!$p)
+				return false;
 
-		$parent = $p[0];
+			$parent = $p[0];
 
-		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
-		$positive = "true";
+			$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
+			$positive = "true";
 
-		// sign it
-		$signed_text =  $positive.";".$item["guid"].";".$target_type.";".$parent["guid"].";".$myaddr;
+			$message = array("positive" => $positive,
+					"guid" => $item["guid"],
+					"target_type" => $target_type,
+					"parent_guid" => $parent["guid"],
+					"author_signature" => $authorsig,
+					"diaspora_handle" => $myaddr);
+		}
 
-		$authorsig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		$authorsig = self::get_signature($owner, $message);
 
-		$message = array("positive" => $positive,
-				"guid" => $item["guid"],
-				"target_type" => $item["guid"],
-				"parent_guid" => $parent["guid"],
-				"author_signature" => $authorsig,
-				"diaspora_handle" => $myaddr);
+		if ($message["author_signature"] == "")
+			$message["author_signature"] = $authorsig;
+		else
+			$message["parent_author_signature"] = $authorsig;
 
 		$data = array("XML" => array("post" => array("like" => $message)));
 
@@ -2089,14 +2104,7 @@ EOT;
 					"diaspora_handle" => $myaddr);
 		}
 
-		// sign it
-		$sigmsg = $message;
-		unset($sigmsg["author_signature"]);
-		unset($sigmsg["parent_author_signature"]);
-
-		$signed_text = implode(";", $sigmsg);
-
-		$authorsig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		$authorsig = self::get_signature($owner, $message);
 
 		if ($message["author_signature"] == "")
 			$message["author_signature"] = $authorsig;
@@ -2153,36 +2161,56 @@ EOT;
 			// Split the signed text
 			$signed_parts = explode(";", $signed_text);
 
-			// Remove the comment guid
-			$guid = array_shift($signed_parts);
+			if ($item['verb'] === ACTIVITY_LIKE) {
+				$data = array("positive" => $signed_parts[0],
+						"guid" => $signed_parts[1],
+						"target_type" => $signed_parts[2],
+						"parent_guid" => $signed_parts[3],
+						"parent_author_signature" => "",
+						"author_signature" => $orig_sign['signature'],
+						"diaspora_handle" => $signed_parts[4]);
+			} else {
+				// Remove the comment guid
+				$guid = array_shift($signed_parts);
 
-			// Remove the parent guid
-			$parent_guid = array_shift($signed_parts);
+				// Remove the parent guid
+				$parent_guid = array_shift($signed_parts);
 
-			// Remove the handle
-			$handle = array_pop($signed_parts);
+				// Remove the handle
+				$handle = array_pop($signed_parts);
 
-			// Glue the parts together
-			$text = implode(";", $signed_parts);
+				// Glue the parts together
+				$text = implode(";", $signed_parts);
 
-			$data = array("guid" => $guid,
-					"parent_guid" => $parent_guid,
-					"parent_author_signature" => "",
-					"author_signature" => $orig_sign['signature'],
-					"text" => implode(";", $signed_parts),
-					"diaspora_handle" => $handle);
+				$data = array("guid" => $guid,
+						"parent_guid" => $parent_guid,
+						"parent_author_signature" => "",
+						"author_signature" => $orig_sign['signature'],
+						"text" => implode(";", $signed_parts),
+						"diaspora_handle" => $handle);
+			}
 		}
 
-
-		$myaddr = self::get_my_handle($owner);
-
 		if ($item['deleted'])
-			; // Retraction
+			; // Relayed Retraction
 		elseif($item['verb'] === ACTIVITY_LIKE)
-			$msg = self::construct_like($item, $owner, $contact, $public_batch);
+			$msg = self::construct_like($item, $owner, $contact, $public_batch, $data);
 		else
 			$msg = self::construct_comment($item, $owner, $contact, $public_batch, $data);
 die($msg);
+
+		logger('base message: '.$msg, LOGGER_DATA);
+		logger('send guid '.$item['guid'], LOGGER_DEBUG);
+
+		$slap = self::build_message($msg,$owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
+
+		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item['guid']);
+
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
+	}
+
 /*
 	// Diaspora doesn't support threaded comments, but some
 	// versions of Diaspora (i.e. Diaspora-pistos) support
@@ -2301,8 +2329,6 @@ die($msg);
 
 	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
 */
-	}
-
 
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
