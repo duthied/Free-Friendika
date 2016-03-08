@@ -1098,6 +1098,11 @@ class App {
 		return($this->is_friendica_app);
 	}
 
+	/**
+	 * @brief Checks if the maximum load is reached
+	 *
+	 * @return bool Is the load reached?
+	 */
 	function maxload_reached() {
 
 		$maxsysload = intval(get_config('system', 'maxloadavg'));
@@ -1114,6 +1119,15 @@ class App {
 		return false;
 	}
 
+	/**
+	 * @brief Checks if the process is already running
+	 *
+	 * @param string $taskname The name of the task that will be used for the name of the lockfile
+	 * @param string $task The path and name of the php script
+	 * @param int $timeout The timeout after which a task should be killed
+	 *
+	 * @return bool Is the process running?
+	 */
 	function is_already_running($taskname, $task = "", $timeout = 540) {
 
 		$lockpath = get_lockpath();
