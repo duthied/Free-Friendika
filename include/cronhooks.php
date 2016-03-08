@@ -27,7 +27,7 @@ function cronhooks_run(&$argv, &$argc){
 	if (App::callstack() != "poller_run") {
 		if (App::maxload_reached())
 			return;
-		if (App::is_already_running('include/cronhooks.php', 'cronhooks', 1140))
+		if (App::is_already_running('cronhooks', 'include/cronhooks.php', 1140))
 			return;
 	}
 

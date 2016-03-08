@@ -29,7 +29,7 @@ function queue_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
-		if (App::is_already_running('include/queue.php', 'queue', 540))
+		if (App::is_already_running('queue', 'include/queue.php', 540))
 			return;
 
 	$a->set_baseurl(get_config('system','url'));

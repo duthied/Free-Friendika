@@ -43,7 +43,7 @@ function cron_run(&$argv, &$argc){
 	if (App::callstack() != "poller_run") {
 		if (App::maxload_reached())
 			return;
-		if (App::is_already_running('include/cron.php', 'cron', 540))
+		if (App::is_already_running('cron', 'include/cron.php', 540))
 			return;
 	}
 

@@ -44,7 +44,7 @@ function discover_poco_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
-		if (App::is_already_running('include/discover_poco.php', 'discover_poco'.$mode.urlencode($search), 1140))
+		if (App::is_already_running('discover_poco'.$mode.urlencode($search), 'include/discover_poco.php', 1140))
 			return;
 
 	$a->set_baseurl(get_config('system','url'));

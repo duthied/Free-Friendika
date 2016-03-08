@@ -61,7 +61,7 @@ function onepoll_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
-		if (App::is_already_running('', 'onepoll'.$contact_id, 540))
+		if (App::is_already_running('onepoll'.$contact_id, '', 540))
 			return;
 
 	$d = datetime_convert();

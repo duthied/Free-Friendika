@@ -38,7 +38,7 @@ function update_gcontact_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
-		if (App::is_already_running('', 'update_gcontact'.$contact_id, 540))
+		if (App::is_already_running('update_gcontact'.$contact_id, '', 540))
 			return;
 
 	$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));

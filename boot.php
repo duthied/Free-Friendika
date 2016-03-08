@@ -1114,7 +1114,7 @@ class App {
 		return false;
 	}
 
-	function is_already_running($task, $taskname, $timeout = 540) {
+	function is_already_running($taskname, $task = "", $timeout = 540) {
 
 		$lockpath = get_lockpath();
 		if ($lockpath != '') {
