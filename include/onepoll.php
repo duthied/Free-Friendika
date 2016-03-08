@@ -31,7 +31,6 @@ function onepoll_run(&$argv, &$argc){
 	require_once('include/Contact.php');
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
-	require_once('include/pidfile.php');
 	require_once('include/queue_fn.php');
 
 	load_config('config');
@@ -61,20 +60,9 @@ function onepoll_run(&$argv, &$argc){
 	}
 
 	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run") {
-		$lockpath = get_lockpath();
-		if ($lockpath != '') {
-			$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id);
-			if ($pidfile->is_already_running()) {
-				logger("onepoll: Already running for contact ".$contact_id);
-				if ($pidfile->running_time() > 9*60) {
-					$pidfile->kill();
-					logger("killed stale process");
-				}
-				exit;
-			}
-		}
-	}
+	if (App::callstack() != "poller_run")
+		if (App::is_already_running('', 'onepoll'.$contact_id, 540))
+			return;
 
 	$d = datetime_convert();
 

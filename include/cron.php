@@ -34,7 +34,6 @@ function cron_run(&$argv, &$argc){
 	require_once('include/Contact.php');
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
-	require_once('include/pidfile.php');
 	require_once('mod/nodeinfo.php');
 
 	load_config('config');
@@ -42,32 +41,10 @@ function cron_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run") {
-		$maxsysload = intval(get_config('system','maxloadavg'));
-		if($maxsysload < 1)
-			$maxsysload = 50;
-
-		$load = current_load();
-		if($load) {
-			if(intval($load) > $maxsysload) {
-				logger('system: load '.$load.' too high. cron deferred to next scheduled run.');
-				return;
-			}
-		}
-
-		$lockpath = get_lockpath();
-		if ($lockpath != '') {
-			$pidfile = new pidfile($lockpath, 'cron');
-			if($pidfile->is_already_running()) {
-				logger("cron: Already running");
-				if ($pidfile->running_time() > 9*60) {
-					$pidfile->kill();
-					logger("cron: killed stale process");
-					// Calling a new instance
-					proc_run('php','include/cron.php');
-				}
-				exit;
-			}
-		}
+		if (App::maxload_reached())
+			return;
+		if (App::is_already_running('include/cron.php', 'cron', 540))
+			return;
 	}
 
 	$last = get_config('system','last_cron');
