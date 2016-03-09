@@ -550,12 +550,15 @@ class diaspora {
 			return self::fetch_message($source_xml->root_guid, $server, ++$level);
 		}
 
+		$author = "";
+
 		// Fetch the author - for the old and the new Diaspora version
 		if ($source_xml->post->status_message->diaspora_handle)
 			$author = (string)$source_xml->post->status_message->diaspora_handle;
-		elseif ($source_xml->author)
+		elseif ($source_xml->author AND ($source_xml->getName() == "status_message"))
 			$author = (string)$source_xml->author;
 
+		// If this isn't a "status_message" then quit
 		if (!$author)
 			return false;
 
@@ -1392,21 +1395,23 @@ EOT;
 			$item_id = self::store_by_guid($guid, $server);
 
 			if (!$item_id) {
-				$server = "https://".substr($author, strpos($author, "@") + 1);
-				logger("2nd try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
-				$item = self::store_by_guid($guid, $server);
-			}
-			if (!$item_id) {
 				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
-				logger("3rd try: reshared message ".$guid." will be fetched from original server: ".$server);
-				$item = self::store_by_guid($guid, $server);
+				logger("2nd try: reshared message ".$guid." will be fetched from original server: ".$server);
+				$item_id = self::store_by_guid($guid, $server);
+			}
+
+			// Deactivated by now since there is a risk that someone could manipulate postings through this method
+/*			if (!$item_id) {
+				$server = "https://".substr($author, strpos($author, "@") + 1);
+				logger("3rd try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
+				$item_id = self::store_by_guid($guid, $server);
 			}
 			if (!$item_id) {
 				$server = "http://".substr($author, strpos($author, "@") + 1);
 				logger("4th try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
-				$item = self::store_by_guid($guid, $server);
+				$item_id = self::store_by_guid($guid, $server);
 			}
-
+*/
 			if ($item_id) {
 				$r = q("SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
 						`author-name`, `author-link`, `author-avatar`
