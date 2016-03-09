@@ -714,6 +714,49 @@ function ostatus_fetch_conversation($self, $conversation_id = "") {
 	return $base_url."/conversation/".$conversation_id;
 }
 
+/**
+ * @brief Fetches actor details of a given actor and user id
+ *
+ * @param string $actor The actor url
+ * @param int $uid The user id
+ *
+ * @return array Array with actor details
+ */
+function ostatus_get_actor_details($actor, $uid) {
+
+	$details = array();
+
+	$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
+				$uid, normalise_link($actor), NETWORK_STATUSNET);
+
+	if (!$contact)
+		$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `alias` IN ('%s', '%s') AND `network` != '%s'",
+				$uid, $actor, normalise_link($actor), NETWORK_STATUSNET);
+
+	if ($contact) {
+		logger("Found contact for url ".$actor, LOGGER_DEBUG);
+		$details["contact_id"] = $contact[0]["id"];
+		$details["network"] = $contact[0]["network"];
+
+		$details["not_following"] = !in_array($contact[0]["rel"], array(CONTACT_IS_SHARING, CONTACT_IS_FRIEND));
+	} else {
+		logger("No contact found for user ".$uid." and url ".$actor, LOGGER_DEBUG);
+
+		// Adding a global contact
+		/// @TODO Use this data for the post
+		$details["global_contact_id"] = get_contact($actor, 0);
+
+		logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
+
+		$details["contact_id"] = $parent["contact-id"];
+		$details["network"] = NETWORK_OSTATUS;
+
+		$details["not_following"] = true;
+	}
+
+	return $details;
+}
+
 function ostatus_completion($conversation_url, $uid, $item = array(), $self = "") {
 
 	$a = get_app();
@@ -954,46 +997,20 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 		if (isset($single_conv->actor->url))
 			$actor = $single_conv->actor->url;
 
-		$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
-				$uid, normalise_link($actor), NETWORK_STATUSNET);
-
-		if (!$contact)
-			$contact = q("SELECT `id`, `rel`, `network` FROM `contact` WHERE `uid` = %d AND `alias` IN ('%s', '%s') AND `network` != '%s'",
-					$uid, $actor, normalise_link($actor), NETWORK_STATUSNET);
-
-		if ($contact) {
-			logger("Found contact for url ".$actor, LOGGER_DEBUG);
-			$contact_id = $contact[0]["id"];
-			$network = $contact[0]["network"];
-
-			$not_following = !in_array($contact[0]["rel"], array(CONTACT_IS_SHARING, CONTACT_IS_FRIEND));
-		} else {
-			logger("No contact found for user ".$uid." and url ".$actor, LOGGER_DEBUG);
-
-			// Adding a global contact
-			/// @TODO Use this data for the post
-			$global_contact_id = get_contact($actor, 0);
-
-			logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
-
-			$contact_id = $parent["contact-id"];
-			$network = NETWORK_OSTATUS;
-
-			$not_following = true;
-		}
+		$details = ostatus_get_actor_details($actor, $uid);
 
 		// Do we only want to import threads that were started by our contacts?
-		if ($not_following AND $new_parent AND get_config('system','ostatus_full_threads')) {
+		if ($details["not_following"] AND $new_parent AND get_config('system','ostatus_full_threads')) {
 			logger("Don't import uri ".$first_id." because user ".$uid." doesn't follow the person ".$actor, LOGGER_DEBUG);
 			continue;
 		}
 
 		$arr = array();
-		$arr["network"] = $network;
+		$arr["network"] = $details["network"];
 		$arr["uri"] = $single_conv->id;
 		$arr["plink"] = $plink;
 		$arr["uid"] = $uid;
-		$arr["contact-id"] = $contact_id;
+		$arr["contact-id"] = $details["contact_id"];
 		$arr["parent-uri"] = $parent_uri;
 		$arr["created"] = $single_conv->published;
 		$arr["edited"] = $single_conv->published;
@@ -1119,6 +1136,15 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 
 	if (($item_stored < 0) AND (count($item) > 0)) {
 		//$arr["app"] .= " (OStatus-NoConvFound)";
+
+		if (get_config('system','ostatus_full_threads')) {
+			$details = ostatus_get_actor_details($item["owner-link"], $uid);
+			if ($details["not_following"]) {
+				logger("Don't import uri ".$item["uri"]." because user ".$uid." doesn't follow the person ".$item["owner-link"], LOGGER_DEBUG);
+				return false;
+			}
+		}
+
 		$item_stored = item_store($item, true);
 		if ($item_stored) {
 			logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation_url, LOGGER_DEBUG);
