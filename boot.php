@@ -30,7 +30,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 require_once('include/identity.php');
-
+require_once('include/pidfile.php');
 require_once('update.php');
 require_once('include/dbstructure.php');
 
@@ -1098,6 +1098,55 @@ class App {
 		return($this->is_friendica_app);
 	}
 
+	/**
+	 * @brief Checks if the maximum load is reached
+	 *
+	 * @return bool Is the load reached?
+	 */
+	function maxload_reached() {
+
+		$maxsysload = intval(get_config('system', 'maxloadavg'));
+		if ($maxsysload < 1)
+			$maxsysload = 50;
+
+		$load = current_load();
+		if ($load) {
+			if (intval($load) > $maxsysload) {
+				logger('system: load '.$load.' too high.');
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @brief Checks if the process is already running
+	 *
+	 * @param string $taskname The name of the task that will be used for the name of the lockfile
+	 * @param string $task The path and name of the php script
+	 * @param int $timeout The timeout after which a task should be killed
+	 *
+	 * @return bool Is the process running?
+	 */
+	function is_already_running($taskname, $task = "", $timeout = 540) {
+
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, $taskname);
+			if ($pidfile->is_already_running()) {
+				logger("Already running");
+				if ($pidfile->running_time() > $timeout) {
+					$pidfile->kill();
+					logger("killed stale process");
+					// Calling a new instance
+					if ($task != "")
+						proc_run('php', $task);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 /**
