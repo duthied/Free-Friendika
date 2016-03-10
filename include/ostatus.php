@@ -719,10 +719,11 @@ function ostatus_fetch_conversation($self, $conversation_id = "") {
  *
  * @param string $actor The actor url
  * @param int $uid The user id
+ * @param int $contact_id The default contact-id
  *
  * @return array Array with actor details
  */
-function ostatus_get_actor_details($actor, $uid) {
+function ostatus_get_actor_details($actor, $uid, $contact_id) {
 
 	$details = array();
 
@@ -748,7 +749,7 @@ function ostatus_get_actor_details($actor, $uid) {
 
 		logger("Global contact ".$global_contact_id." found for url ".$actor, LOGGER_DEBUG);
 
-		$details["contact_id"] = $parent["contact-id"];
+		$details["contact_id"] = $contact_id;
 		$details["network"] = NETWORK_OSTATUS;
 
 		$details["not_following"] = true;
@@ -997,7 +998,7 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 		if (isset($single_conv->actor->url))
 			$actor = $single_conv->actor->url;
 
-		$details = ostatus_get_actor_details($actor, $uid);
+		$details = ostatus_get_actor_details($actor, $uid, $parent["contact-id"]);
 
 		// Do we only want to import threads that were started by our contacts?
 		if ($details["not_following"] AND $new_parent AND get_config('system','ostatus_full_threads')) {
@@ -1138,7 +1139,7 @@ function ostatus_completion($conversation_url, $uid, $item = array(), $self = ""
 		//$arr["app"] .= " (OStatus-NoConvFound)";
 
 		if (get_config('system','ostatus_full_threads')) {
-			$details = ostatus_get_actor_details($item["owner-link"], $uid);
+			$details = ostatus_get_actor_details($item["owner-link"], $uid, $item["contact-id"]);
 			if ($details["not_following"]) {
 				logger("Don't import uri ".$item["uri"]." because user ".$uid." doesn't follow the person ".$item["owner-link"], LOGGER_DEBUG);
 				return false;
