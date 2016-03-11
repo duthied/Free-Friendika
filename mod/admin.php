@@ -909,6 +909,7 @@ function admin_page_site(&$a) {
 		'$advanced' => t('Advanced'),
 		'$portable_contacts' => t('Auto Discovered Contact Directory'),
 		'$performance' => t('Performance'),
+		'$worker_title' => t('Worker'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...

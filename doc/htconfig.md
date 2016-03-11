@@ -64,9 +64,6 @@ line to your .htconfig.php:
 * throttle_limit_week - Maximum number of posts that a user can send per week with the API.
 * throttle_limit_month - Maximum number of posts that a user can send per month with the API.
 * wall-to-wall_share (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
-* worker (Boolean) - (Experimental) Use the worker system instead of calling several background processes. Reduces the overall load and speeds up item delivery.
-* worker_dont_fork (Boolean) - if enabled, the workers are only called from the poller process. Useful on systems that permit the use of "proc_open".
-* worker_queues - Number of parallel workers. Default value is 10 queues.
 * xrd_timeout - Timeout for fetching the XRD links. Default value is 20 seconds.
 
 ## service_class ##
