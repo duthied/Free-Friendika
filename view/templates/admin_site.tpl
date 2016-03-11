@@ -152,6 +152,11 @@
 	{{include file="field_input.tpl" field=$max_comments}}
 	{{include file="field_checkbox.tpl" field=$proxy_disabled}}
 	{{include file="field_checkbox.tpl" field=$old_pager}}
+
+	{{include file="field_checkbox.tpl" field=$worker}}
+	{{include file="field_input.tpl" field=$worker_queues}}
+	{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>

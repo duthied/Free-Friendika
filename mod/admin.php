@@ -619,6 +619,9 @@ function admin_page_site_post(&$a) {
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
+	$worker			=	((x($_POST,'worker'))			? True						: False);
+	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
+	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -765,7 +768,9 @@ function admin_page_site_post(&$a) {
 	set_config('system','proxy_disabled', $proxy_disabled);
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
-
+	set_config('system','worker', $worker);
+	set_config('system','worker_queues', $worker_queues);
+	set_config('system','worker_dont_fork', $worker_dont_fork);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -991,6 +996,10 @@ function admin_page_site(&$a) {
 
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 		'$embedly' 		=> array('embedly', t("Embedly API key"), get_config('system','embedly'), t("<a href='http://embed.ly'>Embedly</a> is used to fetch additional data for web pages. This is an optional parameter.")),
+
+		'$worker'		=> array('worker', t("Enable 'worker' background processing"), get_config('system','worker'), t("The worker background processing limits the number of parallel background jobs to a maximum number and respects the system load.")),
+		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
+		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
