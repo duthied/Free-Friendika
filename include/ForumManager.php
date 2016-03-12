@@ -86,7 +86,7 @@ class ForumManager {
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if(is_filled_array($contacts)) {
+		if(dba::is_result($contacts)) {
 
 			$id = 0;
 

@@ -360,13 +360,13 @@ function message_content(&$a) {
 			dbesc($myprofile)
 		);
 
-		if (is_filled_array($r)) {
+		if (dba::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if(! is_filled_array($r)) {
+		if(! dba::is_result($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}

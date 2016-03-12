@@ -230,6 +230,16 @@ class dba {
 		}
 	}
 
+	/**
+	 * Checks if $array is a filled array with at least one entry.
+	 *
+	 * @param	$array	mixed	A filled array with at least one entry
+	 * @return	Whether $array is a filled array
+	 */
+	public function is_result ($array) {
+		return (is_array($array) && count($array) > 0);
+	}
+
 	function __destruct() {
 		if ($this->db)
 			if($this->mysqli)
@@ -340,4 +350,3 @@ function dbesc_array(&$arr) {
 function dba_timer() {
 	return microtime(true);
 }
-
