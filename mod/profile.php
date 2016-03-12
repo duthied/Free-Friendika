@@ -300,7 +300,7 @@ function profile_content(&$a, $update = 0) {
 	$parents_arr = array();
 	$parents_str = '';
 
-	if(count($r)) {
+	if (dba::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
