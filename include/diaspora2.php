@@ -123,53 +123,43 @@ class diaspora {
 		$type = $fields->getName();
 
 		switch ($type) {
-			case "account_deletion": // Done
-				//return true;
+			case "account_deletion":
 				return self::receive_account_deletion($importer, $fields);
 
-			case "comment": // Done
-				//return true;
+			case "comment":
 				return self::receive_comment($importer, $sender, $fields);
 
-			case "conversation": // Done
-				//return true;
+			case "conversation":
 				return self::receive_conversation($importer, $msg, $fields);
 
-			case "like": // Done
-				//return true;
+			case "like":
 				return self::receive_like($importer, $sender, $fields);
 
-			case "message": // Done
-				//return true;
+			case "message":
 				return self::receive_message($importer, $fields);
 
 			case "participation": // Not implemented
 				return self::receive_participation($importer, $fields);
 
-			case "photo": // Not needed
+			case "photo": // Not implemented
 				return self::receive_photo($importer, $fields);
 
 			case "poll_participation": // Not implemented
 				return self::receive_poll_participation($importer, $fields);
 
-			case "profile": // Done
-				//return true;
+			case "profile":
 				return self::receive_profile($importer, $fields);
 
 			case "request":
-				//return true;
 				return self::receive_request($importer, $fields);
 
-			case "reshare": // Done
-				//return true;
+			case "reshare":
 				return self::receive_reshare($importer, $fields);
 
-			case "retraction": // Done
-				//return true;
+			case "retraction":
 				return self::receive_retraction($importer, $sender, $fields);
 
-			case "status_message": // Done
-				//return true;
+			case "status_message":
 				return self::receive_status_message($importer, $fields);
 
 			default:
@@ -1364,7 +1354,7 @@ EOT;
 
 			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
 			if($u)
-				$ret = diaspora_share($u[0], $contact_record);
+				$ret = self::send_share($u[0], $contact_record);
 		}
 
 		return true;
@@ -1557,8 +1547,10 @@ EOT;
 			case "StatusMessage":
 				return self::item_retraction($importer, $contact, $data);;
 
-			case "Person": /// @todo an "unshare" shouldn't remove the contact
-				contact_remove($contact["id"]);
+			case "Person":
+				/// @todo What should we do with an "unshare"?
+				// Removing the contact isn't correct since we still can read the public items
+				//contact_remove($contact["id"]);
 				return true;
 
 			default:
@@ -1862,41 +1854,43 @@ EOT;
 			}
 		}
 
-
 		return(($return_code) ? $return_code : (-1));
 	}
 
-	public static function send_share($me,$contact) {
-		$myaddr = self::get_my_handle($me);
-		$theiraddr = $contact["addr"];
 
-		$data = array("XML" => array("post" => array("request" => array(
-										"sender_handle" => $myaddr,
-										"recipient_handle" => $theiraddr
-									))));
+	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "") {
+
+		$data = array("XML" => array("post" => array($type => $message)));
 
 		$msg = xml::from_array($data, $xml);
 
-		$slap = self::build_message($msg, $me, $contact, $me["prvkey"], $contact["pubkey"]);
+		logger('message: '.$msg, LOGGER_DATA);
+		logger('send guid '.$guid, LOGGER_DEBUG);
 
-		return(self::transmit($owner,$contact,$slap, false));
+		$slap = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
+die($slap);
+		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $guid);
 
+		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+
+		return $return_code;
 	}
 
-	public static function send_unshare($me,$contact) {
-		$myaddr = self::get_my_handle($me);
+	public static function send_share($owner,$contact) {
 
-		$data = array("XML" => array("post" => array("retraction" => array(
-										"post_guid" => $me["guid"],
-										"diaspora_handle" => $myaddr,
-										"type" => "Person"
-									))));
+		$message = array("sender_handle" => self::get_my_handle($owner),
+				"recipient_handle" => $contact["addr"]);
 
-		$msg = xml::from_array($data, $xml);
+		return self::build_and_transmit($owner, $contact, "request", $message);
+	}
 
-		$slap = self::build_message($msg, $me, $contact, $me["prvkey"], $contact["pubkey"]);
+	public static function send_unshare($owner,$contact) {
 
-		return(self::transmit($owner,$contact,$slap, false));
+		$message = array("post_guid" => $owner["guid"],
+				"diaspora_handle" => self::get_my_handle($owner),
+				"type" => "Person");
+
+		return self::build_and_transmit($owner, $contact, "retraction", $message);
 	}
 
 	private function is_reshare($body) {
@@ -1969,27 +1963,6 @@ EOT;
 	public static function send_status($item, $owner, $contact, $public_batch = false) {
 
 		$myaddr = self::get_my_handle($owner);
-		$theiraddr = $contact["addr"];
-
-		$title = $item["title"];
-		$body = $item["body"];
-
-		// convert to markdown
-		$body = html_entity_decode(bb2diaspora($body));
-
-		// Adding the title
-		if(strlen($title))
-			$body = "## ".html_entity_decode($title)."\n\n".$body;
-
-		if ($item["attach"]) {
-			$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
-			if(cnt) {
-				$body .= "\n".t("Attachments:")."\n";
-				foreach($matches as $mtch)
-					$body .= "[".$mtch[3]."](".$mtch[1].")\n";
-			}
-		}
-
 
 		$public = (($item["private"]) ? "false" : "true");
 
@@ -2005,8 +1978,27 @@ EOT;
 					"created_at" => $created,
 					"provider_display_name" => $item["app"]);
 
-			$data = array("XML" => array("post" => array("reshare" => $message)));
+			$type = "reshare";
 		} else {
+			$title = $item["title"];
+			$body = $item["body"];
+
+			// convert to markdown
+			$body = html_entity_decode(bb2diaspora($body));
+
+			// Adding the title
+			if(strlen($title))
+				$body = "## ".html_entity_decode($title)."\n\n".$body;
+
+			if ($item["attach"]) {
+				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
+				if(cnt) {
+					$body .= "\n".t("Attachments:")."\n";
+					foreach($matches as $mtch)
+						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
+				}
+			}
+
 			$location = array();
 
 			if ($item["location"] != "")
@@ -2029,126 +2021,87 @@ EOT;
 			if (count($location) == 0)
 				unset($message["location"]);
 
-			$data = array("XML" => array("post" => array("status_message" => $message)));
+			$type = "status_message";
 		}
 
-		$msg = xml::from_array($data, $xml);
-
-		logger("status: ".$owner["username"]." -> ".$contact["name"]." base message: ".$msg, LOGGER_DATA);
-		logger("send guid ".$item["guid"], LOGGER_DEBUG);
-
-		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
-
-		$return_code = self::transmit($owner,$contact,$slap, false);
-
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
-
-		return $return_code;
+		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
-	private function construct_like($item,$owner,$contact,$public_batch = false, $data = null) {
+	private function construct_like($item, $owner) {
 
-		if (is_array($data))
-			$message = $data;
-		else {
-			$myaddr = self::get_my_handle($owner);
+		$myaddr = self::get_my_handle($owner);
 
-			$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-				dbesc($item["thr-parent"]));
-			if(!$p)
-				return false;
+		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
+			dbesc($item["thr-parent"]));
+		if(!$p)
+			return false;
 
-			$parent = $p[0];
+		$parent = $p[0];
 
-			$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
-			$positive = "true";
+		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
+		$positive = "true";
 
-			$message = array("positive" => $positive,
-					"guid" => $item["guid"],
-					"target_type" => $target_type,
-					"parent_guid" => $parent["guid"],
-					"author_signature" => $authorsig,
-					"diaspora_handle" => $myaddr);
-		}
-
-		$authorsig = self::get_signature($owner, $message);
-
-		if ($message["author_signature"] == "")
-			$message["author_signature"] = $authorsig;
-		else
-			$message["parent_author_signature"] = $authorsig;
-
-		$data = array("XML" => array("post" => array("like" => $message)));
-
-		return xml::from_array($data, $xml);
+		return(array("positive" => $positive,
+				"guid" => $item["guid"],
+				"target_type" => $target_type,
+				"parent_guid" => $parent["guid"],
+				"author_signature" => $authorsig,
+				"diaspora_handle" => $myaddr));
 	}
 
-	private function construct_comment($item,$owner,$contact,$public_batch = false, $data = null) {
+	private function construct_comment($item, $owner) {
 
-		if (is_array($data))
-			$message = $data;
-		else {
-			$myaddr = self::get_my_handle($owner);
+		$myaddr = self::get_my_handle($owner);
 
-			$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
-				intval($item["parent"]),
-				intval($item["parent"])
-			);
+		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
+			intval($item["parent"]),
+			intval($item["parent"])
+		);
 
-			if (!$p)
-				return false;
+		if (!$p)
+			return false;
 
-			$parent = $p[0];
+		$parent = $p[0];
 
-			$text = html_entity_decode(bb2diaspora($item["body"]));
+		$text = html_entity_decode(bb2diaspora($item["body"]));
 
-			$message = array("guid" => $item["guid"],
-					"parent_guid" => $parent["guid"],
-					"author_signature" => "",
-					"text" => $text,
-					"diaspora_handle" => $myaddr);
-		}
-
-		$authorsig = self::get_signature($owner, $message);
-
-		if ($message["author_signature"] == "")
-			$message["author_signature"] = $authorsig;
-		else
-			$message["parent_author_signature"] = $authorsig;
-
-		$data = array("XML" => array("post" => array("comment" => $message)));
-
-		return xml::from_array($data, $xml);
+		return(array("guid" => $item["guid"],
+				"parent_guid" => $parent["guid"],
+				"author_signature" => "",
+				"text" => $text,
+				"diaspora_handle" => $myaddr));
 	}
 
 	public static function send_followup($item,$owner,$contact,$public_batch = false) {
 
-		if($item['verb'] === ACTIVITY_LIKE)
-			$msg = self::construct_like($item, $owner, $contact, $public_batch);
-		else
-			$msg = self::construct_comment($item, $owner, $contact, $public_batch);
+		if($item['verb'] === ACTIVITY_LIKE) {
+			$message = self::construct_like($item, $owner);
+			$type = "like";
+		} else {
+			$message = self::construct_comment($item, $owner);
+			$type = "comment";
+		}
 
-		if (!$msg)
-			return $msg;
+		if (!$message)
+			return false;
 
-		logger("base message: ".$msg, LOGGER_DATA);
-		logger("send guid ".$item["guid"], LOGGER_DEBUG);
+		$message["author_signature"] = self::get_signature($owner, $message);
 
-		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
-
-		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item["guid"]);
-
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
-
-		return $return_code;
+		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
 	function send_relay($item, $owner, $contact, $public_batch = false) {
 
-		if ($item["deleted"])
+		if ($item["deleted"]) {
 			$sql_sign_id = "retract_iid";
-		else
+			$type = "relayable_retraction";
+		} elseif ($item['verb'] === ACTIVITY_LIKE) {
 			$sql_sign_id = "iid";
+			$type = "like";
+		} else {
+			$sql_sign_id = "iid";
+			$type = "comment";
+		}
 
 		// fetch the original signature if the relayable was created by a Diaspora
 		// or DFRN user.
@@ -2157,24 +2110,32 @@ EOT;
 			intval($item["id"])
 		);
 
-		if(count($r)) {
-			$orig_sign = $r[0];
-			$signed_text = $orig_sign['signed_text'];
-			$authorsig = $orig_sign['signature'];
-			$handle = $orig_sign['signer'];
+		if (!$r)
+			return self::send_followup($item, $owner, $contact, $public_batch);
+
+		$orig_sign = $r[0];
+
+		// Old way - can be removed for the master branch
+		if ($orig_sign['signed_text'] AND $orig_sign['signature'] AND $orig_sign['signer']) {
 
 			// Split the signed text
-			$signed_parts = explode(";", $signed_text);
+			$signed_parts = explode(";", $orig_sign['signed_text']);
 
-			if ($item['verb'] === ACTIVITY_LIKE) {
-				$data = array("positive" => $signed_parts[0],
+			if ($item["deleted"])
+				$message = array("parent_author_signature" => "",
+						"target_guid" => $signed_parts[0],
+						"target_type" => $signed_parts[1],
+						"sender_handle" => $orig_sign['signer'],
+						"target_author_signature" => $orig_sign['signature']);
+			elseif ($item['verb'] === ACTIVITY_LIKE)
+				$message = array("positive" => $signed_parts[0],
 						"guid" => $signed_parts[1],
 						"target_type" => $signed_parts[2],
 						"parent_guid" => $signed_parts[3],
 						"parent_author_signature" => "",
 						"author_signature" => $orig_sign['signature'],
 						"diaspora_handle" => $signed_parts[4]);
-			} else {
+			else {
 				// Remove the comment guid
 				$guid = array_shift($signed_parts);
 
@@ -2187,153 +2148,25 @@ EOT;
 				// Glue the parts together
 				$text = implode(";", $signed_parts);
 
-				$data = array("guid" => $guid,
+				$message = array("guid" => $guid,
 						"parent_guid" => $parent_guid,
 						"parent_author_signature" => "",
 						"author_signature" => $orig_sign['signature'],
 						"text" => implode(";", $signed_parts),
 						"diaspora_handle" => $handle);
 			}
+		} else { // New way
+			$message = json_decode($orig_sign['signed_text']);
 		}
 
-		if ($item['deleted'])
-			; // Relayed Retraction
-		elseif($item['verb'] === ACTIVITY_LIKE)
-			$msg = self::construct_like($item, $owner, $contact, $public_batch, $data);
-		else
-			$msg = self::construct_comment($item, $owner, $contact, $public_batch, $data);
-die($msg);
+		if ($item["deleted"]) {
+			$signed_text = $message["target_guid"].';'.$message["target_type"];
+			$message["parent_author_signature"] = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		} else
+			$message["parent_author_signature"] = self::get_signature($owner, $message);
 
-		logger('base message: '.$msg, LOGGER_DATA);
-		logger('send guid '.$item['guid'], LOGGER_DEBUG);
-
-		$slap = self::build_message($msg,$owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
-
-		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item['guid']);
-
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
-
-		return $return_code;
+		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
-
-/*
-	// Diaspora doesn't support threaded comments, but some
-	// versions of Diaspora (i.e. Diaspora-pistos) support
-	// likes on comments
-	if($item['verb'] === ACTIVITY_LIKE && $item['thr-parent']) {
-		$p = q("select guid, type, uri, `parent-uri` from item where uri = '%s' limit 1",
-			dbesc($item['thr-parent'])
-		      );
-	}
-	else {
-		// The first item in the `item` table with the parent id is the parent. However, MySQL doesn't always
-		// return the items ordered by `item`.`id`, in which case the wrong item is chosen as the parent.
-		// The only item with `parent` and `id` as the parent id is the parent item.
-		$p = q("select guid, type, uri, `parent-uri` from item where parent = %d and id = %d limit 1",
-		       intval($item['parent']),
-		       intval($item['parent'])
-		      );
-	}
-	if(count($p))
-		$parent = $p[0];
-	else
-		return;
-
-	$like = false;
-	$relay_retract = false;
-	$sql_sign_id = 'iid';
-	if( $item['deleted']) {
-		$relay_retract = true;
-
-		$target_type = ( ($item['verb'] === ACTIVITY_LIKE) ? 'Like' : 'Comment');
-
-		$sql_sign_id = 'retract_iid';
-		$tpl = get_markup_template('diaspora_relayable_retraction.tpl');
-	}
-	elseif($item['verb'] === ACTIVITY_LIKE) {
-		$like = true;
-
-		$target_type = ( $parent['uri'] === $parent['parent-uri']  ? 'Post' : 'Comment');
-//              $positive = (($item['deleted']) ? 'false' : 'true');
-		$positive = 'true';
-
-		$tpl = get_markup_template('diaspora_like_relay.tpl');
-	}
-	else { // item is a comment
-		$tpl = get_markup_template('diaspora_comment_relay.tpl');
-	}
-
-
-	// fetch the original signature if the relayable was created by a Diaspora
-	// or DFRN user. Relayables for other networks are not supported.
-
-	$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE " . $sql_sign_id . " = %d LIMIT 1",
-		intval($item['id'])
-	);
-	if(count($r)) {
-		$orig_sign = $r[0];
-		$signed_text = $orig_sign['signed_text'];
-		$authorsig = $orig_sign['signature'];
-		$handle = $orig_sign['signer'];
-
-		// Split the signed text
-		$signed_parts = explode(";", $signed_text);
-
-		// Remove the parent guid
-		array_shift($signed_parts);
-
-		// Remove the comment guid
-		array_shift($signed_parts);
-
-		// Remove the handle
-		array_pop($signed_parts);
-
-		// Glue the parts together
-		$text = implode(";", $signed_parts);
-	}
-	else {
-		// This part is meant for cases where we don't have the signatur. (Which shouldn't happen with posts from Diaspora and Friendica)
-		// This means that the comment won't be accepted by newer Diaspora servers
-
-		$body = $item['body'];
-		$text = html_entity_decode(bb2diaspora($body));
-
-		$handle = diaspora_handle_from_contact($item['contact-id']);
-		if(! $handle)
-			return;
-
-		if($relay_retract)
-			$signed_text = $item['guid'] . ';' . $target_type;
-		elseif($like)
-			$signed_text = $item['guid'] . ';' . $target_type . ';' . $parent['guid'] . ';' . $positive . ';' . $handle;
-		else
-			$signed_text = $item['guid'] . ';' . $parent['guid'] . ';' . $text . ';' . $handle;
-
-		$authorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
-	}
-
-	// Sign the relayable with the top-level owner's signature
-	$parentauthorsig = base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256'));
-
-	$msg = replace_macros($tpl,array(
-		'$guid' => xmlify($item['guid']),
-		'$parent_guid' => xmlify($parent['guid']),
-		'$target_type' =>xmlify($target_type),
-		'$authorsig' => xmlify($authorsig),
-		'$parentsig' => xmlify($parentauthorsig),
-		'$body' => xmlify($text),
-		'$positive' => xmlify($positive),
-		'$handle' => xmlify($handle)
-	));
-
-	logger('diaspora_send_relay: base message: ' . $msg, LOGGER_DATA);
-	logger('send guid '.$item['guid'], LOGGER_DEBUG);
-
-	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch)));
-	//$slap = 'xml=' . urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['uprvkey'],$contact['pubkey'],$public_batch));
-
-	return(diaspora_transmit($owner,$contact,$slap,$public_batch,false,$item['guid']));
-*/
 
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
@@ -2355,21 +2188,10 @@ die($msg);
 				"sender_handle" => $myaddr,
 				"target_author_signature" => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
 
-		$data = array("XML" => array("post" => array($msg_type => $message)));
-		$msg = xml::from_array($data, $xml);
-
-		logger("send guid ".$item["guid"], LOGGER_DEBUG);
-
-		$slap = self::build_message($msg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], $public_batch);
-
-		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $item["guid"]);
-
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
-
-		return $return_code;
+		return self::build_and_transmit($owner, $contact, $msg_type, $message, $public_batch, $item["guid"]);
 	}
 
-	public static function send_mail($item,$owner,$contact) {
+	public static function send_mail($item, $owner, $contact) {
 
 		$myaddr = self::get_my_handle($owner);
 
@@ -2396,7 +2218,6 @@ die($msg);
 		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d H:i:s \U\T\C');
 
 		$signed_text = $item["guid"].";".$cnv["guid"].";".$body.";".$created.";".$myaddr.";".$cnv['guid'];
-
 		$sig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 
 		$msg = array(
@@ -2410,9 +2231,10 @@ die($msg);
 			"conversation_guid" => $cnv["guid"]
 		);
 
-		if ($item["reply"])
-			$data = array("XML" => array("post" => array("message" => $msg)));
-		else {
+		if ($item["reply"]) {
+			$message = $msg;
+			$type = "message";
+		} else {
 			$message = array("guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
 					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d H:i:s \U\T\C'),
@@ -2420,21 +2242,10 @@ die($msg);
 					"diaspora_handle" => $cnv["creator"],
 					"participant_handles" => $cnv["recips"]);
 
-			$data = array("XML" => array("post" => array("conversation" => $message)));
+			$type = "conversation";
 		}
 
-		$xmsg = xml::from_array($data, $xml);
-
-		logger("conversation: ".print_r($xmsg,true), LOGGER_DATA);
-		logger("send guid ".$item["guid"], LOGGER_DEBUG);
-
-		$slap = self::build_message($xmsg, $owner, $contact, $owner["uprvkey"], $contact["pubkey"], false);
-
-		$return_code = self::transmit($owner, $contact, $slap, false, false, $item["guid"]);
-
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
-
-		return $return_code;
+		return self::build_and_transmit($owner, $contact, $type, $message, false, $item["guid"]);
 	}
 }
 ?>
