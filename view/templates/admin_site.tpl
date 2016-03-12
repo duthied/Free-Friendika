@@ -154,6 +154,12 @@
 	{{include file="field_checkbox.tpl" field=$old_pager}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
+	<h3>{{$worker_title}}</h3>
+	{{include file="field_checkbox.tpl" field=$worker}}
+	{{include file="field_input.tpl" field=$worker_queues}}
+	{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+
 	</form>
 	
 	{{* separate form for relocate... *}}
