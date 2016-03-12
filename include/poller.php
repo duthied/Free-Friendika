@@ -29,17 +29,8 @@ function poller_run(&$argv, &$argc){
 	if (poller_max_connections_reached())
 		return;
 
-	$load = current_load();
-	if($load) {
-		$maxsysload = intval(get_config('system','maxloadavg'));
-		if($maxsysload < 1)
-			$maxsysload = 50;
-
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. poller deferred to next scheduled run.');
-			return;
-		}
-	}
+	if (App::maxload_reached())
+		return;
 
 	// Checking the number of workers
 	if (poller_too_much_workers(1)) {

@@ -37,10 +37,7 @@ General
 * o: Profile
 * t: Contacts
 * d: Common friends
-* b: Toggle Blocked status
-* i: Toggle Ignored status
-* v: Toggle Archive status
-* r: Repair
+* r: Advanced
 
 /message
 --------

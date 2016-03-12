@@ -174,18 +174,16 @@ function dfrn_request_post(&$a) {
 					info( t("Introduction complete.") . EOL);
 				}
 
-				$r = q("select id from contact where uid = %d and url = '%s' and `site-pubkey` = '%s' limit 1",
+				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
 				if(count($r)) {
-					$g = q("select def_gid from user where uid = %d limit 1",
-						intval(local_user())
-					);
-					if($g && intval($g[0]['def_gid'])) {
+					$def_gid = get_default_group(local_user(), $r[0]["network"]);
+					if(intval($def_gid)) {
 						require_once('include/group.php');
-						group_add_member(local_user(),'',$r[0]['id'],$g[0]['def_gid']);
+						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
 					}
 					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
 				} else
@@ -388,19 +386,17 @@ function dfrn_request_post(&$a) {
 				intval($rel)
 			);
 
-			$r = q("select id from contact where poll = '%s' and uid = %d limit 1",
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `poll` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($poll),
 				intval($uid)
 			);
 			if(count($r)) {
 				$contact_id = $r[0]['id'];
 
-				$g = q("select def_gid from user where uid = %d limit 1",
-					intval($uid)
-				);
-				if($g && intval($g[0]['def_gid'])) {
+				$def_gid = get_default_group($uid, $r[0]["network"]);
+				if (intval($def_gid)) {
 					require_once('include/group.php');
-					group_add_member($uid,'',$contact_id,$g[0]['def_gid']);
+					group_add_member($uid, '', $contact_id, $def_gid);
 				}
 
 				$photo = avatar_img($addr);

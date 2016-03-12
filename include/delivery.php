@@ -57,17 +57,8 @@ function delivery_run(&$argv, &$argc){
 			continue;
 		}
 
-		$maxsysload = intval(get_config('system','maxloadavg'));
-		if($maxsysload < 1)
-			$maxsysload = 50;
-
-		$load = current_load();
-		if($load) {
-			if(intval($load) > $maxsysload) {
-				logger('system: load ' . $load . ' too high. Delivery deferred to next queue run.');
-				return;
-			}
-		}
+		if (App::maxload_reached())
+			return;
 
 		// It's ours to deliver. Remove it from the queue.
 
