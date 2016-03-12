@@ -1558,7 +1558,7 @@ function killme() {
  * @brief Redirect to another URL and terminate this process.
  */
 function goaway($s) {
-	if (!strstr(normalise_link($s), normalise_link(App::get_baseurl())))
+	if (!strstr(normalise_link($s), "http://"))
 		$s = App::get_baseurl()."/".$s;
 
 	header("Location: $s");
