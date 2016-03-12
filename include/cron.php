@@ -357,7 +357,7 @@ function cron_clear_cache(&$a) {
 			continue;
 
 		// Calculate fragmentation
-		$fragmentation = $table["Data_free"] / $table["Data_length"];
+		$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
 
 		logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
 
