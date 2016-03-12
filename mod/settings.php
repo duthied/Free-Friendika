@@ -1,5 +1,6 @@
 <?php
 
+require_once('include/group.php');
 
 function get_theme_config_file($theme){
 	$a = get_app();
