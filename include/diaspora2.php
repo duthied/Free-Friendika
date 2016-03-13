@@ -1628,6 +1628,8 @@ class diaspora {
 		if (!$original_item)
 			return false;
 
+		$orig_url = App::get_baseurl()."/display/".$original_item["guid"];
+
 		$datarray = array();
 
 		$datarray["uid"] = $importer["uid"];
@@ -1651,7 +1653,7 @@ class diaspora {
 		$datarray["object"] = json_encode($data);
 
 		$prefix = share_header($original_item["author-name"], $original_item["author-link"], $original_item["author-avatar"],
-					$original_item["guid"], $original_item["created"], $original_item["uri"]);
+					$original_item["guid"], $original_item["created"], $orig_url);
 		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
 
 		$datarray["tag"] = $original_item["tag"];
@@ -1691,16 +1693,20 @@ class diaspora {
 			return false;
 
 		// Only delete it if the author really fits
-		if (!link_compare($r[0]["author-link"],$person["url"]))
+		if (!link_compare($r[0]["author-link"], $person["url"])) {
+			logger("Item author ".$r[0]["author-link"]." doesn't fit to expected contact ".$person["url"], LOGGER_DEBUG);
 			return false;
+		}
 
 		// Check if the sender is the thread owner
 		$p = q("SELECT `author-link`, `origin` FROM `item` WHERE `id` = %d",
 			intval($r[0]["parent"]));
 
 		// Only delete it if the parent author really fits
-		if (!link_compare($p[0]["author-link"], $contact["url"]))
+		if (!link_compare($p[0]["author-link"], $contact["url"]) AND !link_compare($r[0]["author-link"], $contact["url"])) {
+			logger("Thread author ".$p[0]["author-link"]." and item author ".$r[0]["author-link"]." don't fit to expected contact ".$contact["url"], LOGGER_DEBUG);
 			return false;
+		}
 
 		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
 		q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s', `body` = '' , `title` = '' WHERE `id` = %d",
@@ -1735,6 +1741,8 @@ class diaspora {
 			logger("cannot find contact for sender: ".$sender." and user ".$importer["uid"]);
 			return false;
 		}
+
+		logger("Got retraction for ".$target_type.", sender ".$sender." and user ".$importer["uid"], LOGGER_DEBUG);
 
 		switch ($target_type) {
 			case "Comment":
