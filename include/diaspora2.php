@@ -64,6 +64,168 @@ class diaspora {
 		return $relay;
 	}
 
+	function repair_signature($signature, $handle = "", $level = 1) {
+
+		if ($signature == "")
+			return ($signature);
+
+		if (base64_encode(base64_decode(base64_decode($signature))) == base64_decode($signature)) {
+			$signature = base64_decode($signature);
+			logger("Repaired double encoded signature from Diaspora/Hubzilla handle ".$handle." - level ".$level, LOGGER_DEBUG);
+
+			// Do a recursive call to be able to fix even multiple levels
+			if ($level < 10)
+				$signature = self::repair_signature($signature, $handle, ++$level);
+		}
+
+		return($signature);
+	}
+
+	/**
+	 * @brief: Decodes incoming Diaspora message
+	 *
+	 * @param array $importer from user table
+	 * @param string $xml urldecoded Diaspora salmon
+	 *
+	 * @return array
+	 * 'message' -> decoded Diaspora XML message
+	 * 'author' -> author diaspora handle
+	 * 'key' -> author public key (converted to pkcs#8)
+	 */
+	function decode($importer, $xml) {
+
+		$public = false;
+		$basedom = parse_xml_string($xml);
+
+		if (!is_object($basedom))
+			return false;
+
+		$children = $basedom->children('https://joindiaspora.com/protocol');
+
+		if($children->header) {
+			$public = true;
+			$author_link = str_replace('acct:','',$children->header->author_id);
+		} else {
+
+			$encrypted_header = json_decode(base64_decode($children->encrypted_header));
+
+			$encrypted_aes_key_bundle = base64_decode($encrypted_header->aes_key);
+			$ciphertext = base64_decode($encrypted_header->ciphertext);
+
+			$outer_key_bundle = '';
+			openssl_private_decrypt($encrypted_aes_key_bundle,$outer_key_bundle,$importer['prvkey']);
+
+			$j_outer_key_bundle = json_decode($outer_key_bundle);
+
+			$outer_iv = base64_decode($j_outer_key_bundle->iv);
+			$outer_key = base64_decode($j_outer_key_bundle->key);
+
+			$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $outer_key, $ciphertext, MCRYPT_MODE_CBC, $outer_iv);
+
+
+			$decrypted = pkcs5_unpad($decrypted);
+
+			/**
+			 * $decrypted now contains something like
+			 *
+			 *  <decrypted_header>
+			 *     <iv>8e+G2+ET8l5BPuW0sVTnQw==</iv>
+			 *     <aes_key>UvSMb4puPeB14STkcDWq+4QE302Edu15oaprAQSkLKU=</aes_key>
+			 *     <author_id>galaxor@diaspora.priateship.org</author_id>
+			 *  </decrypted_header>
+			 */
+
+			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
+			$idom = parse_xml_string($decrypted,false);
+
+			$inner_iv = base64_decode($idom->iv);
+			$inner_aes_key = base64_decode($idom->aes_key);
+
+			$author_link = str_replace('acct:','',$idom->author_id);
+		}
+
+		$dom = $basedom->children(NAMESPACE_SALMON_ME);
+
+		// figure out where in the DOM tree our data is hiding
+
+		if($dom->provenance->data)
+			$base = $dom->provenance;
+		elseif($dom->env->data)
+			$base = $dom->env;
+		elseif($dom->data)
+			$base = $dom;
+
+		if (!$base) {
+			logger('unable to locate salmon data in xml');
+			http_status_exit(400);
+		}
+
+
+		// Stash the signature away for now. We have to find their key or it won't be good for anything.
+		$signature = base64url_decode($base->sig);
+
+		// unpack the  data
+
+		// strip whitespace so our data element will return to one big base64 blob
+		$data = str_replace(array(" ","\t","\r","\n"),array("","","",""),$base->data);
+
+
+		// stash away some other stuff for later
+
+		$type = $base->data[0]->attributes()->type[0];
+		$keyhash = $base->sig[0]->attributes()->keyhash[0];
+		$encoding = $base->encoding;
+		$alg = $base->alg;
+
+
+		$signed_data = $data.'.'.base64url_encode($type).'.'.base64url_encode($encoding).'.'.base64url_encode($alg);
+
+
+		// decode the data
+		$data = base64url_decode($data);
+
+
+		if($public)
+			$inner_decrypted = $data;
+		else {
+
+			// Decode the encrypted blob
+
+			$inner_encrypted = base64_decode($data);
+			$inner_decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $inner_encrypted, MCRYPT_MODE_CBC, $inner_iv);
+			$inner_decrypted = pkcs5_unpad($inner_decrypted);
+		}
+
+		if (!$author_link) {
+			logger('Could not retrieve author URI.');
+			http_status_exit(400);
+		}
+		// Once we have the author URI, go to the web and try to find their public key
+		// (first this will look it up locally if it is in the fcontact cache)
+		// This will also convert diaspora public key from pkcs#1 to pkcs#8
+
+		logger('Fetching key for '.$author_link);
+		$key = self::key($author_link);
+
+		if (!$key) {
+			logger('Could not retrieve author key.');
+			http_status_exit(400);
+		}
+
+		$verify = rsa_verify($signed_data,$signature,$key);
+
+		if (!$verify) {
+			logger('Message did not verify. Discarding.');
+			http_status_exit(400);
+		}
+
+		logger('Message verified.');
+
+		return array('message' => $inner_decrypted, 'author' => $author_link, 'key' => $key);
+
+	}
+
+
 	/**
 	 * @brief Dispatches public messages and find the fitting receivers
 	 *
@@ -1287,7 +1449,7 @@ class diaspora {
 		$ret = self::person_by_handle($author);
 
 		if (!$ret || ($ret["network"] != NETWORK_DIASPORA)) {
-			logger("Cannot resolve diaspora handle ".$author ." for ".$recipient);
+			logger("Cannot resolve diaspora handle ".$author." for ".$recipient);
 			return false;
 		}
 
@@ -1854,7 +2016,7 @@ class diaspora {
 				dbesc($slap),
 				intval($public_batch)
 			);
-			if(count($r)) {
+			if($r) {
 				logger("add_to_queue ignored - identical item already in queue");
 			} else {
 				// queue message for redelivery
@@ -2211,7 +2373,7 @@ class diaspora {
 			intval($item["uid"])
 		);
 
-		if (!count($r)) {
+		if (!$r) {
 			logger("conversation not found.");
 			return;
 		}
