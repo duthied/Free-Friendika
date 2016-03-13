@@ -4,7 +4,7 @@
  *
  */
 class xml {
-	function from_array($array, &$xml) {
+	function from_array($array, &$xml, $remove_header = false) {
 
 		if (!is_object($xml)) {
 			foreach($array as $key => $value) {
@@ -14,7 +14,13 @@ class xml {
 				$dom = dom_import_simplexml($root)->ownerDocument;
 				$dom->formatOutput = true;
 				$xml = $dom;
-				return $dom->saveXML();
+
+				$xml_text = $dom->saveXML();
+
+				if ($remove_header)
+					$xml_text = trim(substr($xml_text, 21));
+
+				return $xml_text;
 			}
 		}
 
