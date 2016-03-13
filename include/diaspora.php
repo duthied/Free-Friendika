@@ -111,18 +111,18 @@ function diaspora_dispatch($importer,$msg,$attempt=1) {
 		$ret = diaspora_reshare($importer,$xmlbase->reshare,$msg);
 	}
 	elseif($xmlbase->retraction) {
-		$tempfile = tempnam(get_temppath(), "diaspora-retraction");
-		file_put_contents($tempfile, json_encode($data));
+		//$tempfile = tempnam(get_temppath(), "diaspora-retraction");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
 	}
 	elseif($xmlbase->signed_retraction) {
-		$tempfile = tempnam(get_temppath(), "diaspora-signed_retraction");
-		file_put_contents($tempfile, json_encode($data));
+		//$tempfile = tempnam(get_temppath(), "diaspora-signed_retraction");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->signed_retraction,$msg);
 	}
 	elseif($xmlbase->relayable_retraction) {
-		$tempfile = tempnam(get_temppath(), "diaspora-relayable_retraction");
-		file_put_contents($tempfile, json_encode($data));
+		//$tempfile = tempnam(get_temppath(), "diaspora-relayable_retraction");
+		//file_put_contents($tempfile, json_encode($data));
 		$ret = diaspora_signed_retraction($importer,$xmlbase->relayable_retraction,$msg);
 	}
 	elseif($xmlbase->photo) {
@@ -467,6 +467,9 @@ EOT;
 
 
 function diaspora_decode($importer,$xml) {
+
+	$tempfile = tempnam(get_temppath(), "diaspora-decode");
+	file_put_contents($tempfile, json_encode(array("importer" => $importer, "xml" => $xml)));
 
 	$public = false;
 	$basedom = parse_xml_string($xml);
