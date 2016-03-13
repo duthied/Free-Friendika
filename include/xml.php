@@ -4,12 +4,15 @@
  *
  */
 class xml {
-	function from_array($array, &$xml, $remove_header = false) {
+	function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true) {
 
-		if (!is_object($xml)) {
+		if ($root) {
 			foreach($array as $key => $value) {
+				foreach ($namespaces AS $nskey => $nsvalue)
+					$key .= " xmlns".($nskey == "" ? "":":").$nskey.'="'.$nsvalue.'"';
+
 				$root = new SimpleXMLElement("<".$key."/>");
-				self::from_array($value, $root);
+				self::from_array($value, $root, $remove_header, $namespaces, false);
 
 				$dom = dom_import_simplexml($root)->ownerDocument;
 				$dom->formatOutput = true;
@@ -25,10 +28,35 @@ class xml {
 		}
 
 		foreach($array as $key => $value) {
-			if (!is_array($value) AND !is_numeric($key))
-				$xml->addChild($key, xmlify($value));
-			elseif (is_array($value))
-				self::from_array($value, $xml->addChild($key));
+			if ($key == "@attributes") {
+				if (!isset($element) OR !is_array($value))
+					continue;
+
+				foreach ($value as $attr_key => $attr_value) {
+					$element_parts = explode(":", $attr_key);
+					if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
+						$namespace = $namespaces[$element_parts[0]];
+					else
+						$namespace = NULL;
+
+					$element->addAttribute ($attr_key, $attr_value, $namespace);
+				}
+
+				continue;
+			}
+
+			$element_parts = explode(":", $key);
+			if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
+				$namespace = $namespaces[$element_parts[0]];
+			else
+				$namespace = NULL;
+
+			if (!is_array($value))
+				$element = $xml->addChild($key, xmlify($value), $namespace);
+			elseif (is_array($value)) {
+				$element = $xml->addChild($key, NULL, $namespace);
+				self::from_array($value, $element, $remove_header, $namespaces, false);
+			}
 		}
 	}
 

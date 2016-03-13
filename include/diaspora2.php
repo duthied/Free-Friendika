@@ -729,7 +729,6 @@ class diaspora {
 		self::fetch_guid($datarray);
 
 		$message_id = item_store($datarray);
-		// print_r($datarray);
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
@@ -1013,7 +1012,6 @@ class diaspora {
 		$datarray["body"] = self::construct_like_body($contact, $parent_item, $guid);
 
 		$message_id = item_store($datarray);
-		// print_r($datarray);
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
@@ -1493,7 +1491,6 @@ class diaspora {
 
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
-		// print_r($datarray);
 
 		return $message_id;
 	}
@@ -1662,16 +1659,15 @@ class diaspora {
 
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
-		// print_r($datarray);
 
 		logger("Stored item with message id ".$message_id, LOGGER_DEBUG);
 
 		return $message_id;
 	}
 
-	/*******************************************************************************************
-	 * Here come all the functions that are needed to transmit data with the Diaspora protocol *
-	 *******************************************************************************************/
+	/******************************************************************************************
+	 * Here are all the functions that are needed to transmit data with the Diaspora protocol *
+	 ******************************************************************************************/
 
 	private function my_handle($me) {
 		if ($contact["addr"] != "")
@@ -1701,21 +1697,18 @@ class diaspora {
 		$signature = rsa_sign($signable_data,$prvkey);
 		$sig = base64url_encode($signature);
 
-$magic_env = <<< EOT
-<?xml version='1.0' encoding='UTF-8'?>
-<diaspora xmlns="https://joindiaspora.com/protocol" xmlns:me="http://salmon-protocol.org/ns/magic-env" >
-  <header>
-    <author_id>$handle</author_id>
-  </header>
-  <me:env>
-    <me:encoding>base64url</me:encoding>
-    <me:alg>RSA-SHA256</me:alg>
-    <me:data type="application/xml">$data</me:data>
-    <me:sig>$sig</me:sig>
-  </me:env>
-</diaspora>
-EOT;
-die($magic_env."\n");
+		$xmldata = array("diaspora" => array("header" => array("author_id" => $handle),
+						"me:env" => array("me:encoding" => "base64url",
+								"me:alg" => "RSA-SHA256",
+								"me:data" => $data,
+								"@attributes" => array("type" => "application/xml"),
+								"me:sig" => $sig)));
+
+		$namespaces = array("" => "https://joindiaspora.com/protocol",
+				"me" => "http://salmon-protocol.org/ns/magic-env");
+
+		$magic_env = xml::from_array($xmldata, $xml, false, $namespaces);
+
 		logger("magic_env: ".$magic_env, LOGGER_DATA);
 		return $magic_env;
 	}
@@ -1783,30 +1776,17 @@ die($magic_env."\n");
 								"ciphertext" => base64_encode($ciphertext)));
 		$cipher_json = base64_encode($encrypted_header_json_object);
 
-		$xml = nul;
 		$xmldata = array("diaspora" => array("encrypted_header" => $cipher_json,
 						"me:env" => array("me:encoding" => "base64url",
 								"me:alg" => "RSA-SHA256",
 								"me:data" => $data,
+								"@attributes" => array("type" => "application/xml"),
 								"me:sig" => $sig)));
-		$encrypted_header = xml::from_array($xmldata, $xml, true);
-echo $encrypted_header."\n";
 
-		$encrypted_header = "<encrypted_header>".$cipher_json."</encrypted_header>";
+		$namespaces = array("" => "https://joindiaspora.com/protocol",
+				"me" => "http://salmon-protocol.org/ns/magic-env");
 
-$magic_env = <<< EOT
-<?xml version='1.0' encoding='UTF-8'?>
-<diaspora xmlns="https://joindiaspora.com/protocol" xmlns:me="http://salmon-protocol.org/ns/magic-env" >
-  $encrypted_header
-  <me:env>
-    <me:encoding>base64url</me:encoding>
-    <me:alg>RSA-SHA256</me:alg>
-    <me:data type="application/xml">$data</me:data>
-    <me:sig>$sig</me:sig>
-  </me:env>
-</diaspora>
-EOT;
-die($magic_env."\n");
+		$magic_env = xml::from_array($xmldata, $xml, false, $namespaces);
 
 		logger("magic_env: ".$magic_env, LOGGER_DATA);
 		return $magic_env;
@@ -1896,7 +1876,7 @@ die($magic_env."\n");
 		logger('send guid '.$guid, LOGGER_DEBUG);
 
 		$slap = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
-die($slap);
+
 		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $guid);
 
 		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
@@ -2118,7 +2098,49 @@ die($slap);
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
-	function send_relay($item, $owner, $contact, $public_batch = false) {
+	private function message_from_signatur($item, $signature) {
+
+		// Split the signed text
+		$signed_parts = explode(";", $signature['signed_text']);
+
+		if ($item["deleted"])
+			$message = array("parent_author_signature" => "",
+					"target_guid" => $signed_parts[0],
+					"target_type" => $signed_parts[1],
+					"sender_handle" => $signature['signer'],
+					"target_author_signature" => $signature['signature']);
+		elseif ($item['verb'] === ACTIVITY_LIKE)
+			$message = array("positive" => $signed_parts[0],
+					"guid" => $signed_parts[1],
+					"target_type" => $signed_parts[2],
+					"parent_guid" => $signed_parts[3],
+					"parent_author_signature" => "",
+					"author_signature" => $signature['signature'],
+					"diaspora_handle" => $signed_parts[4]);
+		else {
+			// Remove the comment guid
+			$guid = array_shift($signed_parts);
+
+			// Remove the parent guid
+			$parent_guid = array_shift($signed_parts);
+
+			// Remove the handle
+			$handle = array_pop($signed_parts);
+
+			// Glue the parts together
+			$text = implode(";", $signed_parts);
+
+			$message = array("guid" => $guid,
+					"parent_guid" => $parent_guid,
+					"parent_author_signature" => "",
+					"author_signature" => $signature['signature'],
+					"text" => implode(";", $signed_parts),
+					"diaspora_handle" => $handle);
+		}
+		return $message;
+	}
+
+	public static function send_relay($item, $owner, $contact, $public_batch = false) {
 
 		if ($item["deleted"]) {
 			$sql_sign_id = "retract_iid";
@@ -2131,62 +2153,22 @@ die($slap);
 			$type = "comment";
 		}
 
-		// fetch the original signature if the relayable was created by a Diaspora
-		// or DFRN user.
+		// fetch the original signature
 
 		$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `".$sql_sign_id."` = %d LIMIT 1",
-			intval($item["id"])
-		);
+			intval($item["id"]));
 
 		if (!$r)
 			return self::send_followup($item, $owner, $contact, $public_batch);
 
-		$orig_sign = $r[0];
+		$signature = $r[0];
 
 		// Old way - is used by the internal Friendica functions
 		/// @todo Change all signatur storing functions to the new format
-		if ($orig_sign['signed_text'] AND $orig_sign['signature'] AND $orig_sign['signer']) {
-
-			// Split the signed text
-			$signed_parts = explode(";", $orig_sign['signed_text']);
-
-			if ($item["deleted"])
-				$message = array("parent_author_signature" => "",
-						"target_guid" => $signed_parts[0],
-						"target_type" => $signed_parts[1],
-						"sender_handle" => $orig_sign['signer'],
-						"target_author_signature" => $orig_sign['signature']);
-			elseif ($item['verb'] === ACTIVITY_LIKE)
-				$message = array("positive" => $signed_parts[0],
-						"guid" => $signed_parts[1],
-						"target_type" => $signed_parts[2],
-						"parent_guid" => $signed_parts[3],
-						"parent_author_signature" => "",
-						"author_signature" => $orig_sign['signature'],
-						"diaspora_handle" => $signed_parts[4]);
-			else {
-				// Remove the comment guid
-				$guid = array_shift($signed_parts);
-
-				// Remove the parent guid
-				$parent_guid = array_shift($signed_parts);
-
-				// Remove the handle
-				$handle = array_pop($signed_parts);
-
-				// Glue the parts together
-				$text = implode(";", $signed_parts);
-
-				$message = array("guid" => $guid,
-						"parent_guid" => $parent_guid,
-						"parent_author_signature" => "",
-						"author_signature" => $orig_sign['signature'],
-						"text" => implode(";", $signed_parts),
-						"diaspora_handle" => $handle);
-			}
-		} else { // New way
-			$message = json_decode($orig_sign['signed_text']);
-		}
+		if ($signature['signed_text'] AND $signature['signature'] AND $signature['signer'])
+			$message = self::message_from_signatur($item, $signature);
+		else // New way
+			$message = json_decode($signature['signed_text']);
 
 		if ($item["deleted"]) {
 			$signed_text = $message["target_guid"].';'.$message["target_type"];
