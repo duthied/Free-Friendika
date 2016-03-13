@@ -15,6 +15,7 @@ require_once('include/lock.php');
 require_once('include/threads.php');
 require_once('mod/share.php');
 require_once('include/enotify.php');
+require_once('include/diaspora2.php');
 
 function diaspora_dispatch_public($msg) {
 

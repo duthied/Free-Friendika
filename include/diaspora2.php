@@ -284,6 +284,8 @@ class diaspora {
 
 		$type = $fields->getName();
 
+		logger("Received message type ".$type." from ".$sender." for user ".$importer["uid"], LOGGER_DEBUG);
+
 		switch ($type) {
 			case "account_deletion":
 				return self::receive_account_deletion($importer, $fields);
@@ -654,7 +656,7 @@ class diaspora {
 			return false;
 		}
 
-		if (!self::post_allow($importer, $contact, false)) {
+		if (!self::post_allow($importer, $contact, $is_comment)) {
 			logger("The handle: ".$handle." is not allowed to post to user ".$importer["uid"]);
 			return false;
 		}
@@ -669,10 +671,10 @@ class diaspora {
 
 		if($r) {
 			logger("message ".$guid." already exists for user ".$uid);
-			return false;
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	private function fetch_guid($item) {
@@ -774,10 +776,12 @@ class diaspora {
 		}
 
 		if (!$r) {
-			logger("parent item not found: parent: ".$guid." item: ".$guid);
+			logger("parent item not found: parent: ".$guid." - user: ".$uid);
 			return false;
-		} else
+		} else {
+			logger("parent item found: parent: ".$guid." - user: ".$uid);
 			return $r[0];
+		}
 	}
 
 	private function author_contact_by_url($contact, $person, $uid) {
@@ -891,6 +895,9 @@ class diaspora {
 		self::fetch_guid($datarray);
 
 		$message_id = item_store($datarray);
+
+		if ($message_id)
+			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
@@ -1175,6 +1182,9 @@ class diaspora {
 
 		$message_id = item_store($datarray);
 
+		if ($message_id)
+			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
 
@@ -1357,6 +1367,8 @@ class diaspora {
 					"hide" => !$searchable, "nsfw" => $nsfw);
 
 		update_gcontact($gcontact);
+
+		logger("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], LOGGER_DEBUG);
 
 		return true;
 	}
@@ -1654,6 +1666,9 @@ class diaspora {
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
 
+		if ($message_id)
+			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+
 		return $message_id;
 	}
 
@@ -1694,6 +1709,8 @@ class diaspora {
 			intval($r[0]["id"])
 		);
 		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
+
+		logger("Deleted target ".$target_guid." from user ".$importer["uid"], LOGGER_DEBUG);
 
 		// Now check if the retraction needs to be relayed by us
 		if($p[0]["origin"]) {
@@ -1822,7 +1839,8 @@ class diaspora {
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
 
-		logger("Stored item with message id ".$message_id, LOGGER_DEBUG);
+		if ($message_id)
+			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 
 		return $message_id;
 	}
@@ -2329,14 +2347,29 @@ class diaspora {
 		/// @todo Change all signatur storing functions to the new format
 		if ($signature['signed_text'] AND $signature['signature'] AND $signature['signer'])
 			$message = self::message_from_signatur($item, $signature);
-		else // New way
-			$message = json_decode($signature['signed_text']);
+		else {// New way
+			$msg = json_decode($signature['signed_text'], true);
+
+			$message = array();
+			foreach ($msg AS $field => $data) {
+				if (!$item["deleted"]) {
+					if ($field == "author")
+						$field = "diaspora_handle";
+					if ($field == "parent_type")
+						$field = "target_type";
+				}
+
+				$message[$field] = $data;
+			}
+		}
 
 		if ($item["deleted"]) {
 			$signed_text = $message["target_guid"].';'.$message["target_type"];
 			$message["parent_author_signature"] = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 		} else
 			$message["parent_author_signature"] = self::signature($owner, $message);
+
+		logger("Relayed data ".print_r($message, true), LOGGER_DEBUG);
 
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
