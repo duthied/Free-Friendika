@@ -20,7 +20,7 @@ require_once("include/datetime.php");
  */
 class diaspora {
 
-	public static function fetch_relay() {
+	public static function relay_list() {
 
 		$serverdata = get_config("system", "relay_server");
 		if ($serverdata == "")
@@ -277,13 +277,13 @@ class diaspora {
 			return false;
 
 		if (isset($parent_author_signature)) {
-			$key = self::get_key($msg["author"]);
+			$key = self::key($msg["author"]);
 
 			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256"))
 				return false;
 		}
 
-		$key = self::get_key($fields->author);
+		$key = self::key($fields->author);
 
 		return rsa_verify($signed_data, $author_signature, $key, "sha256");
 	}
@@ -295,10 +295,10 @@ class diaspora {
 	 *
 	 * @return string The public key
 	 */
-	private function get_key($handle) {
+	private function key($handle) {
 		logger("Fetching diaspora key for: ".$handle);
 
-		$r = self::get_person_by_handle($handle);
+		$r = self::person_by_handle($handle);
 		if($r)
 			return $r["pubkey"];
 
@@ -312,7 +312,7 @@ class diaspora {
 	 *
 	 * @return array the queried data
 	 */
-	private function get_person_by_handle($handle) {
+	private function person_by_handle($handle) {
 
 		$r = q("SELECT * FROM `fcontact` WHERE `network` = '%s' AND `addr` = '%s' LIMIT 1",
 			dbesc(NETWORK_DIASPORA),
@@ -407,7 +407,33 @@ class diaspora {
 		return $r;
 	}
 
-	private function get_contact_by_handle($uid, $handle) {
+	public static function handle_from_contact($contact_id) {
+		$handle = False;
+
+		logger("contact id is ".$contact_id, LOGGER_DEBUG);
+
+		$r = q("SELECT `network`, `addr`, `self`, `url`, `nick` FROM `contact` WHERE `id` = %d",
+		       intval($contact_id)
+		);
+		if($r) {
+			$contact = $r[0];
+
+			logger("contact 'self' = ".$contact['self']." 'url' = ".$contact['url'], LOGGER_DEBUG);
+
+			if($contact['addr'] != "")
+				$handle = $contact['addr'];
+			elseif(($contact['network'] === NETWORK_DFRN) || ($contact['self'] == 1)) {
+				$baseurl_start = strpos($contact['url'],'://') + 3;
+				$baseurl_length = strpos($contact['url'],'/profile') - $baseurl_start; // allows installations in a subdirectory--not sure how Diaspora will handle
+				$baseurl = substr($contact['url'], $baseurl_start, $baseurl_length);
+				$handle = $contact['nick'].'@'.$baseurl;
+			}
+		}
+
+		return $handle;
+	}
+
+	private function contact_by_handle($uid, $handle) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($handle)
@@ -459,8 +485,8 @@ class diaspora {
 		return false;
 	}
 
-	private function get_allowed_contact_by_handle($importer, $handle, $is_comment = false) {
-		$contact = self::get_contact_by_handle($importer["uid"], $handle);
+	private function allowed_contact_by_handle($importer, $handle, $is_comment = false) {
+		$contact = self::contact_by_handle($importer["uid"], $handle);
 		if (!$contact) {
 			logger("A Contact for handle ".$handle." and user ".$importer["uid"]." was not found");
 			return false;
@@ -505,7 +531,7 @@ class diaspora {
 
 		logger("Trying to fetch item ".$guid." from ".$server, LOGGER_DEBUG);
 
-		$msg = self::fetch_message($guid, $server);
+		$msg = self::message($guid, $server);
 
 		if (!$msg)
 			return false;
@@ -516,7 +542,7 @@ class diaspora {
 		return self::dispatch_public($msg);
 	}
 
-	private function fetch_message($guid, $server, $level = 0) {
+	private function message($guid, $server, $level = 0) {
 
 		if ($level > 5)
 			return false;
@@ -534,10 +560,10 @@ class diaspora {
 
 		if ($source_xml->post->reshare) {
 			// Reshare of a reshare - old Diaspora version
-			return self::fetch_message($source_xml->post->reshare->root_guid, $server, ++$level);
+			return self::message($source_xml->post->reshare->root_guid, $server, ++$level);
 		} elseif ($source_xml->getName() == "reshare") {
 			// Reshare of a reshare - new Diaspora version
-			return self::fetch_message($source_xml->root_guid, $server, ++$level);
+			return self::message($source_xml->root_guid, $server, ++$level);
 		}
 
 		$author = "";
@@ -554,12 +580,12 @@ class diaspora {
 
 		$msg = array("message" => $x, "author" => $author);
 
-		$msg["key"] = self::get_key($msg["author"]);
+		$msg["key"] = self::key($msg["author"]);
 
 		return $msg;
 	}
 
-	private function fetch_parent_item($uid, $guid, $author, $contact) {
+	private function parent_item($uid, $guid, $author, $contact) {
 		$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`, `origin`,
 				`author-name`, `author-link`, `author-avatar`,
 				`owner-name`, `owner-link`, `owner-avatar`
@@ -570,7 +596,7 @@ class diaspora {
 			$result = self::store_by_guid($guid, $contact["url"], $uid);
 
 			if (!$result) {
-				$person = self::get_person_by_handle($author);
+				$person = self::person_by_handle($author);
 				$result = self::store_by_guid($guid, $person["url"], $uid);
 			}
 
@@ -592,7 +618,7 @@ class diaspora {
 			return $r[0];
 	}
 
-	private function get_author_contact_by_url($contact, $person, $uid) {
+	private function author_contact_by_url($contact, $person, $uid) {
 
 		$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc(normalise_link($person["url"])), intval($uid));
@@ -636,7 +662,7 @@ class diaspora {
 	private function receive_account_deletion($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
+		$contact = self::contact_by_handle($importer["uid"], $author);
 		if (!$contact) {
 			logger("cannot find contact for author: ".$author);
 			return false;
@@ -653,25 +679,25 @@ class diaspora {
 		$text = unxmlify($data->text);
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::get_allowed_contact_by_handle($importer, $sender, true);
+		$contact = self::allowed_contact_by_handle($importer, $sender, true);
 		if (!$contact)
 			return false;
 
 		if (self::message_exists($importer["uid"], $guid))
 			return false;
 
-		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
+		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
 			return false;
 
-		$person = self::get_person_by_handle($author);
+		$person = self::person_by_handle($author);
 		if (!is_array($person)) {
 			logger("unable to find author details");
 			return false;
 		}
 
 		// Fetch the contact id - if we know this contact
-		$author_contact = self::get_author_contact_by_url($contact, $person, $importer["uid"]);
+		$author_contact = self::author_contact_by_url($contact, $person, $importer["uid"]);
 
 		$datarray = array();
 
@@ -763,7 +789,7 @@ class diaspora {
 			$person = $contact;
 			$key = $msg["key"];
 		} else {
-			$person = self::get_person_by_handle($msg_author);
+			$person = self::person_by_handle($msg_author);
 
 			if (is_array($person) && x($person, "pubkey"))
 				$key = $person["pubkey"];
@@ -852,7 +878,7 @@ class diaspora {
 			return false;
 		}
 
-		$contact = self::get_allowed_contact_by_handle($importer, $msg["author"], true);
+		$contact = self::allowed_contact_by_handle($importer, $msg["author"], true);
 		if (!$contact)
 			return false;
 
@@ -907,22 +933,17 @@ class diaspora {
 
 	private function construct_like_object($importer, $parent_item) {
 		$objtype = ACTIVITY_OBJ_NOTE;
-		$link = xmlify('<link rel="alternate" type="text/html" href="'.App::get_baseurl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />'."\n") ;
+		$link = '<link rel="alternate" type="text/html" href="'.App::get_baseurl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />';
 		$parent_body = $parent_item["body"];
 
-		$obj = <<< EOT
+		$xmldata = array("object" => array("type" => $objtype,
+						"local" => "1",
+						"id" => $parent_item["uri"],
+						"link" => $link,
+						"title" => "",
+						"content" => $parent_body));
 
-		<object>
-			<type>$objtype</type>
-			<local>1</local>
-			<id>{$parent_item["uri"]}</id>
-			<link>$link</link>
-			<title></title>
-			<content>$parent_body</content>
-		</object>
-EOT;
-
-		return $obj;
+		return xml::from_array($xmldata, $xml, true);
 	}
 
 	private function receive_like($importer, $sender, $data) {
@@ -937,25 +958,25 @@ EOT;
 		if (!in_array($parent_type, array("Post", "Comment")))
 			return false;
 
-		$contact = self::get_allowed_contact_by_handle($importer, $sender, true);
+		$contact = self::allowed_contact_by_handle($importer, $sender, true);
 		if (!$contact)
 			return false;
 
 		if (self::message_exists($importer["uid"], $guid))
 			return false;
 
-		$parent_item = self::fetch_parent_item($importer["uid"], $parent_guid, $author, $contact);
+		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
 			return false;
 
-		$person = self::get_person_by_handle($author);
+		$person = self::person_by_handle($author);
 		if (!is_array($person)) {
 			logger("unable to find author details");
 			return false;
 		}
 
 		// Fetch the contact id - if we know this contact
-		$author_contact = self::get_author_contact_by_url($contact, $person, $importer["uid"]);
+		$author_contact = self::author_contact_by_url($contact, $person, $importer["uid"]);
 
 		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
 		// We would accept this anyhow.
@@ -1019,7 +1040,7 @@ EOT;
 		$author = notags(unxmlify($data->author));
 		$conversation_guid = notags(unxmlify($data->conversation_guid));
 
-		$contact = self::get_allowed_contact_by_handle($importer, $author, true);
+		$contact = self::allowed_contact_by_handle($importer, $author, true);
 		if (!$contact)
 			return false;
 
@@ -1041,7 +1062,7 @@ EOT;
 		$body = diaspora2bb($text);
 		$message_uri = $author.":".$guid;
 
-		$person = self::get_person_by_handle($author);
+		$person = self::person_by_handle($author);
 		if (!$person) {
 			logger("unable to find author details");
 			return false;
@@ -1100,7 +1121,7 @@ EOT;
 	private function receive_profile($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $author);
+		$contact = self::contact_by_handle($importer["uid"], $author);
 		if (!$contact)
 			return;
 
@@ -1254,7 +1275,7 @@ EOT;
 		if (!$author || !$recipient)
 			return;
 
-		$contact = self::get_contact_by_handle($importer["uid"],$author);
+		$contact = self::contact_by_handle($importer["uid"],$author);
 
 		if($contact) {
 
@@ -1265,7 +1286,7 @@ EOT;
 			return true;
 		}
 
-		$ret = self::get_person_by_handle($author);
+		$ret = self::person_by_handle($author);
 
 		if (!$ret || ($ret["network"] != NETWORK_DIASPORA)) {
 			logger("Cannot resolve diaspora handle ".$author ." for ".$recipient);
@@ -1295,7 +1316,7 @@ EOT;
 
 		// find the contact record we just created
 
-		$contact_record = self::get_contact_by_handle($importer["uid"],$author);
+		$contact_record = self::contact_by_handle($importer["uid"],$author);
 
 		if (!$contact_record) {
 			logger("unable to locate newly created contact record.");
@@ -1360,7 +1381,7 @@ EOT;
 		return true;
 	}
 
-	private function get_original_item($guid, $orig_author, $author) {
+	private function original_item($guid, $orig_author, $author) {
 
 		// Do we already have this item?
 		$r = q("SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
@@ -1424,14 +1445,14 @@ EOT;
 		$public = notags(unxmlify($data->public));
 		$created_at = notags(unxmlify($data->created_at));
 
-		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
+		$contact = self::allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
 			return false;
 
 		if (self::message_exists($importer["uid"], $guid))
 			return false;
 
-		$original_item = self::get_original_item($root_guid, $root_author, $author);
+		$original_item = self::original_item($root_guid, $root_author, $author);
 		if (!$original_item)
 			return false;
 
@@ -1482,7 +1503,7 @@ EOT;
 		$target_guid = notags(unxmlify($data->target_guid));
 		$author = notags(unxmlify($data->author));
 
-		$person = self::get_person_by_handle($author);
+		$person = self::person_by_handle($author);
 		if (!is_array($person)) {
 			logger("unable to find author detail for ".$author);
 			return false;
@@ -1533,7 +1554,7 @@ EOT;
 	private function receive_retraction($importer, $sender, $data) {
 		$target_type = notags(unxmlify($data->target_type));
 
-		$contact = self::get_contact_by_handle($importer["uid"], $sender);
+		$contact = self::contact_by_handle($importer["uid"], $sender);
 		if (!$contact) {
 			logger("cannot find contact for sender: ".$sender." and user ".$importer["uid"]);
 			return false;
@@ -1575,7 +1596,7 @@ EOT;
 		//		print_r($poll);
 		//	die("poll!\n");
 		//}
-		$contact = self::get_allowed_contact_by_handle($importer, $author, false);
+		$contact = self::allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
 			return false;
 
@@ -1652,7 +1673,7 @@ EOT;
 	 * Here come all the functions that are needed to transmit data with the Diaspora protocol *
 	 *******************************************************************************************/
 
-	private function get_my_handle($me) {
+	private function my_handle($me) {
 		if ($contact["addr"] != "")
 			return $contact["addr"];
 
@@ -1665,7 +1686,7 @@ EOT;
 
 		logger("Message: ".$msg, LOGGER_DATA);
 
-		$handle = self::get_my_handle($user);
+		$handle = self::my_handle($user);
 
 		$b64url_data = base64url_encode($msg);
 
@@ -1694,7 +1715,7 @@ $magic_env = <<< EOT
   </me:env>
 </diaspora>
 EOT;
-
+die($magic_env."\n");
 		logger("magic_env: ".$magic_env, LOGGER_DATA);
 		return $magic_env;
 	}
@@ -1720,7 +1741,7 @@ EOT;
 		$outer_iv = random_string(16);
 		$b_outer_iv = base64_encode($outer_iv);
 
-		$handle = self::get_my_handle($user);
+		$handle = self::my_handle($user);
 
 		$padded_data = pkcs5_pad($msg,16);
 		$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
@@ -1740,14 +1761,11 @@ EOT;
 		$signature = rsa_sign($signable_data,$prvkey);
 		$sig = base64url_encode($signature);
 
-$decrypted_header = <<< EOT
-<decrypted_header>
-  <iv>$b_inner_iv</iv>
-  <aes_key>$b_inner_aes_key</aes_key>
-  <author_id>$handle</author_id>
-</decrypted_header>
-EOT;
+		$xmldata = array("decrypted_header" => array("iv" => $b_inner_iv,
+							"aes_key" => $b_inner_aes_key,
+							"author_id" => $handle));
 
+		$decrypted_header = xml::from_array($xmldata, $xml, true);
 		$decrypted_header = pkcs5_pad($decrypted_header,16);
 
 		$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $outer_aes_key, $decrypted_header, MCRYPT_MODE_CBC, $outer_iv);
@@ -1765,6 +1783,15 @@ EOT;
 								"ciphertext" => base64_encode($ciphertext)));
 		$cipher_json = base64_encode($encrypted_header_json_object);
 
+		$xml = nul;
+		$xmldata = array("diaspora" => array("encrypted_header" => $cipher_json,
+						"me:env" => array("me:encoding" => "base64url",
+								"me:alg" => "RSA-SHA256",
+								"me:data" => $data,
+								"me:sig" => $sig)));
+		$encrypted_header = xml::from_array($xmldata, $xml, true);
+echo $encrypted_header."\n";
+
 		$encrypted_header = "<encrypted_header>".$cipher_json."</encrypted_header>";
 
 $magic_env = <<< EOT
@@ -1779,6 +1806,7 @@ $magic_env = <<< EOT
   </me:env>
 </diaspora>
 EOT;
+die($magic_env."\n");
 
 		logger("magic_env: ".$magic_env, LOGGER_DATA);
 		return $magic_env;
@@ -1796,7 +1824,7 @@ EOT;
 		return $slap;
 	}
 
-	private function get_signature($owner, $message) {
+	private function signature($owner, $message) {
 		$sigmsg = $message;
 		unset($sigmsg["author_signature"]);
 		unset($sigmsg["parent_author_signature"]);
@@ -1806,7 +1834,7 @@ EOT;
 		return base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 	}
 
-	private function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
+	public static function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
 
 		$a = get_app();
 
@@ -1878,7 +1906,7 @@ die($slap);
 
 	public static function send_share($owner,$contact) {
 
-		$message = array("sender_handle" => self::get_my_handle($owner),
+		$message = array("sender_handle" => self::my_handle($owner),
 				"recipient_handle" => $contact["addr"]);
 
 		return self::build_and_transmit($owner, $contact, "request", $message);
@@ -1887,7 +1915,7 @@ die($slap);
 	public static function send_unshare($owner,$contact) {
 
 		$message = array("post_guid" => $owner["guid"],
-				"diaspora_handle" => self::get_my_handle($owner),
+				"diaspora_handle" => self::my_handle($owner),
 				"type" => "Person");
 
 		return self::build_and_transmit($owner, $contact, "retraction", $message);
@@ -1924,7 +1952,7 @@ die($slap);
 				dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
 			if ($r) {
 				$ret= array();
-				$ret["root_handle"] = diaspora_handle_from_contact($r[0]["contact-id"]);
+				$ret["root_handle"] = self::handle_from_contact($r[0]["contact-id"]);
 				$ret["root_guid"] = $guid;
 				return($ret);
 			}
@@ -1962,7 +1990,7 @@ die($slap);
 
 	public static function send_status($item, $owner, $contact, $public_batch = false) {
 
-		$myaddr = self::get_my_handle($owner);
+		$myaddr = self::my_handle($owner);
 
 		$public = (($item["private"]) ? "false" : "true");
 
@@ -2029,7 +2057,7 @@ die($slap);
 
 	private function construct_like($item, $owner) {
 
-		$myaddr = self::get_my_handle($owner);
+		$myaddr = self::my_handle($owner);
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
@@ -2051,7 +2079,7 @@ die($slap);
 
 	private function construct_comment($item, $owner) {
 
-		$myaddr = self::get_my_handle($owner);
+		$myaddr = self::my_handle($owner);
 
 		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
 			intval($item["parent"]),
@@ -2085,7 +2113,7 @@ die($slap);
 		if (!$message)
 			return false;
 
-		$message["author_signature"] = self::get_signature($owner, $message);
+		$message["author_signature"] = self::signature($owner, $message);
 
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
@@ -2115,7 +2143,8 @@ die($slap);
 
 		$orig_sign = $r[0];
 
-		// Old way - can be removed for the master branch
+		// Old way - is used by the internal Friendica functions
+		/// @todo Change all signatur storing functions to the new format
 		if ($orig_sign['signed_text'] AND $orig_sign['signature'] AND $orig_sign['signer']) {
 
 			// Split the signed text
@@ -2163,14 +2192,14 @@ die($slap);
 			$signed_text = $message["target_guid"].';'.$message["target_type"];
 			$message["parent_author_signature"] = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 		} else
-			$message["parent_author_signature"] = self::get_signature($owner, $message);
+			$message["parent_author_signature"] = self::signature($owner, $message);
 
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
-		$myaddr = self::get_my_handle($owner);
+		$myaddr = self::my_handle($owner);
 
 		// Check whether the retraction is for a top-level post or whether it's a relayable
 		if ($item["uri"] !== $item["parent-uri"]) {
@@ -2193,7 +2222,7 @@ die($slap);
 
 	public static function send_mail($item, $owner, $contact) {
 
-		$myaddr = self::get_my_handle($owner);
+		$myaddr = self::my_handle($owner);
 
 		$r = q("SELECT * FROM `conv` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($item["convid"]),
