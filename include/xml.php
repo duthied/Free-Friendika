@@ -62,7 +62,7 @@ class xml {
 
 	function copy(&$source, &$target, $elementname) {
 		if (count($source->children()) == 0)
-			$target->addChild($elementname, $source);
+			$target->addChild($elementname, xmlify($source));
 		else {
 			$child = $target->addChild($elementname);
 			foreach ($source->children() AS $childfield => $childentry)
