@@ -501,7 +501,6 @@ function delivery_run(&$argv, &$argc){
 
 				if ($mail) {
 					diaspora::send_mail($item,$owner,$contact);
-					//diaspora_send_mail($item,$owner,$contact);
 					break;
 				}
 
@@ -524,25 +523,21 @@ function delivery_run(&$argv, &$argc){
 					// top-level retraction
 					logger('diaspora retract: '.$loc);
 					diaspora::send_retraction($target_item,$owner,$contact,$public_message);
-					//diaspora_send_retraction($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($followup) {
 					// send comments and likes to owner to relay
 					logger('diaspora followup: '.$loc);
 					diaspora::send_followup($target_item,$owner,$contact,$public_message);
-					//diaspora_send_followup($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 					// we are the relay - send comments, likes and relayable_retractions to our conversants
 					logger('diaspora relay: '.$loc);
 					diaspora::send_relay($target_item,$owner,$contact,$public_message);
-					//diaspora_send_relay($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($top_level && !$walltowall) {
 					// currently no workable solution for sending walltowall
 					logger('diaspora status: '.$loc);
 					diaspora::send_status($target_item,$owner,$contact,$public_message);
-					//diaspora_send_status($target_item,$owner,$contact,$public_message);
 					break;
 				}
 

@@ -2093,7 +2093,7 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, "retraction", $message);
 	}
 
-	private function is_reshare($body) {
+	public static function is_reshare($body) {
 		$body = trim($body);
 
 		// Skip if it isn't a pure repeated messages

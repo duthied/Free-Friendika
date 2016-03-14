@@ -202,17 +202,6 @@ CREATE TABLE IF NOT EXISTS `deliverq` (
 ) DEFAULT CHARSET=utf8;
 
 --
--- TABLE dsprphotoq
---
-CREATE TABLE IF NOT EXISTS `dsprphotoq` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`msg` mediumtext NOT NULL,
-	`attempt` tinyint(4) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
-) DEFAULT CHARSET=utf8;
-
---
 -- TABLE event
 --
 CREATE TABLE IF NOT EXISTS `event` (
