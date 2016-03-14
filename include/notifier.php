@@ -536,7 +536,7 @@ function notifier_run(&$argv, &$argc){
 	if($public_message) {
 
 		if (!$followup AND $top_level)
-			$r0 = diaspora_fetch_relay();
+			$r0 = diaspora::relay_list();
 		else
 			$r0 = array();
 
@@ -629,11 +629,11 @@ function notifier_run(&$argv, &$argc){
 	}
 
 	// If the item was deleted, clean up the `sign` table
-	if($target_item['deleted']) {
+	/* if($target_item['deleted']) {
 		$r = q("DELETE FROM sign where `retract_iid` = %d",
 			intval($target_item['id'])
 		);
-	}
+	} */
 
 	logger('notifier: calling hooks', LOGGER_DEBUG);
 

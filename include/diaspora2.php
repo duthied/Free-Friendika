@@ -460,6 +460,8 @@ class diaspora {
 	 * @return string The public key
 	 */
 	private function key($handle) {
+		$handle = strval($handle);
+
 		logger("Fetching diaspora key for: ".$handle);
 
 		$r = self::person_by_handle($handle);
@@ -1699,7 +1701,7 @@ class diaspora {
 		}
 
 		// Check if the sender is the thread owner
-		$p = q("SELECT `author-link`, `origin` FROM `item` WHERE `id` = %d",
+		$p = q("SELECT `id`, `author-link`, `origin` FROM `item` WHERE `id` = %d",
 			intval($r[0]["parent"]));
 
 		// Only delete it if the parent author really fits
@@ -1716,7 +1718,7 @@ class diaspora {
 		);
 		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
 
-		logger("Deleted target ".$target_guid." from user ".$importer["uid"], LOGGER_DEBUG);
+		logger("Deleted target ".$target_guid." (".$r[0]["id"].") from user ".$importer["uid"]." parent: ".$p[0]["id"], LOGGER_DEBUG);
 
 		// Now check if the retraction needs to be relayed by us
 		if($p[0]["origin"]) {
@@ -1727,6 +1729,8 @@ class diaspora {
 				intval($r[0]["id"]),
 				dbesc(json_encode($data))
 			);
+			$s = q("select * from sign where retract_iid = %d", intval($r[0]["id"]));
+			logger("Stored signatur for item ".$r[0]["id"]." - ".print_r($s, true), LOGGER_DEBUG);
 
 			// notify others
 			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
@@ -2340,6 +2344,8 @@ class diaspora {
 			$sql_sign_id = "iid";
 			$type = "comment";
 		}
+
+		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
 		// fetch the original signature
 
