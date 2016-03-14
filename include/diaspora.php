@@ -291,7 +291,7 @@ class diaspora {
 				return self::receive_account_deletion($importer, $fields);
 
 			case "comment":
-				return self::receive_comment($importer, $sender, $fields);
+				return self::receive_comment($importer, $sender, $fields, $msg["message"]);
 
 			case "conversation":
 				return self::receive_conversation($importer, $msg, $fields);
@@ -324,7 +324,7 @@ class diaspora {
 				return self::receive_retraction($importer, $sender, $fields);
 
 			case "status_message":
-				return self::receive_status_message($importer, $fields);
+				return self::receive_status_message($importer, $fields, $msg["message"]);
 
 			default:
 				logger("Unknown message type ".$type);
@@ -841,7 +841,7 @@ class diaspora {
 		return true;
 	}
 
-	private function receive_comment($importer, $sender, $data) {
+	private function receive_comment($importer, $sender, $data, $xml) {
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
 		$text = unxmlify($data->text);
@@ -890,7 +890,7 @@ class diaspora {
 		$datarray["parent-uri"] = $parent_item["uri"];
 
 		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
-		$datarray["object"] = json_encode($data);
+		$datarray["object"] = $xml;
 
 		$datarray["body"] = diaspora2bb($text);
 
@@ -1769,7 +1769,7 @@ class diaspora {
 		return true;
 	}
 
-	private function receive_status_message($importer, $data) {
+	private function receive_status_message($importer, $data, $xml) {
 
 		$raw_message = unxmlify($data->raw_message);
 		$guid = notags(unxmlify($data->guid));
@@ -1831,7 +1831,7 @@ class diaspora {
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
-		$datarray["object"] = json_encode($data);
+		$datarray["object"] = $xml;
 
 		$datarray["body"] = $body;
 
