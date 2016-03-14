@@ -2058,7 +2058,7 @@ class diaspora {
 	}
 
 
-	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "") {
+	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "", $spool = false) {
 
 		$data = array("XML" => array("post" => array($type => $message)));
 
@@ -2069,7 +2069,11 @@ class diaspora {
 
 		$slap = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $guid);
+		if ($spool) {
+			add_to_queue($contact['id'], NETWORK_DIASPORA, $slap, $public_batch);
+			return true;
+		} else
+			$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $guid);
 
 		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
 
@@ -2466,6 +2470,84 @@ class diaspora {
 		}
 
 		return self::build_and_transmit($owner, $contact, $type, $message, false, $item["guid"]);
+	}
+
+	public static function send_profile($uid) {
+
+		if (!$uid)
+			return;
+
+		$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
+			AND `uid` = %d AND `rel` != %d",
+			dbesc(NETWORK_DIASPORA),
+			intval($uid),
+			intval(CONTACT_IS_SHARING)
+		);
+		if (!$recips)
+			return;
+
+		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `user`.*, `user`.`prvkey` AS `uprvkey`, `contact`.`addr`
+			FROM `profile`
+			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+			INNER JOIN `contact` ON `profile`.`uid` = `contact`.`uid`
+			WHERE `user`.`uid` = %d AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+			intval($uid)
+		);
+
+		if (!$r)
+			return;
+
+		$profile = $r[0];
+
+		$handle = $profile["addr"];
+		$first = ((strpos($profile['name'],' ')
+			? trim(substr($profile['name'],0,strpos($profile['name'],' '))) : $profile['name']));
+		$last = (($first === $profile['name']) ? '' : trim(substr($profile['name'], strlen($first))));
+		$large = App::get_baseurl().'/photo/custom/300/'.$profile['uid'].'.jpg';
+		$medium = App::get_baseurl().'/photo/custom/100/'.$profile['uid'].'.jpg';
+		$small = App::get_baseurl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
+		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
+
+		if ($searchable === 'true') {
+			$dob = '1000-00-00';
+
+			if (($profile['dob']) && ($profile['dob'] != '0000-00-00'))
+				$dob = ((intval($profile['dob'])) ? intval($profile['dob']) : '1000') .'-'. datetime_convert('UTC','UTC',$profile['dob'],'m-d');
+
+			$about = $profile['about'];
+			$about = strip_tags(bbcode($about));
+
+			$location = formatted_location($profile);
+			$tags = '';
+			if ($profile['pub_keywords']) {
+				$kw = str_replace(',',' ',$profile['pub_keywords']);
+				$kw = str_replace('  ',' ',$kw);
+				$arr = explode(' ',$profile['pub_keywords']);
+				if (count($arr)) {
+					for($x = 0; $x < 5; $x ++) {
+						if (trim($arr[$x]))
+							$tags .= '#'. trim($arr[$x]) .' ';
+					}
+				}
+			}
+			$tags = trim($tags);
+		}
+
+		$message = array("diaspora_handle" => $handle,
+				"first_name" => $first,
+				"last_name" => $last,
+				"image_url" => $large,
+				"image_url_medium" => $medium,
+				"image_url_small" => $small,
+				"birthday" => $dob,
+				"gender" => $profile['gender'],
+				"bio" => $about,
+				"location" => $location,
+				"searchable" => $searchable,
+				"tag_string" => $tags);
+
+		foreach($recips as $recip)
+			self::build_and_transmit($profile, $recip, "profile", $message, false, "", true);
 	}
 }
 ?>
