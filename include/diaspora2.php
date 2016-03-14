@@ -918,7 +918,7 @@ class diaspora {
 		return $message_id;
 	}
 
-	private function receive_conversation_message($importer, $contact, $data, $msg, $mesg) {
+	private function receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation) {
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
 		$author = notags(unxmlify($data->author));
@@ -1086,7 +1086,7 @@ class diaspora {
 		}
 
 		foreach($messages as $mesg)
-			self::receive_conversation_message($importer, $contact, $data, $msg, $mesg);
+			self::receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation);
 
 		return true;
 	}
