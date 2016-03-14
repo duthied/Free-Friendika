@@ -318,7 +318,7 @@ class diaspora {
 				return self::receive_request($importer, $fields);
 
 			case "reshare":
-				return self::receive_reshare($importer, $fields);
+				return self::receive_reshare($importer, $fields, $msg["message"]);
 
 			case "retraction":
 				return self::receive_retraction($importer, $sender, $fields);
@@ -1611,7 +1611,7 @@ class diaspora {
 		return false;
 	}
 
-	private function receive_reshare($importer, $data) {
+	private function receive_reshare($importer, $data, $xml) {
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
 		$guid = notags(unxmlify($data->guid));
@@ -1652,7 +1652,7 @@ class diaspora {
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
-		$datarray["object"] = json_encode($data);
+		$datarray["object"] = $xml;
 
 		$prefix = share_header($original_item["author-name"], $original_item["author-link"], $original_item["author-avatar"],
 					$original_item["guid"], $original_item["created"], $orig_url);
