@@ -537,17 +537,6 @@ function db_definition() {
 					"PRIMARY" => array("id"),
 					)
 			);
-	$database["dsprphotoq"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"msg" => array("type" => "mediumtext", "not null" => "1"),
-					"attempt" => array("type" => "tinyint(4)", "not null" => "1", "default" => "0"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
 	$database["event"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
