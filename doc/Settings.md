@@ -11,8 +11,6 @@ Hot Keys
 Friendica traps the following keyboard events:
 
 * [Pause] - Pauses "Ajax" update activity. This is the process that provides updates without reloading the page. You may wish to pause it to reduce network usage and/or as a debugging aid for javascript developers. A pause indicator will appear at the lower right hand corner of the page. Hit the [pause] key once again to resume.
-* [F8] - Displays a language selector
-
 
 Birthday Notifications
 ---

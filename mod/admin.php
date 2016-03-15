@@ -598,6 +598,7 @@ function admin_page_site_post(&$a) {
 	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
 	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
 	$ostatus_poll_interval	=	((x($_POST,'ostatus_poll_interval'))	? intval(trim($_POST['ostatus_poll_interval']))	:  0);
+	$ostatus_full_threads	=	((x($_POST,'ostatus_full_threads'))	? True  					: False);
 	$diaspora_enabled	=	((x($_POST,'diaspora_enabled'))		? True   					: False);
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
 	$force_ssl		=	((x($_POST,'force_ssl'))		? True   					: False);
@@ -618,6 +619,9 @@ function admin_page_site_post(&$a) {
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
+	$worker			=	((x($_POST,'worker'))			? True						: False);
+	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
+	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -746,6 +750,7 @@ function admin_page_site_post(&$a) {
 	set_config('system','dfrn_only', $dfrn_only);
 	set_config('system','ostatus_disabled', $ostatus_disabled);
 	set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
+	set_config('system','ostatus_full_threads', $ostatus_full_threads);
 	set_config('system','diaspora_enabled', $diaspora_enabled);
 
 	set_config('config','private_addons', $private_addons);
@@ -763,7 +768,9 @@ function admin_page_site_post(&$a) {
 	set_config('system','proxy_disabled', $proxy_disabled);
 	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
-
+	set_config('system','worker', $worker);
+	set_config('system','worker_queues', $worker_queues);
+	set_config('system','worker_dont_fork', $worker_dont_fork);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -902,6 +909,7 @@ function admin_page_site(&$a) {
 		'$advanced' => t('Advanced'),
 		'$portable_contacts' => t('Auto Discovered Contact Directory'),
 		'$performance' => t('Performance'),
+		'$worker_title' => t('Worker'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => $a->get_baseurl(true),
 		// name, label, value, help string, extra data...
@@ -947,6 +955,7 @@ function admin_page_site(&$a) {
 		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), get_config('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !get_config('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
 		'$ostatus_poll_interval' => array('ostatus_poll_interval', t("OStatus conversation completion interval"), (string) intval(get_config('system','ostatus_poll_interval')), t("How often shall the poller check for new entries in OStatus conversations? This can be a very ressource task."), $ostatus_poll_choices),
+		'$ostatus_full_threads'	=> array('ostatus_full_threads', t("Only import OStatus threads from our contacts"), get_config('system','ostatus_full_threads'), t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")),
 		'$ostatus_not_able'	=> t("OStatus support can only be enabled if threading is enabled."),
 		'$diaspora_able'	=> $diaspora_able,
 		'$diaspora_not_able'	=> t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
@@ -988,6 +997,10 @@ function admin_page_site(&$a) {
 
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 		'$embedly' 		=> array('embedly', t("Embedly API key"), get_config('system','embedly'), t("<a href='http://embed.ly'>Embedly</a> is used to fetch additional data for web pages. This is an optional parameter.")),
+
+		'$worker'		=> array('worker', t("Enable 'worker' background processing"), get_config('system','worker'), t("The worker background processing limits the number of parallel background jobs to a maximum number and respects the system load.")),
+		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
+		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 

@@ -83,6 +83,26 @@ blockquote {
 	margin-right: 5px;
 }
 
+ul.menu-popup {
+	position: absolute;
+	display: none;
+	width: auto;
+	margin: 2px 0 0;
+	padding: 0px;
+	list-style: none;
+	z-index: 100000;
+	border: 2px solid #444444;
+	background: #FFFFFF;
+}
+.menu-popup li a {
+	padding: 2px;
+	white-space: nowrap;
+}
+
+a.btn, a.btn:hover {
+	text-decoration: none;
+	color: inherit;
+}
 
 
 /* nav */
@@ -140,12 +160,12 @@ nav #banner #logo-text a:hover { text-decoration: none; }
 
 
 .nav-commlink, .nav-login-link {
-    display: block;
-    height: 15px;
+	display: block;
+	height: 15px;
 	margin-top: 67px;
 	margin-right: 2px;
-	//padding: 6px 10px;
-       padding: 6px 3px;
+	/*padding: 6px 10px;*/
+	padding: 6px 3px;
 	float: left;
 	bottom: 140px;
 	border: 1px solid #babdb6;
@@ -244,7 +264,7 @@ section {
 	display:block;
 	float:left;
 	padding: 0.4em;
-	//margin-right: 1em;
+	/*margin-right: 1em;*/
 	margin-right: 3px ;
 }
 .tab.active {
@@ -3371,17 +3391,6 @@ div.jGrowl div.info {
 .nav-notify.show {
 	display: block;
 }
-ul.menu-popup {
-	position: absolute;
-	display: none;
-	width: 10em;
-	margin: 0px;
-	padding: 0px;
-	list-style: none;
-	z-index: 100000;
-	top: 90px;
-	left: 200px;
-}
 #nav-notifications-menu {
 	width: 320px;
 	max-height: 400px;
@@ -3391,6 +3400,8 @@ ul.menu-popup {
 	-webkit-border-radius: 5px;
 	border-radius:5px;
 	border: 1px solid #888;
+	top: 90px;
+	left: 200px;
 }
 #nav-notifications-menu .contactname { font-weight: bold; font-size: 0.9em; }
 #nav-notifications-menu img { float: left; margin-right: 5px; }

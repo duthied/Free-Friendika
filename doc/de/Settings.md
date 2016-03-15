@@ -14,9 +14,6 @@ Friendica erfasst die folgenden Tastaturbefehle:
 
 * [Pause] - Pausiert die Update-Aktivität via "Ajax". Das ist ein Prozess, der Updates durchführt, ohne die Seite neu zu laden. Du kannst diesen Prozess pausieren, um deine Netzwerkauslastung zu reduzieren und/oder um es in der Javascript-Programmierung zum Debuggen zu nutzen. Ein Pausenzeichen erscheint unten links im Fenster. Klicke die [Pause]-Taste ein weiteres Mal, um die Pause zu beenden.
 
-* [F8] - Zeigt eine Sprachauswahl an
-
-
 **Geburtstagsbenachrichtigung**
 
 Geburtstage erscheinen auf deiner Startseite für alle Freunde, die in den nächsten 6 Tagen Geburtstag haben. 
