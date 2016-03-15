@@ -517,7 +517,6 @@ class diaspora {
 	 * @return string The id of the fcontact entry
 	 */
 	private function add_fcontact($arr, $update = false) {
-		/// @todo Remove this function from include/network.php
 
 		if($update) {
 			$r = q("UPDATE `fcontact` SET
