@@ -221,7 +221,9 @@ class diaspora {
 
 		logger('Message verified.');
 
-		return array('message' => $inner_decrypted, 'author' => $author_link, 'key' => $key);
+		return array('message' => (string)$inner_decrypted,
+				'author' => unxmlify($author_link),
+				'key' => (string)$key);
 
 	}
 
@@ -1801,7 +1803,8 @@ class diaspora {
 
 		if ($data->photo) {
 			foreach ($data->photo AS $photo)
-				$body = "[img]".$photo->remote_photo_path.$photo->remote_photo_name."[/img]\n".$body;
+				$body = "[img]".unxmlify($photo->remote_photo_path).
+					unxmlify($photo->remote_photo_name)."[/img]\n".$body;
 
 			$datarray["object-type"] = ACTIVITY_OBJ_PHOTO;
 		} else {
@@ -2355,8 +2358,10 @@ class diaspora {
 		$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `".$sql_sign_id."` = %d LIMIT 1",
 			intval($item["id"]));
 
-		if (!$r)
-			return self::send_followup($item, $owner, $contact, $public_batch);
+		if (!$r) {
+			logger("Couldn't fetch signatur for contact ".$contact["addr"]." at item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
+			return false;
+		}
 
 		$signature = $r[0];
 
