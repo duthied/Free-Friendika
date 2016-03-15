@@ -862,64 +862,6 @@ function parse_xml_string($s,$strict = true) {
 	return $x;
 }}
 
-function add_fcontact($arr,$update = false) {
-
-	if($update) {
-		$r = q("UPDATE `fcontact` SET
-			`name` = '%s',
-			`photo` = '%s',
-			`request` = '%s',
-			`nick` = '%s',
-			`addr` = '%s',
-			`batch` = '%s',
-			`notify` = '%s',
-			`poll` = '%s',
-			`confirm` = '%s',
-			`alias` = '%s',
-			`pubkey` = '%s',
-			`updated` = '%s'
-			WHERE `url` = '%s' AND `network` = '%s'",
-			dbesc($arr['name']),
-			dbesc($arr['photo']),
-			dbesc($arr['request']),
-			dbesc($arr['nick']),
-			dbesc($arr['addr']),
-			dbesc($arr['batch']),
-			dbesc($arr['notify']),
-			dbesc($arr['poll']),
-			dbesc($arr['confirm']),
-			dbesc($arr['alias']),
-			dbesc($arr['pubkey']),
-			dbesc(datetime_convert()),
-			dbesc($arr['url']),
-			dbesc($arr['network'])
-		);
-	}
-	else {
-		$r = q("insert into fcontact ( `url`,`name`,`photo`,`request`,`nick`,`addr`,
-			`batch`, `notify`,`poll`,`confirm`,`network`,`alias`,`pubkey`,`updated` )
-			values('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
-			dbesc($arr['url']),
-			dbesc($arr['name']),
-			dbesc($arr['photo']),
-			dbesc($arr['request']),
-			dbesc($arr['nick']),
-			dbesc($arr['addr']),
-			dbesc($arr['batch']),
-			dbesc($arr['notify']),
-			dbesc($arr['poll']),
-			dbesc($arr['confirm']),
-			dbesc($arr['network']),
-			dbesc($arr['alias']),
-			dbesc($arr['pubkey']),
-			dbesc(datetime_convert())
-		);
-	}
-
-	return $r;
-}
-
-
 function scale_external_images($srctext, $include_link = true, $scale_replace = false) {
 
 	// Suppress "view full size"
