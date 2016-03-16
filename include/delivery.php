@@ -243,7 +243,8 @@ function delivery_run(&$argv, &$argc){
 			if ((strlen($parent['allow_cid']))
 				|| (strlen($parent['allow_gid']))
 				|| (strlen($parent['deny_cid']))
-				|| (strlen($parent['deny_gid']))) {
+				|| (strlen($parent['deny_gid']))
+				|| $parent["private"]) {
 				$public_message = false; // private recipients, not public
 			}
 

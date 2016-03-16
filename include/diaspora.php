@@ -10,6 +10,11 @@
  * - send comment
  * - send like
  * - send mail
+ * - send status retraction
+ * - send comment retraction on own post
+ * - send comment retraction on diaspora post
+ * - send like retraction on own post
+ * - send like retraction on diaspora post
  * - receive status
  * - receive reshare
  * - receive comment
@@ -17,21 +22,21 @@
  * - receive connect request
  * - receive profile data
  * - receive mail
+ * - receive comment retraction
+ * - receive like retraction
  * - relay comment
  * - relay like
- * -
- * -
+ * - relay comment retraction from diaspora
+ * - relay comment retraction from friendica
+ * - relay like retraction from diaspora
+ * - relay like retraction from friendica
  *
- * Unchecked:
+ * Should work:
  * - receive account deletion
  * - send share
  * - send unshare
- * - send status retraction
- * - send comment retraction
- * - send like retraction
- * - relay comment retraction
- * - relay like retraction
- * -
+ *
+ * Unchecked:
  */
 
 require_once("include/items.php");
@@ -2394,7 +2399,10 @@ class diaspora {
 			intval($item["id"]));
 
 		if (!$r) {
-			logger("Couldn't fetch signatur for contact ".$contact["addr"]." at item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
+			if ($item["deleted"])
+				return self::send_retraction($item, $owner, $contact, $public_batch);
+
+			logger("Couldn't fetch signatur for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 			return false;
 		}
 
@@ -2436,6 +2444,9 @@ class diaspora {
 
 	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
 
+		/// @todo Fetch handle from every contact (via gcontact)
+		$itemaddr = self::handle_from_contact($item["contact-id"]);
+
 		$myaddr = self::my_handle($owner);
 
 		// Check whether the retraction is for a top-level post or whether it's a relayable
@@ -2451,8 +2462,15 @@ class diaspora {
 
 		$message = array("target_guid" => $item['guid'],
 				"target_type" => $target_type,
-				"sender_handle" => $myaddr,
+				"sender_handle" => $itemaddr,
 				"target_author_signature" => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
+
+		if ($itemaddr != $myaddr) {
+			$message["parent_author_signature"] = $message["target_author_signature"];
+			unset($message["target_author_signature"]);
+		}
+
+		logger("Got message ".print_r($message, true), LOGGER_DEBUG);
 
 		return self::build_and_transmit($owner, $contact, $msg_type, $message, $public_batch, $item["guid"]);
 	}
