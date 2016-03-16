@@ -13,6 +13,7 @@ require_once("include/socgraph.php");
 require_once("include/group.php");
 require_once("include/xml.php");
 require_once("include/datetime.php");
+require_once("include/queue_fn.php");
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
