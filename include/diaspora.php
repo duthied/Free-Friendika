@@ -1600,7 +1600,7 @@ class diaspora {
 
 			// Maybe it is already a reshared item?
 			// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
-			if (self::is_reshare($r[0]["body"]))
+			if (self::is_reshare($r[0]["body"], false))
 				$r = array();
 			else
 				return $r[0];
@@ -2130,7 +2130,7 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, "retraction", $message);
 	}
 
-	public static function is_reshare($body) {
+	public static function is_reshare($body, $complete = true) {
 		$body = trim($body);
 
 		// Skip if it isn't a pure repeated messages
@@ -2146,6 +2146,10 @@ class diaspora {
 		// Skip if there is no shared message in there
 		if ($body == $attributes)
 			return(false);
+
+		// If we don't do the complete check we quit here
+		if (!$complete)
+			return true;
 
 		$guid = "";
 		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
