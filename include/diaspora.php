@@ -2,6 +2,36 @@
 /**
  * @file include/diaspora.php
  * @brief The implementation of the diaspora protocol
+ *
+ * Checklist:
+ *
+ * Checked:
+ * - send status
+ * - send comment
+ * - send like
+ * - send mail
+ * - receive status
+ * - receive reshare
+ * - receive comment
+ * - receive like
+ * - receive connect request
+ * - receive profile data
+ * - receive mail
+ * - relay comment
+ * - relay like
+ * -
+ * -
+ *
+ * Unchecked:
+ * - receive account deletion
+ * - send share
+ * - send unshare
+ * - send status retraction
+ * - send comment retraction
+ * - send like retraction
+ * - relay comment retraction
+ * - relay like retraction
+ * -
  */
 
 require_once("include/items.php");
@@ -2374,16 +2404,19 @@ class diaspora {
 			$msg = json_decode($signature['signed_text'], true);
 
 			$message = array();
-			foreach ($msg AS $field => $data) {
-				if (!$item["deleted"]) {
-					if ($field == "author")
-						$field = "diaspora_handle";
-					if ($field == "parent_type")
-						$field = "target_type";
-				}
+			if (is_array($msg)) {
+				foreach ($msg AS $field => $data) {
+					if (!$item["deleted"]) {
+						if ($field == "author")
+							$field = "diaspora_handle";
+						if ($field == "parent_type")
+							$field = "target_type";
+					}
 
-				$message[$field] = $data;
-			}
+					$message[$field] = $data;
+				}
+			} else
+				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$signature['signed_text'], LOGGER_DEBUG);
 		}
 
 		if ($item["deleted"]) {
