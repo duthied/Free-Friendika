@@ -2022,14 +2022,28 @@ class dfrn {
 		$categories = $xpath->query("atom:category", $entry);
 		if ($categories) {
 			foreach ($categories AS $category) {
-				foreach($category->attributes AS $attributes)
-					if ($attributes->name == "term") {
+				$term = "";
+				$scheme = "";
+				foreach($category->attributes AS $attributes) {
+					if ($attributes->name == "term")
 						$term = $attributes->textContent;
+
+					if ($attributes->name == "scheme")
+						$scheme = $attributes->textContent;
+				}
+
+				if (($term != "") AND ($scheme != "")) {
+					$parts = explode(":", $scheme);
+					if ((count($parts) >= 4) AND (array_shift($parts) == "X-DFRN")) {
+						$termhash = array_shift($parts);
+						$termurl = implode(":", $parts);
+
 						if(strlen($item["tag"]))
 							$item["tag"] .= ",";
 
-						$item["tag"] .= "#[url=".App::get_baseurl()."/search?tag=".$term."]".$term."[/url]";
+						$item["tag"] .= $termhash."[url=".$termurl."]".$term."[/url]";
 					}
+				}
 			}
 		}
 
