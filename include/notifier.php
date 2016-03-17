@@ -628,13 +628,6 @@ function notifier_run(&$argv, &$argc){
 		proc_run('php','include/pubsubpublish.php');
 	}
 
-	// If the item was deleted, clean up the `sign` table
-	/* if($target_item['deleted']) {
-		$r = q("DELETE FROM sign where `retract_iid` = %d",
-			intval($target_item['id'])
-		);
-	} */
-
 	logger('notifier: calling hooks', LOGGER_DEBUG);
 
 	if($normal_mode)

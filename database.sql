@@ -901,13 +901,11 @@ CREATE TABLE IF NOT EXISTS `session` (
 CREATE TABLE IF NOT EXISTS `sign` (
 	`id` int(10) unsigned NOT NULL auto_increment,
 	`iid` int(10) unsigned NOT NULL DEFAULT 0,
-	`retract_iid` int(10) unsigned NOT NULL DEFAULT 0,
 	`signed_text` mediumtext NOT NULL,
 	`signature` text NOT NULL,
 	`signer` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `iid` (`iid`),
-	 INDEX `retract_iid` (`retract_iid`)
+	 INDEX `iid` (`iid`)
 ) DEFAULT CHARSET=utf8;
 
 --

@@ -12,8 +12,8 @@
  * - send mail
  * - send status retraction
  * - send comment retraction on own post
- * - send comment retraction on diaspora post
  * - send like retraction on own post
+ * - send comment retraction on diaspora post
  * - send like retraction on diaspora post
  * - receive status
  * - receive reshare
@@ -30,10 +30,10 @@
  * - relay comment retraction from friendica
  * - relay like retraction from diaspora
  * - relay like retraction from friendica
+ * - send share
  *
  * Should work:
  * - receive account deletion
- * - send share
  * - send unshare
  *
  * Unchecked:
@@ -610,15 +610,21 @@ class diaspora {
 		return $r;
 	}
 
-	public static function handle_from_contact($contact_id) {
+	public static function handle_from_contact($contact_id, $gcontact_id = 0) {
 		$handle = False;
 
-		logger("contact id is ".$contact_id, LOGGER_DEBUG);
+		logger("contact id is ".$contact_id." - gcontact id is ".$gcontact_id, LOGGER_DEBUG);
+
+		if ($gcontact_id != 0) {
+			$r = q("SELECT `addr` FROM `gcontact` WHERE `id` = %d AND `addr` != ''",
+				intval($gcontact_id));
+			if ($r)
+				return $r[0]["addr"];
+		}
 
 		$r = q("SELECT `network`, `addr`, `self`, `url`, `nick` FROM `contact` WHERE `id` = %d",
-		       intval($contact_id)
-		);
-		if($r) {
+			intval($contact_id));
+		if ($r) {
 			$contact = $r[0];
 
 			logger("contact 'self' = ".$contact['self']." 'url' = ".$contact['url'], LOGGER_DEBUG);
@@ -1759,16 +1765,6 @@ class diaspora {
 
 		// Now check if the retraction needs to be relayed by us
 		if($p[0]["origin"]) {
-
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			q("INSERT INTO `sign` (`retract_iid`,`signed_text`) VALUES (%d,'%s')",
-				intval($r[0]["id"]),
-				dbesc(json_encode($data))
-			);
-			$s = q("select * from sign where retract_iid = %d", intval($r[0]["id"]));
-			logger("Stored signatur for item ".$r[0]["id"]." - ".print_r($s, true), LOGGER_DEBUG);
-
 			// notify others
 			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
 		}
@@ -2380,28 +2376,21 @@ class diaspora {
 
 	public static function send_relay($item, $owner, $contact, $public_batch = false) {
 
-		if ($item["deleted"]) {
-			$sql_sign_id = "retract_iid";
-			$type = "relayable_retraction";
-		} elseif ($item['verb'] === ACTIVITY_LIKE) {
-			$sql_sign_id = "iid";
+		if ($item["deleted"])
+			return self::send_retraction($item, $owner, $contact, $public_batch, true);
+		elseif ($item['verb'] === ACTIVITY_LIKE)
 			$type = "like";
-		} else {
-			$sql_sign_id = "iid";
+		else
 			$type = "comment";
-		}
 
 		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
 		// fetch the original signature
 
-		$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `".$sql_sign_id."` = %d LIMIT 1",
+		$r = q("SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `iid` = %d LIMIT 1",
 			intval($item["id"]));
 
 		if (!$r) {
-			if ($item["deleted"])
-				return self::send_retraction($item, $owner, $contact, $public_batch);
-
 			logger("Couldn't fetch signatur for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 			return false;
 		}
@@ -2431,23 +2420,17 @@ class diaspora {
 				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$signature['signed_text'], LOGGER_DEBUG);
 		}
 
-		if ($item["deleted"]) {
-			$signed_text = $message["target_guid"].';'.$message["target_type"];
-			$message["parent_author_signature"] = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
-		} else
-			$message["parent_author_signature"] = self::signature($owner, $message);
+		$message["parent_author_signature"] = self::signature($owner, $message);
 
 		logger("Relayed data ".print_r($message, true), LOGGER_DEBUG);
 
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
-	public static function send_retraction($item, $owner, $contact, $public_batch = false) {
+	public static function send_retraction($item, $owner, $contact, $public_batch = false, $relay = false) {
 
-		/// @todo Fetch handle from every contact (via gcontact)
-		$itemaddr = self::handle_from_contact($item["contact-id"]);
-
-		$myaddr = self::my_handle($owner);
+		$itemaddr = self::handle_from_contact($item["contact-id"], $item["gcontact-id"]);
+		//$myaddr = self::my_handle($owner);
 
 		// Check whether the retraction is for a top-level post or whether it's a relayable
 		if ($item["uri"] !== $item["parent-uri"]) {
@@ -2458,17 +2441,17 @@ class diaspora {
 			$target_type = "StatusMessage";
 		}
 
+		if ($relay AND ($item["uri"] !== $item["parent-uri"]))
+			$signature = "parent_author_signature";
+		else
+			$signature = "target_author_signature";
+
 		$signed_text = $item["guid"].";".$target_type;
 
 		$message = array("target_guid" => $item['guid'],
 				"target_type" => $target_type,
 				"sender_handle" => $itemaddr,
-				"target_author_signature" => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
-
-		if ($itemaddr != $myaddr) {
-			$message["parent_author_signature"] = $message["target_author_signature"];
-			unset($message["target_author_signature"]);
-		}
+				$signature => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
 
 		logger("Got message ".print_r($message, true), LOGGER_DEBUG);
 
