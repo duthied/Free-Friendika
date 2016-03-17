@@ -56,6 +56,13 @@ require_once("include/queue_fn.php");
  */
 class diaspora {
 
+	/**
+	 * @brief Return a list of relay servers
+	 *
+	 * This is an experimental Diaspora feature.
+	 *
+	 * @return array of relay servers
+	 */
 	public static function relay_list() {
 
 		$serverdata = get_config("system", "relay_server");
@@ -100,6 +107,15 @@ class diaspora {
 		return $relay;
 	}
 
+	/**
+	 * @brief repairs a signature that was double encoded
+	 *
+	 * @param string $signature The signature
+	 * @param string $handle The handle of the signature owner
+	 * @param integer $level This value is only set inside this function to avoid endless loops
+	 *
+	 * @return the repaired signature
+	 */
 	function repair_signature($signature, $handle = "", $level = 1) {
 
 		if ($signature == "")
@@ -120,7 +136,7 @@ class diaspora {
 	/**
 	 * @brief: Decodes incoming Diaspora message
 	 *
-	 * @param array $importer from user table
+	 * @param array $importer Array of the importer user
 	 * @param string $xml urldecoded Diaspora salmon
 	 *
 	 * @return array
@@ -610,6 +626,14 @@ class diaspora {
 		return $r;
 	}
 
+	/**
+	 * @brief get a handle (user@domain.tld) from a given contact id or gcontact id
+	 *
+	 * @param int $contact_id The id in the contact table
+	 * @param int $gcontact_id The id in the gcontact table
+	 *
+	 * @return string the handle
+	 */
 	public static function handle_from_contact($contact_id, $gcontact_id = 0) {
 		$handle = False;
 
@@ -642,6 +666,14 @@ class diaspora {
 		return $handle;
 	}
 
+	/**
+	 * @brief Get a contact id for a given handle
+	 *
+	 * @param int $uid The user id
+	 * @param string $handle The handle in the format user@domain.tld
+	 *
+	 * @return The contact id
+	 */
 	private function contact_by_handle($uid, $handle) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 			intval($uid),
@@ -664,6 +696,15 @@ class diaspora {
 		return false;
 	}
 
+	/**
+	 * @brief Check if posting is allowed for this contact
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param array $contact The contact that is checked
+	 * @param bool $is_comment Is the check for a comment?
+	 *
+	 * @return bool is the contact allowed to post?
+	 */
 	private function post_allow($importer, $contact, $is_comment = false) {
 
 		// perhaps we were already sharing with this person. Now they're sharing with us.
@@ -694,6 +735,15 @@ class diaspora {
 		return false;
 	}
 
+	/**
+	 * @brief Fetches the contact id for a handle and checks if posting is allowed
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param string $handle The checked handle in the format user@domain.tld
+	 * @param bool $is_comment Is the check for a comment?
+	 *
+	 * @return bool is posting allowed?
+	 */
 	private function allowed_contact_by_handle($importer, $handle, $is_comment = false) {
 		$contact = self::contact_by_handle($importer["uid"], $handle);
 		if (!$contact) {
@@ -708,6 +758,14 @@ class diaspora {
 		return $contact;
 	}
 
+	/**
+	 * @brief Does the message already exists on the system?
+	 *
+	 * @param int $uid The user id
+	 * @param string $guid The guid of the message
+	 *
+	 * @return bool "true" if the message already was stored into the system
+	 */
 	private function message_exists($uid, $guid) {
 		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($uid),
@@ -722,6 +780,11 @@ class diaspora {
 		return false;
 	}
 
+	/**
+	 * @brief Checks for links to posts in a message
+	 *
+	 * @param array $item The item array
+	 */
 	private function fetch_guid($item) {
 		preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($item){
@@ -729,11 +792,26 @@ class diaspora {
 			},$item["body"]);
 	}
 
+	/**
+	 * @brief sub function of "fetch_guid"
+	 *
+	 * @param array $match array containing a link that has to be checked for a message link
+	 * @param array $item The item array
+	 */
 	private function fetch_guid_sub($match, $item) {
 		if (!self::store_by_guid($match[1], $item["author-link"]))
 			self::store_by_guid($match[1], $item["owner-link"]);
 	}
 
+	/**
+	 * @brief Fetches an item with a given guid from a given server
+	 *
+	 * @param string $guid the message guid
+	 * @param string $server The server address
+	 * @param int $uid The user id of the user
+	 *
+	 * @return int the message id of the stored message or false
+	 */
 	private function store_by_guid($guid, $server, $uid = 0) {
 		$serverparts = parse_url($server);
 		$server = $serverparts["scheme"]."://".$serverparts["host"];
@@ -751,6 +829,15 @@ class diaspora {
 		return self::dispatch_public($msg);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param string $guid message guid
+	 * @param $server
+	 * @param $level
+	 *
+	 * @return 
+	 */
 	private function message($guid, $server, $level = 0) {
 
 		if ($level > 5)
@@ -794,6 +881,16 @@ class diaspora {
 		return $msg;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param int $uid The user id
+	 * @param string $guid message guid
+	 * @param $author
+	 * @param array $contact The contact that is checked
+	 *
+	 * @return 
+	 */
 	private function parent_item($uid, $guid, $author, $contact) {
 		$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`, `origin`,
 				`author-name`, `author-link`, `author-avatar`,
@@ -829,6 +926,15 @@ class diaspora {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $contact The contact that is checked
+	 * @param $person
+	 * @param int $uid The user id
+	 *
+	 * @return 
+	 */
 	private function author_contact_by_url($contact, $person, $uid) {
 
 		$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
@@ -844,10 +950,25 @@ class diaspora {
 		return (array("cid" => $cid, "network" => $network));
 	}
 
+	/**
+	 * @brief Is the profile a hubzilla profile?
+	 *
+	 * @param string $url The profile link
+	 *
+	 * @return bool is it a hubzilla server?
+	 */
 	public static function is_redmatrix($url) {
 		return(strstr($url, "/channel/"));
 	}
 
+	/**
+	 * @brief Generate a post link with a given handle and message guid
+	 *
+	 * @param $addr
+	 * @param string $guid message guid
+	 *
+	 * @return string the post link
+	 */
 	private function plink($addr, $guid) {
 		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
 
@@ -870,6 +991,14 @@ class diaspora {
 		return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_account_deletion($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
@@ -884,6 +1013,16 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param string $sender The sender of the message
+	 * @param object $data The message object
+	 * @param string $xml The original XML of the message
+	 *
+	 * @return int The message id of the generated comment or "false" if there was an error
+	 */
 	private function receive_comment($importer, $sender, $data, $xml) {
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
@@ -961,6 +1100,18 @@ class diaspora {
 		return $message_id;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param array $contact The contact that is checked
+	 * @param object $data The message object
+	 * @param $msg
+	 * @param $mesg
+	 * @param $conversation
+	 *
+	 * @return 
+	 */
 	private function receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation) {
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
@@ -1077,6 +1228,15 @@ class diaspora {
 		));
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param $msg
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_conversation($importer, $msg, $data) {
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
@@ -1134,6 +1294,15 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $contact The contact that is checked
+	 * @param $parent_item
+	 * @param string $guid message guid
+	 *
+	 * @return 
+	 */
 	private function construct_like_body($contact, $parent_item, $guid) {
 		$bodyverb = t('%1$s likes %2$s\'s %3$s');
 
@@ -1144,6 +1313,14 @@ class diaspora {
 		return sprintf($bodyverb, $ulink, $alink, $plink);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param $parent_item
+	 *
+	 * @return 
+	 */
 	private function construct_like_object($importer, $parent_item) {
 		$objtype = ACTIVITY_OBJ_NOTE;
 		$link = '<link rel="alternate" type="text/html" href="'.App::get_baseurl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />';
@@ -1159,6 +1336,15 @@ class diaspora {
 		return xml::from_array($xmldata, $xml, true);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param string $sender The sender of the message
+	 * @param object $data The message object
+	 *
+	 * @return int The message id of the generated like or "false" if there was an error
+	 */
 	private function receive_like($importer, $sender, $data) {
 		$positive = notags(unxmlify($data->positive));
 		$guid = notags(unxmlify($data->guid));
@@ -1247,6 +1433,14 @@ class diaspora {
 		return $message_id;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_message($importer, $data) {
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
@@ -1318,27 +1512,59 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return bool always true
+	 */
 	private function receive_participation($importer, $data) {
 		// I'm not sure if we can fully support this message type
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_photo($importer, $data) {
 		// There doesn't seem to be a reason for this function, since the photo data is transmitted in the status message as well
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_poll_participation($importer, $data) {
 		// We don't support polls by now
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_profile($importer, $data) {
 		$author = notags(unxmlify($data->author));
 
 		$contact = self::contact_by_handle($importer["uid"], $author);
 		if (!$contact)
-			return;
+			return false;
 
 		$name = unxmlify($data->first_name).((strlen($data->last_name)) ? " ".unxmlify($data->last_name) : "");
 		$image_url = unxmlify($data->image_url);
@@ -1418,6 +1644,14 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param array $contact The contact that is checked
+	 *
+	 * @return 
+	 */
 	private function receive_request_make_friend($importer, $contact) {
 
 		$a = get_app();
@@ -1485,6 +1719,14 @@ class diaspora {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_request($importer, $data) {
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
@@ -1598,6 +1840,15 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param string $guid message guid
+	 * @param $orig_author
+	 * @param $author
+	 *
+	 * @return 
+	 */
 	private function original_item($guid, $orig_author, $author) {
 
 		// Do we already have this item?
@@ -1654,6 +1905,15 @@ class diaspora {
 		return false;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 * @param string $xml The original XML of the message
+	 *
+	 * @return 
+	 */
 	private function receive_reshare($importer, $data, $xml) {
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
@@ -1719,6 +1979,15 @@ class diaspora {
 		return $message_id;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param array $contact The contact that is checked
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function item_retraction($importer, $contact, $data) {
 		$target_type = notags(unxmlify($data->target_type));
 		$target_guid = notags(unxmlify($data->target_guid));
@@ -1770,6 +2039,15 @@ class diaspora {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param string $sender The sender of the message
+	 * @param object $data The message object
+	 *
+	 * @return 
+	 */
 	private function receive_retraction($importer, $sender, $data) {
 		$target_type = notags(unxmlify($data->target_type));
 
@@ -1802,6 +2080,15 @@ class diaspora {
 		return true;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param object $data The message object
+	 * @param string $xml The original XML of the message
+	 *
+	 * @return 
+	 */
 	private function receive_status_message($importer, $data, $xml) {
 
 		$raw_message = unxmlify($data->raw_message);
@@ -1895,6 +2182,13 @@ class diaspora {
 	 * Here are all the functions that are needed to transmit data with the Diaspora protocol *
 	 ******************************************************************************************/
 
+	/**
+	 * @brief 
+	 *
+	 * @param $me
+	 *
+	 * @return 
+	 */
 	private function my_handle($me) {
 		if ($contact["addr"] != "")
 			return $contact["addr"];
@@ -1904,6 +2198,17 @@ class diaspora {
 		return $me["nickname"]."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $msg
+	 * @param $user
+	 * @param array $contact The contact that is checked
+	 * @param $prvkey
+	 * @param $pubkey
+	 *
+	 * @return 
+	 */
 	private function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
 
 		logger("Message: ".$msg, LOGGER_DATA);
@@ -1939,6 +2244,17 @@ class diaspora {
 		return $magic_env;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $msg
+	 * @param $user
+	 * @param array $contact The contact that is checked
+	 * @param $prvkey
+	 * @param $pubkey
+	 *
+	 * @return 
+	 */
 	private function build_private_message($msg, $user, $contact, $prvkey, $pubkey) {
 
 		logger("Message: ".$msg, LOGGER_DATA);
@@ -2018,6 +2334,18 @@ class diaspora {
 		return $magic_env;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $msg
+	 * @param $user
+	 * @param array $contact The contact that is checked
+	 * @param $prvkey
+	 * @param $pubkey
+	 * @param $public
+	 *
+	 * @return 
+	 */
 	private function build_message($msg, $user, $contact, $prvkey, $pubkey, $public = false) {
 
 		if ($public)
@@ -2030,6 +2358,14 @@ class diaspora {
 		return $slap;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param $message
+	 *
+	 * @return 
+	 */
 	private function signature($owner, $message) {
 		$sigmsg = $message;
 		unset($sigmsg["author_signature"]);
@@ -2040,6 +2376,18 @@ class diaspora {
 		return base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param $slap
+	 * @param bool $public_batch Is it a public post?
+	 * @param $queue_run
+	 * @param string $guid message guid
+	 *
+	 * @return 
+	 */
 	public static function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
 
 		$a = get_app();
@@ -2092,6 +2440,19 @@ class diaspora {
 	}
 
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param $type
+	 * @param $message
+	 * @param bool $public_batch Is it a public post?
+	 * @param string $guid message guid
+	 * @param $spool
+	 *
+	 * @return 
+	 */
 	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "", $spool = false) {
 
 		$data = array("XML" => array("post" => array($type => $message)));
@@ -2114,6 +2475,14 @@ class diaspora {
 		return $return_code;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_share($owner,$contact) {
 
 		$message = array("sender_handle" => self::my_handle($owner),
@@ -2122,6 +2491,14 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, "request", $message);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_unshare($owner,$contact) {
 
 		$message = array("post_guid" => $owner["guid"],
@@ -2131,6 +2508,14 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, "retraction", $message);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $body
+	 * @param $complete
+	 *
+	 * @return 
+	 */
 	public static function is_reshare($body, $complete = true) {
 		$body = trim($body);
 
@@ -2202,6 +2587,16 @@ class diaspora {
 		return($ret);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param bool $public_batch Is it a public post?
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_status($item, $owner, $contact, $public_batch = false) {
 
 		$myaddr = self::my_handle($owner);
@@ -2269,9 +2664,15 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 *
+	 * @return 
+	 */
 	private function construct_like($item, $owner) {
-
-		$myaddr = self::my_handle($owner);
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
@@ -2288,12 +2689,18 @@ class diaspora {
 				"target_type" => $target_type,
 				"parent_guid" => $parent["guid"],
 				"author_signature" => $authorsig,
-				"diaspora_handle" => $myaddr));
+				"diaspora_handle" => self::my_handle($owner)));
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 *
+	 * @return 
+	 */
 	private function construct_comment($item, $owner) {
-
-		$myaddr = self::my_handle($owner);
 
 		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
 			intval($item["parent"]),
@@ -2311,9 +2718,19 @@ class diaspora {
 				"parent_guid" => $parent["guid"],
 				"author_signature" => "",
 				"text" => $text,
-				"diaspora_handle" => $myaddr));
+				"diaspora_handle" => self::my_handle($owner)));
 	}
 
+	/**
+	 * @brief Send a like or a comment
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param bool $public_batch Is it a public post?
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_followup($item,$owner,$contact,$public_batch = false) {
 
 		if($item['verb'] === ACTIVITY_LIKE) {
@@ -2332,6 +2749,14 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param $signature
+	 *
+	 * @return int The result of the transmission
+	 */
 	private function message_from_signatur($item, $signature) {
 
 		// Split the signed text
@@ -2374,6 +2799,16 @@ class diaspora {
 		return $message;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param bool $public_batch Is it a public post?
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_relay($item, $owner, $contact, $public_batch = false) {
 
 		if ($item["deleted"])
@@ -2427,10 +2862,20 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 * @param array $contact The contact that is checked
+	 * @param bool $public_batch Is it a public post?
+	 * @param $relay
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_retraction($item, $owner, $contact, $public_batch = false, $relay = false) {
 
 		$itemaddr = self::handle_from_contact($item["contact-id"], $item["gcontact-id"]);
-		//$myaddr = self::my_handle($owner);
 
 		// Check whether the retraction is for a top-level post or whether it's a relayable
 		if ($item["uri"] !== $item["parent-uri"]) {
@@ -2458,6 +2903,15 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, $msg_type, $message, $public_batch, $item["guid"]);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner The owner
+	 * @param array $contact The contact that is checked
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_mail($item, $owner, $contact) {
 
 		$myaddr = self::my_handle($owner);
@@ -2515,6 +2969,13 @@ class diaspora {
 		return self::build_and_transmit($owner, $contact, $type, $message, false, $item["guid"]);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param int $uid The user id
+	 *
+	 * @return int The result of the transmission
+	 */
 	public static function send_profile($uid) {
 
 		if (!$uid)
