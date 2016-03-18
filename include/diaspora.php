@@ -830,13 +830,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches a message from a server
 	 *
 	 * @param string $guid message guid
-	 * @param $server
-	 * @param $level
+	 * @param string $server The url of the server
+	 * @param int $level Endless loop prevention
 	 *
-	 * @return 
+	 * @return array of message, author and public key
 	 */
 	private function message($guid, $server, $level = 0) {
 
@@ -882,14 +882,14 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches the item record of a given guid
 	 *
 	 * @param int $uid The user id
 	 * @param string $guid message guid
-	 * @param $author
+	 * @param string $author The handle of the item
 	 * @param array $contact The contact that is checked
 	 *
-	 * @return 
+	 * @return array the item record
 	 */
 	private function parent_item($uid, $guid, $author, $contact) {
 		$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`, `origin`,
@@ -927,13 +927,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief returns contact details
 	 *
-	 * @param array $contact The contact that is checked
-	 * @param $person
+	 * @param array $contact The default contact if the person isn't found
+	 * @param array $person The record of the person
 	 * @param int $uid The user id
 	 *
-	 * @return 
+	 * @return array of contact id and network type
 	 */
 	private function author_contact_by_url($contact, $person, $uid) {
 
@@ -964,7 +964,7 @@ class diaspora {
 	/**
 	 * @brief Generate a post link with a given handle and message guid
 	 *
-	 * @param $addr
+	 * @param string $addr The user handle
 	 * @param string $guid message guid
 	 *
 	 * @return string the post link
@@ -1101,16 +1101,16 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief processes and stores private messages
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param array $contact The contact that is checked
 	 * @param object $data The message object
-	 * @param $msg
-	 * @param $mesg
-	 * @param $conversation
+	 * @param array $msg Array of the processed message, author handle and key
+	 * @param object $mesg The private message
+	 * @param array $conversation The conversation record to which this message belongs
 	 *
-	 * @return 
+	 * @return bool "true" if it was successful
 	 */
 	private function receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation) {
 		$guid = notags(unxmlify($data->guid));
@@ -1226,13 +1226,14 @@ class diaspora {
 			"verb" => ACTIVITY_POST,
 			"otype" => "mail"
 		));
+		return true;
 	}
 
 	/**
 	 * @brief 
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param $msg
+	 * @param array $msg Array of the processed message, author handle and key
 	 * @param object $data The message object
 	 *
 	 * @return 
@@ -2183,11 +2184,11 @@ class diaspora {
 	 ******************************************************************************************/
 
 	/**
-	 * @brief 
+	 * @brief returnes the handle of a contact
 	 *
-	 * @param $me
+	 * @param array $me contact array
 	 *
-	 * @return 
+	 * @return string the handle in the format user@domain.tld
 	 */
 	private function my_handle($me) {
 		if ($contact["addr"] != "")
@@ -2199,15 +2200,15 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the envelope for a public message
 	 *
-	 * @param $msg
-	 * @param $user
-	 * @param array $contact The contact that is checked
-	 * @param $prvkey
-	 * @param $pubkey
+	 * @param string $msg The message that is to be transmitted
+	 * @param array $user The record of the sender
+	 * @param array $contact Target of the communication
+	 * @param string $prvkey The private key of the sender
+	 * @param string $pubkey The public key of the receiver
 	 *
-	 * @return 
+	 * @return string The envelope
 	 */
 	private function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
 
@@ -2245,15 +2246,15 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the envelope for a private message
 	 *
-	 * @param $msg
-	 * @param $user
-	 * @param array $contact The contact that is checked
-	 * @param $prvkey
-	 * @param $pubkey
+	 * @param string $msg The message that is to be transmitted
+	 * @param array $user The record of the sender
+	 * @param array $contact Target of the communication
+	 * @param string $prvkey The private key of the sender
+	 * @param string $pubkey The public key of the receiver
 	 *
-	 * @return 
+	 * @return string The envelope
 	 */
 	private function build_private_message($msg, $user, $contact, $prvkey, $pubkey) {
 
@@ -2335,14 +2336,14 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Create the envelope for a message
 	 *
-	 * @param $msg
-	 * @param $user
-	 * @param array $contact The contact that is checked
-	 * @param $prvkey
-	 * @param $pubkey
-	 * @param $public
+	 * @param string $msg The message that is to be transmitted
+	 * @param array $user The record of the sender
+	 * @param array $contact Target of the communication
+	 * @param string $prvkey The private key of the sender
+	 * @param string $pubkey The public key of the receiver
+	 * @param bool $public Is the message public?
 	 *
 	 * @return 
 	 */
@@ -2359,12 +2360,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates a signature for a message
 	 *
-	 * @param array $owner the array of the item owner
-	 * @param $message
+	 * @param array $owner the array of the owner of the message
+	 * @param array $message The message that is to be signed
 	 *
-	 * @return 
+	 * @return string The signature
 	 */
 	private function signature($owner, $message) {
 		$sigmsg = $message;
@@ -2377,16 +2378,16 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Transmit a message to a target server
 	 *
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
-	 * @param $slap
+	 * @param array $contact Target of the communication
+	 * @param string $slap The message that is to be transmitted
 	 * @param bool $public_batch Is it a public post?
-	 * @param $queue_run
+	 * @param bool $queue_run Is the transmission called from the queue?
 	 * @param string $guid message guid
 	 *
-	 * @return 
+	 * @return int Result of the transmission
 	 */
 	public static function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
 
@@ -2444,14 +2445,14 @@ class diaspora {
 	 * @brief 
 	 *
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
-	 * @param $type
-	 * @param $message
+	 * @param array $contact Target of the communication
+	 * @param string $type The message type
+	 * @param array $message The message data
 	 * @param bool $public_batch Is it a public post?
 	 * @param string $guid message guid
-	 * @param $spool
+	 * @param bool $spool Should the transmission be spooled or transmitted?
 	 *
-	 * @return 
+	 * @return int Result of the transmission
 	 */
 	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "", $spool = false) {
 
@@ -2479,7 +2480,7 @@ class diaspora {
 	 * @brief 
 	 *
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 *
 	 * @return int The result of the transmission
 	 */
@@ -2495,7 +2496,7 @@ class diaspora {
 	 * @brief 
 	 *
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 *
 	 * @return int The result of the transmission
 	 */
@@ -2509,12 +2510,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Checks a message body if it is a reshare
 	 *
-	 * @param $body
-	 * @param $complete
+	 * @param string $body The message body that is to be check
+	 * @param bool $complete Should it be a complete check or a simple check?
 	 *
-	 * @return 
+	 * @return array|bool Reshare details or "false" if no reshare
 	 */
 	public static function is_reshare($body, $complete = true) {
 		$body = trim($body);
@@ -2592,7 +2593,7 @@ class diaspora {
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 * @param bool $public_batch Is it a public post?
 	 *
 	 * @return int The result of the transmission
@@ -2726,7 +2727,7 @@ class diaspora {
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 * @param bool $public_batch Is it a public post?
 	 *
 	 * @return int The result of the transmission
@@ -2750,14 +2751,14 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates a message from a signature record entry
 	 *
 	 * @param array $item The item that will be exported
-	 * @param $signature
+	 * @param array $signature The entry of the "sign" record
 	 *
-	 * @return int The result of the transmission
+	 * @return string The message
 	 */
-	private function message_from_signatur($item, $signature) {
+	private function message_from_signature($item, $signature) {
 
 		// Split the signed text
 		$signed_parts = explode(";", $signature['signed_text']);
@@ -2804,7 +2805,7 @@ class diaspora {
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 * @param bool $public_batch Is it a public post?
 	 *
 	 * @return int The result of the transmission
@@ -2835,7 +2836,7 @@ class diaspora {
 		// Old way - is used by the internal Friendica functions
 		/// @todo Change all signatur storing functions to the new format
 		if ($signature['signed_text'] AND $signature['signature'] AND $signature['signer'])
-			$message = self::message_from_signatur($item, $signature);
+			$message = self::message_from_signature($item, $signature);
 		else {// New way
 			$msg = json_decode($signature['signed_text'], true);
 
@@ -2863,13 +2864,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Sends a retraction (deletion) of a message, like or comment
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 * @param bool $public_batch Is it a public post?
-	 * @param $relay
+	 * @param bool $relay Is the retraction transmitted from a relay?
 	 *
 	 * @return int The result of the transmission
 	 */
@@ -2908,7 +2909,7 @@ class diaspora {
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner The owner
-	 * @param array $contact The contact that is checked
+	 * @param array $contact Target of the communication
 	 *
 	 * @return int The result of the transmission
 	 */
