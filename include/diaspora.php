@@ -110,6 +110,8 @@ class diaspora {
 	/**
 	 * @brief repairs a signature that was double encoded
 	 *
+	 * The function is unused at the moment. It was copied from the old implementation.
+	 *
 	 * @param string $signature The signature
 	 * @param string $handle The handle of the signature owner
 	 * @param integer $level This value is only set inside this function to avoid endless loops
@@ -887,7 +889,7 @@ class diaspora {
 	 * @param int $uid The user id
 	 * @param string $guid message guid
 	 * @param string $author The handle of the item
-	 * @param array $contact The contact that is checked
+	 * @param array $contact The contact of the item owner
 	 *
 	 * @return array the item record
 	 */
@@ -992,12 +994,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes an account deletion
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success
 	 */
 	private function receive_account_deletion($importer, $data) {
 		$author = notags(unxmlify($data->author));
@@ -1014,7 +1016,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes an incoming comment
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param string $sender The sender of the message
@@ -1104,7 +1106,7 @@ class diaspora {
 	 * @brief processes and stores private messages
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param array $contact The contact that is checked
+	 * @param array $contact The contact of the message
 	 * @param object $data The message object
 	 * @param array $msg Array of the processed message, author handle and key
 	 * @param object $mesg The private message
@@ -1230,13 +1232,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes new private messages (answers to private messages are processed elsewhere)
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param array $msg Array of the processed message, author handle and key
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success
 	 */
 	private function receive_conversation($importer, $msg, $data) {
 		$guid = notags(unxmlify($data->guid));
@@ -1296,13 +1298,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the body for a "like" message
 	 *
-	 * @param array $contact The contact that is checked
-	 * @param $parent_item
+	 * @param array $contact The contact that send us the "like"
+	 * @param array $parent_item The item array of the parent item
 	 * @param string $guid message guid
 	 *
-	 * @return 
+	 * @return string the body
 	 */
 	private function construct_like_body($contact, $parent_item, $guid) {
 		$bodyverb = t('%1$s likes %2$s\'s %3$s');
@@ -1315,12 +1317,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates a XML object for a "like"
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param $parent_item
+	 * @param array $parent_item The item array of the parent item
 	 *
-	 * @return 
+	 * @return string The XML
 	 */
 	private function construct_like_object($importer, $parent_item) {
 		$objtype = ACTIVITY_OBJ_NOTE;
@@ -1338,7 +1340,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes "like" messages
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param string $sender The sender of the message
@@ -1435,12 +1437,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes private messages
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success?
 	 */
 	private function receive_message($importer, $data) {
 		$guid = notags(unxmlify($data->guid));
@@ -1514,7 +1516,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes participations - unsupported by now
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
@@ -1527,12 +1529,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes photos - unneeded
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool always true
 	 */
 	private function receive_photo($importer, $data) {
 		// There doesn't seem to be a reason for this function, since the photo data is transmitted in the status message as well
@@ -1540,12 +1542,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes poll participations - unssupported
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool always true
 	 */
 	private function receive_poll_participation($importer, $data) {
 		// We don't support polls by now
@@ -1553,12 +1555,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes incoming profile updates
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success
 	 */
 	private function receive_profile($importer, $data) {
 		$author = notags(unxmlify($data->author));
@@ -1646,12 +1648,10 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes incoming friend requests
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param array $contact The contact that is checked
-	 *
-	 * @return 
+	 * @param array $contact The contact that send the request
 	 */
 	private function receive_request_make_friend($importer, $contact) {
 
@@ -1714,26 +1714,24 @@ class diaspora {
 				$i = item_store($arr);
 				if($i)
 					proc_run("php", "include/notifier.php", "activity", $i);
-
 			}
-
 		}
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes incoming sharing notification
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success
 	 */
 	private function receive_request($importer, $data) {
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
 
 		if (!$author || !$recipient)
-			return;
+			return false;
 
 		$contact = self::contact_by_handle($importer["uid"],$author);
 
@@ -1842,13 +1840,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches a message with a given guid
 	 *
 	 * @param string $guid message guid
-	 * @param $orig_author
-	 * @param $author
+	 * @param string $orig_author handle of the original post
+	 * @param string $author handle of the sharer
 	 *
-	 * @return 
+	 * @return array The fetched item
 	 */
 	private function original_item($guid, $orig_author, $author) {
 
@@ -1907,13 +1905,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes a reshare message
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 * @param string $xml The original XML of the message
 	 *
-	 * @return 
+	 * @return int the message id
 	 */
 	private function receive_reshare($importer, $data, $xml) {
 		$root_author = notags(unxmlify($data->root_author));
@@ -1981,13 +1979,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Processes retractions
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param array $contact The contact that is checked
+	 * @param array $contact The contact of the item owner
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool success
 	 */
 	private function item_retraction($importer, $contact, $data) {
 		$target_type = notags(unxmlify($data->target_type));
@@ -2038,16 +2036,18 @@ class diaspora {
 			// notify others
 			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
 		}
+
+		return true;
 	}
 
 	/**
-	 * @brief 
+	 * @brief Receives retraction messages
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param string $sender The sender of the message
 	 * @param object $data The message object
 	 *
-	 * @return 
+	 * @return bool Success
 	 */
 	private function receive_retraction($importer, $sender, $data) {
 		$target_type = notags(unxmlify($data->target_type));
@@ -2082,13 +2082,13 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Receives status messages
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param object $data The message object
 	 * @param string $xml The original XML of the message
 	 *
-	 * @return 
+	 * @return int The message id of the newly created item
 	 */
 	private function receive_status_message($importer, $data, $xml) {
 
@@ -2345,7 +2345,7 @@ class diaspora {
 	 * @param string $pubkey The public key of the receiver
 	 * @param bool $public Is the message public?
 	 *
-	 * @return 
+	 * @return string The message that will be transmitted to other servers
 	 */
 	private function build_message($msg, $user, $contact, $prvkey, $pubkey, $public = false) {
 
@@ -2442,7 +2442,7 @@ class diaspora {
 
 
 	/**
-	 * @brief 
+	 * @brief Builds and transmit messages
 	 *
 	 * @param array $owner the array of the item owner
 	 * @param array $contact Target of the communication
@@ -2477,7 +2477,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Sends a "share" message
 	 *
 	 * @param array $owner the array of the item owner
 	 * @param array $contact Target of the communication
@@ -2493,7 +2493,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief sends an "unshare"
 	 *
 	 * @param array $owner the array of the item owner
 	 * @param array $contact Target of the communication
@@ -2589,7 +2589,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Sends a post
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
@@ -2666,12 +2666,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates a "like" object
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
 	 *
-	 * @return 
+	 * @return array The data for a "like"
 	 */
 	private function construct_like($item, $owner) {
 
@@ -2694,12 +2694,12 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the object for a comment
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
 	 *
-	 * @return 
+	 * @return array The data for a comment
 	 */
 	private function construct_comment($item, $owner) {
 
@@ -2801,7 +2801,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Relays messages (like, comment, retraction) to other servers if we are the thread owner
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
@@ -2905,7 +2905,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Sends a mail
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner The owner
@@ -2971,11 +2971,9 @@ class diaspora {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Sends profile data
 	 *
 	 * @param int $uid The user id
-	 *
-	 * @return int The result of the transmission
 	 */
 	public static function send_profile($uid) {
 
