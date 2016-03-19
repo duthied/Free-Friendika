@@ -2190,13 +2190,18 @@ class diaspora {
 	 *
 	 * @return string the handle in the format user@domain.tld
 	 */
-	private function my_handle($me) {
+	private function my_handle($contact) {
 		if ($contact["addr"] != "")
 			return $contact["addr"];
 
 		// Normally we should have a filled "addr" field - but in the past this wasn't the case
 		// So - just in case - we build the the address here.
-		return $me["nickname"]."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
+		if ($contact["nickname"] != "")
+			$nick = $contact["nickname"];
+		else
+			$nick = $contact["nick"];
+
+		return $nick."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
 	}
 
 	/**
@@ -2689,7 +2694,7 @@ class diaspora {
 				"guid" => $item["guid"],
 				"target_type" => $target_type,
 				"parent_guid" => $parent["guid"],
-				"author_signature" => $authorsig,
+				"author_signature" => "",
 				"diaspora_handle" => self::my_handle($owner)));
 	}
 
@@ -3051,6 +3056,119 @@ class diaspora {
 
 		foreach($recips as $recip)
 			self::build_and_transmit($profile, $recip, "profile", $message, false, "", true);
+	}
+
+	/**
+	 * @brief Stores the signature for likes that are created on our system
+	 *
+	 * @param array $contact The contact array of the "like"
+	 * @param int $post_id The post id of the "like"
+	 *
+	 * @return bool Success
+	 */
+	function store_like_signature($contact, $post_id) {
+
+		$enabled = intval(get_config('system','diaspora_enabled'));
+		if (!$enabled) {
+			logger('Diaspora support disabled, not storing like signature', LOGGER_DEBUG);
+			return false;
+		}
+
+		// Is the contact the owner? Then fetch the private key
+		if (!$contact['self'] OR ($contact['uid'] == 0)) {
+			logger("No owner post, so not storing signature", LOGGER_DEBUG);
+			return false;
+		}
+
+		$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($contact['uid']));
+		if(!$r)
+			return false;
+
+		$contact["uprvkey"] = $r[0]['prvkey'];
+
+		$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1", intval($post_id));
+		if (!$r)
+			return false;
+
+		if (!in_array($r[0]["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE)))
+			return false;
+
+		$message = self::construct_like($r[0], $contact);
+		$message["author_signature"] = self::signature($contact, $message);
+
+		// In the future we will store the signature more flexible to support new fields.
+		// Right now we cannot change this since old Friendica versions (prior to 3.5) can only handle this format.
+		// (We are transmitting this data here via DFRN)
+
+		$signed_text = $message["positive"].";".$message["guid"].";".$message["target_type"].";".
+				$message["parent_guid"].";".$message["diaspora_handle"];
+
+		q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
+			intval($post_id),
+			dbesc($signed_text),
+			dbesc($message["author_signature"]),
+			dbesc($message["diaspora_handle"])
+		);
+
+		// This here will replace the lines above, once Diaspora changed its protocol
+		//q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+		//	intval($message_id),
+		//	dbesc(json_encode($message))
+		//);
+
+		logger('Stored diaspora like signature');
+		return true;
+	}
+
+	/**
+	 * @brief Stores the signature for comments that are created on our system
+	 *
+	 * @param array $item The item array of the comment
+	 * @param array $contact The contact array of the item owner
+	 * @param string $uprvkey The private key of the sender
+	 * @param int $message_id The message id of the comment
+	 *
+	 * @return bool Success
+	 */
+	function store_comment_signature($item, $contact, $uprvkey, $message_id) {
+
+		if ($uprvkey == "") {
+			logger('No private key, so not storing comment signature', LOGGER_DEBUG);
+			return false;
+		}
+
+		$enabled = intval(get_config('system','diaspora_enabled'));
+		if (!$enabled) {
+			logger('Diaspora support disabled, not storing comment signature', LOGGER_DEBUG);
+			return false;
+		}
+
+		$contact["uprvkey"] = $uprvkey;
+
+		$message = self::construct_comment($item, $contact);
+		$message["author_signature"] = self::signature($contact, $message);
+
+		// In the future we will store the signature more flexible to support new fields.
+		// Right now we cannot change this since old Friendica versions (prior to 3.5) can only handle this format.
+		// (We are transmitting this data here via DFRN)
+		$signed_text = $message["guid"].";".$message["parent_guid"].";".
+				$message["text"].";".$message["diaspora_handle"];
+
+		q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
+			intval($message_id),
+			dbesc($signed_text),
+			dbesc($message["author_signature"]),
+			dbesc($message["diaspora_handle"])
+		);
+
+		// This here will replace the lines above, once Diaspora changed its protocol
+		//q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+		//	intval($message_id),
+		//	dbesc(json_encode($message))
+		//);
+
+		logger('Stored diaspora comment signature');
+		return true;
 	}
 }
 ?>
