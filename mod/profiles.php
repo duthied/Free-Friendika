@@ -526,6 +526,8 @@ function profile_activity($changed, $value) {
 		return;
 
 	$arr = array();
+
+	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), local_user());
 	$arr['uid'] = local_user();
 	$arr['contact-id'] = $self[0]['id'];
