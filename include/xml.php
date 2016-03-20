@@ -4,6 +4,16 @@
  *
  */
 class xml {
+	/**
+	 * @brief Creates an XML structure out of a given array
+	 *
+	 * @param array $array The array of the XML structure that will be generated
+	 * @param object $xml The createdXML will be returned by reference
+	 * @param bool $remove_header Should the XML header be removed or not?
+	 * @param array $namespaces List of namespaces
+	 *
+	 * @return string The created XML
+	 */
 	function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true) {
 
 		if ($root) {
@@ -60,6 +70,13 @@ class xml {
 		}
 	}
 
+	/**
+	 * @brief Copies an XML object
+	 *
+	 * @param object $source The XML source
+	 * @param object $target The XML target
+	 * @param string $elementname Name of the XML element of the target
+	 */
 	function copy(&$source, &$target, $elementname) {
 		if (count($source->children()) == 0)
 			$target->addChild($elementname, xmlify($source));
