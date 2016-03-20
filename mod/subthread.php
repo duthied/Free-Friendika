@@ -103,10 +103,11 @@ EOT;
 	$bodyverb = t('%1$s is following %2$s\'s %3$s');
 
 	if(! isset($bodyverb))
-			return; 
+			return;
 
 	$arr = array();
 
+	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $uri;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];
@@ -123,7 +124,7 @@ EOT;
 	$arr['author-name'] = $contact['name'];
 	$arr['author-link'] = $contact['url'];
 	$arr['author-avatar'] = $contact['thumb'];
-	
+
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 	$plink = '[url=' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
