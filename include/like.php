@@ -196,6 +196,7 @@ EOT;
 
 	$arr = array();
 
+	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $uri;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];

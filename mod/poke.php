@@ -91,6 +91,7 @@ function poke_init(&$a) {
 
 	$arr = array();
 
+	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = (($parent_uri) ? $parent_uri : $uri);

@@ -488,7 +488,7 @@ function photos_post(&$a) {
 			$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
 
 			$arr = array();
-
+			$arr['guid']          = get_guid(32);
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
 			$arr['parent-uri']    = $uri;
@@ -677,7 +677,7 @@ function photos_post(&$a) {
 					$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
 
 					$arr = array();
-
+					$arr['guid']          = get_guid(32);
 					$arr['uid']           = $page_owner_uid;
 					$arr['uri']           = $uri;
 					$arr['parent-uri']    = $uri;
@@ -904,6 +904,7 @@ function photos_post(&$a) {
 	if($lat && $lon)
 		$arr['coord'] = $lat . ' ' . $lon;
 
+	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;

@@ -448,6 +448,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				if(count($self)) {
 
 					$arr = array();
+					$arr['guid'] = get_guid(32);
 					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid);
 					$arr['uid'] = $uid;
 					$arr['contact-id'] = $self[0]['id'];
@@ -466,7 +467,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 					$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
 
 					$arr['verb'] = ACTIVITY_FRIEND;
-				    $arr['object-type'] = ACTIVITY_OBJ_PERSON;
+					$arr['object-type'] = ACTIVITY_OBJ_PERSON;
 					$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
