@@ -62,7 +62,7 @@ function mood_init(&$a) {
 	$action = sprintf( t('%1$s is currently %2$s'), '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' , $verbs[$verb]); 
 
 	$arr = array();
-
+	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = (($parent_uri) ? $parent_uri : $uri);
