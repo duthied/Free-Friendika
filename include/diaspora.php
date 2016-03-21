@@ -116,7 +116,7 @@ class diaspora {
 	 * @param string $handle The handle of the signature owner
 	 * @param integer $level This value is only set inside this function to avoid endless loops
 	 *
-	 * @return the repaired signature
+	 * @return string the repaired signature
 	 */
 	function repair_signature($signature, $handle = "", $level = 1) {
 
@@ -178,16 +178,6 @@ class diaspora {
 
 
 			$decrypted = pkcs5_unpad($decrypted);
-
-			/**
-			 * $decrypted now contains something like
-			 *
-			 *  <decrypted_header>
-			 *     <iv>8e+G2+ET8l5BPuW0sVTnQw==</iv>
-			 *     <aes_key>UvSMb4puPeB14STkcDWq+4QE302Edu15oaprAQSkLKU=</aes_key>
-			 *     <author_id>galaxor@diaspora.priateship.org</author_id>
-			 *  </decrypted_header>
-			 */
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
 			$idom = parse_xml_string($decrypted,false);
@@ -795,7 +785,7 @@ class diaspora {
 	}
 
 	/**
-	 * @brief sub function of "fetch_guid"
+	 * @brief sub function of "fetch_guid" which checks for links in messages
 	 *
 	 * @param array $match array containing a link that has to be checked for a message link
 	 * @param array $item The item array
@@ -838,7 +828,10 @@ class diaspora {
 	 * @param string $server The url of the server
 	 * @param int $level Endless loop prevention
 	 *
-	 * @return array of message, author and public key
+	 * @return array
+	 *      'message' => The message XML
+	 *      'author' => The author handle
+	 *      'key' => The public key of the author
 	 */
 	private function message($guid, $server, $level = 0) {
 
