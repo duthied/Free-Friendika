@@ -85,7 +85,7 @@ class dfrn {
 					$converse = true;
 				if($a->argv[$x] == 'starred')
 					$starred = true;
-				if($a->argv[$x] === 'category' && $a->argc > ($x + 1) && strlen($a->argv[$x+1]))
+				if($a->argv[$x] == 'category' && $a->argc > ($x + 1) && strlen($a->argv[$x+1]))
 					$category = $a->argv[$x+1];
 			}
 		}
@@ -244,7 +244,7 @@ class dfrn {
 		foreach($items as $item) {
 
 			// prevent private email from leaking.
-			if($item['network'] === NETWORK_MAIL)
+			if($item['network'] == NETWORK_MAIL)
 				continue;
 
 			// public feeds get html, our own nodes use bbcode
@@ -628,7 +628,7 @@ class dfrn {
 			if($r->title)
 				xml_add_element($doc, $entry, "title", $r->title);
 			if($r->link) {
-				if(substr($r->link,0,1) === '<') {
+				if(substr($r->link,0,1) == '<') {
 					if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
 						$r->link = str_replace('&','&amp;', $r->link);
 
@@ -759,7 +759,7 @@ class dfrn {
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
-		xml_add_element($doc, $entry, "content", (($type === 'html') ? $htmlbody : $body), array("type" => $type));
+		xml_add_element($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), array("type" => $type));
 
 		// We save this value in "plink". Maybe we should read it from there as well?
 		xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
@@ -1773,6 +1773,9 @@ class dfrn {
 	 * @return bool Should the processing of the entries be continued?
 	 */
 	private function process_verbs($entrytype, $importer, &$item, &$is_like) {
+
+		logger("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, LOGGER_DEBUG);
+
 		if (($entrytype == DFRN_TOP_LEVEL)) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
@@ -1803,11 +1806,11 @@ class dfrn {
 				return false;
 			}
 		} else {
-			if(($item["verb"] === ACTIVITY_LIKE)
-				|| ($item["verb"] === ACTIVITY_DISLIKE)
-				|| ($item["verb"] === ACTIVITY_ATTEND)
-				|| ($item["verb"] === ACTIVITY_ATTENDNO)
-				|| ($item["verb"] === ACTIVITY_ATTENDMAYBE)) {
+			if(($item["verb"] == ACTIVITY_LIKE)
+				|| ($item["verb"] == ACTIVITY_DISLIKE)
+				|| ($item["verb"] == ACTIVITY_ATTEND)
+				|| ($item["verb"] == ACTIVITY_ATTENDNO)
+				|| ($item["verb"] == ACTIVITY_ATTENDMAYBE)) {
 				$is_like = true;
 				$item["type"] = "activity";
 				$item["gravity"] = GRAVITY_LIKE;
@@ -1833,7 +1836,7 @@ class dfrn {
 			} else
 				$is_like = false;
 
-			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+			if(($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
 
 				$xo = parse_xml_string($item["object"],false);
 				$xt = parse_xml_string($item["target"],false);
@@ -2261,15 +2264,17 @@ class dfrn {
 			else
 				return;
 
-			if($item["object-type"] === ACTIVITY_OBJ_EVENT) {
+			if($item["object-type"] == ACTIVITY_OBJ_EVENT) {
 				logger("Deleting event ".$item["event-id"], LOGGER_DEBUG);
 				event_delete($item["event-id"]);
 			}
 
-			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+			if(($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
+
 				$xo = parse_xml_string($item["object"],false);
 				$xt = parse_xml_string($item["target"],false);
-				if($xt->type === ACTIVITY_OBJ_NOTE) {
+
+				if($xt->type == ACTIVITY_OBJ_NOTE) {
 					$i = q("SELECT `id`, `contact-id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($xt->id),
 						intval($importer["importer_uid"])
