@@ -1853,10 +1853,14 @@ class diaspora {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
-			// Then refetch the content, since there can be many side effects with reshared posts from other networks or reshares from reshares
-			if (self::is_reshare($r[0]["body"], false))
+			// Then refetch the content, if it is a reshare from a reshare.
+			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
+			if (self::is_reshare($r[0]["body"], true))
 				$r = array();
-			else
+			elseif (self::is_reshare($r[0]["body"], false)) {
+				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+				return $r[0];
+			} else
 				return $r[0];
 		}
 
