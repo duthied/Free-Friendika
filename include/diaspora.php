@@ -647,7 +647,7 @@ class diaspora {
 
 			if($contact['addr'] != "")
 				$handle = $contact['addr'];
-			elseif(($contact['network'] === NETWORK_DFRN) || ($contact['self'] == 1)) {
+			else {
 				$baseurl_start = strpos($contact['url'],'://') + 3;
 				$baseurl_length = strpos($contact['url'],'/profile') - $baseurl_start; // allows installations in a subdirectory--not sure how Diaspora will handle
 				$baseurl = substr($contact['url'], $baseurl_start, $baseurl_length);
