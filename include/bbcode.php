@@ -311,6 +311,9 @@ function tryoembed($match){
 
 	$o = oembed_fetch_url($url);
 
+	if (!is_object($o))
+		return $match[0];
+
 	if (isset($match[2]))
 		$o->title = $match[2];
 
