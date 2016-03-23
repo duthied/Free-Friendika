@@ -755,8 +755,8 @@ class diaspora {
 	 *
 	 * @param int $uid The user id
 	 * @param string $guid The guid of the message
-	 *
-	 * @return bool "true" if the message already was stored into the system
+y	 *
+	 * @return int|bool message id if the message already was stored into the system - or false.
 	 */
 	private function message_exists($uid, $guid) {
 		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
@@ -766,7 +766,7 @@ class diaspora {
 
 		if($r) {
 			logger("message ".$guid." already exists for user ".$uid);
-			return true;
+			return $r[0]["id"];
 		}
 
 		return false;
@@ -1028,8 +1028,9 @@ class diaspora {
 		if (!$contact)
 			return false;
 
-		if (self::message_exists($importer["uid"], $guid))
-			return false;
+		$message_id = self::message_exists($importer["uid"], $guid);
+		if ($message_id)
+			return $message_id;
 
 		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
@@ -1357,8 +1358,9 @@ class diaspora {
 		if (!$contact)
 			return false;
 
-		if (self::message_exists($importer["uid"], $guid))
-			return false;
+		$message_id = self::message_exists($importer["uid"], $guid);
+		if ($message_id)
+			return $message_id;
 
 		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
@@ -1926,8 +1928,9 @@ class diaspora {
 		if (!$contact)
 			return false;
 
-		if (self::message_exists($importer["uid"], $guid))
-			return false;
+		$message_id = self::message_exists($importer["uid"], $guid);
+		if ($message_id)
+			return $message_id;
 
 		$original_item = self::original_item($root_guid, $root_author, $author);
 		if (!$original_item)
@@ -2110,8 +2113,9 @@ class diaspora {
 		if (!$contact)
 			return false;
 
-		if (self::message_exists($importer["uid"], $guid))
-			return false;
+		$message_id = self::message_exists($importer["uid"], $guid);
+		if ($message_id)
+			return $message_id;
 
 		$address = array();
 		if ($data->location)
