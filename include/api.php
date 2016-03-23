@@ -1550,6 +1550,7 @@
 		return api_apply_template("timeline", $type, $data);
 	}
 	api_register_func('api/conversation/show','api_conversation_show', true);
+	api_register_func('api/statusnet/conversation','api_conversation_show', true);
 
 
 	/**

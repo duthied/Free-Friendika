@@ -389,6 +389,18 @@ Friendica doesn't allow showing friends of other users.
 ### statusnet/config (*)
 
 ---
+### statusnet/conversation (*; AUTH)
+It shows all direct answers (excluding the original post) to a given id.
+
+#### Parameter
+* id: id of the post
+* count: Items per page (default: 20)
+* page: page number
+* since_id: minimal id
+* max_id: maximum id
+* include_entities: "true" shows entities for pictures and links (Default: false)
+
+---
 ### statusnet/version (*)
 
 #### Unsupported parameters
