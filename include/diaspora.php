@@ -1694,11 +1694,8 @@ y	 *
 				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
 				$arr["body"] = sprintf(t("%1$s is now friends with %2$s"), $A, $B)."\n\n\n".$Bphoto;
 
-				$arr["object"] = "<object><type>".ACTIVITY_OBJ_PERSON."</type><title>".$contact["name"]."</title>"
-					."<id>".$contact["url"]."/".$contact["name"]."</id>";
-				$arr["object"] .= "<link>".xmlify('<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n");
-				$arr["object"] .= xmlify('<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n");
-				$arr["object"] .= "</link></object>\n";
+				$arr["object"] = self::construct_new_friend_object($contact);
+
 				$arr["last-child"] = 1;
 
 				$arr["allow_cid"] = $user[0]["allow_cid"];
@@ -1712,6 +1709,26 @@ y	 *
 			}
 		}
 	}
+
+	/**
+	 * @brief Creates a XML object for a "new friend" message
+	 *
+	 * @param array $contact Array of the contact
+	 *
+	 * @return string The XML
+	 */
+        private function construct_new_friend_object($contact) {
+                $objtype = ACTIVITY_OBJ_PERSON;
+                $link = '<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n".
+                        '<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n";
+
+                $xmldata = array("object" => array("type" => $objtype,
+                                                "title" => $contact["name"],
+                                                "id" => $contact["url"]."/".$contact["name"],
+                                                "link" => $link));
+
+                return xml::from_array($xmldata, $xml, true);
+        }
 
 	/**
 	 * @brief Processes incoming sharing notification
@@ -2184,9 +2201,9 @@ y	 *
 		return $message_id;
 	}
 
-	/******************************************************************************************
+	/* ************************************************************************************** *
 	 * Here are all the functions that are needed to transmit data with the Diaspora protocol *
-	 ******************************************************************************************/
+	 * ************************************************************************************** */
 
 	/**
 	 * @brief returnes the handle of a contact
@@ -3071,7 +3088,7 @@ y	 *
 	 *
 	 * @return bool Success
 	 */
-	function store_like_signature($contact, $post_id) {
+	public static function store_like_signature($contact, $post_id) {
 
 		$enabled = intval(get_config('system','diaspora_enabled'));
 		if (!$enabled) {
@@ -3135,7 +3152,7 @@ y	 *
 	 *
 	 * @return bool Success
 	 */
-	function store_comment_signature($item, $contact, $uprvkey, $message_id) {
+	public static function store_comment_signature($item, $contact, $uprvkey, $message_id) {
 
 		if ($uprvkey == "") {
 			logger('No private key, so not storing comment signature', LOGGER_DEBUG);
