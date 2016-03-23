@@ -1859,6 +1859,10 @@ class diaspora {
 				$r = array();
 			elseif (self::is_reshare($r[0]["body"], false)) {
 				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+
+				// Add OEmbed and other information to the body
+				$r[0]["body"] = add_page_info_to_body($r[0]["body"], false, true);
+
 				return $r[0];
 			} else
 				return $r[0];
