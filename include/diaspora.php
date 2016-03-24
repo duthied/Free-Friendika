@@ -2611,8 +2611,9 @@ class diaspora {
 			$link = $matches[1];
 
 		$ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
-		if (($ret["root_guid"] == $link) OR ($ret["root_guid"] == ""))
+		if (($ret["root_guid"] == $link) OR (trim($ret["root_guid"]) == ""))
 			return(false);
+
 		return($ret);
 	}
 
