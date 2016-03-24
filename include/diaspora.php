@@ -339,6 +339,9 @@ class diaspora {
 			case "comment":
 				return self::receive_comment($importer, $sender, $fields, $msg["message"]);
 
+			case "contact":
+				return self::receive_contact_request($importer, $fields);
+
 			case "conversation":
 				return self::receive_conversation($importer, $msg, $fields);
 
@@ -359,9 +362,6 @@ class diaspora {
 
 			case "profile":
 				return self::receive_profile($importer, $fields);
-
-			case "request":
-				return self::receive_request($importer, $fields);
 
 			case "reshare":
 				return self::receive_reshare($importer, $fields, $msg["message"]);
@@ -417,6 +417,9 @@ class diaspora {
 		// In the new version there will only be "retraction".
 		if (in_array($type, array("signed_retraction", "relayable_retraction")))
 			$type = "retraction";
+
+		if ($type == "request")
+			$type = "contact";
 
 		$fields = new SimpleXMLElement("<".$type."/>");
 
@@ -1377,7 +1380,7 @@ class diaspora {
 
 		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
 		// We would accept this anyhow.
-		if ($positive === "true")
+		if ($positive == "true")
 			$verb = ACTIVITY_LIKE;
 		else
 			$verb = ACTIVITY_DISLIKE;
@@ -1738,22 +1741,43 @@ class diaspora {
 	 *
 	 * @return bool Success
 	 */
-	private function receive_request($importer, $data) {
+	private function receive_contact_request($importer, $data) {
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
 
 		if (!$author || !$recipient)
 			return false;
 
+		// the current protocol version doesn't know these fields
+		// That means that we will assume their existance
+		if (isset($data->following))
+			$following = (unxmlify($data->following) == "true");
+		else
+			$following = true;
+
+		if (isset($data->sharing))
+			$sharing = (unxmlify($data->sharing) == "true");
+		else
+			$sharing = true;
+
 		$contact = self::contact_by_handle($importer["uid"],$author);
 
-		if($contact) {
+		// perhaps we were already sharing with this person. Now they're sharing with us.
+		// That makes us friends.
+		if ($contact) {
+			if ($following AND $sharing) {
+				self::receive_request_make_friend($importer, $contact);
+				return true;
+			} else /// @todo Handle all possible variations of adding and retracting of permissions
+				return false;
+		}
 
-			// perhaps we were already sharing with this person. Now they're sharing with us.
-			// That makes us friends.
-
-			self::receive_request_make_friend($importer, $contact);
-			return true;
+		if (!$following AND $sharing AND in_array($importer["page-flags"], array(PAGE_SOAPBOX, PAGE_NORMAL))) {
+			logger("Author ".$author." wants to share with us - but doesn't want to listen. Request is ignored.", LOGGER_DEBUG);
+			return false;
+		} elseif (!$following AND !$sharing) {
+			logger("Author ".$author." doesn't want anything - and we don't know the author. Request is ignored.", LOGGER_DEBUG);
+			return false;
 		}
 
 		$ret = self::person_by_handle($author);
@@ -1824,8 +1848,10 @@ class diaspora {
 			// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX
 			// we are going to change the relationship and make them a follower.
 
-			if($importer["page-flags"] == PAGE_FREELOVE)
+			if (($importer["page-flags"] == PAGE_FREELOVE) AND $sharing AND $following)
 				$new_relation = CONTACT_IS_FRIEND;
+			elseif (($importer["page-flags"] == PAGE_FREELOVE) AND $sharing)
+				$new_relation = CONTACT_IS_SHARING;
 			else
 				$new_relation = CONTACT_IS_FOLLOWER;
 
