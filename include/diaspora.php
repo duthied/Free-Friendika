@@ -755,7 +755,7 @@ class diaspora {
 	 *
 	 * @param int $uid The user id
 	 * @param string $guid The guid of the message
-y	 *
+	 *
 	 * @return int|bool message id if the message already was stored into the system - or false.
 	 */
 	private function message_exists($uid, $guid) {
@@ -2143,6 +2143,7 @@ y	 *
 
 		$datarray = array();
 
+		// Attach embedded pictures to the body
 		if ($data->photo) {
 			foreach ($data->photo AS $photo)
 				$body = "[img]".unxmlify($photo->remote_photo_path).
