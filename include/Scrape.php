@@ -444,7 +444,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				if($link['@attributes']['rel'] === 'alias') {
 					if(strpos($link['@attributes']['href'],'@') === false) {
 						if(isset($profile)) {
-							if($link['@attributes']['href'] !== $profile)
+							if(($link['@attributes']['href'] !== $profile) AND ($alias == ""))
 								$alias = unamp($link['@attributes']['href']);
 						}
 						else
