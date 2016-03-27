@@ -737,7 +737,7 @@ class diaspora {
 	 * @param string $handle The checked handle in the format user@domain.tld
 	 * @param bool $is_comment Is the check for a comment?
 	 *
-	 * @return bool is posting allowed?
+	 * @return array The contact data
 	 */
 	private function allowed_contact_by_handle($importer, $handle, $is_comment = false) {
 		$contact = self::contact_by_handle($importer["uid"], $handle);
@@ -931,7 +931,9 @@ class diaspora {
 	 * @param array $person The record of the person
 	 * @param int $uid The user id
 	 *
-	 * @return array of contact id and network type
+	 * @return array
+	 *      'cid' => contact id
+	 *      'network' => network type
 	 */
 	private function author_contact_by_url($contact, $person, $uid) {
 
