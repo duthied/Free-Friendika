@@ -118,7 +118,7 @@ class diaspora {
 	 *
 	 * @return string the repaired signature
 	 */
-	function repair_signature($signature, $handle = "", $level = 1) {
+	private function repair_signature($signature, $handle = "", $level = 1) {
 
 		if ($signature == "")
 			return ($signature);
@@ -146,7 +146,7 @@ class diaspora {
 	 * 'author' -> author diaspora handle
 	 * 'key' -> author public key (converted to pkcs#8)
 	 */
-	function decode($importer, $xml) {
+	public static function decode($importer, $xml) {
 
 		$public = false;
 		$basedom = parse_xml_string($xml);

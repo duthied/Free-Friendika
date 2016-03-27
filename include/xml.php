@@ -15,7 +15,7 @@ class xml {
 	 *
 	 * @return string The created XML
 	 */
-	function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true) {
+	public static function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true) {
 
 		if ($root) {
 			foreach($array as $key => $value) {
@@ -78,7 +78,7 @@ class xml {
 	 * @param object $target The XML target
 	 * @param string $elementname Name of the XML element of the target
 	 */
-	function copy(&$source, &$target, $elementname) {
+	public static function copy(&$source, &$target, $elementname) {
 		if (count($source->children()) == 0)
 			$target->addChild($elementname, xmlify($source));
 		else {
