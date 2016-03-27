@@ -12,6 +12,7 @@ class xml {
 	 * @param object $xml The createdXML will be returned by reference
 	 * @param bool $remove_header Should the XML header be removed or not?
 	 * @param array $namespaces List of namespaces
+	 * @param bool $root - interally used parameter. Mustn't be used from outside.
 	 *
 	 * @return string The created XML
 	 */
