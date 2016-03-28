@@ -46,8 +46,11 @@ Don't blame me too much for ugly code and hacks. Fix it ;-)
 
 #### Credits:
 HumHub - Social Network Kit - <https://github.com/humhub/humhub>
+
 Hubzilla - Community Server - <https://github.com/redmatrix/hubzilla/>
+
 Michael Vogel (Vier Theme)  - <https://github.com/annando>
+
 StefOfficiel (Friendiboot Theme) - <https://github.com/StefOfficiel/Friendiboot>
 
 #### License:
