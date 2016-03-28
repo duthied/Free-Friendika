@@ -277,7 +277,7 @@ class diaspora {
 	 *
 	 * @param array $msg The post that will be dispatched
 	 *
-	 * @return bool Was the message accepted?
+	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 */
 	public static function dispatch_public($msg) {
 
@@ -289,7 +289,7 @@ class diaspora {
 
 		// Use a dummy importer to import the data for the public copy
 		$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-		$item_id = self::dispatch($importer,$msg);
+		$message_id = self::dispatch($importer,$msg);
 
 		// Now distribute it to the followers
 		$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
@@ -306,7 +306,7 @@ class diaspora {
 		} else
 			logger("No subscribers for ".$msg["author"]." ".print_r($msg, true));
 
-		return $item_id;
+		return $message_id;
 	}
 
 	/**
@@ -315,7 +315,7 @@ class diaspora {
 	 * @param array $importer Array of the importer user
 	 * @param array $msg The post that will be dispatched
 	 *
-	 * @return bool Was the message accepted?
+	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 */
 	public static function dispatch($importer, $msg) {
 
