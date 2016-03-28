@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+/**
+ * @file util/createdoxygen.php
+ * @brief Adds a doxygen header to functions
+ */
+
 if (count($_SERVER["argv"]) < 2)
 	die("usage: createdoxygen.php file\n");
 
@@ -45,6 +50,13 @@ foreach ($lines AS $line) {
 	$previous = $line;
 }
 
+/**
+ * @brief Adds a doxygen header
+ *
+ * @param string $line The current line of the document
+ *
+ * @return string added doxygen header
+ */
 function add_documentation($line) {
 
 	$trimmed = ltrim($line);
