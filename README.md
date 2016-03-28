@@ -3,6 +3,7 @@
 This Theme was started as Experiment to give the user a good looking and modern theme for friendica.
 
 I conentrated on 3 topics:
+
 1. A Modern, mobile friendly UI with bootstrap and awesome font
 2. Try to get a new UX for friendica (e.g. use modals where it seems to be useful)
 3. Give the user a powerfull (but easy) possebillities for custimation to personalize the theme and give it a own note.
@@ -22,6 +23,26 @@ If anyone wants to contribute to this theme he/she is welcome to do this.
 
 PS:
 Don't blame me too much for ugly code and hacks. Fix it ;-)
+
+#### Screenshots
+**Default**
+![Default - Stream](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot.png)
+
+**Modals**
+![Modals](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot-jot-modal.png)
+
+**Theme - Settings**
+![Theme - Settings](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot-settings.png)
+
+**Red schema**
+![Red schema](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot-schema-red.png)
+
+**Love Music schema**
+![Love Music schema](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot-schema-love-music.png)
+
+**frio on mobile**
+
+![frio on mobile](https://github.com/rabuzarus/frio/blob/master/img/screenshots/screenshot-mobile.png)
 
 #### Credits:
 HumHub - Social Network Kit - <https://github.com/humhub/humhub>
