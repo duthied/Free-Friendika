@@ -1,0 +1,250 @@
+{{if $userinfo}}
+<nav id="topbar-first" class="topbar">
+	<div class="container">
+		<div class="col-lg-11 col-md-11 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="topbar-nav">
+
+				{{* Buttons for the mobile view *}}
+				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu">
+					<span class="sr-only">Toggle navigation</span>
+					<i class="fa fa-ellipsis-v"></i>
+				</button>
+				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle Search</span>
+					<i class="fa fa-search" style="color:#FFF;"></i>
+				</button>
+				<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs" data-toggle="offcanvas" data-target="aside"  >
+					<span class="sr-only">Toggle navigation</span>
+					<i class="fa fa-ellipsis-v"></i>
+				</button>
+
+				{{* Left section of the NavBar with navigation shortcuts/icons *}}
+				<ul class="nav navbar-nav navbar-left">
+					<li id="nav-communication" class="nav-segment">
+						{{if $nav.network}}
+						<a class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
+						{{/if}}
+
+						{{if $nav.home}}
+						<a class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
+						{{/if}}
+
+						{{if $nav.community}}
+						<a class="{{$sel.community}}" href="{{$nav.community.0}}" title="nav-menu {{$nav.community.3}}"><i class="fa fa-lg fa-bullseye"></i></a>
+						{{/if}}
+					</li>
+
+					<li id="nav-personal" class="nav-segment hidden-xs">
+						{{if $nav.messages}}
+						<a id="nav-messages-link" href="{{$nav.messages.0}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
+						{{/if}}
+
+						{{if $nav.events}}
+						<a id="nav-events-link" href="events/" title="events" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						{{/if}}
+
+						{{if $nav.contacts}}
+						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
+						{{/if}}
+					</li>
+
+					{{* The notifications dropdown *}}
+					{{if $nav.notifications}}
+						<li id="nav-notification" class="nav-segment hidden-xs">
+							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-exclamation-circle fa-lg"></i>
+								<span class="sr-only">{{$nav.notifications.1}}</span>
+								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
+							</a>
+
+							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
+							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
+
+								{{* the following list entry must have the id "nav-notificaionts-mark-all". Without it this isn't visable. ....strange behavior :-/ *}}
+								<li role="menuitem" id="nav-notifications-mark-all" class="dropdown-header">
+									<div class="arrow"></div>
+									{{$nav.notifications.1}}
+									<div class="dropdown-header-link">
+										<a href="#" onclick="notifyMarkAll(); return false;" title="{{$nav.notifications.mark.1}}" class="">Mark as read{{*** @todo Translation ***}}</a>
+									</div>
+
+								</li>
+
+								<li role="menuitem">
+									<p class="text-muted"><i>{{$emptynotifications}}</i></p>
+								</li>
+							</ul>
+						</li>
+						{{/if}}
+
+				</ul>
+			</div>
+
+			{{* This is the right part of the NavBar. It includes the search and the user menu *}}
+			<div class="topbar-actions pull-right">
+				<ul class="nav">
+
+					{{* The search box *}}
+					{{if $nav.search}}
+					<li id="search-box" class="hidden-xs">
+							<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
+								<!-- <img class="hidden-xs" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
+								<div class="form-group form-group-search">
+									<input id="search-input-field" class="form-control form-search" type="text" name="search" placeholder="Search">
+									<button class="btn btn-default btn-sm form-button-search" type="submit">Search</button>
+								</div>
+							</form>
+					</li>
+					{{/if}}
+
+					{{* The user dropdown menu *}}
+					{{if $userinfo}}
+					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
+						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
+								<strong>{{$userinfo.name}}</strong>
+								<span id="intro-update" class="nav-intro-badge badge nav-notify"></span>
+							</div>
+
+							<img  id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
+							<span class="caret"></span>
+
+						</a>
+
+						{{* The list of available usermenu links *}}
+						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="menu" aria-labelledby="main-menu">
+							{{foreach $nav.usermenu as $usermenu}}
+							<li role="menuitem"><a class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
+							{{/foreach}}
+							<li class="divider"></li>
+							<li role="menuitem"><a href="https://github.com/rabuzarus/frio" target="new" title="frio on GitHub"><i class="fa fa-github"></i> frio on GitHub</a></li>
+							<li class="divider"></li>
+							{{if $nav.notifications}}
+							<li role="menuitem"><a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a></li>
+							{{/if}}
+							{{if $nav.messages}}
+							<li role="menuitem"><a class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
+							{{/if}}
+							<li class="divider"></li>
+							{{if $nav.contacts}}
+							<li role="menuitem"><a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notify"></span></li>
+							{{/if}}
+							{{if $nav.manage}}
+							<li role="menuitem"><a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a></li>
+							{{/if}}
+							<li role="menuitem"><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}"><i class="fa fa-sitemap fa-fw"></i>{{$nav.directory.1}}</a></li>
+							<li class="divider"></li>
+							{{if $nav.apps}}
+							<li role="menuitem"><a id="nav-apps-link" class="nav-link {{$nav.apps.2}} {{$sel.manage}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw"></i> {{$nav.apps.1}}</a>
+							{{/if}}
+							<li class="divider"></li>
+							{{if $nav.help}}
+							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.3}}</a></li>
+							{{/if}}
+							{{if $nav.settings}}
+							<li role="menuitem"><a id="nav-settings-link" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw"></i> {{$nav.settings.1}}</a></li>
+							{{/if}}
+							{{if $nav.admin}}
+							<li role="menuitem"><a id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a></li>
+							{{/if}}
+							<li class="divider"></li>
+							{{if $nav.logout}}
+							<li role="menuitem"><a id="nav-logout-link" class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a></li>
+							{{/if}}
+							{{if $nav.login}}
+							<li role="menuitem"><a id="nav-login-link" class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a></li>
+							{{/if}}
+						</ul>
+					</li>{{* End of userinfo dropdown menu *}}
+					{{/if}}
+
+				<!-- Language selector, I do not find it relevant, activate if necessary.
+					<li>{{$langselector}}</li>
+				-->
+				</ul>
+			</div>{{* End of right navbar *}}
+
+			{{* The usermenu dropdown for the mobile view. It is called via the buttons. Have a look at the top of this file *}}
+			<div id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
+				<div class="nav-container">
+					<div class="list-group">
+						<li class="list-group-item"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$userinfo.name}}</li>
+						{{foreach $nav.usermenu as $usermenu}}
+						<a class="{{$usermenu.2}} list-group-item" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a>
+						{{/foreach}}
+						{{if $nav.notifications}}
+						<a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}" class="list-group-item"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a>
+						{{/if}}
+						{{if $nav.contacts}}
+						<a class="nav-link {{$nav.contacts.2}} list-group-item" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a>
+						{{/if}}
+						{{if $nav.messages}}
+						<a class="nav-link {{$nav.messages.2}} {{$sel.messages}} list-group-item" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}}</a>
+						{{/if}}
+						{{if $nav.manage}}
+						<a class="nav-commlink {{$nav.manage.2}} {{$sel.manage}} list-group-item" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a>
+						{{/if}}
+						{{if $nav.settings}}
+						<a class="nav-link {{$nav.settings.2}} list-group-item" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw"></i> {{$nav.settings.1}}</a>
+						{{/if}}
+						{{if $nav.admin}}
+						<a class="nav-link {{$nav.admin.2}} list-group-item" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a>
+						{{/if}}
+						{{if $nav.logout}}
+						<a class="nav-link {{$nav.logout.2}} list-group-item" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a>
+						{{/if}}
+						{{if $nav.login}}
+						<a class="nav-login-link {{$nav.login.2}} list-group-item" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a>
+						{{/if}}
+					</div>
+				</div>
+			</div><!--/.sidebar-offcanvas-->
+		</div><!-- end of div for navbar width-->
+	</div><!-- /.container -->
+</nav><!-- /.navbar -->
+{{/if}}
+
+
+{{* The navbar for users which are not logged in *}}
+{{if $userinfo == ''}}
+<nav class="navbar navbar-fixed-top">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">
+				<span><img alt="Brand" src="./images/friendica-32.png" width="25" height="25"> Friendica</span>
+			</a>
+		</div>
+		<div class="hidden-sm hidden-xs">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="register" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
+				<li><a href="login?mode=modal" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+{{/if}}
+
+{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
+<div id="topbar-second" class="topbar">
+	<div class="container">
+		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs"></div>
+		<div class="col-lg-7 col-md-7 col-sm-11 col-xs-10" id="tabmenu"></div>
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-2" id="navbar-button"></div>
+	</div>
+</div>
+
+{{*The second part of the notifications dropdown menu. It handles the notifications *}}
+{{if $nav.notifications}}
+<ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template"> <!-- needs further investigation. I thought the notifications have their own templates -->
+	<li class="{4} notif-entry" onclick="location.href='{0}';">
+		<div class="notif-entry-wrapper media">
+			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}"><img data-src="{1}"></a></div>
+			<div class="notif-desc-wrapper media-body">
+				{8}{7}
+				<div><time class="notif-when time" title="{5}">{3}</time></div>
+			</div>
+		</div>
+	</li>
+</ul>
+{{/if}}
