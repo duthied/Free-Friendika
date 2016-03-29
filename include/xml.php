@@ -1,6 +1,10 @@
 <?php
 /**
  * @file include/xml.php
+ */
+
+
+/**
  * @brief This class contain functions to work with XML data
  *
  */
