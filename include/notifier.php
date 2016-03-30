@@ -223,7 +223,7 @@ function notifier_run(&$argv, &$argc){
 
 	if(! ($mail || $fsuggest || $relocate)) {
 
-		$slap = ostatus_salmon($target_item,$owner);
+		$slap = ostatus::salmon($target_item,$owner);
 
 		require_once('include/group.php');
 
