@@ -15,7 +15,6 @@ Database Tables
 | [contact](help/database/db_contact)                  | contact table                                    |
 | [conv](help/database/db_conv)                        | private messages                                 |
 | [deliverq](help/database/db_deliverq)                |                                                  |
-| [dsprphotoq](help/database/db_dsprphotoq)            |                                                  |
 | [event](help/database/db_event)                      | Events                                           |
 | [fcontact](help/database/db_fcontact)                | friend suggestion stuff                          |
 | [ffinder](help/database/db_ffinder)                  | friend suggestion stuff                          |

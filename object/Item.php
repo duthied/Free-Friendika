@@ -324,7 +324,7 @@ class Item extends BaseObject {
 
 		// Diaspora isn't able to do likes on comments - but red does
 		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
-			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
+			!diaspora::is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Diaspora doesn't has multithreaded comments

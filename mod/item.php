@@ -24,6 +24,7 @@ require_once('include/threads.php');
 require_once('include/text.php');
 require_once('include/items.php');
 require_once('include/Scrape.php');
+require_once('include/diaspora.php');
 
 function item_post(&$a) {
 
@@ -900,7 +901,7 @@ function item_post(&$a) {
 
 
 		// Store the comment signature information in case we need to relay to Diaspora
-		store_diaspora_comment_sig($datarray, $author, ($self ? $user['prvkey'] : false), $parent_item, $post_id);
+		diaspora::store_comment_signature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 
 	} else {
 		$parent = $post_id;
@@ -1244,43 +1245,4 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 	}
 
 	return array('replaced' => $replaced, 'contact' => $r[0]);
-}
-
-
-function store_diaspora_comment_sig($datarray, $author, $uprvkey, $parent_item, $post_id) {
-	// We won't be able to sign Diaspora comments for authenticated visitors - we don't have their private key
-
-	$enabled = intval(get_config('system','diaspora_enabled'));
-	if(! $enabled) {
-		logger('mod_item: diaspora support disabled, not storing comment signature', LOGGER_DEBUG);
-		return;
-	}
-
-
-	logger('mod_item: storing diaspora comment signature');
-
-	require_once('include/bb2diaspora.php');
-	$signed_body = html_entity_decode(bb2diaspora($datarray['body']));
-
-	// Only works for NETWORK_DFRN
-	$contact_baseurl_start = strpos($author['url'],'://') + 3;
-	$contact_baseurl_length = strpos($author['url'],'/profile') - $contact_baseurl_start;
-	$contact_baseurl = substr($author['url'], $contact_baseurl_start, $contact_baseurl_length);
-	$diaspora_handle = $author['nick'] . '@' . $contact_baseurl;
-
-	$signed_text = $datarray['guid'] . ';' . $parent_item['guid'] . ';' . $signed_body . ';' . $diaspora_handle;
-
-	if( $uprvkey !== false )
-		$authorsig = rsa_sign($signed_text,$uprvkey,'sha256');
-	else
-		$authorsig = '';
-
-	q("insert into sign (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
-		intval($post_id),
-		dbesc($signed_text),
-		dbesc(base64_encode($authorsig)),
-		dbesc($diaspora_handle)
-	);
-
-	return;
 }
