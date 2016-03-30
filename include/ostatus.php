@@ -12,6 +12,7 @@ require_once("include/Scrape.php");
 require_once("include/follow.php");
 require_once("include/api.php");
 require_once("mod/proxy.php");
+require_once("include/ostatus2.php");
 
 define('OSTATUS_DEFAULT_POLL_INTERVAL', 30); // given in minutes
 define('OSTATUS_DEFAULT_POLL_TIMEFRAME', 1440); // given in minutes
