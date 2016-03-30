@@ -71,10 +71,6 @@ function cron_run(&$argv, &$argc){
 
 	proc_run('php',"include/queue.php");
 
-	// run diaspora photo queue process in the background
-
-	proc_run('php',"include/dsprphotoq.php");
-
 	// run the process to discover global contacts in the background
 
 	proc_run('php',"include/discover_poco.php");

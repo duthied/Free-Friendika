@@ -427,8 +427,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			if(($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
-				$ret = diaspora_share($user[0],$r[0]);
-				logger('mod_follow: diaspora_share returns: ' . $ret);
+				$ret = diaspora::send_share($user[0],$r[0]);
+				logger('share returns: ' . $ret);
 			}
 
 			// Send a new friend post if we are allowed to...

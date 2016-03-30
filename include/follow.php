@@ -303,8 +303,8 @@ function new_contact($uid,$url,$interactive = false) {
 		}
 		if($contact['network'] == NETWORK_DIASPORA) {
 			require_once('include/diaspora.php');
-			$ret = diaspora_share($a->user,$contact);
-			logger('mod_follow: diaspora_share returns: ' . $ret);
+			$ret = diaspora::send_share($a->user,$contact);
+			logger('share returns: '.$ret);
 		}
 	}
 
