@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file include/ostatus.php
+ */
+
 require_once("include/Contact.php");
 require_once("include/threads.php");
 require_once("include/html2bbcode.php");
@@ -14,11 +18,26 @@ require_once("include/api.php");
 require_once("mod/proxy.php");
 require_once("include/xml.php");
 
+/**
+ * @brief This class contain functions for the OStatus protocol
+ *
+ */
 class ostatus {
 	const OSTATUS_DEFAULT_POLL_INTERVAL = 30; // given in minutes
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME = 1440; // given in minutes
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
+	/**
+	 * @brief 
+	 *
+	 * @param $xpath
+	 * @param $context
+	 * @param $importer
+	 * @param $contact
+	 * @param $onlyfetch
+	 *
+	 * @return 
+	 */
 	private function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
 
 		$author = array();
@@ -124,6 +143,14 @@ class ostatus {
 		return($author);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $xml
+	 * @param $importer
+	 *
+	 * @return 
+	 */
 	public static function salmon_author($xml, $importer) {
 
 		if ($xml == "")
@@ -151,6 +178,16 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $xml
+	 * @param $importer
+	 * @param $contact
+	 * @param $hub
+	 *
+	 * @return 
+	 */
 	public static function import($xml,$importer,&$contact, &$hub) {
 
 		logger("Import OStatus message", LOGGER_DEBUG);
@@ -492,6 +529,13 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $href
+	 *
+	 * @return 
+	 */
 	public static function convert_href($href) {
 		$elements = explode(":",$href);
 
@@ -515,6 +559,14 @@ class ostatus {
 		return $href;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $mentions
+	 * @param $override
+	 *
+	 * @return 
+	 */
 	public static function check_conversations($mentions = false, $override = false) {
 		$last = get_config('system','ostatus_last_poll');
 
@@ -702,6 +754,15 @@ class ostatus {
 		return $details;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $conversation_url
+	 * @param $uid
+	 * @param $item
+	 *
+	 * @return 
+	 */
 	private function completion($conversation_url, $uid, $item = array(), $self = "") {
 
 
@@ -1093,6 +1154,14 @@ class ostatus {
 		return($item_stored);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $itemid
+	 * @param $conversation_url
+	 *
+	 * @return 
+	 */
 	private function store_conversation($itemid, $conversation_url) {
 
 		$conversation_url = self::convert_href($conversation_url);
@@ -1114,6 +1183,13 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item
+	 *
+	 * @return 
+	 */
 	private function get_reshared_guid($item) {
 		$body = trim($item["body"]);
 
@@ -1143,6 +1219,13 @@ class ostatus {
 		return $guid;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $body
+	 *
+	 * @return 
+	 */
 	private function format_picture_post($body) {
 		$siteinfo = get_attached_data($body);
 
@@ -1170,6 +1253,14 @@ class ostatus {
 		return $body;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $owner
+	 *
+	 * @return 
+	 */
 	private function add_header($doc, $owner) {
 
 		$a = get_app();
@@ -1223,6 +1314,14 @@ class ostatus {
 		return $root;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $root
+	 *
+	 * @return 
+	 */
 	public static function hublinks($doc, $root) {
 		$hub = get_config('system','huburl');
 
@@ -1242,6 +1341,15 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $root
+	 * @param $item
+	 *
+	 * @return 
+	 */
 	private function get_attachment($doc, $root, $item) {
 		$o = "";
 		$siteinfo = get_attached_data($item["body"]);
@@ -1305,6 +1413,14 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $owner
+	 *
+	 * @return 
+	 */
 	private function add_author($doc, $owner) {
 
 		$r = q("SELECT `homepage` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
@@ -1371,18 +1487,42 @@ class ostatus {
 	 *
 	*/
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item
+	 *
+	 * @return 
+	 */
 	function construct_verb($item) {
 		if ($item['verb'])
 			return $item['verb'];
 		return ACTIVITY_POST;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item
+	 *
+	 * @return 
+	 */
 	function construct_objecttype($item) {
 		if (in_array($item['object-type'], array(ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT)))
 			return $item['object-type'];
 		return ACTIVITY_OBJ_NOTE;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $item
+	 * @param $owner
+	 * @param $toplevel
+	 *
+	 * @return 
+	 */
 	private function entry($doc, $item, $owner, $toplevel = false) {
 		$repeated_guid = self::get_reshared_guid($item);
 		if ($repeated_guid != "")
@@ -1397,6 +1537,14 @@ class ostatus {
 			return self::note_entry($doc, $item, $owner, $toplevel);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $contact
+	 *
+	 * @return 
+	 */
 	private function source_entry($doc, $contact) {
 		$source = $doc->createElement("source");
 		xml::add_element($doc, $source, "id", $contact["poll"]);
@@ -1413,6 +1561,14 @@ class ostatus {
 		return $source;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $url
+	 * @param $owner
+	 *
+	 * @return 
+	 */
 	private function contact_entry($url, $owner) {
 
 		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
@@ -1447,6 +1603,17 @@ class ostatus {
 		return $contact;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $item
+	 * @param $owner
+	 * @param $repeated_guid
+	 * @param $toplevel
+	 *
+	 * @return 
+	 */
 	private function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel) {
 
 		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
@@ -1473,8 +1640,6 @@ class ostatus {
 
 		$as_object = $doc->createElement("activity:object");
 
-// ostatusWaEeYs
-// ostatusogu9zg - besser
 		xml::add_element($doc, $as_object, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA."activity");
 
 		self::entry_content($doc, $as_object, $repeated_item, $owner, "", "", false);
@@ -1505,6 +1670,16 @@ class ostatus {
 		return $entry;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $item
+	 * @param $owner
+	 * @param $toplevel
+	 *
+	 * @return 
+	 */
 	private function like_entry($doc, $item, $owner, $toplevel) {
 
 		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
@@ -1532,6 +1707,16 @@ class ostatus {
 		return $entry;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $item
+	 * @param $owner
+	 * @param $toplevel
+	 *
+	 * @return 
+	 */
 	private function note_entry($doc, $item, $owner, $toplevel) {
 
 		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
@@ -1549,6 +1734,16 @@ class ostatus {
 		return $entry;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $entry
+	 * @param $owner
+	 * @param $toplevel
+	 *
+	 * @return 
+	 */
 	private function entry_header($doc, &$entry, $owner, $toplevel) {
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
@@ -1572,6 +1767,19 @@ class ostatus {
 		return $title;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $entry
+	 * @param $item
+	 * @param $owner
+	 * @param $title
+	 * @param $verb
+	 * @param $complete
+	 *
+	 * @return 
+	 */
 	private function entry_content($doc, $entry, $item, $owner, $title, $verb = "", $complete = true) {
 
 		if ($verb == "")
@@ -1601,6 +1809,17 @@ class ostatus {
 		xml::add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $doc
+	 * @param $entry
+	 * @param $item
+	 * @param $owner
+	 * @param $complete
+	 *
+	 * @return 
+	 */
 	private function entry_footer($doc, $entry, $item, $owner, $complete = true) {
 
 		$mentioned = array();
@@ -1697,6 +1916,15 @@ class ostatus {
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $a
+	 * @param $owner_nick
+	 * @param $last_update
+	 *
+	 * @return 
+	 */
 	public static function feed(&$a, $owner_nick, $last_update) {
 
 		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
@@ -1746,6 +1974,14 @@ class ostatus {
 		return(trim($doc->saveXML()));
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item
+	 * @param $owner
+	 *
+	 * @return 
+	 */
 	public static function salmon($item,$owner) {
 
 		$doc = new DOMDocument('1.0', 'utf-8');
