@@ -101,10 +101,10 @@ function cron_run(&$argv, &$argc){
 
 	// Check OStatus conversations
 	// Check only conversations with mentions (for a longer time)
-	check_conversations(true);
+	ostatus::check_conversations(true);
 
 	// Check every conversation
-	check_conversations(false);
+	ostatus::check_conversations(false);
 
 	// Set the gcontact-id in the item table if missing
 	item_set_gcontact();
