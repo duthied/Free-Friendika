@@ -187,6 +187,7 @@ class ostatus {
 	 * @param array $hub Called by reference, returns the fetched hub data
 	 */
 	public static function import($xml,$importer,&$contact, &$hub) {
+		/// @todo this function is too long. It has to be split in many parts
 
 		logger("Import OStatus message", LOGGER_DEBUG);
 
@@ -761,6 +762,7 @@ class ostatus {
 	 */
 	private function completion($conversation_url, $uid, $item = array(), $self = "") {
 
+		/// @todo This function is totally ugly and has to be rewritten totally
 
 		$item_stored = -1;
 
@@ -1728,7 +1730,7 @@ class ostatus {
 	 * @brief Adds a header element to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param object $entry Entry element
+	 * @param object $entry The entry element where the elements are added
 	 * @param array $owner Contact data of the poster
 	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
@@ -1799,10 +1801,10 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds the elements at the foot of an entry to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $entry
+	 * @param object $entry The entry element where the elements are added
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
 	 * @param $complete
