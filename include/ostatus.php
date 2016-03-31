@@ -28,15 +28,15 @@ class ostatus {
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
 	/**
-	 * @brief 
+	 * @brief Fetches author data
 	 *
-	 * @param $xpath
-	 * @param $context
-	 * @param $importer
-	 * @param $contact
-	 * @param $onlyfetch
+	 * @param object $xpath The xpath object
+	 * @param object $context The xml context of the author detals
+	 * @param array $importer user record of the importing user
+	 * @param array $contact Called by reference, will contain the fetched contact
+	 * @param bool $onlyfetch Only fetch the header without updating the contact entries
 	 *
-	 * @return 
+	 * @return array Array of author related entries for the item
 	 */
 	private function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
 
@@ -147,7 +147,7 @@ class ostatus {
 	 * @brief 
 	 *
 	 * @param $xml
-	 * @param $importer
+	 * @param array $importer user record of the importing user
 	 *
 	 * @return 
 	 */
@@ -179,14 +179,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Imports an XML string containing OStatus elements
 	 *
-	 * @param $xml
-	 * @param $importer
+	 * @param string $xml The XML
+	 * @param array $importer user record of the importing user
 	 * @param $contact
-	 * @param $hub
-	 *
-	 * @return 
+	 * @param array $hub Called by reference, returns the fetched hub data
 	 */
 	public static function import($xml,$importer,&$contact, &$hub) {
 
@@ -530,11 +528,11 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Create an url out of an uri
 	 *
-	 * @param $href
+	 * @param string $href URI in the format "parameter1:parameter1:..."
 	 *
-	 * @return 
+	 * @return string URL in the format http(s)://....
 	 */
 	public static function convert_href($href) {
 		$elements = explode(":",$href);
@@ -560,12 +558,10 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Checks if there are entries in conversations that aren't present on our side
 	 *
-	 * @param $mentions
-	 * @param $override
-	 *
-	 * @return 
+	 * @param bool $mentions Fetch conversations where we are mentioned
+	 * @param bool $override Override the interval setting
 	 */
 	public static function check_conversations($mentions = false, $override = false) {
 		$last = get_config('system','ostatus_last_poll');
@@ -759,7 +755,7 @@ class ostatus {
 	 *
 	 * @param $conversation_url
 	 * @param $uid
-	 * @param $item
+	 * @param array $item Data of the item that is to be posted
 	 *
 	 * @return 
 	 */
@@ -1184,11 +1180,11 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Checks if the current post is a reshare
 	 *
-	 * @param $item
+	 * @param array $item The item array of thw post
 	 *
-	 * @return 
+	 * @return string The guid if the post is a reshare
 	 */
 	private function get_reshared_guid($item) {
 		$body = trim($item["body"]);
@@ -1220,11 +1216,11 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Cleans the body of a post if it contains picture links
 	 *
-	 * @param $body
+	 * @param string $body The body
 	 *
-	 * @return 
+	 * @return string The cleaned body
 	 */
 	private function format_picture_post($body) {
 		$siteinfo = get_attached_data($body);
@@ -1256,8 +1252,8 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $owner Contact data of the poster
 	 *
 	 * @return 
 	 */
@@ -1317,7 +1313,7 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $root
 	 *
 	 * @return 
@@ -1344,9 +1340,9 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $root
-	 * @param $item
+	 * @param array $item Data of the item that is to be posted
 	 *
 	 * @return 
 	 */
@@ -1416,8 +1412,8 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $owner Contact data of the poster
 	 *
 	 * @return 
 	 */
@@ -1490,7 +1486,7 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $item
+	 * @param array $item Data of the item that is to be posted
 	 *
 	 * @return 
 	 */
@@ -1503,7 +1499,7 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $item
+	 * @param array $item Data of the item that is to be posted
 	 *
 	 * @return 
 	 */
@@ -1516,9 +1512,9 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $item
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $toplevel
 	 *
 	 * @return 
@@ -1540,7 +1536,7 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $contact
 	 *
 	 * @return 
@@ -1565,7 +1561,7 @@ class ostatus {
 	 * @brief 
 	 *
 	 * @param $url
-	 * @param $owner
+	 * @param array $owner Contact data of the poster
 	 *
 	 * @return 
 	 */
@@ -1606,9 +1602,9 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $item
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $repeated_guid
 	 * @param $toplevel
 	 *
@@ -1673,12 +1669,12 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $item
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $toplevel
 	 *
-	 * @return 
+	 * @return object
 	 */
 	private function like_entry($doc, $item, $owner, $toplevel) {
 
@@ -1710,9 +1706,9 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
-	 * @param $item
-	 * @param $owner
+	 * @param object $doc XML document
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $toplevel
 	 *
 	 * @return 
@@ -1737,9 +1733,9 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $entry
-	 * @param $owner
+	 * @param array $owner Contact data of the poster
 	 * @param $toplevel
 	 *
 	 * @return 
@@ -1770,10 +1766,10 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $entry
-	 * @param $item
-	 * @param $owner
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $title
 	 * @param $verb
 	 * @param $complete
@@ -1812,10 +1808,10 @@ class ostatus {
 	/**
 	 * @brief 
 	 *
-	 * @param $doc
+	 * @param object $doc XML document
 	 * @param $entry
-	 * @param $item
-	 * @param $owner
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 * @param $complete
 	 *
 	 * @return 
@@ -1975,12 +1971,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the XML for a salmon message
 	 *
-	 * @param $item
-	 * @param $owner
+	 * @param array $item Data of the item that is to be posted
+	 * @param array $owner Contact data of the poster
 	 *
-	 * @return 
+	 * @return string XML for the salmon
 	 */
 	public static function salmon($item,$owner) {
 
