@@ -144,12 +144,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches author data from a given XML string
 	 *
-	 * @param $xml
+	 * @param string $xml The XML
 	 * @param array $importer user record of the importing user
 	 *
-	 * @return 
+	 * @return array Array of author related entries for the item
 	 */
 	public static function salmon_author($xml, $importer) {
 
@@ -751,13 +751,13 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Stores an item and completes the thread
 	 *
-	 * @param $conversation_url
-	 * @param $uid
+	 * @param string $conversation_url The URI of the conversation
+	 * @param integer $uid The user id
 	 * @param array $item Data of the item that is to be posted
 	 *
-	 * @return 
+	 * @return integer The item id of the posted item array
 	 */
 	private function completion($conversation_url, $uid, $item = array(), $self = "") {
 
@@ -1151,12 +1151,10 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Stores conversation data into the database
 	 *
-	 * @param $itemid
-	 * @param $conversation_url
-	 *
-	 * @return 
+	 * @param integer $itemid The id of the item
+	 * @param string $conversation_url The uri of the conversation
 	 */
 	private function store_conversation($itemid, $conversation_url) {
 
@@ -1250,12 +1248,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds the header elements to the XML document
 	 *
 	 * @param object $doc XML document
 	 * @param array $owner Contact data of the poster
 	 *
-	 * @return 
+	 * @return object header root element
 	 */
 	private function add_header($doc, $owner) {
 
@@ -1311,12 +1309,10 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Add the link to the push hubs to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $root
-	 *
-	 * @return 
+	 * @param object $root XML root element where the hub links are added
 	 */
 	public static function hublinks($doc, $root) {
 		$hub = get_config('system','huburl');
@@ -1338,13 +1334,11 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds attachement data to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $root
+	 * @param object $root XML root element where the hub links are added
 	 * @param array $item Data of the item that is to be posted
-	 *
-	 * @return 
 	 */
 	private function get_attachment($doc, $root, $item) {
 		$o = "";
@@ -1410,12 +1404,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds the author element to the XML document
 	 *
 	 * @param object $doc XML document
 	 * @param array $owner Contact data of the poster
 	 *
-	 * @return 
+	 * @return object author element
 	 */
 	private function add_author($doc, $owner) {
 
@@ -1484,11 +1478,11 @@ class ostatus {
 	*/
 
 	/**
-	 * @brief 
+	 * @brief Returns the given activity if present - otherwise returns the "post" activity
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 *
-	 * @return 
+	 * @return string activity
 	 */
 	function construct_verb($item) {
 		if ($item['verb'])
@@ -1497,11 +1491,11 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Returns the given object type if present - otherwise returns the "note" object type
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 *
-	 * @return 
+	 * @return string Object type
 	 */
 	function construct_objecttype($item) {
 		if (in_array($item['object-type'], array(ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT)))
@@ -1510,14 +1504,14 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds an entry element to the XML document
 	 *
 	 * @param object $doc XML document
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
-	 * @param $toplevel
+	 * @param bool $toplevel
 	 *
-	 * @return 
+	 * @return object Entry element
 	 */
 	private function entry($doc, $item, $owner, $toplevel = false) {
 		$repeated_guid = self::get_reshared_guid($item);
@@ -1534,12 +1528,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds a source entry to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $contact
+	 * @param array $contact Array of the contact that is added
 	 *
-	 * @return 
+	 * @return object Source element
 	 */
 	private function source_entry($doc, $contact) {
 		$source = $doc->createElement("source");
@@ -1558,12 +1552,12 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches contact data from the contact or the gcontact table
 	 *
-	 * @param $url
+	 * @param string $url URL of the contact
 	 * @param array $owner Contact data of the poster
 	 *
-	 * @return 
+	 * @return array Contact array
 	 */
 	private function contact_entry($url, $owner) {
 
@@ -1600,15 +1594,15 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds an entry element with reshared content
 	 *
 	 * @param object $doc XML document
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
 	 * @param $repeated_guid
-	 * @param $toplevel
+	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return 
+	 * @return object Entry element
 	 */
 	private function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel) {
 
@@ -1667,14 +1661,14 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds an entry element with a "like"
 	 *
 	 * @param object $doc XML document
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
-	 * @param $toplevel
+	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object
+	 * @return object Entry element with "like"
 	 */
 	private function like_entry($doc, $item, $owner, $toplevel) {
 
@@ -1704,14 +1698,14 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds a regular entry element
 	 *
 	 * @param object $doc XML document
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
-	 * @param $toplevel
+	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return 
+	 * @return object Entry element
 	 */
 	private function note_entry($doc, $item, $owner, $toplevel) {
 
@@ -1731,16 +1725,17 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds a header element to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $entry
+	 * @param object $entry Entry element
 	 * @param array $owner Contact data of the poster
-	 * @param $toplevel
+	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return 
+	 * @return string The title for the element
 	 */
 	private function entry_header($doc, &$entry, $owner, $toplevel) {
+		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
 			$title = sprintf("New note by %s", $owner["nick"]);
@@ -1764,17 +1759,15 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Adds elements to the XML document
 	 *
 	 * @param object $doc XML document
-	 * @param $entry
+	 * @param object $entry Entry element where the content is added
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
-	 * @param $title
-	 * @param $verb
-	 * @param $complete
-	 *
-	 * @return 
+	 * @param string $title Title for the post
+	 * @param string $verb The activity verb
+	 * @param bool $complete Add the "status_net" element?
 	 */
 	private function entry_content($doc, $entry, $item, $owner, $title, $verb = "", $complete = true) {
 
@@ -1813,8 +1806,6 @@ class ostatus {
 	 * @param array $item Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
 	 * @param $complete
-	 *
-	 * @return 
 	 */
 	private function entry_footer($doc, $entry, $item, $owner, $complete = true) {
 
@@ -1913,13 +1904,13 @@ class ostatus {
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates the XML feed for a given nickname
 	 *
-	 * @param $a
-	 * @param $owner_nick
-	 * @param $last_update
+	 * @param app $a The application class
+	 * @param string $owner_nick Nickname of the feed owner
+	 * @param string $last_update Date of the last update
 	 *
-	 * @return 
+	 * @return string XML feed
 	 */
 	public static function feed(&$a, $owner_nick, $last_update) {
 
