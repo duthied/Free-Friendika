@@ -845,7 +845,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		/// It should only be updated if the existing picture isn't existing anymore.
 		if (($result['network'] != NETWORK_FEED) AND $result["addr"] AND $result["name"] AND $result["nick"])
 			q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-				`name-date` = '%s', `uri-date` = '%s' WHERE `nurl` = '%s' AND NOT `self`",
+				`name-date` = '%s', `uri-date` = '%s' WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
 				dbesc($result["addr"]),
 				dbesc($result["alias"]),
 				dbesc($result["name"]),
