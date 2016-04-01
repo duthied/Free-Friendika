@@ -44,8 +44,7 @@ class ostatus {
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
 
-		// Preserve the value
-		$authorlink = $author["author-link"];
+		$aliaslink = $author["author-link"];
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
 		if (is_object($alternate))
@@ -55,7 +54,7 @@ class ostatus {
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-			dbesc(normalise_link($authorlink)), dbesc(NETWORK_STATUSNET));
+			dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
 		if ($r) {
 			$contact = $r[0];
 			$author["contact-id"] = $r[0]["id"];
@@ -117,12 +116,14 @@ class ostatus {
 			if ($value != "")
 				$contact["location"] = $value;
 
-			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
+			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR
+				($contact["alias"] != $r[0]["alias"]) OR ($contact["location"] != $r[0]["location"])) {
 
 				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
-					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
+				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `alias` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
+					dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc(datetime_convert()), intval($contact["id"]));
 
 				poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
