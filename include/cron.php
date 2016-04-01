@@ -335,35 +335,37 @@ function cron_clear_cache(&$a) {
 	if ($max_tablesize == 0)
 		$max_tablesize = 100 * 1000000; // Default are 100 MB
 
-	// Minimum fragmentation level in percent
-	$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
-	if ($fragmentation_level == 0)
-		$fragmentation_level = 0.3; // Default value is 30%
+	if ($max_tablesize > 0) {
+		// Minimum fragmentation level in percent
+		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
+		if ($fragmentation_level == 0)
+			$fragmentation_level = 0.3; // Default value is 30%
 
-	// Optimize some tables that need to be optimized
-	$r = q("SHOW TABLE STATUS");
-	foreach($r as $table) {
+		// Optimize some tables that need to be optimized
+		$r = q("SHOW TABLE STATUS");
+		foreach($r as $table) {
 
-		// Don't optimize tables that are too large
-		if ($table["Data_length"] > $max_tablesize)
-			continue;
+			// Don't optimize tables that are too large
+			if ($table["Data_length"] > $max_tablesize)
+				continue;
 
-		// Don't optimize empty tables
-		if ($table["Data_length"] == 0)
-			continue;
+			// Don't optimize empty tables
+			if ($table["Data_length"] == 0)
+				continue;
 
-		// Calculate fragmentation
-		$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
+			// Calculate fragmentation
+			$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
 
-		logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
+			logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
 
-		// Don't optimize tables that needn't to be optimized
-		if ($fragmentation < $fragmentation_level)
-			continue;
+			// Don't optimize tables that needn't to be optimized
+			if ($fragmentation < $fragmentation_level)
+				continue;
 
-		// So optimize it
-		logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
-		q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+			// So optimize it
+			logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
+			q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+		}
 	}
 
 	set_config('system','cache_last_cleared', time());
