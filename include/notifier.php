@@ -229,7 +229,7 @@ function notifier_run(&$argv, &$argc){
 
 		$parent = $items[0];
 
-		$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+		$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 			dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
 
 		logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
@@ -389,6 +389,20 @@ function notifier_run(&$argv, &$argc){
 		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
 
 			logger('Some parent is OStatus for '.$target_item["guid"], LOGGER_DEBUG);
+
+			// Send a salmon to the parent author
+			$probed_contact = probe_url($thr_parent[0]['author-link']);
+			if ($probed_contact["notify"] != "") {
+				logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
+				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+			}
+
+			// Send a salmon to the parent owner
+			$probed_contact = probe_url($thr_parent[0]['owner-link']);
+			if ($probed_contact["notify"] != "") {
+				logger('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
+				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+			}
 
 			// Send a salmon notification to every person we mentioned in the post
 			$arr = explode(',',$target_item['tag']);
