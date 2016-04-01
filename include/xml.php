@@ -92,5 +92,40 @@ class xml {
 				self::copy($childentry, $child, $childfield);
 		}
 	}
+
+	/**
+	 * @brief Create an XML element
+	 *
+	 * @param object $doc XML root
+	 * @param string $element XML element name
+	 * @param string $value XML value
+	 * @param array $attributes array containing the attributes
+	 *
+	 * @return object XML element object
+	 */
+	public static function create_element($doc, $element, $value = "", $attributes = array()) {
+		$element = $doc->createElement($element, xmlify($value));
+
+		foreach ($attributes AS $key => $value) {
+			$attribute = $doc->createAttribute($key);
+			$attribute->value = xmlify($value);
+			$element->appendChild($attribute);
+		}
+		return $element;
+	}
+
+	/**
+	 * @brief Create an XML and append it to the parent object
+	 *
+	 * @param object $doc XML root
+	 * @param object $parent parent object
+	 * @param string $element XML element name
+	 * @param string $value XML value
+	 * @param array $attributes array containing the attributes
+	 */
+	public static function add_element($doc, $parent, $element, $value = "", $attributes = array()) {
+		$element = self::create_element($doc, $element, $value, $attributes);
+		$parent->appendChild($element);
+	}
 }
 ?>

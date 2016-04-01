@@ -16,7 +16,7 @@ function handle_pubsubhubbub() {
 
 		logger("Generate feed for user ".$rr['nickname']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 
-		$params = ostatus_feed($a, $rr['nickname'], $rr['last_update']);
+		$params = ostatus::feed($a, $rr['nickname'], $rr['last_update']);
 		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
 		$headers = array("Content-type: application/atom+xml",

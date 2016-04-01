@@ -383,9 +383,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Converting the plink
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink']))
-			$arr['plink'] = ostatus_convert_href($arr['plink']);
+			$arr['plink'] = ostatus::convert_href($arr['plink']);
 		elseif (isset($arr['uri']))
-			$arr['plink'] = ostatus_convert_href($arr['uri']);
+			$arr['plink'] = ostatus::convert_href($arr['uri']);
 	}
 
 	if(x($arr, 'gravity'))
@@ -1243,7 +1243,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus_import($xml,$importer,$contact, $hub);
+			ostatus::import($xml,$importer,$contact, $hub);
 		}
 		return;
 	}
