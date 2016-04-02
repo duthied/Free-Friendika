@@ -23,13 +23,15 @@ function scrape_dfrn($url, $dont_probe = false) {
 		if (is_array($noscrapedata)) {
 			if ($noscrapedata["nick"] != "")
 				return($noscrapedata);
+			else
+				unset($noscrapedata["nick"]);
 		} else
 			$noscrapedata = array();
 	}
 
 	$s = fetch_url($url);
 
-	if(! $s)
+	if (!$s)
 		return $ret;
 
 	if (!$dont_probe) {
@@ -703,6 +705,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 					if (($vcard["nick"] == "") AND ($data["header"]["author-nick"] != ""))
 						$vcard["nick"] = $data["header"]["author-nick"];
 
+					if (($network == NETWORK_OSTATUS) AND ($data["header"]["author-id"] != ""))
+						$alias = $data["header"]["author-id"];
+
 					if(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
 						$profile = $data["header"]["author-link"];
 				}
@@ -844,13 +849,17 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		/// The biggest problem is the avatar picture that could have a reduced image size.
 		/// It should only be updated if the existing picture isn't existing anymore.
 		if (($result['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
-			$result["addr"] AND $result["name"] AND $result["nick"])
-			q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-				`success_update` = '%s' WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
-				dbesc($result["addr"]),
-				dbesc($result["alias"]),
+			$result["name"] AND $result["nick"] AND $result["url"] AND $result["addr"] AND $result["poll"])
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
+					`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
 				dbesc($result["name"]),
 				dbesc($result["nick"]),
+				dbesc($result["url"]),
+				dbesc($result["addr"]),
+				dbesc($result["notify"]),
+				dbesc($result["poll"]),
+				dbesc($result["alias"]),
 				dbesc(datetime_convert()),
 				dbesc(normalise_link($result['url']))
 		);
