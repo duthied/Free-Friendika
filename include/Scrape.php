@@ -356,7 +356,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	$result = array();
 
-	if(! $url)
+	if (!$url)
 		return $result;
 
 	$result = Cache::get("probe_url:".$mode.":".$url);
@@ -365,6 +365,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		return $result;
 	}
 
+	$original_url = $url;
 	$network = null;
 	$diaspora = false;
 	$diaspora_base = '';
@@ -393,7 +394,12 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		else
 			$links = lrdd($url);
 
-		if(count($links)) {
+		if ((count($links) == 0) AND strstr($url, "/index.php")) {
+			$url = str_replace("/index.php", "", $url);
+			$links = lrdd($url);
+		}
+
+		if (count($links)) {
 			$has_lrdd = true;
 
 			logger('probe_url: found lrdd links: ' . print_r($links,true), LOGGER_DATA);
@@ -440,18 +446,30 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			// aliases, let's hope we're lucky and get one that matches the feed author-uri because
 			// otherwise we're screwed.
 
+			$backup_alias = "";
+
 			foreach($links as $link) {
 				if($link['@attributes']['rel'] === 'alias') {
 					if(strpos($link['@attributes']['href'],'@') === false) {
 						if(isset($profile)) {
-							if($link['@attributes']['href'] !== $profile)
-								$alias = unamp($link['@attributes']['href']);
+							$alias_url = $link['@attributes']['href'];
+
+							if(($alias_url !== $profile) AND ($backup_alias == "") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$backup_alias = $alias_url;
+
+							if(($alias_url !== $profile) AND !strstr($alias_url, "index.php") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$alias = $alias_url;
 						}
 						else
 							$profile = unamp($link['@attributes']['href']);
 					}
 				}
 			}
+
+			if ($alias == "")
+				$alias = $backup_alias;
 
 			// If the profile is different from the url then the url is abviously an alias
 			if (($alias == "") AND ($profile != "") AND !$at_addr AND (normalise_link($profile) != normalise_link($url)))
@@ -769,6 +787,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if (($baseurl == "") AND ($poll != ""))
 		$baseurl = matching_url(normalise_link($profile), normalise_link($poll));
 
+	if (substr($baseurl, -10) == "/index.php")
+		$baseurl = str_replace("/index.php", "", $baseurl);
+
 	$baseurl = rtrim($baseurl, "/");
 
 	if(strpos($url,'@') AND ($addr == "") AND ($network == NETWORK_DFRN))
@@ -816,8 +837,24 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_PHANTOM)
-		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
+	if ($result['network'] != NETWORK_PHANTOM) {
+		Cache::set("probe_url:".$mode.":".$original_url,serialize($result), CACHE_DAY);
+
+		/// @todo temporary fix - we need a real contact update function that updates only changing fields
+		/// The biggest problem is the avatar picture that could have a reduced image size.
+		/// It should only be updated if the existing picture isn't existing anymore.
+		if (($result['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
+			$result["addr"] AND $result["name"] AND $result["nick"])
+			q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+				`success_update` = '%s' WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
+				dbesc($result["addr"]),
+				dbesc($result["alias"]),
+				dbesc($result["name"]),
+				dbesc($result["nick"]),
+				dbesc(datetime_convert()),
+				dbesc(normalise_link($result['url']))
+		);
+	}
 
 	return $result;
 }
