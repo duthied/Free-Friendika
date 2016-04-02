@@ -90,13 +90,20 @@ class ostatus {
 
 		// Only update the contacts if it is an OStatus contact
 		if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
+
 			// Update contact data
 
-			$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["notify"] = $value;
+			// This query doesn't seem to work
+			// $value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["notify"] = $value;
 
-			$value = $xpath->evaluate('atom:author/uri/text()', $context)->item(0)->nodeValue;
+			// This query doesn't seem to work as well - I hate these queries
+			// $value = $xpath->query("atom:link[@rel='self' and @type='application/atom+xml']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["poll"] = $value;
+
+			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
 				$contact["alias"] = $value;
 
@@ -134,6 +141,24 @@ class ostatus {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
 				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+			}
+
+			// Ensure that we are having this contact (with uid=0)
+			$cid = get_contact($author["author-link"], 0);
+
+			if ($cid) {
+				// Update it with the current values
+				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
+						`about` = '%s', `location` = '%s', `notify` = '%s', `poll` = '%s',
+						`success_update` = '%s', `last-update` = '%s'
+					WHERE `id` = %d",
+					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
+					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
+					dbesc($contact["notify"]), dbesc($contact["poll"]),
+					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
+
+				// Update the avatar
+				update_contact_avatar($author["author-avatar"], 0, $cid);
 			}
 
 			$contact["generation"] = 2;
@@ -1586,8 +1611,10 @@ class ostatus {
 
 		if (!isset($contact["poll"])) {
 			$data = probe_url($url);
-			$contact["alias"] = $data["alias"];
 			$contact["poll"] = $data["poll"];
+
+			if (!$contact["alias"])
+				$contact["alias"] = $data["alias"];
 		}
 
 		if (!isset($contact["alias"]))
