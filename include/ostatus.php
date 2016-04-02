@@ -149,12 +149,11 @@ class ostatus {
 			if ($cid) {
 				// Update it with the current values
 				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
-						`about` = '%s', `location` = '%s', `notify` = '%s', `poll` = '%s',
+						`about` = '%s', `location` = '%s',
 						`success_update` = '%s', `last-update` = '%s'
 					WHERE `id` = %d",
 					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
 					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc($contact["notify"]), dbesc($contact["poll"]),
 					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
 
 				// Update the avatar
