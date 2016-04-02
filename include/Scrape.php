@@ -843,14 +843,14 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		/// @todo temporary fix - we need a real contact update function that updates only changing fields
 		/// The biggest problem is the avatar picture that could have a reduced image size.
 		/// It should only be updated if the existing picture isn't existing anymore.
-		if (($result['network'] != NETWORK_FEED) AND $result["addr"] AND $result["name"] AND $result["nick"])
+		if (($result['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
+			$result["addr"] AND $result["name"] AND $result["nick"])
 			q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-				`name-date` = '%s', `uri-date` = '%s' WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
+				`success_update` = '%s' WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
 				dbesc($result["addr"]),
 				dbesc($result["alias"]),
 				dbesc($result["name"]),
 				dbesc($result["nick"]),
-				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(normalise_link($result['url']))
 		);
