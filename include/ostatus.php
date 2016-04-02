@@ -1712,7 +1712,8 @@ class ostatus {
 
 		$as_object = $doc->createElement("activity:object");
 
-		$parent = q("SELECT * FROM `item` WHERE `id` = %d", intval($item["parent"]));
+		$parent = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+			dbesc($item["thr-parent"]), intval($item["uid"]));
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
 		xml::add_element($doc, $as_object, "activity:object-type", self::construct_objecttype($parent[0]));
