@@ -44,8 +44,7 @@ class ostatus {
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
 
-		// Preserve the value
-		$authorlink = $author["author-link"];
+		$aliaslink = $author["author-link"];
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
 		if (is_object($alternate))
@@ -55,7 +54,7 @@ class ostatus {
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-			dbesc(normalise_link($authorlink)), dbesc(NETWORK_STATUSNET));
+			dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
 		if ($r) {
 			$contact = $r[0];
 			$author["contact-id"] = $r[0]["id"];
@@ -91,13 +90,20 @@ class ostatus {
 
 		// Only update the contacts if it is an OStatus contact
 		if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
+
 			// Update contact data
 
-			$value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["notify"] = $value;
+			// This query doesn't seem to work
+			// $value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["notify"] = $value;
 
-			$value = $xpath->evaluate('atom:author/uri/text()', $context)->item(0)->nodeValue;
+			// This query doesn't seem to work as well - I hate these queries
+			// $value = $xpath->query("atom:link[@rel='self' and @type='application/atom+xml']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["poll"] = $value;
+
+			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
 				$contact["alias"] = $value;
 
@@ -117,12 +123,14 @@ class ostatus {
 			if ($value != "")
 				$contact["location"] = $value;
 
-			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR ($contact["location"] != $r[0]["location"])) {
+			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR
+				($contact["alias"] != $r[0]["alias"]) OR ($contact["location"] != $r[0]["location"])) {
 
 				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
-					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
+				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `alias` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
+					dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc(datetime_convert()), intval($contact["id"]));
 
 				poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
@@ -133,6 +141,23 @@ class ostatus {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
 				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+			}
+
+			// Ensure that we are having this contact (with uid=0)
+			$cid = get_contact($author["author-link"], 0);
+
+			if ($cid) {
+				// Update it with the current values
+				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
+						`about` = '%s', `location` = '%s',
+						`success_update` = '%s', `last-update` = '%s'
+					WHERE `id` = %d",
+					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
+					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
+					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
+
+				// Update the avatar
+				update_contact_avatar($author["author-avatar"], 0, $cid);
 			}
 
 			$contact["generation"] = 2;
@@ -1585,8 +1610,10 @@ class ostatus {
 
 		if (!isset($contact["poll"])) {
 			$data = probe_url($url);
-			$contact["alias"] = $data["alias"];
 			$contact["poll"] = $data["poll"];
+
+			if (!$contact["alias"])
+				$contact["alias"] = $data["alias"];
 		}
 
 		if (!isset($contact["alias"]))

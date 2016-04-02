@@ -28,7 +28,7 @@ function noscrape_init(&$a) {
 	$json_info = array(
 		'fn' => $a->profile['name'],
 		'addr' => $a->profile['addr'],
-		'nick' => $a->user['nickname'],
+		'nick' => $which,
 		'key' => $a->profile['pubkey'],
 		'homepage' => $a->get_baseurl()."/profile/{$which}",
 		'comm' => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
