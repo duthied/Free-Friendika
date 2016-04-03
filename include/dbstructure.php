@@ -783,6 +783,7 @@ function db_definition() {
 					"parent-uri" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"extid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"thr-parent" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"shadow" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"commented" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),

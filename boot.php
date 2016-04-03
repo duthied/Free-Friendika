@@ -6,11 +6,11 @@
 
 /**
  * Friendica
- * 
+ *
  * Friendica is a communications platform for integrated social communications
  * utilising decentralised communications and linkage to several indie social
  * projects - as well as popular mainstream providers.
- * 
+ *
  * Our mission is to free our friends and families from the clutches of
  * data-harvesting corporations, and pave the way to a future where social
  * communications are free and open and flow between alternate providers as
@@ -18,7 +18,7 @@
  */
 
 require_once('include/autoloader.php');
- 
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1194      );
+define ( 'DB_UPDATE_VERSION',      1195      );
 
 /**
  * @brief Constant with a HTML line break.
