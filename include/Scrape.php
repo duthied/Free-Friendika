@@ -705,10 +705,14 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 					if (($vcard["nick"] == "") AND ($data["header"]["author-nick"] != ""))
 						$vcard["nick"] = $data["header"]["author-nick"];
 
-					if (($network == NETWORK_OSTATUS) AND ($data["header"]["author-id"] != ""))
-						$alias = $data["header"]["author-id"];
+					if ($network == NETWORK_OSTATUS) {
+						if ($data["header"]["author-id"] != "")
+							$alias = $data["header"]["author-id"];
 
-					if(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
+						if ($data["header"]["author-link"] != "")
+							$profile = $data["header"]["author-link"];
+
+					} elseif(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
 						$profile = $data["header"]["author-link"];
 				}
 			}
