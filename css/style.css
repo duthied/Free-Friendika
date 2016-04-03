@@ -464,6 +464,11 @@ nav.navbar a {
     right: -2px;
     background-color: #ff8989;
 }
+#myNavmenu li,
+#myNavmenu a {
+    background-color: $nav_bg;
+    color: $nav_icon_color;
+}
 #topbar-first .dropdown.account>a,
 #topbar-first .dropdown.account.open>a,
 #topbar-first .dropdown.account>a:hover,
