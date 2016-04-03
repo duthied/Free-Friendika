@@ -492,6 +492,10 @@ function admin_page_site_post(&$a) {
 
 		$old_url = $a->get_baseurl(true);
 
+		// Generate host names for relocation the addresses in the format user@address.tld
+		$new_host = str_replace("http://", "@", normalise_link($new_url));
+		$old_host = str_replace("http://", "@", normalise_link($old_url));
+
 		function update_table($table_name, $fields, $old_url, $new_url) {
 			global $db, $a;
 
@@ -516,11 +520,16 @@ function admin_page_site_post(&$a) {
 		}
 
 		// update tables
+		// update profile links in the format "http://server.tld"
 		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
 		update_table("term", array('url'), $old_url, $new_url);
-		update_table("contact", array('photo','thumb','micro','url','nurl','request','notify','poll','confirm','poco'), $old_url, $new_url);
-		update_table("gcontact", array('photo','url','nurl','server_url'), $old_url, $new_url);
-		update_table("item", array('owner-link','owner-avatar','author-name','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
+		update_table("contact", array('photo','thumb','micro','url','nurl','alias','request','notify','poll','confirm','poco', 'avatar'), $old_url, $new_url);
+		update_table("gcontact", array('url','nurl','photo','server_url','notify','alias'), $old_url, $new_url);
+		update_table("item", array('owner-link','owner-avatar','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
+
+		// update profile addresses in the format "user@server.tld"
+		update_table("contact", array('addr'), $old_host, $new_host);
+		update_table("gcontact", array('connect','addr'), $old_host, $new_host);
 
 		// update config
 		$a->set_baseurl($new_url);
