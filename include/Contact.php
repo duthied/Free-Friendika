@@ -556,60 +556,6 @@ function posts_from_gcontact($a, $gcontact_id) {
 }
 
 /**
- * @brief set the gcontact-id in all item entries
- *
- * This job has to be started multiple times until all entries are set.
- * It isn't started in the update function since it would consume too much time and can be done in the background.
- */
-function item_set_gcontact() {
-	define ('POST_UPDATE_VERSION', 1192);
-
-	// Was the script completed?
-	if (get_config("system", "post_update_version") >= POST_UPDATE_VERSION)
-		return;
-
-	// Check if the first step is done (Setting "gcontact-id" in the item table)
-	$r = q("SELECT `author-link`, `author-name`, `author-avatar`, `uid`, `network` FROM `item` WHERE `gcontact-id` = 0 LIMIT 1000");
-	if (!$r) {
-		// Are there unfinished entries in the thread table?
-		$r = q("SELECT COUNT(*) AS `total` FROM `thread`
-			INNER JOIN `item` ON `item`.`id` =`thread`.`iid`
-			WHERE `thread`.`gcontact-id` = 0 AND
-				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
-
-		if ($r AND ($r[0]["total"] == 0)) {
-			set_config("system", "post_update_version", POST_UPDATE_VERSION);
-			return false;
-		}
-
-		// Update the thread table from the item table
-		q("UPDATE `thread` INNER JOIN `item` ON `item`.`id`=`thread`.`iid`
-				SET `thread`.`gcontact-id` = `item`.`gcontact-id`
-			WHERE `thread`.`gcontact-id` = 0 AND
-				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
-
-		return false;
-	}
-
-	$item_arr = array();
-	foreach ($r AS $item) {
-		$index = $item["author-link"]."-".$item["uid"];
-		$item_arr[$index] = array("author-link" => $item["author-link"],
-						"uid" => $item["uid"],
-						"network" => $item["network"]);
-	}
-
-	// Set the "gcontact-id" in the item table and add a new gcontact entry if needed
-	foreach($item_arr AS $item) {
-		$gcontact_id = get_gcontact_id(array("url" => $item['author-link'], "network" => $item['network'],
-						"photo" => $item['author-avatar'], "name" => $item['author-name']));
-		q("UPDATE `item` SET `gcontact-id` = %d WHERE `uid` = %d AND `author-link` = '%s' AND `gcontact-id` = 0",
-			intval($gcontact_id), intval($item["uid"]), dbesc($item["author-link"]));
-	}
-	return true;
-}
-
-/**
  * @brief Returns posts from a given contact
  *
  * @param App $a argv application class

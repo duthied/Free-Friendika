@@ -65,13 +65,19 @@ function add_thread($itemid, $onlyshadow = false) {
 			require_once("include/Contact.php");
 
 			unset($item[0]['id']);
+			unset($item[0]['shadow']);
 			$item[0]['uid'] = 0;
 			$item[0]['origin'] = 0;
 			$item[0]['contact-id'] = get_contact($item[0]['author-link'], 0);
 			$public_shadow = item_store($item[0], false, false, true);
 
 			logger("add_thread: Stored public shadow for post ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
-		}
+		} else
+			$public_shadow = $r[0]["id"];
+
+		if ($public_shadow > 0)
+			q("UPDATE `item` SET `shadow` = %d WHERE `id` = %d", intval($public_shadow), intval($itemid));
+
 	}
 }
 
