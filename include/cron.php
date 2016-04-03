@@ -35,6 +35,7 @@ function cron_run(&$argv, &$argc){
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
 	require_once('mod/nodeinfo.php');
+	require_once('include/post_update.php');
 
 	load_config('config');
 	load_config('system');
@@ -106,8 +107,9 @@ function cron_run(&$argv, &$argc){
 	// Check every conversation
 	ostatus::check_conversations(false);
 
-	// Set the gcontact-id in the item table if missing
-	item_set_gcontact();
+	// Call possible post update functions
+	// see include/post_update.php for more details
+	post_update();
 
 	// update nodeinfo data
 	nodeinfo_cron();

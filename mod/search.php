@@ -217,11 +217,10 @@ function search_content(&$a) {
 			FROM `item`
 				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND (`item`.`private` OR NOT `item`.`network` IN ('%s', '%s', '%s'))))
+				AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
 				$sql_extra
 			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d ",
-				intval(local_user()), dbesc(NETWORK_DFRN), dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA),
-				intval($a->pager['start']), intval($a->pager['itemspage']));
+				intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
 	if(! count($r)) {
