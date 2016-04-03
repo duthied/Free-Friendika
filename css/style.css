@@ -160,6 +160,38 @@ iframe, img {
     background: $link_hover_color;
 }
 
+
+header #site-location {
+    display: none;
+}
+header #banner {
+    position: fixed;
+    top: 0px;
+/*    width: 33%;
+    margin-left: 33%;
+    margin-right: 33%;*/
+    left:49%;
+    right: 49%;
+    z-index: 1040;
+    margin-top: 14px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,.5);
+    font-size: 14px;
+    font-family: tahoma, "Lucida Sans", sans;
+    color: #fff;
+    font-weight: bold;
+    whitespace: nowrap;
+}
+header #banner #logo-img {
+    mask: url('img/friendica-25.png');
+    -webkit-mask-image: url('img/friendica-25.png');
+    background-color: $nav_icon_color;
+    height: 25px;
+    width: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* NavBar */
 .topbar {
     position: fixed;
@@ -1090,6 +1122,9 @@ section #jotOpen {
 .wall-item-content {
     word-break: break-word;
 }
+.wall-item-content img {
+    max-height: 480px;
+}
 .shared-content-wrapper,
 .vevent {
     margin-left: 50px;
@@ -1307,7 +1342,7 @@ ul.tabs li {
     /*border-bottom: 0 solid #6fdbe8;*/
     border-bottom: 0 solid $link_color;
     font-size: 13px;
-    height: 100%;
+    height: 102%;
     transition: all .15s ease;
 }
 ul.tabs li a {

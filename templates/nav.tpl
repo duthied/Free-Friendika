@@ -1,7 +1,15 @@
 {{if $userinfo}}
+<header>
+	{{* {{$langselector}} *}}
+
+	<div id="site-location">{{$sitelocation}}</div>
+	<div id="banner" class="hidden-sm hidden-xs">
+		<a href="{{$baseurl}}"><div id="logo-img"></div></a>
+	</div>
+</header>
 <nav id="topbar-first" class="topbar">
 	<div class="container">
-		<div class="col-lg-11 col-md-11 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="topbar-nav">
 
@@ -212,7 +220,7 @@
 	<div class="container">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="#">
-				<span><img alt="Brand" src="./images/friendica-32.png" width="25" height="25"> Friendica</span>
+				<span><img alt="Brand" src="./view/theme/frio/img/logo.png" width="25" height="25"> Friendica</span>
 			</a>
 		</div>
 		<div class="hidden-sm hidden-xs">
@@ -230,7 +238,7 @@
 	<div class="container">
 		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs"></div>
 		<div class="col-lg-7 col-md-7 col-sm-11 col-xs-10" id="tabmenu"></div>
-		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-2" id="navbar-button"></div>
+		<div class="col-lg-2 col-md-2 col-sm-1 col-xs-2" id="navbar-button"></div>
 	</div>
 </div>
 

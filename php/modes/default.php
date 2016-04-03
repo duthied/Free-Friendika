@@ -85,7 +85,7 @@ else
 						</div>
 					</div><!--/.sidebar-offcanvas-->
 
-					<div class=\"col-lg-8 col-md-8 col-sm-12 col-xs-12\" id=\"content\">
+					<div class=\"col-lg-7 col-md-7 col-sm-12 col-xs-12\" id=\"content\">
 						<section class=\"sectiontop "; echo $a->argv[0]; echo "-content-wrapper\">";
 								if(x($page,'content')) echo $page['content']; echo"
 								<div id=\"pause\"></div> <!-- The pause/resume Ajax indicator -->
