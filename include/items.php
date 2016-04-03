@@ -707,9 +707,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if ($arr["uid"] == 0) {
 		$arr["global"] = true;
 
-		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($arr["guid"]));
+		q("UPDATE `item` SET `global` = 1 WHERE `uri` = '%s'", dbesc($arr["uri"]));
 	}  else {
-		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `guid` = '%s'", dbesc($arr["guid"]));
+		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
 
 		$arr["global"] = (count($isglobal) > 0);
 	}

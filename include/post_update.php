@@ -1,5 +1,9 @@
 <?php
 /**
+ * @file include/post_update.php
+ */
+
+/**
  * @brief Calls the post update functions
  */
 function post_update() {
@@ -7,7 +11,7 @@ function post_update() {
 	if (!post_update_1192())
 		return;
 
-	if (!post_update_1195())
+	if (!post_update_1194())
 		return;
 }
 
@@ -67,26 +71,30 @@ function post_update_1192() {
 }
 
 /**
- * @brief Updates the "shadow" field in the item table
+ * @brief Updates the "global" field in the item table
  *
  * @return bool "true" when the job is done
  */
-function post_update_1195() {
+function post_update_1194() {
 
 	// Was the script completed?
-	if (get_config("system", "post_update_version") >= 1195)
+	if (get_config("system", "post_update_version") >= 1194)
 		return true;
 
-	$end_id = get_config("system", "post_update_1195_end");
+	logger("Start", LOGGER_DEBUG);
+
+	$end_id = get_config("system", "post_update_1194_end");
 	if (!$end_id) {
 		$r = q("SELECT `id` FROM `item` WHERE `uid` != 0 ORDER BY `id` DESC LIMIT 1");
 		if ($r) {
-			set_config("system", "post_update_1195_end", $r[0]["id"]);
-			$end_id = get_config("system", "post_update_1195_end");
+			set_config("system", "post_update_1194_end", $r[0]["id"]);
+			$end_id = get_config("system", "post_update_1194_end");
 		}
 	}
 
-	$start_id = get_config("system", "post_update_1195_start");
+	logger("End ID: ".$end_id, LOGGER_DEBUG);
+
+	$start_id = get_config("system", "post_update_1194_start");
 
 	$query1 = "SELECT `item`.`id` FROM `item` ";
 
@@ -98,21 +106,23 @@ function post_update_1195() {
 			AND `item`.`network` IN ('%s', '%s', '%s', '')
 			AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
 			AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
-			AND `item`.`shadow` = 0";
+			AND NOT `item`.`global`";
 
 	$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1",
 		intval($start_id), intval($end_id),
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 	if (!$r) {
-		set_config("system", "post_update_version", 1195);
+		set_config("system", "post_update_version", 1194);
+		logger("Update is done", LOGGER_DEBUG);
 		return true;
 	} else {
-		set_config("system", "post_update_1195_start", $r[0]["id"]);
-		$start_id = get_config("system", "post_update_1195_start");
+		set_config("system", "post_update_1194_start", $r[0]["id"]);
+		$start_id = get_config("system", "post_update_1194_start");
 	}
 
+	logger("Start ID: ".$start_id, LOGGER_DEBUG);
 
-	$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 10000,1",
+	$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1000,1",
 		intval($start_id), intval($end_id),
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 	if ($r)
@@ -122,8 +132,10 @@ function post_update_1195() {
 
 	logger("Progress: Start: ".$start_id." position: ".$pos_id." end: ".$end_id, LOGGER_DEBUG);
 
-	$r = q("UPDATE `item` ".$query2." SET `item`.`shadow` = `shadow`.`id` ".$query3,
+	$r = q("UPDATE `item` ".$query2." SET `item`.`global` = 1 ".$query3,
 		intval($start_id), intval($pos_id),
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+
+	logger("Done", LOGGER_DEBUG);
 }
 ?>
