@@ -107,7 +107,8 @@ function cron_run(&$argv, &$argc){
 	// Check every conversation
 	ostatus::check_conversations(false);
 
-	// Do post update functions
+	// Call possible post update functions
+	// see include/post_update.php for more details
 	post_update();
 
 	// update nodeinfo data
