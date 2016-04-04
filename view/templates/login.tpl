@@ -1,6 +1,7 @@
 
 
 <form action="{{$dest_url}}" method="post" >
+<fieldset>
 	<input type="hidden" name="auth-params" value="login" />
 
 	<div id="login_standard">
@@ -29,7 +30,7 @@
 		<input type="hidden" name="{{$k}}" value="{{$v|escape:'html'}}" />
 	{{/foreach}}
 	
-	
+</fieldset>
 </form>
 
 
