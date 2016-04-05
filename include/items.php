@@ -383,9 +383,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Converting the plink
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink']))
-			$arr['plink'] = ostatus_convert_href($arr['plink']);
+			$arr['plink'] = ostatus::convert_href($arr['plink']);
 		elseif (isset($arr['uri']))
-			$arr['plink'] = ostatus_convert_href($arr['uri']);
+			$arr['plink'] = ostatus::convert_href($arr['uri']);
 	}
 
 	if(x($arr, 'gravity'))
@@ -707,9 +707,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if ($arr["uid"] == 0) {
 		$arr["global"] = true;
 
-		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($arr["guid"]));
+		q("UPDATE `item` SET `global` = 1 WHERE `uri` = '%s'", dbesc($arr["uri"]));
 	}  else {
-		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `guid` = '%s'", dbesc($arr["guid"]));
+		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
 
 		$arr["global"] = (count($isglobal) > 0);
 	}
@@ -1243,7 +1243,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus_import($xml,$importer,$contact, $hub);
+			ostatus::import($xml,$importer,$contact, $hub);
 		}
 		return;
 	}
@@ -1980,9 +1980,6 @@ function drop_item($id,$interactive = true) {
 					intval($r[0]['id'])
 				);
 			}
-
-			// Add a relayable_retraction signature for Diaspora.
-			store_diaspora_retract_sig($item, $a->user, $a->get_baseurl());
 		}
 
 		$drop_id = intval($item['id']);
@@ -2114,52 +2111,4 @@ function posted_date_widget($url,$uid,$wall) {
 
 	));
 	return $o;
-}
-
-function store_diaspora_retract_sig($item, $user, $baseurl) {
-	// Note that we can't add a target_author_signature
-	// if the comment was deleted by a remote user. That should be ok, because if a remote user is deleting
-	// the comment, that means we're the home of the post, and Diaspora will only
-	// check the parent_author_signature of retractions that it doesn't have to relay further
-	//
-	// I don't think this function gets called for an "unlike," but I'll check anyway
-
-	$enabled = intval(get_config('system','diaspora_enabled'));
-	if(! $enabled) {
-		logger('drop_item: diaspora support disabled, not storing retraction signature', LOGGER_DEBUG);
-		return;
-	}
-
-	logger('drop_item: storing diaspora retraction signature');
-
-	$signed_text = $item['guid'] . ';' . ( ($item['verb'] === ACTIVITY_LIKE) ? 'Like' : 'Comment');
-
-	if(local_user() == $item['uid']) {
-
-		$handle = $user['nickname'] . '@' . substr($baseurl, strpos($baseurl,'://') + 3);
-		$authorsig = base64_encode(rsa_sign($signed_text,$user['prvkey'],'sha256'));
-	}
-	else {
-		$r = q("SELECT `nick`, `url` FROM `contact` WHERE `id` = '%d' LIMIT 1",
-			$item['contact-id'] // If this function gets called, drop_item() has already checked remote_user() == $item['contact-id']
-		);
-		if(count($r)) {
-			// The below handle only works for NETWORK_DFRN. I think that's ok, because this function
-			// only handles DFRN deletes
-			$handle_baseurl_start = strpos($r['url'],'://') + 3;
-			$handle_baseurl_length = strpos($r['url'],'/profile') - $handle_baseurl_start;
-			$handle = $r['nick'] . '@' . substr($r['url'], $handle_baseurl_start, $handle_baseurl_length);
-			$authorsig = '';
-		}
-	}
-
-	if(isset($handle))
-		q("insert into sign (`retract_iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
-			intval($item['id']),
-			dbesc($signed_text),
-			dbesc($authorsig),
-			dbesc($handle)
-		);
-
-	return;
 }

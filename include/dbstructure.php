@@ -537,17 +537,6 @@ function db_definition() {
 					"PRIMARY" => array("id"),
 					)
 			);
-	$database["dsprphotoq"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"msg" => array("type" => "mediumtext", "not null" => "1"),
-					"attempt" => array("type" => "tinyint(4)", "not null" => "1", "default" => "0"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
 	$database["event"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
@@ -1246,7 +1235,6 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"iid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
-					"retract_iid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"signed_text" => array("type" => "mediumtext", "not null" => "1"),
 					"signature" => array("type" => "text", "not null" => "1"),
 					"signer" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1254,7 +1242,6 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"iid" => array("iid"),
-					"retract_iid" => array("retract_iid"),
 					)
 			);
 	$database["spam"] = array(

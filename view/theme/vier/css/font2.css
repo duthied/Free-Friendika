@@ -228,6 +228,7 @@ li.icon.icon-large:before {
 .icon-key:before                  { content: "\f084"; }
 .icon.gears:before                { content: "\f085"; }
 .icon-comments:before             { content: "\f086"; }
+.icon-commenting:before           { content: "\f27a"; }
 .icon.like:before                 { content: "\f087"; }
 .icon.dislike:before              { content: "\f088"; }
 .icon-star-half:before            { content: "\f089"; }

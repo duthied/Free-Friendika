@@ -99,7 +99,7 @@ function network_to_name($s, $profile = "") {
 
 	$networkname = str_replace($search,$replace,$s);
 
-	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND diaspora_is_redmatrix($profile)) {
+	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND diaspora::is_redmatrix($profile)) {
 		$networkname = t("Hubzilla/Redmatrix");
 
 		$r = q("SELECT `gserver`.`platform` FROM `gcontact`

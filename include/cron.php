@@ -34,22 +34,18 @@ function cron_run(&$argv, &$argc){
 	require_once('include/Contact.php');
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
-	require_once('include/pidfile.php');
 	require_once('mod/nodeinfo.php');
+	require_once('include/post_update.php');
 
 	load_config('config');
 	load_config('system');
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
-
-	$load = current_load();
-	if($load) {
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. cron deferred to next scheduled run.');
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		if (App::maxload_reached())
 			return;
-		}
+		if (App::is_already_running('cron', 'include/cron.php', 540))
+			return;
 	}
 
 	$last = get_config('system','last_cron');
@@ -66,23 +62,6 @@ function cron_run(&$argv, &$argc){
 		}
 	}
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'cron');
-		if($pidfile->is_already_running()) {
-			logger("cron: Already running");
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("cron: killed stale process");
-				// Calling a new instance
-				proc_run('php','include/cron.php');
-			}
-			exit;
-		}
-	}
-
-
-
 	$a->set_baseurl(get_config('system','url'));
 
 	load_hooks();
@@ -92,10 +71,6 @@ function cron_run(&$argv, &$argc){
 	// run queue delivery process in the background
 
 	proc_run('php',"include/queue.php");
-
-	// run diaspora photo queue process in the background
-
-	proc_run('php',"include/dsprphotoq.php");
 
 	// run the process to discover global contacts in the background
 
@@ -127,13 +102,14 @@ function cron_run(&$argv, &$argc){
 
 	// Check OStatus conversations
 	// Check only conversations with mentions (for a longer time)
-	check_conversations(true);
+	ostatus::check_conversations(true);
 
 	// Check every conversation
-	check_conversations(false);
+	ostatus::check_conversations(false);
 
-	// Set the gcontact-id in the item table if missing
-	item_set_gcontact();
+	// Call possible post update functions
+	// see include/post_update.php for more details
+	post_update();
 
 	// update nodeinfo data
 	nodeinfo_cron();
@@ -361,35 +337,37 @@ function cron_clear_cache(&$a) {
 	if ($max_tablesize == 0)
 		$max_tablesize = 100 * 1000000; // Default are 100 MB
 
-	// Minimum fragmentation level in percent
-	$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
-	if ($fragmentation_level == 0)
-		$fragmentation_level = 0.3; // Default value is 30%
+	if ($max_tablesize > 0) {
+		// Minimum fragmentation level in percent
+		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
+		if ($fragmentation_level == 0)
+			$fragmentation_level = 0.3; // Default value is 30%
 
-	// Optimize some tables that need to be optimized
-	$r = q("SHOW TABLE STATUS");
-	foreach($r as $table) {
+		// Optimize some tables that need to be optimized
+		$r = q("SHOW TABLE STATUS");
+		foreach($r as $table) {
 
-		// Don't optimize tables that are too large
-		if ($table["Data_length"] > $max_tablesize)
-			continue;
+			// Don't optimize tables that are too large
+			if ($table["Data_length"] > $max_tablesize)
+				continue;
 
-		// Don't optimize empty tables
-		if ($table["Data_length"] == 0)
-			continue;
+			// Don't optimize empty tables
+			if ($table["Data_length"] == 0)
+				continue;
 
-		// Calculate fragmentation
-		$fragmentation = $table["Data_free"] / $table["Data_length"];
+			// Calculate fragmentation
+			$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
 
-		logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
+			logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
 
-		// Don't optimize tables that needn't to be optimized
-		if ($fragmentation < $fragmentation_level)
-			continue;
+			// Don't optimize tables that needn't to be optimized
+			if ($fragmentation < $fragmentation_level)
+				continue;
 
-		// So optimize it
-		logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
-		q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+			// So optimize it
+			logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
+			q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+		}
 	}
 
 	set_config('system','cache_last_cleared', time());
@@ -428,6 +406,9 @@ function cron_repair_database() {
 	// Set the parent if it wasn't set. (Shouldn't happen - but does sometimes)
 	// This call is very "cheap" so we can do it at any time without a problem
 	q("UPDATE `item` INNER JOIN `item` AS `parent` ON `parent`.`uri` = `item`.`parent-uri` AND `parent`.`uid` = `item`.`uid` SET `item`.`parent` = `parent`.`id` WHERE `item`.`parent` = 0");
+
+	// There was an issue where the nick vanishes from the contact table
+	q("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
 
 	/// @todo
 	/// - remove thread entries without item

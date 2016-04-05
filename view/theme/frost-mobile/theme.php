@@ -10,7 +10,6 @@
  */
 
 function frost_mobile_init(&$a) {
-	$a->theme_info = array();
 	$a->sourcename = 'Friendica mobile web';
 	$a->videowidth = 250;
 	$a->videoheight = 200;

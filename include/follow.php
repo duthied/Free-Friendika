@@ -258,12 +258,10 @@ function new_contact($uid,$url,$interactive = false) {
 	$contact_id  = $r[0]['id'];
 	$result['cid'] = $contact_id;
 
-	$g = q("select def_gid from user where uid = %d limit 1",
-		intval($uid)
-	);
-	if($g && intval($g[0]['def_gid'])) {
+	$def_gid = get_default_group($uid, $contact["network"]);
+	if (intval($def_gid)) {
 		require_once('include/group.php');
-		group_add_member($uid,'',$contact_id,$g[0]['def_gid']);
+		group_add_member($uid, '', $contact_id, $def_gid);
 	}
 
 	require_once("include/Photo.php");
@@ -305,8 +303,8 @@ function new_contact($uid,$url,$interactive = false) {
 		}
 		if($contact['network'] == NETWORK_DIASPORA) {
 			require_once('include/diaspora.php');
-			$ret = diaspora_share($a->user,$contact);
-			logger('mod_follow: diaspora_share returns: ' . $ret);
+			$ret = diaspora::send_share($a->user,$contact);
+			logger('share returns: '.$ret);
 		}
 	}
 

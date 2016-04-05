@@ -438,44 +438,47 @@ function poco_last_updated($profile, $force = false) {
 
 				$noscrape = json_decode($noscraperet["body"], true);
 
-				$contact = array("url" => $profile,
-						"network" => $server[0]["network"],
-						"generation" => $gcontacts[0]["generation"]);
+				if (is_array($noscrape)) {
+					$contact = array("url" => $profile,
+							"network" => $server[0]["network"],
+							"generation" => $gcontacts[0]["generation"]);
 
-				$contact["name"] = $noscrape["fn"];
-				$contact["community"] = $noscrape["comm"];
+					$contact["name"] = $noscrape["fn"];
+					$contact["community"] = $noscrape["comm"];
 
-				if (isset($noscrape["tags"])) {
-					$keywords = implode(" ", $noscrape["tags"]);
-					if ($keywords != "")
-						$contact["keywords"] = $keywords;
+					if (isset($noscrape["tags"])) {
+						$keywords = implode(" ", $noscrape["tags"]);
+						if ($keywords != "")
+							$contact["keywords"] = $keywords;
+					}
+
+					$location = formatted_location($noscrape);
+					if ($location)
+						$contact["location"] = $location;
+
+					$contact["notify"] = $noscrape["dfrn-notify"];
+
+					// Remove all fields that are not present in the gcontact table
+					unset($noscrape["fn"]);
+					unset($noscrape["key"]);
+					unset($noscrape["homepage"]);
+					unset($noscrape["comm"]);
+					unset($noscrape["tags"]);
+					unset($noscrape["locality"]);
+					unset($noscrape["region"]);
+					unset($noscrape["country-name"]);
+					unset($noscrape["contacts"]);
+					unset($noscrape["dfrn-request"]);
+					unset($noscrape["dfrn-confirm"]);
+					unset($noscrape["dfrn-notify"]);
+					unset($noscrape["dfrn-poll"]);
+
+					$contact = array_merge($contact, $noscrape);
+
+					update_gcontact($contact);
+
+					return $noscrape["updated"];
 				}
-
-				$location = formatted_location($noscrape);
-				if ($location)
-					$contact["location"] = $location;
-
-				$contact["notify"] = $noscrape["dfrn-notify"];
-
-				// Remove all fields that are not present in the gcontact table
-				unset($noscrape["fn"]);
-				unset($noscrape["key"]);
-				unset($noscrape["homepage"]);
-				unset($noscrape["comm"]);
-				unset($noscrape["tags"]);
-				unset($noscrape["locality"]);
-				unset($noscrape["region"]);
-				unset($noscrape["country-name"]);
-				unset($noscrape["contacts"]);
-				unset($noscrape["dfrn-request"]);
-				unset($noscrape["dfrn-confirm"]);
-				unset($noscrape["dfrn-notify"]);
-				unset($noscrape["dfrn-poll"]);
-
-				$contact = array_merge($contact, $noscrape);
-				update_gcontact($contact);
-
-				return $noscrape["updated"];
 			}
 		}
 	}
@@ -719,7 +722,8 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		// Will also return data for Friendica and GNU Social - but it will be overwritten later
 		// The "not implemented" is a special treatment for really, really old Friendica versions
 		$serverret = z_fetch_url($server_url."/api/statusnet/version.json");
-		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND ($serverret["body"] != '') AND (strlen($serverret["body"]) < 250)) {
+		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
+			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "StatusNet";
 			$version = trim($serverret["body"], '"');
 			$network = NETWORK_OSTATUS;
@@ -727,7 +731,8 @@ function poco_check_server($server_url, $network = "", $force = false) {
 
 		// Test for GNU Social
 		$serverret = z_fetch_url($server_url."/api/gnusocial/version.json");
-		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND ($serverret["body"] != '') AND (strlen($serverret["body"]) < 250)) {
+		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
+			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "GNU Social";
 			$version = trim($serverret["body"], '"');
 			$network = NETWORK_OSTATUS;
@@ -853,6 +858,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 
 	// Check again if the server exists
 	$servers = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+
+	$version = strip_tags($version);
+	$site_name = strip_tags($site_name);
+	$info = strip_tags($info);
+	$platform = strip_tags($platform);
 
 	if ($servers)
 		 q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',

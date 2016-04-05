@@ -13,7 +13,7 @@ function message_init(&$a) {
 
 	$new = array(
 		'label' => t('New Message'),
-		'url' => $a->get_baseurl(true) . '/message/new',
+		'url' => 'message/new',
 		'sel'=> ($a->argv[1] == 'new'),
 		'accesskey' => 'm',
 	);
@@ -90,7 +90,7 @@ function message_post(&$a) {
 		$a->argv[1] = 'new';
 	}
 	else
-		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+		goaway($_SESSION['return_url']);
 
 }
 
@@ -182,7 +182,7 @@ function message_content(&$a) {
 		return;
 	}
 
-	$myprofile = $a->get_baseurl(true) . '/profile/' . $a->user['nickname'];
+	$myprofile = 'profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
 	$header = replace_macros($tpl, array(
@@ -221,7 +221,7 @@ function message_content(&$a) {
 		}
 		// Now check how the user responded to the confirmation query
 		if($_REQUEST['canceled']) {
-			goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+			goaway($_SESSION['return_url']);
 		}
 
 		$cmd = $a->argv[1];
@@ -234,7 +234,7 @@ function message_content(&$a) {
 				info( t('Message deleted.') . EOL );
 			}
 			//goaway($a->get_baseurl(true) . '/message' );
-			goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+			goaway($_SESSION['return_url']);
 		}
 		else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -265,7 +265,7 @@ function message_content(&$a) {
 					info( t('Conversation removed.') . EOL );
 			}
 			//goaway($a->get_baseurl(true) . '/message' );
-			goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+			goaway($_SESSION['return_url']);
 		}
 
 	}
@@ -448,7 +448,7 @@ function message_content(&$a) {
 				$sparkle = '';
 			}
 			else {
-				$from_url = $a->get_baseurl(true) . '/redir/' . $message['contact-id'];
+				$from_url = 'redir/' . $message['contact-id'];
 				$sparkle = ' sparkle';
 			}
 
@@ -549,7 +549,7 @@ function render_messages($msg, $t) {
 	$tpl = get_markup_template($t);
 	$rslt = '';
 
-	$myprofile = $a->get_baseurl(true) . '/profile/' . $a->user['nickname'];
+	$myprofile = 'profile/' . $a->user['nickname'];
 
 	foreach($msg as $rr) {
 
@@ -577,7 +577,7 @@ function render_messages($msg, $t) {
 		$rslt .= replace_macros($tpl, array(
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
-			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? $a->get_baseurl(true) . '/redir/' . $rr['contact-id'] : $rr['url']),
+			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
 			'$sparkle' => ' sparkle',
 			'$from_photo' => (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']),
 			'$subject' => $subject_e,

@@ -614,7 +614,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				if(($normalised != 'mailbox') && (x($a->contacts[$normalised])))
 					$profile_avatar = $a->contacts[$normalised]['thumb'];
 				else
-					$profile_avatar = ((strlen($item['author-avatar'])) ? $a->get_cached_avatar_image($item['author-avatar']) : $item['thumb']);
+					$profile_avatar = $a->remove_baseurl(((strlen($item['author-avatar'])) ? $item['author-avatar'] : $item['thumb']));
 
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
@@ -707,8 +707,8 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					//'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
-					'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/'.$item['guid'], 'title'=> t('View in context'))),
+					//'conv' => (($preview) ? '' : array('href'=> 'display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> 'display/'.$item['guid'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
@@ -868,7 +868,7 @@ function item_photo_menu($item){
 		$status_link = $profile_link . "?url=status";
 		$photos_link = $profile_link . "?url=photos";
 		$profile_link = $profile_link . "?url=profile";
-		$pm_url = $a->get_baseurl($ssl_state) . '/message/new/' . $cid;
+		$pm_url = 'message/new/' . $cid;
 		$zurl = '';
 	}
 	else {
@@ -882,23 +882,23 @@ function item_photo_menu($item){
 				$cid = $r[0]["id"];
 
 				if ($r[0]["network"] == NETWORK_DIASPORA)
-					$pm_url = $a->get_baseurl($ssl_state) . '/message/new/' . $cid;
+					$pm_url = 'message/new/' . $cid;
 
 			} else
 				$cid = 0;
 		}
 	}
 	if(($cid) && (! $item['self'])) {
-		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $cid;
-		$contact_url = $a->get_baseurl($ssl_state) . '/contacts/' . $cid;
-		$posts_link = $a->get_baseurl($ssl_state) . '/contacts/' . $cid . '/posts';
+		$poke_link = 'poke/?f=&c=' . $cid;
+		$contact_url = 'contacts/' . $cid;
+		$posts_link = 'contacts/' . $cid . '/posts';
 
 		$clean_url = normalise_link($item['author-link']);
 
 		if((local_user()) && (local_user() == $item['uid'])) {
 			if(isset($a->contacts) && x($a->contacts,$clean_url)) {
 				if($a->contacts[$clean_url]['network'] === NETWORK_DIASPORA) {
-					$pm_url = $a->get_baseurl($ssl_state) . '/message/new/' . $cid;
+					$pm_url = 'message/new/' . $cid;
 				}
 			}
 		}
@@ -921,7 +921,7 @@ function item_photo_menu($item){
 
 		if ((($cid == 0) OR ($a->contacts[$clean_url]['rel'] == CONTACT_IS_FOLLOWER)) AND
 			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
-			$menu[t("Connect/Follow")] = $a->get_baseurl($ssl_state)."/follow?url=".urlencode($item['author-link']);
+			$menu[t("Connect/Follow")] = "follow?url=".urlencode($item['author-link']);
 	} else
 		$menu = array(t("View Profile") => $item['author-link']);
 
@@ -980,7 +980,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
 			$url = $item['author-link'];
 			if((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'],$item['url']))) {
-				$url = z_root(true) . '/redir/' . $item['contact-id'];
+				$url = 'redir/' . $item['contact-id'];
 				$sparkle = ' class="sparkle" ';
 			}
 			else
@@ -1178,7 +1178,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 
 	$o .= replace_macros($tpl,array(
 		'$return_path' => $query_str,
-		'$action' =>  $a->get_baseurl(true) . '/item',
+		'$action' =>  'item',
 		'$share' => (x($x,'button') ? $x['button'] : t('Share')),
 		'$upload' => t('Upload photo'),
 		'$shortupload' => t('upload photo'),

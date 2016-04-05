@@ -161,10 +161,7 @@
 		if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
-			header('HTTP/1.0 401 Unauthorized');
-			die((api_error($a, 'json', "This api requires login")));
-
-			//die('This api requires login');
+			throw new UnauthorizedException("This API requires login");
 		}
 
 		$user = $_SERVER['PHP_AUTH_USER'];
@@ -216,8 +213,9 @@
 		if((! $record) || (! count($record))) {
 			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
-			header('HTTP/1.0 401 Unauthorized');
-			die('This api requires login');
+			#header('HTTP/1.0 401 Unauthorized');
+			#die('This api requires login');
+			throw new UnauthorizedException("This API requires login");
 		}
 
 		authenticate_success($record); $_SESSION["allow_api"] = true;
@@ -332,7 +330,8 @@
 	 *
 	 * @param Api $a
 	 * @param string $type Return type (xml, json, rss, as)
-	 * @param string $error Error message
+	 * @param HTTPException $error Error object
+	 * @return strin error message formatted as $type
 	 */
 	function api_error(&$a, $type, $e) {
 		$error = ($e->getMessage()!==""?$e->getMessage():$e->httpdesc);
@@ -904,7 +903,8 @@
 
 				if ($posts_day > $throttle_day) {
 					logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+					#die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+					throw new TooManyRequestsException(sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day));
 				}
 			}
 
@@ -923,7 +923,9 @@
 
 				if ($posts_week > $throttle_week) {
 					logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+					#die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+					throw new TooManyRequestsException(sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week));
+
 				}
 			}
 
@@ -942,7 +944,8 @@
 
 				if ($posts_month > $throttle_month) {
 					logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+					#die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+					throw new TooManyRequestsException(sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month));
 				}
 			}
 
@@ -1548,6 +1551,7 @@
 		return api_apply_template("timeline", $type, $data);
 	}
 	api_register_func('api/conversation/show','api_conversation_show', true);
+	api_register_func('api/statusnet/conversation','api_conversation_show', true);
 
 
 	/**
@@ -1689,13 +1693,13 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
+			FROM `item`  FORCE INDEX (`uid_id`), `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention` AND !`ignored`)
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -1810,7 +1814,7 @@
 		$action_argv_id=2;
 		if ($a->argv[1]=="1.1") $action_argv_id=3;
 
-		if ($a->argc<=$action_argv_id) die(api_error($a, $type, t("Invalid request.")));
+		if ($a->argc<=$action_argv_id) throw new BadRequestException("Invalid request.");
 		$action = str_replace(".".$type,"",$a->argv[$action_argv_id]);
 		if ($a->argc==$action_argv_id+2) {
 			$itemid = intval($a->argv[$action_argv_id+1]);

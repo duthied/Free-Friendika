@@ -16,7 +16,7 @@ function profiles_init(&$a) {
 		);
 		if(! count($r)) {
 			notice( t('Profile not found.') . EOL);
-			goaway($a->get_baseurl(true) . '/profiles');
+			goaway('profiles');
 			return; // NOTREACHED
 		}
 
@@ -34,9 +34,9 @@ function profiles_init(&$a) {
 			intval(local_user())
 		);
 		if($r)
-			info( t('Profile deleted.') . EOL);
+			info(t('Profile deleted.').EOL);
 
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway('profiles');
 		return; // NOTREACHED
 	}
 
@@ -73,9 +73,9 @@ function profiles_init(&$a) {
 
 		info( t('New profile created.') . EOL);
 		if(count($r3) == 1)
-			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
+			goaway('profiles/'.$r3[0]['id']);
 
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway('profiles');
 	}
 
 	if(($a->argc > 2) && ($a->argv[1] === 'clone')) {
@@ -116,9 +116,9 @@ function profiles_init(&$a) {
 		);
 		info( t('New profile created.') . EOL);
 		if(count($r3) == 1)
-			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
+			goaway('profiles/'.$r3[0]['id']);
 
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway('profiles');
 
 		return; // NOTREACHED
 	}
@@ -526,6 +526,8 @@ function profile_activity($changed, $value) {
 		return;
 
 	$arr = array();
+
+	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), local_user());
 	$arr['uid'] = local_user();
 	$arr['contact-id'] = $self[0]['id'];
@@ -582,15 +584,7 @@ function profile_activity($changed, $value) {
 
 	$i = item_store($arr);
 	if($i) {
-
-		// give it a permanent link
-		//q("update item set plink = '%s' where id = %d",
-		//	dbesc($a->get_baseurl() . '/display/' . $a->user['nickname'] . '/' . $i),
-		//	intval($i)
-		//);
-
 	   	proc_run('php',"include/notifier.php","activity","$i");
-
 	}
 }
 
@@ -786,7 +780,7 @@ function profiles_content(&$a) {
 			);
 			if(count($r)){
 				//Go to the default profile.
-				goaway($a->get_baseurl(true) . '/profiles/'.$r[0]['id']);
+				goaway('profiles/'.$r[0]['id']);
 			}
 		}
 
@@ -807,12 +801,12 @@ function profiles_content(&$a) {
 
 			foreach($r as $rr) {
 				$o .= replace_macros($tpl, array(
-					'$photo' => $a->get_cached_avatar_image($rr['thumb']),
+					'$photo' => $a->remove_baseurl($rr['thumb']),
 					'$id' => $rr['id'],
 					'$alt' => t('Profile Image'),
 					'$profile_name' => $rr['profile-name'],
 					'$visible' => (($rr['is-default']) ? '<strong>' . t('visible to everybody') . '</strong>'
-						: '<a href="' . $a->get_baseurl(true) . '/profperm/' . $rr['id'] . '" />' . t('Edit visibility') . '</a>')
+						: '<a href="'.'profperm/'.$rr['id'].'" />' . t('Edit visibility') . '</a>')
 				));
 			}
 		}

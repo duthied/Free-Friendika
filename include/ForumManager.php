@@ -95,12 +95,12 @@ class ForumManager {
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = array(
-					'url' => z_root() . '/network?f=&cid=' . $contact['id'],
-					'external_url' => z_root() . '/redir/' . $contact['id'],
+					'url' => 'network?f=&cid=' . $contact['id'],
+					'external_url' => 'redir/' . $contact['id'],
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
-					'micro' => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
+					'micro' => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
 					'id' => ++$id,
 				);
 				$entries[] = $entry;

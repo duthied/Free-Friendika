@@ -207,7 +207,7 @@ function ping_init(&$a) {
 			call_hooks('ping_xmlize', $n);
 			$notsxml = '<note id="%d" href="%s" name="%s" url="%s" photo="%s" date="%s" seen="%s" timestamp="%s" >%s</note>'."\n";
 			return sprintf ( $notsxml, intval($n['id']),
-				xmlify($n['href']), xmlify($n['name']), xmlify($n['url']), xmlify($n['photo']),
+				xmlify($n['href']), xmlify(xmlify($n['name'])), xmlify($n['url']), xmlify($n['photo']),
 				xmlify(relative_date($n['date'])), xmlify($n['seen']), xmlify(strtotime($local_time)),
 				xmlify($n['message'])
 			);

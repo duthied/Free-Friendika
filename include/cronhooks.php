@@ -19,21 +19,16 @@ function cronhooks_run(&$argv, &$argc){
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
-	require_once('include/pidfile.php');
 
 	load_config('config');
 	load_config('system');
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
-
-	$load = current_load();
-	if($load) {
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. Cronhooks deferred to next scheduled run.');
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run") {
+		if (App::maxload_reached())
 			return;
-		}
+		if (App::is_already_running('cronhooks', 'include/cronhooks.php', 1140))
+			return;
 	}
 
 	$last = get_config('system','last_cronhook');
@@ -47,21 +42,6 @@ function cronhooks_run(&$argv, &$argc){
 		if($next > time()) {
 			logger('cronhook intervall not reached');
 			return;
-		}
-	}
-
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'cronhooks');
-		if($pidfile->is_already_running()) {
-			logger("cronhooks: Already running");
-			if ($pidfile->running_time() > 19*60) {
-				$pidfile->kill();
-				logger("cronhooks: killed stale process");
-				// Calling a new instance
-				proc_run('php','include/cronhooks.php');
-			}
-			exit;
 		}
 	}
 

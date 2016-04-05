@@ -29,17 +29,8 @@ function poller_run(&$argv, &$argc){
 	if (poller_max_connections_reached())
 		return;
 
-	$load = current_load();
-	if($load) {
-		$maxsysload = intval(get_config('system','maxloadavg'));
-		if($maxsysload < 1)
-			$maxsysload = 50;
-
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. poller deferred to next scheduled run.');
-			return;
-		}
-	}
+	if (App::maxload_reached())
+		return;
 
 	// Checking the number of workers
 	if (poller_too_much_workers(1)) {
@@ -205,6 +196,12 @@ function poller_max_connections_reached() {
  */
 function poller_kill_stale_workers() {
 	$r = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+	if (!is_array($r) || count($r) == 0) {
+		// No processing here needed
+		return;
+	}
+
 	foreach($r AS $pid)
 		if (!posix_kill($pid["pid"], 0))
 			q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",

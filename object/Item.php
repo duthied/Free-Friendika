@@ -50,7 +50,7 @@ class Item extends BaseObject {
 		$this->writable = ($this->get_data_value('writable') || $this->get_data_value('self'));
 
 		$ssl_state = ((local_user()) ? true : false);
-		$this->redirect_url = $a->get_baseurl($ssl_state) . '/redir/' . $this->get_data_value('cid') ;
+		$this->redirect_url = 'redir/' . $this->get_data_value('cid') ;
 
 		if(get_config('system','thread_allow') && $a->theme_thread_allow && !$this->is_toplevel())
 			$this->threaded = true;
@@ -119,9 +119,9 @@ class Item extends BaseObject {
 		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
 		if(local_user() && link_compare($a->contact['url'],$item['author-link'])) {
 			if ($item["event-id"] != 0)
-				$edpost = array($a->get_baseurl($ssl_state)."/events/event/".$item['event-id'], t("Edit"));
+				$edpost = array("events/event/".$item['event-id'], t("Edit"));
 			else
-				$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
+				$edpost = array("editpost/".$item['id'], t("Edit"));
 		} else
 			$edpost = false;
 		if(($this->get_data_value('uid') == local_user()) || $this->is_visiting())
@@ -154,13 +154,13 @@ class Item extends BaseObject {
 		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
 			$profile_avatar = $a->contacts[$normalised]['thumb'];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->get_cached_avatar_image($this->get_data_value('thumb')));
+			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
-		$searchpath = $a->get_baseurl()."/search?tag=";
+		$searchpath = "search?tag=";
 		$tags=array();
 		$hashtags = array();
 		$mentions = array();
@@ -324,7 +324,7 @@ class Item extends BaseObject {
 
 		// Diaspora isn't able to do likes on comments - but red does
 		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
-			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
+			!diaspora::is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Diaspora doesn't has multithreaded comments
@@ -703,9 +703,9 @@ class Item extends BaseObject {
 				'$parent' => $this->get_id(),
 				'$qcomment' => $qcomment,
 				'$profile_uid' =>  $conv->get_profile_owner(),
-				'$mylink' => $a->contact['url'],
+				'$mylink' => $a->remove_baseurl($a->contact['url']),
 				'$mytitle' => t('This is you'),
-				'$myphoto' => $a->contact['thumb'],
+				'$myphoto' => $a->remove_baseurl($a->contact['thumb']),
 				'$comment' => t('Comment'),
 				'$submit' => t('Submit'),
 				'$edbold' => t('Bold'),

@@ -285,7 +285,7 @@ function paginate_data(&$a, $count=null) {
 	if (($a->page_offset != "") AND !preg_match('/[?&].offset=/', $stripped))
 		$stripped .= "&offset=".urlencode($a->page_offset);
 
-	$url = z_root() . '/' . $stripped;
+	$url = $stripped;
 
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
@@ -923,7 +923,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
 	if($redirect) {
 		$a = get_app();
-		$redirect_url = z_root() . '/redir/' . $contact['id'];
+		$redirect_url = 'redir/' . $contact['id'];
 		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
 			$url = $redirect_url;
@@ -964,13 +964,13 @@ if(! function_exists('search')) {
  * @param string $url search url
  * @param boolean $savedsearch show save search button
  */
-function search($s,$id='search-box',$url='/search',$save = false, $aside = true) {
+function search($s,$id='search-box',$url='search',$save = false, $aside = true) {
 	$a = get_app();
 
 	$values = array(
 			'$s' => $s,
 			'$id' => $id,
-			'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+			'$action_url' => $url,
 			'$search_label' => t('Search'),
 			'$save_label' => t('Save'),
 			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
@@ -1148,41 +1148,41 @@ function smilies($s, $sample = false) {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;/3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-smile.gif" alt=":-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-wink.gif" alt=";-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-frown.gif" alt=":-(" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-P" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-p" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-x" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-X" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-laughing.gif" alt=":-D" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-|" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt=":-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o.O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O.o" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o_O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O_o" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-cry.gif" alt=":\'(" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-foot-in-mouth.gif" alt=":-!" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-undecided.gif" alt=":-/" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-embarassed.gif" alt=":-[" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-cool.gif" alt="8-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":beer" />',
-		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":homebrew" />',
-		'<img class="smiley" src="' . z_root() . '/images/coffee.gif" alt=":coffee" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
-		'<img class="smiley" src="' . z_root() . '/images/like.gif" alt=":like" />',
-		'<img class="smiley" src="' . z_root() . '/images/dislike.gif" alt=":dislike" />',
-		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . z_root() . '/images/friendica-16.png" alt="~friendica" /></a>',
-		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red" />matrix</a>',
-		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red" />matrix</a>'
+		'<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" title="&lt;3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;/3" title="&lt;/3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" title="&lt;\\3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-smile.gif" alt=":-)" title=":-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-wink.gif" alt=";-)" title=";-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-frown.gif" alt=":-(" title=":-(" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-P" title=":-P" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-p" title=":-P" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\" title=":-\" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\" title=":-\" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-x" title=":-x" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-X" title=":-X" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-laughing.gif" alt=":-D" title=":-D"  />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-|" title="8-|" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-O" title="8-O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt=":-O" title="8-O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-thumbsup.gif" alt="\\o/" title="\\o/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o.O" title="o.O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O.o" title="O.o" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o_O" title="o_O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O_o" title="O_o" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cry.gif" alt=":\'(" title=":\'("/>',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-foot-in-mouth.gif" alt=":-!" title=":-!" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-undecided.gif" alt=":-/" title=":-/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-embarassed.gif" alt=":-[" title=":-[" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cool.gif" alt="8-)" title="8-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":beer" title=":beer" />',
+		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":homebrew" title=":homebrew" />',
+		'<img class="smiley" src="' . z_root() . '/images/coffee.gif" alt=":coffee" title=":coffee" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-facepalm.gif" alt=":facepalm" title=":facepalm" />',
+		'<img class="smiley" src="' . z_root() . '/images/like.gif" alt=":like" title=":like" />',
+		'<img class="smiley" src="' . z_root() . '/images/dislike.gif" alt=":dislike" title=":dislike" />',
+		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . z_root() . '/images/friendica-16.png" alt="~friendica" title="~friendica" /></a>',
+		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red#" title="red#" />matrix</a>',
+		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red#matrix" title="red#matrix" />matrix</a>'
 	);
 
 	$params = array('texts' => $texts, 'icons' => $icons, 'string' => $s);
@@ -1305,7 +1305,7 @@ function redir_private_images($a, &$item) {
 
 			if((local_user() == $item['uid']) && ($item['private'] != 0) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
 				//logger("redir_private_images: redir");
-				$img_url = z_root() . '/redir?f=1&quiet=1&url=' . $mtch[1] . '&conurl=' . $item['author-link'];
+				$img_url = 'redir?f=1&quiet=1&url=' . $mtch[1] . '&conurl=' . $item['author-link'];
 				$item['body'] = str_replace($mtch[0], "[img]".$img_url."[/img]", $item['body']);
 			}
 		}
@@ -1421,7 +1421,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 					$mime = $mtch[3];
 
 					if((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN))
-						$the_url = z_root() . '/redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
+						$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
 					else
 						$the_url = $mtch[1];
 
@@ -1596,7 +1596,7 @@ function get_cats_and_terms($item) {
 			$categories[] = array(
 				'name' => xmlify(file_tag_decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?z_root() . '/filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			);
@@ -1614,7 +1614,7 @@ function get_cats_and_terms($item) {
 				$folders[] = array(
 					'name' => xmlify(file_tag_decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid'])?z_root() . '/filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])):""),
+					'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])):""),
 					'first' => $first,
 					'last' => false
 				);
@@ -1639,15 +1639,15 @@ function get_plink($item) {
 
 	if ($a->user['nickname'] != "") {
 		$ret = array(
-				//'href' => z_root()."/display/".$a->user['nickname']."/".$item['id'],
-				'href' => z_root()."/display/".$item['guid'],
-				'orig' => z_root()."/display/".$item['guid'],
+				//'href' => "display/".$a->user['nickname']."/".$item['id'],
+				'href' => "display/".$item['guid'],
+				'orig' => "display/".$item['guid'],
 				'title' => t('View on separate page'),
 				'orig_title' => t('view on separate page'),
 			);
 
 		if (x($item,'plink')) {
-			$ret["href"] = $item['plink'];
+			$ret["href"] = $a->remove_baseurl($item['plink']);
 			$ret["title"] = t('link to source');
 		}
 

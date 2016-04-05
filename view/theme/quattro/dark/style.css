@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -1654,6 +1654,9 @@ span[id^="showmore-wrap"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+#contact-edit-status-wrapper {
+  border-color: #364e59;
 }
 /* editor */
 .jothidden {
