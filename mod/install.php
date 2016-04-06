@@ -295,7 +295,7 @@ function install_content(&$a) {
 
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
-				'$language' => array('language', t('System Language:'), $language, t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
+				'$language' => array('language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
 				'$baseurl' => $a->get_baseurl(),
 
 
