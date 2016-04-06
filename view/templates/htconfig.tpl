@@ -20,6 +20,10 @@ $a->path = '{{$urlpath}}';
 
 $default_timezone = '{{$timezone}}';
 
+// Default system language
+
+$a->config['system']['language'] = '{{$language}}';
+
 // What is your site name?
 
 $a->config['sitename'] = "My Friend Network";
