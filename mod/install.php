@@ -77,7 +77,7 @@ function install_post(&$a) {
 			$dbdata = notags(trim($_POST['dbdata']));
 			$phpath = notags(trim($_POST['phpath']));
 			$timezone = notags(trim($_POST['timezone']));
-            $language = notags(trim($_POST['language']));
+			$language = notags(trim($_POST['language']));
 			$adminmail = notags(trim($_POST['adminmail']));
 
 			// connect to db
@@ -90,7 +90,7 @@ function install_post(&$a) {
 				'$dbpass' => $dbpass,
 				'$dbdata' => $dbdata,
 				'$timezone' => $timezone,
-                '$language' => $language,
+				'$language' => $language,
 				'$urlpath' => $urlpath,
 				'$phpath' => $phpath,
 				'$adminmail' => $adminmail
@@ -275,8 +275,8 @@ function install_content(&$a) {
 
 			$adminmail = notags(trim($_POST['adminmail']));
 			$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
-            /* Installed langs */
-            $lang_choices = get_avaiable_languages();
+			/* Installed langs */
+			$lang_choices = get_avaiable_languages();
 
 			$tpl = get_markup_template('install_settings.tpl');
 			$o .= replace_macros($tpl, array(
@@ -295,8 +295,7 @@ function install_content(&$a) {
 
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
-
-                '$language' => array('language', t('System Language:'), $language, t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
+				'$language' => array('language', t('System Language:'), $language, t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
 				'$baseurl' => $a->get_baseurl(),
 
 
