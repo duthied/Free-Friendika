@@ -5,34 +5,13 @@ require_once('include/security.php');
 require_once('include/datetime.php');
 
 function nuke_session() {
-	if (get_config('system', 'disable_database_session')) {
-		session_unset();
-		return;
-	}
 
 	new_cookie(0); // make sure cookie is deleted on browser close, as a security measure
-
-	unset($_SESSION['authenticated']);
-	unset($_SESSION['uid']);
-	unset($_SESSION['visitor_id']);
-	unset($_SESSION['administrator']);
-	unset($_SESSION['cid']);
-	unset($_SESSION['theme']);
-	unset($_SESSION['mobile-theme']);
-	unset($_SESSION['page_flags']);
-	unset($_SESSION['submanage']);
-	unset($_SESSION['my_url']);
-	unset($_SESSION['my_address']);
-	unset($_SESSION['addr']);
-	unset($_SESSION['return_url']);
-
+	session_unset();
 }
 
 
 // login/logout
-
-
-
 
 if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-params'))) || ($_POST['auth-params'] !== 'login'))) {
 
@@ -41,6 +20,7 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		// process logout request
 		call_hooks("logging_out");
 		nuke_session();
+		new_cookie(-1);
 		info( t('Logged out.') . EOL);
 		goaway(z_root());
 	}
@@ -90,8 +70,7 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		}
 		authenticate_success($r[0], false, false, $login_refresh);
 	}
-}
-else {
+} else {
 
 	if(isset($_SESSION)) {
 		nuke_session();
@@ -209,13 +188,11 @@ else {
 }
 
 function new_cookie($time) {
-	if (!get_config('system', 'disable_database_session'))
-		$old_sid = session_id();
 
-	session_set_cookie_params($time);
+	if ($time != 0)
+		$time = $time + time();
 
-	if (!get_config('system', 'disable_database_session')) {
-		session_regenerate_id(false);
-		q("UPDATE session SET sid = '%s' WHERE sid = '%s'", dbesc(session_id()), dbesc($old_sid));
-	}
+	$params = session_get_cookie_params();
+	setcookie(session_name(), session_id(), $time, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+	return;
 }
