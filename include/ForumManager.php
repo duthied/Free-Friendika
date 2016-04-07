@@ -2,7 +2,7 @@
 
 /**
  * @file include/ForumManager.php
- * @brief ForumManager class with it's methods related to forum functionality *
+ * @brief ForumManager class with its methods related to forum functionality *
  */
 
 /**
