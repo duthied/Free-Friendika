@@ -1,12 +1,12 @@
 <?php
 
 /**
- * @file include/forum.php
- * @brief Functions related to forum functionality *
+ * @file include/ForumManager.php
+ * @brief ForumManager class with its methods related to forum functionality *
  */
 
 /**
- * @brief This class handles functions related to the forum functionality
+ * @brief This class handles metheods related to the forum functionality
  */
 class ForumManager {
 
