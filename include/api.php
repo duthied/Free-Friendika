@@ -1524,15 +1524,21 @@
 		if ($max_id > 0)
 			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
 
+		// Not sure why this query was so complicated. We should keep it here for a while,
+		// just to make sure that we really don't need it.
+		//	FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
+		//	ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`)
+
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
-			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
-			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`uid` = %d AND `item`.`verb` = '%s' AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			WHERE `item`.`parent` = %d AND `item`.`visible`
+			AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			AND `item`.`id`>%d $sql_extra
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
@@ -2058,6 +2064,10 @@
 			$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
 		$statushtml = trim(bbcode($body, false, false));
+
+		$search = array("<br>", "<blockquote>", "</blockquote>");
+		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n");
+		$statushtml = str_replace($search, $replace, $statushtml);
 
 		if ($item['title'] != "")
 			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
