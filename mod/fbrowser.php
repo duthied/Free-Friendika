@@ -74,9 +74,9 @@ function fbrowser_content($a){
 					$filename_e = $rr['filename'];
 				}
 
-				// Take the second largest picture as preview
-				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `scale` > %d ORDER BY `resource-id`, `scale` LIMIT 1",
-					dbesc($rr['resource-id']), intval($rr['hiq']));
+				// Take the largest picture that is smaller or equal 640 pixels
+				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
+					dbesc($rr['resource-id']));
 				if ($p)
 					$scale = $p[0]["scale"];
 				else
