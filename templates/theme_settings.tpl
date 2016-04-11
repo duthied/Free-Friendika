@@ -48,7 +48,7 @@
 			step: 1,
 			scale: [0,10,20,30,40,50,60,70,80,90,100],
 			format: '%s',
-			width: 720,
+			width: 622,
 			showLabels: true,
 			snap: true
 		});
