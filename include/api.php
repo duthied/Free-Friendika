@@ -2065,8 +2065,14 @@
 
 		$statushtml = trim(bbcode($body, false, false));
 
-		$search = array("<br>", "<blockquote>", "</blockquote>");
-		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n");
+		$search = array("<br>", "<blockquote>", "</blockquote>",
+				"<h1>", "</h1>", "<h2>", "</h2>",
+				"<h3>", "</h3>", "<h4>", "</h4>",
+				"<h5>", "</h5>", "<h6>", "</h6>");
+		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n",
+				"\n<h1>", "</h1>\n", "\n<h2>", "</h2>\n",
+				"\n<h3>", "</h3>\n", "\n<h4>", "</h4>\n",
+				"\n<h5>", "</h5>\n", "\n<h6>", "</h6>\n");
 		$statushtml = str_replace($search, $replace, $statushtml);
 
 		if ($item['title'] != "")
