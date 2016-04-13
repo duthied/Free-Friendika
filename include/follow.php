@@ -1,6 +1,7 @@
 <?php
 require_once("include/Scrape.php");
 require_once("include/socgraph.php");
+require_once('include/group.php');
 
 function update_contact($id) {
 	/*
@@ -259,10 +260,8 @@ function new_contact($uid,$url,$interactive = false) {
 	$result['cid'] = $contact_id;
 
 	$def_gid = get_default_group($uid, $contact["network"]);
-	if (intval($def_gid)) {
-		require_once('include/group.php');
+	if (intval($def_gid))
 		group_add_member($uid, '', $contact_id, $def_gid);
-	}
 
 	require_once("include/Photo.php");
 

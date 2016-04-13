@@ -18,6 +18,7 @@ require_once('include/Contact.php');
 require_once('mod/share.php');
 require_once('include/enotify.php');
 require_once('include/dfrn.php');
+require_once('include/group.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
@@ -1378,7 +1379,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			dbesc(($sharing) ? NETWORK_ZOT : NETWORK_OSTATUS),
 			intval(($sharing) ? CONTACT_IS_SHARING : CONTACT_IS_FOLLOWER)
 		);
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
 				intval($importer['uid']),
 				dbesc($url)
 		);
@@ -1415,10 +1416,10 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				);
 			}
 
-			if(intval($r[0]['def_gid'])) {
-				require_once('include/group.php');
-				group_add_member($r[0]['uid'],'',$contact_record['id'],$r[0]['def_gid']);
-			}
+			$def_gid = get_default_group($importer['uid'], $contact_record["network"]);
+
+			if(intval($def_gid))
+				group_add_member($importer['uid'],'',$contact_record['id'],$def_gid);
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				in_array($r[0]['page-flags'], array(PAGE_NORMAL))) {
@@ -1648,7 +1649,6 @@ function compare_permissions($obj1,$obj2) {
 // returns an array of contact-ids that are allowed to see this object
 
 function enumerate_permissions($obj) {
-	require_once('include/group.php');
 	$allow_people = expand_acl($obj['allow_cid']);
 	$allow_groups = expand_groups(expand_acl($obj['allow_gid']));
 	$deny_people  = expand_acl($obj['deny_cid']);
