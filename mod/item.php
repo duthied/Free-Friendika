@@ -1065,10 +1065,11 @@ function item_content(&$a) {
  * the appropiate link.
  *
  * @param unknown_type $body the text to replace the tag in
- * @param unknown_type $inform a comma-seperated string containing everybody to inform
- * @param unknown_type $str_tags string to add the tag to
- * @param unknown_type $profile_uid
- * @param unknown_type $tag the tag to replace
+ * @param string $inform a comma-seperated string containing everybody to inform
+ * @param string $str_tags string to add the tag to
+ * @param integer $profile_uid
+ * @param string $tag the tag to replace
+ * @param string $network The network of the post
  *
  * @return boolean true if replaced, false if not replaced
  */
@@ -1176,7 +1177,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			//select someone from this user's contacts by name in the current network
 			if (!$r AND ($network != ""))
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($newname),
+						dbesc($name),
 						dbesc($network),
 						intval($profile_uid)
 				);
@@ -1193,7 +1194,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			//select someone from this user's contacts by name
 			if(!$r)
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($newname),
+						dbesc($name),
 						intval($profile_uid)
 				);
 		}
@@ -1216,13 +1217,13 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		}
 
 		//if there is an url for this persons profile
-		if(isset($profile)) {
+		if (isset($profile) AND ($newname != "")) {
 
 			$replaced = true;
 			//create profile link
 			$profile = str_replace(',','%2c',$profile);
-			$newtag = '@[url=' . $profile . ']' . $newname	. '[/url]';
-			$body = str_replace('@' . $name, $newtag, $body);
+			$newtag = '@[url='.$profile.']'.$newname.'[/url]';
+			$body = str_replace('@'.$name, $newtag, $body);
 			//append tag to str_tags
 			if(! stristr($str_tags,$newtag)) {
 				if(strlen($str_tags))
@@ -1234,7 +1235,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			// subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
 
 			if(strlen($alias)) {
-				$newtag = '@[url=' . $alias . ']' . $newname	. '[/url]';
+				$newtag = '@[url='.$alias.']'.$newname.'[/url]';
 				if(! stristr($str_tags,$newtag)) {
 					if(strlen($str_tags))
 						$str_tags .= ',';
