@@ -15,6 +15,7 @@
  */
 
 require_once('include/enotify.php');
+require_once('include/group.php');
 
 function dfrn_confirm_post(&$a,$handsfree = null) {
 
@@ -491,10 +492,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		}
 
 		$def_gid = get_default_group($uid, $contact["network"]);
-		if($contact && intval($def_gid)) {
-			require_once('include/group.php');
+		if($contact && intval($def_gid))
 			group_add_member($uid, '', $contact['id'], $def_gid);
-		}
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
