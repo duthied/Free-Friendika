@@ -21,7 +21,12 @@
 
 	{{include file="field_textarea.tpl" field=array('location', $l_text, $l_orig, "")}}
 	<hr>
-	{{include file="field_checkbox.tpl" field=array('share', $sh_text, $sh_checked, "")}}
+
+	<div class='field checkbox' id='div_id_share'>
+		<label for='id_share'>{{$sh_text}}</label>
+		<input type="checkbox" name='share' id='id_share' aria-describedby='share_tip' value="1" {{$sh_checked}}>
+		
+	</div>
 
 	{{$acl}}
 
