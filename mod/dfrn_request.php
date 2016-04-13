@@ -11,6 +11,7 @@
 
 require_once('include/enotify.php');
 require_once('include/Scrape.php');
+require_once('include/group.php');
 
 if(! function_exists('dfrn_request_init')) {
 function dfrn_request_init(&$a) {
@@ -181,10 +182,9 @@ function dfrn_request_post(&$a) {
 				);
 				if(count($r)) {
 					$def_gid = get_default_group(local_user(), $r[0]["network"]);
-					if(intval($def_gid)) {
-						require_once('include/group.php');
+					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
-					}
+
 					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
 				} else
 					$forwardurl = $a->get_baseurl()."/contacts";
@@ -394,10 +394,8 @@ function dfrn_request_post(&$a) {
 				$contact_id = $r[0]['id'];
 
 				$def_gid = get_default_group($uid, $r[0]["network"]);
-				if (intval($def_gid)) {
-					require_once('include/group.php');
+				if (intval($def_gid))
 					group_add_member($uid, '', $contact_id, $def_gid);
-				}
 
 				$photo = avatar_img($addr);
 

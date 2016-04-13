@@ -1819,12 +1819,10 @@ class diaspora {
 			return;
 		}
 
-		$g = q("SELECT `def_gid` FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($importer["uid"])
-		);
+		$def_gid = get_default_group($importer['uid'], $ret["network"]);
 
-		if($g && intval($g[0]["def_gid"]))
-			group_add_member($importer["uid"], "", $contact_record["id"], $g[0]["def_gid"]);
+		if(intval($def_gid))
+			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
 
 		if($importer["page-flags"] == PAGE_NORMAL) {
 
