@@ -47,6 +47,10 @@ hr {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+aside hr,
+section hr {
+    border-color: rgba(238, 238, 238, $contentbg_transp);
+}
 iframe, img {
     max-width: 100%;
 }
@@ -748,7 +752,8 @@ aside .widget li.selected,
 .nav-container .widget li:hover {
     z-index: 2;
     color: #555;
-    background-color: #f7f7f7;
+    /*background-color: #f7f7f7;*/
+    background-color: rgba(247, 247, 247, $contentbg_transp);
     /*border-left: 3px solid #6fdbe8!important;*/
     border-left: 3px solid $link_color !important;
     padding-left: 17px;
@@ -1222,7 +1227,8 @@ blockquote.shared_content {
 .well {
     border: none;
     box-shadow: none;
-    background-color: #ededed;
+    /*background-color: #ededed;*/
+    background-color: rgba(237, 237, 237, $contentbg_transp);
     background-image: none;
     margin-bottom: 1px;
 }
@@ -1475,4 +1481,10 @@ main .nav-tabs>li.active>a:hover {
     background-color: rgba(255,255,255,$contentbg_transp);
 }
 
+/*
+ * Modal
+ */
+.modal hr {
+    border-color: #eee;
+}
 
