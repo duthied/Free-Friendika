@@ -48,9 +48,9 @@
 			step: 1,
 			scale: [0,10,20,30,40,50,60,70,80,90,100],
 			format: '%s',
-			width: 622,
+			width: '100%',
 			showLabels: true,
-			snap: true
+			theme: 'theme-frio',
 		});
 
 	});
