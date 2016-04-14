@@ -13,7 +13,6 @@
 		if($(listID).is(":visible")) {
 			$(listID).hide();
 			$(listID+"-wrapper").show();
-			alert($(listID+"-wrapper").attr("id"));
 		}
 		else {
 			$(listID).show();

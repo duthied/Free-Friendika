@@ -427,8 +427,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			if(($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
-				$ret = diaspora_share($user[0],$r[0]);
-				logger('mod_follow: diaspora_share returns: ' . $ret);
+				$ret = diaspora::send_share($user[0],$r[0]);
+				logger('share returns: ' . $ret);
 			}
 
 			// Send a new friend post if we are allowed to...
@@ -448,6 +448,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				if(count($self)) {
 
 					$arr = array();
+					$arr['guid'] = get_guid(32);
 					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid);
 					$arr['uid'] = $uid;
 					$arr['contact-id'] = $self[0]['id'];
@@ -466,7 +467,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 					$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
 
 					$arr['verb'] = ACTIVITY_FRIEND;
-				    $arr['object-type'] = ACTIVITY_OBJ_PERSON;
+					$arr['object-type'] = ACTIVITY_OBJ_PERSON;
 					$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
@@ -489,13 +490,10 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			}
 		}
 
-
-		$g = q("select def_gid from user where uid = %d limit 1",
-			intval($uid)
-		);
-		if($contact && $g && intval($g[0]['def_gid'])) {
+		$def_gid = get_default_group($uid, $contact["network"]);
+		if($contact && intval($def_gid)) {
 			require_once('include/group.php');
-			group_add_member($uid,'',$contact['id'],$g[0]['def_gid']);
+			group_add_member($uid, '', $contact['id'], $def_gid);
 		}
 
 		// Let's send our user to the contact editor in case they want to

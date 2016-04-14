@@ -99,8 +99,16 @@ function network_to_name($s, $profile = "") {
 
 	$networkname = str_replace($search,$replace,$s);
 
-	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND diaspora_is_redmatrix($profile))
-		$networkname = t("Redmatrix");
+	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND diaspora::is_redmatrix($profile)) {
+		$networkname = t("Hubzilla/Redmatrix");
+
+		$r = q("SELECT `gserver`.`platform` FROM `gcontact`
+				INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
+				WHERE `gcontact`.`nurl` = '%s' AND `platform` != ''",
+				dbesc(normalise_link($profile)));
+		if ($r)
+			$networkname = $r[0]["platform"];
+	}
 
 	return $networkname;
 }

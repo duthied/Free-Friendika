@@ -23,7 +23,7 @@ function replace_macros($s,$r) {
 	$a = get_app();
 
 	// pass $baseurl to all templates
-	$r['$baseurl'] = z_root();
+	$r['$baseurl'] = $a->get_baseurl();
 
 
 	$t = $a->template_engine();
@@ -286,7 +286,7 @@ function paginate_data(&$a, $count=null) {
 	if (($a->page_offset != "") AND !preg_match('/[?&].offset=/', $stripped))
 		$stripped .= "&offset=".urlencode($a->page_offset);
 
-	$url = z_root() . '/' . $stripped;
+	$url = $stripped;
 
 	$data = array();
 	function _l(&$d, $name, $url, $text, $class="") {
@@ -924,7 +924,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
 	if($redirect) {
 		$a = get_app();
-		$redirect_url = z_root() . '/redir/' . $contact['id'];
+		$redirect_url = 'redir/' . $contact['id'];
 		if(local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
 			$url = $redirect_url;
@@ -965,13 +965,13 @@ if(! function_exists('search')) {
  * @param string $url search url
  * @param boolean $savedsearch show save search button
  */
-function search($s,$id='search-box',$url='/search',$save = false, $aside = true) {
+function search($s,$id='search-box',$url='search',$save = false, $aside = true) {
 	$a = get_app();
 
 	$values = array(
 			'$s' => $s,
 			'$id' => $id,
-			'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+			'$action_url' => $url,
 			'$search_label' => t('Search'),
 			'$save_label' => t('Save'),
 			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
@@ -1152,7 +1152,7 @@ function redir_private_images($a, &$item) {
 
 			if((local_user() == $item['uid']) && ($item['private'] != 0) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
 				//logger("redir_private_images: redir");
-				$img_url = z_root() . '/redir?f=1&quiet=1&url=' . $mtch[1] . '&conurl=' . $item['author-link'];
+				$img_url = 'redir?f=1&quiet=1&url=' . $mtch[1] . '&conurl=' . $item['author-link'];
 				$item['body'] = str_replace($mtch[0], "[img]".$img_url."[/img]", $item['body']);
 			}
 		}
@@ -1268,7 +1268,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 					$mime = $mtch[3];
 
 					if((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN))
-						$the_url = z_root() . '/redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
+						$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
 					else
 						$the_url = $mtch[1];
 
@@ -1443,7 +1443,7 @@ function get_cats_and_terms($item) {
 			$categories[] = array(
 				'name' => xmlify(file_tag_decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?z_root() . '/filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			);
@@ -1461,7 +1461,7 @@ function get_cats_and_terms($item) {
 				$folders[] = array(
 					'name' => xmlify(file_tag_decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid'])?z_root() . '/filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])):""),
+					'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])):""),
 					'first' => $first,
 					'last' => false
 				);
@@ -1486,15 +1486,15 @@ function get_plink($item) {
 
 	if ($a->user['nickname'] != "") {
 		$ret = array(
-				//'href' => z_root()."/display/".$a->user['nickname']."/".$item['id'],
-				'href' => z_root()."/display/".$item['guid'],
-				'orig' => z_root()."/display/".$item['guid'],
+				//'href' => "display/".$a->user['nickname']."/".$item['id'],
+				'href' => "display/".$item['guid'],
+				'orig' => "display/".$item['guid'],
 				'title' => t('View on separate page'),
 				'orig_title' => t('view on separate page'),
 			);
 
 		if (x($item,'plink')) {
-			$ret["href"] = $item['plink'];
+			$ret["href"] = $a->remove_baseurl($item['plink']);
 			$ret["title"] = t('link to source');
 		}
 

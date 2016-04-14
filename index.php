@@ -72,7 +72,8 @@ if(!$install) {
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr($a->get_baseurl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
-		header("location: ".$a->get_baseurl()."/".$a->query_string);
+		header("Location: ".$a->get_baseurl()."/".$a->query_string);
+		exit();
 	}
 
 	require_once("include/session.php");
@@ -371,7 +372,7 @@ $a->init_page_end();
 if(x($_SESSION,'visitor_home'))
 	$homebase = $_SESSION['visitor_home'];
 elseif(local_user())
-	$homebase = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
+	$homebase = 'profile/' . $a->user['nickname'];
 
 if(isset($homebase))
 	$a->page['content'] .= '<script>var homebase="' . $homebase . '" ; </script>';
@@ -409,15 +410,6 @@ call_hooks('page_end', $a->page['content']);
 
 /**
  *
- * Add a place for the pause/resume Ajax indicator
- *
- */
-
-$a->page['content'] .=  '<div id="pause"></div>';
-
-
-/**
- *
  * Add the navigation (menu) template
  *
  */
@@ -432,10 +424,10 @@ if($a->module != 'install' && $a->module != 'maintenance') {
 
 if($a->is_mobile || $a->is_tablet) {
 	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-		$link = $a->get_baseurl() . '/toggle_mobile?address=' . curPageURL();
+		$link = 'toggle_mobile?address=' . curPageURL();
 	}
 	else {
-		$link = $a->get_baseurl() . '/toggle_mobile?off=1&address=' . curPageURL();
+		$link = 'toggle_mobile?off=1&address=' . curPageURL();
 	}
 	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
 	                     	'$toggle_link' => $link,

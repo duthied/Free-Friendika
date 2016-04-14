@@ -2,6 +2,7 @@
 
 require_once('library/HTML5/Parser.php');
 require_once('include/crypto.php');
+require_once('include/feed.php');
 
 if(! function_exists('scrape_dfrn')) {
 function scrape_dfrn($url, $dont_probe = false) {
@@ -12,9 +13,25 @@ function scrape_dfrn($url, $dont_probe = false) {
 
 	logger('scrape_dfrn: url=' . $url);
 
+	// Try to fetch the data from noscrape. This is faster than parsing the HTML
+	$noscrape = str_replace("/hcard/", "/noscrape/", $url);
+	$noscrapejson = fetch_url($noscrape);
+	$noscrapedata = array();
+	if ($noscrapejson) {
+		$noscrapedata = json_decode($noscrapejson, true);
+
+		if (is_array($noscrapedata)) {
+			if ($noscrapedata["nick"] != "")
+				return($noscrapedata);
+			else
+				unset($noscrapedata["nick"]);
+		} else
+			$noscrapedata = array();
+	}
+
 	$s = fetch_url($url);
 
-	if(! $s)
+	if (!$s)
 		return $ret;
 
 	if (!$dont_probe) {
@@ -91,8 +108,7 @@ function scrape_dfrn($url, $dont_probe = false) {
 			}
 		}
 	}
-
-	return $ret;
+	return array_merge($ret, $noscrapedata);
 }}
 
 
@@ -342,7 +358,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	$result = array();
 
-	if(! $url)
+	if (!$url)
 		return $result;
 
 	$result = Cache::get("probe_url:".$mode.":".$url);
@@ -351,6 +367,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		return $result;
 	}
 
+	$original_url = $url;
 	$network = null;
 	$diaspora = false;
 	$diaspora_base = '';
@@ -366,8 +383,6 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		$network = NETWORK_TWITTER;
 	}
 
-	// Twitter is deactivated since twitter closed its old API
-	//$twitter = ((strpos($url,'twitter.com') !== false) ? true : false);
 	$lastfm  = ((strpos($url,'last.fm/user') !== false) ? true : false);
 
 	$at_addr = ((strpos($url,'@') !== false) ? true : false);
@@ -381,7 +396,12 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		else
 			$links = lrdd($url);
 
-		if(count($links)) {
+		if ((count($links) == 0) AND strstr($url, "/index.php")) {
+			$url = str_replace("/index.php", "", $url);
+			$links = lrdd($url);
+		}
+
+		if (count($links)) {
 			$has_lrdd = true;
 
 			logger('probe_url: found lrdd links: ' . print_r($links,true), LOGGER_DATA);
@@ -428,18 +448,30 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			// aliases, let's hope we're lucky and get one that matches the feed author-uri because
 			// otherwise we're screwed.
 
+			$backup_alias = "";
+
 			foreach($links as $link) {
 				if($link['@attributes']['rel'] === 'alias') {
 					if(strpos($link['@attributes']['href'],'@') === false) {
 						if(isset($profile)) {
-							if($link['@attributes']['href'] !== $profile)
-								$alias = unamp($link['@attributes']['href']);
+							$alias_url = $link['@attributes']['href'];
+
+							if(($alias_url !== $profile) AND ($backup_alias == "") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$backup_alias = $alias_url;
+
+							if(($alias_url !== $profile) AND !strstr($alias_url, "index.php") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$alias = $alias_url;
 						}
 						else
 							$profile = unamp($link['@attributes']['href']);
 					}
 				}
 			}
+
+			if ($alias == "")
+				$alias = $backup_alias;
 
 			// If the profile is different from the url then the url is abviously an alias
 			if (($alias == "") AND ($profile != "") AND !$at_addr AND (normalise_link($profile) != normalise_link($url)))
@@ -604,21 +636,6 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			$vcard['nick'] = $addr_parts[0];
 		}
 
-		/* if($twitter) {
-			logger('twitter: setup');
-			$tid = basename($url);
-			$tapi = 'https://api.twitter.com/1/statuses/user_timeline.rss';
-			if(intval($tid))
-				$poll = $tapi . '?user_id=' . $tid;
-			else
-				$poll = $tapi . '?screen_name=' . $tid;
-			$profile = 'http://twitter.com/#!/' . $tid;
-			//$vcard['photo'] = 'https://api.twitter.com/1/users/profile_image/' . $tid;
-			$vcard['photo'] = 'https://api.twitter.com/1/users/profile_image?screen_name=' . $tid . '&size=bigger';
-			$vcard['nick'] = $tid;
-			$vcard['fn'] = $tid;
-		} */
-
 		if($lastfm) {
 			$profile = $url;
 			$poll = str_replace(array('www.','last.fm/'),array('','ws.audioscrobbler.com/1.0/'),$url) . '/recenttracks.rss';
@@ -662,85 +679,41 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 			if(x($feedret,'photo') && (! x($vcard,'photo')))
 				$vcard['photo'] = $feedret['photo'];
-			require_once('library/simplepie/simplepie.inc');
-			$feed = new SimplePie();
+
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-scrape-feed-');
 			$xml = fetch_url($poll, false, $redirects, 0, Null, $cookiejar);
 			unlink($cookiejar);
 
 			logger('probe_url: fetch feed: ' . $poll . ' returns: ' . $xml, LOGGER_DATA);
-			$a = get_app();
 
-			logger('probe_url: scrape_feed: headers: ' . $a->get_curl_headers(), LOGGER_DATA);
-
-			// Don't try and parse an empty string
-			$feed->set_raw_data(($xml) ? $xml : '<?xml version="1.0" encoding="utf-8" ?><xml></xml>');
-
-			$feed->init();
-			if($feed->error()) {
-				logger('probe_url: scrape_feed: Error parsing XML: ' . $feed->error());
+			if ($xml == "") {
+				logger("scrape_feed: XML is empty for feed ".$poll);
 				$network = NETWORK_PHANTOM;
-			}
+			} else {
+				$data = feed_import($xml,$dummy1,$dummy2, $dummy3, true);
 
-			if(! x($vcard,'photo'))
-				$vcard['photo'] = $feed->get_image_url();
-			$author = $feed->get_author();
+				if (!is_array($data)) {
+					logger("scrape_feed: This doesn't seem to be a feed: ".$poll);
+					$network = NETWORK_PHANTOM;
+				} else {
+					if (($vcard["photo"] == "") AND ($data["header"]["author-avatar"] != ""))
+						$vcard["photo"] = $data["header"]["author-avatar"];
 
-			if($author) {
-				$vcard['fn'] = unxmlify(trim($author->get_name()));
-				if(! $vcard['fn'])
-					$vcard['fn'] = trim(unxmlify($author->get_email()));
-				if(strpos($vcard['fn'],'@') !== false)
-					$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
+					if (($vcard["fn"] == "") AND ($data["header"]["author-name"] != ""))
+						$vcard["fn"] = $data["header"]["author-name"];
 
-				$email = unxmlify($author->get_email());
-				if(! $profile && $author->get_link())
-					$profile = trim(unxmlify($author->get_link()));
-				if(! $vcard['photo']) {
-					$rawtags = $feed->get_feed_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-					if($rawtags) {
-						$elems = $rawtags[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10];
-						if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
-							$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
-					}
-				}
-				// Fetch fullname via poco:displayName
-				$pocotags = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-				if ($pocotags) {
-					$elems = $pocotags[0]['child']['http://portablecontacts.net/spec/1.0'];
-					if (isset($elems["displayName"]))
-						$vcard['fn'] = $elems["displayName"][0]["data"];
-					if (isset($elems["preferredUsername"]))
-						$vcard['nick'] = $elems["preferredUsername"][0]["data"];
-				}
-			}
-			else {
-				$item = $feed->get_item(0);
-				if($item) {
-					$author = $item->get_author();
-					if($author) {
-						$vcard['fn'] = trim(unxmlify($author->get_name()));
-						if(! $vcard['fn'])
-							$vcard['fn'] = trim(unxmlify($author->get_email()));
-						if(strpos($vcard['fn'],'@') !== false)
-							$vcard['fn'] = substr($vcard['fn'],0,strpos($vcard['fn'],'@'));
-						$email = unxmlify($author->get_email());
-						if(! $profile && $author->get_link())
-							$profile = trim(unxmlify($author->get_link()));
-					}
-					if(! $vcard['photo']) {
-						$rawmedia = $item->get_item_tags('http://search.yahoo.com/mrss/','thumbnail');
-						if($rawmedia && $rawmedia[0]['attribs']['']['url'])
-							$vcard['photo'] = unxmlify($rawmedia[0]['attribs']['']['url']);
-					}
-					if(! $vcard['photo']) {
-						$rawtags = $item->get_item_tags( SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-						if($rawtags) {
-							$elems = $rawtags[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10];
-							if((x($elems,'link')) && ($elems['link'][0]['attribs']['']['rel'] === 'photo'))
-								$vcard['photo'] = $elems['link'][0]['attribs']['']['href'];
-						}
-					}
+					if (($vcard["nick"] == "") AND ($data["header"]["author-nick"] != ""))
+						$vcard["nick"] = $data["header"]["author-nick"];
+
+					if ($network == NETWORK_OSTATUS) {
+						if ($data["header"]["author-id"] != "")
+							$alias = $data["header"]["author-id"];
+
+						if ($data["header"]["author-link"] != "")
+							$profile = $data["header"]["author-link"];
+
+					} elseif(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
+						$profile = $data["header"]["author-link"];
 				}
 			}
 
@@ -783,27 +756,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				}
 			}
 
-			if((! $vcard['photo']) && strlen($email))
-				$vcard['photo'] = avatar_img($email);
-			if($poll === $profile)
-				$lnk = $feed->get_permalink();
-			if(isset($lnk) && strlen($lnk))
-				$profile = $lnk;
-
-			if(! $network) {
+			if(! $network)
 				$network = NETWORK_FEED;
-				// If it is a feed, don't take the author name as feed name
-				unset($vcard['fn']);
-			}
-			if(! (x($vcard,'fn')))
-				$vcard['fn'] = notags($feed->get_title());
-			if(! (x($vcard,'fn')))
-				$vcard['fn'] = notags($feed->get_description());
 
-			if(strpos($vcard['fn'],'Twitter / ') !== false) {
-				$vcard['fn'] = substr($vcard['fn'],strpos($vcard['fn'],'/')+1);
-				$vcard['fn'] = trim($vcard['fn']);
-			}
 			if(! x($vcard,'nick')) {
 				$vcard['nick'] = strtolower(notags(unxmlify($vcard['fn'])));
 				if(strpos($vcard['nick'],' '))
@@ -816,7 +771,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	if(! x($vcard,'photo')) {
 		$a = get_app();
-		$vcard['photo'] = $a->get_baseurl() . '/images/person-175.jpg' ;
+		$vcard['photo'] = App::get_baseurl() . '/images/person-175.jpg' ;
 	}
 
 	if(! $profile)
@@ -828,18 +783,21 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		$vcard['fn'] = $url;
 
 	if (($notify != "") AND ($poll != "")) {
-		$baseurl = matching(normalise_link($notify), normalise_link($poll));
+		$baseurl = matching_url(normalise_link($notify), normalise_link($poll));
 
-		$baseurl2 = matching($baseurl, normalise_link($profile));
+		$baseurl2 = matching_url($baseurl, normalise_link($profile));
 		if ($baseurl2 != "")
 			$baseurl = $baseurl2;
 	}
 
 	if (($baseurl == "") AND ($notify != ""))
-		$baseurl = matching(normalise_link($profile), normalise_link($notify));
+		$baseurl = matching_url(normalise_link($profile), normalise_link($notify));
 
 	if (($baseurl == "") AND ($poll != ""))
-		$baseurl = matching(normalise_link($profile), normalise_link($poll));
+		$baseurl = matching_url(normalise_link($profile), normalise_link($poll));
+
+	if (substr($baseurl, -10) == "/index.php")
+		$baseurl = str_replace("/index.php", "", $baseurl);
 
 	$baseurl = rtrim($baseurl, "/");
 
@@ -888,25 +846,82 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_PHANTOM)
-		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
+	if ($result['network'] != NETWORK_PHANTOM) {
+		Cache::set("probe_url:".$mode.":".$original_url,serialize($result), CACHE_DAY);
+
+		/// @todo temporary fix - we need a real contact update function that updates only changing fields
+		/// The biggest problem is the avatar picture that could have a reduced image size.
+		/// It should only be updated if the existing picture isn't existing anymore.
+		if (($result['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
+			$result["name"] AND $result["nick"] AND $result["url"] AND $result["addr"] AND $result["poll"])
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
+					`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
+				dbesc($result["name"]),
+				dbesc($result["nick"]),
+				dbesc($result["url"]),
+				dbesc($result["addr"]),
+				dbesc($result["notify"]),
+				dbesc($result["poll"]),
+				dbesc($result["alias"]),
+				dbesc(datetime_convert()),
+				dbesc(normalise_link($result['url']))
+		);
+	}
 
 	return $result;
 }
 
-function matching($part1, $part2) {
-	$len = min(strlen($part1), strlen($part2));
+/**
+ * @brief Find the matching part between two url
+ *
+ * @param string $url1
+ * @param string $url2
+ * @return string The matching part
+ */
+function matching_url($url1, $url2) {
 
-	$match = "";
-	$matching = true;
+	if (($url1 == "") OR ($url2 == ""))
+		return "";
+
+	$url1 = normalise_link($url1);
+	$url2 = normalise_link($url2);
+
+	$parts1 = parse_url($url1);
+	$parts2 = parse_url($url2);
+
+	if (!isset($parts1["host"]) OR !isset($parts2["host"]))
+		return "";
+
+	if ($parts1["scheme"] != $parts2["scheme"])
+		return "";
+
+	if ($parts1["host"] != $parts2["host"])
+		return "";
+
+	if ($parts1["port"] != $parts2["port"])
+		return "";
+
+	$match = $parts1["scheme"]."://".$parts1["host"];
+
+	if ($parts1["port"])
+		$match .= ":".$parts1["port"];
+
+	$pathparts1 = explode("/", $parts1["path"]);
+	$pathparts2 = explode("/", $parts2["path"]);
+
 	$i = 0;
-	while (($i <= $len) AND $matching) {
-		if (substr($part1, $i, 1) == substr($part2, $i, 1))
-			$match .= substr($part1, $i, 1);
-		else
-			$matching = false;
+	$path = "";
+	do {
+		$path1 = $pathparts1[$i];
+		$path2 = $pathparts2[$i];
 
-		$i++;
-	}
-	return($match);
+		if ($path1 == $path2)
+			$path .= $path1."/";
+
+	} while (($path1 == $path2) AND ($i++ <= count($pathparts1)));
+
+	$match .= $path;
+
+	return normalise_link($match);
 }

@@ -42,8 +42,10 @@ function dfrn_request_init(&$a) {
 if(! function_exists('dfrn_request_post')) {
 function dfrn_request_post(&$a) {
 
-	if(($a->argc != 2) || (! count($a->profile)))
+	if(($a->argc != 2) || (! count($a->profile))) {
+		logger('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
 		return;
+	}
 
 
 	if(x($_POST, 'cancel')) {
@@ -172,18 +174,16 @@ function dfrn_request_post(&$a) {
 					info( t("Introduction complete.") . EOL);
 				}
 
-				$r = q("select id from contact where uid = %d and url = '%s' and `site-pubkey` = '%s' limit 1",
+				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
 				if(count($r)) {
-					$g = q("select def_gid from user where uid = %d limit 1",
-						intval(local_user())
-					);
-					if($g && intval($g[0]['def_gid'])) {
+					$def_gid = get_default_group(local_user(), $r[0]["network"]);
+					if(intval($def_gid)) {
 						require_once('include/group.php');
-						group_add_member(local_user(),'',$r[0]['id'],$g[0]['def_gid']);
+						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
 					}
 					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
 				} else
@@ -386,19 +386,17 @@ function dfrn_request_post(&$a) {
 				intval($rel)
 			);
 
-			$r = q("select id from contact where poll = '%s' and uid = %d limit 1",
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `poll` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($poll),
 				intval($uid)
 			);
 			if(count($r)) {
 				$contact_id = $r[0]['id'];
 
-				$g = q("select def_gid from user where uid = %d limit 1",
-					intval($uid)
-				);
-				if($g && intval($g[0]['def_gid'])) {
+				$def_gid = get_default_group($uid, $r[0]["network"]);
+				if (intval($def_gid)) {
 					require_once('include/group.php');
-					group_add_member($uid,'',$contact_id,$g[0]['def_gid']);
+					group_add_member($uid, '', $contact_id, $def_gid);
 				}
 
 				$photo = avatar_img($addr);
@@ -461,7 +459,7 @@ function dfrn_request_post(&$a) {
 				$network = NETWORK_DFRN;
 		}
 
-		logger('dfrn_request: url: ' . $url);
+		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
 
 		if($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
@@ -825,7 +823,7 @@ function dfrn_request_content(&$a) {
 		else
 			$tpl = get_markup_template('auto_request.tpl');
 
-		$page_desc .= t("Please enter your 'Identity Address' from one of the following supported communications networks:");
+		$page_desc = t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
 		// see if we are allowed to have NETWORK_MAIL2 contacts
 
@@ -850,7 +848,7 @@ function dfrn_request_content(&$a) {
 			get_server()
 		);
 
-		$o .= replace_macros($tpl,array(
+		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
 			'$pls_answer' => t('Please answer the following:'),

@@ -8,6 +8,12 @@ hr { background-color: #343434 !important; }
 a, .wall-item-name, .fakelink { 
 	color: #989898 !important; 
 }
+.btn, .btn:hover{
+	color: #989898;
+	border: 2px solid #0C1116;
+	background-color: #0C1116;
+	text-shadow: none;
+}
 
 nav { 
 	color: #989898 !important;
@@ -33,6 +39,11 @@ body, section, blockquote, blockquote.shared_content, #profile-jot-form,
 .dspr, .twit, .pump, .dfrn, .tread-wrapper, code, .mail-list-wrapper, div.pager, ul.tabs {
 	color: #989898 !important;
 	background-color: #171B1F !important;
+}
+
+#profile-jot-acl-wrapper, #event-notice, #event-wrapper,
+#cboxLoadedContent, .contact-photo-menu, #contact-edit-status-wrapper {
+	background-color: #252C33 !important;
 }
 
 div.rte, .mceContentBody {
@@ -62,4 +73,36 @@ li :hover {
 
 #viewcontact_wrapper-network {
 	background-color: #343434;
+}
+
+table.smiley-preview{
+	background-color: #252C33 !important;
+}
+
+/* ACL permission popup */
+ .acl-list-item.groupshow {
+	border-color: #9ade00 !important;
+}
+
+.acl-list-item.grouphide {
+	border-color: #ff4141 !important;
+}
+
+/* Notifications */
+li.notify-unseen {
+	background-color: #252C33;
+}
+
+li.notify-seen {
+	background-color: #1C2126;
+}
+
+.photo-top-album-name {
+	background-color: #252C33;
+}
+
+#panel {
+	background-color: #252C33;
+	border: 3px solid #364e59;
+	color: #989898;
 }

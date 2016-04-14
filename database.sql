@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1193
+-- DB_UPDATE_VERSION 1194
 -- ------------------------------------------
 
 
@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`keywords` text NOT NULL,
 	`gender` varchar(32) NOT NULL DEFAULT '',
 	`attag` varchar(255) NOT NULL DEFAULT '',
+	`avatar` varchar(255) NOT NULL DEFAULT '',
 	`photo` text NOT NULL,
 	`thumb` text NOT NULL,
 	`micro` text NOT NULL,
@@ -197,17 +198,6 @@ CREATE TABLE IF NOT EXISTS `deliverq` (
 	`cmd` varchar(32) NOT NULL DEFAULT '',
 	`item` int(11) NOT NULL DEFAULT 0,
 	`contact` int(11) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
-) DEFAULT CHARSET=utf8;
-
---
--- TABLE dsprphotoq
---
-CREATE TABLE IF NOT EXISTS `dsprphotoq` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`msg` mediumtext NOT NULL,
-	`attempt` tinyint(4) NOT NULL DEFAULT 0,
 	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -409,21 +399,6 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_failure` datetime DEFAULT '0000-00-00 00:00:00',
 	 PRIMARY KEY(`id`),
 	 INDEX `nurl` (`nurl`)
-) DEFAULT CHARSET=utf8;
-
---
--- TABLE guid
---
-CREATE TABLE IF NOT EXISTS `guid` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`guid` varchar(255) NOT NULL DEFAULT '',
-	`plink` varchar(255) NOT NULL DEFAULT '',
-	`uri` varchar(255) NOT NULL DEFAULT '',
-	`network` varchar(32) NOT NULL DEFAULT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `guid` (`guid`),
-	 INDEX `plink` (`plink`),
-	 INDEX `uri` (`uri`)
 ) DEFAULT CHARSET=utf8;
 
 --
@@ -926,13 +901,11 @@ CREATE TABLE IF NOT EXISTS `session` (
 CREATE TABLE IF NOT EXISTS `sign` (
 	`id` int(10) unsigned NOT NULL auto_increment,
 	`iid` int(10) unsigned NOT NULL DEFAULT 0,
-	`retract_iid` int(10) unsigned NOT NULL DEFAULT 0,
 	`signed_text` mediumtext NOT NULL,
 	`signature` text NOT NULL,
 	`signer` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `iid` (`iid`),
-	 INDEX `retract_iid` (`retract_iid`)
+	 INDEX `iid` (`iid`)
 ) DEFAULT CHARSET=utf8;
 
 --

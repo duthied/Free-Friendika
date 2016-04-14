@@ -1,6 +1,32 @@
 /* General style rules .*/
 .pull-right { float: right }
 
+/* General designing elements */
+.btn {
+  outline: none;
+  -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+  -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+  box-shadow: inset 0px 1px 0px 0px #ffffff;
+  background-color: #ededed;
+  text-indent: 0;
+  border: 1px solid #dcdcdc;
+  display: inline-block;
+  color: #777777;
+  padding: 5px 10px;
+  text-align: center;
+}
+a.btn, a.btn:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.menu-popup .divider {
+  height: 1px;
+  margin: 3px 0;
+  overflow: hidden;
+  background-color: #2d2d2d;
+}
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
@@ -330,20 +356,20 @@ a {
   margin: 10px 0 10px;
 }
 .version-match {
-    font-weight: bold;
-    color: #00a700;
+  font-weight: bold;
+  color: #00a700;
 }
 .federation-graph {
-    width: 400px; 
-    height: 400px; 
-    float: right; 
-    margin: 20px;
+  width: 400px; 
+  height: 400px; 
+  float: right; 
+  margin: 20px;
 }
 .federation-network-graph {
-    width: 240px; 
-    height: 240px; 
-    float: left; 
-    margin: 20px;
+  width: 240px; 
+  height: 240px; 
+  float: left; 
+  margin: 20px;
 }
 ul.federation-stats,
 ul.credits {
@@ -355,10 +381,10 @@ ul.credits li {
   width: 240px;
 }
 table#federation-stats {
-    width: 100%;
+  width: 100%;
 }
 td.federation-data {
-    border-bottom: 1px solid #000;
+  border-bottom: 1px solid #000;
 }
 
 .contact-entry-photo img {
@@ -382,25 +408,48 @@ td.federation-data {
 }
 
 .crepair-label {
-        margin-top: 10px;
-        float: left;
-        width: 250px;
+  margin-top: 10px;
+  float: left;
+  width: 250px;
 }
 
 .crepair-input {
-        margin-top: 10px;
-        float: left;
-        width: 200px;
+  margin-top: 10px;
+  float: left;
+  width: 200px;
 }
 
 .renderinfo {
-	clear: both;
+  clear: both;
 }
 
 .p-addr {
-	clear: both;	
+  clear: both;	
 }
 
 #live-community {
-	clear: both;
+  clear: both;
+}
+
+/* contact-edit */
+#contact-edit-status-wrapper {
+  border: 1px solid;
+  padding: 10px;
+}
+#contact-edit-actions {
+  float: right;
+  display: inline-block;
+  position: relative;
+}
+#contact-edit-actions > .menu-popup {
+  right: 0;
+  left: auto;
+}
+
+#contact-edit-settings-label:after {
+  content: ' »';
+}
+
+#contact-edit-settings {
+  display: none;
 }

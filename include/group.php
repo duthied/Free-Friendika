@@ -188,7 +188,7 @@ function group_public_members($gid) {
 }
 
 
-function mini_group_select($uid,$gid = 0) {
+function mini_group_select($uid,$gid = 0, $label = "") {
 
 	$grps = array();
 	$o = '';
@@ -205,8 +205,11 @@ function mini_group_select($uid,$gid = 0) {
 	}
 	logger('groups: ' . print_r($grps,true));
 
+	if ($label == "")
+		$label = t('Default privacy group for new contacts');
+
 	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
-		'$label' => t('Default privacy group for new contacts'),
+		'$label' => $label,
 		'$groups' => $grps
 	));
 	return $o;
@@ -215,7 +218,7 @@ function mini_group_select($uid,$gid = 0) {
 
 /**
  * @brief Create group sidebar widget
- * 
+ *
  * @param string $every
  * @param string $each
  * @param string $editmode
@@ -234,7 +237,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 		return '';
 
 	$groups = array();
-	
+
 	$groups[] = array(
 		'text' 	=> t('Everybody'),
 		'id' => 0,
@@ -255,7 +258,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 	if(count($r)) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
-			
+
 			if ($editmode == "full") {
 				$groupedit = array(
 					'href' => "group/".$rr['id'],
@@ -264,7 +267,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 			} else {
 				$groupedit = null;
 			}
-			
+
 			$groups[] = array(
 				'id'		=> $rr['id'],
 				'cid'		=> $cid,
@@ -362,17 +365,41 @@ function groups_containing($uid,$c) {
  */
 function groups_count_unseen() {
 
-	$r = q("SELECT `group`.`id`, `group`.`name`, COUNT(`item`.`id`) AS `count` FROM `group`, `group_member`, `item`
-			WHERE `group`.`uid` = %d
-			AND `item`.`uid` = %d
-			AND `item`.`unseen` AND `item`.`visible`
-			AND NOT `item`.`deleted`
-			AND `item`.`contact-id` = `group_member`.`contact-id`
-			AND `group_member`.`gid` = `group`.`id`
-			GROUP BY `group`.`id` ",
+	$r = q("SELECT `group`.`id`, `group`.`name`,
+			(SELECT COUNT(*) FROM `item`
+				WHERE `uid` = %d AND `unseen` AND
+					`contact-id` IN (SELECT `contact-id` FROM `group_member`
+								WHERE `group_member`.`gid` = `group`.`id` AND `group_member`.`uid` = %d)) AS `count`
+			FROM `group` WHERE `group`.`uid` = %d;",
+		intval(local_user()),
 		intval(local_user()),
 		intval(local_user())
 	);
 
 	return $r;
+}
+
+/**
+ * @brief Returns the default group for a given user and network
+ *
+ * @param int $uid User id
+ * @param string $network network name
+ *
+ * @return int group id
+ */
+function get_default_group($uid, $network = "") {
+
+	$default_group = 0;
+
+	if ($network == NETWORK_OSTATUS)
+		$default_group = get_pconfig($uid, "ostatus", "default_group");
+
+	if ($default_group != 0)
+		return $default_group;
+
+	$g = q("SELECT `def_gid` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+	if($g && intval($g[0]["def_gid"]))
+		$default_group = $g[0]["def_gid"];
+
+	return $default_group;
 }

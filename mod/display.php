@@ -17,7 +17,7 @@ function display_init(&$a) {
 		// Does the local user have this item?
 		if (local_user()) {
 			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
-				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 			if (count($r)) {
 				$nick = $a->user["nickname"];
@@ -30,12 +30,12 @@ function display_init(&$a) {
 			$r = q("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
 				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND `item`.`private` = 0 AND NOT `user`.`hidewall`
+					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+				//	AND NOT `item`.`private` AND `item`.`wall`
 			if (count($r)) {
 				$nick = $r[0]["nickname"];
 				$itemuid = $r[0]["uid"];
@@ -46,17 +46,17 @@ function display_init(&$a) {
 		if ($nick == "") {
 			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
-				FROM `item` WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND `item`.`private` = 0 AND `item`.`uid` = 0
+					AND NOT `item`.`private` AND `item`.`uid` = 0
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-				//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+				//	AND NOT `item`.`private` AND `item`.`wall`
 		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
 				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
-					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = %d", $r[0]["parent"]);
 
 			$profiledata = display_fetchauthor($a, $r[0]);
@@ -67,7 +67,7 @@ function display_init(&$a) {
 				if (($nickname != $a->user["nickname"])) {
 					$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 and `contact`.`self` = 1 LIMIT 1",
+						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						dbesc($nickname)
 					);
 					if (count($r))
@@ -120,27 +120,27 @@ function display_fetchauthor($a, $item) {
 	}
 
 	if (!$skip) {
-	        $author = "";
-	        preg_match("/author='(.*?)'/ism", $attributes, $matches);
-	        if ($matches[1] != "")
+		$author = "";
+		preg_match("/author='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-	        preg_match('/author="(.*?)"/ism', $attributes, $matches);
-	        if ($matches[1] != "")
+		preg_match('/author="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 
-	        $profile = "";
-	        preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-	        if ($matches[1] != "")
+		$profile = "";
+		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
 			$profiledata["url"] = $matches[1];
 
-	        preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-	        if ($matches[1] != "")
+		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
 			$profiledata["url"] = $matches[1];
 
-	        $avatar = "";
-	        preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-	        if ($matches[1] != "")
+		$avatar = "";
+		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
 			$profiledata["photo"] = $matches[1];
 
 		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
@@ -257,7 +257,7 @@ function display_content(&$a, $update = 0) {
 
 			if (local_user()) {
 				$r = q("SELECT `id` FROM `item`
-					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 				if (count($r)) {
 					$item_id = $r[0]["id"];
@@ -267,12 +267,12 @@ function display_content(&$a, $update = 0) {
 
 			if ($nick == "") {
 				$r = q("SELECT `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND `item`.`private` = 0  AND NOT `user`.`hidewall`
+						AND NOT `item`.`private` AND NOT `user`.`hidewall`
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+					//	AND NOT `item`.`private` AND `item`.`wall`
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
@@ -280,12 +280,12 @@ function display_content(&$a, $update = 0) {
 			}
 			if ($nick == "") {
 				$r = q("SELECT `item`.`id` FROM `item`
-					WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND `item`.`private` = 0  AND `item`.`uid` = 0
+						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-					//	AND `item`.`private` = 0 AND `item`.`wall` = 1
+					//	AND NOT `item`.`private` AND `item`.`wall`
 				if (count($r)) {
 					$item_id = $r[0]["id"];
 				}
@@ -293,11 +293,21 @@ function display_content(&$a, $update = 0) {
 		}
 	}
 
-	if(! $item_id) {
+	if ($item_id AND !is_numeric($item_id)) {
+		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($item_id), intval($a->profile['uid']));
+		if ($r)
+			$item_id = $r[0]["id"];
+		else
+			$item_id = false;
+	}
+
+	if (!$item_id) {
 		$a->error = 404;
-		notice( t('Item not found.') . EOL);
+		notice(t('Item not found.').EOL);
 		return;
 	}
+
 
 	$groups = array();
 
@@ -334,7 +344,7 @@ function display_content(&$a, $update = 0) {
 		}
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
 	if(count($r))
@@ -347,10 +357,8 @@ function display_content(&$a, $update = 0) {
 		return;
 	}
 
-	// Why do we need this on the display page? We don't have the possibility to write new content here.
-	// Ad editing of posts work without this as well.
-	// We should remove this completely for the 3.5.1 release.
-	/*
+	// We need the editor here to be able to reshare an item.
+
 	if ($is_owner) {
 		$x = array(
 			'is_owner' => true,
@@ -366,66 +374,56 @@ function display_content(&$a, $update = 0) {
 		);
 		$o .= status_editor($a,$x,0,true);
 	}
-	*/
 
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
-	//	        AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' ))
-
 	if($update) {
 
-		$r = q("SELECT id FROM item WHERE item.uid = %d
-		        AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE (`id` = '%s' OR `uri` = '%s'))
-		        $sql_extra AND unseen = 1",
-		        intval($a->profile['uid']),
-		        dbesc($item_id),
-		        dbesc($item_id)
+		$r = q("SELECT `id` FROM `item` WHERE `item`.`uid` = %d
+			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
+			$sql_extra AND `unseen`",
+			intval($a->profile['uid']),
+			intval($item_id)
 		);
 
 		if(!$r)
 			return '';
 	}
 
-	//	AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE ( `id` = '%s' OR `uri` = '%s' )
-
 	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-		and `item`.`moderated` = 0
-		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE (`id` = '%s' OR `uri` = '%s')
-		AND uid = %d)
+		AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+		WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+		AND NOT `item`.`moderated`
+		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
 		intval($a->profile['uid']),
-		dbesc($item_id),
-		dbesc($item_id),
-		intval($a->profile['uid'])
+		intval($item_id)
 	);
 
 	if(!$r && local_user()) {
 		// Check if this is another person's link to a post that we have
 		$r = q("SELECT `item`.uri FROM `item`
-			WHERE (`item`.`id` = '%s' OR `item`.`uri` = '%s' )
+			WHERE (`item`.`id` = %d OR `item`.`uri` = '%s')
 			LIMIT 1",
-			dbesc($item_id),
+			intval($item_id),
 			dbesc($item_id)
 		);
 		if($r) {
 			$item_uri = $r[0]['uri'];
-			//	AND `item`.`parent` = ( SELECT `parent` FROM `item` FORCE INDEX (PRIMARY, `uri`) WHERE `uri` = '%s' AND uid = %d )
 
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
 				FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-				and `item`.`moderated` = 0
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+				AND NOT `item`.`moderated`
 				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
 				intval(local_user()),
@@ -440,7 +438,7 @@ function display_content(&$a, $update = 0) {
 
 		if((local_user()) && (local_user() == $a->profile['uid'])) {
 			q("UPDATE `item` SET `unseen` = 0
-				WHERE `parent` = %d AND `unseen` = 1",
+				WHERE `parent` = %d AND `unseen`",
 				intval($r[0]['parent'])
 			);
 		}

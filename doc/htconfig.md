@@ -34,6 +34,7 @@ line to your .htconfig.php:
 * like_no_comment (Boolean) - Don't update the "commented" value of an item when it is liked.
 * local_block (Boolean) - Used in conjunction with "block_public".
 * local_search (Boolean) - Blocks the search for not logged in users to prevent crawlers from blocking your system.
+* max_connections - The poller process isn't started when 3/4 of the possible database connections are used. When the system can't detect the maximum numbers of connection then this value can be used.
 * max_contact_queue - Default value is 500.
 * max_batch_queue - Default value is 1000.
 * no_oembed (Boolean) - Don't use OEmbed to fetch more information about a link.
@@ -63,9 +64,6 @@ line to your .htconfig.php:
 * throttle_limit_week - Maximum number of posts that a user can send per week with the API.
 * throttle_limit_month - Maximum number of posts that a user can send per month with the API.
 * wall-to-wall_share (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
-* worker (Boolean) - (Experimental) Use the worker system instead of calling several background processes. Reduces the overall load and speeds up item delivery.
-* worker_dont_fork (Boolean) - if enabled, the workers are only called from the poller process. Useful on systems that permit the use of "proc_open".
-* worker_queues - Number of parallel workers. Default value is 10 queues.
 * xrd_timeout - Timeout for fetching the XRD links. Default value is 20 seconds.
 
 ## service_class ##

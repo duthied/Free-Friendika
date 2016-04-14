@@ -85,7 +85,7 @@ function nav_info(&$a) {
 		// user info
 		$r = q("SELECT micro FROM contact WHERE uid=%d AND self=1", intval($a->user['uid']));
 		$userinfo = array(
-			'icon' => (count($r) ? $a->get_cached_avatar_image($r[0]['micro']) : $a->get_baseurl($ssl_state)."/images/person-48.jpg"),
+			'icon' => (count($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg"),
 			'name' => $a->user['username'],
 		);
 
@@ -110,7 +110,7 @@ function nav_info(&$a) {
 	if(($a->config['register_policy'] == REGISTER_OPEN) && (! local_user()) && (! remote_user()))
 		$nav['register'] = array('register',t('Register'), "", t('Create an account'));
 
-	$help_url = $a->get_baseurl($ssl_state) . '/help';
+	$help_url = 'help';
 
 	if(! get_config('system','hide_help'))
 		$nav['help'] = array($help_url, t('Help'), "", t('Help and documentation'));

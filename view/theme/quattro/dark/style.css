@@ -1668,6 +1668,9 @@ span[id^="showmore-wrap"] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+#contact-edit-status-wrapper {
+  border-color: #364e59;
+}
 /* editor */
 .jothidden {
   display: none;

@@ -1,5 +1,5 @@
 <!DOCTYPE html >
-<html>
+<html lang="<?php echo $lang; ?>">
 <head>
   <title><?php if(x($page,'title')) echo $page['title'] ?></title>
   <script>var baseurl="<?php echo $a->get_baseurl() ?>";</script>
@@ -28,7 +28,9 @@
 <!--		<div class='main-content-container'>-->
 		<div class='section-wrapper'>
 		<?php if( ($a->module === 'settings' || $a->module === 'message' || $a->module === 'profile') && x($page,'aside')) echo $page['aside']; ?>
-		<section><?php if(x($page,'content')) echo $page['content']; ?>
+		<section>
+			<?php if(x($page,'content')) echo $page['content']; ?>
+			<div id="pause"></div> <!-- The pause/resume Ajax indicator -->
 			<div id="page-footer"></div>
 		</section>
 		</div>
@@ -41,4 +43,3 @@
 	<?php if(x($page,'end')) echo $page['end']; ?>
 </body>
 </html>
-

@@ -23,6 +23,7 @@
 	require_once('include/message.php');
 	require_once('include/group.php');
 	require_once('include/like.php');
+	require_once('include/NotificationsManager.php');
 
 
 	define('API_METHOD_ANY','*');
@@ -160,10 +161,7 @@
 		if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
-			header('HTTP/1.0 401 Unauthorized');
-			die((api_error($a, 'json', "This api requires login")));
-
-			//die('This api requires login');
+			throw new UnauthorizedException("This API requires login");
 		}
 
 		$user = $_SERVER['PHP_AUTH_USER'];
@@ -215,8 +213,9 @@
 		if((! $record) || (! count($record))) {
 			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
-			header('HTTP/1.0 401 Unauthorized');
-			die('This api requires login');
+			#header('HTTP/1.0 401 Unauthorized');
+			#die('This api requires login');
+			throw new UnauthorizedException("This API requires login");
 		}
 
 		authenticate_success($record); $_SESSION["allow_api"] = true;
@@ -250,7 +249,7 @@
 	 */
 	function api_call(&$a){
 		GLOBAL $API, $called_api;
-
+		
 		$type="json";
 		if (strpos($a->query_string, ".xml")>0) $type="xml";
 		if (strpos($a->query_string, ".json")>0) $type="json";
@@ -330,7 +329,8 @@
 	 *
 	 * @param Api $a
 	 * @param string $type Return type (xml, json, rss, as)
-	 * @param string $error Error message
+	 * @param HTTPException $error Error object
+	 * @return strin error message formatted as $type
 	 */
 	function api_error(&$a, $type, $e) {
 		$error = ($e->getMessage()!==""?$e->getMessage():$e->httpdesc);
@@ -681,6 +681,34 @@
 
 
 	/**
+	 * @brief transform $data array in xml without a template
+	 *
+	 * @param array $data
+	 * @return string xml string
+	 */
+	function api_array_to_xml($data, $ename="") {
+		$attrs="";
+		$childs="";
+		if (count($data)==1 && !is_array($data[0])) {
+			$ename = array_keys($data)[0];
+			$v = $data[$ename];
+			return "<$ename>$v</$ename>";
+		}
+		foreach($data as $k=>$v) {
+			$k=trim($k,'$');
+			if (!is_array($v)) {
+				$attrs .= sprintf('%s="%s" ', $k, $v);
+			} else {
+				if (is_numeric($k)) $k=trim($ename,'s');
+				$childs.=api_array_to_xml($v, $k);
+			}
+		}
+		$res = $childs;
+		if ($ename!="") $res = "<$ename $attrs>$res</$ename>";
+		return $res;
+	}
+
+	/**
 	 *  load api $templatename for $type and replace $data array
 	 */
 	function api_apply_template($templatename, $type, $data){
@@ -692,13 +720,17 @@
 			case "rss":
 			case "xml":
 				$data = array_xmlify($data);
-				$tpl = get_markup_template("api_".$templatename."_".$type.".tpl");
-				if(! $tpl) {
-					header ("Content-Type: text/xml");
-					echo '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<status><error>not implemented</error></status>';
-					killme();
+				if ($templatename==="<auto>") {
+					$ret = api_array_to_xml($data); 
+				} else {
+					$tpl = get_markup_template("api_".$templatename."_".$type.".tpl");
+					if(! $tpl) {
+						header ("Content-Type: text/xml");
+						echo '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<status><error>not implemented</error></status>';
+						killme();
+					}
+					$ret = replace_macros($tpl, $data);
 				}
-				$ret = replace_macros($tpl, $data);
 				break;
 			case "json":
 				$ret = $data;
@@ -781,8 +813,6 @@
 
 		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 
-			require_once('library/HTMLPurifier.auto.php');
-
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
@@ -822,9 +852,6 @@
 		if(requestdata('htmlstatus')) {
 			$txt = requestdata('htmlstatus');
 			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
-
-				require_once('library/HTMLPurifier.auto.php');
-
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -875,7 +902,8 @@
 
 				if ($posts_day > $throttle_day) {
 					logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+					#die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+					throw new TooManyRequestsException(sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day));
 				}
 			}
 
@@ -894,7 +922,9 @@
 
 				if ($posts_week > $throttle_week) {
 					logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+					#die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+					throw new TooManyRequestsException(sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week));
+
 				}
 			}
 
@@ -913,7 +943,8 @@
 
 				if ($posts_month > $throttle_month) {
 					logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+					#die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+					throw new TooManyRequestsException(sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month));
 				}
 			}
 
@@ -1493,15 +1524,21 @@
 		if ($max_id > 0)
 			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
 
+		// Not sure why this query was so complicated. We should keep it here for a while,
+		// just to make sure that we really don't need it.
+		//	FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
+		//	ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`)
+
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
-			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
-			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`uid` = %d AND `item`.`verb` = '%s' AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			WHERE `item`.`parent` = %d AND `item`.`visible`
+			AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			AND `item`.`id`>%d $sql_extra
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
@@ -1519,6 +1556,7 @@
 		return api_apply_template("timeline", $type, $data);
 	}
 	api_register_func('api/conversation/show','api_conversation_show', true);
+	api_register_func('api/statusnet/conversation','api_conversation_show', true);
 
 
 	/**
@@ -1660,13 +1698,13 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
+			FROM `item`  FORCE INDEX (`uid_id`), `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN (SELECT `iid` from thread where uid = %d AND `mention` AND !`ignored`)
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -1781,7 +1819,7 @@
 		$action_argv_id=2;
 		if ($a->argv[1]=="1.1") $action_argv_id=3;
 
-		if ($a->argc<=$action_argv_id) die(api_error($a, $type, t("Invalid request.")));
+		if ($a->argc<=$action_argv_id) throw new BadRequestException("Invalid request.");
 		$action = str_replace(".".$type,"",$a->argv[$action_argv_id]);
 		if ($a->argc==$action_argv_id+2) {
 			$itemid = intval($a->argv[$action_argv_id+1]);
@@ -2026,6 +2064,16 @@
 			$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
 		$statushtml = trim(bbcode($body, false, false));
+
+		$search = array("<br>", "<blockquote>", "</blockquote>",
+				"<h1>", "</h1>", "<h2>", "</h2>",
+				"<h3>", "</h3>", "<h4>", "</h4>",
+				"<h5>", "</h5>", "<h6>", "</h6>");
+		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n",
+				"\n<h1>", "</h1>\n", "\n<h2>", "</h2>\n",
+				"\n<h3>", "</h3>\n", "\n<h4>", "</h4>\n",
+				"\n<h5>", "</h5>\n", "\n<h6>", "</h6>\n");
+		$statushtml = str_replace($search, $replace, $statushtml);
 
 		if ($item['title'] != "")
 			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
@@ -3385,6 +3433,64 @@
 	api_register_func('api/friendica/activity/unattendyes', 'api_friendica_activity', true, API_METHOD_POST);
 	api_register_func('api/friendica/activity/unattendno', 'api_friendica_activity', true, API_METHOD_POST);
 	api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activity', true, API_METHOD_POST);
+
+	/**
+	 * @brief Returns notifications
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	*/
+	function api_friendica_notification(&$a, $type) {
+		if (api_user()===false) throw new ForbiddenException();
+		if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
+		$nm = new NotificationsManager();
+		
+		$notes = $nm->getAll(array(), "+seen -date", 50);
+		return api_apply_template("<auto>", $type, array('$notes' => $notes));
+	}
+	
+	/**
+	 * @brief Set notification as seen and returns associated item (if possible)
+	 *
+	 * POST request with 'id' param as notification id
+	 * 
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_notification_seen(&$a, $type){
+		if (api_user()===false) throw new ForbiddenException();
+		if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
+		
+		$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
+		
+		$nm = new NotificationsManager();		
+		$note = $nm->getByID($id);
+		if (is_null($note)) throw new BadRequestException("Invalid argument");
+		
+		$nm->setSeen($note);
+		if ($note['otype']=='item') {
+			// would be really better with an ItemsManager and $im->getByID() :-P
+			$r = q("SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d",
+				intval($note['iid']),
+				intval(local_user())
+			);
+			if ($r!==false) {
+				// we found the item, return it to the user
+				$user_info = api_get_user($a);
+				$ret = api_format_items($r,$user_info);
+				$data = array('$statuses' => $ret);
+				return api_apply_template("timeline", $type, $data);
+			}
+			// the item can't be found, but we set the note as seen, so we count this as a success
+		} 
+		return api_apply_template('<auto>', $type, array('status' => "success"));
+	}
+	
+	api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
+	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
+	
 
 /*
 To.Do:

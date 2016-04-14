@@ -6,16 +6,18 @@
 
 /**
  * Friendica
- * 
+ *
  * Friendica is a communications platform for integrated social communications
  * utilising decentralised communications and linkage to several indie social
  * projects - as well as popular mainstream providers.
- * 
+ *
  * Our mission is to free our friends and families from the clutches of
  * data-harvesting corporations, and pave the way to a future where social
  * communications are free and open and flow between alternate providers as
  * easily as email does today.
  */
+
+require_once('include/autoloader.php');
 
 require_once('include/config.php');
 require_once('include/network.php');
@@ -28,7 +30,7 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 require_once('include/identity.php');
-
+require_once('include/pidfile.php');
 require_once('update.php');
 require_once('include/dbstructure.php');
 
@@ -463,11 +465,12 @@ class App {
 	public  $plugins;
 	public  $apps = array();
 	public  $identities;
-	public	$is_mobile;
-	public	$is_tablet;
+	public	$is_mobile = false;
+	public	$is_tablet = false;
 	public	$is_friendica_app;
 	public	$performance = array();
 	public	$callstack = array();
+	public	$theme_info = array();
 
 	public $nav_sel;
 
@@ -587,15 +590,6 @@ class App {
 
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
-
-			// See bug 437 - this didn't work so disabling it
-			//if(stristr($this->hostname,'xn--')) {
-				// PHP or webserver may have converted idn to punycode, so
-				// convert punycode back to utf-8
-			//	require_once('library/simplepie/idn/idna_convert.class.php');
-			//	$x = new idna_convert();
-			//	$this->hostname = $x->decode($_SERVER['SERVER_NAME']);
-			//}
 
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
@@ -862,11 +856,11 @@ class App {
 
 		$shortcut_icon = get_config("system", "shortcut_icon");
 		if ($shortcut_icon == "")
-			$shortcut_icon = $this->get_baseurl()."/images/friendica-32.png";
+			$shortcut_icon = "images/friendica-32.png";
 
 		$touch_icon = get_config("system", "touch_icon");
 		if ($touch_icon == "")
-			$touch_icon = $this->get_baseurl()."/images/friendica-128.png";
+			$touch_icon = "images/friendica-128.png";
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
@@ -944,6 +938,25 @@ class App {
 		*/
 	}
 
+
+	/**
+	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
+	 *
+	 * @param string $url
+	 *
+	 * @return string The cleaned url
+	 */
+	function remove_baseurl($url){
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->remove_baseurl($url));
+
+		$url = normalise_link($url);
+		$base = normalise_link($this->get_baseurl());
+		$url = str_replace($base."/", "", $url);
+		return $url;
+	}
 
 	/**
 	 * @brief Register template engine class
@@ -1034,22 +1047,42 @@ class App {
 	function save_timestamp($stamp, $value) {
 		$duration = (float)(microtime(true)-$stamp);
 
+		if (!isset($this->performance[$value])) {
+			// Prevent ugly E_NOTICE
+			$this->performance[$value] = 0;
+		}
+
 		$this->performance[$value] += (float)$duration;
 		$this->performance["marktime"] += (float)$duration;
 
-		// Trace the different functions with their timestamps
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+		$callstack = $this->callstack();
 
+		if (!isset($this->callstack[$value][$callstack])) {
+			// Prevent ugly E_NOTICE
+			$this->callstack[$value][$callstack] = 0;
+		}
+
+		$this->callstack[$value][$callstack] += (float)$duration;
+
+	}
+
+	/**
+	 * @brief Returns a string with a callstack. Can be used for logging.
+	 *
+	 * @return string
+	 */
+	function callstack() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
+
+		// We remove the first two items from the list since they contain data that we don't need.
+		array_shift($trace);
 		array_shift($trace);
 
-		$function = array();
+		$callstack = array();
 		foreach ($trace AS $func)
-			$function[] = $func["function"];
+			$callstack[] = $func["function"];
 
-		$function = implode(", ", $function);
-
-		$this->callstack[$value][$function] += (float)$duration;
-
+		return implode(", ", $callstack);
 	}
 
 	function mark_timestamp($mark) {
@@ -1065,6 +1098,55 @@ class App {
 		return($this->is_friendica_app);
 	}
 
+	/**
+	 * @brief Checks if the maximum load is reached
+	 *
+	 * @return bool Is the load reached?
+	 */
+	function maxload_reached() {
+
+		$maxsysload = intval(get_config('system', 'maxloadavg'));
+		if ($maxsysload < 1)
+			$maxsysload = 50;
+
+		$load = current_load();
+		if ($load) {
+			if (intval($load) > $maxsysload) {
+				logger('system: load '.$load.' too high.');
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @brief Checks if the process is already running
+	 *
+	 * @param string $taskname The name of the task that will be used for the name of the lockfile
+	 * @param string $task The path and name of the php script
+	 * @param int $timeout The timeout after which a task should be killed
+	 *
+	 * @return bool Is the process running?
+	 */
+	function is_already_running($taskname, $task = "", $timeout = 540) {
+
+		$lockpath = get_lockpath();
+		if ($lockpath != '') {
+			$pidfile = new pidfile($lockpath, $taskname);
+			if ($pidfile->is_already_running()) {
+				logger("Already running");
+				if ($pidfile->running_time() > $timeout) {
+					$pidfile->kill();
+					logger("killed stale process");
+					// Calling a new instance
+					if ($task != "")
+						proc_run('php', $task);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 /**
@@ -1416,7 +1498,7 @@ function login($register = false, $hiddens=false) {
 
 	$noid = get_config('system','no_openid');
 
-	$dest_url = $a->get_baseurl(true) . '/' . $a->query_string;
+	$dest_url = $a->query_string;
 
 	if(local_user()) {
 		$tpl = get_markup_template("logout.tpl");
@@ -1476,6 +1558,9 @@ function killme() {
  * @brief Redirect to another URL and terminate this process.
  */
 function goaway($s) {
+	if (!strstr(normalise_link($s), "http://"))
+		$s = App::get_baseurl()."/".$s;
+
 	header("Location: $s");
 	killme();
 }
@@ -1735,9 +1820,9 @@ function current_theme_url() {
 
 	$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 	if (file_exists('view/theme/' . $t . '/style.php'))
-		return($a->get_baseurl() . '/view/theme/' . $t . '/style.pcss' . $opts);
+		return('view/theme/'.$t.'/style.pcss'.$opts);
 
-	return($a->get_baseurl() . '/view/theme/' . $t . '/style.css');
+	return('view/theme/'.$t.'/style.css');
 }
 
 function feed_birthday($uid,$tz) {

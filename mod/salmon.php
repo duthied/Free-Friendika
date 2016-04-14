@@ -84,7 +84,7 @@ function salmon_post(&$a) {
 	// decode the data
 	$data = base64url_decode($data);
 
-	$author = ostatus_salmon_author($data,$importer);
+	$author = ostatus::salmon_author($data,$importer);
 	$author_link = $author["author-link"];
 
 	if(! $author_link) {
@@ -181,7 +181,7 @@ function salmon_post(&$a) {
 
 	$contact_rec = ((count($r)) ? $r[0] : null);
 
-	ostatus_import($data,$importer,$contact_rec, $hub);
+	ostatus::import($data,$importer,$contact_rec, $hub);
 
 	http_status_exit(200);
 }

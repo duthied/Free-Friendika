@@ -22,26 +22,15 @@ function queue_run(&$argv, &$argc){
 	require_once("include/datetime.php");
 	require_once('include/items.php');
 	require_once('include/bbcode.php');
-	require_once('include/pidfile.php');
 	require_once('include/socgraph.php');
 
 	load_config('config');
 	load_config('system');
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'queue');
-		if($pidfile->is_already_running()) {
-			logger("queue: Already running");
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("queue: killed stale process");
-				// Calling a new instance
-				proc_run('php',"include/queue.php");
-			}
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run")
+		if (App::is_already_running('queue', 'include/queue.php', 540))
 			return;
-		}
-	}
 
 	$a->set_baseurl(get_config('system','url'));
 
@@ -204,7 +193,7 @@ function queue_run(&$argv, &$argc){
 			case NETWORK_DIASPORA:
 				if($contact['notify']) {
 					logger('queue: diaspora_delivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
-					$deliver_status = diaspora_transmit($owner,$contact,$data,$public,true);
+					$deliver_status = diaspora::transmit($owner,$contact,$data,$public,true);
 
 					if($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);

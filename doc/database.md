@@ -15,7 +15,6 @@ Database Tables
 | [contact](help/database/db_contact)                  | contact table                                    |
 | [conv](help/database/db_conv)                        | private messages                                 |
 | [deliverq](help/database/db_deliverq)                |                                                  |
-| [dsprphotoq](help/database/db_dsprphotoq)            |                                                  |
 | [event](help/database/db_event)                      | Events                                           |
 | [fcontact](help/database/db_fcontact)                | friend suggestion stuff                          |
 | [ffinder](help/database/db_ffinder)                  | friend suggestion stuff                          |
@@ -27,7 +26,6 @@ Database Tables
 | [group](help/database/db_group)                      | privacy groups, group info                       |
 | [group_member](help/database/db_group_member)        | privacy groups, member info                      |
 | [gserver](help/database/db_gserver)                  |                                                  |
-| [guid](help/database/db_guid)                        |                                                  |
 | [hook](help/database/db_hook)                        | plugin hook registry                             |
 | [intro](help/database/db_intro)                      |                                                  |
 | [item](help/database/db_item)                        | all posts                                        |

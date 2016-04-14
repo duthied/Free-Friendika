@@ -44,7 +44,7 @@ function contacts_init(&$a) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? z_root()."/redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
+				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? "redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
 				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 				'$network_name' => $networkname,
 				'$network' => t('Network:'),
@@ -129,9 +129,9 @@ function contacts_batch_actions(&$a){
 	}
 
 	if(x($_SESSION,'return_url'))
-		goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+		goaway('' . $_SESSION['return_url']);
 	else
-		goaway($a->get_baseurl(true) . '/contacts');
+		goaway('contacts');
 
 }
 
@@ -157,7 +157,7 @@ function contacts_post(&$a) {
 
 	if(! count($orig_record)) {
 		notice( t('Could not access contact record.') . EOL);
-		goaway($a->get_baseurl(true) . '/contacts');
+		goaway('contacts');
 		return; // NOTREACHED
 	}
 
@@ -366,19 +366,19 @@ function contacts_content(&$a) {
 
 		if(! count($orig_record)) {
 			notice( t('Could not access contact record.') . EOL);
-			goaway($a->get_baseurl(true) . '/contacts');
+			goaway('contacts');
 			return; // NOTREACHED
 		}
 
 		if($cmd === 'update') {
 			_contact_update($contact_id);
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			// NOTREACHED
 		}
 
 		if($cmd === 'updateprofile') {
 			_contact_update_profile($contact_id);
-			goaway($a->get_baseurl(true) . '/crepair/' . $contact_id);
+			goaway('crepair/' . $contact_id);
 			// NOTREACHED
 		}
 
@@ -389,7 +389,7 @@ function contacts_content(&$a) {
 				info((($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -400,7 +400,7 @@ function contacts_content(&$a) {
 				info((($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -412,7 +412,7 @@ function contacts_content(&$a) {
 				info((($archived) ? t('Contact has been archived') : t('Contact has been unarchived')).EOL);
 			}
 
-			goaway($a->get_baseurl(true) . '/contacts/' . $contact_id);
+			goaway('contacts/' . $contact_id);
 			return; // NOTREACHED
 		}
 
@@ -447,17 +447,17 @@ function contacts_content(&$a) {
 			// Now check how the user responded to the confirmation query
 			if($_REQUEST['canceled']) {
 				if(x($_SESSION,'return_url'))
-					goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+					goaway('' . $_SESSION['return_url']);
 				else
-					goaway($a->get_baseurl(true) . '/contacts');
+					goaway('contacts');
 			}
 
 			_contact_drop($contact_id, $orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
 			if(x($_SESSION,'return_url'))
-				goaway($a->get_baseurl(true) . '/' . $_SESSION['return_url']);
+				goaway('' . $_SESSION['return_url']);
 			else
-				goaway($a->get_baseurl(true) . '/contacts');
+				goaway('contacts');
 			return; // NOTREACHED
 		}
 		if($cmd === 'posts') {
@@ -565,6 +565,9 @@ function contacts_content(&$a) {
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
 			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
+		// Load contactact related actions like hide, suggest, delete and others
+		$contact_actions = contact_actions($contact);
+
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
@@ -575,7 +578,7 @@ function contacts_content(&$a) {
 			'$lbl_info1' => t('Contact Information / Notes'),
 			'$infedit' => t('Edit contact notes'),
 			'$common_text' => $common_text,
-			'$common_link' => $a->get_baseurl(true) . '/common/loc/' . local_user() . '/' . $contact['id'],
+			'$common_link' => 'common/loc/' . local_user() . '/' . $contact['id'],
 			'$all_friends' => $all_friends,
 			'$relation_text' => $relation_text,
 			'$visit' => sprintf( t('Visit %s\'s profile [%s]'),$contact['name'],$contact['url']),
@@ -584,7 +587,7 @@ function contacts_content(&$a) {
 			'$lblcrepair' => t("Repair URL settings"),
 			'$lblrecent' => t('View conversations'),
 			'$lblsuggest' => $lblsuggest,
-			'$delete' => t('Delete contact'),
+			//'$delete' => t('Delete contact'),
 			'$nettype' => $nettype,
 			'$poll_interval' => $poll_interval,
 			'$poll_enabled' => $poll_enabled,
@@ -622,7 +625,11 @@ function contacts_content(&$a) {
 			'$about' => bbcode($contact["about"], false, false),
 			'$about_label' => t("About:"),
 			'$keywords' => $contact["keywords"],
-			'$keywords_label' => t("Tags:")
+			'$keywords_label' => t("Tags:"),
+			'$contact_action_button' => t("Actions"),
+			'$contact_actions' => $contact_actions,
+			'$contact_status' => t("Status"),
+			'$contact_settings_label' => t('Contact Settings'),
 
 		));
 
@@ -668,7 +675,7 @@ function contacts_content(&$a) {
 	$tabs = array(
 		array(
 			'label' => t('Suggestions'),
-			'url'   => $a->get_baseurl(true) . '/suggest',
+			'url'   => 'suggest',
 			'sel'   => '',
 			'title' => t('Suggest potential friends'),
 			'id'	=> 'suggestions-tab',
@@ -676,7 +683,7 @@ function contacts_content(&$a) {
 		),
 		array(
 			'label' => t('All Contacts'),
-			'url'   => $a->get_baseurl(true) . '/contacts/all',
+			'url'   => 'contacts/all',
 			'sel'   => ($all) ? 'active' : '',
 			'title' => t('Show all contacts'),
 			'id'	=> 'showall-tab',
@@ -684,7 +691,7 @@ function contacts_content(&$a) {
 		),
 		array(
 			'label' => t('Unblocked'),
-			'url'   => $a->get_baseurl(true) . '/contacts',
+			'url'   => 'contacts',
 			'sel'   => ((! $all) && (! $blocked) && (! $hidden) && (! $search) && (! $nets) && (! $ignored) && (! $archived)) ? 'active' : '',
 			'title' => t('Only show unblocked contacts'),
 			'id'	=> 'showunblocked-tab',
@@ -693,7 +700,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Blocked'),
-			'url'   => $a->get_baseurl(true) . '/contacts/blocked',
+			'url'   => 'contacts/blocked',
 			'sel'   => ($blocked) ? 'active' : '',
 			'title' => t('Only show blocked contacts'),
 			'id'	=> 'showblocked-tab',
@@ -702,7 +709,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Ignored'),
-			'url'   => $a->get_baseurl(true) . '/contacts/ignored',
+			'url'   => 'contacts/ignored',
 			'sel'   => ($ignored) ? 'active' : '',
 			'title' => t('Only show ignored contacts'),
 			'id'	=> 'showignored-tab',
@@ -711,7 +718,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Archived'),
-			'url'   => $a->get_baseurl(true) . '/contacts/archived',
+			'url'   => 'contacts/archived',
 			'sel'   => ($archived) ? 'active' : '',
 			'title' => t('Only show archived contacts'),
 			'id'	=> 'showarchived-tab',
@@ -720,7 +727,7 @@ function contacts_content(&$a) {
 
 		array(
 			'label' => t('Hidden'),
-			'url'   => $a->get_baseurl(true) . '/contacts/hidden',
+			'url'   => 'contacts/hidden',
 			'sel'   => ($hidden) ? 'active' : '',
 			'title' => t('Only show hidden contacts'),
 			'id'	=> 'showhidden-tab',
@@ -800,6 +807,17 @@ function contacts_content(&$a) {
 	return $o;
 }
 
+/**
+ * @brief List of pages for the Contact TabBar
+ * 
+ * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
+ * 
+ * @param app $a
+ * @param int $contact_id The ID of the contact
+ * @param int $active_tab 1 if tab should be marked as active
+ * 
+ * @return array with with contact TabBar data
+ */
 function contacts_tab($a, $contact_id, $active_tab) {
 	// tabs
 	$tabs = array(
@@ -821,6 +839,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 		)
 	);
 
+	// Show this tab only if there is visible friend list
 	$x = count_all_friends(local_user(), $contact_id);
 	if ($x)
 		$tabs[] = array('label'=>t('Contacts'),
@@ -830,6 +849,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'id' => 'allfriends-tab',
 				'accesskey' => 't');
 
+	// Show this tab only if there is visible common friend list
 	$common = count_common_friends(local_user(),$contact_id);
 	if ($common)
 		$tabs[] = array('label'=>t('Common Friends'),
@@ -839,34 +859,12 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'id' => 'common-loc-tab',
 				'accesskey' => 'd');
 
-	$tabs[] = array('label' => t('Repair'),
-			'url'   => $a->get_baseurl(true) . '/crepair/' . $contact_id,
+	$tabs[] = array('label' => t('Advanced'),
+			'url'   => 'crepair/' . $contact_id,
 			'sel' => (($active_tab == 5)?'active':''),
 			'title' => t('Advanced Contact Settings'),
-			'id'	=> 'repair-tab',
+			'id'	=> 'advanced-tab',
 			'accesskey' => 'r');
-
-
-	$tabs[] = array('label' => (($contact['blocked']) ? t('Unblock') : t('Block') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/block',
-			'sel'   => '',
-			'title' => t('Toggle Blocked status'),
-			'id'	=> 'toggle-block-tab',
-			'accesskey' => 'b');
-
-	$tabs[] = array('label' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/ignore',
-			'sel'   => '',
-			'title' => t('Toggle Ignored status'),
-			'id'	=> 'toggle-ignore-tab',
-			'accesskey' => 'i');
-
-	$tabs[] = array('label' => (($contact['archive']) ? t('Unarchive') : t('Archive') ),
-			'url'   => $a->get_baseurl(true) . '/contacts/' . $contact_id . '/archive',
-			'sel'   => '',
-			'title' => t('Toggle Archive status'),
-			'id'	=> 'toggle-archive-tab',
-			'accesskey' => 'v');
 
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$tab_str = replace_macros($tab_tpl, array('$tabs' => $tabs));
@@ -953,4 +951,73 @@ function _contact_detail_for_template($rr){
 		'network' => network_to_name($rr['network'], $rr['url']),
 	);
 
+}
+
+/**
+ * @brief Gives a array with actions which can performed to a given contact
+ * 
+ * This includes actions like e.g. 'block', 'hide', 'archive', 'delete' and others
+ * 
+ * @param array $contact Data about the Contact
+ * @return array with contact related actions
+ */
+function contact_actions($contact) {
+
+	$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
+	$contact_action = array();
+
+	// Provide friend suggestion only for Friendica contacts
+	if($contact['network'] === NETWORK_DFRN) {
+		$contact_actions['suggest'] = array(
+							'label' => t('Suggest friends'),
+							'url'	=> 'fsuggest/' . $contact['id'],
+							'title'	=> '',
+							'sel'	=> '',
+							'id'	=>  'suggest',
+					);
+	}
+
+	if($poll_enabled) {
+		$contact_actions['update'] = array(
+							'label'	=> t('Update now'),
+							'url'	=> 'contacts/' . $contact['id'] . '/update',
+							'title'	=> '',
+							'sel'	=> '',
+							'id'	=> 'update',
+					);
+	}
+
+	$contact_actions['block'] = array(
+						'label'	=> (intval($contact['blocked']) ? t('Unblock') : t('Block') ),
+						'url'	=> 'contacts/' . $contact['id'] . '/block',
+						'title' => t('Toggle Blocked status'),
+						'sel'	=> (intval($contact['blocked']) ? 'active' : ''),
+						'id'	=> 'toggle-block',
+				);
+
+	$contact_actions['ignore'] = array(
+						'label'	=> (intval($contact['readonly']) ? t('Unignore') : t('Ignore') ),
+						'url'	=> 'contacts/' . $contact['id'] . '/ignore',
+						'title' => t('Toggle Ignored status'),
+						'sel'	=> (intval($contact['readonly']) ? 'active' : ''),
+						'id'	=> 'toggle-ignore',
+				);
+
+	$contact_actions['archive'] = array(
+						'label'	=> (intval($contact['archive']) ? t('Unarchive') : t('Archive') ),
+						'url'	=> 'contacts/' . $contact['id'] . '/archive',
+						'title' => t('Toggle Archive status'),
+						'sel'	=> (intval($contact['archive']) ? 'active' : ''),
+						'id'	=> 'toggle-archive',
+				);
+
+	$contact_actions['delete'] = array(
+						'label'	=> t('Delete'),
+						'url'	=> 'contacts/' . $contact['id'] . '/drop', 
+						'title'	=> t('Delete contact'),
+						'sel'	=> '',
+						'id'	=> 'delete',
+				);
+
+	return $contact_actions;
 }
