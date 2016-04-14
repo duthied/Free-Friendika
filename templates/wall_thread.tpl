@@ -439,7 +439,12 @@ $(document).ready(function() {
   $('li a[href^="message/new"]').attr('rel','modal');
 
   // put shared content in an own wrapper div
-  $('#wall-item-content-{{$item.id}} .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
-  $("#wall-item-content-{{$item.id}} .shared_header, #wall-item-content-{{$item.id}} .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
+  $('#wall-item-content-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
+  $("#wall-item-content-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
+
+  // put shared content in an own wrapper (with showmore addon)
+  $('#wall-item-content-{{$item.id}} .showmore-content > .shared_content').parent().after('<div class="shared-content-wrapper content-card"></div>');
+  $("#wall-item-content-{{$item.id}} .showmore-teaser > .shared_header, #wall-item-content-{{$item.id}} .showmore-content > .shared_header").parent().appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
+  
 });
 </script>
