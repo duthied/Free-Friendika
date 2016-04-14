@@ -1294,7 +1294,7 @@ function short_link($url) {
  * and adds an application/json HTTP header to the output.
  * After finishing the process is getting killed.
  * 
- * @param array $x
+ * @param array $x The input content
  */
 function json_return_and_die($x) {
 	header("content-type: application/json");

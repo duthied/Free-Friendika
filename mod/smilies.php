@@ -16,6 +16,6 @@ function smilies_content(&$a) {
 		json_return_and_die($results);
 	}
 	else {
-		return smilies('',true);
+		return Smilies::replace('',true);
 	}
 }

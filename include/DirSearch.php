@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file include/dir.php
+ * @file include/DirSearch.php
+ * @brief This file includes the DirSearch class with directory related functions
  */
 
 
@@ -15,7 +16,7 @@ class DirSearch {
 	 *  * 
 	 * @param string $search Name or nick
 	 * @param string $mode Search mode 
-	 * @return array
+	 * @return array with search results
 	 */
 	public static function global_search_by_name($search, $mode = '') {
 
@@ -51,6 +52,7 @@ class DirSearch {
 						intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 						dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 						dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+
 			return $results;
 		}
 

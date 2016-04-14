@@ -121,7 +121,7 @@ class Smilies {
 	 * @param string $s
 	 * @param boolean $sample
 	 * 
-	 * @return string
+	 * @return string HML Output of the Smilie
 	 */
 	public static function replace($s, $sample = false) {
 		if(intval(get_config('system','no_smilies'))
@@ -164,7 +164,9 @@ class Smilies {
 	 * @brief expand <3333 to the correct number of hearts
 	 *
 	 * @param string $x
-	 * @return string
+	 * @return string HTML Output
+	 * 
+	 * @todo: Rework because it doesn't work correctly
 	 */
 	private function preg_heart($x) {
 		if(strlen($x[1]) == 1)
