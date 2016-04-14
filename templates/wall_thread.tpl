@@ -250,10 +250,10 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{if $item.title}}
-			<span><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
+			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
-			{{$item.body}}
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>
 		</div>
 
 		<!-- TODO -->
@@ -439,12 +439,11 @@ $(document).ready(function() {
   $('li a[href^="message/new"]').attr('rel','modal');
 
   // put shared content in an own wrapper div
-  $('#wall-item-content-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
-  $("#wall-item-content-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
+  $('#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
+  $("#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
 
   // put shared content in an own wrapper (with showmore addon)
   $('#wall-item-content-{{$item.id}} .showmore-content > .shared_content').parent().after('<div class="shared-content-wrapper content-card"></div>');
   $("#wall-item-content-{{$item.id}} .showmore-teaser > .shared_header, #wall-item-content-{{$item.id}} .showmore-content > .shared_header").parent().appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
-  
 });
 </script>
