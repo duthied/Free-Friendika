@@ -1514,8 +1514,8 @@ main .nav-tabs>li.active>a:hover {
     background-image: -webkit-linear-gradient(top, #bdfade, #76fabc);
     background-image: -o-linear-gradient(top, #bdfade, #76fabc);
     background-image: linear-gradient(to bottom, #bdfade, #76fabc);
-    background-repeat: repeat-x;*/
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffbdfade', endColorstr='#ff76fabc', GradientType=0);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffbdfade', endColorstr='#ff76fabc', GradientType=0);*/
 }
 .theme-frio .back-bar .pointer {
     width: 14px !important;
