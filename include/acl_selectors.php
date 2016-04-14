@@ -663,7 +663,7 @@ function acl_lookup(&$a, $out_type = 'json') {
  * @brief Searching for global contacts for autocompletion
  * 
  * @param App $a
- * @return array
+ * @return array with the search results
  */
 function navbar_complete(&$a) {
 
