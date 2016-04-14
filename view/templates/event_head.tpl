@@ -148,6 +148,9 @@
 
 
 	$(document).ready(function() { 
+		{{if $editselect = 'none'}}
+		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
+		{{/if}}
 
 		$('#event-share-checkbox').change(function() {
 
