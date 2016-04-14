@@ -63,6 +63,11 @@ else
 			}
 		);
 
+		{{if $editselect = 'none'}}
+		$("#prvmail-text").bbco_autocomplete('bbcode');
+		{{/if}}
+
+
 	});
 
 	function jotGetLink() {
