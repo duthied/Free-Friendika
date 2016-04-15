@@ -187,7 +187,8 @@ header #banner {
     whitespace: nowrap;
 }
 header #banner #logo-img {
-    mask: url('img/friendica-25.png');
+    mask: url('img/friendica-logo.svg#logo_mask');
+    mask-image: url('img/friendica-25.png');
     -webkit-mask-image: url('img/friendica-25.png');
     background-color: $nav_icon_color;
     height: 25px;
