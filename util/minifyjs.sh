@@ -8,7 +8,6 @@ JSFILES=(
 	"js/acl.js"
 	"js/ajaxupload.js"
 	"js/country.js"
-	"js/fk.autocomplete.js"
 	"js/jquery.htmlstream.js"
 	"js/main.js"
 	"js/webtoolkit.base64.js"
