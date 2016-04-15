@@ -19,7 +19,7 @@
 
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost/js/acl.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/webtoolkit.base64.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/autocomplete.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost/js/main.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost/js/theme.js"></script>
