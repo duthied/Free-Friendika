@@ -194,7 +194,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts,smilies], {className:'acpopup', zIndex:1020});
+		this.textcomplete([contacts,smilies], {className:'acpopup', zIndex:10000});
 	};
 })( jQuery );
 
@@ -221,7 +221,7 @@ function string2bb(element) {
 			template: contact_format,
 		};
 		this.attr('autocomplete', 'off');
-		var a = this.textcomplete([contacts, community], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'#nav-search-box'});
+		var a = this.textcomplete([contacts, community], {className:'acpopup', maxCount:100, zIndex: 10000, appendTo:'nav'});
 		a.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
 	};
 })( jQuery );
@@ -241,7 +241,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'acpopup', zIndex:1020});
+		var a = this.textcomplete([contacts], {className:'acpopup', zIndex:10000});
 
 		if(autosubmit)
 			a.on('textComplete:select', function(e,value,strategy) { submit_form(this); });
@@ -267,7 +267,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([names], {className:'acpopup', zIndex:1020});
+		var a = this.textcomplete([names], {className:'acpopup', zIndex:10000});
 
 		if(autosubmit)
 			a.on('textComplete:select', function(e,value,strategy) { submit_form(this); });
@@ -315,7 +315,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([bbco], {className:'acpopup', zIndex:1020});
+		var a = this.textcomplete([bbco], {className:'acpopup', zIndex:10000});
 
 		a.on('textComplete:select', function(e, value, strategy) { value; });
 
