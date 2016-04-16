@@ -84,7 +84,12 @@ function editor_replace(item) {
 
 	// $2 ensures that prefix (@,@!) is preserved
 	var id = item.id;
-	 // 16 chars of hash should be enough. Full hash could be used if it can be done in a visually appealing way.
+
+	// don't add the id if it is empty (the id empty eg. if there are unknow contacts in thread)
+	if(id.length < 1)
+		return '$1$2' + item.nick;
+
+	// 16 chars of hash should be enough. Full hash could be used if it can be done in a visually appealing way.
 	// 16 chars is also the minimum length in the backend (otherwise it's interpreted as a local id).
 	if(id.length > 16) 
 		id = item.id.substring(0,16);
