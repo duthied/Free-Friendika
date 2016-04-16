@@ -1355,6 +1355,29 @@ function poco_discover_server($data, $default_generation = 0) {
 }
 
 /**
+ * @brief Removes unwanted parts from a contact url
+ *
+ * @param string $url Contact url
+ * @return string Contact url with the wanted parts
+ */
+function clean_contact_url($url) {
+        $parts = parse_url($url);
+
+        if (!isset($parts["scheme"]) OR !isset($parts["host"]))
+                return $url;
+
+        $new_url = $parts["scheme"]."://".$parts["host"];
+
+        if (isset($parts["port"]))
+                $new_url .= ":".$parts["port"];
+
+        if (isset($parts["path"]))
+                $new_url .= $parts["path"];
+
+        return $new_url;
+}
+
+/**
  * @brief Fetch the gcontact id, add an entry if not existed
  *
  * @param arr $contact contact array
@@ -1366,6 +1389,8 @@ function get_gcontact_id($contact) {
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
+
+	$contact["url"] = clean_contact_url($contact["url"]);
 
 	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 		dbesc(normalise_link($contact["url"])));
