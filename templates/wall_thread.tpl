@@ -414,30 +414,10 @@ as the value of $top_child_total (this is done at the end of this file)
 </div><!--./comment-container-->
 {{/if}}
 
-{{* The Modals - They have to be in this file to call remote content
-@todo: Move them somerhere else - we don't want this in every new message
-*}}
-<div class="modal" id="MailModal" tabindex="-1" role="dialog" aria-labelledby="MailModal" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-		</div> <!-- /.modal-content -->
-	</div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
-
-<div class="modal" id="PokeModal" tabindex="-1" role="dialog" aria-labelledby="PokeModal" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-		</div> <!-- /.modal-content -->
-	</div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
 
 <script>
 // Note: this is the same script like in search_item.tpl
 $(document).ready(function() {
-  // replace data target for poke & private Message to make Modal Dialog possible
-  $('li a[href^="poke/?f"]').attr('rel','modal');
-  $('li a[href^="message/new"]').attr('rel','modal');
-
   // put shared content in an own wrapper div
   $('#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
   $("#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");

@@ -269,6 +269,25 @@ function loadModalTitle() {
 	}
 }
 
+
+function addToModal(url) {
+	var url = url + '?mode=modal';
+	var modal = $('#modal').modal();
+
+	modal
+		.find('#modal-body')
+		.load(url, function (responseText, textStatus) {
+			if ( textStatus === 'success' || 
+				textStatus === 'notmodified') 
+			{
+				modal.show();
+
+				//Get first h3 element and use it as title
+				loadModalTitle();
+			}
+		});
+};
+
 function editpost(url) {
 	var modal = $('#jot-modal').modal();
 	var url = url + " #profile-jot-form";

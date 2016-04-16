@@ -31,12 +31,14 @@ function frio_init(&$a) {
 
 function frio_install() {
 	register_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	register_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 
 	logger("installed theme frio");
 }
 
 function frio_uninstall() {
 	unregister_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	unregister_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 
 	logger("uninstalled theme frio");
 }
@@ -79,4 +81,26 @@ function frio_item_photo_links(&$a, &$body_info) {
 
 		$p = bb_find_open_close($body_info['html'], "<a", ">", $occurence);
 	}
+}
+
+/**
+ * @brief Replace links of the item_photo_menu
+ * 
+ *  This function replaces the original poke and the message links
+ *  to call the addToModal javascript function so this pages can
+ *  be loaded in a bootstrap modal
+ * 
+ * @param app $a The app data
+ * @param array $arr Contains item data and the original photo_menu
+ */
+function frio_item_photo_menu($a, &$arr){
+
+	foreach($arr["menu"] as $k =>$v) {
+		if(strpos($v,'poke/?f=&c=') === 0 || strpos($v,'message/new/') === 0) {
+			$v = "javascript:addToModal('" . $v . "'); return false;";
+			$arr["menu"][$k] = $v;
+			$testvariable = $testvariable+1;
+		}
+	}
+	$args = array('item' => $item, 'menu' => $menu);
 }

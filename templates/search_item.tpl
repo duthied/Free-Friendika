@@ -240,10 +240,6 @@
 <script>
 // Note this is the same script like in wall_thread.tpl
 $(document).ready(function() {
-  // replace data target for poke & private Message to make Modal Dialog possible
-  $('li a[href^="poke/?f"]').attr('rel','modal');
-  $('li a[href^="message/new"]').attr('rel','modal');
-
   // put shared content in an own wrapper div
   $('#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
   $("#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
