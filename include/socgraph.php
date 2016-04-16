@@ -1390,6 +1390,7 @@ function get_gcontact_id($contact) {
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
+	// Remove unwanted parts from the contact url (e.g. "?zrl=...")
 	$contact["url"] = clean_contact_url($contact["url"]);
 
 	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
