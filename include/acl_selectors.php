@@ -556,7 +556,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		if($r) {
 			foreach($r as $g) {
 				$contacts[] = array(
-					"photo"    => $g['photo'],
+					"photo"    => proxy_url($g['photo'], false, PROXY_SIZE_MICRO),
 					"name"     => $g['name'],
 					"nick"     => (x($g['addr']) ? $g['addr'] : $g['url']),
 					"network" => $g['network'],
