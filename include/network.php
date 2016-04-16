@@ -1286,3 +1286,18 @@ function short_link($url) {
 	}
 	return $slinky->short();
 }};
+
+/**
+ * @brief Encodes content to json
+ * 
+ * This function encodes an array to json format
+ * and adds an application/json HTTP header to the output.
+ * After finishing the process is getting killed.
+ * 
+ * @param array $x The input content
+ */
+function json_return_and_die($x) {
+	header("content-type: application/json");
+	echo json_encode($x);
+	killme();
+}

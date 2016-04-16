@@ -203,11 +203,64 @@ key { display: inline; background-color: #eee; color: #666; padding:0.2em; font-
 
 /* fields help text */
 .field .field_help {
-    clear: left;
+  clear: left;
 }
 
 /* notifications unseen */
 .notify-unseen { background-color: #cceeFF; }
+
+/* autocomplete popup */
+ul.acpopup {
+  list-style: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+}
+nav .acpopup {
+  width: 290px;
+  max-height: 450px;
+  max-width: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 0px;
+}
+img.acpopup-img {
+  float: left;
+  width: 36px;
+  height: 36px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.acpopup-contactname {
+  padding-top: 2px;
+  font-weight: bold;
+  line-height: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.acpopup-sub-text {
+  color: #777;
+  font-size: 0.833em;
+  line-height: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.textcomplete-item a {
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  clear: both;
+  white-space: nowrap;
+  padding: 3px 20px;
+  display: block;
+}
+.textcomplete-item a:hover {
+  text-decoration: none;
+}
 
 /* plain text editor upload/select popup */
 

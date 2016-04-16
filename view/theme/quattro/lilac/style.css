@@ -744,8 +744,12 @@ ul.menu-popup .toolbar a:hover {
 }
 /* autocomplete popup */
 .autocomplete,
-.acpopup {
+.acpopup-mce {
   max-height: 150px;
+}
+.autocomplete,
+.acpopup-mce,
+.acpopup {
   background-color: #ffffff;
   color: #2d2d2d;
   border: 1px solid #364e59;
@@ -772,6 +776,15 @@ ul.menu-popup .toolbar a:hover {
 }
 .autocomplete > div.selected,
 .acpopupitem.selected {
+  background-color: #c0a3c7;
+}
+.textcomplete-item {
+  color: #2d2d2d;
+}
+.textcomplete-item a:hover {
+  color: #2d2d2d;
+}
+.textcomplete-item.active {
   background-color: #c0a3c7;
 }
 #nav-notifications-menu {

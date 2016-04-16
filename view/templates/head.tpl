@@ -33,7 +33,8 @@
 <!-- <script type="text/javascript" src="js/jquery-migrate.js" ></script>-->
 <script type="text/javascript" src="js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="js/fk.autocomplete.js" ></script>
+<script type="text/javascript" src="library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
+<script type="text/javascript" src="js/autocomplete.js" ></script>
 <script type="text/javascript" src="library/colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="library/jgrowl/jquery.jgrowl_minimized.js"></script>
 <script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>

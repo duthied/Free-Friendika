@@ -265,9 +265,10 @@ ul.menu-popup {
 }
 
 /* autocomplete popup */
+.autocomplete, .acpopup-mce { max-height:150px; }
 .autocomplete,
+.acpopup-mce,
 .acpopup {
-	max-height:150px;
 	background-color:@MenuBg;
 	color: @Menu;
 	border:1px solid @MenuBorder;
@@ -288,6 +289,15 @@ ul.menu-popup {
 		height: 16px !important;
 	}
 	&.selected{
+		background-color: @MenuItemHoverBg;
+	}
+}
+.textcomplete-item {
+	color: @MenuItem;
+	a:hover{
+		color: @MenuItem;
+	}
+	&.active{
 		background-color: @MenuItemHoverBg;
 	}
 }

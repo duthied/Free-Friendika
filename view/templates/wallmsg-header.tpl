@@ -44,7 +44,7 @@ if(plaintext != 'none') {
 	});
 }
 else
-	$("#prvmail-text").contact_autocomplete(baseurl+"/acl");
+	$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
 
 
 </script>
