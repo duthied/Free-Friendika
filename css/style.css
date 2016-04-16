@@ -1280,29 +1280,34 @@ blockquote.shared_content {
     padding-bottom: 5px !important;
 }
 
-/* acpopup */
+/* acpopup  + textcompletion*/
 .acpopup {
-    max-height: 150px;
+    /* max-height: 150px; */
     background-color: #ffffff;
-    color: #555;
     border-radius: 4px;
     overflow: auto;
     z-index: 100000;
     box-shadow: 0 6px 12px rgba(0,0,0,.175);
 }
-.acpopupitem {
-    color: #555;
-    padding: 4px;
-    clear: left;
+nav .acpopup {
+    /*top: 35px !important;*/
+    margin-left: -23px;
 }
-.acpopupitem.selected {
-    background-color: $nav_bg;
-    color: $nav_icon_color;
+/** @todo: we schould consider the possebility to overwrite bootstrap dropdowns
+ at the beginning of this file */
+.textcomplete-item a {
+    color: #555 !important;
 }
-.acpopupitem img {
-    float: left;
-    margin-right: 4px;
+.textcomplete-item.active > a {
+    background-color: rgb(247, 247, 247) !important;
+    background-image: none !important;
+    border-left: 3px solid $link_color;
+    padding-left: 17px !important;
 }
+.textcomplete-item a .forum {
+    color: $link_color;
+}
+
 
 /* The wall-item thread levels */
 /*.wall-item-container.thread_level_3 {
