@@ -13,9 +13,9 @@ class DirSearch {
 
 	/**
 	 * @brief Search global contact table by nick or name
-	 *  * 
+	 *
 	 * @param string $search Name or nick
-	 * @param string $mode Search mode 
+	 * @param string $mode Search mode (e.g. "community")
 	 * @return array with search results
 	 */
 	public static function global_search_by_name($search, $mode = '') {
@@ -32,7 +32,7 @@ class DirSearch {
 			else
 				$ostatus = NETWORK_DFRN;
 
-			// check if fo
+			// check if we search only communities or every contact
 			if($mode === "community")
 				$extra_sql = " AND `community`";
 			else
@@ -46,12 +46,13 @@ class DirSearch {
 							AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 						WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-						(`gcontact`.`name` REGEXP '%s' OR `gcontact`.`nick` REGEXP '%s') $extra_sql
+						(`gcontact`.`addr` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`nick` REGEXP '%s') $extra_sql
 							GROUP BY `gcontact`.`nurl`
-							ORDER BY `gcontact`.`updated` DESC ",
+							ORDER BY `gcontact`.`nurl` DESC
+							LIMIT 40",
 						intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 						dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-						dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+						dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)));
 
 			return $results;
 		}
