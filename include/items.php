@@ -161,24 +161,31 @@ function add_page_info_data($data) {
 	if ($no_photos AND ($data["type"] == "photo"))
 		return("");
 
-	// If the link contains BBCode stuff, make a short link out of this to avoid parsing problems
-	if (strpos($data["url"], '[') OR strpos($data["url"], ']')) {
-		require_once("include/network.php");
-		$data["url"] = short_link($data["url"]);
+	if (sizeof($data["images"]) > 0)
+		$preview = $data["images"][0];
+	else
+		$preview = "";
+
+	// Escape some bad characters
+	$data["url"] = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["url"], ENT_QUOTES, 'UTF-8', false));
+	$data["title"] = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["title"], ENT_QUOTES, 'UTF-8', false));
+
+	$text = "[attachment type='".$data["type"]."'";
+
+	if ($data["url"] != "")
+		$text .= " url='".$data["url"]."'";
+	if ($data["title"] != "")
+		$text .= " title='".$data["title"]."'";
+	if (sizeof($data["images"]) > 0) {
+		$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
+		// if the preview picture is larger than 500 pixels then show it in a larger mode
+		// But only, if the picture isn't higher than large (To prevent huge posts)
+		if (($data["images"][0]["width"] >= 500) AND ($data["images"][0]["width"] >= $data["images"][0]["height"]))
+			$text .= " image='".$preview."'";
+		else
+			$text .= " preview='".$preview."'";
 	}
-
-	if (($data["type"] != "photo") AND is_string($data["title"]))
-		$text .= "[bookmark=".$data["url"]."]".trim($data["title"])."[/bookmark]";
-
-	if (($data["type"] != "video") AND ($photo != ""))
-		$text .= '[img]'.$photo.'[/img]';
-	elseif (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
-		$imagedata = $data["images"][0];
-		$text .= '[img]'.$imagedata["src"].'[/img]';
-	}
-
-	if (($data["type"] != "photo") AND is_string($data["text"]))
-		$text .= "[quote]".$data["text"]."[/quote]";
+	$text .= "]".$data["text"]."[/attachment]";
 
 	$hashtags = "";
 	if (isset($data["keywords"]) AND count($data["keywords"])) {
@@ -192,7 +199,7 @@ function add_page_info_data($data) {
 		}
 	}
 
-	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
+	return "\n".$text.$hashtags;
 }
 
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
@@ -1261,17 +1268,17 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		logger("Consume DFRN messages", LOGGER_DEBUG);
 
 		$r = q("SELECT  `contact`.*, `contact`.`uid` AS `importer_uid`,
-                                        `contact`.`pubkey` AS `cpubkey`,
-                                        `contact`.`prvkey` AS `cprvkey`,
-                                        `contact`.`thumb` AS `thumb`,
-                                        `contact`.`url` as `url`,
-                                        `contact`.`name` as `senderName`,
-                                        `user`.*
-                        FROM `contact`
-                        LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-                        WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
-	                dbesc($contact["id"]), dbesc($importer["uid"])
-	        );
+					`contact`.`pubkey` AS `cpubkey`,
+					`contact`.`prvkey` AS `cprvkey`,
+					`contact`.`thumb` AS `thumb`,
+					`contact`.`url` as `url`,
+					`contact`.`name` as `senderName`,
+					`user`.*
+			FROM `contact`
+			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
+			WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
+			dbesc($contact["id"]), dbesc($importer["uid"])
+		);
 		if ($r) {
 			logger("Now import the DFRN feed");
 			dfrn::import($xml,$r[0], true);

@@ -24,6 +24,7 @@
 	require_once('include/group.php');
 	require_once('include/like.php');
 	require_once('include/NotificationsManager.php');
+	require_once('include/plaintext.php');
 
 
 	define('API_METHOD_ANY','*');
@@ -2867,7 +2868,7 @@
 		$scale_sql = ($scale === false ? "" : sprintf("and scale=%d",intval($scale)));
 		$data_sql = ($scale === false ? "" : "data, ");
 
- 		$r = q("select %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+		$r = q("select %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 						`type`, `height`, `width`, `datasize`, `profile`, min(`scale`) as minscale, max(`scale`) as maxscale
 				from photo where `uid` = %d and `resource-id` = '%s' %s group by `resource-id`",
 			$data_sql,
@@ -3121,42 +3122,37 @@
 			$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
 		}
 
-		$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
+		// Simplify "attachment" element
+		$Text = api_clean_attachments($Text);
+
 		return($Text);
 	}
 
-	function api_cleanup_share($shared) {
-		if ($shared[2] != "type-link")
-			return($shared[0]);
+	/**
+	 * @brief Removes most sharing information for API text export
+	 *
+	 * @param string $body The original body
+	 *
+	 * @return string Cleaned body
+	 */
+	function api_clean_attachments($body) {
+		$data = get_attachment_data($body);
 
-		if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-			return($shared[0]);
+		if (!$data)
+			return $body;
 
-		$title = "";
-		$link = "";
+		$body = "";
 
-		if (isset($bookmark[2][0]))
-			$title = $bookmark[2][0];
+		if (isset($data["text"]))
+			$body = $data["text"];
 
-		if (isset($bookmark[1][0]))
-			$link = $bookmark[1][0];
+		if (($body == "") AND (isset($data["title"])))
+			$body = $data["title"];
 
-		if (strpos($shared[1],$title) !== false)
-			$title = "";
+		if (isset($data["url"]))
+			$body .= "\n".$data["url"];
 
-		if (strpos($shared[1],$link) !== false)
-			$link = "";
-
-		$text = trim($shared[1]);
-
-		//if (strlen($text) < strlen($title))
-		if (($text == "") AND ($title != ""))
-			$text .= "\n\n".trim($title);
-
-		if ($link != "")
-			$text .= "\n".trim($link);
-
-		return(trim($text));
+		return $body;
 	}
 
 	function api_best_nickname(&$contacts) {
