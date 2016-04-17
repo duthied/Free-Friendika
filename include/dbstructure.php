@@ -670,6 +670,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"nurl" => array("nurl"),
 					"name" => array("name"),
 					"nick" => array("nick"),
 					"addr" => array("addr"),

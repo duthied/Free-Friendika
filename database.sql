@@ -334,6 +334,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
 	`server_url` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
+	 INDEX `nurl` (`nurl`),
 	 INDEX `name` (`name`),
 	 INDEX `nick` (`nick`),
 	 INDEX `addr` (`addr`),
