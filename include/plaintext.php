@@ -85,7 +85,7 @@ function get_attachment_data($body) {
 	if ($type == "")
 		return(array());
 
-	if (!in_array($type, array("link", "audio", "video")))
+	if (!in_array($type, array("link", "audio", "photo", "video")))
 		return(array());
 
 	if ($type != "")

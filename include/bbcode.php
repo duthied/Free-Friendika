@@ -73,9 +73,13 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			elseif (($data["preview"] != "") AND !strstr(strtolower($oembed), "<img "))
 				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], proxy_url($data["preview"]), $data["title"]);
 
-			$text .= $oembed;
+			if (($data["type"] == "photo") AND ($data["url"] != "") AND ($data["image"] != ""))
+				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
+			else
+				$text .= $oembed;
 
-			$text .= sprintf('<blockquote>%s</blockquote></span>', trim($data["description"]));
+			if (trim($data["description"]) != "")
+				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($data["description"]));
 		}
 	}
 	return $data["text"].$text.$data["after"];
