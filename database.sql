@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1194
+-- DB_UPDATE_VERSION 1195
 -- ------------------------------------------
 
 
@@ -171,7 +171,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`fetch_further_information` tinyint(1) NOT NULL DEFAULT 0,
 	`ffi_keyword_blacklist` mediumtext NOT NULL,
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
+	 INDEX `uid` (`uid`),
+	 INDEX `nurl` (`nurl`)
 ) DEFAULT CHARSET=utf8;
 
 --
@@ -334,6 +335,9 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`server_url` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `nurl` (`nurl`),
+	 INDEX `name` (`name`),
+	 INDEX `nick` (`nick`),
+	 INDEX `addr` (`addr`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8;
 

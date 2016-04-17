@@ -508,6 +508,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
+					"nurl" => array("nurl"),
 					)
 			);
 	$database["conv"] = array(
@@ -670,6 +671,9 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"nurl" => array("nurl"),
+					"name" => array("name"),
+					"nick" => array("nick"),
+					"addr" => array("addr"),
 					"updated" => array("updated"),
 					)
 			);
