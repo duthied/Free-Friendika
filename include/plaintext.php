@@ -1,4 +1,16 @@
 <?php
+/**
+ * @brief Fetches attachment data that were generated the old way
+ *
+ * @param string $body Message body
+ * @return array
+ * 'type' -> Message type ("link", "video", "photo")
+ * 'text' -> Text outside of the shared message
+ * 'image' -> Preview image of the message
+ * 'url' -> Url to the attached message
+ * 'title' -> Title of the attachment
+ * 'description' -> Description of the attachment
+ */
 function get_old_attachment_data($body) {
 
 	$post = array();
@@ -37,6 +49,19 @@ function get_old_attachment_data($body) {
 	return $post;
 }
 
+/**
+ * @brief Fetches attachment data that were generated with the "attachment" element
+ *
+ * @param string $body Message body
+ * @return array
+ * 'type' -> Message type ("link", "video", "photo")
+ * 'text' -> Text before the shared message
+ * 'after' -> Text after the shared message
+ * 'image' -> Preview image of the message
+ * 'url' -> Url to the attached message
+ * 'title' -> Title of the attachment
+ * 'description' -> Description of the attachment
+ */
 function get_attachment_data($body) {
 
 	$data = array();
