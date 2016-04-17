@@ -2,6 +2,7 @@
 
 require_once('include/acl_selectors.php');
 require_once('include/message.php');
+require_once('include/Smilies.php');
 
 function message_init(&$a) {
 
@@ -462,13 +463,13 @@ function message_content(&$a) {
 			if($a->theme['template_engine'] === 'internal') {
 				$from_name_e = template_escape($message['from-name']);
 				$subject_e = template_escape($message['title']);
-				$body_e = template_escape(smilies(bbcode($message['body'])));
+				$body_e = template_escape(Smilies::replace(bbcode($message['body'])));
 				$to_name_e = template_escape($message['name']);
 			}
 			else {
 				$from_name_e = $message['from-name'];
 				$subject_e = $message['title'];
-				$body_e = smilies(bbcode($message['body']));
+				$body_e = Smilies::replace(bbcode($message['body']));
 				$to_name_e = $message['name'];
 			}
 
