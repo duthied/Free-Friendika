@@ -38,6 +38,8 @@ class DirSearch {
 			else
 				$extra_sql = "";
 
+			$search .= "%";
+
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`nick`, `gcontact`.`photo`,
 							`gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`, `gcontact`.`community`
 						FROM `gcontact`
@@ -46,10 +48,10 @@ class DirSearch {
 							AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 						WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-						(`gcontact`.`addr` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`nick` REGEXP '%s') $extra_sql
+						(`gcontact`.`addr` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`nick` LIKE '%s') $extra_sql
 							GROUP BY `gcontact`.`nurl`
 							ORDER BY `gcontact`.`nurl` DESC
-							LIMIT 40",
+							LIMIT 1000",
 						intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 						dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 						dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)));
