@@ -1,19 +1,22 @@
 <?php
-function get_attached_data($body) {
-/*
- - text:
- - type: link, video, photo
- - title:
- - url:
- - image:
- - description:
- - (thumbnail)
-*/
+/**
+ * @brief Fetches attachment data that were generated the old way
+ *
+ * @param string $body Message body
+ * @return array
+ * 'type' -> Message type ("link", "video", "photo")
+ * 'text' -> Text outside of the shared message
+ * 'image' -> Preview image of the message
+ * 'url' -> Url to the attached message
+ * 'title' -> Title of the attachment
+ * 'description' -> Description of the attachment
+ */
+function get_old_attachment_data($body) {
+
+	$post = array();
 
 	// Simplify image codes
 	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-
-	$post = array();
 
 	if (preg_match_all("(\[class=(.*?)\](.*?)\[\/class\])ism",$body, $attached,  PREG_SET_ORDER)) {
 		foreach ($attached AS $data) {
@@ -42,6 +45,129 @@ function get_attached_data($body) {
 
 		}
 	}
+
+	return $post;
+}
+
+/**
+ * @brief Fetches attachment data that were generated with the "attachment" element
+ *
+ * @param string $body Message body
+ * @return array
+ * 'type' -> Message type ("link", "video", "photo")
+ * 'text' -> Text before the shared message
+ * 'after' -> Text after the shared message
+ * 'image' -> Preview image of the message
+ * 'url' -> Url to the attached message
+ * 'title' -> Title of the attachment
+ * 'description' -> Description of the attachment
+ */
+function get_attachment_data($body) {
+
+	$data = array();
+
+	if (!preg_match("/(.*)\[attachment(.*)\](.*?)\[\/attachment\](.*)/ism", $body, $match))
+		return get_old_attachment_data($body);
+
+	$attributes = $match[2];
+
+	$data["text"] = trim($match[1]);
+
+	$type = "";
+	preg_match("/type='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$type = strtolower($matches[1]);
+
+	preg_match('/type="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$type = strtolower($matches[1]);
+
+	if ($type == "")
+		return(array());
+
+	if (!in_array($type, array("link", "audio", "photo", "video")))
+		return(array());
+
+	if ($type != "")
+		$data["type"] = $type;
+
+	$url = "";
+	preg_match("/url='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$url = $matches[1];
+
+	preg_match('/url="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$url = $matches[1];
+
+	if ($url != "")
+		$data["url"] = $url;
+
+	$title = "";
+	preg_match("/title='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$title = $matches[1];
+
+	preg_match('/title="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$title = $matches[1];
+
+	//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
+	$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
+	$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
+
+	if ($title != "")
+		$data["title"] = $title;
+
+	$image = "";
+	if ($type != "video") {
+		preg_match("/image='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$image = $matches[1];
+
+		preg_match('/image="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$image = $matches[1];
+	}
+
+	if ($image != "")
+		$data["image"] = $image;
+
+	$preview = "";
+	if ($type != "video") {
+		preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$preview = $matches[1];
+
+		preg_match('/preview="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$preview = $matches[1];
+	}
+
+	if (($image == "") AND ($preview != ""))
+		$data["image"] = $preview;
+	else
+		$data["preview"] = $preview;
+
+	$data["description"] = trim($match[3]);
+
+	$data["after"] = trim($match[4]);
+
+	return($data);
+}
+
+function get_attached_data($body) {
+/*
+ - text:
+ - type: link, video, photo
+ - title:
+ - url:
+ - image:
+ - description:
+ - (thumbnail)
+*/
+
+	$post = get_attachment_data($body);
 
 	// if nothing is found, it maybe having an image.
 	if (!isset($post["type"])) {

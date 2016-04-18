@@ -407,6 +407,8 @@ function arr_add_hashes(&$item,$k) {
 
 function parse_url_content(&$a) {
 
+	require_once("include/items.php");
+
 	$text = null;
 	$str_tags = '';
 
@@ -484,78 +486,9 @@ function parse_url_content(&$a) {
 
 	$siteinfo = parseurl_getsiteinfo($url);
 
-//	if ($textmode) {
-//		require_once("include/items.php");
-//
-//		echo add_page_info_data($siteinfo);
-//		killme();
-//	}
+	unset($siteinfo["keywords"]);
 
-	$url= $siteinfo["url"];
-
-	// If the link contains BBCode stuff, make a short link out of this to avoid parsing problems
-	if (strpos($url, '[') OR strpos($url, ']')) {
-		require_once("include/network.php");
-		$url = short_link($url);
-	}
-
-	$sitedata = "";
-
-	if($siteinfo["title"] != "") {
-		$text = $siteinfo["text"];
-		$title = $siteinfo["title"];
-	}
-
-	$image = "";
-
-	if (($siteinfo["type"] != "video") AND (sizeof($siteinfo["images"]) > 0)){
-		/* Execute below code only if image is present in siteinfo */
-
-		$total_images = 0;
-		$max_images = get_config('system','max_bookmark_images');
-		if($max_images === false)
-			$max_images = 2;
-		else
-			$max_images = intval($max_images);
-
-		foreach ($siteinfo["images"] as $imagedata) {
-			if($textmode)
-				$image .= '[img='.$imagedata["width"].'x'.$imagedata["height"].']'.$imagedata["src"].'[/img]' . "\n";
-			else
-				$image .= '<img height="'.$imagedata["height"].'" width="'.$imagedata["width"].'" src="'.$imagedata["src"].'" alt="photo" /><br />';
-			$total_images ++;
-			if($max_images && $max_images >= $total_images)
-				break;
-		}
-	}
-
-	if(strlen($text)) {
-		if($textmode)
-			$text = '[quote]'.trim($text).'[/quote]';
-		else
-			$text = '<blockquote>'.htmlspecialchars(trim($text)).'</blockquote>';
-	}
-
-	if($image)
-		$text = $br.$br.$image.$text;
-	else
-		$text = $br.$text;
-
-	$title = str_replace(array("\r","\n"),array('',''),$title);
-
-	$result = sprintf($template,$url,($title) ? $title : $url,$text) . $str_tags;
-
-	logger('parse_url: returns: ' . $result);
-
-	$sitedata .=  trim($result);
-
-	if (($siteinfo["type"] == "video") AND ($url != ""))
-		echo "[class=type-video]".$sitedata."[/class]";
-	elseif (($siteinfo["type"] != "photo"))
-		echo "[class=type-link]".$sitedata."[/class]";
-	else
-		echo "[class=type-photo]".$title.$br.$image."[/class]";
-
+	echo add_page_info_data($siteinfo);
 	killme();
 }
 ?>
