@@ -488,7 +488,14 @@ function parse_url_content(&$a) {
 
 	unset($siteinfo["keywords"]);
 
-	echo add_page_info_data($siteinfo);
+	$info = add_page_info_data($siteinfo);
+
+	if (!$textmode)
+		// Replace ' with ’ - not perfect - but the richtext editor has problems otherwise
+		$info = str_replace(array("&#039;"), array("&#8217;"), $info);
+
+	echo $info;
+
 	killme();
 }
 ?>
