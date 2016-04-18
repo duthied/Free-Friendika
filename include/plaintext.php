@@ -1,4 +1,7 @@
 <?php
+
+require_once("include/Photo.php");
+
 /**
  * @brief Fetches attachment data that were generated the old way
  *
@@ -31,8 +34,15 @@ function get_old_attachment_data($body) {
 
 			$URLSearchString = "^\[\]";
 
-			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches))
-				$post["image"] = $matches[1];
+			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches)) {
+
+				$picturedata = get_photo_info($matches[1]);
+
+				if (($picturedata[0] >= 500) AND ($picturedata[0] >= $picturedata[1]))
+					$post["image"] = $matches[1];
+				else
+					$post["preview"] = $matches[1];
+			}
 
 			if (preg_match("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
 				$post["url"] = $matches[1];
@@ -144,9 +154,7 @@ function get_attachment_data($body) {
 			$preview = $matches[1];
 	}
 
-	if (($image == "") AND ($preview != ""))
-		$data["image"] = $preview;
-	else
+	if ($preview != "")
 		$data["preview"] = $preview;
 
 	$data["description"] = trim($match[3]);
