@@ -846,7 +846,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_PHANTOM) {
+	if (!in_array($result['network'], array(NETWORK_PHANTOM, ""))) {
 		Cache::set("probe_url:".$mode.":".$original_url,serialize($result), CACHE_DAY);
 
 		/// @todo temporary fix - we need a real contact update function that updates only changing fields
