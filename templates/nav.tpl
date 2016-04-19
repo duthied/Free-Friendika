@@ -1,10 +1,16 @@
-{{if $userinfo}}
+{{* we have modified the navmenu (look at function frio_remote_nav() ) to have remote links. $nav.userinfo is a new variable and replaces the original $userinfo variable *}}
+{{if $nav.userinfo}}
 <header>
 	{{* {{$langselector}} *}}
 
 	<div id="site-location">{{$sitelocation}}</div>
 	<div id="banner" class="hidden-sm hidden-xs">
+		{{* show on remote/visitor connections an other logo which symols that fact*}}
+		{{if $nav.remote}}
+		<a href="{{$baseurl}}"><div id="remote-logo-img"></div></a>
+		{{else}}
 		<a href="{{$baseurl}}"><div id="logo-img"></div></a>
+		{{/if}}
 	</div>
 </header>
 <nav id="topbar-first" class="topbar">
@@ -97,7 +103,7 @@
 					{{if $nav.search}}
 					<li id="search-box" class="hidden-xs">
 							<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
-								<!-- <img class="hidden-xs" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
+								<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 								<div class="form-group form-group-search">
 									<input id="nav-search-input-field" class="form-control form-search" type="text" name="search" placeholder="Search">
 									<button class="btn btn-default btn-sm form-button-search" type="submit">Search</button>
@@ -107,15 +113,15 @@
 					{{/if}}
 
 					{{* The user dropdown menu *}}
-					{{if $userinfo}}
+					{{if $nav.userinfo}}
 					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
 						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
-								<strong>{{$userinfo.name}}</strong>
+								<strong>{{$nav.userinfo.name}}</strong>
 								<span id="intro-update" class="nav-intro-badge badge nav-notify"></span>
 							</div>
 
-							<img  id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
+							<img  id="avatar" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}">
 							<span class="caret"></span>
 
 						</a>
@@ -159,8 +165,7 @@
 							<li class="divider"></li>
 							{{if $nav.logout}}
 							<li role="menuitem"><a id="nav-logout-link" class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a></li>
-							{{/if}}
-							{{if $nav.login}}
+							{{else}}
 							<li role="menuitem"><a id="nav-login-link" class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a></li>
 							{{/if}}
 						</ul>
@@ -177,7 +182,7 @@
 			<div id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
 				<div class="nav-container">
 					<div class="list-group">
-						<li class="list-group-item"><img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$userinfo.name}}</li>
+						<li class="list-group-item"><img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$nav.userinfo.name}}</li>
 						{{foreach $nav.usermenu as $usermenu}}
 						<a class="{{$usermenu.2}} list-group-item" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a>
 						{{/foreach}}
@@ -201,8 +206,7 @@
 						{{/if}}
 						{{if $nav.logout}}
 						<a class="nav-link {{$nav.logout.2}} list-group-item" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a>
-						{{/if}}
-						{{if $nav.login}}
+						{{else}}
 						<a class="nav-login-link {{$nav.login.2}} list-group-item" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a>
 						{{/if}}
 					</div>
@@ -215,12 +219,13 @@
 
 
 {{* The navbar for users which are not logged in *}}
-{{if $userinfo == ''}}
+{{if $nav.userinfo == ''}}
 <nav class="navbar navbar-fixed-top">
 	<div class="container">
 		<div class="navbar-header">
-			<a class="navbar-brand" href="#">
-				<span><img alt="Brand" src="./view/theme/frio/img/logo.png" width="25" height="25"> Friendica</span>
+		    <a class="navbar-brand" href="#"><div id="navbrand-container">
+				<div id="logo-img"></div>
+				<div id="navbar-brand-text"> Friendica</div></div>
 			</a>
 		</div>
 		<div class="hidden-sm hidden-xs">

@@ -32,6 +32,7 @@ function frio_init(&$a) {
 function frio_install() {
 	register_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	register_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	register_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 
 	logger("installed theme frio");
 }
@@ -103,4 +104,91 @@ function frio_item_photo_menu($a, &$arr){
 		}
 	}
 	$args = array('item' => $item, 'menu' => $menu);
+}
+
+/**
+ * @brief Construct remote nav menu
+ * 
+ *  It creates a remote baseurl form $_SESSION for remote users and friendica
+ *  visitors. This url will be added to some of the nav links. With this behaviour 
+ *  the user will come back to her/his own pages on his/her friendica server.
+ *  Not all possible links are available (notifications, administrator, manage,
+ *  notes aren't available because we have no way the check remote permissions)..
+ *  Some links will point to the local pages because the user would expect
+ *  local page (these pages are: search, community, help, apps, directory).
+ * 
+ * @param app $a The App class
+ * @param array $nav The original nav menu
+ */
+function frio_remote_nav($a,&$nav) {
+	// get the homelink from $_XSESSION
+	$homelink = get_my_url();
+	if(! $homelink)
+		$homelink = ((x($_SESSION,'visitor_home')) ? $_SESSION['visitor_home'] : '');
+
+	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
+	// I'm not familiar with regex, so someone might find a better solutionen
+	// 
+	// E.g $homelink = 'https://friendica.domain.com/profile/mickey' should result in an array
+	// with 0 => 'https://friendica.domain.com/profile/mickey' 1 => 'https://',
+	// 2 => 'friendica.domain.com' 3 => '/profile/' 4 => 'mickey'
+	// 
+	//$server_url = preg_match('/^(https?:\/\/.*?)\/profile\//2', $homelink);
+	preg_match('/^(https?:\/\/)?(.*?)(\/profile\/)(.*)/', $homelink, $url_parts);
+
+	// Construct the server url of the visitor. So we could link back to his/her own menu.
+	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
+	// We use the webbie for search in gcontact because we don't know if gcontact table stores
+	// the right value if its http or https protocol
+	if(count($url_parts)) {
+		$server_url = $url_parts[1] . $url_parts[2];
+		$webbie = $url_parts[4] . '@' . $url_parts[2];
+	}
+
+	// since $userinfo isn't available for the hook we write it to the nav array
+	// this isn't optimal because the contact query will be done now twice
+	if(local_user()) {
+		// empty the server url for local user because we won't need it
+		$server_url = '';
+		// user info
+		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self` = 1", intval($a->user['uid']));
+		
+		$r[0]['photo'] = (count($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
+		$r[0]['name'] = $a->user['username'];
+
+	} elseif(!local_user() && remote_user()) {
+		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
+		$nav['remote'] = 1;
+
+	} elseif(get_my_url ()) {
+		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
+				WHERE `addr` = '%s' AND `network` = 'dfrn'",
+			dbesc($webbie));
+		$nav['remote'] = 1;
+	}
+
+	if(count($r)){
+			$nav['userinfo'] = array(
+				'icon' => (count($r) ? $r[0]['photo'] : "images/person-48.jpg"),
+				'name' => $r['name'],
+			);
+		}
+
+	if(!local_user() && !empty($server_url)) {
+		$nav['logout'] = Array($server_url . '/logout',t('Logout'), "", t('End this session'));
+
+		// user menu
+		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname'], t('Status'), "", t('Your posts and conversations'));
+		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname']. '?tab=profile', t('Profile'), "", t('Your profile page'));
+		$nav['usermenu'][] = Array($server_url . '/photos/' . $a->user['nickname'], t('Photos'), "", t('Your photos'));
+		$nav['usermenu'][] = Array($server_url . '/videos/' . $a->user['nickname'], t('Videos'), "", t('Your videos'));
+		$nav['usermenu'][] = Array($server_url . '/events/', t('Events'), "", t('Your events'));
+
+		// navbar links
+		$nav['network'] = array($server_url . '/network', t('Network'), "", t('Conversations from your friends'));
+		$nav['events'] = Array($server_url . '/events', t('Events'), "", t('Events and Calendar'));
+		$nav['messages'] = array($server_url . '/message', t('Messages'), "", t('Private mail'));
+		$nav['settings'] = array($server_url . '/settings', t('Settings'),"", t('Account settings'));
+		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
+	}
 }

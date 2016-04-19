@@ -186,7 +186,8 @@ header #banner {
     font-weight: bold;
     whitespace: nowrap;
 }
-header #banner #logo-img {
+header #banner #logo-img, 
+.navbar-brand #logo-img {
     mask: url('img/friendica-logo.svg#logo_mask');
     mask-image: url('img/friendica-25.png');
     -webkit-mask-image: url('img/friendica-25.png');
@@ -195,6 +196,12 @@ header #banner #logo-img {
     width: 25px;
     margin-left: auto;
     margin-right: auto;
+}
+#navbrand-container {
+    display: flex;
+}
+#navbrand-container #navbar-brand-text {
+    padding-left: 5px;
 }
 
 /* NavBar */
