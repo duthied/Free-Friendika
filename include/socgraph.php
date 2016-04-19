@@ -1387,6 +1387,9 @@ function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
 
+	if ($contact["network"] == NETWORK_PHANTOM)
+		return false;
+
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
