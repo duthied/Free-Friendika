@@ -37,36 +37,36 @@
 				<ul class="nav navbar-nav navbar-left">
 					<li id="nav-communication" class="nav-segment">
 						{{if $nav.network}}
-						<a class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
+						<a class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.home}}
-						<a class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
+						<a class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.community}}
-						<a class="{{$sel.community}}" href="{{$nav.community.0}}" title="nav-menu {{$nav.community.3}}"><i class="fa fa-lg fa-bullseye"></i></a>
+						<a class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye"></i></a>
 						{{/if}}
 					</li>
 
 					<li id="nav-personal" class="nav-segment hidden-xs">
 						{{if $nav.messages}}
-						<a id="nav-messages-link" href="{{$nav.messages.0}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
+						<a id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.events}}
-						<a id="nav-events-link" href="events/" title="events" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						<a id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
 						{{/if}}
 
 						{{if $nav.contacts}}
-						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
+						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
 						{{/if}}
 					</li>
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
 						<li id="nav-notification" class="nav-segment hidden-xs">
-							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-exclamation-circle fa-lg"></i>
 								<span class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
@@ -80,7 +80,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<a href="#" onclick="notifyMarkAll(); return false;" title="{{$nav.notifications.mark.1}}" class="">Mark as read{{*** @todo Translation ***}}</a>
+										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.1}}" class="">Mark as read{{*** @todo Translation ***}}</a>
 									</div>
 
 								</li>
@@ -230,8 +230,8 @@
 		</div>
 		<div class="hidden-sm hidden-xs">
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="register" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
-				<li><a href="login?mode=modal" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
+				<li><a href="register" data-toggle="tooltip" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
+				<li><a href="login?mode=modal" data-toggle="tooltip" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
 			</ul>
 		</div>
 	</div>
@@ -255,7 +255,7 @@
 			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}"><img data-src="{1}"></a></div>
 			<div class="notif-desc-wrapper media-body">
 				{8}{7}
-				<div><time class="notif-when time" title="{5}">{3}</time></div>
+				<div><time class="notif-when time" data-toggle="tooltip" title="{5}">{3}</time></div>
 			</div>
 		</div>
 	</li>

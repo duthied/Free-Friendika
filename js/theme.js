@@ -53,6 +53,17 @@ $(document).ready(function(){
 		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
 	}
 
+	// initialize the bootstrap tooltips
+	$('[data-toggle="tooltip"]').tooltip({
+		animation: true,
+		html: true,
+		placement: 'auto',
+		delay: {
+			show: 500,
+			hide: 100
+		}
+	});
+
 	// Loading remote bootstrap remote modals
 	// This is uses to load tradional friendica pages into bootstrap modals
 	// 
