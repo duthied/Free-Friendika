@@ -94,18 +94,20 @@ function dirfind_content(&$a, $prefix = "") {
 			else
 				$ostatus = NETWORK_DFRN;
 
+			$search2 = "%".$search."%";
+
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`addr` REGEXP '%s' OR `gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql",
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
 
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
@@ -114,14 +116,14 @@ function dirfind_content(&$a, $prefix = "") {
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`addr` REGEXP '%s' OR `gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					intval($startrec), intval($perpage));
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
