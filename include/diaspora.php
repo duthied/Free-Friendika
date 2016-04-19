@@ -1000,6 +1000,9 @@ class diaspora {
 	 * @return bool Success
 	 */
 	private function receive_account_deletion($importer, $data) {
+
+		/// @todo Account deletion should remove the contact from the global contacts as well
+
 		$author = notags(unxmlify($data->author));
 
 		$contact = self::contact_by_handle($importer["uid"], $author);
@@ -2115,10 +2118,11 @@ class diaspora {
 			case "StatusMessage":
 				return self::item_retraction($importer, $contact, $data);;
 
+			case "Contact":
 			case "Person":
 				/// @todo What should we do with an "unshare"?
 				// Removing the contact isn't correct since we still can read the public items
-				//contact_remove($contact["id"]);
+				contact_remove($contact["id"]);
 				return true;
 
 			default:
