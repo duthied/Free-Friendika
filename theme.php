@@ -170,7 +170,7 @@ function frio_remote_nav($a,&$nav) {
 	if(count($r)){
 			$nav['userinfo'] = array(
 				'icon' => (count($r) ? $r[0]['photo'] : "images/person-48.jpg"),
-				'name' => $r['name'],
+				'name' => $r[0]['name'],
 			);
 		}
 
