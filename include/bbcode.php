@@ -94,17 +94,17 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 		return $Text;
 
 	if ($nolink)
-		return $data["text"];
+		return $data["text"].$data["after"];
 
 	if ($plaintext)
 		$data["title"] = $data["url"];
 
 	if (($data["text"] == "") AND ($data["title"] != "") AND ($data["url"] == ""))
-		return $data["title"];
+		return $data["title"].$data["after"];
 
 	// If the link already is included in the post, don't add it again
 	if (($data["url"] != "") AND strpos($data["text"], $data["url"]))
-		return $data["text"];
+		return $data["text"].$data["after"];
 
 	$text = $data["text"];
 
@@ -113,7 +113,7 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 	elseif (($link != ""))
 		$text .= "\n".$data["url"];
 
-	return $text;
+	return $text.$data["after"];
 }
 
 function bb_cleanstyle($st) {
