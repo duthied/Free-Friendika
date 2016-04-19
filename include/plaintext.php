@@ -1,11 +1,15 @@
 <?php
+
+require_once("include/Photo.php");
+
 /**
  * @brief Fetches attachment data that were generated the old way
  *
  * @param string $body Message body
  * @return array
  * 'type' -> Message type ("link", "video", "photo")
- * 'text' -> Text outside of the shared message
+ * 'text' -> Text before the shared message
+ * 'after' -> Text after the shared message
  * 'image' -> Preview image of the message
  * 'url' -> Url to the attached message
  * 'title' -> Title of the attachment
@@ -25,14 +29,26 @@ function get_old_attachment_data($body) {
 
 			$post["type"] = substr($data[1], 5);
 
-			$post["text"] = trim(str_replace($data[0], "", $body));
+			$pos = strpos($body, $data[0]);
+			if ($pos > 0) {
+				$post["text"] = trim(substr($body, 0, $pos));
+				$post["after"] = trim(substr($body, $pos + strlen($data[0])));
+			} else
+				$post["text"] = trim(str_replace($data[0], "", $body));
 
 			$attacheddata = $data[2];
 
 			$URLSearchString = "^\[\]";
 
-			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches))
-				$post["image"] = $matches[1];
+			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches)) {
+
+				$picturedata = get_photo_info($matches[1]);
+
+				if (($picturedata[0] >= 500) AND ($picturedata[0] >= $picturedata[1]))
+					$post["image"] = $matches[1];
+				else
+					$post["preview"] = $matches[1];
+			}
 
 			if (preg_match("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
 				$post["url"] = $matches[1];
@@ -144,9 +160,7 @@ function get_attachment_data($body) {
 			$preview = $matches[1];
 	}
 
-	if (($image == "") AND ($preview != ""))
-		$data["image"] = $preview;
-	else
+	if ($preview != "")
 		$data["preview"] = $preview;
 
 	$data["description"] = trim($match[3]);
