@@ -1374,7 +1374,28 @@ function clean_contact_url($url) {
         if (isset($parts["path"]))
                 $new_url .= $parts["path"];
 
+	if ($new_url != $url)
+		logger("Cleaned contact url ".$url." to ".$new_url." - Called by: ".App::callstack(), LOGGER_DEBUG);
+
         return $new_url;
+}
+
+/**
+ * @brief Replace alternate OStatus user format with the primary one
+ *
+ * @param arr $contact contact array (called by reference)
+ */
+function fix_alternate_contact_address(&$contact) {
+	if (($contact["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($contact["url"])) {
+	        $data = probe_url($contact["url"]);
+		if ($contact["network"] == NETWORK_OSTATUS) {
+			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
+			$contact["url"] = $data["url"];
+			$contact["addr"] = $data["addr"];
+			$contact["alias"] = $data["alias"];
+			$contact["server_url"] = $data["baseurl"];
+		}
+	}
 }
 
 /**
@@ -1387,14 +1408,20 @@ function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
 
-	if ($contact["network"] == NETWORK_PHANTOM)
+	if (in_array($contact["network"], array(NETWORK_PHANTOM))) {
+		logger("Invalid network for contact url ".$contact["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 		return false;
+	}
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
+	// Replace alternate OStatus user format with the primary one
+	fix_alternate_contact_address($contact);
+
 	// Remove unwanted parts from the contact url (e.g. "?zrl=...")
-	$contact["url"] = clean_contact_url($contact["url"]);
+	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+		$contact["url"] = clean_contact_url($contact["url"]);
 
 	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 		dbesc(normalise_link($contact["url"])));
@@ -1476,6 +1503,9 @@ function update_gcontact($contact) {
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
+
+	// Replace alternate OStatus user format with the primary one
+	fix_alternate_contact_address($contact);
 
 	if (!isset($contact["updated"]))
 		$contact["updated"] = datetime_convert();
@@ -1571,8 +1601,10 @@ function update_gcontact($contact) {
 function update_gcontact_from_probe($url) {
 	$data = probe_url($url);
 
-	if ($data["network"] == NETWORK_PHANTOM)
+	if (in_array($data["network"], array(NETWORK_PHANTOM))) {
+		logger("Invalid network for contact url ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 		return;
+	}
 
 	update_gcontact($data);
 }
