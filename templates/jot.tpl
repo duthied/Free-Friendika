@@ -77,7 +77,7 @@
 					{{* mark the first list entry as active because it is the first which is active after opening
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">Text</a></li>
-					<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>
+					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
 					<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>
 				</ul>
 			</div>
