@@ -15,6 +15,7 @@
 						</div>
 					</div>
 
+					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper hidden-lg hidden-md">
 						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
 
