@@ -59,7 +59,7 @@ $a->config['system']['huburl'] = '[internal]';
 // Encryption will only be provided if this setting is true and the
 // PHP mcrypt extension is installed on both systems
 
-$a->config['system']['rino_encrypt'] = true;
+$a->config['system']['rino_encrypt'] = {{$rino}};
 
 // default system theme
 
