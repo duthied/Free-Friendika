@@ -79,6 +79,14 @@ function install_post(&$a) {
 			$timezone = notags(trim($_POST['timezone']));
 			$language = notags(trim($_POST['language']));
 			$adminmail = notags(trim($_POST['adminmail']));
+			// In step 4 of the installer, we passed the  check for mcrypt
+			// already, so we can activate RINO, make RINO2 the default
+			// and only fall back if the mcrypt_create_iv function is
+			// not available on the system.
+			$rino = 2;
+			if (! function_exists('mcrypt_create_iv')) {
+				$rino = 1;
+			]
 
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
@@ -93,7 +101,8 @@ function install_post(&$a) {
 				'$language' => $language,
 				'$urlpath' => $urlpath,
 				'$phpath' => $phpath,
-				'$adminmail' => $adminmail
+				'$adminmail' => $adminmail,
+				'$rino' => $rino
 			));
 
 
@@ -449,7 +458,7 @@ function check_funcs(&$checks) {
 	if ($ck_funcs[5]['status']) {
 		if (function_exists('mcrypt_create_iv')) {
 			$__status = true;
-			$__help = "If you are using php_cli, please make sure that mcrypt module is enabled in its config file";
+			$__help = t("If you are using php_cli, please make sure that mcrypt module is enabled in its config file");
 		} else {
 			$__status = false;
 			$__help = t('Function mcrypt_create_iv() is not defined. This is needed to enable RINO2 encryption layer.');
