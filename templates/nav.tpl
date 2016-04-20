@@ -59,7 +59,7 @@
 						{{/if}}
 
 						{{if $nav.contacts}}
-						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
+						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i><span id="intro-update" class="nav-intro-badge badge nav-notify"></span></a>
 						{{/if}}
 					</li>
 
@@ -119,7 +119,6 @@
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
 								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
-								<span id="intro-update" class="nav-intro-badge badge nav-notify"></span>
 							</div>
 
 							<img  id="avatar" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}">
