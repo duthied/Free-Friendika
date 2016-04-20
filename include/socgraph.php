@@ -1420,7 +1420,7 @@ function get_gcontact_id($contact) {
 	fix_alternate_contact_address($contact);
 
 	// Remove unwanted parts from the contact url (e.g. "?zrl=...")
-	if ($contact["network"] != NETWORK_FEED)
+	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
 		$contact["url"] = clean_contact_url($contact["url"]);
 
 	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
