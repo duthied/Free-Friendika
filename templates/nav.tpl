@@ -117,7 +117,8 @@
 					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
 						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
-								<strong>{{$nav.userinfo.name}}</strong>
+								<strong>{{$nav.userinfo.name}}</strong><br>
+								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
 								<span id="intro-update" class="nav-intro-badge badge nav-notify"></span>
 							</div>
 
@@ -128,6 +129,10 @@
 
 						{{* The list of available usermenu links *}}
 						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="menu" aria-labelledby="main-menu">
+							{{if $nav.remote}}{{if $nav.sitename}}
+							<li id="nav-sitename" role="menuitem">{{$nav.sitename}}</li>
+							<li class="divider"></li>
+							{{/if}}{{/if}}
 							{{foreach $nav.usermenu as $usermenu}}
 							<li role="menuitem"><a class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
@@ -151,8 +156,8 @@
 							<li class="divider"></li>
 							{{if $nav.apps}}
 							<li role="menuitem"><a id="nav-apps-link" class="nav-link {{$nav.apps.2}} {{$sel.manage}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw"></i> {{$nav.apps.1}}</a>
-							{{/if}}
 							<li class="divider"></li>
+							{{/if}}
 							{{if $nav.help}}
 							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.3}}</a></li>
 							{{/if}}
@@ -182,7 +187,10 @@
 			<div id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
 				<div class="nav-container">
 					<div class="list-group">
-						<li class="list-group-item"><img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$nav.userinfo.name}}</li>
+						{{if $nav.remote}}{{if $nav.sitename}}
+						<li class="nav-sitename list-group-item" role="menuitem">{{$nav.sitename}}</li>
+						{{/if}}{{/if}}
+						<li class="list-group-item"><img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}</li>
 						{{foreach $nav.usermenu as $usermenu}}
 						<a class="{{$usermenu.2}} list-group-item" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a>
 						{{/foreach}}

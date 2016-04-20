@@ -464,11 +464,12 @@ nav.navbar a {
     width: 32px;
     border-radius: 3px;
 }
+/* The Top Nav Bar user menu */
 #topbar-first .account .user-title {
     text-align: right
 }
 #topbar-first .account .user-title span {
-    color: #d7d7d7
+    color: $nav_icon_color;
 }
 #topbar-first .account #main-menu .nav-notify {
     position: absolute;
@@ -481,11 +482,24 @@ nav.navbar a {
     background-color: $nav_bg;
     color: $nav_icon_color;
 }
+#myNavmenu li.nav-sitename {
+    font-weight: bold;
+}
 #topbar-first .dropdown.account>a,
 #topbar-first .dropdown.account.open>a,
 #topbar-first .dropdown.account>a:hover,
 #topbar-first .dropdown.account.open>a:hover {
-    background-color: $nav_bg
+    background-color: $nav_bg;
+}
+#topbar-first .dropdown.account li#nav-sitename {
+    padding-left: 15px;
+    padding-right: 15px;
+    font-weight: bold;
+    word-break: break-word;
+}
+#topbar-first .dropdown.account li#nav-sitename:hover {
+    border: none;
+    background-color: $nav_bg;
 }
 /* Nav Search */
 #topbar-first #search-box .navbar-form {

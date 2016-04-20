@@ -158,13 +158,13 @@ function frio_remote_nav($a,&$nav) {
 
 	} elseif(!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = 1;
+		$nav['remote'] = t("Remote");
 
 	} elseif(get_my_url ()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			dbesc($webbie));
-		$nav['remote'] = 1;
+		$nav['remote'] = t("Visitor");
 	}
 
 	if(count($r)){
@@ -190,5 +190,6 @@ function frio_remote_nav($a,&$nav) {
 		$nav['messages'] = array($server_url . '/message', t('Messages'), "", t('Private mail'));
 		$nav['settings'] = array($server_url . '/settings', t('Settings'),"", t('Account settings'));
 		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
+		$nav['sitename'] = $a->config['sitename'];
 	}
 }
