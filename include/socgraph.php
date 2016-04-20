@@ -1377,12 +1377,19 @@ function clean_contact_url($url) {
         return $new_url;
 }
 
+/**
+ * @brief Replace alternate OStatus user format with the primary one
+ *
+ * @param arr $contact contact array (called by reference)
+ */
 function fix_alternate_contact_address(&$contact) {
 	if (($contact["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($contact["url"])) {
 	        $data = probe_url($contact["url"]);
-		if (!in_array($contact["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
+		if ($contact["network"] == NETWORK_OSTATUS) {
+			logger("Fix primary url from ".$contact["url"]." to ".$data["url"], LOGGER_DEBUG);
 			$contact["url"] = $data["url"];
 			$contact["addr"] = $data["addr"];
+			$contact["alias"] = $data["alias"];
 			$contact["server_url"] = $data["baseurl"];
 		}
 	}
