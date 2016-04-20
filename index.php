@@ -117,9 +117,15 @@ if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
 }
 
 if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
-	$_SESSION['my_url'] = $_GET['zrl'];
-	$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
-	zrl_init($a);
+	// Only continue when the given profile link seems valid
+	// Valid profile links contain a path and no query parameters
+	if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") AND
+		(parse_url($_GET['zrl'],  PHP_URL_PATH) != "")) {
+		$_SESSION['my_url'] = $_GET['zrl'];
+		$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
+		zrl_init($a);
+	} else
+		logger("Invalid ZRL parameter ".$_GET['zrl'], LOGGER_DEBUG);
 }
 
 /**

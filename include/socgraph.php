@@ -1448,8 +1448,15 @@ function get_gcontact_id($contact) {
 		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($contact["url"])));
 
-		if ($r)
+		if ($r) {
 			$gcontact_id = $r[0]["id"];
+
+			// Complete newly added contacts from "probable" accounts
+			if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_FEED))) {
+				logger("Probing ".$contact["url"], LOGGER_DEBUG);
+				proc_run('php', 'include/gprobe.php', bin2hex($contact["url"]));
+			}
+		}
 	}
 
 	if ((count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))
