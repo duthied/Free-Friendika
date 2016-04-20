@@ -1,11 +1,11 @@
 <?php
 
-/**********************************************************************
+/* ********************************************************************
  *  The following configuration has to be within the .htconfig file
  *  and will not be overruled by decisions made in the admin panel.
  * 
  *  See below for variables that may be overruled by the admin panel.
- **********************************************************************/
+ * ********************************************************************/
 
 // Set the following for your MySQL installation
 // Copy or rename this file to .htconfig.php
