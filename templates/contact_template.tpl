@@ -3,15 +3,24 @@
 
 		{{* This is a wrapper for the contact picture and the dropdown menu with contact relating actions *}}
 		<div class="contact-photo-wrapper dropdown pull-left" >
-			<div class="contact-photo mframe" id="contact-entry-photo-{{$contact.id}}" >
+			<div class="contact-entry-photo mframe" id="contact-entry-photo-{{$contact.id}}" >
 
 				<a class="dropdown-toggle" id="contact-photo-menu-{{$contact.id}}" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
-					<div class="contact-photo-image-wrapper">
-						<img class="contact-photo media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+					<div class="contact-photo-image-wrapper hidden-xs">
+						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
 
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
-							<span class="contact-photo-overlay-content"><i class="fa fa-angle-down"></i></span>
+							<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down"></i></span>
+						</div>
+					</div>
+
+					<div class="contact-photo-image-wrapper hidden-lg hidden-md">
+						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+
+						{{* Overlay background on hover the avatar picture *}}
+						<div class="contact-photo-overlay">
+							<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down"></i></span>
 						</div>
 					</div>
 				</a>

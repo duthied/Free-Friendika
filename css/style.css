@@ -1495,7 +1495,8 @@ ul.dropdown-menu li:hover {
 /* Profile-page */
 #profile-page, .photos-content-wrapper, .settings-content-wrapper,
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
-.allfriends-content-wrapper, .match-content-wrapper {
+.allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
+.directory-content-wrapper {
     padding: 15px;
     padding-bottom: 20px;
     margin-bottom: 20px;
@@ -1540,6 +1541,32 @@ ul.viewcontact_wrapper > li {
     overflow: visible;
     word-wrap: break-word;
 }
+/* bootstrap hack for .media */
+.contact-wrapper.media .media-body {
+display: table-cell;
+width: 10000px;
+*width: auto;
+*zoom: 1;
+}
+.contact-wrapper.media:before, .media:after {
+content: "";
+display: table;
+}
+.contact-wrapper.media:after {
+clear: both;
+}
+.contact-wrapper .contact-photo-image-wrapper img.contact-photo.xl {
+    height: 80px;
+    width: 80px;    
+}
+.contact-wrapper .contact-photo-image-wrapper img.contact-photo-xs {
+    height: 48px;
+    width: 48px;
+}
+.contact-wrapper .contact-photo-overlay-content.xl {
+    font-size: 48px;
+}
+
 .contact-entry-desc {
     color: #555;
 }
