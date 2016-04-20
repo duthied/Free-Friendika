@@ -329,6 +329,9 @@ nav.navbar .nav>li>a:focus{
     text-shadow: none;
     display: none;*/
 }
+#topbar-first #intro-update{
+    cursor: pointer;
+}
 #topbar-first .topbar-nav .arrow:after {
     position: absolute;
     display: block;

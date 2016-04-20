@@ -59,7 +59,8 @@
 						{{/if}}
 
 						{{if $nav.contacts}}
-						<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i><span id="intro-update" class="nav-intro-badge badge nav-notify"></span></a>
+							<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
+							<span id="intro-update" class="nav-intro-badge badge nav-notify" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" title="{{$nav.introductions.3}}"></span>
 						{{/if}}
 					</li>
 
