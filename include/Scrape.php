@@ -799,6 +799,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if (substr($baseurl, -10) == "/index.php")
 		$baseurl = str_replace("/index.php", "", $baseurl);
 
+	if ($network == "")
+		$network = NETWORK_PHANTOM;
+
 	$baseurl = rtrim($baseurl, "/");
 
 	if(strpos($url,'@') AND ($addr == "") AND ($network == NETWORK_DFRN))
@@ -846,7 +849,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if (!in_array($result['network'], array(NETWORK_PHANTOM, ""))) {
+	if ($result['network'] != NETWORK_PHANTOM) {
 		Cache::set("probe_url:".$mode.":".$original_url,serialize($result), CACHE_DAY);
 
 		/// @todo temporary fix - we need a real contact update function that updates only changing fields

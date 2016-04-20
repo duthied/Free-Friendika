@@ -1147,7 +1147,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 
 			if (!$r) {
 				$probed = probe_url($name);
-				if (isset($probed["url"])) {
+				if ($result['network'] != NETWORK_PHANTOM) {
 					update_gcontact($probed);
 					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 						dbesc(normalise_link($probed["url"])));
