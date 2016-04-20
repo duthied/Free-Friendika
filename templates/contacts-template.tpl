@@ -55,28 +55,8 @@
 	{{$paginate}}
 </div>
 
-{{* The modals for Poke and Messages
-this needs to be removed and do it with js *}}
-<div class="modal" id="PokeModal" tabindex="-1" role="dialog" aria-labelledby="PokeModal" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-		</div> <!-- /.modal-content -->
-	</div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
-
-<div class="modal" id="MailModal" tabindex="-1" role="dialog" aria-labelledby="MailModal" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-		</div> <!-- /.modal-content -->
-	</div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
-
 <script>
  $(document).ready(function() {
-  // replace data target for poke & private Message to make Modal Dialog possible
-//  $('li a[href^="{{$baseurl}}/poke/?f"]').attr('data-target','#PokeModal').attr('data-toggle', 'modal');
-//  $('li a[href^="{{$baseurl}}/message/new"]').attr('data-target','#MailModal').attr('data-toggle', 'modal');
- 
   // javascript dialog to batch actions
   $(".batch-action").click(function(e){
     if (confirm($(this).attr('value')+" ?")) {
