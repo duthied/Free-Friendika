@@ -1476,10 +1476,7 @@ ul.dropdown-menu li:hover {
 }
 .form-group-search {
     position: relative;
-}
-
-.form-group-search {
-    position: relative;
+    width: 100%;
 }
 
 .form-group-search .form-button-search {
@@ -1488,6 +1485,10 @@ ul.dropdown-menu li:hover {
     right: 4px;
     border-radius: 30px;
 }
+.search-input.form-control.form-search {
+    width: 100%;
+}
+
 
 /* PAGES */
 
@@ -1549,6 +1550,9 @@ ul.viewcontact_wrapper > li {
     font-weight: bold;
     color: #777;
     font-size: 15px;
+}
+#contacts-search-wrapper {
+    padding: 10px 0;
 }
 
 /*

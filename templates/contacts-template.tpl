@@ -4,19 +4,22 @@
 	{{$tabs}}
 
 	{{* The page headding with it's contacts counter *}}
-	<h2 class="headding">{{$header}} {{if $total}} ({{$total}}) {{/if}}</h2>
+	<h3 class="headding">{{$header}} {{if $total}} ({{$total}}) {{/if}}</h3>
 
 	{{if $finding}}<h4>{{$finding}}</h4>{{/if}}
 
 	{{* The search input field to search for contacts *}}
 	<div id="contacts-search-wrapper">
-		<form id="contacts-search-form" class="navbar-form" action="{{$cmd}}" method="get" >
-			<label for="contacts-search" class="contacts-search-desc">{{$desc}}</label><br/>
-			<div class="input-group">
-				<input type="text" name="search" id="contacts-search" class="search-input form-control" onfocus="this.select();" value="{{$search|escape:'html'}}" />
-				<div class="input-group-btn">
-					<button class="btn btn-default" type="submit" name="submit" id="contacts-search-submit" value="{{$submit|escape:'html'}}"><i class="fa fa-search"></i></button>
+		<form id="contacts-search-form" class="navbar-form" role="search" action="{{$cmd}}" method="get" >
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8 ">
+					<div class="form-group form-group-search">
+						<input type="text" name="search" id="contacts-search" class="search-input form-control form-search" onfocus="this.select();" value="{{$search|escape:'html'}}" placeholder="{{$desc}}"/>
+						<button class="btn btn-default btn-sm form-button-search" type="submit" name="submit" id="contacts-search-submit" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+					</div>
 				</div>
+				<div class="col-md-2"></div>
 			</div>
 		</form>
 	</div>
