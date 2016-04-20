@@ -32,6 +32,7 @@ function frio_init(&$a) {
 function frio_install() {
 	register_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	register_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	register_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	register_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 
 	logger("installed theme frio");
@@ -40,6 +41,7 @@ function frio_install() {
 function frio_uninstall() {
 	unregister_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	unregister_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	unregister_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 
 	logger("uninstalled theme frio");
 }
@@ -100,10 +102,41 @@ function frio_item_photo_menu($a, &$arr){
 		if(strpos($v,'poke/?f=&c=') === 0 || strpos($v,'message/new/') === 0) {
 			$v = "javascript:addToModal('" . $v . "'); return false;";
 			$arr["menu"][$k] = $v;
-			$testvariable = $testvariable+1;
 		}
 	}
 	$args = array('item' => $item, 'menu' => $menu);
+}
+
+/**
+ * @brief Replace links of the contact_photo_menu
+ * 
+ *  This function replaces the original poke and the message links
+ *  to call the addToModal javascript function so this pages can
+ *  be loaded in a bootstrap modal
+ * 
+ * @param app $a The app data
+ * @param array $args Contains contact data and the original photo_menu
+ */
+function frio_contact_photo_menu($a, &$args){
+
+	$pokelink = "";
+	$pmlink = "";
+	$cid = "";
+
+	$cid = $args["contact"]["id"];
+	$pokelink = $args["menu"]["poke"][1];
+	$pmlink = $args["menu"]["pm"][1];
+
+	// Add to pm and poke links a new key with the value 'modal'.
+	// Later we can make conditions in the corresponing templates (e.g.
+	// contact_template.tpl)
+	if(strpos($pokelink,'poke/?f=&c='. $cid) !== false)
+		$args["menu"]["poke"][3] = "modal";
+
+	if(strpos($pmlink,'message/new/' . $cid) !== false)
+		$args["menu"]["pm"][3] = "modal";
+
+	$args = array('contact' => $contact, 'menu' => &$menu);
 }
 
 /**

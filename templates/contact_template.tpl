@@ -22,6 +22,8 @@
 					{{foreach $contact.photo_menu as $c}}
 					{{if $c.2}}
 					<li role="menuitem"><a target="redir" href="{{$c.1}}">{{$c.0}}</a></li>
+					{{elseif $c.3}}
+					<li role="menuitem"><a onclick="addToModal('{{$c.1}}')">{{$c.0}}</a></li>
 					{{else}}
 					<li role="menuitem"><a href="{{$c.1}}">{{$c.0}}</a></li>
 					{{/if}}

@@ -74,8 +74,8 @@ this needs to be removed and do it with js *}}
 <script>
  $(document).ready(function() {
   // replace data target for poke & private Message to make Modal Dialog possible
-  $('li a[href^="{{$baseurl}}/poke/?f"]').attr('data-target','#PokeModal').attr('data-toggle', 'modal');
-  $('li a[href^="{{$baseurl}}/message/new"]').attr('data-target','#MailModal').attr('data-toggle', 'modal');
+//  $('li a[href^="{{$baseurl}}/poke/?f"]').attr('data-target','#PokeModal').attr('data-toggle', 'modal');
+//  $('li a[href^="{{$baseurl}}/message/new"]').attr('data-target','#MailModal').attr('data-toggle', 'modal');
  
   // javascript dialog to batch actions
   $(".batch-action").click(function(e){
