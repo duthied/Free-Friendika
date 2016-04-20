@@ -1408,7 +1408,7 @@ function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
 
-	if (in_array($contact["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
+	if (in_array($contact["network"], array(NETWORK_PHANTOM))) {
 		logger("Invalid network for contact url ".$contact["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 		return false;
 	}
@@ -1600,7 +1600,7 @@ function update_gcontact($contact) {
 function update_gcontact_from_probe($url) {
 	$data = probe_url($url);
 
-	if (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
+	if (in_array($data["network"], array(NETWORK_PHANTOM))) {
 		logger("Invalid network for contact url ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 		return;
 	}
