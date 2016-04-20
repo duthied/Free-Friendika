@@ -1377,6 +1377,17 @@ function clean_contact_url($url) {
         return $new_url;
 }
 
+function fix_alternate_contact_address(&$contact) {
+	if (($contact["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($contact["url"])) {
+	        $data = probe_url($contact["url"]);
+		if (!in_array($contact["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
+			$contact["url"] = $data["url"];
+			$contact["addr"] = $data["addr"];
+			$contact["server_url"] = $data["baseurl"];
+		}
+	}
+}
+
 /**
  * @brief Fetch the gcontact id, add an entry if not existed
  *
@@ -1387,11 +1398,14 @@ function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
 
-	if ($contact["network"] == NETWORK_PHANTOM)
+	if (in_array($contact["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))
 		return false;
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
+
+	// Replace alternate OStatus user format with the primary one
+	fix_alternate_contact_address($contact);
 
 	// Remove unwanted parts from the contact url (e.g. "?zrl=...")
 	$contact["url"] = clean_contact_url($contact["url"]);
@@ -1476,6 +1490,9 @@ function update_gcontact($contact) {
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
+
+	// Replace alternate OStatus user format with the primary one
+	fix_alternate_contact_address($contact);
 
 	if (!isset($contact["updated"]))
 		$contact["updated"] = datetime_convert();
@@ -1571,7 +1588,7 @@ function update_gcontact($contact) {
 function update_gcontact_from_probe($url) {
 	$data = probe_url($url);
 
-	if ($data["network"] == NETWORK_PHANTOM)
+	if (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))
 		return;
 
 	update_gcontact($data);
