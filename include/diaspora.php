@@ -3122,12 +3122,6 @@ class diaspora {
 	 */
 	public static function store_like_signature($contact, $post_id) {
 
-		$enabled = intval(get_config('system','diaspora_enabled'));
-		if (!$enabled) {
-			logger('Diaspora support disabled, not storing like signature', LOGGER_DEBUG);
-			return false;
-		}
-
 		// Is the contact the owner? Then fetch the private key
 		if (!$contact['self'] OR ($contact['uid'] == 0)) {
 			logger("No owner post, so not storing signature", LOGGER_DEBUG);
@@ -3188,12 +3182,6 @@ class diaspora {
 
 		if ($uprvkey == "") {
 			logger('No private key, so not storing comment signature', LOGGER_DEBUG);
-			return false;
-		}
-
-		$enabled = intval(get_config('system','diaspora_enabled'));
-		if (!$enabled) {
-			logger('Diaspora support disabled, not storing comment signature', LOGGER_DEBUG);
 			return false;
 		}
 

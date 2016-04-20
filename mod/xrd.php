@@ -29,16 +29,12 @@ function xrd_init(&$a) {
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");
 
-	if(get_config('system','diaspora_enabled')) {
-		$tpl = get_markup_template('xrd_diaspora.tpl');
-		$dspr = replace_macros($tpl,array(
-			'$baseurl' => $a->get_baseurl(),
-			'$dspr_guid' => $r[0]['guid'],
-			'$dspr_key' => base64_encode(pemtorsa($r[0]['pubkey']))
-		));
-	}
-	else
-		$dspr = '';
+	$tpl = get_markup_template('xrd_diaspora.tpl');
+	$dspr = replace_macros($tpl,array(
+		'$baseurl' => $a->get_baseurl(),
+		'$dspr_guid' => $r[0]['guid'],
+		'$dspr_key' => base64_encode(pemtorsa($r[0]['pubkey']))
+	));
 
 	$tpl = get_markup_template('xrd_person.tpl');
 
