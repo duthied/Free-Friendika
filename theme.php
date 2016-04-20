@@ -113,6 +113,8 @@ function frio_item_photo_menu($a, &$arr){
  *  This function replaces the original poke and the message links
  *  to call the addToModal javascript function so this pages can
  *  be loaded in a bootstrap modal
+ *  Additionally the profile, status and photo page links  will be changed
+ *  to don't open in a new tab if the contact is a friendica contact.
  * 
  * @param app $a The app data
  * @param array $args Contains contact data and the original photo_menu
@@ -126,6 +128,22 @@ function frio_contact_photo_menu($a, &$args){
 	$cid = $args["contact"]["id"];
 	$pokelink = $args["menu"]["poke"][1];
 	$pmlink = $args["menu"]["pm"][1];
+
+	// Set the the indicator for opening the status, profile and photo pages
+	// in a new tab to false if the contact a dfrn (friendica) contact
+	// We do this because we can go back on foreign friendica pages throuhg
+	// friendicas "magic-link" which indicates a friendica user on froreign
+	// friendica servers as remote user or visitor
+	//
+	// The value for opening in a new tab is e.g. when 
+	// $args["menu"]["status"][2] is true. If the value of the [2] key is true
+	// and if it's a friendica contact we set it to false
+	foreach($args["menu"] as $k =>$v) {
+		if($k === "status" || $k === "profile" || $k === "photos") {
+			$v[2] = (($args["contact"]["network"] === "dfrn") ? false : true);
+			$args["menu"][$k][2] = $v[2];
+		}
+	}
 
 	// Add to pm and poke links a new key with the value 'modal'.
 	// Later we can make conditions in the corresponing templates (e.g.
