@@ -30,11 +30,11 @@ $a->config['php_path'] = '{{$phpath}}';
 
 $a->path = '{{$urlpath}}';
 
-/***********************************************************************
+/* *********************************************************************
  *  The configuration below will be overruled by the admin panel.
  *  Changes made below will only have an effect if the database does
  *  not contain any configuration for the friendica system.
- ***********************************************************************/
+ * *********************************************************************/
  
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
