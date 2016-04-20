@@ -3,10 +3,12 @@
 
 	{{$tabs}}
 
+	{{* The page headding with it's contacts counter *}}
 	<h2 class="headding">{{$header}} {{if $total}} ({{$total}}) {{/if}}</h2>
 
 	{{if $finding}}<h4>{{$finding}}</h4>{{/if}}
 
+	{{* The search input field to search for contacts *}}
 	<div id="contacts-search-wrapper">
 		<form id="contacts-search-form" class="navbar-form" action="{{$cmd}}" method="get" >
 			<label for="contacts-search" class="contacts-search-desc">{{$desc}}</label><br/>
@@ -22,7 +24,9 @@
 	<hr>
 	<div id="contacts-search-end"></div>
 
+	{{* we need the form container to make batch actions work *}}
 	<form action="{{$baseurl}}/contacts/batch/" method="POST">
+		{{* We put the contact batch actions in a dropdown menu *}}
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
 				<a class="btn btn-link dropdown-toggle" type="button" id="BatchActionDropdownMenuTools" data-toggle="dropdown" aria-expanded="true">
@@ -39,6 +43,7 @@
 		</ul>
 		<div class="clear">
 
+		{{* format each contact with the contact_template.tpl *}}
 		<ul id="viewcontact_wrapper" class="viewcontact_wrapper media-list">
 		{{foreach $contacts as $contact}}
 			<li>{{include file="contact_template.tpl"}}</li>
@@ -50,6 +55,8 @@
 	{{$paginate}}
 </div>
 
+{{* The modals for Poke and Messages
+this needs to be removed and do it with js *}}
 <div class="modal" id="PokeModal" tabindex="-1" role="dialog" aria-labelledby="PokeModal" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">

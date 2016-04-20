@@ -1,6 +1,7 @@
 
 <div class="contact-wrapper media" id="contact-entry-wrapper-{{$id}}" >
-	
+
+		{{* This is a wrapper for the contact picture and the dropdown menu with contact relating actions *}}
 		<div class="contact-photo-wrapper dropdown pull-left" >
 			<div class="contact-photo mframe" id="contact-entry-photo-{{$contact.id}}" >
 
@@ -33,6 +34,7 @@
 		</div>
 
 		<div class="media-body">
+			{{* The contact description (e.g. Name, Network, kind of connection and so on *}}
 			<div class="contact-entry-desc">
 				<div class="contact-entry-name" id="contact-entry-name-{{$contact.id}}" >
 					<h4 class="media-heading">{{$contact.name}}
@@ -46,6 +48,7 @@
 				{{if $contact.network}}<div class="contact-entry-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
 			</div>
 
+			{{* The checkbox to perform batch actions to these contacts (for batch actions have a look at contacts-template.tpl) *}}
 			{{* if !$no_contacts_checkbox *}}
 			{{if $multiselect}}
 			<div class="checkbox contact-entry-checkbox pull-right">
@@ -54,6 +57,5 @@
 			</div>
 			{{/if}}
 		</div>
-	
 
 </div>

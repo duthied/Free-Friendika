@@ -1,4 +1,7 @@
 
+{{* This is the standard template for showing contact lists. It is used e.g. 
+at the suggest page and also at many other places *}}
+
 {{include file="section_title.tpl"}}
 
 {{$tab_str}}
