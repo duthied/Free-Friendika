@@ -1739,10 +1739,6 @@ blockquote.shared_content {
 	/*margin-left: 175px;*/
 }
 
-.contact-edit-submit {
-	margin-top: 20px;
-}
-
 .contact-select {	position: absolute; top: 64px; left:64px; display:none; }
 .contact-select:checked,
 .contact-entry-photo:hover .contact-select {	display:block; }

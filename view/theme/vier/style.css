@@ -2986,10 +2986,6 @@ a.mail-list-link {
   list-style-type: none;
 }
 
-#contact-edit-settings {
-  margin-top: 10px;
-}
-
 a.btn#contact-edit-actions-button {
   cursor: pointer;
   border-radius: 3px;
