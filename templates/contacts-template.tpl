@@ -25,7 +25,11 @@
 	<div id="contacts-search-end"></div>
 
 	{{* we need the form container to make batch actions work *}}
-	<form action="{{$baseurl}}/contacts/batch/" method="POST">
+	<form name="batch_actions_submit" action="{{$baseurl}}/contacts/batch/" method="POST">
+
+		{{* we put here a hidden input element. This is needed to transmit the batch actions with javascript*}}
+		<input type="hidden" class="batch-action no-input fakelist" name="batch_submit" value="{{$l|escape:'html'}}">
+
 		{{* We put the contact batch actions in a dropdown menu *}}
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
@@ -34,8 +38,9 @@
 				</a>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="BatchActionDropdownMenuTools">
 				{{foreach $batch_actions as $n=>$l}}
-					<li role="presentation">
-						<input class="batch-action no-input fakelist" name="{{$n}}" value="{{$l|escape:'html'}}" type="submit">
+					<li role="menuitem">
+						{{* call the js batch_submit_handler. Have a look at the buttom of this file *}}
+						<a onclick="batch_submit_handler('{{$n}}', '{{$l}}')">{{$l}}</a>
 					</li>
 				{{/foreach}}
 				</ul>
@@ -81,5 +86,21 @@
    
   });
  });
+
+/**
+ * @brief This function submits the form with the batch action values
+ *
+ * @param string name The name of the batch action
+ * @param string value If it isn't empty the action will be posted
+ */
+function batch_submit_handler(name, value) {
+    // set the value of the hidden input element with the name batch_submit
+    document.batch_actions_submit.batch_submit.value=value;
+    // change the name of the input element from batch_submit according to the
+    // name which is transmitted to this function
+    document.batch_actions_submit.batch_submit.name=name;
+    // transmit the form
+    document.batch_actions_submit.submit() ;
+}
  </script>
 
