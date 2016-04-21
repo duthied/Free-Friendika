@@ -185,6 +185,7 @@ header #banner {
     color: #fff;
     font-weight: bold;
     whitespace: nowrap;
+    padding-left: 55px;
 }
 header #banner #logo-img, 
 .navbar-brand #logo-img {
