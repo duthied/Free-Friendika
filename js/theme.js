@@ -53,6 +53,11 @@ $(document).ready(function(){
 		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
 	}
 
+	// add search-headding to the scecond navbar
+	if( $(".search-headding")) {
+		$(".search-headding").appendTo("#topbar-second > .container > #tabmenu");
+	}
+
 	// initialize the bootstrap tooltips
 	$('[data-toggle="tooltip"]').tooltip({
 		animation: true,
