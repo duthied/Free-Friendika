@@ -14,9 +14,12 @@ require_once('view/theme/frio/php/frio_boot.php');
 // This is a workaround, where we can't change the page the
 // page mode in the template with javascript
 $page_type = get_page_type($a->argv[0]);
-if($page_type === "modal") {
-	$_GET["mode"] = "modal";
-}
+
+// This is uncommented because we don't need it anymore.
+// We try to to use links which resulting in $_GET["mode"] = "modal"
+//if($page_type === "modal") {
+//	$_GET["mode"] = "modal";
+//}
 
 if((isset($_GET["mode"]) AND ($_GET["mode"] == "modal"))) {
 

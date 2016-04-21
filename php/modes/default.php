@@ -10,7 +10,7 @@
 <?php 
 	require_once('view/theme/frio/php/frio_boot.php');
 
-	$minimal = is_modal();
+//	$minimal = is_modal();
 
 ?>
 
