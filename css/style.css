@@ -1488,6 +1488,11 @@ ul.dropdown-menu li:hover {
 .search-input.form-control.form-search {
     width: 100%;
 }
+.search-headding {
+    text-align: center;
+    color: $link_color;
+    font-size: 20px;
+}
 
 
 /* PAGES */

@@ -1,10 +1,15 @@
 
-{{include file="section_title.tpl"}}
-
 {{if $gdirpath}}
-<ul class="list-unstyled">
+<ul class="list-unstyled pull-right">
 	<li><div id="global-directory-link"><a href="{{$gdirpath}}">{{$globaldir}}</a></div></li>
 </ul>
+{{/if}}
+
+{{include file="section_title.tpl"}}
+
+
+{{if $findterm}}
+<h4 class="search-headding">{{$finding}} {{$findterm}}</h4>
 {{/if}}
 
 {{* The search input field to search for contacts *}}
@@ -24,10 +29,6 @@
 </div>
 
 <hr>
-{{if $findterm}}
-<h4 id="directory-search-headding">{{$finding}} {{$findterm}}</h4>
-<hr>
-{{/if}}
 
 <div id="directory-search-end"></div>
 
