@@ -1578,8 +1578,14 @@ clear: both;
     color: #777;
     font-size: 15px;
 }
-#contacts-search-wrapper {
+#contacts-search-wrapper,
+#directory-search-wrapper{
     padding: 10px 0;
+}
+
+/* directory page */
+#directory-search-headding {
+    padding-top: 10px;
 }
 
 /*
