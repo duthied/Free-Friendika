@@ -174,8 +174,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	$gcid = "";
 
-	$alternate = poco_alternate_ostatus_url($profile_url);
-
 	if ($profile_url == "")
 		return $gcid;
 
@@ -187,12 +185,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 						"identi.ca", "alpha.app.net")))
 		return $gcid;
 
-	$orig_updated = $updated;
-
 	// Don't store the statusnet connector as network
 	// We can't simply set this to NETWORK_OSTATUS since the connector could have fetched posts from friendica as well
 	if ($network == NETWORK_STATUSNET)
 		$network = "";
+
+	// Assure that there are no parameter fragments in the profile url
+	if (in_array($network, array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
+		$profile_url = clean_contact_url($profile_url);
+
+	$alternate = poco_alternate_ostatus_url($profile_url);
+
+	$orig_updated = $updated;
 
 	// The global contacts should contain the original picture, not the cached one
 	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link($a->get_baseurl()."/photo/")))
@@ -1448,8 +1452,15 @@ function get_gcontact_id($contact) {
 		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($contact["url"])));
 
-		if ($r)
+		if ($r) {
 			$gcontact_id = $r[0]["id"];
+
+			// Complete newly added contacts from "probable" accounts
+			if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_FEED))) {
+				logger("Probing ".$contact["url"], LOGGER_DEBUG);
+				proc_run('php', 'include/gprobe.php', bin2hex($contact["url"]));
+			}
+		}
 	}
 
 	if ((count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))
