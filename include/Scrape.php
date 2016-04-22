@@ -596,7 +596,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if($diaspora && $diaspora_base && $diaspora_guid) {
 		$diaspora_notify = $diaspora_base.'receive/users/'.$diaspora_guid;
 
-		if($mode == PROBE_DIASPORA || ! $notify || ($notify == $diaspora_notify)) {
+		if($mode == PROBE_DIASPORA || !$notify || ($notify == $diaspora_notify)) {
 			$notify = $diaspora_notify;
 			$batch  = $diaspora_base . 'receive/public' ;
 		}
@@ -845,6 +845,18 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			$result2 = probe_url($addr, $mode, ++$level);
 			if (($result2['network'] != "") AND ($result2['network'] != NETWORK_FEED))
 				$result = $result2;
+		}
+
+		// Quickfix for Hubzilla systems with enabled OStatus plugin
+		if (($result['network'] == NETWORK_DIASPORA) AND ($result["batch"] == "")) {
+			$result2 = probe_url($url, PROBE_DIASPORA, ++$level);
+			if ($result2['network'] == NETWORK_DIASPORA) {
+				$addr = $result["addr"];
+				$result = $result2;
+
+				if (($result["addr"] == "") AND ($addr != ""))
+					$result["addr"] = $addr;
+			}
 		}
 	}
 
