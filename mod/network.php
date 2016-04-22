@@ -857,14 +857,24 @@ function network_content(&$a, $update = 0) {
 
 
 	if((! $group) && (! $cid) && (! $star)) {
-		$r = q("UPDATE `item` SET `unseen` = 0
-			WHERE `unseen` = 1 AND `uid` = %d",
-			intval(local_user())
-		);
+
+		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d",
+				intval(local_user()));
+
+		if ($unseen)
+			$r = q("UPDATE `item` SET `unseen` = 0
+				WHERE `unseen` = 1 AND `uid` = %d",
+				intval(local_user())
+			);
 	}
 	else {
-		if($update_unseen)
-			$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		if($update_unseen) {
+
+			$unseen = q("SELECT `id` FROM `item` ".$update_unseen);
+
+			if ($unseen)
+				$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		}
 	}
 
 	// Set this so that the conversation function can find out contact info for our wall-wall items
