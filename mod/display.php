@@ -437,10 +437,14 @@ function display_content(&$a, $update = 0) {
 	if($r) {
 
 		if((local_user()) && (local_user() == $a->profile['uid'])) {
-			q("UPDATE `item` SET `unseen` = 0
-				WHERE `parent` = %d AND `unseen`",
-				intval($r[0]['parent'])
-			);
+			$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `parent` = %d",
+					intval($r[0]['parent']));
+
+			if ($unseen)
+				q("UPDATE `item` SET `unseen` = 0
+					WHERE `parent` = %d AND `unseen`",
+					intval($r[0]['parent'])
+				);
 		}
 
 		$items = conv_sort($r,"`commented`");
