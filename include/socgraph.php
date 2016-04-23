@@ -404,6 +404,11 @@ function poco_last_updated($profile, $force = false) {
 	else
 		$server_url = poco_detect_server($profile);
 
+	if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
+		logger("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", LOGGER_DEBUG);
+		return false;
+	}
+
 	if ($server_url != "") {
 		if (!poco_check_server($server_url, $gcontacts[0]["network"], $force)) {
 
@@ -411,6 +416,7 @@ function poco_last_updated($profile, $force = false) {
 				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 					dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
+			logger("Profile ".$profile.": Server ".$server_url." wasn't reachable.", LOGGER_DEBUG);
 			return false;
 		}
 
@@ -426,7 +432,7 @@ function poco_last_updated($profile, $force = false) {
 			q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
 				dbesc($server[0]["network"]), dbesc(normalise_link($profile)));
 		else
-			return;
+			return false;
 	}
 
 	// noscrape is really fast so we don't cache the call.
@@ -477,19 +483,32 @@ function poco_last_updated($profile, $force = false) {
 					unset($noscrape["dfrn-notify"]);
 					unset($noscrape["dfrn-poll"]);
 
+					// Set the date of the last contact
+					/// @todo By now the function "update_gcontact" doesn't work with this field
+					//$contact["last_contact"] = datetime_convert();
+
 					$contact = array_merge($contact, $noscrape);
 
 					update_gcontact($contact);
 
-					return $noscrape["updated"];
+					if (trim($noscrape["updated"]) != "") {
+						q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
+							dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
+						logger("Profile ".$profile." was last updated at ".$noscrape["updated"]." (noscrape)", LOGGER_DEBUG);
+
+						return $noscrape["updated"];
+					}
 				}
 			}
 		}
 	}
 
 	// If we only can poll the feed, then we only do this once a while
-	if (!$force AND !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"]))
+	if (!$force AND !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"])) {
+		logger("Profile ".$profile." was last updated at ".$gcontacts[0]["updated"]." (cached)", LOGGER_DEBUG);
 		return $gcontacts[0]["updated"];
+	}
 
 	$data = probe_url($profile);
 
@@ -508,12 +527,15 @@ function poco_last_updated($profile, $force = false) {
 
 		poco_last_updated($data["url"], $force);
 
+		logger("Profile ".$profile." was deleted", LOGGER_DEBUG);
 		return false;
 	}
 
 	if (($data["poll"] == "") OR (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
+		logger("Profile ".$profile." wasn't reachable (profile)", LOGGER_DEBUG);
 		return false;
 	}
 
@@ -539,6 +561,8 @@ function poco_last_updated($profile, $force = false) {
 	if (!$feedret["success"]) {
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+
+		logger("Profile ".$profile." wasn't reachable (no feed)", LOGGER_DEBUG);
 		return false;
 	}
 
@@ -574,6 +598,8 @@ function poco_last_updated($profile, $force = false) {
 	if (($gcontacts[0]["generation"] == 0))
 		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
+
+	logger("Profile ".$profile." was last updated at ".$last_updated, LOGGER_DEBUG);
 
 	return($last_updated);
 }
@@ -1411,6 +1437,7 @@ function fix_alternate_contact_address(&$contact) {
 function get_gcontact_id($contact) {
 
 	$gcontact_id = 0;
+	$doprobing = false;
 
 	if (in_array($contact["network"], array(NETWORK_PHANTOM))) {
 		logger("Invalid network for contact url ".$contact["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
@@ -1427,12 +1454,21 @@ function get_gcontact_id($contact) {
 	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
 		$contact["url"] = clean_contact_url($contact["url"]);
 
-	$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
+	$r = q("SELECT `id`, `last_contact`, `last_failure`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 		dbesc(normalise_link($contact["url"])));
 
-	if ($r)
+	if ($r) {
 		$gcontact_id = $r[0]["id"];
-	else {
+
+		// Update every 90 days
+		if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+			$last_failure_str = $r[0]["last_failure"];
+			$last_failure = strtotime($r[0]["last_failure"]);
+			$last_contact_str = $r[0]["last_contact"];
+			$last_contact = strtotime($r[0]["last_contact"]);
+			$doprobing = (((time() - $last_contact) > (90 * 86400)) AND ((time() - $last_failure) > (90 * 86400)));
+		}
+	} else {
 		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `generation`)
 			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
 			dbesc($contact["name"]),
@@ -1449,18 +1485,19 @@ function get_gcontact_id($contact) {
 			intval($contact["generation"])
 		);
 
-		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
+		$r = q("SELECT `id`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($contact["url"])));
 
 		if ($r) {
 			$gcontact_id = $r[0]["id"];
 
-			// Complete newly added contacts from "probable" accounts
-			if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_FEED))) {
-				logger("Probing ".$contact["url"], LOGGER_DEBUG);
-				proc_run('php', 'include/gprobe.php', bin2hex($contact["url"]));
-			}
+			$doprobing = in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""));
 		}
+	}
+
+	if ($doprobing) {
+		logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
+		proc_run('php', 'include/gprobe.php', bin2hex($contact["url"]));
 	}
 
 	if ((count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))

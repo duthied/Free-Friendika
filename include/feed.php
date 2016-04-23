@@ -47,7 +47,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	}
 
 	// Is it Atom?
-	if ($xpath->query('/atom:feed/atom:entry')->length > 0) {
+	if ($xpath->query('/atom:feed')->length > 0) {
 		$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
 		if (is_object($alternate))
 			foreach($alternate AS $attributes)
