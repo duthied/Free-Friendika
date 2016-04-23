@@ -1121,29 +1121,43 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			// Is it in format @user@domain.tld or @http://domain.tld/...?
 
 			// First check the contact table for the address
-			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact` WHERE `addr` = '%s' AND `uid` = %d LIMIT 1",
+			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact`
+				WHERE `addr` = '%s' AND `uid` = %d AND
+					(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
+				LIMIT 1",
 					dbesc($name),
-					intval($profile_uid)
+					intval($profile_uid),
+					dbesc(NETWORK_OSTATUS)
 			);
 
 			// Then check in the contact table for the url
 			if (!$r)
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `notify`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact`
+					WHERE `nurl` = '%s' AND `uid` = %d AND
+						(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
+					LIMIT 1",
 						dbesc(normalise_link($name)),
-						intval($profile_uid)
+						intval($profile_uid),
+						dbesc(NETWORK_OSTATUS)
 				);
 
 			// Then check in the global contacts for the address
 			if (!$r)
-				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `addr` = '%s' LIMIT 1", dbesc($name));
+				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
+					WHERE `addr` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
+					LIMIT 1",
+						dbesc($name),
+						dbesc(NETWORK_OSTATUS)
+				);
 
 			// Then check in the global contacts for the url
 			if (!$r)
-				$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1", dbesc(normalise_link($name)));
-
-			// If the data isn't complete then refetch the data
-			if ($r AND ($r[0]["network"] == NETWORK_OSTATUS) AND (($r[0]["notify"] == "") OR ($r[0]["alias"] == "")))
-				$r = false;
+				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
+					WHERE `nurl` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
+					LIMIT 1",
+						dbesc(normalise_link($name)),
+						dbesc(NETWORK_OSTATUS)
+				);
 
 			if (!$r) {
 				$probed = probe_url($name);
