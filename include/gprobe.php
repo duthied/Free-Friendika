@@ -39,7 +39,7 @@ function gprobe_run(&$argv, &$argc){
 
 	logger("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
 
-	if(! count($r)) {
+	if (!count($r)) {
 
 		// Is it a DDoS attempt?
 		$urlparts = parse_url($url);
@@ -65,9 +65,11 @@ function gprobe_run(&$argv, &$argc){
 			dbesc(normalise_link($url))
 		);
 	}
-	if(count($r))
-		if ($r[0]["network"] == NETWORK_DFRN)
+	if(count($r)) {
+		// Check for accessibility and do a poco discovery
+		if (poco_last_updated($r[0]['url'], true) AND ($r[0]["network"] == NETWORK_DFRN))
 			poco_load(0,0,$r[0]['id'], str_replace('/profile/','/poco/',$r[0]['url']));
+	}
 
 	logger("gprobe end for ".normalise_link($url), LOGGER_DEBUG);
 	return;
