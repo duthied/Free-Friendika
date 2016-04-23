@@ -125,6 +125,11 @@ function poller_max_connections_reached() {
 	// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
 	$max = get_config("system", "max_connections");
 
+	// Fetch the percentage level where the poller will get active
+	$maxlevel = get_config("system", "max_connections_level");
+	if ($maxlevel == 0)
+		$maxlevel = 75;
+
 	if ($max == 0) {
 		// the maximum number of possible user connections can be a system variable
 		$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
@@ -153,10 +158,10 @@ function poller_max_connections_reached() {
 
 		logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
 
-		$level = $used / $max;
+		$level = ($used / $max) * 100;
 
-		if ($level >= (3/4)) {
-			logger("Maximum level (3/4) of user connections reached: ".$used."/".$max);
+		if ($level >= $maxlevel) {
+			logger("Maximum level (".$maxlevel."%) of user connections reached: ".$used."/".$max);
 			return true;
 		}
 	}
@@ -181,12 +186,12 @@ function poller_max_connections_reached() {
 
 	logger("Connection usage (system values): ".$used."/".$max, LOGGER_DEBUG);
 
-	$level = $used / $max;
+	$level = $used / $max * 100;
 
-	if ($level < (3/4))
+	if ($level < $maxlevel)
 		return false;
 
-	logger("Maximum level (3/4) of system connections reached: ".$used."/".$max);
+	logger("Maximum level (".$level."%) of system connections reached: ".$used."/".$max);
 	return true;
 }
 
