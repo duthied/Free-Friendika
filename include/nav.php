@@ -118,15 +118,17 @@ function nav_info(&$a) {
 	if(count($a->apps)>0)
 		$nav['apps'] = array('apps', t('Apps'), "", t('Addon applications, utilities, games'));
 
-	$nav['search'] = array('search', t('Search'), "", t('Search site content'));
+	if (local_user()) {
+		$nav['search'] = array('search', t('Search'), "", t('Search site content'));
 
-	$nav['searchoption'] = array(
-					t("Full Text"),
-					t("Tags"),
-					t("Contacts"));
+		$nav['searchoption'] = array(
+						t("Full Text"),
+						t("Tags"),
+						t("Contacts"));
 
-	if (get_config('system','poco_local_search'))
-		$nav['searchoption'][] = t("Forums");
+		if (get_config('system','poco_local_search'))
+			$nav['searchoption'][] = t("Forums");
+	}
 
 	$gdirpath = 'directory';
 
@@ -140,7 +142,8 @@ function nav_info(&$a) {
 	elseif(get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		$nav['community'] = array('community', t('Community'), "", t('Conversations on the network'));
 
-	$nav['events'] = Array('events', t('Events'), "", t('Events and Calendar'));
+	if(local_user())
+		$nav['events'] = Array('events', t('Events'), "", t('Events and Calendar'));
 
 	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory'));
 
