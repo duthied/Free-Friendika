@@ -1512,7 +1512,9 @@ ul.dropdown-menu li:hover {
 #profile-page, .photos-content-wrapper, .settings-content-wrapper,
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
-.directory-content-wrapper {
+.directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
+.events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
+.notifications-content-wrapper, .admin-content-wrapper {
     padding: 15px;
     padding-bottom: 20px;
     margin-bottom: 20px;
