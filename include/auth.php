@@ -10,6 +10,30 @@ function nuke_session() {
 	session_unset();
 }
 
+// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
+if(isset($_COOKIE["Friendica"])) {
+	$data = json_decode($_COOKIE["Friendica"]);
+
+	if (isset($data->uid)) {
+		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
+		FROM `user` WHERE `uid` = %d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+			intval($data->uid)
+		);
+
+		if ($r) {
+			// Renew the cookie
+			new_cookie(604800, json_encode(array("uid" => $r[0]["uid"], "ip" => $_SERVER['REMOTE_ADDR'])));
+
+			// Do the authentification if not done by now
+			if(!isset($_SESSION) OR !isset($_SESSION['authenticated'])) {
+				authenticate_success($r[0], false, false, false);
+
+			if (get_config('system','paranoia'))
+				$_SESSION['addr'] = $data->ip;
+			}
+		}
+	}
+}
 
 // login/logout
 
@@ -121,7 +145,7 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		$record = null;
 
 		$addon_auth = array(
-			'username' => trim($_POST['username']), 
+			'username' => trim($_POST['username']),
 			'password' => trim($_POST['password']),
 			'authenticated' => 0,
 			'user_record' => null
@@ -155,30 +179,20 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 				$record = $r[0];
 		}
 
-		if((! $record) || (! count($record))) {
+		if (!$record || !count($record)) {
 			logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
 			notice( t('Login failed.') . EOL );
 			goaway(z_root());
   		}
 
-		// If the user specified to remember the authentication, then change the cookie
-		// to expire after one year (the default is when the browser is closed).
-		// If the user did not specify to remember, change the cookie to expire when the
-		// browser is closed. The reason this is necessary is because if the user
-		// specifies to remember, then logs out and logs back in without specifying to
-		// remember, the old "remember" cookie may remain and prevent the session from
-		// expiring when the browser is closed.
-		//
-		// It seems like I should be able to test for the old cookie, but for some reason when
-		// I read the lifetime value from session_get_cookie_params(), I always get '0'
-		// (i.e. expire when the browser is closed), even when there's a time expiration
-		// on the cookie
-		if($_POST['remember']) {
-			new_cookie(31449600); // one year
-		}
-		else {
+		// If the user specified to remember the authentication, then set a cookie
+		// that expires after one week (the default is when the browser is closed).
+		// The cookie will be renewed automatically.
+		// The week ensures that sessions will expire after some inactivity.
+		if($_POST['remember'])
+			new_cookie(604800, json_encode(array("uid" => $r[0]["uid"], "ip" => $_SERVER['REMOTE_ADDR'])));
+		else
 			new_cookie(0); // 0 means delete on browser exit
-		}
 
 		// if we haven't failed up this point, log them in.
 
@@ -187,12 +201,12 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 	}
 }
 
-function new_cookie($time) {
+function new_cookie($time, $value = "") {
 
 	if ($time != 0)
 		$time = $time + time();
 
-	$params = session_get_cookie_params();
-	setcookie(session_name(), session_id(), $time, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+	setcookie("Friendica", $value, $time);
+
 	return;
 }
