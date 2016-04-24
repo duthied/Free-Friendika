@@ -2378,6 +2378,11 @@ ul.tabs li .active, span.pager_current a {
 aside form {
   overflow-x: hidden;
 }
+aside form fieldset {
+  margin: 0px;
+  padding: 0px;
+  border: 0px none;
+}
 aside form .field label {
   float: left;
   width: 170px;
