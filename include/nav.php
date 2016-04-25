@@ -118,7 +118,7 @@ function nav_info(&$a) {
 	if(count($a->apps)>0)
 		$nav['apps'] = array('apps', t('Apps'), "", t('Addon applications, utilities, games'));
 
-	if (local_user()) {
+	if (local_user() OR !get_config('system','local_search')) {
 		$nav['search'] = array('search', t('Search'), "", t('Search site content'));
 
 		$nav['searchoption'] = array(
