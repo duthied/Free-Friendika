@@ -136,29 +136,25 @@ function get_attachment_data($body) {
 		$data["title"] = $title;
 
 	$image = "";
-	if ($type != "video") {
-		preg_match("/image='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "")
-			$image = $matches[1];
+	preg_match("/image='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$image = $matches[1];
 
-		preg_match('/image="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "")
-			$image = $matches[1];
-	}
+	preg_match('/image="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$image = $matches[1];
 
 	if ($image != "")
 		$data["image"] = $image;
 
 	$preview = "";
-	if ($type != "video") {
-		preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "")
-			$preview = $matches[1];
+	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$preview = $matches[1];
 
-		preg_match('/preview="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "")
-			$preview = $matches[1];
-	}
+	preg_match('/preview="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$preview = $matches[1];
 
 	if ($preview != "")
 		$data["preview"] = $preview;
