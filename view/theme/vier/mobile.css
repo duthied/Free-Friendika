@@ -63,9 +63,13 @@ nav ul {
   a.desktop-view { display: none; }
   a.mobile-view { display: initial; }
   #nav-apps-link { display: none; }
+
   .wall-item-container .wall-item-info { width: auto; }
   .contact-photo-wrapper { width: 55px; }
   .wwto { left: 0px; }
+
+  .type-link > a { width: 100%; overflow: hidden; display: block; }
+  .type-link > a > img { display: block; max-width: 100%!important; width: 100% !important; height: auto !important; }
 
 }
 
@@ -275,6 +279,3 @@ select:focus {
   background-image: none !important; background-color: transparent !important;
   width: 100% !important; height: 110px !important;
 }
-
-.type-link > a { height: 120px; width: 100%; overflow: hidden; display: block; }
-.type-link > a > img { display: block; max-width: 100%!important; width: 100% !important; height: auto !important; }
