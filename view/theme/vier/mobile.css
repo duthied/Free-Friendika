@@ -68,8 +68,29 @@ nav ul {
   .contact-photo-wrapper { width: 55px; }
   .wwto { left: 0px; }
 
-  .type-link > a { width: 100%; overflow: hidden; display: block; }
-  .type-link > a > img { display: block; max-width: 100%!important; width: 100% !important; height: auto !important; }
+  .type-link > a { heigh: 120px; width: 100%; overflow: hidden; display: block; }
+  .type-link > a > img { display: block; max-width: 100%!important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+
+    /** oembed **/
+  .embed_video {
+    float: none;
+    margin: 0px;
+    height: 120px;
+    width: 100%;
+    overflow: hidden;
+    display: block;
+  }
+  .embed_video > img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    object-fit: cover !important;
+  }
+  .embed_video > div {
+    background-image: none !important; background-color: transparent !important;
+    width: 100% !important; height: 110px !important;
+  }
 
 }
 
@@ -260,22 +281,4 @@ select:focus {
 .event-start, .event-end { width: auto; }
 .event-start .dtstart, .event-end .dtend { float: none; display: block; }
 
-/** oembed **/
-.embed_video {
-  float: none;
-  margin: 0px;
-  height: 120px;
-  width: 100%;
-  overflow: hidden;
-  display: block;
-}
-.embed_video > img {
-  display: block;
-  width: 100% !important;
-  height: auto !important;
-  max-width: 100% !important;
-}
-.embed_video > div {
-  background-image: none !important; background-color: transparent !important;
-  width: 100% !important; height: 110px !important;
-}
+
