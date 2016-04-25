@@ -63,6 +63,10 @@ nav ul {
   a.desktop-view { display: none; }
   a.mobile-view { display: initial; }
   #nav-apps-link { display: none; }
+  .wall-item-container .wall-item-info { width: auto; }
+  .contact-photo-wrapper { width: 55px; }
+  .wwto { left: 0px; }
+
 }
 
 @media screen and (max-width: 480px) {
@@ -104,10 +108,6 @@ nav ul {
 .wall-item-container.thread_level_7 .wall-item-content {
   max-width: 100%;
 }
-
-.wall-item-container .wall-item-info { width: auto; }
-.contact-photo-wrapper { width: 55px; }
-.wwto { left: 0px; }
 
 /* aside in/out */
 .mobile-aside-toggle {
