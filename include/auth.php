@@ -18,8 +18,14 @@ if(isset($_COOKIE["Friendica"])) {
 		);
 
 		if ($r) {
+			if ($data->hash != cookie_hash($r[0])) {
+				logger("Hash for user ".$data->uid." doesn't fit.");
+				nuke_session();
+				goaway(z_root());
+			}
+
 			// Renew the cookie
-			new_cookie(604800, json_encode(array("uid" => $r[0]["uid"], "ip" => $_SERVER['REMOTE_ADDR'])));
+			new_cookie(604800, $r[0]);
 
 			// Do the authentification if not done by now
 			if(!isset($_SESSION) OR !isset($_SESSION['authenticated'])) {
@@ -184,7 +190,7 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		// The cookie will be renewed automatically.
 		// The week ensures that sessions will expire after some inactivity.
 		if($_POST['remember'])
-			new_cookie(604800, json_encode(array("uid" => $r[0]["uid"], "ip" => $_SERVER['REMOTE_ADDR'])));
+			new_cookie(604800, $r[0]);
 		else
 			new_cookie(0); // 0 means delete on browser exit
 
@@ -195,10 +201,23 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 	}
 }
 
-function new_cookie($time, $value = "") {
+function cookie_hash($user) {
+	return(hash("sha256", get_config("system", "site_prvkey").
+				$user["uprvkey"].
+				$user["password"]));
+}
+
+function new_cookie($time, $user = array()) {
 
 	if ($time != 0)
 		$time = $time + time();
+
+	if ($user)
+		$value = json_encode(array("uid" => $user["uid"],
+					"hash" => cookie_hash($user),
+					"ip" => $_SERVER['REMOTE_ADDR']));
+	else
+		$value = "";
 
 	setcookie("Friendica", $value, $time, "/", "",
 		(get_config('system', 'ssl_policy') == SSL_POLICY_FULL), true);
