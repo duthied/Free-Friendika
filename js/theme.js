@@ -40,6 +40,7 @@ $(document).ready(function(){
 	}
 
 	// give select fields an boostrap classes
+	// @todo: this needs to be changed in friendica core
 	$(".field.select, .field.custom").addClass("form-group");
 	$(".field.select > select, .field.custom > select").addClass("form-control");
 
