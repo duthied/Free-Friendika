@@ -505,10 +505,11 @@ function item_post(&$a) {
 		}
 	}
 
-	// embedded bookmark in post? set bookmark flag
+	// embedded bookmark or attachment in post? set bookmark flag
 
 	$bookmark = 0;
-	if(preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$body,$match,PREG_SET_ORDER)) {
+	$data = get_attachment_data($body);
+        if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) OR isset($data["type"])) {
 		$objecttype = ACTIVITY_OBJ_BOOKMARK;
 		$bookmark = 1;
 	}

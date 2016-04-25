@@ -38,6 +38,11 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	if (!$data)
 		return $Text;
 
+	if (isset($data["title"])) {
+		$data["title"] = strip_tags($data["title"]);
+		$data["title"] = str_replace(array("http://", "https://"), "", $data["title"]);
+	}
+
 	if (((strpos($data["text"], "[img=") !== false) OR (strpos($data["text"], "[img]") !== false)) AND ($data["image"] != "")) {
 		$data["preview"] = $data["image"];
 		$data["image"] = "";

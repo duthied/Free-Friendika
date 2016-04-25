@@ -1988,7 +1988,7 @@ class dfrn {
 
 		$item["extid"] = $xpath->query("dfrn:extid/text()", $entry)->item(0)->nodeValue;
 
-		if ($xpath->query("dfrn:extid/text()", $entry)->item(0)->nodeValue == "true")
+		if ($xpath->query("dfrn:bookmark/text()", $entry)->item(0)->nodeValue == "true")
 			$item["bookmark"] = true;
 
 		$notice_info = $xpath->query("statusnet:notice_info", $entry);
