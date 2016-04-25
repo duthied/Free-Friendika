@@ -4,8 +4,9 @@ require_once('include/datetime.php');
 
 function nuke_session() {
 
-	new_cookie(0); // make sure cookie is deleted on browser close, as a security measure
+	new_cookie(-3600); // make sure cookie is deleted on browser close, as a security measure
 	session_unset();
+	session_destroy();
 }
 
 // When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
