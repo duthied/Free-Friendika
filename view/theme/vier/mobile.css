@@ -68,7 +68,7 @@ nav ul {
   .contact-photo-wrapper { width: 55px; }
   .wwto { left: 0px; }
 
-  .type-link > a { heigh: 120px; width: 100%; overflow: hidden; display: block; }
+  .type-link > a { height: 120px; width: 100%; overflow: hidden; display: block; }
   .type-link > a > img { display: block; max-width: 100%!important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
 
     /** oembed **/
