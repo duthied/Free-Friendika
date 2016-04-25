@@ -1103,10 +1103,8 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 						normalise_link($matches[1]));
 				if ($r)
 					$data = $r[0];
-				else {
+				else
 					$data = probe_url($matches[1]);
-					logger("probe_url ".$matches[1]);
-				}
 
 				if ($data["alias"] != "") {
 					$newtag = '@[url='.$data["alias"].']'.$data["name"].'[/url]';
