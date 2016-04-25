@@ -1170,6 +1170,7 @@ section #jotOpen {
 }
 .wall-item-content img {
     max-height: 480px;
+    object-fit: contain;
 }
 .shared-content-wrapper,
 .vevent {
