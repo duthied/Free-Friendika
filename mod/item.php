@@ -1095,7 +1095,17 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 			// Checking for the alias that is used for OStatus
 			$pattern = "/@\[url\=(.*?)\](.*?)\[\/url\]/ism";
 			if (preg_match($pattern, $tag, $matches)) {
-				$data = probe_url($matches[1]);
+
+				$r = q("SELECT `alias`, `name` FROM `contact` WHERE `nurl` = '%s' AND `alias` != '' AND `uid` = 0",
+					normalise_link($matches[1]));
+				if (!$r)
+					$r = q("SELECT `alias`, `name` FROM `gcontact` WHERE `nurl` = '%s' AND `alias` != ''",
+						normalise_link($matches[1]));
+				if ($r)
+					$data = $r[0];
+				else
+					$data = probe_url($matches[1]);
+
 				if ($data["alias"] != "") {
 					$newtag = '@[url='.$data["alias"].']'.$data["name"].'[/url]';
 					if(!stristr($str_tags,$newtag)) {
