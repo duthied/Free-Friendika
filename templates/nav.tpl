@@ -17,10 +17,10 @@
 	<div class="container">
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
 			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="topbar-nav">
+			<div class="topbar-nav" role=”navigation”>
 
 				{{* Buttons for the mobile view *}}
-				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu">
+				<button role="menu" type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu">
 					<span class="sr-only">Toggle navigation</span>
 					<i class="fa fa-ellipsis-v"></i>
 				</button>
@@ -34,40 +34,40 @@
 				</button>
 
 				{{* Left section of the NavBar with navigation shortcuts/icons *}}
-				<ul class="nav navbar-nav navbar-left">
-					<li id="nav-communication" class="nav-segment">
+				<ul class="nav navbar-nav navbar-left" role="menubar">
+					<li id="nav-communication" class="nav-segment" role="presentation">
 						{{if $nav.network}}
-						<a class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
+						<a role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.home}}
-						<a class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
+						<a role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.community}}
-						<a class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye"></i></a>
+						<a role="menuitem" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye"></i></a>
 						{{/if}}
 					</li>
 
-					<li id="nav-personal" class="nav-segment hidden-xs">
+					<li id="nav-personal" class="nav-segment hidden-xs" role="presentation">
 						{{if $nav.messages}}
-						<a id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
+						<a role="menuitem" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.events}}
-						<a id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						<a role="menuitem" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
 						{{/if}}
 
 						{{if $nav.contacts}}
-							<a id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
-							<span id="intro-update" class="nav-intro-badge badge nav-notify" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" title="{{$nav.introductions.3}}"></span>
+						<a role="menuitem" id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg"></i></a>
+						<span id="intro-update" class="nav-intro-badge badge nav-notify" href="#" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" title="{{$nav.introductions.3}}"></span>
 						{{/if}}
 					</li>
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
-						<li id="nav-notification" class="nav-segment hidden-xs">
-							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<li id="nav-notification" class="nav-segment hidden-xs" role="presentation">
+							<a role="menuitem" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-exclamation-circle fa-lg"></i>
 								<span class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
@@ -115,7 +115,7 @@
 
 					{{* The user dropdown menu *}}
 					{{if $nav.userinfo}}
-					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
+					<li role="menu" id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
 						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
@@ -128,24 +128,24 @@
 						</a>
 
 						{{* The list of available usermenu links *}}
-						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="menu" aria-labelledby="main-menu">
+						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="group" aria-labelledby="main-menu">
 							{{if $nav.remote}}{{if $nav.sitename}}
 							<li id="nav-sitename" role="menuitem">{{$nav.sitename}}</li>
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{/if}}{{/if}}
 							{{foreach $nav.usermenu as $usermenu}}
 							<li role="menuitem"><a class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							<li role="menuitem"><a href="https://github.com/rabuzarus/frio" target="new" title="frio on GitHub"><i class="fa fa-github"></i> frio on GitHub</a></li>
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{if $nav.notifications}}
 							<li role="menuitem"><a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a></li>
 							{{/if}}
 							{{if $nav.messages}}
 							<li role="menuitem"><a class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
 							{{/if}}
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{if $nav.contacts}}
 							<li role="menuitem"><a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notify"></span></li>
 							{{/if}}
@@ -153,10 +153,10 @@
 							<li role="menuitem"><a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a></li>
 							{{/if}}
 							<li role="menuitem"><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}"><i class="fa fa-sitemap fa-fw"></i>{{$nav.directory.1}}</a></li>
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{if $nav.apps}}
 							<li role="menuitem"><a id="nav-apps-link" class="nav-link {{$nav.apps.2}} {{$sel.manage}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw"></i> {{$nav.apps.1}}</a>
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{/if}}
 							{{if $nav.help}}
 							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.3}}</a></li>
@@ -167,7 +167,7 @@
 							{{if $nav.admin}}
 							<li role="menuitem"><a id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a></li>
 							{{/if}}
-							<li class="divider"></li>
+							<li role="seperator" class="divider"></li>
 							{{if $nav.logout}}
 							<li role="menuitem"><a id="nav-logout-link" class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a></li>
 							{{else}}
@@ -188,34 +188,34 @@
 				<div class="nav-container">
 					<div class="list-group">
 						{{if $nav.remote}}{{if $nav.sitename}}
-						<li class="nav-sitename list-group-item" role="menuitem">{{$nav.sitename}}</li>
+						<li role="menuitem" class="nav-sitename list-group-item" role="menuitem">{{$nav.sitename}}</li>
 						{{/if}}{{/if}}
-						<li class="list-group-item"><img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}</li>
+						<li role="menuitem" class="list-group-item"><img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"> {{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}</li>
 						{{foreach $nav.usermenu as $usermenu}}
-						<a class="{{$usermenu.2}} list-group-item" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a>
+						<a role="menuitem" class="{{$usermenu.2}} list-group-item" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a>
 						{{/foreach}}
 						{{if $nav.notifications}}
-						<a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}" class="list-group-item"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a>
+						<a role="menuitem" href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}" class="list-group-item"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a>
 						{{/if}}
 						{{if $nav.contacts}}
-						<a class="nav-link {{$nav.contacts.2}} list-group-item" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a>
+						<a role="menuitem" class="nav-link {{$nav.contacts.2}} list-group-item" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a>
 						{{/if}}
 						{{if $nav.messages}}
-						<a class="nav-link {{$nav.messages.2}} {{$sel.messages}} list-group-item" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}}</a>
+						<a role="menuitem" class="nav-link {{$nav.messages.2}} {{$sel.messages}} list-group-item" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}}</a>
 						{{/if}}
 						{{if $nav.manage}}
-						<a class="nav-commlink {{$nav.manage.2}} {{$sel.manage}} list-group-item" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a>
+						<a role="menuitem" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}} list-group-item" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a>
 						{{/if}}
 						{{if $nav.settings}}
-						<a class="nav-link {{$nav.settings.2}} list-group-item" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw"></i> {{$nav.settings.1}}</a>
+						<a role="menuitem" class="nav-link {{$nav.settings.2}} list-group-item" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw"></i> {{$nav.settings.1}}</a>
 						{{/if}}
 						{{if $nav.admin}}
-						<a class="nav-link {{$nav.admin.2}} list-group-item" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a>
+						<a role="menuitem" class="nav-link {{$nav.admin.2}} list-group-item" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a>
 						{{/if}}
 						{{if $nav.logout}}
-						<a class="nav-link {{$nav.logout.2}} list-group-item" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a>
+						<a role="menuitem" class="nav-link {{$nav.logout.2}} list-group-item" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a>
 						{{else}}
-						<a class="nav-login-link {{$nav.login.2}} list-group-item" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a>
+						<a role="menuitem" class="nav-login-link {{$nav.login.2}} list-group-item" href="{{$nav.login.0}}" title="{{$nav.login.3}}" ><i class="fa fa-power-off fa-fw"></i> {{$nav.login.1}}</a>
 						{{/if}}
 					</div>
 				</div>
