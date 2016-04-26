@@ -83,52 +83,52 @@ as the value of $top_child_total (this is done at the end of this file)
 
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
 					{{if $item.plink}}	{{*link to the original source of the item *}}
-					<li role="prensentation">
-						<a role="menuitem" tabindex="-1" title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
+					<li role="menuitem">
+						<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
 					</li>
 					{{/if}}
 
 					{{if $item.edpost}} {{* edit the posting *}}
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
+					<li role="menuitem">
+						<a href="#" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 					</li>
 					{{/if}}
 
 					{{if $item.tagger}} {{* tag the post *}}
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</a>
+					<li role="menuitem">
+						<a href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</a>
 					</li>
 					{{/if}}
 
 					{{if $item.filer}}
-					<li role="presentation">
-						<a role="menuitem" href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
+					<li role="menuitem">
+						<a href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
 					</li>
 					{{/if}}
 
 					{{if $item.star}}
-					<li role="presentation">
-						<a role="menuitem" href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</a>
-						<a role="menuitem" href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</a>
+					<li role="menuitem">
+						<a href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</a>
+						<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</a>
 					</li>
 					{{/if}}
 
 					{{if $item.ignore || $item.drop.dropping}}
-					<li role="presentation" class="divider"></li>
+					<li role="separator" class="divider"></li>
 					{{/if}}
 
 					{{if $item.ignore}}
-						<li role="presentation">
-							<a role="menuitem" tabindex="-1" href="#" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash"></i> {{$item.ignore.do}}</a>
+						<li role="menuitem">
+							<a href="#" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash"></i> {{$item.ignore.do}}</a>
 						</li>
-						<li role="presentation">
-							<a role="menuitem" tabindex="-1" href="#" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;"  class="{{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye"></i> {{$item.ignore.undo}}</a>
+						<li role="menuitem">
+							<a href="#" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;"  class="{{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye"></i> {{$item.ignore.undo}}</a>
 						</li>
 					{{/if}}
 
 					{{if $item.drop.dropping}}
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
+					<li role="menuitem">
+						<a href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
 					</li>
 					{{/if}}
 				</ul>
