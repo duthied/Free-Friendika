@@ -1,58 +1,79 @@
 <?php
-
-
 require_once('include/security.php');
 require_once('include/datetime.php');
 
-function nuke_session() {
+// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
+if (isset($_COOKIE["Friendica"])) {
+	$data = json_decode($_COOKIE["Friendica"]);
+	if (isset($data->uid)) {
+		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
+		FROM `user` WHERE `uid` = %d AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
+			intval($data->uid)
+		);
 
-	new_cookie(0); // make sure cookie is deleted on browser close, as a security measure
-	session_unset();
+		if ($r) {
+			if ($data->hash != cookie_hash($r[0])) {
+				logger("Hash for user ".$data->uid." doesn't fit.");
+				nuke_session();
+				goaway(z_root());
+			}
+
+			// Renew the cookie
+			new_cookie(604800, $r[0]);
+
+			// Do the authentification if not done by now
+			if (!isset($_SESSION) OR !isset($_SESSION['authenticated'])) {
+				authenticate_success($r[0]);
+
+				if (get_config('system','paranoia'))
+					$_SESSION['addr'] = $data->ip;
+			}
+		}
+	}
 }
 
 
 // login/logout
 
-if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-params'))) || ($_POST['auth-params'] !== 'login'))) {
+if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params') || ($_POST['auth-params'] !== 'login'))) {
 
-	if(((x($_POST,'auth-params')) && ($_POST['auth-params'] === 'logout')) || ($a->module === 'logout')) {
+	if ((x($_POST,'auth-params') && ($_POST['auth-params'] === 'logout')) || ($a->module === 'logout')) {
 
 		// process logout request
 		call_hooks("logging_out");
 		nuke_session();
-		new_cookie(-1);
-		info( t('Logged out.') . EOL);
+		info(t('Logged out.').EOL);
 		goaway(z_root());
 	}
 
-	if(x($_SESSION,'visitor_id') && (! x($_SESSION,'uid'))) {
+	if (x($_SESSION,'visitor_id') && !x($_SESSION,'uid')) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($_SESSION['visitor_id'])
 		);
-		if(count($r)) {
+		if (count($r)) {
 			$a->contact = $r[0];
 		}
 	}
 
-	if(x($_SESSION,'uid')) {
+	if (x($_SESSION,'uid')) {
 
 		// already logged in user returning
 
 		$check = get_config('system','paranoia');
 		// extra paranoia - if the IP changed, log them out
-		if($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
-			logger('Session address changed. Paranoid setting in effect, blocking session. '
-				. $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
+		if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
+			logger('Session address changed. Paranoid setting in effect, blocking session. '.
+				$_SESSION['addr'].' != '.$_SERVER['REMOTE_ADDR']);
 			nuke_session();
 			goaway(z_root());
 		}
 
 		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-		FROM `user` WHERE `uid` = %d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+		FROM `user` WHERE `uid` = %d AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
 			intval($_SESSION['uid'])
 		);
 
-		if(! count($r)) {
+		if (!count($r)) {
 			nuke_session();
 			goaway(z_root());
 		}
@@ -60,10 +81,10 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 		// Make sure to refresh the last login time for the user if the user
 		// stays logged in for a long time, e.g. with "Remember Me"
 		$login_refresh = false;
-		if(! x($_SESSION['last_login_date'])) {
+		if (!x($_SESSION['last_login_date'])) {
 			$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
 		}
-		if( strcmp(datetime_convert('UTC','UTC','now - 12 hours'), $_SESSION['last_login_date']) > 0 ) {
+		if (strcmp(datetime_convert('UTC','UTC','now - 12 hours'), $_SESSION['last_login_date']) > 0) {
 
 			$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
 			$login_refresh = true;
@@ -72,19 +93,17 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 	}
 } else {
 
-	if(isset($_SESSION)) {
-		nuke_session();
-	}
+	session_unset();
 
-	if((x($_POST,'password')) && strlen($_POST['password']))
+	if (x($_POST,'password') && strlen($_POST['password']))
 		$encrypted = hash('whirlpool',trim($_POST['password']));
 	else {
-		if((x($_POST,'openid_url')) && strlen($_POST['openid_url']) ||
+		if ((x($_POST,'openid_url')) && strlen($_POST['openid_url']) ||
 		   (x($_POST,'username')) && strlen($_POST['username'])) {
 
 			$noid = get_config('system','no_openid');
 
-			$openid_url = trim((strlen($_POST['openid_url'])?$_POST['openid_url']:$_POST['username']) );
+			$openid_url = trim((strlen($_POST['openid_url'])?$_POST['openid_url']:$_POST['username']));
 
 			// validate_url alters the calling parameter
 
@@ -92,36 +111,36 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 
 			// if it's an email address or doesn't resolve to a URL, fail.
 
-			if(($noid) || (strpos($temp_string,'@')) || (! validate_url($temp_string))) {
+			if ($noid || strpos($temp_string,'@') || !validate_url($temp_string)) {
 				$a = get_app();
-				notice( t('Login failed.') . EOL);
+				notice(t('Login failed.').EOL);
 				goaway(z_root());
 				// NOTREACHED
 			}
 
 			// Otherwise it's probably an openid.
 
-                        try {
-			require_once('library/openid.php');
-			$openid = new LightOpenID;
-			$openid->identity = $openid_url;
-			$_SESSION['openid'] = $openid_url;
-			$a = get_app();
-			$openid->returnUrl = $a->get_baseurl(true) . '/openid';
-                        goaway($openid->authUrl());
-                        } catch (Exception $e) {
-                            notice( t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.').'<br /><br >'. t('The error message was:').' '.$e->getMessage());
-                        }
+			try {
+				require_once('library/openid.php');
+				$openid = new LightOpenID;
+				$openid->identity = $openid_url;
+				$_SESSION['openid'] = $openid_url;
+				$a = get_app();
+				$openid->returnUrl = $a->get_baseurl(true).'/openid';
+				goaway($openid->authUrl());
+			} catch (Exception $e) {
+				notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.').'<br /><br >'.t('The error message was:').' '.$e->getMessage());
+			}
 			// NOTREACHED
 		}
 	}
 
-	if((x($_POST,'auth-params')) && $_POST['auth-params'] === 'login') {
+	if (x($_POST,'auth-params') && $_POST['auth-params'] === 'login') {
 
 		$record = null;
 
 		$addon_auth = array(
-			'username' => trim($_POST['username']), 
+			'username' => trim($_POST['username']),
 			'password' => trim($_POST['password']),
 			'authenticated' => 0,
 			'user_record' => null
@@ -137,48 +156,37 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 
 		call_hooks('authenticate', $addon_auth);
 
-		if(($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+		if ($addon_auth['authenticated'] && count($addon_auth['user_record']))
 			$record = $addon_auth['user_record'];
-		}
 		else {
 
 			// process normal login request
 
 			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-				FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
-				AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+				FROM `user` WHERE (`email` = '%s' OR `nickname` = '%s')
+				AND `password` = '%s' AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
 				dbesc(trim($_POST['username'])),
 				dbesc(trim($_POST['username'])),
 				dbesc($encrypted)
 			);
-			if(count($r))
+			if (count($r))
 				$record = $r[0];
 		}
 
-		if((! $record) || (! count($record))) {
-			logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
-			notice( t('Login failed.') . EOL );
+		if (!$record || !count($record)) {
+			logger('authenticate: failed login attempt: '.notags(trim($_POST['username'])).' from IP '.$_SERVER['REMOTE_ADDR']);
+			notice(t('Login failed.').EOL);
 			goaway(z_root());
-  		}
+		}
 
-		// If the user specified to remember the authentication, then change the cookie
-		// to expire after one year (the default is when the browser is closed).
-		// If the user did not specify to remember, change the cookie to expire when the
-		// browser is closed. The reason this is necessary is because if the user
-		// specifies to remember, then logs out and logs back in without specifying to
-		// remember, the old "remember" cookie may remain and prevent the session from
-		// expiring when the browser is closed.
-		//
-		// It seems like I should be able to test for the old cookie, but for some reason when
-		// I read the lifetime value from session_get_cookie_params(), I always get '0'
-		// (i.e. expire when the browser is closed), even when there's a time expiration
-		// on the cookie
-		if($_POST['remember']) {
-			new_cookie(31449600); // one year
-		}
-		else {
+		// If the user specified to remember the authentication, then set a cookie
+		// that expires after one week (the default is when the browser is closed).
+		// The cookie will be renewed automatically.
+		// The week ensures that sessions will expire after some inactivity.
+		if ($_POST['remember'])
+			new_cookie(604800, $r[0]);
+		else
 			new_cookie(0); // 0 means delete on browser exit
-		}
 
 		// if we haven't failed up this point, log them in.
 
@@ -187,12 +195,48 @@ if((isset($_SESSION)) && (x($_SESSION,'authenticated')) && ((! (x($_POST,'auth-p
 	}
 }
 
-function new_cookie($time) {
+/**
+ * @brief Kills the "Friendica" cookie and all session data
+ */
+function nuke_session() {
+
+	new_cookie(-3600); // make sure cookie is deleted on browser close, as a security measure
+	session_unset();
+	session_destroy();
+}
+
+/**
+ * @brief Calculate the hash that is needed for the "Friendica" cookie
+ *
+ * @param array $user Record from "user" table
+ *
+ * @return string Hashed data
+ */
+function cookie_hash($user) {
+	return(hash("sha256", get_config("system", "site_prvkey").
+				$user["uprvkey"].
+				$user["password"]));
+}
+
+/**
+ * @brief Set the "Friendica" cookie
+ *
+ * @param int $time
+ * @param array $user Record from "user" table
+ */
+function new_cookie($time, $user = array()) {
 
 	if ($time != 0)
 		$time = $time + time();
 
-	$params = session_get_cookie_params();
-	setcookie(session_name(), session_id(), $time, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
-	return;
+	if ($user)
+		$value = json_encode(array("uid" => $user["uid"],
+					"hash" => cookie_hash($user),
+					"ip" => $_SERVER['REMOTE_ADDR']));
+	else
+		$value = "";
+
+	setcookie("Friendica", $value, $time, "/", "",
+		(get_config('system', 'ssl_policy') == SSL_POLICY_FULL), true);
+
 }

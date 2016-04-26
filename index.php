@@ -147,7 +147,7 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
 
-if((x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login'))
+if(x($_COOKIE["Friendica"]) || (x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login'))
 	require("include/auth.php");
 
 if(! x($_SESSION,'authenticated'))
