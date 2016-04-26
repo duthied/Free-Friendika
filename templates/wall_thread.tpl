@@ -77,21 +77,44 @@ as the value of $top_child_total (this is done at the end of this file)
 		<ul class="nav nav-pills preferences">
 			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
 
-			{{if $item.drop.dropping || $item.edpost || $item.ignore || $item.tagger || $item.star || $item.filer}}
+			{{if $item.plink || $item.drop.dropping || $item.edpost || $item.ignore || $item.tagger || $item.star || $item.filer}}
 			<li class="dropdown">
 				<a class="dropdown-toggle" data-toggle="dropdown"  href="#" id="dropdownMenuTools-{{$item.id}}" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down"></i></a>
 
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
-					{{if $item.drop.dropping}}
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
+					{{if $item.plink}}	{{*link to the original source of the item *}}
+					<li role="prensentation">
+						<a role="menuitem" tabindex="-1" title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
 					</li>
 					{{/if}}
 
-					{{if $item.edpost}}
+					{{if $item.edpost}} {{* edit the posting *}}
 					<li role="presentation">
 						<a role="menuitem" tabindex="-1" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 					</li>
+					{{/if}}
+
+					{{if $item.tagger}} {{* tag the post *}}
+					<li role="presentation">
+						<a role="menuitem" tabindex="-1" href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.filer}}
+					<li role="presentation">
+						<a role="menuitem" href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.star}}
+					<li role="presentation">
+						<a role="menuitem" href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</a>
+						<a role="menuitem" href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.ignore || $item.drop.dropping}}
+					<li role="presentation" class="divider"></li>
 					{{/if}}
 
 					{{if $item.ignore}}
@@ -103,22 +126,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						</li>
 					{{/if}}
 
-					{{if $item.tagger}}
+					{{if $item.drop.dropping}}
 					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</a>
-					</li>
-					{{/if}}
-
-					{{if $item.star}}
-					<li role="presentation">
-						<a role="menuitem" href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</a>
-						<a role="menuitem" href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="{{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</a>
-					</li>
-					{{/if}}
-
-					{{if $item.filer}}
-					<li role="presentation">
-						<a role="menuitem" href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
+						<a role="menuitem" tabindex="-1" href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
 					</li>
 					{{/if}}
 				</ul>
@@ -170,7 +180,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			</div>
 			{{/if}}
 
-			{{/if}}
+			{{/if}} {{*End if $item.thread_level==1}}
 
 			{{* The avatar picture for comments *}}
 			{{if $item.thread_level!=1}}
@@ -197,43 +207,46 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header*}}
 		{{if $item.thread_level==1}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-			<h4 class="media-heading"><a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
+			<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
 			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
-			{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}">&nbsp<small><i class="fa fa-lock"></i></small></span>{{/if}}
+			{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">&nbsp<small><i class="fa fa-lock"></i></small></span>{{/if}}
 			</4>
 
+			<div class="additional-info text-muted">
+				<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
+					<small><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></small>
+				</div>
 
-			{{if $item.plink}}
-			<span class="additional-info">
-				<a title="{{$item.plink.orig_title}}" href="{{$item.plink.orig}}"><span class="sr-only">{{$item.plink.orig_title}}</span>
-					<p class="text-muted">
-						<small><span class="time wall-item-ago">{{$item.ago}}</span>
-							{{if $item.location}}&nbsp;&mdash;&nbsp;(<i>{{$item.location}}</i>){{/if}}
-						</small>
-					</p>
-				</a>
-			</span>
+				{{if $item.location}}
+				<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
+					<small><span class="location">({{$item.location}})</span></small>
+				</div>
+				{{/if}}
+			</div>
 			{{* @todo $item.created have to be inserted *}}
-			{{/if}}
 		</div>
 
-		{{* @todo work for mobile have to be done *}}
+		{{* contact info header for smartphones *}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
-			<h5 class="media-heading"><a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><strong>{{$item.name}}</strong></a>
-			{{if $item.plink}}
-			<a title="{{$item.plink.title}}" href="{{$item.plink.href}}"><p class="text-muted"><small>{{$item.ago}} {{if $item.location}}&nbsp;&mdash;&nbsp;(<i>{{$item.location}}</i>){{/if}}</small></p></a>
-			{{/if}}</h5>
+			<h5 class="media-heading">
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><strong>{{$item.name}}</strong></a>
+				<p class="text-muted">
+					<small><span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+				</p>
+			</h5>
 		</div>
-		{{/if}}
+		{{/if}} {{* End of if $item.thread_level==1 *}}
 
 		{{* contact info header for comments *}}
 		{{if $item.thread_level!=1}}
-		<div class="media-body"><!--media-body from for comments-->{{*this div must be closed at the end of the file *}}
-		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs"><!-- <= For comments -->
-			<h5 class="media-heading"><a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><strong class="btn-link">{{$item.name}}</strong></a>
-			{{if $item.plink}}
-			<a title="{{$item.plink.title}}" href="{{$item.plink.href}}"><span class="text-muted"><small>{{$item.ago}} {{if $item.location}}&nbsp;&mdash;&nbsp;(<i>{{$item.location}}</i>){{/if}}</small></span></a>
-			{{/if}}</h5>
+		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
+		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs">
+			<h5 class="media-heading">
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><strong class="btn-link">{{$item.name}}</strong></a>
+				<span class="text-muted">
+					<small><span title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+				</span>
+			</h5>
 		</div>
 		{{/if}}
 

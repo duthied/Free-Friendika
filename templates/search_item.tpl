@@ -17,21 +17,21 @@
 					<a class="dropdown-toggle" data-toggle="dropdown"  href="#" id="dropdownMenuTools-{{$item.id}}" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down"></i></a>
 
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
-						{{if $item.drop.dropping}}
-						<li role="presentation">
-							<a role="menuitem" tabindex="-1" href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
-						</li>
-						{{/if}}
-
-						{{if $item.edpost}}
+						{{if $item.edpost}} {{* edit the posting *}}
 						<li role="presentation">
 							<a role="menuitem" tabindex="-1" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 						</li>
 						{{/if}}
 
-						{{if $item.tagger}}
+						{{if $item.tagger}} {{* tag the post *}}
 						<li role="presentation">
 							<a role="menuitem" tabindex="-1" href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</a>
+						</li>
+						{{/if}}
+
+						{{if $item.filer}}
+						<li role="presentation">
+							<a role="menuitem" href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
 						</li>
 						{{/if}}
 
@@ -42,9 +42,10 @@
 						</li>
 						{{/if}}
 
-						{{if $item.filer}}
+						{{if $item.drop.dropping}}
+						<li class="divider"></li>
 						<li role="presentation">
-							<a role="menuitem" href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</a>
+							<a role="menuitem" tabindex="-1" href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
 						</li>
 						{{/if}}
 					</ul>
@@ -89,28 +90,33 @@
 
 			{{* contact info header*}}
 			<div role="heading " class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-				<h4 class="media-heading"><a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
-				{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
-				{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}">&nbsp<small><i class="fa fa-lock"></i></small></span>{{/if}}
+				<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
+					{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
+					{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}">&nbsp<small><i class="fa fa-lock"></i></small></span>{{/if}}
 
-				{{if $item.plink}}
-				<a title="{{$item.plink.orig_title}}" href="{{$item.plink.orig}}"><span class="sr-only">{{$item.plink.orig_title}}</span>
-					<p class="text-muted">
-						<small><span class="time wall-item-ago">{{$item.ago}}</span>
-							{{if $item.location}}&nbsp;&mdash;&nbsp;(<i>{{$item.location}}</i>){{/if}}
-						</small>
-					</p>
-				</a>
+					<div class="additional-info text-muted">
+						<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
+							<small><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></small>
+						</div>
+
+						{{if $item.location}}
+						<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
+							<small><span class="location">({{$item.location}})</span></small>
+						</div>
+						{{/if}}
+					</div>
 				{{* @todo $item.created have to be inserted *}}
-				{{/if}}</h4>
+				</h4>
 			</div>
 
-			{{* @todo work for mobile have to be done *}}
-			<div role="heading " class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
-				<h5 class="media-heading"><a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><strong>{{$item.name}}</strong></a>
-				{{if $item.plink}}
-				<a title="{{$item.plink.title}}" href="{{$item.plink.href}}"><p class="text-muted"><small>{{$item.ago}} {{if $item.location}}&nbsp;&mdash;&nbsp;(<i>{{$item.location}}</i>){{/if}}</small></p></a>
-				{{/if}}</h5>
+			{{* contact info header for smartphones *}}
+			<div role="heading " class="contact-info-xs hidden-lg hidden-md">
+				<h5 class="media-heading">
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><strong>{{$item.name}}</strong></a>
+					<p class="text-muted"><small>
+						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+					</p>
+				</h5>
 			</div>
 
 			<div class="clearfix"></div>

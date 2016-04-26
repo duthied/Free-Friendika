@@ -1038,7 +1038,8 @@ section #jotOpen {
 .toplevel_item:hover .wall-item-content a,
 .toplevel_item:hover .wall-item-name,
 .wall-item-container:hover .wall-item-content a,
-.wall-item-container:hover .wall-item-name {
+.wall-item-container:hover .wall-item-name,
+.wall-item-container:hover .wall-item-location a {
     /*color: #6fdbe8;*/
     color: $link_color;
     -webkit-transition: all 0.25s ease-in-out;
@@ -1439,7 +1440,9 @@ ul.dropdown-menu li:hover {
 }
 
 /* Media Classes */
-.media .time {
+.media .time,
+.media .location,
+.media .location a {
     font-size: 11px;
     color: #bebebe;
 }
