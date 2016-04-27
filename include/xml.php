@@ -138,7 +138,7 @@ class xml {
 	 * 
 	 * @return array | sring The array from the xml element or the string
 	 */
-	public static function convert_element_to_array($xml_element, &$recursion_depth=0) {
+	public static function element_to_array($xml_element, &$recursion_depth=0) {
 
 		// If we're getting too deep, bail out
 		if ($recursion_depth > 512) {
