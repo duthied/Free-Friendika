@@ -481,7 +481,7 @@ function lrdd($uri, $debug = false) {
 	if(! $h)
 		return array();
 
-	$arr = xml::convert_element_to_array($h);
+	$arr = xml::element_to_array($h);
 
 	if(isset($arr['xrd']['property'])) {
 		$property = $arr['crd']['property'];
@@ -659,7 +659,7 @@ function fetch_xrd_links($url) {
 	if(! $h)
 		return array();
 
-	$arr = xml::convert_element_to_array($h);
+	$arr = xml::element_to_array($h);
 
 	$links = array();
 
