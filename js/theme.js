@@ -44,9 +44,20 @@ $(document).ready(function(){
 	$(".field.select, .field.custom").addClass("form-group");
 	$(".field.select > select, .field.custom > select").addClass("form-control");
 
-	if( $("ul.tabs")) {
-		$("ul.tabs").appendTo("#topbar-second > .container > #tabmenu");
+	// move the tabbar to the second nav bar
+	if( $("ul.tabbar")) {
+		$("ul.tabbar").appendTo("#topbar-second > .container > #tabmenu");
 	}
+
+	// make responsive tabmenu with flexmenu.js
+	// the menupoints which doesn't fit in the second nav bar will moved to a 
+	// dropdown menu. Look at common_tabs.tpl
+	$("ul.tabs.flex-nav").flexMenu({
+		'cutoff': 2,
+		'popupClass': "dropdown-menu pull-right",
+		'popupAbsolute': false,
+		'target': ".flex-target"
+	});
 
 	// add Jot botton to the scecond navbar
 	if( $("section #jotOpen")) {
@@ -58,6 +69,10 @@ $(document).ready(function(){
 	if( $(".search-headding")) {
 		$(".search-headding").appendTo("#topbar-second > .container > #tabmenu");
 	}
+
+	
+		
+	//$('ul.flex-nav').flexMenu();
 
 	// initialize the bootstrap tooltips
 	$('[data-toggle="tooltip"]').tooltip({

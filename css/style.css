@@ -1381,7 +1381,9 @@ img.acpopup-img {
   
 }
 /* Menubar Tabs */
-#tabmenu {
+#tabmenu,
+.tabbar,
+.tabbar > li {
     height: 100%;
     /*margin-left: -15px;*/
     padding: 0;
@@ -1403,9 +1405,9 @@ ul.tabs li {
     height: 102%;
     transition: all .15s ease;
 }
-ul.tabs.visible-xs > li.active {
-    min-width: 150px; /* This is a workaround to make the topbar-second dropdown better visible on mobile. We need something better here */
-}
+/*ul.tabs.visible-xs > li.active {
+    min-width: 150px;  This is a workaround to make the topbar-second dropdown better visible on mobile. We need something better here 
+}*/
 ul.tabs li a {
     margin-left: 10px;
     margin-right: 10px;
@@ -1414,6 +1416,13 @@ ul.tabs li a {
 }
 ul.tabs li:hover, ul.tabs li.active {
     border-bottom-width: 4px;
+}
+ul.tabbar ul.tabs-extended li.active {
+    width: 100%;
+    border-bottom-width: 2px;
+}
+ul.tabbar ul.tabs-extended li.active a {
+    background: none;
 }
 ul.dropdown-menu li:hover {
     border-bottom-width: 0;
