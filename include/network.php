@@ -1,12 +1,29 @@
 <?php
 
+/**
+ * @file include/network.php
+ */
 
-// curl wrapper. If binary flag is true, return binary
-// results.
+require_once("include/xml.php");
 
-// Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
-// to preserve cookies from one request to the next.
-if(! function_exists('fetch_url')) {
+
+/**
+ * @brief Curl wrapper
+ * 
+ * If binary flag is true, return binary results.
+ * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
+ * to preserve cookies from one request to the next.
+ * 
+ * @param string $url URL to fetch
+ * @param boolean $binary default false
+ *    TRUE if asked to return binary results (file download)
+ * @param integer $redirects The recursion counter for internal use - default 0
+ * @param integer $timeout Timeout in seconds, default system config value or 60 seconds
+ * @param string $accept_content supply Accept: header with 'accept_content' as the value
+ * @param string $cookiejar Path to cookie jar file
+ * 
+ * @return string The fetched content
+ */
 function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_content=Null, $cookiejar = 0) {
 
 	$ret = z_fetch_url(
@@ -19,32 +36,29 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
 		));
 
 	return($ret['body']);
-}}
+}
 
-if(!function_exists('z_fetch_url')){
 /**
  * @brief fetches an URL.
  *
- * @param string $url
- *    URL to fetch
+ * @param string $url URL to fetch
  * @param boolean $binary default false
  *    TRUE if asked to return binary results (file download)
- * @param int $redirects default 0
- *    internal use, recursion counter
+ * @param int $redirects The recursion counter for internal use - default 0
  * @param array $opts (optional parameters) assoziative array with:
- *  * \b accept_content => supply Accept: header with 'accept_content' as the value
- *  * \b timeout => int seconds, default system config value or 60 seconds
- *  * \b http_auth => username:password
- *  * \b novalidate => do not validate SSL certs, default is to validate using our CA list
- *  * \b nobody => only return the header
- *	* \b cookiejar => path to cookie jar file
+ *    'accept_content' => supply Accept: header with 'accept_content' as the value
+ *    'timeout' => int Timeout in seconds, default system config value or 60 seconds
+ *    'http_auth' => username:password
+ *    'novalidate' => do not validate SSL certs, default is to validate using our CA list
+ *    'nobody' => only return the header
+ *    'cookiejar' => path to cookie jar file
  *
  * @return array an assoziative array with:
- *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
- *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
- *  * \e string \b redirect_url => in case of redirect, content was finally retrieved from this URL
- *  * \e string \b header => HTTP headers
- *  * \e string \b body => fetched content
+ *    int 'return_code' => HTTP return code or 0 if timeout or failure
+ *    boolean 'success' => boolean true (if HTTP 2xx result) or false
+ *    string 'redirect_url' => in case of redirect, content was finally retrieved from this URL
+ *    string 'header' => HTTP headers
+ *    string 'body' => fetched content
  */
 function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 
@@ -66,7 +80,7 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		curl_setopt($ch, CURLOPT_COOKIEFILE, $opts["cookiejar"]);
 	}
 
-//  These settings aren't needed. We're following the location already.
+// These settings aren't needed. We're following the location already.
 //	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 //	@curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
@@ -93,6 +107,7 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		$curl_time = intval(get_config('system','curl_timeout'));
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
+
 	// by default we will allow self-signed certs
 	// but you can override this
 
@@ -192,11 +207,21 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 
 	return($ret);
 
-}}
+}
 
 // post request to $url. $params is an array of post variables.
 
-if(! function_exists('post_url')) {
+/**
+ * @brief Post request to $url
+ * 
+ * @param string $url URL to post
+ * @param mixed $params
+ * @param string $headers HTTP headers
+ * @param integer $redirects Recursion counter for internal use - default = 0
+ * @param integer $timeout The timeout in seconds, default system config value or 60 seconds
+ * 
+ * @return string The content
+ */
 function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) {
 	$stamp1 = microtime(true);
 
@@ -294,13 +319,12 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 	logger("post_url: end ".$url, LOGGER_DATA);
 
 	return($body);
-}}
+}
 
 // Generic XML return
 // Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
 // of $st and an optional text <message> of $message and terminates the current process.
 
-if(! function_exists('xml_status')) {
 function xml_status($st, $message = '') {
 
 	$xml_message = ((strlen($message)) ? "\t<message>" . xmlify($message) . "</message>\r\n" : '');
@@ -312,12 +336,20 @@ function xml_status($st, $message = '') {
 	echo '<?xml version="1.0" encoding="UTF-8"?>'."\r\n";
 	echo "<result>\r\n\t<status>$st</status>\r\n$xml_message</result>\r\n";
 	killme();
-}}
+}
 
 
-if(! function_exists('http_status_exit')) {
+/**
+ * @brief Send HTTP status header and exit.
+ *
+ * @param integer $val HTTP status result value
+ * @param array $description optional message
+ *    'title' => header title
+ *    'description' => optional message
+ */
+
 function http_status_exit($val, $description = array()) {
-    $err = '';
+	$err = '';
 	if($val >= 400) {
 		$err = 'Error';
 		if (!isset($description["title"]))
@@ -337,59 +369,13 @@ function http_status_exit($val, $description = array()) {
 
 	killme();
 
-}}
-
-
-// convert an XML document to a normalised, case-corrected array
-// used by webfinger
-
-if(! function_exists('convert_xml_element_to_array')) {
-function convert_xml_element_to_array($xml_element, &$recursion_depth=0) {
-
-	// If we're getting too deep, bail out
-	if ($recursion_depth > 512) {
-		return(null);
-	}
-
-	if (!is_string($xml_element) &&
-	!is_array($xml_element) &&
-	(get_class($xml_element) == 'SimpleXMLElement')) {
-		$xml_element_copy = $xml_element;
-		$xml_element = get_object_vars($xml_element);
-	}
-
-	if (is_array($xml_element)) {
-		$result_array = array();
-		if (count($xml_element) <= 0) {
-			return (trim(strval($xml_element_copy)));
-		}
-
-		foreach($xml_element as $key=>$value) {
-
-			$recursion_depth++;
-			$result_array[strtolower($key)] =
-		convert_xml_element_to_array($value, $recursion_depth);
-			$recursion_depth--;
-		}
-		if ($recursion_depth == 0) {
-			$temp_array = $result_array;
-			$result_array = array(
-				strtolower($xml_element_copy->getName()) => $temp_array,
-			);
-		}
-
-		return ($result_array);
-
-	} else {
-		return (trim(strval($xml_element)));
-	}
-}}
+}
 
 // Given an email style address, perform webfinger lookup and
 // return the resulting DFRN profile URL, or if no DFRN profile URL
 // is located, returns an OStatus subscription template (prefixed
 // with the string 'stat:' to identify it as on OStatus template).
-// If this isn't an email style address just return $s.
+// If this isn't an email style address just return $webbie.
 // Return an empty string if email-style addresses but webfinger fails,
 // or if the resultant personal XRD doesn't contain a supported
 // subscription/friend-request attribute.
@@ -397,15 +383,14 @@ function convert_xml_element_to_array($xml_element, &$recursion_depth=0) {
 // amended 7/9/2011 to return an hcard which could save potentially loading
 // a lengthy content page to scrape dfrn attributes
 
-if(! function_exists('webfinger_dfrn')) {
-function webfinger_dfrn($s,&$hcard) {
-	if(! strstr($s,'@')) {
-		return $s;
+function webfinger_dfrn($webbie,&$hcard) {
+	if(! strstr($webbie,'@')) {
+		return $webbie;
 	}
 	$profile_link = '';
 
-	$links = webfinger($s);
-	logger('webfinger_dfrn: ' . $s . ':' . print_r($links,true), LOGGER_DATA);
+	$links = webfinger($webbie);
+	logger('webfinger_dfrn: ' . $webbie . ':' . print_r($links,true), LOGGER_DATA);
 	if(count($links)) {
 		foreach($links as $link) {
 			if($link['@attributes']['rel'] === NAMESPACE_DFRN)
@@ -417,29 +402,32 @@ function webfinger_dfrn($s,&$hcard) {
 		}
 	}
 	return $profile_link;
-}}
+}
 
-// Given an email style address, perform webfinger lookup and
-// return the array of link attributes from the personal XRD file.
-// On error/failure return an empty array.
-
-
-if(! function_exists('webfinger')) {
-function webfinger($s, $debug = false) {
+/**
+ * @brief Perform webfinger lookup on an email style address
+ * 
+ * @param string $webbi An email style address
+ * @param boolean $debug
+ * 
+ * @return array of link attributes from the personal XRD file
+ *    empty array on error/failure
+ */
+function webfinger($webbie, $debug = false) {
 	$host = '';
-	if(strstr($s,'@')) {
-		$host = substr($s,strpos($s,'@') + 1);
+	if(strstr($webbie,'@')) {
+		$host = substr($webbie,strpos($webbie,'@') + 1);
 	}
 	if(strlen($host)) {
 		$tpl = fetch_lrdd_template($host);
 		logger('webfinger: lrdd template: ' . $tpl);
 		if(strlen($tpl)) {
-			$pxrd = str_replace('{uri}', urlencode('acct:' . $s), $tpl);
+			$pxrd = str_replace('{uri}', urlencode('acct:' . $webbie), $tpl);
 			logger('webfinger: pxrd: ' . $pxrd);
 			$links = fetch_xrd_links($pxrd);
 			if(! count($links)) {
 				// try with double slashes
-				$pxrd = str_replace('{uri}', urlencode('acct://' . $s), $tpl);
+				$pxrd = str_replace('{uri}', urlencode('acct://' . $webbie), $tpl);
 				logger('webfinger: pxrd: ' . $pxrd);
 				$links = fetch_xrd_links($pxrd);
 			}
@@ -447,9 +435,8 @@ function webfinger($s, $debug = false) {
 		}
 	}
 	return array();
-}}
+}
 
-if(! function_exists('lrdd')) {
 function lrdd($uri, $debug = false) {
 
 	$a = get_app();
@@ -494,7 +481,7 @@ function lrdd($uri, $debug = false) {
 	if(! $h)
 		return array();
 
-	$arr = convert_xml_element_to_array($h);
+	$arr = xml::convert_element_to_array($h);
 
 	if(isset($arr['xrd']['property'])) {
 		$property = $arr['crd']['property'];
@@ -618,15 +605,12 @@ function lrdd($uri, $debug = false) {
 
 	return array();
 
-}}
-
-
+}
 
 // Given a host name, locate the LRDD template from that
 // host. Returns the LRDD template or an empty string on
 // error/failure.
 
-if(! function_exists('fetch_lrdd_template')) {
 function fetch_lrdd_template($host) {
 	$tpl = '';
 
@@ -648,13 +632,15 @@ function fetch_lrdd_template($host) {
 	if(! strpos($tpl,'{uri}'))
 		$tpl = '';
 	return $tpl;
-}}
+}
 
-// Given a URL, retrieve the page as an XRD document.
-// Return an array of links.
-// on error/failure return empty array.
-
-if(! function_exists('fetch_xrd_links')) {
+/**
+ * @brief Given a URL, retrieve the page as an XRD document.
+ * 
+ * @param string $url An url
+ * @return array of links
+ *    return empty array on error/failure
+ */
 function fetch_xrd_links($url) {
 
 	$xrd_timeout = intval(get_config('system','xrd_timeout'));
@@ -673,7 +659,7 @@ function fetch_xrd_links($url) {
 	if(! $h)
 		return array();
 
-	$arr = convert_xml_element_to_array($h);
+	$arr = xml::convert_element_to_array($h);
 
 	$links = array();
 
@@ -701,14 +687,17 @@ function fetch_xrd_links($url) {
 
 	return $links;
 
-}}
+}
 
-
-// Take a URL from the wild, prepend http:// if necessary
-// and check DNS to see if it's real (or check if is a valid IP address)
-// return true if it's OK, false if something is wrong with it
-
-if(! function_exists('validate_url')) {
+/**
+ * @brief Check URL to se if ts's real
+ * 
+ * Take a URL from the wild, prepend http:// if necessary
+ * and check DNS to see if it's real (or check if is a valid IP address)
+ * 
+ * @param string $url The URL to be validated
+ * @return boolean True if it's a valid URL, fals if something wrong with it
+ */
 function validate_url(&$url) {
 
 	if(get_config('system','disable_url_validation'))
@@ -724,11 +713,14 @@ function validate_url(&$url) {
 		return true;
 	}
 	return false;
-}}
+}
 
-// checks that email is an actual resolvable internet address
-
-if(! function_exists('validate_email')) {
+/**
+ * @brief Checks that email is an actual resolvable internet address
+ * 
+ * @param string $addr The email address
+ * @return boolean True if it's a valid email address, false if it's not
+ */
 function validate_email($addr) {
 
 	if(get_config('system','disable_email_validation'))
@@ -742,14 +734,17 @@ function validate_email($addr) {
 		return true;
 	}
 	return false;
-}}
+}
 
-// Check $url against our list of allowed sites,
-// wildcards allowed. If allowed_sites is unset return true;
-// If url is allowed, return true.
-// otherwise, return false
-
-if(! function_exists('allowed_url')) {
+/**
+ * @brief Check if URL is allowed
+ * 
+ * Check $url against our list of allowed sites,
+ * wildcards allowed. If allowed_sites is unset return true;
+ * 
+ * @param string $url URL which get tested
+ * @return boolean True if url is allowed otherwise return false
+ */
 function allowed_url($url) {
 
 	$h = @parse_url($url);
@@ -784,14 +779,17 @@ function allowed_url($url) {
 		}
 	}
 	return $found;
-}}
+}
 
-// check if email address is allowed to register here.
-// Compare against our list (wildcards allowed).
-// Returns false if not allowed, true if allowed or if
-// allowed list is not configured.
-
-if(! function_exists('allowed_email')) {
+/**
+ * @brief Check if email address is allowed to register here.
+ * 
+ * Compare against our list (wildcards allowed).
+ * 
+ * @param type $email
+ * @return boolean False if not allowed, true if allowed
+ *    or if allowed list is not configured
+ */
 function allowed_email($email) {
 
 
@@ -818,10 +816,8 @@ function allowed_email($email) {
 		}
 	}
 	return $found;
-}}
+}
 
-
-if(! function_exists('avatar_img')) {
 function avatar_img($email) {
 
 	$a = get_app();
@@ -838,11 +834,11 @@ function avatar_img($email) {
 
 	logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
 	return $avatar['url'];
-}}
+}
 
 
-if(! function_exists('parse_xml_string')) {
 function parse_xml_string($s,$strict = true) {
+	/// @todo Move this function to the xml class
 	if($strict) {
 		if(! strstr($s,'<?xml'))
 			return false;
@@ -860,7 +856,7 @@ function parse_xml_string($s,$strict = true) {
 		libxml_clear_errors();
 	}
 	return $x;
-}}
+}
 
 function scale_external_images($srctext, $include_link = true, $scale_replace = false) {
 
@@ -970,171 +966,6 @@ function fix_contact_ssl_policy(&$contact,$new_policy) {
 			intval($contact['id'])
 		);
 	}
-}
-
-
-
-/**
- * xml2array() will convert the given XML text to an array in the XML structure.
- * Link: http://www.bin-co.com/php/scripts/xml2array/
- * Portions significantly re-written by mike@macgirvin.com for Friendica (namespaces, lowercase tags, get_attribute default changed, more...)
- * Arguments : $contents - The XML text
- *                $namespaces - true or false include namespace information in the returned array as array elements.
- *                $get_attributes - 1 or 0. If this is 1 the function will get the attributes as well as the tag values - this results in a different array structure in the return value.
- *                $priority - Can be 'tag' or 'attribute'. This will change the way the resulting array sturcture. For 'tag', the tags are given more importance.
- * Return: The parsed XML in an array form. Use print_r() to see the resulting array structure.
- * Examples: $array =  xml2array(file_get_contents('feed.xml'));
- *              $array =  xml2array(file_get_contents('feed.xml', true, 1, 'attribute'));
- */
-
-function xml2array($contents, $namespaces = true, $get_attributes=1, $priority = 'attribute') {
-    if(!$contents) return array();
-
-    if(!function_exists('xml_parser_create')) {
-	logger('xml2array: parser function missing');
-	return array();
-    }
-
-
-	libxml_use_internal_errors(true);
-	libxml_clear_errors();
-
-	if($namespaces)
-	    $parser = @xml_parser_create_ns("UTF-8",':');
-	else
-	    $parser = @xml_parser_create();
-
-	if(! $parser) {
-		logger('xml2array: xml_parser_create: no resource');
-		return array();
-	}
-
-    xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8");
-	// http://minutillo.com/steve/weblog/2004/6/17/php-xml-and-character-encodings-a-tale-of-sadness-rage-and-data-loss
-    xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-    xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-    @xml_parse_into_struct($parser, trim($contents), $xml_values);
-    @xml_parser_free($parser);
-
-    if(! $xml_values) {
-		logger('xml2array: libxml: parse error: ' . $contents, LOGGER_DATA);
-		foreach(libxml_get_errors() as $err)
-			logger('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message, LOGGER_DATA);
-		libxml_clear_errors();
-		return;
-	}
-
-    //Initializations
-    $xml_array = array();
-    $parents = array();
-    $opened_tags = array();
-    $arr = array();
-
-    $current = &$xml_array; // Reference
-
-    // Go through the tags.
-    $repeated_tag_index = array(); // Multiple tags with same name will be turned into an array
-    foreach($xml_values as $data) {
-	unset($attributes,$value); // Remove existing values, or there will be trouble
-
-	// This command will extract these variables into the foreach scope
-	// tag(string), type(string), level(int), attributes(array).
-	extract($data); // We could use the array by itself, but this cooler.
-
-	$result = array();
-	$attributes_data = array();
-
-	if(isset($value)) {
-	    if($priority == 'tag') $result = $value;
-	    else $result['value'] = $value; // Put the value in a assoc array if we are in the 'Attribute' mode
-	}
-
-	//Set the attributes too.
-	if(isset($attributes) and $get_attributes) {
-	    foreach($attributes as $attr => $val) {
-		if($priority == 'tag') $attributes_data[$attr] = $val;
-		else $result['@attributes'][$attr] = $val; // Set all the attributes in a array called 'attr'
-	    }
-	}
-
-	// See tag status and do the needed.
-		if($namespaces && strpos($tag,':')) {
-			$namespc = substr($tag,0,strrpos($tag,':'));
-			$tag = strtolower(substr($tag,strlen($namespc)+1));
-			$result['@namespace'] = $namespc;
-		}
-		$tag = strtolower($tag);
-
-		if($type == "open") {   // The starting of the tag '<tag>'
-	    $parent[$level-1] = &$current;
-	    if(!is_array($current) or (!in_array($tag, array_keys($current)))) { // Insert New tag
-		$current[$tag] = $result;
-		if($attributes_data) $current[$tag. '_attr'] = $attributes_data;
-		$repeated_tag_index[$tag.'_'.$level] = 1;
-
-		$current = &$current[$tag];
-
-	    } else { // There was another element with the same tag name
-
-		if(isset($current[$tag][0])) { // If there is a 0th element it is already an array
-		    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
-		    $repeated_tag_index[$tag.'_'.$level]++;
-		} else { // This section will make the value an array if multiple tags with the same name appear together
-		    $current[$tag] = array($current[$tag],$result); // This will combine the existing item and the new item together to make an array
-		    $repeated_tag_index[$tag.'_'.$level] = 2;
-
-		    if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
-			$current[$tag]['0_attr'] = $current[$tag.'_attr'];
-			unset($current[$tag.'_attr']);
-		    }
-
-		}
-		$last_item_index = $repeated_tag_index[$tag.'_'.$level]-1;
-		$current = &$current[$tag][$last_item_index];
-	    }
-
-	} elseif($type == "complete") { // Tags that ends in 1 line '<tag />'
-	    //See if the key is already taken.
-	    if(!isset($current[$tag])) { //New Key
-		$current[$tag] = $result;
-		$repeated_tag_index[$tag.'_'.$level] = 1;
-		if($priority == 'tag' and $attributes_data) $current[$tag. '_attr'] = $attributes_data;
-
-	    } else { // If taken, put all things inside a list(array)
-		if(isset($current[$tag][0]) and is_array($current[$tag])) { // If it is already an array...
-
-		    // ...push the new element into that array.
-		    $current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
-
-		    if($priority == 'tag' and $get_attributes and $attributes_data) {
-			$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
-		    }
-		    $repeated_tag_index[$tag.'_'.$level]++;
-
-		} else { // If it is not an array...
-		    $current[$tag] = array($current[$tag],$result); //...Make it an array using using the existing value and the new value
-		    $repeated_tag_index[$tag.'_'.$level] = 1;
-		    if($priority == 'tag' and $get_attributes) {
-			if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
-
-			    $current[$tag]['0_attr'] = $current[$tag.'_attr'];
-			    unset($current[$tag.'_attr']);
-			}
-
-			if($attributes_data) {
-			    $current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
-			}
-		    }
-		    $repeated_tag_index[$tag.'_'.$level]++; // 0 and 1 indexes are already taken
-		}
-	    }
-
-	} elseif($type == 'close') { // End of tag '</tag>'
-	    $current = &$parent[$level-1];
-	}
-    }
-
-    return($xml_array);
 }
 
 function original_url($url, $depth=1, $fetchbody = false) {
@@ -1263,7 +1094,6 @@ function original_url($url, $depth=1, $fetchbody = false) {
 	return($url);
 }
 
-if (!function_exists('short_link')) {
 function short_link($url) {
 	require_once('library/slinky.php');
 	$slinky = new Slinky($url);
@@ -1285,7 +1115,7 @@ function short_link($url) {
 		$slinky->set_cascade(array(new Slinky_UR1ca(), new Slinky_Trim(), new Slinky_IsGd(), new Slinky_TinyURL()));
 	}
 	return $slinky->short();
-}};
+}
 
 /**
  * @brief Encodes content to json
