@@ -470,8 +470,8 @@ function check_funcs(&$checks) {
 	try {
 		$xml = new DOMDocument();
 	} catch (Exception $e) {
-		$ck_funcs[7]['status'] = false;
-		$ck_funcs[7]['help'] = t('Error, XML PHP module required but not installed.');
+		$ck_funcs[6]['status'] = false;
+		$ck_funcs[6]['help'] = t('Error, XML PHP module required but not installed.');
 	}
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
