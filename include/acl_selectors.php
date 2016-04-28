@@ -637,22 +637,35 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$tot += count($unknow_contacts);
 	}
 
+	$results = array(
+		"tot"	=> $tot,
+		"start" => $start,
+		"count" => $count,
+		"groups" => $groups,
+		"contacts" => $contacts,
+		"items"	=> $items,
+		"type"	=> $type,
+		"search" => $search,
+	);
+
+	call_hooks('acl_lookup_end', $results);
+
 	if($out_type === 'html') {
 		$o = array(
-			'tot'		=> $tot,
-			'start'	=> $start,
-			'count'	=> $count,
-			'groups'	=> $groups,
-			'contacts'	=> $contacts,
+			'tot'		=> $results["tot"],
+			'start'		=> $results["start"],
+			'count'		=> $results["count"],
+			'groups'	=> $results["groups"],
+			'contacts'	=> $results["contacts"],
 		);
 		return $o;
 	}
 
 	$o = array(
-		'tot'	=> $tot,
-		'start' => $start,
-		'count'	=> $count,
-		'items'	=> $items,
+		'tot'	=> $results["tot"],
+		'start' => $results["start"],
+		'count'	=> $results["count"],
+		'items'	=> $results["items"],
 	);
 
 	echo json_encode($o);
