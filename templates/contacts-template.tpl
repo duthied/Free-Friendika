@@ -49,14 +49,15 @@
 				</ul>
 			</li>
 		</ul>
-		<div class="clear">
-
-		{{* format each contact with the contact_template.tpl *}}
-		<ul id="viewcontact_wrapper" class="viewcontact_wrapper media-list">
-		{{foreach $contacts as $contact}}
-			<li>{{include file="contact_template.tpl"}}</li>
-		{{/foreach}}
-		</ul>
+		<div class="clear"></div>
+		<div id="contact-list">
+			{{* format each contact with the contact_template.tpl *}}
+			<ul id="viewcontact_wrapper" class="viewcontact_wrapper media-list">
+			{{foreach $contacts as $contact}}
+				<li>{{include file="contact_template.tpl"}}</li>
+			{{/foreach}}
+			</ul>
+		</div>
 		<div id="contact-edit-end"></div>
 	</form>
 

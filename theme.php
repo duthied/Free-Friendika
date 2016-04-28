@@ -34,6 +34,7 @@ function frio_install() {
 	register_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 	register_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	register_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	register_hook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 
 	logger("installed theme frio");
 }
@@ -41,7 +42,9 @@ function frio_install() {
 function frio_uninstall() {
 	unregister_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	unregister_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	unregister_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	unregister_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	unregister_hook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 
 	logger("uninstalled theme frio");
 }
@@ -242,5 +245,65 @@ function frio_remote_nav($a,&$nav) {
 		$nav['settings'] = array($server_url . '/settings', t('Settings'),"", t('Account settings'));
 		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
 		$nav['sitename'] = $a->config['sitename'];
+	}
+}
+/**
+ * @brief: Search for contacts
+ * 
+ * This function search for a users contacts. The code is copied from contact search
+ * in /mod/contacts.php. With this function the contacts will permitted to acl_lookup()
+ * and can grabbed as json. For this we use the type="r". This is usful to to let js 
+ * grab the contact data.
+ * We use this to give the data to textcomplete and have a filter function at the
+ * contact page.
+ * 
+ * @param App $a The app data
+ * @param array $results The array with the originals from acl_lookup()
+ */
+function frio_acl_lookup($a, &$results) {
+	require_once("mod/contacts.php");
+
+	$nets = ((x($_GET,"nets")) ? notags(trim($_GET["nets"])) : "");
+
+	// we introduce a new search type, r should do the same query like it's
+	// done in /mod/contacts for connections
+	if($results["type"] == "r") {
+		$searching = false;
+		if($search) {
+			$search_hdr = $search;
+			$search_txt = dbesc(protect_sprintf(preg_quote($search)));
+			$searching = true;
+		}
+		$sql_extra .= (($searching) ? " AND (`attag` LIKE '%%".dbesc($search_txt)."%%' OR `name` LIKE '%%".dbesc($search_txt)."%%' OR `nick` LIKE '%%".dbesc($search_txt)."%%') " : "");
+
+		if($nets)
+			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+
+		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
+
+
+		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+			WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
+			intval($_SESSION['uid']));
+		if(count($r)) {
+			$total = $r[0]["total"];
+		}
+
+		$sql_extra3 = unavailable_networks();
+
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
+			intval($_SESSION['uid'])
+		);
+
+		$contacts = array();
+
+		if(count($r)) {
+			foreach($r as $rr) {
+				$contacts[] = _contact_detail_for_template($rr);
+			}
+		}
+
+		$results["items"] = $contacts;
+		$results["tot"] = $total;
 	}
 }

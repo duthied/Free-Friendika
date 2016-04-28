@@ -1596,6 +1596,7 @@ ul.viewcontact_wrapper > li {
 .contact-wrapper.media {
     overflow: visible;
     word-wrap: break-word;
+    margin-top: 0;
 }
 /* bootstrap hack for .media */
 .contact-wrapper.media .media-body {
@@ -1709,4 +1710,36 @@ main .nav-tabs>li.active>a:hover {
 }
 .theme-frio .back-bar .pointer-label {
     color: #999;
+}
+
+/* textcomplete for contact filtering*/
+#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list {
+    position: relative !important;
+    top: inherit !important;
+    bottom: inherit !important;
+    left: inherit !important;
+    padding: 0;
+    margin-left: -15px;
+    margin-right: -15px;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+}
+#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list > li {
+    padding-left: 15px;
+    border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);
+}
+#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list > li:first-child {
+    display: none;
+}
+#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list 
+.textcomplete-item > a {
+    padding: 0 !important;
+    border-left: none;
+    background-color: transparent !important;
+}
+/* this is a little hack for texcomplete contact filter
+There are for some reasons empty <a> tags. I don't know why */
+.textcomplete-item .contact-wrapper a {
+    padding: 0;
 }
