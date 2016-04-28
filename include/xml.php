@@ -162,7 +162,7 @@ class xml {
 
 				$recursion_depth++;
 				$result_array[strtolower($key)] =
-					self::convert_element_to_array($value, $recursion_depth);
+					self::element_to_array($value, $recursion_depth);
 				$recursion_depth--;
 			}
 			if ($recursion_depth == 0) {
