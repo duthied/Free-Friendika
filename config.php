@@ -32,6 +32,11 @@ function theme_post(&$a) {
 }
 
 function frio_form(&$a, $arr) {
+	require_once("view/theme/frio/php/schema.php");
+	
+	$scheme_info = get_schema_info($arr["schema"]);
+	$disable = $scheme_info["overwrites"];
+
 	$scheme_choices = array();
 	$scheme_choices["---"] = t("Default");
 	$files = glob('view/theme/frio/schema/*.php');
@@ -52,12 +57,12 @@ function frio_form(&$a, $arr) {
 		'$baseurl'		=> $a->get_baseurl(),
 		'$title'		=> t("Theme settings"),
 		'$schema'		=> array('frio_schema',		t("Select scheme"),			$arr["schema"], '', $scheme_choices),
-		'$nav_bg'		=> array('frio_nav_bg',		t('Navigation bar background color'),	$arr['nav_bg']),
-		'$nav_icon_color'	=> array('frio_nav_icon_color', t('Navigation bar icon color '),	$arr['nav_icon_color']),
-		'$link_color'		=> array('frio_link_color',	t('Link color'),			$arr['link_color'],		'', $link_colors),
-		'$bgcolor'		=> array('frio_background_color', t('Set the background color'),	$arr['bgcolor']),
-		'$contentbg_transp'	=> array('frio_contentbg_transp', t("Content background transparency"), ($arr["contentbg_transp"] ? $arr["contentbg_transp"] : 0 )),
-		'$background_image'	=> array('frio_background_image', t('Set the background image'),	$arr['background_image']),
+		'$nav_bg'		=> array_key_exists("nav_bg", $disable) ? "" : array('frio_nav_bg',		t('Navigation bar background color'),	$arr['nav_bg']),
+		'$nav_icon_color'	=> array_key_exists("nav_icon_color", $disable) ? "" : array('frio_nav_icon_color', t('Navigation bar icon color '),	$arr['nav_icon_color']),
+		'$link_color'		=> array_key_exists("link_color", $disable) ? "" : array('frio_link_color',	t('Link color'),			$arr['link_color'],		'', $link_colors),
+		'$bgcolor'		=> array_key_exists("bgcolor", $disable) ? "" : array('frio_background_color', t('Set the background color'),	$arr['bgcolor']),
+		'$contentbg_transp'	=> array_key_exists("contentbg_transp", $disable) ? "" : array('frio_contentbg_transp', t("Content background transparency"), ($arr["contentbg_transp"] ? $arr["contentbg_transp"] : 0 )),
+		'$background_image'	=> array_key_exists("background_image", $disable ) ? "" : array('frio_background_image', t('Set the background image'),	$arr['background_image']),
 		'$bg_image_options'	=> Image::get_options($arr),
 	));
 

@@ -4,21 +4,23 @@
 
 {{include file="field_select.tpl" field=$schema}}
 
-{{include file="field_colorinput.tpl" field=$nav_bg}}
-{{include file="field_colorinput.tpl" field=$nav_icon_color}}
-{{include file="field_colorinput.tpl" field=$link_color}}
+{{if $nav_bg}}{{include file="field_colorinput.tpl" field=$nav_bg}}{{/if}}
+{{if $nav_icon_color}}{{include file="field_colorinput.tpl" field=$nav_icon_color}}{{/if}}
+{{if $link_color}}{{include file="field_colorinput.tpl" field=$link_color}}{{/if}}
 
-{{include file="field_colorinput.tpl" field=$bgcolor}}
+{{if $bgcolor}}{{include file="field_colorinput.tpl" field=$bgcolor}}{{/if}}
 
 {{* The slider for the content opacity - We use no template for this since it is only used at this page *}}
+{{if $contentbg_transp}}
 <div class="form-group field input color">
 	<label for="id_{{$contentbg_transp.0}}" id="label_{{$contentbg_transp.0}}">{{$contentbg_transp.1}}</label>
 	<input type="hidden" class="form-control color slider-input" name="{{$contentbg_transp.0}}" id="{{$contentbg_transp.0}}" type="text" value="{{$contentbg_transp.2}}">
 	<span id="help_{{$contentbg_transp.0}}" class="help-block">{{$contentbg_transp.3}}</span>
 	<div id="end_{{$contentbg_transp.0}}" class="field_end"></div>
 </div>
+{{/if}}
 
-{{include file="field_colorinput.tpl" field=$background_image}}
+{{if $background_image}}{{include file="field_colorinput.tpl" field=$background_image}}{{/if}}
 
 <div id="frio_bg_image_options" style="display: none;">
 {{foreach $bg_image_options as $options}}
