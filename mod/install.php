@@ -86,7 +86,7 @@ function install_post(&$a) {
 			$rino = 2;
 			if (! function_exists('mcrypt_create_iv')) {
 				$rino = 1;
-			]
+			}
 
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
@@ -417,7 +417,7 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, t('mysqli PHP module'), true, true, "");
 	check_add($ck_funcs, t('mb_string PHP module'), true, true, "");
 	check_add($ck_funcs, t('mcrypt PHP module'), true, true, "");
-
+	check_add($ck_funcs, t('XML PHP module'), true, true, "");
 
 	if(function_exists('apache_get_modules')){
 		if (! in_array('mod_rewrite',apache_get_modules())) {
@@ -466,6 +466,13 @@ function check_funcs(&$checks) {
 		check_add($checks, t('mcrypt_create_iv() function'), $__status, false, $__help);
 	}
 
+	// check for XML DOM Documents being able to be generated
+	try {
+		$xml = new DOMDocument();
+	} catch (Exception $e) {
+		$ck_funcs[6]['status'] = false;
+		$ck_funcs[6]['help'] = t('Error, XML PHP module required but not installed.');
+	}
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
 		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
