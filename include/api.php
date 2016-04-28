@@ -1335,9 +1335,12 @@
 
 		$idlist = implode(",", $idarray);
 
-		if ($idlist != "")
-			$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+		if ($idlist != "") {
+			$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `id` IN (%s)", $idlist);
 
+			if ($unseen)
+				$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+		}
 
 		$data = array('$statuses' => $ret);
 		switch($type){
