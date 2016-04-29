@@ -503,7 +503,7 @@ function filter_replace(item) {
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'accontacts', zIndex:10000, appendTo: '#contact-list'});
+		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
 
 		a.on('textComplete:select', function(e, value, strategy) { $(".dropdown-menu.textcomplete-dropdown.media-list").show(); });
 	};
