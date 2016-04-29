@@ -1,5 +1,5 @@
 
-<div class="contact-wrapper media" id="contact-entry-wrapper-{{$id}}" >
+<div class="contact-wrapper media" id="contact-entry-wrapper-{{$contact.id}}" >
 
 		{{* This is a wrapper for the contact picture and the dropdown menu with contact relating actions *}}
 		<div class="contact-photo-wrapper dropdown pull-left" >
