@@ -1553,6 +1553,7 @@ ul.dropdown-menu li:hover {
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
 .notifications-content-wrapper, .admin-content-wrapper {
+    min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
     margin-bottom: 20px;
