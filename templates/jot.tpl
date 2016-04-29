@@ -1,5 +1,8 @@
+
+{{* The button to open the jot - in This theme we move the button with js to the second nav bar *}}
 <button class="btn btn-sm btn-main pull-right" id="jotOpen" onclick="jotShow(); return false;"><i class="fa fa-pencil-square-o fa-2x"></i></button>
-<!--data-toggle="modal" data-target="#jot-modal"-->
+
+
 
 
 
@@ -13,6 +16,7 @@
 
 			<div id="profile-jot-banner-end"></div>
 
+			{{* The hidden input fields which submit important values with the post *}}
 			<input type="hidden" name="type" value="{{$ptyp}}" />
 			<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 			<input type="hidden" name="return" value="{{$return_path}}" />
@@ -29,6 +33,7 @@
 			<div id="jot-category-wrap"><input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" /></div>
 			{{/if}}
 
+			{{* The jot text field in which the post text is inserted *}}
 			<div id="jot-text-wrap">
 			<textarea rows="2" cols="64" class="profile-jot-text form-control" id="profile-jot-text" name="body" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
 			</div>
@@ -73,13 +78,25 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<!--<h4 class="modal-title">Modal Header</h4>-->
-				<ul class="nav nav-tabs" role="menubar" data-tabs="tabs">
+				<ul class="nav nav-tabs hidden-xs" role="menubar" data-tabs="tabs">
 					{{* mark the first list entry as active because it is the first which is active after opening
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">Text</a></li>
 					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
 					<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>
 				</ul>
+				
+				<div class="dropdown  hidden-lg hidden-md hidden-sm" role="menubar" data-tabs="tabs">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"> JOT
+					<span class="caret"></span></button>
+					<ul class="dropdown-menu nav nav-pills">
+						{{* mark the first list entry as active because it is the first which is active after opening
+						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
+						<li class="active" role="menuitem"><a id="jot-text-lnk-mobile" onclick="jotActive(); return false;">Text</a></li>
+						{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk-mobile" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
+						<li role="menuitem"><a id="jot-preview-lnk-mobile" onclick="previewActive();return false;">{{$preview}}</a></li>
+					</ul>
+				</div>
 			</div>
 
 
