@@ -795,8 +795,14 @@ if (typeof jQuery === 'undefined') {
       // (which makes our elements wrap onto the next line and corrupt the next item), if we're close to the right
       // edge, move left. We don't know how far to move left, so just keep nudging a bit.
       var tolerance = 30; // pixels. Make wider than vertical scrollbar because we might not be able to use that space.
-      while (this.$el.offset().left + this.$el.width() > $window.width() - tolerance) {
-        this.$el.offset({left: this.$el.offset().left - tolerance});
+      var lastOffset = this.$el.offset().left, offset;
+      var width = this.$el.width();
+      var maxLeft = $window.width() - tolerance;
+      while (lastOffset + width > maxLeft) {
+        this.$el.offset({left: lastOffset - tolerance});
+        offset = this.$el.offset().left;
+        if (offset >= lastOffset) { break; }
+        lastOffset = offset;
       }
     },
 
@@ -1266,7 +1272,7 @@ if (typeof jQuery === 'undefined') {
 //
 // https://github.com/component/textarea-caret-position
 
-(function () {
+(function ($) {
 
 // The properties that we copy into a mirrored div.
 // Note that some browsers, such as Firefox,
@@ -1387,13 +1393,9 @@ function getCaretCoordinates(element, position, options) {
   return coordinates;
 }
 
-if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
-  module.exports = getCaretCoordinates;
-} else if(isBrowser){
-  window.$.fn.textcomplete.getCaretCoordinates = getCaretCoordinates;
-}
+$.fn.textcomplete.getCaretCoordinates = getCaretCoordinates;
 
-}());
+}(jQuery));
 
 return jQuery;
 }));
