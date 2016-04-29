@@ -152,7 +152,7 @@ $("nav").bind('nav-update', function(e,data)
 </script>
 
 <script src="<?=$frio?>/frameworks/bootstrap/js/bootstrap.min.js"></script>
-<script src="<?=$frio?>/frameworks/jasny/js/jasny-bootstrap.min.js"></script>
+<script src="<?=$frio?>/frameworks/jasny/js/jasny-bootstrap.custom.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
 <script src="<?=$frio?>/frameworks/ekko-lightbox/ekko-lightbox.min.js"></script>
 <script src="<?=$frio?>/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
