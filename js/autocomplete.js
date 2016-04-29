@@ -163,6 +163,9 @@ function listNewLineAutocomplete(id) {
 		setCaretPosition(text, caretPos + 5);
 		return true;
 	}
+	else {
+		return false;
+	}
 }
 
 function string2bb(element) {
@@ -325,11 +328,12 @@ function string2bb(element) {
 		a.on('textComplete:select', function(e, value, strategy) { value; });
 
 		a.keypress(function(e){
-			e.stopImmediatePropagation();
 			if (e.keyCode == 13) {
 				var x = listNewLineAutocomplete(this.id);
-				if(x)
+				if(x) {
+					e.stopImmediatePropagation();
 					e.preventDefault();
+				}
 			}
 		});
 	};
