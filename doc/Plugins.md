@@ -281,6 +281,11 @@ $b is an array with:
     'template' => filename of template
     'vars' => array of vars passed to template
 
+### ''acl_lookup_end'
+is called after the other queries have passed.
+The registered function can add, change or remove the acl_lookup() variables.
+
+    'results' => array of the acl_lookup() vars 
 
 
 Complete list of hook callbacks
@@ -337,6 +342,8 @@ include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
 include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
+
+include/acl_selectors.php	call_hooks('acl_lookup_end', $results);
 
 include/notifier.php:		call_hooks('notifier_normal',$target_item);
 
