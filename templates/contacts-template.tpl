@@ -36,8 +36,8 @@
 		{{* We put the contact batch actions in a dropdown menu *}}
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
-				<a class="btn btn-link dropdown-toggle" type="button" id="BatchActionDropdownMenuTools" data-toggle="dropdown" aria-expanded="true">
-					<i class="fa fa-angle-down"></i>
+				<a class="btn btn-link btn-sm dropdown-toggle" type="button" id="BatchActionDropdownMenuTools" data-toggle="dropdown" aria-expanded="true">
+					<i class="fa fa-angle-down"></i> Batch Actions{{* Does need a Translation and a Variable in core*}}
 				</a>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="BatchActionDropdownMenuTools">
 				{{foreach $batch_actions as $n=>$l}}
