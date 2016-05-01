@@ -2612,7 +2612,7 @@
 			intval(api_user())
 		);
 
-		if(is_array($r)) {
+		if(dba::is_result($r)) {
 
 			if($type === 'xml') {
 				header("Content-type: application/xml");

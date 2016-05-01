@@ -612,7 +612,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				dbesc($search),
 				implode("','", $known_contacts)
 		);
-		if (is_array($r) && count($r)){
+		if (dba::is_result($r)){
 			foreach($r as $row) {
 				// nickname..
 				$up = parse_url($row['author-link']);
