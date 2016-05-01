@@ -61,16 +61,23 @@ function display_init(&$a) {
 
 			if (($itemuid != local_user()) AND local_user()) {
 				// Do we know this contact but we haven't got this item?
-				// Copy it to our local storage.
+				// Copy the wohle thread to our local storage so that we can interact.
+				// We really should change this need for the future since it scales very bad.
 				$contactid = get_contact($r[0]['owner-link'], local_user());
 				if ($contactid) {
-					$item = q("SELECT * FROM `item` WHERE `id` = %d", intval($r[0]["id"]));
-					unset($item[0]['id']);
-					$item[0]['uid'] = local_user();
-					$item[0]['origin'] = 0;
-					$item[0]['contact-id'] = $contactid;
-					$local_copy = item_store($item[0], false, false, true);
-					logger("Stored local copy for post ".$item[0]['id']." under id ".$local_copy, LOGGER_DEBUG);
+					$items = q("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
+					foreach ($items AS $item) {
+						$itemcontactid = get_contact($item['owner-link'], local_user());
+						if (!$itemcontactid)
+							$itemcontactid = $contactid;
+
+						unset($item['id']);
+						$item['uid'] = local_user();
+						$item['origin'] = 0;
+						$item['contact-id'] = $itemcontactid;
+						$local_copy = item_store($item, false, false, true);
+						logger("Stored local copy for post ".$item['guid']." under id ".$local_copy, LOGGER_DEBUG);
+					}
 				}
 			}
 
