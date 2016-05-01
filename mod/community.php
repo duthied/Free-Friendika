@@ -59,7 +59,7 @@ function community_content(&$a, $update = 0) {
 			AND `item`.`private` = 0 AND `item`.`wall` = 1"
 		);
 
-		if(count($r))
+		if(dba::is_result($r))
 			$a->set_pager_total($r[0]['total']);
 
 		if(! $r[0]['total']) {

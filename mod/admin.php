@@ -1078,7 +1078,7 @@ function admin_page_dbsync(&$a) {
 
 	$failed = array();
 	$r = q("select k, v from config where `cat` = 'database' ");
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			$upd = intval(substr($rr['k'],7));
 			if($upd < 1139 || $rr['v'] === 'success')

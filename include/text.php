@@ -491,7 +491,7 @@ function item_new_uri($hostname,$uid, $guid = "") {
 
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($uri));
-		if(count($r))
+		if(dba::is_result($r))
 			$dups = true;
 	} while($dups == true);
 	return $uri;
@@ -515,7 +515,7 @@ function photo_new_resource() {
 		$r = q("SELECT `id` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
 			dbesc($resource)
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$found = true;
 	} while($found == true);
 	return $resource;
@@ -859,7 +859,7 @@ function contact_block() {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA)
 	);
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if(! $total) {
@@ -877,7 +877,7 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 			$micropro = Array();
 			foreach($r as $rr) {
@@ -2050,7 +2050,7 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 			//	intval($uid)
 			//);
 
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				unset($deleted_tags[$key]);
 			}
 			else {
@@ -2080,7 +2080,7 @@ function file_tag_save_file($uid,$item,$file) {
 		intval($item),
 		intval($uid)
 	);
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		if(! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']'))
 			q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),

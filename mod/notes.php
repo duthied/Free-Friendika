@@ -83,7 +83,7 @@ function notes_content(&$a,$update = false) {
 
 	);
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$a->set_pager_itemspage(40);
 	}
@@ -105,7 +105,7 @@ function notes_content(&$a,$update = false) {
 	$parents_arr = array();
 	$parents_str = '';
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
@@ -124,7 +124,7 @@ function notes_content(&$a,$update = false) {
 			dbesc($parents_str)
 		);
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$items = conv_sort($r,"`commented`");
 
 			$o .= conversation($a,$items,'notes',$update);

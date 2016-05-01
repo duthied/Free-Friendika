@@ -758,12 +758,14 @@ function contacts_content(&$a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
 
 	$sql_extra3 = unavailable_networks();
+
+	$contacts = array();
 
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
 		intval($_SESSION['uid']),
@@ -771,9 +773,7 @@ function contacts_content(&$a) {
 		intval($a->pager['itemspage'])
 	);
 
-	$contacts = array();
-
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}

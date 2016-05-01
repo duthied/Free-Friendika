@@ -19,7 +19,7 @@ function display_init(&$a) {
 			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-			if (count($r)) {
+			if (dba::is_result($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
 			}
@@ -36,7 +36,7 @@ function display_init(&$a) {
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND NOT `item`.`private` AND `item`.`wall`
-			if (count($r)) {
+			if (dba::is_result($r)) {
 				$nick = $r[0]["nickname"];
 				$itemuid = $r[0]["uid"];
 			}
@@ -53,7 +53,7 @@ function display_init(&$a) {
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND NOT `item`.`private` AND `item`.`wall`
 		}
-		if (count($r)) {
+		if (dba::is_result($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
 				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -70,7 +70,7 @@ function display_init(&$a) {
 						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						dbesc($nickname)
 					);
-					if (count($r))
+					if (dba::is_result($r))
 						$profiledata = $r[0];
 
 					$profiledata["network"] = NETWORK_DFRN;
@@ -168,7 +168,7 @@ function display_fetchauthor($a, $item) {
 			dbesc(normalise_link($profiledata["url"])), intval(local_user()),
 			intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
 
-	if (count($r)) {
+	if (dba::is_result($r)) {
 		$profiledata["name"] = $r[0]["name"];
 		$profiledata["photo"] = $r[0]["photo"];
 		$profiledata["nickname"] = $r[0]["nick"];
@@ -187,7 +187,7 @@ function display_fetchauthor($a, $item) {
 	// Fetching profile data from global contacts
 	if ($profiledata["network"] != NETWORK_FEED) {
 		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`, `network` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
-		if (count($r)) {
+		if (dba::is_result($r)) {
 			$profiledata["name"] = $r[0]["name"];
 			$profiledata["photo"] = $r[0]["photo"];
 			$profiledata["nickname"] = $r[0]["nick"];
@@ -259,7 +259,7 @@ function display_content(&$a, $update = 0) {
 				$r = q("SELECT `id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-				if (count($r)) {
+				if (dba::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $a->user["nickname"];
 				}
@@ -273,7 +273,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND NOT `user`.`hidewall`
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (count($r)) {
+				if (dba::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
 				}
@@ -286,7 +286,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (count($r)) {
+				if (dba::is_result($r)) {
 					$item_id = $r[0]["id"];
 				}
 			}
@@ -331,7 +331,7 @@ function display_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['uid'])
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -347,7 +347,7 @@ function display_content(&$a, $update = 0) {
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
-	if(count($r))
+	if(dba::is_result($r))
 		$a->page_contact = $r[0];
 
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);

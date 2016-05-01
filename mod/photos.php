@@ -159,7 +159,7 @@ function photos_post(&$a) {
 					intval($cid),
 					intval($page_owner_uid)
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$can_post = true;
 					$visitor = $cid;
 				}
@@ -267,7 +267,7 @@ function photos_post(&$a) {
 					dbesc($album)
 				);
 			}
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				foreach($r as $rr) {
 					$res[] = "'" . dbesc($rr['rid']) . "'" ;
 				}
@@ -290,7 +290,7 @@ function photos_post(&$a) {
 			$r = q("SELECT `parent-uri` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
 				intval($page_owner_uid)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				foreach($r as $rr) {
 					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 						dbesc(datetime_convert()),
@@ -352,7 +352,7 @@ function photos_post(&$a) {
 				dbesc($a->argv[2])
 			);
 		}
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
 				intval($page_owner_uid),
 				dbesc($r[0]['resource-id'])
@@ -408,7 +408,7 @@ function photos_post(&$a) {
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$ph = new Photo($r[0]['data'], $r[0]['type']);
 				if($ph->is_valid()) {
 					$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
@@ -525,7 +525,7 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 		}
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$old_tag    = $r[0]['tag'];
 			$old_inform = $r[0]['inform'];
 		}
@@ -612,7 +612,7 @@ function photos_post(&$a) {
 									intval($page_owner_uid)
 								);
 							}*/
-							if(count($r)) {
+							if(dba::is_result($r)) {
 								$newname = $r[0]['name'];
 								$profile = $r[0]['url'];
 								$notify = 'cid:' . $r[0]['id'];
@@ -1028,7 +1028,7 @@ function photos_content(&$a) {
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -1056,7 +1056,7 @@ function photos_content(&$a) {
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -1209,8 +1209,8 @@ function photos_content(&$a) {
 			intval($owner_uid),
 			dbesc($album)
 		);
-		if(count($r)) {
-			$a->set_pager_total(count($r));
+		if(dba::is_result($r)) {
+			$a->set_pager_total(dba::is_result($r));
 			$a->set_pager_itemspage(20);
 		}
 
@@ -1266,7 +1266,7 @@ function photos_content(&$a) {
 
 		$photos = array();
 
-		if(count($r))
+		if(dba::is_result($r))
 			$twist = 'rotright';
 			foreach($r as $rr) {
 				if($twist == 'rotright')
@@ -1461,7 +1461,7 @@ function photos_content(&$a) {
 
 			);
 
-			if(count($r))
+			if(dba::is_result($r))
 				$a->set_pager_total($r[0]['total']);
 
 
@@ -1638,7 +1638,7 @@ function photos_content(&$a) {
 
 
 			// display comments
-			if(count($r)) {
+			if(dba::is_result($r)) {
 
 				foreach($r as $item) {
 					builtin_activity_puller($item, $conv_responses);
@@ -1824,8 +1824,8 @@ function photos_content(&$a) {
 		dbesc('Contact Photos'),
 		dbesc( t('Contact Photos'))
 	);
-	if(count($r)) {
-		$a->set_pager_total(count($r));
+	if(dba::is_result($r)) {
+		$a->set_pager_total(dba::is_result($r));
 		$a->set_pager_itemspage(20);
 	}
 
@@ -1842,7 +1842,7 @@ function photos_content(&$a) {
 
 
 	$photos = array();
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$twist = 'rotright';
 		foreach($r as $rr) {
 			//hide profile photos to others

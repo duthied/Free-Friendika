@@ -66,7 +66,7 @@ function poke_init(&$a) {
 			intval($parent),
 			intval($uid)
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$parent_uri = $r[0]['uri'];
 			$private    = $r[0]['private'];
 			$allow_cid  = $r[0]['allow_cid'];
@@ -159,7 +159,7 @@ function poke_content(&$a) {
 			intval($_GET['c']),
 			intval(local_user())
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$name = $r[0]['name'];
 			$id = $r[0]['id'];
 		}

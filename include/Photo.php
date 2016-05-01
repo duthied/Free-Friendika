@@ -589,7 +589,7 @@ class Photo {
 	$r = q("select `guid` from photo where `resource-id` = '%s' and `guid` != '' limit 1",
 	    dbesc($rid)
 	);
-	if(count($r))
+	if(dba::is_result($r))
 	    $guid = $r[0]['guid'];
 	else
 	    $guid = get_guid();

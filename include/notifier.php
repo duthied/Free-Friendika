@@ -314,7 +314,7 @@ function notifier_run(&$argv, &$argc){
 						intval($uid),
 						dbesc(NETWORK_DFRN)
 					);
-					if(count($r))
+					if(dba::is_result($r))
 						foreach($r as $rr)
 							$recipients_followup[] = $rr['id'];
 				}
@@ -425,7 +425,7 @@ function notifier_run(&$argv, &$argc){
 
 		$r = q("SELECT * FROM `contact` WHERE `id` IN ($conversant_str) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra);
 
-		if(count($r))
+		if(dba::is_result($r))
 			$contacts = $r;
 
 	} else
@@ -443,7 +443,7 @@ function notifier_run(&$argv, &$argc){
 				intval($uid),
 				dbesc(NETWORK_MAIL)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				foreach($r as $rr)
 					$recipients[] = $rr['id'];
 			}
@@ -471,7 +471,7 @@ function notifier_run(&$argv, &$argc){
 
 	// delivery loop
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 
 		foreach($r as $contact) {
 			if(!$contact['self']) {
@@ -572,7 +572,7 @@ function notifier_run(&$argv, &$argc){
 
 		$r = array_merge($r2,$r1,$r0);
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
 
 			// throw everything into the queue in case we get killed

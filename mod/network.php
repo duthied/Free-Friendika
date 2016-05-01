@@ -182,7 +182,7 @@ function saved_searches($search) {
 
 	$saved = array();
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			$saved[] = array(
 				'id'		=> $rr['id'],
@@ -465,7 +465,7 @@ function network_content(&$a, $update = 0) {
 		);
 
 		$str = '';
-		if(count($r))
+		if(dba::is_result($r))
 			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
 		if(strlen($str))
@@ -587,7 +587,7 @@ function network_content(&$a, $update = 0) {
 				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($cid)
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
@@ -689,7 +689,7 @@ function network_content(&$a, $update = 0) {
 				intval($_SESSION['uid'])
 			);
 
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$a->set_pager_total($r[0]['total']);
 			}
 		}

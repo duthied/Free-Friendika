@@ -54,7 +54,7 @@ function viewcontacts_content(&$a) {
 		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_OSTATUS)
 	);
-	if(count($r))
+	if(dba::is_result($r))
 		$a->set_pager_total($r[0]['total']);
 
 	$r = q("SELECT * FROM `contact`

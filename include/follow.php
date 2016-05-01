@@ -178,7 +178,7 @@ function new_contact($uid,$url,$interactive = false) {
 			intval($uid), dbesc(normalise_link($url)), dbesc($ret['network'])
 	);
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		// update contact
 		if($r[0]['rel'] == CONTACT_IS_FOLLOWER || ($network === NETWORK_DIASPORA && $r[0]['rel'] == CONTACT_IS_SHARING)) {
 			q("UPDATE `contact` SET `rel` = %d , `subhub` = %d, `readonly` = 0 WHERE `id` = %d AND `uid` = %d",
@@ -196,7 +196,7 @@ function new_contact($uid,$url,$interactive = false) {
 		$r = q("select count(*) as total from contact where uid = %d and pending = 0 and self = 0",
 			intval($uid)
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$total_contacts = $r[0]['total'];
 
 		if(! service_class_allows($uid,'total_contacts',$total_contacts)) {
@@ -208,7 +208,7 @@ function new_contact($uid,$url,$interactive = false) {
 			intval($uid),
 			dbesc($network)
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$total_network = $r[0]['total'];
 
 		if(! service_class_allows($uid,'total_contacts_' . $network,$total_network)) {
@@ -295,7 +295,7 @@ function new_contact($uid,$url,$interactive = false) {
 			intval($uid)
 	);
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		if(($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
 			require_once('include/salmon.php');
 			slapper($r[0],$contact['notify'],$slap);

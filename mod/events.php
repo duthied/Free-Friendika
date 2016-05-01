@@ -361,7 +361,7 @@ function events_content(&$a) {
 
 		$links = array();
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
@@ -376,7 +376,7 @@ function events_content(&$a) {
 		$last_date = '';
 		$fmt = t('l, F j');
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach($r as $rr) {
 
@@ -475,7 +475,7 @@ function events_content(&$a) {
 			intval($event_id),
 			intval(local_user())
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$orig_event = $r[0];
 	}
 

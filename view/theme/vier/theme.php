@@ -147,7 +147,7 @@ function vier_community_info() {
 		$r = suggestion_query(local_user(), 0, 9);
 
 		$tpl = get_markup_template('ch_directory_item.tpl');
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			$aside['$comunity_profiles_title'] = t('Community Profiles');
 			$aside['$comunity_profiles_items'] = array();
@@ -170,13 +170,14 @@ function vier_community_info() {
 		$publish = (get_config('system','publish_all') ? '' : " AND `publish` = 1 ");
 		$order = " ORDER BY `register_date` DESC ";
 
+		$tpl = get_markup_template('ch_directory_item.tpl');
+
 		$r = q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`
 				FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $order LIMIT %d , %d ",
 				0, 9);
 
-		$tpl = get_markup_template('ch_directory_item.tpl');
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			$aside['$lastusers_title'] = t('Last users');
 			$aside['$lastusers_items'] = array();
@@ -367,7 +368,7 @@ function vier_community_info() {
 
 		$tpl = get_markup_template('ch_connectors.tpl');
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			$con_services = array();
 			$con_services['title'] = Array("", t('Connect Services'), "", "");

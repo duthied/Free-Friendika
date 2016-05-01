@@ -28,11 +28,11 @@ function nogroup_content(&$a) {
 
 	require_once('include/Contact.php');
 	$r = contacts_not_grouped(local_user());
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 	}
 	$r = contacts_not_grouped(local_user(),$a->pager['start'],$a->pager['itemspage']);
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 
 			$contact_details = get_contact_details_by_url($rr['url'], local_user());

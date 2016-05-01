@@ -55,7 +55,7 @@ function wall_attach_post(&$a) {
 					intval($cid),
 					intval($page_owner_uid)
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$can_post = true;
 					$visitor = $cid;
 				}

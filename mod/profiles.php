@@ -285,7 +285,7 @@ function profiles_post(&$a) {
 							intval(local_user())
 						);
 					}
-					if(count($r)) {
+					if(dba::is_result($r)) {
 						$prf = $r[0]['url'];
 						$newname = $r[0]['name'];
 					}
@@ -778,7 +778,7 @@ function profiles_content(&$a) {
 				"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
 				local_user()
 			);
-			if(count($r)){
+			if(dba::is_result($r)){
 				//Go to the default profile.
 				goaway('profiles/'.$r[0]['id']);
 			}
@@ -786,7 +786,7 @@ function profiles_content(&$a) {
 
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user());
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
 			$o .= replace_macros($tpl_header,array(

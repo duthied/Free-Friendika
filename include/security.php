@@ -42,7 +42,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$r = q("select * from user where uid = %d limit 1",
 			intval($_SESSION['submanage'])
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$master_record = $r[0];
 	}
 
@@ -70,7 +70,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 		intval($_SESSION['uid']));
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$a->contact = $r[0];
 		$a->cid = $r[0]['id'];
 		$_SESSION['cid'] = $a->cid;
@@ -158,7 +158,7 @@ function can_write_wall(&$a,$owner) {
 				intval(PAGE_COMMUNITY)
 			);
 
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$verified = 2;
 				return true;
 			}
@@ -212,7 +212,7 @@ function permissions_sql($owner_id,$remote_verified = false,$groups = null) {
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$remote_verified = true;
 				$groups = init_groups_visitor($remote_user);
 			}
@@ -294,7 +294,7 @@ function item_permissions_sql($owner_id,$remote_verified = false,$groups = null)
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$remote_verified = true;
 				$groups = init_groups_visitor($remote_user);
 			}
@@ -405,7 +405,7 @@ function init_groups_visitor($contact_id) {
 		WHERE `contact-id` = %d ",
 		intval($contact_id)
 	);
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr)
 			$groups[] = $rr['gid'];
 	}

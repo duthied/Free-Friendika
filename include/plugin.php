@@ -79,7 +79,7 @@ function reload_plugins() {
 	if(strlen($plugins)) {
 
 		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-		if(count($r))
+		if(dba::is_result($r))
 			$installed = $r;
 		else
 			$installed = array();
@@ -150,7 +150,7 @@ function register_hook($hook,$file,$function,$priority=0) {
 		dbesc($file),
 		dbesc($function)
 	);
-	if(count($r))
+	if(dba::is_result($r))
 		return true;
 
 	$r = q("INSERT INTO `hook` (`hook`, `file`, `function`, `priority`) VALUES ( '%s', '%s', '%s', '%s' ) ",
@@ -187,7 +187,7 @@ function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
 	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			if(! array_key_exists($rr['hook'],$a->hooks))
 				$a->hooks[$rr['hook']] = array();

@@ -21,7 +21,7 @@ function notifications_post(&$a) {
 			intval(local_user())
 		);
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$intro_id = $r[0]['id'];
 			$contact_id = $r[0]['contact-id'];
 		}
@@ -149,7 +149,7 @@ function notifications_content(&$a) {
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
 				intval($_SESSION['uid']));
 
-		if(($r !== false) && (count($r))) {
+		if(dba::is_result($r)) {
 
 			$sugg = get_markup_template('suggestions.tpl');
 			$tpl = get_markup_template("intros.tpl");
@@ -372,7 +372,7 @@ function notifications_content(&$a) {
 			intval(local_user())
 		);
 
-		if (count($r) > 0) {
+		if (dba::is_result($r)) {
 			foreach ($r as $it) {
 				$notif_content .= replace_macros($not_tpl,array(
 					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
@@ -424,7 +424,7 @@ function notifications_content(&$a) {
 
 		$notif_content = '';
 
-		if (count($r) > 0) {
+		if (dba::is_result($r)) {
 
 			foreach ($r as $it) {
 				switch($it['verb']){
@@ -515,7 +515,7 @@ function notifications_content(&$a) {
 
 		$notif_content = '';
 
-		if (count($r) > 0) {
+		if (dba::is_result($r)) {
 
 			foreach ($r as $it) {
 				switch($it['verb']){

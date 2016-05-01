@@ -207,7 +207,7 @@
 				dbesc(trim($user)),
 				dbesc($encrypted)
 			);
-			if(count($r))
+			if(dba::is_result($r))
 				$record = $r[0];
 		}
 
@@ -1249,7 +1249,7 @@
 			if (!count($r))
 				$r = q("SELECT `id` FROM `gcontact` WHERE `nick`='%s'", dbesc($_GET["q"]));
 
-			if (count($r)) {
+			if (dba::is_result($r)) {
 				foreach ($r AS $user) {
 					$user_info = api_get_user($a, $user["id"]);
 					//echo print_r($user_info, true)."\n";

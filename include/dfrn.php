@@ -1430,7 +1430,7 @@ class dfrn {
 			dbesc(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			return false;
 
 		// Do we already have an fcontact record for this person?
@@ -1441,7 +1441,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$fid = $r[0]["id"];
 
 			// OK, we do. Do we already have an introduction for this person ?
@@ -1449,7 +1449,7 @@ class dfrn {
 				intval($suggest["uid"]),
 				intval($fid)
 			);
-			if(count($r))
+			if(dba::is_result($r))
 				return false;
 		}
 		if(!$fid)
@@ -1464,7 +1464,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$fid = $r[0]["id"];
 		else
 			// database record did not get created. Quietly give up.
@@ -2120,7 +2120,7 @@ class dfrn {
 						dbesc($item["uri"]),
 						intval($importer["uid"])
 					);
-					if(count($r))
+					if(dba::is_result($r))
 						$ev["id"] = $r[0]["id"];
 
 					$event_id = event_store($ev);
@@ -2141,7 +2141,7 @@ class dfrn {
 		}
 
 		// Update content if 'updated' changes
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			if (self::update_content($r[0], $item, $importer, $entrytype))
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			else
@@ -2163,7 +2163,7 @@ class dfrn {
 					intval($posted_id),
 					intval($importer["importer_uid"])
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$parent = $r[0]["parent"];
 					$parent_uri = $r[0]["parent-uri"];
 				}
@@ -2345,7 +2345,7 @@ class dfrn {
 							dbesc($item["parent-uri"]),
 							intval($importer["uid"])
 					);
-					if(count($r)) {
+					if(dba::is_result($r)) {
 						q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 							intval($r[0]["id"])
 						);

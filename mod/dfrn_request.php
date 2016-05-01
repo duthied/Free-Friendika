@@ -89,7 +89,7 @@ function dfrn_request_post(&$a) {
 					dbesc(normalise_link($dfrn_url))
 				);
 
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					if(strlen($r[0]['dfrn-id'])) {
 
 						/**
@@ -180,7 +180,7 @@ function dfrn_request_post(&$a) {
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$def_gid = get_default_group(local_user(), $r[0]["network"]);
 					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
@@ -285,7 +285,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -310,7 +310,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 3 DAY ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -390,7 +390,7 @@ function dfrn_request_post(&$a) {
 				dbesc($poll),
 				intval($uid)
 			);
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				$contact_id = $r[0]['id'];
 
 				$def_gid = get_default_group($uid, $r[0]["network"]);
@@ -562,7 +562,7 @@ function dfrn_request_post(&$a) {
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if(count($r))
+					if(dba::is_result($r))
 						$contact_record = $r[0];
 				}
 
@@ -711,16 +711,16 @@ function dfrn_request_content(&$a) {
 			dbesc($_GET['confirm_key'])
 		);
 
-		if(count($intro)) {
+		if(dba::is_result($intro)) {
+
+			$auto_confirm = false;
 
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
 				intval($intro[0]['contact-id'])
 			);
 
-			$auto_confirm = false;
-
-			if(count($r)) {
+			if(dba::is_result($r)) {
 				if(($r[0]['page-flags'] != PAGE_NORMAL) && ($r[0]['page-flags'] != PAGE_PRVGROUP))
 					$auto_confirm = true;
 

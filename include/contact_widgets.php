@@ -93,7 +93,7 @@ function networks_widget($baseurl,$selected = '') {
 	);
 
 	$nets = array();
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		require_once('include/contact_selectors.php');
 		foreach($r as $rr) {
 				if($rr['network'])
@@ -204,13 +204,13 @@ function common_friends_visitor_widget($profile_uid) {
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
-			if(count($r))
+			if(dba::is_result($r))
 				$cid = $r[0]['id'];
 			else {
 				$r = q("select id from gcontact where nurl = '%s' limit 1",
 					dbesc(normalise_link(get_my_url()))
 				);
-				if(count($r))
+				if(dba::is_result($r))
 					$zcid = $r[0]['id'];
 			}
 		}

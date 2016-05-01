@@ -32,7 +32,7 @@ function profile_photo_post(&$a) {
 				intval($_REQUEST['profile']),
 				intval(local_user())
 			);
-			if(count($r) && (! intval($r[0]['is-default'])))
+			if(dba::is_result($r) && (! intval($r[0]['is-default'])))
 				$is_default_profile = 0;
 		}
 
@@ -63,7 +63,7 @@ function profile_photo_post(&$a) {
 			dbesc(local_user()),
 			intval($scale));
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			$base_image = $r[0];
 

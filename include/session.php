@@ -17,7 +17,7 @@ function ref_session_read ($id) {
 	if(x($id))
 		$r = q("SELECT `data` FROM `session` WHERE `sid`= '%s'", dbesc($id));
 
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		$session_exists = true;
 		return $r[0]['data'];
 	} else {

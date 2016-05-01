@@ -57,13 +57,13 @@ function common_content(&$a) {
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
-			if(count($r))
+			if(dba::is_result($r))
 				$cid = $r[0]['id'];
 			else {
 				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link(get_my_url()))
 				);
-				if(count($r))
+				if(dba::is_result($r))
 					$zcid = $r[0]['id'];
 			}
 		}

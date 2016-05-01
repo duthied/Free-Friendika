@@ -254,7 +254,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(count($r)) {
+				if(dba::is_result($r)) {
 					$eacct = $r[0];
 					require_once('include/email.php');
 					$mb = construct_mailbox_name($eacct);
@@ -842,15 +842,15 @@ function settings_content(&$a) {
 			$r = null;
 		}
 
-		$mail_server       = ((count($r)) ? $r[0]['server'] : '');
-		$mail_port         = ((count($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
-		$mail_ssl          = ((count($r)) ? $r[0]['ssltype'] : '');
-		$mail_user         = ((count($r)) ? $r[0]['user'] : '');
-		$mail_replyto      = ((count($r)) ? $r[0]['reply_to'] : '');
-		$mail_pubmail      = ((count($r)) ? $r[0]['pubmail'] : 0);
-		$mail_action       = ((count($r)) ? $r[0]['action'] : 0);
-		$mail_movetofolder = ((count($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((count($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
+		$mail_server       = ((dba::is_result($r)) ? $r[0]['server'] : '');
+		$mail_port         = ((dba::is_result($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
+		$mail_ssl          = ((dba::is_result($r)) ? $r[0]['ssltype'] : '');
+		$mail_user         = ((dba::is_result($r)) ? $r[0]['user'] : '');
+		$mail_replyto      = ((dba::is_result($r)) ? $r[0]['reply_to'] : '');
+		$mail_pubmail      = ((dba::is_result($r)) ? $r[0]['pubmail'] : 0);
+		$mail_action       = ((dba::is_result($r)) ? $r[0]['action'] : 0);
+		$mail_movetofolder = ((dba::is_result($r)) ? $r[0]['movetofolder'] : '');
+		$mail_chk          = ((dba::is_result($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
 
 
 		$tpl = get_markup_template("settings_connectors.tpl");

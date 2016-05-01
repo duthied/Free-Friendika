@@ -136,7 +136,7 @@ function proxy_init() {
 
 	if (!$direct_cache AND ($cachefile == "")) {
 		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
-		if (count($r)) {
+		if (dba::is_result($r)) {
         		$img_str = $r[0]['data'];
 			$mime = $r[0]["desc"];
 			if ($mime == "") $mime = "image/jpeg";

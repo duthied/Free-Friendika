@@ -276,7 +276,7 @@ function event_store($arr) {
 				intval($arr['id']),
 				intval($arr['uid'])
 			);
-			return((count($r)) ? $r[0]['id'] : 0);
+			return((dba::is_result($r)) ? $r[0]['id'] : 0);
 		}
 
 		// The event changed. Update it.
@@ -317,7 +317,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if(count($r)) {
+		if(dba::is_result($r)) {
 			$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($arr['uri']) . '</id>';
 			$object .= '<content>' . xmlify(format_event_bbcode($arr)) . '</content>';
 			$object .= '</object>' . "\n";
@@ -376,7 +376,7 @@ function event_store($arr) {
 			dbesc($arr['uri']),
 			intval($arr['uid'])
 		);
-		if(count($r))
+		if(dba::is_result($r))
 			$event = $r[0];
 
 		$item_arr = array();
@@ -418,7 +418,7 @@ function event_store($arr) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($arr['uid'])
 		);
-		//if(count($r))
+		//if(dba::is_result($r))
 		//	$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 

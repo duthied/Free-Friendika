@@ -138,7 +138,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
 						intval($visitor['cid'])
 					);
-					if(count($r))
+					if(dba::is_result($r))
 						$profile = $r[0]['profile-id'];
 					break;
 				}
@@ -230,7 +230,7 @@ function profile_sidebar($profile, $block = 0) {
 
 		$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
 			local_user(), $profile_url);
-		if (count($r))
+		if (dba::is_result($r))
 			$connect = false;
 	}
 
@@ -263,7 +263,7 @@ function profile_sidebar($profile, $block = 0) {
 			'entries' => array(),
 		);
 
-		if(count($r)) {
+		if(dba::is_result($r)) {
 
 			foreach($r as $rr) {
 				$profile['menu']['entries'][] = array(
@@ -344,7 +344,7 @@ function profile_sidebar($profile, $block = 0) {
 		if(is_array($a->profile) AND !$a->profile['hide-friends']) {
 			$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 				intval($a->profile['uid']));
-			if(count($r))
+			if(dba::is_result($r))
 				$updated =  date("c", strtotime($r[0]['updated']));
 
 			$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -354,7 +354,7 @@ function profile_sidebar($profile, $block = 0) {
 				dbesc(NETWORK_DIASPORA),
 				dbesc(NETWORK_OSTATUS)
 			);
-			if(count($r))
+			if(dba::is_result($r))
 				$contacts = intval($r[0]['total']);
 		}
 	}

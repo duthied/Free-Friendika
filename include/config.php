@@ -20,7 +20,7 @@ function load_config($family) {
 	global $a;
 
 	$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s'", dbesc($family));
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			$k = $rr['k'];
 			if ($family === 'config') {
@@ -174,7 +174,7 @@ function load_pconfig($uid,$family) {
 		dbesc($family),
 		intval($uid)
 	);
-	if(count($r)) {
+	if(dba::is_result($r)) {
 		foreach($r as $rr) {
 			$k = $rr['k'];
 			$a->config[$uid][$family][$k] = $rr['v'];
