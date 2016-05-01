@@ -700,6 +700,7 @@ function fetch_xrd_links($url) {
  * @return boolean True if it's a valid URL, fals if something wrong with it
  */
 function validate_url(&$url) {
+	logger(sprintf('[%s:%d]: url=%s - CALLED!', __FUNCTION__, __LINE__, $url), LOGGER_TRACE);
 
 	if(get_config('system','disable_url_validation'))
 		return true;
@@ -710,7 +711,12 @@ function validate_url(&$url) {
 
 	if(substr($url,0,4) != 'http' && substr($url,0,5) != 'https')
 		$url = 'http://' . $url;
+
+	logger(sprintf('[%s:%d]: url=%s - before parse_url() ...', __FUNCTION__, __LINE__, $url), LOGGER_DEBUG);
+
 	$h = @parse_url($url);
+
+	logger(sprintf('[%s:%d]: h[]=%s', __FUNCTION__, __LINE__, gettype($h)), LOGGER_DEBUG);
 
 	if(($h) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 		return true;
