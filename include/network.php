@@ -393,12 +393,13 @@ function webfinger_dfrn($webbie,&$hcard) {
 	logger('webfinger_dfrn: ' . $webbie . ':' . print_r($links,true), LOGGER_DATA);
 	if(count($links)) {
 		foreach($links as $link) {
-			if($link['@attributes']['rel'] === NAMESPACE_DFRN)
+			if(empty($profile_link) && $link['@attributes']['rel'] === NAMESPACE_DFRN) {
 				$profile_link = $link['@attributes']['href'];
-			if($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB)
+			} elseif(empty($profile_link) && $link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB) {
 				$profile_link = 'stat:' . $link['@attributes']['template'];
-			if($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard')
+			} elseif(empty($hcard) && $link['@attributes']['rel'] === 'http://microformats.org/profile/hcard') {
 				$hcard = $link['@attributes']['href'];
+			}
 		}
 	}
 	return $profile_link;

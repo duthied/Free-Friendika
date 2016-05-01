@@ -441,8 +441,12 @@ function dfrn_request_post(&$a) {
 			$data = probe_url($url);
 			$network = $data["network"];
 
+			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - BEFORE!', LOGGER_DEBUG);
+
 			// Canonicalise email-style profile locator
 			$url = webfinger_dfrn($url,$hcard);
+
+			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - AFTER!', LOGGER_DEBUG);
 
 			if (substr($url,0,5) === 'stat:') {
 
