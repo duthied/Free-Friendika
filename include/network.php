@@ -703,10 +703,12 @@ function validate_url(&$url) {
 
 	if(get_config('system','disable_url_validation'))
 		return true;
+
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
-	if(substr($url,0,4) != 'http')
+
+	if(substr($url,0,4) != 'http' && substr($url,0,5) != 'https')
 		$url = 'http://' . $url;
 	$h = @parse_url($url);
 
