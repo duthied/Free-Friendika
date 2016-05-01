@@ -104,6 +104,13 @@ function basic_replace(item) {
 	return '$1'+item.name+' ';
 }
 
+function webbie_replace(item) {
+	if(typeof item.replace !== 'undefined')
+		return '$1'+item.replace;
+
+	return '$1'+item.nick+' ';
+}
+
 function trim_replace(item) {
 	if(typeof item.replace !== 'undefined')
 		return '$1'+item.replace;
@@ -216,7 +223,7 @@ function string2bb(element) {
 			match: /(^@)([^\n]{2,})$/,
 			index: 2,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'x', 'contact'); },
-			replace: basic_replace,
+			replace: webbie_replace,
 			template: contact_format,
 		};
 
@@ -225,7 +232,7 @@ function string2bb(element) {
 			match: /(^!)([^\n]{2,})$/,
 			index: 2,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'x', 'community'); },
-			replace: basic_replace,
+			replace: webbie_replace,
 			template: contact_format,
 		};
 		this.attr('autocomplete', 'off');
