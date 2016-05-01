@@ -703,10 +703,12 @@ function validate_url(&$url) {
 	logger(sprintf('[%s:%d]: url=%s - CALLED!', __FUNCTION__, __LINE__, $url), LOGGER_TRACE);
 
 	if(get_config('system','disable_url_validation'))
+		logger(sprintf('[%s:%d]: URL validation disabled, returning TRUE - EXIT!', __FUNCTION__, __LINE__), LOGGER_TRACE);
 		return true;
 
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
+		logger(sprintf('[%s:%d]: URL is not complete, returning FALSE - EXIT!', __FUNCTION__, __LINE__), LOGGER_TRACE);
 		return false;
 
 	if(substr($url,0,4) != 'http' && substr($url,0,5) != 'https')
@@ -718,9 +720,12 @@ function validate_url(&$url) {
 
 	logger(sprintf('[%s:%d]: h[]=%s', __FUNCTION__, __LINE__, gettype($h)), LOGGER_DEBUG);
 
-	if(($h) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+	if((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		logger(sprintf('[%s:%d]: URL %s validated. - EXIT!', __FUNCTION__, __LINE__, $url), LOGGER_TRACE);
 		return true;
 	}
+
+	logger(sprintf('[%s:%d]: URL %s maybe not valid - EXIT!', __FUNCTION__, __LINE__, $url), LOGGER_TRACE);
 	return false;
 }
 
