@@ -111,11 +111,20 @@ nav ul {
     max-width: 100%;
   }
 
-  /* the top-nav notfication menu
-    Note: the device needs a min display width of 320px */
-  #nav-notifications-menu {
-    width: 270px;
+  
+  /* the top-nav notfication menu */
+  nav #nav-notifications-linkmenu .menu-popup {
+	position: fixed;
+	left: 10px;
+	right: 10px;
+	top: 44px;
+	bottom: 10px;
+	width: auto;
+	max-width: none;
+	max-height: none;
   }
+  
+
 }
 
 .wall-item-container.thread_level_2,
