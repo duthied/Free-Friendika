@@ -16,7 +16,7 @@ function display_init(&$a) {
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
+			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 			if (count($r)) {
@@ -28,7 +28,7 @@ function display_init(&$a) {
 		// Or is it anywhere on the server?
 		if ($nick == "") {
 			$r = q("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
@@ -44,8 +44,8 @@ function display_init(&$a) {
 
 		// Is it an item with uid=0?
 		if ($nick == "") {
-			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
+				`item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -55,9 +55,31 @@ function display_init(&$a) {
 		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
-				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
+				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = %d", $r[0]["parent"]);
+
+			if (($itemuid != local_user()) AND local_user()) {
+				// Do we know this contact but we haven't got this item?
+				// Copy the wohle thread to our local storage so that we can interact.
+				// We really should change this need for the future since it scales very bad.
+				$contactid = get_contact($r[0]['owner-link'], local_user());
+				if ($contactid) {
+					$items = q("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
+					foreach ($items AS $item) {
+						$itemcontactid = get_contact($item['owner-link'], local_user());
+						if (!$itemcontactid)
+							$itemcontactid = $contactid;
+
+						unset($item['id']);
+						$item['uid'] = local_user();
+						$item['origin'] = 0;
+						$item['contact-id'] = $itemcontactid;
+						$local_copy = item_store($item, false, false, true);
+						logger("Stored local copy for post ".$item['guid']." under id ".$local_copy, LOGGER_DEBUG);
+					}
+				}
+			}
 
 			$profiledata = display_fetchauthor($a, $r[0]);
 
