@@ -183,7 +183,7 @@ function message_content(&$a) {
 		return;
 	}
 
-	$myprofile = 'profile/' . $a->user['nickname'];
+	$myprofile = $a->get_baseurl().'/profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
 	$header = replace_macros($tpl, array(
@@ -357,8 +357,7 @@ function message_content(&$a) {
 
 		$r = q("SELECT count(*) AS `total` FROM `mail`
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
-			intval(local_user()),
-			dbesc($myprofile)
+			intval(local_user())
 		);
 
 		if(count($r)) $a->set_pager_total($r[0]['total']);
@@ -550,19 +549,16 @@ function render_messages($msg, $t) {
 	$tpl = get_markup_template($t);
 	$rslt = '';
 
-	$myprofile = 'profile/' . $a->user['nickname'];
+	$myprofile = $a->get_baseurl().'/profile/' . $a->user['nickname'];
 
 	foreach($msg as $rr) {
 
-		if($rr['unknown']) {
+		if($rr['unknown'])
 			$participants = sprintf( t("Unknown sender - %s"),$rr['from-name']);
-		}
-		elseif (link_compare($rr['from-url'], $myprofile)){
+		elseif (link_compare($rr['from-url'], $myprofile))
 			$participants = sprintf( t("You and %s"), $rr['name']);
-		}
-		else {
-			$participants = sprintf( t("%s and You"), $rr['from-name']);
-		}
+		else
+			$participants = sprintf(t("%s and You"), $rr['from-name']);
 
 		if($a->theme['template_engine'] === 'internal') {
 			$subject_e = template_escape((($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'));
