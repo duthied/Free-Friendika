@@ -56,8 +56,8 @@ $(document).ready(function(){
 	// correct url. The only way which comes to my mind was to do this with js
 	// So we apply the correct url (with the link to the id of the mask) after the page is loaded.
 	if($("#logo-img")) {
-		var path= "url('" + window.location.pathname + "#logo-mask')";
-		$("#logo-img").css({"mask": path});
+		var pageurl = "url('" + window.location.href + "#logo-mask')";
+		$("#logo-img").css({"mask": pageurl});
 	}
 
 	// make responsive tabmenu with flexmenu.js
