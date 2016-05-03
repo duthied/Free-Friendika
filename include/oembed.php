@@ -75,10 +75,13 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 		else {	//save in cache
 			$j = json_decode($txt);
 			if ($j->type != "error")
-				q("INSERT INTO `oembed` (`url`, `content`, `created`) VALUES ('%s', '%s', '%s')",
-					dbesc(normalise_link($embedurl)), dbesc($txt), dbesc(datetime_convert()));
+				q("INSERT INTO `oembed` (`url`, `content`, `created`) VALUES ('%s', '%s', '%s')
+					ON DUPLICATE KEY UPDATE `content` = '%s', `created` = '%s'",
+					dbesc(normalise_link($embedurl)),
+					dbesc($txt), dbesc(datetime_convert()),
+					dbesc($txt), dbesc(datetime_convert()));
 
-			Cache::set($a->videowidth . $embedurl,$txt, CACHE_DAY);
+			Cache::set($a->videowidth.$embedurl,$txt, CACHE_DAY);
 		}
 	}
 
