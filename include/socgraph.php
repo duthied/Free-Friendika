@@ -453,8 +453,11 @@ function poco_last_updated($profile, $force = false) {
 							"network" => $server[0]["network"],
 							"generation" => $gcontacts[0]["generation"]);
 
-					$contact["name"] = $noscrape["fn"];
-					$contact["community"] = $noscrape["comm"];
+					if (isset($noscrape["fn"]))
+						$contact["name"] = $noscrape["fn"];
+
+					if (isset($noscrape["comm"]))
+						$contact["community"] = $noscrape["comm"];
 
 					if (isset($noscrape["tags"])) {
 						$keywords = implode(" ", $noscrape["tags"]);
@@ -466,7 +469,8 @@ function poco_last_updated($profile, $force = false) {
 					if ($location)
 						$contact["location"] = $location;
 
-					$contact["notify"] = $noscrape["dfrn-notify"];
+					if (isset($noscrape["dfrn-notify"]))
+						$contact["notify"] = $noscrape["dfrn-notify"];
 
 					// Remove all fields that are not present in the gcontact table
 					unset($noscrape["fn"]);

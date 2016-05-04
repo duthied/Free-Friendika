@@ -15,8 +15,12 @@ function noscrape_init(&$a) {
 
 	profile_load($a,$which,$profile);
 
-	if(!$a->profile['net-publish'])
+	if(!$a->profile['net-publish']) {
+		header('Content-type: application/json; charset=utf-8');
+		$json_info = array("hide" => true);
+		echo json_encode($json_info);
 		killme();
+	}
 
 	$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
