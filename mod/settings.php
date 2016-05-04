@@ -1,6 +1,7 @@
 <?php
 
 require_once('include/group.php');
+require_once('include/socgraph.php');
 
 function get_theme_config_file($theme){
 	$a = get_app();
@@ -602,7 +603,7 @@ function settings_post(&$a) {
 
 
 	if($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self` = 1",
+		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
 			dbesc(datetime_convert()),
 			intval(local_user())
@@ -617,6 +618,13 @@ function settings_post(&$a) {
 
 	}
 
+	$r = q("SELECT `url` FROM `contact` WHERE `self` AND `uid` = %d", intval(local_user()));
+	if ($r) {
+		$gcontact = array("name" => $username, "generation" => 1, "hide" => ($hidewall OR !$net_publish),
+				"network" => NETWORK_DFRN, "url" => $r[0]["url"], "updated" => datetime_convert());
+
+		update_gcontact($gcontact);
+	}
 
 	require_once('include/profile_update.php');
 	profile_change();

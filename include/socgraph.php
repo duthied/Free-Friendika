@@ -1535,6 +1535,7 @@ function update_gcontact($contact) {
 
 	unset($fields["url"]);
 	unset($fields["updated"]);
+	unset($fields["hide"]);
 
 	// Bugfix: We had an error in the storing of keywords which lead to the "0"
 	// This value is still transmitted via poco.
@@ -1548,6 +1549,11 @@ function update_gcontact($contact) {
 	foreach ($fields AS $field => $data)
 		if (!isset($contact[$field]) OR ($contact[$field] == ""))
 			$contact[$field] = $r[0][$field];
+
+	if (!isset($contact["hide"]))
+		$contact["hide"] = $r[0]["hide"];
+
+	$fields["hide"] = $r[0]["hide"];
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
