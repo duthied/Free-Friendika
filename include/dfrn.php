@@ -1217,13 +1217,8 @@ class dfrn {
 			/// - poco:region
 			/// - poco:country
 
-			// The profile is searchable if it contains poco data
-			$searchable = (isset($poco["name"]) OR isset($poco["nick"]) OR isset($poco["about"]) OR isset($poco["location"]));
-
 			// If the "hide" element is present then the profile isn't searchable.
-			// Since this element is new (version >= 3.5), we need the check above as well.
-			if ($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true")
-				$searchable = false;
+			$searchable = !($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
 
 			// If the contact isn't searchable then set the contact to "hidden".
 			// Problem: This can be manually overridden by the user.
