@@ -2,42 +2,10 @@
 /**
  * @file include/diaspora.php
  * @brief The implementation of the diaspora protocol
- *
- * Checklist:
- *
- * Checked:
- * - send status
- * - send comment
- * - send like
- * - send mail
- * - send status retraction
- * - send comment retraction on own post
- * - send like retraction on own post
- * - send comment retraction on diaspora post
- * - send like retraction on diaspora post
- * - receive status
- * - receive reshare
- * - receive comment
- * - receive like
- * - receive connect request
- * - receive profile data
- * - receive mail
- * - receive comment retraction
- * - receive like retraction
- * - relay comment
- * - relay like
- * - relay comment retraction from diaspora
- * - relay comment retraction from friendica
- * - relay like retraction from diaspora
- * - relay like retraction from friendica
- * - send share
- *
- * Should work:
- * - receive account deletion
- * - send unshare
- *
- * Unchecked:
  */
+
+/// @todo reshare of some reshare doesn't work well, see guid c1d534b0ed19013358694860008dbc6c
+// 14f571c0f244013358694860008dbc6c
 
 require_once("include/items.php");
 require_once("include/bb2diaspora.php");

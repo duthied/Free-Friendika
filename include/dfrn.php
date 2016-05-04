@@ -561,6 +561,13 @@ class dfrn {
 			}
 		}
 
+		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
+		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `hidewall` OR NOT `net-publish` AND `user`.`uid` = %d",
+			intval($owner['uid']));
+		if ($r)
+			xml::add_element($doc, $author, "dfrn:hide", "true");
+
 		return $author;
 	}
 
@@ -1126,7 +1133,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
+				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`, `hidden`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1210,6 +1217,19 @@ class dfrn {
 			/// - poco:region
 			/// - poco:country
 
+			// The profile is searchable if it contains poco data
+			$searchable = (isset($poco["name"]) OR isset($poco["nick"]) OR isset($poco["about"]) OR isset($poco["location"]));
+
+			// If the "hide" element is present then the profile isn't searchable.
+			// Since this element is new (version >= 3.5), we need the check above as well.
+			if ($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true")
+				$searchable = false;
+
+			// If the contact isn't searchable then set the contact to "hidden".
+			// Problem: This can be manually overridden by the user.
+			if (!$searchable)
+				$contact["hidden"] = true;
+
 			// Save the keywords into the contact table
 			$tags = array();
 			$tagelements = $xpath->evaluate($element."/poco:tags/text()", $context);
@@ -1280,13 +1300,13 @@ class dfrn {
 				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
-					intval($contact["id"]), dbesc($contact["network"]));
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["name-date"]),
+					dbesc($contact["uri-date"]), intval($contact["id"]), dbesc($contact["network"]));
 			}
 
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
@@ -1299,6 +1319,7 @@ class dfrn {
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
+			$poco["hide"] = !$searchable;
 			update_gcontact($poco);
 		}
 

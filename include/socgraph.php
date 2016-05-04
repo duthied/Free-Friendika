@@ -1447,6 +1447,10 @@ function get_gcontact_id($contact) {
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
+	// All new contacts are hidden by default
+	if (!isset($contact["hide"]))
+		$contact["hide"] = true;
+
 	// Replace alternate OStatus user format with the primary one
 	fix_alternate_contact_address($contact);
 
@@ -1469,8 +1473,8 @@ function get_gcontact_id($contact) {
 			$doprobing = (((time() - $last_contact) > (90 * 86400)) AND ((time() - $last_failure) > (90 * 86400)));
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `hide`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
 			dbesc($contact["name"]),
 			dbesc($contact["nick"]),
 			dbesc($contact["addr"]),
@@ -1482,6 +1486,7 @@ function get_gcontact_id($contact) {
 			dbesc(datetime_convert()),
 			dbesc($contact["location"]),
 			dbesc($contact["about"]),
+			intval($contact["hide"]),
 			intval($contact["generation"])
 		);
 
