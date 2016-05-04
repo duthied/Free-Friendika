@@ -101,8 +101,14 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 	if ($nolink)
 		return $data["text"].$data["after"];
 
-	if ($plaintext)
+	$title = htmlentities($data["title"], ENT_QUOTES, 'UTF-8', false);
+	$text = htmlentities($data["text"], ENT_QUOTES, 'UTF-8', false);
+	if ($plaintext or strstr($text, $title))
 		$data["title"] = $data["url"];
+	elseif (strstr($title, $text)) {
+		$data["text"] = $data["title"];
+		$data["title"] = $data["url"];
+	}
 
 	if (($data["text"] == "") AND ($data["title"] != "") AND ($data["url"] == ""))
 		return $data["title"].$data["after"];
@@ -115,10 +121,10 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 
 	if (($data["url"] != "") AND ($data["title"] != ""))
 		$text .= "\n[url=".$data["url"]."]".$data["title"]."[/url]";
-	elseif (($link != ""))
+	elseif (($data["url"] != ""))
 		$text .= "\n".$data["url"];
 
-	return $text.$data["after"];
+	return $text."\n".$data["after"];
 }
 
 function bb_cleanstyle($st) {
