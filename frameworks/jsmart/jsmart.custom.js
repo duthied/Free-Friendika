@@ -1837,11 +1837,11 @@
     function stripComments(s)
     {
         var sRes = '';
-        for (var openTag=s.match(/{\*/); openTag; openTag=s.match(/{\*/))
+        for (var openTag=s.match(/{{\*/); openTag; openTag=s.match(/{{\*/))
         {
             sRes += s.slice(0,openTag.index);
             s = s.slice(openTag.index+openTag[0].length);
-            var closeTag = s.match(/\*}/);
+            var closeTag = s.match(/\*}}/);
             if (!closeTag)
             {
                 throw new Error('Unclosed {*');
