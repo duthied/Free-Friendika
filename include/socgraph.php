@@ -1705,8 +1705,7 @@ function update_gcontact_for_user($uid) {
 			"hide" => ($r[0]["hidewall"] OR !$r[0]["net-publish"]),
 			"nick" => $r[0]["nickname"], "addr" => $addr,
 			"connect" => $addr, "server_url" => App::get_baseurl(),
-			"generation" => 1, "network" => NETWORK_DFRN,
-			"updated" => datetime_convert());
+			"generation" => 1, "network" => NETWORK_DFRN);
 
 	update_gcontact($gcontact);
 }

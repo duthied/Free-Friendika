@@ -410,6 +410,12 @@ function cron_repair_database() {
 	// There was an issue where the nick vanishes from the contact table
 	q("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
 
+	// Update the global contacts for local users
+	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
+	if ($r)
+		foreach ($r AS $user)
+			update_gcontact_for_user($user["uid"]);
+
 	/// @todo
 	/// - remove thread entries without item
 	/// - remove sign entries without item
