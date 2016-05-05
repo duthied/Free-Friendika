@@ -1395,23 +1395,23 @@ function poco_discover_server($data, $default_generation = 0) {
  * @return string Contact url with the wanted parts
  */
 function clean_contact_url($url) {
-        $parts = parse_url($url);
+	$parts = parse_url($url);
 
-        if (!isset($parts["scheme"]) OR !isset($parts["host"]))
-                return $url;
+	if (!isset($parts["scheme"]) OR !isset($parts["host"]))
+		return $url;
 
-        $new_url = $parts["scheme"]."://".$parts["host"];
+	$new_url = $parts["scheme"]."://".$parts["host"];
 
-        if (isset($parts["port"]))
-                $new_url .= ":".$parts["port"];
+	if (isset($parts["port"]))
+		$new_url .= ":".$parts["port"];
 
-        if (isset($parts["path"]))
-                $new_url .= $parts["path"];
+	if (isset($parts["path"]))
+		$new_url .= $parts["path"];
 
 	if ($new_url != $url)
 		logger("Cleaned contact url ".$url." to ".$new_url." - Called by: ".App::callstack(), LOGGER_DEBUG);
 
-        return $new_url;
+	return $new_url;
 }
 
 /**
@@ -1421,7 +1421,7 @@ function clean_contact_url($url) {
  */
 function fix_alternate_contact_address(&$contact) {
 	if (($contact["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($contact["url"])) {
-	        $data = probe_url($contact["url"]);
+		$data = probe_url($contact["url"]);
 		if ($contact["network"] == NETWORK_OSTATUS) {
 			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 			$contact["url"] = $data["url"];
@@ -1670,6 +1670,45 @@ function update_gcontact_from_probe($url) {
 	}
 
 	update_gcontact($data);
+}
+
+/**
+ * @brief Update the gcontact entry for a given user id
+ *
+ * @param int $uid User ID
+ */
+function update_gcontact_for_user($uid) {
+	$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
+			`profile`.`name`, `profile`.`about`, `profile`.`gender`,
+			`profile`.`pub_keywords`, `profile`.`dob`, `profile`.`photo`,
+			`profile`.`net-publish`, `user`.`nickname`, `user`.`hidewall`,
+			`contact`.`notify`, `contact`.`url`, `contact`.`addr`
+		FROM `profile`
+			INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
+		WHERE `profile`.`uid` = %d AND `profile`.`is-default` AND `contact`.`self`",
+		intval($uid));
+
+	$location = formatted_location(array("locality" => $r[0]["locality"], "region" => $r[0]["region"],
+						"country-name" => $r[0]["country-name"]));
+
+	// The "addr" field was added in 3.4.3 so it can be empty for older users
+	if ($r[0]["addr"] != "")
+		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
+	else
+		$addr = $r[0]["addr"];
+
+	$gcontact = array("name" => $r[0]["name"], "location" => $location, "about" => $r[0]["about"],
+			"gender" => $r[0]["gender"], "keywords" => $r[0]["pub_keywords"],
+			"birthday" => $r[0]["dob"], "photo" => $r[0]["photo"],
+			"notify" => $r[0]["notify"], "url" => $r[0]["url"],
+			"hide" => ($r[0]["hidewall"] OR !$r[0]["net-publish"]),
+			"nick" => $r[0]["nickname"], "addr" => $addr,
+			"connect" => $addr, "server_url" => App::get_baseurl(),
+			"generation" => 1, "network" => NETWORK_DFRN,
+			"updated" => datetime_convert());
+
+	update_gcontact($gcontact);
 }
 
 /**

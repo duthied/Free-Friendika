@@ -615,22 +615,13 @@ function settings_post(&$a) {
 		$url = $_SESSION['my_url'];
 		if($url && strlen(get_config('system','directory')))
 			proc_run('php',"include/directory.php","$url");
-
-	}
-
-	$r = q("SELECT `url` FROM `contact` WHERE `self` AND `uid` = %d", intval(local_user()));
-	if ($r) {
-		$nickname = $a->user['nickname'];
-		$addr = $nickname.'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
-		$gcontact = array("name" => $username, "generation" => 1, "hide" => ($hidewall OR !$net_publish),
-				"nick" => $nickname, "addr" => $addr,
-				"connect" => $addr, "server_url" => App::get_baseurl(),
-				"network" => NETWORK_DFRN, "url" => $r[0]["url"], "updated" => datetime_convert());
-		update_gcontact($gcontact);
 	}
 
 	require_once('include/profile_update.php');
 	profile_change();
+
+	// Update the global contact for the user
+	update_gcontact_for_user(local_user());
 
 	//$_SESSION['theme'] = $theme;
 	if($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {

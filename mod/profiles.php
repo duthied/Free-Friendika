@@ -492,17 +492,6 @@ function profiles_post(&$a) {
 				intval(local_user())
 			);
 
-			$r = q("SELECT `avatar`, `notify`, `url` FROM `contact` WHERE `self` AND `uid` = %d",
-				intval(local_user()));
-
-			$gcontact = array("name" => $name, "location" => $location, "about" => $about,
-					"gender" => $gender, "keywords" => $pub_keywords, "birthday" => $dob,
-					"photo" => $r[0]["avatar"], "notify" => $r[0]["notify"],
-					"generation" => 1, "network" => NETWORK_DFRN,
-					"url" => $r[0]["url"], "updated" => datetime_convert());
-
-			update_gcontact($gcontact);
-
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory')))
@@ -510,6 +499,9 @@ function profiles_post(&$a) {
 
 			require_once('include/profile_update.php');
 			profile_change();
+
+			// Update the global contact for the user
+			update_gcontact_for_user(local_user());
 		}
 	}
 }
