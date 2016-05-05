@@ -85,7 +85,6 @@ $(document).ready(function(){
 });
 
 
-
 // hover cards should be removed very easily, e.g. when any of these events happen
 $('body').on("mouseleave touchstart scroll click dblclick mousedown mouseup submit keydown keypress keyup", function(e){
 	var timeNow = new Date().getTime();
@@ -196,6 +195,7 @@ function getHoverCardContent(term, url, callback) {
 //	});
 }
 
+
 // Ajax request to get the raw template content
 function getHoverCardTemplate (url, callback) {
 	var postdata = {
@@ -203,14 +203,24 @@ function getHoverCardTemplate (url, callback) {
 		datatype: 'tpl'
 	};
 
+	// Look if we have the template already in the cace, so we don't have
+	// request it again
+	if('hovercard' in getHoverCardTemplate.cache) {
+		setTimeout(function() { callback(getHoverCardTemplate.cache['hovercard']); } , 1);
+		return;
+	}
+
 	$.ajax({
 		url: url,
 		data: postdata,
 		success: function(data, textStatus) {
+			// write the data in the cache
+			getHoverCardTemplate.cache['hovercard'] = data;
 			callback(data);
 		}
-	});
+	}).fail(function () {callback([]); });
 }
+getHoverCardTemplate.cache = {};
 
 // The Variables used for the template
 function getHoverCardVariables(object) {
