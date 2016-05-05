@@ -484,13 +484,24 @@ function profiles_post(&$a) {
 		if($is_default) {
 			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
-			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),
 				dbesc($location),
 				dbesc($pub_keywords),
 				dbesc($gender),
 				intval(local_user())
 			);
+
+			$r = q("SELECT `avatar`, `notify`, `url` FROM `contact` WHERE `self` AND `uid` = %d",
+				intval(local_user()));
+
+			$gcontact = array("name" => $name, "location" => $location, "about" => $about,
+					"gender" => $gender, "keywords" => $pub_keywords, "birthday" => $dob,
+					"photo" => $r[0]["avatar"], "notify" => $r[0]["notify"],
+					"generation" => 1, "network" => NETWORK_DFRN,
+					"url" => $r[0]["url"], "updated" => datetime_convert());
+
+			update_gcontact($gcontact);
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];

@@ -620,9 +620,12 @@ function settings_post(&$a) {
 
 	$r = q("SELECT `url` FROM `contact` WHERE `self` AND `uid` = %d", intval(local_user()));
 	if ($r) {
+		$nickname = $a->user['nickname'];
+		$addr = $nickname.'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
 		$gcontact = array("name" => $username, "generation" => 1, "hide" => ($hidewall OR !$net_publish),
+				"nick" => $nickname, "addr" => $addr,
+				"connect" => $addr, "server_url" => App::get_baseurl(),
 				"network" => NETWORK_DFRN, "url" => $r[0]["url"], "updated" => datetime_convert());
-
 		update_gcontact($gcontact);
 	}
 
@@ -637,7 +640,7 @@ function settings_post(&$a) {
 
 	}
 
-	goaway('settings' );
+	goaway('settings');
 	return; // NOTREACHED
 }
 
@@ -1287,7 +1290,7 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
-        '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
+		'$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
 
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),

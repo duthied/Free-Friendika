@@ -492,12 +492,12 @@ class dfrn {
 
 		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
 		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `hidewall` OR NOT `net-publish` AND `user`.`uid` = %d",
+				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
 			intval($owner['uid']));
 		if ($r)
 			xml::add_element($doc, $author, "dfrn:hide", "true");
 
-		// The following fields will only be generated if this isn't for a public feed
+		// The following fields will only be generated if the data isn't meant for a public feed
 		if ($public)
 			return $author;
 
