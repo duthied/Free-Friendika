@@ -19,6 +19,7 @@ and open the template in the editor.
 @import url("frameworks/justifiedGallery/justifiedGallery.min.css");
 @import url("frameworks/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css");
 @import url("font/open_sans/open-sans.css");
+@import url("css/hovercard.css");
 
 
 body {

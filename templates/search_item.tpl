@@ -56,42 +56,26 @@
 			{{* The avatar picture and the photo-menu *}}
 			<div class="dropdown pull-left"><!-- Dropdown -->
 				<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a class="dropdown-toggle" type="button" id="wall-item-photo-menu-{{$item.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<a href="{{$item.profile_url}}" class="userinfo" id="wall-item-photo-menu-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
 							<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
-
-							{{* Overlay background on hover the avatar picture *}}
-							<div class="contact-photo-overlay">
-								<span class="contact-photo-overlay-content"><i class="fa fa-angle-down"></i></span>
-							</div>
 						</div>
 					</a>
-					<ul class="dropdown-menu contact-menu-lg contact-menu menu-popup" role="menu" aria-labelledby="wall-item-photo-menu-{{$item.id}}">
-						{{$item.item_photo_menu}}
-					</ul>
 				</div>
 				<div class="hidden-lg hidden-md contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a class="dropdown-toggle" type="button" id="wall-item-photo-menu-{{$item.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<a href="{{$item.profile_url}}" class="userinfo" id="wall-item-photo-menu-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
 							<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
-
-							{{* Overlay background on hover the avatar picture *}}
-							<div class="contact-photo-overlay">
-								<span class="contact-photo-overlay-content"><i class="fa fa-angle-down"></i></span>
-							</div>
 						</div>
 					</a>
-					<ul class="dropdown-menu contact-menu-xs contact-menu menu-popup" role="menu" aria-labelledby="wall-item-photo-menu-{{$item.id}}">
-						{{$item.item_photo_menu}}
-					</ul>
 				</div>
 			</div><!-- ./Dropdown -->
 
 
 			{{* contact info header*}}
 			<div role="heading " class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-				<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
-					{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
+				<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
+					{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 					{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}">&nbsp<small><i class="fa fa-lock"></i></small></span>{{/if}}
 
 					<div class="additional-info text-muted">
@@ -112,7 +96,7 @@
 			{{* contact info header for smartphones *}}
 			<div role="heading " class="contact-info-xs hidden-lg hidden-md">
 				<h5 class="media-heading">
-					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><strong>{{$item.name}}</strong></a>
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><strong>{{$item.name}}</strong></a>
 					<p class="text-muted"><small>
 						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
 					</p>

@@ -158,9 +158,9 @@ $("nav").bind('nav-update', function(e,data)
 <script src="<?=$frio?>/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 <script src="<?=$frio?>/frameworks/flexMenu/flexmenu.custom.js"></script>
-<script src="<?=$frio?>/frameworks/jsmart/jsmart.js"></script>
+<script src="<?=$frio?>/frameworks/jsmart/jsmart.custom.js"></script>
 <script src="<?=$frio?>/js/theme.js"></script>
-<script src="<?=$frio?>/js/acl.js"></script>
+<script src="<?=$frio?>/js/hovercard.js"></script>
 
 
 <!-- Modal  -->
