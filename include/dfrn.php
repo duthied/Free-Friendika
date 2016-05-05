@@ -490,6 +490,13 @@ class dfrn {
 		if ($birthday)
 			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
 
+		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
+		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `hidewall` OR NOT `net-publish` AND `user`.`uid` = %d",
+			intval($owner['uid']));
+		if ($r)
+			xml::add_element($doc, $author, "dfrn:hide", "true");
+
 		// The following fields will only be generated if this isn't for a public feed
 		if ($public)
 			return $author;
@@ -560,13 +567,6 @@ class dfrn {
 				$author->appendChild($element);
 			}
 		}
-
-		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
-		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `hidewall` OR NOT `net-publish` AND `user`.`uid` = %d",
-			intval($owner['uid']));
-		if ($r)
-			xml::add_element($doc, $author, "dfrn:hide", "true");
 
 		return $author;
 	}
@@ -1218,11 +1218,13 @@ class dfrn {
 			/// - poco:country
 
 			// If the "hide" element is present then the profile isn't searchable.
-			$searchable = !($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+			$hide = intval($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+
+			logger("Hidden status for contact ".$contact["url"].": ".$hide, LOGGER_DEBUG);
 
 			// If the contact isn't searchable then set the contact to "hidden".
 			// Problem: This can be manually overridden by the user.
-			if (!$searchable)
+			if ($hide)
 				$contact["hidden"] = true;
 
 			// Save the keywords into the contact table
@@ -1277,17 +1279,17 @@ class dfrn {
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
-			 // Update check for this field has to be done differently
+			// Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
@@ -1314,7 +1316,7 @@ class dfrn {
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
-			$poco["hide"] = !$searchable;
+			$poco["hide"] = $hide;
 			update_gcontact($poco);
 		}
 
