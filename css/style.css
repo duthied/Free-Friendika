@@ -165,6 +165,29 @@ iframe, img {
     background: $link_hover_color;
 }
 
+/* Bootstrap media class fix/hack
+ * This is a test. I thought it does have some
+ * issues in some corner cases. Maybe we remove
+ * once more
+ * https://github.com/twbs/bootstrap/issues/6053
+ */
+.media, .media-body {
+    overflow: visible;
+}
+.media .media-body {
+    display: table-cell;
+    width: 10000px;
+    *width: auto;
+    *zoom: 1;
+}
+.media:before, .media:after {
+    content: "";
+    display: table;
+}
+.media:after {
+    clear: both;
+}
+
 /* Badges */
 .badge {
     vertical-align: baseline;
@@ -1611,17 +1634,17 @@ ul.viewcontact_wrapper > li {
 }
 /* bootstrap hack for .media */
 .contact-wrapper.media .media-body {
-display: table-cell;
-width: 10000px;
-*width: auto;
-*zoom: 1;
+    display: table-cell;
+    width: 10000px;
+    *width: auto;
+    *zoom: 1;
 }
 .contact-wrapper.media:before, .media:after {
-content: "";
-display: table;
+    content: "";
+    display: table;
 }
 .contact-wrapper.media:after {
-clear: both;
+    clear: both;
 }
 .contact-wrapper .contact-photo-image-wrapper img.contact-photo.xl {
     height: 80px;
