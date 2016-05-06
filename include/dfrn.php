@@ -68,10 +68,11 @@ class dfrn {
 	 * @param string $owner_nick Owner nick name
 	 * @param string $last_update Date of the last update
 	 * @param int $direction Can be -1, 0 or 1.
+	 * @param boolean $onlyheader Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
 	 */
-	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
+	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false) {
 
 		$a = get_app();
 
@@ -234,7 +235,7 @@ class dfrn {
 		// This hook can't work anymore
 		//	call_hooks('atom_feed', $atom);
 
-		if(! count($items)) {
+		if (!count($items) OR $onlyheader) {
 			$atom = trim($doc->saveXML());
 
 			call_hooks('atom_feed_end', $atom);
@@ -462,44 +463,52 @@ class dfrn {
 	 */
 	private function add_author($doc, $owner, $authorelement, $public) {
 
-		$author = $doc->createElement($authorelement);
-
-		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00' , ATOM_TIME);
-		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
-		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
-
-		$attributes = array("dfrn:updated" => $namdate);
-		xml::add_element($doc, $author, "name", $owner["name"], $attributes);
-
-		$attributes = array("dfrn:updated" => $namdate);
-		xml::add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
-
-		$attributes = array("dfrn:updated" => $namdate);
-		xml::add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
-
-		$attributes = array("rel" => "photo", "type" => "image/jpeg", "dfrn:updated" => $picdate,
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
-		xml::add_element($doc, $author, "link", "", $attributes);
-
-		$attributes = array("rel" => "avatar", "type" => "image/jpeg", "dfrn:updated" => $picdate,
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
-		xml::add_element($doc, $author, "link", "", $attributes);
-
-		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
-
-		if ($birthday)
-			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
-
 		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
 		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
 			intval($owner['uid']));
 		if ($r)
+			$hidewall = true;
+		else
+			$hidewall = false;
+
+		$author = $doc->createElement($authorelement);
+
+		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00', ATOM_TIME);
+		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
+		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
+
+		if (!$public OR !$hidewall)
+			$attributes = array("dfrn:updated" => $namdate);
+		else
+			$attributes = array();
+
+		xml::add_element($doc, $author, "name", $owner["name"], $attributes);
+		xml::add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
+		xml::add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
+
+		$attributes = array("rel" => "photo", "type" => "image/jpeg",
+					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
+
+		if (!$public OR !$hidewall)
+			$attributes["dfrn:updated"] = $picdate;
+
+		xml::add_element($doc, $author, "link", "", $attributes);
+
+		$attributes["rel"] = "avatar";
+		xml::add_element($doc, $author, "link", "", $attributes);
+
+		if ($hidewall)
 			xml::add_element($doc, $author, "dfrn:hide", "true");
 
 		// The following fields will only be generated if the data isn't meant for a public feed
 		if ($public)
 			return $author;
+
+		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
+
+		if ($birthday)
+			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
 
 		// Only show contact details when we are allowed to
 		$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`, `user`.`timezone`,
