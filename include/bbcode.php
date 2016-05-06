@@ -103,9 +103,9 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 
 	$title = htmlentities($data["title"], ENT_QUOTES, 'UTF-8', false);
 	$text = htmlentities($data["text"], ENT_QUOTES, 'UTF-8', false);
-	if ($plaintext or strstr($text, $title))
+	if ($plaintext OR (($title != "") AND strstr($text, $title)))
 		$data["title"] = $data["url"];
-	elseif (strstr($title, $text)) {
+	elseif (($text != "") AND strstr($title, $text)) {
 		$data["text"] = $data["title"];
 		$data["title"] = $data["url"];
 	}
