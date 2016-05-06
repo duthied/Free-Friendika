@@ -95,19 +95,19 @@ $('body').on("mouseleave touchstart scroll click dblclick mousedown mouseup subm
 // removes all hover cards
 function removeAllhoverCards(event,priorTo) {
 	// don't remove hovercards until after 100ms, so user have time to move the cursor to it (which gives it the dont-remove-card class)
-//	setTimeout(function(){
-//		$.each($('.hovercard'),function(){
-//			var title = $(this).attr("data-orig-title");
-//			// don't remove card if it was created after removeAllhoverCards() was called
-//			if($(this).data('card-created') < priorTo) {
-//				// don't remove it if we're hovering it right now!
-//				if(!$(this).hasClass('dont-remove-card')) {
-//					$('[data-hover-card-active="' + $(this).data('card-created') + '"]').removeAttr('data-hover-card-active');
-//					$(this).popover("hide");
-//				}
-//			}
-//		});
-//	},100);
+	setTimeout(function(){
+		$.each($('.hovercard'),function(){
+			var title = $(this).attr("data-orig-title");
+			// don't remove card if it was created after removeAllhoverCards() was called
+			if($(this).data('card-created') < priorTo) {
+				// don't remove it if we're hovering it right now!
+				if(!$(this).hasClass('dont-remove-card')) {
+					$('[data-hover-card-active="' + $(this).data('card-created') + '"]').removeAttr('data-hover-card-active');
+					$(this).popover("hide");
+				}
+			}
+		});
+	},100);
 }
 
 // if we're hovering a hover card, give it a class, so we don't remove it
