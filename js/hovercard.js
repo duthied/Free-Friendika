@@ -62,7 +62,16 @@ $(document).ready(function(){
 							if(data) {
 								targetElement.popover({
 									html: true,
-									placement: 'auto',
+									placement: function () {
+										// Calculate the placement of the the hovercard (if top or bottom)
+										// The placement depence on the distance between window top and the element
+										// which triggers the hover-card
+										var get_position = $(targetElement).offset().top - $(window).scrollTop();
+										if (get_position < 270 ){
+											return "bottom";
+										}
+										return "top";
+									},
 									trigger: 'manual',
 									template: '<div class="popover hovercard" data-card-created="' + timeNow + '"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
 									content: data
