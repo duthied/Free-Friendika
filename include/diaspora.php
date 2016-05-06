@@ -4,9 +4,6 @@
  * @brief The implementation of the diaspora protocol
  */
 
-/// @todo reshare of some reshare doesn't work well, see guid c1d534b0ed19013358694860008dbc6c
-// 14f571c0f244013358694860008dbc6c
-
 require_once("include/items.php");
 require_once("include/bb2diaspora.php");
 require_once("include/Scrape.php");
@@ -1913,8 +1910,13 @@ class diaspora {
 					FROM `item` WHERE `id` = %d AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 					intval($item_id));
 
-				if ($r)
+				if ($r) {
+					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
+					if (self::is_reshare($r[0]["body"], false))
+						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+
 					return $r[0];
+				}
 
 			}
 		}
@@ -2548,7 +2550,7 @@ class diaspora {
 
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
-		if (strpos($body, "[share") > 0)
+		if ((strpos($body, "[share") > 0) AND $complete)
 			return(false);
 
 		// Does it end with a share?
