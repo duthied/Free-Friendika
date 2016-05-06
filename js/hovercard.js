@@ -40,8 +40,8 @@ $(document).ready(function(){
 
 			targetElement.attr('data-awaiting-hover-card',timeNow);
 
-			// The serach term is the url 
-			var term = hrefAttr;
+			// Take link href attribute as link to the profile
+			var profileurl = hrefAttr;
 			// the url to get the contact and template data
 			var url = baseurl + "/frio_hovercard";
 
@@ -58,7 +58,7 @@ $(document).ready(function(){
 						targetElement.attr('data-hover-card-active',timeNow);
 						// get the whole html content of the hover card and
 						// push it to the bootstrap popover
-						getHoverCardContent(term, url, function(data){
+						getHoverCardContent(profileurl, url, function(data){
 							if(data) {
 								targetElement.popover({
 									html: true,
@@ -119,18 +119,41 @@ $('body').on('mouseleave','.hovercard', function(e) {
 });
 
 // Ajax request to get json contact data
-function getHoverCardData(term, url, actionOnSuccess) {
+function getContactData(purl, url, actionOnSuccess) {
 	var postdata = {
 		mode		: 'modal',
-		profileurl	: term,
+		profileurl	: purl,
 		datatype	: 'json',
 	};
+
+	// Normalize and clean the profile so we can use a standardized url
+	// as key for the cache
+	var nurl = cleanContactUrl(purl).normalizeLink();
+
+	// If the contact is allready in the cache use the cached result instead
+	// of doing a new ajax request
+	if(nurl in getContactData.cache) {
+		setTimeout(function() { actionOnSuccess(getContactData.cache[nurl]); } , 1);
+		return;
+	}
 
 	$.ajax({
 		url: url,
 		data: postdata,
 		dataType: "json",
 		success: function(data, textStatus, request){
+			// Check if the nurl (normalized profile url) is present and store it to the cache
+			// The nurl will be the identifier in the object
+			if(data.nurl.length > 0) {
+				// Test if the contact is allready connected with the user (if url containing
+				// the expression ("redir/") We will store different cache keys 
+				if((data.url.search("redir/")) >= 0 ) {
+					var key = data.url;
+				} else {
+					var key = data.nurl;
+				}
+				getContactData.cache[key] = data;
+			}
 			actionOnSuccess(data, url, request);
 		},
 		error: function(data) {
@@ -138,20 +161,159 @@ function getHoverCardData(term, url, actionOnSuccess) {
 		}
 	});
 }
+getContactData.cache = {};
+
 // current time in milliseconds, to send each request to make sure
 // we 're not getting 304 response
 function timeNow() {
 	return new Date().getTime();
 }
+
+String.prototype.normalizeLink = function () {
+	var ret = this.replace('https:', 'http:');
+	var ret = ret.replace('//www', '//');
+	return ret.rtrim();
+};
+
+
+
+function cleanContactUrl(url) {
+	var parts = parseUrl(url);
+
+	if(! ("scheme" in parts) || ! ("host" in parts)) {
+		return url;
+	}
+
+	var newUrl =parts["scheme"] + "://" + parts["host"];
+
+	if("port" in parts) {
+		newUrl += ":" + parts["port"];
+	}
+
+	if("path" in parts) {
+		newUrl += parts["path"];
+	}
+
+//	if(url != newUrl) {
+//		console.log("Cleaned contact url " + url + " to " + newUrl);
+//	}
+
+	return newUrl;
+}
+
+function parseUrl (str, component) { // eslint-disable-line camelcase
+	//       discuss at: http://locutusjs.io/php/parse_url/
+	//      original by: Steven Levithan (http://blog.stevenlevithan.com)
+	// reimplemented by: Brett Zamir (http://brett-zamir.me)
+	//         input by: Lorenzo Pisani
+	//         input by: Tony
+	//      improved by: Brett Zamir (http://brett-zamir.me)
+	//           note 1: original by http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js
+	//           note 1: blog post at http://blog.stevenlevithan.com/archives/parseuri
+	//           note 1: demo at http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js
+	//           note 1: Does not replace invalid characters with '_' as in PHP,
+	//           note 1: nor does it return false with
+	//           note 1: a seriously malformed URL.
+	//           note 1: Besides function name, is essentially the same as parseUri as
+	//           note 1: well as our allowing
+	//           note 1: an extra slash after the scheme/protocol (to allow file:/// as in PHP)
+	//        example 1: parse_url('http://user:pass@host/path?a=v#a')
+	//        returns 1: {scheme: 'http', host: 'host', user: 'user', pass: 'pass', path: '/path', query: 'a=v', fragment: 'a'}
+	//        example 2: parse_url('http://en.wikipedia.org/wiki/%22@%22_%28album%29')
+	//        returns 2: {scheme: 'http', host: 'en.wikipedia.org', path: '/wiki/%22@%22_%28album%29'}
+	//        example 3: parse_url('https://host.domain.tld/a@b.c/folder')
+	//        returns 3: {scheme: 'https', host: 'host.domain.tld', path: '/a@b.c/folder'}
+	//        example 4: parse_url('https://gooduser:secretpassword@www.example.com/a@b.c/folder?foo=bar')
+	//        returns 4: { scheme: 'https', host: 'www.example.com', path: '/a@b.c/folder', query: 'foo=bar', user: 'gooduser', pass: 'secretpassword' }
+
+	var query
+
+	var mode = (typeof require !== 'undefined' ? require('../info/ini_get')('locutus.parse_url.mode') : undefined) || 'php'
+
+	var key = [
+		'source',
+		'scheme',
+		'authority',
+		'userInfo',
+		'user',
+		'pass',
+		'host',
+		'port',
+		'relative',
+		'path',
+		'directory',
+		'file',
+		'query',
+		'fragment'
+	]
+
+	// For loose we added one optional slash to post-scheme to catch file:/// (should restrict this)
+	var parser = {
+		php: new RegExp([
+			'(?:([^:\\/?#]+):)?',
+			'(?:\\/\\/()(?:(?:()(?:([^:@\\/]*):?([^:@\\/]*))?@)?([^:\\/?#]*)(?::(\\d*))?))?',
+			'()',
+			'(?:(()(?:(?:[^?#\\/]*\\/)*)()(?:[^?#]*))(?:\\?([^#]*))?(?:#(.*))?)'
+		].join('')),
+		strict: new RegExp([
+			'(?:([^:\\/?#]+):)?',
+			'(?:\\/\\/((?:(([^:@\\/]*):?([^:@\\/]*))?@)?([^:\\/?#]*)(?::(\\d*))?))?',
+			'((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)'
+		].join('')),
+		loose: new RegExp([
+			'(?:(?![^:@]+:[^:@\\/]*@)([^:\\/?#.]+):)?',
+			'(?:\\/\\/\\/?)?',
+			'((?:(([^:@\\/]*):?([^:@\\/]*))?@)?([^:\\/?#]*)(?::(\\d*))?)',
+			'(((\\/(?:[^?#](?![^?#\\/]*\\.[^?#\\/.]+(?:[?#]|$)))*\\/?)?([^?#\\/]*))',
+			'(?:\\?([^#]*))?(?:#(.*))?)'
+		].join(''))
+	}
+
+	var m = parser[mode].exec(str)
+	var uri = {}
+	var i = 14
+
+	while (i--) {
+		if (m[i]) {
+			uri[key[i]] = m[i]
+		}
+	}
+
+	if (component) {
+		return uri[component.replace('PHP_URL_', '').toLowerCase()]
+	}
+
+	if (mode !== 'php') {
+		var name = (typeof require !== 'undefined' ? require('../info/ini_get')('locutus.parse_url.queryKey') : undefined) || 'queryKey'
+		parser = /(?:^|&)([^&=]*)=?([^&]*)/g
+		uri[name] = {}
+		query = uri[key[12]] || ''
+		query.replace(parser, function ($0, $1, $2) {
+			if ($1) {
+				uri[name][$1] = $2
+			}
+		})
+	}
+
+	delete uri.source
+	return uri
+}
+
+// trim function to replace whithespace after the string
+String.prototype.rtrim = function() {
+	var trimmed = this.replace(/\s+$/g, '');
+	return trimmed;
+};
+
 // Get hover-card template data and the contact-data and transform it with
 // the help of jSmart. At the end we have full html content of the hovercard
-function getHoverCardContent(term, url, callback) {
+function getHoverCardContent(purl, url, callback) {
 	// fetch the raw content of the template
 	getHoverCardTemplate(url, function(stpl) {
 		var template = unescape(stpl);
 
 		// get the contact data
-		getHoverCardData (term, url, function(data) {
+		getContactData (purl, url, function(data) {
 			if(typeof template != 'undefined') {
 				// get the hover-card variables
 				var variables = getHoverCardVariables(data);
@@ -179,7 +341,7 @@ function getHoverCardContent(term, url, callback) {
 // https://lostechies.com/joshuaflanagan/2011/10/20/coordinating-multiple-ajax-requests-with-jquery-when/
 //	$.when(
 //		getHoverCardTemplate(url),
-//		getHoverCardData (term, url )
+//		getContactData (term, url )
 //
 //	).done(function(template, profile){
 //		if(typeof template != 'undefined') {
@@ -230,6 +392,7 @@ function getHoverCardVariables(object) {
 			addr:		object.addr,
 			thumb:		object.thumb,
 			url:		object.url,
+			nurl:		object.nurl,
 			location:	object.location,
 			gender:		object.gender,
 			about:		object.about,
