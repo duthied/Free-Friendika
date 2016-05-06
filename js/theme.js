@@ -78,7 +78,8 @@ $(document).ready(function(){
 	//$('ul.flex-nav').flexMenu();
 
 	// initialize the bootstrap tooltips
-	$('[data-toggle="tooltip"]').tooltip({
+	$('body').tooltip({
+		selector: '[data-toggle="tooltip"]',
 		animation: true,
 		html: true,
 		placement: 'auto',
