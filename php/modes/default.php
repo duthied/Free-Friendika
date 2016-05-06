@@ -160,6 +160,7 @@ $("nav").bind('nav-update', function(e,data)
 <script src="<?=$frio?>/frameworks/flexMenu/flexmenu.custom.js"></script>
 <script src="<?=$frio?>/frameworks/jsmart/jsmart.custom.js"></script>
 <script src="<?=$frio?>/js/theme.js"></script>
+<script src="<?=$frio?>/js/modal.js"></script>
 <script src="<?=$frio?>/js/hovercard.js"></script>
 
 
