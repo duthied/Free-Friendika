@@ -1163,7 +1163,11 @@ section #jotOpen {
 .media .media-body h5.media-heading a {
     display: block;
 }
-.media .contact-info-xs h5 {
+.media .contact-info-comment {
+    display: table-cell;
+}
+.media .contact-info-xs h5,
+.media .contact-info-comment {
     margin: 0 0 5px;
 }
 .media-heading {
@@ -1172,6 +1176,10 @@ section #jotOpen {
 .wall-item-name {
     font-size: 15px;
     font-weight: bold;
+}
+.wall-item-name.xs {
+    font-weight: 700;
+    font-size: 14px;
 }
 
 /* The lock symbol popup */

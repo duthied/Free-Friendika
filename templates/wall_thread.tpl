@@ -205,7 +205,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header for smartphones *}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
 			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><strong>{{$item.name}}</strong></a>
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
 				<p class="text-muted">
 					<small><span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
 				</p>
@@ -216,9 +216,9 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header for comments *}}
 		{{if $item.thread_level!=1}}
 		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
-		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs">
+		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-comment">
 			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><strong class="btn-link">{{$item.name}}</strong></a>
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="btn-link">{{$item.name}}</span></a>
 				<span class="text-muted">
 					<small><span title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
 				</span>
