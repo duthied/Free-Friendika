@@ -161,6 +161,7 @@ class ostatus {
 			}
 
 			$contact["generation"] = 2;
+			$contact["hide"] = false; // OStatus contacts are never hidden
 			$contact["photo"] = $author["author-avatar"];
 			update_gcontact($contact);
 		}
@@ -691,6 +692,7 @@ class ostatus {
 				}
 			}
 
+		$contact["hide"] = false; // OStatus contacts are never hidden
 		update_gcontact($contact);
 	}
 

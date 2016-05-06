@@ -484,7 +484,7 @@ function profiles_post(&$a) {
 		if($is_default) {
 			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
-			$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` = 1 AND `uid` = %d",
+			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),
 				dbesc($location),
 				dbesc($pub_keywords),
@@ -499,6 +499,9 @@ function profiles_post(&$a) {
 
 			require_once('include/profile_update.php');
 			profile_change();
+
+			// Update the global contact for the user
+			update_gcontact_for_user(local_user());
 		}
 	}
 }

@@ -490,7 +490,14 @@ class dfrn {
 		if ($birthday)
 			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
 
-		// The following fields will only be generated if this isn't for a public feed
+		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
+		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
+			intval($owner['uid']));
+		if ($r)
+			xml::add_element($doc, $author, "dfrn:hide", "true");
+
+		// The following fields will only be generated if the data isn't meant for a public feed
 		if ($public)
 			return $author;
 
@@ -1126,7 +1133,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
+				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`, `hidden`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1210,6 +1217,16 @@ class dfrn {
 			/// - poco:region
 			/// - poco:country
 
+			// If the "hide" element is present then the profile isn't searchable.
+			$hide = intval($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+
+			logger("Hidden status for contact ".$contact["url"].": ".$hide, LOGGER_DEBUG);
+
+			// If the contact isn't searchable then set the contact to "hidden".
+			// Problem: This can be manually overridden by the user.
+			if ($hide)
+				$contact["hidden"] = true;
+
 			// Save the keywords into the contact table
 			$tags = array();
 			$tagelements = $xpath->evaluate($element."/poco:tags/text()", $context);
@@ -1262,17 +1279,17 @@ class dfrn {
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
-			 // Update check for this field has to be done differently
+			// Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
@@ -1280,13 +1297,13 @@ class dfrn {
 				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
-					intval($contact["id"]), dbesc($contact["network"]));
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["name-date"]),
+					dbesc($contact["uri-date"]), intval($contact["id"]), dbesc($contact["network"]));
 			}
 
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
@@ -1299,6 +1316,7 @@ class dfrn {
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
+			$poco["hide"] = $hide;
 			update_gcontact($poco);
 		}
 

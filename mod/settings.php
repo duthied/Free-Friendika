@@ -1,6 +1,7 @@
 <?php
 
 require_once('include/group.php');
+require_once('include/socgraph.php');
 
 function get_theme_config_file($theme){
 	$a = get_app();
@@ -602,7 +603,7 @@ function settings_post(&$a) {
 
 
 	if($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self` = 1",
+		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
 			dbesc(datetime_convert()),
 			intval(local_user())
@@ -614,12 +615,13 @@ function settings_post(&$a) {
 		$url = $_SESSION['my_url'];
 		if($url && strlen(get_config('system','directory')))
 			proc_run('php',"include/directory.php","$url");
-
 	}
-
 
 	require_once('include/profile_update.php');
 	profile_change();
+
+	// Update the global contact for the user
+	update_gcontact_for_user(local_user());
 
 	//$_SESSION['theme'] = $theme;
 	if($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
@@ -629,7 +631,7 @@ function settings_post(&$a) {
 
 	}
 
-	goaway('settings' );
+	goaway('settings');
 	return; // NOTREACHED
 }
 
@@ -1279,7 +1281,7 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
-        '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
+		'$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
 
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),
