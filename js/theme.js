@@ -292,7 +292,9 @@ function loadModalTitle() {
 
 
 function addToModal(url) {
-	var url = url + '?mode=modal';
+	var char = qOrAmp(url);
+
+	var url = url + char + 'mode=modal';
 	var modal = $('#modal').modal();
 
 	modal
@@ -391,6 +393,15 @@ function random_digits(digits) {
 	}
 
 	return rnd;
+}
+
+// Does we need a ? or a & to append values to a url
+function qOrAmp(url) {
+	if(url.search('\\?') < 0) {
+		return '?';
+	} else {
+		return '&';
+	}
 }
 
 function insertFormatting(comment,BBcode,id) {
