@@ -68,6 +68,7 @@ class dfrn {
 	 * @param string $owner_nick Owner nick name
 	 * @param string $last_update Date of the last update
 	 * @param int $direction Can be -1, 0 or 1.
+	 * @param boolean $onlyheader Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
 	 */
