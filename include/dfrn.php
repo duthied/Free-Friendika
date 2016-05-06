@@ -71,7 +71,7 @@ class dfrn {
 	 *
 	 * @return string DFRN feed entries
 	 */
-	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
+	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false) {
 
 		$a = get_app();
 
@@ -234,7 +234,7 @@ class dfrn {
 		// This hook can't work anymore
 		//	call_hooks('atom_feed', $atom);
 
-		if(! count($items)) {
+		if (!count($items) OR $onlyheader) {
 			$atom = trim($doc->saveXML());
 
 			call_hooks('atom_feed_end', $atom);
