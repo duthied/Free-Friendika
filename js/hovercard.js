@@ -8,91 +8,83 @@
  * 
  */
 
-
-$(document).ready(function(){
-
-	// Elements with the class "userinfo" will get a hover-card.
-	// Note that this elements does need a href attribute which links to
-	// a valid profile url
-	$('.userinfo').on("mouseover", function(e) {
-			var timeNow = new Date().getTime();
-			removeAllhoverCards(e,timeNow);
-			var hoverCardData = false;
-			var hrefAttr = false;
-			var targetElement = $(this);
-
-			// get href-attribute
-			if(targetElement.is('[href]')) {
-				hrefAttr = targetElement.attr('href');
-			} else {
-				return true;
-			}
-
-			// no hover card if the element has the no-hover-card class
-			if(targetElement.hasClass('no-hover-card')) {
-				return true;
-			}
-
-			// no hovercard for anchor links
-			if(hrefAttr.substring(0,1) == '#') {
-				return true;
-			}
-
-			targetElement.attr('data-awaiting-hover-card',timeNow);
-
-			// Take link href attribute as link to the profile
-			var profileurl = hrefAttr;
-			// the url to get the contact and template data
-			var url = baseurl + "/frio_hovercard";
-
-			// store the title in an other data attribute beause bootstrap
-			// popover destroys the title.attribute. We can restore it later
-			var title = targetElement.attr("title");
-			targetElement.attr({"data-orig-title": title, title: ""});
-
-			// Timeoute until the hover-card does appear
-			setTimeout(function(){
-				if(targetElement.is(":hover") && parseInt(targetElement.attr('data-awaiting-hover-card'),10) == timeNow) {
-					if($('.hovercard').length == 0) {	// no card if there already is one open
-						// get an additional data atribute if the card is active
-						targetElement.attr('data-hover-card-active',timeNow);
-						// get the whole html content of the hover card and
-						// push it to the bootstrap popover
-						getHoverCardContent(profileurl, url, function(data){
-							if(data) {
-								targetElement.popover({
-									html: true,
-									placement: function () {
-										// Calculate the placement of the the hovercard (if top or bottom)
-										// The placement depence on the distance between window top and the element
-										// which triggers the hover-card
-										var get_position = $(targetElement).offset().top - $(window).scrollTop();
-										if (get_position < 270 ){
-											return "bottom";
-										}
-										return "top";
-									},
-									trigger: 'manual',
-									template: '<div class="popover hovercard" data-card-created="' + timeNow + '"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
-									content: data
-								}).popover('show');
-							}
-						});
-					}
-				}
-			}, 500);
-	}).on("mouseleave", function(e) { // action when mouse leaves the hover-card
+// Elements with the class "userinfo" will get a hover-card.
+// Note that this elements does need a href attribute which links to
+// a valid profile url
+$("body").on("mouseover", ".userinfo", function(e) {
 		var timeNow = new Date().getTime();
-		// copy the original title to the title atribute
-		var title = $(this).attr("data-orig-title");
-		$(this).attr({"data-orig-title": "", title: title});
 		removeAllhoverCards(e,timeNow);
-	});
+		var hoverCardData = false;
+		var hrefAttr = false;
+		var targetElement = $(this);
 
+		// get href-attribute
+		if(targetElement.is('[href]')) {
+			hrefAttr = targetElement.attr('href');
+		} else {
+			return true;
+		}
 
+		// no hover card if the element has the no-hover-card class
+		if(targetElement.hasClass('no-hover-card')) {
+			return true;
+		}
 
+		// no hovercard for anchor links
+		if(hrefAttr.substring(0,1) == '#') {
+			return true;
+		}
+
+		targetElement.attr('data-awaiting-hover-card',timeNow);
+
+		// Take link href attribute as link to the profile
+		var profileurl = hrefAttr;
+		// the url to get the contact and template data
+		var url = baseurl + "/frio_hovercard";
+
+		// store the title in an other data attribute beause bootstrap
+		// popover destroys the title.attribute. We can restore it later
+		var title = targetElement.attr("title");
+		targetElement.attr({"data-orig-title": title, title: ""});
+
+		// Timeoute until the hover-card does appear
+		setTimeout(function(){
+			if(targetElement.is(":hover") && parseInt(targetElement.attr('data-awaiting-hover-card'),10) == timeNow) {
+				if($('.hovercard').length == 0) {	// no card if there already is one open
+					// get an additional data atribute if the card is active
+					targetElement.attr('data-hover-card-active',timeNow);
+					// get the whole html content of the hover card and
+					// push it to the bootstrap popover
+					getHoverCardContent(profileurl, url, function(data){
+						if(data) {
+							targetElement.popover({
+								html: true,
+								placement: function () {
+									// Calculate the placement of the the hovercard (if top or bottom)
+									// The placement depence on the distance between window top and the element
+									// which triggers the hover-card
+									var get_position = $(targetElement).offset().top - $(window).scrollTop();
+									if (get_position < 270 ){
+										return "bottom";
+									}
+									return "top";
+								},
+								trigger: 'manual',
+								template: '<div class="popover hovercard" data-card-created="' + timeNow + '"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
+								content: data
+							}).popover('show');
+						}
+					});
+				}
+			}
+		}, 500);
+}).on("mouseleave", ".userinfo", function(e) { // action when mouse leaves the hover-card
+	var timeNow = new Date().getTime();
+	// copy the original title to the title atribute
+	var title = $(this).attr("data-orig-title");
+	$(this).attr({"data-orig-title": "", title: title});
+	removeAllhoverCards(e,timeNow);
 });
-
 
 // hover cards should be removed very easily, e.g. when any of these events happen
 $('body').on("mouseleave touchstart scroll click dblclick mousedown mouseup submit keydown keypress keyup", function(e){
