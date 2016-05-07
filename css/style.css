@@ -1370,9 +1370,13 @@ blockquote.shared_content {
 }
 .comment-edit-submit-wrapper a,
 .comment-edit-submit-wrapper a:hover {
-    color: #555;
     padding-top: 5px !important;
     padding-bottom: 5px !important;
+}
+.comment-icon-list a.icon,
+.comment-icon-list a.icon:hover {
+    color: #555;
+    background-color: transparent;
 }
 
 /* acpopup  + textcompletion*/
@@ -1679,6 +1683,17 @@ ul.viewcontact_wrapper > li {
     padding-top: 10px;
 }
 
+/* private mail */
+#prvmail-end {
+    clear:both;
+}
+/* poke */
+#poke-desc {
+    margin: 5px 0 30px;
+}
+#poke-wrapper-end {
+    clear: both;
+}
 /*
 * Overwriting for transparency and other colors
 */

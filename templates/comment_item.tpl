@@ -71,9 +71,9 @@
 			{{if $preview}}
 				<button class="btn btn-defaul btn-sm" type="button" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 			{{/if}}
-			<ul class="comment-edit-bb-{{$id}} nav nav-pills pull-right">
+			<ul class="comment-edit-bb-{{$id}} comment-icon-list nav nav-pills pull-right">
 				<li>
-					<a style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="{{$id}}">
+					<a class="icon" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="{{$id}}">
 						<i class="fa fa-picture-o"></i>
 					</a>
 				</li>
