@@ -17,7 +17,6 @@
 <html>
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
-	<meta name="viewport" content="initial-scale=1.0">
 	<meta request="<?php echo $_REQUEST['pagename'] ?> ">
 	<script>var baseurl="<?php echo $a->get_baseurl() ?>";</script>
 	<script>var frio="<?php echo "view/theme/frio"; ?>";</script>
@@ -110,60 +109,7 @@ else
 	</main>
 
 <footer>
-<span id="notifsound"></span>
-<script>
-	$("#menu-toggle").click(function(e) {
-		e.preventDefault();
-		$("#wrapper").toggleClass("toggled");
-	});
-</script>
-<script type="text/javascript">
-	$.fn.enterKey = function (fnc, mod) {
-		return this.each(function () {
-			$(this).keypress(function (ev) {
-				var keycode = (ev.keyCode ? ev.keyCode : ev.which);
-				if ((keycode == '13' || keycode == '10') && (!mod || ev[mod + 'Key'])) {
-					fnc.call(this, ev);
-				}
-			})
-		})
-	}
-	
-	$('textarea').enterKey(function() {$(this).closest('form').submit(); }, 'ctrl')
-	$('input').enterKey(function() {$(this).closest('form').submit(); }, 'ctrl')
-</script>
-
-<script>
-var pagetitle = null;
-$("nav").bind('nav-update', function(e,data)
-{
-	if (pagetitle==null) pagetitle = document.title;
-	var count = $(data).find('notif').attr('count');
-	if (count>0)
-	{
-		document.title = "("+count+") "+pagetitle;
-		/* document.getElementById('notifsound').innerHTML='<object type="audio/mpeg" width="0" height="0" data="<?=$frio?>/audios/901.mp3"><param name="notif" value="<?=$frio?>/audios/901.mp3" /><param name="autostart" value="true" /><param name="loop" value="false" /></object>'; */
-	}
-	else
-	{
-		document.title = pagetitle;
-	}
-});
-</script>
-
-<script src="<?=$frio?>/frameworks/bootstrap/js/bootstrap.min.js"></script>
-<script src="<?=$frio?>/frameworks/jasny/js/jasny-bootstrap.custom.js"></script>
-<script src="<?=$frio?>/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
-<script src="<?=$frio?>/frameworks/ekko-lightbox/ekko-lightbox.min.js"></script>
-<script src="<?=$frio?>/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
-<script src="<?=$frio?>/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
-<script src="<?=$frio?>/frameworks/flexMenu/flexmenu.custom.js"></script>
-<script src="<?=$frio?>/frameworks/jsmart/jsmart.custom.js"></script>
-<script src="<?=$frio?>/js/theme.js"></script>
-<script src="<?=$frio?>/js/modal.js"></script>
-<script src="<?=$frio?>/js/hovercard.js"></script>
-
-
+<?php if(x($page,'footer')) echo $page['footer']; ?>
 <!-- Modal  -->
 <div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="plan-info" aria-hidden="true">
 	<div class="modal-dialog modal-full-screen">
