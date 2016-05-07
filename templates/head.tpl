@@ -81,57 +81,10 @@
 <script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
 
 <script>
-
-	var updateInterval = {{$update_interval}};
-	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
-
-	function confirmDelete() { return confirm("{{$delitem}}"); }
-
-	function commentOpen(obj,id) {
-		if(obj.value == '{{$comment}}') {
-			obj.value = '';
-			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-			$("#mod-cmnt-wrap-" + id).show();
-			openMenu("comment-edit-submit-wrapper-" + id);
-			return true;
-		}
-		return false;
-	}
-
-	function commentInsert(obj,id) {
-		var tmpStr = $("#comment-edit-text-" + id).val();
-		if(tmpStr == '{{$comment}}') {
-			tmpStr = '';
-			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-			openMenu("comment-edit-submit-wrapper-" + id);
-		}
-		var ins = $(obj).html();
-		ins = ins.replace('&lt;','<');
-		ins = ins.replace('&gt;','>');
-		ins = ins.replace('&amp;','&');
-		ins = ins.replace('&quot;','"');
-		$("#comment-edit-text-" + id).val(tmpStr + ins);
-	}
-
-	function qCommentInsert(obj,id) {
-		var tmpStr = $("#comment-edit-text-" + id).val();
-		if(tmpStr == '{{$comment}}') {
-			tmpStr = '';
-			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-			openMenu("comment-edit-submit-wrapper-" + id);
-		}
-		var ins = $(obj).val();
-		ins = ins.replace('&lt;','<');
-		ins = ins.replace('&gt;','>');
-		ins = ins.replace('&amp;','&');
-		ins = ins.replace('&quot;','"');
-		$("#comment-edit-text-" + id).val(tmpStr + ins);
-		$(obj).val('');
-	}
-
 	window.showMore = "{{$showmore}}";
 	window.showFewer = "{{$showfewer}}";
 </script>
+
+{{* Include the strings which are needed for some js functions (e.g. translation)
+They are loaded into the html <head> so that js functions can use them *}}
+{{include file="js_strings.tpl"}}

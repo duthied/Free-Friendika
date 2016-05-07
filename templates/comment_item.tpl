@@ -1,39 +1,3 @@
-<script>
-	function commentOpenUI(obj, id) {
-		$(document).unbind( "click.commentOpen", handler );
-
-		var handler = function() {
-			if(obj.value == '{{$comment}}') {
-				obj.value = '';
-				$("#comment-edit-text-" + id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
-				// Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
-				// The submit button gets tabindex + 1
-				$("#comment-edit-text-" + id).attr('tabindex','9');
-				$("#comment-edit-submit-" + id).attr('tabindex','10');
-				$("#comment-edit-submit-wrapper-" + id).show();
-			}
-		};
-
-		$(document).bind( "click.commentOpen", handler );
-}
-
-	function commentCloseUI(obj, id) {
-		$(document).unbind( "click.commentClose", handler );
-
-		var handler = function() {
-			if(obj.value === '') {
-			obj.value = '{{$comment}}';
-				$("#comment-edit-text-" + id).removeClass("comment-edit-text-full").addClass("comment-edit-text-empty");
-				$("#comment-edit-text-" + id).removeAttr('tabindex');
-				$("#comment-edit-submit-" + id).removeAttr('tabindex');
-				$("#comment-edit-submit-wrapper-" + id).hide();
-			}
-		};
-
-		$(document).bind( "click.commentClose", handler );
-	}
-
-</script>
 
 {{if $threaded}}
 <div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}" style="display: block;">
