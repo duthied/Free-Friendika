@@ -1,6 +1,8 @@
+
 <link rel="stylesheet" href="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.css" type="text/css" media="screen" />
 <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js"></script>
 <script src="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/js/ajaxupload.js" ></script>
 
 {{include file="field_select.tpl" field=$schema}}
 
@@ -20,7 +22,7 @@
 </div>
 {{/if}}
 
-{{if $background_image}}{{include file="field_colorinput.tpl" field=$background_image}}{{/if}}
+{{if $background_image}}{{include file="field_fileinput.tpl" field=$background_image}}{{/if}}
 
 <div id="frio_bg_image_options" style="display: none;">
 {{foreach $bg_image_options as $options}}

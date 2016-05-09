@@ -48,6 +48,27 @@ $(document).ready(function(){
 		e.preventDefault();
 		toggleJotNav(this);
 	});
+
+	// Open filebrowser for elements with the class "image-select"
+	// The following part handles the filebrowser for field_fileinput.tpl
+	$("body").on("click", ".image-select", function(e){
+		// set a extra attribute to mark the clicked button
+		this.setAttribute("image-input", "select");
+		Dialog.doImageBrowser("input");
+	});
+
+	// Insert filebrowser images into the input field (field_fileinput.tpl)
+	$("body").on("fbrowser.image.input", function(e, filename, embedcode, id, img) {
+		// select the clicked button by it's attribute
+		var elm = $("[image-input='select']")
+		// select the input field which belongs to this button
+		var input = elm.parent(".input-group").children("input");
+		// remove the special indicator attribut from the button
+		elm.removeAttr("image-input");
+		// inserte the link from the image into the input field
+		input.val(img);
+		
+	});
 });
 
 // overwrite Dialog.show from main js to load the filebrowser into a bs modal

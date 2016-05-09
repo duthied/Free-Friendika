@@ -135,6 +135,7 @@ var FileBrowser = {
 				this.dataset.filename,
 				embed,
 				FileBrowser.id,
+				this.dataset.img
 			]);
 
 			// close model
