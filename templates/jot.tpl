@@ -3,9 +3,6 @@
 <button class="btn btn-sm btn-main pull-right" id="jotOpen" onclick="jotShow(); return false;"><i class="fa fa-pencil-square-o fa-2x"></i></button>
 
 
-
-
-
 <div id="jot-content">
 	<form id="profile-jot-form" action="{{$action}}" method="post">
 		<div id="profile-jot-wrapper">
@@ -35,16 +32,18 @@
 
 			{{* The jot text field in which the post text is inserted *}}
 			<div id="jot-text-wrap">
-			<textarea rows="2" cols="64" class="profile-jot-text form-control" id="profile-jot-text" name="body" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
+			<textarea rows="2" cols="64" class="profile-jot-text form-control" id="profile-jot-text" name="body" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
 			</div>
 
 			<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
-				<li><a id="profile-location" onclick="jotGetLocation();return false;" title="{{$setloc}}"><i class="fa fa-map-marker"></i></a></li>
-				<li><a href="#" id="wall-image-upload" title="{{$upload}}" data-toggle="modal" data-target="#PhotoModal"><i class="fa fa-picture-o"></i></a></li>
+				{{* uncomment the button for "wall-immage-upload" because we have integrated it directly in the jot modal
+				<li><a href="#" id="wall-image-upload" title="{{$upload}}"><i class="fa fa-picture-o"></i></a></li>
+				*}}
 				<li><a href="#" onclick="return false;" id="wall-file-upload"  title="{{$attach}}"><i class="fa fa-paperclip"></i></a></li>
 				<li><a id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink(); return false;" title="{{$weblink}}"><i class="fa fa-link"></i></a></li>
 				<li><a id="profile-video" onclick="jotVideoURL();return false;" title="{{$video}}"><i class="fa fa-film"></i></a></li>
 				<li><a id="profile-audio" onclick="jotAudioURL();return false;" title="{{$audio}}"><i class="fa fa-music"></i></a></li>
+				<li><a id="profile-location" onclick="jotGetLocation();return false;" title="{{$setloc}}"><i class="fa fa-map-marker"></i></a></li>
 				<!-- TODO: waiting for a better placement 
 				<li><a id="profile-nolocation" onclick="jotClearLocation();return false;" title="{{$noloc}}">{{$shortnoloc}}</a></li>
 				-->
@@ -65,6 +64,8 @@
 
 		<div id="jot-preview-content" style="display:none;"></div>
 
+		<div id="jot-fbrowser-wrapper" style="display: none"></div>
+
 		{{if $content}}<script>initEditor();</script>{{/if}}
 	</form>
 </div>
@@ -78,12 +79,14 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<!--<h4 class="modal-title">Modal Header</h4>-->
-				<ul class="nav nav-tabs hidden-xs" role="menubar" data-tabs="tabs">
-					{{* mark the first list entry as active because it is the first which is active after opening
+				{{* The Jot navigation menu (text input, permissions, preview, filebrowser) *}}
+				<ul class="nav nav-tabs hidden-xs jot-nav" role="menubar" data-tabs="tabs">
+					{{* Mark the first list entry as active because it is the first which is active after opening
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">Text</a></li>
 					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
 					<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>
+					<li role="menuitem"><a id="jot-preview-link" onclick="fbrowserActive(); return false;"> Browser </a></li>
 				</ul>
 				
 				<div class="dropdown  hidden-lg hidden-md hidden-sm" role="menubar" data-tabs="tabs">
@@ -111,7 +114,12 @@
 
 
 <script>
-        $('iframe').load(function() {
-            this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
-        });
+	$('iframe').load(function() {
+		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
+	});
+
+	// insert new object with value to aStr
+	// function jotTextOpenUI does make use of it
+	aStr.share = "{{$share}}";
 </script>
+

@@ -1,7 +1,9 @@
 
 
-<script language="javascript" type="text/javascript">
+{{*<script language="javascript" type="text/javascript">*}}
 
+
+<script>
 var editor=false;
 var textlen = 0;
 var plaintext = '{{$editselect}}';
@@ -11,7 +13,7 @@ function initEditor(cb){
 		$("#profile-jot-text-loading").show();
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").hide();
-			$("#profile-jot-text").addClass("profile-jot-text-full").removeClass("profile-jot-text-empty");
+			//$("#profile-jot-text").addClass("profile-jot-text-full").removeClass("profile-jot-text-empty");
 			$("#jot-category").show();
 			$("#jot-category").addClass("jot-category-ex");
 			$("#jot-profile-jot-wrapper").show();
@@ -108,13 +110,16 @@ function initEditor(cb){
 				});
 
 			}
+
 		});
 		editor = true;
+
 		// setup acl popup
 		$("a#jot-perms-icon").colorbox({
 			'inline' : true,
 			'transition' : 'elastic'
 		}); 
+
 	} else {
 		if (typeof cb!="undefined") cb();
 	}
@@ -150,20 +155,25 @@ function enableOnUser(){
 
 		/* callback */
 		$('body').on('fbrowser.image.main', function(e, filename, embedcode, id) {
-			$.colorbox.close();
+			///@todo this part isn't ideal and need to be done in a better way
+			jotTextOpenUI(document.getElementById("profile-jot-text"));
+			jotActive();
 			addeditortext(embedcode);
 		});
 		$('body').on('fbrowser.file.main', function(e, filename, embedcode, id) {
-			$.colorbox.close();
+			jotTextOpenUI(document.getElementById("profile-jot-text"));
+			jotActive();
 			addeditortext(embedcode);
 		});
 
 		$('#wall-image-upload').on('click', function(){
 			Dialog.doImageBrowser("main");
+			jotActive();
 		});
 
 		$('#wall-file-upload').on('click', function(){
 			Dialog.doFileBrowser("main");
+			jotActive();
 		});
 
 		/**
@@ -388,24 +398,32 @@ function enableOnUser(){
 	// the following functions show/hide the specific jot content 
 	// in dependence of the selected nav
 	function aclActive() {
-		$(".modal-body #profile-jot-wrapper, .modal-body #jot-preview-content").hide();
+		$(".modal-body #profile-jot-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
 		$(".modal-body #profile-jot-acl-wrapper").show();
-		$("#jot-text-lnk, #jot-preview-lnk").parent("li").removeClass("active");
-		$("#jot-perms-lnk").parent("li").addClass("active");
+	}
+
+
+	function previewActive() {
+		$(".modal-body #profile-jot-wrapper, .modal-body #profile-jot-acl-wrapper,.modal-body #jot-fbrowser-wrapper").hide();
+		preview_post();
 	}
 
 	function jotActive() {
-		$(".modal-body #profile-jot-acl-wrapper, .modal-body #jot-preview-content").hide();
+		$(".modal-body #profile-jot-acl-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
 		$(".modal-body #profile-jot-wrapper").show();
-		$("#jot-perms-lnk, #jot-preview-lnk").parent("li").removeClass("active");
-		$("#jot-text-lnk").parent("li").addClass("active");
+
+		//make sure jot text does have really the active class (we do this because there are some
+		// other events which trigger jot text
+		toggleJotNav($("#jot-modal .jot-nav #jot-text-lnk"));
 	}
 
-	function previewActive() {
-		$(".modal-body #profile-jot-wrapper, .modal-body #profile-jot-acl-wrapper").hide();
-		$("#jot-text-lnk, #jot-perms-lnk").parent("li").removeClass("active");
-		$("#jot-preview-lnk").parent("li").addClass("active");
-		preview_post();
+	function fbrowserActive() {
+		$(".modal-body #profile-jot-wrapper, .modal-body #jot-preview-content, .modal-body #profile-jot-acl-wrapper").hide();
+
+		$(".modal-body #jot-fbrowser-wrapper").show();
+
+		$(function() {Dialog.showJot();});
 	}
+
 </script>
 

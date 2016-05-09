@@ -89,69 +89,6 @@ $(document).ready(function(){
 		}
 	});
 
-	// Add Colorbox for viewing Network page images
-	//var cBoxClasses = new Array();
-	$(".wall-item-body a img").each(function(){
-		var aElem = $(this).parent();
-		var imgHref = aElem.attr("href");
-
-		// We need to make sure we only put a Colorbox on links to Friendica images
-		// We'll try to do this by looking for links of the form
-		// .../photo/ab803d8eg08daf85023adfec08 (with nothing more following), in hopes
-		// that that will be unique enough
-		if(imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
-
-			// Add a unique class to all the images of a certain post, to allow scrolling through
-			var cBoxClass = $(this).closest(".wall-item-body").attr("id") + "-lightbox";
-			$(this).addClass(cBoxClass);
-
-//			if( $.inArray(cBoxClass, cBoxClasses) < 0 ) {
-//				cBoxClasses.push(cBoxClass);
-//			}
-
-			aElem.colorbox({
-				maxHeight: '90%',
-				photo: true, // Colorbox doesn't recognize a URL that don't end in .jpg, etc. as a photo
-				rel: cBoxClass //$(this).attr("class").match(/wall-item-body-[\d]+-lightbox/)[0]
-			});
-		}
-	});
-
-	// overwrite Dialog.show from main js to load the filebrowser into a bs modal
-	Dialog.show = function(url) {
-		var modal = $('#modal').modal();
-		modal
-			.find('#modal-body')
-			.load(url, function (responseText, textStatus) {
-				if ( textStatus === 'success' || 
-					textStatus === 'notmodified') 
-				{
-					modal.show();
-
-					// get nickname & filebrowser type from the modal content
-					var nickname = $("#fb-nickname").attr("value");
-					var type = $("#fb-type").attr("value");
-
-					// try to fetch the hash form the url
-					var match = url.match(/fbrowser\/[a-z]+\/\?mode=modal(.*)/);
-					var hash = match[1];
-
-					// initialize the filebrowser
-					var jsbrowser = function() {
-						FileBrowser.init(nickname, type, hash);
-					}
-					loadScript("view/theme/frio/js/filebrowser.js", jsbrowser);
-				}
-			});
-	};
-
-	// overwrite the function _get_url from main.js
-	Dialog._get_url = function(type, name, id) {
-		var hash = name;
-		if (id !== undefined) hash = hash + "-" + id;
-		return "fbrowser/"+type+"/?mode=modal#"+hash;
-	};
-
 
 });
 //function commentOpenUI(obj, id) {

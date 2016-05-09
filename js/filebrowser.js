@@ -77,8 +77,13 @@ var FileBrowser = {
 
 		if (hash!=="") {
 			var h = hash.replace("#","");
-			FileBrowser.event = FileBrowser.event + "." + h.split("-")[0];
+			var destination = h.split("-")[0];
 			FileBrowser.id = h.split("-")[1];
+			FileBrowser.event = FileBrowser.event + "." + destination;
+			if (destination == "comment") {
+				// get the comment textimput field
+				var commentElm = document.getElementById("comment-edit-text-" + FileBrowser.id);
+			}
 		};
 
 		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
@@ -90,16 +95,15 @@ var FileBrowser = {
 
 		$(".folders a, .path a").on("click", function(e){
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=modal"+ location['hash'];
+			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=modal";
 
-			// load new content to modal
-			$('.modal-body').load(url,function(){
-				$(function() {
-						FileBrowser.init(nickname, type, hash);
-					});
+			// load new content to fbrowser window
+			$(".fbrowser").load(url,function(){
+				$(function() {FileBrowser.init(nickname, type, hash);});
 			});
 		});
 
+		//embed on click
 		$(".photo-album-photo-link").on('click', function(e){
 			e.preventDefault();
 
@@ -111,6 +115,21 @@ var FileBrowser = {
 				// attachment links are "baseurl/attach/id"; we need id
 				embed = "[attachment]"+this.dataset.link.split("/").pop()+"[/attachment]";
 			}
+
+			// Delete prefilled Text of the comment input
+			// Note: not the best solution but function commentOpenUI don't
+			// work as expected (we need a way to wait until commentOpenUI would be finished).
+			// As for now we insert pieces of this function here
+			if ((commentElm !== null) && (typeof commentElm !== "undefined")) {
+				if (commentElm.value == aStr.comment){
+					commentElm.value = "";
+					$("#comment-edit-text-" + FileBrowser.id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
+					$("#comment-edit-submit-wrapper-" + FileBrowser.id).show();
+					$("#comment-edit-text-" + FileBrowser.id).attr('tabindex','9');
+					$("#comment-edit-submit-" + FileBrowser.id).attr('tabindex','10');
+				}
+
+			}
 			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
 			parent.$("body").trigger(FileBrowser.event, [
 				this.dataset.filename,
@@ -120,11 +139,10 @@ var FileBrowser = {
 
 			// close model
 			$('#modal').modal('hide');
-			if (id!=="") {
-				$("#comment-edit-text-" + FileBrowser.id).empty();
-				commentExpand(FileBrowser.id);
-				//$("#comment-edit-text-558").empty();
-			};
+//			if (id!=="") {
+//				commentExpand(FileBrowser.id);
+//				//$("#comment-edit-text-558").empty();
+//			};
 
 		});
 
@@ -142,8 +160,14 @@ var FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-						location = baseurl + "/fbrowser/image/?mode=minimal"+location['hash'];
-						location.reload(true);
+//						location = baseurl + "/fbrowser/image/?mode=modal"+location['hash'];
+//						location.reload(true);
+
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=modal"
+						// load new content to fbrowser window
+						$(".fbrowser").load(url,function(){
+							$(function() {FileBrowser.init(nickname, type, hash);});
+						});
 					}
 				}
 			);
@@ -161,11 +185,17 @@ var FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-						location = baseurl + "/fbrowser/file/?mode=minimal"+location['hash'];
-						location.reload(true);
+//						location = baseurl + "/fbrowser/file/?mode=modal"+location['hash'];
+//						location.reload(true);
+
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=modal"
+						// load new content to fbrowser window
+						$(".fbrowser").load(url,function(){
+							$(function() {FileBrowser.init(nickname, type, hash);});
+						});
 					}
 				}
 		);
-	}
+	},
 };
 
