@@ -50,6 +50,8 @@ function frio_form(&$a, $arr) {
 		}
 	}
 
+	$background_image_help = "<strong>" . t("Note: "). "</strong>".t("Check image permissions if all users are allowed to visit the image");
+
 
 	$t = get_markup_template('theme_settings.tpl');
 	$o .= replace_macros($t, array(
@@ -62,7 +64,7 @@ function frio_form(&$a, $arr) {
 		'$link_color'		=> array_key_exists("link_color", $disable) ? "" : array('frio_link_color',	t('Link color'),			$arr['link_color'],		'', $link_colors),
 		'$bgcolor'		=> array_key_exists("bgcolor", $disable) ? "" : array('frio_background_color', t('Set the background color'),	$arr['bgcolor']),
 		'$contentbg_transp'	=> array_key_exists("contentbg_transp", $disable) ? "" : array('frio_contentbg_transp', t("Content background transparency"), ($arr["contentbg_transp"] ? $arr["contentbg_transp"] : 0 )),
-		'$background_image'	=> array_key_exists("background_image", $disable ) ? "" : array('frio_background_image', t('Set the background image'),	$arr['background_image']),
+		'$background_image'	=> array_key_exists("background_image", $disable ) ? "" : array('frio_background_image', t('Set the background image'),	$arr['background_image'], $background_image_help),
 		'$bg_image_options'	=> Image::get_options($arr),
 	));
 
