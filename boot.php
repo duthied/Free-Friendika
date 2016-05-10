@@ -862,6 +862,9 @@ class App {
 		if ($touch_icon == "")
 			$touch_icon = "images/friendica-128.png";
 
+		// get data wich is needed for infinite scroll on the network page
+		$invinite_scroll = infinite_scroll_data($this->module);
+
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
 			'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
@@ -874,7 +877,8 @@ class App {
 			'$update_interval' => $interval,
 			'$shortcut_icon' => $shortcut_icon,
 			'$touch_icon' => $touch_icon,
-			'$stylesheet' => $stylesheet
+			'$stylesheet' => $stylesheet,
+			'$infinite_scroll' => $invinite_scroll,
 		)) . $this->page['htmlhead'];
 	}
 
@@ -2200,4 +2204,44 @@ function argv($x) {
 		return get_app()->argv[$x];
 
 	return '';
+}
+
+/**
+ * @brief Get the data which is needed for infinite scroll
+ * 
+ * For invinite scroll we need the page number of the actual page
+ * and the the URI where the content of the next page comes from.
+ * This data is needed for the js part in main.js.
+ * Note: infinite scroll does only work for the network page (module)
+ * 
+ * @param string $module The name of the module (e.g. "network")
+ * @return array Of infinite scroll data
+ *	'pageno' => $pageno The number of the actual page
+ *	'reload_uri' => $reload_uri The URI of the content we have to load
+ */
+function infinite_scroll_data($module) {
+
+	if (get_pconfig(local_user(),'system','infinite_scroll')
+		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
+
+		// get the page number
+		if (is_string($_GET["page"]))
+			$pageno = $_GET["page"];
+		else
+			$pageno = 1;
+
+		$reload_uri = "";
+
+		// try to get the uri from which we load the content
+		foreach ($_GET AS $param => $value)
+			if (($param != "page") AND ($param != "q"))
+				$reload_uri .= "&".$param."=".urlencode($value);
+
+		if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
+			$reload_uri .= "&offset=".urlencode($a->page_offset);
+
+		$arr = array("pageno" => $pageno, "reload_uri" => $reload_uri);
+
+		return $arr;
+	}
 }
