@@ -28,7 +28,7 @@
 	{{* The message input field which contains the message text *}}
 	<div id="prvmail-message-label" class="form-group">
 		<label for="prvmail-text">{{$yourmessage}}</label>
-		<textarea rows="8" cols="72" class="prvmail-text form-control" id="comment-edit-text-input" name="input" tabindex="12">{{$text}}</textarea>
+		<textarea rows="8" cols="72" class="prvmail-text form-control" id="comment-edit-text-input" name="body" tabindex="12">{{$text}}</textarea>
 	</div>
 
 	<ul id="prvmail-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills pull-left">
@@ -38,7 +38,7 @@
 					</a>
 				</li>
 				<li>
-					<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="input"">
+					<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="input">
 						<i class="fa fa-link"></i>
 					</a>
 				</li>
