@@ -441,6 +441,3 @@ String.prototype.rtrim = function() {
 	return trimmed;
 };
 
-function checkSelected() {
-
-}
