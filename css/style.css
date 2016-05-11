@@ -27,6 +27,7 @@ body {
     background-color: $bgcolor;
     background-image: url("$background_image");
     background-size: $background_size_img;
+    background-attachment: fixed;
     color: #777;
     /*color: #555;*/
     font-family: 'Open Sans',sans-serif;
