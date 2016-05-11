@@ -178,3 +178,18 @@ function qCommentInsert(obj,id) {
 }
 
 function confirmDelete() { return confirm(aStr.delitem); }
+
+function dropItem(url, object) {
+	var confirm = confirmDelete();
+	if(confirm) {
+		$('body').css('cursor', 'wait');
+		$(object).fadeTo('fast', 0.33, function () {
+			$.get(url).done(function() {
+				$(object).remove();
+				$('body').css('cursor', 'auto');
+			});
+		});
+	}
+}
+
+	

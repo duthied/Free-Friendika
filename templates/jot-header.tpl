@@ -204,26 +204,46 @@ function enableOnUser(){
 		**/
 	});
 
-
 	function deleteCheckedItems() {
 		if(confirm('{{$delitems}}')) {
 			var checkedstr = '';
+			var ItemsToDelete = {};
 
 			$("#item-delete-selected").hide();
 			$('#item-delete-selected-rotator').show();
+			$('body').css('cursor', 'wait');
 
 			$('.item-select').each( function() {
 				if($(this).is(':checked')) {
 					if(checkedstr.length != 0) {
 						checkedstr = checkedstr + ',' + $(this).val();
+						var deleteItem = this.closest(".wall-item-container");
+						ItemsToDelete[deleteItem.id] = deleteItem;
 					}
 					else {
 						checkedstr = $(this).val();
 					}
+
+					// Get the corresponding item container
+					var deleteItem = this.closest(".wall-item-container");
+					ItemsToDelete[deleteItem.id] = deleteItem;
 				}
 			});
+
+			// Fade the the the container from the items we want to delete
+			for(var key in  ItemsToDelete) {
+				$(ItemsToDelete[key]).fadeTo('fast', 0.33);
+			};
+
 			$.post('item', { dropitems: checkedstr }, function(data) {
-				window.location.reload();
+			}).done(function() {
+				// Loop through the ItemsToDelete Object and remove
+				// corresponding item div
+				for(var key in  ItemsToDelete) {
+					$(ItemsToDelete[key]).remove();
+				}
+				$('body').css('cursor', 'auto');
+				$('#item-delete-selected-rotator').hide();
 			});
 		}
 	}

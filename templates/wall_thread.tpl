@@ -90,7 +90,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 					{{if $item.edpost}} {{* edit the posting *}}
 					<li role="menuitem">
-						<a href="#" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
+						<a href="#" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 					</li>
 					{{/if}}
 
@@ -128,7 +128,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 					{{if $item.drop.dropping}}
 					<li role="menuitem">
-						<a href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
+						<a class="navicon delete" onclick="dropItem('item/drop/{{$item.id}}', '#item-{{$item.guid}}'); return false();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
 					</li>
 					{{/if}}
 				</ul>

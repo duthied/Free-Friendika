@@ -68,6 +68,21 @@ $(document).ready(function(){
 		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
 	}
 
+	// show bulk deletion button at network page if checkbox is checked
+	$('input.item-select').change(function(){
+
+		if($(this).is(':checked')) {
+			$("a#item-delete-selected").fadeTo('slow', 1);
+			$("a#item-delete-selected").show();
+		} else {
+			$("a#item-delete-selected").fadeTo('slow', 0, function(){
+				$("a#item-delete-selected").hide();
+			});
+			
+		}
+
+	});
+
 	// add search-headding to the scecond navbar
 	if( $(".search-headding")) {
 		$(".search-headding").appendTo("#topbar-second > .container > #tabmenu");

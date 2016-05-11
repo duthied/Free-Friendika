@@ -19,7 +19,7 @@
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
 						{{if $item.edpost}} {{* edit the posting *}}
 						<li role="menuitem">
-							<a href="#" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}" class="navicon delete"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
+							<a href="#" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}" class="navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 						</li>
 						{{/if}}
 
@@ -45,7 +45,7 @@
 						{{if $item.drop.dropping}}
 						<li role="separator" class="divider"></li>
 						<li role="menuitem">
-							<a href="item/drop/{{$item.id}}" class="navicon delete" onclick="return confirmDelete();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
+							<a class="navicon delete" onclick="dropItem('item/drop/{{$item.id}}', '#item-{{$item.guid}}'); return false();" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</a>
 						</li>
 						{{/if}}
 					</ul>
