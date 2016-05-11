@@ -70,17 +70,26 @@ $(document).ready(function(){
 
 	// show bulk deletion button at network page if checkbox is checked
 	$('input.item-select').change(function(){
+		var checked = false;
 
-		if($(this).is(':checked')) {
-			$("a#item-delete-selected").fadeTo('slow', 1);
+		// We need to get all checked items, so it would close the delete button
+		// if we uncheck one item and others are still checked.
+		// So return checked = true if there is any checked item
+		$('input.item-select').each( function() {
+			if($(this).is(':checked')) {
+				checked = true;
+				return false;
+			}
+		});
+		
+		if(checked == true) {
+			$("a#item-delete-selected").fadeTo(400, 1);
 			$("a#item-delete-selected").show();
 		} else {
-			$("a#item-delete-selected").fadeTo('slow', 0, function(){
+			$("a#item-delete-selected").fadeTo(400, 0, function(){
 				$("a#item-delete-selected").hide();
-			});
-			
+			});	
 		}
-
 	});
 
 	// add search-headding to the scecond navbar
@@ -431,3 +440,7 @@ String.prototype.rtrim = function() {
 	var trimmed = this.replace(/\s+$/g, '');
 	return trimmed;
 };
+
+function checkSelected() {
+
+}
