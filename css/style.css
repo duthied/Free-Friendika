@@ -1701,6 +1701,42 @@ ul.viewcontact_wrapper > li {
 }
 
 /* private mail */
+.mail-thread {
+    max-height: calc(100vh - 200px);
+}
+#mail-conversation {
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
+    max-height: auto;
+    /*height: 500px;*/
+    margin-bottom: 0px;
+}
+#mail-conversation.can-reply {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+.mail-conv-wrapper .media .contact-photo-wrapper {
+    height: 48px;
+    width: 48px;
+}
+.mail-thread #prvmail-to-label,
+.mail-thread #prvmail-subject-label {
+    display: none;
+}
+.mail-thread #prvmail-message-label > label {
+    display:none;
+}
+.mail-thread #prvmail-message-label textarea {
+    border-top: none;
+    margin-top: -10px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    max-height: 120px;
+}
+.mail-conv-wrapper {
+    padding: 15px;
+    border-bottom: 1px solid rgba(238, 238, 238, 0.95)
+}
 #prvmail-end {
     clear:both;
 }

@@ -31,7 +31,7 @@
 		<textarea rows="8" cols="72" class="prvmail-text form-control" id="comment-edit-text-input" name="body" tabindex="12">{{$text}}</textarea>
 	</div>
 
-	<ul id="prvmail-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills pull-left">
+	<ul id="prvmail-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 				<li>
 					<a class="icon" style="cursor: pointer;" title="{{$edimg|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="input">
 						<i class="fa fa-picture-o"></i>

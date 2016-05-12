@@ -55,6 +55,11 @@ else
 		$("#comment-edit-text-input").bbco_autocomplete('bbcode');
 		{{/if}}
 
+		//var objDiv = document.getElementById("mail-conversation");
+		//objDiv.scrollTop = objDiv.scrollHeight;
+		$('#mail-conversation').perfectScrollbar();
+		$('#mail-conversation').scrollTop($('#mail-conversation')[0].scrollHeight);
+
 
 	});
 </script>
