@@ -1079,10 +1079,6 @@ function photos_content(&$a) {
 
 	$o = "";
 
-	// js variables for liveUpdate function in main.js
-	$o .= "<script> var profile_uid = " . $a->profile_uid 
-			. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
