@@ -343,7 +343,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2, $t
 		}
 	}
 
-	$html = bbcode($post["text"], false, false, $htmlmode);
+	$html = bbcode($post["text"].$post["after"], false, false, $htmlmode);
 	$msg = html2plain($html, 0, true);
 	$msg = trim(html_entity_decode($msg,ENT_QUOTES,'UTF-8'));
 
