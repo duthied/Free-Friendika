@@ -8,6 +8,11 @@ I conentrated on 3 topics:
 2. Try to get a new UX for friendica (e.g. use modals where it seems to be useful)
 3. Give the user a powerfull (but easy) possebillities for custimation to personalize the theme and give it a own note.
 
+**Installation Requirements:**
+* modern Browser with JS enabled (Chrome/Chromium is recommended)
+* enabled frio_hovercard addon
+* if you update the theme you should disable and enable the theme again from the admin panel (to apply possible new hooks)
+
 **Note:**
 This theme is far from beeing stable and ready for productive use. Many parts are missing and will be never added.
 Because of the heavy use of the bootstrap framework nearly every friendica theme template may have to be overwritten. It would be a lot of work and after that it would be hard to maintain the theme.
