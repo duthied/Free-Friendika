@@ -161,7 +161,7 @@ function do_like($item_id, $verb) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	if($item['obj_type'] === ACTIVITY_OBJ_EVENT)
+	if($item['object-type'] === ACTIVITY_OBJ_EVENT)
 		$post_type = t('event');
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
