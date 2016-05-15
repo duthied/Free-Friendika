@@ -128,10 +128,9 @@ function get_attachment_data($body) {
 	if ($matches[1] != "")
 		$title = $matches[1];
 
-	//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
 	$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
+	$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
 	$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
-
 	if ($title != "")
 		$data["title"] = $title;
 
