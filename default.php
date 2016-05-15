@@ -16,14 +16,14 @@ require_once('view/theme/frio/php/frio_boot.php');
 $page_type = get_page_type($a->argv[0]);
 
 // This is uncommented because we don't need it anymore.
-// We try to to use links which resulting in $_GET["mode"] = "modal"
-//if($page_type === "modal") {
-//	$_GET["mode"] = "modal";
+// We try to to use links which resulting in $_GET["mode"] = "none"
+//if($page_type === "none") {
+//	$_GET["mode"] = "none";
 //}
 
-if((isset($_GET["mode"]) AND ($_GET["mode"] == "modal"))) {
+if((isset($_GET["mode"]) AND ($_GET["mode"] == "none"))) {
 
-	require "view/theme/frio/php/modes/modal.php";
+	require "view/theme/frio/php/modes/none.php";
 } elseif($page_type === "standard_page") {
 	require "view/theme/frio/php/modes/standard.php";
 } else {

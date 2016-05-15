@@ -95,7 +95,7 @@ var FileBrowser = {
 
 		$(".folders a, .path a").on("click", function(e){
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=modal";
+			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none";
 
 			// load new content to fbrowser window
 			$(".fbrowser").load(url,function(){
@@ -161,10 +161,10 @@ var FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-//						location = baseurl + "/fbrowser/image/?mode=modal"+location['hash'];
+//						location = baseurl + "/fbrowser/image/?mode=none"+location['hash'];
 //						location.reload(true);
 
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=modal"
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none"
 						// load new content to fbrowser window
 						$(".fbrowser").load(url,function(){
 							$(function() {FileBrowser.init(nickname, type, hash);});
@@ -186,10 +186,10 @@ var FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-//						location = baseurl + "/fbrowser/file/?mode=modal"+location['hash'];
+//						location = baseurl + "/fbrowser/file/?mode=none"+location['hash'];
 //						location.reload(true);
 
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=modal"
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none"
 						// load new content to fbrowser window
 						$(".fbrowser").load(url,function(){
 							$(function() {FileBrowser.init(nickname, type, hash);});

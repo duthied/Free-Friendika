@@ -90,7 +90,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 					{{if $item.edpost}} {{* edit the posting *}}
 					<li role="menuitem">
-						<a href="#" onclick="editpost('{{$item.edpost.0}}?mode=modal'); return false;" title="{{$item.edpost.1}}" class="navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
+						<a href="#" onclick="editpost('{{$item.edpost.0}}?mode=none'); return false;" title="{{$item.edpost.1}}" class="navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
 					</li>
 					{{/if}}
 

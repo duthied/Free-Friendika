@@ -126,7 +126,7 @@ function removeAllhoverCards(event,priorTo) {
 // Ajax request to get json contact data
 function getContactData(purl, url, actionOnSuccess) {
 	var postdata = {
-		mode		: 'modal',
+		mode		: 'none',
 		profileurl	: purl,
 		datatype	: 'json',
 	};
@@ -224,7 +224,7 @@ function getHoverCardContent(purl, url, callback) {
 // Ajax request to get the raw template content
 function getHoverCardTemplate (url, callback) {
 	var postdata = {
-		mode: 'modal',
+		mode: 'none',
 		datatype: 'tpl'
 	};
 

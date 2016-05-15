@@ -91,7 +91,7 @@ Dialog.show = function(url) {
 Dialog._get_url = function(type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return "fbrowser/"+type+"/?mode=modal#"+hash;
+	return "fbrowser/"+type+"/?mode=none#"+hash;
 };
 
 // does load the filebrowser into the jot modal
@@ -119,7 +119,7 @@ Dialog._load = function(url) {
 	var type = $("#fb-type").attr("value");
 
 	// try to fetch the hash form the url
-	var match = url.match(/fbrowser\/[a-z]+\/\?mode=modal(.*)/);
+	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
 	var hash = match[1];
 
 	// initialize the filebrowser
@@ -157,7 +157,7 @@ function loadModalTitle() {
 function addToModal(url) {
 	var char = qOrAmp(url);
 
-	var url = url + char + 'mode=modal';
+	var url = url + char + 'mode=none';
 	var modal = $('#modal').modal();
 
 	modal

@@ -16,8 +16,8 @@
 function load_page(&$a) {
 	if(isset($_GET["mode"]) AND ($_GET["mode"] == "minimal")) {
 		require "view/theme/frio/minimal.php";
-	} elseif((isset($_GET["mode"]) AND ($_GET["mode"] == "modal"))) {
-		require "view/theme/frio/modal.php";
+	} elseif((isset($_GET["mode"]) AND ($_GET["mode"] == "none"))) {
+		require "view/theme/frio/none.php";
 	} else {
 		$template = 'view/theme/' . current_theme() . '/'
 			. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';

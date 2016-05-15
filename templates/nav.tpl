@@ -242,7 +242,7 @@
 		<div class="hidden-sm hidden-xs">
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="register" data-toggle="tooltip" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
-				<li><a href="login?mode=modal" data-toggle="tooltip" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
+				<li><a href="login?mode=none" data-toggle="tooltip" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
 			</ul>
 		</div>
 	</div>
