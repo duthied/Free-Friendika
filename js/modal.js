@@ -15,7 +15,7 @@ $(document).ready(function(){
 
 		// Add Colorbox for viewing Network page images
 	//var cBoxClasses = new Array();
-	$(".wall-item-body a img").each(function(){
+	$("body").on("click", ".wall-item-body a img", function(){
 		var aElem = $(this).parent();
 		var imgHref = aElem.attr("href");
 
