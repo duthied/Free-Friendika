@@ -549,7 +549,7 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
-		if (!$followup AND $top_level)
+		if (!$followup)
 			$r0 = diaspora::relay_list();
 		else
 			$r0 = array();
