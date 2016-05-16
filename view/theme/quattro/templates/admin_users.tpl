@@ -54,7 +54,21 @@
 				<thead>
 				<tr>
 					<th></th>
-					{{foreach $th_users as $th}}<th>{{$th}}</th>{{/foreach}}
+					{{foreach $th_users as $th}}
+					<th>
+						<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
+							{{if $order_users == $th.1}}
+								{{if $order_direction_users == "+"}}
+								&#8595;
+								{{else}}
+								&#8593;
+								{{/if}}
+							{{else}}
+								&#8597;
+							{{/if}}
+						{{$th.0}}</a>
+					</th>
+					{{/foreach}}
 					<th></th>
 					<th></th>
 				</tr>

@@ -1261,6 +1261,36 @@ function admin_page_users(&$a){
 		$a->set_pager_itemspage(100);
 	}
 
+	/* ordering */
+	$valid_orders = array(
+		'contact.name', 
+		'user.email',
+		'user.register_date',
+		'user.login_date',
+		'lastitem.lastitem_date',
+		'user.page-flags'
+	);
+	
+	$order = "contact.name";
+	$order_direction = "+";
+	if (x($_GET,'o')){
+		$new_order = $_GET['o'];
+		if ($new_order[0]==="-") {
+			$order_direction = "-";
+			$new_order = substr($new_order,1);
+		}
+		
+		if (in_array($new_order, $valid_orders)){
+			$order = $new_order;
+		}
+		if (x($_GET,'d')){
+			$new_direction = $_GET['d'];
+			
+		}
+	}
+	$sql_order = "`".str_replace('.','`.`',$order)."`";
+	$sql_order_direction = ($order_direction==="+")?"ASC":"DESC";
+	
 	$users = q("SELECT `user`.* , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
 				FROM
 					(SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
@@ -1273,12 +1303,14 @@ function admin_page_users(&$a){
 					   `user`.`uid` = `contact`.`uid`
 						AND `user`.`verified` =1
 					AND `contact`.`self` =1
-				ORDER BY `contact`.`name` LIMIT %d, %d
+				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d
 				",
 				intval($a->pager['start']),
 				intval($a->pager['itemspage'])
 				);
-
+    
+	//echo "<pre>$users"; killme();
+				
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist){
 		$accounts = array(
@@ -1325,6 +1357,11 @@ function admin_page_users(&$a){
 		array_push($users, array_pop($tmp_users));
 	}
 
+	$th_users = array_map(null,
+		array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'),  t('Account')),
+		$valid_orders
+	);
+	
 	$t = get_markup_template("admin_users.tpl");
 	$o = replace_macros($t, array(
 		// strings //
@@ -1347,7 +1384,9 @@ function admin_page_users(&$a){
 		'$h_users' => t('Users'),
 		'$h_newuser' => t('New User'),
 		'$th_deleted' => array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Deleted since')),
-		'$th_users' => array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'),  t('Account')),
+		'$th_users' => $th_users,
+		'$order_users' => $order,
+		'$order_direction_users' => $order_direction,
 
 		'$confirm_delete_multi' => t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
 		'$confirm_delete' => t('The user {0} will be deleted!\n\nEverything this user has posted on this site will be permanently deleted!\n\nAre you sure?'),
