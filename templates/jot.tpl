@@ -85,7 +85,7 @@
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">Text</a></li>
 					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
-					<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>
+					{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
 					<li role="menuitem"><a id="jot-preview-link" onclick="fbrowserActive(); return false;"> Browser </a></li>
 				</ul>
 				
@@ -97,7 +97,7 @@
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 						<li class="active" role="menuitem"><a id="jot-text-lnk-mobile" onclick="jotActive(); return false;">Text</a></li>
 						{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk-mobile" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
-						<li role="menuitem"><a id="jot-preview-lnk-mobile" onclick="previewActive();return false;">{{$preview}}</a></li>
+						{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk-mobile" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
 					</ul>
 				</div>
 			</div>
