@@ -835,7 +835,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			require_once('include/bbcode.php');
 			$address = GetProfileUsername($url, "", true);
 			$result2 = probe_url($address, $mode, ++$level);
-			if ($result2['network'] != "")
+			if (!in_array($result2['network'], array("", NETWORK_PHANTOM, NETWORK_FEED)))
 				$result = $result2;
 		}
 
@@ -843,7 +843,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		if (($result['network'] == NETWORK_FEED) AND ($result['baseurl'] != "") AND ($result['nick'] != "")) {
 			$addr = $result['nick'].'@'.str_replace("http://", "", $result['baseurl']);
 			$result2 = probe_url($addr, $mode, ++$level);
-			if (($result2['network'] != "") AND ($result2['network'] != NETWORK_FEED))
+			if (!in_array($result2['network'], array("", NETWORK_PHANTOM, NETWORK_FEED)))
 				$result = $result2;
 		}
 
