@@ -402,17 +402,3 @@ as the value of $top_child_total (this is done at the end of this file)
 {{if $item.thread_level==2 && $top_child_nr==$top_child_total}}
 </div><!--./comment-container-->
 {{/if}}
-
-
-<script>
-// Note: this is the same script like in search_item.tpl
-$(document).ready(function() {
-  // put shared content in an own wrapper div
-  $('#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content').after('<div class="shared-content-wrapper content-card"></div>');
-  $("#wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_header, #wall-item-content-{{$item.id}} > #wall-item-body-{{$item.id}} > .shared_content").appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
-
-  // put shared content in an own wrapper (with showmore addon)
-  $('#wall-item-content-{{$item.id}} .showmore-content > .shared_content').parent().after('<div class="shared-content-wrapper content-card"></div>');
-  $("#wall-item-content-{{$item.id}} .showmore-teaser > .shared_header, #wall-item-content-{{$item.id}} .showmore-content > .shared_header").parent().appendTo("#wall-item-content-{{$item.id}} .shared-content-wrapper");
-});
-</script>
