@@ -1712,8 +1712,8 @@ ul.viewcontact_wrapper > li {
     margin-bottom: 0px;
 }
 #mail-conversation.can-reply {
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+/*    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;*/
 }
 .mail-conv-wrapper .media .contact-photo-wrapper {
     height: 48px;
@@ -1727,10 +1727,10 @@ ul.viewcontact_wrapper > li {
     display:none;
 }
 .mail-thread #prvmail-message-label textarea {
-    border-top: none;
+/*    border-top: none;
     margin-top: -10px;
     border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
+    border-top-right-radius: 0px;*/
     max-height: 120px;
 }
 .mail-conv-wrapper {
