@@ -1,7 +1,7 @@
 
 <div id="poke-wrapper">
 
-	<h3 class="headding">{{$title}}</h3>
+	<h3 class="heading">{{$title}}</h3>
 	<div id="poke-desc">{{$desc}}</div>
 
 	<form id="poke-form" action="poke" method="get">

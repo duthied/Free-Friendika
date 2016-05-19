@@ -3,8 +3,8 @@
 
 	{{$tabs}}
 
-	{{* The page headding with it's contacts counter *}}
-	<h2 class="headding">{{$header}} {{if $total}} ({{$total}}) {{/if}}</h2>
+	{{* The page heading with it's contacts counter *}}
+	<h2 class="heading">{{$header}} {{if $total}} ({{$total}}) {{/if}}</h2>
 
 	{{if $finding}}<h4>{{$finding}}</h4>{{/if}}
 

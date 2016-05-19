@@ -9,7 +9,7 @@
 
 
 {{if $findterm}}
-<h4 class="search-headding">{{$finding}} {{$findterm}}</h4>
+<h4 class="search-heading">{{$finding}} {{$findterm}}</h4>
 {{/if}}
 
 {{* The search input field to search for contacts *}}

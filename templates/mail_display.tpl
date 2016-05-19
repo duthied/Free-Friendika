@@ -1,7 +1,7 @@
 
 <div id="mail-thread-{{$thread_id}}" class="mail-thread">
 	{{$brauchenwas}}
-	<h4 class="headding">{{$thread_subject}}</h3>
+	<h4 class="heading">{{$thread_subject}}</h3>
 
 	<div id="mail-conversation" class="panel panel-default {{if $canreply }}can-reply{{/if}}">
 	{{foreach $mails as $mail}}

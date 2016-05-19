@@ -1591,7 +1591,7 @@ ul.dropdown-menu li:hover {
 .search-input.form-control.form-search {
     width: 100%;
 }
-.search-headding {
+.search-heading {
     text-align: center;
     color: $link_color;
     font-size: 20px;
@@ -1696,7 +1696,7 @@ ul.viewcontact_wrapper > li {
 }
 
 /* directory page */
-#directory-search-headding {
+#directory-search-heading {
     padding-top: 10px;
 }
 

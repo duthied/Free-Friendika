@@ -108,9 +108,9 @@ $(document).ready(function(){
 		}
 	});
 
-	// add search-headding to the scecond navbar
-	if( $(".search-headding")) {
-		$(".search-headding").appendTo("#topbar-second > .container > #tabmenu");
+	// add search-heading to the scecond navbar
+	if( $(".search-heading")) {
+		$(".search-heading").appendTo("#topbar-second > .container > #tabmenu");
 	}
 
 	

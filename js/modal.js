@@ -141,10 +141,10 @@ function loadModalTitle() {
 	//$("#modal-title").empty();
 
 	// hide the first h3 child element of the modal body
-	$("#modal-body .headding").first().hide();
+	$("#modal-body .heading").first().hide();
 
-	// get the text of the first element with headding class
-	var title = $("#modal-body .headding").first().text();
+	// get the text of the first element with heading class
+	var title = $("#modal-body .heading").first().text();
 
 	// and append it to modal title
 	if (title!=="") {
