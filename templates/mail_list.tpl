@@ -3,7 +3,7 @@
 	<div class="mail-list-outside-wrapper">
 
 		<div class="media">
-			<div class="media-left contact-photo-wrapper">
+			<div class="pull-left contact-photo-wrapper">
 				<a href="{{$from_url}}">
 					<img class="media-object" src="{{$from_photo}}" alt="{{$from_name}}" />
 				</a>

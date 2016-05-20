@@ -1,6 +1,6 @@
 <div id="mail_conv-{{$mail.id}}" class="mail-conv-wrapper message-{{$mail.id}}">
 	<div class="media">
-		<div class="media-left contact-photo-wrapper">
+		<div class="pull-left contact-photo-wrapper">
 			<a href="{{$mail.from_url}}">
 				<img class="media-object" src="{{$mail.from_photo}}" alt="{{$mail.from_name}}" />
 			</a>
