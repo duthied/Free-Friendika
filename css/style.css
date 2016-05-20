@@ -1722,7 +1722,7 @@ ul.viewcontact_wrapper > li {
 /*    border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;*/
 }
-.mail-conv-wrapper .media .contact-photo-wrapper {
+.mail-conv-wrapper .media .contact-photo-wrapper img {
     height: 48px;
     width: 48px;
 }
@@ -1768,7 +1768,7 @@ ul.viewcontact_wrapper > li {
     padding: 5px 0;
     border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);
 }
-.mail-list-outside-wrapper .contact-photo-wrapper {
+.mail-list-outside-wrapper .contact-photo-wrapper img {
     height: 48px;
     width: 48px;
 }
