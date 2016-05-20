@@ -1701,6 +1701,12 @@ ul.viewcontact_wrapper > li {
 }
 
 /* private mail */
+.message-content-wrapper > li {
+/* we need this overwriting because we have no template file
+   for the general mail page /message
+*/
+    list-style-type: none;
+}
 .mail-thread {
     max-height: calc(100vh - 200px);
 }
@@ -1710,6 +1716,7 @@ ul.viewcontact_wrapper > li {
     max-height: auto;
     /*height: 500px;*/
     margin-bottom: 0px;
+    padding: 0 15px;
 }
 #mail-conversation.can-reply {
 /*    border-bottom-left-radius: 0px;
@@ -1734,9 +1741,38 @@ ul.viewcontact_wrapper > li {
     max-height: 120px;
 }
 .mail-conv-wrapper {
-    padding: 15px;
-    border-bottom: 1px solid rgba(238, 238, 238, 0.95)
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);
 }
+#message-sidebar {
+    height: calc(100vh - 150px);
+}
+#message-preview {
+    /*padding: 0 10px;*/
+    height: calc(100% - 20px);
+}
+#message-preview ul {
+    margin: 0px;
+}
+#message-preview .media-list li {
+    padding: 0px 10px;
+    border: none;
+}
+#message-preview .media-list li:hover {
+    border-left: none !important;
+}
+#message-preview .media-list li a {
+    color: $link_color;
+}
+.mail-list-outside-wrapper {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);
+}
+.mail-list-outside-wrapper .contact-photo-wrapper {
+    height: 48px;
+    width: 48px;
+}
+
 #prvmail-end {
     clear:both;
 }

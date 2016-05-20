@@ -58,6 +58,7 @@ else
 		//var objDiv = document.getElementById("mail-conversation");
 		//objDiv.scrollTop = objDiv.scrollHeight;
 		$('#mail-conversation').perfectScrollbar();
+		$('#message-preview').perfectScrollbar();
 		$('#mail-conversation').scrollTop($('#mail-conversation')[0].scrollHeight);
 
 
