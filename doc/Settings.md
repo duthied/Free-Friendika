@@ -1,5 +1,7 @@
 # Settings
 
+If you are the admin of a Friendica node, you have access to the sp called **Admin Panel** where you can configure your Friendica node.
+
 On the front page of the admin panel you will see a summary of information about your node.
 These information include the amount of messages currently being processed in the queues.
 The first number is the number of messages being actively sent.
