@@ -291,10 +291,6 @@ function event_store($arr) {
 			`type` = '%s',
 			`adjust` = %d,
 			`nofinish` = %d,
-			`allow_cid` = '%s',
-			`allow_gid` = '%s',
-			`deny_cid` = '%s',
-			`deny_gid` = '%s'
 			WHERE `id` = %d AND `uid` = %d",
 
 			dbesc($arr['edited']),
@@ -306,10 +302,6 @@ function event_store($arr) {
 			dbesc($arr['type']),
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
-			dbesc($arr['allow_cid']),
-			dbesc($arr['allow_gid']),
-			dbesc($arr['deny_cid']),
-			dbesc($arr['deny_gid']),
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
@@ -323,22 +315,16 @@ function event_store($arr) {
 			$object .= '</object>' . "\n";
 
 
-			q("UPDATE `item` SET `body` = '%s', `object` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `edited` = '%s', `private` = %d WHERE `id` = %d AND `uid` = %d",
+			q("UPDATE `item` SET `body` = '%s', `object` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc(format_event_bbcode($arr)),
 				dbesc($object),
-				dbesc($arr['allow_cid']),
-				dbesc($arr['allow_gid']),
-				dbesc($arr['deny_cid']),
-				dbesc($arr['deny_gid']),
 				dbesc($arr['edited']),
-				intval($arr['private']),
 				intval($r[0]['id']),
 				intval($arr['uid'])
 			);
 
 			$item_id = $r[0]['id'];
-		}
-		else
+		} else
 			$item_id = 0;
 
 		call_hooks("event_updated", $arr['id']);
