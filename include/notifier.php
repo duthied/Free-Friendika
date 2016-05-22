@@ -376,6 +376,7 @@ function notifier_run(&$argv, &$argc){
 
 			$conversants = array_unique($conversants);
 
+			logger('Allow data for '.$target_item["guid"].". People: ".implode(', ', $allow_people)." - Groups: ".implode(', ', $allow_groups), LOGGER_DEBUG);
 
 			$recipients = array_unique(array_merge($recipients,$allow_people,$allow_groups));
 			$deny = array_unique(array_merge($deny_people,$deny_groups));
@@ -454,6 +455,8 @@ function notifier_run(&$argv, &$argc){
 		$recip_str = implode(', ', $recipients_followup);
 	else
 		$recip_str = implode(', ', $recipients);
+
+	logger('Recipients for '.$target_item["guid"]." (Followup: ".$followup."): ".$recip_str, LOGGER_DEBUG);
 
 	if ($relocate)
 		$r = $recipients_relocate;

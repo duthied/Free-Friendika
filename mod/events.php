@@ -124,6 +124,7 @@ function events_post(&$a) {
 
 
 	$datarray = array();
+	$datarray['guid'] = get_guid(32);
 	$datarray['start'] = $start;
 	$datarray['finish'] = $finish;
 	$datarray['summary'] = $summary;
