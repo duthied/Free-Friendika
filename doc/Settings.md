@@ -125,7 +125,7 @@ Wildcards are accepted.
 (Wildcard support on Windows platforms requires PHP5.3).
 By default, any (valid) email address is allowed in registrations.
 
-#### Allow remote_self 
+#### Allow Users to set remote_self 
 
 If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in die advanced contact settings.
 Which means that postings by the remote self are automatically reposted by Friendica in their names.
@@ -249,6 +249,7 @@ And on the second you can read the log.
 
 You should not place your logs into any directory that is accessible from the web.
 If you have to, and you are using the default configuration from Apache, you should choose a name for the logfile ending in ``.log`` or ``.out``.
+Should you use another web server, please make sure that you have the correct accessrules in place so that your log files are not accessible.
 
 There are five different log levels: Normal, Trace, Debug, Data and All.
 Specifying different verbosities of information and data written out to the log file.
