@@ -387,6 +387,10 @@ define ( 'GRAVITY_COMMENT',      6);
 /* @}*/
 
 
+// Normally this constant is defined - but not if "pcntl" isn't installed
+if (!defined("SIGTERM"))
+	define("SIGTERM", 15);
+
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
