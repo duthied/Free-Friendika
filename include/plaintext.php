@@ -116,6 +116,8 @@ function get_attachment_data($body) {
 	if ($matches[1] != "")
 		$url = $matches[1];
 
+	$url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+
 	if ($url != "")
 		$data["url"] = $url;
 
