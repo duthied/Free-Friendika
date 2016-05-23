@@ -125,6 +125,8 @@ Wildcards are accepted.
 (Wildcard support on Windows platforms requires PHP5.3).
 By default, any (valid) email address is allowed in registrations.  
 
+#### Allow remote_self 
+
 ### Advanced
 
 #### Proxy Configuration Settings
@@ -239,8 +241,8 @@ The log section of the admin panel is seperated into two pages.
 On the first, following the "log" link, you can configure how much Friendica shall log.
 And on the second you can read the log.
 
-When you are using the default configuration for Apache, you should choose a name for the logfile ending in ``.log`` or ``.out``.
-But don't call it ``friendica.log`` (see [issue 2209](https://github.com/friendica/friendica/issues/2209)).
+You should not place your logs into any directory that is accessible from the web.
+If you have to, and you are using the default configuration from Apache, you should choose a name for the logfile ending in ``.log`` or ``.out``.
 
 There are five different log levels: Normal, Trace, Debug, Data and All.
 Specifying different verbosities of information and data written out to the log file.
@@ -251,6 +253,8 @@ But due to the volume of information we recommend only enabling this when you ar
 
 **The amount of data can grow the filesize of the logfile quickly**.
 You should set up some kind of [log rotation](https://en.wikipedia.org/wiki/Log_rotation) to keep the log file from growing too big.
+
+**Known Issues**: The filename ``friendica.log`` can cause problems depending on your server configuration (see [issue 2209](https://github.com/friendica/friendica/issues/2209)).
 
 By default PHP warnings and error messages are supressed.
 If you want to enable those, you have to activate them in the ``.htconfig.php`` file.
