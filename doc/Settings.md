@@ -123,9 +123,15 @@ Comma separated list of domains which are allowed in email addresses for registr
 This can lockout those who are not part of this organisation from registering here.
 Wildcards are accepted.
 (Wildcard support on Windows platforms requires PHP5.3).
-By default, any (valid) email address is allowed in registrations.  
+By default, any (valid) email address is allowed in registrations.
 
 #### Allow remote_self 
+
+If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in die advanced contact settings.
+Which means that postings by the remote self are automatically reposted by Friendica in their names.
+
+As admin of the node you can also set this flag directly in the database.
+Before doing so, you should be sure you know what you do and have a backup of the database.
 
 ### Advanced
 
