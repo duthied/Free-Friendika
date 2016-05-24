@@ -18,7 +18,8 @@ function openid_content(&$a) {
 
 		if($openid->validate()) {
 
-			$authid = normalise_openid($_REQUEST['openid_identity']);
+			#$authid = normalise_openid($_REQUEST['openid_identity']);
+			$authid = $_REQUEST['openid_identity'];
 
 			if(! strlen($authid)) {
 				logger( t('OpenID protocol error. No ID returned.') . EOL);
