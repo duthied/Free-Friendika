@@ -1,0 +1,72 @@
+/*
+    Licence    : AGPL
+
+    Created on : 28.03.2016, 03:13:19
+    Author     : rabuzarus
+*/
+
+body {
+    color: #000;
+}
+
+/*
+ * Navbar
+ */
+#topbar-first,
+nav.navbar {
+    box-shadow: 0 -1px 5px 2px #000;
+}
+#topbar-first .nav>li>a:hover,
+nav.navbar .nav>li>a:hover {
+    background-color: #000;
+    color: #15e3ff;
+}
+#topbar-first .nav>li>a.selected {
+    background: #e355e0;
+    color: #000;
+    padding: 9px;
+    border-radius: 8px;
+}
+#topbar-first #nav-notifications-menu li.notif-entry:hover,
+#topbar-second .nav>li>ul>li>a:hover,
+#topbar-second .nav>li>ul>li>a.active,
+#topbar-second .nav>li>a:hover,
+#topbar-second .nav .open>a,
+#topbar-second .nav>li.active,
+.nav-pills .dropdown-menu li:hover,
+.nav-tabs .dropdown-menu li:hover,
+.account .dropdown-menu li:hover,
+.contact-photo-wrapper .dropdown-menu li:hover,
+.nav-pills .dropdown-menu li.selected,
+.nav-tabs .dropdown-menu li.selected,
+.account .dropdown-menu li.selected,
+.contact-photo-wrapper .dropdown-menu li.selected,
+aside .widget li:hover,
+aside .widget li.selected,
+.nav-container .widget li:hover {
+    border-left:3px solid #15e3ff !important;
+}
+
+.panel,
+aside .widget,
+.nav-container .widget,
+#profile-page, .photos-content-wrapper,
+.settings-content-wrapper {
+    border-style: solid solid solid solid;
+    border-width: 1px;
+    border-color: #DDDDDD;
+    box-shadow: none;
+    border-radius: 15px;
+    color: #000;
+}
+
+aside .widget li a, aside .widget li a:hover,
+.panel .panel-body .wall-item-content,
+.toplevel_item .wall-item-container .btn-link {
+    color: #000;
+}
+
+.wall-item-content a:hover,
+nav.navbar .navbar-brand{
+    color: #15e3ff !important;
+}
