@@ -18,7 +18,6 @@ function openid_content(&$a) {
 
 		if($openid->validate()) {
 
-			#$authid = normalise_openid($_REQUEST['openid_identity']);
 			$authid = $_REQUEST['openid_identity'];
 
 			if(! strlen($authid)) {
@@ -31,9 +30,11 @@ function openid_content(&$a) {
 			//       mod/settings.php in 8367cad so it might have left mixed
 			//       records in the user table
 			//
-			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey` 
-				FROM `user` WHERE ( openid = '%s' OR openid = '%s' ) AND blocked = 0
-				AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+			$r = q("SELECT * FROM `user`
+				WHERE ( `openid` = '%s' OR `openid` = '%s' )
+				AND `blocked` = 0 AND `account_expired` = 0
+				AND `account_removed` = 0 AND `verified` = 1
+				LIMIT 1",
 				dbesc($authid), dbesc(normalise_openid($authid))
 			);
 
