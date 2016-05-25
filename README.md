@@ -60,3 +60,5 @@ StefOfficiel (Friendiboot Theme) - <https://github.com/StefOfficiel/Friendiboot>
 
 #### License:
 <https://github.com/rabuzarus/frio/blob/master/LICENSE>
+
+[original commit history](https://github.com/rabuzarus/frio/commits/master)
