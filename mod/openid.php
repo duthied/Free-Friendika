@@ -26,10 +26,15 @@ function openid_content(&$a) {
 				goaway(z_root());
 			}
 
+			// NOTE: we search both for normalised and non-normalised form of $authid
+			//       because the normalization step was removed from setting
+			//       mod/settings.php in 8367cad so it might have left mixed
+			//       records in the user table
+			//
 			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey` 
-				FROM `user` WHERE `openid` = '%s' AND `blocked` = 0 
+				FROM `user` WHERE ( openid = '%s' OR openid = '%s' ) AND blocked = 0
 				AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
-				dbesc($authid)
+				dbesc($authid), dbesc(normalise_openid($authid))
 			);
 
 			if($r && count($r)) {
