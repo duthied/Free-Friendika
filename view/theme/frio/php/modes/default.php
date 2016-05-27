@@ -44,7 +44,6 @@ else
 	echo"<body id=\"top\">";
 }
 ?>
-<?php if($_SERVER['REQUEST_URI'] == "/"){header('Location: /login');} ?>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if(x($page,'nav') && (!$minimal)){
