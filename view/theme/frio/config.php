@@ -36,6 +36,7 @@ function frio_form(&$a, $arr) {
 	
 	$scheme_info = get_schema_info($arr["schema"]);
 	$disable = $scheme_info["overwrites"];
+	if (!is_array($disable)) $disable = array();
 
 	$scheme_choices = array();
 	$scheme_choices["---"] = t("Default");
