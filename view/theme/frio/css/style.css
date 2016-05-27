@@ -508,6 +508,7 @@ nav.navbar a {
 #topbar-first #nav-notifications-menu .media .media-body {
     font-size: 13px!important;
     font-weight: 600!important;
+    cursor: pointer;
 }
 #topbar-first #nav-notifications-menu .media .media-body .contactname {
     font-weight: bold;
