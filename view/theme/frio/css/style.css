@@ -1092,9 +1092,11 @@ section #jotOpen {
 
 /* Thread hover effects */
 .wall-item-container .wall-item-content a,
+.wall-item-container a,
 .wall-item-container .fakelink,
 .toplevel_item .fakelink,
 .toplevel_item .wall-item-container .btn-link,
+.wall-item-container .btn-link,
 .toplevel_item .wall-item-container .wall-item-responses a {
     color: #555;
     -webkit-transition: all 0.25s ease-in-out;

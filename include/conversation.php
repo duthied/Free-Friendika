@@ -668,10 +668,14 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					$owner_name_e = $owner_name;
 				}
 
+				if ($item['item_network'] == "")
+					$item['item_network'] = $item['network'];
+
 				$tmp_item = array(
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'network' => $item['item_network'],
+					'network_name' => network_to_name($item['item_network'], $profile_link),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),

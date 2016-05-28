@@ -10,13 +10,22 @@
 <div class="panel">	
 	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}" >
 		<div class="media">
-			{{* Put addional actions in a top-right dorpdown menu *}}
-			{{if $item.star || $item.drop.dropping || $item.edpost}}
+			{{* Put additional actions in a top-right dropdown menu *}}
+
 			<ul class="nav nav-pills preferences">
+				<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
+
+				{{if $item.plink || $item.star || $item.drop.dropping || $item.edpost}}
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown"  href="#" id="dropdownMenuTools-{{$item.id}}" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down"></i></a>
 
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
+						{{if $item.plink}}      {{*link to the original source of the item *}}
+	                                        <li role="menuitem">
+	                                                <a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
+	                                        </li>
+	                                        {{/if}}
+
 						{{if $item.edpost}} {{* edit the posting *}}
 						<li role="menuitem">
 							<a href="#" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}" class="navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</a>
@@ -50,8 +59,8 @@
 						{{/if}}
 					</ul>
 				</li>
+				{{/if}}
 			</ul>
-			{{/if}}
 
 			{{* The avatar picture and the photo-menu *}}
 			<div class="dropdown pull-left"><!-- Dropdown -->
@@ -80,7 +89,7 @@
 
 					<div class="additional-info text-muted">
 						<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
-							<small><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></small>
+							<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></a></small>
 						</div>
 
 						{{if $item.location}}
