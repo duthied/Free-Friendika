@@ -45,6 +45,10 @@ body a:hover, body a:focus, body a:active, body a.active, body .btn-link:hover{
     text-decoration: none;
 }
 
+.wall-item-container a:hover {
+    text-decoration: underline;
+}
+
 hr {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -1088,9 +1092,11 @@ section #jotOpen {
 
 /* Thread hover effects */
 .wall-item-container .wall-item-content a,
+.wall-item-container a,
 .wall-item-container .fakelink,
 .toplevel_item .fakelink,
 .toplevel_item .wall-item-container .btn-link,
+.wall-item-container .btn-link,
 .toplevel_item .wall-item-container .wall-item-responses a {
     color: #555;
     -webkit-transition: all 0.25s ease-in-out;
@@ -1288,6 +1294,10 @@ blockquote.shared_content {
     color: #555;
 }
 
+.wall-item-tags a:hover {
+    text-decoration: none;
+}
+
 /* item social action buttons */
 .wall-item-actions, .wall-item-actions a {
     font-size: 13px;
@@ -1313,6 +1323,12 @@ blockquote.shared_content {
 .wall-item-actions .button-event {
     padding-left: 5px;
     padding-right: 5px;
+}
+.wall-item-actions .button-comments,
+.wall-item-actions .button-votes,
+.wall-item-actions .button-likes {
+    padding-left: 0px;
+    padding-right: 10px;
 }
 
 /* wall item hover effects */
