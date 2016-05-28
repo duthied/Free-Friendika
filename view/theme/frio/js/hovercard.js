@@ -47,6 +47,14 @@ $(document).ready(function(){
 			var title = targetElement.attr("title");
 			targetElement.attr({"data-orig-title": title, title: ""});
 
+			// if the device is a mobile open the hover card by click and not by hover
+			if(typeof is_mobile != "undefined") {
+					targetElement[0].removeAttribute("href");
+					var hctrigger = 'click';
+				} else {
+					var hctrigger = 'manual';
+			};
+
 			// Timeoute until the hover-card does appear
 			setTimeout(function(){
 				if(targetElement.is(":hover") && parseInt(targetElement.attr('data-awaiting-hover-card'),10) == timeNow) {
@@ -69,7 +77,7 @@ $(document).ready(function(){
 										}
 										return "top";
 									},
-									trigger: 'manual',
+									trigger: hctrigger,
 									template: '<div class="popover hovercard" data-card-created="' + timeNow + '"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
 									content: data
 								}).popover('show');
@@ -90,8 +98,12 @@ $(document).ready(function(){
 
 	// hover cards should be removed very easily, e.g. when any of these events happen
 	$('body').on("mouseleave touchstart scroll click dblclick mousedown mouseup submit keydown keypress keyup", function(e){
-		var timeNow = new Date().getTime();
-		removeAllhoverCards(e,timeNow);
+		// remove hover card only for desktiop user, since on mobile we openen the hovercards
+		// by click event insteadof hover
+		if(typeof is_mobile == "undefined") {
+			var timeNow = new Date().getTime();
+			removeAllhoverCards(e,timeNow);
+		};
 	});
 
 	// if we're hovering a hover card, give it a class, so we don't remove it

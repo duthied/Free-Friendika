@@ -21,9 +21,16 @@ function frio_init(&$a) {
 	$frio = "view/theme/frio";
 
 	global $frio;
-	
-	
 
+	// if the device is a mobile device set js is_mobile
+	// variable so the js scripts can use this information
+	if($a->is_mobile || $a->is_tablet) {
+		$a->page["htmlhead"] .= <<< EOT
+			<script>
+				var is_mobile = 1;
+			</script>
+EOT;
+			}
 
 	if ($style == "")
 		$style = get_config('frio', 'style');
