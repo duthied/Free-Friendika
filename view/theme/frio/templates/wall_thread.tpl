@@ -207,7 +207,12 @@ as the value of $top_child_total (this is done at the end of this file)
 			<h5 class="media-heading">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
 				<p class="text-muted">
-					<small><a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+					<small><a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a></small>
+					{{if $item.location}}
+						<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
+							<small><span class="location">({{$item.location}})</span></small>
+						</div>
+					{{/if}}
 				</p>
 			</h5>
 		</div>
