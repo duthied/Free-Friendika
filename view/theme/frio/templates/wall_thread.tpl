@@ -284,7 +284,6 @@ as the value of $top_child_total (this is done at the end of this file)
 
 				{{* Buttons for like and dislike *}}
 				{{if $item.vote}}
-				<div class="vote-like pull-left">
 					{{if $item.vote.like}}
 					<a role="button" class="button-likes" id="like-{{$item.id}}" title="{{$item.vote.like.1}}" onclick="dolike({{$item.id}},'like'); return false;"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</a>
 					{{/if}}
@@ -300,14 +299,11 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
 					<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
 					{{/if}}
-				</div>
 				{{/if}}
 
 				{{* Butten to open the comment text field *}}
 				{{if $item.comment}}
-				<div id="button-reply" class="pull-left">
-					<a role="button" class="button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="showHide('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting"></i>&nbsp;{{$item.switchcomment}}</a>
-				</div>
+				<a role="button" class="button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="showHide('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting"></i>&nbsp;{{$item.switchcomment}}</a>
 				{{/if}}
 
 				{{* Button for sharing the item *}}
