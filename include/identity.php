@@ -246,19 +246,26 @@ function profile_sidebar($profile, $block = 0) {
 	else
 		$subscribe_feed = false;
 
-	if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user())) {
+	if (remote_user() OR (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
 		$wallmessage = t('Message');
+		$wallmessage_link = "wallmessage/".$profile["nickname"];
 
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
-			intval($profile['uid']),
-			dbesc(normalise_link(get_my_url())),
-			intval(CONTACT_IS_FRIEND));
+		if (remote_user()) {
+			$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `id` = '%s' AND `rel` = %d",
+				intval($profile['uid']),
+				intval(remote_user()),
+				intval(CONTACT_IS_FRIEND));
+		} else {
+			$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
+				intval($profile['uid']),
+				dbesc(normalise_link(get_my_url())),
+				intval(CONTACT_IS_FRIEND));
+		}
 		if ($r) {
-			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", get_my_url());
-			$wallmessage_link = $message_path.base64_encode(get_my_url());
-		} else
-			$wallmessage_link = "wallmessage/".$profile["nickname"];
-
+			$remote_url = $r[0]["url"];
+			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", $remote_url);
+			$wallmessage_link = $message_path.base64_encode($remote_url);
+		}
 	} else {
 		$wallmessage = false;
 		$wallmessage_link = false;
