@@ -264,7 +264,7 @@ function profile_sidebar($profile, $block = 0) {
 		if ($r) {
 			$remote_url = $r[0]["url"];
 			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", $remote_url);
-			$wallmessage_link = $message_path.base64_encode($remote_url);
+			$wallmessage_link = $message_path.base64_encode($profile["addr"]);
 		}
 	} else {
 		$wallmessage = false;
