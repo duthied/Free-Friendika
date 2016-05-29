@@ -40,7 +40,7 @@ $(document).ready(function(){
 			// Take link href attribute as link to the profile
 			var profileurl = hrefAttr;
 			// the url to get the contact and template data
-			var url = baseurl + "/frio_hovercard";
+			var url = baseurl + "/hovercard";
 
 			// store the title in an other data attribute beause bootstrap
 			// popover destroys the title.attribute. We can restore it later
