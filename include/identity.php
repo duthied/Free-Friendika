@@ -246,10 +246,23 @@ function profile_sidebar($profile, $block = 0) {
 	else
 		$subscribe_feed = false;
 
-	if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))
+	if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user())) {
 		$wallmessage = t('Message');
-	else
+
+		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
+			intval($profile['uid']),
+			dbesc(normalise_link(get_my_url())),
+			intval(CONTACT_IS_FRIEND));
+		if ($r) {
+			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", get_my_url());
+			$wallmessage_link = $message_path.base64_encode(get_my_url());
+		} else
+			$wallmessage_link = "wallmessage/".$profile["nickname"];
+
+	} else {
 		$wallmessage = false;
+		$wallmessage_link = false;
+	}
 
 	// show edit profile to yourself
 	if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
@@ -386,6 +399,7 @@ function profile_sidebar($profile, $block = 0) {
 		'$remoteconnect'  => $remoteconnect,
 		'$subscribe_feed' => $subscribe_feed,
 		'$wallmessage' => $wallmessage,
+		'$wallmessage_link' => $wallmessage_link,
 		'$account_type' => $account_type,
 		'$location' => $location,
 		'$gender'   => $gender,
@@ -399,7 +413,6 @@ function profile_sidebar($profile, $block = 0) {
 		'$diaspora' => $diaspora,
 		'$contact_block' => $contact_block,
 	));
-
 
 	$arr = array('profile' => &$profile, 'entry' => &$o);
 
