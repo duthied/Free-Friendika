@@ -1206,8 +1206,7 @@ section #jotOpen {
     font-weight: 500;
     color: #555;
 }
-.media .media-body .addional-info a,
-.media .media-body h5.media-heading a {
+.media .media-body .addional-info a, .media .media-body h5.media-heading > a {
     display: block;
 }
 .media .contact-info-comment {
