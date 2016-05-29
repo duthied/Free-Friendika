@@ -134,21 +134,21 @@
 						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="group" aria-labelledby="main-menu">
 							{{if $nav.remote}}{{if $nav.sitename}}
 							<li id="nav-sitename" role="menuitem">{{$nav.sitename}}</li>
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{/if}}{{/if}}
 							{{foreach $nav.usermenu as $usermenu}}
 							<li role="menuitem"><a class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							<li role="menuitem"><a href="https://github.com/rabuzarus/frio" target="new" title="frio on GitHub"><i class="fa fa-github"></i> frio on GitHub</a></li>
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{if $nav.notifications}}
 							<li role="menuitem"><a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a></li>
 							{{/if}}
 							{{if $nav.messages}}
 							<li role="menuitem"><a class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
 							{{/if}}
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{if $nav.contacts}}
 							<li role="menuitem"><a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notify"></span></li>
 							{{/if}}
@@ -156,10 +156,10 @@
 							<li role="menuitem"><a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw"></i> {{$nav.manage.1}}</a></li>
 							{{/if}}
 							<li role="menuitem"><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}"><i class="fa fa-sitemap fa-fw"></i>{{$nav.directory.1}}</a></li>
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{if $nav.apps}}
 							<li role="menuitem"><a id="nav-apps-link" class="nav-link {{$nav.apps.2}} {{$sel.manage}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw"></i> {{$nav.apps.1}}</a>
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{/if}}
 							{{if $nav.help}}
 							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.3}}</a></li>
@@ -170,7 +170,7 @@
 							{{if $nav.admin}}
 							<li role="menuitem"><a id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw"></i> {{$nav.admin.1}}</a></li>
 							{{/if}}
-							<li role="seperator" class="divider"></li>
+							<li role="separator" class="divider"></li>
 							{{if $nav.logout}}
 							<li role="menuitem"><a id="nav-logout-link" class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw"></i> {{$nav.logout.1}}</a></li>
 							{{else}}

@@ -1327,7 +1327,7 @@ blockquote.shared_content {
 .wall-item-actions .button-votes,
 .wall-item-actions .button-likes {
     padding-left: 0px;
-    padding-right: 10px;
+    padding-right: 0px;
 }
 
 /* wall item hover effects */

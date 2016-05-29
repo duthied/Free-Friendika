@@ -173,11 +173,11 @@
 						<a role="button" href="#" class="button-likes" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false;">{{$item.vote.like.0}}</a>
 
 						{{if $item.vote.dislike}}
-						<span role="presentation" class="seperator">&nbsp;•&nbsp;</span>
+						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
 						<a role="button" href="#" class="button-likes" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false;">{{$item.vote.dislike.0}}</a>
 						{{/if}}
 
-						{{if $item.comment}}<span role="presentation" class="seperator">&nbsp;•&nbsp;</span>{{/if}}
+						{{if $item.comment}}<span role="presentation" class="separator">&nbsp;•&nbsp;</span>{{/if}}
 					</div>
 					{{/if}}
 
@@ -191,7 +191,7 @@
 					{{* Button for sharing the item *}}
 					{{if $item.vote}}
 						{{if $item.vote.share}}
-						<span role="presentation" class="seperator">&nbsp;•&nbsp;</span>
+						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
 						<a role="button" href="#" class="" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false;"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</a>
 						{{/if}}
 					{{/if}}

@@ -289,12 +289,17 @@ as the value of $top_child_total (this is done at the end of this file)
 					<a role="button" class="button-likes" id="like-{{$item.id}}" title="{{$item.vote.like.1}}" onclick="dolike({{$item.id}},'like'); return false;"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</a>
 					{{/if}}
 
+					{{if $item.vote.like AND $item.vote.dislike}}
+					<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+					{{/if}}
+
 					{{if $item.vote.dislike}}
-					<!-- <span role="presentation" class="seperator">&nbsp;•&nbsp;</span> -->
 					<a role="button" class="button-likes" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.1}}" onclick="dolike({{$item.id}},'dislike'); return false;"><i class="fa fa-thumbs-down"></i>&nbsp;{{$item.vote.dislike.1}}</a>
 					{{/if}}
 
-					<!-- {{if $item.comment}}<span role="presentation" class="seperator">&nbsp;•&nbsp;</span>{{/if}} -->
+					{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+					<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+					{{/if}}
 				</div>
 				{{/if}}
 
@@ -307,8 +312,10 @@ as the value of $top_child_total (this is done at the end of this file)
 
 				{{* Button for sharing the item *}}
 				{{if $item.vote}}
+					{{if ($item.vote.like OR $item.vote.dislike OR $item.comment) AND $item.vote.share}}
+					<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+					{{/if}}
 					{{if $item.vote.share}}
-					<!-- <span role="presentation" class="seperator">&nbsp;•&nbsp;</span> -->
 					<a role="button" class="button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false;"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</a>
 					{{/if}}
 				{{/if}}
