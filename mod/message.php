@@ -446,9 +446,11 @@ function message_content(&$a) {
 			if($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
-			}
-			else {
-				$from_url = 'redir/' . $message['contact-id'];
+			} elseif ($message['contact-id'] != 0) {
+				$from_url = 'redir/'.$message['contact-id'];
+				$sparkle = ' sparkle';
+			} else {
+				$from_url = $message['from-url']."?zrl=".urlencode($myprofile);
 				$sparkle = ' sparkle';
 			}
 
@@ -462,8 +464,7 @@ function message_content(&$a) {
 				$subject_e = template_escape($message['title']);
 				$body_e = template_escape(Smilies::replace(bbcode($message['body'])));
 				$to_name_e = template_escape($message['name']);
-			}
-			else {
+			} else {
 				$from_name_e = $message['from-name'];
 				$subject_e = $message['title'];
 				$body_e = Smilies::replace(bbcode($message['body']));
