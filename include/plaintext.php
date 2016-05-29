@@ -189,6 +189,13 @@ function get_attached_data($body) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
 				$data = parseurl_getsiteinfo_cached($pictures[0][1], true);
+
+				// Workaround:
+				// Sometimes photo posts to the own album are not detected at the start.
+				// So we seem to cannot use the cache for these cases. That's strange.
+				if (($data["type"] != "photo") AND strstr($pictures[0][1], "/photos/"))
+					$data = parseurl_getsiteinfo($pictures[0][1], true);
+
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
 					if (isset($data["images"][0])) {
