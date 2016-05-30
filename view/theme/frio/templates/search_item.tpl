@@ -169,29 +169,34 @@
 
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
-					<div class="vote-like pull-left">
+						{{if $item.vote.like}}
 						<a role="button" href="#" class="button-likes" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false;">{{$item.vote.like.0}}</a>
+						{{/if}}
+
+						{{if $item.vote.like AND $item.vote.dislike}}
+						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+						{{/if}}
 
 						{{if $item.vote.dislike}}
-						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
 						<a role="button" href="#" class="button-likes" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false;">{{$item.vote.dislike.0}}</a>
 						{{/if}}
 
-						{{if $item.comment}}<span role="presentation" class="separator">&nbsp;•&nbsp;</span>{{/if}}
-					</div>
+						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+						{{/if}}
 					{{/if}}
 
 					{{* Butten to open the comment text field *}}
 					{{if $item.comment}}
-					<div id="button-reply" class="pull-left">
-						<a role="button" class="" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}} </a>
-					</div>
+					<a role="button" class="" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}} </a>
 					{{/if}}
 
 					{{* Button for sharing the item *}}
 					{{if $item.vote}}
-						{{if $item.vote.share}}
+						{{if ($item.vote.like OR $item.vote.dislike OR $item.comment) AND $item.vote.share}}
 						<span role="presentation" class="separator">&nbsp;•&nbsp;</span>
+						{{/if}}
+						{{if $item.vote.share}}
 						<a role="button" href="#" class="" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false;"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</a>
 						{{/if}}
 					{{/if}}
