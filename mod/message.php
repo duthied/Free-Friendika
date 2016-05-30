@@ -305,15 +305,29 @@ function message_content(&$a) {
 		$prename = $preurl = $preid = '';
 
 		if($preselect) {
-			$r = q("select name, url, id from contact where uid = %d and id = %d limit 1",
+			$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 				intval(local_user()),
 				intval($a->argv[2])
 			);
+			if(!$r) {
+				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
+					intval(local_user()),
+					dbesc(normalise_link(base64_decode($a->argv[2])))
+				);
+			}
+			if(!$r) {
+				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
+					intval(local_user()),
+					dbesc(base64_decode($a->argv[2]))
+				);
+			}
 			if(count($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
-			}
+				$preselect = array($preid);
+			} else
+				$preselect = false;
 		}
 
 		$prefill = (($preselect) ? $prename  : '');
@@ -342,7 +356,6 @@ function message_content(&$a) {
 			'$wait' => t('Please wait'),
 			'$submit' => t('Submit')
 		));
-
 		return $o;
 	}
 
@@ -446,9 +459,11 @@ function message_content(&$a) {
 			if($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
-			}
-			else {
-				$from_url = 'redir/' . $message['contact-id'];
+			} elseif ($message['contact-id'] != 0) {
+				$from_url = 'redir/'.$message['contact-id'];
+				$sparkle = ' sparkle';
+			} else {
+				$from_url = $message['from-url']."?zrl=".urlencode($myprofile);
 				$sparkle = ' sparkle';
 			}
 
@@ -462,8 +477,7 @@ function message_content(&$a) {
 				$subject_e = template_escape($message['title']);
 				$body_e = template_escape(Smilies::replace(bbcode($message['body'])));
 				$to_name_e = template_escape($message['name']);
-			}
-			else {
+			} else {
 				$from_name_e = $message['from-name'];
 				$subject_e = $message['title'];
 				$body_e = Smilies::replace(bbcode($message['body']));
