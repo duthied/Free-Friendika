@@ -286,7 +286,7 @@
   display: flex;
 }
 .hover-card-actions-connection {
-  margin-left: 30px;
+  margin-left: 10px;
 }
 .hovercard .hovercard-content .hover-card-actions a.btn {
   display: inline-block;
