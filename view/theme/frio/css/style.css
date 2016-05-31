@@ -527,7 +527,8 @@ nav.navbar a {
 }
 /* The Top Nav Bar user menu */
 #topbar-first .account .user-title {
-    text-align: right
+    text-align: right;
+    margin-top: 7px;
 }
 #topbar-first .account .user-title span {
     color: $nav_icon_color;
