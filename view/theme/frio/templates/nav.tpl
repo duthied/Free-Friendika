@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.1}}" class="">Mark as read{{*** @todo Translation ***}}</a>
+										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}" class="">{{$nav.notifications.mark.1}}</a>
 									</div>
 
 								</li>
@@ -139,8 +139,6 @@
 							{{foreach $nav.usermenu as $usermenu}}
 							<li role="menuitem"><a class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
-							<li role="separator" class="divider"></li>
-							<li role="menuitem"><a href="https://github.com/rabuzarus/frio" target="new" title="frio on GitHub"><i class="fa fa-github"></i> frio on GitHub</a></li>
 							<li role="separator" class="divider"></li>
 							{{if $nav.notifications}}
 							<li role="menuitem"><a href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw"></i> {{$nav.notifications.1}}</a></li>
