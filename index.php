@@ -41,6 +41,7 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
  */
 
 require_once("include/dba.php");
+require_once("include/dbm.php");
 
 if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
@@ -52,6 +53,10 @@ if(!$install) {
 
 	load_config('config');
 	load_config('system');
+
+	$processlist = dbm::processlist();
+	if ($processlist != "")
+		logger("Processlist: ".$processlist, LOGGER_DEBUG);
 
 	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
 	if($maxsysload_frontend < 1)
