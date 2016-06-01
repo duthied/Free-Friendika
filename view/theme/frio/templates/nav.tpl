@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.1}}" class="">{{$clear_notifs}}</a>
+										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}" class="">{{$nav.notifications.mark.1}}</a>
 									</div>
 
 								</li>
