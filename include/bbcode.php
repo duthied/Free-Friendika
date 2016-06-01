@@ -468,7 +468,6 @@ function bb_ShareAttributes($share, $simplehtml) {
 				$text .= "<hr />";
 
 			$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
-			$text .= "</div>";
 
 			break;
 		case 5:
