@@ -123,6 +123,7 @@ $(document).ready(function(){
 		animation: true,
 		html: true,
 		placement: 'auto',
+		trigger: 'hover',
 		delay: {
 			show: 500,
 			hide: 100
