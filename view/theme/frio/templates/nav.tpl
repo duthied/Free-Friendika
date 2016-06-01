@@ -109,8 +109,8 @@
 							<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
 								<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 								<div class="form-group form-group-search">
-									<input id="nav-search-input-field" class="form-control form-search" type="text" name="search" placeholder="Search">
-									<button class="btn btn-default btn-sm form-button-search" type="submit">Search</button>
+									<input id="nav-search-input-field" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+									<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
 								</div>
 							</form>
 					</li>
