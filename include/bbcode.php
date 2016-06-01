@@ -811,7 +811,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 			$Text);
 	elseif (!$simplehtml)
 		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-			'$1<a href="$2" class="mention" title="$3">$3</a>',
+			'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
 			$Text);
 
 	// Bookmarks in red - will be converted to bookmarks in friendica
