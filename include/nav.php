@@ -170,7 +170,7 @@ function nav_info(&$a) {
 			if(in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
 				$nav['notifications'] = array('notifications',	t('Notifications'), "", t('Notifications'));
 				$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
-				$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
+				$nav['notifications']['mark'] = array('', t('Mark as seen'), '',t('Mark all system notifications seen'));
 			}
 		}
 

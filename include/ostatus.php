@@ -493,6 +493,7 @@ class ostatus {
 						$orig_body = $xpath->query('atom:content/text()', $activityobjects)->item(0)->nodeValue;
 
 					$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
+					$orig_edited = $xpath->query('atom:updated/text()', $activityobjects)->item(0)->nodeValue;
 
 					$orig_contact = $contact;
 					$orig_author = self::fetchauthor($xpath, $activityobjects, $importer, $orig_contact, false);
@@ -502,6 +503,7 @@ class ostatus {
 					$item["author-avatar"] = $orig_author["author-avatar"];
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
 					$item["created"] = $orig_created;
+					$item["edited"] = $orig_edited;
 
 					$item["uri"] = $orig_uri;
 					$item["plink"] = $orig_link;
