@@ -46,10 +46,20 @@
 		</div>
 
 		<div class="media-body">
+			{{* The contact actions like private mail, delete contact, edit contact and so on *}}
+			<div class="contact-actions pull-right nav-pills preferences hidden-xs">
+				{{if $contact.photo_menu.pm}}<a class="contact-action-link" onclick="addToModal('{{$contact.photo_menu.pm.1}}')" data-toggle="tooltip" title="{{$contact.photo_menu.pm.0}}"><i class="fa fa-envelope" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.poke}}<a class="contact-action-link" onclick="addToModal('{{$contact.photo_menu.poke.1}}')" data-toggle="tooltip" title="{{$contact.photo_menu.poke.0}}"><i class="fa fa-heartbeat" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.network}}<a class="contact-action-link" href="{{$contact.photo_menu.network.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.network.0}}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.edit}}<a class="contact-action-link" href="{{$contact.photo_menu.edit.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.edit.0}}"><i class="fa fa-pencil" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.drop}}<a class="contact-action-link" href="{{$contact.photo_menu.drop.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.drop.0}}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.follow}}<a class="contact-action-link" href="{{$contact.photo_menu.follow.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.follow.0}}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>{{/if}}
+			</div>
+
 			{{* The contact description (e.g. Name, Network, kind of connection and so on *}}
 			<div class="contact-entry-desc">
 				<div class="contact-entry-name" id="contact-entry-name-{{$contact.id}}" >
-					<h4 class="media-heading">{{$contact.name}}
+					<h4 class="media-heading"><a href="{{$contact.url}}">{{$contact.name}}</a>
 					{{if $contact.account_type}} <small class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</small>{{/if}}
 					{{if $contact.account_type == 'Forum'}}<i class="fa fa-comments-o" aria-hidden="true"></i>{{/if}}
 					{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}
@@ -124,11 +134,21 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 			</div>
 
-			<div class="media-body"> {{* @todo There is a bug with this class - the browser freezes if the screensize is to small - but only fith textcomplete*}}
+			<div class="media-body">
+				{{* The contact actions like private mail, delete contact, edit contact and so on *}}
+				<div class="contact-actions pull-right nav-pills preferences hidden-xs">
+					{if $photo_menu.pm}<a class="contact-action-link" onclick="addToModal('{$photo_menu.pm.1}')" data-toggle="tooltip" title="{$photo_menu.pm.0}"><i class="fa fa-envelope" aria-hidden="true"></i></a>{/if}
+					{if $photo_menu.poke}<a class="contact-action-link" onclick="addToModal('{$photo_menu.poke.1}')" data-toggle="tooltip" title="{$photo_menu.poke.0}"><i class="fa fa-heartbeat" aria-hidden="true"></i></a>{/if}
+					{if $photo_menu.network}<a class="contact-action-link" href="{$photo_menu.network.1}" data-toggle="tooltip" title="{$photo_menu.network.0}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{/if}
+					{if $photo_menu.edit}<a class="contact-action-link" href="{$photo_menu.edit.1}" data-toggle="tooltip" title="{$photo_menu.edit.0}"><i class="fa fa-pencil" aria-hidden="true"></i></a>{/if}
+					{if $photo_menu.drop}<a class="contact-action-link" href="{$photo_menu.drop.1}" data-toggle="tooltip" title="{$photo_menu.drop.0}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{/if}
+					{if $photo_menu.follow}<a class="contact-action-link" href="{$photo_menu.follow.1}" data-toggle="tooltip" title="{$photo_menu.follow.0}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>{/if}
+				</div>
+
 				{{* The contact description (e.g. Name, Network, kind of connection and so on *}}
 				<div class="contact-entry-desc">
 					<div class="contact-entry-name" id="contact-entry-name-{$id}" >
-						<h4 class="media-heading">{$name}
+						<h4 class="media-heading"><a href="{url}">{$name}</a>
 						{if $account_type} <small class="contact-entry-details" id="contact-entry-accounttype-{$id}">({$account_type})</small>{/if}
 						{if $account_type == 'Forum'}<i class="fa fa-comments-o" aria-hidden="true"></i>{/if}
 						{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}

@@ -1702,10 +1702,29 @@ ul.viewcontact_wrapper > li {
 .contact-entry-checkbox {
     margin-top: -20px;
 }
-.contact-wrapper .media-body .contact-entry-name h4.media-heading {
-    font-weight: bold;
-    color: #777;
-    font-size: 15px;
+.contact-wrapper .media-body .contact-entry-name h4.media-heading a {
+    font-weight: bold !important; 
+    color: $link_color;
+    font-size: 15px !important;
+}
+.contact-wrapper .contact-actions {
+    display: flex;
+}
+.contact-wrapper a.contact-action-link {
+    opacity: 0.1;
+}
+.contact-wrapper a.contact-action-link,
+.contact-wrapper a.contact-action-link:hover,
+.textcomplete-item .contact-wrapper a.contact-action-link {
+    padding-right: 5px;
+    padding-left: 5px;
+    color: #555;
+}
+ul li:hover .contact-wrapper a.contact-action-link {
+    opacity: 0.8;
+}
+ul li:hover .contact-wrapper a.contact-action-link:hover {
+    opacity: 1;
 }
 #contacts-search-wrapper,
 #directory-search-wrapper{
