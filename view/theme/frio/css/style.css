@@ -1255,6 +1255,10 @@ section #jotOpen {
     max-height: 480px;
     object-fit: contain;
 }
+.wall-item-body > img,
+.wall-item-body > a > img {
+    border-radius: 3px;
+}
 .shared-wrapper,
 .vevent {
     margin-left: 50px;
