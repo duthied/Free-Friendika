@@ -489,13 +489,16 @@ function bb_ShareAttributes($share, $simplehtml) {
 				$text .= "<br /><br />".$link;
 			break;
 		default:
-			$headline = trim($share[1]).'<div class="shared_header">';
+			$headline = trim($share[1])."\n";
+			$headline .= '<div class="shared-wrapper">'."\n";
+			$headline .= '<div class="shared_header">'."\n";
 			if ($avatar != "")
 				$headline .= '<img src="'.proxy_url($avatar, false, PROXY_SIZE_MICRO).'" height="32" width="32" >';
 
 			$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
-			$headline .= "</div>";
-			$text = $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote>";
+			$headline .= "</div>\n";
+			$text = $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote>\n";
+			$text .= "<div>\n";
 			break;
 	}
 	return($text);
