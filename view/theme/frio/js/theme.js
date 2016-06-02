@@ -68,22 +68,6 @@ $(document).ready(function(){
 		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
 	}
 
-	// move shared content in it's own DIV (so we can style it better)
-	$('.wall-item-body .shared_content').each(function() {
-		// create a DIV after ".shared_content" where we will putt in the shared_header
-		// and the "shared_content"
-		$(this).after('<div class="shared-content-wrapper content-card"></div>');
-		// get the shared_header
-		var sheader = $(this).prev();
-		// get the shared-content-wrapper which we have created above
-		var swrapper = $(this).next();
-		// move the "shared_header into the new shared_content DIV
-		$(swrapper).append(sheader);
-		// move the "shared_content" into the new DIV
-		$(swrapper).append(this);
-	});
-
-
 	// show bulk deletion button at network page if checkbox is checked
 	$('input.item-select').change(function(){
 		var checked = false;
