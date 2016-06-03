@@ -55,8 +55,14 @@ if(!$install) {
 	load_config('system');
 
 	$processlist = dbm::processlist();
-	if ($processlist != "")
-		logger("Processlist: ".$processlist, LOGGER_DEBUG);
+	if ($processlist["list"] != "") {
+		logger("Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+		// More than 20 running database processes?
+		// The system is too busy, so quit.
+		if ($processlist["amount"] > 20)
+			system_unavailable();
+	}
 
 	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
 	if($maxsysload_frontend < 1)

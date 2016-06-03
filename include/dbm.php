@@ -15,12 +15,14 @@ class dbm {
 		// updating
 
 		$statelist = "";
+		$processes = 0;
 		foreach ($states AS $state => $usage) {
 			if ($statelist != "")
 				$statelist .= ", ";
 			$statelist .= $state.": ".$usage;
+			++$processes;
 		}
-		return($statelist);
+		return(array("list" => $statelist, "amount" => $processes));
 	}
 }
 ?>

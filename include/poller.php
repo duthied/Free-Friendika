@@ -28,8 +28,11 @@ function poller_run(&$argv, &$argc){
 	};
 
 	$processlist = dbm::processlist();
-	if ($processlist != "")
-		logger("Processlist: ".$processlist, LOGGER_DEBUG);
+	if ($processlist["list"] != "") {
+		logger("Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+		if ($processlist["amount"] > 5)
+			return;
+	}
 
 	if (poller_max_connections_reached())
 		return;
@@ -66,8 +69,11 @@ function poller_run(&$argv, &$argc){
 
 		// Log the type of database processes
 		$processlist = dbm::processlist();
-		if ($processlist != "")
-			logger("Processlist: ".$processlist, LOGGER_DEBUG);
+		if ($processlist["amount"] != "") {
+			logger("Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+			if ($processlist["amount"] > 5)
+				return;
+		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (poller_max_connections_reached())
