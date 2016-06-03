@@ -69,7 +69,7 @@ $(document).ready(function(){
 	}
 
 	// show bulk deletion button at network page if checkbox is checked
-	$('input.item-select').change(function(){
+	$("body").change("input.item-select", function(){
 		var checked = false;
 
 		// We need to get all checked items, so it would close the delete button
