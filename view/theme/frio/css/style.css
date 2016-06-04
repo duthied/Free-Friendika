@@ -1255,7 +1255,11 @@ section #jotOpen {
     max-height: 480px;
     object-fit: contain;
 }
-.shared-content-wrapper,
+.wall-item-body > img,
+.wall-item-body > a > img {
+    border-radius: 3px;
+}
+.shared-wrapper,
 .vevent {
     margin-left: 50px;
     margin-right: 50px;
@@ -1263,13 +1267,13 @@ section #jotOpen {
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .1) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
 @media screen and (max-width: 767px) {
-    .shared-content-wrapper,
+    .shared-wrapper,
     .vevent {
 	margin-left: 0px;
 	margin-right: 0px;
     }
 }
-.shared-content-wrapper:hover,
+.shared-wrapper:hover,
 .vevent:hover {
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .15) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
