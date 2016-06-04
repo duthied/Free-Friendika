@@ -29,9 +29,16 @@ function poller_run(&$argv, &$argc){
 
 	$processlist = dbm::processlist();
 	if ($processlist["list"] != "") {
-		logger("Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-		if ($processlist["amount"] > 5)
+		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+		$max_processes = get_config('system', 'max_processes_backend');
+		if (intval($max_processes) == 0)
+			$max_processes = 5;
+
+		if ($processlist["amount"] > $max_processes) {
+			logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
 			return;
+		}
 	}
 
 	if (poller_max_connections_reached())
@@ -70,9 +77,16 @@ function poller_run(&$argv, &$argc){
 		// Log the type of database processes
 		$processlist = dbm::processlist();
 		if ($processlist["amount"] != "") {
-			logger("Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-			if ($processlist["amount"] > 5)
+			logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+			$max_processes = get_config('system', 'max_processes_backend');
+			if (intval($max_processes) == 0)
+				$max_processes = 5;
+
+			if ($processlist["amount"] > $max_processes) {
+				logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
 				return;
+			}
 		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
