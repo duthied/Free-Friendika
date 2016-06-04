@@ -39,7 +39,7 @@ line to your .htconfig.php:
 * max_contact_queue - Default value is 500.
 * max_batch_queue - Default value is 1000.
 * max_processes_backend - Maximum number of concurrent database processes for background tasks. Default value is 5.
-* max_processes_frontend'] - Maximum number of concurrent database processes for foreground tasks. Default value is 20.
+* max_processes_frontend - Maximum number of concurrent database processes for foreground tasks. Default value is 20.
 * no_oembed (Boolean) - Don't use OEmbed to fetch more information about a link.
 * no_oembed_rich_content (Boolean) - Don't show the rich content (e.g. embedded PDF).
 * no_smilies (Boolean) - Don't show smilies.
