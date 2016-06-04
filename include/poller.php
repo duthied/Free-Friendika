@@ -27,13 +27,13 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
+	$max_processes = get_config('system', 'max_processes_backend');
+	if (intval($max_processes) == 0)
+		$max_processes = 5;
+
 	$processlist = dbm::processlist();
 	if ($processlist["list"] != "") {
 		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-
-		$max_processes = get_config('system', 'max_processes_backend');
-		if (intval($max_processes) == 0)
-			$max_processes = 5;
 
 		if ($processlist["amount"] > $max_processes) {
 			logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
@@ -78,10 +78,6 @@ function poller_run(&$argv, &$argc){
 		$processlist = dbm::processlist();
 		if ($processlist["amount"] != "") {
 			logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-
-			$max_processes = get_config('system', 'max_processes_backend');
-			if (intval($max_processes) == 0)
-				$max_processes = 5;
 
 			if ($processlist["amount"] > $max_processes) {
 				logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
