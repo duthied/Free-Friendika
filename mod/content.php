@@ -423,12 +423,6 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				else
 					$profile_avatar = $item['author-avatar'];
 
-				//$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-				//if(($normalised != 'mailbox') && (x($a->contacts[$normalised])))
-				//	$profile_avatar = $a->contacts[$normalised]['thumb'];
-				//else
-				//	$profile_avatar = $a->remove_baseurl(((strlen($item['author-avatar'])) ? $item['author-avatar'] : $item['thumb']));
-
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
 
@@ -800,12 +794,6 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					$profile_avatar = $author_contact["thumb"];
 				else
 					$profile_avatar = $item['author-avatar'];
-
-				//$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-				//if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
-				//	$profile_avatar = $a->contacts[$normalised]['thumb'];
-				//else
-				//	$profile_avatar = $a->remove_baseurl(((strlen($item['author-avatar']) && $diff_author) ? $item['author-avatar'] : $thumb));
 
 				$like    = ((x($alike,$item['uri'])) ? format_like($alike[$item['uri']],$alike[$item['uri'] . '-l'],'like',$item['uri']) : '');
 				$dislike = ((x($dlike,$item['uri'])) ? format_like($dlike[$item['uri']],$dlike[$item['uri'] . '-l'],'dislike',$item['uri']) : '');

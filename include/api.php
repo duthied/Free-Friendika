@@ -270,8 +270,6 @@
 							api_login($a);
 					}
 
-					load_contact_links(api_user());
-
 					logger('API call for ' . $a->user['username'] . ': ' . $a->query_string);
 					logger('API parameters: ' . print_r($_REQUEST,true));
 

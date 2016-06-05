@@ -157,13 +157,6 @@ class Item extends BaseObject {
 		else
 			$profile_avatar = $item['author-avatar'];
 
-		// This was the old method. We leave it here at the moment
-		//$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-		//if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
-		//	$profile_avatar = $a->contacts[$normalised]['thumb'];
-		//else
-		//	$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
-
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
