@@ -192,6 +192,17 @@ function unmark_for_death($contact) {
 	);
 }}
 
+/**
+ * @brief Get contact data for a given profile link
+ *
+ * The function looks at several places (contact table and gcontact table) for the contact
+ *
+ * @param string $url The profile link
+ * @param int $uid User id
+ * @param array $default If not data was found take this data as default value
+ *
+ * @return array Contact data
+ */
 function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	if ($uid == -1)
 		$uid = local_user();
@@ -221,7 +232,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	// Fetch the data from the gcontact table
 	if (!count($r) AND !isset($profile))
 		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday` AS `bd`, `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 				dbesc(normalise_link($url)));
 
@@ -233,10 +244,26 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			$profile["thumb"] = $profile["photo"];
 	}
 
-	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
-		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
-		proc_run('php',"include/update_gcontact.php", $profile["gid"]);
+	if (isset($profile["birthday"]) AND !isset($profile["bd"])){
+		$bd_timestamp = strtotime($profile["birthday"]);
+		$month = date("m", $bd_timestamp);
+		$day = date("d", $bd_timestamp);
+
+		$current_timestamp = time();
+		$current_year = date("Y", $current_timestamp);
+		$current_month = date("m", $current_timestamp);
+		$current_day = date("d", $current_timestamp);
+
+		$profile["bd"] = $current_year."-".$month."-".$day;
+		$current = $current_year."-".$current_month."-".$current_day;
+
+		if ($profile["bd"] < $current)
+			$profile["bd"] = (++$current_year)."-".$month."-".$day;
 	}
+
+	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
+		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+		proc_run('php',"include/update_gcontact.php", $profile["gid"]);
 
 	// Show contact details of Diaspora contacts only if connected
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {
