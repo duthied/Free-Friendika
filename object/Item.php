@@ -364,7 +364,7 @@ class Item extends BaseObject {
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name' => $name_e,
-			'thumb' => proxy_url($profile_avatar, false, PROXY_SIZE_THUMB),
+			'thumb' => $a->remove_baseurl(proxy_url($profile_avatar, false, PROXY_SIZE_THUMB)),
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => $title_e,

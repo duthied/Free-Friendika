@@ -112,6 +112,8 @@ function display_init(&$a) {
 
 function display_fetchauthor($a, $item) {
 
+	require_once("include/Contact.php");
+
 	$profiledata = array();
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];
@@ -176,61 +178,9 @@ function display_fetchauthor($a, $item) {
 		$profiledata["about"] = "";
 	}
 
-	// Don't show details from Diaspora contacts if you don't follow the contact
-	$showdetails = ($profiledata["network"] != NETWORK_DIASPORA);
+	$profiledata = get_contact_details_by_url($profiledata["url"], local_user(), $profiledata);
 
-	// Fetching further contact data from the contact table
-	$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
-		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
-		dbesc(normalise_link($profiledata["url"])), intval(local_user()), dbesc($item["network"]),
-		intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	if (!count($r))
-		$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
-			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `rel` IN (%d, %d)",
-			dbesc(normalise_link($profiledata["url"])), intval(local_user()),
-			intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-
-	if (count($r)) {
-		$profiledata["name"] = $r[0]["name"];
-		$profiledata["photo"] = $r[0]["photo"];
-		$profiledata["nickname"] = $r[0]["nick"];
-		$profiledata["addr"] = $r[0]["addr"];
-		$profiledata["keywords"] = $r[0]["keywords"];
-		$profiledata["network"] = $r[0]["network"];
-
-		if (local_user() OR $showdetails) {
-			$showdetails = true;
-			$profiledata["address"] = $r[0]["location"];
-			$profiledata["about"] = $r[0]["about"];
-			$profiledata["gender"] = $r[0]["gender"];
-		}
-	}
-
-	// Fetching profile data from global contacts
-	if ($profiledata["network"] != NETWORK_FEED) {
-		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`, `network` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
-		if (count($r)) {
-			$profiledata["name"] = $r[0]["name"];
-			$profiledata["photo"] = $r[0]["photo"];
-			$profiledata["nickname"] = $r[0]["nick"];
-			$profiledata["addr"] = $r[0]["addr"];
-			$profiledata["network"] = $r[0]["network"];
-
-			if ($r[0]["keywords"])
-				$profiledata["keywords"] = $r[0]["keywords"];
-
-			if ($showdetails) {
-				if ($r[0]["location"])
-					$profiledata["address"] = $r[0]["location"];
-
-				if ($r[0]["about"])
-					$profiledata["about"] = $r[0]["about"];
-
-				if ($r[0]["gender"])
-					$profiledata["gender"] = $r[0]["gender"];
-			}
-		}
-	}
+	$profiledata["photo"] = App::remove_baseurl($profiledata["photo"]);
 
 	if (local_user()) {
 		if (in_array($profiledata["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
@@ -482,9 +432,7 @@ function display_content(&$a, $update = 0) {
 		$title = trim(html2plain(bbcode($r[0]["title"], false, false), 0, true));
 		$author_name = $r[0]["author-name"];
 
-		$image = "";
-		if ($image == "")
-			$image = $r[0]["thumb"];
+		$image = $a->remove_baseurl($r[0]["thumb"]);
 
 		if ($title == "")
 			$title = $author_name;
