@@ -207,25 +207,23 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	if ($uid == -1)
 		$uid = local_user();
 
-	// community, nurl, alias, nsfw, birthday
-
 	// Fetch contact data from the contact table for the user and given network
 	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-			`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd`, `bd` AS `birthday`, `self`
+			`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
 		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` IN ('%s', '')",
 			dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
 	// Is the contact present for the user in a different network? (Can happen with OStatus and the "Statusnet" addon)
 	if (!count($r) AND !isset($profile))
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd`, `bd` AS `birthday`, `self`
+				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 				dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!count($r) AND !isset($profile))
 		$r = q("SELECT `id`, 0 AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd`, `bd` AS `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
@@ -236,29 +234,32 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 				dbesc(normalise_link($url)));
 
-	if ($r)
+	if ($r) {
 		$profile = $r[0];
-	else {
+
+		// "bd" always contains the upcoming birthday of a contact.
+		// "birthday" might contain the birthday including the year of birth.
+		if ($profile["birthday"] != "0000-00-00") {
+			$bd_timestamp = strtotime($profile["birthday"]);
+			$month = date("m", $bd_timestamp);
+			$day = date("d", $bd_timestamp);
+
+			$current_timestamp = time();
+			$current_year = date("Y", $current_timestamp);
+			$current_month = date("m", $current_timestamp);
+			$current_day = date("d", $current_timestamp);
+
+			$profile["bd"] = $current_year."-".$month."-".$day;
+			$current = $current_year."-".$current_month."-".$current_day;
+
+			if ($profile["bd"] < $current)
+				$profile["bd"] = (++$current_year)."-".$month."-".$day;
+		} else
+			$profile["bd"] = "0000-00-00";
+	} else {
 		$profile = $default;
 		if (!isset($profile["thumb"]) AND isset($profile["photo"]))
 			$profile["thumb"] = $profile["photo"];
-	}
-
-	if (isset($profile["birthday"]) AND !isset($profile["bd"])){
-		$bd_timestamp = strtotime($profile["birthday"]);
-		$month = date("m", $bd_timestamp);
-		$day = date("d", $bd_timestamp);
-
-		$current_timestamp = time();
-		$current_year = date("Y", $current_timestamp);
-		$current_month = date("m", $current_timestamp);
-		$current_day = date("d", $current_timestamp);
-
-		$profile["bd"] = $current_year."-".$month."-".$day;
-		$current = $current_year."-".$current_month."-".$current_day;
-
-		if ($profile["bd"] < $current)
-			$profile["bd"] = (++$current_year)."-".$month."-".$day;
 	}
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
