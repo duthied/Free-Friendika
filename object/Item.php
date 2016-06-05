@@ -150,11 +150,19 @@ class Item extends BaseObject {
 		else
 			$profile_link = zrl($profile_link);
 
-		$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
-			$profile_avatar = $a->contacts[$normalised]['thumb'];
+		// Don't rely on the author-avatar. It is better to use the data from the contact table
+		$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
+		if ($author_contact["thumb"])
+			$profile_avatar = $author_contact["thumb"];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
+			$profile_avatar = $item['author-avatar'];
+
+		// This was the old method. We leave it here at the moment
+		//$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
+		//if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
+		//	$profile_avatar = $a->contacts[$normalised]['thumb'];
+		//else
+		//	$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);

@@ -49,7 +49,7 @@ function allfriends_content(&$a) {
 	foreach($r as $rr) {
 
 		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+		$contact_details = get_contact_details_by_url($rr['url'], $uid, $rr);
 
 		$photo_menu = '';
 
@@ -68,9 +68,9 @@ function allfriends_content(&$a) {
 		$entry = array(
 			'url'		=> $rr['url'],
 			'itemurl'	=> (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'name'		=> htmlentities($rr['name']),
-			'thumb'		=> proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
-			'img_hover'	=> htmlentities($rr['name']),
+			'name'		=> htmlentities($contact_details['name']),
+			'thumb'		=> proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'img_hover'	=> htmlentities($contact_details['name']),
 			'details'	=> $contact_details['location'],
 			'tags'		=> $contact_details['keywords'],
 			'about'		=> $contact_details['about'],
