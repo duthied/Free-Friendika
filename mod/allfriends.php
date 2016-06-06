@@ -61,8 +61,10 @@ function allfriends_content(&$a) {
 		}
 		else {
 			$connlnk = $a->get_baseurl() . '/follow/?url=' . $rr['url'];
-			$photo_menu = array(array(t("View Profile"), zrl($rr['url'])));
-			$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+			$photo_menu = array(
+				'profile' => array(t("View Profile"), zrl($rr['url'])),
+				'follow' => array(t("Connect/Follow"), $connlnk)
+			);
 		}
 
 		$entry = array(

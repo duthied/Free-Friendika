@@ -67,8 +67,10 @@ function match_content(&$a) {
 				if (!count($match)) {
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
-					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
-					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+					$photo_menu = array(
+						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'follow' => array(t("Connect/Follow"), $connlnk)
+					);
 
 					$contact_details = get_contact_details_by_url($jj->url, local_user());
 

@@ -196,8 +196,10 @@ function dirfind_content(&$a, $prefix = "") {
 				} else {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
-					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
-					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+					$photo_menu = array(
+						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'follow' => array(t("Connect/Follow"), $connlnk)
+					);
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);

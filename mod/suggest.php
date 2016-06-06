@@ -78,9 +78,12 @@ function suggest_content(&$a) {
 
 		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = $a->get_baseurl() . '/suggest?ignore=' . $rr['id'];
-		$photo_menu = array(array(t("View Profile"), zrl($rr["url"])));
-		$photo_menu[] = array(t("Connect/Follow"), $connlnk);
-		$photo_menu[] = array(t('Ignore/Hide'), $ignlnk);
+		$photo_menu = array(
+			'profile' => array(t("View Profile"), zrl($rr["url"])),
+			'follow' => array(t("Connect/Follow"), $connlnk),
+			'hide' => array(t('Ignore/Hide'), $ignlnk)
+		);
+
 		$contact_details = get_contact_details_by_url($rr["url"], local_user(), $rr);
 
 		$entry = array(
