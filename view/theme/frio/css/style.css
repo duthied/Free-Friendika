@@ -939,6 +939,18 @@ aside #follow-sidebar .form-group-search .form-button-search {
     padding: 2px 8px;
 }
 
+aside #group-sidebar .group-edit-tool {
+    opacity: 0.1;
+    transition: all 0.25s ease-in-out;
+}
+aside #group-sidebar .sidebar-group-li:hover .group-edit-tool {
+    opacity: 0.8;
+    transition: all 0.25s ease-in-out;
+}
+aside #group-sidebar .sidebar-group-li .group-edit-tool:hover {
+    opacity: 1;
+}
+
 /* contact block widget */
 #contact-block .contact-block-content {
     clear: both;
@@ -1637,7 +1649,7 @@ ul.dropdown-menu li:hover {
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
-.notifications-content-wrapper, .admin-content-wrapper {
+.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
