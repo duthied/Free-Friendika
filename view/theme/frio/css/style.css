@@ -1716,6 +1716,7 @@ ul.viewcontact_wrapper > li {
 }
 .contact-wrapper a.contact-action-link {
     opacity: 0.1;
+    transition: all 0.25s ease-in-out;
 }
 .contact-wrapper a.contact-action-link,
 .contact-wrapper a.contact-action-link:hover,
@@ -1726,6 +1727,7 @@ ul.viewcontact_wrapper > li {
 }
 ul li:hover .contact-wrapper a.contact-action-link {
     opacity: 0.8;
+    transition: all 0.25s ease-in-out;
 }
 ul li:hover .contact-wrapper a.contact-action-link:hover {
     opacity: 1;
