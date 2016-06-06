@@ -284,7 +284,7 @@ function profile_content(&$a, $update = 0) {
 
 		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`,
 			`thread`.`uid` AS `contact-uid`
-			FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+			FROM `thread` FORCE INDEX (`uid_created`) INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 			$sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0

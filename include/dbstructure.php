@@ -847,7 +847,7 @@ function db_definition() {
 					"extid" => array("extid"),
 					"uid_id" => array("uid","id"),
 					"uid_created" => array("uid","created"),
-					"uid_unseen" => array("uid","unseen"),
+					"uid_unseen_contactid" => array("uid","unseen","contact-id"),
 					"uid_network_received" => array("uid","network","received"),
 					"uid_received" => array("uid","received"),
 					"uid_network_commented" => array("uid","network","commented"),
