@@ -345,18 +345,21 @@ function profile_sidebar($profile, $block = 0) {
 			? trim(substr($profile['name'],0,strpos($profile['name'],' '))) : $profile['name']);
 	$lastname = (($firstname === $profile['name']) ? '' : trim(substr($profile['name'],strlen($firstname))));
 
-	$diaspora = array(
-		'guid' => $profile['guid'],
-		'podloc' => $a->get_baseurl(),
-		'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
-		'nickname' => $profile['nickname'],
-		'fullname' => $profile['name'],
-		'firstname' => $firstname,
-		'lastname' => $lastname,
-		'photo300' => $a->get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-		'photo100' => $a->get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-		'photo50' => $a->get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
-	);
+	if ($profile['guid'] != "")
+		$diaspora = array(
+			'guid' => $profile['guid'],
+			'podloc' => $a->get_baseurl(),
+			'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
+			'nickname' => $profile['nickname'],
+			'fullname' => $profile['name'],
+			'firstname' => $firstname,
+			'lastname' => $lastname,
+			'photo300' => $a->get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
+			'photo100' => $a->get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
+			'photo50' => $a->get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+		);
+	else
+		$diaspora = false;
 
 	if (!$block){
 		$contact_block = contact_block();

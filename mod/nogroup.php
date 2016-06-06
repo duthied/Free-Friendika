@@ -35,18 +35,18 @@ function nogroup_content(&$a) {
 	if(count($r)) {
 		foreach($r as $rr) {
 
-			$contact_details = get_contact_details_by_url($rr['url'], local_user());
+			$contact_details = get_contact_details_by_url($rr['url'], local_user(), $rr);
 
 			$contacts[] = array(
-				'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
+				'img_hover' => sprintf(t('Visit %s\'s profile [%s]'), $contact_details['name'], $rr['url']),
 				'edit_hover' => t('Edit contact'),
 				'photo_menu' => contact_photo_menu($rr),
 				'id' => $rr['id'],
 				'alt_text' => $alt_text,
 				'dir_icon' => $dir_icon,
-				'thumb' => $rr['thumb'],
-				'name' => $rr['name'],
-				'username' => $rr['name'],
+				'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+				'name' => $contact_details['name'],
+				'username' => $contact_details['name'],
 				'details'       => $contact_details['location'],
 				'tags'          => $contact_details['keywords'],
 				'about'         => $contact_details['about'],

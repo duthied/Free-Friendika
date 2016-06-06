@@ -489,7 +489,7 @@ function message_content(&$a) {
 				'from_name' => $from_name_e,
 				'from_url' => $from_url,
 				'sparkle' => $sparkle,
-				'from_photo' => $message['from-photo'],
+				'from_photo' => proxy_url($message['from-photo'], false, PROXY_SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => t('Delete message'),
