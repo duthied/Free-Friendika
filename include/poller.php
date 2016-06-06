@@ -11,6 +11,7 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 require_once("boot.php");
+require_once("dbm.php");
 
 function poller_run(&$argv, &$argc){
 	global $a, $db;
@@ -25,6 +26,20 @@ function poller_run(&$argv, &$argc){
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
+
+	$max_processes = get_config('system', 'max_processes_backend');
+	if (intval($max_processes) == 0)
+		$max_processes = 5;
+
+	$processlist = dbm::processlist();
+	if ($processlist["list"] != "") {
+		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+		if ($processlist["amount"] > $max_processes) {
+			logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+			return;
+		}
+	}
 
 	if (poller_max_connections_reached())
 		return;
@@ -58,6 +73,17 @@ function poller_run(&$argv, &$argc){
 	$starttime = time();
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
+
+		// Log the type of database processes
+		$processlist = dbm::processlist();
+		if ($processlist["amount"] != "") {
+			logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+			if ($processlist["amount"] > $max_processes) {
+				logger("Processcheck: Maximum number of processes for backend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+				return;
+			}
+		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (poller_max_connections_reached())

@@ -41,10 +41,11 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
  */
 
 require_once("include/dba.php");
+require_once("include/dbm.php");
 
 if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
-    	    unset($db_host, $db_user, $db_pass, $db_data);
+	    unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
@@ -52,6 +53,21 @@ if(!$install) {
 
 	load_config('config');
 	load_config('system');
+
+	$processlist = dbm::processlist();
+	if ($processlist["list"] != "") {
+
+		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+		$max_processes = get_config('system', 'max_processes_frontend');
+		if (intval($max_processes) == 0)
+			$max_processes = 20;
+
+		if ($processlist["amount"] > $max_processes) {
+			logger("Processcheck: Maximum number of processes for frontend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+			return;
+		}
+	}
 
 	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
 	if($maxsysload_frontend < 1)
@@ -442,9 +458,9 @@ if($a->is_mobile || $a->is_tablet) {
 		$link = 'toggle_mobile?off=1&address=' . curPageURL();
 	}
 	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
-	                     	'$toggle_link' => $link,
-	                     	'$toggle_text' => t('toggle mobile')
-    	                 ));
+				'$toggle_link' => $link,
+				'$toggle_text' => t('toggle mobile')
+			 ));
 }
 
 /**
