@@ -1,8 +1,9 @@
 <?php
 
 /**
- *
- * Arbitrary configuration storage
+ * @file include/config.php
+ * 
+ *  @brief Arbitrary configuration storage
  * Note:
  * Please do not store booleans - convert to 0/1 integer values
  * The get_?config() functions return boolean false for keys that are unset,
@@ -12,10 +13,16 @@
  * configurations need to be fixed as of 10/08/2011.
  */
 
-
-// retrieve a "family" of config variables from database to cached storage
-
-if(! function_exists('load_config')) {
+/**
+ * @brief Loads all configuration values of family into a cached storage.
+ *
+ * All configuration values of the system are stored in global cache
+ * which is available under the global variable $a->config
+ *
+ * @param string $family
+ *  The category of the configuration value
+ * @return void
+ */
 function load_config($family) {
 	global $a;
 
@@ -33,17 +40,27 @@ function load_config($family) {
 		// Negative caching
 		$a->config[$family] = "!<unset>!";
 	}
-}}
+}
 
-// get a particular config variable given the family name
-// and key. Returns false if not set.
-// $instore is only used by the set_config function
-// to determine if the key already exists in the DB
-// If a key is found in the DB but doesn't exist in
-// local config cache, pull it into the cache so we don't have
-// to hit the DB again for this item.
-
-if(! function_exists('get_config')) {
+/**
+ * @brief Get a particular user's config variable given the category name
+ * ($family) and a key.
+ *
+ * Get a particular config value from the given category ($family)
+ * and the $key from a cached storage in $a->config[$uid].
+ * $instore is only used by the set_config function
+ * to determine if the key already exists in the DB
+ * If a key is found in the DB but doesn't exist in
+ * local config cache, pull it into the cache so we don't have
+ * to hit the DB again for this item.
+ *
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to query
+ * @param boolean $instore Determines if the key already exists in the DB
+ * @return mixed Stored value or false if it does not exist
+ */
 function get_config($family, $key, $instore = false) {
 
 	global $a;
@@ -114,13 +131,24 @@ function get_config($family, $key, $instore = false) {
 			xcache_set($family."|".$key, '!<unset>!', 600);*/
 	}
 	return false;
-}}
+}
 
-// Store a config value ($value) in the category ($family)
-// under the key ($key)
-// Return the value, or false if the database update failed
-
-if(! function_exists('set_config')) {
+/**
+ * @brief Sets a configuration value for system config
+ *
+ * Stores a config value ($value) in the category ($family) under the key ($key)
+ * for the user_id $uid.
+ *
+ * Note: Please do not store booleans - convert to 0/1 integer values!
+ *
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to set
+ * @param string $value
+ *  The value to store
+ * @return mixed Stored $value or false if the database update failed
+ */
 function set_config($family,$key,$value) {
 	global $a;
 
@@ -164,10 +192,50 @@ function set_config($family,$key,$value) {
 	if($ret)
 		return $value;
 	return $ret;
-}}
+}
 
+/**
+ * @brief Deletes the given key from the system configuration.
+ *
+ * Removes the configured value from the stored cache in $a->config
+ * and removes it from the database.
+ *
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to delete
+ * @return mixed
+ */
+function del_config($family,$key) {
 
-if(! function_exists('load_pconfig')) {
+	global $a;
+	if(x($a->config[$family],$key))
+		unset($a->config[$family][$key]);
+	$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
+		dbesc($family),
+		dbesc($key)
+	);
+	// If APC is enabled then delete the data from there, else try XCache
+	/*if (function_exists("apc_delete"))
+		apc_delete($family."|".$key);
+	elseif (function_exists("xcache_unset"))
+		xcache_unset($family."|".$key);*/
+
+	return $ret;
+}
+
+/**
+ * @brief Loads all configuration values of a user's config family into a cached storage.
+ *
+ * All configuration values of the given user are stored in global cache
+ * which is available under the global variable $a->config[$uid].
+ *
+ * @param string $uid
+ *  The user_id
+ * @param string $family
+ *  The category of the configuration value
+ * @return void
+ */
 function load_pconfig($uid,$family) {
 	global $a;
 	$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d",
@@ -183,11 +251,25 @@ function load_pconfig($uid,$family) {
 		// Negative caching
 		$a->config[$uid][$family] = "!<unset>!";
 	}
-}}
+}
 
-
-
-if(! function_exists('get_pconfig')) {
+/**
+ * @brief Get a particular user's config variable given the category name
+ * ($family) and a key.
+ *
+ * Get a particular user's config value from the given category ($family)
+ * and the $key from a cached storage in $a->config[$uid].
+ *
+ * @param string $uid
+ *  The user_id
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to query
+ * @param boolean $instore
+ * Determines if the key already exists in the DB
+ * @return mixed Stored value or false if it does not exist
+ */
 function get_pconfig($uid,$family, $key, $instore = false) {
 
 	global $a;
@@ -259,33 +341,26 @@ function get_pconfig($uid,$family, $key, $instore = false) {
 			xcache_set($uid."|".$family."|".$key, '!<unset>!', 600);*/
 	}
 	return false;
-}}
+}
 
-if(! function_exists('del_config')) {
-function del_config($family,$key) {
-
-	global $a;
-	if(x($a->config[$family],$key))
-		unset($a->config[$family][$key]);
-	$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
-		dbesc($family),
-		dbesc($key)
-	);
-	// If APC is enabled then delete the data from there, else try XCache
-	/*if (function_exists("apc_delete"))
-		apc_delete($family."|".$key);
-	elseif (function_exists("xcache_unset"))
-		xcache_unset($family."|".$key);*/
-
-	return $ret;
-}}
-
-
-
-// Same as above functions except these are for personal config storage and take an
-// additional $uid argument.
-
-if(! function_exists('set_pconfig')) {
+/**
+ * @brief Sets a configuration value for a user
+ *
+ * Stores a config value ($value) in the category ($family) under the key ($key)
+ * for the user_id $uid.
+ *
+ * @note Please do not store booleans - convert to 0/1 integer values!
+ *
+ * @param string $uid
+ *  The user_id
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to set
+ * @param string $value
+ *  The value to store
+ * @return mixed Stored $value or false
+ */
 function set_pconfig($uid,$family,$key,$value) {
 
 	global $a;
@@ -324,9 +399,21 @@ function set_pconfig($uid,$family,$key,$value) {
 	if($ret)
 		return $value;
 	return $ret;
-}}
+}
 
-if(! function_exists('del_pconfig')) {
+/**
+ * @brief Deletes the given key from the users's configuration.
+ *
+ * Removes the configured value from the stored cache in $a->config[$uid]
+ * and removes it from the database.
+ *
+ * @param string $uid The user_id
+ * @param string $family
+ *  The category of the configuration value
+ * @param string $key
+ *  The configuration key to delete
+ * @return mixed
+ */
 function del_pconfig($uid,$family,$key) {
 
 	global $a;
@@ -338,4 +425,4 @@ function del_pconfig($uid,$family,$key) {
 		dbesc($key)
 	);
 	return $ret;
-}}
+}
