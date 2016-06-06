@@ -11,7 +11,7 @@ $(document).ready(function(){
 	// Elements with the class "userinfo" will get a hover-card.
 	// Note that this elements does need a href attribute which links to
 	// a valid profile url
-	$("body").on("mouseover", ".userinfo", function(e) {
+	$("body").on("mouseover", ".userinfo, .wall-item-responses a, .wall-item-bottom .mention a", function(e) {
 			var timeNow = new Date().getTime();
 			removeAllhoverCards(e,timeNow);
 			var hoverCardData = false;
