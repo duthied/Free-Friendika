@@ -159,7 +159,9 @@ function directory_content(&$a) {
 				$location_e = $location;
 			}
 
-			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
+			$photo_menu = array(
+				'profile' => array(t("View Profile"), zrl($profile_link))
+			);
 
 			$entry = array(
 				'id' => $rr['id'],
