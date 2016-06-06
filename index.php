@@ -65,7 +65,7 @@ if(!$install) {
 
 		if ($processlist["amount"] > $max_processes) {
 			logger("Processcheck: Maximum number of processes for frontend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
-			return;
+			system_unavailable();
 		}
 	}
 
