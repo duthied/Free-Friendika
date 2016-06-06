@@ -133,6 +133,8 @@ function dirfind_content(&$a, $prefix = "") {
 				if (poco_alternate_ostatus_url($result["url"]))
 					 continue;
 
+				$result = get_contact_details_by_url($result["url"], local_user(), $result);
+
 				if ($result["name"] == "") {
 					$urlparts = parse_url($result["url"]);
 					$result["name"] = end(explode("/", $urlparts["path"]));

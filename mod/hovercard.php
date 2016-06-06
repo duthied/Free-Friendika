@@ -48,11 +48,6 @@ function hovercard_content() {
 	if($nurl) {
 		// Search for contact data
 		$contact = get_contact_details_by_url($nurl);
-
-		// Get_contact_details_by_url() doesn't provide the nurl but we
-		// need it for the photo_menu, so we copy it to the contact array
-		if (!isset($contact["nurl"]))
-			$contact["nurl"] = $nurl;
 	}
 
 	if(!is_array($contact))
@@ -69,7 +64,7 @@ function hovercard_content() {
 		'name' => $contact["name"],
 		'nick'	=> $contact["nick"],
 		'addr'	=> (($contact["addr"] != "") ? $contact["addr"] : $contact["url"]),
-		'thumb' => proxy_url($contact["photo"], false, PROXY_SIZE_THUMB),
+		'thumb' => proxy_url($contact["thumb"], false, PROXY_SIZE_THUMB),
 		'url' => ($cid ? ("redir/".$cid) : zrl($contact["url"])),
 		'nurl' => $contact["nurl"], // We additionally store the nurl as identifier
 //		'alias' => $contact["alias"],
