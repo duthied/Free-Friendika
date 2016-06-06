@@ -201,7 +201,7 @@ class PConfig {
 	 *  The configuration key to delete
 	 * @return mixed
 	 */
-	public static function del($uid,$family,$key) {
+	public static function delete($uid,$family,$key) {
 
 		global $a;
 		if(x($a->config[$uid][$family],$key))

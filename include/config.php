@@ -283,7 +283,7 @@ function set_pconfig($uid,$family,$key,$value) {
 /**
  * @brief (Deprecated) Deletes the given key from the users's configuration.
  *
- * Note: This function is deprecated. Use PConfig::del() instead.
+ * Note: This function is deprecated. Use PConfig::delete() instead.
  *
  * @param string $uid The user_id
  * @param string $family
@@ -293,5 +293,5 @@ function set_pconfig($uid,$family,$key,$value) {
  * @return mixed
  */
 function del_pconfig($uid,$family,$key) {
-	return PConfig::del($uid, $family, $key);
+	return PConfig::delete($uid, $family, $key);
 }
