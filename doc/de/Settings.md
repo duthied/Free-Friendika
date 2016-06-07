@@ -1,12 +1,12 @@
 # Settings
 
-Wenn du der Administrator einer Friendica Instanz bist hast du Zugriff auf das so genannte **Admin Panel** in dem du die Friendica Instanz konfigurieren kannst,
+Wenn du der Administrator einer Friendica Instanz bist, hast du Zugriff auf das so genannte **Admin Panel** in dem du die Friendica Instanz konfigurieren kannst,
 
-Auf der Startseite des Admin Panels werden die Informationen zu der Instanz zusammen gefasst.
+Auf der Startseite des Admin Panels werden die Informationen zu der Instanz zusammengefasst.
 Diese Informationen beinhalten die Anzahl der Nachrichten, die sich aktuell in den Warteschlangen befinden.
 Hierbei ist die erste Zahl die Zahl der Nachrichten die gerade aktiv verteilt werden.
 Diese Zahl sollte sich relativ schnell sinken.
-Die Zweite Zahl gibt die Anzahl von Nachrichten an, die nicht zugestellt werden konnten.
+Die zweite Zahl gibt die Anzahl von Nachrichten an, die nicht zugestellt werden konnten.
 Die Zustellung wird zu einem späteren Zeitpunkt noch einmal versucht.
 Unter dem Punkt "Warteschlange Inspizieren" kannst du einen schnellen Blick auf die zweite Warteschlange werfen.
 Des weiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
@@ -33,7 +33,7 @@ Du kannst hierfür HTML/CSS nutzen, um den Inhalt zu gestalten und/oder die Posi
 
 #### Systensprache
 
-Diese Einstellung legt die Standartsprache der Instanz fest.
+Diese Einstellung legt die Standardsprache der Instanz fest.
 Sie wird verwendet, wenn es Friendica nicht gelingt die Spracheinstellungen des Besuchers zu erkennen oder diese nicht unterstützt wird.
 Nutzer können diese Auswahl in den Einstellungen des Benutzerkontos überschreiben.
 
@@ -220,7 +220,7 @@ Nach einiger Zeit werden Knoten als inaktiv identifiziert und Nachrichten an Nut
 
 ## Federation Statistik
 
-Deine Instanz ist ein Teil eines Netzwerks von Servern dezentraler sozialer Netzwerke, der so genannten **Federation**.
+Deine Instanz ist ein Teil eines Netzwerks von Servern dezentraler sozialer Netzwerke, der sogenannten **Federation**.
 In diesem Bereich des Admin Panels findest du ein paar Zahlen zu dem Teil der Federation, die deine Instanz kennt.
 
 ## Plugin Features
