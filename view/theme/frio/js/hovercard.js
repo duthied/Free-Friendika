@@ -86,7 +86,7 @@ $(document).ready(function(){
 					}
 				}
 			}, 500);
-	}).on("mouseleave", ".userinfo", function(e) { // action when mouse leaves the hover-card
+	}).on("mouseleave", ".userinfo, .wall-item-responses a, .wall-item-bottom .mention a", function(e) { // action when mouse leaves the hover-card
 		var timeNow = new Date().getTime();
 		// copy the original title to the title atribute
 		var title = $(this).attr("data-orig-title");
