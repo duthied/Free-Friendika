@@ -132,9 +132,6 @@ function search_content(&$a) {
 
 	nav_set_selected('search');
 
-
-	$o = '<h3>' . t('Search') . '</h3>';
-
 	if(x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
@@ -146,8 +143,13 @@ function search_content(&$a) {
 		$search = ((x($_GET,'tag')) ? notags(trim(rawurldecode($_GET['tag']))) : '');
 	}
 
-
-	$o .= search($search,'search-box','search',((local_user()) ? true : false), false);
+	// contruct a wrapper for the search header
+	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),array(
+		'name' => "search-header",
+		'$title' => t("Search"),
+		'$title_size' => 3,
+		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
+	));
 
 	if(strpos($search,'#') === 0) {
 		$tag = true;
@@ -160,7 +162,7 @@ function search_content(&$a) {
 		return dirfind_content($a);
 	}
 
-        if(x($_GET,'search-option'))
+	if(x($_GET,'search-option'))
 		switch($_GET['search-option']) {
 			case 'fulltext':
 				break;

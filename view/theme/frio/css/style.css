@@ -1655,7 +1655,22 @@ ul.dropdown-menu li:hover {
     color: $link_color;
     font-size: 20px;
 }
-
+/* Section-Content-Wrapper */
+#search-header-wrapper {
+    padding: 15px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border: none;
+    /*background-color: #fff;*/
+    background-color: rgba(255,255,255,$contentbg_transp);
+    border-radius: 4px;
+    position: relative;
+    /*overflow: hidden;*/
+    color: #555;
+    box-shadow: 0 0 3px #dadada;
+    -webkit-box-shadow: 0 0 3px #dadada;
+    -moz-box-shadow: 0 0 3px #dadada;
+}
 
 /* PAGES */
 

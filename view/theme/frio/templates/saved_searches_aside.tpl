@@ -2,7 +2,7 @@
 {{if $saved}}
 <div class="widget" id="saved-search-list">
 	<h3 id="search">{{$title}}</h3>
-	
+
 	<ul role="menu" id="saved-search-ul">
 		{{foreach $saved as $search}}
 		<li role="menuitem" class="saved-search-li clear">
