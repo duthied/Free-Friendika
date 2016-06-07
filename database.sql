@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1195
+-- DB_UPDATE_VERSION 1196
 -- ------------------------------------------
 
 
@@ -511,7 +511,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `extid` (`extid`),
 	 INDEX `uid_id` (`uid`,`id`),
 	 INDEX `uid_created` (`uid`,`created`),
-	 INDEX `uid_unseen` (`uid`,`unseen`),
+	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_network_received` (`uid`,`network`,`received`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
