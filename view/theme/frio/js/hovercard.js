@@ -112,7 +112,7 @@ $(document).ready(function(){
 	});
 	$('body').on('mouseleave','.hovercard', function(e) {
 		$(this).removeClass('dont-remove-card');
-		$(this).popover("hide");
+		//$(this).popover("hide");
 	});
 
 }); // End of $(document).ready
@@ -128,7 +128,7 @@ function removeAllhoverCards(event,priorTo) {
 				// don't remove it if we're hovering it right now!
 				if(!$(this).hasClass('dont-remove-card')) {
 					$('[data-hover-card-active="' + $(this).data('card-created') + '"]').removeAttr('data-hover-card-active');
-					$(this).popover("hide");
+					//(this).popover("hide");
 				}
 			}
 		});

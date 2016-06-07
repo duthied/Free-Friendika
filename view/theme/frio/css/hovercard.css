@@ -282,6 +282,9 @@
   display: block;
   text-overflow: ellipsis;
 }
+.hovercard-content .hover-card-details .hover-card-content   .profile-details > .profile-network a {
+    color: #777;
+}
 .hover-card-actions {
   display: flex;
 }

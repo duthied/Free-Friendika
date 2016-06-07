@@ -109,7 +109,7 @@ a#item-delete-selected {
 * Overwriting and Extend Bootstrap
 */
 .label, .label a {
-    color: #fff !important;
+    color: #fff;
 }
 
 /* Buttons */
@@ -1301,6 +1301,10 @@ blockquote.shared_content {
 .wall-item-tags a:hover {
     text-decoration: none;
 }
+.wall-item-bottom .label,
+.wall-item-bottom .label a {
+    color: #fff;
+}
 
 /* item social action buttons */
 .wall-item-actions, .wall-item-actions a {
@@ -1924,3 +1928,11 @@ There are for some reasons empty <a> tags. I don't know why */
     padding: 0;
 }
 
+/* hovercard fix */
+body .tread-wrapper .hovercard a,
+body .tread-wrapper .hovercard a:hover {
+    color: $link_color;
+}
+body .tread-wrapper .hovercard:hover .hover-card-content a {
+    color: $link_color !important;
+}
