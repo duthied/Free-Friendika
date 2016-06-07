@@ -138,6 +138,12 @@ a#item-delete-selected {
     padding: 4px 8px;
     font-size: 12px;
 }
+.btn-small {
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
 .btn-primary {
     background: $nav_bg;
     color: $btn_primary_color !important;
@@ -186,6 +192,13 @@ a#item-delete-selected {
     background: $link_hover_color;
 }
 
+.form-control-sm, .input-group-sm>.form-control, .input-group-sm>.input-group-addon, .input-group-sm>.input-group-btn>.btn {
+    padding: .275rem .75rem;
+    /*font-size: .875rem;*/
+    line-height: 1.5;
+    height: 30px;
+    border-radius: .2rem;
+}
 /* Bootstrap media class fix/hack
  * This is a test. I thought it does have some
  * issues in some corner cases. Maybe we remove
@@ -939,15 +952,18 @@ aside #follow-sidebar .form-group-search .form-button-search {
     padding: 2px 8px;
 }
 
-aside #group-sidebar .group-edit-tool {
+aside #group-sidebar .group-edit-tool,
+aside #saved-search-list .savedsearchdrop {
     opacity: 0.1;
     transition: all 0.25s ease-in-out;
 }
-aside #group-sidebar .sidebar-group-li:hover .group-edit-tool {
+aside #group-sidebar .sidebar-group-li:hover .group-edit-tool,
+aside #saved-search-list .saved-search-li:hover .savedsearchdrop {
     opacity: 0.8;
     transition: all 0.25s ease-in-out;
 }
-aside #group-sidebar .sidebar-group-li .group-edit-tool:hover {
+aside #group-sidebar .sidebar-group-li .group-edit-tool:hover,
+aside #saved-search-list .saved-search-li .savedsearchdrop:hover {
     opacity: 1;
 }
 
