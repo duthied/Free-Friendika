@@ -975,6 +975,7 @@ function search($s,$id='search-box',$url='search',$save = false, $aside = true) 
 			'$search_label' => t('Search'),
 			'$save_label' => t('Save'),
 			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+			'$search_hint' => t('@name, !forum, #tags, content'),
 		);
 
 	if (!$aside) {

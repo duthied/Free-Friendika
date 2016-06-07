@@ -366,7 +366,7 @@ function groups_containing($uid,$c) {
 function groups_count_unseen() {
 
 	$r = q("SELECT `group`.`id`, `group`.`name`,
-			(SELECT COUNT(*) FROM `item`
+			(SELECT COUNT(*) FROM `item` FORCE INDEX (`uid_unseen_contactid`)
 				WHERE `uid` = %d AND `unseen` AND
 					`contact-id` IN (SELECT `contact-id` FROM `group_member`
 								WHERE `group_member`.`gid` = `group`.`id` AND `group_member`.`uid` = %d)) AS `count`

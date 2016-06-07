@@ -114,6 +114,9 @@ $(document).ready(function(){
 		}
 	});
 
+	// initialize the bootstrap-select
+	$('.selectpicker').selectpicker();
+
 
 });
 //function commentOpenUI(obj, id) {
