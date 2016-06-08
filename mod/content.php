@@ -358,8 +358,6 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 	else
 		$return_url = $_SESSION['return_url'] = $a->query_string;
 
-	//load_contact_links(local_user());
-
 	$cb = array('items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview);
 	call_hooks('conversation_start',$cb);
 
