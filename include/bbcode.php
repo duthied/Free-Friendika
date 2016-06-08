@@ -396,18 +396,17 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 	$itemcache = get_itemcachepath();
 
+	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$posted = $matches[1];
+
+	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+	if ($matches[1] != "")
+		$posted = $matches[1];
+
 	// relative dates only make sense when they aren't cached
-	if ($itemcache == "") {
-		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "")
-			$posted = $matches[1];
-
-		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "")
-			$posted = $matches[1];
-
+	if ($itemcache == "")
 		$reldate = (($posted) ? " " . relative_date($posted) : '');
-	}
 
 	$data = get_contact_details_by_url($profile);
 
@@ -489,16 +488,20 @@ function bb_ShareAttributes($share, $simplehtml) {
 				$text .= "<br /><br />".$link;
 			break;
 		default:
-			$headline = trim($share[1])."\n";
-			$headline .= '<div class="shared-wrapper">'."\n";
-			$headline .= '<div class="shared_header">'."\n";
-			if ($avatar != "")
-				$headline .= '<img src="'.proxy_url($avatar, false, PROXY_SIZE_MICRO).'" height="32" width="32" >';
+			$text = trim($share[1])."\n";
 
-			$headline .= sprintf(t('<span><a href="%s" target="_blank">%s</a> wrote the following <a href="%s" target="_blank">post</a>'.$reldate.':</span>'), $profile, $author, $link);
-			$headline .= "</div>\n";
-			$text = $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote>\n";
-			$text .= "<div>\n";
+			$tpl = get_markup_template('shared_content.tpl');
+			$text .= replace_macros($tpl,
+					array(
+						'$profile' => $profile,
+						'$avatar' => $avatar,
+						'$author' => $author,
+						'$link' => $link,
+						'$posted' => $posted,
+						'$reldate' => $reldate,
+						'$content' => trim($share[3])
+					)
+				);
 			break;
 	}
 	return($text);

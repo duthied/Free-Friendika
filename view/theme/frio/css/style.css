@@ -1258,7 +1258,8 @@ section #jotOpen {
 .media-heading {
     margin: 0 0 5px;
 }
-.wall-item-name {
+.wall-item-name,
+.shared-author {
     font-size: 15px;
     font-weight: bold;
 }
@@ -1592,6 +1593,7 @@ ul.dropdown-menu li:hover {
 
 /* Media Classes */
 .media .time,
+.media .shared-time,
 .media .location,
 .media .location a {
     font-size: 11px;
