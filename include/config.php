@@ -39,11 +39,16 @@ function load_config($family) {
  *  The category of the configuration value
  * @param string $key
  *  The configuration key to query
- * @param boolean $instore Determines if the key already exists in the DB
+ * @param boolean $refresh
+ *  If true the config is loaded from the db and not from the cache
  * @return mixed Stored value or false if it does not exist
  */
-function get_config($family, $key, $instore = false) {
-	return Config::get($family, $key, $instore);
+function get_config($family, $key, $refresh = false) {
+	$v = Config::get($family, $key, $refresh);
+	if(is_null($v))
+		$v = false;
+
+	return $v;
 }
 
 /**
@@ -105,12 +110,16 @@ function load_pconfig($uid,$family) {
  *  The category of the configuration value
  * @param string $key
  *  The configuration key to query
- * @param boolean $instore
- * Determines if the key already exists in the DB
+ * @param boolean $refresh
+ *  If true the config is loaded from the db and not from the cache
  * @return mixed Stored value or false if it does not exist
  */
-function get_pconfig($uid,$family, $key, $instore = false) {
-	return PConfig::get($uid, $family, $key, $instore);
+function get_pconfig($uid, $family, $key, $refresh = false) {
+	$v = PConfig::get($uid, $family, $key, $refresh);
+	if(is_null($v))
+		$v = false;
+
+	return $v;
 }
 
 /**
