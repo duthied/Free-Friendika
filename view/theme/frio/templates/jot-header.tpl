@@ -283,23 +283,11 @@ function enableOnUser(){
 	}
 
 	function jotShare(id) {
-//		if ($('#jot-popup').length != 0) $('#jot-popup').show();
-//
-//		$('#like-rotator-' + id).show();
-//		$.get('share/' + id, function(data) {
-//			if (!editor) $("#profile-jot-text").val("");
-//			initEditor(function(){
-//				addeditortext(data);
-//				$('#like-rotator-' + id).hide();
-//				$(window).scrollTop(0);
-//			});
-//
-//		});
-
 		$.get('share/' + id, function(data) {
-			if (!editor) $("#profile-jot-text").val("");
+			// remove the former content of the text input
+			$("#profile-jot-text").val("");
 			initEditor(function(){
-			addeditortext(data);
+				addeditortext(data);
 			});
 		});
 
@@ -399,18 +387,11 @@ function enableOnUser(){
 
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
-		var jot = $("#profile-jot-form");
-
-		// Clear bs modal on close
-		// We need this to prevent that the modal displays old content
-		$('body').on('hidden.bs.modal', '#jot-modal', function () {
-			$(this).removeData('bs.modal');
-			$("#jot-content").append(jot);
-		});
+		jotcache = $("#profile-jot-form");
 
 		modal
 			.find('#jot-modal-body')
-			.append(jot)
+			.append(jotcache)
 			.modal.show
 			;
 	}

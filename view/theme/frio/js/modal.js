@@ -13,7 +13,16 @@ $(document).ready(function(){
 		$(".fbrowser").remove();
 	});
 
-		// Add Colorbox for viewing Network page images
+	// Clear bs modal on close
+	// We need this to prevent that the modal displays old content
+	$('body').on('hidden.bs.modal', '#jot-modal', function () {
+		// restore cached jot at its hidden position ("#jot-content")
+		$("#jot-content").append(jotcache);
+		// clear the jotcache
+		jotcache = ''
+	});
+
+	// Add Colorbox for viewing Network page images
 	//var cBoxClasses = new Array();
 	$("body").on("click", ".wall-item-body a img", function(){
 		var aElem = $(this).parent();
@@ -130,7 +139,7 @@ Dialog._load = function(url) {
 };
 
 /**
- * @brief Add first h3 element as modal title
+ * @brief Add first element with the class "heading" as modal title
  * 
  * Note: this should be really done in the template
  * and is the solution where we havent done it until this
@@ -140,10 +149,10 @@ function loadModalTitle() {
 	// clear the text of the title
 	//$("#modal-title").empty();
 
-	// hide the first h3 child element of the modal body
+	// hide the first element with the class "heading" of the modal body
 	$("#modal-body .heading").first().hide();
 
-	// get the text of the first element with heading class
+	// get the text of the first element with "heading" class
 	var title = $("#modal-body .heading").first().text();
 
 	// and append it to modal title
@@ -168,7 +177,8 @@ function addToModal(url) {
 			{
 				modal.show();
 
-				//Get first h3 element and use it as title
+				//Get first element with the class "heading"
+				//and use it as title
 				loadModalTitle();
 			}
 		});
@@ -177,25 +187,36 @@ function addToModal(url) {
 // function to load the html from the edit post page into
 // the jot modal
 function editpost(url) {
+	// next to normel posts the post can be an event post. The event posts don't
+	// use the normal Jot modal. For event posts we will use a normal modal
+	// But first we have to test if the url links to an event. So we will split up
+	// the url in its parts
+	var splitURL = parseUrl(url);
+	// Test if in the url path containing "events/event". If the path containing this
+	// expression then we will call the addToModal function and exit this function at
+	// this point
+	if (splitURL.path.indexOf('events/event') > -1) {
+		addToModal(splitURL.path);
+		return;
+	}
+
 	var modal = $('#jot-modal').modal();
 	var url = url + " #profile-jot-form";
+
 	//var rand_num = random_digits(12);
 	$(".jot-nav #jot-perms-lnk").parent("li").hide();
 
-	// rename the the original div jot-preview-content because the edit function
-	// does load the content for the modal from another source and preview won't work
-	// if this div would exist twice
-	// $("#jot-content #profile-jot-form").attr("id","#profile-jot-form-renamed");
-	// $("#jot-content #jot-preview-content").attr("id","#jot-preview-content-renamed");
-
 	// For editpost we load the modal html form the edit page. So we would have two jot forms in
-	// the page html. To avoid js conflicts we move the original jot to the end of the page
-	// so the editpost jot would be the first jot in html structure.
-	// After closing the modal we move the original jot back to it's orginal position in the html structure.
-	// 
-	// Note: For now it seems to work but this isn't optimal because we have doubled ID names for the jot div's.
-	// We need to have a better solution for this in the future. 
-	$("section #jot-content #profile-jot-form").appendTo("footer #cache-container");
+	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
+	// After closing the modal original jot should be restored at its orginal position in the html structure.
+	jotcache = $("#jot-content > #profile-jot-form");
+
+	// remove the original Jot as long as the edit Jot is open
+	jotcache.remove();
+
+	// add the class "edit" to the modal to have some kind of identifier to
+	// have the possibility to e.g. put special event-listener
+	$("#jot-modal").addClass("edit-jot");
 
 	jotreset();
 
@@ -209,6 +230,7 @@ function editpost(url) {
 				var type = $(responseText).find("#profile-jot-form input[name='type']").val();
 				if(type === "wall-comment" || type === "remote-comment")
 				{
+					// hide title and category input fields because we don't
 					$("#profile-jot-form #jot-title-wrap").hide();
 					$("#profile-jot-form #jot-category-wrap").hide();
 				}
@@ -223,7 +245,7 @@ function editpost(url) {
 function jotreset() {
 	// Clear bs modal on close
 	// We need this to prevent that the modal displays old content
-	$('body').on('hidden.bs.modal', '#jot-modal', function () {
+	$('body').on('hidden.bs.modal', '#jot-modal.edit-jot', function () {
 		$(this).removeData('bs.modal');
 		$(".jot-nav #jot-perms-lnk").parent("li").show();
 		$("#profile-jot-form #jot-title-wrap").show();
@@ -236,17 +258,11 @@ function jotreset() {
 	//		$( "#profile-jot-form input[name='type']" ).val("wall");
 	//		$( "#profile-jot-form input[name='post_id']" ).val("");
 	//		$( "#profile-jot-form input[name='post_id_random']" ).val(rand_num);
+
+		// remove the "edit-jot" class so we can the standard behavior on close
+		$("#jot-modal.edit-jot").removeClass("edit-jot");
 		$("#jot-modal-body").empty();
-
-		// rename the div #jot-preview-content-renamed back to it's original
-		// name. Have a look at function editpost() for further explanation
-		//$("#jot-content #profile-jot-form-renamed").attr("id","#profile-jot-form");
-		//$("#jot-content #jot-preview-content-renamed").attr("id","#jot-preview-content");
-
-		// Move the original jot back to it's old place in the html structure
-		// For explaination have a look at function editpost()
-		$("footer #cache-container #profile-jot-form").appendTo("section #jot-content");
-		});
+	});
 }
 
 // Give the active "jot-nav" list element the class "active"
