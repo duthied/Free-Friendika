@@ -490,7 +490,7 @@ function bb_ShareAttributes($share, $simplehtml) {
 		default:
 			$text = trim($share[1])."\n";
 
-			$tpl = get_markup_template('shared-content.tpl');
+			$tpl = get_markup_template('shared_content.tpl');
 			$text .= replace_macros($tpl,
 					array(
 						'$profile' => $profile,
