@@ -7,7 +7,11 @@
  */
 
 /**
- * @brief Management of user configuration
+ * @brief Management of user configuration storage
+ * Note:
+ * Please do not store booleans - convert to 0/1 integer values
+ * The PConfig::get() functions return boolean false for keys that are unset,
+ * and this could lead to subtle bugs.
  */
 class PConfig {
 
@@ -155,7 +159,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 
-		if(get_pconfig($uid,$family,$key,true) === false) {
+		if(self::get($uid,$family,$key,true) === false) {
 			$a->config[$uid][$family][$key] = $value;
 			$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' ) ",
 				intval($uid),
