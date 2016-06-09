@@ -1523,20 +1523,20 @@ function login($register = false, $hiddens=false) {
 
 	$o .= replace_macros($tpl, array(
 
-		'$dest_url'     => $dest_url,
-		'$logout'       => t('Logout'),
-		'$login'        => t('Login'),
+		'$dest_url'	=> $dest_url,
+		'$logout'	=> t('Logout'),
+		'$login'	=> t('Login'),
 
-		'$lname'	 	=> array('username', t('Nickname or Email address: ') , '', ''),
+		'$lname'	=> array('username', t('Nickname or Email: ') , '', ''),
 		'$lpassword' 	=> array('password', t('Password: '), '', ''),
 		'$lremember'	=> array('remember', t('Remember me'), 0,  ''),
 
-		'$openid'		=> !$noid,
-		'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
+		'$openid'	=> !$noid,
+		'$lopenid'	=> array('openid_url', t('Or login using OpenID: '),'',''),
 
-		'$hiddens'      => $hiddens,
+		'$hiddens'	=> $hiddens,
 
-		'$register'     => $reg,
+		'$register'	=> $reg,
 
 		'$lostpass'     => t('Forgot your password?'),
 		'$lostlink'     => t('Password Reset'),

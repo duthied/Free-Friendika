@@ -143,7 +143,7 @@ function network_init(&$a) {
 	// search terms header
 	if(x($_GET,'search')) {
 		$a->page['content'] .= replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => sprintf( t('Search Results For: %s'), $search)
+			'$title' => sprintf( t('Results for: %s'), $search)
 		));
 	}
 

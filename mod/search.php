@@ -61,7 +61,7 @@ function search_init(&$a) {
 			}
 		}
 		if(x($_GET,'remove') && $search) {
-			q("delete from `search` where `uid` = %d and `term` = '%s' limit 1",
+			q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
 				dbesc($search)
 			);
@@ -234,7 +234,7 @@ function search_content(&$a) {
 	if($tag)
 		$title = sprintf( t('Items tagged with: %s'), $search);
 	else
-		$title = sprintf( t('Search results for: %s'), $search);
+		$title = sprintf( t('Results for: %s'), $search);
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
 		'$title' => $title
