@@ -440,9 +440,16 @@ function admin_page_summary(&$a) {
 	$r = q("select count(*) as total from queue where 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
+    if (get_config('system','worker')) {
+        $r = q("select count(*) as total from workerqueue where 1");
+        $workerqueue = (($r) ? $r[0]['total'] : 0);
+    } else {
+        $workerqueue = 0;
+    }
+
 	// We can do better, but this is a quick queue status
 
-	$queues = array('label' => t('Message queues'), 'deliverq' => $deliverq, 'queue' => $queue);
+	$queues = array('label' => t('Message queues'), 'deliverq' => $deliverq, 'queue' => $queue, 'workerq' => $workerqueue);
 
 
 	$t = get_markup_template("admin_summary.tpl");

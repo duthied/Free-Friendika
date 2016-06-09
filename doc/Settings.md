@@ -9,6 +9,8 @@ This number should decrease quickly.
 The second is the messages which could for various reasons not being delivered.
 They will be resend later.
 You can have a quick glance into that second queus in the "Inspect Queue" section of the admin panel.
+If you have activated the background workers, there might be a third number representing the count of jobs queued for the workers.
+
 Then you get an overview of the accounts on your node, which can be moderated in the "Users" section of the panel.
 As well as an overview of the currently active addons
 The list is linked, so you can have quick access to the plugin settings.
