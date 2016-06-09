@@ -151,7 +151,7 @@ class Item extends BaseObject {
 			$profile_link = zrl($profile_link);
 
 		// Don't rely on the author-avatar. It is better to use the data from the contact table
-		$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
+		$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
 		if ($author_contact["thumb"])
 			$profile_avatar = $author_contact["thumb"];
 		else

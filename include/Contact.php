@@ -214,21 +214,21 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
 
 	// Is the contact present for the user in a different network? (Can happen with OStatus and the "Statusnet" addon)
-	if (!count($r) AND !isset($profile))
+	if (!$r)
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 				dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-	if (!count($r) AND !isset($profile))
+	if (!$r)
 		$r = q("SELECT `id`, 0 AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
 	// Fetch the data from the gcontact table
-	if (!count($r) AND !isset($profile))
+	if (!$r)
 		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
