@@ -742,9 +742,6 @@ function profiles_content(&$a) {
 			'$work' => array('work', t('Work/employment'), $r[0]['work']),
 			'$education' => array('education', t('School/education'), $r[0]['education']),
 			'$contact' => array('contact', t('Contact information and Social Networks'), $r[0]['contact']),
-
-			//eigene
-
 		));
 
 		$arr = array('profile' => $r[0], 'entry' => $o);
