@@ -484,12 +484,18 @@ function message_content(&$a) {
 				$to_name_e = $message['name'];
 			}
 
+			$contact = get_contact_details_by_url($message['from-url']);
+			if (isset($contact["thumb"]))
+				$from_photo = $contact["thumb"];
+			else
+				$from_photo = $message['from-photo'];
+
 			$mails[] = array(
 				'id' => $message['id'],
 				'from_name' => $from_name_e,
 				'from_url' => $from_url,
 				'sparkle' => $sparkle,
-				'from_photo' => proxy_url($message['from-photo'], false, PROXY_SIZE_THUMB),
+				'from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => t('Delete message'),
@@ -585,12 +591,18 @@ function render_messages($msg, $t) {
 			$to_name_e = $rr['name'];
 		}
 
+		$contact = get_contact_details_by_url($rr['url']);
+		if (isset($contact["thumb"]))
+			$from_photo = $contact["thumb"];
+		else
+			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
+
 		$rslt .= replace_macros($tpl, array(
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
 			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
 			'$sparkle' => ' sparkle',
-			'$from_photo' => (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']),
+			'$from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
 			'$subject' => $subject_e,
 			'$delete' => t('Delete conversation'),
 			'$body' => $body_e,
