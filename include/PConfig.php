@@ -7,7 +7,11 @@
  */
 
 /**
- * @brief Management of user configuration
+ * @brief Management of user configuration storage
+ * Note:
+ * Please do not store booleans - convert to 0/1 integer values
+ * The PConfig::get() functions return boolean false for keys that are unset,
+ * and this could lead to subtle bugs.
  */
 class PConfig {
 
@@ -53,11 +57,11 @@ class PConfig {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to query
-	 * @param boolean $instore
-	 * Determines if the key already exists in the DB
-	 * @return mixed Stored value or false if it does not exist
+	 * @param boolean $refresh
+	 *  If true the config is loaded from the db and not from the cache
+	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($uid,$family, $key, $instore = false) {
+	public static function get($uid, $family, $key, $refresh = false) {
 
 		global $a;
 
@@ -65,13 +69,13 @@ class PConfig {
 			// Looking if the whole family isn't set
 			if(isset($a->config[$uid][$family])) {
 				if($a->config[$uid][$family] === '!<unset>!') {
-					return false;
+					return null;
 				}
 			}
 
 			if(isset($a->config[$uid][$family][$key])) {
 				if($a->config[$uid][$family][$key] === '!<unset>!') {
-					return false;
+					return null;
 				}
 				return $a->config[$uid][$family][$key];
 			}
@@ -127,7 +131,7 @@ class PConfig {
 			elseif (function_exists("xcache_set"))
 				xcache_set($uid."|".$family."|".$key, '!<unset>!', 600);*/
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -155,7 +159,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 
-		if(get_pconfig($uid,$family,$key,true) === false) {
+		if(self::get($uid,$family,$key,true) === false) {
 			$a->config[$uid][$family][$key] = $value;
 			$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' ) ",
 				intval($uid),
