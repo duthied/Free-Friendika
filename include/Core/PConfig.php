@@ -1,7 +1,7 @@
 <?php
-
+namespace Friendica\Core;
 /**
- * @file include/PConfig.php
+ * @file include/Core/PConfig.php
  * @brief contains the class with methods for the management
  * of the user configuration
  */
@@ -57,11 +57,13 @@ class PConfig {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to query
-	 * @param boolean $refresh
-	 *  If true the config is loaded from the db and not from the cache
+	 * @param mixed $default_value optional
+	 *  The value to return if key is not set (default: null)
+	 * @param boolean $refresh optional
+	 *  If true the config is loaded from the db and not from the cache (default: false)
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($uid, $family, $key, $refresh = false) {
+	public static function get($uid, $family, $key, $default_value = null, $refresh = false) {
 
 		global $a;
 
@@ -69,13 +71,13 @@ class PConfig {
 			// Looking if the whole family isn't set
 			if(isset($a->config[$uid][$family])) {
 				if($a->config[$uid][$family] === '!<unset>!') {
-					return null;
+					return $default_value;
 				}
 			}
 
 			if(isset($a->config[$uid][$family][$key])) {
 				if($a->config[$uid][$family][$key] === '!<unset>!') {
-					return null;
+					return $default_value;
 				}
 				return $a->config[$uid][$family][$key];
 			}
@@ -131,7 +133,7 @@ class PConfig {
 			elseif (function_exists("xcache_set"))
 				xcache_set($uid."|".$family."|".$key, '!<unset>!', 600);*/
 		}
-		return null;
+		return $default_value;
 	}
 
 	/**

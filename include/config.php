@@ -1,8 +1,4 @@
 <?php
-
-require_once("include/PConfig.php");
-require_once("include/Config.php");
-
 /**
  * @file include/config.php
  * 
@@ -15,6 +11,9 @@ require_once("include/Config.php");
  * There are a few places in the code (such as the admin panel) where boolean
  * configurations need to be fixed as of 10/08/2011.
  */
+
+use \Friendica\Core\Config;
+use \Friendica\Core\PConfig;
 
 /**
  * @brief (Deprecated) Loads all configuration values of family into a cached storage.
@@ -44,10 +43,7 @@ function load_config($family) {
  * @return mixed Stored value or false if it does not exist
  */
 function get_config($family, $key, $refresh = false) {
-	$v = Config::get($family, $key, $refresh);
-	if(is_null($v))
-		$v = false;
-
+	$v = Config::get($family, $key, false, $refresh);
 	return $v;
 }
 
@@ -115,10 +111,7 @@ function load_pconfig($uid,$family) {
  * @return mixed Stored value or false if it does not exist
  */
 function get_pconfig($uid, $family, $key, $refresh = false) {
-	$v = PConfig::get($uid, $family, $key, $refresh);
-	if(is_null($v))
-		$v = false;
-
+	$v = PConfig::get($uid, $family, $key, false, $refresh);
 	return $v;
 }
 
