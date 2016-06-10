@@ -126,8 +126,10 @@ $(document).ready(function(){
 		$(".vcard .p-addr").scrollspy({
 			min: $(".vcard .p-addr").position().top - 50,
 			onLeaveTop: function onLeave(element) {
-				$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
-				$("#vcard-short-info").fadeOut(500);
+				$("#vcard-short-info").fadeOut(500, function () {
+					$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
+				});
+				
 
 			},
 			onEnter: function(element) {
