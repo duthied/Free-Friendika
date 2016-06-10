@@ -954,6 +954,7 @@ aside .vcard #wallmessage-link {
 #nav-short-info .contact-wrapper img {
     height: 34px;
     width: 34px;
+    border-radius: 3px;
 }
 #vcard-short-desc,
 #nav-short-info .contact-wrapper .media-body {
