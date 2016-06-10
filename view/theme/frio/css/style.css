@@ -1681,12 +1681,13 @@ ul.dropdown-menu li:hover {
 /* PAGES */
 
 /* Profile-page */
-#profile-page, .photos-content-wrapper, .settings-content-wrapper,
+.generic-page-wrapper ,#profile-page, .settings-content-wrapper,
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
-.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper {
+.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper,
+.profile_photo-content-wrapper, photos-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
@@ -1883,6 +1884,58 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 }
 #poke-wrapper-end {
     clear: both;
+}
+
+/* Profiles Page */
+.profile-listing-table {
+    display: table;
+    width: 100%;
+}
+.profile-listing-row {
+    display: table-row;
+}
+.profile-listing-cell {
+    display: table-cell;
+}
+.profile-listing-photo {
+    width: 48px;
+    height: 48px;
+    margin: 10px 0px;
+}
+#profile-listing-new-link-wrapper {
+    margin-bottom: 20px;
+}
+.profiles-content-wrapper #profile-edit-wrapper {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+.profiles-content-wrapper #profile-edit-wrapper > .panel {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.profiles-content-wrapper #profile-photo-upload-section {
+    display: none;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 15px;
+    padding: 15px;
+}
+#profile-photo-upload-close {
+    font-size: 14px;
+}
+
+/* Settings */
+.section-subtitle-wrapper {
+    padding: 1px 10px;
+}
+.panel .section-subtitle-wrapper a.accordion-toggle:before {
+    font-family: FontAwesome;
+    content: "\f0d7";
+    padding-right: 5px;
+}
+.panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
+    font-family: FontAwesome;
+    content: "\f0da";
 }
 /*
 * Overwriting for transparency and other colors
