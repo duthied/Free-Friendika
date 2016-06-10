@@ -43,10 +43,7 @@ function load_config($family) {
  * @return mixed Stored value or false if it does not exist
  */
 function get_config($family, $key, $refresh = false) {
-	$v = Config::get($family, $key, $refresh);
-	if(is_null($v))
-		$v = false;
-
+	$v = Config::get($family, $key, false, $refresh);
 	return $v;
 }
 
@@ -114,10 +111,7 @@ function load_pconfig($uid,$family) {
  * @return mixed Stored value or false if it does not exist
  */
 function get_pconfig($uid, $family, $key, $refresh = false) {
-	$v = PConfig::get($uid, $family, $key, $refresh);
-	if(is_null($v))
-		$v = false;
-
+	$v = PConfig::get($uid, $family, $key, false, $refresh);
 	return $v;
 }
 

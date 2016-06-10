@@ -64,11 +64,13 @@ class Config {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to query
-	 * @param boolean $refresh
-	 *  If true the config is loaded from the db and not from the cache
+	 * @param mixed $default_value optional
+	 *  The value to return if key is not set (default: null)
+	 * @param boolean $refresh optional
+	 *  If true the config is loaded from the db and not from the cache (default: false)
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($family, $key, $refresh = false) {
+	public static function get($family, $key, $default_value=null, $refresh = false) {
 
 		global $a;
 
@@ -76,13 +78,13 @@ class Config {
 			// Looking if the whole family isn't set
 			if(isset($a->config[$family])) {
 				if($a->config[$family] === '!<unset>!') {
-					return null;
+					return $default_value;
 				}
 			}
 
 			if(isset($a->config[$family][$key])) {
 				if($a->config[$family][$key] === '!<unset>!') {
-					return null;
+					return $default_value;
 				}
 				return $a->config[$family][$key];
 			}
@@ -137,7 +139,7 @@ class Config {
 			elseif (function_exists("xcache_set"))
 				xcache_set($family."|".$key, '!<unset>!', 600);*/
 		}
-		return null;
+		return $default_value;
 	}
 
 	/**
