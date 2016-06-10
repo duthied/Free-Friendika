@@ -240,11 +240,29 @@
 		<div class="hidden-sm hidden-xs">
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="register" data-toggle="tooltip" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
-				<li><a href="login?mode=none" data-toggle="tooltip" title="{{$login}}"><i class="fa fa-sign-in fa-fw"></i> {{$login}}</a></li>
+				<li data-toggle="tooltip" title="{{$nav.login.3}}">
+					<a href="login?mode=none" 
+						data-remote="false" data-toggle="modal" data-target="#loginModal"
+						><i class="fa fa-sign-in fa-fw"></i></a>
+				</li>
 			</ul>
 		</div>
 	</div>
 </nav>
+
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title" id="myModalLabel">{{$nav.login.3}}</h4>
+	  </div>
+	  <div class="modal-body">
+		...
+	  </div>
+	</div>
+  </div>
+</div>
 {{/if}}
 
 {{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
