@@ -1,7 +1,7 @@
 <?php
-
+namespace Friendica\Core;
 /**
- * @file include/Config.php
+ * @file include/Core/Config.php
  * 
  *  @brief Contains the class with methods for system configuration
  */

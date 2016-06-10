@@ -1,7 +1,7 @@
 <?php
-
+namespace Friendica\Core;
 /**
- * @file include/PConfig.php
+ * @file include/Core/PConfig.php
  * @brief contains the class with methods for the management
  * of the user configuration
  */
