@@ -581,6 +581,9 @@ nav.navbar a {
     margin: 0px;
     padding: 10px 15px;
 }
+#search-mobile .navbar-form {
+    margin: 0;
+}
 #topbar-first #search-box .form-search {
     height: 25px;
     font-size: 13px;
@@ -1531,6 +1534,11 @@ img.acpopup-img {
     /*margin-left: -15px;*/
     padding: 0;
 }
+#tabmenu .search-heading {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 ul.tabs {
     list-style: none;
     height: 100%;
@@ -1660,6 +1668,15 @@ ul.dropdown-menu li:hover {
     text-align: center;
     color: $link_color;
     font-size: 20px;
+}
+.search-content-wrapper > #search-header-wrapper {
+    display: none;
+}
+.search-content-wrapper > .section-title-wrapper {
+    display: none;
+}
+#navbar-button > #search-save-form > #search-save {
+    margin-top: 3px;
 }
 /* Section-Content-Wrapper */
 #search-header-wrapper {

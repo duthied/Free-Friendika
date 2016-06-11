@@ -33,6 +33,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 	if(strpos($search,'@') === 0) {
 		$search = substr($search,1);
+		$header = sprintf( t('People Search - %s'), $search);
 		if ((valid_email($search) AND validate_email($search)) OR
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = probe_url($search);
@@ -43,6 +44,7 @@ function dirfind_content(&$a, $prefix = "") {
 	if(strpos($search,'!') === 0) {
 		$search = substr($search,1);
 		$community = true;
+		$header = sprintf( t('Forum Search - %s'), $search);
 	}
 
 	$o = '';
@@ -227,7 +229,7 @@ function dirfind_content(&$a, $prefix = "") {
 		$tpl = get_markup_template('viewcontact_template.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'title' => sprintf( t('People Search - %s'), $search),
+			'title' => $header,
 			'$contacts' => $entries,
 			'$paginate' => paginate($a),
 		));
