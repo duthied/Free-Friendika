@@ -50,7 +50,11 @@ $(document).ready(function(){
 		}
 	});
 
-
+	// Navbar login
+	$("body").on("click", "#nav-login", function(e){
+		e.preventDefault();
+		Dialog.show(this.href, this.dataset.originalTitle || this.title);
+	});
 
 	// Jot nav menu.
 	$("body").on("click", "#jot-modal .jot-nav li a", function(e){
@@ -81,8 +85,9 @@ $(document).ready(function(){
 });
 
 // overwrite Dialog.show from main js to load the filebrowser into a bs modal
-Dialog.show = function(url) {
+Dialog.show = function(url, title="") {
 	var modal = $('#modal').modal();
+	modal.find("#modal-header h4").html(title);
 	modal
 		.find('#modal-body')
 		.load(url, function (responseText, textStatus) {
@@ -129,6 +134,7 @@ Dialog._load = function(url) {
 
 	// try to fetch the hash form the url
 	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
+	if (match===null) return; //not fbrowser
 	var hash = match[1];
 
 	// initialize the filebrowser
