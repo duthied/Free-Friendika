@@ -40,7 +40,7 @@ $(document).ready(function(){
 	$(".field.select > select, .field.custom > select").addClass("form-control");
 
 	// move the tabbar to the second nav bar
-	if( $("ul.tabbar")) {
+	if( $("ul.tabbar").length ) {
 		$("ul.tabbar").appendTo("#topbar-second > .container > #tabmenu");
 	}
 
@@ -50,7 +50,7 @@ $(document).ready(function(){
 	// to the friendica logo (the mask is in nav.tpl at the botom). To make it work we need to apply the
 	// correct url. The only way which comes to my mind was to do this with js
 	// So we apply the correct url (with the link to the id of the mask) after the page is loaded.
-	if($("#logo-img")) {
+	if($("#logo-img").length ) {
 		var pageurl = "url('" + window.location.href + "#logo-mask')";
 		$("#logo-img").css({"mask": pageurl});
 	}
@@ -66,7 +66,7 @@ $(document).ready(function(){
 	});
 
 	// add Jot botton to the scecond navbar
-	if( $("section #jotOpen")) {
+	if( $("section #jotOpen").length ) {
 		$("section #jotOpen").appendTo("#topbar-second > .container > #navbar-button");
 		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
 	}
@@ -94,13 +94,6 @@ $(document).ready(function(){
 			});	
 		}
 	});
-
-	// add search-heading to the scecond navbar
-	if( $(".search-heading")) {
-		$(".search-heading").appendTo("#topbar-second > .container > #tabmenu");
-	}
-
-	
 		
 	//$('ul.flex-nav').flexMenu();
 
@@ -120,6 +113,47 @@ $(document).ready(function(){
 	// initialize the bootstrap-select
 	$('.selectpicker').selectpicker();
 
+	// add search-heading to the seccond navbar
+	if( $(".search-heading").length) {
+		$(".search-heading").appendTo("#topbar-second > .container > #tabmenu");
+	}
+
+	// add search results heading to the second navbar
+	// and insert the search value to the top nav search input
+	if( $(".search-content-wrapper").length ) {
+		// get the text of the heading (we catch the plain text because we don't
+		// want to have a h4 heading in the navbar
+		var searchText = $(".section-title-wrapper > h2").text();
+		// insert the plain text in a <h4> heading and give it a class
+		var newText = '<h4 class="search-heading">'+searchText+'</h4>';
+		// append the new heading to the navbar
+		$("#topbar-second > .container > #tabmenu").append(newText);
+
+		// try to get the value of the original search input to insert it 
+		// as value in the nav-search-input
+		var searchValue = $("#search-wrapper .form-group-search input").val();
+
+		// if the orignal search value isn't available use the location path as value
+		if( typeof searchValue === "undefined") {
+			// get the location path
+			var urlPath = window.location.search
+			// and split it up in its parts
+			var splitPath = urlPath.split(/(\?search?=)(.*$)/);
+
+			if(typeof splitPath[2] !== 'undefined') {
+				// decode the path (e.g to decode %40 to the character @)
+				var searchValue = decodeURIComponent(splitPath[2]);
+			}
+		}
+
+		if( typeof searchValue !== "undefined") {
+			$("#nav-search-input-field").val(searchValue);
+		}
+	}
+
+	// move the "Save the search" button to the second navbar
+	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
+
 	// append the vcard-short-info to the second nav after passing the element
 	// with .p-addr (vcard). Use scrollspy to get the scroll position.
 	if( $("aside .vcard .p-addr").length) {
@@ -129,8 +163,6 @@ $(document).ready(function(){
 				$("#vcard-short-info").fadeOut(500, function () {
 					$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
 				});
-				
-
 			},
 			onEnter: function(element) {
 				$("#vcard-short-info").appendTo("#nav-short-info");

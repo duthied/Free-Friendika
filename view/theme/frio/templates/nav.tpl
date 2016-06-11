@@ -27,7 +27,7 @@
 					<span class="sr-only">Toggle navigation</span>
 					<i class="fa fa-ellipsis-v"></i>
 				</button>
-				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="collapse" data-target="#search-mobile" aria-expanded="false" aria-controls="navbar">
 					<span class="sr-only">Toggle Search</span>
 					<i class="fa fa-search" style="color:#FFF;"></i>
 				</button>
@@ -246,6 +246,17 @@
 	</div>
 </nav>
 {{/if}}
+
+{{* provide a a search input for mobile view, which expands by pressing the search icon *}}
+<div id="search-mobile" class="hidden-lg hidden-md collapse">
+	<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
+		<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
+		<div class="form-group form-group-search">
+			<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+			<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
+		</div>
+	</form>
+</div>
 
 {{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
 <div id="topbar-second" class="topbar">
