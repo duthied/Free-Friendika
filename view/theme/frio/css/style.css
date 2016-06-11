@@ -947,11 +947,12 @@ aside .vcard #wallmessage-link {
 /* vcard-short-info */
 #vcard-short-info,
 #nav-short-info .contact-wrapper {
-    margin-top: 3px;
+    margin-top: 2px;
     height: 40px;
     white-space: nowrap;
     overflow: hidden;
     padding-right: 20px;
+    margin-left: -14px;
 }
 #vcard-short-photo-wrapper img,
 #nav-short-info .contact-wrapper img {
@@ -982,8 +983,10 @@ aside .vcard #wallmessage-link {
     color: #555;
     font-size: 14px !important;
 }
+#vcard-short-desc > .vcard-short-addr,
 #nav-short-info .contact-wrapper #contact-entry-url-network {
     color: #777;
+    font-size: 12px;
 }
 .network-content-wrapper > #viewcontact_wrapper-network,
 #nav-short-info .contact-wrapper .contact-photo-overlay,
