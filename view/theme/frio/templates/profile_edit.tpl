@@ -74,13 +74,13 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="personal">
 					<h4>
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
 							{{$lbl_personal_section}}
 						</a>
 					</h4>
 				</div>
 				{{* for the $detailled_profile we use bootstraps collapsable panel-groups to have expandable groups *}}
-				<div id="personal-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">
+				<div id="personal-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="personal">
 					<div class="section-content-tools-wrapper">
 						{{include file="field_yesno.tpl" field=$details}}
 
@@ -113,7 +113,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="location">
 					<h4>
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="true" aria-controls="location-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="true" aria-controls="location-collapse">
 							{{$lbl_location_section}}
 						</a>
 					</h4>
@@ -159,7 +159,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="relation">
 					<h4>
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#relation-collapse" aria-expanded="true" aria-controls="relation-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#relation-collapse" aria-expanded="true" aria-controls="relation-collapse">
 							{{$lbl_relation_section}}
 						</a>
 					</h4>
@@ -194,7 +194,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="miscellaneous">
 					<h4>
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="true" aria-controls="miscellaneous-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="true" aria-controls="miscellaneous-collapse">
 							{{$lbl_miscellaneous_section}}
 						</a>
 					</h4>
