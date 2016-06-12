@@ -19,7 +19,7 @@ $(document).ready(function(){
 		// restore cached jot at its hidden position ("#jot-content")
 		$("#jot-content").append(jotcache);
 		// clear the jotcache
-		jotcache = ''
+		jotcache = '';
 	});
 
 	// Add Colorbox for viewing Network page images
@@ -50,7 +50,11 @@ $(document).ready(function(){
 		}
 	});
 
-
+	// Navbar login
+	$("body").on("click", "#nav-login", function(e){
+		e.preventDefault();
+		Dialog.show(this.href, this.dataset.originalTitle || this.title);
+	});
 
 	// Jot nav menu.
 	$("body").on("click", "#jot-modal .jot-nav li a", function(e){
@@ -60,7 +64,7 @@ $(document).ready(function(){
 
 	// Open filebrowser for elements with the class "image-select"
 	// The following part handles the filebrowser for field_fileinput.tpl
-	$("body").on("click", ".image-select", function(e){
+	$("body").on("click", ".image-select", function(){
 		// set a extra attribute to mark the clicked button
 		this.setAttribute("image-input", "select");
 		Dialog.doImageBrowser("input");
@@ -69,7 +73,7 @@ $(document).ready(function(){
 	// Insert filebrowser images into the input field (field_fileinput.tpl)
 	$("body").on("fbrowser.image.input", function(e, filename, embedcode, id, img) {
 		// select the clicked button by it's attribute
-		var elm = $("[image-input='select']")
+		var elm = $("[image-input='select']");
 		// select the input field which belongs to this button
 		var input = elm.parent(".input-group").children("input");
 		// remove the special indicator attribut from the button
@@ -81,8 +85,9 @@ $(document).ready(function(){
 });
 
 // overwrite Dialog.show from main js to load the filebrowser into a bs modal
-Dialog.show = function(url) {
+Dialog.show = function(url, title="") {
 	var modal = $('#modal').modal();
+	modal.find("#modal-header h4").html(title);
 	modal
 		.find('#modal-body')
 		.load(url, function (responseText, textStatus) {
@@ -129,12 +134,13 @@ Dialog._load = function(url) {
 
 	// try to fetch the hash form the url
 	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
+	if (match===null) return; //not fbrowser
 	var hash = match[1];
 
 	// initialize the filebrowser
 	var jsbrowser = function() {
 		FileBrowser.init(nickname, type, hash);
-	}
+	};
 	loadScript("view/theme/frio/js/filebrowser.js", jsbrowser);
 };
 
@@ -166,7 +172,7 @@ function loadModalTitle() {
 function addToModal(url) {
 	var char = qOrAmp(url);
 
-	var url = url + char + 'mode=none';
+	url = url + char + 'mode=none';
 	var modal = $('#modal').modal();
 
 	modal
@@ -182,7 +188,7 @@ function addToModal(url) {
 				loadModalTitle();
 			}
 		});
-};
+}
 
 // function to load the html from the edit post page into
 // the jot modal
@@ -201,7 +207,7 @@ function editpost(url) {
 	}
 
 	var modal = $('#jot-modal').modal();
-	var url = url + " #profile-jot-form";
+	url = url + " #profile-jot-form";
 
 	//var rand_num = random_digits(12);
 	$(".jot-nav #jot-perms-lnk").parent("li").hide();
