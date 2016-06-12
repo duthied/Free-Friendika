@@ -149,12 +149,36 @@ $(document).ready(function(){
 		if( typeof searchValue !== "undefined") {
 			$("#nav-search-input-field").val(searchValue);
 		}
-
 	}
 
 	// move the "Save the search" button to the second navbar
 	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
 
+	// append the vcard-short-info to the second nav after passing the element
+	// with .p-addr (vcard). Use scrollspy to get the scroll position.
+	if( $("aside .vcard .p-addr").length) {
+		$(".vcard .p-addr").scrollspy({
+			min: $(".vcard .p-addr").position().top - 50,
+			onLeaveTop: function onLeave(element) {
+				$("#vcard-short-info").fadeOut(500, function () {
+					$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
+				});
+			},
+			onEnter: function(element) {
+				$("#vcard-short-info").appendTo("#nav-short-info");
+				$("#vcard-short-info").fadeIn(500);
+			},
+		});
+	}
+
+	// move the forum contact information of the network page into the second navbar
+	if( $(".network-content-wrapper > #viewcontact_wrapper-network").length) {
+		// get the contact-wrapper element and append it to the second nav bar
+		// Note: We need the first() element with this class since at the present time we
+		// store also the js template information in the html code and thats why
+		// there are two elements with this class but we don't want the js template
+		$(".network-content-wrapper > #viewcontact_wrapper-network .contact-wrapper").first().appendTo("#nav-short-info");
+	}
 });
 //function commentOpenUI(obj, id) {
 //	$(document).unbind( "click.commentOpen", handler );

@@ -267,7 +267,7 @@
 {{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
 <div id="topbar-second" class="topbar">
 	<div class="container">
-		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs"></div>
+		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs" id="nav-short-info"></div>
 		<div class="col-lg-7 col-md-7 col-sm-11 col-xs-10" id="tabmenu"></div>
 		<div class="col-lg-2 col-md-2 col-sm-1 col-xs-2" id="navbar-button"></div>
 	</div>
