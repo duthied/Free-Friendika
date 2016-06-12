@@ -197,7 +197,6 @@ class dfrn {
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` $sql_post_table
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
