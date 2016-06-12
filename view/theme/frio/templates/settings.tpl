@@ -8,7 +8,7 @@
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 		{{* We organize the settings in collapsable panel-groups *}}
-		<div class="panel-group" id="settings" role="tablist" aria-multiselectable="true">
+		<div class="panel-group panel-group-settings" id="settings" role="tablist" aria-multiselectable="true">
 			{{* The password setting section *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="password-settings">

@@ -1747,13 +1747,12 @@ ul.dropdown-menu li:hover {
 /* PAGES */
 
 /* Profile-page */
-.generic-page-wrapper ,#profile-page, .settings-content-wrapper,
+.generic-page-wrapper ,#profile-page, .profile_photo-content-wrapper, photos-content-wrapper,
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
-.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper,
-.profile_photo-content-wrapper, photos-content-wrapper {
+.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
@@ -1971,11 +1970,11 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 #profile-listing-new-link-wrapper {
     margin-bottom: 20px;
 }
-.profiles-content-wrapper #profile-edit-wrapper {
+.panel-group-settings {
     margin-left: -15px;
     margin-right: -15px;
 }
-.profiles-content-wrapper #profile-edit-wrapper > .panel {
+.panel-group-settings > .panel {
     padding-left: 15px;
     padding-right: 15px;
 }
@@ -2002,6 +2001,12 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 .panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
     font-family: FontAwesome;
     content: "\f0da";
+}
+#settings-nick-wrapper {
+    margin-bottom: 20px;
+}
+.group {
+    margin-left: 20px;
 }
 /*
 * Overwriting for transparency and other colors

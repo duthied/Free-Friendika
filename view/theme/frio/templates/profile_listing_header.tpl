@@ -1,5 +1,5 @@
 
-<div class="gerneric-page-wrapper">
+<div class="generic-page-wrapper">
 	<div class="section-title-wrapper">
 		<h2>{{$header}}</h2>
 	</div>

@@ -69,7 +69,7 @@
 
 		{{* friendica differs in $detailled_profile (all fields available and a short Version if this is variable false *}}
 		{{if $detailled_profile}}
-		<div class="panel-group" id="profile-edit-wrapper" role="tablist" aria-multiselectable="true">
+		<div class="panel-group panel-group-settings" id="profile-edit-wrapper" role="tablist" aria-multiselectable="true">
 			{{* The personal settings *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="personal">
