@@ -155,10 +155,10 @@ $(document).ready(function(){
 	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
 
 	// append the vcard-short-info to the second nav after passing the element
-	// with .p-addr (vcard). Use scrollspy to get the scroll position.
+	// with .fn (vcard username). Use scrollspy to get the scroll position.
 	if( $("aside .vcard .fn").length) {
 		$(".vcard .fn").scrollspy({
-			min: $(".vcard .p-addr").position().top - 70,
+			min: $(".vcard .fn").position().top - 50,
 			onLeaveTop: function onLeave(element) {
 				$("#vcard-short-info").fadeOut(500, function () {
 					$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
