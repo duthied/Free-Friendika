@@ -156,9 +156,9 @@ $(document).ready(function(){
 
 	// append the vcard-short-info to the second nav after passing the element
 	// with .p-addr (vcard). Use scrollspy to get the scroll position.
-	if( $("aside .vcard .p-addr").length) {
-		$(".vcard .p-addr").scrollspy({
-			min: $(".vcard .p-addr").position().top - 50,
+	if( $("aside .vcard .fn").length) {
+		$(".vcard .fn").scrollspy({
+			min: $(".vcard .p-addr").position().top - 70,
 			onLeaveTop: function onLeave(element) {
 				$("#vcard-short-info").fadeOut(500, function () {
 					$("#vcard-short-info").appendTo("#vcard-short-info-wrapper");
