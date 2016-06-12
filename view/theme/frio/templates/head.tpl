@@ -73,6 +73,7 @@
 <script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 <script type="text/javascript" src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js"></script>
 <script type="text/javascript" src="view/theme/frio/frameworks/jsmart/jsmart.custom.js"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js"></script>
 
 {{* own js files *}}
 <script type="text/javascript" src="view/theme/frio/js/theme.js"></script>
