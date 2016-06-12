@@ -289,7 +289,7 @@ function admin_page_federation(&$a) {
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
-		$v = q('SELECT COUNT(*) AS `total, version` FROM `gserver`
+		$v = q('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
 				WHERE `last_contact` > `last_failure` AND `platform` LIKE "%s"  AND `version` != ""
 				GROUP BY `version`
 				ORDER BY `version`;', $p);
