@@ -395,22 +395,12 @@ function contact_condition() {
 }
 
 /**
- * @brief SQL condition for items
- */
-function item_condition() {
-
-	$condition = "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
-
-	return $condition;
-}
-
-/**
  * @brief List of all item fields that are needed for the conversation function
  */
 function item_fieldlist() {
 
 	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`,
-			`item`.`uid`, `item`.`author-name`, `item`.`tag`, `item`.`location`, `item`.`coord`,
+			`item`.`uid`, `item`.`author-name`, `item`.`location`, `item`.`coord`,
 			`item`.`title`, `item`.`uri`, `item`.`created`, `item`.`app`, `item`.`guid`,
 			`item`.`contact-id`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`rendered-hash`,
 			`item`.`body`, `item`.`rendered-html`, `item`.`private`, `item`.`edited`,
@@ -421,6 +411,16 @@ function item_fieldlist() {
 			`item`.`id` AS `item_id`, `item`.`network` AS `item_network`";
 
 	return $fieldlist;
+}
+
+/**
+ * @brief SQL condition for items
+ */
+function item_condition() {
+
+	$condition = "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
+
+	return $condition;
 }
 
 /**
