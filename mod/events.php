@@ -67,9 +67,9 @@ function events_post(&$a) {
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
 	$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
-        if(strcmp($finish,$start) < 0 && !$nofinish) {
+	if(strcmp($finish,$start) < 0 && !$nofinish) {
 		notice( t('Event can not end before it has started.') . EOL);
-                if(intval($_REQUEST['preview'])) {
+		if(intval($_REQUEST['preview'])) {
 			echo( t('Event can not end before it has started.'));
 			killme();
 		}
@@ -461,6 +461,12 @@ function events_content(&$a) {
 			'$calendar' => cal($y,$m,$links, ' eventcal'),
 
 			'$events'	=> $events,
+
+			// eignene
+			"today" => t("today"),
+			"month" => t("month"),
+			"week" => t("week"),
+			"day" => t("day"),
 
 
 		));

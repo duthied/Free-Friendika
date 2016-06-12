@@ -163,6 +163,15 @@ a#item-delete-selected {
 .btn-link:focus, .btn-link:hover {
     color: #23527c;
 }
+.btn-eventnav, btn-eventnav:hover {
+    font-size: 16px;
+    background: none;
+    background-color: transparent;
+    padding: 0 14px;
+}
+.btn-separator {
+    border-left: 1px solid #777;
+}
 /*.btn-info {
     background: #6fdbe8;
     color: #fff!important;
@@ -1900,6 +1909,59 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 }
 #poke-wrapper-end {
     clear: both;
+}
+
+/* Events page */
+#fc-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+#fc-header-left,
+#fc-header-right,
+#event-calendar-title {
+    display: inline-block;
+}
+#fc-title {
+    margin: 0;
+    padding-left: 20px;
+
+}
+#fc-header-right {
+    margin-top: -4px;
+}
+#event-calendar-title {
+    vertical-align: middle;
+}
+a#event-calendar-views {
+    padding: 6px 9px;
+    font-size: 14px
+}
+tr.fc-first,
+tr.fc-first th {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+td.fc-day {
+    border-left: none;
+    border-right: none;
+    padding: 0 6px;
+}
+#events-calendar .fc-grid .fc-day-number {
+    float: left;
+    font-size: 0.9em;
+}
+.event-wrapper .event-owner {
+  margin-bottom: 15px;
+}
+.event-owner img {
+    margin-right: 5px;
+    height: 48px;
+    width:  48;
+    border-radius: 3px;
+}
+.event-wrapper .event-buttons {
+    margin-top: 15px;
 }
 /*
 * Overwriting for transparency and other colors
