@@ -64,16 +64,15 @@ function dirfind_content(&$a, $prefix = "") {
 			$objresult->tags = "";
 			$objresult->network = $user_data["network"];
 
-			$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc(normalise_link($user_data["url"])), intval(local_user()));
-			if ($contact)
-				$objresult->cid = $contact[0]["id"];
-
+			$contact = get_contact_details_by_url($user_data["url"], local_user());
+			$objresult->cid = $contact["cid"];
 
 			$j->results[] = $objresult;
 
-			poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
-				"", "", "", "", "", datetime_convert(), 0);
+			// Add the contact to the global contacts if it isn't already in our system
+			if (($contact["cid"] == 0) AND ($contact["zid"] == 0) AND ($contact["gid"] == 0))
+				poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
+					"", "", "", "", "", datetime_convert(), 0);
 		} elseif ($local) {
 
 			if ($community)
@@ -98,6 +97,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
@@ -112,6 +112,7 @@ function dirfind_content(&$a, $prefix = "") {
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
