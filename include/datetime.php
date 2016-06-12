@@ -162,7 +162,7 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
  * @brief Wrapper for date selector, tailored for use in birthday fields.
  *
  * @param string $dob Date of Birth
- * @return string
+ * @return string Formatted html
  */
 function dob($dob) {
 	list($year,$month,$day) = sscanf($dob,'%4d-%2d-%2d');
@@ -175,7 +175,18 @@ function dob($dob) {
 	else
 		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
 
-	$o = '<input type="text" name="dob" value="' . $value . '" placeholder="' . t('YYYY-MM-DD or MM-DD') . '" />';
+	$age = ((intval($value)) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
+
+	$o = replace_macros(get_markup_template("field_input.tpl"), array(
+		'$field' => array(
+			'dob',
+			t('Birthday:'),
+			$value,
+			(((intval($age)) > 0 ) ? t('Age: ') . $age : ""),
+			'',
+			'placeholder="' . t('YYYY-MM-DD or MM-DD') . '"'
+		)
+	));
 
 //	if ($dob && $dob != '0000-00-00')
 //		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year),'dob');
