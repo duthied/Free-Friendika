@@ -581,6 +581,9 @@ nav.navbar a {
     margin: 0px;
     padding: 10px 15px;
 }
+#search-mobile .navbar-form {
+    margin: 0;
+}
 #topbar-first #search-box .form-search {
     height: 25px;
     font-size: 13px;
@@ -940,6 +943,55 @@ aside .vcard #wallmessage-link-botton {
 aside .vcard #dfrn-request-link,
 aside .vcard #wallmessage-link {
     width: 100%;
+}
+/* vcard-short-info */
+#vcard-short-info,
+#nav-short-info .contact-wrapper {
+    margin-top: 2px;
+    height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-right: 20px;
+    margin-left: -14px;
+}
+#vcard-short-photo-wrapper img,
+#nav-short-info .contact-wrapper img {
+    height: 34px;
+    width: 34px;
+    border-radius: 3px;
+}
+#vcard-short-desc,
+#nav-short-info .contact-wrapper .media-body {
+    display: block;
+    height: 34px;
+    width: 100%;
+    text-overflow: ellipsis;
+}
+#vcard-short-desc > .media-heading,
+#vcard-short-desc > .vcard-short-addr,
+#nav-short-info .contact-wrapper .media-heading,
+#nav-short-info .contact-wrapper #contact-entry-url-network {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+#vcard-short-desc > .media-heading,
+#nav-short-info .contact-wrapper .media-heading {
+    margin-bottom: 1px;
+    font-weight: bold;
+}
+#nav-short-info .contact-wrapper .media-heading a {
+    color: #555;
+    font-size: 14px !important;
+}
+#vcard-short-desc > .vcard-short-addr,
+#nav-short-info .contact-wrapper #contact-entry-url-network {
+    color: #777;
+    font-size: 12px;
+}
+.network-content-wrapper > #viewcontact_wrapper-network,
+#nav-short-info .contact-wrapper .contact-photo-overlay,
+#nav-short-info .contact-wrapper .contact-actions{
+    display: none
 }
 
 aside #peoplefind-sidebar input,
@@ -1531,6 +1583,11 @@ img.acpopup-img {
     /*margin-left: -15px;*/
     padding: 0;
 }
+#tabmenu .search-heading {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 ul.tabs {
     list-style: none;
     height: 100%;
@@ -1660,6 +1717,15 @@ ul.dropdown-menu li:hover {
     text-align: center;
     color: $link_color;
     font-size: 20px;
+}
+.search-content-wrapper > #search-header-wrapper {
+    display: none;
+}
+.search-content-wrapper > .section-title-wrapper {
+    display: none;
+}
+#navbar-button > #search-save-form > #search-save {
+    margin-top: 3px;
 }
 /* Section-Content-Wrapper */
 #search-header-wrapper {

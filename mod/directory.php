@@ -206,7 +206,7 @@ function directory_content(&$a) {
 			'$gdirpath' => $gdirpath,
 			'$desc' => t('Find on this site'),
 			'$contacts' => $entries,
-			'$finding' => t('Finding:'),
+			'$finding' => t('Results for:'),
 			'$findterm' => (strlen($search) ? $search : ""),
 			'$title' => t('Site Directory'),
 			'$submit' => t('Find'),

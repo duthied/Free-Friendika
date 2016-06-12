@@ -154,18 +154,6 @@ Friendica also supports a number on non-standard headers in common use.
     X-Forwarded-Ssl: on
 
 It is however preferable to use the standard approach if configuring a new server.
-In Nginx, this can be done as follows (assuming Friendica runs on port 8080).
-
-    location / {
-            if ( $scheme != https ) {		# Force Redirect to HTTPS
-                    return 302 https://$host$uri;
-            }
-            proxy_pass http://localhost:8080;
-            proxy_redirect off;
-            proxy_set_header Host $host;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Forwarded "for=$proxy_add_x_forwarded_for; proto=$scheme";
-    }
 
 #####################################################################
 
