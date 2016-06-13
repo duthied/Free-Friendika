@@ -202,7 +202,7 @@ function dob($dob) {
  * @return string Parsed HTML output.
  */
 function datesel($format, $min, $max, $default, $id = 'datepicker') {
-	return datetimesel($format,$min,$max,$default,$id,true,false, '','');
+	return datetimesel($format,$min,$max,$default,'',$id,true,false, '','');
 }
 
 /**
@@ -220,7 +220,7 @@ function datesel($format, $min, $max, $default, $id = 'datepicker') {
  * @return string Parsed HTML output.
  */
 function timesel($format, $h, $m, $id='timepicker') {
-	return datetimesel($format,new DateTime(),new DateTime(),new DateTime("$h:$m"),$id,false,true);
+	return datetimesel($format,new DateTime(),new DateTime(),new DateTime("$h:$m"),'',$id,false,true);
 }
 
 /**
@@ -251,7 +251,7 @@ function timesel($format, $h, $m, $id='timepicker') {
  * @todo Once browser support is better this could probably be replaced with
  * native HTML5 date picker.
  */
-function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
+function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
 
 	// First day of the week (0 = Sunday)
 	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
@@ -283,9 +283,9 @@ function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pic
 	$extra_js = '';
 	$pickers .= ",dayOfWeekStart: ".$firstDay.",lang:'".$lang."'";
 	if($minfrom != '')
-		$extra_js .= "\$('#$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
+		$extra_js .= "\$('id_#$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
 	if($maxfrom != '')
-		$extra_js .= "\$('#$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
+		$extra_js .= "\$('#id_$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
 
 	$readable_format = $dateformat;
 	$readable_format = str_replace('Y','yyyy',$readable_format);
@@ -294,10 +294,14 @@ function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pic
 	$readable_format = str_replace('H','HH',$readable_format);
 	$readable_format = str_replace('i','MM',$readable_format);
 
-	$o .= "<div class='date'><input type='text' placeholder='$readable_format' name='$id' id='$id' $input_text />";
-	$o .= '</div>';
+	$tpl = get_markup_template('field_input.tpl');
+	$o .= replace_macros($tpl,array(
+			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '" '),
+		));
+//	$o .= "<div class='date'><input type='text' placeholder='$readable_format' name='$id' id='$id' $input_text />";
+//	$o .= '</div>';
 	$o .= "<script type='text/javascript'>";
-	$o .= "\$(function () {var picker = \$('#$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
+	$o .= "\$(function () {var picker = \$('#id_$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
 	$o .= "</script>";
 
 	return $o;

@@ -1,7 +1,7 @@
 <div class="generic-page-wrapper">
 	{{$tabs}}
 	{{include file="section_title.tpl" title=$title}}
-
+<div id="new-event-link"><a href="{{$new_event.0}}" >{{$new_event.1}}</a></div>
 	<div id="new-event-link"><a onclick="addToModal('{{$new_event.0}}')" >{{$new_event.1}}</a></div>
 
 	<div id="fc-header">

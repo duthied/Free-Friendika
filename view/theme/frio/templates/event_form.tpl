@@ -12,28 +12,59 @@
 <input type="hidden" name="uri" value="{{$uri}}" />
 <input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
-<div id="event-start-text">{{$s_text}}</div>
 {{$s_dsel}}
 
-<div id="event-finish-text">{{$f_text}}</div>
 {{$f_dsel}}
 
-<div id="event-datetime-break"></div>
+{{include file="field_checkbox.tpl" field=$nofinish}}
 
-<input type="checkbox" name="nofinish" value="1" id="event-nofinish-checkbox" {{$n_checked}} /> <div id="event-nofinish-text">{{$n_text}}</div>
+{{include file="field_checkbox.tpl" field=$adjust}}
 
-<div id="event-nofinish-break"></div>
+{{include file="field_input.tpl" field=$summary}}
 
-<input type="checkbox" name="adjust" value="1" id="event-adjust-checkbox" {{$a_checked}} /> <div id="event-adjust-text">{{$a_text}}</div>
+<div class="form-group">
+	<div id="event-desc-text"><b>{{$d_text}}</b></div>
+	<textarea id="comment-edit-text-desc" class="form-control" name="desc" >{{$d_orig}}</textarea>
+	<ul id="event-desc-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
+		<li>
+			<a class="icon" style="cursor: pointer;" title="{{$edimg|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="desc">
+				<i class="fa fa-picture-o"></i>
+			</a>
+		</li>
+		<li>
+			<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="desc">
+				<i class="fa fa-link"></i>
+			</a>
+		</li>
+		<li>
+			<a class="icon bb-video" style="cursor: pointer;" title="{{$edvideo|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="desc">
+				<i class="fa fa-video-camera"></i>
+			</a>
+		</li>
 
-<div id="event-adjust-break"></div>
-
-<div id="event-summary-text">{{$t_text}}</div>
-<input type="text" id="event-summary" name="summary" value="{{$t_orig|escape:'html'}}" />
-
-
-<div id="event-desc-text">{{$d_text}}</div>
-<textarea id="event-desc-textarea" name="desc">{{$d_orig}}</textarea>
+		<li>
+			<a class="icon underline" style="cursor: pointer;" title="{{$eduline|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="desc">
+				<i class="fa fa-underline"></i>
+			</a>
+		</li>
+		<li>
+			<a class="icon italic" style="cursor: pointer;" title="{{$editalic|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="desc">
+				<i class="fa fa-italic"></i>
+			</a>
+		</li>
+		<li>
+			<a class="icon bold" style="cursor: pointer;"  title="{{$edbold|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="desc">
+				<i class="fa fa-bold"></i>
+			</a>
+		</li>
+		<li>
+			<a class="icon quote" style="cursor: pointer;" title="{{$edquote|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="desc">
+				<i class="fa fa-quote-left"></i>
+			</a>
+		</li>
+	</ul>
+	<div class="clear"></div>
+</div>
 
 
 <div id="event-location-text">{{$l_text}}</div>
