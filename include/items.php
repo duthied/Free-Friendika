@@ -507,6 +507,13 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['inform']        = ((x($arr,'inform'))        ? trim($arr['inform'])                : '');
 	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
+	// Items cannot be stored before they happen ...
+	if ($arr['created'] > datetime_convert())
+		$arr['created'] = datetime_convert();
+
+	// We haven't invented time travel by now.
+	if ($arr['edited'] > datetime_convert())
+		$arr['edited'] = datetime_convert();
 
 	if (($arr['author-link'] == "") AND ($arr['owner-link'] == ""))
 		logger("Both author-link and owner-link are empty. Called by: ".App::callstack(), LOGGER_DEBUG);
