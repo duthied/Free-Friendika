@@ -191,17 +191,16 @@ function search_content(&$a) {
 	if($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+		$r = q("SELECT STRAIGHT_JOIN %s, %s
 			FROM `term`
 				INNER JOIN `item` ON `item`.`id`=`term`.`oid`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
 			ORDER BY term.created DESC LIMIT %d , %d ",
-				intval(local_user()), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
+				item_fieldlist(), contact_fieldlist(),
+				contact_condition(), item_condition(),
+				intval(local_user()),
+				intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
@@ -212,17 +211,16 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+		$r = q("SELECT STRAIGHT_JOIN %s, %s
 			FROM `item`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
 				$sql_extra
-			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d ",
-				intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage']));
+			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d",
+				item_fieldlist(), contact_fieldlist(),
+				contact_condition(), item_condition(),
+				intval(local_user()),
+				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
 	if(! count($r)) {

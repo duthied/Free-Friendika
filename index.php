@@ -114,7 +114,9 @@ load_translation_table($lang);
  *
  */
 
+$stamp1 = microtime(true);
 session_start();
+$a->save_timestamp($stamp1, "parser");
 
 /**
  * Language was set earlier, but we can over-ride it in the session.

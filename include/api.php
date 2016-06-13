@@ -1309,7 +1309,7 @@
 		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
@@ -1388,7 +1388,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
+			`contact`.`id` AS `cid`,
 			`user`.`nickname`, `user`.`hidewall`
 			FROM `item` STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
@@ -1457,7 +1457,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id` AND `item`.`uid` = %d AND `item`.`verb` = '%s'
@@ -1534,7 +1534,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`parent` = %d AND `item`.`visible`
@@ -1586,7 +1586,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
@@ -1699,7 +1699,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`  FORCE INDEX (`uid_id`), `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
@@ -1776,7 +1776,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d
@@ -1904,7 +1904,7 @@
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+				`contact`.`id` AS `cid`
 				FROM `item`, `contact`
 				WHERE `item`.`uid` = %d
 				AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0

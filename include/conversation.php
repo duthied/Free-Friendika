@@ -373,6 +373,55 @@ function visible_activity($item) {
 	return true;
 }
 
+/**
+ * @brief List of all contact fields that are needed for the conversation function
+ */
+function contact_fieldlist() {
+
+	$fieldlist = "`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
+			`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
+
+	return $fieldlist;
+}
+
+/**
+ * @brief SQL condition for contacts
+ */
+function contact_condition() {
+
+	$condition = "NOT `contact`.`blocked` AND NOT `contact`.`pending`";
+
+	return $condition;
+}
+
+/**
+ * @brief List of all item fields that are needed for the conversation function
+ */
+function item_fieldlist() {
+
+	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`,
+			`item`.`uid`, `item`.`author-name`, `item`.`location`, `item`.`coord`,
+			`item`.`title`, `item`.`uri`, `item`.`created`, `item`.`app`, `item`.`guid`,
+			`item`.`contact-id`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`rendered-hash`,
+			`item`.`body`, `item`.`rendered-html`, `item`.`private`, `item`.`edited`,
+			`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
+			`item`.`event-id`, `item`.`object-type`, `item`.`starred`, `item`.`created`,
+			`item`.`postopts`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
+			`item`.`plink`, `item`.`wall`,
+			`item`.`id` AS `item_id`, `item`.`network` AS `item_network`";
+
+	return $fieldlist;
+}
+
+/**
+ * @brief SQL condition for items
+ */
+function item_condition() {
+
+	$condition = "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
+
+	return $condition;
+}
 
 /**
  * "Render" a conversation or list of items for HTML display.
