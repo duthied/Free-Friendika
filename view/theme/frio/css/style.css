@@ -1018,6 +1018,15 @@ aside #group-sidebar .sidebar-group-li .group-edit-tool:hover,
 aside #saved-search-list .saved-search-li .savedsearchdrop:hover {
     opacity: 1;
 }
+aside #group-sidebar li .group-checkbox {
+    margin: 0;
+}
+aside #group-sidebar li .group-edit-tool {
+    padding-right: 10px;
+}
+aside #group-sidebar li .group-edit-tool:first-child {
+    padding-right: 0px;
+}
 
 /* contact block widget */
 #contact-block .contact-block-content {
