@@ -1595,6 +1595,7 @@ class dfrn {
 			return false;
 
 		// update items
+		/// @todo This is an extreme performance killer
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),
