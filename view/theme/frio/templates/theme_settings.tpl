@@ -63,8 +63,8 @@
 	});
 </script>
 
-<div class="settings-submit-wrapper pull-right">
-	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit"><i class="fa fa-slideshare"></i>&nbsp;{{$submit}}</button>
+<div class="settings-submit-wrapper form-group pull-right">
+	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>
 </div>
 <div class="clearfix"></div>
 

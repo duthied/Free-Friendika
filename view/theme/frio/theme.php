@@ -1,8 +1,8 @@
 <?php
 /*
  * Name: frio
- * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/rabuzarus/frio/blob/master/README.md">ReadMe</a> and <a href="https://github.com/rabuzarus/frio">GitHub</a>.
- * Version: V.0.1 Alpha
+ * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
+ * Version: V.0.2 Alpha
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  * 
  */

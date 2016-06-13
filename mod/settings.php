@@ -989,6 +989,9 @@ function settings_content(&$a) {
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),
 
+			'$d_tset' => t('General Theme Settings'),
+			'$d_ctset' => t('Custom Theme Settings'),
+			'$d_cset' => t('Content Settings'),
 			'stitle' => t('Theme settings'),
 			'$theme_config' => $theme_config,
 		));

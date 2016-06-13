@@ -399,6 +399,38 @@ function contact_condition() {
  */
 function item_fieldlist() {
 
+/*
+These Fields are not added below (yet). They are here to for bug search.
+`item`.`type`,
+`item`.`extid`,
+`item`.`received`,
+`item`.`changed`,
+`item`.`author-avatar`,
+`item`.`object`,
+`item`.`target-type`,
+`item`.`target`,
+`item`.`resource-id`,
+`item`.`tag`,
+`item`.`attach`,
+`item`.`inform`,
+`item`.`file`,
+`item`.`pubmail`,
+`item`.`moderated`,
+`item`.`visible`,
+`item`.`spam`,
+`item`.`starred`,
+`item`.`bookmark`,
+`item`.`unseen`,
+`item`.`deleted`,
+`item`.`origin`,
+`item`.`forum_mode`,
+`item`.`last-child`,
+`item`.`mention`,
+`item`.`global`,
+`item`.`gcontact-id`,
+`item`.`shadow`,
+*/
+
 	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`,
 			`item`.`uid`, `item`.`author-name`, `item`.`location`, `item`.`coord`,
 			`item`.`title`, `item`.`uri`, `item`.`created`, `item`.`app`, `item`.`guid`,
@@ -407,7 +439,7 @@ function item_fieldlist() {
 			`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
 			`item`.`event-id`, `item`.`object-type`, `item`.`starred`, `item`.`created`,
 			`item`.`postopts`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
-			`item`.`plink`, `item`.`wall`,
+			`item`.`plink`, `item`.`wall`, `item`.`commented`,
 			`item`.`id` AS `item_id`, `item`.`network` AS `item_network`";
 
 	return $fieldlist;
