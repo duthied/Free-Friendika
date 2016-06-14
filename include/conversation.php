@@ -413,7 +413,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`tag`,
 `item`.`attach`,
 `item`.`inform`,
-`item`.`file`,
 `item`.`pubmail`,
 `item`.`moderated`,
 `item`.`visible`,
@@ -431,7 +430,7 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`shadow`,
 */
 
-	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`,
+	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`, `item`.`file`,
 			`item`.`uid`, `item`.`author-name`, `item`.`location`, `item`.`coord`,
 			`item`.`title`, `item`.`uri`, `item`.`created`, `item`.`app`, `item`.`guid`,
 			`item`.`contact-id`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`rendered-hash`,
