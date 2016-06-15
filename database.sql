@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1196
+-- DB_UPDATE_VERSION 1197
 -- ------------------------------------------
 
 
@@ -458,9 +458,11 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`received` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`changed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`owner-id` int(11) NOT NULL DEFAULT 0,
 	`owner-name` varchar(255) NOT NULL DEFAULT '',
 	`owner-link` varchar(255) NOT NULL DEFAULT '',
 	`owner-avatar` varchar(255) NOT NULL DEFAULT '',
+	`author-id` int(11) NOT NULL DEFAULT 0,
 	`author-name` varchar(255) NOT NULL DEFAULT '',
 	`author-link` varchar(255) NOT NULL DEFAULT '',
 	`author-avatar` varchar(255) NOT NULL DEFAULT '',
