@@ -63,7 +63,7 @@ $(document).ready(function(){
 	});
 
 	// bookmarklet page needs an jot modal which appears automatically
-	if(window.location.pathname.indexOf("/bookmarklet") >=0){
+	if(window.location.pathname.indexOf("/bookmarklet") >=0 && $("#jot-modal").length){
 		jotShow();
 	}
 
