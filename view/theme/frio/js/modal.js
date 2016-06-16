@@ -62,6 +62,11 @@ $(document).ready(function(){
 		toggleJotNav(this);
 	});
 
+	// bookmarklet page needs an jot modal which appears automatically
+	if(window.location.pathname.indexOf("/bookmarklet") >=0 && $("#jot-modal").length){
+		jotShow();
+	}
+
 	// Open filebrowser for elements with the class "image-select"
 	// The following part handles the filebrowser for field_fileinput.tpl
 	$("body").on("click", ".image-select", function(){
