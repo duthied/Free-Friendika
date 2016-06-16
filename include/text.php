@@ -2087,3 +2087,43 @@ function format_network_name($network, $url = 0) {
 	}
 
 }
+
+/**
+ * @brief Syntax based code highlighting for popular languages.
+ * @param string $s Code block
+ * @param string $lang Programming language
+ * @return string Formated html
+ */
+function text_highlight($s,$lang) {
+	if($lang === 'js')
+		$lang = 'javascript';
+	if(! strpos('Text_Highlighter',get_include_path())) {
+		set_include_path(get_include_path() . PATH_SEPARATOR . 'library/Text_Highlighter');
+	}
+	require_once('library/Text_Highlighter/Text/Highlighter.php');
+	require_once('library/Text_Highlighter/Text/Highlighter/Renderer/Html.php');
+	$options = array(
+		'numbers' => HL_NUMBERS_LI,
+		'tabsize' => 4,
+		);
+	$tag_added = false;
+	$s = trim(html_entity_decode($s,ENT_COMPAT));
+	$s = str_replace("    ","\t",$s);
+	if($lang === 'php') {
+		if(strpos('<?php',$s) !== 0) {
+			$s = '<?php' . "\n" . $s;
+			$tag_added = true;			
+		}
+	} 
+	$renderer = new Text_Highlighter_Renderer_HTML($options);
+	$hl = Text_Highlighter::factory($lang);
+	$hl->setRenderer($renderer);
+		$o = $hl->highlight($s);
+		$o = str_replace(["    ","\n"],["&nbsp;&nbsp;&nbsp;&nbsp;",''],$o);
+		if($tag_added) {
+			$b = substr($o,0,strpos($o,'<li>'));
+			$e = substr($o,strpos($o,'</li>'));
+			$o = $b . $e;
+		}
+	return('<code>' . $o . '</code>');
+}
