@@ -159,13 +159,17 @@
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 		{{/if}}
 
-		$('#event-share-checkbox').change(function() {
+		$('body').change("#event-share-checkbox", function() {
 
-			if ($('#event-share-checkbox').is(':checked')) { 
+			if ($('#event-share-checkbox').is(':checked')  && !( $('#event-share-checkbox').attr("disabled"))) { 
 				$('#acl-wrapper').show();
+				$("a#event-perms-lnk").parent("li").show();
+				toggleEventNav("a#event-perms-lnk");
+				eventAclActive();
 			}
 			else {
 				$('#acl-wrapper').hide();
+				$("a#event-perms-lnk").parent("li").hide();
 			}
 		}).trigger('change');
 
@@ -182,7 +186,44 @@
 
 		}).trigger('change');
 
+		// Event nav menu.
+		$("body").on("click", "#event-nav li a", function(e){
+			e.preventDefault();
+			toggleEventNav(this);
+		});
+
 	});
 
 </script>
 
+<script>
+	// the following functions show/hide the specific event-edit content 
+	// in dependence of the selected nav
+	function eventAclActive() {
+		$("#event-edit-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
+		$("#event-acl-wrapper").show();
+	}
+
+
+	function previewActive() {
+		$(".modal-body #profile-jot-wrapper, .modal-body #profile-jot-acl-wrapper,.modal-body #jot-fbrowser-wrapper").hide();
+		preview_post();
+	}
+
+	function eventEditActive() {
+		$("#event-acl-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
+		$("#event-edit-wrapper").show();
+
+		//make sure jot text does have really the active class (we do this because there are some
+		// other events which trigger jot text
+		toggleEventNav($("#event-edit-lnk"));
+	}
+
+	// Give the active "event-nav" list element the class "active"
+	function toggleEventNav (elm) {
+		// select all li of #event-nav and remove the active class
+		$(elm).closest("#event-nav").children("li").removeClass("active");
+		// add the active class to the parent of the link which was selected
+		$(elm).parent("li").addClass("active");
+	}
+</script>

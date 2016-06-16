@@ -273,7 +273,7 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 	$minjs = $min ? ",minDate: new Date({$min->getTimestamp()}*1000), yearStart: " . $min->format('Y') : '';
 	$maxjs = $max ? ",maxDate: new Date({$max->getTimestamp()}*1000), yearEnd: " . $max->format('Y') : '';
 
-	$input_text = $default ? 'value="' . date($dateformat, $default->getTimestamp()) . '"' : '';
+	$input_text = $default ? date($dateformat, $default->getTimestamp()) : '';
 	$defaultdatejs = $default ? ",defaultDate: new Date({$default->getTimestamp()}*1000)" : '';
 
 	$pickers = '';
@@ -283,7 +283,7 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 	$extra_js = '';
 	$pickers .= ",dayOfWeekStart: ".$firstDay.",lang:'".$lang."'";
 	if($minfrom != '')
-		$extra_js .= "\$('id_#$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
+		$extra_js .= "\$('#id_$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
 	if($maxfrom != '')
 		$extra_js .= "\$('#id_$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
 
@@ -296,7 +296,7 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 
 	$tpl = get_markup_template('field_input.tpl');
 	$o .= replace_macros($tpl,array(
-			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '" '),
+			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '"'),
 		));
 //	$o .= "<div class='date'><input type='text' placeholder='$readable_format' name='$id' id='$id' $input_text />";
 //	$o .= '</div>';
