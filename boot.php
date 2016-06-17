@@ -6,11 +6,11 @@
 
 /**
  * Friendica
- * 
+ *
  * Friendica is a communications platform for integrated social communications
  * utilising decentralised communications and linkage to several indie social
  * projects - as well as popular mainstream providers.
- * 
+ *
  * Our mission is to free our friends and families from the clutches of
  * data-harvesting corporations, and pave the way to a future where social
  * communications are free and open and flow between alternate providers as
@@ -18,7 +18,7 @@
  */
 
 require_once('include/autoloader.php');
- 
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1194      );
+define ( 'DB_UPDATE_VERSION',      1196      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -387,6 +387,10 @@ define ( 'GRAVITY_COMMENT',      6);
 /* @}*/
 
 
+// Normally this constant is defined - but not if "pcntl" isn't installed
+if (!defined("SIGTERM"))
+	define("SIGTERM", 15);
+
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
@@ -583,10 +587,15 @@ class App {
 
 
 		$this->scheme = 'http';
-		if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
+		if((x($_SERVER,'HTTPS') && $_SERVER['HTTPS']) ||
+		   (x($_SERVER['HTTP_FORWARDED']) && preg_match("/proto=https/", $_SERVER['HTTP_FORWARDED'])) ||
+		   (x($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') ||
+		   (x($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') ||
+		   (x($_SERVER['FRONT_END_HTTPS']) && $_SERVER['FRONT_END_HTTPS'] == 'on') ||
+		   (x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443)) // XXX: reasonable assumption, but isn't this hardcoding too much?
+		   ) {
 			$this->scheme = 'https';
-		elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
-			$this->scheme = 'https';
+		   }
 
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
@@ -862,6 +871,9 @@ class App {
 		if ($touch_icon == "")
 			$touch_icon = "images/friendica-128.png";
 
+		// get data wich is needed for infinite scroll on the network page
+		$invinite_scroll = infinite_scroll_data($this->module);
+
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
 			'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
@@ -874,7 +886,8 @@ class App {
 			'$update_interval' => $interval,
 			'$shortcut_icon' => $shortcut_icon,
 			'$touch_icon' => $touch_icon,
-			'$stylesheet' => $stylesheet
+			'$stylesheet' => $stylesheet,
+			'$infinite_scroll' => $invinite_scroll,
 		)) . $this->page['htmlhead'];
 	}
 
@@ -1515,20 +1528,20 @@ function login($register = false, $hiddens=false) {
 
 	$o .= replace_macros($tpl, array(
 
-		'$dest_url'     => $dest_url,
-		'$logout'       => t('Logout'),
-		'$login'        => t('Login'),
+		'$dest_url'	=> $dest_url,
+		'$logout'	=> t('Logout'),
+		'$login'	=> t('Login'),
 
-		'$lname'	 	=> array('username', t('Nickname or Email address: ') , '', ''),
+		'$lname'	=> array('username', t('Nickname or Email: ') , '', ''),
 		'$lpassword' 	=> array('password', t('Password: '), '', ''),
 		'$lremember'	=> array('remember', t('Remember me'), 0,  ''),
 
-		'$openid'		=> !$noid,
-		'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
+		'$openid'	=> !$noid,
+		'$lopenid'	=> array('openid_url', t('Or login using OpenID: '),'',''),
 
-		'$hiddens'      => $hiddens,
+		'$hiddens'	=> $hiddens,
 
-		'$register'     => $reg,
+		'$register'	=> $reg,
 
 		'$lostpass'     => t('Forgot your password?'),
 		'$lostlink'     => t('Password Reset'),
@@ -1888,31 +1901,6 @@ function is_site_admin() {
 	return false;
 }
 
-
-function load_contact_links($uid) {
-
-	$a = get_app();
-
-	$ret = array();
-
-	if(! $uid || x($a->contacts,'empty'))
-		return;
-
-	$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
-			intval($uid)
-	);
-	if(count($r)) {
-		foreach($r as $rr){
-			$url = normalise_link($rr['url']);
-			$ret[$url] = $rr;
-		}
-	} else
-		$ret['empty'] = true;
-
-	$a->contacts = $ret;
-	return;
-}
-
 /**
  * @brief Returns querystring as string from a mapped array.
  *
@@ -2200,4 +2188,44 @@ function argv($x) {
 		return get_app()->argv[$x];
 
 	return '';
+}
+
+/**
+ * @brief Get the data which is needed for infinite scroll
+ * 
+ * For invinite scroll we need the page number of the actual page
+ * and the the URI where the content of the next page comes from.
+ * This data is needed for the js part in main.js.
+ * Note: infinite scroll does only work for the network page (module)
+ * 
+ * @param string $module The name of the module (e.g. "network")
+ * @return array Of infinite scroll data
+ *	'pageno' => $pageno The number of the actual page
+ *	'reload_uri' => $reload_uri The URI of the content we have to load
+ */
+function infinite_scroll_data($module) {
+
+	if (get_pconfig(local_user(),'system','infinite_scroll')
+		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
+
+		// get the page number
+		if (is_string($_GET["page"]))
+			$pageno = $_GET["page"];
+		else
+			$pageno = 1;
+
+		$reload_uri = "";
+
+		// try to get the uri from which we load the content
+		foreach ($_GET AS $param => $value)
+			if (($param != "page") AND ($param != "q"))
+				$reload_uri .= "&".$param."=".urlencode($value);
+
+		if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
+			$reload_uri .= "&offset=".urlencode($a->page_offset);
+
+		$arr = array("pageno" => $pageno, "reload_uri" => $reload_uri);
+
+		return $arr;
+	}
 }

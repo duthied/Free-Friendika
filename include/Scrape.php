@@ -23,13 +23,15 @@ function scrape_dfrn($url, $dont_probe = false) {
 		if (is_array($noscrapedata)) {
 			if ($noscrapedata["nick"] != "")
 				return($noscrapedata);
+			else
+				unset($noscrapedata["nick"]);
 		} else
 			$noscrapedata = array();
 	}
 
 	$s = fetch_url($url);
 
-	if(! $s)
+	if (!$s)
 		return $ret;
 
 	if (!$dont_probe) {
@@ -356,7 +358,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	$result = array();
 
-	if(! $url)
+	if (!$url)
 		return $result;
 
 	$result = Cache::get("probe_url:".$mode.":".$url);
@@ -365,6 +367,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		return $result;
 	}
 
+	$original_url = $url;
 	$network = null;
 	$diaspora = false;
 	$diaspora_base = '';
@@ -393,7 +396,12 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		else
 			$links = lrdd($url);
 
-		if(count($links)) {
+		if ((count($links) == 0) AND strstr($url, "/index.php")) {
+			$url = str_replace("/index.php", "", $url);
+			$links = lrdd($url);
+		}
+
+		if (count($links)) {
 			$has_lrdd = true;
 
 			logger('probe_url: found lrdd links: ' . print_r($links,true), LOGGER_DATA);
@@ -440,18 +448,30 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			// aliases, let's hope we're lucky and get one that matches the feed author-uri because
 			// otherwise we're screwed.
 
+			$backup_alias = "";
+
 			foreach($links as $link) {
 				if($link['@attributes']['rel'] === 'alias') {
 					if(strpos($link['@attributes']['href'],'@') === false) {
 						if(isset($profile)) {
-							if($link['@attributes']['href'] !== $profile)
-								$alias = unamp($link['@attributes']['href']);
+							$alias_url = $link['@attributes']['href'];
+
+							if(($alias_url !== $profile) AND ($backup_alias == "") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$backup_alias = $alias_url;
+
+							if(($alias_url !== $profile) AND !strstr($alias_url, "index.php") AND
+								($alias_url !== str_replace("/index.php", "", $profile)))
+								$alias = $alias_url;
 						}
 						else
 							$profile = unamp($link['@attributes']['href']);
 					}
 				}
 			}
+
+			if ($alias == "")
+				$alias = $backup_alias;
 
 			// If the profile is different from the url then the url is abviously an alias
 			if (($alias == "") AND ($profile != "") AND !$at_addr AND (normalise_link($profile) != normalise_link($url)))
@@ -576,7 +596,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if($diaspora && $diaspora_base && $diaspora_guid) {
 		$diaspora_notify = $diaspora_base.'receive/users/'.$diaspora_guid;
 
-		if($mode == PROBE_DIASPORA || ! $notify || ($notify == $diaspora_notify)) {
+		if($mode == PROBE_DIASPORA || !$notify || ($notify == $diaspora_notify)) {
 			$notify = $diaspora_notify;
 			$batch  = $diaspora_base . 'receive/public' ;
 		}
@@ -685,7 +705,14 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 					if (($vcard["nick"] == "") AND ($data["header"]["author-nick"] != ""))
 						$vcard["nick"] = $data["header"]["author-nick"];
 
-					if(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
+					if ($network == NETWORK_OSTATUS) {
+						if ($data["header"]["author-id"] != "")
+							$alias = $data["header"]["author-id"];
+
+						if ($data["header"]["author-link"] != "")
+							$profile = $data["header"]["author-link"];
+
+					} elseif(!$profile AND ($data["header"]["author-link"] != "") AND !in_array($network, array("", NETWORK_FEED)))
 						$profile = $data["header"]["author-link"];
 				}
 			}
@@ -769,6 +796,12 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if (($baseurl == "") AND ($poll != ""))
 		$baseurl = matching_url(normalise_link($profile), normalise_link($poll));
 
+	if (substr($baseurl, -10) == "/index.php")
+		$baseurl = str_replace("/index.php", "", $baseurl);
+
+	if ($network == "")
+		$network = NETWORK_PHANTOM;
+
 	$baseurl = rtrim($baseurl, "/");
 
 	if(strpos($url,'@') AND ($addr == "") AND ($network == NETWORK_DFRN))
@@ -802,7 +835,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 			require_once('include/bbcode.php');
 			$address = GetProfileUsername($url, "", true);
 			$result2 = probe_url($address, $mode, ++$level);
-			if ($result2['network'] != "")
+			if (!in_array($result2['network'], array("", NETWORK_PHANTOM, NETWORK_FEED)))
 				$result = $result2;
 		}
 
@@ -810,14 +843,46 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 		if (($result['network'] == NETWORK_FEED) AND ($result['baseurl'] != "") AND ($result['nick'] != "")) {
 			$addr = $result['nick'].'@'.str_replace("http://", "", $result['baseurl']);
 			$result2 = probe_url($addr, $mode, ++$level);
-			if (($result2['network'] != "") AND ($result2['network'] != NETWORK_FEED))
+			if (!in_array($result2['network'], array("", NETWORK_PHANTOM, NETWORK_FEED)))
 				$result = $result2;
+		}
+
+		// Quickfix for Hubzilla systems with enabled OStatus plugin
+		if (($result['network'] == NETWORK_DIASPORA) AND ($result["batch"] == "")) {
+			$result2 = probe_url($url, PROBE_DIASPORA, ++$level);
+			if ($result2['network'] == NETWORK_DIASPORA) {
+				$addr = $result["addr"];
+				$result = $result2;
+
+				if (($result["addr"] == "") AND ($addr != ""))
+					$result["addr"] = $addr;
+			}
 		}
 	}
 
 	// Only store into the cache if the value seems to be valid
-	if ($result['network'] != NETWORK_PHANTOM)
-		Cache::set("probe_url:".$mode.":".$url,serialize($result), CACHE_DAY);
+	if ($result['network'] != NETWORK_PHANTOM) {
+		Cache::set("probe_url:".$mode.":".$original_url,serialize($result), CACHE_DAY);
+
+		/// @todo temporary fix - we need a real contact update function that updates only changing fields
+		/// The biggest problem is the avatar picture that could have a reduced image size.
+		/// It should only be updated if the existing picture isn't existing anymore.
+		if (($result['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
+			$result["name"] AND $result["nick"] AND $result["url"] AND $result["addr"] AND $result["poll"])
+			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
+					`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
+				WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
+				dbesc($result["name"]),
+				dbesc($result["nick"]),
+				dbesc($result["url"]),
+				dbesc($result["addr"]),
+				dbesc($result["notify"]),
+				dbesc($result["poll"]),
+				dbesc($result["alias"]),
+				dbesc(datetime_convert()),
+				dbesc(normalise_link($result['url']))
+		);
+	}
 
 	return $result;
 }

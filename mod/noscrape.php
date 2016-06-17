@@ -15,8 +15,12 @@ function noscrape_init(&$a) {
 
 	profile_load($a,$which,$profile);
 
-	if(!$a->profile['net-publish'])
-		killme();
+	if (!$a->profile['net-publish'] OR $a->profile['hidewall']) {
+		header('Content-type: application/json; charset=utf-8');
+		$json_info = array("hide" => true);
+		echo json_encode($json_info);
+		exit;
+	}
 
 	$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
@@ -28,7 +32,7 @@ function noscrape_init(&$a) {
 	$json_info = array(
 		'fn' => $a->profile['name'],
 		'addr' => $a->profile['addr'],
-		'nick' => $a->user['nickname'],
+		'nick' => $which,
 		'key' => $a->profile['pubkey'],
 		'homepage' => $a->get_baseurl()."/profile/{$which}",
 		'comm' => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),

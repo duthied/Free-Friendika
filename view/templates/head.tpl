@@ -33,7 +33,8 @@
 <!-- <script type="text/javascript" src="js/jquery-migrate.js" ></script>-->
 <script type="text/javascript" src="js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="js/fk.autocomplete.js" ></script>
+<script type="text/javascript" src="library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
+<script type="text/javascript" src="js/autocomplete.js" ></script>
 <script type="text/javascript" src="library/colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="library/jgrowl/jquery.jgrowl_minimized.js"></script>
 <script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>
@@ -46,6 +47,15 @@
 
 	var updateInterval = {{$update_interval}};
 	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
+
+	{{* Create an object with the data which is needed for infinite scroll.
+	For the relevant js part look at function loadContent() in main.js. *}}
+	{{if $infinite_scroll}}
+	var infinite_scroll = {
+				'pageno'	: {{$infinite_scroll.pageno}},
+				'reload_uri'	: "{{$infinite_scroll.reload_uri}}"
+				}
+	{{/if}}
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {

@@ -1,4 +1,4 @@
-
+{{if $diaspora}}
 <div style="display:none;">
 	<dl class="entity_uid">
 		<dt>Uid</dt>
@@ -61,3 +61,4 @@
 		</dd>
 	</dl>
 </div>
+{{/if}}

@@ -41,10 +41,11 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
  */
 
 require_once("include/dba.php");
+require_once("include/dbm.php");
 
 if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
-    	    unset($db_host, $db_user, $db_pass, $db_data);
+	    unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
@@ -52,6 +53,21 @@ if(!$install) {
 
 	load_config('config');
 	load_config('system');
+
+	$processlist = dbm::processlist();
+	if ($processlist["list"] != "") {
+
+		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+		$max_processes = get_config('system', 'max_processes_frontend');
+		if (intval($max_processes) == 0)
+			$max_processes = 20;
+
+		if ($processlist["amount"] > $max_processes) {
+			logger("Processcheck: Maximum number of processes for frontend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+			system_unavailable();
+		}
+	}
 
 	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
 	if($maxsysload_frontend < 1)
@@ -98,7 +114,9 @@ load_translation_table($lang);
  *
  */
 
+$stamp1 = microtime(true);
 session_start();
+$a->save_timestamp($stamp1, "parser");
 
 /**
  * Language was set earlier, but we can over-ride it in the session.
@@ -117,9 +135,21 @@ if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
 }
 
 if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
-	$_SESSION['my_url'] = $_GET['zrl'];
-	$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
-	zrl_init($a);
+	// Only continue when the given profile link seems valid
+	// Valid profile links contain a path with "/profile/" and no query parameters
+	if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") AND
+		strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+		$_SESSION['my_url'] = $_GET['zrl'];
+		$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is','',$a->query_string);
+		zrl_init($a);
+	} else {
+		// Someone came with an invalid parameter, maybe as a DDoS attempt
+		// We simply stop processing here
+		logger("Invalid ZRL parameter ".$_GET['zrl'], LOGGER_DEBUG);
+		header('HTTP/1.1 403 Forbidden');
+		echo "<h1>403 Forbidden</h1>";
+		killme();
+	}
 }
 
 /**
@@ -135,7 +165,7 @@ if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
 
 // header('Link: <' . $a->get_baseurl() . '/amcd>; rel="acct-mgmt";');
 
-if((x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login'))
+if(x($_COOKIE["Friendica"]) || (x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login'))
 	require("include/auth.php");
 
 if(! x($_SESSION,'authenticated'))
@@ -430,9 +460,9 @@ if($a->is_mobile || $a->is_tablet) {
 		$link = 'toggle_mobile?off=1&address=' . curPageURL();
 	}
 	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
-	                     	'$toggle_link' => $link,
-	                     	'$toggle_text' => t('toggle mobile')
-    	                 ));
+				'$toggle_link' => $link,
+				'$toggle_text' => t('toggle mobile')
+			 ));
 }
 
 /**
@@ -478,70 +508,6 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 
 	session_write_close();
 	exit;
-
-} elseif (get_pconfig(local_user(),'system','infinite_scroll')
-          AND ($a->module == "network") AND ($_GET["mode"] != "minimal")) {
-	if (is_string($_GET["page"]))
-		$pageno = $_GET["page"];
-	else
-		$pageno = 1;
-
-	$reload_uri = "";
-
-	foreach ($_GET AS $param => $value)
-		if (($param != "page") AND ($param != "q"))
-			$reload_uri .= "&".$param."=".urlencode($value);
-
-	if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
-		$reload_uri .= "&offset=".urlencode($a->page_offset);
-
-
-$a->page['htmlhead'] .= <<< EOT
-<script type="text/javascript">
-
-$(document).ready(function() {
-    num = $pageno;
-});
-
-function loadcontent() {
-	if (lockLoadContent) return;
-	lockLoadContent = true;
-
-	$("#scroll-loader").fadeIn('normal');
-
-	num+=1;
-
-	console.log('Loading page ' + num);
-
-	$.get('/network?mode=raw$reload_uri&page=' + num, function(data) {
-		$("#scroll-loader").hide();
-		if ($(data).length > 0) {
-			$(data).insertBefore('#conversation-end');
-			lockLoadContent = false;
-		} else {
-			$("#scroll-end").fadeIn('normal');
-		}
-	});
-}
-
-var num = $pageno;
-var lockLoadContent = false;
-
-$(window).scroll(function(e){
-
-	if ($(document).height() != $(window).height()) {
-		// First method that is expected to work - but has problems with Chrome
-		if ($(window).scrollTop() > ($(document).height() - $(window).height() * 1.5))
-			loadcontent();
-	} else {
-		// This method works with Chrome - but seems to be much slower in Firefox
-		if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height() * 1.5))
-			loadcontent();
-	}
-});
-</script>
-
-EOT;
 
 }
 

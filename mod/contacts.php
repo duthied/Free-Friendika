@@ -787,7 +787,7 @@ function contacts_content(&$a) {
 		'$total' => $total,
 		'$search' => $search_hdr,
 		'$desc' => t('Search your contacts'),
-		'$finding' => (($searching) ? t('Finding: ') . "'" . $search . "'" : ""),
+		'$finding' => (($searching) ? sprintf(t('Results for: %s'),$search) : ""),
 		'$submit' => t('Find'),
 		'$cmd' => $a->cmd,
 		'$contacts' => $contacts,

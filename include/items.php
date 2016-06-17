@@ -18,6 +18,7 @@ require_once('include/Contact.php');
 require_once('mod/share.php');
 require_once('include/enotify.php');
 require_once('include/dfrn.php');
+require_once('include/group.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
@@ -160,24 +161,31 @@ function add_page_info_data($data) {
 	if ($no_photos AND ($data["type"] == "photo"))
 		return("");
 
-	// If the link contains BBCode stuff, make a short link out of this to avoid parsing problems
-	if (strpos($data["url"], '[') OR strpos($data["url"], ']')) {
-		require_once("include/network.php");
-		$data["url"] = short_link($data["url"]);
+	if (sizeof($data["images"]) > 0)
+		$preview = $data["images"][0];
+	else
+		$preview = "";
+
+	// Escape some bad characters
+	$data["url"] = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["url"], ENT_QUOTES, 'UTF-8', false));
+	$data["title"] = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["title"], ENT_QUOTES, 'UTF-8', false));
+
+	$text = "[attachment type='".$data["type"]."'";
+
+	if ($data["url"] != "")
+		$text .= " url='".$data["url"]."'";
+	if ($data["title"] != "")
+		$text .= " title='".$data["title"]."'";
+	if (sizeof($data["images"]) > 0) {
+		$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
+		// if the preview picture is larger than 500 pixels then show it in a larger mode
+		// But only, if the picture isn't higher than large (To prevent huge posts)
+		if (($data["images"][0]["width"] >= 500) AND ($data["images"][0]["width"] >= $data["images"][0]["height"]))
+			$text .= " image='".$preview."'";
+		else
+			$text .= " preview='".$preview."'";
 	}
-
-	if (($data["type"] != "photo") AND is_string($data["title"]))
-		$text .= "[bookmark=".$data["url"]."]".trim($data["title"])."[/bookmark]";
-
-	if (($data["type"] != "video") AND ($photo != ""))
-		$text .= '[img]'.$photo.'[/img]';
-	elseif (($data["type"] != "video") AND (sizeof($data["images"]) > 0)) {
-		$imagedata = $data["images"][0];
-		$text .= '[img]'.$imagedata["src"].'[/img]';
-	}
-
-	if (($data["type"] != "photo") AND is_string($data["text"]))
-		$text .= "[quote]".$data["text"]."[/quote]";
+	$text .= "]".$data["text"]."[/attachment]";
 
 	$hashtags = "";
 	if (isset($data["keywords"]) AND count($data["keywords"])) {
@@ -191,7 +199,7 @@ function add_page_info_data($data) {
 		}
 	}
 
-	return("\n[class=type-".$data["type"]."]".$text."[/class]".$hashtags);
+	return "\n".$text.$hashtags;
 }
 
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
@@ -383,9 +391,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// Converting the plink
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink']))
-			$arr['plink'] = ostatus_convert_href($arr['plink']);
+			$arr['plink'] = ostatus::convert_href($arr['plink']);
 		elseif (isset($arr['uri']))
-			$arr['plink'] = ostatus_convert_href($arr['uri']);
+			$arr['plink'] = ostatus::convert_href($arr['uri']);
 	}
 
 	if(x($arr, 'gravity'))
@@ -499,6 +507,13 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['inform']        = ((x($arr,'inform'))        ? trim($arr['inform'])                : '');
 	$arr['file']          = ((x($arr,'file'))          ? trim($arr['file'])                  : '');
 
+	// Items cannot be stored before they happen ...
+	if ($arr['created'] > datetime_convert())
+		$arr['created'] = datetime_convert();
+
+	// We haven't invented time travel by now.
+	if ($arr['edited'] > datetime_convert())
+		$arr['edited'] = datetime_convert();
 
 	if (($arr['author-link'] == "") AND ($arr['owner-link'] == ""))
 		logger("Both author-link and owner-link are empty. Called by: ".App::callstack(), LOGGER_DEBUG);
@@ -707,9 +722,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if ($arr["uid"] == 0) {
 		$arr["global"] = true;
 
-		q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($arr["guid"]));
+		q("UPDATE `item` SET `global` = 1 WHERE `uri` = '%s'", dbesc($arr["uri"]));
 	}  else {
-		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `guid` = '%s'", dbesc($arr["guid"]));
+		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
 
 		$arr["global"] = (count($isglobal) > 0);
 	}
@@ -1243,7 +1258,7 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus_import($xml,$importer,$contact, $hub);
+			ostatus::import($xml,$importer,$contact, $hub);
 		}
 		return;
 	}
@@ -1260,17 +1275,17 @@ function consume_feed($xml,$importer,&$contact, &$hub, $datedir = 0, $pass = 0) 
 		logger("Consume DFRN messages", LOGGER_DEBUG);
 
 		$r = q("SELECT  `contact`.*, `contact`.`uid` AS `importer_uid`,
-                                        `contact`.`pubkey` AS `cpubkey`,
-                                        `contact`.`prvkey` AS `cprvkey`,
-                                        `contact`.`thumb` AS `thumb`,
-                                        `contact`.`url` as `url`,
-                                        `contact`.`name` as `senderName`,
-                                        `user`.*
-                        FROM `contact`
-                        LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-                        WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
-	                dbesc($contact["id"]), dbesc($importer["uid"])
-	        );
+					`contact`.`pubkey` AS `cpubkey`,
+					`contact`.`prvkey` AS `cprvkey`,
+					`contact`.`thumb` AS `thumb`,
+					`contact`.`url` as `url`,
+					`contact`.`name` as `senderName`,
+					`user`.*
+			FROM `contact`
+			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
+			WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
+			dbesc($contact["id"]), dbesc($importer["uid"])
+		);
 		if ($r) {
 			logger("Now import the DFRN feed");
 			dfrn::import($xml,$r[0], true);
@@ -1378,7 +1393,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			dbesc(($sharing) ? NETWORK_ZOT : NETWORK_OSTATUS),
 			intval(($sharing) ? CONTACT_IS_SHARING : CONTACT_IS_FOLLOWER)
 		);
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
+		$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
 				intval($importer['uid']),
 				dbesc($url)
 		);
@@ -1415,10 +1430,10 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				);
 			}
 
-			if(intval($r[0]['def_gid'])) {
-				require_once('include/group.php');
-				group_add_member($r[0]['uid'],'',$contact_record['id'],$r[0]['def_gid']);
-			}
+			$def_gid = get_default_group($importer['uid'], $contact_record["network"]);
+
+			if(intval($def_gid))
+				group_add_member($importer['uid'],'',$contact_record['id'],$def_gid);
 
 			if(($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				in_array($r[0]['page-flags'], array(PAGE_NORMAL))) {
@@ -1648,7 +1663,6 @@ function compare_permissions($obj1,$obj2) {
 // returns an array of contact-ids that are allowed to see this object
 
 function enumerate_permissions($obj) {
-	require_once('include/group.php');
 	$allow_people = expand_acl($obj['allow_cid']);
 	$allow_groups = expand_groups(expand_acl($obj['allow_gid']));
 	$deny_people  = expand_acl($obj['deny_cid']);
@@ -1980,9 +1994,6 @@ function drop_item($id,$interactive = true) {
 					intval($r[0]['id'])
 				);
 			}
-
-			// Add a relayable_retraction signature for Diaspora.
-			store_diaspora_retract_sig($item, $a->user, $a->get_baseurl());
 		}
 
 		$drop_id = intval($item['id']);
@@ -2114,52 +2125,4 @@ function posted_date_widget($url,$uid,$wall) {
 
 	));
 	return $o;
-}
-
-function store_diaspora_retract_sig($item, $user, $baseurl) {
-	// Note that we can't add a target_author_signature
-	// if the comment was deleted by a remote user. That should be ok, because if a remote user is deleting
-	// the comment, that means we're the home of the post, and Diaspora will only
-	// check the parent_author_signature of retractions that it doesn't have to relay further
-	//
-	// I don't think this function gets called for an "unlike," but I'll check anyway
-
-	$enabled = intval(get_config('system','diaspora_enabled'));
-	if(! $enabled) {
-		logger('drop_item: diaspora support disabled, not storing retraction signature', LOGGER_DEBUG);
-		return;
-	}
-
-	logger('drop_item: storing diaspora retraction signature');
-
-	$signed_text = $item['guid'] . ';' . ( ($item['verb'] === ACTIVITY_LIKE) ? 'Like' : 'Comment');
-
-	if(local_user() == $item['uid']) {
-
-		$handle = $user['nickname'] . '@' . substr($baseurl, strpos($baseurl,'://') + 3);
-		$authorsig = base64_encode(rsa_sign($signed_text,$user['prvkey'],'sha256'));
-	}
-	else {
-		$r = q("SELECT `nick`, `url` FROM `contact` WHERE `id` = '%d' LIMIT 1",
-			$item['contact-id'] // If this function gets called, drop_item() has already checked remote_user() == $item['contact-id']
-		);
-		if(count($r)) {
-			// The below handle only works for NETWORK_DFRN. I think that's ok, because this function
-			// only handles DFRN deletes
-			$handle_baseurl_start = strpos($r['url'],'://') + 3;
-			$handle_baseurl_length = strpos($r['url'],'/profile') - $handle_baseurl_start;
-			$handle = $r['nick'] . '@' . substr($r['url'], $handle_baseurl_start, $handle_baseurl_length);
-			$authorsig = '';
-		}
-	}
-
-	if(isset($handle))
-		q("insert into sign (`retract_iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
-			intval($item['id']),
-			dbesc($signed_text),
-			dbesc($authorsig),
-			dbesc($handle)
-		);
-
-	return;
 }

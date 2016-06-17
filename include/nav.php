@@ -2,7 +2,7 @@
 
 function nav(&$a) {
 
-	/**
+	/*
 	 *
 	 * Build page header and site navigation bars
 	 *
@@ -11,7 +11,9 @@ function nav(&$a) {
 	if(!(x($a->page,'nav')))
 		$a->page['nav'] = '';
 
-	/**
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('nav_head.tpl'), array());
+
+	/*
 	 * Placeholder div for popup panel
 	 */
 
@@ -19,7 +21,7 @@ function nav(&$a) {
 
 	$nav_info = nav_info($a);
 
-	/**
+	/*
 	 * Build the page
 	 */
 
@@ -29,12 +31,13 @@ function nav(&$a) {
 		'$baseurl' => $a->get_baseurl(),
 		'$sitelocation' => $nav_info['sitelocation'],
 		'$nav' => $nav_info['nav'],
-		'$banner' =>  $nav_info['banner'],
+		'$banner' => $nav_info['banner'],
 		'$emptynotifications' => t('Nothing new here'),
 		'$userinfo' => $nav_info['userinfo'],
-		'$sel' => 	$a->nav_sel,
+		'$sel' =>  $a->nav_sel,
 		'$apps' => $a->apps,
-		'$clear_notifs' => t('Clear notifications')
+		'$clear_notifs' => t('Clear notifications'),
+		'$search_hint' => t('@name, !forum, #tags, content')
 	));
 
 	call_hooks('page_header', $a->page['nav']);
@@ -45,7 +48,7 @@ function nav_info(&$a) {
 
 	$ssl_state = ((local_user()) ? true : false);
 
-	/**
+	/*
 	 *
 	 * Our network is distributed, and as you visit friends some of the
 	 * sites look exactly the same - it isn't always easy to know where you are.
@@ -61,7 +64,7 @@ function nav_info(&$a) {
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = Array();
 
-	/**
+	/*
 	 * Display login or logout
 	 */
 
@@ -92,7 +95,7 @@ function nav_info(&$a) {
 	}
 
 
-	/**
+	/*
 	 * "Home" should also take you home from an authenticated remote profile connection
 	 */
 
@@ -115,15 +118,17 @@ function nav_info(&$a) {
 	if(count($a->apps)>0)
 		$nav['apps'] = array('apps', t('Apps'), "", t('Addon applications, utilities, games'));
 
-	$nav['search'] = array('search', t('Search'), "", t('Search site content'));
+	if (local_user() OR !get_config('system','local_search')) {
+		$nav['search'] = array('search', t('Search'), "", t('Search site content'));
 
-	$nav['searchoption'] = array(
-					t("Full Text"),
-					t("Tags"),
-					t("Contacts"));
+		$nav['searchoption'] = array(
+						t("Full Text"),
+						t("Tags"),
+						t("Contacts"));
 
-	if (get_config('system','poco_local_search'))
-		$nav['searchoption'][] = t("Forums");
+		if (get_config('system','poco_local_search'))
+			$nav['searchoption'][] = t("Forums");
+	}
 
 	$gdirpath = 'directory';
 
@@ -137,13 +142,14 @@ function nav_info(&$a) {
 	elseif(get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		$nav['community'] = array('community', t('Community'), "", t('Conversations on the network'));
 
-	$nav['events'] = Array('events', t('Events'), "", t('Events and Calendar'));
+	if(local_user())
+		$nav['events'] = Array('events', t('Events'), "", t('Events and Calendar'));
 
 	$nav['directory'] = array($gdirpath, t('Directory'), "", t('People directory'));
 
 	$nav['about'] = Array('friendica', t('Information'), "", t('Information about this friendica instance'));
 
-	/**
+	/*
 	 *
 	 * The following nav links are only show to logged in users
 	 *
@@ -164,7 +170,7 @@ function nav_info(&$a) {
 			if(in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
 				$nav['notifications'] = array('notifications',	t('Notifications'), "", t('Notifications'));
 				$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
-				$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
+				$nav['notifications']['mark'] = array('', t('Mark as seen'), '',t('Mark all system notifications seen'));
 			}
 		}
 
@@ -187,7 +193,7 @@ function nav_info(&$a) {
 		$nav['contacts'] = array('contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
 	}
 
-	/**
+	/*
 	 * Admin page
 	 */
 	 if (is_site_admin()){
@@ -198,7 +204,7 @@ function nav_info(&$a) {
 	 $nav['navigation'] = array('navigation/', t('Navigation'), "", t('Site map'));
 
 
-	/**
+	/*
 	 *
 	 * Provide a banner/logo/whatever
 	 *
@@ -221,26 +227,26 @@ function nav_info(&$a) {
 }
 
 
-/*
+/**
  * Set a menu item in navbar as selected
  *
  */
 function nav_set_selected($item){
 	$a = get_app();
-    $a->nav_sel = array(
+	$a->nav_sel = array(
 		'community' 	=> null,
-		'network' 		=> null,
-		'home'			=> null,
-		'profiles'		=> null,
+		'network' 	=> null,
+		'home'		=> null,
+		'profiles'	=> null,
 		'introductions' => null,
 		'notifications'	=> null,
-		'messages'		=> null,
-		'directory'	    => null,
-		'settings'		=> null,
-		'contacts'		=> null,
-		'manage'        => null,
-		'events'        => null,
-		'register'      => null,
+		'messages'	=> null,
+		'directory'	=> null,
+		'settings'	=> null,
+		'contacts'	=> null,
+		'manage'	=> null,
+		'events'	=> null,
+		'register'	=> null,
 	);
 	$a->nav_sel[$item] = 'selected';
 }

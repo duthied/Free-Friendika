@@ -33,6 +33,7 @@ function dirfind_content(&$a, $prefix = "") {
 
 	if(strpos($search,'@') === 0) {
 		$search = substr($search,1);
+		$header = sprintf( t('People Search - %s'), $search);
 		if ((valid_email($search) AND validate_email($search)) OR
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = probe_url($search);
@@ -43,6 +44,7 @@ function dirfind_content(&$a, $prefix = "") {
 	if(strpos($search,'!') === 0) {
 		$search = substr($search,1);
 		$community = true;
+		$header = sprintf( t('Forum Search - %s'), $search);
 	}
 
 	$o = '';
@@ -64,16 +66,15 @@ function dirfind_content(&$a, $prefix = "") {
 			$objresult->tags = "";
 			$objresult->network = $user_data["network"];
 
-			$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc(normalise_link($user_data["url"])), intval(local_user()));
-			if ($contact)
-				$objresult->cid = $contact[0]["id"];
-
+			$contact = get_contact_details_by_url($user_data["url"], local_user());
+			$objresult->cid = $contact["cid"];
 
 			$j->results[] = $objresult;
 
-			poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
-				"", "", "", "", "", datetime_convert(), 0);
+			// Add the contact to the global contacts if it isn't already in our system
+			if (($contact["cid"] == 0) AND ($contact["zid"] == 0) AND ($contact["gid"] == 0))
+				poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
+					"", "", "", "", "", datetime_convert(), 0);
 		} elseif ($local) {
 
 			if ($community)
@@ -94,34 +95,38 @@ function dirfind_content(&$a, $prefix = "") {
 			else
 				$ostatus = NETWORK_DFRN;
 
+			$search2 = "%".$search."%";
+
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql",
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
 
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
 					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
 					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					intval($startrec), intval($perpage));
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
@@ -130,6 +135,8 @@ function dirfind_content(&$a, $prefix = "") {
 			foreach ($results AS $result) {
 				if (poco_alternate_ostatus_url($result["url"]))
 					 continue;
+
+				$result = get_contact_details_by_url($result["url"], local_user(), $result);
 
 				if ($result["name"] == "") {
 					$urlparts = parse_url($result["url"]);
@@ -192,8 +199,10 @@ function dirfind_content(&$a, $prefix = "") {
 				} else {
 					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
-					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
-					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+					$photo_menu = array(
+						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'follow' => array(t("Connect/Follow"), $connlnk)
+					);
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
@@ -221,7 +230,7 @@ function dirfind_content(&$a, $prefix = "") {
 		$tpl = get_markup_template('viewcontact_template.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'title' => sprintf( t('People Search - %s'), $search),
+			'title' => $header,
 			'$contacts' => $entries,
 			'$paginate' => paginate($a),
 		));

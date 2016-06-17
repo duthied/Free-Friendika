@@ -150,11 +150,12 @@ class Item extends BaseObject {
 		else
 			$profile_link = zrl($profile_link);
 
-		$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
-		if(($normalised != 'mailbox') && (x($a->contacts,$normalised)))
-			$profile_avatar = $a->contacts[$normalised]['thumb'];
+		// Don't rely on the author-avatar. It is better to use the data from the contact table
+		$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
+		if ($author_contact["thumb"])
+			$profile_avatar = $author_contact["thumb"];
 		else
-			$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $a->remove_baseurl($this->get_data_value('thumb')));
+			$profile_avatar = $item['author-avatar'];
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
@@ -324,7 +325,7 @@ class Item extends BaseObject {
 
 		// Diaspora isn't able to do likes on comments - but red does
 		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
-			!diaspora_is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
+			!diaspora::is_redmatrix($item["owner-link"]) AND isset($buttons["like"]))
 			unset($buttons["like"]);
 
 		// Diaspora doesn't has multithreaded comments
@@ -363,7 +364,7 @@ class Item extends BaseObject {
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name' => $name_e,
-			'thumb' => proxy_url($profile_avatar, false, PROXY_SIZE_THUMB),
+			'thumb' => $a->remove_baseurl(proxy_url($profile_avatar, false, PROXY_SIZE_THUMB)),
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => $title_e,

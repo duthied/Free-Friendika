@@ -41,7 +41,7 @@
 				<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
 			{{/if}}
 			{{if $wallmessage}}
-				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
+				<li><a id="wallmessage-link" href="{{$wallmessage_link}}">{{$wallmessage}}</a></li>
 			{{/if}}
 		</ul>
 	</div>

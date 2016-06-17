@@ -159,7 +159,9 @@ function directory_content(&$a) {
 				$location_e = $location;
 			}
 
-			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
+			$photo_menu = array(
+				'profile' => array(t("View Profile"), zrl($profile_link))
+			);
 
 			$entry = array(
 				'id' => $rr['id'],
@@ -204,7 +206,7 @@ function directory_content(&$a) {
 			'$gdirpath' => $gdirpath,
 			'$desc' => t('Find on this site'),
 			'$contacts' => $entries,
-			'$finding' => t('Finding:'),
+			'$finding' => t('Results for:'),
 			'$findterm' => (strlen($search) ? $search : ""),
 			'$title' => t('Site Directory'),
 			'$submit' => t('Find'),

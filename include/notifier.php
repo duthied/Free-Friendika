@@ -223,13 +223,13 @@ function notifier_run(&$argv, &$argc){
 
 	if(! ($mail || $fsuggest || $relocate)) {
 
-		$slap = ostatus_salmon($target_item,$owner);
+		$slap = ostatus::salmon($target_item,$owner);
 
 		require_once('include/group.php');
 
 		$parent = $items[0];
 
-		$thr_parent = q("SELECT `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+		$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 			dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
 
 		logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
@@ -390,6 +390,20 @@ function notifier_run(&$argv, &$argc){
 
 			logger('Some parent is OStatus for '.$target_item["guid"], LOGGER_DEBUG);
 
+			// Send a salmon to the parent author
+			$probed_contact = probe_url($thr_parent[0]['author-link']);
+			if ($probed_contact["notify"] != "") {
+				logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
+				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+			}
+
+			// Send a salmon to the parent owner
+			$probed_contact = probe_url($thr_parent[0]['owner-link']);
+			if ($probed_contact["notify"] != "") {
+				logger('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
+				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+			}
+
 			// Send a salmon notification to every person we mentioned in the post
 			$arr = explode(',',$target_item['tag']);
 			foreach($arr as $x) {
@@ -535,8 +549,8 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
-		if (!$followup AND $top_level)
-			$r0 = diaspora_fetch_relay();
+		if (!$followup)
+			$r0 = diaspora::relay_list();
 		else
 			$r0 = array();
 
@@ -626,13 +640,6 @@ function notifier_run(&$argv, &$argc){
 
 		// Handling the pubsubhubbub requests
 		proc_run('php','include/pubsubpublish.php');
-	}
-
-	// If the item was deleted, clean up the `sign` table
-	if($target_item['deleted']) {
-		$r = q("DELETE FROM sign where `retract_iid` = %d",
-			intval($target_item['id'])
-		);
 	}
 
 	logger('notifier: calling hooks', LOGGER_DEBUG);

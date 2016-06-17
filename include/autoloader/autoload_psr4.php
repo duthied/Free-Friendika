@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(dirname(__FILE__)))."/library";
 $baseDir = dirname($vendorDir);
 
 return array(
+	'Friendica\\' => array($baseDir . '/include'),
 );

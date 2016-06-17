@@ -143,7 +143,7 @@ function network_init(&$a) {
 	// search terms header
 	if(x($_GET,'search')) {
 		$a->page['content'] .= replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => sprintf( t('Search Results For: %s'), $search)
+			'$title' => sprintf( t('Results for: %s'), $search)
 		));
 	}
 
@@ -720,17 +720,14 @@ function network_content(&$a, $update = 0) {
 			$sql_order = "`item`.`received`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`, `contact`.`writable`,
-			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1
-			AND `item`.`deleted` = 0 AND `item`.`moderated` = 0
+		$items = q("SELECT %s, %s FROM $sql_table $sql_post_table
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+			WHERE %s AND `item`.`uid` = %d
 			$simple_update
 			$sql_extra $sql_nets
 			ORDER BY $sql_order DESC $pager_sql ",
+			item_fieldlist(), contact_fieldlist(),
+			contact_condition(), item_condition(),
 			intval($_SESSION['uid'])
 		);
 
@@ -810,16 +807,13 @@ function network_content(&$a, $update = 0) {
 
 			foreach ($parents_arr AS $parents) {
 //					$sql_extra ORDER BY `item`.`commented` DESC LIMIT %d",
-				$thread_items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-					`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
-					`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-					`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-					FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-					AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-					WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-					AND `item`.`moderated` = 0
+				$thread_items = q("SELECT %s, %s FROM `item`
+					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+					WHERE %s AND `item`.`uid` = %d
 					AND `item`.`parent` = %d
 					ORDER BY `item`.`commented` DESC LIMIT %d",
+					item_fieldlist(), contact_fieldlist(),
+					contact_condition(), item_condition(),
 					intval(local_user()),
 					intval($parents),
 					intval($max_comments + 1)
@@ -857,14 +851,24 @@ function network_content(&$a, $update = 0) {
 
 
 	if((! $group) && (! $cid) && (! $star)) {
-		$r = q("UPDATE `item` SET `unseen` = 0
-			WHERE `unseen` = 1 AND `uid` = %d",
-			intval(local_user())
-		);
+
+		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d",
+				intval(local_user()));
+
+		if ($unseen)
+			$r = q("UPDATE `item` SET `unseen` = 0
+				WHERE `unseen` = 1 AND `uid` = %d",
+				intval(local_user())
+			);
 	}
 	else {
-		if($update_unseen)
-			$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		if($update_unseen) {
+
+			$unseen = q("SELECT `id` FROM `item` ".$update_unseen);
+
+			if ($unseen)
+				$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		}
 	}
 
 	// Set this so that the conversation function can find out contact info for our wall-wall items

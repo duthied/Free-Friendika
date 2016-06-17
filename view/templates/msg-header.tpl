@@ -44,7 +44,7 @@ if(plaintext != 'none') {
 	});
 }
 else
-	$("#prvmail-text").contact_autocomplete(baseurl+"/acl");
+	$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
 
 
 </script>
@@ -62,6 +62,11 @@ else
 				}				 
 			}
 		);
+
+		{{if $editselect = 'none'}}
+		$("#prvmail-text").bbco_autocomplete('bbcode');
+		{{/if}}
+
 
 	});
 

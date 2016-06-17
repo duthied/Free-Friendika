@@ -80,9 +80,9 @@
 		{{/if}}
 
 		{{if $nav.search}}
-			<li role="search" id="search-box">
+			<li role="search" id="nav-search-box">
 				<form method="get" action="{{$nav.search.0}}">
-					<input accesskey="s" id="search-text" class="nav-menu-search" type="text" value="" name="search">
+					<input accesskey="s" id="nav-search-text" class="nav-menu-search" type="text" value="" name="search" placeholder=" {{$search_hint}}">
 					<select name="search-option">
 						<option value="fulltext">{{$nav.searchoption.0}}</option>
 						<option value="tags">{{$nav.searchoption.1}}</option>

@@ -136,8 +136,25 @@ $a->config['system']['addon'] = 'js_upload,poormancron';
 
 and save your changes.
 
+9. (Optional) Reverse-proxying and HTTPS
 
- 
+Friendica looks for some well-known HTTP headers indicating a reverse-proxy
+terminating an HTTPS connection. While the standard from RFC 7239 specifies
+the use of the `Forwaded` header.
+
+    Forwarded: for=192.0.2.1; proto=https; by=192.0.2.2
+
+Friendica also supports a number on non-standard headers in common use.
+
+
+    X-Forwarded-Proto: https
+
+    Front-End-Https: on
+
+    X-Forwarded-Ssl: on
+
+It is however preferable to use the standard approach if configuring a new server.
+
 #####################################################################
 
 		If things don't work...

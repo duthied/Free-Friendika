@@ -24,6 +24,7 @@
 	require_once('include/group.php');
 	require_once('include/like.php');
 	require_once('include/NotificationsManager.php');
+	require_once('include/plaintext.php');
 
 
 	define('API_METHOD_ANY','*');
@@ -268,8 +269,6 @@
 					if ($info['auth']===true && api_user()===false) {
 							api_login($a);
 					}
-
-					load_contact_links(api_user());
 
 					logger('API call for ' . $a->user['username'] . ': ' . $a->query_string);
 					logger('API parameters: ' . print_r($_REQUEST,true));
@@ -1310,7 +1309,7 @@
 		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
@@ -1334,9 +1333,12 @@
 
 		$idlist = implode(",", $idarray);
 
-		if ($idlist != "")
-			$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+		if ($idlist != "") {
+			$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `id` IN (%s)", $idlist);
 
+			if ($unseen)
+				$r = q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+		}
 
 		$data = array('$statuses' => $ret);
 		switch($type){
@@ -1386,7 +1388,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
+			`contact`.`id` AS `cid`,
 			`user`.`nickname`, `user`.`hidewall`
 			FROM `item` STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
@@ -1455,7 +1457,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id` AND `item`.`uid` = %d AND `item`.`verb` = '%s'
@@ -1524,15 +1526,21 @@
 		if ($max_id > 0)
 			$sql_extra = ' AND `item`.`id` <= '.intval($max_id);
 
+		// Not sure why this query was so complicated. We should keep it here for a while,
+		// just to make sure that we really don't need it.
+		//	FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
+		//	ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`)
+
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
-			ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`), `contact`
-			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`uid` = %d AND `item`.`verb` = '%s' AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			`contact`.`id` AS `cid`
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			WHERE `item`.`parent` = %d AND `item`.`visible`
+			AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			AND `item`.`id`>%d $sql_extra
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
@@ -1550,6 +1558,7 @@
 		return api_apply_template("timeline", $type, $data);
 	}
 	api_register_func('api/conversation/show','api_conversation_show', true);
+	api_register_func('api/statusnet/conversation','api_conversation_show', true);
 
 
 	/**
@@ -1577,7 +1586,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 			AND `contact`.`id` = `item`.`contact-id`
@@ -1690,7 +1699,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`  FORCE INDEX (`uid_id`), `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
@@ -1767,7 +1776,7 @@
 		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+			`contact`.`id` AS `cid`
 			FROM `item`, `contact`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d
@@ -1895,7 +1904,7 @@
 			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 				`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+				`contact`.`id` AS `cid`
 				FROM `item`, `contact`
 				WHERE `item`.`uid` = %d
 				AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
@@ -2057,6 +2066,16 @@
 			$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 
 		$statushtml = trim(bbcode($body, false, false));
+
+		$search = array("<br>", "<blockquote>", "</blockquote>",
+				"<h1>", "</h1>", "<h2>", "</h2>",
+				"<h3>", "</h3>", "<h4>", "</h4>",
+				"<h5>", "</h5>", "<h6>", "</h6>");
+		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n",
+				"\n<h1>", "</h1>\n", "\n<h2>", "</h2>\n",
+				"\n<h3>", "</h3>\n", "\n<h4>", "</h4>\n",
+				"\n<h5>", "</h5>\n", "\n<h6>", "</h6>\n");
+		$statushtml = str_replace($search, $replace, $statushtml);
 
 		if ($item['title'] != "")
 			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
@@ -2850,7 +2869,7 @@
 		$scale_sql = ($scale === false ? "" : sprintf("and scale=%d",intval($scale)));
 		$data_sql = ($scale === false ? "" : "data, ");
 
- 		$r = q("select %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+		$r = q("select %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 						`type`, `height`, `width`, `datasize`, `profile`, min(`scale`) as minscale, max(`scale`) as maxscale
 				from photo where `uid` = %d and `resource-id` = '%s' %s group by `resource-id`",
 			$data_sql,
@@ -3104,42 +3123,37 @@
 			$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$Text);
 		}
 
-		$Text = preg_replace_callback("((.*?)\[class=(.*?)\](.*?)\[\/class\])ism","api_cleanup_share",$Text);
+		// Simplify "attachment" element
+		$Text = api_clean_attachments($Text);
+
 		return($Text);
 	}
 
-	function api_cleanup_share($shared) {
-		if ($shared[2] != "type-link")
-			return($shared[0]);
+	/**
+	 * @brief Removes most sharing information for API text export
+	 *
+	 * @param string $body The original body
+	 *
+	 * @return string Cleaned body
+	 */
+	function api_clean_attachments($body) {
+		$data = get_attachment_data($body);
 
-		if (!preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism",$shared[3], $bookmark))
-			return($shared[0]);
+		if (!$data)
+			return $body;
 
-		$title = "";
-		$link = "";
+		$body = "";
 
-		if (isset($bookmark[2][0]))
-			$title = $bookmark[2][0];
+		if (isset($data["text"]))
+			$body = $data["text"];
 
-		if (isset($bookmark[1][0]))
-			$link = $bookmark[1][0];
+		if (($body == "") AND (isset($data["title"])))
+			$body = $data["title"];
 
-		if (strpos($shared[1],$title) !== false)
-			$title = "";
+		if (isset($data["url"]))
+			$body .= "\n".$data["url"];
 
-		if (strpos($shared[1],$link) !== false)
-			$link = "";
-
-		$text = trim($shared[1]);
-
-		//if (strlen($text) < strlen($title))
-		if (($text == "") AND ($title != ""))
-			$text .= "\n\n".trim($title);
-
-		if ($link != "")
-			$text .= "\n".trim($link);
-
-		return(trim($text));
+		return $body;
 	}
 
 	function api_best_nickname(&$contacts) {

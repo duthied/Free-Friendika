@@ -62,10 +62,10 @@
 .shashape.profile:before{
     content: "p";
 }
-.shashape.skip:before{
+.shashape.profileneg:before{
     content: "q";
 }
-.shashape.reload:before{
+.shashape.heard:before{
     content: "r";
 }
 .shashape.search:before{
@@ -73,9 +73,6 @@
 }
 .shashape.time:before{
     content: "t";
-}
-.shashape.undo:before{
-    content: "u";
 }
 .shashape.logout:before,
 .shashape.logged-in:before{
@@ -104,17 +101,16 @@
 .shashape.nolike:before{
     content: "C";
 }
-/* uppercase D is not defined at the moment
- .shashape.hash:before{
+.shashape.grrrr:before{
     content: "D";
-} */
+}
 .shashape.arrow7:before{
     content: "E";
 }
 .shashape.follow:before{
     content: "F";
 }
-.shashape.follower:before{
+.shashape.retweet:before{
     content: "G";
 }
 .shashape.hand:before{
@@ -129,10 +125,9 @@
 .shashape.arrow-updown:before{
     content: "K";
 }
-/* uppercase L is not defined at the moment
-.shashape.lock:before{
+.shashape.arrow-sideup:before{
     content: "L";
-} */
+}
 .shashape.arrow-left:before{
     content: "M";
 }
@@ -180,31 +175,42 @@
     content: "#";
 }
 .shashape.tag:before{
-    content: "=";
+    content: "&";
 }
 .shashape.lock-open:before{
-    content: "?";
+    content: "(";
 }
 .shashape.lock-closed:before{
     content: ")";
 }
+.shashape.blank:before {
+    content: "_";
+}
+.shashape.ellipsis:before {
+    content: "§";
+}
+.shashape.ok.before,
 .shashape.yes:before{
     content: "+";
 }
 .shashape.hmm:before{
-    content: ",";
+    content: "%";
 }
+.shashape.mark:before,
 .shashape.no:before{
     content: "-";
 }
-.shashape.blank:before{
+.shashape.see:before{
     content: ".";
 }
-.shashape.see:before{
+.shashape.see2:before{
     content: ":";
 }
-.shashape.blind:before{
+.shashape.see3:before{
     content: ";";
+}
+.shashape.blind:before{
+    content: ",";
 }
 .shashape.edit:before{
     content: "<";
@@ -212,7 +218,21 @@
 .shashape.stamp:before{
     content: ">";
 }
-.shashape.heart:before{
-    content: "_";
+.shashape.comment:before {
+    content: "*";
 }
-
+.shashape.ask:before {
+    content: "?";
+}
+.shashape.skip:before {
+    content: "{";
+}
+.shashape.reload:before {
+    content: "[";
+}
+.shashape.reloadreverse:before {
+    content: "]";
+}
+.shashape.undo:before {
+    content: "]";
+}

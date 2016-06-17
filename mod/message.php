@@ -2,6 +2,7 @@
 
 require_once('include/acl_selectors.php');
 require_once('include/message.php');
+require_once('include/Smilies.php');
 
 function message_init(&$a) {
 
@@ -182,7 +183,7 @@ function message_content(&$a) {
 		return;
 	}
 
-	$myprofile = 'profile/' . $a->user['nickname'];
+	$myprofile = $a->get_baseurl().'/profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
 	$header = replace_macros($tpl, array(
@@ -304,15 +305,29 @@ function message_content(&$a) {
 		$prename = $preurl = $preid = '';
 
 		if($preselect) {
-			$r = q("select name, url, id from contact where uid = %d and id = %d limit 1",
+			$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 				intval(local_user()),
 				intval($a->argv[2])
 			);
+			if(!$r) {
+				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
+					intval(local_user()),
+					dbesc(normalise_link(base64_decode($a->argv[2])))
+				);
+			}
+			if(!$r) {
+				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
+					intval(local_user()),
+					dbesc(base64_decode($a->argv[2]))
+				);
+			}
 			if(count($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
-			}
+				$preselect = array($preid);
+			} else
+				$preselect = false;
 		}
 
 		$prefill = (($preselect) ? $prename  : '');
@@ -341,7 +356,6 @@ function message_content(&$a) {
 			'$wait' => t('Please wait'),
 			'$submit' => t('Submit')
 		));
-
 		return $o;
 	}
 
@@ -356,8 +370,7 @@ function message_content(&$a) {
 
 		$r = q("SELECT count(*) AS `total` FROM `mail`
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
-			intval(local_user()),
-			dbesc($myprofile)
+			intval(local_user())
 		);
 
 		if(count($r)) $a->set_pager_total($r[0]['total']);
@@ -446,9 +459,11 @@ function message_content(&$a) {
 			if($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
-			}
-			else {
-				$from_url = 'redir/' . $message['contact-id'];
+			} elseif ($message['contact-id'] != 0) {
+				$from_url = 'redir/'.$message['contact-id'];
+				$sparkle = ' sparkle';
+			} else {
+				$from_url = $message['from-url']."?zrl=".urlencode($myprofile);
 				$sparkle = ' sparkle';
 			}
 
@@ -460,22 +475,27 @@ function message_content(&$a) {
 			if($a->theme['template_engine'] === 'internal') {
 				$from_name_e = template_escape($message['from-name']);
 				$subject_e = template_escape($message['title']);
-				$body_e = template_escape(smilies(bbcode($message['body'])));
+				$body_e = template_escape(Smilies::replace(bbcode($message['body'])));
 				$to_name_e = template_escape($message['name']);
-			}
-			else {
+			} else {
 				$from_name_e = $message['from-name'];
 				$subject_e = $message['title'];
-				$body_e = smilies(bbcode($message['body']));
+				$body_e = Smilies::replace(bbcode($message['body']));
 				$to_name_e = $message['name'];
 			}
+
+			$contact = get_contact_details_by_url($message['from-url']);
+			if (isset($contact["thumb"]))
+				$from_photo = $contact["thumb"];
+			else
+				$from_photo = $message['from-photo'];
 
 			$mails[] = array(
 				'id' => $message['id'],
 				'from_name' => $from_name_e,
 				'from_url' => $from_url,
 				'sparkle' => $sparkle,
-				'from_photo' => $message['from-photo'],
+				'from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => t('Delete message'),
@@ -549,19 +569,16 @@ function render_messages($msg, $t) {
 	$tpl = get_markup_template($t);
 	$rslt = '';
 
-	$myprofile = 'profile/' . $a->user['nickname'];
+	$myprofile = $a->get_baseurl().'/profile/' . $a->user['nickname'];
 
 	foreach($msg as $rr) {
 
-		if($rr['unknown']) {
+		if($rr['unknown'])
 			$participants = sprintf( t("Unknown sender - %s"),$rr['from-name']);
-		}
-		elseif (link_compare($rr['from-url'], $myprofile)){
+		elseif (link_compare($rr['from-url'], $myprofile))
 			$participants = sprintf( t("You and %s"), $rr['name']);
-		}
-		else {
-			$participants = sprintf( t("%s and You"), $rr['from-name']);
-		}
+		else
+			$participants = sprintf(t("%s and You"), $rr['from-name']);
 
 		if($a->theme['template_engine'] === 'internal') {
 			$subject_e = template_escape((($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'));
@@ -574,12 +591,18 @@ function render_messages($msg, $t) {
 			$to_name_e = $rr['name'];
 		}
 
+		$contact = get_contact_details_by_url($rr['url']);
+		if (isset($contact["thumb"]))
+			$from_photo = $contact["thumb"];
+		else
+			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
+
 		$rslt .= replace_macros($tpl, array(
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
 			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
 			'$sparkle' => ' sparkle',
-			'$from_photo' => (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']),
+			'$from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
 			'$subject' => $subject_e,
 			'$delete' => t('Delete conversation'),
 			'$body' => $body_e,

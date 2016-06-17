@@ -73,7 +73,7 @@
 				{{/if}}
 			{{/if}}
 			{{if $wallmessage}}
-				<li><a id="wallmessage-link" href="wallmessage/{{$profile.nickname}}">{{$wallmessage}}</a></li>
+				<li><a id="wallmessage-link" href="{{$wallmessage_link}}">{{$wallmessage}}</a></li>
 			{{/if}}
 			{{if $subscribe_feed}}
 				<li><a id="subscribe-feed-link" href="dfrn_poll/{{$profile.nickname}}">{{$subscribe_feed}}</a></li>

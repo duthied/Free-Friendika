@@ -74,10 +74,18 @@ function fbrowser_content($a){
 					$filename_e = $rr['filename'];
 				}
 
+				// Take the largest picture that is smaller or equal 640 pixels
+				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
+					dbesc($rr['resource-id']));
+				if ($p)
+					$scale = $p[0]["scale"];
+				else
+					$scale = $rr['loq'];
+
 				return array(
 					$a->get_baseurl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
-					$a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $rr['loq'] . '.'. $ext
+					$a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
 				);
 			}
 			$files = array_map("_map_files1", $r);

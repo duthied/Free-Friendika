@@ -19,6 +19,7 @@ require_once("include/text.php");
 require_once("include/oembed.php");
 require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
+require_once("include/xml.php");
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
@@ -67,10 +68,11 @@ class dfrn {
 	 * @param string $owner_nick Owner nick name
 	 * @param string $last_update Date of the last update
 	 * @param int $direction Can be -1, 0 or 1.
+	 * @param boolean $onlyheader Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
 	 */
-	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
+	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false) {
 
 		$a = get_app();
 
@@ -85,7 +87,7 @@ class dfrn {
 					$converse = true;
 				if($a->argv[$x] == 'starred')
 					$starred = true;
-				if($a->argv[$x] === 'category' && $a->argc > ($x + 1) && strlen($a->argv[$x+1]))
+				if($a->argv[$x] == 'category' && $a->argc > ($x + 1) && strlen($a->argv[$x+1]))
 					$category = $a->argv[$x+1];
 			}
 		}
@@ -195,7 +197,6 @@ class dfrn {
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` $sql_post_table
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -233,7 +234,7 @@ class dfrn {
 		// This hook can't work anymore
 		//	call_hooks('atom_feed', $atom);
 
-		if(! count($items)) {
+		if (!count($items) OR $onlyheader) {
 			$atom = trim($doc->saveXML());
 
 			call_hooks('atom_feed_end', $atom);
@@ -244,7 +245,7 @@ class dfrn {
 		foreach($items as $item) {
 
 			// prevent private email from leaking.
-			if($item['network'] === NETWORK_MAIL)
+			if($item['network'] == NETWORK_MAIL)
 				continue;
 
 			// public feeds get html, our own nodes use bbcode
@@ -286,17 +287,17 @@ class dfrn {
 		$mail = $doc->createElement("dfrn:mail");
 		$sender = $doc->createElement("dfrn:sender");
 
-		xml_add_element($doc, $sender, "dfrn:name", $owner['name']);
-		xml_add_element($doc, $sender, "dfrn:uri", $owner['url']);
-		xml_add_element($doc, $sender, "dfrn:avatar", $owner['thumb']);
+		xml::add_element($doc, $sender, "dfrn:name", $owner['name']);
+		xml::add_element($doc, $sender, "dfrn:uri", $owner['url']);
+		xml::add_element($doc, $sender, "dfrn:avatar", $owner['thumb']);
 
 		$mail->appendChild($sender);
 
-		xml_add_element($doc, $mail, "dfrn:id", $item['uri']);
-		xml_add_element($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
-		xml_add_element($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME));
-		xml_add_element($doc, $mail, "dfrn:subject", $item['title']);
-		xml_add_element($doc, $mail, "dfrn:content", $item['body']);
+		xml::add_element($doc, $mail, "dfrn:id", $item['uri']);
+		xml::add_element($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
+		xml::add_element($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME));
+		xml::add_element($doc, $mail, "dfrn:subject", $item['title']);
+		xml::add_element($doc, $mail, "dfrn:content", $item['body']);
 
 		$root->appendChild($mail);
 
@@ -319,11 +320,11 @@ class dfrn {
 
 		$suggest = $doc->createElement("dfrn:suggest");
 
-		xml_add_element($doc, $suggest, "dfrn:url", $item['url']);
-		xml_add_element($doc, $suggest, "dfrn:name", $item['name']);
-		xml_add_element($doc, $suggest, "dfrn:photo", $item['photo']);
-		xml_add_element($doc, $suggest, "dfrn:request", $item['request']);
-		xml_add_element($doc, $suggest, "dfrn:note", $item['note']);
+		xml::add_element($doc, $suggest, "dfrn:url", $item['url']);
+		xml::add_element($doc, $suggest, "dfrn:name", $item['name']);
+		xml::add_element($doc, $suggest, "dfrn:photo", $item['photo']);
+		xml::add_element($doc, $suggest, "dfrn:request", $item['request']);
+		xml::add_element($doc, $suggest, "dfrn:note", $item['note']);
 
 		$root->appendChild($suggest);
 
@@ -365,16 +366,17 @@ class dfrn {
 
 		$relocate = $doc->createElement("dfrn:relocate");
 
-		xml_add_element($doc, $relocate, "dfrn:url", $owner['url']);
-		xml_add_element($doc, $relocate, "dfrn:name", $owner['name']);
-		xml_add_element($doc, $relocate, "dfrn:photo", $photos[4]);
-		xml_add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
-		xml_add_element($doc, $relocate, "dfrn:micro", $photos[6]);
-		xml_add_element($doc, $relocate, "dfrn:request", $owner['request']);
-		xml_add_element($doc, $relocate, "dfrn:confirm", $owner['confirm']);
-		xml_add_element($doc, $relocate, "dfrn:notify", $owner['notify']);
-		xml_add_element($doc, $relocate, "dfrn:poll", $owner['poll']);
-		xml_add_element($doc, $relocate, "dfrn:sitepubkey", get_config('system','site_pubkey'));
+		xml::add_element($doc, $relocate, "dfrn:url", $owner['url']);
+		xml::add_element($doc, $relocate, "dfrn:name", $owner['name']);
+		xml::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
+		xml::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
+		xml::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
+		xml::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
+		xml::add_element($doc, $relocate, "dfrn:request", $owner['request']);
+		xml::add_element($doc, $relocate, "dfrn:confirm", $owner['confirm']);
+		xml::add_element($doc, $relocate, "dfrn:notify", $owner['notify']);
+		xml::add_element($doc, $relocate, "dfrn:poll", $owner['poll']);
+		xml::add_element($doc, $relocate, "dfrn:sitepubkey", get_config('system','site_pubkey'));
 
 		$root->appendChild($relocate);
 
@@ -410,39 +412,39 @@ class dfrn {
 		$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
 		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
-		xml_add_element($doc, $root, "id", app::get_baseurl()."/profile/".$owner["nick"]);
-		xml_add_element($doc, $root, "title", $owner["name"]);
+		xml::add_element($doc, $root, "id", app::get_baseurl()."/profile/".$owner["nick"]);
+		xml::add_element($doc, $root, "title", $owner["name"]);
 
 		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
-		xml_add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+		xml::add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 
 		$attributes = array("rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/");
-		xml_add_element($doc, $root, "link", "", $attributes);
+		xml::add_element($doc, $root, "link", "", $attributes);
 
 		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $alternatelink);
-		xml_add_element($doc, $root, "link", "", $attributes);
+		xml::add_element($doc, $root, "link", "", $attributes);
 
 
 		if ($public) {
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
-			ostatus_hublinks($doc, $root);
+			ostatus::hublinks($doc, $root);
 
 			$attributes = array("rel" => "salmon", "href" => app::get_baseurl()."/salmon/".$owner["nick"]);
-			xml_add_element($doc, $root, "link", "", $attributes);
+			xml::add_element($doc, $root, "link", "", $attributes);
 
 			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => app::get_baseurl()."/salmon/".$owner["nick"]);
-			xml_add_element($doc, $root, "link", "", $attributes);
+			xml::add_element($doc, $root, "link", "", $attributes);
 
 			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => app::get_baseurl()."/salmon/".$owner["nick"]);
-			xml_add_element($doc, $root, "link", "", $attributes);
+			xml::add_element($doc, $root, "link", "", $attributes);
 		}
 
 		if ($owner['page-flags'] == PAGE_COMMUNITY)
-			xml_add_element($doc, $root, "dfrn:community", 1);
+			xml::add_element($doc, $root, "dfrn:community", 1);
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
-		xml_add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+		xml::add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
 		$author = self::add_author($doc, $owner, $authorelement, $public);
 		$root->appendChild($author);
@@ -461,37 +463,52 @@ class dfrn {
 	 */
 	private function add_author($doc, $owner, $authorelement, $public) {
 
+		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
+		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
+			intval($owner['uid']));
+		if ($r)
+			$hidewall = true;
+		else
+			$hidewall = false;
+
 		$author = $doc->createElement($authorelement);
 
-		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00' , ATOM_TIME);
+		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00', ATOM_TIME);
 		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
 		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
 
-		$attributes = array("dfrn:updated" => $namdate);
-		xml_add_element($doc, $author, "name", $owner["name"], $attributes);
+		if (!$public OR !$hidewall)
+			$attributes = array("dfrn:updated" => $namdate);
+		else
+			$attributes = array();
 
-		$attributes = array("dfrn:updated" => $namdate);
-		xml_add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
+		xml::add_element($doc, $author, "name", $owner["name"], $attributes);
+		xml::add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
+		xml::add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
-		$attributes = array("dfrn:updated" => $namdate);
-		xml_add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
-
-		$attributes = array("rel" => "photo", "type" => "image/jpeg", "dfrn:updated" => $picdate,
+		$attributes = array("rel" => "photo", "type" => "image/jpeg",
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
-		xml_add_element($doc, $author, "link", "", $attributes);
 
-		$attributes = array("rel" => "avatar", "type" => "image/jpeg", "dfrn:updated" => $picdate,
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
-		xml_add_element($doc, $author, "link", "", $attributes);
+		if (!$public OR !$hidewall)
+			$attributes["dfrn:updated"] = $picdate;
+
+		xml::add_element($doc, $author, "link", "", $attributes);
+
+		$attributes["rel"] = "avatar";
+		xml::add_element($doc, $author, "link", "", $attributes);
+
+		if ($hidewall)
+			xml::add_element($doc, $author, "dfrn:hide", "true");
+
+		// The following fields will only be generated if the data isn't meant for a public feed
+		if ($public)
+			return $author;
 
 		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday)
-			xml_add_element($doc, $author, "dfrn:birthday", $birthday);
-
-		// The following fields will only be generated if this isn't for a public feed
-		if ($public)
-			return $author;
+			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
 
 		// Only show contact details when we are allowed to
 		$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`, `user`.`timezone`,
@@ -502,25 +519,25 @@ class dfrn {
 			intval($owner['uid']));
 		if ($r) {
 			$profile = $r[0];
-			xml_add_element($doc, $author, "poco:displayName", $profile["name"]);
-			xml_add_element($doc, $author, "poco:updated", $namdate);
+			xml::add_element($doc, $author, "poco:displayName", $profile["name"]);
+			xml::add_element($doc, $author, "poco:updated", $namdate);
 
 			if (trim($profile["dob"]) != "0000-00-00")
-				xml_add_element($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
+				xml::add_element($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
 
-			xml_add_element($doc, $author, "poco:note", $profile["about"]);
-			xml_add_element($doc, $author, "poco:preferredUsername", $profile["nickname"]);
+			xml::add_element($doc, $author, "poco:note", $profile["about"]);
+			xml::add_element($doc, $author, "poco:preferredUsername", $profile["nickname"]);
 
 			$savetz = date_default_timezone_get();
 			date_default_timezone_set($profile["timezone"]);
-			xml_add_element($doc, $author, "poco:utcOffset", date("P"));
+			xml::add_element($doc, $author, "poco:utcOffset", date("P"));
 			date_default_timezone_set($savetz);
 
 			if (trim($profile["homepage"]) != "") {
 				$urls = $doc->createElement("poco:urls");
-				xml_add_element($doc, $urls, "poco:type", "homepage");
-				xml_add_element($doc, $urls, "poco:value", $profile["homepage"]);
-				xml_add_element($doc, $urls, "poco:primary", "true");
+				xml::add_element($doc, $urls, "poco:type", "homepage");
+				xml::add_element($doc, $urls, "poco:value", $profile["homepage"]);
+				xml::add_element($doc, $urls, "poco:primary", "true");
 				$author->appendChild($urls);
 			}
 
@@ -528,7 +545,7 @@ class dfrn {
 				$keywords = explode(",", $profile["pub_keywords"]);
 
 				foreach ($keywords AS $keyword)
-					xml_add_element($doc, $author, "poco:tags", trim($keyword));
+					xml::add_element($doc, $author, "poco:tags", trim($keyword));
 
 			}
 
@@ -536,25 +553,25 @@ class dfrn {
 			$xmpp = "";
 			if (trim($xmpp) != "") {
 				$ims = $doc->createElement("poco:ims");
-				xml_add_element($doc, $ims, "poco:type", "xmpp");
-				xml_add_element($doc, $ims, "poco:value", $xmpp);
-				xml_add_element($doc, $ims, "poco:primary", "true");
+				xml::add_element($doc, $ims, "poco:type", "xmpp");
+				xml::add_element($doc, $ims, "poco:value", $xmpp);
+				xml::add_element($doc, $ims, "poco:primary", "true");
 				$author->appendChild($ims);
 			}
 
 			if (trim($profile["locality"].$profile["region"].$profile["country-name"]) != "") {
 				$element = $doc->createElement("poco:address");
 
-				xml_add_element($doc, $element, "poco:formatted", formatted_location($profile));
+				xml::add_element($doc, $element, "poco:formatted", formatted_location($profile));
 
 				if (trim($profile["locality"]) != "")
-					xml_add_element($doc, $element, "poco:locality", $profile["locality"]);
+					xml::add_element($doc, $element, "poco:locality", $profile["locality"]);
 
 				if (trim($profile["region"]) != "")
-					xml_add_element($doc, $element, "poco:region", $profile["region"]);
+					xml::add_element($doc, $element, "poco:region", $profile["region"]);
 
 				if (trim($profile["country-name"]) != "")
-					xml_add_element($doc, $element, "poco:country", $profile["country-name"]);
+					xml::add_element($doc, $element, "poco:country", $profile["country-name"]);
 
 				$author->appendChild($element);
 			}
@@ -578,9 +595,9 @@ class dfrn {
 		$contact = get_contact_details_by_url($contact_url, $item["uid"]);
 
 		$author = $doc->createElement($element);
-		xml_add_element($doc, $author, "name", $contact["name"]);
-		xml_add_element($doc, $author, "uri", $contact["url"]);
-		xml_add_element($doc, $author, "dfrn:handle", $contact["addr"]);
+		xml::add_element($doc, $author, "name", $contact["name"]);
+		xml::add_element($doc, $author, "uri", $contact["url"]);
+		xml::add_element($doc, $author, "dfrn:handle", $contact["addr"]);
 
 		/// @Todo
 		/// - Check real image type and image size
@@ -591,7 +608,7 @@ class dfrn {
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]);
-		xml_add_element($doc, $author, "link", "", $attributes);
+		xml::add_element($doc, $author, "link", "", $attributes);
 
 		$attributes = array(
 				"rel" => "avatar",
@@ -599,7 +616,7 @@ class dfrn {
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]);
-		xml_add_element($doc, $author, "link", "", $attributes);
+		xml::add_element($doc, $author, "link", "", $attributes);
 
 		return $author;
 	}
@@ -622,13 +639,13 @@ class dfrn {
 			if(!$r)
 				return false;
 			if($r->type)
-				xml_add_element($doc, $entry, "activity:object-type", $r->type);
+				xml::add_element($doc, $entry, "activity:object-type", $r->type);
 			if($r->id)
-				xml_add_element($doc, $entry, "id", $r->id);
+				xml::add_element($doc, $entry, "id", $r->id);
 			if($r->title)
-				xml_add_element($doc, $entry, "title", $r->title);
+				xml::add_element($doc, $entry, "title", $r->title);
 			if($r->link) {
-				if(substr($r->link,0,1) === '<') {
+				if(substr($r->link,0,1) == '<') {
 					if(strstr($r->link,'&') && (! strstr($r->link,'&amp;')))
 						$r->link = str_replace('&','&amp;', $r->link);
 
@@ -641,16 +658,16 @@ class dfrn {
 							$attributes = array();
 							foreach ($link->attributes() AS $parameter => $value)
 								$attributes[$parameter] = $value;
-							xml_add_element($doc, $entry, "link", "", $attributes);
+							xml::add_element($doc, $entry, "link", "", $attributes);
 						}
 					}
 				} else {
 					$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $r->link);
-					xml_add_element($doc, $entry, "link", "", $attributes);
+					xml::add_element($doc, $entry, "link", "", $attributes);
 				}
 			}
 			if($r->content)
-				xml_add_element($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
+				xml::add_element($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
 
 			return $entry;
 		}
@@ -684,7 +701,7 @@ class dfrn {
 					if(trim($matches[4]) != "")
 						$attributes["title"] = trim($matches[4]);
 
-					xml_add_element($doc, $root, "link", "", $attributes);
+					xml::add_element($doc, $root, "link", "", $attributes);
 				}
 			}
 		}
@@ -711,7 +728,7 @@ class dfrn {
 
 		if($item['deleted']) {
 			$attributes = array("ref" => $item['uri'], "when" => datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME));
-			return xml_create_element($doc, "at:deleted-entry", "", $attributes);
+			return xml::create_element($doc, "at:deleted-entry", "", $attributes);
 		}
 
 		$entry = $doc->createElement("entry");
@@ -745,66 +762,66 @@ class dfrn {
 			$attributes = array("ref" => $parent_item, "type" => "text/html",
 						"href" => app::get_baseurl().'/display/'.$parent[0]['guid'],
 						"dfrn:diaspora_guid" => $parent[0]['guid']);
-			xml_add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
+			xml::add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
 
-		xml_add_element($doc, $entry, "id", $item["uri"]);
-		xml_add_element($doc, $entry, "title", $item["title"]);
+		xml::add_element($doc, $entry, "id", $item["uri"]);
+		xml::add_element($doc, $entry, "title", $item["title"]);
 
-		xml_add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
-		xml_add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
+		xml::add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
+		xml::add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
 
 		// "dfrn:env" is used to read the content
-		xml_add_element($doc, $entry, "dfrn:env", base64url_encode($body, true));
+		xml::add_element($doc, $entry, "dfrn:env", base64url_encode($body, true));
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
-		xml_add_element($doc, $entry, "content", (($type === 'html') ? $htmlbody : $body), array("type" => $type));
+		xml::add_element($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), array("type" => $type));
 
 		// We save this value in "plink". Maybe we should read it from there as well?
-		xml_add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
+		xml::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
 								"href" => app::get_baseurl()."/display/".$item["guid"]));
 
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
 		// It is included in the rewritten code for completeness
 		if ($comment)
-			xml_add_element($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
+			xml::add_element($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
 
 		if($item['location'])
-			xml_add_element($doc, $entry, "dfrn:location", $item['location']);
+			xml::add_element($doc, $entry, "dfrn:location", $item['location']);
 
 		if($item['coord'])
-			xml_add_element($doc, $entry, "georss:point", $item['coord']);
+			xml::add_element($doc, $entry, "georss:point", $item['coord']);
 
 		if(($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
-			xml_add_element($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
+			xml::add_element($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
 
 		if($item['extid'])
-			xml_add_element($doc, $entry, "dfrn:extid", $item['extid']);
+			xml::add_element($doc, $entry, "dfrn:extid", $item['extid']);
 
 		if($item['bookmark'])
-			xml_add_element($doc, $entry, "dfrn:bookmark", "true");
+			xml::add_element($doc, $entry, "dfrn:bookmark", "true");
 
 		if($item['app'])
-			xml_add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
+			xml::add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
 
-		xml_add_element($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
+		xml::add_element($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
 
 		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
 		// It is needed for relayed comments to Diaspora.
 		if($item['signed_text']) {
 			$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
-			xml_add_element($doc, $entry, "dfrn:diaspora_signature", $sign);
+			xml::add_element($doc, $entry, "dfrn:diaspora_signature", $sign);
 		}
 
-		xml_add_element($doc, $entry, "activity:verb", construct_verb($item));
+		xml::add_element($doc, $entry, "activity:verb", construct_verb($item));
 
 		if ($item['object-type'] != "")
-			xml_add_element($doc, $entry, "activity:object-type", $item['object-type']);
+			xml::add_element($doc, $entry, "activity:object-type", $item['object-type']);
 		elseif ($item['id'] == $item['parent'])
-			xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+			xml::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 		else
-			xml_add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
+			xml::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
 
 		$actobj = self::create_activity($doc, "activity:object", $item['object']);
 		if ($actobj)
@@ -819,7 +836,7 @@ class dfrn {
 		if(count($tags)) {
 			foreach($tags as $t)
 				if (($type != 'html') OR ($t[0] != "@"))
-					xml_add_element($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
+					xml::add_element($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
 		}
 
 		if(count($tags))
@@ -832,11 +849,11 @@ class dfrn {
 				intval($owner["uid"]),
 				dbesc(normalise_link($mention)));
 			if ($r[0]["forum"] OR $r[0]["prv"])
-				xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
 											"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
 											"href" => $mention));
 			else
-				xml_add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
 											"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
 											"href" => $mention));
 		}
@@ -1125,7 +1142,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
+				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`, `hidden`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1209,6 +1226,16 @@ class dfrn {
 			/// - poco:region
 			/// - poco:country
 
+			// If the "hide" element is present then the profile isn't searchable.
+			$hide = intval($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+
+			logger("Hidden status for contact ".$contact["url"].": ".$hide, LOGGER_DEBUG);
+
+			// If the contact isn't searchable then set the contact to "hidden".
+			// Problem: This can be manually overridden by the user.
+			if ($hide)
+				$contact["hidden"] = true;
+
 			// Save the keywords into the contact table
 			$tags = array();
 			$tagelements = $xpath->evaluate($element."/poco:tags/text()", $context);
@@ -1261,17 +1288,17 @@ class dfrn {
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
-			 // Update check for this field has to be done differently
+			// Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
@@ -1279,13 +1306,13 @@ class dfrn {
 				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
-					intval($contact["id"]), dbesc($contact["network"]));
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["name-date"]),
+					dbesc($contact["uri-date"]), intval($contact["id"]), dbesc($contact["network"]));
 			}
 
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
@@ -1298,6 +1325,7 @@ class dfrn {
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
+			$poco["hide"] = $hide;
 			update_gcontact($poco);
 		}
 
@@ -1323,7 +1351,7 @@ class dfrn {
 		$obj_element = $obj_doc->createElementNS(NAMESPACE_ATOM1, $element);
 
 		$activity_type = $xpath->query("activity:object-type/text()", $activity)->item(0)->nodeValue;
-		xml_add_element($obj_doc, $obj_element, "type", $activity_type);
+		xml::add_element($obj_doc, $obj_element, "type", $activity_type);
 
 		$id = $xpath->query("atom:id", $activity)->item(0);
 		if (is_object($id))
@@ -1518,6 +1546,7 @@ class dfrn {
 		$relocate["uid"] = $importer["importer_uid"];
 		$relocate["cid"] = $importer["id"];
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
+		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
 		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
 		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
 		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
@@ -1528,6 +1557,9 @@ class dfrn {
 		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
 		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
 
+		if ($relocate["addr"] == "")
+			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
+
 		// update contact
 		$r = q("SELECT `photo`, `url` FROM `contact` WHERE `id` = %d AND `uid` = %d;",
 			intval($importer["id"]),
@@ -1537,6 +1569,30 @@ class dfrn {
 
 		$old = $r[0];
 
+		// Update the gcontact entry
+		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
+
+		$x = q("UPDATE `gcontact` SET
+					`name` = '%s',
+					`photo` = '%s',
+					`url` = '%s',
+					`nurl` = '%s',
+					`addr` = '%s',
+					`connect` = '%s',
+					`notify` = '%s',
+					`server_url` = '%s'
+			WHERE `nurl` = '%s';",
+					dbesc($relocate["name"]),
+					dbesc($relocate["photo"]),
+					dbesc($relocate["url"]),
+					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["notify"]),
+					dbesc($relocate["server_url"]),
+					dbesc(normalise_link($old["url"])));
+
+		// Update the contact table. We try to find every entry.
 		$x = q("UPDATE `contact` SET
 					`name` = '%s',
 					`photo` = '%s',
@@ -1544,30 +1600,34 @@ class dfrn {
 					`micro` = '%s',
 					`url` = '%s',
 					`nurl` = '%s',
+					`addr` = '%s',
 					`request` = '%s',
 					`confirm` = '%s',
 					`notify` = '%s',
 					`poll` = '%s',
 					`site-pubkey` = '%s'
-			WHERE `id` = %d AND `uid` = %d;",
+			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
 					dbesc($relocate["name"]),
 					dbesc($relocate["photo"]),
 					dbesc($relocate["thumb"]),
 					dbesc($relocate["micro"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
 					dbesc($relocate["request"]),
 					dbesc($relocate["confirm"]),
 					dbesc($relocate["notify"]),
 					dbesc($relocate["poll"]),
 					dbesc($relocate["sitepubkey"]),
 					intval($importer["id"]),
-					intval($importer["importer_uid"]));
+					intval($importer["importer_uid"]),
+					dbesc(normalise_link($old["url"])));
 
 		if ($x === false)
 			return false;
 
 		// update items
+		/// @todo This is an extreme performance killer
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),
@@ -1773,6 +1833,9 @@ class dfrn {
 	 * @return bool Should the processing of the entries be continued?
 	 */
 	private function process_verbs($entrytype, $importer, &$item, &$is_like) {
+
+		logger("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, LOGGER_DEBUG);
+
 		if (($entrytype == DFRN_TOP_LEVEL)) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
@@ -1803,11 +1866,11 @@ class dfrn {
 				return false;
 			}
 		} else {
-			if(($item["verb"] === ACTIVITY_LIKE)
-				|| ($item["verb"] === ACTIVITY_DISLIKE)
-				|| ($item["verb"] === ACTIVITY_ATTEND)
-				|| ($item["verb"] === ACTIVITY_ATTENDNO)
-				|| ($item["verb"] === ACTIVITY_ATTENDMAYBE)) {
+			if(($item["verb"] == ACTIVITY_LIKE)
+				|| ($item["verb"] == ACTIVITY_DISLIKE)
+				|| ($item["verb"] == ACTIVITY_ATTEND)
+				|| ($item["verb"] == ACTIVITY_ATTENDNO)
+				|| ($item["verb"] == ACTIVITY_ATTENDMAYBE)) {
 				$is_like = true;
 				$item["type"] = "activity";
 				$item["gravity"] = GRAVITY_LIKE;
@@ -1833,7 +1896,7 @@ class dfrn {
 			} else
 				$is_like = false;
 
-			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+			if(($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
 
 				$xo = parse_xml_string($item["object"],false);
 				$xt = parse_xml_string($item["target"],false);
@@ -1984,7 +2047,7 @@ class dfrn {
 
 		$item["extid"] = $xpath->query("dfrn:extid/text()", $entry)->item(0)->nodeValue;
 
-		if ($xpath->query("dfrn:extid/text()", $entry)->item(0)->nodeValue == "true")
+		if ($xpath->query("dfrn:bookmark/text()", $entry)->item(0)->nodeValue == "true")
 			$item["bookmark"] = true;
 
 		$notice_info = $xpath->query("statusnet:notice_info", $entry);
@@ -2022,14 +2085,28 @@ class dfrn {
 		$categories = $xpath->query("atom:category", $entry);
 		if ($categories) {
 			foreach ($categories AS $category) {
-				foreach($category->attributes AS $attributes)
-					if ($attributes->name == "term") {
+				$term = "";
+				$scheme = "";
+				foreach($category->attributes AS $attributes) {
+					if ($attributes->name == "term")
 						$term = $attributes->textContent;
+
+					if ($attributes->name == "scheme")
+						$scheme = $attributes->textContent;
+				}
+
+				if (($term != "") AND ($scheme != "")) {
+					$parts = explode(":", $scheme);
+					if ((count($parts) >= 4) AND (array_shift($parts) == "X-DFRN")) {
+						$termhash = array_shift($parts);
+						$termurl = implode(":", $parts);
+
 						if(strlen($item["tag"]))
 							$item["tag"] .= ",";
 
-						$item["tag"] .= "#[url=".App::get_baseurl()."/search?tag=".$term."]".$term."[/url]";
+						$item["tag"] .= $termhash."[url=".$termurl."]".$term."[/url]";
 					}
+				}
 			}
 		}
 
@@ -2247,15 +2324,17 @@ class dfrn {
 			else
 				return;
 
-			if($item["object-type"] === ACTIVITY_OBJ_EVENT) {
+			if($item["object-type"] == ACTIVITY_OBJ_EVENT) {
 				logger("Deleting event ".$item["event-id"], LOGGER_DEBUG);
 				event_delete($item["event-id"]);
 			}
 
-			if(($item["verb"] === ACTIVITY_TAG) && ($item["object-type"] === ACTIVITY_OBJ_TAGTERM)) {
+			if(($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
+
 				$xo = parse_xml_string($item["object"],false);
 				$xt = parse_xml_string($item["target"],false);
-				if($xt->type === ACTIVITY_OBJ_NOTE) {
+
+				if($xt->type == ACTIVITY_OBJ_NOTE) {
 					$i = q("SELECT `id`, `contact-id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($xt->id),
 						intval($importer["importer_uid"])

@@ -34,9 +34,12 @@ line to your .htconfig.php:
 * like_no_comment (Boolean) - Don't update the "commented" value of an item when it is liked.
 * local_block (Boolean) - Used in conjunction with "block_public".
 * local_search (Boolean) - Blocks the search for not logged in users to prevent crawlers from blocking your system.
-* max_connections - The poller process isn't started when 3/4 of the possible database connections are used. When the system can't detect the maximum numbers of connection then this value can be used.
+* max_connections - The poller process isn't started when the maximum level of the possible database connections are used. When the system can't detect the maximum numbers of connection then this value can be used.
+* max_connections_level - The maximum level of connections that are allowed to let the poller start. It is a percentage value. Default value is 75.
 * max_contact_queue - Default value is 500.
 * max_batch_queue - Default value is 1000.
+* max_processes_backend - Maximum number of concurrent database processes for background tasks. Default value is 5.
+* max_processes_frontend - Maximum number of concurrent database processes for foreground tasks. Default value is 20.
 * no_oembed (Boolean) - Don't use OEmbed to fetch more information about a link.
 * no_oembed_rich_content (Boolean) - Don't show the rich content (e.g. embedded PDF).
 * no_smilies (Boolean) - Don't show smilies.

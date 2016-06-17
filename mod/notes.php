@@ -69,16 +69,15 @@ function notes_content(&$a,$update = false) {
 	// Construct permissions
 
 	// default permissions - anonymous user
-	
+
 	$sql_extra = " AND `allow_cid` = '<" . $a->contact['id'] . ">' ";
 
 	$r = q("SELECT COUNT(*) AS `total`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 
-		AND `item`.`deleted` = 0 AND `item`.`type` = 'note'
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
-		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
+		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
+		AND `contact`.`self` AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
 		$sql_extra ",
+		contact_condition(), item_condition(),
 		intval(local_user())
 
 	);
@@ -88,14 +87,13 @@ function notes_content(&$a,$update = false) {
 		$a->set_pager_itemspage(40);
 	}
 
-	$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact-uid`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0 
-		and `item`.`moderated` = 0 AND `item`.`type` = 'note'
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self` = 1
-		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
+	$r = q("SELECT `item`.`id` AS `item_id` FROM `item`
+		LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s AND `contact`.`self`
+		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
+		AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
 		$sql_extra
 		ORDER BY `item`.`created` DESC LIMIT %d ,%d ",
+		contact_condition(), item_condition(),
 		intval(local_user()),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
@@ -109,17 +107,14 @@ function notes_content(&$a,$update = false) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
- 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`, 
-			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN ( %s )
+
+		$r = q("SELECT %s, %s FROM `item`
+			LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+			WHERE %s AND `item`.`uid` = %d AND `item`.`parent` IN (%s)
 			$sql_extra
 			ORDER BY `parent` DESC, `gravity` ASC, `item`.`id` ASC ",
+			item_fieldlist(), contact_fieldlist(),
+			contact_condition(), item_condition(),
 			intval(local_user()),
 			dbesc($parents_str)
 		);

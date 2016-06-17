@@ -78,17 +78,20 @@ function suggest_content(&$a) {
 
 		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = $a->get_baseurl() . '/suggest?ignore=' . $rr['id'];
-		$photo_menu = array(array(t("View Profile"), zrl($rr["url"])));
-		$photo_menu[] = array(t("Connect/Follow"), $connlnk);
-		$photo_menu[] = array(t('Ignore/Hide'), $ignlnk);
-		$contact_details = get_contact_details_by_url($rr["url"], local_user());
+		$photo_menu = array(
+			'profile' => array(t("View Profile"), zrl($rr["url"])),
+			'follow' => array(t("Connect/Follow"), $connlnk),
+			'hide' => array(t('Ignore/Hide'), $ignlnk)
+		);
+
+		$contact_details = get_contact_details_by_url($rr["url"], local_user(), $rr);
 
 		$entry = array(
 			'url' => zrl($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
-			'name' => $rr['name'],
-			'thumb' => proxy_url($rr['photo'], false, PROXY_SIZE_THUMB),
+			'name' => $contact_details['name'],
+			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],

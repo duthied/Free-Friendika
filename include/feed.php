@@ -47,15 +47,17 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	}
 
 	// Is it Atom?
-	if ($xpath->query('/atom:feed/atom:entry')->length > 0) {
+	if ($xpath->query('/atom:feed')->length > 0) {
 		$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
 		if (is_object($alternate))
 			foreach($alternate AS $attributes)
 				if ($attributes->name == "href")
 					$author["author-link"] = $attributes->textContent;
 
+		$author["author-id"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
+
 		if ($author["author-link"] == "")
-			$author["author-link"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
+			$author["author-link"] = $author["author-id"];
 
 		if ($author["author-link"] == "") {
 			$self = $xpath->query("atom:link[@rel='self']")->item(0)->attributes;
@@ -127,6 +129,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 		// This is no field in the item table. So we have to unset it.
 		unset($author["author-nick"]);
+		unset($author["author-id"]);
 	}
 
 	$header = array();

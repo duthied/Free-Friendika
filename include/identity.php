@@ -246,10 +246,30 @@ function profile_sidebar($profile, $block = 0) {
 	else
 		$subscribe_feed = false;
 
-	if(get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))
+	if (remote_user() OR (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
 		$wallmessage = t('Message');
-	else
+		$wallmessage_link = "wallmessage/".$profile["nickname"];
+
+		if (remote_user()) {
+			$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `id` = '%s' AND `rel` = %d",
+				intval($profile['uid']),
+				intval(remote_user()),
+				intval(CONTACT_IS_FRIEND));
+		} else {
+			$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
+				intval($profile['uid']),
+				dbesc(normalise_link(get_my_url())),
+				intval(CONTACT_IS_FRIEND));
+		}
+		if ($r) {
+			$remote_url = $r[0]["url"];
+			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", $remote_url);
+			$wallmessage_link = $message_path.base64_encode($profile["addr"]);
+		}
+	} else {
 		$wallmessage = false;
+		$wallmessage_link = false;
+	}
 
 	// show edit profile to yourself
 	if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
@@ -325,18 +345,21 @@ function profile_sidebar($profile, $block = 0) {
 			? trim(substr($profile['name'],0,strpos($profile['name'],' '))) : $profile['name']);
 	$lastname = (($firstname === $profile['name']) ? '' : trim(substr($profile['name'],strlen($firstname))));
 
-	$diaspora = array(
-		'guid' => $profile['guid'],
-		'podloc' => $a->get_baseurl(),
-		'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
-		'nickname' => $profile['nickname'],
-		'fullname' => $profile['name'],
-		'firstname' => $firstname,
-		'lastname' => $lastname,
-		'photo300' => $a->get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-		'photo100' => $a->get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-		'photo50' => $a->get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
-	);
+	if ($profile['guid'] != "")
+		$diaspora = array(
+			'guid' => $profile['guid'],
+			'podloc' => $a->get_baseurl(),
+			'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
+			'nickname' => $profile['nickname'],
+			'fullname' => $profile['name'],
+			'firstname' => $firstname,
+			'lastname' => $lastname,
+			'photo300' => $a->get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
+			'photo100' => $a->get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
+			'photo50' => $a->get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+		);
+	else
+		$diaspora = false;
 
 	if (!$block){
 		$contact_block = contact_block();
@@ -386,6 +409,7 @@ function profile_sidebar($profile, $block = 0) {
 		'$remoteconnect'  => $remoteconnect,
 		'$subscribe_feed' => $subscribe_feed,
 		'$wallmessage' => $wallmessage,
+		'$wallmessage_link' => $wallmessage_link,
 		'$account_type' => $account_type,
 		'$location' => $location,
 		'$gender'   => $gender,
@@ -399,7 +423,6 @@ function profile_sidebar($profile, $block = 0) {
 		'$diaspora' => $diaspora,
 		'$contact_block' => $contact_block,
 	));
-
 
 	$arr = array('profile' => &$profile, 'entry' => &$o);
 

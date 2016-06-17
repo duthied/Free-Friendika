@@ -77,7 +77,16 @@ function install_post(&$a) {
 			$dbdata = notags(trim($_POST['dbdata']));
 			$phpath = notags(trim($_POST['phpath']));
 			$timezone = notags(trim($_POST['timezone']));
+			$language = notags(trim($_POST['language']));
 			$adminmail = notags(trim($_POST['adminmail']));
+			// In step 4 of the installer, we passed the  check for mcrypt
+			// already, so we can activate RINO, make RINO2 the default
+			// and only fall back if the mcrypt_create_iv function is
+			// not available on the system.
+			$rino = 2;
+			if (! function_exists('mcrypt_create_iv')) {
+				$rino = 1;
+			}
 
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
@@ -89,9 +98,11 @@ function install_post(&$a) {
 				'$dbpass' => $dbpass,
 				'$dbdata' => $dbdata,
 				'$timezone' => $timezone,
+				'$language' => $language,
 				'$urlpath' => $urlpath,
 				'$phpath' => $phpath,
-				'$adminmail' => $adminmail
+				'$adminmail' => $adminmail,
+				'$rino' => $rino
 			));
 
 
@@ -273,6 +284,8 @@ function install_content(&$a) {
 
 			$adminmail = notags(trim($_POST['adminmail']));
 			$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
+			/* Installed langs */
+			$lang_choices = get_avaiable_languages();
 
 			$tpl = get_markup_template('install_settings.tpl');
 			$o .= replace_macros($tpl, array(
@@ -291,7 +304,7 @@ function install_content(&$a) {
 
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
-
+				'$language' => array('language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
 				'$baseurl' => $a->get_baseurl(),
 
 
@@ -404,7 +417,7 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, t('mysqli PHP module'), true, true, "");
 	check_add($ck_funcs, t('mb_string PHP module'), true, true, "");
 	check_add($ck_funcs, t('mcrypt PHP module'), true, true, "");
-
+	check_add($ck_funcs, t('XML PHP module'), true, true, "");
 
 	if(function_exists('apache_get_modules')){
 		if (! in_array('mod_rewrite',apache_get_modules())) {
@@ -445,7 +458,7 @@ function check_funcs(&$checks) {
 	if ($ck_funcs[5]['status']) {
 		if (function_exists('mcrypt_create_iv')) {
 			$__status = true;
-			$__help = "If you are using php_cli, please make sure that mcrypt module is enabled in its config file";
+			$__help = t("If you are using php_cli, please make sure that mcrypt module is enabled in its config file");
 		} else {
 			$__status = false;
 			$__help = t('Function mcrypt_create_iv() is not defined. This is needed to enable RINO2 encryption layer.');
@@ -453,6 +466,13 @@ function check_funcs(&$checks) {
 		check_add($checks, t('mcrypt_create_iv() function'), $__status, false, $__help);
 	}
 
+	// check for XML DOM Documents being able to be generated
+	try {
+		$xml = new DOMDocument();
+	} catch (Exception $e) {
+		$ck_funcs[6]['status'] = false;
+		$ck_funcs[6]['help'] = t('Error, XML PHP module required but not installed.');
+	}
 
 	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
 		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
