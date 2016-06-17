@@ -42,16 +42,3 @@ nbproject
 
 #ignore local folder
 /local/
-
-#other stuff
-.directory
-.gitignore
-
-/view/theme/Friendiboot
-/view/theme/Viereinhalb
-/view/theme/blog
-/view/theme/boheme
-/view/theme/clean
-/view/theme/suckerberg
-
-/addon/frio_hovercard
