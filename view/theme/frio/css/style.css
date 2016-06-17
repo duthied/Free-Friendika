@@ -1954,14 +1954,34 @@ td.fc-day {
 .event-wrapper .event-owner {
   margin-bottom: 15px;
 }
+.event-wrapper .event-owner img {
+    display: block;
+}
 .event-owner img {
     margin-right: 5px;
     height: 48px;
     width:  48;
     border-radius: 3px;
 }
+.event-wrapper .vevent {
+    margin-left: 0;
+    margin-right: 0;
+    box-shadow: 1.5px 0 0 0 rgba(0, 0, 0, .1) inset;
+}
 .event-wrapper .event-buttons {
     margin-top: 15px;
+}
+#event-form-wrapper {
+    padding-top: 5px;
+}
+#event-edit-form-wrapper {
+    padding-top: 15px;
+}
+#event-nav a {
+    color: #555;
+}
+#event-edit-form-wrapper #event-edit-time {
+    padding: 10px 0;
 }
 /*
 * Overwriting for transparency and other colors

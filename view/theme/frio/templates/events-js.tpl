@@ -9,7 +9,7 @@
 			<ul class="nav nav-pills">
 				<li class="dropdown pull-right">
 					<a class="btn btn-link btn-sm dropdown-toggle" type="button" id="event-calendar-views" data-toggle="dropdown" aria-expanded="true">
-						<i class="fa fa-angle-down"></i> Views
+						<i class="fa fa-angle-down"></i> {{$view}}
 					</a>
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="event-calendar-views">
 						<li role="menuitem">

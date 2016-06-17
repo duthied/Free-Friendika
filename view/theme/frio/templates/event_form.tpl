@@ -1,4 +1,5 @@
-
+<script language="javascript" type="text/javascript"
+	  src="{{$baseurl}}/view/theme/frio/js/event.js"></script>
 <div id="event-form-wrapper">
 	<h3 class="heading">{{$title}}</h3>
 
@@ -6,7 +7,8 @@
 	<ul id="event-nav" class="nav nav-tabs event-nav" role="menubar" data-tabs="tabs">
 		{{* Mark the first list entry as active because it is the first which is active after opening
 			the modal. Changing of the activity status is done by js in event_head.tpl *}}
-		<li class="active" role="menuitem"><a id="event-edit-lnk" onclick="eventEditActive(); return false;">Text</a></li>
+		<li class="active" role="menuitem"><a id="event-edit-lnk" onclick="eventEditActive(); return false;">{{$basic}}</a></li>
+		<li role="menuitem"><a id="event-desc-lnk" onclick="eventDescActive(); return false;">{{$advanced}}</a></li>
 		{{if $acl}}<li role="menuitem" {{if !$sh_checked}} style="display: none"{{/if}}><a id="event-perms-lnk" onclick="eventAclActive();return false;">Permissions</a></li>{{/if}}
 		{{if $preview}}<li role="menuitem"><a id="event-preview-lnk" onclick="eventPreviewActive();return false;">{{$preview}}</a></li>{{/if}}
 		{{* commented out because it isn't implemented yet
@@ -23,20 +25,30 @@
 		<input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
 		<div id="event-edit-wrapper">
-			<p>
-			{{$desc}}
-			</p>
-
-			{{$s_dsel}}
-
-			{{$f_dsel}}
-
-			{{include file="field_checkbox.tpl" field=$nofinish}}
-
-			{{include file="field_checkbox.tpl" field=$adjust}}
 
 			{{include file="field_input.tpl" field=$summary}}
 
+			<div id="event-edit-time">
+				{{$s_dsel}}
+
+				{{$f_dsel}}
+
+				{{include file="field_checkbox.tpl" field=$nofinish}}
+
+				{{include file="field_checkbox.tpl" field=$adjust}}
+			</div>
+
+			{{if ! $eid}}
+			{{include file="field_checkbox.tpl" field=$share}}
+			{{/if}}
+
+			<div class="pull-right" >
+				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+			</div>
+			<div class="clear"></div>
+		</div>
+
+		<div id="event-desc-wrapper" style="display: none">
 
 			<div class="form-group">
 				<div id="event-desc-text"><b>{{$d_text}}</b></div>
@@ -129,15 +141,6 @@
 				</ul>
 				<div class="clear"></div>
 			</div>
-
-			{{if ! $eid}}
-			{{include file="field_checkbox.tpl" field=$share}}
-			{{/if}}
-
-			<div class="pull-right" >
-				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
-			</div>
-			<div class="clear"></div>
 		</div>
 
 		<div id="event-acl-wrapper" style="display: none">

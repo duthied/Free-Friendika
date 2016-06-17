@@ -455,6 +455,7 @@ function events_content(&$a) {
 			'$baseurl'	=> $a->get_baseurl(),
 			'$tabs'		=> $tabs,
 			'$title'	=> t('Events'),
+			'$view'		=> t('View'),
 			'$new_event'=> array($a->get_baseurl().'/events/new',t('Create New Event'),'',''),
 			'$previus'	=> array($a->get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
 			'$next'		=> array($a->get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
@@ -462,7 +463,6 @@ function events_content(&$a) {
 
 			'$events'	=> $events,
 
-			// eignene
 			"today" => t("today"),
 			"month" => t("month"),
 			"week" => t("week"),
@@ -582,7 +582,9 @@ function events_content(&$a) {
 			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),
 			'$preview' => t('Preview'),
 			'$acl' => $acl,
-			'$submit' => t('Submit')
+			'$submit' => t('Submit'),
+			'$basic' => t("Basic"),
+			'$advanced' => t("Advanced")
 
 		));
 
