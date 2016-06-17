@@ -11,7 +11,7 @@
 
 			<div class="event-buttons pull-right">
 				{{if $event.item.plink}}<a href="{{$event.plink.0}}" title="{{$event.plink.1}}" target="_blank" class="btn "><i class="fa fa-external-link" aria-hidden="true"></i></a>{{/if}}
-				{{if $event.edit}}<a href="{{$event.edit.0}}" title="{{$event.edit.1}}" class="btn"><i class="fa fa-pencil" aria-hidden="true"></i></a>{{/if}}
+				{{if $event.edit}}<a onclick="eventEdit('{{$event.edit.0}}')" title="{{$event.edit.1}}" class="btn"><i class="fa fa-pencil" aria-hidden="true"></i></a>{{/if}}
 			</div>
 			<div class="clear"></div>
 		</div>

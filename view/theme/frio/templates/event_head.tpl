@@ -5,16 +5,18 @@
 
 <script>
 
+	// loads the event into a modal
 	function showEvent(eventid) {
-		
 			addToModal('{{$baseurl}}/events/?id='+eventid);
 	
 	}
 
+	// Load the html of the actual event and incect the output to the
+	// event-edit section
 	function doEventPreview() {
 		$('#event-edit-preview').val(1);
 		$.post('events',$('#event-edit-form').serialize(), function(data) {
-			$.colorbox({ html: data });
+			$("#event-preview").append(data);
 		});
 		$('#event-edit-preview').val(0);
 	}
@@ -22,10 +24,11 @@
 	function changeView(action, viewName) {
 		$('#events-calendar').fullCalendar(action, viewName);
 		var view = $('#events-calendar').fullCalendar('getView');
-		$('#title').text(view.title);
+		$('#fc-title').text(view.title);
 	}
 
 	$(document).ready(function() {
+		// start the fullCalendar
 		$('#events-calendar').fullCalendar({
 			firstDay: {{$i18n.firstDay}},
 			monthNames: ['{{$i18n.January}}','{{$i18n.February}}','{{$i18n.March}}','{{$i18n.April}}','{{$i18n.May}}','{{$i18n.June}}','{{$i18n.July}}','{{$i18n.August}}','{{$i18n.September}}','{{$i18n.October}}','{{$i18n.November}}','{{$i18n.December}}'],
@@ -159,9 +162,10 @@
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 		{{/if}}
 
-		$('body').change("#event-share-checkbox", function() {
+		// go to the permissions tab if the checkbox is checked
+		$('body').change("#id_share", function() {
 
-			if ($('#event-share-checkbox').is(':checked')  && !( $('#event-share-checkbox').attr("disabled"))) { 
+			if ($('#id_share').is(':checked') && !( $('#id_share').attr("disabled"))) { 
 				$('#acl-wrapper').show();
 				$("a#event-perms-lnk").parent("li").show();
 				toggleEventNav("a#event-perms-lnk");
@@ -173,7 +177,12 @@
 			}
 		}).trigger('change');
 
+		// disable the finish time input if the user disable it
+		$('body').change("#id_nofinish", function() {
+			enableDisableFinishDate()
+		}).trigger('change');
 
+		// js for the permission sextion
 		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 			var selstr;
 			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
@@ -186,11 +195,25 @@
 
 		}).trigger('change');
 
-		// Event nav menu.
-		$("body").on("click", "#event-nav li a", function(e){
+		// Change the event nav menu.tabs on click
+		$("body").on("click", "#event-nav > li > a", function(e){
 			e.preventDefault();
 			toggleEventNav(this);
 		});
+
+		// this is experimental. We maybe can make use of it to inject
+		// some js code while the event modal opens
+		//$('body').on('show.bs.modal', function () {
+		//	enableDisableFinishDate();
+		//});
+
+		// clear some elements (e.g. the event-preview container) when
+		// selecting a event nav link so it don't appear more than once
+		$('body').on("click", "#event-nav a", function(e) {
+			$("#event-preview").empty();
+			e.preventDefault();
+		});
+
 
 	});
 
@@ -200,18 +223,19 @@
 	// the following functions show/hide the specific event-edit content 
 	// in dependence of the selected nav
 	function eventAclActive() {
-		$("#event-edit-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
+		$("#event-edit-wrapper, #event-preview").hide();
 		$("#event-acl-wrapper").show();
 	}
 
 
-	function previewActive() {
-		$(".modal-body #profile-jot-wrapper, .modal-body #profile-jot-acl-wrapper,.modal-body #jot-fbrowser-wrapper").hide();
-		preview_post();
+	function eventPreviewActive() {
+		$("#event-acl-wrapper, #event-edit-wrapper").hide();
+		$("#event-preview").show();
+		doEventPreview();
 	}
 
 	function eventEditActive() {
-		$("#event-acl-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
+		$("#event-acl-wrapper, #event-preview").hide();
 		$("#event-edit-wrapper").show();
 
 		//make sure jot text does have really the active class (we do this because there are some
@@ -225,5 +249,26 @@
 		$(elm).closest("#event-nav").children("li").removeClass("active");
 		// add the active class to the parent of the link which was selected
 		$(elm).parent("li").addClass("active");
+	}
+
+	// this function load the content of the edit url into a modal
+	function eventEdit(url) {
+		var char = qOrAmp(url);
+		url = url + char + 'mode=none';
+
+		$.get(url, function(data) {
+			$("#modal-body").empty();
+			$("#modal-body").append(data);
+		}).done(function() {
+			loadModalTitle();
+		});
+	}
+
+	// disable the input for the finish date if it is not available
+	function enableDisableFinishDate() {
+		if( $('#id_nofinish').is(':checked'))
+			$('#id_finish_text').prop("disabled", true);
+		else
+			$('#id_finish_text').prop("disabled", false);
 	}
 </script>

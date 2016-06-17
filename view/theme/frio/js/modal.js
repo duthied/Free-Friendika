@@ -153,7 +153,7 @@ Dialog._load = function(url) {
  */
 function loadModalTitle() {
 	// clear the text of the title
-	//$("#modal-title").empty();
+	$("#modal-title").empty();
 
 	// hide the first element with the class "heading" of the modal body
 	$("#modal-body .heading").first().hide();

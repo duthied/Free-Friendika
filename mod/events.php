@@ -576,6 +576,7 @@ function events_content(&$a) {
 			'$t_orig' => $t_orig,
 			'$summary' => array('summary', t('Title:'), $t_orig, '', '*'),
 			'$sh_text' => t('Share this event'),
+			'$share' => array('share', t('Share this event'), $sh_checked, ''),
 			'$sh_checked' => $sh_checked,
 			'$nofinish' => array('nofinish', t('Finish date/time is not known or not relevant'), $n_checked),
 			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),

@@ -21,6 +21,14 @@
 		$('#event-edit-preview').val(0);
 	}
 
+	// disable the input for the finish date if it is not available
+	function enableDisableFinishDate() {
+		if( $('#id_nofinish').is(':checked'))
+			$('#id_finish_text').prop("disabled", true);
+		else
+			$('#id_finish_text').prop("disabled", false);
+	}
+
 
 	$(document).ready(function() {
 		$('#events-calendar').fullCalendar({
@@ -152,9 +160,9 @@
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 		{{/if}}
 
-		$('#event-share-checkbox').change(function() {
+		$('#id_share').change(function() {
 
-			if ($('#event-share-checkbox').is(':checked')) { 
+			if ($('#id_share').is(':checked')) { 
 				$('#acl-wrapper').show();
 			}
 			else {
@@ -173,6 +181,11 @@
 				$('#jot-public').show();
 			}
 
+		}).trigger('change');
+
+		// disable the finish time input if the user disable it
+		$('body').change("#id_nofinish", function() {
+			enableDisableFinishDate()
 		}).trigger('change');
 
 	});

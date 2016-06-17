@@ -70,9 +70,9 @@ $(document).ready(function() {
 		return false;
 	});*/
 
-	$('#event-share-checkbox').change(function() {
+	$('#id_share').change(function() {
 
-		if ($('#event-share-checkbox').is(':checked')) { 
+		if ($('#id_share').is(':checked')) { 
 			$('#acl-wrapper').show();
 		}
 		else {
