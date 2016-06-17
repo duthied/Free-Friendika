@@ -298,8 +298,7 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 	$o .= replace_macros($tpl,array(
 			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '"'),
 		));
-//	$o .= "<div class='date'><input type='text' placeholder='$readable_format' name='$id' id='$id' $input_text />";
-//	$o .= '</div>';
+
 	$o .= "<script type='text/javascript'>";
 	$o .= "\$(function () {var picker = \$('#id_$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
 	$o .= "</script>";

@@ -24,32 +24,42 @@
 		<input type="hidden" name="uri" value="{{$uri}}" />
 		<input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
+		{{* The tab conten with the necessary basic settings *}}
 		<div id="event-edit-wrapper">
 
+			{{* The event title *}}
 			{{include file="field_input.tpl" field=$summary}}
 
 			<div id="event-edit-time">
+				{{* The field for event starting time *}}
 				{{$s_dsel}}
 
+				{{* The field for event finish time *}}
 				{{$f_dsel}}
 
+				{{* checkbox if the the event doesn't have a finish time *}}
 				{{include file="field_checkbox.tpl" field=$nofinish}}
 
+				{{* checkbox for adjusting the event time to the timezone of the user *}}
 				{{include file="field_checkbox.tpl" field=$adjust}}
 			</div>
 
+			{{* checkbox to enable event sharing and the permissions tab *}}
 			{{if ! $eid}}
 			{{include file="field_checkbox.tpl" field=$share}}
 			{{/if}}
 
+			{{* The submit button - saves the event *}}
 			<div class="pull-right" >
 				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
 			</div>
 			<div class="clear"></div>
 		</div>
 
+		{{* The advanced tab *}}
 		<div id="event-desc-wrapper" style="display: none">
 
+			{{* The textarea for the event description *}}
 			<div class="form-group">
 				<div id="event-desc-text"><b>{{$d_text}}</b></div>
 				<textarea id="comment-edit-text-desc" class="form-control" name="desc" >{{$d_orig}}</textarea>
@@ -96,6 +106,7 @@
 				<div class="clear"></div>
 			</div>
 
+			{{* The textarea for the event location *}}
 			<div class="form-group">
 				<div id="event-location-text"><b>{{$l_text}}</b></div>
 				<textarea id="comment-edit-text-loc" class="form-control" name="location">{{$l_orig}}</textarea>
@@ -143,10 +154,12 @@
 			</div>
 		</div>
 
+		{{* The tab for the permissions (if event sharing is enabled) *}}
 		<div id="event-acl-wrapper" style="display: none">
 			{{$acl}}
 		</div>
 
+		{{* The tab for the event preview (content is inserted by js) *}}
 		<div id="event-preview" style="display: none"></div>
 
 		<div class="clear"></div>
