@@ -207,35 +207,34 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	if ($uid == -1)
 		$uid = local_user();
 
-	// Fetch contact data from the contact table for the user and given network
-	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
+	// Fetch contact data from the contact table for the given user
+	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 			`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
-		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` IN ('%s', '')",
-			dbesc(normalise_link($url)), intval($uid), dbesc($profile["network"]));
-
-	// Is the contact present for the user in a different network? (Can happen with OStatus and the "Statusnet" addon)
-	if (!$r)
-		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
-			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
-				dbesc(normalise_link($url)), intval($uid));
+		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
+			dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!$r)
-		$r = q("SELECT `id`, 0 AS `cid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
+		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
 	// Fetch the data from the gcontact table
 	if (!$r)
-		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
+		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
 				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
-			FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+			FROM `gcontact` WHERE `nurl` = '%s'",
 				dbesc(normalise_link($url)));
 
 	if ($r) {
-		$profile = $r[0];
+		// If there is more than one entry we filter out the connector networks
+		if (count($r) > 1)
+			foreach ($r AS $id => $result)
+				if ($result["network"] == NETWORK_STATUSNET)
+					unset($r[$id]);
+
+		$profile = array_shift($r);
 
 		// "bd" always contains the upcoming birthday of a contact.
 		// "birthday" might contain the birthday including the year of birth.

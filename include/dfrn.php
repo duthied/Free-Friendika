@@ -197,7 +197,6 @@ class dfrn {
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` $sql_post_table
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -369,6 +368,7 @@ class dfrn {
 
 		xml::add_element($doc, $relocate, "dfrn:url", $owner['url']);
 		xml::add_element($doc, $relocate, "dfrn:name", $owner['name']);
+		xml::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
 		xml::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
 		xml::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
 		xml::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
@@ -1546,6 +1546,7 @@ class dfrn {
 		$relocate["uid"] = $importer["importer_uid"];
 		$relocate["cid"] = $importer["id"];
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
+		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
 		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
 		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
 		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
@@ -1556,6 +1557,9 @@ class dfrn {
 		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
 		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
 
+		if ($relocate["addr"] == "")
+			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
+
 		// update contact
 		$r = q("SELECT `photo`, `url` FROM `contact` WHERE `id` = %d AND `uid` = %d;",
 			intval($importer["id"]),
@@ -1565,6 +1569,30 @@ class dfrn {
 
 		$old = $r[0];
 
+		// Update the gcontact entry
+		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
+
+		$x = q("UPDATE `gcontact` SET
+					`name` = '%s',
+					`photo` = '%s',
+					`url` = '%s',
+					`nurl` = '%s',
+					`addr` = '%s',
+					`connect` = '%s',
+					`notify` = '%s',
+					`server_url` = '%s'
+			WHERE `nurl` = '%s';",
+					dbesc($relocate["name"]),
+					dbesc($relocate["photo"]),
+					dbesc($relocate["url"]),
+					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["notify"]),
+					dbesc($relocate["server_url"]),
+					dbesc(normalise_link($old["url"])));
+
+		// Update the contact table. We try to find every entry.
 		$x = q("UPDATE `contact` SET
 					`name` = '%s',
 					`photo` = '%s',
@@ -1572,30 +1600,34 @@ class dfrn {
 					`micro` = '%s',
 					`url` = '%s',
 					`nurl` = '%s',
+					`addr` = '%s',
 					`request` = '%s',
 					`confirm` = '%s',
 					`notify` = '%s',
 					`poll` = '%s',
 					`site-pubkey` = '%s'
-			WHERE `id` = %d AND `uid` = %d;",
+			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
 					dbesc($relocate["name"]),
 					dbesc($relocate["photo"]),
 					dbesc($relocate["thumb"]),
 					dbesc($relocate["micro"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
 					dbesc($relocate["request"]),
 					dbesc($relocate["confirm"]),
 					dbesc($relocate["notify"]),
 					dbesc($relocate["poll"]),
 					dbesc($relocate["sitepubkey"]),
 					intval($importer["id"]),
-					intval($importer["importer_uid"]));
+					intval($importer["importer_uid"]),
+					dbesc(normalise_link($old["url"])));
 
 		if ($x === false)
 			return false;
 
 		// update items
+		/// @todo This is an extreme performance killer
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),

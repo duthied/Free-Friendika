@@ -120,23 +120,20 @@ function community_getitems($start, $itemspage) {
 	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		return(community_getpublicitems($start, $itemspage));
 
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`, `user`.`hidewall`
+	$r = q("SELECT %s, %s, `user`.`nickname`
 		FROM `thread` FORCE INDEX (`wall_private_received`)
-		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND `user`.`hidewall` = 0
+		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
-		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
-		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
-		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
-		intval($start),
-		intval($itemspage)
+		AND %s AND `contact`.`self`
+		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+		AND NOT `thread`.`private` AND `thread`.`wall`
+		ORDER BY `thread`.`received` DESC LIMIT %d, %d",
+		item_fieldlist(), contact_fieldlist(),
+		contact_condition(),
+		intval($start), intval($itemspage)
 	);
 
 	return($r);
@@ -144,14 +141,14 @@ function community_getitems($start, $itemspage) {
 }
 
 function community_getpublicitems($start, $itemspage) {
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-			`author-name` AS `name`, `owner-avatar` AS `photo`,
+
+	$r = q("SELECT %s, `author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
 		FROM `thread`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		WHERE `thread`.`uid` = 0
 		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
-		intval($start),
+		item_fieldlist(), intval($start),
 		intval($itemspage)
 	);
 

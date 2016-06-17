@@ -172,7 +172,7 @@ class Config {
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
-		if(self::get($family,$key,true) === false) {
+		if(is_null(self::get($family,$key,null,true))) {
 			$a->config[$family][$key] = $value;
 			$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' ) ",
 				dbesc($family),

@@ -953,6 +953,55 @@ aside .vcard #dfrn-request-link,
 aside .vcard #wallmessage-link {
     width: 100%;
 }
+/* vcard-short-info */
+#vcard-short-info,
+#nav-short-info .contact-wrapper {
+    margin-top: 2px;
+    height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-right: 20px;
+    margin-left: -14px;
+}
+#vcard-short-photo-wrapper img,
+#nav-short-info .contact-wrapper img {
+    height: 34px;
+    width: 34px;
+    border-radius: 3px;
+}
+#vcard-short-desc,
+#nav-short-info .contact-wrapper .media-body {
+    display: block;
+    height: 34px;
+    width: 100%;
+    text-overflow: ellipsis;
+}
+#vcard-short-desc > .media-heading,
+#vcard-short-desc > .vcard-short-addr,
+#nav-short-info .contact-wrapper .media-heading,
+#nav-short-info .contact-wrapper #contact-entry-url-network {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+#vcard-short-desc > .media-heading,
+#nav-short-info .contact-wrapper .media-heading {
+    margin-bottom: 1px;
+    font-weight: bold;
+}
+#nav-short-info .contact-wrapper .media-heading a {
+    color: #555;
+    font-size: 14px !important;
+}
+#vcard-short-desc > .vcard-short-addr,
+#nav-short-info .contact-wrapper #contact-entry-url-network {
+    color: #777;
+    font-size: 12px;
+}
+.network-content-wrapper > #viewcontact_wrapper-network,
+#nav-short-info .contact-wrapper .contact-photo-overlay,
+#nav-short-info .contact-wrapper .contact-actions{
+    display: none
+}
 
 aside #peoplefind-sidebar input,
 aside #follow-sidebar input {
@@ -977,6 +1026,15 @@ aside #saved-search-list .saved-search-li:hover .savedsearchdrop {
 aside #group-sidebar .sidebar-group-li .group-edit-tool:hover,
 aside #saved-search-list .saved-search-li .savedsearchdrop:hover {
     opacity: 1;
+}
+aside #group-sidebar li .group-checkbox {
+    margin: 0;
+}
+aside #group-sidebar li .group-edit-tool {
+    padding-right: 10px;
+}
+aside #group-sidebar li .group-edit-tool:first-child {
+    padding-right: 0px;
 }
 
 /* contact block widget */
@@ -1707,7 +1765,7 @@ ul.dropdown-menu li:hover {
 /* PAGES */
 
 /* Profile-page */
-#profile-page, .photos-content-wrapper, .settings-content-wrapper,
+.generic-page-wrapper ,#profile-page, .profile_photo-content-wrapper, .photos-content-wrapper,
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
@@ -1982,6 +2040,62 @@ td.fc-day {
 }
 #event-edit-form-wrapper #event-edit-time {
     padding: 10px 0;
+/* Profiles Page */
+.profile-listing-table {
+    display: table;
+    width: 100%;
+}
+.profile-listing-row {
+    display: table-row;
+}
+.profile-listing-cell {
+    display: table-cell;
+}
+.profile-listing-photo {
+    width: 48px;
+    height: 48px;
+    margin: 10px 0px;
+}
+#profile-listing-new-link-wrapper {
+    margin-bottom: 20px;
+}
+.panel-group-settings {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+.panel-group-settings > .panel {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.profiles-content-wrapper #profile-photo-upload-section {
+    display: none;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 15px;
+    padding: 15px;
+}
+#profile-photo-upload-close {
+    font-size: 14px;
+}
+
+/* Settings */
+.section-subtitle-wrapper {
+    padding: 1px 10px;
+}
+.panel .section-subtitle-wrapper a.accordion-toggle:before {
+    font-family: FontAwesome;
+    content: "\f0d7";
+    padding-right: 5px;
+}
+.panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
+    font-family: FontAwesome;
+    content: "\f0da";
+}
+#settings-nick-wrapper {
+    margin-bottom: 20px;
+}
+.group {
+    margin-left: 20px;
 }
 /*
 * Overwriting for transparency and other colors

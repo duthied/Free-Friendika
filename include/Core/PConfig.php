@@ -161,7 +161,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 
-		if(self::get($uid,$family,$key,true) === false) {
+		if(is_null(self::get($uid,$family,$key,null, true))) {
 			$a->config[$uid][$family][$key] = $value;
 			$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' ) ",
 				intval($uid),

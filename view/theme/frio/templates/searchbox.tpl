@@ -1,6 +1,6 @@
 
 {{* important notes: The frio theme hides under certain conditions some parts of the templates through css.
-Some parts of this template will be moved by js to other places (see theme.js) - E.g. the save-search button}}
+Some parts of this template will be moved by js to other places (see theme.js) - E.g. the save-search button *}}
 
 <div id="{{$id}}" {{* class="input-group" *}}>
 	<div id="search-wrapper">

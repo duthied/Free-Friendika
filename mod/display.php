@@ -362,17 +362,14 @@ function display_content(&$a, $update = 0) {
 			return '';
 	}
 
-	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-		WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
-		AND NOT `item`.`moderated`
+	$r = q("SELECT %s, %s FROM `item`
+		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+		WHERE %s AND `item`.`uid` = %d
 		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
+		item_fieldlist(), contact_fieldlist(),
+		contact_condition(), item_condition(),
 		intval($a->profile['uid']),
 		intval($item_id)
 	);
@@ -388,16 +385,13 @@ function display_content(&$a, $update = 0) {
 		if($r) {
 			$item_uri = $r[0]['uri'];
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
-				AND NOT `item`.`moderated`
+			$r = q("SELECT %s, %s FROM `item`
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+				WHERE %s AND `item`.`uid` = %d
 				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
+				item_fieldlist(), contact_fieldlist(),
+				contact_condition(), item_condition(),
 				intval(local_user()),
 				dbesc($item_uri),
 				intval(local_user())
