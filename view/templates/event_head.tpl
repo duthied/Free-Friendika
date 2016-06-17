@@ -184,7 +184,7 @@
 		}).trigger('change');
 
 		// disable the finish time input if the user disable it
-		$('body').change("#id_nofinish", function() {
+		$('#id_nofinish').change(function() {
 			enableDisableFinishDate()
 		}).trigger('change');
 

@@ -163,7 +163,7 @@
 		{{/if}}
 
 		// go to the permissions tab if the checkbox is checked
-		$('body').change("#id_share", function() {
+		$('body').on("change", "#id_share", function() {
 
 			if ($('#id_share').is(':checked') && !( $('#id_share').attr("disabled"))) { 
 				$('#acl-wrapper').show();
@@ -178,7 +178,7 @@
 		}).trigger('change');
 
 		// disable the finish time input if the user disable it
-		$('body').change("#id_nofinish", function() {
+		$('body').on("change", "#id_nofinish", function() {
 			enableDisableFinishDate()
 		}).trigger('change');
 
