@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/Text_Highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap-theme.min.css" type="text/css" media="screen"/>

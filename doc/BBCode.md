@@ -42,6 +42,12 @@ Block
 
 <p style="clear:both;">&nbsp;</p>
 
+<pre>[code=php]function text_highlight($s,$lang)[/code]</pre>
+
+<code><div class="hl-main"><ol class="hl-main"><li><span class="hl-code">&nbsp;</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">text_highlight</span><span class="hl-brackets">(</span><span class="hl-var">$s</span><span class="hl-code">,</span><span class="hl-var">$lang</span><span class="hl-brackets">)</span></li></ol></div></code>
+
+<p style="clear:both;">&nbsp;</p>
+
 <pre>[quote]quote[/quote]</pre>
 
 <blockquote>quote</blockquote>
