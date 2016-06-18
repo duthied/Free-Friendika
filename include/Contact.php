@@ -255,11 +255,20 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
 		} else
 			$profile["bd"] = "0000-00-00";
-	} else {
+	} else
 		$profile = $default;
-		if (!isset($profile["thumb"]) AND isset($profile["photo"]))
-			$profile["thumb"] = $profile["photo"];
-	}
+
+	if (($profile["photo"] == "") AND isset($default["photo"]))
+		$profile["photo"] = $default["photo"];
+
+	if (($profile["name"] == "") AND isset($default["name"]))
+		$profile["name"] = $default["name"];
+
+	if (($profile["network"] == "") AND isset($default["network"]))
+		$profile["network"] = $default["network"];
+
+	if (!isset($profile["thumb"]) AND isset($profile["photo"]))
+		$profile["thumb"] = $profile["photo"];
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
