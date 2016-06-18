@@ -4,33 +4,19 @@
 	  src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
 
 <script>
+	// loads the event into a modal
 	function showEvent(eventid) {
-		$.get(
-			'{{$baseurl}}/events/?id='+eventid,
-			function(data){
-				$.colorbox({html:data});
-			}
-		);			
+			addToModal('{{$baseurl}}/events/?id='+eventid);
 	}
 
-	function doEventPreview() {
-		$('#event-edit-preview').val(1);
-		$.post('events',$('#event-edit-form').serialize(), function(data) {
-			$.colorbox({ html: data });
-		});
-		$('#event-edit-preview').val(0);
+	function changeView(action, viewName) {
+		$('#events-calendar').fullCalendar(action, viewName);
+		var view = $('#events-calendar').fullCalendar('getView');
+		$('#fc-title').text(view.title);
 	}
-
-	// disable the input for the finish date if it is not available
-	function enableDisableFinishDate() {
-		if( $('#id_nofinish').is(':checked'))
-			$('#id_finish_text').prop("disabled", true);
-		else
-			$('#id_finish_text').prop("disabled", false);
-	}
-
 
 	$(document).ready(function() {
+		// start the fullCalendar
 		$('#events-calendar').fullCalendar({
 			firstDay: {{$i18n.firstDay}},
 			monthNames: ['{{$i18n.January}}','{{$i18n.February}}','{{$i18n.March}}','{{$i18n.April}}','{{$i18n.May}}','{{$i18n.June}}','{{$i18n.July}}','{{$i18n.August}}','{{$i18n.September}}','{{$i18n.October}}','{{$i18n.November}}','{{$i18n.December}}'],
@@ -49,9 +35,9 @@
 			},
 			events: '{{$baseurl}}/events/json/',
 			header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
+				left: '',
+			//	center: 'title',
+				right: ''
 			},			
 			timeFormat: 'H(:mm)',
 			eventClick: function(calEvent, jsEvent, view) {
@@ -103,7 +89,11 @@
 		if (args.length>=4) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
 		} 
-		
+
+		// echo the title
+		var view = $('#events-calendar').fullCalendar('getView');
+		$('#fc-title').text(view.title);
+
 		// show event popup
 		var hash = location.hash.split("-")
 		if (hash.length==2 && hash[0]=="#link") showEvent(hash[1]);
@@ -160,35 +150,6 @@
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 		{{/if}}
 
-		$('#id_share').change(function() {
-
-			if ($('#id_share').is(':checked')) { 
-				$('#acl-wrapper').show();
-			}
-			else {
-				$('#acl-wrapper').hide();
-			}
-		}).trigger('change');
-
-
-		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
-			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-				selstr = $(this).text();
-				$('#jot-public').hide();
-			});
-			if(selstr == null) {
-				$('#jot-public').show();
-			}
-
-		}).trigger('change');
-
-		// disable the finish time input if the user disable it
-		$('#id_nofinish').change(function() {
-			enableDisableFinishDate()
-		}).trigger('change');
-
 	});
 
 </script>
-

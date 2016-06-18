@@ -67,9 +67,9 @@ function events_post(&$a) {
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
 	$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
-        if(strcmp($finish,$start) < 0 && !$nofinish) {
+	if(strcmp($finish,$start) < 0 && !$nofinish) {
 		notice( t('Event can not end before it has started.') . EOL);
-                if(intval($_REQUEST['preview'])) {
+		if(intval($_REQUEST['preview'])) {
 			echo( t('Event can not end before it has started.'));
 			killme();
 		}
@@ -455,12 +455,18 @@ function events_content(&$a) {
 			'$baseurl'	=> $a->get_baseurl(),
 			'$tabs'		=> $tabs,
 			'$title'	=> t('Events'),
+			'$view'		=> t('View'),
 			'$new_event'=> array($a->get_baseurl().'/events/new',t('Create New Event'),'',''),
 			'$previus'	=> array($a->get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
 			'$next'		=> array($a->get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
 			'$calendar' => cal($y,$m,$links, ' eventcal'),
 
 			'$events'	=> $events,
+
+			"today" => t("today"),
+			"month" => t("month"),
+			"week" => t("week"),
+			"day" => t("day"),
 
 
 		));
@@ -555,11 +561,11 @@ function events_content(&$a) {
 			'$title' => t('Event details'),
 			'$desc' => t('Starting date and Title are required.'),
 			'$s_text' => t('Event Starts:') . ' <span class="required" title="' . t('Required') . '">*</span>',
-			'$s_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$syear+5),DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"),'start_text',true,true,'','',true),
+			'$s_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$syear+5),DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"),t('Event Starts:'),'start_text',true,true,'','',true),
 			'$n_text' => t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text' => t('Event Finishes:'),
-			'$f_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$fyear+5),DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"),'finish_text',true,true,'start_text'),
+			'$f_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$fyear+5),DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"),t('Event Finishes:'),'finish_text',true,true,'start_text'),
 			'$a_text' => t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
 			'$d_text' => t('Description:'),
@@ -568,11 +574,17 @@ function events_content(&$a) {
 			'$l_orig' => $l_orig,
 			'$t_text' => t('Title:') . ' <span class="required" title="' . t('Required') . '">*</span>',
 			'$t_orig' => $t_orig,
+			'$summary' => array('summary', t('Title:'), $t_orig, '', '*'),
 			'$sh_text' => t('Share this event'),
+			'$share' => array('share', t('Share this event'), $sh_checked, ''),
 			'$sh_checked' => $sh_checked,
+			'$nofinish' => array('nofinish', t('Finish date/time is not known or not relevant'), $n_checked),
+			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),
 			'$preview' => t('Preview'),
 			'$acl' => $acl,
-			'$submit' => t('Submit')
+			'$submit' => t('Submit'),
+			'$basic' => t("Basic"),
+			'$advanced' => t("Advanced")
 
 		));
 
