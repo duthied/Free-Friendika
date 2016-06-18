@@ -303,13 +303,9 @@ function profile_content(&$a, $update = 0) {
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
 
-		$items = q("SELECT %s, %s FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-			WHERE %s AND `item`.`uid` = %d
+		$items = q(item_query()." AND `item`.`uid` = %d
 			AND `item`.`parent` IN (%s)
 			$sql_extra ",
-			item_fieldlist(), contact_fieldlist(),
-			contact_condition(), item_condition(),
 			intval($a->profile['profile_uid']),
 			dbesc($parents_str)
 		);

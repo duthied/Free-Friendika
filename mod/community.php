@@ -131,8 +131,7 @@ function community_getitems($start, $itemspage) {
 		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 		AND NOT `thread`.`private` AND `thread`.`wall`
 		ORDER BY `thread`.`received` DESC LIMIT %d, %d",
-		item_fieldlist(), contact_fieldlist(),
-		contact_condition(),
+		item_fieldlist(), contact_fieldlist(), contact_condition(),
 		intval($start), intval($itemspage)
 	);
 
@@ -142,14 +141,15 @@ function community_getitems($start, $itemspage) {
 
 function community_getpublicitems($start, $itemspage) {
 
-	$r = q("SELECT %s, `author-name` AS `name`, `owner-avatar` AS `photo`,
+	$r = q("SELECT %s, %s, `author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
 		FROM `thread`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` %s
 		WHERE `thread`.`uid` = 0
 		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
-		item_fieldlist(), intval($start),
-		intval($itemspage)
+		item_fieldlist(), zcontact_fieldlist(),
+		zcontact_join(),
+		intval($start), intval($itemspage)
 	);
 
 	return($r);

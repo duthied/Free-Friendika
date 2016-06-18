@@ -108,7 +108,7 @@ function notes_content(&$a,$update = false) {
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
 
-		$r = q("SELECT %s, %s FROM `item`
+		$r = q("SELECT %s FROM `item`
 			LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
 			WHERE %s AND `item`.`uid` = %d AND `item`.`parent` IN (%s)
 			$sql_extra

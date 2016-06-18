@@ -1298,6 +1298,8 @@ function db_definition() {
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"contact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"gcontact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"owner-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"author-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"commented" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),

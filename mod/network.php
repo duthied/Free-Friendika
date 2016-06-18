@@ -720,14 +720,12 @@ function network_content(&$a, $update = 0) {
 			$sql_order = "`item`.`received`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = q("SELECT %s, %s FROM $sql_table $sql_post_table
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+		$items = q("SELECT %s FROM $sql_table $sql_post_table %s
 			WHERE %s AND `item`.`uid` = %d
 			$simple_update
 			$sql_extra $sql_nets
 			ORDER BY $sql_order DESC $pager_sql ",
-			item_fieldlist(), contact_fieldlist(),
-			contact_condition(), item_condition(),
+			item_fieldlists(), item_joins(), item_condition(),
 			intval($_SESSION['uid'])
 		);
 
@@ -806,14 +804,9 @@ function network_content(&$a, $update = 0) {
 			$items = array();
 
 			foreach ($parents_arr AS $parents) {
-//					$sql_extra ORDER BY `item`.`commented` DESC LIMIT %d",
-				$thread_items = q("SELECT %s, %s FROM `item`
-					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-					WHERE %s AND `item`.`uid` = %d
+				$thread_items = q(item_query()." AND `item`.`uid` = %d
 					AND `item`.`parent` = %d
 					ORDER BY `item`.`commented` DESC LIMIT %d",
-					item_fieldlist(), contact_fieldlist(),
-					contact_condition(), item_condition(),
 					intval(local_user()),
 					intval($parents),
 					intval($max_comments + 1)

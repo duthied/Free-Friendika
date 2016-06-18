@@ -374,14 +374,54 @@ function visible_activity($item) {
 }
 
 /**
+ * @brief SQL query for items
+ */
+function item_query() {
+
+	return "SELECT ".item_fieldlists()." FROM `item` ".
+		item_joins()." WHERE ".item_condition();
+}
+
+/**
+ * @brief All fieldlists that are needed for the item query
+ */
+function item_fieldlists() {
+
+	return item_fieldlist().", ".zcontact_fieldlist().", ".contact_fieldlist();
+}
+
+/**
+ * @brief SQL join for contacts
+ */
+function item_joins() {
+
+	return contact_join()." ".zcontact_join();
+}
+
+/**
+ * @brief Fieldlist for author and owner
+ */
+function zcontact_fieldlist() {
+
+	return "`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`";
+}
+
+/**
+ * @brief Join for author and owner
+ */
+function zcontact_join() {
+
+	return "LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`author-id`";
+}
+
+/**
  * @brief List of all contact fields that are needed for the conversation function
  */
 function contact_fieldlist() {
 
-	$fieldlist = "`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
-			`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
-
-	return $fieldlist;
+	return "`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
+		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
 }
 
 /**
@@ -389,9 +429,15 @@ function contact_fieldlist() {
  */
 function contact_condition() {
 
-	$condition = "NOT `contact`.`blocked` AND NOT `contact`.`pending`";
+	return "NOT `contact`.`blocked` AND NOT `contact`.`pending`";
+}
 
-	return $condition;
+/**
+ * @brief SQL join for contacts
+ */
+function contact_join() {
+
+	return "INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND ".contact_condition();
 }
 
 /**
@@ -402,11 +448,11 @@ function item_fieldlist() {
 /*
 These Fields are not added below (yet). They are here to for bug search.
 `item`.`type`,
+`item`.`object`,
 `item`.`extid`,
 `item`.`received`,
 `item`.`changed`,
-`item`.`author-avatar`,
-`item`.`object`,
+`item`.`moderated`,
 `item`.`target-type`,
 `item`.`target`,
 `item`.`resource-id`,
@@ -414,10 +460,8 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`attach`,
 `item`.`inform`,
 `item`.`pubmail`,
-`item`.`moderated`,
 `item`.`visible`,
 `item`.`spam`,
-`item`.`starred`,
 `item`.`bookmark`,
 `item`.`unseen`,
 `item`.`deleted`,
@@ -430,18 +474,18 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`shadow`,
 */
 
-	$fieldlist = "`item`.`author-link`, `item`.`verb`, `item`.`id`, `item`.`parent`, `item`.`file`,
-			`item`.`uid`, `item`.`author-name`, `item`.`location`, `item`.`coord`,
-			`item`.`title`, `item`.`uri`, `item`.`created`, `item`.`app`, `item`.`guid`,
-			`item`.`contact-id`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`rendered-hash`,
-			`item`.`body`, `item`.`rendered-html`, `item`.`private`, `item`.`edited`,
+	return "`item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
+			`item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
+			`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
+			`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
+			`item`.`commented`, `item`.`created`, `item`.`edited`,
+			`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
+			`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
+			`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
+			`item`.`location`, `item`.`coord`, `item`.`app`,
+			`item`.`rendered-hash`, `item`.`rendered-html`,
 			`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
-			`item`.`event-id`, `item`.`object-type`, `item`.`starred`, `item`.`created`,
-			`item`.`postopts`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
-			`item`.`plink`, `item`.`wall`, `item`.`commented`,
 			`item`.`id` AS `item_id`, `item`.`network` AS `item_network`";
-
-	return $fieldlist;
 }
 
 /**
@@ -449,9 +493,7 @@ These Fields are not added below (yet). They are here to for bug search.
  */
 function item_condition() {
 
-	$condition = "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
-
-	return $condition;
+	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
 }
 
 /**
@@ -623,7 +665,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 				$comment     = '';
 				$owner_url   = '';
-				$owner_photo = '';
 				$owner_name  = '';
 				$sparkle     = '';
 
@@ -668,18 +709,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				}
 
-				/*foreach(explode(',',$item['tag']) as $tag){
-					$tag = trim($tag);
-					if ($tag!="") {
-						$t = bbcode($tag);
-						$tags[] = $t;
-						if($t[0] == '#')
-							$hashtags[] = $t;
-						elseif($t[0] == '@')
-							$mentions[] = $t;
-					}
-				}*/
-
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
 				if($profile_link === 'mailbox')
@@ -689,12 +718,21 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				else
 					$profile_link = zrl($profile_link);
 
-				// Don't rely on the author-avatar. It is better to use the data from the contact table
-				$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
-				if ($author_contact["thumb"])
-					$profile_avatar = $author_contact["thumb"];
-				else
-					$profile_avatar = $item['author-avatar'];
+				if (!isset($item['author-thumb'])) {
+					$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
+					if ($author_contact["thumb"])
+						$item['author-thumb'] = $author_contact["thumb"];
+					else
+						$item['author-thumb'] = $item['author-avatar'];
+				}
+
+				if (!isset($item['owner-thumb'])) {
+					$owner_contact = get_contact_details_by_url($item['owner-link'], $profile_owner);
+					if ($owner_contact["thumb"])
+						$item['owner-thumb'] = $owner_contact["thumb"];
+					else
+						$item['owner-thumb'] = $item['owner-avatar'];
+				}
 
 				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 				call_hooks('render_location',$locate);
@@ -762,7 +800,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => App::remove_baseurl(proxy_url($profile_avatar, false, PROXY_SIZE_THUMB)),
+					'thumb' => App::remove_baseurl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
 					'title' => $item['title_e'],
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -781,7 +819,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => proxy_url($owner_photo, false, PROXY_SIZE_THUMB),
+					'owner_photo' => App::remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,

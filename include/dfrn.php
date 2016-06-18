@@ -1631,17 +1631,23 @@ class dfrn {
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),
-			'owner-avatar' => array($old["photo"], $relocate["photo"]),
-			'author-avatar' => array($old["photo"], $relocate["photo"]),
+			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
+			//'author-avatar' => array($old["photo"], $relocate["photo"]),
 			);
-		foreach ($fields as $n=>$f){
-			$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
-					$n, dbesc($f[1]),
+		foreach ($fields as $n=>$f) {
+			$r = q("SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
 					$n, dbesc($f[0]),
 					intval($importer["importer_uid"]));
-				if ($x === false)
-					return false;
+
+			if ($r) {
+				$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
+						$n, dbesc($f[1]),
+						$n, dbesc($f[0]),
+						intval($importer["importer_uid"]));
+					if ($x === false)
+						return false;
 			}
+		}
 
 		/// @TODO
 		/// merge with current record, current contents have priority
