@@ -383,67 +383,9 @@ function item_query() {
 }
 
 /**
- * @brief All fieldlists that are needed for the item query
+ * @brief List of all data fields that are needed for displaying items
  */
 function item_fieldlists() {
-
-	return item_fieldlist().", ".zcontact_fieldlist().", ".contact_fieldlist();
-}
-
-/**
- * @brief SQL join for contacts
- */
-function item_joins() {
-
-	return contact_join()." ".zcontact_join();
-}
-
-/**
- * @brief Fieldlist for author and owner
- */
-function zcontact_fieldlist() {
-
-	return "`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`";
-}
-
-/**
- * @brief Join for author and owner
- */
-function zcontact_join() {
-
-	return "LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`author-id`";
-}
-
-/**
- * @brief List of all contact fields that are needed for the conversation function
- */
-function contact_fieldlist() {
-
-	return "`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
-		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
-}
-
-/**
- * @brief SQL condition for contacts
- */
-function contact_condition() {
-
-	return "NOT `contact`.`blocked` AND NOT `contact`.`pending`";
-}
-
-/**
- * @brief SQL join for contacts
- */
-function contact_join() {
-
-	return "INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND ".contact_condition();
-}
-
-/**
- * @brief List of all item fields that are needed for the conversation function
- */
-function item_fieldlist() {
 
 /*
 These Fields are not added below (yet). They are here to for bug search.
@@ -475,21 +417,37 @@ These Fields are not added below (yet). They are here to for bug search.
 */
 
 	return "`item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
-			`item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
-			`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
-			`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
-			`item`.`commented`, `item`.`created`, `item`.`edited`,
-			`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
-			`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
-			`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
-			`item`.`location`, `item`.`coord`, `item`.`app`,
-			`item`.`rendered-hash`, `item`.`rendered-html`,
-			`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
-			`item`.`id` AS `item_id`, `item`.`network` AS `item_network`";
+		`item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
+		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
+		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
+		`item`.`commented`, `item`.`created`, `item`.`edited`,
+		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
+		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
+		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
+		`item`.`location`, `item`.`coord`, `item`.`app`,
+		`item`.`rendered-hash`, `item`.`rendered-html`,
+		`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
+		`item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+
+		`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`,
+
+		`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
+		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
 }
 
 /**
- * @brief SQL condition for items
+ * @brief SQL join for contacts that are needed for displaying items
+ */
+function item_joins() {
+
+	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
+		NOT `contact`.`blocked` AND NOT `contact`.`pending`
+		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`author-id`";
+}
+
+/**
+ * @brief SQL condition for items that are needed for displaying items
  */
 function item_condition() {
 
@@ -923,8 +881,6 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 
 function best_link_url($item,&$sparkle,$ssl_state = false) {
 
-	$a = get_app();
-
 	$best_url = '';
 	$sparkle  = false;
 
@@ -951,7 +907,6 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 
 if(! function_exists('item_photo_menu')){
 function item_photo_menu($item){
-	$a = get_app();
 
 	$ssl_state = false;
 
