@@ -369,6 +369,7 @@ class dfrn {
 		xml::add_element($doc, $relocate, "dfrn:url", $owner['url']);
 		xml::add_element($doc, $relocate, "dfrn:name", $owner['name']);
 		xml::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
+		xml::add_element($doc, $relocate, "dfrn:avatar", $owner['avatar']);
 		xml::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
 		xml::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
 		xml::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
@@ -1548,6 +1549,7 @@ class dfrn {
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
 		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
 		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
+		$relocate["avatar"] = $xpath->query("dfrn:avatar/text()", $relocation)->item(0)->nodeValue;
 		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
 		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
 		$relocate["micro"] = $xpath->query("dfrn:micro/text()", $relocation)->item(0)->nodeValue;
@@ -1556,6 +1558,9 @@ class dfrn {
 		$relocate["notify"] = $xpath->query("dfrn:notify/text()", $relocation)->item(0)->nodeValue;
 		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
 		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
+
+		if (($relocate["avatar"] == "") AND ($relocate["photo"] != ""))
+			$relocate["avatar"] = $relocate["photo"];
 
 		if ($relocate["addr"] == "")
 			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
@@ -1583,7 +1588,7 @@ class dfrn {
 					`server_url` = '%s'
 			WHERE `nurl` = '%s';",
 					dbesc($relocate["name"]),
-					dbesc($relocate["photo"]),
+					dbesc($relocate["avatar"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
 					dbesc($relocate["addr"]),
@@ -1595,9 +1600,7 @@ class dfrn {
 		// Update the contact table. We try to find every entry.
 		$x = q("UPDATE `contact` SET
 					`name` = '%s',
-					`photo` = '%s',
-					`thumb` = '%s',
-					`micro` = '%s',
+					`avatar` = '%s',
 					`url` = '%s',
 					`nurl` = '%s',
 					`addr` = '%s',
@@ -1608,9 +1611,7 @@ class dfrn {
 					`site-pubkey` = '%s'
 			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
 					dbesc($relocate["name"]),
-					dbesc($relocate["photo"]),
-					dbesc($relocate["thumb"]),
-					dbesc($relocate["micro"]),
+					dbesc($relocate["avatar"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
 					dbesc($relocate["addr"]),
@@ -1622,6 +1623,8 @@ class dfrn {
 					intval($importer["id"]),
 					intval($importer["importer_uid"]),
 					dbesc(normalise_link($old["url"])));
+
+		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
 		if ($x === false)
 			return false;

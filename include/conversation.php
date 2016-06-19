@@ -443,7 +443,7 @@ function item_joins() {
 	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
 		NOT `contact`.`blocked` AND NOT `contact`.`pending`
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`author-id`";
+		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`";
 }
 
 /**
