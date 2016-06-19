@@ -682,8 +682,8 @@ function network_content(&$a, $update = 0) {
 		if(get_config('system', 'old_pager')) {
 			$r = q("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` = 1 AND $sql_table.`deleted` = 0
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
 				$sql_extra2 $sql_extra3
 				$sql_extra $sql_nets ",
 				intval($_SESSION['uid'])
@@ -714,7 +714,7 @@ function network_content(&$a, $update = 0) {
 	}
 
 	if($nouveau) {
-		$simple_update = (($update) ? " AND `item`.`unseen` = 1 " : '');
+		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
 			$sql_order = "`item`.`received`";
@@ -753,28 +753,26 @@ function network_content(&$a, $update = 0) {
 
 		// Fetch a page full of parent items for this page
 		if($update) {
-			if (!get_config("system", "like_no_comment"))
-				$sql_extra4 = "(`item`.`deleted` = 0
-						OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."'
-						OR `item`.`verb` = '".ACTIVITY_ATTEND."' OR `item`.`verb` = '".ACTIVITY_ATTENDNO."'
-						OR `item`.`verb` = '".ACTIVITY_ATTENDMAYBE."')";
+			if (get_config("system", "like_no_comment"))
+				$sql_extra4 = " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			else
-				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
+				$sql_extra4 = "";
 
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND $sql_extra4
-				AND `item`.`moderated` = 0 AND `item`.`unseen` = 1
-				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
+				AND NOT `item`.`moderated` AND `item`.`unseen`
+				$sql_extra3 $sql_extra $sql_nets
+				ORDER BY `item_id` DESC LIMIT 100",
 				intval(local_user())
 			);
 		} else {
 			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
-				AND `thread`.`moderated` = 0
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
+				AND NOT `thread`.`moderated`
 				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
 				ORDER BY $sql_order DESC $pager_sql ",
 				intval(local_user())
