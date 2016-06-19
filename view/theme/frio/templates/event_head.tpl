@@ -6,7 +6,7 @@
 <script>
 	// loads the event into a modal
 	function showEvent(eventid) {
-			addToModal('{{$baseurl}}/events/?id='+eventid);
+			addToModal('{{$baseurl}}{{$module_url}}/?id='+eventid);
 	}
 
 	function changeView(action, viewName) {
@@ -33,7 +33,7 @@
 				week: '{{$i18n.week}}',
 				day: '{{$i18n.day}}'
 			},
-			events: '{{$baseurl}}/events/json/',
+			events: '{{$baseurl}}{{$module_url}}/json/',
 			header: {
 				left: '',
 			//	center: 'title',
@@ -83,12 +83,18 @@
 			}
 			
 		})
-		
+
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
+		{{if $modparams == 2}}
+		if (args.length>=5) {
+			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
+		}
+		{{else}}
 		if (args.length>=4) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		} 
+		}
+		{{/if}} 
 
 		// echo the title
 		var view = $('#events-calendar').fullCalendar('getView');

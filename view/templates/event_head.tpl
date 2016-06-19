@@ -6,7 +6,7 @@
 <script>
 	function showEvent(eventid) {
 		$.get(
-			'{{$baseurl}}/events/?id='+eventid,
+			'{{$baseurl}}{{$module_url}}/?id='+eventid,
 			function(data){
 				$.colorbox({html:data});
 			}
@@ -47,7 +47,7 @@
 				week: '{{$i18n.week}}',
 				day: '{{$i18n.day}}'
 			},
-			events: '{{$baseurl}}/events/json/',
+			events: '{{$baseurl}}{{$module_url}}/json/',
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -100,9 +100,15 @@
 		
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
+		{{if $modparams == 2}}
+		if (args.length>=5) {
+			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
+		}
+		{{else}}
 		if (args.length>=4) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		} 
+		}
+		{{/if}} 
 		
 		// show event popup
 		var hash = location.hash.split("-")

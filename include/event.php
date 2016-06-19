@@ -1,7 +1,12 @@
 <?php
+/**
+ * @file include/event.php
+ * @brief functions specific to event handling
+ */
 
 require_once('include/bbcode.php');
 require_once('include/map.php');
+require_once('include/datetime.php');
 
 function format_event_html($ev, $simple = false) {
 
@@ -426,4 +431,186 @@ function event_store($arr) {
 
 		return $item_id;
 	}
+}
+
+function get_event_strings() {
+	// First day of the week (0 = Sunday)
+	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
+	if ($firstDay === false) $firstDay=0;
+
+	$i18n = array(
+			"firstDay" => $firstDay,
+			"Sun" => t("Sun"),
+			"Mon" => t("Mon"),
+			"Tue" => t("Tue"),
+			"Wed" => t("Wed"),
+			"Thu" => t("Thu"),
+			"Fri" => t("Fri"),
+			"Sat" => t("Sat"),
+			"Sunday" => t("Sunday"),
+			"Monday" => t("Monday"),
+			"Tuesday" => t("Tuesday"),
+			"Wednesday" => t("Wednesday"),
+			"Thursday" => t("Thursday"),
+			"Friday" => t("Friday"),
+			"Saturday" => t("Saturday"),
+			"Jan" => t("Jan"),
+			"Feb" => t("Feb"),
+			"Mar" => t("Mar"),
+			"Apr" => t("Apr"),
+			"May" => t("May"),
+			"Jun" => t("Jun"),
+			"Jul" => t("Jul"),
+			"Aug" => t("Aug"),
+			"Sep" => t("Sept"),
+			"Oct" => t("Oct"),
+			"Nov" => t("Nov"),
+			"Dec" => t("Dec"),
+			"January" => t("January"),
+			"February" => t("February"),
+			"March" => t("March"),
+			"April" => t("April"),
+			"May" => t("May"),
+			"June" => t("June"),
+			"July" => t("July"),
+			"August" => t("August"),
+			"September" => t("September"),
+			"October" => t("October"),
+			"November" => t("November"),
+			"December" => t("December"),
+			"today" => t("today"),
+			"month" => t("month"),
+			"week" => t("week"),
+			"day" => t("day"),
+		);
+
+	return $i18n;
+}
+
+/**
+ * @brief Get an event by its event ID
+ * 
+ * @param type $owner_uid The User ID of the owner of the event
+ * @param type $event_params An assoziative array with
+ *	int 'event_id' => The ID of the event in the event table
+ * @param type $sql_extra
+ * @return array Query result
+ */
+function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
+	// ownly allow events if there is a valid owner_id
+	if($owner_uid == 0)
+		return;
+
+	// query for the event by event id
+	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
+			`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+		LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+		WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
+		intval($owner_uid),
+		intval($event_params["event_id"])
+	);
+
+	if(count($r))
+		return $r;
+
+}
+
+/**
+ * @brief Get all events in a specific timeframe
+ * 
+ * @param int $owner_uid The User ID of the owner of the events
+ * @param array $event_params An assoziative array with
+ *	int 'ignored' => 
+ *	string 'start' => Start time of the timeframe
+ *	string 'finish' => Finish time of the timeframe
+ *	string 'adjust_start' => 
+ *	string 'adjust_start' =>
+ *	
+ * @param string $sql_extra Additional sql conditions (e.g. permission request)
+ * @return array Query results
+ */
+function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
+	// ownly allow events if there is a valid owner_id
+	if($owner_uid == 0)
+		return;
+
+	// query for the event by date
+	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
+				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+			WHERE `event`.`uid` = %d AND event.ignore = %d
+			AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
+			OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s'))
+			$sql_extra ",
+			intval($owner_uid),
+			intval($event_params["ignored"]),
+			dbesc($event_params["start"]),
+			dbesc($event_params["start"]),
+			dbesc($event_params["finish"]),
+			dbesc($event_params["adjust_start"]),
+			dbesc($event_params["adjust_start"]),
+			dbesc($event_params["adjust_finish"])
+	);
+
+	if(count($r))
+		return $r;
+}
+
+/**
+ * @brief Convert an array query results in an arry which could be used by the events template
+ * 
+ * @param array $arr Event query array
+ * @return array Event array for the template
+ */
+function process_events ($arr) {
+	$events=array();
+
+	$last_date = '';
+	$fmt = t('l, F j');
+	if (count($arr)) {
+		foreach($arr as $rr) {
+
+			$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
+			$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
+			$d = day_translate($d);
+
+			$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
+			if ($rr['nofinish']){
+				$end = null;
+			} else {
+				$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
+			}
+
+
+			$is_first = ($d !== $last_date);
+
+			$last_date = $d;
+			$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
+			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
+			if(! $title) {
+				list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
+				$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+			}
+
+			$html = format_event_html($rr);
+			$rr['desc'] = bbcode($rr['desc']);
+			$rr['location'] = bbcode($rr['location']);
+			$events[] = array(
+				'id'=>$rr['id'],
+				'start'=> $start,
+				'end' => $end,
+				'allDay' => false,
+				'title' => $title,
+
+				'j' => $j,
+				'd' => $d,
+				'is_first'=>$is_first,
+				'item'=>$rr,
+				'html'=>$html,
+				'plink' => array($rr['plink'],t('link to source'),'',''),
+			);
+		}
+	}
+
+	return $events;
 }

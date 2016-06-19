@@ -149,7 +149,7 @@ $(document).ready(function() {
 
 	if(window.aclType == "event_head") {
 		$('#events-calendar').fullCalendar({
-			events: baseurl + '/events/json/',
+			events: baseurl + window.eventModuleUrl +'/json/',
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -202,10 +202,12 @@ $(document).ready(function() {
 		
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
-		if (args.length>=4) {
+		if (args.length>=5 && window.eventModeParams == 2) {
+			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
+		} else if (args.length>=4 && window.eventModeParams == 1) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		} 
-		
+		}
+
 		// show event popup
 		var hash = location.hash.split("-")
 		if (hash.length==2 && hash[0]=="#link") showEvent(hash[1]);
@@ -352,7 +354,7 @@ if(typeof window.photoEdit != 'undefined') {
 
 function showEvent(eventid) {
 	$.get(
-		baseurl + '/events/?id='+eventid,
+		baseurl + window.eventModuleUrl + '/?id=' + eventid,
 		function(data){
 			$.colorbox({html:data});
 			$.colorbox.resize();

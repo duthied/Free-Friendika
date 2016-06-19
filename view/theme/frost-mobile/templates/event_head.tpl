@@ -3,5 +3,7 @@
 
 <script language="javascript" type="text/javascript">
 window.aclType = 'event_head';
+window.eventModuleUrl = "{{$module_url}}";
+window.eventModeParams = "{{$modparams}}" ;
 </script>
 
