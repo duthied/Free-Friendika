@@ -982,6 +982,23 @@ class diaspora {
 	}
 
 	/**
+	 * @brief Fetch the uri from our database if we already have this item (maybe from ourselves)
+	 *
+	 * @param string $author Author handle
+	 * @param string $guid Message guid
+	 *
+	 * @return string The constructed uri or the one from our database
+	 */
+	private function get_uri_from_guid($author, $guid) {
+
+		$r = q("SELECT `uri` FROM `item` WHERE `guid` = '%s' LIMIT 1", dbesc($guid));
+		if ($r)
+			return $r[0]["uri"];
+		else
+			return $author.":".$guid;
+	}
+
+	/**
 	 * @brief Processes an incoming comment
 	 *
 	 * @param array $importer Array of the importer user
@@ -1033,7 +1050,7 @@ class diaspora {
 		$datarray["owner-avatar"] = ((x($contact,"thumb")) ? $contact["thumb"] : $contact["photo"]);
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $author.":".$guid;
+		$datarray["uri"] = self::get_uri_from_guid($author, $guid);
 
 		$datarray["type"] = "remote-comment";
 		$datarray["verb"] = ACTIVITY_POST;
@@ -1370,7 +1387,7 @@ class diaspora {
 		$datarray["owner-avatar"] = ((x($contact,"thumb")) ? $contact["thumb"] : $contact["photo"]);
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $author.":".$guid;
+		$datarray["uri"] = self::get_uri_from_guid($author, $guid);
 
 		$datarray["type"] = "activity";
 		$datarray["verb"] = $verb;
@@ -1969,7 +1986,7 @@ class diaspora {
 		$datarray["owner-avatar"] = $datarray["author-avatar"];
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $datarray["parent-uri"] = $author.":".$guid;
+		$datarray["uri"] = $datarray["parent-uri"] = self::get_uri_from_guid($author, $guid);
 
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
@@ -2171,7 +2188,7 @@ class diaspora {
 		$datarray["owner-avatar"] = $datarray["author-avatar"];
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $datarray["parent-uri"] = $author.":".$guid;
+		$datarray["uri"] = $datarray["parent-uri"] = self::get_uri_from_guid($author, $guid);
 
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
