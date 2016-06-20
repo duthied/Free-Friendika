@@ -740,8 +740,8 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		),
 	);
 
-	if ($is_owner){
-		if ($a->theme_events_in_profile)
+	// the calendar link for the full featured events calendar
+	if ($is_owner && $a->theme_events_in_profile) {
 			$tabs[] = array(
 				'label' => t('Events'),
 				'url'	=> $a->get_baseurl() . '/events',
@@ -750,6 +750,20 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 				'id' => 'events-tab',
 				'accesskey' => 'e',
 			);
+	// if the user is not the owner of the calendar we only show a calendar
+	// with the public events of the calendar owner
+	} elseif (! $is_owner) {
+		$tabs[] = array(
+				'label' => t('Events'),
+				'url'	=> $a->get_baseurl() . '/cal/' . $nickname,
+				'sel' 	=>((!isset($tab)&&$a->argv[0]=='cal')?'active':''),
+				'title' => t('Events and Calendar'),
+				'id' => 'events-tab',
+				'accesskey' => 'e',
+			);
+	}
+
+	if ($is_owner){
 		$tabs[] = array(
 			'label' => t('Personal Notes'),
 			'url'	=> $a->get_baseurl() . '/notes',

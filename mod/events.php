@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @fiel mod/events.php
+ * @brief The events module
+ */
 require_once('include/bbcode.php');
 require_once('include/datetime.php');
 require_once('include/event.php');
@@ -193,59 +196,14 @@ function events_content(&$a) {
 	if( feature_enabled(local_user(), 'richtext') )
 		$editselect = 'textareas';
 
-	// First day of the week (0 = Sunday)
-	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
-	if ($firstDay === false) $firstDay=0;
-
-	$i18n = array(
-			"firstDay" => $firstDay,
-			"Sun" => t("Sun"),
-			"Mon" => t("Mon"),
-			"Tue" => t("Tue"),
-			"Wed" => t("Wed"),
-			"Thu" => t("Thu"),
-			"Fri" => t("Fri"),
-			"Sat" => t("Sat"),
-			"Sunday" => t("Sunday"),
-			"Monday" => t("Monday"),
-			"Tuesday" => t("Tuesday"),
-			"Wednesday" => t("Wednesday"),
-			"Thursday" => t("Thursday"),
-			"Friday" => t("Friday"),
-			"Saturday" => t("Saturday"),
-			"Jan" => t("Jan"),
-			"Feb" => t("Feb"),
-			"Mar" => t("Mar"),
-			"Apr" => t("Apr"),
-			"May" => t("May"),
-			"Jun" => t("Jun"),
-			"Jul" => t("Jul"),
-			"Aug" => t("Aug"),
-			"Sep" => t("Sept"),
-			"Oct" => t("Oct"),
-			"Nov" => t("Nov"),
-			"Dec" => t("Dec"),
-			"January" => t("January"),
-			"February" => t("February"),
-			"March" => t("March"),
-			"April" => t("April"),
-			"May" => t("May"),
-			"June" => t("June"),
-			"July" => t("July"),
-			"August" => t("August"),
-			"September" => t("September"),
-			"October" => t("October"),
-			"November" => t("November"),
-			"December" => t("December"),
-			"today" => t("today"),
-			"month" => t("month"),
-			"week" => t("week"),
-			"day" => t("day"),
-		);
+	// get the translation strings for the callendar
+	$i18n = get_event_strings();
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl,array(
 		'$baseurl' => $a->get_baseurl(),
+		'$module_url' => '/events',
+		'$modparams' => 1,
 		'$i18n' => $i18n,
 		'$editselect' => $editselect
 	));
@@ -284,6 +242,7 @@ function events_content(&$a) {
 		}
 	}
 
+	// The view mode part is similiar to /mod/cal.php
 	if($mode == 'view') {
 
 
@@ -333,31 +292,21 @@ function events_content(&$a) {
 		$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
 		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 
+		// put the event parametes in an array so we can better transmit them
+		$event_params = array(
+			'event_id' => (x($_GET,'id') ? $_GET["id"] : 0),
+			'start' => $start,
+			'finish' => $finish,
+			'adjust_start' => $adjust_start,
+			'adjust_finish' => $adjust_finish,
+			'ignored' => $ignored,
+		);
 
+		// get events by id or by date
 		if (x($_GET,'id')){
-			$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
-				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-				LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
-				WHERE `event`.`uid` = %d AND `event`.`id` = %d",
-				intval(local_user()),
-				intval($_GET['id'])
-			);
+			$r = event_by_id(local_user(), $event_params);
 		} else {
-			$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
-				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-				LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
-				WHERE `event`.`uid` = %d and event.ignore = %d
-				AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
-				OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')) ",
-				intval(local_user()),
-				intval($ignored),
-				dbesc($start),
-				dbesc($start),
-				dbesc($finish),
-				dbesc($adjust_start),
-				dbesc($adjust_start),
-				dbesc($adjust_finish)
-			);
+			$r = events_by_date(local_user(), $event_params);
 		}
 
 		$links = array();
@@ -371,60 +320,12 @@ function events_content(&$a) {
 			}
 		}
 
-
 		$events=array();
 
-		$last_date = '';
-		$fmt = t('l, F j');
-
-		if(count($r)) {
+		// transform the event in a usable array
+		if(count($r))
 			$r = sort_by_date($r);
-			foreach($r as $rr) {
-
-
-				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-				$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
-				$d = day_translate($d);
-
-				$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
-				if ($rr['nofinish']){
-					$end = null;
-				} else {
-					$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
-				}
-
-
-				$is_first = ($d !== $last_date);
-
-				$last_date = $d;
-				$edit = ((! $rr['cid']) ? array($a->get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
-				$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
-				if(! $title) {
-					list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
-					$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
-				}
-				$html = format_event_html($rr);
-				$rr['desc'] = bbcode($rr['desc']);
-				$rr['location'] = bbcode($rr['location']);
-				$events[] = array(
-					'id'=>$rr['id'],
-					'start'=> $start,
-					'end' => $end,
-					'allDay' => false,
-					'title' => $title,
-
-					'j' => $j,
-					'd' => $d,
-					'edit' => $edit,
-					'is_first'=>$is_first,
-					'item'=>$rr,
-					'html'=>$html,
-					'plink' => array($rr['plink'],t('link to source'),'',''),
-				);
-
-
-			}
-		}
+			$events = process_events($r);
 
 		if ($a->argv[1] === 'json'){
 			echo json_encode($events); killme();
