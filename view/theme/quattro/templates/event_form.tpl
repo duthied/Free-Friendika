@@ -10,23 +10,23 @@
 	<input type="hidden" name="uri" value="{{$uri}}" />
 	<input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
-	{{include file="field_custom.tpl" field=array('start_text', $s_text, $s_dsel, "")}}
-	{{include file="field_custom.tpl" field=array('finish_text', $f_text, $f_dsel, "")}}
+	{{$s_dsel}}
 
-	{{include file="field_checkbox.tpl" field=array('nofinish', $n_text, $n_checked, "")}}
-	{{include file="field_checkbox.tpl" field=array('adjust', $a_text, $a_checked, "")}}
+	{{$f_dsel}}
+
+	{{include file="field_checkbox.tpl" field=$nofinish}}
+
+	{{include file="field_checkbox.tpl" field=$adjust}}
 	<hr>
-	{{include file="field_input.tpl" field=array('summary', $t_text, $t_orig, "")}}
+	{{include file="field_input.tpl" field=$summary}}
 	{{include file="field_textarea.tpl" field=array('desc', $d_text, $d_orig, "")}}
 
 	{{include file="field_textarea.tpl" field=array('location', $l_text, $l_orig, "")}}
 	<hr>
 
-	<div class='field checkbox' id='div_id_share'>
-		<label for='id_share'>{{$sh_text}}</label>
-		<input type="checkbox" name='share' id='id_share' aria-describedby='share_tip' value="1" {{$sh_checked}}>
-		
-	</div>
+	{{if ! $eid}}
+	{{include file="field_checkbox.tpl" field=$share}}
+	{{/if}}
 
 	{{$acl}}
 

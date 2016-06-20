@@ -724,6 +724,13 @@ function bb_CleanPictureLinks($text) {
 	return ($text);
 }
 
+function bb_highlight($match) {
+	if(in_array(strtolower($match[1]),['php','css','mysql','sql','abap','diff','html','perl','ruby',
+		'vbscript','avrc','dtd','java','xml','cpp','python','javascript','js','sh']))
+		return text_highlight($match[2],strtolower($match[1]));
+	return $match[0];
+}
+
 	// BBcode 2 HTML was written by WAY2WEB.net
 	// extended to work with Mistpark/Friendica - Mike Macgirvin
 
@@ -776,6 +783,11 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	if (!$tryoembed)
 		$Text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","\n[share$1$2]$3[/share]",$Text);
 
+	// Check for [code] text here, before the linefeeds are messed with.
+	// The highlighter will unescape and re-escape the content.
+	if (strpos($Text,'[code=') !== false) {
+		$Text = preg_replace_callback("/\[code=(.*?)\](.*?)\[\/code\]/ism", 'bb_highlight', $Text);
+	}
 	// Convert new line chars to html <br /> tags
 
 	// nlbr seems to be hopelessly messed up

@@ -163,6 +163,15 @@ a#item-delete-selected {
 .btn-link:focus, .btn-link:hover {
     color: #23527c;
 }
+.btn-eventnav, btn-eventnav:hover {
+    font-size: 16px;
+    background: none;
+    background-color: transparent;
+    padding: 0 14px;
+}
+.btn-separator {
+    border-left: 1px solid #777;
+}
 /*.btn-info {
     background: #6fdbe8;
     color: #fff!important;
@@ -1760,8 +1769,8 @@ ul.dropdown-menu li:hover {
 .contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
-.events-content-wrapper, .message-content-wrapper, .apps-content-wrapper, 
-.notifications-content-wrapper, .admin-content-wrapper, .group-content-wrapper {
+.message-content-wrapper, .apps-content-wrapper, .notifications-content-wrapper,
+.admin-content-wrapper, .group-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
@@ -1960,6 +1969,78 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
     clear: both;
 }
 
+/* Events page */
+#fc-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+#fc-header-left,
+#fc-header-right,
+#event-calendar-title {
+    display: inline-block;
+}
+#fc-title {
+    margin: 0;
+    padding-left: 20px;
+
+}
+#fc-header-right {
+    margin-top: -4px;
+}
+#event-calendar-title {
+    vertical-align: middle;
+}
+a#event-calendar-views {
+    padding: 6px 9px;
+    font-size: 14px
+}
+tr.fc-first,
+tr.fc-first th {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+td.fc-day {
+    border-left: none;
+    border-right: none;
+    padding: 0 6px;
+}
+#events-calendar .fc-grid .fc-day-number {
+    float: left;
+    font-size: 0.9em;
+}
+.event-wrapper .event-owner {
+  margin-bottom: 15px;
+}
+.event-wrapper .event-owner img {
+    display: block;
+}
+.event-owner img {
+    margin-right: 5px;
+    height: 48px;
+    width:  48;
+    border-radius: 3px;
+}
+.event-wrapper .vevent {
+    margin-left: 0;
+    margin-right: 0;
+    box-shadow: 1.5px 0 0 0 rgba(0, 0, 0, .1) inset;
+}
+.event-wrapper .event-buttons {
+    margin-top: 15px;
+}
+#event-form-wrapper {
+    padding-top: 5px;
+}
+#event-edit-form-wrapper {
+    padding-top: 15px;
+}
+#event-nav a {
+    color: #555;
+}
+#event-edit-form-wrapper #event-edit-time {
+    padding: 10px 0;
+}
 /* Profiles Page */
 .profile-listing-table {
     display: table;

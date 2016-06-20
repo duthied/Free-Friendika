@@ -505,4 +505,3 @@ String.prototype.rtrim = function() {
 	var trimmed = this.replace(/\s+$/g, '');
 	return trimmed;
 };
-
