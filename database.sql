@@ -964,6 +964,8 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(11) unsigned NOT NULL DEFAULT 0,
 	`gcontact-id` int(11) unsigned NOT NULL DEFAULT 0,
+	`owner-id` int(11) unsigned NOT NULL DEFAULT 0,
+	`author-id` int(11) unsigned NOT NULL DEFAULT 0,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
