@@ -191,9 +191,9 @@ function search_content(&$a) {
 	if($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT STRAIGHT_JOIN %s
+		$r = q("SELECT %s
 			FROM `term`
-				INNER JOIN `item` ON `item`.`id`=`term`.`oid` %s
+				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
 			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
 			ORDER BY term.created DESC LIMIT %d , %d ",
 				item_fieldlists(), item_joins(), item_condition(),
@@ -209,7 +209,8 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 
-		$r = q("SELECT STRAIGHT_JOIN %s
+
+		$r = q("SELECT %s
 			FROM `item` %s
 			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
 				$sql_extra
