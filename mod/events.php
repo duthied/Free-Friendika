@@ -8,6 +8,27 @@ require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
 
+function events_init(&$a) {
+	if(! local_user())
+		return;
+
+	if($a->argc == 1) {
+		// if it's a json request abort here becaus we don't
+		// need the widget data
+		if($a->argv[1] !== 'json')
+			return;
+
+		$cal_widget = widget_events();
+
+		if(! x($a->page,'aside'))
+			$a->page['aside'] = '';
+
+		$a->page['aside'] .= $cal_widget;
+	}
+
+	return;
+}
+
 function events_post(&$a) {
 
 	logger('post: ' . print_r($_REQUEST,true));

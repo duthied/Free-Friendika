@@ -33,6 +33,11 @@ function cal_init(&$a) {
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
 
+		// if it's a json request abort here becaus we don't
+		// need the widget data
+		if ($a->argv[2] === 'json')
+			return;
+
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
 		if((intval($profile['page-flags']) == PAGE_COMMUNITY) || (intval($profile['page-flags']) == PAGE_PRVGROUP))
@@ -50,10 +55,13 @@ function cal_init(&$a) {
 			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
+		$cal_widget = widget_events();
+
 		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
 
 		$a->page['aside'] .= $vcard_widget;
+		$a->page['aside'] .= $cal_widget;
 	}
 
 	return;
@@ -95,6 +103,13 @@ function cal_content(&$a) {
 	$m = 0;
 	$ignored = ((x($_REQUEST,'ignored')) ? intval($_REQUEST['ignored']) : 0);
 
+	if($a->argc == 4) {
+		if($a->argv[2] == 'export') {
+			$mode = 'export';
+			$format = $a->argv[3];
+		}
+	}
+
 	//
 	// Setup permissions structures
 	//
@@ -104,6 +119,7 @@ function cal_content(&$a) {
 	$contact_id = 0;
 
 	$owner_uid = $a->data['user']['uid'];
+	$nick = $a->data['user']['nickname'];
 
 	if(is_array($_SESSION['remote'])) {
 		foreach($_SESSION['remote'] as $v) {
@@ -275,5 +291,39 @@ function cal_content(&$a) {
 		if (x($_GET,'id')){ echo $o; killme(); }
 
 		return $o;
+	}
+
+	if($mode == 'export') {
+		if(! (intval($owner_uid))) {
+			notice( t('User not found'));
+			return;
+		}
+
+		if(! (feature_enabled($owner_uid, "export_calendar"))) {
+			notice( t('Permission denied.') . EOL);
+			return;
+		}
+
+		// Get the export data by uid
+		$evexport = event_export($owner_uid, $format);
+
+		if ($evexport["success"] == false ) {
+			if($evexport["content"])
+				notice( t('This calendar format is not supported') );
+			else
+				notice( t('No exportable data found'));
+
+			return;
+		}
+
+		// If nothing went wrong we can echo the export content
+		if ($evexport["success"] == true ) {
+			header('Content-type: text/calendar');
+			header('content-disposition: attachment; filename="' . t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"' );
+			echo $evexport["content"];
+			killme();
+		}
+
+		return;
 	}
 }
