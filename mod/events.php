@@ -15,7 +15,7 @@ function events_init(&$a) {
 	if($a->argc == 1) {
 		// if it's a json request abort here becaus we don't
 		// need the widget data
-		if($a->argv[1] !== 'json')
+		if($a->argv[1] === 'json')
 			return;
 
 		$cal_widget = widget_events();
