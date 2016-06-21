@@ -5,7 +5,7 @@
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}}">
+<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <a name="{{$item.id}}" ></a>
 {{*<!--<div class="wall-item-outside-wrapper {{$item.indent}}{{$item.previewing}} wallwall" id="wall-item-outside-wrapper-{{$item.id}}" >-->*}}
 	<div class="wall-item-content-wrapper {{$item.indent}}" id="wall-item-content-wrapper-{{$item.id}}" >
@@ -22,9 +22,11 @@
 				onmouseover="if (typeof t{{$item.id}} != 'undefined') clearTimeout(t{{$item.id}}); openMenu('wall-item-photo-menu-button-{{$item.id}}')"
                 onmouseout="t{{$item.id}}=setTimeout('closeMenu(\'wall-item-photo-menu-button-{{$item.id}}\'); closeMenu(\'wall-item-photo-menu-{{$item.id}}\');',200)">-->*}}
 			{{*<!--<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}}" id="wall-item-photo-wrapper-{{$item.id}}">-->*}}
-				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-photo-link" id="wall-item-photo-link-{{$item.id}}">
-				<img src="{{$item.thumb}}" class="wall-item-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" style="height: 48px; width: 48px;" alt="{{$item.name}}" onError="this.src='../../../images/person-48.jpg';" />
+            <span class="p-author h-card">
+				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-photo-link u-url" id="wall-item-photo-link-{{$item.id}}">
+				<img src="{{$item.thumb}}" class="wall-item-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}} p-name u-photo" style="height: 48px; width: 48px;" alt="{{$item.name}}" onError="this.src='../../../images/person-48.jpg';" />
 				</a>
+            </span>
 				{{*<!--<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
@@ -43,25 +45,25 @@
 		{{*<!--<div class="wall-item-author">-->*}}
 				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name}}</span></a>{{if $item.owner_url}} {{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a> {{$item.vwall}}{{/if}}<br />
 				<div class="wall-item-ago"  id="wall-item-ago-{{$item.id}}">
-				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.ago}}</a>{{else}} {{$item.ago}} {{/if}}
+				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time> {{/if}}
 				</div>
 		{{*<!--</div>-->*}}
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
-			<div class="wall-item-title" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
+			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			{{*<!--<div class="wall-item-title-end"></div>-->*}}
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" >{{$item.body}}
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body}}</span>
 					{{*<!--<div class="body-tag">-->*}}
 						{{foreach $item.tags as $tag}}
 							<span class='body-tag tag'>{{$tag}}</span>
 						{{/foreach}}
 					{{*<!--</div>-->*}}
 			{{if $item.has_cats}}
-			<div class="categorytags">{{$item.txt_cats}} {{foreach $item.categories as $cat}}{{$cat.name}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+			<div class="categorytags">{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category">{{$cat.name}}</span> <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 			</div>
 			{{/if}}
 
 			{{if $item.has_folders}}
-			<div class="filesavetags">{{$item.txt_folders}} {{foreach $item.folders as $cat}}{{$cat.name}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+			<div class="filesavetags">{{$item.txt_folders}} {{foreach $item.folders as $cat}}<span class="p-category">{{$cat.name}}</span> <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 			</div>
 			{{/if}}
 			</div>

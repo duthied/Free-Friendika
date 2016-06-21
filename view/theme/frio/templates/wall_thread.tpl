@@ -67,9 +67,9 @@ as the value of $top_child_total (this is done at the end of this file)
 
 {{* Use a different div container in dependence max thread-level = 7 *}}
 {{if $item.thread_level<7}}
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
+<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
 {{else}}
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7" id="item-{{$item.guid}}">
+<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid}}">
  {{/if}}
 	<div class="media">
 		{{* Put addional actions in a top-right dropdown menu *}}
@@ -84,7 +84,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
 					{{if $item.plink}}	{{*link to the original source of the item *}}
 					<li role="menuitem">
-						<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
+						<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink u-url"><i class="fa fa-external-link"></i> {{$item.plink.title}}</a>
 					</li>
 					{{/if}}
 
@@ -140,10 +140,10 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
-			<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-				<a class="userinfo" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
+			<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">
+				<a class="userinfo" id="wall-item-photo-menu-{{$item.id}} u-url" href="{{$item.profile_url}}">
 					<div class="contact-photo-image-wrapper">
-						<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
+						<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 					</div>
 				</a>
 			</div>
@@ -168,10 +168,10 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			{{* The avatar picture for comments *}}
 			{{if $item.thread_level!=1}}
-			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-				<a class="userinfo" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
+			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">
+				<a class="userinfo" id="wall-item-photo-menu-{{$item.id}} u-url" href="{{$item.profile_url}}">
 					<div class="contact-photo-image-wrapper">
-						<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
+						<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 					</div>
 				</a>
 			</div>
@@ -190,7 +190,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			<div class="additional-info text-muted">
 				<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
-					<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></a></small>
+					<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span></a></small>
 				</div>
 
 				{{if $item.location}}
@@ -239,10 +239,10 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{if $item.title}}
-			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
+			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>
 		</div>
 
 		<!-- TODO -->
@@ -259,11 +259,11 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/foreach}}
 
 				{{foreach $item.folders as $cat}}
-					<span class='folder label btn-danger sm'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class='folder label btn-danger sm'><span class="p-category">{{$cat.name}}</span></a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 
 				{{foreach $item.categories as $cat}}
-					<span class='category label btn-success sm'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class='category label btn-success sm'><span class="p-category">{{$cat.name}}</span></a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 			</div>
 				{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}

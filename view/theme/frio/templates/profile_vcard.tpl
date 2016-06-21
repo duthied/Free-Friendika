@@ -91,7 +91,7 @@
 		{{if $gender}}
 		<div class="mf detail">
 			<span class="gender-label icon"><i class="fa fa-venus-mars"></i></span>
-			<span class="x-gender p-gender-identity">{{$profile.gender}}</span>
+			<span class="p-gender">{{$profile.gender}}</span>
 		</div>
 		{{/if}}
 
