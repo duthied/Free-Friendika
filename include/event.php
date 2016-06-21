@@ -10,8 +10,6 @@ require_once('include/datetime.php');
 
 function format_event_html($ev, $simple = false) {
 
-
-
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
 
@@ -613,4 +611,221 @@ function process_events ($arr) {
 	}
 
 	return $events;
+}
+
+/**
+ * @brief Format event to export format (ical/csv)
+ * 
+ * @param array $events Query result for events
+ * @param string $format The output format (ical/csv)
+ * @param string $timezone The timezone of the user (not implemented yet)
+ * 
+ * @return string Content according to selected export format
+ */
+function event_format_export ($events, $format = 'ical', $timezone) {
+	if(! ((is_array($events)) && count($events)))
+		return;
+
+	switch ($format) {
+		// format the exported data as a CSV file
+		case "csv":
+			header("Content-type: text/csv");
+			$o = '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
+
+			foreach ($events as $event) {
+			/// @todo the time / date entries don't include any information about the 
+			// timezone the event is scheduled in :-/
+				$tmp1 = strtotime($event['start']);
+				$tmp2 = strtotime($event['finish']);
+				$time_format = "%H:%M:%S";
+				$date_format = "%Y-%m-%d";
+				$o .= '"'.$event['summary'].'", "'.strftime($date_format, $tmp1) .
+					'", "'.strftime($time_format, $tmp1).'", "'.$event['desc'] .
+					'", "'.strftime($date_format, $tmp2) .
+					'", "'.strftime($time_format, $tmp2) . 
+					'", "'.$event['location'].'"' . PHP_EOL;
+			}
+			break;
+
+		// format the exported data as a ics file
+		case "ical":
+			header("Content-type: text/ics");
+			$o = 'BEGIN:VCALENDAR'. PHP_EOL
+				. 'VERSION:2.0' . PHP_EOL
+				. 'PRODID:-//friendica calendar export//0.1//EN' . PHP_EOL;
+			///  @todo include timezone informations in cases were the time is not in UTC
+			//  see http://tools.ietf.org/html/rfc2445#section-4.8.3
+			//		. 'BEGIN:VTIMEZONE' . PHP_EOL
+			//		. 'TZID:' . $timezone . PHP_EOL
+			//		. 'END:VTIMEZONE' . PHP_EOL;
+			//  TODO instead of PHP_EOL CRLF should be used for long entries
+			//       but test your solution against http://icalvalid.cloudapp.net/
+			//       also long lines SHOULD be split at 75 characters length
+			foreach ($events as $event) {
+				if ($event['adjust'] == 1) {
+					$UTC = 'Z';
+				} else { 
+					$UTC = '';
+				}
+				$o .= 'BEGIN:VEVENT' . PHP_EOL;
+				if ($event[start]) {
+					$tmp = strtotime($event['start']);
+					$dtformat = "%Y%m%dT%H%M%S".$UTC;
+					$o .= 'DTSTART:'.strftime($dtformat, $tmp).PHP_EOL;
+				}
+				if ($event['finish']) {
+					$tmp = strtotime($event['finish']);
+					$dtformat = "%Y%m%dT%H%M%S".$UTC;
+					$o .= 'DTEND:'.strftime($dtformat, $tmp).PHP_EOL;
+				}
+				if ($event['summary'])
+					$tmp = $event['summary'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'SUMMARY:' . $tmp . PHP_EOL;
+				if ($event['desc'])
+					$tmp = $event['desc'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'DESCRIPTION:' . $tmp . PHP_EOL;
+				if ($event['location']) {
+					$tmp = $event['location'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'LOCATION:' . $tmp . PHP_EOL;
+				}
+
+				$o .= 'END:VEVENT' . PHP_EOL;
+				$o .= PHP_EOL;
+			}
+
+			$o .= 'END:VCALENDAR' . PHP_EOL;
+			break;
+	}
+
+	return $o;
+}
+
+/**
+ * @brief Get all events for a user ID
+ * 
+ *    The query for events is done permission sensitive
+ *    If the user is the owner of the calendar he/she
+ *    will get all of his/her available events.
+ *    If the user is only a visitor only the public events will
+ *    be available
+ * 
+ * @param int $uid The user ID
+ * @param int $sql_extra Additional sql conditions for permission
+ * 
+ * @return array Query results
+ */
+function events_by_uid($uid = 0, $sql_extra = '') {
+	if($uid == 0)
+		return;
+
+	// The permission condition if no condition was transmitted
+	if($sql_extra == '')
+		$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' ";
+
+	//  does the user who requests happen to be the owner of the events 
+	//  requested? then show all of your events, otherwise only those that 
+	//  don't have limitations set in allow_cid and allow_gid
+	if (local_user() == $uid) {
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`
+			FROM `event` WHERE `uid`= %d AND `cid` = 0 ",
+			intval($uid)
+		);
+	} else {
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`FROM `event`
+			WHERE  `uid` = %d AND `cid` = 0 $sql_extra ",
+			intval($uid)
+		);
+	}
+
+	if(count($r))
+		return $r;
+}
+
+/**
+ * 
+ * @param int $uid The user ID
+ * @param string $format Output format (ical/csv)
+ * @return array With the results
+ *	bool 'success' => True if the processing was successful
+ *	string 'format' => The output format
+ *	string 'extension' => The file extension of the output format
+ *	string 'content' => The formatted output content
+ * 
+ * @todo Respect authenticated users with events_by_uid()
+ */
+function event_export($uid, $format = 'ical') {
+
+	$process = false;
+
+	// we are allowed to show events
+	// get the timezone the user is in
+	$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+	if (count($r))
+		$timezone = $r[0]['timezone'];
+
+	// get all events which are owned by a uid (respects permissions);
+	$events = events_by_uid($uid);
+
+	//  we have the events that are available for the requestor
+	//  now format the output according to the requested format
+	if(count($events))
+		$res = event_format_export($events, $format, $timezone);
+
+	// If there are results the precess was successfull
+	if(x($res))
+		$process = true;
+
+	// get the file extension for the format
+	switch ($format) {
+		case "ical":
+			$file_ext = "ics";
+			break;
+
+		case "csv":
+			$file_ext = "csv";
+			break;
+
+		default:
+			$file_ext = "";
+	}
+
+	$arr = array(
+		'success' => $process,
+		'format' => $format,
+		'extension' => $file_ext,
+		'content' => $res,
+	);
+
+	return $arr;
+}
+
+/**
+ * @brief Get the events widget
+ * 
+ * @return string Formated html of the evens widget
+ */
+function widget_events() {
+	$a = get_app();
+
+	$owner_uid = $a->data['user']['uid'];
+	// $a->data is only available if the profile page is visited. If the visited page is not part
+	// of the profile page it should be the personal /events page. So we can use $a->user
+	$user = ($a->data['user']['nickname'] ? $a->data['user']['nickname'] : $a->user['nickname']);
+
+	if( !(local_user() )&& !(feature_enabled($owner_uid, "export_calendar")) )
+		return;
+
+	return replace_macros(get_markup_template("events_aside.tpl"), array(
+		'$etitle' => t("Export"),
+		'$export_ical' => t("Export calendar as ical"),
+		'$export_csv' => t("Export calendar as csv"),
+		'$user' => $user
+	));
+
 }
