@@ -16,7 +16,7 @@
 	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
-		<dd class="adr">
+		<dd class="adr h-adr">
 			{{if $profile.address}}<div class="street-address p-street-address">{{$profile.address}}</div>{{/if}}
 			<span class="city-state-zip">
 				<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
@@ -28,7 +28,7 @@
 		</dl>
 	{{/if}}
 
-	{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="x-gender p-gender-identity">{{$profile.gender}}</dd></dl>{{/if}}
+	{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="p-gender">{{$profile.gender}}</dd></dl>{{/if}}
 	
 	{{if $profile.pubkey}}<div class="key u-key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
 
