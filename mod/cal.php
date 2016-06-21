@@ -153,7 +153,10 @@ function cal_content(&$a) {
 		return;
 	}
 
-	$sql_extra = item_permissions_sql($owner_uid,$remote_contact,$groups);
+	// get the permissions
+	$sql_perms = item_permissions_sql($owner_uid,$remote_contact,$groups);
+	// we only want to have the events of the profile owner
+	$sql_extra = " AND `event`.`cid` = 0 ";
 
 	// get the tab navigation bar
 	$tabs .= profile_tabs($a,false, $a->data['user']['nickname']);
@@ -299,7 +302,7 @@ function cal_content(&$a) {
 			return;
 		}
 
-		if(! (feature_enabled($owner_uid, "export_calendar"))) {
+		if( !(local_user()) && !(feature_enabled($owner_uid, "export_calendar"))) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}

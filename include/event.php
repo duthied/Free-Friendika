@@ -818,7 +818,7 @@ function widget_events() {
 	// of the profile page it should be the personal /events page. So we can use $a->user
 	$user = ($a->data['user']['nickname'] ? $a->data['user']['nickname'] : $a->user['nickname']);
 
-	if( !(local_user() )&& !(feature_enabled($owner_uid, "export_calendar")) )
+	if( !(local_user()) && !(feature_enabled($owner_uid, "export_calendar")) )
 		return;
 
 	return replace_macros(get_markup_template("events_aside.tpl"), array(
