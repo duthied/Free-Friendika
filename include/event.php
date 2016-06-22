@@ -818,8 +818,13 @@ function widget_events() {
 	// of the profile page it should be the personal /events page. So we can use $a->user
 	$user = ($a->data['user']['nickname'] ? $a->data['user']['nickname'] : $a->user['nickname']);
 
-	if( !(local_user()) && !(feature_enabled($owner_uid, "export_calendar")) )
+	// a little bit tricky permission testing because we have to respect many cases
+	if(!(local_user()) && !($owner_uid) // not the private events page (we don't get the $owner_uid for /events)
+			|| (intval($owner_uid) && local_user() !== $owner_uid && !(feature_enabled($owner_uid, "export_calendar"))) // cal logged in user (test permission at foreign profile page)
+			|| ( !(local_user()) && !(feature_enabled($owner_uid, "export_calendar"))) // if cal && not logged in && feature is not enabled
+		) {
 		return;
+	}
 
 	return replace_macros(get_markup_template("events_aside.tpl"), array(
 		'$etitle' => t("Export"),

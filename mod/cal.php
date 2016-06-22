@@ -302,7 +302,8 @@ function cal_content(&$a) {
 			return;
 		}
 
-		if( !(local_user()) && !(feature_enabled($owner_uid, "export_calendar"))) {
+		// Test permissions
+		if( ((local_user() !== $owner_uid)) && !(feature_enabled($owner_uid, "export_calendar"))) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
