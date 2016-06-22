@@ -235,10 +235,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 		}
 	}
 
-	//$list = $xpath->query("head/title");
 	$list = $xpath->query("//title");
-	foreach ($list as $node)
-		$siteinfo["title"] =  html_entity_decode($node->nodeValue, ENT_QUOTES, "UTF-8");
+	if ($list->length > 0)
+		$siteinfo["title"] = $list->item(0)->nodeValue;
 
 	//$list = $xpath->query("head/meta[@name]");
 	$list = $xpath->query("//meta[@name]");
