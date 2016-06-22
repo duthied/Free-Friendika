@@ -584,6 +584,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 								 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
 	}
 
+	if ($arr["author-id"] == 0)
+		$arr["author-id"] = get_contact($arr["author-link"], 0);
+
+	if ($arr["owner-id"] == 0)
+		$arr["owner-id"] = get_contact($arr["owner-link"], 0);
+
 	if ($arr['guid'] != "") {
 		// Checking if there is already an item with the same guid
 		logger('checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);

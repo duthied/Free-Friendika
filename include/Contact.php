@@ -255,11 +255,20 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
 		} else
 			$profile["bd"] = "0000-00-00";
-	} else {
+	} else
 		$profile = $default;
-		if (!isset($profile["thumb"]) AND isset($profile["photo"]))
-			$profile["thumb"] = $profile["photo"];
-	}
+
+	if (($profile["photo"] == "") AND isset($default["photo"]))
+		$profile["photo"] = $default["photo"];
+
+	if (($profile["name"] == "") AND isset($default["name"]))
+		$profile["name"] = $default["name"];
+
+	if (($profile["network"] == "") AND isset($default["network"]))
+		$profile["network"] = $default["network"];
+
+	if (!isset($profile["thumb"]) AND isset($profile["photo"]))
+		$profile["thumb"] = $profile["photo"];
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
@@ -451,8 +460,18 @@ function get_contact($url, $uid = 0) {
 		$data = probe_url($url);
 
 	// Does this address belongs to a valid network?
-	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
-		return 0;
+	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
+		if ($uid != 0)
+			return 0;
+
+		// Get data from the gcontact table
+		$r = q("SELECT `name`, `nick`, `url`, `photo`, `addr`, `alias`, `network` FROM `gcontact` WHERE `nurl` = '%s'",
+			 dbesc(normalise_link($url)));
+		if (!$r)
+			return 0;
+
+		$data = $r[0];
+	}
 
 	$url = $data["url"];
 
@@ -490,6 +509,16 @@ function get_contact($url, $uid = 0) {
 			return 0;
 
 		$contactid = $contact[0]["id"];
+
+		// Update the newly created contact from data in the gcontact table
+		$r = q("SELECT `location`, `about`, `keywords`, `gender` FROM `gcontact` WHERE `nurl` = '%s'",
+			 dbesc(normalise_link($data["url"])));
+		if ($r) {
+			logger("Update contact ".$data["url"]);
+			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d",
+				dbesc($r["location"]), dbesc($r["about"]), dbesc($r["keywords"]),
+				dbesc($r["gender"]), intval($contactid));
+		}
 	}
 
 	if ((count($contact) > 1) AND ($uid == 0) AND ($contactid != 0) AND ($url != ""))

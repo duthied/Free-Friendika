@@ -369,6 +369,7 @@ class dfrn {
 		xml::add_element($doc, $relocate, "dfrn:url", $owner['url']);
 		xml::add_element($doc, $relocate, "dfrn:name", $owner['name']);
 		xml::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
+		xml::add_element($doc, $relocate, "dfrn:avatar", $owner['avatar']);
 		xml::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
 		xml::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
 		xml::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
@@ -1548,6 +1549,7 @@ class dfrn {
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
 		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
 		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
+		$relocate["avatar"] = $xpath->query("dfrn:avatar/text()", $relocation)->item(0)->nodeValue;
 		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
 		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
 		$relocate["micro"] = $xpath->query("dfrn:micro/text()", $relocation)->item(0)->nodeValue;
@@ -1556,6 +1558,9 @@ class dfrn {
 		$relocate["notify"] = $xpath->query("dfrn:notify/text()", $relocation)->item(0)->nodeValue;
 		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
 		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
+
+		if (($relocate["avatar"] == "") AND ($relocate["photo"] != ""))
+			$relocate["avatar"] = $relocate["photo"];
 
 		if ($relocate["addr"] == "")
 			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
@@ -1583,7 +1588,7 @@ class dfrn {
 					`server_url` = '%s'
 			WHERE `nurl` = '%s';",
 					dbesc($relocate["name"]),
-					dbesc($relocate["photo"]),
+					dbesc($relocate["avatar"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
 					dbesc($relocate["addr"]),
@@ -1595,9 +1600,7 @@ class dfrn {
 		// Update the contact table. We try to find every entry.
 		$x = q("UPDATE `contact` SET
 					`name` = '%s',
-					`photo` = '%s',
-					`thumb` = '%s',
-					`micro` = '%s',
+					`avatar` = '%s',
 					`url` = '%s',
 					`nurl` = '%s',
 					`addr` = '%s',
@@ -1608,9 +1611,7 @@ class dfrn {
 					`site-pubkey` = '%s'
 			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
 					dbesc($relocate["name"]),
-					dbesc($relocate["photo"]),
-					dbesc($relocate["thumb"]),
-					dbesc($relocate["micro"]),
+					dbesc($relocate["avatar"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
 					dbesc($relocate["addr"]),
@@ -1623,6 +1624,8 @@ class dfrn {
 					intval($importer["importer_uid"]),
 					dbesc(normalise_link($old["url"])));
 
+		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+
 		if ($x === false)
 			return false;
 
@@ -1631,17 +1634,23 @@ class dfrn {
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),
-			'owner-avatar' => array($old["photo"], $relocate["photo"]),
-			'author-avatar' => array($old["photo"], $relocate["photo"]),
+			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
+			//'author-avatar' => array($old["photo"], $relocate["photo"]),
 			);
-		foreach ($fields as $n=>$f){
-			$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
-					$n, dbesc($f[1]),
+		foreach ($fields as $n=>$f) {
+			$r = q("SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
 					$n, dbesc($f[0]),
 					intval($importer["importer_uid"]));
-				if ($x === false)
-					return false;
+
+			if ($r) {
+				$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
+						$n, dbesc($f[1]),
+						$n, dbesc($f[0]),
+						intval($importer["importer_uid"]));
+					if ($x === false)
+						return false;
 			}
+		}
 
 		/// @TODO
 		/// merge with current record, current contents have priority

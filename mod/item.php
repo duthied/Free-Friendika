@@ -25,6 +25,7 @@ require_once('include/text.php');
 require_once('include/items.php');
 require_once('include/Scrape.php');
 require_once('include/diaspora.php');
+require_once('include/Contact.php');
 
 function item_post(&$a) {
 
@@ -676,9 +677,11 @@ function item_post(&$a) {
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
 	$datarray['owner-avatar']  = $contact_record['thumb'];
+	$datarray["owner-id"]      = get_contact($datarray["owner-link"], 0);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
+	$datarray["author-id"]     = get_contact($datarray["author-link"], 0);
 	$datarray['created']       = datetime_convert();
 	$datarray['edited']        = datetime_convert();
 	$datarray['commented']     = datetime_convert();
@@ -711,6 +714,7 @@ function item_post(&$a) {
 	$datarray['moderated']     = $allow_moderated;
 	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
+
 	/**
 	 * These fields are for the convenience of plugins...
 	 * 'self' if true indicates the owner is posting on their own wall
@@ -790,10 +794,24 @@ function item_post(&$a) {
 		$post_id = 0;
 
 
-	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, `author-name`, `author-link`, `author-avatar`,
-		`created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, `tag`, `inform`, `verb`, `object-type`, `postopts`,
-		`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`, `rendered-html`, `rendered-hash`)
-		VALUES( '%s', '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
+	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
+					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
+					`author-name`, `author-link`, `author-avatar`, `author-id`,
+					`created`, `edited`, `commented`, `received`, `changed`,
+					`uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`,
+					`tag`, `inform`, `verb`, `object-type`, `postopts`,
+					`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`,
+					`pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`,
+					`rendered-html`, `rendered-hash`)
+		VALUES('%s', '%s', %d, '%s', %d, %d, '%s', %d,
+			'%s', '%s', '%s', %d,
+			'%s', '%s', '%s', %d,
+			'%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', %d,
+			%d, '%s', %d, %d, %d, '%s',
+			'%s', '%s')",
 		dbesc($datarray['guid']),
 		dbesc($datarray['extid']),
 		intval($datarray['uid']),
@@ -805,9 +823,11 @@ function item_post(&$a) {
 		dbesc($datarray['owner-name']),
 		dbesc($datarray['owner-link']),
 		dbesc($datarray['owner-avatar']),
+		intval($datarray['owner-id']),
 		dbesc($datarray['author-name']),
 		dbesc($datarray['author-link']),
 		dbesc($datarray['author-avatar']),
+		intval($datarray['author-id']),
 		dbesc($datarray['created']),
 		dbesc($datarray['edited']),
 		dbesc($datarray['commented']),

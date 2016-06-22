@@ -191,14 +191,12 @@ function search_content(&$a) {
 	if($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT STRAIGHT_JOIN %s, %s
+		$r = q("SELECT %s
 			FROM `term`
-				INNER JOIN `item` ON `item`.`id`=`term`.`oid`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
 			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
 			ORDER BY term.created DESC LIMIT %d , %d ",
-				item_fieldlist(), contact_fieldlist(),
-				contact_condition(), item_condition(),
+				item_fieldlists(), item_joins(), item_condition(),
 				intval(local_user()),
 				intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
@@ -211,14 +209,13 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 
-		$r = q("SELECT STRAIGHT_JOIN %s, %s
-			FROM `item`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
+
+		$r = q("SELECT %s
+			FROM `item` %s
 			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
 				$sql_extra
 			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d",
-				item_fieldlist(), contact_fieldlist(),
-				contact_condition(), item_condition(),
+				item_fieldlists(), item_joins(), item_condition(),
 				intval(local_user()),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}

@@ -362,17 +362,14 @@ function display_content(&$a, $update = 0) {
 			return '';
 	}
 
-	$r = q("SELECT %s, %s FROM `item`
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-		WHERE %s AND `item`.`uid` = %d
+	$r = q(item_query()." AND `item`.`uid` = %d
 		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
-		item_fieldlist(), contact_fieldlist(),
-		contact_condition(), item_condition(),
 		intval($a->profile['uid']),
 		intval($item_id)
 	);
+
 
 	if(!$r && local_user()) {
 		// Check if this is another person's link to a post that we have
@@ -385,20 +382,15 @@ function display_content(&$a, $update = 0) {
 		if($r) {
 			$item_uri = $r[0]['uri'];
 
-			$r = q("SELECT %s, %s FROM `item`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-				WHERE %s AND `item`.`uid` = %d
+			$r = q(item_query()." AND `item`.`uid` = %d
 				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
-				item_fieldlist(), contact_fieldlist(),
-				contact_condition(), item_condition(),
 				intval(local_user()),
 				dbesc($item_uri),
 				intval(local_user())
 			);
 		}
 	}
-
 
 	if($r) {
 

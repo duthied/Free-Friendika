@@ -408,6 +408,11 @@ function bb_ShareAttributes($share, $simplehtml) {
 	if ($itemcache == "")
 		$reldate = (($posted) ? " " . relative_date($posted) : '');
 
+	// We only call this so that a previously unknown contact can be added.
+	// This is important for the function "get_contact_details_by_url".
+	// This function then can fetch an entry from the contact table.
+	get_contact($profile, 0);
+
 	$data = get_contact_details_by_url($profile);
 
 	if (isset($data["name"]) AND isset($data["addr"]))
@@ -423,8 +428,8 @@ function bb_ShareAttributes($share, $simplehtml) {
 	if (isset($data["name"]))
 		$author = $data["name"];
 
-	if (isset($data["photo"]))
-		$avatar = $data["photo"];
+	if (isset($data["thumb"]))
+		$avatar = $data["thumb"];
 
 	$preshare = trim($share[1]);
 
@@ -489,6 +494,8 @@ function bb_ShareAttributes($share, $simplehtml) {
 			break;
 		default:
 			$text = trim($share[1])."\n";
+
+			$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
 
 			$tpl = get_markup_template('shared_content.tpl');
 			$text .= replace_macros($tpl,
