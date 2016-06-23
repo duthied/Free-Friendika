@@ -303,7 +303,8 @@ function cal_content(&$a) {
 		}
 
 		// Test permissions
-		if( ((local_user() !== $owner_uid)) && !(feature_enabled($owner_uid, "export_calendar"))) {
+		// Respect the export feature setting for all other /cal pages if it's not the own profile
+		if( ((local_user() !== $owner_uid)) && ! feature_enabled($owner_uid, "export_calendar")) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
