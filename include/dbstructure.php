@@ -859,6 +859,8 @@ function db_definition() {
 					"uid_parenturi" => array("uid","parent-uri"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
 					"gcontactid_uid_created" => array("gcontact-id","uid","created"),
+					"authorid_created" => array("author-id","created"),
+					"ownerid_created" => array("owner-id","created"),
 					"wall_body" => array("wall","body(6)"),
 					"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
 					"uid_uri" => array("uid","uri"),
