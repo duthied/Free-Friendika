@@ -280,7 +280,8 @@ function network_query_get_sel_tab($a) {
 }
 
 /**
- * Return selected network from query
+ * @brief Return selected network from query
+ * @return string Name of the selected network
  */
 function network_query_get_sel_net() {
 	$network = false;
@@ -348,92 +349,7 @@ function network_content(&$a, $update = 0) {
 
 	$o = '';
 
-	// item filter tabs
-	/// @TODO fix this logic, reduce duplication
-	/// $a->page['content'] .= '<div class="tabs-wrapper">';
 
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
-	// if no tabs are selected, defaults to comments
-	if ($no_active=='active') $all_active='active';
-
-	$cmd = (($datequery) ? '' : $a->cmd);
-	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
-
-	// tabs
-	$tabs = array(
-		array(
-			'label'	=> t('Commented Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $all_active,
-			'title'	=> t('Sort by Comment Date'),
-			'id'	=> 'commented-order-tab',
-			'accesskey' => "e",
-		),
-		array(
-			'label'	=> t('Posted Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $postord_active,
-			'title'	=> t('Sort by Post Date'),
-			'id'	=> 'posted-order-tab',
-			'accesskey' => "t",
-		),
-	);
-
-	if(feature_enabled(local_user(),'personal_tab')) {
-		$tabs[] = array(
-			'label'	=> t('Personal'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
-			'sel'	=> $conv_active,
-			'title'	=> t('Posts that mention or involve you'),
-			'id'	=> 'personal-tab',
-			'accesskey' => "r",
-		);
-	}
-
-	if(feature_enabled(local_user(),'new_tab')) {
-		$tabs[] = array(
-			'label'	=> t('New'),
-			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $new_active,
-			'title'	=> t('Activity Stream - by date'),
-			'id'	=> 'activitiy-by-date-tab',
-			'accesskey' => "w",
-		);
-	}
-
-	if(feature_enabled(local_user(),'link_tab')) {
-		$tabs[] = array(
-			'label'	=> t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
-			'sel'	=> $bookmarked_active,
-			'title'	=> t('Interesting Links'),
-			'id'	=> 'shared-links-tab',
-			'accesskey' => "b",
-		);
-	}
-
-	if(feature_enabled(local_user(),'star_posts')) {
-		$tabs[] = array(
-			'label'	=> t('Starred'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
-			'sel'	=> $starred_active,
-			'title'	=> t('Favourite Posts'),
-			'id'	=> 'starred-posts-tab',
-			'accesskey' => "m",
-		);
-	}
-
-	// save selected tab, but only if not in search or file mode
-	if(!x($_GET,'search') && !x($_GET,'file')) {
-		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
-	}
-
-	$arr = array('tabs' => $tabs);
-	call_hooks('network_tabs', $arr);
-
-	$o .= replace_macros(get_markup_template('common_tabs.tpl'), array('$tabs'=> $arr['tabs']));
-
-	// --- end item filter tabs
 
 	$contact_id = $a->cid;
 
@@ -474,6 +390,9 @@ function network_content(&$a, $update = 0) {
 	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
 	if(!$update AND !$rawmode) {
+		$tabs = network_tabs($a);
+		$o .= $tabs;
+
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
@@ -639,7 +558,7 @@ function network_content(&$a, $update = 0) {
 		$search = escape_tags($_GET['search']);
 
 		if(strpos($search,'#') === 0) {
-                	$tag = true;
+			$tag = true;
 			$search = substr($search,1);
 		}
 
@@ -871,14 +790,110 @@ function network_content(&$a, $update = 0) {
 
 	if(!$update) {
 		if(get_pconfig(local_user(),'system','infinite_scroll')) {
-				$o .= scroll_loader();
+			$o .= scroll_loader();
 		} elseif(!get_config('system', 'old_pager')) {
-		        $o .= alt_pager($a,count($items));
+			$o .= alt_pager($a,count($items));
 		} else {
-		        $o .= paginate($a);
+			$o .= paginate($a);
 		}
 	}
 
 	return $o;
 }
 
+/**
+ * @brief Get the network tabs menu
+ * 
+ * @param app $a The global App
+ * @return string Html of the networktab
+ */
+function network_tabs($a) {
+	// item filter tabs
+	/// @TODO fix this logic, reduce duplication
+	/// $a->page['content'] .= '<div class="tabs-wrapper">';
+
+	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
+	// if no tabs are selected, defaults to comments
+	if ($no_active=='active') $all_active='active';
+
+	$cmd = (($datequery) ? '' : $a->cmd);
+	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
+
+	// tabs
+	$tabs = array(
+		array(
+			'label'	=> t('Commented Order'),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $all_active,
+			'title'	=> t('Sort by Comment Date'),
+			'id'	=> 'commented-order-tab',
+			'accesskey' => "e",
+		),
+		array(
+			'label'	=> t('Posted Order'),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $postord_active,
+			'title'	=> t('Sort by Post Date'),
+			'id'	=> 'posted-order-tab',
+			'accesskey' => "t",
+		),
+	);
+
+	if(feature_enabled(local_user(),'personal_tab')) {
+		$tabs[] = array(
+			'label'	=> t('Personal'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+			'sel'	=> $conv_active,
+			'title'	=> t('Posts that mention or involve you'),
+			'id'	=> 'personal-tab',
+			'accesskey' => "r",
+		);
+	}
+
+	if(feature_enabled(local_user(),'new_tab')) {
+		$tabs[] = array(
+			'label'	=> t('New'),
+			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $new_active,
+			'title'	=> t('Activity Stream - by date'),
+			'id'	=> 'activitiy-by-date-tab',
+			'accesskey' => "w",
+		);
+	}
+
+	if(feature_enabled(local_user(),'link_tab')) {
+		$tabs[] = array(
+			'label'	=> t('Shared Links'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'sel'	=> $bookmarked_active,
+			'title'	=> t('Interesting Links'),
+			'id'	=> 'shared-links-tab',
+			'accesskey' => "b",
+		);
+	}
+
+	if(feature_enabled(local_user(),'star_posts')) {
+		$tabs[] = array(
+			'label'	=> t('Starred'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+			'sel'	=> $starred_active,
+			'title'	=> t('Favourite Posts'),
+			'id'	=> 'starred-posts-tab',
+			'accesskey' => "m",
+		);
+	}
+
+	// save selected tab, but only if not in search or file mode
+	if(!x($_GET,'search') && !x($_GET,'file')) {
+		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
+	}
+
+	$arr = array('tabs' => $tabs);
+	call_hooks('network_tabs', $arr);
+	
+	$tpl = get_markup_template('common_tabs.tpl');
+
+	return replace_macros($tpl, array('$tabs' => $arr['tabs']));
+
+	// --- end item filter tabs
+}
