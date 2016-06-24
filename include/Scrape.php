@@ -90,9 +90,18 @@ function scrape_dfrn($url, $dont_probe = false) {
 		if(attribute_contains($item->getAttribute('class'), 'vcard')) {
 			$level2 = $item->getElementsByTagName('*');
 			foreach($level2 as $x) {
-				if(attribute_contains($x->getAttribute('class'),'fn')) {
+				if(attribute_contains($x->getAttribute('class'),'uid'))
+					$ret['guid'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'nickname'))
+					$ret['nickname'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'fn'))
 					$ret['fn'] = $x->textContent;
-				}
+				if(attribute_contains($x->getAttribute('class'),'searchable'))
+					$ret['searchable'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'key'))
+					$ret['key'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'url'))
+					$ret['url'] = $x->textContent;
 				if((attribute_contains($x->getAttribute('class'),'photo'))
 					|| (attribute_contains($x->getAttribute('class'),'avatar'))) {
 					$size = intval($x->getAttribute('width'));
@@ -101,9 +110,6 @@ function scrape_dfrn($url, $dont_probe = false) {
 						$ret['photo'] = $x->getAttribute('src');
 						$largest_photo = (($size == 175) ? 9999 : $size);
 					}
-				}
-				if(attribute_contains($x->getAttribute('class'),'key')) {
-					$ret['key'] = $x->textContent;
 				}
 			}
 		}
@@ -585,6 +591,11 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	// Diaspora will remove it from the webfinger somewhere in the future.
 	if (($hcard != "") AND ($pubkey == "")) {
 		$ret = scrape_dfrn(($hcard) ? $hcard : $dfrn, true);
+		if (isset($ret["guid"]))
+			$diaspora_guid = $ret["guid"];
+		if (isset($ret["url"]))
+			$diaspora_base = $ret["url"];
+
 		if (isset($ret["key"])) {
 			$hcard_key = $ret["key"];
 			if(strstr($hcard_key,'RSA '))
@@ -593,8 +604,9 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				$pubkey = $hcard_key;
 		}
 	}
-	if($diaspora && $diaspora_base && $diaspora_guid) {
+	if(($network != "") && $diaspora_base && $diaspora_guid) {
 		$diaspora_notify = $diaspora_base.'receive/users/'.$diaspora_guid;
+		$diaspora = true;
 
 		if($mode == PROBE_DIASPORA || !$notify || ($notify == $diaspora_notify)) {
 			$notify = $diaspora_notify;
