@@ -794,7 +794,10 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 	if(($network === NETWORK_FEED) && ($poll) && (! x($vcard,'fn')))
 		$vcard['fn'] = $url;
 
-	if (($notify != "") AND ($poll != "")) {
+	if ($diaspora_base != "")
+		$baseurl = $diaspora_base;
+
+	if (($baseurl == "") AND ($notify != "") AND ($poll != "")) {
 		$baseurl = matching_url(normalise_link($notify), normalise_link($poll));
 
 		$baseurl2 = matching_url($baseurl, normalise_link($profile));
@@ -824,6 +827,7 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 
 	$result['name'] = $vcard['fn'];
 	$result['nick'] = $vcard['nick'];
+	$result['guid'] = $diaspora_guid;
 	$result['url'] = $profile;
 	$result['addr'] = $addr;
 	$result['batch'] = $batch;
