@@ -293,3 +293,19 @@ function toggleJotNav (elm) {
 	$(elm).parent("li").addClass("active");
 }
 
+// Wall Message needs a special handling because in some cases
+// it redirects you to your own server. In such cases we can't
+// load it into a modal
+function openWallMessage(url) {
+	// split the the url in its parts
+	var parts = parseUrl(url);
+
+	// If the host isn't the same we can't load it in a modal.
+	// So we will go to to the url directly
+	if( ("host" in parts) && (parts.host !== window.location.host)) {
+		window.location.href = url;
+	} else {
+		// otherwise load the wall message into a modal
+		addToModal(url);
+	}
+}
