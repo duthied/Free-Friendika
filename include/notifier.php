@@ -388,17 +388,30 @@ function notifier_run(&$argv, &$argc){
 		// We have not only to look at the parent, since it could be a Friendica thread.
 		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
 
-			logger('Some parent is OStatus for '.$target_item["guid"], LOGGER_DEBUG);
+			logger('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent[0]['author-link']." - Owner: ".$thr_parent[0]['owner-link'], LOGGER_DEBUG);
 
 			// Send a salmon to the parent author
-			$probed_contact = probe_url($thr_parent[0]['author-link']);
+			$r = q("SELECT `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
+				dbesc(normalise_link($thr_parent[0]['author-link'])),
+				intval($uid));
+			if ($r)
+				$probed_contact = $r[0];
+			else
+				$probed_contact = probe_url($thr_parent[0]['author-link']);
+
 			if ($probed_contact["notify"] != "") {
 				logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
 				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 			}
 
 			// Send a salmon to the parent owner
-			$probed_contact = probe_url($thr_parent[0]['owner-link']);
+			$r = q("SELECT `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
+				dbesc(normalise_link($thr_parent[0]['owner-link'])),
+				intval($uid));
+			if ($r)
+				$probed_contact = $r[0];
+			else
+				$probed_contact = probe_url($thr_parent[0]['owner-link']);
 			if ($probed_contact["notify"] != "") {
 				logger('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
 				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];

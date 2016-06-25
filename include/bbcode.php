@@ -428,8 +428,8 @@ function bb_ShareAttributes($share, $simplehtml) {
 	if (isset($data["name"]))
 		$author = $data["name"];
 
-	if (isset($data["thumb"]))
-		$avatar = $data["thumb"];
+	if (isset($data["micro"]))
+		$avatar = $data["micro"];
 
 	$preshare = trim($share[1]);
 

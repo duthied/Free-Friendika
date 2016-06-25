@@ -138,6 +138,8 @@ function dfrn_request_post(&$a) {
 
 					$dfrn_request = $parms['dfrn-request'];
 
+					$photo = $parms["photo"];
+
 					/********* Escape the entire array ********/
 
 					dbesc_array($parms);
@@ -184,6 +186,9 @@ function dfrn_request_post(&$a) {
 					$def_gid = get_default_group(local_user(), $r[0]["network"]);
 					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
+
+					if (isset($photo))
+						update_contact_avatar($photo, local_user(), $r[0]["id"], true);
 
 					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
 				} else
@@ -530,7 +535,7 @@ function dfrn_request_post(&$a) {
 
 				$parms['url'] = $url;
 				$parms['issued-id'] = $issued_id;
-
+				$photo = $parms["photo"];
 
 				dbesc_array($parms);
 				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
@@ -539,7 +544,7 @@ function dfrn_request_post(&$a) {
 					intval($uid),
 					dbesc(datetime_convert()),
 					$parms['url'],
-					dbesc(normalise_link($parms['url'])),
+					dbesc(normalise_link($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -562,8 +567,10 @@ function dfrn_request_post(&$a) {
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if(count($r))
+					if(count($r)) {
 						$contact_record = $r[0];
+						update_contact_avatar($photo, $uid, $contact_record["id"], true);
+					}
 				}
 
 			}
