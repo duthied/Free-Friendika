@@ -138,6 +138,8 @@ function notifications_content(&$a) {
 			$a->set_pager_itemspage(20);
 		}
 
+		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
+
 		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`,
 				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
 				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`,

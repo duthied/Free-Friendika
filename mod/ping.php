@@ -191,8 +191,8 @@ function ping_init(&$a) {
 		function xmlize($n){
 
 			$contact = get_contact_details_by_url($n['url']);
-			if (isset($contact["thumb"]))
-				$n['photo'] = proxy_url($contact["thumb"], false, PROXY_SIZE_MICRO);
+			if (isset($contact["micro"]))
+				$n['photo'] = proxy_url($contact["micro"], false, PROXY_SIZE_MICRO);
 			else
 				$n['photo'] = proxy_url($n['photo'], false, PROXY_SIZE_MICRO);
 

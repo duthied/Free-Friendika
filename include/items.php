@@ -1404,16 +1404,8 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				dbesc($url)
 		);
 		if(count($r)) {
-				$contact_record = $r[0];
-
-				$photos = import_profile_photo($photo,$importer["uid"],$contact_record["id"]);
-
-				q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
-					dbesc($photos[0]),
-					dbesc($photos[1]),
-					dbesc($photos[2]),
-					intval($contact_record["id"])
-				);
+			$contact_record = $r[0];
+			update_contact_avatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
 
 

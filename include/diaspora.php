@@ -1809,6 +1809,8 @@ class diaspora {
 		if(intval($def_gid))
 			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
 
+		update_contact_avatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
+
 		if($importer["page-flags"] == PAGE_NORMAL) {
 
 			$hash = random_string().(string)time();   // Generate a confirm_key

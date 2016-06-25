@@ -209,21 +209,21 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	// Fetch contact data from the contact table for the given user
 	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-			`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
 		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!$r)
 		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
 	// Fetch the data from the gcontact table
 	if (!$r)
 		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = '%s'",
 				dbesc(normalise_link($url)));
 
@@ -267,8 +267,11 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	if (($profile["network"] == "") AND isset($default["network"]))
 		$profile["network"] = $default["network"];
 
-	if (!isset($profile["thumb"]) AND isset($profile["photo"]))
+	if (($profile["thumb"] == "") AND isset($profile["photo"]))
 		$profile["thumb"] = $profile["photo"];
+
+	if (($profile["micro"] == "") AND isset($profile["thumb"]))
+		$profile["micro"] = $profile["thumb"];
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
