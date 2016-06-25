@@ -36,15 +36,15 @@ function viewcontacts_content(&$a) {
 		return;
 	}
 
-	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
-		notice( t('Permission denied.') . EOL);
-		return;
-	}
-
 	$o = "";
 
 	// tabs
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
+
+	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
+		notice( t('Permission denied.') . EOL);
+		return;
+	}
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
