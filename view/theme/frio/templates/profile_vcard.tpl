@@ -61,7 +61,7 @@
 				{{/if}}
 				{{if $wallmessage}}
 				<div id="wallmessage-link-botton">
-					<a id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="addToModal('{{$wallmessage_link}}')">
+					<a id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="openWallMessage('{{$wallmessage_link}}')">
 						<span class=""><i class="fa fa-envelope"></i></span>
 						<span class="">{{$wallmessage}}</span>
 					</a>
