@@ -146,7 +146,12 @@ function editpost_content(&$a) {
 		'$jotplugins' => $jotplugins,
 		'$sourceapp' => t($a->sourcename),
 		'$cancel' => t('Cancel'),
-		'$rand_num' => random_digits(12)
+		'$rand_num' => random_digits(12),
+
+		//jot nav tab (used in some themes)
+		'$message' => t('Message'),
+		'$browser' => t('Browser'),
+		'$shortpermset' => t('permissions'),
 	));
 
 	return $o;

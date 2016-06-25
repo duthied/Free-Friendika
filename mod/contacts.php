@@ -800,6 +800,7 @@ function contacts_content(&$a) {
 			"contacts_batch_archive" => t('Archive')."/".t("Unarchive"),
 			"contacts_batch_drop" => t('Delete'),
 		),
+		'$h_batch_actions' => t('Batch Actions'),
 		'$paginate' => paginate($a),
 
 	));

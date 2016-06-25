@@ -687,6 +687,8 @@ function advanced_profile(&$a) {
 
 		return replace_macros($tpl, array(
 			'$title' => t('Profile'),
+			'$basic' => t('Basic'),
+			'$advanced' => t('Advanced'),
 			'$profile' => $profile
 		));
 	}
