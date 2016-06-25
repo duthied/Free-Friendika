@@ -1770,7 +1770,7 @@ ul.dropdown-menu li:hover {
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .message-content-wrapper, .apps-content-wrapper, .notifications-content-wrapper,
-.admin-content-wrapper, .group-content-wrapper {
+.admin-content-wrapper, .group-content-wrapper, .viewcontacts-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
