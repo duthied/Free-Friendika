@@ -1282,6 +1282,10 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$private' => t('Private post'),
 		'$is_private' => $private_post,
 		'$public_link' => $public_post_link,
+
+		//jot nav tab (used in some themes)
+		'$message' => t('Message'),
+		'$browser' => t('Browser'),
 	));
 
 

@@ -22,8 +22,8 @@
 	<h3 class="">{{$title}}</h3>
 
 	<ul id="profile-menu" class="nav nav-tabs" role="menubar" data-tabs="tabs">
-		<li class="active" role="menuitem"><a id="profile-tab-standard-link" onclick="profileStandardActive(); return false;">Standard</a></li>
-		<li role="menuitem"><a id="profile-tab-advanced-link" onclick="profileAdvancedActive(); return false;">Advanced</a></li>
+		<li class="active" role="menuitem"><a id="profile-tab-standard-link" onclick="profileStandardActive(); return false;">{{$basic}}</a></li>
+		<li role="menuitem"><a id="profile-tab-advanced-link" onclick="profileAdvancedActive(); return false;">{{$advanced}}</a></li>
 	</ul>
 
 	<div id="profile-content-standard">

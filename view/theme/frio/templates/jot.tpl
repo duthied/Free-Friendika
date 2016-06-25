@@ -71,7 +71,13 @@
 </div>
 
 
-<!-- Modal -->
+{{* The jot modal - We use a own modal for the jot and not the standard modal
+from the page template. This is because the special structure of the jot
+(e.g.jot navigation tabs in the modal titel area).
+The in the frio theme the jot will loaded regulary and is hidden by default.)
+The js function jotShow() loads the jot into the modal. With this structure we
+can load different content into the jot moadl (e.g. the item edit jot)
+*}}
 <div id="jot-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -83,10 +89,10 @@
 				<ul class="nav nav-tabs hidden-xs jot-nav" role="menubar" data-tabs="tabs">
 					{{* Mark the first list entry as active because it is the first which is active after opening
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
-					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">Text</a></li>
-					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
+					<li class="active" role="menuitem"><a id="jot-text-lnk" onclick="jotActive(); return false;">{{$message}}</a></li>
+					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" onclick="aclActive();return false;">{{$shortpermset}}</a></li>{{/if}}
 					{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
-					<li role="menuitem"><a id="jot-preview-link" onclick="fbrowserActive(); return false;"> Browser </a></li>
+					<li role="menuitem"><a id="jot-preview-link" onclick="fbrowserActive(); return false;">{{$browser}}</a></li>
 				</ul>
 				
 				<div class="dropdown  hidden-lg hidden-md hidden-sm" role="menubar" data-tabs="tabs">
@@ -95,8 +101,8 @@
 					<ul class="dropdown-menu nav nav-pills">
 						{{* mark the first list entry as active because it is the first which is active after opening
 						the modal. Changing of the activity status is done by js in jot.tpl-header *}}
-						<li class="active" role="menuitem"><a id="jot-text-lnk-mobile" onclick="jotActive(); return false;">Text</a></li>
-						{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk-mobile" onclick="aclActive();return false;">Permissions</a></li>{{/if}}
+						<li class="active" role="menuitem"><a id="jot-text-lnk-mobile" onclick="jotActive(); return false;">{{$message}}</a></li>
+						{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk-mobile" onclick="aclActive();return false;"{{$shortpermset}}</a></li>{{/if}}
 						{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk-mobile" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
 					</ul>
 				</div>
