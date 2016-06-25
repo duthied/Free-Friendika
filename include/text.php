@@ -901,20 +901,28 @@ function contact_block() {
 
 }}
 
-if(! function_exists('micropro')) {
 /**
+ * @brief Format contacts as picture links or as texxt links
  *
- * @param array $contact
- * @param boolean $redirect
- * @param string $class
- * @param boolean $textmode
- * @return string #FIXME: remove html
+ * @param array $contact Array with contacts which contains an array with
+ *	int 'id' => The ID of the contact
+ *	int 'uid' => The user ID of the user who owns this data
+ *	string 'name' => The name of the contact
+ *	string 'url' => The url to the profile page of the contact
+ *	string 'addr' => The webbie of the contact (e.g.) username@friendica.com
+ *	string 'network' => The network to which the contact belongs to
+ *	string 'micro' => The contact picture
+ *	string 'click' => js code which is performed when clicking on the contact
+ * @param boolean $redirect If true try to use the redir url if it's possible
+ * @param string $class CSS class for the 
+ * @param boolean $textmode If true display the contacts as text links
+ *	if false display the contacts as picture links
+ 
+ * @return string Formatted html 
  */
 function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
-	if($class)
-		$class = ' ' . $class;
-
+	// Use the contact URL if no address is available
 	if ($contact["addr"] == "")
 		$contact["addr"] = $contact["url"];
 
@@ -933,26 +941,23 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		else
 			$url = zrl($url);
 	}
-	$click = ((x($contact,'click')) ? ' onclick="' . $contact['click'] . '" ' : '');
-	if($click)
+
+	// If there is some js available we don't need the url
+	if(x($contact,'click'))
 		$url = '';
-	if($textmode) {
-		return '<div class="contact-block-textdiv' . $class . '"><a class="contact-block-link' . $class . $sparkle
-			. (($click) ? ' fakelink' : '') . '" '
-			. (($redir) ? ' target="redir" ' : '')
-			. (($url) ? ' href="' . $url . '"' : '') . $click
-			. '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
-			. '" >'. $contact['name'] . '</a></div>' . "\r\n";
-	}
-	else {
-		return '<div class="contact-block-div' . $class . '"><a class="contact-block-link' . $class . $sparkle
-			. (($click) ? ' fakelink' : '') . '" '
-			. (($redir) ? ' target="redir" ' : '')
-			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. proxy_url($contact['micro'], false, PROXY_SIZE_THUMB) . '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
-			. '" /></a></div>' . "\r\n";
-	}
-}}
+
+	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),array(
+		'$click' => (($contact['click']) ? $contact['click'] : ''),
+		'$class' => $class,
+		'$url' => $url,
+		'$photo' => proxy_url($contact['micro'], false, PROXY_SIZE_THUMB),
+		'$name' => $contact['name'],
+		'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
+		'$parkle' => $sparkle,
+		'$redir' => $redir,
+
+	));
+}
 
 
 
