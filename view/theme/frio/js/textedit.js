@@ -191,5 +191,3 @@ function dropItem(url, object) {
 		});
 	}
 }
-
-	
