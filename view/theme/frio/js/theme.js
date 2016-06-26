@@ -179,6 +179,33 @@ $(document).ready(function(){
 		// there are two elements with this class but we don't want the js template
 		$(".network-content-wrapper > #viewcontact_wrapper-network .contact-wrapper").first().appendTo("#nav-short-info");
 	}
+
+	// move heading from network stream to the second navbar nav-short-info section
+	if( $(".network-content-wrapper > .section-title-wrapper").length) {
+		// get the heading element
+		var heading = $(".network-content-wrapper > .section-title-wrapper > h2");
+		// get the text of the heading
+		var headingContent = heading.text();
+		// create a new element with the content of the heading
+		var newText = '<h4 class="heading" data-toggle="tooltip" title="'+headingContent+'">'+headingContent+'</h4>';
+		// remove the old heading element
+		heading.remove(),
+		// put the new element to the second nav bar
+		$("#topbar-second #nav-short-info").append(newText);
+	}
+
+	if( $(".community-content-wrapper").length) {
+		// get the heading element
+		var heading = $(".community-content-wrapper > h3").first();
+		// get the text of the heading
+		var headingContent = heading.text();
+		// create a new element with the content of the heading
+		var newText = '<h4 class="heading">'+headingContent+'</h4>';
+		// remove the old heading element
+		heading.remove(),
+		// put the new element to the second nav bar
+		$("#topbar-second > .container > #tabmenu").append(newText);
+	}
 });
 //function commentOpenUI(obj, id) {
 //	$(document).unbind( "click.commentOpen", handler );

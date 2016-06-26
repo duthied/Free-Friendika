@@ -241,6 +241,10 @@ aside .badge {
     opacity: 0.7;
 }
 
+/* disabled elements */
+.community-content-wrapper > h3, .network-content-wrapper > .section-title-wrapper {
+    display:none;
+}
 
 header #site-location {
     display: none;
@@ -724,7 +728,20 @@ nav.navbar a {
     margin: 0;
     font-weight: 400
 }
-
+#topbar-second #nav-short-info .heading {
+    margin-left: -14px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-right: 20px;
+    text-overflow: ellipsis;
+}
+#topbar-second #tabmenu .heading {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $link_color;
+    text-align: center;
+}
 
 /* Dropdown Menus */
 .nav-pills .dropdown-menu,
