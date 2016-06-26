@@ -143,10 +143,14 @@ function enableOnUser(){
 	$(document).ready(function() {
 
 		/* enable tinymce on focus and click */
-		$("#profile-jot-text").focus(enableOnUser);
-		$("#profile-jot-text").click(enableOnUser);
+		//$("#profile-jot-text").focus(enableOnUser);
+		//$("#profile-jot-text").click(enableOnUser);
 
-
+		// When clicking on a forum in acl we should remove the profile jot textarea
+		// default value before inserting the forum mention
+		$("body").on('click', '#jot-modal .acl-list-item.forum', function(){
+			jotTextOpenUI(document.getElementById("profile-jot-text"));
+		});
 
 
 		/* show images / file browser window
@@ -376,8 +380,14 @@ function enableOnUser(){
 
 	function addeditortext(data) {
 		if(plaintext == 'none') {
+			// get the textfield
+			var textfield = document.getElementById("profile-jot-text");
+			// check if the textfield does have the default-value
+			jotTextOpenUI(textfield);
+			// save already existent content
 			var currentText = $("#profile-jot-text").val();
-			$("#profile-jot-text").val(currentText + data);
+			//insert the data as new value
+			textfield.value = currentText + data;
 		}
 		else
 			tinyMCE.execCommand('mceInsertRawHTML',false,data);
@@ -425,6 +435,7 @@ function enableOnUser(){
 
 		$(function() {Dialog.showJot();});
 	}
+
 
 </script>
 
