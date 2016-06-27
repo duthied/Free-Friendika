@@ -206,6 +206,16 @@ $(document).ready(function(){
 		// put the new element to the second nav bar
 		$("#topbar-second > .container > #tabmenu").append(newText);
 	}
+
+	// Dropdown menus with the class "dropdown-head" will display the active tab
+	// as button text
+	$("body").on('click', '.dropdown-head .dropdown-menu li a', function(){
+		$(this).closest(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+		$(this).closest(".dropdown").find('.btn').val($(this).data('value'));
+		$(this).closest("ul").children("li").show();
+		$(this).parent("li").hide();
+	});
+
 });
 //function commentOpenUI(obj, id) {
 //	$(document).unbind( "click.commentOpen", handler );

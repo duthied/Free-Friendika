@@ -400,10 +400,9 @@ function enableOnUser(){
 		jotcache = $("#profile-jot-form");
 
 		modal
-			.find('#jot-modal-body')
+			.find('#jot-modal-content')
 			.append(jotcache)
-			.modal.show
-			;
+			.modal.show;
 	}
 
 	// the following functions show/hide the specific jot content 
