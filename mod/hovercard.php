@@ -72,7 +72,7 @@ function hovercard_content() {
 		'gender' => $contact["gender"],
 		'about' => $contact["about"],
 		'network' => format_network_name($contact["network"], $contact["url"]),
-		'tags' => intval($contact["keywords"]),
+		'tags' => $contact["keywords"],
 //		'nsfw' => intval($contact["nsfw"]),
 //		'server_url' => $contact["server_url"],
 		'bd' => (($contact["birthday"] == "0000-00-00") ? "" : $contact["birthday"]),
