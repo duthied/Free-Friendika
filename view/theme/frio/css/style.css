@@ -69,6 +69,9 @@ iframe, img {
 .fakelink {
     cursor: pointer;
 }
+.hidden {
+    display: none !important;
+}
 
 /*
 * standard page elements
@@ -156,6 +159,15 @@ a#item-delete-selected {
     outline: 0;
     background: $btn_primary_hover_color !important;
 }
+.btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
+.btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover,
+.open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus,
+.open>.dropdown-toggle.btn-primary:hover,.btn-primary.active, .btn-primary:active,
+.open>.dropdown-toggle.btn-primary {
+    background: $btn_primary_hover_color;
+    border-color: none;
+}
+	
 .btn-link {
 /*    color: #6fdbe8;*/
     color: $link_color;

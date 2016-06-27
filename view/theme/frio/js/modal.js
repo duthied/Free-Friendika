@@ -224,7 +224,7 @@ function editpost(url) {
 	url = url + " #profile-jot-form";
 
 	//var rand_num = random_digits(12);
-	$(".jot-nav #jot-perms-lnk").parent("li").hide();
+	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
 	// For editpost we load the modal html form the edit page. So we would have two jot forms in
 	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
@@ -241,7 +241,7 @@ function editpost(url) {
 	jotreset();
 
 	modal
-		.find('#jot-modal-body')
+		.find('#jot-modal-content')
 		.load(url, function (responseText, textStatus) {
 			if ( textStatus === 'success' || 
 				textStatus === 'notmodified') 
@@ -267,7 +267,7 @@ function jotreset() {
 	// We need this to prevent that the modal displays old content
 	$('body').on('hidden.bs.modal', '#jot-modal.edit-jot', function () {
 		$(this).removeData('bs.modal');
-		$(".jot-nav #jot-perms-lnk").parent("li").show();
+		$(".jot-nav .jot-perms-lnk").parent("li").removeClass("hidden");
 		$("#profile-jot-form #jot-title-wrap").show();
 		$("#profile-jot-form #jot-category-wrap").show();
 
@@ -281,14 +281,14 @@ function jotreset() {
 
 		// remove the "edit-jot" class so we can the standard behavior on close
 		$("#jot-modal.edit-jot").removeClass("edit-jot");
-		$("#jot-modal-body").empty();
+		$("#jot-modal-content").empty();
 	});
 }
 
 // Give the active "jot-nav" list element the class "active"
 function toggleJotNav (elm) {
 	// select all li of jot-nav and remove the active class
-	$(elm).closest(".jot-nav").children("li").removeClass("active");
+	$(".jot-nav li").removeClass("active");
 	// add the active class to the parent of the link which was selected
 	$(elm).parent("li").addClass("active");
 }
