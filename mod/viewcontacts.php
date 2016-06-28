@@ -43,7 +43,7 @@ function viewcontacts_content(&$a) {
 
 	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
 		notice( t('Permission denied.') . EOL);
-		return;
+		return $o;
 	}
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
