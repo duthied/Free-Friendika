@@ -2242,7 +2242,7 @@ class diaspora {
 	 *
 	 * @return string the handle in the format user@domain.tld
 	 */
-	private function my_handle($contact) {
+	function my_handle($contact) {
 		if ($contact["addr"] != "")
 			return $contact["addr"];
 

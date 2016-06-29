@@ -15,7 +15,7 @@ function fetch_init($a){
 
 	$guid = $a->argv[2];
 
-	$item = q("SELECT `uid`, `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app`, `location`
+	$item = q("SELECT `uid`, `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app`, `location`, `coord`
 			FROM `item` WHERE `wall` AND NOT `private`  AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
 		dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
 	if (!$item) {
@@ -35,6 +35,18 @@ function fetch_init($a){
 		$post["public"] = (!$item[0]["private"] ? 'true':'false');
 		$post["created_at"] = datetime_convert('UTC','UTC',$item[0]["created"]);
 	} else {
+
+		$location = array();
+
+		if ($item[0]["location"] != "")
+			$location["address"] = $item[0]["location"];
+
+		if ($item[0]["coord"] != "") {
+			$coord = explode(" ", $item[0]["coord"]);
+			$location["lat"] = $coord[0];
+			$location["lng"] = $coord[1];
+		}
+
 		$body = bb2diaspora($item[0]["body"]);
 
 		if(strlen($item[0]["title"]))
@@ -42,7 +54,7 @@ function fetch_init($a){
 
 		$nodename = "status_message";
 		$post["raw_message"] = str_replace("&", "&amp;", $body);
-		$post["location"] = $item[0]["location"];
+		$post["location"] = $location;
 		$post["guid"] = $item[0]["guid"];
 		$post["diaspora_handle"] = diaspora::handle_from_contact($item[0]["contact-id"]);
 		$post["public"] = (!$item[0]["private"] ? 'true':'false');
@@ -53,7 +65,9 @@ function fetch_init($a){
 	$data = array("XML" => array("post" => array($nodename => $post)));
 	$xml = xml::from_array($data, $xmlobj);
 
-	$r = q("SELECT `guid`, `prvkey` FROM `user` WHERE `uid` = %d", intval($item[0]["uid"]));
+	$r = q("SELECT `user`.`prvkey`, `contact`.`addr`, `user`.`nickname`, `contact`.`nick` FROM `user`
+		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+		WHERE `user`.`uid` = %d", intval($item[0]["uid"]));
 	if (!$r) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
@@ -64,7 +78,7 @@ function fetch_init($a){
 	$b64url_data = base64url_encode($xml);
 	$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
 
-	$key_id = base64url_encode($user["guid"]);
+	$key_id = base64url_encode(diaspora::my_handle($user));
 	$type = "application/xml";
 	$encoding = "base64url";
 	$alg = "RSA-SHA256";
@@ -81,9 +95,12 @@ function fetch_init($a){
 
 	$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-	$envelope = xml::from_array($xmldata, $xml, false, $namespaces);
-	header("Content-Type: application/xml; charset=utf-8");
-	echo $envelope;
+	//header("Content-Type: application/xml; charset=utf-8");
+	//echo $xml;
+	//killme();
 
+	$envelope = xml::from_array($xmldata, $xml, false, $namespaces);
+	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
+	echo $envelope;
 	killme();
 }
