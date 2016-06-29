@@ -2,7 +2,9 @@
 /*
 This file is part of the Diaspora protocol. It is used for fetching single public posts.
 */
+require_once("include/crypto.php");
 require_once("include/diaspora.php");
+require_once("include/xml.php");
 
 function fetch_init($a){
 
@@ -51,7 +53,7 @@ function fetch_init($a){
 	$data = array("XML" => array("post" => array($nodename => $post)));
 	$xml = xml::from_array($data, $xmlobj);
 
-	$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d", intval($item[0]["uid"]));
+	$r = q("SELECT `guid`, `prvkey` FROM `user` WHERE `uid` = %d", intval($item[0]["uid"]));
 	if (!$r) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
@@ -59,11 +61,10 @@ function fetch_init($a){
 
 	$user = $r[0];
 
-	$key_id = "";
-
 	$b64url_data = base64url_encode($xml);
 	$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
 
+	$key_id = base64url_encode($user["guid"]);
 	$type = "application/xml";
 	$encoding = "base64url";
 	$alg = "RSA-SHA256";
