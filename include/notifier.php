@@ -132,18 +132,25 @@ function notifier_run(&$argv, &$argc){
 		$recipients[] = $suggest[0]['cid'];
 		$item = $suggest[0];
 	} elseif($cmd === 'removeme') {
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($item_id));
-		if (! $r)
+		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+				`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
+				`user`.`page-flags`, `user`.`prvnets`
+			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+				WHERE `contact`.`uid` = %d AND `contact`.`self` LIMIT 1",
+				intval($item_id));
+		if (!$r)
 			return;
 
 		$user = $r[0];
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1", intval($item_id));
-		if (! $r)
+
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($item_id));
+		if (!$r)
 			return;
 
 		$self = $r[0];
-		$r = q("SELECT * FROM `contact` WHERE `self` = 0 AND `uid` = %d", intval($item_id));
-		if(! $r)
+
+		$r = q("SELECT * FROM `contact` WHERE NOT `self` AND `uid` = %d", intval($item_id));
+		if(!$r)
 			return;
 
 		require_once('include/Contact.php');

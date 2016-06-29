@@ -2287,10 +2287,10 @@ class diaspora {
 		$sig = base64url_encode($signature);
 
 		$xmldata = array("diaspora" => array("header" => array("author_id" => $handle),
-						"me:env" => array("me:encoding" => "base64url",
-								"me:alg" => "RSA-SHA256",
+						"me:env" => array("me:encoding" => $encoding,
+								"me:alg" => $alg,
 								"me:data" => $data,
-								"@attributes" => array("type" => "application/xml"),
+								"@attributes" => array("type" => $type),
 								"me:sig" => $sig)));
 
 		$namespaces = array("" => "https://joindiaspora.com/protocol",
@@ -2377,10 +2377,10 @@ class diaspora {
 		$cipher_json = base64_encode($encrypted_header_json_object);
 
 		$xmldata = array("diaspora" => array("encrypted_header" => $cipher_json,
-						"me:env" => array("me:encoding" => "base64url",
-								"me:alg" => "RSA-SHA256",
+						"me:env" => array("me:encoding" => $encoding,
+								"me:alg" => $alg,
 								"me:data" => $data,
-								"@attributes" => array("type" => "application/xml"),
+								"@attributes" => array("type" => $type),
 								"me:sig" => $sig)));
 
 		$namespaces = array("" => "https://joindiaspora.com/protocol",
