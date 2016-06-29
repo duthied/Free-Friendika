@@ -360,8 +360,10 @@ class diaspora {
 
 		$data = parse_xml_string($msg["message"], false);
 
-		if (!is_object($data))
+		if (!is_object($data)) {
+			logger("No valid XML ".$msg["message"], LOGGER_DEBUG);
 			return false;
+		}
 
 		$first_child = $data->getName();
 
@@ -422,9 +424,9 @@ class diaspora {
 				}
 			}
 
-			if ($fieldname == "author_signature")
+			if (($fieldname == "author_signature") AND ($entry != ""))
 				$author_signature = base64_decode($entry);
-			elseif ($fieldname == "parent_author_signature")
+			elseif (($fieldname == "parent_author_signature") AND ($entry != ""))
 				$parent_author_signature = base64_decode($entry);
 			elseif ($fieldname != "target_author_signature") {
 				if ($signed_data != "") {
@@ -451,19 +453,27 @@ class diaspora {
 			return true;
 
 		// No author_signature? This is a must, so we quit.
-		if (!isset($author_signature))
+		if (!isset($author_signature)) {
+			logger("No author signature for type ".$type, LOGGER_DEBUG);
 			return false;
+		}
 
 		if (isset($parent_author_signature)) {
 			$key = self::key($msg["author"]);
 
-			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256"))
+			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256")) {
+				logger("No valid parent author signature for author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
+			}
 		}
 
 		$key = self::key($fields->author);
 
-		return rsa_verify($signed_data, $author_signature, $key, "sha256");
+		if (!rsa_verify($signed_data, $author_signature, $key, "sha256")) {
+			logger("No valid author signature for author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
+			return false;
+		} else
+			return true;
 	}
 
 	/**
