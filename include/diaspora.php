@@ -428,7 +428,7 @@ class diaspora {
 				$author_signature = base64_decode($entry);
 			elseif (($fieldname == "parent_author_signature") AND ($entry != ""))
 				$parent_author_signature = base64_decode($entry);
-			elseif ($fieldname != "target_author_signature") {
+			elseif (!in_array($fieldname, array("author_signature", "parent_author_signature", "target_author_signature"))) {
 				if ($signed_data != "") {
 					$signed_data .= ";";
 					$signed_data_parent .= ";";
@@ -454,7 +454,7 @@ class diaspora {
 
 		// No author_signature? This is a must, so we quit.
 		if (!isset($author_signature)) {
-			logger("No author signature for type ".$type, LOGGER_DEBUG);
+			logger("No author signature for type ".$type." - Message: ".$msg["message"], LOGGER_DEBUG);
 			return false;
 		}
 
