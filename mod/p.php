@@ -24,6 +24,20 @@ function p_init($a){
 			FROM `item` WHERE `wall` AND NOT `private` AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
 		dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
 	if (!$item) {
+		$r = q("SELECT `author-link`
+			FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
+			dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
+		if ($r) {
+			$parts = parse_url($r[0]["author-link"]);
+			$host = $parts["scheme"]."://".$parts["host"];
+
+			$location = $host."/p/".$guid.".xml";
+
+			header("HTTP/1.1 301 Moved Permanently");
+			header("Location:".$location);
+			killme();
+		}
+
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
 	}
