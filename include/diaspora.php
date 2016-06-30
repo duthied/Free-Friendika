@@ -2561,7 +2561,7 @@ class diaspora {
 	 */
 	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "", $spool = false) {
 
-		$msg = build_post_xml($type, $message);
+		$msg = self::build_post_xml($type, $message);
 
 		logger('message: '.$msg, LOGGER_DATA);
 		logger('send guid '.$guid, LOGGER_DEBUG);
