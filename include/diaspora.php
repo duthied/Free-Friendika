@@ -898,9 +898,11 @@ class diaspora {
 
 		if ($source_xml->post->reshare) {
 			// Reshare of a reshare - old Diaspora version
+			logger("Message is a reshare", LOGGER_DEBUG);
 			return self::message($source_xml->post->reshare->root_guid, $server, ++$level);
 		} elseif ($source_xml->getName() == "reshare") {
 			// Reshare of a reshare - new Diaspora version
+			logger("Message is a new reshare", LOGGER_DEBUG);
 			return self::message($source_xml->root_guid, $server, ++$level);
 		}
 
@@ -913,8 +915,10 @@ class diaspora {
 			$author = (string)$source_xml->author;
 
 		// If this isn't a "status_message" then quit
-		if (!$author)
+		if (!$author) {
+			logger("Message doesn't seem to be a status message", LOGGER_DEBUG);
 			return false;
+		}
 
 		$msg = array("message" => $x, "author" => $author);
 
