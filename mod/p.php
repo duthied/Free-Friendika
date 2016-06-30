@@ -31,7 +31,7 @@ function p_init($a){
 			$parts = parse_url($r[0]["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
-			$location = $host."/p/".$guid.".xml";
+			$location = $host."/p/".urlencode($guid).".xml";
 
 			header("HTTP/1.1 301 Moved Permanently");
 			header("Location:".$location);
