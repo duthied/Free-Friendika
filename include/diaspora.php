@@ -876,13 +876,15 @@ class diaspora {
 		if($envelope) {
 			logger("Envelope was fetched.", LOGGER_DEBUG);
 			$x = self::verify_magic_envelope($envelope);
-			if (!$x) {
+			if (!$x)
 				logger("Envelope could not be verified.", LOGGER_DEBUG);
-				return false;
-			}
-			logger("Envelope was verified.", LOGGER_DEBUG);
-		} else {
-			// This will work for older Diaspora and Friendica servers
+			else
+				logger("Envelope was verified.", LOGGER_DEBUG);
+		} else
+			$x = false;
+
+		// This will work for older Diaspora and Friendica servers
+		if (!$x) {
 			$source_url = $server."/p/".$guid.".xml";
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
@@ -1985,27 +1987,15 @@ class diaspora {
 
 		if (!$r) {
 			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
-			logger("1st try: reshared message ".$guid." will be fetched from original server: ".$server);
+			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
 			$item_id = self::store_by_guid($guid, $server);
 
 			if (!$item_id) {
 				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
-				logger("2nd try: reshared message ".$guid." will be fetched from original server: ".$server);
+				logger("2nd try: reshared message ".$guid." will be fetched without SLL from the server ".$server);
 				$item_id = self::store_by_guid($guid, $server);
 			}
 
-			// Deactivated by now since there is a risk that someone could manipulate postings through this method
-/*			if (!$item_id) {
-				$server = "https://".substr($author, strpos($author, "@") + 1);
-				logger("3rd try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
-				$item_id = self::store_by_guid($guid, $server);
-			}
-			if (!$item_id) {
-				$server = "http://".substr($author, strpos($author, "@") + 1);
-				logger("4th try: reshared message ".$guid." will be fetched from sharer's server: ".$server);
-				$item_id = self::store_by_guid($guid, $server);
-			}
-*/
 			if ($item_id) {
 				$r = q("SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
 						`author-name`, `author-link`, `author-avatar`
