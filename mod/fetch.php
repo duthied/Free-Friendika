@@ -2,22 +2,18 @@
 /*
 This file is part of the Diaspora protocol. It is used for fetching single public posts.
 */
+require_once("include/crypto.php");
 require_once("include/diaspora.php");
+require_once("include/xml.php");
 
-function p_init($a){
-	if ($a->argc != 2) {
-		header($_SERVER["SERVER_PROTOCOL"].' 510 '.t('Not Extended'));
-		killme();
-	}
+function fetch_init($a){
 
-	$guid = $a->argv[1];
-
-	if (strtolower(substr($guid, -4)) != ".xml") {
+	if (($a->argc != 3) OR (!in_array($a->argv[1], array("post", "status_message", "reshare")))) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
 	}
 
-	$guid = strtolower(substr($guid, 0, -4));
+	$guid = $a->argv[2];
 
 	// Fetch the item
 	$item = q("SELECT `uid`, `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app`, `location`, `coord`
@@ -31,7 +27,7 @@ function p_init($a){
 			$parts = parse_url($r[0]["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
-			$location = $host."/p/".urlencode($guid).".xml";
+			$location = $host."/fetch/".$a->argv[1]."/".urlencode($guid);
 
 			header("HTTP/1.1 301 Moved Permanently");
 			header("Location:".$location);
@@ -55,8 +51,9 @@ function p_init($a){
 	$status = diaspora::build_status($item[0], $user);
 	$xml = diaspora::build_post_xml($status["type"], $status["message"]);
 
-	header("Content-Type: application/xml; charset=utf-8");
-	echo $xml;
+	// Send the envelope
+	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
+	echo diaspora::build_magic_envelope($xml, $user);
 
 	killme();
 }

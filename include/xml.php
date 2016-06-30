@@ -44,7 +44,7 @@ class xml {
 		}
 
 		foreach($array as $key => $value) {
-			if ($key == "@attributes") {
+			if (substr($key, 0, 11) == "@attributes") {
 				if (!isset($element) OR !is_array($value))
 					continue;
 
