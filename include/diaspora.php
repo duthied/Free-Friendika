@@ -101,6 +101,59 @@ class diaspora {
 	}
 
 	/**
+	 * @brief verify the envelope and return the verified data
+	 *
+	 * @param string $envelope The magic envelope
+	 *
+	 * @return string verified data
+	 */
+	private function verify_magic_envelope($envelope) {
+
+		$basedom = parse_xml_string($envelope, false);
+
+		if (!is_object($basedom)) {
+			logger("Envelope is no XML file");
+			return false;
+		}
+
+		$children = $basedom->children('http://salmon-protocol.org/ns/magic-env');
+
+		if (sizeof($children) == 0) {
+			logger("XML has no children");
+			return false;
+		}
+
+		$handle = "";
+
+		$data = base64url_decode($children->data);
+		$type = $children->data->attributes()->type[0];
+
+		$encoding = $children->encoding;
+
+		$alg = $children->alg;
+
+		$sig = base64url_decode($children->sig);
+		$key_id = $children->sig->attributes()->key_id[0];
+		if ($key_id != "")
+			$handle = base64url_decode($key_id);
+
+		$b64url_data = base64url_encode($data);
+		$msg = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+
+		$signable_data = $msg.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+
+		$key = self::key($handle);
+
+		$verify = rsa_verify($signable_data, $sig, $key);
+		if (!$verify) {
+			logger('Message did not verify. Discarding.');
+			return false;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * @brief: Decodes incoming Diaspora message
 	 *
 	 * @param array $importer Array of the importer user
@@ -233,7 +286,6 @@ class diaspora {
 		return array('message' => (string)$inner_decrypted,
 				'author' => unxmlify($author_link),
 				'key' => (string)$key);
-
 	}
 
 
@@ -816,11 +868,28 @@ class diaspora {
 		if ($level > 5)
 			return false;
 
-		// This will work for Diaspora and newer Friendica servers
-		$source_url = $server."/p/".$guid.".xml";
-		$x = fetch_url($source_url);
-		if(!$x)
-			return false;
+		// This will work for new Diaspora servers and Friendica servers from 3.5
+		$source_url = $server."/fetch/post/".$guid;
+		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
+
+		$envelope = fetch_url($source_url);
+		if($envelope) {
+			logger("Envelope was fetched.", LOGGER_DEBUG);
+			$x = self::verify_magic_envelope($envelope);
+			if (!$x) {
+				logger("Envelope could not be verified.", LOGGER_DEBUG);
+				return false;
+			}
+			logger("Envelope was verified.", LOGGER_DEBUG);
+		} else {
+			// This will work for older Diaspora and Friendica servers
+			$source_url = $server."/p/".$guid.".xml";
+			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
+
+			$x = fetch_url($source_url);
+			if(!$x)
+				return false;
+		}
 
 		$source_xml = parse_xml_string($x, false);
 
@@ -2265,7 +2334,7 @@ class diaspora {
 	 * @return string The envelope
 	 */
 
-	function build_magic_envelope($msg, $user) {
+	public static function build_magic_envelope($msg, $user) {
 
 		$b64url_data = base64url_encode($msg);
 		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
