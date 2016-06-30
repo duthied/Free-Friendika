@@ -35,16 +35,11 @@ function fetch_init($a){
 	$user = $r[0];
 
 	$status = diaspora::build_status($item[0], $user);
-	$data = array("XML" => array("post" => array($status["type"] => $status["message"])));
-	$xml = xml::from_array($data, $xmlobj);
+	$xml = diaspora::build_post_xml($status["type"], $status["message"]);
 
 	// Send the envelope
 	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
 	echo diaspora::build_magic_envelope($xml, $user);
-
-	//header("Content-Type: application/xml; charset=utf-8");
-	//echo $xml;
-	//killme();
 
 	killme();
 }

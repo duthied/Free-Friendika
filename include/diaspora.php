@@ -2533,6 +2533,20 @@ class diaspora {
 
 
 	/**
+	 * @brief Build the post xml
+	 *
+	 * @param string $type The message type
+	 * @param array $message The message data
+	 *
+	 * @return string The post XML
+	 */
+	public static function build_post_xml($type, $message) {
+
+		$data = array("XML" => array("post" => array($type => $message)));
+		return xml::from_array($data, $xml);
+	}
+
+	/**
 	 * @brief Builds and transmit messages
 	 *
 	 * @param array $owner the array of the item owner
@@ -2547,9 +2561,7 @@ class diaspora {
 	 */
 	private function build_and_transmit($owner, $contact, $type, $message, $public_batch = false, $guid = "", $spool = false) {
 
-		$data = array("XML" => array("post" => array($type => $message)));
-
-		$msg = xml::from_array($data, $xml);
+		$msg = build_post_xml($type, $message);
 
 		logger('message: '.$msg, LOGGER_DATA);
 		logger('send guid '.$guid, LOGGER_DEBUG);

@@ -39,8 +39,7 @@ function p_init($a){
 	$user = $r[0];
 
 	$status = diaspora::build_status($item[0], $user);
-	$data = array("XML" => array("post" => array($status["type"] => $status["message"])));
-	$xml = xml::from_array($data, $xmlobj);
+	$xml = diaspora::build_post_xml($status["type"], $status["message"]);
 
 	header("Content-Type: application/xml; charset=utf-8");
 	echo $xml;
