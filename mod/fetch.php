@@ -27,11 +27,13 @@ function fetch_init($a){
 			$parts = parse_url($r[0]["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
-			$location = $host."/fetch/".$a->argv[1]."/".urlencode($guid);
+			if (normalise_link($host) != normalise_link(App::get_baseurl())) {
+				$location = $host."/fetch/".$a->argv[1]."/".urlencode($guid);
 
-			header("HTTP/1.1 301 Moved Permanently");
-			header("Location:".$location);
-			killme();
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location:".$location);
+				killme();
+			}
 		}
 
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
