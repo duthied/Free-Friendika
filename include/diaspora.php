@@ -2242,7 +2242,7 @@ class diaspora {
 	 *
 	 * @return string the handle in the format user@domain.tld
 	 */
-	function my_handle($contact) {
+	private function my_handle($contact) {
 		if ($contact["addr"] != "")
 			return $contact["addr"];
 
@@ -2254,6 +2254,40 @@ class diaspora {
 			$nick = $contact["nick"];
 
 		return $nick."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
+	}
+
+	/**
+	 * @brief Creates the envelope for the "fetch" endpoint
+	 *
+	 * @param string $msg The message that is to be transmitted
+	 * @param array $user The record of the sender
+	 *
+	 * @return string The envelope
+	 */
+
+	function build_magic_envelope($msg, $user) {
+
+		$b64url_data = base64url_encode($msg);
+		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+
+		$key_id = base64url_encode(diaspora::my_handle($user));
+		$type = "application/xml";
+		$encoding = "base64url";
+		$alg = "RSA-SHA256";
+		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+		$signature = rsa_sign($signable_data, $user["prvkey"]);
+		$sig = base64url_encode($signature);
+
+		$xmldata = array("me:env" => array("me:data" => $data,
+							"@attributes" => array("type" => $type),
+							"me:encoding" => $encoding,
+							"me:alg" => $alg,
+							"me:sig" => $sig,
+							"@attributes2" => array("key_id" => $key_id)));
+
+		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
+
+		return xml::from_array($xmldata, $xml, false, $namespaces);
 	}
 
 	/**
@@ -2287,11 +2321,11 @@ class diaspora {
 		$sig = base64url_encode($signature);
 
 		$xmldata = array("diaspora" => array("header" => array("author_id" => $handle),
-						"me:env" => array("me:encoding" => $encoding,
-								"me:alg" => $alg,
-								"me:data" => $data,
-								"@attributes" => array("type" => $type),
-								"me:sig" => $sig)));
+							"me:env" => array("me:encoding" => $encoding,
+							"me:alg" => $alg,
+							"me:data" => $data,
+							"@attributes" => array("type" => $type),
+							"me:sig" => $sig)));
 
 		$namespaces = array("" => "https://joindiaspora.com/protocol",
 				"me" => "http://salmon-protocol.org/ns/magic-env");
@@ -2647,16 +2681,16 @@ class diaspora {
 	}
 
 	/**
-	 * @brief Sends a post
+	 * @brief Create a post (status message or reshare)
 	 *
 	 * @param array $item The item that will be exported
 	 * @param array $owner the array of the item owner
-	 * @param array $contact Target of the communication
-	 * @param bool $public_batch Is it a public post?
 	 *
-	 * @return int The result of the transmission
+	 * @return array
+	 * 'type' -> Message type ("status_message" or "reshare")
+	 * 'message' -> Array of XML elements of the status
 	 */
-	public static function send_status($item, $owner, $contact, $public_batch = false) {
+	public static function build_status($item, $owner) {
 
 		$myaddr = self::my_handle($owner);
 
@@ -2719,8 +2753,24 @@ class diaspora {
 
 			$type = "status_message";
 		}
+		return array("type" => $type, "message" => $message);
+	}
 
-		return self::build_and_transmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
+	/**
+	 * @brief Sends a post
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 * @param array $contact Target of the communication
+	 * @param bool $public_batch Is it a public post?
+	 *
+	 * @return int The result of the transmission
+	 */
+	public static function send_status($item, $owner, $contact, $public_batch = false) {
+
+		$status = diaspora::build_status($item, $owner);
+
+		return self::build_and_transmit($owner, $contact, $status["type"], $status["message"], $public_batch, $item["guid"]);
 	}
 
 	/**
