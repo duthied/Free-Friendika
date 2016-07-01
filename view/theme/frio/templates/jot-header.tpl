@@ -127,7 +127,7 @@ function initEditor(cb){
 
 function enableOnUser(){
 	if (editor) return;
-	$(this).val("");
+	//$(this).val("");
 	initEditor();
 }
 
@@ -143,8 +143,8 @@ function enableOnUser(){
 	$(document).ready(function() {
 
 		/* enable tinymce on focus and click */
-		//$("#profile-jot-text").focus(enableOnUser);
-		//$("#profile-jot-text").click(enableOnUser);
+		$("#profile-jot-text").focus(enableOnUser);
+		$("#profile-jot-text").click(enableOnUser);
 
 		// When clicking on a forum in acl we should remove the profile jot textarea
 		// default value before inserting the forum mention
