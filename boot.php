@@ -475,6 +475,7 @@ class App {
 	public	$performance = array();
 	public	$callstack = array();
 	public	$theme_info = array();
+	public  $backend = true;
 
 	public $nav_sel;
 
@@ -1112,20 +1113,106 @@ class App {
 	}
 
 	/**
+	 * @brief Checks if the site is called via a backend process
+	 *
+	 * This isn't a perfect solution. But we need this check very early.
+	 * So we cannot wait until the modules are loaded.
+	 *
+	 * @return bool Is it a known backend?
+	 */
+	function is_backend() {
+		$backend = array();
+		$backend[] = "_well_known";
+		$backend[] = "api";
+		$backend[] = "dfrn_notify";
+		$backend[] = "dfrn_poll";
+		$backend[] = "fetch";
+		$backend[] = "hcard";
+		$backend[] = "hostxrd";
+		$backend[] = "nodeinfo";
+		$backend[] = "noscrape";
+		$backend[] = "p";
+		$backend[] = "photo";
+		$backend[] = "photos";
+		$backend[] = "poco";
+		$backend[] = "post";
+		$backend[] = "proxy";
+		$backend[] = "pubsub";
+		$backend[] = "pubsubhubbub";
+		$backend[] = "receive";
+		$backend[] = "rsd_xml";
+		$backend[] = "salmon";
+		$backend[] = "statistics_json";
+		$backend[] = "xrd";
+
+		if (in_array($this->module, $backend))
+			return(true);
+		else
+			return($this->backend);
+	}
+
+	/**
+	 * @brief Checks if the maximum number of database processes is reached
+	 *
+	 * @return bool Is the limit reached?
+	 */
+	function max_processes_reached() {
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->max_processes_reached());
+
+		if ($this->is_backend()) {
+			$process = "backend";
+			$max_processes = get_config('system', 'max_processes_backend');
+			if (intval($max_processes) == 0)
+				$max_processes = 5;
+		} else {
+			$process = "frontend";
+			$max_processes = get_config('system', 'max_processes_frontend');
+			if (intval($max_processes) == 0)
+				$max_processes = 20;
+		}
+
+		$processlist = dbm::processlist();
+		if ($processlist["list"] != "") {
+			logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+			if ($processlist["amount"] > $max_processes) {
+				logger("Processcheck: Maximum number of processes for ".$process." tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @brief Checks if the maximum load is reached
 	 *
 	 * @return bool Is the load reached?
 	 */
 	function maxload_reached() {
 
-		$maxsysload = intval(get_config('system', 'maxloadavg'));
-		if ($maxsysload < 1)
-			$maxsysload = 50;
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->maxload_reached());
+
+		if ($this->is_backend()) {
+			$process = "backend";
+			$maxsysload = intval(get_config('system', 'maxloadavg'));
+			if ($maxsysload < 1)
+				$maxsysload = 50;
+		} else {
+			$process = "frontend";
+			$maxsysload = intval(get_config('system','maxloadavg_frontend'));
+			if ($maxsysload < 1)
+				$maxsysload = 50;
+		}
 
 		$load = current_load();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				logger('system: load '.$load.' too high.');
+				logger('system: load '.$load.' for '.$process.' tasks ('.$maxsysload.') too high.');
 				return true;
 			}
 		}
