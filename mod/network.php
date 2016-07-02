@@ -704,7 +704,7 @@ function network_content(&$a, $update = 0) {
 		$parents_str = '';
 		$date_offset = "";
 
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			foreach($r as $rr)
 				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];

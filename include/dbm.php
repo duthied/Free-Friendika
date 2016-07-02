@@ -35,5 +35,15 @@ class dbm {
 		}
 		return(array("list" => $statelist, "amount" => $processes));
 	}
+
+	/**
+	 * Checks if $array is a filled array with at least one entry.
+	 *
+	 * @param       $array  mixed   A filled array with at least one entry
+	 * @return      Whether $array is a filled array
+	 */
+	public function is_result($array) {
+		return (is_array($array) && count($array) > 0);
+	}
 }
 ?>
