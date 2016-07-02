@@ -59,7 +59,8 @@ if(!$install) {
 
 	if ($a->max_processes_reached() OR $a->maxload_reached()) {
 		header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
-		header('Retry-After: 300');
+		header('Retry-After: 120');
+		header('Refresh: 120; url='.$a->get_baseurl()."/".$a->query_string);
 		die("System is currently unavailable. Please try again later");
 	}
 
