@@ -1901,31 +1901,6 @@ function is_site_admin() {
 	return false;
 }
 
-function load_contact_links($uid) {
-
-	$a = get_app();
-
-	$ret = array();
-
-	if(! $uid || x($a->contacts,'empty'))
-		return;
-
-	$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
-			intval($uid)
-	);
-
-	if(dba::is_result($r)) {
-		foreach($r as $rr){
-			$url = normalise_link($rr['url']);
-			$ret[$url] = $rr;
-		}
-	} else
-		$ret['empty'] = true;
-
-	$a->contacts = $ret;
-	return;
-}
-
 /**
  * @brief Returns querystring as string from a mapped array.
  *
