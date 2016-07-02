@@ -373,13 +373,13 @@ function message_content(&$a) {
 			intval(local_user())
 		);
 
-		if (dba::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if(! dba::is_result($r)) {
+		if(! dbm::is_result($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}

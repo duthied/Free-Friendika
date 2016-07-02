@@ -51,7 +51,7 @@ function ping_init(&$a) {
 			intval(local_user()), intval(local_user())
 		);
 
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 
 			$arr = array('items' => $r);
 			call_hooks('network_ping', $arr);
@@ -150,7 +150,7 @@ function ping_init(&$a) {
 			dbesc(datetime_convert('UTC','UTC','now'))
 		);
 
-		if(dba::is_result($ev)) {
+		if(dbm::is_result($ev)) {
 			$all_events = intval($ev[0]['total']);
 
 			if($all_events) {
@@ -224,7 +224,7 @@ function ping_init(&$a) {
 				<home>$home</home>\r\n";
 		if ($register!=0) echo "<register>$register</register>";
 
-		if ( dba::is_result($groups_unseen) ) {
+		if ( dbm::is_result($groups_unseen) ) {
 			echo '<groups>';
 			foreach ($groups_unseen as $it)
 				if ($it['count'] > 0)
@@ -233,7 +233,7 @@ function ping_init(&$a) {
 			echo "</groups>";
 		}
 
-		if ( dba::is_result($forums_unseen) ) {
+		if ( dbm::is_result($forums_unseen) ) {
 			echo '<forums>';
 			foreach ($forums_unseen as $it)
 				if ($it['count'] > 0)
@@ -250,7 +250,7 @@ function ping_init(&$a) {
 			<birthdays-today>$birthdays_today</birthdays-today>\r\n";
 
 
-		if (dba::is_result($notifs) && (! $sysnotify)) {
+		if (dbm::is_result($notifs) && (! $sysnotify)) {
 			foreach ($notifs as $zz) {
 				if($zz['seen'] == 0)
 					$sysnotify ++;
@@ -260,7 +260,7 @@ function ping_init(&$a) {
 		echo '	<notif count="'. ($sysnotify + $intro + $mail + $register) .'">';
 
 		// merge all notification types in one array
-		if ( dba::is_result($intros) ) {
+		if ( dbm::is_result($intros) ) {
 			foreach ($intros as $i) {
 				$n = array(
 					'href' => $a->get_baseurl().'/notifications/intros/'.$i['id'],
@@ -275,7 +275,7 @@ function ping_init(&$a) {
 			}
 		}
 
-		if ( dba::is_result($mails) ) {
+		if ( dbm::is_result($mails) ) {
 			foreach ($mails as $i) {
 				$n = array(
 					'href' => $a->get_baseurl().'/message/'.$i['id'],
@@ -290,7 +290,7 @@ function ping_init(&$a) {
 			}
 		}
 
-		if ( dba::is_result($regs) ) {
+		if ( dbm::is_result($regs) ) {
 			foreach ($regs as $i) {
 				$n = array(
 					'href' => $a->get_baseurl().'/admin/users/',
@@ -316,7 +316,7 @@ function ping_init(&$a) {
 		};
 		usort($notifs, $sort_function);
 
-		if( dba::is_result($notifs) ) {
+		if( dbm::is_result($notifs) ) {
 			foreach($notifs as $n) {
 				echo xmlize($n);
 			}
