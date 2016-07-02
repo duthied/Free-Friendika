@@ -120,8 +120,10 @@
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}
 	{{include file="field_input.tpl" field=$timeout}}
-	{{include file="field_input.tpl" field=$delivery_interval}}
-	{{include file="field_input.tpl" field=$poll_interval}}
+	{{if NOT $worker.2}}
+		{{include file="field_input.tpl" field=$delivery_interval}}
+		{{include file="field_input.tpl" field=$poll_interval}}
+	{{/if}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$maxloadavg_frontend}}
 	{{include file="field_input.tpl" field=$optimize_max_tablesize}}
