@@ -19,6 +19,10 @@ require_once('object/BaseObject.php');
 $a = new App;
 BaseObject::set_app($a);
 
+// We assume that the index.php is called by a frontend process
+// The value is set to "true" by default in boot.php
+$a->backend = false;
+
 /**
  *
  * Load the configuration file which contains our DB credentials.
@@ -54,35 +58,11 @@ if(!$install) {
 	load_config('config');
 	load_config('system');
 
-	$processlist = dbm::processlist();
-	if ($processlist["list"] != "") {
-
-		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-
-		$max_processes = get_config('system', 'max_processes_frontend');
-		if (intval($max_processes) == 0)
-			$max_processes = 20;
-
-		if ($processlist["amount"] > $max_processes) {
-			logger("Processcheck: Maximum number of processes for frontend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
-			system_unavailable();
-		}
+	if ($a->max_processes_reached() OR $a->maxload_reached()) {
+		header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
+		header('Retry-After: 300');
+		die("System is currently unavailable. Please try again later");
 	}
-
-	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
-	if($maxsysload_frontend < 1)
-		$maxsysload_frontend = 50;
-
-	$load = current_load();
-	if($load) {
-		if($load > $maxsysload_frontend) {
-			logger('system: load ' . $load . ' too high. Service Temporarily Unavailable.');
-			header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
-			header('Retry-After: 300');
-			die("System is currently unavailable. Please try again later");
-		}
-	}
-
 
 	if (get_config('system','force_ssl') AND ($a->get_scheme() == "http") AND
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
@@ -114,9 +94,12 @@ load_translation_table($lang);
  *
  */
 
-$stamp1 = microtime(true);
-session_start();
-$a->save_timestamp($stamp1, "parser");
+// Exclude the backend processes from the session management
+if (!$a->is_backend()) {
+	$stamp1 = microtime(true);
+	session_start();
+	$a->save_timestamp($stamp1, "parser");
+}
 
 /**
  * Language was set earlier, but we can over-ride it in the session.
