@@ -1,4 +1,5 @@
 <?php
+require_once("dbm.php");
 
 # if PDO is avaible for mysql, use the new database abstraction
 # TODO: PDO is disabled for release 3.3. We need to investigate why

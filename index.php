@@ -45,7 +45,6 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
  */
 
 require_once("include/dba.php");
-require_once("include/dbm.php");
 
 if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
