@@ -415,20 +415,20 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 	$data = get_contact_details_by_url($profile);
 
-	if (isset($data["name"]) AND isset($data["addr"]))
+	if (isset($data["name"]) AND ($data["name"] != "") AND isset($data["addr"]) AND ($data["addr"] != ""))
 	        $userid_compact = $data["name"]." (".$data["addr"].")";
 	else
 		$userid_compact = GetProfileUsername($profile,$author, true);
 
-	if (isset($data["addr"]))
+	if (isset($data["addr"]) AND ($data["addr"] != ""))
 		$userid = $data["addr"];
 	else
 		$userid = GetProfileUsername($profile,$author, false);
 
-	if (isset($data["name"]))
+	if (isset($data["name"]) AND ($data["name"] != ""))
 		$author = $data["name"];
 
-	if (isset($data["micro"]))
+	if (isset($data["micro"]) AND ($data["micro"] != ""))
 		$avatar = $data["micro"];
 
 	$preshare = trim($share[1]);
