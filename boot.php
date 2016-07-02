@@ -940,7 +940,7 @@ class App {
 		} else {
 			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
 				$common_filename);
-			if(! count($r)){
+			if(! dba::is_result($r)){
 				$this->cached_profile_image[$avatar_image] = $avatar_image;
 			} else {
 				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
@@ -1425,7 +1425,7 @@ function run_update_function($x) {
 function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if(count($r))
+	if(dba::is_result($r))
 		$installed = $r;
 	else
 		$installed = array();
@@ -1756,7 +1756,7 @@ function current_theme(){
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if($r)
+		if(dba::is_result($r))
 			$page_theme = $r[0]['theme'];
 	}
 
@@ -1869,7 +1869,7 @@ function feed_birthday($uid,$tz) {
 			intval($uid)
 	);
 
-	if($p && count($p)) {
+	if(dba::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'],5);
 		if(intval($tmp_dob)) {
 			$y = datetime_convert($tz,$tz,'now','Y');
@@ -1899,6 +1899,31 @@ function is_site_admin() {
 	if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && in_array($a->user['email'], $adminlist))
 		return true;
 	return false;
+}
+
+function load_contact_links($uid) {
+
+	$a = get_app();
+
+	$ret = array();
+
+	if(! $uid || x($a->contacts,'empty'))
+		return;
+
+	$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
+			intval($uid)
+	);
+
+	if(dba::is_result($r)) {
+		foreach($r as $rr){
+			$url = normalise_link($rr['url']);
+			$ret[$url] = $rr;
+		}
+	} else
+		$ret['empty'] = true;
+
+	$a->contacts = $ret;
+	return;
 }
 
 /**

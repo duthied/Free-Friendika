@@ -228,7 +228,7 @@ function poller_max_connections_reached() {
 function poller_kill_stale_workers() {
 	$r = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 
-	if (!is_array($r) || count($r) == 0) {
+	if (!dba::is_result($r)) {
 		// No processing here needed
 		return;
 	}
