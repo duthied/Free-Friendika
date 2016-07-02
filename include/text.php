@@ -867,7 +867,7 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `micro`, `network` FROM `contact`
+		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
 					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
@@ -911,7 +911,7 @@ function contact_block() {
  *	string 'url' => The url to the profile page of the contact
  *	string 'addr' => The webbie of the contact (e.g.) username@friendica.com
  *	string 'network' => The network to which the contact belongs to
- *	string 'micro' => The contact picture
+ *	string 'thumb' => The contact picture
  *	string 'click' => js code which is performed when clicking on the contact
  * @param boolean $redirect If true try to use the redir url if it's possible
  * @param string $class CSS class for the 
@@ -950,7 +950,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		'$click' => (($contact['click']) ? $contact['click'] : ''),
 		'$class' => $class,
 		'$url' => $url,
-		'$photo' => proxy_url($contact['micro'], false, PROXY_SIZE_THUMB),
+		'$photo' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
 		'$name' => $contact['name'],
 		'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
 		'$parkle' => $sparkle,
