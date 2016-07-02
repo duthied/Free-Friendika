@@ -604,7 +604,8 @@ function probe_url($url, $mode = PROBE_NORMAL, $level = 1) {
 				$pubkey = $hcard_key;
 		}
 	}
-	if(($network != "") && $diaspora_base && $diaspora_guid) {
+
+	if(($network == "") && $diaspora_base && $diaspora_guid) {
 		$diaspora_notify = $diaspora_base.'receive/users/'.$diaspora_guid;
 		$diaspora = true;
 
