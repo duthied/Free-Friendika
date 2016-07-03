@@ -8,6 +8,7 @@ use \Friendica\Core\Config;
 use \Friendica\Core\PConfig;
 
 require_once("include/feed.php");
+require_once('include/email.php');
 
 class Probe {
 
@@ -82,10 +83,14 @@ class Probe {
 	}
 
 	public static function uri($uri, $network = "") {
-		$data = self::detect($uri, $network);
 
-		//if (!data)
-		//	return false;
+		$result = Cache::get("probe_url:".$network.":".$uri);
+		if (!is_null($result)) {
+			$result = unserialize($result);
+			return $result;
+		}
+
+		$data = self::detect($uri, $network);
 
 		if (!isset($data["url"]))
 			$data["url"] = $uri;
@@ -106,6 +111,29 @@ class Probe {
 
 		$data = self::rearrange_data($data);
 
+		// Only store into the cache if the value seems to be valid
+		if ($data['network'] != NETWORK_PHANTOM) {
+			Cache::set("probe_url:".$network.":".$uri,serialize($data), CACHE_DAY);
+
+			/// @todo temporary fix - we need a real contact update function that updates only changing fields
+			/// The biggest problem is the avatar picture that could have a reduced image size.
+			/// It should only be updated if the existing picture isn't existing anymore.
+			if (($data['network'] != NETWORK_FEED) AND ($mode == PROBE_NORMAL) AND
+				$data["name"] AND $data["nick"] AND $data["url"] AND $data["addr"] AND $data["poll"])
+				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
+						`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
+					WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
+					dbesc($data["name"]),
+					dbesc($data["nick"]),
+					dbesc($data["url"]),
+					dbesc($data["addr"]),
+					dbesc($data["notify"]),
+					dbesc($data["poll"]),
+					dbesc($data["alias"]),
+					dbesc(datetime_convert()),
+					dbesc(normalise_link($data['url']))
+			);
+		}
 		return $data;
 	}
 
@@ -251,8 +279,12 @@ class Probe {
 
 	private function poll_noscrape($noscrape, $data) {
 		$content = fetch_url($noscrape);
+		if (!$content)
+			return false;
 
 		$json = json_decode($content, true);
+		if (!is_array($json))
+			return false;
 
 		if (isset($json["fn"]))
 			$data["name"] = $json["fn"];
