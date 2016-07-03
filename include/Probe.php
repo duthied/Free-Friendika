@@ -203,6 +203,8 @@ class Probe {
 
 		$result = false;
 
+		logger("Probing ".$uri, LOGGER_DEBUG);
+
 		if (in_array($network, array("", NETWORK_DFRN)))
 			$result = self::dfrn($webfinger);
 		if ((!$result AND ($network == "")) OR ($network == NETWORK_DIASPORA))
@@ -222,6 +224,8 @@ class Probe {
 			if (!isset($result["addr"]) OR ($result["addr"] == ""))
 				$result["addr"] = $addr;
 		}
+
+		logger($uri." is ".$result["network"], LOGGER_DEBUG);
 
 		if (!isset($result["baseurl"]) OR ($result["baseurl"] == "")) {
 			$pos = strpos($result["url"], $host);
@@ -358,7 +362,8 @@ class Probe {
 			elseif (($link["rel"] == "diaspora-public-key") AND ($link["href"] != "")) {
 				$data["pubkey"] = base64_decode($link["href"]);
 
-				if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				//if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				if (strstr($data["pubkey"], 'RSA '))
 					$data["pubkey"] = rsatopem($data["pubkey"]);
 			}
 		}
@@ -487,7 +492,8 @@ class Probe {
 			elseif (($link["rel"] == "diaspora-public-key") AND ($link["href"] != "")) {
 				$data["pubkey"] = base64_decode($link["href"]);
 
-				if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				//if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				if (strstr($data["pubkey"], 'RSA '))
 					$data["pubkey"] = rsatopem($data["pubkey"]);
 			}
 		}
@@ -495,7 +501,7 @@ class Probe {
 		if (!isset($data["url"]) OR ($hcard == ""))
 			return false;
 
-		if (isset($webfinger["aliases"]))
+		if (is_array($webfinger["aliases"]))
 			foreach ($webfinger["aliases"] AS $alias)
 				if (normalise_link($alias) != normalise_link($data["url"]) AND !strstr($alias, "@"))
 					$data["alias"] = $alias;
