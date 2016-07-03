@@ -12,9 +12,10 @@ require_once("include/feed.php");
 class Probe {
 
 	private function rearrange_data($data) {
-		$fields = array("name", "nick", "guid", "url", "addr", "batch",
-				"notify", "poll", "request", "confirm", "poco",
-				"photo", "priority", "network", "alias", "pubkey", "baseurl");
+		$fields = array("name", "nick", "guid", "url", "addr", "alias",
+				"photo", "community", "keywords", "location", "about",
+				"batch", "notify", "poll", "request", "confirm", "poco",
+				"priority", "network", "pubkey", "baseurl");
 
 		$newdata = array();
 		foreach ($fields AS $field)
@@ -80,8 +81,8 @@ class Probe {
 		return $xrd_data;
 	}
 
-	public static function uri($uri) {
-		$data = self::detect($uri);
+	public static function uri($uri, $network = "") {
+		$data = self::detect($uri, $network);
 
 		//if (!data)
 		//	return false;
@@ -108,13 +109,16 @@ class Probe {
 		return $data;
 	}
 
-	private function detect($uri) {
+	private function detect($uri, $network) {
 		if (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jum directly to the mail detection
 			if (strpos($url,'mailto:') !== false) {
 				$uri = str_replace('mailto:', '', $url);
 				return self::mail($uri);
 			}
+
+			if ($network == NETWORK_MAIL)
+				return self::mail($uri);
 
 			// Remove "acct:" from the URI
 			$uri = str_replace('acct:', '', $uri);
@@ -171,15 +175,15 @@ class Probe {
 
 		$result = false;
 
-		if (!$result)
+		if (in_array($network, array("", NETWORK_DFRN)))
 			$result = self::dfrn($webfinger);
-		if (!$result)
+		if ((!$result AND ($network == "")) OR ($network == NETWORK_DIASPORA))
 			$result = self::diaspora($webfinger);
-		if (!$result)
+		if ((!$result AND ($network == "")) OR ($network == NETWORK_OSTATUS))
 			$result = self::ostatus($webfinger);
-		if (!$result)
+		if ((!$result AND ($network == "")) OR ($network == NETWORK_PUMPIO))
 			$result = self::pumpio($webfinger);
-		if (!$result)
+		if ((!$result AND ($network == "")) OR ($network == NETWORK_FEED))
 			$result = self::feed($uri);
 		else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
@@ -245,6 +249,57 @@ class Probe {
 		return $webfinger;
 	}
 
+	private function poll_noscrape($noscrape, $data) {
+		$content = fetch_url($noscrape);
+
+		$json = json_decode($content, true);
+
+		if (isset($json["fn"]))
+			$data["name"] = $json["fn"];
+
+		if (isset($json["addr"]))
+			$data["addr"] = $json["addr"];
+
+		if (isset($json["nick"]))
+			$data["nick"] = $json["nick"];
+
+		if (isset($json["comm"]))
+			$data["community"] = $json["comm"];
+
+		if (isset($json["tags"])) {
+			$keywords = implode(" ", $json["tags"]);
+			if ($keywords != "")
+				$data["keywords"] = $keywords;
+		}
+
+		$location = formatted_location($json);
+		if ($location)
+			$data["location"] = $location;
+
+		if (isset($json["about"]))
+			$data["about"] = $json["about"];
+
+		if (isset($json["key"]))
+			$data["pubkey"] = $json["key"];
+
+		if (isset($json["photo"]))
+			$data["photo"] = $json["photo"];
+
+		if (isset($json["dfrn-request"]))
+			$data["request"] = $json["dfrn-request"];
+
+		if (isset($json["dfrn-confirm"]))
+			$data["confirm"] = $json["dfrn-confirm"];
+
+		if (isset($json["dfrn-notify"]))
+			$data["notify"] = $json["dfrn-notify"];
+
+		if (isset($json["dfrn-poll"]))
+			$data["poll"] = $json["dfrn-poll"];
+
+		return $data;
+	}
+
 	private function dfrn($webfinger) {
 
 		$hcard = "";
@@ -278,6 +333,14 @@ class Probe {
 
 		if (!isset($data["network"]) OR ($hcard == ""))
 			return false;
+
+		// Fetch data via noscrape - this is faster
+		$noscrape = str_replace("/hcard/", "/noscrape/", $hcard);
+		$data = self::poll_noscrape($noscrape, $data);
+
+		if (isset($data["notify"]) AND isset($data["confirm"]) AND isset($data["request"]) AND
+			isset($data["poll"]) AND isset($data["name"]) AND isset($data["photo"]))
+			return $data;
 
 		$data = self::poll_hcard($hcard, $data, true);
 
