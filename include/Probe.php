@@ -9,6 +9,7 @@ use \Friendica\Core\PConfig;
 
 require_once("include/feed.php");
 require_once('include/email.php');
+require_once('include/network.php');
 
 class Probe {
 
@@ -82,12 +83,14 @@ class Probe {
 		return $xrd_data;
 	}
 
-	public static function uri($uri, $network = "") {
+	public static function uri($uri, $network = "", $cache = true) {
 
-		$result = Cache::get("probe_url:".$network.":".$uri);
-		if (!is_null($result)) {
-			$result = unserialize($result);
-			return $result;
+		if ($cache) {
+			$result = Cache::get("probe_url:".$network.":".$uri);
+			if (!is_null($result)) {
+				$result = unserialize($result);
+				return $result;
+			}
 		}
 
 		$data = self::detect($uri, $network);
@@ -334,6 +337,50 @@ class Probe {
 			$data["poll"] = $json["dfrn-poll"];
 
 		return $data;
+	}
+
+	public static function valid_dfrn($data) {
+		$errors = 0;
+		if(!isset($data['key']))
+			$errors ++;
+		if(!isset($data['dfrn-request']))
+			$errors ++;
+		if(!isset($data['dfrn-confirm']))
+			$errors ++;
+		if(!isset($data['dfrn-notify']))
+			$errors ++;
+		if(!isset($data['dfrn-poll']))
+			$errors ++;
+		return $errors;
+	}
+
+	public static function profile($profile) {
+
+		$data = array();
+
+		// Fetch data via noscrape - this is faster
+		$noscrape = str_replace(array("/hcard/", "/profile/"), "/noscrape/", $profile);
+		$data = self::poll_noscrape($noscrape, $data);
+
+		if (!isset($data["notify"]) OR !isset($data["confirm"]) OR
+			!isset($data["request"]) OR !isset($data["poll"]) OR
+			!isset($data["poco"]) OR !isset($data["name"]) OR
+			!isset($data["photo"]))
+			$data = self::poll_hcard($profile, $data, true);
+
+		$prof_data = array();
+		$prof_data["addr"] = $data["addr"];
+		$prof_data["nick"] = $data["nick"];
+		$prof_data["dfrn-request"] = $data["request"];
+		$prof_data["dfrn-confirm"] = $data["confirm"];
+		$prof_data["dfrn-notify"] = $data["notify"];
+		$prof_data["dfrn-poll"] = $data["poll"];
+		$prof_data["dfrn-poco"] = $data["poco"];
+		$prof_data["photo"] = $data["photo"];
+		$prof_data["fn"] = $data["name"];
+		$prof_data["key"] = $data["pubkey"];
+
+		return $prof_data;
 	}
 
 	private function dfrn($webfinger) {

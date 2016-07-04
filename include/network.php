@@ -1123,11 +1123,65 @@ function short_link($url) {
  * This function encodes an array to json format
  * and adds an application/json HTTP header to the output.
  * After finishing the process is getting killed.
- * 
+ *
  * @param array $x The input content
  */
 function json_return_and_die($x) {
 	header("content-type: application/json");
 	echo json_encode($x);
 	killme();
+}
+
+/**
+ * @brief Find the matching part between two url
+ *
+ * @param string $url1
+ * @param string $url2
+ * @return string The matching part
+ */
+function matching_url($url1, $url2) {
+
+	if (($url1 == "") OR ($url2 == ""))
+		return "";
+
+	$url1 = normalise_link($url1);
+	$url2 = normalise_link($url2);
+
+	$parts1 = parse_url($url1);
+	$parts2 = parse_url($url2);
+
+	if (!isset($parts1["host"]) OR !isset($parts2["host"]))
+		return "";
+
+	if ($parts1["scheme"] != $parts2["scheme"])
+		return "";
+
+	if ($parts1["host"] != $parts2["host"])
+		return "";
+
+	if ($parts1["port"] != $parts2["port"])
+		return "";
+
+	$match = $parts1["scheme"]."://".$parts1["host"];
+
+	if ($parts1["port"])
+		$match .= ":".$parts1["port"];
+
+	$pathparts1 = explode("/", $parts1["path"]);
+	$pathparts2 = explode("/", $parts2["path"]);
+
+	$i = 0;
+	$path = "";
+	do {
+		$path1 = $pathparts1[$i];
+		$path2 = $pathparts2[$i];
+
+		if ($path1 == $path2)
+			$path .= $path1."/";
+
+	} while (($path1 == $path2) AND ($i++ <= count($pathparts1)));
+
+	$match .= $path;
+
+	return normalise_link($match);
 }
