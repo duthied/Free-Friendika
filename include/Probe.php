@@ -83,7 +83,7 @@ class Probe {
 		return $xrd_data;
 	}
 
-	public static function uri($uri, $network = "", $cache = true) {
+	public static function uri($uri, $network = "", $uid = 0, $cache = true) {
 
 		if ($cache) {
 			$result = Cache::get("probe_url:".$network.":".$uri);
@@ -93,7 +93,10 @@ class Probe {
 			}
 		}
 
-		$data = self::detect($uri, $network);
+		if ($uid == 0)
+			$uid = local_user();
+
+		$data = self::detect($uri, $network, $uid);
 
 		if (!isset($data["url"]))
 			$data["url"] = $uri;
@@ -115,7 +118,7 @@ class Probe {
 		$data = self::rearrange_data($data);
 
 		// Only store into the cache if the value seems to be valid
-		if ($data['network'] != NETWORK_PHANTOM) {
+		if (!in_array($data['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
 			Cache::set("probe_url:".$network.":".$uri,serialize($data), CACHE_DAY);
 
 			/// @todo temporary fix - we need a real contact update function that updates only changing fields
@@ -140,16 +143,16 @@ class Probe {
 		return $data;
 	}
 
-	private function detect($uri, $network) {
+	private function detect($uri, $network, $uid) {
 		if (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jum directly to the mail detection
 			if (strpos($url,'mailto:') !== false) {
 				$uri = str_replace('mailto:', '', $url);
-				return self::mail($uri);
+				return self::mail($uri, $uid);
 			}
 
 			if ($network == NETWORK_MAIL)
-				return self::mail($uri);
+				return self::mail($uri, $uid);
 
 			// Remove "acct:" from the URI
 			$uri = str_replace('acct:', '', $uri);
@@ -159,7 +162,7 @@ class Probe {
 
 			$lrdd = self::xrd($host);
 			if (!$lrdd)
-				return self::mail($uri);
+				return self::mail($uri, $uid);
 
 			$addr = $uri;
 		} else {
@@ -735,13 +738,10 @@ class Probe {
 		return $data;
 	}
 
-	private function mail($uri) {
+	private function mail($uri, $uid) {
 
 		if (!validate_email($uri))
 			return false;
-
-		$uid = local_user();
-		$uid = 1;
 
 		$x = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
 
