@@ -1133,7 +1133,6 @@ class App {
 		$backend[] = "noscrape";
 		$backend[] = "p";
 		$backend[] = "photo";
-		$backend[] = "photos";
 		$backend[] = "poco";
 		$backend[] = "post";
 		$backend[] = "proxy";
