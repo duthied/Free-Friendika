@@ -1125,15 +1125,12 @@ class App {
 		$backend[] = "_well_known";
 		$backend[] = "api";
 		$backend[] = "dfrn_notify";
-		$backend[] = "dfrn_poll";
 		$backend[] = "fetch";
 		$backend[] = "hcard";
 		$backend[] = "hostxrd";
 		$backend[] = "nodeinfo";
 		$backend[] = "noscrape";
 		$backend[] = "p";
-		$backend[] = "photo";
-		$backend[] = "photos";
 		$backend[] = "poco";
 		$backend[] = "post";
 		$backend[] = "proxy";

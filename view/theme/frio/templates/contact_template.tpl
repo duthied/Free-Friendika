@@ -149,7 +149,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 				{{* The contact description (e.g. Name, Network, kind of connection and so on *}}
 				<div class="contact-entry-desc">
 					<div class="contact-entry-name" id="contact-entry-name-{$id}" >
-						<h4 class="media-heading"><a href="{url}">{$name}</a>
+						<h4 class="media-heading"><a href="{$url}">{$name}</a>
 						{if $account_type} <small class="contact-entry-details" id="contact-entry-accounttype-{$id}">({$account_type})</small>{/if}
 						{if $account_type == 'Forum'}<i class="fa fa-comments-o" aria-hidden="true"></i>{/if}
 						{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}
