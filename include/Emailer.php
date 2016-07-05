@@ -30,8 +30,8 @@ class Emailer {
 
 		// generate a mime boundary
 		$mimeBoundary   =rand(0,9)."-"
-				.rand(10000000000,99999999999)."-"
-				.rand(10000000000,99999999999)."=:"
+				.rand(100000000,999999999)."-"
+				.rand(100000000,999999999)."=:"
 				.rand(10000,99999);
 
 		// generate a multipart/alternative message header
