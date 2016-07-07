@@ -717,10 +717,15 @@ function logger($msg,$level = 0) {
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
 		return;
 
+	$process_id = session_id();
+
+	if ($process_id == "")
+		$process_id = get_app()->process_id;
+
 	$callers = debug_backtrace();
 	$logline =  sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
 				 datetime_convert(),
-				 session_id(),
+				 $process_id,
 				 $LOGGER_LEVELS[$level],
 				 basename($callers[0]['file']),
 				 $callers[0]['line'],

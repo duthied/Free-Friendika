@@ -17,10 +17,15 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	$a = get_app();
 
-	logger("Import Atom/RSS feed", LOGGER_DEBUG);
+	if (!$simulate)
+		logger("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], LOGGER_DEBUG);
+	else
+		logger("Test Atom/RSS feed", LOGGER_DEBUG);
 
-	if ($xml == "")
+	if ($xml == "") {
+		logger('XML is empty.', LOGGER_DEBUG);
 		return;
+	}
 
 	$doc = new DOMDocument();
 	@$doc->loadXML($xml);
@@ -150,8 +155,10 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		$header["last-child"] = 0;
 	}
 
-	if (!is_object($entries))
+	if (!is_object($entries)) {
+		logger("There are no entries in this feed.", LOGGER_DEBUG);
 		return;
+	}
 
 	$items = array();
 
