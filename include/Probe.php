@@ -2,6 +2,15 @@
 /**
  * @brief This class contain functions for probing URL
  *
+ * To-Do:
+ *
+ * - OStatus links with index.php
+ * - Non absolute URL in feeds?
+ * - Check for tumblr feed?
+ * - more logging?
+ * - Workaround for misconfigured Friendica servers?
+ * - Check if Hubzilla servers with OStatus are detected correctly
+ *
  */
 
 use \Friendica\Core\Config;
