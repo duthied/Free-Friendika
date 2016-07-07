@@ -517,6 +517,8 @@ class App {
 	 */
 	public $template_engine_instance = array();
 
+	public $process_id;
+
 	private $ldelim = array(
 		'internal' => '',
 		'smarty3' => '{{'
@@ -576,6 +578,8 @@ class App {
 		$this->pager= array();
 
 		$this->query_string = '';
+
+		$this->process_id = uniqid("log", true);
 
 		startup();
 
