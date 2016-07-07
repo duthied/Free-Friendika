@@ -13,6 +13,13 @@ require_once('include/network.php');
 
 class Probe {
 
+	/**
+	 * @brief Rearrange the array so that it always has the same order
+	 *
+	 * @param array $data Unordered data
+	 *
+	 * @return array Ordered data
+	 */
 	private function rearrange_data($data) {
 		$fields = array("name", "nick", "guid", "url", "addr", "alias",
 				"photo", "community", "keywords", "location", "about",
@@ -83,6 +90,16 @@ class Probe {
 		return $xrd_data;
 	}
 
+	/**
+	 * @brief Fetch information about a given uri
+	 *
+	 * @param string $uri Address that should be probed
+	 * @param string $network Test for this specific network
+	 * @param integer $uid User ID for the probe (only used for mails)
+	 * @param boolean $cache Use cached values?
+	 *
+	 * @return array uri data
+	 */
 	public static function uri($uri, $network = "", $uid = 0, $cache = true) {
 
 		if ($cache) {
@@ -143,6 +160,15 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Detect information about a given uri
+	 *
+	 * @param string $uri Address that should be probed
+	 * @param string $network Test for this specific network
+	 * @param integer $uid User ID for the probe (only used for mails)
+	 *
+	 * @return array uri data
+	 */
 	private function detect($uri, $network, $uid) {
 		if (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jum directly to the mail detection
@@ -242,6 +268,13 @@ class Probe {
 		return $result;
 	}
 
+	/**
+	 * @brief Do a webfinger request
+	 *
+	 * @param string $url Address that should be probed
+	 *
+	 * @return array webfinger data
+	 */
 	private function webfinger($url) {
 
 		$xrd_timeout = Config::get('system','xrd_timeout', 20);
@@ -287,6 +320,14 @@ class Probe {
 		return $webfinger;
 	}
 
+	/**
+	 * @brief Poll the noscrape page (Friendica specific)
+	 *
+	 * @param string $noscrape Link to the noscrape page
+	 * @param array $data The already fetched data
+	 *
+	 * @return array noscrape data
+	 */
 	private function poll_noscrape($noscrape, $data) {
 		$content = fetch_url($noscrape);
 		if (!$content)
@@ -342,6 +383,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check for valid DFRN data
+	 *
+	 * @param array $data DFRN data
+	 *
+	 * @return int Number of errors
+	 */
 	public static function valid_dfrn($data) {
 		$errors = 0;
 		if(!isset($data['key']))
@@ -357,6 +405,13 @@ class Probe {
 		return $errors;
 	}
 
+	/**
+	 * @brief Fetch data from a DFRN profile page
+	 *
+	 * @param string $profile Link to the profile page
+	 *
+	 * @return array profile data
+	 */
 	public static function profile($profile) {
 
 		$data = array();
@@ -386,6 +441,13 @@ class Probe {
 		return $prof_data;
 	}
 
+	/**
+	 * @brief Check for DFRN contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 *
+	 * @return array DFRN data
+	 */
 	private function dfrn($webfinger) {
 
 		$hcard = "";
@@ -434,6 +496,15 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Poll the hcard page (Diaspora and Friendica specific)
+	 *
+	 * @param string $hcard Link to the hcard page
+	 * @param array $data The already fetched data
+	 * @param boolean $dfrn Poll DFRN specific data
+	 *
+	 * @return array hcard data
+	 */
 	private function poll_hcard($hcard, $data, $dfrn = false) {
 
 		$doc = new DOMDocument();
@@ -519,6 +590,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check for Diaspora contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 *
+	 * @return array Diaspora data
+	 */
 	private function diaspora($webfinger) {
 
 		$hcard = "";
@@ -575,6 +653,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check for OStatus contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 *
+	 * @return array OStatus data
+	 */
 	private function ostatus($webfinger) {
 
 		$pubkey = "";
@@ -642,6 +727,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Fetch data from a pump.io profile page
+	 *
+	 * @param string $profile Link to the profile page
+	 *
+	 * @return array profile data
+	 */
 	private function pumpio_profile_data($profile) {
 
 		$doc = new DOMDocument();
@@ -670,6 +762,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check for pump.io contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 *
+	 * @return array pump.io data
+	 */
 	private function pumpio($webfinger) {
 		$data = array();
 		foreach ($webfinger["links"] AS $link) {
@@ -706,6 +805,13 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check page for feed link
+	 *
+	 * @param string $url Page link
+	 *
+	 * @return string feed link
+	 */
 	private function get_feed_link($url) {
 		$doc = new DOMDocument();
 
@@ -736,6 +842,14 @@ class Probe {
 		return $feed_url;
 	}
 
+	/**
+	 * @brief Check for feed contact
+	 *
+	 * @param string $url Profile link
+	 * @param boolean $probe Do a probe if the page contains a feed link
+	 *
+	 * @return array feed data
+	 */
 	private function feed($url, $probe = true) {
 		$feed = fetch_url($url);
 		$feed_data = feed_import($feed, $dummy1, $dummy2, $dummy3, true);
@@ -777,6 +891,14 @@ class Probe {
 		return $data;
 	}
 
+	/**
+	 * @brief Check for mail contact
+	 *
+	 * @param string $uri Profile link
+	 * @param integer $uid User ID
+	 *
+	 * @return array mail data
+	 */
 	private function mail($uri, $uid) {
 
 		if (!validate_email($uri))
