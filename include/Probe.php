@@ -706,12 +706,51 @@ class Probe {
 		return $data;
 	}
 
-	private function feed($url) {
+	private function get_feed_link($url) {
+		$doc = new DOMDocument();
+
+		if (!@$doc->loadHTMLFile($url))
+			return false;
+
+		$xpath = new DomXPath($doc);
+
+		//$feeds = $xpath->query("/html/head/link[@type='application/rss+xml']");
+		$feeds = $xpath->query("/html/head/link[@type='application/rss+xml' and @rel='alternate']");
+		if (!is_object($feeds))
+			return false;
+
+		if ($feeds->length == 0)
+			return false;
+
+		$feed_url = "";
+
+		foreach ($feeds AS $feed) {
+			$attr = array();
+			foreach ($feed->attributes as $attribute)
+			$attr[$attribute->name] = trim($attribute->value);
+
+			if ($feed_url == "")
+				$feed_url = $attr["href"];
+		}
+
+		return $feed_url;
+	}
+
+	private function feed($url, $probe = true) {
 		$feed = fetch_url($url);
 		$feed_data = feed_import($feed, $dummy1, $dummy2, $dummy3, true);
 
-		if (!$feed_data)
-			return false;
+		if (!$feed_data) {
+			if (!$probe)
+				return false;
+
+			$feed_url = self::get_feed_link($url);
+
+			if (!$feed_url)
+				return false;
+
+			return self::feed($feed_url, false);
+		}
 
 		if ($feed_data["header"]["author-name"] != "")
 			$data["name"] = $feed_data["header"]["author-name"];
