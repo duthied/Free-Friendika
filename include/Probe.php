@@ -197,6 +197,9 @@ class Probe {
 			$host = substr($uri,strpos($uri, '@') + 1);
 			$nick = substr($uri,0, strpos($uri, '@'));
 
+			if (strpos($uri, '@twitter.com'))
+				return array("network" => NETWORK_TWITTER);
+
 			$lrdd = self::xrd($host);
 			if (!$lrdd)
 				return self::mail($uri, $uid);
@@ -211,6 +214,10 @@ class Probe {
 
 			// todo: Ports?
 			$host = $parts["host"];
+
+			if ($host == 'twitter.com')
+				return array("network" => NETWORK_TWITTER);
+
 			$lrdd = self::xrd($host);
 
 			$path_parts = explode("/", trim($parts["path"], "/"));
