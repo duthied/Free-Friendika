@@ -232,7 +232,6 @@ class Probe {
 			$nick = array_pop($path_parts);
 			$addr = $nick."@".$host;
 		}
-
 		$webfinger = false;
 
 		/// @todo Do we need the prefix "acct:" or "acct://"?
@@ -244,9 +243,22 @@ class Probe {
 			if (!in_array($key, array("lrdd", "lrdd-xml", "lrdd-json")))
 				continue;
 
+			// Try webfinger with the address (user@domain.tld)
 			$path = str_replace('{uri}', urlencode($addr), $link);
-
 			$webfinger = self::webfinger($path);
+
+			// If webfinger wasn't successful then try it with the URL - possibly in the format https://...
+			if (!$webfinger AND ($uri != $addr)) {
+				$path = str_replace('{uri}', urlencode($uri), $link);
+				$webfinger = self::webfinger($path);
+
+				// Since the detection with the address wasn't successful, we delete it.
+				if ($webfinger) {
+					$nick = "";
+					$addr = "";
+				}
+			}
+
 		}
 		if (!$webfinger)
 			return self::feed($uri);
@@ -268,10 +280,10 @@ class Probe {
 		else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
-			if (!isset($result["nick"]) OR ($result["nick"] == "") OR (strstr($result["nick"], " ")))
+			if ((!isset($result["nick"]) OR ($result["nick"] == "") OR (strstr($result["nick"], " "))) AND ($nick != ""))
 				$result["nick"] = $nick;
 
-			if (!isset($result["addr"]) OR ($result["addr"] == ""))
+			if ((!isset($result["addr"]) OR ($result["addr"] == "")) AND ($addr != ""))
 				$result["addr"] = $addr;
 		}
 
@@ -680,8 +692,13 @@ class Probe {
 	 */
 	private function ostatus($webfinger) {
 
-		$pubkey = "";
 		$data = array();
+		if (is_array($webfinger["aliases"]))
+			foreach($webfinger["aliases"] AS $alias)
+				if (strstr($alias, "@"))
+					$data["addr"] = str_replace('acct:', '', $alias);
+
+		$pubkey = "";
 		foreach ($webfinger["links"] AS $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page") AND
 				($link["type"] == "text/html") AND ($link["href"] != ""))
@@ -736,6 +753,12 @@ class Probe {
 		if ($feed_data["header"]["author-id"] != "")
 			$data["alias"] = $feed_data["header"]["author-id"];
 
+		if ($feed_data["header"]["author-location"] != "")
+			$data["location"] = $feed_data["header"]["author-location"];
+
+		if ($feed_data["header"]["author-about"] != "")
+			$data["about"] = $feed_data["header"]["author-about"];
+
 		// OStatus has serious issues when the the url doesn't fit (ssl vs. non ssl)
 		// So we take the value that we just fetched, although the other one worked as well
 		if ($feed_data["header"]["author-link"] != "")
@@ -788,25 +811,24 @@ class Probe {
 	 * @return array pump.io data
 	 */
 	private function pumpio($webfinger) {
+
 		$data = array();
 		foreach ($webfinger["links"] AS $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page") AND
 				($link["type"] == "text/html") AND ($link["href"] != ""))
 				$data["url"] = $link["href"];
 			elseif (($link["rel"] == "activity-inbox") AND ($link["href"] != ""))
-				$data["activity-inbox"] = $link["href"];
+				$data["notify"] = $link["href"];
 			elseif (($link["rel"] == "activity-outbox") AND ($link["href"] != ""))
-				$data["activity-outbox"] = $link["href"];
+				$data["poll"] = $link["href"];
 			elseif (($link["rel"] == "dialback") AND ($link["href"] != ""))
 				$data["dialback"] = $link["href"];
 		}
-		if (isset($data["activity-inbox"]) AND isset($data["activity-outbox"]) AND
+		if (isset($data["poll"]) AND isset($data["notify"]) AND
 			isset($data["dialback"]) AND isset($data["url"])) {
 
 			// by now we use these fields only for the network type detection
 			// So we unset all data that isn't used at the moment
-			unset($data["activity-inbox"]);
-			unset($data["activity-outbox"]);
 			unset($data["dialback"]);
 
 			$data["network"] = NETWORK_PUMPIO;
