@@ -1,13 +1,7 @@
 <?php
 /**
- * @brief This class contain functions for probing URL
- *
- * To-Do:
- *
- * - OStatus links with index.php
- * - OStatus alias link
- * - Non absolute URL in feeds?
- * - Workaround for misconfigured Friendica servers?
+ * @file include/Probe.php
+ * @brief Functions for probing URL
  *
  */
 
@@ -18,6 +12,10 @@ require_once("include/feed.php");
 require_once('include/email.php');
 require_once('include/network.php');
 
+/**
+ * @brief This class contain functions for probing URL
+ *
+ */
 class Probe {
 
 	/**
