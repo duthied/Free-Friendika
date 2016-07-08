@@ -5,11 +5,9 @@
  * To-Do:
  *
  * - OStatus links with index.php
+ * - OStatus alias link
  * - Non absolute URL in feeds?
- * - Check for tumblr feed?
- * - more logging?
  * - Workaround for misconfigured Friendica servers?
- * - Check if Hubzilla servers with OStatus are detected correctly
  *
  */
 
@@ -135,8 +133,12 @@ class Probe {
 		if (!isset($data["name"]))
 			$data["name"] = $data["url"];
 
-		if (!isset($data["nick"]))
+		if (!isset($data["nick"])) {
 			$data["nick"] = strtolower($data["name"]);
+
+			if (strpos($data['nick'], ' '))
+				$data['nick'] = trim(substr($data['nick'], 0, strpos($data['nick'], ' ')));
+		}
 
 		if (!isset($data["network"]))
 			$data["network"] = NETWORK_PHANTOM;
