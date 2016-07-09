@@ -1,15 +1,14 @@
 <?php
 
 require_once('include/crypto.php');
-
-
+require_once('include/Probe.php');
 
 function get_salmon_key($uri,$keyhash) {
 	$ret = array();
 
 	logger('Fetching salmon key for '.$uri);
 
-	$arr = lrdd($uri);
+	$arr = Probe::lrdd($uri);
 
 	if(is_array($arr)) {
 		foreach($arr as $a) {

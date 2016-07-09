@@ -1,5 +1,6 @@
 <?php
 require_once("include/Contact.php");
+require_once('include/Probe.php');
 
 function profiles_init(&$a) {
 
@@ -251,7 +252,7 @@ function profiles_post(&$a) {
 				$lookup = str_replace('_',' ', $lookup);
 				if(strpos($lookup,'@') || (strpos($lookup,'http://'))) {
 					$newname = $lookup;
-					$links = @lrdd($lookup);
+					$links = @Probe::lrdd($lookup);
 					if(count($links)) {
 						foreach($links as $link) {
 							if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {

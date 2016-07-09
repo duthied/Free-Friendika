@@ -75,6 +75,7 @@ class Probe {
 			return false;
 
 		$xrd_data = array();
+
 		foreach ($links["xrd"]["link"] AS $value => $link) {
 			if (isset($link["@attributes"]))
 				$attributes = $link["@attributes"];
@@ -93,6 +94,109 @@ class Probe {
 				$xrd_data["lrdd"] = $attributes["template"];
 		}
 		return $xrd_data;
+	}
+
+	/**
+	 * @brief Perform Webfinger lookup and return DFRN data
+	 *
+	 * Given an email style address, perform webfinger lookup and
+	 * return the resulting DFRN profile URL, or if no DFRN profile URL
+	 * is located, returns an OStatus subscription template (prefixed
+	 * with the string 'stat:' to identify it as on OStatus template).
+	 * If this isn't an email style address just return $webbie.
+	 * Return an empty string if email-style addresses but webfinger fails,
+	 * or if the resultant personal XRD doesn't contain a supported
+	 * subscription/friend-request attribute.
+	 *
+	 * amended 7/9/2011 to return an hcard which could save potentially loading
+	 * a lengthy content page to scrape dfrn attributes
+	 *
+	 * @param string $webbie Address that should be probed
+	 * @param string $hcard Link to the hcard - is returned by reference
+	 *
+	 * @return string profile link
+	 */
+
+	public static function webfinger_dfrn($webbie, &$hcard) {
+		if (!strstr($webbie, '@'))
+			return $webbie;
+
+		$profile_link = '';
+
+		$links = self::webfinger($webbie);
+		logger('webfinger_dfrn: '.$webbie.':'.print_r($links,true), LOGGER_DATA);
+		if (count($links)) {
+			foreach ($links as $link) {
+				if ($link['@attributes']['rel'] === NAMESPACE_DFRN)
+					$profile_link = $link['@attributes']['href'];
+				if ($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB)
+					$profile_link = 'stat:'.$link['@attributes']['template'];
+				if ($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard')
+					$hcard = $link['@attributes']['href'];
+			}
+		}
+		return $profile_link;
+	}
+
+	/**
+	 * @brief Check an URI for LRDD data
+	 *
+	 * this is a replacement for the "lrdd" function in include/network.php.
+	 * It isn't used in this class and has some redundancies in the code.
+	 * When time comes we can check the existing calls for "lrdd" if we can rework them.
+	 *
+	 * @param string $uri Address that should be probed
+	 *
+	 * @return array uri data
+	 */
+	public static function lrdd($uri) {
+
+		$lrdd = self::xrd($uri);
+
+		if (!$lrdd) {
+			$parts = @parse_url($uri);
+			if (!$parts)
+				return array();
+
+			$host = $parts["host"];
+
+			$path_parts = explode("/", trim($parts["path"], "/"));
+
+			do {
+				$lrdd = self::xrd($host);
+				$host .= "/".array_shift($path_parts);
+			} while (!$lrdd AND (sizeof($path_parts) > 0));
+		}
+
+		if (!$lrdd)
+			return array();
+
+		foreach ($lrdd AS $key => $link) {
+			if ($webfinger)
+				continue;
+
+			if (!in_array($key, array("lrdd", "lrdd-xml", "lrdd-json")))
+				continue;
+
+			$path = str_replace('{uri}', urlencode($uri), $link);
+			$webfinger = self::webfinger($path);
+		}
+
+		if (!is_array($webfinger["links"]))
+			return false;
+
+		$data = array();
+
+		foreach ($webfinger["links"] AS $link)
+			$data[] = array("@attributes" => $link);
+
+		if (is_array($webfinger["aliases"]))
+			foreach ($webfinger["aliases"] AS $alias)
+				$data[] = array("@attributes" =>
+							array("rel" => "alias",
+								"href" => $alias));
+
+		return $data;
 	}
 
 	/**

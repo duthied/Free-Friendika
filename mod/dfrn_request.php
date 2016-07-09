@@ -448,7 +448,7 @@ function dfrn_request_post(&$a) {
 			$network = $data["network"];
 
 			// Canonicalise email-style profile locator
-			$url = webfinger_dfrn($url,$hcard);
+			$url = Probe::webfinger_dfrn($url,$hcard);
 
 			if (substr($url,0,5) === 'stat:') {
 
