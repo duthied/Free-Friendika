@@ -200,7 +200,7 @@ class Probe {
 	}
 
 	/**
-	 * @brief Fetch information about a given uri
+	 * @brief Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * @param string $uri Address that should be probed
 	 * @param string $network Test for this specific network
@@ -279,7 +279,9 @@ class Probe {
 	}
 
 	/**
-	 * @brief Detect information about a given uri
+	 * @brief Fetch information (protocol endpoints and user information) about a given uri
+	 *
+	 * This function is only called by the "uri" function that adds caching and rearranging of data.
 	 *
 	 * @param string $uri Address that should be probed
 	 * @param string $network Test for this specific network
@@ -406,7 +408,7 @@ class Probe {
 	}
 
 	/**
-	 * @brief Do a webfinger request
+	 * @brief Do a webfinger request. For details see RFC 7033: <https://tools.ietf.org/html/rfc7033>
 	 *
 	 * @param string $url Address that should be probed
 	 *
@@ -459,6 +461,8 @@ class Probe {
 
 	/**
 	 * @brief Poll the noscrape page (Friendica specific)
+	 *
+	 * "noscrape" is a faster alternative to fetching the data from the hcard.
 	 *
 	 * @param string $noscrape Link to the noscrape page
 	 * @param array $data The already fetched data
@@ -543,7 +547,7 @@ class Probe {
 	}
 
 	/**
-	 * @brief Fetch data from a DFRN profile page
+	 * @brief Fetch data from a DFRN profile page and via "noscrape"
 	 *
 	 * @param string $profile Link to the profile page
 	 *
