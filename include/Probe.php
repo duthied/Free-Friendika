@@ -232,10 +232,15 @@ class Probe {
 		else
 			$data["photo"] = App::get_baseurl().'/images/person-175.jpg';
 
-		if (!isset($data["name"]))
-			$data["name"] = $data["url"];
+		if (!isset($data["name"]) OR ($data["name"] == "")) {
+			if (isset($data["nick"]))
+				$data["name"] = $data["nick"];
 
-		if (!isset($data["nick"])) {
+			if ($data["name"] == "")
+				$data["name"] = $data["url"];
+		}
+
+		if (!isset($data["nick"]) OR ($data["nick"] == "")) {
 			$data["nick"] = strtolower($data["name"]);
 
 			if (strpos($data['nick'], ' '))
