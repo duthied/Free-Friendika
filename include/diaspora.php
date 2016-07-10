@@ -432,6 +432,8 @@ class diaspora {
 		$type = $element->getName();
 		$orig_type = $type;
 
+		logger("Got message type ".$type.": ".$msg["message"], LOGGER_DATA);
+
 		// All retractions are handled identically from now on.
 		// In the new version there will only be "retraction".
 		if (in_array($type, array("signed_retraction", "relayable_retraction")))
@@ -568,6 +570,9 @@ class diaspora {
 			$d = strtotime($person["updated"]." +00:00");
 			if ($d < strtotime("now - 14 days"))
 				$update = true;
+
+			if ($person["guid"] == "")
+				$update = true;
 		}
 
 		if (!$person OR $update) {
@@ -601,6 +606,7 @@ class diaspora {
 					`request` = '%s',
 					`nick` = '%s',
 					`addr` = '%s',
+					`guid` = '%s',
 					`batch` = '%s',
 					`notify` = '%s',
 					`poll` = '%s',
@@ -614,6 +620,7 @@ class diaspora {
 					dbesc($arr["request"]),
 					dbesc($arr["nick"]),
 					dbesc($arr["addr"]),
+					dbesc($arr["guid"]),
 					dbesc($arr["batch"]),
 					dbesc($arr["notify"]),
 					dbesc($arr["poll"]),
@@ -625,7 +632,7 @@ class diaspora {
 					dbesc($arr["network"])
 				);
 		} else {
-			$r = q("INSERT INTO `fcontact` (`url`,`name`,`photo`,`request`,`nick`,`addr`,
+			$r = q("INSERT INTO `fcontact` (`url`,`name`,`photo`,`request`,`nick`,`addr`, `guid`,
 					`batch`, `notify`,`poll`,`confirm`,`network`,`alias`,`pubkey`,`updated`)
 				VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
 					dbesc($arr["url"]),
@@ -634,6 +641,7 @@ class diaspora {
 					dbesc($arr["request"]),
 					dbesc($arr["nick"]),
 					dbesc($arr["addr"]),
+					dbesc($arr["guid"]),
 					dbesc($arr["batch"]),
 					dbesc($arr["notify"]),
 					dbesc($arr["poll"]),
@@ -1838,10 +1846,31 @@ class diaspora {
 		// That makes us friends.
 		if ($contact) {
 			if ($following AND $sharing) {
+				logger("Author ".$author." (Contact ".$contact["id"].") wants to have a bidirectional conection.", LOGGER_DEBUG);
 				self::receive_request_make_friend($importer, $contact);
+
+				// refetch the contact array
+				$contact = self::contact_by_handle($importer["uid"],$author);
+
+				// If we are now friends, we are sending a share message.
+				// Normally we needn't to do so, but the first message could have been vanished.
+				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND, CONTACT_IS_FOLLOWER))) {
+					$u = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+							`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
+							`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
+						FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+							WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
+						intval($importer["uid"]));
+					if($u) {
+						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
+						$ret = self::send_share($u[0], $contact);
+					}
+				}
 				return true;
-			} else /// @todo Handle all possible variations of adding and retracting of permissions
+			} else { /// @todo Handle all possible variations of adding and retracting of permissions
+				logger("Author ".$author." (Contact ".$contact["id"].") wants to change the relationship: Following: ".$following." - sharing: ".$sharing. "(By now unsupported)", LOGGER_DEBUG);
 				return false;
+			}
 		}
 
 		if (!$following AND $sharing AND in_array($importer["page-flags"], array(PAGE_SOAPBOX, PAGE_NORMAL))) {
@@ -1850,6 +1879,12 @@ class diaspora {
 		} elseif (!$following AND !$sharing) {
 			logger("Author ".$author." doesn't want anything - and we don't know the author. Request is ignored.", LOGGER_DEBUG);
 			return false;
+		} elseif (!$following AND $sharing) {
+			logger("Author ".$author." wants to share with us.", LOGGER_DEBUG);
+		} elseif ($following AND $sharing) {
+			logger("Author ".$author." wants to have a bidirectional conection.", LOGGER_DEBUG);
+		} elseif ($following AND !$sharing) {
+			logger("Author ".$author." wants to listen to us.", LOGGER_DEBUG);
 		}
 
 		$ret = self::person_by_handle($author);
@@ -1889,6 +1924,8 @@ class diaspora {
 			return;
 		}
 
+		logger("Author ".$author." was added as contact number ".$contact_record["id"].".", LOGGER_DEBUG);
+
 		$def_gid = get_default_group($importer['uid'], $ret["network"]);
 
 		if(intval($def_gid))
@@ -1897,6 +1934,8 @@ class diaspora {
 		update_contact_avatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
 
 		if($importer["page-flags"] == PAGE_NORMAL) {
+
+			logger("Sending intra message for author ".$author.".", LOGGER_DEBUG);
 
 			$hash = random_string().(string)time();   // Generate a confirm_key
 
@@ -1913,6 +1952,8 @@ class diaspora {
 		} else {
 
 			// automatic friend approval
+
+			logger("Does an automatic friend approval for author ".$author.".", LOGGER_DEBUG);
 
 			update_contact_avatar($contact_record["photo"],$importer["uid"],$contact_record["id"]);
 
@@ -1941,9 +1982,16 @@ class diaspora {
 				intval($contact_record["id"])
 			);
 
-			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-			if($u)
+			$u = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+					`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
+					`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
+				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
+					WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
+				intval($importer["uid"]));
+			if($u) {
+				logger("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 				$ret = self::send_share($u[0], $contact_record);
+			}
 		}
 
 		return true;
@@ -2655,6 +2703,8 @@ class diaspora {
 		$message = array("sender_handle" => self::my_handle($owner),
 				"recipient_handle" => $contact["addr"]);
 
+		logger("Send share ".print_r($message, true), LOGGER_DEBUG);
+
 		return self::build_and_transmit($owner, $contact, "request", $message);
 	}
 
@@ -2671,6 +2721,8 @@ class diaspora {
 		$message = array("post_guid" => $owner["guid"],
 				"diaspora_handle" => self::my_handle($owner),
 				"type" => "Person");
+
+		logger("Send unshare ".print_r($message, true), LOGGER_DEBUG);
 
 		return self::build_and_transmit($owner, $contact, "retraction", $message);
 	}

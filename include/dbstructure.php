@@ -568,6 +568,7 @@ function db_definition() {
 	$database["fcontact"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),

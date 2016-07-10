@@ -134,7 +134,7 @@ function notifier_run(&$argv, &$argc){
 	} elseif($cmd === 'removeme') {
 		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
 				`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-				`user`.`page-flags`, `user`.`prvnets`
+				`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`uid` = %d AND `contact`.`self` LIMIT 1",
 				intval($item_id));
