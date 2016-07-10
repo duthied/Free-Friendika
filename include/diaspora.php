@@ -1981,6 +1981,9 @@ class diaspora {
 			if($u) {
 				logger("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 				$ret = self::send_share($u[0], $contact_record);
+
+				// Send the profile data, maybe it weren't transmitted before
+				self::send_profile($importer["uid"], array($contact_record));
 			}
 		}
 
@@ -3204,17 +3207,18 @@ class diaspora {
 	 *
 	 * @param int $uid The user id
 	 */
-	public static function send_profile($uid) {
+	public static function send_profile($uid, $recips = false) {
 
 		if (!$uid)
 			return;
 
-		$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
-			AND `uid` = %d AND `rel` != %d",
-			dbesc(NETWORK_DIASPORA),
-			intval($uid),
-			intval(CONTACT_IS_SHARING)
-		);
+		if (!$recips)
+			$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
+				AND `uid` = %d AND `rel` != %d",
+				dbesc(NETWORK_DIASPORA),
+				intval($uid),
+				intval(CONTACT_IS_SHARING)
+			);
 		if (!$recips)
 			return;
 
@@ -3278,8 +3282,10 @@ class diaspora {
 				"searchable" => $searchable,
 				"tag_string" => $tags);
 
-		foreach($recips as $recip)
+		foreach($recips as $recip) {
+			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
 			self::build_and_transmit($profile, $recip, "profile", $message, false, "", true);
+		}
 	}
 
 	/**
