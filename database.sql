@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1198
+-- DB_UPDATE_VERSION 1199
 -- ------------------------------------------
 
 
@@ -234,6 +234,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 --
 CREATE TABLE IF NOT EXISTS `fcontact` (
 	`id` int(10) unsigned NOT NULL auto_increment,
+	`guid` varchar(255) NOT NULL DEFAULT '',
 	`url` varchar(255) NOT NULL DEFAULT '',
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
