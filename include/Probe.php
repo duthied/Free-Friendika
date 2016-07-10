@@ -289,7 +289,7 @@ class Probe {
 	 */
 	private function detect($uri, $network, $uid) {
 		if (strstr($uri, '@')) {
-			// If the URI starts with "mailto:" then jum directly to the mail detection
+			// If the URI starts with "mailto:" then jump directly to the mail detection
 			if (strpos($url,'mailto:') !== false) {
 				$uri = str_replace('mailto:', '', $url);
 				return self::mail($uri, $uid);
