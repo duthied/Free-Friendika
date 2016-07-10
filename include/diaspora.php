@@ -1855,12 +1855,7 @@ class diaspora {
 				// If we are now friends, we are sending a share message.
 				// Normally we needn't to do so, but the first message could have been vanished.
 				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND, CONTACT_IS_FOLLOWER))) {
-					$u = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
-							`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-							`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
-						FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-							WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-						intval($importer["uid"]));
+					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
 					if($u) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 						$ret = self::send_share($u[0], $contact);
@@ -1982,12 +1977,7 @@ class diaspora {
 				intval($contact_record["id"])
 			);
 
-			$u = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
-					`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-					`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
-				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-					WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-				intval($importer["uid"]));
+			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
 			if($u) {
 				logger("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 				$ret = self::send_share($u[0], $contact_record);
@@ -2676,6 +2666,10 @@ class diaspora {
 
 		logger('message: '.$msg, LOGGER_DATA);
 		logger('send guid '.$guid, LOGGER_DEBUG);
+
+		// Fallback if the private key wasn't transmitted in the expected field
+		if ($owner['uprvkey'] == "")
+			$owner['uprvkey'] = $owner['prvkey'];
 
 		$slap = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
