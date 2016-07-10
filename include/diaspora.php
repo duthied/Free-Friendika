@@ -2117,12 +2117,6 @@ class diaspora {
 		if (!$r)
 			return false;
 
-		// Only delete it if the author really fits
-		if (!link_compare($r[0]["author-link"], $person["url"])) {
-			logger("Item author ".$r[0]["author-link"]." doesn't fit to expected contact ".$person["url"], LOGGER_DEBUG);
-			return false;
-		}
-
 		// Check if the sender is the thread owner
 		$p = q("SELECT `id`, `author-link`, `origin` FROM `item` WHERE `id` = %d",
 			intval($r[0]["parent"]));
