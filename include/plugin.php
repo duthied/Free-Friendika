@@ -534,3 +534,41 @@ function upgrade_bool_message($bbcode = false) {
 	$x = upgrade_link($bbcode);
 	return t('This action is not available under your subscription plan.') . (($x) ? ' ' . $x : '') ;
 }
+
+/**
+ * @brief Get the full path to relevant theme files by filename
+ * 
+ * This function search in the theme directory (and if not present in global theme directory)
+ * if there is a directory with the file extension and  for a file with the given
+ * filename. 
+ * 
+ * @param string $file Filename
+ * @param string $root Full root path
+ * @return string Path to the file or empty string if the file isn't found
+ */
+function theme_include($file, $root = '') {
+	// Make sure $root ends with a slash / if it's not blank
+	if($root !== '' && $root[strlen($root)-1] !== '/')
+		$root = $root . '/';
+	$theme_info = $a->theme_info;
+	if(array_key_exists('extends',$theme_info))
+		$parent = $theme_info['extends'];
+	else
+		$parent = 'NOPATH';
+	$theme = current_theme();
+	$thname = $theme;
+	$ext = substr($file,strrpos($file,'.')+1);
+	$paths = array(
+		"{$root}view/theme/$thname/$ext/$file",
+		"{$root}view/theme/$parent/$ext/$file",
+		"{$root}view/$ext/$file",
+	);
+	foreach($paths as $p) {
+		// strpos() is faster than strstr when checking if one string is in another (http://php.net/manual/en/function.strstr.php)
+		if(strpos($p,'NOPATH') !== false)
+			continue;
+		if(file_exists($p))
+			return $p;
+	}
+	return '';
+}

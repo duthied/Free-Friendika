@@ -500,21 +500,19 @@ $profile = $a->profile;
 header("X-Friendica-Version: ".FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
-
-if (isset($_GET["mode"]) AND ($_GET["mode"] == "minimal")) {
-	//$page['content'] = substr($target->saveHTML(), 6, -8)."\n\n".
-	//			'<div id="conversation-end"></div>'."\n\n";
-
-	require "view/minimal.php";
-} else {
-	$template = 'view/theme/' . current_theme() . '/'
-		. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
-
-	if(file_exists($template))
-		require_once($template);
-	else
-		require_once(str_replace('theme/' . current_theme() . '/', '', $template));
+// We use $_GET["mode"] for special page templates. So we will check if we have 
+// to load another page template than the default one
+// The page templates are located in /view/php/ or in the theme directory
+if (isset($_GET["mode"])) {
+		$template = theme_include($_GET["mode"].'.php');
 }
+
+// If there is no page template use the default page template
+if(!$template) {
+	$template = theme_include("default.php");
+}
+
+require_once($template);
 
 session_write_close();
 exit;
