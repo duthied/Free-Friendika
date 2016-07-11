@@ -399,7 +399,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	$count	=	(x($_REQUEST,'count')		? $_REQUEST['count']		: 100);
 	$search	 =	(x($_REQUEST,'search')		? $_REQUEST['search']		: "");
 	$type	=	(x($_REQUEST,'type')		? $_REQUEST['type']		: "");
-	$mode	=	(x($_REQUEST,'mode')		? $_REQUEST['mode']		: "");
+	$mode	=	(x($_REQUEST,'smode')		? $_REQUEST['smode']		: "");
 	$conv_id =	(x($_REQUEST,'conversation')	? $_REQUEST['conversation']	: null);
 
 	// For use with jquery.textcomplete for private mail completion
@@ -690,7 +690,7 @@ function navbar_complete(&$a) {
 	$localsearch = get_config('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
-	$mode = $_REQUEST['mode'];
+	$mode = $_REQUEST['smode'];
 
 	// don't search if search term has less than 2 characters
 	if(! $search || mb_strlen($search) < 2)
