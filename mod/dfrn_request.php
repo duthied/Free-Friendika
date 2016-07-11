@@ -11,6 +11,7 @@
 
 require_once('include/enotify.php');
 require_once('include/Scrape.php');
+require_once('include/Probe.php');
 require_once('include/group.php');
 
 if(! function_exists('dfrn_request_init')) {
@@ -116,7 +117,7 @@ function dfrn_request_post(&$a) {
 					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					 */
 
-					$parms = scrape_dfrn($dfrn_url);
+					$parms = Probe::profile($dfrn_url);
 
 					if(! count($parms)) {
 						notice( t('Profile location is not valid or does not contain profile information.') . EOL );
@@ -127,7 +128,7 @@ function dfrn_request_post(&$a) {
 							notice( t('Warning: profile location has no identifiable owner name.') . EOL );
 						if(! x($parms,'photo'))
 							notice( t('Warning: profile location has no profile photo.') . EOL );
-						$invalid = validate_dfrn($parms);
+						$invalid = Probe::valid_dfrn($parms);
 						if($invalid) {
 							notice( sprintf( tt("%d required parameter was not found at the given location",
 												"%d required parameters were not found at the given location",
@@ -447,7 +448,7 @@ function dfrn_request_post(&$a) {
 			$network = $data["network"];
 
 			// Canonicalise email-style profile locator
-			$url = webfinger_dfrn($url,$hcard);
+			$url = Probe::webfinger_dfrn($url,$hcard);
 
 			if (substr($url,0,5) === 'stat:') {
 
@@ -511,7 +512,7 @@ function dfrn_request_post(&$a) {
 
 				require_once('include/Scrape.php');
 
-				$parms = scrape_dfrn(($hcard) ? $hcard : $url);
+				$parms = Probe::profile(($hcard) ? $hcard : $url);
 
 				if(! count($parms)) {
 					notice( t('Profile location is not valid or does not contain profile information.') . EOL );
@@ -522,7 +523,7 @@ function dfrn_request_post(&$a) {
 						notice( t('Warning: profile location has no identifiable owner name.') . EOL );
 					if(! x($parms,'photo'))
 						notice( t('Warning: profile location has no profile photo.') . EOL );
-					$invalid = validate_dfrn($parms);
+					$invalid = Probe::valid_dfrn($parms);
 					if($invalid) {
 						notice( sprintf( tt("%d required parameter was not found at the given location",
 											"%d required parameters were not found at the given location",

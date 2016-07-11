@@ -8,6 +8,7 @@ require_once('include/security.php');
 require_once('include/redir.php');
 require_once('include/tags.php');
 require_once('include/threads.php');
+require_once('include/Probe.php');
 
 function photos_init(&$a) {
 
@@ -552,7 +553,7 @@ function photos_post(&$a) {
 						$name = substr($tag,1);
 						if((strpos($name,'@')) || (strpos($name,'http://'))) {
 							$newname = $name;
-							$links = @lrdd($name);
+							$links = @Probe::lrdd($name);
 							if(count($links)) {
 								foreach($links as $link) {
 									if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
