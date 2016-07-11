@@ -150,7 +150,7 @@ class Item extends BaseObject {
 		else
 			$profile_link = zrl($profile_link);
 
-		if (!isset($item['author-thumb'])) {
+		if (!isset($item['author-thumb']) OR ($item['author-thumb'] == "")) {
 			$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
 			if ($author_contact["thumb"])
 				$item['author-thumb'] = $author_contact["thumb"];
@@ -158,7 +158,7 @@ class Item extends BaseObject {
 				$item['author-thumb'] = $item['author-avatar'];
 		}
 
-		if (!isset($item['owner-thumb'])) {
+		if (!isset($item['owner-thumb']) OR ($item['owner-thumb'] == "")) {
 			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->get_profile_owner());
 			if ($owner_contact["thumb"])
 				$item['owner-thumb'] = $owner_contact["thumb"];

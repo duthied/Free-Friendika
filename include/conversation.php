@@ -676,7 +676,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 				else
 					$profile_link = zrl($profile_link);
 
-				if (!isset($item['author-thumb'])) {
+				if (!isset($item['author-thumb']) OR ($item['author-thumb'] == "")) {
 					$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
 					if ($author_contact["thumb"])
 						$item['author-thumb'] = $author_contact["thumb"];
@@ -684,7 +684,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 						$item['author-thumb'] = $item['author-avatar'];
 				}
 
-				if (!isset($item['owner-thumb'])) {
+				if (!isset($item['owner-thumb']) OR ($item['owner-thumb'] == "")) {
 					$owner_contact = get_contact_details_by_url($item['owner-link'], $profile_owner);
 					if ($owner_contact["thumb"])
 						$item['owner-thumb'] = $owner_contact["thumb"];
