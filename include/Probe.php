@@ -408,7 +408,9 @@ class Probe {
 	}
 
 	/**
-	 * @brief Do a webfinger request. For details see RFC 7033: <https://tools.ietf.org/html/rfc7033>
+	 * @brief Perform a webfinger request.
+	 *
+	 * For details see RFC 7033: <https://tools.ietf.org/html/rfc7033>
 	 *
 	 * @param string $url Address that should be probed
 	 *
@@ -460,9 +462,10 @@ class Probe {
 	}
 
 	/**
-	 * @brief Poll the noscrape page (Friendica specific)
+	 * @brief Poll the Friendica specific noscrape page.
 	 *
-	 * "noscrape" is a faster alternative to fetching the data from the hcard.
+	 * "noscrape" is a faster alternative to fetch the data from the hcard.
+	 * This functionality was originally created for the directory.
 	 *
 	 * @param string $noscrape Link to the noscrape page
 	 * @param array $data The already fetched data
