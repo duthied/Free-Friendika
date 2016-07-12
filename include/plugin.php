@@ -551,7 +551,7 @@ function theme_include($file, $root = '') {
 	if($root !== '' && $root[strlen($root)-1] !== '/')
 		$root = $root . '/';
 	$theme_info = $a->theme_info;
-	if(array_key_exists('extends',$theme_info))
+	if(is_array($theme_info) AND array_key_exists('extends',$theme_info))
 		$parent = $theme_info['extends'];
 	else
 		$parent = 'NOPATH';
