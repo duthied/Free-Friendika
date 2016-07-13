@@ -2047,7 +2047,6 @@
 	}
 
 	function api_convert_item($item) {
-
 		$body = $item['body'];
 		$attachments = api_get_attachments($body);
 
@@ -2084,8 +2083,13 @@
 			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
 
 		$entities = api_get_entitities($statustext, $body);
-
-		return(array("text" => $statustext, "html" => $statushtml, "attachments" => $attachments, "entities" => $entities));
+		
+		return array(
+			"text" => $statustext,
+			"html" => $statushtml,
+			"attachments" => $attachments,
+			"entities" => $entities
+		);
 	}
 
 	function api_get_attachments(&$body) {
@@ -2266,7 +2270,7 @@
 				$offset = $start + 1;
 			}
 		}
-
+		
 		return($entities);
 	}
 	function api_format_items_embeded_images(&$item, $text){
@@ -2429,15 +2433,29 @@
 
 			// Retweets are only valid for top postings
 			// It doesn't work reliable with the link if its a feed
-			$IsRetweet = ($item['owner-link'] != $item['author-link']);
-			if ($IsRetweet)
-				$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
-
-			if ($IsRetweet AND ($item["id"] == $item["parent"])) {
+			#$IsRetweet = ($item['owner-link'] != $item['author-link']);
+			#if ($IsRetweet)
+			#	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
+			
+						
+			if ($item['is_retweet'] AND ($item["id"] == $item["parent"])) {
 				$retweeted_status = $status;
-				$retweeted_status["user"] = api_get_user($a,$item["author-link"]);
+				try {
+					$retweeted_status["user"] = api_get_user($a,$item["retweet-author-link"]);
+				} catch( BadRequestException $e ) {
+					// user not found. should be found?
+					// TODO: check if the user should be found...
+					$retweeted_status["user"] = array();
+				}
 
 				$status["retweeted_status"] = $retweeted_status;
+				$status["retweeted_status"]["body"] = $item["retweet-body"];
+				$status["retweeted_status"]["author-name"] = $item["retweet-author-name"];
+				$status["retweeted_status"]["author-link"] = $item["retweet-author-link"];
+				$status["retweeted_status"]["author-avatar"] = $item["retweet-author-avatar"];
+				$status["retweeted_status"]["plink"] = $item["retweet-plink"];
+				
+				//echo "<pre>"; var_dump($status); killme();
 			}
 
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -3055,12 +3073,12 @@
 		if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
 			return(false);
 
-		$item["body"] = $shared_body;
-		$item["author-name"] = $author;
-		$item["author-link"] = $profile;
-		$item["author-avatar"] = $avatar;
-		$item["plink"] = $link;
-
+		$item["retweet-body"] = $shared_body;
+		$item["retweet-author-name"] = $author;
+		$item["retweet-author-link"] = $profile;
+		$item["retweet-author-avatar"] = $avatar;
+		$item["retweet-plink"] = $link;
+		$item["is_retweet"] = true;
 		return(true);
 
 	}
