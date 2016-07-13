@@ -10,6 +10,9 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
+use \Friendica\Core\Config;
+use \Friendica\Core\PConfig;
+
 require_once("boot.php");
 
 function poller_run(&$argv, &$argc){
@@ -57,6 +60,8 @@ function poller_run(&$argv, &$argc){
 	// Checking number of workers
 	if (poller_too_much_workers(2))
 		return;
+
+	$cooldown = Config::get("system", "worker_cooldown", 0);
 
 	$starttime = time();
 
@@ -108,6 +113,11 @@ function poller_run(&$argv, &$argc){
 		if (function_exists($funcname)) {
 			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
 			$funcname($argv, $argc);
+
+			if ($cooldown > 0) {
+				logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+				sleep($cooldown);
+			}
 
 			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - done");
 
