@@ -688,8 +688,9 @@
 	function api_array_to_xml($data, $ename="") {
 		$attrs="";
 		$childs="";
-		if (count($data)==1 && !is_array($data[0])) {
+		if (count($data)==1 && !is_array($data[array_keys($data)[0]])) {
 			$ename = array_keys($data)[0];
+			$ename = trim($ename,'$');
 			$v = $data[$ename];
 			return "<$ename>$v</$ename>";
 		}
