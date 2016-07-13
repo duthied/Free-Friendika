@@ -67,6 +67,7 @@ line to your .htconfig.php:
 * throttle_limit_week - Maximum number of posts that a user can send per week with the API.
 * throttle_limit_month - Maximum number of posts that a user can send per month with the API.
 * wall-to-wall_share (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
+* worker_cooldown - Cooldown time after each worker function call. Default value is 0 seconds.
 * xrd_timeout - Timeout for fetching the XRD links. Default value is 20 seconds.
 
 ## service_class ##
