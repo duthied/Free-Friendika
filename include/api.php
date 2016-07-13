@@ -664,18 +664,20 @@
 
 		// Comments in threads may appear as wall-to-wall postings.
 		// So only take the owner at the top posting.
-		if ($item["id"] == $item["parent"])
-			$status_user = api_get_user($a,$item["owner-link"]);
-		else
-			$status_user = api_get_user($a,$item["author-link"]);
-
+		#if ($item["id"] == $item["parent"])
+		#	$status_user = api_get_user($a,$item["owner-link"]);
+		#else
+		
+		$status_user = api_get_user($a,$item["author-link"]);
 		$status_user["protected"] = (($item["allow_cid"] != "") OR
 						($item["allow_gid"] != "") OR
 						($item["deny_cid"] != "") OR
 						($item["deny_gid"] != "") OR
 						$item["private"]);
 
-		return ($status_user);
+		$owner_user = api_get_user($a,$item["owner-link"]);						
+						
+		return (array($status_user, $owner_user));
 	}
 
 
@@ -2278,6 +2280,24 @@
 		return $text;
 	}
 
+	
+	/**
+	 * @brief return <a href='url'>name</a> as array
+	 *
+	 * @param string $txt
+	 * @return array
+	 * 			name => 'name'
+	 * 			'url => 'url'
+	 */ 		
+	function api_contactlink_to_array($txt) {
+		$elm = new SimpleXMLElement($txt);
+		return array(
+			'name' => $elm->__toString(),
+			'url' => $elm->attributes()['href']->__toString()
+		);
+	}
+	
+	
 	/**
 	 * @brief return likes, dislikes and attend status for item
 	 *
@@ -2286,7 +2306,7 @@
 	 * 			likes => int count
 	 * 			dislikes => int count
 	 */
-	function api_format_items_likes(&$item) {
+	function api_format_items_activities(&$item) {
 		$activities = array(
 			'like' => array(),
 			'dislike' => array(),
@@ -2301,13 +2321,13 @@
 		foreach ($items as $i){
 			builtin_activity_puller($i, $activities);
 		}
-
+		
 		$res = array();
-		$uri = $item['uri'];
+		$uri = $item['uri']."-l";
 		foreach($activities as $k => $v) {
-			$res[$k] = (x($v,$uri)?$v[$uri]:0);
+			$res[$k] = ( x($v,$uri) ? array_map("api_contactlink_to_array", $v[$uri]) : array() );
 		}
-
+	
 		return $res;
 	}
 
@@ -2327,7 +2347,7 @@
 			api_share_as_retweet($item);
 
 			localize_item($item);
-			$status_user = api_item_get_user($a,$item);
+			list($status_user, $owner_user) = api_item_get_user($a,$item);
 
 			// Look if the posts are matching if they should be filtered by user id
 			if ($filter_user AND ($status_user["id"] != $user_info["id"]))
@@ -2388,10 +2408,11 @@
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,
 				'user' =>  $status_user ,
+				'friendica_owner' => $owner_user,
 				//'entities' => NULL,
 				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $item['parent'],
-				'friendica_activities' => api_format_items_likes($item),
+				'friendica_activities' => api_format_items_activities($item),
 			);
 
 			if (count($converted["attachments"]) > 0)
