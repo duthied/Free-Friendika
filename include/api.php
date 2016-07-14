@@ -2358,7 +2358,6 @@
 		$ret = Array();
 
 		foreach($r as $item) {
-			api_share_as_retweet($item);
 
 			localize_item($item);
 			list($status_user, $owner_user) = api_item_get_user($a,$item);
@@ -2448,24 +2447,26 @@
 			#	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
 
 
-			if ($item['is_retweet'] AND ($item["id"] == $item["parent"])) {
-				$retweeted_status = $status;
-				try {
-					$retweeted_status["user"] = api_get_user($a,$item["retweet-author-link"]);
-				} catch( BadRequestException $e ) {
-					// user not found. should be found?
-					// TODO: check if the user should be found...
-					$retweeted_status["user"] = array();
+			if ($item["id"] == $item["parent"]) {
+				$retweeted_item = api_share_as_retweet($item);
+				if ($retweeted_item !== false) {
+					$retweeted_status = $status;
+					try {
+						$retweeted_status["user"] = api_get_user($a,$retweeted_item["author-link"]);
+					} catch( BadRequestException $e ) {
+						// user not found. should be found?
+						// TODO: check if the user should be found...
+						$retweeted_status["user"] = array();
+					}
+
+					$rt_converted = api_convert_item($retweeted_item);
+
+					$retweeted_status['text'] = $rt_converted["text"];
+					$retweeted_status['statusnet_html'] = $rt_converted["html"];
+					$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item);
+					$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+					$status['retweeted_status'] = $retweeted_status;
 				}
-
-				$status["retweeted_status"] = $retweeted_status;
-				$status["retweeted_status"]["body"] = $item["retweet-body"];
-				$status["retweeted_status"]["author-name"] = $item["retweet-author-name"];
-				$status["retweeted_status"]["author-link"] = $item["retweet-author-link"];
-				$status["retweeted_status"]["author-avatar"] = $item["retweet-author-avatar"];
-				$status["retweeted_status"]["plink"] = $item["retweet-plink"];
-
-				//echo "<pre>"; var_dump($status); killme();
 			}
 
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -3024,23 +3025,36 @@
 	}
 	api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
 
-
+	/**
+	 * @brief Return the item shared, if the item contains only the [share] tag
+	 *
+	 * @param array $item Sharer item
+	 * @return array Shared item or false if not a reshare
+	 */
 	function api_share_as_retweet(&$item) {
 		$body = trim($item["body"]);
 
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
 		if (strpos($body, "[share") > 0)
-			return(false);
+			return false;
 
 		// Does it end with a share?
 		if (strlen($body) > (strrpos($body, "[/share]") + 8))
-			return(false);
+			return false;
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes)
-			return(false);
+ 		// Skip if there is no shared message in there
+ 		if ($body == $attributes)
+			return false;
+
+		// NOTE: we could check te guid="" attribute and then  try to load original post
+		//            from database given the guid: we can see the original post via web under
+		//			/display/<guid>, but all the logic to fetch an item from db based on guid
+		//			looks like is in display_init() and would need a big refractor to be usable here.
+		//			so, we build the original item starting from the reshare.
+
+		$reshared_item = $item;
 
 		$author = "";
 		preg_match("/author='(.*?)'/ism", $attributes, $matches);
@@ -3078,18 +3092,31 @@
 		if ($matches[1] != "")
 			$link = $matches[1];
 
+		$posted = "";
+		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$posted= $matches[1];
+
+		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
 		$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$2",$body);
 
-		if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
-			return(false);
+		if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == ""))
+			return false;
 
-		$item["retweet-body"] = $shared_body;
-		$item["retweet-author-name"] = $author;
-		$item["retweet-author-link"] = $profile;
-		$item["retweet-author-avatar"] = $avatar;
-		$item["retweet-plink"] = $link;
-		$item["is_retweet"] = true;
-		return(true);
+
+
+		$reshared_item["body"] = $shared_body;
+		$reshared_item["author-name"] = $author;
+		$reshared_item["author-link"] = $profile;
+		$reshared_item["author-avatar"] = $avatar;
+		$reshared_item["plink"] = $link;
+		$reshared_item["created"] = $posted;
+		$reshared_item["edited"] = $posted;
+
+		return $reshared_item;
 
 	}
 
