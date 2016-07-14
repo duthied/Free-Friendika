@@ -250,7 +250,7 @@
 	 */
 	function api_call(&$a){
 		GLOBAL $API, $called_api;
-		
+
 		$type="json";
 		if (strpos($a->query_string, ".xml")>0) $type="xml";
 		if (strpos($a->query_string, ".json")>0) $type="json";
@@ -667,7 +667,7 @@
 		#if ($item["id"] == $item["parent"])
 		#	$status_user = api_get_user($a,$item["owner-link"]);
 		#else
-		
+
 		$status_user = api_get_user($a,$item["author-link"]);
 		$status_user["protected"] = (($item["allow_cid"] != "") OR
 						($item["allow_gid"] != "") OR
@@ -675,8 +675,8 @@
 						($item["deny_gid"] != "") OR
 						$item["private"]);
 
-		$owner_user = api_get_user($a,$item["owner-link"]);						
-						
+		$owner_user = api_get_user($a,$item["owner-link"]);
+
 		return (array($status_user, $owner_user));
 	}
 
@@ -723,7 +723,7 @@
 			case "xml":
 				$data = array_xmlify($data);
 				if ($templatename==="<auto>") {
-					$ret = api_array_to_xml($data); 
+					$ret = api_array_to_xml($data);
 				} else {
 					$tpl = get_markup_template("api_".$templatename."_".$type.".tpl");
 					if(! $tpl) {
@@ -2083,7 +2083,7 @@
 			$statushtml = "<h4>".bbcode($item['title'])."</h4>\n".$statushtml;
 
 		$entities = api_get_entitities($statustext, $body);
-		
+
 		return array(
 			"text" => $statustext,
 			"html" => $statushtml,
@@ -2270,7 +2270,7 @@
 				$offset = $start + 1;
 			}
 		}
-		
+
 		return($entities);
 	}
 	function api_format_items_embeded_images(&$item, $text){
@@ -2284,7 +2284,7 @@
 		return $text;
 	}
 
-	
+
 	/**
 	 * @brief return <a href='url'>name</a> as array
 	 *
@@ -2292,16 +2292,25 @@
 	 * @return array
 	 * 			name => 'name'
 	 * 			'url => 'url'
-	 */ 		
+	 */
 	function api_contactlink_to_array($txt) {
-		$elm = new SimpleXMLElement($txt);
-		return array(
-			'name' => $elm->__toString(),
-			'url' => $elm->attributes()['href']->__toString()
-		);
+		$match = array();
+		$r = preg_match_all('|<a href="([^"]*)">([^<]*)</a>|', $txt, $match);
+		if ($r && count($match)==3) {
+			$res = array(
+				'name' => $match[2],
+				'url' => $match[1]
+			);
+		} else {
+			$res = array(
+				'name' => $text,
+				'url' => ""
+			);
+		}
+		return $res;
 	}
-	
-	
+
+
 	/**
 	 * @brief return likes, dislikes and attend status for item
 	 *
@@ -2325,13 +2334,13 @@
 		foreach ($items as $i){
 			builtin_activity_puller($i, $activities);
 		}
-		
+
 		$res = array();
 		$uri = $item['uri']."-l";
 		foreach($activities as $k => $v) {
 			$res[$k] = ( x($v,$uri) ? array_map("api_contactlink_to_array", $v[$uri]) : array() );
 		}
-	
+
 		return $res;
 	}
 
@@ -2436,8 +2445,8 @@
 			#$IsRetweet = ($item['owner-link'] != $item['author-link']);
 			#if ($IsRetweet)
 			#	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
-			
-						
+
+
 			if ($item['is_retweet'] AND ($item["id"] == $item["parent"])) {
 				$retweeted_status = $status;
 				try {
@@ -2454,7 +2463,7 @@
 				$status["retweeted_status"]["author-link"] = $item["retweet-author-link"];
 				$status["retweeted_status"]["author-avatar"] = $item["retweet-author-avatar"];
 				$status["retweeted_status"]["plink"] = $item["retweet-plink"];
-				
+
 				//echo "<pre>"; var_dump($status); killme();
 			}
 
@@ -3482,16 +3491,16 @@
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
 		$nm = new NotificationsManager();
-		
+
 		$notes = $nm->getAll(array(), "+seen -date", 50);
 		return api_apply_template("<auto>", $type, array('$notes' => $notes));
 	}
-	
+
 	/**
 	 * @brief Set notification as seen and returns associated item (if possible)
 	 *
 	 * POST request with 'id' param as notification id
-	 * 
+	 *
 	 * @param App $a
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
@@ -3499,13 +3508,13 @@
 	function api_friendica_notification_seen(&$a, $type){
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
-		
+
 		$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
-		
-		$nm = new NotificationsManager();		
+
+		$nm = new NotificationsManager();
 		$note = $nm->getByID($id);
 		if (is_null($note)) throw new BadRequestException("Invalid argument");
-		
+
 		$nm->setSeen($note);
 		if ($note['otype']=='item') {
 			// would be really better with an ItemsManager and $im->getByID() :-P
@@ -3521,13 +3530,13 @@
 				return api_apply_template("timeline", $type, $data);
 			}
 			// the item can't be found, but we set the note as seen, so we count this as a success
-		} 
+		}
 		return api_apply_template('<auto>', $type, array('status' => "success"));
 	}
-	
+
 	api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
-	
+
 
 /*
 To.Do:
