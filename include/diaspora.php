@@ -2,6 +2,10 @@
 /**
  * @file include/diaspora.php
  * @brief The implementation of the diaspora protocol
+ *
+ * The new protocol is described here: http://diaspora.github.io/diaspora_federation/index.html
+ * Currently this implementation here interprets the old and the new protocol and sends the old one.
+ * This will change in the future.
  */
 
 require_once("include/items.php");
@@ -1107,6 +1111,11 @@ class diaspora {
 		$text = unxmlify($data->text);
 		$author = notags(unxmlify($data->author));
 
+		if (isset($data->created_at))
+			$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
+		else
+			$created_at = datetime_convert();
+
 		$contact = self::allowed_contact_by_handle($importer, $sender, true);
 		if (!$contact)
 			return false;
@@ -1152,6 +1161,8 @@ class diaspora {
 
 		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
 		$datarray["object"] = $xml;
+
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["body"] = diaspora2bb($text);
 
@@ -1349,7 +1360,7 @@ class diaspora {
 				intval($importer["uid"]),
 				dbesc($guid),
 				dbesc($author),
-				dbesc(datetime_convert("UTC", "UTC", $created_at)),
+				dbesc($created_at),
 				dbesc(datetime_convert()),
 				dbesc($subject),
 				dbesc($participants)
@@ -2071,7 +2082,7 @@ class diaspora {
 		$guid = notags(unxmlify($data->guid));
 		$author = notags(unxmlify($data->author));
 		$public = notags(unxmlify($data->public));
-		$created_at = notags(unxmlify($data->created_at));
+		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 
 		$contact = self::allowed_contact_by_handle($importer, $author, false);
 		if (!$contact)
@@ -2118,7 +2129,7 @@ class diaspora {
 
 		$datarray["plink"] = self::plink($author, $guid);
 		$datarray["private"] = (($public == "false") ? 1 : 0);
-		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert("UTC", "UTC", $created_at);
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["object-type"] = $original_item["object-type"];
 
@@ -2239,12 +2250,11 @@ class diaspora {
 	 * @return int The message id of the newly created item
 	 */
 	private function receive_status_message($importer, $data, $xml) {
-
 		$raw_message = unxmlify($data->raw_message);
 		$guid = notags(unxmlify($data->guid));
 		$author = notags(unxmlify($data->author));
 		$public = notags(unxmlify($data->public));
-		$created_at = notags(unxmlify($data->created_at));
+		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
 
 		/// @todo enable support for polls
@@ -2312,7 +2322,7 @@ class diaspora {
 
 		$datarray["plink"] = self::plink($author, $guid);
 		$datarray["private"] = (($public == "false") ? 1 : 0);
-		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = datetime_convert("UTC", "UTC", $created_at);
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		if (isset($address["address"]))
 			$datarray["location"] = $address["address"];
