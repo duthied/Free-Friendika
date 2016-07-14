@@ -653,6 +653,13 @@
 
 	}
 
+	/**
+	 * @brief return api-formatted array for item's author and owner
+	 *
+	 * @param App $a
+	 * @param array $item : item from db
+	 * @return array(array:author, array:owner)
+	 */
 	function api_item_get_user(&$a, $item) {
 
 		// Make sure that there is an entry in the global contacts for author and owner
@@ -661,12 +668,6 @@
 
 		get_gcontact_id(array("url" => $item['owner-link'], "network" => $item['network'],
 					"photo" => $item['owner-avatar'], "name" => $item['owner-name']));
-
-		// Comments in threads may appear as wall-to-wall postings.
-		// So only take the owner at the top posting.
-		#if ($item["id"] == $item["parent"])
-		#	$status_user = api_get_user($a,$item["owner-link"]);
-		#else
 
 		$status_user = api_get_user($a,$item["author-link"]);
 		$status_user["protected"] = (($item["allow_cid"] != "") OR
