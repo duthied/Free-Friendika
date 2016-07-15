@@ -638,7 +638,7 @@ class diaspora {
 		} else {
 			$r = q("INSERT INTO `fcontact` (`url`,`name`,`photo`,`request`,`nick`,`addr`, `guid`,
 					`batch`, `notify`,`poll`,`confirm`,`network`,`alias`,`pubkey`,`updated`)
-				VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
+				VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
 					dbesc($arr["url"]),
 					dbesc($arr["name"]),
 					dbesc($arr["photo"]),
