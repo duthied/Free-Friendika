@@ -2455,7 +2455,7 @@
 						$retweeted_status["user"] = api_get_user($a,$retweeted_item["author-link"]);
 					} catch( BadRequestException $e ) {
 						// user not found. should be found?
-						// TODO: check if the user should be found...
+						/// @todo check if the user should be always found
 						$retweeted_status["user"] = array();
 					}
 
