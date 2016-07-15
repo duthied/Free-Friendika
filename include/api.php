@@ -251,7 +251,7 @@
 	 */
 	function api_call(&$a){
 		GLOBAL $API, $called_api;
-		
+
 		$type="json";
 		if (strpos($a->query_string, ".xml")>0) $type="xml";
 		if (strpos($a->query_string, ".json")>0) $type="json";
@@ -658,6 +658,13 @@
 
 	}
 
+	/**
+	 * @brief return api-formatted array for item's author and owner
+	 *
+	 * @param App $a
+	 * @param array $item : item from db
+	 * @return array(array:author, array:owner)
+	 */
 	function api_item_get_user(&$a, $item) {
 
 		// Make sure that there is an entry in the global contacts for author and owner
@@ -667,20 +674,16 @@
 		get_gcontact_id(array("url" => $item['owner-link'], "network" => $item['network'],
 					"photo" => $item['owner-avatar'], "name" => $item['owner-name']));
 
-		// Comments in threads may appear as wall-to-wall postings.
-		// So only take the owner at the top posting.
-		if ($item["id"] == $item["parent"])
-			$status_user = api_get_user($a,$item["owner-link"]);
-		else
-			$status_user = api_get_user($a,$item["author-link"]);
-
+		$status_user = api_get_user($a,$item["author-link"]);
 		$status_user["protected"] = (($item["allow_cid"] != "") OR
 						($item["allow_gid"] != "") OR
 						($item["deny_cid"] != "") OR
 						($item["deny_gid"] != "") OR
 						$item["private"]);
 
-		return ($status_user);
+		$owner_user = api_get_user($a,$item["owner-link"]);
+
+		return (array($status_user, $owner_user));
 	}
 
 
@@ -693,8 +696,9 @@
 	function api_array_to_xml($data, $ename="") {
 		$attrs="";
 		$childs="";
-		if (count($data)==1 && !is_array($data[0])) {
+		if (count($data)==1 && !is_array($data[array_keys($data)[0]])) {
 			$ename = array_keys($data)[0];
+			$ename = trim($ename,'$');
 			$v = $data[$ename];
 			return "<$ename>$v</$ename>";
 		}
@@ -785,7 +789,7 @@
 
 				$data = array_xmlify($data);
 				if ($templatename==="<auto>") {
-					$ret = api_array_to_xml($data); 
+					$ret = api_array_to_xml($data);
 				} else {
 					$tpl = get_markup_template("api_".$templatename."_".$type.".tpl");
 					if(! $tpl) {
@@ -2109,7 +2113,6 @@
 	}
 
 	function api_convert_item($item) {
-
 		$body = $item['body'];
 		$attachments = api_get_attachments($body);
 
@@ -2147,7 +2150,12 @@
 
 		$entities = api_get_entitities($statustext, $body);
 
-		return(array("text" => $statustext, "html" => $statushtml, "attachments" => $attachments, "entities" => $entities));
+		return array(
+			"text" => $statustext,
+			"html" => $statushtml,
+			"attachments" => $attachments,
+			"entities" => $entities
+		);
 	}
 
 	function api_get_attachments(&$body) {
@@ -2342,6 +2350,33 @@
 		return $text;
 	}
 
+
+	/**
+	 * @brief return <a href='url'>name</a> as array
+	 *
+	 * @param string $txt
+	 * @return array
+	 * 			name => 'name'
+	 * 			'url => 'url'
+	 */
+	function api_contactlink_to_array($txt) {
+		$match = array();
+		$r = preg_match_all('|<a href="([^"]*)">([^<]*)</a>|', $txt, $match);
+		if ($r && count($match)==3) {
+			$res = array(
+				'name' => $match[2],
+				'url' => $match[1]
+			);
+		} else {
+			$res = array(
+				'name' => $text,
+				'url' => ""
+			);
+		}
+		return $res;
+	}
+
+
 	/**
 	 * @brief return likes, dislikes and attend status for item
 	 *
@@ -2350,7 +2385,7 @@
 	 * 			likes => int count
 	 * 			dislikes => int count
 	 */
-	function api_format_items_likes(&$item) {
+	function api_format_items_activities(&$item) {
 		$activities = array(
 			'like' => array(),
 			'dislike' => array(),
@@ -2367,9 +2402,9 @@
 		}
 
 		$res = array();
-		$uri = $item['uri'];
+		$uri = $item['uri']."-l";
 		foreach($activities as $k => $v) {
-			$res[$k] = (x($v,$uri)?$v[$uri]:0);
+			$res[$k] = ( x($v,$uri) ? array_map("api_contactlink_to_array", $v[$uri]) : array() );
 		}
 
 		return $res;
@@ -2388,10 +2423,9 @@
 		$ret = Array();
 
 		foreach($r as $item) {
-			api_share_as_retweet($item);
 
 			localize_item($item);
-			$status_user = api_item_get_user($a,$item);
+			list($status_user, $owner_user) = api_item_get_user($a,$item);
 
 			// Look if the posts are matching if they should be filtered by user id
 			if ($filter_user AND ($status_user["id"] != $user_info["id"]))
@@ -2452,10 +2486,11 @@
 				'geo' => NULL,
 				'favorited' => $item['starred'] ? true : false,
 				'user' =>  $status_user ,
+				'friendica_owner' => $owner_user,
 				//'entities' => NULL,
 				'statusnet_html'		=> $converted["html"],
 				'statusnet_conversation_id'	=> $item['parent'],
-				'friendica_activities' => api_format_items_likes($item),
+				'friendica_activities' => api_format_items_activities($item),
 			);
 
 			if (count($converted["attachments"]) > 0)
@@ -2472,15 +2507,31 @@
 
 			// Retweets are only valid for top postings
 			// It doesn't work reliable with the link if its a feed
-			$IsRetweet = ($item['owner-link'] != $item['author-link']);
-			if ($IsRetweet)
-				$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
+			#$IsRetweet = ($item['owner-link'] != $item['author-link']);
+			#if ($IsRetweet)
+			#	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
 
-			if ($IsRetweet AND ($item["id"] == $item["parent"])) {
-				$retweeted_status = $status;
-				$retweeted_status["user"] = api_get_user($a,$item["author-link"]);
 
-				$status["retweeted_status"] = $retweeted_status;
+			if ($item["id"] == $item["parent"]) {
+				$retweeted_item = api_share_as_retweet($item);
+				if ($retweeted_item !== false) {
+					$retweeted_status = $status;
+					try {
+						$retweeted_status["user"] = api_get_user($a,$retweeted_item["author-link"]);
+					} catch( BadRequestException $e ) {
+						// user not found. should be found?
+						/// @todo check if the user should be always found
+						$retweeted_status["user"] = array();
+					}
+
+					$rt_converted = api_convert_item($retweeted_item);
+
+					$retweeted_status['text'] = $rt_converted["text"];
+					$retweeted_status['statusnet_html'] = $rt_converted["html"];
+					$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item);
+					$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+					$status['retweeted_status'] = $retweeted_status;
+				}
 			}
 
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -3039,23 +3090,29 @@
 	}
 	api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
 
-
+	/**
+	 * @brief Return the item shared, if the item contains only the [share] tag
+	 *
+	 * @param array $item Sharer item
+	 * @return array Shared item or false if not a reshare
+	 */
 	function api_share_as_retweet(&$item) {
 		$body = trim($item["body"]);
 
-		// Skip if it isn't a pure repeated messages
-		// Does it start with a share?
-		if (strpos($body, "[share") > 0)
-			return(false);
-
-		// Does it end with a share?
-		if (strlen($body) > (strrpos($body, "[/share]") + 8))
-			return(false);
+		if (diaspora::is_reshare($body, false)===false) {
+			return false;
+		}
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes)
-			return(false);
+ 		// Skip if there is no shared message in there
+ 		// we already checked this in diaspora::is_reshare()
+ 		// but better one more than one less...
+ 		if ($body == $attributes)
+			return false;
+
+
+		// build the fake reshared item
+		$reshared_item = $item;
 
 		$author = "";
 		preg_match("/author='(.*?)'/ism", $attributes, $matches);
@@ -3093,18 +3150,31 @@
 		if ($matches[1] != "")
 			$link = $matches[1];
 
+		$posted = "";
+		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$posted= $matches[1];
+
+		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
+		if ($matches[1] != "")
+			$posted = $matches[1];
+
 		$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$2",$body);
 
-		if (($shared_body == "") OR ($profile == "") OR ($author == "") OR ($avatar == ""))
-			return(false);
+		if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == ""))
+			return false;
 
-		$item["body"] = $shared_body;
-		$item["author-name"] = $author;
-		$item["author-link"] = $profile;
-		$item["author-avatar"] = $avatar;
-		$item["plink"] = $link;
 
-		return(true);
+
+		$reshared_item["body"] = $shared_body;
+		$reshared_item["author-name"] = $author;
+		$reshared_item["author-link"] = $profile;
+		$reshared_item["author-avatar"] = $avatar;
+		$reshared_item["plink"] = $link;
+		$reshared_item["created"] = $posted;
+		$reshared_item["edited"] = $posted;
+
+		return $reshared_item;
 
 	}
 
@@ -3507,16 +3577,16 @@
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
 		$nm = new NotificationsManager();
-		
+
 		$notes = $nm->getAll(array(), "+seen -date", 50);
 		return api_apply_template("<auto>", $type, array('$notes' => $notes));
 	}
-	
+
 	/**
 	 * @brief Set notification as seen and returns associated item (if possible)
 	 *
 	 * POST request with 'id' param as notification id
-	 * 
+	 *
 	 * @param App $a
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
@@ -3524,13 +3594,13 @@
 	function api_friendica_notification_seen(&$a, $type){
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
-		
+
 		$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
-		
-		$nm = new NotificationsManager();		
+
+		$nm = new NotificationsManager();
 		$note = $nm->getByID($id);
 		if (is_null($note)) throw new BadRequestException("Invalid argument");
-		
+
 		$nm->setSeen($note);
 		if ($note['otype']=='item') {
 			// would be really better with an ItemsManager and $im->getByID() :-P
@@ -3546,13 +3616,13 @@
 				return api_apply_template("timeline", $type, $data);
 			}
 			// the item can't be found, but we set the note as seen, so we count this as a success
-		} 
+		}
 		return api_apply_template('<auto>', $type, array('status' => "success"));
 	}
-	
+
 	api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
-	
+
 
 /*
 To.Do:

@@ -1,5 +1,5 @@
+{{* includer template MUST provide root element *}}
 
-  <user>
    <id>{{$user.id}}</id>
    <name>{{$user.name}}</name>
    <screen_name>{{$user.screen_name}}</screen_name>
@@ -44,4 +44,4 @@
     <place>{{$user.status.place}}</place>
     <contributors>{{$user.status.contributors}}</contributors>
   {{/if}}</status>
-  </user>
+  
