@@ -25,6 +25,7 @@
 	require_once('include/like.php');
 	require_once('include/NotificationsManager.php');
 	require_once('include/plaintext.php');
+	require_once('include/xml.php');
 
 
 	define('API_METHOD_ANY','*');
@@ -286,8 +287,12 @@
 
 					switch($type){
 						case "xml":
-							$r = mb_convert_encoding($r, "UTF-8",mb_detect_encoding($r));
 							header ("Content-Type: text/xml");
+
+							if (substr($r, 0, 5) == "<?xml")
+								return $r;
+
+							$r = mb_convert_encoding($r, "UTF-8",mb_detect_encoding($r));
 							return '<?xml version="1.0" encoding="UTF-8"?>'."\n".$r;
 							break;
 						case "json":
@@ -707,6 +712,63 @@
 		return $res;
 	}
 
+
+	function api_walk_recursive(array &$array, callable $callback) {
+
+		$new_array = array();
+
+		foreach ($array as $k => $v) {
+			if (is_array($v)) {
+				if ($callback($v, $k))
+					$new_array[$k] = api_walk_recursive($v, $callback);
+			} else {
+				if ($callback($v, $k))
+					$new_array[$k] = $v;
+			}
+		}
+		$array = $new_array;
+
+		return $array;
+	}
+
+	function api_reformat_xml(&$item, &$key) {
+		if (is_bool($item))
+			$item = ($item ? "true" : "false");
+
+		if (substr($key, 0, 10) == "statusnet_")
+			$key = "statusnet:".substr($key, 10);
+		elseif (substr($key, 0, 10) == "friendica_")
+			$key = "friendica:".substr($key, 10);
+		elseif (in_array($key, array("like", "dislike", "attendyes", "attendno", "attendmaybe")))
+			$key = "friendica:".$key;
+
+		return ($key != "attachments");
+	}
+
+	function api_create_xml($data, $templatename) {
+		$data2 = array_pop($data);
+		$key = key($data2);
+
+		if (is_array($data2))
+			api_walk_recursive($data2, "api_reformat_xml");
+
+		if ($key == "0") {
+			$data4 = array();
+			$i = 1;
+			foreach ($data2 AS $item)
+				$data4[$i++.":status"] = $item;
+			$data3 = array("statuses" => $data4);
+		} else
+			$data3 = array($templatename => $data2);
+
+		$namespaces = array("statusnet" => "http://status.net/schema/api/1/",
+					"friendica" => "http://friendi.ca/schema/api/1/");
+
+		$ret = xml::from_array($data3, $xml, false, $namespaces);
+
+		return $ret;
+	}
+
 	/**
 	 *  load api $templatename for $type and replace $data array
 	 */
@@ -718,6 +780,9 @@
 			case "atom":
 			case "rss":
 			case "xml":
+				//$ret = api_create_xml($data, $templatename);
+				//break;
+
 				$data = array_xmlify($data);
 				if ($templatename==="<auto>") {
 					$ret = api_array_to_xml($data); 
