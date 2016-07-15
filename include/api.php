@@ -3034,26 +3034,19 @@
 	function api_share_as_retweet(&$item) {
 		$body = trim($item["body"]);
 
-		// Skip if it isn't a pure repeated messages
-		// Does it start with a share?
-		if (strpos($body, "[share") > 0)
+		if (diaspora::is_reshare($body, false)===false) {
 			return false;
-
-		// Does it end with a share?
-		if (strlen($body) > (strrpos($body, "[/share]") + 8))
-			return false;
+		}
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
  		// Skip if there is no shared message in there
+ 		// we already checked this in diaspora::is_reshare()
+ 		// but better one more than one less...
  		if ($body == $attributes)
 			return false;
 
-		// NOTE: we could check te guid="" attribute and then  try to load original post
-		//            from database given the guid: we can see the original post via web under
-		//			/display/<guid>, but all the logic to fetch an item from db based on guid
-		//			looks like is in display_init() and would need a big refractor to be usable here.
-		//			so, we build the original item starting from the reshare.
 
+		// build the fake reshared item
 		$reshared_item = $item;
 
 		$author = "";
