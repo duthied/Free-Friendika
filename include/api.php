@@ -3184,7 +3184,6 @@
 		$include_entities = strtolower(x($_REQUEST,'include_entities')?$_REQUEST['include_entities']:"false");
 
 		$Text = bb_CleanPictureLinks($Text);
-
 		$URLSearchString = "^\[\]";
 
 		$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",'$1$3',$Text);
@@ -3222,6 +3221,8 @@
 
 		if (isset($data["url"]))
 			$body .= "\n".$data["url"];
+
+		$body .= $data["after"];
 
 		return $body;
 	}
