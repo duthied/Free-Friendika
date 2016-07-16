@@ -257,7 +257,6 @@
 		if (strpos($a->query_string, ".json")>0) $type="json";
 		if (strpos($a->query_string, ".rss")>0) $type="rss";
 		if (strpos($a->query_string, ".atom")>0) $type="atom";
-		if (strpos($a->query_string, ".as")>0) $type="as";
 		try {
 			foreach ($API as $p=>$info){
 				if (strpos($a->query_string, $p)===0){
@@ -310,12 +309,6 @@
 						case "atom":
 							header ("Content-Type: application/atom+xml");
 							return '<?xml version="1.0" encoding="UTF-8"?>'."\n".$r;
-							break;
-						case "as":
-							//header ("Content-Type: application/json");
-							//foreach($r as $rr)
-							//	return json_encode($rr);
-							return json_encode($r);
 							break;
 
 					}
@@ -717,6 +710,14 @@
 	}
 
 
+	/**
+	 * @brief walks recursively through an array with the possibility to change value and key
+	 *
+	 * @param array $array The array to walk through
+	 * @param string $callback The callback function
+	 *
+	 * @return array the transformed array
+	 */
 	function api_walk_recursive(array &$array, callable $callback) {
 
 		$new_array = array();
@@ -735,6 +736,14 @@
 		return $array;
 	}
 
+	/**
+	 * @brief Callback function to transform the array in an array that can be transformed in a XML file
+	 *
+	 * @param variant $item Array item value
+	 * @param string $key Array key
+	 *
+	 * @return boolean Should the array item be deleted?
+	 */
 	function api_reformat_xml(&$item, &$key) {
 		if (is_bool($item))
 			$item = ($item ? "true" : "false");
@@ -746,12 +755,34 @@
 		elseif (in_array($key, array("like", "dislike", "attendyes", "attendno", "attendmaybe")))
 			$key = "friendica:".$key;
 
-		return ($key != "attachments");
+		return (!in_array($key, array("attachments", "friendica:activities", "coordinates")));
 	}
 
+	/**
+	 * @brief Creates the XML from a JSON style array
+	 *
+	 * @param array $data JSON style array
+	 * @param string $template Name of the root element
+	 *
+	 * @return boolean string The XML data
+	 */
 	function api_create_xml($data, $templatename) {
+
 		$data2 = array_pop($data);
 		$key = key($data2);
+
+		$namespaces = array("statusnet" => "http://status.net/schema/api/1/",
+					"friendica" => "http://friendi.ca/schema/api/1/");
+
+		if ($templatename == "test") {
+			$namespaces = array();
+			$templatename = "ok";
+		}
+
+		if ($templatename == "ratelimit") {
+			$namespaces = array();
+			$templatename = "hash";
+		}
 
 		if (is_array($data2))
 			api_walk_recursive($data2, "api_reformat_xml");
@@ -759,14 +790,24 @@
 		if ($key == "0") {
 			$data4 = array();
 			$i = 1;
+
+			if ($templatename == "friends") {
+				$childname = "user";
+				$parentname = "users";
+			} elseif ($templatename == "direct_messages") {
+				$childname = "direct_message";
+				$parentname = "direct-messages";
+			} else {
+				$childname = "status";
+				$parentname = "statuses";
+			}
+
 			foreach ($data2 AS $item)
-				$data4[$i++.":status"] = $item;
-			$data3 = array("statuses" => $data4);
+				$data4[$i++.":".$childname] = $item;
+
+			$data3 = array($parentname => $data4);
 		} else
 			$data3 = array($templatename => $data2);
-
-		$namespaces = array("statusnet" => "http://status.net/schema/api/1/",
-					"friendica" => "http://friendi.ca/schema/api/1/");
 
 		$ret = xml::from_array($data3, $xml, false, $namespaces);
 
@@ -784,8 +825,8 @@
 			case "atom":
 			case "rss":
 			case "xml":
-				//$ret = api_create_xml($data, $templatename);
-				//break;
+				$ret = api_create_xml($data, $templatename);
+				break;
 
 				$data = array_xmlify($data);
 				if ($templatename==="<auto>") {
@@ -1415,12 +1456,6 @@
 			case "rss":
 				$data = api_rss_extra($a, $data, $user_info);
 				break;
-			case "as":
-				$as = api_format_as($a, $ret, $user_info);
-				$as['title'] = $a->config['sitename']." Home Timeline";
-				$as['link']['url'] = $a->get_baseurl()."/".$user_info["screen_name"]."/all";
-				return($as);
-				break;
 		}
 
 		return  api_apply_template("timeline", $type, $data);
@@ -1482,12 +1517,6 @@
 			case "atom":
 			case "rss":
 				$data = api_rss_extra($a, $data, $user_info);
-				break;
-			case "as":
-				$as = api_format_as($a, $ret, $user_info);
-				$as['title'] = $a->config['sitename']." Public Timeline";
-				$as['link']['url'] = $a->get_baseurl()."/";
-				return($as);
 				break;
 		}
 
@@ -1797,12 +1826,6 @@
 			case "rss":
 				$data = api_rss_extra($a, $data, $user_info);
 				break;
-			case "as":
-				$as = api_format_as($a, $ret, $user_info);
-				$as["title"] = $a->config['sitename']." Mentions";
-				$as['link']['url'] = $a->get_baseurl()."/";
-				return($as);
-				break;
 		}
 
 		return  api_apply_template("timeline", $type, $data);
@@ -1846,12 +1869,12 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -2002,73 +2025,6 @@
 		return  api_apply_template("timeline", $type, $data);
 	}
 	api_register_func('api/favorites','api_favorites', true);
-
-
-
-
-	function api_format_as($a, $ret, $user_info) {
-		$as = array();
-		$as['title'] = $a->config['sitename']." Public Timeline";
-		$items = array();
-		foreach ($ret as $item) {
-			$singleitem["actor"]["displayName"] = $item["user"]["name"];
-			$singleitem["actor"]["id"] = $item["user"]["contact_url"];
-			$avatar[0]["url"] = $item["user"]["profile_image_url"];
-			$avatar[0]["rel"] = "avatar";
-			$avatar[0]["type"] = "";
-			$avatar[0]["width"] = 96;
-			$avatar[0]["height"] = 96;
-			$avatar[1]["url"] = $item["user"]["profile_image_url"];
-			$avatar[1]["rel"] = "avatar";
-			$avatar[1]["type"] = "";
-			$avatar[1]["width"] = 48;
-			$avatar[1]["height"] = 48;
-			$avatar[2]["url"] = $item["user"]["profile_image_url"];
-			$avatar[2]["rel"] = "avatar";
-			$avatar[2]["type"] = "";
-			$avatar[2]["width"] = 24;
-			$avatar[2]["height"] = 24;
-			$singleitem["actor"]["avatarLinks"] = $avatar;
-
-			$singleitem["actor"]["image"]["url"] = $item["user"]["profile_image_url"];
-			$singleitem["actor"]["image"]["rel"] = "avatar";
-			$singleitem["actor"]["image"]["type"] = "";
-			$singleitem["actor"]["image"]["width"] = 96;
-			$singleitem["actor"]["image"]["height"] = 96;
-			$singleitem["actor"]["type"] = "person";
-			$singleitem["actor"]["url"] = $item["person"]["contact_url"];
-			$singleitem["actor"]["statusnet:profile_info"]["local_id"] = $item["user"]["id"];
-			$singleitem["actor"]["statusnet:profile_info"]["following"] = $item["user"]["following"] ? "true" : "false";
-			$singleitem["actor"]["statusnet:profile_info"]["blocking"] = "false";
-			$singleitem["actor"]["contact"]["preferredUsername"] = $item["user"]["screen_name"];
-			$singleitem["actor"]["contact"]["displayName"] = $item["user"]["name"];
-			$singleitem["actor"]["contact"]["addresses"] = "";
-
-			$singleitem["body"] = $item["text"];
-			$singleitem["object"]["displayName"] = $item["text"];
-			$singleitem["object"]["id"] = $item["url"];
-			$singleitem["object"]["type"] = "note";
-			$singleitem["object"]["url"] = $item["url"];
-			//$singleitem["context"] =;
-			$singleitem["postedTime"] = date("c", strtotime($item["published"]));
-			$singleitem["provider"]["objectType"] = "service";
-			$singleitem["provider"]["displayName"] = "Test";
-			$singleitem["provider"]["url"] = "http://test.tld";
-			$singleitem["title"] = $item["text"];
-			$singleitem["verb"] = "post";
-			$singleitem["statusnet:notice_info"]["local_id"] = $item["id"];
-			$singleitem["statusnet:notice_info"]["source"] = $item["source"];
-			$singleitem["statusnet:notice_info"]["favorite"] = "false";
-			$singleitem["statusnet:notice_info"]["repeated"] = "false";
-			//$singleitem["original"] = $item;
-			$items[] = $singleitem;
-		}
-		$as['items'] = $items;
-		$as['link']['url'] = $a->get_baseurl()."/".$user_info["screen_name"]."/all";
-		$as['link']['rel'] = "alternate";
-		$as['link']['type'] = "text/html";
-		return($as);
-	}
 
 	function api_format_messages($item, $recipient, $sender) {
 		// standard meta information

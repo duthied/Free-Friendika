@@ -27,8 +27,11 @@ class xml {
 				foreach ($namespaces AS $nskey => $nsvalue)
 					$key .= " xmlns".($nskey == "" ? "":":").$nskey.'="'.$nsvalue.'"';
 
-				$root = new SimpleXMLElement("<".$key."/>");
-				self::from_array($value, $root, $remove_header, $namespaces, false);
+				if (is_array($value)) {
+					$root = new SimpleXMLElement("<".$key."/>");
+					self::from_array($value, $root, $remove_header, $namespaces, false);
+				} else
+					$root = new SimpleXMLElement("<".$key.">".xmlify($value)."</".$key.">");
 
 				$dom = dom_import_simplexml($root)->ownerDocument;
 				$dom->formatOutput = true;
