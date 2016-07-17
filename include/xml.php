@@ -47,6 +47,15 @@ class xml {
 		}
 
 		foreach($array as $key => $value) {
+			if (!isset($element) AND isset($xml))
+				$element = $xml;
+
+			if (is_integer($key)) {
+				if (isset($element))
+					$element[0] = $value;
+				continue;
+			}
+
 			if (substr($key, 0, 11) == "@attributes") {
 				if (!isset($element) OR !is_array($value))
 					continue;
@@ -58,7 +67,7 @@ class xml {
 					else
 						$namespace = NULL;
 
-					$element->addAttribute ($attr_key, $attr_value, $namespace);
+					$element->addAttribute($attr_key, $attr_value, $namespace);
 				}
 
 				continue;
