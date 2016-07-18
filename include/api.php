@@ -536,7 +536,7 @@
 					'notifications' => false,
 					'statusnet_profile_url' => $r[0]["url"],
 					'uid' => 0,
-					'cid' => 0,
+					'cid' => get_contact($r[0]["url"], api_user()),
 					'self' => 0,
 					'network' => $r[0]["network"],
 				);
@@ -1208,10 +1208,10 @@
 		$user_info = api_get_user($a);
 
 		$lastwall = q("SELECT `item`.*
-				FROM `item`, `contact`
+				FROM `item`
+				INNER JOIN `contact` ON `contact`.`id`=`item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 				WHERE `item`.`uid` = %d AND `verb` = '%s' AND `item`.`contact-id` = %d
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-					AND `contact`.`id`=`item`.`contact-id`
 					AND `type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
 				ORDER BY `created` DESC
@@ -1224,6 +1224,7 @@
 				dbesc($user_info['url']),
 				dbesc(normalise_link($user_info['url']))
 		);
+
 		if (count($lastwall)>0){
 			$lastwall = $lastwall[0];
 
@@ -1371,15 +1372,15 @@
 		if ($conversation_id > 0)
 			$sql_extra .= ' AND `item`.`parent` = '.intval($conversation_id);
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
+			FROM `item`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -1449,13 +1450,15 @@
 			`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
 			`contact`.`id` AS `cid`,
 			`user`.`nickname`, `user`.`hidewall`
-			FROM `item` STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			FROM `item`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-			WHERE `verb` = '%s' AND `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
+				AND NOT `user`.`hidewall`
+			WHERE `verb` = '%s' AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-			AND `item`.`private` = 0 AND `item`.`wall` = 1 AND `user`.`hidewall` = 0
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			AND NOT `item`.`private` AND `item`.`wall`
 			$sql_extra
 			AND `item`.`id`>%d
 			ORDER BY `item`.`id` DESC LIMIT %d, %d ",
@@ -1511,10 +1514,11 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
-			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id` AND `item`.`uid` = %d AND `item`.`verb` = '%s'
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
 			$sql_extra",
 			intval(api_user()),
 			dbesc(ACTIVITY_POST),
@@ -1584,11 +1588,11 @@
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
 			FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`parent` = %d AND `item`.`visible`
 			AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
-			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			AND `item`.`id`>%d $sql_extra
 			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval($id), intval(api_user()),
@@ -1635,10 +1639,10 @@
 			`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
-			WHERE `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow`.`gid` = ''
 			AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
 			$sql_extra
@@ -1748,12 +1752,12 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`  FORCE INDEX (`uid_id`), `contact`
+			FROM `item` FORCE INDEX (`uid_id`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
 			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-			AND `contact`.`id` = `item`.`contact-id`
-			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
 			$sql_extra
 			AND `item`.`id`>%d
@@ -1819,8 +1823,8 @@
 			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`contact`.`id` AS `cid`
-			FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+			FROM `item` FORCE INDEX (`uid_contactid_id`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d

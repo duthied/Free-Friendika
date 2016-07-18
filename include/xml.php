@@ -64,8 +64,6 @@ class xml {
 					$element_parts = explode(":", $attr_key);
 					if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
 						$namespace = $namespaces[$element_parts[0]];
-					elseif (isset($namespaces[""]))
-						$namespace = $namespaces[""];
 					else
 						$namespace = NULL;
 
