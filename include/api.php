@@ -202,8 +202,8 @@
 		else {
 			// process normal login request
 
-			$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' )
-				AND `password` = '%s' AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
+			$r = q("SELECT * FROM `user` WHERE (`email` = '%s' OR `nickname` = '%s')
+				AND `password` = '%s' AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
 				dbesc(trim($user)),
 				dbesc(trim($user)),
 				dbesc($encrypted)
@@ -220,7 +220,9 @@
 			throw new UnauthorizedException("This API requires login");
 		}
 
-		authenticate_success($record); $_SESSION["allow_api"] = true;
+		authenticate_success($record);
+
+		$_SESSION["allow_api"] = true;
 
 		call_hooks('logged_in', $a->user);
 
@@ -476,7 +478,7 @@
 				return False;
 			} else {
 				$user = $_SESSION['uid'];
-				$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` = 1 ";
+				$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` ";
 			}
 
 		}
@@ -548,6 +550,10 @@
 		}
 
 		if($uinfo[0]['self']) {
+
+			if ($uinfo[0]['network'] == "")
+				$uinfo[0]['network'] = NETWORK_DFRN;
+
 			$usr = q("select * from user where uid = %d limit 1",
 				intval(api_user())
 			);
@@ -1090,7 +1096,7 @@
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `i`.`id` = `item`.`parent`
 					AND `item`.`type`!='activity' $privacy_sql
-				ORDER BY `item`.`created` DESC
+				ORDER BY `item`.`id` DESC
 				LIMIT 1",
 				intval($user_info['cid']),
 				intval(api_user()),
@@ -1206,7 +1212,6 @@
 	 */
 	function api_users_show(&$a, $type){
 		$user_info = api_get_user($a);
-
 		$lastwall = q("SELECT `item`.*
 				FROM `item`
 				INNER JOIN `contact` ON `contact`.`id`=`item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
@@ -1214,7 +1219,7 @@
 					AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
 					AND `type`!='activity'
 					AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
-				ORDER BY `created` DESC
+				ORDER BY `id` DESC
 				LIMIT 1",
 				intval(api_user()),
 				dbesc(ACTIVITY_POST),
@@ -1506,7 +1511,7 @@
 
 		$sql_extra = '';
 		if ($conversation)
-			$sql_extra .= " AND `item`.`parent` = %d ORDER BY `received` ASC ";
+			$sql_extra .= " AND `item`.`parent` = %d ORDER BY `id` ASC ";
 		else
 			$sql_extra .= " AND `item`.`id` = %d";
 
