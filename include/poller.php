@@ -39,7 +39,7 @@ function poller_run(&$argv, &$argc){
 		return;
 
 	// Checking the number of workers
-	if (poller_too_much_workers(1)) {
+	if (poller_too_much_workers()) {
 		poller_kill_stale_workers();
 		return;
 	}
@@ -58,7 +58,7 @@ function poller_run(&$argv, &$argc){
 		sleep(4);
 
 	// Checking number of workers
-	if (poller_too_much_workers(2))
+	if (poller_too_much_workers())
 		return;
 
 	$cooldown = Config::get("system", "worker_cooldown", 0);
@@ -76,7 +76,7 @@ function poller_run(&$argv, &$argc){
 			return;
 
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers(3))
+		if (poller_too_much_workers())
 			return;
 
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
@@ -244,7 +244,7 @@ function poller_kill_stale_workers() {
 		}
 }
 
-function poller_too_much_workers($stage) {
+function poller_too_much_workers() {
 
 	$queues = get_config("system", "worker_queues");
 
@@ -267,7 +267,9 @@ function poller_too_much_workers($stage) {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
-		logger("Current load stage ".$stage.": ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
+		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00'");
+
+		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$s[0]["total"]." - maximum: ".$queues, LOGGER_DEBUG);
 
 	}
 
