@@ -39,7 +39,7 @@ function poller_run(&$argv, &$argc){
 		return;
 
 	// Checking the number of workers
-	if (poller_too_much_workers($entries, $queues, $maxqueues)) {
+	if (poller_too_much_workers($entries, $queues, $maxqueues, $active)) {
 		poller_kill_stale_workers();
 		return;
 	}
@@ -58,7 +58,7 @@ function poller_run(&$argv, &$argc){
 		sleep(4);
 
 	// Checking number of workers
-	if (poller_too_much_workers($entries, $queues, $maxqueues))
+	if (poller_too_much_workers($entries, $queues, $maxqueues, $active))
 		return;
 
 	$cooldown = Config::get("system", "worker_cooldown", 0);
@@ -78,7 +78,7 @@ function poller_run(&$argv, &$argc){
 			return;
 
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers($entries, $queues, $maxqueues))
+		if (poller_too_much_workers($entries, $queues, $maxqueues, $active))
 			return;
 
 		$argv = json_decode($r[0]["parameter"]);
@@ -91,16 +91,25 @@ function poller_run(&$argv, &$argc){
 		/// @todo Better check for priority processes
 		$priority = array("delivery_run", "notifier_run", "pubsubpublish_run");
 
+		// Reserve a speed lane
+		if (($active == ($queues - 1)) AND ($maxqueues >= 2) AND !in_array($funcname, $priority)) {
+			logger("Delay call to '".$funcname."' to reserve a speed lane for high priority processes", LOGGER_DEBUG);
+			$delay = true;
+		}
+
 		// Delay other processes if the system has a high load and there are many pending processes.
 		// The "delayed" value is a safety mechanism for the case when there are no high priority processes in the queue.
-		if ((($queues / $maxqueues) <= 0.5) AND (($entries > 100) AND ($delayed < 100)) AND !in_array($funcname, $priority)) {
-			q("UPDATE `workerqueue` SET `created` = '%s' WHERE `id` = %d",
-				dbesc(datetime_convert()),
-				intval($r[0]["id"]));
-
+		if (!$delay AND (($queues / $maxqueues) <= 0.5) AND (($entries > 100) AND ($delayed < 100)) AND !in_array($funcname, $priority)) {
 			// Count the number of delayed processes
 			++$delayed;
 			logger("Delay call to '".$funcname."' for performance reasons (Delay ".$delayed.")", LOGGER_DEBUG);
+			$delay = true;
+		}
+
+		if ($delay) {
+			q("UPDATE `workerqueue` SET `created` = '%s' WHERE `id` = %d",
+				dbesc(datetime_convert()),
+				intval($r[0]["id"]));
 			continue;
 		}
 
@@ -268,7 +277,7 @@ function poller_kill_stale_workers() {
 		}
 }
 
-function poller_too_much_workers(&$entries, &$queues, &$maxqueues) {
+function poller_too_much_workers(&$entries, &$queues, &$maxqueues, &$active) {
 
 	$entries = 0;
 
