@@ -92,7 +92,7 @@
 	 *
 	 * Register a function to be the endpont for defined API path.
 	 *
-	 * @param string $path API URL path, relative to $a->get_baseurl()
+	 * @param string $path API URL path, relative to App::get_baseurl()
 	 * @param string $func Function name to call on path request
 	 * @param bool $auth API need logged user
 	 * @param string $method
@@ -276,7 +276,7 @@
 					logger('API parameters: ' . print_r($_REQUEST,true));
 
 					$stamp =  microtime(true);
-					$r = call_user_func($info['func'], $a, $type);
+					$r = call_user_func($info['func'], $type);
 					$duration = (float)(microtime(true)-$stamp);
 					logger("API call duration: ".round($duration, 2)."\t".$a->query_string, LOGGER_DEBUG);
 
@@ -314,19 +314,21 @@
 			throw new NotImplementedException();
 		} catch (HTTPException $e) {
 			header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
-			return api_error($a, $type, $e);
+			return api_error($type, $e);
 		}
 	}
 
 	/**
 	 * @brief Format API error string
 	 *
-	 * @param Api $a
 	 * @param string $type Return type (xml, json, rss, as)
 	 * @param HTTPException $error Error object
 	 * @return strin error message formatted as $type
 	 */
-	function api_error(&$a, $type, $e) {
+	function api_error($type, $e) {
+
+		$a = get_app();
+
 		$error = ($e->getMessage()!==""?$e->getMessage():$e->httpdesc);
 		# TODO:  https://dev.twitter.com/overview/api/response-codes
 
@@ -369,12 +371,12 @@
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = array(
 			'alternate' => $user_info['url'],
-			'self' => $a->get_baseurl(). "/". $a->query_string,
-			'base' => $a->get_baseurl(),
+			'self' => App::get_baseurl(). "/". $a->query_string,
+			'base' => App::get_baseurl(),
 			'updated' => api_date(null),
 			'atom_updated' => datetime_convert('UTC','UTC','now',ATOM_TIME),
 			'language' => $user_info['language'],
-			'logo'	=> $a->get_baseurl()."/images/friendica-32.png",
+			'logo'	=> App::get_baseurl()."/images/friendica-32.png",
 		);
 
 		return $arr;
@@ -642,7 +644,7 @@
 			'verified' => true,
 			'statusnet_blocking' => false,
 			'notifications' => false,
-			//'statusnet_profile_url' => $a->get_baseurl()."/contacts/".$uinfo[0]['cid'],
+			//'statusnet_profile_url' => App::get_baseurl()."/contacts/".$uinfo[0]['cid'],
 			'statusnet_profile_url' => $uinfo[0]['url'],
 			'uid' => intval($uinfo[0]['uid']),
 			'cid' => intval($uinfo[0]['cid']),
@@ -806,7 +808,10 @@
 	 * returns a 401 status code and an error message if not.
 	 * http://developer.twitter.com/doc/get/account/verify_credentials
 	 */
-	function api_account_verify_credentials(&$a, $type){
+	function api_account_verify_credentials($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		unset($_REQUEST["user_id"]);
@@ -824,7 +829,7 @@
 
 		// - Adding last status
 		if (!$skip_status) {
-			$user_info["status"] = api_status_show($a,"raw");
+			$user_info["status"] = api_status_show("raw");
 			if (!count($user_info["status"]))
 				unset($user_info["status"]);
 			else
@@ -855,7 +860,10 @@
 	}
 
 /*Waitman Gobble Mod*/
-	function api_statuses_mediap(&$a, $type) {
+	function api_statuses_mediap($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) {
 			logger('api_statuses_update: no user');
 			throw new ForbiddenException();
@@ -888,13 +896,16 @@
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
-		return api_status_show($a,$type);
+		return api_status_show($type);
 	}
 	api_register_func('api/statuses/mediap','api_statuses_mediap', true, API_METHOD_POST);
 /*Waitman Gobble Mod*/
 
 
-	function api_statuses_update(&$a, $type) {
+	function api_statuses_update($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) {
 			logger('api_statuses_update: no user');
 			throw new ForbiddenException();
@@ -959,7 +970,7 @@
 
 				if ($posts_day > $throttle_day) {
 					logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					#die(api_error($a, $type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
+					#die(api_error($type, sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
 					throw new TooManyRequestsException(sprintf(t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day));
 				}
 			}
@@ -979,7 +990,7 @@
 
 				if ($posts_week > $throttle_week) {
 					logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					#die(api_error($a, $type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
+					#die(api_error($type, sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
 					throw new TooManyRequestsException(sprintf(t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week));
 
 				}
@@ -1000,7 +1011,7 @@
 
 				if ($posts_month > $throttle_month) {
 					logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-					#die(api_error($a, $type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
+					#die(api_error($type, sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
 					throw new TooManyRequestsException(sprintf(t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month));
 				}
 			}
@@ -1023,8 +1034,8 @@
 			if ($r) {
 				$phototypes = Photo::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
-				$_REQUEST['body'] .= "\n\n".'[url='.$a->get_baseurl().'/photos/'.$r[0]['nickname'].'/image/'.$r[0]['resource-id'].']';
-				$_REQUEST['body'] .= '[img]'.$a->get_baseurl()."/photo/".$r[0]['resource-id']."-".$r[0]['scale'].".".$ext."[/img][/url]";
+				$_REQUEST['body'] .= "\n\n".'[url='.App::get_baseurl().'/photos/'.$r[0]['nickname'].'/image/'.$r[0]['resource-id'].']';
+				$_REQUEST['body'] .= '[img]'.App::get_baseurl()."/photo/".$r[0]['resource-id']."-".$r[0]['scale'].".".$ext."[/img][/url]";
 			}
 		}
 
@@ -1040,13 +1051,16 @@
 		item_post($a);
 
 		// this should output the last post (the one we just posted).
-		return api_status_show($a,$type);
+		return api_status_show($type);
 	}
 	api_register_func('api/statuses/update','api_statuses_update', true, API_METHOD_POST);
 	api_register_func('api/statuses/update_with_media','api_statuses_update', true, API_METHOD_POST);
 
 
-	function api_media_upload(&$a, $type) {
+	function api_media_upload($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) {
 			logger('no user');
 			throw new ForbiddenException();
@@ -1079,7 +1093,10 @@
 	}
 	api_register_func('api/media/upload','api_media_upload', true, API_METHOD_POST);
 
-	function api_status_show(&$a, $type){
+	function api_status_show($type){
+
+		$a = get_app();
+
 		$user_info = api_get_user($a);
 
 		logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
@@ -1210,7 +1227,10 @@
 	 * The author's most recent status will be returned inline.
 	 * http://developer.twitter.com/doc/get/users/show
 	 */
-	function api_users_show(&$a, $type){
+	function api_users_show($type){
+
+		$a = get_app();
+
 		$user_info = api_get_user($a);
 		$lastwall = q("SELECT `item`.*
 				FROM `item`
@@ -1305,7 +1325,10 @@
 	api_register_func('api/users/show','api_users_show');
 
 
-	function api_users_search(&$a, $type) {
+	function api_users_search($type) {
+
+		$a = get_app();
+
 		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
 
 		$userlist = array();
@@ -1344,7 +1367,10 @@
 	 * TODO: Optional parameters
 	 * TODO: Add reply info
 	 */
-	function api_statuses_home_timeline(&$a, $type){
+	function api_statuses_home_timeline($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		unset($_REQUEST["user_id"]);
@@ -1424,7 +1450,10 @@
 	api_register_func('api/statuses/home_timeline','api_statuses_home_timeline', true);
 	api_register_func('api/statuses/friends_timeline','api_statuses_home_timeline', true);
 
-	function api_statuses_public_timeline(&$a, $type){
+	function api_statuses_public_timeline($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -1490,7 +1519,10 @@
 	/**
 	 *
 	 */
-	function api_statuses_show(&$a, $type){
+	function api_statuses_show($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -1550,7 +1582,10 @@
 	/**
 	 *
 	 */
-	function api_conversation_show(&$a, $type){
+	function api_conversation_show($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -1621,8 +1656,10 @@
 	/**
 	 *
 	 */
-	function api_statuses_repeat(&$a, $type){
+	function api_statuses_repeat($type){
 		global $called_api;
+
+		$a = get_app();
 
 		if (api_user()===false) throw new ForbiddenException();
 
@@ -1683,14 +1720,17 @@
 
 		// this should output the last post (the one we just posted).
 		$called_api = null;
-		return(api_status_show($a,$type));
+		return(api_status_show($type));
 	}
 	api_register_func('api/statuses/retweet','api_statuses_repeat', true, API_METHOD_POST);
 
 	/**
 	 *
 	 */
-	function api_statuses_destroy(&$a, $type){
+	function api_statuses_destroy($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -1707,7 +1747,7 @@
 
 		logger('API: api_statuses_destroy: '.$id);
 
-		$ret = api_statuses_show($a, $type);
+		$ret = api_statuses_show($type);
 
 		drop_item($id, false);
 
@@ -1720,7 +1760,10 @@
 	 * http://developer.twitter.com/doc/get/statuses/mentions
 	 *
 	 */
-	function api_statuses_mentions(&$a, $type){
+	function api_statuses_mentions($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		unset($_REQUEST["user_id"]);
@@ -1744,7 +1787,7 @@
 		$start = $page*$count;
 
 		// Ugly code - should be changed
-		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
+		$myurl = App::get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		//$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$myurl = str_replace('www.','',$myurl);
@@ -1793,7 +1836,10 @@
 	api_register_func('api/statuses/replies','api_statuses_mentions', true);
 
 
-	function api_statuses_user_timeline(&$a, $type){
+	function api_statuses_user_timeline($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -1864,7 +1910,10 @@
 	 *
 	 * api v1 : https://web.archive.org/web/20131019055350/https://dev.twitter.com/docs/api/1/post/favorites/create/%3Aid
 	 */
-	function api_favorites_create_destroy(&$a, $type){
+	function api_favorites_create_destroy($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// for versioned api.
@@ -1907,7 +1956,7 @@
 
 
 		$user_info = api_get_user($a);
-		$rets = api_format_items($item,$user_info, false, $type);
+		$rets = api_format_items($item, $user_info, false, $type);
 		$ret = $rets[0];
 
 		$data = array('status' => $ret);
@@ -1922,8 +1971,10 @@
 	api_register_func('api/favorites/create', 'api_favorites_create_destroy', true, API_METHOD_POST);
 	api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true, API_METHOD_DELETE);
 
-	function api_favorites(&$a, $type){
+	function api_favorites($type){
 		global $called_api;
+
+		$a = get_app();
 
 		if (api_user()===false) throw new ForbiddenException();
 
@@ -2255,11 +2306,10 @@
 		return($entities);
 	}
 	function api_format_items_embeded_images(&$item, $text){
-		$a = get_app();
 		$text = preg_replace_callback(
 				"|data:image/([^;]+)[^=]+=*|m",
-				function($match) use ($a, $item) {
-					return $a->get_baseurl()."/display/".$item['guid'];
+				function($match) use ($item) {
+					return App::get_baseurl()."/display/".$item['guid'];
 				},
 				$text);
 		return $text;
@@ -2343,6 +2393,7 @@
 	function api_format_items($r,$user_info, $filter_user = false, $type = "json") {
 
 		$a = get_app();
+
 		$ret = Array();
 
 		foreach($r as $item) {
@@ -2483,7 +2534,7 @@
 	}
 
 
-	function api_account_rate_limit_status(&$a,$type) {
+	function api_account_rate_limit_status($type) {
 
 		if ($type == "xml")
 			$hash = array(
@@ -2508,7 +2559,7 @@
 	}
 	api_register_func('api/account/rate_limit_status','api_account_rate_limit_status',true);
 
-	function api_help_test(&$a,$type) {
+	function api_help_test($type) {
 		if ($type == 'xml')
 			$ok = "true";
 		else
@@ -2518,13 +2569,13 @@
 	}
 	api_register_func('api/help/test','api_help_test',false);
 
-	function api_lists(&$a,$type) {
+	function api_lists($type) {
 		$ret = array();
 		return api_format_data('lists', $type, array("lists_list" => $ret));
 	}
 	api_register_func('api/lists','api_lists',true);
 
-	function api_lists_list(&$a,$type) {
+	function api_lists_list($type) {
 		$ret = array();
 		return api_format_data('lists', $type, array("lists_list" => $ret));
 	}
@@ -2535,7 +2586,10 @@
 	 *  This function is deprecated by Twitter
 	 *  returns: json, xml
 	 **/
-	function api_statuses_f(&$a, $type, $qtype) {
+	function api_statuses_f($type, $qtype) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 		$user_info = api_get_user($a);
 
@@ -2577,13 +2631,13 @@
 		return array('user' => $ret);
 
 	}
-	function api_statuses_friends(&$a, $type){
-		$data =  api_statuses_f($a,$type,"friends");
+	function api_statuses_friends($type){
+		$data =  api_statuses_f($type, "friends");
 		if ($data===false) return false;
 		return  api_format_data("users", $type, $data);
 	}
-	function api_statuses_followers(&$a, $type){
-		$data = api_statuses_f($a,$type,"followers");
+	function api_statuses_followers($type){
+		$data = api_statuses_f($type, "followers");
 		if ($data===false) return false;
 		return  api_format_data("users", $type, $data);
 	}
@@ -2595,10 +2649,13 @@
 
 
 
-	function api_statusnet_config(&$a,$type) {
+	function api_statusnet_config($type) {
+
+		$a = get_app();
+
 		$name = $a->config['sitename'];
 		$server = $a->get_hostname();
-		$logo = $a->get_baseurl() . '/images/friendica-64.png';
+		$logo = App::get_baseurl() . '/images/friendica-64.png';
 		$email = $a->config['admin_email'];
 		$closed = (($a->config['register_policy'] == REGISTER_CLOSED) ? 'true' : 'false');
 		$private = (($a->config['system']['block_public']) ? 'true' : 'false');
@@ -2606,7 +2663,7 @@
 		if($a->config['api_import_size'])
 			$texlimit = string($a->config['api_import_size']);
 		$ssl = (($a->config['system']['have_ssl']) ? 'true' : 'false');
-		$sslserver = (($ssl === 'true') ? str_replace('http:','https:',$a->get_baseurl()) : '');
+		$sslserver = (($ssl === 'true') ? str_replace('http:','https:',App::get_baseurl()) : '');
 
 		$config = array(
 			'site' => array('name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
@@ -2628,7 +2685,7 @@
 	}
 	api_register_func('api/statusnet/config','api_statusnet_config',false);
 
-	function api_statusnet_version(&$a,$type) {
+	function api_statusnet_version($type) {
 		// liar
 		$fake_statusnet_version = "0.9.7";
 
@@ -2639,7 +2696,10 @@
 	/**
 	 * @todo use api_format_data() to return data
 	 */
-	function api_ff_ids(&$a,$type,$qtype) {
+	function api_ff_ids($type,$qtype) {
+
+		$a = get_app();
+
 		if(! api_user()) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
@@ -2671,17 +2731,20 @@
 		return api_format_data("ids", $type, array('id' => $ids));
 	}
 
-	function api_friends_ids(&$a,$type) {
-		return api_ff_ids($a,$type,'friends');
+	function api_friends_ids($type) {
+		return api_ff_ids($type,'friends');
 	}
-	function api_followers_ids(&$a,$type) {
-		return api_ff_ids($a,$type,'followers');
+	function api_followers_ids($type) {
+		return api_ff_ids($type,'followers');
 	}
 	api_register_func('api/friends/ids','api_friends_ids',true);
 	api_register_func('api/followers/ids','api_followers_ids',true);
 
 
-	function api_direct_messages_new(&$a, $type) {
+	function api_direct_messages_new($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		if (!x($_POST, "text") OR (!x($_POST,"screen_name") AND !x($_POST,"user_id"))) return;
@@ -2741,7 +2804,10 @@
 	}
 	api_register_func('api/direct_messages/new','api_direct_messages_new',true, API_METHOD_POST);
 
-	function api_direct_messages_box(&$a, $type, $box) {
+	function api_direct_messages_box($type, $box) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// params
@@ -2763,7 +2829,6 @@
 		unset($_GET["screen_name"]);
 
 		$user_info = api_get_user($a);
-		//$profile_url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
 		$profile_url = $user_info["url"];
 
 
@@ -2827,17 +2892,17 @@
 
 	}
 
-	function api_direct_messages_sentbox(&$a, $type){
-		return api_direct_messages_box($a, $type, "sentbox");
+	function api_direct_messages_sentbox($type){
+		return api_direct_messages_box($type, "sentbox");
 	}
-	function api_direct_messages_inbox(&$a, $type){
-		return api_direct_messages_box($a, $type, "inbox");
+	function api_direct_messages_inbox($type){
+		return api_direct_messages_box($type, "inbox");
 	}
-	function api_direct_messages_all(&$a, $type){
-		return api_direct_messages_box($a, $type, "all");
+	function api_direct_messages_all($type){
+		return api_direct_messages_box($type, "all");
 	}
-	function api_direct_messages_conversation(&$a, $type){
-		return api_direct_messages_box($a, $type, "conversation");
+	function api_direct_messages_conversation($type){
+		return api_direct_messages_box($type, "conversation");
 	}
 	api_register_func('api/direct_messages/conversation','api_direct_messages_conversation',true);
 	api_register_func('api/direct_messages/all','api_direct_messages_all',true);
@@ -2846,7 +2911,7 @@
 
 
 
-	function api_oauth_request_token(&$a, $type){
+	function api_oauth_request_token($type){
 		try{
 			$oauth = new FKOAuth1();
 			$r = $oauth->fetch_request_token(OAuthRequest::from_request());
@@ -2856,7 +2921,7 @@
 		echo $r;
 		killme();
 	}
-	function api_oauth_access_token(&$a, $type){
+	function api_oauth_access_token($type){
 		try{
 			$oauth = new FKOAuth1();
 			$r = $oauth->fetch_access_token(OAuthRequest::from_request());
@@ -2871,7 +2936,7 @@
 	api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
 
 
-	function api_fr_photos_list(&$a,$type) {
+	function api_fr_photos_list($type) {
 		if (api_user()===false) throw new ForbiddenException();
 		$r = q("select `resource-id`, max(scale) as scale, album, filename, type from photo
 				where uid = %d and album != 'Contact Photos' group by `resource-id`",
@@ -2890,7 +2955,7 @@
 				$photo['album'] = $rr['album'];
 				$photo['filename'] = $rr['filename'];
 				$photo['type'] = $rr['type'];
-				$thumb = $a->get_baseurl()."/photo/".$rr['resource-id']."-".$rr['scale'].".".$typetoext[$rr['type']];
+				$thumb = App::get_baseurl()."/photo/".$rr['resource-id']."-".$rr['scale'].".".$typetoext[$rr['type']];
 
 				if ($type == "xml")
 					$data['photo'][] = array("@attributes" => $photo, "1" => $thumb);
@@ -2903,7 +2968,7 @@
 		return  api_format_data("photos", $type, $data);
 	}
 
-	function api_fr_photo_detail(&$a,$type) {
+	function api_fr_photo_detail($type) {
 		if (api_user()===false) throw new ForbiddenException();
 		if(!x($_REQUEST,'photo_id')) throw new BadRequestException("No photo id.");
 
@@ -2939,11 +3004,11 @@
 				for ($k=intval($data['photo']['minscale']); $k<=intval($data['photo']['maxscale']); $k++)
 					$data['photo']['links'][$k.":link"]["@attributes"] = array("type" => $data['photo']['type'],
 											"scale" => $k,
-											"href" => $a->get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']]);
+											"href" => App::get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']]);
 			} else {
 				$data['photo']['link'] = array();
 				for ($k=intval($data['photo']['minscale']); $k<=intval($data['photo']['maxscale']); $k++) {
-					$data['photo']['link'][$k] = $a->get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']];
+					$data['photo']['link'][$k] = App::get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']];
 				}
 			}
 			unset($data['photo']['resource-id']);
@@ -2973,7 +3038,7 @@
 	 * 		c_url: url of remote contact to auth to
 	 * 		url: string, url to redirect after auth
 	 */
-	function api_friendica_remoteauth(&$a) {
+	function api_friendica_remoteauth() {
 		$url = ((x($_GET,'url')) ? $_GET['url'] : '');
 		$c_url = ((x($_GET,'c_url')) ? $_GET['c_url'] : '');
 
@@ -3270,7 +3335,10 @@
 	}
 
 	// return all or a specified group of the user with the containing contacts
-	function api_friendica_group_show(&$a, $type) {
+	function api_friendica_group_show($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// params
@@ -3318,7 +3386,10 @@
 
 
 	// delete the specified group of the user
-	function api_friendica_group_delete(&$a, $type) {
+	function api_friendica_group_delete($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// params
@@ -3362,7 +3433,10 @@
 
 
 	// create the specified group with the posted array of contacts
-	function api_friendica_group_create(&$a, $type) {
+	function api_friendica_group_create($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// params
@@ -3425,7 +3499,10 @@
 
 
 	// update the specified group with the posted array of contacts
-	function api_friendica_group_update(&$a, $type) {
+	function api_friendica_group_update($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// params
@@ -3481,7 +3558,10 @@
 	api_register_func('api/friendica/group_update', 'api_friendica_group_update', true, API_METHOD_POST);
 
 
-	function api_friendica_activity(&$a, $type) {
+	function api_friendica_activity($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 		$verb = strtolower($a->argv[3]);
 		$verb = preg_replace("|\..*$|", "", $verb);
@@ -3515,11 +3595,13 @@
 	/**
 	 * @brief Returns notifications
 	 *
-	 * @param App $a
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
 	*/
-	function api_friendica_notification(&$a, $type) {
+	function api_friendica_notification($type) {
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
 		$nm = new NotificationsManager();
@@ -3542,11 +3624,13 @@
 	 *
 	 * POST request with 'id' param as notification id
 	 *
-	 * @param App $a
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
 	 */
-	function api_friendica_notification_seen(&$a, $type){
+	function api_friendica_notification_seen($type){
+
+		$a = get_app();
+
 		if (api_user()===false) throw new ForbiddenException();
 		if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
 
