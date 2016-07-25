@@ -42,7 +42,7 @@ class dbm {
 	 * @param       $array  mixed   A filled array with at least one entry
 	 * @return      Whether $array is a filled array
 	 */
-	public function is_result($array) {
+	public static function is_result($array) {
 		return (is_array($array) && count($array) > 0);
 	}
 }
