@@ -1786,12 +1786,27 @@ function proc_run($cmd){
 			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
 					dbesc($parameters));
 
+			$funcname = str_replace(".php", "", basename($argv[0]))."_run";
+
+			// Define the processes that have priority over any other process
+			/// @todo Better check for priority processes
+			$high_priority = array("delivery_run", "notifier_run", "pubsubpublish_run");
+			$low_priority = array("queue_run", "gprobe_run", "discover_poco_run");
+
+			if (in_array($funcname, $high_priority))
+				$priority = 1;
+			elseif (in_array($funcname, $low_priority))
+				$priority = 3;
+			else
+				$priority = 2;
+
 			if (!$found)
-				q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', %d)",
+				q("INSERT INTO `workerqueue` (`function`, `parameter`, `created`, `priority`)
+							VALUES ('%s', '%s', '%s', %d)",
+					dbesc($funcname),
 					dbesc($parameters),
 					dbesc(datetime_convert()),
-					intval(0));
+					intval($priority));
 
 			// Should we quit and wait for the poller to be called as a cronjob?
 			if (get_config("system", "worker_dont_fork"))
