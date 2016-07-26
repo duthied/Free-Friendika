@@ -39,7 +39,7 @@ function poller_run(&$argv, &$argc){
 		return;
 
 	// Checking the number of workers
-	if (poller_too_much_workers(1)) {
+	if (poller_too_much_workers()) {
 		poller_kill_stale_workers();
 		return;
 	}
@@ -58,14 +58,14 @@ function poller_run(&$argv, &$argc){
 		sleep(4);
 
 	// Checking number of workers
-	if (poller_too_much_workers(2))
+	if (poller_too_much_workers())
 		return;
 
 	$cooldown = Config::get("system", "worker_cooldown", 0);
 
 	$starttime = time();
 
-	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `created` LIMIT 1")) {
+	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority`, `created` LIMIT 1")) {
 
 		// Constantly check the number of parallel database processes
 		if ($a->max_processes_reached())
@@ -76,7 +76,7 @@ function poller_run(&$argv, &$argc){
 			return;
 
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers(3))
+		if (poller_too_much_workers())
 			return;
 
 		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
@@ -108,18 +108,18 @@ function poller_run(&$argv, &$argc){
 
 		require_once($include);
 
-		$funcname=str_replace(".php", "", basename($argv[0]))."_run";
+		$funcname = str_replace(".php", "", basename($argv[0]))."_run";
 
 		if (function_exists($funcname)) {
-			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
+			logger("Process ".getmypid()." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
 			$funcname($argv, $argc);
 
 			if ($cooldown > 0) {
-				logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+				logger("Process ".getmypid()." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
 				sleep($cooldown);
 			}
 
-			logger("Process ".getmypid()." - ID ".$r[0]["id"].": ".$funcname." - done");
+			logger("Process ".getmypid()." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - done");
 
 			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 		} else
@@ -244,12 +244,15 @@ function poller_kill_stale_workers() {
 		}
 }
 
-function poller_too_much_workers($stage) {
+function poller_too_much_workers() {
+
 
 	$queues = get_config("system", "worker_queues");
 
 	if ($queues == 0)
 		$queues = 4;
+
+	$maxqueues = $queues;
 
 	$active = poller_active_workers();
 
@@ -267,7 +270,10 @@ function poller_too_much_workers($stage) {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
-		logger("Current load stage ".$stage.": ".$load." - maximum: ".$maxsysload." - current queues: ".$active." - maximum: ".$queues, LOGGER_DEBUG);
+		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00'");
+		$entries = $s[0]["total"];
+
+		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 	}
 
