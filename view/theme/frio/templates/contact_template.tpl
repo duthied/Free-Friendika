@@ -52,7 +52,7 @@
 				{{if $contact.photo_menu.poke}}<a class="contact-action-link" onclick="addToModal('{{$contact.photo_menu.poke.1}}')" data-toggle="tooltip" title="{{$contact.photo_menu.poke.0}}"><i class="fa fa-heartbeat" aria-hidden="true"></i></a>{{/if}}
 				{{if $contact.photo_menu.network}}<a class="contact-action-link" href="{{$contact.photo_menu.network.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.network.0}}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{{/if}}
 				{{if $contact.photo_menu.edit}}<a class="contact-action-link" href="{{$contact.photo_menu.edit.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.edit.0}}"><i class="fa fa-pencil" aria-hidden="true"></i></a>{{/if}}
-				{{if $contact.photo_menu.drop}}<a class="contact-action-link" href="{{$contact.photo_menu.drop.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.drop.0}}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{{/if}}
+				{{if $contact.photo_menu.drop}}<a class="contact-action-link" onclick="addToModal('{{$contact.photo_menu.drop.1}}')" data-toggle="tooltip" title="{{$contact.photo_menu.drop.0}}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{{/if}}
 				{{if $contact.photo_menu.follow}}<a class="contact-action-link" href="{{$contact.photo_menu.follow.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.follow.0}}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>{{/if}}
 				{{if $contact.photo_menu.hide}}<a class="contact-action-link" href="{{$contact.photo_menu.hide.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.hide.0}}"><i class="fa fa-times" aria-hidden="true"></i></a>{{/if}}
 			</div>

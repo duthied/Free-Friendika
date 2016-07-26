@@ -434,7 +434,8 @@ function contacts_content(&$a) {
 				$a->page['aside'] = '';
 
 				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
-					'$contact' =>  _contact_detail_for_template($orig_record[0]),
+					'$header' => t('Drop contact'),
+					'$contact' => _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
 					'$message' => t('Do you really want to delete this contact?'),
 					'$extra_inputs' => $inputs,
