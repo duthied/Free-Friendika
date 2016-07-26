@@ -1032,7 +1032,7 @@ function item_post(&$a) {
 	// Currently the only realistic fixes are to use a reliable server - which precludes shared hosting,
 	// or cut back on plugins which do remote deliveries.
 
-	proc_run('php', "include/notifier.php", $notify_type, "$post_id");
+	proc_run('php', "include/notifier.php", $notify_type, $post_id);
 
 	logger('post_complete');
 

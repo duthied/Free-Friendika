@@ -887,16 +887,7 @@ function contact_posts($a, $contact_id) {
 
 	$o .= $tab_str;
 
-	$r = q("SELECT `id` FROM `item` WHERE `contact-id` = %d LIMIT 1", intval($contact_id));
-	if ($r)
-		$o .= posts_from_contact($a, $contact_id);
-	elseif ($contact["url"]) {
-		$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-			dbesc(normalise_link($contact["url"])));
-
-		if ($r[0]["id"] <> 0)
-			$o .= posts_from_gcontact($a, $r[0]["id"]);
-	}
+	$o .= posts_from_contact_url($a, $contact["url"]);
 
 	return $o;
 }

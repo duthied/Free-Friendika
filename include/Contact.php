@@ -599,57 +599,64 @@ function posts_from_gcontact($a, $gcontact_id) {
 
 	return $o;
 }
-
 /**
- * @brief Returns posts from a given contact
+ * @brief Returns posts from a given contact url
  *
  * @param App $a argv application class
- * @param int $contact_id contact
+ * @param int $contact_url Contact URL
  *
  * @return string posts in HTML
  */
-function posts_from_contact($a, $contact_id) {
+function posts_from_contact_url($a, $contact_url) {
 
 	require_once('include/conversation.php');
 
-	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
-	if (!$r)
-		return false;
+	// There are no posts with "uid = 0" with connector networks
+	// This speeds up the query a lot
+	$r = q("SELECT `network`, `id` AS `author-id` FROM `contact`
+		WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
+		dbesc(normalise_link($contact_url)));
+	if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
+		$sql = "(`item`.`uid` = 0 OR  (`item`.`uid` = %d AND `item`.`private`))";
+	else
+		$sql = "`item`.`uid` = %d";
 
-	$contact = $r[0];
+	$author_id = intval($r[0]["author-id"]);
 
-	if(get_config('system', 'old_pager')) {
+	if (get_config('system', 'old_pager')) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `item`.`uid` = %d AND `author-link` IN ('%s', '%s')",
-			intval(local_user()),
-			dbesc(str_replace("https://", "http://", $contact["url"])),
-			dbesc(str_replace("http://", "https://", $contact["url"])));
+			WHERE `author-id` = %d and $sql",
+			intval($author_id),
+			intval(local_user()));
 
 		$a->set_pager_total($r[0]['total']);
 	}
 
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
+/*
+"SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` FORCE INDEX (`uid_contactid_id`)
-		WHERE `item`.`uid` = %d AND `contact-id` = %d
-			AND `author-link` IN ('%s', '%s')
-			AND NOT `deleted` AND NOT `moderated` AND `visible`
-		ORDER BY `item`.`id` DESC LIMIT %d, %d",
+		FROM `item` FORCE INDEX (`authorid_created`)
+		WHERE `item`.`author-id` = %d AND $sql
+		AND NOT `deleted` AND NOT `moderated` AND `visible`
+
+*/
+
+	$r = q(item_query()." AND `item`.`author-id` = %d AND ".$sql.
+		" ORDER BY `item`.`created` DESC LIMIT %d, %d",
+		intval($author_id),
 		intval(local_user()),
-		intval($contact_id),
-		dbesc(str_replace("https://", "http://", $contact["url"])),
-		dbesc(str_replace("http://", "https://", $contact["url"])),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
 
-	$o .= conversation($a,$r,'community',false);
+	$o = conversation($a,$r,'community',false);
 
-	if(!get_config('system', 'old_pager'))
+	if(!get_config('system', 'old_pager')) {
 		$o .= alt_pager($a,count($r));
-	else
+	} else {
 		$o .= paginate($a);
+	}
 
 	return $o;
 }

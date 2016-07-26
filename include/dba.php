@@ -65,6 +65,7 @@ class dba {
 			$this->db = @new mysqli($server,$user,$pass,$db);
 			if(! mysqli_connect_errno()) {
 				$this->connected = true;
+				//mysqli_set_charset($this->db, 'utf8');
 			}
 		}
 		else {
@@ -72,6 +73,7 @@ class dba {
 			$this->db = mysql_connect($server,$user,$pass);
 			if($this->db && mysql_select_db($db,$this->db)) {
 				$this->connected = true;
+				//mysql_set_charset('utf8', $this->db);
 			}
 		}
 		if(! $this->connected) {

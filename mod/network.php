@@ -577,8 +577,8 @@ function network_content(&$a, $update = 0) {
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
 			else
 				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-			$sql_order = "`item`.`received`";
-			$order_mode = "received";
+			$sql_order = "`item`.`id`";
+			$order_mode = "id";
 		}
 	}
 	if(strlen($file)) {
@@ -596,8 +596,7 @@ function network_content(&$a, $update = 0) {
 		// only setup pagination on initial page view
 		$pager_sql = '';
 
-	}
-	else {
+	} else {
 		if(get_config('system', 'old_pager')) {
 			$r = q("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
@@ -636,7 +635,7 @@ function network_content(&$a, $update = 0) {
 		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
-			$sql_order = "`item`.`received`";
+			$sql_order = "`item`.`id`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
 		$items = q("SELECT %s FROM $sql_table $sql_post_table %s

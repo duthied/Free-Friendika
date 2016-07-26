@@ -174,7 +174,7 @@ function nodeinfo_cron() {
 		return;
 
 	$last = get_config('nodeinfo','last_calucation');
-
+/*
 	if($last) {
 		// Calculate every 24 hours
 		$next = $last + (24 * 60 * 60);
@@ -183,7 +183,7 @@ function nodeinfo_cron() {
 			return;
 		}
 	}
-        logger("cron_start");
+*/        logger("cron_start");
 
 	$users = q("SELECT profile.*, `user`.`login_date`, `lastitem`.`lastitem_date`
 			FROM (SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
@@ -224,12 +224,24 @@ function nodeinfo_cron() {
 			set_config('nodeinfo','active_users_monthly', $active_users_monthly);
 	}
 
-	//$posts = q("SELECT COUNT(*) AS local_posts FROM `item` WHERE `wall` AND `uid` != 0 AND `id` = `parent` AND left(body, 6) != '[share'");
+//	$posts = q("SELECT COUNT(*) AS `local_posts` FROM `thread`
+//			INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND `contact`.`uid` = `thread`.`uid`
+//			WHERE `contact`.`self`");
+	$posts = q("SELECT COUNT(*) AS local_posts FROM `thread` WHERE `thread`.`wall`");
+/*
+	$posts = q("SELECT COUNT(*) AS local_posts FROM `thread`
+			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+			WHERE `thread`.`wall` AND NOT `thread`.`private` AND
+			`thread`.`uid` != 0 AND LEFT(`item`.`body`, 6) != '[share' AND
+			`thread`.`network` IN ('%s', '%s', '%s')",
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_DFRN));
+*/
+/*
 	$posts = q("SELECT COUNT(*) AS `local_posts` FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `contact`.`self` and `item`.`id` = `item`.`parent` AND left(body, 6) != '[share' AND `item`.`network` IN ('%s', '%s', '%s')",
 			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_DFRN));
-
+*/
 	if (!is_array($posts))
 		$local_posts = -1;
 	else
