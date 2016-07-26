@@ -1794,8 +1794,8 @@ ul.dropdown-menu li:hover {
 /* PAGES */
 
 /* Profile-page */
-.generic-page-wrapper ,#profile-page, .profile_photo-content-wrapper, .photos-content-wrapper,
-.contacts-content-wrapper, .suggest-content-wrapper, .common-content-wrapper,
+.generic-page-wrapper ,#profile-page, .profile_photo-content-wrapper,
+ .suggest-content-wrapper, .common-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
 .message-content-wrapper, .apps-content-wrapper, .notifications-content-wrapper,
@@ -1907,6 +1907,28 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 #contacts-search-wrapper,
 #directory-search-wrapper{
     padding: 10px 0;
+}
+
+/* contact-edit */
+#contact-edit-actions {
+    position: absolute;
+}
+#contact-edit-status-wrapper {
+    border: none;
+    background-color: #E1F5FE;
+    margin: 15px -15px;
+}
+#contact-edit-tools {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+#contact-edit-tools > .panel {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+#contact-edit-settings {
+    display: block;
+    margin: 0;
 }
 
 /* directory page */
