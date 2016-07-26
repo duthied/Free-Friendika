@@ -18,7 +18,7 @@
 
 </script>
 
-<div id="profile-page" class="standard-page">
+<div id="profile-page" class="generic-page-wrapper">
 	<h3 class="">{{$title}}</h3>
 
 	<ul id="profile-menu" class="nav nav-tabs" role="menubar" data-tabs="tabs">
