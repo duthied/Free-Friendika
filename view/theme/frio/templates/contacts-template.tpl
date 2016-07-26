@@ -1,5 +1,5 @@
 
-<div id="contacts" class="standard-page">
+<div id="contacts" class="generic-page-wrapper">
 
 	{{$tabs}}
 

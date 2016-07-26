@@ -1,6 +1,4 @@
 
-{{if $header}}<h2>{{$header}}</h2>{{/if}}
-
 <div id="contact-edit-wrapper" >
 
 	{{* Insert Tab-Nav *}}
