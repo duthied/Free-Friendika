@@ -9,7 +9,7 @@
 {{if $gender}}<dl><dt>{{$gender_label}}</dt><dd>{{$gender}}</dd></dl>{{/if}}
 {{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
 {{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
-<div class="intro-knowyou">{{$knowyou}}</div>
+<div class="intro-knowyou">{{$lbl_knowyou}} {{$knowyou}}</div>
 <div class="intro-note" id="intro-note-{{$contact_id}}">{{$note}}</div>
 <div class="intro-wrapper-end" id="intro-wrapper-end-{{$contact_id}}"></div>
 <form class="intro-form" action="notifications/{{$intro_id}}" method="post">
