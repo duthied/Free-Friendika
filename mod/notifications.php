@@ -78,11 +78,13 @@ function notifications_content(&$a) {
 
 	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		nav_set_selected('introductions');
+
 		if(($a->argc > 2) && ($a->argv[2] == 'all'))
 			$sql_extra = '';
 		else
 			$sql_extra = " AND `ignore` = 0 ";
 
+		$notif_header = t('Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
 		$notif_ignored_lnk .= '<a href="' . ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ) . '" id="notifications-show-hide-link" >'
@@ -231,18 +233,9 @@ function notifications_content(&$a) {
 		else
 			info( t('No introductions.') . EOL);
 
-		$o .= replace_macros($notif_tpl, array(
-			'$notif_header' => t('Notifications'),
-			'$tabs' => $tabs,
-			'$notif_ignored_lnk' => $notif_ignored_lnk,
-			'$notif_content' => $notif_content,
-		));
-
-		$o .= paginate($a);
-		return $o;
-
 	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
 
+		$notif_header = t('Network Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`,
@@ -259,8 +252,6 @@ function notifications_content(&$a) {
 		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
 		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
 		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-
-		$notif_content = array();
 
 		if ($r) {
 
@@ -322,15 +313,9 @@ function notifications_content(&$a) {
 			$notif_nocontent = t('No more network notifications.');
 		}
 
-		$o .= replace_macros($notif_tpl, array(
-			'$notif_header' => t('Network Notifications'),
-			'$tabs' => $tabs,
-			'$notif_content' => $notif_content,
-			'$notif_nocontent' => $notif_nocontent,
-		));
-
 	} else if (($a->argc > 1) && ($a->argv[1] == 'system')) {
 
+		$notif_header = t('System Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
 		$not_tpl = get_markup_template('notify.tpl');
@@ -353,15 +338,9 @@ function notifications_content(&$a) {
 			$notif_nocontent = t('No more system notifications.');
 		}
 
-		$o .= replace_macros($notif_tpl, array(
-			'$notif_header' => t('System Notifications'),
-			'$tabs' => $tabs,
-			'$notif_content' => $notif_content,
-			'$notif_nocontent' => $notif_nocontent,
-		));
-
 	} else if (($a->argc > 1) && ($a->argv[1] == 'personal')) {
 
+		$notif_header = t('Personal Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
 		$myurl = $a->get_baseurl(true) . '/profile/'. $a->user['nickname'];
@@ -390,8 +369,6 @@ function notifications_content(&$a) {
 		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
 		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
 		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-
-		$notif_content = array();
 
 		if (count($r) > 0) {
 
@@ -453,20 +430,9 @@ function notifications_content(&$a) {
 			$notif_nocontent = t('No more personal notifications.');
 		}
 
-		$o .= replace_macros($notif_tpl, array(
-			'$notif_header' => t('Personal Notifications'),
-			'$tabs' => $tabs,
-			'$notif_content' => $notif_content,
-			'$notif_nocontent' => $notif_nocontent,
-		));
-
-
-
-
-
-
 	} else if (($a->argc > 1) && ($a->argv[1] == 'home')) {
 
+		$notif_header = t('Home Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`,
@@ -482,8 +448,6 @@ function notifications_content(&$a) {
 		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
 		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
 		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-
-		$notif_content = array();
 
 		if (count($r) > 0) {
 
@@ -539,14 +503,15 @@ function notifications_content(&$a) {
 			$notif_nocontent = t('No more home notifications.');
 		}
 
-		$o .= replace_macros($notif_tpl, array(
-			'$notif_header' => t('Home Notifications'),
-			'$tabs' => $tabs,
-			'$notif_content' => $notif_content,
-			'$notif_nocontent' => $notif_nocontent,
-		));
 	}
 
+	$o .= replace_macros($notif_tpl, array(
+		'$notif_header' => $notif_header,
+		'$tabs' => $tabs,
+		'$notif_content' => $notif_content,
+		'$notif_nocontent' => $notif_nocontent,
+		'$notif_ignored_lnk' => $notif_ignored_lnk,
+	));
 	$o .= paginate($a);
 	return $o;
 }
