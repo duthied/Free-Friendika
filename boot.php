@@ -1801,9 +1801,13 @@ function proc_run($cmd){
 				$priority = 2;
 
 			if (!$found)
-				q("INSERT INTO `workerqueue` (`function`, `parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', '%s', %d)",
-					dbesc($funcname),
+				//  quickfix for the delivery problems, 2106-07-28
+				/// @todo find better solution
+				//q("INSERT INTO `workerqueue` (`function`, `parameter`, `created`, `priority`)
+				//			VALUES ('%s', '%s', '%s', %d)",
+				//	dbesc($funcname),
+				q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+							VALUES ('%s', '%s', %d)",
 					dbesc($parameters),
 					dbesc(datetime_convert()),
 					intval($priority));
