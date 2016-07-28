@@ -91,7 +91,7 @@
 								{{if $keywords}}
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<hr class="profile-separator">
-									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{$keywords_label}}</div>
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$keywords_label}}</div>
 									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$keywords}}</div>
 								</div>
 								{{/if}}
