@@ -247,66 +247,71 @@ function notifications_content(&$a) {
 			intval(local_user())
 		);
 
-		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
+//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
+//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
+//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
+//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
+//		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
 
 		if ($r) {
 
-			foreach ($r as $it) {
-				switch($it['verb']){
-					case ACTIVITY_LIKE:
-						$notif_content[] = replace_macros($tpl_item_likes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
+			$notifs = array(
+				'notifications' => $r,
+				'ident' => 'network',
+			);
 
-					case ACTIVITY_DISLIKE:
-						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
-
-					case ACTIVITY_FRIEND:
-
-						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-						$obj = parse_xml_string($xmlhead.$it['object']);
-						$it['fname'] = $obj->title;
-
-						$notif_content[] = replace_macros($tpl_item_friends,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
-
-					default:
-						$item_text = (($it['id'] == $it['parent'])
-							? sprintf( t("%s created a new post"), $it['author-name'])
-							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-
-						$notif_content[] = replace_macros($tpl,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => $item_text,
-							'$item_when' => relative_date($it['created'])
-						));
-				}
-			}
+//			foreach ($r as $it) {
+//				switch($it['verb']){
+//					case ACTIVITY_LIKE:
+//						$notif_content[] = replace_macros($tpl_item_likes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					case ACTIVITY_DISLIKE:
+//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					case ACTIVITY_FRIEND:
+//
+//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+//						$obj = parse_xml_string($xmlhead.$it['object']);
+//						$it['fname'] = $obj->title;
+//
+//						$notif_content[] = replace_macros($tpl_item_friends,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					default:
+//						$item_text = (($it['id'] == $it['parent'])
+//							? sprintf( t("%s created a new post"), $it['author-name'])
+//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+//						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
+//
+//						$notif_content[] = replace_macros($tpl,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+//							'$item_text' => $item_text,
+//							'$item_when' => relative_date($it['created'])
+//						));
+//				}
+//			}
 
 		} else {
 
@@ -326,14 +331,19 @@ function notifications_content(&$a) {
 		);
 
 		if (count($r) > 0) {
-			foreach ($r as $it) {
-				$notif_content[] = replace_macros($not_tpl,array(
-					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
-					'$item_image' => proxy_url($it['photo'], false, PROXY_SIZE_MICRO),
-					'$item_text' => strip_tags(bbcode($it['msg'])),
-					'$item_when' => relative_date($it['date'])
-				));
-			}
+//			foreach ($r as $it) {
+//				$notif_content[] = replace_macros($not_tpl,array(
+//					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
+//					'$item_image' => proxy_url($it['photo'], false, PROXY_SIZE_MICRO),
+//					'$item_text' => strip_tags(bbcode($it['msg'])),
+//					'$item_when' => relative_date($it['date'])
+//				));
+//			}
+			$notifs = array(
+				'notifications' => $r,
+				'ident' => 'system',
+			);
+
 		} else {
 			$notif_nocontent = t('No more system notifications.');
 		}
@@ -364,66 +374,71 @@ function notifications_content(&$a) {
 			intval(local_user())
 		);
 
-		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
+//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
+//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
+//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
+//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
+//		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
 
 		if (count($r) > 0) {
+			$notifs =array(
+				'notifications' => $r,
+				'ident' => 'personal'
+			);
 
-			foreach ($r as $it) {
-				switch($it['verb']){
-					case ACTIVITY_LIKE:
-						$notif_content[] = replace_macros($tpl_item_likes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
 
-					case ACTIVITY_DISLIKE:
-						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
-
-					case ACTIVITY_FRIEND:
-
-						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-						$obj = parse_xml_string($xmlhead.$it['object']);
-						$it['fname'] = $obj->title;
-
-						$notif_content[] = replace_macros($tpl_item_friends,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-							'$item_when' => relative_date($it['created'])
-						));
-						break;
-
-					default:
-						$item_text = (($it['id'] == $it['parent'])
-							? sprintf( t("%s created a new post"), $it['author-name'])
-							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-
-						$notif_content[] = replace_macros($tpl,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => $item_text,
-							'$item_when' => relative_date($it['created'])
-						));
-				}
-			}
+//			foreach ($r as $it) {
+//				switch($it['verb']){
+//					case ACTIVITY_LIKE:
+//						$notif_content[] = replace_macros($tpl_item_likes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					case ACTIVITY_DISLIKE:
+//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					case ACTIVITY_FRIEND:
+//
+//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+//						$obj = parse_xml_string($xmlhead.$it['object']);
+//						$it['fname'] = $obj->title;
+//
+//						$notif_content[] = replace_macros($tpl_item_friends,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//						break;
+//
+//					default:
+//						$item_text = (($it['id'] == $it['parent'])
+//							? sprintf( t("%s created a new post"), $it['author-name'])
+//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+//						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
+//
+//						$notif_content[] = replace_macros($tpl,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => $item_text,
+//							'$item_when' => relative_date($it['created'])
+//						));
+//				}
+//			}
 
 		} else {
 
@@ -444,66 +459,74 @@ function notifications_content(&$a) {
 			intval(local_user())
 		);
 
-		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
+//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
+//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
+//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
+//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
 
 		if (count($r) > 0) {
 
-			foreach ($r as $it) {
-				switch($it['verb']){
-					case ACTIVITY_LIKE:
-						$notif_content[] = replace_macros($tpl_item_likes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
+			$notifs = array(
+				'notifications' => $r,
+				'ident' => 'home',
+			);
 
-						break;
-					case ACTIVITY_DISLIKE:
-						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-
-						break;
-					case ACTIVITY_FRIEND:
-
-						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-						$obj = parse_xml_string($xmlhead.$it['object']);
-						$it['fname'] = $obj->title;
-
-						$notif_content[] = replace_macros($tpl_item_friends,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-							'$item_when' => relative_date($it['created'])
-						));
-
-						break;
-					default:
-						$notif_content[] = replace_macros($tpl_item_comments,array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => $it['author-avatar'],
-							'$item_text' => sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
-				}
-			}
+//			foreach ($r as $it) {
+//				switch($it['verb']){
+//					case ACTIVITY_LIKE:
+//						$notif_content[] = replace_macros($tpl_item_likes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//
+//						break;
+//					case ACTIVITY_DISLIKE:
+//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//
+//						break;
+//					case ACTIVITY_FRIEND:
+//
+//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+//						$obj = parse_xml_string($xmlhead.$it['object']);
+//						$it['fname'] = $obj->title;
+//
+//						$notif_content[] = replace_macros($tpl_item_friends,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//
+//						break;
+//					default:
+//						$notif_content[] = replace_macros($tpl_item_comments,array(
+//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
+//							'$item_image' => $it['author-avatar'],
+//							'$item_text' => sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']),
+//							'$item_when' => relative_date($it['created'])
+//						));
+//				}
+//			}
 
 		} else {
 			$notif_nocontent = t('No more home notifications.');
 		}
 
 	}
+
+	if(count($notifs['notifications']) > 0 )
+		$notif_content = format_notifiations ($a, $notifs);
 
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,
@@ -512,6 +535,7 @@ function notifications_content(&$a) {
 		'$notif_nocontent' => $notif_nocontent,
 		'$notif_ignored_lnk' => $notif_ignored_lnk,
 	));
+
 	$o .= paginate($a);
 	return $o;
 }
@@ -561,4 +585,126 @@ function notifications_tabs($a) {
 	);
 
 	return $tabs;
+}
+
+function format_notifiations(&$a, $notifs) {
+
+	$notif_content = array();
+
+	// The template files we need in different cases for formatting the content
+	$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
+	$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
+	$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
+	$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
+	$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
+	$tpl_notify = get_markup_template('notify.tpl');
+
+	if (count($notifs['notifications']) > 0) {
+//		switch ($notifs['ident']) {
+//			case 'system':
+//				$default_item_link = app::get_baseurl(true).'/notify/view/'. $it['id'];
+//				$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
+//				$default_item_text = strip_tags(bbcode($it['msg']));
+//				$default_item_when = relative_date($it['date']);
+//				$default_tpl = $tpl_notify;
+//				break;
+//
+//			case 'home':
+//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
+//				$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
+//				$default_item_when = relative_date($it['created']);
+//				$default_tpl = $tpl_item_comments;
+//				break;
+//
+//			default:
+//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
+//				$default_item_text = (($it['id'] == $it['parent'])
+//							? sprintf( t("%s created a new post"), $it['author-name'])
+//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+//				$default_item_when = relative_date($it['created']);
+//				$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
+//
+//		}
+
+		foreach ($notifs['notifications'] as $it) {
+
+			switch ($notifs['ident']) {
+				case 'system':
+					$default_item_link = app::get_baseurl(true).'notify/view/'. $it['id'];
+					$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
+					$default_item_text = strip_tags(bbcode($it['msg']));
+					$default_item_when = relative_date($it['date']);
+					$default_tpl = $tpl_notify;
+					break;
+
+				case 'home':
+					$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+					$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
+					$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
+					$default_item_when = relative_date($it['created']);
+					$default_tpl = $tpl_item_comments;
+					break;
+
+				default:
+					$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+					$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
+					$default_item_text = (($it['id'] == $it['parent'])
+								? sprintf( t("%s created a new post"), $it['author-name'])
+								: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+					$default_item_when = relative_date($it['created']);
+					$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
+
+			}
+
+			switch($it['verb']){
+				case ACTIVITY_LIKE:
+					$notif_content[] = replace_macros($tpl_item_likes,array(
+						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+						'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+						'$item_when' => relative_date($it['created'])
+					));
+					break;
+
+				case ACTIVITY_DISLIKE:
+					$notif_content[] = replace_macros($tpl_item_dislikes,array(
+						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+						'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+						'$item_when' => relative_date($it['created'])
+					));
+					break;
+
+				case ACTIVITY_FRIEND:
+					$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
+					$obj = parse_xml_string($xmlhead.$it['object']);
+					$it['fname'] = $obj->title;
+
+					$notif_content[] = replace_macros($tpl_item_friends,array(
+						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+						'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+						'$item_when' => relative_date($it['created'])
+					));
+					break;
+
+				default:
+					$notif_content[] = replace_macros($default_tpl,array(
+						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
+						'$item_link' => $default_item_link,
+						'$item_image' => $default_item_image,
+						'$item_text' => $default_item_text,
+						'$item_when' => $default_item_when
+					));
+			}
+		}
+	}
+
+	return $notif_content;
+
 }
