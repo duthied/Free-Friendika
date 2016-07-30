@@ -1,4 +1,5 @@
 <?php
+include_once("include/NotificationsManager.php");
 include_once("include/bbcode.php");
 include_once("include/contact_selectors.php");
 include_once("include/Scrape.php");
@@ -70,10 +71,11 @@ function notifications_content(&$a) {
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
 
+	$nm = new NotificationsManager();
 
 	$o = '';
 	// get the nav tabs for the notification pages
-	$tabs = notifications_tabs($a);
+	$tabs = $nm->getTabs();
 	$notif_content = array();
 
 	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
@@ -526,7 +528,7 @@ function notifications_content(&$a) {
 	}
 
 	if(count($notifs['notifications']) > 0 )
-		$notif_content = format_notifiations ($a, $notifs);
+		$notif_content =$nm->format ($notifs);
 
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,
@@ -538,173 +540,4 @@ function notifications_content(&$a) {
 
 	$o .= paginate($a);
 	return $o;
-}
-/**
- * @brief List of pages for the Notifications TabBar
- * 
- * @param app $a The 
- * @return array with with notifications TabBar data
- */
-function notifications_tabs($a) {
-	$tabs = array(
-		array(
-			'label' => t('System'),
-			'url'=>'notifications/system',
-			'sel'=> (($a->argv[1] == 'system') ? 'active' : ''),
-			'accesskey' => 'y',
-		),
-		array(
-			'label' => t('Network'),
-			'url'=>'notifications/network',
-			'sel'=> (($a->argv[1] == 'network') ? 'active' : ''),
-			'accesskey' => 'w',
-		),
-		array(
-			'label' => t('Personal'),
-			'url'=>'notifications/personal',
-			'sel'=> (($a->argv[1] == 'personal') ? 'active' : ''),
-			'accesskey' => 'r',
-		),
-		array(
-			'label' => t('Home'),
-			'url' => 'notifications/home',
-			'sel'=> (($a->argv[1] == 'home') ? 'active' : ''),
-			'accesskey' => 'h',
-		),
-		array(
-			'label' => t('Introductions'),
-			'url' => 'notifications/intros',
-			'sel'=> (($a->argv[1] == 'intros') ? 'active' : ''),
-			'accesskey' => 'i',
-		),
-		/*array(
-			'label' => t('Messages'),
-			'url' => 'message',
-			'sel'=> '',
-		),*/ /*while I can have notifications for messages, this tablist is not place for message page link */
-	);
-
-	return $tabs;
-}
-
-function format_notifiations(&$a, $notifs) {
-
-	$notif_content = array();
-
-	// The template files we need in different cases for formatting the content
-	$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-	$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-	$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-	$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-	$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-	$tpl_notify = get_markup_template('notify.tpl');
-
-	if (count($notifs['notifications']) > 0) {
-//		switch ($notifs['ident']) {
-//			case 'system':
-//				$default_item_link = app::get_baseurl(true).'/notify/view/'. $it['id'];
-//				$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
-//				$default_item_text = strip_tags(bbcode($it['msg']));
-//				$default_item_when = relative_date($it['date']);
-//				$default_tpl = $tpl_notify;
-//				break;
-//
-//			case 'home':
-//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-//				$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
-//				$default_item_when = relative_date($it['created']);
-//				$default_tpl = $tpl_item_comments;
-//				break;
-//
-//			default:
-//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-//				$default_item_text = (($it['id'] == $it['parent'])
-//							? sprintf( t("%s created a new post"), $it['author-name'])
-//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-//				$default_item_when = relative_date($it['created']);
-//				$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-//
-//		}
-
-		foreach ($notifs['notifications'] as $it) {
-
-			switch ($notifs['ident']) {
-				case 'system':
-					$default_item_link = app::get_baseurl(true).'notify/view/'. $it['id'];
-					$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
-					$default_item_text = strip_tags(bbcode($it['msg']));
-					$default_item_when = relative_date($it['date']);
-					$default_tpl = $tpl_notify;
-					break;
-
-				case 'home':
-					$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-					$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-					$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
-					$default_item_when = relative_date($it['created']);
-					$default_tpl = $tpl_item_comments;
-					break;
-
-				default:
-					$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-					$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-					$default_item_text = (($it['id'] == $it['parent'])
-								? sprintf( t("%s created a new post"), $it['author-name'])
-								: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-					$default_item_when = relative_date($it['created']);
-					$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-
-			}
-
-			switch($it['verb']){
-				case ACTIVITY_LIKE:
-					$notif_content[] = replace_macros($tpl_item_likes,array(
-						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-						'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-						'$item_when' => relative_date($it['created'])
-					));
-					break;
-
-				case ACTIVITY_DISLIKE:
-					$notif_content[] = replace_macros($tpl_item_dislikes,array(
-						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-						'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-						'$item_when' => relative_date($it['created'])
-					));
-					break;
-
-				case ACTIVITY_FRIEND:
-					$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-					$obj = parse_xml_string($xmlhead.$it['object']);
-					$it['fname'] = $obj->title;
-
-					$notif_content[] = replace_macros($tpl_item_friends,array(
-						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-						'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-						'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-						'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-						'$item_when' => relative_date($it['created'])
-					));
-					break;
-
-				default:
-					$notif_content[] = replace_macros($default_tpl,array(
-						//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-						'$item_link' => $default_item_link,
-						'$item_image' => $default_item_image,
-						'$item_text' => $default_item_text,
-						'$item_when' => $default_item_when
-					));
-			}
-		}
-	}
-
-	return $notif_content;
-
 }
