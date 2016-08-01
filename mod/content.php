@@ -224,7 +224,7 @@ function content_content(&$a, $update = 0) {
 			$simple_update
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			$sql_extra $sql_nets
-			ORDER BY `item`.`received` DESC $pager_sql ",
+			ORDER BY `item`.`id` DESC $pager_sql ",
 			intval($_SESSION['uid'])
 		);
 

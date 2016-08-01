@@ -1971,7 +1971,7 @@ class ostatus {
 						OR (`item`.`network` = '%s' AND ((`thread`.`network` IN ('%s', '%s')) OR (`thritem`.`network` IN ('%s', '%s')))) AND `thread`.`mention`)
 					AND ((`item`.`owner-link` IN ('%s', '%s') AND (`item`.`parent` = `item`.`id`))
 						OR (`item`.`author-link` IN ('%s', '%s')))
-				ORDER BY `item`.`received` DESC
+				ORDER BY `item`.`id` DESC
 				LIMIT 0, 300",
 				intval($owner["uid"]), dbesc($check_date), dbesc(NETWORK_DFRN),
 				//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
