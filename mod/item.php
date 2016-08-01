@@ -783,7 +783,7 @@ function item_post(&$a) {
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
-		proc_run('php', "include/notifier.php", 'edit_post', "$post_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", 'edit_post', $post_id);
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($a->get_baseurl() . "/" . $return_path );
@@ -1032,7 +1032,7 @@ function item_post(&$a) {
 	// Currently the only realistic fixes are to use a reliable server - which precludes shared hosting,
 	// or cut back on plugins which do remote deliveries.
 
-	proc_run('php', "include/notifier.php", $notify_type, "$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", $notify_type, $post_id);
 
 	logger('post_complete');
 

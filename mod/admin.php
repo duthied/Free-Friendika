@@ -549,7 +549,7 @@ function admin_page_site_post(&$a) {
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
 
 		foreach ($users as $user) {
-			proc_run('php', 'include/notifier.php', 'relocate', $user['uid']);
+			proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");

@@ -496,7 +496,7 @@ function profiles_post(&$a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory')))
-				proc_run('php',"include/directory.php","$url");
+				proc_run(PRIORITY_LOW, "include/directory.php", $url);
 
 			require_once('include/profile_update.php');
 			profile_change();
@@ -587,9 +587,8 @@ function profile_activity($changed, $value) {
 	$arr['deny_gid']  = $a->user['deny_gid'];
 
 	$i = item_store($arr);
-	if($i) {
-	   	proc_run('php',"include/notifier.php","activity","$i");
-	}
+	if($i)
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 }
 
 

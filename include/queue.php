@@ -48,7 +48,7 @@ function queue_run(&$argv, &$argc){
 	logger('queue: start');
 
 	// Handling the pubsubhubbub requests
-	proc_run('php','include/pubsubpublish.php');
+	proc_run(PRIORITY_HIGH,'include/pubsubpublish.php');
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
@@ -60,7 +60,7 @@ function queue_run(&$argv, &$argc){
 	if($r) {
 		foreach($r as $rr) {
 			logger('queue: deliverq');
-			proc_run('php','include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
+			proc_run(PRIORITY_HIGH,'include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}

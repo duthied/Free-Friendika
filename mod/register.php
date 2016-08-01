@@ -64,7 +64,7 @@ function register_post(&$a) {
 
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = $a->get_baseurl() . '/profile/' . $user['nickname'];
-		proc_run('php',"include/directory.php","$url");
+		proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
 
 	$using_invites = get_config('system','invitation_only');
