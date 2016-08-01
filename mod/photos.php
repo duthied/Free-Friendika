@@ -306,7 +306,7 @@ function photos_post(&$a) {
 					// send the notification upstream/downstream as the case may be
 
 					if($rr['visible'])
-						proc_run('php',"include/notifier.php","drop","$drop_id");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 				}
 			}
 		}
@@ -376,7 +376,7 @@ function photos_post(&$a) {
 				$drop_id = intval($i[0]['id']);
 
 				if($i[0]['visible'])
-					proc_run('php',"include/notifier.php","drop","$drop_id");
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 			}
 		}
 
@@ -719,7 +719,7 @@ function photos_post(&$a) {
 
 					$item_id = item_store($arr);
 					if($item_id) {
-						proc_run('php',"include/notifier.php","tag","$item_id");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $item_id);
 					}
 				}
 
@@ -935,7 +935,7 @@ function photos_post(&$a) {
 	$item_id = item_store($arr);
 
 	if($visible)
-		proc_run('php', "include/notifier.php", 'wall-new', $item_id);
+		proc_run(PRIORITY_HIGH, "include/notifier.php", 'wall-new', $item_id);
 
 	call_hooks('photo_post_end',intval($item_id));
 

@@ -70,15 +70,15 @@ function cron_run(&$argv, &$argc){
 
 	// run queue delivery process in the background
 
-	proc_run('php',"include/queue.php");
+	proc_run(PRIORITY_LOW,"include/queue.php");
 
 	// run the process to discover global contacts in the background
 
-	proc_run('php',"include/discover_poco.php");
+	proc_run(PRIORITY_LOW,"include/discover_poco.php");
 
 	// run the process to update locally stored global contacts in the background
 
-	proc_run('php',"include/discover_poco.php", "checkcontact");
+	proc_run(PRIORITY_LOW,"include/discover_poco.php", "checkcontact");
 
 	// expire any expired accounts
 
@@ -126,11 +126,11 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		proc_run('php',"include/discover_poco.php", "suggestions");
+		proc_run(PRIORITY_LOW,"include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
 
-		proc_run('php','include/expire.php');
+		proc_run(PRIORITY_LOW,'include/expire.php');
 	}
 
 	// Clear cache entries
@@ -272,7 +272,7 @@ function cron_run(&$argv, &$argc){
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run('php','include/onepoll.php',$contact['id']);
+			proc_run(PRIORITY_MEDIUM,'include/onepoll.php',$contact['id']);
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);

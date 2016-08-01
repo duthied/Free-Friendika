@@ -167,7 +167,7 @@ function videos_post(&$a) {
 				$drop_id = intval($i[0]['id']);
 
 				if($i[0]['visible'])
-					proc_run('php',"include/notifier.php","drop","$drop_id");
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 			}
 		}
 

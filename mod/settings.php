@@ -352,7 +352,7 @@ function settings_post(&$a) {
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
-		proc_run('php', 'include/notifier.php', 'relocate', local_user());
+		proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}
@@ -614,7 +614,7 @@ function settings_post(&$a) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
 		if($url && strlen(get_config('system','directory')))
-			proc_run('php',"include/directory.php","$url");
+			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
 
 	require_once('include/profile_update.php');

@@ -153,7 +153,7 @@ function do_like($item_id, $verb) {
 		);
 
 		$like_item_id = $like_item['id'];
-		proc_run('php',"include/notifier.php","like","$like_item_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $like_item_id);
 
 		return true;
 	}
@@ -245,7 +245,7 @@ EOT;
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run('php',"include/notifier.php","like","$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $post_id);
 
 	return true;
 }

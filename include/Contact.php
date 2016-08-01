@@ -45,10 +45,10 @@ function user_remove($uid) {
 	// don't delete yet, will be done later when contacts have deleted my stuff
 	// q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
-	proc_run('php', "include/notifier.php", "removeme", $uid);
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run('php', "include/directory.php", $r[0]['url']);
+	proc_run(PRIORITY_LOW, "include/directory.php", $r[0]['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -275,7 +275,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
-		proc_run('php',"include/update_gcontact.php", $profile["gid"]);
+		proc_run(PRIORITY_LOW, "include/update_gcontact.php", $profile["gid"]);
 
 	// Show contact details of Diaspora contacts only if connected
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {

@@ -57,7 +57,7 @@ function fsuggest_post(&$a) {
 					intval($fsuggest_id),
 					intval(local_user())
 				);
-				proc_run('php', 'include/notifier.php', 'suggest' , $fsuggest_id);
+				proc_run(PRIORITY_HIGH, 'include/notifier.php', 'suggest', $fsuggest_id);
 			}
 
 			info( t('Friend suggestion sent.') . EOL);

@@ -237,7 +237,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		proc_run('php',"include/onepoll.php","$contact_id", "force");
+		proc_run(PRIORITY_MEDIUM, "include/onepoll.php", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {

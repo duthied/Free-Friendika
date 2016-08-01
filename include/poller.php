@@ -275,6 +275,13 @@ function poller_too_much_workers() {
 
 		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
+		// Are there fewer workers running as possible? Then fork a new one.
+		if (!get_config("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
+			logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
+			$args = array("php", "include/poller.php", "no_cron");
+			$a = get_app();
+			$a->proc_run($args);
+		}
 	}
 
 	return($active >= $queues);

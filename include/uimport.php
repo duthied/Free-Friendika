@@ -287,7 +287,7 @@ function import_account(&$a, $file) {
 	}
 
 	// send relocate messages
-	proc_run('php', 'include/notifier.php', 'relocate', $newuid);
+	proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
 	goaway($a->get_baseurl() . "/login");

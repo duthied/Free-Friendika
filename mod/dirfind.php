@@ -156,7 +156,7 @@ function dirfind_content(&$a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			proc_run('php','include/discover_poco.php', "dirsearch", urlencode($search));
+			proc_run(PRIORITY_LOW, 'include/discover_poco.php', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
