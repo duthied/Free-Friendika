@@ -67,7 +67,9 @@ function notifications_content(&$a) {
 		return;
 	}
 
+	$page	=	(x($_REQUEST,'page')		? $_REQUEST['page']		: 1);
 	$show	=	(x($_REQUEST,'show')		? $_REQUEST['show']		: 0);
+
 	nav_set_selected('notifications');
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
@@ -78,6 +80,8 @@ function notifications_content(&$a) {
 	// get the nav tabs for the notification pages
 	$tabs = $nm->getTabs();
 	$notif_content = array();
+	$perpage = 20;
+	$startrec = ($page * $perpage) - $perpage;
 
 	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		nav_set_selected('introductions');
@@ -90,8 +94,6 @@ function notifications_content(&$a) {
 		$notif_header = t('Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-//		$notif_show_lnk .= '<a href="' . ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ) . '" id="notifications-show-hide-link" >'
-//			. ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')) . '</a></div>' . "\r\n";
 
 		$notif_show_lnk = array(
 			'href' => ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ),
@@ -105,7 +107,7 @@ function notifications_content(&$a) {
 		);
 		if(dbm::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
-			$a->set_pager_itemspage(20);
+			$a->set_pager_itemspage($perpage);
 		}
 
 		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
@@ -247,7 +249,7 @@ function notifications_content(&$a) {
 		$notif_header = t('Network Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$notifs = $nm->networkNotifs($show);
+		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
 
 		$notif_show_lnk = array(
 			'href' => ($show ? 'notifications/network' : 'notifications/network?show=all' ),
@@ -266,7 +268,7 @@ function notifications_content(&$a) {
 		$notif_header = t('System Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$notifs = $nm->systemNotifs($show);
+		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
 
 		$notif_show_lnk = array(
 			'href' => ($show ? 'notifications/system' : 'notifications/system?show=all' ),
@@ -285,7 +287,7 @@ function notifications_content(&$a) {
 		$notif_header = t('Personal Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$notifs = $nm->personalNotifs($show);
+		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
 
 		$notif_show_lnk = array(
 			'href' => ($show ? 'notifications/personal' : 'notifications/personal?show=all' ),
@@ -304,7 +306,7 @@ function notifications_content(&$a) {
 		$notif_header = t('Home Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$notifs = $nm->homeNotifs($show);
+		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
 
 		$notif_show_lnk = array(
 			'href' => ($show ? 'notifications/home' : 'notifications/home?show=all' ),
@@ -321,6 +323,14 @@ function notifications_content(&$a) {
 	}
 
 	if(count($notifs['notifications']) > 0 ) {
+		// set the pager
+		$a->set_pager_total($notifs['total']);
+		$a->set_pager_itemspage($perpage);
+
+		// add additional informations (needed for json output)
+		$notifs['items_page'] = $a->pager['itemspage'];
+		$notifs['page'] = $a->pager['page'];
+
 		// The template files we need in different cases for formatting the content
 		$tpl_item_like = 'notifications_likes_item.tpl';
 		$tpl_item_dislike = 'notifications_dislikes_item.tpl';
@@ -351,8 +361,8 @@ function notifications_content(&$a) {
 		'$notif_content' => $notif_content,
 		'$notif_nocontent' => $notif_nocontent,
 		'$notif_show_lnk' => $notif_show_lnk,
+		'$notif_paginate' => paginate($a)
 	));
 
-	$o .= paginate($a);
 	return $o;
 }

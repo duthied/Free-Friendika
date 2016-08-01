@@ -183,7 +183,20 @@ class NotificationsManager {
 		return $tabs;
 	}
 
-	public function format($notifs, $ident = "") {
+	/**
+	 * @brief Format the notification query in an usable array
+	 * 
+	 * @param array $notifs The array from the db query
+	 * @param string $ident The notifications identifier (e.g. network)
+	 * @return array
+	 *	string 'label' => The type of the notification
+	 *	string 'link' => URL to the source
+	 *	string 'image' => The avatar image
+	 *	string 'text' => The notification text
+	 *	string 'when' => Relative date of the notification
+	 *	bool 'seen' => Is the notification marked as "seen"
+	 */
+	private function format($notifs, $ident = "") {
 
 		$notif = array();
 		$arr = array();
@@ -191,13 +204,17 @@ class NotificationsManager {
 		if (dbm::is_result($notifs)) {
 
 			foreach ($notifs as $it) {
+				// Because we use different db tables for the notification query
+				// we have sometimes $it['unseen'] and sometimes $it['seen].
+				// So we will have to transform $it['unseen']
 				if($it['unseen'])
 					$it['seen'] = ($it['unseen'] > 0 ? false : true);
 
+				// Depending on the identifier of the notification we need to use different defaults
 				switch ($ident) {
 					case 'system':
 						$default_item_label = 'notify';
-						$default_item_link = app::get_baseurl(true).'/notify/view/'. $it['id'];
+						$default_item_link = $this->a->get_baseurl(true).'/notify/view/'. $it['id'];
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_text = strip_tags(bbcode($it['msg']));
 						$default_item_when = relative_date($it['date']);
@@ -206,7 +223,7 @@ class NotificationsManager {
 
 					case 'home':
 						$default_item_label = 'comment';
-						$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+						$default_item_link = $this->a->get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
 						$default_item_when = relative_date($it['created']);
@@ -215,7 +232,7 @@ class NotificationsManager {
 
 					default:
 						$default_item_label = (($it['id'] == $it['parent']) ? 'post' : 'comment');
-						$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
+						$default_item_link = $this->a->get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_text = (($it['id'] == $it['parent'])
 									? sprintf( t("%s created a new post"), $it['author-name'])
@@ -225,12 +242,13 @@ class NotificationsManager {
 
 				}
 
+				// Transform the different types of notification in an usable array
 				switch($it['verb']){
 					case ACTIVITY_LIKE:
 						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'like',
-							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'$image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
@@ -242,7 +260,7 @@ class NotificationsManager {
 						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'dislike',
-							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
@@ -258,7 +276,7 @@ class NotificationsManager {
 						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'friend',
-							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
 							'when' => relative_date($it['created']),
@@ -286,6 +304,13 @@ class NotificationsManager {
 
 	}
 
+	/**
+	 * @brief Total number of network notifications 
+	 * @param int $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @return int Number of network notifications
+	 */
 	private function networkTotal($seen = 0) {
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -304,7 +329,18 @@ class NotificationsManager {
 		return 0;
 	}
 
-	public function networkNotifs($seen = 0) {
+	/**
+	 * @brief Get network notifications
+	 * 
+	 * @param type $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @param int $start Start the query at this point
+	 * @param int $limit Maximum number of query results
+	 * 
+	 * @return array Query output
+	 */
+	public function networkNotifs($seen = 0, $start = 0, $limit = 20) {
 		$ident = 'network';
 		$total = $this->networkTotal($seen);
 
@@ -319,8 +355,10 @@ class NotificationsManager {
 				WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
 				$sql_seen
-				ORDER BY `item`.`created` DESC",
-			intval(local_user())
+				ORDER BY `item`.`created` DESC LIMIT %d, %d ",
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
 		if(dbm::is_result($r)) {
@@ -335,6 +373,13 @@ class NotificationsManager {
 		}
 	}
 
+	/**
+	 * @brief Total number of system notifications 
+	 * @param int $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @return int Number of system notifications
+	 */
 	private function systemTotal($seen = 0) {
 		if($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
@@ -349,15 +394,29 @@ class NotificationsManager {
 		return 0;
 	}
 
-	public function systemNotifs($seen = 0) {
+		/**
+	 * @brief Get system notifications
+	 * 
+	 * @param type $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @param int $start Start the query at this point
+	 * @param int $limit Maximum number of query results
+	 * 
+	 * @return array Query output
+	 */
+	public function systemNotifs($seen = 0, $start = 0, $limit = 20) {
 		$ident = 'system';
 		$total = $this->systemTotal($seen);
 
 		if($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
 
-		$r = q("SELECT * FROM `notify` WHERE `uid` = %d $sql_seen ORDER BY `date` DESC",
-			intval(local_user())
+		$r = q("SELECT `id`, `photo`, `msg`, `date`, `seen` FROM `notify`
+				WHERE `uid` = %d $sql_seen ORDER BY `date` DESC LIMIT %d, %d ",
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
 		if(dbm::is_result($r)) {
@@ -372,8 +431,13 @@ class NotificationsManager {
 		}
 	}
 
+	/**
+	 * @brief Addional SQL query string for the personal notifications
+	 * 
+	 * @return string The additional sql query
+	 */
 	private function _personal_sql_extra() {
-		$myurl = app::get_baseurl(true) . '/profile/'. $this->a->user['nickname'];
+		$myurl = $this->a->get_baseurl(true) . '/profile/'. $this->a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
@@ -386,6 +450,13 @@ class NotificationsManager {
 		return $sql_extra;
 	}
 
+	/**
+	 * @brief Total number of personal notifications 
+	 * @param int $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @return int Number of personal notifications
+	 */
 	private function personalTotal($seen = 0) {
 		$sql_extra .= $this->_personal_sql_extra();
 
@@ -406,7 +477,19 @@ class NotificationsManager {
 
 		return 0;
 	}
-	public function personalNotifs($seen = 0) {
+
+	/**
+	 * @brief Get personal notifications
+	 * 
+	 * @param type $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @param int $start Start the query at this point
+	 * @param int $limit Maximum number of query results
+	 * 
+	 * @return array Query output
+	 */
+	public function personalNotifs($seen = 0, $start = 0, $limit = 20) {
 		$ident = 'personal';
 		$total = 0;
 		$sql_extra .= $this->_personal_sql_extra();
@@ -422,8 +505,10 @@ class NotificationsManager {
 				$sql_extra
 				$sql_seen
 				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 
-				ORDER BY `item`.`created` DESC" ,
-			intval(local_user())
+				ORDER BY `item`.`created` DESC LIMIT %d, %d " ,
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
 		if(dbm::is_result($r)) {
@@ -438,24 +523,42 @@ class NotificationsManager {
 		}
 	}
 
+	/**
+	 * @brief Total number of home notifications 
+	 * @param int $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @return int Number of home notifications
+	 */
 	private function homeTotal($seen = 0) {
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-				WHERE ``item`.`visible` = 1 AND
+				WHERE `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
 				$sql_seen",
 			intval(local_user())
 		);
 
 		if(dbm::is_result($r))
-			return $r['total'];
+			return $r[0]['total'];
 
 		return 0;
 	}
 
-	public function homeNotifs($seen = 0) {
+	/**
+	 * @brief Get home notifications
+	 * 
+	 * @param type $seen
+	 *	If 0 only include notifications into the query
+	 *	which arn't marked as "seen" into
+	 * @param int $start Start the query at this point
+	 * @param int $limit Maximum number of query results
+	 * 
+	 * @return array Query output
+	 */
+	public function homeNotifs($seen = 0, $start = 0, $limit = 20) {
 		$ident = 'home';
 		$total = $this->homeTotal($seen);
 
@@ -471,8 +574,10 @@ class NotificationsManager {
 				WHERE `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
 				$sql_seen
-				ORDER BY `item`.`created` DESC",
-			intval(local_user())
+				ORDER BY `item`.`created` DESC LIMIT %d, %d ",
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
 		if(dbm::is_result($r)) {

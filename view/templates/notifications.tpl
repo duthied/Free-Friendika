@@ -19,4 +19,7 @@
 	{{if $notif_nocontent}}
 		<div class="notif_nocontent">{{$notif_nocontent}}</div>
 	{{/if}}
+
+	{{* The pager *}}
+	{{$notif_paginate}}
 </div>

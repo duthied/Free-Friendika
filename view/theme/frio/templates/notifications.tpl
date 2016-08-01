@@ -22,4 +22,7 @@
 		<div class="notif_nocontent">{{$notif_nocontent}}</div>
 		{{/if}}
 	</div>
+
+	{{* The pager *}}
+	{{$notif_paginate}}
 </div>
