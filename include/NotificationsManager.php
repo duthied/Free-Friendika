@@ -246,7 +246,6 @@ class NotificationsManager {
 				switch($it['verb']){
 					case ACTIVITY_LIKE:
 						$notif = array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'like',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'$image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -258,11 +257,43 @@ class NotificationsManager {
 
 					case ACTIVITY_DISLIKE:
 						$notif = array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'dislike',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
+						break;
+
+					case ACTIVITY_ATTEND:
+						$notif = array(
+							'label' => 'attend',
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s is attending %s's event"), $it['author-name'], $it['pname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
+						break;
+
+					case ACTIVITY_ATTENDNO:
+						$notif = array(
+							'label' => 'attendno',
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
+						break;
+
+					case ACTIVITY_ATTENDMAYBE:
+						$notif = array(
+							'label' => 'attendmaybe',
+							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s may attend %s's event"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -274,7 +305,6 @@ class NotificationsManager {
 						$it['fname'] = $obj->title;
 
 						$notif = array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => 'friend',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -286,7 +316,6 @@ class NotificationsManager {
 
 					default:
 						$notif = array(
-							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
 							'label' => $default_item_label,
 							'link' => $default_item_link,
 							'image' => $default_item_image,

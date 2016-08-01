@@ -334,6 +334,9 @@ function notifications_content(&$a) {
 		// The template files we need in different cases for formatting the content
 		$tpl_item_like = 'notifications_likes_item.tpl';
 		$tpl_item_dislike = 'notifications_dislikes_item.tpl';
+		$tpl_item_attend = 'notifications_attend_item.tpl';
+		$tpl_item_attendno = 'notifications_attend_item.tpl';
+		$tpl_item_attendmaybe = 'notifications_attend_item.tpl';
 		$tpl_item_friend = 'notifications_friends_item.tpl';
 		$tpl_item_comment = 'notifications_comments_item.tpl';
 		$tpl_item_post = 'notifications_posts_item.tpl';
