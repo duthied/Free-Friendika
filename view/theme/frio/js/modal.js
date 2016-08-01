@@ -204,6 +204,19 @@ function addToModal(url) {
 		});
 }
 
+// Add a element (by it's id) to a bootstrap modal
+function addElmToModal(id) {
+	var elm = $(id).html();
+	var modal = $('#modal').modal();
+
+	modal
+		.find('#modal-body')
+		.append(elm)
+		.modal.show;
+
+	loadModalTitle();
+}
+
 // function to load the html from the edit post page into
 // the jot modal
 function editpost(url) {

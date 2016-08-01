@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1199
+-- DB_UPDATE_VERSION 1200
 -- ------------------------------------------
 
 
@@ -522,6 +522,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_title` (`uid`,`title`),
 	 INDEX `uid_thrparent` (`uid`,`thr-parent`),
 	 INDEX `uid_parenturi` (`uid`,`parent-uri`),
+	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
 	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
 	 INDEX `gcontactid_uid_created` (`gcontact-id`,`uid`,`created`),
 	 INDEX `authorid_created` (`author-id`,`created`),
@@ -532,7 +533,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_wall_created` (`uid`,`wall`,`created`),
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `uid_type` (`uid`,`type`),
-	 INDEX `uid_starred` (`uid`,`starred`),
+	 INDEX `uid_starred_id` (`uid`,`starred`,`id`),
 	 INDEX `contactid_allowcid_allowpid_denycid_denygid` (`contact-id`,`allow_cid`(10),`allow_gid`(10),`deny_cid`(10),`deny_gid`(10)),
 	 INDEX `uid_wall_parent_created` (`uid`,`wall`,`parent`,`created`),
 	 INDEX `uid_type_changed` (`uid`,`type`,`changed`),
