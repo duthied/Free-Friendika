@@ -4,12 +4,12 @@
 
 <p class="intro-desc">{{$str_notifytype}} {{$notify_type}}</p>
 <img id="photo-{{$contact_id}}" class="intro-photo" src="{{$photo}}" width="175" height=175" title="{{$fullname|escape:'html'}}" alt="{{$fullname|escape:'html'}}" />
-<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>
-{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
-{{if $gender}}<dl><dt>{{$gender_label}}</dt><dd>{{$gender}}</dd></dl>{{/if}}
-{{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
-<div class="intro-knowyou">{{$knowyou}}</div>
+<dl><dt>{{$lbl_url}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>
+{{if $location}}<dl><dt>{{$lbl_location}}</dt><dd>{{$location}}</dd></dl>{{/if}}
+{{if $gender}}<dl><dt>{{$lbl_gender}}</dt><dd>{{$gender}}</dd></dl>{{/if}}
+{{if $keywords}}<dl><dt>{{$lbl_keywords}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
+{{if $about}}<dl><dt>{{$lbl_about}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+<div class="intro-knowyou">{{$lbl_knowyou}} {{$knowyou}}</div>
 <div class="intro-note" id="intro-note-{{$contact_id}}">{{$note}}</div>
 <div class="intro-wrapper-end" id="intro-wrapper-end-{{$contact_id}}"></div>
 <form class="intro-form" action="notifications/{{$intro_id}}" method="post">

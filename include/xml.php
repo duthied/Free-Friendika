@@ -27,8 +27,11 @@ class xml {
 				foreach ($namespaces AS $nskey => $nsvalue)
 					$key .= " xmlns".($nskey == "" ? "":":").$nskey.'="'.$nsvalue.'"';
 
-				$root = new SimpleXMLElement("<".$key."/>");
-				self::from_array($value, $root, $remove_header, $namespaces, false);
+				if (is_array($value)) {
+					$root = new SimpleXMLElement("<".$key."/>");
+					self::from_array($value, $root, $remove_header, $namespaces, false);
+				} else
+					$root = new SimpleXMLElement("<".$key.">".xmlify($value)."</".$key.">");
 
 				$dom = dom_import_simplexml($root)->ownerDocument;
 				$dom->formatOutput = true;
@@ -44,6 +47,15 @@ class xml {
 		}
 
 		foreach($array as $key => $value) {
+			if (!isset($element) AND isset($xml))
+				$element = $xml;
+
+			if (is_integer($key)) {
+				if (isset($element))
+					$element[0] = $value;
+				continue;
+			}
+
 			if (substr($key, 0, 11) == "@attributes") {
 				if (!isset($element) OR !is_array($value))
 					continue;
@@ -55,7 +67,7 @@ class xml {
 					else
 						$namespace = NULL;
 
-					$element->addAttribute ($attr_key, $attr_value, $namespace);
+					$element->addAttribute($attr_key, $attr_value, $namespace);
 				}
 
 				continue;
@@ -64,6 +76,8 @@ class xml {
 			$element_parts = explode(":", $key);
 			if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
 				$namespace = $namespaces[$element_parts[0]];
+			elseif (isset($namespaces[""]))
+				$namespace = $namespaces[""];
 			else
 				$namespace = NULL;
 
