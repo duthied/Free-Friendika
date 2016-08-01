@@ -481,11 +481,11 @@ function acl_lookup(&$a, $out_type = 'json') {
 	if ($type=='' || $type=='g'){
 
 		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
-				FROM `group`,`group_member`
-				WHERE `group`.`deleted` = 0 AND `group`.`uid` = %d
-					AND `group_member`.`gid`=`group`.`id`
+				FROM `group`
+				INNER JOIN `group_member` ON `group_member`.`gid`=`group`.`id` AND `group_member`.`uid` = `group`.`uid`
+				WHERE NOT `group`.`deleted` AND `group`.`uid` = %d
 					$sql_extra
-				GROUP BY `group`.`id`
+				GROUP BY `group`.`name`
 				ORDER BY `group`.`name`
 				LIMIT %d,%d",
 			intval(local_user()),
